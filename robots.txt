@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /cdn-cgi/
+
+# Sitemap
+Sitemap: https://ivaestudios.com/sitemap.xml
+
+# Crawl-delay (optional, gentle throttle for bots)
+# Crawl-delay: 1

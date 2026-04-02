@@ -1,0 +1,405 @@
+[build]
+  publish = "/"
+
+# ═══════════════════════════════════════════
+# CLEAN URLs — Location Pages
+# ═══════════════════════════════════════════
+[[redirects]]
+  from = "/cancun-photographer"
+  to = "/cancun.html"
+  status = 200
+
+[[redirects]]
+  from = "/riviera-maya-photographer"
+  to = "/riviera-maya.html"
+  status = 200
+
+[[redirects]]
+  from = "/cabo-photographer"
+  to = "/los-cabos.html"
+  status = 200
+
+# ═══════════════════════════════════════════
+# CLEAN URLs — Service Pages
+# ═══════════════════════════════════════════
+[[redirects]]
+  from = "/destination-wedding-photographer-mexico"
+  to = "/luxury-weddings.html"
+  status = 200
+
+[[redirects]]
+  from = "/luxury-family-photos-cancun"
+  to = "/luxury-family-photos.html"
+  status = 200
+
+[[redirects]]
+  from = "/couples-photography-mexico"
+  to = "/couples-photography.html"
+  status = 200
+
+# ═══════════════════════════════════════════
+# CLEAN URLs — Blog Posts
+# ═══════════════════════════════════════════
+[[redirects]]
+  from = "/blog/destination-wedding-photographer-riviera-maya"
+  to = "/post-destination-wedding.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/honeymoon-photographer-riviera-maya"
+  to = "/post-honeymoon.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/wedding-photographer-cancun"
+  to = "/post-wedding-cancun.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/couples-photographer-cancun"
+  to = "/post-couples.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/engagement-session-cancun-riviera-maya"
+  to = "/post-engagement.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/maternity-photoshoot-cancun-riviera-maya"
+  to = "/post-maternity.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/best-photo-locations-riviera-maya"
+  to = "/post-photo-locations-riviera-maya.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/family-vacation-photos-mexico"
+  to = "/post-family-vacation-photos.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/los-cabos-photographer-guide"
+  to = "/post-los-cabos-guide.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/how-to-choose-luxury-photographer-mexico"
+  to = "/post-choose-luxury-photographer.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/surprise-proposal-photography-cancun"
+  to = "/post-surprise-proposal.html"
+  status = 200
+
+# ═══════════════════════════════════════════
+# CLEAN URLs — New Blog Posts (Batch 2)
+# ═══════════════════════════════════════════
+[[redirects]]
+  from = "/blog/what-to-wear-beach-photos-mexico"
+  to = "/post-what-to-wear-beach-photos.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/best-resorts-cancun-photography"
+  to = "/post-best-resorts-cancun-photography.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/cancun-vs-riviera-maya-photos"
+  to = "/post-cancun-vs-riviera-maya.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/destination-elopement-mexico"
+  to = "/post-destination-elopement-mexico.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/golden-hour-photography-mexico"
+  to = "/post-golden-hour-photography-mexico.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/vow-renewal-mexico-photography"
+  to = "/post-vow-renewal-mexico.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/babymoon-photography-cancun"
+  to = "/post-babymoon-photography-cancun.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/anniversary-photography-mexico"
+  to = "/post-anniversary-photography-mexico.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/all-inclusive-resort-photographer-mexico"
+  to = "/post-all-inclusive-resort-photographer.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/tulum-photography-guide"
+  to = "/post-tulum-photography-guide.html"
+  status = 200
+
+# ═══════════════════════════════════════════
+# CLEAN URLs — Other Pages
+# ═══════════════════════════════════════════
+[[redirects]]
+  from = "/blog"
+  to = "/blog.html"
+  status = 200
+
+[[redirects]]
+  from = "/about"
+  to = "/about.html"
+  status = 200
+
+# ═══════════════════════════════════════════
+# 301 REDIRECTS — Old .html URLs to clean URLs
+# ═══════════════════════════════════════════
+[[redirects]]
+  from = "/cancun.html"
+  to = "/cancun-photographer"
+  status = 301
+
+[[redirects]]
+  from = "/riviera-maya.html"
+  to = "/riviera-maya-photographer"
+  status = 301
+
+[[redirects]]
+  from = "/los-cabos.html"
+  to = "/cabo-photographer"
+  status = 301
+
+[[redirects]]
+  from = "/luxury-weddings.html"
+  to = "/destination-wedding-photographer-mexico"
+  status = 301
+
+[[redirects]]
+  from = "/luxury-family-photos.html"
+  to = "/luxury-family-photos-cancun"
+  status = 301
+
+[[redirects]]
+  from = "/couples-photography.html"
+  to = "/couples-photography-mexico"
+  status = 301
+
+[[redirects]]
+  from = "/post-destination-wedding.html"
+  to = "/blog/destination-wedding-photographer-riviera-maya"
+  status = 301
+
+[[redirects]]
+  from = "/post-honeymoon.html"
+  to = "/blog/honeymoon-photographer-riviera-maya"
+  status = 301
+
+[[redirects]]
+  from = "/post-wedding-cancun.html"
+  to = "/blog/wedding-photographer-cancun"
+  status = 301
+
+[[redirects]]
+  from = "/post-couples.html"
+  to = "/blog/couples-photographer-cancun"
+  status = 301
+
+[[redirects]]
+  from = "/post-engagement.html"
+  to = "/blog/engagement-session-cancun-riviera-maya"
+  status = 301
+
+[[redirects]]
+  from = "/post-maternity.html"
+  to = "/blog/maternity-photoshoot-cancun-riviera-maya"
+  status = 301
+
+[[redirects]]
+  from = "/post-photo-locations-riviera-maya.html"
+  to = "/blog/best-photo-locations-riviera-maya"
+  status = 301
+
+[[redirects]]
+  from = "/post-family-vacation-photos.html"
+  to = "/blog/family-vacation-photos-mexico"
+  status = 301
+
+[[redirects]]
+  from = "/post-los-cabos-guide.html"
+  to = "/blog/los-cabos-photographer-guide"
+  status = 301
+
+[[redirects]]
+  from = "/post-choose-luxury-photographer.html"
+  to = "/blog/how-to-choose-luxury-photographer-mexico"
+  status = 301
+
+[[redirects]]
+  from = "/post-surprise-proposal.html"
+  to = "/blog/surprise-proposal-photography-cancun"
+  status = 301
+
+[[redirects]]
+  from = "/blog.html"
+  to = "/blog"
+  status = 301
+
+# Fix broken internal links
+[[redirects]]
+  from = "/blog/honeymoon-photographer-cancun"
+  to = "/blog/honeymoon-photographer-riviera-maya"
+  status = 301
+
+[[redirects]]
+  from = "/blog/maternity-photographer-cancun"
+  to = "/blog/maternity-photoshoot-cancun-riviera-maya"
+  status = 301
+
+[[redirects]]
+  from = "/blog/engagement-session-mexico"
+  to = "/blog/engagement-session-cancun-riviera-maya"
+  status = 301
+
+[[redirects]]
+  from = "/blog/destination-wedding-mexico"
+  to = "/blog/destination-wedding-photographer-riviera-maya"
+  status = 301
+
+[[redirects]]
+  from = "/blog/destination-wedding-photographer-cancun"
+  to = "/blog/destination-wedding-photographer-riviera-maya"
+  status = 301
+
+[[redirects]]
+  from = "/blog/destination-wedding-photographer-mexico-guide"
+  to = "/blog/destination-wedding-photographer-riviera-maya"
+  status = 301
+
+[[redirects]]
+  from = "/blog/beach-wedding-photographer-cancun"
+  to = "/blog/wedding-photographer-cancun"
+  status = 301
+
+[[redirects]]
+  from = "/beach-wedding-photographer-cancun"
+  to = "/cancun-photographer"
+  status = 301
+
+[[redirects]]
+  from = "/cabo-wedding-photographer"
+  to = "/cabo-photographer"
+  status = 301
+
+[[redirects]]
+  from = "/riviera-maya-wedding-photographer"
+  to = "/riviera-maya-photographer"
+  status = 301
+
+# 301 REDIRECTS — New Blog Post .html URLs to clean URLs
+[[redirects]]
+  from = "/post-what-to-wear-beach-photos.html"
+  to = "/blog/what-to-wear-beach-photos-mexico"
+  status = 301
+
+[[redirects]]
+  from = "/post-best-resorts-cancun-photography.html"
+  to = "/blog/best-resorts-cancun-photography"
+  status = 301
+
+[[redirects]]
+  from = "/post-cancun-vs-riviera-maya.html"
+  to = "/blog/cancun-vs-riviera-maya-photos"
+  status = 301
+
+[[redirects]]
+  from = "/post-destination-elopement-mexico.html"
+  to = "/blog/destination-elopement-mexico"
+  status = 301
+
+[[redirects]]
+  from = "/post-golden-hour-photography-mexico.html"
+  to = "/blog/golden-hour-photography-mexico"
+  status = 301
+
+[[redirects]]
+  from = "/post-vow-renewal-mexico.html"
+  to = "/blog/vow-renewal-mexico-photography"
+  status = 301
+
+[[redirects]]
+  from = "/post-babymoon-photography-cancun.html"
+  to = "/blog/babymoon-photography-cancun"
+  status = 301
+
+[[redirects]]
+  from = "/post-anniversary-photography-mexico.html"
+  to = "/blog/anniversary-photography-mexico"
+  status = 301
+
+[[redirects]]
+  from = "/post-all-inclusive-resort-photographer.html"
+  to = "/blog/all-inclusive-resort-photographer-mexico"
+  status = 301
+
+[[redirects]]
+  from = "/post-tulum-photography-guide.html"
+  to = "/blog/tulum-photography-guide"
+  status = 301
+
+# ═══════════════════════════════════════════
+# SECURITY & PERFORMANCE HEADERS
+# ═══════════════════════════════════════════
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+
+[[headers]]
+  for = "*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

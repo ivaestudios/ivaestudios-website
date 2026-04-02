@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <url>
+    <loc>https://ivaestudios.com/</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/about</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- LOCATION PAGES -->
+  <url>
+    <loc>https://ivaestudios.com/cancun-photographer</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/cancun-photographer-og.jpg</image:loc>
+      <image:title>Cancun Photographer - IVAE Studios Luxury Resort Photography</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/riviera-maya-photographer</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/riviera-maya-photographer-og.jpg</image:loc>
+      <image:title>Riviera Maya Photographer - IVAE Studios Luxury Resort Photography</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/cabo-photographer</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/cabo-photographer-og.jpg</image:loc>
+      <image:title>Cabo Photographer - IVAE Studios Luxury Resort Photography</image:title>
+    </image:image>
+  </url>
+
+  <!-- SERVICE PAGES -->
+  <url>
+    <loc>https://ivaestudios.com/destination-wedding-photographer-mexico</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/destination-wedding-photographer-og.jpg</image:loc>
+      <image:title>Destination Wedding Photographer Mexico - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/luxury-family-photos-cancun</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/luxury-family-photos-og.jpg</image:loc>
+      <image:title>Luxury Family Photos Cancun - IVAE Studios Resort Photography</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/couples-photography-mexico</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/couples-photography-og.jpg</image:loc>
+      <image:title>Couples Photography Mexico - IVAE Studios Luxury Sessions</image:title>
+    </image:image>
+  </url>
+
+  <!-- BLOG -->
+  <url>
+    <loc>https://ivaestudios.com/blog</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/destination-wedding-photographer-riviera-maya</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/destination-wedding-riviera-maya.jpg</image:loc>
+      <image:title>Destination Wedding Photographer Riviera Maya - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/honeymoon-photographer-riviera-maya</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/honeymoon-photographer-riviera-maya.jpg</image:loc>
+      <image:title>Honeymoon Photographer Riviera Maya - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/wedding-photographer-cancun</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/wedding-photographer-cancun.jpg</image:loc>
+      <image:title>Wedding Photographer Cancún - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/couples-photographer-cancun</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/couples-photographer-cancun.jpg</image:loc>
+      <image:title>Couples Photographer Cancún - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/engagement-session-cancun-riviera-maya</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/engagement-session-cancun.jpg</image:loc>
+      <image:title>Engagement Session Cancún Riviera Maya - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/maternity-photoshoot-cancun-riviera-maya</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/maternity-photoshoot-cancun.jpg</image:loc>
+      <image:title>Maternity Photoshoot Cancún Riviera Maya - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/best-photo-locations-riviera-maya</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/best-photo-locations-riviera-maya.jpg</image:loc>
+      <image:title>Best Photo Locations Riviera Maya - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/family-vacation-photos-mexico</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/family-vacation-photos-mexico.jpg</image:loc>
+      <image:title>Family Vacation Photos Mexico - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/los-cabos-photographer-guide</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/los-cabos-photographer-guide.jpg</image:loc>
+      <image:title>Los Cabos Photographer Guide - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/how-to-choose-luxury-photographer-mexico</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/how-to-choose-luxury-photographer-mexico.jpg</image:loc>
+      <image:title>How to Choose a Luxury Photographer Mexico - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/surprise-proposal-photography-cancun</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/surprise-proposal-photography-cancun.jpg</image:loc>
+      <image:title>Surprise Proposal Photography Cancún - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/what-to-wear-beach-photos-mexico</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/best-resorts-cancun-photography</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/cancun-vs-riviera-maya-photos</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/destination-elopement-mexico</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/golden-hour-photography-mexico</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/vow-renewal-mexico-photography</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/babymoon-photography-cancun</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/anniversary-photography-mexico</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/all-inclusive-resort-photographer-mexico</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/tulum-photography-guide</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+</urlset>
