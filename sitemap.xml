@@ -283,4 +283,37 @@
     <priority>0.8</priority>
   </url>
 
+  <url>
+    <loc>https://ivaestudios.com/blog/bachelorette-photoshoot-los-cabos</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/bachelorette-photoshoot-los-cabos.jpg</image:loc>
+      <image:title>Bachelorette Photoshoot Los Cabos - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/birthday-photoshoot-cancun</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/birthday-photoshoot-cancun.jpg</image:loc>
+      <image:title>Birthday Photoshoot Cancún - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/cenote-underwater-photoshoot-tulum</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/cenote-underwater-photoshoot-tulum.jpg</image:loc>
+      <image:title>Cenote Underwater Photoshoot Tulum - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
 </urlset>

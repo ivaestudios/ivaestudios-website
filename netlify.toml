@@ -357,6 +357,40 @@
   status = 301
 
 # ═══════════════════════════════════════════
+# CLEAN URLs — New Blog Posts (Batch 3)
+# ═══════════════════════════════════════════
+[[redirects]]
+  from = "/blog/bachelorette-photoshoot-los-cabos"
+  to = "/post-bachelorette-photoshoot-los-cabos.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/birthday-photoshoot-cancun"
+  to = "/post-birthday-photoshoot-cancun.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/cenote-underwater-photoshoot-tulum"
+  to = "/post-cenote-underwater-photoshoot-tulum.html"
+  status = 200
+
+# 301 REDIRECTS — Batch 3 .html to clean URLs
+[[redirects]]
+  from = "/post-bachelorette-photoshoot-los-cabos.html"
+  to = "/blog/bachelorette-photoshoot-los-cabos"
+  status = 301
+
+[[redirects]]
+  from = "/post-birthday-photoshoot-cancun.html"
+  to = "/blog/birthday-photoshoot-cancun"
+  status = 301
+
+[[redirects]]
+  from = "/post-cenote-underwater-photoshoot-tulum.html"
+  to = "/blog/cenote-underwater-photoshoot-tulum"
+  status = 301
+
+# ═══════════════════════════════════════════
 # SECURITY & PERFORMANCE HEADERS
 # ═══════════════════════════════════════════
 [[headers]]
