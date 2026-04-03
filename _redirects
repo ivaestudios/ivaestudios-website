@@ -1,0 +1,114 @@
+# ═══════════════════════════════════════════
+# CLEAN URLs — Location Pages
+# ═══════════════════════════════════════════
+/cancun-photographer /cancun.html 200
+/riviera-maya-photographer /riviera-maya.html 200
+/cabo-photographer /los-cabos.html 200
+
+# ═══════════════════════════════════════════
+# CLEAN URLs — Service Pages
+# ═══════════════════════════════════════════
+/destination-wedding-photographer-mexico /luxury-weddings.html 200
+/luxury-family-photos-cancun /luxury-family-photos.html 200
+/couples-photography-mexico /couples-photography.html 200
+
+# ═══════════════════════════════════════════
+# CLEAN URLs — Blog Posts (Batch 1)
+# ═══════════════════════════════════════════
+/blog/destination-wedding-photographer-riviera-maya /post-destination-wedding.html 200
+/blog/honeymoon-photographer-riviera-maya /post-honeymoon.html 200
+/blog/wedding-photographer-cancun /post-wedding-cancun.html 200
+/blog/couples-photographer-cancun /post-couples.html 200
+/blog/engagement-session-cancun-riviera-maya /post-engagement.html 200
+/blog/maternity-photoshoot-cancun-riviera-maya /post-maternity.html 200
+/blog/best-photo-locations-riviera-maya /post-photo-locations-riviera-maya.html 200
+/blog/family-vacation-photos-mexico /post-family-vacation-photos.html 200
+/blog/los-cabos-photographer-guide /post-los-cabos-guide.html 200
+/blog/how-to-choose-luxury-photographer-mexico /post-choose-luxury-photographer.html 200
+/blog/surprise-proposal-photography-cancun /post-surprise-proposal.html 200
+
+# ═══════════════════════════════════════════
+# CLEAN URLs — Blog Posts (Batch 2)
+# ═══════════════════════════════════════════
+/blog/what-to-wear-beach-photos-mexico /post-what-to-wear-beach-photos.html 200
+/blog/best-resorts-cancun-photography /post-best-resorts-cancun-photography.html 200
+/blog/cancun-vs-riviera-maya-photos /post-cancun-vs-riviera-maya.html 200
+/blog/destination-elopement-mexico /post-destination-elopement-mexico.html 200
+/blog/golden-hour-photography-mexico /post-golden-hour-photography-mexico.html 200
+/blog/vow-renewal-mexico-photography /post-vow-renewal-mexico.html 200
+/blog/babymoon-photography-cancun /post-babymoon-photography-cancun.html 200
+/blog/anniversary-photography-mexico /post-anniversary-photography-mexico.html 200
+/blog/all-inclusive-resort-photographer-mexico /post-all-inclusive-resort-photographer.html 200
+/blog/tulum-photography-guide /post-tulum-photography-guide.html 200
+
+# ═══════════════════════════════════════════
+# CLEAN URLs — Blog Posts (Batch 3)
+# ═══════════════════════════════════════════
+/blog/bachelorette-photoshoot-los-cabos /post-bachelorette-photoshoot-los-cabos.html 200
+/blog/birthday-photoshoot-cancun /post-birthday-photoshoot-cancun.html 200
+/blog/cenote-underwater-photoshoot-tulum /post-cenote-underwater-photoshoot-tulum.html 200
+
+# ═══════════════════════════════════════════
+# CLEAN URLs — Blog Posts (Batch 4)
+# ═══════════════════════════════════════════
+/blog/quinceanera-photoshoot-cancun /post-quinceanera-photoshoot-cancun.html 200
+/blog/luxury-yacht-photography-cancun /post-luxury-yacht-photography-cancun.html 200
+/blog/trash-the-dress-cancun /post-trash-the-dress-cancun.html 200
+
+# ═══════════════════════════════════════════
+# CLEAN URLs — Other Pages
+# ═══════════════════════════════════════════
+/blog /blog.html 200
+/about /about.html 200
+
+# ═══════════════════════════════════════════
+# 301 REDIRECTS — Old .html URLs to clean URLs
+# ═══════════════════════════════════════════
+/cancun.html /cancun-photographer 301
+/riviera-maya.html /riviera-maya-photographer 301
+/los-cabos.html /cabo-photographer 301
+/luxury-weddings.html /destination-wedding-photographer-mexico 301
+/luxury-family-photos.html /luxury-family-photos-cancun 301
+/couples-photography.html /couples-photography-mexico 301
+/post-destination-wedding.html /blog/destination-wedding-photographer-riviera-maya 301
+/post-honeymoon.html /blog/honeymoon-photographer-riviera-maya 301
+/post-wedding-cancun.html /blog/wedding-photographer-cancun 301
+/post-couples.html /blog/couples-photographer-cancun 301
+/post-engagement.html /blog/engagement-session-cancun-riviera-maya 301
+/post-maternity.html /blog/maternity-photoshoot-cancun-riviera-maya 301
+/post-photo-locations-riviera-maya.html /blog/best-photo-locations-riviera-maya 301
+/post-family-vacation-photos.html /blog/family-vacation-photos-mexico 301
+/post-los-cabos-guide.html /blog/los-cabos-photographer-guide 301
+/post-choose-luxury-photographer.html /blog/how-to-choose-luxury-photographer-mexico 301
+/post-surprise-proposal.html /blog/surprise-proposal-photography-cancun 301
+/blog.html /blog 301
+/post-what-to-wear-beach-photos.html /blog/what-to-wear-beach-photos-mexico 301
+/post-best-resorts-cancun-photography.html /blog/best-resorts-cancun-photography 301
+/post-cancun-vs-riviera-maya.html /blog/cancun-vs-riviera-maya-photos 301
+/post-destination-elopement-mexico.html /blog/destination-elopement-mexico 301
+/post-golden-hour-photography-mexico.html /blog/golden-hour-photography-mexico 301
+/post-vow-renewal-mexico.html /blog/vow-renewal-mexico-photography 301
+/post-babymoon-photography-cancun.html /blog/babymoon-photography-cancun 301
+/post-anniversary-photography-mexico.html /blog/anniversary-photography-mexico 301
+/post-all-inclusive-resort-photographer.html /blog/all-inclusive-resort-photographer-mexico 301
+/post-tulum-photography-guide.html /blog/tulum-photography-guide 301
+/post-bachelorette-photoshoot-los-cabos.html /blog/bachelorette-photoshoot-los-cabos 301
+/post-birthday-photoshoot-cancun.html /blog/birthday-photoshoot-cancun 301
+/post-cenote-underwater-photoshoot-tulum.html /blog/cenote-underwater-photoshoot-tulum 301
+/post-quinceanera-photoshoot-cancun.html /blog/quinceanera-photoshoot-cancun 301
+/post-luxury-yacht-photography-cancun.html /blog/luxury-yacht-photography-cancun 301
+/post-trash-the-dress-cancun.html /blog/trash-the-dress-cancun 301
+
+# ═══════════════════════════════════════════
+# Fix broken internal links
+# ═══════════════════════════════════════════
+/blog/honeymoon-photographer-cancun /blog/honeymoon-photographer-riviera-maya 301
+/blog/maternity-photographer-cancun /blog/maternity-photoshoot-cancun-riviera-maya 301
+/blog/engagement-session-mexico /blog/engagement-session-cancun-riviera-maya 301
+/blog/destination-wedding-mexico /blog/destination-wedding-photographer-riviera-maya 301
+/blog/destination-wedding-photographer-cancun /blog/destination-wedding-photographer-riviera-maya 301
+/blog/destination-wedding-photographer-mexico-guide /blog/destination-wedding-photographer-riviera-maya 301
+/blog/beach-wedding-photographer-cancun /blog/wedding-photographer-cancun 301
+/beach-wedding-photographer-cancun /cancun-photographer 301
+/cabo-wedding-photographer /cabo-photographer 301
+/riviera-maya-wedding-photographer /riviera-maya-photographer 301
