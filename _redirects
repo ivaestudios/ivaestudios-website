@@ -1,65 +1,63 @@
 # ═══════════════════════════════════════════
 # CLEAN URLs — Location Pages
+# Cloudflare Pages auto-strips .html, so rewrite to path without extension
 # ═══════════════════════════════════════════
-/cancun-photographer /cancun.html 200
-/riviera-maya-photographer /riviera-maya.html 200
-/cabo-photographer /los-cabos.html 200
+/cancun-photographer /cancun 200
+/riviera-maya-photographer /riviera-maya 200
+/cabo-photographer /los-cabos 200
 
 # ═══════════════════════════════════════════
 # CLEAN URLs — Service Pages
 # ═══════════════════════════════════════════
-/destination-wedding-photographer-mexico /luxury-weddings.html 200
-/luxury-family-photos-cancun /luxury-family-photos.html 200
-/couples-photography-mexico /couples-photography.html 200
+/destination-wedding-photographer-mexico /luxury-weddings 200
+/luxury-family-photos-cancun /luxury-family-photos 200
+/couples-photography-mexico /couples-photography 200
 
 # ═══════════════════════════════════════════
 # CLEAN URLs — Blog Posts (Batch 1)
 # ═══════════════════════════════════════════
-/blog/destination-wedding-photographer-riviera-maya /post-destination-wedding.html 200
-/blog/honeymoon-photographer-riviera-maya /post-honeymoon.html 200
-/blog/wedding-photographer-cancun /post-wedding-cancun.html 200
-/blog/couples-photographer-cancun /post-couples.html 200
-/blog/engagement-session-cancun-riviera-maya /post-engagement.html 200
-/blog/maternity-photoshoot-cancun-riviera-maya /post-maternity.html 200
-/blog/best-photo-locations-riviera-maya /post-photo-locations-riviera-maya.html 200
-/blog/family-vacation-photos-mexico /post-family-vacation-photos.html 200
-/blog/los-cabos-photographer-guide /post-los-cabos-guide.html 200
-/blog/how-to-choose-luxury-photographer-mexico /post-choose-luxury-photographer.html 200
-/blog/surprise-proposal-photography-cancun /post-surprise-proposal.html 200
+/blog/destination-wedding-photographer-riviera-maya /post-destination-wedding 200
+/blog/honeymoon-photographer-riviera-maya /post-honeymoon 200
+/blog/wedding-photographer-cancun /post-wedding-cancun 200
+/blog/couples-photographer-cancun /post-couples 200
+/blog/engagement-session-cancun-riviera-maya /post-engagement 200
+/blog/maternity-photoshoot-cancun-riviera-maya /post-maternity 200
+/blog/best-photo-locations-riviera-maya /post-photo-locations-riviera-maya 200
+/blog/family-vacation-photos-mexico /post-family-vacation-photos 200
+/blog/los-cabos-photographer-guide /post-los-cabos-guide 200
+/blog/how-to-choose-luxury-photographer-mexico /post-choose-luxury-photographer 200
+/blog/surprise-proposal-photography-cancun /post-surprise-proposal 200
 
 # ═══════════════════════════════════════════
 # CLEAN URLs — Blog Posts (Batch 2)
 # ═══════════════════════════════════════════
-/blog/what-to-wear-beach-photos-mexico /post-what-to-wear-beach-photos.html 200
-/blog/best-resorts-cancun-photography /post-best-resorts-cancun-photography.html 200
-/blog/cancun-vs-riviera-maya-photos /post-cancun-vs-riviera-maya.html 200
-/blog/destination-elopement-mexico /post-destination-elopement-mexico.html 200
-/blog/golden-hour-photography-mexico /post-golden-hour-photography-mexico.html 200
-/blog/vow-renewal-mexico-photography /post-vow-renewal-mexico.html 200
-/blog/babymoon-photography-cancun /post-babymoon-photography-cancun.html 200
-/blog/anniversary-photography-mexico /post-anniversary-photography-mexico.html 200
-/blog/all-inclusive-resort-photographer-mexico /post-all-inclusive-resort-photographer.html 200
-/blog/tulum-photography-guide /post-tulum-photography-guide.html 200
+/blog/what-to-wear-beach-photos-mexico /post-what-to-wear-beach-photos 200
+/blog/best-resorts-cancun-photography /post-best-resorts-cancun-photography 200
+/blog/cancun-vs-riviera-maya-photos /post-cancun-vs-riviera-maya 200
+/blog/destination-elopement-mexico /post-destination-elopement-mexico 200
+/blog/golden-hour-photography-mexico /post-golden-hour-photography-mexico 200
+/blog/vow-renewal-mexico-photography /post-vow-renewal-mexico 200
+/blog/babymoon-photography-cancun /post-babymoon-photography-cancun 200
+/blog/anniversary-photography-mexico /post-anniversary-photography-mexico 200
+/blog/all-inclusive-resort-photographer-mexico /post-all-inclusive-resort-photographer 200
+/blog/tulum-photography-guide /post-tulum-photography-guide 200
 
 # ═══════════════════════════════════════════
 # CLEAN URLs — Blog Posts (Batch 3)
 # ═══════════════════════════════════════════
-/blog/bachelorette-photoshoot-los-cabos /post-bachelorette-photoshoot-los-cabos.html 200
-/blog/birthday-photoshoot-cancun /post-birthday-photoshoot-cancun.html 200
-/blog/cenote-underwater-photoshoot-tulum /post-cenote-underwater-photoshoot-tulum.html 200
+/blog/bachelorette-photoshoot-los-cabos /post-bachelorette-photoshoot-los-cabos 200
+/blog/birthday-photoshoot-cancun /post-birthday-photoshoot-cancun 200
+/blog/cenote-underwater-photoshoot-tulum /post-cenote-underwater-photoshoot-tulum 200
 
 # ═══════════════════════════════════════════
 # CLEAN URLs — Blog Posts (Batch 4)
 # ═══════════════════════════════════════════
-/blog/quinceanera-photoshoot-cancun /post-quinceanera-photoshoot-cancun.html 200
-/blog/luxury-yacht-photography-cancun /post-luxury-yacht-photography-cancun.html 200
-/blog/trash-the-dress-cancun /post-trash-the-dress-cancun.html 200
+/blog/quinceanera-photoshoot-cancun /post-quinceanera-photoshoot-cancun 200
+/blog/luxury-yacht-photography-cancun /post-luxury-yacht-photography-cancun 200
+/blog/trash-the-dress-cancun /post-trash-the-dress-cancun 200
 
-# ═══════════════════════════════════════════
-# CLEAN URLs — Other Pages
-# ═══════════════════════════════════════════
-/blog /blog.html 200
-/about /about.html 200
+# /blog and /about are handled automatically by Cloudflare Pages
+# (it serves blog.html and about.html without needing rules)
 
 # ═══════════════════════════════════════════
 # 301 REDIRECTS — Old .html URLs to clean URLs
