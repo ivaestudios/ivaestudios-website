@@ -316,4 +316,37 @@
     </image:image>
   </url>
 
+  <url>
+    <loc>https://ivaestudios.com/blog/quinceanera-photoshoot-cancun</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/quinceanera-photoshoot-cancun.jpg</image:loc>
+      <image:title>Quinceañera Photoshoot Cancún - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/luxury-yacht-photography-cancun</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/luxury-yacht-photography-cancun.jpg</image:loc>
+      <image:title>Luxury Yacht Photography Cancún - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/trash-the-dress-cancun</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/trash-the-dress-cancun.jpg</image:loc>
+      <image:title>Trash the Dress Cancún - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
 </urlset>
