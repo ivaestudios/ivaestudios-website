@@ -16,6 +16,14 @@
     <priority>0.8</priority>
   </url>
 
+  <!-- STANDALONE PAGES -->
+  <url>
+    <loc>https://ivaestudios.com/social-media-management</loc>
+    <lastmod>2026-04-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
   <!-- LOCATION PAGES -->
   <url>
     <loc>https://ivaestudios.com/cancun-photographer</loc>
