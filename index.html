@@ -431,24 +431,36 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .btn-ol svg{width:13px;height:13px}
 
 /* ── SERVICES ── */
-.services { background: var(--cream); padding: 100px 0; }
+.services { background: var(--cream); padding: 120px 0; }
 .services-head {
   padding: 0 64px;
-  margin-bottom: 72px;
+  margin-bottom: 80px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 40px;
 }
+.services-head-left { max-width: 620px; }
 .services h2 {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(32px,4.5vw,52px); font-weight: 300;
-  line-height: 1.15; color: var(--ink);
-  margin-top: 20px; max-width: 580px; hyphens: none;
+  font-size: clamp(36px,5vw,58px); font-weight: 300;
+  line-height: 1.1; color: var(--ink);
+  margin-top: 20px; hyphens: none;
 }
 .services h2 em { font-style: italic; color: var(--gold2); }
+.services-head-right {
+  max-width: 340px;
+  font-size: 14px; line-height: 1.85;
+  color: var(--muted-l); font-weight: 400;
+  padding-bottom: 8px;
+}
 
 .svc-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  min-height: 520px;
+  min-height: 560px;
   border-top: 1px solid var(--border-l);
+  position: relative;
 }
 .svc-row:last-child { border-bottom: 1px solid var(--border-l); }
 .svc-row.reverse .svc-img-col { order: 2; }
@@ -458,38 +470,43 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   position: relative; overflow: hidden;
   background-size: cover !important;
   background-position: center !important;
-  min-height: 480px;
+  min-height: 520px;
 }
-.svc-row:hover .svc-img-col { background-size: 105% !important; }
 .svc-img-col img {
   width: 100%; height: 100%;
   object-fit: cover; object-position: center;
   display: block;
-  transition: transform 0.7s cubic-bezier(.4,0,.2,1);
-  filter: saturate(0.9);
+  transition: transform 0.8s cubic-bezier(.25,0,.15,1), filter 0.6s;
+  filter: saturate(0.85) brightness(0.95);
 }
-.svc-row:hover .svc-img-col img { transform: scale(1.04); }
+.svc-row:hover .svc-img-col img { transform: scale(1.05); filter: saturate(1) brightness(1); }
 .svc-img-overlay {
   position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(26,36,51,0.15) 0%, transparent 60%);
+  background: linear-gradient(135deg, rgba(26,36,51,0.12) 0%, transparent 50%);
+  transition: opacity 0.5s;
 }
+.svc-row:hover .svc-img-overlay { opacity: 0; }
 
 .svc-text-col {
   padding: 72px 64px;
   display: flex; flex-direction: column; justify-content: center;
   background: var(--cream);
+  position: relative;
 }
 .svc-row:nth-child(even) .svc-text-col { background: var(--sand); }
 
 .svc-n {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 80px; font-weight: 300;
-  color: rgba(196,163,90,0.12); line-height: 1;
-  display: block; margin-bottom: 8px;
+  font-size: 90px; font-weight: 300;
+  color: rgba(196,163,90,0.08); line-height: 1;
+  display: block; margin-bottom: 4px;
+  transition: color 0.5s;
 }
+.svc-row:hover .svc-n { color: rgba(196,163,90,0.18); }
+
 .svc-text-col h3 {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(28px, 3vw, 40px); font-weight: 300;
+  font-size: clamp(28px, 3vw, 42px); font-weight: 300;
   color: var(--ink); margin-bottom: 20px; line-height: 1.2;
 }
 .svc-text-col h3 em { font-style: italic; color: var(--gold2); }
@@ -506,18 +523,30 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 }
 .svc-tag::before { content: ''; width: 24px; height: 1px; background: var(--gold2); opacity: 0.6; }
 
+.svc-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 20px; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--gold2); text-decoration: none;
+  transition: gap 0.3s;
+}
+.svc-link:hover { gap: 14px; }
+.svc-link svg { width: 16px; height: 16px; transition: transform 0.3s; }
+.svc-link:hover svg { transform: translateX(2px); }
+
 /* Services responsive */
 @media (max-width: 1199px) {
-  .services-head { padding: 0 48px; }
+  .services-head { padding: 0 48px; flex-direction: column; align-items: flex-start; }
   .svc-text-col { padding: 52px 48px; }
 }
 @media (max-width: 767px) {
-  .services { padding: 64px 0; }
-  .services-head { padding: 0 24px; margin-bottom: 48px; }
+  .services { padding: 72px 0; }
+  .services-head { padding: 0 24px; margin-bottom: 48px; flex-direction: column; }
+  .services-head-right { max-width: 100%; }
   .svc-row { grid-template-columns: 1fr; min-height: auto; }
   .svc-row.reverse .svc-img-col { order: 0; }
   .svc-row.reverse .svc-text-col { order: 1; }
-  .svc-img-col { height: 300px; }
+  .svc-img-col { height: 320px; min-height: 320px; }
   .svc-text-col { padding: 44px 24px; }
   .svc-n { font-size: 60px; }
 }
@@ -1269,8 +1298,11 @@ body { padding-top: 72px; }
 <!-- 4. SERVICES -->
 <section class="services" id="services">
   <div class="services-head rv">
-    <span class="eyebrow">What we offer</span>
-    <h2>Every session is <em>fully directed</em> from start to finish.</h2>
+    <div class="services-head-left">
+      <span class="eyebrow">What we offer</span>
+      <h2>Every session is <em>fully directed</em> from start to finish.</h2>
+    </div>
+    <p class="services-head-right">We handle every detail — timing, locations, posing and direction — so you can relax and enjoy the experience while we create something extraordinary.</p>
   </div>
 
   <!-- ROW 1: Family -->
@@ -1283,7 +1315,7 @@ body { padding-top: 72px; }
       <h3>Family Resort <em>Sessions</em></h3>
       <p>Designed for families traveling to Mexico's finest resorts. We plan timing, location and direction so your session feels effortless and your images look like they belong in a luxury travel editorial.</p>
       <span class="svc-tag">Cancún · Riviera Maya · Los Cabos</span>
-      <a href="/luxury-family-photos-cancun" style="display:inline-block;margin-top:16px;font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#c4a35a;text-decoration:none;border-bottom:1px solid rgba(196,163,90,0.3);padding-bottom:2px;">Explore family sessions →</a>
+      <a class="svc-link" href="/luxury-family-photos-cancun">Explore family sessions <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a>
     </div>
   </div>
 
@@ -1297,7 +1329,7 @@ body { padding-top: 72px; }
       <h3>Couples & <em>Anniversary</em> Sessions</h3>
       <p>For couples celebrating anniversaries, honeymoons, or simply a trip worth remembering. We capture real moments, not performances, and deliver images with genuine editorial quality.</p>
       <span class="svc-tag">Golden hour · Intimate · Editorial</span>
-      <a href="/couples-photography-mexico" style="display:inline-block;margin-top:16px;font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#c4a35a;text-decoration:none;border-bottom:1px solid rgba(196,163,90,0.3);padding-bottom:2px;">Explore couples sessions →</a>
+      <a class="svc-link" href="/couples-photography-mexico">Explore couples sessions <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a>
     </div>
   </div>
 
@@ -1311,7 +1343,7 @@ body { padding-top: 72px; }
       <h3>Destination Weddings <em>& Films</em></h3>
       <p>Full photography and videography coverage for destination weddings across Mexico's finest resort venues. Our team handles every detail so you experience your day, not manage it.</p>
       <span class="svc-tag">Photography · Film · Full coverage</span>
-      <a href="/destination-wedding-photographer-mexico" style="display:inline-block;margin-top:16px;font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#c4a35a;text-decoration:none;border-bottom:1px solid rgba(196,163,90,0.3);padding-bottom:2px;">Explore wedding photography →</a>
+      <a class="svc-link" href="/destination-wedding-photographer-mexico">Explore wedding photography <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a>
     </div>
   </div>
 </section>
