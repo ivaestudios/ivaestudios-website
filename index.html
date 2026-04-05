@@ -306,6 +306,38 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .rv{opacity:0;transform:translateY(26px);transition:opacity 0.85s cubic-bezier(.4,0,.2,1),transform 0.85s cubic-bezier(.4,0,.2,1)}
 .rv.in{opacity:1;transform:translateY(0)}
 .d1{transition-delay:.12s}.d2{transition-delay:.24s}.d3{transition-delay:.36s}.d4{transition-delay:.48s}
+.d5{transition-delay:.60s}.d6{transition-delay:.72s}.d7{transition-delay:.84s}
+
+/* ── SCROLL-DRIVEN ANIMATIONS ── */
+@supports (animation-timeline: view()) {
+  .rv-up {
+    animation: rvScrollUp linear both;
+    animation-timeline: view(block);
+    animation-range: entry 0% entry 100%;
+  }
+  .rv-scale {
+    animation: rvScrollScale linear both;
+    animation-timeline: view(block);
+    animation-range: entry 0% entry 80%;
+  }
+  .rv-parallax {
+    animation: rvScrollParallax linear both;
+    animation-timeline: view(block);
+    animation-range: cover 0% cover 100%;
+  }
+}
+@keyframes rvScrollUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes rvScrollScale {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes rvScrollParallax {
+  from { transform: translateY(-6%); }
+  to   { transform: translateY(6%); }
+}
 
 /* ── HERO ── */
 .hero{min-height:100svh;position:relative;display:grid;grid-template-rows:auto 1fr auto;background:var(--ink);overflow:hidden}
@@ -341,12 +373,17 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .hero-cta{display:inline-flex;align-items:center;gap:14px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);border:1px solid var(--border);padding:16px 28px;text-decoration:none;transition:background 0.3s,border-color 0.3s}
 .hero-cta:hover{background:rgba(196,163,90,0.08);border-color:rgba(196,163,90,0.5)}
 .hero-cta svg{width:13px;height:13px}
+@supports (animation-timeline:scroll()){
+  .hero-bg{animation:heroParallax linear both;animation-timeline:scroll(root block);animation-range:0vh 100vh}
+}
+@keyframes heroParallax{from{transform:translateY(0) scale(1.08)}to{transform:translateY(12%) scale(1.08)}}
 
 /* ── INTRO ── */
 .intro{background:var(--cream);padding:100px 64px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
 .intro h2{font-family:'Cormorant Garamond',serif;font-size:clamp(34px,4.5vw,56px);font-weight:300;line-height:1.15;color:var(--ink);margin-top:22px;hyphens:none}
 .intro h2 em{font-style:italic;color:var(--gold2)}
-.gold-bar{width:44px;height:2px;background:var(--gold);margin-top:36px}
+.gold-bar{width:44px;height:2px;background:var(--gold);margin-top:36px;transform:scaleX(0);transform-origin:left;transition:transform 0.7s cubic-bezier(.25,0,.15,1) 0.35s}
+.in .gold-bar{transform:scaleX(1)}
 .intro-right p{font-size:14.5px;line-height:1.95;color:var(--muted-l);font-weight:400;margin-bottom:20px}
 
 /* ── PORTFOLIO ── */
@@ -1151,9 +1188,35 @@ body { padding-top: 72px; }
   .site-header { padding: 0 48px; }
   .header-nav { gap: 28px; }
 }
+/* ── SCROLL PROGRESS ── */
+.scroll-progress{position:fixed;top:0;left:0;right:0;height:2px;background:var(--gold);transform-origin:left;transform:scaleX(0);z-index:1001;pointer-events:none;will-change:transform}
+@supports (animation-timeline:scroll()){
+  .scroll-progress{animation:scrollFill linear both;animation-timeline:scroll(root block)}
+}
+@keyframes scrollFill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* ── SECTION TRANSITIONS ── */
+.intro{position:relative}
+.intro::before{content:'';position:absolute;top:0;left:0;right:0;height:80px;background:linear-gradient(to bottom,var(--ink),transparent);pointer-events:none;z-index:1}
+.testimonials{position:relative}
+.testimonials::before{content:'';position:absolute;top:0;left:0;right:0;height:80px;background:linear-gradient(to bottom,var(--ink),transparent);pointer-events:none;z-index:1;opacity:0.4}
+
+/* ── REDUCED MOTION ── */
+@media(prefers-reduced-motion:reduce){
+  .rv{transition:none !important;opacity:1 !important;transform:none !important}
+  .rv-up,.rv-scale,.rv-parallax{animation:none !important}
+  .hero-bg{animation:none !important}
+  .scroll-progress{display:none}
+  .svc-visual img{animation:none !important;clip-path:none !important}
+  .svc-reveal{animation:none !important;opacity:1 !important;transform:none !important}
+  .gold-bar{transform:scaleX(1) !important;transition:none !important}
+  .carousel-track{transition:none !important}
+  *,*::before,*::after{animation-duration:0.01ms !important;transition-duration:0.01ms !important}
+}
 </style>
 </head>
 <body>
+<div class="scroll-progress" id="scrollProgress"></div>
 <!-- SITE HEADER -->
 <header class="site-header" id="siteHeader">
   <a class="header-logo" href="/">IVAE <span>Studios</span></a>
@@ -1203,8 +1266,8 @@ body { padding-top: 72px; }
   </div>
   <div class="hero-bottom rv d3">
     <div class="hero-stats">
-      <div class="hero-stat"><div class="n">500+</div><div class="l">Sessions delivered</div></div>
-      <div class="hero-stat"><div class="n">3</div><div class="l">Destinations</div></div>
+      <div class="hero-stat"><div class="n" data-count="500" data-suffix="+">0</div><div class="l">Sessions delivered</div></div>
+      <div class="hero-stat"><div class="n" data-count="3">0</div><div class="l">Destinations</div></div>
       <div class="hero-stat"><div class="n">USA · CA</div><div class="l">Primary clientele</div></div>
     </div>
     <a class="hero-cta" href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">
@@ -1235,17 +1298,17 @@ body { padding-top: 72px; }
   <div class="trust-top rv">
     <span class="eyebrow">Resorts we work with</span>
   </div>
-  <div class="trust-logos rv d1">
+  <div class="trust-logos">
 
     <!-- Marriott -->
-    <div class="trust-logo">
+    <div class="trust-logo rv">
       <svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <text x="0" y="22" font-family="Georgia,serif" font-size="18" font-weight="400" fill="currentColor" letter-spacing="2">MARRIOTT</text>
       </svg>
     </div>
 
     <!-- SLS -->
-    <div class="trust-logo">
+    <div class="trust-logo rv d1">
       <svg viewBox="0 0 100 40" fill="none" xmlns="http://www.w3.org/2000/svg">
         <text x="2" y="18" font-family="Georgia,serif" font-size="13" font-weight="400" fill="currentColor" letter-spacing="3">SLS</text>
         <text x="2" y="32" font-family="Arial,sans-serif" font-size="7" font-weight="400" fill="currentColor" letter-spacing="2">PLAYA MUJERES</text>
@@ -1253,7 +1316,7 @@ body { padding-top: 72px; }
     </div>
 
     <!-- Secrets -->
-    <div class="trust-logo">
+    <div class="trust-logo rv d2">
       <svg viewBox="0 0 110 40" fill="none" xmlns="http://www.w3.org/2000/svg">
         <text x="2" y="18" font-family="Georgia,serif" font-size="13" font-style="italic" font-weight="400" fill="currentColor" letter-spacing="1">Secrets</text>
         <text x="2" y="32" font-family="Arial,sans-serif" font-size="7" font-weight="400" fill="currentColor" letter-spacing="2">RESORTS & SPAS</text>
@@ -1261,14 +1324,14 @@ body { padding-top: 72px; }
     </div>
 
     <!-- Sandos -->
-    <div class="trust-logo">
+    <div class="trust-logo rv d3">
       <svg viewBox="0 0 100 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <text x="2" y="22" font-family="Georgia,serif" font-size="16" font-style="italic" font-weight="400" fill="currentColor" letter-spacing="1">Sandos</text>
       </svg>
     </div>
 
     <!-- Kempinski -->
-    <div class="trust-logo">
+    <div class="trust-logo rv d4">
       <svg viewBox="0 0 130 40" fill="none" xmlns="http://www.w3.org/2000/svg">
         <text x="2" y="18" font-family="Georgia,serif" font-size="14" font-weight="400" fill="currentColor" letter-spacing="2">KEMPINSKI</text>
         <text x="2" y="32" font-family="Arial,sans-serif" font-size="7" font-weight="300" fill="currentColor" letter-spacing="2">HOTELS &amp; RESORTS</text>
@@ -1276,7 +1339,7 @@ body { padding-top: 72px; }
     </div>
 
     <!-- Hyatt Ziva -->
-    <div class="trust-logo">
+    <div class="trust-logo rv d5">
       <svg viewBox="0 0 100 40" fill="none" xmlns="http://www.w3.org/2000/svg">
         <text x="2" y="18" font-family="Georgia,serif" font-size="13" font-weight="400" fill="currentColor" letter-spacing="2">HYATT</text>
         <text x="2" y="32" font-family="Arial,sans-serif" font-size="8" font-weight="400" fill="currentColor" letter-spacing="3">ZIVA</text>
@@ -1284,7 +1347,7 @@ body { padding-top: 72px; }
     </div>
 
     <!-- Hyatt Zilara -->
-    <div class="trust-logo">
+    <div class="trust-logo rv d6">
       <svg viewBox="0 0 110 40" fill="none" xmlns="http://www.w3.org/2000/svg">
         <text x="2" y="18" font-family="Georgia,serif" font-size="13" font-weight="400" fill="currentColor" letter-spacing="2">HYATT</text>
         <text x="2" y="32" font-family="Arial,sans-serif" font-size="8" font-weight="400" fill="currentColor" letter-spacing="3">ZILARA</text>
@@ -1292,7 +1355,7 @@ body { padding-top: 72px; }
     </div>
 
     <!-- Hilton -->
-    <div class="trust-logo">
+    <div class="trust-logo rv d7">
       <svg viewBox="0 0 130 40" fill="none" xmlns="http://www.w3.org/2000/svg">
         <text x="2" y="18" font-family="Georgia,serif" font-size="14" font-weight="400" fill="currentColor" letter-spacing="2">HILTON</text>
         <text x="2" y="32" font-family="Arial,sans-serif" font-size="7" font-weight="300" fill="currentColor" letter-spacing="1">MAR CARIBE</text>
@@ -1348,20 +1411,20 @@ body { padding-top: 72px; }
     </div>
     <p>A selection of sessions across Cancún, Riviera Maya and Los Cabos — every image directed, timed and delivered to editorial standard.</p>
   </div>
-  <div class="gallery rv d1">
+  <div class="gallery">
   <div class="gallery-row">
-    <div class="gi g1">
+    <div class="gi g1 rv">
       <!-- ★ SWAP: <img style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;" src="FOTO1.jpg" alt="Family session Cancún resort IVAE Studios"/> -->
       <img loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;" src="images/family-session-canc-n-resort-ivae-studios.jpg" alt="Family session Cancún pier — IVAE Studios"/>
       <div class="gov"></div><div class="gcap">Cancún · Couples</div>
     </div>
-    <div class="gi g2">
+    <div class="gi g2 rv d1">
       <img loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;" src="images/family-session-canc-n-pier-ivae-studios.jpg" alt="Couple session Cancún beach — IVAE Studios"/>
       <div class="gov"></div><div class="gcap">Riviera Maya · Resort</div>
     </div>
   </div>
   <div class="gallery-row gallery-row-2">
-    <div class="gi g3">
+    <div class="gi g3 rv d2">
       <img loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;" src="images/couple-session-canc-n-beach-ivae-studios.jpg" alt="Los Cabos sunset session — IVAE Studios"/>
       <div class="gov"></div><div class="gcap">Los Cabos · Golden Hour</div>
     </div>
@@ -1451,8 +1514,8 @@ body { padding-top: 72px; }
     </div>
     <p>We know every resort, every beach access, every light window. Whether you're in Cancún's hotel zone, the jungle of Riviera Maya, or the cliffs of Los Cabos, our team has already scouted it.</p>
   </div>
-  <div class="dest-grid rv d1">
-    <div class="dc">
+  <div class="dest-grid">
+    <div class="dc rv">
       <!-- ★ SWAP: <img loading="lazy" src="CANCUN.jpg" alt="Cancún resort photography IVAE Studios"/> -->
       <img src="images/canc-n-resort-photography-ivae-studios.jpg" alt="Cancún luxury resort photography — IVAE Studios" style="width:100%;height:500px;object-fit:cover;display:block;transition:transform 0.7s cubic-bezier(.4,0,.2,1),filter 0.4s;filter:saturate(0.7) brightness(0.82);" referrerpolicy="no-referrer"/>
       <div class="dov"></div>
@@ -1464,7 +1527,7 @@ body { padding-top: 72px; }
         <a href="/cancun-photographer" style="display:inline-block;margin-top:12px;font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#c4a35a;text-decoration:none;">View Cancún →</a>
       </div>
     </div>
-    <div class="dc">
+    <div class="dc rv d1">
       <img loading="lazy" src="images/image-11.jpg" alt="Riviera Maya resort photographer — IVAE Studios" style="width:100%;height:500px;object-fit:cover;display:block;transition:transform 0.7s cubic-bezier(.4,0,.2,1),filter 0.4s;filter:saturate(0.7) brightness(0.82);" referrerpolicy="no-referrer"/>
       <div class="dov"></div>
       <span class="dc-badge">Available year-round</span>
@@ -1475,7 +1538,7 @@ body { padding-top: 72px; }
         <a href="/riviera-maya-photographer" style="display:inline-block;margin-top:12px;font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#c4a35a;text-decoration:none;">View Riviera Maya →</a>
       </div>
     </div>
-    <div class="dc">
+    <div class="dc rv d2">
       <img loading="lazy" src="images/couple-session-canc-n-beach-ivae-studios.jpg" alt="Los Cabos resort photographer — IVAE Studios" style="width:100%;height:500px;object-fit:cover;display:block;transition:transform 0.7s cubic-bezier(.4,0,.2,1),filter 0.4s;filter:saturate(0.7) brightness(0.82);" referrerpolicy="no-referrer"/>
       <div class="dov"></div>
       <span class="dc-badge">Available year-round</span>
@@ -1650,28 +1713,28 @@ body { padding-top: 72px; }
     </a>
   </div>
 
-  <div class="ig-grid rv d1">
-    <div class="ig-item">
+  <div class="ig-grid">
+    <div class="ig-item rv">
       <img loading="lazy" src="images/image-11.jpg" alt="IVAE Studios resort session" referrerpolicy="no-referrer"/>
       <div class="ig-overlay"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M13.5 12a2.25 2.25 0 112.25 2.25A2.25 2.25 0 0113.5 12zM3.75 7.5h16.5"/></svg></div>
     </div>
-    <div class="ig-item">
+    <div class="ig-item rv">
       <img loading="lazy" src="images/ivae-studios-resort-session.jpg" alt="Couple session Riviera Maya — IVAE Studios" referrerpolicy="no-referrer"/>
       <div class="ig-overlay"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M13.5 12a2.25 2.25 0 112.25 2.25A2.25 2.25 0 0113.5 12zM3.75 7.5h16.5"/></svg></div>
     </div>
-    <div class="ig-item">
+    <div class="ig-item rv">
       <img loading="lazy" src="images/couple-session-riviera-maya-ivae-studios.jpg" alt="Family session Cancún beach kids — IVAE Studios" referrerpolicy="no-referrer"/>
       <div class="ig-overlay"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M13.5 12a2.25 2.25 0 112.25 2.25A2.25 2.25 0 0113.5 12zM3.75 7.5h16.5"/></svg></div>
     </div>
-    <div class="ig-item">
+    <div class="ig-item rv">
       <img loading="lazy" src="images/family-session-canc-n-beach-kids-ivae-studios.jpg" alt="Destination wedding table Cancún — IVAE Studios" referrerpolicy="no-referrer"/>
       <div class="ig-overlay"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M13.5 12a2.25 2.25 0 112.25 2.25A2.25 2.25 0 0113.5 12zM3.75 7.5h16.5"/></svg></div>
     </div>
-    <div class="ig-item">
+    <div class="ig-item rv">
       <img loading="lazy" src="images/destination-wedding-table-canc-n-ivae-studios.jpg" alt="Wedding reception outdoor Cancún — IVAE Studios" referrerpolicy="no-referrer"/>
       <div class="ig-overlay"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M13.5 12a2.25 2.25 0 112.25 2.25A2.25 2.25 0 0113.5 12zM3.75 7.5h16.5"/></svg></div>
     </div>
-    <div class="ig-item">
+    <div class="ig-item rv">
       <img loading="lazy" src="images/wedding-reception-outdoor-canc-n-ivae-studios.jpg" alt="Family session Cancún — IVAE Studios" referrerpolicy="no-referrer"/>
       <div class="ig-overlay"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M13.5 12a2.25 2.25 0 112.25 2.25A2.25 2.25 0 0113.5 12zM3.75 7.5h16.5"/></svg></div>
     </div>
@@ -1732,6 +1795,74 @@ document.querySelectorAll('.rv').forEach(el => obs.observe(el));
     });
   }, { threshold: 0.35 });
   panels.forEach(p => svcObs.observe(p));
+})();
+
+/* ── HERO STATS COUNTER ── */
+(function(){
+  var counters = document.querySelectorAll('[data-count]');
+  if(!counters.length) return;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    counters.forEach(function(c){ c.textContent = c.dataset.count + (c.dataset.suffix || ''); });
+    return;
+  }
+  var done = false;
+  function animateCounter(el){
+    var target = parseInt(el.dataset.count, 10);
+    var suffix = el.dataset.suffix || '';
+    var duration = target > 100 ? 2000 : 1200;
+    var start = performance.now();
+    function step(now){
+      var elapsed = now - start;
+      var progress = Math.min(elapsed / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(eased * target) + suffix;
+      if(progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  var counterObs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting && !done){
+        done = true;
+        counters.forEach(animateCounter);
+        counterObs.disconnect();
+      }
+    });
+  }, { threshold: 0.3 });
+  counters.forEach(function(c){ counterObs.observe(c); });
+})();
+
+/* ── SCROLL PROGRESS FALLBACK ── */
+(function(){
+  if(CSS.supports && CSS.supports('animation-timeline','scroll()')) return;
+  var bar = document.getElementById('scrollProgress');
+  if(!bar) return;
+  window.addEventListener('scroll', function(){
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.transform = 'scaleX(' + (h > 0 ? window.scrollY / h : 0) + ')';
+  }, {passive:true});
+})();
+
+/* ── HERO PARALLAX FALLBACK ── */
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if(CSS.supports && CSS.supports('animation-timeline','scroll()')) return;
+  var bg = document.querySelector('.hero-bg');
+  if(!bg) return;
+  bg.style.transform = 'scale(1.08)';
+  var ticking = false;
+  window.addEventListener('scroll', function(){
+    if(!ticking){
+      requestAnimationFrame(function(){
+        var y = window.scrollY;
+        if(y < window.innerHeight * 1.2){
+          bg.style.transform = 'translateY(' + (y * 0.08) + 'px) scale(1.08)';
+        }
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, {passive:true});
 })();
 
 document.querySelectorAll('.fq').forEach(btn => {
@@ -1803,7 +1934,7 @@ window.addEventListener('resize', sendHeight);
   setInterval(() => goTo(current >= maxIndex() ? 0 : current + 1), 5000);
 })();
 </script>
-<footer style="background:#1a2433;padding:48px 64px;border-top:1px solid rgba(196,163,90,0.15);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:24px;">
+<footer class="rv" style="background:#1a2433;padding:48px 64px;border-top:1px solid rgba(196,163,90,0.15);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:24px;">
   <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#c4a35a;">IVAE Studios</span>
   <nav style="display:flex;gap:32px;flex-wrap:wrap;">
     <a href="/" style="font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:rgba(249,248,247,0.45);text-decoration:none;">Home</a>
