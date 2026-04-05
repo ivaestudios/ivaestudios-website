@@ -431,124 +431,192 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .btn-ol svg{width:13px;height:13px}
 
 /* ── SERVICES ── */
-.services { background: var(--cream); padding: 120px 0; }
-.services-head {
-  padding: 0 64px;
-  margin-bottom: 80px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 40px;
-}
-.services-head-left { max-width: 620px; }
-.services h2 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(36px,5vw,58px); font-weight: 300;
-  line-height: 1.1; color: var(--ink);
-  margin-top: 20px; hyphens: none;
-}
-.services h2 em { font-style: italic; color: var(--gold2); }
-.services-head-right {
-  max-width: 340px;
-  font-size: 14px; line-height: 1.85;
-  color: var(--muted-l); font-weight: 400;
-  padding-bottom: 8px;
-}
+/* ═══ SERVICES: Full-viewport sticky scroll ═══ */
+.services { background: var(--ink); position: relative; }
 
-.svc-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  min-height: 560px;
-  border-top: 1px solid var(--border-l);
+/* Header */
+.svc-header {
+  min-height: 60vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 80px 48px;
   position: relative;
 }
-.svc-row:last-child { border-bottom: 1px solid var(--border-l); }
-.svc-row.reverse .svc-img-col { order: 2; }
-.svc-row.reverse .svc-text-col { order: 1; }
-
-.svc-img-col {
-  position: relative; overflow: hidden;
-  background-size: cover !important;
-  background-position: center !important;
-  min-height: 520px;
+.svc-header .eyebrow { color: var(--gold); }
+.svc-header .eyebrow::after { background: var(--gold); }
+.svc-header h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(40px, 6vw, 72px); font-weight: 300;
+  line-height: 1.08; color: var(--cream);
+  margin-top: 28px; max-width: 780px; hyphens: none;
 }
-.svc-img-col img {
+.svc-header h2 em { font-style: italic; color: var(--gold); }
+.svc-header-sub {
+  margin-top: 28px;
+  font-size: 14.5px; line-height: 1.85;
+  color: rgba(255,255,255,0.45); max-width: 440px;
+}
+.svc-header-line {
+  width: 1px; height: 60px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  margin-top: 40px;
+}
+
+/* Sticky scroll container */
+.svc-scroll { position: relative; }
+
+/* Each service panel */
+.svc-panel {
+  position: sticky; top: 0;
+  height: 100vh; width: 100%;
+  display: grid; grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  background: var(--cream);
+}
+.svc-panel:nth-child(1) { z-index: 1; }
+.svc-panel:nth-child(2) { z-index: 2; }
+.svc-panel:nth-child(3) { z-index: 3; }
+
+/* Image side */
+.svc-visual {
+  position: relative; overflow: hidden;
+}
+.svc-visual img {
   width: 100%; height: 100%;
   object-fit: cover; object-position: center;
   display: block;
-  transition: transform 0.8s cubic-bezier(.25,0,.15,1), filter 0.6s;
-  filter: saturate(0.85) brightness(0.95);
+  filter: saturate(0.85);
+  transition: filter 0.6s;
 }
-.svc-row:hover .svc-img-col img { transform: scale(1.05); filter: saturate(1) brightness(1); }
-.svc-img-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(26,36,51,0.12) 0%, transparent 50%);
-  transition: opacity 0.5s;
+/* Parallax on scroll */
+@supports (animation-timeline: view()) {
+  .svc-visual img {
+    animation: svcParallax linear both;
+    animation-timeline: view(block);
+    animation-range: cover 0% cover 100%;
+  }
 }
-.svc-row:hover .svc-img-overlay { opacity: 0; }
+@keyframes svcParallax {
+  from { transform: translateY(-8%) scale(1.12); }
+  to   { transform: translateY(8%) scale(1.12); }
+}
+.svc-visual::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(to right, rgba(26,36,51,0.08), transparent 40%);
+  pointer-events: none;
+}
 
-.svc-text-col {
-  padding: 72px 64px;
-  display: flex; flex-direction: column; justify-content: center;
-  background: var(--cream);
+/* Text side */
+.svc-content {
+  padding: clamp(48px, 6vw, 88px);
+  display: flex; flex-direction: column;
+  justify-content: center;
   position: relative;
 }
-.svc-row:nth-child(even) .svc-text-col { background: var(--sand); }
+.svc-panel:nth-child(odd) .svc-content { background: var(--cream); }
+.svc-panel:nth-child(even) .svc-content { background: var(--sand); }
+.svc-panel:nth-child(even) { direction: rtl; }
+.svc-panel:nth-child(even) > * { direction: ltr; }
 
-.svc-n {
+/* Number watermark */
+.svc-num {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 90px; font-weight: 300;
-  color: rgba(196,163,90,0.08); line-height: 1;
-  display: block; margin-bottom: 4px;
-  transition: color 0.5s;
+  font-size: clamp(100px, 14vw, 180px); font-weight: 200;
+  color: rgba(196,163,90,0.06); line-height: 0.85;
+  position: absolute; top: clamp(24px, 4vw, 56px); right: clamp(24px, 4vw, 56px);
+  pointer-events: none;
+  transition: color 1s;
 }
-.svc-row:hover .svc-n { color: rgba(196,163,90,0.18); }
+.svc-panel.is-active .svc-num { color: rgba(196,163,90,0.14); }
 
-.svc-text-col h3 {
+/* Text elements */
+.svc-content h3 {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(28px, 3vw, 42px); font-weight: 300;
-  color: var(--ink); margin-bottom: 20px; line-height: 1.2;
+  font-size: clamp(32px, 3.5vw, 48px); font-weight: 300;
+  color: var(--ink); line-height: 1.15;
+  margin-bottom: 24px;
 }
-.svc-text-col h3 em { font-style: italic; color: var(--gold2); }
-.svc-text-col p {
-  font-size: 14px; line-height: 1.95;
+.svc-content h3 em { font-style: italic; color: var(--gold2); }
+.svc-content p {
+  font-size: 14.5px; line-height: 2;
   color: var(--muted-l); font-weight: 400;
-  margin-bottom: 28px; max-width: 420px;
+  max-width: 400px; margin-bottom: 32px;
 }
 .svc-tag {
   display: inline-flex; align-items: center; gap: 10px;
   font-size: 9.5px; font-weight: 600;
   letter-spacing: 0.18em; text-transform: uppercase;
-  color: var(--gold2);
+  color: var(--gold2); margin-bottom: 24px;
 }
 .svc-tag::before { content: ''; width: 24px; height: 1px; background: var(--gold2); opacity: 0.6; }
 
+/* Animated link */
 .svc-link {
-  display: inline-flex; align-items: center; gap: 8px;
-  margin-top: 20px; font-size: 10px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 10.5px; font-weight: 600;
   letter-spacing: 0.18em; text-transform: uppercase;
   color: var(--gold2); text-decoration: none;
-  transition: gap 0.3s;
+  position: relative; overflow: hidden;
+  padding-bottom: 4px;
 }
-.svc-link:hover { gap: 14px; }
-.svc-link svg { width: 16px; height: 16px; transition: transform 0.3s; }
-.svc-link:hover svg { transform: translateX(2px); }
+.svc-link::after {
+  content: ''; position: absolute;
+  bottom: 0; left: 0; width: 100%; height: 1px;
+  background: var(--gold2);
+  transform: scaleX(0); transform-origin: right;
+  transition: transform 0.5s cubic-bezier(.25,0,.15,1);
+}
+.svc-link:hover::after { transform: scaleX(1); transform-origin: left; }
+.svc-link svg {
+  width: 18px; height: 18px;
+  transition: transform 0.4s cubic-bezier(.25,0,.15,1);
+}
+.svc-link:hover svg { transform: translateX(6px); }
+
+/* Scroll-driven reveal animations */
+.svc-reveal { opacity: 0; transform: translateY(40px); }
+.svc-panel.is-active .svc-reveal {
+  animation: svcFadeUp 0.7s cubic-bezier(.25,0,.15,1) forwards;
+}
+.svc-panel.is-active .svc-reveal:nth-child(2) { animation-delay: 0.1s; }
+.svc-panel.is-active .svc-reveal:nth-child(3) { animation-delay: 0.18s; }
+.svc-panel.is-active .svc-reveal:nth-child(4) { animation-delay: 0.25s; }
+.svc-panel.is-active .svc-reveal:nth-child(5) { animation-delay: 0.32s; }
+.svc-panel.is-active .svc-reveal:nth-child(6) { animation-delay: 0.38s; }
+
+@keyframes svcFadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Image clip-path reveal */
+.svc-visual img {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 1s cubic-bezier(.25,0,.15,1), filter 0.6s;
+}
+.svc-panel.is-active .svc-visual img {
+  clip-path: inset(0 0% 0 0);
+}
+.svc-panel.is-active .svc-visual img { filter: saturate(1); }
 
 /* Services responsive */
 @media (max-width: 1199px) {
-  .services-head { padding: 0 48px; flex-direction: column; align-items: flex-start; }
-  .svc-text-col { padding: 52px 48px; }
+  .svc-content { padding: 48px; }
+  .svc-num { font-size: 120px; }
 }
 @media (max-width: 767px) {
-  .services { padding: 72px 0; }
-  .services-head { padding: 0 24px; margin-bottom: 48px; flex-direction: column; }
-  .services-head-right { max-width: 100%; }
-  .svc-row { grid-template-columns: 1fr; min-height: auto; }
-  .svc-row.reverse .svc-img-col { order: 0; }
-  .svc-row.reverse .svc-text-col { order: 1; }
-  .svc-img-col { height: 320px; min-height: 320px; }
-  .svc-text-col { padding: 44px 24px; }
-  .svc-n { font-size: 60px; }
+  .svc-header { min-height: 50vh; padding: 64px 24px; }
+  .svc-panel {
+    grid-template-columns: 1fr;
+    height: auto; min-height: 100vh;
+    position: relative;
+  }
+  .svc-panel:nth-child(even) { direction: ltr; }
+  .svc-visual { height: 50vh; min-height: 300px; }
+  .svc-visual img { clip-path: none; }
+  .svc-content { padding: 48px 24px; }
+  .svc-num { font-size: 80px; top: 16px; right: 16px; }
+  .svc-reveal { opacity: 1; transform: none; }
 }
 
 /* ── DESTINATIONS ── */
@@ -1295,56 +1363,62 @@ body { padding-top: 72px; }
   </div>
 </section>
 
-<!-- 4. SERVICES -->
+<!-- 4. SERVICES — Full-viewport sticky scroll -->
 <section class="services" id="services">
-  <div class="services-head rv">
-    <div class="services-head-left">
-      <span class="eyebrow">What we offer</span>
-      <h2>Every session is <em>fully directed</em> from start to finish.</h2>
-    </div>
-    <p class="services-head-right">We handle every detail — timing, locations, posing and direction — so you can relax and enjoy the experience while we create something extraordinary.</p>
+
+  <!-- Header -->
+  <div class="svc-header">
+    <span class="eyebrow">What we offer</span>
+    <h2>Every session is <em>fully directed</em> from start to finish.</h2>
+    <p class="svc-header-sub">We handle every detail — timing, locations, posing and direction — so you can focus on the moment.</p>
+    <div class="svc-header-line"></div>
   </div>
 
-  <!-- ROW 1: Family -->
-  <div class="svc-row rv">
-    <div class="svc-img-col" id="svc-img-1" style="background:url('images/image-07.jpg') top center/cover no-repeat;">
-      <div class="svc-img-overlay"></div>
-    </div>
-    <div class="svc-text-col">
-      <span class="svc-n">01</span>
-      <h3>Family Resort <em>Sessions</em></h3>
-      <p>Designed for families traveling to Mexico's finest resorts. We plan timing, location and direction so your session feels effortless and your images look like they belong in a luxury travel editorial.</p>
-      <span class="svc-tag">Cancún · Riviera Maya · Los Cabos</span>
-      <a class="svc-link" href="/luxury-family-photos-cancun">Explore family sessions <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a>
-    </div>
-  </div>
+  <!-- Sticky scroll panels -->
+  <div class="svc-scroll">
 
-  <!-- ROW 2: Couples -->
-  <div class="svc-row reverse rv">
-    <div class="svc-img-col" id="svc-img-2" style="background:url('images/image-08.jpg') center center/cover no-repeat;">
-      <div class="svc-img-overlay"></div>
+    <!-- Panel 1: Family -->
+    <div class="svc-panel" data-svc>
+      <div class="svc-visual">
+        <img loading="lazy" src="images/image-07.jpg" alt="Family resort photography session — IVAE Studios"/>
+      </div>
+      <div class="svc-content">
+        <span class="svc-num">01</span>
+        <h3 class="svc-reveal">Family Resort <em>Sessions</em></h3>
+        <p class="svc-reveal">Designed for families traveling to Mexico's finest resorts. We plan timing, location and direction so your session feels effortless and your images look like they belong in a luxury travel editorial.</p>
+        <span class="svc-tag svc-reveal">Cancún · Riviera Maya · Los Cabos</span>
+        <a class="svc-link svc-reveal" href="/luxury-family-photos-cancun">Explore family sessions <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a>
+      </div>
     </div>
-    <div class="svc-text-col">
-      <span class="svc-n">02</span>
-      <h3>Couples & <em>Anniversary</em> Sessions</h3>
-      <p>For couples celebrating anniversaries, honeymoons, or simply a trip worth remembering. We capture real moments, not performances, and deliver images with genuine editorial quality.</p>
-      <span class="svc-tag">Golden hour · Intimate · Editorial</span>
-      <a class="svc-link" href="/couples-photography-mexico">Explore couples sessions <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a>
-    </div>
-  </div>
 
-  <!-- ROW 3: Wedding -->
-  <div class="svc-row rv">
-    <div class="svc-img-col" id="svc-img-3" style="background:url('images/image-09.jpg') center center/cover no-repeat;">
-      <div class="svc-img-overlay"></div>
+    <!-- Panel 2: Couples -->
+    <div class="svc-panel" data-svc>
+      <div class="svc-visual">
+        <img loading="lazy" src="images/image-08.jpg" alt="Couples photography Cancún beach — IVAE Studios"/>
+      </div>
+      <div class="svc-content">
+        <span class="svc-num">02</span>
+        <h3 class="svc-reveal">Couples & <em>Anniversary</em></h3>
+        <p class="svc-reveal">For couples celebrating anniversaries, honeymoons, or simply a trip worth remembering. We capture real moments, not performances, and deliver images with genuine editorial quality.</p>
+        <span class="svc-tag svc-reveal">Golden hour · Intimate · Editorial</span>
+        <a class="svc-link svc-reveal" href="/couples-photography-mexico">Explore couples sessions <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a>
+      </div>
     </div>
-    <div class="svc-text-col">
-      <span class="svc-n">03</span>
-      <h3>Destination Weddings <em>& Films</em></h3>
-      <p>Full photography and videography coverage for destination weddings across Mexico's finest resort venues. Our team handles every detail so you experience your day, not manage it.</p>
-      <span class="svc-tag">Photography · Film · Full coverage</span>
-      <a class="svc-link" href="/destination-wedding-photographer-mexico">Explore wedding photography <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a>
+
+    <!-- Panel 3: Weddings -->
+    <div class="svc-panel" data-svc>
+      <div class="svc-visual">
+        <img loading="lazy" src="images/image-09.jpg" alt="Destination wedding photographer Mexico — IVAE Studios"/>
+      </div>
+      <div class="svc-content">
+        <span class="svc-num">03</span>
+        <h3 class="svc-reveal">Destination Weddings <em>& Films</em></h3>
+        <p class="svc-reveal">Full photography and videography coverage for destination weddings across Mexico's finest resort venues. Our team handles every detail so you experience your day, not manage it.</p>
+        <span class="svc-tag svc-reveal">Photography · Film · Full coverage</span>
+        <a class="svc-link svc-reveal" href="/destination-wedding-photographer-mexico">Explore wedding photography <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a>
+      </div>
     </div>
+
   </div>
 </section>
 
@@ -1623,6 +1697,22 @@ const obs = new IntersectionObserver((entries) => {
   entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); obs.unobserve(e.target) } });
 }, { threshold: 0.08 });
 document.querySelectorAll('.rv').forEach(el => obs.observe(el));
+
+/* ── SERVICES: Sticky scroll panel animations ── */
+(function(){
+  const panels = document.querySelectorAll('[data-svc]');
+  if(!panels.length) return;
+  const svcObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting) {
+        e.target.classList.add('is-active');
+      } else {
+        e.target.classList.remove('is-active');
+      }
+    });
+  }, { threshold: 0.35 });
+  panels.forEach(p => svcObs.observe(p));
+})();
 
 document.querySelectorAll('.fq').forEach(btn => {
   btn.addEventListener('click', () => {
