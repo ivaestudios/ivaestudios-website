@@ -125,11 +125,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .hero-cta svg{width:13px;height:13px}
 
 /* ── ABOUT ── */
-.about{display:grid;grid-template-columns:1.2fr 1fr;background:var(--cream)}
-.about-img{position:relative;overflow:hidden;min-height:90vh}
-.about-img img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.15);transition:transform 2s var(--lux)}
-.about-img.vis img{transform:scale(1)}
-.about-accent{position:absolute;bottom:48px;right:-24px;width:220px;height:300px;overflow:hidden;z-index:2;border:1px solid rgba(196,163,90,0.2)}
+.about{display:grid;grid-template-columns:1.1fr 1fr;background:var(--cream);gap:0}
+.about-img{position:relative;overflow:hidden}
+.about-img>img{width:100%;height:100%;object-fit:cover;display:block;aspect-ratio:4/5;transform:scale(1.06);transition:transform 2s var(--lux)}
+.about-img.vis>img{transform:scale(1)}
+.about-accent{position:absolute;bottom:40px;right:40px;width:180px;height:240px;overflow:hidden;z-index:2;border:3px solid var(--cream);box-shadow:0 16px 48px rgba(0,0,0,0.18)}
 .about-accent img{width:100%;height:100%;object-fit:cover}
 .about-text{display:flex;flex-direction:column;justify-content:center;padding:clamp(40px,6vw,100px);color:var(--ink)}
 .about-text .eyebrow{color:var(--gold2)}
@@ -142,22 +142,21 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .about-link svg{width:16px;height:16px;transition:transform 0.3s}
 .about-link:hover svg{transform:translateX(5px)}
 
-/* ── HORIZONTAL SCROLL PORTFOLIO ── */
-.hscroll{position:relative;background:var(--ink2)}
-.hscroll-header{padding:100px clamp(24px,5vw,64px) 48px;position:relative;z-index:2}
-.hscroll-header h2{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,4.5vw,52px);font-weight:300;color:var(--cream);margin-top:18px}
-.hscroll-header h2 em{font-style:italic;color:var(--gold)}
-.hscroll-sticky{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;align-items:center}
-.hscroll-track{display:flex;gap:clamp(12px,2vw,24px);padding:0 clamp(24px,5vw,64px);will-change:transform;align-items:center;height:75vh}
-.hscroll-item{flex:0 0 auto;height:100%;position:relative;overflow:hidden;border-radius:2px}
-.hscroll-item.wide{width:55vw}
-.hscroll-item.tall{width:32vw}
-.hscroll-item.square{width:40vw}
-.hscroll-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.7s var(--lux);filter:saturate(0.85)}
-.hscroll-item:hover img{transform:scale(1.04);filter:saturate(1)}
-.hscroll-label{position:absolute;bottom:20px;left:22px;font-size:9.5px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--cream);opacity:0;transition:opacity 0.4s}
-.hscroll-item:hover .hscroll-label{opacity:1}
-.hscroll-cta{padding:0 clamp(24px,5vw,64px) 100px;text-align:center;position:relative;z-index:2}
+/* ── PORTFOLIO GRID ── */
+.portfolio{background:var(--ink2);padding:100px clamp(24px,5vw,64px) 80px}
+.portfolio-header{margin-bottom:52px}
+.portfolio-header h2{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,4.5vw,52px);font-weight:300;color:var(--cream);margin-top:18px}
+.portfolio-header h2 em{font-style:italic;color:var(--gold)}
+.pg{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:280px;gap:6px}
+.pg-i{position:relative;overflow:hidden;cursor:pointer}
+.pg-i img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(0.85);transition:transform 0.8s var(--lux),filter 0.5s}
+.pg-i:hover img{transform:scale(1.04);filter:saturate(1)}
+.pg-i.feat{grid-column:span 2;grid-row:span 2}
+.pg-i.vtall{grid-row:span 2}
+.pg-label{position:absolute;bottom:0;left:0;right:0;padding:22px;background:linear-gradient(to top,rgba(14,22,32,0.65),transparent);opacity:0;transition:opacity 0.4s}
+.pg-i:hover .pg-label{opacity:1}
+.pg-label span{font-size:9.5px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--cream)}
+.portfolio-cta{text-align:center;margin-top:56px}
 
 /* ── SERVICES STACK ── */
 .svc-stack{position:relative}
@@ -289,8 +288,8 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 /* ── RESPONSIVE ── */
 @media(min-width:768px) and (max-width:1199px){
-  .about{grid-template-columns:1fr}.about-img{height:55vh;min-height:auto}.about-accent{bottom:20px;right:20px;width:160px;height:220px}.about-text{padding:64px 48px}
-  .hscroll-item.wide{width:65vw}.hscroll-item.tall{width:40vw}.hscroll-item.square{width:50vw}
+  .about{grid-template-columns:1fr}.about-img>img{aspect-ratio:16/9}.about-accent{bottom:20px;right:20px;width:160px;height:220px}.about-text{padding:64px 48px}
+  .pg{grid-auto-rows:220px}
   .svc-card{grid-template-columns:1fr;height:auto;position:relative}.svc-img{height:50vh}.svc-text{padding:48px}.svc-card:nth-child(even){direction:ltr}
   .dest-grid{grid-template-columns:1fr 1fr}.dest-card:last-child{grid-column:span 2;height:400px}
   .test-header{flex-direction:column;align-items:flex-start;gap:12px}.test-rating{text-align:left}
@@ -302,11 +301,18 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   .hero-sub{flex-direction:column;gap:10px;margin-top:16px}.hero-sub::before{width:28px;height:1px;margin-top:0}
   .hero-bottom{flex-direction:column;align-items:flex-start;gap:20px;padding:16px 24px 24px}
   .hero-stats{width:100%}.hero-stat{flex:1;padding-right:10px}.hero-stat:not(:first-child){padding-left:10px}.hero-stat .n{font-size:22px}.hero-stat .l{font-size:8px}
-  .about{grid-template-columns:1fr}.about-img{height:50vh;min-height:auto}.about-accent{width:120px;height:160px;bottom:16px;right:12px}.about-text{padding:36px 24px}
-  .hscroll-track{height:60vh}.hscroll-item.wide{width:80vw}.hscroll-item.tall{width:55vw}.hscroll-item.square{width:70vw}
+  .about{grid-template-columns:1fr}.about-img>img{aspect-ratio:4/3}.about-accent{width:120px;height:160px;bottom:16px;right:16px;border-width:2px}.about-text{padding:36px 24px}
+  .pg{grid-template-columns:1fr 1fr;grid-auto-rows:180px;gap:4px}.pg-i.feat{grid-column:span 2;grid-row:span 1}.pg-i.vtall{grid-row:span 2}.pg-label{opacity:1;padding:14px 16px}.pg-label span{font-size:8.5px}
   .svc-card{grid-template-columns:1fr;height:auto;position:relative}.svc-img{height:50vh}.svc-text{padding:36px 24px}.svc-card:nth-child(even){direction:ltr}.svc-num{font-size:64px}
   .dest-grid{grid-template-columns:1fr}.dest-card{height:400px}
-  .hiw-steps{grid-template-columns:1fr;gap:36px}.hiw-steps::before{display:none}.hiw-step{text-align:left;padding:0}
+  /* Mobile timeline */
+  .hiw{padding:80px 24px}
+  .hiw-steps{grid-template-columns:1fr;gap:0;padding-left:52px;position:relative}
+  .hiw-steps::before{display:block;position:absolute;top:28px;bottom:28px;left:27px;right:auto;width:1px;height:auto;background:linear-gradient(to bottom,var(--gold2),rgba(168,137,74,0.15))}
+  .hiw-step{text-align:left;padding:0 0 48px 0;position:relative}
+  .hiw-step:last-child{padding-bottom:0}
+  .hiw-num{position:absolute;left:-52px;top:-4px;margin-bottom:0}
+  .hiw-step h3{margin-bottom:6px}
   .test-header{flex-direction:column;align-items:flex-start;gap:12px}.test-rating{text-align:left}
   .tc{flex:0 0 calc(100% - 4px);padding:30px 24px}.tc blockquote{font-size:16px}
   .cta-content{padding:52px 24px}
@@ -384,26 +390,23 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   </div>
 </section>
 
-<!-- HORIZONTAL SCROLL PORTFOLIO -->
-<section class="hscroll" id="hscroll">
-  <div class="hscroll-header rv" data-anim>
+<!-- PORTFOLIO -->
+<section class="portfolio" id="portfolio">
+  <div class="portfolio-header rv" data-anim>
     <span class="eyebrow">Our work</span>
     <h2>Images that speak for <em>themselves.</em></h2>
   </div>
-  <div class="hscroll-sticky">
-    <div class="hscroll-track" id="hscrollTrack">
-      <div class="hscroll-item wide" data-lightbox="images/family-session-canc-n-pier-ivae-studios.jpg"><img src="images/family-session-canc-n-pier-ivae-studios.jpg" alt="Family photography session on Cancún pier at golden hour — IVAE Studios" loading="lazy"/><span class="hscroll-label">Cancún · Family</span></div>
-      <div class="hscroll-item tall" data-lightbox="images/couple-session-riviera-maya-ivae-studios.jpg"><img src="images/couple-session-riviera-maya-ivae-studios.jpg" alt="Romantic couple session in Riviera Maya — IVAE Studios" loading="lazy"/><span class="hscroll-label">Riviera Maya · Couples</span></div>
-      <div class="hscroll-item square" data-lightbox="images/destination-wedding-table-canc-n-ivae-studios.jpg"><img src="images/destination-wedding-table-canc-n-ivae-studios.jpg" alt="Destination wedding reception table Cancún — IVAE Studios" loading="lazy"/><span class="hscroll-label">Cancún · Wedding</span></div>
-      <div class="hscroll-item wide" data-lightbox="images/family-session-canc-n-beach-kids-ivae-studios.jpg"><img src="images/family-session-canc-n-beach-kids-ivae-studios.jpg" alt="Kids playing on Cancún beach family session — IVAE Studios" loading="lazy"/><span class="hscroll-label">Cancún · Kids</span></div>
-      <div class="hscroll-item tall" data-lightbox="images/los-cabos-sunset-session-ivae-studios.jpg"><img src="images/los-cabos-sunset-session-ivae-studios.jpg" alt="Sunset photography session in Los Cabos — IVAE Studios" loading="lazy"/><span class="hscroll-label">Los Cabos · Sunset</span></div>
-      <div class="hscroll-item square" data-lightbox="images/wedding-reception-outdoor-canc-n-ivae-studios.jpg"><img src="images/wedding-reception-outdoor-canc-n-ivae-studios.jpg" alt="Outdoor wedding reception Cancún — IVAE Studios" loading="lazy"/><span class="hscroll-label">Cancún · Reception</span></div>
-      <div class="hscroll-item wide" data-lightbox="images/image-12.jpg"><img src="images/image-12.jpg" alt="Editorial resort photography Mexico — IVAE Studios" loading="lazy"/><span class="hscroll-label">Editorial</span></div>
-      <div class="hscroll-item tall" data-lightbox="images/image-13.jpg"><img src="images/image-13.jpg" alt="Luxury resort portrait Riviera Maya — IVAE Studios" loading="lazy"/><span class="hscroll-label">Riviera Maya</span></div>
-      <div class="hscroll-item square" data-lightbox="images/canc-n-resort-photography-ivae-studios.jpg"><img src="images/canc-n-resort-photography-ivae-studios.jpg" alt="Cancún resort photography — IVAE Studios" loading="lazy"/><span class="hscroll-label">Cancún · Resort</span></div>
-    </div>
+  <div class="pg">
+    <div class="pg-i feat rv-scale" data-anim data-lightbox="images/family-session-canc-n-pier-ivae-studios.jpg"><img src="images/family-session-canc-n-pier-ivae-studios.jpg" alt="Family photography session on Cancún pier at golden hour — IVAE Studios" loading="lazy" width="2000" height="1333"/><div class="pg-label"><span>Cancún · Family</span></div></div>
+    <div class="pg-i rv-scale d1" data-anim data-lightbox="images/couple-session-riviera-maya-ivae-studios.jpg"><img src="images/couple-session-riviera-maya-ivae-studios.jpg" alt="Romantic couple session in Riviera Maya — IVAE Studios" loading="lazy" width="2000" height="1333"/><div class="pg-label"><span>Riviera Maya · Couples</span></div></div>
+    <div class="pg-i rv-scale d2" data-anim data-lightbox="images/destination-wedding-table-canc-n-ivae-studios.jpg"><img src="images/destination-wedding-table-canc-n-ivae-studios.jpg" alt="Destination wedding reception table Cancún — IVAE Studios" loading="lazy" width="2000" height="1333"/><div class="pg-label"><span>Cancún · Wedding</span></div></div>
+    <div class="pg-i rv-scale" data-anim data-lightbox="images/family-session-canc-n-beach-kids-ivae-studios.jpg"><img src="images/family-session-canc-n-beach-kids-ivae-studios.jpg" alt="Kids playing on Cancún beach family session — IVAE Studios" loading="lazy" width="2000" height="1333"/><div class="pg-label"><span>Cancún · Kids</span></div></div>
+    <div class="pg-i vtall rv-scale d1" data-anim data-lightbox="images/los-cabos-sunset-session-ivae-studios.jpg"><img src="images/los-cabos-sunset-session-ivae-studios.jpg" alt="Sunset photography session in Los Cabos — IVAE Studios" loading="lazy" width="1333" height="2000"/><div class="pg-label"><span>Los Cabos · Sunset</span></div></div>
+    <div class="pg-i rv-scale d2" data-anim data-lightbox="images/wedding-reception-outdoor-canc-n-ivae-studios.jpg"><img src="images/wedding-reception-outdoor-canc-n-ivae-studios.jpg" alt="Outdoor wedding reception Cancún — IVAE Studios" loading="lazy" width="2000" height="1333"/><div class="pg-label"><span>Cancún · Reception</span></div></div>
+    <div class="pg-i rv-scale" data-anim data-lightbox="images/image-12.jpg"><img src="images/image-12.jpg" alt="Editorial resort photography Mexico — IVAE Studios" loading="lazy" width="2000" height="1333"/><div class="pg-label"><span>Editorial</span></div></div>
+    <div class="pg-i rv-scale d1" data-anim data-lightbox="images/canc-n-resort-photography-ivae-studios.jpg"><img src="images/canc-n-resort-photography-ivae-studios.jpg" alt="Cancún resort photography — IVAE Studios" loading="lazy" width="2000" height="1333"/><div class="pg-label"><span>Cancún · Resort</span></div></div>
   </div>
-  <div class="hscroll-cta rv" data-anim><a class="btn-ol" href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">View Full Portfolio <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a></div>
+  <div class="portfolio-cta rv" data-anim><a class="btn-ol" href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">View Full Portfolio <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a></div>
 </section>
 
 <!-- SERVICES STACK -->
@@ -597,31 +600,7 @@ document.querySelectorAll('[data-anim]').forEach(el=>revObs.observe(el));
   c.forEach(el=>co.observe(el));
 })();
 
-/* ═══ HORIZONTAL SCROLL ═══ */
-(function(){
-  const section=document.getElementById('hscroll');
-  const track=document.getElementById('hscrollTrack');
-  if(!section||!track)return;
-  function setHeight(){
-    const trackW=track.scrollWidth;
-    const viewW=window.innerWidth;
-    const scrollNeeded=trackW-viewW+200;
-    section.style.height=Math.max(scrollNeeded+window.innerHeight,window.innerHeight*2)+'px';
-  }
-  setHeight();window.addEventListener('resize',setHeight);
-  let ticking=false;
-  window.addEventListener('scroll',()=>{
-    if(!ticking){requestAnimationFrame(()=>{
-      const rect=section.getBoundingClientRect();
-      const scrollDist=section.offsetHeight-window.innerHeight;
-      if(scrollDist<=0){ticking=false;return}
-      const progress=Math.max(0,Math.min(1,-rect.top/scrollDist));
-      const maxTx=track.scrollWidth-window.innerWidth+100;
-      track.style.transform=`translate3d(${-progress*maxTx}px,0,0)`;
-      ticking=false;
-    });ticking=true}
-  },{passive:true});
-})();
+/* ═══ (portfolio is CSS grid — no JS needed) ═══ */
 
 /* ═══ SERVICES STICKY OBSERVER ═══ */
 (function(){
