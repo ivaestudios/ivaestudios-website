@@ -129,8 +129,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .about-img{position:relative;overflow:hidden}
 .about-img>img{width:100%;height:100%;object-fit:cover;display:block;aspect-ratio:4/5;transform:scale(1.06);transition:transform 2s var(--lux)}
 .about-img.vis>img{transform:scale(1)}
-.about-accent{position:absolute;bottom:40px;right:40px;width:180px;height:240px;overflow:hidden;z-index:2;border:3px solid var(--cream);box-shadow:0 16px 48px rgba(0,0,0,0.18)}
-.about-accent img{width:100%;height:100%;object-fit:cover}
 .about-text{display:flex;flex-direction:column;justify-content:center;padding:clamp(40px,6vw,100px);color:var(--ink)}
 .about-text .eyebrow{color:var(--gold2)}
 .about-text h2{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,4vw,52px);font-weight:300;line-height:1.1;color:var(--ink);margin-top:20px}
@@ -288,7 +286,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 /* ── RESPONSIVE ── */
 @media(min-width:768px) and (max-width:1199px){
-  .about{grid-template-columns:1fr}.about-img>img{aspect-ratio:16/9}.about-accent{bottom:20px;right:20px;width:160px;height:220px}.about-text{padding:64px 48px}
+  .about{grid-template-columns:1fr}.about-img>img{aspect-ratio:16/9}.about-text{padding:64px 48px}
   .pg{grid-auto-rows:220px}
   .svc-card{grid-template-columns:1fr;height:auto;position:relative}.svc-img{height:50vh}.svc-text{padding:48px}.svc-card:nth-child(even){direction:ltr}
   .dest-grid{grid-template-columns:1fr 1fr}.dest-card:last-child{grid-column:span 2;height:400px}
@@ -301,7 +299,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   .hero-sub{flex-direction:column;gap:10px;margin-top:16px}.hero-sub::before{width:28px;height:1px;margin-top:0}
   .hero-bottom{flex-direction:column;align-items:flex-start;gap:20px;padding:16px 24px 24px}
   .hero-stats{width:100%}.hero-stat{flex:1;padding-right:10px}.hero-stat:not(:first-child){padding-left:10px}.hero-stat .n{font-size:22px}.hero-stat .l{font-size:8px}
-  .about{grid-template-columns:1fr}.about-img>img{aspect-ratio:4/3}.about-accent{width:120px;height:160px;bottom:16px;right:16px;border-width:2px}.about-text{padding:36px 24px}
+  .about{grid-template-columns:1fr}.about-img>img{aspect-ratio:4/3}.about-text{padding:36px 24px}
   .pg{grid-template-columns:1fr 1fr;grid-auto-rows:180px;gap:4px}.pg-i.feat{grid-column:span 2;grid-row:span 1}.pg-i.vtall{grid-row:span 2}.pg-label{opacity:1;padding:14px 16px}.pg-label span{font-size:8.5px}
   .svc-card{grid-template-columns:1fr;height:auto;position:relative}.svc-img{height:50vh}.svc-text{padding:36px 24px}.svc-card:nth-child(even){direction:ltr}.svc-num{font-size:64px}
   .dest-grid{grid-template-columns:1fr}.dest-card{height:400px}
@@ -380,7 +378,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <section class="about">
   <div class="about-img curtain" data-anim>
     <img src="images/editorial-session-riviera-maya-resort-ivae-studios.jpg" alt="Editorial photography session at luxury Riviera Maya resort — IVAE Studios" loading="lazy" width="960" height="1200"/>
-    <div class="about-accent"><img src="images/ivae-studios-resort-session.jpg" alt="Behind the scenes IVAE Studios directed resort session" loading="lazy" width="220" height="300"/></div>
+
   </div>
   <div class="about-text">
     <span class="eyebrow rv" data-anim>The IVAE difference</span>
