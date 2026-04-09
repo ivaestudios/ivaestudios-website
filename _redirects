@@ -10,6 +10,7 @@
 # CLEAN URLs — Standalone Pages
 # ═══════════════════════════════════════════
 /social-media-management /social-media-management 200
+/outfit-guide /outfit-guide 200
 
 # ═══════════════════════════════════════════
 # CLEAN URLs — Service Pages
@@ -101,6 +102,7 @@
 /post-quinceanera-photoshoot-cancun.html /blog/quinceanera-photoshoot-cancun 301
 /post-luxury-yacht-photography-cancun.html /blog/luxury-yacht-photography-cancun 301
 /post-trash-the-dress-cancun.html /blog/trash-the-dress-cancun 301
+/outfit-guide.html /outfit-guide 301
 
 # ═══════════════════════════════════════════
 # Fix broken internal links
