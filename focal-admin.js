@@ -52,65 +52,8 @@
   }
   window.addEventListener('load', applyFocalPoints);
 
-  /* ── Check admin mode ── */
-  if (!location.pathname.includes('admin') && !location.search.includes('admin')) return;
-
-  /* ── Inject admin CSS (needed for login screen too) ── */
-  var style = document.createElement('style');
-  style.textContent += '\
-/* Login screen */\
-.ivae-login-overlay{position:fixed;inset:0;z-index:999999;background:var(--ink2,#0e1620);display:flex;align-items:center;justify-content:center;flex-direction:column}\
-.ivae-login-box{width:340px;text-align:center}\
-.ivae-login-box .login-brand{font-size:12px;font-weight:700;letter-spacing:0.35em;text-transform:uppercase;color:var(--gold,#c4a35a);margin-bottom:48px;display:block}\
-.ivae-login-box h2{font-family:"Cormorant Garamond",serif;font-size:28px;font-weight:300;color:var(--cream,#f9f8f7);margin-bottom:8px}\
-.ivae-login-box .login-sub{font-size:11px;color:rgba(249,248,247,0.4);letter-spacing:0.1em;margin-bottom:36px;display:block}\
-.ivae-login-box input{width:100%;background:rgba(249,248,247,0.06);border:1px solid rgba(196,163,90,0.25);color:var(--cream,#f9f8f7);padding:14px 18px;font-family:"Syne",sans-serif;font-size:14px;letter-spacing:0.08em;text-align:center;outline:none;transition:border-color 0.3s;margin-bottom:16px;box-sizing:border-box}\
-.ivae-login-box input:focus{border-color:var(--gold,#c4a35a)}\
-.ivae-login-box input::placeholder{color:rgba(249,248,247,0.25);letter-spacing:0.12em;font-size:11px;text-transform:uppercase}\
-.ivae-login-box button{width:100%;background:var(--gold,#c4a35a);color:var(--ink2,#0e1620);border:none;padding:14px;font-family:"Syne",sans-serif;font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;transition:background 0.3s}\
-.ivae-login-box button:hover{background:#d4b36a}\
-.ivae-login-error{font-size:11px;color:#e57373;letter-spacing:0.08em;margin-top:12px;opacity:0;transition:opacity 0.3s;min-height:18px}\
-.ivae-login-error.show{opacity:1}\
-';
-
-  /* ── Password gate with visual login ── */
-  if (sessionStorage.getItem(PASS_KEY) !== 'true') {
-    document.head.appendChild(style);
-
-    var loginOverlay = document.createElement('div');
-    loginOverlay.className = 'ivae-login-overlay';
-    loginOverlay.innerHTML = '\
-      <div class="ivae-login-box">\
-        <span class="login-brand">IVAE Studios</span>\
-        <h2>Admin</h2>\
-        <span class="login-sub">Panel de edicion de imagenes</span>\
-        <input type="password" id="ivaeLoginPwd" placeholder="Contrasena" autofocus/>\
-        <button id="ivaeLoginBtn">Entrar</button>\
-        <div class="ivae-login-error" id="ivaeLoginErr">Contrasena incorrecta</div>\
-      </div>';
-    document.body.appendChild(loginOverlay);
-
-    function tryLogin() {
-      var pwd = document.getElementById('ivaeLoginPwd').value;
-      if (pwd === ADMIN_PASSWORD) {
-        sessionStorage.setItem(PASS_KEY, 'true');
-        loginOverlay.remove();
-        initAdmin();
-      } else {
-        document.getElementById('ivaeLoginErr').classList.add('show');
-        document.getElementById('ivaeLoginPwd').value = '';
-        setTimeout(function () {
-          document.getElementById('ivaeLoginErr').classList.remove('show');
-        }, 2500);
-      }
-    }
-
-    document.getElementById('ivaeLoginBtn').addEventListener('click', tryLogin);
-    document.getElementById('ivaeLoginPwd').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') tryLogin();
-    });
-    return;
-  }
+  /* ── Check admin mode (session set by /admin login page) ── */
+  if (sessionStorage.getItem(PASS_KEY) !== 'true') return;
 
   initAdmin();
 
@@ -597,10 +540,8 @@
 
   /* ── Exit admin ── */
   document.getElementById('ivaeExitBtn').addEventListener('click', function () {
-    var url = new URL(location.href);
-    url.searchParams.delete('admin');
-    url.pathname = url.pathname.replace(/\/?admin\/?/, '/');
-    location.href = url.toString();
+    sessionStorage.removeItem(PASS_KEY);
+    location.href = '/';
   });
 
   } // end initAdmin

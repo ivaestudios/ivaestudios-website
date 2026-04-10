@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>IVAE Studios — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Syne:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Syne',sans-serif;background:#0e1620;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.login-box{width:340px;text-align:center}
+.login-brand{font-size:12px;font-weight:700;letter-spacing:0.35em;text-transform:uppercase;color:#c4a35a;margin-bottom:48px;display:block}
+h2{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:#f9f8f7;margin-bottom:8px}
+.login-sub{font-size:11px;color:rgba(249,248,247,0.4);letter-spacing:0.1em;margin-bottom:36px;display:block}
+input{width:100%;background:rgba(249,248,247,0.06);border:1px solid rgba(196,163,90,0.25);color:#f9f8f7;padding:14px 18px;font-family:'Syne',sans-serif;font-size:14px;letter-spacing:0.08em;text-align:center;outline:none;transition:border-color 0.3s;margin-bottom:16px}
+input:focus{border-color:#c4a35a}
+input::placeholder{color:rgba(249,248,247,0.25);letter-spacing:0.12em;font-size:11px;text-transform:uppercase}
+button{width:100%;background:#c4a35a;color:#0e1620;border:none;padding:14px;font-family:'Syne',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;transition:background 0.3s}
+button:hover{background:#d4b36a}
+.error{font-size:11px;color:#e57373;letter-spacing:0.08em;margin-top:12px;opacity:0;transition:opacity 0.3s;min-height:18px}
+.error.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="login-box">
+  <span class="login-brand">IVAE Studios</span>
+  <h2>Admin</h2>
+  <span class="login-sub">Panel de edicion de imagenes</span>
+  <input type="password" id="pwd" placeholder="Contrasena" autofocus/>
+  <button id="btn">Entrar</button>
+  <div class="error" id="err">Contrasena incorrecta</div>
+</div>
+<script>
+var PASS = 'ivae2026';
+function tryLogin() {
+  var pwd = document.getElementById('pwd').value;
+  if (pwd === PASS) {
+    sessionStorage.setItem('ivae_admin_auth', 'true');
+    window.location.replace('/');
+  } else {
+    document.getElementById('err').classList.add('show');
+    document.getElementById('pwd').value = '';
+    setTimeout(function() { document.getElementById('err').classList.remove('show'); }, 2500);
+  }
+}
+document.getElementById('btn').addEventListener('click', tryLogin);
+document.getElementById('pwd').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') tryLogin();
+});
+</script>
+</body>
+</html>
