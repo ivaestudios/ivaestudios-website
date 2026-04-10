@@ -62,8 +62,9 @@
   /* ════════════════════════════════════════════════════════════
      ADMIN MODE — UI Construction
      ════════════════════════════════════════════════════════════ */
-  if (!style.parentNode) document.head.appendChild(style);
-  style.textContent += '\
+  var style = document.createElement('style');
+  document.head.appendChild(style);
+  style.textContent = '\
 /* Admin toolbar */\
 .ivae-admin-bar{position:fixed;top:0;left:0;right:0;z-index:100000;background:rgba(14,22,32,0.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:48px;border-bottom:1px solid rgba(196,163,90,0.3);font-family:"Syne",sans-serif}\
 .ivae-admin-bar span{font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#c4a35a}\
