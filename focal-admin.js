@@ -179,15 +179,43 @@
       'letter-spacing:.1em;text-transform:uppercase;padding:12px 24px;opacity:0;' +
       'transition:opacity .3s,transform .3s;pointer-events:none;text-align:center;max-width:88vw}' +
       '.fa-t.show{opacity:1;transform:translateX(-50%) translateY(0)}' +
-      '.fa-t.err{background:#e57373;color:#fff}';
+      '.fa-t.err{background:#e57373;color:#fff}' +
+
+      /* ═══ MOBILE SIMULATOR ═══ */
+      '.fa-sim{position:fixed;inset:0;z-index:180000;background:rgba(0,0,0,.88);' +
+      'display:none;align-items:center;justify-content:center;flex-direction:column;font-family:Syne,sans-serif}' +
+      '.fa-sim.open{display:flex}' +
+      /* phone frame */
+      '.fa-phone{position:relative;width:375px;height:calc(100vh - 100px);max-height:812px;' +
+      'background:#000;border-radius:40px;border:4px solid #2a2a2a;overflow:hidden;' +
+      'box-shadow:0 0 0 2px #111,0 25px 80px rgba(0,0,0,.6)}' +
+      /* notch */
+      '.fa-notch{height:44px;background:#000;display:flex;align-items:center;justify-content:center;' +
+      'position:relative;z-index:2;flex-shrink:0}' +
+      '.fa-notch-pill{width:90px;height:24px;background:#1a1a1a;border-radius:12px}' +
+      /* iframe */
+      '.fa-phone iframe{width:375px;height:calc(100% - 44px);border:none;background:#fff;display:block}' +
+      /* close btn */
+      '.fa-sim-x{position:absolute;top:16px;right:24px;background:rgba(255,255,255,.1);' +
+      'border:1px solid rgba(255,255,255,.2);color:#fff;font-family:Syne,sans-serif;' +
+      'font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;' +
+      'padding:10px 20px;cursor:pointer;z-index:10;transition:background .2s}' +
+      '.fa-sim-x:hover{background:rgba(255,255,255,.2)}' +
+      /* label */
+      '.fa-sim-lbl{color:rgba(255,255,255,.4);font-size:9px;font-weight:600;letter-spacing:.15em;' +
+      'text-transform:uppercase;margin-bottom:12px}' +
+      /* active state for mobile btn */
+      '.fa-mob-on{background:rgba(196,163,90,.2)!important;color:#c4a35a!important}';
     document.head.appendChild(s);
 
     /* ═══ ADMIN BAR ═══ */
     document.body.classList.add('fa-on');
     var bar = document.createElement('div');
     bar.className = 'fa-bar';
+    var isInIframe = window.self !== window.top;
     bar.innerHTML = '<div><span class="fa-d">Admin</span><span>Focal Editor</span></div>' +
       '<div class="fa-br">' +
+      (isInIframe ? '' : '<button id="faMob">Vista Movil</button>') +
       '<button id="faRst" class="fa-dng">Reset todo</button>' +
       '<button id="faOut">Salir</button></div>';
     document.body.prepend(bar);
@@ -508,6 +536,49 @@
       addButtons();
       showToast('Todos eliminados');
     });
+
+    /* ═══ MOBILE SIMULATOR ═══ */
+    if (!isInIframe) {
+      var sim = document.createElement('div');
+      sim.className = 'fa-sim';
+      sim.innerHTML =
+        '<button class="fa-sim-x" id="faSimX">Cerrar vista movil</button>' +
+        '<div class="fa-sim-lbl">iPhone 14 — 375 x 812</div>' +
+        '<div class="fa-phone">' +
+          '<div class="fa-notch"><div class="fa-notch-pill"></div></div>' +
+          '<iframe id="faSimIf" src="about:blank" allow="same-origin"></iframe>' +
+        '</div>';
+      document.body.appendChild(sim);
+
+      var simIf = document.getElementById('faSimIf');
+      var mobBtn = document.getElementById('faMob');
+
+      function openSim() {
+        simIf.src = location.href;
+        sim.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        mobBtn.classList.add('fa-mob-on');
+      }
+      function closeSim() {
+        sim.classList.remove('open');
+        simIf.src = 'about:blank';
+        document.body.style.overflow = '';
+        mobBtn.classList.remove('fa-mob-on');
+        // Refresh to pick up any changes made inside simulator
+        apply(gl());
+        addButtons();
+      }
+
+      mobBtn.addEventListener('click', function () {
+        if (sim.classList.contains('open')) closeSim();
+        else openSim();
+      });
+      document.getElementById('faSimX').addEventListener('click', closeSim);
+      // Close on Escape
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && sim.classList.contains('open')) closeSim();
+      });
+    }
 
     /* ── Exit admin ── */
     document.getElementById('faOut').addEventListener('click', function () {
