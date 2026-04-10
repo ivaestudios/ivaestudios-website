@@ -339,6 +339,13 @@
       ab.dataset.h = auto.h;
       ab.addEventListener('click', function () { pickRatio(this); });
       $rt.appendChild(ab);
+      var mb = document.createElement('button');
+      mb.className = 'fa-rb';
+      mb.textContent = 'Movil';
+      mb.dataset.w = 9;
+      mb.dataset.h = 16;
+      mb.addEventListener('click', function () { pickRatio(this); });
+      $rt.appendChild(mb);
       presets.forEach(function (p) {
         var b = document.createElement('button');
         b.className = 'fa-rb';
