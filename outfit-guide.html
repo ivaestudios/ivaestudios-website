@@ -199,17 +199,18 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .results-palette-name{font-size:11px;font-weight:600;letter-spacing:0.06em;color:var(--ink)}
 
 .results-cards{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:40px}
+@media(max-width:768px){.results-cards{grid-template-columns:1fr}}
 .result-card{background:white;border:1px solid var(--border-l);overflow:hidden}
-.result-card-img{height:280px;overflow:hidden;position:relative}
-.result-card-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s var(--lux)}
-.result-card:hover .result-card-img img{transform:scale(1.04)}
-.result-card-body{padding:24px}
+.result-card-body{padding:28px 24px;border-left:3px solid var(--gold)}
 .result-card-tag{font-size:9px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:block}
 .result-card h4{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--ink);margin-bottom:10px}
 .result-card p{font-size:13.5px;line-height:1.8;color:var(--muted-l)}
 .result-card ul{list-style:none;margin:0}
-.result-card ul li{font-size:13px;line-height:1.7;color:var(--muted-l);padding:5px 0 5px 18px;position:relative}
-.result-card ul li::before{content:'';position:absolute;left:0;top:13px;width:6px;height:1px;background:var(--gold2)}
+.result-card ul li{font-size:13px;line-height:1.7;color:var(--muted-l);padding:6px 0 6px 20px;position:relative}
+.result-card ul li::before{content:'';position:absolute;left:0;top:14px;width:6px;height:1px;background:var(--gold2)}
+.result-card .tip-highlight{font-weight:600;color:var(--ink)}
+.result-card .pro-tip{margin-top:14px;padding:14px 16px;background:rgba(196,163,90,0.06);border:1px solid rgba(196,163,90,0.15);font-size:12.5px;line-height:1.7;color:var(--muted-l)}
+.result-card .pro-tip strong{color:var(--gold2);font-weight:700;text-transform:uppercase;font-size:10px;letter-spacing:0.12em;display:block;margin-bottom:4px}
 
 .results-cta{text-align:center;padding-top:20px}
 .results-restart{display:inline-block;margin-top:16px;font-size:11px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted-l);text-decoration:none;cursor:pointer;border:none;background:none;transition:color 0.2s}
@@ -656,44 +657,42 @@ const colorData={
   navy:{name:'Navy',hex:'#2C3E5A',pair:['cream','sand','sage','dusty-rose','terracotta']}
 };
 
-const outfitImages={
-  her:'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&q=80',
-  him:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80',
-  couple:'https://images.unsplash.com/photo-1621184455862-c163dfb30e0f?w=600&q=80',
-  family:'https://images.unsplash.com/photo-1609220136736-443140cffec6?w=600&q=80',
-  kids:'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&q=80',
-  bride:'https://images.unsplash.com/photo-1594552072238-b8a33785b261?w=600&q=80',
-  groom:'https://images.unsplash.com/photo-1593030103066-0093718e7177?w=600&q=80',
-  bridesmaids:'https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80'
-};
-
 const recommendations={
   couples:{
     title:'Couples Session',
     getOutfits:function(colors){
       const c=colors.length>=2?colors.slice(0,2):[colors[0],colorData[colors[0]].pair[0]];
       return{
-        subtitle:'A romantic session for two — coordinate, don\'t match.',
+        subtitle:'Coordinate, don\'t match — complementary tones photograph far better than identical outfits.',
         cards:[
-          {tag:'Her',title:'Flowing & Feminine',img:outfitImages.her,items:[
-            colorData[c[0]].name+' maxi dress or linen set',
-            'Lightweight linen, chiffon, or cotton',
-            'Delicate gold jewelry'
-          ]},
-          {tag:'Him',title:'Relaxed & Refined',img:outfitImages.him,items:[
-            colorData[c[1]||c[0]].name+' linen button-down, rolled sleeves',
-            'Light chinos or linen trousers',
-            'Bare feet or leather sandals'
-          ]},
-          {tag:'Together',title:'The Pair',img:outfitImages.couple,items:[
-            'Complementary tones, not identical',
-            'Mix textures for visual depth',
-            'Bring a second outfit for variety'
-          ]},
-          {tag:'Fabrics',title:'Best Choices',img:null,items:[
-            'Linen, chiffon, lightweight cotton',
-            'Avoid polyester and heavy denim'
-          ]}
+          {tag:'Her',title:'Flowing & Feminine',items:[
+            '<span class="tip-highlight">'+colorData[c[0]].name+' maxi dress</span> in chiffon or linen — the fabric catches Caribbean wind and creates movement in every shot',
+            'Avoid bodycon or fitted cuts — relaxed silhouettes flatter on the beach and let you move naturally',
+            'Skip heavy earrings — a <span class="tip-highlight">thin gold chain or small hoops</span> catch golden-hour light beautifully without distracting',
+            'Cancún humidity is 80%+ — choose a dress you won\'t need to keep adjusting',
+            'Bring a hair tie or clip — you\'ll want your hair down, but you need a break option between poses'
+          ],proTip:'Steam your outfit the night before or hang it in the bathroom while you shower. Wrinkles show up in every close-up.'},
+          {tag:'Him',title:'Relaxed & Refined',items:[
+            '<span class="tip-highlight">'+colorData[c[1]||c[0]].name+' linen button-down</span>, sleeves rolled to the elbow — this is the single best look for beach sessions',
+            'Light chinos or linen pants in cream, sand, or light grey — no shorts (they break the visual line)',
+            'Bare feet on the sand, always — shoes look out of place and you\'ll ruin them in the water',
+            'No logos, no patterns, no graphic tees — solid colors only so the focus stays on you',
+            'Untuck the shirt for casual shots, half-tuck for editorial ones — we\'ll guide you'
+          ],proTip:'Bring a small lint roller. Linen wrinkles fast and sand sticks to everything — a quick pass before we start makes a big difference.'},
+          {tag:'Outfit Strategy',title:'How to Coordinate',items:[
+            '<span class="tip-highlight">Pick one palette, two tones</span> — e.g. she wears '+colorData[c[0]].name.toLowerCase()+', he wears '+colorData[c[1]||c[0]].name.toLowerCase(),
+            'Mix textures: her chiffon dress + his linen shirt creates visual depth cameras love',
+            'Bring a second outfit — we recommend one light/airy look + one slightly more dressed up',
+            'Accessories should be minimal — one watch, simple rings, delicate chains',
+            'Plan your outfits together side-by-side before packing — what looks good in a mirror doesn\'t always pair well'
+          ],proTip:'Change of outfit = double the variety for your gallery. Pack both looks so we can switch mid-session without wasting time.'},
+          {tag:'Climate Prep',title:'Cancún-Specific Tips',items:[
+            '<span class="tip-highlight">Never wear polyester or synthetic fabrics</span> — you\'ll sweat through them in 10 minutes in Mexican humidity',
+            'Bring a small bag with blotting papers, a mini deodorant, and water — you\'ll thank us later',
+            'If your session is at sunset (we recommend it), bring a light layer — the breeze picks up after 6 PM',
+            'White clothes can go transparent in water shots — choose off-white or ivory for safety',
+            'Apply sunscreen 1 hour before the session so it absorbs and doesn\'t create a shiny film'
+          ],proTip:'Book a golden-hour session (the hour before sunset). The light in Cancún at 5–6 PM is unmatched — warm, directional, and impossibly flattering.'}
         ]
       };
     }
@@ -701,29 +700,39 @@ const recommendations={
   family:{
     title:'Family Session',
     getOutfits:function(colors){
+      const primary=colorData[colors[0]].name;
+      const kidColors=colors.length>1?colors.slice(1).map(c=>colorData[c].name).join(' and '):'sage or dusty rose';
       return{
-        subtitle:'Coordinating your family — one palette, individual expression.',
+        subtitle:'One palette, individual expression — your family should look connected, not in a uniform.',
         cards:[
-          {tag:'Adults',title:'Anchor the Look',img:outfitImages.couple,items:[
-            'Both parents in '+colorData[colors[0]].name.toLowerCase(),
-            'Maxi dress or linen button-down',
-            'Bare feet for editorial feel'
-          ]},
-          {tag:'Kids',title:'Complementary Tones',img:outfitImages.kids,items:[
-            colors.length>1?colors.slice(1).map(c=>colorData[c].name).join(' + '):'Sage or dusty rose',
-            'Cotton dresses, linen shorts, rompers',
-            'Comfort first — bring a backup'
-          ]},
-          {tag:'Everyone',title:'The Full Picture',img:outfitImages.family,items:[
-            'Same visual conversation, not uniform',
-            'Mix textures for depth',
-            'Bare feet for everyone'
-          ]},
-          {tag:'Babies',title:'Keep It Minimal',img:null,items:[
-            'Solid-color onesies in soft fabric',
-            'No shoes — bare feet on sand',
-            'Extra outfit for sand encounters'
-          ]}
+          {tag:'Parents',title:'Anchor the Look',items:[
+            '<span class="tip-highlight">Both parents in '+primary.toLowerCase()+'</span> — you\'re the visual anchor, so your colors set the tone for everyone',
+            'Mom: maxi dress or linen jumpsuit — movement in your outfit = dynamic photos',
+            'Dad: linen button-down with light chinos — rolled sleeves, no tie, bare feet',
+            'Avoid matching exactly — if Mom wears sage, Dad can wear a muted olive or sand',
+            'Skip loud patterns — small, subtle textures (linen weave, micro-stripe) work, big florals don\'t'
+          ],proTip:'Lay out everyone\'s outfits flat on a bed, together, before packing. If one piece jumps out visually, it\'ll jump out in every photo too. Replace it.'},
+          {tag:'Kids',title:'Complementary Tones',items:[
+            '<span class="tip-highlight">Kids in '+kidColors+'</span> — lighter or softer versions of the parents\' palette',
+            'Girls: cotton dresses or rompers. Boys: linen shorts + a soft cotton tee',
+            'Let kids be barefoot — no shoes on sand, it looks awkward and they\'ll fight you on it',
+            'Bring a backup outfit per child — sand, food, and excitement happen fast',
+            'Comfort is everything — if they\'re pulling at their clothes, it shows in their face'
+          ],proTip:'Dress kids last. Put them in comfy clothes until 15 minutes before the session. This saves you from sand, stains, and a meltdown before we even start.'},
+          {tag:'Everyone Together',title:'The Full Picture',items:[
+            '<span class="tip-highlight">3 colors max across the whole family</span> — more than that looks chaotic in group shots',
+            'Mix textures: linen, cotton, chiffon, chambray — variety in fabric creates depth even in a tight palette',
+            'Everyone barefoot, no exceptions — it\'s the single easiest way to make a beach photo look editorial',
+            'Avoid all-white (too stark) and all-black (absorbs heat, looks heavy on sand)',
+            'If someone has a "but I don\'t look good in that color" moment — cream or sand flatters literally everyone'
+          ],proTip:'If grandparents or extended family are joining, share one photo of the parent outfits so everyone can coordinate without stressing over exact items.'},
+          {tag:'Babies & Toddlers',title:'Keep It Simple',items:[
+            '<span class="tip-highlight">Solid-color onesie or romper</span> in soft cotton — that\'s it, nothing else needed',
+            'No shoes, no headbands that bother them, no stiff fabrics — their comfort = their best expressions',
+            'Bring 2-3 outfit options — babies spit up, toddlers find dirt like magnets',
+            'Muslin swaddles in your palette work beautifully as a prop for newborns',
+            'Schedule around nap time — a well-rested baby is the best-dressed baby'
+          ],proTip:'Bring their favorite snack and a small toy. The real secret to great baby photos isn\'t the outfit — it\'s timing and a full belly.'}
         ]
       };
     }
@@ -731,29 +740,41 @@ const recommendations={
   wedding:{
     title:'Wedding Session',
     getOutfits:function(colors){
+      const partyColors=colors.map(c=>colorData[c].name.toLowerCase()).join(' and ');
       return{
-        subtitle:'Beach wedding styling — flowing, romantic, effortless.',
+        subtitle:'Beach wedding styling is about movement, lightness, and letting the setting do the heavy lifting.',
         cards:[
-          {tag:'Bride',title:'Movement is Everything',img:outfitImages.bride,items:[
-            'Chiffon, silk, or layered tulle',
-            'Off-white or ivory over pure white',
-            'A second lighter dress for portraits'
-          ]},
-          {tag:'Groom',title:'Relaxed Sophistication',img:outfitImages.groom,items:[
-            (colors.includes('sand')||colors.includes('cream')?'Warm beige':'Light grey')+' linen suit',
-            'Open collar, rolled sleeves',
-            'Bare feet or leather sandals'
-          ]},
-          {tag:'Wedding Party',title:'Cohesive Palette',img:outfitImages.bridesmaids,items:[
-            'Bridesmaids in '+colors.map(c=>colorData[c].name.toLowerCase()).join(', '),
-            'Groomsmen in neutral linen',
-            'Coordinate tone, not identical outfits'
-          ]},
-          {tag:'Details',title:'Finishing Touches',img:null,items:[
-            'Long veils catch Caribbean wind beautifully',
-            'Delicate gold or rose gold jewelry',
-            'Fresh flowers in your palette'
-          ]}
+          {tag:'Bride',title:'Movement is Everything',items:[
+            '<span class="tip-highlight">Chiffon, silk, or layered tulle</span> — these fabrics catch the Caribbean wind and create the ethereal movement that makes beach wedding photos iconic',
+            'Choose ivory or off-white over stark white — pure white washes out in direct sunlight and can go transparent when wet',
+            'A-line or flowing silhouettes photograph better on sand than structured ballgowns (which collect sand and restrict movement)',
+            'Consider a <span class="tip-highlight">second, lighter dress for portraits</span> — a slip dress or simpler gown for beach walking shots',
+            'Long veils are stunning in Cancún wind — a cathedral-length veil creates dramatic frames we can\'t get anywhere else',
+            'Skip heavy trains — they drag in sand and you\'ll spend more time managing fabric than enjoying the moment'
+          ],proTip:'If you want water shots (ankle-deep in the ocean), plan for it. Bring the second dress specifically for this — salt water + sand will end your gown\'s life.'},
+          {tag:'Groom',title:'Relaxed Sophistication',items:[
+            '<span class="tip-highlight">'+(colors.includes('sand')||colors.includes('cream')?'Warm beige or sand':'Light grey or slate')+' linen suit</span> — skip the full wool suit, you\'ll be drenched in sweat within 20 minutes',
+            'Open collar, no tie — this is a beach wedding, not a boardroom. The relaxed look photographs beautifully',
+            'Rolled sleeves to the elbow for portraits — it\'s the beach editorial look that never fails',
+            'Bare feet or leather sandals only — dress shoes on sand look forced and you\'ll ruin them',
+            'A pocket square in a complementary color can add a subtle color accent without overdoing it',
+            'Get the suit tailored — even a casual linen suit looks sloppy if it doesn\'t fit'
+          ],proTip:'Order your linen suit at least 6 weeks before the wedding. Bring a travel steamer — linen wrinkles the second you put it on, and you\'ll want to press it right before the ceremony.'},
+          {tag:'Wedding Party',title:'Cohesive, Not Identical',items:[
+            '<span class="tip-highlight">Bridesmaids in '+partyColors+'</span> — same palette, different styles. Let each person choose a silhouette that flatters their body',
+            'Mismatched styles in one color = modern and editorial. Identical dresses = dated',
+            'Groomsmen in neutral linen pants + a white or sand shirt — simple, clean, cohesive',
+            'Skip matching ties and vests — they look overdone on the beach',
+            'Everyone barefoot — yes, including the wedding party. It\'s the single biggest difference between "beach wedding" and "wedding that happens to be on a beach"'
+          ],proTip:'Send your wedding party a swatch or hex code of your chosen color — "sage green" means something different to everyone. Be specific to avoid surprises on the day.'},
+          {tag:'Details & Prep',title:'What Most People Forget',items:[
+            '<span class="tip-highlight">Jewelry: less is more</span> — delicate gold or rose gold catches sunset light without competing with your dress',
+            'Fresh flowers in your chosen palette for the bouquet + boutonnières tie everything together visually',
+            'Anti-humidity hair products are non-negotiable — talk to your stylist about holding styles in 80%+ humidity',
+            'Apply setting spray + waterproof makeup — Cancún heat and emotion will test everything',
+            'Bring fashion tape, safety pins, a sewing kit, and blotting papers — someone will need each of these',
+            'Schedule photos at golden hour (1 hour before sunset) — the light does half the work for us'
+          ],proTip:'Create a group chat with your wedding party 2 weeks before. Share the color palette, a Pinterest board, and the "barefoot" rule. No surprises = no stress on the day.'}
         ]
       };
     }
@@ -790,11 +811,11 @@ function showResults(){
   const cardsWrap=document.getElementById('resultsCards');
   cardsWrap.innerHTML='';
   data.cards.forEach(card=>{
-    let html='<div class="result-card">';
-    if(card.img){html+='<div class="result-card-img"><img src="'+card.img+'" alt="'+card.tag+' outfit inspiration" loading="lazy"/></div>';}
-    html+='<div class="result-card-body"><span class="result-card-tag">'+card.tag+'</span><h4>'+card.title+'</h4><ul>';
+    let html='<div class="result-card"><div class="result-card-body"><span class="result-card-tag">'+card.tag+'</span><h4>'+card.title+'</h4><ul>';
     card.items.forEach(item=>{html+='<li>'+item+'</li>'});
-    html+='</ul></div></div>';
+    html+='</ul>';
+    if(card.proTip){html+='<div class="pro-tip"><strong>Pro Tip</strong>'+card.proTip+'</div>';}
+    html+='</div></div>';
     cardsWrap.innerHTML+=html;
   });
 
