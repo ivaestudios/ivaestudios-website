@@ -210,7 +210,9 @@
       document.querySelectorAll('img[src]').forEach(function (img) {
         if (img.closest('.fa-bar,.fa-m,.fa-t')) return;
         if (img.id === 'lightboxImg') return;
-        if (img.naturalWidth < 50 || img.naturalHeight < 50) return;
+        var iw = img.offsetWidth || img.naturalWidth || 0;
+        var ih = img.offsetHeight || img.naturalHeight || 0;
+        if (iw < 40 && ih < 40) return;
         var p = img.parentElement;
         if (!p) return;
         if (getComputedStyle(p).position === 'static') p.style.position = 'relative';
@@ -234,8 +236,15 @@
         }
       });
     }
-    setTimeout(addButtons, 800);
+    setTimeout(addButtons, 500);
+    setTimeout(addButtons, 1500);
+    setTimeout(addButtons, 3000);
     window.addEventListener('load', function () { setTimeout(addButtons, 400); });
+    var _st;
+    window.addEventListener('scroll', function () {
+      clearTimeout(_st);
+      _st = setTimeout(addButtons, 300);
+    }, { passive: true });
 
     /* ═══ MODAL ═══ */
     var modal = document.createElement('div');
