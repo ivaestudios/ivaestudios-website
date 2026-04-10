@@ -25,6 +25,9 @@
 /focal-admin.js
   Cache-Control: public, max-age=0, must-revalidate
 
+/api/*
+  Cache-Control: no-cache
+
 /*.jpg
   Cache-Control: public, max-age=31536000, immutable
 

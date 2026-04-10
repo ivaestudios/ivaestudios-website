@@ -577,6 +577,6 @@ const hero=document.querySelector('.hero');if(hero){const bg=hero.querySelector(
 const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');io.unobserve(e.target)}})},{threshold:0.12,rootMargin:'0px 0px -40px 0px'});document.querySelectorAll('.rv').forEach(el=>io.observe(el));
 document.querySelectorAll('.faq-q').forEach(btn=>{btn.addEventListener('click',()=>{const item=btn.parentElement;const wasOpen=item.classList.contains('open');document.querySelectorAll('.faq-item.open').forEach(i=>{i.classList.remove('open');i.querySelector('.faq-q').setAttribute('aria-expanded','false')});if(!wasOpen){item.classList.add('open');btn.setAttribute('aria-expanded','true')}})});
 </script>
-<script src="/focal-admin.js?v=3"></script>
+<script src="/focal-admin.js?v=4"></script>
 </body>
 </html>
