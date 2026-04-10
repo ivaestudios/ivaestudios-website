@@ -320,6 +320,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   .cta-content{padding:52px 24px}
   .site-footer nav{gap:16px}
   .cursor{display:none}
+  .pg-i img,.svc-img img,.dest-card img,.about-img>img{object-position:center 20%}
 }
 @media(prefers-reduced-motion:reduce){
   .rv,.rv-scale{transition:none!important;opacity:1!important;transform:none!important}
@@ -654,5 +655,6 @@ function sendHeight(){window.parent.postMessage({type:'iwh',value:document.docum
 window.addEventListener('load',sendHeight);window.addEventListener('resize',sendHeight);
 [500,1500,3000].forEach(t=>setTimeout(sendHeight,t));
 </script>
+<script src="focal-admin.js"></script>
 </body>
 </html>
