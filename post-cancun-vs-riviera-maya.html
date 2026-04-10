@@ -264,6 +264,7 @@ footer nav a:hover{color:var(--cream)}
   .inline-photo{height:280px}
   .comparison-table{font-size:13px}
   .comparison-table thead th,.comparison-table tbody td{padding:10px 10px}
+  .post-hero img,.inline-photo img,.rel-card-img img{object-position:center 20%}
 }
 @media(min-width:768px) and (max-width:1199px){
   .post-hero-content{padding:48px}
@@ -630,5 +631,6 @@ footer nav a:hover{color:var(--cream)}
 window.addEventListener('scroll',()=>{document.getElementById('siteHeader').classList.toggle('scrolled',scrollY>40)});
 document.getElementById('headerToggle').addEventListener('click',()=>{document.getElementById('mobileNav').classList.toggle('open')});
 </script>
+<script src="/focal-admin.js"></script>
 </body>
 </html>
