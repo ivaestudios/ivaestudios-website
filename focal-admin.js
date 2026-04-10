@@ -236,7 +236,7 @@
       document.querySelectorAll('.fa-e,.fa-bg').forEach(function (b) { b.remove(); });
       var data = gl();
       document.querySelectorAll('img[src]').forEach(function (img) {
-        if (img.closest('.fa-bar,.fa-m,.fa-t')) return;
+        if (img.closest('.fa-bar,.fa-m,.fa-t,.fa-sim')) return;
         if (img.id === 'lightboxImg') return;
         var iw = img.offsetWidth || img.naturalWidth || 0;
         var ih = img.offsetHeight || img.naturalHeight || 0;
@@ -433,6 +433,7 @@
       modal.classList.remove('open');
       document.body.style.overflow = '';
       cur = null;
+      drag = false;
     }
 
     /* ── Pointer → focal point ── */
