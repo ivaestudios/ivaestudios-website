@@ -187,7 +187,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .svc-text h3{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,3.8vw,52px);font-weight:300;line-height:1.1;letter-spacing:-0.015em;margin-bottom:22px;opacity:0;transform:translateY(14px);transition:opacity 0.9s var(--lux) 0.3s,transform 0.9s var(--lux) 0.3s}
 .svc-card.vis .svc-text h3{opacity:1;transform:translateY(0)}
 .svc-text h3 em{font-style:italic;color:var(--gold2)}
-.svc-text p{font-size:14.5px;line-height:1.95;color:var(--muted-l);max-width:400px;margin-bottom:32px;letter-spacing:0.005em;opacity:0;transform:translateY(10px);transition:opacity 0.9s var(--lux) 0.45s,transform 0.9s var(--lux) 0.45s}
+.svc-text p{font-size:14.5px;line-height:1.82;color:var(--muted-l);max-width:400px;margin-bottom:32px;letter-spacing:0.005em;opacity:0;transform:translateY(10px);transition:opacity 0.9s var(--lux) 0.45s,transform 0.9s var(--lux) 0.45s}
 .svc-card.vis .svc-text p{opacity:1;transform:translateY(0)}
 .svc-link{display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold2);text-decoration:none;position:relative;padding-bottom:4px;opacity:0;transform:translateY(8px);transition:opacity 0.8s var(--lux) 0.6s,transform 0.8s var(--lux) 0.6s,color 0.3s}
 .svc-card.vis .svc-link{opacity:1;transform:translateY(0)}
@@ -238,9 +238,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .hiw-step:hover .hiw-num{border-color:var(--gold2);background:rgba(196,163,90,0.07);box-shadow:0 4px 24px rgba(168,137,74,0.12);transform:scale(1.06)}
 .hiw-step:hover .hiw-num::before{border-color:rgba(168,137,74,0.18);transform:scale(1.04)}
 .hiw-num span{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;color:var(--gold2);transition:color 0.3s}
-.hiw-step h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;letter-spacing:0.01em;margin-bottom:12px;transition:color 0.3s}
+.hiw-step h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;letter-spacing:-0.005em;margin-bottom:12px;transition:color 0.3s}
 .hiw-step:hover h3{color:var(--gold2)}
-.hiw-step p{font-size:13px;line-height:1.9;color:var(--muted-l);letter-spacing:0.005em;max-width:260px;margin:0 auto}
+.hiw-step p{font-size:13px;line-height:1.78;color:var(--muted-l);letter-spacing:0.005em;max-width:260px;margin:0 auto}
 
 /* ── TESTIMONIALS ── */
 .testimonials{background:var(--cream);padding:140px clamp(28px,5vw,80px) 120px;color:var(--ink)}
@@ -272,7 +272,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .cta-content{position:relative;z-index:2;padding:100px clamp(32px,6vw,80px);max-width:700px;text-align:center;margin:0 auto}
 .cta-content h2{font-family:'Cormorant Garamond',serif;font-size:clamp(38px,5.5vw,66px);font-weight:300;line-height:1.08;letter-spacing:-0.01em;color:var(--cream);margin-top:20px;margin-bottom:28px;text-shadow:0 2px 40px rgba(0,0,0,0.3)}
 .cta-content h2 em{font-style:italic;color:var(--gold);text-shadow:0 2px 30px rgba(196,163,90,0.2)}
-.cta-content p{font-size:15.5px;line-height:1.9;color:rgba(249,248,247,0.65);margin-bottom:48px;letter-spacing:0.005em;max-width:520px;margin-left:auto;margin-right:auto}
+.cta-content p{font-size:15.5px;line-height:1.78;color:rgba(249,248,247,0.65);margin-bottom:48px;letter-spacing:0.005em;max-width:520px;margin-left:auto;margin-right:auto}
 .cta-buttons{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
 .btn-gold{display:inline-flex;align-items:center;gap:14px;font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink2);background:var(--gold);padding:18px 40px;text-decoration:none;transition:background 0.55s var(--expo),box-shadow 0.55s var(--expo),transform 0.55s var(--expo);border:none;box-shadow:0 2px 16px rgba(196,163,90,0.12)}
 .btn-gold:hover{background:#ceae64;box-shadow:0 6px 28px rgba(196,163,90,0.28);transform:translateY(-1px)}
@@ -414,9 +414,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   .fa p{font-size:13.5px}
 
   /* ── Mobile footer ── */
-  .site-footer{flex-direction:column;align-items:flex-start;gap:20px;padding:40px 24px}
-  .site-footer nav{gap:14px;flex-direction:column}
-  .site-footer nav a{font-size:11px;padding:4px 0}
+  .site-footer{padding:48px 24px 36px}
+  .site-footer nav{gap:4px}
+  .site-footer nav a{padding:8px 12px}
 
   /* ── Global mobile cleanup ── */
   .cursor{display:none}
@@ -622,10 +622,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <div class="lightbox" id="lightbox"><button class="lightbox-close" id="lightboxClose" aria-label="Close">&#10005;</button><img id="lightboxImg" src="" alt="IVAE Studios portfolio full view"/></div>
 
 <!-- FOOTER -->
-  <div class="footer-divider"></div>
 <footer class="site-footer">
-  <span class="footer-brand">IVAE Studios</span>
+  <span class="footer-brand"><span>IVAE</span> Studios</span>
+  <span class="footer-tagline">Luxury Resort Photography</span>
   <nav><a href="/">Home</a><a href="/about">About</a><a href="/blog">Journal</a><a href="/cancun-photographer">Cancún</a><a href="/riviera-maya-photographer">Riviera Maya</a><a href="/cabo-photographer">Los Cabos</a><a href="/destination-wedding-photographer-mexico">Weddings</a><a href="/luxury-family-photos-cancun">Families</a><a href="/couples-photography-mexico">Couples</a><a href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Instagram</a></nav>
+  <div class="footer-divider"></div>
   <span class="footer-copy">&copy; 2026 IVAE Studios &middot; Cancún, Mexico</span>
 </footer>
 
