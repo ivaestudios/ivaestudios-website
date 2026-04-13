@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Manejo de Redes Sociales en Cancún | Agencia de Social Media — IVAE Studios</title>
+<title>Social Media Management Cancún | IVAE Studios</title>
 <meta name="description" content="Agencia de manejo de redes sociales en Cancún. Contenido visual profesional, estrategia y gestión de Instagram, Facebook y TikTok para negocios locales. ¡Consulta gratis!"/>
 <meta name="keywords" content="manejo de redes sociales cancun, agencia redes sociales cancun, community manager cancun, social media cancun, marketing digital cancun, gestion instagram cancun, contenido redes sociales riviera maya"/>
 <meta name="author" content="IVAE Studios"/>
@@ -196,6 +196,8 @@
 </script>
 
 <style>
+.skip-link{position:absolute;top:-100%;left:16px;background:var(--gold);color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;border-radius:0 0 4px 4px;transition:top 0.3s}
+.skip-link:focus{top:0}
 /* ══════════════════════════════════════════
    RESET & BASE
    ══════════════════════════════════════════ */
@@ -1933,6 +1935,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 </style>
 </head>
 <body>
+<a href="#main-content" class="skip-link">Skip to content</a>
 
 <!-- ═══ NOISE OVERLAY ═══ -->
 <div class="noise-overlay"></div>
@@ -1965,7 +1968,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 <!-- ══════════════════════════════════════════
      HERO
      ══════════════════════════════════════════ -->
-<section class="hero">
+<section class="hero" id="main-content">
   <div class="hero-particles"><span class="hero-particles-extra"></span></div>
   <div class="hero-mesh"></div>
   <div class="container">
@@ -2771,6 +2774,6 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 })();
 </script>
 
-<script src="/focal-admin.js?v=5"></script>
+<script>if(sessionStorage.getItem("ivae_admin_auth")==="true"){var s=document.createElement("script");s.src="/focal-admin.js?v=6";document.body.appendChild(s);}</script>
 </body>
 </html>

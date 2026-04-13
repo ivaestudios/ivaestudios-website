@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Outfit Guide: What to Wear for Your Photo Session in Mexico | IVAE Studios</title>
+<title>Beach Photo Outfit Guide Mexico | IVAE Studios</title>
 <meta name="description" content="Visual outfit inspiration for your luxury photo session in Mexico. Browse curated looks for couples, families & weddings, then take our style quiz for personalized recommendations."/>
 <link rel="canonical" href="https://ivaestudios.com/outfit-guide"/>
 <meta property="og:title" content="Outfit Guide: What to Wear for Your Photo Session in Mexico"/>
@@ -37,6 +37,8 @@
 </script>
 
 <style>
+.skip-link{position:absolute;top:-100%;left:16px;background:var(--gold);color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;border-radius:0 0 4px 4px;transition:top 0.3s}
+.skip-link:focus{top:0}
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--ink:#1a2433;--ink2:#141d28;--cream:#f9f8f7;--sand:#ede8df;--gold:#c4a35a;--gold2:#a8894a;--muted-l:rgba(26,36,51,0.58);--muted-l2:rgba(26,36,51,0.3);--muted:rgba(249,248,247,0.52);--muted2:rgba(249,248,247,0.28);--border:rgba(196,163,90,0.2);--border-l:rgba(26,36,51,0.1);--lux:cubic-bezier(0.16,1,0.3,1);--smooth:cubic-bezier(0.4,0,0.2,1)}
@@ -311,12 +313,13 @@ footer nav a:hover{color:var(--cream);transform:translateY(-2px)}
 </style>
 </head>
 <body>
+<a href="#main-content" class="skip-link">Skip to content</a>
 
 <!-- HEADER -->
 <header class="site-header" id="siteHeader">
   <a class="header-logo" href="/">IVAE <span>Studios</span></a>
   <nav>
-    <ul class="header-nav">
+    <ul class="header-nav" role="navigation" aria-label="Main navigation">
       <li><a href="/">Home</a></li>
       <li><a href="/about">About</a></li>
       <li><a href="/#services">Services</a></li>
@@ -324,7 +327,7 @@ footer nav a:hover{color:var(--cream);transform:translateY(-2px)}
     </ul>
   </nav>
   <a class="header-cta" href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Book Now</a>
-  <button class="header-toggle" id="headerToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+  <button class="header-toggle" aria-expanded="false" aria-label="Toggle navigation" id="headerToggle" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <div class="mobile-nav" id="mobileNav">
   <a href="/">Home</a>
@@ -335,7 +338,7 @@ footer nav a:hover{color:var(--cream);transform:translateY(-2px)}
 </div>
 
 <!-- 1. HERO -->
-<section class="hero">
+<section class="hero" id="main-content">
   <div class="hero-bg"><img src="https://images.unsplash.com/photo-1774840966357-53cbff0beb28?w=1600&q=80" alt="Couple embracing on tropical beach at golden hour" style="width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(0.45) saturate(0.85)"/></div>
   <div class="hero-content rv vis">
     <span class="hero-eyebrow">Style Guide</span>
@@ -899,6 +902,6 @@ function restartQuiz(){
   document.getElementById('quiz').scrollIntoView({behavior:'smooth',block:'start'});
 }
 </script>
-<script src="/focal-admin.js?v=5"></script>
+<script>if(sessionStorage.getItem("ivae_admin_auth")==="true"){var s=document.createElement("script");s.src="/focal-admin.js?v=6";document.body.appendChild(s);}</script>
 </body>
 </html>

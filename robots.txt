@@ -1,6 +1,9 @@
 User-agent: *
 Allow: /
 Disallow: /cdn-cgi/
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /focal-admin.js
 
 # Sitemap
 Sitemap: https://ivaestudios.com/sitemap.xml

@@ -148,6 +148,11 @@
   to = "/post-tulum-photography-guide.html"
   status = 200
 
+[[redirects]]
+  from = "/blog/gender-reveal-photoshoot-cancun"
+  to = "/post-gender-reveal-photoshoot-cancun.html"
+  status = 200
+
 # ═══════════════════════════════════════════
 # CLEAN URLs — Other Pages
 # ═══════════════════════════════════════════
@@ -159,6 +164,11 @@
 [[redirects]]
   from = "/about"
   to = "/about.html"
+  status = 200
+
+[[redirects]]
+  from = "/outfit-guide"
+  to = "/outfit-guide.html"
   status = 200
 
 # ═══════════════════════════════════════════
@@ -356,6 +366,16 @@
   to = "/blog/tulum-photography-guide"
   status = 301
 
+[[redirects]]
+  from = "/post-gender-reveal-photoshoot-cancun.html"
+  to = "/blog/gender-reveal-photoshoot-cancun"
+  status = 301
+
+[[redirects]]
+  from = "/outfit-guide.html"
+  to = "/outfit-guide"
+  status = 301
+
 # ═══════════════════════════════════════════
 # CLEAN URLs — New Blog Posts (Batch 3)
 # ═══════════════════════════════════════════
@@ -436,6 +456,7 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'"
 
 [[headers]]
   for = "*.html"

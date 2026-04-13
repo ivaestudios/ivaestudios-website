@@ -4,12 +4,12 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="description" content="IVAE Studios — Luxury resort photographer in Cancún, Riviera Maya & Los Cabos. Editorial photography for families, couples & destination weddings. Serving USA & Canada travelers."/>
-<title>IVAE Studios | Luxury Resort Photographer Cancún, Riviera Maya & Los Cabos</title>
+<title>Luxury Resort Photographer Mexico | IVAE Studios</title>
 <link rel="canonical" href="https://ivaestudios.com/"/>
 <link rel="alternate" hreflang="en" href="https://ivaestudios.com/"/>
 <link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/"/>
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1"/>
-<meta property="og:title" content="IVAE Studios | Luxury Resort Photographer Cancún, Riviera Maya & Los Cabos"/>
+<meta property="og:title" content="Luxury Resort Photographer Mexico | IVAE Studios"/>
 <meta property="og:description" content="Editorial-quality resort photography for families, couples and destination travelers from USA and Canada. Cancún, Riviera Maya & Los Cabos."/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://ivaestudios.com/"/>
@@ -32,6 +32,8 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"ImageGallery","name":"IVAE Studios Portfolio","description":"Editorial luxury resort photography portfolio featuring families, couples, and destination weddings across Cancún, Riviera Maya and Los Cabos, Mexico.","url":"https://ivaestudios.com/#portfolio","creator":{"@id":"https://ivaestudios.com/#business"}}</script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
+.skip-link{position:absolute;top:-100%;left:16px;background:var(--gold);color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;border-radius:0 0 4px 4px;transition:top 0.3s}
+.skip-link:focus{top:0}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --ink:#1a2230;--ink2:#0c1219;--cream:#faf8f5;--sand:#eee8dc;--sand2:#e5dacb;
@@ -438,6 +440,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 </style>
 </head>
 <body>
+<a href="#main-content" class="skip-link">Skip to content</a>
 <!-- LOADER -->
 <div class="loader" id="loader">
   <div class="loader-brand">IVAE Studios</div>
@@ -453,19 +456,19 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <!-- HEADER -->
 <header class="site-header" id="siteHeader">
   <a class="header-logo" href="/">IVAE <span>Studios</span></a>
-  <nav><ul class="header-nav">
+  <nav><ul class="header-nav" role="navigation" aria-label="Main navigation">
     <li><a href="/" class="active">Home</a></li>
     <li><a href="/about">About</a></li>
     <li><a href="#services">Services</a></li>
     <li><a href="/blog">Blog</a></li>
   </ul></nav>
   <a class="header-cta" href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Book Now</a>
-  <button class="header-toggle" id="headerToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+  <button class="header-toggle" aria-expanded="false" aria-label="Toggle navigation" id="headerToggle" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <nav class="mobile-nav" id="mobileNav"><a href="/">Home</a><a href="/about">About</a><a href="#services">Services</a><a href="/blog">Blog</a><a href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Book Now</a></nav>
 
 <!-- HERO -->
-<section class="hero" id="hero">
+<section class="hero" id="main-content">
   <div class="hero-bg" id="heroBg"><img src="images/editorial-session-riviera-maya-resort-ivae-studios.jpg" alt="Destination wedding bridal photography in Riviera Maya — IVAE Studios" width="1920" height="1080"/></div>
   <div class="hero-overlay"></div>
   <div class="hero-content" id="heroContent">
@@ -760,6 +763,6 @@ function sendHeight(){window.parent.postMessage({type:'iwh',value:document.docum
 window.addEventListener('load',sendHeight);window.addEventListener('resize',sendHeight);
 [500,1500,3000].forEach(t=>setTimeout(sendHeight,t));
 </script>
-<script src="focal-admin.js?v=5"></script>
+<script>if(sessionStorage.getItem("ivae_admin_auth")==="true"){var s=document.createElement("script");s.src="/focal-admin.js?v=6";document.body.appendChild(s);}</script>
 </body>
 </html>
