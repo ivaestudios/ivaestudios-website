@@ -74,14 +74,14 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .header-logo{font-size:15px;font-weight:600;letter-spacing:0.32em;text-transform:uppercase;color:var(--cream);text-decoration:none}
 .header-logo span{color:var(--gold)}
 .header-nav{display:flex;align-items:center;gap:40px;list-style:none}
-.header-nav a{font-size:10.5px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:rgba(249,248,247,0.55);text-decoration:none;position:relative;padding-bottom:2px;transition:color 0.4s cubic-bezier(0.22,1,0.36,1)}
+.header-nav a{font-size:10.5px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:rgba(249,248,247,0.82);text-decoration:none;position:relative;padding-bottom:2px;transition:color 0.4s cubic-bezier(0.22,1,0.36,1)}
 .header-nav a:hover,.header-nav a.active{color:var(--cream)}.header-nav a::after{content:"";position:absolute;left:0;bottom:-2px;width:100%;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:right;transition:transform 0.4s cubic-bezier(0.22,1,0.36,1)}.header-nav a:hover::after,.header-nav a.active::after{transform:scaleX(1);transform-origin:left}
 .header-cta{font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(196,163,90,0.35);padding:10px 26px;text-decoration:none;position:relative;overflow:hidden;transition:color 0.4s cubic-bezier(0.22,1,0.36,1),border-color 0.4s cubic-bezier(0.22,1,0.36,1),box-shadow 0.4s cubic-bezier(0.22,1,0.36,1)}
 .header-cta:hover{color:var(--cream);background:rgba(196,163,90,0.12);border-color:var(--gold);box-shadow:0 0 20px rgba(196,163,90,0.15)}
 .header-toggle{display:none;flex-direction:column;gap:6px;cursor:pointer;padding:8px;background:none;border:none;transition:opacity 0.3s}.header-toggle:hover{opacity:0.7}
 .header-toggle span{display:block;width:24px;height:1px;background:var(--cream);transition:all 0.4s cubic-bezier(0.22,1,0.36,1);transform-origin:center}
 .mobile-nav{display:none;position:fixed;top:72px;left:0;right:0;background:rgba(14,22,32,0.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);padding:36px clamp(24px,5vw,64px);flex-direction:column;gap:4px;border-bottom:1px solid rgba(196,163,90,0.15);box-shadow:0 12px 40px rgba(0,0,0,0.25);z-index:999}
-.mobile-nav a{font-size:12px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:rgba(249,248,247,0.5);text-decoration:none;padding:18px 0;border-bottom:1px solid rgba(196,163,90,0.1);display:block;transition:color 0.3s cubic-bezier(0.22,1,0.36,1),padding-left 0.3s cubic-bezier(0.22,1,0.36,1)}.mobile-nav a:hover{color:var(--gold);padding-left:8px}
+.mobile-nav a{font-size:12px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:rgba(249,248,247,0.75);text-decoration:none;padding:18px 0;border-bottom:1px solid rgba(196,163,90,0.1);display:block;transition:color 0.3s cubic-bezier(0.22,1,0.36,1),padding-left 0.3s cubic-bezier(0.22,1,0.36,1)}.mobile-nav a:hover{color:var(--gold);padding-left:8px}
 .mobile-nav a:last-child{border-bottom:none}
 .mobile-nav.open{display:flex}
 
@@ -469,7 +469,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 <!-- HERO -->
 <section class="hero" id="main-content">
-  <div class="hero-bg" id="heroBg"><img src="images/editorial-session-riviera-maya-resort-ivae-studios.jpg" alt="Destination wedding bridal photography in Riviera Maya — IVAE Studios" width="1920" height="1080"/></div>
+  <div class="hero-bg" id="heroBg"><img src="images/editorial-session-riviera-maya-resort-ivae-studios.jpg" alt="Destination wedding bridal photography in Riviera Maya — IVAE Studios" width="1920" height="1080" loading="lazy" decoding="async"/></div>
   <div class="hero-overlay"></div>
   <div class="hero-content" id="heroContent">
     <h1 data-split>Luxury resort photography across <em>Mexico.</em></h1>
@@ -522,7 +522,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <!-- SERVICES STACK -->
 <section class="svc-stack" id="services">
   <div class="svc-card" data-anim>
-    <div class="svc-img"><img src="images/image-07.jpg" alt="Family resort photography session — IVAE Studios" loading="lazy"/></div>
+    <div class="svc-img"><img src="images/image-07.jpg" alt="Family resort photography session — IVAE Studios" loading="lazy" width="2000" height="1333"/></div>
     <div class="svc-text">
       <span class="svc-num">01</span>
       <span class="svc-tag">Cancún · Riviera Maya · Los Cabos</span>
@@ -532,7 +532,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
   </div>
   <div class="svc-card" data-anim>
-    <div class="svc-img"><img src="images/image-08.jpg" alt="Couples photography Cancún beach sunset — IVAE Studios" loading="lazy"/></div>
+    <div class="svc-img"><img src="images/image-08.jpg" alt="Couples photography Cancún beach sunset — IVAE Studios" loading="lazy" width="2000" height="1333"/></div>
     <div class="svc-text">
       <span class="svc-num">02</span>
       <span class="svc-tag">Golden hour · Intimate · Editorial</span>
@@ -542,7 +542,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
   </div>
   <div class="svc-card" data-anim>
-    <div class="svc-img"><img src="images/image-09.jpg" alt="Destination wedding photographer Mexico — IVAE Studios" loading="lazy"/></div>
+    <div class="svc-img"><img src="images/image-09.jpg" alt="Destination wedding photographer Mexico — IVAE Studios" loading="lazy" width="2000" height="1333"/></div>
     <div class="svc-text">
       <span class="svc-num">03</span>
       <span class="svc-tag">Photography · Film · Full coverage</span>
@@ -557,9 +557,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <section class="destinations">
   <div class="dest-header rv" data-anim><span class="eyebrow">Where we shoot</span><h2>Three destinations. One <em>standard.</em></h2></div>
   <div class="dest-grid">
-    <div class="dest-card rv" data-anim><img src="images/canc-n-resort-photography-ivae-studios.jpg" alt="Cancún luxury resort photography — IVAE Studios" loading="lazy"/><div class="dest-ov"></div><span class="dest-badge">Year-round</span><div class="dest-info"><span class="dest-label">Destination 01</span><h3><a href="/cancun-photographer">Cancún</a></h3><p>Turquoise waters, white sand and dramatic golden hour light.</p><a class="dest-go" href="/cancun-photographer">View Cancún sessions</a></div></div>
-    <div class="dest-card rv d1" data-anim><img src="images/image-11.jpg" alt="Riviera Maya resort photographer — IVAE Studios" loading="lazy"/><div class="dest-ov"></div><span class="dest-badge">Year-round</span><div class="dest-info"><span class="dest-label">Destination 02</span><h3><a href="/riviera-maya-photographer">Riviera Maya</a></h3><p>Cenotes, jungle paths and properties from Playa del Carmen to Tulum.</p><a class="dest-go" href="/riviera-maya-photographer">View Riviera Maya sessions</a></div></div>
-    <div class="dest-card rv d2" data-anim><img src="images/los-cabos-sunset-session-ivae-studios.jpg" alt="Los Cabos resort photographer — IVAE Studios" loading="lazy"/><div class="dest-ov"></div><span class="dest-badge">Year-round</span><div class="dest-info"><span class="dest-label">Destination 03</span><h3><a href="/cabo-photographer">Los Cabos</a></h3><p>Desert meets ocean. Cinematic landscape with golden light.</p><a class="dest-go" href="/cabo-photographer">View Los Cabos sessions</a></div></div>
+    <div class="dest-card rv" data-anim><img src="images/canc-n-resort-photography-ivae-studios.jpg" alt="Cancún luxury resort photography — IVAE Studios" loading="lazy" width="2000" height="1333"/><div class="dest-ov"></div><span class="dest-badge">Year-round</span><div class="dest-info"><span class="dest-label">Destination 01</span><h3><a href="/cancun-photographer">Cancún</a></h3><p>Turquoise waters, white sand and dramatic golden hour light.</p><a class="dest-go" href="/cancun-photographer">View Cancún sessions</a></div></div>
+    <div class="dest-card rv d1" data-anim><img src="images/image-11.jpg" alt="Riviera Maya resort photographer — IVAE Studios" loading="lazy" width="1333" height="2000"/><div class="dest-ov"></div><span class="dest-badge">Year-round</span><div class="dest-info"><span class="dest-label">Destination 02</span><h3><a href="/riviera-maya-photographer">Riviera Maya</a></h3><p>Cenotes, jungle paths and properties from Playa del Carmen to Tulum.</p><a class="dest-go" href="/riviera-maya-photographer">View Riviera Maya sessions</a></div></div>
+    <div class="dest-card rv d2" data-anim><img src="images/los-cabos-sunset-session-ivae-studios.jpg" alt="Los Cabos resort photographer — IVAE Studios" loading="lazy" width="1333" height="2000"/><div class="dest-ov"></div><span class="dest-badge">Year-round</span><div class="dest-info"><span class="dest-label">Destination 03</span><h3><a href="/cabo-photographer">Los Cabos</a></h3><p>Desert meets ocean. Cinematic landscape with golden light.</p><a class="dest-go" href="/cabo-photographer">View Los Cabos sessions</a></div></div>
   </div>
 </section>
 
@@ -598,7 +598,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 <!-- CTA -->
 <section class="cta-section">
-  <div class="cta-bg"><img src="images/image-01.jpg" alt="Golden hour resort photography — IVAE Studios" loading="lazy"/></div>
+  <div class="cta-bg"><img src="images/image-01.jpg" alt="Golden hour resort photography — IVAE Studios" loading="lazy" width="2000" height="1333"/></div>
   <div class="cta-content rv-scale" data-anim>
     <span class="eyebrow">Ready to book</span>
     <h2>Your trip is planned. Your photos <em>should be too.</em></h2>
@@ -623,7 +623,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 </section>
 
 <!-- LIGHTBOX -->
-<div class="lightbox" id="lightbox"><button class="lightbox-close" id="lightboxClose" aria-label="Close">&#10005;</button><img id="lightboxImg" src="" alt="IVAE Studios portfolio full view"/></div>
+<div class="lightbox" id="lightbox"><button class="lightbox-close" id="lightboxClose" aria-label="Close">&#10005;</button><img id="lightboxImg" src="" alt="IVAE Studios portfolio full view" loading="lazy" decoding="async"/></div>
 
 <!-- FOOTER -->
 <footer class="site-footer">
