@@ -226,6 +226,10 @@
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/what-to-wear-beach-photos-mexico.jpg</image:loc>
+      <image:title>What to Wear for Beach Photos in Mexico - IVAE Studios</image:title>
+    </image:image>
   </url>
 
   <url>
@@ -233,6 +237,10 @@
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/best-resorts-cancun-photography.jpg</image:loc>
+      <image:title>Best Resorts for Photography in Cancún - IVAE Studios</image:title>
+    </image:image>
   </url>
 
   <url>
@@ -240,6 +248,10 @@
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/cancun-vs-riviera-maya-photos.jpg</image:loc>
+      <image:title>Cancún vs Riviera Maya for Photos - IVAE Studios</image:title>
+    </image:image>
   </url>
 
   <url>
@@ -247,6 +259,10 @@
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/destination-elopement-mexico.jpg</image:loc>
+      <image:title>Destination Elopement in Mexico - IVAE Studios</image:title>
+    </image:image>
   </url>
 
   <url>
@@ -254,6 +270,10 @@
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/golden-hour-photography-mexico.jpg</image:loc>
+      <image:title>Golden Hour Photography in Mexico - IVAE Studios</image:title>
+    </image:image>
   </url>
 
   <url>
@@ -261,6 +281,10 @@
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/vow-renewal-mexico-photography.jpg</image:loc>
+      <image:title>Vow Renewal Photography in Mexico - IVAE Studios</image:title>
+    </image:image>
   </url>
 
   <url>
@@ -268,6 +292,10 @@
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/babymoon-photography-cancun.jpg</image:loc>
+      <image:title>Babymoon Photography Cancún - IVAE Studios</image:title>
+    </image:image>
   </url>
 
   <url>
@@ -275,6 +303,10 @@
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/anniversary-photography-mexico.jpg</image:loc>
+      <image:title>Anniversary Photography in Mexico - IVAE Studios</image:title>
+    </image:image>
   </url>
 
   <url>
@@ -282,6 +314,10 @@
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/all-inclusive-resort-photographer-mexico.jpg</image:loc>
+      <image:title>All-Inclusive Resort Photographer in Mexico - IVAE Studios</image:title>
+    </image:image>
   </url>
 
   <url>
@@ -289,6 +325,10 @@
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/tulum-photography-guide.jpg</image:loc>
+      <image:title>Tulum Photography Guide - IVAE Studios</image:title>
+    </image:image>
   </url>
 
   <url>
@@ -355,6 +395,24 @@
       <image:loc>https://ivaestudios.com/images/blog/trash-the-dress-cancun.jpg</image:loc>
       <image:title>Trash the Dress Cancún - IVAE Studios</image:title>
     </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/blog/gender-reveal-photoshoot-cancun</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/gender-reveal-photoshoot-cancun.jpg</image:loc>
+      <image:title>Gender Reveal Photoshoot Cancún - IVAE Studios</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/outfit-guide</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 
 </urlset>
