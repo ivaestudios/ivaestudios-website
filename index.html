@@ -126,11 +126,12 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;color:inhe
 .gallery-header{padding:56px 48px 60px;max-width:1200px;margin:0 auto}
 .gallery-eyebrow{font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.35em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;display:block}
 .gallery-heading{font-size:clamp(28px,4vw,48px);font-weight:300;line-height:1.2}
-.gallery-wrap{position:relative;overflow:hidden}
-.gallery-sticky{position:relative;top:auto;height:auto;min-height:520px;overflow:hidden;display:flex;align-items:center}
-.gallery-track{display:flex;gap:24px;padding:0 48px;align-items:center;height:auto;will-change:transform}
-.gallery-item{flex:0 0 auto;width:70vw;position:relative;overflow:hidden;border-radius:4px}
-.gallery-item img{width:100%;height:60vh;object-fit:cover;transition:transform 0.6s var(--lux);cursor:pointer}
+.gallery-wrap{position:relative;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.gallery-wrap::-webkit-scrollbar{display:none}
+.gallery-sticky{position:relative;top:auto;height:auto;display:flex;align-items:center}
+.gallery-track{display:flex;gap:20px;padding:0 48px 24px;align-items:center;height:auto}
+.gallery-item{flex:0 0 auto;width:min(520px,70vw);position:relative;overflow:hidden;border-radius:4px;scroll-snap-align:center}
+.gallery-item img{width:100%;height:clamp(360px,56vh,560px);object-fit:cover;transition:transform 0.6s var(--lux);cursor:pointer}
 .gallery-item:hover img{transform:scale(1.02)}
 .gallery-item-label{font-family:'Syne',sans-serif;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--fg3);margin-top:12px;padding-left:4px}
 
@@ -428,7 +429,7 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;color:inhe
     <span class="gallery-eyebrow rv" data-anim>Our Work</span>
     <h2 class="gallery-heading rv rv-d1" data-anim>Images that speak for themselves.</h2>
   </div>
-  <div class="gallery-wrap" style="height:400vh">
+  <div class="gallery-wrap">
     <div class="gallery-sticky">
       <div class="gallery-track" id="galleryTrack">
         <div class="gallery-item">
