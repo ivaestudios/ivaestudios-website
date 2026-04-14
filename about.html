@@ -88,13 +88,13 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;color:inhe
 .hero-title em{font-style:italic;color:var(--gold)}
 
 /* STATS */
-.stats{padding:80px 48px;display:flex;justify-content:center;gap:80px;flex-wrap:wrap;background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.stats{padding:56px 48px;display:flex;justify-content:center;gap:80px;flex-wrap:wrap;background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .stat{text-align:center}
 .stat-num{font-size:clamp(36px,6vw,56px);font-weight:300;color:var(--fg);line-height:1}
 .stat-label{font-family:'Syne',sans-serif;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--fg3);margin-top:8px}
 
 /* STORY */
-.story{display:grid;grid-template-columns:1fr 1fr;min-height:80vh;background:var(--bg)}
+.story{display:grid;grid-template-columns:1fr 1fr;min-height:auto;background:var(--bg)}
 .story-img{position:relative;overflow:hidden}
 .story-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.8s var(--lux)}
 .story-img:hover img{transform:scale(1.03)}
@@ -106,7 +106,7 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;color:inhe
 .story-quote{font-size:20px;font-weight:300;font-style:italic;color:var(--fg);margin-top:32px;padding-left:24px;border-left:2px solid var(--gold);line-height:1.6;max-width:480px}
 
 /* VALUES */
-.values{padding:120px 48px;background:var(--bg2)}
+.values{padding:56px 48px;background:var(--bg2)}
 .values-header{text-align:center;max-width:700px;margin:0 auto 72px}
 .values-eyebrow{font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.35em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;display:block}
 .values-heading{font-size:clamp(28px,4vw,48px);font-weight:300;line-height:1.2}
@@ -121,7 +121,7 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;color:inhe
 .value-card:hover .value-tag{border-color:rgba(196,163,90,0.3)}
 
 /* DIRECTOR */
-.director{display:grid;grid-template-columns:1.1fr 1fr;min-height:80vh;background:var(--bg)}
+.director{display:grid;grid-template-columns:1.1fr 1fr;min-height:auto;background:var(--bg)}
 .director-img{position:relative;overflow:hidden}
 .director-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.8s var(--lux)}
 .director-img:hover img{transform:scale(1.03)}
@@ -139,7 +139,7 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;color:inhe
 .cred strong{color:var(--fg);font-weight:600}
 
 /* CTA */
-.cta{position:relative;height:100vh;min-height:600px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.cta{position:relative;height:auto;min-height:480px;max-height:600px;overflow:hidden;display:flex;align-items:center;justify-content:center}
 .cta-bg{position:absolute;inset:-10% 0;overflow:hidden}
 .cta-bg img{width:100%;height:100%;object-fit:cover;will-change:transform}
 .cta-overlay{position:absolute;inset:0;background:rgba(26,36,51,0.65)}
@@ -156,7 +156,7 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;color:inhe
 .btn-outline:hover{background:var(--gold);color:#1a2433}
 
 /* FOOTER */
-.footer{background:var(--bg);padding:80px 48px 40px;position:relative}
+.footer{background:var(--bg);padding:56px 48px 40px;position:relative}
 .footer::before{content:'';position:absolute;top:0;left:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 .footer-inner{max-width:1200px;margin:0 auto;text-align:center}
 .footer-brand{font-size:clamp(24px,3vw,32px);font-weight:300;margin-bottom:8px}
@@ -192,7 +192,7 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;color:inhe
   .stats{gap:48px;padding:60px 32px}
   .story{grid-template-columns:1fr}.story-img img{aspect-ratio:16/9}
   .story-text{padding:64px 48px}
-  .values{padding:100px 32px}
+  .values{padding:72px 32px}
   .values-grid{grid-template-columns:repeat(2,1fr)}.values-grid .value-card:last-child{grid-column:span 2;max-width:50%;justify-self:center}
   .director{grid-template-columns:1fr}.director-img img{aspect-ratio:16/9}
   .director-text{padding:64px 48px}
@@ -205,19 +205,19 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;color:inhe
   .header{padding:0 20px;height:60px}
   .header-nav{display:none}
   .hamburger{display:flex}
-  .hero{height:auto;min-height:60vh;padding:60px 20px}
+  .hero{height:auto;min-height:60vh;padding:40px 20px}
   .hero-content{padding:0;position:relative;transform:none !important}
   .hero-title{font-size:clamp(30px,8vw,44px)}
-  .stats{gap:24px 32px;padding:60px 20px;min-height:auto}
+  .stats{gap:24px 32px;padding:40px 20px;min-height:auto}
   .stat-num{font-size:clamp(30px,9vw,44px)}
   .story{grid-template-columns:1fr;min-height:auto}
   .story-img{position:relative}
   .story-img img{aspect-ratio:4/3}
-  .story-text{padding:60px 20px}
+  .story-text{padding:40px 20px}
   .story-heading{font-size:clamp(24px,6vw,32px);margin-bottom:20px}
   .story-body{font-size:15px;line-height:1.7;margin-bottom:14px}
   .story-quote{font-size:17px;margin-top:24px;padding-left:18px;line-height:1.55}
-  .values{padding:60px 20px;min-height:auto}
+  .values{padding:40px 20px;min-height:auto}
   .values-header{margin:0 auto 40px}
   .values-heading{font-size:clamp(24px,6vw,32px)}
   .values-grid{grid-template-columns:1fr;gap:16px}
@@ -228,13 +228,13 @@ button{border:none;background:none;cursor:pointer;font-family:inherit;color:inhe
   .director{grid-template-columns:1fr;min-height:auto}
   .director-img{order:-1;position:relative}
   .director-img img{aspect-ratio:4/3}
-  .director-text{padding:60px 20px}
+  .director-text{padding:40px 20px}
   .director-heading{font-size:clamp(24px,6vw,32px);margin-bottom:10px}
   .director-body{font-size:15px;line-height:1.7;margin-bottom:14px}
   .creds{margin-top:24px}
   .cred{padding:12px 0;gap:12px}
   .cred span{font-size:12px}
-  .cta{min-height:auto;height:auto;padding:60px 20px}
+  .cta{min-height:auto;height:auto;padding:40px 20px}
   .cta-bg{position:absolute;inset:0}
   .cta-bg img{transform:none !important}
   .cta-title{font-size:clamp(26px,7vw,36px)}

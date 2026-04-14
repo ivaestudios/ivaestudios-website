@@ -132,7 +132,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .il-link .il-title{font-size:14px;color:var(--ink);font-weight:500;line-height:1.4;transition:color 0.2s}
 
 /* CTA */
-.post-cta{text-align:center;padding:80px 64px;background:var(--ink)}
+.post-cta{text-align:center;padding:56px 64px;background:var(--ink)}
 .post-cta h2{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,3.5vw,42px);font-weight:300;color:var(--cream);margin:12px 0 16px;hyphens:none}
 .post-cta h2 em{font-style:italic;color:var(--gold)}
 .post-cta p{font-size:14.5px;color:var(--muted);margin-bottom:28px}
@@ -170,7 +170,7 @@ footer nav a:hover{color:var(--cream)}
   .comparison-table thead th,.comparison-table tbody td{padding:10px 10px}
   .related{padding:48px 24px}
   .related-grid{grid-template-columns:1fr}
-  .post-cta{padding:64px 24px}
+  .post-cta{padding:48px 24px}
   footer{padding:40px 24px}
   .inline-photo{height:280px}
   .post-hero img,.inline-photo img,.rel-card-img img{object-position:center 20%}
