@@ -1,12 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--ink:#1a2433;--ink2:#f9f8f7;--cream:#f9f8f7;--sand:#ede8df;--gold:#c4a35a;--gold2:#a8894a;--muted-l:rgba(26,36,51,0.58);--muted-l2:rgba(26,36,51,0.3);--muted:rgba(249,248,247,0.52);--muted2:rgba(249,248,247,0.28);--border:rgba(196,163,90,0.2);--border-l:rgba(26,36,51,0.1)}
+:root{--ink:#1a2433;--ink2:#141d28;--cream:#f9f8f7;--sand:#ede8df;--gold:#c4a35a;--gold2:#a8894a;--muted-l:rgba(26,36,51,0.58);--muted-l2:rgba(26,36,51,0.3);--muted:rgba(249,248,247,0.52);--muted2:rgba(249,248,247,0.28);--border:rgba(196,163,90,0.2);--border-l:rgba(26,36,51,0.1)}
 html{scroll-behavior:smooth}
 body{font-family:'Syne',sans-serif;background:var(--cream);color:var(--ink);overflow-x:hidden;padding-top:72px}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:0.02;pointer-events:none;z-index:9999}
 
 /* HEADER */
-.site-header{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 64px;height:72px;background:rgba(26,36,51,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(196,163,90,0.15);transition:background 0.3s}
+.site-header{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 64px;height:72px;background:rgba(26,36,51,0.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(196,163,90,0.15);transition:background 0.3s}
 .site-header.scrolled{background:rgba(26,36,51,0.98)}
 .header-logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#f9f8f7;text-decoration:none}
 .header-logo span{color:#c4a35a}
@@ -125,14 +125,13 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .internal-links{max-width:760px;margin:0 auto;padding:0 64px 60px}
 .internal-links h3{font-size:12px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold2);margin-bottom:16px}
 .il-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.il-link{display:block;padding:16px 20px;background:rgba(26,36,51,0.03);border:1px solid var(--border-l);text-decoration:none;transition:border-color 0.2s,background 0.2s,transform 0.2s}
-.il-link:hover{border-color:var(--gold);background:rgba(196,163,90,0.08);transform:translateY(-2px)}
-.il-link:hover .il-title{color:var(--gold2)}
+.il-link{display:block;padding:16px 20px;background:rgba(26,36,51,0.03);border:1px solid var(--border-l);text-decoration:none;transition:border-color 0.2s,background 0.2s}
+.il-link:hover{border-color:var(--gold);background:rgba(196,163,90,0.04)}
 .il-link .il-tag{font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold2);margin-bottom:6px}
-.il-link .il-title{font-size:14px;color:var(--ink);font-weight:500;line-height:1.4;transition:color 0.2s}
+.il-link .il-title{font-size:14px;color:var(--ink);font-weight:500;line-height:1.4}
 
 /* CTA */
-.post-cta{text-align:center;padding:56px 64px;background:var(--ink)}
+.post-cta{text-align:center;padding:80px 64px;background:var(--ink)}
 .post-cta h2{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,3.5vw,42px);font-weight:300;color:var(--cream);margin:12px 0 16px;hyphens:none}
 .post-cta h2 em{font-style:italic;color:var(--gold)}
 .post-cta p{font-size:14.5px;color:var(--muted);margin-bottom:28px}
@@ -170,7 +169,7 @@ footer nav a:hover{color:var(--cream)}
   .comparison-table thead th,.comparison-table tbody td{padding:10px 10px}
   .related{padding:48px 24px}
   .related-grid{grid-template-columns:1fr}
-  .post-cta{padding:48px 24px}
+  .post-cta{padding:64px 24px}
   footer{padding:40px 24px}
   .inline-photo{height:280px}
   .post-hero img,.inline-photo img,.rel-card-img img{object-position:center 20%}

@@ -25,792 +25,599 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-:root{
-  --bg:#f9f8f7;
-  --bg2:#ffffff;
-  --bg3:#f2efe9;
-  --fg:#1a2433;
-  --fg2:rgba(26,36,51,0.6);
-  --fg3:rgba(26,36,51,0.45);
-  --gold:#c4a35a;
-  --gold2:#a8894a;
-  --gold-glow:rgba(196,163,90,0.15);
-  --border:rgba(26,36,51,0.1);
-  --lux:cubic-bezier(0.16,1,0.3,1);
-  --expo:cubic-bezier(0.19,1,0.22,1);
-  --smooth:cubic-bezier(0.77,0,0.175,1);
-}
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-body{background:var(--bg);color:var(--fg);font-family:'Cormorant Garamond',serif;overflow-x:hidden;line-height:1.6}
-img{max-width:100%;height:auto;display:block}
-a{color:inherit;text-decoration:none}
-button{border:none;background:none;cursor:pointer;font-family:inherit;color:inherit}
-.syne{font-family:'Syne',sans-serif}
-
-/* SKIP LINK */
-.skip-link{position:absolute;top:-100%;left:50%;transform:translateX(-50%);background:var(--gold);color:#ffffff;padding:12px 24px;z-index:10000;font-family:'Syne',sans-serif;font-size:13px;border-radius:0 0 6px 6px;transition:top 0.3s}
+.skip-link{position:absolute;top:-100%;left:16px;background:var(--gold);color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;border-radius:0 0 4px 4px;transition:top 0.3s}
 .skip-link:focus{top:0}
-
-/* SCROLL PROGRESS */
-.scroll-progress{position:fixed;top:0;left:0;width:0%;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold2));z-index:9999;pointer-events:none}
-
-/* HEADER */
-.header{position:fixed;top:0;left:0;width:100%;z-index:900;padding:0 48px;height:72px;display:flex;align-items:center;justify-content:space-between;transition:background 0.5s var(--lux),box-shadow 0.5s var(--lux)}
-.header.scrolled{background:rgba(249,248,247,0.9);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:0 1px 0 var(--border)}
-.header-logo{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.35em;text-transform:uppercase;color:var(--fg);z-index:1001}
-.header-nav{display:flex;align-items:center;gap:40px}
-.header-nav a{font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--fg3);transition:color 0.3s}
-.header-nav a:hover,.header-nav a.active{color:var(--fg)}
-.header-cta{font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold);padding:10px 24px;transition:background 0.3s,color 0.3s}
-.header-cta:hover{background:var(--gold);color:#ffffff}
-.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;z-index:1001;width:24px}
-.hamburger span{display:block;width:100%;height:1px;background:var(--fg);transition:transform 0.3s,opacity 0.3s}
-.hamburger.active span:nth-child(1){transform:translateY(6px) rotate(45deg)}
-.hamburger.active span:nth-child(2){opacity:0}
-.hamburger.active span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
-
-/* MOBILE NAV */
-.mobile-nav{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;opacity:0;visibility:hidden;transition:opacity 0.4s var(--lux),visibility 0.4s}
-.mobile-nav.open{opacity:1;visibility:visible}
-.mobile-nav a{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:var(--fg);transition:color 0.3s}
-.mobile-nav a:hover{color:var(--gold)}
-
-/* BLOG HERO */
-.blog-hero{position:relative;height:60vh;min-height:420px;max-height:600px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-top:72px}
-.blog-hero-bg{position:absolute;inset:0;z-index:0}
-.blog-hero-bg img{width:100%;height:100%;object-fit:cover;animation:kenBurns 25s ease-in-out infinite alternate}
-@keyframes kenBurns{0%{transform:scale(1)}100%{transform:scale(1.06)}}
-.blog-hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(26,36,51,0.35) 0%,rgba(26,36,51,0.55) 50%,rgba(26,36,51,0.82) 100%);z-index:1}
-.blog-hero-content{position:relative;z-index:2;text-align:center;padding:0 24px;max-width:800px}
-.blog-hero-eyebrow{font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.35em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:inline-flex;align-items:center;gap:12px}
-.blog-hero-eyebrow::after{content:'';display:block;width:36px;height:1px;background:var(--gold);opacity:0.5}
-.blog-hero-title{font-size:clamp(36px,8vw,80px);font-weight:300;line-height:1.08;margin-bottom:16px;color:#fafaf9}
-.blog-hero-title em{font-style:italic;color:var(--gold)}
-.blog-hero-sub{font-size:17px;color:rgba(250,250,249,0.75);line-height:1.7;max-width:540px;margin:0 auto 32px}
-.blog-hero-stats{display:flex;gap:48px;justify-content:center}
-.blog-hero-stat{text-align:center}
-.blog-hero-stat-num{font-size:clamp(28px,4vw,40px);font-weight:300;color:var(--gold);line-height:1}
-.blog-hero-stat-label{font-family:'Syne',sans-serif;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(250,250,249,0.55);margin-top:6px}
-
-/* BREADCRUMBS */
-.breadcrumbs{padding:24px 48px 0;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:0.1em;color:var(--fg3)}
-.breadcrumbs a{color:var(--fg3);transition:color 0.3s}
-.breadcrumbs a:hover{color:var(--gold)}
-.breadcrumbs .sep{margin:0 8px;opacity:0.4}
-
-/* FEATURED POST */
-.featured{padding:60px 48px 0;max-width:1400px;margin:0 auto}
-.featured-card{display:grid;grid-template-columns:1.1fr 1fr;gap:0;border-radius:12px;overflow:hidden;background:var(--bg2);border:1px solid var(--border);transition:border-color 0.5s var(--lux),transform 0.5s var(--lux),box-shadow 0.5s var(--lux);text-decoration:none;color:inherit;box-shadow:0 2px 20px rgba(26,36,51,0.04)}
-.featured-card:hover{border-color:rgba(196,163,90,0.35);transform:translateY(-4px);box-shadow:0 20px 60px rgba(26,36,51,0.08)}
-.featured-card:hover .featured-img img{transform:scale(1.04)}
-.featured-img{position:relative;overflow:hidden;min-height:420px}
-.featured-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.8s var(--lux)}
-.featured-img-badge{position:absolute;top:24px;left:24px;background:rgba(255,255,255,0.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid rgba(26,36,51,0.08);border-radius:100px;padding:8px 18px;font-family:'Syne',sans-serif;font-size:9px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold)}
-.featured-body{padding:56px 52px;display:flex;flex-direction:column;justify-content:center}
-.featured-tag{font-family:'Syne',sans-serif;font-size:9px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--fg3);margin-bottom:16px;display:flex;align-items:center;gap:12px}
-.featured-tag::before{content:'';display:block;width:24px;height:1px;background:var(--gold);opacity:0.5}
-.featured-body h2{font-size:clamp(26px,3vw,42px);font-weight:300;line-height:1.2;margin-bottom:20px}
-.featured-body h2 em{font-style:italic;color:var(--gold)}
-.featured-body p{font-size:16px;color:var(--fg2);line-height:1.7;margin-bottom:28px;max-width:440px}
-.featured-cta{font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);display:inline-flex;align-items:center;gap:10px;transition:gap 0.3s var(--lux)}
-.featured-card:hover .featured-cta{gap:16px}
-.featured-cta svg{width:14px;height:14px}
-
-/* CATEGORY FILTERS */
-.filters{padding:56px 48px 0;max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.filter-btn{font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;color:var(--fg3);padding:10px 20px;border:1px solid var(--border);border-radius:100px;background:transparent;cursor:pointer;transition:all 0.3s var(--lux);white-space:nowrap}
-.filter-btn:hover{border-color:rgba(196,163,90,0.3);color:var(--fg2)}
-.filter-btn.active{background:var(--gold);color:#ffffff;border-color:var(--gold)}
-
-/* SECTION HEADER */
-.section-header{padding:56px 48px 0;max-width:1400px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
-.section-eyebrow{font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.35em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;display:inline-flex;align-items:center;gap:10px}
-.section-eyebrow::after{content:'';display:block;width:28px;height:1px;background:var(--gold);opacity:0.5}
-.section-heading{font-size:clamp(26px,3.5vw,44px);font-weight:300;line-height:1.2}
-.section-heading em{font-style:italic;color:var(--gold)}
-.section-count{font-family:'Syne',sans-serif;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--fg3)}
-
-/* POST GRID */
-.posts-grid{padding:40px 48px 80px;max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
-
-/* POST CARD */
-.post-card{text-decoration:none;color:inherit;display:flex;flex-direction:column;border-radius:10px;overflow:hidden;background:var(--bg2);border:1px solid var(--border);transition:border-color 0.4s var(--lux),transform 0.5s var(--lux),box-shadow 0.5s var(--lux);box-shadow:0 2px 12px rgba(26,36,51,0.04)}
-.post-card:hover{border-color:rgba(196,163,90,0.3);transform:translateY(-6px);box-shadow:0 20px 60px rgba(26,36,51,0.1)}
-.post-card-img{position:relative;overflow:hidden;height:240px;background:var(--bg3)}
-.post-card-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.7s var(--lux);filter:brightness(0.98) saturate(0.95)}
-.post-card:hover .post-card-img img{transform:scale(1.06);filter:brightness(1) saturate(1)}
-.post-card-tag{position:absolute;bottom:14px;left:14px;background:rgba(255,255,255,0.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(26,36,51,0.08);border-radius:100px;padding:6px 14px;font-family:'Syne',sans-serif;font-size:8px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--fg)}
-.post-card-body{padding:24px 24px 28px;flex:1;display:flex;flex-direction:column}
-.post-card-body h3{font-size:20px;font-weight:400;line-height:1.3;margin-bottom:10px;transition:color 0.3s}
-.post-card:hover .post-card-body h3{color:var(--gold)}
-.post-card-body p{font-size:14px;color:var(--fg2);line-height:1.7;flex:1;margin-bottom:16px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.post-card-meta{font-family:'Syne',sans-serif;font-size:9px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--fg3);display:flex;align-items:center;gap:8px}
-.post-card-meta::before{content:'';display:block;width:16px;height:1px;background:var(--gold2);opacity:0.4}
-
-/* CTA SECTION */
-.blog-cta{position:relative;padding:100px 48px;background:var(--bg3);overflow:hidden;text-align:center}
-.blog-cta::before{content:'';position:absolute;top:0;left:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.blog-cta-eyebrow{font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.35em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:inline-flex;align-items:center;gap:10px}
-.blog-cta-eyebrow::after{content:'';display:block;width:28px;height:1px;background:var(--gold);opacity:0.5}
-.blog-cta h2{font-size:clamp(30px,5vw,56px);font-weight:300;line-height:1.15;margin-bottom:16px}
-.blog-cta h2 em{font-style:italic;color:var(--gold)}
-.blog-cta p{font-size:17px;color:var(--fg2);margin-bottom:36px;line-height:1.6}
-.btn-solid{font-family:'Syne',sans-serif;font-size:11px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;background:var(--gold);color:#ffffff;padding:16px 36px;border:1px solid var(--gold);transition:background 0.3s,color 0.3s;display:inline-block}
-.btn-solid:hover{background:transparent;color:var(--gold)}
-
-/* FOOTER */
-.footer{background:var(--bg);padding:56px 48px 40px;position:relative}
-.footer::before{content:'';position:absolute;top:0;left:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.footer-inner{max-width:1200px;margin:0 auto;text-align:center}
-.footer-brand{font-size:clamp(24px,3vw,32px);font-weight:300;margin-bottom:8px}
-.footer-tagline{font-family:'Syne',sans-serif;font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:var(--fg3);margin-bottom:40px}
-.footer-links{display:flex;justify-content:center;flex-wrap:wrap;gap:28px;margin-bottom:48px}
-.footer-links a{font-family:'Syne',sans-serif;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--fg3);transition:color 0.3s}
-.footer-links a:hover{color:var(--gold)}
-.footer-copy{font-family:'Syne',sans-serif;font-size:10px;letter-spacing:0.1em;color:var(--fg3)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--ink:#1a2433;--ink2:#0e1620;--cream:#f9f8f7;--sand:#ede8df;--sand2:#e6dccf;
+--gold:#c4a35a;--gold2:#a8894a;
+--muted-l:rgba(26,36,51,0.52);--muted-l2:rgba(26,36,51,0.32);
+--muted:rgba(249,248,247,0.50);--muted2:rgba(249,248,247,0.28);
+--border:rgba(196,163,90,0.22);--border-d:rgba(196,163,90,0.18);--border-l:rgba(26,36,51,0.12)
+}
+html{scroll-behavior:smooth}
+body{font-family:'Syne',sans-serif;background:var(--cream);color:var(--ink);overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:0.02;pointer-events:none;z-index:9999}
 
 /* REVEAL ANIMATIONS */
-.rv{opacity:0;transform:translateY(30px);transition:opacity 0.7s var(--expo),transform 0.7s var(--expo)}
+.rv{opacity:0;transform:translateY(24px);transition:all 0.7s cubic-bezier(0.16,1,0.3,1)}
 .rv.vis{opacity:1;transform:translateY(0)}
-.rv-d1{transition-delay:0.1s}
-.rv-d2{transition-delay:0.2s}
-.rv-d3{transition-delay:0.3s}
-.rv-d4{transition-delay:0.4s}
+.rv.d1{transition-delay:0.08s}.rv.d2{transition-delay:0.16s}.rv.d3{transition-delay:0.24s}.rv.d4{transition-delay:0.32s}.rv.d5{transition-delay:0.40s}
 
-/* RESPONSIVE TABLET */
+/* HEADER */
+.site-header{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 64px;height:72px;background:rgba(26,36,51,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(196,163,90,0.15);transition:background 0.3s}
+.site-header.scrolled{background:rgba(26,36,51,0.98)}
+.header-logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#f9f8f7;text-decoration:none}
+.header-logo span{color:#c4a35a}
+.header-nav{display:flex;align-items:center;gap:40px;list-style:none}
+.header-nav a{font-size:10.5px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:rgba(249,248,247,0.82);text-decoration:none;transition:color 0.25s}
+.header-nav a:hover,.header-nav a.active{color:#f9f8f7}
+.header-cta{font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#c4a35a;border:1px solid rgba(196,163,90,0.4);padding:10px 22px;text-decoration:none;transition:background 0.3s,border-color 0.3s}
+.header-cta:hover{background:rgba(196,163,90,0.1);border-color:#c4a35a}
+.header-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none}
+.header-toggle span{display:block;width:22px;height:1.5px;background:#f9f8f7}
+.mobile-nav{display:none;position:fixed;top:72px;left:0;right:0;background:rgba(26,36,51,0.98);padding:28px 32px;flex-direction:column;gap:0;border-bottom:1px solid var(--border);z-index:999}
+.mobile-nav a{font-size:13px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:16px 0;border-bottom:1px solid var(--border);display:block;transition:color 0.2s}
+.mobile-nav a:last-child{border-bottom:none}
+.mobile-nav.open{display:flex}
+body{padding-top:72px}
+
+/* HERO */
+.journal-hero{
+background:var(--ink);
+padding:80px 64px 88px;
+position:relative;overflow:hidden;
+display:grid;grid-template-columns:1fr 1fr;
+gap:80px;align-items:end
+}
+.journal-hero::before{
+content:'';position:absolute;inset:0;
+background:radial-gradient(ellipse 55% 70% at 75% 40%,rgba(196,163,90,0.07) 0%,transparent 65%),
+           radial-gradient(ellipse 35% 40% at 15% 75%,rgba(196,163,90,0.04) 0%,transparent 60%)
+}
+.journal-hero-left{position:relative;z-index:1}
+.journal-eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:10px;font-weight:600;letter-spacing:0.24em;text-transform:uppercase;color:var(--gold);margin-bottom:24px}
+.journal-eyebrow::after{content:'';display:block;width:36px;height:1px;background:var(--gold);opacity:0.5}
+.journal-hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(44px,6.5vw,82px);font-weight:300;line-height:1.05;color:var(--cream);hyphens:none}
+.journal-hero h1 em{font-style:italic;color:var(--gold)}
+.journal-hero-right{position:relative;z-index:1}
+.journal-hero-right p{font-size:15px;line-height:1.9;color:var(--muted);max-width:400px;margin-bottom:36px}
+.journal-stats{display:flex;gap:0;border-top:1px solid var(--border);padding-top:28px}
+.jstat{flex:1;padding-right:24px;border-right:1px solid var(--border)}
+.jstat:last-child{border-right:none;padding-right:0;padding-left:24px}
+.jstat:not(:first-child){padding-left:24px}
+.jstat .n{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--gold);line-height:1}
+.jstat .l{font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted2);margin-top:6px}
+
+/* BREADCRUMBS */
+.breadcrumbs{padding:20px 64px 0;background:var(--ink);font-size:11px;letter-spacing:0.08em;color:var(--muted2)}
+.breadcrumbs a{color:var(--muted2);text-decoration:none;transition:color 0.2s}
+.breadcrumbs a:hover{color:var(--gold)}
+.breadcrumbs span{margin:0 6px;opacity:0.5}
+
+/* FEATURED */
+.featured-section{padding:0;background:var(--ink2)}
+.featured-post{
+display:grid;grid-template-columns:1fr 1fr;
+min-height:600px;text-decoration:none;color:inherit;
+border-top:1px solid var(--border)
+}
+.featured-post:hover .feat-img img{transform:scale(1.04)}
+.feat-img{overflow:hidden;position:relative;background:var(--ink)}
+.feat-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.7s cubic-bezier(.4,0,.2,1);filter:brightness(0.9) saturate(0.85)}
+.feat-body{padding:72px 64px;display:flex;flex-direction:column;justify-content:center;background:var(--ink2)}
+.feat-label{font-size:9px;font-weight:700;letter-spacing:0.26em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:block}
+.feat-eyebrow{font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted2);margin-bottom:28px;display:flex;align-items:center;gap:12px}
+.feat-eyebrow::before{content:'';display:block;width:28px;height:1px;background:var(--border)}
+.feat-body h2{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,3.5vw,46px);font-weight:300;line-height:1.2;color:var(--cream);margin-bottom:24px;hyphens:none}
+.feat-body h2 em{font-style:italic;color:var(--gold)}
+.feat-body p{font-size:14.5px;line-height:1.95;color:var(--muted);font-weight:400;margin-bottom:36px;max-width:460px}
+.feat-cta{display:inline-flex;align-items:center;gap:12px;font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid rgba(196,163,90,0.3);padding-bottom:4px;text-decoration:none;transition:border-color 0.3s}
+.feat-cta:hover{border-color:var(--gold)}
+.feat-cta svg{width:13px;height:13px}
+
+/* GRID */
+.grid-section{padding:80px 64px;background:var(--cream)}
+.grid-section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:56px}
+.grid-section-head h2{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,3vw,40px);font-weight:300;color:var(--ink);hyphens:none}
+.grid-section-head h2 em{font-style:italic;color:var(--gold2)}
+.posts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px 28px}
+.post-card{text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:transform 0.5s cubic-bezier(0.16,1,0.3,1)}
+.post-card:hover{transform:translateY(-6px)}
+.post-card-img{position:relative;overflow:hidden;height:280px;background:var(--sand)}
+.post-card-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.65s cubic-bezier(0.16,1,0.3,1),filter 0.4s;filter:saturate(0.85)}
+.post-card:hover .post-card-img img{transform:scale(1.06);filter:saturate(1)}
+.post-tag{position:absolute;bottom:16px;left:16px;background:var(--ink);color:var(--gold);font-size:8.5px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;padding:5px 12px}
+.post-body{padding:24px 0 0;flex:1;display:flex;flex-direction:column}
+.post-body h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;line-height:1.3;color:var(--ink);margin-bottom:12px}
+.post-body p{font-size:13px;line-height:1.85;color:var(--muted-l);flex:1;margin-bottom:18px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.post-meta{font-size:9.5px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted-l2);display:flex;align-items:center;gap:10px}
+.post-meta::before{content:'';display:block;width:20px;height:1px;background:var(--gold2);opacity:0.5}
+
+/* CTA STRIP */
+.cta-strip{background:var(--ink);padding:80px 64px;text-align:center;border-top:1px solid var(--border)}
+.cta-eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:9.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.cta-eyebrow::after{content:'';display:block;width:28px;height:1px;background:var(--gold);opacity:0.5}
+.cta-strip h2{font-family:'Cormorant Garamond',serif;font-size:clamp(30px,4vw,52px);font-weight:300;color:var(--cream);margin:20px 0 16px;hyphens:none}
+.cta-strip h2 em{font-style:italic;color:var(--gold)}
+.cta-strip p{font-size:14px;color:var(--muted);margin-bottom:36px}
+.btn-cta{display:inline-flex;align-items:center;gap:14px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);border:1px solid var(--border);padding:18px 40px;text-decoration:none;transition:background 0.3s,border-color 0.3s}
+.btn-cta:hover{background:rgba(196,163,90,0.08);border-color:rgba(196,163,90,0.6)}
+.btn-cta svg{width:13px;height:13px}
+
+/* FOOTER */
+.site-footer{background:var(--ink2);padding:40px 64px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+.footer-brand{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold)}
+.footer-nav{display:flex;gap:28px;flex-wrap:wrap}
+.footer-nav a{font-size:9.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color 0.2s}
+.footer-nav a:hover{color:var(--cream)}
+.footer-copy{font-size:9.5px;color:var(--muted2);letter-spacing:0.08em}
+
+/* TABLET */
 @media(min-width:768px) and (max-width:1199px){
-  .header{padding:0 32px}
-  .blog-hero{height:50vh;min-height:360px}
-  .breadcrumbs{padding:20px 32px 0}
-  .featured{padding:48px 32px 0}
-  .featured-card{grid-template-columns:1fr}
-  .featured-img{min-height:340px}
-  .featured-body{padding:40px 36px}
-  .filters{padding:40px 32px 0}
-  .section-header{padding:40px 32px 0}
-  .posts-grid{padding:32px 32px 64px;grid-template-columns:repeat(2,1fr);gap:24px}
-  .blog-cta{padding:80px 32px}
-  .footer{padding:60px 32px 32px}
+.site-header{padding:0 48px}
+.header-nav{gap:28px}
+.journal-hero{grid-template-columns:1fr;gap:40px;padding:80px 48px 72px}
+.breadcrumbs{padding-left:48px;padding-right:48px}
+.featured-post{grid-template-columns:1fr}
+.feat-img{min-height:380px}
+.feat-body{padding:52px 48px}
+.grid-section{padding:64px 48px}
+.grid-section-head{flex-direction:column;align-items:flex-start;gap:16px}
+.posts-grid{grid-template-columns:1fr 1fr;gap:32px 24px}
+.cta-strip{padding:64px 48px}
+.site-footer{padding:36px 48px}
 }
 
-/* RESPONSIVE MOBILE */
+/* MOBILE */
 @media(max-width:767px){
-  .header{padding:0 20px;height:60px}
-  .header-nav{display:none}
-  .hamburger{display:flex}
-  .blog-hero{height:auto;min-height:400px;max-height:none;margin-top:60px;padding:60px 0}
-  .blog-hero-title{font-size:clamp(32px,9vw,44px);line-height:1.1}
-  .blog-hero-stats{gap:24px;flex-wrap:wrap}
-  .blog-hero-stat-num{font-size:26px}
-  .blog-hero-sub{font-size:14px;line-height:1.6;margin-bottom:24px}
-  .blog-hero-eyebrow{font-size:9px;margin-bottom:14px}
-  .breadcrumbs{padding:14px 20px 0;font-size:9px}
-  .featured{padding:40px 20px 0}
-  .featured-card{grid-template-columns:1fr}
-  .featured-img{min-height:240px}
-  .featured-body{padding:28px 22px}
-  .featured-body h2{font-size:22px;line-height:1.25;margin-bottom:14px}
-  .featured-body p{font-size:14px;margin-bottom:20px}
-  .filters{padding:32px 20px 0;gap:8px}
-  .filter-btn{padding:8px 14px;font-size:9px}
-  .section-header{padding:40px 20px 0;flex-direction:column;align-items:flex-start;gap:8px}
-  .section-heading{font-size:26px;line-height:1.2}
-  .posts-grid{padding:24px 20px 40px;grid-template-columns:1fr;gap:20px}
-  .post-card-img{height:200px}
-  .post-card-body{padding:20px 20px 22px}
-  .post-card-body h3{font-size:18px;margin-bottom:8px}
-  .post-card-body p{font-size:13px;margin-bottom:12px}
-  .blog-cta{padding:40px 20px}
-  .blog-cta h2{font-size:28px;line-height:1.2}
-  .blog-cta p{font-size:15px;margin-bottom:28px}
-  .btn-solid{padding:14px 28px;font-size:10px}
-  .footer{padding:40px 20px 32px}
-  .footer-links{gap:14px;margin-bottom:36px}
-  .footer-tagline{margin-bottom:28px}
-  .blog-hero-content{padding:0 20px}
-}
-
-/* REDUCED MOTION */
-@media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
-  .blog-hero-bg img{animation:none !important}
-  .rv{opacity:1 !important;transform:none !important}
+.site-header{padding:0 24px}
+.header-nav,.header-cta{display:none}
+.header-toggle{display:flex}
+.journal-hero{grid-template-columns:1fr;gap:32px;padding:60px 24px 56px}
+.journal-stats{flex-direction:column;gap:20px}
+.jstat{border-right:none;border-bottom:1px solid var(--border);padding:0 0 20px!important}
+.jstat:last-child{border-bottom:none;padding-bottom:0!important}
+.breadcrumbs{padding-left:24px;padding-right:24px}
+.featured-post{grid-template-columns:1fr}
+.feat-img{min-height:280px}
+.feat-body{padding:40px 24px}
+.grid-section{padding:52px 24px}
+.grid-section-head{flex-direction:column;align-items:flex-start;gap:14px}
+.posts-grid{grid-template-columns:1fr;gap:40px}
+.post-card-img{height:240px}
+.cta-strip{padding:56px 24px}
+.site-footer{padding:32px 24px;flex-direction:column;align-items:flex-start;gap:16px}
+.feat-img img,.post-card-img img{object-position:center 20%}
 }
 </style>
 </head>
 <body>
 <a href="#main-content" class="skip-link">Skip to content</a>
-<div class="scroll-progress" aria-hidden="true"></div>
 
 <!-- HEADER -->
-<header class="header" role="banner">
-  <a href="/" class="header-logo" aria-label="IVAE Studios Home">IVAE Studios</a>
-  <nav class="header-nav" aria-label="Main navigation">
-    <a href="/">Home</a>
-    <a href="/about">About</a>
-    <a href="/#services">Services</a>
-    <a href="/blog" class="active">Blog</a>
-    <a href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener" class="header-cta">Book Now</a>
-  </nav>
-  <button class="hamburger" aria-label="Open menu" aria-expanded="false">
-    <span></span><span></span><span></span>
-  </button>
+<header class="site-header" id="siteHeader">
+  <a class="header-logo" href="/">IVAE <span>Studios</span></a>
+  <nav><ul class="header-nav" role="navigation" aria-label="Main navigation">
+    <li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/#services">Services</a></li><li><a href="/blog" class="active">Blog</a></li>
+  </ul></nav>
+  <a class="header-cta" href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Book Now</a>
+  <button class="header-toggle" aria-expanded="false" aria-label="Toggle navigation" id="headerToggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
 </header>
-
-<!-- MOBILE NAV -->
-<div class="mobile-nav" aria-hidden="true">
-  <a href="/">Home</a>
-  <a href="/about">About</a>
-  <a href="/#services">Services</a>
-  <a href="/blog">Blog</a>
+<nav class="mobile-nav" id="mobileNav">
+  <a href="/">Home</a><a href="/about">About</a><a href="/#services">Services</a><a href="/blog" class="active">Blog</a>
   <a href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Book Now</a>
-</div>
+</nav>
 
-<main id="main-content">
-
-<!-- BLOG HERO -->
-<section class="blog-hero" aria-label="Blog hero">
-  <div class="blog-hero-bg">
-    <img src="https://assets.ivaestudios.com/blog/destination-wedding-riviera-maya-og.jpg" alt="Luxury editorial resort photography by IVAE Studios in Riviera Maya" width="1920" height="1080"/>
+<!-- HERO -->
+<section class="journal-hero" id="main-content">
+  <div class="journal-hero-left rv" data-anim="fade">
+    <span class="journal-eyebrow">IVAE Journal</span>
+    <h1>Guides, tips &amp; <em>inspiration</em> for your session in Mexico.</h1>
   </div>
-  <div class="blog-hero-overlay"></div>
-  <div class="blog-hero-content">
-    <span class="blog-hero-eyebrow">IVAE Journal</span>
-    <h1 class="blog-hero-title">Guides, tips &amp; <em>inspiration.</em></h1>
-    <p class="blog-hero-sub">Everything you need to plan the perfect photography session in Cancun, Riviera Maya, or Los Cabos.</p>
-    <div class="blog-hero-stats">
-      <div class="blog-hero-stat">
-        <div class="blog-hero-stat-num">28</div>
-        <div class="blog-hero-stat-label">Guides</div>
-      </div>
-      <div class="blog-hero-stat">
-        <div class="blog-hero-stat-num">3</div>
-        <div class="blog-hero-stat-label">Destinations</div>
-      </div>
-      <div class="blog-hero-stat">
-        <div class="blog-hero-stat-num">500+</div>
-        <div class="blog-hero-stat-label">Sessions</div>
-      </div>
+  <div class="journal-hero-right rv d2" data-anim="fade">
+    <p>Destination wedding planning, couples photography tips, what to wear, when to shoot, and everything you need to know before booking a luxury resort photographer in Cancun, Riviera Maya, or Los Cabos.</p>
+    <div class="journal-stats">
+      <div class="jstat"><div class="n">28</div><div class="l">Guides</div></div>
+      <div class="jstat"><div class="n">3</div><div class="l">Destinations</div></div>
+      <div class="jstat"><div class="n">500+</div><div class="l">Sessions</div></div>
     </div>
   </div>
 </section>
 
 <!-- BREADCRUMBS -->
 <nav class="breadcrumbs" aria-label="Breadcrumb">
-  <a href="/">Home</a><span class="sep">/</span> Journal
+  <a href="/">Home</a><span>/</span> Journal
 </nav>
 
 <!-- FEATURED POST -->
-<section class="featured rv" data-anim>
-  <a class="featured-card" href="/blog/destination-wedding-photographer-riviera-maya">
-    <div class="featured-img">
+<section class="featured-section">
+  <a class="featured-post rv" data-anim="fade" href="/blog/destination-wedding-photographer-riviera-maya">
+    <div class="feat-img">
       <img src="https://assets.ivaestudios.com/blog/destination-wedding-riviera-maya-og.jpg" alt="Destination wedding ceremony at a luxury resort in Riviera Maya" loading="lazy" width="800" height="533"/>
-      <span class="featured-img-badge">Featured Guide</span>
     </div>
-    <div class="featured-body">
-      <span class="featured-tag">Destination Weddings &middot; 12 min read</span>
+    <div class="feat-body">
+      <span class="feat-label">Featured Guide</span>
+      <span class="feat-eyebrow">Destination Weddings &middot; 12 min read</span>
       <h2>Destination Wedding Photographer in Riviera Maya: The Complete <em>Planning Guide</em> (2026)</h2>
       <p>Everything about planning wedding photography in Riviera Maya — best venues, ceremony timing, what to wear, how to choose a photographer.</p>
-      <span class="featured-cta">Read the full guide <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></span>
+      <span class="feat-cta">Read the full guide <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></span>
     </div>
   </a>
 </section>
-
-<!-- CATEGORY FILTERS -->
-<div class="filters rv" data-anim>
-  <button class="filter-btn active" data-filter="all">All Guides</button>
-  <button class="filter-btn" data-filter="weddings">Weddings</button>
-  <button class="filter-btn" data-filter="couples">Couples</button>
-  <button class="filter-btn" data-filter="families">Families</button>
-  <button class="filter-btn" data-filter="destinations">Destinations</button>
-  <button class="filter-btn" data-filter="style">Style</button>
-  <button class="filter-btn" data-filter="celebrations">Celebrations</button>
-  <button class="filter-btn" data-filter="adventure">Adventure</button>
-</div>
-
-<!-- SECTION HEADER -->
-<div class="section-header rv" data-anim>
-  <div>
-    <span class="section-eyebrow">All Guides</span>
-    <h2 class="section-heading">More from the <em>journal</em></h2>
-  </div>
-  <span class="section-count">27 articles</span>
-</div>
 
 <!-- POSTS GRID -->
-<div class="posts-grid">
+<section class="grid-section">
+  <div class="grid-section-head rv" data-anim="fade">
+    <div>
+      <span style="display:inline-flex;align-items:center;gap:10px;font-size:9.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold2);margin-bottom:12px">
+        All Guides <span style="display:block;width:28px;height:1px;background:var(--gold2);opacity:0.6"></span>
+      </span>
+      <h2>More from the <em>journal</em></h2>
+    </div>
+  </div>
 
-  <a class="post-card rv" data-anim data-cat="couples" href="/blog/honeymoon-photographer-riviera-maya">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/honeymoon-photographer-riviera-maya-og.jpg" alt="Honeymoon photographer in Riviera Maya capturing romantic couple on the beach - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Couples &middot; Riviera Maya</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Honeymoon Photographer in Riviera Maya</h3>
-      <p>Best locations, timing, outfits and tips for a romantic session in Riviera Maya.</p>
-      <span class="post-card-meta">March 12, 2026 &middot; 10 min read</span>
-    </div>
-  </a>
+  <div class="posts-grid">
 
-  <a class="post-card rv" data-anim data-cat="weddings" href="/blog/wedding-photographer-cancun">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/wedding-photographer-cancun-og.jpg" alt="Wedding photographer in Cancun beach ceremony at luxury resort - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Weddings &middot; Cancun</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Wedding Photographer in Cancun</h3>
-      <p>Hotel Zone venues, ceremony timing, resort policies, and photo timeline.</p>
-      <span class="post-card-meta">March 10, 2026 &middot; 11 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/honeymoon-photographer-riviera-maya">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/honeymoon-photographer-riviera-maya-og.jpg" alt="Honeymoon photographer in Riviera Maya capturing romantic couple on the beach - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Couples &middot; Riviera Maya</span>
+      </div>
+      <div class="post-body">
+        <h3>Honeymoon Photographer in Riviera Maya</h3>
+        <p>Best locations, timing, outfits and tips for a romantic session in Riviera Maya.</p>
+        <span class="post-meta">March 12, 2026 &middot; 10 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="couples" href="/blog/couples-photographer-cancun">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/couples-photographer-cancun-og.jpg" alt="Couples photographer in Cancun romantic photoshoot on the beach - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Couples &middot; Cancun</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Couples Photographer in Cancun</h3>
-      <p>Best beaches, cenotes and resort spots for romantic photoshoots.</p>
-      <span class="post-card-meta">March 8, 2026 &middot; 10 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/wedding-photographer-cancun">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/wedding-photographer-cancun-og.jpg" alt="Wedding photographer in Cancun beach ceremony at luxury resort - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Weddings &middot; Cancun</span>
+      </div>
+      <div class="post-body">
+        <h3>Wedding Photographer in Cancun</h3>
+        <p>Hotel Zone venues, ceremony timing, resort policies, and photo timeline.</p>
+        <span class="post-meta">March 10, 2026 &middot; 11 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="couples" href="/blog/engagement-session-cancun-riviera-maya">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/engagement-session-cancun-og.jpg" alt="Engagement session in Cancun and Riviera Maya with luxury photographer - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Engagement &middot; Cancun</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Engagement Session in Cancun &amp; Riviera Maya</h3>
-      <p>Best locations, surprise proposals, what to wear, and editorial session tips.</p>
-      <span class="post-card-meta">March 5, 2026 &middot; 10 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/couples-photographer-cancun">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/couples-photographer-cancun-og.jpg" alt="Couples photographer in Cancun romantic photoshoot on the beach - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Couples &middot; Cancun</span>
+      </div>
+      <div class="post-body">
+        <h3>Couples Photographer in Cancun</h3>
+        <p>Best beaches, cenotes and resort spots for romantic photoshoots.</p>
+        <span class="post-meta">March 8, 2026 &middot; 10 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="families" href="/blog/maternity-photoshoot-cancun-riviera-maya">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/maternity-photoshoot-cancun-og.jpg" alt="Maternity photoshoot in Cancun and Riviera Maya at the beach - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Maternity &middot; Cancun</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Maternity Photoshoot in Cancun &amp; Riviera Maya</h3>
-      <p>Best trimester, what to wear, cenote and beach locations.</p>
-      <span class="post-card-meta">March 1, 2026 &middot; 10 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/engagement-session-cancun-riviera-maya">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/engagement-session-cancun-og.jpg" alt="Engagement session in Cancun and Riviera Maya with luxury photographer - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Engagement &middot; Cancun</span>
+      </div>
+      <div class="post-body">
+        <h3>Engagement Session in Cancun &amp; Riviera Maya</h3>
+        <p>Best locations, surprise proposals, what to wear, and editorial session tips.</p>
+        <span class="post-meta">March 5, 2026 &middot; 10 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="destinations" href="/blog/best-photo-locations-riviera-maya">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/best-photo-locations-riviera-maya-og.jpg" alt="Best photo locations in Riviera Maya including cenotes and beaches - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Locations &middot; Riviera Maya</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Best Photo Locations in Riviera Maya</h3>
-      <p>Curated guide to the most photogenic cenotes, beaches and hidden spots.</p>
-      <span class="post-card-meta">April 1, 2026 &middot; 11 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/maternity-photoshoot-cancun-riviera-maya">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/maternity-photoshoot-cancun-og.jpg" alt="Maternity photoshoot in Cancun and Riviera Maya at the beach - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Maternity &middot; Cancun</span>
+      </div>
+      <div class="post-body">
+        <h3>Maternity Photoshoot in Cancun &amp; Riviera Maya</h3>
+        <p>Best trimester, what to wear, cenote and beach locations.</p>
+        <span class="post-meta">March 1, 2026 &middot; 10 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="families" href="/blog/family-vacation-photos-mexico">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/family-vacation-photos-mexico-og.jpg" alt="Family vacation photos in Mexico at a luxury resort - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Families &middot; Mexico</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Family Vacation Photos in Mexico</h3>
-      <p>What to wear, kid prep, golden hour timing, destination comparison.</p>
-      <span class="post-card-meta">April 1, 2026 &middot; 11 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/best-photo-locations-riviera-maya">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/best-photo-locations-riviera-maya-og.jpg" alt="Best photo locations in Riviera Maya including cenotes and beaches - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Locations &middot; Riviera Maya</span>
+      </div>
+      <div class="post-body">
+        <h3>Best Photo Locations in Riviera Maya</h3>
+        <p>Curated guide to the most photogenic cenotes, beaches and hidden spots.</p>
+        <span class="post-meta">April 1, 2026 &middot; 11 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="destinations" href="/blog/los-cabos-photographer-guide">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/los-cabos-photographer-guide-og.jpg" alt="Los Cabos photographer guide with top locations and golden hour tips - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Guide &middot; Los Cabos</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Los Cabos Photographer Guide</h3>
-      <p>Pacific vs Sea of Cortez, top locations, resorts, golden hour, what to wear.</p>
-      <span class="post-card-meta">April 1, 2026 &middot; 11 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/family-vacation-photos-mexico">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/family-vacation-photos-mexico-og.jpg" alt="Family vacation photos in Mexico at a luxury resort - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Families &middot; Mexico</span>
+      </div>
+      <div class="post-body">
+        <h3>Family Vacation Photos in Mexico</h3>
+        <p>What to wear, kid prep, golden hour timing, destination comparison.</p>
+        <span class="post-meta">April 1, 2026 &middot; 11 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="style" href="/blog/how-to-choose-luxury-photographer-mexico">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/choose-luxury-photographer-mexico-og.jpg" alt="How to choose a luxury photographer in Mexico guide - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Tips &middot; Mexico</span>
-    </div>
-    <div class="post-card-body">
-      <h3>How to Choose a Luxury Photographer in Mexico</h3>
-      <p>Red flags, questions to ask, price ranges, professional process.</p>
-      <span class="post-card-meta">April 1, 2026 &middot; 11 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/los-cabos-photographer-guide">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/los-cabos-photographer-guide-og.jpg" alt="Los Cabos photographer guide with top locations and golden hour tips - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Guide &middot; Los Cabos</span>
+      </div>
+      <div class="post-body">
+        <h3>Los Cabos Photographer Guide</h3>
+        <p>Pacific vs Sea of Cortez, top locations, resorts, golden hour, what to wear.</p>
+        <span class="post-meta">April 1, 2026 &middot; 11 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="couples" href="/blog/surprise-proposal-photography-cancun">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/surprise-proposal-photography-cancun-og.jpg" alt="Surprise proposal photography in Cancun and Riviera Maya - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Proposals &middot; Cancun</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Surprise Proposal Photography in Cancun &amp; Riviera Maya</h3>
-      <p>Best locations, hidden positioning, planning timeline, ring shots.</p>
-      <span class="post-card-meta">April 1, 2026 &middot; 11 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/how-to-choose-luxury-photographer-mexico">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/choose-luxury-photographer-mexico-og.jpg" alt="How to choose a luxury photographer in Mexico guide - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Tips &middot; Mexico</span>
+      </div>
+      <div class="post-body">
+        <h3>How to Choose a Luxury Photographer in Mexico</h3>
+        <p>Red flags, questions to ask, price ranges, professional process.</p>
+        <span class="post-meta">April 1, 2026 &middot; 11 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="style" href="/blog/what-to-wear-beach-photos-mexico">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/what-to-wear-beach-photos-mexico-og.jpg" alt="What to wear for beach photos in Mexico styling guide - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Style &middot; Mexico</span>
-    </div>
-    <div class="post-card-body">
-      <h3>What to Wear for Beach Photos in Mexico</h3>
-      <p>Neutrals, earth tones, fabric choices, coordination tips.</p>
-      <span class="post-card-meta">April 2, 2026 &middot; 11 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/surprise-proposal-photography-cancun">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/surprise-proposal-photography-cancun-og.jpg" alt="Surprise proposal photography in Cancun and Riviera Maya - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Proposals &middot; Cancun</span>
+      </div>
+      <div class="post-body">
+        <h3>Surprise Proposal Photography in Cancun &amp; Riviera Maya</h3>
+        <p>Best locations, hidden positioning, planning timeline, ring shots.</p>
+        <span class="post-meta">April 1, 2026 &middot; 11 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="destinations" href="/blog/best-resorts-cancun-photography">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/best-resorts-cancun-photography-og.jpg" alt="Best resorts in Cancun for photography including Hyatt Ziva and Le Blanc - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Resorts &middot; Cancun</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Best Resorts in Cancun for Photography</h3>
-      <p>Best photo spots at Hyatt Ziva, Le Blanc, Moon Palace, Nizuc.</p>
-      <span class="post-card-meta">April 2, 2026 &middot; 11 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/what-to-wear-beach-photos-mexico">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/what-to-wear-beach-photos-mexico-og.jpg" alt="What to wear for beach photos in Mexico styling guide - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Style &middot; Mexico</span>
+      </div>
+      <div class="post-body">
+        <h3>What to Wear for Beach Photos in Mexico</h3>
+        <p>Neutrals, earth tones, fabric choices, coordination tips.</p>
+        <span class="post-meta">April 2, 2026 &middot; 11 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="destinations" href="/blog/cancun-vs-riviera-maya-photos">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/cancun-vs-riviera-maya-photos-og.jpg" alt="Cancun vs Riviera Maya destination comparison for vacation photos - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Guide &middot; Mexico</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Cancun vs Riviera Maya: Which Destination?</h3>
-      <p>Resort polish vs natural diversity for couples, families, weddings.</p>
-      <span class="post-card-meta">April 2, 2026 &middot; 11 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/best-resorts-cancun-photography">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/best-resorts-cancun-photography-og.jpg" alt="Best resorts in Cancun for photography including Hyatt Ziva and Le Blanc - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Resorts &middot; Cancun</span>
+      </div>
+      <div class="post-body">
+        <h3>Best Resorts in Cancun for Photography</h3>
+        <p>Best photo spots at Hyatt Ziva, Le Blanc, Moon Palace, Nizuc.</p>
+        <span class="post-meta">April 2, 2026 &middot; 11 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="weddings" href="/blog/destination-elopement-mexico">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/destination-elopement-mexico-og.jpg" alt="How to plan a destination elopement in Mexico guide - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Elopements &middot; Mexico</span>
-    </div>
-    <div class="post-card-body">
-      <h3>How to Plan a Destination Elopement in Mexico</h3>
-      <p>Best locations, legal requirements, planning timeline.</p>
-      <span class="post-card-meta">April 2, 2026 &middot; 11 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/cancun-vs-riviera-maya-photos">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/cancun-vs-riviera-maya-photos-og.jpg" alt="Cancun vs Riviera Maya destination comparison for vacation photos - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Guide &middot; Mexico</span>
+      </div>
+      <div class="post-body">
+        <h3>Cancun vs Riviera Maya: Which Destination?</h3>
+        <p>Resort polish vs natural diversity for couples, families, weddings.</p>
+        <span class="post-meta">April 2, 2026 &middot; 11 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="style" href="/blog/golden-hour-photography-mexico">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/golden-hour-photography-mexico-og.jpg" alt="Golden hour photography in Mexico sunset session at luxury resort - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Tips &middot; Mexico</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Golden Hour Photography in Mexico</h3>
-      <p>Exact times by season, sunrise vs sunset, weather effects.</p>
-      <span class="post-card-meta">April 2, 2026 &middot; 11 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/destination-elopement-mexico">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/destination-elopement-mexico-og.jpg" alt="How to plan a destination elopement in Mexico guide - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Elopements &middot; Mexico</span>
+      </div>
+      <div class="post-body">
+        <h3>How to Plan a Destination Elopement in Mexico</h3>
+        <p>Best locations, legal requirements, planning timeline.</p>
+        <span class="post-meta">April 2, 2026 &middot; 11 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="celebrations" href="/blog/vow-renewal-mexico-photography">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/vow-renewal-mexico-photography-og.jpg" alt="Vow renewal photography in Mexico at a luxury resort - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Celebrations &middot; Mexico</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Vow Renewal in Mexico</h3>
-      <p>Session ideas per milestone, surprise tips, best destinations.</p>
-      <span class="post-card-meta">April 2, 2026 &middot; 11 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/golden-hour-photography-mexico">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/golden-hour-photography-mexico-og.jpg" alt="Golden hour photography in Mexico sunset session at luxury resort - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Tips &middot; Mexico</span>
+      </div>
+      <div class="post-body">
+        <h3>Golden Hour Photography in Mexico</h3>
+        <p>Exact times by season, sunrise vs sunset, weather effects.</p>
+        <span class="post-meta">April 2, 2026 &middot; 11 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="families" href="/blog/babymoon-photography-cancun">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/babymoon-photography-cancun-og.jpg" alt="Babymoon photography in Cancun and Riviera Maya beach session - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Babymoon &middot; Cancun</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Babymoon Photography in Cancun &amp; Riviera Maya</h3>
-      <p>Best trimester for travel, what to wear, posing guidance.</p>
-      <span class="post-card-meta">April 2, 2026 &middot; 11 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/vow-renewal-mexico-photography">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/vow-renewal-mexico-photography-og.jpg" alt="Vow renewal photography in Mexico at a luxury resort - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Celebrations &middot; Mexico</span>
+      </div>
+      <div class="post-body">
+        <h3>Vow Renewal in Mexico</h3>
+        <p>Session ideas per milestone, surprise tips, best destinations.</p>
+        <span class="post-meta">April 2, 2026 &middot; 11 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="celebrations" href="/blog/anniversary-photography-mexico">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/anniversary-photography-mexico-og.jpg" alt="Anniversary photography in Mexico celebrating at a luxury resort - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Anniversary &middot; Mexico</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Anniversary Photography in Mexico</h3>
-      <p>Session ideas per milestone, surprise booking tips.</p>
-      <span class="post-card-meta">April 2, 2026 &middot; 11 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/babymoon-photography-cancun">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/babymoon-photography-cancun-og.jpg" alt="Babymoon photography in Cancun and Riviera Maya beach session - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Babymoon &middot; Cancun</span>
+      </div>
+      <div class="post-body">
+        <h3>Babymoon Photography in Cancun &amp; Riviera Maya</h3>
+        <p>Best trimester for travel, what to wear, posing guidance.</p>
+        <span class="post-meta">April 2, 2026 &middot; 11 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="destinations" href="/blog/all-inclusive-resort-photographer-mexico">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/all-inclusive-resort-photographer-mexico-og.jpg" alt="All-inclusive resort photography in Mexico guide for outside photographers - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Resorts &middot; Mexico</span>
-    </div>
-    <div class="post-card-body">
-      <h3>All-Inclusive Resort Photography</h3>
-      <p>Outside photographer policies, vendor fees, best resorts.</p>
-      <span class="post-card-meta">April 2, 2026 &middot; 11 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/anniversary-photography-mexico">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/anniversary-photography-mexico-og.jpg" alt="Anniversary photography in Mexico celebrating at a luxury resort - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Anniversary &middot; Mexico</span>
+      </div>
+      <div class="post-body">
+        <h3>Anniversary Photography in Mexico</h3>
+        <p>Session ideas per milestone, surprise booking tips.</p>
+        <span class="post-meta">April 2, 2026 &middot; 11 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="destinations" href="/blog/tulum-photography-guide">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/tulum-photography-guide-og.jpg" alt="Tulum photography guide featuring ruins cenotes and beaches - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Guide &middot; Tulum</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Tulum Photography Guide</h3>
-      <p>Tulum Ruins access, cenotes, beach clubs, what to wear.</p>
-      <span class="post-card-meta">April 2, 2026 &middot; 11 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/all-inclusive-resort-photographer-mexico">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/all-inclusive-resort-photographer-mexico-og.jpg" alt="All-inclusive resort photography in Mexico guide for outside photographers - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Resorts &middot; Mexico</span>
+      </div>
+      <div class="post-body">
+        <h3>All-Inclusive Resort Photography</h3>
+        <p>Outside photographer policies, vendor fees, best resorts.</p>
+        <span class="post-meta">April 2, 2026 &middot; 11 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="celebrations" href="/blog/bachelorette-photoshoot-los-cabos">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/bachelorette-photoshoot-los-cabos-og.jpg" alt="Bachelorette photoshoot in Cabo group session at the beach - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Guide &middot; Los Cabos</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Bachelorette Photoshoot in Cabo</h3>
-      <p>Group session guide for Cabo.</p>
-      <span class="post-card-meta">April 2, 2026 &middot; 11 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/tulum-photography-guide">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/tulum-photography-guide-og.jpg" alt="Tulum photography guide featuring ruins cenotes and beaches - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Guide &middot; Tulum</span>
+      </div>
+      <div class="post-body">
+        <h3>Tulum Photography Guide</h3>
+        <p>Tulum Ruins access, cenotes, beach clubs, what to wear.</p>
+        <span class="post-meta">April 2, 2026 &middot; 11 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="celebrations" href="/blog/birthday-photoshoot-cancun">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/birthday-photoshoot-cancun-og.jpg" alt="Birthday photoshoot in Cancun celebrating a milestone in paradise - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Celebrations &middot; Cancun</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Birthday Photoshoot in Cancun</h3>
-      <p>Celebrate your milestone in paradise.</p>
-      <span class="post-card-meta">April 2, 2026 &middot; 12 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/bachelorette-photoshoot-los-cabos">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/bachelorette-photoshoot-los-cabos-og.jpg" alt="Bachelorette photoshoot in Cabo group session at the beach - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Guide &middot; Los Cabos</span>
+      </div>
+      <div class="post-body">
+        <h3>Bachelorette Photoshoot in Cabo</h3>
+        <p>Group session guide for Cabo.</p>
+        <span class="post-meta">April 2, 2026 &middot; 11 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="adventure" href="/blog/cenote-underwater-photoshoot-tulum">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/cenote-underwater-photoshoot-tulum-og.jpg" alt="Cenote underwater photoshoot in Tulum ethereal portraits beneath the surface - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Adventure &middot; Tulum</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Cenote Underwater Photoshoot Tulum</h3>
-      <p>Ethereal portraits beneath the surface.</p>
-      <span class="post-card-meta">April 2, 2026 &middot; 12 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/birthday-photoshoot-cancun">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/birthday-photoshoot-cancun-og.jpg" alt="Birthday photoshoot in Cancun celebrating a milestone in paradise - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Celebrations &middot; Cancun</span>
+      </div>
+      <div class="post-body">
+        <h3>Birthday Photoshoot in Cancun</h3>
+        <p>Celebrate your milestone in paradise.</p>
+        <span class="post-meta">April 2, 2026 &middot; 12 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="celebrations" href="/blog/quinceanera-photoshoot-cancun">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/quinceanera-photoshoot-cancun-og.jpg" alt="Quinceanera photoshoot in Cancun celebrating her special day - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Celebrations &middot; Cancun</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Quincea&ntilde;era Photoshoot in Cancun</h3>
-      <p>Celebrate her special day in paradise.</p>
-      <span class="post-card-meta">April 2, 2026 &middot; 13 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/cenote-underwater-photoshoot-tulum">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/cenote-underwater-photoshoot-tulum-og.jpg" alt="Cenote underwater photoshoot in Tulum ethereal portraits beneath the surface - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Adventure &middot; Tulum</span>
+      </div>
+      <div class="post-body">
+        <h3>Cenote Underwater Photoshoot Tulum</h3>
+        <p>Ethereal portraits beneath the surface.</p>
+        <span class="post-meta">April 2, 2026 &middot; 12 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="adventure" href="/blog/luxury-yacht-photography-cancun">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/luxury-yacht-photography-cancun-og.jpg" alt="Luxury yacht photography in Cancun portraits on the Caribbean Sea - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Experience &middot; Cancun</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Luxury Yacht Photography in Cancun</h3>
-      <p>Stunning portraits on the Caribbean Sea.</p>
-      <span class="post-card-meta">April 2, 2026 &middot; 12 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/quinceanera-photoshoot-cancun">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/quinceanera-photoshoot-cancun-og.jpg" alt="Quinceanera photoshoot in Cancun celebrating her special day - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Celebrations &middot; Cancun</span>
+      </div>
+      <div class="post-body">
+        <h3>Quincea&ntilde;era Photoshoot in Cancun</h3>
+        <p>Celebrate her special day in paradise.</p>
+        <span class="post-meta">April 2, 2026 &middot; 13 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="weddings" href="/blog/trash-the-dress-cancun">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/trash-the-dress-cancun-og.jpg" alt="Trash the dress in Cancun post-wedding beach session - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Weddings &middot; Cancun</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Trash the Dress in Cancun</h3>
-      <p>The ultimate post-wedding beach session.</p>
-      <span class="post-card-meta">April 2, 2026 &middot; 12 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/luxury-yacht-photography-cancun">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/luxury-yacht-photography-cancun-og.jpg" alt="Luxury yacht photography in Cancun portraits on the Caribbean Sea - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Experience &middot; Cancun</span>
+      </div>
+      <div class="post-body">
+        <h3>Luxury Yacht Photography in Cancun</h3>
+        <p>Stunning portraits on the Caribbean Sea.</p>
+        <span class="post-meta">April 2, 2026 &middot; 12 min read</span>
+      </div>
+    </a>
 
-  <a class="post-card rv" data-anim data-cat="celebrations" href="/blog/gender-reveal-photoshoot-cancun">
-    <div class="post-card-img">
-      <img src="https://assets.ivaestudios.com/blog/gender-reveal-photoshoot-cancun-og.jpg" alt="Gender reveal photoshoot in Cancun celebration session - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
-      <span class="post-card-tag">Seasonal &middot; Canc&uacute;n</span>
-    </div>
-    <div class="post-card-body">
-      <h3>Gender Reveal Photoshoot in Canc&uacute;n</h3>
-      <p>Best beach locations, creative reveal ideas, packages, and tips for your gender reveal photoshoot in Canc&uacute;n.</p>
-      <span class="post-card-meta">April 2, 2026 &middot; 12 min read</span>
-    </div>
-  </a>
+    <a class="post-card rv" data-anim="fade" href="/blog/trash-the-dress-cancun">
+      <div class="post-card-img">
+        <img src="https://assets.ivaestudios.com/blog/trash-the-dress-cancun-og.jpg" alt="Trash the dress in Cancun post-wedding beach session - IVAE Studios Blog" loading="lazy" width="800" height="533"/>
+        <span class="post-tag">Weddings &middot; Cancun</span>
+      </div>
+      <div class="post-body">
+        <h3>Trash the Dress in Cancun</h3>
+        <p>The ultimate post-wedding beach session.</p>
+        <span class="post-meta">April 2, 2026 &middot; 12 min read</span>
+      </div>
+    </a>
 
-</div>
+    <a class="post-card" href="/blog/gender-reveal-photoshoot-cancun">
+      <div class="post-card-img">
+        <div class="post-card-ph">
+          <svg fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 7.5h16.5"/></svg>
+          <span>&#9733; Photo &middot; Gender reveal celebration session</span>
+        </div>
+        <div class="post-tag-wrap"><span class="post-tag">Seasonal &middot; Canc&uacute;n</span></div>
+      </div>
+      <div class="post-body">
+        <h3>Gender Reveal Photoshoot in Canc&uacute;n: Celebrate Your Surprise in Paradise</h3>
+        <p>Best beach locations, creative reveal ideas, packages, and tips for your gender reveal photoshoot in Canc&uacute;n.</p>
+        <span class="post-meta">April 2, 2026 &middot; 12 min read</span>
+      </div>
+    </a>
 
-<!-- CTA SECTION -->
-<section class="blog-cta">
-  <span class="blog-cta-eyebrow rv" data-anim>Now Booking 2026 &amp; 2027</span>
-  <h2 class="rv rv-d1" data-anim>Ready to book your <em>session?</em></h2>
-  <p class="rv rv-d2" data-anim>Send us your resort and travel dates. Our team responds within 24 hours.</p>
-  <a class="btn-solid rv rv-d3" data-anim href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Book Your Session</a>
+  </div>
 </section>
 
-</main>
+<!-- CTA STRIP -->
+<section class="cta-strip rv" data-anim="fade">
+  <span class="cta-eyebrow">Now Booking 2026 &amp; 2027</span>
+  <h2>Ready to book your <em>session</em>?</h2>
+  <p>Send us your resort and travel dates. Our team responds within 24 hours.</p>
+  <a class="btn-cta" href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">
+    Message Us on Instagram
+    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
+  </a>
+</section>
 
 <!-- FOOTER -->
-<footer class="footer" role="contentinfo">
-  <div class="footer-inner">
-    <div class="footer-brand">IVAE Studios</div>
-    <div class="footer-tagline">Luxury Resort Photography</div>
-    <nav class="footer-links" aria-label="Footer navigation">
-      <a href="/">Home</a>
-      <a href="/about">About</a>
-      <a href="/blog">Journal</a>
-      <a href="/cancun-photographer">Cancun</a>
-      <a href="/riviera-maya-photographer">Riviera Maya</a>
-      <a href="/cabo-photographer">Los Cabos</a>
-      <a href="/destination-wedding-photographer-mexico">Weddings</a>
-      <a href="/luxury-family-photos-cancun">Families</a>
-      <a href="/couples-photography-mexico">Couples</a>
-      <a href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Instagram</a>
-    </nav>
-    <p class="footer-copy">&copy; 2026 IVAE Studios &middot; Cancun, Mexico</p>
-  </div>
+<footer class="site-footer">
+  <span class="footer-brand">IVAE Studios</span>
+  <nav class="footer-nav">
+    <a href="/">Home</a><a href="/about">About</a><a href="/blog">Journal</a>
+    <a href="/cancun-photographer">Cancun</a><a href="/riviera-maya-photographer">Riviera Maya</a><a href="/cabo-photographer">Los Cabos</a>
+    <a href="/destination-wedding-photographer-mexico">Weddings</a><a href="/luxury-family-photos-cancun">Families</a><a href="/couples-photography-mexico">Couples</a>
+    <a href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Instagram</a>
+  </nav>
+  <span class="footer-copy">&copy; 2026 IVAE Studios &middot; Cancun, Mexico</span>
 </footer>
 
 <script>
-(function(){
-  'use strict';
-
-  /* === HEADER SCROLL + PROGRESS === */
-  var header = document.querySelector('.header');
-  var scrollProgress = document.querySelector('.scroll-progress');
-  var ticking = false;
-
-  function onScroll(){
-    if(ticking) return;
-    ticking = true;
-    requestAnimationFrame(function(){
-      var scrollY = window.pageYOffset || document.documentElement.scrollTop;
-      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
-
-      if(scrollY > 60){
-        header.classList.add('scrolled');
-      } else {
-        header.classList.remove('scrolled');
-      }
-
-      var progress = docHeight > 0 ? (scrollY / docHeight) * 100 : 0;
-      scrollProgress.style.width = progress + '%';
-
-      ticking = false;
-    });
-  }
-
-  window.addEventListener('scroll', onScroll, {passive: true});
-  onScroll();
-
-  /* === MOBILE NAV === */
-  var hamburger = document.querySelector('.hamburger');
-  var mobileNav = document.querySelector('.mobile-nav');
-
-  hamburger.addEventListener('click', function(){
-    var isOpen = mobileNav.classList.contains('open');
-    mobileNav.classList.toggle('open');
-    hamburger.classList.toggle('active');
-    hamburger.setAttribute('aria-expanded', String(!isOpen));
-    mobileNav.setAttribute('aria-hidden', String(isOpen));
-    document.body.style.overflow = isOpen ? '' : 'hidden';
-  });
-
-  var mobileLinks = mobileNav.querySelectorAll('a');
-  for(var ml = 0; ml < mobileLinks.length; ml++){
-    mobileLinks[ml].addEventListener('click', function(){
-      mobileNav.classList.remove('open');
-      hamburger.classList.remove('active');
-      hamburger.setAttribute('aria-expanded', 'false');
-      mobileNav.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-    });
-  }
-
-  /* === SCROLL REVEAL (IntersectionObserver) === */
-  var rvEls = document.querySelectorAll('.rv');
-  if('IntersectionObserver' in window){
-    var rvObserver = new IntersectionObserver(function(entries){
-      for(var i = 0; i < entries.length; i++){
-        if(entries[i].isIntersecting){
-          entries[i].target.classList.add('vis');
-          rvObserver.unobserve(entries[i].target);
-        }
-      }
-    }, {threshold: 0.1, rootMargin: '0px 0px -40px 0px'});
-    for(var r = 0; r < rvEls.length; r++){
-      rvObserver.observe(rvEls[r]);
-    }
-  } else {
-    for(var r2 = 0; r2 < rvEls.length; r2++){
-      rvEls[r2].classList.add('vis');
-    }
-  }
-
-  /* === CATEGORY FILTER === */
-  var filterBtns = document.querySelectorAll('.filter-btn');
-  var postCards = document.querySelectorAll('.post-card');
-
-  for(var f = 0; f < filterBtns.length; f++){
-    filterBtns[f].addEventListener('click', function(){
-      var filter = this.getAttribute('data-filter');
-
-      for(var b = 0; b < filterBtns.length; b++){
-        filterBtns[b].classList.remove('active');
-      }
-      this.classList.add('active');
-
-      for(var c = 0; c < postCards.length; c++){
-        var card = postCards[c];
-        var cat = card.getAttribute('data-cat');
-        if(filter === 'all' || cat === filter){
-          card.style.display = '';
-          card.style.opacity = '0';
-          card.style.transform = 'translateY(20px)';
-          (function(el){
-            setTimeout(function(){
-              el.style.transition = 'opacity 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.4s cubic-bezier(0.16,1,0.3,1)';
-              el.style.opacity = '1';
-              el.style.transform = 'translateY(0)';
-            }, 30);
-          })(card);
-        } else {
-          card.style.display = 'none';
-        }
-      }
-    });
-  }
-
-})();
+window.addEventListener('scroll',()=>{document.getElementById('siteHeader').classList.toggle('scrolled',scrollY>40)});
+document.getElementById('headerToggle').addEventListener('click',()=>{document.getElementById('mobileNav').classList.toggle('open')});
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');io.unobserve(e.target)}})},{threshold:0.12,rootMargin:'0px 0px -40px 0px'});document.querySelectorAll('.rv').forEach(el=>io.observe(el));
 </script>
 <script>if(sessionStorage.getItem("ivae_admin_auth")==="true"){var s=document.createElement("script");s.src="/focal-admin.js?v=6";document.body.appendChild(s);}</script>
 </body>
