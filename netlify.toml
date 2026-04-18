@@ -445,6 +445,19 @@
   status = 301
 
 # ═══════════════════════════════════════════
+# AI MANIFEST ROUTES (llms.txt standard)
+# ═══════════════════════════════════════════
+[[redirects]]
+  from = "/llm.txt"
+  to = "/llms.txt"
+  status = 301
+
+[[redirects]]
+  from = "/ai.txt"
+  to = "/llms.txt"
+  status = 301
+
+# ═══════════════════════════════════════════
 # SECURITY & PERFORMANCE HEADERS
 # ═══════════════════════════════════════════
 [[headers]]
@@ -457,6 +470,39 @@
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
     Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'"
+    # Explicit AI-usage signal (TDM Reservation Protocol)
+    X-Robots-Tag = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    # Give AI crawlers permission to cache content
+    Access-Control-Allow-Origin = "*"
+
+# AI-readable manifest files get text/plain so LLMs parse correctly
+[[headers]]
+  for = "/llms.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    X-Robots-Tag = "index, follow"
+    Cache-Control = "public, max-age=3600"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/llms-full.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    X-Robots-Tag = "index, follow"
+    Cache-Control = "public, max-age=3600"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Content-Type = "application/xml; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
 
 [[headers]]
   for = "*.html"

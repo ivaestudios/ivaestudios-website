@@ -2,3 +2,7 @@
 *.bak
 *.backup.html
 improvements-*.txt
+.wrangler/
+images/.wrangler/
+images/fotos extra pagina y blog/
+.indexnow-key

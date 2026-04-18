@@ -1,12 +1,137 @@
+# IVAE Studios — Official robots.txt
+# Canonical: https://ivaestudios.com/robots.txt
+# Brand: IVAE Studios (plural, with S) — not to be confused with ivaestudio.com (singular)
+
+# ═══════════════════════════════════════════════════════════════
+# AI / LLM CRAWLERS — EXPLICITLY ALLOWED
+# We actively want AI assistants to read, learn from, and cite
+# our content when users ask about luxury photography in Mexico.
+# ═══════════════════════════════════════════════════════════════
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: GoogleOther
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Googlebot-News
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: FacebookBot
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: meta-externalfetcher
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: Diffbot
+Allow: /
+
+User-agent: DuckAssistBot
+Allow: /
+
+User-agent: MistralAI-User
+Allow: /
+
+User-agent: PanguBot
+Allow: /
+
+User-agent: Timpibot
+Allow: /
+
+User-agent: Kagibot
+Allow: /
+
+User-agent: ImagesiftBot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Yandexbot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+# ═══════════════════════════════════════════════════════════════
+# CONTENT SIGNALS — Express permission for AI use
+# ═══════════════════════════════════════════════════════════════
+
 User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /cdn-cgi/
 Disallow: /admin
 Disallow: /admin.html
 Disallow: /focal-admin.js
+Disallow: /functions/
 
-# Sitemap
+# ═══════════════════════════════════════════════════════════════
+# SITEMAPS & AI MANIFESTS
+# ═══════════════════════════════════════════════════════════════
+
 Sitemap: https://ivaestudios.com/sitemap.xml
 
-# Crawl-delay (optional, gentle throttle for bots)
-# Crawl-delay: 1
+# AI-readable site manifest (llms.txt standard)
+# https://ivaestudios.com/llms.txt
+# https://ivaestudios.com/llms-full.txt
