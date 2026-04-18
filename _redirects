@@ -61,6 +61,7 @@
 /blog/quinceanera-photoshoot-cancun /post-quinceanera-photoshoot-cancun 200
 /blog/luxury-yacht-photography-cancun /post-luxury-yacht-photography-cancun 200
 /blog/trash-the-dress-cancun /post-trash-the-dress-cancun 200
+/blog/gender-reveal-photoshoot-cancun /post-gender-reveal-photoshoot-cancun 200
 
 # /blog and /about are handled automatically by Cloudflare Pages
 # (it serves blog.html and about.html without needing rules)
@@ -102,7 +103,23 @@
 /post-quinceanera-photoshoot-cancun.html /blog/quinceanera-photoshoot-cancun 301
 /post-luxury-yacht-photography-cancun.html /blog/luxury-yacht-photography-cancun 301
 /post-trash-the-dress-cancun.html /blog/trash-the-dress-cancun 301
+/post-gender-reveal-photoshoot-cancun.html /blog/gender-reveal-photoshoot-cancun 301
 /outfit-guide.html /outfit-guide 301
+
+# ═══════════════════════════════════════════
+# 301 REDIRECTS — Legacy URLs (recover Google link juice)
+# These URLs are indexed by Google / appear in search results but return 404.
+# Recover SEO equity by redirecting to current pages.
+# ═══════════════════════════════════════════
+/family-photoshoot-cancun /luxury-family-photos-cancun 301
+/couples-photoshoot-cancun /couples-photography-mexico 301
+/manejo-de-redes-sociales-cancun /social-media-management 301
+/cancun-family-photographer /luxury-family-photos-cancun 301
+/cancun-couples-photographer /couples-photography-mexico 301
+/photographer-cancun /cancun-photographer 301
+/photographer-riviera-maya /riviera-maya-photographer 301
+/photographer-cabo /cabo-photographer 301
+/wedding-photographer-cancun-mexico /destination-wedding-photographer-mexico 301
 
 # ═══════════════════════════════════════════
 # Fix broken internal links
