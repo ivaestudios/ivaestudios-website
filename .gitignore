@@ -6,3 +6,8 @@ improvements-*.txt
 images/.wrangler/
 images/fotos extra pagina y blog/
 .indexnow-key
+.search-console-key.json
+.bing-webmaster-key.json
+*-service-account*.json
+.env
+.env.local
