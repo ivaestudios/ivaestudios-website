@@ -11,3 +11,4 @@ images/fotos extra pagina y blog/
 *-service-account*.json
 .env
 .env.local
+.cloudflare-token

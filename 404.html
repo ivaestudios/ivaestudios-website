@@ -4,8 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Page Not Found | IVAE Studios</title>
-<meta name="description" content="The page you're looking for isn't here. Explore IVAE Studios' luxury resort photography in Cancún, Riviera Maya and Los Cabos."/>
-<meta name="robots" content="noindex, nofollow"/>
+<meta name="description" content="The page you're looking for doesn't exist. Browse IVAE Studios luxury photography services in Cancún, Riviera Maya and Los Cabos."/>
+<meta name="robots" content="noindex, follow"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
@@ -137,6 +137,29 @@ body {
   transition: color 0.25s;
 }
 .error-links a:hover { color: var(--cream); }
+.popular-pages {
+  margin-top: 56px; padding-top: 32px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.popular-pages h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 400;
+  color: var(--cream); margin-bottom: 20px;
+  letter-spacing: 0.04em;
+}
+.popular-pages ul {
+  list-style: none; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 12px 24px;
+  justify-content: center;
+}
+.popular-pages a {
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(249,248,247,0.55); text-decoration: none;
+  transition: color 0.25s;
+}
+.popular-pages a:hover { color: var(--gold); }
 /* Footer */
 .site-footer {
   text-align: center; padding: 40px 32px;
@@ -172,9 +195,8 @@ body {
 <meta name="DC.rights" content="Copyright IVAE Studios"/>
 <meta name="DC.language" content="en"/>
 <meta name="DC.coverage" content="Cancún, Riviera Maya, Los Cabos, Mexico"/>
-<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"/>
-<meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1"/>
-<meta name="bingbot" content="index, follow"/>
+<meta name="googlebot" content="noindex, follow"/>
+<meta name="bingbot" content="noindex, follow"/>
 <meta property="business:contact_data:locality" content="Cancún"/>
 <meta property="business:contact_data:region" content="Quintana Roo"/>
 <meta property="business:contact_data:country_name" content="Mexico"/>
@@ -230,16 +252,23 @@ body {
 <main id="main-content" class="error-page">
   <div class="error-inner">
     <div class="error-code">404</div>
-    <h1 class="error-title">This page doesn't exist</h1>
+    <h1 class="error-title">This Page Doesn't Exist</h1>
+    <nav class="popular-pages" aria-label="Popular pages">
+      <h2>Popular pages</h2>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/cancun-photographer">Cancún Photographer</a></li>
+        <li><a href="/riviera-maya-photographer">Riviera Maya Photographer</a></li>
+        <li><a href="/cabo-photographer">Los Cabos Photographer</a></li>
+        <li><a href="/luxury-weddings">Destination Weddings</a></li>
+        <li><a href="/luxury-family-photos-cancun">Family Photos</a></li>
+        <li><a href="/couples-photography-mexico">Couples Photography</a></li>
+        <li><a href="/blog">Photography Blog</a></li>
+        <li><a href="/about">About Vianey</a></li>
+      </ul>
+    </nav>
     <p class="error-text">The page you're looking for may have been moved or no longer exists. Let's get you back on track.</p>
     <a class="error-btn" href="/">Back to Home</a>
-    <div class="error-links">
-      <a href="/blog">Journal</a>
-      <a href="/about">About Us</a>
-      <a href="/cancun-photographer">Cancun</a>
-      <a href="/riviera-maya-photographer">Riviera Maya</a>
-      <a href="/cabo-photographer">Los Cabos</a>
-    </div>
   </div>
 </main>
 
