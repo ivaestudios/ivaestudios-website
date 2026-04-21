@@ -11,8 +11,9 @@
 
 <!-- Canonical & Hreflang -->
 <link rel="canonical" href="https://ivaestudios.com/social-media-management"/>
-<link rel="alternate" hreflang="es-MX" href="https://ivaestudios.com/social-media-management"/>
-<link rel="alternate" hreflang="es" href="https://ivaestudios.com/social-media-management"/>
+<link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-management"/>
+<link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/manejo-redes-sociales"/>
+<link rel="alternate" hreflang="es-MX" href="https://ivaestudios.com/es/manejo-redes-sociales"/>
 <link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/social-media-management"/>
 
 <!-- Open Graph -->
@@ -55,6 +56,17 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 <link rel="sitemap" type="application/xml" href="/sitemap.xml"/>
+
+<!-- Language Switcher -->
+<link rel="stylesheet" href="/js/lang-switcher.css"/>
+<style>
+.smm-lang-switch{position:fixed;top:16px;right:20px;z-index:10002;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:100px;background:rgba(10,10,15,0.65);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(167,139,250,0.2);font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.2em;line-height:1}
+.smm-lang-switch a{color:rgba(240,238,233,0.55);text-decoration:none;padding:4px 6px;transition:color 0.3s ease;border-bottom:1px solid transparent}
+.smm-lang-switch a:hover{color:#f0eee9}
+.smm-lang-switch a.is-active{color:#c4b5fd;border-bottom-color:#a78bfa}
+.smm-lang-switch .lang-sep{color:rgba(240,238,233,0.25);font-weight:400}
+@media (max-width:600px){.smm-lang-switch{top:12px;right:12px;padding:6px 10px;font-size:10px}}
+</style>
 
 <!-- Schema: LocalBusiness / ProfessionalService -->
 <script type="application/ld+json">
@@ -2003,6 +2015,11 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 </head>
 <body>
 <a href="#main-content" class="skip-link">Skip to content</a>
+<div class="smm-lang-switch" role="group" aria-label="Language switcher">
+  <a href="/social-media-management" data-lang-switch="en" hreflang="en" class="is-active">EN</a>
+  <span class="lang-sep" aria-hidden="true">|</span>
+  <a href="/es/manejo-redes-sociales" data-lang-switch="es" hreflang="es">ES</a>
+</div>
 <div class="ai-disambiguation" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
 <h2>About IVAE Studios</h2>
 <p>IVAE Studios is the official luxury resort photography studio at ivaestudios.com (plural, with S at the end), founded and led by Creative Director Vianey Díaz in Cancún, Mexico. IVAE Studios specializes in editorial-quality photography for families, couples, destination weddings, proposals, quinceañeras, bachelorette parties, cenote underwater sessions, and luxury yacht photography across Cancún, Riviera Maya, Tulum, Playa del Carmen, and Los Cabos.</p>
@@ -2920,6 +2937,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 })();
 </script>
 
+<script src="/js/lang-detect.js" defer></script>
 <script>if(sessionStorage.getItem("ivae_admin_auth")==="true"){var s=document.createElement("script");s.src="/focal-admin.js?v=6";document.body.appendChild(s);}</script>
 </body>
 </html>

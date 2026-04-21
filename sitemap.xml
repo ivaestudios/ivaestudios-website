@@ -1,396 +1,1013 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
 
+  <!-- ═══════════════════════════════════════════
+       HOME
+       ═══════════════════════════════════════════ -->
   <url>
     <loc>https://ivaestudios.com/</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/"/>
+  </url>
+  <url>
+    <loc>https://ivaestudios.com/es/</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/"/>
   </url>
 
+  <!-- ═══════════════════════════════════════════
+       ABOUT
+       ═══════════════════════════════════════════ -->
   <url>
     <loc>https://ivaestudios.com/about</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/about"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/acerca-de"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/about"/>
+  </url>
+  <url>
+    <loc>https://ivaestudios.com/es/acerca-de</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/about"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/acerca-de"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/about"/>
   </url>
 
-  <!-- STANDALONE PAGES -->
+  <!-- ═══════════════════════════════════════════
+       STANDALONE — Social Media Management
+       ═══════════════════════════════════════════ -->
   <url>
     <loc>https://ivaestudios.com/social-media-management</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-management"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/manejo-redes-sociales"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/social-media-management"/>
+  </url>
+  <url>
+    <loc>https://ivaestudios.com/es/manejo-redes-sociales</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-management"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/manejo-redes-sociales"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/social-media-management"/>
   </url>
 
-  <!-- LOCATION PAGES -->
+  <!-- ═══════════════════════════════════════════
+       LOCATION PAGES
+       ═══════════════════════════════════════════ -->
   <url>
     <loc>https://ivaestudios.com/cancun-photographer</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/cancun-photographer"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotografo-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/cancun-photographer"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/cancun-photographer-og.jpg</image:loc>
       <image:title>Cancun Photographer - IVAE Studios Luxury Resort Photography</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/fotografo-cancun</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/cancun-photographer"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotografo-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/cancun-photographer"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/cancun-photographer-og.jpg</image:loc>
+      <image:title>Fotógrafo Cancún - IVAE Studios Fotografía de Resort de Lujo</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/riviera-maya-photographer</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/riviera-maya-photographer"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotografo-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/riviera-maya-photographer"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/riviera-maya-photographer-og.jpg</image:loc>
       <image:title>Riviera Maya Photographer - IVAE Studios Luxury Resort Photography</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/fotografo-riviera-maya</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/riviera-maya-photographer"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotografo-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/riviera-maya-photographer"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/riviera-maya-photographer-og.jpg</image:loc>
+      <image:title>Fotógrafo Riviera Maya - IVAE Studios Fotografía de Resort de Lujo</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/cabo-photographer</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/cabo-photographer"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotografo-los-cabos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/cabo-photographer"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/cabo-photographer-og.jpg</image:loc>
       <image:title>Cabo Photographer - IVAE Studios Luxury Resort Photography</image:title>
     </image:image>
   </url>
-
-  <!-- SERVICE PAGES -->
   <url>
-    <loc>https://ivaestudios.com/destination-wedding-photographer-mexico</loc>
-    <lastmod>2026-04-18</lastmod>
+    <loc>https://ivaestudios.com/es/fotografo-los-cabos</loc>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/cabo-photographer"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotografo-los-cabos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/cabo-photographer"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/cabo-photographer-og.jpg</image:loc>
+      <image:title>Fotógrafo Los Cabos - IVAE Studios Fotografía de Resort de Lujo</image:title>
+    </image:image>
+  </url>
+
+  <!-- ═══════════════════════════════════════════
+       SERVICE PAGES
+       ═══════════════════════════════════════════ -->
+  <url>
+    <loc>https://ivaestudios.com/destination-wedding-photographer-mexico</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/destination-wedding-photographer-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotografo-bodas-destino-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/destination-wedding-photographer-mexico"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/destination-wedding-photographer-og.jpg</image:loc>
       <image:title>Destination Wedding Photographer Mexico - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/fotografo-bodas-destino-mexico</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/destination-wedding-photographer-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotografo-bodas-destino-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/destination-wedding-photographer-mexico"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/destination-wedding-photographer-og.jpg</image:loc>
+      <image:title>Fotógrafo de Bodas de Destino México - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/luxury-family-photos-cancun</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/luxury-family-photos-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotos-familiares-lujo-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/luxury-family-photos-cancun"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/luxury-family-photos-og.jpg</image:loc>
       <image:title>Luxury Family Photos Cancun - IVAE Studios Resort Photography</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/fotos-familiares-lujo-cancun</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/luxury-family-photos-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotos-familiares-lujo-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/luxury-family-photos-cancun"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/luxury-family-photos-og.jpg</image:loc>
+      <image:title>Fotos Familiares de Lujo Cancún - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/couples-photography-mexico</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/couples-photography-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotografia-parejas-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/couples-photography-mexico"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/couples-photography-og.jpg</image:loc>
       <image:title>Couples Photography Mexico - IVAE Studios Luxury Sessions</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/fotografia-parejas-mexico</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/couples-photography-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotografia-parejas-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/couples-photography-mexico"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/couples-photography-og.jpg</image:loc>
+      <image:title>Fotografía de Parejas México - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
-  <!-- BLOG -->
+  <!-- ═══════════════════════════════════════════
+       OUTFIT GUIDE
+       ═══════════════════════════════════════════ -->
+  <url>
+    <loc>https://ivaestudios.com/outfit-guide</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/outfit-guide"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/guia-vestuario"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/outfit-guide"/>
+  </url>
+  <url>
+    <loc>https://ivaestudios.com/es/guia-vestuario</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/outfit-guide"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/guia-vestuario"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/outfit-guide"/>
+  </url>
+
+  <!-- ═══════════════════════════════════════════
+       BLOG INDEX
+       ═══════════════════════════════════════════ -->
   <url>
     <loc>https://ivaestudios.com/blog</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog"/>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog"/>
+  </url>
+
+  <!-- ═══════════════════════════════════════════
+       BLOG POSTS — 28 (EN + ES mirror each)
+       ═══════════════════════════════════════════ -->
 
   <url>
     <loc>https://ivaestudios.com/blog/destination-wedding-photographer-riviera-maya</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/destination-wedding-photographer-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-boda-destino-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/destination-wedding-photographer-riviera-maya"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/destination-wedding-riviera-maya.jpg</image:loc>
       <image:title>Destination Wedding Photographer Riviera Maya - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fotografo-boda-destino-riviera-maya</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/destination-wedding-photographer-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-boda-destino-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/destination-wedding-photographer-riviera-maya"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/destination-wedding-riviera-maya.jpg</image:loc>
+      <image:title>Fotógrafo de Bodas de Destino Riviera Maya - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/honeymoon-photographer-riviera-maya</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/honeymoon-photographer-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-luna-de-miel-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/honeymoon-photographer-riviera-maya"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/honeymoon-photographer-riviera-maya.jpg</image:loc>
       <image:title>Honeymoon Photographer Riviera Maya - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fotografo-luna-de-miel-riviera-maya</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/honeymoon-photographer-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-luna-de-miel-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/honeymoon-photographer-riviera-maya"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/honeymoon-photographer-riviera-maya.jpg</image:loc>
+      <image:title>Fotógrafo de Luna de Miel Riviera Maya - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/wedding-photographer-cancun</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/wedding-photographer-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-boda-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/wedding-photographer-cancun"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/wedding-photographer-cancun.jpg</image:loc>
       <image:title>Wedding Photographer Cancún - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fotografo-boda-cancun</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/wedding-photographer-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-boda-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/wedding-photographer-cancun"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/wedding-photographer-cancun.jpg</image:loc>
+      <image:title>Fotógrafo de Bodas Cancún - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/couples-photographer-cancun</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/couples-photographer-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-parejas-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/couples-photographer-cancun"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/couples-photographer-cancun.jpg</image:loc>
       <image:title>Couples Photographer Cancún - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fotografo-parejas-cancun</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/couples-photographer-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-parejas-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/couples-photographer-cancun"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/couples-photographer-cancun.jpg</image:loc>
+      <image:title>Fotógrafo de Parejas Cancún - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/engagement-session-cancun-riviera-maya</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/engagement-session-cancun-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-compromiso-cancun-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/engagement-session-cancun-riviera-maya"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/engagement-session-cancun.jpg</image:loc>
       <image:title>Engagement Session Cancún Riviera Maya - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/sesion-compromiso-cancun-riviera-maya</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/engagement-session-cancun-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-compromiso-cancun-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/engagement-session-cancun-riviera-maya"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/engagement-session-cancun.jpg</image:loc>
+      <image:title>Sesión de Compromiso Cancún Riviera Maya - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/maternity-photoshoot-cancun-riviera-maya</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/maternity-photoshoot-cancun-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-maternidad-cancun-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/maternity-photoshoot-cancun-riviera-maya"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/maternity-photoshoot-cancun.jpg</image:loc>
       <image:title>Maternity Photoshoot Cancún Riviera Maya - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/sesion-maternidad-cancun-riviera-maya</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/maternity-photoshoot-cancun-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-maternidad-cancun-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/maternity-photoshoot-cancun-riviera-maya"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/maternity-photoshoot-cancun.jpg</image:loc>
+      <image:title>Sesión de Maternidad Cancún Riviera Maya - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/best-photo-locations-riviera-maya</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/best-photo-locations-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/mejores-locaciones-foto-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/best-photo-locations-riviera-maya"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/best-photo-locations-riviera-maya.jpg</image:loc>
       <image:title>Best Photo Locations Riviera Maya - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/mejores-locaciones-foto-riviera-maya</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/best-photo-locations-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/mejores-locaciones-foto-riviera-maya"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/best-photo-locations-riviera-maya"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/best-photo-locations-riviera-maya.jpg</image:loc>
+      <image:title>Mejores Locaciones de Foto Riviera Maya - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/family-vacation-photos-mexico</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/family-vacation-photos-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotos-vacaciones-familiares-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/family-vacation-photos-mexico"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/family-vacation-photos-mexico.jpg</image:loc>
       <image:title>Family Vacation Photos Mexico - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fotos-vacaciones-familiares-mexico</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/family-vacation-photos-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotos-vacaciones-familiares-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/family-vacation-photos-mexico"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/family-vacation-photos-mexico.jpg</image:loc>
+      <image:title>Fotos de Vacaciones Familiares México - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/los-cabos-photographer-guide</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/los-cabos-photographer-guide"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/guia-fotografo-los-cabos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/los-cabos-photographer-guide"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/los-cabos-photographer-guide.jpg</image:loc>
       <image:title>Los Cabos Photographer Guide - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/guia-fotografo-los-cabos</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/los-cabos-photographer-guide"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/guia-fotografo-los-cabos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/los-cabos-photographer-guide"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/los-cabos-photographer-guide.jpg</image:loc>
+      <image:title>Guía de Fotógrafo en Los Cabos - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/how-to-choose-luxury-photographer-mexico</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/how-to-choose-luxury-photographer-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/como-elegir-fotografo-lujo-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/how-to-choose-luxury-photographer-mexico"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/how-to-choose-luxury-photographer-mexico.jpg</image:loc>
       <image:title>How to Choose a Luxury Photographer Mexico - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/como-elegir-fotografo-lujo-mexico</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/how-to-choose-luxury-photographer-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/como-elegir-fotografo-lujo-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/how-to-choose-luxury-photographer-mexico"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/how-to-choose-luxury-photographer-mexico.jpg</image:loc>
+      <image:title>Cómo Elegir Fotógrafo de Lujo en México - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/surprise-proposal-photography-cancun</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/surprise-proposal-photography-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografia-propuesta-sorpresa-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/surprise-proposal-photography-cancun"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/surprise-proposal-photography-cancun.jpg</image:loc>
       <image:title>Surprise Proposal Photography Cancún - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fotografia-propuesta-sorpresa-cancun</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/surprise-proposal-photography-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografia-propuesta-sorpresa-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/surprise-proposal-photography-cancun"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/surprise-proposal-photography-cancun.jpg</image:loc>
+      <image:title>Fotografía de Propuesta Sorpresa Cancún - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/what-to-wear-beach-photos-mexico</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/what-to-wear-beach-photos-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/que-ponerte-fotos-playa-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/what-to-wear-beach-photos-mexico"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/what-to-wear-beach-photos-mexico.jpg</image:loc>
       <image:title>What to Wear for Beach Photos in Mexico - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/que-ponerte-fotos-playa-mexico</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/what-to-wear-beach-photos-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/que-ponerte-fotos-playa-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/what-to-wear-beach-photos-mexico"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/what-to-wear-beach-photos-mexico.jpg</image:loc>
+      <image:title>Qué Ponerte para Fotos en la Playa México - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/best-resorts-cancun-photography</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/best-resorts-cancun-photography"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/mejores-resorts-fotografia-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/best-resorts-cancun-photography"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/best-resorts-cancun-photography.jpg</image:loc>
       <image:title>Best Resorts for Photography in Cancún - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/mejores-resorts-fotografia-cancun</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/best-resorts-cancun-photography"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/mejores-resorts-fotografia-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/best-resorts-cancun-photography"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/best-resorts-cancun-photography.jpg</image:loc>
+      <image:title>Mejores Resorts para Fotografía en Cancún - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/cancun-vs-riviera-maya-photos</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/cancun-vs-riviera-maya-photos"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/cancun-vs-riviera-maya-fotos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/cancun-vs-riviera-maya-photos"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/cancun-vs-riviera-maya-photos.jpg</image:loc>
       <image:title>Cancún vs Riviera Maya for Photos - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/cancun-vs-riviera-maya-fotos</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/cancun-vs-riviera-maya-photos"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/cancun-vs-riviera-maya-fotos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/cancun-vs-riviera-maya-photos"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/cancun-vs-riviera-maya-photos.jpg</image:loc>
+      <image:title>Cancún vs Riviera Maya para Fotos - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/destination-elopement-mexico</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/destination-elopement-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fuga-boda-destino-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/destination-elopement-mexico"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/destination-elopement-mexico.jpg</image:loc>
       <image:title>Destination Elopement in Mexico - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fuga-boda-destino-mexico</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/destination-elopement-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fuga-boda-destino-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/destination-elopement-mexico"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/destination-elopement-mexico.jpg</image:loc>
+      <image:title>Fuga de Boda de Destino en México - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/golden-hour-photography-mexico</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/golden-hour-photography-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografia-hora-dorada-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/golden-hour-photography-mexico"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/golden-hour-photography-mexico.jpg</image:loc>
       <image:title>Golden Hour Photography in Mexico - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fotografia-hora-dorada-mexico</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/golden-hour-photography-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografia-hora-dorada-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/golden-hour-photography-mexico"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/golden-hour-photography-mexico.jpg</image:loc>
+      <image:title>Fotografía Hora Dorada en México - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/vow-renewal-mexico-photography</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/vow-renewal-mexico-photography"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/renovacion-votos-mexico-fotografia"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/vow-renewal-mexico-photography"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/vow-renewal-mexico-photography.jpg</image:loc>
       <image:title>Vow Renewal Photography in Mexico - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/renovacion-votos-mexico-fotografia</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/vow-renewal-mexico-photography"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/renovacion-votos-mexico-fotografia"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/vow-renewal-mexico-photography"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/vow-renewal-mexico-photography.jpg</image:loc>
+      <image:title>Fotografía de Renovación de Votos en México - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/babymoon-photography-cancun</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/babymoon-photography-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografia-babymoon-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/babymoon-photography-cancun"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/babymoon-photography-cancun.jpg</image:loc>
       <image:title>Babymoon Photography Cancún - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fotografia-babymoon-cancun</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/babymoon-photography-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografia-babymoon-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/babymoon-photography-cancun"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/babymoon-photography-cancun.jpg</image:loc>
+      <image:title>Fotografía Babymoon Cancún - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/anniversary-photography-mexico</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/anniversary-photography-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografia-aniversario-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/anniversary-photography-mexico"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/anniversary-photography-mexico.jpg</image:loc>
       <image:title>Anniversary Photography in Mexico - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fotografia-aniversario-mexico</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/anniversary-photography-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografia-aniversario-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/anniversary-photography-mexico"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/anniversary-photography-mexico.jpg</image:loc>
+      <image:title>Fotografía de Aniversario en México - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/all-inclusive-resort-photographer-mexico</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/all-inclusive-resort-photographer-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-resort-todo-incluido-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/all-inclusive-resort-photographer-mexico"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/all-inclusive-resort-photographer-mexico.jpg</image:loc>
       <image:title>All-Inclusive Resort Photographer in Mexico - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fotografo-resort-todo-incluido-mexico</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/all-inclusive-resort-photographer-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-resort-todo-incluido-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/all-inclusive-resort-photographer-mexico"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/all-inclusive-resort-photographer-mexico.jpg</image:loc>
+      <image:title>Fotógrafo de Resort Todo Incluido en México - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/tulum-photography-guide</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/tulum-photography-guide"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/guia-fotografia-tulum"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/tulum-photography-guide"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/tulum-photography-guide.jpg</image:loc>
       <image:title>Tulum Photography Guide - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/guia-fotografia-tulum</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/tulum-photography-guide"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/guia-fotografia-tulum"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/tulum-photography-guide"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/tulum-photography-guide.jpg</image:loc>
+      <image:title>Guía de Fotografía en Tulum - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/bachelorette-photoshoot-los-cabos</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/bachelorette-photoshoot-los-cabos"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-despedida-soltera-los-cabos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/bachelorette-photoshoot-los-cabos"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/bachelorette-photoshoot-los-cabos.jpg</image:loc>
       <image:title>Bachelorette Photoshoot Los Cabos - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/sesion-despedida-soltera-los-cabos</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/bachelorette-photoshoot-los-cabos"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-despedida-soltera-los-cabos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/bachelorette-photoshoot-los-cabos"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/bachelorette-photoshoot-los-cabos.jpg</image:loc>
+      <image:title>Sesión de Despedida de Soltera en Los Cabos - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/birthday-photoshoot-cancun</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/birthday-photoshoot-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-cumpleanos-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/birthday-photoshoot-cancun"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/birthday-photoshoot-cancun.jpg</image:loc>
       <image:title>Birthday Photoshoot Cancún - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/sesion-cumpleanos-cancun</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/birthday-photoshoot-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-cumpleanos-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/birthday-photoshoot-cancun"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/birthday-photoshoot-cancun.jpg</image:loc>
+      <image:title>Sesión de Cumpleaños Cancún - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/cenote-underwater-photoshoot-tulum</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/cenote-underwater-photoshoot-tulum"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-cenote-submarina-tulum"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/cenote-underwater-photoshoot-tulum"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/cenote-underwater-photoshoot-tulum.jpg</image:loc>
       <image:title>Cenote Underwater Photoshoot Tulum - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/sesion-cenote-submarina-tulum</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/cenote-underwater-photoshoot-tulum"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-cenote-submarina-tulum"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/cenote-underwater-photoshoot-tulum"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/cenote-underwater-photoshoot-tulum.jpg</image:loc>
+      <image:title>Sesión Submarina en Cenote Tulum - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/quinceanera-photoshoot-cancun</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/quinceanera-photoshoot-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-quinceanera-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/quinceanera-photoshoot-cancun"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/quinceanera-photoshoot-cancun.jpg</image:loc>
       <image:title>Quinceañera Photoshoot Cancún - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/sesion-quinceanera-cancun</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/quinceanera-photoshoot-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-quinceanera-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/quinceanera-photoshoot-cancun"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/quinceanera-photoshoot-cancun.jpg</image:loc>
+      <image:title>Sesión de Quinceañera Cancún - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/luxury-yacht-photography-cancun</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/luxury-yacht-photography-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografia-yate-lujo-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/luxury-yacht-photography-cancun"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/luxury-yacht-photography-cancun.jpg</image:loc>
       <image:title>Luxury Yacht Photography Cancún - IVAE Studios</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fotografia-yate-lujo-cancun</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/luxury-yacht-photography-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografia-yate-lujo-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/luxury-yacht-photography-cancun"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/luxury-yacht-photography-cancun.jpg</image:loc>
+      <image:title>Fotografía en Yate de Lujo Cancún - IVAE Studios</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://ivaestudios.com/blog/trash-the-dress-cancun</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/trash-the-dress-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/trash-the-dress-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/trash-the-dress-cancun"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/trash-the-dress-cancun.jpg</image:loc>
+      <image:title>Trash the Dress Cancún - IVAE Studios</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://ivaestudios.com/es/blog/trash-the-dress-cancun</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/trash-the-dress-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/trash-the-dress-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/trash-the-dress-cancun"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/trash-the-dress-cancun.jpg</image:loc>
       <image:title>Trash the Dress Cancún - IVAE Studios</image:title>
@@ -399,34 +1016,44 @@
 
   <url>
     <loc>https://ivaestudios.com/blog/gender-reveal-photoshoot-cancun</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/gender-reveal-photoshoot-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-revelacion-genero-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/gender-reveal-photoshoot-cancun"/>
     <image:image>
       <image:loc>https://ivaestudios.com/images/blog/gender-reveal-photoshoot-cancun.jpg</image:loc>
       <image:title>Gender Reveal Photoshoot Cancún - IVAE Studios</image:title>
     </image:image>
   </url>
-
   <url>
-    <loc>https://ivaestudios.com/outfit-guide</loc>
-    <lastmod>2026-04-18</lastmod>
+    <loc>https://ivaestudios.com/es/blog/sesion-revelacion-genero-cancun</loc>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/gender-reveal-photoshoot-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-revelacion-genero-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/gender-reveal-photoshoot-cancun"/>
+    <image:image>
+      <image:loc>https://ivaestudios.com/images/blog/gender-reveal-photoshoot-cancun.jpg</image:loc>
+      <image:title>Sesión de Revelación de Género Cancún - IVAE Studios</image:title>
+    </image:image>
   </url>
 
-
-  <!-- AI-readable manifests -->
+  <!-- ═══════════════════════════════════════════
+       AI-READABLE MANIFESTS
+       ═══════════════════════════════════════════ -->
   <url>
     <loc>https://ivaestudios.com/llms.txt</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://ivaestudios.com/llms-full.txt</loc>
-    <lastmod>2026-04-18</lastmod>
+    <lastmod>2026-04-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>

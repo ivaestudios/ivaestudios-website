@@ -6,6 +6,7 @@
 <meta name="description" content="Los Cabos photographer guide: top 10 photo spots from El Arco to Flora Farms, golden-hour timing by season, resort venue access, and desert-meets-ocean wardrobe tips."/>
 <link rel="canonical" href="https://ivaestudios.com/blog/los-cabos-photographer-guide"/>
 <link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/los-cabos-photographer-guide"/>
+<link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/guia-fotografo-los-cabos"/>
 <link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/los-cabos-photographer-guide"/>
 <meta property="og:title" content="Los Cabos Photographer Guide: Where to Shoot, When to Book & What to Expect (2026)"/>
 <meta property="og:description" content="Planning a photo session in Los Cabos? Discover the best photography locations from El Arco to Flora Farms, golden hour timing by season, top resort venues, and what to wear in Cabo's desert-meets-ocean landscape."/>
@@ -118,6 +119,7 @@
 </script>
 
 <link rel="stylesheet" href="/styles/blog.css"/>
+<link rel="stylesheet" href="/js/lang-switcher.css"/>
 
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
 <meta name="publisher" content="IVAE Studios"/>
@@ -175,15 +177,25 @@
     </ul>
   </nav>
   <a class="header-cta" href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Book Now</a>
+  <div class="lang-switch" role="group" aria-label="Language switcher">
+    <a href="https://ivaestudios.com/blog/los-cabos-photographer-guide" data-lang-switch="en" hreflang="en" class="is-active" aria-current="true">EN</a>
+    <span class="lang-sep" aria-hidden="true">|</span>
+    <a href="https://ivaestudios.com/es/blog/guia-fotografo-los-cabos" data-lang-switch="es" hreflang="es">ES</a>
+  </div>
   <button class="header-toggle" id="headerToggle" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
-<div class="mobile-nav" id="mobileNav">
+<nav class="mobile-nav" id="mobileNav">
+  <div class="lang-switch" role="group" aria-label="Language switcher">
+    <a href="https://ivaestudios.com/blog/los-cabos-photographer-guide" data-lang-switch="en" hreflang="en" class="is-active" aria-current="true">EN</a>
+    <span class="lang-sep" aria-hidden="true">|</span>
+    <a href="https://ivaestudios.com/es/blog/guia-fotografo-los-cabos" data-lang-switch="es" hreflang="es">ES</a>
+  </div>
   <a href="/">Home</a>
   <a href="/about">About</a>
   <a href="/#services">Services</a>
   <a href="/blog" class="active">Blog</a>
   <a href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Book Now →</a>
-</div>
+</nav>
 <!-- HERO -->
 <section class="post-hero">
   <div class="post-hero-ph"><span>★ Hero image · El Arco rock formation at sunset with Pacific Ocean swells, Los Cabos</span></div>
@@ -475,5 +487,6 @@ window.addEventListener('scroll',()=>{document.getElementById('siteHeader').clas
 document.getElementById('headerToggle').addEventListener('click',()=>{document.getElementById('mobileNav').classList.toggle('open')});
 </script>
 <script>if(sessionStorage.getItem("ivae_admin_auth")==="true"){var s=document.createElement("script");s.src="/focal-admin.js?v=6";document.body.appendChild(s);}</script>
+<script src="/js/lang-detect.js" defer></script>
 </body>
 </html>

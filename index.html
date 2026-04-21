@@ -7,6 +7,7 @@
 <title>Luxury Photographer Cancún Mexico | IVAE Studios</title>
 <link rel="canonical" href="https://ivaestudios.com/"/>
 <link rel="alternate" hreflang="en" href="https://ivaestudios.com/"/>
+<link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/"/>
 <link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/"/>
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1"/>
 <meta property="og:title" content="Luxury Photographer Cancún Mexico | IVAE Studios"/>
@@ -32,6 +33,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://ivaestudios.com"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"ImageGallery","name":"IVAE Studios Portfolio","description":"Editorial luxury resort photography portfolio featuring families, couples, and destination weddings across Cancún, Riviera Maya and Los Cabos, Mexico.","url":"https://ivaestudios.com/#portfolio","creator":{"@id":"https://ivaestudios.com/#business"}}</script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/js/lang-switcher.css"/>
 <style>
 .skip-link{position:absolute;top:-100%;left:16px;background:var(--gold);color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;border-radius:0 0 4px 4px;transition:top 0.3s}
 .skip-link:focus{top:0}
@@ -502,10 +504,15 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <li><a href="#services">Services</a></li>
     <li><a href="/blog">Blog</a></li>
   </ul></nav>
+  <div class="lang-switch" role="group" aria-label="Language switcher">
+    <a href="/" data-lang-switch="en" hreflang="en" class="is-active">EN</a>
+    <span class="lang-sep" aria-hidden="true">|</span>
+    <a href="/es/" data-lang-switch="es" hreflang="es">ES</a>
+  </div>
   <a class="header-cta" href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Book Now</a>
   <button class="header-toggle" aria-expanded="false" aria-label="Toggle navigation" id="headerToggle"><span></span><span></span><span></span></button>
 </header>
-<nav class="mobile-nav" id="mobileNav"><a href="/">Home</a><a href="/about">About</a><a href="#services">Services</a><a href="/blog">Blog</a><a href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Book Now</a></nav>
+<nav class="mobile-nav" id="mobileNav"><div class="lang-switch" role="group" aria-label="Language switcher"><a href="/" data-lang-switch="en" hreflang="en" class="is-active">EN</a><span class="lang-sep" aria-hidden="true">|</span><a href="/es/" data-lang-switch="es" hreflang="es">ES</a></div><a href="/">Home</a><a href="/about">About</a><a href="#services">Services</a><a href="/blog">Blog</a><a href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Book Now</a></nav>
 
 <!-- HERO -->
 <section class="hero" id="main-content">
@@ -803,6 +810,7 @@ function sendHeight(){window.parent.postMessage({type:'iwh',value:document.docum
 window.addEventListener('load',sendHeight);window.addEventListener('resize',sendHeight);
 [500,1500,3000].forEach(t=>setTimeout(sendHeight,t));
 </script>
+<script src="/js/lang-detect.js" defer></script>
 <script>if(sessionStorage.getItem("ivae_admin_auth")==="true"){var s=document.createElement("script");s.src="/focal-admin.js?v=6";document.body.appendChild(s);}</script>
 <nav aria-label="Explore IVAE Studios services" class="explore-nav" style="background:var(--ink2);padding:56px clamp(24px,5vw,64px);border-top:1px solid rgba(196,163,90,0.12);text-align:center;color:var(--cream)">
   <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(22px,2.6vw,32px);font-weight:300;letter-spacing:-0.01em;color:var(--cream);margin:0 0 28px">Explore <em style="font-style:italic;color:var(--gold)">IVAE Studios</em></h2>

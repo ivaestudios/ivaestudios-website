@@ -6,6 +6,7 @@
 <meta name="description" content="Golden hour photography in Mexico: sunset times for Cancún, Riviera Maya, and Los Cabos by season, plus session prep tips so your resort photos look editorial."/>
 <link rel="canonical" href="https://ivaestudios.com/blog/golden-hour-photography-mexico"/>
 <link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/golden-hour-photography-mexico"/>
+<link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografia-hora-dorada-mexico"/>
 <link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/golden-hour-photography-mexico"/>
 <meta property="og:title" content="Golden Hour Photography in Mexico: Why the Best Resort Photos Happen at Sunset (2026)"/>
 <meta property="og:description" content="Discover why golden hour photography in Mexico produces the most stunning resort photos. Learn the best times for photos in Cancún, Riviera Maya, and Los Cabos — plus how to prepare for sunset sessions."/>
@@ -117,6 +118,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/blog.css"/>
+<link rel="stylesheet" href="/js/lang-switcher.css"/>
 
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
 <meta name="publisher" content="IVAE Studios"/>
@@ -173,10 +175,20 @@
       <li><a href="/blog" class="active">Blog</a></li>
     </ul>
   </nav>
+  <div class="lang-switch" role="group" aria-label="Language switcher">
+  <a href="https://ivaestudios.com/blog/golden-hour-photography-mexico" data-lang-switch="en" hreflang="en" class="is-active" aria-current="true">EN</a>
+  <span class="lang-sep" aria-hidden="true">|</span>
+  <a href="https://ivaestudios.com/es/blog/fotografia-hora-dorada-mexico" data-lang-switch="es" hreflang="es">ES</a>
+</div>
   <a class="header-cta" href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Book Now</a>
   <button class="header-toggle" id="headerToggle" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <div class="mobile-nav" id="mobileNav">
+  <div class="lang-switch" role="group" aria-label="Language switcher">
+  <a href="https://ivaestudios.com/blog/golden-hour-photography-mexico" data-lang-switch="en" hreflang="en" class="is-active" aria-current="true">EN</a>
+  <span class="lang-sep" aria-hidden="true">|</span>
+  <a href="https://ivaestudios.com/es/blog/fotografia-hora-dorada-mexico" data-lang-switch="es" hreflang="es">ES</a>
+</div>
   <a href="/">Home</a>
   <a href="/about">About</a>
   <a href="/#services">Services</a>
@@ -507,5 +519,6 @@ window.addEventListener('scroll',()=>{document.getElementById('siteHeader').clas
 document.getElementById('headerToggle').addEventListener('click',()=>{document.getElementById('mobileNav').classList.toggle('open')});
 </script>
 <script>if(sessionStorage.getItem("ivae_admin_auth")==="true"){var s=document.createElement("script");s.src="/focal-admin.js?v=6";document.body.appendChild(s);}</script>
+<script src="/js/lang-detect.js" defer></script>
 </body>
 </html>

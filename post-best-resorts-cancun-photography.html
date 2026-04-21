@@ -6,6 +6,7 @@
 <meta name="description" content="Best Cancún resorts for photography in 2026: top Hotel Zone picks for couples, family and wedding sessions with insider tips from a local luxury resort photographer."/>
 <link rel="canonical" href="https://ivaestudios.com/blog/best-resorts-cancun-photography"/>
 <link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/best-resorts-cancun-photography"/>
+<link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/mejores-resorts-fotografia-cancun"/>
 <link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/best-resorts-cancun-photography"/>
 <meta property="og:title" content="Best Resorts in Cancún for Photography: A Photographer's Inside Guide to the Hotel Zone (2026)"/>
 <meta property="og:description" content="Discover the best resorts in Cancún for photography — from couples and family photo spots to wedding ceremony locations. An insider guide by a local luxury resort photographer."/>
@@ -121,6 +122,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap"/>
 <link rel="stylesheet" href="/styles/blog.css"/>
+<link rel="stylesheet" href="/js/lang-switcher.css"/>
 
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
 <meta name="publisher" content="IVAE Studios"/>
@@ -178,15 +180,25 @@
     </ul>
   </nav>
   <a class="header-cta" href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Book Now</a>
+  <div class="lang-switch" role="group" aria-label="Language switcher">
+    <a href="https://ivaestudios.com/blog/best-resorts-cancun-photography" data-lang-switch="en" hreflang="en" class="is-active" aria-current="true">EN</a>
+    <span class="lang-sep" aria-hidden="true">|</span>
+    <a href="https://ivaestudios.com/es/blog/mejores-resorts-fotografia-cancun" data-lang-switch="es" hreflang="es">ES</a>
+  </div>
   <button class="header-toggle" id="headerToggle" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
-<div class="mobile-nav" id="mobileNav">
+<nav class="mobile-nav" id="mobileNav">
+  <div class="lang-switch" role="group" aria-label="Language switcher">
+    <a href="https://ivaestudios.com/blog/best-resorts-cancun-photography" data-lang-switch="en" hreflang="en" class="is-active" aria-current="true">EN</a>
+    <span class="lang-sep" aria-hidden="true">|</span>
+    <a href="https://ivaestudios.com/es/blog/mejores-resorts-fotografia-cancun" data-lang-switch="es" hreflang="es">ES</a>
+  </div>
   <a href="/">Home</a>
   <a href="/about">About</a>
   <a href="/#services">Services</a>
   <a href="/blog" class="active">Blog</a>
   <a href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Book Now →</a>
-</div>
+</nav>
 <!-- HERO -->
 <section class="post-hero">
   <div class="post-hero-ph"><span>★ Hero image · Aerial view of Cancún Hotel Zone turquoise coastline with luxury resorts at golden hour</span></div>
@@ -474,5 +486,6 @@ window.addEventListener('scroll',()=>{document.getElementById('siteHeader').clas
 document.getElementById('headerToggle').addEventListener('click',()=>{document.getElementById('mobileNav').classList.toggle('open')});
 </script>
 <script>if(sessionStorage.getItem("ivae_admin_auth")==="true"){var s=document.createElement("script");s.src="/focal-admin.js?v=6";document.body.appendChild(s);}</script>
+<script src="/js/lang-detect.js" defer></script>
 </body>
 </html>

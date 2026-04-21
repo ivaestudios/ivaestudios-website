@@ -6,6 +6,7 @@
 <meta name="description" content="Plan your 2026 Riviera Maya destination wedding: top venues, golden-hour timing, outfit tips, and how to book an editorial local photographer. Inquire with IVAE today."/>
 <link rel="canonical" href="https://ivaestudios.com/blog/destination-wedding-photographer-riviera-maya"/>
 <link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/destination-wedding-photographer-riviera-maya"/>
+<link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/fotografo-boda-destino-riviera-maya"/>
 <link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/destination-wedding-photographer-riviera-maya"/>
 <meta property="og:title" content="Destination Wedding Photographer in Riviera Maya: The Complete Planning Guide (2026)"/>
 <meta property="og:description" content="Everything you need to know about planning your destination wedding photography in Riviera Maya — venues, timing, outfits, and the insider tips only a local photographer knows."/>
@@ -119,6 +120,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap"/>
 <link rel="stylesheet" href="/styles/blog.css"/>
+<link rel="stylesheet" href="/styles/lang-switch.css"/>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
 <meta name="publisher" content="IVAE Studios"/>
 <meta name="copyright" content="IVAE Studios"/>
@@ -174,10 +176,20 @@
       <li><a href="/blog" class="active">Blog</a></li>
     </ul>
   </nav>
+  <div class="lang-switch" role="group" aria-label="Language switcher">
+    <a href="/blog/destination-wedding-photographer-riviera-maya" data-lang-switch="en" hreflang="en" class="is-active">EN</a>
+    <span class="lang-sep" aria-hidden="true">|</span>
+    <a href="/es/blog/fotografo-boda-destino-riviera-maya" data-lang-switch="es" hreflang="es">ES</a>
+  </div>
   <a class="header-cta" href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Book Now</a>
   <button class="header-toggle" id="headerToggle" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 <div class="mobile-nav" id="mobileNav">
+  <div class="lang-switch" role="group" aria-label="Language switcher">
+    <a href="/blog/destination-wedding-photographer-riviera-maya" data-lang-switch="en" hreflang="en" class="is-active">EN</a>
+    <span class="lang-sep" aria-hidden="true">|</span>
+    <a href="/es/blog/fotografo-boda-destino-riviera-maya" data-lang-switch="es" hreflang="es">ES</a>
+  </div>
   <a href="/">Home</a>
   <a href="/about">About</a>
   <a href="/#services">Services</a>
@@ -499,6 +511,7 @@
 window.addEventListener('scroll',()=>{document.getElementById('siteHeader').classList.toggle('scrolled',scrollY>40)});
 document.getElementById('headerToggle').addEventListener('click',()=>{document.getElementById('mobileNav').classList.toggle('open')});
 </script>
+<script src="/scripts/lang-detect.js" defer></script>
 <script>if(sessionStorage.getItem('ivae_admin_auth')==='true'){var s=document.createElement('script');s.src='/focal-admin.js?v=6';document.body.appendChild(s);}</script>
 </body>
 </html>

@@ -1,0 +1,14 @@
+/* IVAE Studios — Language Switcher (EN | ES)
+ * Lives in .site-header between .header-nav and .header-cta.
+ * Mobile: duplicated inside .mobile-nav.
+ */
+.lang-switch{display:inline-flex;align-items:center;gap:6px;margin-right:14px;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;line-height:1}
+.lang-switch a{color:rgba(249,248,247,0.55);text-decoration:none;padding:6px 4px;transition:color 0.3s cubic-bezier(0.22,1,0.36,1);border-bottom:1px solid transparent}
+.lang-switch a:hover{color:var(--cream)}
+.lang-switch a.is-active{color:var(--gold);border-bottom-color:var(--gold)}
+.lang-switch .lang-sep{color:rgba(249,248,247,0.25);font-weight:400}
+body.loaded .lang-switch a{color:rgba(26,34,48,0.55)}
+body.loaded .lang-switch a:hover{color:var(--ink)}
+body.loaded .lang-switch a.is-active{color:var(--gold);border-bottom-color:var(--gold)}
+body.loaded .lang-switch .lang-sep{color:rgba(26,34,48,0.25)}
+@media (max-width:900px){.lang-switch{display:none}.mobile-nav .lang-switch{display:flex;justify-content:center;gap:18px;padding:24px 0;border-bottom:1px solid rgba(196,163,90,0.1);font-size:12px;letter-spacing:0.28em}.mobile-nav .lang-switch a{padding:8px 10px}}

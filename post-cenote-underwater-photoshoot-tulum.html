@@ -6,6 +6,7 @@
 <meta name="description" content="Cenote underwater photoshoot in Tulum with IVAE Studios. Discover the best cenotes, wardrobe tips, safety info, pricing, and how to book your luxury session."/>
 <link rel="canonical" href="https://ivaestudios.com/blog/cenote-underwater-photoshoot-tulum"/>
 <link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog/cenote-underwater-photoshoot-tulum"/>
+<link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/blog/sesion-cenote-submarina-tulum"/>
 <link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/cenote-underwater-photoshoot-tulum"/>
 <meta property="og:title" content="Cenote Underwater Photoshoot Tulum: The Definitive Guide (2026)"/>
 <meta property="og:description" content="Plan your cenote underwater photoshoot in Tulum with IVAE Studios. Best cenotes, what to wear, safety tips, pricing, and how to book your luxury session."/>
@@ -128,6 +129,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/blog.css"/>
+<link rel="stylesheet" href="/js/lang-switcher.css"/>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
 <meta name="publisher" content="IVAE Studios"/>
 <meta name="copyright" content="IVAE Studios"/>
@@ -183,16 +185,26 @@
       <li><a href="/blog" class="active">Blog</a></li>
     </ul>
   </nav>
+  <div class="lang-switch" role="group" aria-label="Language switcher">
+    <a href="https://ivaestudios.com/blog/cenote-underwater-photoshoot-tulum" data-lang-switch="en" hreflang="en" class="is-active" aria-current="true">EN</a>
+    <span class="lang-sep" aria-hidden="true">|</span>
+    <a href="https://ivaestudios.com/es/blog/sesion-cenote-submarina-tulum" data-lang-switch="es" hreflang="es">ES</a>
+  </div>
   <a class="header-cta" href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Book Now</a>
   <button class="header-toggle" id="headerToggle" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
-<div class="mobile-nav" id="mobileNav">
+<nav class="mobile-nav" id="mobileNav">
+  <div class="lang-switch" role="group" aria-label="Language switcher">
+    <a href="https://ivaestudios.com/blog/cenote-underwater-photoshoot-tulum" data-lang-switch="en" hreflang="en" class="is-active" aria-current="true">EN</a>
+    <span class="lang-sep" aria-hidden="true">|</span>
+    <a href="https://ivaestudios.com/es/blog/sesion-cenote-submarina-tulum" data-lang-switch="es" hreflang="es">ES</a>
+  </div>
   <a href="/">Home</a>
   <a href="/about">About</a>
   <a href="/#services">Services</a>
   <a href="/blog" class="active">Blog</a>
   <a href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Book Now →</a>
-</div>
+</nav>
 <!-- HERO -->
 <section class="post-hero">
   <div class="post-hero-ph"><span>★ Hero image · Couple submerged in crystal-clear cenote water with light shafts streaming from above</span></div>
@@ -508,5 +520,6 @@ window.addEventListener('scroll',()=>{document.getElementById('siteHeader').clas
 document.getElementById('headerToggle').addEventListener('click',()=>{document.getElementById('mobileNav').classList.toggle('open')});
 </script>
 <script>if(sessionStorage.getItem("ivae_admin_auth")==="true"){var s=document.createElement("script");s.src="/focal-admin.js?v=6";document.body.appendChild(s);}</script>
+<script src="/js/lang-detect.js" defer></script>
 </body>
 </html>
