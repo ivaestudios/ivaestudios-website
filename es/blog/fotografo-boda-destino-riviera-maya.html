@@ -121,7 +121,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap"/>
 <link rel="stylesheet" href="/styles/blog.css"/>
-<link rel="stylesheet" href="/styles/lang-switch.css"/>
+<link rel="stylesheet" href="/js/lang-switcher.css"/>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
 <meta name="publisher" content="IVAE Studios"/>
 <meta name="copyright" content="IVAE Studios"/>
@@ -500,7 +500,7 @@
 window.addEventListener('scroll',()=>{document.getElementById('siteHeader').classList.toggle('scrolled',scrollY>40)});
 document.getElementById('headerToggle').addEventListener('click',()=>{document.getElementById('mobileNav').classList.toggle('open')});
 </script>
-<script src="/scripts/lang-detect.js" defer></script>
+<script src="/js/lang-detect.js" defer></script>
 <script>if(sessionStorage.getItem('ivae_admin_auth')==='true'){var s=document.createElement('script');s.src='/focal-admin.js?v=6';document.body.appendChild(s);}</script>
 </body>
 </html>
