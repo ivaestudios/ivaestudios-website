@@ -48,25 +48,15 @@
   </url>
 
   <!-- ═══════════════════════════════════════════
-       STANDALONE — Social Media Management
+       STANDALONE — Social Media Management (ES-only)
        ═══════════════════════════════════════════ -->
   <url>
-    <loc>https://ivaestudios.com/social-media-management</loc>
-    <lastmod>2026-04-19</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-management"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/manejo-redes-sociales"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/social-media-management"/>
-  </url>
-  <url>
     <loc>https://ivaestudios.com/es/manejo-redes-sociales</loc>
-    <lastmod>2026-04-19</lastmod>
+    <lastmod>2026-04-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-management"/>
     <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/manejo-redes-sociales"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/social-media-management"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/es/manejo-redes-sociales"/>
   </url>
 
   <!-- ═══════════════════════════════════════════
@@ -1039,23 +1029,6 @@
       <image:loc>https://ivaestudios.com/images/blog/gender-reveal-photoshoot-cancun.jpg</image:loc>
       <image:title>Sesión de Revelación de Género Cancún - IVAE Studios</image:title>
     </image:image>
-  </url>
-
-  <!-- ═══════════════════════════════════════════
-       AI-READABLE MANIFESTS
-       ═══════════════════════════════════════════ -->
-  <url>
-    <loc>https://ivaestudios.com/llms.txt</loc>
-    <lastmod>2026-04-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/llms-full.txt</loc>
-    <lastmod>2026-04-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
   </url>
 
 </urlset>

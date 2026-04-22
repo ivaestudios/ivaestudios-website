@@ -9,7 +9,7 @@
 # ═══════════════════════════════════════════
 # CLEAN URLs — Standalone Pages
 # ═══════════════════════════════════════════
-/social-media-management /social-media-management 200
+/social-media-management /es/manejo-redes-sociales 301
 /outfit-guide /outfit-guide 200
 
 # ═══════════════════════════════════════════
@@ -113,7 +113,7 @@
 # ═══════════════════════════════════════════
 /family-photoshoot-cancun /luxury-family-photos-cancun 301
 /couples-photoshoot-cancun /couples-photography-mexico 301
-/manejo-de-redes-sociales-cancun /social-media-management 301
+/manejo-de-redes-sociales-cancun /es/manejo-redes-sociales 301
 /cancun-family-photographer /luxury-family-photos-cancun 301
 /cancun-couples-photographer /couples-photography-mexico 301
 /photographer-cancun /cancun-photographer 301
@@ -134,3 +134,39 @@
 /beach-wedding-photographer-cancun /cancun-photographer 301
 /cabo-wedding-photographer /cabo-photographer 301
 /riviera-maya-wedding-photographer /riviera-maya-photographer 301
+
+# ═══════════════════════════════════════════
+# Fix broken internal links — April 2026 audit (EN)
+# ═══════════════════════════════════════════
+/blog/outfit-guide /outfit-guide 301
+/blog/what-to-wear-beach-photos /blog/what-to-wear-beach-photos-mexico 301
+/blog/vow-renewal-photographer-mexico /blog/vow-renewal-mexico-photography 301
+/blog/photo-locations-riviera-maya /blog/best-photo-locations-riviera-maya 301
+/blog/babymoon-photography-cancun-riviera-maya /blog/babymoon-photography-cancun 301
+/wedding-photography /destination-wedding-photographer-mexico 301
+/proposal-photographer /blog/surprise-proposal-photography-cancun 301
+/family-photoshoot /luxury-family-photos-cancun 301
+
+# ═══════════════════════════════════════════
+# Fix broken internal links — April 2026 audit (ES — EN slug used in ES path)
+# ═══════════════════════════════════════════
+/es/blog/best-resorts-cancun-photography /es/blog/mejores-resorts-fotografia-cancun 301
+/es/blog/what-to-wear-beach-photos-mexico /es/blog/que-ponerte-fotos-playa-mexico 301
+/es/blog/couples-photographer-cancun /es/blog/fotografo-parejas-cancun 301
+/es/blog/wedding-photographer-cancun /es/blog/fotografo-boda-cancun 301
+/es/blog/maternity-photoshoot-cancun-riviera-maya /es/blog/sesion-maternidad-cancun-riviera-maya 301
+/es/blog/how-to-choose-luxury-photographer-mexico /es/blog/como-elegir-fotografo-lujo-mexico 301
+/es/blog/honeymoon-photographer-riviera-maya /es/blog/fotografo-luna-de-miel-riviera-maya 301
+/es/blog/family-vacation-photos-mexico /es/blog/fotos-vacaciones-familiares-mexico 301
+/es/blog/engagement-session-cancun-riviera-maya /es/blog/sesion-compromiso-cancun-riviera-maya 301
+/es/blog/destination-wedding-photographer-riviera-maya /es/blog/fotografo-boda-destino-riviera-maya 301
+
+# ═══════════════════════════════════════════
+# Fix broken internal links — April 2026 audit (ES — typos / old slugs)
+# ═══════════════════════════════════════════
+/es/blog/fotografo-renovacion-votos-mexico /es/blog/renovacion-votos-mexico-fotografia 301
+/es/blog/fotografo-luna-miel-riviera-maya /es/blog/fotografo-luna-de-miel-riviera-maya 301
+/es/blog/fotografo-bodas-destino-riviera-maya /es/blog/fotografo-boda-destino-riviera-maya 301
+/es/blog/fotografo-bodas-cancun /es/blog/fotografo-boda-cancun 301
+/es/blog/sesion-gender-reveal-cancun /es/blog/sesion-revelacion-genero-cancun 301
+/es/bodas-lujo /es/fotografo-bodas-destino-mexico 301
