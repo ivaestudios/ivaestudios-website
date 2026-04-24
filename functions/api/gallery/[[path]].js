@@ -841,6 +841,77 @@ async function handleDeleteLogo(env, session, galleryId) {
   return json({ ok: true });
 }
 
+// ── SLIDESHOW MUSIC ──
+// Per-gallery audio track that loops during the client-side slideshow.
+// Stored at music/{galleryId}.{ext} in R2; the column slideshow_music_key
+// already exists in the schema and is read by gallery.html.
+const MUSIC_MIMES = {
+  'audio/mpeg': 'mp3',
+  'audio/mp3':  'mp3',
+  'audio/mp4':  'm4a',
+  'audio/x-m4a': 'm4a',
+  'audio/aac':  'aac',
+  'audio/wav':  'wav',
+  'audio/x-wav': 'wav',
+  'audio/ogg':  'ogg',
+  'audio/webm': 'webm'
+};
+const MUSIC_MAX_BYTES = 25 * 1024 * 1024;  // 25 MB — keeps R2 + transfer sane
+
+async function handleUploadMusic(request, env, session, galleryId) {
+  if (!session || session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
+  const gallery = await env.DB.prepare('SELECT id, slideshow_music_key FROM galleries WHERE id = ?').bind(galleryId).first();
+  if (!gallery) return json({ error: 'Gallery not found' }, 404);
+  const formData = await request.formData();
+  const file = formData.get('music');
+  if (!file) return json({ error: 'No file provided' }, 400);
+  const ct = (file.type || '').toLowerCase();
+  const ext = MUSIC_MIMES[ct];
+  if (!ext) return json({ error: 'Unsupported audio format. Use MP3, M4A, AAC, WAV, OGG, or WEBM.' }, 400);
+  if (file.size > MUSIC_MAX_BYTES) return json({ error: `Audio file too large (${Math.round(file.size/1024/1024)}MB). Max 25MB.` }, 400);
+
+  // Clear out any previous track at a different extension before writing the new one
+  if (gallery.slideshow_music_key && gallery.slideshow_music_key !== `music/${galleryId}.${ext}`) {
+    try { await env.R2_BUCKET.delete(gallery.slideshow_music_key); } catch {}
+  }
+
+  const musicKey = `music/${galleryId}.${ext}`;
+  await env.R2_BUCKET.put(musicKey, file.stream(), {
+    httpMetadata: { contentType: ct, cacheControl: 'public, max-age=86400' }
+  });
+  await env.DB.prepare('UPDATE galleries SET slideshow_music_key = ?, updated_at = datetime("now") WHERE id = ?')
+    .bind(musicKey, galleryId).run();
+  return json({ ok: true, slideshow_music_key: musicKey, size: file.size });
+}
+
+async function handleGetMusic(env, galleryId) {
+  const gallery = await env.DB.prepare('SELECT slideshow_music_key FROM galleries WHERE id = ?').bind(galleryId).first();
+  if (!gallery || !gallery.slideshow_music_key) return new Response('No music', { status: 404 });
+  const obj = await env.R2_BUCKET.get(gallery.slideshow_music_key);
+  if (!obj) return new Response('Not found', { status: 404 });
+  const ext = gallery.slideshow_music_key.split('.').pop().toLowerCase();
+  const ctMap = { mp3: 'audio/mpeg', m4a: 'audio/mp4', aac: 'audio/aac', wav: 'audio/wav', ogg: 'audio/ogg', webm: 'audio/webm' };
+  const ct = ctMap[ext] || 'application/octet-stream';
+  return new Response(obj.body, {
+    headers: {
+      'Content-Type': ct,
+      'Cache-Control': 'public, max-age=86400',
+      'Accept-Ranges': 'bytes'
+    }
+  });
+}
+
+async function handleDeleteMusic(env, session, galleryId) {
+  if (!session || session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
+  const gallery = await env.DB.prepare('SELECT slideshow_music_key FROM galleries WHERE id = ?').bind(galleryId).first();
+  if (!gallery) return json({ error: 'Gallery not found' }, 404);
+  if (gallery.slideshow_music_key) {
+    try { await env.R2_BUCKET.delete(gallery.slideshow_music_key); } catch {}
+  }
+  await env.DB.prepare('UPDATE galleries SET slideshow_music_key = NULL, updated_at = datetime("now") WHERE id = ?').bind(galleryId).run();
+  return json({ ok: true });
+}
+
 // ── VISITOR REGISTRATION (email gate) ──
 async function handleRegisterVisitor(request, env, galleryId) {
   try {
@@ -2286,6 +2357,12 @@ async function fetchHandler(request, env, ctx) {
     if (logoMatch && method === 'GET') return handleGetLogo(env, logoMatch[1]);
     if (logoMatch && method === 'POST') return handleUploadLogo(request, env, session, logoMatch[1]);
     if (logoMatch && method === 'DELETE') return handleDeleteLogo(env, session, logoMatch[1]);
+
+    // Slideshow music — per-gallery audio track
+    const musicMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/music$/);
+    if (musicMatch && method === 'GET') return handleGetMusic(env, musicMatch[1]);
+    if (musicMatch && method === 'POST') return handleUploadMusic(request, env, session, musicMatch[1]);
+    if (musicMatch && method === 'DELETE') return handleDeleteMusic(env, session, musicMatch[1]);
 
     // ── Public gallery view (portfolio galleries only) ──
     const publicGalleryMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/public$/);

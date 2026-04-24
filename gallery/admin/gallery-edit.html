@@ -583,9 +583,22 @@
             </label>
 
             <div class="su-field" style="margin-top:20px;">
-              <label class="su-label">PLAY MUSIC <span class="su-q" title="Add background music to the gallery viewing experience">?</span></label>
-              <div class="su-music-add">
-                <svg width="16" height="16" fill="none" stroke="#bbb" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+              <label class="su-label">PLAY MUSIC <span class="su-q" title="MP3, M4A, WAV, OGG up to 25MB. Loops during the slideshow.">?</span></label>
+              <div id="musicPanel">
+                <div id="musicPreview" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#faf8f3;border:1px solid #f0e9da;border-radius:6px;margin-bottom:8px;min-height:46px;">
+                  <svg id="musicIcon" width="18" height="18" fill="none" stroke="#c9a96e" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19a3 3 0 11-6 0 3 3 0 016 0zm12-3a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  <span id="musicStatus" style="flex:1;font-size:11px;color:#888;letter-spacing:0.3px;">No track uploaded</span>
+                  <audio id="musicPlayer" controls style="display:none;height:32px;flex:1;"></audio>
+                </div>
+                <div style="display:flex;gap:8px;">
+                  <label class="pt-btn" style="flex:1;text-align:center;cursor:pointer;" onclick="document.getElementById('musicInput').click()">
+                    <svg style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                    <span id="musicUploadLabel">Upload track</span>
+                  </label>
+                  <button id="musicRemoveBtn" type="button" onclick="removeMusic()" style="display:none;padding:8px 14px;background:none;border:1px solid #f0dada;color:#b91c1c;font-size:11px;letter-spacing:0.5px;cursor:pointer;text-transform:uppercase;font-weight:500;border-radius:3px;">Remove</button>
+                </div>
+                <input type="file" id="musicInput" accept="audio/*,.mp3,.m4a,.wav,.ogg" style="display:none;" onchange="uploadMusic(this.files[0])"/>
+                <p style="font-size:10px;color:#999;margin-top:6px;line-height:1.4;">MP3 / M4A / WAV / OGG, up to 25 MB. Loops while the slideshow plays.</p>
               </div>
             </div>
           </div>
@@ -1024,6 +1037,67 @@ document.addEventListener('DOMContentLoaded', () => {
   const li = document.getElementById('logoInput');
   if (li) li.addEventListener('change', (e) => uploadLogo(e.target.files[0]));
 });
+
+// ═══ SLIDESHOW MUSIC ═══
+async function uploadMusic(file) {
+  if (!file) return;
+  const status = document.getElementById('musicStatus');
+  const sizeMB = (file.size / 1024 / 1024).toFixed(1);
+  if (file.size > 25 * 1024 * 1024) {
+    showAutoSaveStatus(`✗ Track too large (${sizeMB}MB, max 25MB)`, '#b91c1c');
+    return;
+  }
+  status.textContent = `Uploading ${file.name} (${sizeMB}MB)...`;
+  const fd = new FormData();
+  fd.append('music', file);
+  try {
+    const res = await fetch('/api/gallery/galleries/' + galleryId + '/music', { method: 'POST', body: fd, credentials: 'include' });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Upload failed');
+    }
+    const data = await res.json();
+    window._musicKey = data.slideshow_music_key;
+    refreshMusicUI(file.name, true);
+    showAutoSaveStatus('✓ Music saved', '#34c759');
+  } catch (e) {
+    status.textContent = 'No track uploaded';
+    showAutoSaveStatus('✗ ' + (e.message || 'Music upload failed'), '#b91c1c');
+  }
+}
+
+async function removeMusic() {
+  if (!confirm('Remove the slideshow music?')) return;
+  try {
+    await fetch('/api/gallery/galleries/' + galleryId + '/music', { method: 'DELETE', credentials: 'include' });
+    window._musicKey = null;
+    refreshMusicUI(null, false);
+    showAutoSaveStatus('✓ Music removed', '#34c759');
+  } catch (e) {
+    showAutoSaveStatus('✗ Failed to remove music', '#b91c1c');
+  }
+}
+
+function refreshMusicUI(filename, hasTrack) {
+  const status = document.getElementById('musicStatus');
+  const player = document.getElementById('musicPlayer');
+  const removeBtn = document.getElementById('musicRemoveBtn');
+  const uploadLabel = document.getElementById('musicUploadLabel');
+  if (hasTrack) {
+    status.style.display = 'none';
+    player.style.display = 'block';
+    player.src = '/api/gallery/galleries/' + galleryId + '/music?t=' + Date.now();
+    removeBtn.style.display = 'inline-block';
+    uploadLabel.textContent = 'Replace track';
+  } else {
+    status.style.display = 'inline';
+    status.textContent = 'No track uploaded';
+    player.style.display = 'none';
+    player.src = '';
+    removeBtn.style.display = 'none';
+    uploadLabel.textContent = 'Upload track';
+  }
+}
 
 // ═══ AUTO-SAVE ═══
 let _autoSaveTimer = null;
@@ -1668,6 +1742,9 @@ function copyGalleryLink() {
     document.getElementById('logoRemoveBtn').style.display = 'inline-block';
   }
   document.getElementById('whiteLogoCheck').checked = !!g.logo_white;
+  // Slideshow music — restore upload widget state
+  window._musicKey = g.slideshow_music_key || null;
+  if (g.slideshow_music_key) refreshMusicUI('Existing track', true);
   // Re-render previews now that logo + white-logo state is loaded
   // (the early renderPreview at line ~1633 ran before _logoKey was set)
   renderPreview();
