@@ -673,6 +673,7 @@ async function hydrateExistingGallery(id) {
     setVal('setupWatermarkOpacity', op);
     const opEl = document.getElementById('opacityValue'); if (opEl) opEl.textContent = Math.round(op * 100) + '%';
     if (g.logo_key) { const ls = document.getElementById('logoStatus'); if (ls) ls.textContent = '✓ logo set'; }
+    setChk('whiteLogoCheck', g.logo_white);
     setChk('setupRequestEmail', g.request_email);
     setChk('setupClientCanAdd', g.client_can_add);
     setVal('setupGalleryStyle', g.gallery_style || 'default');
@@ -1483,7 +1484,8 @@ async function saveAllSettings(targetStatus) {
     proofing_enabled: document.getElementById('setupProofingEnabled')?.checked ? 1 : 0,
     proofing_target: parseInt(document.getElementById('setupProofingTarget')?.value) || null,
     proofing_message: document.getElementById('setupProofingMessage')?.value || null,
-    proofing_locked: document.getElementById('setupProofingLocked')?.checked ? 1 : 0
+    proofing_locked: document.getElementById('setupProofingLocked')?.checked ? 1 : 0,
+    logo_white: document.getElementById('whiteLogoCheck')?.checked ? 1 : 0
   };
   await API.put('/galleries/' + galleryId, payload);
 }
