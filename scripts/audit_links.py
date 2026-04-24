@@ -40,19 +40,30 @@ def load_redirect_sources(redirects_path):
 
 
 def build_valid_paths(root):
-    """Build the set of paths the site actually serves."""
+    """Build the set of paths the site actually serves.
+
+    Returns (exact_valid, dynamic_prefixes):
+      - exact_valid: set of paths that match exactly (static files, redirects,
+        directory-index URLs).
+      - dynamic_prefixes: tuple of path prefixes served by Cloudflare Pages
+        Functions catch-all routes (functions/.../[[path]].js). Any href
+        starting with one of these is considered valid because the Function
+        decides what to do at runtime.
+    """
     valid = set()
     valid.update(load_redirect_sources(os.path.join(root, "_redirects")))
 
     # Physical files → any on-disk asset (css/js/img/pdf/xml/txt…) is valid at its path.
     # HTML files also get a clean URL (without the .html extension).
+    # index.html files also expose their containing directory as a clean URL
+    # (Cloudflare Pages serves /foo/ → /foo/index.html automatically).
     for dp, _, files in os.walk(root):
         # Skip git internals, node_modules, hidden dirs (e.g. .github, .wrangler)
         rel_dir = os.path.relpath(dp, root)
         # Skip hidden/tooling dirs, but not the repo root itself (rel_dir == ".").
         if rel_dir != "." and (
             rel_dir.startswith(".")
-            or rel_dir.split(os.sep)[0] in {"node_modules", ".git", ".github", ".wrangler"}
+            or rel_dir.split(os.sep)[0] in {"node_modules", ".git", ".github", ".wrangler", "functions"}
         ):
             continue
         for fn in files:
@@ -62,18 +73,46 @@ def build_valid_paths(root):
             valid.add("/" + rel)
             if fn.endswith(".html"):
                 valid.add("/" + rel[: -len(".html")])
-                if rel == "index.html":
+            if fn == "index.html":
+                # gallery/index.html → /gallery/  AND  /gallery
+                # gallery/admin/index.html → /gallery/admin/  AND  /gallery/admin
+                dir_rel = os.path.dirname(rel)
+                if dir_rel == "":
                     valid.add("/")
-                if rel == "es/index.html":
-                    valid.add("/es/")
-                    valid.add("/es")
+                else:
+                    url = "/" + dir_rel.replace(os.sep, "/")
+                    valid.add(url)
+                    valid.add(url + "/")
+
+    # Pages Functions catch-all routes: functions/api/gallery/[[path]].js
+    # serves any URL under /api/gallery/. Walk functions/ and collect each
+    # [[path]].js file's path prefix.
+    dynamic_prefixes = []
+    fn_root = os.path.join(root, "functions")
+    if os.path.isdir(fn_root):
+        for dp, _, files in os.walk(fn_root):
+            for fn in files:
+                if fn == "[[path]].js":
+                    rel_dir = os.path.relpath(dp, fn_root)
+                    if rel_dir == ".":
+                        dynamic_prefixes.append("/")
+                    else:
+                        dynamic_prefixes.append(
+                            "/" + rel_dir.replace(os.sep, "/") + "/"
+                        )
+                elif fn.endswith(".js"):
+                    # Direct (non-catch-all) function file → exact route.
+                    rel_dir = os.path.relpath(dp, fn_root)
+                    name = fn[: -len(".js")]
+                    base = "/" if rel_dir == "." else "/" + rel_dir.replace(os.sep, "/") + "/"
+                    valid.add(base + name)
 
     # Well-known shortcuts Cloudflare resolves automatically
     valid.update(["/", "/blog", "/about", "/cancun", "/riviera-maya", "/los-cabos"])
-    return valid
+    return valid, tuple(dynamic_prefixes)
 
 
-def scan_hrefs(root, valid_paths):
+def scan_hrefs(root, valid_paths, dynamic_prefixes=()):
     """Walk .html files, yield (file, lineno, href) for any broken internal link."""
     broken_by_file = defaultdict(list)
     all_hrefs = defaultdict(set)
@@ -101,6 +140,10 @@ def scan_hrefs(root, valid_paths):
                             or (clean_nts + ".html") in valid_paths
                         ):
                             continue
+                        # Pages Functions catch-all: any href under a known
+                        # /functions/.../[[path]].js prefix is dynamic and valid.
+                        if dynamic_prefixes and clean.startswith(dynamic_prefixes):
+                            continue
                         broken_by_file[rel].append((lineno, href))
                         all_hrefs[href].add(rel)
     return broken_by_file, all_hrefs
@@ -123,8 +166,8 @@ def main():
     )
     args = ap.parse_args()
 
-    valid_paths = build_valid_paths(args.root)
-    broken_by_file, all_hrefs = scan_hrefs(args.root, valid_paths)
+    valid_paths, dynamic_prefixes = build_valid_paths(args.root)
+    broken_by_file, all_hrefs = scan_hrefs(args.root, valid_paths, dynamic_prefixes)
 
     print("\n=== BROKEN INTERNAL LINKS AUDIT ===\n")
     print(f"Root: {args.root}")
