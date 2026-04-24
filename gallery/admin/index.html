@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin — IVAE Studios Gallery</title>
+<link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
+<link rel="stylesheet" href="/gallery/css/gallery.css"/>
+<style>
+body { padding-top: 0; background: white; }
+
+/* ── Dashboard top bar ── */
+.dash-topbar {
+  display: flex; align-items: center; gap: 24px;
+  padding: 24px 0 20px;
+  border-bottom: 2px solid #e8e0d4;
+}
+.dash-topbar-link {
+  font-size: 12px; color: #555; text-decoration: none;
+  display: flex; align-items: center; gap: 6px; transition: color 0.2s;
+  font-weight: 500;
+}
+.dash-topbar-link:hover { color: #111; }
+.dash-topbar-link svg { width: 16px; height: 16px; }
+.period-select {
+  margin-left: auto; font-family: 'Syne', sans-serif;
+  font-size: 12px; color: #333; padding: 10px 36px 10px 16px;
+  border: 1px solid #e0e0e0; background: white; appearance: none; cursor: pointer;
+  border-radius: 4px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%235a6a7a' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+}
+
+/* ── Hero area: bubbles + chart ── */
+.dash-hero {
+  display: flex;
+  padding: 36px 0 32px;
+  border-bottom: 1px solid #f0f0f0;
+  min-height: 280px;
+  align-items: center;
+}
+
+/* Gallery bubbles */
+.dash-bubbles {
+  position: relative;
+  height: 260px;
+  width: 320px;
+  flex-shrink: 0;
+}
+.dash-bubble {
+  position: absolute;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  border: 3px solid white;
+}
+.dash-bubble:hover {
+  transform: scale(1.12) translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+  z-index: 10;
+}
+.dash-bubble img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.dash-bubble-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #f2f0ed, #e8e5e0);
+  font-family: 'Syne', sans-serif;
+  font-size: 8px; font-weight: 600;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  color: #bbb; text-align: center;
+  padding: 4px;
+}
+
+/* Chart area */
+.dash-chart {
+  position: relative;
+  height: 220px;
+  flex: 1;
+  min-width: 0;
+}
+.dash-chart canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ── Stats row ── */
+.dash-stats {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  padding: 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.dash-stat {
+  padding: 28px 24px;
+  border-right: 1px solid #f0f0f0;
+  transition: background 0.2s;
+}
+.dash-stat:hover { background: #fafaf8; }
+.dash-stat:last-child { border-right: none; }
+.dash-stat-n {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px; font-weight: 300; color: #333; line-height: 1;
+}
+.dash-stat-l {
+  font-size: 12px; color: #999; margin-top: 10px;
+  letter-spacing: 0.3px;
+}
+
+/* ── Storage (inside stats row) ── */
+.dash-storage { display: none; }
+.dash-stat-storage {
+  padding: 32px 28px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.storage-top {
+  display: flex; align-items: baseline; gap: 6px; margin-bottom: 12px;
+}
+.storage-top .dash-stat-n {
+  font-size: 30px;
+}
+.storage-top .storage-unit {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px; color: #999; font-weight: 400;
+}
+.storage-track {
+  width: 100%; height: 8px;
+  background: #f0eeec; border-radius: 3px;
+  overflow: hidden;
+}
+.storage-fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, #c9a96e, #b8956a);
+  transition: width 0.6s ease;
+  min-width: 2px;
+}
+.storage-limit {
+  font-size: 11px; color: #aaa; margin-top: 6px;
+  letter-spacing: 0.3px;
+}
+
+/* ── Activity section (hidden by default) ── */
+.activity-section { display: none; margin-top: 24px; }
+.activity-section.show { display: block; }
+.activity-title {
+  font-size: 13px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; margin-bottom: 20px; color: #333;
+}
+.activity-table { width: 100%; border-collapse: collapse; }
+.activity-table th {
+  text-align: left; padding: 14px 20px; font-size: 10px; font-weight: 600;
+  color: #bbb; letter-spacing: 0.1em; text-transform: uppercase;
+  border-bottom: 1px solid #f0f0f0;
+}
+.activity-table td {
+  padding: 18px 20px; font-size: 13px;
+  border-bottom: 1px solid #f5f5f5; color: #333;
+}
+.activity-table td:first-child {
+  font-weight: 600; text-transform: uppercase;
+  font-size: 12px; letter-spacing: 0.04em;
+}
+.activity-table tr:hover td { background: #fafafa; }
+
+/* ── Sidebar search ── */
+.sidebar-search {
+  margin: 12px 14px 8px; position: relative;
+}
+.sidebar-search input {
+  width: 100%; padding: 10px 36px 10px 13px;
+  font-family: 'Syne', sans-serif; font-size: 12px;
+  background: white; border: 1px solid #e8e8e8;
+  color: #333; outline: none; height: 36px;
+  border-radius: 4px; transition: border-color 0.2s;
+}
+.sidebar-search input:focus { border-color: #bbb; }
+.sidebar-search input::placeholder { color: #ccc; }
+.sidebar-search svg {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; color: #ccc;
+}
+
+/* ── Sidebar bottom nav ── */
+.sidebar-bottom-nav { border-top: 1px solid #e0e0e0; padding: 12px 0; }
+.sidebar-bottom-link {
+  display: block; padding: 8px 18px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #999;
+  text-decoration: none; transition: color 0.2s;
+}
+.sidebar-bottom-link:hover { color: #333; }
+.sidebar-bottom-link.active { color: #333; }
+
+/* ── Workflow panel (right side) ── */
+.dash-workflow {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 260px;
+  background: #fafafa;
+  border-left: 1px solid #f0f0f0;
+  padding: 32px 24px;
+  z-index: 50;
+}
+.dash-workflow-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: #333; margin-bottom: 20px;
+  padding-bottom: 16px; border-bottom: 1px solid #eee;
+}
+.dash-workflow-empty {
+  font-size: 12px; color: #ccc;
+  line-height: 1.6;
+}
+.dash-workflow-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 12px; color: #666;
+}
+.dash-workflow-item strong {
+  display: block; color: #333;
+  font-size: 11px; margin-bottom: 2px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.dash-workflow-item span { font-size: 11px; color: #bbb; }
+
+@media (max-width: 1100px) {
+  .dash-workflow { display: none; }
+}
+
+@media (max-width: 767px) {
+  .dash-hero { flex-direction: column; min-height: auto; }
+  .dash-bubbles { width: 100%; height: 200px; }
+  .dash-stats { grid-template-columns: 1fr 1fr; }
+  .dash-chart { height: 180px; width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR (rendered by /js/admin-sidebar.js) -->
+  <aside class="admin-sidebar" id="sidebar"></aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="admin-main" style="padding: 0 48px; margin-right: 260px;">
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
+
+    <!-- Top bar -->
+    <div class="dash-topbar">
+      <a href="#" class="dash-topbar-link" id="activityToggle" onclick="toggleActivity(); return false;">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"/></svg>
+        View all activity
+      </a>
+
+      <select class="period-select" id="periodSelect">
+        <option>Last 30 days</option>
+        <option>Last 7 days</option>
+        <option>Last 90 days</option>
+        <option>All time</option>
+      </select>
+    </div>
+
+    <!-- Hero: bubbles + chart -->
+    <div class="dash-hero" id="dashHero">
+      <div class="dash-bubbles" id="dashBubbles"></div>
+      <div class="dash-chart">
+        <canvas id="activityChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="dash-stats" id="dashStats"></div>
+
+    <!-- Storage bar -->
+    <div class="dash-storage" id="dashStorage"></div>
+
+    <!-- Activity table (hidden by default) -->
+    <div class="activity-section" id="activitySection">
+      <div class="activity-title">Gallery Activity</div>
+      <table class="activity-table">
+        <thead>
+          <tr><th>Gallery</th><th>Photos</th><th>Clients</th><th>Status</th><th>Date</th></tr>
+        </thead>
+        <tbody id="activityBody"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Workflow panel (right sidebar) -->
+  <aside class="dash-workflow" id="dashWorkflow">
+    <div class="dash-workflow-title">Workflow</div>
+    <div id="workflowContent">
+      <div class="dash-workflow-empty">There are no workflow tasks</div>
+    </div>
+  </aside>
+</div>
+
+<script src="/gallery/js/api.js"></script>
+<script src="/gallery/js/auth.js"></script>
+<script src="/gallery/js/admin-sidebar.js"></script>
+<script>
+let allGalleries = [];
+let dashSeries = [];     // [{date, visits, proofs, events, total}]
+let currentPeriodDays = 30;
+
+function toggleActivity() {
+  const hero = document.getElementById('dashHero');
+  const stats = document.getElementById('dashStats');
+  const act = document.getElementById('activitySection');
+  const btn = document.getElementById('activityToggle');
+  const showing = act.classList.contains('show');
+  hero.style.display = showing ? 'flex' : 'none';
+  stats.style.display = showing ? 'grid' : 'none';
+  act.classList.toggle('show', !showing);
+  btn.innerHTML = !showing
+    ? '<svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"/></svg> Back to dashboard'
+    : '<svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"/></svg> View all activity';
+}
+
+// Bubble positions — pixel-based within 320x260 container, organic cluster like Pic-Time
+const bubbleLayouts = [
+  // 1 gallery
+  [{ x: 110, y: 70, s: 130 }],
+  // 2 galleries
+  [{ x: 80, y: 60, s: 130 }, { x: 210, y: 50, s: 80 }],
+  // 3 galleries
+  [{ x: 90, y: 65, s: 130 }, { x: 220, y: 40, s: 75 }, { x: 195, y: 160, s: 65 }],
+  // 4 galleries
+  [{ x: 100, y: 70, s: 130 }, { x: 230, y: 30, s: 72 }, { x: 30, y: 20, s: 58 }, { x: 225, y: 155, s: 65 }],
+  // 5 galleries
+  [{ x: 100, y: 70, s: 130 }, { x: 230, y: 25, s: 70 }, { x: 25, y: 15, s: 58 }, { x: 230, y: 155, s: 62 }, { x: 30, y: 170, s: 52 }],
+  // 6+ galleries
+  [{ x: 100, y: 70, s: 130 }, { x: 235, y: 20, s: 65 }, { x: 22, y: 12, s: 55 }, { x: 235, y: 150, s: 60 }, { x: 25, y: 170, s: 50 }, { x: 245, y: 95, s: 42 }],
+];
+
+function renderBubbles(galleries) {
+  const container = document.getElementById('dashBubbles');
+  container.innerHTML = '';
+  if (!galleries.length) {
+    container.innerHTML = '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:#ccc;font-size:12px;">No galleries yet</div>';
+    return;
+  }
+
+  const count = Math.min(galleries.length, 6);
+  const layoutIdx = Math.min(count, 6) - 1;
+  const layout = bubbleLayouts[layoutIdx];
+
+  for (let i = 0; i < count; i++) {
+    const g = galleries[i];
+    const pos = layout[i];
+    const bubble = document.createElement('a');
+    bubble.href = '/gallery/admin/gallery-edit.html?id=' + g.id;
+    bubble.className = 'dash-bubble';
+    bubble.style.cssText = `width:${pos.s}px;height:${pos.s}px;left:${pos.x}px;top:${pos.y}px;z-index:${6 - i};`;
+    bubble.title = g.title;
+
+    if (g.cover_key || g.photo_count > 0) {
+      const img = document.createElement('img');
+      img.alt = g.title;
+      img.src = `/api/gallery/galleries/${g.id}/cover`;
+      img.onerror = () => { bubble.innerHTML = `<div class="dash-bubble-placeholder">${g.title.substring(0, 12)}</div>`; };
+      bubble.appendChild(img);
+    } else {
+      bubble.innerHTML = `<div class="dash-bubble-placeholder">${g.title.substring(0, 12)}</div>`;
+    }
+    container.appendChild(bubble);
+  }
+}
+
+// Dashboard chart — renders the daily activity series returned by
+// /api/gallery/admin/stats?period=N. Each data point is the sum of visits + proofs +
+// events for that day (real signals, no random data).
+function renderChart(canvas) {
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const w = rect.width, h = rect.height;
+
+  const series = dashSeries.length ? dashSeries : [];
+  const days = series.length || 1;
+  const data = series.map(s => s.total | 0);
+  const max = Math.max(...data, 4);
+
+  const padL = 30, padR = 10, padT = 10, padB = 30;
+  const chartW = w - padL - padR;
+  const chartH = h - padT - padB;
+
+  // Grid + y-axis labels
+  ctx.strokeStyle = '#f0f0f0';
+  ctx.lineWidth = 0.5;
+  const gridLines = 4;
+  for (let i = 0; i <= gridLines; i++) {
+    const y = padT + (chartH / gridLines) * i;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w - padR, y); ctx.stroke();
+    ctx.fillStyle = '#ccc'; ctx.font = '10px "Syne", sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText(Math.round(max - (max / gridLines) * i), padL - 6, y + 4);
+  }
+
+  if (!data.length) return;
+
+  const stepX = days > 1 ? chartW / (days - 1) : 0;
+
+  // Filled area
+  const linePath = new Path2D();
+  for (let i = 0; i < days; i++) {
+    const x = padL + i * stepX;
+    const y = padT + chartH - (data[i] / max) * chartH;
+    if (i === 0) linePath.moveTo(x, y); else linePath.lineTo(x, y);
+  }
+  linePath.lineTo(padL + (days - 1) * stepX, padT + chartH);
+  linePath.lineTo(padL, padT + chartH);
+  linePath.closePath();
+  ctx.fillStyle = 'rgba(201, 169, 110, 0.14)';
+  ctx.fill(linePath);
+
+  // Stroke
+  ctx.beginPath();
+  for (let i = 0; i < days; i++) {
+    const x = padL + i * stepX;
+    const y = padT + chartH - (data[i] / max) * chartH;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.strokeStyle = '#a07040'; ctx.lineWidth = 1.8; ctx.stroke();
+
+  // Dots — only on days with activity
+  for (let i = 0; i < days; i++) {
+    const x = padL + i * stepX;
+    const y = padT + chartH - (data[i] / max) * chartH;
+    if (data[i] > 0) {
+      ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = '#a07040'; ctx.fill();
+    }
+  }
+
+  // X-axis labels (dates) — sample every Nth day so they don't overlap
+  ctx.fillStyle = '#bbb'; ctx.font = '9px "Syne", sans-serif'; ctx.textAlign = 'center';
+  const stride = Math.max(1, Math.ceil(days / 10));
+  for (let i = 0; i < days; i += stride) {
+    const date = new Date(series[i].date + 'T12:00:00');
+    const x = padL + i * stepX;
+    ctx.fillText(date.getDate().toString().padStart(2, '0'), x, padT + chartH + 18);
+  }
+}
+
+function renderStats(stats) {
+  const storageBytes = stats.storageBytes || 0;
+  const limitBytes = stats.storageLimitBytes || (10 * 1024 * 1024 * 1024);
+  const usedGB = storageBytes / (1024 ** 3);
+  const limitGB = Math.max(1, Math.round(limitBytes / (1024 ** 3)));
+  const pct = Math.min((usedGB / limitGB) * 100, 100);
+  const numVal = usedGB.toFixed(2);
+
+  document.getElementById('dashStats').innerHTML = `
+    <div class="dash-stat"><div class="dash-stat-n">${stats.totalGalleries}</div><div class="dash-stat-l">Galleries</div></div>
+    <div class="dash-stat"><div class="dash-stat-n">${stats.totalPhotos}</div><div class="dash-stat-l">Photos</div></div>
+    <div class="dash-stat"><div class="dash-stat-n">${stats.totalClients}</div><div class="dash-stat-l">Clients</div></div>
+    <div class="dash-stat"><div class="dash-stat-n">${stats.publishedGalleries ?? 0}</div><div class="dash-stat-l">Published</div></div>
+    <div class="dash-stat dash-stat-storage">
+      <div class="storage-top">
+        <span class="dash-stat-n">${numVal}</span>
+        <span class="storage-unit">/ ${limitGB} GB</span>
+      </div>
+      <div class="storage-track"><div class="storage-fill" style="width:${pct}%"></div></div>
+      <div class="storage-limit">Storage</div>
+    </div>
+  `;
+}
+
+async function refreshStats(periodDays) {
+  currentPeriodDays = periodDays;
+  let stats;
+  try {
+    stats = await API.get('/gallery/admin/stats?period=' + periodDays);
+  } catch (e) {
+    console.warn('stats fetch failed', e);
+    return;
+  }
+  dashSeries = Array.isArray(stats.series) ? stats.series : [];
+  renderStats(stats);
+  renderChart(document.getElementById('activityChart'));
+}
+
+(async () => {
+  const user = await checkAuth('admin');
+  if (!user) return;
+  window.__adminUser = user;
+  if (typeof renderAdminSidebar === 'function') renderAdminSidebar({ active: 'dashboard' });
+
+  // Initial load: 30-day window + the gallery list (used for bubbles, workflow, table).
+  allGalleries = await API.get('/galleries');
+  await refreshStats(30);
+  renderBubbles(allGalleries);
+
+  // Wire period selector → re-fetches stats + redraws chart
+  const periodSel = document.getElementById('periodSelect');
+  if (periodSel) {
+    const map = { 'Last 7 days': 7, 'Last 30 days': 30, 'Last 90 days': 90, 'All time': 'all' };
+    periodSel.addEventListener('change', () => {
+      const v = map[periodSel.value] || 30;
+      refreshStats(v === 'all' ? 365 : v);
+    });
+  }
+
+  // Workflow side panel — surface galleries that need attention
+  const drafts = allGalleries.filter(g => g.status === 'draft');
+  const noPhotos = allGalleries.filter(g => !g.photo_count || g.photo_count === 0);
+  const expiringSoon = allGalleries.filter(g => {
+    if (!g.expire_enabled || !g.expire_date) return false;
+    const d = (new Date(g.expire_date) - Date.now()) / 86400000;
+    return d >= 0 && d <= 7;
+  });
+  const workflowEl = document.getElementById('workflowContent');
+  let html = '';
+  drafts.forEach(g => {
+    html += `<div class="dash-workflow-item"><strong>${g.title}</strong>Draft — ready to publish? <a href="/gallery/admin/gallery-edit.html?id=${g.id}" style="color:#a07040;font-size:11px;text-decoration:none;">Edit →</a></div>`;
+  });
+  noPhotos.forEach(g => {
+    if (drafts.find(d => d.id === g.id)) return;
+    html += `<div class="dash-workflow-item"><strong>${g.title}</strong>No photos uploaded <a href="/gallery/admin/gallery-edit.html?id=${g.id}" style="color:#a07040;font-size:11px;text-decoration:none;">Upload →</a></div>`;
+  });
+  expiringSoon.forEach(g => {
+    html += `<div class="dash-workflow-item"><strong>${g.title}</strong>Expires ${g.expire_date} <a href="/gallery/admin/gallery-edit.html?id=${g.id}" style="color:#d43e2a;font-size:11px;text-decoration:none;">Review →</a></div>`;
+  });
+  if (html) workflowEl.innerHTML = html;
+
+  // Activity table — full list, sortable click
+  const tbody = document.getElementById('activityBody');
+  allGalleries.forEach(g => {
+    const row = document.createElement('tr');
+    const dateStr = g.session_date ? new Date(g.session_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+    const statusBadge = g.status === 'published' ? '<span style="color:#34c759;font-weight:500;">Published</span>' : g.status === 'archived' ? '<span style="color:#999;">Archived</span>' : '<span style="color:#bbb;">Draft</span>';
+    row.innerHTML = `<td>${g.title}</td><td>${g.photo_count || 0}</td><td>${g.client_count || 0}</td><td>${statusBadge}</td><td style="color:#bbb;">${dateStr}</td>`;
+    row.style.cursor = 'pointer';
+    row.onclick = () => window.location.href = '/gallery/admin/gallery-edit.html?id=' + g.id;
+    tbody.appendChild(row);
+  });
+
+  // Redraw chart on resize (debounced)
+  let rTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(rTimer);
+    rTimer = setTimeout(() => renderChart(document.getElementById('activityChart')), 120);
+  });
+})();
+</script>
+</body>
+</html>

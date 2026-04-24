@@ -89,3 +89,25 @@ python scripts/audit_links.py --fail-on-broken
 # (only works if GOOGLE_INDEXING_SA_JSON or GOOGLE_INDEXING_SA_FILE is set):
 python scripts/index_urls.py https://ivaestudios.com/ https://ivaestudios.com/es/
 ```
+
+## Gallery sub-app (added Apr 2026)
+
+The client gallery (formerly the standalone Worker at
+`gallery.ivaestudios.com`) now lives in this same repo:
+
+- **Static assets**: `gallery/` (HTML, JS, CSS, images, sw.js)
+- **API**: `functions/api/gallery/[[path]].js` (Cloudflare Pages Functions
+  catch-all that re-uses all the original Worker routing logic — only the
+  `/api/gallery` URL prefix gets stripped before the existing matchers run).
+- **Cron**: `.github/workflows/gallery-cron-sweep.yml` (daily 12:00 UTC,
+  calls a bearer-authenticated `/api/gallery/admin/cron-sweep` endpoint
+  because Pages Functions has no scheduled trigger of its own).
+- **Database**: Cloudflare D1 (`ivae-gallery-db`) with schema in
+  `gallery/schema.sql` and migrations in `gallery/migrations/`.
+- **Storage**: Cloudflare R2 bucket (`ivae-gallery-photos`).
+
+See [`gallery/README.md`](gallery/README.md) for the full URL map, binding
+config, secret list, and migration commands.
+
+The standalone repo `ivaestudios/ivae-gallery` is now archived; everything
+lives here.

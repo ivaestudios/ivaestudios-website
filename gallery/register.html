@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Register — IVAE Studios Gallery</title>
+<link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
+<link rel="stylesheet" href="/gallery/css/gallery.css"/>
+</head>
+<body class="auth-page" style="padding-top:0;">
+
+<div class="auth-split">
+  <div class="auth-brand">
+    <div class="auth-brand-content">
+      <div class="auth-brand-logo">IVAE <span>Studios</span></div>
+      <div class="auth-brand-line"></div>
+      <p class="auth-brand-tagline">Luxury Resort Photography</p>
+      <p class="auth-brand-location">Cancun, Mexico</p>
+    </div>
+  </div>
+  <div class="auth-side">
+    <div class="auth-card" style="animation:fadeInUp 0.5s ease both;">
+      <h2>Create your account</h2>
+      <p class="auth-subtitle">Your photographer will share your gallery when it's ready</p>
+
+      <div id="error" class="auth-error"></div>
+
+      <!-- Google sign-up -->
+      <div class="social-login">
+        <a href="/api/gallery/auth/google" class="social-btn social-google">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continue with Google
+        </a>
+      </div>
+
+      <div class="auth-divider"><span>or register with email</span></div>
+
+      <form id="registerForm">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-input" id="name" placeholder="Your full name" required autocomplete="name"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" id="email" placeholder="your@email.com" required autocomplete="email"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="password" placeholder="Minimum 6 characters" required minlength="6" autocomplete="new-password"/>
+          <div class="password-strength"><div class="password-strength-bar" id="strengthBar"></div></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <input type="password" class="form-input" id="password2" placeholder="Repeat your password" required autocomplete="new-password"/>
+          <div class="password-match" id="matchIndicator"></div>
+        </div>
+        <button type="submit" class="btn btn-gold" id="submitBtn">Create Account</button>
+      </form>
+
+      <p class="auth-link">Already have an account? <a href="/gallery/">Sign in</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="/gallery/js/api.js"></script>
+<script>
+document.getElementById('password').addEventListener('input', (e) => {
+  const val = e.target.value;
+  const bar = document.getElementById('strengthBar');
+  bar.className = 'password-strength-bar';
+  if (val.length >= 8 && /[A-Z]/.test(val) && /[0-9]/.test(val)) {
+    bar.classList.add('strong');
+  } else if (val.length >= 6) {
+    bar.classList.add('medium');
+  } else if (val.length > 0) {
+    bar.classList.add('weak');
+  }
+  checkMatch();
+});
+
+document.getElementById('password2').addEventListener('input', checkMatch);
+
+function checkMatch() {
+  const p1 = document.getElementById('password').value;
+  const p2 = document.getElementById('password2').value;
+  const indicator = document.getElementById('matchIndicator');
+  if (!p2) { indicator.textContent = ''; indicator.className = 'password-match'; return; }
+  if (p1 === p2) {
+    indicator.textContent = 'Passwords match';
+    indicator.className = 'password-match match';
+  } else {
+    indicator.textContent = 'Passwords do not match';
+    indicator.className = 'password-match no-match';
+  }
+}
+
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errEl = document.getElementById('error');
+  const btn = document.getElementById('submitBtn');
+  errEl.classList.remove('show');
+
+  const password = document.getElementById('password').value;
+  if (password !== document.getElementById('password2').value) {
+    errEl.textContent = 'Passwords do not match';
+    errEl.classList.add('show');
+    errEl.style.animation = 'none';
+    errEl.offsetHeight;
+    errEl.style.animation = 'shake 0.4s ease';
+    return;
+  }
+
+  btn.classList.add('loading');
+
+  try {
+    const user = await API.post('/auth/register', {
+      name: document.getElementById('name').value,
+      email: document.getElementById('email').value,
+      password
+    });
+    window.location.href = user.role === 'admin' ? '/gallery/admin/' : '/gallery/galleries.html';
+  } catch (err) {
+    btn.classList.remove('loading');
+    errEl.textContent = err.message;
+    errEl.classList.add('show');
+    errEl.style.animation = 'none';
+    errEl.offsetHeight;
+    errEl.style.animation = 'shake 0.4s ease';
+  }
+});
+</script>
+<style>
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+</style>
+</body>
+</html>

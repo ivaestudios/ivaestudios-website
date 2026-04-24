@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+  ============================================================================
+  galleries.html — Admin master list of all client galleries
+  ----------------------------------------------------------------------------
+  Purpose: Pic-Time-style "Client Galleries" view, restyled for IVAE Studios.
+  Shows every gallery as a card (cover, status, meta, stats) in a responsive
+  grid. Provides client-side search, status filter, and sort. Each card links
+  to the gallery editor; a 3-dot popover offers quick actions (view, archive,
+  delete). Uses existing /api/gallery/galleries endpoint — no new APIs added.
+  ============================================================================
+-->
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Galleries — IVAE Studios Admin</title>
+<link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Syne:wght@500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/gallery/css/gallery.css"/>
+<style>
+:root {
+  --ink: #1c1c1c;
+  --gold: #c9a96e;
+  --cream: #fdfaf3;
+  --sand: #e8e0d4;
+  --text: #333;
+  --muted: #999;
+  --line: #f0eee9;
+}
+
+body { padding-top: 0; background: white; }
+
+/* ── Sidebar shared bits (mirrors index.html so layout matches) ── */
+.sidebar-search { margin: 12px 14px 8px; position: relative; }
+.sidebar-search input {
+  width: 100%; padding: 10px 36px 10px 13px;
+  font-family: 'Syne', sans-serif; font-size: 12px;
+  background: white; border: 1px solid #e8e8e8;
+  color: #333; outline: none; height: 36px;
+  border-radius: 4px; transition: border-color 0.2s;
+}
+.sidebar-search input:focus { border-color: #bbb; }
+.sidebar-search input::placeholder { color: #ccc; }
+.sidebar-search svg {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; color: #ccc;
+}
+.sidebar-bottom-nav { border-top: 1px solid #e0e0e0; padding: 12px 0; }
+.sidebar-bottom-link {
+  display: block; padding: 8px 18px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #999;
+  text-decoration: none; transition: color 0.2s;
+}
+.sidebar-bottom-link:hover { color: #333; }
+.sidebar-bottom-link.active { color: #333; }
+
+/* ── Topbar ── */
+.gx-topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding: 28px 0 18px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.gx-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 600;
+  color: var(--ink); letter-spacing: -0.3px;
+  line-height: 1; margin: 0;
+  flex-shrink: 0;
+}
+.gx-toolbar {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap;
+}
+.gx-search {
+  position: relative;
+  width: 220px;
+}
+.gx-search input {
+  width: 100%; height: 36px; padding: 0 36px 0 14px;
+  font-family: 'Syne', sans-serif; font-size: 12px;
+  border: 1px solid #e0e0e0; background: #fafafa;
+  color: var(--text); outline: none; border-radius: 4px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.gx-search input:focus { border-color: #bbb; background: white; }
+.gx-search input::placeholder { color: #ccc; }
+.gx-search svg {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; color: #ccc; pointer-events: none;
+}
+.gx-select {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px; color: var(--text);
+  height: 36px; padding: 0 36px 0 14px;
+  border: 1px solid #e0e0e0; background: white;
+  appearance: none; cursor: pointer;
+  border-radius: 4px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%235a6a7a' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+}
+.gx-select:focus { border-color: #bbb; outline: none; }
+.gx-new-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 36px; padding: 0 18px;
+  font-family: 'Syne', sans-serif;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--ink); color: white;
+  border: none; cursor: pointer; border-radius: 3px;
+  transition: background 0.2s; text-decoration: none;
+  white-space: nowrap;
+}
+.gx-new-btn:hover { background: #333; }
+
+/* ── Count label ── */
+.gx-count {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px; color: var(--muted);
+  letter-spacing: 0.05em;
+  padding: 14px 0 18px;
+}
+
+/* ── Card grid ── */
+.gx-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+  padding: 0 0 60px;
+}
+
+/* ── Card ── */
+.gx-card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  position: relative;
+  display: flex; flex-direction: column;
+}
+.gx-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+.gx-card:hover .gx-menu-btn { opacity: 1; }
+
+.gx-cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  background: var(--cream);
+  overflow: hidden;
+}
+.gx-cover img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.gx-cover-fallback {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 38px; font-weight: 600;
+  letter-spacing: 0.03em;
+  text-align: center;
+  padding: 12px;
+}
+
+/* Status badge */
+.gx-status {
+  position: absolute;
+  top: 8px; left: 8px;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px;
+  background: rgba(255,255,255,0.92);
+  font-family: 'Syne', sans-serif;
+  font-size: 10px; font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #333;
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+}
+.gx-status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #ddd;
+}
+.gx-status-published .gx-status-dot { background: #34c759; }
+.gx-status-draft .gx-status-dot { background: #c8c8c8; }
+.gx-status-archived { color: #999; }
+.gx-status-archived .gx-status-dot { background: #b8b8b8; }
+
+/* 3-dot menu button */
+.gx-menu-btn {
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 28px; height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: #333;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+  z-index: 3;
+}
+.gx-menu-btn:hover { background: white; }
+.gx-menu-btn svg { width: 14px; height: 14px; }
+
+/* Popover */
+.gx-popover {
+  position: absolute;
+  top: 42px; right: 8px;
+  min-width: 170px;
+  background: white;
+  border: 1px solid #ececec;
+  border-radius: 6px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+  padding: 6px;
+  display: none;
+  z-index: 10;
+}
+.gx-popover.show { display: block; }
+.gx-popover button, .gx-popover a {
+  display: block; width: 100%; text-align: left;
+  padding: 9px 12px;
+  background: none; border: none; cursor: pointer;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px; color: #444;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+  letter-spacing: 0.02em;
+}
+.gx-popover button:hover, .gx-popover a:hover { background: #f7f5f0; color: var(--ink); }
+.gx-popover .gx-popover-danger { color: #c33; }
+.gx-popover .gx-popover-danger:hover { background: #fdf0f0; color: #a11; }
+
+/* Card body */
+.gx-body {
+  padding: 18px 20px;
+  display: flex; flex-direction: column;
+  gap: 4px;
+}
+.gx-card-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--ink);
+  line-height: 1.2;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gx-card-meta {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gx-card-stats {
+  display: flex; align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  color: var(--muted);
+}
+.gx-stat {
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.gx-stat svg { width: 12px; height: 12px; color: #bbb; }
+.gx-stat.gx-expire-warn { color: #c33; }
+.gx-stat.gx-expire-warn svg { color: #c33; }
+.gx-stat.gx-expire-gold { color: var(--gold); }
+.gx-stat.gx-expire-gold svg { color: var(--gold); }
+.gx-stat.gx-expire-safe { color: var(--muted); }
+
+/* ── Empty states ── */
+.gx-empty {
+  text-align: center;
+  padding: 90px 20px 60px;
+  grid-column: 1 / -1;
+}
+.gx-empty-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px; font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 10px;
+}
+.gx-empty-sub {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px; color: var(--muted);
+  margin: 0 0 28px;
+  letter-spacing: 0.02em;
+}
+.gx-empty .gx-new-btn {
+  height: 44px; padding: 0 26px; font-size: 11px;
+}
+.gx-empty-link {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px; color: var(--gold);
+  text-decoration: underline; cursor: pointer;
+  background: none; border: none; padding: 0;
+}
+.gx-empty-link:hover { color: #a08550; }
+
+/* ── Mobile ── */
+@media (max-width: 767px) {
+  .gx-topbar { padding: 20px 0 14px; }
+  .gx-toolbar { width: 100%; margin-left: 0; }
+  .gx-search { width: 100%; }
+  .gx-grid { grid-template-columns: 1fr; gap: 18px; }
+}
+
+@media (max-width: 600px) {
+  .gx-grid { grid-template-columns: 1fr; }
+  .gx-toolbar { gap: 8px; }
+  .gx-select, .gx-new-btn { font-size: 10px; }
+}
+</style>
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR (rendered by /js/admin-sidebar.js) -->
+  <aside class="admin-sidebar" id="sidebar"></aside>
+
+  <!-- MAIN -->
+  <main class="admin-main" style="padding: 0 48px;">
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
+
+    <!-- Topbar -->
+    <div class="gx-topbar">
+      <h1 class="gx-title">Client Galleries</h1>
+      <div class="gx-toolbar">
+        <div class="gx-search">
+          <input type="text" id="gxSearchInput" placeholder="Search galleries..."/>
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+        </div>
+        <select class="gx-select" id="statusFilter">
+          <option value="all">All</option>
+          <option value="draft">Draft</option>
+          <option value="published">Published</option>
+          <option value="archived">Archived</option>
+        </select>
+        <select class="gx-select" id="sortFilter">
+          <option value="updated">Recently updated</option>
+          <option value="created_desc">Created (newest)</option>
+          <option value="created_asc">Created (oldest)</option>
+          <option value="title">Title A-Z</option>
+          <option value="session">Session date</option>
+        </select>
+        <a href="/gallery/admin/gallery-new.html" class="gx-new-btn">+ New Gallery</a>
+      </div>
+    </div>
+
+    <!-- Count label -->
+    <div class="gx-count" id="countLabel"></div>
+
+    <!-- Card grid -->
+    <div class="gx-grid" id="galleryCards"></div>
+  </main>
+</div>
+
+<script src="/gallery/js/api.js"></script>
+<script src="/gallery/js/auth.js"></script>
+<script src="/gallery/js/admin-sidebar.js"></script>
+<script>
+let allGalleries = [];
+let openPopoverId = null;
+
+// ───────────────────────────── Helpers ─────────────────────────────
+function fmtSessionDate(d) {
+  if (!d) return '';
+  const dt = new Date(d + 'T12:00:00');
+  if (isNaN(dt)) return '';
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function getInitials(title) {
+  if (!title) return '';
+  const parts = title.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  const target = new Date(dateStr + 'T23:59:59');
+  if (isNaN(target)) return null;
+  const now = new Date();
+  return Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+}
+
+function expireClass(days) {
+  if (days < 7) return 'gx-expire-warn';
+  if (days > 30) return 'gx-expire-safe';
+  return 'gx-expire-gold';
+}
+
+// ───────────────────────────── Sidebar ─────────────────────────────
+// Sidebar gallery list & search are handled by /js/admin-sidebar.js — no
+// duplicate render here.
+
+// ───────────────────────────── Card render ─────────────────────────
+function renderCard(g) {
+  const card = document.createElement('div');
+  card.className = 'gx-card';
+  card.dataset.id = g.id;
+
+  const statusClass = 'gx-status-' + (g.status || 'draft');
+  const statusLabel = (g.status || 'draft').charAt(0).toUpperCase() + (g.status || 'draft').slice(1);
+
+  const sessionDateStr = fmtSessionDate(g.session_date);
+  const metaParts = [];
+  if (sessionDateStr) metaParts.push(sessionDateStr);
+  if (g.occasion) metaParts.push(g.occasion);
+  const metaLine = metaParts.join(' · ');
+
+  // Stats
+  const photoCount = g.photo_count || 0;
+  const clientCount = g.client_count || 0;
+  let expireHtml = '';
+  if (g.expire_enabled && g.expire_date) {
+    const days = daysUntil(g.expire_date);
+    if (days !== null) {
+      const cls = expireClass(days);
+      const lbl = days < 0
+        ? 'Expired'
+        : days === 0 ? 'Expires today' : days + 'd left';
+      expireHtml = `<span class="gx-stat ${cls}" title="Expires ${escapeHtml(g.expire_date)}">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 2"/></svg>
+        ${escapeHtml(lbl)}
+      </span>`;
+    }
+  }
+
+  // Cover element — try img first, fall back to placeholder
+  const bgColor = g.bg_color || '#f2efe7';
+  const txtColor = g.txt_color || '#999';
+  const focalX = (g.focal_x != null) ? g.focal_x : 50;
+  const focalY = (g.focal_y != null) ? g.focal_y : 50;
+  const titleEsc = escapeHtml(g.title || 'Untitled');
+
+  const coverImgHtml = g.cover_key || g.photo_count > 0
+    ? `<img src="/api/gallery/galleries/${g.id}/cover" alt="${titleEsc}" loading="lazy" style="object-position:${focalX}% ${focalY}%;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/>
+       <div class="gx-cover-fallback" style="display:none;background:${bgColor};color:${txtColor};">${escapeHtml(getInitials(g.title))}</div>`
+    : `<div class="gx-cover-fallback" style="display:flex;background:${bgColor};color:${txtColor};">${escapeHtml(getInitials(g.title))}</div>`;
+
+  card.innerHTML = `
+    <div class="gx-cover">
+      ${coverImgHtml}
+      <span class="gx-status ${statusClass}">
+        <span class="gx-status-dot"></span>${escapeHtml(statusLabel)}
+      </span>
+      <button class="gx-menu-btn" aria-label="More actions" data-menu-for="${g.id}">
+        <svg fill="currentColor" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+      </button>
+      <div class="gx-popover" id="popover-${g.id}">
+        <a href="/gallery/gallery.html?id=${g.id}" target="_blank" rel="noopener">View as client</a>
+        <button data-action="duplicate" data-id="${g.id}">Duplicate</button>
+        <button data-action="archive" data-id="${g.id}">Archive</button>
+        <button class="gx-popover-danger" data-action="delete" data-id="${g.id}">Delete</button>
+      </div>
+    </div>
+    <div class="gx-body">
+      <h3 class="gx-card-title" title="${titleEsc}">${titleEsc}</h3>
+      ${metaLine ? `<div class="gx-card-meta">${escapeHtml(metaLine)}</div>` : ''}
+      <div class="gx-card-stats">
+        <span class="gx-stat" title="${photoCount} photos">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h3l2-2h8l2 2h3v12H3z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          ${photoCount}
+        </span>
+        <span class="gx-stat" title="${clientCount} clients">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 19c0-3 2.7-5 6-5s6 2 6 5M16 11a3 3 0 100-6M21 19c0-2.5-2-4.4-4.5-4.8"/></svg>
+          ${clientCount}
+        </span>
+        ${expireHtml}
+      </div>
+    </div>
+  `;
+
+  // Card click → editor (but ignore clicks on menu / popover)
+  card.addEventListener('click', e => {
+    if (e.target.closest('.gx-menu-btn') || e.target.closest('.gx-popover')) return;
+    window.location.href = '/gallery/admin/gallery-edit.html?id=' + g.id;
+  });
+
+  // Menu button
+  card.querySelector('.gx-menu-btn').addEventListener('click', e => {
+    e.stopPropagation();
+    togglePopover(g.id);
+  });
+
+  // Popover actions
+  card.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const action = btn.dataset.action;
+      const id = btn.dataset.id;
+      handleAction(action, id);
+    });
+  });
+
+  return card;
+}
+
+function togglePopover(id) {
+  // Close any open popover
+  if (openPopoverId && openPopoverId !== id) {
+    const prev = document.getElementById('popover-' + openPopoverId);
+    if (prev) prev.classList.remove('show');
+  }
+  const pop = document.getElementById('popover-' + id);
+  if (!pop) return;
+  const willShow = !pop.classList.contains('show');
+  pop.classList.toggle('show', willShow);
+  openPopoverId = willShow ? id : null;
+}
+
+function closeAllPopovers() {
+  if (!openPopoverId) return;
+  const pop = document.getElementById('popover-' + openPopoverId);
+  if (pop) pop.classList.remove('show');
+  openPopoverId = null;
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.gx-menu-btn') && !e.target.closest('.gx-popover')) {
+    closeAllPopovers();
+  }
+});
+
+// ───────────────────────────── Actions ─────────────────────────────
+async function handleAction(action, id) {
+  closeAllPopovers();
+  if (action === 'duplicate') {
+    console.log('TODO: duplicate gallery', id);
+    return;
+  }
+  if (action === 'archive') {
+    try {
+      await API.put('/galleries/' + id, { status: 'archived' });
+      const g = allGalleries.find(x => x.id == id);
+      if (g) g.status = 'archived';
+      applyFilters();
+    } catch (err) {
+      alert('Failed to archive gallery: ' + (err.message || err));
+    }
+    return;
+  }
+  if (action === 'delete') {
+    const g = allGalleries.find(x => x.id == id);
+    const name = g ? g.title : 'this gallery';
+    if (!confirm('Delete "' + name + '"? This cannot be undone.')) return;
+    try {
+      await API.delete('/galleries/' + id);
+      allGalleries = allGalleries.filter(x => x.id != id);
+      applyFilters();
+      // Re-render sidebar gallery list to drop the deleted item
+      if (typeof renderAdminSidebar === 'function') renderAdminSidebar({ active: 'galleries' });
+    } catch (err) {
+      alert('Failed to delete gallery: ' + (err.message || err));
+    }
+  }
+}
+
+// ───────────────────────────── Filter + sort ─────────────────────────
+function applyFilters() {
+  const q = document.getElementById('gxSearchInput').value.trim().toLowerCase();
+  const status = document.getElementById('statusFilter').value;
+  const sort = document.getElementById('sortFilter').value;
+
+  let list = allGalleries.slice();
+
+  if (status !== 'all') {
+    list = list.filter(g => (g.status || 'draft') === status);
+  }
+
+  if (q) {
+    list = list.filter(g => {
+      const t = (g.title || '').toLowerCase();
+      const d = (g.description || '').toLowerCase();
+      return t.includes(q) || d.includes(q);
+    });
+  }
+
+  // Sort
+  list.sort((a, b) => {
+    switch (sort) {
+      case 'created_desc':
+        return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+      case 'created_asc':
+        return new Date(a.created_at || 0) - new Date(b.created_at || 0);
+      case 'title':
+        return (a.title || '').localeCompare(b.title || '');
+      case 'session': {
+        const ad = a.session_date ? new Date(a.session_date) : new Date(0);
+        const bd = b.session_date ? new Date(b.session_date) : new Date(0);
+        return bd - ad;
+      }
+      case 'updated':
+      default:
+        return new Date(b.updated_at || b.created_at || 0) - new Date(a.updated_at || a.created_at || 0);
+    }
+  });
+
+  renderResults(list);
+}
+
+function renderResults(list) {
+  const grid = document.getElementById('galleryCards');
+  const countLabel = document.getElementById('countLabel');
+  grid.innerHTML = '';
+
+  // Empty: no galleries at all
+  if (allGalleries.length === 0) {
+    countLabel.textContent = '';
+    grid.innerHTML = `
+      <div class="gx-empty">
+        <h2 class="gx-empty-title">No galleries yet</h2>
+        <p class="gx-empty-sub">Create your first client gallery to get started</p>
+        <a href="/gallery/admin/gallery-new.html" class="gx-new-btn">+ New Gallery</a>
+      </div>
+    `;
+    return;
+  }
+
+  countLabel.textContent = 'Showing ' + list.length + ' of ' + allGalleries.length + ' galleries';
+
+  // Empty: filter result
+  if (list.length === 0) {
+    grid.innerHTML = `
+      <div class="gx-empty">
+        <h2 class="gx-empty-title">No matches</h2>
+        <p class="gx-empty-sub">Try a different search or filter.</p>
+        <button class="gx-empty-link" onclick="clearAllFilters()">Clear filters</button>
+      </div>
+    `;
+    return;
+  }
+
+  list.forEach(g => grid.appendChild(renderCard(g)));
+}
+
+function clearAllFilters() {
+  document.getElementById('gxSearchInput').value = '';
+  document.getElementById('statusFilter').value = 'all';
+  document.getElementById('sortFilter').value = 'updated';
+  applyFilters();
+}
+
+// ───────────────────────────── Init ────────────────────────────────
+(async () => {
+  const user = await checkAuth('admin');
+  if (!user) return;
+  window.__adminUser = user;
+  if (typeof renderAdminSidebar === 'function') renderAdminSidebar({ active: 'galleries' });
+
+  try {
+    allGalleries = await API.get('/galleries');
+    if (!Array.isArray(allGalleries)) allGalleries = [];
+  } catch (err) {
+    console.error('Failed to load galleries:', err);
+    allGalleries = [];
+  }
+
+  applyFilters();
+
+  // Wire up filter inputs
+  document.getElementById('gxSearchInput').addEventListener('input', applyFilters);
+  document.getElementById('statusFilter').addEventListener('change', applyFilters);
+  document.getElementById('sortFilter').addEventListener('change', applyFilters);
+})();
+</script>
+</body>
+</html>

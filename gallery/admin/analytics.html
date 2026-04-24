@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Analytics — IVAE Studios</title>
+<link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
+<link rel="stylesheet" href="/gallery/css/gallery.css"/>
+<style>
+/* ── Page foundation ── */
+body { padding-top: 0; background: #f7f4ee; }
+
+.an-main {
+  padding: 0 48px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ── Sidebar styles (duplicated from existing admin pages so partial renders cleanly) ── */
+.sidebar-search { margin: 12px 14px 8px; position: relative; }
+.sidebar-search input {
+  width: 100%; padding: 10px 36px 10px 13px; font-family: 'Syne', sans-serif;
+  font-size: 12px; background: white; border: 1px solid #e8e8e8;
+  color: #333; outline: none; height: 36px; border-radius: 4px;
+  transition: border-color 0.2s;
+}
+.sidebar-search input:focus { border-color: #bbb; }
+.sidebar-search input::placeholder { color: #ccc; }
+.sidebar-search svg {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; color: #ccc;
+}
+.sidebar-bottom-nav { border-top: 1px solid #e0e0e0; padding: 12px 0; }
+.sidebar-bottom-link {
+  display: block; padding: 8px 18px; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: #999; text-decoration: none; transition: color 0.2s;
+}
+.sidebar-bottom-link:hover { color: #333; }
+.sidebar-bottom-link.active { color: #333; }
+
+/* ── Topbar ── */
+.an-topbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 40px 0 28px;
+  border-bottom: 1px solid #e8e0d4;
+  margin-bottom: 36px;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.an-title {
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-size: 36px;
+  font-weight: 400;
+  letter-spacing: -0.5px;
+  color: #1a1a1a;
+  line-height: 1;
+  margin: 0;
+}
+.an-subtitle {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  color: #999;
+  margin-top: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.an-period {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px; color: #555;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 11px 40px 11px 16px;
+  border: 1px solid #e0d8c8;
+  background: white; appearance: none; cursor: pointer;
+  border-radius: 4px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23a07040' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center;
+  transition: border-color 0.2s;
+}
+.an-period:focus, .an-period:hover { border-color: #a07040; outline: none; }
+
+/* ── KPI grid ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin-bottom: 36px;
+}
+.kpi-card {
+  background: white;
+  border: 1px solid #e8e0d4;
+  border-radius: 4px;
+  padding: 28px 24px 26px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  position: relative;
+}
+.kpi-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(160, 112, 64, 0.06);
+  background: #faf8f3;
+}
+.kpi-label {
+  font-family: 'Syne', 'Helvetica Neue', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: #a89880;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  line-height: 1.3;
+}
+.kpi-value {
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-size: 48px;
+  font-weight: 300;
+  color: #1a1a1a;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+.kpi-delta {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  color: #a07040;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 12px;
+  font-weight: 500;
+}
+.kpi-delta.flat { color: #c8b896; }
+.kpi-delta.down { color: #b06560; }
+
+/* ── Generic chart card ── */
+.chart-card {
+  background: white;
+  border: 1px solid #e8e0d4;
+  border-radius: 4px;
+  padding: 32px 36px 36px;
+  margin-bottom: 24px;
+  transition: box-shadow 0.25s ease;
+}
+.chart-card:hover { box-shadow: 0 4px 18px rgba(160, 112, 64, 0.04); }
+.chart-card-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 28px;
+}
+.chart-card-title {
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-size: 28px; font-weight: 400; color: #1a1a1a;
+  letter-spacing: -0.3px; margin: 0;
+}
+.chart-card-meta {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px; color: #b8a888;
+  letter-spacing: 0.18em; text-transform: uppercase;
+}
+
+/* ── Activity SVG chart ── */
+.activity-svg-wrap {
+  width: 100%;
+  position: relative;
+}
+.activity-svg {
+  width: 100%;
+  height: 320px;
+  display: block;
+  overflow: visible;
+}
+.activity-svg .grid-line { stroke: #f0eadd; stroke-width: 1; }
+.activity-svg .axis-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  fill: #b8a888;
+  letter-spacing: 0.06em;
+}
+.activity-svg .series-line {
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.activity-svg .area-fill {
+  fill: #a07040;
+  fill-opacity: 0.08;
+}
+.activity-svg .hover-guide {
+  stroke: #a07040;
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+.activity-svg .hover-dot {
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+.activity-svg.hovering .hover-guide,
+.activity-svg.hovering .hover-dot { opacity: 1; }
+
+.activity-tooltip {
+  position: absolute;
+  background: #1a1a1a;
+  color: white;
+  border-radius: 3px;
+  padding: 12px 14px;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 10;
+  white-space: nowrap;
+  transform: translate(-50%, -100%);
+  margin-top: -12px;
+  letter-spacing: 0.04em;
+}
+.activity-tooltip.show { opacity: 1; }
+.activity-tooltip .tt-date {
+  font-size: 10px;
+  color: #c8b896;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #333;
+}
+.activity-tooltip .tt-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 4px;
+}
+.activity-tooltip .tt-swatch {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+.activity-tooltip .tt-label { color: #aaa; min-width: 76px; }
+.activity-tooltip .tt-val { color: white; font-weight: 600; margin-left: auto; }
+
+/* Chart legend */
+.chart-legend {
+  display: flex; flex-wrap: wrap;
+  gap: 20px 28px;
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px solid #f0eadd;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 9px;
+  font-family: 'Syne', sans-serif;
+  font-size: 10px; color: #555;
+  letter-spacing: 0.18em; text-transform: uppercase;
+}
+.legend-swatch {
+  width: 18px; height: 2px; border-radius: 1px; display: inline-block;
+}
+
+/* Empty state */
+.chart-empty {
+  text-align: center;
+  padding: 64px 24px;
+  color: #c8b896;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  font-style: italic;
+  letter-spacing: 0.2px;
+}
+
+/* ── Two-col bottom section ── */
+.two-col {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 24px;
+  margin-bottom: 56px;
+}
+
+/* Top galleries list */
+.gallery-list { list-style: none; padding: 0; margin: 0; }
+.gallery-row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid #f5efe2;
+  text-decoration: none;
+  color: inherit;
+  transition: padding-left 0.2s;
+}
+.gallery-row:last-child { border-bottom: none; }
+.gallery-row:hover { padding-left: 6px; }
+.gallery-rank {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 300;
+  color: #c8b896;
+  font-style: italic;
+}
+.gallery-info { min-width: 0; }
+.gallery-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  color: #1a1a1a;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gallery-meta {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  color: #a89880;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+.gallery-status {
+  font-family: 'Syne', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 2px;
+  font-weight: 600;
+}
+.gallery-status.published { background: #f0f5e8; color: #5a7340; }
+.gallery-status.draft { background: #faf6ec; color: #a07040; }
+.gallery-status.archived { background: #f3f0ec; color: #999; }
+
+/* Engagement breakdown bars */
+.engagement-list { padding: 4px 0 0; }
+.engagement-row { padding: 14px 0; }
+.engagement-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 9px;
+}
+.engagement-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  color: #1a1a1a;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.engagement-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 300;
+  color: #1a1a1a;
+  line-height: 1;
+}
+.engagement-track {
+  height: 4px;
+  background: #f5efe2;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.engagement-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  min-width: 2px;
+}
+.engagement-pct {
+  font-family: 'Syne', sans-serif;
+  font-size: 9px;
+  color: #b8a888;
+  letter-spacing: 0.14em;
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+
+/* Section helpers */
+.section-empty {
+  text-align: center; padding: 36px 24px;
+  color: #b8a888;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 16px;
+}
+.coming-soon-tag {
+  display: inline-block;
+  font-family: 'Syne', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #a07040;
+  background: #faf6ec;
+  padding: 4px 10px;
+  border-radius: 2px;
+  margin-top: 14px;
+}
+
+/* ── Skeleton loading ── */
+.skel {
+  background: linear-gradient(90deg, #f5efe2 0%, #faf6ec 50%, #f5efe2 100%);
+  background-size: 200% 100%;
+  animation: skelShimmer 1.4s ease-in-out infinite;
+  border-radius: 3px;
+}
+@keyframes skelShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skel-line { height: 12px; margin: 6px 0; }
+.skel-num { height: 44px; width: 70%; margin-bottom: 12px; }
+.skel-block { height: 280px; width: 100%; }
+
+/* ── Error state ── */
+.error-card {
+  background: white;
+  border: 1px solid #e8d4c8;
+  border-left: 3px solid #b06560;
+  border-radius: 4px;
+  padding: 24px 28px;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  color: #555;
+  letter-spacing: 0.02em;
+  margin: 24px 0;
+}
+.error-card strong {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #b06560;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  .kpi-card:nth-child(4), .kpi-card:nth-child(5) {
+    grid-column: span 1;
+  }
+}
+@media (max-width: 900px) {
+  .an-main { padding: 0 32px; }
+  .two-col { grid-template-columns: 1fr; }
+  .chart-card { padding: 28px 24px; }
+}
+@media (max-width: 720px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .an-title { font-size: 28px; }
+  .kpi-value { font-size: 38px; }
+  .chart-card-title { font-size: 22px; }
+  .activity-svg { height: 260px; }
+}
+@media (max-width: 480px) {
+  .an-main { padding: 0 20px; }
+  .kpi-grid { grid-template-columns: 1fr; gap: 12px; }
+  .an-topbar { flex-direction: column; align-items: flex-start; padding-top: 28px; }
+  .chart-card { padding: 22px 18px; }
+  .activity-svg { height: 220px; }
+}
+</style>
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR (rendered by /js/admin-sidebar.js) -->
+  <aside class="admin-sidebar" id="sidebar"></aside>
+
+  <!-- MAIN -->
+  <main class="admin-main">
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
+
+    <div class="an-main">
+
+      <!-- Topbar -->
+      <header class="an-topbar">
+        <div>
+          <h1 class="an-title">Analytics</h1>
+          <div class="an-subtitle">Studio activity & engagement</div>
+        </div>
+        <select class="an-period" id="periodSelect" aria-label="Select reporting period">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+      </header>
+
+      <!-- Error mount point -->
+      <div id="errorMount"></div>
+
+      <!-- KPI grid -->
+      <section class="kpi-grid" id="kpiGrid">
+        <!-- Skeletons injected on first paint -->
+      </section>
+
+      <!-- Activity chart -->
+      <section class="chart-card">
+        <div class="chart-card-head">
+          <h2 class="chart-card-title">Activity over time</h2>
+          <span class="chart-card-meta" id="activityMeta"></span>
+        </div>
+        <div class="activity-svg-wrap" id="activityWrap">
+          <div class="skel skel-block" id="activitySkel"></div>
+        </div>
+        <div class="chart-legend" id="chartLegend" style="display:none;">
+          <span class="legend-item"><span class="legend-swatch" style="background:#a07040;"></span> Visitors</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#1a1a1a;"></span> Photo views</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#c8b896;"></span> Favorites</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#5a4a38;"></span> Submissions</span>
+        </div>
+      </section>
+
+      <!-- Two-col -->
+      <section class="two-col">
+        <div class="chart-card">
+          <div class="chart-card-head">
+            <h2 class="chart-card-title">Recent galleries</h2>
+            <span class="chart-card-meta">Newest published</span>
+          </div>
+          <div id="topGalleries">
+            <div class="skel skel-line" style="width:80%;"></div>
+            <div class="skel skel-line" style="width:65%;"></div>
+            <div class="skel skel-line" style="width:72%;"></div>
+            <div class="skel skel-line" style="width:55%;"></div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card-head">
+            <h2 class="chart-card-title">Engagement</h2>
+            <span class="chart-card-meta">Period totals</span>
+          </div>
+          <div id="engagementBreakdown">
+            <div class="skel skel-line" style="width:90%;"></div>
+            <div class="skel skel-line" style="width:75%;"></div>
+            <div class="skel skel-line" style="width:60%;"></div>
+            <div class="skel skel-line" style="width:45%;"></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="/gallery/js/api.js"></script>
+<script src="/gallery/js/admin-sidebar.js"></script>
+<script>
+// ─────────────────────────────────────────────────────────────────────
+// Analytics page — wires the /api/gallery/admin/stats endpoint to a custom
+// SVG chart, KPI cards, and an engagement breakdown. No external libs.
+// ─────────────────────────────────────────────────────────────────────
+
+const SERIES_COLORS = {
+  visitors: '#a07040',
+  photo_views: '#1a1a1a',
+  favorites: '#c8b896',
+  submissions: '#5a4a38'
+};
+
+let currentStats = null;
+let currentPeriod = 30;
+let resizeTimer = null;
+
+// ─── Auth gate ───
+async function checkAuth() {
+  try {
+    const me = await API.get('/auth/me');
+    if (!me || me.role !== 'admin') {
+      window.location.href = '/gallery/';
+      return null;
+    }
+    return me;
+  } catch (e) {
+    window.location.href = '/gallery/';
+    return null;
+  }
+}
+
+// ─── KPI rendering ───
+function renderKPISkeletons() {
+  const labels = ['Visitors', 'Photo views', 'Favorites', 'Submissions', 'Galleries published'];
+  document.getElementById('kpiGrid').innerHTML = labels.map(l => `
+    <div class="kpi-card">
+      <div class="kpi-label">${l}</div>
+      <div class="skel skel-num"></div>
+      <div class="skel skel-line" style="width:40%;height:9px;"></div>
+    </div>
+  `).join('');
+}
+
+function fmtNum(n) {
+  if (n == null || isNaN(n)) return '0';
+  if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (n >= 10000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+  return n.toLocaleString('en-US');
+}
+
+function sumSeries(series, key) {
+  if (!Array.isArray(series)) return 0;
+  return series.reduce((acc, d) => acc + (Number(d[key]) || 0), 0);
+}
+
+// Compare last half vs first half of the series for a rough trend.
+function trendDelta(series, key) {
+  if (!Array.isArray(series) || series.length < 4) return null;
+  const mid = Math.floor(series.length / 2);
+  const first = series.slice(0, mid).reduce((a, d) => a + (Number(d[key]) || 0), 0);
+  const last = series.slice(mid).reduce((a, d) => a + (Number(d[key]) || 0), 0);
+  if (first === 0 && last === 0) return null;
+  if (first === 0) return { dir: 'up', label: 'New activity' };
+  const pct = ((last - first) / first) * 100;
+  if (Math.abs(pct) < 2) return { dir: 'flat', label: 'Steady' };
+  const arrow = pct > 0 ? '↑' : '↓';
+  return { dir: pct > 0 ? 'up' : 'down', label: `${arrow} ${Math.abs(pct).toFixed(0)}% vs prior` };
+}
+
+function renderKPIs(stats) {
+  const series = stats.activity_series || [];
+  const kpis = [
+    { label: 'Visitors',           value: stats.visitors_in_period ?? sumSeries(series, 'visitors'),  trend: trendDelta(series, 'visitors') },
+    { label: 'Photo views',        value: sumSeries(series, 'photo_views'),                            trend: trendDelta(series, 'photo_views') },
+    { label: 'Favorites',          value: sumSeries(series, 'favorites'),                              trend: trendDelta(series, 'favorites') },
+    { label: 'Submissions',        value: stats.proof_submissions_in_period ?? sumSeries(series, 'submissions'), trend: trendDelta(series, 'submissions') },
+    { label: 'Galleries published', value: stats.galleries_in_period ?? 0,                              trend: null }
+  ];
+
+  document.getElementById('kpiGrid').innerHTML = kpis.map(k => `
+    <div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${fmtNum(k.value)}</div>
+      ${k.trend ? `<div class="kpi-delta ${k.trend.dir === 'down' ? 'down' : k.trend.dir === 'flat' ? 'flat' : ''}">${k.trend.label}</div>` : '<div class="kpi-delta flat">&nbsp;</div>'}
+    </div>
+  `).join('');
+}
+
+// ─── SVG activity chart ───
+// 4 overlaid lines (visitors gold, photo_views ink, favorites sand,
+// submissions charcoal), area fill under visitors at 0.08 opacity gold,
+// hover guide with vertical line + tooltip showing all 4 values for the day.
+function niceMax(raw) {
+  if (raw <= 0) return 4;
+  const exp = Math.pow(10, Math.floor(Math.log10(raw)));
+  const norm = raw / exp;
+  let nice;
+  if (norm <= 1) nice = 1;
+  else if (norm <= 2) nice = 2;
+  else if (norm <= 5) nice = 5;
+  else nice = 10;
+  return Math.max(4, Math.ceil(nice * exp));
+}
+
+function smoothPath(points) {
+  if (points.length === 0) return '';
+  if (points.length === 1) return `M ${points[0][0]} ${points[0][1]}`;
+  let d = `M ${points[0][0]} ${points[0][1]}`;
+  // Catmull-Rom-ish smoothing converted to cubic bezier
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[Math.max(0, i - 1)];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[Math.min(points.length - 1, i + 2)];
+    const tension = 0.18;
+    const cp1x = p1[0] + (p2[0] - p0[0]) * tension;
+    const cp1y = p1[1] + (p2[1] - p0[1]) * tension;
+    const cp2x = p2[0] - (p3[0] - p1[0]) * tension;
+    const cp2y = p2[1] - (p3[1] - p1[1]) * tension;
+    d += ` C ${cp1x.toFixed(2)} ${cp1y.toFixed(2)}, ${cp2x.toFixed(2)} ${cp2y.toFixed(2)}, ${p2[0].toFixed(2)} ${p2[1].toFixed(2)}`;
+  }
+  return d;
+}
+
+function fmtDateShort(s) {
+  const d = new Date(s + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+function fmtDateLong(s) {
+  const d = new Date(s + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function renderActivityChart(series) {
+  const wrap = document.getElementById('activityWrap');
+  const meta = document.getElementById('activityMeta');
+  const legend = document.getElementById('chartLegend');
+
+  if (!Array.isArray(series) || series.length === 0) {
+    wrap.innerHTML = '<div class="chart-empty">No activity data for this period.</div>';
+    legend.style.display = 'none';
+    meta.textContent = '';
+    return;
+  }
+
+  const allZero = series.every(d =>
+    !Number(d.visitors) && !Number(d.photo_views) && !Number(d.favorites) && !Number(d.submissions)
+  );
+  if (allZero) {
+    wrap.innerHTML = '<div class="chart-empty">No activity in this period yet.</div>';
+    legend.style.display = 'none';
+    meta.textContent = `${series.length} days`;
+    return;
+  }
+
+  const w = wrap.clientWidth || 800;
+  const h = 320;
+  const padL = 44, padR = 20, padT = 16, padB = 36;
+  const chartW = w - padL - padR;
+  const chartH = h - padT - padB;
+
+  let maxV = 0;
+  series.forEach(d => {
+    maxV = Math.max(maxV, Number(d.visitors) || 0, Number(d.photo_views) || 0, Number(d.favorites) || 0, Number(d.submissions) || 0);
+  });
+  const yMax = niceMax(maxV);
+  const stepX = series.length > 1 ? chartW / (series.length - 1) : 0;
+
+  const xAt = (i) => padL + i * stepX;
+  const yAt = (v) => padT + chartH - (v / yMax) * chartH;
+
+  // Build paths
+  const keys = ['visitors', 'photo_views', 'favorites', 'submissions'];
+  const paths = {};
+  keys.forEach(k => {
+    const points = series.map((d, i) => [xAt(i), yAt(Number(d[k]) || 0)]);
+    paths[k] = smoothPath(points);
+  });
+
+  // Visitor area fill — close path back along the baseline
+  const visitorPoints = series.map((d, i) => [xAt(i), yAt(Number(d.visitors) || 0)]);
+  let areaPath = smoothPath(visitorPoints);
+  const baseY = yAt(0);
+  areaPath += ` L ${xAt(series.length - 1).toFixed(2)} ${baseY.toFixed(2)} L ${xAt(0).toFixed(2)} ${baseY.toFixed(2)} Z`;
+
+  // Y-axis grid + labels (5 lines)
+  const gridLines = 4;
+  const grid = [];
+  for (let i = 0; i <= gridLines; i++) {
+    const yVal = yMax - (yMax / gridLines) * i;
+    const y = padT + (chartH / gridLines) * i;
+    grid.push(`<line class="grid-line" x1="${padL}" x2="${w - padR}" y1="${y}" y2="${y}"/>`);
+    grid.push(`<text class="axis-label" x="${padL - 8}" y="${y + 3}" text-anchor="end">${fmtNum(Math.round(yVal))}</text>`);
+  }
+
+  // X-axis labels (every 5th day, plus first + last so endpoints are anchored)
+  const xLabels = [];
+  series.forEach((d, i) => {
+    if (i === 0 || i === series.length - 1 || i % 5 === 0) {
+      xLabels.push(`<text class="axis-label" x="${xAt(i)}" y="${padT + chartH + 18}" text-anchor="middle">${fmtDateShort(d.date)}</text>`);
+    }
+  });
+
+  // Hover dots — one per series, positioned at idx 0 initially, hidden
+  const hoverDots = keys.map(k =>
+    `<circle class="hover-dot" data-key="${k}" cx="0" cy="0" r="4" fill="${SERIES_COLORS[k]}" stroke="white" stroke-width="2"/>`
+  ).join('');
+
+  const svg = `
+    <svg class="activity-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+      ${grid.join('')}
+      ${xLabels.join('')}
+      <path class="area-fill" d="${areaPath}"/>
+      <path class="series-line" d="${paths.photo_views}" stroke="${SERIES_COLORS.photo_views}"/>
+      <path class="series-line" d="${paths.favorites}" stroke="${SERIES_COLORS.favorites}"/>
+      <path class="series-line" d="${paths.submissions}" stroke="${SERIES_COLORS.submissions}"/>
+      <path class="series-line" d="${paths.visitors}" stroke="${SERIES_COLORS.visitors}" stroke-width="2"/>
+      <line class="hover-guide" x1="0" x2="0" y1="${padT}" y2="${padT + chartH}"/>
+      ${hoverDots}
+      <rect class="hover-capture" x="${padL}" y="${padT}" width="${chartW}" height="${chartH}" fill="transparent"/>
+    </svg>
+    <div class="activity-tooltip" id="activityTooltip"></div>
+  `;
+
+  wrap.innerHTML = svg;
+  legend.style.display = '';
+  meta.textContent = `${series.length} days · peak ${fmtNum(yMax)}`;
+
+  // ─ Wire hover interaction ─
+  const svgEl = wrap.querySelector('.activity-svg');
+  const tip = document.getElementById('activityTooltip');
+  const guide = svgEl.querySelector('.hover-guide');
+  const dots = svgEl.querySelectorAll('.hover-dot');
+  const captureRect = svgEl.querySelector('.hover-capture');
+
+  function onMove(e) {
+    const rect = svgEl.getBoundingClientRect();
+    // We use viewBox=0..w so we map clientX→viewBox via scale ratio
+    const scale = rect.width / w;
+    const localX = (e.clientX - rect.left) / scale;
+    if (localX < padL || localX > w - padR) return onLeave();
+
+    const idx = Math.max(0, Math.min(series.length - 1, Math.round((localX - padL) / stepX)));
+    const px = xAt(idx);
+    const d = series[idx];
+
+    svgEl.classList.add('hovering');
+    guide.setAttribute('x1', px);
+    guide.setAttribute('x2', px);
+
+    dots.forEach(dot => {
+      const k = dot.getAttribute('data-key');
+      dot.setAttribute('cx', px);
+      dot.setAttribute('cy', yAt(Number(d[k]) || 0));
+    });
+
+    tip.classList.add('show');
+    tip.innerHTML = `
+      <div class="tt-date">${fmtDateLong(d.date)}</div>
+      <div class="tt-row"><span class="tt-swatch" style="background:${SERIES_COLORS.visitors};"></span><span class="tt-label">Visitors</span><span class="tt-val">${fmtNum(d.visitors || 0)}</span></div>
+      <div class="tt-row"><span class="tt-swatch" style="background:${SERIES_COLORS.photo_views};"></span><span class="tt-label">Photo views</span><span class="tt-val">${fmtNum(d.photo_views || 0)}</span></div>
+      <div class="tt-row"><span class="tt-swatch" style="background:${SERIES_COLORS.favorites};"></span><span class="tt-label">Favorites</span><span class="tt-val">${fmtNum(d.favorites || 0)}</span></div>
+      <div class="tt-row"><span class="tt-swatch" style="background:${SERIES_COLORS.submissions};"></span><span class="tt-label">Submissions</span><span class="tt-val">${fmtNum(d.submissions || 0)}</span></div>
+    `;
+    // Tooltip is a positioned absolute child of .activity-svg-wrap
+    const wrapRect = wrap.getBoundingClientRect();
+    const screenX = rect.left + px * scale;
+    let tipLeft = screenX - wrapRect.left;
+    // Clamp within wrap
+    const tipW = tip.offsetWidth;
+    if (tipLeft - tipW / 2 < 4) tipLeft = tipW / 2 + 4;
+    if (tipLeft + tipW / 2 > wrapRect.width - 4) tipLeft = wrapRect.width - tipW / 2 - 4;
+    tip.style.left = tipLeft + 'px';
+    tip.style.top = (rect.top - wrapRect.top + padT * scale + 4) + 'px';
+  }
+  function onLeave() {
+    svgEl.classList.remove('hovering');
+    tip.classList.remove('show');
+  }
+  captureRect.addEventListener('mousemove', onMove);
+  captureRect.addEventListener('mouseleave', onLeave);
+  // Touch (basic)
+  captureRect.addEventListener('touchmove', (e) => {
+    if (!e.touches[0]) return;
+    onMove({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
+  });
+  captureRect.addEventListener('touchend', onLeave);
+}
+
+// ─── Recent galleries (top-galleries placeholder) ───
+async function renderRecentGalleries() {
+  const mount = document.getElementById('topGalleries');
+  let galleries;
+  try {
+    galleries = await API.get('/galleries');
+  } catch (e) {
+    mount.innerHTML = '<div class="section-empty">Couldn\'t load galleries.</div>';
+    return;
+  }
+
+  if (!Array.isArray(galleries) || galleries.length === 0) {
+    mount.innerHTML = '<div class="section-empty">No galleries yet.</div>';
+    return;
+  }
+
+  // Sort newest first by created_at, take top 5
+  const sorted = [...galleries].sort((a, b) => {
+    const ad = new Date(a.created_at || a.session_date || 0).getTime();
+    const bd = new Date(b.created_at || b.session_date || 0).getTime();
+    return bd - ad;
+  }).slice(0, 5);
+
+  const fmtRel = (s) => {
+    if (!s) return '—';
+    const then = new Date(s).getTime();
+    if (isNaN(then)) return '—';
+    const diff = (Date.now() - then) / 86400000;
+    if (diff < 1) return 'Today';
+    if (diff < 2) return 'Yesterday';
+    if (diff < 7) return Math.floor(diff) + ' days ago';
+    if (diff < 30) return Math.floor(diff / 7) + ' wk ago';
+    if (diff < 365) return Math.floor(diff / 30) + ' mo ago';
+    return Math.floor(diff / 365) + ' yr ago';
+  };
+
+  mount.innerHTML = '<ul class="gallery-list">' + sorted.map((g, i) => {
+    const status = (g.status || 'draft').toLowerCase();
+    const meta = `${g.photo_count || 0} photos · ${fmtRel(g.created_at || g.session_date)}`;
+    const safeTitle = (g.title || 'Untitled').replace(/</g, '&lt;');
+    return `
+      <li>
+        <a class="gallery-row" href="/gallery/admin/gallery-edit.html?id=${encodeURIComponent(g.id)}">
+          <div class="gallery-rank">${i + 1}</div>
+          <div class="gallery-info">
+            <div class="gallery-name">${safeTitle}</div>
+            <div class="gallery-meta">${meta}</div>
+          </div>
+          <span class="gallery-status ${status}">${status}</span>
+        </a>
+      </li>
+    `;
+  }).join('') + '</ul>' +
+  '<div class="coming-soon-tag">Per-gallery view counts coming soon</div>';
+}
+
+// ─── Engagement breakdown ───
+function renderEngagement(stats) {
+  const mount = document.getElementById('engagementBreakdown');
+  const series = stats.activity_series || [];
+
+  const visitors = stats.visitors_in_period ?? sumSeries(series, 'visitors');
+  const views    = sumSeries(series, 'photo_views');
+  const favs     = sumSeries(series, 'favorites');
+  const subs     = stats.proof_submissions_in_period ?? sumSeries(series, 'submissions');
+
+  const items = [
+    { label: 'Visitors',     value: visitors, color: SERIES_COLORS.visitors },
+    { label: 'Photo views',  value: views,    color: SERIES_COLORS.photo_views },
+    { label: 'Favorites',    value: favs,     color: SERIES_COLORS.favorites },
+    { label: 'Submissions',  value: subs,     color: SERIES_COLORS.submissions }
+  ];
+
+  const total = items.reduce((a, x) => a + x.value, 0);
+
+  if (total === 0) {
+    mount.innerHTML = '<div class="section-empty">No engagement recorded for this period.</div>';
+    return;
+  }
+
+  // Bars are sized relative to the largest value so the strongest signal
+  // visually anchors the chart; the % shown next to it is share-of-total.
+  const maxVal = Math.max(...items.map(i => i.value), 1);
+
+  mount.innerHTML = '<div class="engagement-list">' + items.map(it => {
+    const widthPct = Math.round((it.value / maxVal) * 100);
+    const sharePct = total > 0 ? ((it.value / total) * 100).toFixed(1).replace(/\.0$/, '') : '0';
+    return `
+      <div class="engagement-row">
+        <div class="engagement-head">
+          <span class="engagement-label">${it.label}</span>
+          <span class="engagement-value">${fmtNum(it.value)}</span>
+        </div>
+        <div class="engagement-track">
+          <div class="engagement-fill" style="width:${widthPct}%; background:${it.color};"></div>
+        </div>
+        <div class="engagement-pct">${sharePct}% of total engagement</div>
+      </div>
+    `;
+  }).join('') + '</div>';
+}
+
+// ─── Error state ───
+function showError(msg) {
+  document.getElementById('errorMount').innerHTML = `
+    <div class="error-card">
+      <strong>Couldn't load analytics</strong>
+      ${msg || 'Try refreshing the page in a moment.'}
+    </div>
+  `;
+}
+function clearError() {
+  document.getElementById('errorMount').innerHTML = '';
+}
+
+// ─── Master refresh ───
+async function loadAnalytics(period) {
+  currentPeriod = period;
+  clearError();
+  renderKPISkeletons();
+  document.getElementById('activityWrap').innerHTML = '<div class="skel skel-block"></div>';
+  document.getElementById('chartLegend').style.display = 'none';
+
+  let stats;
+  try {
+    stats = await API.get('/gallery/admin/stats?period=' + period);
+  } catch (e) {
+    console.warn('[analytics] stats fetch failed', e);
+    if (e && /sign in|401/.test(e.message || '')) {
+      window.location.href = '/gallery/';
+      return;
+    }
+    showError(e && e.message ? e.message : 'Try refreshing.');
+    document.getElementById('kpiGrid').innerHTML = '';
+    document.getElementById('activityWrap').innerHTML = '<div class="chart-empty">Data unavailable.</div>';
+    document.getElementById('engagementBreakdown').innerHTML = '<div class="section-empty">Data unavailable.</div>';
+    return;
+  }
+
+  currentStats = stats;
+  renderKPIs(stats);
+  renderActivityChart(stats.activity_series || []);
+  renderEngagement(stats);
+}
+
+// ─── Init ───
+(async () => {
+  const me = await checkAuth();
+  if (!me) return;
+  window.__adminUser = me;
+  if (typeof renderAdminSidebar === 'function') {
+    renderAdminSidebar({ active: 'analytics' });
+  }
+
+  // Period selector
+  const sel = document.getElementById('periodSelect');
+  sel.addEventListener('change', () => {
+    const v = parseInt(sel.value, 10) || 30;
+    loadAnalytics(v);
+  });
+
+  // Recent galleries — independent of stats fetch
+  renderRecentGalleries();
+
+  // Initial stats load
+  await loadAnalytics(30);
+
+  // Re-render chart on resize (debounced)
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (currentStats) renderActivityChart(currentStats.activity_series || []);
+    }, 160);
+  });
+})();
+</script>
+</body>
+</html>

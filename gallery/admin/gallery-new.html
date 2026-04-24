@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>New Gallery — IVAE Studios</title>
+<link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
+<link rel="stylesheet" href="/gallery/css/gallery.css"/>
+<link rel="stylesheet" href="/gallery/admin/ge-styles.css"/>
+</head>
+<body style="padding-top:0;background:white;margin:0;">
+<div class="ge-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="ge-sidebar">
+    <a href="/gallery/admin/" class="ge-back">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+      Back
+    </a>
+    <div class="ge-gallery-name" id="wizardName">New Gallery</div>
+    <div class="ge-status">
+      <svg class="ge-status-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      <span id="statusText">Offline</span>
+    </div>
+    <div class="ge-steps">
+      <a class="ge-step active" onclick="goStep(0)">Name & Cover</a>
+      <a class="ge-step" onclick="goStep(1)">Photos & Media</a>
+      <a class="ge-step" onclick="goStep(2)">Gallery Setup</a>
+      <a class="ge-step" onclick="goStep(3)">Share</a>
+    </div>
+    <div class="ge-sidebar-btns">
+      <button class="ge-continue" id="continueBtn" onclick="nextStep()">Continue</button>
+      <button class="ge-preview-btn" onclick="previewGallery()">Preview Gallery</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="ge-main">
+
+    <!-- Step 0: Name & Cover -->
+    <div id="step-0" style="display:flex;flex:1;">
+      <div class="ge-form">
+        <div class="pt-field">
+          <label class="pt-label">Gallery Name</label>
+          <input type="text" class="pt-input" id="title" value="New Gallery" oninput="updatePV()" onfocus="this.select()"/>
+        </div>
+        <div class="pt-url" id="galleryUrl">ivaestudios.com/gallery/-</div>
+        <div class="pt-field" style="margin-top:18px;">
+          <label class="pt-label">Gallery Date</label>
+          <input type="date" class="pt-input" id="sessionDate" oninput="updatePV()"/>
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Language</label>
+          <select class="pt-select" id="language"><option>English</option><option>Español</option></select>
+        </div>
+        <div class="pt-field">
+          <label class="pt-label">Description</label>
+          <textarea class="pt-textarea" id="description" placeholder="A message for your client..."></textarea>
+        </div>
+        <div class="pt-btn-row">
+          <label class="pt-btn" onclick="document.getElementById('coverInput').click()">
+            <svg style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+            Upload Cover
+          </label>
+          <span class="pt-btn disabled" id="focalBtn" onclick="openFocalPoint()">
+            <svg style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4m10-10h-4M6 12H2"/></svg>
+            Focal Point
+          </span>
+          <input type="file" id="coverInput" accept="image/jpeg,image/png" style="display:none"/>
+        </div>
+      </div>
+      <div class="ge-preview-col">
+        <!-- Desktop preview with browser chrome -->
+        <div class="pv-frames">
+          <div class="pv-desktop-wrap">
+            <div class="pv-chrome">
+              <span class="pv-chrome-dot red"></span>
+              <span class="pv-chrome-dot yellow"></span>
+              <span class="pv-chrome-dot green"></span>
+              <span class="pv-chrome-url" id="pvChromeUrl">ivaestudios.com/gallery</span>
+            </div>
+            <div class="pv-desktop" id="pvDesktop"></div>
+          </div>
+          <!-- Mobile preview with phone frame -->
+          <div class="pv-mobile-wrap">
+            <div class="pv-mobile-notch"></div>
+            <div class="pv-mobile" id="pvMobile"></div>
+            <div class="pv-mobile-bar"></div>
+          </div>
+        </div>
+
+        <div class="cv-designs-label">Choose gallery cover design</div>
+        <div class="cv-designs-wrap">
+          <button class="cv-arrow cv-arrow-left" onclick="scrollDesigns(-1)" aria-label="Previous designs">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+          </button>
+          <div class="cv-designs" id="designGrid"></div>
+          <button class="cv-arrow cv-arrow-right" onclick="scrollDesigns(1)" aria-label="Next designs">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+          </button>
+        </div>
+
+        <div class="cv-colors-label">Choose gallery cover colors</div>
+        <label class="cv-auto"><input type="checkbox" checked/> Automatically choose cover color based on photo</label>
+
+        <div class="cv-color-row">
+          <div class="cv-color-sets-wrap">
+            <button class="cv-color-sets-btn" onclick="toggleColorSets()">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.098 19.902a3.75 3.75 0 005.304 0l6.401-6.402M6.75 21A3.75 3.75 0 013 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 003.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008z"/></svg>
+              Color sets
+              <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="cv-color-sets-dropdown" id="colorSetsDropdown" style="display:none;">
+              <div class="cv-color-set" onclick="applyColorSet('#ffffff','#1c1c1c')"><span class="cv-cs-swatch" style="background:#ffffff;border:1px solid #ddd;"></span><span class="cv-cs-swatch" style="background:#1c1c1c;"></span> Classic</div>
+              <div class="cv-color-set" onclick="applyColorSet('#1c1c1c','#ffffff')"><span class="cv-cs-swatch" style="background:#1c1c1c;"></span><span class="cv-cs-swatch" style="background:#ffffff;border:1px solid #ddd;"></span> Dark</div>
+              <div class="cv-color-set" onclick="applyColorSet('#f5f0eb','#5a4a3a')"><span class="cv-cs-swatch" style="background:#f5f0eb;"></span><span class="cv-cs-swatch" style="background:#5a4a3a;"></span> Warm</div>
+              <div class="cv-color-set" onclick="applyColorSet('#2c3e50','#d4c5b2')"><span class="cv-cs-swatch" style="background:#2c3e50;"></span><span class="cv-cs-swatch" style="background:#d4c5b2;"></span> Navy</div>
+              <div class="cv-color-set" onclick="applyColorSet('#D4C5B2','#1c1c1c')"><span class="cv-cs-swatch" style="background:#D4C5B2;"></span><span class="cv-cs-swatch" style="background:#1c1c1c;"></span> Sand</div>
+              <div class="cv-color-set" onclick="applyColorSet('#8B5E3C','#ffffff')"><span class="cv-cs-swatch" style="background:#8B5E3C;"></span><span class="cv-cs-swatch" style="background:#ffffff;border:1px solid #ddd;"></span> Mocha</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cv-color-row">
+          <span class="cv-color-label">Background</span>
+          <div class="cv-color-picker">
+            <input type="color" id="bgColorPicker" value="#ffffff" oninput="onBgColorPick(this.value)"/>
+            <input type="text" class="cv-hex-input" id="bgHexInput" value="#FFFFFF" maxlength="7" oninput="onBgHexInput(this.value)" onclick="this.select()"/>
+          </div>
+        </div>
+        <div class="cv-color-row">
+          <span class="cv-color-label">Text</span>
+          <div class="cv-color-picker">
+            <input type="color" id="txtColorPicker" value="#1c1c1c" oninput="onTxtColorPick(this.value)"/>
+            <input type="text" class="cv-hex-input" id="txtHexInput" value="#1C1C1C" maxlength="7" oninput="onTxtHexInput(this.value)" onclick="this.select()"/>
+          </div>
+        </div>
+        <div class="cv-color-row" style="margin-top:4px;">
+          <label class="cv-auto" style="margin-bottom:0;"><input type="checkbox" id="whiteLogoCheck"/> White logo</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 1: Photos & Media -->
+    <div id="step-1" class="ge-section" style="display:none;">
+      <div class="ge-section-inner">
+
+        <!-- Top bar: total count + filter -->
+        <div class="photos-topbar">
+          <span class="photos-topbar-count"><span id="totalItemCount">0</span> Items total <svg width="14" height="14" fill="none" stroke="#bbb" stroke-width="1.5" viewBox="0 0 24 24" style="vertical-align:-2px;cursor:help;" title="Total photos and clips across all scenes"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg></span>
+          <button class="photos-topbar-filter" onclick="togglePhotoSearch()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+            Filter &amp; Search
+          </button>
+        </div>
+        <!-- Search bar (hidden by default) -->
+        <div class="photos-search-bar" id="photosSearchBar" style="display:none;">
+          <input type="text" class="photos-search-input" id="filterPhotoInput" placeholder="Search photos by filename..." oninput="filterPhotos(this.value)"/>
+          <button class="photos-search-close" onclick="togglePhotoSearch()">&times;</button>
+        </div>
+
+        <!-- Try these features -->
+        <div class="features-promo">
+          <p class="features-promo-title">Try these features to do more with your gallery</p>
+          <div class="features-promo-grid">
+            <div class="features-promo-card active" data-feature="storytelling" onclick="selectFeature(this,'storytelling')">
+              <div class="features-promo-thumb" style="background:linear-gradient(135deg,#c4a35a 0%,#a8894a 100%);color:#fff;font-size:11px;font-weight:700;letter-spacing:0.5px;line-height:1.3;padding:12px;">Visual<br/>Storytelling</div>
+              <span>Visual Storytelling</span>
+            </div>
+            <div class="features-promo-card" data-feature="video" onclick="selectFeature(this,'video')">
+              <div class="features-promo-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z"/></svg></div>
+              <span>Featured Videos</span>
+              <div class="fp-tooltip">Upload Featured Videos<br/>(up to 90 minutes)<br/><u>Learn more</u></div>
+            </div>
+            <div class="features-promo-card" data-feature="slideshow" onclick="selectFeature(this,'slideshow')">
+              <div class="features-promo-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5"/></svg></div>
+              <span>Slideshow</span>
+              <div class="fp-tooltip">Create a slideshow<br/>from your gallery photos</div>
+            </div>
+            <div class="features-promo-card" data-feature="blog" onclick="selectFeature(this,'blog')">
+              <div class="features-promo-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5"/></svg></div>
+              <span>Blog</span>
+              <div class="fp-tooltip">Add a blog post<br/>to your gallery</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ FEATURE MODALS ═══ -->
+        <!-- Video Modal -->
+        <div class="feat-modal-overlay" id="videoModal" style="display:none;" onclick="if(event.target===this)closeFeatureModal()">
+          <div class="feat-modal">
+            <button class="feat-modal-close" onclick="closeFeatureModal()">&times;</button>
+            <h2 class="feat-modal-title">VIDEO</h2>
+            <div class="feat-tabs">
+              <button class="feat-tab active" onclick="switchVideoTab('upload',this)">Upload</button>
+              <button class="feat-tab" onclick="switchVideoTab('hosted',this)">Hosted externally</button>
+            </div>
+            <div class="feat-tab-content" id="videoTabUpload">
+              <div class="feat-upload-area">
+                <p class="feat-upload-text">Upload Featured Videos up to 90 minutes long</p>
+                <a href="#" class="feat-upload-learn">Learn more</a>
+                <button class="feat-upload-btn" onclick="document.getElementById('videoFileInput').click()">SELECT VIDEOS</button>
+                <input type="file" id="videoFileInput" accept="video/mp4,video/quicktime,video/webm" style="display:none;" onchange="handleVideoUpload(this)"/>
+              </div>
+            </div>
+            <div class="feat-tab-content" id="videoTabHosted" style="display:none;">
+              <div class="feat-hosted-logos">
+                <div class="feat-hosted-logo">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                  <span>YouTube</span>
+                </div>
+                <div class="feat-hosted-logo">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="#1AB7EA"><path d="M23.977 6.416c-.105 2.338-1.739 5.543-4.894 9.609-3.268 4.247-6.026 6.37-8.29 6.37-1.409 0-2.578-1.294-3.553-3.881L5.322 11.4C4.603 8.816 3.834 7.522 3.01 7.522c-.179 0-.806.378-1.881 1.132L0 7.197c1.185-1.044 2.351-2.084 3.501-3.128C5.08 2.701 6.266 1.984 7.055 1.91c1.867-.18 3.016 1.1 3.447 3.838.465 2.953.789 4.789.971 5.507.539 2.45 1.131 3.674 1.776 3.674.502 0 1.256-.796 2.265-2.385 1.004-1.589 1.54-2.797 1.612-3.628.144-1.371-.395-2.061-1.614-2.061-.574 0-1.167.121-1.777.391 1.186-3.868 3.434-5.757 6.762-5.637 2.473.06 3.628 1.664 3.493 4.797l-.013.01z"/></svg>
+                  <span>Vimeo</span>
+                </div>
+              </div>
+              <div class="feat-hosted-input-row">
+                <input type="text" class="feat-hosted-input" id="videoLinkInput" placeholder="Add link here"/>
+                <button class="feat-hosted-add-btn" onclick="addVideoLink()">ADD</button>
+              </div>
+              <div id="videoLinksList" class="feat-links-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slideshow Modal -->
+        <div class="feat-modal-overlay" id="slideshowModal" style="display:none;" onclick="if(event.target===this)closeFeatureModal()">
+          <div class="feat-modal">
+            <button class="feat-modal-close" onclick="closeFeatureModal()">&times;</button>
+            <h2 class="feat-modal-title">SLIDESHOW</h2>
+            <div class="feat-upload-area">
+              <svg width="48" height="48" fill="none" stroke="#ccc" stroke-width="1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5"/></svg>
+              <p class="feat-upload-text" style="margin-top:16px;">Create a slideshow from your gallery photos</p>
+              <p class="feat-upload-sub">Automatically generates a beautiful slideshow your clients can view</p>
+              <button class="feat-upload-btn" onclick="enableSlideshow()">ENABLE SLIDESHOW</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Blog Modal -->
+        <div class="feat-modal-overlay" id="blogModal" style="display:none;" onclick="if(event.target===this)closeFeatureModal()">
+          <div class="feat-modal">
+            <button class="feat-modal-close" onclick="closeFeatureModal()">&times;</button>
+            <h2 class="feat-modal-title">BLOG</h2>
+            <div class="feat-upload-area">
+              <svg width="48" height="48" fill="none" stroke="#ccc" stroke-width="1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5"/></svg>
+              <p class="feat-upload-text" style="margin-top:16px;">Add a blog post to your gallery</p>
+              <p class="feat-upload-sub">Share the story behind the session with your clients</p>
+              <button class="feat-upload-btn" onclick="enableBlog()">CREATE BLOG POST</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Default scene block (matches gallery-edit) -->
+        <div class="scene-block" id="defaultScene">
+          <div class="scene-header">
+            <div class="scene-header-left">
+              <span class="scene-title-text">Photos</span>
+              <span class="scene-icons">
+                <svg width="16" height="16" fill="none" stroke="#bbb" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/></svg>
+              </span>
+              <span class="scene-count">| <span id="photoCount">0</span> Items</span>
+            </div>
+            <div class="scene-header-right">
+              <button class="scene-btn-more" title="Options">···</button>
+            </div>
+          </div>
+
+          <!-- Photo strip (horizontal thumbnails) -->
+          <div class="scene-strip" id="photoStrip"></div>
+
+          <!-- View all toggle -->
+          <div class="scene-view-all" id="viewAllToggle" onclick="toggleViewAll()">
+            <span class="scene-view-all-line"></span>
+            <span class="scene-view-all-text">View all <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
+            <span class="scene-view-all-line"></span>
+          </div>
+
+          <!-- Expanded photo grid (hidden by default) -->
+          <div class="scene-expanded" id="photoGridExpanded" style="display:none;">
+            <div class="ge-upload-zone-large" id="uploadZone">
+              <div class="upload-zone-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg></div>
+              <div class="upload-zone-title">Drop photos here</div>
+              <p class="upload-zone-text">or <strong>click to browse</strong> from your computer</p>
+              <div class="upload-zone-formats">JPG, PNG — Up to 25MB per file</div>
+              <input type="file" id="fileInput" accept="image/jpeg,image/png" multiple style="display:none;"/>
+            </div>
+            <div class="upload-progress-bar" id="uploadProgress" style="display:none;">
+              <div class="upload-progress-header">
+                <span class="upload-progress-label" id="uploadLabel">Preparing gallery...</span>
+                <span class="upload-progress-count" id="uploadCount">0/0</span>
+              </div>
+              <div class="upload-progress-track">
+                <div class="upload-progress-fill" id="uploadFill"></div>
+              </div>
+              <div class="upload-progress-detail" id="uploadDetail"></div>
+            </div>
+            <div class="photo-grid" id="photoGrid" style="margin-top:20px;"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Step 2: Gallery Setup -->
+    <div id="step-2" class="ge-section" style="display:none;">
+      <div class="ge-section-inner" style="max-width:1000px;">
+        <div class="su-grid">
+
+          <!-- ═══ COLUMN 1: DETAILS ═══ -->
+          <div class="su-col">
+            <div class="su-heading">DETAILS</div>
+            <div class="su-field">
+              <label class="su-label">OCCASION</label>
+              <select class="su-select" id="setupOccasion">
+                <option value="general">General</option>
+                <option value="wedding">Wedding</option>
+                <option value="family">Family</option>
+                <option value="couples">Couples</option>
+                <option value="corporate">Corporate</option>
+                <option value="quinceanera">Quinceañera</option>
+                <option value="maternity">Maternity</option>
+                <option value="newborn">Newborn</option>
+                <option value="portrait">Portrait</option>
+                <option value="event">Event</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- ═══ COLUMN 2: GALLERY ═══ -->
+          <div class="su-col su-col-gallery">
+            <div class="su-heading">GALLERY</div>
+
+            <div class="su-field">
+              <label class="su-label">SECURITY POLICY <span class="su-q" title="Controls how visitors access this gallery">?</span></label>
+              <select class="su-select" id="setupSecurityPolicy">
+                <option value="normal">Normal</option>
+                <option value="password">Password Protected</option>
+                <option value="strict">Strict — Registered users only</option>
+              </select>
+            </div>
+
+            <label class="su-check">
+              <input type="checkbox" id="setupPrivate" checked/>
+              <span class="su-checkmark"></span>
+              <span>Private gallery</span>
+            </label>
+
+            <label class="su-check">
+              <input type="checkbox" id="setupExpire"/>
+              <span class="su-checkmark"></span>
+              <span>Expire gallery</span>
+            </label>
+            <div class="su-sub" id="expireDateWrap" style="display:none;">
+              <input type="date" class="su-input-sm" id="setupExpireDate"/>
+            </div>
+
+            <label class="su-check">
+              <input type="checkbox" id="setupShowPortfolio" checked/>
+              <span class="su-checkmark"></span>
+              <span>Show on Portfolio</span>
+              <svg class="su-icon-eye" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </label>
+            <div class="su-sub su-btn-row">
+              <button class="su-pill-btn" type="button">Select sneak peek photos</button>
+              <button class="su-pill-btn" type="button">SEO</button>
+            </div>
+
+            <label class="su-check">
+              <input type="checkbox" id="setupRequestEmail"/>
+              <span class="su-checkmark"></span>
+              <span>Request email before entering the gallery</span>
+              <span class="su-q" title="Visitors must provide their email to view the gallery">?</span>
+            </label>
+
+            <label class="su-check">
+              <input type="checkbox" id="setupAllowSharing" checked/>
+              <span class="su-checkmark"></span>
+              <span>Allow sharing (Facebook, Email...)</span>
+            </label>
+
+            <label class="su-check">
+              <input type="checkbox" id="setupClientCanAdd"/>
+              <span class="su-checkmark"></span>
+              <span>Client can add photos in the gallery</span>
+              <span class="su-q" title="Allow clients to upload their own photos to this gallery">?</span>
+            </label>
+
+            <div class="su-group-label">Photo Downloads:</div>
+            <label class="su-check">
+              <input type="checkbox" id="setupAllowDownload" checked/>
+              <span class="su-checkmark"></span>
+              <span>Allow free High-Res downloads</span>
+            </label>
+            <label class="su-check">
+              <input type="checkbox" id="setupWebDownload"/>
+              <span class="su-checkmark"></span>
+              <span>Allow free Web-Size downloads</span>
+            </label>
+            <button class="su-pill-btn" type="button" style="margin:4px 0 20px;">More Settings</button>
+
+            <div class="su-group-label">Featured Video Downloads: <span class="su-q" title="Settings for video downloads in this gallery">?</span></div>
+            <button class="su-pill-btn" type="button">Settings</button>
+            <p class="su-note">(Note: Clips are always available for download)</p>
+
+            <div class="su-field">
+              <label class="su-label">WATERMARK</label>
+              <select class="su-select" id="setupWatermark" onchange="toggleWatermarkUI()">
+                <option value="0">No watermark</option>
+                <option value="1" selected>Apply watermark (IVAE Studios)</option>
+              </select>
+            </div>
+            <div id="watermarkFieldsWrap" style="margin-top:8px;">
+              <div class="su-field">
+                <label class="su-label">TEXT</label>
+                <input type="text" class="su-input-sm" id="setupWatermarkText" value="IVAE" placeholder="IVAE" style="width:100%;"/>
+              </div>
+              <div class="su-field">
+                <label class="su-label">SUBTEXT</label>
+                <input type="text" class="su-input-sm" id="setupWatermarkSubtext" value="STUDIOS" placeholder="STUDIOS" style="width:100%;"/>
+              </div>
+              <div class="su-field">
+                <label class="su-label">OPACITY <span id="opacityValue" style="color:#888;">30%</span></label>
+                <input type="range" id="setupWatermarkOpacity" min="0.1" max="1" step="0.05" value="0.3" style="width:100%;" oninput="document.getElementById('opacityValue').textContent = Math.round(this.value*100) + '%'"/>
+              </div>
+              <div class="su-field">
+                <label class="su-label">LOGO IMAGE (optional)</label>
+                <button class="su-pill-btn" type="button" onclick="document.getElementById('logoInput').click()">Upload logo</button>
+                <span id="logoStatus" style="margin-left:10px;font-size:11px;color:#888;">No logo uploaded</span>
+                <input type="file" id="logoInput" accept="image/png,image/jpeg,image/svg+xml,image/webp" style="display:none;" onchange="uploadGalleryLogo(this.files[0])"/>
+              </div>
+            </div>
+
+            <div class="su-field">
+              <label class="su-label">EMAIL PACKAGE</label>
+              <select class="su-select">
+                <option>Default</option>
+              </select>
+            </div>
+
+            <div class="su-field">
+              <label class="su-label">GALLERY STYLE OPTIONS</label>
+              <select class="su-select" id="setupGalleryStyle">
+                <option value="default">Brand Default</option>
+                <option value="masonry">Masonry</option>
+                <option value="grid">Grid</option>
+                <option value="columns">Columns</option>
+              </select>
+            </div>
+
+            <label class="su-check" style="margin-top:4px;">
+              <input type="checkbox" checked disabled/>
+              <span class="su-checkmark"></span>
+              <span>Enable flexible layout grid</span>
+              <span class="su-q" title="Photos auto-arrange based on aspect ratio">?</span>
+            </label>
+
+            <div class="su-field" style="margin-top:20px;">
+              <label class="su-label">PLAY MUSIC <span class="su-q" title="Add background music to the gallery viewing experience">?</span></label>
+              <div class="su-music-add">
+                <svg width="16" height="16" fill="none" stroke="#bbb" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══ COLUMN 3: PROOFING + STORE ═══ -->
+          <div class="su-col">
+            <div class="su-heading">CLIENT PROOFING</div>
+            <label class="su-check">
+              <input type="checkbox" id="setupProofingEnabled" onchange="toggleProofingUIv2()"/>
+              <span class="su-checkmark"></span>
+              <span>Enable proofing</span>
+              <span class="su-q" title="Client picks favorite photos for retouch">?</span>
+            </label>
+            <div id="proofingFieldsWrap" style="display:none;margin-top:8px;">
+              <div class="su-field">
+                <label class="su-label">TARGET PICKS</label>
+                <input type="number" class="su-input-sm" id="setupProofingTarget" min="1" max="500" placeholder="30" style="width:100px;"/>
+              </div>
+              <div class="su-field">
+                <label class="su-label">MESSAGE TO CLIENT</label>
+                <textarea id="setupProofingMessage" class="su-input-sm" rows="3" style="width:100%;font-family:inherit;padding:8px;border:1px solid #e5e5e5;font-size:12px;" placeholder="Choose your favorite 30 photos for retouching"></textarea>
+              </div>
+              <label class="su-check">
+                <input type="checkbox" id="setupProofingLocked"/>
+                <span class="su-checkmark"></span>
+                <span>Lock selections after submit</span>
+              </label>
+              <a href="#" id="reviewSubmissionsLink" class="su-pill-btn" style="display:inline-block;margin-top:10px;text-decoration:none;color:#1a1a1a;" onclick="openProofsReview(); return false;">Review submissions →</a>
+            </div>
+
+            <div class="su-heading" style="margin-top:24px;">CLIENT ACTIVITY</div>
+            <a href="#" class="su-pill-btn" style="display:inline-block;text-decoration:none;color:#1a1a1a;" onclick="openProofsReview(); return false;">View selections + visitors →</a>
+            <p class="su-note" style="margin-top:6px;">See who entered the gallery and which photos they marked as favorites.</p>
+
+            <div class="su-heading" style="margin-top:24px;">STORE</div>
+            <label class="su-check">
+              <input type="checkbox" disabled/>
+              <span class="su-checkmark"></span>
+              <span>Online Store</span>
+              <span class="su-q" title="Coming soon">?</span>
+            </label>
+            <div class="su-field">
+              <label class="su-label">PRICE LIST</label>
+              <select class="su-select" disabled>
+                <option>Default</option>
+              </select>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Share -->
+    <div id="step-3" class="ge-section" style="display:none;">
+      <div class="ge-section-inner">
+        <div class="ge-section-header">
+          <h2 class="ge-section-title">Share</h2>
+          <p class="ge-section-subtitle">Invite your clients and share the gallery link</p>
+        </div>
+        <div class="ge-share-layout">
+          <div class="ge-share-form">
+            <div class="ge-share-title">MAIN CLIENTS</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+              <input type="text" class="pt-input" id="clientName" placeholder="Client's Name"/>
+              <input type="email" class="pt-input" id="clientEmail" placeholder="Client's E-mail"/>
+            </div>
+            <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px;">
+              <button class="ge-send-btn" onclick="grantAccess()">SEND TO CLIENT</button>
+              <a href="#" class="ge-send-self" onclick="copyGalleryLink(); return false;">
+                <svg style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0-12.814a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0 12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z"/></svg>
+                Send by myself
+              </a>
+            </div>
+            <a href="#" class="ge-add-client" onclick="return false;">+ Add another client</a>
+            <div id="clientList"></div>
+
+            <div class="ge-share-title" style="margin-top:32px;">GUEST LINK</div>
+            <div class="share-link-box" id="shareLinkBox" style="display:none;">
+              <span class="share-link-url" id="shareLinkUrl">ivaestudios.com/gallery/gallery.html?id=...</span>
+              <button class="share-link-copy" onclick="copyGalleryLink()">Copy Link</button>
+            </div>
+            <p style="font-size:12px;color:#bbb;margin-bottom:8px;" id="shareLinkNote">Publish the gallery to generate a shareable link.</p>
+            <a href="#" class="ge-expand-link" onclick="return false;">+ Get Secure Link</a>
+            <a href="#" class="ge-expand-link" onclick="return false;">+ Set an Access Code</a>
+
+            <div style="margin-top:36px;padding-top:24px;border-top:1px solid #eee;display:flex;gap:12px;">
+              <button class="pt-btn" onclick="saveDraft()">Save as Draft</button>
+              <button class="pt-btn" onclick="publishAndFinish()" style="background:#1a1a1a;color:white;border-color:#1a1a1a;">Publish Gallery</button>
+            </div>
+          </div>
+          <div class="ge-share-sidebar">
+            <div class="ge-share-sidebar-title">Notifications</div>
+            <div id="shareNotifications">
+              <div class="ge-share-notif-empty">No activity yet. Share your gallery to see notifications here.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Photo Viewer (Pic-Time style) -->
+<div class="pv-viewer" id="pvViewer">
+  <div class="pv-viewer-bar">
+    <span class="pv-viewer-info" id="pvViewerInfo">PHOTO</span>
+    <div class="pv-viewer-actions">
+      <button class="pv-viewer-action" onclick="setAsCover()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
+        <span>Set as Cover</span>
+      </button>
+      <button class="pv-viewer-action" onclick="rotateViewerPhoto()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
+        <span>Rotate</span>
+      </button>
+      <button class="pv-viewer-action danger" onclick="deleteViewerPhoto()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+        <span>Delete</span>
+      </button>
+      <button class="pv-viewer-close" onclick="closePhotoViewer()">&times;</button>
+    </div>
+  </div>
+  <div class="pv-viewer-body">
+    <button class="pv-viewer-nav prev" onclick="navigatePhoto(-1)">
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+    </button>
+    <img id="pvViewerImg" src="" alt="Photo"/>
+    <button class="pv-viewer-nav next" onclick="navigatePhoto(1)">
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+    </button>
+  </div>
+  <div class="pv-viewer-caption" id="pvViewerCaption"></div>
+</div>
+
+<!-- Focal Point Overlay -->
+<div class="fp-overlay" id="fpOverlay">
+  <div class="fp-header">
+    <span class="fp-title">Set Focal Point</span>
+    <span class="fp-hint">Click on the image to set the center focus</span>
+  </div>
+  <div class="fp-container" id="fpContainer" onclick="setFocalPoint(event)">
+    <img id="fpImage" src="" alt="Cover"/>
+    <div class="fp-crosshair" id="fpCrosshair" style="left:50%;top:50%;">
+      <div class="fp-crosshair-dot"></div>
+    </div>
+  </div>
+  <div class="fp-actions">
+    <button class="fp-btn fp-btn-cancel" onclick="closeFocalPoint()">Cancel</button>
+    <button class="fp-btn fp-btn-reset" onclick="resetFocalPoint()">Reset to Center</button>
+    <button class="fp-btn fp-btn-apply" onclick="applyFocalPoint()">Apply</button>
+  </div>
+</div>
+
+<script src="/gallery/js/api.js"></script>
+<script src="/gallery/js/auth.js"></script>
+<script>
+let galleryId = null, currentStep = 0, uploadCount = 0, clientCount = 0;
+let coverImg = null, currentDesign = 'classic', bgColor = '#ffffff', txtColor = '#1c1c1c';
+let focalX = 50, focalY = 50;
+let tempFocalX = 50, tempFocalY = 50;
+window._galleryPhotos = [];
+window._coverKey = null;
+
+(async () => {
+  await checkAuth('admin');
+  renderPreview();
+  renderDesignGrid();
+  // If URL has ?id=..., we're editing an existing gallery — hydrate fields.
+  const params = new URLSearchParams(window.location.search);
+  const existingId = params.get('id');
+  if (existingId) await hydrateExistingGallery(existingId);
+})();
+
+// Pre-fill wizard with saved gallery state when ?id= is in URL.
+async function hydrateExistingGallery(id) {
+  try {
+    const g = await API.get('/galleries/' + id);
+    galleryId = g.id;
+    // Step 0 — title/description/date
+    if (g.title) document.getElementById('title').value = g.title;
+    if (g.description) document.getElementById('description').value = g.description;
+    if (g.session_date) document.getElementById('sessionDate').value = g.session_date;
+    document.getElementById('wizardName').textContent = g.title || 'Untitled';
+    document.getElementById('statusText').textContent = (g.status || 'draft').replace(/^./, c => c.toUpperCase());
+    const slug = (g.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    document.getElementById('galleryUrl').textContent = 'ivaestudios.com/gallery/' + slug;
+    document.getElementById('pvChromeUrl').textContent = 'ivaestudios.com/gallery/' + slug;
+    // Step 1 — cover design
+    if (g.cover_design) currentDesign = g.cover_design;
+    if (g.bg_color) bgColor = g.bg_color;
+    if (g.txt_color) txtColor = g.txt_color;
+    if (g.focal_x != null) { focalX = g.focal_x; tempFocalX = g.focal_x; }
+    if (g.focal_y != null) { focalY = g.focal_y; tempFocalY = g.focal_y; }
+    window._coverKey = g.cover_key || null;
+    if (g.cover_key) { coverImg = '/api/gallery/r2/' + g.cover_key; }
+    // Step 2 — settings
+    setVal('setupOccasion', g.occasion || 'general');
+    setVal('setupSecurityPolicy', g.security_policy || 'normal');
+    setChk('setupPrivate', g.is_private);
+    setChk('setupExpire', g.expire_enabled);
+    if (g.expire_date) setVal('setupExpireDate', g.expire_date);
+    if (g.expire_enabled) document.getElementById('expireDateWrap').style.display = 'block';
+    setChk('setupShowPortfolio', g.show_on_portfolio);
+    setChk('setupAllowSharing', g.allow_sharing);
+    setChk('setupAllowDownload', g.allow_download);
+    setChk('setupWebDownload', g.download_quality === 'web');
+    setVal('setupWatermark', String(g.watermark_enabled ?? 1));
+    setVal('setupWatermarkText', g.watermark_text || 'IVAE');
+    setVal('setupWatermarkSubtext', g.watermark_subtext || 'STUDIOS');
+    const op = g.watermark_opacity ?? 0.3;
+    setVal('setupWatermarkOpacity', op);
+    const opEl = document.getElementById('opacityValue'); if (opEl) opEl.textContent = Math.round(op * 100) + '%';
+    if (g.logo_key) { const ls = document.getElementById('logoStatus'); if (ls) ls.textContent = '✓ logo set'; }
+    setChk('setupRequestEmail', g.request_email);
+    setChk('setupClientCanAdd', g.client_can_add);
+    setVal('setupGalleryStyle', g.gallery_style || 'default');
+    setChk('setupProofingEnabled', g.proofing_enabled);
+    if (g.proofing_target) setVal('setupProofingTarget', g.proofing_target);
+    if (g.proofing_message) setVal('setupProofingMessage', g.proofing_message);
+    setChk('setupProofingLocked', g.proofing_locked);
+    toggleProofingUIv2();
+    toggleWatermarkUI();
+    renderPreview();
+    renderDesignGrid();
+    // Surface the share link & jump to the cover step (the photos are already uploaded)
+    document.getElementById('shareLinkBox').style.display = 'flex';
+    document.getElementById('shareLinkUrl').textContent = 'ivaestudios.com/gallery/gallery.html?id=' + galleryId;
+    document.getElementById('shareLinkNote').style.display = 'none';
+    showToast('Gallery loaded');
+  } catch (e) {
+    showToast('Could not load gallery: ' + e.message);
+  }
+}
+function setVal(id, v) { const el = document.getElementById(id); if (el && v != null) el.value = v; }
+function setChk(id, v) { const el = document.getElementById(id); if (el) el.checked = !!v; }
+
+// ═══ GALLERY SETUP HANDLERS ═══
+document.getElementById('setupExpire').addEventListener('change', function() {
+  document.getElementById('expireDateWrap').style.display = this.checked ? 'block' : 'none';
+});
+
+function goStep(s) {
+  if (s > 0 && !galleryId) { createGallery().then(() => { if (galleryId) goStep(s); }); return; }
+  currentStep = s;
+  [0,1,2,3].forEach(i => document.getElementById('step-' + i).style.display = i === s ? (i === 0 ? 'flex' : 'block') : 'none');
+  document.querySelectorAll('.ge-step').forEach((el, i) => { el.classList.toggle('active', i === s); });
+  // Show gallery link when reaching Share step and gallery exists
+  if (s === 3 && galleryId) {
+    document.getElementById('shareLinkBox').style.display = 'flex';
+    document.getElementById('shareLinkUrl').textContent = 'ivaestudios.com/gallery/gallery.html?id=' + galleryId;
+    document.getElementById('shareLinkNote').style.display = 'none';
+  }
+}
+function nextStep() {
+  if (currentStep === 0 && !galleryId) { createGallery().then(() => { if (galleryId) goStep(1); }); return; }
+  if (currentStep < 3) goStep(currentStep + 1); else publishAndFinish();
+}
+
+async function createGallery() {
+  const title = document.getElementById('title').value;
+  if (!title) { showToast('Gallery name required'); return; }
+  try {
+    const g = await API.post('/galleries', { title, description: document.getElementById('description').value, session_date: document.getElementById('sessionDate').value || null, status: 'draft' });
+    galleryId = g.id;
+    document.getElementById('wizardName').textContent = title;
+    document.getElementById('statusText').textContent = 'Draft';
+    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    document.getElementById('galleryUrl').textContent = 'ivaestudios.com/gallery/' + slug;
+    document.getElementById('pvChromeUrl').textContent = 'ivaestudios.com/gallery/' + slug;
+    showToast('Gallery created!');
+  } catch (e) { showToast(e.message); }
+}
+
+// ═══ COVER TEMPLATES (Pic-Time exact replicas) ═══
+const DESIGNS = {
+  classic: {
+    label: 'Classic',
+    // Pic-Time Design 1: Thin vertical strip left + photo center + text panel right
+    desktop(t, d, img) {
+      const bgImg = img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(180deg,#d5d8da 0%,#c8cbc8 35%,#d2cfc5 60%,#e0ddd5 100%);`;
+      return `<div style="display:flex;height:100%;background:${bgColor};">
+        <div style="flex:0 0 6%;display:flex;align-items:center;justify-content:center;background:${bgColor};border-right:1px solid rgba(0,0,0,0.04);">
+          <span style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:5px;color:${txtColor};opacity:0.35;letter-spacing:1.5px;font-family:'Syne',sans-serif;font-weight:400;">Photos by IVAE Studios</span>
+        </div>
+        <div style="flex:1;${bgImg}"></div>
+        <div style="flex:0 0 34%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;background:${bgColor};position:relative;">
+          <span style="position:absolute;top:12px;font-size:5.5px;color:${txtColor};opacity:0.25;letter-spacing:2px;font-family:'Syne',sans-serif;text-transform:uppercase;">IVAE Studios</span>
+          <span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:400;letter-spacing:1.5px;color:${txtColor};text-align:center;line-height:1.4;text-transform:uppercase;">${t}</span>
+          <span style="width:20px;height:0.5px;background:${txtColor};opacity:0.2;margin:8px 0;"></span>
+          ${d ? `<span style="font-size:7px;color:${txtColor};opacity:0.4;letter-spacing:0.5px;font-family:'Syne',sans-serif;">${d}</span>` : ''}
+          <span style="position:absolute;bottom:10px;font-size:14px;color:${txtColor};opacity:0.12;">&#8964;</span>
+        </div>
+      </div>`;
+    },
+    mobile(t, d, img) {
+      return `<div style="height:100%;display:flex;flex-direction:column;background:${bgColor};">
+        <div style="flex:1;${img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(180deg,#d5d8da 0%,#c8cbc8 35%,#d2cfc5 60%,#e0ddd5 100%);`}"></div>
+        <div style="padding:8px 4px 6px;text-align:center;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:8px;font-weight:400;letter-spacing:1px;color:${txtColor};text-transform:uppercase;">${t}</div>
+          <div style="font-size:4px;color:${txtColor};opacity:0.25;margin-top:2px;letter-spacing:1px;font-family:'Syne',sans-serif;">IVAE Studios</div>
+          <div style="font-size:8px;color:${txtColor};opacity:0.1;margin-top:2px;">&#8964;</div>
+        </div>
+      </div>`;
+    }
+  },
+
+  portrait: {
+    label: 'Portrait',
+    // Pic-Time Design 2: Portrait-oriented photo with text panel (similar to classic but vertical photo)
+    desktop(t, d, img) {
+      const bgImg = img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(180deg,#d5d8da 0%,#c8cbc8 35%,#d2cfc5 60%,#e0ddd5 100%);`;
+      return `<div style="display:flex;height:100%;background:${bgColor};">
+        <div style="flex:0 0 5%;display:flex;align-items:center;justify-content:center;background:${bgColor};">
+          <span style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:4.5px;color:${txtColor};opacity:0.3;letter-spacing:1.5px;font-family:'Syne',sans-serif;">Photos by IVAE Studios</span>
+        </div>
+        <div style="flex:0 0 38%;margin:8% 0;${bgImg}"></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;background:${bgColor};position:relative;">
+          <span style="position:absolute;top:10px;font-size:5px;color:${txtColor};opacity:0.2;letter-spacing:2px;font-family:'Syne',sans-serif;text-transform:uppercase;">IVAE Studios</span>
+          <span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:400;letter-spacing:1.5px;color:${txtColor};text-align:center;line-height:1.4;text-transform:uppercase;">${t}</span>
+          <span style="width:18px;height:0.5px;background:${txtColor};opacity:0.2;margin:7px 0;"></span>
+          ${d ? `<span style="font-size:6.5px;color:${txtColor};opacity:0.35;letter-spacing:0.5px;font-family:'Syne',sans-serif;">${d}</span>` : ''}
+          <span style="position:absolute;bottom:10px;font-size:14px;color:${txtColor};opacity:0.12;">&#8964;</span>
+        </div>
+      </div>`;
+    },
+    mobile(t, d, img) {
+      return `<div style="height:100%;display:flex;flex-direction:column;background:${bgColor};">
+        <div style="flex:1;margin:6% 15%;${img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(180deg,#d5d8da 0%,#c8cbc8 35%,#d2cfc5 60%,#e0ddd5 100%);`}"></div>
+        <div style="padding:6px 4px 5px;text-align:center;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:7px;font-weight:400;letter-spacing:1px;color:${txtColor};text-transform:uppercase;">${t}</div>
+          <div style="font-size:8px;color:${txtColor};opacity:0.1;margin-top:1px;">&#8964;</div>
+        </div>
+      </div>`;
+    }
+  },
+
+  splitOverlay: {
+    label: 'Split',
+    // Pic-Time Design 3: Dark overlay left panel + photo right
+    desktop(t, d, img) {
+      const bgImg = img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(160deg,#b8bfc5 0%,#c5c8c2 40%,#d0cdc5 70%,#ddd9d0 100%);`;
+      return `<div style="display:flex;height:100%;position:relative;">
+        <div style="flex:0 0 42%;background:rgba(90,90,85,0.88);display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:0 24px;position:relative;z-index:2;">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:400;color:white;letter-spacing:2px;line-height:1.35;text-transform:uppercase;">${t.split(' ').join('<br/>')}</span>
+          <span style="width:16px;height:0.5px;background:rgba(255,255,255,0.3);margin:8px 0;"></span>
+          ${d ? `<span style="font-size:6px;color:rgba(255,255,255,0.45);letter-spacing:1px;font-family:'Syne',sans-serif;">${d}</span>` : ''}
+          <span style="position:absolute;bottom:12px;left:24px;font-size:4.5px;color:rgba(255,255,255,0.25);letter-spacing:1.5px;font-family:'Syne',sans-serif;">Photos by IVAE Studios</span>
+        </div>
+        <div style="flex:1;${bgImg}position:relative;">
+          <div style="position:absolute;inset:0;border:6px solid rgba(255,255,255,0.15);pointer-events:none;"></div>
+        </div>
+      </div>`;
+    },
+    mobile(t, d, img) {
+      return `<div style="height:100%;position:relative;${img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(160deg,#b8bfc5 0%,#c5c8c2 40%,#d0cdc5 70%,#ddd9d0 100%);`}">
+        <div style="position:absolute;inset:0;background:rgba(90,90,85,0.7);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:9px;font-weight:400;color:white;letter-spacing:1.5px;text-transform:uppercase;text-align:center;line-height:1.4;">${t}</span>
+          <span style="width:12px;height:0.5px;background:rgba(255,255,255,0.3);margin:4px 0;"></span>
+          ${d ? `<span style="font-size:5px;color:rgba(255,255,255,0.4);letter-spacing:0.5px;">${d}</span>` : ''}
+        </div>
+      </div>`;
+    }
+  },
+
+  editorial: {
+    label: 'Editorial',
+    // Pic-Time Design 4: Photo portrait left + clean text right
+    desktop(t, d, img) {
+      const bgImg = img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(180deg,#d5d8da 0%,#c8cbc8 35%,#d2cfc5 60%,#e0ddd5 100%);`;
+      return `<div style="display:flex;height:100%;background:${bgColor};">
+        <div style="flex:0 0 45%;padding:6% 4% 6% 6%;"><div style="width:100%;height:100%;${bgImg}"></div></div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:16px 20px;position:relative;">
+          <span style="position:absolute;top:10px;left:20px;font-size:5px;color:${txtColor};opacity:0.2;letter-spacing:2px;font-family:'Syne',sans-serif;text-transform:uppercase;">IVAE Studios</span>
+          <span style="font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:400;letter-spacing:1.5px;color:${txtColor};text-transform:uppercase;line-height:1.3;">${t}</span>
+          <span style="width:18px;height:0.5px;background:${txtColor};opacity:0.15;margin:8px 0;"></span>
+          ${d ? `<span style="font-size:6.5px;color:${txtColor};opacity:0.35;letter-spacing:0.5px;font-family:'Syne',sans-serif;">${d}</span>` : ''}
+          <span style="position:absolute;bottom:10px;right:20px;font-size:5px;color:${txtColor};opacity:0.2;letter-spacing:1px;font-family:'Syne',sans-serif;">Photos by IVAE Studios</span>
+          <span style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:14px;color:${txtColor};opacity:0.1;">&#8964;</span>
+        </div>
+      </div>`;
+    },
+    mobile(t, d, img) {
+      return `<div style="height:100%;display:flex;flex-direction:column;background:${bgColor};">
+        <div style="flex:1;margin:5% 8% 0;${img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(180deg,#d5d8da 0%,#c8cbc8 35%,#d2cfc5 60%,#e0ddd5 100%);`}"></div>
+        <div style="padding:7px 6px 5px;text-align:center;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:8px;font-weight:400;letter-spacing:1px;color:${txtColor};text-transform:uppercase;">${t}</div>
+          <div style="font-size:8px;color:${txtColor};opacity:0.1;margin-top:1px;">&#8964;</div>
+        </div>
+      </div>`;
+    }
+  },
+
+  fullOverlay: {
+    label: 'Full Overlay',
+    desktop(t, d, img) {
+      const bgImg = img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(145deg,#8a8580,#a09b95);`;
+      return `<div style="height:100%;position:relative;">
+        <div style="position:absolute;inset:0;${bgImg}"></div>
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,0.38);"></div>
+        <div style="position:absolute;inset:8px;border:1px solid rgba(255,255,255,0.15);pointer-events:none;z-index:1;"></div>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2;">
+          <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:white;letter-spacing:4px;text-transform:uppercase;text-align:center;">${t}</span>
+          <span style="font-size:6px;color:rgba(255,255,255,0.4);margin-top:6px;letter-spacing:1.5px;font-family:'Syne',sans-serif;">PHOTOS BY IVAE STUDIOS</span>
+        </div>
+      </div>`;
+    },
+    mobile(t, d, img) {
+      const bgImg = img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(145deg,#8a8580,#a09b95);`;
+      return `<div style="height:100%;position:relative;">
+        <div style="position:absolute;inset:0;${bgImg}"></div>
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,0.38);"></div>
+        <div style="position:absolute;inset:4px;border:1px solid rgba(255,255,255,0.12);pointer-events:none;z-index:1;"></div>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2;">
+          <span style="font-family:'Syne',sans-serif;font-size:7px;font-weight:700;color:white;letter-spacing:2px;text-transform:uppercase;text-align:center;">${t}</span>
+          <span style="font-size:4px;color:rgba(255,255,255,0.35);margin-top:3px;letter-spacing:1px;font-family:'Syne',sans-serif;">IVAE STUDIOS</span>
+        </div>
+      </div>`;
+    }
+  },
+
+  horizon: {
+    label: 'Horizon',
+    desktop(t, d, img) {
+      const bgImg = img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(180deg,#d5d8da 0%,#e0ddd5 100%);`;
+      return `<div style="display:flex;flex-direction:column;height:100%;background:${bgColor};">
+        <div style="flex:1;${bgImg}"></div>
+        <div style="padding:14px 24px 12px;text-align:center;background:${bgColor};">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:400;letter-spacing:2px;color:${txtColor};text-transform:uppercase;">${t}</span>
+          ${d ? `<span style="display:block;font-size:6px;color:${txtColor};opacity:0.35;margin-top:4px;letter-spacing:1px;font-family:'Syne',sans-serif;">${d}</span>` : ''}
+        </div>
+      </div>`;
+    },
+    mobile(t, d, img) {
+      return `<div style="display:flex;flex-direction:column;height:100%;background:${bgColor};">
+        <div style="flex:1;${img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(180deg,#d5d8da 0%,#e0ddd5 100%);`}"></div>
+        <div style="padding:8px 4px 6px;text-align:center;background:${bgColor};">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:8px;font-weight:400;letter-spacing:1px;color:${txtColor};text-transform:uppercase;">${t}</div>
+        </div>
+      </div>`;
+    }
+  },
+
+  magazine: {
+    label: 'Magazine',
+    desktop(t, d, img) {
+      const bgImg = img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(180deg,#d5d8da 0%,#e0ddd5 100%);`;
+      return `<div style="display:flex;height:100%;background:${bgColor};">
+        <div style="flex:0 0 55%;${bgImg}"></div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:16px 20px;background:${bgColor};">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;letter-spacing:1px;color:${txtColor};line-height:1.15;text-transform:uppercase;">${t}</span>
+          <span style="width:24px;height:0.5px;background:${txtColor};opacity:0.15;margin:10px 0;"></span>
+          ${d ? `<span style="font-size:6px;color:${txtColor};opacity:0.35;letter-spacing:1px;font-family:'Syne',sans-serif;">${d}</span>` : ''}
+          <span style="font-size:5px;color:${txtColor};opacity:0.2;margin-top:auto;letter-spacing:1.5px;font-family:'Syne',sans-serif;text-transform:uppercase;">IVAE Studios</span>
+        </div>
+      </div>`;
+    },
+    mobile(t, d, img) {
+      return `<div style="display:flex;flex-direction:column;height:100%;background:${bgColor};">
+        <div style="flex:1;${img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(180deg,#d5d8da 0%,#e0ddd5 100%);`}"></div>
+        <div style="padding:6px 6px 5px;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:9px;font-weight:300;letter-spacing:1px;color:${txtColor};text-transform:uppercase;">${t}</div>
+        </div>
+      </div>`;
+    }
+  },
+
+  bold: {
+    label: 'Bold',
+    desktop(t, d, img) {
+      const bgImg = img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(145deg,#8a8580,#a09b95);`;
+      return `<div style="height:100%;position:relative;">
+        <div style="position:absolute;inset:0;${bgImg}"></div>
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);"></div>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2;padding:12px;">
+          <span style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:white;letter-spacing:6px;text-transform:uppercase;text-align:center;line-height:1.2;">${t}</span>
+          <span style="width:30px;height:1px;background:rgba(255,255,255,0.3);margin:10px 0;"></span>
+          ${d ? `<span style="font-size:6px;color:rgba(255,255,255,0.5);letter-spacing:1.5px;font-family:'Syne',sans-serif;">${d}</span>` : ''}
+        </div>
+      </div>`;
+    },
+    mobile(t, d, img) {
+      const bgImg = img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(145deg,#8a8580,#a09b95);`;
+      return `<div style="height:100%;position:relative;">
+        <div style="position:absolute;inset:0;${bgImg}"></div>
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);"></div>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2;padding:6px;">
+          <span style="font-family:'Syne',sans-serif;font-size:9px;font-weight:800;color:white;letter-spacing:3px;text-transform:uppercase;text-align:center;">${t}</span>
+        </div>
+      </div>`;
+    }
+  },
+
+  stacked: {
+    label: 'Stacked',
+    desktop(t, d, img) {
+      const bgImg = img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(180deg,#d5d8da 0%,#e0ddd5 100%);`;
+      return `<div style="height:100%;position:relative;">
+        <div style="position:absolute;inset:0;${bgImg}"></div>
+        <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.6));padding:30px 20px 14px;z-index:2;">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:400;letter-spacing:2px;color:white;text-transform:uppercase;">${t}</span>
+          ${d ? `<span style="display:block;font-size:6px;color:rgba(255,255,255,0.5);margin-top:4px;letter-spacing:1px;font-family:'Syne',sans-serif;">${d}</span>` : ''}
+        </div>
+      </div>`;
+    },
+    mobile(t, d, img) {
+      const bgImg = img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(180deg,#d5d8da 0%,#e0ddd5 100%);`;
+      return `<div style="height:100%;position:relative;">
+        <div style="position:absolute;inset:0;${bgImg}"></div>
+        <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.6));padding:16px 8px 6px;z-index:2;">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:8px;font-weight:400;letter-spacing:1px;color:white;text-transform:uppercase;">${t}</span>
+        </div>
+      </div>`;
+    }
+  },
+
+  framed: {
+    label: 'Framed',
+    desktop(t, d, img) {
+      const bgImg = img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(180deg,#d5d8da 0%,#e0ddd5 100%);`;
+      return `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:${bgColor};padding:12px;">
+        <div style="width:60%;aspect-ratio:4/3;${bgImg};border:1px solid ${txtColor === '#ffffff' ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)'};"></div>
+        <span style="font-family:'Cormorant Garamond',serif;font-size:11px;font-weight:400;letter-spacing:2px;color:${txtColor};text-transform:uppercase;margin-top:10px;text-align:center;">${t}</span>
+        ${d ? `<span style="font-size:5.5px;color:${txtColor};opacity:0.35;margin-top:3px;letter-spacing:1px;font-family:'Syne',sans-serif;">${d}</span>` : ''}
+      </div>`;
+    },
+    mobile(t, d, img) {
+      return `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:${bgColor};padding:8px;">
+        <div style="width:70%;aspect-ratio:4/3;${img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(180deg,#d5d8da 0%,#e0ddd5 100%);`};border:1px solid ${txtColor === '#ffffff' ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)'};"></div>
+        <span style="font-family:'Cormorant Garamond',serif;font-size:7px;font-weight:400;letter-spacing:1px;color:${txtColor};text-transform:uppercase;margin-top:6px;text-align:center;">${t}</span>
+      </div>`;
+    }
+  },
+
+  elegant: {
+    label: 'Elegant',
+    desktop(t, d, img) {
+      const bgImg = img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(180deg,#d5d8da 0%,#e0ddd5 100%);`;
+      return `<div style="height:100%;display:flex;flex-direction:column;background:${bgColor};padding:10px 12%;">
+        <div style="text-align:center;padding:8px 0;">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:12px;font-weight:400;letter-spacing:2px;color:${txtColor};text-transform:uppercase;">${t}</span>
+          ${d ? `<span style="display:block;font-size:5.5px;color:${txtColor};opacity:0.35;margin-top:3px;letter-spacing:1px;font-family:'Syne',sans-serif;">${d}</span>` : ''}
+        </div>
+        <div style="flex:1;${bgImg};margin-top:6px;"></div>
+      </div>`;
+    },
+    mobile(t, d, img) {
+      return `<div style="height:100%;display:flex;flex-direction:column;background:${bgColor};padding:6px 8%;">
+        <div style="text-align:center;padding:5px 0;">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:7px;font-weight:400;letter-spacing:1px;color:${txtColor};text-transform:uppercase;">${t}</span>
+        </div>
+        <div style="flex:1;${img ? `background-image:url(${img});background-position:${focalX}% ${focalY}%;background-size:cover;` : `background:linear-gradient(180deg,#d5d8da 0%,#e0ddd5 100%);`};margin-top:3px;"></div>
+      </div>`;
+    }
+  },
+
+  minimal: {
+    label: 'Minimal',
+    desktop(t, d, img) {
+      return `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:${bgColor};padding:20px;">
+        <span style="font-size:5px;color:${txtColor};opacity:0.2;letter-spacing:2px;font-family:'Syne',sans-serif;text-transform:uppercase;margin-bottom:10px;">IVAE Studios</span>
+        <span style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;letter-spacing:3px;color:${txtColor};text-transform:uppercase;text-align:center;line-height:1.2;">${t}</span>
+        <span style="width:24px;height:0.5px;background:${txtColor};opacity:0.2;margin:10px 0;"></span>
+        ${d ? `<span style="font-size:6px;color:${txtColor};opacity:0.4;letter-spacing:1px;font-family:'Syne',sans-serif;">${d}</span>` : ''}
+        <span style="font-size:12px;color:${txtColor};opacity:0.1;margin-top:12px;">&#8964;</span>
+      </div>`;
+    },
+    mobile(t, d, img) {
+      return `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:${bgColor};padding:8px;">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:10px;font-weight:300;letter-spacing:2px;color:${txtColor};text-transform:uppercase;text-align:center;">${t}</span>
+        <span style="width:14px;height:0.5px;background:${txtColor};opacity:0.2;margin:6px 0;"></span>
+        ${d ? `<span style="font-size:4px;color:${txtColor};opacity:0.35;letter-spacing:0.5px;">${d}</span>` : ''}
+      </div>`;
+    }
+  }
+};
+
+function renderPreview() {
+  const t = document.getElementById('title').value || 'New Gallery';
+  const d = document.getElementById('sessionDate').value;
+  let ds = '';
+  if (d) { const dt = new Date(d + 'T12:00:00'); ds = dt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }); }
+  const D = DESIGNS[currentDesign];
+  document.getElementById('pvDesktop').innerHTML = D.desktop(t, ds, coverImg);
+  document.getElementById('pvMobile').innerHTML = D.mobile(t, ds, coverImg);
+  document.getElementById('wizardName').textContent = t;
+  const slug = t.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  document.getElementById('galleryUrl').textContent = 'ivaestudios.com/gallery/' + slug;
+  document.getElementById('pvChromeUrl').textContent = 'ivaestudios.com/gallery/' + slug;
+}
+
+function renderDesignGrid() {
+  const grid = document.getElementById('designGrid');
+  grid.innerHTML = '';
+  const t = document.getElementById('title').value || 'New Gallery';
+  Object.entries(DESIGNS).forEach(([key, D]) => {
+    const thumb = document.createElement('div');
+    thumb.className = 'cv-design' + (key === currentDesign ? ' active' : '');
+    thumb.onclick = () => { currentDesign = key; renderPreview(); renderDesignGrid(); };
+    thumb.innerHTML = `<div class="cv-design-inner">${D.desktop(t, '', coverImg)}</div><div class="cv-design-label">${D.label}</div>`;
+    grid.appendChild(thumb);
+  });
+}
+
+function updatePV() { renderPreview(); renderDesignGrid(); }
+
+// ═══ COLOR PICKER (Hex input + Color Sets) ═══
+function syncBgUI() {
+  document.getElementById('bgColorPicker').value = bgColor;
+  document.getElementById('bgHexInput').value = bgColor.toUpperCase();
+}
+function syncTxtUI() {
+  document.getElementById('txtColorPicker').value = txtColor;
+  document.getElementById('txtHexInput').value = txtColor.toUpperCase();
+}
+function onBgColorPick(c) {
+  bgColor = c; syncBgUI(); renderPreview(); renderDesignGrid();
+}
+function onBgHexInput(v) {
+  if (/^#[0-9a-f]{6}$/i.test(v)) { bgColor = v; document.getElementById('bgColorPicker').value = v; renderPreview(); renderDesignGrid(); }
+}
+function onTxtColorPick(c) {
+  txtColor = c; syncTxtUI(); renderPreview(); renderDesignGrid();
+}
+function onTxtHexInput(v) {
+  if (/^#[0-9a-f]{6}$/i.test(v)) { txtColor = v; document.getElementById('txtColorPicker').value = v; renderPreview(); renderDesignGrid(); }
+}
+function applyColorSet(bg, tx) {
+  bgColor = bg; txtColor = tx;
+  syncBgUI(); syncTxtUI();
+  renderPreview(); renderDesignGrid();
+  document.getElementById('colorSetsDropdown').style.display = 'none';
+}
+function toggleColorSets() {
+  const dd = document.getElementById('colorSetsDropdown');
+  dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.cv-color-sets-wrap')) document.getElementById('colorSetsDropdown').style.display = 'none';
+});
+
+// ═══ DESIGN CAROUSEL SCROLL ═══
+function scrollDesigns(dir) {
+  const el = document.getElementById('designGrid');
+  el.scrollBy({ left: dir * 350, behavior: 'smooth' });
+}
+document.getElementById('coverInput').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  coverImg = URL.createObjectURL(f);
+  focalX = 50; focalY = 50; // Reset focal point on new image
+  // Enable focal point button
+  const fpBtn = document.getElementById('focalBtn');
+  fpBtn.classList.remove('disabled');
+  fpBtn.classList.add('fp-active');
+  renderPreview(); renderDesignGrid();
+});
+
+// ═══ FOCAL POINT ═══
+function openFocalPoint() {
+  if (!coverImg) { showToast('Upload a cover image first'); return; }
+  document.getElementById('fpImage').src = coverImg;
+  tempFocalX = focalX; tempFocalY = focalY;
+  const ch = document.getElementById('fpCrosshair');
+  ch.style.left = focalX + '%'; ch.style.top = focalY + '%';
+  document.getElementById('fpOverlay').classList.add('open');
+}
+
+function closeFocalPoint() {
+  document.getElementById('fpOverlay').classList.remove('open');
+}
+
+function setFocalPoint(e) {
+  const rect = document.getElementById('fpContainer').getBoundingClientRect();
+  tempFocalX = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+  tempFocalY = Math.round(((e.clientY - rect.top) / rect.height) * 100);
+  tempFocalX = Math.max(0, Math.min(100, tempFocalX));
+  tempFocalY = Math.max(0, Math.min(100, tempFocalY));
+  const ch = document.getElementById('fpCrosshair');
+  ch.style.left = tempFocalX + '%'; ch.style.top = tempFocalY + '%';
+}
+
+function resetFocalPoint() {
+  tempFocalX = 50; tempFocalY = 50;
+  const ch = document.getElementById('fpCrosshair');
+  ch.style.left = '50%'; ch.style.top = '50%';
+}
+
+function applyFocalPoint() {
+  focalX = tempFocalX; focalY = tempFocalY;
+  closeFocalPoint();
+  renderPreview(); renderDesignGrid();
+  showToast('Focal point set to ' + focalX + '%, ' + focalY + '%');
+}
+
+// ═══ GALLERY LINK ═══
+function copyGalleryLink() {
+  if (!galleryId) { showToast('Create gallery first'); return; }
+  const url = 'https://ivaestudios.com/gallery/gallery.html?id=' + galleryId;
+  navigator.clipboard.writeText(url).then(() => showToast('Gallery link copied!')).catch(() => showToast('Could not copy link'));
+}
+function previewGallery() {
+  if (galleryId) window.open('/gallery/gallery.html?id=' + galleryId, '_blank');
+  else showToast('Create gallery first');
+}
+
+// ═══ Upload ═══
+const uz = document.getElementById('uploadZone'), fi = document.getElementById('fileInput');
+uz.addEventListener('click', () => fi.click());
+uz.addEventListener('dragover', e => { e.preventDefault(); uz.classList.add('dragover'); });
+uz.addEventListener('dragleave', () => uz.classList.remove('dragover'));
+uz.addEventListener('drop', e => { e.preventDefault(); uz.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+fi.addEventListener('change', e => handleFiles(e.target.files));
+
+async function handleFiles(files) {
+  if (!galleryId) { showToast('Create gallery first'); return; }
+  const valid = [...files].filter(f => f.type.match(/^image\/(jpeg|png)$/));
+  if (!valid.length) return;
+  const total = valid.length;
+  let completed = 0, errors = 0;
+
+  const bar = document.getElementById('uploadProgress');
+  const fill = document.getElementById('uploadFill');
+  const label = document.getElementById('uploadLabel');
+  const count = document.getElementById('uploadCount');
+  const detail = document.getElementById('uploadDetail');
+
+  bar.style.display = 'block';
+  fill.style.width = '0%';
+  fill.className = 'upload-progress-fill';
+  label.textContent = 'Preparing gallery...';
+  count.textContent = '0/' + total;
+  detail.textContent = '';
+
+  for (const file of valid) {
+    detail.textContent = file.name;
+    const thumb = await genThumb(file);
+    const fd = new FormData(); fd.append('full', file); fd.append('thumb', thumb, 'thumb.jpg'); fd.append('filename', file.name);
+    try {
+      const p = await API.upload('/galleries/' + galleryId + '/photos', fd, pr => {
+        const overall = ((completed + pr) / total) * 100;
+        fill.style.width = Math.round(overall) + '%';
+        label.textContent = 'Preparing gallery ' + Math.round(overall) + '%';
+      });
+      completed++;
+      count.textContent = completed + '/' + total;
+      fill.style.width = Math.round((completed / total) * 100) + '%';
+      label.textContent = 'Preparing gallery ' + Math.round((completed / total) * 100) + '%';
+      window._galleryPhotos.push(p);
+      const idx = window._galleryPhotos.length - 1;
+      document.getElementById('photoGrid').appendChild(createPhotoCell(p, idx));
+      // Auto-set first photo as cover if no cover yet
+      if (!window._coverKey && window._galleryPhotos.length === 1) {
+        coverImg = '/api/gallery/photos/' + p.id + '/full';
+        window._coverKey = p.id;
+        document.getElementById('focalBtn').classList.remove('disabled');
+        document.getElementById('focalBtn').classList.add('fp-active');
+        renderPreview(); renderDesignGrid();
+      }
+    } catch {
+      completed++; errors++;
+      count.textContent = completed + '/' + total;
+      fill.style.width = Math.round((completed / total) * 100) + '%';
+    }
+    uploadCount++;
+  }
+
+  detail.textContent = '';
+  if (errors > 0) {
+    label.textContent = (completed - errors) + ' uploaded, ' + errors + ' failed';
+    fill.classList.add('has-errors');
+  } else {
+    label.textContent = 'Gallery ready — ' + total + ' photos';
+    fill.classList.add('complete');
+  }
+  document.getElementById('photoCount').textContent = window._galleryPhotos.length;
+  document.getElementById('totalItemCount').textContent = window._galleryPhotos.length;
+  buildPhotoStrip(window._galleryPhotos);
+}
+
+function genThumb(f) {
+  return new Promise(r => {
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, 800 / img.width);
+      const c = document.createElement('canvas');
+      c.width = img.width * s; c.height = img.height * s;
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob(r, 'image/jpeg', 0.75);
+    };
+    img.src = URL.createObjectURL(f);
+  });
+}
+
+// ═══ PHOTO CELL BUILDER ═══
+function createPhotoCell(p, idx) {
+  const cell = document.createElement('div');
+  cell.className = 'photo-cell';
+  cell.dataset.photoId = p.id;
+  cell.dataset.filename = p.filename || '';
+  cell.innerHTML = `<img loading="lazy" src="/api/gallery/photos/${p.id}/thumb" alt="${p.filename || ''}"/>
+    <div class="photo-cell-overlay" onclick="openPhotoViewer('${p.id}')">
+      <button class="photo-cell-expand" onclick="event.stopPropagation();openPhotoViewer('${p.id}')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9m11.25-5.25v4.5m0-4.5h-4.5m4.5 0L15 9m-11.25 11.25v-4.5m0 4.5h4.5m-4.5 0L9 15m11.25 5.25v-4.5m0 4.5h-4.5m4.5 0L15 15"/></svg>
+      </button>
+    </div>
+    <button class="photo-delete" onclick="event.stopPropagation();deletePhoto('${p.id}',this)">&times;</button>`;
+  return cell;
+}
+
+// ═══ PHOTO VIEWER ═══
+let _viewerPhotoId = null;
+let _viewerRotation = 0;
+
+function openPhotoViewer(photoId) {
+  _viewerPhotoId = photoId;
+  _viewerRotation = 0;
+  const photo = window._galleryPhotos.find(p => p.id === photoId);
+  if (!photo) return;
+  document.getElementById('pvViewerInfo').textContent = photo.filename || 'Photo';
+  document.getElementById('pvViewerImg').src = '/api/gallery/photos/' + photoId + '/full';
+  document.getElementById('pvViewerImg').style.transform = '';
+  document.getElementById('pvViewerCaption').textContent = photo.filename || '';
+  document.getElementById('pvViewer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePhotoViewer() {
+  document.getElementById('pvViewer').classList.remove('open');
+  document.getElementById('pvViewerImg').src = '';
+  document.body.style.overflow = '';
+  _viewerPhotoId = null;
+}
+
+function navigatePhoto(dir) {
+  if (!_viewerPhotoId) return;
+  const photos = window._galleryPhotos;
+  const idx = photos.findIndex(p => p.id === _viewerPhotoId);
+  if (idx === -1) return;
+  const next = idx + dir;
+  if (next < 0 || next >= photos.length) return;
+  openPhotoViewer(photos[next].id);
+}
+
+function rotateViewerPhoto() {
+  _viewerRotation = (_viewerRotation + 90) % 360;
+  document.getElementById('pvViewerImg').style.transform = 'rotate(' + _viewerRotation + 'deg)';
+}
+
+function deleteViewerPhoto() {
+  if (!_viewerPhotoId || !confirm('Delete this photo?')) return;
+  const id = _viewerPhotoId;
+  API.del('/photos/' + id).then(() => {
+    window._galleryPhotos = window._galleryPhotos.filter(p => p.id !== id);
+    const cell = document.querySelector('.photo-cell[data-photo-id="' + id + '"]');
+    if (cell) cell.remove();
+    document.getElementById('photoCount').textContent = window._galleryPhotos.length;
+    document.getElementById('totalItemCount').textContent = window._galleryPhotos.length;
+    buildPhotoStrip(window._galleryPhotos);
+    if (window._coverKey === id) { window._coverKey = null; }
+    if (window._galleryPhotos.length > 0) {
+      openPhotoViewer(window._galleryPhotos[Math.min(window._galleryPhotos.length - 1, 0)].id);
+    } else {
+      closePhotoViewer();
+    }
+    showToast('Photo deleted');
+  });
+}
+
+async function setAsCover() {
+  if (!_viewerPhotoId) return;
+  const photo = window._galleryPhotos.find(p => p.id === _viewerPhotoId);
+  if (!photo) return;
+  coverImg = '/api/gallery/photos/' + _viewerPhotoId + '/full';
+  window._coverKey = _viewerPhotoId;
+  renderPreview(); renderDesignGrid();
+  document.getElementById('focalBtn').classList.remove('disabled');
+  document.getElementById('focalBtn').classList.add('fp-active');
+  try {
+    await API.put('/galleries/' + galleryId, { cover_key: _viewerPhotoId });
+    showToast('Cover photo saved!');
+  } catch (e) {
+    showToast('Cover updated locally — save to persist');
+  }
+}
+
+async function deletePhoto(id, btn) {
+  if (!confirm('Delete this photo?')) return;
+  await API.del('/photos/' + id);
+  window._galleryPhotos = window._galleryPhotos.filter(p => p.id !== id);
+  btn.closest('.photo-cell').remove();
+  document.getElementById('photoCount').textContent = window._galleryPhotos.length;
+  document.getElementById('totalItemCount').textContent = window._galleryPhotos.length;
+  buildPhotoStrip(window._galleryPhotos);
+  if (window._coverKey === id) { window._coverKey = null; }
+  showToast('Photo deleted');
+}
+
+// Keyboard navigation for viewer
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('pvViewer').classList.contains('open')) return;
+  if (e.key === 'Escape') closePhotoViewer();
+  else if (e.key === 'ArrowLeft') navigatePhoto(-1);
+  else if (e.key === 'ArrowRight') navigatePhoto(1);
+});
+
+// ═══ PHOTO STRIP & VIEW ALL ═══
+let viewAllExpanded = false;
+
+function buildPhotoStrip(photos) {
+  const strip = document.getElementById('photoStrip');
+  strip.innerHTML = '';
+  const iconCard = document.createElement('div');
+  iconCard.className = 'strip-icon-card';
+  iconCard.innerHTML = `<svg width="24" height="24" fill="none" stroke="#bbb" stroke-width="1.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/></svg><span>Photos</span>`;
+  strip.appendChild(iconCard);
+  photos.forEach(p => {
+    const thumb = document.createElement('div');
+    thumb.className = 'strip-thumb';
+    thumb.innerHTML = `<img src="/api/gallery/photos/${p.id}/thumb" alt="${p.filename || ''}" loading="lazy" onclick="openPhotoViewer('${p.id}')"/>`;
+    strip.appendChild(thumb);
+  });
+}
+
+function toggleViewAll() {
+  viewAllExpanded = !viewAllExpanded;
+  document.getElementById('photoGridExpanded').style.display = viewAllExpanded ? 'block' : 'none';
+  const txt = document.getElementById('viewAllToggle').querySelector('.scene-view-all-text');
+  txt.innerHTML = viewAllExpanded
+    ? 'Collapse <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></svg>'
+    : 'View all <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
+}
+
+// ═══ FILTER & SEARCH ═══
+function togglePhotoSearch() {
+  const bar = document.getElementById('photosSearchBar');
+  const isVisible = bar.style.display !== 'none';
+  bar.style.display = isVisible ? 'none' : 'flex';
+  if (!isVisible) document.getElementById('filterPhotoInput').focus();
+  else { document.getElementById('filterPhotoInput').value = ''; filterPhotos(''); }
+}
+function filterPhotos(q) {
+  const query = q.toLowerCase().trim();
+  document.querySelectorAll('.photo-cell').forEach(cell => {
+    const name = (cell.dataset.filename || '').toLowerCase();
+    cell.style.display = !query || name.includes(query) ? '' : 'none';
+  });
+}
+
+// ═══ FEATURE PROMO CARDS ═══
+function selectFeature(card, feature) {
+  document.querySelectorAll('.features-promo-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  if (feature === 'video') openFeatureModal('videoModal');
+  else if (feature === 'slideshow') openFeatureModal('slideshowModal');
+  else if (feature === 'blog') openFeatureModal('blogModal');
+}
+function openFeatureModal(id) {
+  document.getElementById(id).style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeFeatureModal() {
+  document.querySelectorAll('.feat-modal-overlay').forEach(m => m.style.display = 'none');
+  document.body.style.overflow = '';
+}
+function switchVideoTab(tab, btn) {
+  document.querySelectorAll('.feat-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('videoTabUpload').style.display = tab === 'upload' ? 'block' : 'none';
+  document.getElementById('videoTabHosted').style.display = tab === 'hosted' ? 'block' : 'none';
+}
+function handleVideoUpload(input) {
+  if (!input.files.length) return;
+  showToast('Video "' + input.files[0].name + '" selected — upload coming soon');
+  closeFeatureModal();
+}
+function addVideoLink() {
+  const input = document.getElementById('videoLinkInput');
+  const url = input.value.trim();
+  if (!url) return;
+  if (!url.match(/youtube|youtu\.be|vimeo/i)) { showToast('Please enter a YouTube or Vimeo URL'); return; }
+  const list = document.getElementById('videoLinksList');
+  const item = document.createElement('div');
+  item.className = 'feat-link-item';
+  item.innerHTML = '<span>' + url + '</span><button onclick="this.parentElement.remove();showToast(\'Video removed\')">&times;</button>';
+  list.appendChild(item);
+  input.value = '';
+  showToast('Video link added!');
+}
+function enableSlideshow() { showToast('Slideshow enabled for this gallery'); closeFeatureModal(); }
+function enableBlog() { showToast('Blog post — coming soon'); closeFeatureModal(); }
+
+// ═══ SAVE ALL SETTINGS ═══
+async function saveAllSettings(targetStatus) {
+  if (!galleryId) return;
+  const payload = {
+    title: document.getElementById('title').value,
+    description: document.getElementById('description').value,
+    session_date: document.getElementById('sessionDate').value || null,
+    status: targetStatus || 'draft',
+    cover_key: window._coverKey || null,
+    cover_design: currentDesign,
+    bg_color: bgColor,
+    txt_color: txtColor,
+    focal_x: focalX,
+    focal_y: focalY,
+    occasion: document.getElementById('setupOccasion').value,
+    security_policy: document.getElementById('setupSecurityPolicy').value,
+    is_private: document.getElementById('setupPrivate').checked ? 1 : 0,
+    expire_enabled: document.getElementById('setupExpire').checked ? 1 : 0,
+    expire_date: document.getElementById('setupExpire').checked ? (document.getElementById('setupExpireDate').value || null) : null,
+    show_on_portfolio: document.getElementById('setupShowPortfolio').checked ? 1 : 0,
+    allow_sharing: document.getElementById('setupAllowSharing').checked ? 1 : 0,
+    allow_download: document.getElementById('setupAllowDownload').checked ? 1 : 0,
+    download_quality: document.getElementById('setupWebDownload').checked ? 'web' : 'high',
+    watermark_enabled: parseInt(document.getElementById('setupWatermark').value),
+    watermark_text: document.getElementById('setupWatermarkText')?.value || 'IVAE',
+    watermark_subtext: document.getElementById('setupWatermarkSubtext')?.value || 'STUDIOS',
+    watermark_opacity: parseFloat(document.getElementById('setupWatermarkOpacity')?.value) || 0.3,
+    request_email: document.getElementById('setupRequestEmail').checked ? 1 : 0,
+    client_can_add: document.getElementById('setupClientCanAdd').checked ? 1 : 0,
+    gallery_style: document.getElementById('setupGalleryStyle').value,
+    proofing_enabled: document.getElementById('setupProofingEnabled')?.checked ? 1 : 0,
+    proofing_target: parseInt(document.getElementById('setupProofingTarget')?.value) || null,
+    proofing_message: document.getElementById('setupProofingMessage')?.value || null,
+    proofing_locked: document.getElementById('setupProofingLocked')?.checked ? 1 : 0
+  };
+  await API.put('/galleries/' + galleryId, payload);
+}
+
+// Show/hide proofing details when checkbox toggles.
+function toggleProofingUIv2() {
+  const enabled = document.getElementById('setupProofingEnabled')?.checked;
+  const wrap = document.getElementById('proofingFieldsWrap');
+  if (wrap) wrap.style.display = enabled ? 'block' : 'none';
+}
+
+// Open the proofs/visitors review page in a new tab. Requires saved gallery.
+function openProofsReview() {
+  if (!galleryId) { showToast('Save the gallery first'); return; }
+  window.open('/gallery/admin/proofs.html?id=' + galleryId, '_blank');
+}
+
+// Show/hide watermark text/opacity/logo fields based on enable select.
+function toggleWatermarkUI() {
+  const enabled = document.getElementById('setupWatermark')?.value === '1';
+  const wrap = document.getElementById('watermarkFieldsWrap');
+  if (wrap) wrap.style.display = enabled ? 'block' : 'none';
+}
+
+// Upload per-gallery logo to R2 via worker. Sets logo_key on the gallery.
+async function uploadGalleryLogo(file) {
+  if (!file) return;
+  if (!galleryId) { showToast('Save the gallery first'); return; }
+  const status = document.getElementById('logoStatus');
+  if (status) status.textContent = 'Uploading…';
+  try {
+    const fd = new FormData();
+    fd.append('logo', file);
+    await API.upload('/galleries/' + galleryId + '/logo', fd);
+    if (status) status.textContent = '✓ ' + file.name;
+    showToast('Logo uploaded');
+  } catch (e) {
+    if (status) status.textContent = 'Upload failed';
+    showToast(e.message);
+  }
+}
+
+// ═══ Client access ═══
+async function grantAccess() {
+  const email = document.getElementById('clientEmail').value;
+  if (!email || !galleryId) return;
+  try {
+    const res = await API.post('/galleries/' + galleryId + '/access', { email });
+    const item = document.createElement('div');
+    item.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f0f0f0;font-size:13px;';
+    item.innerHTML = `<span style="color:#333;">${res.name} <span style="color:#aaa;">(${res.email})</span></span><span style="color:#34c759;font-size:10px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Added</span>`;
+    document.getElementById('clientList').appendChild(item);
+    document.getElementById('clientEmail').value = '';
+    document.getElementById('clientName').value = '';
+    clientCount++;
+    showToast('Access granted!');
+  } catch (e) { showToast(e.message); }
+}
+
+async function saveDraft() {
+  const btn = event.target;
+  btn.textContent = 'Saving...'; btn.style.opacity = '0.6'; btn.style.pointerEvents = 'none';
+  try {
+    if (!galleryId) await createGallery();
+    if (galleryId) {
+      await saveAllSettings('draft');
+      showToast('Gallery saved as draft!');
+      setTimeout(() => window.location.href = '/gallery/admin/', 800);
+    }
+  } catch (e) { showToast(e.message); btn.textContent = 'Save as Draft'; btn.style.opacity = '1'; btn.style.pointerEvents = ''; }
+}
+
+async function publishAndFinish() {
+  const btn = event.target;
+  btn.textContent = 'Publishing...'; btn.style.opacity = '0.6'; btn.style.pointerEvents = 'none';
+  try {
+    if (!galleryId) await createGallery();
+    if (galleryId) {
+      await saveAllSettings('published');
+      showToast('Gallery published!');
+      setTimeout(() => window.location.href = '/gallery/admin/', 1000);
+    }
+  } catch (e) { showToast(e.message); btn.textContent = 'Publish Gallery'; btn.style.opacity = '1'; btn.style.pointerEvents = ''; }
+}
+</script>
+</body>
+</html>
