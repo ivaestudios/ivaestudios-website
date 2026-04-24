@@ -481,7 +481,7 @@ body { background: #fafaf7; padding-top: 0; }
       <div class="gname" id="galleryName">Loading...</div>
       <h1>Client Proofs</h1>
     </div>
-    <a class="back" id="backLink" href="/gallery/admin/index.html">← Back</a>
+    <a class="back" id="backLink" href="/gallery/admin/">← Back</a>
   </div>
 
   <div class="proofs-summary" id="summary">
@@ -573,7 +573,7 @@ const galleryId = new URLSearchParams(window.location.search).get('id');
               <div class="who">${escapeHtml(r.g.title)}</div>
               <div class="when">${r.subs.length} submissions · ${r.picks} picks · ${r.visitors.length} visitors</div>
             </div>
-            <a class="proof-pill" style="text-decoration:none;cursor:pointer;background:#1c1c1c;color:#fff;" href="/gallery/admin/proofs.html?id=${r.g.id}">Open →</a>
+            <a class="proof-pill" style="text-decoration:none;cursor:pointer;background:#1c1c1c;color:#fff;" href="/gallery/admin/proofs?id=${r.g.id}">Open →</a>
           </div>
         </div>
       `).join('');

@@ -29,9 +29,9 @@
 </div>
 
 <header class="app-header app-header-transparent">
-  <a href="/gallery/galleries.html" class="logo">IVAE <span>Studios</span></a>
+  <a href="/gallery/galleries" class="logo">IVAE <span>Studios</span></a>
   <nav>
-    <a href="/gallery/galleries.html">My Galleries</a>
+    <a href="/gallery/galleries">My Galleries</a>
     <span class="header-user" id="headerUser"></span>
     <a href="#" onclick="logout(); return false;">Logout</a>
   </nav>
@@ -640,7 +640,7 @@ let isByLinkView = false;  // gated by email-gate cookie, no account needed
       document.getElementById('lightboxHeart').style.display = 'none';
       document.getElementById('lightboxDownload').style.display = 'none';
       const header = document.querySelector('.app-header');
-      if (header) header.innerHTML = `<a href="/gallery/portfolio.html" class="logo" style="color:#fff;text-decoration:none;">IVAE <span>Studios</span></a><nav><a href="/gallery/portfolio.html" style="color:rgba(255,255,255,0.5);text-decoration:none;font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;">Portfolio</a></nav>`;
+      if (header) header.innerHTML = `<a href="/gallery/portfolio" class="logo" style="color:#fff;text-decoration:none;">IVAE <span>Studios</span></a><nav><a href="/gallery/portfolio" style="color:rgba(255,255,255,0.5);text-decoration:none;font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;">Portfolio</a></nav>`;
     }
 
     document.title = gallery.title + ' — IVAE Studios';
@@ -652,7 +652,7 @@ let isByLinkView = false;  // gated by email-gate cookie, no account needed
         <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         <h3>Gallery not found</h3>
         <p>This gallery may have been removed or you don't have access.</p>
-        <a href="/gallery/galleries.html" class="btn btn-outline btn-sm" style="margin-top:16px;">Back to Galleries</a>
+        <a href="/gallery/galleries" class="btn btn-outline btn-sm" style="margin-top:16px;">Back to Galleries</a>
       </div>
     `;
     document.getElementById('galleryHero').innerHTML = '';

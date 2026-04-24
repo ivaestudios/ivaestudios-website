@@ -875,7 +875,7 @@ async function renderRecentGalleries() {
     const safeTitle = (g.title || 'Untitled').replace(/</g, '&lt;');
     return `
       <li>
-        <a class="gallery-row" href="/gallery/admin/gallery-edit.html?id=${encodeURIComponent(g.id)}">
+        <a class="gallery-row" href="/gallery/admin/gallery-edit?id=${encodeURIComponent(g.id)}">
           <div class="gallery-rank">${i + 1}</div>
           <div class="gallery-info">
             <div class="gallery-name">${safeTitle}</div>

@@ -899,7 +899,7 @@ function renderDashSubmissions(submissions) {
     const ids = Array.isArray(s.photo_ids) ? s.photo_ids : [];
     const dateStr = new Date(s.submitted_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
     const thumbs = ids.slice(0, 12).map(pid => `<img src="/api/gallery/photos/${pid}/thumb" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:3px;cursor:pointer;" onclick="window.open('/api/gallery/photos/${pid}/web','_blank')"/>`).join('');
-    const more = ids.length > 12 ? `<div style="font-size:11px;color:#888;margin-top:8px;">+ ${ids.length - 12} more — <a href="/gallery/admin/proofs.html?id=${galleryId}" target="_blank" style="color:#a07040;text-decoration:none;">view all</a></div>` : '';
+    const more = ids.length > 12 ? `<div style="font-size:11px;color:#888;margin-top:8px;">+ ${ids.length - 12} more — <a href="/gallery/admin/proofs?id=${galleryId}" target="_blank" style="color:#a07040;text-decoration:none;">view all</a></div>` : '';
     const note = s.note ? `<div style="font-style:italic;color:#666;font-size:12px;margin-top:10px;padding:10px;background:#fafafa;border-left:2px solid #a07040;">"${escapeHtml(s.note)}"</div>` : '';
     return `<div style="border:1px solid #eee;border-radius:6px;padding:16px;background:#fff;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">

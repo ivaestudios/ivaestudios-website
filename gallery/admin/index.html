@@ -521,14 +521,14 @@ async function refreshStats(periodDays) {
   const workflowEl = document.getElementById('workflowContent');
   let html = '';
   drafts.forEach(g => {
-    html += `<div class="dash-workflow-item"><strong>${g.title}</strong>Draft — ready to publish? <a href="/gallery/admin/gallery-edit.html?id=${g.id}" style="color:#a07040;font-size:11px;text-decoration:none;">Edit →</a></div>`;
+    html += `<div class="dash-workflow-item"><strong>${g.title}</strong>Draft — ready to publish? <a href="/gallery/admin/gallery-edit?id=${g.id}" style="color:#a07040;font-size:11px;text-decoration:none;">Edit →</a></div>`;
   });
   noPhotos.forEach(g => {
     if (drafts.find(d => d.id === g.id)) return;
-    html += `<div class="dash-workflow-item"><strong>${g.title}</strong>No photos uploaded <a href="/gallery/admin/gallery-edit.html?id=${g.id}" style="color:#a07040;font-size:11px;text-decoration:none;">Upload →</a></div>`;
+    html += `<div class="dash-workflow-item"><strong>${g.title}</strong>No photos uploaded <a href="/gallery/admin/gallery-edit?id=${g.id}" style="color:#a07040;font-size:11px;text-decoration:none;">Upload →</a></div>`;
   });
   expiringSoon.forEach(g => {
-    html += `<div class="dash-workflow-item"><strong>${g.title}</strong>Expires ${g.expire_date} <a href="/gallery/admin/gallery-edit.html?id=${g.id}" style="color:#d43e2a;font-size:11px;text-decoration:none;">Review →</a></div>`;
+    html += `<div class="dash-workflow-item"><strong>${g.title}</strong>Expires ${g.expire_date} <a href="/gallery/admin/gallery-edit?id=${g.id}" style="color:#d43e2a;font-size:11px;text-decoration:none;">Review →</a></div>`;
   });
   if (html) workflowEl.innerHTML = html;
 

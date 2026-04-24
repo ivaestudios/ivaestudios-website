@@ -367,7 +367,7 @@ body { padding-top: 0; background: white; }
           <option value="title">Title A-Z</option>
           <option value="session">Session date</option>
         </select>
-        <a href="/gallery/admin/gallery-new.html" class="gx-new-btn">+ New Gallery</a>
+        <a href="/gallery/admin/gallery-new" class="gx-new-btn">+ New Gallery</a>
       </div>
     </div>
 
@@ -481,7 +481,7 @@ function renderCard(g) {
         <svg fill="currentColor" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
       </button>
       <div class="gx-popover" id="popover-${g.id}">
-        <a href="/gallery/gallery.html?id=${g.id}" target="_blank" rel="noopener">View as client</a>
+        <a href="/gallery/gallery?id=${g.id}" target="_blank" rel="noopener">View as client</a>
         <button data-action="duplicate" data-id="${g.id}">Duplicate</button>
         <button data-action="archive" data-id="${g.id}">Archive</button>
         <button class="gx-popover-danger" data-action="delete" data-id="${g.id}">Delete</button>
@@ -644,7 +644,7 @@ function renderResults(list) {
       <div class="gx-empty">
         <h2 class="gx-empty-title">No galleries yet</h2>
         <p class="gx-empty-sub">Create your first client gallery to get started</p>
-        <a href="/gallery/admin/gallery-new.html" class="gx-new-btn">+ New Gallery</a>
+        <a href="/gallery/admin/gallery-new" class="gx-new-btn">+ New Gallery</a>
       </div>
     `;
     return;
