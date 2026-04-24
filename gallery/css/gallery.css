@@ -2078,9 +2078,27 @@ textarea.form-input { min-height: 100px; resize: vertical; }
   /* Toolbar icon hit area */
   .gt-icon { padding: 10px; min-width: 44px; min-height: 44px; }
   .gt-tab { padding: 12px 14px; min-height: 44px; }
-  .photo-select { width: 36px; height: 36px; }
+  /* WCAG 2.5.5 minimum (44×44) — easier favorites + expand on phone */
+  .photo-select { width: 44px; height: 44px; }
   /* Disable hover-only overlays on touch — ensure expand stays visible/large */
-  .photo-expand { opacity: 0.85; width: 40px; height: 40px; }
+  .photo-expand { opacity: 0.85; width: 44px; height: 44px; }
+  .photo-expand svg { width: 18px; height: 18px; }
+
+  /* Immersive lightbox on mobile: tap the photo to hide topbar/bottombar/nav.
+     `chrome-hidden` is toggled by the touchend handler in gallery.html. */
+  .lightbox .lightbox-topbar,
+  .lightbox .lightbox-bottombar,
+  .lightbox .lightbox-nav,
+  .lightbox .lightbox-close {
+    transition: opacity 0.22s ease;
+  }
+  .lightbox.chrome-hidden .lightbox-topbar,
+  .lightbox.chrome-hidden .lightbox-bottombar,
+  .lightbox.chrome-hidden .lightbox-nav,
+  .lightbox.chrome-hidden .lightbox-close {
+    opacity: 0;
+    pointer-events: none;
+  }
 
   /* Client galleries mobile */
   .client-header { padding: 0 16px; height: 50px; }
@@ -2225,9 +2243,24 @@ textarea.form-input { min-height: 100px; resize: vertical; }
    MOBILE OVERRIDES (justified-row, scene-nav, lightbox, CTA)
    ═══════════════════════════════════════════════════════════ */
 @media (max-width: 767px) {
-  /* Sit below 48px-tall mobile toolbar; cancel desktop margin breakout */
-  .scene-nav { top: 48px; padding: 12px 16px; gap: 4px; margin: 0 -16px 20px; }
-  .scene-chip { padding: 6px 12px; font-size: 9.5px; letter-spacing: 0.14em; }
+  /* Sit below 48px-tall mobile toolbar; cancel desktop margin breakout.
+     justify-content: flex-start lets the user reach the rightmost chips when
+     they overflow; scroll-snap gives a Pic-Time-style settled feel. */
+  .scene-nav {
+    top: 48px;
+    padding: 12px 16px;
+    gap: 4px;
+    margin: 0 -16px 20px;
+    justify-content: flex-start;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 16px;
+  }
+  .scene-chip {
+    padding: 6px 12px;
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    scroll-snap-align: start;
+  }
   .enter-gallery-cta {
     bottom: 36px;
     padding: 14px 28px;
