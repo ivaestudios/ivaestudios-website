@@ -133,7 +133,7 @@
         </div>
 
         <div class="cv-colors-label">Choose gallery cover colors</div>
-        <label class="cv-auto"><input type="checkbox" checked/> Automatically choose cover color based on photo</label>
+        <label class="cv-auto"><input type="checkbox" id="autoColorCheck" onchange="onAutoColorToggle()" checked/> Automatically choose cover color based on photo</label>
 
         <div class="cv-color-row">
           <div class="cv-color-sets-wrap">
@@ -1549,6 +1549,61 @@ document.addEventListener('click', e => {
   if (!e.target.closest('.cv-color-sets-wrap')) document.getElementById('colorSetsDropdown').style.display = 'none';
 });
 
+// ═══ AUTO COVER COLOR ═══
+// Sample the cover image, average its pixels, set bg = average, txt = high-contrast.
+// Same-origin (/api/gallery/photos/.../full or blob:) so getImageData is safe.
+// Persisted per-gallery in localStorage; user toggle wins over default.
+function _autoColorKey() { return 'autoCoverColor:' + galleryId; }
+
+function applyAutoCoverColor(opts) {
+  opts = opts || {};
+  const chk = document.getElementById('autoColorCheck');
+  if (!chk || !chk.checked) return;
+  if (!coverImg) return;
+  const img = new Image();
+  // coverImg is either a blob: URL (local preview) or our same-origin /api path —
+  // both are safe for getImageData. crossOrigin set defensively.
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    try {
+      const c = document.createElement('canvas');
+      const W = 64, H = 64;
+      c.width = W; c.height = H;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0, W, H);
+      const data = ctx.getImageData(0, 0, W, H).data;
+      let r = 0, g = 0, b = 0, n = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        // skip near-transparent pixels
+        if (data[i + 3] < 128) continue;
+        r += data[i]; g += data[i + 1]; b += data[i + 2]; n++;
+      }
+      if (!n) return;
+      r = Math.round(r / n); g = Math.round(g / n); b = Math.round(b / n);
+      // BT.601 luminance — matches the white-logo auto-detect
+      const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+      const bg = '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+      const tx = lum < 128 ? '#ffffff' : '#1c1c1c';
+      bgColor = bg; txtColor = tx;
+      syncBgUI(); syncTxtUI();
+      renderPreview(); renderDesignGrid();
+      if (!opts.skipSave) triggerAutoSave();
+    } catch (e) {
+      console.warn('[autoColor] sample failed:', e.message);
+    }
+  };
+  img.onerror = () => console.warn('[autoColor] image failed to load:', coverImg);
+  img.src = coverImg;
+}
+
+function onAutoColorToggle() {
+  const chk = document.getElementById('autoColorCheck');
+  if (!chk) return;
+  try { localStorage.setItem(_autoColorKey(), chk.checked ? '1' : '0'); } catch {}
+  if (chk.checked) applyAutoCoverColor();
+  // No autosave needed — preference is local only; colors save via triggerAutoSave inside apply
+}
+
 // ═══ DESIGN CAROUSEL SCROLL ═══
 function scrollDesigns(dir) {
   const el = document.getElementById('designGrid');
@@ -1565,6 +1620,8 @@ document.getElementById('coverInput').addEventListener('change', async e => {
   fpBtn.classList.remove('disabled');
   fpBtn.classList.add('fp-active');
   renderPreview(); renderDesignGrid();
+  // If "Automatically choose cover color based on photo" is on, sample now
+  applyAutoCoverColor();
 
   // Show progress bar
   const bar = document.getElementById('coverProgress');
@@ -1742,6 +1799,14 @@ function copyGalleryLink() {
     document.getElementById('logoRemoveBtn').style.display = 'inline-block';
   }
   document.getElementById('whiteLogoCheck').checked = !!g.logo_white;
+  // Auto cover color — restore user preference from localStorage. Default OFF
+  // for galleries that already have a cover_key (preserve manually-set colors);
+  // default ON for fresh galleries (so Vianey gets sampling on first cover upload).
+  try {
+    const saved = localStorage.getItem('autoCoverColor:' + galleryId);
+    const auto = saved !== null ? saved === '1' : !g.cover_key;
+    document.getElementById('autoColorCheck').checked = auto;
+  } catch {}
   // Slideshow music — restore upload widget state
   window._musicKey = g.slideshow_music_key || null;
   if (g.slideshow_music_key) refreshMusicUI('Existing track', true);
@@ -2599,6 +2664,8 @@ async function setAsCover() {
   renderPreview();
   document.getElementById('focalBtn').classList.remove('disabled');
   document.getElementById('focalBtn').classList.add('fp-active');
+  // If auto-color is on, sample the new cover and update bg/txt to match
+  applyAutoCoverColor();
   // Persist cover_key to database immediately
   try {
     await API.put('/galleries/' + galleryId, { cover_key: _viewerPhotoId });

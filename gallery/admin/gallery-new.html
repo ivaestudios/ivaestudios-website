@@ -101,7 +101,7 @@
         </div>
 
         <div class="cv-colors-label">Choose gallery cover colors</div>
-        <label class="cv-auto"><input type="checkbox" checked/> Automatically choose cover color based on photo</label>
+        <label class="cv-auto"><input type="checkbox" id="autoColorCheck" onchange="onAutoColorToggle()" checked/> Automatically choose cover color based on photo</label>
 
         <div class="cv-color-row">
           <div class="cv-color-sets-wrap">
@@ -1101,6 +1101,48 @@ document.addEventListener('click', e => {
   if (!e.target.closest('.cv-color-sets-wrap')) document.getElementById('colorSetsDropdown').style.display = 'none';
 });
 
+// ═══ AUTO COVER COLOR ═══
+// Sample the cover image, average its pixels, set bg = average, txt = high-contrast.
+// Same logic as gallery-edit.html so the wizard preview matches the editor.
+function applyAutoCoverColor() {
+  const chk = document.getElementById('autoColorCheck');
+  if (!chk || !chk.checked) return;
+  if (!coverImg) return;
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    try {
+      const c = document.createElement('canvas');
+      const W = 64, H = 64;
+      c.width = W; c.height = H;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0, W, H);
+      const data = ctx.getImageData(0, 0, W, H).data;
+      let r = 0, g = 0, b = 0, n = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i + 3] < 128) continue;
+        r += data[i]; g += data[i + 1]; b += data[i + 2]; n++;
+      }
+      if (!n) return;
+      r = Math.round(r / n); g = Math.round(g / n); b = Math.round(b / n);
+      const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+      const bg = '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+      const tx = lum < 128 ? '#ffffff' : '#1c1c1c';
+      bgColor = bg; txtColor = tx;
+      syncBgUI(); syncTxtUI();
+      renderPreview(); renderDesignGrid();
+    } catch (e) {
+      console.warn('[autoColor] sample failed:', e.message);
+    }
+  };
+  img.onerror = () => console.warn('[autoColor] image failed to load:', coverImg);
+  img.src = coverImg;
+}
+function onAutoColorToggle() {
+  const chk = document.getElementById('autoColorCheck');
+  if (chk && chk.checked) applyAutoCoverColor();
+}
+
 // ═══ DESIGN CAROUSEL SCROLL ═══
 function scrollDesigns(dir) {
   const el = document.getElementById('designGrid');
@@ -1115,6 +1157,7 @@ document.getElementById('coverInput').addEventListener('change', e => {
   fpBtn.classList.remove('disabled');
   fpBtn.classList.add('fp-active');
   renderPreview(); renderDesignGrid();
+  applyAutoCoverColor();
 });
 
 // ═══ FOCAL POINT ═══
@@ -1337,6 +1380,7 @@ async function setAsCover() {
   renderPreview(); renderDesignGrid();
   document.getElementById('focalBtn').classList.remove('disabled');
   document.getElementById('focalBtn').classList.add('fp-active');
+  applyAutoCoverColor();
   try {
     await API.put('/galleries/' + galleryId, { cover_key: _viewerPhotoId });
     showToast('Cover photo saved!');
