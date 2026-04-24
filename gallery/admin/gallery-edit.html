@@ -168,7 +168,7 @@
           </div>
         </div>
         <div class="cv-color-row" style="margin-top:4px;">
-          <label class="cv-auto" style="margin-bottom:0;"><input type="checkbox" id="whiteLogoCheck"/> White logo</label>
+          <label class="cv-auto" style="margin-bottom:0;"><input type="checkbox" id="whiteLogoCheck" onchange="onWhiteLogoToggle()"/> White logo</label>
         </div>
       </div>
     </div>
@@ -989,6 +989,7 @@ async function uploadLogo(file) {
     const data = await res.json();
     window._logoKey = data.logo_key;
     img.src = '/api/gallery/galleries/' + galleryId + '/logo?t=' + Date.now();
+    renderPreview();
     showAutoSaveStatus('✓ Logo saved', '#34c759');
   } catch (e) {
     showAutoSaveStatus('✗ Logo upload failed', '#b91c1c');
@@ -1005,6 +1006,7 @@ async function removeLogo() {
     document.getElementById('logoPreviewPlaceholder').style.display = 'block';
     document.getElementById('logoRemoveBtn').style.display = 'none';
     window._logoKey = null;
+    renderPreview();
     showAutoSaveStatus('✓ Logo removed', '#34c759');
   } catch (e) {
     showAutoSaveStatus('✗ Failed to remove logo', '#b91c1c');
@@ -1064,7 +1066,8 @@ function triggerAutoSave() {
         proofing_target:  parseInt(document.getElementById('setupProofingTarget').value, 10) || 0,
         proofing_message: (document.getElementById('setupProofingMessage').value || '').trim() || null,
         proofing_locked:  document.getElementById('setupProofingLocked').checked ? 1 : 0,
-        slideshow_speed_ms: parseInt(document.getElementById('setupSlideshowSpeed').value, 10) || 4000
+        slideshow_speed_ms: parseInt(document.getElementById('setupSlideshowSpeed').value, 10) || 4000,
+        logo_white: document.getElementById('whiteLogoCheck').checked ? 1 : 0
       });
       // Update header
       document.getElementById('geName').textContent = document.getElementById('title').value;
@@ -1383,19 +1386,38 @@ const DESIGNS = {
   }
 };
 
+// Overlay the studio logo on top of a rendered cover preview, sized for the
+// admin preview frames (not the client viewport — uses %s, not vh/px).
+// Auto-detects white-vs-dark unless `whiteLogoCheck` is explicitly checked.
+const _OVERLAY_DESIGNS_ADMIN = ['splitOverlay','fullOverlay','bold','stacked'];
+function _adminLogoOverlayHtml() {
+  if (!window._logoKey) return '';
+  const isOverlay = _OVERLAY_DESIGNS_ADMIN.indexOf(currentDesign) !== -1;
+  const forceWhite = document.getElementById('whiteLogoCheck').checked;
+  const useWhite = forceWhite || isOverlay || isDark(bgColor);
+  const filt = useWhite
+    ? 'filter:brightness(0) invert(1) drop-shadow(0 1px 2px rgba(0,0,0,0.45));'
+    : 'filter:brightness(0) drop-shadow(0 1px 1px rgba(255,255,255,0.55));';
+  const src = '/api/gallery/galleries/' + galleryId + '/logo';
+  return `<img src="${src}" alt="" style="position:absolute;top:7%;left:50%;transform:translateX(-50%);height:auto;width:auto;max-height:11%;max-width:32%;object-fit:contain;z-index:10;pointer-events:none;${filt}"/>`;
+}
+
 function renderPreview() {
   const t = document.getElementById('title').value || 'Gallery';
   const d = document.getElementById('sessionDate').value;
   let dateStr = '';
   if (d) { const dt = new Date(d + 'T12:00:00'); dateStr = dt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }); }
   const design = DESIGNS[currentDesign];
-  document.getElementById('pvDesktop').innerHTML = design.desktop(t, dateStr, coverImg);
-  document.getElementById('pvMobile').innerHTML = design.mobile(t, dateStr, coverImg);
+  const logoHtml = _adminLogoOverlayHtml();
+  document.getElementById('pvDesktop').innerHTML = design.desktop(t, dateStr, coverImg) + logoHtml;
+  document.getElementById('pvMobile').innerHTML  = design.mobile(t, dateStr, coverImg)  + logoHtml;
   document.getElementById('geName').textContent = t;
   const slug = t.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   document.getElementById('geUrl').textContent = 'ivaestudios.com/gallery/' + slug;
   document.getElementById('pvChromeUrl').textContent = 'ivaestudios.com/gallery/' + slug;
 }
+
+function onWhiteLogoToggle() { renderPreview(); renderDesignGrid(); triggerAutoSave(); }
 
 function renderDesignGrid() {
   const grid = document.getElementById('designGrid');
@@ -1645,6 +1667,7 @@ function copyGalleryLink() {
     document.getElementById('logoPreviewPlaceholder').style.display = 'none';
     document.getElementById('logoRemoveBtn').style.display = 'inline-block';
   }
+  document.getElementById('whiteLogoCheck').checked = !!g.logo_white;
   // Load first photo into watermark preview
   if (g.photos && g.photos.length > 0) {
     const wmImg = document.getElementById('wmPreviewImg');
@@ -1660,7 +1683,7 @@ function copyGalleryLink() {
   document.getElementById('setupProofingMessage').value = g.proofing_message || '';
   document.getElementById('setupProofingLocked').checked = !!g.proofing_locked;
   if (g.slideshow_speed_ms) document.getElementById('setupSlideshowSpeed').value = String(g.slideshow_speed_ms);
-  document.getElementById('viewProofsLink').href = '/gallery/admin/proofs.html?id=' + galleryId;
+  document.getElementById('viewProofsLink').href = '/gallery/admin/proofs?id=' + galleryId;
   toggleProofingUI();
 
   // Set share link

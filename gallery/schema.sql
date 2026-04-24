@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS galleries (
   watermark_text    TEXT    DEFAULT 'IVAE',
   watermark_subtext TEXT    DEFAULT 'STUDIOS',
   logo_key          TEXT    DEFAULT NULL,
+  logo_white        INTEGER DEFAULT 0,
   proofing_enabled  INTEGER DEFAULT 0,
   proofing_target   INTEGER DEFAULT 30,
   proofing_message  TEXT    DEFAULT NULL,

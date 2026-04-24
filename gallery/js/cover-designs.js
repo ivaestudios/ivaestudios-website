@@ -2,10 +2,57 @@
 // admin/gallery-edit.html (live preview). Single source of truth so the
 // admin preview and what clients see can never drift apart.
 //
-// Usage: window.IvaeCoverDesigns.render(design, title, date, desc, count, bgImg, bg, tx, hasCover, fx, fy)
+// Usage:
+//   window.IvaeCoverDesigns.render(
+//     design, title, date, desc, count, bgImg, bg, tx,
+//     hasCover, fx, fy,
+//     logoUrl,   // optional: if set, overlays the studio logo on the cover
+//     logoWhite  // optional: true=force white, false=force dark, undefined=auto
+//   )
+//   window.IvaeCoverDesigns.isDarkColor('#1c1c1c') -> true
 
 (function (root) {
-  function render(design, title, date, desc, count, bgImg, bg, tx, hasCover, fx, fy) {
+  // ── helpers ──────────────────────────────────────────────────────────
+  function isDarkColor(hex) {
+    if (!hex || typeof hex !== 'string') return false;
+    const c = hex.replace('#', '').trim();
+    if (c.length !== 6) return false;
+    const r = parseInt(c.slice(0, 2), 16);
+    const g = parseInt(c.slice(2, 4), 16);
+    const b = parseInt(c.slice(4, 6), 16);
+    if (isNaN(r) || isNaN(g) || isNaN(b)) return false;
+    // ITU-R BT.601 luminance — < 128 = "dark"
+    return (0.299 * r + 0.587 * g + 0.114 * b) < 128;
+  }
+
+  // Designs whose dominant surface is a dark photo+overlay (logo must be white)
+  const OVERLAY_DESIGNS = ['splitOverlay', 'fullOverlay', 'bold', 'stacked'];
+
+  function logoOverlayHtml(logoUrl, logoWhite, design, bg) {
+    if (!logoUrl) return '';
+    const isOverlayCover = OVERLAY_DESIGNS.indexOf(design) !== -1;
+    let useWhite;
+    if (logoWhite === true || logoWhite === 1)       useWhite = true;
+    else if (logoWhite === false || logoWhite === 0) useWhite = false;
+    else                                              useWhite = isOverlayCover || isDarkColor(bg);
+    const filt = useWhite
+      ? 'filter:brightness(0) invert(1) drop-shadow(0 1px 3px rgba(0,0,0,0.45));'
+      : 'filter:brightness(0) drop-shadow(0 1px 2px rgba(255,255,255,0.55));';
+    return `<img src="${logoUrl}" alt="" style="position:absolute;top:5vh;left:50%;transform:translateX(-50%);height:auto;width:auto;max-height:9vh;min-height:36px;max-width:240px;object-fit:contain;z-index:5;pointer-events:none;${filt}"/>`;
+  }
+
+  // ── main renderer ────────────────────────────────────────────────────
+  function render(design, title, date, desc, count, bgImg, bg, tx, hasCover, fx, fy, logoUrl, logoWhite) {
+    const innerHtml = renderInner(design, title, date, desc, count, bgImg, bg, tx, hasCover, fx, fy);
+    const logoEl = logoOverlayHtml(logoUrl, logoWhite, design, bg);
+    if (!logoEl) return innerHtml;
+    // Wrap in a positioned container so the absolute-positioned logo
+    // anchors to the top of the cover (not the page).
+    return `<div style="position:relative;min-height:100vh;">${logoEl}${innerHtml}</div>`;
+  }
+
+  // Original 12-template renderer — extracted so the wrapper can prepend overlays.
+  function renderInner(design, title, date, desc, count, bgImg, bg, tx, hasCover, fx, fy) {
     const arrow = `<div style="font-size:22px;color:${tx};opacity:0.15;margin-top:20px;">&#8964;</div>`;
     const studio = `<span style="font-size:8px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:${tx};opacity:0.3;font-family:'Syne',sans-serif;">IVAE Studios</span>`;
     const countEl = `<span style="display:inline-block;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:${tx};opacity:0.3;margin-top:16px;padding-top:14px;border-top:1px solid ${tx === '#ffffff' ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)'};">${count} photos</span>`;
@@ -130,5 +177,5 @@
     </div>`;
   }
 
-  root.IvaeCoverDesigns = { render };
+  root.IvaeCoverDesigns = { render, renderInner, isDarkColor, OVERLAY_DESIGNS };
 })(typeof window !== 'undefined' ? window : globalThis);

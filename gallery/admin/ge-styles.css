@@ -280,6 +280,7 @@ body { padding-top: 0; background: white; margin: 0; }
   aspect-ratio: 9/16; overflow: hidden;
   border-radius: 6px;
   background: white;
+  position: relative;
 }
 .pv-mobile-bar {
   width: 24px; height: 3px;

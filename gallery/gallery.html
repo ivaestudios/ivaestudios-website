@@ -552,7 +552,11 @@ let isByLinkView = false;  // gated by email-gate cookie, no account needed
       ? `background-image:url(${coverSrc});background-position:${fx}% ${fy}%;background-size:cover;`
       : `background:linear-gradient(180deg,#d5d8da 0%,#c8cbc8 35%,#d2cfc5 60%,#e0ddd5 100%);`;
 
-    const heroHTML = renderCoverDesign(design, t, dateStr, gallery.description, gallery.photos.length, bgImg, bg, tx, coverSrc, fx, fy);
+    const logoUrl = gallery.logo_key ? `/api/gallery/galleries/${galleryId}/logo` : null;
+    const logoWhiteFlag = (gallery.logo_white === 1 || gallery.logo_white === true) ? true
+                        : (gallery.logo_white === 0 || gallery.logo_white === false) ? false
+                        : null;
+    const heroHTML = renderCoverDesign(design, t, dateStr, gallery.description, gallery.photos.length, bgImg, bg, tx, coverSrc, fx, fy, logoUrl, logoWhiteFlag);
     // Preserve .gallery-hero so min-height:100dvh applies — was being dropped.
     heroEl.className = 'gallery-hero gallery-hero-design';
     heroEl.style = '';

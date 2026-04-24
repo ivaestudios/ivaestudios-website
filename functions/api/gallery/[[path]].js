@@ -445,7 +445,7 @@ async function handleUpdateGallery(request, env, session, galleryId) {
   const data = await request.json();
   const sets = [];
   const vals = [];
-  for (const key of ['title', 'description', 'session_date', 'status', 'cover_key', 'cover_design', 'bg_color', 'txt_color', 'focal_x', 'focal_y', 'occasion', 'is_private', 'expire_enabled', 'expire_date', 'allow_sharing', 'allow_download', 'download_quality', 'watermark_enabled', 'watermark_opacity', 'watermark_text', 'watermark_subtext', 'logo_key', 'proofing_enabled', 'proofing_target', 'proofing_message', 'proofing_locked', 'slideshow_speed_ms', 'request_email', 'gallery_style', 'security_policy', 'show_on_portfolio', 'client_can_add']) {
+  for (const key of ['title', 'description', 'session_date', 'status', 'cover_key', 'cover_design', 'bg_color', 'txt_color', 'focal_x', 'focal_y', 'occasion', 'is_private', 'expire_enabled', 'expire_date', 'allow_sharing', 'allow_download', 'download_quality', 'watermark_enabled', 'watermark_opacity', 'watermark_text', 'watermark_subtext', 'logo_key', 'logo_white', 'proofing_enabled', 'proofing_target', 'proofing_message', 'proofing_locked', 'slideshow_speed_ms', 'request_email', 'gallery_style', 'security_policy', 'show_on_portfolio', 'client_can_add']) {
     if (data[key] !== undefined) { sets.push(`${key} = ?`); vals.push(data[key]); }
   }
   if (!sets.length) return json({ error: 'Nothing to update' }, 400);
