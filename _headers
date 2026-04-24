@@ -17,9 +17,10 @@
 /images/*
   Cache-Control: public, max-age=31536000, immutable
 
-# Gallery JS / CSS — declared BEFORE the site-wide catch-alls so they win.
-# Cloudflare Pages applies the FIRST matching rule for each header.
-# These files don't carry content hashes, so they need short TTL + revalidate.
+# Gallery JS / CSS — short TTL so deploys propagate (no content hashing in
+# filenames). Pages MERGES Cache-Control values across matching rules, so
+# we must NOT have a wider /*.js or /*.css catch-all that would inject
+# `immutable` into these responses.
 /gallery/js/*.js
   Cache-Control: public, max-age=300, must-revalidate
 
@@ -33,10 +34,16 @@
 /gallery/css/*.css
   Cache-Control: public, max-age=300, must-revalidate
 
-/*.css
+# Main-site JS/CSS — explicit per-file rules instead of /*.js catch-all,
+# because the catch-all leaks `immutable` into /gallery/* responses (Pages
+# merges values, doesn't pick first/most-specific).
+/styles/*.css
   Cache-Control: public, max-age=31536000, immutable
 
-/*.js
+/js/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/js/lang-detect.js
   Cache-Control: public, max-age=31536000, immutable
 
 /focal-admin.js
