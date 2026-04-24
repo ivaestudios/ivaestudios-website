@@ -291,18 +291,54 @@ async function handleGoogleCallback(request, env) {
 async function handleForgotPassword(request, env) {
   const { email } = await request.json();
   if (!email) return json({ error: 'Email required' }, 400);
+  const okResponse = json({ ok: true, message: 'If this email exists, a reset link has been sent.' });
   // Always return OK to avoid email enumeration
-  const user = await env.DB.prepare('SELECT id, email, auth_provider FROM users WHERE email = ? COLLATE NOCASE').bind(email).first();
-  if (!user) return json({ ok: true, message: 'If this email exists, a reset link has been sent.' });
-  if (user.auth_provider && user.auth_provider !== 'email') {
-    return json({ ok: true, message: 'If this email exists, a reset link has been sent.' });
-  }
+  const user = await env.DB.prepare('SELECT id, email, name, auth_provider FROM users WHERE email = ? COLLATE NOCASE').bind(email).first();
+  if (!user) return okResponse;
+  if (user.auth_provider && user.auth_provider !== 'email') return okResponse;
   const token = randomId() + randomId();
   await env.DB.prepare('DELETE FROM password_resets WHERE user_id = ?').bind(user.id).run();
   const expires = new Date(Date.now() + 3600000).toISOString();
   await env.DB.prepare('INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, ?)').bind(user.id, token, expires).run();
-  // Return token info (in production, this would send an email instead)
-  return json({ ok: true, message: 'If this email exists, a reset link has been sent.', _resetToken: token });
+  const resetUrl = 'https://ivaestudios.com/gallery/reset-password?token=' + token;
+  // Send the email via Resend. We never return the token in the response body.
+  if (env.RESEND_API_KEY) {
+    const html =
+      '<div style="font-family:Georgia,serif;max-width:520px;margin:0 auto;padding:32px 24px;color:#1c1c1c;">' +
+        '<h1 style="font-family:Georgia,serif;font-weight:400;font-size:28px;margin:0 0 16px;">Reset your password</h1>' +
+        '<p style="line-height:1.55;color:#444;">Hi ' + escapeHtml(user.name || '') + ',</p>' +
+        '<p style="line-height:1.55;color:#444;">We received a request to reset the password for your IVAE Studios gallery account. Click the button below to choose a new password. This link expires in 1 hour.</p>' +
+        '<p style="margin:28px 0;"><a href="' + resetUrl + '" style="background:#c4a35a;color:#fff;text-decoration:none;padding:12px 28px;border-radius:2px;letter-spacing:1px;font-family:Arial,sans-serif;font-size:13px;text-transform:uppercase;display:inline-block;">Reset password</a></p>' +
+        '<p style="line-height:1.55;color:#888;font-size:13px;">Or copy this link into your browser:<br/><span style="word-break:break-all;">' + resetUrl + '</span></p>' +
+        '<p style="line-height:1.55;color:#888;font-size:13px;margin-top:24px;">If you didn\'t request this, you can safely ignore this email — your password won\'t change.</p>' +
+        '<hr style="border:0;border-top:1px solid #eee;margin:32px 0 16px;"/>' +
+        '<p style="color:#aaa;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-family:Arial,sans-serif;">IVAE Studios &middot; Cancun</p>' +
+      '</div>';
+    try {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'IVAE Studios <gallery@ivaestudios.com>',
+          to: [user.email],
+          subject: 'Reset your IVAE Studios gallery password',
+          html
+        })
+      });
+      if (!res.ok) console.warn('[forgot-password] resend send failed:', res.status, await res.text());
+    } catch (e) {
+      console.warn('[forgot-password] resend exception:', e.message);
+    }
+  } else {
+    console.warn('[forgot-password] RESEND_API_KEY missing — token generated but no email sent for user', user.id);
+  }
+  return okResponse;
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 async function handleResetPassword(request, env) {
