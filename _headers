@@ -70,6 +70,14 @@
 /gallery/gallery.html
   Cache-Control: public, max-age=0, must-revalidate
 
+# Gallery JS — short cache + revalidate. These files change without filename
+# hashing, so we can't use the immutable directive that /*.js applies.
+/gallery/js/*.js
+  Cache-Control: public, max-age=300, must-revalidate
+
+/gallery/admin/*.js
+  Cache-Control: public, max-age=0, must-revalidate
+
 /gallery/sw.js
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
   Service-Worker-Allowed: /
