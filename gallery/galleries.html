@@ -51,7 +51,7 @@
 <script src="/gallery/js/auth.js"></script>
 <script>
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/gallery/sw.js').catch(err => console.warn('SW register failed:', err));
+  navigator.serviceWorker.register('/gallery/sw.js', { scope: '/' }).catch(err => console.warn('SW register failed:', err));
 }
 (async () => {
   const user = await checkAuth();

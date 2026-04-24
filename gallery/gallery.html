@@ -470,7 +470,7 @@
 <script src="/gallery/js/justified-layout.js"></script>
 <script>
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/gallery/sw.js').catch(err => console.warn('SW register failed:', err));
+  navigator.serviceWorker.register('/gallery/sw.js', { scope: '/' }).catch(err => console.warn('SW register failed:', err));
 }
 const galleryId = new URLSearchParams(window.location.search).get('id');
 let photos = [];

@@ -72,6 +72,7 @@
 
 /gallery/sw.js
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Service-Worker-Allowed: /
 
 # Login + auth pages — fresh HTML
 /gallery/index.html
