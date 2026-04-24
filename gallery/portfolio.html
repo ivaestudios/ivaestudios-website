@@ -221,7 +221,7 @@ body{font-family:'Syne',sans-serif;background:#fff;color:#1a1a1a;-webkit-font-sm
     } else {
       galleries.forEach((g, i) => {
         const card = document.createElement('a');
-        card.href = '/gallery/gallery.html?id=' + g.id;
+        card.href = '/gallery/gallery?id=' + g.id;
         card.className = 'pf-card' + (i === 0 ? ' pf-featured' : '');
         card.style.animationDelay = (i * 0.08) + 's';
 

@@ -227,7 +227,7 @@ async function oauthLogin(env, email, name, provider, redirectTo = '') {
   const sessionId = randomId();
   const expiry = env.SESSION_EXPIRY_SECONDS || '604800';
   await env.DB.prepare('INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, datetime("now", "+" || ? || " seconds"))').bind(sessionId, user.id, expiry).run();
-  const redirectUrl = redirectTo || (user.role === 'admin' ? '/gallery/admin/' : '/gallery/galleries.html');
+  const redirectUrl = redirectTo || (user.role === 'admin' ? '/gallery/admin/' : '/gallery/galleries');
   return new Response(null, {
     status: 302,
     headers: { 'Location': redirectUrl, 'Set-Cookie': sessionCookie(sessionId, expiry) }
@@ -564,9 +564,9 @@ async function handleSendInviteEmail(request, env, session, galleryId, userId) {
 
   // Direct-to-gallery URL: now that the gallery static assets are served from
   // the same origin (ivaestudios.com/gallery/...), we skip the legacy
-  // /?redirect=... dance entirely. The login gate on /gallery/gallery.html?id=...
+  // /?redirect=... dance entirely. The login gate on /gallery/gallery?id=...
   // still triggers when no session is present.
-  const galleryUrl = `https://ivaestudios.com/gallery/gallery.html?id=${galleryId}`;
+  const galleryUrl = `https://ivaestudios.com/gallery/gallery?id=${galleryId}`;
   const loginUrl = galleryUrl;
   const coverUrl = `https://ivaestudios.com/api/gallery/galleries/${galleryId}/cover`;
 
@@ -1747,7 +1747,7 @@ function renderEmailHtml(html, vars) {
 async function buildEmailVars(env, gallery, user, accessPassword) {
   const settings = await env.DB.prepare('SELECT * FROM studio_settings WHERE id = ?').bind('studio').first().catch(() => null);
   // Direct-to-gallery URL (skip legacy /?redirect=... dance — see handleSendInviteEmail).
-  const galleryUrl = `https://ivaestudios.com/gallery/gallery.html?id=${gallery.id}`;
+  const galleryUrl = `https://ivaestudios.com/gallery/gallery?id=${gallery.id}`;
   let photoCount = 0;
   try {
     const c = await env.DB.prepare('SELECT COUNT(*) AS n FROM photos WHERE gallery_id = ?').bind(gallery.id).first();

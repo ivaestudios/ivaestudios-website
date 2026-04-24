@@ -36,7 +36,7 @@
       <div style="padding:16px 18px 0;">
         <div id="autosaveStatus" style="text-align:center;font-size:11px;color:#999;height:18px;margin-bottom:4px;letter-spacing:0.5px;transition:color 0.3s;"></div>
         <button class="ge-continue" onclick="goNextSection()" style="width:100%;">Continue</button>
-        <button class="ge-preview-btn" onclick="window.open('/gallery/gallery.html?id='+galleryId,'_blank')" style="width:100%;margin-top:8px;">Preview Gallery</button>
+        <button class="ge-preview-btn" onclick="window.open('/gallery/gallery?id='+galleryId,'_blank')" style="width:100%;margin-top:8px;">Preview Gallery</button>
       </div>
       <div style="padding:12px 18px 0;border-top:1px solid #f0f0f0;margin-top:12px;">
         <button onclick="openClientSelections()" style="width:100%;padding:10px;background:#1a1a1a;border:1px solid #1a1a1a;color:#fff;font-size:11px;letter-spacing:0.5px;cursor:pointer;text-transform:uppercase;font-weight:500;border-radius:3px;transition:background 0.2s;" onmouseover="this.style.background='#000'" onmouseout="this.style.background='#1a1a1a'">View Client Selections</button>
@@ -653,7 +653,7 @@
 
             <div class="ge-share-title" style="margin-top:32px;">GALLERY LINK</div>
             <div class="share-link-box">
-              <span class="share-link-url" id="shareLinkUrl">ivaestudios.com/gallery/gallery.html?id=...</span>
+              <span class="share-link-url" id="shareLinkUrl">ivaestudios.com/gallery/gallery?id=...</span>
               <button class="share-link-copy" onclick="copyGalleryLink()">Copy Link</button>
             </div>
           </div>
@@ -1717,7 +1717,7 @@ function applyFocalPoint() {
 
 // ═══ GALLERY LINK ═══
 function copyGalleryLink() {
-  const url = 'https://ivaestudios.com/gallery/gallery.html?id=' + galleryId;
+  const url = 'https://ivaestudios.com/gallery/gallery?id=' + galleryId;
   navigator.clipboard.writeText(url).then(() => showToast('Gallery link copied!')).catch(() => showToast('Could not copy link'));
 }
 
@@ -1832,7 +1832,7 @@ function copyGalleryLink() {
   toggleProofingUI();
 
   // Set share link
-  document.getElementById('shareLinkUrl').textContent = 'ivaestudios.com/gallery/gallery.html?id=' + galleryId;
+  document.getElementById('shareLinkUrl').textContent = 'ivaestudios.com/gallery/gallery?id=' + galleryId;
 
   // Photos — build strip + grid
   window._galleryPhotos = g.photos;

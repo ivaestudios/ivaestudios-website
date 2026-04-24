@@ -118,7 +118,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
       email: document.getElementById('email').value,
       password
     });
-    window.location.href = user.role === 'admin' ? '/gallery/admin/' : '/gallery/galleries.html';
+    window.location.href = user.role === 'admin' ? '/gallery/admin/' : '/gallery/galleries';
   } catch (err) {
     btn.classList.remove('loading');
     errEl.textContent = err.message;

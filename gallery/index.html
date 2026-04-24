@@ -103,7 +103,7 @@ function toggleLoginPassword() {
   if (!redirectUrl) {
     try {
       const user = await API.get('/auth/me');
-      window.location.href = user.role === 'admin' ? '/gallery/admin/' : '/gallery/galleries.html';
+      window.location.href = user.role === 'admin' ? '/gallery/admin/' : '/gallery/galleries';
       return;
     } catch {}
   } else {
@@ -130,7 +130,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
       password: document.getElementById('password').value
     });
     const redir = new URLSearchParams(window.location.search).get('redirect');
-    window.location.href = redir || (user.role === 'admin' ? '/gallery/admin/' : '/gallery/galleries.html');
+    window.location.href = redir || (user.role === 'admin' ? '/gallery/admin/' : '/gallery/galleries');
   } catch (err) {
     btn.classList.remove('loading');
     errEl.textContent = err.message;

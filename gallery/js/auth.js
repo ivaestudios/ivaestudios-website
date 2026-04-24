@@ -8,7 +8,7 @@ async function checkAuth(requiredRole, silent) {
     if (el) el.textContent = user.name;
     // Check role
     if (requiredRole === 'admin' && user.role !== 'admin') {
-      if (!silent) window.location.href = '/gallery/galleries.html';
+      if (!silent) window.location.href = '/gallery/galleries';
       return null;
     }
     return user;

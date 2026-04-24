@@ -526,7 +526,7 @@ let isByLinkView = false;  // gated by email-gate cookie, no account needed
 
   if (!gallery) {
     // No access — redirect to login with return URL
-    window.location.href = '/gallery/?redirect=' + encodeURIComponent('/gallery/gallery.html?id=' + galleryId);
+    window.location.href = '/gallery/?redirect=' + encodeURIComponent('/gallery/gallery?id=' + galleryId);
     return;
   }
 

@@ -15,10 +15,10 @@
   // Bottom-nav configuration. `key` matches the `active` arg.
   const BOTTOM_NAV = [
     { key: 'dashboard', href: '/gallery/admin/',               label: 'Dashboard' },
-    { key: 'galleries', href: '/gallery/admin/galleries.html', label: 'Galleries' },
-    { key: 'clients',   href: '/gallery/admin/clients.html',   label: 'Clients'   },
-    { key: 'workflow',  href: '/gallery/admin/proofs.html',    label: 'Workflow'  },
-    { key: 'settings',  href: '/gallery/admin/settings.html',  label: 'Settings'  }
+    { key: 'galleries', href: '/gallery/admin/galleries', label: 'Galleries' },
+    { key: 'clients',   href: '/gallery/admin/clients',   label: 'Clients'   },
+    { key: 'workflow',  href: '/gallery/admin/proofs',    label: 'Workflow'  },
+    { key: 'settings',  href: '/gallery/admin/settings',  label: 'Settings'  }
   ];
 
   // Small HTML-escape helper to keep injected gallery titles safe.
@@ -41,7 +41,7 @@
       +   '<a href="/gallery/admin/">IVAE <span>Studios</span></a>'
       + '</div>'
       + '<nav class="sidebar-nav">'
-      +   '<a href="/gallery/admin/gallery-new.html" class="sidebar-new-btn">+ New Client Gallery</a>'
+      +   '<a href="/gallery/admin/gallery-new" class="sidebar-new-btn">+ New Client Gallery</a>'
       +   '<div class="sidebar-search">'
       +     '<input type="text" placeholder="Search..." id="searchInput" />'
       +     '<svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">'
@@ -64,7 +64,7 @@
     list.innerHTML = '';
     galleries.forEach(g => {
       const item = document.createElement('a');
-      item.href = '/gallery/admin/gallery-edit.html?id=' + encodeURIComponent(g.id);
+      item.href = '/gallery/admin/gallery-edit?id=' + encodeURIComponent(g.id);
       item.className = 'sidebar-gallery-item';
       const color = g.status === 'published' ? '#34c759' : '#ddd';
       const dot = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'

@@ -71,12 +71,12 @@ if ('serviceWorker' in navigator) {
       document.getElementById('empty').style.display = 'flex';
     } else if (galleries.length === 1) {
       // Client has only 1 gallery — go directly to it
-      window.location.href = '/gallery/gallery.html?id=' + galleries[0].id;
+      window.location.href = '/gallery/gallery?id=' + galleries[0].id;
       return;
     } else {
       galleries.forEach((g, i) => {
         const card = document.createElement('a');
-        card.href = '/gallery/gallery.html?id=' + g.id;
+        card.href = '/gallery/gallery?id=' + g.id;
         card.className = 'cl-card';
         card.style.animationDelay = (i * 0.08) + 's';
 

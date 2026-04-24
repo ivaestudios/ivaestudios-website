@@ -538,7 +538,7 @@
 
             <div class="ge-share-title" style="margin-top:32px;">GUEST LINK</div>
             <div class="share-link-box" id="shareLinkBox" style="display:none;">
-              <span class="share-link-url" id="shareLinkUrl">ivaestudios.com/gallery/gallery.html?id=...</span>
+              <span class="share-link-url" id="shareLinkUrl">ivaestudios.com/gallery/gallery?id=...</span>
               <button class="share-link-copy" onclick="copyGalleryLink()">Copy Link</button>
             </div>
             <p style="font-size:12px;color:#bbb;margin-bottom:8px;" id="shareLinkNote">Publish the gallery to generate a shareable link.</p>
@@ -687,7 +687,7 @@ async function hydrateExistingGallery(id) {
     renderDesignGrid();
     // Surface the share link & jump to the cover step (the photos are already uploaded)
     document.getElementById('shareLinkBox').style.display = 'flex';
-    document.getElementById('shareLinkUrl').textContent = 'ivaestudios.com/gallery/gallery.html?id=' + galleryId;
+    document.getElementById('shareLinkUrl').textContent = 'ivaestudios.com/gallery/gallery?id=' + galleryId;
     document.getElementById('shareLinkNote').style.display = 'none';
     showToast('Gallery loaded');
   } catch (e) {
@@ -710,7 +710,7 @@ function goStep(s) {
   // Show gallery link when reaching Share step and gallery exists
   if (s === 3 && galleryId) {
     document.getElementById('shareLinkBox').style.display = 'flex';
-    document.getElementById('shareLinkUrl').textContent = 'ivaestudios.com/gallery/gallery.html?id=' + galleryId;
+    document.getElementById('shareLinkUrl').textContent = 'ivaestudios.com/gallery/gallery?id=' + galleryId;
     document.getElementById('shareLinkNote').style.display = 'none';
   }
 }
@@ -1200,11 +1200,11 @@ function applyFocalPoint() {
 // ═══ GALLERY LINK ═══
 function copyGalleryLink() {
   if (!galleryId) { showToast('Create gallery first'); return; }
-  const url = 'https://ivaestudios.com/gallery/gallery.html?id=' + galleryId;
+  const url = 'https://ivaestudios.com/gallery/gallery?id=' + galleryId;
   navigator.clipboard.writeText(url).then(() => showToast('Gallery link copied!')).catch(() => showToast('Could not copy link'));
 }
 function previewGallery() {
-  if (galleryId) window.open('/gallery/gallery.html?id=' + galleryId, '_blank');
+  if (galleryId) window.open('/gallery/gallery?id=' + galleryId, '_blank');
   else showToast('Create gallery first');
 }
 
