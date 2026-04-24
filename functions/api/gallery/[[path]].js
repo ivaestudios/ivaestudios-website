@@ -461,7 +461,25 @@ async function handleUpdateGallery(request, env, session, galleryId) {
 
   sets.push('updated_at = datetime("now")');
   vals.push(galleryId);
-  await env.DB.prepare(`UPDATE galleries SET ${sets.join(', ')} WHERE id = ?`).bind(...vals).run();
+  try {
+    await env.DB.prepare(`UPDATE galleries SET ${sets.join(', ')} WHERE id = ?`).bind(...vals).run();
+  } catch (e) {
+    // Schema drift: a column referenced in the update doesn't exist on this DB
+    // yet (migration not applied). Drop offending columns and retry once so
+    // the rest of the fields still save instead of nuking the whole edit.
+    const msg = (e && e.message) || '';
+    const m = msg.match(/no such column:\s*(\w+)/i);
+    if (m) {
+      const bad = m[1];
+      const idx = sets.findIndex(s => s.startsWith(bad + ' '));
+      if (idx !== -1) {
+        sets.splice(idx, 1);
+        vals.splice(idx, 1); // matched positional binding
+        await env.DB.prepare(`UPDATE galleries SET ${sets.join(', ')} WHERE id = ?`).bind(...vals).run();
+        console.warn('[gallery PUT] dropped unknown column', bad, '— run pending migration');
+      } else throw e;
+    } else throw e;
+  }
 
   // Fire auto-publish trigger AFTER the status change is committed.
   // Run async via waitUntil-style fire-and-forget so the admin response is fast.

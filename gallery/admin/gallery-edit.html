@@ -1668,6 +1668,9 @@ function copyGalleryLink() {
     document.getElementById('logoRemoveBtn').style.display = 'inline-block';
   }
   document.getElementById('whiteLogoCheck').checked = !!g.logo_white;
+  // Re-render previews now that logo + white-logo state is loaded
+  // (the early renderPreview at line ~1633 ran before _logoKey was set)
+  renderPreview();
   // Load first photo into watermark preview
   if (g.photos && g.photos.length > 0) {
     const wmImg = document.getElementById('wmPreviewImg');
