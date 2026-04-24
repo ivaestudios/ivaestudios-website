@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#1c1c1c"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<title>Gallery — IVAE Studios</title>
+<link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
+<meta property="og:title" content="Gallery — IVAE Studios"/>
+<meta property="og:description" content="View and select your photos from IVAE Studios"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="IVAE Studios"/>
+<!-- Perf: connect early + load fonts via <link> (NOT @import in CSS — that waterfalls).
+     Trimmed to 4 weights total (was 9) — saves ~150KB on mobile. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="/gallery/css/gallery.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Syne:wght@500;700&display=swap"/>
+<link rel="stylesheet" href="/gallery/css/gallery.css"/>
+<script src="/gallery/js/track.js" defer></script>
+</head>
+<body style="padding-top:0;">
+<!-- Page loader -->
+<div class="page-loader" id="pageLoader">
+  <div class="page-loader-spinner"></div>
+</div>
+
+<header class="app-header app-header-transparent">
+  <a href="/gallery/galleries.html" class="logo">IVAE <span>Studios</span></a>
+  <nav>
+    <a href="/gallery/galleries.html">My Galleries</a>
+    <span class="header-user" id="headerUser"></span>
+    <a href="#" onclick="logout(); return false;">Logout</a>
+  </nav>
+</header>
+
+<div class="gallery-hero" id="galleryHero">
+  <div class="gallery-hero-overlay"></div>
+  <div class="gallery-hero-content">
+    <div class="skeleton" style="width:100px;height:12px;margin-bottom:12px;background:rgba(255,255,255,0.1);"></div>
+    <div class="skeleton" style="width:280px;height:40px;background:rgba(255,255,255,0.1);"></div>
+  </div>
+</div>
+<style>
+/* Cover design overrides for gallery hero */
+.gallery-hero-design {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+</style>
+
+<!-- Gallery Toolbar (Pic-Time style) -->
+<div class="gallery-toolbar" id="galleryToolbar" style="display:none;">
+  <div class="gt-left">
+    <span class="gt-credit">PHOTOS BY<br><strong>IVAE</strong></span>
+    <div class="gt-tabs">
+      <button class="gt-tab active">GALLERY</button>
+      <button class="gt-tab" style="color:#ccc;cursor:default;">SHOP</button>
+    </div>
+  </div>
+  <div class="gt-right">
+    <!-- Download -->
+    <div class="gt-icon-wrap" id="gtDownloadWrap">
+      <button class="gt-icon" onclick="toggleGtDropdown('downloadDrop')" title="Download">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      </button>
+      <div class="gt-dropdown" id="downloadDrop">
+        <div class="gt-drop-arrow"></div>
+        <button class="gt-drop-btn" onclick="downloadAllPhotos('selected')">Multiple Selection</button>
+        <button class="gt-drop-btn" onclick="downloadAllPhotos('web')">Download All Photos - Web-Size</button>
+        <button class="gt-drop-btn" onclick="downloadAllPhotos('high')">Download All Photos - High-Res</button>
+        <div class="gt-drop-note">For single item downloads, use the<br>download icon on each item.</div>
+        <button class="gt-drop-link" onclick="openPreferences()">Preferences &gt;</button>
+      </div>
+    </div>
+    <!-- Favorites -->
+    <button class="gt-icon" onclick="scrollToFavorites()" title="Favorites">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    </button>
+    <div class="gt-sep"></div>
+    <!-- Slideshow -->
+    <button class="gt-icon" onclick="openSlideshow()" title="Slideshow">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24"><path d="M5 4l14 8-14 8V4z" fill="currentColor" stroke="none"/></svg>
+    </button>
+    <!-- Cart -->
+    <button class="gt-icon" onclick="showToast('Shop coming soon')" title="Cart">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 4.6A1 1 0 005.6 19h12.8M10 23a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z"/></svg>
+    </button>
+    <div class="gt-sep"></div>
+    <!-- User -->
+    <div class="gt-user">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 110 8 4 4 0 010-8z"/></svg>
+      <span class="gt-user-name" id="gtUserName">ivae</span>
+    </div>
+  </div>
+</div>
+
+<!-- Preferences Modal -->
+<div class="gt-modal-overlay" id="prefOverlay" style="display:none;" onclick="if(event.target===this)closePreferences()">
+  <div class="gt-modal">
+    <h3 class="gt-modal-title">Choose Image Quality <span class="gt-modal-help" title="High-Res downloads the original file. Web-Size downloads a smaller optimized version.">?</span></h3>
+    <div class="gt-toggle-group">
+      <button class="gt-toggle active" id="prefHigh" onclick="setPrefQuality('high')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:4px;vertical-align:-2px;"><path d="M20 6L9 17l-5-5"/></svg>High-Res</button>
+      <button class="gt-toggle" id="prefWeb" onclick="setPrefQuality('web')">Web-Size</button>
+    </div>
+    <h3 class="gt-modal-title" style="margin-top:36px;">Download photos and videos to:</h3>
+    <div class="gt-toggle-group gt-toggle-3">
+      <button class="gt-toggle active" id="prefComputer" onclick="setPrefDest('computer')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:4px;vertical-align:-2px;"><path d="M20 6L9 17l-5-5"/></svg>My Computer</button>
+      <button class="gt-toggle" id="prefDropbox" onclick="setPrefDest('dropbox')">Dropbox</button>
+      <button class="gt-toggle" id="prefGoogle" onclick="setPrefDest('google')">Google Photos</button>
+    </div>
+    <button class="gt-modal-continue" onclick="startDownloadAll()">CONTINUE</button>
+  </div>
+</div>
+
+<!-- Download progress overlay -->
+<div class="gt-modal-overlay" id="dlProgressOverlay" style="display:none;">
+  <div class="gt-modal" style="text-align:center;">
+    <h3 class="gt-modal-title" id="dlProgressTitle">Downloading photos...</h3>
+    <div style="margin:20px 0;">
+      <div style="height:8px;background:#f0eeec;border-radius:4px;overflow:hidden;">
+        <div id="dlProgressBar" style="width:0%;height:100%;border-radius:4px;background:linear-gradient(90deg,#c9a96e,#b8956a);transition:width 0.3s;"></div>
+      </div>
+    </div>
+    <p id="dlProgressText" style="font-size:13px;color:#999;">0 / 0</p>
+  </div>
+</div>
+
+<div id="photoGridAnchor" class="photo-grid-anchor"></div>
+<div class="gallery-grid-wrap">
+  <nav id="sceneNav" class="scene-nav" style="display:none;" aria-label="Scenes"></nav>
+  <div id="photoGrid" class="photo-grid">
+    <!-- Skeleton grid -->
+    <div class="photo-cell skeleton-cell"></div>
+    <div class="photo-cell skeleton-cell"></div>
+    <div class="photo-cell skeleton-cell"></div>
+    <div class="photo-cell skeleton-cell"></div>
+    <div class="photo-cell skeleton-cell"></div>
+    <div class="photo-cell skeleton-cell"></div>
+  </div>
+</div>
+
+<footer style="text-align:center;padding:60px 24px 48px;margin-top:0;border-top:1px solid #f0f0f0;">
+  <span style="font-family:'Syne',sans-serif;font-size:9px;font-weight:600;letter-spacing:0.25em;text-transform:uppercase;color:#bbb;">IVAE <span style="color:#a8894a;">Studios</span></span>
+  <p style="font-size:11px;color:#aaa;margin-top:6px;letter-spacing:0.3px;">Luxury Resort Photography — Cancun, Mexico</p>
+</footer>
+
+<!-- Auto-save indicator -->
+<div class="autosave-indicator" id="autosave">
+  <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+  Saved
+</div>
+
+<!-- Selection Bar (legacy — used when proofing disabled, kept for downloads) -->
+<div class="selection-bar" id="selBar">
+  <span class="selection-count"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;color:#e74c6f;"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><strong id="selCount">0</strong> favorites <span id="selProofTarget" style="display:none;color:#888;font-weight:400;margin-left:6px;"></span></span>
+  <div style="display:flex;gap:12px;align-items:center;">
+    <button class="btn btn-outline btn-sm" onclick="clearSelections()">Clear</button>
+    <button class="btn btn-gold btn-sm" onclick="downloadSelected()" id="downloadBtn">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      Download Selected
+    </button>
+    <button class="btn btn-gold btn-sm" onclick="openProofModal()" id="submitProofBtn" style="display:none;background:#1c1c1c;border-color:#1c1c1c;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+      Submit Final Selections
+    </button>
+  </div>
+</div>
+
+<!-- Album Preview sticky panel (proofing mode — replaces selBar visually) -->
+<div class="album-panel" id="albumPanel" role="region" aria-label="Selection summary" style="display:none;">
+  <div class="ap-count" id="apCount">0 selected</div>
+  <div class="ap-progress" aria-hidden="true"><div class="ap-progress-fill" id="apProgressFill"></div></div>
+  <div class="ap-actions">
+    <button type="button" class="ap-btn ap-btn-ghost" id="apPreviewBtn" onclick="openAlbumPreview()">Preview Selections</button>
+    <button type="button" class="ap-btn ap-btn-solid" id="apSubmitBtn" onclick="openProofModal()" aria-label="Submit your final selections">Submit Final Selections</button>
+  </div>
+  <div class="ap-locked" id="apLocked" style="display:none;">Selections submitted &#10003;</div>
+</div>
+
+<!-- Album Preview Modal -->
+<div class="album-modal-overlay" id="albumModalOverlay" style="display:none;" onclick="if(event.target===this)closeAlbumPreview()" role="dialog" aria-modal="true" aria-labelledby="apModalTitle">
+  <div class="album-modal">
+    <button class="album-modal-close" onclick="closeAlbumPreview()" aria-label="Close preview">&times;</button>
+    <div class="album-modal-header">
+      <h2 id="apModalTitle" class="album-modal-title">Your selections</h2>
+      <p class="album-modal-sub" id="apModalSub">0 photos</p>
+    </div>
+    <div class="album-modal-body">
+      <div class="album-modal-grid" id="albumModalGrid"></div>
+      <div class="album-modal-empty" id="albumModalEmpty" style="display:none;">No selections yet. Pick photos by tapping the heart on each image.</div>
+    </div>
+    <div class="album-modal-footer">
+      <button type="button" class="ap-btn ap-btn-ghost" onclick="closeAlbumPreview()">Continue browsing</button>
+      <button type="button" class="ap-btn ap-btn-solid" id="apModalSubmit" onclick="closeAlbumPreview(); openProofModal();" aria-label="Submit your final selections">Submit Final Selections</button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ── Album Preview sticky panel ── */
+.album-panel {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: #fff;
+  border-top: 1px solid var(--border-l, rgba(26,36,51,0.11));
+  padding: 14px 24px;
+  display: grid;
+  grid-template-columns: minmax(140px, auto) 1fr auto;
+  align-items: center;
+  gap: 24px;
+  z-index: 60;
+  box-shadow: 0 -2px 16px rgba(0,0,0,0.06);
+}
+.album-panel .ap-count {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ink, #1a2433);
+  letter-spacing: 0.3px;
+}
+.album-panel .ap-progress {
+  height: 3px; width: 100%;
+  background: var(--sand, #ede8df);
+  position: relative; overflow: hidden;
+}
+.album-panel .ap-progress-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 0%;
+  background: var(--gold2, #a8894a);
+  transition: width 0.35s cubic-bezier(.25,0,.15,1);
+}
+.album-panel .ap-actions { display: flex; gap: 12px; align-items: center; }
+.album-panel .ap-locked {
+  grid-column: 1 / -1;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-style: italic;
+  color: var(--gold2, #a8894a);
+  text-align: center;
+}
+.ap-btn {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  padding: 12px 22px; border-radius: 0;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+.ap-btn-ghost {
+  background: transparent;
+  color: var(--ink, #1a2433);
+  border: 1px solid var(--ink, #1a2433);
+}
+.ap-btn-ghost:hover { background: var(--ink, #1a2433); color: #fff; }
+.ap-btn-solid {
+  background: #1c1c1c; color: #fff; border: 1px solid #1c1c1c;
+}
+.ap-btn-solid:hover { background: #000; border-color: #000; }
+.ap-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+@media (max-width: 720px) {
+  .album-panel {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 14px 16px 18px;
+  }
+  .album-panel .ap-actions { justify-content: stretch; }
+  .album-panel .ap-actions .ap-btn { flex: 1; padding: 12px 10px; font-size: 10px; }
+}
+
+/* ── Album Preview Modal ── */
+.album-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(20,29,40,0.62);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 24px;
+  animation: apFade 0.25s ease;
+}
+@keyframes apFade { from { opacity: 0; } to { opacity: 1; } }
+.album-modal {
+  background: #fff;
+  width: 100%; max-width: 1100px;
+  max-height: 92vh;
+  display: flex; flex-direction: column;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+.album-modal-close {
+  position: absolute; top: 14px; right: 18px;
+  width: 36px; height: 36px;
+  background: transparent; border: 0;
+  font-size: 28px; line-height: 1; color: var(--ink, #1a2433);
+  cursor: pointer; z-index: 2;
+}
+.album-modal-close:hover { color: var(--gold2, #a8894a); }
+.album-modal-header {
+  padding: 36px 36px 18px;
+  border-bottom: 1px solid var(--border-l, rgba(26,36,51,0.11));
+}
+.album-modal-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 400;
+  color: var(--ink, #1a2433);
+  letter-spacing: 0.3px;
+}
+.album-modal-sub {
+  margin-top: 4px;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--muted, rgba(26,36,51,0.55));
+}
+.album-modal-body {
+  flex: 1; overflow-y: auto;
+  padding: 24px 36px;
+}
+.album-modal-grid {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.am-thumb {
+  position: relative;
+  width: 180px; height: 130px;
+  background: var(--sand, #ede8df);
+  overflow: hidden;
+  cursor: default;
+}
+.am-thumb img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+.am-thumb:hover img { transform: scale(1.04); }
+.am-thumb-overlay {
+  position: absolute; inset: 0;
+  background: rgba(20,29,40,0.55);
+  opacity: 0; transition: opacity 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.am-thumb:hover .am-thumb-overlay { opacity: 1; }
+.am-deselect {
+  width: 36px; height: 36px;
+  background: #fff; border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink, #1a2433);
+  font-size: 20px; line-height: 1;
+  transition: background 0.2s;
+}
+.am-deselect:hover { background: var(--gold, #c4a35a); color: #fff; }
+.album-modal-empty {
+  text-align: center;
+  padding: 48px 24px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic; font-size: 18px;
+  color: var(--muted, rgba(26,36,51,0.55));
+}
+.album-modal-footer {
+  padding: 18px 36px 24px;
+  border-top: 1px solid var(--border-l, rgba(26,36,51,0.11));
+  display: flex; justify-content: flex-end; gap: 12px;
+}
+@media (max-width: 720px) {
+  .album-modal-overlay { padding: 0; }
+  .album-modal { max-height: 100vh; height: 100vh; }
+  .album-modal-header { padding: 28px 20px 14px; }
+  .album-modal-body { padding: 16px 20px; }
+  .album-modal-footer { padding: 14px 20px; flex-direction: column-reverse; }
+  .album-modal-footer .ap-btn { width: 100%; }
+  .am-thumb { width: calc(50% - 4px); height: 120px; }
+}
+</style>
+
+<!-- Email Gate Modal (Pic-Time pre-registration) -->
+<div class="email-gate-overlay" id="emailGateOverlay" style="display:none;">
+  <div class="email-gate-modal">
+    <div class="email-gate-brand">IVAE <span>Studios</span></div>
+    <h2 class="email-gate-title" id="emailGateTitle">Welcome</h2>
+    <p class="email-gate-sub">Please enter your details to view this gallery.</p>
+    <form onsubmit="submitEmailGate(event)">
+      <input type="text" id="egName" placeholder="Your name (optional)" autocomplete="name"/>
+      <input type="email" id="egEmail" placeholder="Email address" required autocomplete="email"/>
+      <button type="submit" class="email-gate-cta" id="egSubmit">ENTER GALLERY</button>
+      <p class="email-gate-err" id="egErr" style="display:none;"></p>
+    </form>
+    <p class="email-gate-fineprint">Your email helps the photographer share updates about this gallery.</p>
+  </div>
+</div>
+
+<!-- Slideshow Modal -->
+<div class="slideshow-overlay" id="slideshowOverlay" style="display:none;">
+  <img id="slideshowImg" src="" alt="" />
+  <div class="slideshow-controls">
+    <button class="ss-btn" onclick="ssTogglePlay()" title="Play / Pause" id="ssPlayBtn">
+      <svg id="ssPlayIcon" width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+    </button>
+    <button class="ss-btn" onclick="ssNav(-1)" title="Previous"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button class="ss-btn" onclick="ssNav(1)" title="Next"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+    <div class="ss-speed">
+      <button class="ss-speed-btn" data-speed="2000" onclick="ssSetSpeed(2000)">FAST</button>
+      <button class="ss-speed-btn active" data-speed="4000" onclick="ssSetSpeed(4000)">NORMAL</button>
+      <button class="ss-speed-btn" data-speed="6000" onclick="ssSetSpeed(6000)">SLOW</button>
+    </div>
+    <button class="ss-btn" onclick="ssToggleAudio()" title="Music" id="ssAudioBtn">
+      <svg id="ssAudioIcon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M9 19V6l12-3v13M9 19a3 3 0 11-6 0 3 3 0 016 0zm12-3a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    </button>
+    <button class="ss-close" onclick="closeSlideshow()" title="Close">&times;</button>
+  </div>
+  <audio id="ssAudio" loop preload="none"></audio>
+</div>
+
+<!-- Proof Submission Modal -->
+<div class="email-gate-overlay" id="proofOverlay" style="display:none;" onclick="if(event.target===this)closeProofModal()">
+  <div class="email-gate-modal">
+    <h2 class="email-gate-title" id="proofTitle">Submit Final Selections</h2>
+    <p class="email-gate-sub" id="proofSub">You are about to send your final picks to the photographer.</p>
+    <form onsubmit="submitProof(event)">
+      <input type="text" id="proofName" placeholder="Your name (optional)" autocomplete="name"/>
+      <input type="email" id="proofEmail" placeholder="Email" required autocomplete="email"/>
+      <textarea id="proofNote" placeholder="Add a note (optional)" rows="3" style="width:100%;padding:14px 16px;border:1px solid #e5dfd6;border-radius:2px;font-family:inherit;font-size:14px;color:#1c1c1c;background:#fff;resize:vertical;margin-bottom:8px;"></textarea>
+      <button type="submit" class="email-gate-cta" id="proofSubmitBtn">SEND SELECTIONS</button>
+      <button type="button" class="email-gate-cancel" onclick="closeProofModal()">Cancel</button>
+      <p class="email-gate-err" id="proofErr" style="display:none;"></p>
+    </form>
+  </div>
+</div>
+
+<!-- Lightbox (Pic-Time style) -->
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-topbar">
+    <div class="lightbox-topbar-left-wrap">
+      <img id="lightboxLogo" class="lightbox-logo" src="" alt="" style="display:none;"/>
+      <span class="lightbox-topbar-left" id="lightboxFilename"></span>
+    </div>
+    <div class="lightbox-topbar-right">
+      <span class="lightbox-counter" id="lightboxCounter">1 / 1</span>
+      <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close lightbox">&times;</button>
+    </div>
+  </div>
+  <div class="lightbox-body">
+    <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)" aria-label="Previous photo">&#8249;</button>
+    <img id="lightboxImg" src="" alt=""/>
+    <div id="lightboxWm" class="lightbox-wm" style="display:none;">
+      <div class="wm-badge wm-badge-lg"><span class="wm-title" id="lbWmTitle">IVAE</span><span class="wm-sub" id="lbWmSub">STUDIOS</span></div>
+    </div>
+    <button class="lightbox-nav lightbox-next" onclick="navLightbox(1)" aria-label="Next photo">&#8250;</button>
+  </div>
+  <div class="lightbox-bottombar">
+    <button id="lightboxHeart" class="btn btn-outline btn-sm" onclick="toggleFromLightbox()">
+      <svg id="lightboxHeartIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+      <span id="lightboxHeartText">Favorite</span>
+    </button>
+    <a id="lightboxDownload" class="lightbox-dl-btn" download>
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      Download
+    </a>
+  </div>
+</div>
+
+<script src="/gallery/js/api.js"></script>
+<script src="/gallery/js/auth.js"></script>
+<script src="/gallery/js/cover-designs.js"></script>
+<script src="/gallery/js/justified-layout.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/gallery/sw.js', { scope: '/' }).catch(err => console.warn('SW register failed:', err));
+}
+const galleryId = new URLSearchParams(window.location.search).get('id');
+let photos = [];
+let scenes = [];
+let selectedIds = new Set();
+let lightboxIndex = 0;
+let wmEnabled = false;
+let wmOpacity = 0.3;
+let wmText = 'IVAE';
+let wmSubtext = 'STUDIOS';
+// Phase 3 — engagement state
+let proofingEnabled = false;
+let proofingTarget = 0;
+let proofingLocked = false;
+let slideshowSpeed = 4000;
+let slideshowMusicKey = null;
+let visitorEmail = null;
+
+function getCookie(name) {
+  const m = document.cookie.match(new RegExp('(?:^|;\\s*)' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '=([^;]+)'));
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+// ═══ COVER DESIGN TEMPLATES — shared with admin via /js/cover-designs.js ═══
+function renderCoverDesign(...args) { return window.IvaeCoverDesigns.render(...args); }
+
+let isPublicView = false;
+let isByLinkView = false;  // gated by email-gate cookie, no account needed
+
+(async () => {
+  let gallery;
+  const user = await checkAuth(null, true); // silent check — don't redirect
+
+  if (user) {
+    try { gallery = await API.get('/galleries/' + galleryId); } catch (e) {}
+  }
+
+  // If not authenticated or no access, try public portfolio endpoint
+  if (!gallery) {
+    try {
+      const res = await fetch('/api/gallery/galleries/' + galleryId + '/public');
+      if (res.ok) { gallery = await res.json(); isPublicView = true; }
+    } catch (e) {}
+  }
+
+  // Last fallback: by-link gallery (gated by email-gate cookie, no account)
+  if (!gallery) {
+    try {
+      const res = await fetch('/api/gallery/galleries/' + galleryId + '/by-link');
+      if (res.ok) { gallery = await res.json(); isByLinkView = true; }
+    } catch (e) {}
+  }
+
+  if (!gallery) {
+    // No access — redirect to login with return URL
+    window.location.href = '/gallery/?redirect=' + encodeURIComponent('/gallery/gallery.html?id=' + galleryId);
+    return;
+  }
+
+  try {
+
+    // Gallery hero — render cover design from stored settings.
+    // PERF: use /web (~250KB) for the hero background, NOT /full (~17MB).
+    // Hero is the LCP element on mobile — every byte matters.
+    const heroEl = document.getElementById('galleryHero');
+    const coverSrc = gallery.cover_key
+      ? `/api/gallery/photos/${gallery.cover_key}/web`
+      : (gallery.photos.length > 0 ? `/api/gallery/photos/${gallery.photos[0].id}/web` : null);
+    const bg = gallery.bg_color || '#ffffff';
+    const tx = gallery.txt_color || '#1c1c1c';
+    const fx = gallery.focal_x ?? 50;
+    const fy = gallery.focal_y ?? 50;
+    const design = gallery.cover_design || 'classic';
+    const dateStr = gallery.session_date
+      ? new Date(gallery.session_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+      : '';
+    const t = gallery.title;
+    const bgImg = coverSrc
+      ? `background-image:url(${coverSrc});background-position:${fx}% ${fy}%;background-size:cover;`
+      : `background:linear-gradient(180deg,#d5d8da 0%,#c8cbc8 35%,#d2cfc5 60%,#e0ddd5 100%);`;
+
+    const heroHTML = renderCoverDesign(design, t, dateStr, gallery.description, gallery.photos.length, bgImg, bg, tx, coverSrc, fx, fy);
+    // Preserve .gallery-hero so min-height:100dvh applies — was being dropped.
+    heroEl.className = 'gallery-hero gallery-hero-design';
+    heroEl.style = '';
+    heroEl.innerHTML = heroHTML + `
+      <a class="enter-gallery-cta" href="#photoGridAnchor" onclick="enterGallery(event)" aria-label="Enter gallery">
+        <span class="enter-gallery-cta-text">ENTER GALLERY</span>
+        <svg class="enter-gallery-cta-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      </a>`;
+
+    photos = gallery.photos;
+    scenes = gallery.scenes || [];
+    if (!isPublicView && !isByLinkView) {
+      photos.forEach(p => { if (p.selected) selectedIds.add(p.id); });
+    } else if (isByLinkView) {
+      // Anon visitor: hydrate selections from localStorage (key per gallery)
+      try {
+        const saved = JSON.parse(localStorage.getItem('pic_sel_' + galleryId) || '[]');
+        saved.forEach(id => selectedIds.add(id));
+      } catch (e) {}
+    }
+
+    // Watermark settings
+    wmEnabled = !!gallery.watermark_enabled;
+    wmOpacity = gallery.watermark_opacity || 0.3;
+    if (gallery.watermark_text) wmText = gallery.watermark_text;
+    if (gallery.watermark_subtext != null) wmSubtext = gallery.watermark_subtext;
+    document.getElementById('lbWmTitle').textContent = wmText;
+    const lbWmSubEl = document.getElementById('lbWmSub');
+    lbWmSubEl.textContent = wmSubtext;
+    lbWmSubEl.style.display = wmSubtext ? 'block' : 'none';
+    if (wmEnabled) {
+      const lbWm = document.getElementById('lightboxWm');
+      lbWm.style.display = 'flex';
+      lbWm.style.setProperty('--wm-op', wmOpacity);
+    }
+
+    // Per-gallery logo (lightbox topbar)
+    if (gallery.logo_key) {
+      const logoEl = document.getElementById('lightboxLogo');
+      logoEl.src = '/api/gallery/galleries/' + galleryId + '/logo';
+      logoEl.style.display = 'block';
+    }
+
+    // Phase 3 — proofing + slideshow config
+    proofingEnabled = !!gallery.proofing_enabled;
+    proofingTarget  = parseInt(gallery.proofing_target, 10) || 0;
+    proofingLocked  = !!gallery.proofing_locked;
+    slideshowSpeed  = parseInt(gallery.slideshow_speed_ms, 10) || 4000;
+    slideshowMusicKey = gallery.slideshow_music_key || null;
+
+    // Email gate — Pic-Time pre-registration. Triggers for by-link visitors and
+    // for any logged-out viewer of a request_email gallery.
+    if (!isPublicView && gallery.request_email && !user) {
+      visitorEmail = getCookie('pic_visit_' + galleryId);
+      if (!visitorEmail) {
+        document.getElementById('emailGateTitle').textContent = gallery.title || 'Welcome';
+        document.getElementById('emailGateOverlay').style.display = 'flex';
+      }
+    } else if (user) {
+      visitorEmail = user.email;
+    }
+
+    // Hide download buttons if downloads are disabled
+    const allowDownload = gallery.allow_download !== 0;
+    if (!allowDownload) {
+      document.getElementById('downloadBtn').style.display = 'none';
+      document.getElementById('lightboxDownload').style.display = 'none';
+    }
+
+    // Show gallery toolbar & hide old header for client view
+    if (!isPublicView) {
+      document.getElementById('galleryToolbar').style.display = 'flex';
+      document.querySelector('.app-header').style.display = 'none';
+      if (user && user.name) {
+        document.getElementById('gtUserName').textContent = user.name.split(' ')[0].toLowerCase();
+      } else if (isByLinkView) {
+        document.getElementById('gtUserName').textContent = 'guest';
+      }
+      if (!allowDownload) document.getElementById('gtDownloadWrap').style.display = 'none';
+    }
+
+    // Hide selection UI for public (portfolio) viewers
+    if (isPublicView) {
+      document.getElementById('selBar').style.display = 'none';
+      document.getElementById('lightboxHeart').style.display = 'none';
+      document.getElementById('lightboxDownload').style.display = 'none';
+      const header = document.querySelector('.app-header');
+      if (header) header.innerHTML = `<a href="/gallery/portfolio.html" class="logo" style="color:#fff;text-decoration:none;">IVAE <span>Studios</span></a><nav><a href="/gallery/portfolio.html" style="color:rgba(255,255,255,0.5);text-decoration:none;font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;">Portfolio</a></nav>`;
+    }
+
+    document.title = gallery.title + ' — IVAE Studios';
+    renderGrid();
+    if (!isPublicView) updateSelBar();
+  } catch (err) {
+    document.getElementById('photoGrid').innerHTML = `
+      <div class="empty-state" style="column-span:all;">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <h3>Gallery not found</h3>
+        <p>This gallery may have been removed or you don't have access.</p>
+        <a href="/gallery/galleries.html" class="btn btn-outline btn-sm" style="margin-top:16px;">Back to Galleries</a>
+      </div>
+    `;
+    document.getElementById('galleryHero').innerHTML = '';
+  }
+
+  // Remove page loader
+  const loader = document.getElementById('pageLoader');
+  loader.classList.add('fade-out');
+  setTimeout(() => loader.remove(), 400);
+})();
+
+function renderGrid() {
+  const grid = document.getElementById('photoGrid');
+  grid.innerHTML = '';
+
+  if (!photos.length) {
+    grid.innerHTML = `
+      <div class="empty-state" style="column-span:all;">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/></svg>
+        <h3>No photos yet</h3>
+        <p>Your photographer will upload photos soon.</p>
+      </div>
+    `;
+    return;
+  }
+
+  // If no scenes, render all photos flat
+  if (!scenes.length) {
+    renderPhotoSection(grid, photos, 0);
+    return;
+  }
+
+  // Group photos by scene
+  const unscened = photos.filter(p => !p.scene_id);
+  const sortedScenes = [...scenes].sort((a, b) => a.sort_order - b.sort_order);
+  const visibleScenes = sortedScenes.filter(s => photos.some(p => p.scene_id === s.id));
+
+  // Sticky chip nav — only shown when there's more than one section to jump between.
+  const navEl = document.getElementById('sceneNav');
+  if (navEl) {
+    if (visibleScenes.length >= 1 && (unscened.length > 0 || visibleScenes.length > 1)) {
+      const chips = [];
+      if (unscened.length) chips.push(`<a href="#scene-all" class="scene-chip" onclick="jumpToScene(event,'scene-all')">All</a>`);
+      visibleScenes.forEach(s => {
+        chips.push(`<a href="#scene-${s.id}" class="scene-chip" onclick="jumpToScene(event,'scene-${s.id}')">${escapeHtml(s.name)}</a>`);
+      });
+      navEl.innerHTML = chips.join('');
+      navEl.style.display = 'flex';
+    } else {
+      navEl.style.display = 'none';
+      navEl.innerHTML = '';
+    }
+  }
+
+  // Render unscened photos first (main gallery)
+  let globalOffset = 0;
+  if (unscened.length) {
+    const anchor = document.createElement('div');
+    anchor.id = 'scene-all';
+    anchor.className = 'scene-anchor';
+    grid.appendChild(anchor);
+    renderPhotoSection(grid, unscened, globalOffset);
+    globalOffset += unscened.length;
+  }
+
+  // Render each scene section
+  visibleScenes.forEach(scene => {
+    const scenePhotos = photos.filter(p => p.scene_id === scene.id);
+
+    const header = document.createElement('div');
+    header.id = 'scene-' + scene.id;
+    header.className = 'scene-section-header scene-anchor';
+    header.innerHTML = `
+      <div class="scene-section-line"></div>
+      <span class="scene-section-title">${escapeHtml(scene.name)}</span>
+      <div class="scene-section-line"></div>
+    `;
+    grid.appendChild(header);
+
+    renderPhotoSection(grid, scenePhotos, globalOffset);
+    globalOffset += scenePhotos.length;
+  });
+
+  observeSceneSections();
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function jumpToScene(e, id) {
+  if (e) e.preventDefault();
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.scene-chip').forEach(c => c.classList.toggle('active', c.getAttribute('href') === '#' + id));
+}
+
+let _sceneObserver = null;
+function observeSceneSections() {
+  if (_sceneObserver) _sceneObserver.disconnect();
+  const anchors = document.querySelectorAll('.scene-anchor');
+  if (!anchors.length) return;
+  _sceneObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        document.querySelectorAll('.scene-chip').forEach(c => c.classList.toggle('active', c.getAttribute('href') === '#' + id));
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  anchors.forEach(a => _sceneObserver.observe(a));
+}
+
+// Justified-row layout (Pic-Time signature). Falls back to 3:2 aspect ratio
+// when width/height aren't yet stored — lazy-backfill captures real dims on
+// thumb load and POSTs them back so the next render is exact.
+const _backfillQueue = [];
+let _backfillTimer = null;
+function queueBackfill(photoId, w, h) {
+  if (!w || !h) return;
+  _backfillQueue.push({ photoId, width: w, height: h });
+  clearTimeout(_backfillTimer);
+  _backfillTimer = setTimeout(flushBackfill, 1500);
+}
+async function flushBackfill() {
+  if (!_backfillQueue.length) return;
+  const items = _backfillQueue.splice(0, _backfillQueue.length);
+  try {
+    await fetch('/api/gallery/photos/backfill-dimensions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items })
+    });
+  } catch {}
+}
+
+function getRowTargetHeight() {
+  // Pic-Time-style heights — taller rows feel more cinematic.
+  return window.innerWidth < 720 ? 220 : 340;
+}
+function getRowGap() {
+  return window.innerWidth < 720 ? 5 : 10;
+}
+
+function renderPhotoSection(container, sectionPhotos, indexOffset) {
+  const wrap = container.parentElement || document.querySelector('.gallery-grid-wrap');
+  const isMobile = window.innerWidth < 720;
+  // Account for inner padding so justify math doesn't push rows past the wrap edge.
+  const padBudget = isMobile ? 32 : 128;
+  const containerWidth = (wrap?.clientWidth || container.clientWidth || window.innerWidth) - padBudget;
+  const rows = window.justifyRows(sectionPhotos, {
+    containerWidth,
+    targetRowHeight: getRowTargetHeight(),
+    gap: getRowGap()
+  });
+
+  // PERF: above-fold eager loads. On mobile only ~2 photos are above the fold
+  // (the hero takes 100dvh). Loading 8 with fetchpriority=high starves the hero.
+  const EAGER_COUNT = (typeof indexOffset === 'number' ? indexOffset : 0) === 0
+    ? (isMobile ? 2 : 6)
+    : 0;
+  let renderedSoFar = 0;
+
+  rows.forEach(row => {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'justified-row';
+    rowEl.style.height = row.height + 'px';
+    row.items.forEach(it => {
+      const p = it; // also has displayWidth/displayHeight
+      const i = photos.indexOf(p);
+      const isSelected = !isPublicView && selectedIds.has(p.id);
+      const selectBtn = isPublicView ? '' : `
+        <div class="photo-overlay">
+          <div></div>
+          <div class="photo-select ${isSelected ? 'selected' : ''}" data-id="${p.id}" onclick="event.stopPropagation(); toggleSelect('${p.id}', this)">
+            <svg class="heart-icon" width="20" height="20" viewBox="0 0 24 24" fill="${isSelected ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </div>
+        </div>`;
+      const wmOverlay = wmEnabled ? `<div class="wm-overlay" style="--wm-op:${wmOpacity}"><div class="wm-badge"><span class="wm-title">${escapeHtml(wmText)}</span>${wmSubtext ? `<span class="wm-sub">${escapeHtml(wmSubtext)}</span>` : ''}</div></div>` : '';
+      const cell = document.createElement('div');
+      cell.className = 'photo-cell' + (isSelected ? ' selected' : '');
+      cell.style.width = it.displayWidth + 'px';
+      cell.style.height = it.displayHeight + 'px';
+      const isAboveFold = renderedSoFar < EAGER_COUNT;
+      const loadAttr = isAboveFold ? 'eager' : 'lazy';
+      const fpAttr  = isAboveFold ? 'high'  : 'auto';
+      const wAttr = Math.round(it.displayWidth);
+      const hAttr = Math.round(it.displayHeight);
+      cell.innerHTML = `
+        <img loading="${loadAttr}" decoding="async" fetchpriority="${fpAttr}" width="${wAttr}" height="${hAttr}" src="/api/gallery/photos/${p.id}/thumb" alt="${p.filename || ''}" data-photo-id="${p.id}" data-needs-dims="${(!p.width || !p.height) ? '1' : '0'}" style="opacity:0;transition:opacity 0.35s ease;"/>
+        ${wmOverlay}
+        <button class="photo-expand" onclick="event.stopPropagation(); openLightbox(${i})" aria-label="Expand photo">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9m11.25-5.25v4.5m0-4.5h-4.5m4.5 0L15 9m-11.25 11.25v-4.5m0 4.5h4.5m-4.5 0L9 15m11.25 5.25v-4.5m0 4.5h-4.5m4.5 0L15 15"/></svg>
+        </button>
+        ${selectBtn}
+      `;
+      renderedSoFar++;
+      const img = cell.querySelector('img');
+      img.addEventListener('load', () => {
+        img.style.opacity = 1;
+        if (img.dataset.needsDims === '1' && img.naturalWidth && img.naturalHeight) {
+          queueBackfill(img.dataset.photoId, img.naturalWidth, img.naturalHeight);
+        }
+      });
+      cell.addEventListener('click', () => openLightbox(i));
+      rowEl.appendChild(cell);
+    });
+    container.appendChild(rowEl);
+  });
+}
+
+// Re-render on resize (debounced) so justified rows stay tight.
+// Skip iOS URL-bar collapse (height-only change) — only re-render when WIDTH
+// actually changes, otherwise we wipe DOM mid-scroll and re-decode every img.
+let _resizeTimer = null;
+let _lastWidth = window.innerWidth;
+window.addEventListener('resize', () => {
+  if (window.innerWidth === _lastWidth) return;
+  _lastWidth = window.innerWidth;
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(() => { if (photos.length) renderGrid(); }, 250);
+});
+
+function enterGallery(e) {
+  if (e) e.preventDefault();
+  const target = document.getElementById('photoGridAnchor');
+  if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function toggleSelect(photoId, el) {
+  // Anonymous (by-link) visitor: store selection in localStorage. No server round-trip.
+  if (isByLinkView) {
+    if (selectedIds.has(photoId)) selectedIds.delete(photoId);
+    else selectedIds.add(photoId);
+    try { localStorage.setItem('pic_sel_' + galleryId, JSON.stringify([...selectedIds])); } catch {}
+    renderGrid();
+    updateSelBar();
+    showAutosave();
+    return;
+  }
+  try {
+    const res = await API.post('/selections/' + photoId, {});
+    if (res.selected) selectedIds.add(photoId);
+    else selectedIds.delete(photoId);
+    renderGrid();
+    updateSelBar();
+    showAutosave();
+  } catch (e) { showToast(e.message); }
+}
+
+function showAutosave() {
+  const el = document.getElementById('autosave');
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+function updateSelBar() {
+  const bar = document.getElementById('selBar');
+  const count = document.getElementById('selCount');
+  count.textContent = selectedIds.size;
+  if (selectedIds.size > 0) bar.classList.add('show');
+  else bar.classList.remove('show');
+
+  // Phase 3 — proofing UI
+  const submitBtn = document.getElementById('submitProofBtn');
+  const targetEl  = document.getElementById('selProofTarget');
+  if (proofingEnabled && !proofingLocked) {
+    submitBtn.style.display = selectedIds.size > 0 ? 'inline-flex' : 'none';
+    if (proofingTarget > 0) {
+      targetEl.style.display = 'inline';
+      targetEl.textContent = `(target: ${proofingTarget})`;
+    } else {
+      targetEl.style.display = 'none';
+    }
+  } else if (proofingLocked && proofingEnabled) {
+    submitBtn.style.display = 'inline-flex';
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = '0.5';
+    submitBtn.style.cursor = 'not-allowed';
+    submitBtn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Selections Submitted';
+  }
+}
+
+// Lightbox state for zoom/pan
+let lbScale = 1;
+let lbPanX = 0;
+let lbPanY = 0;
+let lbDragStart = null;
+const LB_MAX_SCALE = 4;
+const LB_MIN_SCALE = 1;
+
+function applyLightboxTransform() {
+  const img = document.getElementById('lightboxImg');
+  if (!img) return;
+  img.style.transform = `translate(${lbPanX}px, ${lbPanY}px) scale(${lbScale})`;
+  img.classList.toggle('zoomed', lbScale > 1);
+}
+
+function resetLightboxTransform() {
+  lbScale = 1; lbPanX = 0; lbPanY = 0;
+  applyLightboxTransform();
+}
+
+function preloadPhoto(index) {
+  if (index < 0 || index >= photos.length) return;
+  const p = photos[index];
+  if (!p) return;
+  const img = new Image();
+  img.src = '/api/gallery/photos/' + p.id + '/web';
+}
+
+function loadLightboxPhoto(index) {
+  lightboxIndex = index;
+  const p = photos[index];
+  const img = document.getElementById('lightboxImg');
+  resetLightboxTransform();
+  img.classList.add('loading-img');
+  img.src = '/api/gallery/photos/' + p.id + '/web';
+  img.onload = () => img.classList.remove('loading-img');
+  document.getElementById('lightboxFilename').textContent = p.filename || '';
+  const dl = document.getElementById('lightboxDownload');
+  if (dl) dl.href = '/api/gallery/photos/' + p.id + '/full';
+  updateLightboxCounter();
+  updateLightboxHeart();
+  // Preload neighbors so left/right feels instant
+  preloadPhoto(index - 1);
+  preloadPhoto(index + 1);
+}
+
+function openLightbox(index) {
+  loadLightboxPhoto(index);
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+  resetLightboxTransform();
+}
+
+function navLightbox(dir) {
+  loadLightboxPhoto((lightboxIndex + dir + photos.length) % photos.length);
+}
+
+// Wheel = zoom (centered on cursor). Drag = pan when zoomed.
+document.addEventListener('DOMContentLoaded', () => {
+  const lb = document.getElementById('lightbox');
+  const img = document.getElementById('lightboxImg');
+  if (!lb || !img) return;
+
+  lb.addEventListener('wheel', (e) => {
+    if (!lb.classList.contains('open')) return;
+    e.preventDefault();
+    const delta = -e.deltaY * 0.0015;
+    const newScale = Math.max(LB_MIN_SCALE, Math.min(LB_MAX_SCALE, lbScale + delta * 4));
+    lbScale = newScale;
+    if (lbScale === 1) { lbPanX = 0; lbPanY = 0; }
+    applyLightboxTransform();
+  }, { passive: false });
+
+  img.addEventListener('mousedown', (e) => {
+    if (lbScale === 1) return;
+    lbDragStart = { x: e.clientX - lbPanX, y: e.clientY - lbPanY };
+    img.style.cursor = 'grabbing';
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (!lbDragStart) return;
+    lbPanX = e.clientX - lbDragStart.x;
+    lbPanY = e.clientY - lbDragStart.y;
+    applyLightboxTransform();
+  });
+  window.addEventListener('mouseup', () => {
+    lbDragStart = null;
+    if (img) img.style.cursor = '';
+  });
+
+  // Double-click to toggle zoom
+  img.addEventListener('dblclick', () => {
+    lbScale = lbScale > 1 ? 1 : 2.5;
+    if (lbScale === 1) { lbPanX = 0; lbPanY = 0; }
+    applyLightboxTransform();
+  });
+
+  // Touch: swipe horizontally to navigate (when not zoomed)
+  let touchStart = null;
+  img.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1 || lbScale > 1) return;
+    touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() };
+  });
+  img.addEventListener('touchend', (e) => {
+    if (!touchStart) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStart.x;
+    const dy = t.clientY - touchStart.y;
+    const dt = Date.now() - touchStart.t;
+    if (dt < 500 && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      navLightbox(dx < 0 ? 1 : -1);
+    } else if (dt < 280 && Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+      // Single tap (no swipe, no zoom) → toggle chrome for immersive view (mobile)
+      lb.classList.toggle('chrome-hidden');
+    }
+    touchStart = null;
+  });
+});
+
+// Keyboard nav
+document.addEventListener('keydown', (e) => {
+  const lb = document.getElementById('lightbox');
+  if (!lb || !lb.classList.contains('open')) return;
+  if (e.key === 'ArrowLeft') { e.preventDefault(); navLightbox(-1); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); navLightbox(1); }
+  else if (e.key === 'Escape') { e.preventDefault(); closeLightbox(); }
+  else if (e.key === '0') { e.preventDefault(); resetLightboxTransform(); }
+  else if (e.key === '+' || e.key === '=') { e.preventDefault(); lbScale = Math.min(LB_MAX_SCALE, lbScale + 0.5); applyLightboxTransform(); }
+  else if (e.key === '-' || e.key === '_') { e.preventDefault(); lbScale = Math.max(LB_MIN_SCALE, lbScale - 0.5); if (lbScale === 1) { lbPanX = 0; lbPanY = 0; } applyLightboxTransform(); }
+});
+
+function updateLightboxCounter() {
+  document.getElementById('lightboxCounter').textContent = (lightboxIndex + 1) + ' / ' + photos.length;
+}
+
+function updateLightboxHeart() {
+  const p = photos[lightboxIndex];
+  const sel = selectedIds.has(p.id);
+  document.getElementById('lightboxHeartText').textContent = sel ? 'Favorited' : 'Favorite';
+  document.getElementById('lightboxHeart').className = sel ? 'btn btn-gold btn-sm' : 'btn btn-outline btn-sm';
+  document.getElementById('lightboxHeartIcon').setAttribute('fill', sel ? 'currentColor' : 'none');
+}
+
+async function toggleFromLightbox() {
+  await toggleSelect(photos[lightboxIndex].id);
+  updateLightboxHeart();
+}
+
+async function clearSelections() {
+  if (!confirm('Clear all selections?')) return;
+  if (isByLinkView) {
+    selectedIds.clear();
+    try { localStorage.removeItem('pic_sel_' + galleryId); } catch {}
+    renderGrid();
+    updateSelBar();
+    showToast('Selections cleared');
+    return;
+  }
+  const ids = [...selectedIds];
+  for (const id of ids) {
+    try { await API.post('/selections/' + id, {}); } catch {}
+  }
+  selectedIds.clear();
+  renderGrid();
+  updateSelBar();
+  showToast('Selections cleared');
+}
+
+async function downloadSelected() {
+  const btn = document.getElementById('downloadBtn');
+  btn.classList.add('loading');
+  const ids = [...selectedIds];
+  for (let i = 0; i < ids.length; i++) {
+    const a = document.createElement('a');
+    a.href = '/api/gallery/photos/' + ids[i] + '/full';
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    if (i < ids.length - 1) await new Promise(r => setTimeout(r, 800));
+  }
+  btn.classList.remove('loading');
+  showToast(ids.length + ' photo' + (ids.length > 1 ? 's' : '') + ' downloading');
+}
+
+// ═══ TOOLBAR FUNCTIONS ═══
+let prefQuality = 'high';
+let prefDest = 'computer';
+let dropboxToken = null;
+let googleToken = null;
+let oauthConfig = { dropboxAppKey: '', googleClientId: '' };
+const CHK = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:4px;vertical-align:-2px;"><path d="M20 6L9 17l-5-5"/></svg>';
+
+// Load OAuth config
+(async () => { try { oauthConfig = await API.get('/config'); } catch(e) {} })();
+
+function toggleGtDropdown(id) {
+  const el = document.getElementById(id);
+  const isOpen = el.classList.contains('open');
+  document.querySelectorAll('.gt-dropdown').forEach(d => d.classList.remove('open'));
+  if (!isOpen) el.classList.add('open');
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.gt-icon-wrap')) document.querySelectorAll('.gt-dropdown').forEach(d => d.classList.remove('open'));
+});
+
+async function downloadAllPhotos(mode) {
+  document.querySelectorAll('.gt-dropdown').forEach(d => d.classList.remove('open'));
+  if (mode === 'selected') {
+    showToast('Select photos with the heart icon, then download from the bar below');
+    window.scrollTo({ top: document.querySelector('.gallery-grid-wrap').offsetTop, behavior: 'smooth' });
+    return;
+  }
+  prefQuality = mode;
+  setPrefQuality(mode);
+  openPreferences();
+}
+
+function scrollToFavorites() {
+  if (selectedIds.size === 0) { showToast('No favorites yet — tap the heart on photos you like'); return; }
+  const first = document.querySelector('.photo-cell.selected');
+  if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function openPreferences() {
+  document.querySelectorAll('.gt-dropdown').forEach(d => d.classList.remove('open'));
+  document.getElementById('prefOverlay').style.display = 'flex';
+}
+function closePreferences() { document.getElementById('prefOverlay').style.display = 'none'; }
+
+function setPrefQuality(q) {
+  prefQuality = q;
+  document.getElementById('prefHigh').classList.toggle('active', q === 'high');
+  document.getElementById('prefWeb').classList.toggle('active', q === 'web');
+  document.getElementById('prefHigh').innerHTML = (q === 'high' ? CHK : '') + 'High-Res';
+  document.getElementById('prefWeb').innerHTML = (q === 'web' ? CHK : '') + 'Web-Size';
+}
+
+function setPrefDest(d) {
+  prefDest = d;
+  ['computer','dropbox','google'].forEach(k => {
+    const el = document.getElementById('pref' + k.charAt(0).toUpperCase() + k.slice(1));
+    el.classList.toggle('active', k === d);
+    const labels = { computer: 'My Computer', dropbox: 'Dropbox', google: 'Google Photos' };
+    el.innerHTML = (k === d ? CHK : '') + labels[k];
+  });
+}
+
+// ═══ DOWNLOAD ENGINE ═══
+async function startDownloadAll() {
+  closePreferences();
+  if (!photos.length) { showToast('No photos to download'); return; }
+
+  if (prefDest === 'dropbox') {
+    if (!oauthConfig.dropboxAppKey) { showToast('Dropbox not configured yet'); return; }
+    if (!dropboxToken) { await connectDropbox(); return; }
+    await uploadToDropbox();
+  } else if (prefDest === 'google') {
+    if (!oauthConfig.googleClientId) { showToast('Google Drive not configured yet'); return; }
+    if (!googleToken) { await connectGoogle(); return; }
+    await uploadToGoogleDrive();
+  } else {
+    await downloadToComputer();
+  }
+}
+
+function photoUrl(photo, mode) {
+  // mode: 'full' (high-res original) or 'web' (2000px optimized)
+  const endpoint = mode === 'web' ? '/web?download=1' : '/full';
+  return '/api/gallery/photos/' + photo.id + endpoint;
+}
+
+async function downloadToComputer() {
+  showProgress('Downloading to your computer...', photos.length);
+  const mode = prefQuality === 'web' ? 'web' : 'full';
+  for (let i = 0; i < photos.length; i++) {
+    const a = document.createElement('a');
+    a.href = photoUrl(photos[i], mode);
+    a.download = photos[i].filename || '';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    updateProgress(i + 1, photos.length);
+    if (i < photos.length - 1) await new Promise(r => setTimeout(r, 1000));
+  }
+  setTimeout(() => hideProgress(photos.length + ' photos downloaded'), 1500);
+}
+
+// ═══ DROPBOX INTEGRATION (PKCE OAuth) ═══
+let dbxCodeVerifier = null;
+
+async function connectDropbox() {
+  // Generate PKCE code verifier + challenge
+  const arr = new Uint8Array(32);
+  crypto.getRandomValues(arr);
+  dbxCodeVerifier = btoa(String.fromCharCode(...arr)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(dbxCodeVerifier));
+  const challenge = btoa(String.fromCharCode(...new Uint8Array(digest))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+
+  const params = new URLSearchParams({
+    client_id: oauthConfig.dropboxAppKey,
+    redirect_uri: window.location.origin + '/gallery/auth-callback.html',
+    response_type: 'code',
+    code_challenge: challenge,
+    code_challenge_method: 'S256',
+    token_access_type: 'online'
+  });
+  const popup = window.open('https://www.dropbox.com/oauth2/authorize?' + params, 'dropbox_auth', 'width=500,height=700');
+  showToast('Connecting to Dropbox...');
+}
+
+async function handleDropboxCode(code) {
+  // Exchange code for token using PKCE
+  const resp = await fetch('https://api.dropboxapi.com/oauth2/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      code,
+      grant_type: 'authorization_code',
+      client_id: oauthConfig.dropboxAppKey,
+      redirect_uri: window.location.origin + '/gallery/auth-callback.html',
+      code_verifier: dbxCodeVerifier
+    })
+  });
+  const data = await resp.json();
+  if (data.access_token) {
+    dropboxToken = data.access_token;
+    showToast('Dropbox connected!');
+    await uploadToDropbox();
+  } else {
+    showToast('Dropbox connection failed');
+  }
+}
+
+async function uploadToDropbox() {
+  const folder = '/IVAE Studios/' + document.title.replace(' — IVAE Studios', '');
+  const mode = prefQuality === 'web' ? 'web' : 'full';
+  showProgress('Uploading to Dropbox...', photos.length);
+  for (let i = 0; i < photos.length; i++) {
+    try {
+      const resp = await fetch('/api/gallery/photos/' + photos[i].id + '/' + mode);
+      const blob = await resp.blob();
+      const fname = photos[i].filename || ('photo-' + (i+1) + '.jpg');
+      await fetch('https://content.dropboxapi.com/2/files/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + dropboxToken,
+          'Content-Type': 'application/octet-stream',
+          'Dropbox-API-Arg': JSON.stringify({ path: folder + '/' + fname, mode: 'add', autorename: true })
+        },
+        body: blob
+      });
+    } catch(e) { console.error('Dropbox upload error:', e); }
+    updateProgress(i + 1, photos.length);
+  }
+  hideProgress(photos.length + ' photos saved to Dropbox!');
+}
+
+// ═══ GOOGLE DRIVE INTEGRATION (Implicit OAuth) ═══
+async function connectGoogle() {
+  const params = new URLSearchParams({
+    client_id: oauthConfig.googleClientId,
+    redirect_uri: window.location.origin + '/gallery/auth-callback.html',
+    response_type: 'token',
+    scope: 'https://www.googleapis.com/auth/drive.file',
+    include_granted_scopes: 'true'
+  });
+  const popup = window.open('https://accounts.google.com/o/oauth2/v2/auth?' + params, 'google_auth', 'width=500,height=700');
+  showToast('Connecting to Google Drive...');
+}
+
+async function uploadToGoogleDrive() {
+  // Create folder first
+  const folderName = document.title.replace(' — IVAE Studios', '') + ' — IVAE Studios';
+  let folderId;
+  try {
+    const fRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + googleToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: folderName, mimeType: 'application/vnd.google-apps.folder' })
+    });
+    const fData = await fRes.json();
+    folderId = fData.id;
+  } catch(e) { showToast('Failed to create Google Drive folder'); return; }
+
+  const mode = prefQuality === 'web' ? 'web' : 'full';
+  showProgress('Uploading to Google Drive...', photos.length);
+  for (let i = 0; i < photos.length; i++) {
+    try {
+      const resp = await fetch('/api/gallery/photos/' + photos[i].id + '/' + mode);
+      const blob = await resp.blob();
+      const fname = photos[i].filename || ('photo-' + (i+1) + '.jpg');
+      const metadata = { name: fname, parents: [folderId] };
+      const form = new FormData();
+      form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+      form.append('file', blob);
+      await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + googleToken },
+        body: form
+      });
+    } catch(e) { console.error('Google Drive upload error:', e); }
+    updateProgress(i + 1, photos.length);
+  }
+  hideProgress(photos.length + ' photos saved to Google Drive!');
+}
+
+// ═══ OAUTH MESSAGE LISTENER ═══
+window.addEventListener('message', async (e) => {
+  if (e.origin !== window.location.origin) return;
+  if (e.data.type === 'oauth_code' && e.data.provider === 'dropbox') {
+    await handleDropboxCode(e.data.code);
+  } else if (e.data.type === 'oauth_token' && e.data.provider === 'google') {
+    googleToken = e.data.access_token;
+    showToast('Google Drive connected!');
+    await uploadToGoogleDrive();
+  } else if (e.data.type === 'oauth_error') {
+    showToast('Connection failed: ' + (e.data.error || 'unknown error'));
+  }
+});
+
+// ═══ PROGRESS HELPERS ═══
+function showProgress(title, total) {
+  document.getElementById('dlProgressTitle').textContent = title;
+  document.getElementById('dlProgressBar').style.width = '0%';
+  document.getElementById('dlProgressText').textContent = '0 / ' + total;
+  document.getElementById('dlProgressOverlay').style.display = 'flex';
+}
+function updateProgress(current, total) {
+  document.getElementById('dlProgressBar').style.width = Math.round((current / total) * 100) + '%';
+  document.getElementById('dlProgressText').textContent = current + ' / ' + total;
+}
+function hideProgress(msg) {
+  document.getElementById('dlProgressOverlay').style.display = 'none';
+  showToast(msg);
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft') navLightbox(-1);
+  if (e.key === 'ArrowRight') navLightbox(1);
+  if (e.key === ' ' || e.key === 's') { e.preventDefault(); toggleFromLightbox(); }
+});
+
+// Touch swipe in lightbox
+let touchStartX = 0;
+document.getElementById('lightbox').addEventListener('touchstart', (e) => {
+  touchStartX = e.changedTouches[0].screenX;
+}, { passive: true });
+document.getElementById('lightbox').addEventListener('touchend', (e) => {
+  const diff = e.changedTouches[0].screenX - touchStartX;
+  if (Math.abs(diff) > 50) navLightbox(diff > 0 ? -1 : 1);
+}, { passive: true });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PHASE 3 — EMAIL GATE / SLIDESHOW / PROOFING
+// ═══════════════════════════════════════════════════════════════════════════
+
+async function submitEmailGate(e) {
+  e.preventDefault();
+  const email = document.getElementById('egEmail').value.trim();
+  const name = document.getElementById('egName').value.trim();
+  const errEl = document.getElementById('egErr');
+  const btn = document.getElementById('egSubmit');
+  errEl.style.display = 'none';
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    errEl.textContent = 'Please enter a valid email.';
+    errEl.style.display = 'block';
+    return;
+  }
+  btn.disabled = true; btn.textContent = 'ENTERING…';
+  try {
+    const res = await fetch('/api/gallery/galleries/' + galleryId + '/visitor', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, name })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || 'Could not register');
+    }
+    visitorEmail = email;
+    document.getElementById('emailGateOverlay').style.display = 'none';
+  } catch (err) {
+    errEl.textContent = err.message || 'Could not register';
+    errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'ENTER GALLERY';
+  }
+}
+
+// ── SLIDESHOW ──
+let ssIndex = 0;
+let ssTimer = null;
+let ssPlaying = false;
+let ssAudioOn = false;
+
+function openSlideshow() {
+  if (!photos.length) return;
+  ssIndex = Math.max(0, lightboxIndex || 0);
+  document.getElementById('slideshowOverlay').style.display = 'flex';
+  ssLoad();
+  ssSetSpeed(slideshowSpeed);
+  ssPlay();
+  // Optional music
+  const audio = document.getElementById('ssAudio');
+  if (slideshowMusicKey) {
+    audio.src = '/api/gallery/galleries/' + galleryId + '/music';
+  }
+  // Hide controls after idle
+  ssScheduleHideControls();
+}
+
+function closeSlideshow() {
+  ssPause();
+  document.getElementById('slideshowOverlay').style.display = 'none';
+  const audio = document.getElementById('ssAudio');
+  audio.pause(); audio.currentTime = 0;
+  ssAudioOn = false;
+  document.getElementById('ssAudioIcon').style.opacity = '0.55';
+}
+
+function ssLoad() {
+  const p = photos[ssIndex];
+  if (!p) return;
+  const img = document.getElementById('slideshowImg');
+  img.style.opacity = '0';
+  const next = new Image();
+  next.onload = () => { img.src = next.src; img.style.opacity = '1'; };
+  next.src = '/api/gallery/photos/' + p.id + '/web';
+  // Preload neighbour
+  const n = photos[(ssIndex + 1) % photos.length];
+  if (n) { const pre = new Image(); pre.src = '/api/gallery/photos/' + n.id + '/web'; }
+}
+
+function ssNav(dir) {
+  ssIndex = (ssIndex + dir + photos.length) % photos.length;
+  ssLoad();
+  if (ssPlaying) ssPlay();
+}
+
+function ssPlay() {
+  ssPlaying = true;
+  clearInterval(ssTimer);
+  ssTimer = setInterval(() => ssNav(1), slideshowSpeed);
+  document.getElementById('ssPlayIcon').innerHTML = '<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>';
+}
+function ssPause() {
+  ssPlaying = false;
+  clearInterval(ssTimer);
+  document.getElementById('ssPlayIcon').innerHTML = '<path d="M5 3l14 9-14 9V3z"/>';
+}
+function ssTogglePlay() { ssPlaying ? ssPause() : ssPlay(); }
+
+function ssSetSpeed(ms) {
+  slideshowSpeed = ms;
+  document.querySelectorAll('.ss-speed-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.speed, 10) === ms));
+  if (ssPlaying) ssPlay();
+}
+
+function ssToggleAudio() {
+  const audio = document.getElementById('ssAudio');
+  ssAudioOn = !ssAudioOn;
+  if (ssAudioOn) {
+    audio.volume = 0.5;
+    audio.play().catch(() => { ssAudioOn = false; document.getElementById('ssAudioIcon').style.opacity = '0.55'; showToast('No music available'); });
+    document.getElementById('ssAudioIcon').style.opacity = '1';
+  } else {
+    audio.pause();
+    document.getElementById('ssAudioIcon').style.opacity = '0.55';
+  }
+}
+
+let ssCtlTimer = null;
+function ssScheduleHideControls() {
+  const overlay = document.getElementById('slideshowOverlay');
+  overlay.classList.remove('idle');
+  clearTimeout(ssCtlTimer);
+  ssCtlTimer = setTimeout(() => overlay.classList.add('idle'), 2500);
+}
+document.addEventListener('mousemove', () => {
+  if (document.getElementById('slideshowOverlay').style.display === 'flex') ssScheduleHideControls();
+});
+document.addEventListener('keydown', (e) => {
+  if (document.getElementById('slideshowOverlay').style.display !== 'flex') return;
+  if (e.key === 'Escape') closeSlideshow();
+  if (e.key === 'ArrowLeft') ssNav(-1);
+  if (e.key === 'ArrowRight') ssNav(1);
+  if (e.key === ' ') { e.preventDefault(); ssTogglePlay(); }
+});
+
+// ── PROOFING SUBMIT ──
+function openProofModal() {
+  if (!proofingEnabled || proofingLocked) return;
+  if (!selectedIds.size) { showToast('Select at least one photo first.'); return; }
+  if (proofingTarget > 0 && selectedIds.size < proofingTarget) {
+    if (!confirm(`You've selected ${selectedIds.size} of ${proofingTarget} photos. Submit anyway?`)) return;
+  }
+  document.getElementById('proofTitle').textContent = `Submit ${selectedIds.size} ${selectedIds.size === 1 ? 'Selection' : 'Selections'}`;
+  document.getElementById('proofSub').textContent = proofingTarget > 0
+    ? `Target was ${proofingTarget}. Once submitted, your selections are locked for review.`
+    : 'Once submitted, your selections are locked for review.';
+  if (visitorEmail) document.getElementById('proofEmail').value = visitorEmail;
+  document.getElementById('proofErr').style.display = 'none';
+  document.getElementById('proofOverlay').style.display = 'flex';
+}
+function closeProofModal() { document.getElementById('proofOverlay').style.display = 'none'; }
+
+async function submitProof(e) {
+  e.preventDefault();
+  const email = document.getElementById('proofEmail').value.trim();
+  const name = document.getElementById('proofName').value.trim();
+  const note = document.getElementById('proofNote').value.trim();
+  const errEl = document.getElementById('proofErr');
+  const btn = document.getElementById('proofSubmitBtn');
+  errEl.style.display = 'none';
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    errEl.textContent = 'Valid email required.'; errEl.style.display = 'block'; return;
+  }
+  btn.disabled = true; btn.textContent = 'SENDING…';
+  try {
+    const res = await fetch('/api/gallery/galleries/' + galleryId + '/proof', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, name, note, photo_ids: Array.from(selectedIds) })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Submission failed');
+    closeProofModal();
+    showToast('Selections sent — your photographer will be in touch.');
+    if (isByLinkView) { try { localStorage.removeItem('pic_sel_' + galleryId); } catch {} }
+    proofingLocked = true;
+    updateSelBar();
+  } catch (err) {
+    errEl.textContent = err.message || 'Submission failed';
+    errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'SEND SELECTIONS';
+  }
+}
+</script>
+</body>
+</html>

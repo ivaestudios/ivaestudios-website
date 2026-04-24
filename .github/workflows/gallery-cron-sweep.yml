@@ -1,0 +1,51 @@
+# Daily cron sweep for the IVAE Gallery backend.
+#
+# Replaces the Cloudflare Workers `scheduled` handler that ran when the gallery
+# lived at gallery.ivaestudios.com. Pages Functions has no cron, so we trigger
+# the work via HTTP from a GitHub Action.
+#
+# Hits POST /api/gallery/admin/cron-sweep with bearer auth. The endpoint runs:
+#   - handleExpiryWarn       — emails admin about galleries expiring in <=7 days
+#   - handleEmailQueueSweep  — sends any scheduled_emails whose send_after has elapsed
+#
+# Required GitHub Secret:
+#   GALLERY_CRON_SECRET — must match the env.CRON_SECRET configured in Cloudflare
+#                         Pages → Settings → Environment variables (Production).
+
+name: Gallery — daily cron sweep
+
+on:
+  schedule:
+    - cron: '0 12 * * *'   # 12:00 UTC = 07:00 Cancún
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gallery-cron
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    name: POST /api/gallery/admin/cron-sweep
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger gallery cron sweep
+        env:
+          CRON_SECRET: ${{ secrets.GALLERY_CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::Missing GALLERY_CRON_SECRET secret. Set it in repo Settings → Secrets."
+            exit 1
+          fi
+          echo "Calling https://ivaestudios.com/api/gallery/admin/cron-sweep ..."
+          response=$(curl -fsS -X POST \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json" \
+            --connect-timeout 30 --max-time 60 \
+            -w "\nHTTP_STATUS:%{http_code}\n" \
+            https://ivaestudios.com/api/gallery/admin/cron-sweep)
+          echo "$response"
+          # curl -f already exits non-zero on 4xx/5xx, but be explicit about logging.
+          echo "Sweep complete."

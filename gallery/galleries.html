@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>My Galleries — IVAE Studios</title>
+<link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
+<meta property="og:title" content="My Galleries — IVAE Studios"/>
+<meta property="og:description" content="View your photo galleries from IVAE Studios"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="IVAE Studios"/>
+<link rel="stylesheet" href="/gallery/css/gallery.css"/>
+</head>
+<body class="client-galleries-page">
+<!-- Page loader -->
+<div class="page-loader" id="pageLoader">
+  <div class="page-loader-spinner"></div>
+</div>
+
+<header class="client-header">
+  <a href="/gallery/galleries.html" class="client-header-logo">IVAE <span>Studios</span></a>
+  <nav class="client-header-nav">
+    <span class="client-header-user" id="headerUser"></span>
+    <a href="#" onclick="logout(); return false;" class="client-header-logout">Sign Out</a>
+  </nav>
+</header>
+
+<main class="client-main">
+  <div class="client-hero">
+    <p class="client-hero-eyebrow">Your Photo Sessions</p>
+    <h1 class="client-hero-title">Galleries</h1>
+    <p class="client-hero-sub">Browse and relive your favourite moments</p>
+  </div>
+
+  <div id="galleries" class="client-gallery-grid"></div>
+  <div id="empty" class="client-empty" style="display:none;">
+    <div class="client-empty-icon">
+      <svg fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24" width="48" height="48"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/></svg>
+    </div>
+    <h3>Your Gallery Is Being Prepared</h3>
+    <p>Our team is curating your images with care. You'll receive a notification once your gallery is ready to view.</p>
+  </div>
+</main>
+
+<footer class="client-footer">
+  <div class="client-footer-logo">IVAE <span>Studios</span></div>
+  <p class="client-footer-text">Luxury Resort Photography &mdash; Cancun, Mexico</p>
+</footer>
+
+<script src="/gallery/js/api.js"></script>
+<script src="/gallery/js/auth.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/gallery/sw.js', { scope: '/' }).catch(err => console.warn('SW register failed:', err));
+}
+(async () => {
+  const user = await checkAuth();
+  if (!user) return;
+
+  // If admin, redirect to admin dashboard
+  if (user.role === 'admin') { window.location.href = '/gallery/admin/'; return; }
+
+  // Show user name
+  document.getElementById('headerUser').textContent = user.name || user.email;
+
+  try {
+    const galleries = await API.get('/galleries');
+    const container = document.getElementById('galleries');
+
+    if (!galleries.length) {
+      document.getElementById('empty').style.display = 'flex';
+    } else if (galleries.length === 1) {
+      // Client has only 1 gallery — go directly to it
+      window.location.href = '/gallery/gallery.html?id=' + galleries[0].id;
+      return;
+    } else {
+      galleries.forEach((g, i) => {
+        const card = document.createElement('a');
+        card.href = '/gallery/gallery.html?id=' + g.id;
+        card.className = 'cl-card';
+        card.style.animationDelay = (i * 0.08) + 's';
+
+        const dateStr = g.session_date
+          ? new Date(g.session_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+          : '';
+
+        const coverImg = g.cover_key
+          ? `<img src="/api/gallery/photos/${g.cover_key}/thumb" alt="${g.title}" onload="this.style.opacity=1" style="opacity:0;transition:opacity 0.6s ease;"/>`
+          : `<div class="cl-card-placeholder">
+              <svg fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24" width="32" height="32"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/></svg>
+            </div>`;
+
+        const photoCountBadge = g.photo_count
+          ? `<span class="cl-card-badge">${g.photo_count} photo${g.photo_count !== 1 ? 's' : ''}</span>`
+          : '';
+
+        card.innerHTML = `
+          <div class="cl-card-img">
+            ${coverImg}
+            <div class="cl-card-overlay">
+              <span class="cl-card-view">View Gallery</span>
+            </div>
+          </div>
+          <div class="cl-card-body">
+            <div class="cl-card-title">${g.title}</div>
+            <div class="cl-card-meta">
+              ${dateStr ? `<span>${dateStr}</span>` : ''}
+              ${photoCountBadge}
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+  } catch (err) {
+    document.getElementById('galleries').innerHTML = `
+      <div class="client-empty" style="display:flex;grid-column:1/-1;">
+        <div class="client-empty-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24" width="48" height="48"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <h3>Could not load galleries</h3>
+        <p>Please try again later.</p>
+      </div>
+    `;
+  }
+
+  // Remove page loader
+  const loader = document.getElementById('pageLoader');
+  loader.classList.add('fade-out');
+  setTimeout(() => loader.remove(), 400);
+})();
+</script>
+</body>
+</html>

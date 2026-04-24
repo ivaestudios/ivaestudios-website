@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<!--
+  IVAE Gallery — Studio Settings (admin)
+  Single-row settings panel. Tabs: Profile / Brand / Watermark / Defaults / Storage.
+  Reads + writes /api/gallery/admin/settings (singleton row id='studio').
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Settings — IVAE Studios Admin</title>
+<link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Syne:wght@500;700&display=swap"/>
+<link rel="stylesheet" href="/gallery/css/gallery.css"/>
+<style>
+  :root {
+    --ink: #1c1c1c; --ink-soft: #2c2c2c;
+    --gold: #c9a96e; --gold-deep: #a07040;
+    --cream: #fdfaf3; --sand: #e8e0d4; --bone: #f5f5f0;
+    --text: #333; --text-soft: #555; --muted: #999; --mute-soft: #bbb;
+    --line: #e8e8e8; --line-soft: #f0f0f0;
+    --white: #fff; --off-white: #fafafa;
+    --success: #34c759; --danger: #d43e2a;
+    --font-serif: 'Cormorant Garamond', Georgia, serif;
+    --font-sans: 'Syne', -apple-system, sans-serif;
+  }
+  body { padding-top: 0; background: var(--white); margin: 0; font-family: var(--font-sans); color: var(--text); }
+
+  /* Top bar */
+  .set-topbar {
+    display: flex; align-items: center; gap: 24px;
+    padding: 28px 0 22px;
+    border-bottom: 1px solid var(--line-soft);
+    margin-bottom: 0;
+  }
+  .set-title {
+    font-family: var(--font-serif);
+    font-size: 32px; font-weight: 500; color: var(--ink);
+    letter-spacing: -0.01em; margin: 0;
+  }
+  .set-subtitle {
+    font-size: 12px; color: var(--muted); margin-left: 16px;
+    letter-spacing: 0.04em;
+  }
+  .set-save-btn {
+    margin-left: auto;
+    font-family: var(--font-sans); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 13px 28px; border: none; cursor: pointer;
+    background: var(--ink); color: var(--white);
+    border-radius: 3px; transition: background .15s;
+  }
+  .set-save-btn:hover { background: var(--gold-deep); }
+  .set-save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .set-save-btn.saved { background: var(--success); }
+
+  /* Tabs */
+  .set-tabs {
+    display: flex; gap: 32px;
+    border-bottom: 1px solid var(--line-soft);
+    margin-bottom: 32px;
+    padding: 0;
+  }
+  .set-tab {
+    background: none; border: none; cursor: pointer;
+    font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); padding: 18px 0 16px;
+    border-bottom: 2px solid transparent; transition: all .15s;
+  }
+  .set-tab:hover { color: var(--ink); }
+  .set-tab.active { color: var(--ink); border-bottom-color: var(--gold); }
+
+  /* Sections */
+  .set-pane { display: none; padding-bottom: 80px; }
+  .set-pane.active { display: block; }
+  .set-pane-intro {
+    font-family: var(--font-serif); font-style: italic;
+    color: var(--muted); font-size: 16px; max-width: 560px;
+    margin: 0 0 32px;
+  }
+
+  .set-row {
+    display: grid; grid-template-columns: 220px 1fr;
+    gap: 32px; padding: 22px 0;
+    border-bottom: 1px solid var(--line-soft);
+    align-items: start;
+  }
+  .set-row:last-child { border-bottom: none; }
+  .set-label {
+    font-size: 12px; font-weight: 600; color: var(--ink);
+    letter-spacing: 0.04em; padding-top: 9px;
+  }
+  .set-label small {
+    display: block; font-weight: 400;
+    color: var(--muted); font-size: 11px;
+    margin-top: 4px; letter-spacing: 0;
+  }
+  .set-control { max-width: 520px; }
+  .set-input, .set-select, .set-textarea {
+    width: 100%; box-sizing: border-box;
+    padding: 11px 14px;
+    font-family: var(--font-sans); font-size: 13px;
+    background: var(--white); color: var(--text);
+    border: 1px solid var(--line); border-radius: 3px;
+    outline: none; transition: border-color .15s;
+  }
+  .set-input:focus, .set-select:focus, .set-textarea:focus { border-color: var(--gold); }
+  .set-textarea { resize: vertical; min-height: 80px; line-height: 1.55; }
+
+  /* Color picker swatch */
+  .set-color {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .set-color input[type="color"] {
+    width: 44px; height: 44px; padding: 0; border: 1px solid var(--line);
+    background: none; cursor: pointer; border-radius: 3px;
+  }
+  .set-color .set-input { flex: 1; max-width: 140px; font-family: monospace; font-size: 12px; }
+
+  /* Inline switch */
+  .set-switch {
+    display: inline-flex; align-items: center; gap: 12px; cursor: pointer;
+    font-size: 12px; color: var(--text);
+  }
+  .set-switch input { display: none; }
+  .set-switch-track {
+    width: 38px; height: 22px; background: var(--line);
+    border-radius: 11px; position: relative; transition: background .2s;
+  }
+  .set-switch-track::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--white); transition: transform .2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.15);
+  }
+  .set-switch input:checked + .set-switch-track { background: var(--ink); }
+  .set-switch input:checked + .set-switch-track::after { transform: translateX(16px); }
+
+  /* Slider */
+  .set-slider { display: flex; align-items: center; gap: 14px; }
+  .set-slider input[type="range"] { flex: 1; max-width: 260px; }
+  .set-slider .set-slider-val {
+    font-family: monospace; font-size: 12px;
+    color: var(--text-soft); min-width: 36px; text-align: right;
+  }
+
+  /* Storage card */
+  .storage-card {
+    background: var(--bone); border: 1px solid var(--line-soft);
+    border-radius: 4px; padding: 28px;
+    max-width: 520px;
+  }
+  .storage-bar-track {
+    height: 12px; background: var(--white);
+    border-radius: 6px; overflow: hidden; margin: 14px 0 8px;
+    border: 1px solid var(--line);
+  }
+  .storage-bar-fill {
+    height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-deep));
+    border-radius: 6px; transition: width .4s;
+  }
+  .storage-numbers {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--muted); letter-spacing: 0.04em;
+  }
+  .storage-headline {
+    font-family: var(--font-serif); font-size: 28px; font-weight: 500;
+    color: var(--ink); line-height: 1; margin-bottom: 4px;
+  }
+  .storage-headline small { font-family: var(--font-sans); font-size: 13px; color: var(--muted); font-weight: 400; }
+
+  /* Logo upload */
+  .logo-area {
+    display: flex; align-items: center; gap: 24px;
+  }
+  .logo-preview {
+    width: 88px; height: 88px; border: 1px dashed var(--line);
+    background: var(--off-white); border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; flex-shrink: 0;
+  }
+  .logo-preview img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .logo-preview .logo-empty {
+    font-size: 10px; color: var(--mute-soft); text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .logo-actions { display: flex; flex-direction: column; gap: 8px; }
+  .btn-secondary {
+    font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    background: var(--white); color: var(--ink-soft);
+    border: 1px solid var(--line); padding: 10px 18px;
+    cursor: pointer; border-radius: 3px;
+    transition: all .15s;
+  }
+  .btn-secondary:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    padding: 14px 22px; border-radius: 4px;
+    background: var(--ink); color: var(--white);
+    font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.18);
+    transform: translateY(80px); opacity: 0;
+    transition: all .25s; z-index: 200;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.error { background: var(--danger); }
+
+  @media (max-width: 767px) {
+    .set-row { grid-template-columns: 1fr; gap: 8px; }
+    .set-label { padding-top: 0; }
+    .set-tabs { gap: 18px; overflow-x: auto; }
+  }
+
+  /* ── Emails tab ── */
+  .et-loading, .et-error, .et-empty {
+    padding: 48px 24px; text-align: center; color: var(--muted); font-size: 14px;
+  }
+  .et-list { display: flex; flex-direction: column; gap: 14px; }
+  .et-card {
+    background: #fff; border: 1px solid var(--line); border-radius: 4px;
+    overflow: hidden; transition: box-shadow .2s, border-color .2s;
+  }
+  .et-card:hover { border-color: var(--ink); }
+  .et-card.expanded { box-shadow: 0 1px 12px rgba(0,0,0,.06); }
+  .et-card.disabled .et-name { color: var(--muted); }
+
+  .et-head {
+    display: grid;
+    grid-template-columns: 36px 1fr auto auto;
+    align-items: center; gap: 16px;
+    padding: 18px 22px; cursor: pointer;
+  }
+  .et-icon {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--cream); display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .et-icon[data-trigger="on_publish"]      { background: rgba(160,112,64,.18); }
+  .et-icon[data-trigger="on_expire_warn"]  { background: rgba(180,80,60,.18); }
+  .et-icon[data-trigger="on_delivery_plus_7d"] { background: rgba(245,235,210,.7); }
+  .et-icon[data-trigger="on_anniversary"]  { background: var(--ink); color: var(--cream); }
+
+  .et-meta { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .et-name {
+    font-family: var(--font-serif, Georgia, serif);
+    font-size: 18px; font-weight: 400; color: var(--ink);
+    line-height: 1.2;
+  }
+  .et-trigger {
+    font-size: 10px; text-transform: uppercase; letter-spacing: .14em;
+    color: var(--muted);
+  }
+
+  .et-toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+  .et-toggle input { display: none; }
+  .et-toggle .et-toggle-track {
+    width: 32px; height: 18px; border-radius: 9px;
+    background: var(--line); position: relative; transition: background .2s;
+  }
+  .et-toggle .et-toggle-track::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 14px; height: 14px; border-radius: 50%; background: #fff;
+    box-shadow: 0 1px 2px rgba(0,0,0,.18); transition: transform .2s;
+  }
+  .et-toggle input:checked + .et-toggle-track { background: var(--gold, #a07040); }
+  .et-toggle input:checked + .et-toggle-track::after { transform: translateX(14px); }
+  .et-toggle .et-toggle-state { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+  .et-chev {
+    width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+    color: var(--muted); transition: transform .25s;
+  }
+  .et-card.expanded .et-chev { transform: rotate(180deg); }
+
+  .et-body {
+    border-top: 1px solid var(--line);
+    padding: 24px 22px;
+    display: none;
+    background: var(--bone, #faf8f3);
+  }
+  .et-card.expanded .et-body { display: block; }
+
+  .et-field { margin-bottom: 18px; }
+  .et-field label {
+    display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .14em;
+    color: var(--muted); margin-bottom: 6px;
+  }
+  .et-field input, .et-field textarea {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 3px;
+    background: #fff; color: var(--ink); font-size: 14px; font-family: inherit;
+    box-sizing: border-box;
+  }
+  .et-field input:focus, .et-field textarea:focus { outline: none; border-color: var(--gold, #a07040); }
+  .et-field textarea {
+    font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
+    font-size: 12px; line-height: 1.6; min-height: 360px; resize: vertical;
+  }
+  .et-field-row { display: grid; grid-template-columns: 1fr 160px; gap: 14px; }
+  @media (max-width: 600px) { .et-field-row { grid-template-columns: 1fr; } }
+
+  .et-vars {
+    background: #fff; border: 1px solid var(--line); border-radius: 3px;
+    padding: 12px 14px; margin-bottom: 18px;
+  }
+  .et-vars-label { font-size: 11px; text-transform: uppercase; letter-spacing: .14em; color: var(--muted); margin-bottom: 8px; }
+  .et-vars-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .et-chip {
+    font-family: 'SFMono-Regular', Menlo, monospace;
+    font-size: 11px; padding: 4px 10px; border-radius: 12px;
+    background: var(--sand, #f0e8d8); color: var(--ink); border: none; cursor: pointer;
+    transition: background .15s;
+  }
+  .et-chip:hover { background: var(--gold, #a07040); color: #fff; }
+  .et-vars-hint { font-size: 11px; color: var(--muted); margin-top: 8px; }
+
+  .et-actions {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    padding-top: 14px; border-top: 1px solid var(--line);
+  }
+  .et-btn {
+    padding: 9px 18px; border-radius: 3px;
+    font-size: 11px; text-transform: uppercase; letter-spacing: .14em;
+    cursor: pointer; transition: background .15s, color .15s;
+    font-family: inherit;
+  }
+  .et-btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--ink); }
+  .et-btn-ghost:hover { border-color: var(--ink); }
+  .et-btn-primary { background: var(--ink); border: 1px solid var(--ink); color: #fff; }
+  .et-btn-primary:hover { background: #000; }
+  .et-btn-link { background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 11px; }
+  .et-btn-link:hover { color: var(--ink); }
+  .et-test-input {
+    flex: 1; min-width: 180px; padding: 8px 12px;
+    border: 1px solid var(--line); border-radius: 3px; font-size: 13px;
+  }
+  .et-saved { font-size: 11px; color: var(--gold, #a07040); letter-spacing: .12em; text-transform: uppercase; }
+
+  /* preview modal */
+  .et-modal-bd {
+    position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
+    z-index: 300; display: none; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .et-modal-bd.show { display: flex; }
+  .et-modal {
+    background: #fff; border-radius: 4px; max-width: 720px; width: 100%;
+    max-height: 92vh; display: flex; flex-direction: column; overflow: hidden;
+  }
+  .et-modal-head {
+    padding: 18px 24px; border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .et-modal-head .ttl { font-family: var(--font-serif, Georgia, serif); font-size: 22px; }
+  .et-modal-head .x { background: none; border: none; cursor: pointer; font-size: 24px; color: var(--muted); }
+  .et-modal-subj {
+    padding: 12px 24px; background: var(--cream); border-bottom: 1px solid var(--line);
+    font-size: 13px; color: var(--ink);
+  }
+  .et-modal-subj strong { font-weight: 500; letter-spacing: .04em; }
+  .et-modal-iframe { flex: 1; width: 100%; border: none; background: #f7f6f3; min-height: 480px; }
+</style>
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR (rendered by admin-sidebar.js partial) -->
+  <aside class="admin-sidebar" id="sidebar"></aside>
+
+  <!-- MAIN -->
+  <main class="admin-main" style="padding: 0 48px;">
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
+
+    <div class="set-topbar">
+      <h1 class="set-title">Settings</h1>
+      <span class="set-subtitle">Studio defaults applied across all galleries</span>
+      <button class="set-save-btn" id="saveBtn" disabled>Save changes</button>
+    </div>
+
+    <div class="set-tabs">
+      <button class="set-tab active" data-pane="profile">Profile</button>
+      <button class="set-tab" data-pane="brand">Brand</button>
+      <button class="set-tab" data-pane="watermark">Watermark</button>
+      <button class="set-tab" data-pane="defaults">Gallery Defaults</button>
+      <button class="set-tab" data-pane="storage">Storage</button>
+      <button class="set-tab" data-pane="emails">Emails</button>
+    </div>
+
+    <!-- Pane: PROFILE -->
+    <section class="set-pane active" data-pane="profile">
+      <p class="set-pane-intro">Studio name, contact info, and signature used in client emails.</p>
+
+      <div class="set-row">
+        <div class="set-label">Studio name<small>Shown in client galleries and emails</small></div>
+        <div class="set-control"><input class="set-input" id="studio_name" placeholder="IVAE Studios"/></div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Tagline<small>Optional — appears under the studio name</small></div>
+        <div class="set-control"><input class="set-input" id="tagline" placeholder="Luxury Resort Photography · Cancún"/></div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Contact email<small>Reply-to for client emails</small></div>
+        <div class="set-control"><input class="set-input" id="contact_email" type="email" placeholder="gallery@ivaestudios.com"/></div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Contact phone</div>
+        <div class="set-control"><input class="set-input" id="contact_phone" type="tel" placeholder="+52 998 ..."/></div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Website URL</div>
+        <div class="set-control"><input class="set-input" id="website_url" type="url" placeholder="https://ivaestudios.com"/></div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Instagram handle<small>Without @</small></div>
+        <div class="set-control"><input class="set-input" id="instagram_handle" placeholder="ivaestudios"/></div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Pinterest URL</div>
+        <div class="set-control"><input class="set-input" id="pinterest_url" type="url" placeholder="https://pinterest.com/..."/></div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Email signature<small>Appended to outbound emails</small></div>
+        <div class="set-control"><textarea class="set-textarea" id="default_signature" placeholder="IVAE Studios — Cancún"></textarea></div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Email "From" name<small>Shown as sender in client inbox</small></div>
+        <div class="set-control"><input class="set-input" id="default_from_name" placeholder="IVAE Studios"/></div>
+      </div>
+    </section>
+
+    <!-- Pane: BRAND -->
+    <section class="set-pane" data-pane="brand">
+      <p class="set-pane-intro">Default colors and logo applied to new galleries. Each gallery can override these later.</p>
+
+      <div class="set-row">
+        <div class="set-label">Studio logo<small>Used in client emails and gallery footers. PNG with transparency works best.</small></div>
+        <div class="set-control">
+          <div class="logo-area">
+            <div class="logo-preview" id="logoPreview"><span class="logo-empty">No logo</span></div>
+            <div class="logo-actions">
+              <input type="file" id="logoFile" accept="image/png,image/jpeg,image/svg+xml" style="display:none"/>
+              <button class="btn-secondary" type="button" onclick="document.getElementById('logoFile').click()">Upload logo</button>
+              <button class="btn-secondary" type="button" id="logoRemove" style="display:none">Remove</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="set-row">
+        <div class="set-label">Primary color<small>Used for buttons and dark accents</small></div>
+        <div class="set-control">
+          <div class="set-color">
+            <input type="color" id="brand_primary_picker"/>
+            <input class="set-input" id="brand_primary" type="text" maxlength="7"/>
+          </div>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Accent color<small>Highlights and gold details</small></div>
+        <div class="set-control">
+          <div class="set-color">
+            <input type="color" id="brand_accent_picker"/>
+            <input class="set-input" id="brand_accent" type="text" maxlength="7"/>
+          </div>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Background color<small>Default gallery hero background</small></div>
+        <div class="set-control">
+          <div class="set-color">
+            <input type="color" id="brand_bg_picker"/>
+            <input class="set-input" id="brand_bg" type="text" maxlength="7"/>
+          </div>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Serif font<small>For headings (Google Fonts name)</small></div>
+        <div class="set-control"><input class="set-input" id="brand_font_serif" placeholder="Cormorant Garamond"/></div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Sans font<small>For body and labels (Google Fonts name)</small></div>
+        <div class="set-control"><input class="set-input" id="brand_font_sans" placeholder="Syne"/></div>
+      </div>
+    </section>
+
+    <!-- Pane: WATERMARK -->
+    <section class="set-pane" data-pane="watermark">
+      <p class="set-pane-intro">Default watermark applied to new galleries. Each gallery can disable or override these.</p>
+
+      <div class="set-row">
+        <div class="set-label">Watermark by default<small>Apply to new galleries automatically</small></div>
+        <div class="set-control">
+          <label class="set-switch">
+            <input type="checkbox" id="default_watermark_enabled"/>
+            <span class="set-switch-track"></span>
+            <span id="watermark_state_label">Enabled</span>
+          </label>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Watermark text<small>Top line — usually studio initials</small></div>
+        <div class="set-control"><input class="set-input" id="default_watermark_text" maxlength="20" placeholder="IVAE"/></div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Watermark subtext<small>Second line — usually word mark</small></div>
+        <div class="set-control"><input class="set-input" id="default_watermark_subtext" maxlength="40" placeholder="STUDIOS"/></div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Default opacity</div>
+        <div class="set-control">
+          <div class="set-slider">
+            <input type="range" id="default_watermark_opacity" min="0.05" max="0.8" step="0.05"/>
+            <span class="set-slider-val" id="opacity_val">0.30</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pane: GALLERY DEFAULTS -->
+    <section class="set-pane" data-pane="defaults">
+      <p class="set-pane-intro">Defaults applied to new galleries. You can override per-gallery in the editor.</p>
+
+      <div class="set-row">
+        <div class="set-label">Auto-expire after<small>Days from publish date. 0 = never expire.</small></div>
+        <div class="set-control">
+          <input class="set-input" id="default_expire_days" type="number" min="0" max="730" style="max-width:140px;"/>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Email gate by default<small>Visitors register before viewing</small></div>
+        <div class="set-control">
+          <label class="set-switch">
+            <input type="checkbox" id="default_request_email"/>
+            <span class="set-switch-track"></span>
+            <span id="email_gate_label">Enabled</span>
+          </label>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Allow downloads by default</div>
+        <div class="set-control">
+          <label class="set-switch">
+            <input type="checkbox" id="default_allow_download"/>
+            <span class="set-switch-track"></span>
+            <span id="download_label">Disabled</span>
+          </label>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Allow sharing by default<small>Show share buttons in client view</small></div>
+        <div class="set-control">
+          <label class="set-switch">
+            <input type="checkbox" id="default_allow_sharing"/>
+            <span class="set-switch-track"></span>
+            <span id="sharing_label">Enabled</span>
+          </label>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Email me on new proof<small>Notification when a client submits selections</small></div>
+        <div class="set-control">
+          <label class="set-switch">
+            <input type="checkbox" id="notify_admin_on_proof"/>
+            <span class="set-switch-track"></span>
+            <span id="notify_proof_label">Enabled</span>
+          </label>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">Email me on visitor registration<small>Off by default — high volume</small></div>
+        <div class="set-control">
+          <label class="set-switch">
+            <input type="checkbox" id="notify_admin_on_visit"/>
+            <span class="set-switch-track"></span>
+            <span id="notify_visit_label">Disabled</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pane: STORAGE -->
+    <section class="set-pane" data-pane="storage">
+      <p class="set-pane-intro">R2 storage usage across all galleries.</p>
+
+      <div class="storage-card">
+        <div class="storage-headline" id="storageHeadline">— GB <small>/ — GB</small></div>
+        <div style="font-size:12px;color:var(--muted);letter-spacing:.04em;margin-bottom:4px;">Used storage</div>
+        <div class="storage-bar-track"><div class="storage-bar-fill" id="storageFill" style="width:0%"></div></div>
+        <div class="storage-numbers">
+          <span id="storagePct">0%</span>
+          <span id="storageRemaining">— GB free</span>
+        </div>
+      </div>
+
+      <div style="margin-top:32px;">
+        <div class="set-row">
+          <div class="set-label">Storage limit (GB)<small>Increase if you outgrow your plan</small></div>
+          <div class="set-control">
+            <input class="set-input" id="storage_limit_gb" type="number" min="1" max="2000" style="max-width:140px;"/>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pane: EMAILS -->
+    <section class="set-pane" data-pane="emails">
+      <p class="set-pane-intro">Automatic emails sent to your clients. Edit copy, toggle on/off, send a test before going live.</p>
+      <div id="emailsList" class="et-list">
+        <div class="et-loading">Loading templates…</div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Email preview modal -->
+<div class="et-modal-bd" id="emailModalBd">
+  <div class="et-modal">
+    <div class="et-modal-head">
+      <div class="ttl" id="emailModalTitle">Preview</div>
+      <button class="x" id="emailModalClose" type="button" aria-label="Close">×</button>
+    </div>
+    <div class="et-modal-subj"><strong>Subject:</strong> <span id="emailModalSubj"></span></div>
+    <iframe class="et-modal-iframe" id="emailModalFrame" sandbox="" title="Email preview"></iframe>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="/gallery/js/api.js"></script>
+<script src="/gallery/js/auth.js"></script>
+<script src="/gallery/js/admin-sidebar.js"></script>
+<script>
+let currentSettings = null;
+let dirty = false;
+
+const FIELDS = {
+  text: ['studio_name','tagline','contact_email','contact_phone','website_url',
+         'instagram_handle','pinterest_url','default_signature','default_from_name',
+         'brand_primary','brand_accent','brand_bg','brand_font_serif','brand_font_sans',
+         'default_watermark_text','default_watermark_subtext'],
+  num: ['default_watermark_opacity','default_expire_days','storage_limit_gb'],
+  bool: ['default_watermark_enabled','default_request_email','default_allow_download',
+         'default_allow_sharing','notify_admin_on_proof','notify_admin_on_visit']
+};
+
+function $(id) { return document.getElementById(id); }
+
+function showToast(msg, isError) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.toggle('error', !!isError);
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+function markDirty() {
+  if (!dirty) {
+    dirty = true;
+    $('saveBtn').disabled = false;
+    $('saveBtn').textContent = 'Save changes';
+    $('saveBtn').classList.remove('saved');
+  }
+}
+
+function fillForm(s) {
+  for (const id of FIELDS.text) {
+    if ($(id) && s[id] != null) $(id).value = s[id];
+  }
+  for (const id of FIELDS.num) {
+    if ($(id) && s[id] != null) $(id).value = s[id];
+  }
+  for (const id of FIELDS.bool) {
+    if ($(id)) $(id).checked = !!s[id];
+  }
+  // sync color pickers
+  for (const k of ['brand_primary','brand_accent','brand_bg']) {
+    const picker = $(k + '_picker');
+    if (picker && s[k]) picker.value = s[k];
+  }
+  // opacity slider readout
+  const op = $('default_watermark_opacity');
+  if (op) $('opacity_val').textContent = parseFloat(op.value).toFixed(2);
+  updateSwitchLabels();
+}
+
+function updateSwitchLabels() {
+  const map = [
+    ['default_watermark_enabled', 'watermark_state_label', 'Enabled', 'Disabled'],
+    ['default_request_email', 'email_gate_label', 'Enabled', 'Disabled'],
+    ['default_allow_download', 'download_label', 'Enabled', 'Disabled'],
+    ['default_allow_sharing', 'sharing_label', 'Enabled', 'Disabled'],
+    ['notify_admin_on_proof', 'notify_proof_label', 'Enabled', 'Disabled'],
+    ['notify_admin_on_visit', 'notify_visit_label', 'Enabled', 'Disabled']
+  ];
+  for (const [chk, lbl, on, off] of map) {
+    if ($(chk) && $(lbl)) $(lbl).textContent = $(chk).checked ? on : off;
+  }
+}
+
+function readForm() {
+  const out = {};
+  for (const id of FIELDS.text) if ($(id)) out[id] = $(id).value.trim();
+  for (const id of FIELDS.num) if ($(id)) {
+    const v = parseFloat($(id).value);
+    if (!isNaN(v)) out[id] = v;
+  }
+  for (const id of FIELDS.bool) if ($(id)) out[id] = $(id).checked ? 1 : 0;
+  return out;
+}
+
+async function save() {
+  const btn = $('saveBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  try {
+    const payload = readForm();
+    const updated = await API.put('/gallery/admin/settings', payload);
+    currentSettings = updated;
+    fillForm(updated);
+    dirty = false;
+    btn.textContent = 'Saved';
+    btn.classList.add('saved');
+    showToast('Settings saved');
+    setTimeout(() => {
+      if (!dirty) { btn.textContent = 'Save changes'; btn.classList.remove('saved'); btn.disabled = true; }
+    }, 1800);
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = 'Save changes';
+    showToast('Save failed: ' + (e.message || 'unknown'), true);
+  }
+}
+
+async function loadStorage() {
+  try {
+    const stats = await API.get('/gallery/admin/stats');
+    const usedGB = (stats.storageBytes || 0) / (1024 ** 3);
+    const limitGB = (stats.storageLimitBytes || (10 * 1024 ** 3)) / (1024 ** 3);
+    const pct = Math.min(100, (usedGB / limitGB) * 100);
+    $('storageHeadline').innerHTML = `${usedGB.toFixed(2)} <small>/ ${limitGB.toFixed(0)} GB</small>`;
+    $('storageFill').style.width = pct + '%';
+    $('storagePct').textContent = pct.toFixed(1) + '%';
+    $('storageRemaining').textContent = Math.max(0, limitGB - usedGB).toFixed(2) + ' GB free';
+  } catch (e) { console.warn('storage load failed', e); }
+}
+
+function setupTabs() {
+  document.querySelectorAll('.set-tab').forEach(t => {
+    t.addEventListener('click', () => {
+      const pane = t.dataset.pane;
+      document.querySelectorAll('.set-tab').forEach(x => x.classList.toggle('active', x === t));
+      document.querySelectorAll('.set-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === pane));
+      // remember in URL hash for deep linking
+      history.replaceState(null, '', '#' + pane);
+    });
+  });
+  // honour deep link
+  const hash = location.hash.slice(1);
+  if (hash) {
+    const tab = document.querySelector(`.set-tab[data-pane="${hash}"]`);
+    if (tab) tab.click();
+  }
+}
+
+function setupColorSync() {
+  for (const k of ['brand_primary','brand_accent','brand_bg']) {
+    const picker = $(k + '_picker');
+    const text = $(k);
+    if (!picker || !text) continue;
+    picker.addEventListener('input', () => { text.value = picker.value; markDirty(); });
+    text.addEventListener('input', () => {
+      if (/^#[0-9a-fA-F]{6}$/.test(text.value)) picker.value = text.value;
+      markDirty();
+    });
+  }
+}
+
+function setupChangeListeners() {
+  for (const id of [...FIELDS.text, ...FIELDS.num]) {
+    if ($(id)) $(id).addEventListener('input', markDirty);
+  }
+  for (const id of FIELDS.bool) {
+    if ($(id)) $(id).addEventListener('change', () => { markDirty(); updateSwitchLabels(); });
+  }
+  const op = $('default_watermark_opacity');
+  if (op) op.addEventListener('input', () => $('opacity_val').textContent = parseFloat(op.value).toFixed(2));
+}
+
+function setupLogoUpload() {
+  const file = $('logoFile');
+  const preview = $('logoPreview');
+  const remove = $('logoRemove');
+  if (!file) return;
+
+  function refreshLogoPreview(key) {
+    if (key) {
+      preview.innerHTML = `<img src="/api/gallery/admin/logo?ts=${Date.now()}" alt="Studio logo"/>`;
+      remove.style.display = '';
+    } else {
+      preview.innerHTML = '<span class="logo-empty">No logo</span>';
+      remove.style.display = 'none';
+    }
+  }
+
+  file.addEventListener('change', async () => {
+    const f = file.files[0]; if (!f) return;
+    if (f.size > 2 * 1024 * 1024) { showToast('Logo must be under 2 MB', true); return; }
+    // Inline preview while we figure out backend storage. For now we just
+    // base64 the file into brand_logo_key as a data URL — works without R2.
+    const reader = new FileReader();
+    reader.onload = () => {
+      $('brand_primary'); // touch
+      currentSettings.brand_logo_key = reader.result;
+      preview.innerHTML = `<img src="${reader.result}" alt="Logo preview"/>`;
+      remove.style.display = '';
+      // Save immediately so the data persists
+      API.put('/gallery/admin/settings', { brand_logo_key: reader.result })
+        .then(() => showToast('Logo updated'))
+        .catch(e => showToast('Logo save failed: ' + e.message, true));
+    };
+    reader.readAsDataURL(f);
+  });
+
+  remove.addEventListener('click', async () => {
+    if (!confirm('Remove studio logo?')) return;
+    try {
+      await API.put('/gallery/admin/settings', { brand_logo_key: null });
+      currentSettings.brand_logo_key = null;
+      refreshLogoPreview(null);
+      showToast('Logo removed');
+    } catch (e) { showToast('Remove failed: ' + e.message, true); }
+  });
+
+  // Initial render
+  if (currentSettings && currentSettings.brand_logo_key) {
+    if (currentSettings.brand_logo_key.startsWith('data:')) {
+      preview.innerHTML = `<img src="${currentSettings.brand_logo_key}" alt="Logo"/>`;
+      remove.style.display = '';
+    } else {
+      refreshLogoPreview(currentSettings.brand_logo_key);
+    }
+  }
+}
+
+(async () => {
+  const user = await checkAuth('admin'); if (!user) return;
+  window.__adminUser = user;
+  if (typeof renderAdminSidebar === 'function') renderAdminSidebar({ active: 'settings' });
+
+  setupTabs();
+  setupColorSync();
+  setupChangeListeners();
+  $('saveBtn').addEventListener('click', save);
+
+  try {
+    currentSettings = await API.get('/gallery/admin/settings');
+    fillForm(currentSettings);
+  } catch (e) {
+    showToast('Failed to load settings: ' + e.message, true);
+  }
+  setupLogoUpload();
+  loadStorage();
+  setupEmails();
+
+  // Warn before nav-away if dirty
+  window.addEventListener('beforeunload', e => {
+    if (dirty) { e.preventDefault(); e.returnValue = ''; }
+  });
+})();
+
+// ── EMAILS TAB ──
+const TRIGGER_LABELS = {
+  on_publish: 'When you publish a gallery',
+  on_expire_warn: '7 days before gallery expires',
+  on_delivery_plus_7d: '7 days after delivery',
+  on_anniversary: '1 year after delivery',
+  manual: 'Manual send only'
+};
+const TRIGGER_ICONS = {
+  on_publish: '✦', on_expire_warn: '⏱', on_delivery_plus_7d: '♡', on_anniversary: '◐', manual: '✉'
+};
+const SAMPLE_VARS = {
+  client_name: 'Maria Lopez',
+  client_email: 'maria@example.com',
+  gallery_title: 'Wedding · Riviera Maya',
+  gallery_url: 'https://ivaestudios.com/gallery/gallery.html?id=example',
+  studio_name: 'IVAE Studios',
+  tagline: 'Resort photography in Cancún',
+  contact_email: 'hello@ivaestudios.com',
+  instagram_handle: 'ivaestudios',
+  expire_date: 'May 15, 2026',
+  days_until_expire: '21',
+  photo_count: '342'
+};
+const VAR_KEYS = Object.keys(SAMPLE_VARS);
+let emailTemplates = [];
+let emailDirty = {}; // id -> { subject, body_html, delay_days, reply_to }
+
+function escHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function renderTemplateText(text, vars) {
+  return String(text || '').replace(/\{\{\s*(\w+)\s*\}\}/g, (_, k) => vars[k] != null ? vars[k] : '');
+}
+
+function renderTemplateHtml(html, vars) {
+  return String(html || '').replace(/\{\{\s*(\w+)\s*\}\}/g, (_, k) => escHtml(vars[k] != null ? vars[k] : ''));
+}
+
+function setupEmails() {
+  const close = document.getElementById('emailModalClose');
+  const bd = document.getElementById('emailModalBd');
+  if (close) close.addEventListener('click', () => bd.classList.remove('show'));
+  if (bd) bd.addEventListener('click', e => { if (e.target === bd) bd.classList.remove('show'); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && bd.classList.contains('show')) bd.classList.remove('show'); });
+
+  // Lazy load on first tab visit
+  document.querySelectorAll('.set-tab').forEach(t => {
+    if (t.dataset.pane === 'emails') {
+      t.addEventListener('click', () => { if (!emailTemplates.length) loadEmails(); });
+    }
+  });
+  // If page loaded with #emails hash, load immediately
+  if (location.hash === '#emails') loadEmails();
+}
+
+async function loadEmails() {
+  const list = document.getElementById('emailsList');
+  list.innerHTML = '<div class="et-loading">Loading templates…</div>';
+  try {
+    const res = await API.get('/gallery/admin/email-templates');
+    emailTemplates = res.templates || [];
+    if (!emailTemplates.length) {
+      list.innerHTML = '<div class="et-empty">No email templates yet.</div>';
+      return;
+    }
+    renderEmailsList();
+  } catch (e) {
+    if (e.message && e.message.indexOf('404') >= 0) {
+      list.innerHTML = '<div class="et-empty">Email templates will appear here once the backend is updated.</div>';
+    } else {
+      list.innerHTML = '<div class="et-error">Couldn\'t load templates: ' + escHtml(e.message || 'unknown') + '</div>';
+    }
+  }
+}
+
+function renderEmailsList() {
+  const list = document.getElementById('emailsList');
+  list.innerHTML = '';
+  for (const t of emailTemplates) {
+    const card = document.createElement('div');
+    card.className = 'et-card' + (t.enabled ? '' : ' disabled');
+    card.dataset.id = t.id;
+    card.innerHTML = emailCardHtml(t);
+    list.appendChild(card);
+    wireEmailCard(card, t);
+  }
+}
+
+function emailCardHtml(t) {
+  const trig = TRIGGER_LABELS[t.trigger] || t.trigger;
+  const icon = TRIGGER_ICONS[t.trigger] || '✉';
+  const showDelay = (t.trigger === 'on_delivery_plus_7d' || t.trigger === 'on_anniversary' || t.delay_days);
+  return `
+    <div class="et-head">
+      <div class="et-icon" data-trigger="${escHtml(t.trigger)}">${icon}</div>
+      <div class="et-meta">
+        <div class="et-name">${escHtml(t.name)}</div>
+        <div class="et-trigger">${escHtml(trig)}</div>
+      </div>
+      <label class="et-toggle" onclick="event.stopPropagation()">
+        <input type="checkbox" class="et-enabled" ${t.enabled ? 'checked' : ''}/>
+        <span class="et-toggle-track"></span>
+        <span class="et-toggle-state">${t.enabled ? 'On' : 'Off'}</span>
+      </label>
+      <div class="et-chev">▾</div>
+    </div>
+    <div class="et-body">
+      <div class="et-field">
+        <label>Subject</label>
+        <input type="text" class="et-subject" value="${escHtml(t.subject)}" maxlength="200"/>
+      </div>
+      <div class="et-field-row">
+        <div class="et-field">
+          <label>Reply-to override</label>
+          <input type="text" class="et-replyto" value="${escHtml(t.reply_to || '')}" placeholder="Leave blank to use studio contact email"/>
+        </div>
+        ${showDelay ? `
+        <div class="et-field">
+          <label>Delay (days)</label>
+          <input type="number" class="et-delay" value="${Number(t.delay_days || 0)}" min="0" max="3650"/>
+        </div>` : ''}
+      </div>
+      <div class="et-field">
+        <label>Body (HTML)</label>
+        <textarea class="et-body-html" spellcheck="false">${escHtml(t.body_html)}</textarea>
+      </div>
+      <div class="et-vars">
+        <div class="et-vars-label">Insert variable</div>
+        <div class="et-vars-chips">
+          ${VAR_KEYS.map(k => `<button type="button" class="et-chip" data-var="${k}">{{${k}}}</button>`).join('')}
+        </div>
+        <div class="et-vars-hint">Click a chip to insert at the cursor position in the body.</div>
+      </div>
+      <div class="et-actions">
+        <button type="button" class="et-btn et-btn-ghost et-preview-btn">Preview</button>
+        <input type="email" class="et-test-input" placeholder="Send a test to…"/>
+        <button type="button" class="et-btn et-btn-ghost et-test-btn">Send test</button>
+        <span style="flex:1"></span>
+        <button type="button" class="et-btn et-btn-link et-cancel-btn">Cancel</button>
+        <button type="button" class="et-btn et-btn-primary et-save-btn" disabled>Save changes</button>
+      </div>
+    </div>
+  `;
+}
+
+function wireEmailCard(card, t) {
+  const head = card.querySelector('.et-head');
+  const body = card.querySelector('.et-body');
+  const enabledCb = card.querySelector('.et-enabled');
+  const subjectIn = card.querySelector('.et-subject');
+  const replytoIn = card.querySelector('.et-replyto');
+  const delayIn = card.querySelector('.et-delay');
+  const bodyTa = card.querySelector('.et-body-html');
+  const saveBtn = card.querySelector('.et-save-btn');
+  const cancelBtn = card.querySelector('.et-cancel-btn');
+  const previewBtn = card.querySelector('.et-preview-btn');
+  const testBtn = card.querySelector('.et-test-btn');
+  const testIn = card.querySelector('.et-test-input');
+
+  head.addEventListener('click', e => {
+    if (e.target.closest('.et-toggle')) return;
+    card.classList.toggle('expanded');
+  });
+
+  enabledCb.addEventListener('change', async () => {
+    const lbl = card.querySelector('.et-toggle-state');
+    lbl.textContent = enabledCb.checked ? 'On' : 'Off';
+    card.classList.toggle('disabled', !enabledCb.checked);
+    try {
+      await API.put('/gallery/admin/email-templates/' + encodeURIComponent(t.id), { enabled: enabledCb.checked ? 1 : 0 });
+      t.enabled = enabledCb.checked ? 1 : 0;
+      showToast(enabledCb.checked ? 'Template enabled' : 'Template disabled');
+    } catch (e) {
+      enabledCb.checked = !enabledCb.checked;
+      lbl.textContent = enabledCb.checked ? 'On' : 'Off';
+      showToast('Failed: ' + e.message, true);
+    }
+  });
+
+  function markCardDirty() {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save changes';
+  }
+  [subjectIn, replytoIn, bodyTa].forEach(el => el && el.addEventListener('input', markCardDirty));
+  if (delayIn) delayIn.addEventListener('input', markCardDirty);
+
+  // Variable chips → insert at cursor
+  card.querySelectorAll('.et-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const v = '{{' + chip.dataset.var + '}}';
+      const ta = bodyTa;
+      const start = ta.selectionStart, end = ta.selectionEnd;
+      ta.value = ta.value.slice(0, start) + v + ta.value.slice(end);
+      ta.focus();
+      ta.setSelectionRange(start + v.length, start + v.length);
+      markCardDirty();
+    });
+  });
+
+  cancelBtn.addEventListener('click', () => {
+    subjectIn.value = t.subject || '';
+    replytoIn.value = t.reply_to || '';
+    if (delayIn) delayIn.value = t.delay_days || 0;
+    bodyTa.value = t.body_html || '';
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Save changes';
+    card.classList.remove('expanded');
+  });
+
+  saveBtn.addEventListener('click', async () => {
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+    const payload = {
+      subject: subjectIn.value.trim(),
+      reply_to: replytoIn.value.trim() || null,
+      body_html: bodyTa.value
+    };
+    if (delayIn) payload.delay_days = parseInt(delayIn.value, 10) || 0;
+    try {
+      const res = await API.put('/gallery/admin/email-templates/' + encodeURIComponent(t.id), payload);
+      if (res && res.template) Object.assign(t, res.template);
+      else Object.assign(t, payload);
+      saveBtn.textContent = 'Saved';
+      showToast('Template saved');
+      setTimeout(() => { saveBtn.textContent = 'Save changes'; saveBtn.disabled = true; }, 1600);
+    } catch (e) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save changes';
+      showToast('Save failed: ' + e.message, true);
+    }
+  });
+
+  previewBtn.addEventListener('click', async () => {
+    const sample = { ...SAMPLE_VARS };
+    if (currentSettings) {
+      if (currentSettings.studio_name) sample.studio_name = currentSettings.studio_name;
+      if (currentSettings.tagline) sample.tagline = currentSettings.tagline;
+      if (currentSettings.contact_email) sample.contact_email = currentSettings.contact_email;
+      if (currentSettings.instagram_handle) sample.instagram_handle = currentSettings.instagram_handle;
+    }
+    const subj = renderTemplateText(subjectIn.value, sample);
+    const html = renderTemplateHtml(bodyTa.value, sample);
+    document.getElementById('emailModalTitle').textContent = t.name;
+    document.getElementById('emailModalSubj').textContent = subj;
+    document.getElementById('emailModalFrame').srcdoc = html;
+    document.getElementById('emailModalBd').classList.add('show');
+  });
+
+  testBtn.addEventListener('click', async () => {
+    const to = (testIn.value || '').trim();
+    if (!to || !/.+@.+\..+/.test(to)) { showToast('Enter a valid test email', true); testIn.focus(); return; }
+    testBtn.disabled = true; testBtn.textContent = 'Sending…';
+    try {
+      // Save current edits first so test reflects in-progress changes
+      const draft = {
+        subject: subjectIn.value.trim(),
+        reply_to: replytoIn.value.trim() || null,
+        body_html: bodyTa.value
+      };
+      if (delayIn) draft.delay_days = parseInt(delayIn.value, 10) || 0;
+      const res = await API.post('/gallery/admin/email-templates/' + encodeURIComponent(t.id) + '/test', { to, draft });
+      if (res && res.ok) {
+        showToast('Test sent to ' + to);
+      } else {
+        showToast('Test failed: ' + (res && res.error || 'unknown'), true);
+      }
+    } catch (e) {
+      showToast('Test failed: ' + e.message, true);
+    } finally {
+      testBtn.disabled = false; testBtn.textContent = 'Send test';
+    }
+  });
+}
+</script>
+</body>
+</html>

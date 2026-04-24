@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Clients — IVAE Studios</title>
+<link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
+<link rel="stylesheet" href="/gallery/css/gallery.css"/>
+<style>
+body { padding-top: 0; background: white; }
+
+/* ── Shared sidebar styles (duplicated from dashboard) ── */
+.sidebar-search { margin: 12px 14px 8px; position: relative; }
+.sidebar-search input {
+  width: 100%; padding: 10px 36px 10px 13px; font-family: 'Syne', sans-serif;
+  font-size: 12px; background: white; border: 1px solid #e8e8e8;
+  color: #333; outline: none; height: 36px; border-radius: 4px;
+  transition: border-color 0.2s;
+}
+.sidebar-search input:focus { border-color: #bbb; }
+.sidebar-search input::placeholder { color: #ccc; }
+.sidebar-search svg {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; color: #ccc;
+}
+.sidebar-bottom-nav { border-top: 1px solid #e0e0e0; padding: 12px 0; }
+.sidebar-bottom-link {
+  display: block; padding: 8px 18px; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: #999; text-decoration: none; transition: color 0.2s;
+}
+.sidebar-bottom-link:hover { color: #333; }
+.sidebar-bottom-link.active { color: #333; }
+
+/* ── Client page styles ── */
+.clients-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding-bottom: 24px; border-bottom: 1px solid #f0f0f0; margin-bottom: 0;
+}
+.clients-header h1 {
+  font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700;
+  color: #1a1a1a; letter-spacing: -0.3px; line-height: 1; margin: 0;
+}
+.clients-header p {
+  font-size: 13px; color: #bbb; margin-top: 4px; letter-spacing: 0.2px;
+}
+
+/* Stats row */
+.client-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border-bottom: 1px solid #f0f0f0;
+}
+.client-stat { padding: 28px 24px 28px 0; border-right: 1px solid #f0f0f0; }
+.client-stat:last-child { border-right: none; padding-right: 0; }
+.client-stat-n {
+  font-family: 'Syne', sans-serif;
+  font-size: 30px; font-weight: 300; color: #333; line-height: 1;
+}
+.client-stat-l {
+  font-size: 10px; color: #999; margin-top: 6px; letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Search + filter bar */
+.clients-toolbar {
+  display: flex; align-items: center; gap: 16px;
+  padding: 20px 0; border-bottom: 1px solid #f0f0f0;
+}
+.clients-search {
+  position: relative; flex: 1; max-width: 320px;
+}
+.clients-search input {
+  width: 100%; height: 38px; padding: 0 38px 0 14px;
+  font-family: 'Syne', sans-serif; font-size: 12px;
+  border: 1px solid #e0e0e0; background: #fafafa;
+  color: #333; outline: none; border-radius: 4px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.clients-search input:focus { border-color: #bbb; background: white; }
+.clients-search input::placeholder { color: #ccc; }
+.clients-search svg {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; color: #ccc; pointer-events: none;
+}
+.clients-count {
+  font-size: 11px; color: #bbb; margin-left: auto;
+  letter-spacing: 0.3px;
+}
+
+/* Client table */
+.client-table { width: 100%; border-collapse: collapse; }
+.client-table th {
+  text-align: left; padding: 16px 16px 16px 0; font-size: 10px; font-weight: 600;
+  color: #bbb; letter-spacing: 0.1em; text-transform: uppercase;
+  border-bottom: 1px solid #f0f0f0; white-space: nowrap;
+}
+.client-table th:first-child, .client-table td:first-child { padding-left: 0; }
+.client-table td {
+  padding: 20px 16px 20px 0; font-size: 13px; color: #555;
+  border-bottom: 1px solid #f8f8f8; vertical-align: middle;
+}
+.client-table tr:hover td { background: #fafafa; }
+.client-table tr { transition: background 0.15s; }
+
+/* Client name cell with avatar */
+.client-name-cell {
+  display: flex; align-items: center; gap: 14px;
+}
+.client-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #f0f0f0; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0;
+  font-family: 'Syne', sans-serif; font-size: 13px;
+  font-weight: 600; color: #999; letter-spacing: 0;
+  text-transform: uppercase;
+}
+.client-name {
+  font-weight: 600; color: #333; font-size: 13px;
+  letter-spacing: 0.02em;
+}
+.client-email-sub {
+  font-size: 11px; color: #bbb; margin-top: 1px;
+}
+
+/* Gallery count badge */
+.gallery-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 28px; height: 24px; padding: 0 8px;
+  background: #f5f5f5; border-radius: 12px;
+  font-size: 12px; font-weight: 600; color: #888;
+}
+.gallery-badge.has-galleries { background: #f0ece4; color: #a07040; }
+
+/* Date formatting */
+.client-date {
+  font-size: 12px; color: #aaa; letter-spacing: 0.2px;
+}
+
+/* Status dot */
+.client-status {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: #aaa; letter-spacing: 0.3px;
+}
+.client-status-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: #ddd;
+}
+.client-status-dot.active { background: #34c759; }
+
+/* Empty state */
+.clients-empty {
+  text-align: center; padding: 80px 20px;
+}
+.clients-empty svg {
+  width: 48px; height: 48px; color: #ddd; margin-bottom: 16px;
+}
+.clients-empty h3 {
+  font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 600;
+  color: #333; margin-bottom: 8px;
+}
+.clients-empty p {
+  font-size: 13px; color: #bbb; max-width: 320px; margin: 0 auto;
+}
+
+/* Invite button */
+.btn-invite {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 22px; font-family: 'Syne', sans-serif;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; background: #1a1a1a; color: white;
+  border: none; cursor: pointer; border-radius: 3px;
+  transition: background 0.2s; text-decoration: none;
+}
+.btn-invite:hover { background: #333; }
+.btn-invite svg { width: 14px; height: 14px; }
+
+/* Action icons */
+.client-actions {
+  display: flex; gap: 8px;
+}
+.client-action-btn {
+  width: 32px; height: 32px; border-radius: 4px;
+  background: transparent; border: 1px solid transparent;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: #ccc; transition: all 0.2s;
+}
+.client-action-btn:hover {
+  background: #f5f5f5; border-color: #e8e8e8; color: #888;
+}
+.client-action-btn svg { width: 14px; height: 14px; }
+
+/* Invite Modal */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.3); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden; transition: all 0.25s;
+}
+.modal-overlay.show { opacity: 1; visibility: visible; }
+.modal {
+  background: white; border-radius: 8px; width: 100%; max-width: 440px;
+  padding: 32px; box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  transform: translateY(10px); transition: transform 0.25s;
+}
+.modal-overlay.show .modal { transform: translateY(0); }
+.modal-title {
+  font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700;
+  color: #1a1a1a; margin-bottom: 4px;
+}
+.modal-sub { font-size: 12px; color: #aaa; margin-bottom: 24px; }
+.modal-field { margin-bottom: 16px; }
+.modal-label {
+  display: block; margin-bottom: 6px; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; color: #aaa;
+}
+.modal-input {
+  width: 100%; height: 42px; padding: 0 14px;
+  font-family: 'Syne', sans-serif; font-size: 13px;
+  color: #333; background: white; border: 1px solid #e0e0e0;
+  outline: none; border-radius: 4px; transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.modal-input:focus { border-color: #bbb; }
+.modal-btns {
+  display: flex; gap: 10px; margin-top: 24px; justify-content: flex-end;
+}
+.modal-btn-cancel {
+  padding: 10px 20px; font-family: 'Syne', sans-serif;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; background: transparent;
+  border: 1px solid #e0e0e0; cursor: pointer; border-radius: 3px;
+  color: #888; transition: all 0.2s;
+}
+.modal-btn-cancel:hover { border-color: #bbb; color: #555; }
+.modal-btn-send {
+  padding: 10px 24px; font-family: 'Syne', sans-serif;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; background: #1a1a1a; color: white;
+  border: none; cursor: pointer; border-radius: 3px;
+  transition: background 0.2s;
+}
+.modal-btn-send:hover { background: #333; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: #1a1a1a; color: white; padding: 12px 24px;
+  border-radius: 6px; font-size: 12px; font-family: 'Syne', sans-serif;
+  opacity: 0; transition: all 0.3s; z-index: 2000; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 900px) {
+  .client-stats { grid-template-columns: 1fr 1fr; }
+  .client-stat:nth-child(3) { grid-column: span 2; border-right: none; }
+  .client-table th:nth-child(4),
+  .client-table td:nth-child(4) { display: none; }
+}
+@media (max-width: 767px) {
+  .clients-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .client-stats { grid-template-columns: 1fr; }
+  .client-stat { border-right: none; border-bottom: 1px solid #f0f0f0; }
+  .clients-toolbar { flex-direction: column; align-items: stretch; }
+  .clients-search { max-width: none; }
+  .clients-count { margin-left: 0; }
+  .client-email-sub { display: none; }
+  .client-table th:nth-child(3),
+  .client-table td:nth-child(3),
+  .client-table th:nth-child(5),
+  .client-table td:nth-child(5) { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR (rendered by /js/admin-sidebar.js) -->
+  <aside class="admin-sidebar" id="sidebar"></aside>
+
+  <!-- MAIN -->
+  <main class="admin-main" style="padding:0 48px;">
+    <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+    <!-- Header -->
+    <div class="clients-header" style="padding-top:36px;">
+      <div>
+        <h1>Clients</h1>
+        <p>Manage client accounts and gallery access</p>
+      </div>
+      <button class="btn-invite" onclick="showInviteModal()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"/></svg>
+        Invite Client
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="client-stats" id="clientStats">
+      <div class="client-stat">
+        <div class="client-stat-n" id="statTotal">—</div>
+        <div class="client-stat-l">Total Clients</div>
+      </div>
+      <div class="client-stat">
+        <div class="client-stat-n" id="statActive">—</div>
+        <div class="client-stat-l">With Active Galleries</div>
+      </div>
+      <div class="client-stat">
+        <div class="client-stat-n" id="statRecent">—</div>
+        <div class="client-stat-l">Added This Month</div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="clients-toolbar">
+      <div class="clients-search">
+        <input type="text" placeholder="Search clients by name or email..." id="clientSearch" oninput="filterClients(this.value)"/>
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+      </div>
+      <span class="clients-count" id="clientsCount"></span>
+    </div>
+
+    <!-- Client table -->
+    <table class="client-table" id="clientTable">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Email</th>
+          <th>Galleries</th>
+          <th>Registered</th>
+          <th style="width:80px;"></th>
+        </tr>
+      </thead>
+      <tbody id="clientBody"></tbody>
+    </table>
+
+    <!-- Empty state -->
+    <div class="clients-empty" id="emptyState" style="display:none;">
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+      <h3>No clients yet</h3>
+      <p>Clients will appear here once they register or you invite them to view a gallery.</p>
+    </div>
+  </main>
+</div>
+
+<!-- Invite Modal -->
+<div class="modal-overlay" id="inviteModal">
+  <div class="modal">
+    <div class="modal-title">Invite a Client</div>
+    <div class="modal-sub">Send a gallery access invitation to a new client</div>
+    <div class="modal-field">
+      <label class="modal-label">Client Name</label>
+      <input class="modal-input" id="inviteName" placeholder="e.g. Nora Smith"/>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Email Address</label>
+      <input class="modal-input" id="inviteEmail" type="email" placeholder="nora@example.com"/>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn-cancel" onclick="hideInviteModal()">Cancel</button>
+      <button class="modal-btn-send" onclick="sendInvite()">Send Invite</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="/gallery/js/api.js"></script>
+<script src="/gallery/js/auth.js"></script>
+<script src="/gallery/js/admin-sidebar.js"></script>
+<script>
+let allClients = [];
+
+function filterGalleries(q) {
+  const items = document.querySelectorAll('.sidebar-gallery-item');
+  q = q.toLowerCase();
+  items.forEach(el => { el.style.display = el.textContent.toLowerCase().includes(q) ? 'block' : 'none'; });
+}
+
+function filterClients(q) {
+  q = q.toLowerCase();
+  const rows = document.querySelectorAll('#clientBody tr');
+  let visible = 0;
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    const show = text.includes(q);
+    row.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  document.getElementById('clientsCount').textContent = visible + ' of ' + allClients.length + ' clients';
+}
+
+function getInitials(name) {
+  return name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function isThisMonth(dateStr) {
+  const d = new Date(dateStr);
+  const now = new Date();
+  return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+}
+
+function showInviteModal() {
+  document.getElementById('inviteModal').classList.add('show');
+  document.getElementById('inviteName').value = '';
+  document.getElementById('inviteEmail').value = '';
+  setTimeout(() => document.getElementById('inviteName').focus(), 200);
+}
+
+function hideInviteModal() {
+  document.getElementById('inviteModal').classList.remove('show');
+}
+
+async function sendInvite() {
+  const name = document.getElementById('inviteName').value.trim();
+  const email = document.getElementById('inviteEmail').value.trim();
+  if (!name || !email) { showToastMsg('Please fill in both fields'); return; }
+
+  try {
+    await API.post('/gallery/admin/clients', { name, email });
+    hideInviteModal();
+    showToastMsg('Client ' + name + ' added successfully');
+    loadClients();
+  } catch (e) {
+    // If API not available yet, show friendly message
+    hideInviteModal();
+    showToastMsg('Client invite feature coming soon');
+  }
+}
+
+function showToastMsg(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function renderClients(clients) {
+  const body = document.getElementById('clientBody');
+  const table = document.getElementById('clientTable');
+  const empty = document.getElementById('emptyState');
+
+  if (!clients.length) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+
+  table.style.display = '';
+  empty.style.display = 'none';
+  body.innerHTML = '';
+
+  clients.forEach(c => {
+    const initials = getInitials(c.name || 'U');
+    const hasGalleries = (c.gallery_count || 0) > 0;
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>
+        <div class="client-name-cell">
+          <div class="client-avatar">${initials}</div>
+          <div>
+            <div class="client-name">${c.name}</div>
+          </div>
+        </div>
+      </td>
+      <td style="color:#888;">${c.email}</td>
+      <td><span class="gallery-badge ${hasGalleries ? 'has-galleries' : ''}">${c.gallery_count || 0}</span></td>
+      <td><span class="client-date">${formatDate(c.created_at)}</span></td>
+      <td>
+        <div class="client-actions">
+          <button class="client-action-btn" title="View galleries" onclick="window.location.href='/gallery/admin/?client=${c.id}'">
+            <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/></svg>
+          </button>
+          <button class="client-action-btn" title="Send email" onclick="window.open('mailto:${c.email}')">
+            <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+          </button>
+        </div>
+      </td>
+    `;
+    body.appendChild(row);
+  });
+}
+
+async function loadClients() {
+  const clients = await API.get('/gallery/admin/clients');
+  allClients = clients;
+
+  // Stats
+  const total = clients.length;
+  const withGalleries = clients.filter(c => (c.gallery_count || 0) > 0).length;
+  const thisMonth = clients.filter(c => isThisMonth(c.created_at)).length;
+
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statActive').textContent = withGalleries;
+  document.getElementById('statRecent').textContent = thisMonth;
+  document.getElementById('clientsCount').textContent = total + ' client' + (total !== 1 ? 's' : '');
+
+  renderClients(clients);
+}
+
+// Close modal on overlay click
+document.getElementById('inviteModal').addEventListener('click', function(e) {
+  if (e.target === this) hideInviteModal();
+});
+
+// Close modal on Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') hideInviteModal();
+});
+
+(async () => {
+  const user = await checkAuth('admin');
+  if (!user) return;
+  window.__adminUser = user;
+  if (typeof renderAdminSidebar === 'function') renderAdminSidebar({ active: 'clients' });
+
+  // Sidebar partial fetches its own gallery list. We just load clients.
+  await loadClients();
+})();
+</script>
+</body>
+</html>
