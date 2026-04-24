@@ -17,6 +17,22 @@
 /images/*
   Cache-Control: public, max-age=31536000, immutable
 
+# Gallery JS / CSS — declared BEFORE the site-wide catch-alls so they win.
+# Cloudflare Pages applies the FIRST matching rule for each header.
+# These files don't carry content hashes, so they need short TTL + revalidate.
+/gallery/js/*.js
+  Cache-Control: public, max-age=300, must-revalidate
+
+/gallery/admin/*.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/gallery/sw.js
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Service-Worker-Allowed: /
+
+/gallery/css/*.css
+  Cache-Control: public, max-age=300, must-revalidate
+
 /*.css
   Cache-Control: public, max-age=31536000, immutable
 
@@ -70,17 +86,9 @@
 /gallery/gallery.html
   Cache-Control: public, max-age=0, must-revalidate
 
-# Gallery JS — short cache + revalidate. These files change without filename
-# hashing, so we can't use the immutable directive that /*.js applies.
-/gallery/js/*.js
-  Cache-Control: public, max-age=300, must-revalidate
-
-/gallery/admin/*.js
-  Cache-Control: public, max-age=0, must-revalidate
-
-/gallery/sw.js
-  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
-  Service-Worker-Allowed: /
+# (Gallery JS/CSS rules are declared at the top of this file — before
+#  the site-wide /*.js and /*.css catch-alls — so the first-match-wins
+#  precedence in Cloudflare Pages applies them correctly.)
 
 # Login + auth pages — fresh HTML
 /gallery/index.html
