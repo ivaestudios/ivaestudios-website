@@ -1,0 +1,36 @@
+name: SEO — Link Audit
+
+# Runs on pull requests and on demand, to catch broken internal links
+# before they ship to production.
+on:
+  pull_request:
+    paths:
+      - "**/*.html"
+      - "_redirects"
+  workflow_dispatch:
+  schedule:
+    # Every Monday at 14:00 UTC (08:00 Cancún)
+    - cron: "0 14 * * 1"
+
+jobs:
+  audit:
+    name: Walk every href
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run audit
+        # On PRs we want CI to fail if broken links are introduced.
+        # On manual / scheduled runs we just want a report.
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            python scripts/audit_links.py --fail-on-broken
+          else
+            python scripts/audit_links.py
+          fi

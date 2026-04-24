@@ -1,0 +1,50 @@
+name: SEO — Index URLs
+
+# Auto-fires on push to main when user-facing content changes.
+# Also supports manual runs from the Actions tab with a custom URL list.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**/*.html"
+      - "sitemap.xml"
+      - "_redirects"
+      - ".github/workflows/index-urls.yml"
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: "Space-separated URLs to index (leave blank to use default list)"
+        required: false
+        default: ""
+
+concurrency:
+  group: seo-index-urls
+  cancel-in-progress: false
+
+jobs:
+  submit:
+    name: Submit to Google Indexing API
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: scripts/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Submit URLs
+        env:
+          GOOGLE_INDEXING_SA_JSON: ${{ secrets.GOOGLE_INDEXING_SA_JSON }}
+        run: |
+          if [ -n "${{ github.event.inputs.urls }}" ]; then
+            python scripts/index_urls.py ${{ github.event.inputs.urls }}
+          else
+            python scripts/index_urls.py
+          fi
