@@ -1,0 +1,97 @@
+# Manually-triggered Cloudflare cache purge.
+#
+# Use this when a stale `immutable` response (or any cache) needs to be
+# invalidated at the edge — for example after a _headers fix that swaps
+# `immutable` for `must-revalidate`. The visitor's browser cache will still
+# revalidate at edge; this workflow purges the EDGE cache itself.
+#
+# Required GitHub Secret: `CLOUDFLARE_TOKEN` — must include zone-level
+# "Cache Purge" permission for ivaestudios.com.
+#
+# Trigger from the Actions tab → "Cache purge — Cloudflare" → Run workflow,
+# pasting comma-separated URLs in the `urls` input. To purge everything
+# (slower, riskier), set `everything` to `true`.
+
+name: Cache purge — Cloudflare
+
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: 'Comma-separated full URLs to purge (ignored if everything=true)'
+        required: false
+        default: ''
+      everything:
+        description: 'Purge entire zone (use sparingly)'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cf-purge
+  cancel-in-progress: false
+
+jobs:
+  purge:
+    name: Purge Cloudflare cache
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sanity-check token
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+        run: |
+          if [ -z "$CF_TOKEN" ]; then
+            echo "::error::Missing CLOUDFLARE_TOKEN secret."
+            exit 1
+          fi
+
+      - name: Resolve zone id (ivaestudios.com)
+        id: zone
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+        run: |
+          ZONE_ID=$(curl -fsS -H "Authorization: Bearer $CF_TOKEN" \
+            "https://api.cloudflare.com/client/v4/zones?name=ivaestudios.com" \
+            | jq -r '.result[0].id')
+          if [ "$ZONE_ID" = "null" ] || [ -z "$ZONE_ID" ]; then
+            echo "::error::Could not resolve zone id for ivaestudios.com"; exit 1
+          fi
+          echo "id=$ZONE_ID" >> "$GITHUB_OUTPUT"
+          echo "Zone id: $ZONE_ID"
+
+      - name: Purge
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+          ZONE_ID: ${{ steps.zone.outputs.id }}
+          URLS: ${{ inputs.urls }}
+          EVERYTHING: ${{ inputs.everything }}
+        run: |
+          if [ "$EVERYTHING" = "true" ]; then
+            echo "Purging entire zone..."
+            BODY='{"purge_everything":true}'
+          else
+            if [ -z "$URLS" ]; then
+              echo "::error::No URLs provided and everything=false. Nothing to do."
+              exit 1
+            fi
+            # Convert comma-separated string into a JSON array, trimming spaces.
+            BODY=$(echo "$URLS" | jq -Rrn '
+              [inputs | split(",")[] | gsub("^\\s+|\\s+$"; "")] | {files: .}
+            ' < <(echo "$URLS"))
+            echo "Purging URLs:"
+            echo "$BODY" | jq .
+          fi
+          RESP=$(curl -fsS -X POST \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$BODY" \
+            "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/purge_cache")
+          echo "$RESP" | jq .
+          OK=$(echo "$RESP" | jq -r '.success')
+          if [ "$OK" != "true" ]; then
+            echo "::error::Purge failed"
+            exit 1
+          fi
+          echo "Purge complete."

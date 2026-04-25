@@ -8,7 +8,10 @@
 
 set -uo pipefail
 
-BASE="https://gallery.ivaestudios.com"
+BASE="https://ivaestudios.com"
+# (gallery.ivaestudios.com is a legacy subdomain pointing at the old standalone
+#  Worker — kept around for any old shared links but not the canonical URL.
+#  The site is served from the main domain at /gallery/ via Pages Functions.)
 PASS=0
 FAIL=0
 WARN=0
