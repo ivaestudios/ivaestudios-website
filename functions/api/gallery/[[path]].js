@@ -1010,6 +1010,76 @@ function buildProofReceiptEmail({ galleryTitle, photoCount, submittedAt, viewerU
 </body></html>`;
 }
 
+// Sent to the client when the photographer reviews their proof submission.
+// Two states share this template:
+//   approved → "We're starting your retouching" (positive, no action needed)
+//   returned → "Could you take another look?"   (with admin's note prominent)
+// 'archived' is silent (admin housekeeping only) and never reaches this fn.
+function buildProofReviewEmail({ status, galleryTitle, galleryUrl, photoCount, note, photographerEmail }) {
+  const safeTitle = String(galleryTitle || 'your gallery').replace(/</g, '&lt;');
+  const safeNote = note ? String(note).replace(/</g, '&lt;').replace(/\n/g, '<br>') : '';
+  const count = Number(photoCount) || 0;
+  const replyTo = String(photographerEmail || 'hola@ivaestudios.com');
+  const isApproved = status === 'approved';
+
+  const headline = isApproved ? 'Your selections are <em style="font-style:italic;">approved</em>'
+                              : 'A note about your <em style="font-style:italic;">selections</em>';
+  const subhead = isApproved
+    ? `Vianey has reviewed your <strong style="color:#2c2c2c;">${count}</strong> favorite${count === 1 ? '' : 's'} from <strong style="color:#2c2c2c;">${safeTitle}</strong> and is starting your retouching now. We'll be in touch when your final images are ready.`
+    : `Vianey has taken a look at your <strong style="color:#2c2c2c;">${count}</strong> favorite${count === 1 ? '' : 's'} from <strong style="color:#2c2c2c;">${safeTitle}</strong> and would like you to revisit your picks. Your selections have been re-opened so you can edit them.`;
+  const cta = isApproved ? 'VIEW YOUR GALLERY' : 'EDIT YOUR SELECTIONS';
+  const subject = isApproved ? `Your selections are approved` : `Please revisit your selections`;
+  const preheader = isApproved
+    ? `Your ${count} selection${count === 1 ? '' : 's'} from ${safeTitle} are approved.`
+    : `Vianey has a note about your selections from ${safeTitle}.`;
+
+  // Note block — always rendered for 'returned' (it's the whole point) and
+  // optionally for 'approved' if the photographer left one.
+  const noteBlock = safeNote ? `
+    <div style="margin:0 40px 8px;padding:18px 22px;background:#faf8f5;border-left:3px solid #c9b99a;border-radius:6px;">
+      <p style="margin:0 0 6px;font-size:11px;letter-spacing:1.5px;color:#8a7d6b;text-transform:uppercase;font-weight:500;">Note from Vianey</p>
+      <p style="margin:0;font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-size:18px;color:#2c2c2c;font-weight:300;line-height:1.55;font-style:italic;">${safeNote}</p>
+    </div>` : '';
+
+  return `<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="color-scheme" content="light only"/>
+<title>${subject} — IVAE Studios</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Syne:wght@400;500&display=swap" rel="stylesheet"/>
+</head>
+<body style="margin:0;padding:0;background-color:#f7f6f3;font-family:'Syne','Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;color-scheme:light only;">
+<div style="display:none;font-size:1px;color:#f7f6f3;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${preheader}</div>
+<div style="max-width:600px;margin:0 auto;padding:24px 16px;">
+  <div style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 1px 12px rgba(0,0,0,0.06);">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#2c2c2c">
+      <tr><td style="padding:18px 0;text-align:center;background-color:#2c2c2c;">
+        <p style="margin:0;font-size:12px;letter-spacing:5px;color:#c9b99a;font-weight:400;text-transform:uppercase;">IVAE Studios</p>
+      </td></tr>
+    </table>
+    <div style="padding:44px 40px 8px;text-align:center;">
+      <p style="margin:0;font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-size:34px;color:#2c2c2c;font-weight:300;line-height:1.25;">${headline}</p>
+    </div>
+    <div style="padding:20px 40px 8px;">
+      <p style="margin:0 0 24px;font-size:15px;color:#555;line-height:1.7;">${subhead}</p>
+    </div>
+    ${noteBlock}
+    <div style="padding:20px 40px 32px;text-align:center;">
+      <a href="${galleryUrl}" style="display:inline-block;background:#2c2c2c;color:#ffffff;text-decoration:none;padding:15px 52px;border-radius:40px;font-size:13px;letter-spacing:2px;font-weight:500;text-transform:uppercase;">${cta}</a>
+    </div>
+    <div style="background:#f7f6f3;padding:24px 40px;margin:0;text-align:center;">
+      <p style="margin:0;font-size:12px;color:#888;line-height:1.6;">Questions? Just reply to this email — we're here to help.</p>
+    </div>
+  </div>
+  <div style="text-align:center;padding:28px 20px 16px;">
+    <p style="margin:0 0 4px;font-size:11px;letter-spacing:3px;color:#999;text-transform:uppercase;">IVAE Studios</p>
+    <p style="margin:0 0 12px;font-size:12px;color:#bbb;">Luxury Photography &middot; Cancun &amp; Riviera Maya</p>
+    <a href="mailto:${replyTo}" style="font-size:12px;color:#8a7d6b;text-decoration:none;">${replyTo}</a>
+    <p style="margin:16px 0 0;font-size:10px;color:#ccc;">&copy; ${new Date().getFullYear()} IVAE Studios. All rights reserved.</p>
+  </div>
+</div>
+</body></html>`;
+}
+
 // ── PUBLIC COVER (for emails) ──
 async function handleGetCover(env, galleryId) {
   const gallery = await env.DB.prepare('SELECT cover_key FROM galleries WHERE id = ?').bind(galleryId).first();
@@ -1267,7 +1337,10 @@ async function handleGetProofs(env, session, galleryId) {
 // Admin: review (approve / return / archive) a single client proof submission.
 // Body: { status: 'approved' | 'archived' | 'returned', note?: string }
 // 'returned' also resets galleries.proofing_locked = 0 so the client can edit.
-async function handleReviewProof(request, env, session, proofId) {
+// 'approved' / 'returned' send a branded email to the original submitter
+// (best-effort via ctx.waitUntil — never blocks the response). 'archived' is
+// silent admin housekeeping — no email is sent.
+async function handleReviewProof(request, env, session, proofId, ctx) {
   if (!session || session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
   if (!/^[a-f0-9]{32}$/.test(proofId)) return json({ error: 'Invalid proof id' }, 400);
   let body;
@@ -1278,7 +1351,13 @@ async function handleReviewProof(request, env, session, proofId) {
   const note = body && typeof body.note === 'string' ? body.note.slice(0, 1000) : null;
 
   // Look up the proof first so we can also flip proofing_locked on its gallery.
-  const proof = await env.DB.prepare('SELECT id, gallery_id FROM proof_submissions WHERE id = ?').bind(proofId).first();
+  // We read enough context to drive the notification email below (title + recipient).
+  const proof = await env.DB.prepare(
+    `SELECT p.id, p.gallery_id, p.email, p.name, p.photo_ids, g.title AS gallery_title
+       FROM proof_submissions p
+       JOIN galleries g ON g.id = p.gallery_id
+      WHERE p.id = ?`
+  ).bind(proofId).first();
   if (!proof) return json({ error: 'Proof not found' }, 404);
 
   // Map our richer review_status onto the legacy `status` column so the
@@ -1298,6 +1377,46 @@ async function handleReviewProof(request, env, session, proofId) {
     try {
       await env.DB.prepare('UPDATE galleries SET proofing_locked = 0 WHERE id = ?').bind(proof.gallery_id).run();
     } catch (e) { console.warn('[handleReviewProof] proofing_locked reset failed:', e.message); }
+  }
+
+  // ── Async client notification (approved | returned only) ──
+  // Archived = silent admin housekeeping. We never want a deleted/abandoned
+  // proof to email the client out of the blue. ctx.waitUntil keeps the HTTP
+  // response snappy; failures are logged but never surface to the admin.
+  if (reviewStatus !== 'archived' && proof.email) {
+    const sendNotice = async () => {
+      if (!env.RESEND_API_KEY) { console.log('[handleReviewProof] RESEND_API_KEY missing — skipping client email'); return; }
+      let photoCount = 0;
+      try { photoCount = (JSON.parse(proof.photo_ids || '[]') || []).length; } catch {}
+      const galleryUrl = `https://ivaestudios.com/gallery/gallery?id=${proof.gallery_id}`;
+      const photographerEmail = env.STUDIO_EMAIL || env.ADMIN_EMAIL || 'hola@ivaestudios.com';
+      const html = buildProofReviewEmail({
+        status: reviewStatus,
+        galleryTitle: proof.gallery_title,
+        galleryUrl,
+        photoCount,
+        note,
+        photographerEmail,
+      });
+      const subject = reviewStatus === 'approved'
+        ? `Your selections from ${proof.gallery_title} are approved — IVAE Studios`
+        : `A note about your selections from ${proof.gallery_title} — IVAE Studios`;
+      try {
+        const r = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: 'Vianey at IVAE Studios <hola@ivaestudios.com>',
+            reply_to: photographerEmail,
+            to: [proof.email],
+            subject,
+            html,
+          }),
+        });
+        if (!r.ok) console.error('[handleReviewProof] notice send failed:', r.status, await r.text());
+      } catch (e) { console.error('[handleReviewProof] notice error:', e.message); }
+    };
+    if (ctx?.waitUntil) ctx.waitUntil(sendNotice()); else sendNotice().catch(() => {});
   }
 
   const updated = await env.DB.prepare(
@@ -3039,7 +3158,7 @@ async function fetchHandler(request, env, ctx) {
     // Public URL is /api/gallery/admin/proofs/{proofId}/review; the
     // /api/gallery/ prefix is stripped before reaching this router.
     const proofReviewMatch = path.match(/^\/api\/admin\/proofs\/([a-f0-9]{32})\/review$/);
-    if (proofReviewMatch && method === 'POST') return handleReviewProof(request, env, session, proofReviewMatch[1]);
+    if (proofReviewMatch && method === 'POST') return handleReviewProof(request, env, session, proofReviewMatch[1], ctx);
 
     const visitorsMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/visitors$/);
     if (visitorsMatch && method === 'GET') return handleGetVisitors(env, session, visitorsMatch[1]);

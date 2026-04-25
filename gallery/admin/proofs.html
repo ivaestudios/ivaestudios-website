@@ -835,6 +835,17 @@ async function reviewProof(proofId, status, btn) {
   const card = btn.closest('.proof-card');
   const noteInput = card ? card.querySelector('.review-note-input') : null;
   const note = noteInput ? noteInput.value.trim() : '';
+  // Returning a proof without context produces a confusing email — the
+  // client gets a "please revisit" message with no explanation. Nudge the
+  // photographer to write a note (still allow it via confirm() so we don't
+  // hard-block experienced admins who really mean to send an empty note).
+  if (status === 'returned' && !note) {
+    const ok = confirm('Send the client back without a note explaining what to revisit?');
+    if (!ok) {
+      if (noteInput) noteInput.focus();
+      return;
+    }
+  }
   // Disable all buttons in this card while in flight.
   const btns = card ? card.querySelectorAll('.review-btn') : [btn];
   btns.forEach(b => { b.disabled = true; });
@@ -851,7 +862,10 @@ async function reviewProof(proofId, status, btn) {
       window.__proofState.subs = data.submissions || [];
     }
     renderProofs();
-    const verb = status === 'approved' ? 'Approved' : status === 'returned' ? 'Returned to client' : 'Archived';
+    // Approve / return both email the client; archive is silent housekeeping.
+    const verb = status === 'approved' ? 'Approved — client emailed'
+              : status === 'returned' ? 'Returned — client emailed'
+              : 'Archived';
     showToast(verb);
   } catch (e) {
     showToast(e.message || 'Review failed', true);
