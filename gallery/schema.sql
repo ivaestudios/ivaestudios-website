@@ -125,13 +125,17 @@ CREATE INDEX IF NOT EXISTS idx_visitor_log_gallery ON visitor_log(gallery_id);
 CREATE INDEX IF NOT EXISTS idx_visitor_log_email ON visitor_log(email);
 
 CREATE TABLE IF NOT EXISTS proof_submissions (
-  id           TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  gallery_id   TEXT NOT NULL REFERENCES galleries(id) ON DELETE CASCADE,
-  email        TEXT NOT NULL,
-  name         TEXT,
-  photo_ids    TEXT NOT NULL,
-  note         TEXT,
-  submitted_at TEXT NOT NULL DEFAULT (datetime('now')),
-  status       TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'reviewed', 'completed'))
+  id               TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  gallery_id       TEXT NOT NULL REFERENCES galleries(id) ON DELETE CASCADE,
+  email            TEXT NOT NULL,
+  name             TEXT,
+  photo_ids        TEXT NOT NULL,
+  note             TEXT,
+  submitted_at     TEXT NOT NULL DEFAULT (datetime('now')),
+  status           TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'reviewed', 'completed')),
+  reviewed_at      TEXT,
+  reviewer_user_id TEXT,
+  review_note      TEXT,
+  review_status    TEXT DEFAULT 'submitted'
 );
 CREATE INDEX IF NOT EXISTS idx_proof_submissions_gallery ON proof_submissions(gallery_id);

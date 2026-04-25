@@ -1085,9 +1085,52 @@ async function handleSubmitProof(request, env, session, galleryId) {
 
 async function handleGetProofs(env, session, galleryId) {
   if (!session || session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
-  const rows = await env.DB.prepare('SELECT id, email, name, photo_ids, note, submitted_at, status FROM proof_submissions WHERE gallery_id = ? ORDER BY submitted_at DESC').bind(galleryId).all();
+  const rows = await env.DB.prepare('SELECT id, email, name, photo_ids, note, submitted_at, status, reviewed_at, reviewer_user_id, review_note, review_status FROM proof_submissions WHERE gallery_id = ? ORDER BY submitted_at DESC').bind(galleryId).all();
   const submissions = (rows.results || []).map(r => ({ ...r, photo_ids: JSON.parse(r.photo_ids || '[]') }));
   return json({ submissions });
+}
+
+// Admin: review (approve / return / archive) a single client proof submission.
+// Body: { status: 'approved' | 'archived' | 'returned', note?: string }
+// 'returned' also resets galleries.proofing_locked = 0 so the client can edit.
+async function handleReviewProof(request, env, session, proofId) {
+  if (!session || session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
+  if (!/^[a-f0-9]{32}$/.test(proofId)) return json({ error: 'Invalid proof id' }, 400);
+  let body;
+  try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
+  const reviewStatus = String(body && body.status || '').toLowerCase();
+  const allowed = ['approved', 'archived', 'returned'];
+  if (!allowed.includes(reviewStatus)) return json({ error: 'status must be approved | archived | returned' }, 400);
+  const note = body && typeof body.note === 'string' ? body.note.slice(0, 1000) : null;
+
+  // Look up the proof first so we can also flip proofing_locked on its gallery.
+  const proof = await env.DB.prepare('SELECT id, gallery_id FROM proof_submissions WHERE id = ?').bind(proofId).first();
+  if (!proof) return json({ error: 'Proof not found' }, 404);
+
+  // Map our richer review_status onto the legacy `status` column so the
+  // existing CHECK constraint (pending|reviewed|completed) continues to pass.
+  //   approved → completed
+  //   archived → completed
+  //   returned → reviewed
+  const legacyStatus = reviewStatus === 'returned' ? 'reviewed' : 'completed';
+  const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+
+  await env.DB.prepare(
+    'UPDATE proof_submissions SET review_status = ?, status = ?, reviewed_at = ?, reviewer_user_id = ?, review_note = ? WHERE id = ?'
+  ).bind(reviewStatus, legacyStatus, now, session.user_id, note, proofId).run();
+
+  // If we sent the proofs back, unlock the gallery so the client can edit.
+  if (reviewStatus === 'returned') {
+    try {
+      await env.DB.prepare('UPDATE galleries SET proofing_locked = 0 WHERE id = ?').bind(proof.gallery_id).run();
+    } catch (e) { console.warn('[handleReviewProof] proofing_locked reset failed:', e.message); }
+  }
+
+  const updated = await env.DB.prepare(
+    'SELECT id, gallery_id, email, name, photo_ids, note, submitted_at, status, reviewed_at, reviewer_user_id, review_note, review_status FROM proof_submissions WHERE id = ?'
+  ).bind(proofId).first();
+  if (updated) updated.photo_ids = JSON.parse(updated.photo_ids || '[]');
+  return json({ proof: updated });
 }
 
 async function handleGetVisitors(env, session, galleryId) {
@@ -2812,6 +2855,12 @@ async function fetchHandler(request, env, ctx) {
     // Admin proofing & visitor review (Phase 3)
     const proofsMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/proofs$/);
     if (proofsMatch && method === 'GET') return handleGetProofs(env, session, proofsMatch[1]);
+
+    // Admin: review (approve / return / archive) a single proof submission.
+    // Public URL is /api/gallery/admin/proofs/{proofId}/review; the
+    // /api/gallery/ prefix is stripped before reaching this router.
+    const proofReviewMatch = path.match(/^\/api\/admin\/proofs\/([a-f0-9]{32})\/review$/);
+    if (proofReviewMatch && method === 'POST') return handleReviewProof(request, env, session, proofReviewMatch[1]);
 
     const visitorsMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/visitors$/);
     if (visitorsMatch && method === 'GET') return handleGetVisitors(env, session, visitorsMatch[1]);
