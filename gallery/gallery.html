@@ -1042,13 +1042,68 @@ document.addEventListener('DOMContentLoaded', () => {
     applyLightboxTransform();
   });
 
-  // Touch: swipe horizontally to navigate (when not zoomed)
-  let touchStart = null;
+  // Touch handling — three modes:
+  //   1) 1 finger, scale === 1   → swipe horizontal to navigate, tap to toggle chrome
+  //   2) 1 finger, scale > 1     → drag to pan
+  //   3) 2 fingers (pinch)       → zoom around midpoint (Pic-Time / iOS Photos pattern)
+  let touchStart = null;       // 1-finger swipe-to-nav origin
+  let pinchStart = null;       // 2-finger pinch baseline { dist, scale, panX, panY, midX, midY }
+  let oneFingerPan = null;     // 1-finger pan-while-zoomed origin
+
+  function _pinchInfo(e) {
+    const a = e.touches[0], b = e.touches[1];
+    const dx = b.clientX - a.clientX, dy = b.clientY - a.clientY;
+    return { dist: Math.hypot(dx, dy), midX: (a.clientX + b.clientX) / 2, midY: (a.clientY + b.clientY) / 2 };
+  }
+
   img.addEventListener('touchstart', (e) => {
-    if (e.touches.length !== 1 || lbScale > 1) return;
-    touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() };
-  });
+    if (e.touches.length === 2) {
+      const info = _pinchInfo(e);
+      pinchStart = { dist: info.dist, scale: lbScale, panX: lbPanX, panY: lbPanY, midX: info.midX, midY: info.midY };
+      touchStart = null; oneFingerPan = null;
+    } else if (e.touches.length === 1) {
+      if (lbScale > 1) {
+        oneFingerPan = { x: e.touches[0].clientX - lbPanX, y: e.touches[0].clientY - lbPanY };
+        touchStart = null;
+      } else {
+        touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() };
+        oneFingerPan = null;
+      }
+    }
+  }, { passive: true });
+
+  img.addEventListener('touchmove', (e) => {
+    if (pinchStart && e.touches.length === 2) {
+      e.preventDefault();
+      const info = _pinchInfo(e);
+      const ratio = info.dist / pinchStart.dist;
+      const newScale = Math.max(LB_MIN_SCALE, Math.min(LB_MAX_SCALE, pinchStart.scale * ratio));
+      // Adjust pan so the pinch midpoint stays anchored under the user's fingers.
+      const midDx = info.midX - pinchStart.midX;
+      const midDy = info.midY - pinchStart.midY;
+      lbScale = newScale;
+      lbPanX = pinchStart.panX + midDx;
+      lbPanY = pinchStart.panY + midDy;
+      if (lbScale === 1) { lbPanX = 0; lbPanY = 0; }
+      applyLightboxTransform();
+    } else if (oneFingerPan && e.touches.length === 1 && lbScale > 1) {
+      e.preventDefault();
+      lbPanX = e.touches[0].clientX - oneFingerPan.x;
+      lbPanY = e.touches[0].clientY - oneFingerPan.y;
+      applyLightboxTransform();
+    }
+  }, { passive: false });
+
   img.addEventListener('touchend', (e) => {
+    if (pinchStart && e.touches.length < 2) {
+      // Pinch finished — snap to 1.0 if very close so single-finger pan disengages cleanly.
+      if (lbScale < 1.05) { lbScale = 1; lbPanX = 0; lbPanY = 0; applyLightboxTransform(); }
+      pinchStart = null;
+      // Don't fall through to swipe detection — pinch consumed the gesture.
+      touchStart = null; oneFingerPan = null;
+      return;
+    }
+    if (oneFingerPan) { oneFingerPan = null; return; }
     if (!touchStart) return;
     const t = e.changedTouches[0];
     const dx = t.clientX - touchStart.x;
