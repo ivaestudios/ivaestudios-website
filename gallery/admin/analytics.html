@@ -430,6 +430,71 @@ body { padding-top: 0; background: #f7f4ee; }
   font-weight: 600;
 }
 
+/* ── Downloads section ── */
+.dl-card { margin-top: 36px; }
+.dl-card-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 18px;
+}
+.dl-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 400; color: #1a1a1a; margin: 0;
+}
+.dl-meta {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px; color: #b8a888;
+  letter-spacing: 0.18em; text-transform: uppercase;
+}
+.dl-picker {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px; color: #555;
+  letter-spacing: 0.08em;
+  padding: 10px 36px 10px 14px;
+  border: 1px solid #e0d8c8;
+  background: white; appearance: none; cursor: pointer;
+  border-radius: 4px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23a07040' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center;
+  min-width: 240px;
+}
+.dl-picker:hover, .dl-picker:focus { border-color: #a07040; outline: none; }
+.dl-table-wrap { overflow-x: auto; }
+table.dl-table {
+  width: 100%; border-collapse: collapse;
+  font-family: 'Syne', sans-serif; font-size: 12px; color: #333;
+}
+table.dl-table th {
+  text-align: left; padding: 10px 12px;
+  font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: #999; font-weight: 600;
+  border-bottom: 1px solid #e8e0d4;
+}
+table.dl-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f3ede1;
+  vertical-align: middle;
+}
+table.dl-table tr:hover td { background: #faf6ec; }
+.dl-thumb {
+  width: 48px; height: 48px; object-fit: cover;
+  border-radius: 3px; background: #f3ede1; display: block;
+}
+.dl-thumb-empty {
+  width: 48px; height: 48px; background: #f3ede1; border-radius: 3px;
+}
+.dl-variant-tag {
+  display: inline-block;
+  font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 2px;
+  background: #f5efe2; color: #a07040; font-weight: 600;
+}
+.dl-anon { color: #b8a888; font-style: italic; }
+.dl-ip, .dl-ua {
+  font-family: 'JetBrains Mono', 'Menlo', monospace;
+  font-size: 10px; color: #777;
+}
+.dl-ua { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 /* ── Responsive ── */
 @media (max-width: 1100px) {
   .kpi-grid { grid-template-columns: repeat(3, 1fr); }
@@ -505,6 +570,22 @@ body { padding-top: 0; background: #f7f4ee; }
           <span class="legend-item"><span class="legend-swatch" style="background:#1a1a1a;"></span> Photo views</span>
           <span class="legend-item"><span class="legend-swatch" style="background:#c8b896;"></span> Favorites</span>
           <span class="legend-item"><span class="legend-swatch" style="background:#5a4a38;"></span> Submissions</span>
+        </div>
+      </section>
+
+      <!-- Downloads (per-gallery audit log) -->
+      <section class="chart-card dl-card">
+        <div class="dl-card-head">
+          <div>
+            <h2 class="dl-title">Downloads</h2>
+            <div class="dl-meta" id="dlMeta">Audit log of every photo download</div>
+          </div>
+          <select class="dl-picker" id="dlGallerySelect" aria-label="Select gallery">
+            <option value="">Select a gallery…</option>
+          </select>
+        </div>
+        <div class="dl-table-wrap" id="dlMount">
+          <div class="section-empty">Select a gallery above to see its download history.</div>
         </div>
       </section>
 
@@ -978,6 +1059,116 @@ async function loadAnalytics(period) {
   renderEngagement(stats);
 }
 
+// ─── Downloads (per-gallery audit log) ───
+function escHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function fmtDateTime(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso.includes('T') ? iso : iso.replace(' ', 'T') + 'Z');
+  if (isNaN(d.getTime())) return iso;
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+async function populateDownloadsPicker() {
+  const sel = document.getElementById('dlGallerySelect');
+  let galleries;
+  try {
+    galleries = await API.get('/galleries');
+  } catch (e) {
+    console.warn('[downloads] could not load galleries', e);
+    return;
+  }
+  if (!Array.isArray(galleries) || galleries.length === 0) return;
+  const sorted = [...galleries].sort((a, b) => {
+    const ad = new Date(a.created_at || 0).getTime();
+    const bd = new Date(b.created_at || 0).getTime();
+    return bd - ad;
+  });
+  sel.innerHTML = '<option value="">Select a gallery…</option>' + sorted.map(g => {
+    const title = escHtml(g.title || 'Untitled');
+    const status = (g.status || 'draft').toLowerCase();
+    return `<option value="${escHtml(g.id)}">${title} · ${status}</option>`;
+  }).join('');
+  sel.addEventListener('change', () => {
+    const id = sel.value;
+    if (id) loadDownloads(id);
+    else {
+      document.getElementById('dlMount').innerHTML =
+        '<div class="section-empty">Select a gallery above to see its download history.</div>';
+      document.getElementById('dlMeta').textContent = 'Audit log of every photo download';
+    }
+  });
+}
+
+async function loadDownloads(galleryId) {
+  const mount = document.getElementById('dlMount');
+  const meta = document.getElementById('dlMeta');
+  mount.innerHTML = '<div class="skel skel-block" style="height:140px;"></div>';
+  meta.textContent = 'Loading…';
+  let data;
+  try {
+    data = await API.get('/galleries/' + encodeURIComponent(galleryId) + '/downloads?limit=200');
+  } catch (e) {
+    mount.innerHTML = '<div class="section-empty">Couldn\'t load downloads: ' + escHtml(e?.message || 'try again') + '</div>';
+    meta.textContent = 'Audit log of every photo download';
+    return;
+  }
+  const rows = Array.isArray(data?.downloads) ? data.downloads : [];
+  meta.textContent = rows.length === 0
+    ? 'No downloads recorded for this gallery yet'
+    : `${rows.length} download${rows.length === 1 ? '' : 's'} (most recent first)`;
+
+  if (rows.length === 0) {
+    mount.innerHTML = '<div class="section-empty">No downloads recorded for this gallery yet.</div>';
+    return;
+  }
+
+  const body = rows.map(r => {
+    const thumb = r.photo_id
+      ? `<img class="dl-thumb" src="/api/gallery/photos/${encodeURIComponent(r.photo_id)}/thumb" alt="" loading="lazy">`
+      : '<div class="dl-thumb-empty"></div>';
+    const filename = r.filename ? escHtml(r.filename) : '<span class="dl-anon">deleted</span>';
+    const who = r.visitor_email
+      ? escHtml(r.visitor_email)
+      : '<span class="dl-anon">anonymous</span>';
+    const ip = r.ip ? `<span class="dl-ip">${escHtml(r.ip)}</span>` : '<span class="dl-anon">—</span>';
+    const ua = r.ua ? `<span class="dl-ua" title="${escHtml(r.ua)}">${escHtml(r.ua)}</span>` : '<span class="dl-anon">—</span>';
+    const variant = r.variant
+      ? `<span class="dl-variant-tag">${escHtml(r.variant)}</span>`
+      : '<span class="dl-anon">—</span>';
+    return `
+      <tr>
+        <td>${thumb}</td>
+        <td>${filename}</td>
+        <td>${who}</td>
+        <td>${ip}</td>
+        <td>${ua}</td>
+        <td>${variant}</td>
+        <td>${escHtml(fmtDateTime(r.occurred_at))}</td>
+      </tr>`;
+  }).join('');
+
+  mount.innerHTML = `
+    <table class="dl-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Photo</th>
+          <th>Visitor</th>
+          <th>IP</th>
+          <th>User agent</th>
+          <th>Variant</th>
+          <th>When</th>
+        </tr>
+      </thead>
+      <tbody>${body}</tbody>
+    </table>`;
+}
+
 // ─── Init ───
 (async () => {
   const me = await checkAuth();
@@ -996,6 +1187,9 @@ async function loadAnalytics(period) {
 
   // Recent galleries — independent of stats fetch
   renderRecentGalleries();
+
+  // Downloads picker — independent of stats fetch
+  populateDownloadsPicker();
 
   // Initial stats load
   await loadAnalytics(30);

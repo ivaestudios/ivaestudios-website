@@ -1610,6 +1610,15 @@ async function serveResized(request, env, session, photoId, maxWidth, variant, c
   if (ctx && response.headers.get('X-Variant') !== 'placeholder-no-variant') {
     ctx.waitUntil(cache.put(cacheKey, response.clone()));
   }
+
+  // Audit log explicit downloads (?download=1 from gallery.html "Web-Size"
+  // button). Plain previews are not logged — only the user-initiated save.
+  // Also skip when an admin is browsing their own studio.
+  if (isDownload && response.status === 200 && (!session || session.role !== 'admin')) {
+    const p = logDownload(env, request, photoId, variant);
+    if (ctx && typeof ctx.waitUntil === 'function') ctx.waitUntil(p);
+    else p.catch(() => {});
+  }
   return response;
 }
 
@@ -1617,7 +1626,7 @@ async function handleGetWeb(request, env, session, photoId, ctx) {
   return serveResized(request, env, session, photoId, 2400, 'web', ctx);
 }
 
-async function handleGetFull(request, env, session, photoId) {
+async function handleGetFull(request, env, session, photoId, ctx) {
   const etag = `"${photoId}-full"`;
   if (request.headers.get('If-None-Match') === etag) {
     return new Response(null, { status: 304, headers: { 'Cache-Control': 'private, max-age=3600', 'ETag': etag } });
@@ -1636,6 +1645,15 @@ async function handleGetFull(request, env, session, photoId) {
 
   const obj = await env.R2_BUCKET.get(photo.r2_key);
   if (!obj) return new Response('Not found', { status: 404 });
+
+  // Audit log: /full is always served as an attachment, so every successful
+  // hit is a download. Skip when admin is viewing their own studio (no value
+  // in self-logged events) — but still record client/portfolio downloads.
+  if (!session || session.role !== 'admin') {
+    const p = logDownload(env, request, photoId, 'full');
+    if (ctx && typeof ctx.waitUntil === 'function') ctx.waitUntil(p);
+    else p.catch(() => {});
+  }
 
   return new Response(obj.body, {
     headers: {
@@ -1889,6 +1907,76 @@ function parseCookieHeader(h) {
     out[part.slice(0, eq).trim()] = decodeURIComponent(part.slice(eq + 1).trim());
   }
   return out;
+}
+
+// ── DOWNLOAD AUDIT LOG ──
+// Records one row per photo download into gallery_events. Best-effort: any
+// failure (missing photo, schema drift, transient D1 error) is swallowed so
+// it can never block the bytes from streaming back to the client. Captures
+// who (session user OR pic_email/pic_visit cookie OR null), where (cf-ip),
+// what (photo_id + variant: full | web | thumb), and how (truncated UA).
+async function logDownload(env, request, photoId, variant) {
+  try {
+    if (!photoId) return;
+    const photo = await env.DB.prepare(
+      'SELECT gallery_id FROM photos WHERE id = ?'
+    ).bind(photoId).first();
+    if (!photo) return;
+    const session = await getSession(request, env);
+    const cookies = parseCookieHeader(request.headers.get('Cookie') || '');
+    const visitorId = session?.user_id || cookies['pic_visit'] || null;
+    const visitorEmail = session?.email || cookies['pic_email'] || null;
+    const ip = request.headers.get('cf-connecting-ip') || null;
+    const ua = (request.headers.get('user-agent') || '').slice(0, 200);
+    const meta = JSON.stringify({ variant, ip, ua });
+    await env.DB.prepare(
+      `INSERT INTO gallery_events (gallery_id, event_type, visitor_id, visitor_email, photo_id, meta)
+       VALUES (?, 'download', ?, ?, ?, ?)`
+    ).bind(photo.gallery_id, visitorId, visitorEmail, photoId, meta).run();
+  } catch (e) {
+    console.warn('[logDownload]', e && e.message);
+  }
+}
+
+// Admin: paginated history of download events for one gallery, joined with
+// photo metadata (filename) for display. ORDER BY occurred_at DESC; capped
+// at 500 rows to keep response sizes sane.
+async function handleGetDownloads(request, env, session, galleryId) {
+  if (!session || session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
+  const url = new URL(request.url);
+  let limit = parseInt(url.searchParams.get('limit') || '200', 10);
+  if (!Number.isFinite(limit) || limit <= 0) limit = 200;
+  if (limit > 500) limit = 500;
+  try {
+    const rows = await env.DB.prepare(
+      `SELECT e.id, e.gallery_id, e.event_type, e.visitor_id, e.visitor_email,
+              e.photo_id, e.meta, e.occurred_at,
+              p.filename, p.thumb_key, p.web_key
+         FROM gallery_events e
+         LEFT JOIN photos p ON p.id = e.photo_id
+        WHERE e.gallery_id = ? AND e.event_type = 'download'
+        ORDER BY e.occurred_at DESC
+        LIMIT ?`
+    ).bind(galleryId, limit).all();
+    const downloads = (rows.results || []).map(r => {
+      let meta = null;
+      try { meta = r.meta ? JSON.parse(r.meta) : null; } catch { meta = null; }
+      return {
+        id: r.id,
+        photo_id: r.photo_id,
+        filename: r.filename || null,
+        visitor_id: r.visitor_id,
+        visitor_email: r.visitor_email,
+        occurred_at: r.occurred_at,
+        variant: meta?.variant || null,
+        ip: meta?.ip || null,
+        ua: meta?.ua || null
+      };
+    });
+    return json({ downloads, count: downloads.length, limit });
+  } catch (e) {
+    return json({ error: 'Could not load downloads: ' + (e && e.message) }, 500);
+  }
 }
 
 // ── EMAIL TEMPLATES + SCHEDULED SENDS (FASE 3) ──
@@ -2551,7 +2639,7 @@ async function fetchHandler(request, env, ctx) {
 
     // ── Public full photo access (for portfolio gallery covers/photos) ──
     const fullMatch = path.match(/^\/api\/photos\/([a-f0-9]{32})\/full$/);
-    if (fullMatch && method === 'GET') return handleGetFull(request, env, session, fullMatch[1]);
+    if (fullMatch && method === 'GET') return handleGetFull(request, env, session, fullMatch[1], ctx);
 
     // Lazy backfill of legacy photo dimensions — public endpoint.
     // UPDATE only fires when width/height are NULL, so it can't be abused
@@ -2672,6 +2760,10 @@ async function fetchHandler(request, env, ctx) {
 
     const visitorsMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/visitors$/);
     if (visitorsMatch && method === 'GET') return handleGetVisitors(env, session, visitorsMatch[1]);
+
+    // Admin: download audit log for one gallery (joined with photos for filenames)
+    const downloadsMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/downloads$/);
+    if (downloadsMatch && method === 'GET') return handleGetDownloads(request, env, session, downloadsMatch[1]);
 
     // Admin
     if (method === 'GET' && path === '/api/admin/stats') return handleAdminStats(request, env, session);
