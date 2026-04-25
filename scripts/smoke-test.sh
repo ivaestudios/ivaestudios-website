@@ -175,6 +175,15 @@ if [[ "$d1_code" == "401" ]]; then ok "D1 galleries/{id}/duplicate → 401 (auth
 else fail "D1 galleries/{id}/duplicate → $d1_code (expected 401)"
 fi
 
+# D8: Scheduled-emails admin queue viewer must require auth.
+#     Public URL is /api/gallery/admin/scheduled-emails. Should 401 without
+#     a session cookie (NOT 404 — proves the route is wired through the
+#     /api/gallery prefix-strip correctly).
+d8_code=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE/api/gallery/admin/scheduled-emails")
+if [[ "$d8_code" == "401" ]]; then ok "D8 admin/scheduled-emails → 401 (auth required)"
+else fail "D8 admin/scheduled-emails → $d8_code (expected 401)"
+fi
+
 # ── Summary ──
 hdr "SUMMARY"
 echo "  PASS: $PASS    FAIL: $FAIL    WARN: $WARN"

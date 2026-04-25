@@ -2741,6 +2741,117 @@ async function handleEmailQueueSweep(env) {
   }
 }
 
+// ── SCHEDULED EMAILS QUEUE (admin visibility into delivery+7d / anniversary
+// follow-ups). The cron sweep at /api/admin/cron-sweep drains pending rows;
+// this endpoint surfaces what's waiting and what failed so Vianey can spot
+// problems instead of finding out from a client weeks later. Read-only on
+// the GET; the per-row endpoints below let her retry or cancel.
+async function handleListScheduledEmails(env, session) {
+  if (!session || session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
+  try {
+    // Three buckets the admin actually cares about: pending (will send next
+    // sweep), failed (last sweep recorded an error), recent (sent in 30d).
+    // Capped tightly so a runaway queue still fits in the response.
+    const pending = await env.DB.prepare(`
+      SELECT se.id, se.recipient_email, se.recipient_name, se.send_after,
+             se.template_id, se.gallery_id,
+             g.title AS gallery_title,
+             t.trigger AS template_trigger, t.name AS template_name,
+             t.enabled AS template_enabled
+        FROM scheduled_emails se
+        LEFT JOIN galleries g ON g.id = se.gallery_id
+        LEFT JOIN email_templates t ON t.id = se.template_id
+       WHERE se.sent_at IS NULL AND (se.error IS NULL OR se.error = '')
+       ORDER BY datetime(se.send_after) ASC
+       LIMIT 100
+    `).all();
+
+    const failed = await env.DB.prepare(`
+      SELECT se.id, se.recipient_email, se.recipient_name, se.send_after,
+             se.template_id, se.gallery_id, se.error,
+             g.title AS gallery_title,
+             t.trigger AS template_trigger, t.name AS template_name
+        FROM scheduled_emails se
+        LEFT JOIN galleries g ON g.id = se.gallery_id
+        LEFT JOIN email_templates t ON t.id = se.template_id
+       WHERE se.sent_at IS NULL AND se.error IS NOT NULL AND se.error != ''
+       ORDER BY datetime(se.send_after) DESC
+       LIMIT 100
+    `).all();
+
+    const recentSent = await env.DB.prepare(`
+      SELECT se.id, se.recipient_email, se.sent_at,
+             g.title AS gallery_title, t.trigger AS template_trigger
+        FROM scheduled_emails se
+        LEFT JOIN galleries g ON g.id = se.gallery_id
+        LEFT JOIN email_templates t ON t.id = se.template_id
+       WHERE se.sent_at IS NOT NULL
+         AND datetime(se.sent_at) >= datetime('now', '-30 days')
+       ORDER BY datetime(se.sent_at) DESC
+       LIMIT 50
+    `).all();
+
+    const stats = await env.DB.prepare(`
+      SELECT
+        SUM(CASE WHEN sent_at IS NULL AND (error IS NULL OR error = '') THEN 1 ELSE 0 END) AS pending_count,
+        SUM(CASE WHEN sent_at IS NULL AND error IS NOT NULL AND error != '' THEN 1 ELSE 0 END) AS failed_count,
+        SUM(CASE WHEN sent_at IS NOT NULL AND datetime(sent_at) >= datetime('now','-30 days') THEN 1 ELSE 0 END) AS sent_30d
+      FROM scheduled_emails
+    `).first();
+
+    return json({
+      pending: pending.results || [],
+      failed: failed.results || [],
+      recent_sent: recentSent.results || [],
+      stats: {
+        pending_count: Number(stats?.pending_count || 0),
+        failed_count: Number(stats?.failed_count || 0),
+        sent_30d: Number(stats?.sent_30d || 0),
+      },
+    });
+  } catch (e) {
+    // Table missing → treat as empty queue (migration 005 might not have run
+    // on a fresh deploy). Returning a 200 with empty arrays keeps the admin
+    // UI happy instead of exploding with a 500.
+    return json({
+      pending: [], failed: [], recent_sent: [],
+      stats: { pending_count: 0, failed_count: 0, sent_30d: 0 },
+      warning: 'scheduled_emails table missing — run migration 005',
+      detail: e.message,
+    });
+  }
+}
+
+// Clear an error so the next cron sweep retries the send. Idempotent: a row
+// that's already pending is left alone; a row that's already sent stays sent.
+async function handleRetryScheduledEmail(env, session, scheduleId) {
+  if (!session || session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
+  try {
+    const row = await env.DB.prepare('SELECT id, sent_at FROM scheduled_emails WHERE id = ?').bind(scheduleId).first();
+    if (!row) return json({ error: 'Not found' }, 404);
+    if (row.sent_at) return json({ ok: true, already_sent: true });
+    await env.DB.prepare("UPDATE scheduled_emails SET error = NULL WHERE id = ?").bind(scheduleId).run();
+    return json({ ok: true });
+  } catch (e) {
+    return json({ error: 'Retry failed', detail: e.message }, 500);
+  }
+}
+
+// Permanently cancel a queued email so the cron stops trying to send it.
+// Use case: a typo in client email, gallery cancelled, etc.
+async function handleCancelScheduledEmail(env, session, scheduleId) {
+  if (!session || session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
+  try {
+    const row = await env.DB.prepare('SELECT id, sent_at FROM scheduled_emails WHERE id = ?').bind(scheduleId).first();
+    if (!row) return json({ error: 'Not found' }, 404);
+    if (row.sent_at) return json({ error: 'Already sent — cannot cancel' }, 400);
+    await env.DB.prepare('DELETE FROM scheduled_emails WHERE id = ?').bind(scheduleId).run();
+    return json({ ok: true });
+  } catch (e) {
+    return json({ error: 'Cancel failed', detail: e.message }, 500);
+  }
+}
+
 // ── WORKFLOW TIMELINE (FASE 1B) ──
 // Merges gallery_events + visitor_log + proof_submissions into a single feed.
 async function handleGetTimeline(request, env, session) {
@@ -3297,6 +3408,13 @@ async function fetchHandler(request, env, ctx) {
 
     // Workflow timeline (FASE 1B)
     if (method === 'GET' && path === '/api/admin/timeline') return handleGetTimeline(request, env, session);
+
+    // Scheduled emails queue (visibility into delivery+7d / anniversary follow-ups)
+    if (method === 'GET' && path === '/api/admin/scheduled-emails') return handleListScheduledEmails(env, session);
+    const schedRetryMatch = path.match(/^\/api\/admin\/scheduled-emails\/(\d+)\/retry$/);
+    if (schedRetryMatch && method === 'POST') return handleRetryScheduledEmail(env, session, schedRetryMatch[1]);
+    const schedCancelMatch = path.match(/^\/api\/admin\/scheduled-emails\/(\d+)$/);
+    if (schedCancelMatch && method === 'DELETE') return handleCancelScheduledEmail(env, session, schedCancelMatch[1]);
 
     return json({ error: 'Not found' }, 404);
   } catch (e) {

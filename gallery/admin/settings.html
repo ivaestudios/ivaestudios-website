@@ -624,6 +624,27 @@
           <div id="backfillDimsResult" style="margin-top:12px;font-size:12px;color:var(--text-soft);line-height:1.6;"></div>
         </div>
       </div>
+
+      <div class="set-row">
+        <div class="set-label">Scheduled emails<small>Testimonial requests (7&nbsp;days after delivery) and anniversary throwbacks queue here. The daily cron drains them. Errors stay visible until you retry or cancel.</small></div>
+        <div class="set-control">
+          <div id="schedStats" style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;">
+            <span class="se-stat" id="schedStatPending"><strong>—</strong> pending</span>
+            <span class="se-stat" id="schedStatFailed"><strong>—</strong> failed</span>
+            <span class="se-stat" id="schedStatSent"><strong>—</strong> sent (30d)</span>
+            <button id="schedRefreshBtn" type="button" style="margin-left:auto;background:none;border:1px solid var(--line);padding:4px 12px;font-size:11px;cursor:pointer;color:var(--text-soft);">Refresh</button>
+          </div>
+          <div id="schedFailedSection" style="display:none;margin-bottom:14px;">
+            <div style="font-weight:600;font-size:12px;color:#b54;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.08em;">Failed</div>
+            <div id="schedFailedList" style="border:1px solid #f1d6d6;background:#fff8f8;border-radius:6px;font-size:12px;"></div>
+          </div>
+          <div id="schedPendingSection" style="display:none;">
+            <div style="font-weight:600;font-size:12px;color:var(--text-soft);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.08em;">Pending (next to send)</div>
+            <div id="schedPendingList" style="border:1px solid var(--line);border-radius:6px;font-size:12px;"></div>
+          </div>
+          <div id="schedEmpty" style="display:none;color:var(--text-soft);font-size:12px;font-style:italic;">No scheduled emails yet — they appear after a gallery is published with the testimonial or anniversary templates enabled.</div>
+        </div>
+      </div>
     </section>
 
   </main>
@@ -731,7 +752,7 @@ async function save() {
   btn.textContent = 'Saving...';
   try {
     const payload = readForm();
-    const updated = await API.put('/gallery/admin/settings', payload);
+    const updated = await API.put('/admin/settings', payload);
     currentSettings = updated;
     fillForm(updated);
     dirty = false;
@@ -750,7 +771,7 @@ async function save() {
 
 async function loadStorage() {
   try {
-    const stats = await API.get('/gallery/admin/stats');
+    const stats = await API.get('/admin/stats');
     const usedGB = (stats.storageBytes || 0) / (1024 ** 3);
     const limitGB = (stats.storageLimitBytes || (10 * 1024 ** 3)) / (1024 ** 3);
     const pct = Math.min(100, (usedGB / limitGB) * 100);
@@ -831,7 +852,7 @@ function setupLogoUpload() {
       preview.innerHTML = `<img src="${reader.result}" alt="Logo preview"/>`;
       remove.style.display = '';
       // Save immediately so the data persists
-      API.put('/gallery/admin/settings', { brand_logo_key: reader.result })
+      API.put('/admin/settings', { brand_logo_key: reader.result })
         .then(() => showToast('Logo updated'))
         .catch(e => showToast('Logo save failed: ' + e.message, true));
     };
@@ -841,7 +862,7 @@ function setupLogoUpload() {
   remove.addEventListener('click', async () => {
     if (!confirm('Remove studio logo?')) return;
     try {
-      await API.put('/gallery/admin/settings', { brand_logo_key: null });
+      await API.put('/admin/settings', { brand_logo_key: null });
       currentSettings.brand_logo_key = null;
       refreshLogoPreview(null);
       showToast('Logo removed');
@@ -870,7 +891,7 @@ function setupLogoUpload() {
   $('saveBtn').addEventListener('click', save);
 
   try {
-    currentSettings = await API.get('/gallery/admin/settings');
+    currentSettings = await API.get('/admin/settings');
     fillForm(currentSettings);
   } catch (e) {
     showToast('Failed to load settings: ' + e.message, true);
@@ -949,7 +970,7 @@ async function loadEmails() {
   const list = document.getElementById('emailsList');
   list.innerHTML = '<div class="et-loading">Loading templates…</div>';
   try {
-    const res = await API.get('/gallery/admin/email-templates');
+    const res = await API.get('/admin/email-templates');
     emailTemplates = res.templates || [];
     if (!emailTemplates.length) {
       list.innerHTML = '<div class="et-empty">No email templates yet.</div>';
@@ -1059,7 +1080,7 @@ function wireEmailCard(card, t) {
     lbl.textContent = enabledCb.checked ? 'On' : 'Off';
     card.classList.toggle('disabled', !enabledCb.checked);
     try {
-      await API.put('/gallery/admin/email-templates/' + encodeURIComponent(t.id), { enabled: enabledCb.checked ? 1 : 0 });
+      await API.put('/admin/email-templates/' + encodeURIComponent(t.id), { enabled: enabledCb.checked ? 1 : 0 });
       t.enabled = enabledCb.checked ? 1 : 0;
       showToast(enabledCb.checked ? 'Template enabled' : 'Template disabled');
     } catch (e) {
@@ -1109,7 +1130,7 @@ function wireEmailCard(card, t) {
     };
     if (delayIn) payload.delay_days = parseInt(delayIn.value, 10) || 0;
     try {
-      const res = await API.put('/gallery/admin/email-templates/' + encodeURIComponent(t.id), payload);
+      const res = await API.put('/admin/email-templates/' + encodeURIComponent(t.id), payload);
       if (res && res.template) Object.assign(t, res.template);
       else Object.assign(t, payload);
       saveBtn.textContent = 'Saved';
@@ -1150,7 +1171,7 @@ function wireEmailCard(card, t) {
         body_html: bodyTa.value
       };
       if (delayIn) draft.delay_days = parseInt(delayIn.value, 10) || 0;
-      const res = await API.post('/gallery/admin/email-templates/' + encodeURIComponent(t.id) + '/test', { to, draft });
+      const res = await API.post('/admin/email-templates/' + encodeURIComponent(t.id) + '/test', { to, draft });
       if (res && res.ok) {
         showToast('Test sent to ' + to);
       } else {
@@ -1176,7 +1197,7 @@ function setupDiagnostics() {
     btn.textContent = 'Scanning…';
     result.textContent = '';
     try {
-      const res = await API.post('/gallery/admin/backfill-dimensions', {});
+      const res = await API.post('/admin/backfill-dimensions', {});
       const lines = [
         `Galleries checked: <strong>${res.galleries || 0}</strong>`,
         `Photos scanned: <strong>${res.scanned || 0}</strong>`,
@@ -1195,6 +1216,134 @@ function setupDiagnostics() {
       btn.textContent = original;
     }
   });
+
+  // Scheduled-emails queue viewer
+  const refreshBtn = $('schedRefreshBtn');
+  if (!refreshBtn) return;
+  refreshBtn.addEventListener('click', loadScheduledEmails);
+  // Auto-load whenever the diagnostics pane becomes active.
+  document.querySelectorAll('.set-tab').forEach(t => {
+    t.addEventListener('click', () => {
+      if (t.getAttribute('data-pane') === 'diagnostics') loadScheduledEmails();
+    });
+  });
+  // Also load on first hash entry to /diagnostics
+  if (location.hash === '#diagnostics') loadScheduledEmails();
+}
+
+function fmtRelativeFromNow(iso) {
+  if (!iso) return '';
+  const t = new Date(iso).getTime();
+  if (isNaN(t)) return iso;
+  const diffMs = t - Date.now();
+  const past = diffMs < 0;
+  const abs = Math.abs(diffMs);
+  const min = Math.round(abs / 60000);
+  const hr = Math.round(abs / 3600000);
+  const day = Math.round(abs / 86400000);
+  const text = day >= 1 ? `${day}d` : hr >= 1 ? `${hr}h` : `${Math.max(1, min)}m`;
+  return past ? `${text} ago` : `in ${text}`;
+}
+
+function escapeHtmlSafe(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+async function loadScheduledEmails() {
+  const refreshBtn = $('schedRefreshBtn');
+  const failedSection = $('schedFailedSection');
+  const pendingSection = $('schedPendingSection');
+  const empty = $('schedEmpty');
+  if (!refreshBtn) return;
+  const orig = refreshBtn.textContent;
+  refreshBtn.disabled = true;
+  refreshBtn.textContent = 'Loading…';
+  try {
+    const res = await API.get('/admin/scheduled-emails');
+    const stats = res.stats || {};
+    $('schedStatPending').innerHTML = `<strong>${stats.pending_count || 0}</strong> pending`;
+    $('schedStatFailed').innerHTML = `<strong>${stats.failed_count || 0}</strong> failed`;
+    $('schedStatSent').innerHTML = `<strong>${stats.sent_30d || 0}</strong> sent (30d)`;
+
+    // Failed list
+    const failed = res.failed || [];
+    if (failed.length) {
+      failedSection.style.display = '';
+      $('schedFailedList').innerHTML = failed.map(f => `
+        <div style="padding:10px 12px;border-bottom:1px solid #f1d6d6;display:flex;align-items:flex-start;gap:10px;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:500;color:#1c1c1c;">${escapeHtmlSafe(f.template_name || f.template_trigger || 'Email')}</div>
+            <div style="color:var(--text-soft);margin-top:2px;">→ ${escapeHtmlSafe(f.recipient_email)} · ${escapeHtmlSafe(f.gallery_title || 'unknown gallery')}</div>
+            <div style="color:#b54;margin-top:4px;font-family:monospace;font-size:11px;word-break:break-word;">${escapeHtmlSafe(f.error || 'unknown error')}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
+            <button data-sched-retry="${f.id}" style="background:#1c1c1c;color:#fff;border:0;padding:4px 10px;font-size:11px;cursor:pointer;">Retry</button>
+            <button data-sched-cancel="${f.id}" style="background:none;color:#b54;border:1px solid #f1d6d6;padding:4px 10px;font-size:11px;cursor:pointer;">Cancel</button>
+          </div>
+        </div>
+      `).join('');
+    } else {
+      failedSection.style.display = 'none';
+    }
+
+    // Pending list
+    const pending = res.pending || [];
+    if (pending.length) {
+      pendingSection.style.display = '';
+      $('schedPendingList').innerHTML = pending.slice(0, 25).map(p => `
+        <div style="padding:8px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;">
+          <div style="flex:1;min-width:0;">
+            <span style="color:#1c1c1c;">${escapeHtmlSafe(p.template_name || p.template_trigger || 'Email')}</span>
+            <span style="color:var(--text-soft);"> → ${escapeHtmlSafe(p.recipient_email)}</span>
+            <span style="color:var(--text-soft);"> · ${escapeHtmlSafe(p.gallery_title || 'gallery')}</span>
+          </div>
+          <div style="color:var(--text-soft);font-size:11px;flex-shrink:0;">sends ${fmtRelativeFromNow(p.send_after)}${p.template_enabled === 0 ? ' · template disabled' : ''}</div>
+          <button data-sched-cancel="${p.id}" style="background:none;color:var(--text-soft);border:1px solid var(--line);padding:3px 8px;font-size:11px;cursor:pointer;">Cancel</button>
+        </div>
+      `).join('') + (pending.length > 25 ? `<div style="padding:8px 12px;color:var(--text-soft);font-size:11px;font-style:italic;">+${pending.length - 25} more…</div>` : '');
+    } else {
+      pendingSection.style.display = 'none';
+    }
+
+    if (!failed.length && !pending.length) {
+      empty.style.display = '';
+      if (res.warning) empty.textContent = res.warning;
+    } else {
+      empty.style.display = 'none';
+    }
+
+    // Wire row buttons
+    document.querySelectorAll('[data-sched-retry]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-sched-retry');
+        btn.disabled = true; btn.textContent = '…';
+        try {
+          await API.post(`/admin/scheduled-emails/${id}/retry`, {});
+          showToast('Queued for retry — runs at next sweep.');
+          loadScheduledEmails();
+        } catch (e) { showToast('Retry failed: ' + e.message, true); btn.disabled = false; btn.textContent = 'Retry'; }
+      });
+    });
+    document.querySelectorAll('[data-sched-cancel]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Cancel this scheduled email permanently?')) return;
+        const id = btn.getAttribute('data-sched-cancel');
+        btn.disabled = true; btn.textContent = '…';
+        try {
+          await API.del(`/admin/scheduled-emails/${id}`);
+          showToast('Cancelled.');
+          loadScheduledEmails();
+        } catch (e) { showToast('Cancel failed: ' + e.message, true); btn.disabled = false; btn.textContent = 'Cancel'; }
+      });
+    });
+  } catch (e) {
+    showToast('Could not load scheduled emails: ' + e.message, true);
+  } finally {
+    refreshBtn.disabled = false;
+    refreshBtn.textContent = orig;
+  }
 }
 </script>
 </body>
