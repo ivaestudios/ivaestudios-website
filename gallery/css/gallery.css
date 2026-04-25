@@ -2512,6 +2512,13 @@ textarea.form-input { min-height: 100px; resize: vertical; }
 
 #ssAudioIcon { opacity: 0.55; transition: opacity 0.2s; }
 
+/* Fullscreen mode — overlay fills the fullscreen viewport, controls stay visible */
+.slideshow-overlay.is-fullscreen { width: 100vw; height: 100vh; }
+.slideshow-overlay:fullscreen { background: #000; }
+.slideshow-overlay:-webkit-full-screen { background: #000; }
+/* Hide fullscreen button on touch devices (Fullscreen API support is unreliable there) */
+@media (hover: none) and (pointer: coarse) { .ss-fs-btn { display: none; } }
+
 @media (max-width: 767px) {
   .email-gate-modal { padding: 40px 26px 32px; }
   .email-gate-title { font-size: 26px; }
