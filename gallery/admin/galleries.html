@@ -482,6 +482,7 @@ function renderCard(g) {
       </button>
       <div class="gx-popover" id="popover-${g.id}">
         <a href="/gallery/gallery?id=${g.id}" target="_blank" rel="noopener">View as client</a>
+        <button data-action="copy-share" data-id="${g.id}">Copy share link</button>
         <button data-action="duplicate" data-id="${g.id}">Duplicate</button>
         <button data-action="archive" data-id="${g.id}">Archive</button>
         <button class="gx-popover-danger" data-action="delete" data-id="${g.id}">Delete</button>
@@ -558,6 +559,48 @@ document.addEventListener('click', e => {
 // ───────────────────────────── Actions ─────────────────────────────
 async function handleAction(action, id) {
   closeAllPopovers();
+
+  if (action === 'copy-share') {
+    const g = allGalleries.find(x => x.id == id);
+    try {
+      // Reuse the existing token if there is one — never rotate behind
+      // the admin's back, since shared links in the wild would die. If
+      // none exists yet, mint one (POST to regenerate is idempotent on
+      // the "no token yet" case).
+      let token = g && g.share_token;
+      if (!token) {
+        const created = await API.post('/galleries/' + id + '/share-token/regenerate', {});
+        token = created.token;
+        if (g) g.share_token = token;
+      }
+      const url = 'https://ivaestudios.com/gallery/g/' + token;
+      // navigator.clipboard requires a secure context — admin is always
+      // HTTPS, but fall back to the legacy textarea trick just in case.
+      let copied = false;
+      if (navigator.clipboard && window.isSecureContext) {
+        try { await navigator.clipboard.writeText(url); copied = true; } catch {}
+      }
+      if (!copied) {
+        const ta = document.createElement('textarea');
+        ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); copied = true; } catch {}
+        document.body.removeChild(ta);
+      }
+      if (copied) {
+        // Cheap confirmation — keep the alert minimal so it doesn't feel
+        // like an error. window.prompt() also lets the admin grab the
+        // URL manually if they cleared the clipboard.
+        window.prompt('Share link copied to clipboard:', url);
+      } else {
+        window.prompt('Copy this share link:', url);
+      }
+    } catch (err) {
+      alert('Failed to create share link: ' + (err.message || err));
+    }
+    return;
+  }
+
   if (action === 'duplicate') {
     const g = allGalleries.find(x => x.id == id);
     const defaultTitle = g ? (g.title || '') + ' (copy)' : '';
