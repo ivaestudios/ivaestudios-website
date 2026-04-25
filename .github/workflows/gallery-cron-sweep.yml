@@ -1,22 +1,27 @@
 # Daily cron sweep for the IVAE Gallery backend.
 #
-# Replaces the Cloudflare Workers `scheduled` handler that ran when the gallery
-# lived at gallery.ivaestudios.com. Pages Functions has no cron, so we trigger
-# the work via HTTP from a GitHub Action.
-#
-# Hits POST /api/gallery/admin/cron-sweep with bearer auth. The endpoint runs:
+# Cloudflare Pages Functions does NOT support scheduled handlers (only Workers do),
+# so this Action triggers the work over HTTP once a day. It POSTs to:
+#   https://ivaestudios.com/api/gallery/admin/cron-sweep
+# with `Authorization: Bearer <secret>`. The endpoint runs:
 #   - handleExpiryWarn       — emails admin about galleries expiring in <=7 days
-#   - handleEmailQueueSweep  — sends any scheduled_emails whose send_after has elapsed
+#   - handleEmailQueueSweep  — sends scheduled_emails whose send_after has elapsed
 #
 # Required GitHub Secret:
-#   GALLERY_CRON_SECRET — must match the env.CRON_SECRET configured in Cloudflare
-#                         Pages → Settings → Environment variables (Production).
+#   IVAE_CRON_BEARER — must match the env.CRON_SECRET configured in Cloudflare
+#                      Pages → Settings → Environment variables (Production).
+#
+# To set the secret from a local checkout (one-time):
+#   gh secret set IVAE_CRON_BEARER --body "<the-CRON_SECRET-value-from-cloudflare>"
+#
+# Manual run for testing: Actions tab → "Gallery — daily cron sweep" → "Run workflow",
+# or from the CLI: `gh workflow run gallery-cron-sweep.yml`.
 
 name: Gallery — daily cron sweep
 
 on:
   schedule:
-    - cron: '0 12 * * *'   # 12:00 UTC = 07:00 Cancún
+    - cron: '0 12 * * *'   # 12:00 UTC ≈ 06:00 Cancún (UTC-6, no DST observed)
   workflow_dispatch: {}
 
 permissions:
@@ -33,19 +38,20 @@ jobs:
     steps:
       - name: Trigger gallery cron sweep
         env:
-          CRON_SECRET: ${{ secrets.GALLERY_CRON_SECRET }}
+          CRON_BEARER: ${{ secrets.IVAE_CRON_BEARER }}
         run: |
-          if [ -z "$CRON_SECRET" ]; then
-            echo "::error::Missing GALLERY_CRON_SECRET secret. Set it in repo Settings → Secrets."
+          if [ -z "$CRON_BEARER" ]; then
+            echo "::error::Missing IVAE_CRON_BEARER secret. Set it with: gh secret set IVAE_CRON_BEARER"
             exit 1
           fi
           echo "Calling https://ivaestudios.com/api/gallery/admin/cron-sweep ..."
+          # curl -f makes the step fail on any non-2xx response, so a broken
+          # cron surfaces as a failed Action (and an email from GitHub).
           response=$(curl -fsS -X POST \
-            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Authorization: Bearer $CRON_BEARER" \
             -H "Content-Type: application/json" \
             --connect-timeout 30 --max-time 60 \
             -w "\nHTTP_STATUS:%{http_code}\n" \
             https://ivaestudios.com/api/gallery/admin/cron-sweep)
           echo "$response"
-          # curl -f already exits non-zero on 4xx/5xx, but be explicit about logging.
           echo "Sweep complete."
