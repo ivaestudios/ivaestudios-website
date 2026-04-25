@@ -2315,7 +2315,7 @@ const EVENT_TYPES = new Set([
   'slideshow_start', 'download_request', 'scene_view', 'share_click'
 ]);
 
-async function handleTrackEvent(request, env, galleryId) {
+async function handleTrackEvent(request, env, galleryId, ctx) {
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
 
@@ -2329,25 +2329,40 @@ async function handleTrackEvent(request, env, galleryId) {
   const visitor_id = cookies['pic_visit'] || body.visitor_id || null;
   const visitor_email = body.visitor_email || cookies['pic_email'] || null;
 
-  let recorded = 0;
+  // Validate + shape every event up-front, so the response can return the
+  // accepted count synchronously while the actual inserts happen in the
+  // background. The client uses navigator.sendBeacon (fire-and-forget) and
+  // never reads the response body, so moving DB I/O off the response path
+  // is a pure perf win — no behavior change visible to the gallery viewer.
+  const accepted = [];
   for (const ev of events) {
     const type = String(ev.type || ev.event_type || '').toLowerCase();
     if (!EVENT_TYPES.has(type)) continue;
     const photo_id = (ev.photo_id && /^[a-f0-9]{32}$/.test(ev.photo_id)) ? ev.photo_id : null;
     const meta = ev.meta ? JSON.stringify(ev.meta).slice(0, 1000) : null;
+    accepted.push({ type, photo_id, meta });
+  }
+
+  // Background insert via D1 batch (single round-trip vs. one-per-event).
+  const persist = async () => {
+    if (!accepted.length) return;
     try {
-      await env.DB.prepare(
+      const stmt = env.DB.prepare(
         `INSERT INTO gallery_events (gallery_id, event_type, visitor_id, visitor_email, photo_id, meta)
          VALUES (?, ?, ?, ?, ?, ?)`
-      ).bind(galleryId, type, visitor_id, visitor_email, photo_id, meta).run();
-      recorded++;
+      );
+      const batch = accepted.map(e => stmt.bind(galleryId, e.type, visitor_id, visitor_email, e.photo_id, e.meta));
+      await env.DB.batch(batch);
     } catch (e) {
-      // Table might not exist if migration didn't run yet — silently break so
-      // analytics never break the client.
-      return json({ ok: true, recorded });
+      // Table might not exist yet (migration pending) — log + swallow so
+      // analytics never spam the error log on a missing table. Real errors
+      // will surface via the warning level so they're still searchable.
+      console.warn('[handleTrackEvent] persist failed:', e.message);
     }
-  }
-  return json({ ok: true, recorded });
+  };
+  if (ctx?.waitUntil) ctx.waitUntil(persist()); else persist().catch(() => {});
+
+  return json({ ok: true, accepted: accepted.length });
 }
 
 // Tiny cookie parser used by the event tracker (avoids pulling a dep in).
@@ -2994,13 +3009,37 @@ async function handlePhotosOrder(request, env, session, galleryId) {
 
 async function handleAssignPhotosToScene(request, env, session, sceneId) {
   if (session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
-  const data = await request.json();
-  if (data.photo_ids && Array.isArray(data.photo_ids)) {
-    for (const pid of data.photo_ids) {
-      await env.DB.prepare('UPDATE photos SET scene_id = ? WHERE id = ?').bind(sceneId, pid).run();
+  let data;
+  try { data = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
+
+  const ids = Array.isArray(data?.photo_ids) ? data.photo_ids : null;
+  if (!ids) return json({ error: 'photo_ids required' }, 400);
+  if (ids.length > 5000) return json({ error: 'Too many ids (max 5000)' }, 400);
+  for (const id of ids) {
+    if (typeof id !== 'string' || !/^[a-f0-9]{32}$/i.test(id)) {
+      return json({ error: 'Invalid photo id' }, 400);
     }
   }
-  return json({ ok: true });
+
+  // Look up the scene's gallery so the UPDATE can be scoped to it. Without
+  // this scope an admin could (accidentally — admins are trusted) move a
+  // photo from gallery A into a scene in gallery B by passing a stray id.
+  const scene = await env.DB.prepare('SELECT gallery_id FROM scenes WHERE id = ?').bind(sceneId).first();
+  if (!scene) return json({ error: 'Scene not found' }, 404);
+
+  if (!ids.length) return json({ ok: true, count: 0 });
+
+  // Batched D1 transaction: one round-trip instead of N. The WHERE clause
+  // restricts the update to the scene's own gallery, so a foreign id is
+  // a no-op rather than an exploit.
+  const stmt = env.DB.prepare('UPDATE photos SET scene_id = ? WHERE id = ? AND gallery_id = ?');
+  const batch = ids.map(pid => stmt.bind(sceneId, pid, scene.gallery_id));
+  try {
+    await env.DB.batch(batch);
+  } catch (e) {
+    return json({ error: 'Assign failed: ' + (e.message || 'db error') }, 500);
+  }
+  return json({ ok: true, count: ids.length });
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -3118,7 +3157,7 @@ async function fetchHandler(request, env, ctx) {
     // Public analytics: visitors of published galleries POST events here.
     // Always returns 200 even if the events table is missing (graceful degrade).
     const trackMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/track$/);
-    if (trackMatch && method === 'POST') return handleTrackEvent(request, env, trackMatch[1]);
+    if (trackMatch && method === 'POST') return handleTrackEvent(request, env, trackMatch[1], ctx);
 
     // ── Protected routes ──
     if (!session) return json({ error: 'Unauthorized' }, 401);
