@@ -1,6 +1,13 @@
-// Shared cover-design renderer used by gallery.html (client view) and
-// admin/gallery-edit.html (live preview). Single source of truth so the
-// admin preview and what clients see can never drift apart.
+// Cover-design renderer for the CLIENT VIEW (gallery.html, full viewport).
+// Sized in viewport units (100vh / clamp / 5vw) and aimed at the visitor's
+// real screen.
+//
+// IMPORTANT — admin/gallery-edit.html does NOT use this module. It carries
+// its own DESIGNS object tuned for small preview frames (px-based fonts,
+// height:100% containers, alternate compositions, mobile-vs-desktop variants,
+// per-design labels, placeholder gradients). When a design is added or
+// changed here, mirror it in gallery-edit.html ~L1176-1445 and vice versa.
+// See gallery-edit.html for the rationale and the parity checklist.
 //
 // Usage:
 //   window.IvaeCoverDesigns.render(

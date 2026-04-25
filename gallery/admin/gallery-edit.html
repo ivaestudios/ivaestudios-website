@@ -1173,6 +1173,27 @@ let focalX = 50, focalY = 50;
 let tempFocalX = 50, tempFocalY = 50;
 
 // ═══ COVER TEMPLATES (Pic-Time exact replicas) ═══
+//
+// IMPORTANT — these are NOT the same as gallery/js/cover-designs.js.
+// This DESIGNS object renders THUMBNAIL PREVIEWS for the cover designer:
+//   • Sized in px / % (height:100% containers, font-size:5–13px) so they
+//     fit inside #pvDesktop and #pvMobile preview frames.
+//   • Has a separate desktop() and mobile() variant per design.
+//   • Carries `label` strings for the design picker grid.
+//   • Uses placeholder gradients when no cover image is selected.
+//   • Some designs (fullOverlay, splitOverlay, bold) have alt compositions
+//     vs the live render — intentional choice for the picker UX.
+//
+// gallery/js/cover-designs.js is the LIVE-VIEW renderer (viewport units,
+// 100vh, clamp font-sizes). When a design is added or visually changed,
+// keep both files in sync — the picker thumbnail should still represent
+// the same composition the visitor will see.
+//
+// ── Parity checklist (when adding/editing a design):
+//   1. Add the new design key here (with desktop+mobile variants)
+//   2. Add it to gallery/js/cover-designs.js render switch
+//   3. Confirm both render the same conceptual layout, just at different scales
+//
 const DESIGNS = {
   classic: {
     label: 'Classic',
