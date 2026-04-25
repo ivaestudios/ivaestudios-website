@@ -541,7 +541,7 @@ async function handleCreateGallery(request, env, session) {
   return json({ id, title, description, session_date, status: status || 'draft' }, 201);
 }
 
-async function handleUpdateGallery(request, env, session, galleryId) {
+async function handleUpdateGallery(request, env, session, galleryId, ctx) {
   if (session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
   const data = await request.json();
   const sets = [];
@@ -583,9 +583,15 @@ async function handleUpdateGallery(request, env, session, galleryId) {
   }
 
   // Fire auto-publish trigger AFTER the status change is committed.
-  // Run async via waitUntil-style fire-and-forget so the admin response is fast.
+  // Wrap in ctx.waitUntil so the publish-side effects (invite emails to all
+  // clients, queueing testimonial/anniversary follow-ups) actually complete
+  // — without it, Cloudflare's runtime can kill the work the moment we
+  // return the response, dropping invites silently. Falls back to bare
+  // fire-and-forget if ctx isn't threaded (shouldn't happen in Pages, but
+  // safer than crashing).
   if (didPublish) {
-    handleGalleryPublished(env, galleryId).catch(e => console.error('[publish trigger]', e.message));
+    const publish = handleGalleryPublished(env, galleryId).catch(e => console.error('[publish trigger]', e.message));
+    if (ctx?.waitUntil) ctx.waitUntil(publish);
   }
 
   return json({ ok: true, published: didPublish });
@@ -3126,7 +3132,7 @@ async function fetchHandler(request, env, ctx) {
     if (galleryMatch) {
       const id = galleryMatch[1];
       if (method === 'GET') return handleGetGallery(env, session, id);
-      if (method === 'PUT') return handleUpdateGallery(request, env, session, id);
+      if (method === 'PUT') return handleUpdateGallery(request, env, session, id, ctx);
       if (method === 'DELETE') return handleDeleteGallery(env, session, id);
     }
 
