@@ -138,12 +138,30 @@ fi
 # B1+/g: Pages Function for /gallery/g/{token} — must 302 for valid-shape
 #       tokens (with share param in Location) and 404 for malformed ones.
 #       Older _redirects rule used to 308 → /gallery/gallery losing the param.
-g_loc=$(curl -sS -D - -o /dev/null "$BASE/gallery/g/abc123def456" \
+g_loc=$(curl -sS -D - -A "Mozilla/5.0" -o /dev/null "$BASE/gallery/g/abc123def456" \
   | awk -F': ' 'tolower($1)=="location"{print $2}' | tr -d '\r\n')
 if [[ "$g_loc" == *"share=abc123def456"* ]]; then
-  ok "/gallery/g/{token} 302 → $g_loc"
+  ok "/gallery/g/{token} (user) 302 → $g_loc"
 else
-  fail "/gallery/g/{token} broken redirect (Location: '$g_loc')"
+  fail "/gallery/g/{token} (user) broken redirect (Location: '$g_loc')"
+fi
+
+# B6: Same /gallery/g/{token} but as a crawler — should serve OG-rich HTML
+#     (no redirect), with og:image and og:title meta tags so previews on
+#     WhatsApp / IG / FB show the gallery cover instead of a generic card.
+b6_html=$(curl -sS -A "facebookexternalhit/1.1" "$BASE/gallery/g/abc123def456")
+if echo "$b6_html" | grep -q 'property="og:image"' && echo "$b6_html" | grep -q 'twitter:card'; then
+  ok "B6 /gallery/g/{token} crawler-fetch returns OG meta tags"
+else
+  fail "B6 /gallery/g/{token} crawler-fetch missing OG tags"
+fi
+
+# C2: Admin proof-review endpoint exists and requires auth.
+c2_code=$(curl -sS -o /dev/null -w "%{http_code}" -X POST \
+  -H "Content-Type: application/json" -d '{"status":"approved"}' \
+  "$BASE/api/gallery/admin/proofs/00000000000000000000000000000000/review")
+if [[ "$c2_code" == "401" ]]; then ok "C2 admin/proofs/{id}/review → 401 (auth required)"
+else fail "C2 admin/proofs/{id}/review → $c2_code (expected 401)"
 fi
 
 # ── Summary ──
