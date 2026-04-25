@@ -876,6 +876,59 @@ function buildInviteEmail({ clientName, galleryTitle, galleryDescription, coverU
 </body></html>`;
 }
 
+// Confirmation receipt sent to a client after they submit proof selections.
+// Mirrors the buildInviteEmail palette (#2c2c2c / #c9b99a / #f7f6f3) and uses
+// Cormorant Garamond serif headings with a sans body. Web-safe fallbacks are
+// included so the layout still reads on email clients that strip Google Fonts.
+function buildProofReceiptEmail({ galleryTitle, photoCount, submittedAt, viewerUrl, photographerEmail }) {
+  const safeTitle = String(galleryTitle || 'your gallery').replace(/</g, '&lt;');
+  const count = Number(photoCount) || 0;
+  const when = (() => {
+    try { return new Date(submittedAt).toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' }); }
+    catch { return ''; }
+  })();
+  const replyTo = String(photographerEmail || 'hola@ivaestudios.com');
+  return `<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="color-scheme" content="light only"/>
+<title>Your selections from ${safeTitle} — IVAE Studios</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Syne:wght@400;500&display=swap" rel="stylesheet"/>
+</head>
+<body style="margin:0;padding:0;background-color:#f7f6f3;font-family:'Syne','Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;color-scheme:light only;">
+<div style="display:none;font-size:1px;color:#f7f6f3;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">We received your ${count} selection${count === 1 ? '' : 's'} from ${safeTitle}.</div>
+<div style="max-width:600px;margin:0 auto;padding:24px 16px;">
+  <div style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 1px 12px rgba(0,0,0,0.06);">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#2c2c2c">
+      <tr><td style="padding:18px 0;text-align:center;background-color:#2c2c2c;">
+        <p style="margin:0;font-size:12px;letter-spacing:5px;color:#c9b99a;font-weight:400;text-transform:uppercase;">IVAE Studios</p>
+      </td></tr>
+    </table>
+    <div style="padding:44px 40px 8px;text-align:center;">
+      <p style="margin:0;font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-size:34px;color:#2c2c2c;font-weight:300;line-height:1.25;">Thank you for your <em style="font-style:italic;">selections</em></p>
+    </div>
+    <div style="padding:20px 40px 8px;">
+      <p style="margin:0 0 18px;font-size:15px;color:#555;line-height:1.7;">
+        We have received your <strong style="color:#2c2c2c;">${count}</strong> favorite${count === 1 ? '' : 's'} from <strong style="color:#2c2c2c;">${safeTitle}</strong>. Vianey will be in touch shortly to confirm next steps.
+      </p>
+      ${when ? `<p style="margin:0 0 24px;font-size:13px;color:#888;letter-spacing:0.4px;">Submitted ${when}</p>` : ''}
+      <div style="text-align:center;margin:8px 0 32px;">
+        <a href="${viewerUrl}" style="display:inline-block;background:#2c2c2c;color:#ffffff;text-decoration:none;padding:15px 52px;border-radius:40px;font-size:13px;letter-spacing:2px;font-weight:500;text-transform:uppercase;">RETURN TO GALLERY</a>
+      </div>
+    </div>
+    <div style="background:#f7f6f3;padding:24px 40px;margin:0;text-align:center;">
+      <p style="margin:0;font-size:12px;color:#888;line-height:1.6;">If you didn't make these selections, please reply to this email and let us know.</p>
+    </div>
+  </div>
+  <div style="text-align:center;padding:28px 20px 16px;">
+    <p style="margin:0 0 4px;font-size:11px;letter-spacing:3px;color:#999;text-transform:uppercase;">IVAE Studios</p>
+    <p style="margin:0 0 12px;font-size:12px;color:#bbb;">Luxury Photography &middot; Cancun &amp; Riviera Maya</p>
+    <a href="mailto:${replyTo}" style="font-size:12px;color:#8a7d6b;text-decoration:none;">${replyTo}</a>
+    <p style="margin:16px 0 0;font-size:10px;color:#ccc;">&copy; ${new Date().getFullYear()} IVAE Studios. All rights reserved.</p>
+  </div>
+</div>
+</body></html>`;
+}
+
 // ── PUBLIC COVER (for emails) ──
 async function handleGetCover(env, galleryId) {
   const gallery = await env.DB.prepare('SELECT cover_key FROM galleries WHERE id = ?').bind(galleryId).first();
@@ -1039,7 +1092,7 @@ async function handleRegisterVisitor(request, env, galleryId) {
 }
 
 // ── PROOF SUBMISSIONS (client final selections) ──
-async function handleSubmitProof(request, env, session, galleryId) {
+async function handleSubmitProof(request, env, session, galleryId, ctx) {
   try {
     const gallery = await env.DB.prepare('SELECT id, title, proofing_enabled, proofing_locked, proofing_target FROM galleries WHERE id = ?').bind(galleryId).first();
     if (!gallery) return json({ error: 'Gallery not found' }, 404);
@@ -1050,32 +1103,72 @@ async function handleSubmitProof(request, env, session, galleryId) {
     if (!photoIds.length) return json({ error: 'No photos selected' }, 400);
     let email = (data.email || '').trim().toLowerCase();
     let name = (data.name || '').trim();
-    if (!email && session?.user) { email = session.user.email; name = session.user.name; }
+    // Logged-in client: pull from the (flat) session row.
+    if (!email && session?.email) { email = String(session.email).toLowerCase(); name = name || session.name || ''; }
+    if (!email && session?.user) { email = session.user.email; name = name || session.user.name || ''; }
     if (!email && !session) {
       // Try cookie set by visitor gate
       const cookies = (request.headers.get('cookie') || '').split(';').map(s => s.trim());
       const c = cookies.find(s => s.startsWith(`pic_visit_${galleryId}=`));
       if (c) email = decodeURIComponent(c.split('=')[1] || '');
     }
+    // Last resort: most recent visitor_log row for this gallery (email-gated).
+    if (!email) {
+      try {
+        const v = await env.DB.prepare('SELECT email, name FROM visitor_log WHERE gallery_id = ? ORDER BY registered_at DESC LIMIT 1').bind(galleryId).first();
+        if (v?.email) { email = String(v.email).toLowerCase(); name = name || v.name || ''; }
+      } catch {}
+    }
     if (!email) return json({ error: 'Email required' }, 400);
     const note = (data.note || '').slice(0, 1000);
     await env.DB.prepare('INSERT INTO proof_submissions (gallery_id, email, name, photo_ids, note) VALUES (?, ?, ?, ?, ?)')
       .bind(galleryId, email, name || null, JSON.stringify(photoIds), note || null).run();
-    // Notify photographer via Resend if configured
-    if (env.RESEND_API_KEY && env.ADMIN_EMAIL) {
+
+    // ── Async notifications (never block the response, never throw) ──
+    const sendEmails = async () => {
+      if (!env.RESEND_API_KEY) { console.log('[proof] RESEND_API_KEY missing — skipping receipts'); return; }
+      const submittedAt = new Date().toISOString();
+      const viewerUrl = `https://ivaestudios.com/gallery/gallery?id=${galleryId}`;
+      // 1. Client receipt
       try {
+        const html = buildProofReceiptEmail({
+          galleryTitle: gallery.title,
+          photoCount: photoIds.length,
+          submittedAt,
+          viewerUrl,
+          photographerEmail: env.ADMIN_EMAIL || env.STUDIO_EMAIL || 'hola@ivaestudios.com',
+        });
+        const r = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: 'Vianey at IVAE Studios <hola@ivaestudios.com>',
+            to: [email],
+            subject: `Your selections from ${gallery.title} — IVAE Studios`,
+            html,
+          }),
+        });
+        if (!r.ok) console.error('[proof] receipt send failed:', r.status, await r.text());
+      } catch (e) { console.error('[proof] receipt error:', e.message); }
+      // 2. Photographer heads-up — prefer STUDIO_EMAIL, fall back to legacy ADMIN_EMAIL.
+      const studioTo = env.STUDIO_EMAIL || env.ADMIN_EMAIL;
+      if (!studioTo) return;
+      try {
+        const safeNote = note ? `<blockquote style="border-left:3px solid #c4a35a;padding:8px 14px;color:#444;">${note.replace(/</g, '&lt;')}</blockquote>` : '';
         await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
             from: 'IVAE Gallery <gallery@ivaestudios.com>',
-            to: env.ADMIN_EMAIL,
+            to: studioTo,
             subject: `${gallery.title} — Client submitted ${photoIds.length} selections`,
-            html: `<p>${name || email} submitted <strong>${photoIds.length}</strong> final selections for <strong>${gallery.title}</strong>.</p>${note ? `<blockquote style="border-left:3px solid #c4a35a;padding:8px 14px;color:#444;">${note.replace(/</g, '&lt;')}</blockquote>` : ''}<p><a href="https://ivaestudios.com/gallery/admin/gallery-edit.html?id=${galleryId}">Review in admin</a></p>`
+            html: `<p>${(name || email).replace(/</g, '&lt;')} just submitted <strong>${photoIds.length}</strong> selections in <strong>${gallery.title.replace(/</g, '&lt;')}</strong>.</p>${safeNote}<p><a href="https://ivaestudios.com/gallery/admin/gallery-edit.html?id=${galleryId}">Review in admin</a></p>`
           })
         });
-      } catch (e) { console.error('Resend notify failed:', e.message); }
-    }
+      } catch (e) { console.error('[proof] studio notify failed:', e.message); }
+    };
+    if (ctx?.waitUntil) ctx.waitUntil(sendEmails()); else sendEmails().catch(() => {});
+
     return json({ ok: true, count: photoIds.length });
   } catch (e) {
     console.error('[handleSubmitProof]', e.message);
@@ -2710,7 +2803,7 @@ async function fetchHandler(request, env, ctx) {
     // Proof submission: anonymous client submits final selections.
     // Handler validates email from session OR pic_visit cookie OR body.
     const proofMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/proof$/);
-    if (proofMatch && method === 'POST') return handleSubmitProof(request, env, session, proofMatch[1]);
+    if (proofMatch && method === 'POST') return handleSubmitProof(request, env, session, proofMatch[1], ctx);
 
     // Public analytics: visitors of published galleries POST events here.
     // Always returns 200 even if the events table is missing (graceful degrade).
