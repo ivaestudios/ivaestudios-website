@@ -132,6 +132,111 @@ body { background: #fafaf7; padding-top: 0; }
   color: #8a6f2a;
 }
 
+/* Review status badges */
+.review-badge {
+  display: inline-block;
+  font-family: 'Syne', sans-serif;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  border-radius: 20px;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+.review-badge.submitted { background: #f4ecd8; color: #8a6f2a; }
+.review-badge.approved  { background: #e3f1e0; color: #2f6b3a; }
+.review-badge.returned  { background: #fbeacb; color: #b07020; }
+.review-badge.archived  { background: #ececec; color: #6b6b6b; }
+
+.proof-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 22px;
+  border-top: 1px solid #f4efe4;
+  background: #fcfaf4;
+}
+.proof-actions .review-note-input {
+  flex: 1 1 220px;
+  min-width: 180px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  padding: 8px 12px;
+  border: 1px solid #ece7dd;
+  border-radius: 4px;
+  background: #fff;
+  color: #1c1c1c;
+  font-style: italic;
+}
+.proof-actions .review-note-input:focus { outline: none; border-color: #c4a35a; }
+.review-btn {
+  font-family: 'Syne', sans-serif;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: opacity 0.18s, transform 0.18s;
+}
+.review-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+.review-btn:disabled { opacity: 0.45; cursor: wait; transform: none; }
+.review-btn.approve { background: #2f6b3a; color: #fff; }
+.review-btn.return  { background: #d68a30; color: #fff; }
+.review-btn.archive { background: #6b6b6b; color: #fff; }
+
+.proof-card.archived { opacity: 0.55; }
+
+.show-archived-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+}
+.show-archived-toggle {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #888;
+  background: transparent;
+  border: 1px solid #ece7dd;
+  border-radius: 20px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: color 0.18s, border-color 0.18s;
+}
+.show-archived-toggle:hover { color: #1c1c1c; border-color: #1c1c1c; }
+.show-archived-toggle.active { color: #1c1c1c; border-color: #c4a35a; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #1c1c1c;
+  color: #fff;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 12px 22px;
+  border-radius: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s, transform 0.22s;
+  z-index: 10000;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.error { background: #8a2a2a; }
+
 .proof-note {
   padding: 14px 22px;
   background: #fbf7ee;
@@ -495,6 +600,10 @@ body { background: #fafaf7; padding-top: 0; }
     <button class="proofs-tab" id="tabVisitors" onclick="switchTab('visitors')">VISITORS</button>
   </div>
 
+  <div class="show-archived-row" id="showArchivedRow" style="display:none;">
+    <button type="button" class="show-archived-toggle" id="showArchivedToggle" onclick="toggleArchived()">Show archived</button>
+  </div>
+
   <div id="proofsList"></div>
   <div id="visitorsList" style="display:none;"></div>
 </div>
@@ -503,6 +612,8 @@ body { background: #fafaf7; padding-top: 0; }
   <button class="lb-close" onclick="closeLb()">&times;</button>
   <img id="lbImg" src="" alt=""/>
 </div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="/gallery/js/api.js?v=20260424"></script>
 <script src="/gallery/js/auth.js?v=20260424"></script>
@@ -600,25 +711,54 @@ const galleryId = new URLSearchParams(window.location.search).get('id');
   document.getElementById('galleryName').textContent = gallery.title || 'Gallery';
   document.title = (gallery.title || 'Gallery') + ' — Proofs';
 
-  const subs = data.submissions || [];
-  const visitors = (visData && visData.visitors) || [];
+  // Cache subs + photoMap so we can re-render after review actions.
+  window.__proofState = {
+    subs: data.submissions || [],
+    visitors: (visData && visData.visitors) || [],
+    photoMap: {},
+    showArchived: false
+  };
+  (gallery.photos || []).forEach(p => { window.__proofState.photoMap[p.id] = p; });
+
+  renderProofs();
+  renderVisitors();
+})();
+
+function renderProofs() {
+  const state = window.__proofState || { subs: [], visitors: [], photoMap: {}, showArchived: false };
+  const { subs, visitors, photoMap, showArchived } = state;
   const picks = subs.reduce((s, x) => s + (x.photo_ids || []).length, 0);
   document.getElementById('statSubs').textContent = subs.length;
   document.getElementById('statPicks').textContent = picks;
   document.getElementById('statVisitors').textContent = visitors.length;
 
-  const photoMap = {};
-  (gallery.photos || []).forEach(p => { photoMap[p.id] = p; });
+  // Show "Show archived" toggle only when at least one submission is archived.
+  const hasArchived = subs.some(s => s.review_status === 'archived');
+  const toggleRow = document.getElementById('showArchivedRow');
+  if (toggleRow) toggleRow.style.display = hasArchived ? '' : 'none';
+  const toggleBtn = document.getElementById('showArchivedToggle');
+  if (toggleBtn) {
+    toggleBtn.classList.toggle('active', !!showArchived);
+    toggleBtn.textContent = showArchived ? 'Hide archived' : 'Show archived';
+  }
+
+  const visible = subs.filter(s => showArchived || s.review_status !== 'archived');
 
   const list = document.getElementById('proofsList');
   if (!subs.length) {
     list.innerHTML = '<div class="proofs-empty"><svg width="48" height="48" fill="none" stroke="#ddd" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><h2>No submissions yet</h2><p>When your client submits their final picks, they’ll appear here.</p></div>';
     return;
   }
+  if (!visible.length) {
+    list.innerHTML = '<div class="proofs-empty"><h2>All caught up</h2><p>Every submission has been archived. Click "Show archived" to view them.</p></div>';
+    return;
+  }
 
-  subs.forEach(s => {
+  list.innerHTML = '';
+  visible.forEach(s => {
     const card = document.createElement('div');
-    card.className = 'proof-card';
+    const status = s.review_status || 'submitted';
+    card.className = 'proof-card' + (status === 'archived' ? ' archived' : '');
     const dt = new Date(s.submitted_at + 'Z').toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
     const ids = s.photo_ids || [];
     const noteHtml = s.note ? `<div class="proof-note">“${escapeHtml(s.note)}”</div>` : '';
@@ -628,21 +768,58 @@ const galleryId = new URLSearchParams(window.location.search).get('id');
       const full = '/api/gallery/photos/' + id + '/web';
       return `<img src="${src}" alt="${escapeHtml(p ? p.filename : id)}" onclick="openLb('${full}')"/>`;
     }).join('');
+
+    const badge = renderBadge(status, s.reviewed_at);
+    const reviewNoteHtml = s.review_note
+      ? `<div class="proof-note" style="background:#f4f8f3;font-style:normal;color:#2f6b3a;"><strong style="font-family:'Syne',sans-serif;font-size:9.5px;letter-spacing:0.18em;text-transform:uppercase;">Review note —</strong> ${escapeHtml(s.review_note)}</div>`
+      : '';
+
     card.innerHTML = `
       <div class="proof-card-head">
         <div class="proof-meta">
           <div class="who">${escapeHtml(s.name || s.email)} ${s.name ? `<small>${escapeHtml(s.email)}</small>` : ''}</div>
           <div class="when">${dt}</div>
         </div>
-        <div class="proof-pill">${ids.length} ${ids.length === 1 ? 'pick' : 'picks'}</div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+          <div class="proof-pill">${ids.length} ${ids.length === 1 ? 'pick' : 'picks'}</div>
+          ${badge}
+        </div>
       </div>
       ${noteHtml}
+      ${reviewNoteHtml}
       <div class="proof-grid">${thumbsHtml}</div>
+      <div class="proof-actions" data-proof-id="${s.id}">
+        <input type="text" class="review-note-input" placeholder="Optional review note for the client…" maxlength="1000"/>
+        <button type="button" class="review-btn approve" onclick="reviewProof('${s.id}', 'approved', this)">Approve</button>
+        <button type="button" class="review-btn return"  onclick="reviewProof('${s.id}', 'returned', this)">Return for changes</button>
+        <button type="button" class="review-btn archive" onclick="reviewProof('${s.id}', 'archived', this)">Archive</button>
+      </div>
     `;
     list.appendChild(card);
   });
+}
 
-  // Visitors list
+function renderBadge(status, reviewedAt) {
+  const cls = status === 'approved' ? 'approved'
+            : status === 'returned' ? 'returned'
+            : status === 'archived' ? 'archived'
+            : 'submitted';
+  let label = 'Submitted';
+  if (status === 'approved' && reviewedAt) {
+    const day = (reviewedAt + '').slice(0, 10);
+    label = 'Approved ' + day;
+  } else if (status === 'approved') {
+    label = 'Approved';
+  } else if (status === 'returned') {
+    label = 'Returned';
+  } else if (status === 'archived') {
+    label = 'Archived';
+  }
+  return `<span class="review-badge ${cls}">${escapeHtml(label)}</span>`;
+}
+
+function renderVisitors() {
+  const visitors = (window.__proofState || {}).visitors || [];
   const vList = document.getElementById('visitorsList');
   if (!visitors.length) {
     vList.innerHTML = '<div class="proofs-empty"><svg width="48" height="48" fill="none" stroke="#ddd" stroke-width="1.5" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg><h2>No visitors yet</h2><p>Email-gate registrations appear here once the gallery is shared.</p></div>';
@@ -652,7 +829,51 @@ const galleryId = new URLSearchParams(window.location.search).get('id');
       return `<div class="visitor-row"><div class="vname">${escapeHtml(v.name || '—')}</div><div class="vemail">${escapeHtml(v.email)}</div><div class="vwhen">${dt}</div></div>`;
     }).join('');
   }
-})();
+}
+
+async function reviewProof(proofId, status, btn) {
+  const card = btn.closest('.proof-card');
+  const noteInput = card ? card.querySelector('.review-note-input') : null;
+  const note = noteInput ? noteInput.value.trim() : '';
+  // Disable all buttons in this card while in flight.
+  const btns = card ? card.querySelectorAll('.review-btn') : [btn];
+  btns.forEach(b => { b.disabled = true; });
+  try {
+    const res = await API.post('/admin/proofs/' + proofId + '/review', { status, note: note || undefined });
+    const updated = res && res.proof;
+    if (updated) {
+      const subs = (window.__proofState && window.__proofState.subs) || [];
+      const idx = subs.findIndex(s => s.id === proofId);
+      if (idx >= 0) subs[idx] = updated;
+    } else {
+      // Fallback: re-fetch the whole list.
+      const data = await API.get('/galleries/' + galleryId + '/proofs');
+      window.__proofState.subs = data.submissions || [];
+    }
+    renderProofs();
+    const verb = status === 'approved' ? 'Approved' : status === 'returned' ? 'Returned to client' : 'Archived';
+    showToast(verb);
+  } catch (e) {
+    showToast(e.message || 'Review failed', true);
+    btns.forEach(b => { b.disabled = false; });
+  }
+}
+
+function toggleArchived() {
+  if (!window.__proofState) return;
+  window.__proofState.showArchived = !window.__proofState.showArchived;
+  renderProofs();
+}
+
+function showToast(msg, isError) {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.toggle('error', !!isError);
+  el.classList.add('show');
+  clearTimeout(window.__toastT);
+  window.__toastT = setTimeout(() => el.classList.remove('show'), 2400);
+}
 
 function switchTab(tab) {
   const isProofs = tab === 'proofs';
