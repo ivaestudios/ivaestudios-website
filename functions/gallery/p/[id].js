@@ -47,20 +47,44 @@ export async function onRequestGet(context) {
 
   // Look up photo + gallery in one go. We only need fields used by the
   // share card — title, description, and what we need to redirect.
-  const row = await env.DB.prepare(`
-    SELECT p.id          AS photo_id,
-           p.gallery_id  AS gallery_id,
-           p.filename    AS filename,
-           p.width       AS width,
-           p.height      AS height,
-           g.title       AS gallery_title,
-           g.description AS gallery_description,
-           g.status      AS gallery_status,
-           g.is_private  AS gallery_is_private
-    FROM photos p
-    JOIN galleries g ON g.id = p.gallery_id
-    WHERE p.id = ?
-  `).bind(photoId).first();
+  // share_token may be missing on older gallery rows (column added in
+  // migration 007). Try with share_token first; fall back to a query
+  // without it if the column doesn't exist yet.
+  let row;
+  try {
+    row = await env.DB.prepare(`
+      SELECT p.id          AS photo_id,
+             p.gallery_id  AS gallery_id,
+             p.filename    AS filename,
+             p.width       AS width,
+             p.height      AS height,
+             g.title       AS gallery_title,
+             g.description AS gallery_description,
+             g.status      AS gallery_status,
+             g.is_private  AS gallery_is_private,
+             g.share_token AS share_token
+      FROM photos p
+      JOIN galleries g ON g.id = p.gallery_id
+      WHERE p.id = ?
+    `).bind(photoId).first();
+  } catch (e) {
+    if (!/no such column/i.test(String(e?.message || ''))) throw e;
+    row = await env.DB.prepare(`
+      SELECT p.id          AS photo_id,
+             p.gallery_id  AS gallery_id,
+             p.filename    AS filename,
+             p.width       AS width,
+             p.height      AS height,
+             g.title       AS gallery_title,
+             g.description AS gallery_description,
+             g.status      AS gallery_status,
+             g.is_private  AS gallery_is_private,
+             NULL          AS share_token
+      FROM photos p
+      JOIN galleries g ON g.id = p.gallery_id
+      WHERE p.id = ?
+    `).bind(photoId).first();
+  }
 
   if (!row) return notFound();
 
@@ -74,11 +98,13 @@ export async function onRequestGet(context) {
   // get a 403 and fall back, which is fine.
   const imageUrl = `${origin}/api/gallery/photos/${row.photo_id}/web`;
 
-  // Deeplink for real users. share_token lives on the roadmap (see
-  // PLAN_MAESTRO.md B1) but is not yet a column — fall back to the
-  // authenticated URL with ?photo=PID so the gallery can later auto-open
-  // the lightbox.
-  const deeplink = `${origin}/gallery/gallery.html?id=${row.gallery_id}&photo=${row.photo_id}`;
+  // Deeplink for real users. Prefer the public share-token URL when the
+  // gallery has one (no login required); otherwise fall back to the
+  // authenticated URL with ?photo=PID so the gallery can auto-open the
+  // lightbox after the visitor logs in / has access.
+  const deeplink = row.share_token
+    ? `${origin}/gallery/g/${row.share_token}?photo=${row.photo_id}`
+    : `${origin}/gallery/gallery.html?id=${row.gallery_id}&photo=${row.photo_id}`;
 
   // ── Real users → 302 redirect ──────────────────────────────────────
   const ua = request.headers.get('User-Agent') || '';
