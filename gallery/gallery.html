@@ -446,7 +446,10 @@
   </div>
   <div class="lightbox-body">
     <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)" aria-label="Previous photo">&#8249;</button>
-    <img id="lightboxImg" src="" alt=""/>
+    <picture>
+      <source id="lightboxSourceWebp" type="image/webp" srcset="">
+      <img id="lightboxImg" src="" alt=""/>
+    </picture>
     <div id="lightboxWm" class="lightbox-wm" style="display:none;">
       <div class="wm-badge wm-badge-lg"><span class="wm-title" id="lbWmTitle">IVAE</span><span class="wm-sub" id="lbWmSub">STUDIOS</span></div>
     </div>
@@ -845,8 +848,18 @@ function renderPhotoSection(container, sectionPhotos, indexOffset) {
       const fpAttr  = isAboveFold ? 'high'  : 'auto';
       const wAttr = Math.round(it.displayWidth);
       const hAttr = Math.round(it.displayHeight);
+      // <picture> wrapper enables WebP delivery + responsive sizes on
+      // capable browsers. The inner <img> keeps every existing attribute
+      // (loading=lazy, dims, data-* for dimension backfill, opacity fade-in)
+      // and is what the layout/observer logic still queries via
+      // cell.querySelector('img'). Browsers without <picture> support fall
+      // through to the <img>'s src — which is the same /thumb URL we used
+      // before, so behaviour is unchanged on legacy clients.
       cell.innerHTML = `
-        <img loading="${loadAttr}" decoding="async" fetchpriority="${fpAttr}" width="${wAttr}" height="${hAttr}" src="/api/gallery/photos/${p.id}/thumb" alt="${p.filename || ''}" data-photo-id="${p.id}" data-needs-dims="${(!p.width || !p.height) ? '1' : '0'}" style="opacity:0;transition:opacity 0.35s ease;"/>
+        <picture>
+          <source type="image/webp" srcset="/api/gallery/photos/${p.id}/web/sm 320w, /api/gallery/photos/${p.id}/web/md 640w, /api/gallery/photos/${p.id}/web/lg 1280w" sizes="(max-width:720px) 50vw, 25vw">
+          <img loading="${loadAttr}" decoding="async" fetchpriority="${fpAttr}" width="${wAttr}" height="${hAttr}" src="/api/gallery/photos/${p.id}/thumb" alt="${p.filename || ''}" data-photo-id="${p.id}" data-needs-dims="${(!p.width || !p.height) ? '1' : '0'}" style="opacity:0;transition:opacity 0.35s ease;"/>
+        </picture>
         ${wmOverlay}
         <button class="photo-expand" onclick="event.stopPropagation(); openLightbox(${i})" aria-label="Expand photo">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9m11.25-5.25v4.5m0-4.5h-4.5m4.5 0L15 9m-11.25 11.25v-4.5m0 4.5h4.5m-4.5 0L9 15m11.25 5.25v-4.5m0 4.5h-4.5m4.5 0L15 15"/></svg>
@@ -973,6 +986,16 @@ function loadLightboxPhoto(index) {
   lightboxIndex = index;
   const p = photos[index];
   const img = document.getElementById('lightboxImg');
+  // Keep <source> srcset in sync so <picture> picks WebP when supported.
+  // Falls back to the <img> src (web.jpg via /web) on legacy browsers and
+  // when the daemon hasn't generated .webp yet.
+  const srcWebp = document.getElementById('lightboxSourceWebp');
+  if (srcWebp) {
+    srcWebp.srcset = '/api/gallery/photos/' + p.id + '/web/sm 320w, '
+                   + '/api/gallery/photos/' + p.id + '/web/md 640w, '
+                   + '/api/gallery/photos/' + p.id + '/web/lg 1280w';
+    if (!srcWebp.sizes) srcWebp.sizes = '100vw';
+  }
   resetLightboxTransform();
   img.classList.add('loading-img');
   img.src = '/api/gallery/photos/' + p.id + '/web';

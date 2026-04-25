@@ -1470,23 +1470,41 @@ async function handleGetThumb(request, env, session, photoId, ctx) {
   return serveResized(request, env, session, photoId, 800, 'thumb', ctx);
 }
 
-// Serves a resized JPEG.
+// Serves a resized JPEG (or WebP when the client accepts it).
 // PERF — three layers:
 //   1. Cloudflare edge cache (caches.default) — checked BEFORE auth/D1.
 //      Returns immediately on cache hit (no D1 queries, no R2 fetch).
 //   2. R2 variant (thumb_key or web_key) — small file, cached by browser.
 //   3. Fallback chain: thumb → web → tiny placeholder. NEVER serves the
 //      multi-MB original from /thumb (that's what was killing mobile).
+//
+// DAEMON TODO: in addition to web.jpg, also generate and upload:
+//   - web.webp           → sharp().webp({quality:80, effort:4})
+//   - web-sm.{jpg,webp}  → resize 320 wide
+//   - web-md.{jpg,webp}  → resize 640 wide
+//   - web-lg.{jpg,webp}  → resize 1280 wide
+// Until then, /api/photos/:id/web/{sm,md,lg} all return the same web.jpg,
+// and any /web request from a WebP-capable client falls back to .jpg when
+// the .webp sibling key is missing.
+// Daemon source: /Users/vianeydm/Desktop/WEB/ivae-uploader/src/main.js
 async function serveResized(request, env, session, photoId, maxWidth, variant, ctx) {
-  // 1. Edge cache check — short-circuit before any work
+  // 1. Edge cache check — short-circuit before any work.
+  // NOTE: cache key includes the request URL, but WebP/JPEG share the same
+  // URL — they're disambiguated by Vary: Accept on the response. Cloudflare
+  // honours Vary on caches.default, so WebP and JPEG callers each get their
+  // own cached variant.
   const cache = caches.default;
   const cacheKey = new Request(request.url, { method: 'GET' });
   const cached = await cache.match(cacheKey);
   if (cached) return cached;
 
-  const etag = `"${photoId}-${variant}"`;
+  // Negotiate WebP from Accept header. Only matters for the 'web' variant
+  // for now — thumbs stay JPEG until the daemon emits .webp siblings too.
+  const acceptsWebp = (request.headers.get('Accept') || '').includes('image/webp');
+
+  const etag = `"${photoId}-${variant}${acceptsWebp ? '-webp' : ''}"`;
   if (request.headers.get('If-None-Match') === etag) {
-    return new Response(null, { status: 304, headers: { 'Cache-Control': 'public, max-age=31536000, immutable', 'ETag': etag } });
+    return new Response(null, { status: 304, headers: { 'Cache-Control': 'public, max-age=31536000, immutable', 'ETag': etag, 'Vary': 'Accept' } });
   }
 
   const photo = await env.DB.prepare('SELECT p.thumb_key, p.web_key, p.r2_key, p.gallery_id, p.filename FROM photos p WHERE p.id = ?').bind(photoId).first();
@@ -1512,14 +1530,33 @@ async function serveResized(request, env, session, photoId, maxWidth, variant, c
   const isDownload = new URL(request.url).searchParams.get('download') === '1';
 
   let response;
+  let servedKey = null;
+  let servedContentType = 'image/jpeg';
   if (chosenKey) {
-    const obj = await env.R2_BUCKET.get(chosenKey);
+    // If client accepts WebP, try the .webp sibling first
+    // (e.g. galleries/X/web/Y.jpg → galleries/X/web/Y.webp).
+    // null result => sibling not yet generated; fall back to .jpg.
+    let obj = null;
+    if (acceptsWebp && chosenKey.endsWith('.jpg')) {
+      const webpKey = chosenKey.slice(0, -4) + '.webp';
+      obj = await env.R2_BUCKET.get(webpKey);
+      if (obj) {
+        servedKey = webpKey;
+        servedContentType = 'image/webp';
+      }
+    }
+    if (!obj) {
+      obj = await env.R2_BUCKET.get(chosenKey);
+      if (obj) servedKey = chosenKey;
+    }
     if (obj) {
       const headers = {
-        'Content-Type': 'image/jpeg',
+        'Content-Type': servedContentType,
         'Cache-Control': 'public, max-age=31536000, immutable',
         'ETag': etag,
-        'X-Variant': primary ? variant : (variant === 'thumb' ? 'web-fallback' : 'thumb-fallback')
+        'Vary': 'Accept',
+        'X-Variant': primary ? variant : (variant === 'thumb' ? 'web-fallback' : 'thumb-fallback'),
+        'X-Variant-Format': servedContentType === 'image/webp' ? 'webp' : 'jpg'
       };
       if (isDownload && photo.filename) headers['Content-Disposition'] = `attachment; filename="${photo.filename}"`;
       response = new Response(obj.body, { headers });
@@ -1535,6 +1572,7 @@ async function serveResized(request, env, session, photoId, maxWidth, variant, c
         'Content-Type': 'image/jpeg',
         'Cache-Control': 'public, max-age=300',
         'ETag': `"${photoId}-placeholder"`,
+        'Vary': 'Accept',
         'X-Variant': 'placeholder-no-variant',
         'X-Photo-Needs-Reupload': '1'
       }
@@ -1549,6 +1587,17 @@ async function serveResized(request, env, session, photoId, maxWidth, variant, c
 }
 
 async function handleGetWeb(request, env, session, photoId, ctx) {
+  return serveResized(request, env, session, photoId, 2400, 'web', ctx);
+}
+
+// Per-size /web variant. Until the daemon emits per-size sibling keys
+// (web-sm.{jpg,webp}, web-md.{jpg,webp}, web-lg.{jpg,webp}), all three sizes
+// pass through to the existing web.jpg / web.webp via serveResized. This lets
+// the client emit a real <picture srcset> today; bandwidth wins land
+// automatically once the daemon starts producing the variants — no client
+// or worker code change needed.
+async function handleGetWebSize(request, env, session, photoId, size, ctx) {
+  // size ∈ {sm, md, lg}. Reserved for future per-size R2 keys; passthrough today.
   return serveResized(request, env, session, photoId, 2400, 'web', ctx);
 }
 
@@ -2477,6 +2526,12 @@ async function fetchHandler(request, env, ctx) {
     // ── Web-size photo (2400px, for fast viewing + Web-Size downloads) ──
     const webMatch = path.match(/^\/api\/photos\/([a-f0-9]{32})\/web$/);
     if (webMatch && method === 'GET') return handleGetWeb(request, env, session, webMatch[1], ctx);
+
+    // ── Per-size /web variant for <picture srcset> (sm=320, md=640, lg=1280) ──
+    // Today these all alias to /web. Once the daemon writes per-size R2 keys,
+    // serveResized will pick them up automatically via the size argument.
+    const webSizeMatch = path.match(/^\/api\/photos\/([a-f0-9]{32})\/web\/(sm|md|lg)$/);
+    if (webSizeMatch && method === 'GET') return handleGetWebSize(request, env, session, webSizeMatch[1], webSizeMatch[2], ctx);
 
     // ── Public full photo access (for portfolio gallery covers/photos) ──
     const fullMatch = path.match(/^\/api\/photos\/([a-f0-9]{32})\/full$/);
