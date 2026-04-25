@@ -1080,6 +1080,67 @@ function buildProofReviewEmail({ status, galleryTitle, galleryUrl, photoCount, n
 </body></html>`;
 }
 
+// Sent by the daily cron sweep when a gallery is within 7 days of expiring.
+// Goes to every client with gallery_access — gives them a chance to download
+// before the link goes dark. Brand-matched to invite + receipt templates.
+function buildExpiryWarningEmail({ clientName, galleryTitle, daysLeft, expireDate, galleryUrl, coverUrl, photographerEmail }) {
+  const safeTitle = String(galleryTitle || 'your gallery').replace(/</g, '&lt;');
+  const safeName = clientName ? String(clientName).split(' ')[0].replace(/</g, '&lt;') : '';
+  const days = Math.max(0, Number(daysLeft) || 0);
+  const dayLabel = days === 0 ? 'today' : (days === 1 ? 'tomorrow' : `in ${days} days`);
+  const replyTo = String(photographerEmail || 'hola@ivaestudios.com');
+  const formattedDate = (() => {
+    try { return new Date(expireDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }); }
+    catch { return expireDate || ''; }
+  })();
+  const greeting = safeName ? `${safeName}, your` : 'Your';
+  const headline = days === 0 ? `Your gallery expires <em style="font-style:italic;">today</em>`
+                              : `Your gallery expires <em style="font-style:italic;">${dayLabel}</em>`;
+  const subhead = `${greeting} gallery <strong style="color:#2c2c2c;">${safeTitle}</strong> will be archived ${dayLabel}${formattedDate ? ` (${formattedDate})` : ''}. To keep your photos safe, please download them before the link goes dark.`;
+
+  // Cover only renders if we have a URL — the email still reads cleanly without it.
+  const coverBlock = coverUrl ? `
+    <img src="${coverUrl}" alt="${safeTitle}" width="600" style="width:100%;display:block;max-height:320px;object-fit:cover;"/>` : '';
+
+  return `<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="color-scheme" content="light only"/>
+<title>${safeTitle} expires ${dayLabel} — IVAE Studios</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Syne:wght@400;500&display=swap" rel="stylesheet"/>
+</head>
+<body style="margin:0;padding:0;background-color:#f7f6f3;font-family:'Syne','Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;color-scheme:light only;">
+<div style="display:none;font-size:1px;color:#f7f6f3;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${safeTitle} expires ${dayLabel}. Download your photos before the link is archived.</div>
+<div style="max-width:600px;margin:0 auto;padding:24px 16px;">
+  <div style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 1px 12px rgba(0,0,0,0.06);">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#2c2c2c">
+      <tr><td style="padding:18px 0;text-align:center;background-color:#2c2c2c;">
+        <p style="margin:0;font-size:12px;letter-spacing:5px;color:#c9b99a;font-weight:400;text-transform:uppercase;">IVAE Studios</p>
+      </td></tr>
+    </table>
+    ${coverBlock}
+    <div style="padding:38px 40px 8px;text-align:center;">
+      <p style="margin:0;font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-size:32px;color:#2c2c2c;font-weight:300;line-height:1.25;">${headline}</p>
+    </div>
+    <div style="padding:18px 40px 8px;">
+      <p style="margin:0 0 24px;font-size:15px;color:#555;line-height:1.7;">${subhead}</p>
+    </div>
+    <div style="padding:8px 40px 32px;text-align:center;">
+      <a href="${galleryUrl}" style="display:inline-block;background:#2c2c2c;color:#ffffff;text-decoration:none;padding:15px 52px;border-radius:40px;font-size:13px;letter-spacing:2px;font-weight:500;text-transform:uppercase;">DOWNLOAD YOUR PHOTOS</a>
+    </div>
+    <div style="background:#f7f6f3;padding:24px 40px;margin:0;text-align:center;">
+      <p style="margin:0;font-size:12px;color:#888;line-height:1.6;">Need more time? Reply to this email and we'll extend your gallery.</p>
+    </div>
+  </div>
+  <div style="text-align:center;padding:28px 20px 16px;">
+    <p style="margin:0 0 4px;font-size:11px;letter-spacing:3px;color:#999;text-transform:uppercase;">IVAE Studios</p>
+    <p style="margin:0 0 12px;font-size:12px;color:#bbb;">Luxury Photography &middot; Cancun &amp; Riviera Maya</p>
+    <a href="mailto:${replyTo}" style="font-size:12px;color:#8a7d6b;text-decoration:none;">${replyTo}</a>
+    <p style="margin:16px 0 0;font-size:10px;color:#ccc;">&copy; ${new Date().getFullYear()} IVAE Studios. All rights reserved.</p>
+  </div>
+</div>
+</body></html>`;
+}
+
 // ── PUBLIC COVER (for emails) ──
 async function handleGetCover(env, galleryId) {
   const gallery = await env.DB.prepare('SELECT cover_key FROM galleries WHERE id = ?').bind(galleryId).first();
@@ -3199,10 +3260,18 @@ async function fetchHandler(request, env, ctx) {
 }
 
 // ── EXPIRY WARNING SWEEP ──
+//
+// Runs daily via the GitHub Actions cron (see .github/workflows/cron.yml,
+// hits /api/gallery/admin/cron-tick). Picks galleries that:
+//   • have expire_enabled = 1 and an expire_date set
+//   • haven't been warned yet (expire_warned_at IS NULL)
+//   • are within 7 days of expiring (and not already past)
+// For each match: emails every client with gallery_access (branded "your
+// gallery expires soon" template) AND drops a heads-up to the photographer
+// admin, then marks expire_warned_at so we never double-fire.
 async function handleExpiryWarn(env) {
-  if (!env.RESEND_API_KEY || !env.ADMIN_EMAIL) return;
+  if (!env.RESEND_API_KEY) return;
   try {
-    // Galleries expiring in <=7 days, not warned yet, with at least one access grant
     const rows = await env.DB.prepare(`
       SELECT g.id, g.title, g.expire_date,
              (SELECT COUNT(*) FROM gallery_access ga WHERE ga.gallery_id = g.id) AS client_count
@@ -3213,21 +3282,85 @@ async function handleExpiryWarn(env) {
          AND date(g.expire_date) <= date('now', '+7 days')
          AND date(g.expire_date) >= date('now')
     `).all();
+
+    const photographerEmail = env.STUDIO_EMAIL || env.ADMIN_EMAIL || 'hola@ivaestudios.com';
+
     for (const g of (rows.results || [])) {
       const days = Math.max(0, Math.ceil((new Date(g.expire_date) - new Date()) / 86400000));
+      const galleryUrl = `https://ivaestudios.com/gallery/gallery?id=${g.id}`;
+      const coverUrl = `https://ivaestudios.com/api/gallery/galleries/${g.id}/cover`;
+
+      // 1. Notify every client with access. Pull their email + name from
+      // the users table via gallery_access. Skip silently if there are none
+      // — an unaccessed gallery still gets the admin heads-up below.
+      let clients = [];
       try {
-        await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            from: 'IVAE Gallery <gallery@ivaestudios.com>',
-            to: env.ADMIN_EMAIL,
-            subject: `${g.title} expires in ${days} day${days === 1 ? '' : 's'}`,
-            html: `<p><strong>${g.title}</strong> will expire on <strong>${g.expire_date}</strong> (${days} day${days === 1 ? '' : 's'} from now). ${g.client_count} client${g.client_count === 1 ? '' : 's'} have access.</p><p><a href="https://ivaestudios.com/gallery/admin/gallery-edit.html?id=${g.id}">Open in admin</a></p>`
-          })
-        });
+        const c = await env.DB.prepare(
+          `SELECT u.email, u.name
+             FROM gallery_access ga
+             JOIN users u ON u.id = ga.user_id
+            WHERE ga.gallery_id = ?
+              AND u.role = 'client'
+              AND u.email IS NOT NULL`
+        ).bind(g.id).all();
+        clients = c.results || [];
+      } catch (e) { console.error('[handleExpiryWarn] client lookup failed for', g.id, e.message); }
+
+      for (const client of clients) {
+        try {
+          const html = buildExpiryWarningEmail({
+            clientName: client.name,
+            galleryTitle: g.title,
+            daysLeft: days,
+            expireDate: g.expire_date,
+            galleryUrl,
+            coverUrl,
+            photographerEmail,
+          });
+          const subject = days === 0
+            ? `${g.title} expires today — download your photos`
+            : days === 1
+              ? `${g.title} expires tomorrow — download your photos`
+              : `${g.title} expires in ${days} days — download your photos`;
+          const r = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              from: 'Vianey at IVAE Studios <hola@ivaestudios.com>',
+              reply_to: photographerEmail,
+              to: [client.email],
+              subject,
+              html,
+            }),
+          });
+          if (!r.ok) console.error('[handleExpiryWarn] client email failed:', r.status, await r.text());
+        } catch (e) { console.error('[handleExpiryWarn] client send error:', g.id, client.email, e.message); }
+      }
+
+      // 2. Heads-up to the photographer (preserves existing behavior — only
+      // fire if ADMIN_EMAIL is configured so we don't blast STUDIO_EMAIL on
+      // the off-chance it's the same as a client).
+      if (env.ADMIN_EMAIL) {
+        try {
+          await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              from: 'IVAE Gallery <gallery@ivaestudios.com>',
+              to: env.ADMIN_EMAIL,
+              subject: `${g.title} expires in ${days} day${days === 1 ? '' : 's'}`,
+              html: `<p><strong>${g.title}</strong> will expire on <strong>${g.expire_date}</strong> (${days} day${days === 1 ? '' : 's'} from now). ${clients.length} client${clients.length === 1 ? ' was' : 's were'} notified.</p><p><a href="https://ivaestudios.com/gallery/admin/gallery-edit.html?id=${g.id}">Open in admin</a></p>`
+            })
+          });
+        } catch (e) { console.error('[handleExpiryWarn] admin notify failed:', g.id, e.message); }
+      }
+
+      // Always mark warned (whether or not any sends succeeded) so we don't
+      // retry forever on a permanently failing gallery. Admin can manually
+      // reset expire_warned_at if a re-send is needed.
+      try {
         await env.DB.prepare("UPDATE galleries SET expire_warned_at = datetime('now') WHERE id = ?").bind(g.id).run();
-      } catch (e) { console.error('Expiry warn failed for', g.id, e.message); }
+      } catch (e) { console.error('[handleExpiryWarn] mark-warned failed:', g.id, e.message); }
     }
   } catch (e) { console.error('[handleExpiryWarn]', e.message); }
 }
