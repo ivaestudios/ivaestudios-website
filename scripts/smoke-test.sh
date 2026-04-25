@@ -164,6 +164,17 @@ if [[ "$c2_code" == "401" ]]; then ok "C2 admin/proofs/{id}/review → 401 (auth
 else fail "C2 admin/proofs/{id}/review → $c2_code (expected 401)"
 fi
 
+# D1: Duplicate-gallery endpoint exists and requires auth.
+#     Route shape: POST /api/galleries/{32-hex}/duplicate. Should return 401
+#     without a session cookie (NOT 404 — that would mean the route doesn't
+#     match).
+d1_code=$(curl -sS -o /dev/null -w "%{http_code}" -X POST \
+  -H "Content-Type: application/json" -d '{}' \
+  "$BASE/api/gallery/galleries/00000000000000000000000000000000/duplicate")
+if [[ "$d1_code" == "401" ]]; then ok "D1 galleries/{id}/duplicate → 401 (auth required)"
+else fail "D1 galleries/{id}/duplicate → $d1_code (expected 401)"
+fi
+
 # ── Summary ──
 hdr "SUMMARY"
 echo "  PASS: $PASS    FAIL: $FAIL    WARN: $WARN"
