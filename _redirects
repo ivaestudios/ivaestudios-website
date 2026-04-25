@@ -1,9 +1,8 @@
-# ═══════════════════════════════════════════
-# Gallery — Pic-Time-style public share link
-# /gallery/g/{token} → gallery viewer with ?share=… param
-# Handled inside gallery.html (looks up by share_token, no login required)
-# ═══════════════════════════════════════════
-/gallery/g/* /gallery/gallery.html?share=:splat 200
+# Gallery share-token URLs `/gallery/g/{token}` are handled by the
+# Pages Function at functions/gallery/g/[token].js — kept out of _redirects
+# because the `200` rewrite rule was being preempted by Cloudflare's
+# automatic .html-strip, which 308'd to /gallery/gallery and dropped the
+# share param. The Function gives us deterministic 302 behavior.
 
 # ═══════════════════════════════════════════
 # CLEAN URLs — Location Pages
