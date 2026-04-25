@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Activity — IVAE Studios</title>
+<link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
+<link rel="stylesheet" href="/gallery/css/gallery.css?v=20260424"/>
+<style>
+body { padding-top: 0; background: white; }
+
+/* ── Shared sidebar styles (kept in sync with clients.html / settings.html) ── */
+.sidebar-search { margin: 12px 14px 8px; position: relative; }
+.sidebar-search input {
+  width: 100%; padding: 10px 36px 10px 13px; font-family: 'Syne', sans-serif;
+  font-size: 12px; background: white; border: 1px solid #e8e8e8;
+  color: #333; outline: none; height: 36px; border-radius: 4px;
+  transition: border-color 0.2s;
+}
+.sidebar-search input:focus { border-color: #bbb; }
+.sidebar-search input::placeholder { color: #ccc; }
+.sidebar-search svg {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; color: #ccc;
+}
+.sidebar-bottom-nav { border-top: 1px solid #e0e0e0; padding: 12px 0; }
+.sidebar-bottom-link {
+  display: block; padding: 8px 18px; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: #999; text-decoration: none; transition: color 0.2s;
+}
+.sidebar-bottom-link:hover { color: #333; }
+.sidebar-bottom-link.active { color: #333; }
+
+/* ── Activity page ── */
+.activity-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding-bottom: 24px; border-bottom: 1px solid #f0f0f0;
+}
+.activity-header h1 {
+  font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700;
+  color: #1a1a1a; letter-spacing: -0.3px; line-height: 1; margin: 0;
+}
+.activity-header p {
+  font-size: 13px; color: #bbb; margin-top: 4px; letter-spacing: 0.2px;
+}
+
+/* Period switcher */
+.period-switch { display: inline-flex; gap: 0; }
+.period-switch button {
+  padding: 8px 16px; font-family: 'Syne', sans-serif;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #999;
+  background: white; border: 1px solid #e0e0e0;
+  cursor: pointer; transition: all 0.15s;
+  border-right: none;
+}
+.period-switch button:first-child { border-radius: 4px 0 0 4px; }
+.period-switch button:last-child { border-right: 1px solid #e0e0e0; border-radius: 0 4px 4px 0; }
+.period-switch button:hover { color: #333; background: #fafafa; }
+.period-switch button.active {
+  color: #fff; background: #1a1a1a; border-color: #1a1a1a;
+}
+
+/* Stats bar */
+.activity-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-bottom: 1px solid #f0f0f0;
+}
+.activity-stat { padding: 24px 24px 24px 0; border-right: 1px solid #f0f0f0; }
+.activity-stat:last-child { border-right: none; padding-right: 0; }
+.activity-stat-n {
+  font-family: 'Syne', sans-serif;
+  font-size: 26px; font-weight: 300; color: #333; line-height: 1;
+}
+.activity-stat-l {
+  font-size: 10px; color: #999; margin-top: 6px; letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Day group */
+.day-group { margin-top: 32px; }
+.day-label {
+  font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase; color: #aaa;
+  padding: 12px 0; border-bottom: 1px solid #f0f0f0;
+}
+
+/* Single event row */
+.evt-row {
+  display: flex; gap: 16px; padding: 16px 0;
+  border-bottom: 1px solid #f8f8f8;
+  align-items: flex-start;
+}
+.evt-row:last-child { border-bottom: none; }
+.evt-icon {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #f5f5f5; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #888; font-family: 'Syne', sans-serif; font-size: 11px;
+  font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.evt-icon.view { background: #f0ece4; color: #a07040; }
+.evt-icon.fav  { background: #fde8e8; color: #c0392b; }
+.evt-icon.dl   { background: #e8f3ff; color: #2c70b8; }
+.evt-icon.proof{ background: #f1e8fd; color: #7530a8; }
+.evt-icon.visit{ background: #e8f8ee; color: #2a8a4a; }
+.evt-icon.pub  { background: #fff4d6; color: #a08030; }
+.evt-icon.expire{background: #ffeaea; color: #c83838; }
+.evt-icon.share{ background: #e0f5f5; color: #2a8888; }
+.evt-icon.show { background: #ede8fa; color: #5b3fb8; }
+.evt-icon.scene{ background: #f5f0e8; color: #886650; }
+
+.evt-body { flex: 1; min-width: 0; }
+.evt-label {
+  font-size: 13px; color: #333; line-height: 1.5;
+}
+.evt-label strong { color: #1a1a1a; font-weight: 600; }
+.evt-meta {
+  font-size: 11px; color: #aaa; margin-top: 4px;
+  letter-spacing: 0.2px;
+}
+.evt-time {
+  font-size: 11px; color: #bbb; flex-shrink: 0; padding-top: 6px;
+  letter-spacing: 0.2px; min-width: 60px; text-align: right;
+}
+
+/* Empty state */
+.activity-empty {
+  text-align: center; padding: 80px 20px;
+}
+.activity-empty svg {
+  width: 48px; height: 48px; color: #ddd; margin-bottom: 16px;
+}
+.activity-empty h3 {
+  font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 600;
+  color: #333; margin-bottom: 8px;
+}
+.activity-empty p {
+  font-size: 13px; color: #bbb; max-width: 380px; margin: 0 auto;
+}
+
+.loading-block {
+  height: 14px; background: linear-gradient(90deg, #f5f5f5, #ececec, #f5f5f5);
+  background-size: 200% 100%; animation: shimmer 1.4s linear infinite;
+  border-radius: 3px; margin: 12px 0;
+}
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+@media (max-width: 900px) {
+  .activity-stats { grid-template-columns: 1fr 1fr; }
+  .activity-stat:nth-child(3),
+  .activity-stat:nth-child(4) { border-right: none; }
+  .activity-stat:nth-child(3) { border-right: 1px solid #f0f0f0; }
+}
+@media (max-width: 767px) {
+  .activity-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .activity-stats { grid-template-columns: 1fr; }
+  .activity-stat { border-right: none; border-bottom: 1px solid #f0f0f0; padding: 18px 0; }
+  .evt-time { min-width: 50px; font-size: 10px; }
+  .evt-icon { width: 28px; height: 28px; font-size: 10px; }
+}
+</style>
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR (rendered by /js/admin-sidebar.js) -->
+  <aside class="admin-sidebar" id="sidebar"></aside>
+
+  <!-- MAIN -->
+  <main class="admin-main" style="padding:0 48px;">
+    <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+    <!-- Header -->
+    <div class="activity-header" style="padding-top:36px;">
+      <div>
+        <h1>Activity</h1>
+        <p>Everything happening across your galleries — views, favorites, downloads, sign-ins.</p>
+      </div>
+      <div class="period-switch" id="periodSwitch">
+        <button data-days="7">7 days</button>
+        <button data-days="30" class="active">30 days</button>
+        <button data-days="90">90 days</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="activity-stats" id="activityStats">
+      <div class="activity-stat">
+        <div class="activity-stat-n" id="statTotal">—</div>
+        <div class="activity-stat-l">Total events</div>
+      </div>
+      <div class="activity-stat">
+        <div class="activity-stat-n" id="statVisitors">—</div>
+        <div class="activity-stat-l">Visitor sign-ins</div>
+      </div>
+      <div class="activity-stat">
+        <div class="activity-stat-n" id="statFavs">—</div>
+        <div class="activity-stat-l">Favorites added</div>
+      </div>
+      <div class="activity-stat">
+        <div class="activity-stat-n" id="statDownloads">—</div>
+        <div class="activity-stat-l">Downloads</div>
+      </div>
+    </div>
+
+    <!-- Feed -->
+    <div id="feedRoot">
+      <div class="loading-block" style="width:30%;"></div>
+      <div class="loading-block" style="width:80%;"></div>
+      <div class="loading-block" style="width:60%;"></div>
+      <div class="loading-block" style="width:90%;"></div>
+    </div>
+  </main>
+</div>
+
+<script src="/gallery/js/api.js?v=20260424"></script>
+<script src="/gallery/js/auth.js?v=20260424"></script>
+<script src="/gallery/js/admin-sidebar.js?v=20260424"></script>
+<script>
+let currentDays = 30;
+
+function escHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// Map an event type to (cssClass, shortBadge). Badges are 1-3 chars so they
+// fit in the round chip. Falls back to first 2 letters for unknown types.
+function badgeFor(type) {
+  switch (type) {
+    case 'gallery_view':
+    case 'view':            return { cls: 'view',   text: 'V' };
+    case 'gallery_enter':   return { cls: 'view',   text: 'E' };
+    case 'photo_open':
+    case 'photo_view':      return { cls: 'view',   text: 'P' };
+    case 'favorite_add':
+    case 'favorite':        return { cls: 'fav',    text: '\u2764' };
+    case 'favorite_remove':
+    case 'unfavorite':      return { cls: 'fav',    text: '-' };
+    case 'slideshow_start':
+    case 'slideshow':       return { cls: 'show',   text: '\u25B6' };
+    case 'download_request':
+    case 'download':        return { cls: 'dl',     text: '\u2193' };
+    case 'share_click':
+    case 'share':           return { cls: 'share',  text: '\u2197' };
+    case 'scene_view':      return { cls: 'scene',  text: 'S' };
+    case 'visit':           return { cls: 'visit',  text: '+' };
+    case 'proof':           return { cls: 'proof',  text: '\u2713' };
+    case 'gallery_published':return{ cls: 'pub',    text: '\u2605' };
+    case 'gallery_expiring':return { cls: 'expire', text: '\u26A0' };
+    default:                return { cls: '',       text: type.substring(0,2).toUpperCase() };
+  }
+}
+
+function fmtTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso.replace(' ', 'T') + (iso.endsWith('Z') ? '' : 'Z'));
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function fmtDayLabel(iso) {
+  if (!iso) return 'Unknown date';
+  const d = new Date(iso.replace(' ', 'T') + (iso.endsWith('Z') ? '' : 'Z'));
+  if (isNaN(d.getTime())) return 'Unknown date';
+  const today = new Date();
+  const yest = new Date(today); yest.setDate(today.getDate() - 1);
+  const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  if (sameDay(d, today)) return 'Today';
+  if (sameDay(d, yest)) return 'Yesterday';
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+}
+
+function dayKey(iso) {
+  if (!iso) return '';
+  const d = new Date(iso.replace(' ', 'T') + (iso.endsWith('Z') ? '' : 'Z'));
+  if (isNaN(d.getTime())) return '';
+  // Local-day key (YYYY-MM-DD) so events group in the viewer's timezone.
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return d.getFullYear() + '-' + m + '-' + day;
+}
+
+function setStat(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = String(value);
+}
+
+function renderFeed(events) {
+  const root = document.getElementById('feedRoot');
+  if (!events || !events.length) {
+    root.innerHTML = ''
+      + '<div class="activity-empty">'
+      +   '<svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>'
+      +   '<h3>No activity yet</h3>'
+      +   '<p>Once clients start viewing galleries, favoriting photos, or downloading, you\'ll see every interaction here in chronological order.</p>'
+      + '</div>';
+    return;
+  }
+
+  // Sort by 'when' descending (server should already do this, but be defensive).
+  const sorted = events.slice().sort((a, b) => (b.when || '').localeCompare(a.when || ''));
+
+  // Group by local day
+  const groups = [];   // [{ key, label, items: [] }]
+  const byKey = {};
+  for (const ev of sorted) {
+    const k = dayKey(ev.when);
+    if (!byKey[k]) {
+      byKey[k] = { key: k, label: fmtDayLabel(ev.when), items: [] };
+      groups.push(byKey[k]);
+    }
+    byKey[k].items.push(ev);
+  }
+
+  let html = '';
+  for (const g of groups) {
+    html += '<div class="day-group">';
+    html += '<div class="day-label">' + escHtml(g.label) + '</div>';
+    for (const ev of g.items) {
+      const b = badgeFor(ev.type);
+      const galleryLink = ev.gallery_id
+        ? '/gallery/admin/gallery-edit?id=' + encodeURIComponent(ev.gallery_id)
+        : null;
+      // Keep the label as-given by the server (it's already humanized) but
+      // bold the gallery title if present so the eye scans by gallery quickly.
+      let label = escHtml(ev.label || ev.type);
+      if (ev.gallery_title) {
+        const title = escHtml(ev.gallery_title);
+        // Replace first occurrence with a bolded + linkified version.
+        const replacement = galleryLink
+          ? '<a href="' + galleryLink + '" style="color:#1a1a1a;text-decoration:none;border-bottom:1px solid #e0e0e0;"><strong>' + title + '</strong></a>'
+          : '<strong>' + title + '</strong>';
+        label = label.replace(title, replacement);
+      }
+      const meta = ev.meta && typeof ev.meta === 'object' ? ev.meta : null;
+      let metaLine = '';
+      if (meta) {
+        if (typeof meta.count === 'number') metaLine = meta.count + ' photo' + (meta.count === 1 ? '' : 's');
+        else if (meta.note) metaLine = '\u201C' + escHtml(String(meta.note).substring(0, 80)) + '\u201D';
+      }
+      html += ''
+        + '<div class="evt-row">'
+        +   '<div class="evt-icon ' + b.cls + '">' + escHtml(b.text) + '</div>'
+        +   '<div class="evt-body">'
+        +     '<div class="evt-label">' + label + '</div>'
+        +     (metaLine ? '<div class="evt-meta">' + metaLine + '</div>' : '')
+        +   '</div>'
+        +   '<div class="evt-time">' + escHtml(fmtTime(ev.when)) + '</div>'
+        + '</div>';
+    }
+    html += '</div>';
+  }
+  root.innerHTML = html;
+}
+
+function renderStatsFromEvents(events) {
+  let visitors = 0, favs = 0, downloads = 0;
+  for (const ev of events) {
+    const t = ev.type;
+    if (t === 'visit') visitors++;
+    else if (t === 'favorite_add' || t === 'favorite') favs++;
+    else if (t === 'download_request' || t === 'download') downloads++;
+  }
+  setStat('statTotal', events.length);
+  setStat('statVisitors', visitors);
+  setStat('statFavs', favs);
+  setStat('statDownloads', downloads);
+}
+
+async function loadActivity(days) {
+  currentDays = days;
+  const root = document.getElementById('feedRoot');
+  root.innerHTML = ''
+    + '<div class="loading-block" style="width:30%;"></div>'
+    + '<div class="loading-block" style="width:80%;"></div>'
+    + '<div class="loading-block" style="width:60%;"></div>'
+    + '<div class="loading-block" style="width:90%;"></div>';
+  ['statTotal','statVisitors','statFavs','statDownloads'].forEach(id => setStat(id, '\u2014'));
+
+  try {
+    const data = await API.get('/admin/timeline?days=' + days);
+    const events = (data && Array.isArray(data.events)) ? data.events
+                 : (Array.isArray(data) ? data : []);
+    renderStatsFromEvents(events);
+    renderFeed(events);
+  } catch (e) {
+    console.warn('[activity] timeline fetch failed', e);
+    root.innerHTML = ''
+      + '<div class="activity-empty">'
+      +   '<h3>Could not load activity</h3>'
+      +   '<p>' + escHtml(e && e.message ? e.message : 'Please refresh and try again.') + '</p>'
+      + '</div>';
+  }
+}
+
+// Wire period switcher
+document.getElementById('periodSwitch').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-days]');
+  if (!btn) return;
+  const days = parseInt(btn.dataset.days, 10);
+  if (!days || days === currentDays) return;
+  document.querySelectorAll('#periodSwitch button').forEach(b => b.classList.toggle('active', b === btn));
+  loadActivity(days);
+});
+
+// Boot
+(async () => {
+  const user = await checkAuth('admin'); if (!user) return;
+  window.__adminUser = user;
+  if (typeof renderAdminSidebar === 'function') renderAdminSidebar({ active: 'activity' });
+  loadActivity(30);
+})();
+</script>
+</body>
+</html>

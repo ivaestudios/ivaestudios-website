@@ -18,6 +18,7 @@
     { key: 'galleries', href: '/gallery/admin/galleries', label: 'Galleries' },
     { key: 'clients',   href: '/gallery/admin/clients',   label: 'Clients'   },
     { key: 'workflow',  href: '/gallery/admin/proofs',    label: 'Workflow'  },
+    { key: 'activity',  href: '/gallery/admin/activity',  label: 'Activity'  },
     { key: 'settings',  href: '/gallery/admin/settings',  label: 'Settings'  }
   ];
 

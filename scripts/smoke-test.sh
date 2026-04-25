@@ -207,6 +207,20 @@ if [[ "$d9b_post" == "401" ]]; then ok "D9b POST admin/clients → 401 (auth req
 else fail "D9b POST admin/clients → $d9b_post (expected 401)"
 fi
 
+# D10: Workflow timeline endpoint must require auth. Powers the new
+#      /admin/activity page that surfaces gallery_events + visitor_log +
+#      proof_submissions in a single feed. 401 (not 404) proves the route
+#      survives the /api/gallery prefix-strip.
+d10_code=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE/api/gallery/admin/timeline?days=7")
+if [[ "$d10_code" == "401" ]]; then ok "D10 admin/timeline → 401 (auth required)"
+else fail "D10 admin/timeline → $d10_code (expected 401)"
+fi
+# Static page itself must be reachable so the sidebar link works.
+d10_page=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE/gallery/admin/activity")
+if [[ "$d10_page" == "200" ]]; then ok "D10 /gallery/admin/activity → 200 (page live)"
+else fail "D10 /gallery/admin/activity → $d10_page (expected 200)"
+fi
+
 # ── Summary ──
 hdr "SUMMARY"
 echo "  PASS: $PASS    FAIL: $FAIL    WARN: $WARN"
