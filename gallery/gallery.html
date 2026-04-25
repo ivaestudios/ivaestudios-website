@@ -457,6 +457,10 @@
       <svg id="lightboxHeartIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
       <span id="lightboxHeartText">Favorite</span>
     </button>
+    <button id="lightboxShare" class="btn btn-outline btn-sm" onclick="shareFromLightbox()" aria-label="Copy share link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+      Share
+    </button>
     <a id="lightboxDownload" class="lightbox-dl-btn" download>
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
       Download
@@ -1027,6 +1031,29 @@ function closeLightbox() {
 
 function navLightbox(dir) {
   loadLightboxPhoto((lightboxIndex + dir + photos.length) % photos.length);
+}
+
+// Copy a shareable per-photo URL to the clipboard. The /gallery/p/{id}
+// route serves OG meta tags for crawlers (WhatsApp/IG/FB) and 302s real
+// users back to the gallery deeplink.
+async function shareFromLightbox() {
+  const p = photos[lightboxIndex];
+  if (!p || !p.id) { showToast('Could not generate share link'); return; }
+  const url = 'https://ivaestudios.com/gallery/p/' + p.id;
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(url);
+    } else {
+      // Fallback for older / non-secure-context browsers
+      const ta = document.createElement('textarea');
+      ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+    }
+    showToast('Link copied');
+  } catch (e) {
+    showToast('Could not copy — ' + url);
+  }
 }
 
 // Wheel = zoom (centered on cursor). Drag = pan when zoomed.
