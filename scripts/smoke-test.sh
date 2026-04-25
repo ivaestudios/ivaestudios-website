@@ -100,6 +100,52 @@ if [[ "$sw_allowed" == "/" ]]; then ok "Service-Worker-Allowed: /"
 else warn "Service-Worker-Allowed missing or wrong: '$sw_allowed'"
 fi
 
+# ── 8. Wave-B endpoints (Pic-Time parity) ──
+# B1: Public share-token API (no auth required). Returns 404 for unknown
+#     tokens, 200 for valid ones. Anything else (esp. 401) means the route
+#     fell through to authenticated handlers — broken.
+hdr "Wave B endpoints"
+TOK="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"  # 32-hex shape but won't exist
+b1_body=$(curl -sS "$BASE/api/gallery/galleries/share/$TOK")
+if echo "$b1_body" | grep -q '"error":"Gallery not found"'; then
+  ok "B1 share-token endpoint public + 404 for unknown token"
+elif echo "$b1_body" | grep -q '"error":"Unauthorized"'; then
+  fail "B1 share-token endpoint requires auth (route not matching!) — body: $b1_body"
+else
+  warn "B1 share-token unexpected body: $b1_body"
+fi
+
+# B2: Admin downloads endpoint must require auth.
+b2_code=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE/api/gallery/admin/downloads")
+if [[ "$b2_code" == "401" ]]; then ok "B2 admin/downloads → 401 (auth required)"
+else fail "B2 admin/downloads → $b2_code (expected 401)"
+fi
+
+# B3: Per-size /web/{sm|md|lg} route exists. Should 404 (not 405/500) for
+#     a fake photo id since the route matches but the photo doesn't exist.
+b3_code=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE/api/gallery/photos/00000000000000000000000000000000/web/md")
+if [[ "$b3_code" == "404" ]]; then ok "B3 /photos/{id}/web/md → 404 (route live)"
+else fail "B3 /photos/{id}/web/md → $b3_code (expected 404)"
+fi
+
+# B4: Per-photo OG endpoint as a crawler — 404 expected for unknown photo.
+b4_code=$(curl -sS -A "facebookexternalhit/1.1" -o /dev/null -w "%{http_code}" \
+  "$BASE/gallery/p/00000000000000000000000000000000")
+if [[ "$b4_code" == "404" ]]; then ok "B4 /gallery/p/{id} crawler-fetch → 404 (route live)"
+else fail "B4 /gallery/p/{id} → $b4_code (expected 404)"
+fi
+
+# B1+/g: Pages Function for /gallery/g/{token} — must 302 for valid-shape
+#       tokens (with share param in Location) and 404 for malformed ones.
+#       Older _redirects rule used to 308 → /gallery/gallery losing the param.
+g_loc=$(curl -sS -D - -o /dev/null "$BASE/gallery/g/abc123def456" \
+  | awk -F': ' 'tolower($1)=="location"{print $2}' | tr -d '\r\n')
+if [[ "$g_loc" == *"share=abc123def456"* ]]; then
+  ok "/gallery/g/{token} 302 → $g_loc"
+else
+  fail "/gallery/g/{token} broken redirect (Location: '$g_loc')"
+fi
+
 # ── Summary ──
 hdr "SUMMARY"
 echo "  PASS: $PASS    FAIL: $FAIL    WARN: $WARN"
