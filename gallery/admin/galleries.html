@@ -559,7 +559,28 @@ document.addEventListener('click', e => {
 async function handleAction(action, id) {
   closeAllPopovers();
   if (action === 'duplicate') {
-    console.log('TODO: duplicate gallery', id);
+    const g = allGalleries.find(x => x.id == id);
+    const defaultTitle = g ? (g.title || '') + ' (copy)' : '';
+    const newTitle = prompt('Title for the duplicated gallery:', defaultTitle);
+    if (newTitle === null) return; // user cancelled
+    const trimmed = newTitle.trim();
+    if (!trimmed) { alert('Title cannot be empty.'); return; }
+    try {
+      const created = await API.post('/galleries/' + id + '/duplicate', { title: trimmed });
+      // Insert at the top of the list as a draft with 0 photos so it shows up
+      // immediately. Re-fetch on next nav will pick up server-side fields.
+      allGalleries.unshift({
+        ...(g || {}),
+        ...created,
+        photo_count: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+      applyFilters();
+      if (typeof renderAdminSidebar === 'function') renderAdminSidebar({ active: 'galleries' });
+    } catch (err) {
+      alert('Failed to duplicate gallery: ' + (err.message || err));
+    }
     return;
   }
   if (action === 'archive') {

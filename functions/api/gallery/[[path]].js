@@ -603,6 +603,87 @@ async function handleDeleteGallery(env, session, galleryId) {
   return json({ ok: true });
 }
 
+// Duplicate a gallery's *settings* (cover design, watermark, expiry,
+// access policy, scenes, etc.) into a fresh draft gallery. Photos,
+// share_token, and gallery_access are intentionally NOT copied — those
+// are per-job. The caller can specify a new title; default is "{orig} (copy)".
+//
+// We copy via column introspection so future schema additions are picked
+// up automatically (no need to remember to update a hardcoded list every
+// time a migration adds a column). Skip a small denylist of columns that
+// must never be cloned (id / status / share_token / cover_key / timestamps).
+async function handleDuplicateGallery(request, env, session, galleryId) {
+  if (session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
+
+  const src = await env.DB.prepare('SELECT * FROM galleries WHERE id = ?').bind(galleryId).first();
+  if (!src) return json({ error: 'Gallery not found' }, 404);
+
+  let body = {};
+  try { body = await request.json(); } catch {}
+  const newTitle = (body.title && String(body.title).trim()) || `${src.title} (copy)`;
+
+  // Columns we never copy from the source row.
+  const SKIP = new Set([
+    'id',              // generated below
+    'status',          // new copy is always a draft
+    'share_token',     // public token is per-job; admin regenerates if needed
+    'cover_key',       // points to a photo id that won't exist in the new gallery
+    'created_at',      // let SQLite default fire
+    'updated_at',
+    'title',           // overridden via newTitle
+  ]);
+
+  const columns = Object.keys(src).filter(k => !SKIP.has(k));
+  const newId = randomId();
+
+  const insertCols = ['id', 'title', 'status', ...columns];
+  const insertVals = [newId, newTitle, 'draft', ...columns.map(c => src[c])];
+  const placeholders = insertCols.map(() => '?').join(', ');
+
+  try {
+    await env.DB.prepare(
+      `INSERT INTO galleries (${insertCols.join(', ')}) VALUES (${placeholders})`
+    ).bind(...insertVals).run();
+  } catch (e) {
+    // Schema drift safety: if the SELECT * surfaced columns the INSERT
+    // can't accept (extremely unlikely on the same DB, but possible during
+    // a partial rollout), fall back to a minimal insert with the safe
+    // configurable fields only — better to ship a usable copy than fail.
+    console.warn('[handleDuplicateGallery] full clone failed, falling back:', e.message);
+    await env.DB.prepare(
+      `INSERT INTO galleries (id, title, description, session_date, status,
+        watermark_enabled, watermark_text, watermark_subtext, watermark_opacity,
+        allow_download, allow_sharing)
+       VALUES (?, ?, ?, ?, 'draft', ?, ?, ?, ?, ?, ?)`
+    ).bind(
+      newId, newTitle, src.description || null, src.session_date || null,
+      src.watermark_enabled ?? 1, src.watermark_text || 'IVAE',
+      src.watermark_subtext || 'STUDIOS', src.watermark_opacity ?? 0.3,
+      src.allow_download ?? 0, src.allow_sharing ?? 1
+    ).run();
+  }
+
+  // Also copy scenes (the gallery's section labels — useful as a template).
+  // Photos are intentionally NOT copied; copying R2 objects + thousands of
+  // rows is expensive and rarely what an admin actually wants when
+  // duplicating a gallery as a starting point.
+  try {
+    const scenes = await env.DB.prepare(
+      'SELECT name, sort_order FROM scenes WHERE gallery_id = ? ORDER BY sort_order'
+    ).bind(galleryId).all();
+    for (const s of (scenes.results || [])) {
+      await env.DB.prepare(
+        'INSERT INTO scenes (id, gallery_id, name, sort_order) VALUES (?, ?, ?, ?)'
+      ).bind(randomId(), newId, s.name, s.sort_order).run();
+    }
+  } catch (e) {
+    // Scene copy is best-effort — never block the duplicate on it.
+    console.warn('[handleDuplicateGallery] scene copy failed:', e.message);
+  }
+
+  return json({ id: newId, title: newTitle, status: 'draft' }, 201);
+}
+
 // ── GALLERY ACCESS ──
 async function handleGrantAccess(request, env, session, galleryId) {
   if (session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
@@ -2868,6 +2949,11 @@ async function fetchHandler(request, env, ctx) {
       if (method === 'PUT') return handleUpdateGallery(request, env, session, id);
       if (method === 'DELETE') return handleDeleteGallery(env, session, id);
     }
+
+    // Duplicate a gallery's settings (cover, watermark, expiry, scenes)
+    // into a new draft. Photos / share_token / access are NOT cloned.
+    const duplicateMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/duplicate$/);
+    if (duplicateMatch && method === 'POST') return handleDuplicateGallery(request, env, session, duplicateMatch[1]);
 
     // Admin: one-click repair for photos with NULL width/height (square-rendering fix).
     // Reads first 64KB of each R2 object and parses JPEG SOF marker.
