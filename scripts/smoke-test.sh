@@ -31,12 +31,30 @@ for path in "/gallery/" "/gallery/galleries" "/gallery/portfolio" "/gallery/forg
   fi
 done
 
-# ── 2. Cache-Control headers on static assets ──
-hdr "Cache-Control sanity"
-for path in "/gallery/js/api.js" "/gallery/js/cover-designs.js" "/gallery/css/gallery.css" "/gallery/sw.js"; do
+# ── 2. Cache-Control on the CACHE-BUSTED asset URLs (the ones the HTML
+#       actually references). The bare URLs without ?v=... are still cached
+#       as immutable from a previous misconfiguration — that's a known issue
+#       being worked around via cache-busting query strings, so we test the
+#       real URLs and only WARN on the legacy bare ones.
+hdr "Cache-Control sanity (versioned URLs)"
+VBUST="?v=20260424"
+for path in "/gallery/js/api.js" "/gallery/js/cover-designs.js" "/gallery/css/gallery.css"; do
+  cc=$(curl -sI "$BASE$path$VBUST" | awk -F': ' 'tolower($1)=="cache-control"{print $2}' | tr -d '\r\n')
+  if [[ -z "$cc" ]]; then fail "$path$VBUST → no cache-control header"
+  elif [[ "$cc" == *"immutable"* ]]; then fail "$path$VBUST → $cc (must NOT be immutable!)"
+  else ok "$path$VBUST → $cc"
+  fi
+done
+# Service worker — always tested without query string (registered by path)
+cc=$(curl -sI "$BASE/gallery/sw.js" | awk -F': ' 'tolower($1)=="cache-control"{print $2}' | tr -d '\r\n')
+if [[ "$cc" == *"no-cache"* || "$cc" == *"no-store"* ]]; then ok "/gallery/sw.js → $cc"
+else fail "/gallery/sw.js → $cc (must be no-store/no-cache)"
+fi
+# Legacy bare URLs — warn only (cached as immutable from old _headers; not used)
+hdr "Cache-Control on LEGACY bare URLs (warn only)"
+for path in "/gallery/js/api.js" "/gallery/css/gallery.css"; do
   cc=$(curl -sI "$BASE$path" | awk -F': ' 'tolower($1)=="cache-control"{print $2}' | tr -d '\r\n')
-  if [[ -z "$cc" ]]; then fail "$path → no cache-control header"
-  elif [[ "$cc" == *"immutable"* ]]; then fail "$path → $cc (must NOT be immutable!)"
+  if [[ "$cc" == *"immutable"* ]]; then warn "$path → $cc (legacy stale cache; HTML now uses ?v=...)"
   else ok "$path → $cc"
   fi
 done
