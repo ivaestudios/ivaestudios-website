@@ -386,6 +386,7 @@
       <button class="set-tab" data-pane="defaults">Gallery Defaults</button>
       <button class="set-tab" data-pane="storage">Storage</button>
       <button class="set-tab" data-pane="emails">Emails</button>
+      <button class="set-tab" data-pane="diagnostics">Diagnostics</button>
     </div>
 
     <!-- Pane: PROFILE -->
@@ -609,6 +610,19 @@
       <p class="set-pane-intro">Automatic emails sent to your clients. Edit copy, toggle on/off, send a test before going live.</p>
       <div id="emailsList" class="et-list">
         <div class="et-loading">Loading templates…</div>
+      </div>
+    </section>
+
+    <!-- Pane: DIAGNOSTICS -->
+    <section class="set-pane" data-pane="diagnostics">
+      <p class="set-pane-intro">Maintenance utilities. Run when galleries look broken (squares instead of photos, missing metadata, etc.).</p>
+
+      <div class="set-row">
+        <div class="set-label">Photo dimensions<small>Some photos may have been uploaded without width/height, which makes them render as squares. This scans every gallery and reads the missing dimensions from R2.</small></div>
+        <div class="set-control">
+          <button id="backfillDimsBtn" type="button" class="set-save-btn" style="margin-left:0;">Scan all galleries for missing dimensions</button>
+          <div id="backfillDimsResult" style="margin-top:12px;font-size:12px;color:var(--text-soft);line-height:1.6;"></div>
+        </div>
       </div>
     </section>
 
@@ -864,6 +878,7 @@ function setupLogoUpload() {
   setupLogoUpload();
   loadStorage();
   setupEmails();
+  setupDiagnostics();
 
   // Warn before nav-away if dirty
   window.addEventListener('beforeunload', e => {
@@ -1145,6 +1160,39 @@ function wireEmailCard(card, t) {
       showToast('Test failed: ' + e.message, true);
     } finally {
       testBtn.disabled = false; testBtn.textContent = 'Send test';
+    }
+  });
+}
+
+// ── DIAGNOSTICS TAB ──
+function setupDiagnostics() {
+  const btn = $('backfillDimsBtn');
+  const result = $('backfillDimsResult');
+  if (!btn) return;
+  btn.addEventListener('click', async () => {
+    if (!confirm('Scan every gallery for photos with missing dimensions? This can take up to 30 seconds.')) return;
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Scanning…';
+    result.textContent = '';
+    try {
+      const res = await API.post('/gallery/admin/backfill-dimensions', {});
+      const lines = [
+        `Galleries checked: <strong>${res.galleries || 0}</strong>`,
+        `Photos scanned: <strong>${res.scanned || 0}</strong>`,
+        `Dimensions filled in: <strong>${res.fixed || 0}</strong>`
+      ];
+      if (Array.isArray(res.skipped) && res.skipped.length) {
+        lines.push(`Skipped (>100 photos missing dims, run per-gallery): <strong>${res.skipped.length}</strong>`);
+      }
+      result.innerHTML = lines.join('<br/>');
+      showToast(`Backfill done — ${res.fixed || 0} photo${res.fixed === 1 ? '' : 's'} fixed across ${res.galleries || 0} gallery${res.galleries === 1 ? '' : 's'}.`);
+    } catch (e) {
+      result.innerHTML = '<span style="color:var(--danger);">' + (e.message || 'Unknown error') + '</span>';
+      showToast('Backfill failed: ' + e.message, true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
     }
   });
 }

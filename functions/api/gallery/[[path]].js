@@ -1308,6 +1308,60 @@ function parseJpegDimensions(bytes) {
   return null;
 }
 
+// Core repair logic shared by the per-gallery endpoint and the admin
+// "backfill across all galleries" endpoint. Returns a plain object so the
+// caller can aggregate / decide on HTTP shape. Throws on hard failure.
+//
+// Options:
+//   - maxPhotos: if the gallery has more than this many NULL-dim photos,
+//     return { skipped: true, scanned } without doing any R2 fetches.
+//     This keeps the all-galleries sweep under the 30s worker CPU budget.
+async function repairGalleryDimsCore(env, galleryId, { maxPhotos = Infinity } = {}) {
+  const rows = await env.DB.prepare(
+    'SELECT id, r2_key, thumb_key FROM photos WHERE gallery_id = ? AND (width IS NULL OR height IS NULL)'
+  ).bind(galleryId).all();
+  const targets = rows.results || [];
+  if (!targets.length) return { scanned: 0, repaired: 0, failed: 0, failures: [], skipped: false };
+
+  if (targets.length > maxPhotos) {
+    return { scanned: targets.length, repaired: 0, failed: 0, failures: [], skipped: true };
+  }
+
+  let repaired = 0;
+  const failed = [];
+  const stmts = [];
+  // Process in small parallel batches so we don't exhaust subrequest budget.
+  const BATCH = 6;
+  for (let i = 0; i < targets.length; i += BATCH) {
+    const batch = targets.slice(i, i + BATCH);
+    const results = await Promise.all(batch.map(async (p) => {
+      // Prefer thumb (smaller fetch) if it exists; fall back to original.
+      const key = p.thumb_key || p.r2_key;
+      if (!key) return { id: p.id, ok: false, reason: 'no key' };
+      try {
+        const obj = await env.R2_BUCKET.get(key, { range: { offset: 0, length: 65536 } });
+        if (!obj) return { id: p.id, ok: false, reason: 'not in R2' };
+        const buf = new Uint8Array(await obj.arrayBuffer());
+        const dims = parseJpegDimensions(buf);
+        if (!dims) return { id: p.id, ok: false, reason: 'parse failed' };
+        return { id: p.id, ok: true, ...dims };
+      } catch (e) {
+        return { id: p.id, ok: false, reason: e.message };
+      }
+    }));
+    for (const r of results) {
+      if (r.ok) {
+        stmts.push(env.DB.prepare('UPDATE photos SET width = ?, height = ? WHERE id = ? AND (width IS NULL OR height IS NULL)').bind(r.width, r.height, r.id));
+        repaired++;
+      } else {
+        failed.push({ id: r.id, reason: r.reason });
+      }
+    }
+  }
+  if (stmts.length) await env.DB.batch(stmts);
+  return { scanned: targets.length, repaired, failed: failed.length, failures: failed.slice(0, 10), skipped: false };
+}
+
 // Admin one-click repair: scan a gallery for photos with NULL width/height,
 // fetch the first 64KB of each from R2, parse the JPEG SOF marker, and
 // backfill the dimensions in D1. Removes the regression where direct-R2
@@ -1315,48 +1369,56 @@ function parseJpegDimensions(bytes) {
 async function handleRepairGalleryDims(env, session, galleryId) {
   if (!session || session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
   try {
-    const rows = await env.DB.prepare(
-      'SELECT id, r2_key, thumb_key FROM photos WHERE gallery_id = ? AND (width IS NULL OR height IS NULL)'
-    ).bind(galleryId).all();
-    const targets = rows.results || [];
-    if (!targets.length) return json({ ok: true, scanned: 0, repaired: 0, message: 'All photos already have dimensions' });
-
-    let repaired = 0;
-    const failed = [];
-    const stmts = [];
-    // Process in small parallel batches so we don't exhaust subrequest budget.
-    const BATCH = 6;
-    for (let i = 0; i < targets.length; i += BATCH) {
-      const batch = targets.slice(i, i + BATCH);
-      const results = await Promise.all(batch.map(async (p) => {
-        // Prefer thumb (smaller fetch) if it exists; fall back to original.
-        const key = p.thumb_key || p.r2_key;
-        if (!key) return { id: p.id, ok: false, reason: 'no key' };
-        try {
-          const obj = await env.R2_BUCKET.get(key, { range: { offset: 0, length: 65536 } });
-          if (!obj) return { id: p.id, ok: false, reason: 'not in R2' };
-          const buf = new Uint8Array(await obj.arrayBuffer());
-          const dims = parseJpegDimensions(buf);
-          if (!dims) return { id: p.id, ok: false, reason: 'parse failed' };
-          return { id: p.id, ok: true, ...dims };
-        } catch (e) {
-          return { id: p.id, ok: false, reason: e.message };
-        }
-      }));
-      for (const r of results) {
-        if (r.ok) {
-          stmts.push(env.DB.prepare('UPDATE photos SET width = ?, height = ? WHERE id = ? AND (width IS NULL OR height IS NULL)').bind(r.width, r.height, r.id));
-          repaired++;
-        } else {
-          failed.push({ id: r.id, reason: r.reason });
-        }
-      }
-    }
-    if (stmts.length) await env.DB.batch(stmts);
-    return json({ ok: true, scanned: targets.length, repaired, failed: failed.length, failures: failed.slice(0, 10) });
+    const r = await repairGalleryDimsCore(env, galleryId);
+    if (!r.scanned) return json({ ok: true, scanned: 0, repaired: 0, message: 'All photos already have dimensions' });
+    return json({ ok: true, scanned: r.scanned, repaired: r.repaired, failed: r.failed, failures: r.failures });
   } catch (e) {
     console.error('[handleRepairGalleryDims]', e.message, e.stack);
     return json({ error: 'Repair failed: ' + e.message }, 500);
+  }
+}
+
+// Admin sweep: scan EVERY gallery for photos with NULL width/height and
+// backfill them. The schema is single-tenant (no owner_id on galleries),
+// so any admin gets every gallery. Per-gallery work is capped at
+// PER_GALLERY_CAP photos so a single huge gallery can't push the worker
+// past the 30s CPU budget — those are reported under `skipped` and the
+// admin can run the per-gallery endpoint manually.
+async function handleAdminBackfillAll(env, session) {
+  if (!session || session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
+  try {
+    // Per-gallery cap. With BATCH=6 parallel R2 range-reads at ~500ms each,
+    // 100 photos ≈ 17 sequential rounds ≈ ~9s of wall time — comfortably
+    // under the 30s CPU limit even with several galleries in one request.
+    const PER_GALLERY_CAP = 100;
+    const rows = await env.DB.prepare('SELECT DISTINCT id FROM galleries').all();
+    const galleries = rows.results || [];
+    const perGallery = [];
+    const skipped = [];
+    let scanned = 0;
+    let fixed = 0;
+    for (const g of galleries) {
+      try {
+        const r = await repairGalleryDimsCore(env, g.id, { maxPhotos: PER_GALLERY_CAP });
+        if (r.skipped) {
+          console.warn('[handleAdminBackfillAll] skipped gallery', g.id, 'with', r.scanned, 'NULL-dim photos (>cap)');
+          skipped.push({ galleryId: g.id, scanned: r.scanned });
+          continue;
+        }
+        if (r.scanned) {
+          perGallery.push({ galleryId: g.id, scanned: r.scanned, fixed: r.repaired });
+          scanned += r.scanned;
+          fixed += r.repaired;
+        }
+      } catch (e) {
+        console.error('[handleAdminBackfillAll] gallery', g.id, 'failed:', e.message);
+        perGallery.push({ galleryId: g.id, error: e.message });
+      }
+    }
+    return json({ ok: true, galleries: galleries.length, scanned, fixed, perGallery, skipped });
+  } catch (e) {
+    console.error('[handleAdminBackfillAll]', e.message, e.stack);
+    return json({ error: 'Backfill-all failed: ' + e.message }, 500);
   }
 }
 
@@ -2537,6 +2599,11 @@ async function fetchHandler(request, env, ctx) {
     // Admin
     if (method === 'GET' && path === '/api/admin/stats') return handleAdminStats(request, env, session);
     if (method === 'GET' && path === '/api/admin/clients') return handleAdminClients(env, session);
+
+    // Admin: scan all galleries and backfill any photo with NULL width/height.
+    // Per-gallery cap (100 photos) enforced inside the handler so a huge
+    // gallery can't push the worker past 30s.
+    if (method === 'POST' && path === '/api/admin/backfill-dimensions') return handleAdminBackfillAll(env, session);
 
     // Studio settings (singleton)
     if (path === '/api/admin/settings') {
