@@ -420,7 +420,7 @@ async function sendInvite() {
   if (!name || !email) { showToastMsg('Please fill in both fields'); return; }
 
   try {
-    await API.post('/gallery/admin/clients', { name, email });
+    await API.post('/admin/clients', { name, email });
     hideInviteModal();
     showToastMsg('Client ' + name + ' added successfully');
     loadClients();
@@ -486,7 +486,7 @@ function renderClients(clients) {
 }
 
 async function loadClients() {
-  const clients = await API.get('/gallery/admin/clients');
+  const clients = await API.get('/admin/clients');
   allClients = clients;
 
   // Stats

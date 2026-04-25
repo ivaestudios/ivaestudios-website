@@ -3050,6 +3050,33 @@ async function handleAdminClients(env, session) {
   return json(rows.results || []);
 }
 
+// Admin: create a client account from the clients page UI. The form posts
+// just { name, email } — we create a passwordless 'client' user (the admin
+// will later grant gallery access, which auto-generates a per-gallery
+// access password via handleGrantAccess). 409 if the email already exists,
+// since silently re-using an account would mask collisions in the UI.
+async function handleCreateAdminClient(request, env, session) {
+  if (session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
+  let body;
+  try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
+  const name = (body?.name || '').trim();
+  const email = (body?.email || '').trim().toLowerCase();
+  if (!name || !email) return json({ error: 'Name and email required' }, 400);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: 'Invalid email' }, 400);
+  if (name.length > 200 || email.length > 200) return json({ error: 'Name or email too long' }, 400);
+
+  const existing = await env.DB.prepare('SELECT id, name, role FROM users WHERE email = ?').bind(email).first();
+  if (existing) {
+    return json({ error: 'A user with this email already exists', existing_user_id: existing.id }, 409);
+  }
+
+  const id = randomId();
+  await env.DB.prepare('INSERT INTO users (id, email, password, name, role) VALUES (?, ?, ?, ?, ?)')
+    .bind(id, email, '', name, 'client').run();
+  const created = await env.DB.prepare('SELECT id, name, email, role, created_at FROM users WHERE id = ?').bind(id).first();
+  return json({ ...created, gallery_count: 0 }, 201);
+}
+
 // ── SCENES HANDLERS ──
 async function handleGetScenes(env, session, galleryId) {
   const rows = await env.DB.prepare('SELECT * FROM scenes WHERE gallery_id = ? ORDER BY sort_order ASC').bind(galleryId).all();
@@ -3387,6 +3414,7 @@ async function fetchHandler(request, env, ctx) {
     // Admin
     if (method === 'GET' && path === '/api/admin/stats') return handleAdminStats(request, env, session);
     if (method === 'GET' && path === '/api/admin/clients') return handleAdminClients(env, session);
+    if (method === 'POST' && path === '/api/admin/clients') return handleCreateAdminClient(request, env, session);
 
     // Admin: scan all galleries and backfill any photo with NULL width/height.
     // Per-gallery cap (100 photos) enforced inside the handler so a huge

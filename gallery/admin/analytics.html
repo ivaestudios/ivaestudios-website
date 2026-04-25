@@ -1039,7 +1039,7 @@ async function loadAnalytics(period) {
 
   let stats;
   try {
-    stats = await API.get('/gallery/admin/stats?period=' + period);
+    stats = await API.get('/admin/stats?period=' + period);
   } catch (e) {
     console.warn('[analytics] stats fetch failed', e);
     if (e && /sign in|401/.test(e.message || '')) {

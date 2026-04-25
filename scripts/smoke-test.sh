@@ -184,6 +184,29 @@ if [[ "$d8_code" == "401" ]]; then ok "D8 admin/scheduled-emails → 401 (auth r
 else fail "D8 admin/scheduled-emails → $d8_code (expected 401)"
 fi
 
+# D9a: Admin stats endpoint reachable. The dashboard + analytics page hit
+#      /api/gallery/admin/stats (this URL was previously broken in the page
+#      JS as /gallery/admin/stats — D9 standardizes both files on the
+#      api.js helper which prepends /api/gallery exactly once).
+d9a_code=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE/api/gallery/admin/stats?period=7")
+if [[ "$d9a_code" == "401" ]]; then ok "D9a admin/stats → 401 (auth required)"
+else fail "D9a admin/stats → $d9a_code (expected 401)"
+fi
+
+# D9b: Admin clients list — GET (was working) and POST (new in D9). Both
+#      should require auth. Posting without session must 401, never 404 —
+#      404 would mean the route still doesn't match.
+d9b_get=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE/api/gallery/admin/clients")
+if [[ "$d9b_get" == "401" ]]; then ok "D9b GET admin/clients → 401 (auth required)"
+else fail "D9b GET admin/clients → $d9b_get (expected 401)"
+fi
+d9b_post=$(curl -sS -o /dev/null -w "%{http_code}" -X POST -H "Content-Type: application/json" \
+  -d '{"name":"Smoke Test","email":"smoke-test-9b@example.com"}' \
+  "$BASE/api/gallery/admin/clients")
+if [[ "$d9b_post" == "401" ]]; then ok "D9b POST admin/clients → 401 (auth required, route live)"
+else fail "D9b POST admin/clients → $d9b_post (expected 401)"
+fi
+
 # ── Summary ──
 hdr "SUMMARY"
 echo "  PASS: $PASS    FAIL: $FAIL    WARN: $WARN"

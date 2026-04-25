@@ -830,9 +830,13 @@ function setupLogoUpload() {
   const remove = $('logoRemove');
   if (!file) return;
 
-  function refreshLogoPreview(key) {
-    if (key) {
-      preview.innerHTML = `<img src="/api/gallery/admin/logo?ts=${Date.now()}" alt="Studio logo"/>`;
+  function refreshLogoPreview(src) {
+    // brand_logo_key is stored as a data: URL by setupLogoUpload below
+    // (no R2 pipeline yet). Accept any data:/http(s): URL as a direct <img src>;
+    // anything else (legacy R2 keys) shows the empty state until a real
+    // /admin/logo endpoint exists.
+    if (src && /^(data:|https?:)/i.test(src)) {
+      preview.innerHTML = `<img src="${src}" alt="Studio logo"/>`;
       remove.style.display = '';
     } else {
       preview.innerHTML = '<span class="logo-empty">No logo</span>';
@@ -869,15 +873,9 @@ function setupLogoUpload() {
     } catch (e) { showToast('Remove failed: ' + e.message, true); }
   });
 
-  // Initial render
-  if (currentSettings && currentSettings.brand_logo_key) {
-    if (currentSettings.brand_logo_key.startsWith('data:')) {
-      preview.innerHTML = `<img src="${currentSettings.brand_logo_key}" alt="Logo"/>`;
-      remove.style.display = '';
-    } else {
-      refreshLogoPreview(currentSettings.brand_logo_key);
-    }
-  }
+  // Initial render — refreshLogoPreview handles data: URLs and falls back
+  // to the empty state for anything else.
+  refreshLogoPreview(currentSettings && currentSettings.brand_logo_key);
 }
 
 (async () => {

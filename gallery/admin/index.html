@@ -479,7 +479,7 @@ async function refreshStats(periodDays) {
   currentPeriodDays = periodDays;
   let stats;
   try {
-    stats = await API.get('/gallery/admin/stats?period=' + periodDays);
+    stats = await API.get('/admin/stats?period=' + periodDays);
   } catch (e) {
     console.warn('stats fetch failed', e);
     return;
