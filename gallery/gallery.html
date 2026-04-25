@@ -472,7 +472,12 @@
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/gallery/sw.js', { scope: '/' }).catch(err => console.warn('SW register failed:', err));
 }
-const galleryId = new URLSearchParams(window.location.search).get('id');
+const _qs = new URLSearchParams(window.location.search);
+// Pic-Time-style share token takes precedence over ?id= so the same viewer
+// can serve both authed lookups and tokenized public links. The token is
+// resolved server-side; galleryId is filled in once we have the gallery.
+const shareToken = _qs.get('share');
+let galleryId = _qs.get('id');
 let photos = [];
 let scenes = [];
 let selectedIds = new Set();
@@ -499,35 +504,56 @@ function renderCoverDesign(...args) { return window.IvaeCoverDesigns.render(...a
 
 let isPublicView = false;
 let isByLinkView = false;  // gated by email-gate cookie, no account needed
+let isShareTokenView = false;  // tokenized public link — no login, no email gate
 
 (async () => {
   let gallery;
-  const user = await checkAuth(null, true); // silent check — don't redirect
+  let user = null;
 
-  if (user) {
-    try { gallery = await API.get('/galleries/' + galleryId); } catch (e) {}
-  }
-
-  // If not authenticated or no access, try public portfolio endpoint
-  if (!gallery) {
+  // Pic-Time-style share token: anyone with the link can view, no auth needed.
+  // We try this FIRST so a tokenized URL never bounces to /gallery/login.
+  if (shareToken) {
     try {
-      const res = await fetch('/api/gallery/galleries/' + galleryId + '/public');
-      if (res.ok) { gallery = await res.json(); isPublicView = true; }
+      const res = await fetch('/api/gallery/galleries/share/' + encodeURIComponent(shareToken));
+      if (res.ok) {
+        gallery = await res.json();
+        galleryId = gallery.id;  // hydrate so downstream code (selections, logo, music) works
+        isShareTokenView = true;
+        isByLinkView = true;     // reuse anon-visitor selection storage path
+      }
     } catch (e) {}
-  }
+    if (!gallery) {
+      window.location.href = '/gallery/';
+      return;
+    }
+  } else {
+    user = await checkAuth(null, true); // silent check — don't redirect
 
-  // Last fallback: by-link gallery (gated by email-gate cookie, no account)
-  if (!gallery) {
-    try {
-      const res = await fetch('/api/gallery/galleries/' + galleryId + '/by-link');
-      if (res.ok) { gallery = await res.json(); isByLinkView = true; }
-    } catch (e) {}
-  }
+    if (user) {
+      try { gallery = await API.get('/galleries/' + galleryId); } catch (e) {}
+    }
 
-  if (!gallery) {
-    // No access — redirect to login with return URL
-    window.location.href = '/gallery/?redirect=' + encodeURIComponent('/gallery/gallery?id=' + galleryId);
-    return;
+    // If not authenticated or no access, try public portfolio endpoint
+    if (!gallery) {
+      try {
+        const res = await fetch('/api/gallery/galleries/' + galleryId + '/public');
+        if (res.ok) { gallery = await res.json(); isPublicView = true; }
+      } catch (e) {}
+    }
+
+    // Last fallback: by-link gallery (gated by email-gate cookie, no account)
+    if (!gallery) {
+      try {
+        const res = await fetch('/api/gallery/galleries/' + galleryId + '/by-link');
+        if (res.ok) { gallery = await res.json(); isByLinkView = true; }
+      } catch (e) {}
+    }
+
+    if (!gallery) {
+      // No access — redirect to login with return URL
+      window.location.href = '/gallery/?redirect=' + encodeURIComponent('/gallery/gallery?id=' + galleryId);
+      return;
+    }
   }
 
   try {

@@ -656,6 +656,19 @@
               <span class="share-link-url" id="shareLinkUrl">ivaestudios.com/gallery/gallery?id=...</span>
               <button class="share-link-copy" onclick="copyGalleryLink()">Copy Link</button>
             </div>
+
+            <div class="ge-share-title" style="margin-top:32px;">PUBLIC SHARE LINK</div>
+            <p style="font-size:11px;color:#999;margin:6px 0 12px;line-height:1.5;">A tokenized link anyone can open without logging in. Generate to enable, revoke to invalidate.</p>
+            <div id="shareTokenWrap">
+              <div class="share-link-box" id="shareTokenBox" style="display:none;">
+                <span class="share-link-url" id="shareTokenUrl">ivaestudios.com/gallery/g/...</span>
+                <button class="share-link-copy" onclick="copyShareTokenLink()">Copy Link</button>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:10px;">
+                <button class="ge-send-btn" id="shareTokenGenBtn" onclick="generateShareToken()">GENERATE LINK</button>
+                <button class="ge-send-btn" id="shareTokenRevokeBtn" onclick="revokeShareToken()" style="display:none;background:#fff;color:#1a1a1a;border:1px solid #e5e5e5;">REVOKE LINK</button>
+              </div>
+            </div>
           </div>
           <div class="ge-share-sidebar">
             <div class="ge-share-sidebar-title">Notifications</div>
@@ -1742,6 +1755,53 @@ function copyGalleryLink() {
   navigator.clipboard.writeText(url).then(() => showToast('Gallery link copied!')).catch(() => showToast('Could not copy link'));
 }
 
+// ═══ PUBLIC SHARE TOKEN (Pic-Time-style anonymous link) ═══
+function shareTokenUrl(token) {
+  return 'https://ivaestudios.com/gallery/g/' + token;
+}
+function renderShareTokenUI(token) {
+  const box = document.getElementById('shareTokenBox');
+  const urlEl = document.getElementById('shareTokenUrl');
+  const genBtn = document.getElementById('shareTokenGenBtn');
+  const revokeBtn = document.getElementById('shareTokenRevokeBtn');
+  if (token) {
+    urlEl.textContent = shareTokenUrl(token).replace(/^https?:\/\//, '');
+    urlEl.dataset.fullUrl = shareTokenUrl(token);
+    box.style.display = 'flex';
+    genBtn.textContent = 'REGENERATE LINK';
+    revokeBtn.style.display = 'inline-block';
+  } else {
+    box.style.display = 'none';
+    urlEl.dataset.fullUrl = '';
+    genBtn.textContent = 'GENERATE LINK';
+    revokeBtn.style.display = 'none';
+  }
+}
+function copyShareTokenLink() {
+  const url = document.getElementById('shareTokenUrl').dataset.fullUrl;
+  if (!url) return;
+  navigator.clipboard.writeText(url).then(() => showToast('Share link copied!')).catch(() => showToast('Could not copy link'));
+}
+async function generateShareToken() {
+  try {
+    const res = await API.post('/galleries/' + galleryId + '/share-token/regenerate', {});
+    renderShareTokenUI(res.token);
+    showToast('Share link generated');
+  } catch (e) {
+    showToast(e.message || 'Could not generate share link');
+  }
+}
+async function revokeShareToken() {
+  if (!confirm('Revoke this share link? Anyone with the link will lose access.')) return;
+  try {
+    await API.del('/galleries/' + galleryId + '/share-token');
+    renderShareTokenUI(null);
+    showToast('Share link revoked');
+  } catch (e) {
+    showToast(e.message || 'Could not revoke share link');
+  }
+}
+
 (async () => {
   await checkAuth('admin');
   const g = await API.get('/galleries/' + galleryId);
@@ -1854,6 +1914,9 @@ function copyGalleryLink() {
 
   // Set share link
   document.getElementById('shareLinkUrl').textContent = 'ivaestudios.com/gallery/gallery?id=' + galleryId;
+
+  // Public share-token UI (Pic-Time-style anonymous link)
+  renderShareTokenUI(g.share_token || null);
 
   // Photos — build strip + grid
   window._galleryPhotos = g.photos;

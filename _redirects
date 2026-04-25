@@ -1,4 +1,11 @@
 # ═══════════════════════════════════════════
+# Gallery — Pic-Time-style public share link
+# /gallery/g/{token} → gallery viewer with ?share=… param
+# Handled inside gallery.html (looks up by share_token, no login required)
+# ═══════════════════════════════════════════
+/gallery/g/* /gallery/gallery.html?share=:splat 200
+
+# ═══════════════════════════════════════════
 # CLEAN URLs — Location Pages
 # Cloudflare Pages auto-strips .html, so rewrite to path without extension
 # ═══════════════════════════════════════════

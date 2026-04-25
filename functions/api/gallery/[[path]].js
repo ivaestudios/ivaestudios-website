@@ -423,6 +423,71 @@ async function handleGetGalleryByLink(env, galleryId) {
   return json({ ...gallery, photos: photosData, scenes: scenes.results || [], clients: [] });
 }
 
+// Share-token (Pic-Time-style): photographer creates a tokenized URL anyone
+// with the link can open WITHOUT logging in. No email gate forced unless
+// request_email = 1 on the gallery (in which case the gallery.html email
+// gate still applies). Token is per-gallery, regeneratable, revocable.
+async function handleGetGalleryByShareToken(env, token) {
+  if (!token || !/^[a-f0-9]{24,64}$/i.test(token)) return json({ error: 'Invalid token' }, 404);
+  let gallery;
+  try {
+    gallery = await env.DB.prepare(
+      "SELECT * FROM galleries WHERE share_token = ? AND status = 'published'"
+    ).bind(token).first();
+  } catch (e) {
+    // Schema drift: column not yet added on this DB.
+    if ((e.message || '').includes('no such column')) return json({ error: 'Gallery not found' }, 404);
+    throw e;
+  }
+  if (!gallery) return json({ error: 'Gallery not found' }, 404);
+  if (gallery.expire_enabled && gallery.expire_date && new Date(gallery.expire_date) < new Date()) {
+    return json({ error: 'This gallery has expired' }, 410);
+  }
+  const [photos, scenes] = await Promise.all([
+    env.DB.prepare(
+      'SELECT id, filename, width, height, sort_order, scene_id FROM photos WHERE gallery_id = ? ORDER BY sort_order, uploaded_at'
+    ).bind(gallery.id).all(),
+    env.DB.prepare(
+      'SELECT * FROM scenes WHERE gallery_id = ? ORDER BY sort_order ASC'
+    ).bind(gallery.id).all()
+  ]);
+  const photosData = (photos.results || []).map(p => ({ ...p, selected: false }));
+  return json({ ...gallery, photos: photosData, scenes: scenes.results || [], clients: [] });
+}
+
+async function handleRegenerateShareToken(env, session, galleryId) {
+  if (session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
+  // 24 hex chars = 96 bits of entropy. Plenty for a public share link.
+  const token = randomId().slice(0, 24);
+  try {
+    const result = await env.DB.prepare(
+      'UPDATE galleries SET share_token = ?, updated_at = datetime("now") WHERE id = ?'
+    ).bind(token, galleryId).run();
+    if (result.meta && result.meta.changes === 0) return json({ error: 'Gallery not found' }, 404);
+  } catch (e) {
+    if ((e.message || '').includes('no such column')) {
+      return json({ error: 'share_token column missing — run migration 007_share_token.sql' }, 500);
+    }
+    throw e;
+  }
+  return json({ token, url: 'https://ivaestudios.com/gallery/g/' + token });
+}
+
+async function handleRevokeShareToken(env, session, galleryId) {
+  if (session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
+  try {
+    await env.DB.prepare(
+      'UPDATE galleries SET share_token = NULL, updated_at = datetime("now") WHERE id = ?'
+    ).bind(galleryId).run();
+  } catch (e) {
+    if ((e.message || '').includes('no such column')) {
+      return json({ error: 'share_token column missing — run migration 007_share_token.sql' }, 500);
+    }
+    throw e;
+  }
+  return json({ ok: true });
+}
+
 async function handleGetGallery(env, session, galleryId) {
   // Step 1: parallel access-check + gallery fetch. Both are independent.
   const isAdmin = session.role === 'admin';
@@ -2470,6 +2535,12 @@ async function fetchHandler(request, env, ctx) {
     const byLinkMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/by-link$/);
     if (byLinkMatch && method === 'GET') return handleGetGalleryByLink(env, byLinkMatch[1]);
 
+    // ── Share-token public access: anyone with the tokenized URL can view ──
+    // No login required, no email gate (unless gallery.request_email = 1, in
+    // which case the gallery.html email-gate UI still triggers).
+    const shareTokenMatch = path.match(/^\/api\/galleries\/share\/([a-f0-9]{24,64})$/i);
+    if (shareTokenMatch && method === 'GET') return handleGetGalleryByShareToken(env, shareTokenMatch[1]);
+
     // ── Public photo access (handler checks permissions internally) ──
     const thumbMatch = path.match(/^\/api\/photos\/([a-f0-9]{32})\/thumb$/);
     if (thumbMatch && method === 'GET') return handleGetThumb(request, env, session, thumbMatch[1], ctx);
@@ -2523,6 +2594,12 @@ async function fetchHandler(request, env, ctx) {
     // Reads first 64KB of each R2 object and parses JPEG SOF marker.
     const repairDimsMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/repair-dims$/);
     if (repairDimsMatch && method === 'POST') return handleRepairGalleryDims(env, session, repairDimsMatch[1]);
+
+    // Admin: share-token lifecycle (Pic-Time-style public link).
+    const shareTokenAdminMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/share-token$/);
+    if (shareTokenAdminMatch && method === 'DELETE') return handleRevokeShareToken(env, session, shareTokenAdminMatch[1]);
+    const shareTokenRegenMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/share-token\/regenerate$/);
+    if (shareTokenRegenMatch && method === 'POST') return handleRegenerateShareToken(env, session, shareTokenRegenMatch[1]);
 
     // Gallery access
     const accessMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/access$/);
