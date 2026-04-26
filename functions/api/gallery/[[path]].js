@@ -452,7 +452,14 @@ async function handleGetGalleryByShareToken(env, token) {
     ).bind(gallery.id).all()
   ]);
   const photosData = (photos.results || []).map(p => ({ ...p, selected: false }));
-  return json({ ...gallery, photos: photosData, scenes: scenes.results || [], clients: [] });
+  // Set a per-gallery cookie carrying the share token, so subsequent
+  // /api/gallery/photos/{id}/{thumb,web,full} requests can be authorized
+  // without dragging ?share=… into every <img src>. Cookie is namespaced by
+  // gallery_id so opening multiple share links in different tabs doesn't
+  // clobber each other. serveResized() looks this cookie up and validates
+  // it against galleries.share_token.
+  const shareCookie = `ivae_share_${gallery.id}=${token}; Path=/; Max-Age=86400; HttpOnly; Secure; SameSite=Lax`;
+  return json({ ...gallery, photos: photosData, scenes: scenes.results || [], clients: [] }, 200, { 'Set-Cookie': shareCookie });
 }
 
 async function handleRegenerateShareToken(env, session, galleryId) {
@@ -1978,12 +1985,29 @@ async function serveResized(request, env, session, photoId, maxWidth, variant, c
   const photo = await env.DB.prepare('SELECT p.thumb_key, p.web_key, p.r2_key, p.gallery_id, p.filename FROM photos p WHERE p.id = ?').bind(photoId).first();
   if (!photo) return new Response('Not found', { status: 404 });
 
-  // Access check
+  // Access check. In order: admin → logged-in client with gallery_access →
+  // public portfolio gallery → share-token cookie scoped to this gallery.
+  // The cookie is set by handleGetGalleryByShareToken and validated against
+  // galleries.share_token, so revoking/regenerating the token immediately
+  // revokes new fetches (already-cached responses survive their TTL — the
+  // photo IDs themselves are 128-bit random, so this is acceptable).
   if (!session || session.role !== 'admin') {
     const hasAccess = session ? await env.DB.prepare('SELECT 1 FROM gallery_access WHERE gallery_id = ? AND user_id = ?').bind(photo.gallery_id, session.user_id).first() : null;
     if (!hasAccess) {
       const isPortfolio = await env.DB.prepare('SELECT 1 FROM galleries WHERE id = ? AND show_on_portfolio = 1 AND status = ?').bind(photo.gallery_id, 'published').first();
-      if (!isPortfolio) return new Response('Forbidden', { status: 403 });
+      if (!isPortfolio) {
+        const shareCookieToken = getCookie(request, 'ivae_share_' + photo.gallery_id);
+        let shareOk = false;
+        if (shareCookieToken && /^[a-f0-9]{24,64}$/i.test(shareCookieToken)) {
+          try {
+            const row = await env.DB.prepare(
+              "SELECT 1 FROM galleries WHERE id = ? AND share_token = ? AND status = 'published'"
+            ).bind(photo.gallery_id, shareCookieToken).first();
+            shareOk = !!row;
+          } catch (_) { /* schema drift on share_token column → treat as no access */ }
+        }
+        if (!shareOk) return new Response('Forbidden', { status: 403 });
+      }
     }
   }
 

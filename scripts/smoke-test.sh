@@ -115,6 +115,17 @@ else
   warn "B1 share-token unexpected body: $b1_body"
 fi
 
+# B1b (D12): Failed share-token lookups MUST NOT set ivae_share_* cookies.
+# Cookie is only set on the 200 success branch — guard against accidental
+# leak on 404/410.
+b1b_cookies=$(curl -sS -D - -o /dev/null "$BASE/api/gallery/galleries/share/$TOK" \
+  | awk -F': ' 'tolower($1)=="set-cookie"{print $2}' | tr -d '\r')
+if [[ -z "$b1b_cookies" ]] || ! echo "$b1b_cookies" | grep -q '^ivae_share_'; then
+  ok "B1b unknown share-token → no ivae_share cookie set"
+else
+  fail "B1b unknown share-token leaked cookie: $b1b_cookies"
+fi
+
 # B2: Admin downloads endpoint must require auth.
 b2_code=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE/api/gallery/admin/downloads")
 if [[ "$b2_code" == "401" ]]; then ok "B2 admin/downloads → 401 (auth required)"
