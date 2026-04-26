@@ -100,6 +100,16 @@ if [[ "$sw_allowed" == "/" ]]; then ok "Service-Worker-Allowed: /"
 else warn "Service-Worker-Allowed missing or wrong: '$sw_allowed'"
 fi
 
+# D13: SW v2 must include the per-size /web/(sm|md|lg) cache regex. Without
+# this, the <picture srcset> images bypass SW entirely (massive cache miss
+# rate on repeat visits). Grep the deployed body to verify v2 is live.
+sw_body=$(curl -sS "$BASE/gallery/sw.js")
+if echo "$sw_body" | grep -q "ivae-photos-v2" && echo "$sw_body" | grep -q "sm|md|lg"; then
+  ok "D13 SW v2 caches /web/(sm|md|lg) variants"
+else
+  fail "D13 SW v2 not deployed (missing v2 cache name or per-size regex)"
+fi
+
 # ── 8. Wave-B endpoints (Pic-Time parity) ──
 # B1: Public share-token API (no auth required). Returns 404 for unknown
 #     tokens, 200 for valid ones. Anything else (esp. 401) means the route
