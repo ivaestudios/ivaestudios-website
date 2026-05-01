@@ -103,6 +103,26 @@ fi
 # D13: SW v2 must include the per-size /web/(sm|md|lg) cache regex. Without
 # this, the <picture srcset> images bypass SW entirely (massive cache miss
 # rate on repeat visits). Grep the deployed body to verify v2 is live.
+# F1.B self-hosted fonts. Two woff2 files served from same origin with
+# immutable 1y cache. If Google CDN is leaking back into HTML (regression),
+# the curl-grep below will catch it on the gallery page.
+woff_status=$(curl -sSI "$BASE/gallery/fonts/cormorant-garamond-latin.woff2" | head -1 | awk '{print $2}')
+woff_cc=$(curl -sSI "$BASE/gallery/fonts/cormorant-garamond-latin.woff2" | awk -F': ' 'tolower($1)=="cache-control"{print $2}' | tr -d '\r\n')
+if [[ "$woff_status" == "200" && "$woff_cc" == *"immutable"* ]]; then
+  ok "F1.B Cormorant woff2 → 200 immutable"
+else fail "F1.B Cormorant woff2 → status=$woff_status cc='$woff_cc'"
+fi
+woff_status2=$(curl -sSI "$BASE/gallery/fonts/syne-latin.woff2" | head -1 | awk '{print $2}')
+if [[ "$woff_status2" == "200" ]]; then ok "F1.B Syne woff2 → 200 (route live)"
+else fail "F1.B Syne woff2 → status=$woff_status2"
+fi
+# Regression guard: client gallery HTML must NOT load Google Fonts CDN.
+gh_html=$(curl -sS "$BASE/gallery/gallery.html")
+if echo "$gh_html" | grep -q "fonts.googleapis.com\|fonts.gstatic.com"; then
+  fail "F1.B regression — gallery.html still references Google Fonts CDN"
+else ok "F1.B no Google Fonts CDN refs in gallery.html"
+fi
+
 sw_body=$(curl -sS "$BASE/gallery/sw.js")
 if echo "$sw_body" | grep -q "ivae-photos-v2" && echo "$sw_body" | grep -q "sm|md|lg"; then
   ok "D13 SW v2 caches /web/(sm|md|lg) variants"
