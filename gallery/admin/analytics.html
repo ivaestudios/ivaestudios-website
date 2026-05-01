@@ -5,39 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Analytics — IVAE Studios</title>
 <link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/gallery/css/gallery.css?v=20260428"/>
+<link rel="stylesheet" href="/gallery/admin/sidebar.css?v=20260428"/>
 <style>
 /* ── Page foundation ── */
-body { padding-top: 0; background: #f7f4ee; }
+body { padding-top: 0; background: var(--cream); }
 
 .an-main {
-  padding: 0 48px;
+  padding: 0 var(--space-7);
   max-width: 1400px;
   margin: 0 auto;
 }
 
-/* ── Sidebar styles (duplicated from existing admin pages so partial renders cleanly) ── */
-.sidebar-search { margin: 12px 14px 8px; position: relative; }
-.sidebar-search input {
-  width: 100%; padding: 10px 36px 10px 13px; font-family: 'Syne', sans-serif;
-  font-size: 12px; background: white; border: 1px solid #e8e8e8;
-  color: #333; outline: none; height: 36px; border-radius: 4px;
-  transition: border-color 0.2s;
-}
-.sidebar-search input:focus { border-color: #bbb; }
-.sidebar-search input::placeholder { color: #ccc; }
-.sidebar-search svg {
-  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-  width: 14px; height: 14px; color: #ccc;
-}
-.sidebar-bottom-nav { border-top: 1px solid #e0e0e0; padding: 12px 0; }
-.sidebar-bottom-link {
-  display: block; padding: 8px 18px; font-size: 10px; font-weight: 600;
-  letter-spacing: 0.1em; text-transform: uppercase;
-  color: #999; text-decoration: none; transition: color 0.2s;
-}
-.sidebar-bottom-link:hover { color: #333; }
-.sidebar-bottom-link.active { color: #333; }
+/* (sidebar shared styles + brand tokens now live in /gallery/admin/sidebar.css) */
 
 /* ── Topbar ── */
 .an-topbar {
@@ -50,22 +33,25 @@ body { padding-top: 0; background: #f7f4ee; }
   gap: 24px;
   flex-wrap: wrap;
 }
+/* an-title intentionally inherits from .page-h1 (in sidebar.css) — keep
+   this for any legacy markup that still uses an-title alone. */
 .an-title {
-  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
-  font-size: 36px;
-  font-weight: 400;
-  letter-spacing: -0.5px;
-  color: #1a1a1a;
-  line-height: 1;
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  line-height: 1.1;
   margin: 0;
 }
 .an-subtitle {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-sans);
   font-size: 11px;
-  color: #999;
-  margin-top: 10px;
+  color: var(--muted);
+  margin-top: var(--space-3);
   letter-spacing: 0.18em;
   text-transform: uppercase;
+  font-weight: 600;
 }
 .an-period {
   font-family: 'Syne', sans-serif;
@@ -538,7 +524,7 @@ table.dl-table tr:hover td { background: #faf6ec; }
       <!-- Topbar -->
       <header class="an-topbar">
         <div>
-          <h1 class="an-title">Analytics</h1>
+          <h1 class="page-h1 an-title" style="margin-bottom:0;">Analytics</h1>
           <div class="an-subtitle">Studio activity & engagement</div>
         </div>
         <select class="an-period" id="periodSelect" aria-label="Select reporting period">
@@ -623,7 +609,8 @@ table.dl-table tr:hover td { background: #faf6ec; }
 </div>
 
 <script src="/gallery/js/api.js?v=20260428"></script>
-<script src="/gallery/js/admin-sidebar.js?v=20260424"></script>
+<script src="/gallery/js/auth.js?v=20260428"></script>
+<script src="/gallery/js/admin-sidebar.js?v=20260428"></script>
 <script>
 // ─────────────────────────────────────────────────────────────────────
 // Analytics page — wires the /api/gallery/admin/stats endpoint to a custom
@@ -1108,7 +1095,7 @@ async function loadDownloads(galleryId) {
   const mount = document.getElementById('dlMount');
   const meta = document.getElementById('dlMeta');
   mount.innerHTML = '<div class="skel skel-block" style="height:140px;"></div>';
-  meta.textContent = 'Loading…';
+  meta.textContent = '';
   let data;
   try {
     data = await API.get('/galleries/' + encodeURIComponent(galleryId) + '/downloads?limit=200');

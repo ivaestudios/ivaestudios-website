@@ -10,21 +10,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Settings — IVAE Studios Admin</title>
 <link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Syne:wght@500;700&display=swap"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/gallery/css/gallery.css?v=20260428"/>
+<link rel="stylesheet" href="/gallery/admin/sidebar.css?v=20260428"/>
 <style>
-  :root {
-    --ink: #2c2c2c; --ink-soft: #2c2c2c;
-    --gold: #c9b99a; --gold-deep: #a8956f;
-    --cream: #f7f6f3; --sand: #e8e0d4; --bone: #f5f5f0;
-    --text: #333; --text-soft: #555; --muted: #999; --mute-soft: #bbb;
-    --line: #e8e8e8; --line-soft: #f0f0f0;
-    --white: #fff; --off-white: #fafafa;
-    --success: #34c759; --danger: #d43e2a;
-    --font-serif: 'Cormorant Garamond', Georgia, serif;
-    --font-sans: 'Syne', -apple-system, sans-serif;
-  }
-  body { padding-top: 0; background: var(--white); margin: 0; font-family: var(--font-sans); color: var(--text); }
+  /* Brand tokens are now provided by /gallery/admin/sidebar.css :root.
+     This page used to redefine --ink/--gold/--text/etc. with slightly off
+     values (--text: #333, --bone: #f5f5f0, --muted: #999) which shadowed
+     the canonical palette and made spacings/colors drift across pages. */
+  body { padding-top: 0; background: var(--white); margin: 0; font-family: var(--font-sans); color: var(--ink); }
 
   /* Top bar */
   .set-topbar {
@@ -374,7 +370,7 @@
     <button class="sidebar-toggle" id="sidebarToggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
 
     <div class="set-topbar">
-      <h1 class="set-title">Settings</h1>
+      <h1 class="page-h1 set-title">Settings</h1>
       <span class="set-subtitle">Studio defaults applied across all galleries</span>
       <button class="set-save-btn" id="saveBtn" disabled>Save changes</button>
     </div>
@@ -609,7 +605,11 @@
     <section class="set-pane" data-pane="emails">
       <p class="set-pane-intro">Automatic emails sent to your clients. Edit copy, toggle on/off, send a test before going live.</p>
       <div id="emailsList" class="et-list">
-        <div class="et-loading">Loading templates…</div>
+        <div class="et-loading-skel">
+          <div class="skel skel-block" style="height:74px;"></div>
+          <div class="skel skel-block" style="height:74px;"></div>
+          <div class="skel skel-block" style="height:74px;"></div>
+        </div>
       </div>
     </section>
 
@@ -665,8 +665,8 @@
 <div class="toast" id="toast"></div>
 
 <script src="/gallery/js/api.js?v=20260428"></script>
-<script src="/gallery/js/auth.js?v=20260424"></script>
-<script src="/gallery/js/admin-sidebar.js?v=20260424"></script>
+<script src="/gallery/js/auth.js?v=20260428"></script>
+<script src="/gallery/js/admin-sidebar.js?v=20260428"></script>
 <script>
 let currentSettings = null;
 let dirty = false;
@@ -966,7 +966,7 @@ function setupEmails() {
 
 async function loadEmails() {
   const list = document.getElementById('emailsList');
-  list.innerHTML = '<div class="et-loading">Loading templates…</div>';
+  list.innerHTML = '<div class="et-loading-skel"><div class="skel skel-block" style="height:74px;"></div><div class="skel skel-block" style="height:74px;"></div><div class="skel skel-block" style="height:74px;"></div></div>';
   try {
     const res = await API.get('/admin/email-templates');
     emailTemplates = res.templates || [];

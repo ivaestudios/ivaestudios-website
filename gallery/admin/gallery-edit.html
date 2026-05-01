@@ -9,7 +9,8 @@
 <title>Edit Gallery — IVAE Studios</title>
 <link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
 <link rel="stylesheet" href="/gallery/css/gallery.css?v=20260428"/>
-<link rel="stylesheet" href="/gallery/admin/ge-styles.css"/>
+<link rel="stylesheet" href="/gallery/admin/sidebar.css?v=20260428"/>
+<link rel="stylesheet" href="/gallery/admin/ge-styles.css?v=20260428"/>
 <link rel="preconnect" href="https://7aee90d926106845a8b519bebe298cda.r2.cloudflarestorage.com" crossorigin>
 <link rel="dns-prefetch" href="https://7aee90d926106845a8b519bebe298cda.r2.cloudflarestorage.com">
 </head>
@@ -22,7 +23,7 @@
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
       Back
     </a>
-    <div class="ge-gallery-name" id="geName">Loading...</div>
+    <div class="ge-gallery-name" id="geName"><span class="skel" style="display:inline-block;width:140px;height:14px;vertical-align:middle;"></span></div>
     <div class="ge-status" id="geStatusWrap">
       <svg class="ge-status-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
       <span id="geStatus">Loading</span>
@@ -42,10 +43,21 @@
         <button onclick="openClientSelections()" style="width:100%;padding:10px;background:#1a1a1a;border:1px solid #1a1a1a;color:#fff;font-size:11px;letter-spacing:0.5px;cursor:pointer;text-transform:uppercase;font-weight:500;border-radius:3px;transition:background 0.2s;" onmouseover="this.style.background='#000'" onmouseout="this.style.background='#1a1a1a'">View Client Selections</button>
         <p style="margin:6px 0 0;font-size:10px;color:#999;text-align:center;letter-spacing:0.3px;">Submissions, favorites & visitor log</p>
       </div>
-      <div style="padding:12px 18px 0;">
-        <button id="repairDimsBtn" onclick="repairDimensions()" style="width:100%;padding:10px;background:#fff;border:1px solid #c9b99a;color:#8a6f3a;font-size:11px;letter-spacing:0.5px;cursor:pointer;text-transform:uppercase;font-weight:600;border-radius:3px;transition:background 0.2s;" onmouseover="this.style.background='#fdf8ee'" onmouseout="this.style.background='#fff'">Repair Photo Sizes</button>
-        <p style="margin:6px 0 0;font-size:10px;color:#999;text-align:center;letter-spacing:0.3px;">Fix square-rendering on legacy uploads</p>
+      <!-- Debug-only: legacy "Repair Photo Sizes" tool. Hidden by default;
+           re-enable in DevTools with: localStorage.setItem('ivae_debug','1') -->
+      <div id="debugRepairBlock" style="display:none;padding:12px 18px 0;">
+        <button id="repairDimsBtn" onclick="repairDimensions()" style="width:100%;padding:10px;background:var(--white);border:1px solid var(--gold);color:var(--gold-deep);font-size:11px;letter-spacing:0.18em;cursor:pointer;text-transform:uppercase;font-weight:600;border-radius:var(--radius-sm);transition:background var(--dur-base) var(--ease-luxury);" onmouseover="this.style.background='var(--cream)'" onmouseout="this.style.background='var(--white)'">Repair Photo Sizes</button>
+        <p style="margin:6px 0 0;font-size:10px;color:var(--muted);text-align:center;letter-spacing:0.18em;text-transform:uppercase;font-weight:600;">Debug · fix square-rendering on legacy uploads</p>
       </div>
+      <script>
+        // Reveal debug-only repair button when ivae_debug flag is set.
+        try {
+          if (localStorage.getItem('ivae_debug') === '1') {
+            var blk = document.getElementById('debugRepairBlock');
+            if (blk) blk.style.display = 'block';
+          }
+        } catch (_) { /* private mode / disabled storage */ }
+      </script>
       <div style="padding:12px 18px 16px;">
         <button onclick="deleteGallery()" style="width:100%;padding:10px;background:none;border:1px solid #f0dada;color:#b91c1c;font-size:11px;letter-spacing:0.5px;cursor:pointer;text-transform:uppercase;font-weight:500;border-radius:3px;transition:background 0.2s;" onmouseover="this.style.background='#fdf6f6'" onmouseout="this.style.background='none'">Delete Gallery</button>
       </div>
@@ -727,7 +739,8 @@
             <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;letter-spacing:1px;color:#1a1a1a;margin:0 0 14px;">Client Selections</h3>
             <p style="font-size:12px;color:#888;margin:0 0 16px;">Photos that clients submitted as their final picks for retouching.</p>
             <div id="dashSubmissionsList" style="display:flex;flex-direction:column;gap:14px;">
-              <div style="padding:30px;text-align:center;color:#bbb;font-size:13px;border:1px dashed #e5e5e5;border-radius:6px;">Loading…</div>
+              <div class="skel skel-block" style="height:60px;"></div>
+              <div class="skel skel-block" style="height:60px;"></div>
             </div>
           </div>
 
@@ -736,7 +749,11 @@
             <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;letter-spacing:1px;color:#1a1a1a;margin:0 0 14px;">Visitor Log</h3>
             <p style="font-size:12px;color:#888;margin:0 0 16px;">People who entered this gallery (last 200).</p>
             <div id="dashVisitorsList" style="border:1px solid #eee;border-radius:6px;overflow:hidden;background:#fff;">
-              <div style="padding:30px;text-align:center;color:#bbb;font-size:13px;">Loading…</div>
+              <div style="padding:14px;">
+                <div class="skel skel-line long"></div>
+                <div class="skel skel-line medium"></div>
+                <div class="skel skel-line short"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -797,7 +814,7 @@
 </div>
 
 <script src="/gallery/js/api.js?v=20260428"></script>
-<script src="/gallery/js/auth.js?v=20260424"></script>
+<script src="/gallery/js/auth.js?v=20260428"></script>
 <script>
 const galleryId = new URLSearchParams(window.location.search).get('id');
 

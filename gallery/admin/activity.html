@@ -6,101 +6,93 @@
 <title>Activity — IVAE Studios</title>
 <link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
 <link rel="stylesheet" href="/gallery/css/gallery.css?v=20260428"/>
+<link rel="stylesheet" href="/gallery/admin/sidebar.css?v=20260428"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 body { padding-top: 0; background: white; }
 
-/* ── Shared sidebar styles (kept in sync with clients.html / settings.html) ── */
-.sidebar-search { margin: 12px 14px 8px; position: relative; }
-.sidebar-search input {
-  width: 100%; padding: 10px 36px 10px 13px; font-family: 'Syne', sans-serif;
-  font-size: 12px; background: white; border: 1px solid #e8e8e8;
-  color: #333; outline: none; height: 36px; border-radius: 4px;
-  transition: border-color 0.2s;
-}
-.sidebar-search input:focus { border-color: #bbb; }
-.sidebar-search input::placeholder { color: #ccc; }
-.sidebar-search svg {
-  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-  width: 14px; height: 14px; color: #ccc;
-}
-.sidebar-bottom-nav { border-top: 1px solid #e0e0e0; padding: 12px 0; }
-.sidebar-bottom-link {
-  display: block; padding: 8px 18px; font-size: 10px; font-weight: 600;
-  letter-spacing: 0.1em; text-transform: uppercase;
-  color: #999; text-decoration: none; transition: color 0.2s;
-}
-.sidebar-bottom-link:hover { color: #333; }
-.sidebar-bottom-link.active { color: #333; }
+/* (sidebar shared styles + brand tokens now live in /gallery/admin/sidebar.css) */
 
 /* ── Activity page ── */
 .activity-header {
   display: flex; align-items: flex-end; justify-content: space-between;
-  padding-bottom: 24px; border-bottom: 1px solid #f0f0f0;
-}
-.activity-header h1 {
-  font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700;
-  color: #1a1a1a; letter-spacing: -0.3px; line-height: 1; margin: 0;
+  padding-bottom: var(--space-5); border-bottom: 1px solid var(--line);
 }
 .activity-header p {
-  font-size: 13px; color: #bbb; margin-top: 4px; letter-spacing: 0.2px;
+  font-family: var(--font-sans);
+  font-size: 13px; color: var(--muted); margin: 4px 0 0; letter-spacing: 0.02em;
 }
 
 /* Period switcher */
 .period-switch { display: inline-flex; gap: 0; }
 .period-switch button {
-  padding: 8px 16px; font-family: 'Syne', sans-serif;
-  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
-  text-transform: uppercase; color: #999;
-  background: white; border: 1px solid #e0e0e0;
-  cursor: pointer; transition: all 0.15s;
+  padding: 8px var(--space-4); font-family: var(--font-sans);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--muted);
+  background: var(--white); border: 1px solid var(--line);
+  cursor: pointer;
+  transition: color var(--dur-base) var(--ease-luxury),
+              background var(--dur-base) var(--ease-luxury),
+              border-color var(--dur-base) var(--ease-luxury);
   border-right: none;
 }
-.period-switch button:first-child { border-radius: 4px 0 0 4px; }
-.period-switch button:last-child { border-right: 1px solid #e0e0e0; border-radius: 0 4px 4px 0; }
-.period-switch button:hover { color: #333; background: #fafafa; }
+.period-switch button:first-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
+.period-switch button:last-child { border-right: 1px solid var(--line); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+.period-switch button:hover { color: var(--ink); background: var(--cream); }
 .period-switch button.active {
-  color: #fff; background: #1a1a1a; border-color: #1a1a1a;
+  color: var(--cream); background: var(--ink); border-color: var(--ink);
 }
 
 /* Stats bar */
 .activity-stats {
   display: grid; grid-template-columns: repeat(4, 1fr);
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--line);
 }
-.activity-stat { padding: 24px 24px 24px 0; border-right: 1px solid #f0f0f0; }
+.activity-stat {
+  padding: var(--space-5) var(--space-5) var(--space-5) 0;
+  border-right: 1px solid var(--line-soft);
+  transition: background var(--dur-base) var(--ease-luxury);
+}
 .activity-stat:last-child { border-right: none; padding-right: 0; }
+.activity-stat:hover { background: var(--cream); }
 .activity-stat-n {
-  font-family: 'Syne', sans-serif;
-  font-size: 26px; font-weight: 300; color: #333; line-height: 1;
+  font-family: var(--font-serif);
+  font-size: 36px; font-weight: 500; color: var(--ink); line-height: 1;
+  letter-spacing: -0.02em;
 }
 .activity-stat-l {
-  font-size: 10px; color: #999; margin-top: 6px; letter-spacing: 0.5px;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 11px; color: var(--muted); margin-top: var(--space-2);
+  letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600;
 }
 
 /* Day group */
-.day-group { margin-top: 32px; }
+.day-group { margin-top: var(--space-6); }
 .day-label {
-  font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 600;
-  letter-spacing: 0.12em; text-transform: uppercase; color: #aaa;
-  padding: 12px 0; border-bottom: 1px solid #f0f0f0;
+  font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+  padding: var(--space-3) 0; border-bottom: 1px solid var(--line);
 }
 
 /* Single event row */
 .evt-row {
-  display: flex; gap: 16px; padding: 16px 0;
-  border-bottom: 1px solid #f8f8f8;
+  display: flex; gap: var(--space-4); padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--line-soft);
   align-items: flex-start;
+  transition: background var(--dur-base) var(--ease-luxury);
 }
+.evt-row:hover { background: var(--cream); }
 .evt-row:last-child { border-bottom: none; }
 .evt-icon {
   width: 32px; height: 32px; border-radius: 50%;
-  background: #f5f5f5; flex-shrink: 0;
+  background: var(--bone); flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  color: #888; font-family: 'Syne', sans-serif; font-size: 11px;
+  color: var(--text-soft); font-family: var(--font-sans); font-size: 11px;
   font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
 }
-.evt-icon.view { background: #f0ece4; color: #a8956f; }
+.evt-icon.view { background: var(--bone); color: var(--gold-deep); }
 .evt-icon.fav  { background: #fde8e8; color: #c0392b; }
 .evt-icon.dl   { background: #e8f3ff; color: #2c70b8; }
 .evt-icon.proof{ background: #f1e8fd; color: #7530a8; }
@@ -109,54 +101,53 @@ body { padding-top: 0; background: white; }
 .evt-icon.expire{background: #ffeaea; color: #c83838; }
 .evt-icon.share{ background: #e0f5f5; color: #2a8888; }
 .evt-icon.show { background: #ede8fa; color: #5b3fb8; }
-.evt-icon.scene{ background: #f5f0e8; color: #886650; }
+.evt-icon.scene{ background: var(--bone); color: #886650; }
 
 .evt-body { flex: 1; min-width: 0; }
 .evt-label {
-  font-size: 13px; color: #333; line-height: 1.5;
+  font-family: var(--font-sans);
+  font-size: 13px; color: var(--ink); line-height: 1.5;
 }
-.evt-label strong { color: #1a1a1a; font-weight: 600; }
+.evt-label strong { color: var(--ink); font-weight: 600; }
 .evt-meta {
-  font-size: 11px; color: #aaa; margin-top: 4px;
-  letter-spacing: 0.2px;
+  font-family: var(--font-sans);
+  font-size: 11px; color: var(--muted); margin-top: 4px;
+  letter-spacing: 0.04em;
 }
 .evt-time {
-  font-size: 11px; color: #bbb; flex-shrink: 0; padding-top: 6px;
-  letter-spacing: 0.2px; min-width: 60px; text-align: right;
+  font-family: var(--font-sans);
+  font-size: 11px; color: var(--muted); flex-shrink: 0; padding-top: 6px;
+  letter-spacing: 0.04em; min-width: 60px; text-align: right;
 }
 
 /* Empty state */
 .activity-empty {
-  text-align: center; padding: 80px 20px;
+  text-align: center; padding: var(--space-8) var(--space-5);
 }
 .activity-empty svg {
-  width: 48px; height: 48px; color: #ddd; margin-bottom: 16px;
+  width: 48px; height: 48px; color: var(--mute-soft); margin-bottom: var(--space-4);
 }
 .activity-empty h3 {
-  font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 600;
-  color: #333; margin-bottom: 8px;
+  font-family: var(--font-serif); font-size: 22px; font-weight: 500;
+  color: var(--ink); margin-bottom: var(--space-2);
 }
 .activity-empty p {
-  font-size: 13px; color: #bbb; max-width: 380px; margin: 0 auto;
+  font-family: var(--font-sans);
+  font-size: 13px; color: var(--muted); max-width: 380px; margin: 0 auto;
 }
 
-.loading-block {
-  height: 14px; background: linear-gradient(90deg, #f5f5f5, #ececec, #f5f5f5);
-  background-size: 200% 100%; animation: shimmer 1.4s linear infinite;
-  border-radius: 3px; margin: 12px 0;
-}
-@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+/* (.skel + skel-shimmer keyframes live in /gallery/admin/sidebar.css) */
 
 @media (max-width: 900px) {
   .activity-stats { grid-template-columns: 1fr 1fr; }
   .activity-stat:nth-child(3),
   .activity-stat:nth-child(4) { border-right: none; }
-  .activity-stat:nth-child(3) { border-right: 1px solid #f0f0f0; }
+  .activity-stat:nth-child(3) { border-right: 1px solid var(--line-soft); }
 }
 @media (max-width: 767px) {
-  .activity-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .activity-header { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
   .activity-stats { grid-template-columns: 1fr; }
-  .activity-stat { border-right: none; border-bottom: 1px solid #f0f0f0; padding: 18px 0; }
+  .activity-stat { border-right: none; border-bottom: 1px solid var(--line); padding: var(--space-4) 0; }
   .evt-time { min-width: 50px; font-size: 10px; }
   .evt-icon { width: 28px; height: 28px; font-size: 10px; }
 }
@@ -175,7 +166,7 @@ body { padding-top: 0; background: white; }
     <!-- Header -->
     <div class="activity-header" style="padding-top:36px;">
       <div>
-        <h1>Activity</h1>
+        <h1 class="page-h1" style="margin-bottom:4px;">Activity</h1>
         <p>Everything happening across your galleries — views, favorites, downloads, sign-ins.</p>
       </div>
       <div class="period-switch" id="periodSwitch">
@@ -207,17 +198,17 @@ body { padding-top: 0; background: white; }
 
     <!-- Feed -->
     <div id="feedRoot">
-      <div class="loading-block" style="width:30%;"></div>
-      <div class="loading-block" style="width:80%;"></div>
-      <div class="loading-block" style="width:60%;"></div>
-      <div class="loading-block" style="width:90%;"></div>
+      <div class="skel skel-line short"></div>
+      <div class="skel skel-line long"></div>
+      <div class="skel skel-line medium"></div>
+      <div class="skel skel-line long"></div>
     </div>
   </main>
 </div>
 
 <script src="/gallery/js/api.js?v=20260428"></script>
-<script src="/gallery/js/auth.js?v=20260424"></script>
-<script src="/gallery/js/admin-sidebar.js?v=20260424"></script>
+<script src="/gallery/js/auth.js?v=20260428"></script>
+<script src="/gallery/js/admin-sidebar.js?v=20260428"></script>
 <script>
 let currentDays = 30;
 
@@ -332,7 +323,7 @@ function renderFeed(events) {
         const title = escHtml(ev.gallery_title);
         // Replace first occurrence with a bolded + linkified version.
         const replacement = galleryLink
-          ? '<a href="' + galleryLink + '" style="color:#1a1a1a;text-decoration:none;border-bottom:1px solid #e0e0e0;"><strong>' + title + '</strong></a>'
+          ? '<a href="' + galleryLink + '" style="color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line);"><strong>' + title + '</strong></a>'
           : '<strong>' + title + '</strong>';
         label = label.replace(title, replacement);
       }
@@ -375,10 +366,10 @@ async function loadActivity(days) {
   currentDays = days;
   const root = document.getElementById('feedRoot');
   root.innerHTML = ''
-    + '<div class="loading-block" style="width:30%;"></div>'
-    + '<div class="loading-block" style="width:80%;"></div>'
-    + '<div class="loading-block" style="width:60%;"></div>'
-    + '<div class="loading-block" style="width:90%;"></div>';
+    + '<div class="skel skel-line short"></div>'
+    + '<div class="skel skel-line long"></div>'
+    + '<div class="skel skel-line medium"></div>'
+    + '<div class="skel skel-line long"></div>';
   ['statTotal','statVisitors','statFavs','statDownloads'].forEach(id => setStat(id, '\u2014'));
 
   try {

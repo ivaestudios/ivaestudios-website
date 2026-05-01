@@ -5,245 +5,253 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Client Proofs — IVAE Studios</title>
 <link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/gallery/css/gallery.css?v=20260428"/>
+<link rel="stylesheet" href="/gallery/admin/sidebar.css?v=20260428"/>
 <style>
-body { background: #fafaf7; padding-top: 0; }
+body { background: var(--cream); padding-top: 0; }
 
 .proofs-page {
   max-width: 1080px;
   margin: 0 auto;
-  padding: 40px 32px 80px;
+  padding: var(--space-7) var(--space-6) var(--space-8);
 }
 
 .proofs-header {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  padding-bottom: 22px;
-  border-bottom: 1px solid #ece7dd;
-  margin-bottom: 32px;
-}
-
-.proofs-header h1 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 32px;
-  font-weight: 400;
-  color: #2c2c2c;
-  letter-spacing: 0.01em;
-  margin: 0 0 4px;
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--space-6);
 }
 .proofs-header .gname {
-  font-family: 'Syne', sans-serif;
-  font-size: 10.5px;
+  font-family: var(--font-sans);
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #c9b99a;
+  color: var(--gold-deep);
 }
 
 .proofs-header .back {
-  font-family: 'Syne', sans-serif;
-  font-size: 10px;
+  font-family: var(--font-sans);
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #888;
+  color: var(--muted);
   text-decoration: none;
-  transition: color 0.18s;
+  transition: color var(--dur-base) var(--ease-luxury);
 }
-.proofs-header .back:hover { color: #2c2c2c; }
+.proofs-header .back:hover { color: var(--ink); }
 
 .proofs-summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  margin-bottom: 36px;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
 }
 .proofs-stat {
-  background: #fff;
-  padding: 22px 24px;
-  border: 1px solid #efeae0;
-  border-radius: 4px;
+  background: var(--white);
+  padding: var(--space-5) var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  transition: border-color var(--dur-base) var(--ease-luxury),
+              box-shadow var(--dur-base) var(--ease-luxury);
 }
+.proofs-stat:hover { border-color: var(--gold); box-shadow: var(--shadow-1); }
 .proofs-stat .label {
-  font-family: 'Syne', sans-serif;
-  font-size: 9.5px;
+  font-family: var(--font-sans);
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #999;
-  margin-bottom: 8px;
+  color: var(--muted);
+  margin-bottom: var(--space-2);
 }
 .proofs-stat .value {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 30px;
-  color: #2c2c2c;
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.02em;
 }
 
 .proof-card {
-  background: #fff;
-  border: 1px solid #efeae0;
-  border-radius: 4px;
-  margin-bottom: 22px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-5);
   overflow: hidden;
 }
 .proof-card-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 22px;
-  border-bottom: 1px solid #f4efe4;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--line-soft);
 }
 .proof-meta {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
 }
 .proof-meta .who {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 19px;
-  color: #2c2c2c;
-  letter-spacing: 0.01em;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.005em;
 }
 .proof-meta .who small {
-  color: #888;
+  color: var(--muted);
   font-size: 12px;
   margin-left: 6px;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-sans);
   letter-spacing: 0.05em;
 }
 .proof-meta .when {
-  font-family: 'Syne', sans-serif;
-  font-size: 9.5px;
-  font-weight: 500;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #999;
+  color: var(--muted);
 }
 .proof-pill {
-  font-family: 'Syne', sans-serif;
-  font-size: 9.5px;
+  font-family: var(--font-sans);
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   padding: 6px 12px;
-  border-radius: 20px;
-  background: #f4ecd8;
-  color: #8a6f2a;
+  border-radius: var(--radius-pill);
+  background: var(--bone);
+  color: var(--gold-deep);
 }
 
 /* Review status badges */
 .review-badge {
   display: inline-block;
-  font-family: 'Syne', sans-serif;
-  font-size: 9.5px;
+  font-family: var(--font-sans);
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   padding: 5px 11px;
-  border-radius: 20px;
-  margin-left: 8px;
+  border-radius: var(--radius-pill);
+  margin-left: var(--space-2);
   white-space: nowrap;
 }
-.review-badge.submitted { background: #f4ecd8; color: #8a6f2a; }
+.review-badge.submitted { background: var(--bone); color: var(--gold-deep); }
 .review-badge.approved  { background: #e3f1e0; color: #2f6b3a; }
 .review-badge.returned  { background: #fbeacb; color: #b07020; }
-.review-badge.archived  { background: #ececec; color: #6b6b6b; }
+.review-badge.archived  { background: var(--line-soft); color: var(--muted); }
 
 .proof-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  padding: 14px 22px;
-  border-top: 1px solid #f4efe4;
-  background: #fcfaf4;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--line-soft);
+  background: var(--cream);
 }
 .proof-actions .review-note-input {
   flex: 1 1 220px;
   min-width: 180px;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-serif);
   font-size: 14px;
   padding: 8px 12px;
-  border: 1px solid #ece7dd;
-  border-radius: 4px;
-  background: #fff;
-  color: #2c2c2c;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  color: var(--ink);
   font-style: italic;
+  transition: border-color var(--dur-base) var(--ease-luxury),
+              box-shadow var(--dur-base) var(--ease-luxury);
 }
-.proof-actions .review-note-input:focus { outline: none; border-color: #c9b99a; }
+.proof-actions .review-note-input:focus { outline: none; border-color: var(--gold); box-shadow: var(--shadow-focus); }
 .review-btn {
-  font-family: 'Syne', sans-serif;
-  font-size: 9.5px;
+  font-family: var(--font-sans);
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   padding: 8px 14px;
-  border-radius: 20px;
+  border-radius: var(--radius-pill);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: opacity 0.18s, transform 0.18s;
+  transition: opacity var(--dur-base) var(--ease-luxury),
+              transform var(--dur-base) var(--ease-luxury);
 }
 .review-btn:hover { opacity: 0.85; transform: translateY(-1px); }
 .review-btn:disabled { opacity: 0.45; cursor: wait; transform: none; }
-.review-btn.approve { background: #2f6b3a; color: #fff; }
-.review-btn.return  { background: #d68a30; color: #fff; }
-.review-btn.archive { background: #6b6b6b; color: #fff; }
+.review-btn.approve { background: var(--success); color: var(--white); }
+.review-btn.return  { background: #d68a30; color: var(--white); }
+.review-btn.archive { background: var(--text-soft); color: var(--white); }
 
 .proof-card.archived { opacity: 0.55; }
 
 .show-archived-row {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 14px;
+  margin-bottom: var(--space-3);
 }
 .show-archived-toggle {
-  font-family: 'Syne', sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #888;
-  background: transparent;
-  border: 1px solid #ece7dd;
-  border-radius: 20px;
-  padding: 6px 14px;
-  cursor: pointer;
-  transition: color 0.18s, border-color 0.18s;
-}
-.show-archived-toggle:hover { color: #2c2c2c; border-color: #2c2c2c; }
-.show-archived-toggle.active { color: #2c2c2c; border-color: #c9b99a; }
-
-/* Toast */
-.toast {
-  position: fixed;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: #2c2c2c;
-  color: #fff;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  padding: 12px 22px;
-  border-radius: 24px;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: color var(--dur-base) var(--ease-luxury),
+              border-color var(--dur-base) var(--ease-luxury);
+}
+.show-archived-toggle:hover { color: var(--ink); border-color: var(--ink); }
+.show-archived-toggle.active { color: var(--ink); border-color: var(--gold); }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-pill);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.22s, transform 0.22s;
+  transition: opacity var(--dur-base) var(--ease-luxury),
+              transform var(--dur-base) var(--ease-luxury);
   z-index: 10000;
+  box-shadow: var(--shadow-2);
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.toast.error { background: #8a2a2a; }
+.toast.error { background: var(--danger); }
 
 .proof-note {
-  padding: 14px 22px;
-  background: #fbf7ee;
-  font-size: 13.5px;
-  color: #555;
+  padding: var(--space-3) var(--space-5);
+  background: var(--cream);
+  font-family: var(--font-serif);
+  font-size: 14px;
+  color: var(--text-soft);
   font-style: italic;
-  border-bottom: 1px solid #f4efe4;
+  border-bottom: 1px solid var(--line-soft);
   line-height: 1.55;
 }
 
@@ -251,89 +259,94 @@ body { background: #fafaf7; padding-top: 0; }
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 6px;
-  padding: 14px;
+  padding: var(--space-3);
 }
 .proof-grid img {
   width: 100%;
   aspect-ratio: 1;
   object-fit: cover;
-  background: #f0ece4;
-  border-radius: 2px;
+  background: var(--bone);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: transform 0.18s;
+  transition: transform var(--dur-base) var(--ease-luxury);
 }
 .proof-grid img:hover { transform: scale(1.02); }
 
 .proofs-tabs {
   display: flex;
   gap: 4px;
-  border-bottom: 1px solid #ece7dd;
-  margin-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--space-5);
 }
 .proofs-tab {
   background: transparent;
   border: none;
-  padding: 14px 22px;
-  font-family: 'Syne', sans-serif;
-  font-size: 10.5px;
+  padding: var(--space-3) var(--space-5);
+  font-family: var(--font-sans);
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.22em;
-  color: #999;
+  letter-spacing: 0.18em;
+  color: var(--muted);
   cursor: pointer;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
-  transition: color 0.18s, border-color 0.18s;
+  transition: color var(--dur-base) var(--ease-luxury),
+              border-color var(--dur-base) var(--ease-luxury);
 }
-.proofs-tab:hover { color: #2c2c2c; }
-.proofs-tab.active { color: #2c2c2c; border-bottom-color: #c9b99a; }
+.proofs-tab:hover { color: var(--ink); }
+.proofs-tab.active { color: var(--ink); border-bottom-color: var(--gold); }
 
 .visitor-row {
   display: grid;
   grid-template-columns: 1.5fr 2fr 1fr;
-  gap: 16px;
+  gap: var(--space-4);
   align-items: center;
-  padding: 16px 22px;
-  background: #fff;
-  border: 1px solid #efeae0;
-  border-radius: 4px;
-  margin-bottom: 8px;
-  font-size: 13.5px;
-  color: #2c2c2c;
+  padding: var(--space-4) var(--space-5);
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--ink);
 }
 .visitor-row .vname {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 17px;
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 500;
 }
 .visitor-row .vemail {
-  color: #666;
+  color: var(--text-soft);
   font-size: 13px;
   letter-spacing: 0.01em;
 }
 .visitor-row .vwhen {
-  font-family: 'Syne', sans-serif;
-  font-size: 9.5px;
-  font-weight: 500;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #999;
+  color: var(--muted);
   text-align: right;
 }
 
 .proofs-empty {
   text-align: center;
-  padding: 100px 24px;
-  color: #aaa;
+  padding: var(--space-9) var(--space-5);
+  color: var(--muted);
 }
 .proofs-empty h2 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 26px;
-  color: #2c2c2c;
-  font-weight: 400;
-  margin: 12px 0 8px;
+  font-family: var(--font-serif);
+  font-size: 28px;
+  color: var(--ink);
+  font-weight: 500;
+  margin: var(--space-3) 0 var(--space-2);
+  letter-spacing: -0.01em;
 }
 .proofs-empty p {
+  font-family: var(--font-sans);
   font-size: 13px;
-  color: #999;
+  color: var(--muted);
 }
 
 .lb-overlay {
@@ -343,20 +356,14 @@ body { background: #fafaf7; padding-top: 0; }
 .lb-overlay.open { display: flex; }
 .lb-overlay img { max-width: 92vw; max-height: 88vh; object-fit: contain; }
 .lb-overlay .lb-close {
-  position: absolute; top: 24px; right: 28px;
-  background: none; border: none; color: #fff; font-size: 36px; cursor: pointer;
+  position: absolute; top: var(--space-5); right: var(--space-6);
+  background: none; border: none; color: var(--white); font-size: 36px; cursor: pointer;
 }
 
 /* === Workflow Hub: Activity Timeline === */
-:root {
-  --gold: #a8956f;
-  --cream: #fafaf7;
-  --ink: #2c2c2c;
-  --line: #ece7dd;
-  --bone: #f4efe4;
-  --font-serif: 'Cormorant Garamond', serif;
-  --font-sans: 'Syne', sans-serif;
-}
+/* (Brand tokens — :root used to live here and shadow the global tokens
+    from sidebar.css. Removed so this page now picks up the canonical
+    values: --ink #2c2c2c, --gold #c9b99a, --cream #f7f6f3, etc.) */
 
 .timeline-card {
   background: #fff;
@@ -583,8 +590,8 @@ body { background: #fafaf7; padding-top: 0; }
 <div class="proofs-page">
   <div class="proofs-header">
     <div>
-      <div class="gname" id="galleryName">Loading...</div>
-      <h1>Client Proofs</h1>
+      <div class="gname" id="galleryName"><span class="skel" style="display:inline-block;width:160px;height:11px;vertical-align:middle;"></span></div>
+      <h1 class="page-h1" style="margin:8px 0 0;">Client Proofs</h1>
     </div>
     <a class="back" id="backLink" href="/gallery/admin/">← Back</a>
   </div>
@@ -616,8 +623,8 @@ body { background: #fafaf7; padding-top: 0; }
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="/gallery/js/api.js?v=20260428"></script>
-<script src="/gallery/js/auth.js?v=20260424"></script>
-<script src="/gallery/js/admin-sidebar.js?v=20260424"></script>
+<script src="/gallery/js/auth.js?v=20260428"></script>
+<script src="/gallery/js/admin-sidebar.js?v=20260428"></script>
 <script>
 const galleryId = new URLSearchParams(window.location.search).get('id');
 
@@ -684,7 +691,7 @@ const galleryId = new URLSearchParams(window.location.search).get('id');
               <div class="who">${escapeHtml(r.g.title)}</div>
               <div class="when">${r.subs.length} submissions · ${r.picks} picks · ${r.visitors.length} visitors</div>
             </div>
-            <a class="proof-pill" style="text-decoration:none;cursor:pointer;background:#2c2c2c;color:#fff;" href="/gallery/admin/proofs?id=${r.g.id}">Open →</a>
+            <a class="proof-pill" style="text-decoration:none;cursor:pointer;background:var(--ink);color:var(--cream);" href="/gallery/admin/proofs?id=${r.g.id}">Open →</a>
           </div>
         </div>
       `).join('');
@@ -746,7 +753,7 @@ function renderProofs() {
 
   const list = document.getElementById('proofsList');
   if (!subs.length) {
-    list.innerHTML = '<div class="proofs-empty"><svg width="48" height="48" fill="none" stroke="#ddd" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><h2>No submissions yet</h2><p>When your client submits their final picks, they’ll appear here.</p></div>';
+    list.innerHTML = '<div class="proofs-empty"><svg width="48" height="48" fill="none" stroke="rgba(44,44,44,0.25)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><h2>No submissions yet</h2><p>When your client submits their final picks, they’ll appear here.</p></div>';
     return;
   }
   if (!visible.length) {
@@ -771,7 +778,7 @@ function renderProofs() {
 
     const badge = renderBadge(status, s.reviewed_at);
     const reviewNoteHtml = s.review_note
-      ? `<div class="proof-note" style="background:#f4f8f3;font-style:normal;color:#2f6b3a;"><strong style="font-family:'Syne',sans-serif;font-size:9.5px;letter-spacing:0.18em;text-transform:uppercase;">Review note —</strong> ${escapeHtml(s.review_note)}</div>`
+      ? `<div class="proof-note" style="background:#f4f8f3;font-style:normal;color:#2f6b3a;"><strong style="font-family:var(--font-sans);font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;">Review note —</strong> ${escapeHtml(s.review_note)}</div>`
       : '';
 
     card.innerHTML = `
@@ -822,7 +829,7 @@ function renderVisitors() {
   const visitors = (window.__proofState || {}).visitors || [];
   const vList = document.getElementById('visitorsList');
   if (!visitors.length) {
-    vList.innerHTML = '<div class="proofs-empty"><svg width="48" height="48" fill="none" stroke="#ddd" stroke-width="1.5" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg><h2>No visitors yet</h2><p>Email-gate registrations appear here once the gallery is shared.</p></div>';
+    vList.innerHTML = '<div class="proofs-empty"><svg width="48" height="48" fill="none" stroke="rgba(44,44,44,0.25)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg><h2>No visitors yet</h2><p>Email-gate registrations appear here once the gallery is shared.</p></div>';
   } else {
     vList.innerHTML = visitors.map(v => {
       const dt = new Date((v.registered_at || '') + 'Z').toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });

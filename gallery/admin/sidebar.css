@@ -1,0 +1,200 @@
+/* ═══════════════════════════════════════════════════════════
+   IVAE Gallery — Admin Sidebar & Cross-Page Shared CSS
+   ───────────────────────────────────────────────────────────
+   Loaded by every page under /gallery/admin/. Owns:
+     • The shared sidebar partials rendered by /gallery/js/admin-sidebar.js
+       (.sidebar-search, .sidebar-bottom-nav, .sidebar-bottom-link).
+     • The unified .page-h1 type style used on every admin page H1.
+     • The skeleton loader (.skel + skel-shimmer keyframes) so we never
+       ship raw "Loading..." text again.
+   The base sidebar layout (.admin-sidebar / .admin-layout / .sidebar-logo
+   / .sidebar-nav / .sidebar-galleries / .sidebar-footer / .sidebar-user
+   / .sidebar-logout / .sidebar-new-btn / .sidebar-gallery-item / mobile
+   .sidebar-toggle) lives in /gallery/css/gallery.css — DO NOT duplicate
+   here, those rules are loaded on every admin page already and are out
+   of scope for this admin restyle pass.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Brand tokens — mirror /gallery/admin/ge-styles.css :root so this file
+   stands alone on pages that don't import ge-styles.css (most of them).
+   Single source of truth lives in ge-styles.css; if you change one,
+   change the other. */
+:root {
+  --ink:        #2c2c2c;
+  --ink-soft:   #1a1a1a;
+  --ink2:       #1a1a1a;
+  --gold:       #c9b99a;
+  --gold-deep:  #a8956f;
+  --cream:      #f7f6f3;
+  --sand:       #ede8df;
+  --bone:       #f5f0e8;
+  --text:       #2c2c2c;
+  --text-soft:  rgba(44,44,44,0.65);
+  --muted:      rgba(44,44,44,0.45);
+  --mute-soft:  rgba(44,44,44,0.25);
+  --line:       rgba(44,44,44,0.10);
+  --line-soft:  rgba(44,44,44,0.06);
+  --white:      #ffffff;
+  --off-white:  #f7f6f3;
+  --success:    #16a34a;
+  --danger:     #b91c1c;
+  --border:     rgba(201,185,154,0.30);
+
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans:  'Syne', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px; --space-9: 96px;
+
+  --radius-sm:   2px;
+  --radius-md:   4px;
+  --radius-pill: 999px;
+
+  --shadow-1: 0 1px 2px rgba(44,44,44,0.06);
+  --shadow-2: 0 4px 16px rgba(44,44,44,0.08);
+  --shadow-3: 0 20px 60px rgba(44,44,44,0.12);
+  --shadow-focus: 0 0 0 3px rgba(201,185,154,0.30);
+
+  --ease-luxury: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 360ms;
+}
+
+/* ── Sidebar search input ──────────────────────────────────── */
+.sidebar-search {
+  margin: var(--space-3) var(--space-4) var(--space-2);
+  position: relative;
+}
+.sidebar-search input {
+  width: 100%;
+  padding: 10px 36px 10px 13px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  outline: none;
+  height: 36px;
+  border-radius: var(--radius-md);
+  transition: border-color var(--dur-base) var(--ease-luxury),
+              box-shadow var(--dur-base) var(--ease-luxury);
+}
+.sidebar-search input:focus {
+  border-color: var(--gold);
+  box-shadow: var(--shadow-focus);
+}
+.sidebar-search input::placeholder { color: var(--mute-soft); }
+.sidebar-search svg {
+  position: absolute;
+  right: 10px; top: 50%;
+  transform: translateY(-50%);
+  width: 14px; height: 14px;
+  color: var(--mute-soft);
+  pointer-events: none;
+}
+
+/* ── Sidebar bottom nav (Dashboard / Galleries / Clients / …) ── */
+.sidebar-bottom-nav {
+  border-top: 1px solid var(--line);
+  padding: var(--space-3) 0;
+}
+.sidebar-bottom-link {
+  display: block;
+  padding: var(--space-2) 18px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color var(--dur-base) var(--ease-luxury);
+}
+.sidebar-bottom-link:hover { color: var(--ink); }
+.sidebar-bottom-link.active { color: var(--ink); }
+
+/* ── Unified page H1 ───────────────────────────────────────────
+   Use on the H1 of every admin page. Replaces the 5 different
+   H1 styles the audit found across 5 pages. */
+.page-h1 {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  margin: 0 0 var(--space-5);
+}
+
+/* Common sub-label under H1s: "Photos" / "Galleries" / etc.
+   Pairs with .page-h1 → use class .page-sub. */
+.page-sub {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  margin: 0 0 var(--space-5);
+}
+
+/* ── Skeleton shimmer (replaces "Loading..." text) ───────────── */
+.skel {
+  display: block;
+  background: linear-gradient(90deg,
+    var(--cream) 0%,
+    var(--bone)  50%,
+    var(--cream) 100%);
+  background-size: 200% 100%;
+  animation: skel-shimmer 1.4s var(--ease-luxury) infinite;
+  border-radius: var(--radius-sm);
+  /* sane defaults so a bare <div class="skel"></div> shows something */
+  height: 14px;
+  width: 100%;
+}
+.skel-line  { height: 14px; margin: var(--space-2) 0; }
+.skel-line.short  { width: 40%; }
+.skel-line.medium { width: 70%; }
+.skel-line.long   { width: 100%; }
+.skel-block { height: 60px; margin: var(--space-2) 0; border-radius: var(--radius-md); }
+.skel-pill  { height: 22px; width: 80px; border-radius: var(--radius-pill); }
+
+@keyframes skel-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Respect reduced-motion: hold the gradient mid-shimmer instead of pulsing. */
+@media (prefers-reduced-motion: reduce) {
+  .skel { animation: none; background-position: 50% 0; }
+}
+
+/* ── Toast (used by galleries.html duplicate / others) ──────── */
+.ivae-toast-wrap {
+  position: fixed;
+  bottom: var(--space-5);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+.ivae-toast {
+  pointer-events: auto;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-2);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--dur-base) var(--ease-luxury),
+              transform var(--dur-base) var(--ease-luxury);
+}
+.ivae-toast.show { opacity: 1; transform: translateY(0); }
+.ivae-toast.danger { background: var(--danger); }
+.ivae-toast.success { background: var(--success); }
