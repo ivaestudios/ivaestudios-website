@@ -149,6 +149,20 @@ if [[ "$b3_code" == "404" ]]; then ok "B3 /photos/{id}/web/md → 404 (route liv
 else fail "B3 /photos/{id}/web/md → $b3_code (expected 404)"
 fi
 
+# F1: /api/galleries/:id/auto unified endpoint — should 404 for unknown
+#     gallery (route live, lookup ran). Anything else means the route fell
+#     through to a wrong handler.
+f1_code=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE/api/gallery/galleries/00000000000000000000000000000000/auto")
+if [[ "$f1_code" == "404" ]]; then ok "F1 /galleries/{id}/auto → 404 (unified route live)"
+else fail "F1 /galleries/{id}/auto → $f1_code (expected 404)"
+fi
+
+# F1: /api/galleries/:id/cover endpoint — should 404 for unknown gallery.
+f1c_code=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE/api/gallery/galleries/00000000000000000000000000000000/cover")
+if [[ "$f1c_code" == "404" ]]; then ok "F1 /galleries/{id}/cover → 404 (LCP route live)"
+else fail "F1 /galleries/{id}/cover → $f1c_code (expected 404)"
+fi
+
 # B4: Per-photo OG endpoint as a crawler — 404 expected for unknown photo.
 b4_code=$(curl -sS -A "facebookexternalhit/1.1" -o /dev/null -w "%{http_code}" \
   "$BASE/gallery/p/00000000000000000000000000000000")
