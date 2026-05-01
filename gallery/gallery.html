@@ -99,10 +99,8 @@
     <button class="gt-icon" onclick="openSlideshow()" title="Slideshow">
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24"><path d="M5 4l14 8-14 8V4z" fill="currentColor" stroke="none"/></svg>
     </button>
-    <!-- Cart -->
-    <button class="gt-icon" onclick="showToast('Shop coming soon')" title="Cart">
-      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 4.6A1 1 0 005.6 19h12.8M10 23a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z"/></svg>
-    </button>
+    <!-- Cart hidden until F4 (store) ships. Showing a "Coming soon" toast on
+         a luxury gallery toolbar reads amateur. -->
     <div class="gt-sep"></div>
     <!-- User -->
     <div class="gt-user">
@@ -157,10 +155,25 @@
   </div>
 </div>
 
-<footer style="text-align:center;padding:60px 24px 48px;margin-top:0;border-top:1px solid #f0f0f0;">
-  <span style="font-family:'Syne',sans-serif;font-size:9px;font-weight:600;letter-spacing:0.25em;text-transform:uppercase;color:#bbb;">IVAE <span style="color:#a8956f;">Studios</span></span>
-  <p style="font-size:11px;color:#aaa;margin-top:6px;letter-spacing:0.3px;">Luxury Resort Photography — Cancun, Mexico</p>
+<!-- F3 footer: real branding instead of the prior 9px grey tag.
+     Serif lockup + tagline + lightweight nav. Same brand tokens as toolbar. -->
+<footer class="gallery-footer">
+  <div class="gallery-footer-inner">
+    <div class="gallery-footer-brand">
+      <a href="https://ivaestudios.com" class="gallery-footer-logo">IVAE <span>Studios</span></a>
+      <p class="gallery-footer-tag">Luxury wedding &amp; portrait photography — Cancún, México</p>
+    </div>
+    <div class="gallery-footer-meta">
+      <a href="https://ivaestudios.com" rel="noopener">ivaestudios.com</a>
+      <span class="gallery-footer-dot">·</span>
+      <a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a>
+      <span class="gallery-footer-dot">·</span>
+      <a href="https://instagram.com/ivaestudios" target="_blank" rel="noopener">@ivaestudios</a>
+    </div>
+    <div class="gallery-footer-copy">© <span id="gfYear"></span> IVAE Studios. All photographs reserved.</div>
+  </div>
 </footer>
+<script>document.getElementById('gfYear').textContent = new Date().getFullYear();</script>
 
 <!-- Auto-save indicator -->
 <div class="autosave-indicator" id="autosave">

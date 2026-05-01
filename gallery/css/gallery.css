@@ -2577,3 +2577,102 @@ textarea.form-input { min-height: 100px; resize: vertical; }
   .ss-speed-btn { padding: 5px 7px; font-size: 9px; letter-spacing: 0.14em; }
   .ss-close { top: 14px; right: 14px; width: 42px; height: 42px; font-size: 30px; }
 }
+
+/* ── F3 GALLERY FOOTER (luxury) ──────────────────────────────────────────── */
+.gallery-footer {
+  margin-top: var(--space-9);
+  padding: var(--space-8) var(--space-5) var(--space-7);
+  border-top: 1px solid var(--border-l);
+  background: var(--cream);
+}
+.gallery-footer-inner {
+  max-width: 880px;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.gallery-footer-brand { display: flex; flex-direction: column; gap: var(--space-2); }
+.gallery-footer-logo {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  text-decoration: none;
+  line-height: 1;
+}
+.gallery-footer-logo span {
+  font-style: italic;
+  color: var(--gold-deep, var(--gold2));
+}
+.gallery-footer-tag {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+.gallery-footer-meta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.gallery-footer-meta a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--dur-base) var(--ease-luxury);
+}
+.gallery-footer-meta a:hover { color: var(--ink); }
+.gallery-footer-dot { opacity: 0.4; user-select: none; }
+.gallery-footer-copy {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--muted2);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+@media (max-width: 600px) {
+  .gallery-footer { padding: var(--space-7) var(--space-4) var(--space-6); padding-bottom: max(var(--space-6), env(safe-area-inset-bottom)); }
+  .gallery-footer-logo { font-size: 22px; }
+  .gallery-footer-meta { flex-direction: column; gap: var(--space-1); }
+  .gallery-footer-dot { display: none; }
+}
+
+/* ── F3 HERO TYPOGRAPHY POLISH ───────────────────────────────────────────── */
+/* The hero title was clamp(28px,5vw,48px) — feels squeezed on desktop and
+   tiny on mobile. Bumped to a luxury-editorial scale. text-shadow removed
+   in favor of letting the cover's own overlay carry contrast. */
+.gallery-hero-title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  font-size: clamp(38px, 7vw, 72px);
+  line-height: 1.05;
+  text-shadow: none;
+}
+.gallery-hero-content .skeleton {
+  /* F3: skeleton on hero now uses brand cream instead of white-on-dark */
+  background: rgba(255,255,255,0.08) !important;
+}
+
+/* ── F3 SHIMMER SKELETON (shared utility) ─────────────────────────────── */
+@keyframes ivae-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skel {
+  background: linear-gradient(90deg, var(--cream) 0%, var(--sand) 50%, var(--cream) 100%);
+  background-size: 200% 100%;
+  animation: ivae-shimmer 1.4s var(--ease-luxury) infinite;
+  border-radius: var(--radius-sm);
+}
