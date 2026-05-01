@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Client Proofs — IVAE Studios</title>
 <link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
-<link rel="stylesheet" href="/gallery/css/gallery.css?v=20260424"/>
+<link rel="stylesheet" href="/gallery/css/gallery.css?v=20260428"/>
 <style>
 body { background: #fafaf7; padding-top: 0; }
 
@@ -28,7 +28,7 @@ body { background: #fafaf7; padding-top: 0; }
   font-family: 'Cormorant Garamond', serif;
   font-size: 32px;
   font-weight: 400;
-  color: #1c1c1c;
+  color: #2c2c2c;
   letter-spacing: 0.01em;
   margin: 0 0 4px;
 }
@@ -38,7 +38,7 @@ body { background: #fafaf7; padding-top: 0; }
   font-weight: 600;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #c4a35a;
+  color: #c9b99a;
 }
 
 .proofs-header .back {
@@ -51,7 +51,7 @@ body { background: #fafaf7; padding-top: 0; }
   text-decoration: none;
   transition: color 0.18s;
 }
-.proofs-header .back:hover { color: #1c1c1c; }
+.proofs-header .back:hover { color: #2c2c2c; }
 
 .proofs-summary {
   display: grid;
@@ -77,7 +77,7 @@ body { background: #fafaf7; padding-top: 0; }
 .proofs-stat .value {
   font-family: 'Cormorant Garamond', serif;
   font-size: 30px;
-  color: #1c1c1c;
+  color: #2c2c2c;
 }
 
 .proof-card {
@@ -102,7 +102,7 @@ body { background: #fafaf7; padding-top: 0; }
 .proof-meta .who {
   font-family: 'Cormorant Garamond', serif;
   font-size: 19px;
-  color: #1c1c1c;
+  color: #2c2c2c;
   letter-spacing: 0.01em;
 }
 .proof-meta .who small {
@@ -168,10 +168,10 @@ body { background: #fafaf7; padding-top: 0; }
   border: 1px solid #ece7dd;
   border-radius: 4px;
   background: #fff;
-  color: #1c1c1c;
+  color: #2c2c2c;
   font-style: italic;
 }
-.proof-actions .review-note-input:focus { outline: none; border-color: #c4a35a; }
+.proof-actions .review-note-input:focus { outline: none; border-color: #c9b99a; }
 .review-btn {
   font-family: 'Syne', sans-serif;
   font-size: 9.5px;
@@ -211,8 +211,8 @@ body { background: #fafaf7; padding-top: 0; }
   cursor: pointer;
   transition: color 0.18s, border-color 0.18s;
 }
-.show-archived-toggle:hover { color: #1c1c1c; border-color: #1c1c1c; }
-.show-archived-toggle.active { color: #1c1c1c; border-color: #c4a35a; }
+.show-archived-toggle:hover { color: #2c2c2c; border-color: #2c2c2c; }
+.show-archived-toggle.active { color: #2c2c2c; border-color: #c9b99a; }
 
 /* Toast */
 .toast {
@@ -220,7 +220,7 @@ body { background: #fafaf7; padding-top: 0; }
   bottom: 28px;
   left: 50%;
   transform: translateX(-50%) translateY(20px);
-  background: #1c1c1c;
+  background: #2c2c2c;
   color: #fff;
   font-family: 'Syne', sans-serif;
   font-size: 11px;
@@ -284,8 +284,8 @@ body { background: #fafaf7; padding-top: 0; }
   margin-bottom: -1px;
   transition: color 0.18s, border-color 0.18s;
 }
-.proofs-tab:hover { color: #1c1c1c; }
-.proofs-tab.active { color: #1c1c1c; border-bottom-color: #c4a35a; }
+.proofs-tab:hover { color: #2c2c2c; }
+.proofs-tab.active { color: #2c2c2c; border-bottom-color: #c9b99a; }
 
 .visitor-row {
   display: grid;
@@ -298,7 +298,7 @@ body { background: #fafaf7; padding-top: 0; }
   border-radius: 4px;
   margin-bottom: 8px;
   font-size: 13.5px;
-  color: #1c1c1c;
+  color: #2c2c2c;
 }
 .visitor-row .vname {
   font-family: 'Cormorant Garamond', serif;
@@ -327,7 +327,7 @@ body { background: #fafaf7; padding-top: 0; }
 .proofs-empty h2 {
   font-family: 'Cormorant Garamond', serif;
   font-size: 26px;
-  color: #1c1c1c;
+  color: #2c2c2c;
   font-weight: 400;
   margin: 12px 0 8px;
 }
@@ -349,9 +349,9 @@ body { background: #fafaf7; padding-top: 0; }
 
 /* === Workflow Hub: Activity Timeline === */
 :root {
-  --gold: #a07040;
+  --gold: #a8956f;
   --cream: #fafaf7;
-  --ink: #1c1c1c;
+  --ink: #2c2c2c;
   --line: #ece7dd;
   --bone: #f4efe4;
   --font-serif: 'Cormorant Garamond', serif;
@@ -615,7 +615,7 @@ body { background: #fafaf7; padding-top: 0; }
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="/gallery/js/api.js?v=20260424"></script>
+<script src="/gallery/js/api.js?v=20260428"></script>
 <script src="/gallery/js/auth.js?v=20260424"></script>
 <script src="/gallery/js/admin-sidebar.js?v=20260424"></script>
 <script>
@@ -684,7 +684,7 @@ const galleryId = new URLSearchParams(window.location.search).get('id');
               <div class="who">${escapeHtml(r.g.title)}</div>
               <div class="when">${r.subs.length} submissions · ${r.picks} picks · ${r.visitors.length} visitors</div>
             </div>
-            <a class="proof-pill" style="text-decoration:none;cursor:pointer;background:#1c1c1c;color:#fff;" href="/gallery/admin/proofs?id=${r.g.id}">Open →</a>
+            <a class="proof-pill" style="text-decoration:none;cursor:pointer;background:#2c2c2c;color:#fff;" href="/gallery/admin/proofs?id=${r.g.id}">Open →</a>
           </div>
         </div>
       `).join('');

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Admin — IVAE Studios Gallery</title>
 <link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
-<link rel="stylesheet" href="/gallery/css/gallery.css?v=20260424"/>
+<link rel="stylesheet" href="/gallery/css/gallery.css?v=20260428"/>
 <style>
 body { padding-top: 0; background: white; }
 
@@ -134,7 +134,7 @@ body { padding-top: 0; background: white; }
 }
 .storage-fill {
   height: 100%; border-radius: 3px;
-  background: linear-gradient(90deg, #c9a96e, #b8956a);
+  background: linear-gradient(90deg, #c9b99a, #b8956a);
   transition: width 0.6s ease;
   min-width: 2px;
 }
@@ -227,7 +227,7 @@ body { padding-top: 0; background: white; }
   display: block; margin-top: 14px;
   font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 600;
   letter-spacing: 0.12em; text-transform: uppercase;
-  color: #a07040; text-decoration: none;
+  color: #a8956f; text-decoration: none;
 }
 .dash-rec-link:hover { color: #1a1a1a; }
 .dash-rec-empty { font-size: 12px; color: #ccc; padding: 12px 0; }
@@ -335,7 +335,7 @@ body { padding-top: 0; background: white; }
   </aside>
 </div>
 
-<script src="/gallery/js/api.js?v=20260424"></script>
+<script src="/gallery/js/api.js?v=20260428"></script>
 <script src="/gallery/js/auth.js?v=20260424"></script>
 <script src="/gallery/js/admin-sidebar.js?v=20260424"></script>
 <script>
@@ -464,7 +464,7 @@ function renderChart(canvas) {
     const y = padT + chartH - (data[i] / max) * chartH;
     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
-  ctx.strokeStyle = '#a07040'; ctx.lineWidth = 1.8; ctx.stroke();
+  ctx.strokeStyle = '#a8956f'; ctx.lineWidth = 1.8; ctx.stroke();
 
   // Dots — only on days with activity
   for (let i = 0; i < days; i++) {
@@ -472,7 +472,7 @@ function renderChart(canvas) {
     const y = padT + chartH - (data[i] / max) * chartH;
     if (data[i] > 0) {
       ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2);
-      ctx.fillStyle = '#a07040'; ctx.fill();
+      ctx.fillStyle = '#a8956f'; ctx.fill();
     }
   }
 
@@ -556,11 +556,11 @@ async function refreshStats(periodDays) {
   const workflowEl = document.getElementById('workflowContent');
   let html = '';
   drafts.forEach(g => {
-    html += `<div class="dash-workflow-item"><strong>${g.title}</strong>Draft — ready to publish? <a href="/gallery/admin/gallery-edit?id=${g.id}" style="color:#a07040;font-size:11px;text-decoration:none;">Edit →</a></div>`;
+    html += `<div class="dash-workflow-item"><strong>${g.title}</strong>Draft — ready to publish? <a href="/gallery/admin/gallery-edit?id=${g.id}" style="color:#a8956f;font-size:11px;text-decoration:none;">Edit →</a></div>`;
   });
   noPhotos.forEach(g => {
     if (drafts.find(d => d.id === g.id)) return;
-    html += `<div class="dash-workflow-item"><strong>${g.title}</strong>No photos uploaded <a href="/gallery/admin/gallery-edit?id=${g.id}" style="color:#a07040;font-size:11px;text-decoration:none;">Upload →</a></div>`;
+    html += `<div class="dash-workflow-item"><strong>${g.title}</strong>No photos uploaded <a href="/gallery/admin/gallery-edit?id=${g.id}" style="color:#a8956f;font-size:11px;text-decoration:none;">Upload →</a></div>`;
   });
   expiringSoon.forEach(g => {
     html += `<div class="dash-workflow-item"><strong>${g.title}</strong>Expires ${g.expire_date} <a href="/gallery/admin/gallery-edit?id=${g.id}" style="color:#d43e2a;font-size:11px;text-decoration:none;">Review →</a></div>`;

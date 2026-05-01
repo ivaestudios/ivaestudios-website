@@ -11,12 +11,12 @@
 <title>Settings — IVAE Studios Admin</title>
 <link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Syne:wght@500;700&display=swap"/>
-<link rel="stylesheet" href="/gallery/css/gallery.css?v=20260424"/>
+<link rel="stylesheet" href="/gallery/css/gallery.css?v=20260428"/>
 <style>
   :root {
-    --ink: #1c1c1c; --ink-soft: #2c2c2c;
-    --gold: #c9a96e; --gold-deep: #a07040;
-    --cream: #fdfaf3; --sand: #e8e0d4; --bone: #f5f5f0;
+    --ink: #2c2c2c; --ink-soft: #2c2c2c;
+    --gold: #c9b99a; --gold-deep: #a8956f;
+    --cream: #f7f6f3; --sand: #e8e0d4; --bone: #f5f5f0;
     --text: #333; --text-soft: #555; --muted: #999; --mute-soft: #bbb;
     --line: #e8e8e8; --line-soft: #f0f0f0;
     --white: #fff; --off-white: #fafafa;
@@ -265,7 +265,7 @@
     width: 14px; height: 14px; border-radius: 50%; background: #fff;
     box-shadow: 0 1px 2px rgba(0,0,0,.18); transition: transform .2s;
   }
-  .et-toggle input:checked + .et-toggle-track { background: var(--gold, #a07040); }
+  .et-toggle input:checked + .et-toggle-track { background: var(--gold, #a8956f); }
   .et-toggle input:checked + .et-toggle-track::after { transform: translateX(14px); }
   .et-toggle .et-toggle-state { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 
@@ -293,7 +293,7 @@
     background: #fff; color: var(--ink); font-size: 14px; font-family: inherit;
     box-sizing: border-box;
   }
-  .et-field input:focus, .et-field textarea:focus { outline: none; border-color: var(--gold, #a07040); }
+  .et-field input:focus, .et-field textarea:focus { outline: none; border-color: var(--gold, #a8956f); }
   .et-field textarea {
     font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
     font-size: 12px; line-height: 1.6; min-height: 360px; resize: vertical;
@@ -313,7 +313,7 @@
     background: var(--sand, #f0e8d8); color: var(--ink); border: none; cursor: pointer;
     transition: background .15s;
   }
-  .et-chip:hover { background: var(--gold, #a07040); color: #fff; }
+  .et-chip:hover { background: var(--gold, #a8956f); color: #fff; }
   .et-vars-hint { font-size: 11px; color: var(--muted); margin-top: 8px; }
 
   .et-actions {
@@ -336,7 +336,7 @@
     flex: 1; min-width: 180px; padding: 8px 12px;
     border: 1px solid var(--line); border-radius: 3px; font-size: 13px;
   }
-  .et-saved { font-size: 11px; color: var(--gold, #a07040); letter-spacing: .12em; text-transform: uppercase; }
+  .et-saved { font-size: 11px; color: var(--gold, #a8956f); letter-spacing: .12em; text-transform: uppercase; }
 
   /* preview modal */
   .et-modal-bd {
@@ -664,7 +664,7 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="/gallery/js/api.js?v=20260424"></script>
+<script src="/gallery/js/api.js?v=20260428"></script>
 <script src="/gallery/js/auth.js?v=20260424"></script>
 <script src="/gallery/js/admin-sidebar.js?v=20260424"></script>
 <script>
@@ -1272,12 +1272,12 @@ async function loadScheduledEmails() {
       $('schedFailedList').innerHTML = failed.map(f => `
         <div style="padding:10px 12px;border-bottom:1px solid #f1d6d6;display:flex;align-items:flex-start;gap:10px;">
           <div style="flex:1;min-width:0;">
-            <div style="font-weight:500;color:#1c1c1c;">${escapeHtmlSafe(f.template_name || f.template_trigger || 'Email')}</div>
+            <div style="font-weight:500;color:#2c2c2c;">${escapeHtmlSafe(f.template_name || f.template_trigger || 'Email')}</div>
             <div style="color:var(--text-soft);margin-top:2px;">→ ${escapeHtmlSafe(f.recipient_email)} · ${escapeHtmlSafe(f.gallery_title || 'unknown gallery')}</div>
             <div style="color:#b54;margin-top:4px;font-family:monospace;font-size:11px;word-break:break-word;">${escapeHtmlSafe(f.error || 'unknown error')}</div>
           </div>
           <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
-            <button data-sched-retry="${f.id}" style="background:#1c1c1c;color:#fff;border:0;padding:4px 10px;font-size:11px;cursor:pointer;">Retry</button>
+            <button data-sched-retry="${f.id}" style="background:#2c2c2c;color:#fff;border:0;padding:4px 10px;font-size:11px;cursor:pointer;">Retry</button>
             <button data-sched-cancel="${f.id}" style="background:none;color:#b54;border:1px solid #f1d6d6;padding:4px 10px;font-size:11px;cursor:pointer;">Cancel</button>
           </div>
         </div>
@@ -1293,7 +1293,7 @@ async function loadScheduledEmails() {
       $('schedPendingList').innerHTML = pending.slice(0, 25).map(p => `
         <div style="padding:8px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;">
           <div style="flex:1;min-width:0;">
-            <span style="color:#1c1c1c;">${escapeHtmlSafe(p.template_name || p.template_trigger || 'Email')}</span>
+            <span style="color:#2c2c2c;">${escapeHtmlSafe(p.template_name || p.template_trigger || 'Email')}</span>
             <span style="color:var(--text-soft);"> → ${escapeHtmlSafe(p.recipient_email)}</span>
             <span style="color:var(--text-soft);"> · ${escapeHtmlSafe(p.gallery_title || 'gallery')}</span>
           </div>

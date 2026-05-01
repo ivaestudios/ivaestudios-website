@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<meta name="theme-color" content="#1c1c1c"/>
+<meta name="theme-color" content="#2c2c2c"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -17,9 +17,9 @@
      Trimmed to 4 weights total (was 9) — saves ~150KB on mobile. -->
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="/gallery/css/gallery.css?v=20260424">
+<link rel="preload" as="style" href="/gallery/css/gallery.css?v=20260428">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Syne:wght@500;700&display=swap"/>
-<link rel="stylesheet" href="/gallery/css/gallery.css?v=20260424"/>
+<link rel="stylesheet" href="/gallery/css/gallery.css?v=20260428"/>
 <script src="/gallery/js/track.js?v=20260424" defer></script>
 </head>
 <body style="padding-top:0;">
@@ -124,7 +124,7 @@
     <h3 class="gt-modal-title" id="dlProgressTitle">Downloading photos...</h3>
     <div style="margin:20px 0;">
       <div style="height:8px;background:#f0eeec;border-radius:4px;overflow:hidden;">
-        <div id="dlProgressBar" style="width:0%;height:100%;border-radius:4px;background:linear-gradient(90deg,#c9a96e,#b8956a);transition:width 0.3s;"></div>
+        <div id="dlProgressBar" style="width:0%;height:100%;border-radius:4px;background:linear-gradient(90deg,#c9b99a,#b8956a);transition:width 0.3s;"></div>
       </div>
     </div>
     <p id="dlProgressText" style="font-size:13px;color:#999;">0 / 0</p>
@@ -146,7 +146,7 @@
 </div>
 
 <footer style="text-align:center;padding:60px 24px 48px;margin-top:0;border-top:1px solid #f0f0f0;">
-  <span style="font-family:'Syne',sans-serif;font-size:9px;font-weight:600;letter-spacing:0.25em;text-transform:uppercase;color:#bbb;">IVAE <span style="color:#a8894a;">Studios</span></span>
+  <span style="font-family:'Syne',sans-serif;font-size:9px;font-weight:600;letter-spacing:0.25em;text-transform:uppercase;color:#bbb;">IVAE <span style="color:#a8956f;">Studios</span></span>
   <p style="font-size:11px;color:#aaa;margin-top:6px;letter-spacing:0.3px;">Luxury Resort Photography — Cancun, Mexico</p>
 </footer>
 
@@ -165,7 +165,7 @@
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
       Download Selected
     </button>
-    <button class="btn btn-gold btn-sm" onclick="openProofModal()" id="submitProofBtn" style="display:none;background:#1c1c1c;border-color:#1c1c1c;">
+    <button class="btn btn-gold btn-sm" onclick="openProofModal()" id="submitProofBtn" style="display:none;background:#2c2c2c;border-color:#2c2c2c;">
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
       Submit Final Selections
     </button>
@@ -220,7 +220,7 @@
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: 18px;
-  color: var(--ink, #1a2433);
+  color: var(--ink, #2c2c2c);
   letter-spacing: 0.3px;
 }
 .album-panel .ap-progress {
@@ -231,7 +231,7 @@
 .album-panel .ap-progress-fill {
   position: absolute; left: 0; top: 0; bottom: 0;
   width: 0%;
-  background: var(--gold2, #a8894a);
+  background: var(--gold2, #a8956f);
   transition: width 0.35s cubic-bezier(.25,0,.15,1);
 }
 .album-panel .ap-actions { display: flex; gap: 12px; align-items: center; }
@@ -239,7 +239,7 @@
   grid-column: 1 / -1;
   font-family: 'Cormorant Garamond', serif;
   font-size: 18px; font-style: italic;
-  color: var(--gold2, #a8894a);
+  color: var(--gold2, #a8956f);
   text-align: center;
 }
 .ap-btn {
@@ -253,12 +253,12 @@
 }
 .ap-btn-ghost {
   background: transparent;
-  color: var(--ink, #1a2433);
-  border: 1px solid var(--ink, #1a2433);
+  color: var(--ink, #2c2c2c);
+  border: 1px solid var(--ink, #2c2c2c);
 }
-.ap-btn-ghost:hover { background: var(--ink, #1a2433); color: #fff; }
+.ap-btn-ghost:hover { background: var(--ink, #2c2c2c); color: #fff; }
 .ap-btn-solid {
-  background: #1c1c1c; color: #fff; border: 1px solid #1c1c1c;
+  background: #2c2c2c; color: #fff; border: 1px solid #2c2c2c;
 }
 .ap-btn-solid:hover { background: #000; border-color: #000; }
 .ap-btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -295,10 +295,10 @@
   position: absolute; top: 14px; right: 18px;
   width: 36px; height: 36px;
   background: transparent; border: 0;
-  font-size: 28px; line-height: 1; color: var(--ink, #1a2433);
+  font-size: 28px; line-height: 1; color: var(--ink, #2c2c2c);
   cursor: pointer; z-index: 2;
 }
-.album-modal-close:hover { color: var(--gold2, #a8894a); }
+.album-modal-close:hover { color: var(--gold2, #a8956f); }
 .album-modal-header {
   padding: 36px 36px 18px;
   border-bottom: 1px solid var(--border-l, rgba(26,36,51,0.11));
@@ -306,7 +306,7 @@
 .album-modal-title {
   font-family: 'Cormorant Garamond', serif;
   font-size: 28px; font-weight: 400;
-  color: var(--ink, #1a2433);
+  color: var(--ink, #2c2c2c);
   letter-spacing: 0.3px;
 }
 .album-modal-sub {
@@ -350,11 +350,11 @@
   border-radius: 50%;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  color: var(--ink, #1a2433);
+  color: var(--ink, #2c2c2c);
   font-size: 20px; line-height: 1;
   transition: background 0.2s;
 }
-.am-deselect:hover { background: var(--gold, #c4a35a); color: #fff; }
+.am-deselect:hover { background: var(--gold, #c9b99a); color: #fff; }
 .album-modal-empty {
   text-align: center;
   padding: 48px 24px;
@@ -427,7 +427,7 @@
     <form onsubmit="submitProof(event)">
       <input type="text" id="proofName" placeholder="Your name (optional)" autocomplete="name"/>
       <input type="email" id="proofEmail" placeholder="Email" required autocomplete="email"/>
-      <textarea id="proofNote" placeholder="Add a note (optional)" rows="3" style="width:100%;padding:14px 16px;border:1px solid #e5dfd6;border-radius:2px;font-family:inherit;font-size:14px;color:#1c1c1c;background:#fff;resize:vertical;margin-bottom:8px;"></textarea>
+      <textarea id="proofNote" placeholder="Add a note (optional)" rows="3" style="width:100%;padding:14px 16px;border:1px solid #e5dfd6;border-radius:2px;font-family:inherit;font-size:14px;color:#2c2c2c;background:#fff;resize:vertical;margin-bottom:8px;"></textarea>
       <button type="submit" class="email-gate-cta" id="proofSubmitBtn">SEND SELECTIONS</button>
       <button type="button" class="email-gate-cancel" onclick="closeProofModal()">Cancel</button>
       <p class="email-gate-err" id="proofErr" style="display:none;"></p>
@@ -474,10 +474,10 @@
   </div>
 </div>
 
-<script src="/gallery/js/api.js?v=20260424"></script>
+<script src="/gallery/js/api.js?v=20260428"></script>
 <script src="/gallery/js/auth.js?v=20260424"></script>
-<script src="/gallery/js/cover-designs.js?v=20260424"></script>
-<script src="/gallery/js/justified-layout.js?v=20260424"></script>
+<script src="/gallery/js/cover-designs.js?v=20260428"></script>
+<script src="/gallery/js/justified-layout.js?v=20260428"></script>
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/gallery/sw.js', { scope: '/' }).catch(err => console.warn('SW register failed:', err));
@@ -576,7 +576,7 @@ let isShareTokenView = false;  // tokenized public link — no login, no email g
       ? `/api/gallery/photos/${gallery.cover_key}/web`
       : (gallery.photos.length > 0 ? `/api/gallery/photos/${gallery.photos[0].id}/web` : null);
     const bg = gallery.bg_color || '#ffffff';
-    const tx = gallery.txt_color || '#1c1c1c';
+    const tx = gallery.txt_color || '#2c2c2c';
     const fx = gallery.focal_x ?? 50;
     const fy = gallery.focal_y ?? 50;
     const design = gallery.cover_design || 'classic';

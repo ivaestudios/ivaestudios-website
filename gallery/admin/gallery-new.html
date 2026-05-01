@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>New Gallery — IVAE Studios</title>
 <link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
-<link rel="stylesheet" href="/gallery/css/gallery.css?v=20260424"/>
+<link rel="stylesheet" href="/gallery/css/gallery.css?v=20260428"/>
 <link rel="stylesheet" href="/gallery/admin/ge-styles.css"/>
 </head>
 <body style="padding-top:0;background:white;margin:0;">
@@ -111,11 +111,11 @@
               <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
             </button>
             <div class="cv-color-sets-dropdown" id="colorSetsDropdown" style="display:none;">
-              <div class="cv-color-set" onclick="applyColorSet('#ffffff','#1c1c1c')"><span class="cv-cs-swatch" style="background:#ffffff;border:1px solid #ddd;"></span><span class="cv-cs-swatch" style="background:#1c1c1c;"></span> Classic</div>
-              <div class="cv-color-set" onclick="applyColorSet('#1c1c1c','#ffffff')"><span class="cv-cs-swatch" style="background:#1c1c1c;"></span><span class="cv-cs-swatch" style="background:#ffffff;border:1px solid #ddd;"></span> Dark</div>
+              <div class="cv-color-set" onclick="applyColorSet('#ffffff','#2c2c2c')"><span class="cv-cs-swatch" style="background:#ffffff;border:1px solid #ddd;"></span><span class="cv-cs-swatch" style="background:#2c2c2c;"></span> Classic</div>
+              <div class="cv-color-set" onclick="applyColorSet('#2c2c2c','#ffffff')"><span class="cv-cs-swatch" style="background:#2c2c2c;"></span><span class="cv-cs-swatch" style="background:#ffffff;border:1px solid #ddd;"></span> Dark</div>
               <div class="cv-color-set" onclick="applyColorSet('#f5f0eb','#5a4a3a')"><span class="cv-cs-swatch" style="background:#f5f0eb;"></span><span class="cv-cs-swatch" style="background:#5a4a3a;"></span> Warm</div>
               <div class="cv-color-set" onclick="applyColorSet('#2c3e50','#d4c5b2')"><span class="cv-cs-swatch" style="background:#2c3e50;"></span><span class="cv-cs-swatch" style="background:#d4c5b2;"></span> Navy</div>
-              <div class="cv-color-set" onclick="applyColorSet('#D4C5B2','#1c1c1c')"><span class="cv-cs-swatch" style="background:#D4C5B2;"></span><span class="cv-cs-swatch" style="background:#1c1c1c;"></span> Sand</div>
+              <div class="cv-color-set" onclick="applyColorSet('#D4C5B2','#2c2c2c')"><span class="cv-cs-swatch" style="background:#D4C5B2;"></span><span class="cv-cs-swatch" style="background:#2c2c2c;"></span> Sand</div>
               <div class="cv-color-set" onclick="applyColorSet('#8B5E3C','#ffffff')"><span class="cv-cs-swatch" style="background:#8B5E3C;"></span><span class="cv-cs-swatch" style="background:#ffffff;border:1px solid #ddd;"></span> Mocha</div>
             </div>
           </div>
@@ -131,8 +131,8 @@
         <div class="cv-color-row">
           <span class="cv-color-label">Text</span>
           <div class="cv-color-picker">
-            <input type="color" id="txtColorPicker" value="#1c1c1c" oninput="onTxtColorPick(this.value)"/>
-            <input type="text" class="cv-hex-input" id="txtHexInput" value="#1C1C1C" maxlength="7" oninput="onTxtHexInput(this.value)" onclick="this.select()"/>
+            <input type="color" id="txtColorPicker" value="#2c2c2c" oninput="onTxtColorPick(this.value)"/>
+            <input type="text" class="cv-hex-input" id="txtHexInput" value="#2c2c2c" maxlength="7" oninput="onTxtHexInput(this.value)" onclick="this.select()"/>
           </div>
         </div>
         <div class="cv-color-row" style="margin-top:4px;">
@@ -164,7 +164,7 @@
           <p class="features-promo-title">Try these features to do more with your gallery</p>
           <div class="features-promo-grid">
             <div class="features-promo-card active" data-feature="storytelling" onclick="selectFeature(this,'storytelling')">
-              <div class="features-promo-thumb" style="background:linear-gradient(135deg,#c4a35a 0%,#a8894a 100%);color:#fff;font-size:11px;font-weight:700;letter-spacing:0.5px;line-height:1.3;padding:12px;">Visual<br/>Storytelling</div>
+              <div class="features-promo-thumb" style="background:linear-gradient(135deg,#c9b99a 0%,#a8956f 100%);color:#fff;font-size:11px;font-weight:700;letter-spacing:0.5px;line-height:1.3;padding:12px;">Visual<br/>Storytelling</div>
               <span>Visual Storytelling</span>
             </div>
             <div class="features-promo-card" data-feature="video" onclick="selectFeature(this,'video')">
@@ -613,11 +613,11 @@
   </div>
 </div>
 
-<script src="/gallery/js/api.js?v=20260424"></script>
+<script src="/gallery/js/api.js?v=20260428"></script>
 <script src="/gallery/js/auth.js?v=20260424"></script>
 <script>
 let galleryId = null, currentStep = 0, uploadCount = 0, clientCount = 0;
-let coverImg = null, currentDesign = 'classic', bgColor = '#ffffff', txtColor = '#1c1c1c';
+let coverImg = null, currentDesign = 'classic', bgColor = '#ffffff', txtColor = '#2c2c2c';
 let focalX = 50, focalY = 50;
 let tempFocalX = 50, tempFocalY = 50;
 window._galleryPhotos = [];
@@ -1127,7 +1127,7 @@ function applyAutoCoverColor() {
       r = Math.round(r / n); g = Math.round(g / n); b = Math.round(b / n);
       const lum = 0.299 * r + 0.587 * g + 0.114 * b;
       const bg = '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
-      const tx = lum < 128 ? '#ffffff' : '#1c1c1c';
+      const tx = lum < 128 ? '#ffffff' : '#2c2c2c';
       bgColor = bg; txtColor = tx;
       syncBgUI(); syncTxtUI();
       renderPreview(); renderDesignGrid();
