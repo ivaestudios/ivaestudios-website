@@ -34,6 +34,18 @@
 /gallery/css/*.css
   Cache-Control: public, max-age=300, must-revalidate
 
+# Self-hosted brand fonts (F1.B). Variable-font woff2 files are byte-stable
+# and never change — pin them with the longest TTL so repeat visitors never
+# re-download. The fonts.css wrapper that points at them gets a short TTL
+# so we can update the @font-face declarations (subsets, unicode-range)
+# without having to invalidate the woff2 binaries.
+/gallery/fonts/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+/gallery/fonts/fonts.css
+  Cache-Control: public, max-age=300, must-revalidate
+
 # Main-site JS/CSS — explicit per-file rules instead of /*.js catch-all,
 # because the catch-all leaks `immutable` into /gallery/* responses (Pages
 # merges values, doesn't pick first/most-specific).

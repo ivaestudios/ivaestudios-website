@@ -13,12 +13,14 @@
 <meta property="og:description" content="View and select your photos from IVAE Studios"/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="IVAE Studios"/>
-<!-- Perf: connect early + load fonts via <link> (NOT @import in CSS — that waterfalls).
-     Trimmed to 4 weights total (was 9) — saves ~150KB on mobile. -->
-<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- F1.B perf: self-hosted variable fonts — same origin, no preconnect to
+     fonts.gstatic.com, no Google CDN handshake. ONE woff2 file per family
+     covers all weights via font-weight: 100 900 in the local fonts.css.
+     Total: 71 KB on cold load, 1y immutable cache for repeat visits. -->
 <link rel="preload" as="style" href="/gallery/css/gallery.css?v=20260428">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Syne:wght@500;600;700&display=swap"/>
+<link rel="preload" as="font" type="font/woff2" crossorigin href="/gallery/fonts/cormorant-garamond-latin.woff2?v=20260428">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="/gallery/fonts/syne-latin.woff2?v=20260428">
+<link rel="stylesheet" href="/gallery/fonts/fonts.css?v=20260428"/>
 <link rel="stylesheet" href="/gallery/css/gallery.css?v=20260428"/>
 <!-- F1 LCP: preload the cover image AS EARLY AS POSSIBLE so the browser's
      preload scanner starts the fetch before JS runs. /cover endpoint serves
