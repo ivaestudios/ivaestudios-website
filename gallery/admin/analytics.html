@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Analytics — IVAE Studios</title>
 <link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="preload" as="font" type="font/woff2" crossorigin href="/gallery/fonts/cormorant-garamond-latin.woff2?v=20260428"><link rel="preload" as="font" type="font/woff2" crossorigin href="/gallery/fonts/syne-latin.woff2?v=20260428"><link rel="stylesheet" href="/gallery/fonts/fonts.css?v=20260428"/>
 <link rel="stylesheet" href="/gallery/css/gallery.css?v=20260428"/>
 <link rel="stylesheet" href="/gallery/admin/sidebar.css?v=20260428"/>
 <style>
@@ -552,9 +550,9 @@ table.dl-table tr:hover td { background: #faf6ec; }
           <div class="skel skel-block" id="activitySkel"></div>
         </div>
         <div class="chart-legend" id="chartLegend" style="display:none;">
-          <span class="legend-item"><span class="legend-swatch" style="background:#a8956f;"></span> Visitors</span>
-          <span class="legend-item"><span class="legend-swatch" style="background:#1a1a1a;"></span> Photo views</span>
-          <span class="legend-item"><span class="legend-swatch" style="background:#c9b99a;"></span> Favorites</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--gold-deep);"></span> Visitors</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--ink-soft);"></span> Photo views</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--gold);"></span> Favorites</span>
           <span class="legend-item"><span class="legend-swatch" style="background:#5a4a38;"></span> Submissions</span>
         </div>
       </section>

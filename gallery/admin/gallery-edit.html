@@ -35,13 +35,13 @@
       <a class="ge-step" onclick="showSec('share')">Share</a>
       <a class="ge-step" onclick="showSec('dashboard')">Dashboard</a>
       <div style="padding:16px 18px 0;">
-        <div id="autosaveStatus" style="text-align:center;font-size:11px;color:#999;height:18px;margin-bottom:4px;letter-spacing:0.5px;transition:color 0.3s;"></div>
+        <div id="autosaveStatus" style="text-align:center;font-size:11px;color:var(--muted);height:18px;margin-bottom:4px;letter-spacing:0.5px;transition:color 0.3s;"></div>
         <button class="ge-continue" onclick="goNextSection()" style="width:100%;">Continue</button>
         <button class="ge-preview-btn" onclick="window.open('/gallery/gallery?id='+galleryId,'_blank')" style="width:100%;margin-top:8px;">Preview Gallery</button>
       </div>
-      <div style="padding:12px 18px 0;border-top:1px solid #f0f0f0;margin-top:12px;">
-        <button onclick="openClientSelections()" style="width:100%;padding:10px;background:#1a1a1a;border:1px solid #1a1a1a;color:#fff;font-size:11px;letter-spacing:0.5px;cursor:pointer;text-transform:uppercase;font-weight:500;border-radius:3px;transition:background 0.2s;" onmouseover="this.style.background='#000'" onmouseout="this.style.background='#1a1a1a'">View Client Selections</button>
-        <p style="margin:6px 0 0;font-size:10px;color:#999;text-align:center;letter-spacing:0.3px;">Submissions, favorites & visitor log</p>
+      <div style="padding:12px 18px 0;border-top:1px solid var(--line-soft);margin-top:12px;">
+        <button onclick="openClientSelections()" style="width:100%;padding:10px;background:var(--ink-soft);border:1px solid var(--ink-soft);color:#fff;font-size:11px;letter-spacing:0.5px;cursor:pointer;text-transform:uppercase;font-weight:500;border-radius:3px;transition:background 0.2s;" onmouseover="this.style.background='#000'" onmouseout="this.style.background='#1a1a1a'">View Client Selections</button>
+        <p style="margin:6px 0 0;font-size:10px;color:var(--muted);text-align:center;letter-spacing:0.3px;">Submissions, favorites & visitor log</p>
       </div>
       <!-- Debug-only: legacy "Repair Photo Sizes" tool. Hidden by default;
            re-enable in DevTools with: localStorage.setItem('ivae_debug','1') -->
@@ -59,7 +59,7 @@
         } catch (_) { /* private mode / disabled storage */ }
       </script>
       <div style="padding:12px 18px 16px;">
-        <button onclick="deleteGallery()" style="width:100%;padding:10px;background:none;border:1px solid #f0dada;color:#b91c1c;font-size:11px;letter-spacing:0.5px;cursor:pointer;text-transform:uppercase;font-weight:500;border-radius:3px;transition:background 0.2s;" onmouseover="this.style.background='#fdf6f6'" onmouseout="this.style.background='none'">Delete Gallery</button>
+        <button onclick="deleteGallery()" style="width:100%;padding:10px;background:none;border:1px solid #f0dada;color:var(--danger);font-size:11px;letter-spacing:0.5px;cursor:pointer;text-transform:uppercase;font-weight:500;border-radius:3px;transition:background 0.2s;" onmouseover="this.style.background='#fdf6f6'" onmouseout="this.style.background='none'">Delete Gallery</button>
       </div>
     </div>
   </aside>
@@ -100,10 +100,10 @@
           </label>
           <div id="coverProgress" style="display:none;margin-top:8px;width:100%;">
             <div style="display:flex;align-items:center;gap:8px;">
-              <div style="flex:1;height:4px;background:#f0f0f0;border-radius:4px;overflow:hidden;">
-                <div id="coverProgressFill" style="height:100%;width:0%;background:#1a1a1a;border-radius:4px;transition:width 0.3s;"></div>
+              <div style="flex:1;height:4px;background:var(--line-soft);border-radius:4px;overflow:hidden;">
+                <div id="coverProgressFill" style="height:100%;width:0%;background:var(--ink-soft);border-radius:4px;transition:width 0.3s;"></div>
               </div>
-              <span id="coverProgressText" style="font-size:10px;color:#999;white-space:nowrap;">Uploading...</span>
+              <span id="coverProgressText" style="font-size:10px;color:var(--muted);white-space:nowrap;">Uploading...</span>
             </div>
           </div>
           <span class="pt-btn disabled" id="focalBtn" onclick="openFocalPoint()">
@@ -208,7 +208,7 @@
           <p class="features-promo-title">Try these features to do more with your gallery</p>
           <div class="features-promo-grid">
             <div class="features-promo-card active" data-feature="storytelling" onclick="selectFeature(this,'storytelling')">
-              <div class="features-promo-thumb" style="background:linear-gradient(135deg,#c9b99a 0%,#a8956f 100%);color:#fff;font-size:11px;font-weight:700;letter-spacing:0.5px;line-height:1.3;padding:12px;">Visual<br/>Storytelling</div>
+              <div class="features-promo-thumb" style="background:linear-gradient(135deg,var(--gold) 0%,var(--gold-deep) 100%);color:#fff;font-size:11px;font-weight:700;letter-spacing:0.5px;line-height:1.3;padding:12px;">Visual<br/>Storytelling</div>
               <span>Visual Storytelling</span>
             </div>
             <div class="features-promo-card" data-feature="video" onclick="selectFeature(this,'video')">
@@ -340,7 +340,7 @@
               <div class="upload-progress-track">
                 <div class="upload-progress-fill" id="uploadFill"></div>
               </div>
-              <div class="upload-progress-detail"><span id="uploadDetail"></span><span id="uploadSpeed" style="float:right;font-size:11px;color:#999;"></span></div>
+              <div class="upload-progress-detail"><span id="uploadDetail"></span><span id="uploadSpeed" style="float:right;font-size:11px;color:var(--muted);"></span></div>
             </div>
             <div class="photo-grid" id="photoGrid" style="margin-top:20px;"></div>
           </div>
@@ -375,7 +375,7 @@
           </div>
           <div style="display:flex;gap:10px;margin-top:18px;">
             <button class="pt-btn" onclick="createScene()">Create Scene</button>
-            <button class="pt-btn" onclick="cancelAddScene()" style="color:#999;">Cancel</button>
+            <button class="pt-btn" onclick="cancelAddScene()" style="color:var(--muted);">Cancel</button>
           </div>
         </div>
 
@@ -486,32 +486,32 @@
               </label>
               <div id="watermarkPanel" style="display:none;">
                 <!-- Preview -->
-                <div id="wmPreview" style="position:relative;width:100%;aspect-ratio:3/2;background:#1a1a1a;border-radius:8px;overflow:hidden;margin-bottom:10px;">
+                <div id="wmPreview" style="position:relative;width:100%;aspect-ratio:3/2;background:var(--ink-soft);border-radius:8px;overflow:hidden;margin-bottom:10px;">
                   <img id="wmPreviewImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;"/>
-                  <div id="wmPreviewPlaceholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#555;font-size:11px;letter-spacing:0.5px;">No photos yet</div>
+                  <div id="wmPreviewPlaceholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-soft);font-size:11px;letter-spacing:0.5px;">No photos yet</div>
                   <div id="wmOverlay" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
                     <div id="wmOverlayBadge" style="background:rgba(255,255,255,0.82);width:55%;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;opacity:0.3;">
-                      <span id="wmBadgeText" style="font-family:'Georgia','Times New Roman',serif;font-size:22px;font-weight:400;letter-spacing:6px;color:#2a2a2a;line-height:1;">IVAE</span>
-                      <span id="wmBadgeSub" style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:8px;font-weight:300;letter-spacing:5px;color:#777;line-height:1;margin-top:3px;">STUDIOS</span>
+                      <span id="wmBadgeText" style="font-family:'Georgia','Times New Roman',serif;font-size:22px;font-weight:400;letter-spacing:6px;color:var(--ink);line-height:1;">IVAE</span>
+                      <span id="wmBadgeSub" style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:8px;font-weight:300;letter-spacing:5px;color:var(--muted);line-height:1;margin-top:3px;">STUDIOS</span>
                     </div>
                   </div>
                 </div>
                 <!-- Text fields -->
                 <div style="display:flex;gap:8px;margin-bottom:10px;">
                   <div style="flex:1;">
-                    <label style="display:block;font-size:9px;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Title</label>
-                    <input type="text" id="wmText" maxlength="20" value="IVAE" style="width:100%;padding:7px 9px;border:1px solid #e8e8e8;font-size:12px;font-family:'Cormorant Garamond',serif;letter-spacing:1px;" oninput="updateWmText()"/>
+                    <label style="display:block;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Title</label>
+                    <input type="text" id="wmText" maxlength="20" value="IVAE" style="width:100%;padding:7px 9px;border:1px solid var(--line);font-size:12px;font-family:'Cormorant Garamond',serif;letter-spacing:1px;" oninput="updateWmText()"/>
                   </div>
                   <div style="flex:1;">
-                    <label style="display:block;font-size:9px;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Subtitle</label>
-                    <input type="text" id="wmSubtext" maxlength="24" value="STUDIOS" style="width:100%;padding:7px 9px;border:1px solid #e8e8e8;font-size:12px;font-family:'Syne',sans-serif;letter-spacing:1px;" oninput="updateWmText()"/>
+                    <label style="display:block;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Subtitle</label>
+                    <input type="text" id="wmSubtext" maxlength="24" value="STUDIOS" style="width:100%;padding:7px 9px;border:1px solid var(--line);font-size:12px;font-family:'Syne',sans-serif;letter-spacing:1px;" oninput="updateWmText()"/>
                   </div>
                 </div>
                 <!-- Opacity slider -->
                 <div style="display:flex;align-items:center;gap:10px;">
-                  <span style="font-size:10px;color:#999;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;">Opacity</span>
-                  <input type="range" id="wmOpacity" min="10" max="80" value="30" style="flex:1;accent-color:#c9b99a;height:4px;" oninput="updateWmOpacity(this.value)"/>
-                  <span id="wmOpacityVal" style="font-size:11px;color:#ccc;min-width:30px;text-align:right;">30%</span>
+                  <span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;">Opacity</span>
+                  <input type="range" id="wmOpacity" min="10" max="80" value="30" style="flex:1;accent-color:var(--gold);height:4px;" oninput="updateWmOpacity(this.value)"/>
+                  <span id="wmOpacityVal" style="font-size:11px;color:var(--mute-soft);min-width:30px;text-align:right;">30%</span>
                 </div>
               </div>
             </div>
@@ -519,19 +519,19 @@
             <div class="su-field">
               <label class="su-label">STUDIO LOGO <span class="su-q" title="PNG/SVG with transparent background. Appears on the gallery cover and lightbox topbar.">?</span></label>
               <div id="logoPanel">
-                <div id="logoPreview" style="position:relative;width:100%;aspect-ratio:3/1;background:#1a1a1a;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+                <div id="logoPreview" style="position:relative;width:100%;aspect-ratio:3/1;background:var(--ink-soft);border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
                   <img id="logoPreviewImg" src="" alt="" style="max-width:60%;max-height:70%;object-fit:contain;display:none;filter:brightness(0) invert(1);"/>
-                  <span id="logoPreviewPlaceholder" style="color:#666;font-size:11px;letter-spacing:0.5px;">No logo uploaded</span>
+                  <span id="logoPreviewPlaceholder" style="color:var(--text-soft);font-size:11px;letter-spacing:0.5px;">No logo uploaded</span>
                 </div>
                 <div style="display:flex;gap:8px;">
                   <label class="pt-btn" style="flex:1;text-align:center;cursor:pointer;" onclick="document.getElementById('logoInput').click()">
                     <svg style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
                     Upload Logo
                   </label>
-                  <button id="logoRemoveBtn" type="button" onclick="removeLogo()" style="display:none;padding:8px 14px;background:none;border:1px solid #f0dada;color:#b91c1c;font-size:11px;letter-spacing:0.5px;cursor:pointer;text-transform:uppercase;font-weight:500;border-radius:3px;">Remove</button>
+                  <button id="logoRemoveBtn" type="button" onclick="removeLogo()" style="display:none;padding:8px 14px;background:none;border:1px solid #f0dada;color:var(--danger);font-size:11px;letter-spacing:0.5px;cursor:pointer;text-transform:uppercase;font-weight:500;border-radius:3px;">Remove</button>
                 </div>
                 <input type="file" id="logoInput" accept="image/png,image/jpeg,image/svg+xml,image/webp" style="display:none"/>
-                <p style="font-size:10px;color:#999;margin-top:6px;line-height:1.4;">Recommended: PNG with transparent background, 600 px wide.</p>
+                <p style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.4;">Recommended: PNG with transparent background, 600 px wide.</p>
               </div>
             </div>
 
@@ -542,13 +542,13 @@
                 <span class="su-checkmark"></span>
                 <span>Enable proofing workflow</span>
               </label>
-              <div id="proofingPanel" style="display:none;padding:12px 14px;background:#faf8f3;border-radius:6px;border:1px solid #f0e9da;">
+              <div id="proofingPanel" style="display:none;padding:12px 14px;background:var(--cream);border-radius:6px;border:1px solid #f0e9da;">
                 <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
-                  <label style="font-size:11px;color:#666;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap;">Target picks</label>
-                  <input type="number" id="setupProofingTarget" min="0" max="500" value="30" oninput="triggerAutoSave()" style="width:70px;padding:6px 9px;border:1px solid #e8e8e8;font-size:12px;border-radius:3px;"/>
-                  <span style="font-size:10px;color:#999;">photos</span>
+                  <label style="font-size:11px;color:var(--text-soft);letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap;">Target picks</label>
+                  <input type="number" id="setupProofingTarget" min="0" max="500" value="30" oninput="triggerAutoSave()" style="width:70px;padding:6px 9px;border:1px solid var(--line);font-size:12px;border-radius:3px;"/>
+                  <span style="font-size:10px;color:var(--muted);">photos</span>
                 </div>
-                <textarea id="setupProofingMessage" placeholder="Message shown to client (optional)" rows="2" oninput="triggerAutoSave()" style="width:100%;padding:8px 10px;border:1px solid #e8e8e8;font-size:11.5px;font-family:inherit;border-radius:3px;resize:vertical;box-sizing:border-box;"></textarea>
+                <textarea id="setupProofingMessage" placeholder="Message shown to client (optional)" rows="2" oninput="triggerAutoSave()" style="width:100%;padding:8px 10px;border:1px solid var(--line);font-size:11.5px;font-family:inherit;border-radius:3px;resize:vertical;box-sizing:border-box;"></textarea>
                 <label class="su-check" style="margin-top:10px;margin-bottom:8px;">
                   <input type="checkbox" id="setupProofingLocked" onchange="triggerAutoSave()"/>
                   <span class="su-checkmark"></span>
@@ -597,9 +597,9 @@
             <div class="su-field" style="margin-top:20px;">
               <label class="su-label">PLAY MUSIC <span class="su-q" title="MP3, M4A, WAV, OGG up to 25MB. Loops during the slideshow.">?</span></label>
               <div id="musicPanel">
-                <div id="musicPreview" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#faf8f3;border:1px solid #f0e9da;border-radius:6px;margin-bottom:8px;min-height:46px;">
+                <div id="musicPreview" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--cream);border:1px solid #f0e9da;border-radius:6px;margin-bottom:8px;min-height:46px;">
                   <svg id="musicIcon" width="18" height="18" fill="none" stroke="#c9b99a" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19a3 3 0 11-6 0 3 3 0 016 0zm12-3a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                  <span id="musicStatus" style="flex:1;font-size:11px;color:#888;letter-spacing:0.3px;">No track uploaded</span>
+                  <span id="musicStatus" style="flex:1;font-size:11px;color:var(--muted);letter-spacing:0.3px;">No track uploaded</span>
                   <audio id="musicPlayer" controls style="display:none;height:32px;flex:1;"></audio>
                 </div>
                 <div style="display:flex;gap:8px;">
@@ -607,10 +607,10 @@
                     <svg style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
                     <span id="musicUploadLabel">Upload track</span>
                   </label>
-                  <button id="musicRemoveBtn" type="button" onclick="removeMusic()" style="display:none;padding:8px 14px;background:none;border:1px solid #f0dada;color:#b91c1c;font-size:11px;letter-spacing:0.5px;cursor:pointer;text-transform:uppercase;font-weight:500;border-radius:3px;">Remove</button>
+                  <button id="musicRemoveBtn" type="button" onclick="removeMusic()" style="display:none;padding:8px 14px;background:none;border:1px solid #f0dada;color:var(--danger);font-size:11px;letter-spacing:0.5px;cursor:pointer;text-transform:uppercase;font-weight:500;border-radius:3px;">Remove</button>
                 </div>
                 <input type="file" id="musicInput" accept="audio/*,.mp3,.m4a,.wav,.ogg" style="display:none;" onchange="uploadMusic(this.files[0])"/>
-                <p style="font-size:10px;color:#999;margin-top:6px;line-height:1.4;">MP3 / M4A / WAV / OGG, up to 25 MB. Loops while the slideshow plays.</p>
+                <p style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.4;">MP3 / M4A / WAV / OGG, up to 25 MB. Loops while the slideshow plays.</p>
               </div>
             </div>
           </div>
@@ -658,7 +658,7 @@
                 Copy link
               </a>
             </div>
-            <p style="font-size:11px;color:#999;margin:-10px 0 20px;line-height:1.5;">A simple password will be auto-generated. Share it with your client so they can log in.</p>
+            <p style="font-size:11px;color:var(--muted);margin:-10px 0 20px;line-height:1.5;">A simple password will be auto-generated. Share it with your client so they can log in.</p>
 
             <div class="ge-share-title" style="margin-top:8px;">CLIENTS WITH ACCESS</div>
             <div id="clientList"></div>
@@ -670,7 +670,7 @@
             </div>
 
             <div class="ge-share-title" style="margin-top:32px;">PUBLIC SHARE LINK</div>
-            <p style="font-size:11px;color:#999;margin:6px 0 12px;line-height:1.5;">A tokenized link anyone can open without logging in. Generate to enable, revoke to invalidate.</p>
+            <p style="font-size:11px;color:var(--muted);margin:6px 0 12px;line-height:1.5;">A tokenized link anyone can open without logging in. Generate to enable, revoke to invalidate.</p>
             <div id="shareTokenWrap">
               <div class="share-link-box" id="shareTokenBox" style="display:none;">
                 <span class="share-link-url" id="shareTokenUrl">ivaestudios.com/gallery/g/...</span>
@@ -678,7 +678,7 @@
               </div>
               <div style="display:flex;gap:10px;margin-top:10px;">
                 <button class="ge-send-btn" id="shareTokenGenBtn" onclick="generateShareToken()">GENERATE LINK</button>
-                <button class="ge-send-btn" id="shareTokenRevokeBtn" onclick="revokeShareToken()" style="display:none;background:#fff;color:#1a1a1a;border:1px solid #e5e5e5;">REVOKE LINK</button>
+                <button class="ge-send-btn" id="shareTokenRevokeBtn" onclick="revokeShareToken()" style="display:none;background:#fff;color:var(--ink-soft);border:1px solid var(--line);">REVOKE LINK</button>
               </div>
             </div>
           </div>
@@ -701,43 +701,43 @@
               <h2 class="ge-dash-header-title">Dashboard</h2>
               <p class="ge-dash-header-sub">
                 Activity for this gallery
-                <span style="display:inline-flex;align-items:center;gap:6px;margin-left:12px;font-size:11px;color:#888;">
+                <span style="display:inline-flex;align-items:center;gap:6px;margin-left:12px;font-size:11px;color:var(--muted);">
                   <span style="width:6px;height:6px;background:#34c759;border-radius:50%;animation:pulse 1.6s ease-in-out infinite;"></span>
                   Live · <span id="dashLastUpdated">connecting…</span>
                 </span>
               </p>
             </div>
             <div style="display:flex;gap:8px;">
-              <button onclick="loadDashboardWidgets()" title="Refresh now" style="padding:10px 14px;background:#fff;color:#1a1a1a;border:1px solid #e5e5e5;font-size:11px;letter-spacing:0.5px;cursor:pointer;text-transform:uppercase;font-weight:500;border-radius:3px;">↻ Refresh</button>
-              <button onclick="window.open('/gallery/admin/proofs.html?id='+galleryId,'_blank')" style="padding:10px 16px;background:#1a1a1a;color:#fff;border:none;font-size:11px;letter-spacing:0.5px;cursor:pointer;text-transform:uppercase;font-weight:500;border-radius:3px;">Open Full Page →</button>
+              <button onclick="loadDashboardWidgets()" title="Refresh now" style="padding:10px 14px;background:#fff;color:var(--ink-soft);border:1px solid var(--line);font-size:11px;letter-spacing:0.5px;cursor:pointer;text-transform:uppercase;font-weight:500;border-radius:3px;">↻ Refresh</button>
+              <button onclick="window.open('/gallery/admin/proofs.html?id='+galleryId,'_blank')" style="padding:10px 16px;background:var(--ink-soft);color:#fff;border:none;font-size:11px;letter-spacing:0.5px;cursor:pointer;text-transform:uppercase;font-weight:500;border-radius:3px;">Open Full Page →</button>
             </div>
           </div>
           <style>@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}</style>
 
           <!-- Stats grid -->
           <div class="ge-dash-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0;">
-            <div class="ge-dash-stat" style="padding:18px;border:1px solid #eee;border-radius:6px;text-align:center;background:#fff;">
-              <div class="ge-dash-stat-n" id="dashVisitors" style="font-size:28px;font-weight:600;color:#1a1a1a;">—</div>
-              <div class="ge-dash-stat-l" style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#888;margin-top:4px;">Visitors</div>
+            <div class="ge-dash-stat" style="padding:18px;border:1px solid var(--line-soft);border-radius:6px;text-align:center;background:#fff;">
+              <div class="ge-dash-stat-n" id="dashVisitors" style="font-size:28px;font-weight:600;color:var(--ink-soft);">—</div>
+              <div class="ge-dash-stat-l" style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:4px;">Visitors</div>
             </div>
-            <div class="ge-dash-stat" style="padding:18px;border:1px solid #eee;border-radius:6px;text-align:center;background:#fff;">
-              <div class="ge-dash-stat-n" id="dashSubmissions" style="font-size:28px;font-weight:600;color:#1a1a1a;">—</div>
-              <div class="ge-dash-stat-l" style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#888;margin-top:4px;">Submissions</div>
+            <div class="ge-dash-stat" style="padding:18px;border:1px solid var(--line-soft);border-radius:6px;text-align:center;background:#fff;">
+              <div class="ge-dash-stat-n" id="dashSubmissions" style="font-size:28px;font-weight:600;color:var(--ink-soft);">—</div>
+              <div class="ge-dash-stat-l" style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:4px;">Submissions</div>
             </div>
-            <div class="ge-dash-stat" style="padding:18px;border:1px solid #eee;border-radius:6px;text-align:center;background:#fff;">
-              <div class="ge-dash-stat-n" id="dashTotalPicks" style="font-size:28px;font-weight:600;color:#a8956f;">—</div>
-              <div class="ge-dash-stat-l" style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#888;margin-top:4px;">Total Picks</div>
+            <div class="ge-dash-stat" style="padding:18px;border:1px solid var(--line-soft);border-radius:6px;text-align:center;background:#fff;">
+              <div class="ge-dash-stat-n" id="dashTotalPicks" style="font-size:28px;font-weight:600;color:var(--gold-deep);">—</div>
+              <div class="ge-dash-stat-l" style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:4px;">Total Picks</div>
             </div>
-            <div class="ge-dash-stat" style="padding:18px;border:1px solid #eee;border-radius:6px;text-align:center;background:#fff;">
-              <div class="ge-dash-stat-n" id="dashLiveFavorites" style="font-size:28px;font-weight:600;color:#a8956f;">—</div>
-              <div class="ge-dash-stat-l" style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#888;margin-top:4px;">Live Favorites</div>
+            <div class="ge-dash-stat" style="padding:18px;border:1px solid var(--line-soft);border-radius:6px;text-align:center;background:#fff;">
+              <div class="ge-dash-stat-n" id="dashLiveFavorites" style="font-size:28px;font-weight:600;color:var(--gold-deep);">—</div>
+              <div class="ge-dash-stat-l" style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:4px;">Live Favorites</div>
             </div>
           </div>
 
           <!-- Submissions panel -->
           <div style="margin-top:30px;">
-            <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;letter-spacing:1px;color:#1a1a1a;margin:0 0 14px;">Client Selections</h3>
-            <p style="font-size:12px;color:#888;margin:0 0 16px;">Photos that clients submitted as their final picks for retouching.</p>
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;letter-spacing:1px;color:var(--ink-soft);margin:0 0 14px;">Client Selections</h3>
+            <p style="font-size:12px;color:var(--muted);margin:0 0 16px;">Photos that clients submitted as their final picks for retouching.</p>
             <div id="dashSubmissionsList" style="display:flex;flex-direction:column;gap:14px;">
               <div class="skel skel-block" style="height:60px;"></div>
               <div class="skel skel-block" style="height:60px;"></div>
@@ -746,9 +746,9 @@
 
           <!-- Visitors panel -->
           <div style="margin-top:36px;">
-            <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;letter-spacing:1px;color:#1a1a1a;margin:0 0 14px;">Visitor Log</h3>
-            <p style="font-size:12px;color:#888;margin:0 0 16px;">People who entered this gallery (last 200).</p>
-            <div id="dashVisitorsList" style="border:1px solid #eee;border-radius:6px;overflow:hidden;background:#fff;">
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;letter-spacing:1px;color:var(--ink-soft);margin:0 0 14px;">Visitor Log</h3>
+            <p style="font-size:12px;color:var(--muted);margin:0 0 16px;">People who entered this gallery (last 200).</p>
+            <div id="dashVisitorsList" style="border:1px solid var(--line-soft);border-radius:6px;overflow:hidden;background:#fff;">
               <div style="padding:14px;">
                 <div class="skel skel-line long"></div>
                 <div class="skel skel-line medium"></div>

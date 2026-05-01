@@ -165,7 +165,7 @@
           <p class="features-promo-title">Try these features to do more with your gallery</p>
           <div class="features-promo-grid">
             <div class="features-promo-card active" data-feature="storytelling" onclick="selectFeature(this,'storytelling')">
-              <div class="features-promo-thumb" style="background:linear-gradient(135deg,#c9b99a 0%,#a8956f 100%);color:#fff;font-size:11px;font-weight:700;letter-spacing:0.5px;line-height:1.3;padding:12px;">Visual<br/>Storytelling</div>
+              <div class="features-promo-thumb" style="background:linear-gradient(135deg,var(--gold) 0%,var(--gold-deep) 100%);color:#fff;font-size:11px;font-weight:700;letter-spacing:0.5px;line-height:1.3;padding:12px;">Visual<br/>Storytelling</div>
               <span>Visual Storytelling</span>
             </div>
             <div class="features-promo-card" data-feature="video" onclick="selectFeature(this,'video')">
@@ -421,13 +421,13 @@
                 <input type="text" class="su-input-sm" id="setupWatermarkSubtext" value="STUDIOS" placeholder="STUDIOS" style="width:100%;"/>
               </div>
               <div class="su-field">
-                <label class="su-label">OPACITY <span id="opacityValue" style="color:#888;">30%</span></label>
+                <label class="su-label">OPACITY <span id="opacityValue" style="color:var(--muted);">30%</span></label>
                 <input type="range" id="setupWatermarkOpacity" min="0.1" max="1" step="0.05" value="0.3" style="width:100%;" oninput="document.getElementById('opacityValue').textContent = Math.round(this.value*100) + '%'"/>
               </div>
               <div class="su-field">
                 <label class="su-label">LOGO IMAGE (optional)</label>
                 <button class="su-pill-btn" type="button" onclick="document.getElementById('logoInput').click()">Upload logo</button>
-                <span id="logoStatus" style="margin-left:10px;font-size:11px;color:#888;">No logo uploaded</span>
+                <span id="logoStatus" style="margin-left:10px;font-size:11px;color:var(--muted);">No logo uploaded</span>
                 <input type="file" id="logoInput" accept="image/png,image/jpeg,image/svg+xml,image/webp" style="display:none;" onchange="uploadGalleryLogo(this.files[0])"/>
               </div>
             </div>
@@ -480,18 +480,18 @@
               </div>
               <div class="su-field">
                 <label class="su-label">MESSAGE TO CLIENT</label>
-                <textarea id="setupProofingMessage" class="su-input-sm" rows="3" style="width:100%;font-family:inherit;padding:8px;border:1px solid #e5e5e5;font-size:12px;" placeholder="Choose your favorite 30 photos for retouching"></textarea>
+                <textarea id="setupProofingMessage" class="su-input-sm" rows="3" style="width:100%;font-family:inherit;padding:8px;border:1px solid var(--line);font-size:12px;" placeholder="Choose your favorite 30 photos for retouching"></textarea>
               </div>
               <label class="su-check">
                 <input type="checkbox" id="setupProofingLocked"/>
                 <span class="su-checkmark"></span>
                 <span>Lock selections after submit</span>
               </label>
-              <a href="#" id="reviewSubmissionsLink" class="su-pill-btn" style="display:inline-block;margin-top:10px;text-decoration:none;color:#1a1a1a;" onclick="openProofsReview(); return false;">Review submissions →</a>
+              <a href="#" id="reviewSubmissionsLink" class="su-pill-btn" style="display:inline-block;margin-top:10px;text-decoration:none;color:var(--ink-soft);" onclick="openProofsReview(); return false;">Review submissions →</a>
             </div>
 
             <div class="su-heading" style="margin-top:24px;">CLIENT ACTIVITY</div>
-            <a href="#" class="su-pill-btn" style="display:inline-block;text-decoration:none;color:#1a1a1a;" onclick="openProofsReview(); return false;">View selections + visitors →</a>
+            <a href="#" class="su-pill-btn" style="display:inline-block;text-decoration:none;color:var(--ink-soft);" onclick="openProofsReview(); return false;">View selections + visitors →</a>
             <p class="su-note" style="margin-top:6px;">See who entered the gallery and which photos they marked as favorites.</p>
 
             <div class="su-heading" style="margin-top:24px;">STORE</div>
@@ -542,13 +542,13 @@
               <span class="share-link-url" id="shareLinkUrl">ivaestudios.com/gallery/gallery?id=...</span>
               <button class="share-link-copy" onclick="copyGalleryLink()">Copy Link</button>
             </div>
-            <p style="font-size:12px;color:#bbb;margin-bottom:8px;" id="shareLinkNote">Publish the gallery to generate a shareable link.</p>
+            <p style="font-size:12px;color:var(--mute-soft);margin-bottom:8px;" id="shareLinkNote">Publish the gallery to generate a shareable link.</p>
             <a href="#" class="ge-expand-link" onclick="return false;">+ Get Secure Link</a>
             <a href="#" class="ge-expand-link" onclick="return false;">+ Set an Access Code</a>
 
-            <div style="margin-top:36px;padding-top:24px;border-top:1px solid #eee;display:flex;gap:12px;">
+            <div style="margin-top:36px;padding-top:24px;border-top:1px solid var(--line-soft);display:flex;gap:12px;">
               <button class="pt-btn" onclick="saveDraft()">Save as Draft</button>
-              <button class="pt-btn" onclick="publishAndFinish()" style="background:#1a1a1a;color:white;border-color:#1a1a1a;">Publish Gallery</button>
+              <button class="pt-btn" onclick="publishAndFinish()" style="background:var(--ink-soft);color:white;border-color:var(--ink-soft);">Publish Gallery</button>
             </div>
           </div>
           <div class="ge-share-sidebar">
