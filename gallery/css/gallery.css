@@ -170,15 +170,21 @@ body { padding-top: 64px; }
 }
 .form-input {
   width: 100%; padding: 14px 16px;
-  font-family: 'Syne', sans-serif;
-  font-size: 14px; color: var(--ink);
+  font-family: var(--font-sans);
+  /* F2 mobile: 16px prevents iOS Safari from auto-zooming on focus.
+     Stays 14px on desktop via the @media block below. */
+  font-size: 16px; color: var(--ink);
   background: white;
   border: 1px solid var(--border-l);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   outline: none;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  transition: border-color var(--dur-base) var(--ease-luxury),
+              box-shadow var(--dur-base) var(--ease-luxury);
 }
-.form-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(196,163,90,0.08); }
+.form-input:focus { border-color: var(--gold); box-shadow: var(--shadow-focus); }
+@media (min-width: 768px) {
+  .form-input { font-size: 14px; }
+}
 .form-input::placeholder { color: var(--muted2); }
 select.form-input { cursor: pointer; }
 textarea.form-input { min-height: 100px; resize: vertical; }
@@ -194,7 +200,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
 
 /* ── AUTH PAGES (Login/Register — Luxury Premium) ── */
 .auth-page {
-  min-height: 100vh;
+  min-height: 100vh; min-height: 100dvh;
   display: flex; align-items: center; justify-content: center;
   background: white;
   padding: 24px;
@@ -354,7 +360,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
 .auth-split {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  min-height: 100vh;
+  min-height: 100vh; min-height: 100dvh;
 }
 .auth-brand {
   background: #fafaf8;
@@ -536,12 +542,16 @@ textarea.form-input { min-height: 100px; resize: vertical; }
   top: 0;
   z-index: 90;
   background: #fff;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-l);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 40px;
+  /* F2 mobile: respect iPhone notch top inset on landscape + edge-to-edge. */
+  padding-top: env(safe-area-inset-top, 0);
   height: 52px;
+  min-height: 52px;
+  box-sizing: content-box;
 }
 .gt-left {
   display: flex;
@@ -962,24 +972,27 @@ textarea.form-input { min-height: 100px; resize: vertical; }
 .selection-bar {
   position: fixed; bottom: 0; left: 0; right: 0;
   background: white;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border-l);
   padding: 14px 32px;
+  /* F2 mobile: respect iPhone home indicator. max() keeps the desktop padding
+     intact when env(...) is 0 (non-iOS) and adds the inset space on iOS. */
+  padding-bottom: max(14px, env(safe-area-inset-bottom));
   display: flex; align-items: center; justify-content: space-between;
   z-index: 50;
   transform: translateY(100%);
-  transition: transform 0.35s cubic-bezier(.25,0,.15,1);
-  box-shadow: 0 -2px 16px rgba(0,0,0,0.06);
+  transition: transform var(--dur-slow) var(--ease-luxury);
+  box-shadow: 0 -2px 16px rgba(44,44,44,0.06);
 }
 .selection-bar.show { transform: translateY(0); }
 .selection-count {
   color: var(--ink);
   font-size: 13px; font-weight: 500;
 }
-.selection-count strong { color: #1a1a1a; font-weight: 700; }
+.selection-count strong { color: var(--ink2); font-weight: 700; }
 .selection-bar .btn { padding: 11px 24px; }
 .selection-bar .btn-outline { border-color: var(--border-l); color: var(--muted); }
-.selection-bar .btn-outline:hover { border-color: var(--muted); color: var(--ink); background: #fafafa; }
-.selection-bar .btn-gold { background: #1a1a1a; border-color: #1a1a1a; }
+.selection-bar .btn-outline:hover { border-color: var(--muted); color: var(--ink); background: var(--cream); }
+.selection-bar .btn-gold { background: var(--ink2); border-color: var(--ink2); }
 .selection-bar .btn-gold:hover { background: var(--ink2); border-color: var(--ink); }
 
 /* ── UPLOAD ZONE ── */
@@ -1127,19 +1140,21 @@ textarea.form-input { min-height: 100px; resize: vertical; }
   display: flex; align-items: center; justify-content: center;
   gap: 12px;
   padding: 14px 24px;
-  border-top: 1px solid #eee;
+  /* F2 mobile: respect iPhone home indicator. */
+  padding-bottom: max(14px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border-l);
   flex-shrink: 0;
 }
 .lightbox-bottombar .btn-sm {
   font-size: 9px; padding: 9px 18px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 .lightbox-bottombar .btn-outline {
   border-color: var(--border-l); color: var(--muted); background: white;
 }
-.lightbox-bottombar .btn-outline:hover { border-color: var(--muted); color: var(--ink); background: #fafafa; }
+.lightbox-bottombar .btn-outline:hover { border-color: var(--muted); color: var(--ink); background: var(--cream); }
 .lightbox-bottombar .btn-gold {
-  background: #1a1a1a; border-color: #1a1a1a; color: white;
+  background: var(--ink2); border-color: var(--ink2); color: white;
 }
 .lightbox-bottombar .btn-gold:hover { background: var(--ink2); border-color: var(--ink); }
 .lightbox-dl-btn {
@@ -1206,7 +1221,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
 .admin-layout {
   display: grid;
   grid-template-columns: 186px 1fr;
-  min-height: 100vh;
+  min-height: 100vh; min-height: 100dvh;
 }
 .admin-sidebar {
   background: #f2f2f2;
@@ -1303,7 +1318,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
 .admin-main {
   padding: 40px 48px;
   margin-left: 186px;
-  min-height: 100vh;
+  min-height: 100vh; min-height: 100dvh;
 }
 
 /* Mobile sidebar toggle */
@@ -1324,7 +1339,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
 .wizard-layout {
   display: grid;
   grid-template-columns: 220px 1fr 360px;
-  min-height: 100vh;
+  min-height: 100vh; min-height: 100dvh;
 }
 
 /* Step sidebar */
@@ -1741,7 +1756,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
 /* ── GALLERY HERO (Client gallery cover) ── */
 .gallery-hero {
   position: relative;
-  min-height: 100vh;
+  min-height: 100vh; min-height: 100dvh;
   min-height: 100dvh; /* iOS Safari: respect URL bar collapse */
   background: var(--ink);
   overflow: hidden;
@@ -1753,7 +1768,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
 .gallery-hero-design {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  min-height: 100vh; min-height: 100dvh;
   min-height: 100dvh;
 }
 .gallery-hero-bg {
@@ -1852,7 +1867,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
   padding-top: 0;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100vh; min-height: 100dvh;
 }
 .client-header {
   position: sticky; top: 0; z-index: 100;
@@ -2364,20 +2379,25 @@ textarea.form-input { min-height: 100px; resize: vertical; }
   display: block;
   width: 100%;
   padding: 14px 16px;
-  border: 1px solid #e5dfd6;
-  border-radius: 2px;
+  border: 1px solid var(--border-l);
+  border-radius: var(--radius-sm);
   font-family: inherit;
-  font-size: 14px;
-  color: #2c2c2c;
+  /* F2 mobile: 16px so iOS doesn't auto-zoom on focus. Drops to 14px on desktop. */
+  font-size: 16px;
+  color: var(--ink);
   background: #fff;
   margin-bottom: 12px;
-  transition: border-color 0.15s;
+  transition: border-color var(--dur-base) var(--ease-luxury);
   box-sizing: border-box;
+}
+@media (min-width: 768px) {
+  .email-gate-modal input,
+  .email-gate-modal textarea { font-size: 14px; }
 }
 .email-gate-modal input:focus,
 .email-gate-modal textarea:focus {
   outline: none;
-  border-color: #c9b99a;
+  border-color: var(--gold);
 }
 
 .email-gate-cta {

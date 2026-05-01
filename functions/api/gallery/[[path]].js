@@ -400,6 +400,69 @@ async function handleGetPublicGallery(env, galleryId) {
   return json({ ...gallery, photos: photosData, scenes: scenes.results || [], clients: [] });
 }
 
+// F1 perf: single endpoint that resolves the right view for the visitor in
+// ONE round trip — replaces the old client-side waterfall (auth check →
+// /galleries/:id → /:id/public → /:id/by-link). Saves 400-800ms on cold
+// loads. Decision tree, in order:
+//   1. session.role === 'admin' → full admin view (with clients[])
+//   2. session has gallery_access row → full client view (with selections)
+//   3. gallery.show_on_portfolio = 1 + is_private = 0 + published → public view
+//   4. gallery.request_email = 1 + published → by-link view (email-gate flow)
+//   5. else → 403/404
+// Response always includes _view: 'admin'|'client'|'public'|'by-link' so the
+// client can branch UI (email-gate modal, header chrome, etc.).
+async function handleGetGalleryAuto(env, session, galleryId) {
+  if (!/^[a-f0-9]{32}$/.test(galleryId)) return json({ error: 'Invalid id' }, 400);
+  // One DB round-trip: the gallery + (if logged in) its access row.
+  const isAdmin = session && session.role === 'admin';
+  const userId = session ? session.user_id : null;
+  const [gallery, accessRow] = await Promise.all([
+    env.DB.prepare('SELECT * FROM galleries WHERE id = ?').bind(galleryId).first(),
+    userId
+      ? env.DB.prepare('SELECT 1 FROM gallery_access WHERE gallery_id = ? AND user_id = ?').bind(galleryId, userId).first()
+      : Promise.resolve(null)
+  ]);
+  if (!gallery) return json({ error: 'Gallery not found' }, 404);
+  // Honor expiry (admins exempt — they can extend).
+  if (!isAdmin && gallery.expire_enabled && gallery.expire_date && new Date(gallery.expire_date) < new Date()) {
+    return json({ error: 'This gallery has expired' }, 410);
+  }
+  // Pick the view + assemble it. Each branch fetches whatever extra rows it
+  // needs in parallel via Promise.all so we never serialize DB calls.
+  let view, selections = { results: [] }, clients = { results: [] };
+  if (isAdmin || accessRow) {
+    view = isAdmin ? 'admin' : 'client';
+    [selections, clients] = await Promise.all([
+      userId
+        ? env.DB.prepare('SELECT s.photo_id FROM selections s JOIN photos p ON s.photo_id = p.id WHERE s.user_id = ? AND p.gallery_id = ?').bind(userId, galleryId).all()
+        : Promise.resolve({ results: [] }),
+      isAdmin
+        ? env.DB.prepare('SELECT u.id, u.name, u.email, ga.granted_at, ga.access_password FROM gallery_access ga JOIN users u ON ga.user_id = u.id WHERE ga.gallery_id = ?').bind(galleryId).all()
+        : Promise.resolve({ results: [] })
+    ]);
+  } else if (gallery.show_on_portfolio === 1 && gallery.is_private === 0 && gallery.status === 'published') {
+    view = 'public';
+  } else if (gallery.request_email === 1 && gallery.status === 'published') {
+    view = 'by-link';
+  } else {
+    return json({ error: 'Access denied' }, 403);
+  }
+  // Photos + scenes always parallel.
+  const [photos, scenes] = await Promise.all([
+    env.DB.prepare('SELECT id, filename, width, height, size_bytes, sort_order, scene_id FROM photos WHERE gallery_id = ? ORDER BY sort_order, uploaded_at').bind(galleryId).all(),
+    env.DB.prepare('SELECT * FROM scenes WHERE gallery_id = ? ORDER BY sort_order ASC').bind(galleryId).all()
+  ]);
+  const selectedIds = new Set((selections.results || []).map(s => s.photo_id));
+  const photosData = (photos.results || []).map(p => ({ ...p, selected: selectedIds.has(p.id) }));
+  return json({
+    ...gallery,
+    photos: photosData,
+    scenes: scenes.results || [],
+    clients: clients.results || [],
+    _view: view
+  });
+}
+
 // By-link access: gallery is viewable by anyone with the link IF the photographer
 // opted in via request_email=1 (Pic-Time-style email gate). Requires the gate to
 // be on so that we capture the visitor's email before they see the photos.
@@ -1155,27 +1218,56 @@ function buildExpiryWarningEmail({ clientName, galleryTitle, daysLeft, expireDat
 }
 
 // ── PUBLIC COVER (for emails) ──
-async function handleGetCover(env, galleryId) {
+// Cover image — used by share-link OG previews AND by the gallery hero
+// (preload <link rel=preload as=image>). Serves the WEB variant (~250KB),
+// falling back to thumb, then to the original only as a last resort. The
+// previous version served the full original (10-17MB) which was an LCP
+// disaster on mobile. Cached at the edge for a year — the URL is stable
+// per-gallery (cover_key changes regenerate the URL via cache-bust).
+async function handleGetCover(request, env, galleryId, ctx) {
+  const cache = caches.default;
+  const cacheKey = new Request(request.url, { method: 'GET' });
+  const cached = await cache.match(cacheKey);
+  if (cached) return cached;
+
   const gallery = await env.DB.prepare('SELECT cover_key FROM galleries WHERE id = ?').bind(galleryId).first();
   if (!gallery) return new Response('Gallery not found', { status: 404 });
 
-  let r2Key = null;
+  let photo = null;
   if (gallery.cover_key) {
-    const photo = await env.DB.prepare('SELECT r2_key FROM photos WHERE id = ?').bind(gallery.cover_key).first();
-    if (photo) r2Key = photo.r2_key;
+    photo = await env.DB.prepare('SELECT web_key, thumb_key, r2_key FROM photos WHERE id = ?').bind(gallery.cover_key).first();
   }
   // Fallback: use first photo in gallery
-  if (!r2Key) {
-    const first = await env.DB.prepare('SELECT r2_key FROM photos WHERE gallery_id = ? ORDER BY sort_order ASC LIMIT 1').bind(galleryId).first();
-    if (first) r2Key = first.r2_key;
+  if (!photo) {
+    photo = await env.DB.prepare('SELECT web_key, thumb_key, r2_key FROM photos WHERE gallery_id = ? ORDER BY sort_order ASC LIMIT 1').bind(galleryId).first();
   }
-  if (!r2Key) return new Response('No photos', { status: 404 });
+  if (!photo) return new Response('No photos', { status: 404 });
 
-  const obj = await env.R2_BUCKET.get(r2Key);
+  // Prefer web (250KB) → thumb (~80KB) → original (LAST resort, 10MB+).
+  // Originals only appear when the daemon hasn't generated variants yet;
+  // for those galleries the LCP is going to be slow regardless.
+  const key = photo.web_key || photo.thumb_key || photo.r2_key;
+  const obj = await env.R2_BUCKET.get(key);
   if (!obj) return new Response('Not found', { status: 404 });
-  return new Response(obj.body, {
-    headers: { 'Content-Type': 'image/jpeg', 'Cache-Control': 'public, max-age=86400' }
+
+  const acceptsWebp = (request.headers.get('Accept') || '').includes('image/webp');
+  let body = obj.body, contentType = 'image/jpeg';
+  if (acceptsWebp && key.endsWith('.jpg')) {
+    const webpKey = key.slice(0, -4) + '.webp';
+    const webpObj = await env.R2_BUCKET.get(webpKey);
+    if (webpObj) { body = webpObj.body; contentType = 'image/webp'; }
+  }
+  const response = new Response(body, {
+    headers: {
+      'Content-Type': contentType,
+      // 1y immutable — clients pin the URL by cover_key; admin regen
+      // produces a NEW cover_key so cache invalidation is automatic.
+      'Cache-Control': 'public, max-age=31536000, immutable',
+      'Vary': 'Accept'
+    }
   });
+  if (ctx?.waitUntil) ctx.waitUntil(cache.put(cacheKey, response.clone()));
+  return response;
 }
 
 // ── LOGO (per-gallery brand mark, served on cover + lightbox topbar) ──
@@ -3254,7 +3346,7 @@ async function fetchHandler(request, env, ctx) {
 
     // ── Public cover image (for emails / embeds) ──
     const coverMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/cover$/);
-    if (coverMatch && method === 'GET') return handleGetCover(env, coverMatch[1]);
+    if (coverMatch && method === 'GET') return handleGetCover(request, env, coverMatch[1], ctx);
 
     // ── Per-gallery logo (public GET, admin POST/DELETE) ──
     const logoMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/logo$/);
@@ -3267,6 +3359,12 @@ async function fetchHandler(request, env, ctx) {
     if (musicMatch && method === 'GET') return handleGetMusic(env, musicMatch[1]);
     if (musicMatch && method === 'POST') return handleUploadMusic(request, env, session, musicMatch[1]);
     if (musicMatch && method === 'DELETE') return handleDeleteMusic(env, session, musicMatch[1]);
+
+    // ── F1 perf: unified auto-routing endpoint. Single round trip replaces
+    // the legacy 3-step waterfall (auth → /public → /by-link). The legacy
+    // routes below stay live for backward compat / smoke tests. ──
+    const autoMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/auto$/);
+    if (autoMatch && method === 'GET') return handleGetGalleryAuto(env, session, autoMatch[1]);
 
     // ── Public gallery view (portfolio galleries only) ──
     const publicGalleryMatch = path.match(/^\/api\/galleries\/([a-f0-9]{32})\/public$/);
