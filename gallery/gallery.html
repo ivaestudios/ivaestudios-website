@@ -72,9 +72,11 @@
 <div class="gallery-toolbar" id="galleryToolbar" style="display:none;">
   <div class="gt-left">
     <span class="gt-credit">PHOTOS BY<br><strong>IVAE</strong></span>
-    <div class="gt-tabs">
+    <!-- SHOP tab hidden until proveedores en MX están listos. Don't delete —
+         re-enable by removing display:none when store launches. -->
+    <div class="gt-tabs" style="display:none;">
       <button class="gt-tab active">GALLERY</button>
-      <button class="gt-tab" style="color:#ccc;cursor:default;">SHOP</button>
+      <button class="gt-tab" style="color:var(--mute-soft);cursor:default;">SHOP</button>
     </div>
   </div>
   <div class="gt-right">
@@ -609,7 +611,10 @@ let isShareTokenView = false;  // tokenized public link — no login, no email g
     const bg = gallery.bg_color || '#ffffff';
     const tx = gallery.txt_color || '#2c2c2c';
     const fx = gallery.focal_x ?? 50;
-    const fy = gallery.focal_y ?? 50;
+    // Default focal-Y to upper third (35%) instead of dead center: portraits
+    // and most editorial photos place the subject's face/eyes there. Admin
+    // can override via the focal-point picker in gallery-edit.
+    const fy = gallery.focal_y ?? 35;
     const design = gallery.cover_design || 'classic';
     const dateStr = gallery.session_date
       ? new Date(gallery.session_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
@@ -893,7 +898,13 @@ function renderPhotoSection(container, sectionPhotos, indexOffset) {
     rowEl.style.height = row.height + 'px';
     row.items.forEach(it => {
       const p = it; // also has displayWidth/displayHeight
-      const i = photos.indexOf(p);
+      // BUG FIX: justifyRows returns spread copies of photos, so
+      // photos.indexOf(p) always returns -1 (identity mismatch). Look up
+      // by id instead. Symptom Vianey reported: clicking expand or heart
+      // does nothing visible — openLightbox(-1)/toggleSelect(undefined)
+      // throws silently and the page redirects to home (gallery state
+      // corrupts → re-renders → the cell click path no-ops).
+      const i = photos.findIndex(x => x.id === p.id);
       const isSelected = !isPublicView && selectedIds.has(p.id);
       const selectBtn = isPublicView ? '' : `
         <div class="photo-overlay">
@@ -963,25 +974,58 @@ function enterGallery(e) {
   if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+// BUG FIX: previously called renderGrid() on every heart click, which wiped
+// the entire #photoGrid innerHTML and rebuilt it. Browser lost scroll
+// position → page jumped to top — Vianey reported this as "me envia al
+// inicio". Now we toggle the selected class on the affected cell only,
+// flip the heart fill, and update the bottom bar count. Scroll stays.
+function _applySelectionVisualOnly(photoId, isNowSelected) {
+  // Mirror the state on every cell that displays this photo (a photo could
+  // appear in multiple sections if scenes overlap in the future).
+  document.querySelectorAll('.photo-select[data-id="' + photoId + '"]').forEach(sel => {
+    sel.classList.toggle('selected', isNowSelected);
+    const heart = sel.querySelector('svg.heart-icon');
+    if (heart) heart.setAttribute('fill', isNowSelected ? 'currentColor' : 'none');
+  });
+  document.querySelectorAll('.photo-cell').forEach(cell => {
+    const sel = cell.querySelector('.photo-select[data-id="' + photoId + '"]');
+    if (sel) cell.classList.toggle('selected', isNowSelected);
+  });
+}
 async function toggleSelect(photoId, el) {
   // Anonymous (by-link) visitor: store selection in localStorage. No server round-trip.
   if (isByLinkView) {
-    if (selectedIds.has(photoId)) selectedIds.delete(photoId);
-    else selectedIds.add(photoId);
+    const willSelect = !selectedIds.has(photoId);
+    if (willSelect) selectedIds.add(photoId); else selectedIds.delete(photoId);
     try { localStorage.setItem('pic_sel_' + galleryId, JSON.stringify([...selectedIds])); } catch {}
-    renderGrid();
+    _applySelectionVisualOnly(photoId, willSelect);
     updateSelBar();
     showAutosave();
     return;
   }
+  // Optimistic UI: flip the heart immediately so the click feels instant.
+  // Reconcile with server response when it lands.
+  const prevSelected = selectedIds.has(photoId);
+  const optimistic = !prevSelected;
+  if (optimistic) selectedIds.add(photoId); else selectedIds.delete(photoId);
+  _applySelectionVisualOnly(photoId, optimistic);
+  updateSelBar();
   try {
     const res = await API.post('/selections/' + photoId, {});
-    if (res.selected) selectedIds.add(photoId);
-    else selectedIds.delete(photoId);
-    renderGrid();
-    updateSelBar();
+    // Reconcile if server disagrees (rare).
+    if (res.selected !== optimistic) {
+      if (res.selected) selectedIds.add(photoId); else selectedIds.delete(photoId);
+      _applySelectionVisualOnly(photoId, !!res.selected);
+      updateSelBar();
+    }
     showAutosave();
-  } catch (e) { showToast(e.message); }
+  } catch (e) {
+    // Roll back on failure.
+    if (prevSelected) selectedIds.add(photoId); else selectedIds.delete(photoId);
+    _applySelectionVisualOnly(photoId, prevSelected);
+    updateSelBar();
+    showToast(e.message || 'Could not save selection');
+  }
 }
 
 function showAutosave() {

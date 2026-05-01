@@ -1753,17 +1753,23 @@ textarea.form-input { min-height: 100px; resize: vertical; }
 .autosave-indicator.show { opacity: 1; }
 .autosave-indicator svg { width: 14px; height: 14px; }
 
-/* ── GALLERY HERO (Client gallery cover) ── */
+/* ── GALLERY HERO (Client gallery cover) ──
+   The inner cover-design (rendered by /gallery/js/cover-designs.js) carries
+   its OWN background. The outer used to paint --ink (dark navy) and add
+   64px top padding — that bled through whenever the inner design didn't
+   precisely fill, leaving a visible dark strip down one side. Now the
+   outer is transparent + zero-pad so only the cover design's own colors
+   show. */
 .gallery-hero {
   position: relative;
   min-height: 100vh; min-height: 100dvh;
   min-height: 100dvh; /* iOS Safari: respect URL bar collapse */
-  background: var(--ink);
+  background: transparent;
   overflow: hidden;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-top: 64px;
+  align-items: stretch;
+  justify-content: stretch;
+  padding-top: 0;
 }
 .gallery-hero-design {
   position: relative;
