@@ -17,11 +17,11 @@
      fonts.gstatic.com, no Google CDN handshake. ONE woff2 file per family
      covers all weights via font-weight: 100 900 in the local fonts.css.
      Total: 71 KB on cold load, 1y immutable cache for repeat visits. -->
-<link rel="preload" as="style" href="/gallery/css/gallery.css?v=20260428">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="/gallery/fonts/cormorant-garamond-latin.woff2?v=20260428">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="/gallery/fonts/syne-latin.woff2?v=20260428">
-<link rel="stylesheet" href="/gallery/fonts/fonts.css?v=20260428"/>
-<link rel="stylesheet" href="/gallery/css/gallery.css?v=20260428"/>
+<link rel="preload" as="style" href="/gallery/css/gallery.css?v=20260428b">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="/gallery/fonts/cormorant-garamond-latin.woff2?v=20260428b">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="/gallery/fonts/syne-latin.woff2?v=20260428b">
+<link rel="stylesheet" href="/gallery/fonts/fonts.css?v=20260428b"/>
+<link rel="stylesheet" href="/gallery/css/gallery.css?v=20260428b"/>
 <!-- F1 LCP: preload the cover image AS EARLY AS POSSIBLE so the browser's
      preload scanner starts the fetch before JS runs. /cover endpoint serves
      the /web variant (~250KB) cached 1y immutable. Inline IIFE below
@@ -34,7 +34,7 @@
   if (sh) { /* share-token cover not yet a dedicated endpoint — skip preload, hero JS will fetch */ }
   else if (id && /^[a-f0-9]{32}$/i.test(id)) { pre.href = '/api/gallery/galleries/' + id + '/cover'; }
 })();</script>
-<script src="/gallery/js/track.js?v=20260428" defer></script>
+<script src="/gallery/js/track.js?v=20260428b" defer></script>
 </head>
 <body style="padding-top:0;">
 <!-- Page loader -->
@@ -506,10 +506,10 @@
   </div>
 </div>
 
-<script src="/gallery/js/api.js?v=20260428"></script>
+<script src="/gallery/js/api.js?v=20260428b"></script>
 <script src="/gallery/js/auth.js?v=20260424"></script>
-<script src="/gallery/js/cover-designs.js?v=20260428"></script>
-<script src="/gallery/js/justified-layout.js?v=20260428"></script>
+<script src="/gallery/js/cover-designs.js?v=20260428b"></script>
+<script src="/gallery/js/justified-layout.js?v=20260428b"></script>
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/gallery/sw.js', { scope: '/' }).catch(err => console.warn('SW register failed:', err));
@@ -1091,9 +1091,18 @@ function preloadPhoto(index) {
 }
 
 function loadLightboxPhoto(index) {
+  // Defensive: if index is bad, log and try to recover (don't throw).
+  if (typeof index !== 'number' || index < 0 || index >= photos.length || !photos[index]) {
+    console.warn('[lightbox] bad index', index, 'photos.length=', photos.length);
+    return false;
+  }
   lightboxIndex = index;
   const p = photos[index];
   const img = document.getElementById('lightboxImg');
+  if (!img) {
+    console.warn('[lightbox] #lightboxImg element missing');
+    return false;
+  }
   // Keep <source> srcset in sync so <picture> picks WebP when supported.
   // Falls back to the <img> src (web.jpg via /web) on legacy browsers and
   // when the daemon hasn't generated .webp yet.
@@ -1108,7 +1117,8 @@ function loadLightboxPhoto(index) {
   img.classList.add('loading-img');
   img.src = '/api/gallery/photos/' + p.id + '/web';
   img.onload = () => img.classList.remove('loading-img');
-  document.getElementById('lightboxFilename').textContent = p.filename || '';
+  const fnEl = document.getElementById('lightboxFilename');
+  if (fnEl) fnEl.textContent = p.filename || '';
   const dl = document.getElementById('lightboxDownload');
   if (dl) dl.href = '/api/gallery/photos/' + p.id + '/full';
   updateLightboxCounter();
@@ -1116,12 +1126,36 @@ function loadLightboxPhoto(index) {
   // Preload neighbors so left/right feels instant
   preloadPhoto(index - 1);
   preloadPhoto(index + 1);
+  return true;
 }
 
 function openLightbox(index) {
-  loadLightboxPhoto(index);
-  document.getElementById('lightbox').classList.add('open');
+  // Defensive wrapper. If `index` is bad (-1 from an indexOf miss, or NaN
+  // from any other path), log + try a sane fallback by photo id, then by
+  // photo[0]. Goal: clicking expand should ALWAYS open the lightbox to
+  // SOMETHING, never silently fail.
+  console.log('[openLightbox]', index, 'photos.length=', photos.length);
+  let i = index;
+  // Coerce string → number (in case onclick interpolated a string).
+  if (typeof i === 'string') i = parseInt(i, 10);
+  // If still bad, fall back to first photo so the user sees SOMETHING.
+  if (typeof i !== 'number' || isNaN(i) || i < 0 || i >= photos.length) {
+    console.warn('[openLightbox] coercing bad index', index, '→ 0');
+    i = 0;
+  }
+  if (!photos.length) {
+    console.warn('[openLightbox] no photos');
+    return;
+  }
+  const lb = document.getElementById('lightbox');
+  if (!lb) {
+    console.warn('[openLightbox] #lightbox element missing');
+    return;
+  }
+  // Open FIRST so the user sees the overlay even before image loads.
+  lb.classList.add('open');
   document.body.style.overflow = 'hidden';
+  loadLightboxPhoto(i);
 }
 
 function closeLightbox() {
