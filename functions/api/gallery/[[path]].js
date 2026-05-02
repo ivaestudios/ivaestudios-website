@@ -2054,14 +2054,26 @@ async function handleGetThumb(request, env, session, photoId, ctx) {
 // and any /web request from a WebP-capable client falls back to .jpg when
 // the .webp sibling key is missing.
 // Daemon source: /Users/vianeydm/Desktop/WEB/ivae-uploader/src/main.js
+// Cache key version. Bump this whenever the variant-fallback logic below
+// changes, so the worker's caches.default lookups skip past stale responses
+// from the previous code revision (immutable 1y cache otherwise pins them).
+//
+//  v1 — initial
+//  v2 — /web fallback now goes web_key → r2_key (was → thumb_key). Old
+//       cache entries served thumb-fallback at thumb resolution which made
+//       the lightbox feel "pequeñito" on photos missing a /web variant.
+const SERVED_RESIZE_CACHE_VER = 'v2';
+
 async function serveResized(request, env, session, photoId, maxWidth, variant, ctx) {
   // 1. Edge cache check — short-circuit before any work.
-  // NOTE: cache key includes the request URL, but WebP/JPEG share the same
-  // URL — they're disambiguated by Vary: Accept on the response. Cloudflare
-  // honours Vary on caches.default, so WebP and JPEG callers each get their
-  // own cached variant.
+  // Cache key includes a code-rev token so a fallback-logic bump invalidates
+  // all prior cached responses without needing to touch client URLs.
+  // WebP/JPEG share the same URL but are disambiguated by Vary: Accept on
+  // the response — Cloudflare honours Vary on caches.default.
   const cache = caches.default;
-  const cacheKey = new Request(request.url, { method: 'GET' });
+  const _cacheUrl = new URL(request.url);
+  _cacheUrl.searchParams.set('_rv', SERVED_RESIZE_CACHE_VER);
+  const cacheKey = new Request(_cacheUrl.toString(), { method: 'GET' });
   const cached = await cache.match(cacheKey);
   if (cached) return cached;
 
