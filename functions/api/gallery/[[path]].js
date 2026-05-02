@@ -2103,12 +2103,24 @@ async function serveResized(request, env, session, photoId, maxWidth, variant, c
     }
   }
 
-  // Pick variant: prefer the requested one, fall back to the OTHER variant
-  // (smaller than original), and only as a LAST resort serve the placeholder.
-  // Never serve the multi-MB original from /thumb or /web — that destroys
-  // mobile clients on cellular.
-  const primary = variant === 'thumb' ? photo.thumb_key : photo.web_key;
-  const secondary = variant === 'thumb' ? photo.web_key : photo.thumb_key;
+  // Pick variant. Order:
+  //   /web  request → web_key → r2_key (ORIGINAL) — Vianey reported
+  //                 the lightbox showed photos at thumb size ("se queda
+  //                 pequeñito") because old uploads have no web variant
+  //                 and the chain fell back to thumb (749×1124). Falling
+  //                 to the original gives a quality lightbox image. Cost:
+  //                 multi-MB on first edge fetch; cached 1y after that.
+  //                 New daemon uploads bypass this — they have web_key.
+  //   /thumb request → thumb_key → web_key — never serve original from
+  //                  /thumb (would destroy mobile clients on cellular).
+  let primary, secondary;
+  if (variant === 'thumb') {
+    primary = photo.thumb_key;
+    secondary = photo.web_key;
+  } else {
+    primary = photo.web_key;
+    secondary = photo.r2_key; // ← original as fallback for /web only
+  }
   const chosenKey = primary || secondary;
 
   const isDownload = new URL(request.url).searchParams.get('download') === '1';
@@ -2139,7 +2151,13 @@ async function serveResized(request, env, session, photoId, maxWidth, variant, c
         'Cache-Control': 'public, max-age=31536000, immutable',
         'ETag': etag,
         'Vary': 'Accept',
-        'X-Variant': primary ? variant : (variant === 'thumb' ? 'web-fallback' : 'thumb-fallback'),
+        // Telemetry header — useful when debugging "why is image small/big".
+        // Values: 'thumb', 'web', 'original-fallback' (web requested → no
+        // web_key → served original), 'web-fallback' (thumb requested → no
+        // thumb_key → served web).
+        'X-Variant': primary
+          ? variant
+          : (variant === 'thumb' ? 'web-fallback' : 'original-fallback'),
         'X-Variant-Format': servedContentType === 'image/webp' ? 'webp' : 'jpg'
       };
       if (isDownload && photo.filename) headers['Content-Disposition'] = `attachment; filename="${photo.filename}"`;
