@@ -1,10 +1,15 @@
 // IVAE Gallery Service Worker — caches photo thumbnails + per-size web variants
-// for instant repeat views. v2 fixed a regex that only matched /thumb and /web
-// exactly, missing the /web/(sm|md|lg) variants the <picture srcset> actually
-// uses. v3 just bumps the cache name to force a clean reactivate — Vianey
-// reported the lightbox click bug even after the JS fix shipped, and a stale
-// SW with old cached responses was the most likely culprit.
-const CACHE_NAME = 'ivae-photos-v3';
+// for instant repeat views.
+//   v2: fixed regex that only matched /thumb and /web exactly, missing the
+//       /web/(sm|md|lg) variants the <picture srcset> actually uses.
+//   v3: bumped cache name to force a clean reactivate after the lightbox fix.
+//   v4: bumped AGAIN because v3 caches still held the old thumb-fallback
+//       responses for /web/lg etc., so the lightbox kept rendering at thumb
+//       resolution even after the server-side fallback fix shipped. The
+//       activate handler below deletes any cache name != v4 — cleanest way
+//       to invalidate stale Service Worker entries without asking users to
+//       manually clear cache.
+const CACHE_NAME = 'ivae-photos-v4';
 
 // Soft cap so a binge through a 1000-photo gallery doesn't pin hundreds of MB
 // to disk forever. When the cache passes this many entries, oldest insertions
