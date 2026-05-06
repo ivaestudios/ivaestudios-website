@@ -163,6 +163,12 @@
   border-bottom-color: var(--_gold);
 }
 
+/* Keyboard focus indicator distinct from hover (WCAG 2.4.7 / 2.4.13) */
+.ivae-footer__input:focus-visible {
+  outline: 2px solid var(--_gold);
+  outline-offset: 3px;
+}
+
 .ivae-footer__submit {
   align-self: flex-start;
   display: inline-flex;
