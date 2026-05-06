@@ -70,20 +70,38 @@ button:hover{background:#d4b36a}
   <div class="error" id="err">Contrasena incorrecta</div>
 </div>
 <script>
-var PASS = 'ivae2026';
-function tryLogin() {
+'use strict';
+// Server-side auth: password lives in Cloudflare Pages env var ADMIN_PASSWORD.
+// No password in this file. Server validates over HTTPS.
+async function tryLogin() {
+  var btn = document.getElementById('btn');
+  var errEl = document.getElementById('err');
   var pwd = document.getElementById('pwd').value;
-  if (pwd === PASS) {
-    sessionStorage.setItem('ivae_admin_auth', 'true');
-    window.location.replace('/');
-  } else {
-    document.getElementById('err').classList.add('show');
+  if (!pwd) return;
+  btn.disabled = true;
+  try {
+    var res = await fetch('/api/focal/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pwd })
+    });
+    if (res.ok) {
+      sessionStorage.setItem('ivae_admin_auth', 'true');
+      sessionStorage.setItem('ivae_admin_token', pwd);
+      window.location.replace('/');
+    } else {
+      throw new Error('unauthorised');
+    }
+  } catch (_) {
+    errEl.classList.add('show');
     document.getElementById('pwd').value = '';
-    setTimeout(function() { document.getElementById('err').classList.remove('show'); }, 2500);
+    setTimeout(function () { errEl.classList.remove('show'); }, 2500);
+  } finally {
+    btn.disabled = false;
   }
 }
 document.getElementById('btn').addEventListener('click', tryLogin);
-document.getElementById('pwd').addEventListener('keydown', function(e) {
+document.getElementById('pwd').addEventListener('keydown', function (e) {
   if (e.key === 'Enter') tryLogin();
 });
 </script>

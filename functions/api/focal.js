@@ -2,59 +2,107 @@
    Cloudflare Pages Function — /api/focal
    ───────────────────────────────────────────────────────────────
    KV binding required: FOCAL_DATA
-   Stores/retrieves focal point data for all images.
+   Env var required:    ADMIN_PASSWORD (set in Cloudflare Pages →
+                        Settings → Environment variables → Encrypted)
+
+   Endpoints:
+   • GET   /api/focal              → public read (focal point data)
+   • POST  /api/focal/login        → body { password }: 200 if matches
+                                     env, 401 otherwise, 503 if env unset
+   • POST  /api/focal              → header X-Admin-Key must match env
+                                     ADMIN_PASSWORD; writes focal payload
+                                     to KV
    ═══════════════════════════════════════════════════════════════ */
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Key',
+};
+
+const json = (status, body) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
+      ...corsHeaders,
+    },
+  });
+
+// Constant-time string compare to avoid timing leaks
+function safeEq(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  if (a.length !== b.length) return false;
+  let r = 0;
+  for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return r === 0;
+}
+
+async function delayJitter() {
+  await new Promise((r) => setTimeout(r, 250 + Math.random() * 250));
+}
 
 export async function onRequestGet(context) {
   try {
-    var data = await context.env.FOCAL_DATA.get('focal_points');
+    const data = await context.env.FOCAL_DATA.get('focal_points');
     return new Response(data || '{}', {
       headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'no-cache',
-        'Access-Control-Allow-Origin': '*'
-      }
+        ...corsHeaders,
+      },
     });
   } catch (e) {
     return new Response('{}', {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json', ...corsHeaders },
     });
   }
 }
 
 export async function onRequestPost(context) {
-  try {
-    var key = context.request.headers.get('X-Admin-Key');
-    if (key !== 'ivae2026') {
-      return new Response(JSON.stringify({ error: 'No autorizado' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' }
-      });
+  const url = new URL(context.request.url);
+  const expected = context.env.ADMIN_PASSWORD;
+
+  // Fail-closed: missing env var → 503
+  if (!expected) {
+    return json(503, {
+      error: 'Admin disabled — set ADMIN_PASSWORD in Cloudflare Pages env vars',
+    });
+  }
+
+  // /api/focal/login → password check only
+  if (url.pathname === '/api/focal/login') {
+    let body;
+    try {
+      body = await context.request.json();
+    } catch {
+      return json(400, { error: 'Invalid JSON body' });
     }
-    var body = await context.request.text();
+    if (!safeEq(body && body.password, expected)) {
+      await delayJitter();
+      return json(401, { error: 'No autorizado' });
+    }
+    return json(200, { ok: true });
+  }
+
+  // /api/focal → write focal points (X-Admin-Key header)
+  const key = context.request.headers.get('X-Admin-Key');
+  if (!safeEq(key, expected)) {
+    await delayJitter();
+    return json(401, { error: 'No autorizado' });
+  }
+  try {
+    const body = await context.request.text();
     JSON.parse(body); // validate JSON
     await context.env.FOCAL_DATA.put('focal_points', body);
-    return new Response(JSON.stringify({ ok: true }), {
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      }
-    });
+    return json(200, { ok: true });
   } catch (e) {
-    return new Response(JSON.stringify({ error: e.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return json(500, { error: e.message });
   }
 }
 
 export async function onRequestOptions() {
-  return new Response(null, {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Key'
-    }
-  });
+  return new Response(null, { headers: corsHeaders });
 }

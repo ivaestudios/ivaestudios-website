@@ -13,7 +13,8 @@
   var STORE = 'ivae_focal_points';
   var AUTH  = 'ivae_admin_auth';
   var API   = '/api/focal';
-  var AKEY  = 'ivae2026';
+  // Token is set by /admin login flow after server-side password verification.
+  var AKEY  = sessionStorage.getItem('ivae_admin_token') || '';
   var mob   = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
   function ik(img) {
