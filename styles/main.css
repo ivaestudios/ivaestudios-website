@@ -2,16 +2,28 @@
    IVAE Studios · Redesign 2026 · main.css
    ──────────────────────────────────────────────────────────────────
    Module orchestrator. The order below is load-order-significant:
-   tokens → fonts → base → atomic helpers → components → legacy.
+   tokens → fonts → base → atomic helpers → components → pages → legacy.
 
    Why the order matters:
    1. Tokens must come first — every other module reads from them.
    2. @font-face goes next so faces are registered before any rule
       references the families.
    3. Base sets element defaults; component modules layer on top.
-   4. Legacy is LAST so unmigrated pages keep their current cascade.
+   4. Page modules layer on top of components, scoped to page-level
+      class selectors (e.g. `.about-page`, `.service-page`).
+   5. Legacy is LAST so unmigrated pages keep their current cascade.
       Each migration in Oleadas 2-3 deletes rules from _legacy.css
       and (if needed) registers a new page module under "Pages".
+
+   Adding a page module
+   ────────────────────
+   - Add `@import "_<page>.css";` under the "Pages" section below,
+     keeping the list alphabetical.
+   - When a page is deleted, COMMENT OUT the line (don't remove it)
+     and add a one-line note explaining why.
+   - CSS silently skips imports whose target file does not exist,
+     so a missing module never crashes the cascade — but keep the
+     orchestrator honest by only listing modules we expect to ship.
 
    Touch this file ONLY to reorder or add a new module.
    See ./README.md for the full module convention.
@@ -32,15 +44,17 @@
 @import "_footer.css";        /* Agent 05 */
 
 /* ── Pages (Oleadas 2-3) ───────────────────────────────────────────── */
-@import "_home.css";          /* Activated Oleada 2 */
-/* @import "_about.css"; */
-/* @import "_services.css"; */
-/* @import "_destinations.css"; */
-/* @import "_couples.css"; */
-/* @import "_family.css"; */
-/* @import "_weddings.css"; */
-/* @import "_blog.css"; */          /* refactored in Oleada 4 */
-/* etc. */
+/* Alphabetical. Each entry names its owning agent for traceability.   */
+@import "_about.css";         /* Oleada 3 — Agent 01 */
+@import "_bio.css";           /* Oleada 3 — Agent 02 (Vianey profile) */
+@import "_blog-index.css";    /* Oleada 3 — Agent 13 */
+@import "_contact.css";       /* Oleada 3 — Agent 14 */
+@import "_destination.css";   /* Oleada 3 — Agents 09-11 (shared destination styles) */
+@import "_home.css";          /* Oleada 2 — homepage modules */
+@import "_legal.css";         /* Oleada 3 — Agent 16 */
+@import "_outfit-guide.css";  /* Oleada 3 — Agent 12 */
+@import "_portfolio.css";     /* Oleada 3 — Agent 15 */
+@import "_service.css";       /* Oleada 3 — Agents 03-08 (shared service-page styles) */
 
 /* ── Legacy (to be deleted as pages migrate) ───────────────────────── */
 @import "_legacy.css";

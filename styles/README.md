@@ -80,9 +80,44 @@ as already-deprecated.
 1. Create `styles/_<page>.css`. Use only tokens for colors (no raw
    hex) and respect the import-order discipline above.
 2. Open `main.css` and add `@import "_<page>.css";` under the
-   `── Pages ──` section, in roughly the order pages are migrated.
+   `── Pages ──` section, keeping the list alphabetical.
 3. In `_legacy.css`, delete the rules now owned by the page module.
 4. Visually diff the page (preview deploy) before merging.
+
+When a page is **deleted**, comment its `@import` line out in
+`main.css` (do not remove it) and append a one-line note explaining
+why. CSS silently skips imports whose target file does not exist, so
+a stale or missing module never crashes the cascade — the comment is
+how we keep the orchestrator honest.
+
+---
+
+## Page modules added in Oleada 3
+
+Each page now owns its own module. Agent 17 is the Oleada 3 CSS
+orchestrator and is the ONLY agent allowed to touch `main.css` in
+this oleada — every other agent works inside their page module.
+
+| Module                | Agent(s)               | Owned page(s) |
+|-----------------------|------------------------|---|
+| `_about.css`          | Agent 01               | `about.html`, `/es/about.html` |
+| `_bio.css`            | Agent 02               | Vianey Díaz bio / E-E-A-T page |
+| `_service.css`        | Agents 03-08 (shared)  | `couples-photography.html`, `luxury-family-photos.html`, `luxury-weddings.html` and their ES mirrors |
+| `_destination.css`    | Agents 09-11 (shared)  | `cancun.html`, `riviera-maya.html`, `los-cabos.html` and their ES mirrors |
+| `_outfit-guide.css`   | Agent 12               | `outfit-guide.html` |
+| `_blog-index.css`     | Agent 13               | `blog.html` (index/listing) |
+| `_contact.css`        | Agent 14               | `/contact` (new in Oleada 3) |
+| `_portfolio.css`      | Agent 15               | `/portfolio` (new in Oleada 3) |
+| `_legal.css`          | Agent 16               | `/privacy`, `/terms` and ES mirrors |
+
+Two modules are **shared** by multiple agents because the underlying
+pages share a layout shell:
+
+- `_service.css` covers all three service-vertical pages.
+- `_destination.css` covers all three destination/city pages.
+
+A single shared module per shell keeps cascade rules (hero, gallery,
+CTA, FAQ) in one place and avoids three near-identical sheets.
 
 ---
 
