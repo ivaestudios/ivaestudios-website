@@ -1,0 +1,71 @@
+<!--
+  IVAE Studios — Manifesto Section (Oleada 2 · Agent 03)
+  ─────────────────────────────────────────────────────────────────────────────
+  The most important section of the homepage. The single moment where IVAE's
+  positioning lands viscerally — treated like the inside spread of a fashion
+  magazine. Generous whitespace, navy serif on resort-white, gold ornaments.
+
+  Source text: BRAND.md §1 (positioning) + §6 (voice) + Brand Identity Manual
+  v1.0 (Volumen 01) §6 — verbatim manifesto.
+
+  Two language variants live below: ENGLISH first, SPANISH second. The
+  eyebrow "Manifiesto · IVAE Studios" is intentionally Spanish in BOTH
+  blocks — the word "manifiesto" reads in both languages and the manual
+  uses it as the canonical label.
+
+  Word reveal: `data-reveal-words` is split + cascaded by js/animations.js
+  (60ms per word). The bold lines reveal first; the soft third line, with
+  its own `data-reveal` and a delay, recedes after.
+
+  Pair with styles/_home-manifesto.css.
+-->
+
+
+<!-- ─── ENGLISH ─── -->
+<section class="section section--manifesto" id="manifesto" data-section="manifesto" lang="en">
+  <div class="container container--prose manifesto__inner">
+
+    <span class="manifesto__rule" aria-hidden="true" data-reveal></span>
+
+    <p class="eyebrow manifesto__eyebrow" data-reveal>Manifiesto &middot; IVAE Studios</p>
+
+    <h2 class="manifesto__quote" data-reveal-words>
+      Some photographers chase the moment.<br>
+      We <em>compose</em> it.<br>
+      <span class="manifesto__quote--soft">The light, the posture, the light again &mdash; nothing happens by accident.</span>
+    </h2>
+
+    <p class="manifesto__sign" data-reveal>
+      <span class="manifesto__sign-mark" aria-hidden="true">&AElig;</span>
+      <span class="manifesto__sign-text">IVAE Studios &middot; Riviera Maya &middot; 2026</span>
+    </p>
+
+    <span class="manifesto__ornament" aria-hidden="true" data-reveal>&laquo;&aelig;&raquo;</span>
+
+  </div>
+</section>
+
+
+<!-- ─── SPANISH ─── -->
+<section class="section section--manifesto" id="manifiesto" data-section="manifesto" lang="es">
+  <div class="container container--prose manifesto__inner">
+
+    <span class="manifesto__rule" aria-hidden="true" data-reveal></span>
+
+    <p class="eyebrow manifesto__eyebrow" data-reveal>Manifiesto &middot; IVAE Studios</p>
+
+    <h2 class="manifesto__quote" data-reveal-words>
+      Algunos fot&oacute;grafos persiguen momentos.<br>
+      Nosotros los <em>componemos</em>.<br>
+      <span class="manifesto__quote--soft">La luz, la postura, la luz otra vez &mdash; nada sucede por accidente.</span>
+    </h2>
+
+    <p class="manifesto__sign" data-reveal>
+      <span class="manifesto__sign-mark" aria-hidden="true">&AElig;</span>
+      <span class="manifesto__sign-text">IVAE Studios &middot; Riviera Maya &middot; 2026</span>
+    </p>
+
+    <span class="manifesto__ornament" aria-hidden="true" data-reveal>&laquo;&aelig;&raquo;</span>
+
+  </div>
+</section>
