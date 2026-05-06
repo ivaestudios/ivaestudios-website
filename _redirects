@@ -28,7 +28,8 @@
 
 # /cenote short URL → cenote service page
 /cenote /cenote-photography.html 200
-/es/cenote /es/cenote-tulum.html 200
+/es/cenote /es/cenote-photography.html 200
+/es/cenote-tulum /es/cenote-photography.html 200
 
 # /journal alias for /blog (kept for inbound links labeled "journal")
 /journal /blog.html 200
@@ -36,7 +37,10 @@
 
 # /portfolio short URL aliases (in case of trailing-slash variants)
 /portfolio/ /portfolio.html 200
-/es/portfolio/ /es/portfolio.html 200
+/es/portfolio /es/portafolio.html 200
+/es/portfolio/ /es/portafolio.html 200
+/es/portafolio /es/portafolio.html 200
+/es/portafolio/ /es/portafolio.html 200
 
 # ═══════════════════════════════════════════
 # CLEAN URLs — Location Pages (legacy long-slug → new short-slug)
