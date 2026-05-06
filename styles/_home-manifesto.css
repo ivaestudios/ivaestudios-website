@@ -1,0 +1,187 @@
+/* ============================================================
+   _home-manifesto.css
+   IVAE Studios · Redesign 2026 · Oleada 2 · Agent 03
+   ──────────────────────────────────────────────────────────
+   Editorial pull-quote section. The single moment on the
+   homepage where positioning lands viscerally. Treated like
+   the inside spread of a fashion magazine: generous whitespace,
+   navy serif on resort-white, gold as a rare typographic accent.
+
+   Token contract: consumes _tokens.css (Agent 01) and the global
+   `em { ... }` italic-gold rule from _base.css (Agent 10). The
+   eyebrow class is also defined globally in _base.css; this module
+   only overrides color/centering/margin for the manifesto context.
+
+   Pair with partials/home/03-manifesto.html.
+   ============================================================ */
+
+/* 1. Section frame --------------------------------------------- */
+/* Generous vertical air. clamp() floor is 120px so even on a 320px
+   viewport the section breathes; ceiling is 240px so wide desktops
+   don't bloat. Background = resort-white (50% palette protagonist). */
+.section--manifesto {
+  padding-block: clamp(120px, 18vw, 240px);
+  background: var(--resort-white);
+  color: var(--text);
+  position: relative;
+  isolation: isolate;
+}
+
+/* 2. Inner wrapper --------------------------------------------- */
+/* Centers the column, caps width below the prose default so the
+   pull-quote renders as a single deliberate block, not a paragraph. */
+.manifesto__inner {
+  text-align: center;
+  max-width: 920px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 3. Decorative top rule --------------------------------------- */
+/* Hairline gold, 80px wide, centered above the eyebrow. Uses the
+   same reveal as the eyebrow so it fades in with the section. */
+.manifesto__rule {
+  display: block;
+  width: 80px;
+  height: 1px;
+  background: var(--editorial-gold);
+  margin-bottom: var(--space-6);
+}
+
+/* 4. Eyebrow --------------------------------------------------- */
+/* The base .eyebrow class lives in _base.css (Inter, 11–12px,
+   uppercase, tracking 0.4em). Here we override the color to gold
+   (the manifesto context warrants the rare accent), center it,
+   and pad below with space-7 (48px) before the quote. */
+.section--manifesto .eyebrow,
+.manifesto__eyebrow {
+  color: var(--editorial-gold);
+  text-align: center;
+  margin-bottom: var(--space-7);
+  display: block;
+}
+
+/* 5. The quote ------------------------------------------------- */
+/* DM Serif Display, navy, fluid 32 → 56px. Letter-spacing tight
+   for editorial gravity. The first two lines are the punch; the
+   `em` inside line two becomes gold italic via the global rule
+   in _base.css — no extra declarations needed here. */
+.manifesto__quote {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5vw, 56px);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--atlantic-navy);
+  font-weight: 400;
+  margin: 0;
+  /* prose max-width on the wrapper would still wrap awkwardly;
+     keep the quote on its own column up to 920px. */
+  max-width: 100%;
+}
+
+/* 6. The soft tail (third line) -------------------------------- */
+/* Display block so the line break is owned by the wrapper, not
+   only the <br>. Font-size 0.6em is RELATIVE to the parent quote
+   — so it scales fluidly with the clamp() above. Color soft-slate
+   so the line recedes; the punch lands on the first two lines. */
+.manifesto__quote--soft {
+  display: block;
+  margin-top: var(--space-6);
+  font-size: 0.6em;
+  color: var(--soft-slate);
+  /* slight tracking lift so the smaller size still reads as serif
+     editorial caption rather than compressed body. */
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+/* 7. Sign-off block ------------------------------------------- */
+/* Uppercase Inter caption with gold Æ glyph as the signature mark.
+   Inline-flex so the glyph sits on the same baseline as the text. */
+.manifesto__sign {
+  font-family: var(--font-body);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--soft-slate);
+  margin-top: var(--space-9);
+  margin-bottom: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  /* override the default `p { max-width: 65ch }` from _base.css so
+     the inline-flex centers cleanly inside the manifesto column. */
+  max-width: none;
+}
+
+/* 8. The Æ monogram ------------------------------------------- */
+/* Bodoni Moda Italic gold — the brand monogram per BRAND.md §4.
+   font-size larger than the caption text; translateY trims the
+   optical baseline so the glyph aligns with the small-caps copy. */
+.manifesto__sign-mark {
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--editorial-gold);
+  font-size: 32px;
+  line-height: 1;
+  transform: translateY(-2px);
+  font-weight: 400;
+  /* keep the glyph from inheriting uppercase from the parent,
+     since «Æ» is already a glyph, not text-transform-driven. */
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* 9. Bottom ornament ------------------------------------------ */
+/* Tiny Bodoni gold italic flourish below the sign-off. Acts as
+   an editorial closing flourish — like a printer's ornament at
+   the end of a chapter. Decorative only (aria-hidden in HTML). */
+.manifesto__ornament {
+  display: block;
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--editorial-gold);
+  font-size: 16px;
+  line-height: 1;
+  margin-top: var(--space-7);
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+/* 10. Reveal staging — soft tail enters last ------------------ */
+/* The two strong lines reveal word-by-word (60ms each, ~7 words
+   ≈ 420ms total) via data-reveal-words on the parent. The soft
+   line carries its own data-reveal (in HTML) but it's nested
+   inside the same data-reveal-words element, so it inherits the
+   parent reveal. We add a small delay via custom property so it
+   visually arrives AFTER the bold lines have landed. */
+.manifesto__quote--soft {
+  --reveal-delay: 600ms;
+}
+
+/* The decorative ornament reveals last. */
+.manifesto__ornament {
+  --reveal-delay: 200ms;
+}
+
+/* 11. Reduced motion ------------------------------------------ */
+/* The reveal system in _animations.css already disables transforms
+   under prefers-reduced-motion. Nothing further to do here. */
+
+/* 12. Mobile tightening --------------------------------------- */
+/* Below 480px, ease the sign-off block to wrap without crowding
+   the glyph. The clamp() font-size on the quote already handles
+   compression down to 32px so 320px width remains readable. */
+@media (max-width: 480px) {
+  .manifesto__sign {
+    flex-direction: column;
+    gap: var(--space-2);
+    line-height: 1.4;
+  }
+  .manifesto__sign-mark {
+    transform: translateY(0);
+    font-size: 28px;
+  }
+}
