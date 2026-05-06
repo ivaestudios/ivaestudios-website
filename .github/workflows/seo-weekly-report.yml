@@ -1,0 +1,44 @@
+name: SEO — Weekly Report
+
+# Pulls Google Search Console data, writes seo/reports/YYYY-WW.md,
+# commits it, and opens an Issue if any keyword regressed by >10 positions.
+
+on:
+  schedule:
+    - cron: '0 15 * * 1'  # Mondays 15:00 UTC
+  workflow_dispatch: {}
+
+concurrency:
+  group: seo-weekly-report
+  cancel-in-progress: false
+
+jobs:
+  report:
+    name: Generate weekly SEO report
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install google-auth google-api-python-client
+
+      - name: Generate report
+        env:
+          GOOGLE_INDEXING_SA_JSON: ${{ secrets.GOOGLE_INDEXING_SA_JSON }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 scripts/seo_report.py
+
+      - name: Commit report
+        run: |
+          git config user.name "ivae-seo-bot"
+          git config user.email "bot@ivaestudios.com"
+          git add seo/reports/
+          git diff --cached --quiet || git commit -m "chore(seo): weekly report $(date -u +%Y-%U)"
+          git push

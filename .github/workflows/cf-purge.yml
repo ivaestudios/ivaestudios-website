@@ -25,6 +25,25 @@ on:
         description: 'Purge entire zone (use sparingly)'
         required: false
         default: 'false'
+  # Allow other workflows (e.g. seo-keyword-refresh.yml) to chain a purge
+  # after they've committed page changes. Caller must pass the URLs (or set
+  # everything=true) and inherit the CLOUDFLARE_TOKEN secret.
+  workflow_call:
+    inputs:
+      urls:
+        description: 'Comma-separated full URLs to purge (ignored if everything=true)'
+        required: false
+        default: ''
+        type: string
+      everything:
+        description: 'Purge entire zone (use sparingly)'
+        required: false
+        default: 'false'
+        type: string
+    secrets:
+      CLOUDFLARE_TOKEN:
+        description: 'Cloudflare API token with zone-level Cache Purge permission'
+        required: true
 
 permissions:
   contents: read

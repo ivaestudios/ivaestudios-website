@@ -1,0 +1,39 @@
+name: SEO — IndexNow on push
+
+# Submits changed URLs to Bing IndexNow whenever HTML / sitemap content
+# changes on main. Skips silently if BING_INDEXNOW_KEY is not set, so the
+# workflow can land before the secret is provisioned.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '*.html'
+      - 'es/**.html'
+      - 'venues/**'
+      - 'comparison/**'
+      - 'sitemap.xml'
+
+concurrency:
+  group: seo-indexnow
+  cancel-in-progress: false
+
+jobs:
+  indexnow:
+    name: Submit to Bing IndexNow
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Submit to IndexNow
+        env:
+          BING_INDEXNOW_KEY: ${{ secrets.BING_INDEXNOW_KEY }}
+        run: python3 scripts/indexnow_submit.py --since-last-deploy

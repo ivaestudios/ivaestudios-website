@@ -34,3 +34,6 @@ jobs:
           else
             python scripts/audit_links.py
           fi
+
+      - name: SEO audit
+        run: python3 scripts/audit_seo.py --fail-on-error
