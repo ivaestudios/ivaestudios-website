@@ -1,0 +1,490 @@
+/* ============================================================
+   _about.css
+   IVAE Studios · Redesign 2026 · Oleada 3 · Agent 01
+   ──────────────────────────────────────────────────────────
+   Page module for /about (EN) and /es/acerca-de (ES).
+   Studio identity page — process and philosophy, not biography.
+   Sister page to /vianey-diaz (Agent 02, future).
+
+   Token contract: consumes _tokens.css. Reuses .container,
+   .container--prose, .eyebrow, .flow from _base.css and the
+   global em { ... } italic-gold rule. No new tokens introduced.
+
+   Sections (in document order):
+     · .section--page-hero / .section--page-hero--about
+     · .about-philosophy  (4 principles, gold serif numerals)
+     · .about-process     (paragraph block, max-width prose)
+     · .about-studio      (definition list, two-column on desktop)
+     · .section--editorial-quote (Bodoni pull-quote, gold ornament)
+
+   Contrast verification (BRAND.md §3 palette):
+     Atlantic Navy (#1A2433) on Resort White (#F9F8F7)  ≈ 14.7 : 1  → AAA
+     Atlantic Navy on Warm Sand   (#E6DCCF)             ≈ 12.6 : 1  → AAA
+     Soft Slate    (#5A6A7A) on Resort White            ≈  4.65: 1  → AA
+     Editorial Gold(#C4A35A) on Resort White            ≈  2.8 : 1  → ornamental only
+     Editorial Gold on Deep Atlantic (#0F1620)          ≈  6.8 : 1  → AA on dark surfaces
+   ============================================================ */
+
+
+/* ─── PAGE-WIDE OVERRIDES ─────────────────────────────────────
+   _legacy.css (loaded last) sets body { background: var(--ink2) }
+   from the Syne/Cormorant era. Re-assert resort-white on this page
+   so the surface matches the redesigned modules. Removed when
+   _legacy.css is finally deleted in a later oleada.
+*/
+body[data-page="about"] {
+  background: var(--resort-white);
+  color: var(--text);
+  font-family: var(--font-body);
+}
+
+
+/* ─── 01 · PAGE HERO ───────────────────────────────────────────
+   Small, editorial. No full-bleed image. Sits below the nav with
+   generous air, the page title and a single lede. The rule above
+   the eyebrow echoes the homepage manifesto and final-cta sections.
+*/
+.section--page-hero--about {
+  padding-block: clamp(120px, 18vw, 200px) clamp(64px, 10vw, 112px);
+  background: var(--resort-white);
+  color: var(--text);
+  position: relative;
+  isolation: isolate;
+}
+
+.page-hero__inner {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hairline gold rule — 80px wide, sits above the eyebrow. */
+.page-hero__rule {
+  display: block;
+  width: 80px;
+  height: 1px;
+  background: var(--editorial-gold);
+  margin-bottom: var(--space-6);
+}
+
+.page-hero__eyebrow {
+  color: var(--editorial-gold);
+  margin: 0 0 var(--space-6) 0;
+}
+
+/* H1 — DM Serif Display, fluid 36 → 72px. Italic-gold accent on
+   "luxury resorts" via the global em rule. */
+.page-hero__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(36px, 1.6rem + 4vw, 72px);
+  line-height: 1.06;
+  letter-spacing: var(--ls-tight);
+  color: var(--atlantic-navy);
+  margin: 0;
+  max-width: 18ch;
+  text-wrap: balance;
+}
+
+.page-hero__title em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--editorial-gold);
+}
+
+.page-hero__lede {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: clamp(16px, 0.95rem + 0.3vw, 19px);
+  line-height: var(--lh-loose);
+  color: var(--text-muted);
+  max-width: 56ch;
+  margin: var(--space-6) 0 0 0;
+}
+
+
+/* ─── 02 · PHILOSOPHY ──────────────────────────────────────────
+   Four numbered principles. Gold serif numerals on the left,
+   editorial body on the right. Hairline gold rule between rows.
+   Tonal pause: sits on resort-white between the hero and process.
+*/
+.about-philosophy {
+  background: var(--resort-white);
+  color: var(--text);
+  padding-block: clamp(80px, 12vw, 144px);
+}
+
+.about-philosophy__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-9);
+}
+
+.about-philosophy__header {
+  text-align: left;
+  max-width: 720px;
+}
+
+.about-philosophy__header .eyebrow {
+  color: var(--text);
+  margin: 0;
+}
+
+.about-philosophy__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(32px, 1.6rem + 2.4vw, 56px);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--atlantic-navy);
+  margin: var(--space-4) 0 0 0;
+  max-width: 18ch;
+  text-wrap: balance;
+}
+
+.about-philosophy__title em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--editorial-gold);
+}
+
+.about-philosophy__lede {
+  font-family: var(--font-body);
+  font-size: clamp(16px, 0.95rem + 0.25vw, 18px);
+  line-height: var(--lh-normal);
+  color: var(--text-muted);
+  max-width: 56ch;
+  margin: var(--space-5) 0 0 0;
+}
+
+/* ── List ── */
+.about-philosophy__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── One principle ── */
+.philosophy-item {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: var(--space-6);
+  align-items: start;
+  padding-block: var(--space-7);
+  border-bottom: 1px solid rgb(196 163 90 / 0.3);
+}
+
+.philosophy-item:first-child {
+  border-top: 1px solid rgb(196 163 90 / 0.3);
+}
+
+.philosophy-item__num {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(48px, 2.5rem + 2.5vw, 80px);
+  line-height: 0.9;
+  color: var(--editorial-gold);
+  text-align: right;
+  display: block;
+  user-select: none;
+}
+
+.philosophy-item__body {
+  display: block;
+}
+
+.philosophy-item__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(22px, 1.1rem + 1.1vw, 30px);
+  line-height: 1.15;
+  letter-spacing: var(--ls-tight);
+  color: var(--atlantic-navy);
+  margin: 0;
+  text-wrap: balance;
+}
+
+.philosophy-item__title em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--editorial-gold);
+}
+
+.philosophy-item__text {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text);
+  max-width: 56ch;
+  margin: var(--space-3) 0 0 0;
+}
+
+
+/* ─── 03 · PROCESS ─────────────────────────────────────────────
+   Warm-sand surface — tonal pause against the surrounding white
+   sections. Single-column prose, capped at .container--prose width.
+*/
+.about-process {
+  background: var(--warm-sand);
+  color: var(--text);
+  padding-block: clamp(96px, 14vw, 160px);
+}
+
+.about-process__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.about-process__header .eyebrow {
+  color: var(--text);
+  margin: 0;
+}
+
+.about-process__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(32px, 1.6rem + 2.4vw, 56px);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--atlantic-navy);
+  margin: var(--space-4) 0 0 0;
+  max-width: 18ch;
+  text-wrap: balance;
+}
+
+.about-process__title em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--editorial-gold);
+}
+
+.about-process__lede {
+  font-family: var(--font-body);
+  font-size: clamp(16px, 0.95rem + 0.25vw, 18px);
+  line-height: var(--lh-normal);
+  color: var(--text-muted);
+  max-width: 56ch;
+  margin: var(--space-5) 0 0 0;
+}
+
+/* Editorial prose body — the .flow utility from _base.css already
+   provides vertical rhythm. We override the default flow gap to
+   match the editorial cadence of this page. */
+.about-process__prose {
+  --flow-space: var(--space-5);
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: 16px;
+  line-height: var(--lh-loose);
+  color: var(--text);
+  max-width: 62ch;
+}
+
+.about-process__prose p {
+  margin: 0;
+}
+
+
+/* ─── 04 · STUDIO DETAILS ──────────────────────────────────────
+   Six-row definition list. Term/definition layout: term sits in a
+   fixed-width column, definition occupies the remaining space.
+   Mobile collapses to a single column with the term as a label.
+*/
+.about-studio {
+  background: var(--resort-white);
+  color: var(--text);
+  padding-block: clamp(80px, 12vw, 144px);
+}
+
+.about-studio__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.about-studio__header .eyebrow {
+  color: var(--text);
+  margin: 0;
+}
+
+.about-studio__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(32px, 1.6rem + 2.4vw, 56px);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--atlantic-navy);
+  margin: var(--space-4) 0 0 0;
+  max-width: 20ch;
+  text-wrap: balance;
+}
+
+.about-studio__title em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--editorial-gold);
+}
+
+/* ── Definition list ── */
+.about-studio__grid {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.about-studio__row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: var(--space-6);
+  padding-block: var(--space-6);
+  border-bottom: 1px solid var(--border);
+  align-items: baseline;
+}
+
+.about-studio__row:first-child {
+  border-top: 1px solid var(--border);
+}
+
+.about-studio__term {
+  font-family: var(--font-body);
+  font-size: var(--fs-300);
+  font-weight: var(--fw-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-eyebrow);
+  color: var(--editorial-gold);
+  margin: 0;
+}
+
+.about-studio__def {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: var(--lh-loose);
+  color: var(--text);
+  margin: 0;
+  max-width: 62ch;
+}
+
+.about-studio__def a {
+  color: var(--atlantic-navy);
+  text-decoration: underline;
+  text-decoration-color: var(--editorial-gold);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  transition: color var(--dur-base) var(--ease-standard);
+}
+
+.about-studio__def a:hover,
+.about-studio__def a:focus-visible {
+  color: var(--editorial-gold);
+}
+
+
+/* ─── 05 · EDITORIAL QUOTE ─────────────────────────────────────
+   The Bodoni pull-quote — large, gold ornament above, centered.
+   Deep-atlantic ground for cinematic gravity (a single dark band
+   between two lighter sections, like a spread break in a magazine).
+*/
+.section--editorial-quote {
+  background: var(--deep-atlantic);
+  color: var(--resort-white);
+  padding-block: clamp(112px, 16vw, 192px);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.editorial-quote__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Gold æ ornament — Bodoni italic, sits above the quote. */
+.editorial-quote__ornament {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(48px, 4vw, 64px);
+  line-height: 1;
+  color: var(--editorial-gold);
+  margin: 0 0 var(--space-7) 0;
+  display: block;
+  user-select: none;
+}
+
+/* Pull-quote — Bodoni Moda Italic, large, gold. The Spanish
+   guillemets « » are part of the typeset content. */
+.editorial-quote__quote {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(28px, 1.4rem + 2.6vw, 52px);
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--editorial-gold);
+  margin: 0;
+  max-width: 22ch;
+  text-wrap: balance;
+}
+
+.editorial-quote__attr {
+  font-family: var(--font-body);
+  font-size: var(--fs-400);
+  font-weight: var(--fw-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-eyebrow);
+  color: rgb(249 248 247 / 0.6);
+  margin: var(--space-7) 0 0 0;
+}
+
+
+/* ─── RESPONSIVE / MOBILE ─────────────────────────────────────
+   Collapse the two-column grids to single columns. The gold numeral
+   above the eyebrow on philosophy items mirrors the homepage process
+   convention so the editorial hierarchy stays consistent.
+*/
+@media (max-width: 720px) {
+  .philosophy-item {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    padding-block: var(--space-7);
+  }
+
+  .philosophy-item__num {
+    text-align: left;
+    font-size: 48px;
+    line-height: 1;
+  }
+
+  .about-studio__row {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    padding-block: var(--space-6);
+  }
+
+  .page-hero__title,
+  .about-philosophy__title,
+  .about-process__title,
+  .about-studio__title {
+    max-width: none;
+  }
+}
+
+
+/* ─── REDUCED MOTION ──────────────────────────────────────────
+   The global animation system in _animations.css already zeroes
+   transitions under prefers-reduced-motion. No additional rules
+   required at this module level.
+*/
