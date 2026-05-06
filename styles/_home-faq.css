@@ -1,0 +1,260 @@
+/* ============================================================
+   _home-faq.css
+   IVAE Studios · Redesign 2026 · Oleada 2 · Agent 11
+   Home FAQ section. Native <details>/<summary> accordion — no
+   JavaScript required for open/close. Token contract: every
+   color, font, spacing, and motion value comes from
+   _tokens.css.
+
+   Layout:
+     .section--faq → outer band, resort-white background
+     .faq__header  → eyebrow + title + lede (text-left, max 720px)
+     .faq__list    → vertical list, items separated by gold hairlines
+     .faq-item     → single <details>; +/− toggle drawn in CSS
+
+   Disclosure animation:
+     We let the browser handle the <details> open state with no
+     height transition. The plus/minus icon rotates 250ms; that
+     is the only motion. Reason: a real, jank-free expand
+     transition on <details> still requires interpolate-size or
+     JS measurement, and the editorial standard prefers an
+     instant, decisive answer over a soft slide. Documented here.
+   ============================================================ */
+
+/* ────────────────────────────────────────────────────────────
+   Section band
+   ──────────────────────────────────────────────────────────── */
+.section--faq {
+  padding-block: clamp(96px, 14vw, 160px);
+  background: var(--resort-white);
+  color: var(--text);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Header (eyebrow + title + lede)
+   ──────────────────────────────────────────────────────────── */
+.faq__header {
+  text-align: left;
+  max-width: 720px;
+  margin-inline: auto;
+  margin-bottom: var(--space-8);
+}
+
+/* override the centered .container behavior so the header sits
+   left-aligned within its own max-width column on wide screens.
+   The .container utility centers via auto margins; we keep that
+   for layout consistency, but the inner text remains left. */
+.faq__header > * + * {
+  margin-top: var(--space-4);
+}
+
+.faq__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(32px, 4.4vw, 56px);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--atlantic-navy);
+  margin: 0;
+}
+
+.faq__title em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: var(--fw-regular);
+  color: var(--editorial-gold);
+}
+
+.faq__lede {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: var(--lh-loose);
+  color: var(--text-muted);
+  max-width: 56ch;
+  margin: 0;
+}
+
+/* ────────────────────────────────────────────────────────────
+   List of FAQ items
+   ──────────────────────────────────────────────────────────── */
+.faq__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ────────────────────────────────────────────────────────────
+   Single item (<details>)
+   Convention chosen: every item carries border-top; the last
+   item also carries border-bottom. This avoids the
+   ambiguous-edge look of "border-top only" while keeping a
+   single, predictable rule (no :first-child / :last-child
+   exception logic to maintain).
+   ──────────────────────────────────────────────────────────── */
+.faq-item {
+  border-top: 1px solid rgb(196 163 90 / 0.3);
+  padding-block: var(--space-5);
+}
+
+.faq-item:last-child {
+  border-bottom: 1px solid rgb(196 163 90 / 0.3);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Question row (<summary>)
+   Suppress the default disclosure triangle in every engine.
+   ──────────────────────────────────────────────────────────── */
+.faq-item__q {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-5);
+  cursor: pointer;
+  list-style: none;            /* remove the marker (Firefox)        */
+  padding-block: var(--space-2);
+  transition: color var(--dur-base) var(--ease-standard);
+}
+
+/* WebKit / Blink */
+.faq-item__q::-webkit-details-marker {
+  display: none;
+}
+
+/* Spec marker selector — covers Firefox via ::marker on summary */
+.faq-item__q::marker {
+  display: none;
+  content: "";
+}
+
+/* ────────────────────────────────────────────────────────────
+   Question text
+   ──────────────────────────────────────────────────────────── */
+.faq-item__q-text {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(20px, 2.4vw, 28px);
+  line-height: 1.25;
+  letter-spacing: var(--ls-tight);
+  color: var(--atlantic-navy);
+  flex: 1 1 auto;
+  transition: color var(--dur-base) var(--ease-standard);
+}
+
+/* Hover wash — text becomes editorial gold. Pointer-only:
+   stops the touch state from sticking on tap-then-scroll. */
+@media (hover: hover) {
+  .faq-item__q:hover .faq-item__q-text,
+  .faq-item__q:focus-visible .faq-item__q-text {
+    color: var(--editorial-gold);
+  }
+
+  .faq-item__q:hover .faq-item__icon::before,
+  .faq-item__q:hover .faq-item__icon::after,
+  .faq-item__q:focus-visible .faq-item__icon::before,
+  .faq-item__q:focus-visible .faq-item__icon::after {
+    background: var(--editorial-gold);
+  }
+}
+
+/* Focus ring on the summary itself — keyboard users need a
+   visible affordance when the chevron is purely decorative. */
+.faq-item__q:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-radius: var(--r-1);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Plus / minus toggle
+   Drawn with two thin gold lines via ::before / ::after.
+   Closed state = "+" (vertical line visible).
+   Open state   = "−" (vertical line hidden via scaleY(0)).
+   Wrapper rotates 90° on open for a satisfying kinetic moment.
+   ──────────────────────────────────────────────────────────── */
+.faq-item__icon {
+  flex: 0 0 auto;
+  position: relative;
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  transform-origin: center;
+  transition: transform var(--dur-base) var(--ease-emphasis);
+  align-self: center;
+}
+
+.faq-item__icon::before,
+.faq-item__icon::after {
+  content: "";
+  position: absolute;
+  background: var(--editorial-gold);
+  transition:
+    transform var(--dur-base) var(--ease-emphasis),
+    background var(--dur-base) var(--ease-standard);
+}
+
+/* horizontal bar (always visible) */
+.faq-item__icon::before {
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1.5px;
+  transform: translateY(-50%);
+}
+
+/* vertical bar (collapses on open to leave a "−") */
+.faq-item__icon::after {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1.5px;
+  transform: translateX(-50%) scaleY(1);
+}
+
+/* Open state — rotate the wrapper for kinetic feedback and
+   collapse the vertical bar to convert "+" into "−". */
+.faq-item[open] .faq-item__icon {
+  transform: rotate(90deg);
+}
+
+.faq-item[open] .faq-item__icon::after {
+  transform: translateX(-50%) scaleY(0);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Answer body
+   Hidden by the browser when <details> is closed; we just
+   shape the spacing + typography for when it shows.
+   ──────────────────────────────────────────────────────────── */
+.faq-item__a {
+  padding-top: var(--space-5);
+}
+
+.faq-item__a p {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text);
+  max-width: 64ch;
+  margin: 0;
+}
+
+.faq-item__a p + p {
+  margin-top: var(--space-4);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Reduced motion — kill icon rotation + the bar transitions.
+   The accordion still works (browser-native), only the kinetic
+   layer is removed.
+   ──────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .faq-item__icon,
+  .faq-item__icon::before,
+  .faq-item__icon::after,
+  .faq-item__q,
+  .faq-item__q-text {
+    transition: none !important;
+  }
+}
