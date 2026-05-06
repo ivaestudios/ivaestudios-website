@@ -40,6 +40,7 @@
 /* @import "_family.css"; */
 /* @import "_weddings.css"; */
 /* @import "_blog.css"; */          /* refactored in Oleada 4 */
+@import "_blog-index.css";    /* Activated Oleada 3 — Agent 13 */
 /* etc. */
 
 /* ── Legacy (to be deleted as pages migrate) ───────────────────────── */
