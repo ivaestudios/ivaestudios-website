@@ -1,0 +1,197 @@
+<!--
+  IVAE Studios — Home / Destinations (three editorial covers).
+  Oleada 2 · Agent 06
+  Two language variants live side-by-side. Build system (Agent 30) selects
+  the correct block per page (root vs /es/) and rewrites the destination
+  hrefs to the locale's URL surface.
+
+  Card order is fixed by BRAND.md §1: Riviera Maya is PRIMARY, Cancún second,
+  Los Cabos third. Image curation per BRAND.md §8 — see partials/home/06-destinations.README.md.
+  See styles/_home-destinations.css for the visual treatment.
+-->
+
+
+<!-- ─── ENGLISH ─── -->
+<section class="section section--destinations" data-section="destinations" data-lang="en">
+  <header class="container destinations__header">
+    <p class="eyebrow" data-reveal>Where we shoot</p>
+    <h2 class="destinations__title" data-reveal-words>Three coastlines. <em>One</em> direction.</h2>
+  </header>
+
+  <div class="container container--wide destinations__grid" data-reveal-stagger>
+
+    <!-- 01 · Riviera Maya — golden hour · warm (BRAND.md §8 register 1) -->
+    <a class="destination-card destination-card--golden" href="/riviera-maya">
+      <figure class="destination-card__media ivae-image">
+        <!--
+          TODO (Agent 30): pick a Riviera Maya image with golden-hour warm light.
+          Candidate from /images/:
+            • editorial-session-riviera-maya-resort-ivae-studios.jpg
+          Then generate the AVIF/WebP/JPG ladder at 480/960/1440/1920 widths
+          per partials/picture.README.md.
+        -->
+        <img
+          data-ivae-img
+          src="/images/editorial-session-riviera-maya-resort-ivae-studios.jpg"
+          alt="Editorial session at a Riviera Maya resort, soft golden light"
+          loading="lazy"
+          decoding="async"
+          width="2000"
+          height="2667">
+        <div class="destination-card__scrim" aria-hidden="true"></div>
+      </figure>
+      <div class="destination-card__content">
+        <p class="destination-card__num" aria-hidden="true">01</p>
+        <h3 class="destination-card__name">Riviera Maya</h3>
+        <p class="destination-card__teaser">Tulum, Akumal, Playa del Carmen. <em>Cenotes and turquoise.</em></p>
+        <span class="destination-card__cta" aria-hidden="true">Explore <span class="destination-card__arrow">&rarr;</span></span>
+      </div>
+    </a>
+
+    <!-- 02 · Cancún — open shade · marina blue (BRAND.md §8 register 3) -->
+    <a class="destination-card destination-card--marina" href="/cancun">
+      <figure class="destination-card__media ivae-image">
+        <!--
+          TODO (Agent 30): pick a Cancún image with open-shade marina blue.
+          Candidate from /images/:
+            • canc-n-resort-photography-ivae-studios.jpg
+          Then generate the AVIF/WebP/JPG ladder at 480/960/1440/1920 widths.
+        -->
+        <img
+          data-ivae-img
+          src="/images/canc-n-resort-photography-ivae-studios.jpg"
+          alt="Cancún resort photography, open shade and marina blue"
+          loading="lazy"
+          decoding="async"
+          width="2000"
+          height="2667">
+        <div class="destination-card__scrim" aria-hidden="true"></div>
+      </figure>
+      <div class="destination-card__content">
+        <p class="destination-card__num" aria-hidden="true">02</p>
+        <h3 class="destination-card__name">Cancún</h3>
+        <p class="destination-card__teaser">Hotel Zone, Isla Mujeres, Playa Mujeres. <em>The Atlantic, dressed up.</em></p>
+        <span class="destination-card__cta" aria-hidden="true">Explore <span class="destination-card__arrow">&rarr;</span></span>
+      </div>
+    </a>
+
+    <!-- 03 · Los Cabos — editorial · contrast (BRAND.md §8 register 4) -->
+    <a class="destination-card destination-card--editorial" href="/los-cabos">
+      <figure class="destination-card__media ivae-image">
+        <!--
+          TODO (Agent 30): pick a Los Cabos image with high-contrast editorial light.
+          Candidate from /images/:
+            • los-cabos-sunset-session-ivae-studios.jpg
+          Then generate the AVIF/WebP/JPG ladder at 480/960/1440/1920 widths.
+        -->
+        <img
+          data-ivae-img
+          src="/images/los-cabos-sunset-session-ivae-studios.jpg"
+          alt="Los Cabos sunset session, editorial high-contrast light"
+          loading="lazy"
+          decoding="async"
+          width="2000"
+          height="2667">
+        <div class="destination-card__scrim" aria-hidden="true"></div>
+      </figure>
+      <div class="destination-card__content">
+        <p class="destination-card__num" aria-hidden="true">03</p>
+        <h3 class="destination-card__name">Los Cabos</h3>
+        <p class="destination-card__teaser">Pedregal, Lovers Beach, El Arco. <em>Pacific drama.</em></p>
+        <span class="destination-card__cta" aria-hidden="true">Explore <span class="destination-card__arrow">&rarr;</span></span>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+
+<!-- ─── SPANISH ─── -->
+<section class="section section--destinations" data-section="destinations" data-lang="es">
+  <header class="container destinations__header">
+    <p class="eyebrow" data-reveal>Dónde fotografiamos</p>
+    <h2 class="destinations__title" data-reveal-words>Tres costas. <em>Una</em> dirección.</h2>
+  </header>
+
+  <div class="container container--wide destinations__grid" data-reveal-stagger>
+
+    <!-- 01 · Riviera Maya — hora dorada · cálido (BRAND.md §8 registro 1) -->
+    <a class="destination-card destination-card--golden" href="/es/riviera-maya">
+      <figure class="destination-card__media ivae-image">
+        <!--
+          TODO (Agente 30): elegir imagen Riviera Maya con luz cálida de hora dorada.
+          Candidata en /images/:
+            • editorial-session-riviera-maya-resort-ivae-studios.jpg
+        -->
+        <img
+          data-ivae-img
+          src="/images/editorial-session-riviera-maya-resort-ivae-studios.jpg"
+          alt="Sesión editorial en resort de Riviera Maya, luz cálida y suave"
+          loading="lazy"
+          decoding="async"
+          width="2000"
+          height="2667">
+        <div class="destination-card__scrim" aria-hidden="true"></div>
+      </figure>
+      <div class="destination-card__content">
+        <p class="destination-card__num" aria-hidden="true">01</p>
+        <h3 class="destination-card__name">Riviera Maya</h3>
+        <p class="destination-card__teaser">Tulum, Akumal, Playa del Carmen. <em>Cenotes y turquesa.</em></p>
+        <span class="destination-card__cta" aria-hidden="true">Explorar <span class="destination-card__arrow">&rarr;</span></span>
+      </div>
+    </a>
+
+    <!-- 02 · Cancún — sombra abierta · azul Atlántico (BRAND.md §8 registro 3) -->
+    <a class="destination-card destination-card--marina" href="/es/cancun">
+      <figure class="destination-card__media ivae-image">
+        <!--
+          TODO (Agente 30): elegir imagen Cancún con azul Atlántico de sombra abierta.
+          Candidata en /images/:
+            • canc-n-resort-photography-ivae-studios.jpg
+        -->
+        <img
+          data-ivae-img
+          src="/images/canc-n-resort-photography-ivae-studios.jpg"
+          alt="Fotografía en resort de Cancún, sombra abierta y azul Atlántico"
+          loading="lazy"
+          decoding="async"
+          width="2000"
+          height="2667">
+        <div class="destination-card__scrim" aria-hidden="true"></div>
+      </figure>
+      <div class="destination-card__content">
+        <p class="destination-card__num" aria-hidden="true">02</p>
+        <h3 class="destination-card__name">Cancún</h3>
+        <p class="destination-card__teaser">Zona Hotelera, Isla Mujeres, Playa Mujeres. <em>El Atlántico, vestido.</em></p>
+        <span class="destination-card__cta" aria-hidden="true">Explorar <span class="destination-card__arrow">&rarr;</span></span>
+      </div>
+    </a>
+
+    <!-- 03 · Los Cabos — editorial · contraste (BRAND.md §8 registro 4) -->
+    <a class="destination-card destination-card--editorial" href="/es/los-cabos">
+      <figure class="destination-card__media ivae-image">
+        <!--
+          TODO (Agente 30): elegir imagen Los Cabos con luz editorial de alto contraste.
+          Candidata en /images/:
+            • los-cabos-sunset-session-ivae-studios.jpg
+        -->
+        <img
+          data-ivae-img
+          src="/images/los-cabos-sunset-session-ivae-studios.jpg"
+          alt="Sesión al atardecer en Los Cabos, luz editorial de alto contraste"
+          loading="lazy"
+          decoding="async"
+          width="2000"
+          height="2667">
+        <div class="destination-card__scrim" aria-hidden="true"></div>
+      </figure>
+      <div class="destination-card__content">
+        <p class="destination-card__num" aria-hidden="true">03</p>
+        <h3 class="destination-card__name">Los Cabos</h3>
+        <p class="destination-card__teaser">Pedregal, Playa del Amor, El Arco. <em>Drama del Pacífico.</em></p>
+        <span class="destination-card__cta" aria-hidden="true">Explorar <span class="destination-card__arrow">&rarr;</span></span>
+      </div>
+    </a>
+
+  </div>
+</section>
