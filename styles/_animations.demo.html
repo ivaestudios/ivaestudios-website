@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IVAE — animations demo</title>
+  <link rel="stylesheet" href="_animations.css" />
+  <style>
+    :root {
+      --ink: #1a2433;
+      --cream: #f9f8f7;
+      --gold: #c4a35a;
+      --sand: #e6dccf;
+      --ease-editorial: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+    section {
+      min-height: 90vh;
+      padding: 14vh clamp(24px, 6vw, 96px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1.2rem;
+      border-top: 1px solid rgba(26, 36, 51, 0.08);
+    }
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 500;
+    }
+    h1, h2 {
+      font-family: 'DM Serif Display', serif;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      line-height: 1.05;
+    }
+    h1 { font-size: clamp(40px, 7vw, 96px); max-width: 14ch; }
+    h2 { font-size: clamp(28px, 4vw, 48px); max-width: 18ch; }
+    p { max-width: 56ch; color: rgba(26, 36, 51, 0.78); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .card {
+      padding: 2rem 1.5rem;
+      background: var(--sand);
+      border-radius: 2px;
+    }
+    .card h3 { font-family: 'DM Serif Display', serif; font-weight: 400; font-size: 22px; margin-bottom: 0.5rem; }
+    .cta {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 14px 28px;
+      background: var(--ink);
+      color: var(--cream);
+      text-decoration: none;
+      letter-spacing: 0.22em;
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+    }
+    .spacer { height: 30vh; }
+  </style>
+</head>
+<body>
+
+  <section>
+    <span class="eyebrow" data-reveal="fade">Section 01 / fade-up</span>
+    <h1 data-reveal="up">Editorial fade in, no theatrics.</h1>
+    <p data-reveal="up" style="--reveal-delay: 120ms">
+      Scroll. Each block enters once, transforms in opacity and Y, then unobserves.
+    </p>
+  </section>
+
+  <section>
+    <span class="eyebrow" data-reveal="fade">Section 02 / variants</span>
+    <h2 data-reveal="left">Reveal left, right, scale.</h2>
+    <div class="grid" data-reveal-stagger>
+      <div class="card" data-reveal="left"><h3>Light</h3><p>Open shade.</p></div>
+      <div class="card" data-reveal="up"><h3>Tone</h3><p>Warm but natural.</p></div>
+      <div class="card" data-reveal="right"><h3>Frame</h3><p>Editorial geometry.</p></div>
+      <div class="card" data-reveal="scale"><h3>Detail</h3><p>Considered crops.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow" data-reveal="fade">Section 03 / word reveal</span>
+    <h1 data-reveal-words>
+      The reason your vacation photos do not look this polished.
+    </h1>
+    <p data-reveal="up" style="--reveal-delay: 200ms">
+      Word-by-word mask reveal — for headlines that should arrive deliberately.
+    </p>
+  </section>
+
+  <section>
+    <span class="eyebrow" data-reveal="fade">Section 04 / magnetic CTA</span>
+    <h2 data-reveal="up">Now booking 2026.</h2>
+    <p data-reveal="up" style="--reveal-delay: 100ms">
+      Hover the button on a desktop pointer device. The button drifts up to six pixels toward the cursor.
+    </p>
+    <div>
+      <button class="cta" data-magnetic data-reveal="up" style="--reveal-delay: 200ms">
+        Send your dates
+      </button>
+    </div>
+  </section>
+
+  <div class="spacer"></div>
+
+  <script src="../js/animations.js"></script>
+</body>
+</html>
