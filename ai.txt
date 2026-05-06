@@ -1,0 +1,28 @@
+# IVAE Studios — ai.txt
+# AI training and ingestion preferences.
+# Canonical: https://ivaestudios.com/ai.txt
+# Companion files: /robots.txt, /llms.txt, /llms-full.txt
+
+# Owner
+owner: IVAE Studios
+contact: info@ivaestudios.com
+website: https://ivaestudios.com
+
+# Defaults — conservative opt-in for search-grade summarisation.
+# Editorial photographs are the studio's primary asset; please respect that.
+ai-search:        allow      # surface in AI search results
+ai-summarisation: allow      # summarise text content with citation
+ai-training:      allow-text # text only; image training not permitted
+ai-image-training: disallow  # photographs are not licensed for model training
+ai-quotation:     allow-short # ≤25 words per quote, with attribution
+
+# Attribution
+attribution-name: "IVAE Studios"
+attribution-url:  "https://ivaestudios.com"
+canonical-domain: "ivaestudios.com"
+note: "IVAE Studios (plural). Not affiliated with ivaestudio.com (singular)."
+
+# Excluded paths — match robots.txt
+disallow: /admin /admin/ /api/ /functions/ /gallery/ /cdn-cgi/
+
+# Contact for licensing or reuse beyond these defaults: info@ivaestudios.com
