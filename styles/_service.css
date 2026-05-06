@@ -1,0 +1,441 @@
+/* ============================================================
+   _service.css
+   IVAE Studios · Redesign 2026 · Oleada 3
+   ──────────────────────────────────────────────────────────
+   Shared service-page styles. Used by:
+   - luxury-family-photos.html (Agent 03)
+   - couples-photography.html (Agent 04)
+   - luxury-weddings.html (Agent 05)
+   - maternity (Agent 06)
+   - yacht (Agent 07)
+   - cenote (Agent 08)
+
+   All six service detail pages share the same architecture:
+     section--page-hero--service  → small hero, full-bleed image
+     service-detail               → 2-col "what we plan / what we deliver"
+     service-locations            → three small destination cards
+     service-gallery              → 4-6 image masonry-ish grid
+     service-faq                  → <details> accordion
+
+   Token contract: every color, font, spacing, motion value
+   comes from _tokens.css. No new colors invented.
+   ============================================================ */
+
+
+/* ────────────────────────────────────────────────────────────
+   Page hero (service variant)
+   Small, full-bleed image with a navy scrim and a left-aligned
+   editorial column. Reads like a magazine masthead, not a
+   homepage hero.
+   ──────────────────────────────────────────────────────────── */
+.section--page-hero--service {
+  position: relative;
+  min-height: clamp(420px, 64vh, 640px);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  background: var(--deep-atlantic);
+  color: var(--resort-white);
+  isolation: isolate;
+}
+
+.section--page-hero--service .page-hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+.section--page-hero--service .page-hero__media img,
+.section--page-hero--service .page-hero__media picture {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.section--page-hero--service .page-hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(170deg,
+      rgba(15, 22, 32, 0.55) 0%,
+      rgba(15, 22, 32, 0.25) 45%,
+      rgba(15, 22, 32, 0.65) 100%);
+}
+
+.section--page-hero--service .page-hero__inner {
+  width: min(100% - var(--gutter) * 2, var(--max-w-wide));
+  margin-inline: auto;
+  padding-block: clamp(64px, 10vw, 112px);
+  max-width: 880px;
+}
+
+.section--page-hero--service .eyebrow {
+  color: var(--editorial-gold);
+  margin-bottom: var(--space-5);
+}
+
+.section--page-hero--service h1 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(38px, 5.5vw, 76px);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--resort-white);
+  margin: 0 0 var(--space-5);
+}
+
+.section--page-hero--service h1 em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: var(--fw-regular);
+  color: var(--editorial-gold);
+}
+
+.section--page-hero--service .lede {
+  font-family: var(--font-body);
+  font-size: clamp(15px, 1.2vw, 18px);
+  line-height: var(--lh-loose);
+  color: rgba(249, 248, 247, 0.82);
+  max-width: 56ch;
+  margin: 0;
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   Section heading scaffolding (shared)
+   ──────────────────────────────────────────────────────────── */
+.service-detail,
+.service-locations,
+.service-gallery,
+.service-faq {
+  padding-block: clamp(80px, 12vw, 144px);
+  background: var(--resort-white);
+  color: var(--text);
+}
+
+.service-locations {
+  background: var(--surface-alt);
+}
+
+.service-detail > header,
+.service-locations > header,
+.service-gallery > header,
+.service-faq > header {
+  width: min(100% - var(--gutter) * 2, var(--max-w-content));
+  margin-inline: auto;
+  margin-bottom: var(--space-7);
+  max-width: 720px;
+}
+
+.service-detail h2,
+.service-locations h2,
+.service-gallery h2,
+.service-faq h2 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(28px, 3.6vw, 48px);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--ls-tight);
+  margin: var(--space-3) 0 0;
+}
+
+.service-detail h2 em,
+.service-locations h2 em,
+.service-gallery h2 em,
+.service-faq h2 em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--editorial-gold);
+  font-weight: var(--fw-regular);
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   Service detail · "What we plan / What we deliver" 2-col
+   ──────────────────────────────────────────────────────────── */
+.service-detail__grid {
+  width: min(100% - var(--gutter) * 2, var(--max-w-content));
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-7);
+}
+
+@media (min-width: 768px) {
+  .service-detail__grid { grid-template-columns: 1fr 1fr; gap: var(--space-8); }
+}
+
+.service-detail__col h3 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(22px, 2.4vw, 30px);
+  line-height: var(--lh-snug);
+  margin: 0 0 var(--space-5);
+  color: var(--atlantic-navy);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-3);
+}
+
+.service-detail__col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.service-detail__col li {
+  font-family: var(--font-body);
+  font-size: clamp(15px, 1.05vw, 17px);
+  line-height: var(--lh-loose);
+  color: var(--text);
+  padding-left: var(--space-5);
+  position: relative;
+}
+
+.service-detail__col li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--editorial-gold);
+  font-family: var(--font-accent);
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   Service locations · three small link cards
+   ──────────────────────────────────────────────────────────── */
+.service-locations__grid {
+  width: min(100% - var(--gutter) * 2, var(--max-w-wide));
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+}
+
+@media (min-width: 720px) {
+  .service-locations__grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.location-card {
+  display: block;
+  background: var(--resort-white);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--atlantic-navy);
+  padding: 0;
+  transition: transform var(--dur-base) var(--ease-emphasis),
+              box-shadow var(--dur-base) var(--ease-emphasis);
+}
+
+.location-card:hover,
+.location-card:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+}
+
+.location-card:focus-visible {
+  outline: 2px solid var(--editorial-gold);
+  outline-offset: 2px;
+}
+
+.location-card__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  margin: 0;
+  background: var(--surface-alt);
+}
+
+.location-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--dur-slow) var(--ease-editorial);
+}
+
+.location-card:hover .location-card__media img {
+  transform: scale(1.04);
+}
+
+.location-card__body {
+  padding: var(--space-5);
+}
+
+.location-card__name {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 1.6vw, 26px);
+  line-height: var(--lh-snug);
+  margin: 0;
+  color: var(--atlantic-navy);
+  position: relative;
+  display: inline-block;
+  padding-bottom: 4px;
+}
+
+.location-card__name::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: 0;
+  height: 1px;
+  background: var(--editorial-gold);
+  transition: right var(--dur-base) var(--ease-emphasis);
+}
+
+.location-card:hover .location-card__name::after,
+.location-card:focus-visible .location-card__name::after {
+  right: 0;
+}
+
+.location-card__teaser {
+  margin: var(--space-3) 0 0;
+  font-family: var(--font-body);
+  font-size: clamp(14px, 1vw, 16px);
+  line-height: var(--lh-loose);
+  color: var(--text-muted);
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   Service gallery · 6 images, auto-fit grid
+   Each tile reserves its aspect ratio so layout never jumps.
+   ──────────────────────────────────────────────────────────── */
+.service-gallery__grid {
+  width: min(100% - var(--gutter) * 2, var(--max-w-wide));
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+
+@media (min-width: 720px) {
+  .service-gallery__grid { grid-template-columns: repeat(3, 1fr); gap: var(--space-4); }
+}
+
+.service-gallery__tile {
+  margin: 0;
+  background: var(--surface-alt);
+  overflow: hidden;
+  position: relative;
+  aspect-ratio: 4 / 5;
+}
+
+.service-gallery__tile--wide  { aspect-ratio: 4 / 5; }
+.service-gallery__tile--tall  { aspect-ratio: 4 / 5; }
+
+.service-gallery__tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--dur-cinematic) var(--ease-editorial);
+}
+
+.service-gallery__tile:hover img {
+  transform: scale(1.03);
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   Service FAQ · same disclosure styling as the home FAQ but
+   scoped to .service-faq so the home rules can change without
+   collateral.
+   ──────────────────────────────────────────────────────────── */
+.service-faq__list {
+  width: min(100% - var(--gutter) * 2, var(--max-w-prose));
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.service-faq__item {
+  border-top: 1px solid rgb(196 163 90 / 0.3);
+  padding-block: var(--space-5);
+}
+
+.service-faq__item:last-child {
+  border-bottom: 1px solid rgb(196 163 90 / 0.3);
+}
+
+.service-faq__q {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-5);
+  cursor: pointer;
+  list-style: none;
+  padding-block: var(--space-2);
+  transition: color var(--dur-base) var(--ease-standard);
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(18px, 1.6vw, 23px);
+  line-height: var(--lh-snug);
+  color: var(--atlantic-navy);
+}
+
+.service-faq__q::-webkit-details-marker { display: none; }
+
+.service-faq__q:hover { color: var(--editorial-gold); }
+
+.service-faq__icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  position: relative;
+  transition: transform var(--dur-base) var(--ease-standard);
+}
+
+.service-faq__icon::before,
+.service-faq__icon::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1px;
+  background: var(--editorial-gold);
+}
+
+.service-faq__icon::after { transform: rotate(90deg); }
+
+.service-faq__item[open] .service-faq__icon { transform: rotate(45deg); }
+
+.service-faq__a {
+  margin-top: var(--space-4);
+}
+
+.service-faq__a p {
+  font-family: var(--font-body);
+  font-size: clamp(15px, 1.05vw, 17px);
+  line-height: var(--lh-loose);
+  color: var(--text);
+  margin: 0;
+  max-width: 64ch;
+}
+
+.service-faq__a p + p { margin-top: var(--space-4); }
+
+
+/* ────────────────────────────────────────────────────────────
+   Reduced motion
+   ──────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .location-card,
+  .location-card__media img,
+  .location-card__name::after,
+  .service-gallery__tile img,
+  .service-faq__icon {
+    transition: none;
+  }
+  .location-card:hover { transform: none; }
+  .location-card:hover .location-card__media img,
+  .service-gallery__tile:hover img { transform: none; }
+}
