@@ -1,6 +1,0 @@
-# This is a PLACEHOLDER. To activate Bing IndexNow:
-# 1. Go to https://www.bing.com/indexnow/getstarted
-# 2. Generate a 32-char key
-# 3. Create a file named <KEY>.txt at repo root containing only the key string
-# 4. Save BING_INDEXNOW_KEY in GitHub Secrets
-# 5. Delete this placeholder file and commit the new <KEY>.txt
