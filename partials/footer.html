@@ -1,0 +1,301 @@
+<!--
+  IVAE Studios — Editorial Footer Partial
+  Owner:    Agent 05 (Oleada 1)
+  Wired by: Agent 30 (Oleada 3)
+
+  Two language variants live below: ENGLISH first, SPANISH second.
+  Pick ONE block when injecting based on the page locale (root vs /es/).
+
+  Slot conventions:
+    - <!-- AGENT-30 INJECT: latest 3 posts -->     three <a> tags from the journal
+    - <!-- AGENT-30 INJECT: build year -->         literal year (currently hard-coded 2026)
+    - data-i18n attributes are NOT used here; we ship two prebuilt blocks.
+-->
+
+
+<!-- ─── ENGLISH ─── -->
+<footer class="ivae-footer" lang="en" role="contentinfo">
+
+  <!-- Top band: newsletter ─────────────────────────────────────────── -->
+  <section class="ivae-footer__top" aria-labelledby="ivae-footer-newsletter-en">
+    <div class="ivae-footer__top-inner">
+      <p class="ivae-footer__eyebrow">Newsletter</p>
+      <h2 id="ivae-footer-newsletter-en" class="ivae-footer__title">
+        Now booking 2026
+        <em class="ivae-footer__title-accent">destination sessions</em>
+      </h2>
+      <p class="ivae-footer__lede">
+        Send me your travel dates. We respond within 24 hours.
+      </p>
+
+      <form class="ivae-footer__form" action="/api/newsletter" method="post" novalidate>
+        <label class="ivae-footer__field">
+          <span class="ivae-footer__label">Email</span>
+          <input
+            class="ivae-footer__input"
+            type="email"
+            name="email"
+            inputmode="email"
+            autocomplete="email"
+            placeholder="your@email.com"
+            required
+          >
+        </label>
+
+        <!-- Honeypot: invisible to humans, irresistible to bots. Leave empty. -->
+        <input
+          type="text"
+          name="website"
+          tabindex="-1"
+          autocomplete="off"
+          aria-hidden="true"
+          style="position:absolute;left:-9999px"
+        >
+
+        <button class="ivae-footer__submit" type="submit">
+          <span>Receive the journal</span>
+          <svg class="ivae-footer__submit-arrow" viewBox="0 0 24 12" aria-hidden="true" focusable="false">
+            <path d="M0 6h22M16 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1" />
+          </svg>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <hr class="ivae-footer__divider" aria-hidden="true">
+
+  <!-- Middle band: 3 columns ───────────────────────────────────────── -->
+  <section class="ivae-footer__cols" aria-label="Studio information">
+
+    <!-- Column 1: Studio -->
+    <div class="ivae-footer__col">
+      <p class="ivae-footer__eyebrow">Studio</p>
+      <h3 class="ivae-footer__col-title">Vianey Ortega</h3>
+      <p class="ivae-footer__col-role">Creative Director &amp; Lead Photographer</p>
+
+      <ul class="ivae-footer__list">
+        <li>
+          <a class="ivae-footer__link" href="https://ivaestudios.com" rel="noopener">
+            ivaestudios.com
+          </a>
+        </li>
+        <li>
+          <a class="ivae-footer__link" href="mailto:info@ivaestudios.com">
+            info@ivaestudios.com
+          </a>
+        </li>
+        <li>
+          <a class="ivae-footer__link" href="tel:+522288570584">
+            +52 228 857 0584 <span class="ivae-footer__hint">(call)</span>
+          </a>
+        </li>
+        <li>
+          <a class="ivae-footer__link"
+             href="https://wa.me/529902046514?text=Hi%2C%20I%27d%20like%20to%20ask%20about%20a%20session."
+             rel="noopener">
+            +52 990 204 6514 <span class="ivae-footer__hint">(WhatsApp)</span>
+          </a>
+        </li>
+        <li>
+          <a class="ivae-footer__link"
+             href="https://www.instagram.com/ivaestudios.cancun/"
+             rel="noopener">
+            @ivaestudios.cancun
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Column 2: Service Areas -->
+    <div class="ivae-footer__col">
+      <p class="ivae-footer__eyebrow">Service Areas</p>
+      <ul class="ivae-footer__list ivae-footer__list--regions">
+        <li><a class="ivae-footer__link" href="/riviera-maya">Riviera Maya</a></li>
+        <li><a class="ivae-footer__link" href="/cancun">Cancún</a></li>
+        <li><a class="ivae-footer__link" href="/los-cabos">Los Cabos</a></li>
+      </ul>
+    </div>
+
+    <!-- Column 3: Journal & Site -->
+    <div class="ivae-footer__col">
+      <p class="ivae-footer__eyebrow">Journal &amp; Site</p>
+
+      <p class="ivae-footer__col-subhead">From the journal</p>
+      <ul class="ivae-footer__list ivae-footer__list--journal">
+        <!-- AGENT-30 INJECT: latest 3 posts -->
+        <!-- AGENT-30 INJECT: latest 3 posts -->
+        <!-- AGENT-30 INJECT: latest 3 posts -->
+      </ul>
+
+      <ul class="ivae-footer__list ivae-footer__list--site">
+        <li><a class="ivae-footer__link" href="/about">About the Studio</a></li>
+        <li><a class="ivae-footer__link" href="/outfit-guide">Outfit Guide</a></li>
+        <!-- TODO: /privacy and /terms pages do not exist yet — Agent in later oleada to author -->
+        <li><a class="ivae-footer__link" href="/privacy">Privacy</a></li>
+        <li><a class="ivae-footer__link" href="/terms">Terms</a></li>
+      </ul>
+    </div>
+
+  </section>
+
+  <!-- Bottom band: fine print ──────────────────────────────────────── -->
+  <section class="ivae-footer__bottom" aria-label="Studio mark">
+    <a class="ivae-footer__monogram" href="/" aria-label="IVAE Studios — home">
+      <span aria-hidden="true">&AElig;</span>
+    </a>
+    <p class="ivae-footer__locales">
+      IVAE Studios &middot; Riviera Maya &middot; Cancún &middot; Los Cabos &middot; México
+    </p>
+    <p class="ivae-footer__tagline">
+      Editorial direction. Considered photography. Now booking 2026.
+    </p>
+    <p class="ivae-footer__copy">
+      <!-- AGENT-30 INJECT: build year --> &copy; 2026 IVAE Studios. All rights reserved.
+    </p>
+  </section>
+
+</footer>
+
+
+<!-- ─── SPANISH ─── -->
+<footer class="ivae-footer" lang="es" role="contentinfo">
+
+  <!-- Top band: newsletter ─────────────────────────────────────────── -->
+  <section class="ivae-footer__top" aria-labelledby="ivae-footer-newsletter-es">
+    <div class="ivae-footer__top-inner">
+      <p class="ivae-footer__eyebrow">Newsletter</p>
+      <h2 id="ivae-footer-newsletter-es" class="ivae-footer__title">
+        Reservando temporada 2026
+        <em class="ivae-footer__title-accent">destination sessions</em>
+      </h2>
+      <p class="ivae-footer__lede">
+        Cuéntanos tus fechas de viaje. Respondemos en menos de 24 horas.
+      </p>
+
+      <form class="ivae-footer__form" action="/api/newsletter" method="post" novalidate>
+        <label class="ivae-footer__field">
+          <span class="ivae-footer__label">Email</span>
+          <input
+            class="ivae-footer__input"
+            type="email"
+            name="email"
+            inputmode="email"
+            autocomplete="email"
+            placeholder="tu@email.com"
+            required
+          >
+        </label>
+
+        <!-- Honeypot: invisible to humans, irresistible to bots. Leave empty. -->
+        <input
+          type="text"
+          name="website"
+          tabindex="-1"
+          autocomplete="off"
+          aria-hidden="true"
+          style="position:absolute;left:-9999px"
+        >
+
+        <button class="ivae-footer__submit" type="submit">
+          <span>Recibe el diario</span>
+          <svg class="ivae-footer__submit-arrow" viewBox="0 0 24 12" aria-hidden="true" focusable="false">
+            <path d="M0 6h22M16 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1" />
+          </svg>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <hr class="ivae-footer__divider" aria-hidden="true">
+
+  <!-- Middle band: 3 columns ───────────────────────────────────────── -->
+  <section class="ivae-footer__cols" aria-label="Información del estudio">
+
+    <!-- Columna 1: Estudio -->
+    <div class="ivae-footer__col">
+      <p class="ivae-footer__eyebrow">Estudio</p>
+      <h3 class="ivae-footer__col-title">Vianey Ortega</h3>
+      <p class="ivae-footer__col-role">Dirección creativa y fotografía principal</p>
+
+      <ul class="ivae-footer__list">
+        <li>
+          <a class="ivae-footer__link" href="https://ivaestudios.com" rel="noopener">
+            ivaestudios.com
+          </a>
+        </li>
+        <li>
+          <a class="ivae-footer__link" href="mailto:info@ivaestudios.com">
+            info@ivaestudios.com
+          </a>
+        </li>
+        <li>
+          <a class="ivae-footer__link" href="tel:+522288570584">
+            +52 228 857 0584 <span class="ivae-footer__hint">(llamada)</span>
+          </a>
+        </li>
+        <li>
+          <a class="ivae-footer__link"
+             href="https://wa.me/529902046514?text=Hola%2C%20me%20gustar%C3%ADa%20preguntar%20por%20una%20sesi%C3%B3n."
+             rel="noopener">
+            +52 990 204 6514 <span class="ivae-footer__hint">(WhatsApp)</span>
+          </a>
+        </li>
+        <li>
+          <a class="ivae-footer__link"
+             href="https://www.instagram.com/ivaestudios.cancun/"
+             rel="noopener">
+            @ivaestudios.cancun
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Columna 2: Áreas de servicio -->
+    <div class="ivae-footer__col">
+      <p class="ivae-footer__eyebrow">Áreas de servicio</p>
+      <ul class="ivae-footer__list ivae-footer__list--regions">
+        <li><a class="ivae-footer__link" href="/es/riviera-maya">Riviera Maya</a></li>
+        <li><a class="ivae-footer__link" href="/es/cancun">Cancún</a></li>
+        <li><a class="ivae-footer__link" href="/es/los-cabos">Los Cabos</a></li>
+      </ul>
+    </div>
+
+    <!-- Columna 3: Diario & sitio -->
+    <div class="ivae-footer__col">
+      <p class="ivae-footer__eyebrow">Diario &amp; sitio</p>
+
+      <p class="ivae-footer__col-subhead">Del diario</p>
+      <ul class="ivae-footer__list ivae-footer__list--journal">
+        <!-- AGENT-30 INJECT: latest 3 posts -->
+        <!-- AGENT-30 INJECT: latest 3 posts -->
+        <!-- AGENT-30 INJECT: latest 3 posts -->
+      </ul>
+
+      <ul class="ivae-footer__list ivae-footer__list--site">
+        <li><a class="ivae-footer__link" href="/es/about">Sobre el estudio</a></li>
+        <li><a class="ivae-footer__link" href="/es/outfit-guide">Guía de vestuario</a></li>
+        <!-- TODO: /es/privacy y /es/terms aún no existen — autorizar en oleada posterior -->
+        <li><a class="ivae-footer__link" href="/es/privacy">Privacidad</a></li>
+        <li><a class="ivae-footer__link" href="/es/terms">Términos</a></li>
+      </ul>
+    </div>
+
+  </section>
+
+  <!-- Bottom band: fine print ──────────────────────────────────────── -->
+  <section class="ivae-footer__bottom" aria-label="Sello del estudio">
+    <a class="ivae-footer__monogram" href="/es/" aria-label="IVAE Studios — inicio">
+      <span aria-hidden="true">&AElig;</span>
+    </a>
+    <p class="ivae-footer__locales">
+      IVAE Studios &middot; Riviera Maya &middot; Cancún &middot; Los Cabos &middot; México
+    </p>
+    <p class="ivae-footer__tagline">
+      Dirección editorial. Fotografía intencional. Reservando temporada 2026.
+    </p>
+    <p class="ivae-footer__copy">
+      <!-- AGENT-30 INJECT: build year --> &copy; 2026 IVAE Studios. Todos los derechos reservados.
+    </p>
+  </section>
+
+</footer>
