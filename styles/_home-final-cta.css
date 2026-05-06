@@ -1,0 +1,187 @@
+/* ============================================================
+   _home-final-cta.css
+   IVAE Studios · Redesign 2026 · Oleada 2 · Agent 10
+   ──────────────────────────────────────────────────────────
+   Closing call-to-action — sits between the home FAQ and the
+   global footer. Cinematic, full-bleed, deep-atlantic ground.
+   The page's last word: restrained, confident, never pushy.
+
+   Tokens come from _tokens.css. Buttons (.btn--gold,
+   .btn--ghost-light, .btn--lg) come from _buttons.css.
+   Reveal entrances come from _animations.css (data-reveal /
+   data-reveal-words). Reduced motion is honored at the
+   reveal-system level; the static Æ ornament never animates.
+   ============================================================ */
+
+
+/* ───────── 1. Outer section ─────────
+   Deep Atlantic ground (#0F1620). Resort White text → ~16:1 contrast.
+   The vertical scale is intentionally generous — this is the close. */
+.section--final-cta {
+  position: relative;
+  overflow: hidden;
+  background: var(--deep-atlantic);
+  color: var(--resort-white);
+  padding-block: clamp(120px, 16vw, 200px);
+  isolation: isolate; /* keep the bg-mark behind content even with stacking */
+}
+
+
+/* ───────── 2. Decorative Æ monogram behind the headline ─────────
+   Bodoni Italic in editorial-gold at 6% opacity — a faint flourish,
+   not a logo treatment. Sits absolute, top-right of the section.
+   Treated as background per BRAND.md (gold as rare ornament).
+   Semantically inert: aria-hidden + pointer-events: none. */
+.final-cta__bg-mark {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  z-index: 0;
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 320px;
+  line-height: 1;
+  color: var(--editorial-gold);
+  opacity: 0.06;
+  pointer-events: none;
+  user-select: none;
+  /* Anti-aliased crisp curve on dark background */
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (max-width: 47.9375em) {
+  .final-cta__bg-mark {
+    /* On mobile: shrink and tuck so it doesn't compete with the headline. */
+    top: -16px;
+    right: -28px;
+    font-size: 200px;
+    opacity: 0.05;
+  }
+}
+
+
+/* ───────── 3. Inner container ───────── */
+.final-cta__inner {
+  position: relative;
+  z-index: 1;
+  max-width: 920px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+
+/* ───────── 4. Thin gold rule ─────────
+   48px × 1px hairline above the eyebrow — a section divider that
+   marks the close without shouting. */
+.final-cta__rule {
+  display: block;
+  width: 48px;
+  height: 1px;
+  margin: 0 auto var(--space-5);
+  background: var(--editorial-gold);
+}
+
+
+/* ───────── 5. Eyebrow ─────────
+   Inherits the global .eyebrow rule from _base.css (Inter 500,
+   uppercase, tracking 0.4em). Override only what changes on a
+   dark surface: color goes gold, centered, with bottom rhythm. */
+.final-cta__eyebrow {
+  color: var(--editorial-gold);
+  margin-bottom: var(--space-7);
+}
+
+
+/* ───────── 6. Title ─────────
+   DM Serif Display 400, ~40 → 88px clamp. Tight leading.
+   The italic <em> is gold via the global em rule in _base.css. */
+.final-cta__title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(40px, 7vw, 88px);
+  line-height: 1.05;
+  letter-spacing: var(--ls-tight);
+  color: var(--resort-white);
+  margin: 0;
+  text-wrap: balance;
+}
+
+
+/* ───────── 7. Lede ─────────
+   Inter 400. Slightly lifted contrast (white at 85%) so it reads as
+   secondary copy without feeling washed out on the dark ground. */
+.final-cta__lede {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(16px, 1.5vw, 20px);
+  line-height: 1.55;
+  color: rgba(249, 248, 247, 0.85);
+  max-width: 56ch;
+  margin: var(--space-5) auto var(--space-8);
+}
+
+
+/* ───────── 8. Action row ─────────
+   Two CTAs: gold (primary intent) + ghost-light (alternate).
+   Centered flex; wraps on narrow viewports with full-width children. */
+.final-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+@media (max-width: 39.9375em) {
+  .final-cta__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .final-cta__actions > .btn {
+    width: 100%;
+  }
+}
+
+
+/* ───────── 9. Fine print ─────────
+   The third option (call) tucked under the buttons. Soft slate so it
+   recedes; the inline <a> inherits color and goes gold on hover via
+   the global a:hover rule in _base.css. */
+.final-cta__fineprint {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--soft-slate);
+  margin-top: var(--space-7);
+  margin-bottom: 0;
+  max-width: none;
+  text-align: center;
+}
+
+.final-cta__fineprint a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  text-decoration-color: rgba(196, 163, 90, 0.45); /* faint gold underline */
+  transition: color 200ms var(--ease-standard),
+              text-decoration-color 200ms var(--ease-standard);
+}
+
+.final-cta__fineprint a:hover,
+.final-cta__fineprint a:focus-visible {
+  color: var(--editorial-gold);
+  text-decoration-color: var(--editorial-gold);
+}
+
+
+/* ───────── 10. Reduced motion ─────────
+   The Æ ornament is static by design — nothing to disable here.
+   The data-reveal system already opts out under prefers-reduced-motion
+   in _animations.css. This block exists as documentation. */
+@media (prefers-reduced-motion: reduce) {
+  /* no-op: ornament is static; reveals are handled in _animations.css */
+  .final-cta__bg-mark { transition: none; }
+}
