@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IVAE · Forms · Oleada 1 / Agent 07</title>
+<style>
+  /* Stand-in tokens so the demo renders standalone. Truth: _tokens.css. */
+  :root{
+    --atlantic-navy:#1A2433;--resort-white:#F9F8F7;--soft-slate:#5A6A7A;--warm-sand:#E6DCCF;
+    --editorial-gold:#C4A35A;--bg:var(--resort-white);--text:var(--atlantic-navy);
+    --text-muted:var(--soft-slate);--border:#E0D6C8;--accent:var(--editorial-gold);--danger:#8A2A2A;
+    --font-body:'Inter',system-ui,-apple-system,sans-serif;
+    --font-display:'DM Serif Display','Times New Roman',serif;
+    --fw-regular:400;--fw-medium:500;
+    --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;
+    --space-6:32px;--space-7:48px;--space-8:64px;
+    --ls-eyebrow:0.4em;--lh-snug:1.2;--lh-normal:1.5;
+    --dur-fast:150ms;--dur-base:250ms;
+    --ease-standard:cubic-bezier(0.4,0,0.2,1);--ease-emphasis:cubic-bezier(0.2,0.8,0.2,1);
+  }
+  /* ghost-light btn stand-in (real one in _buttons.css) */
+  .btn--ghost-light{appearance:none;border:1px solid var(--atlantic-navy);background:transparent;color:var(--atlantic-navy);font-family:var(--font-body);font-weight:500;font-size:13px;letter-spacing:.2em;text-transform:uppercase;padding:14px 22px;cursor:pointer;min-height:44px;}
+  .btn--ghost-light:focus-visible{outline:2px solid var(--editorial-gold);outline-offset:2px;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;line-height:1.5;}
+  .page{max-width:720px;margin:0 auto;padding:48px 24px 96px;}
+  h1{font-family:var(--font-display);font-weight:400;font-size:36px;margin:0 0 8px;letter-spacing:-.01em;}
+  h2{font-family:var(--font-display);font-weight:400;font-size:24px;margin:48px 0 16px;}
+  .lede{color:var(--text-muted);margin:0 0 32px;}
+  hr{border:0;border-top:1px solid var(--border);margin:48px 0;}
+</style>
+<link rel="stylesheet" href="./_forms.css">
+</head>
+<body>
+<main class="page">
+
+  <h1>Form system</h1>
+  <p class="lede">Float-label inputs, custom checks, error states. Bottom-border-only, transparent fields.</p>
+
+  <!-- ============================================================
+       1. Contact form — full booking-style stack
+       ============================================================ -->
+  <h2>Contact &amp; booking</h2>
+
+  <form class="form" novalidate>
+    <span class="field-eyebrow">Send your travel dates</span>
+
+    <div class="form-grid">
+      <div class="form-row">
+        <div class="field">
+          <input class="field__input" id="c-first" type="text" placeholder=" " autocomplete="given-name" required>
+          <label class="field__label" for="c-first">First name</label>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <input class="field__input" id="c-last" type="text" placeholder=" " autocomplete="family-name" required>
+          <label class="field__label" for="c-last">Last name</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="field">
+        <input class="field__input" id="c-email" type="email" placeholder=" " autocomplete="email" required>
+        <label class="field__label" for="c-email">Email</label>
+        <p class="field__help">We respond within 24 hours.</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-row">
+        <div class="field">
+          <input class="field__input" id="c-arrival" type="date" placeholder=" " required>
+          <label class="field__label" for="c-arrival">Arrival</label>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <input class="field__input" id="c-departure" type="date" placeholder=" " required>
+          <label class="field__label" for="c-departure">Departure</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="field">
+        <select class="field__input" id="c-region" required>
+          <option value="" selected disabled hidden></option>
+          <option>Riviera Maya</option>
+          <option>Cancún</option>
+          <option>Los Cabos</option>
+        </select>
+        <label class="field__label" for="c-region">Destination</label>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="field">
+        <textarea class="field__input" id="c-message" placeholder=" " rows="4"></textarea>
+        <label class="field__label" for="c-message">A few words about your trip</label>
+      </div>
+    </div>
+
+    <!-- honeypot trap — visually hidden, bots fill it -->
+    <div class="field field--honeypot" aria-hidden="true">
+      <label for="c-website">Website</label>
+      <input id="c-website" type="text" tabindex="-1" autocomplete="off">
+    </div>
+
+    <label class="field--check">
+      <input type="checkbox" required>
+      <span class="field--check__control" aria-hidden="true"></span>
+      <span class="field--check__label">I agree to be contacted about availability and pricing.</span>
+    </label>
+
+    <div class="form__actions">
+      <button class="btn--ghost-light" type="submit">Send enquiry</button>
+    </div>
+  </form>
+
+  <hr>
+
+  <!-- ============================================================
+       2. Newsletter inline — single row at ≥md
+       ============================================================ -->
+  <h2>Newsletter</h2>
+  <form class="form form--inline-newsletter" novalidate>
+    <div class="field">
+      <input class="field__input" id="n-email" type="email" placeholder=" " autocomplete="email" required>
+      <label class="field__label" for="n-email">Email</label>
+    </div>
+    <div class="form__actions">
+      <button class="btn--ghost-light" type="submit">Subscribe</button>
+    </div>
+  </form>
+
+  <hr>
+
+  <!-- ============================================================
+       3. Outfit-guide download — single email
+       ============================================================ -->
+  <h2>Outfit guide</h2>
+  <form class="form" novalidate>
+    <span class="field-eyebrow">Free PDF · what to wear</span>
+    <div class="form-row">
+      <div class="field">
+        <input class="field__input" id="o-email" type="email" placeholder=" " autocomplete="email" required>
+        <label class="field__label" for="o-email">Email</label>
+        <p class="field__help">We send it once. No follow-up sequence.</p>
+      </div>
+    </div>
+    <div class="form__actions">
+      <button class="btn--ghost-light" type="submit">Email me the guide</button>
+    </div>
+  </form>
+
+  <hr>
+
+  <!-- ============================================================
+       4. Error state example
+       ============================================================ -->
+  <h2>Error state</h2>
+  <form class="form" novalidate>
+    <div class="form-row">
+      <div class="field field--error">
+        <input class="field__input" id="e-email" type="email" placeholder=" " value="not-an-email" aria-invalid="true" aria-describedby="e-email-help" required>
+        <label class="field__label" for="e-email">Email</label>
+        <p class="field__help" id="e-email-help">Please enter a valid email address.</p>
+      </div>
+    </div>
+  </form>
+
+</main>
+</body>
+</html>

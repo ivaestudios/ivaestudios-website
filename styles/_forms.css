@@ -1,0 +1,435 @@
+/* ============================================================
+   _forms.css
+   IVAE Studios · Redesign 2026 · Oleada 1 · Agent 07
+   Form input system — booking, contact, newsletter, outfit-guide
+   and any future lead form. Editorial luxury: minimal, generous
+   touch targets, no busy borders, no rounded corners, no shadows
+   on rest. Float-label inputs, custom checks, error states.
+   Depends on _tokens.css (vars) and — for .form--inline-newsletter
+   — _buttons.css (.btn--ghost-light) being loaded first.
+   ============================================================ */
+
+/* ──────── 1. wrappers ────────────────────────────────────────
+   .form        outer <form>, vertical stack of rows
+   .form-row    a single field row (label + input + help/error)
+   .form-grid   2-col grid at ≥--bp-md (paired fields like
+                first/last name or arrival/departure dates)
+   ──────────────────────────────────────────────────────────── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 100%;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+}
+
+@media (min-width: 960px) { /* --bp-md */
+  .form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ──────── 2. field group · float label pattern ────────────────
+   Structure expected:
+     <div class="field">
+       <input class="field__input" id="x" type="email"
+              placeholder=" " required>
+       <label class="field__label" for="x">Email</label>
+       <p class="field__help">…</p>
+     </div>
+   The placeholder=" " (single space) is critical — it lets us
+   detect "empty" via :placeholder-shown without showing any
+   placeholder text (BRAND rule: never use placeholder as label).
+   ──────────────────────────────────────────────────────────── */
+.field {
+  position: relative;
+  display: block;
+  padding-top: 0;
+  width: 100%;
+}
+
+.field__input,
+.field select.field__input,
+.field textarea.field__input {
+  /* shared bottom-border-only design */
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 1.4rem 0 0.5rem 0; /* room for floating label above */
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: 16px; /* iOS zoom-on-focus prevention — non-negotiable */
+  line-height: var(--lh-snug);
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+  transition:
+    border-color var(--dur-base) var(--ease-standard),
+    color var(--dur-base) var(--ease-standard);
+  /* tap target — 44px floor on mobile */
+  min-height: 44px;
+}
+
+.field__input:focus,
+.field__input:focus-visible {
+  outline: 0;
+  border-bottom-color: var(--atlantic-navy);
+}
+
+/* the floating label — sits inside on rest, lifts on focus/filled */
+.field__label {
+  position: absolute;
+  left: 0;
+  top: 1.4rem;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: 16px;
+  line-height: var(--lh-snug);
+  color: var(--text-muted);
+  pointer-events: none;
+  transform-origin: 0 0;
+  transition:
+    transform var(--dur-base) var(--ease-emphasis),
+    color var(--dur-base) var(--ease-standard),
+    font-size var(--dur-base) var(--ease-standard);
+}
+
+/* lifted state: focus OR has content (placeholder is " ", so any
+   real content makes :placeholder-shown false) */
+.field__input:focus + .field__label,
+.field__input:not(:placeholder-shown) + .field__label,
+.field select.field__input + .field__label,
+.field select.field__input:focus + .field__label {
+  transform: translateY(-1.15rem) scale(0.75);
+  color: var(--text-muted);
+}
+
+.field__input:focus + .field__label {
+  color: var(--atlantic-navy);
+}
+
+/* selects don't support :placeholder-shown — always float the label.
+   The select sits on the empty/placeholder option until the user
+   picks a real value, but the label still belongs lifted because
+   a select control reads visually as "filled" once tabbed/clicked. */
+.field select.field__input + .field__label {
+  transform: translateY(-1.15rem) scale(0.75);
+}
+
+/* ──────── 3. textarea ───────────────────────────────────────── */
+.field textarea.field__input {
+  min-height: 6rem;
+  resize: vertical;
+  line-height: var(--lh-normal);
+}
+
+/* ──────── 4. select · custom thin chevron ──────────────────────
+   Inline SVG chevron in atlantic-navy (#1A2433). url-encoded so
+   the data URI is portable across browsers without base64 cost.
+   ──────────────────────────────────────────────────────────── */
+.field select.field__input {
+  padding-right: 1.5rem;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%231A2433' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0 center;
+  background-size: 12px 8px;
+  cursor: pointer;
+}
+
+/* ──────── 5. disabled / read-only ──────────────────────────── */
+.field__input:disabled,
+.field__input[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.field__input:read-only,
+.field__input[readonly] {
+  cursor: not-allowed;
+}
+
+/* ──────── 6. number / date polish ──────────────────────────── */
+.field__input[type="date"],
+.field__input[type="number"] {
+  /* date inputs would otherwise inherit a weird inner shadow on iOS */
+  -webkit-appearance: none;
+}
+
+/* hide native date placeholder on Safari when empty so our floating
+   label is the single source of truth */
+.field__input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+}
+
+/* ──────── 7. help text ─────────────────────────────────────── */
+.field__help {
+  margin: var(--space-1) 0 0 0;
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: 13px;
+  line-height: var(--lh-normal);
+  color: var(--text-muted);
+}
+
+/* ──────── 8. error state · class hook + aria-invalid ─────────
+   Toggle .field--error on the wrapper AND set
+   aria-invalid="true" on the input. Either selector triggers
+   the same visual treatment so JS frameworks can pick whichever
+   convention they prefer.
+   ──────────────────────────────────────────────────────────── */
+.field--error .field__input,
+.field .field__input[aria-invalid="true"] {
+  border-bottom-color: var(--danger);
+}
+
+.field--error .field__help,
+.field .field__input[aria-invalid="true"] ~ .field__help {
+  color: var(--danger);
+}
+
+.field--error .field__input:focus,
+.field .field__input[aria-invalid="true"]:focus {
+  border-bottom-color: var(--danger);
+}
+
+/* ──────── 9. focus-visible ring · gold, 2px, 2px offset ───────
+   Brand-wide rule: the gold ring is reserved for keyboard focus
+   on interactive controls. We use outline (not box-shadow) so the
+   ring never collides with the bottom border or layout.
+   ──────────────────────────────────────────────────────────── */
+.field__input:focus-visible {
+  outline: 2px solid var(--editorial-gold);
+  outline-offset: 2px;
+}
+
+/* ──────── 10. eyebrow · group label above a stack of fields ───
+   Inter 500, 11px, 0.4em tracking, uppercase, gold.
+   ──────────────────────────────────────────────────────────── */
+.field-eyebrow {
+  display: block;
+  margin: 0 0 var(--space-3) 0;
+  font-family: var(--font-body);
+  font-weight: var(--fw-medium);
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  color: var(--editorial-gold);
+}
+
+/* ──────── 11. checkbox + radio · .field--check ─────────────────
+   Custom 18px square (round for radio). Border 1px navy on
+   transparent. Checked = gold fill + white tick (clip-path for
+   the check, transform/border-trick for the radio dot).
+   Layout: control on the left, label to the right, vertically
+   centered. Inter 400 14px label.
+   ──────────────────────────────────────────────────────────── */
+.field--check {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px; /* tap-target floor */
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: 14px;
+  line-height: var(--lh-normal);
+  color: var(--text);
+}
+
+/* the real input is hidden but kept in the a11y tree */
+.field--check input[type="checkbox"],
+.field--check input[type="radio"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* the visual control */
+.field--check__control {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  background: transparent;
+  border: 1px solid var(--atlantic-navy);
+  border-radius: 0;
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+
+.field--check input[type="radio"] ~ .field--check__control {
+  border-radius: 50%;
+}
+
+/* checked: gold fill */
+.field--check input:checked ~ .field--check__control {
+  background-color: var(--editorial-gold);
+  border-color: var(--editorial-gold);
+}
+
+/* the tick — clip-path checkmark, white, centered */
+.field--check__control::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: #FFFFFF;
+  -webkit-clip-path: polygon(15% 50%, 40% 75%, 85% 25%, 80% 20%, 40% 65%, 20% 45%);
+  clip-path: polygon(15% 50%, 40% 75%, 85% 25%, 80% 20%, 40% 65%, 20% 45%);
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity var(--dur-fast) var(--ease-standard),
+    transform var(--dur-base) var(--ease-emphasis);
+}
+
+.field--check input[type="checkbox"]:checked ~ .field--check__control::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* radio dot · solid white circle */
+.field--check input[type="radio"] ~ .field--check__control::after {
+  -webkit-clip-path: circle(28% at 50% 50%);
+  clip-path: circle(28% at 50% 50%);
+}
+
+.field--check input[type="radio"]:checked ~ .field--check__control::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* keyboard focus ring on the visual control */
+.field--check input:focus-visible ~ .field--check__control {
+  outline: 2px solid var(--editorial-gold);
+  outline-offset: 2px;
+}
+
+/* disabled */
+.field--check input:disabled ~ .field--check__control {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.field--check input:disabled ~ .field--check__label {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.field--check__label {
+  user-select: none;
+}
+
+/* ──────── 12. submit area · .form__actions ───────────────────
+   Right-aligned row at ≥--bp-md, full-width stacked on mobile.
+   ──────────────────────────────────────────────────────────── */
+.form__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-7);
+}
+
+.form__actions > * {
+  width: 100%;
+}
+
+@media (min-width: 960px) { /* --bp-md */
+  .form__actions {
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .form__actions > * {
+    width: auto;
+  }
+}
+
+/* ──────── 13. inline newsletter · .form--inline-newsletter ────
+   Single-row layout (input + button) at ≥--bp-md, stacked on
+   mobile. Input flex-grow:1, button uses .btn--ghost-light from
+   _buttons.css — that file MUST be loaded before this rule fires.
+   Used in footer + contact page.
+   ──────────────────────────────────────────────────────────── */
+.form--inline-newsletter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+.form--inline-newsletter .field {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+@media (min-width: 960px) { /* --bp-md */
+  .form--inline-newsletter {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: var(--space-4);
+  }
+
+  .form--inline-newsletter .form__actions {
+    margin-top: 0;
+    flex-shrink: 0;
+  }
+}
+
+/* ──────── 14. honeypot · .field--honeypot ─────────────────────
+   Visually hidden, kept in the DOM so bots fill it. Real users
+   never see, never tab to (pointer-events:none + opacity:0
+   removes from interaction; left:-9999px keeps a11y tree quiet).
+   ──────────────────────────────────────────────────────────── */
+.field--honeypot {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ──────── 15. reduced motion ──────────────────────────────────
+   Honor prefers-reduced-motion: kill the float-label transition
+   (label still works because the transformed end-state is reached
+   instantly), and the check tick anim.
+   ──────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .field__input,
+  .field__label,
+  .field--check__control,
+  .field--check__control::after {
+    transition: none;
+  }
+}
