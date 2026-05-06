@@ -1,0 +1,446 @@
+<!--
+  IVAE Studios — Home / Services partial
+  Owner:    Agent 05 (Oleada 2)
+  Wired by: Agent 30 (Oleada 3)
+
+  Six editorial service cards. Two language variants live below:
+  ENGLISH first, SPANISH second. Pick ONE block when injecting,
+  based on the page locale (root vs /es/).
+
+  Pair with: styles/_home-services.css
+  Image hooks: every <img data-ivae-img> is enhanced by js/image-loader.js
+               (Agent 08) — wrapped in .ivae-image, lazy-loaded, no CLS.
+
+  Slot conventions:
+    - data-img-todo="<slug>"   marks placeholder filenames Agent 30
+                                will finalize from /images/library/.
+    - href="…?todo=oleada-3"   marks detail pages Oleada 3 must
+                                build before launch.
+-->
+
+
+<!-- ─── ENGLISH ─── -->
+<section class="section section--services" id="services" data-section="services" lang="en">
+  <header class="container services__header">
+    <p class="eyebrow" data-reveal>Servicios &middot; The Studio</p>
+    <h2 class="services__title" data-reveal-words>
+      Six ways to <em class="text-accent">direct</em> a session.
+    </h2>
+    <p class="services__lede" data-reveal style="--reveal-delay: 120ms">
+      Every session starts the same way: light, location, intention. The shape
+      of the day is what changes.
+    </p>
+  </header>
+
+  <div class="container container--wide services__grid" data-reveal-stagger>
+
+    <!-- 01 — Family ──────────────────────────────────────────────── -->
+    <article class="service-card" data-reveal="up">
+      <a href="/luxury-family-photos">
+        <figure class="service-card__media ivae-image ivae-image--portrait">
+          <img
+            data-ivae-img
+            src="/images/family-session-canc-n-resort-ivae-studios.jpg"
+            data-img-todo="services-family"
+            alt="Family on a luxury resort beach at golden hour, Cancún"
+            data-aspect="4/5"
+            width="1200" height="1500" />
+        </figure>
+        <header class="service-card__head">
+          <p class="service-card__num">01</p>
+          <h3 class="service-card__name">Family</h3>
+          <p class="service-card__line">
+            Editorial direction for the trip you actually planned.
+          </p>
+          <p class="service-card__body">
+            Destination family sessions at the Riviera Maya, Cancún and Los
+            Cabos resorts you already chose. Timing, light and direction handled.
+          </p>
+        </header>
+        <span class="service-card__more" aria-hidden="true">
+          View service
+          <svg class="service-card__arrow" viewBox="0 0 24 12" focusable="false">
+            <path d="M0 6h22M16 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1" />
+          </svg>
+        </span>
+      </a>
+    </article>
+
+    <!-- 02 — Couples ─────────────────────────────────────────────── -->
+    <article class="service-card" data-reveal="up">
+      <a href="/couples-photography">
+        <figure class="service-card__media ivae-image ivae-image--portrait">
+          <img
+            data-ivae-img
+            src="/images/couple-session-riviera-maya-ivae-studios.jpg"
+            data-img-todo="services-couples"
+            alt="Couple walking the shoreline at sunset, Riviera Maya"
+            data-aspect="4/5"
+            width="1200" height="1500" />
+        </figure>
+        <header class="service-card__head">
+          <p class="service-card__num">02</p>
+          <h3 class="service-card__name">Couples</h3>
+          <p class="service-card__line">
+            For the couple that wants the story, not the pose.
+          </p>
+          <p class="service-card__body">
+            Pre-engagement, anniversary, return-trip. Quiet sessions for two,
+            shaped around the hour the light is at its best.
+          </p>
+        </header>
+        <span class="service-card__more" aria-hidden="true">
+          View service
+          <svg class="service-card__arrow" viewBox="0 0 24 12" focusable="false">
+            <path d="M0 6h22M16 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1" />
+          </svg>
+        </span>
+      </a>
+    </article>
+
+    <!-- 03 — Weddings ────────────────────────────────────────────── -->
+    <article class="service-card" data-reveal="up">
+      <a href="/luxury-weddings">
+        <figure class="service-card__media ivae-image ivae-image--portrait">
+          <img
+            data-ivae-img
+            src="/images/destination-wedding-table-canc-n-ivae-studios.jpg"
+            data-img-todo="services-weddings"
+            alt="Editorial wedding tablescape detail, Cancún destination wedding"
+            data-aspect="4/5"
+            width="1200" height="1500" />
+        </figure>
+        <header class="service-card__head">
+          <p class="service-card__num">03</p>
+          <h3 class="service-card__name">Weddings</h3>
+          <p class="service-card__line">
+            Restrained ceremony coverage. Editorial-quality stills.
+          </p>
+          <p class="service-card__body">
+            Destination weddings and elopements across the Mexican Caribbean.
+            We document; we never interrupt.
+          </p>
+        </header>
+        <span class="service-card__more" aria-hidden="true">
+          View service
+          <svg class="service-card__arrow" viewBox="0 0 24 12" focusable="false">
+            <path d="M0 6h22M16 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1" />
+          </svg>
+        </span>
+      </a>
+    </article>
+
+    <!-- 04 — Maternity ───────────────────────────────────────────── -->
+    <article class="service-card" data-reveal="up">
+      <!-- TODO: Oleada 3 must build /maternity-photoshoot-cancun -->
+      <a href="/maternity-photoshoot-cancun">
+        <figure class="service-card__media ivae-image ivae-image--portrait">
+          <img
+            data-ivae-img
+            src="/images/library/services-maternity-placeholder.jpg"
+            data-img-todo="services-maternity"
+            alt="Mother-to-be at the shoreline, golden hour, Cancún babymoon"
+            data-aspect="4/5"
+            width="1200" height="1500" />
+        </figure>
+        <header class="service-card__head">
+          <p class="service-card__num">04</p>
+          <h3 class="service-card__name">Maternity</h3>
+          <p class="service-card__line">
+            The hour before the trip ends and the chapter begins.
+          </p>
+          <p class="service-card__body">
+            Babymoon and golden-hour beach sessions. A single, considered hour
+            that travels home with you.
+          </p>
+        </header>
+        <span class="service-card__more" aria-hidden="true">
+          View service
+          <svg class="service-card__arrow" viewBox="0 0 24 12" focusable="false">
+            <path d="M0 6h22M16 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1" />
+          </svg>
+        </span>
+      </a>
+    </article>
+
+    <!-- 05 — Yacht ───────────────────────────────────────────────── -->
+    <article class="service-card" data-reveal="up">
+      <!-- TODO: Oleada 3 may build /yacht-photography-cancun or link existing post -->
+      <a href="/yacht-photography-cancun">
+        <figure class="service-card__media ivae-image ivae-image--portrait">
+          <img
+            data-ivae-img
+            src="/images/library/services-yacht-placeholder.jpg"
+            data-img-todo="services-yacht"
+            alt="Couple aboard a private yacht at golden hour, Cancún"
+            data-aspect="4/5"
+            width="1200" height="1500" />
+        </figure>
+        <header class="service-card__head">
+          <p class="service-card__num">05</p>
+          <h3 class="service-card__name">Yacht</h3>
+          <p class="service-card__line">
+            On the water, golden hour.
+          </p>
+          <p class="service-card__body">
+            Private charter coverage off Isla Mujeres, Cancún and Los Cabos.
+            Editorial portraits at sea, never the resort selfie deck.
+          </p>
+        </header>
+        <span class="service-card__more" aria-hidden="true">
+          View service
+          <svg class="service-card__arrow" viewBox="0 0 24 12" focusable="false">
+            <path d="M0 6h22M16 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1" />
+          </svg>
+        </span>
+      </a>
+    </article>
+
+    <!-- 06 — Cenote ──────────────────────────────────────────────── -->
+    <article class="service-card" data-reveal="up">
+      <a href="/cenote-underwater-photoshoot-tulum">
+        <figure class="service-card__media ivae-image ivae-image--portrait">
+          <img
+            data-ivae-img
+            src="/images/library/services-cenote-placeholder.jpg"
+            data-img-todo="services-cenote"
+            alt="Underwater cenote portrait with shafts of light, Tulum"
+            data-aspect="4/5"
+            width="1200" height="1500" />
+        </figure>
+        <header class="service-card__head">
+          <p class="service-card__num">06</p>
+          <h3 class="service-card__name">Cenote</h3>
+          <p class="service-card__line">
+            Beneath the cenote, controlled light.
+          </p>
+          <p class="service-card__body">
+            Underwater editorial sessions in the Riviera Maya cenotes. Lit,
+            staged, directed — never improvised.
+          </p>
+        </header>
+        <span class="service-card__more" aria-hidden="true">
+          View service
+          <svg class="service-card__arrow" viewBox="0 0 24 12" focusable="false">
+            <path d="M0 6h22M16 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1" />
+          </svg>
+        </span>
+      </a>
+    </article>
+
+  </div>
+</section>
+
+
+<!-- ─── SPANISH ─── -->
+<section class="section section--services" id="services" data-section="services" lang="es">
+  <header class="container services__header">
+    <p class="eyebrow" data-reveal>Servicios &middot; El Estudio</p>
+    <h2 class="services__title" data-reveal-words>
+      Seis formas de <em class="text-accent">dirigir</em> una sesión.
+    </h2>
+    <p class="services__lede" data-reveal style="--reveal-delay: 120ms">
+      Toda sesión empieza igual: luz, locación, intención. Lo que cambia es
+      la forma del día.
+    </p>
+  </header>
+
+  <div class="container container--wide services__grid" data-reveal-stagger>
+
+    <!-- 01 — Familia ─────────────────────────────────────────────── -->
+    <article class="service-card" data-reveal="up">
+      <a href="/es/fotos-familiares-lujo-cancun">
+        <figure class="service-card__media ivae-image ivae-image--portrait">
+          <img
+            data-ivae-img
+            src="/images/family-session-canc-n-resort-ivae-studios.jpg"
+            data-img-todo="services-family"
+            alt="Familia en la playa de un resort de lujo a la hora dorada, Cancún"
+            data-aspect="4/5"
+            width="1200" height="1500" />
+        </figure>
+        <header class="service-card__head">
+          <p class="service-card__num">01</p>
+          <h3 class="service-card__name">Familia</h3>
+          <p class="service-card__line">
+            Dirección editorial para el viaje que realmente planearon.
+          </p>
+          <p class="service-card__body">
+            Sesiones familiares de destino en los resorts que ya eligieron en
+            Riviera Maya, Cancún y Los Cabos. Tiempo, luz y dirección incluidos.
+          </p>
+        </header>
+        <span class="service-card__more" aria-hidden="true">
+          Ver servicio
+          <svg class="service-card__arrow" viewBox="0 0 24 12" focusable="false">
+            <path d="M0 6h22M16 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1" />
+          </svg>
+        </span>
+      </a>
+    </article>
+
+    <!-- 02 — Parejas ─────────────────────────────────────────────── -->
+    <article class="service-card" data-reveal="up">
+      <a href="/es/fotografia-parejas-mexico">
+        <figure class="service-card__media ivae-image ivae-image--portrait">
+          <img
+            data-ivae-img
+            src="/images/couple-session-riviera-maya-ivae-studios.jpg"
+            data-img-todo="services-couples"
+            alt="Pareja caminando por la orilla al atardecer, Riviera Maya"
+            data-aspect="4/5"
+            width="1200" height="1500" />
+        </figure>
+        <header class="service-card__head">
+          <p class="service-card__num">02</p>
+          <h3 class="service-card__name">Parejas</h3>
+          <p class="service-card__line">
+            Para la pareja que quiere la historia, no la pose.
+          </p>
+          <p class="service-card__body">
+            Pre-compromiso, aniversario, viaje de regreso. Sesiones íntimas
+            para dos, en torno a la mejor hora de luz.
+          </p>
+        </header>
+        <span class="service-card__more" aria-hidden="true">
+          Ver servicio
+          <svg class="service-card__arrow" viewBox="0 0 24 12" focusable="false">
+            <path d="M0 6h22M16 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1" />
+          </svg>
+        </span>
+      </a>
+    </article>
+
+    <!-- 03 — Bodas ───────────────────────────────────────────────── -->
+    <article class="service-card" data-reveal="up">
+      <a href="/es/fotografo-bodas-destino-mexico">
+        <figure class="service-card__media ivae-image ivae-image--portrait">
+          <img
+            data-ivae-img
+            src="/images/destination-wedding-table-canc-n-ivae-studios.jpg"
+            data-img-todo="services-weddings"
+            alt="Detalle editorial de mesa en boda destino, Cancún"
+            data-aspect="4/5"
+            width="1200" height="1500" />
+        </figure>
+        <header class="service-card__head">
+          <p class="service-card__num">03</p>
+          <h3 class="service-card__name">Bodas</h3>
+          <p class="service-card__line">
+            Cobertura de ceremonia con mesura. Imágenes de calidad editorial.
+          </p>
+          <p class="service-card__body">
+            Bodas destino y fugas íntimas en el Caribe mexicano. Documentamos;
+            nunca interrumpimos.
+          </p>
+        </header>
+        <span class="service-card__more" aria-hidden="true">
+          Ver servicio
+          <svg class="service-card__arrow" viewBox="0 0 24 12" focusable="false">
+            <path d="M0 6h22M16 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1" />
+          </svg>
+        </span>
+      </a>
+    </article>
+
+    <!-- 04 — Maternidad ──────────────────────────────────────────── -->
+    <article class="service-card" data-reveal="up">
+      <!-- TODO: Oleada 3 debe crear /es/maternidad-cancun -->
+      <a href="/es/maternidad-cancun">
+        <figure class="service-card__media ivae-image ivae-image--portrait">
+          <img
+            data-ivae-img
+            src="/images/library/services-maternity-placeholder.jpg"
+            data-img-todo="services-maternity"
+            alt="Madre embarazada en la orilla, hora dorada, babymoon en Cancún"
+            data-aspect="4/5"
+            width="1200" height="1500" />
+        </figure>
+        <header class="service-card__head">
+          <p class="service-card__num">04</p>
+          <h3 class="service-card__name">Maternidad</h3>
+          <p class="service-card__line">
+            La hora antes de que termine el viaje y empiece el capítulo.
+          </p>
+          <p class="service-card__body">
+            Babymoon y sesiones a la hora dorada en la playa. Una hora pensada,
+            que viaja con ustedes a casa.
+          </p>
+        </header>
+        <span class="service-card__more" aria-hidden="true">
+          Ver servicio
+          <svg class="service-card__arrow" viewBox="0 0 24 12" focusable="false">
+            <path d="M0 6h22M16 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1" />
+          </svg>
+        </span>
+      </a>
+    </article>
+
+    <!-- 05 — Yate ────────────────────────────────────────────────── -->
+    <article class="service-card" data-reveal="up">
+      <!-- TODO: Oleada 3 puede crear /es/fotografia-yate-cancun o enlazar el post existente -->
+      <a href="/es/fotografia-yate-cancun">
+        <figure class="service-card__media ivae-image ivae-image--portrait">
+          <img
+            data-ivae-img
+            src="/images/library/services-yacht-placeholder.jpg"
+            data-img-todo="services-yacht"
+            alt="Pareja a bordo de un yate privado a la hora dorada, Cancún"
+            data-aspect="4/5"
+            width="1200" height="1500" />
+        </figure>
+        <header class="service-card__head">
+          <p class="service-card__num">05</p>
+          <h3 class="service-card__name">Yate</h3>
+          <p class="service-card__line">
+            En el agua, hora dorada.
+          </p>
+          <p class="service-card__body">
+            Cobertura de charter privado en Isla Mujeres, Cancún y Los Cabos.
+            Retratos editoriales en el mar, nunca la cubierta del selfie.
+          </p>
+        </header>
+        <span class="service-card__more" aria-hidden="true">
+          Ver servicio
+          <svg class="service-card__arrow" viewBox="0 0 24 12" focusable="false">
+            <path d="M0 6h22M16 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1" />
+          </svg>
+        </span>
+      </a>
+    </article>
+
+    <!-- 06 — Cenote ──────────────────────────────────────────────── -->
+    <article class="service-card" data-reveal="up">
+      <!-- TODO: Oleada 3 debe crear /es/cenote-tulum o equivalente -->
+      <a href="/es/cenote-tulum">
+        <figure class="service-card__media ivae-image ivae-image--portrait">
+          <img
+            data-ivae-img
+            src="/images/library/services-cenote-placeholder.jpg"
+            data-img-todo="services-cenote"
+            alt="Retrato subacuático en cenote con haces de luz, Tulum"
+            data-aspect="4/5"
+            width="1200" height="1500" />
+        </figure>
+        <header class="service-card__head">
+          <p class="service-card__num">06</p>
+          <h3 class="service-card__name">Cenote</h3>
+          <p class="service-card__line">
+            Debajo del cenote, luz controlada.
+          </p>
+          <p class="service-card__body">
+            Sesiones editoriales subacuáticas en los cenotes de la Riviera Maya.
+            Iluminada, dirigida y planeada — nunca improvisada.
+          </p>
+        </header>
+        <span class="service-card__more" aria-hidden="true">
+          Ver servicio
+          <svg class="service-card__arrow" viewBox="0 0 24 12" focusable="false">
+            <path d="M0 6h22M16 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1" />
+          </svg>
+        </span>
+      </a>
+    </article>
+
+  </div>
+</section>

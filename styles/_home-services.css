@@ -1,0 +1,226 @@
+/* ════════════════════════════════════════════════════════════════════
+   _home-services.css
+   IVAE Studios · Redesign 2026 · Oleada 2 · Agent 05
+   ──────────────────────────────────────────────────────────────────
+   Pairs with: partials/home/05-services.html
+
+   Six editorial service cards on the home. Cards sit flat on
+   resort-white — no chrome, no border, no card-shadow. The image
+   carries the editorial weight; type carries the meaning.
+
+   Tokens: reads --space-*, --fs-*, --atlantic-navy, --resort-white,
+           --soft-slate, --editorial-gold, --warm-sand, --ease-* and
+           --dur-* from _tokens.css. No new tokens introduced.
+
+   Wired AFTER _image.css and _animations.css in main.css so the
+   ivae-image enhancement and reveal scaffolding are in scope.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Section shell ─────────────────────────────────────────────── */
+.section--services {
+  padding-block: clamp(96px, 14vw, 160px);
+  background: var(--resort-white);
+  color: var(--text);
+}
+
+/* ── Header band ───────────────────────────────────────────────── */
+.services__header {
+  text-align: left;
+  max-width: 720px;
+  margin-bottom: var(--space-8);
+}
+
+.services__header .eyebrow {
+  display: block;
+  margin-bottom: var(--space-4);
+}
+
+.services__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-1000-fluid);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--atlantic-navy);
+  margin: 0 0 var(--space-4);
+}
+
+.services__title em,
+.services__title .text-accent {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: var(--fw-regular);
+  color: var(--editorial-gold);
+}
+
+.services__lede {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-600-fluid);
+  line-height: var(--lh-normal);
+  color: var(--text-muted);
+  max-width: 56ch;
+  margin: 0;
+}
+
+/* ── Grid ──────────────────────────────────────────────────────── */
+.services__grid {
+  display: grid;
+  grid-template-columns: 1fr;                /* mobile-first: single column */
+  gap: var(--space-8) var(--space-6);
+}
+
+@media (min-width: 640px) {
+  .services__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 960px) {
+  .services__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ── Card ──────────────────────────────────────────────────────── */
+.service-card {
+  /* Flat on resort-white — no background, no border, no shadow. */
+  position: relative;
+  background: transparent;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.service-card a {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: var(--space-4);
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+}
+
+.service-card a:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-radius: var(--r-1);
+}
+
+/* ── Card · media ──────────────────────────────────────────────── */
+.service-card__media {
+  /* aspect-ratio inherited from .ivae-image--portrait (4/5). */
+  margin: 0;
+  overflow: hidden;
+  border-radius: var(--r-1);
+}
+
+.service-card__media > img {
+  transition:
+    transform 600ms var(--ease-editorial, cubic-bezier(0.16, 1, 0.3, 1)),
+    opacity 600ms var(--ease-standard);
+  will-change: transform;
+}
+
+@media (hover: hover) {
+  .service-card a:hover .service-card__media > img,
+  .service-card a:focus-visible .service-card__media > img {
+    transform: scale(1.03);
+  }
+}
+
+/* ── Card · head ───────────────────────────────────────────────── */
+.service-card__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0;
+}
+
+.service-card__num {
+  font-family: var(--font-body);
+  font-weight: var(--fw-medium);
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--editorial-gold);
+  margin: 0;
+  /* Numbers 01..06 carry the gold accent; rest of the card stays neutral. */
+}
+
+.service-card__name {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(22px, 2.6vw, 30px);
+  line-height: 1.1;
+  letter-spacing: var(--ls-tight);
+  color: var(--atlantic-navy);
+  margin: 0;
+}
+
+.service-card__line {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  margin: 0;
+  max-width: 32ch;
+}
+
+.service-card__body {
+  /* Optional second body block — keeps cards talking in two registers:
+     the one-line (line) and the two-line (body). */
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  margin: 0;
+  max-width: 36ch;
+}
+
+/* ── Card · more affordance ────────────────────────────────────── */
+.service-card__more {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-body);
+  font-weight: var(--fw-medium);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--editorial-gold);
+  margin-top: var(--space-2);
+  /* keyboard users get the focus ring on the parent <a>;
+     this label is decorative for hover/focus theatre. */
+}
+
+.service-card__arrow {
+  width: 24px;
+  height: 12px;
+  flex: 0 0 auto;
+  transition: transform 300ms var(--ease-editorial, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+@media (hover: hover) {
+  .service-card a:hover .service-card__arrow,
+  .service-card a:focus-visible .service-card__arrow {
+    transform: translateX(4px);
+  }
+}
+
+/* ── Reduced motion ────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .service-card__media > img,
+  .service-card__arrow {
+    transition: none !important;
+  }
+  .service-card a:hover .service-card__media > img,
+  .service-card a:focus-visible .service-card__media > img,
+  .service-card a:hover .service-card__arrow,
+  .service-card a:focus-visible .service-card__arrow {
+    transform: none !important;
+  }
+  /* Color and opacity changes survive — they don't move pixels. */
+}
