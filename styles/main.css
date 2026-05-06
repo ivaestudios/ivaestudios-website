@@ -33,6 +33,7 @@
 
 /* ── Pages (Oleadas 2-3) ───────────────────────────────────────────── */
 /* @import "_home.css"; */          /* added in Oleada 2 */
+@import "_home-portfolio.css";      /* Oleada 2 · Agent 04 — homepage portfolio grid */
 /* @import "_about.css"; */
 /* @import "_services.css"; */
 /* @import "_destinations.css"; */
