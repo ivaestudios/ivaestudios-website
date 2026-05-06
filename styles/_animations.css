@@ -1,0 +1,119 @@
+/* IVAE Studios — _animations.css
+ * Editorial scroll-reveal system. Restrained, transform/opacity only.
+ * Token contract: --ease-editorial defined here as a fallback for standalone use;
+ * the canonical token comes from _tokens.css (Agent 01).
+ */
+
+:root {
+  --ease-editorial: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ===========================================================
+   Base reveal — rest state
+   =========================================================== */
+[data-reveal],
+[data-reveal-words] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 700ms var(--ease-editorial),
+    transform 700ms var(--ease-editorial);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+/* Variants */
+[data-reveal="up"]    { transform: translateY(24px); }
+[data-reveal="fade"]  { transform: none; }
+[data-reveal="left"]  { transform: translateX(-24px); }
+[data-reveal="right"] { transform: translateX(24px); }
+[data-reveal="scale"] { transform: scale(0.96); }
+
+/* Revealed state */
+[data-reveal].is-revealed,
+[data-reveal-words].is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* Word reveal scaffolding stays hidden until parent reveals */
+[data-reveal-words] {
+  /* transform comes from the variant rule above; default is translateY(24px) — disable
+     so that only the inner word masks animate, not the whole block. */
+  transform: none;
+  opacity: 1;
+  transition: none;
+}
+
+/* ===========================================================
+   Word-by-word mask reveal
+   =========================================================== */
+.rv-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  line-height: inherit;
+  /* small bottom padding stops descenders being clipped */
+  padding-bottom: 0.08em;
+}
+
+.rv-word > span {
+  display: inline-block;
+  transform: translateY(120%);
+  transition: transform 850ms var(--ease-editorial);
+  transition-delay: var(--word-delay, 0ms);
+  will-change: transform;
+}
+
+[data-reveal-words].is-revealed .rv-word > span {
+  transform: translateY(0);
+}
+
+/* Screen-reader copy of original text (keeps semantics intact) */
+.rv-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ===========================================================
+   Magnetic CTA — JS sets transform; this just hints will-change.
+   =========================================================== */
+[data-magnetic] {
+  transition: transform 320ms var(--ease-editorial);
+  will-change: transform;
+}
+
+@media (max-width: 767px) {
+  [data-magnetic] { will-change: auto; }
+}
+
+/* ===========================================================
+   Reduced motion — hard reset.
+   Content always visible; never animates.
+   =========================================================== */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal] *,
+  [data-reveal-words],
+  [data-reveal-words] * {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .rv-word > span {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  [data-magnetic] {
+    transform: none !important;
+    transition: none !important;
+  }
+}
