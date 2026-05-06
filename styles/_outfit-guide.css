@@ -1,0 +1,817 @@
+/* ============================================================
+   _outfit-guide.css
+   IVAE Studios · Redesign 2026 · Oleada 3 · Agent 12
+   ──────────────────────────────────────────────────────────
+   Page module for /outfit-guide and /es/guia-vestuario.
+
+   Contains:
+     1. Page hero
+     2. Tab switcher (W3C tab pattern)
+     3. Palette explorer (4 light registers)
+     4. Location cards (4)
+     5. Avoid list (12 items)
+     6. Outfit boards (filterable by palette)
+     7. Print CTA
+     8. Final CTA polish
+
+   Tokens come from _tokens.css. Buttons from _buttons.css.
+   Accessibility:
+     - Tabs follow APG W3C pattern (roving tabindex, ARIA states)
+     - All panels visible without JS via the .no-js fallback
+     - Reduced motion is honored (animations are stripped)
+     - AA contrast on all text surfaces
+   ============================================================ */
+
+
+/* Shared container (matches what _home.css uses) — keep narrow stack */
+.section.guide-tabs,
+.section.guide-palettes,
+.section.guide-locations,
+.section.guide-avoid,
+.section.guide-boards,
+.section.guide-print,
+.section.guide-final-cta {
+  padding-block: clamp(64px, 10vw, 128px);
+}
+
+
+/* ───────── 1 · Page hero ───────── */
+.section--page-hero {
+  background: var(--bg);
+  color: var(--text);
+  padding-block: clamp(120px, 14vw, 200px) clamp(48px, 8vw, 96px);
+  border-bottom: 1px solid var(--border);
+}
+.section--page-hero--guide .guide-hero__inner {
+  text-align: center;
+}
+.guide-hero__eyebrow {
+  display: inline-block;
+  margin-block-end: var(--space-5);
+  color: var(--text-muted);
+}
+.guide-hero__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-1100-fluid);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  margin: 0 auto var(--space-6);
+  max-width: 16ch;
+}
+.guide-hero__title em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--editorial-gold);
+}
+.guide-hero__lede {
+  font-family: var(--font-body);
+  font-size: var(--fs-600-fluid);
+  line-height: var(--lh-loose);
+  color: var(--text-muted);
+  margin: 0 auto;
+  max-width: 56ch;
+}
+.guide-hero__meta {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-7) 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+}
+.guide-hero__chip {
+  font-family: var(--font-body);
+  font-size: var(--fs-400);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+  text-decoration: none;
+  padding: 10px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  transition: background var(--dur-base) var(--ease-standard),
+              border-color var(--dur-base) var(--ease-standard),
+              color var(--dur-base) var(--ease-standard);
+}
+.guide-hero__chip:hover,
+.guide-hero__chip:focus-visible {
+  background: var(--surface-alt);
+  border-color: var(--editorial-gold);
+  color: var(--text);
+}
+
+
+/* ───────── 2 · Tab switcher (W3C tabs) ───────── */
+.guide-tabs__head {
+  text-align: center;
+  margin-block-end: var(--space-7);
+}
+.guide-tabs__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-1000-fluid);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--ls-tight);
+  margin: var(--space-3) auto var(--space-4);
+  max-width: 18ch;
+}
+.guide-tabs__title em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--editorial-gold);
+}
+.guide-tabs__lede {
+  color: var(--text-muted);
+  font-size: var(--fs-500);
+  line-height: var(--lh-normal);
+  margin: 0 auto;
+  max-width: 50ch;
+}
+
+.guide-tabs__list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--border);
+  margin-block-end: var(--space-7);
+  padding-block-end: var(--space-2);
+}
+.guide-tab {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-400);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 14px 22px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color var(--dur-base) var(--ease-standard),
+              border-color var(--dur-base) var(--ease-standard);
+}
+.guide-tab:hover {
+  color: var(--text);
+}
+.guide-tab.is-active,
+.guide-tab[aria-selected="true"] {
+  color: var(--text);
+  border-bottom-color: var(--editorial-gold);
+}
+.guide-tab:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-radius: var(--r-2);
+}
+
+/* Panel: only the active one is visible when JS upgrades the layout.
+   Without JS, every panel stays visible thanks to the fallback below. */
+.guide-panel {
+  display: none;
+  animation: guide-panel-in var(--dur-slow) var(--ease-emphasis);
+}
+.guide-panel.is-active {
+  display: block;
+}
+.guide-panel:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-radius: var(--r-2);
+}
+
+@keyframes guide-panel-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.guide-panel__grid {
+  display: grid;
+  gap: var(--space-7);
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  align-items: start;
+}
+@media (max-width: 47.9375em) {
+  .guide-panel__grid {
+    grid-template-columns: 1fr;
+  }
+}
+.guide-panel__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-900-fluid);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--ls-tight);
+  margin: var(--space-2) 0 var(--space-4);
+}
+.guide-panel__copy p {
+  font-size: var(--fs-500);
+  line-height: var(--lh-loose);
+  color: var(--text);
+  max-width: 60ch;
+}
+.guide-panel__list {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-5) 0 0;
+}
+.guide-panel__list li {
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--fs-500);
+  line-height: var(--lh-normal);
+  color: var(--text-muted);
+}
+.guide-panel__list li:last-child {
+  border-bottom: 0;
+}
+.guide-panel__list strong {
+  color: var(--text);
+  font-weight: var(--fw-semi);
+}
+.guide-panel__aside {
+  background: var(--surface-alt);
+  padding: var(--space-6);
+  border-left: 2px solid var(--editorial-gold);
+}
+.guide-panel__aside-eyebrow {
+  margin-block-end: var(--space-3);
+  color: var(--text-muted);
+}
+.guide-panel__aside-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.guide-panel__aside-list li {
+  font-size: var(--fs-500);
+  line-height: var(--lh-loose);
+  color: var(--text);
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.guide-panel__aside-list li:last-child {
+  border-bottom: 0;
+}
+
+
+/* ───────── 3 · Palette explorer ───────── */
+.guide-palettes {
+  background: var(--surface-alt);
+}
+.guide-palettes__head {
+  text-align: center;
+  margin-block-end: var(--space-7);
+}
+.guide-palettes__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-1000-fluid);
+  line-height: var(--lh-snug);
+  margin: var(--space-3) auto var(--space-4);
+  max-width: 20ch;
+}
+.guide-palettes__title em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--editorial-gold);
+}
+.guide-palettes__lede {
+  color: var(--text-muted);
+  font-size: var(--fs-500);
+  line-height: var(--lh-normal);
+  margin: 0 auto;
+  max-width: 56ch;
+}
+.guide-palettes__grid {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+@media (max-width: 63.9375em) {
+  .guide-palettes__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 35.9375em) {
+  .guide-palettes__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.palette {
+  background: var(--bg);
+  padding: var(--space-6);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: transform var(--dur-base) var(--ease-emphasis),
+              box-shadow var(--dur-base) var(--ease-standard),
+              border-color var(--dur-base) var(--ease-standard);
+}
+.palette:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-2);
+  border-color: var(--editorial-gold);
+}
+.palette:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+.palette.is-active {
+  border-color: var(--editorial-gold);
+  box-shadow: 0 0 0 2px var(--editorial-gold) inset;
+}
+.palette__swatches {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin-block-end: var(--space-5);
+  height: 56px;
+}
+.palette__swatch {
+  display: block;
+  background: var(--swatch);
+  border: 1px solid rgba(15, 22, 32, 0.04);
+}
+.palette__name {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-700);
+  line-height: var(--lh-snug);
+  margin-block-end: var(--space-2);
+  color: var(--text);
+}
+.palette__use {
+  font-size: var(--fs-300);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-block-end: var(--space-4);
+}
+.palette__examples {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.palette__examples li {
+  font-size: var(--fs-400);
+  line-height: var(--lh-normal);
+  color: var(--text);
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+}
+.palette__examples li:last-child {
+  border-bottom: 0;
+}
+.guide-palettes__hint {
+  text-align: center;
+  margin-block-start: var(--space-7);
+  color: var(--text-muted);
+  font-size: var(--fs-400);
+  letter-spacing: 0.06em;
+}
+
+
+/* ───────── 4 · Location cards ───────── */
+.guide-locations__head {
+  text-align: center;
+  margin-block-end: var(--space-7);
+}
+.guide-locations__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-1000-fluid);
+  line-height: var(--lh-snug);
+  margin: var(--space-3) auto var(--space-4);
+  max-width: 22ch;
+}
+.guide-locations__title em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--editorial-gold);
+}
+.guide-locations__lede {
+  color: var(--text-muted);
+  font-size: var(--fs-500);
+  line-height: var(--lh-normal);
+  margin: 0 auto;
+  max-width: 56ch;
+}
+.guide-locations__grid {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (max-width: 47.9375em) {
+  .guide-locations__grid {
+    grid-template-columns: 1fr;
+  }
+}
+.location-card {
+  background: var(--bg);
+  padding: var(--space-7);
+  border-top: 2px solid var(--editorial-gold);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+}
+.location-card__eyebrow {
+  margin-block-end: var(--space-3);
+  color: var(--text-muted);
+}
+.location-card__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-800);
+  line-height: var(--lh-snug);
+  margin-block-end: var(--space-3);
+}
+.location-card p {
+  font-size: var(--fs-500);
+  line-height: var(--lh-loose);
+  color: var(--text);
+  max-width: 50ch;
+}
+.location-card__list {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-5) 0 0;
+}
+.location-card__list li {
+  padding: var(--space-3) 0;
+  border-top: 1px dashed var(--border);
+  font-size: var(--fs-400);
+  color: var(--text-muted);
+}
+.location-card__list li:first-child {
+  border-top: 0;
+}
+
+
+/* ───────── 5 · Avoid list ───────── */
+.guide-avoid {
+  background: var(--atlantic-navy);
+  color: var(--resort-white);
+}
+.guide-avoid__head {
+  text-align: center;
+  margin-block-end: var(--space-7);
+}
+.guide-avoid__head .eyebrow {
+  color: var(--editorial-gold);
+}
+.guide-avoid__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-1000-fluid);
+  line-height: var(--lh-snug);
+  margin: var(--space-3) auto var(--space-4);
+  max-width: 18ch;
+  color: var(--resort-white);
+}
+.guide-avoid__title em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--editorial-gold);
+}
+.guide-avoid__lede {
+  color: rgba(249, 248, 247, 0.78);
+  font-size: var(--fs-500);
+  line-height: var(--lh-normal);
+  margin: 0 auto;
+  max-width: 56ch;
+}
+.guide-avoid__list {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  counter-reset: avoid;
+  display: grid;
+  gap: 0;
+}
+.avoid-item {
+  counter-increment: avoid;
+  padding: var(--space-5) 0 var(--space-5) var(--space-7);
+  border-top: 1px solid rgba(196, 163, 90, 0.20);
+  position: relative;
+}
+.avoid-item:last-child {
+  border-bottom: 1px solid rgba(196, 163, 90, 0.20);
+}
+.avoid-item::before {
+  content: counter(avoid, decimal-leading-zero);
+  position: absolute;
+  top: var(--space-5);
+  left: 0;
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-size: var(--fs-700);
+  color: var(--editorial-gold);
+}
+.avoid-item__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-700);
+  line-height: var(--lh-snug);
+  color: var(--resort-white);
+  margin-block-end: var(--space-2);
+}
+.avoid-item__why {
+  font-family: var(--font-body);
+  font-size: var(--fs-500);
+  line-height: var(--lh-loose);
+  color: rgba(249, 248, 247, 0.78);
+  max-width: 60ch;
+}
+
+
+/* ───────── 6 · Outfit boards ───────── */
+.guide-boards__head {
+  text-align: center;
+  margin-block-end: var(--space-7);
+}
+.guide-boards__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-1000-fluid);
+  line-height: var(--lh-snug);
+  margin: var(--space-3) auto var(--space-4);
+  max-width: 20ch;
+}
+.guide-boards__title em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--editorial-gold);
+}
+.guide-boards__lede {
+  color: var(--text-muted);
+  font-size: var(--fs-500);
+  line-height: var(--lh-normal);
+  margin: 0 auto;
+  max-width: 60ch;
+}
+.guide-boards__grid {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+@media (max-width: 63.9375em) {
+  .guide-boards__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 47.9375em) {
+  .guide-boards__grid {
+    grid-template-columns: 1fr;
+  }
+}
+.board {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  transition: opacity var(--dur-base) var(--ease-standard),
+              transform var(--dur-base) var(--ease-emphasis);
+}
+.board.is-hidden {
+  display: none;
+}
+.board__media {
+  margin: 0;
+  overflow: hidden;
+  background: var(--surface-alt);
+  aspect-ratio: 4 / 3;
+}
+.board__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 700ms var(--ease-editorial);
+}
+.board:hover .board__media img {
+  transform: scale(1.03);
+}
+.board__body {
+  padding: var(--space-5) var(--space-6) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.board__tag {
+  color: var(--text-muted);
+  margin: 0;
+}
+.board__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-700);
+  line-height: var(--lh-snug);
+  margin: 0;
+}
+.board__caption {
+  font-family: var(--font-body);
+  font-size: var(--fs-400);
+  line-height: var(--lh-loose);
+  color: var(--text);
+  margin: 0;
+}
+.board__pieces {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+}
+.board__pieces li {
+  font-size: var(--fs-400);
+  color: var(--text-muted);
+  padding: 4px 0;
+  border-top: 1px dashed var(--border);
+}
+
+
+/* ───────── 7 · Print CTA ───────── */
+.guide-print {
+  background: var(--surface-alt);
+}
+.guide-print__inner {
+  text-align: center;
+}
+.guide-print__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-900-fluid);
+  line-height: var(--lh-snug);
+  margin: var(--space-3) auto var(--space-4);
+  max-width: 22ch;
+}
+.guide-print__title em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--editorial-gold);
+}
+.guide-print__lede {
+  font-size: var(--fs-500);
+  line-height: var(--lh-loose);
+  color: var(--text-muted);
+  max-width: 56ch;
+  margin: 0 auto var(--space-6);
+}
+.guide-print__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-5);
+  margin: 0;
+}
+
+
+/* ───────── 8 · Final CTA polish ───────── */
+.guide-final-cta .final-cta__inner {
+  text-align: center;
+}
+.guide-final-cta .final-cta__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-1100-fluid);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  margin: var(--space-4) auto var(--space-5);
+  max-width: 22ch;
+}
+.guide-final-cta .final-cta__title em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--editorial-gold);
+}
+.guide-final-cta .final-cta__lede {
+  color: rgba(249, 248, 247, 0.78);
+  font-size: var(--fs-600-fluid);
+  line-height: var(--lh-loose);
+  margin: 0 auto var(--space-7);
+  max-width: 56ch;
+}
+.guide-final-cta .final-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+
+/* ───────── No-JS fallback ─────────
+   When .no-js is set (animations.js typically removes it on load),
+   keep every panel visible so the content is fully accessible.
+   The .js class flag below is set by outfit-guide.js. */
+html:not(.has-outfit-guide-js) .guide-panel {
+  display: block !important;
+  border-top: 1px solid var(--border);
+  padding-block-start: var(--space-5);
+  margin-block-start: var(--space-5);
+}
+html:not(.has-outfit-guide-js) .guide-tabs__list {
+  display: none;
+}
+
+
+/* ───────── Reduced motion ───────── */
+@media (prefers-reduced-motion: reduce) {
+  .guide-panel,
+  .board,
+  .board__media img,
+  .palette {
+    animation: none !important;
+    transition: none !important;
+  }
+  .palette:hover { transform: none; }
+  .board:hover .board__media img { transform: none; }
+}
+
+
+/* ───────── Print stylesheet
+   Page-specific print rules layered on top of /styles/print.css.
+   Goal: a clean editorial single-sheet (or 2 pages max) view. */
+@media print {
+  .site-nav,
+  .nav-drawer,
+  .skip-link,
+  .ivae-footer,
+  .guide-hero__meta,
+  .guide-print,
+  .section--final-cta {
+    display: none !important;
+  }
+  .section--page-hero {
+    padding: 12mm 0 4mm !important;
+    border-bottom: 1px solid #999;
+  }
+  .guide-tabs__list {
+    display: none !important;
+  }
+  /* Print: every panel becomes a printed section */
+  .guide-panel {
+    display: block !important;
+    page-break-inside: avoid;
+    border-top: 1px solid #ccc;
+    padding-block-start: 6mm;
+    margin-block-start: 6mm;
+  }
+  .guide-panel__grid {
+    display: block !important;
+  }
+  .guide-panel__aside {
+    background: transparent !important;
+    border-left: 2px solid #999 !important;
+    padding: 4mm !important;
+    margin-block-start: 4mm;
+  }
+  .guide-palettes,
+  .guide-avoid {
+    background: transparent !important;
+    color: #000 !important;
+    page-break-before: auto;
+  }
+  .guide-palettes__grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 4mm !important;
+  }
+  .palette {
+    border: 1px solid #999 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+  .avoid-item__title,
+  .avoid-item__why,
+  .guide-avoid__title,
+  .guide-avoid__lede {
+    color: #000 !important;
+  }
+  .avoid-item {
+    page-break-inside: avoid;
+  }
+  .guide-boards__grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 4mm !important;
+  }
+  .board {
+    page-break-inside: avoid;
+    border: 1px solid #999 !important;
+  }
+  .board__media {
+    aspect-ratio: 4 / 3;
+  }
+  /* Page break ladder */
+  .guide-tabs { page-break-after: auto; }
+  .guide-palettes { page-break-before: auto; }
+  .guide-avoid { page-break-before: auto; }
+  .guide-boards { page-break-before: auto; }
+}
