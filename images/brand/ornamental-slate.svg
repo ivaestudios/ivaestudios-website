@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 96" role="img" aria-labelledby="t d" preserveAspectRatio="xMidYMid meet">
+  <title id="t">IVAE Studios ornamental mark</title>
+  <desc id="d">IVAE Studios ornamental mark, IVE in Soft Slate with the lowercase ae ligature in Editorial Gold Bodoni Moda Italic.</desc>
+  <style>
+    .lt{font-family:'DM Serif Display','Times New Roman',serif;font-weight:400;font-size:80px;letter-spacing:0.02em;}
+    .ae{font-family:'Bodoni Moda','Bodoni 72','Didot',serif;font-style:italic;font-weight:400;font-size:96px;}
+  </style>
+  <text x="140" y="74" text-anchor="middle">
+    <tspan class="lt" fill="#5A6A7A">IV</tspan><tspan class="ae" fill="#C4A35A">æ</tspan><tspan class="lt" fill="#5A6A7A">E</tspan>
+  </text>
+</svg>

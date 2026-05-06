@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-labelledby="t d" preserveAspectRatio="xMidYMid meet">
+  <title id="t">IVAE Studios favicon monogram</title>
+  <desc id="d">IVAE Studios AE ligature favicon, Editorial Gold Bodoni Moda Italic, weight tuned for 16-32px rendering.</desc>
+  <style>
+    .ae{font-family:'Bodoni Moda','Bodoni 72','Didot',serif;font-style:italic;font-weight:700;font-size:34px;}
+  </style>
+  <text x="16" y="26" class="ae" fill="#C4A35A" text-anchor="middle">Æ</text>
+</svg>
