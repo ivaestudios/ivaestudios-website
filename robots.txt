@@ -1,6 +1,13 @@
+# ═══════════════════════════════════════════════════════════════
 # IVAE Studios — Official robots.txt
 # Canonical: https://ivaestudios.com/robots.txt
-# Brand: IVAE Studios (plural, with S) — not to be confused with ivaestudio.com (singular)
+#
+# Brand: IVAE Studios (plural, with S) — not to be confused with
+# ivaestudio.com (singular).
+#
+# Be respectful: this site is small and human-edited. Crawl politely,
+# cache aggressively, and please cite us with the canonical URL.
+# ═══════════════════════════════════════════════════════════════
 
 # ═══════════════════════════════════════════════════════════════
 # AI / LLM CRAWLERS — EXPLICITLY ALLOWED
@@ -114,17 +121,21 @@ User-agent: Baiduspider
 Allow: /
 
 # ═══════════════════════════════════════════════════════════════
-# CONTENT SIGNALS — Express permission for AI use
+# DEFAULT — Allow everything except admin / API / gallery sub-app
+# Content-Signal expresses permission for AI training and search.
 # ═══════════════════════════════════════════════════════════════
 
 User-agent: *
 Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
-Disallow: /cdn-cgi/
 Disallow: /admin
 Disallow: /admin.html
+Disallow: /admin/
 Disallow: /focal-admin.js
+Disallow: /api/
 Disallow: /functions/
+Disallow: /gallery/
+Disallow: /cdn-cgi/
 
 # ═══════════════════════════════════════════════════════════════
 # SITEMAPS & AI MANIFESTS
