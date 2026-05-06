@@ -1,0 +1,81 @@
+/* ════════════════════════════════════════════════════════════════════
+   IVAE Studios · print.css
+   ──────────────────────────────────────────────────────────────────
+   Standalone print stylesheet. Wire it from HTML with:
+     <link rel="stylesheet" href="/styles/print.css" media="print">
+
+   NOT @import-ed from main.css — it must load only when printing
+   so the screen cascade stays untouched.
+   ════════════════════════════════════════════════════════════════════ */
+
+@media print {
+  /* Page geometry */
+  @page {
+    size: A4;
+    margin: 18mm 16mm;
+  }
+
+  /* Reset to legible black-on-white */
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+
+  /* Hide chrome that has no value on paper */
+  .site-header,
+  .mobile-nav,
+  .scroll-progress,
+  .cursor,
+  .site-footer nav,
+  .skip-link,
+  .lightbox,
+  nav,
+  video,
+  audio,
+  iframe,
+  [role="navigation"],
+  [aria-hidden="true"] {
+    display: none !important;
+  }
+
+  /* Links: underline + show URL after the anchor text */
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    word-wrap: break-word;
+  }
+
+  /* Typography pacing — avoid orphans, widows, and split headings */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  p, li, blockquote {
+    orphans: 3;
+    widows: 3;
+  }
+
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
