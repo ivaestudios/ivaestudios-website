@@ -65,27 +65,69 @@ button:hover{background:#d4b36a}
   <span class="login-brand">IVAE Studios</span>
   <h2>Admin</h2>
   <span class="login-sub">Panel de edicion de imagenes</span>
-  <input type="password" id="pwd" placeholder="Contrasena" autofocus/>
-  <button id="btn">Entrar</button>
-  <div class="error" id="err">Contrasena incorrecta</div>
+  <form id="loginForm" autocomplete="off" novalidate>
+    <input type="password" id="pwd" name="password" placeholder="Contrasena" autocomplete="off" autofocus/>
+    <button type="submit" id="btn">Entrar</button>
+    <div class="error" id="err">Contrasena incorrecta</div>
+  </form>
 </div>
 <script>
-var PASS = 'ivae2026';
-function tryLogin() {
-  var pwd = document.getElementById('pwd').value;
-  if (pwd === PASS) {
-    sessionStorage.setItem('ivae_admin_auth', 'true');
-    window.location.replace('/');
-  } else {
-    document.getElementById('err').classList.add('show');
-    document.getElementById('pwd').value = '';
-    setTimeout(function() { document.getElementById('err').classList.remove('show'); }, 2500);
+(function () {
+  'use strict';
+  const form = document.getElementById('loginForm');
+  const btn  = document.getElementById('btn');
+  const pwd  = document.getElementById('pwd');
+  const err  = document.getElementById('err');
+  let busy = false;
+
+  function showError(msg) {
+    err.textContent = msg || 'Contrasena incorrecta';
+    err.classList.add('show');
+    pwd.value = '';
+    setTimeout(function () { err.classList.remove('show'); }, 2500);
   }
-}
-document.getElementById('btn').addEventListener('click', tryLogin);
-document.getElementById('pwd').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') tryLogin();
-});
+
+  async function submit(e) {
+    if (e) e.preventDefault();
+    if (busy) return;
+    const password = pwd.value;
+    if (!password) { showError('Contrasena requerida'); return; }
+    busy = true;
+    btn.disabled = true;
+    const prevLabel = btn.textContent;
+    btn.textContent = 'Entrando...';
+    try {
+      const r = await fetch('/api/focal/login', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: password })
+      });
+      if (r.ok) {
+        // UI-only flag — the HttpOnly HMAC cookie set by the server
+        // is what actually authorizes /api/focal writes. Faking this
+        // flag client-side just paints the editor UI; it grants no
+        // server-side privileges.
+        try { sessionStorage.setItem('ivae_admin_auth', 'true'); } catch (_) {}
+        window.location.replace('/');
+        return;
+      }
+      if (r.status === 401) {
+        showError('Contrasena incorrecta');
+      } else {
+        showError('Error del servidor');
+      }
+    } catch (_) {
+      showError('Error de red');
+    } finally {
+      busy = false;
+      btn.disabled = false;
+      btn.textContent = prevLabel;
+    }
+  }
+
+  form.addEventListener('submit', submit);
+})();
 </script>
 </body>
 </html>
