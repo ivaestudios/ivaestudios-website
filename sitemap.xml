@@ -48,6 +48,28 @@
   </url>
 
   <!-- ═══════════════════════════════════════════
+       PORTFOLIO
+       ═══════════════════════════════════════════ -->
+  <url>
+    <loc>https://ivaestudios.com/portfolio</loc>
+    <lastmod>2026-05-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/portfolio"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/portafolio"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/portfolio"/>
+  </url>
+  <url>
+    <loc>https://ivaestudios.com/es/portafolio</loc>
+    <lastmod>2026-05-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/portfolio"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/portafolio"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/portfolio"/>
+  </url>
+
+  <!-- ═══════════════════════════════════════════
        STANDALONE — Social Media Management (ES-only)
        ═══════════════════════════════════════════ -->
   <url>
