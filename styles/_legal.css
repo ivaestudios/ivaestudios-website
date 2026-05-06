@@ -1,0 +1,101 @@
+/* ============================================================
+   _legal.css
+   IVAE Studios · Redesign 2026 · Oleada 3 · Agent 16
+   Typography + layout for long legal prose (Privacy, Terms).
+   Editorial-draft caveat banner, page-hero, numbered section
+   rhythm. Depends on _tokens.css; loads after page modules.
+   ============================================================ */
+
+/* ─── PAGE HERO (legal variant) ────────────────────────────────
+   Compact, no photograph. Warm-sand top border for dignity. */
+.section--page-hero--legal {
+  background: var(--resort-white);
+  border-top: 1px solid var(--border);
+  padding-block: clamp(96px, 14vh, 168px) clamp(32px, 6vh, 64px);
+}
+.section--page-hero--legal .container,
+.section--page-hero--legal > * {
+  width: min(100% - var(--gutter) * 2, var(--max-w-prose));
+  margin-inline: auto;
+}
+.section--page-hero--legal .eyebrow {
+  color: var(--soft-slate);
+  margin-bottom: var(--space-4);
+}
+.section--page-hero--legal h1 {
+  font-size: var(--fs-900-fluid);
+  margin-bottom: var(--space-4);
+  max-width: 18ch;
+}
+.section--page-hero--legal .lede {
+  color: var(--text-muted);
+  font-size: var(--fs-500);
+}
+
+/* ─── EDITORIAL-DRAFT DISCLAIMER BANNER ─────────────────────── */
+.legal-disclaimer {
+  width: min(100% - var(--gutter) * 2, var(--max-w-prose));
+  margin: var(--space-5) auto 0;
+  padding: var(--space-4) var(--space-5);
+  background: var(--warm-sand);
+  border-left: 3px solid var(--editorial-gold);
+  color: var(--atlantic-navy);
+  font-size: var(--fs-400);
+  line-height: var(--lh-normal);
+}
+.legal-disclaimer p { margin: 0; max-width: none; font-size: inherit; }
+.legal-disclaimer strong { color: var(--atlantic-navy); font-weight: 600; }
+
+/* ─── LEGAL PROSE BLOCK ─────────────────────────────────────── */
+.section--legal-content {
+  padding-block: clamp(48px, 8vh, 96px) clamp(96px, 14vh, 144px);
+}
+.section--legal-content h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-700-fluid);
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-4);
+  color: var(--atlantic-navy);
+  scroll-margin-top: var(--space-9);
+}
+.section--legal-content h2:first-of-type { margin-top: var(--space-5); }
+.section--legal-content h3 {
+  font-family: var(--font-body);
+  font-size: var(--fs-500);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--atlantic-navy);
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-3);
+}
+.section--legal-content p {
+  font-size: var(--fs-500);
+  line-height: var(--lh-loose);
+  color: var(--text);
+  margin-bottom: var(--space-4);
+  max-width: none;
+}
+.section--legal-content ul,
+.section--legal-content ol {
+  font-size: var(--fs-500);
+  line-height: var(--lh-loose);
+  margin-bottom: var(--space-4);
+  max-width: none;
+}
+.section--legal-content a {
+  color: var(--atlantic-navy);
+  text-decoration: underline;
+  text-decoration-color: var(--editorial-gold);
+}
+.section--legal-content a:hover { color: var(--editorial-gold); }
+
+/* Closing footnote — language-precedence, signature, etc. */
+.legal-footer {
+  margin-top: var(--space-8);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-400);
+  color: var(--text-muted);
+  font-style: normal;
+}
