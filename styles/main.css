@@ -54,6 +54,7 @@
 @import "_legal.css";         /* Oleada 3 — Agent 16 */
 @import "_outfit-guide.css";  /* Oleada 3 — Agent 12 */
 @import "_portfolio.css";     /* Oleada 3 — Agent 15 */
+@import "_post.css";          /* Oleada 4 — shared single-post (magazine) styles */
 @import "_service.css";       /* Oleada 3 — Agents 03-08 (shared service-page styles) */
 
 /* ── Legacy (to be deleted as pages migrate) ───────────────────────── */
