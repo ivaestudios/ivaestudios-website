@@ -13,6 +13,12 @@ on:
       - 'venues/**'
       - 'comparison/**'
       - 'sitemap.xml'
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: "Space-separated URLs to submit (blank = use sitemap)"
+        required: false
+        type: string
 
 concurrency:
   group: seo-indexnow
