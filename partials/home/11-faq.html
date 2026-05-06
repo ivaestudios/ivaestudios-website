@@ -1,0 +1,210 @@
+<!--
+  IVAE Studios · Redesign 2026 · Oleada 2 · Agent 11
+  partials/home/11-faq.html
+
+  Editorial FAQ section for the home page. Eight deep answers in IVAE voice
+  (decisions explained, no clichés, no hard prices). Native <details> +
+  <summary> for accessible accordion behaviour without JavaScript.
+
+  Two language variants live below: ENGLISH first, SPANISH second.
+  Pick ONE block when injecting based on the page locale (root vs /es/).
+
+  Slot conventions:
+    - data-reveal / data-reveal-words / data-reveal-stagger consumed by the
+      shared reveal observer in /js/.
+    - No JS required for accordion. <details> open state is handled by the
+      browser; the +/− toggle is drawn in CSS via pseudo-elements.
+
+  Pricing rule (BRAND.md §9): "investment upon request". The session-cost
+  question is answered with a soft invitation to send dates — no tiers, no
+  numbers. Same rule applies to travel: included for the three core regions,
+  quoted separately for international.
+-->
+
+
+<!-- ─── ENGLISH ─── -->
+<section class="section section--faq" id="faq" data-section="faq" lang="en">
+  <header class="container faq__header">
+    <p class="eyebrow" data-reveal>Common questions</p>
+    <h2 class="faq__title" data-reveal-words>What couples and families <em>ask first</em>.</h2>
+    <p class="faq__lede" data-reveal>Eight short answers. If yours isn't here, write directly — we respond within 24 hours.</p>
+  </header>
+
+  <div class="container container--prose faq__list" data-reveal-stagger>
+
+    <details class="faq-item" data-reveal>
+      <summary class="faq-item__q">
+        <span class="faq-item__q-text">When during the day do you shoot?</span>
+        <span class="faq-item__icon" aria-hidden="true"></span>
+      </summary>
+      <div class="faq-item__a">
+        <p>Golden hour only. The 70 minutes around sunrise and sunset are when light is directional, warm, and forgiving — the rest of the day is flat or harsh. We schedule the session window before anything else, then build outfits and locations around it. Beach sessions are typically sunrise; resort interiors and pool decks tend to favor sunset.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" data-reveal>
+      <summary class="faq-item__q">
+        <span class="faq-item__q-text">How much does a session cost?</span>
+        <span class="faq-item__icon" aria-hidden="true"></span>
+      </summary>
+      <div class="faq-item__a">
+        <p>Investment varies by session length, location, and party size — destination weddings and yacht sessions sit in different brackets than a 90-minute family session. Send your travel dates and resort, and we'll send back availability with a detailed quote within 24 hours. We don't list a single price because every IVAE session is built per-trip.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" data-reveal>
+      <summary class="faq-item__q">
+        <span class="faq-item__q-text">How far in advance should I book?</span>
+        <span class="faq-item__icon" aria-hidden="true"></span>
+      </summary>
+      <div class="faq-item__a">
+        <p>For peak weeks (Christmas, New Year, Spring Break, July, weddings month) — three to six months ahead. Off-peak — two to four weeks is fine. We close one session per golden-hour slot, so the calendar fills earlier than most photographers' would.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" data-reveal>
+      <summary class="faq-item__q">
+        <span class="faq-item__q-text">Where do you photograph?</span>
+        <span class="faq-item__icon" aria-hidden="true"></span>
+      </summary>
+      <div class="faq-item__a">
+        <p>Three regions: Riviera Maya (Tulum, Akumal, Playa del Carmen, including cenote sessions), Cancún (hotel zone, Playa Mujeres, Isla Mujeres), and Los Cabos (Pedregal, Lovers Beach, El Arco, marina). We also book private yacht sessions departing from Cancún and Cabo. Resort interiors are coordinated with hotel concierges.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" data-reveal>
+      <summary class="faq-item__q">
+        <span class="faq-item__q-text">How long is the session?</span>
+        <span class="faq-item__icon" aria-hidden="true"></span>
+      </summary>
+      <div class="faq-item__a">
+        <p>Sixty to ninety minutes for couples and families. Two to four hours for elopements and small destination weddings. Yacht and cenote sessions are scheduled to a fixed window because of light + tide. The session window is locked in writing before the deposit.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" data-reveal>
+      <summary class="faq-item__q">
+        <span class="faq-item__q-text">When do we receive our photos?</span>
+        <span class="faq-item__icon" aria-hidden="true"></span>
+      </summary>
+      <div class="faq-item__a">
+        <p>One to three business days from the session date for the full curated gallery. The cull is hand-done — we don't deliver every frame; we deliver the strongest ones, color-graded together so the gallery reads as a single editorial set. The gallery is private, password-protected, and downloadable in print and web sizes.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" data-reveal>
+      <summary class="faq-item__q">
+        <span class="faq-item__q-text">What should we wear?</span>
+        <span class="faq-item__icon" aria-hidden="true"></span>
+      </summary>
+      <div class="faq-item__a">
+        <p>We send a one-page outfit guide once the session is confirmed — palette suggestions tailored to the chosen location, fabric and silhouette notes for wind and movement, and what to avoid. The guide is built on what photographs well in the IVAE color register, not generic "dress to match" advice.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" data-reveal>
+      <summary class="faq-item__q">
+        <span class="faq-item__q-text">Do you travel for the session?</span>
+        <span class="faq-item__icon" aria-hidden="true"></span>
+      </summary>
+      <div class="faq-item__a">
+        <p>Within Mexico — yes, included for the three core regions (Riviera Maya, Cancún, Los Cabos) without travel fees. International or destination outside those regions is possible, with travel and lodging quoted separately. Send the destination and we'll work out a quote.</p>
+      </div>
+    </details>
+
+  </div>
+</section>
+
+
+<!-- ─── ESPAÑOL ─── -->
+<section class="section section--faq" id="faq" data-section="faq" lang="es">
+  <header class="container faq__header">
+    <p class="eyebrow" data-reveal>Preguntas frecuentes</p>
+    <h2 class="faq__title" data-reveal-words>Lo que parejas y familias <em>preguntan primero</em>.</h2>
+    <p class="faq__lede" data-reveal>Ocho respuestas cortas. Si la tuya no está aquí, escríbenos directo — respondemos en menos de 24 horas.</p>
+  </header>
+
+  <div class="container container--prose faq__list" data-reveal-stagger>
+
+    <details class="faq-item" data-reveal>
+      <summary class="faq-item__q">
+        <span class="faq-item__q-text">¿En qué momento del día fotografían?</span>
+        <span class="faq-item__icon" aria-hidden="true"></span>
+      </summary>
+      <div class="faq-item__a">
+        <p>Solo en hora dorada. Los 70 minutos alrededor del amanecer y del atardecer es cuando la luz es direccional, cálida e indulgente — el resto del día es plana o dura. Cerramos la ventana de sesión antes que cualquier otra cosa y construimos vestuario y locaciones alrededor de ella. Las sesiones en playa suelen ser al amanecer; el resort y la alberca suelen preferir el atardecer.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" data-reveal>
+      <summary class="faq-item__q">
+        <span class="faq-item__q-text">¿Cuánto cuesta una sesión?</span>
+        <span class="faq-item__icon" aria-hidden="true"></span>
+      </summary>
+      <div class="faq-item__a">
+        <p>La inversión varía según duración, ubicación y tamaño del grupo — bodas destino y sesiones en yate se ubican en rangos distintos a una sesión familiar de 90 minutos. Envíanos tus fechas y tu resort, y te respondemos con disponibilidad y cotización detallada en menos de 24 horas. No listamos un precio único porque cada sesión IVAE se arma por viaje.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" data-reveal>
+      <summary class="faq-item__q">
+        <span class="faq-item__q-text">¿Con cuánta anticipación debo reservar?</span>
+        <span class="faq-item__icon" aria-hidden="true"></span>
+      </summary>
+      <div class="faq-item__a">
+        <p>Para semanas pico (Navidad, Año Nuevo, Spring Break, julio, mes de bodas) — tres a seis meses antes. En temporada baja, dos a cuatro semanas está bien. Cerramos una sesión por ventana de hora dorada, así que la agenda se llena antes que la de la mayoría de fotógrafos.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" data-reveal>
+      <summary class="faq-item__q">
+        <span class="faq-item__q-text">¿Dónde fotografían?</span>
+        <span class="faq-item__icon" aria-hidden="true"></span>
+      </summary>
+      <div class="faq-item__a">
+        <p>Tres regiones: Riviera Maya (Tulum, Akumal, Playa del Carmen, incluyendo sesiones en cenote), Cancún (zona hotelera, Playa Mujeres, Isla Mujeres) y Los Cabos (Pedregal, Playa del Amor, El Arco, marina). También reservamos sesiones privadas en yate que parten de Cancún y Cabo. Los interiores de resort se coordinan con los conciergeríos de los hoteles.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" data-reveal>
+      <summary class="faq-item__q">
+        <span class="faq-item__q-text">¿Cuánto dura la sesión?</span>
+        <span class="faq-item__icon" aria-hidden="true"></span>
+      </summary>
+      <div class="faq-item__a">
+        <p>Entre sesenta y noventa minutos para parejas y familias. Entre dos y cuatro horas para elopements y bodas destino pequeñas. Las sesiones en yate y en cenote se programan en una ventana fija por la luz y la marea. La ventana se confirma por escrito antes del depósito.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" data-reveal>
+      <summary class="faq-item__q">
+        <span class="faq-item__q-text">¿Cuándo recibimos las fotos?</span>
+        <span class="faq-item__icon" aria-hidden="true"></span>
+      </summary>
+      <div class="faq-item__a">
+        <p>Entre uno y tres días hábiles desde la fecha de sesión, con la galería completa curada. El cull se hace a mano — no entregamos todos los frames, entregamos los más fuertes, con color trabajado en conjunto para que la galería se lea como una pieza editorial unificada. La galería es privada, con contraseña, y descargable en tamaños de impresión y web.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" data-reveal>
+      <summary class="faq-item__q">
+        <span class="faq-item__q-text">¿Qué nos ponemos?</span>
+        <span class="faq-item__icon" aria-hidden="true"></span>
+      </summary>
+      <div class="faq-item__a">
+        <p>Te enviamos una guía de outfit de una página cuando se confirma la sesión — sugerencias de paleta hechas para la ubicación elegida, notas de tela y silueta para viento y movimiento, y qué evitar. La guía está construida sobre lo que fotografía bien en el registro de color IVAE, no consejos genéricos de «combinen ropa».</p>
+      </div>
+    </details>
+
+    <details class="faq-item" data-reveal>
+      <summary class="faq-item__q">
+        <span class="faq-item__q-text">¿Viajan para la sesión?</span>
+        <span class="faq-item__icon" aria-hidden="true"></span>
+      </summary>
+      <div class="faq-item__a">
+        <p>Dentro de México — sí, incluido para las tres regiones (Riviera Maya, Cancún, Los Cabos) sin honorarios de viaje. Internacional o destino fuera de esas regiones es posible, con viaje y hospedaje cotizados aparte. Envíanos el destino y armamos cotización.</p>
+      </div>
+    </details>
+
+  </div>
+</section>
