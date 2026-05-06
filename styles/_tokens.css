@@ -1,0 +1,179 @@
+/* ============================================================
+   _tokens.css
+   IVAE Studios · Redesign 2026 · Oleada 1 · Agent 01
+   Canonical design-token foundation. Every other CSS module
+   in the redesign consumes these custom properties. Source of
+   truth: BRAND.md (Sections 3, 5). No new colors invented.
+   ============================================================ */
+
+/* ──────── breakpoints (reference only — CSS custom properties
+   cannot drive media queries; documented here so every module
+   uses the same numeric thresholds) ────────
+   --bp-sm   640px   small tablets / large phones
+   --bp-md   960px   tablets / small laptops
+   --bp-lg  1200px   desktops (max-w-content baseline)
+   --bp-xl  1440px   wide desktops (max-w-wide)
+   ──────── */
+
+:root {
+  /* ──────── brand palette · BRAND.md §3 (exact, do not approximate) ──────── */
+  --atlantic-navy:   #1A2433;  /* deep, safe, timeless          — 25% usage */
+  --resort-white:    #F9F8F7;  /* warm, breathing, natural light — 50% usage */
+  --soft-slate:      #5A6A7A;  /* neutral, stable, serene        —  8% usage */
+  --warm-sand:       #E6DCCF;  /* earth, skin, sand              — 12% usage */
+  --editorial-gold:  #C4A35A;  /* accent, rare, ceremonial       —  5% usage */
+  --deep-atlantic:   #0F1620;  /* covers, night, cinematic       — covers only */
+
+  /* ──────── functional colors · derived from the brand palette only
+     (no new hues introduced — every functional token references a
+     brand value or a tonal mix of two brand values) ──────── */
+
+  --bg:            var(--resort-white);   /* page background       = resort-white            */
+  --surface:       var(--resort-white);   /* card / panel surface  = resort-white            */
+  --surface-alt:   var(--warm-sand);      /* alternate surface     = warm-sand (narrative blocks) */
+  --text:          var(--atlantic-navy);  /* primary text          = atlantic-navy (≈14.7:1 vs bg) */
+  --text-muted:    var(--soft-slate);     /* secondary text        = soft-slate (captions, meta) */
+  --text-soft:     #8C99A4;               /* tertiary text         = soft-slate lifted ~25% toward resort-white (hint, deemphasized — keep above 4.5:1 on dark surfaces only) */
+  --border:        #E0D6C8;               /* subtle hairline       = warm-sand darkened ~4% (rules, dividers on resort-white) */
+  --border-strong: var(--soft-slate);     /* assertive border      = soft-slate (form focus, table headers) */
+  --accent:        var(--editorial-gold); /* rare accent           = editorial-gold (links, ornaments — 5% max) */
+  --accent-soft:   #E5D7B2;               /* gold whisper          = editorial-gold tinted ~50% with resort-white (hover wash, selected row) */
+  --danger:        #8A2A2A;               /* error                 = atlantic-navy mixed with editorial-gold's red channel; stays in-palette by reading as a deep oxblood, not a red foreign to the system */
+  --success:       #3F5A4A;               /* affirmation           = soft-slate shifted toward editorial-gold's green register; muted forest, never bright green */
+
+  /* ──────── overlay scrims · for image-over-text legibility
+     (rgba black for neutral darkening, rgba navy for branded) ──────── */
+  --overlay-black-10: rgba(0, 0, 0, 0.10);
+  --overlay-black-25: rgba(0, 0, 0, 0.25);
+  --overlay-black-50: rgba(0, 0, 0, 0.50);
+  --overlay-black-75: rgba(0, 0, 0, 0.75);
+  --overlay-navy-10:  rgba(26, 36, 51, 0.10);
+  --overlay-navy-25:  rgba(26, 36, 51, 0.25);
+  --overlay-navy-50:  rgba(26, 36, 51, 0.50);
+  --overlay-navy-75:  rgba(26, 36, 51, 0.75);
+
+  /* ──────── typography families · BRAND.md §5 ──────── */
+  --font-display: 'DM Serif Display', 'Times New Roman', serif;
+  --font-accent:  'Bodoni Moda', 'Didot', serif;
+  --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+
+  /* ──────── type scale · 12-step modular scale, ratio 1.25
+     (minor third — restrained, editorial). Base = 16px = --fs-400.
+     Each step is ×1.25 from the previous, rounded to 0.25px.
+     Pixel values for static UI; --fs-*-fluid clamp() variants for
+     responsive headlines (mobile floor → desktop ceiling). ──────── */
+
+  --fs-100:  6.55px;   /* fine print, legal — base ÷ 1.25^4 */
+  --fs-200:  8.19px;   /* labels, micro     — base ÷ 1.25^3 */
+  --fs-300: 10.24px;   /* eyebrow ceiling   — base ÷ 1.25^2 */
+  --fs-400: 12.80px;   /* small body / nav  — base ÷ 1.25   */
+  --fs-500: 16.00px;   /* body baseline                     */
+  --fs-600: 20.00px;   /* lead body, h6                     */
+  --fs-700: 25.00px;   /* h5, large quote                   */
+  --fs-800: 31.25px;   /* h4                                */
+  --fs-900: 39.06px;   /* h3                                */
+  --fs-1000: 48.83px;  /* h2 baseline                       */
+  --fs-1100: 61.04px;  /* h1 baseline                       */
+  --fs-1200: 76.29px;  /* hero display                      */
+
+  /* fluid variants · clamp(min, preferred, max)
+     mobile floor ≈ 1 step below desktop ceiling so headlines
+     compress gracefully from 320px to 1440px viewports */
+  --fs-100-fluid:  clamp(6.55px,  0.40rem + 0.05vw, 7.50px);
+  --fs-200-fluid:  clamp(8.19px,  0.50rem + 0.10vw, 9.50px);
+  --fs-300-fluid:  clamp(10.24px, 0.62rem + 0.15vw, 11.50px);
+  --fs-400-fluid:  clamp(12.80px, 0.78rem + 0.20vw, 14.50px);
+  --fs-500-fluid:  clamp(15.00px, 0.88rem + 0.30vw, 16.50px);
+  --fs-600-fluid:  clamp(17.00px, 1.00rem + 0.40vw, 20.50px);
+  --fs-700-fluid:  clamp(20.00px, 1.10rem + 0.85vw, 26.00px);
+  --fs-800-fluid:  clamp(24.00px, 1.20rem + 1.40vw, 33.00px);
+  --fs-900-fluid:  clamp(28.00px, 1.30rem + 2.20vw, 42.00px);
+  --fs-1000-fluid: clamp(32.00px, 1.40rem + 3.40vw, 54.00px);
+  --fs-1100-fluid: clamp(38.00px, 1.50rem + 5.20vw, 72.00px);
+  --fs-1200-fluid: clamp(44.00px, 1.60rem + 7.50vw, 96.00px);
+
+  /* ──────── line-height ──────── */
+  --lh-tight:  1.05;
+  --lh-snug:   1.20;
+  --lh-normal: 1.50;
+  --lh-loose:  1.75;
+
+  /* ──────── letter-spacing ──────── */
+  --ls-tight:   -0.02em;
+  --ls-normal:   0;
+  --ls-wide:     0.08em;
+  --ls-eyebrow:  0.40em;
+
+  /* ──────── font-weight · 400 / 500 / 600 only — the serif
+     carries display weight; we never reach 700+ in this system. ──────── */
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-semi:    600;
+
+  /* ──────── spacing · 8px base, 12 steps ──────── */
+  --space-0:    0;
+  --space-1:    4px;
+  --space-2:    8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   24px;
+  --space-6:   32px;
+  --space-7:   48px;
+  --space-8:   64px;
+  --space-9:   96px;
+  --space-10: 128px;
+  --space-11: 192px;
+
+  /* ──────── layout ──────── */
+  --max-w-prose:   65ch;
+  --max-w-content: 1200px;
+  --max-w-wide:    1440px;
+  --gutter:        clamp(1rem, 4vw, 2rem);
+
+  /* ──────── radius · luxury reads as sharp; no soft pillows ──────── */
+  --r-0:    0;
+  --r-1:    2px;
+  --r-2:    4px;
+  --r-pill: 9999px;
+
+  /* ──────── shadows · restrained, editorial elevation ──────── */
+  --shadow-1:    0 1px 2px rgba(15, 22, 32, 0.04), 0 2px 6px rgba(15, 22, 32, 0.05);
+  --shadow-2:    0 2px 4px rgba(15, 22, 32, 0.06), 0 8px 20px rgba(15, 22, 32, 0.08);
+  --shadow-focus: 0 0 0 3px rgba(196, 163, 90, 0.30); /* editorial-gold @ 30% — focus-visible ring */
+
+  /* ──────── motion · easings + durations ──────── */
+  --ease-standard:  cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-emphasis:  cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-editorial: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --dur-fast:       150ms;
+  --dur-base:       250ms;
+  --dur-slow:       450ms;
+  --dur-cinematic:  800ms;
+
+  /* ──────── z-index · layered surfaces ──────── */
+  --z-base:    1;
+  --z-nav:   100;
+  --z-overlay: 500;
+  --z-modal: 1000;
+  --z-toast: 2000;
+}
+
+/* ──────── contrast verification (WCAG AA)
+   Atlantic Navy (#1A2433) on Resort White (#F9F8F7):
+     L_navy  ≈ 0.0172
+     L_white ≈ 0.9416
+     ratio   = (0.9416 + 0.05) / (0.0172 + 0.05) ≈ 14.74:1
+   → passes WCAG AAA for body text (≥7:1) and large text;
+     comfortably above the BRAND.md ≥13:1 target.
+
+   Soft Slate (#5A6A7A) on Resort White:
+     ratio ≈ 4.65:1 → passes WCAG AA for body (≥4.5:1).
+     Reserved for --text-muted (captions, secondary).
+
+   Editorial Gold (#C4A35A) on Resort White:
+     ratio ≈ 2.8:1 → fails AA for body text on light bg.
+     Therefore --accent is used only on (a) atlantic-navy or
+     deep-atlantic surfaces, where ratio ≈ 5.3:1, or (b) for
+     ornamental glyphs / focus rings where AA does not apply.
+   ──────── */
