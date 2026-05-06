@@ -10,11 +10,11 @@
 (function () {
   'use strict';
 
-  var STORE = 'ivae_focal_points';
-  var AUTH  = 'ivae_admin_auth';
-  var API   = '/api/focal';
-  var AKEY  = 'ivae2026';
-  var mob   = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const STORE = 'ivae_focal_points';
+  const AUTH  = 'ivae_admin_auth';
+  const API   = '/api/focal';
+  const AKEY  = 'ivae2026';
+  const mob   = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
   function ik(img) {
     return (img.getAttribute('src') || '').replace(/^.*\//, '').split('?')[0];
@@ -30,7 +30,7 @@
   function apply(data) {
     if (!data || typeof data !== 'object') return;
     document.querySelectorAll('img[src]').forEach(function (img) {
-      var v = data[ik(img)];
+      const v = data[ik(img)];
       if (v) img.style.objectPosition = v;
     });
   }
@@ -66,7 +66,7 @@
   boot();
 
   function initAdmin() {
-    var s = document.createElement('style');
+    const s = document.createElement('style');
     s.textContent =
       /* bar */
       '.fa-bar{position:fixed;top:0;left:0;right:0;z-index:100000;background:rgba(14,22,32,.96);' +
@@ -210,9 +210,9 @@
 
     /* ═══ ADMIN BAR ═══ */
     document.body.classList.add('fa-on');
-    var bar = document.createElement('div');
+    const bar = document.createElement('div');
     bar.className = 'fa-bar';
-    var isInIframe = window.self !== window.top;
+    const isInIframe = window.self !== window.top;
     bar.innerHTML = '<div><span class="fa-d">Admin</span><span>Focal Editor</span></div>' +
       '<div class="fa-br">' +
       (isInIframe ? '' : '<button id="faMob">Vista Movil</button>') +
@@ -221,7 +221,7 @@
     document.body.prepend(bar);
 
     /* ═══ TOAST ═══ */
-    var toast = document.createElement('div');
+    const toast = document.createElement('div');
     toast.className = 'fa-t';
     document.body.appendChild(toast);
     function showToast(msg, isErr) {
@@ -234,19 +234,19 @@
     /* ═══ EDIT BUTTONS ═══ */
     function addButtons() {
       document.querySelectorAll('.fa-e,.fa-bg').forEach(function (b) { b.remove(); });
-      var data = gl();
+      const data = gl();
       document.querySelectorAll('img[src]').forEach(function (img) {
         if (img.closest('.fa-bar,.fa-m,.fa-t,.fa-sim')) return;
         if (img.id === 'lightboxImg') return;
-        var iw = img.offsetWidth || img.naturalWidth || 0;
-        var ih = img.offsetHeight || img.naturalHeight || 0;
+        const iw = img.offsetWidth || img.naturalWidth || 0;
+        const ih = img.offsetHeight || img.naturalHeight || 0;
         if (iw < 40 && ih < 40) return;
-        var p = img.parentElement;
+        const p = img.parentElement;
         if (!p) return;
         if (getComputedStyle(p).position === 'static') p.style.position = 'relative';
         p.classList.add('fa-w');
 
-        var btn = document.createElement('button');
+        const btn = document.createElement('button');
         btn.className = 'fa-e';
         btn.textContent = 'EDITAR';
         btn.addEventListener('click', function (e) {
@@ -255,9 +255,9 @@
         });
         p.appendChild(btn);
 
-        var key = ik(img);
+        const key = ik(img);
         if (data[key]) {
-          var badge = document.createElement('div');
+          const badge = document.createElement('div');
           badge.className = 'fa-bg';
           badge.textContent = data[key];
           p.appendChild(badge);
@@ -268,14 +268,14 @@
     setTimeout(addButtons, 1500);
     setTimeout(addButtons, 3000);
     window.addEventListener('load', function () { setTimeout(addButtons, 400); });
-    var _st;
+    let _st;
     window.addEventListener('scroll', function () {
       clearTimeout(_st);
       _st = setTimeout(addButtons, 300);
     }, { passive: true });
 
     /* ═══ MODAL ═══ */
-    var modal = document.createElement('div');
+    const modal = document.createElement('div');
     modal.className = 'fa-m';
     modal.innerHTML =
       '<div class="fa-hd">' +
@@ -311,25 +311,25 @@
     document.body.appendChild(modal);
 
     /* ═══ EDITOR STATE ═══ */
-    var cur = null, cKey = '', fx = 50, fy = 50;
-    var $cv = document.getElementById('faCv');
-    var $im = document.getElementById('faImg');
-    var $ch = document.getElementById('faCh');
-    var $gh = document.getElementById('faGh');
-    var $gv = document.getElementById('faGv');
-    var $pi = document.getElementById('faPi');
-    var $pv = document.getElementById('faPv');
-    var $xi = document.getElementById('faXi');
-    var $yi = document.getElementById('faYi');
-    var $fn = document.getElementById('faFn');
-    var $rt = document.getElementById('faRt');
-    var $pt = document.getElementById('faPt');
-    var $sv = document.getElementById('faSv');
+    let cur = null, cKey = '', fx = 50, fy = 50;
+    const $cv = document.getElementById('faCv');
+    const $im = document.getElementById('faImg');
+    const $ch = document.getElementById('faCh');
+    const $gh = document.getElementById('faGh');
+    const $gv = document.getElementById('faGv');
+    const $pi = document.getElementById('faPi');
+    const $pv = document.getElementById('faPv');
+    const $xi = document.getElementById('faXi');
+    const $yi = document.getElementById('faYi');
+    const $fn = document.getElementById('faFn');
+    const $rt = document.getElementById('faRt');
+    const $pt = document.getElementById('faPt');
+    const $sv = document.getElementById('faSv');
 
     function updUI() {
-      var ir = $im.getBoundingClientRect();
-      var cr = $cv.getBoundingClientRect();
-      var ox = ir.left - cr.left, oy = ir.top - cr.top;
+      const ir = $im.getBoundingClientRect();
+      const cr = $cv.getBoundingClientRect();
+      const ox = ir.left - cr.left, oy = ir.top - cr.top;
       $ch.style.left = (ox + ir.width * fx / 100) + 'px';
       $ch.style.top = (oy + ir.height * fy / 100) + 'px';
       $gh.style.top = (oy + ir.height * fy / 100) + 'px';
@@ -341,20 +341,20 @@
 
     /* ── Detect container aspect ratio ── */
     function detectRatio(img) {
-      var p = img.parentElement;
+      const p = img.parentElement;
       if (!p) return { w: 16, h: 9, label: '16:9' };
-      var w = p.offsetWidth, h = p.offsetHeight;
+      const w = p.offsetWidth, h = p.offsetHeight;
       if (w <= 0 || h <= 0) return { w: 16, h: 9, label: '16:9' };
-      var r = w / h;
-      var std = [
+      const r = w / h;
+      const std = [
         { w: 16, h: 9, v: 16 / 9 }, { w: 4, h: 5, v: 0.8 },
         { w: 1, h: 1, v: 1 }, { w: 4, h: 3, v: 4 / 3 },
         { w: 3, h: 2, v: 1.5 }, { w: 2, h: 3, v: 2 / 3 },
         { w: 9, h: 16, v: 9 / 16 }, { w: 21, h: 9, v: 21 / 9 }
       ];
-      var best = std[0], bd = Infinity;
+      let best = std[0], bd = Infinity;
       std.forEach(function (s) {
-        var d = Math.abs(r - s.v);
+        const d = Math.abs(r - s.v);
         if (d < bd) { bd = d; best = s; }
       });
       if (bd < 0.15) return { w: best.w, h: best.h, label: best.w + ':' + best.h };
@@ -363,20 +363,20 @@
 
     /* ── Build ratio buttons ── */
     function buildRatios(auto) {
-      var presets = [
+      const presets = [
         { w: 16, h: 9, l: '16:9' }, { w: 4, h: 5, l: '4:5' },
         { w: 1, h: 1, l: '1:1' }, { w: 4, h: 3, l: '4:3' },
         { w: 3, h: 2, l: '3:2' }
       ];
       $rt.innerHTML = '';
-      var ab = document.createElement('button');
+      const ab = document.createElement('button');
       ab.className = 'fa-rb on';
       ab.textContent = 'Auto ' + auto.label;
       ab.dataset.w = auto.w;
       ab.dataset.h = auto.h;
       ab.addEventListener('click', function () { pickRatio(this); });
       $rt.appendChild(ab);
-      var mb = document.createElement('button');
+      const mb = document.createElement('button');
       mb.className = 'fa-rb';
       mb.textContent = 'Movil';
       mb.dataset.w = 9;
@@ -384,7 +384,7 @@
       mb.addEventListener('click', function () { pickRatio(this); });
       $rt.appendChild(mb);
       presets.forEach(function (p) {
-        var b = document.createElement('button');
+        const b = document.createElement('button');
         b.className = 'fa-rb';
         b.textContent = p.l;
         b.dataset.w = p.w;
@@ -408,12 +408,12 @@
       cur = img;
       cKey = ik(img);
       $fn.textContent = cKey;
-      var src = img.getAttribute('src') || '';
+      const src = img.getAttribute('src') || '';
       $im.src = src;
       $pi.src = src;
-      var data = gl();
+      const data = gl();
       if (data[cKey]) {
-        var parts = data[cKey].split(/\s+/);
+        const parts = data[cKey].split(/\s+/);
         fx = parseFloat(parts[0]) || 50;
         fy = parseFloat(parts[1]) || 50;
       } else {
@@ -426,7 +426,7 @@
       $sv.disabled = false;
       $sv.textContent = 'Guardar cambios';
       if ($im.complete && $im.naturalWidth) setTimeout(updUI, 60);
-      else $im.onload = function () { setTimeout(updUI, 60); };
+      else $im.addEventListener('load', function () { setTimeout(updUI, 60); }, { once: true });
     }
 
     function closeEditor() {
@@ -438,13 +438,13 @@
 
     /* ── Pointer → focal point ── */
     function setFP(e) {
-      var r = $im.getBoundingClientRect();
+      const r = $im.getBoundingClientRect();
       fx = Math.max(0, Math.min(100, ((e.clientX - r.left) / r.width) * 100));
       fy = Math.max(0, Math.min(100, ((e.clientY - r.top) / r.height) * 100));
       updUI();
     }
 
-    var drag = false;
+    let drag = false;
     $cv.addEventListener('mousedown', function (e) { e.preventDefault(); drag = true; setFP(e); });
     document.addEventListener('mousemove', function (e) { if (drag) setFP(e); });
     document.addEventListener('mouseup', function () { drag = false; });
@@ -473,8 +473,8 @@
     /* ═══ SAVE — API + localStorage ═══ */
     $sv.addEventListener('click', function () {
       if (!cKey) return;
-      var val = Math.round(fx) + '% ' + Math.round(fy) + '%';
-      var data = gl();
+      const val = Math.round(fx) + '% ' + Math.round(fy) + '%';
+      const data = gl();
       data[cKey] = val;
       $sv.disabled = true;
       $sv.textContent = 'Guardando...';
@@ -505,7 +505,7 @@
     document.getElementById('faRs').addEventListener('click', function () {
       if (!cKey) return;
       fx = 50; fy = 50; updUI();
-      var data = gl();
+      const data = gl();
       delete data[cKey];
       fetch(API, {
         method: 'POST',
@@ -540,7 +540,7 @@
 
     /* ═══ MOBILE SIMULATOR ═══ */
     if (!isInIframe) {
-      var sim = document.createElement('div');
+      const sim = document.createElement('div');
       sim.className = 'fa-sim';
       sim.innerHTML =
         '<button class="fa-sim-x" id="faSimX">Cerrar vista movil</button>' +
@@ -551,8 +551,8 @@
         '</div>';
       document.body.appendChild(sim);
 
-      var simIf = document.getElementById('faSimIf');
-      var mobBtn = document.getElementById('faMob');
+      const simIf = document.getElementById('faSimIf');
+      const mobBtn = document.getElementById('faMob');
 
       function openSim() {
         simIf.src = location.href;
