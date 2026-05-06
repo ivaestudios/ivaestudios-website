@@ -1,0 +1,258 @@
+<!--
+  ============================================================================
+  IVAE Studios — Homepage schema.org @graph (Oleada 2 / Agent 01)
+  ----------------------------------------------------------------------------
+  Two parallel JSON-LD blocks (EN + ES). Inject the matching block based on
+  the document language. Each block is a single @graph that defines:
+    LocalBusiness (PhotographyBusiness), Person, WebSite, WebPage,
+    BreadcrumbList, Service.
+  No aggregateRating: per BRAND.md §9 the rating count is TBD; making numbers
+  up is forbidden.
+  ============================================================================
+-->
+
+
+<!--
+  ============================================================================
+  EN — https://ivaestudios.com/
+  ----------------------------------------------------------------------------
+  AGENT-PERSON-PHOTO: when Vianey's portrait ships, add an `image` property
+  to the Person node below pointing to /images/team/vianey-ortega.jpg
+  ============================================================================
+-->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": ["LocalBusiness", "PhotographyBusiness"],
+      "@id": "https://ivaestudios.com/#localbusiness",
+      "name": "IVAE Studios",
+      "legalName": "IVAE Studios | Family & Couples Photographer in Cancún",
+      "url": "https://ivaestudios.com/",
+      "image": "https://ivaestudios.com/images/og-default.jpg",
+      "logo": "https://ivaestudios.com/images/brand/wordmark.svg",
+      "email": "info@ivaestudios.com",
+      "telephone": "+522288570584",
+      "priceRange": "$$$",
+      "currenciesAccepted": "USD, MXN",
+      "paymentAccepted": "Cash, Wire, Credit Card",
+      "address": {
+        "@type": "PostalAddress",
+        "addressRegion": "Quintana Roo",
+        "addressCountry": "MX"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 20.4785722,
+        "longitude": -87.0756298
+      },
+      "areaServed": [
+        { "@type": "Place", "name": "Riviera Maya" },
+        { "@type": "Place", "name": "Cancún" },
+        { "@type": "Place", "name": "Los Cabos" }
+      ],
+      "sameAs": [
+        "https://www.instagram.com/ivaestudios.cancun/"
+      ],
+      "openingHoursSpecification": [{
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "Monday", "Tuesday", "Wednesday", "Thursday",
+          "Friday", "Saturday", "Sunday"
+        ],
+        "opens": "08:00",
+        "closes": "20:00"
+      }]
+    },
+    {
+      "@type": "Person",
+      "@id": "https://ivaestudios.com/#vianey-ortega",
+      "name": "Vianey Ortega",
+      "jobTitle": "Creative Director & Lead Photographer",
+      "worksFor": { "@id": "https://ivaestudios.com/#localbusiness" },
+      "sameAs": [
+        "https://www.instagram.com/ivaestudios.cancun/"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://ivaestudios.com/#website",
+      "url": "https://ivaestudios.com/",
+      "name": "IVAE Studios",
+      "description": "Editorial luxury resort photography in Riviera Maya, Cancún and Los Cabos.",
+      "inLanguage": ["en", "es"],
+      "publisher": { "@id": "https://ivaestudios.com/#localbusiness" },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://ivaestudios.com/?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://ivaestudios.com/#webpage",
+      "url": "https://ivaestudios.com/",
+      "name": "IVAE Studios — Luxury Resort Photography in Riviera Maya, Cancún & Los Cabos",
+      "description": "Editorial-direction photography for families, couples and weddings staying at luxury resorts across Riviera Maya, Cancún and Los Cabos. Now booking 2026.",
+      "inLanguage": "en",
+      "isPartOf": { "@id": "https://ivaestudios.com/#website" },
+      "about": { "@id": "https://ivaestudios.com/#localbusiness" },
+      "primaryImageOfPage": "https://ivaestudios.com/images/og-default.jpg",
+      "breadcrumb": { "@id": "https://ivaestudios.com/#breadcrumb" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://ivaestudios.com/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://ivaestudios.com/"
+        }
+      ]
+    },
+    {
+      "@type": "Service",
+      "@id": "https://ivaestudios.com/#service-luxury-resort-photography",
+      "name": "Luxury Resort Photography",
+      "serviceType": "Editorial resort photography for families, couples and weddings",
+      "description": "Editorial-direction photography sessions at luxury resorts across the Mexican Caribbean and the Pacific — families, couples and destination weddings, with bilingual EN/ES service.",
+      "provider": { "@id": "https://ivaestudios.com/#localbusiness" },
+      "areaServed": [
+        { "@type": "Place", "name": "Riviera Maya" },
+        { "@type": "Place", "name": "Cancún" },
+        { "@type": "Place", "name": "Los Cabos" }
+      ],
+      "availableLanguage": ["en", "es"]
+    }
+  ]
+}
+</script>
+
+
+<!--
+  ============================================================================
+  ES — https://ivaestudios.com/es/
+  ----------------------------------------------------------------------------
+  AGENT-PERSON-PHOTO: when Vianey's portrait ships, add an `image` property
+  to the Person node below pointing to /images/team/vianey-ortega.jpg
+  ============================================================================
+-->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": ["LocalBusiness", "PhotographyBusiness"],
+      "@id": "https://ivaestudios.com/#localbusiness",
+      "name": "IVAE Studios",
+      "legalName": "IVAE Studios | Family & Couples Photographer in Cancún",
+      "url": "https://ivaestudios.com/",
+      "image": "https://ivaestudios.com/images/og-default.jpg",
+      "logo": "https://ivaestudios.com/images/brand/wordmark.svg",
+      "email": "info@ivaestudios.com",
+      "telephone": "+522288570584",
+      "priceRange": "$$$",
+      "currenciesAccepted": "USD, MXN",
+      "paymentAccepted": "Cash, Wire, Credit Card",
+      "address": {
+        "@type": "PostalAddress",
+        "addressRegion": "Quintana Roo",
+        "addressCountry": "MX"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 20.4785722,
+        "longitude": -87.0756298
+      },
+      "areaServed": [
+        { "@type": "Place", "name": "Riviera Maya" },
+        { "@type": "Place", "name": "Cancún" },
+        { "@type": "Place", "name": "Los Cabos" }
+      ],
+      "sameAs": [
+        "https://www.instagram.com/ivaestudios.cancun/"
+      ],
+      "openingHoursSpecification": [{
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "Monday", "Tuesday", "Wednesday", "Thursday",
+          "Friday", "Saturday", "Sunday"
+        ],
+        "opens": "08:00",
+        "closes": "20:00"
+      }]
+    },
+    {
+      "@type": "Person",
+      "@id": "https://ivaestudios.com/#vianey-ortega",
+      "name": "Vianey Ortega",
+      "jobTitle": "Creative Director & Lead Photographer",
+      "worksFor": { "@id": "https://ivaestudios.com/#localbusiness" },
+      "sameAs": [
+        "https://www.instagram.com/ivaestudios.cancun/"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://ivaestudios.com/#website",
+      "url": "https://ivaestudios.com/",
+      "name": "IVAE Studios",
+      "description": "Fotografía editorial de resort de lujo en Riviera Maya, Cancún y Los Cabos.",
+      "inLanguage": ["en", "es"],
+      "publisher": { "@id": "https://ivaestudios.com/#localbusiness" },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://ivaestudios.com/?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://ivaestudios.com/es/#webpage",
+      "url": "https://ivaestudios.com/es/",
+      "name": "IVAE Studios — Fotografía editorial de resort en Riviera Maya, Cancún y Los Cabos",
+      "description": "Fotografía con dirección editorial para familias, parejas y bodas en resorts de lujo de Riviera Maya, Cancún y Los Cabos. Reservas abiertas para 2026.",
+      "inLanguage": "es",
+      "isPartOf": { "@id": "https://ivaestudios.com/#website" },
+      "about": { "@id": "https://ivaestudios.com/#localbusiness" },
+      "primaryImageOfPage": "https://ivaestudios.com/images/og-default.jpg",
+      "breadcrumb": { "@id": "https://ivaestudios.com/es/#breadcrumb" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://ivaestudios.com/es/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Inicio",
+          "item": "https://ivaestudios.com/es/"
+        }
+      ]
+    },
+    {
+      "@type": "Service",
+      "@id": "https://ivaestudios.com/#service-luxury-resort-photography",
+      "name": "Fotografía editorial de resort de lujo",
+      "serviceType": "Fotografía editorial de resort para familias, parejas y bodas",
+      "description": "Sesiones con dirección editorial en resorts de lujo del Caribe Mexicano y el Pacífico — familias, parejas y bodas destino, con servicio bilingüe inglés/español.",
+      "provider": { "@id": "https://ivaestudios.com/#localbusiness" },
+      "areaServed": [
+        { "@type": "Place", "name": "Riviera Maya" },
+        { "@type": "Place", "name": "Cancún" },
+        { "@type": "Place", "name": "Los Cabos" }
+      ],
+      "availableLanguage": ["en", "es"]
+    }
+  ]
+}
+</script>
