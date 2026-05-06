@@ -1,0 +1,338 @@
+/* ════════════════════════════════════════════════════════════════════
+   _portfolio.css
+   IVAE Studios · Redesign 2026 · Oleada 3 · Agent 15
+   ──────────────────────────────────────────────────────────────────
+   Visual layer for the standalone /portfolio page (portfolio.html and
+   /es/portafolio.html). Three blocks:
+
+     1. Page hero          — section.section--page-hero--portfolio
+     2. Filter navigation  — section.portfolio-filter-section
+     3. Justified grid     — section.portfolio-grid-section
+
+   The lightbox (.portfolio-lightbox) is inherited from
+   _home-portfolio.css — this file does not redefine it. Tiles use the
+   same .portfolio__tile--image / data-portfolio-grid hooks so the
+   existing js/home-portfolio.js wires up automatically.
+
+   Tokens consumed from _tokens.css. Standalone fallbacks provided so
+   the partials still render in isolation.
+   ════════════════════════════════════════════════════════════════════ */
+
+
+/* ════════════════════════════════════════════════════════════════════
+   1 · PAGE HERO — quiet, editorial, centered eyebrow + serif headline
+   ════════════════════════════════════════════════════════════════════ */
+.section--page-hero {
+  padding-block: clamp(96px, 14vw, 160px);
+  background: var(--resort-white, #F9F8F7);
+  color: var(--atlantic-navy, #1A2433);
+}
+
+.section--page-hero__inner {
+  max-width: var(--max-w-content, 1200px);
+  margin-inline: auto;
+  padding-inline: var(--gutter, clamp(1rem, 4vw, 2rem));
+  text-align: left;
+}
+
+.section--page-hero .eyebrow {
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+  font-size: var(--fs-300, 11px);
+  font-weight: var(--fw-medium, 500);
+  letter-spacing: var(--ls-eyebrow, 0.4em);
+  text-transform: uppercase;
+  color: var(--soft-slate, #5A6A7A);
+  margin: 0 0 var(--space-4, 16px);
+}
+
+.section--page-hero h1 {
+  font-family: var(--font-display, 'DM Serif Display', serif);
+  font-weight: 400;
+  font-size: clamp(40px, 7vw, 80px);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  margin: 0 0 var(--space-5, 24px);
+  color: var(--atlantic-navy, #1A2433);
+  max-width: 18ch;
+}
+
+.section--page-hero h1 em {
+  font-family: var(--font-accent, 'Bodoni Moda', 'Didot', serif);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--editorial-gold, #C4A35A);
+}
+
+.section--page-hero .lede {
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+  font-size: var(--fs-600, 18px);
+  line-height: var(--lh-normal, 1.5);
+  color: var(--soft-slate, #5A6A7A);
+  margin: 0;
+  max-width: 60ch;
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   2 · FILTER NAVIGATION — horizontal pill row, scroll-x on mobile
+   ════════════════════════════════════════════════════════════════════ */
+.portfolio-filter-section {
+  /* Sits flush under the hero, breathes a little above the grid. */
+  padding-block: var(--space-6, 32px) var(--space-7, 48px);
+  background: var(--resort-white, #F9F8F7);
+  border-top: 1px solid var(--border, #E0D6C8);
+}
+
+.portfolio-filter {
+  max-width: var(--max-w-content, 1200px);
+  margin-inline: auto;
+  padding-inline: var(--gutter, clamp(1rem, 4vw, 2rem));
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2, 8px) var(--space-3, 12px);
+  align-items: center;
+}
+
+@media (max-width: 639px) {
+  /* Mobile: horizontal scroll instead of wrap, so filter stays one row
+     and doesn't push the grid below the fold. */
+  .portfolio-filter {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    padding-block: 4px; /* room for focus ring */
+  }
+  .portfolio-filter::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.portfolio-filter button {
+  flex: 0 0 auto;
+  -webkit-appearance: none;
+          appearance: none;
+  border: 1px solid var(--border, #E0D6C8);
+  background: transparent;
+  color: var(--soft-slate, #5A6A7A);
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition:
+    color 250ms var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1)),
+    border-color 250ms var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1)),
+    background-color 250ms var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+@media (hover: hover) {
+  .portfolio-filter button:hover {
+    color: var(--atlantic-navy, #1A2433);
+    border-color: var(--atlantic-navy, #1A2433);
+  }
+}
+
+.portfolio-filter button:focus-visible {
+  outline: 2px solid var(--editorial-gold, #C4A35A);
+  outline-offset: 2px;
+}
+
+/* Active state — aria-pressed="true" is the source of truth. */
+.portfolio-filter button[aria-pressed="true"] {
+  background: var(--atlantic-navy, #1A2433);
+  border-color: var(--atlantic-navy, #1A2433);
+  color: var(--resort-white, #F9F8F7);
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   3 · JUSTIFIED GRID — CSS columns for masonry-like flow.
+   Items keep their natural aspect ratio (1:1, 4:5, 3:4) inside columns.
+   ════════════════════════════════════════════════════════════════════ */
+.portfolio-grid-section {
+  padding-block: var(--space-2, 8px) clamp(96px, 14vw, 160px);
+  background: var(--resort-white, #F9F8F7);
+  color: var(--atlantic-navy, #1A2433);
+}
+
+.portfolio-justified-grid {
+  max-width: var(--max-w-wide, 1440px);
+  margin-inline: auto;
+  padding-inline: var(--gutter, clamp(1rem, 4vw, 2rem));
+
+  /* Multi-column flow — visually justified without JS measurements. */
+  column-count: 1;
+  column-gap: var(--space-3, 12px);
+}
+
+@media (min-width: 640px) {
+  .portfolio-justified-grid {
+    column-count: 2;
+  }
+}
+
+@media (min-width: 960px) {
+  .portfolio-justified-grid {
+    column-count: 3;
+  }
+}
+
+@media (min-width: 1280px) {
+  .portfolio-justified-grid {
+    column-count: 4;
+  }
+}
+
+
+/* ── Item · figure inside the column flow ────────────────────────── */
+.portfolio-item {
+  /* Prevent items from breaking across columns. */
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+
+  display: block;
+  margin: 0 0 var(--space-3, 12px);
+  position: relative;
+  background: var(--atlantic-navy, #1A2433);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Filter hide — class added by js/portfolio-filter.js. We use display:none
+   instead of visibility because column flow re-balances on display change,
+   which is exactly the relayout we want. */
+.portfolio-item.is-hidden {
+  display: none;
+}
+
+/* Anchor wrapping the picture — full-bleed click target. */
+.portfolio-item > a {
+  display: block;
+  position: relative;
+  cursor: zoom-in;
+  text-decoration: none;
+  color: inherit;
+}
+
+.portfolio-item > a:focus {
+  outline: none;
+}
+
+.portfolio-item > a:focus-visible {
+  outline: 2px solid var(--editorial-gold, #C4A35A);
+  outline-offset: -4px;
+  box-shadow: var(--shadow-focus, 0 0 0 3px rgba(196, 163, 90, 0.30));
+}
+
+.portfolio-item picture,
+.portfolio-item img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.portfolio-item img {
+  transition: transform 800ms var(--ease-cinematic, cubic-bezier(0.65, 0, 0.35, 1));
+  will-change: transform;
+}
+
+@media (hover: hover) {
+  .portfolio-item:hover img,
+  .portfolio-item:focus-within img {
+    transform: scale(1.03);
+  }
+}
+
+
+/* ── Caption · minimal, below image ──────────────────────────────── */
+.portfolio-item figcaption {
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--soft-slate, #5A6A7A);
+  padding: var(--space-3, 12px) 0 var(--space-2, 8px);
+  background: var(--resort-white, #F9F8F7);
+}
+
+
+/* ── Empty state · shown when a category has no images ──────────── */
+.portfolio-empty {
+  display: none;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+
+  /* Span all columns so the message centers across the grid. */
+  column-span: all;
+  -webkit-column-span: all;
+
+  margin: var(--space-7, 48px) auto;
+  padding: var(--space-7, 48px) var(--space-5, 24px);
+  max-width: 56ch;
+  text-align: center;
+  background: var(--warm-sand, #E6DCCF);
+  color: var(--atlantic-navy, #1A2433);
+}
+
+/* Activated by js/portfolio-filter.js when the active filter has 0 visible
+   items. Reverts to display:none whenever any item is visible. */
+.portfolio-empty.is-active {
+  display: block;
+}
+
+.portfolio-empty .eyebrow {
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--soft-slate, #5A6A7A);
+  margin: 0 0 var(--space-3, 12px);
+}
+
+.portfolio-empty p {
+  font-family: var(--font-accent, 'Bodoni Moda', 'Didot', serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(18px, 2.2vw, 24px);
+  line-height: 1.4;
+  margin: 0 0 var(--space-4, 16px);
+  color: var(--atlantic-navy, #1A2433);
+}
+
+.portfolio-empty a {
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--atlantic-navy, #1A2433);
+  text-decoration: none;
+  border-bottom: 1px solid var(--editorial-gold, #C4A35A);
+  padding-bottom: 2px;
+}
+
+.portfolio-empty a:hover,
+.portfolio-empty a:focus-visible {
+  color: var(--editorial-gold, #C4A35A);
+}
+
+
+/* ── Reduced motion ───────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-item img,
+  .portfolio-filter button {
+    transition: none !important;
+    transform: none !important;
+  }
+  .portfolio-item:hover img,
+  .portfolio-item:focus-within img {
+    transform: none !important;
+  }
+}
