@@ -1,0 +1,484 @@
+/* ============================================================
+   _contact.css
+   IVAE Studios · Redesign 2026 · Oleada 3 · Agent 14
+   ──────────────────────────────────────────────────────────
+   Page-specific layout for the dedicated contact page
+   (/contact and /es/contacto). Sits on top of the form
+   primitives in _forms.css and the button system in
+   _buttons.css. Tokens come from _tokens.css.
+
+   Page anatomy (top → bottom):
+     section.section--page-hero--contact   resort-white opener
+     section.contact-grid                  2-col form/direct
+     section.contact-faq                   3 inquiry FAQs
+
+   Editorial constraints:
+     · Resort White ground end-to-end (Atlantic Navy used
+       sparingly through the form border / submit button).
+     · Editorial Gold reserved for the Æ flourish on the
+       page-hero, the eyebrow color and the focus rings.
+     · Vertical rhythm follows the home pages:
+         clamp(96px, 14vw, 160px) for major bands.
+   ============================================================ */
+
+
+/* ───────── 1. Page hero · resort-white opener ─────────
+   No background image — the contact page is a working
+   surface, not a cinema piece. Generous top padding clears
+   the sticky navigation; bottom padding sets up the form
+   band underneath without a divider rule. */
+.section--page-hero--contact {
+  position: relative;
+  overflow: hidden;
+  background: var(--resort-white);
+  color: var(--atlantic-navy);
+  padding-block: clamp(112px, 16vw, 176px) clamp(64px, 9vw, 112px);
+  isolation: isolate;
+}
+
+.section--page-hero--contact > .container {
+  position: relative;
+  z-index: 1;
+  max-width: 920px;
+  text-align: left;
+}
+
+/* Decorative Æ in editorial-gold, very faint — keeps the
+   contact page tied to the brand mark without competing
+   with the form column underneath. */
+.section--page-hero--contact::before {
+  content: "\00C6";
+  position: absolute;
+  top: -32px;
+  right: -28px;
+  z-index: 0;
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 280px;
+  line-height: 1;
+  color: var(--editorial-gold);
+  opacity: 0.06;
+  pointer-events: none;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (max-width: 47.9375em) {
+  .section--page-hero--contact::before {
+    top: -16px;
+    right: -24px;
+    font-size: 180px;
+    opacity: 0.05;
+  }
+}
+
+.section--page-hero--contact .eyebrow {
+  color: var(--editorial-gold);
+  margin: 0 0 var(--space-5);
+}
+
+.section--page-hero--contact h1 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(40px, 6.5vw, 80px);
+  line-height: 1.05;
+  letter-spacing: var(--ls-tight);
+  color: var(--atlantic-navy);
+  margin: 0;
+  text-wrap: balance;
+}
+
+.section--page-hero--contact h1 em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: var(--fw-regular);
+  color: var(--editorial-gold);
+}
+
+.section--page-hero--contact .lede {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: clamp(16px, 1.4vw, 19px);
+  line-height: var(--lh-loose);
+  color: var(--text-muted);
+  max-width: 56ch;
+  margin: var(--space-5) 0 0;
+}
+
+
+/* ───────── 2. Two-column band · form (left) | direct (right) ─────────
+   Mobile-first single column. From --bp-md (960px) the form
+   takes the wider column (3fr) while the direct-contact
+   panel sits right (2fr) for an editorial reading rhythm. */
+.section.contact-grid {
+  background: var(--resort-white);
+  color: var(--text);
+  padding-block: clamp(40px, 6vw, 80px) clamp(96px, 14vw, 160px);
+}
+
+.section.contact-grid > .container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
+  align-items: start;
+}
+
+@media (min-width: 60em) { /* 960px */
+  .section.contact-grid > .container {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: clamp(48px, 6vw, 96px);
+  }
+}
+
+
+/* ───────── 3. Form column ─────────
+   The form sits on resort-white — no card, no shadow, no
+   border. Editorial restraint: typography and the bottom-
+   border-only inputs from _forms.css carry the visual load. */
+.contact-form {
+  width: 100%;
+  max-width: 640px;
+}
+
+.contact-form .eyebrow {
+  color: var(--editorial-gold);
+  margin: 0 0 var(--space-6);
+}
+
+.contact-form form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.contact-form .form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+}
+
+@media (min-width: 40em) { /* 640px — pair name+email earlier */
+  .contact-form .form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.contact-form textarea.field__input {
+  min-height: 7.5rem;
+}
+
+/* Submit row — left-aligned on the contact page, full-width
+   on mobile so the button reads as decisive. */
+.contact-form .form__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.contact-form .form__actions > * {
+  width: 100%;
+}
+
+@media (min-width: 40em) {
+  .contact-form .form__actions {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  .contact-form .form__actions > * {
+    width: auto;
+  }
+}
+
+.contact-form__fineprint {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: 13px;
+  line-height: var(--lh-loose);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Thank-you panel · replaces the form on a 200 response.
+   Same vertical rhythm as the form, single column, with a
+   gold hairline at the top to mark the resolution. */
+.contact-form__thankyou {
+  border-top: 1px solid var(--editorial-gold);
+  padding-top: var(--space-6);
+}
+
+.contact-form__thankyou h2 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(26px, 3.2vw, 36px);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--atlantic-navy);
+  margin: 0 0 var(--space-4);
+}
+
+.contact-form__thankyou p {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: var(--lh-loose);
+  color: var(--text);
+  margin: 0 0 var(--space-3);
+  max-width: 56ch;
+}
+
+/* Inline error banner shown above the submit row when the
+   network fails or the API returns 4xx/5xx. Restrained:
+   a thin oxblood rule, navy text, no full-fill alarm box. */
+.contact-form__error {
+  border-left: 2px solid var(--danger);
+  padding: var(--space-3) var(--space-4);
+  background: rgba(138, 42, 42, 0.04);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: var(--lh-normal);
+  color: var(--text);
+}
+
+.contact-form__error a {
+  color: var(--atlantic-navy);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  text-decoration-color: rgba(196, 163, 90, 0.55);
+}
+
+.contact-form__error a:hover,
+.contact-form__error a:focus-visible {
+  color: var(--editorial-gold);
+  text-decoration-color: var(--editorial-gold);
+}
+
+
+/* ───────── 4. Direct-contact column ─────────
+   Three quick channels — WhatsApp / email / phone — plus
+   studio location and response window. Sits right of the
+   form on desktop, below it on mobile. */
+.contact-direct {
+  width: 100%;
+  max-width: 480px;
+  align-self: start;
+}
+
+.contact-direct .eyebrow {
+  color: var(--editorial-gold);
+  margin: 0 0 var(--space-5);
+}
+
+.contact-direct h2 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(26px, 3.2vw, 36px);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--atlantic-navy);
+  margin: 0 0 var(--space-7);
+}
+
+.contact-direct__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.contact-direct__list > li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.contact-direct__label {
+  font-family: var(--font-body);
+  font-weight: var(--fw-medium);
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* The .btn inside the direct list inherits the global
+   _buttons.css system — we only need to make sure stack
+   widths stay self-contained on narrow viewports. */
+.contact-direct__list .btn {
+  align-self: flex-start;
+  max-width: 100%;
+}
+
+@media (max-width: 39.9375em) {
+  .contact-direct__list .btn {
+    width: 100%;
+    align-self: stretch;
+  }
+}
+
+.contact-direct__note {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: 13px;
+  line-height: var(--lh-normal);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.contact-direct hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: var(--space-7) 0 var(--space-6);
+}
+
+.contact-direct__location,
+.contact-direct__hours {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: 14px;
+  line-height: var(--lh-loose);
+  color: var(--text);
+  margin: 0 0 var(--space-4);
+}
+
+.contact-direct__location strong,
+.contact-direct__hours strong {
+  font-weight: var(--fw-medium);
+  color: var(--atlantic-navy);
+}
+
+.contact-direct__location a {
+  color: var(--atlantic-navy);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  text-decoration-color: rgba(196, 163, 90, 0.55);
+  transition:
+    color var(--dur-base) var(--ease-standard),
+    text-decoration-color var(--dur-base) var(--ease-standard);
+}
+
+.contact-direct__location a:hover,
+.contact-direct__location a:focus-visible {
+  color: var(--editorial-gold);
+  text-decoration-color: var(--editorial-gold);
+}
+
+
+/* ───────── 5. Inquiry FAQ band ─────────
+   Three short answers about what happens after the inquiry.
+   Native <details>, gold hairline rules — visually echoes
+   the home FAQ system without re-importing those classes
+   (kept self-contained for portability). */
+.section.contact-faq {
+  background: var(--resort-white);
+  color: var(--text);
+  padding-block: clamp(96px, 14vw, 160px);
+  border-top: 1px solid var(--border);
+}
+
+.section.contact-faq > .container {
+  max-width: 920px;
+}
+
+.section.contact-faq h2 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(28px, 3.6vw, 44px);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--atlantic-navy);
+  margin: 0 0 var(--space-7);
+  text-wrap: balance;
+  max-width: 720px;
+}
+
+.section.contact-faq details {
+  border-top: 1px solid rgba(196, 163, 90, 0.3);
+  padding-block: var(--space-5);
+}
+
+.section.contact-faq details:last-of-type {
+  border-bottom: 1px solid rgba(196, 163, 90, 0.3);
+}
+
+.section.contact-faq summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-5);
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(18px, 2vw, 24px);
+  line-height: 1.3;
+  letter-spacing: var(--ls-tight);
+  color: var(--atlantic-navy);
+  padding-block: var(--space-2);
+  transition: color var(--dur-base) var(--ease-standard);
+}
+
+.section.contact-faq summary::-webkit-details-marker { display: none; }
+.section.contact-faq summary::marker { display: none; content: ""; }
+
+.section.contact-faq summary::after {
+  content: "+";
+  flex: 0 0 auto;
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: 22px;
+  line-height: 1;
+  color: var(--editorial-gold);
+  transition: transform var(--dur-base) var(--ease-emphasis);
+}
+
+.section.contact-faq details[open] summary::after {
+  content: "−";
+}
+
+@media (hover: hover) {
+  .section.contact-faq summary:hover,
+  .section.contact-faq summary:focus-visible {
+    color: var(--editorial-gold);
+  }
+}
+
+.section.contact-faq summary:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-radius: var(--r-1);
+}
+
+.section.contact-faq details > div {
+  padding-top: var(--space-4);
+}
+
+.section.contact-faq details > div p {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text);
+  margin: 0;
+  max-width: 64ch;
+}
+
+
+/* ───────── 6. Reduced motion ─────────
+   The form transitions, FAQ icon swap and reveal entrances
+   are all transition-based; honor the user preference. */
+@media (prefers-reduced-motion: reduce) {
+  .section.contact-faq summary,
+  .section.contact-faq summary::after,
+  .contact-form__thankyou,
+  .contact-form__error {
+    transition: none !important;
+    animation: none !important;
+  }
+}
