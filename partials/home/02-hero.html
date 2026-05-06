@@ -1,0 +1,137 @@
+<!--
+  IVAE Studios — Home / Hero (full-bleed cinematic).
+  Oleada 2 · Agent 02
+  Two language variants live side-by-side. Build system (Agent 30) selects
+  the correct block per page. Image swap candidates are listed in
+  partials/home/02-hero.README.md — Agent 30 picks the final src.
+  See styles/_home-hero.css for the visual treatment.
+-->
+
+<!-- ─── ENGLISH ─── -->
+<section class="section section--hero" data-section="hero" data-lang="en">
+  <div class="hero__media" aria-hidden="true">
+    <picture class="ivae-image ivae-image--cinema">
+      <!--
+        TODO (Agent 30): pick best hero image. Top 3 candidates from images/:
+          1. /images/los-cabos-sunset-session-ivae-studios.jpg   (golden hour, warm)
+          2. /images/editorial-session-riviera-maya-resort-ivae-studios.jpg  (editorial · contrast)
+          3. /images/canc-n-resort-photography-ivae-studios.jpg  (marina · open shade)
+        Once chosen, generate the AVIF/WebP/JPG ladder at 960/1440/1920/2560 widths.
+      -->
+      <source
+        type="image/avif"
+        data-srcset="/images/los-cabos-sunset-session-ivae-studios.avif 960w,
+                     /images/los-cabos-sunset-session-ivae-studios-1440.avif 1440w,
+                     /images/los-cabos-sunset-session-ivae-studios-1920.avif 1920w,
+                     /images/los-cabos-sunset-session-ivae-studios-2560.avif 2560w"
+        sizes="100vw">
+      <source
+        type="image/webp"
+        data-srcset="/images/los-cabos-sunset-session-ivae-studios.webp 960w,
+                     /images/los-cabos-sunset-session-ivae-studios-1440.webp 1440w,
+                     /images/los-cabos-sunset-session-ivae-studios-1920.webp 1920w,
+                     /images/los-cabos-sunset-session-ivae-studios-2560.webp 2560w"
+        sizes="100vw">
+      <img
+        data-ivae-img="hero"
+        src="/images/los-cabos-sunset-session-ivae-studios.jpg"
+        alt=""
+        decoding="async"
+        fetchpriority="high"
+        loading="eager"
+        width="2000"
+        height="1333">
+    </picture>
+    <div class="hero__scrim"></div>
+  </div>
+
+  <div class="hero__content container">
+    <p class="eyebrow" data-reveal>Riviera Maya · Cancún · Los Cabos</p>
+
+    <h1 class="hero__title" data-reveal-words>
+      Some photographers chase the moment. We <em>compose</em> it.
+    </h1>
+
+    <p class="hero__lede" data-reveal>
+      Luxury resort photography for families, couples and destination weddings — directed, never staged. <em>Now booking 2026.</em>
+    </p>
+
+    <div class="hero__cta" data-reveal>
+      <a class="btn btn--ghost-light" href="#contact">Send me your travel dates</a>
+      <a
+        class="btn--link btn--link--light"
+        href="https://wa.me/529902046514?text=Hi%20IVAE%20Studios%2C%20I%27d%20like%20to%20check%20availability%20for%20a%20session."
+        target="_blank"
+        rel="noopener">WhatsApp</a>
+    </div>
+
+    <a class="hero__scroll-cue" href="#manifesto" aria-label="Scroll to next section">
+      <span class="hero__scroll-cue-line" aria-hidden="true"></span>
+    </a>
+  </div>
+</section>
+
+
+<!-- ─── SPANISH ─── -->
+<section class="section section--hero" data-section="hero" data-lang="es">
+  <div class="hero__media" aria-hidden="true">
+    <picture class="ivae-image ivae-image--cinema">
+      <!--
+        TODO (Agent 30): pick best hero image. Top 3 candidates from images/:
+          1. /images/los-cabos-sunset-session-ivae-studios.jpg
+          2. /images/editorial-session-riviera-maya-resort-ivae-studios.jpg
+          3. /images/canc-n-resort-photography-ivae-studios.jpg
+        Once chosen, generate the AVIF/WebP/JPG ladder at 960/1440/1920/2560 widths.
+      -->
+      <source
+        type="image/avif"
+        data-srcset="/images/los-cabos-sunset-session-ivae-studios.avif 960w,
+                     /images/los-cabos-sunset-session-ivae-studios-1440.avif 1440w,
+                     /images/los-cabos-sunset-session-ivae-studios-1920.avif 1920w,
+                     /images/los-cabos-sunset-session-ivae-studios-2560.avif 2560w"
+        sizes="100vw">
+      <source
+        type="image/webp"
+        data-srcset="/images/los-cabos-sunset-session-ivae-studios.webp 960w,
+                     /images/los-cabos-sunset-session-ivae-studios-1440.webp 1440w,
+                     /images/los-cabos-sunset-session-ivae-studios-1920.webp 1920w,
+                     /images/los-cabos-sunset-session-ivae-studios-2560.webp 2560w"
+        sizes="100vw">
+      <img
+        data-ivae-img="hero"
+        src="/images/los-cabos-sunset-session-ivae-studios.jpg"
+        alt=""
+        decoding="async"
+        fetchpriority="high"
+        loading="eager"
+        width="2000"
+        height="1333">
+    </picture>
+    <div class="hero__scrim"></div>
+  </div>
+
+  <div class="hero__content container">
+    <p class="eyebrow" data-reveal>Riviera Maya · Cancún · Los Cabos</p>
+
+    <h1 class="hero__title" data-reveal-words>
+      Algunos fotógrafos persiguen momentos. Nosotros los <em>componemos</em>.
+    </h1>
+
+    <p class="hero__lede" data-reveal>
+      Fotografía de resort de lujo para familias, parejas y bodas destino — dirigida, nunca posada. <em>Reservando 2026.</em>
+    </p>
+
+    <div class="hero__cta" data-reveal>
+      <a class="btn btn--ghost-light" href="#contact">Envíame tus fechas de viaje</a>
+      <a
+        class="btn--link btn--link--light"
+        href="https://wa.me/529902046514?text=Hola%20IVAE%20Studios%2C%20me%20gustar%C3%ADa%20consultar%20disponibilidad%20para%20una%20sesi%C3%B3n."
+        target="_blank"
+        rel="noopener">WhatsApp</a>
+    </div>
+
+    <a class="hero__scroll-cue" href="#manifesto" aria-label="Bajar a la siguiente sección">
+      <span class="hero__scroll-cue-line" aria-hidden="true"></span>
+    </a>
+  </div>
+</section>

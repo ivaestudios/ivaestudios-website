@@ -1,0 +1,276 @@
+/* ============================================================
+ * IVAE Studios — Home / Hero
+ * Oleada 2 · Agent 02
+ * Full-bleed cinematic hero. Sticky transparent nav overlays
+ * via `.site-nav` (z-index 1000) — this section sits at z-0.
+ * Tokens: see styles/_tokens.css (Agent 01)
+ * Image runtime: js/image-loader.js (Agent 08 contract)
+ * ============================================================ */
+
+/* ─── SECTION SHELL ───────────────────────────────────────── */
+.section--hero {
+  /* svh handles mobile address-bar collapse; vh fallback for old browsers. */
+  min-height: 100vh;
+  min-height: 100svh;
+  /* Cap on 4K so the hero never feels absurd on huge monitors. */
+  max-height: 1080px;
+  position: relative;
+  display: grid;
+  /* Content anchors bottom-left; the photograph carries the top half. */
+  place-items: end start;
+  overflow: hidden;
+  isolation: isolate;
+  color: var(--resort-white);
+  background: var(--deep-atlantic);
+}
+
+/* ─── MEDIA LAYER ─────────────────────────────────────────── */
+.hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  /* The inner .ivae-image wrapper has its own aspect-ratio (cinema 21/9);
+     override it here so the image fills the full viewport instead. */
+}
+
+.hero__media .ivae-image,
+.hero__media .ivae-image--cinema {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+.hero__media .ivae-image > img,
+.hero__media .ivae-image > picture > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Scrim — keeps transparent nav (top) and ledes/CTAs (bottom) legible.
+   Computed from --deep-atlantic = #0F1620 → rgb(15, 22, 32). */
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 22, 32, 0.45) 0%,
+    rgba(15, 22, 32, 0.15) 35%,
+    rgba(15, 22, 32, 0.65) 100%
+  );
+}
+
+/* ─── CONTENT LAYER ───────────────────────────────────────── */
+.hero__content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 880px;
+  /* Top pad clears sticky nav + breathing space; bottom pad clears scroll cue. */
+  padding-block: clamp(120px, 18vh, 220px) clamp(48px, 8vh, 96px);
+}
+
+/* Eyebrow — override base to read on the dark scrim. */
+.section--hero .eyebrow {
+  color: var(--warm-sand);
+  text-shadow: 0 1px 4px rgb(0 0 0 / 0.4);
+  margin-bottom: var(--space-5);
+}
+
+/* ─── TITLE ───────────────────────────────────────────────── */
+.hero__title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  /* 48 → 96 on a wider curve than the global h1 — hero must dominate. */
+  font-size: clamp(48px, 8vw, 96px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--resort-white);
+  /* Wrap cinematically — narrow on mobile, generous on desktop. */
+  max-width: 22ch;
+  margin: 0 0 var(--space-5);
+  /* Deep-shadow for legibility over varied imagery. */
+  text-shadow: 0 2px 16px rgb(0 0 0 / 0.35);
+}
+
+@media (min-width: 768px) {
+  .hero__title {
+    max-width: 14ch;
+  }
+}
+
+/* The <em> inside the title inherits the global italic-gold rule from
+   _base.css. We only nudge size relationships here so the gold word
+   doesn't visually overpower the surrounding serif. */
+.hero__title em {
+  font-style: italic;
+  /* Bodoni reads slightly smaller than DM Serif Display at the same px;
+     a touch larger keeps the optical weight balanced. */
+  font-size: 1.02em;
+}
+
+/* ─── LEDE ────────────────────────────────────────────────── */
+.hero__lede {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(16px, 1.6vw, 22px);
+  line-height: 1.5;
+  /* Resort-white at 92% — soft authority, not stark. */
+  color: rgb(249 248 247 / 0.92);
+  max-width: 56ch;
+  margin: 0;
+  text-shadow: 0 1px 6px rgb(0 0 0 / 0.35);
+}
+
+.hero__lede em {
+  font-style: italic;
+}
+
+/* ─── CTA ROW ─────────────────────────────────────────────── */
+.hero__cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-5);
+  margin-top: var(--space-7);
+}
+
+/* .btn--link--light — link-style btn on dark surface.
+   One-off hero helper; will be absorbed into the buttons module
+   (Agent 06) in a follow-up consolidation pass. Notes:
+   - inherits .btn--link box from _buttons.css (margin, line-height, etc.)
+   - text is resort-white instead of atlantic-navy
+   - underline animates from gold (already gold via .btn--link::after) */
+.btn--link--light {
+  color: var(--resort-white);
+  text-shadow: 0 1px 4px rgb(0 0 0 / 0.4);
+}
+
+.btn--link--light:hover,
+.btn--link--light:focus-visible {
+  color: var(--editorial-gold);
+}
+
+/* If the user lands without _buttons.css (isolated test), give the link
+   minimum legibility — all real properties come from .btn--link. */
+.btn--link--light {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0;
+  background: transparent;
+  border: 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  position: relative;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 250ms var(--ease-standard);
+}
+
+.btn--link--light::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--editorial-gold);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 300ms var(--ease-standard);
+}
+
+.btn--link--light:hover::after,
+.btn--link--light:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.btn--link--light:focus-visible {
+  outline: 2px solid var(--editorial-gold);
+  outline-offset: 4px;
+}
+
+/* ─── SCROLL CUE ──────────────────────────────────────────── */
+.hero__scroll-cue {
+  position: absolute;
+  /* Anchors the cue to bottom-center of the SECTION, independent of
+     .hero__content. */
+  bottom: clamp(20px, 4vh, 36px);
+  left: 50%;
+  transform: translateX(-50%);
+  /* 32×40 hit area for a11y. */
+  width: 32px;
+  height: 40px;
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 3;
+  text-decoration: none;
+  outline-offset: 6px;
+}
+
+.hero__scroll-cue-line {
+  display: block;
+  width: 1px;
+  height: 36px;
+  background: var(--editorial-gold);
+  /* Fade slightly to feel like a hairline, not a UI control. */
+  opacity: 0.85;
+  transform-origin: top center;
+  animation: hero-scroll-pulse 2.4s ease-in-out infinite;
+  /* Delay the first pulse so the hero settles before the cue appears. */
+  animation-delay: 1200ms;
+}
+
+@keyframes hero-scroll-pulse {
+  0%, 100% { transform: translateY(0);   opacity: 0.85; }
+  50%      { transform: translateY(6px); opacity: 0.40; }
+}
+
+.hero__scroll-cue:hover .hero__scroll-cue-line,
+.hero__scroll-cue:focus-visible .hero__scroll-cue-line {
+  opacity: 1;
+}
+
+/* ─── REDUCED MOTION ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .hero__scroll-cue-line {
+    animation: none;
+    opacity: 0.85;
+  }
+  .btn--link--light,
+  .btn--link--light::after {
+    transition: none;
+  }
+}
+
+/* ─── MOBILE TIGHTENING ───────────────────────────────────── */
+@media (max-width: 480px) {
+  .section--hero {
+    /* Slightly less commanding on tiny screens so the lede + CTAs
+       always sit above the fold. */
+    min-height: 88svh;
+  }
+  .hero__content {
+    padding-block: clamp(100px, 16vh, 180px) clamp(48px, 8vh, 80px);
+  }
+  .hero__cta {
+    gap: var(--space-4);
+  }
+}
+
+/* Hide the cue when the section is shorter than ~640px to avoid a
+   cramped collision with the CTA row. */
+@media (max-height: 640px) {
+  .hero__scroll-cue { display: none; }
+}
