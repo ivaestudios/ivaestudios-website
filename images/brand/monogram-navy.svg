@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="t d" preserveAspectRatio="xMidYMid meet">
+  <title id="t">IVAE Studios monogram</title>
+  <desc id="d">IVAE Studios AE ligature monogram in Atlantic Navy Bodoni Moda Italic.</desc>
+  <style>
+    .ae{font-family:'Bodoni Moda','Bodoni 72','Didot',serif;font-style:italic;font-weight:400;font-size:96px;}
+  </style>
+  <text x="48" y="76" class="ae" fill="#1A2433" text-anchor="middle">Æ</text>
+</svg>
