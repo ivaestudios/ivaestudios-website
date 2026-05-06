@@ -56,6 +56,12 @@
 @import "_portfolio.css";     /* Oleada 3 — Agent 15 */
 @import "_post.css";          /* Oleada 4 — shared single-post (magazine) styles */
 @import "_service.css";       /* Oleada 3 — Agents 03-08 (shared service-page styles) */
+@import "_service-couples.css";   /* Oleada 5 — page-scoped, was inline */
+@import "_service-weddings.css";  /* Oleada 5 — .wed-* prefixed, was inline */
+@import "_service-yacht.css";     /* Oleada 5 — page-scoped, was inline */
 
 /* ── Legacy (to be deleted as pages migrate) ───────────────────────── */
 @import "_legacy.css";
+
+/* ── Post-legacy overrides (must beat _legacy.css) ─────────────────── */
+@import "_skip-link.css";     /* Oleada 5 — universal a11y utility */

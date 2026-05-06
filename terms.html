@@ -48,32 +48,6 @@
   <link rel="preload" as="font" type="font/woff2" crossorigin
         href="/styles/fonts/inter-variable-latin.woff2">
 
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="/styles/main.css">
-  <link rel="stylesheet" media="print" href="/styles/print.css">
-
-  <!-- Skip-link visible on focus -->
-  <style>
-    .skip-link {
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 1000;
-      padding: 0.75rem 1rem;
-      background: var(--atlantic-navy, #1A2433);
-      color: var(--resort-white, #F9F8F7);
-      font-family: var(--font-body, system-ui, sans-serif);
-      font-size: 0.875rem;
-      text-decoration: none;
-      transform: translateY(-120%);
-      transition: transform 200ms ease;
-    }
-    .skip-link:focus {
-      transform: translateY(0);
-      outline: 2px solid var(--editorial-gold, #C4A35A);
-      outline-offset: 2px;
-    }
-  </style>
 
   <!-- Schema.org @graph (Terms, English) -->
   <script type="application/ld+json">

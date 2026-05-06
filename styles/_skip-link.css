@@ -1,0 +1,35 @@
+/* ============================================================
+   _skip-link.css — IVAE Studios redesign-2026 (Oleada 5)
+   ──────────────────────────────────────────────────────────
+   Universal accessibility utility. Replaces the duplicated
+   inline `<style>` blocks 73 pages were carrying after
+   Oleada 3/4 — every migrated page consumed an identical
+   copy of this rule because no shared module owned it.
+
+   This module is imported AFTER `_legacy.css` in main.css
+   so its `.skip-link` definition wins over the older legacy
+   variant (offscreen-position pattern). The new pattern
+   slides the link in from above on focus — a more visible
+   focus state for keyboard users.
+   ============================================================ */
+
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  padding: 0.75rem 1rem;
+  background: var(--atlantic-navy, #1A2433);
+  color: var(--resort-white, #F9F8F7);
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.875rem;
+  text-decoration: none;
+  transform: translateY(-120%);
+  transition: transform 200ms ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+  outline: 2px solid var(--editorial-gold, #C4A35A);
+  outline-offset: 2px;
+}
