@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "geo": "MX",
+  "language": "es-MX",
+  "categories": {
+    "destinations": [
+      "fotografo cancun",
+      "fotografo riviera maya",
+      "fotografo tulum",
+      "fotografo los cabos",
+      "fotografo playa del carmen",
+      "fotografo cabo san lucas"
+    ],
+    "weddings": [
+      "fotografo bodas cancun",
+      "fotografo bodas mexico",
+      "fotografo bodas destino",
+      "wedding photographer cancun",
+      "wedding photographer mexico",
+      "destination wedding photographer"
+    ],
+    "couples_family": [
+      "fotografo parejas cancun",
+      "fotografo familias cancun",
+      "fotografo compromiso",
+      "couples photographer cancun",
+      "family photographer cancun",
+      "engagement photographer mexico"
+    ],
+    "specialty": [
+      "fotografo cenote",
+      "fotografo yate cancun",
+      "fotografo maternidad cancun",
+      "cenote photographer tulum",
+      "yacht photographer cancun",
+      "maternity photographer mexico"
+    ]
+  },
+  "filters": {
+    "must_include_words": [
+      "fotograf",
+      "photo",
+      "wedding",
+      "boda",
+      "family",
+      "familia",
+      "couple",
+      "pareja",
+      "engagement",
+      "compromiso",
+      "maternity",
+      "maternidad",
+      "cenote",
+      "yacht",
+      "yate"
+    ],
+    "competitor_blocklist": [
+      "ivaestudio.com",
+      "ivaestudio singular",
+      "fivestudio",
+      "ivastudio"
+    ]
+  },
+  "scoring": {
+    "trend_velocity_weight": 0.5,
+    "relevance_weight": 0.3,
+    "intent_weight": 0.2,
+    "commercial_intent_keywords": [
+      "luxury",
+      "lujo",
+      "professional",
+      "profesional",
+      "best",
+      "mejor",
+      "top",
+      "premium"
+    ]
+  }
+}

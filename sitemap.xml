@@ -1031,4 +1031,43 @@
     </image:image>
   </url>
 
+  <!-- ═══════════════════════════════════════════
+       BRAND ENTITY PAGES (PR 1)
+       ═══════════════════════════════════════════ -->
+  <url>
+    <loc>https://ivaestudios.com/brand</loc>
+    <lastmod>2026-05-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/brand"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/marca"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/brand"/>
+  </url>
+  <url>
+    <loc>https://ivaestudios.com/es/marca</loc>
+    <lastmod>2026-05-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/brand"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/marca"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/brand"/>
+  </url>
+
+  <!-- ═══════════════════════════════════════════
+       MACHINE-READABLE / AI ASSETS (PR 1)
+       Language-neutral resources (no hreflang needed).
+       ═══════════════════════════════════════════ -->
+  <url>
+    <loc>https://ivaestudios.com/api/facts.json</loc>
+    <lastmod>2026-05-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ivaestudios.com/llms-full.txt</loc>
+    <lastmod>2026-05-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
 </urlset>

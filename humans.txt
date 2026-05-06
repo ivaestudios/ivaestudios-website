@@ -1,0 +1,24 @@
+/* TEAM */
+
+  Founder & Creative Director: Vianey Díaz
+  Role: Lead Photographer
+  Languages: Spanish (native), English (fluent)
+  Location: Cancún, Quintana Roo, Mexico
+  Contact: see https://ivaestudios.com/about
+
+/* THANKS */
+
+  Our clients across Cancún, Riviera Maya, and Los Cabos.
+
+/* SITE */
+
+  Last update: 2026-05-06
+  Standards: HTML5, JSON-LD, hreflang, llms.txt, ai.txt
+  Components: static HTML, Cloudflare Pages
+  Languages: English (default), Spanish (es/)
+  Doctype: HTML5
+
+/* BRAND DISAMBIGUATION */
+
+  IVAE Studios (with S, plural) -> ivaestudios.com
+  Not affiliated with: ivaestudio.com (singular, unrelated European agency)

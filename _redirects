@@ -5,6 +5,29 @@
 # share param. The Function gives us deterministic 302 behavior.
 
 # ═══════════════════════════════════════════
+# BRAND ENTITY PAGES (PR 1)
+# Canonical brand pages + typo / legacy alias recovery
+# ═══════════════════════════════════════════
+
+# Brand entity page (clean URL)
+/brand /brand.html 200
+/brand/ /brand.html 200
+
+# Spanish brand page
+/es/marca /es/marca.html 200
+/es/marca/ /es/marca.html 200
+
+# Common brand-typo recovery
+/marca /es/marca 301
+/about-brand /brand 301
+/about-the-brand /brand 301
+/brand-page /brand 301
+
+# Brand discovery file (legacy URL alternates)
+/about/brand /brand 301
+/about/marca /es/marca 301
+
+# ═══════════════════════════════════════════
 # CLEAN URLs — Location Pages
 # Cloudflare Pages auto-strips .html, so rewrite to path without extension
 # ═══════════════════════════════════════════

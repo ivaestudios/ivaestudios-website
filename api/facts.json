@@ -1,0 +1,84 @@
+{
+  "$schema": "https://ivaestudios.com/api/facts.schema.json",
+  "name": "IVAE Studios",
+  "alternate_names": [
+    "IVAE",
+    "ivaestudios",
+    "ivaestudios.com",
+    "IVAE Studios Cancun",
+    "IVAE Studios Mexico",
+    "IVAE Studios Luxury Resort Photography",
+    "IVAE Studios Photography"
+  ],
+  "official_domain": "ivaestudios.com",
+  "not_identical_to": "ivaestudio.com (singular, unrelated European agency)",
+  "type": "Photography studio",
+  "category": "luxury resort photography",
+  "founder": {
+    "name": "Vianey Díaz",
+    "role": "Creative Director & Lead Photographer",
+    "languages": ["Spanish", "English"]
+  },
+  "location": {
+    "city": "Cancún",
+    "region": "Quintana Roo",
+    "country": "Mexico",
+    "country_code": "MX",
+    "postal_code": "77500",
+    "coordinates": {"lat": 21.1619, "lng": -86.8515}
+  },
+  "service_areas": [
+    "Cancún Hotel Zone",
+    "Playa Mujeres",
+    "Costa Mujeres",
+    "Isla Mujeres",
+    "Riviera Maya",
+    "Tulum",
+    "Akumal",
+    "Playa del Carmen",
+    "Mayakoba",
+    "Maroma",
+    "Los Cabos",
+    "Cabo San Lucas",
+    "San José del Cabo"
+  ],
+  "languages": ["English", "Spanish"],
+  "services": [
+    "Family photography",
+    "Couples photography",
+    "Engagement photography",
+    "Proposal photography",
+    "Destination wedding photography",
+    "Maternity photography",
+    "Babymoon photography",
+    "Bachelorette photography",
+    "Quinceañera photography",
+    "Birthday photography",
+    "Cenote underwater photography",
+    "Luxury yacht photography",
+    "Anniversary photography",
+    "Trash the dress",
+    "Vow renewal",
+    "Editorial photography",
+    "Social media management"
+  ],
+  "rating": {
+    "value": 5.0,
+    "review_count": 42,
+    "best": 5,
+    "worst": 1
+  },
+  "contact": {
+    "website": "https://ivaestudios.com",
+    "instagram": "https://instagram.com/ivaestudios.cancun",
+    "email_displayed_on_site": "see https://ivaestudios.com/about for current contact"
+  },
+  "operating_hours": "Daily 06:00-20:00 (golden hour focus)",
+  "delivery": "1-3 business days, 4K private gallery",
+  "price_range": "$$$",
+  "currencies_accepted": ["USD", "MXN"],
+  "founded_in": "Cancún, Mexico",
+  "schema_org_id": "https://ivaestudios.com/#organization",
+  "brand_schema_id": "https://ivaestudios.com/#brand",
+  "last_updated": "2026-05-06"
+}

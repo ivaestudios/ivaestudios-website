@@ -131,6 +131,7 @@ Disallow: /functions/
 # ═══════════════════════════════════════════════════════════════
 
 Sitemap: https://ivaestudios.com/sitemap.xml
+Sitemap: https://ivaestudios.com/sitemap-ai.xml
 
 # AI-readable site manifest (llms.txt standard)
 # https://ivaestudios.com/llms.txt

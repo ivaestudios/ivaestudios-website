@@ -6,13 +6,15 @@ Cloud-native: reads the service account JSON from the `GOOGLE_INDEXING_SA_JSON`
 environment variable (GitHub Secret), NOT from a local file. This script is
 safe to live in a public repo.
 
-URLs can come from three places, in order of precedence:
+URLs can come from four places, in order of precedence:
   1. CLI args:            python index_urls.py https://a.com/ https://a.com/es/
-  2. URLS_FILE env var:   path to a newline-delimited list of URLs
-  3. Default list:        the 21 high-priority April 2026 audit URLs
+  2. --source trends:     URLs listed in seo/data/latest.json (changed_pages)
+  3. URLS_FILE env var:   path to a newline-delimited list of URLs
+  4. Default list:        the 21 high-priority April 2026 audit URLs
 
 Quota: Google Indexing API allows 200 notifications/day per project.
 """
+import argparse
 import json
 import os
 import sys
@@ -20,9 +22,9 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
+# Google client libs are imported lazily inside main() so that no-op invocations
+# (e.g. `--source trends` with an empty seo/data/latest.json, or `--help`) work
+# in environments where the deps aren't installed.
 
 SCOPES = ["https://www.googleapis.com/auth/indexing"]
 
@@ -61,6 +63,8 @@ DEFAULT_URLS = [
 
 def load_credentials():
     """Load service account credentials from env var (preferred) or file path."""
+    from google.oauth2 import service_account  # type: ignore
+
     sa_json = os.environ.get("GOOGLE_INDEXING_SA_JSON")
     if sa_json:
         info = json.loads(sa_json)
@@ -77,11 +81,33 @@ def load_credentials():
     sys.exit(1)
 
 
-def collect_urls():
+def collect_from_trends():
+    """Read URLs from `seo/data/latest.json` (written by keyword_refresh).
+
+    Expected shape: {"changed_pages": ["https://...", "..."]}.
+    Missing or malformed file -> empty list (caller decides what to do).
+    """
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    latest = os.path.join(repo_root, "seo", "data", "latest.json")
+    if not os.path.exists(latest):
+        return []
+    try:
+        with open(latest, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"WARN: could not read {latest}: {e}", file=sys.stderr)
+        return []
+    pages = data.get("changed_pages") or []
+    return [u for u in pages if isinstance(u, str) and u.startswith("http")]
+
+
+def collect_urls(use_trends: bool, positional: list[str]):
     """Resolve which URLs to submit."""
-    # CLI args win
-    if len(sys.argv) > 1:
-        return [u for u in sys.argv[1:] if u.startswith("http")]
+    # Explicit positional CLI args always win
+    if positional:
+        return [u for u in positional if u.startswith("http")]
+    if use_trends:
+        return collect_from_trends()
     # File path from env
     urls_file = os.environ.get("URLS_FILE")
     if urls_file and os.path.exists(urls_file):
@@ -92,12 +118,31 @@ def collect_urls():
 
 
 def main():
-    urls = collect_urls()
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument(
+        "--source",
+        choices=["trends"],
+        help="Read URLs from seo/data/latest.json (changed_pages list).",
+    )
+    parser.add_argument("urls", nargs="*", help="URLs to submit (positional).")
+    args = parser.parse_args()
+
+    use_trends = args.source == "trends"
+    urls = collect_urls(use_trends, args.urls)
+    if use_trends and not urls:
+        # Trends source with no data is a no-op success — exit 0 so a
+        # workflow chained off keyword_refresh doesn't fail when no pages
+        # changed this week.
+        print("No URLs in seo/data/latest.json — nothing to submit.")
+        sys.exit(0)
     if not urls:
         print("No URLs to submit.")
         sys.exit(0)
 
     creds = load_credentials()
+    from googleapiclient.discovery import build  # type: ignore
+    from googleapiclient.errors import HttpError  # type: ignore
+
     service = build("indexing", "v3", credentials=creds, cache_discovery=False)
 
     ok = 0
