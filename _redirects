@@ -1,29 +1,65 @@
+# IVAE Studios — Cloudflare Pages redirects
+# Format: /source /target [status]
+# 200 = internal rewrite (URL stays the same in browser)
+# 301 = permanent redirect (browser URL changes; preserves SEO equity)
+#
+# Order matters: Cloudflare evaluates top-down, first match wins.
+# Static .html files at root are served automatically when the clean URL
+# matches the filename (Cloudflare strips .html). We only need rules for
+# URLs that diverge from the filename.
+
+# ═══════════════════════════════════════════
 # Gallery share-token URLs `/gallery/g/{token}` are handled by the
 # Pages Function at functions/gallery/g/[token].js — kept out of _redirects
 # because the `200` rewrite rule was being preempted by Cloudflare's
 # automatic .html-strip, which 308'd to /gallery/gallery and dropped the
 # share param. The Function gives us deterministic 302 behavior.
+# ═══════════════════════════════════════════
 
 # ═══════════════════════════════════════════
-# CLEAN URLs — Location Pages
-# Cloudflare Pages auto-strips .html, so rewrite to path without extension
+# CLEAN URL REWRITES — Oleada 3 new pages
+# Cloudflare auto-strips .html so /contact serves /contact.html, but we
+# add explicit rewrites for short alias slugs that don't match a file.
 # ═══════════════════════════════════════════
-/cancun-photographer /cancun 200
-/riviera-maya-photographer /riviera-maya 200
-/cabo-photographer /los-cabos 200
+
+# /contact short URL → /contact.html (internal rewrite, browser keeps /contact)
+/contact /contact.html 200
+/es/contacto /es/contact.html 200
+
+# /cenote short URL → cenote service page
+/cenote /cenote-photography.html 200
+/es/cenote /es/cenote-tulum.html 200
+
+# /journal alias for /blog (kept for inbound links labeled "journal")
+/journal /blog.html 200
+/es/journal /es/blog.html 200
+
+# /portfolio short URL aliases (in case of trailing-slash variants)
+/portfolio/ /portfolio.html 200
+/es/portfolio/ /es/portfolio.html 200
+
+# ═══════════════════════════════════════════
+# CLEAN URLs — Location Pages (legacy long-slug → new short-slug)
+# Old URLs were /cancun-photographer etc; new clean URLs are /cancun.
+# Keep the long slugs as 301s to preserve Google ranking history.
+# ═══════════════════════════════════════════
+/cancun-photographer /cancun 301
+/riviera-maya-photographer /riviera-maya 301
+/cabo-photographer /los-cabos 301
 
 # ═══════════════════════════════════════════
 # CLEAN URLs — Standalone Pages
 # ═══════════════════════════════════════════
 /social-media-management /es/manejo-redes-sociales 301
-/outfit-guide /outfit-guide 200
+/outfit-guide /outfit-guide.html 200
+/es/guia-vestuario /es/guia-vestuario.html 200
 
 # ═══════════════════════════════════════════
-# CLEAN URLs — Service Pages
+# CLEAN URLs — Service Pages (legacy long-slug → new short-slug)
 # ═══════════════════════════════════════════
-/destination-wedding-photographer-mexico /luxury-weddings 200
-/luxury-family-photos-cancun /luxury-family-photos 200
-/couples-photography-mexico /couples-photography 200
+/destination-wedding-photographer-mexico /luxury-weddings 301
+/luxury-family-photos-cancun /luxury-family-photos 301
+/couples-photography-mexico /couples-photography 301
 
 # ═══════════════════════════════════════════
 # CLEAN URLs — Blog Posts (Batch 1)
@@ -74,13 +110,27 @@
 
 # ═══════════════════════════════════════════
 # 301 REDIRECTS — Old .html URLs to clean URLs
+# Visitors who land on /cancun.html get pushed to /cancun.
 # ═══════════════════════════════════════════
-/cancun.html /cancun-photographer 301
-/riviera-maya.html /riviera-maya-photographer 301
-/los-cabos.html /cabo-photographer 301
-/luxury-weddings.html /destination-wedding-photographer-mexico 301
-/luxury-family-photos.html /luxury-family-photos-cancun 301
-/couples-photography.html /couples-photography-mexico 301
+/cancun.html /cancun 301
+/riviera-maya.html /riviera-maya 301
+/los-cabos.html /los-cabos 301
+/luxury-weddings.html /luxury-weddings 301
+/luxury-family-photos.html /luxury-family-photos 301
+/couples-photography.html /couples-photography 301
+/maternity-photoshoot-cancun.html /maternity-photoshoot-cancun 301
+/yacht-photography-cancun.html /yacht-photography-cancun 301
+/cenote-photography.html /cenote-photography 301
+/contact.html /contact 301
+/portfolio.html /portfolio 301
+/privacy.html /privacy 301
+/terms.html /terms 301
+/about.html /about 301
+/vianey-ortega.html /vianey-ortega 301
+/blog.html /blog 301
+/outfit-guide.html /outfit-guide 301
+
+# Blog post .html → clean URL (28 posts)
 /post-destination-wedding.html /blog/destination-wedding-photographer-riviera-maya 301
 /post-honeymoon.html /blog/honeymoon-photographer-riviera-maya 301
 /post-wedding-cancun.html /blog/wedding-photographer-cancun 301
@@ -92,7 +142,6 @@
 /post-los-cabos-guide.html /blog/los-cabos-photographer-guide 301
 /post-choose-luxury-photographer.html /blog/how-to-choose-luxury-photographer-mexico 301
 /post-surprise-proposal.html /blog/surprise-proposal-photography-cancun 301
-/blog.html /blog 301
 /post-what-to-wear-beach-photos.html /blog/what-to-wear-beach-photos-mexico 301
 /post-best-resorts-cancun-photography.html /blog/best-resorts-cancun-photography 301
 /post-cancun-vs-riviera-maya.html /blog/cancun-vs-riviera-maya-photos 301
@@ -110,22 +159,33 @@
 /post-luxury-yacht-photography-cancun.html /blog/luxury-yacht-photography-cancun 301
 /post-trash-the-dress-cancun.html /blog/trash-the-dress-cancun 301
 /post-gender-reveal-photoshoot-cancun.html /blog/gender-reveal-photoshoot-cancun 301
-/outfit-guide.html /outfit-guide 301
+
+# ═══════════════════════════════════════════
+# 301 REDIRECTS — Vianey bio aliases
+# Old draft slug /vianey-diaz/ → canonical /vianey-ortega.
+# Add /vianey/ short alias for inbound mention links.
+# ═══════════════════════════════════════════
+/vianey-diaz /vianey-ortega 301
+/vianey-diaz/ /vianey-ortega 301
+/vianey /vianey-ortega 301
+/vianey/ /vianey-ortega 301
+/es/vianey-diaz /es/vianey-ortega 301
+/es/vianey /es/vianey-ortega 301
 
 # ═══════════════════════════════════════════
 # 301 REDIRECTS — Legacy URLs (recover Google link juice)
 # These URLs are indexed by Google / appear in search results but return 404.
 # Recover SEO equity by redirecting to current pages.
 # ═══════════════════════════════════════════
-/family-photoshoot-cancun /luxury-family-photos-cancun 301
-/couples-photoshoot-cancun /couples-photography-mexico 301
+/family-photoshoot-cancun /luxury-family-photos 301
+/couples-photoshoot-cancun /couples-photography 301
 /manejo-de-redes-sociales-cancun /es/manejo-redes-sociales 301
-/cancun-family-photographer /luxury-family-photos-cancun 301
-/cancun-couples-photographer /couples-photography-mexico 301
-/photographer-cancun /cancun-photographer 301
-/photographer-riviera-maya /riviera-maya-photographer 301
-/photographer-cabo /cabo-photographer 301
-/wedding-photographer-cancun-mexico /destination-wedding-photographer-mexico 301
+/cancun-family-photographer /luxury-family-photos 301
+/cancun-couples-photographer /couples-photography 301
+/photographer-cancun /cancun 301
+/photographer-riviera-maya /riviera-maya 301
+/photographer-cabo /los-cabos 301
+/wedding-photographer-cancun-mexico /luxury-weddings 301
 
 # ═══════════════════════════════════════════
 # Fix broken internal links
@@ -137,9 +197,9 @@
 /blog/destination-wedding-photographer-cancun /blog/destination-wedding-photographer-riviera-maya 301
 /blog/destination-wedding-photographer-mexico-guide /blog/destination-wedding-photographer-riviera-maya 301
 /blog/beach-wedding-photographer-cancun /blog/wedding-photographer-cancun 301
-/beach-wedding-photographer-cancun /cancun-photographer 301
-/cabo-wedding-photographer /cabo-photographer 301
-/riviera-maya-wedding-photographer /riviera-maya-photographer 301
+/beach-wedding-photographer-cancun /cancun 301
+/cabo-wedding-photographer /los-cabos 301
+/riviera-maya-wedding-photographer /riviera-maya 301
 
 # ═══════════════════════════════════════════
 # Fix broken internal links — April 2026 audit (EN)
@@ -149,9 +209,9 @@
 /blog/vow-renewal-photographer-mexico /blog/vow-renewal-mexico-photography 301
 /blog/photo-locations-riviera-maya /blog/best-photo-locations-riviera-maya 301
 /blog/babymoon-photography-cancun-riviera-maya /blog/babymoon-photography-cancun 301
-/wedding-photography /destination-wedding-photographer-mexico 301
+/wedding-photography /luxury-weddings 301
 /proposal-photographer /blog/surprise-proposal-photography-cancun 301
-/family-photoshoot /luxury-family-photos-cancun 301
+/family-photoshoot /luxury-family-photos 301
 
 # ═══════════════════════════════════════════
 # Fix broken internal links — April 2026 audit (ES — EN slug used in ES path)
