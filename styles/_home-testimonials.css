@@ -1,0 +1,189 @@
+/* ============================================================
+   _home-testimonials.css
+   IVAE Studios · Redesign 2026 · Oleada 2 · Agent 08
+   ──────────────────────────────────────────────────────────
+   Editorial pull-quote section for the homepage. Three quote
+   slots, large Bodoni Italic, navy on resort-white. The full
+   pull-quote pattern is treated as a magazine page-spread:
+   generous whitespace, gold ornament, hairline attribution.
+
+   Token contract: consumes _tokens.css (Agent 01) and the
+   `.eyebrow` + `em` rules from _base.css (Agent 10). The link
+   in `.testimonials__source` inherits the gold-on-hover state
+   from _base.css — no override needed here.
+
+   ─────────────────────────────────────────────────────────────
+   BRAND.md §5 EXCEPTION — documented intentionally:
+     The general rule is "italic gold appears as accent on a
+     SINGLE WORD per block." For a pull-quote, the entire body
+     is set in Bodoni italic (the editorial pattern requires it),
+     but the COLOR stays atlantic-navy — gold remains rare.
+     The only gold elements in this section are:
+       1. the `«` ornament above each quote (decorative)
+       2. the `·` separator between name and detail
+       3. the underline-on-hover state of the source link
+   ─────────────────────────────────────────────────────────────
+
+   ORNAMENT CHOICE — single gold guillemet:
+     Per the spec's "easier alternative", we use ONE gold ornament
+     per quote: a 28px `«` rendered as a `::before` on `.quote`,
+     centered above the text. This keeps the field calm (one accent
+     glyph instead of two) and reads as an editorial mark, not
+     literal punctuation. Spanish guillemets feel native in both
+     languages because the pattern is visual, not linguistic.
+
+   Pair with partials/home/08-testimonials.html.
+   ============================================================ */
+
+/* 1. Section frame --------------------------------------------- */
+/* Generous vertical air. clamp() floor 96px on mobile, ceiling
+   160px on desktop. Background = resort-white (50% protagonist).
+   `isolation: isolate` so the gold ornament's z-index stays
+   contained even if the next section overlaps. */
+.section--testimonials {
+  padding-block: clamp(96px, 14vw, 160px);
+  background: var(--resort-white);
+  color: var(--text);
+  position: relative;
+  isolation: isolate;
+}
+
+/* 2. Header ---------------------------------------------------- */
+/* Left-aligned, capped at 720px so the title sits as a deliberate
+   block at the top of the section, not a wide banner. space-8 (64px)
+   below before the first quote. */
+.testimonials__header {
+  text-align: left;
+  max-width: 720px;
+  margin-bottom: var(--space-8);
+}
+
+.testimonials__header .eyebrow {
+  color: var(--soft-slate);
+  margin: 0 0 var(--space-3);
+}
+
+.testimonials__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-1000-fluid);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--atlantic-navy);
+  margin: 0;
+}
+
+/* The single italic word inherits the global `em` rule from
+   _base.css (Bodoni italic, gold). This is the per-block accent
+   permitted by BRAND.md §5. */
+
+/* 3. List of quotes -------------------------------------------- */
+/* Flex column so each .quote owns its own vertical rhythm.
+   Gap = space-9 (96px) — extra airy between quotes so each one
+   reads as its own page-spread, not part of a stack. */
+.testimonials__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-9);
+}
+
+/* 4. Single quote ---------------------------------------------- */
+/* Centered figure, max-width 920px. `position: relative` anchors
+   the gold `::before` ornament above the text. */
+.quote {
+  max-width: 920px;
+  margin-inline: auto;
+  text-align: center;
+  position: relative;
+  margin-block: 0;
+}
+
+/* Decorative gold guillemet — single mark, centered above the
+   quote text. 28px gold `«` rendered as `::before` on the figure
+   (not the blockquote itself, so screen readers don't announce
+   stray punctuation before the quote body). The pattern is the
+   same in both languages — guillemets read as editorial typography
+   in EN and as native punctuation in ES. */
+.quote::before {
+  content: "\00AB"; /* « */
+  display: block;
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--editorial-gold);
+  margin-bottom: var(--space-4);
+}
+
+/* 5. Quote text ------------------------------------------------ */
+/* Bodoni italic carries the editorial feel (BRAND.md §5 pull-quote
+   exception — full italic block, but COLOR stays navy, not gold).
+   font-size clamps 22→32px so the quote reads as a deliberate
+   pull-quote on every viewport without overpowering the title. */
+.quote__text {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: var(--fw-regular);
+  font-size: clamp(22px, 3vw, 32px);
+  line-height: 1.4;
+  color: var(--atlantic-navy);
+  margin: 0 0 var(--space-5);
+  /* Reset blockquote browser defaults */
+  padding: 0;
+  border: 0;
+  quotes: none;
+}
+
+.quote__text::before,
+.quote__text::after {
+  content: none; /* the gold « on .quote::before is the only mark */
+}
+
+/* 6. Attribution ----------------------------------------------- */
+/* Inter, uppercase, tight tracking — the magazine credit line.
+   flex-wrap so on narrow viewports the name can break to its own
+   line above "· detail" without the separator dangling. */
+.quote__attr {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--soft-slate);
+}
+
+.quote__name {
+  color: var(--atlantic-navy);
+  font-weight: var(--fw-medium);
+}
+
+.quote__sep {
+  color: var(--editorial-gold);
+}
+
+.quote__detail {
+  color: var(--soft-slate);
+}
+
+/* 7. Source line ----------------------------------------------- */
+/* Anchored 96px below the last quote. Reads as a footnote / source
+   credit. The link inherits gold-on-hover from _base.css. */
+.testimonials__source {
+  text-align: center;
+  margin-top: var(--space-9);
+  margin-bottom: 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: var(--lh-normal);
+  color: var(--text-muted);
+}
+
+/* 8. Reduced motion ------------------------------------------- */
+/* The `data-reveal*` attributes are wired by js/animations.js
+   and the global `_animations.css` already honors
+   `prefers-reduced-motion`. Nothing in this module animates
+   independently, so no further override is needed here. */

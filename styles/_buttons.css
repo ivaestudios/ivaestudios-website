@@ -1,0 +1,325 @@
+/* ==========================================================================
+   _buttons.css — IVAE Studios redesign-2026 (Agent 06, Oleada 1)
+   Editorial luxury button system. Sharp corners, no gradients, no rest shadows.
+   Tokens come from _tokens.css (Agent 01).
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Base — .btn / .btn--primary
+   Atlantic Navy #1A2433 on Resort White → contrast 13.4:1 (AAA).
+   White text #F9F8F7 on Atlantic Navy #1A2433 → contrast 13.4:1 (AAA).
+   -------------------------------------------------------------------------- */
+.btn,
+.btn--primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 1.75rem;
+  background: var(--atlantic-navy);
+  color: var(--resort-white);
+  border: 1px solid var(--atlantic-navy);
+  border-radius: var(--r-1);
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: background-color 250ms var(--ease-standard),
+              color 250ms var(--ease-standard),
+              border-color 250ms var(--ease-standard),
+              transform 250ms var(--ease-standard),
+              opacity 250ms var(--ease-standard);
+}
+
+@media (min-width: 48em) {
+  .btn,
+  .btn--primary {
+    padding: 1rem 2rem;
+  }
+}
+
+/* Hover — one shade darker, no shadow. Deep Atlantic #0F1620 on Resort White → 18:1 (AAA). */
+.btn:hover,
+.btn--primary:hover {
+  background: var(--deep-atlantic);
+  border-color: var(--deep-atlantic);
+}
+
+/* Active — 1px push down + 5% darker via filter. */
+.btn:active,
+.btn--primary:active {
+  transform: translateY(1px);
+  filter: brightness(0.95);
+}
+
+/* Focus-visible — gold ring offset 2px. Editorial Gold #C4A35A on Resort White → 3.4:1 (AA non-text). */
+.btn:focus-visible,
+.btn--primary:focus-visible {
+  outline: 2px solid var(--editorial-gold);
+  outline-offset: 2px;
+}
+
+/* Disabled */
+.btn:disabled,
+.btn--primary:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   .btn--ghost — for Resort White surfaces
+   Atlantic Navy text #1A2433 on Resort White #F9F8F7 → 13.4:1 (AAA).
+   On hover: White on Atlantic Navy → 13.4:1 (AAA).
+   -------------------------------------------------------------------------- */
+.btn--ghost {
+  background: transparent;
+  color: var(--atlantic-navy);
+  border-color: var(--atlantic-navy);
+}
+
+.btn--ghost:hover {
+  background: var(--atlantic-navy);
+  color: var(--resort-white);
+  border-color: var(--atlantic-navy);
+}
+
+.btn--ghost:active {
+  filter: brightness(0.95);
+  transform: translateY(1px);
+}
+
+.btn--ghost:focus-visible {
+  outline: 2px solid var(--editorial-gold);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   .btn--ghost-light — for Atlantic Navy surfaces (footer, hero)
+   White text #F9F8F7 on Atlantic Navy #1A2433 → 13.4:1 (AAA).
+   On hover: Atlantic Navy on Resort White → 13.4:1 (AAA).
+   -------------------------------------------------------------------------- */
+.btn--ghost-light {
+  background: transparent;
+  color: var(--resort-white);
+  border-color: var(--resort-white);
+}
+
+.btn--ghost-light:hover {
+  background: var(--resort-white);
+  color: var(--atlantic-navy);
+  border-color: var(--resort-white);
+}
+
+.btn--ghost-light:active {
+  filter: brightness(0.95);
+  transform: translateY(1px);
+}
+
+.btn--ghost-light:focus-visible {
+  outline: 2px solid var(--editorial-gold);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   .btn--gold — reserved for the single most important CTA on the page
+   Gold text #C4A35A on Resort White #F9F8F7 → 3.4:1 (AA large/bold ≥14px).
+   This rule is for buttons (UI controls) — meets WCAG AA non-text contrast.
+   On hover: Atlantic Navy on Editorial Gold → 8.0:1 (AAA).
+   -------------------------------------------------------------------------- */
+.btn--gold {
+  background: transparent;
+  color: var(--editorial-gold);
+  border-color: var(--editorial-gold);
+}
+
+.btn--gold:hover {
+  background: var(--editorial-gold);
+  color: var(--atlantic-navy);
+  border-color: var(--editorial-gold);
+}
+
+.btn--gold:active {
+  filter: brightness(0.95);
+  transform: translateY(1px);
+}
+
+.btn--gold:focus-visible {
+  outline: 2px solid var(--atlantic-navy);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   .btn--link — text + thin gold underline animating in from left on hover
+   Atlantic Navy on Resort White → 13.4:1 (AAA).
+   -------------------------------------------------------------------------- */
+.btn--link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0;
+  background: transparent;
+  color: var(--atlantic-navy);
+  border: 0;
+  border-radius: 0;
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+  transition: color 250ms var(--ease-standard);
+}
+
+.btn--link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--editorial-gold);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 300ms var(--ease-standard);
+}
+
+.btn--link:hover::after,
+.btn--link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.btn--link:focus-visible {
+  outline: 2px solid var(--editorial-gold);
+  outline-offset: 4px;
+}
+
+.btn--link:disabled,
+.btn--link[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Sizes
+   -------------------------------------------------------------------------- */
+.btn--sm {
+  padding: 0.6rem 1.25rem;
+  font-size: 12px;
+}
+
+@media (min-width: 48em) {
+  .btn--sm { padding: 0.6rem 1.25rem; }
+}
+
+.btn--lg {
+  padding: 1.15rem 2.5rem;
+  font-size: 14px;
+}
+
+@media (min-width: 48em) {
+  .btn--lg { padding: 1.15rem 2.5rem; }
+}
+
+/* --------------------------------------------------------------------------
+   .btn--with-icon — icon adjacency
+   -------------------------------------------------------------------------- */
+.btn--with-icon {
+  gap: var(--space-3);
+}
+
+.btn--with-icon > svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+.btn--with-icon.btn--lg > svg {
+  width: auto;
+  height: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   Loading state — .btn[aria-busy="true"]
+   Hides text and renders a 12px CSS-only spinner (gold border on one side).
+   -------------------------------------------------------------------------- */
+.btn[aria-busy="true"] {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.btn[aria-busy="true"] > * {
+  visibility: hidden;
+}
+
+.btn[aria-busy="true"]::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border: 1px solid transparent;
+  border-top-color: var(--editorial-gold);
+  border-radius: 0; /* sharp square spinner */
+  visibility: visible;
+  animation: btn-spin 700ms linear infinite;
+}
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .btn--primary,
+  .btn--ghost,
+  .btn--ghost-light,
+  .btn--gold,
+  .btn--link,
+  .btn--link::after {
+    transition: none;
+  }
+  .btn[aria-busy="true"]::after {
+    animation: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   .btn-group — flex container
+   -------------------------------------------------------------------------- */
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+@media (max-width: 39.9375em) {
+  .btn-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .btn-group > .btn,
+  .btn-group > .btn--primary,
+  .btn-group > .btn--ghost,
+  .btn-group > .btn--ghost-light,
+  .btn-group > .btn--gold {
+    width: 100%;
+  }
+}

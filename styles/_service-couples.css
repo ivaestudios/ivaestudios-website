@@ -1,0 +1,98 @@
+/* ============================================================
+   _service-couples.css
+   IVAE Studios · Redesign 2026 · Oleada 5 (CSS dedup)
+   ──────────────────────────────────────────────────────────
+   Deduplicated from couples-photography.html and
+   es/fotografia-parejas-mexico.html — both shipped identical
+   inline `<style>` blocks during Oleada 3 (the original copy
+   even left a note: "will deduplicate to _service.css after
+   Oleada 3 merge").
+
+   The couples page mixes both unprefixed selectors that
+   collide with `_service.css` (.service-detail,
+   .service-locations, .service-gallery, .service-faq) and a
+   slightly different DOM than the family/maternity pages.
+   To avoid breaking those pages, every rule is scoped under
+   `body[data-page="service-couples"]`.
+
+   `.crumb` and `.page-hero--service` / `.page-hero__cta`
+   are also scoped — even though they don't collide today —
+   so future shared modules can claim those names freely.
+   ============================================================ */
+
+body[data-page="service-couples"] .page-hero--service{position:relative;min-height:clamp(60vh,70vh,760px);display:flex;align-items:flex-end;background:var(--deep-atlantic,#0F1620);overflow:hidden;padding-bottom:clamp(3rem,7vw,6rem)}
+body[data-page="service-couples"] .page-hero--service .page-hero__media{position:absolute;inset:0;z-index:0}
+body[data-page="service-couples"] .page-hero--service .page-hero__media img{width:100%;height:100%;object-fit:cover;object-position:center 40%;filter:brightness(.55) saturate(.9)}
+body[data-page="service-couples"] .page-hero--service .page-hero__scrim{position:absolute;inset:0;z-index:1;background:linear-gradient(160deg,rgba(15,22,32,.55) 0%,rgba(15,22,32,.25) 50%,rgba(15,22,32,.7) 100%)}
+body[data-page="service-couples"] .page-hero--service .page-hero__inner{position:relative;z-index:2;width:100%;padding:0 clamp(1.25rem,5vw,4rem);max-width:1280px;margin:0 auto}
+body[data-page="service-couples"] .page-hero--service .page-hero__eyebrow{color:var(--editorial-gold,#C4A35A)}
+body[data-page="service-couples"] .page-hero--service .page-hero__title{font-family:var(--font-display,'DM Serif Display',serif);font-weight:400;font-size:clamp(2.25rem,6vw,4.75rem);line-height:1.05;color:var(--resort-white,#F9F8F7);max-width:22ch;margin-top:1rem}
+body[data-page="service-couples"] .page-hero--service .page-hero__title em{font-family:'Bodoni Moda','Didot',serif;font-style:italic;color:var(--editorial-gold,#C4A35A)}
+body[data-page="service-couples"] .page-hero--service .page-hero__lede{max-width:56ch;margin-top:1.5rem;color:rgba(249,248,247,.82);font-size:clamp(1rem,1.1vw,1.0625rem);line-height:1.7}
+
+/* Breadcrumb mini */
+body[data-page="service-couples"] .crumb{padding:1.25rem clamp(1.25rem,5vw,4rem);font-size:.75rem;letter-spacing:.06em;color:var(--soft-slate,#5A6A7A);background:var(--resort-white,#F9F8F7)}
+body[data-page="service-couples"] .crumb a{color:var(--soft-slate,#5A6A7A);text-decoration:none;transition:color 200ms ease}
+body[data-page="service-couples"] .crumb a:hover{color:var(--atlantic-navy,#1A2433)}
+body[data-page="service-couples"] .crumb .sep{margin:0 .5rem;opacity:.55}
+body[data-page="service-couples"] .crumb [aria-current="page"]{color:var(--atlantic-navy,#1A2433)}
+
+/* Service detail — two-column editorial */
+body[data-page="service-couples"] .service-detail{background:var(--resort-white,#F9F8F7);padding:clamp(4rem,9vw,7.5rem) clamp(1.25rem,5vw,4rem)}
+body[data-page="service-couples"] .service-detail__grid{display:grid;gap:clamp(2rem,5vw,5rem);grid-template-columns:1fr;max-width:1180px;margin:0 auto}
+@media (min-width:860px){
+  body[data-page="service-couples"] .service-detail__grid{grid-template-columns:1fr 1.05fr;align-items:start}
+}
+body[data-page="service-couples"] .service-detail__title{font-family:var(--font-display,'DM Serif Display',serif);font-weight:400;font-size:clamp(1.75rem,3.4vw,2.75rem);line-height:1.12;color:var(--atlantic-navy,#1A2433);margin-top:1rem}
+body[data-page="service-couples"] .service-detail__title em{font-family:'Bodoni Moda',serif;font-style:italic;color:var(--editorial-gold,#C4A35A)}
+body[data-page="service-couples"] .service-detail__body p{color:#2c3a4d;font-size:1rem;line-height:1.8}
+body[data-page="service-couples"] .service-detail__body p+p{margin-top:1.1rem}
+
+body[data-page="service-couples"] .service-detail__meta{display:grid;grid-template-columns:9rem 1fr;gap:1rem 1.5rem;padding:0;margin:0;border-top:1px solid rgba(26,36,51,.12)}
+body[data-page="service-couples"] .service-detail__meta dt{font-size:.6875rem;font-weight:500;letter-spacing:.4em;text-transform:uppercase;color:var(--soft-slate,#5A6A7A);align-self:center;padding:1rem 0;border-bottom:1px solid rgba(26,36,51,.12);margin:0}
+body[data-page="service-couples"] .service-detail__meta dd{color:var(--atlantic-navy,#1A2433);font-size:.9375rem;line-height:1.55;padding:1rem 0;border-bottom:1px solid rgba(26,36,51,.12);margin:0;align-self:center}
+
+/* Locations strip */
+body[data-page="service-couples"] .service-locations{background:var(--warm-sand,#E6DCCF);padding:clamp(4rem,8vw,6.5rem) clamp(1.25rem,5vw,4rem);color:var(--atlantic-navy,#1A2433)}
+body[data-page="service-couples"] .service-locations__inner{max-width:1180px;margin:0 auto}
+body[data-page="service-couples"] .service-locations__title{font-family:var(--font-display,'DM Serif Display',serif);font-weight:400;font-size:clamp(1.875rem,3.8vw,2.875rem);line-height:1.12;max-width:28ch;margin-top:1rem}
+body[data-page="service-couples"] .service-locations__title em{font-family:'Bodoni Moda',serif;font-style:italic;color:var(--editorial-gold,#C4A35A)}
+body[data-page="service-couples"] .service-locations__lede{max-width:60ch;margin-top:1rem;color:#2c3a4d;line-height:1.75}
+body[data-page="service-couples"] .service-locations__list{list-style:none;padding:0;margin:clamp(2.5rem,5vw,3.5rem) 0 0;display:grid;gap:1.5rem;grid-template-columns:1fr}
+@media (min-width:760px){
+  body[data-page="service-couples"] .service-locations__list{grid-template-columns:repeat(3,1fr)}
+}
+body[data-page="service-couples"] .service-locations__item{background:var(--resort-white,#F9F8F7);padding:1.75rem 1.5rem 2rem;border-top:2px solid var(--editorial-gold,#C4A35A)}
+body[data-page="service-couples"] .service-locations__item h3{font-family:var(--font-display,'DM Serif Display',serif);font-weight:400;font-size:1.5rem;color:var(--atlantic-navy,#1A2433);margin:.25rem 0 .65rem}
+body[data-page="service-couples"] .service-locations__item p{color:#36465a;font-size:.9375rem;line-height:1.7}
+body[data-page="service-couples"] .service-locations__item .eyebrow{color:var(--soft-slate,#5A6A7A)}
+
+/* Gallery */
+body[data-page="service-couples"] .service-gallery{background:var(--resort-white,#F9F8F7);padding:clamp(4rem,8vw,6.5rem) clamp(1.25rem,5vw,4rem)}
+body[data-page="service-couples"] .service-gallery__head{max-width:1180px;margin:0 auto clamp(2rem,4vw,3rem)}
+body[data-page="service-couples"] .service-gallery__title{font-family:var(--font-display,'DM Serif Display',serif);font-weight:400;font-size:clamp(1.75rem,3.4vw,2.5rem);color:var(--atlantic-navy,#1A2433);margin-top:1rem}
+body[data-page="service-couples"] .service-gallery__title em{font-family:'Bodoni Moda',serif;font-style:italic;color:var(--editorial-gold,#C4A35A)}
+body[data-page="service-couples"] .service-gallery__grid{display:grid;gap:.75rem;max-width:1180px;margin:0 auto;grid-template-columns:1fr}
+@media (min-width:720px){
+  body[data-page="service-couples"] .service-gallery__grid{grid-template-columns:repeat(6,1fr);grid-auto-rows:220px}
+  body[data-page="service-couples"] .service-gallery__cell{grid-column:span 2}
+  body[data-page="service-couples"] .service-gallery__cell--feat{grid-column:span 4;grid-row:span 2}
+  body[data-page="service-couples"] .service-gallery__cell--tall{grid-column:span 2;grid-row:span 2}
+}
+body[data-page="service-couples"] .service-gallery__cell{overflow:hidden;background:var(--warm-sand,#E6DCCF);position:relative}
+body[data-page="service-couples"] .service-gallery__cell img{width:100%;height:100%;min-height:220px;object-fit:cover;display:block;transition:transform 1s cubic-bezier(.16,1,.3,1)}
+body[data-page="service-couples"] .service-gallery__cell:hover img{transform:scale(1.03)}
+
+/* Service FAQ */
+body[data-page="service-couples"] .service-faq{background:var(--resort-white,#F9F8F7);padding:clamp(4rem,8vw,6.5rem) clamp(1.25rem,5vw,4rem)}
+body[data-page="service-couples"] .service-faq__head{max-width:720px;margin:0 auto clamp(2rem,4vw,3rem);text-align:center}
+body[data-page="service-couples"] .service-faq__title{font-family:var(--font-display,'DM Serif Display',serif);font-weight:400;font-size:clamp(1.75rem,3.4vw,2.5rem);color:var(--atlantic-navy,#1A2433);margin-top:1rem}
+body[data-page="service-couples"] .service-faq__title em{font-family:'Bodoni Moda',serif;font-style:italic;color:var(--editorial-gold,#C4A35A)}
+body[data-page="service-couples"] .service-faq__lede{margin-top:1rem;color:#36465a;line-height:1.75}
+
+/* Hero CTA inline (light variant) */
+body[data-page="service-couples"] .page-hero__cta{margin-top:2rem;display:flex;flex-wrap:wrap;gap:1rem 1.5rem;align-items:center}
+
+@media (prefers-reduced-motion:reduce){
+  body[data-page="service-couples"] .service-gallery__cell img{transition:none}
+}

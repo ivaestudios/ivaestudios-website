@@ -1,0 +1,287 @@
+<!--
+  IVAE Studios — Home · Portfolio Grid (Section 04)
+  Owner:    Agent 04 · Oleada 2
+  Wired by: Agent 30 · Oleada 3
+
+  Editorial 9-tile grid (3×3 on desktop). Read as a single editorial spread,
+  not a thumbnail wall. The grid alternates 6 image tiles · 2 typographic
+  statement tiles · 1 CTA tile.
+
+  Layout (left-to-right, top-to-bottom):
+    [ image-1 ] [ image-2 ] [ TYPE-1  ]
+    [ image-3 ] [ TYPE-2  ] [ image-4 ]
+    [ image-5 ] [ image-6 ] [ CTA     ]
+
+  Two language variants live below: ENGLISH first, SPANISH second.
+  Pick ONE block when injecting based on the page locale (root vs /es/).
+
+  Companion files:
+    styles/_home-portfolio.css   — visual layer
+    js/home-portfolio.js         — accessible lightbox for image tiles
+-->
+
+
+<!-- ─── ENGLISH ─── -->
+<section class="section section--portfolio" data-section="portfolio" lang="en">
+  <header class="container portfolio__header">
+    <p class="eyebrow" data-reveal>Selected work · 2025</p>
+    <h2 class="portfolio__title" data-reveal-words>A feed system, <em>not</em> a collection.</h2>
+    <p class="portfolio__lede" data-reveal>Each session balances four registers of light. The grid below is curated to read as a single editorial spread.</p>
+  </header>
+
+  <div class="container container--wide portfolio__grid" data-reveal-stagger data-portfolio-grid>
+
+    <!-- Tile 1 · image · Marina · Atlantic blue -->
+    <figure class="portfolio__tile portfolio__tile--image" data-portfolio-image data-portfolio-index="0">
+      <button type="button" class="portfolio__tile-trigger" aria-label="Open image: Cancún · Couples · 2025-06">
+        <picture>
+          <source srcset="/images/couple-session-canc-n-beach-ivae-studios.jpg" type="image/jpeg">
+          <img
+            src="/images/couple-session-canc-n-beach-ivae-studios.jpg"
+            alt="Couple walking the shoreline at a Cancún beach resort, Atlantic blue light"
+            loading="lazy"
+            decoding="async"
+            width="1200"
+            height="1200">
+        </picture>
+      </button>
+      <figcaption>Cancún · Couples · 2025-06</figcaption>
+    </figure>
+
+    <!-- Tile 2 · image · Open shade -->
+    <figure class="portfolio__tile portfolio__tile--image" data-portfolio-image data-portfolio-index="1">
+      <button type="button" class="portfolio__tile-trigger" aria-label="Open image: Cancún · Family · 2025-08">
+        <picture>
+          <source srcset="/images/family-session-canc-n-pier-ivae-studios.jpg" type="image/jpeg">
+          <img
+            src="/images/family-session-canc-n-pier-ivae-studios.jpg"
+            alt="Family on a wooden pier in Cancún, soft open-shade light"
+            loading="lazy"
+            decoding="async"
+            width="1200"
+            height="1200">
+        </picture>
+      </button>
+      <figcaption>Cancún · Family · 2025-08</figcaption>
+    </figure>
+
+    <!-- Tile 3 · TYPE-1 · navy ground, gold italic -->
+    <aside class="portfolio__tile portfolio__tile--type portfolio__tile--type-1" aria-label="Studio statement">
+      <p class="portfolio__quote">«Direction over moments.»</p>
+    </aside>
+
+    <!-- Tile 4 · image · Open shade / golden -->
+    <figure class="portfolio__tile portfolio__tile--image" data-portfolio-image data-portfolio-index="2">
+      <button type="button" class="portfolio__tile-trigger" aria-label="Open image: Riviera Maya · Couples · 2025-07">
+        <picture>
+          <source srcset="/images/couple-session-riviera-maya-ivae-studios.jpg" type="image/jpeg">
+          <img
+            src="/images/couple-session-riviera-maya-ivae-studios.jpg"
+            alt="Couple in editorial pose, Riviera Maya, late-afternoon shade"
+            loading="lazy"
+            decoding="async"
+            width="1200"
+            height="1200">
+        </picture>
+      </button>
+      <figcaption>Riviera Maya · Couples · 2025-07</figcaption>
+    </figure>
+
+    <!-- Tile 5 · TYPE-2 · sand ground, gold italic -->
+    <aside class="portfolio__tile portfolio__tile--type portfolio__tile--type-2" aria-label="Studio statement">
+      <p class="portfolio__quote">«The light, considered.»</p>
+    </aside>
+
+    <!-- Tile 6 · image · Editorial / contrast -->
+    <figure class="portfolio__tile portfolio__tile--image" data-portfolio-image data-portfolio-index="3">
+      <button type="button" class="portfolio__tile-trigger" aria-label="Open image: Riviera Maya · Editorial · 2025-09">
+        <picture>
+          <source srcset="/images/editorial-session-riviera-maya-resort-ivae-studios.jpg" type="image/jpeg">
+          <img
+            src="/images/editorial-session-riviera-maya-resort-ivae-studios.jpg"
+            alt="Editorial portrait at a Riviera Maya resort, high-contrast composition"
+            loading="lazy"
+            decoding="async"
+            width="1200"
+            height="1200">
+        </picture>
+      </button>
+      <figcaption>Riviera Maya · Editorial · 2025-09</figcaption>
+    </figure>
+
+    <!-- Tile 7 · image · Golden hour -->
+    <figure class="portfolio__tile portfolio__tile--image" data-portfolio-image data-portfolio-index="4">
+      <button type="button" class="portfolio__tile-trigger" aria-label="Open image: Los Cabos · Couples · 2025-04">
+        <picture>
+          <source srcset="/images/los-cabos-sunset-session-ivae-studios.jpg" type="image/jpeg">
+          <img
+            src="/images/los-cabos-sunset-session-ivae-studios.jpg"
+            alt="Couple silhouette at sunset on a Los Cabos beach, warm golden light"
+            loading="lazy"
+            decoding="async"
+            width="1200"
+            height="1200">
+        </picture>
+      </button>
+      <figcaption>Los Cabos · Couples · 2025-04</figcaption>
+    </figure>
+
+    <!-- Tile 8 · image · Editorial / contrast -->
+    <figure class="portfolio__tile portfolio__tile--image" data-portfolio-image data-portfolio-index="5">
+      <button type="button" class="portfolio__tile-trigger" aria-label="Open image: Cancún · Weddings · 2025-10">
+        <picture>
+          <source srcset="/images/wedding-reception-outdoor-canc-n-ivae-studios.jpg" type="image/jpeg">
+          <img
+            src="/images/wedding-reception-outdoor-canc-n-ivae-studios.jpg"
+            alt="Outdoor wedding reception in Cancún under cinematic evening light"
+            loading="lazy"
+            decoding="async"
+            width="1200"
+            height="1200">
+        </picture>
+      </button>
+      <figcaption>Cancún · Weddings · 2025-10</figcaption>
+    </figure>
+
+    <!-- Tile 9 · CTA · deep-atlantic ground, gold monogram -->
+    <a class="portfolio__tile portfolio__tile--cta" href="/portfolio">
+      <span class="portfolio__cta-monogram" aria-hidden="true">&AElig;</span>
+      <span class="eyebrow portfolio__cta-eyebrow">Full Portfolio</span>
+      <span class="portfolio__cta-arrow" aria-hidden="true">&#8599;</span>
+    </a>
+
+  </div>
+</section>
+
+
+<!-- ─── SPANISH ─── -->
+<section class="section section--portfolio" data-section="portfolio" lang="es">
+  <header class="container portfolio__header">
+    <p class="eyebrow" data-reveal>Trabajo seleccionado · 2025</p>
+    <h2 class="portfolio__title" data-reveal-words>Un sistema de feed, <em>no</em> una colección.</h2>
+    <p class="portfolio__lede" data-reveal>Cada sesión balancea cuatro registros de luz. La cuadrícula a continuación está curada para leerse como una sola pieza editorial.</p>
+  </header>
+
+  <div class="container container--wide portfolio__grid" data-reveal-stagger data-portfolio-grid>
+
+    <!-- Tile 1 · image · Marina · Atlantic blue -->
+    <figure class="portfolio__tile portfolio__tile--image" data-portfolio-image data-portfolio-index="0">
+      <button type="button" class="portfolio__tile-trigger" aria-label="Abrir imagen: Cancún · Parejas · 2025-06">
+        <picture>
+          <source srcset="/images/couple-session-canc-n-beach-ivae-studios.jpg" type="image/jpeg">
+          <img
+            src="/images/couple-session-canc-n-beach-ivae-studios.jpg"
+            alt="Pareja caminando por la orilla en un resort de Cancún, luz azul Atlántico"
+            loading="lazy"
+            decoding="async"
+            width="1200"
+            height="1200">
+        </picture>
+      </button>
+      <figcaption>Cancún · Parejas · 2025-06</figcaption>
+    </figure>
+
+    <!-- Tile 2 · image · Open shade -->
+    <figure class="portfolio__tile portfolio__tile--image" data-portfolio-image data-portfolio-index="1">
+      <button type="button" class="portfolio__tile-trigger" aria-label="Abrir imagen: Cancún · Familia · 2025-08">
+        <picture>
+          <source srcset="/images/family-session-canc-n-pier-ivae-studios.jpg" type="image/jpeg">
+          <img
+            src="/images/family-session-canc-n-pier-ivae-studios.jpg"
+            alt="Familia en un muelle de madera en Cancún, luz suave de sombra abierta"
+            loading="lazy"
+            decoding="async"
+            width="1200"
+            height="1200">
+        </picture>
+      </button>
+      <figcaption>Cancún · Familia · 2025-08</figcaption>
+    </figure>
+
+    <!-- Tile 3 · TYPE-1 · navy ground, gold italic -->
+    <aside class="portfolio__tile portfolio__tile--type portfolio__tile--type-1" aria-label="Declaración del estudio">
+      <p class="portfolio__quote">«Direction over moments.»</p>
+    </aside>
+
+    <!-- Tile 4 · image · Open shade / golden -->
+    <figure class="portfolio__tile portfolio__tile--image" data-portfolio-image data-portfolio-index="2">
+      <button type="button" class="portfolio__tile-trigger" aria-label="Abrir imagen: Riviera Maya · Parejas · 2025-07">
+        <picture>
+          <source srcset="/images/couple-session-riviera-maya-ivae-studios.jpg" type="image/jpeg">
+          <img
+            src="/images/couple-session-riviera-maya-ivae-studios.jpg"
+            alt="Pareja en pose editorial, Riviera Maya, luz de tarde suave"
+            loading="lazy"
+            decoding="async"
+            width="1200"
+            height="1200">
+        </picture>
+      </button>
+      <figcaption>Riviera Maya · Parejas · 2025-07</figcaption>
+    </figure>
+
+    <!-- Tile 5 · TYPE-2 · sand ground, gold italic -->
+    <aside class="portfolio__tile portfolio__tile--type portfolio__tile--type-2" aria-label="Declaración del estudio">
+      <p class="portfolio__quote">«La luz, considerada.»</p>
+    </aside>
+
+    <!-- Tile 6 · image · Editorial / contrast -->
+    <figure class="portfolio__tile portfolio__tile--image" data-portfolio-image data-portfolio-index="3">
+      <button type="button" class="portfolio__tile-trigger" aria-label="Abrir imagen: Riviera Maya · Editorial · 2025-09">
+        <picture>
+          <source srcset="/images/editorial-session-riviera-maya-resort-ivae-studios.jpg" type="image/jpeg">
+          <img
+            src="/images/editorial-session-riviera-maya-resort-ivae-studios.jpg"
+            alt="Retrato editorial en un resort de Riviera Maya, composición de alto contraste"
+            loading="lazy"
+            decoding="async"
+            width="1200"
+            height="1200">
+        </picture>
+      </button>
+      <figcaption>Riviera Maya · Editorial · 2025-09</figcaption>
+    </figure>
+
+    <!-- Tile 7 · image · Golden hour -->
+    <figure class="portfolio__tile portfolio__tile--image" data-portfolio-image data-portfolio-index="4">
+      <button type="button" class="portfolio__tile-trigger" aria-label="Abrir imagen: Los Cabos · Parejas · 2025-04">
+        <picture>
+          <source srcset="/images/los-cabos-sunset-session-ivae-studios.jpg" type="image/jpeg">
+          <img
+            src="/images/los-cabos-sunset-session-ivae-studios.jpg"
+            alt="Silueta de pareja al atardecer en una playa de Los Cabos, luz dorada"
+            loading="lazy"
+            decoding="async"
+            width="1200"
+            height="1200">
+        </picture>
+      </button>
+      <figcaption>Los Cabos · Parejas · 2025-04</figcaption>
+    </figure>
+
+    <!-- Tile 8 · image · Editorial / contrast -->
+    <figure class="portfolio__tile portfolio__tile--image" data-portfolio-image data-portfolio-index="5">
+      <button type="button" class="portfolio__tile-trigger" aria-label="Abrir imagen: Cancún · Bodas · 2025-10">
+        <picture>
+          <source srcset="/images/wedding-reception-outdoor-canc-n-ivae-studios.jpg" type="image/jpeg">
+          <img
+            src="/images/wedding-reception-outdoor-canc-n-ivae-studios.jpg"
+            alt="Recepción de boda al aire libre en Cancún bajo luz cinematográfica"
+            loading="lazy"
+            decoding="async"
+            width="1200"
+            height="1200">
+        </picture>
+      </button>
+      <figcaption>Cancún · Bodas · 2025-10</figcaption>
+    </figure>
+
+    <!-- Tile 9 · CTA · deep-atlantic ground, gold monogram -->
+    <a class="portfolio__tile portfolio__tile--cta" href="/es/portafolio">
+      <span class="portfolio__cta-monogram" aria-hidden="true">&AElig;</span>
+      <span class="eyebrow portfolio__cta-eyebrow">Portafolio completo</span>
+      <span class="portfolio__cta-arrow" aria-hidden="true">&#8599;</span>
+    </a>
+
+  </div>
+</section>

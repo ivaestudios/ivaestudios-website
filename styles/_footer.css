@@ -1,0 +1,398 @@
+/* ──────────────────────────────────────────────────────────────────────────
+   _footer.css — Editorial dark footer
+   Owner: Agent 05 (Oleada 1)
+
+   Tokens consumed (provided by _tokens.css from Agent 01):
+     --atlantic-navy   #1A2433
+     --resort-white    #F9F8F7
+     --soft-slate      #5A6A7A
+     --warm-sand       #E6DCCF
+     --editorial-gold  #C4A35A
+     --font-display    DM Serif Display
+     --font-accent     Bodoni Moda Italic
+     --font-body       Inter
+     --bp-md           breakpoint (≈ 768px)
+     --ease-lux        cubic-bezier(0.16, 1, 0.3, 1)
+
+   Fallback values are inlined so the partial renders standalone on a preview
+   build before _tokens.css ships.
+
+   Contrast notes (WCAG AA on Atlantic Navy #1A2433):
+     • Resort White (#F9F8F7)   →  ~13.0 : 1   ✓ AAA
+     • Warm Sand   (#E6DCCF)    →   ~9.6 : 1   ✓ AAA
+     • Soft Slate  (#5A6A7A)    →   ~3.0 : 1   ✗ FAILS  → not used for type
+     • Resort White @ 70%       →   ~6.6 : 1   ✓ AA
+
+   Decision: fine-print copy uses --warm-sand (~9.6:1). Stronger contrast than
+   white@70% and stays inside the warm-neutral palette so the bottom band
+   reads as a closing flourish, not a faded UI surface.
+   ────────────────────────────────────────────────────────────────────────── */
+
+
+.ivae-footer {
+  /* token defaults so the footer survives standalone */
+  --_navy:  var(--atlantic-navy,  #1A2433);
+  --_white: var(--resort-white,   #F9F8F7);
+  --_sand:  var(--warm-sand,      #E6DCCF);
+  --_gold:  var(--editorial-gold, #C4A35A);
+  --_slate: var(--soft-slate,     #5A6A7A);
+  --_serif: var(--font-display,   'DM Serif Display', 'Times New Roman', serif);
+  --_italic:var(--font-accent,    'Bodoni Moda', 'Didot', serif);
+  --_sans:  var(--font-body,      'Inter', system-ui, sans-serif);
+  --_ease:  var(--ease-lux,       cubic-bezier(0.16, 1, 0.3, 1));
+
+  background: var(--_navy);
+  color: var(--_white);
+  font-family: var(--_sans);
+  padding-block: clamp(64px, 10vw, 128px);
+  padding-inline: clamp(24px, 6vw, 96px);
+  position: relative;
+  overflow: hidden;
+}
+
+.ivae-footer * {
+  box-sizing: border-box;
+}
+
+
+/* ── Eyebrow (shared section header) ────────────────────────────────────── */
+.ivae-footer__eyebrow {
+  font-family: var(--_sans);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--_gold);
+  margin: 0 0 18px;
+}
+
+
+/* ── Top band: newsletter ───────────────────────────────────────────────── */
+.ivae-footer__top {
+  max-width: 720px;
+  margin-inline: auto;
+  padding-bottom: clamp(48px, 7vw, 88px);
+  text-align: center;
+}
+
+.ivae-footer__top-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ivae-footer__title {
+  font-family: var(--_serif);
+  font-weight: 400;
+  font-size: clamp(30px, 4vw, 48px);
+  line-height: 1.1;
+  letter-spacing: -0.005em;
+  margin: 0 0 16px;
+  color: var(--_white);
+}
+
+.ivae-footer__title-accent {
+  display: block;
+  font-family: var(--_italic);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(20px, 2.4vw, 28px);
+  color: var(--_gold);
+  margin-top: 8px;
+  letter-spacing: 0.005em;
+}
+
+.ivae-footer__lede {
+  font-family: var(--_sans);
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--_sand);
+  margin: 0 0 36px;
+  max-width: 38ch;
+}
+
+/* Newsletter form */
+.ivae-footer__form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+}
+
+.ivae-footer__field {
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+
+.ivae-footer__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
+}
+
+.ivae-footer__input {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--_sand);
+  color: var(--_white);
+  font-family: var(--_sans);
+  font-weight: 400;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  padding: 12px 0;
+  outline: none;
+  transition: border-color 250ms var(--_ease);
+}
+
+.ivae-footer__input::placeholder {
+  color: rgb(249 248 247 / 0.5);
+}
+
+.ivae-footer__input:focus,
+.ivae-footer__input:hover {
+  border-bottom-color: var(--_gold);
+}
+
+/* Keyboard focus indicator distinct from hover (WCAG 2.4.7 / 2.4.13) */
+.ivae-footer__input:focus-visible {
+  outline: 2px solid var(--_gold);
+  outline-offset: 3px;
+}
+
+.ivae-footer__submit {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  background: transparent;
+  border: 1px solid var(--_gold);
+  color: var(--_gold);
+  font-family: var(--_sans);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  padding: 14px 24px;
+  cursor: pointer;
+  transition:
+    background-color 250ms var(--_ease),
+    color            250ms var(--_ease),
+    border-color     250ms var(--_ease);
+}
+
+.ivae-footer__submit:hover,
+.ivae-footer__submit:focus-visible {
+  background-color: var(--_gold);
+  color: var(--_navy);
+}
+
+.ivae-footer__submit-arrow {
+  width: 22px;
+  height: 11px;
+  flex: none;
+  transition: transform 350ms var(--_ease);
+}
+
+.ivae-footer__submit:hover .ivae-footer__submit-arrow,
+.ivae-footer__submit:focus-visible .ivae-footer__submit-arrow {
+  transform: translateX(4px);
+}
+
+
+/* ── Hairline divider ────────────────────────────────────────────────────── */
+.ivae-footer__divider {
+  border: 0;
+  height: 1px;
+  width: 100%;
+  background: var(--_sand);
+  opacity: 0.5;
+  margin-block: clamp(40px, 6vw, 72px);
+}
+
+
+/* ── Middle band: 3 columns ─────────────────────────────────────────────── */
+.ivae-footer__cols {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(40px, 6vw, 72px);
+  max-width: 1280px;
+  margin-inline: auto;
+}
+
+@media (min-width: 768px) {
+  .ivae-footer__cols {
+    grid-template-columns: 1.2fr 1fr 1.4fr;
+  }
+}
+
+.ivae-footer__col {
+  min-width: 0;
+}
+
+.ivae-footer__col-title {
+  font-family: var(--_serif);
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  color: var(--_white);
+  margin: 0 0 6px;
+}
+
+.ivae-footer__col-role {
+  font-family: var(--_serif);
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.25;
+  color: var(--_sand);
+  margin: 0 0 24px;
+}
+
+.ivae-footer__col-subhead {
+  font-family: var(--_sans);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--_sand);
+  opacity: 0.7;
+  margin: 0 0 14px;
+}
+
+/* Lists */
+.ivae-footer__list {
+  list-style: none;
+  margin: 0 0 24px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ivae-footer__list:last-child {
+  margin-bottom: 0;
+}
+
+.ivae-footer__list--regions {
+  gap: 14px;
+}
+
+.ivae-footer__list--regions .ivae-footer__link {
+  font-family: var(--_serif);
+  font-size: 22px;
+  letter-spacing: 0;
+  color: var(--_white);
+}
+
+.ivae-footer__list--regions .ivae-footer__link:hover,
+.ivae-footer__list--regions .ivae-footer__link:focus-visible {
+  color: var(--_gold);
+}
+
+.ivae-footer__list--journal {
+  margin-bottom: 28px;
+}
+
+/* Body links — default style */
+.ivae-footer__link {
+  font-family: var(--_sans);
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--_sand);
+  text-decoration: none;
+  transition: color 250ms var(--_ease);
+}
+
+.ivae-footer__link:hover,
+.ivae-footer__link:focus-visible {
+  color: var(--_gold);
+}
+
+.ivae-footer__hint {
+  font-size: 12px;
+  color: rgb(230 220 207 / 0.55);
+  margin-left: 6px;
+  letter-spacing: 0.04em;
+}
+
+
+/* ── Bottom band: monogram + fine print ─────────────────────────────────── */
+.ivae-footer__bottom {
+  text-align: center;
+  margin-top: clamp(48px, 7vw, 96px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.ivae-footer__monogram {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 28px;
+  font-family: var(--_italic);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--_gold);
+  text-decoration: none;
+  margin-bottom: 6px;
+  transition: font-size 350ms var(--_ease), height 350ms var(--_ease);
+}
+
+.ivae-footer__monogram:hover,
+.ivae-footer__monogram:focus-visible {
+  font-size: 32px;
+  height: 32px;
+}
+
+.ivae-footer__locales,
+.ivae-footer__tagline,
+.ivae-footer__copy {
+  font-family: var(--_sans);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  /* Soft Slate fails AA on Navy (~3.0:1) — Warm Sand reads at ~9.6:1 and
+     keeps the bottom band warm rather than gray. See header note. */
+  color: var(--_sand);
+  margin: 0;
+  max-width: 60ch;
+}
+
+.ivae-footer__copy {
+  margin-top: 4px;
+  opacity: 0.75;
+}
+
+
+/* ── Reduced motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ivae-footer__submit,
+  .ivae-footer__submit-arrow,
+  .ivae-footer__input,
+  .ivae-footer__link,
+  .ivae-footer__monogram {
+    transition: none;
+  }
+  .ivae-footer__monogram:hover,
+  .ivae-footer__monogram:focus-visible {
+    font-size: 28px;
+    height: 28px;
+  }
+}

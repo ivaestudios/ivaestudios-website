@@ -1,0 +1,467 @@
+/* ════════════════════════════════════════════════════════════════════
+   _home-portfolio.css
+   IVAE Studios · Redesign 2026 · Oleada 2 · Agent 04
+   Visual layer for the homepage portfolio grid (partials/home/
+   04-portfolio-grid.html). 9 tiles in a 3×3 editorial spread:
+   6 photographs · 2 typographic statements · 1 CTA.
+   Tokens consumed from _tokens.css. Standalone fallbacks provided
+   so the partial renders in isolation in preview.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Section frame ──────────────────────────────────────────────── */
+.section--portfolio {
+  padding-block: clamp(96px, 14vw, 160px);
+  background: var(--resort-white, #F9F8F7);
+  color: var(--atlantic-navy, #1A2433);
+}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+.portfolio__header {
+  text-align: left;
+  max-width: 720px;
+  margin-bottom: var(--space-8, 64px);
+}
+
+.portfolio__header .eyebrow {
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+  font-size: var(--fs-300, 11px);
+  font-weight: var(--fw-medium, 500);
+  letter-spacing: var(--ls-eyebrow, 0.4em);
+  text-transform: uppercase;
+  color: var(--soft-slate, #5A6A7A);
+  margin: 0 0 var(--space-4, 16px);
+}
+
+.portfolio__title {
+  font-family: var(--font-display, 'DM Serif Display', serif);
+  font-weight: 400;
+  font-size: clamp(32px, 5vw, 56px);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--space-4, 16px);
+  color: var(--atlantic-navy, #1A2433);
+}
+
+.portfolio__title em {
+  font-family: var(--font-accent, 'Bodoni Moda', 'Didot', serif);
+  font-style: italic;
+  color: var(--editorial-gold, #C4A35A);
+  font-weight: 400;
+}
+
+.portfolio__lede {
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+  font-size: var(--fs-600, 18px);
+  line-height: var(--lh-normal, 1.5);
+  color: var(--soft-slate, #5A6A7A);
+  margin: 0;
+  max-width: 56ch;
+}
+
+/* ── Grid ───────────────────────────────────────────────────────── */
+.portfolio__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .portfolio__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 960px) {
+  .portfolio__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ── Base tile ──────────────────────────────────────────────────── */
+.portfolio__tile {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--warm-sand, #E6DCCF);
+  margin: 0;
+  border-radius: var(--r-0, 0);
+  isolation: isolate;
+}
+
+/* ── Image tile ─────────────────────────────────────────────────── */
+.portfolio__tile--image {
+  background: var(--atlantic-navy, #1A2433);
+}
+
+.portfolio__tile--image .portfolio__tile-trigger {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+  color: inherit;
+  font: inherit;
+  /* Strip browser button defaults so the figure caption can sit on top. */
+  -webkit-appearance: none;
+          appearance: none;
+}
+
+.portfolio__tile--image .portfolio__tile-trigger:focus {
+  outline: none;
+}
+
+.portfolio__tile--image .portfolio__tile-trigger:focus-visible {
+  outline: 2px solid var(--editorial-gold, #C4A35A);
+  outline-offset: -4px;
+  box-shadow: var(--shadow-focus, 0 0 0 3px rgba(196, 163, 90, 0.30));
+}
+
+.portfolio__tile--image picture,
+.portfolio__tile--image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.portfolio__tile--image img {
+  transition: transform 800ms var(--ease-cinematic, cubic-bezier(0.65, 0, 0.35, 1));
+  will-change: transform;
+}
+
+/* Hover effects only on devices that actually have hover (no firing on touch). */
+@media (hover: hover) {
+  .portfolio__tile--image:hover img,
+  .portfolio__tile--image:focus-within img {
+    transform: scale(1.04);
+  }
+}
+
+/* ── Caption ─ position-absolute bottom-left, hidden until hover ── */
+.portfolio__tile--image figcaption {
+  position: absolute;
+  left: var(--space-4, 16px);
+  bottom: var(--space-4, 16px);
+  right: var(--space-4, 16px);
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--resort-white, #F9F8F7);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 250ms var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1)),
+    transform 250ms var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
+  pointer-events: none;
+  z-index: 2;
+}
+
+@media (hover: hover) {
+  .portfolio__tile--image:hover figcaption,
+  .portfolio__tile--image:focus-within figcaption {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* On touch devices keep captions visible at all times so the
+   editorial information is never lost behind a hover state. */
+@media (hover: none) {
+  .portfolio__tile--image figcaption {
+    opacity: 1;
+    transform: none;
+    /* Soft scrim panel for legibility on light photographs. */
+    background: linear-gradient(
+      to top,
+      rgba(15, 22, 32, 0.75) 0%,
+      rgba(15, 22, 32, 0) 100%
+    );
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: var(--space-7, 48px) var(--space-4, 16px) var(--space-4, 16px);
+  }
+}
+
+/* ── Type tile (shared) ─────────────────────────────────────────── */
+.portfolio__tile--type {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-7, 48px);
+  text-align: center;
+}
+
+.portfolio__quote {
+  font-family: var(--font-accent, 'Bodoni Moda', 'Didot', serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(20px, 2vw, 32px);
+  line-height: 1.3;
+  letter-spacing: 0;
+  margin: 0;
+  max-width: 18ch;
+  text-wrap: balance;
+}
+
+/* TYPE-1 · navy ground, gold italic
+   Editorial Gold #C4A35A on Atlantic Navy #1A2433 ≈ 5.3 : 1 — passes AA. */
+.portfolio__tile--type-1 {
+  background: var(--atlantic-navy, #1A2433);
+}
+.portfolio__tile--type-1 .portfolio__quote {
+  color: var(--editorial-gold, #C4A35A);
+}
+
+/* TYPE-2 · sand ground, gold italic
+   Editorial Gold #C4A35A on Warm Sand #E6DCCF measures ≈ 2.4 : 1 —
+   below AA for body. We deliberately go a half-step darker so the
+   quote remains within palette but legible: navy at 92% opacity gives
+   ≈ 12 : 1 against warm-sand. The italic itself stays gold ONLY in the
+   type-1 (dark-ground) variant. Brand notes (BRAND.md §3) read gold as
+   "rare", so applying it to the dark-ground tile only is intentional. */
+.portfolio__tile--type-2 {
+  background: var(--warm-sand, #E6DCCF);
+}
+.portfolio__tile--type-2 .portfolio__quote {
+  color: var(--atlantic-navy, #1A2433);
+}
+
+/* ── CTA tile ───────────────────────────────────────────────────── */
+.portfolio__tile--cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4, 16px);
+  padding: var(--space-7, 48px);
+  background: var(--deep-atlantic, #0F1620);
+  color: var(--resort-white, #F9F8F7);
+  text-decoration: none;
+  text-align: center;
+  transition:
+    background-color 350ms var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1)),
+    color 350ms var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.portfolio__cta-monogram {
+  font-family: var(--font-accent, 'Bodoni Moda', 'Didot', serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 64px;
+  line-height: 1;
+  color: var(--editorial-gold, #C4A35A);
+  display: block;
+}
+
+.portfolio__cta-eyebrow {
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--resort-white, #F9F8F7);
+  margin: 0;
+}
+
+.portfolio__cta-arrow {
+  display: inline-block;
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+  font-size: 18px;
+  line-height: 1;
+  color: var(--editorial-gold, #C4A35A);
+  transition: transform 350ms var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
+  will-change: transform;
+}
+
+@media (hover: hover) {
+  .portfolio__tile--cta:hover,
+  .portfolio__tile--cta:focus-visible {
+    background: #14202F; /* deep-atlantic lifted ~5% — subtle lighten on hover */
+  }
+  .portfolio__tile--cta:hover .portfolio__cta-arrow,
+  .portfolio__tile--cta:focus-visible .portfolio__cta-arrow {
+    transform: translate(4px, -4px);
+  }
+}
+
+.portfolio__tile--cta:focus-visible {
+  outline: 2px solid var(--editorial-gold, #C4A35A);
+  outline-offset: -4px;
+}
+
+/* ── Mobile refinements ─────────────────────────────────────────── */
+@media (max-width: 639px) {
+  .portfolio__tile--type {
+    padding: var(--space-5, 24px);
+  }
+  .portfolio__quote {
+    font-size: 22px;
+  }
+  .portfolio__cta-monogram {
+    font-size: 56px;
+  }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .portfolio__tile--image img,
+  .portfolio__tile--image figcaption,
+  .portfolio__tile--cta,
+  .portfolio__cta-arrow {
+    transition: none !important;
+    transform: none !important;
+  }
+  .portfolio__tile--image:hover img,
+  .portfolio__tile--image:focus-within img {
+    transform: none !important;
+  }
+  .portfolio__tile--image figcaption {
+    /* Always show caption when motion is reduced — no fade transition. */
+    opacity: 1;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   Lightbox · companion JS in js/home-portfolio.js
+   The script appends one #portfolio-lightbox dialog to <body>.
+   Styles live alongside the grid module to keep the feature self-contained.
+   ════════════════════════════════════════════════════════════════════ */
+
+.portfolio-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal, 1000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5, 24px);
+  background: rgba(15, 22, 32, 0.92);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 250ms var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1)),
+    visibility 0s linear 250ms;
+}
+
+.portfolio-lightbox.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 250ms var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1)),
+    visibility 0s linear 0s;
+}
+
+.portfolio-lightbox__stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  max-width: 1400px;
+  max-height: 90vh;
+}
+
+.portfolio-lightbox__image {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.portfolio-lightbox__caption {
+  position: absolute;
+  bottom: calc(-1 * var(--space-7, 48px));
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--resort-white, #F9F8F7);
+}
+
+/* Controls — close + prev/next */
+.portfolio-lightbox__btn {
+  position: absolute;
+  top: var(--space-5, 24px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  margin: 0;
+  border: 1px solid rgba(249, 248, 247, 0.25);
+  background: transparent;
+  color: var(--resort-white, #F9F8F7);
+  font-family: var(--font-body, 'Inter', sans-serif);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease;
+}
+
+.portfolio-lightbox__btn:hover,
+.portfolio-lightbox__btn:focus-visible {
+  background: rgba(249, 248, 247, 0.08);
+  border-color: rgba(249, 248, 247, 0.5);
+}
+
+.portfolio-lightbox__btn:focus-visible {
+  outline: 2px solid var(--editorial-gold, #C4A35A);
+  outline-offset: 2px;
+}
+
+.portfolio-lightbox__close {
+  right: var(--space-5, 24px);
+}
+
+.portfolio-lightbox__prev,
+.portfolio-lightbox__next {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  font-size: 22px;
+}
+
+.portfolio-lightbox__prev { left: var(--space-5, 24px); }
+.portfolio-lightbox__next { right: var(--space-5, 24px); }
+
+@media (max-width: 639px) {
+  .portfolio-lightbox__prev { left: 8px; }
+  .portfolio-lightbox__next { right: 8px; }
+  .portfolio-lightbox__close { right: 8px; top: 8px; }
+}
+
+/* Body scroll-lock helper (set by JS while lightbox is open). */
+body.portfolio-lightbox-open {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-lightbox {
+    transition: opacity 80ms linear, visibility 0s linear 80ms;
+  }
+  .portfolio-lightbox.is-open {
+    transition: opacity 80ms linear;
+  }
+}

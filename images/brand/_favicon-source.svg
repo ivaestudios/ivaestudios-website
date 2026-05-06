@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  IVAE Studios — favicon source (FALLBACK by Agent 12)
+  ----------------------------------------------------
+  This file is a temporary stand-in for the master monogram produced by
+  Agent 03 (LOGO-SVG) at images/brand/monogram-gold-32.svg. It exists so
+  that Agent 12 can rasterize the favicon set in parallel, before Agent
+  03's branch is merged. When Agent 03's master lands, the build script
+  (scripts/build_icons.py) should be re-pointed at it and re-run, then
+  this file deleted.
+
+  Spec
+  - Glyph:        Æ (Latin capital ligature AE)
+  - Type:         Bodoni Moda Italic 400 (substituted at raster time with
+                  the closest local italic serif: Bodoni 72, Didot, Times
+                  New Roman Italic, in that order — see build_icons.py).
+  - Color:        #C4A35A  (--editorial-gold)
+  - Canvas:       32 × 32 viewBox, transparent background.
+  - Optical fix:  glyph stroke at 16px tends to thin out, so the script
+                  thickens hairlines by stroking the text path with a
+                  matching gold half-pixel stroke. That math is in PIL,
+                  not in this SVG — keep the SVG clean.
+
+  This SVG renders cleanly in any browser at any size; it is included so
+  designers can preview the source mark without running Python.
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 32 32"
+     width="32" height="32"
+     role="img"
+     aria-label="IVAE Studios monogram">
+  <title>IVAE Studios — Æ monogram (fallback)</title>
+  <text x="16" y="25"
+        text-anchor="middle"
+        font-family="'Bodoni Moda', 'Bodoni 72', 'Didot', 'Times New Roman', serif"
+        font-style="italic"
+        font-weight="400"
+        font-size="28"
+        fill="#C4A35A">Æ</text>
+</svg>

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IVAE — Button system (visual QA)</title>
+<style>
+  /* Token shim — mirrors _tokens.css (Agent 01) so this demo renders standalone. */
+  :root {
+    --atlantic-navy:#1A2433; --resort-white:#F9F8F7; --soft-slate:#5A6A7A;
+    --warm-sand:#E6DCCF;     --editorial-gold:#C4A35A; --deep-atlantic:#0F1620;
+    --r-1:2px; --ease-standard:cubic-bezier(0.4,0,0.2,1);
+    --space-3:0.75rem; --space-4:1rem;
+    --bp-sm:40em; --bp-md:48em;
+    --font-body:'Inter',system-ui,-apple-system,sans-serif;
+  }
+  html,body{margin:0;padding:0;font-family:var(--font-body);background:var(--resort-white);color:var(--atlantic-navy)}
+  main{max-width:960px;margin:0 auto;padding:3rem 1.5rem 6rem}
+  h1{font-family:'DM Serif Display',Georgia,serif;font-size:1.6rem;margin:0 0 0.25rem;font-weight:400}
+  h2{font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--soft-slate);margin:2.5rem 0 1rem;font-weight:500}
+  .surface-light{background:var(--resort-white);padding:1.5rem;border:1px solid rgba(26,36,51,0.08)}
+  .surface-dark{background:var(--atlantic-navy);color:var(--resort-white);padding:1.5rem;margin-top:1rem}
+  .row{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;margin-bottom:0.75rem}
+  .label{font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--soft-slate);min-width:6rem}
+  .surface-dark .label{color:rgba(249,248,247,0.6)}
+  hr{border:0;border-top:1px solid rgba(26,36,51,0.1);margin:2rem 0}
+</style>
+<link rel="stylesheet" href="_buttons.css">
+</head>
+<body>
+<main>
+  <h1>Button system — IVAE Studios</h1>
+  <p style="font-size:0.85rem;color:var(--soft-slate);margin:0 0 2rem">Visual QA · Agent 06 · Oleada 1</p>
+
+  <h2>Primary · default</h2>
+  <div class="surface-light">
+    <div class="row"><span class="label">EN</span>
+      <button class="btn">Now booking 2026</button>
+      <button class="btn btn--sm">Now booking 2026</button>
+      <button class="btn btn--lg">Now booking 2026</button>
+      <button class="btn" disabled>Disabled</button>
+    </div>
+    <div class="row"><span class="label">ES</span>
+      <button class="btn">Reservando 2026</button>
+      <a class="btn" href="#">Cuéntanos tus fechas</a>
+    </div>
+  </div>
+
+  <h2>Ghost · on Resort White</h2>
+  <div class="surface-light">
+    <div class="row"><span class="label">EN</span>
+      <button class="btn btn--ghost">Send me your dates</button>
+      <button class="btn btn--ghost btn--sm">View collections</button>
+      <button class="btn btn--ghost btn--lg">View collections</button>
+    </div>
+    <div class="row"><span class="label">ES</span>
+      <button class="btn btn--ghost">Cuéntanos tus fechas</button>
+      <button class="btn btn--ghost" disabled>Deshabilitado</button>
+    </div>
+  </div>
+
+  <h2>Ghost light · on Atlantic Navy</h2>
+  <div class="surface-dark">
+    <div class="row"><span class="label">EN</span>
+      <button class="btn btn--ghost-light">Now booking 2026</button>
+      <button class="btn btn--ghost-light btn--sm">Send me your dates</button>
+    </div>
+    <div class="row"><span class="label">ES</span>
+      <button class="btn btn--ghost-light">Reservando 2026</button>
+      <button class="btn btn--ghost-light btn--lg">Cuéntanos tus fechas</button>
+    </div>
+  </div>
+
+  <h2>Gold accent · single most-important CTA</h2>
+  <div class="surface-light">
+    <div class="row"><span class="label">EN</span>
+      <button class="btn btn--gold">Send me your dates</button>
+      <button class="btn btn--gold btn--lg">Send me your dates</button>
+    </div>
+    <div class="row"><span class="label">ES</span>
+      <button class="btn btn--gold">Cuéntanos tus fechas</button>
+    </div>
+  </div>
+
+  <h2>Link button</h2>
+  <div class="surface-light">
+    <div class="row"><span class="label">EN</span>
+      <a class="btn--link" href="#">View collections →</a>
+      <a class="btn--link" href="#">Read journal</a>
+    </div>
+    <div class="row"><span class="label">ES</span>
+      <a class="btn--link" href="#">Ver colecciones →</a>
+      <a class="btn--link" href="#">Leer diario</a>
+    </div>
+  </div>
+
+  <h2>Icon adjacency</h2>
+  <div class="surface-light"><div class="row">
+    <button class="btn btn--with-icon"><span>Now booking 2026</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.25" fill="none"/></svg></button>
+    <button class="btn btn--ghost btn--with-icon btn--lg"><span>Send me your dates</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.25" fill="none"/></svg></button>
+  </div></div>
+
+  <h2>Loading · aria-busy</h2>
+  <div class="surface-light">
+    <div class="row">
+      <button class="btn" aria-busy="true"><span>Now booking 2026</span></button>
+      <button class="btn btn--ghost" aria-busy="true"><span>Cuéntanos tus fechas</span></button>
+      <button class="btn btn--gold" aria-busy="true"><span>Send me your dates</span></button>
+    </div>
+  </div>
+
+  <h2>Group · stacks on mobile</h2>
+  <div class="surface-light">
+    <div class="btn-group">
+      <button class="btn">Now booking 2026</button>
+      <button class="btn btn--ghost">Send me your dates</button>
+      <a class="btn--link" href="#">View collections</a>
+    </div>
+  </div>
+</main>
+</body>
+</html>

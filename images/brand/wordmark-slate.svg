@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 110" role="img" aria-labelledby="t d" preserveAspectRatio="xMidYMid meet">
+  <title id="t">IVAE Studios wordmark</title>
+  <desc id="d">IVAE Studios wordmark in Soft Slate. IVAE in DM Serif Display, STUDIOS in Inter spaced caps.</desc>
+  <style>
+    .ivae{font-family:'DM Serif Display','Times New Roman',serif;font-weight:400;font-size:72px;letter-spacing:0.01em;}
+    .stu{font-family:'Inter','Helvetica Neue',Arial,sans-serif;font-weight:500;font-size:14px;letter-spacing:0.4em;text-transform:uppercase;}
+  </style>
+  <g fill="#5A6A7A">
+    <text x="160" y="68" class="ivae" text-anchor="middle">IVAE</text>
+    <text x="160" y="94" class="stu" text-anchor="middle">STUDIOS</text>
+  </g>
+</svg>

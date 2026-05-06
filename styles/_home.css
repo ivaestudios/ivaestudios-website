@@ -1,0 +1,46 @@
+/* ════════════════════════════════════════════════════════════════════
+   _home.css — homepage module orchestrator
+   ──────────────────────────────────────────────────────────────────
+   Imports the section modules built by Oleada 2 (Agents 02-11).
+   Order is layout-significant only when sections share class names —
+   each section uses unique `.section--<name>` selectors so order is
+   essentially free, but we keep it canonical (top→bottom of page).
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Section modules (top → bottom of homepage) ──────────────────── */
+@import "_home-hero.css";          /* Agent 02 — full-bleed cinematic */
+@import "_home-manifesto.css";     /* Agent 03 — editorial pull-quote */
+@import "_home-portfolio.css";     /* Agent 04 — 9-tile editorial grid */
+@import "_home-services.css";      /* Agent 05 — six service cards */
+@import "_home-destinations.css";  /* Agent 06 — three coastlines */
+@import "_home-process.css";       /* Agent 07 — five decisions */
+@import "_home-testimonials.css";  /* Agent 08 — pull-quotes */
+@import "_home-journal.css";       /* Agent 09 — three featured posts */
+@import "_home-final-cta.css";     /* Agent 10 — cinematic close */
+@import "_home-faq.css";           /* Agent 11 — eight Q&A */
+
+/* ── Homepage shared rules (rare — sections are self-contained) ─── */
+
+/* The .section base — applied to every <section class="section"> */
+.section {
+  position: relative;
+  /* Default top-bottom rhythm; sections may override via padding-block */
+  padding-block: clamp(80px, 12vw, 160px);
+}
+
+.section + .section {
+  /* No double padding — first section's bottom abuts next's top */
+  /* (Each section already has padding-block; do not add margin) */
+}
+
+/* Skip-link target — required by nav skip-link */
+.section[id]:target {
+  scroll-margin-top: 100px;
+}
+
+/* Visual rhythm: alternate sections subtly via background where
+   the section module didn't set its own background.
+   Most sections set bg explicitly; this is a fallback. */
+.section:not([class*="--hero"]):not([class*="--final-cta"]):not([class*="--destinations"]):not([class*="--process"]) {
+  background: var(--resort-white);
+}
