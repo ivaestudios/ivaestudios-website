@@ -1,0 +1,64 @@
+/* _image.css — universal image component (Agent 08) */
+/* Wrapper reserves aspect ratio (no CLS), shimmers until <img> loads. */
+
+.ivae-image {
+  position: relative;
+  overflow: hidden;
+  display: block;
+  width: 100%;
+  background: linear-gradient(
+    110deg,
+    var(--warm-sand) 30%,
+    #f0e8dd 50%,
+    var(--warm-sand) 70%
+  );
+  background-size: 200% 100%;
+  animation: ivae-image-shimmer 1.8s linear infinite;
+}
+
+.ivae-image > img,
+.ivae-image > picture > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0;
+  transition: opacity 600ms var(--ease-standard, cubic-bezier(0.16, 1, 0.3, 1));
+  display: block;
+}
+
+.ivae-image.is-loaded {
+  background: none;
+  animation: none;
+}
+
+.ivae-image.is-loaded > img,
+.ivae-image.is-loaded > picture > img {
+  opacity: 1;
+}
+
+/* Aspect-ratio variants */
+.ivae-image--portrait  { aspect-ratio: 4 / 5;  }
+.ivae-image--landscape { aspect-ratio: 3 / 2;  }
+.ivae-image--wide      { aspect-ratio: 16 / 9; }
+.ivae-image--square    { aspect-ratio: 1 / 1;  }
+.ivae-image--cinema    { aspect-ratio: 21 / 9; }
+
+@keyframes ivae-image-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ivae-image {
+    animation: none;
+    background: var(--warm-sand);
+    background-size: auto;
+  }
+  .ivae-image > img,
+  .ivae-image > picture > img {
+    transition: none;
+  }
+}
