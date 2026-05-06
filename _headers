@@ -1,69 +1,160 @@
-# ═══════════════════════════════════════════
-# SECURITY & PERFORMANCE HEADERS
-# ═══════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════════
+# IVAE Studios — Cloudflare Pages response headers
+# ────────────────────────────────────────────────────────────────────
+# Cloudflare reads this file at the repo root (netlify.toml is ignored
+# — see CLAUDE.md). Order matters: more-specific rules MUST appear
+# before broader catch-alls because Pages MERGES Cache-Control values
+# across matching rules. Don't introduce a wider /*.js or /*.css
+# catch-all above the gallery rules.
+#
+# Comment syntax: '#' is only honored at the start of a line, NOT
+# indented inside a rule block — the parser treats indented lines as
+# header values. All annotation comments live at column 0 between
+# rule blocks.
+#
+# This file is split into three layers:
+#   1. /*  → site-wide security headers (CSP, HSTS, Permissions-Policy…)
+#   2. Per-asset Cache-Control rules (fonts, images, CSS/JS, HTML)
+#   3. Gallery sub-app overrides (out-of-scope for the redesign — these
+#      sections are preserved verbatim from before the refactor).
+# ════════════════════════════════════════════════════════════════════
+
+
+# ════════════════════════════════════════════════════════════════════
+# 1 · GLOBAL SECURITY HEADERS (apply to every response)
+# ────────────────────────────────────────────────────────────────────
+#
+# Strict-Transport-Security: 2-year HSTS with includeSubDomains and
+# preload. Opts the apex into the browser HSTS preload list (one-way
+# commitment — only safe to enable once every subdomain is HTTPS-only,
+# which is true here: Cloudflare Pages + the gallery subdomain both
+# serve HTTPS exclusively).
+#
+# X-Content-Type-Options: nosniff stops the browser from MIME-sniffing
+# a response body. If we serve a .json with the wrong Content-Type,
+# the browser must NOT execute it as JS.
+#
+# X-Frame-Options: DENY — disallow ANY framing of the site. Pairs with
+# `frame-ancestors 'none'` in CSP (X-Frame-Options is the legacy
+# fallback for old browsers).
+#
+# Referrer-Policy: strict-origin-when-cross-origin — when linking
+# off-site, send only the origin (https://ivaestudios.com) — never
+# the path or query. Within the same origin we still send the full
+# referrer so analytics can attribute internal flows.
+#
+# Permissions-Policy: aggressive deny-list of every API the site does
+# not use. An attacker who lands an XSS still cannot pop the camera,
+# mic, GPS, payment sheet, USB device, etc. Any feature added later
+# must be explicitly opted-in.
+#
+# Cross-Origin-Opener-Policy: same-origin — page is its own browsing
+# context group, no window.opener leaks from popups we open.
+# Cross-Origin-Resource-Policy: same-site — ivaestudios.com subdomains
+# (assets.*, gallery.*) can load our resources, unrelated origins
+# cannot hot-link them as rendered subresources.
+#
+# Content-Security-Policy — built from an audit of every <link>, <img>,
+# <script>, <iframe> and fetch() call across the site:
+#
+#   • default-src 'self'                   fall-through deny-by-default.
+#   • script-src 'self'                    redesign-era JS lives in /js/.
+#                'unsafe-inline'           TECH DEBT: legacy pages still
+#                                          ship inline <script> blocks
+#                                          (admin.html login, the
+#                                          focal-admin auth shim on
+#                                          post-bachelorette-* and
+#                                          es/manejo-redes-sociales,
+#                                          and the old cenote /
+#                                          trash-the-dress posts).
+#                                          REMOVE this token once
+#                                          Oleada 4 (blog refactor) +
+#                                          Oleada 6 (legacy svc pages)
+#                                          migrate them to external
+#                                          scripts.
+#                https://static.cloudflareinsights.com
+#                                          Cloudflare Web Analytics
+#                                          beacon — privacy.html
+#                                          confirms we use this in lieu
+#                                          of Google Analytics.
+#   • style-src  'self'                    main.css, blog.css, print.css.
+#                'unsafe-inline'           REQUIRED: index.html and the
+#                                          other top-level pages embed
+#                                          a small <style> block for
+#                                          the .skip-link a11y helper.
+#                https://fonts.googleapis.com
+#                                          legacy: 4 unmigrated pages
+#                                          still pull Cormorant/Syne
+#                                          from Google Fonts. Remove
+#                                          once Oleada 4 swaps them
+#                                          to self-hosted.
+#   • img-src    'self' data:              local /images/ + tiny inline
+#                                          PNGs/SVGs.
+#                https://assets.ivaestudios.com
+#                                          image CDN (blog OG images,
+#                                          wordmark, vianey-diaz.jpg).
+#   • font-src   'self' data:              self-hosted brand WOFF2.
+#                https://fonts.gstatic.com legacy companion to the
+#                                          Google Fonts <link> above.
+#   • connect-src 'self'                   newsletter + contact forms
+#                                          POST to /api/* (same origin).
+#                 https://cloudflareinsights.com
+#                                          beacon endpoint for the
+#                                          Web Analytics RUM call.
+#   • frame-ancestors 'none'               nobody may iframe us.
+#   • frame-src 'none'                     we don't embed third-party
+#                                          iframes (no YouTube, no
+#                                          Maps embed, no Instagram).
+#   • base-uri 'self'                      block <base href> hijacking.
+#   • form-action 'self'                   forms can only POST to our
+#                                          own /api/* endpoints.
+#   • object-src 'none'                    no <object>/<embed>/<applet>.
+#   • upgrade-insecure-requests            auto-rewrite stray http://
+#                                          subresources to https://.
+#
+# NOTE: ld+json schema blocks use type="application/ld+json" (data,
+# not executable) and are NOT gated by script-src.
+# ════════════════════════════════════════════════════════════════════
 
 /*
-  X-Frame-Options: SAMEORIGIN
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
   X-Content-Type-Options: nosniff
-  X-XSS-Protection: 1; mode=block
+  X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
-  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://wa.me; frame-ancestors 'self'; base-uri 'self'; form-action 'self' https://wa.me; upgrade-insecure-requests
+  Permissions-Policy: accelerometer=(), ambient-light-sensor=(), autoplay=(), battery=(), camera=(), display-capture=(), document-domain=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(), usb=(), web-share=(), xr-spatial-tracking=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-site
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://assets.ivaestudios.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://cloudflareinsights.com; frame-src 'none'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
 
-/*.html
-  Cache-Control: public, max-age=0, must-revalidate
 
-/images/*
-  Cache-Control: public, max-age=31536000, immutable
+# ════════════════════════════════════════════════════════════════════
+# 2 · CACHING — per-asset Cache-Control
+# ────────────────────────────────────────────────────────────────────
+# Strategy:
+#   • Byte-stable assets (fonts, hashed-name images) → 1 year + immutable
+#   • Mutable but cheap-to-revalidate (CSS, JS, HTML) → 5 minutes +
+#     must-revalidate so deploys propagate within minutes.
+#   • Crawler-facing text (sitemap, robots, llms) → 1h–1d.
+# ════════════════════════════════════════════════════════════════════
 
-# Gallery JS / CSS — short TTL so deploys propagate (no content hashing in
-# filenames). Pages MERGES Cache-Control values across matching rules, so
-# we must NOT have a wider /*.js or /*.css catch-all that would inject
-# `immutable` into these responses.
-/gallery/js/*.js
-  Cache-Control: public, max-age=300, must-revalidate
 
-/gallery/admin/*.js
-  Cache-Control: public, max-age=0, must-revalidate
-
-/gallery/sw.js
-  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
-  Service-Worker-Allowed: /
-
-/gallery/css/*.css
-  Cache-Control: public, max-age=300, must-revalidate
-
-# Self-hosted brand fonts (F1.B). Variable-font woff2 files are byte-stable
-# and never change — pin them with the longest TTL so repeat visitors never
-# re-download. The fonts.css wrapper that points at them gets a short TTL
-# so we can update the @font-face declarations (subsets, unicode-range)
-# without having to invalidate the woff2 binaries.
-/gallery/fonts/*.woff2
+# Self-hosted brand fonts. WOFF2 binaries are content-addressed by name
+# (e.g. inter-variable-latin.woff2) — when we change the subset we
+# change the filename, never the content. Pin them for a year +
+# immutable so repeat visitors never re-download. Allow CORS so a
+# subdomain like assets.ivaestudios.com could request them if needed.
+/styles/fonts/*
   Cache-Control: public, max-age=31536000, immutable
   Access-Control-Allow-Origin: *
 
-/gallery/fonts/fonts.css
-  Cache-Control: public, max-age=300, must-revalidate
 
-# Main-site JS/CSS — explicit per-file rules instead of /*.js catch-all,
-# because the catch-all leaks `immutable` into /gallery/* responses (Pages
-# merges values, doesn't pick first/most-specific).
-/styles/*.css
+# Bitmap & vector assets — same logic. Names change before bytes change.
+/images/*
   Cache-Control: public, max-age=31536000, immutable
 
-/js/*.css
-  Cache-Control: public, max-age=31536000, immutable
 
-/js/lang-detect.js
-  Cache-Control: public, max-age=31536000, immutable
-
-/focal-admin.js
-  Cache-Control: public, max-age=0, must-revalidate
-
-/api/*
-  Cache-Control: no-cache
-
+# Direct-served images at root or arbitrary path (fallback for /og.jpg
+# and similar). Same long-cache rule.
 /*.jpg
   Cache-Control: public, max-age=31536000, immutable
 
@@ -73,14 +164,115 @@
 /*.webp
   Cache-Control: public, max-age=31536000, immutable
 
-# ═══════════════════════════════════════════
-# GALLERY SUB-APP (mounted at /gallery/, API at /api/gallery/)
-# Override the strict main-site CSP — the gallery app needs to talk to
-# Cloudflare R2 (presigned PUTs), the local IVAE Uploader daemon
-# (127.0.0.1:9876), and Dropbox upload endpoints. It also relies on
-# inline event handlers throughout the admin pages.
-# ═══════════════════════════════════════════
+/*.avif
+  Cache-Control: public, max-age=31536000, immutable
 
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+
+
+# Main-site CSS. Filenames are NOT hashed (main.css, blog.css, print.css
+# stay constant across deploys), so we cannot mark them immutable. 5-min
+# TTL + must-revalidate means a CSS change goes live within minutes.
+/styles/main.css
+  Cache-Control: public, max-age=300, must-revalidate
+
+/styles/blog.css
+  Cache-Control: public, max-age=300, must-revalidate
+
+/styles/print.css
+  Cache-Control: public, max-age=300, must-revalidate
+
+
+# Catch-all for the modular CSS pieces (_tokens.css, _nav.css, etc.).
+# Same short TTL because the filenames are also stable.
+/styles/*.css
+  Cache-Control: public, max-age=300, must-revalidate
+
+
+# Main-site JS — also stable filenames (animations.js, nav.js, etc.).
+/js/*.js
+  Cache-Control: public, max-age=300, must-revalidate
+
+
+# Crawler-facing & root-level metadata.
+/sitemap.xml
+  Cache-Control: public, max-age=3600
+
+/robots.txt
+  Cache-Control: public, max-age=86400
+
+/llms.txt
+  Cache-Control: public, max-age=86400
+
+/llms-full.txt
+  Cache-Control: public, max-age=86400
+
+/site.webmanifest
+  Cache-Control: public, max-age=86400
+  Content-Type: application/manifest+json
+
+
+# HTML pages — short TTL so every push to main is live within minutes.
+/*.html
+  Cache-Control: public, max-age=300, must-revalidate
+
+
+# Bare-path HTML — the homepage at "/" is matched by this rule.
+/
+  Cache-Control: public, max-age=300, must-revalidate
+
+
+# Newsletter / contact endpoints — never cache an API response.
+/api/*
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
+
+# Admin asset that must always be the freshest version.
+/focal-admin.js
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
+
+# ════════════════════════════════════════════════════════════════════
+# 3 · GALLERY SUB-APP OVERRIDES (out-of-scope for redesign-2026)
+# ────────────────────────────────────────────────────────────────────
+# The gallery sub-app at /gallery/ + /api/gallery/ is owned by the
+# gallery team (BRAND.md §11). It needs a permissive CSP because the
+# admin UI uses inline event handlers, talks to R2 presigned URLs over
+# arbitrary HTTPS hosts, and connects to a localhost uploader daemon
+# (127.0.0.1:9876) during admin uploads. These rules are preserved
+# verbatim from the previous _headers file.
+# ════════════════════════════════════════════════════════════════════
+
+
+# Gallery JS / CSS — short TTL so deploys propagate (no content hashing
+# in filenames). Pages MERGES Cache-Control values across matching
+# rules, so we must NOT have a wider /*.js or /*.css catch-all that
+# would inject `immutable` into these responses.
+/gallery/js/*.js
+  Cache-Control: public, max-age=300, must-revalidate
+
+/gallery/admin/*.js
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
+/gallery/sw.js
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Service-Worker-Allowed: /
+
+/gallery/css/*.css
+  Cache-Control: public, max-age=300, must-revalidate
+
+
+# Gallery fonts (separate from main-site /styles/fonts/).
+/gallery/fonts/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+/gallery/fonts/fonts.css
+  Cache-Control: public, max-age=300, must-revalidate
+
+
+# Gallery-wide CSP override — permissive on purpose (R2 + localhost).
 /gallery/*
   Content-Security-Policy: default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https: data:; img-src 'self' data: blob: https: http:; media-src 'self' https: blob:; connect-src 'self' https: http://localhost:9876 http://127.0.0.1:9876; worker-src 'self' blob:; frame-src 'self' https:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'
   X-Frame-Options: SAMEORIGIN
@@ -88,12 +280,15 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 
+
+# Gallery API — never cache.
 /api/gallery/*
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 
-# Admin pages — never cache (deploys propagate immediately)
+
+# Admin pages — never cache (deploys propagate immediately).
 /gallery/admin/*
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
   Pragma: no-cache
@@ -101,15 +296,13 @@
 /gallery/admin/
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
 
-# Gallery client view itself — fresh HTML, but immutable assets stay cached
+
+# Gallery client view — fresh HTML, immutable assets stay cached.
 /gallery/gallery.html
   Cache-Control: public, max-age=0, must-revalidate
 
-# (Gallery JS/CSS rules are declared at the top of this file — before
-#  the site-wide /*.js and /*.css catch-alls — so the first-match-wins
-#  precedence in Cloudflare Pages applies them correctly.)
 
-# Login + auth pages — fresh HTML
+# Login + auth pages — fresh HTML.
 /gallery/index.html
   Cache-Control: public, max-age=0, must-revalidate
 
