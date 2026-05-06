@@ -23,8 +23,6 @@
 # ═══════════════════════════════════════════
 
 # /contact short URL → /contact.html (internal rewrite, browser keeps /contact)
-/contact /contact.html 200
-/es/contacto /es/contacto.html 200
 
 # /cenote short URL → cenote service page
 /cenote /cenote-photography.html 200
@@ -35,13 +33,9 @@
 /journal /blog.html 200
 /es/journal /es/blog.html 200
 
+/es/portfolio /es/portafolio 301
+/es/portfolio/ /es/portafolio 301
 # /portfolio short URL aliases (in case of trailing-slash variants)
-/portfolio /portfolio.html 200
-/portfolio/ /portfolio.html 200
-/es/portfolio /es/portafolio.html 200
-/es/portfolio/ /es/portafolio.html 200
-/es/portafolio /es/portafolio.html 200
-/es/portafolio/ /es/portafolio.html 200
 
 # ═══════════════════════════════════════════
 # CLEAN URLs — Location Pages (legacy long-slug → new short-slug)
