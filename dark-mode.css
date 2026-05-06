@@ -209,7 +209,128 @@ html.dark textarea::placeholder {
   color: rgba(250, 248, 245, 0.4);
 }
 
-/* ── Body.loaded inversion guards ──────────────────────────── */
+/* ── Mass overrides: section backgrounds ─────────────────── */
+/* Found by auditing all HTMLs for background:var(--cream) | var(--sand) */
+
+html.dark .about,
+html.dark .bc,
+html.dark .breadcrumb,
+html.dark .credentials-section,
+html.dark .diff,
+html.dark .diff-card,
+html.dark .director,
+html.dark .dodont-section,
+html.dark .grid-section,
+html.dark .hiw,
+html.dark .hiw-num,
+html.dark .il-link,
+html.dark .il-section,
+html.dark .inc-card,
+html.dark .included,
+html.dark .int-link,
+html.dark .int-links,
+html.dark .locations,
+html.dark .palette-section,
+html.dark .post-card-img,
+html.dark .process,
+html.dark .proposal,
+html.dark .pv,
+html.dark .quiz-section,
+html.dark .resort-chip,
+html.dark .resorts,
+html.dark .sc--cream,
+html.dark .sc--sand,
+html.dark .sc-cream,
+html.dark .sc-sand,
+html.dark .services,
+html.dark .sess-card,
+html.dark .sessions,
+html.dark .stats-strip,
+html.dark .step,
+html.dark .story,
+html.dark .svc,
+html.dark .svc-text,
+html.dark .tc,
+html.dark .test,
+html.dark .testimonials,
+html.dark .type-card-body,
+html.dark .types,
+html.dark .venues,
+html.dark .why {
+  background: #0c1219 !important;
+  color: #faf8f5 !important;
+}
+
+/* Sand-toned alternates → slightly lighter dark for visual rhythm */
+html.dark .diff,
+html.dark .included,
+html.dark .pv,
+html.dark .sc--sand,
+html.dark .sc-sand,
+html.dark .sess-card,
+html.dark .tc {
+  background: #131c2a !important;
+}
+
+/* Cards in dark mode: subtle elevation */
+html.dark .diff-card,
+html.dark .inc-card,
+html.dark .type-card-body,
+html.dark .sess-card,
+html.dark .resort-chip,
+html.dark .step,
+html.dark .il-link,
+html.dark .int-link {
+  background: #1a2230 !important;
+  border-color: rgba(196, 165, 78, 0.18) !important;
+  color: #faf8f5 !important;
+}
+
+/* Text classes that hardcoded dark colors → cream in dark mode */
+html.dark .about-text,
+html.dark .credentials-inner,
+html.dark .director-text,
+html.dark .il-a,
+html.dark .il-t,
+html.dark .il-title,
+html.dark .palette-name,
+html.dark .proposal-text,
+html.dark .pv-text,
+html.dark .quiz-color-name,
+html.dark .quiz-option-label,
+html.dark .quiz-question,
+html.dark .result-card,
+html.dark .results-palette-name,
+html.dark .section-title,
+html.dark .story-quote,
+html.dark .story-text,
+html.dark .tc-author,
+html.dark .tip-highlight,
+html.dark .why-text {
+  color: #faf8f5 !important;
+}
+
+/* Eyebrow / category labels → keep gold in dark */
+html.dark .pg-label,
+html.dark .section-eyebrow,
+html.dark .eyebrow,
+html.dark .section-label {
+  color: #c9a54e !important;
+}
+
+/* Quiz / interactive components */
+html.dark .quiz-btn {
+  background: #1a2230 !important;
+  color: #faf8f5 !important;
+  border-color: rgba(196, 165, 78, 0.3) !important;
+}
+html.dark .quiz-btn:hover,
+html.dark .quiz-btn.is-active {
+  background: rgba(196, 165, 78, 0.15) !important;
+  border-color: #c9a54e !important;
+}
+
+/* Body.loaded inversion guards ──────────────────────────── */
 /* The site-wide pattern uses body.loaded to switch from a dark
    pre-load state to a light loaded state. In dark mode we want
    to keep the dark state. Override the loaded variants. */
