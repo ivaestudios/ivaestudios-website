@@ -1,0 +1,177 @@
+/* ════════════════════════════════════════════════════════════════════
+   _destination.css
+   IVAE Studios · Redesign 2026 · Oleada 3 · Agents 09 / 10 / 11
+   ──────────────────────────────────────────────────────────────────
+   Shared destination-page styles. Used by cancun, riviera-maya,
+   los-cabos. Same pattern as `_service.css`.
+
+   Mostly leverages _base.css (typography, eyebrow, em). Only adds
+   what is destination-specific: hero scrim, areas grid, resort chips,
+   gallery, FAQ disclosure styling. Section padding rides on the
+   shared `.section` rule from `_home.css`.
+
+   Token contract — every value below references _tokens.css. Literal
+   hex appears only in scrim gradients (rgba composition).
+   ════════════════════════════════════════════════════════════════════ */
+
+
+/* ──────── Page hero (cinematic, navy scrim) ───────────────────── */
+.section--page-hero--dest {
+  position: relative;
+  isolation: isolate;
+  min-height: clamp(420px, 70vh, 720px);
+  background: var(--deep-atlantic);
+  color: var(--resort-white);
+  overflow: hidden;
+}
+.section--page-hero--dest .page-hero__media,
+.section--page-hero--dest .page-hero__media > picture,
+.section--page-hero--dest .page-hero__media > picture > img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center;
+  z-index: -2;
+}
+.section--page-hero--dest::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(180deg, rgba(15,22,32,0.55) 0%, rgba(15,22,32,0.78) 100%);
+  pointer-events: none;
+}
+.section--page-hero--dest .eyebrow { color: var(--editorial-gold); margin: 0 0 var(--space-4); }
+.section--page-hero--dest h1 {
+  font-size: var(--fs-1100-fluid); color: var(--resort-white);
+  max-width: 16ch; margin: 0 0 var(--space-5);
+}
+.section--page-hero--dest .lede {
+  font-size: var(--fs-600-fluid); color: rgba(249,248,247,0.86);
+  max-width: 56ch;
+}
+
+
+/* ──────── Section h2/eyebrow shared treatment ─────────────────── */
+.dest-areas .eyebrow,
+.dest-resorts .eyebrow,
+.dest-services .eyebrow,
+.dest-gallery .eyebrow,
+.dest-faq .eyebrow      { color: var(--soft-slate); margin: 0 0 var(--space-4); }
+.dest-light .eyebrow    { color: var(--editorial-gold); margin: 0 0 var(--space-4); }
+
+.dest-areas h2,
+.dest-resorts h2,
+.dest-light h2,
+.dest-services h2,
+.dest-gallery h2,
+.dest-faq h2 {
+  font-size: var(--fs-900-fluid);
+  margin: 0 0 var(--space-6);
+  max-width: 22ch;
+}
+
+
+/* ──────── Areas — sub-locations grid ──────────────────────────── */
+.dest-areas__list { list-style: none; padding: 0; margin: 0;
+  display: grid; grid-template-columns: 1fr; gap: var(--space-5); }
+@media (min-width: 720px) { .dest-areas__list { grid-template-columns: repeat(3, 1fr); } }
+.dest-areas__list > li {
+  padding: var(--space-5) 0 0;
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-500); line-height: var(--lh-normal);
+}
+.dest-areas__list > li::before { content: none; }
+.dest-areas__list strong {
+  display: block; font-family: var(--font-display); font-weight: var(--fw-regular);
+  font-size: var(--fs-700); line-height: var(--lh-snug);
+  letter-spacing: var(--ls-tight); margin-bottom: var(--space-2);
+}
+
+
+/* ──────── Resorts — chips on warm-sand surface ────────────────── */
+.dest-resorts { background: var(--surface-alt); }
+.dest-resorts__intro { max-width: var(--max-w-prose); margin-bottom: var(--space-6); }
+.dest-resorts__list { display: flex; flex-wrap: wrap; gap: var(--space-3);
+  list-style: none; padding: 0; margin: 0; }
+.dest-resorts__list > li { padding: 0; }
+.dest-resorts__list > li::before { content: none; }
+.dest-resorts__chip {
+  display: inline-block; padding: var(--space-3) var(--space-5);
+  border: 1px solid var(--border-strong); background: var(--resort-white);
+  font-family: var(--font-body); font-size: var(--fs-400);
+  font-weight: var(--fw-medium); letter-spacing: 0.06em;
+}
+.dest-resorts__note { display: block; margin-top: var(--space-5);
+  font-size: var(--fs-400); color: var(--text-muted); max-width: var(--max-w-prose); }
+
+
+/* ──────── Light — single column prose on navy ─────────────────── */
+.dest-light { background: var(--atlantic-navy); color: var(--resort-white); }
+.dest-light h2 { color: var(--resort-white); }
+.dest-light p { color: rgba(249,248,247,0.86);
+  font-size: var(--fs-500-fluid); max-width: var(--max-w-prose); }
+
+
+/* ──────── Services — six tile grid ────────────────────────────── */
+.dest-services__grid { list-style: none; padding: 0; margin: 0;
+  display: grid; grid-template-columns: 1fr; gap: 1px;
+  background: var(--border); border-block: 1px solid var(--border); }
+@media (min-width: 720px) { .dest-services__grid { grid-template-columns: repeat(3, 1fr); } }
+.dest-services__grid > li { padding: 0; background: var(--resort-white); }
+.dest-services__grid > li::before { content: none; }
+.dest-services__link {
+  display: flex; flex-direction: column; gap: var(--space-2);
+  padding: var(--space-6); text-decoration: none; color: inherit; height: 100%;
+  transition: background var(--dur-base) var(--ease-standard);
+}
+.dest-services__link:hover, .dest-services__link:focus-visible { background: var(--surface-alt); color: var(--text); }
+.dest-services__link .eyebrow { color: var(--editorial-gold); font-size: var(--fs-200); margin: 0; }
+.dest-services__name { font-family: var(--font-display); font-size: var(--fs-700); line-height: var(--lh-snug); }
+.dest-services__hint { font-size: var(--fs-400); color: var(--text-muted); }
+
+
+/* ──────── Gallery — 4-6 image masonry on deep-atlantic ────────── */
+.dest-gallery { background: var(--deep-atlantic); color: var(--resort-white); }
+.dest-gallery .eyebrow { color: var(--editorial-gold); }
+.dest-gallery h2 { color: var(--resort-white); }
+.dest-gallery__grid { list-style: none; padding: 0; margin: 0;
+  display: grid; grid-template-columns: 1fr; gap: var(--space-3); }
+@media (min-width: 720px) {
+  .dest-gallery__grid { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; }
+  .dest-gallery__grid > li:first-child { grid-column: span 2; grid-row: span 2; }
+}
+.dest-gallery__grid > li { padding: 0; position: relative; overflow: hidden;
+  aspect-ratio: 4 / 5; }
+.dest-gallery__grid > li::before { content: none; }
+.dest-gallery__grid img { width: 100%; height: 100%; object-fit: cover;
+  transition: transform var(--dur-cinematic) var(--ease-editorial); }
+@media (hover: hover) { .dest-gallery__grid > li:hover img { transform: scale(1.04); } }
+
+
+/* ──────── FAQ — disclosures with gold + marker ────────────────── */
+.dest-faq__list { list-style: none; padding: 0; margin: 0; max-width: 860px; }
+.dest-faq__list > li { padding: 0; border-top: 1px solid var(--border); }
+.dest-faq__list > li:last-child { border-bottom: 1px solid var(--border); }
+.dest-faq__list > li::before { content: none; }
+.dest-faq details { padding: var(--space-5) 0; }
+.dest-faq summary {
+  cursor: pointer; list-style: none;
+  display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-5);
+  font-family: var(--font-display); font-size: var(--fs-700-fluid);
+  line-height: var(--lh-snug); letter-spacing: var(--ls-tight);
+}
+.dest-faq summary::-webkit-details-marker { display: none; }
+.dest-faq summary::after {
+  content: "+"; font-family: var(--font-accent); font-style: italic;
+  color: var(--editorial-gold); font-size: var(--fs-700); flex-shrink: 0;
+  transition: transform var(--dur-base) var(--ease-standard);
+}
+.dest-faq details[open] summary::after { transform: rotate(45deg); }
+.dest-faq__answer { margin-top: var(--space-4); font-size: var(--fs-500);
+  color: var(--text-muted); max-width: var(--max-w-prose); }
+
+
+/* ──────── Reduced motion ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .dest-gallery__grid img,
+  .dest-faq summary::after,
+  .dest-services__link { transition: none !important; }
+  .dest-gallery__grid > li:hover img { transform: none; }
+}

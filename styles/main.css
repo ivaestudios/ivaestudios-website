@@ -35,7 +35,7 @@
 @import "_home.css";          /* Activated Oleada 2 */
 /* @import "_about.css"; */
 /* @import "_services.css"; */
-/* @import "_destinations.css"; */
+@import "_destination.css";   /* Oleada 3 · destination pages (cancun, riviera-maya, los-cabos) */
 /* @import "_couples.css"; */
 /* @import "_family.css"; */
 /* @import "_weddings.css"; */
