@@ -1,0 +1,281 @@
+/* ════════════════════════════════════════════════════════════════════
+   _home-destinations.css
+   IVAE Studios · Redesign 2026 · Oleada 2 · Agent 06
+   ──────────────────────────────────────────────────────────────────
+   Three full-bleed editorial covers presented as magazine spreads.
+   Riviera Maya · Cancún · Los Cabos. Order is canonical (BRAND.md §1
+   places Riviera Maya as PRIMARY).
+
+   Image curation per BRAND.md §8 — the four light registers must
+   coexist on this grid so the homepage reads as a system, not a
+   collection. Per-card recommendations:
+
+     • Riviera Maya  (.destination-card--golden)    register 1 · golden hour · warm
+     • Cancún        (.destination-card--marina)    register 3 · open shade · marina blue
+     • Los Cabos     (.destination-card--editorial) register 4 · editorial · contrast
+
+   The CSS does not paint these registers — it relies on the curator
+   choosing photographs in those registers. Subtle filter hints exist
+   below as a fallback, kept under (hover: hover) and motion-safe so
+   they never affect a poorly chosen image at the perceptual level.
+
+   Token contract — every value below references _tokens.css. The
+   only literal hex appears in the scrim gradient because rgba()
+   composition needs a literal channel set.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ──────── Section shell ─────────────────────────────────────────── */
+.section--destinations {
+  background: var(--deep-atlantic);
+  color: var(--resort-white);
+  padding-block: clamp(96px, 14vw, 160px);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ──────── Header ────────────────────────────────────────────────── */
+.destinations__header {
+  max-width: 720px;
+  margin-bottom: var(--space-8);
+}
+
+.destinations__header .eyebrow {
+  color: var(--editorial-gold);
+  margin: 0 0 var(--space-4);
+}
+
+.destinations__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-1000-fluid);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--resort-white);
+  margin: 0;
+}
+
+/* The em inside a display title is the global gold accent.
+   BRAND.md §5: italic gold on a single word per block, never on
+   full sentences. */
+.destinations__title em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--editorial-gold);
+  font-weight: var(--fw-regular);
+}
+
+/* ──────── Grid (mobile-first, single column) ────────────────────── */
+.destinations__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-7);
+}
+
+@media (min-width: 960px) {
+  .destinations__grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+  }
+}
+
+/* ──────── Card ──────────────────────────────────────────────────── */
+.destination-card {
+  display: block;
+  position: relative;
+  /* Mobile: cinematic 16/9 — less tall, more horizon-like. */
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+  isolation: isolate;
+  /* Hairline rule under the card — animates from left on hover. */
+  background: transparent;
+}
+
+@media (min-width: 960px) {
+  .destination-card {
+    /* Desktop: tall 3/4 magazine cover. */
+    aspect-ratio: 3 / 4;
+  }
+}
+
+/* Focus ring lives on the link itself (accessibility surface). */
+.destination-card:focus-visible {
+  outline: 2px solid var(--editorial-gold);
+  outline-offset: 4px;
+}
+
+/* ──────── Media (image fills card) ──────────────────────────────── */
+.destination-card__media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  /* Override .ivae-image's auto aspect so it fills the parent. */
+  aspect-ratio: auto;
+}
+
+.destination-card__media > img,
+.destination-card__media > picture > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform var(--dur-cinematic) var(--ease-editorial);
+  will-change: transform;
+}
+
+/* Per-card light-register hint (subtle, gated by hover support so it
+   never degrades touch UX). The curator's photo choice still does the
+   real work — these are 5–8% nudges, not corrections. */
+@media (hover: hover) {
+  .destination-card--golden    > .destination-card__media > img { filter: saturate(1.04); }
+  .destination-card--marina    > .destination-card__media > img { filter: saturate(0.96); }
+  .destination-card--editorial > .destination-card__media > img { filter: contrast(1.06); }
+}
+
+/* ──────── Scrim (text legibility) ───────────────────────────────── */
+/* WCAG check — the scrim's bottom anchor is rgba(15,22,32,0.85), i.e.
+   --deep-atlantic at 85% over the photograph. resort-white (#F9F8F7)
+   on deep-atlantic (#0F1620) clears 16:1 in flat composition; with the
+   image showing through at 15% the worst-case still exceeds AA 4.5:1
+   for the body teaser block (which sits in the lower ~40% where the
+   scrim is densest). */
+.destination-card__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 22, 32, 0.0) 35%,
+    rgba(15, 22, 32, 0.85) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ──────── Content (anchored bottom-left, above scrim) ───────────── */
+.destination-card__content {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: var(--space-6);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.destination-card__num {
+  font-family: var(--font-body);
+  font-weight: var(--fw-medium);
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--editorial-gold);
+  margin: 0 0 var(--space-3);
+}
+
+.destination-card__name {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.05;
+  letter-spacing: var(--ls-tight);
+  color: var(--resort-white);
+  margin: 0;
+}
+
+.destination-card__teaser {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: 14px;
+  line-height: var(--lh-normal);
+  /* AA against the scrim: 0.85 alpha on resort-white over a
+     ~85%-deep-atlantic backdrop computes well above 4.5:1. */
+  color: rgba(249, 248, 247, 0.85);
+  max-width: 32ch;
+  margin: var(--space-3) 0 var(--space-4);
+}
+
+.destination-card__teaser em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--editorial-gold);
+  font-weight: var(--fw-regular);
+}
+
+.destination-card__cta {
+  font-family: var(--font-body);
+  font-weight: var(--fw-medium);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--editorial-gold);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+}
+
+.destination-card__arrow {
+  display: inline-block;
+  transition: transform var(--dur-base) var(--ease-editorial);
+  will-change: transform;
+}
+
+/* ──────── Hairline rule (animated from left on hover) ───────────── */
+.destination-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: 100%;
+  background: var(--editorial-gold);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--dur-cinematic) var(--ease-editorial);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* ──────── Hover / focus state (gated to real pointer support) ───── */
+@media (hover: hover) {
+  .destination-card:hover > .destination-card__media > img,
+  .destination-card:focus-visible > .destination-card__media > img {
+    transform: scale(1.05);
+  }
+
+  .destination-card:hover .destination-card__arrow,
+  .destination-card:focus-visible .destination-card__arrow {
+    transform: translateX(4px);
+  }
+
+  .destination-card:hover::after,
+  .destination-card:focus-visible::after {
+    transform: scaleX(1);
+  }
+}
+
+/* Keyboard / touch fallback — focus-visible always paints the rule
+   even on devices that don't match (hover: hover). */
+.destination-card:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.destination-card:focus-visible .destination-card__arrow {
+  transform: translateX(4px);
+}
+
+/* ──────── Reduced motion — disable transforms, keep state hints ─── */
+@media (prefers-reduced-motion: reduce) {
+  .destination-card__media > img,
+  .destination-card__arrow,
+  .destination-card::after {
+    transition: none !important;
+  }
+
+  .destination-card:hover > .destination-card__media > img,
+  .destination-card:focus-visible > .destination-card__media > img {
+    transform: none;
+  }
+}
