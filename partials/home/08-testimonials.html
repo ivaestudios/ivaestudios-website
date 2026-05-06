@@ -1,0 +1,146 @@
+<!--
+  IVAE Studios — Testimonials Section (Oleada 2 · Agent 08)
+  ─────────────────────────────────────────────────────────────────────────────
+  Editorial pull-quote layout. Three quote slots, large Bodoni Italic, navy on
+  resort-white. The pull-quote pattern (full italic block) is an EXPLICIT
+  exception to the BRAND.md §5 "italic gold on a single word" rule —
+  documented in styles/_home-testimonials.css.
+
+  TIER 0 PLACEHOLDERS — pending real reviews from Vianey.
+  ───────────────────────────────────────────────────────
+  Per BRAND.md §9 "do not invent reviewers" and CLAUDE.md "Tier 0 — needs
+  real data from the owner". Until the real Google Business Profile reviews
+  are supplied, every quote is marked clearly:
+
+    1. The blockquote text is wrapped with `<!-- TODO-REPLACE: real review -->`
+    2. The attribution name reads literally `[Real name pending]`
+       (`[Nombre real pendiente]` in ES).
+
+  When real reviews arrive, the operator runs:
+      grep -rn "TODO-REPLACE: real review" partials/ es/ index.html
+      grep -rn "Real name pending"          partials/ es/ index.html
+      grep -rn "Nombre real pendiente"      partials/ es/ index.html
+  …to find every slot, in order, across both languages.
+
+  Slot order (match real reviews to these categories):
+    Position 1 → Family · Riviera Maya
+    Position 2 → Couples / Anniversary · Cancún
+    Position 3 → Destination Wedding · Los Cabos
+
+  Two language variants live below: ENGLISH first, SPANISH second. Agent 30
+  (Oleada 3) selects ONE block per page based on locale.
+
+  Pair with styles/_home-testimonials.css.
+-->
+
+
+<!-- ─── ENGLISH ─── -->
+<section class="section section--testimonials" id="testimonials" data-section="testimonials" lang="en">
+  <header class="container testimonials__header">
+    <p class="eyebrow" data-reveal>Words from the Studio&rsquo;s clients</p>
+    <h2 class="testimonials__title" data-reveal-words>What couples and families <em>say</em>.</h2>
+  </header>
+
+  <div class="container testimonials__list" data-reveal-stagger>
+
+    <!-- Position 1 · Family / Riviera Maya -->
+    <figure class="quote">
+      <blockquote class="quote__text">
+        <!-- TODO-REPLACE: real review when client provides Tier 0 reviews -->
+        Editorial direction we hadn&rsquo;t experienced before. Every frame feels considered.
+      </blockquote>
+      <figcaption class="quote__attr">
+        <span class="quote__name">[Real name pending]</span>
+        <span class="quote__sep" aria-hidden="true">&middot;</span>
+        <span class="quote__detail">Family session, Riviera Maya, 2025</span>
+      </figcaption>
+    </figure>
+
+    <!-- Position 2 · Couples / Cancún -->
+    <figure class="quote">
+      <blockquote class="quote__text">
+        <!-- TODO-REPLACE: real review when client provides Tier 0 reviews -->
+        She watched the wind. She watched the light. We barely saw her work &mdash; and the gallery is the trip we&rsquo;ll remember.
+      </blockquote>
+      <figcaption class="quote__attr">
+        <span class="quote__name">[Real name pending]</span>
+        <span class="quote__sep" aria-hidden="true">&middot;</span>
+        <span class="quote__detail">Anniversary session, Canc&uacute;n, 2025</span>
+      </figcaption>
+    </figure>
+
+    <!-- Position 3 · Wedding / Los Cabos -->
+    <figure class="quote">
+      <blockquote class="quote__text">
+        <!-- TODO-REPLACE: real review when client provides Tier 0 reviews -->
+        Restrained, magazine-quality coverage. Nothing posed. Everything intentional.
+      </blockquote>
+      <figcaption class="quote__attr">
+        <span class="quote__name">[Real name pending]</span>
+        <span class="quote__sep" aria-hidden="true">&middot;</span>
+        <span class="quote__detail">Destination wedding, Los Cabos, 2025</span>
+      </figcaption>
+    </figure>
+
+  </div>
+
+  <p class="container testimonials__source" data-reveal>
+    Reviews verified on <a href="https://maps.app.goo.gl/aX7jiVbLzwurMmX19" rel="noopener">Google Business Profile</a>.
+  </p>
+</section>
+
+
+<!-- ─── SPANISH ─── -->
+<section class="section section--testimonials" id="testimonios" data-section="testimonials" lang="es">
+  <header class="container testimonials__header">
+    <p class="eyebrow" data-reveal>Palabras de los clientes del Estudio</p>
+    <h2 class="testimonials__title" data-reveal-words>Lo que dicen las parejas y <em>familias</em>.</h2>
+  </header>
+
+  <div class="container testimonials__list" data-reveal-stagger>
+
+    <!-- Position 1 · Family / Riviera Maya -->
+    <figure class="quote">
+      <blockquote class="quote__text">
+        <!-- TODO-REPLACE: real review when client provides Tier 0 reviews -->
+        Una direcci&oacute;n editorial que no hab&iacute;amos experimentado antes. Cada frame se siente pensado.
+      </blockquote>
+      <figcaption class="quote__attr">
+        <span class="quote__name">[Nombre real pendiente]</span>
+        <span class="quote__sep" aria-hidden="true">&middot;</span>
+        <span class="quote__detail">Sesi&oacute;n familiar, Riviera Maya, 2025</span>
+      </figcaption>
+    </figure>
+
+    <!-- Position 2 · Couples / Cancún -->
+    <figure class="quote">
+      <blockquote class="quote__text">
+        <!-- TODO-REPLACE: real review when client provides Tier 0 reviews -->
+        Vio el viento. Vio la luz. Apenas notamos que estaba trabajando &mdash; y la galer&iacute;a es el viaje que vamos a recordar.
+      </blockquote>
+      <figcaption class="quote__attr">
+        <span class="quote__name">[Nombre real pendiente]</span>
+        <span class="quote__sep" aria-hidden="true">&middot;</span>
+        <span class="quote__detail">Sesi&oacute;n de aniversario, Canc&uacute;n, 2025</span>
+      </figcaption>
+    </figure>
+
+    <!-- Position 3 · Wedding / Los Cabos -->
+    <figure class="quote">
+      <blockquote class="quote__text">
+        <!-- TODO-REPLACE: real review when client provides Tier 0 reviews -->
+        Cobertura con mesura, calidad de revista. Nada posado. Todo intencional.
+      </blockquote>
+      <figcaption class="quote__attr">
+        <span class="quote__name">[Nombre real pendiente]</span>
+        <span class="quote__sep" aria-hidden="true">&middot;</span>
+        <span class="quote__detail">Boda destino, Los Cabos, 2025</span>
+      </figcaption>
+    </figure>
+
+  </div>
+
+  <p class="container testimonials__source" data-reveal>
+    Rese&ntilde;as verificadas en <a href="https://maps.app.goo.gl/aX7jiVbLzwurMmX19" rel="noopener">Google Business Profile</a>.
+  </p>
+</section>
