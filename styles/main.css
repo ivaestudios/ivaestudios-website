@@ -32,6 +32,7 @@
 @import "_footer.css";        /* Agent 05 */
 
 /* ── Pages (Oleadas 2-3) ───────────────────────────────────────────── */
+@import "_home-hero.css";           /* Oleada 2 · Agent 02 — homepage hero */
 /* @import "_home.css"; */          /* added in Oleada 2 */
 /* @import "_about.css"; */
 /* @import "_services.css"; */
