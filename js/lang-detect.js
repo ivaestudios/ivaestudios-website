@@ -11,7 +11,7 @@
   "use strict";
 
   // EN path → ES path mapping. Keep keys as absolute paths without trailing slash except root.
-  var MAP_EN_TO_ES = {
+  const MAP_EN_TO_ES = {
     "/": "/es/",
     "/about": "/es/acerca-de",
     "/blog": "/es/blog",
@@ -54,12 +54,12 @@
   };
 
   // Build reverse map (ES → EN)
-  var MAP_ES_TO_EN = {};
+  const MAP_ES_TO_EN = {};
   Object.keys(MAP_EN_TO_ES).forEach(function (en) {
     MAP_ES_TO_EN[MAP_EN_TO_ES[en]] = en;
   });
 
-  var STORAGE_KEY = "ivae_lang";
+  const STORAGE_KEY = "ivae_lang";
 
   function normalizePath(p) {
     // Strip trailing slash except for root variants
@@ -76,7 +76,7 @@
   }
 
   function counterpartPath(currentPath) {
-    var p = normalizePath(currentPath);
+    const p = normalizePath(currentPath);
     if (isSpanishPath(p)) {
       // ES → EN
       return MAP_ES_TO_EN[p] || MAP_ES_TO_EN[p + "/"] || null;
@@ -102,14 +102,14 @@
   }
 
   function detectBrowserLang() {
-    var langs = [];
+    let langs = [];
     if (navigator.languages && navigator.languages.length) {
       langs = Array.prototype.slice.call(navigator.languages);
     } else if (navigator.language) {
       langs = [navigator.language];
     }
-    for (var i = 0; i < langs.length; i++) {
-      var l = (langs[i] || "").toLowerCase();
+    for (let i = 0; i < langs.length; i++) {
+      const l = (langs[i] || "").toLowerCase();
       if (l.indexOf("es") === 0) return "es";
       if (l.indexOf("en") === 0) return "en";
     }
@@ -117,20 +117,20 @@
   }
 
   function autoRedirectIfNeeded() {
-    var path = normalizePath(window.location.pathname);
-    var onSpanish = isSpanishPath(path);
-    var stored = getStoredLang();
+    const path = normalizePath(window.location.pathname);
+    const onSpanish = isSpanishPath(path);
+    const stored = getStoredLang();
 
     // User has an explicit preference → honor it
     if (stored === "en" && onSpanish) {
-      var enAlt = counterpartPath(path);
+      const enAlt = counterpartPath(path);
       if (enAlt && enAlt !== path) {
         window.location.replace(enAlt + window.location.search + window.location.hash);
         return true;
       }
     }
     if (stored === "es" && !onSpanish) {
-      var esAlt = counterpartPath(path);
+      const esAlt = counterpartPath(path);
       if (esAlt && esAlt !== path) {
         window.location.replace(esAlt + window.location.search + window.location.hash);
         return true;
@@ -139,9 +139,9 @@
 
     // No stored preference → infer from browser language
     if (!stored) {
-      var browser = detectBrowserLang();
+      const browser = detectBrowserLang();
       if (browser === "es" && !onSpanish) {
-        var alt = counterpartPath(path);
+        const alt = counterpartPath(path);
         if (alt && alt !== path) {
           window.location.replace(alt + window.location.search + window.location.hash);
           return true;
@@ -152,11 +152,11 @@
   }
 
   function updateSwitcherActive() {
-    var path = normalizePath(window.location.pathname);
-    var onSpanish = isSpanishPath(path);
-    var buttons = document.querySelectorAll("[data-lang-switch]");
+    const path = normalizePath(window.location.pathname);
+    const onSpanish = isSpanishPath(path);
+    const buttons = document.querySelectorAll("[data-lang-switch]");
     buttons.forEach(function (btn) {
-      var lang = btn.getAttribute("data-lang-switch");
+      const lang = btn.getAttribute("data-lang-switch");
       if ((lang === "es" && onSpanish) || (lang === "en" && !onSpanish)) {
         btn.classList.add("is-active");
         btn.setAttribute("aria-current", "true");
@@ -170,12 +170,12 @@
         btn.addEventListener("click", function (e) {
           setStoredLang(lang);
           // If already on desired side, no-op
-          var curPath = normalizePath(window.location.pathname);
-          var curIsEs = isSpanishPath(curPath);
+          const curPath = normalizePath(window.location.pathname);
+          const curIsEs = isSpanishPath(curPath);
           if ((lang === "es" && curIsEs) || (lang === "en" && !curIsEs)) {
             return;
           }
-          var target = counterpartPath(curPath);
+          const target = counterpartPath(curPath);
           if (target) {
             e.preventDefault();
             window.location.href = target + window.location.search + window.location.hash;
@@ -190,7 +190,7 @@
   }
 
   // Run redirect IMMEDIATELY (before DOMContentLoaded) to avoid flash
-  var redirected = autoRedirectIfNeeded();
+  const redirected = autoRedirectIfNeeded();
 
   if (!redirected) {
     if (document.readyState === "loading") {
