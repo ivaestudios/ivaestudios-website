@@ -64,6 +64,15 @@
 /api/*
   Cache-Control: no-cache
 
+# Focal-points + admin auth endpoints — never cache, never store.
+# Auth responses set HttpOnly cookies; intermediaries must not retain
+# them, and the public GET should propagate fresh on each save.
+/api/focal
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
+/api/focal/*
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
 /*.jpg
   Cache-Control: public, max-age=31536000, immutable
 

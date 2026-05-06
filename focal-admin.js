@@ -2,7 +2,9 @@
    IVAE Studios — Focal Point System v4
    ───────────────────────────────────────────────────────────────
    • Loads focal data from /api/focal (KV) for ALL visitors
-   • Admin: /admin → login → sessionStorage → edit tools
+   • Admin: /admin → login → HttpOnly HMAC cookie → edit tools
+   • The sessionStorage flag below is UI-only; the real auth gate is
+     the ivae_admin_session cookie set by /api/focal/login.
    • Preview matches actual published crop
    • Mobile-optimized editor
    • GUARDAR saves permanently via API (KV)
@@ -13,7 +15,6 @@
   var STORE = 'ivae_focal_points';
   var AUTH  = 'ivae_admin_auth';
   var API   = '/api/focal';
-  var AKEY  = 'ivae2026';
   var mob   = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
   function ik(img) {
@@ -481,7 +482,8 @@
 
       fetch(API, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-Key': AKEY },
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       }).then(function (r) {
         if (!r.ok) throw 0;
@@ -509,7 +511,8 @@
       delete data[cKey];
       fetch(API, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-Key': AKEY },
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       }).catch(function () {});
       sl(data);
@@ -529,7 +532,8 @@
       if (!confirm('Eliminar TODOS los puntos focales?')) return;
       fetch(API, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-Key': AKEY },
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({})
       }).catch(function () {});
       sl({});
@@ -584,6 +588,14 @@
     /* ── Exit admin ── */
     document.getElementById('faOut').addEventListener('click', function () {
       sessionStorage.removeItem(AUTH);
+      // Clear the server-side HMAC cookie. We don't await — the
+      // redirect happens regardless of success.
+      try {
+        fetch('/api/focal/logout', {
+          method: 'POST',
+          credentials: 'include'
+        }).catch(function () {});
+      } catch (_) {}
       location.href = '/';
     });
   }
