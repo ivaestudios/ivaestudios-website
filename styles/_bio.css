@@ -1,0 +1,237 @@
+/* ════════════════════════════════════════════════════════════════════
+   _bio.css — Vianey Ortega founder profile page
+   ──────────────────────────────────────────────────────────────────
+   Oleada 3 · Agent 02 · feat/r26-3-02-vianey-bio
+   Editorial bio page for E-E-A-T signals. Single page (en + es mirror).
+   Tokens-only — no hard-coded colors, sizes, or spacing.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Page hero · split layout ─────────────────────────────────── */
+.section--page-hero--bio {
+  background: var(--resort-white);
+  padding-block: clamp(96px, 14vw, 160px);
+}
+
+.section--page-hero--bio .bio-hero__inner {
+  width: min(100% - var(--gutter) * 2, var(--max-w-content));
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-7);
+  align-items: center;
+}
+
+@media (min-width: 960px) {
+  .section--page-hero--bio .bio-hero__inner {
+    grid-template-columns: 40% 1fr;
+    gap: var(--space-9);
+  }
+}
+
+.bio-hero__portrait {
+  max-width: 480px;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.bio-hero__portrait .ivae-image--portrait {
+  aspect-ratio: 3 / 4;
+}
+
+/* Bodoni Æ initial card — graceful fallback when no portrait yet */
+.bio-hero__monogram {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 3 / 4;
+  background: var(--atlantic-navy);
+  color: var(--editorial-gold);
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: var(--fw-regular);
+  font-size: clamp(8rem, 18vw, 14rem);
+  line-height: 1;
+  letter-spacing: var(--ls-normal);
+  user-select: none;
+}
+
+.bio-hero__intro .eyebrow {
+  margin-block-end: var(--space-4);
+}
+
+.bio-hero__intro h1 {
+  font-size: var(--fs-1100-fluid);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  margin-block-end: var(--space-5);
+}
+
+.bio-hero__lede {
+  font-family: var(--font-display);
+  font-size: var(--fs-700-fluid);
+  line-height: var(--lh-snug);
+  color: var(--text);
+  max-width: 36ch;
+  margin: 0;
+}
+
+/* ── 2. Long-form bio body · magazine prose ──────────────────────── */
+.bio-body {
+  background: var(--resort-white);
+  padding-block: clamp(72px, 10vw, 128px);
+}
+
+.bio-body > .dropcap-container,
+.bio-body > p,
+.bio-body > .bio-pullquote {
+  margin-inline: auto;
+  max-width: var(--max-w-prose);
+}
+
+.bio-body p {
+  font-size: var(--fs-500);
+  line-height: var(--lh-loose);
+  color: var(--text);
+}
+
+/* Drop-cap container — reuses .dropcap from _base.css */
+.bio-body .dropcap {
+  /* No re-declaration — _base.css owns .dropcap::first-letter */
+  margin-block-end: var(--space-5);
+}
+
+/* ── 3. Pull-quote · Bodoni italic, gold accent on a single word ── */
+.bio-pullquote {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-size: var(--fs-900-fluid);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  text-align: center;
+  color: var(--text);
+  margin-block: var(--space-8);
+  padding-block: var(--space-6);
+  border: 0;
+}
+
+.bio-pullquote em,
+.bio-pullquote .accent {
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--editorial-gold);
+  font-weight: var(--fw-regular);
+}
+
+/* ── 4. Credentials · two-column dl at desktop, stacked mobile ──── */
+.bio-credentials {
+  background: var(--warm-sand);
+  padding-block: clamp(72px, 10vw, 112px);
+}
+
+.bio-credentials .container {
+  width: min(100% - var(--gutter) * 2, var(--max-w-content));
+  margin-inline: auto;
+}
+
+.bio-credentials h2 {
+  font-size: var(--fs-900-fluid);
+  line-height: var(--lh-snug);
+  margin-block-end: var(--space-7);
+  text-align: left;
+}
+
+.bio-credentials dl {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: var(--space-3);
+  column-gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  max-width: none;
+}
+
+.bio-credentials dt {
+  font-family: var(--font-body);
+  font-size: var(--fs-300);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-eyebrow);
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.bio-credentials dd {
+  font-family: var(--font-body);
+  font-size: var(--fs-500);
+  line-height: var(--lh-normal);
+  color: var(--text);
+  margin: 0 0 var(--space-3);
+  padding-block-end: var(--space-3);
+  border-block-end: 1px solid var(--border);
+}
+
+.bio-credentials dd:last-of-type {
+  border-block-end: 0;
+  padding-block-end: 0;
+  margin-block-end: 0;
+}
+
+@media (min-width: 720px) {
+  .bio-credentials dl {
+    grid-template-columns: 200px 1fr;
+  }
+
+  .bio-credentials dt {
+    padding-block-start: var(--space-3);
+    border-block-end: 1px solid var(--border);
+    padding-block-end: var(--space-3);
+    margin: 0;
+  }
+
+  .bio-credentials dt:last-of-type {
+    border-block-end: 0;
+  }
+
+  .bio-credentials dd {
+    padding-block-start: var(--space-3);
+    margin: 0;
+  }
+}
+
+/* ── 5. Mini CTA · single line, restrained ──────────────────────── */
+.bio-cta {
+  background: var(--resort-white);
+  padding-block: 80px;
+  text-align: center;
+}
+
+.bio-cta p {
+  max-width: 56ch;
+  margin: 0 auto;
+  font-size: var(--fs-600-fluid);
+  font-family: var(--font-display);
+  line-height: var(--lh-snug);
+  color: var(--text);
+}
+
+.bio-cta a {
+  color: var(--editorial-gold);
+  text-decoration: none;
+  border-block-end: 1px solid currentColor;
+  padding-block-end: 2px;
+  white-space: nowrap;
+}
+
+.bio-cta a:hover,
+.bio-cta a:focus-visible {
+  color: var(--atlantic-navy);
+}
+
+/* ── 6. Reduced motion · honor user preference ──────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .section--page-hero--bio,
+  .bio-body,
+  .bio-credentials,
+  .bio-cta {
+    scroll-behavior: auto;
+  }
+}
