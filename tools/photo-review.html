@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>IVAE — Revisar y renombrar fotos</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+body { background: #0c1219; color: #faf8f5; padding: 32px; }
+header { max-width: 1200px; margin: 0 auto 24px; padding-bottom: 20px; border-bottom: 1px solid #2a3140; }
+h1 { font-size: 24px; font-weight: 600; color: #c9a54e; margin-bottom: 8px; }
+.lead { color: rgba(250,248,245,0.7); font-size: 14px; line-height: 1.5; max-width: 760px; }
+.lead code { background: rgba(196,165,78,0.15); padding: 2px 6px; border-radius: 3px; color: #c9a54e; font-family: monospace; font-size: 13px; }
+.actions { max-width: 1200px; margin: 0 auto 24px; display: flex; gap: 12px; flex-wrap: wrap; }
+button { background: #c9a54e; color: #0c1219; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 4px; }
+button:hover { background: #d4b35e; }
+button.secondary { background: rgba(250,248,245,0.1); color: #faf8f5; border: 1px solid rgba(250,248,245,0.2); }
+button.secondary:hover { background: rgba(250,248,245,0.2); }
+.grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+.card { background: #1a2230; border: 1px solid #2a3140; border-radius: 6px; overflow: hidden; }
+.card .img { width: 100%; aspect-ratio: 4/3; background: #000; overflow: hidden; }
+.card .img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card .body { padding: 16px; }
+.filename { font-family: monospace; font-size: 11px; color: rgba(250,248,245,0.5); word-break: break-all; margin-bottom: 4px; }
+.used-in { font-size: 11px; color: rgba(196,165,78,0.7); margin-bottom: 12px; font-style: italic; }
+.field { display: block; margin-bottom: 10px; }
+.field label { font-size: 11px; color: rgba(250,248,245,0.6); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; display: block; }
+.field input, .field textarea, .field select { width: 100%; background: #0c1219; color: #faf8f5; border: 1px solid #2a3140; padding: 8px 10px; font-size: 13px; font-family: inherit; border-radius: 3px; }
+.field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: #c9a54e; }
+.field textarea { min-height: 50px; resize: vertical; font-family: monospace; font-size: 12px; }
+.empty-mark { background: rgba(229,115,115,0.15) !important; border-color: rgba(229,115,115,0.4) !important; }
+#output { max-width: 1200px; margin: 24px auto 0; padding: 16px; background: #1a2230; border: 1px solid #2a3140; border-radius: 6px; display: none; }
+#output.show { display: block; }
+#output pre { background: #0c1219; padding: 12px; border-radius: 4px; max-height: 400px; overflow: auto; color: #c9a54e; font-size: 12px; line-height: 1.5; }
+#output .copy-btn { margin-top: 8px; }
+small { color: rgba(250,248,245,0.5); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📸 Revisar y renombrar fotos del sitio</h1>
+  <p class="lead">
+    Aquí están las <strong id="count">14</strong> fotos que aparecen en tu sitio público.<br>
+    Para cada una: revisa la foto y dime <strong>qué tipo de sesión es</strong> y <strong>dónde se tomó</strong>.<br>
+    Cuando termines, click <code>Generar mapping</code> y pega el JSON en el chat de Claude. Yo aplico los renames automáticamente.
+  </p>
+</header>
+
+<div class="actions">
+  <button id="btnGenerate">Generar mapping JSON</button>
+  <button class="secondary" id="btnCopy" disabled>📋 Copiar JSON al portapapeles</button>
+  <small style="margin-left: auto; align-self: center;">Tu trabajo se guarda automáticamente en este navegador.</small>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div id="output">
+  <h3 style="margin-bottom: 12px;">Mapping listo — pasa esto al chat:</h3>
+  <pre id="outputJson"></pre>
+  <button class="copy-btn" id="btnCopy2">📋 Copiar al portapapeles</button>
+</div>
+
+<script>
+'use strict';
+
+// Categories the operator can pick from
+const SESSION_TYPES = [
+  { v: '', label: '— elegir tipo —' },
+  { v: 'family', label: 'Familia' },
+  { v: 'family-kids', label: 'Familia (con niños)' },
+  { v: 'couple', label: 'Pareja' },
+  { v: 'engagement', label: 'Compromiso / Pre-boda' },
+  { v: 'wedding', label: 'Boda' },
+  { v: 'wedding-reception', label: 'Boda — recepción' },
+  { v: 'wedding-decor', label: 'Boda — decoración / mesa' },
+  { v: 'maternity', label: 'Maternidad' },
+  { v: 'newborn', label: 'Recién nacido' },
+  { v: 'quinceanera', label: 'Quinceañera' },
+  { v: 'birthday', label: 'Cumpleaños' },
+  { v: 'bachelorette', label: 'Despedida de soltera' },
+  { v: 'cenote', label: 'Cenote' },
+  { v: 'yacht', label: 'Yate' },
+  { v: 'editorial', label: 'Editorial / Portafolio' },
+  { v: 'resort', label: 'Resort / Locación' },
+  { v: 'other', label: 'Otro (escribir nota)' },
+];
+
+const LOCATIONS = [
+  { v: '', label: '— elegir ubicación —' },
+  { v: 'cancun', label: 'Cancún' },
+  { v: 'cancun-hotel-zone', label: 'Cancún — Zona Hotelera' },
+  { v: 'cancun-beach', label: 'Cancún — playa' },
+  { v: 'cancun-pier', label: 'Cancún — muelle' },
+  { v: 'playa-mujeres', label: 'Playa Mujeres' },
+  { v: 'isla-mujeres', label: 'Isla Mujeres' },
+  { v: 'riviera-maya', label: 'Riviera Maya' },
+  { v: 'tulum', label: 'Tulum' },
+  { v: 'akumal', label: 'Akumal' },
+  { v: 'playa-del-carmen', label: 'Playa del Carmen' },
+  { v: 'mayakoba', label: 'Mayakoba' },
+  { v: 'maroma', label: 'Maroma' },
+  { v: 'los-cabos', label: 'Los Cabos' },
+  { v: 'cabo-san-lucas', label: 'Cabo San Lucas' },
+  { v: 'cenote-gran', label: 'Cenote Gran' },
+  { v: 'cenote-dos-ojos', label: 'Cenote Dos Ojos' },
+  { v: 'cenote-calavera', label: 'Cenote Calavera' },
+  { v: 'studio', label: 'Estudio' },
+  { v: 'other', label: 'Otra (escribir nota)' },
+];
+
+const STORAGE_KEY = 'ivae-photo-review-v1';
+const grid = document.getElementById('grid');
+const output = document.getElementById('output');
+const outputJson = document.getElementById('outputJson');
+let imageData = null;
+let formState = {};
+
+function loadState() {
+  try { formState = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+  catch (e) { formState = {}; }
+}
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(formState)); } catch (e) {}
+}
+
+function buildSelect(name, options, value) {
+  const sel = document.createElement('select');
+  sel.name = name;
+  for (const o of options) {
+    const opt = document.createElement('option');
+    opt.value = o.v;
+    opt.textContent = o.label;
+    if (o.v === value) opt.selected = true;
+    sel.appendChild(opt);
+  }
+  return sel;
+}
+
+function renderCard(path, info) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  const state = formState[path] || {};
+  card.innerHTML = `
+    <div class="img"><img src="../${path}" alt=""></div>
+    <div class="body">
+      <div class="filename">${path}</div>
+      ${info.used_in.length ? `<div class="used-in">Aparece en: ${info.used_in.join(', ')}</div>` : ''}
+    </div>
+  `;
+  const body = card.querySelector('.body');
+
+  // Field: tipo de sesión
+  const fld1 = document.createElement('div');
+  fld1.className = 'field';
+  fld1.innerHTML = '<label>¿Qué tipo de sesión es?</label>';
+  const sel1 = buildSelect('type', SESSION_TYPES, state.type || '');
+  fld1.appendChild(sel1);
+  body.appendChild(fld1);
+
+  // Field: ubicación
+  const fld2 = document.createElement('div');
+  fld2.className = 'field';
+  fld2.innerHTML = '<label>¿Dónde se tomó?</label>';
+  const sel2 = buildSelect('location', LOCATIONS, state.location || '');
+  fld2.appendChild(sel2);
+  body.appendChild(fld2);
+
+  // Field: notas (opcional)
+  const fld3 = document.createElement('div');
+  fld3.className = 'field';
+  fld3.innerHTML = '<label>Notas (año, detalles, alt text)</label>';
+  const txt = document.createElement('textarea');
+  txt.name = 'notes';
+  txt.placeholder = '"Familia con 2 niños, atardecer Pier Cancún 2025"';
+  txt.value = state.notes || '';
+  fld3.appendChild(txt);
+  body.appendChild(fld3);
+
+  // Wire up changes
+  function update() {
+    formState[path] = {
+      type: sel1.value,
+      location: sel2.value,
+      notes: txt.value.trim()
+    };
+    if (!sel1.value && !sel2.value && !txt.value.trim()) delete formState[path];
+    saveState();
+    card.classList.toggle('empty-mark', !sel1.value && !txt.value.trim());
+  }
+  sel1.addEventListener('change', update);
+  sel2.addEventListener('change', update);
+  txt.addEventListener('input', update);
+  if (!sel1.value && !txt.value.trim()) card.classList.add('empty-mark');
+
+  return card;
+}
+
+function init() {
+  loadState();
+  imageData = {
+  "images/couple-cancun-hotel-zone-ivae-studios.jpg": {
+    "alt": "",
+    "used_in": [
+      "es/index.html"
+    ]
+  },
+  "images/family-kids-cancun-hotel-zone-ivae-studios.jpg": {
+    "alt": "",
+    "used_in": [
+      "es/index.html"
+    ]
+  },
+  "images/family-kids-playa-mujeres-ivae-studios.jpg": {
+    "alt": "",
+    "used_in": [
+      "es/index.html"
+    ]
+  },
+  "images/wedding-decor-los-cabos-ivae-studios.jpg": {
+    "alt": "",
+    "used_in": [
+      "es/index.html"
+    ]
+  },
+  "images/wedding-decor-los-cabos-ivae-studios-2.jpg": {
+    "alt": "",
+    "used_in": [
+      "es/index.html"
+    ]
+  },
+  "images/editorial-tulum-ivae-studios.jpg": {
+    "alt": "",
+    "used_in": [
+      "es/index.html"
+    ]
+  },
+  "images/couple-riviera-maya-ivae-studios.jpg": {
+    "alt": "",
+    "used_in": [
+      "es/index.html"
+    ]
+  },
+  "images/family-kids-cancun-ivae-studios.jpg": {
+    "alt": "",
+    "used_in": [
+      "es/index.html"
+    ]
+  },
+  "images/couple-cancun-hotel-zone-ivae-studios-2.jpg": {
+    "alt": "",
+    "used_in": [
+      "es/index.html"
+    ]
+  },
+  "images/family-kids-cancun-hotel-zone-ivae-studios-2.jpg": {
+    "alt": "",
+    "used_in": [
+      "es/index.html"
+    ]
+  },
+  "images/couple-cancun-hotel-zone-ivae-studios-3.jpg": {
+    "alt": "",
+    "used_in": [
+      "es/index.html"
+    ]
+  },
+  "images/wedding-los-cabos-ivae-studios.jpg": {
+    "alt": "",
+    "used_in": [
+      "es/index.html"
+    ]
+  },
+  "images/couple-cancun-ivae-studios.jpg": {
+    "alt": "",
+    "used_in": [
+      "es/index.html"
+    ]
+  },
+  "images/wedding-los-cabos-ivae-studios-2.jpg": {
+    "alt": "",
+    "used_in": [
+      "es/index.html"
+    ]
+  }
+};
+  document.getElementById('count').textContent = Object.keys(imageData).length;
+  for (const path of Object.keys(imageData)) {
+    grid.appendChild(renderCard(path, imageData[path]));
+  }
+}
+
+function generateMapping() {
+  const result = {};
+  for (const path of Object.keys(imageData)) {
+    const s = formState[path];
+    if (!s) continue;
+    if (!s.type && !s.location && !s.notes) continue;
+    // Suggest a new filename based on type + location + suffix
+    const parts = [];
+    if (s.type) parts.push(s.type);
+    if (s.location) parts.push(s.location);
+    parts.push('ivae-studios');
+    const ext = path.split('.').pop();
+    const newPath = 'images/' + parts.filter(Boolean).join('-') + '.' + ext;
+    result[path] = {
+      new_path: newPath,
+      type: s.type || '',
+      location: s.location || '',
+      notes: s.notes || ''
+    };
+  }
+  return result;
+}
+
+document.getElementById('btnGenerate').addEventListener('click', () => {
+  const mapping = generateMapping();
+  outputJson.textContent = JSON.stringify(mapping, null, 2);
+  output.classList.add('show');
+  document.getElementById('btnCopy').disabled = false;
+  document.getElementById('btnCopy').onclick = () => {
+    navigator.clipboard.writeText(JSON.stringify(mapping, null, 2));
+    document.getElementById('btnCopy').textContent = '✓ Copiado';
+  };
+  document.getElementById('btnCopy2').onclick = () => {
+    navigator.clipboard.writeText(JSON.stringify(mapping, null, 2));
+    document.getElementById('btnCopy2').textContent = '✓ Copiado';
+  };
+  output.scrollIntoView({ behavior: 'smooth' });
+});
+
+init();
+</script>
+</body>
+</html>
