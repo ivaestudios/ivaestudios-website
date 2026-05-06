@@ -1,0 +1,303 @@
+/* ═══════════════════════════════════════════════════════════════
+   IVAE Studios — Dark Mode (global override)
+   ───────────────────────────────────────────────────────────────
+   Applied automatically (default ON) by /js/dark-mode.js, which
+   sets <html class="dark"> before paint to avoid FOUC.
+   Toggle in the header switches between dark and light, persisted
+   in localStorage as 'ivae-theme' = 'dark' | 'light'.
+
+   Strategy:
+   • Invert section backgrounds: cream/sand → ink/ink2
+   • Invert text colors: ink → cream
+   • Keep gold as accent (works on both backgrounds)
+   • Keep all heroes/imagery unchanged (they already work on dark)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Default off — only applies when html.dark is set */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background: #0c1219;
+  color: #faf8f5;
+}
+
+/* ── Section backgrounds (most have inline styles) ─────────────── */
+
+html.dark section,
+html.dark .section,
+html.dark main {
+  background: #0c1219;
+  color: #faf8f5;
+}
+
+/* Cream/sand backgrounds → dark navy */
+html.dark [style*="background:#faf8f5"],
+html.dark [style*="background: #faf8f5"],
+html.dark [style*="background:var(--cream)"],
+html.dark [style*="background: var(--cream)"],
+html.dark [style*="background:#eee8dc"],
+html.dark [style*="background:var(--sand)"],
+html.dark [style*="background: var(--sand)"] {
+  background: #0c1219 !important;
+}
+
+/* ── Common content sections ─────────────────────────────────── */
+
+html.dark .why,
+html.dark .services,
+html.dark .destinations,
+html.dark .process,
+html.dark .testimonials,
+html.dark .reviews,
+html.dark .faq,
+html.dark .blog-section,
+html.dark .blog-list,
+html.dark .post-content,
+html.dark .post-article,
+html.dark .post,
+html.dark .blog-grid,
+html.dark .grid,
+html.dark .info-section,
+html.dark .content,
+html.dark .stats,
+html.dark .about,
+html.dark .bio,
+html.dark .contact,
+html.dark .outfit-guide,
+html.dark .legal {
+  background: #0c1219;
+  color: #faf8f5;
+}
+
+html.dark .why-text,
+html.dark .post-body,
+html.dark .post-content p,
+html.dark .post-article p,
+html.dark p,
+html.dark li,
+html.dark dd,
+html.dark dt,
+html.dark blockquote,
+html.dark figcaption {
+  color: #faf8f5;
+}
+
+html.dark .test-quote,
+html.dark .testimonial-text,
+html.dark .quote {
+  color: #faf8f5;
+}
+
+/* Headings keep their own colors but force cream when they were ink */
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6 {
+  color: #faf8f5;
+}
+
+/* Eyebrows/labels in gold or muted */
+html.dark .eyebrow,
+html.dark .section-label,
+html.dark .post-cat,
+html.dark .post-meta,
+html.dark .post-date {
+  color: #c9a54e;
+}
+
+html.dark .muted,
+html.dark .text-muted,
+html.dark small {
+  color: rgba(250, 248, 245, 0.65);
+}
+
+/* ── Cards / tiles ──────────────────────────────────────────── */
+
+html.dark .card,
+html.dark .post-card,
+html.dark .service-card,
+html.dark .dest-card,
+html.dark .testimonial,
+html.dark .review,
+html.dark .stat,
+html.dark .feature,
+html.dark .info-card {
+  background: #1a2230;
+  color: #faf8f5;
+  border-color: rgba(196, 165, 78, 0.18);
+}
+
+html.dark .card h2,
+html.dark .card h3,
+html.dark .post-card h2,
+html.dark .post-card h3,
+html.dark .service-card h3,
+html.dark .testimonial p {
+  color: #faf8f5;
+}
+
+/* ── Footer ─────────────────────────────────────────────────── */
+
+html.dark footer,
+html.dark .footer,
+html.dark .site-footer {
+  background: #0a0f17;
+  color: #faf8f5;
+  border-color: rgba(196, 165, 78, 0.15);
+}
+
+html.dark footer a,
+html.dark .footer a {
+  color: rgba(250, 248, 245, 0.78);
+}
+
+html.dark footer a:hover,
+html.dark .footer a:hover {
+  color: #c9a54e;
+}
+
+/* ── Links / inline text ───────────────────────────────────── */
+
+html.dark a {
+  color: #c9a54e;
+}
+
+html.dark a:hover {
+  color: #faf8f5;
+}
+
+html.dark strong,
+html.dark b {
+  color: #faf8f5;
+}
+
+/* ── Header (already dark — small refinements) ────────────── */
+
+html.dark .site-header,
+html.dark header {
+  background: rgba(10, 15, 23, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom-color: rgba(196, 165, 78, 0.18);
+}
+
+html.dark .header-nav a {
+  color: rgba(250, 248, 245, 0.85);
+}
+
+html.dark .header-nav a:hover,
+html.dark .header-nav a.active {
+  color: #c9a54e;
+}
+
+/* ── Forms ─────────────────────────────────────────────────── */
+
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background: rgba(250, 248, 245, 0.06);
+  color: #faf8f5;
+  border-color: rgba(196, 165, 78, 0.25);
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: rgba(250, 248, 245, 0.4);
+}
+
+/* ── Body.loaded inversion guards ──────────────────────────── */
+/* The site-wide pattern uses body.loaded to switch from a dark
+   pre-load state to a light loaded state. In dark mode we want
+   to keep the dark state. Override the loaded variants. */
+
+html.dark body.loaded {
+  background: #0c1219 !important;
+  color: #faf8f5 !important;
+}
+
+html.dark body.loaded .lang-switch a {
+  color: rgba(250, 248, 245, 0.55);
+}
+
+html.dark body.loaded .lang-switch a:hover {
+  color: #faf8f5;
+}
+
+html.dark body.loaded .lang-switch a.is-active {
+  color: #c9a54e;
+}
+
+html.dark body.loaded .lang-switch .lang-sep {
+  color: rgba(250, 248, 245, 0.25);
+}
+
+/* ── Theme toggle button ──────────────────────────────────── */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-right: 14px;
+  background: transparent;
+  border: 1px solid rgba(196, 165, 78, 0.3);
+  border-radius: 50%;
+  color: rgba(250, 248, 245, 0.85);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-toggle:hover {
+  border-color: #c9a54e;
+  color: #c9a54e;
+  background: rgba(196, 165, 78, 0.08);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid #c9a54e;
+  outline-offset: 2px;
+}
+
+body.loaded .theme-toggle {
+  border-color: rgba(26, 34, 48, 0.25);
+  color: rgba(26, 34, 48, 0.7);
+}
+
+body.loaded .theme-toggle:hover {
+  border-color: #c9a54e;
+  color: #c9a54e;
+}
+
+html.dark .theme-toggle,
+html.dark body.loaded .theme-toggle {
+  border-color: rgba(196, 165, 78, 0.3);
+  color: rgba(250, 248, 245, 0.85);
+}
+
+html.dark .theme-toggle:hover,
+html.dark body.loaded .theme-toggle:hover {
+  border-color: #c9a54e;
+  color: #c9a54e;
+}
+
+/* ── Bigger lang switcher in desktop ──────────────────────── */
+
+@media (min-width: 901px) {
+  .lang-switch {
+    font-size: 11.5px;
+    letter-spacing: 0.24em;
+    gap: 8px;
+    margin-right: 16px;
+  }
+  .lang-switch a {
+    padding: 8px 6px;
+  }
+}
