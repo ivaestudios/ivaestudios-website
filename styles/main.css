@@ -21,7 +21,7 @@
 @import "_tokens.css";        /* design tokens — Agent 01 */
 @import "_fonts.css";         /* @font-face + preloads — Agent 02 */
 @import "_base.css";          /* reset + typography — Agent 10 */
-@import "_logo.css";          /* logo SVG sizing — Agent 03 (optional) */
+/* @import "_logo.css"; */    /* not produced — logos are SVG-only (images/brand/) */
 
 /* ── Components (Oleada 1) ─────────────────────────────────────────── */
 @import "_buttons.css";       /* Agent 06 */
