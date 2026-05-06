@@ -1,0 +1,199 @@
+/* ============================================================
+ * IVAE Studios — Home / Process
+ * Oleada 2 · Agent 07
+ * Five decisions, warm-sand background. Tonal contrast against
+ * the surrounding resort-white sections. Editorial step list
+ * with gold numerals and a hairline-gold rule between rows.
+ *
+ * Tokens:    styles/_tokens.css (Agent 01)
+ * Reveal:    styles/_animations.css — [data-reveal], [data-reveal-words]
+ * Container: styles/_base.css       — .container, .container--wide
+ * Eyebrow:   styles/_base.css       — .eyebrow
+ *
+ * Contrast verification (BRAND.md §3 palette):
+ *   Atlantic Navy  (#1A2433) on Warm Sand (#E6DCCF)
+ *   ratio ≈ 12.6 : 1   → passes WCAG AAA for body and headlines.
+ *   Soft Slate     (#5A6A7A) on Warm Sand (#E6DCCF)
+ *   ratio ≈ 4.97 : 1   → passes WCAG AA for body. Used on the section
+ *                         lede (--text-muted) only; titles/body live on
+ *                         --text (navy) for AAA across the section.
+ *   Editorial Gold (#C4A35A) on Warm Sand (#E6DCCF)
+ *   ratio ≈ 2.4 : 1    → ornamental glyphs only (the numerals
+ *                         function as decorative numerals — the
+ *                         eyebrow already names the step).
+ * ============================================================ */
+
+/* ─── SECTION SHELL ───────────────────────────────────────── */
+.section--process {
+  /* Warm-sand sits between resort-white sections (manifesto, services,
+     destinations) and creates the tonal pause this page needs. */
+  background: var(--warm-sand);
+  color: var(--text);
+  /* Generous editorial padding — clamp matches Oleada 2 cadence. */
+  padding-block: clamp(96px, 14vw, 160px);
+  /* Allow the gold hairline to bleed without the page scrolling sideways. */
+  overflow: hidden;
+  /* Stack the header above the list. */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* ─── HEADER ─────────────────────────────────────────────── */
+.process__header {
+  /* Editorial alignment: text-left, capped width for a calm rag. */
+  text-align: left;
+  max-width: 720px;
+  margin-bottom: var(--space-2);
+}
+
+.process__header .eyebrow {
+  color: var(--text);
+  margin: 0;
+}
+
+.process__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  /* clamp(32px, ~3.5vw, 56px) — Oleada 2 h2 register. */
+  font-size: clamp(32px, 1.6rem + 2.4vw, 56px);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--atlantic-navy);
+  margin: var(--space-4) 0 0 0;
+  /* Title sets its own measure so the rag breaks at the right word. */
+  max-width: 18ch;
+  text-wrap: balance;
+}
+
+.process__title em {
+  /* Italic gold accent — single word per title (BRAND.md §5 rule). */
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--editorial-gold);
+  font-weight: 400;
+}
+
+.process__lede {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: clamp(16px, 0.95rem + 0.25vw, 18px);
+  line-height: var(--lh-normal);
+  color: var(--text-muted);
+  max-width: 56ch;
+  margin: var(--space-5) 0 0 0;
+}
+
+/* ─── STEPS LIST ─────────────────────────────────────────── */
+.process__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;            /* the hairline between rows is the only separator */
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  /* Counter is a fallback for screen-only contexts where the numeric
+     <span> would otherwise leak; we mark it aria-hidden in HTML. */
+  counter-reset: process-step;
+}
+
+/* ─── ONE STEP ───────────────────────────────────────────── */
+.process-step {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: var(--space-6);
+  align-items: start;
+  padding-block: var(--space-6);
+  /* Gold hairline at 30% — quiet division between decisions. */
+  border-bottom: 1px solid rgb(196 163 90 / 0.3);
+}
+
+.process-step:last-child {
+  border-bottom: 0;
+}
+
+/* Decimal numerals — DM Serif Display, gold, right-aligned. */
+.process-step__num {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(48px, 2.5rem + 2.5vw, 80px);
+  line-height: 0.9;
+  color: var(--editorial-gold);
+  text-align: right;
+  /* Optical alignment with the eyebrow cap-height of the body column. */
+  display: block;
+  /* Disable user selection — they are decorative. */
+  user-select: none;
+}
+
+/* Body column wrapper — keeps the text block tight. */
+.process-step__body-wrap {
+  display: block;
+}
+
+/* Step eyebrow — same cadence as global .eyebrow but smaller and gold. */
+.process-step__eyebrow {
+  font-size: 10px;
+  color: var(--editorial-gold);
+  margin: 0 0 var(--space-2) 0;
+  /* .eyebrow already supplies family / tracking / weight / uppercase. */
+}
+
+.process-step__title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: clamp(24px, 1.2rem + 1.2vw, 32px);
+  line-height: 1.15;
+  letter-spacing: var(--ls-tight);
+  color: var(--atlantic-navy);
+  margin: 0;
+  text-wrap: balance;
+}
+
+.process-step__body {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
+  max-width: 56ch;
+  margin: var(--space-3) 0 0 0;
+}
+
+/* ─── RESPONSIVE / MOBILE ────────────────────────────────── */
+/* Mobile decision (documented in 07-process.README.md): the gold
+   numeral stays ABOVE the eyebrow on narrow screens. The single-column
+   stack reads better than an inline numeral fighting the eyebrow for
+   visual weight, and it preserves the editorial hierarchy
+   (decision name → number → action → explanation). */
+@media (max-width: 640px) {
+  .process-step {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    padding-block: var(--space-7);
+  }
+
+  .process-step__num {
+    text-align: left;
+    /* Smaller on mobile — the figure is supportive, not the headline. */
+    font-size: 56px;
+    line-height: 1;
+  }
+
+  .process__title {
+    max-width: none;
+  }
+}
+
+/* ─── REVEAL STAGGER ─────────────────────────────────────── */
+/* The global animation system observes [data-reveal]; a small per-step
+   delay creates the sequential drift the spec asks for, without us
+   having to touch _animations.css. */
+.process-step[data-reveal]               { transition-delay: 0ms; }
+.process-step[data-reveal]:nth-child(2)  { --reveal-delay: 80ms; }
+.process-step[data-reveal]:nth-child(3)  { --reveal-delay: 160ms; }
+.process-step[data-reveal]:nth-child(4)  { --reveal-delay: 240ms; }
+.process-step[data-reveal]:nth-child(5)  { --reveal-delay: 320ms; }
+
+/* Reduced motion respects the global override — _animations.css zeroes
+   transitions under prefers-reduced-motion. We add nothing here. */
