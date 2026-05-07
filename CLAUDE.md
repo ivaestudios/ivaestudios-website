@@ -3,6 +3,17 @@
 Static site for [ivaestudios.com](https://ivaestudios.com) — luxury destination
 photography in Cancún / Riviera Maya / Los Cabos. Bilingual (EN / ES).
 
+## ⚡ For any Claude session: read [`seo/AGENTS.md`](seo/AGENTS.md) first
+
+A full enterprise SEO agent system is live. 11 autonomous agents run every
+Monday 9:08 AM local time. **Critical context lives in `seo/AGENTS.md`** —
+account hygiene, credentials, marker contracts, what's pending, etc. Do not
+make changes to the SEO system without reading that file first.
+
+**Critical accounts note:** the user has 3 Google accounts in Chrome. Always
+use `vianeydm07@gmail.com` (Vianey, `authuser=1`) — never the Regeneris
+accounts (`authuser=0` and `authuser=2`).
+
 ## Hosting
 
 - **Cloudflare Pages** auto-deploys on every push to `main`.
