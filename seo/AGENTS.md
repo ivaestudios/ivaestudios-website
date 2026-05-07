@@ -28,16 +28,140 @@ Cost: $0/month. Owner involvement: zero (system is fully autonomous).
 **Site age:** ~3 months in production (May 2026)
 **Current GSC traffic:** ~42 clicks total, 91 distinct queries with impressions
 
-**CRITICAL ACCOUNT NOTE:**
-The user has multiple Google accounts in Chrome. Only ONE is correct for IVAE:
-- `vianeydm07@gmail.com` (Vianey, **CORRECT** — owns ivaestudios.com everywhere)
-- Other accounts at `authuser=0` and `authuser=2` belong to unrelated projects
-  and must NEVER be used for IVAE work
+**ACCOUNT NOTE:**
+For all IVAE work use `vianeydm07@gmail.com` (Vianey, `authuser=1` in Chrome).
+Always confirm `authuser=1` before any action in Google services.
 
-When navigating Google services in browser, ALWAYS confirm `authuser=1` (Vianey)
-before any action. Earlier in this project a Cloud Console flow accidentally
-created a project under the wrong account because Chrome session-cookied through.
-That project was deleted; the wrong-account project space is now clean.
+---
+
+## Session log — 2026-05-07 (enterprise SEO + performance push)
+
+A long working session that pushed 12 commits and brought multiple SEO + Core
+Web Vitals subsystems to a finished state. Summary so future Claude sessions
+know what's already done:
+
+### Performance — PR 6 Core Web Vitals (all 3 phases shipped)
+
+**Phase 1 (commit `94aa214`)** — applied to 16 pillar pages:
+- Added `<link rel="preload" as="image" fetchpriority="high">` for hero images
+- Fixed 4 pages that had `loading="lazy"` on the hero `<img>` (critical bug —
+  hero is always in viewport, so lazy was delaying LCP by 500-1500 ms)
+- Added `fetchpriority="high"` to 11 hero `<img>` tags
+- Added `*.avif` and `*.svg` cache rules to `_headers`
+- Tool: `tools/_pr6-cwv-hero-preload.py` (idempotent)
+
+**Phase 2 (commit `5a0faa4`)** — 4 LOCAL hero images converted:
+- AVIF (q=60 effort=6) + WebP (q=82 effort=5) variants generated via sharp 0.33.5
+- Heroes wrapped in `<picture>` with type-discriminated `<source>` elements
+- Preload `<link>` upgraded to AVIF + `type="image/avif"`
+- Files: `wedding-bride-tulum`, `family-cancun`, `couple-cancun-3`, `wedding-cancun-hotel-zone`
+- Reduction: WebP -45%, AVIF -57% per hero
+- Tool: `tools/_pr6-phase2-picture.py` + `tools/img-converter/convert-heroes.mjs`
+
+**Phase 3 (commit `03ba721`)** — 3 CDN heroes migrated to local:
+- Cancún + Riviera Maya pillar pages refactored from CSS `background-image` to
+  HTML `<picture>` element (significant change — was preventing AVIF preload
+  from applying)
+- Los Cabos pillar (already img-based) wrapped in `<picture>`
+- 6 pages affected (3 EN + 3 ES)
+- Heroes downloaded from `assets.ivaestudios.com`, resized to 2000px max-width,
+  saved as JPG + WebP + AVIF locally
+- Total payload reduction across the 3 pages: ~49 MB → 705 KB for AVIF clients
+- Tool: `tools/img-converter/convert-cdn-heroes.mjs`
+
+**Expected LCP delta:** 2.87-4.14s → ~1s on hero pages. Confirm in next
+Monday's `seo/reports/page-speed-2026-W20.md`.
+
+### Photo classification + de-duplication (commit `9f4b3a5` + earlier)
+
+The owner classified 171 photos by type (couple/family/wedding/etc.) and
+location (cancun-beach/riviera-maya/etc.) via `tools/_photo-renames-2026-05-07.json`
+and `tools/_apply-renames.py`. Subsequent visual audit + repair commits
+eliminated 50+ duplicate image references across 12 pillar pages and fixed
+location mismatches (Riviera Maya photos previously labeled as Cancún, etc.).
+
+Final state of pillar pages (16 total): 14/16 with 0 duplicates, 2 los-cabos
+pages have 2 unavoidable duplicates each due to limited local Cabo image stock
+(only 6 unique Cabo people-photos exist; insufficient to fill all slots
+uniquely — accepted as compromise).
+
+### Legal compliance pages (commit `67ed708`) — 4 new pages
+
+Created enterprise-grade pages that were previously 404:
+- `privacy-policy.html` (2,634 words) + `es/politica-de-privacidad.html` (2,703)
+- `accessibility-statement.html` (1,663 words) + `es/declaracion-accesibilidad.html` (1,837)
+
+Privacy Policy covers GDPR, CCPA, México (Derechos ARCO), names actual
+processors (Cloudflare, GA, WhatsApp Business, Google Workspace), data
+retention windows, international transfers under SCCs.
+
+Accessibility Statement targets WCAG 2.1 Level AA conformance, declares
+known limitations honestly, lists supported assistive techs (VoiceOver,
+NVDA, JAWS, TalkBack), 14-day feedback SLA.
+
+Both ship with @graph JSON-LD (Organization matching site-wide @id, WebSite,
+WebPage with breadcrumb + mainContentOfPage, BreadcrumbList). Bidirectional
+hreflang verified between EN ↔ ES.
+
+`_redirects`: 4 clean URLs + 5 alternate-slug 301s (`/privacy`, `/privacidad`,
+`/aviso-de-privacidad`, `/accessibility`, `/accesibilidad`).
+`sitemap.xml`: 4 new entries with hreflang annotations.
+Footer of `index.html` + `es/index.html`: appended Privacy + Accessibility links.
+
+### Schema validator tuning (commit `f4d6661`)
+
+Reduced `scripts/validate_schema.py` findings from **225 errors → 1 real bug**.
+The remaining error (empty `WebPage` stub in
+`es/blog/sesion-despedida-soltera-los-cabos.html`) is a genuine schema bug to
+fix later.
+
+Three categories of false positive eliminated, all marked `RELAXED 2026-05-07`
+in source:
+- WebPage stubs with `speakable` but no `url` (intentional — they reference
+  other entities by @id) — 75 instances
+- Inline references like `Person.worksFor → LocalBusiness` and
+  `Organization.brand → Brand` (don't need their own @id/url) — 88 instances
+- Cross-file @id references to canonical site-wide anchors
+  (`#organization`, `#brand`, `#vianey-diaz`, etc.) — 32 instances
+
+New helpers in validator: `is_inline_reference()`, `is_speakable_webpage_stub()`,
+`has_global_id()`. Architecture preserved (same tuple format, report layout).
+
+### Public docs cleanup (commit `a46d256`)
+
+Removed Regeneris-related email addresses and internal-incident references
+from `CLAUDE.md` and `seo/AGENTS.md` (this file). The `es/manejo-redes-sociales.html`
+clients list still shows `@Regeneristherapy` because they're a legitimate IVAE
+social-media-management client (alongside @oliu.hair, @Holydesing, etc.) — kept
+intentionally.
+
+### Project separation (no commit — local config only)
+
+Cleanly isolated IVAE auth from the user's other projects:
+- Global `~/.claude/settings.json` keeps env vars for other-project work
+- `WEB IVAE ESTUDIOS PROYECTO/.claude/settings.local.json` overrides
+  `GH_TOKEN` to empty (so gh falls back to ivaestudios keyring)
+- `ivae-6-extracted/.claude/settings.local.json` same override at subfolder level
+- macOS Keychain credential restored (was inadvertently cleared mid-session)
+- Backup at `~/.claude/settings.json.backup-2026-05-07`
+
+Net effect: opening Claude Code in any IVAE folder auto-uses `ivaestudios`
+GitHub account. Opening in any non-IVAE folder uses whatever the global env
+provides. Empirically verified.
+
+### Pending after this session
+
+**Tier 0 (needs real data from Vianey):**
+- Real GBP phone (`+52 990 204 6514` is invalid area code)
+- Real GBP coordinates (Cancún vs Riviera Maya pin)
+- Real aggregate rating + review count (currently 5.0 / 42 placeholder)
+- Real session pricing (currently $650-$3,500 placeholder)
+
+**Tier 1 (Claude can do, just needs trigger):**
+- `/vianey-diaz/` bio page (E-E-A-T)
+- 6 venue landing pages (Rosewood Mayakoba, Banyan Tree, etc.)
+- Replace 3 placeholder testimonials in homepage
+- Fix the 1 real schema bug in `es/blog/sesion-despedida-soltera-los-cabos.html`
 
 ---
 
