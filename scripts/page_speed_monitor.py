@@ -51,8 +51,16 @@ THRESHOLDS = {
 
 
 def fetch_psi(url: str, strategy: str = "mobile") -> dict[str, Any] | None:
-    """Fetch PageSpeed Insights data for url. No API key needed for low volume."""
-    params = urlencode({"url": url, "strategy": strategy, "category": "PERFORMANCE"})
+    """Fetch PageSpeed Insights data for url.
+
+    With PAGESPEED_API_KEY env var: 25,000 queries/day quota.
+    Without it: shared anonymous quota (gets 429 fast).
+    """
+    params_dict = {"url": url, "strategy": strategy, "category": "PERFORMANCE"}
+    api_key = os.environ.get("PAGESPEED_API_KEY", "").strip()
+    if api_key:
+        params_dict["key"] = api_key
+    params = urlencode(params_dict)
     full_url = PSI_ENDPOINT + "?" + params
     req = Request(full_url, headers={"User-Agent": "IVAEStudios/1.0"})
     try:

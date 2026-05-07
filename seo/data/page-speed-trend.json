@@ -1,3 +1,15 @@
 {
-  "runs": []
+  "runs": [
+    {
+      "url": "https://ivaestudios.com/",
+      "strategy": "mobile",
+      "captured_at": "2026-05-07T05:55:18.414899+00:00",
+      "lcp_s": 3.4834038756205756,
+      "inp_ms": 3530.7688772209976,
+      "cls": 0.0,
+      "fcp_s": 3.0097538596163544,
+      "tbt_ms": 0.0,
+      "perf_score": 81.0
+    }
+  ]
 }

@@ -1,15 +1,16 @@
 # Page Speed Monitor — 2026-W19
 
-_Captured: 2026-05-07T05:03:13.840784+00:00_
+_Captured: 2026-05-07T05:55:18.414899+00:00_
 
 ## Core Web Vitals
 
 | Page | Strategy | Perf | LCP (s) | CLS | FCP (s) | TBT (ms) |
 |---|---|---|---|---|---|---|
+| https://ivaestudios.com/ | mobile | 81 | 3.48 | 0.000 | 3.01 | 0 |
 
 ## Alerts
 
-All Core Web Vitals within thresholds ✅
+- 🚨 LCP 3.48s (mobile) on https://ivaestudios.com/
 
 ## Thresholds
 
