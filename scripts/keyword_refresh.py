@@ -1,27 +1,41 @@
 #!/usr/bin/env python3
 """IVAE Studios - Keyword Refresh Agent.
 
-Pulls Google Trends MX, scores candidate keywords, writes:
+Pulls real query data from Google Search Console (default) or Google Trends
+(legacy fallback), scores candidates against the seed config, and writes:
 - seo/data/trending-YYYY-MM-DD.json (timestamped, committed)
-- seo/data/latest.json (overwritten each run)
+- seo/data/latest.json (overwritten each run; consumed by apply_keywords.py)
 
 Usage:
-    python3 scripts/keyword_refresh.py
+    python3 scripts/keyword_refresh.py                  # GSC by default
+    python3 scripts/keyword_refresh.py --source gsc     # explicit
+    python3 scripts/keyword_refresh.py --source pytrends
     python3 scripts/keyword_refresh.py --dry-run
 
+Why GSC over pytrends:
+    Pytrends is increasingly rate-limited by Google (HTTP 429) from both
+    home IPs and GitHub Actions runners (2024-2025). GSC is more reliable,
+    and gives BETTER data: actual queries that already drove impressions
+    on ivaestudios.com — not generic Mexico trends. Optimizing for queries
+    where we already rank in positions 4-15 has the highest ROI.
+
 Requirements:
-    pip install pytrends>=4.9
+    GSC mode  : GOOGLE_INDEXING_SA_JSON env var (service account with
+                webmasters.readonly scope and Owner access on the GSC
+                property). The same secret used by index_urls.py works.
+    Pytrends  : pip install pytrends>=4.9
 
 Behavior:
-- Reads root terms from seo/keyword-seed.json (24 terms across 4 categories).
-- For each root: pytrends.interest_over_time + related_queries (top + rising).
-- Aggregates rising queries, filters by must_include_words and competitor_blocklist.
-- Scores: (velocity * 0.5) + (relevance * 30 * 0.3) + (intent * 100 * 0.2).
+- Reads root terms + filters from seo/keyword-seed.json.
+- GSC mode: pulls top 200 queries from last 30 days for all 4 GSC site URLs;
+  filters by must_include_words and competitor_blocklist; scores by
+  (impressions weighted by position-improvement-potential * 0.5) +
+  (relevance * 30 * 0.3) + (intent * 100 * 0.2).
+- Pytrends mode: same scoring against pytrends.related_queries rising lists.
 - Writes timestamped + latest JSON outputs.
-- Handles 429s by sleeping 60s and retrying once. Skips root term on second
-  failure. Exits 0 with a no-results message rather than failing CI.
-- --dry-run skips network calls entirely (used to verify the script imports
-  and loads config without pytrends installed).
+- On any auth or API failure, exits 0 with a no-results latest.json (so
+  apply_keywords still has a deterministic input).
+- --dry-run skips network calls entirely.
 """
 from __future__ import annotations
 
@@ -31,7 +45,10 @@ import json
 import os
 import sys
 import time
+import warnings
 from typing import Any
+
+warnings.filterwarnings("ignore")
 
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -41,7 +58,19 @@ DATA_DIR = os.path.join(REPO_ROOT, "seo", "data")
 REQUEST_SLEEP_SECONDS = 2.0
 RATE_LIMIT_RETRY_SLEEP = 60.0
 TOP_N = 30
-TIMEFRAME = "today 1-m"  # 30-day window
+TIMEFRAME = "today 1-m"  # 30-day window (pytrends path)
+
+# GSC settings
+GSC_SCOPES = ["https://www.googleapis.com/auth/webmasters.readonly"]
+GSC_SITE_URLS = [
+    # Try Domain property first (covers http/https + www variants), then
+    # URL-prefix variants. The script picks the first one it can authenticate
+    # against.
+    "sc-domain:ivaestudios.com",
+    "https://ivaestudios.com/",
+]
+GSC_DAYS_BACK = 30
+GSC_ROW_LIMIT = 200
 
 
 def load_seed() -> dict[str, Any]:
@@ -121,7 +150,120 @@ def best_category_for(candidate: str, roots: list[tuple[str, str]]) -> str:
     return max(counts.items(), key=lambda kv: kv[1])[0]
 
 
-def fetch_root(pytrends, root: str, geo: str) -> list[dict[str, Any]]:
+# ===== GSC source =====================================================
+
+
+def load_gsc_credentials() -> Any | None:
+    """Load service account credentials from GOOGLE_INDEXING_SA_JSON.
+
+    Returns google.oauth2.service_account.Credentials, or None if the secret
+    is missing / malformed / google libs not installed.
+    """
+    raw = os.environ.get("GOOGLE_INDEXING_SA_JSON", "").strip()
+    if not raw:
+        path = os.environ.get("GOOGLE_INDEXING_SA_FILE", "").strip()
+        if path and os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                raw = f.read()
+    if not raw:
+        print(
+            "WARN: GOOGLE_INDEXING_SA_JSON not set — cannot use GSC source.",
+            flush=True,
+        )
+        return None
+    try:
+        info = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        print(f"WARN: GOOGLE_INDEXING_SA_JSON is not valid JSON: {exc}", flush=True)
+        return None
+    try:
+        from google.oauth2 import service_account  # type: ignore
+    except ImportError:
+        print(
+            "WARN: google-auth not installed; install with "
+            "`pip install google-auth google-api-python-client`",
+            flush=True,
+        )
+        return None
+    try:
+        return service_account.Credentials.from_service_account_info(
+            info, scopes=GSC_SCOPES
+        )
+    except Exception as exc:  # noqa: BLE001
+        print(f"WARN: failed to build GSC credentials: {exc}", flush=True)
+        return None
+
+
+def fetch_gsc_queries(creds: Any, days_back: int = GSC_DAYS_BACK) -> list[dict[str, Any]]:
+    """Pull top queries from Search Console for the last `days_back` days.
+
+    Tries each GSC_SITE_URLS until one returns data. Returns a normalized
+    list of {"query": str, "value": float} where value is a composite of
+    impressions + position-improvement-potential.
+    """
+    try:
+        from googleapiclient.discovery import build  # type: ignore
+    except ImportError:
+        print("WARN: googleapiclient not installed", flush=True)
+        return []
+
+    service = build("searchconsole", "v1", credentials=creds, cache_discovery=False)
+    end = dt.date.today() - dt.timedelta(days=2)  # GSC has ~2-day reporting lag
+    start = end - dt.timedelta(days=days_back)
+    body = {
+        "startDate": start.isoformat(),
+        "endDate": end.isoformat(),
+        "dimensions": ["query"],
+        "rowLimit": GSC_ROW_LIMIT,
+        "type": "web",
+    }
+
+    rows: list[dict[str, Any]] = []
+    for site in GSC_SITE_URLS:
+        try:
+            resp = (
+                service.searchanalytics()
+                .query(siteUrl=site, body=body)
+                .execute()
+            )
+            r = resp.get("rows", [])
+            if r:
+                print(
+                    f"  GSC: {len(r)} queries from {site} "
+                    f"({start.isoformat()} → {end.isoformat()})",
+                    flush=True,
+                )
+                rows = r
+                break
+            print(f"  GSC: 0 rows from {site} — trying next URL", flush=True)
+        except Exception as exc:  # noqa: BLE001
+            print(f"  GSC: error on {site} — {exc}", flush=True)
+
+    out: list[dict[str, Any]] = []
+    for row in rows:
+        keys = row.get("keys") or []
+        if not keys:
+            continue
+        query = str(keys[0]).strip()
+        if not query:
+            continue
+        impressions = float(row.get("impressions") or 0)
+        position = float(row.get("position") or 100)
+        # Score component: impressions weighted by position-improvement-potential.
+        # Pages already in top 3 get less rotation budget than pages in 4-15
+        # where small content tweaks can move the needle.
+        position_factor = 1.0 if position <= 3 else 1.5 if position <= 10 else 1.0
+        value = impressions * position_factor
+        out.append({"query": query, "value": value})
+    return out
+
+
+# ===== Pytrends source (legacy) =======================================
+
+
+def fetch_pytrends_root(
+    pytrends: Any, root: str, geo: str
+) -> list[dict[str, Any]]:
     """Fetch rising related_queries for a single root term, with one retry on 429."""
     for attempt in (1, 2):
         try:
@@ -142,7 +284,7 @@ def fetch_root(pytrends, root: str, geo: str) -> list[dict[str, Any]]:
                 if query:
                     out.append({"query": query, "value": value})
             return out
-        except Exception as exc:  # noqa: BLE001 - pytrends raises many shapes
+        except Exception as exc:  # noqa: BLE001
             msg = str(exc).lower()
             is_rate_limit = "429" in msg or "too many" in msg or "rate" in msg
             if attempt == 1 and is_rate_limit:
@@ -155,6 +297,9 @@ def fetch_root(pytrends, root: str, geo: str) -> list[dict[str, Any]]:
             print(f"  WARN: skipping '{root}' - {exc}", flush=True)
             return []
     return []
+
+
+# ===== Aggregation + scoring (source-agnostic) ========================
 
 
 def aggregate_and_score(
@@ -171,7 +316,6 @@ def aggregate_and_score(
         float(scoring.get("intent_weight", 0.2)),
     )
 
-    # Deduplicate by normalized query, keep max velocity seen.
     by_query: dict[str, dict[str, Any]] = {}
     for item in raw:
         norm = normalize(item["query"])
@@ -209,19 +353,21 @@ def aggregate_and_score(
     return scored[:TOP_N]
 
 
-def write_outputs(top: list[dict[str, Any]], geo: str, dry_run: bool) -> None:
+def write_outputs(top: list[dict[str, Any]], geo: str, source: str, dry_run: bool) -> None:
     fetched_at = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     today = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
 
     full = {
         "fetched_at": fetched_at,
         "geo": geo,
+        "source": source,
         "count": len(top),
         "keywords": top,
     }
     slim = {
         "fetched_at": fetched_at,
         "geo": geo,
+        "source": source,
         "keywords": [
             {"keyword": k["keyword"], "category": k["category"], "score": k["score"]}
             for k in top
@@ -249,6 +395,12 @@ def write_outputs(top: list[dict[str, Any]], geo: str, dry_run: bool) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument(
+        "--source",
+        choices=["gsc", "pytrends"],
+        default="gsc",
+        help="Data source for keyword discovery (default: gsc).",
+    )
+    ap.add_argument(
         "--dry-run",
         action="store_true",
         help="Skip network calls (validates config + script integrity).",
@@ -258,11 +410,13 @@ def main() -> int:
     seed = load_seed()
     roots = flatten_roots(seed)
     geo = seed.get("geo", "MX")
-    print(f"=== IVAE keyword refresh (geo={geo}, roots={len(roots)}) ===")
+    print(
+        f"=== IVAE keyword refresh (source={args.source}, geo={geo}, "
+        f"roots={len(roots)}) ==="
+    )
 
     if args.dry_run:
-        print("--- DRY RUN: no pytrends calls ---")
-        # Score a fake candidate to exercise the scoring path without network.
+        print(f"--- DRY RUN: no {args.source} calls ---")
         fake = [
             {"query": "fotografo bodas cancun luxury", "value": 80.0},
             {"query": "wedding photographer riviera maya", "value": 60.0},
@@ -270,36 +424,47 @@ def main() -> int:
         top = aggregate_and_score(fake, seed, roots)
         for k in top:
             print(f"  {k['score']:6.1f}  [{k['category']}]  {k['keyword']}")
-        write_outputs(top, geo, dry_run=True)
+        write_outputs(top, geo, args.source, dry_run=True)
         return 0
 
-    try:
-        from pytrends.request import TrendReq  # type: ignore
-    except ImportError:
-        print(
-            "ERROR: pytrends not installed. Run: pip install 'pytrends>=4.9'",
-            file=sys.stderr,
-        )
-        return 1
-
-    pytrends = TrendReq(hl=seed.get("language", "es-MX"), tz=360)
-
     raw: list[dict[str, Any]] = []
-    for i, (root, _category) in enumerate(roots, 1):
-        print(f"  [{i}/{len(roots)}] fetching '{root}'", flush=True)
-        rising = fetch_root(pytrends, root, geo)
-        raw.extend(rising)
-        if i < len(roots):
-            time.sleep(REQUEST_SLEEP_SECONDS)
 
-    print(f"  collected {len(raw)} raw rising queries")
+    if args.source == "gsc":
+        creds = load_gsc_credentials()
+        if creds is None:
+            print(
+                "  GSC credentials unavailable; writing empty latest.json "
+                "and exiting cleanly.",
+                flush=True,
+            )
+            write_outputs([], geo, args.source, dry_run=False)
+            return 0
+        raw = fetch_gsc_queries(creds)
+        print(f"  collected {len(raw)} GSC queries")
+
+    else:  # pytrends
+        try:
+            from pytrends.request import TrendReq  # type: ignore
+        except ImportError:
+            print(
+                "ERROR: pytrends not installed. Run: pip install 'pytrends>=4.9'",
+                file=sys.stderr,
+            )
+            return 1
+        pytrends = TrendReq(hl=seed.get("language", "es-MX"), tz=360)
+        for i, (root, _category) in enumerate(roots, 1):
+            print(f"  [{i}/{len(roots)}] fetching '{root}'", flush=True)
+            rising = fetch_pytrends_root(pytrends, root, geo)
+            raw.extend(rising)
+            if i < len(roots):
+                time.sleep(REQUEST_SLEEP_SECONDS)
+        print(f"  collected {len(raw)} raw rising queries")
+
     top = aggregate_and_score(raw, seed, roots)
 
     if not top:
-        print("  no rising queries this cycle (after filters); exiting cleanly.")
-        # Still write a slim latest.json with empty list so apply_keywords has
-        # a deterministic input shape.
-        write_outputs([], geo, dry_run=False)
+        print("  no qualifying queries this cycle (after filters); exiting cleanly.")
+        write_outputs([], geo, args.source, dry_run=False)
         return 0
 
     print(f"\n--- Top {len(top)} keywords ---")
@@ -308,7 +473,7 @@ def main() -> int:
     if len(top) > 10:
         print(f"  ... and {len(top) - 10} more")
 
-    write_outputs(top, geo, dry_run=False)
+    write_outputs(top, geo, args.source, dry_run=False)
     return 0
 
 
