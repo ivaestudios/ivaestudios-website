@@ -329,6 +329,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 <link rel="manifest" href="/site.webmanifest"/>
 <meta name="theme-color" content="#0c1219"/>
+<link rel="preload" as="image" fetchpriority="high" href="https://assets.ivaestudios.com/couples-photography-mexico-hero.jpg">
 </head>
 <body>
 <a href="#main-content" class="skip-link">Saltar al contenido</a>
@@ -362,7 +363,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 <!-- HERO -->
 <section class="hero" id="main-content">
-  <div class="hero-bg" id="heroBg"><img src="https://assets.ivaestudios.com/couples-photography-mexico-hero.jpg" alt="Pareja fotografiada a la hora dorada en la playa de un resort de lujo en México por IVAE Studios" width="2000" height="1333"/></div>
+  <div class="hero-bg" id="heroBg"><img fetchpriority="high" loading="eager" src="https://assets.ivaestudios.com/couples-photography-mexico-hero.jpg" alt="Pareja fotografiada a la hora dorada en la playa de un resort de lujo en México por IVAE Studios" width="2000" height="1333"/></div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <span class="eyebrow rv" data-anim>Fotografía de Parejas</span>

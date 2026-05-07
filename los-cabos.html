@@ -195,6 +195,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 <link rel="manifest" href="/site.webmanifest"/>
 <meta name="theme-color" content="#0c1219"/>
+<link rel="preload" as="image" fetchpriority="high" href="https://assets.ivaestudios.com/cabo-photographer-hero.jpg">
 </head>
 <body>
 <a href="#main-content" class="skip-link">Skip to content</a>
@@ -232,7 +233,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 <!-- HERO -->
 <section class="hero" id="main-content">
-  <div class="hero-bg"><img src="https://assets.ivaestudios.com/cabo-photographer-hero.jpg" alt="Luxury couple portrait at sunset on the cliffs of Cabo San Lucas with the Pacific Ocean and El Arco in the background" loading="eager" width="2000" height="1333"/></div>
+  <div class="hero-bg"><img fetchpriority="high" src="https://assets.ivaestudios.com/cabo-photographer-hero.jpg" alt="Luxury couple portrait at sunset on the cliffs of Cabo San Lucas with the Pacific Ocean and El Arco in the background" loading="eager" width="2000" height="1333"/></div>
   <div class="hero-content">
     <span class="hero-tag rv d1" data-anim="fade">Los Cabos, Baja California Sur</span>
     <h1 class="rv d2" data-anim="fade">Luxury Photographer in <em>Los Cabos, Mexico</em></h1>

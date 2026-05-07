@@ -323,6 +323,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 <link rel="manifest" href="/site.webmanifest"/>
 <meta name="theme-color" content="#0c1219"/>
+<link rel="preload" as="image" fetchpriority="high" href="https://assets.ivaestudios.com/luxury-family-photos-cancun-hero.jpg">
 </head>
 <body>
 <a href="#main-content" class="skip-link">Skip to content</a>
@@ -356,7 +357,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 <!-- HERO -->
 <section class="hero" id="main-content">
-  <div class="hero-bg" id="heroBg"><img src="https://assets.ivaestudios.com/luxury-family-photos-cancun-hero.jpg" alt="Luxury family photo session on a white-sand beach in Cancun at golden hour by IVAE Studios" width="2000" height="1333"/></div>
+  <div class="hero-bg" id="heroBg"><img fetchpriority="high" loading="eager" src="https://assets.ivaestudios.com/luxury-family-photos-cancun-hero.jpg" alt="Luxury family photo session on a white-sand beach in Cancun at golden hour by IVAE Studios" width="2000" height="1333"/></div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <span class="eyebrow rv" data-anim>Family Photography</span>

@@ -203,6 +203,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 <link rel="manifest" href="/site.webmanifest"/>
 <meta name="theme-color" content="#0c1219"/>
+<link rel="preload" as="image" fetchpriority="high" href="../images/couple-cancun-ivae-studios-3.jpg">
 </head>
 <body>
 <a href="#main-content" class="skip-link">Saltar al contenido</a>
@@ -240,7 +241,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 <!-- HERO -->
 <section class="hero" id="main-content">
-  <div class="hero-bg" id="heroBg"><img src="../images/couple-cancun-ivae-studios-3.jpg" alt="IVAE Studios — fotógrafa de resort de lujo en Cancún, Riviera Maya y Los Cabos" width="2000" height="1333" loading="lazy" decoding="async"/></div>
+  <div class="hero-bg" id="heroBg"><img fetchpriority="high" src="../images/couple-cancun-ivae-studios-3.jpg" alt="IVAE Studios — fotógrafa de resort de lujo en Cancún, Riviera Maya y Los Cabos" width="2000" height="1333" loading="eager" decoding="async"/></div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <span class="eyebrow rv" data-anim>Acerca de IVAE Studios</span>
