@@ -64,13 +64,13 @@ Each page includes:
 <meta property="og:description" content="Editorial-quality resort photography for families, couples and destination travelers from USA and Canada. Cancún, Riviera Maya, Los Cabos."/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://ivaestudios.com/"/>
-<meta property="og:image" content="https://ivaestudios.com/images/ivae-og.jpg"/>
+<meta property="og:image" content="https://ivaestudios.com/images/couple-cancun-ivae-studios-4.jpg"/>
 <meta property="og:site_name" content="IVAE Studios"/>
 <meta property="og:locale" content="en_US"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="IVAE Studios | Luxury Resort Photographer Mexico"/>
 <meta name="twitter:description" content="Editorial resort photography for families and couples in Cancún, Riviera Maya & Los Cabos."/>
-<meta name="twitter:image" content="https://ivaestudios.com/images/ivae-og.jpg"/>
+<meta name="twitter:image" content="https://ivaestudios.com/images/couple-cancun-ivae-studios-4.jpg"/>
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1"/>
 <meta name="geo.region" content="MX-ROO"/>
 <meta name="geo.placename" content="Cancún"/>
