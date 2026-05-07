@@ -147,7 +147,13 @@ def main():
 
     ok = 0
     fail = 0
+    quota_exceeded = 0  # 429s tracked separately — daily quota resets, not a real failure
+    quota_skip = False
     for url in urls:
+        if quota_skip:
+            # Once we hit 429, stop hammering the API — save budget for retry
+            print(f"  SKIP {url} — daily quota exhausted, will retry next push")
+            continue
         try:
             service.urlNotifications().publish(
                 body={"url": url, "type": "URL_UPDATED"}
@@ -155,11 +161,20 @@ def main():
             print(f"  OK   {url}")
             ok += 1
         except HttpError as e:
-            print(f"  FAIL {url} — {e.status_code} {e.reason}")
-            fail += 1
+            if e.status_code == 429:
+                print(f"  QUOTA {url} — 429 daily quota exceeded (will retry next push)")
+                quota_exceeded += 1
+                quota_skip = True
+            else:
+                print(f"  FAIL {url} — {e.status_code} {e.reason}")
+                fail += 1
 
-    print(f"\n--- Summary: {ok} OK / {fail} FAIL / {len(urls)} total ---")
-    # Exit nonzero if anything failed, so GitHub Actions surfaces the error
+    print(
+        f"\n--- Summary: {ok} OK / {fail} FAIL / {quota_exceeded} QUOTA / {len(urls)} total ---"
+    )
+    # Exit nonzero only on REAL failures (auth, 4xx other than 429, 5xx).
+    # 429 = daily quota — resets at midnight Pacific, retried automatically next push.
+    # Don't fail the workflow when the only "errors" are quota exhaustion.
     sys.exit(0 if fail == 0 else 1)
 
 
