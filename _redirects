@@ -72,6 +72,7 @@
 /blog/family-vacation-photos-mexico /post-family-vacation-photos 200
 /blog/los-cabos-photographer-guide /post-los-cabos-guide 200
 /blog/how-to-choose-luxury-photographer-mexico /post-choose-luxury-photographer 200
+/blog/luxury-photographer-style-editorial-vs-documentary /post-luxury-photographer-style-editorial-vs-documentary 200
 /blog/surprise-proposal-photography-cancun /post-surprise-proposal 200
 
 # ═══════════════════════════════════════════
@@ -102,6 +103,8 @@
 /blog/luxury-yacht-photography-cancun /post-luxury-yacht-photography-cancun 200
 /blog/trash-the-dress-cancun /post-trash-the-dress-cancun 200
 /blog/gender-reveal-photoshoot-cancun /post-gender-reveal-photoshoot-cancun 200
+/blog/luxury-family-photoshoot-cost-cancun-2026 /post-luxury-family-photoshoot-cost-cancun-2026 200
+/blog/cancun-cenote-photoshoot-guide /post-cancun-cenote-photoshoot-guide 200
 
 # /blog and /about are handled automatically by Cloudflare Pages
 # (it serves blog.html and about.html without needing rules)
@@ -125,6 +128,7 @@
 /post-family-vacation-photos.html /blog/family-vacation-photos-mexico 301
 /post-los-cabos-guide.html /blog/los-cabos-photographer-guide 301
 /post-choose-luxury-photographer.html /blog/how-to-choose-luxury-photographer-mexico 301
+/post-luxury-photographer-style-editorial-vs-documentary.html /blog/luxury-photographer-style-editorial-vs-documentary 301
 /post-surprise-proposal.html /blog/surprise-proposal-photography-cancun 301
 /blog.html /blog 301
 /post-what-to-wear-beach-photos.html /blog/what-to-wear-beach-photos-mexico 301
@@ -140,10 +144,12 @@
 /post-bachelorette-photoshoot-los-cabos.html /blog/bachelorette-photoshoot-los-cabos 301
 /post-birthday-photoshoot-cancun.html /blog/birthday-photoshoot-cancun 301
 /post-cenote-underwater-photoshoot-tulum.html /blog/cenote-underwater-photoshoot-tulum 301
+/post-cancun-cenote-photoshoot-guide.html /blog/cancun-cenote-photoshoot-guide 301
 /post-quinceanera-photoshoot-cancun.html /blog/quinceanera-photoshoot-cancun 301
 /post-luxury-yacht-photography-cancun.html /blog/luxury-yacht-photography-cancun 301
 /post-trash-the-dress-cancun.html /blog/trash-the-dress-cancun 301
 /post-gender-reveal-photoshoot-cancun.html /blog/gender-reveal-photoshoot-cancun 301
+/post-luxury-family-photoshoot-cost-cancun-2026.html /blog/luxury-family-photoshoot-cost-cancun-2026 301
 /outfit-guide.html /outfit-guide 301
 
 # ═══════════════════════════════════════════
@@ -198,6 +204,7 @@
 /es/blog/wedding-photographer-cancun /es/blog/fotografo-boda-cancun 301
 /es/blog/maternity-photoshoot-cancun-riviera-maya /es/blog/sesion-maternidad-cancun-riviera-maya 301
 /es/blog/how-to-choose-luxury-photographer-mexico /es/blog/como-elegir-fotografo-lujo-mexico 301
+/es/blog/luxury-photographer-style-editorial-vs-documentary /es/blog/estilo-fotografo-lujo-editorial-vs-documental 301
 /es/blog/honeymoon-photographer-riviera-maya /es/blog/fotografo-luna-de-miel-riviera-maya 301
 /es/blog/family-vacation-photos-mexico /es/blog/fotos-vacaciones-familiares-mexico 301
 /es/blog/engagement-session-cancun-riviera-maya /es/blog/sesion-compromiso-cancun-riviera-maya 301
