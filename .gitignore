@@ -12,3 +12,7 @@ images/fotos extra pagina y blog/
 .env
 .env.local
 .cloudflare-token
+.claude/settings.local.json
+.claude/worktrees/
+tools/img-converter/node_modules/
+tools/img-converter/package-lock.json

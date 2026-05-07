@@ -1,0 +1,9 @@
+{
+  "name": "ivae-img-converter",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "sharp": "^0.33.0"
+  }
+}
