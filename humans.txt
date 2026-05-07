@@ -1,6 +1,7 @@
 /* TEAM */
 
   Founder & Creative Director: Vianey Díaz
+  Wikidata: Q139689736 (https://www.wikidata.org/wiki/Q139689736)
   Role: Lead Photographer
   Nationality: Mexican
   Languages: Spanish (native), English (fluent)
