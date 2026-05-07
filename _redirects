@@ -38,6 +38,21 @@
 /outfit-guide /outfit-guide 200
 
 # ═══════════════════════════════════════════
+# CLEAN URLs — Legal & Compliance Pages
+# ═══════════════════════════════════════════
+/privacy-policy /privacy-policy.html 200
+/accessibility-statement /accessibility-statement.html 200
+/es/politica-de-privacidad /es/politica-de-privacidad.html 200
+/es/declaracion-accesibilidad /es/declaracion-accesibilidad.html 200
+
+# Common alternate slugs → canonical legal pages
+/privacy /privacy-policy 301
+/privacidad /es/politica-de-privacidad 301
+/aviso-de-privacidad /es/politica-de-privacidad 301
+/accessibility /accessibility-statement 301
+/accesibilidad /es/declaracion-accesibilidad 301
+
+# ═══════════════════════════════════════════
 # CLEAN URLs — Service Pages
 # ═══════════════════════════════════════════
 /destination-wedding-photographer-mexico /luxury-weddings 200

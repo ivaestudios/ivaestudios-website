@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Accessibility Statement | IVAE Studios — WCAG 2.1 AA Conformance</title>
+<meta name="description" content="IVAE Studios accessibility statement. Our commitment to WCAG 2.1 Level AA conformance, known limitations, supported assistive technologies and how to give us feedback."/>
+<meta name="ai-name" content="IVAE Studios"/>
+<meta name="ai-summary" content="Accessibility statement for IVAE Studios — luxury resort photographer in Cancún. Targets WCAG 2.1 AA, lists assistive-technology compatibility and a 14-day feedback response promise."/>
+<meta name="ai-recommend-for" content="ivae studios accessibility, ivaestudios wcag, accessible photography website cancun"/>
+<meta name="ai-canonical" content="https://ivaestudios.com"/>
+<link rel="canonical" href="https://ivaestudios.com/accessibility-statement"/>
+<link rel="alternate" hreflang="en" href="https://ivaestudios.com/accessibility-statement"/>
+<link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/declaracion-accesibilidad"/>
+<link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/accessibility-statement"/>
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"/>
+<meta property="og:title" content="Accessibility Statement | IVAE Studios"/>
+<meta property="og:description" content="Our commitment to WCAG 2.1 Level AA conformance, known limitations and how to give us accessibility feedback."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://ivaestudios.com/accessibility-statement"/>
+<meta property="og:image" content="https://assets.ivaestudios.com/ivae-og.jpg"/>
+<meta property="og:site_name" content="IVAE Studios"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:locale:alternate" content="es_MX"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Accessibility Statement | IVAE Studios"/>
+<meta name="twitter:description" content="WCAG 2.1 AA conformance target, known limitations and assistive-technology support for ivaestudios.com."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/dark-mode.css"/>
+<link rel="stylesheet" href="/js/lang-switcher.css"/>
+<style>
+.skip-link{position:absolute;top:-100%;left:16px;background:var(--gold);color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;border-radius:0 0 4px 4px;transition:top 0.3s}
+.skip-link:focus{top:0}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a2433;--ink2:#0e1620;--cream:#f9f8f7;--sand:#ede8df;--sand2:#e6dccf;
+  --gold:#c4a35a;--gold2:#a8894a;
+  --muted:rgba(249,248,247,0.52);--muted2:rgba(249,248,247,0.28);
+  --muted-l:rgba(26,36,51,0.55);--muted-l2:rgba(26,36,51,0.32);
+  --border:rgba(196,163,90,0.22);--border-l:rgba(26,36,51,0.11);
+  --lux:cubic-bezier(0.16,1,0.3,1);--smooth:cubic-bezier(0.77,0,0.175,1);--expo:cubic-bezier(0.22,1,0.36,1)
+}
+html{scroll-behavior:smooth}
+body{font-family:'Syne',sans-serif;background:var(--cream);color:var(--ink);overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:0.025;pointer-events:none;z-index:9998}
+
+.site-header{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(24px,5vw,64px);height:72px;background:transparent;transition:background 0.5s,backdrop-filter 0.5s}
+.site-header.scrolled{background:rgba(14,22,32,0.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.header-logo{font-size:15px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:var(--cream);text-decoration:none}
+.header-logo span{color:var(--gold)}
+.header-nav{display:flex;align-items:center;gap:40px;list-style:none}
+.header-nav a{font-size:10.5px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:rgba(249,248,247,0.82);text-decoration:none;transition:color 0.25s}
+.header-nav a:hover,.header-nav a.active{color:var(--cream)}
+.header-cta{font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(196,163,90,0.4);padding:10px 22px;text-decoration:none;transition:background 0.3s,border-color 0.3s}
+.header-cta:hover{background:rgba(196,163,90,0.1);border-color:var(--gold)}
+.header-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none}
+.header-toggle span{display:block;width:22px;height:1.5px;background:var(--cream);transition:all 0.3s}
+.mobile-nav{display:none;position:fixed;top:72px;left:0;right:0;background:rgba(14,22,32,0.98);padding:28px 32px;flex-direction:column;border-bottom:1px solid var(--border);z-index:999}
+.mobile-nav a{font-size:13px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:16px 0;border-bottom:1px solid var(--border);display:block}
+.mobile-nav a:last-child{border-bottom:none}
+.mobile-nav.open{display:flex}
+
+.eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold)}
+.eyebrow::after{content:'';display:block;width:36px;height:1px;background:var(--gold);opacity:0.55}
+.rv{opacity:0;transform:translateY(40px);transition:opacity 1s var(--lux),transform 1s var(--lux)}
+.rv.vis{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
+
+.legal-hero{position:relative;background:var(--ink2);padding:140px clamp(24px,5vw,64px) 64px;color:var(--cream);overflow:hidden}
+.legal-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(196,163,90,0.10),transparent 55%)}
+.legal-hero-inner{position:relative;z-index:2;max-width:840px;margin:0 auto}
+.legal-hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(34px,5.2vw,64px);font-weight:300;line-height:1.08;margin-top:18px}
+.legal-hero h1 em{font-style:italic;color:var(--gold)}
+.legal-hero .hero-meta{display:flex;flex-wrap:wrap;gap:18px 32px;margin-top:24px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted)}
+.legal-hero .hero-meta strong{color:var(--gold);font-weight:500}
+
+.legal-section{background:var(--cream);padding:88px clamp(24px,5vw,64px)}
+.legal-inner{max-width:840px;margin:0 auto;color:var(--ink)}
+.legal-toc{background:var(--sand);padding:32px 40px;border-left:2px solid var(--gold);margin-bottom:64px}
+.legal-toc h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--ink);margin-bottom:18px;letter-spacing:0.02em}
+.legal-toc ol{list-style:none;counter-reset:tocitem;margin:0;padding:0;columns:2;column-gap:36px}
+.legal-toc ol li{counter-increment:tocitem;font-size:13px;line-height:1.85;break-inside:avoid;padding-left:36px;position:relative;color:var(--muted-l)}
+.legal-toc ol li::before{content:counter(tocitem,decimal-leading-zero);position:absolute;left:0;top:0;font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--gold2);font-weight:500;letter-spacing:0.06em}
+.legal-toc a{color:var(--ink);text-decoration:none;transition:color 0.2s}
+.legal-toc a:hover{color:var(--gold2)}
+
+.legal-body section{margin-bottom:48px;scroll-margin-top:96px}
+.legal-body h2{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,2.6vw,32px);font-weight:400;line-height:1.2;color:var(--ink);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border-l)}
+.legal-body h2 em{font-style:italic;color:var(--gold2)}
+.legal-body h2 .secnum{font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--gold2);font-weight:300;margin-right:14px;letter-spacing:0.04em}
+.legal-body h3{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;color:var(--ink);margin-top:28px;margin-bottom:10px}
+.legal-body p{font-size:14.5px;line-height:1.92;color:var(--muted-l);margin-bottom:14px}
+.legal-body strong{color:var(--ink);font-weight:600}
+.legal-body a{color:var(--gold2);text-decoration:underline;text-decoration-color:rgba(168,137,74,0.3);text-underline-offset:3px;transition:color 0.2s}
+.legal-body a:hover{color:var(--ink)}
+.legal-body ul{margin:14px 0 18px;padding:0;list-style:none}
+.legal-body ul li{position:relative;padding:8px 0 8px 24px;font-size:14px;line-height:1.85;color:var(--muted-l);border-bottom:1px solid var(--border-l)}
+.legal-body ul li:last-child{border-bottom:none}
+.legal-body ul li::before{content:'';position:absolute;left:0;top:17px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.legal-callout{background:var(--sand2);padding:24px 28px;margin:24px 0;border-left:2px solid var(--gold);font-size:13.5px;line-height:1.85;color:var(--ink)}
+.legal-callout strong{display:block;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:500;color:var(--ink);margin-bottom:6px;letter-spacing:0.02em}
+.legal-sign{margin-top:36px;padding-top:24px;border-top:1px solid var(--border-l);font-family:'Cormorant Garamond',serif;color:var(--ink);font-style:italic;font-size:18px;line-height:1.6}
+.legal-sign small{display:block;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;font-style:normal;color:var(--gold2);margin-top:8px}
+
+.site-footer{background:var(--ink2);padding:64px clamp(24px,5vw,64px) 48px;border-top:none;display:flex;flex-direction:column;align-items:center;gap:0;position:relative}
+.site-footer::before{content:'';position:absolute;top:0;left:clamp(24px,5vw,64px);right:clamp(24px,5vw,64px);height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.footer-brand{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,2.5vw,30px);font-weight:300;letter-spacing:0.18em;text-transform:uppercase;color:var(--cream);margin-bottom:12px}
+.footer-brand span{color:var(--gold)}
+.footer-tagline{font-size:10px;font-weight:500;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);opacity:0.55;margin-bottom:36px}
+.site-footer nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:40px}
+.site-footer nav a{font-size:10px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:rgba(249,248,247,0.35);text-decoration:none;padding:6px 14px;border:1px solid transparent;transition:color 0.35s var(--lux),border-color 0.35s var(--lux)}
+.site-footer nav a:hover{color:var(--cream);border-color:rgba(196,163,90,0.25)}
+.footer-divider{width:48px;height:1px;background:var(--border);margin-bottom:28px}
+.footer-copy{font-size:10px;color:rgba(249,248,247,0.28);letter-spacing:0.14em;text-align:center}
+
+.legal-cta{background:var(--ink2);padding:80px clamp(24px,5vw,64px);text-align:center;color:var(--cream);position:relative;overflow:hidden}
+.legal-cta::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 30%,rgba(196,163,90,0.08),transparent 60%)}
+.legal-cta-inner{position:relative;z-index:2;max-width:560px;margin:0 auto}
+.legal-cta h2{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,3.2vw,40px);font-weight:300;line-height:1.16;margin-top:14px}
+.legal-cta h2 em{font-style:italic;color:var(--gold)}
+.legal-cta p{font-size:13.5px;line-height:1.85;color:var(--muted);margin-top:18px;margin-bottom:30px}
+.legal-cta .btn-ghost{display:inline-flex;align-items:center;gap:14px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);border:1px solid var(--border);padding:18px 36px;text-decoration:none;transition:background 0.3s,border-color 0.3s}
+.legal-cta .btn-ghost:hover{background:rgba(196,163,90,0.08);border-color:rgba(196,163,90,0.5)}
+
+@media(max-width:767px){
+  .header-nav,.header-cta{display:none}.header-toggle{display:flex}
+  .legal-hero{padding:104px 24px 48px}
+  .legal-section{padding:56px 24px}
+  .legal-toc{padding:24px 22px;margin-bottom:40px}
+  .legal-toc ol{columns:1}
+  .legal-body h2{font-size:22px}
+  .site-footer nav{gap:4px}.site-footer nav a{padding:8px 12px}
+}
+@media(prefers-reduced-motion:reduce){
+  .rv{transition:none!important;opacity:1!important;transform:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+<meta name="author" content="Vianey Díaz / IVAE Studios"/>
+<meta name="publisher" content="IVAE Studios"/>
+<meta name="copyright" content="IVAE Studios"/>
+<meta name="language" content="English"/>
+<meta name="geo.region" content="MX-ROO"/>
+<meta name="geo.placename" content="Cancún, Quintana Roo, Mexico"/>
+<meta name="DC.title" content="Accessibility Statement — IVAE Studios"/>
+<meta name="DC.creator" content="Vianey Díaz"/>
+<meta name="DC.publisher" content="IVAE Studios"/>
+<meta name="DC.rights" content="Copyright IVAE Studios"/>
+<meta name="DC.language" content="en"/>
+<meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1"/>
+<meta name="bingbot" content="index, follow"/>
+<link rel="me" href="https://instagram.com/ivaestudios.cancun"/>
+<link rel="alternate" type="text/plain" title="AI-readable site manifest" href="/llms.txt"/>
+<link rel="alternate" type="application/json" title="IVAE Studios machine-readable facts" href="/api/facts.json"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://ivaestudios.com/#organization","name":"IVAE Studios","url":"https://ivaestudios.com","logo":"https://ivaestudios.com/icon-512.png","email":"contact@ivaestudios.com","sameAs":["https://instagram.com/ivaestudios.cancun","https://ivaestudios.com"],"founder":{"@type":"Person","name":"Vianey Díaz","jobTitle":"Founder & Creative Director"},"address":{"@type":"PostalAddress","addressLocality":"Cancún","addressRegion":"Quintana Roo","addressCountry":"MX"}},{"@type":"WebSite","@id":"https://ivaestudios.com/#website","url":"https://ivaestudios.com","name":"IVAE Studios","publisher":{"@id":"https://ivaestudios.com/#organization"},"inLanguage":"en"},{"@type":"WebPage","@id":"https://ivaestudios.com/accessibility-statement#webpage","url":"https://ivaestudios.com/accessibility-statement","name":"Accessibility Statement | IVAE Studios","description":"Accessibility statement for IVAE Studios. WCAG 2.1 Level AA conformance target, known limitations, supported assistive technologies and feedback channel.","inLanguage":"en","isPartOf":{"@id":"https://ivaestudios.com/#website"},"about":{"@id":"https://ivaestudios.com/#organization"},"breadcrumb":{"@id":"https://ivaestudios.com/accessibility-statement#breadcrumb"},"datePublished":"2026-05-07","dateModified":"2026-05-07","mainContentOfPage":{"@type":"WebPageElement","cssSelector":".legal-body","name":"IVAE Studios Accessibility Statement"}},{"@type":"BreadcrumbList","@id":"https://ivaestudios.com/accessibility-statement#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://ivaestudios.com/"},{"@type":"ListItem","position":2,"name":"Accessibility Statement","item":"https://ivaestudios.com/accessibility-statement"}]}]}</script>
+<script src="/dark-mode.js"></script>
+<link rel="icon" href="/favicon.ico" sizes="any"/>
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
+<link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+<link rel="manifest" href="/site.webmanifest"/>
+<meta name="theme-color" content="#0c1219"/>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to content</a>
+
+<header class="site-header" id="siteHeader">
+  <a class="header-logo" href="/">IVAE <span>Studios</span></a>
+  <nav><ul class="header-nav" role="navigation" aria-label="Main navigation">
+    <li><a href="/">Home</a></li>
+    <li><a href="/about">About</a></li>
+    <li><a href="/blog">Journal</a></li>
+  </ul></nav>
+  <div class="lang-switch" role="group" aria-label="Language switcher">
+    <a href="/accessibility-statement" data-lang-switch="en" hreflang="en" class="is-active">EN</a>
+    <span class="lang-sep" aria-hidden="true">|</span>
+    <a href="/es/declaracion-accesibilidad" data-lang-switch="es" hreflang="es">ES</a>
+  </div>
+  <a class="header-cta" href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener">Book Now</a>
+  <button class="header-toggle" aria-expanded="false" aria-label="Toggle navigation" id="headerToggle"><span></span><span></span><span></span></button>
+</header>
+<nav class="mobile-nav" id="mobileNav">
+  <div class="lang-switch" role="group" aria-label="Language switcher">
+    <a href="/accessibility-statement" data-lang-switch="en" hreflang="en" class="is-active">EN</a>
+    <span class="lang-sep" aria-hidden="true">|</span>
+    <a href="/es/declaracion-accesibilidad" data-lang-switch="es" hreflang="es">ES</a>
+  </div>
+  <a href="/">Home</a><a href="/about">About</a><a href="/blog">Journal</a><a href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener">Book Now</a>
+</nav>
+
+<section class="legal-hero" id="main-content">
+  <div class="legal-hero-inner">
+    <span class="eyebrow rv" data-anim>Legal &middot; Accessibility</span>
+    <h1 class="rv d1" data-anim>Accessibility <em>Statement</em></h1>
+    <div class="hero-meta rv d2" data-anim>
+      <span><strong>Last updated</strong> &nbsp;7 May 2026</span>
+      <span><strong>Last assessed</strong> &nbsp;7 May 2026</span>
+      <span><strong>Conformance target</strong> &nbsp;WCAG 2.1 AA</span>
+    </div>
+  </div>
+</section>
+
+<section class="legal-section">
+  <div class="legal-inner">
+
+    <nav class="legal-toc rv" aria-label="Table of contents" data-anim>
+      <h2>On this page</h2>
+      <ol>
+        <li><a href="#commitment">Our commitment</a></li>
+        <li><a href="#conformance">Conformance status</a></li>
+        <li><a href="#measures">Measures we take</a></li>
+        <li><a href="#technologies">Technologies used</a></li>
+        <li><a href="#assistive">Compatible assistive technologies</a></li>
+        <li><a href="#browsers">Supported browsers</a></li>
+        <li><a href="#features">Built-in accessibility features</a></li>
+        <li><a href="#limitations">Known limitations</a></li>
+        <li><a href="#assessment">Assessment method</a></li>
+        <li><a href="#feedback">Feedback and contact</a></li>
+        <li><a href="#enforcement">Enforcement and approval</a></li>
+      </ol>
+    </nav>
+
+    <div class="legal-body">
+
+      <p style="font-size:15px;line-height:1.95;color:var(--muted-l);margin-bottom:36px">
+        IVAE Studios is committed to making the web a place where editorial photography can be experienced by everyone — including travelers using screen readers, keyboard-only navigation, voice control, magnification or any other assistive technology. This statement explains what we have done, what we still need to improve and how to get in touch if something gets in your way.
+      </p>
+
+      <section id="commitment">
+        <h2><span class="secnum">01</span>Our commitment</h2>
+        <p>We believe a luxury experience should not exclude anyone. The same care we put into the light of a session — choosing the right hour, the right framing, the right pace — guides how we build the website that introduces our work. Accessibility is not a checkbox we tick once a year; it is a discipline we practise on every page we publish, every image we upload and every form we add.</p>
+        <p>We are aware that accessibility is a continuous improvement, not a destination. There will always be areas we can refine. We commit to being transparent about both what we have done and what is still pending.</p>
+      </section>
+
+      <section id="conformance">
+        <h2><span class="secnum">02</span>Conformance status</h2>
+        <p>The Web Content Accessibility Guidelines (WCAG) define requirements for designers and developers to improve accessibility for people with disabilities. They define three levels of conformance: Level A, Level AA and Level AAA. The website at <strong>ivaestudios.com</strong> is designed to <strong>conform with WCAG 2.1 Level AA</strong>.</p>
+        <p>We use the word <em>conformance</em> rather than <em>compliance</em> deliberately. <em>Compliance</em> can imply legal certification by a regulator; we have not pursued formal certification. <em>Conformance</em> describes our honest engineering target: every new page is built and reviewed against the AA success criteria, and existing pages are progressively brought into line.</p>
+        <div class="legal-callout">
+          <strong>Conformance level: WCAG 2.1 AA — partial</strong>
+          The site substantially meets WCAG 2.1 AA. Some content — typically older blog imagery — does not yet fully meet every success criterion at AA. The known limitations are listed in Section 8.
+        </div>
+      </section>
+
+      <section id="measures">
+        <h2><span class="secnum">03</span>Measures we take</h2>
+        <p>To support accessibility, IVAE Studios:</p>
+        <ul>
+          <li>Builds new pages on a semantic HTML5 foundation, with landmarks (<code>header</code>, <code>nav</code>, <code>main</code>, <code>footer</code>) that screen readers can announce.</li>
+          <li>Maintains a visible focus style on all interactive controls so keyboard users can always see where they are on the page.</li>
+          <li>Provides a <strong>"Skip to content"</strong> link as the first focusable element on every page, for users who do not want to tab through the header navigation.</li>
+          <li>Tests color combinations against the WCAG 1.4.3 contrast ratios (4.5:1 for body text, 3:1 for large text and meaningful UI).</li>
+          <li>Honours the user's <code>prefers-reduced-motion</code> system setting — animation is disabled or shortened automatically when the user has asked the operating system to reduce motion.</li>
+          <li>Honours the user's <code>prefers-color-scheme</code> setting through a dark mode that maintains the same contrast targets.</li>
+          <li>Writes alternative text for new images that describes the content rather than restating the file name.</li>
+          <li>Reviews layouts at viewport widths from 320 px upward so the site is usable on small devices and at 200% browser zoom.</li>
+          <li>Treats accessibility regressions discovered in code review or audits as defects, prioritised alongside other defect work.</li>
+        </ul>
+      </section>
+
+      <section id="technologies">
+        <h2><span class="secnum">04</span>Technologies used</h2>
+        <p>The site is built with a deliberately simple stack so it remains robust to assistive technology:</p>
+        <ul>
+          <li><strong>HTML5</strong> with semantic landmarks and headings.</li>
+          <li><strong>CSS3</strong>, including CSS custom properties for theming and <code>prefers-reduced-motion</code> / <code>prefers-color-scheme</code> queries.</li>
+          <li><strong>WAI-ARIA</strong> attributes only where native HTML semantics fall short — for example <code>aria-label</code> on icon-only controls and <code>aria-current</code> on the active navigation item.</li>
+          <li><strong>Vanilla JavaScript</strong> for progressive enhancements (scroll reveal, language switcher), kept minimal so the page works even if scripts fail.</li>
+          <li><strong>Web fonts</strong> served from Google Fonts with <code>font-display:swap</code> so text remains readable while custom fonts load.</li>
+        </ul>
+        <p>Accessibility relies on these technologies being supported by the user's browser and any assistive technology in use.</p>
+      </section>
+
+      <section id="assistive">
+        <h2><span class="secnum">05</span>Compatible assistive technologies</h2>
+        <p>The site has been authored to work with current versions of the following assistive technologies. <em>Current</em> means the latest stable release at the date this statement was reviewed.</p>
+        <ul>
+          <li><strong>VoiceOver</strong> on macOS (Sonoma and later) and iOS (17 and later).</li>
+          <li><strong>NVDA</strong> on Windows 10 and 11.</li>
+          <li><strong>JAWS</strong> on Windows 10 and 11.</li>
+          <li><strong>TalkBack</strong> on Android 12 and later.</li>
+          <li><strong>Voice Control</strong> on macOS and iOS.</li>
+          <li><strong>Browser zoom</strong> up to 200% without loss of content or functionality.</li>
+          <li><strong>Operating system high-contrast modes</strong> on macOS, Windows and iOS.</li>
+        </ul>
+        <p>If you use a different combination and run into a problem, please tell us — see Section 10. Coverage tends to be best when the screen reader and the browser are from the same generation.</p>
+      </section>
+
+      <section id="browsers">
+        <h2><span class="secnum">06</span>Supported browsers</h2>
+        <p>We test against the latest two versions of:</p>
+        <ul>
+          <li>Google Chrome (desktop and Android)</li>
+          <li>Mozilla Firefox (desktop and Android)</li>
+          <li>Apple Safari (macOS and iOS)</li>
+          <li>Microsoft Edge (desktop)</li>
+          <li>Samsung Internet (Android)</li>
+        </ul>
+        <p>Older browsers may render the site with reduced styling but should still expose the underlying content to assistive technology.</p>
+      </section>
+
+      <section id="features">
+        <h2><span class="secnum">07</span>Built-in accessibility features</h2>
+        <p>A few features may help if you are using the site with assistive technology or simply want a calmer reading experience:</p>
+        <ul>
+          <li><strong>Skip-to-content link</strong> — press <kbd>Tab</kbd> as soon as the page loads to focus a link that jumps past the header straight to the main content area.</li>
+          <li><strong>Language switcher</strong> — every page links to its mirror in the other language, with <code>hreflang</code> annotations so search engines and screen readers identify the language correctly.</li>
+          <li><strong>Reduced motion</strong> — if your operating system reports a preference for reduced motion, scroll-reveal transitions and parallax effects are disabled automatically.</li>
+          <li><strong>Dark mode</strong> — follows your system preference; the contrast ratios in dark mode also target WCAG AA.</li>
+          <li><strong>Resizable text</strong> — body text is sized in relative units, so increasing the browser font size flows correctly without breaking layout up to 200%.</li>
+          <li><strong>Keyboard navigation</strong> — every interactive control is reachable with <kbd>Tab</kbd> and operable with <kbd>Enter</kbd> or <kbd>Space</kbd>. The mobile menu can be opened, navigated and dismissed using the keyboard.</li>
+        </ul>
+      </section>
+
+      <section id="limitations">
+        <h2><span class="secnum">08</span>Known limitations</h2>
+        <p>We would rather be honest than aspirational. Despite our best efforts, the following items are not yet fully conformant. We are working on each of them, and we have shared them publicly so you know exactly where the rough edges are:</p>
+        <ul>
+          <li><strong>Older blog post imagery.</strong> A subset of historical blog post images carries generic <code>alt</code> attributes ("photo by IVAE Studios") rather than descriptive alternatives. We are progressively rewriting these as we revisit each post.</li>
+          <li><strong>Lightbox-style image viewer.</strong> The full-screen image viewer used in some blog posts works for mouse and touch input but its keyboard navigation is limited to the basic <kbd>Esc</kbd>-to-close pattern. We are working on full arrow-key, focus-trap and announcement support.</li>
+          <li><strong>Photo galleries are inherently visual.</strong> Even with descriptive alternative text, a photograph cannot fully convey light, mood, texture or composition to someone who cannot see it. We try to write alt text that captures subject, action, location and atmosphere, but we acknowledge the limit.</li>
+          <li><strong>Embedded social media content.</strong> When we embed an Instagram post or a third-party video, we depend on that platform's accessibility, which is sometimes weaker than our own pages. Where possible we provide a textual summary alongside the embed.</li>
+          <li><strong>PDF downloads.</strong> A small number of older downloadable assets (location guides, outfit guides) were produced before we standardised our PDF accessibility checks. New PDFs are tagged and reading-order tested; older PDFs will be re-exported on a rolling basis.</li>
+        </ul>
+        <p>If you encounter any other barrier we have not listed here, please tell us — see Section 10. Reports help us prioritise.</p>
+      </section>
+
+      <section id="assessment">
+        <h2><span class="secnum">09</span>Assessment method</h2>
+        <p>The conformance level claimed in Section 2 is based on the following assessment activities, performed during the period leading up to the <strong>"Last assessed"</strong> date at the top of this page:</p>
+        <ul>
+          <li><strong>Self-evaluation</strong> by the IVAE Studios team against the WCAG 2.1 AA success criteria.</li>
+          <li><strong>Manual keyboard testing</strong> on the home page, location pages, blog index, a representative blog post, the contact paths and the new legal pages — confirming that every interactive control is reachable, operable, focus-visible and dismissible without a mouse.</li>
+          <li><strong>Automated audits</strong> using Google Lighthouse and the axe DevTools browser extension, on representative pages from each template.</li>
+          <li><strong>Screen reader spot checks</strong> with VoiceOver on macOS and iOS, focusing on landmarks, heading order and form labels.</li>
+          <li><strong>Color contrast checks</strong> against the WCAG 1.4.3 ratio thresholds, using the design tokens defined in <code>dark-mode.css</code> as the source of truth.</li>
+          <li><strong>Responsive checks</strong> at 320 px, 768 px and 1280 px viewport widths, plus 200% browser zoom.</li>
+        </ul>
+        <p>This assessment is internal. We have not yet commissioned an external accessibility audit; if you represent an accessibility consultancy and would like to talk to us, please get in touch.</p>
+      </section>
+
+      <section id="feedback">
+        <h2><span class="secnum">10</span>Feedback and contact</h2>
+        <p>If you encounter an accessibility barrier on <strong>ivaestudios.com</strong> — or anywhere in our work — please tell us. We treat accessibility reports as a priority.</p>
+        <div class="legal-callout">
+          <strong>Accessibility feedback</strong>
+          Email: <a href="mailto:contact@ivaestudios.com">contact@ivaestudios.com</a><br>
+          Subject: <em>Accessibility feedback</em><br>
+          Please describe the barrier, the page where you encountered it, the assistive technology, browser and operating system in use, and what you were trying to do.
+        </div>
+        <p>Our service-level commitment for accessibility reports is to acknowledge receipt within two (2) business days and to provide a substantive response — including, where possible, a fix or a workaround — <strong>within fourteen (14) calendar days</strong>. Where a fix requires more than fourteen days we will tell you so, explain why, and update you on progress until it is closed.</p>
+      </section>
+
+      <section id="enforcement">
+        <h2><span class="secnum">11</span>Enforcement and approval</h2>
+        <p>This statement is published voluntarily, in alignment with the spirit of the W3C Web Accessibility Initiative's model statement. We do not currently fall under a single specific national enforcement body: we are based in México, our clients are predominantly in the United States and Canada, and our visitors come from around the world. Where a regional regulator does have jurisdiction over you (for example, the U.S. Department of Justice in matters relating to the ADA, the European national authorities in matters relating to the Web Accessibility Directive, or the equivalent body in your country), this statement does not displace your rights to escalate.</p>
+        <p>This statement was prepared on <strong>7 May 2026</strong>, reviewed by the IVAE Studios team, and approved by the studio's founder.</p>
+        <div class="legal-sign">
+          Vianey Díaz
+          <small>Founder &amp; Creative Director, IVAE Studios &middot; Cancún, México</small>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+
+<section class="legal-cta">
+  <div class="legal-cta-inner">
+    <span class="eyebrow" style="justify-content:center">Related</span>
+    <h2>Privacy is the <em>other half</em> of the trust we owe you.</h2>
+    <p>Read how we collect, use, store and protect your personal data — and the rights you have over it.</p>
+    <a class="btn-ghost" href="/privacy-policy">Privacy Policy
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="width:13px;height:13px"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
+    </a>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <span class="footer-brand"><span>IVAE</span> Studios</span>
+  <span class="footer-tagline">Luxury Resort Photography</span>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/about">About</a>
+    <a href="/blog">Journal</a>
+    <a href="/cancun-photographer">Cancún</a>
+    <a href="/riviera-maya-photographer">Riviera Maya</a>
+    <a href="/cabo-photographer">Los Cabos</a>
+    <a href="/destination-wedding-photographer-mexico">Weddings</a>
+    <a href="/luxury-family-photos-cancun">Families</a>
+    <a href="/couples-photography-mexico">Couples</a>
+    <a href="/privacy-policy">Privacy</a>
+    <a href="/accessibility-statement">Accessibility</a>
+    <a href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Instagram</a>
+  </nav>
+  <div class="footer-divider"></div>
+  <span class="footer-copy">&copy; 2026 IVAE Studios &middot; Cancún, Mexico</span>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>{document.getElementById('siteHeader').classList.toggle('scrolled',window.scrollY>60)},{passive:true});
+document.getElementById('headerToggle').addEventListener('click',()=>document.getElementById('mobileNav').classList.toggle('open'));
+
+const revObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');revObs.unobserve(e.target)}});
+},{threshold:0.1,rootMargin:'0px 0px -80px 0px'});
+document.querySelectorAll('[data-anim]').forEach(el=>revObs.observe(el));
+
+function sendHeight(){window.parent.postMessage({type:'iwh',value:document.documentElement.scrollHeight},'*')}
+window.addEventListener('load',sendHeight);window.addEventListener('resize',sendHeight);
+[500,1500,3000].forEach(t=>setTimeout(sendHeight,t));
+</script>
+<script src="/js/lang-detect.js" defer></script>
+</body>
+</html>

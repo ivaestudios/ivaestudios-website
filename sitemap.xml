@@ -965,4 +965,44 @@
     <priority>0.7</priority>
   </url>
 
+  <url>
+    <loc>https://ivaestudios.com/privacy-policy</loc>
+    <lastmod>2026-05-07</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/privacy-policy"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/politica-de-privacidad"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/privacy-policy"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/politica-de-privacidad</loc>
+    <lastmod>2026-05-07</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/privacy-policy"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/politica-de-privacidad"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/privacy-policy"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/accessibility-statement</loc>
+    <lastmod>2026-05-07</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/accessibility-statement"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/declaracion-accesibilidad"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/accessibility-statement"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/declaracion-accesibilidad</loc>
+    <lastmod>2026-05-07</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/accessibility-statement"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/declaracion-accesibilidad"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/accessibility-statement"/>
+  </url>
+
 </urlset>
