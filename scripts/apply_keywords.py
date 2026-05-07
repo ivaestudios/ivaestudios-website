@@ -92,11 +92,66 @@ def load_latest() -> dict[str, Any] | None:
         return json.load(f)
 
 
-def pick_keyword(latest: dict[str, Any], category: str) -> dict[str, Any] | None:
-    """Highest-scored keyword in `category`."""
+def pick_keyword(
+    latest: dict[str, Any],
+    category: str,
+    page_path: str | None = None,
+) -> dict[str, Any] | None:
+    """Highest-scored keyword in `category`.
+
+    If page_path is provided, prefer keywords that match the page's location
+    word(s) — so cancun.html doesn't get "fotografo cabos" applied to it.
+    Page → location-tokens map is hardcoded for our specific URL slugs.
+    """
     candidates = [k for k in latest.get("keywords", []) if k.get("category") == category]
     if not candidates:
         return None
+
+    # Location filtering: extract location tokens from page path and ONLY
+    # accept keywords containing any of them. If none match, return None so
+    # the caller skips this page rather than applying a wrong-city keyword.
+    if page_path:
+        page_norm = page_path.lower().replace("_", "-")
+        # Match the URL slug fragments to location tokens we expect to see in keywords.
+        location_map = {
+            "riviera-maya": ["riviera maya", "playa del carmen", "tulum", "akumal"],
+            "fotografo-riviera-maya": ["riviera maya", "playa del carmen", "tulum"],
+            "los-cabos": ["los cabos", "cabos", "cabo san lucas", "san jose del cabo", "palmilla"],
+            "fotografo-los-cabos": ["los cabos", "cabos", "cabo san lucas"],
+            # cancun.html, fotografo-cancun.html accept any keyword (already cancun-default)
+            "cancun": ["cancun", "cancún"],
+            "fotografo-cancun": ["cancun", "cancún"],
+        }
+        # Pages that don't need city filtering (homepages + category-wide pages)
+        no_filter_pages = {
+            "index.html", "es/index.html",
+            "luxury-weddings.html",
+            "couples-photography.html", "luxury-family-photos.html",
+            "es/fotografo-bodas-destino-mexico.html",
+            "es/fotografia-parejas-mexico.html",
+            "es/fotos-familiares-lujo-cancun.html",
+        }
+        if page_norm in no_filter_pages:
+            return max(candidates, key=lambda k: float(k.get("score", 0)))
+
+        # Pick most-specific slug match (longest match wins)
+        best_slug = ""
+        best_tokens: list[str] = []
+        for slug, tokens in location_map.items():
+            if slug in page_norm and len(slug) > len(best_slug):
+                best_slug = slug
+                best_tokens = tokens
+
+        if best_tokens:
+            location_filtered = [
+                k for k in candidates
+                if any(loc in (k.get("keyword") or "").lower() for loc in best_tokens)
+            ]
+            if location_filtered:
+                return max(location_filtered, key=lambda k: float(k.get("score", 0)))
+            # Strict policy: no city match → skip rather than apply wrong city
+            return None
+
     return max(candidates, key=lambda k: float(k.get("score", 0)))
 
 
@@ -233,7 +288,7 @@ def apply_to_file(
     if not category:
         return 0
 
-    primary = pick_keyword(latest, category)
+    primary = pick_keyword(latest, category, page_path=norm_rel)
     if not primary:
         print(f"  SKIP {norm_rel} - no '{category}' keyword in latest.json")
         return 0
