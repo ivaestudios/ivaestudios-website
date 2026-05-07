@@ -17,6 +17,7 @@
   Components: static HTML, Cloudflare Pages
   Languages: English (default), Spanish (es/)
   Doctype: HTML5
+  Wikidata: Q139689577 (https://www.wikidata.org/wiki/Q139689577)
 
 /* BRAND DISAMBIGUATION */
 
