@@ -84,7 +84,8 @@ a{color:inherit;text-decoration:none}
 
 /* HERO */
 .hero{position:relative;height:80vh;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;background:var(--ink2)}
-.hero-bg{position:absolute;inset:0;background:url('https://assets.ivaestudios.com/pages/riviera-maya/couple-beach-riviera-maya.jpg') center/cover no-repeat;will-change:transform}
+.hero-bg{position:absolute;inset:0;will-change:transform;overflow:hidden}
+.hero-bg img{width:100%;height:100%;object-fit:cover;display:block}
 .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,22,32,0.55) 0%,rgba(14,22,32,0.72) 100%)}
 .hero-content{position:relative;z-index:2;padding:0 64px;max-width:900px}
 .hero h1{font-size:clamp(36px,6.5vw,80px);font-weight:300;line-height:1.08;color:var(--cream);margin-bottom:24px}
@@ -272,7 +273,7 @@ a{color:inherit;text-decoration:none}
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 <link rel="manifest" href="/site.webmanifest"/>
 <meta name="theme-color" content="#0c1219"/>
-<link rel="preload" as="image" fetchpriority="high" href="https://assets.ivaestudios.com/pages/riviera-maya/couple-beach-riviera-maya.jpg">
+<link rel="preload" as="image" fetchpriority="high" href="images/riviera-maya-hero.avif" type="image/avif">
 </head>
 <body>
 <a href="#main-content" class="skip-link">Skip to content</a>
@@ -313,7 +314,13 @@ a{color:inherit;text-decoration:none}
 
 <!-- HERO -->
 <section class="hero" id="main-content">
-  <div class="hero-bg"></div>
+  <div class="hero-bg">
+    <picture>
+      <source type="image/avif" srcset="images/riviera-maya-hero.avif">
+      <source type="image/webp" srcset="images/riviera-maya-hero.webp">
+      <img src="images/riviera-maya-hero.jpg" alt="Riviera Maya luxury photographer — couple beach session at golden hour by IVAE Studios" width="2000" height="3000" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+  </div>
   <div class="hero-content rv" data-anim="fade">
     <h1><em>Luxury Photographer</em> in Riviera Maya, Mexico</h1>
     <p class="hero-sub">Cenotes, Caribbean coastline, ancient ruins, and jungle canopies -- our team knows how to use every backdrop to create images as extraordinary as the destination itself.</p>
