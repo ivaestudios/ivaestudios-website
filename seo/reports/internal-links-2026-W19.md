@@ -11,9 +11,9 @@ Top 30 new internal links to consider:
 | 2 | `post-engagement.html` | → | `post-maternity.html` | 0.88 | Maternity Photoshoot in Cancún & Riviera Maya: Your Complete |
 | 3 | `post-couples.html` | → | `post-engagement.html` | 0.87 | Engagement Session in Cancún & Riviera Maya: The Ultimate Gu |
 | 4 | `post-engagement.html` | → | `post-couples.html` | 0.87 | Couples Photographer in Cancún: Capturing Romance on Honeymo |
-| 5 | `cancun.html` | → | `post-engagement.html` | 0.86 | Engagement Session in Cancún & Riviera Maya: The Ultimate Gu |
-| 6 | `post-engagement.html` | → | `cancun.html` | 0.86 | Luxury  Photographer  in Cancún, Mexico |
-| 7 | `post-trash-the-dress-cancun.html` | → | `post-engagement.html` | 0.85 | Engagement Session in Cancún & Riviera Maya: The Ultimate Gu |
+| 5 | `post-trash-the-dress-cancun.html` | → | `post-engagement.html` | 0.85 | Engagement Session in Cancún & Riviera Maya: The Ultimate Gu |
+| 6 | `post-engagement.html` | → | `post-trash-the-dress-cancun.html` | 0.85 | Trash the Dress Cancún Beach: The Complete Guide to Your Pos |
+| 7 | `cancun.html` | → | `post-engagement.html` | 0.85 | Engagement Session in Cancún & Riviera Maya: The Ultimate Gu |
 | 8 | `post-honeymoon.html` | → | `post-engagement.html` | 0.84 | Engagement Session in Cancún & Riviera Maya: The Ultimate Gu |
 | 9 | `post-maternity.html` | → | `post-honeymoon.html` | 0.84 | Honeymoon Photographer in Riviera Maya: Capture Your First A |
 | 10 | `post-honeymoon.html` | → | `post-maternity.html` | 0.84 | Maternity Photoshoot in Cancún & Riviera Maya: Your Complete |
@@ -30,13 +30,13 @@ Top 30 new internal links to consider:
 | 21 | `post-anniversary-photography-mexico.html` | → | `post-engagement.html` | 0.82 | Engagement Session in Cancún & Riviera Maya: The Ultimate Gu |
 | 22 | `post-surprise-proposal.html` | → | `post-engagement.html` | 0.82 | Engagement Session in Cancún & Riviera Maya: The Ultimate Gu |
 | 23 | `post-bachelorette-photoshoot-los-cabos.html` | → | `post-honeymoon.html` | 0.81 | Honeymoon Photographer in Riviera Maya: Capture Your First A |
-| 24 | `cancun.html` | → | `post-maternity.html` | 0.81 | Maternity Photoshoot in Cancún & Riviera Maya: Your Complete |
-| 25 | `outfit-guide.html` | → | `cancun.html` | 0.81 | Luxury  Photographer  in Cancún, Mexico |
-| 26 | `cancun.html` | → | `outfit-guide.html` | 0.81 | What to Wear for a Mexico  Beach Photoshoot |
-| 27 | `post-trash-the-dress-cancun.html` | → | `cancun.html` | 0.81 | Luxury  Photographer  in Cancún, Mexico |
-| 28 | `blog.html` | → | `post-bachelorette-photoshoot-los-cabos.html` | 0.81 | Bachelorette Photoshoot in Los Cabos: The Complete Planning  |
-| 29 | `post-luxury-yacht-photography-cancun.html` | → | `post-maternity.html` | 0.81 | Maternity Photoshoot in Cancún & Riviera Maya: Your Complete |
-| 30 | `post-trash-the-dress-cancun.html` | → | `post-maternity.html` | 0.81 | Maternity Photoshoot in Cancún & Riviera Maya: Your Complete |
+| 24 | `blog.html` | → | `post-bachelorette-photoshoot-los-cabos.html` | 0.81 | Bachelorette Photoshoot in Los Cabos: The Complete Planning  |
+| 25 | `post-luxury-yacht-photography-cancun.html` | → | `post-maternity.html` | 0.81 | Maternity Photoshoot in Cancún & Riviera Maya: Your Complete |
+| 26 | `post-trash-the-dress-cancun.html` | → | `post-maternity.html` | 0.81 | Maternity Photoshoot in Cancún & Riviera Maya: Your Complete |
+| 27 | `cancun.html` | → | `post-maternity.html` | 0.80 | Maternity Photoshoot in Cancún & Riviera Maya: Your Complete |
+| 28 | `post-trash-the-dress-cancun.html` | → | `post-bachelorette-photoshoot-los-cabos.html` | 0.80 | Bachelorette Photoshoot in Los Cabos: The Complete Planning  |
+| 29 | `outfit-guide.html` | → | `post-couples.html` | 0.80 | Couples Photographer in Cancún: Capturing Romance on Honeymo |
+| 30 | `post-babymoon-photography-cancun.html` | → | `post-engagement.html` | 0.80 | Engagement Session in Cancún & Riviera Maya: The Ultimate Gu |
 
 ## Cómo aplicar
 
