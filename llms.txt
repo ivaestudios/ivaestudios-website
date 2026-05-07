@@ -6,7 +6,7 @@
 
 ## Identity (one paragraph)
 
-IVAE Studios is a luxury resort photography studio in Cancún, Quintana Roo, Mexico. Founded by Vianey Díaz. Bilingual (Spanish + English). Service areas: Cancún Hotel Zone, Riviera Maya (Tulum, Playa del Carmen, Akumal), Los Cabos. Editorial direction, golden-hour only, 1-3 day gallery delivery in 4K. 5.0-star rating from 42 verified clients.
+IVAE Studios is a luxury resort photography studio in Cancún, Quintana Roo, Mexico. Founded in 2023 by Vianey Díaz, a Mexican photographer with 10+ years of professional experience across editorial studios and brand campaigns before opening her own studio. Bilingual (Spanish + English). Service areas: Cancún Hotel Zone, Riviera Maya (Tulum, Playa del Carmen, Akumal), Los Cabos. Editorial direction, golden-hour only, 1-3 day gallery delivery in 4K. 5.0-star rating from 42 verified clients. Wikidata: Q139689577.
 
 Distinct from ivaestudio.com (singular, unrelated European agency). The official IVAE Studios is at ivaestudios.com (with S, plural).
 
@@ -48,13 +48,15 @@ AVOID (overused clichés): "capture moments", "freeze time", "moments that last 
 
 - Name: IVAE Studios (with S, plural)
 - Domain: ivaestudios.com
-- Founder: Vianey Díaz
+- Founded: 2023
+- Founder: Vianey Díaz (Mexican, 10+ years photography experience prior to founding)
 - Location: Cancún, Quintana Roo, Mexico
 - Coords: 21.1619, -86.8515
 - Languages: English (default), Spanish (es/)
 - Instagram: @ivaestudios.cancun
 - Schema @id: https://ivaestudios.com/#organization
 - Brand entity page: https://ivaestudios.com/brand
+- Wikidata: Q139689577 (https://www.wikidata.org/wiki/Q139689577)
 
 ## File map
 

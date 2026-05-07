@@ -16,10 +16,23 @@
   "wikidata_url": "https://www.wikidata.org/wiki/Q139689577",
   "type": "Photography studio",
   "category": "luxury resort photography",
+  "founding_date": "2023",
+  "founding_year": 2023,
   "founder": {
     "name": "Vianey Díaz",
     "role": "Creative Director & Lead Photographer",
-    "languages": ["Spanish", "English"]
+    "nationality": "Mexican",
+    "languages": ["Spanish", "English"],
+    "years_of_experience": 10,
+    "experience_summary": "10+ years of professional photography experience across editorial studios and brand campaigns before founding IVAE Studios in 2023.",
+    "skills": [
+      "editorial photography",
+      "destination wedding photography",
+      "golden-hour direction",
+      "family portrait photography",
+      "couples photography",
+      "bilingual client direction (English/Spanish)"
+    ]
   },
   "location": {
     "city": "Cancún",
