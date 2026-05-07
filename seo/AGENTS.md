@@ -29,15 +29,15 @@ Cost: $0/month. Owner involvement: zero (system is fully autonomous).
 **Current GSC traffic:** ~42 clicks total, 91 distinct queries with impressions
 
 **CRITICAL ACCOUNT NOTE:**
-The user has THREE Google accounts in Chrome:
+The user has multiple Google accounts in Chrome. Only ONE is correct for IVAE:
 - `vianeydm07@gmail.com` (Vianey, **CORRECT** — owns ivaestudios.com everywhere)
-- `contact@regeneristtherapy.com` (Regeneris — DO NOT USE for IVAE work)
-- `reservations@regeneristtherapy.com` (Regeneris — DO NOT USE)
+- Other accounts at `authuser=0` and `authuser=2` belong to unrelated projects
+  and must NEVER be used for IVAE work
 
 When navigating Google services in browser, ALWAYS confirm `authuser=1` (Vianey)
 before any action. Earlier in this project a Cloud Console flow accidentally
-created a new project under Regeneris because Chrome session-cookied through
-to the wrong account. That project was deleted; Regeneris is now clean.
+created a project under the wrong account because Chrome session-cookied through.
+That project was deleted; the wrong-account project space is now clean.
 
 ---
 

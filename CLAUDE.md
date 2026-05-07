@@ -10,9 +10,10 @@ Monday 9:08 AM local time. **Critical context lives in `seo/AGENTS.md`** —
 account hygiene, credentials, marker contracts, what's pending, etc. Do not
 make changes to the SEO system without reading that file first.
 
-**Critical accounts note:** the user has 3 Google accounts in Chrome. Always
-use `vianeydm07@gmail.com` (Vianey, `authuser=1`) — never the Regeneris
-accounts (`authuser=0` and `authuser=2`).
+**Critical accounts note:** the user has multiple Google accounts in Chrome.
+Always use `vianeydm07@gmail.com` (Vianey, `authuser=1`) for all IVAE work.
+Other accounts at `authuser=0` and `authuser=2` belong to unrelated projects
+and must never be used here.
 
 ## Hosting
 
