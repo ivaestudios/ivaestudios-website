@@ -38,246 +38,246 @@
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <style>
-/* IVAE V3 — design-milk inspired light editorial. Photography first. */
+/* IVAE V4 — DENSE DARK EDITORIAL. NYT/Verge/It's Nice That density. Photography first. */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --paper:#fafaf8;        /* warm cream paper white */
-  --paper-2:#f3f1ec;      /* slightly deeper for sectional separation */
-  --ink:#0e1620;          /* near-black ink */
-  --ink-2:#1a2433;
-  --muted:#525a66;        /* body muted gray */
-  --muted-2:#8a8f97;      /* metadata gray */
-  --border:rgba(14,22,32,0.08);
-  --border-2:rgba(14,22,32,0.14);
-  --gold:#c4a35a;
+  --paper:#fafaf8;
+  --paper-2:#f3f1ec;
+  --ink:#0c1219;
+  --ink-2:#131c2a;
+  --ink-3:#1a2230;
+  --cream:#faf8f5;
+  --cream-2:#e8e4dc;
+  --muted:#a8a8a0;
+  --muted-2:#6e7585;
+  --border:rgba(250,248,245,0.08);
+  --border-2:rgba(250,248,245,0.14);
+  --gold:#c9a54e;
   --gold-2:#a8894a;
+  --gold-soft:rgba(201,165,78,0.18);
   --sans:'Inter','Syne',system-ui,-apple-system,'Segoe UI',sans-serif;
   --serif:'Cormorant Garamond',Georgia,serif;
   --ease:cubic-bezier(0.22,1,0.36,1);
   --ease-out:cubic-bezier(0.16,1,0.3,1)
 }
 html{scroll-behavior:smooth}
-body{font-family:var(--sans);background:var(--paper);color:var(--ink);overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"kern" 1,"liga" 1;line-height:1.55}
-::selection{background:rgba(196,163,90,0.25);color:var(--ink)}
+body{font-family:var(--sans);background:var(--paper);color:#0e1620;overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"kern" 1,"liga" 1;line-height:1.5}
+::selection{background:rgba(201,165,78,0.3);color:var(--cream)}
 :focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 
-.skip-link{position:absolute;top:-100%;left:16px;background:var(--ink);color:var(--paper);padding:12px 24px;z-index:10001;font-size:13px;font-weight:600;text-decoration:none;transition:top 0.3s}
+.skip-link{position:absolute;top:-100%;left:16px;background:var(--gold);color:var(--ink);padding:12px 24px;z-index:10001;font-size:13px;font-weight:600;text-decoration:none;transition:top 0.3s}
 .skip-link:focus{top:0}
 
-/* REVEAL — subtle fade-up on scroll */
-.rv{opacity:0;transform:translateY(24px);transition:opacity .8s var(--ease),transform .9s var(--ease);will-change:opacity,transform}
+.rv{opacity:0;transform:translateY(16px);transition:opacity .65s var(--ease-out),transform .75s var(--ease-out);will-change:opacity,transform}
 .rv.vis{opacity:1;transform:translateY(0)}
 @media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
 
-/* HEADER — light, centered, design-milk inspired */
-.site-header{position:fixed;top:0;left:0;right:0;z-index:1000;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 56px;height:78px;background:rgba(250,250,248,0.96);backdrop-filter:saturate(140%) blur(10px);-webkit-backdrop-filter:saturate(140%) blur(10px);border-bottom:1px solid var(--border);transition:box-shadow 0.3s}
-.site-header.scrolled{box-shadow:0 1px 14px rgba(14,22,32,0.05)}
+.site-header{position:fixed;top:0;left:0;right:0;z-index:1000;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 56px;height:72px;background:rgba(250,250,248,0.96);backdrop-filter:saturate(140%) blur(12px);-webkit-backdrop-filter:saturate(140%) blur(12px);border-bottom:1px solid rgba(14,22,32,0.08);transition:box-shadow 0.3s,background 0.3s}
+.site-header.scrolled{box-shadow:0 1px 14px rgba(0,0,0,0.18)}
 .header-left{display:flex;align-items:center;gap:36px;justify-self:start}
 .header-right{display:flex;align-items:center;gap:24px;justify-self:end}
-.header-logo{font-family:var(--sans);font-size:14px;font-weight:700;letter-spacing:0.32em;text-transform:uppercase;color:var(--ink);text-decoration:none}
+.header-logo{font-family:var(--sans);font-size:14px;font-weight:700;letter-spacing:0.32em;text-transform:uppercase;color:#0e1620;text-decoration:none}
 .header-logo span{color:var(--gold)}
 .header-nav{display:flex;align-items:center;gap:32px;list-style:none}
-.header-nav a{font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink);opacity:0.62;text-decoration:none;transition:opacity 0.25s,color 0.25s;position:relative;padding-bottom:2px}
+.header-nav a{font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#0e1620;opacity:0.62;text-decoration:none;transition:opacity 0.25s,color 0.25s;position:relative;padding-bottom:2px}
 .header-nav a:hover{opacity:1}
-.header-nav a.active{opacity:1;color:var(--ink)}
+.header-nav a.active{opacity:1}
 .header-nav a.active::after{content:'';position:absolute;left:0;right:0;bottom:-4px;height:1.5px;background:var(--gold)}
-.header-cta{font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--ink);background:var(--ink);color:#fff;padding:11px 22px;text-decoration:none;transition:background 0.3s}
-.header-cta:hover{background:var(--gold)}
+.header-cta{font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:#fff;background:#0e1620;padding:11px 22px;text-decoration:none;transition:background 0.3s}
+.header-cta:hover{background:var(--gold-2)}
 .lang-switch{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase}
-.lang-switch a{color:var(--ink);opacity:0.45;text-decoration:none;transition:opacity 0.25s}
+.lang-switch a{color:#0e1620;opacity:0.45;text-decoration:none;transition:opacity 0.25s}
 .lang-switch a.is-active{opacity:1}
 .lang-switch a:hover{opacity:1}
-.lang-switch .lang-sep{color:var(--muted-2);opacity:0.5}
+.lang-switch .lang-sep{opacity:0.5}
 .header-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none}
-.header-toggle span{display:block;width:22px;height:1.5px;background:var(--ink)}
-.mobile-nav{display:none;position:fixed;top:78px;left:0;right:0;background:var(--paper);padding:24px 32px;flex-direction:column;gap:0;border-bottom:1px solid var(--border);z-index:999}
-.mobile-nav a{font-size:13px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink);opacity:0.75;text-decoration:none;padding:14px 0;border-bottom:1px solid var(--border);display:block}
+.header-toggle span{display:block;width:22px;height:1.5px;background:#0e1620;transition:background 0.3s}
+.mobile-nav{display:none;position:fixed;top:72px;left:0;right:0;background:#fafaf8;padding:24px 32px;flex-direction:column;gap:0;border-bottom:1px solid rgba(14,22,32,0.08);z-index:999}
+.mobile-nav a{font-size:13px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#0e1620;opacity:0.75;text-decoration:none;padding:14px 0;border-bottom:1px solid rgba(14,22,32,0.08);display:block}
 .mobile-nav a:last-child{border-bottom:none}
 .mobile-nav.open{display:flex}
-body{padding-top:78px}
+body{padding-top:72px}
 
-/* HERO — light, calm, photography-led typography only */
-.journal-hero{padding:clamp(56px,7vw,100px) clamp(28px,6vw,96px) clamp(48px,5vw,80px);background:var(--paper);max-width:1320px;margin:0 auto;width:100%}
-.journal-eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:10.5px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:var(--ink);margin-bottom:28px}
+html.dark .site-header{background:rgba(8,12,18,0.88);border-bottom:1px solid var(--border-2)}
+html.dark .site-header.scrolled{background:rgba(8,12,18,0.96);box-shadow:0 1px 16px rgba(0,0,0,0.6)}
+html.dark .header-logo,html.dark .header-nav a,html.dark .header-toggle span{color:var(--cream)}
+html.dark .header-toggle span{background:var(--cream)}
+html.dark .header-cta{background:var(--gold);color:var(--ink)}
+html.dark .header-cta:hover{background:var(--cream)}
+html.dark .mobile-nav{background:var(--ink);border-bottom:1px solid var(--border-2)}
+html.dark .mobile-nav a{color:var(--cream);border-bottom:1px solid var(--border)}
+
+.journal-hero{padding:clamp(40px,5vw,72px) clamp(28px,6vw,80px) clamp(32px,3.5vw,48px);max-width:1320px;margin:0 auto;width:100%;min-height:auto}
+.journal-eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:10.5px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);margin-bottom:18px}
 .journal-eyebrow::before{content:'';width:32px;height:1.5px;background:var(--gold)}
-.journal-hero h1{font-family:var(--serif);font-size:clamp(46px,6.5vw,92px);font-weight:400;line-height:1.02;letter-spacing:-0.018em;color:var(--ink);max-width:18ch;margin-bottom:32px;text-wrap:balance}
-.journal-hero h1 em{font-style:italic;color:var(--gold-2);font-weight:400}
-.journal-lede{font-family:var(--serif);font-style:italic;font-size:clamp(17px,1.4vw,21px);line-height:1.6;color:var(--muted);max-width:600px;font-weight:400;margin-bottom:48px}
-.journal-stats{display:flex;flex-wrap:wrap;gap:clamp(28px,4vw,52px);align-items:flex-end;border-top:1px solid var(--border);padding-top:28px}
-.jstat{display:flex;flex-direction:column;gap:6px}
-.jstat .n{font-family:var(--serif);font-size:clamp(28px,2.6vw,38px);font-weight:500;color:var(--ink);line-height:1;letter-spacing:-0.01em}
-.jstat .n em{font-style:italic;color:var(--gold-2);font-weight:500}
-.jstat .l{font-size:9.5px;font-weight:600;letter-spacing:0.24em;text-transform:uppercase;color:var(--muted-2)}
+.journal-hero h1{font-family:var(--serif);font-size:clamp(38px,5.4vw,72px);font-weight:400;line-height:1.05;letter-spacing:-0.014em;max-width:none;margin-bottom:14px;text-wrap:balance;color:#0e1620}
+.journal-hero h1 em{font-style:italic;color:var(--gold);font-weight:400}
+html.dark .journal-hero h1{color:var(--cream)}
+.journal-lede{font-family:var(--serif);font-style:italic;font-size:clamp(16px,1.25vw,19px);line-height:1.55;color:#525a66;max-width:780px;font-weight:400;margin-bottom:20px}
+html.dark .journal-lede{color:var(--muted)}
+.journal-stats{display:flex;flex-wrap:wrap;gap:24px;align-items:center;font-family:var(--sans)}
+.jstat{display:inline-flex;align-items:baseline;gap:8px;font-size:11px;letter-spacing:0.04em;color:#8a8f97;font-weight:500}
+.jstat .n{font-family:var(--serif);font-size:18px;font-weight:500;color:#0e1620;letter-spacing:-0.005em}
+.jstat .n em{font-style:italic;color:var(--gold)}
+.jstat .l{font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:#8a8f97}
+.jstat-sep{color:#8a8f97;opacity:0.5;font-size:11px}
+html.dark .jstat .n{color:var(--cream)}
+html.dark .jstat .l,html.dark .jstat,html.dark .jstat-sep{color:var(--muted-2)}
 
-/* BREADCRUMBS */
-.breadcrumbs{padding:18px clamp(28px,6vw,96px) 0;max-width:1320px;margin:0 auto;font-size:11px;letter-spacing:0.04em;color:var(--muted-2);font-weight:500}
-.breadcrumbs a{color:var(--muted-2);text-decoration:none;transition:color 0.3s}
-.breadcrumbs a:hover{color:var(--ink)}
-.breadcrumbs span{margin:0 8px;opacity:0.5}
-
-/* CATEGORY NAV — clean horizontal */
-.cat-nav{padding:24px 0 0;border-top:1px solid var(--border);margin-top:clamp(32px,4vw,56px)}
-.cat-nav-inner{display:flex;align-items:center;flex-wrap:wrap;gap:6px 28px;padding:24px clamp(28px,6vw,96px);max-width:1320px;margin:0 auto;scrollbar-width:none;-ms-overflow-style:none}
-.cat-nav-inner::-webkit-scrollbar{display:none}
-.cat-nav-label{flex-shrink:0;font-family:var(--serif);font-style:italic;font-size:14px;color:var(--muted);padding-right:8px;letter-spacing:0.01em;font-weight:400}
-.cat-nav a{flex-shrink:0;position:relative;color:var(--muted);text-decoration:none;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;padding:6px 0;transition:color 0.35s;white-space:nowrap}
-.cat-nav a::after{content:'';position:absolute;left:0;bottom:0;height:1.5px;width:0;background:var(--gold);transition:width 0.45s var(--ease)}
-.cat-nav a:hover,.cat-nav a:focus-visible{color:var(--ink)}
+.meta-strip{padding:14px clamp(28px,6vw,80px);max-width:1320px;margin:0 auto;border-top:1px solid rgba(14,22,32,0.08);display:flex;align-items:center;flex-wrap:wrap;gap:6px 22px;font-family:var(--sans)}
+html.dark .meta-strip{border-top:1px solid var(--border)}
+.breadcrumbs{font-size:11px;letter-spacing:0.04em;color:#8a8f97;font-weight:500;display:inline-flex;align-items:center;gap:8px;flex-shrink:0}
+.breadcrumbs a{color:#8a8f97;text-decoration:none;transition:color 0.3s}
+.breadcrumbs a:hover{color:#0e1620}
+html.dark .breadcrumbs,html.dark .breadcrumbs a{color:var(--muted-2)}
+html.dark .breadcrumbs a:hover{color:var(--cream)}
+.breadcrumbs .sep{opacity:0.5}
+.cat-divider{width:1px;height:14px;background:rgba(14,22,32,0.15);margin:0 4px}
+html.dark .cat-divider{background:var(--border-2)}
+.cat-nav{display:inline-flex;align-items:center;flex-wrap:wrap;gap:4px 18px;font-family:var(--serif)}
+.cat-nav-label{font-style:italic;font-size:13px;color:#525a66;letter-spacing:0.005em;font-weight:400;flex-shrink:0}
+html.dark .cat-nav-label{color:var(--muted)}
+.cat-nav a{position:relative;color:#525a66;text-decoration:none;font-family:var(--serif);font-style:italic;font-size:13.5px;font-weight:500;letter-spacing:0;padding:2px 0;transition:color 0.3s;white-space:nowrap}
+html.dark .cat-nav a{color:var(--cream)}
+.cat-nav a::after{content:'';position:absolute;left:0;bottom:-1px;height:1.5px;width:0;background:var(--gold);transition:width 0.4s var(--ease)}
+.cat-nav a:hover,.cat-nav a:focus-visible{color:var(--gold)}
 .cat-nav a:hover::after,.cat-nav a:focus-visible::after{width:100%}
+.cat-dot{color:#a8a8a0;opacity:0.55;font-size:13px}
+html.dark .cat-dot{color:var(--muted-2)}
 
-/* MAIN GRID CONTAINER */
-.posts-section{padding:clamp(64px,7vw,100px) clamp(28px,6vw,96px) clamp(72px,8vw,120px);max-width:1320px;margin:0 auto}
-.posts-grid{display:grid;grid-template-columns:repeat(12,1fr);column-gap:clamp(24px,2.5vw,40px);row-gap:clamp(56px,6vw,80px);align-items:start}
+.posts-section{padding:32px clamp(28px,6vw,80px) clamp(60px,7vw,96px);max-width:1320px;margin:0 auto}
+.posts-grid{display:grid;grid-template-columns:repeat(12,1fr);column-gap:16px;row-gap:32px;align-items:start}
 
-/* FEATURED CARD — full-row image + text horizontal layout */
-.featured-card{grid-column:1/-1;display:grid;grid-template-columns:1.4fr 1fr;gap:clamp(32px,4vw,72px);align-items:center;text-decoration:none;color:inherit;margin-bottom:clamp(40px,5vw,64px);padding-bottom:clamp(48px,6vw,80px);border-bottom:1px solid var(--border)}
-.featured-card .card-image-wrap{position:relative;aspect-ratio:16/10;overflow:hidden;background:var(--paper-2)}
-.featured-card .card-image-wrap picture,.featured-card .card-image-wrap img{display:block;width:100%;height:100%}
-.featured-card .card-image-wrap img{object-fit:cover;transition:transform 0.85s var(--ease-out)}
-.featured-card:hover .card-image-wrap img{transform:scale(1.04)}
-.featured-card .card-eyebrow{font-size:11px;font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:var(--gold-2);margin-bottom:18px;display:inline-flex;align-items:center;gap:10px}
-.featured-card .card-eyebrow::before{content:'';width:28px;height:1.5px;background:var(--gold-2)}
-.featured-card h2{font-family:var(--serif);font-size:clamp(30px,3.4vw,52px);font-weight:400;line-height:1.05;letter-spacing:-0.018em;color:var(--ink);margin-bottom:22px;max-width:18ch;text-wrap:balance}
-.featured-card h2 em{font-style:italic;color:var(--gold-2);font-weight:400}
-.featured-card .card-excerpt{font-family:var(--serif);font-style:italic;font-size:17px;line-height:1.6;color:var(--muted);margin-bottom:30px;max-width:46ch;font-weight:400}
-.featured-card .card-cta{display:inline-flex;align-items:center;gap:12px;font-size:11px;font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:var(--ink);border-bottom:1.5px solid var(--ink);padding-bottom:6px;transition:gap 0.5s var(--ease),color 0.4s,border-color 0.4s;align-self:flex-start}
-.featured-card:hover .card-cta{gap:18px;color:var(--gold-2);border-color:var(--gold-2)}
-.featured-card .card-cta svg{width:13px;height:13px}
+.post-card{grid-column:span 4;text-decoration:none;color:inherit;display:flex;flex-direction:column;position:relative;background:transparent}
 
-/* GRID CARD — design-milk standard 4-col card with black label */
-.post-card{grid-column:span 4;text-decoration:none;color:inherit;display:flex;flex-direction:column;position:relative}
-
-.card-image-wrap{position:relative;aspect-ratio:4/5;overflow:hidden;background:var(--paper-2);margin-bottom:32px}
+.card-image-wrap{position:relative;aspect-ratio:4/5;overflow:hidden;background:#1a2230;margin-bottom:14px}
+html.dark .card-image-wrap{background:var(--ink-3)}
 .card-image-wrap picture,.card-image-wrap img{display:block;width:100%;height:100%}
-.card-image-wrap img{object-fit:cover;transition:transform 0.85s var(--ease-out)}
-.post-card:hover .card-image-wrap img{transform:scale(1.04)}
+.card-image-wrap img{object-fit:cover;transition:transform 0.7s var(--ease-out),filter 0.5s var(--ease-out);filter:saturate(0.94)}
+.post-card:hover .card-image-wrap img{transform:scale(1.04);filter:saturate(1.05)}
 
-/* THE design-milk SIGNATURE — solid black label box bottom-left, hangs over edge */
-.card-label{position:absolute;left:24px;bottom:-1px;background:var(--ink);color:#fff;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:9px 16px;line-height:1;z-index:2;transition:box-shadow 0.4s var(--ease)}
-.post-card:hover .card-label{box-shadow:0 6px 18px rgba(14,22,32,0.18)}
+.post-card:nth-child(6n+6) .card-image-wrap{aspect-ratio:1/1}
+.post-card:nth-child(9n+9) .card-image-wrap{aspect-ratio:3/4}
 
-/* CARD TITLE + EXCERPT */
-.card-title{font-family:var(--sans);font-size:18.5px;font-weight:600;line-height:1.28;letter-spacing:-0.005em;color:var(--ink);margin-bottom:14px;position:relative;display:inline-block;align-self:flex-start;max-width:100%}
-.card-title em{font-family:var(--serif);font-style:italic;font-weight:500;color:var(--gold-2);letter-spacing:0;font-size:1.04em}
-.card-title::after{content:'';position:absolute;left:0;bottom:-3px;height:1.5px;width:0;background:var(--ink);transition:width 0.5s var(--ease)}
-.post-card:hover .card-title::after{width:100%}
-.card-excerpt{font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.55;color:var(--muted);font-weight:400;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:14px}
-.card-meta{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted-2);margin-top:auto}
+.card-label{position:absolute;left:14px;bottom:0;background:#0a0f17;color:var(--cream);font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:7px 12px;line-height:1;z-index:2;border:1px solid transparent;transition:border-color 0.4s var(--ease),background 0.4s var(--ease)}
+html.dark .card-label{background:#070a0f;color:var(--cream)}
+.post-card:hover .card-label{border-color:var(--gold)}
 
-/* CINEMATIC FEATURE — span 8 cols, every 5th */
-.post-card[data-shape="feature"]{grid-column:span 8}
-.post-card[data-shape="feature"] .card-image-wrap{aspect-ratio:16/10;margin-bottom:36px}
-.post-card[data-shape="feature"] .card-title{font-size:26px;font-weight:500;letter-spacing:-0.012em;line-height:1.18;max-width:24ch}
-.post-card[data-shape="feature"] .card-excerpt{font-size:16.5px;max-width:52ch}
+.card-body{display:flex;flex-direction:column;padding-top:2px}
+.card-title{font-family:var(--serif);font-size:20px;font-weight:500;line-height:1.18;letter-spacing:-0.005em;color:#0e1620;margin-bottom:6px;display:block;max-width:100%;transition:color 0.35s var(--ease)}
+html.dark .card-title{color:var(--cream)}
+.card-title em{font-style:italic;font-weight:500;color:var(--gold);letter-spacing:0}
+.post-card:hover .card-title{color:var(--gold)}
 
-/* SIDE-FEATURE — full-row horizontal (image LEFT, text RIGHT) — every 7th */
-.post-card[data-shape="side"]{grid-column:1/-1;display:grid;grid-template-columns:480px 1fr;gap:clamp(32px,4vw,64px);align-items:center;margin:clamp(20px,3vw,40px) 0;padding:clamp(20px,3vw,40px) 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-.post-card[data-shape="side"] .card-image-wrap{aspect-ratio:4/3;margin-bottom:0}
-.post-card[data-shape="side"] .card-body{padding:0 clamp(0px,2vw,16px)}
-.post-card[data-shape="side"] .card-title{font-family:var(--serif);font-size:clamp(24px,2.5vw,36px);font-weight:500;line-height:1.1;letter-spacing:-0.014em;margin-bottom:18px;max-width:20ch}
-.post-card[data-shape="side"] .card-title em{font-family:var(--serif);font-size:1em;letter-spacing:-0.014em}
-.post-card[data-shape="side"] .card-excerpt{font-size:16px;line-height:1.6;-webkit-line-clamp:4;max-width:50ch;margin-bottom:24px}
-.post-card[data-shape="side"] .card-meta{display:inline-flex;align-items:center;gap:12px;font-size:10.5px}
-.post-card[data-shape="side"] .card-meta::after{content:'Leer \2192';color:var(--ink);font-weight:700;letter-spacing:0.22em;border-bottom:1.5px solid var(--ink);padding-bottom:3px;margin-left:auto;transition:color 0.4s,border-color 0.4s}
-.post-card[data-shape="side"]:hover .card-meta::after{color:var(--gold-2);border-color:var(--gold-2)}
+.card-excerpt{font-family:var(--serif);font-style:italic;font-size:14px;line-height:1.45;color:#525a66;font-weight:400;display:none;margin-bottom:8px;max-width:42ch}
+html.dark .card-excerpt{color:var(--muted)}
+.card-meta{font-family:var(--sans);font-size:10.5px;font-weight:500;letter-spacing:0.06em;color:#8a8f97;margin-top:2px;display:inline-flex;align-items:center;gap:8px}
+html.dark .card-meta{color:var(--muted-2)}
 
-/* PHOTO PLACEHOLDER (for post w/o image) */
-.card-image-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:linear-gradient(135deg,var(--paper-2) 0%,#e9e6df 100%);color:var(--gold-2);padding:24px;text-align:center}
-.card-image-ph svg{width:40px;height:40px;opacity:0.55}
-.card-image-ph span{font-size:10.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted)}
+.post-card.featured-card{grid-column:span 8;margin-bottom:8px}
+.post-card.featured-card .card-image-wrap{aspect-ratio:16/10;margin-bottom:18px}
+.post-card.featured-card .card-eyebrow{font-family:var(--sans);font-size:10.5px;font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:inline-flex;align-items:center;gap:10px}
+.post-card.featured-card .card-eyebrow::before{content:'';width:24px;height:1.5px;background:var(--gold)}
+.post-card.featured-card .card-title{font-family:var(--serif);font-size:clamp(28px,2.8vw,40px);font-weight:400;line-height:1.06;letter-spacing:-0.014em;margin-bottom:12px;max-width:24ch}
+.post-card.featured-card .card-excerpt{display:block;font-size:16px;line-height:1.55;margin-bottom:14px;max-width:56ch}
+.post-card.featured-card .card-cta{display:inline-flex;align-items:center;gap:10px;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#0e1620;border-bottom:1.5px solid currentColor;padding-bottom:4px;margin-top:8px;align-self:flex-start;transition:gap 0.45s var(--ease),color 0.4s}
+html.dark .post-card.featured-card .card-cta{color:var(--cream)}
+.post-card.featured-card:hover .card-cta{gap:18px;color:var(--gold)}
+.post-card.featured-card .card-cta svg{width:13px;height:13px}
 
-/* Anchor markers (invisible scroll targets) */
+.post-card.companion{grid-column:span 4}
+.post-card.companion .card-image-wrap{aspect-ratio:4/5}
+.post-card.companion .card-title{font-size:18px}
+
 .anchor-mark{grid-column:1/-1;height:0;scroll-margin-top:120px;pointer-events:none}
 
-/* CTA STRIP — clean light cream with ink button */
-.cta-strip{background:var(--paper-2);padding:clamp(72px,8vw,120px) clamp(28px,6vw,96px);text-align:center;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-.cta-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold-2);display:inline-flex;align-items:center;gap:14px}
-.cta-eyebrow::before,.cta-eyebrow::after{content:'';width:32px;height:1.5px;background:var(--gold-2);opacity:0.6}
-.cta-strip h2{font-family:var(--serif);font-size:clamp(34px,4.6vw,64px);font-weight:400;color:var(--ink);margin:24px auto 22px;max-width:18ch;line-height:1.05;letter-spacing:-0.018em}
-.cta-strip h2 em{font-style:italic;color:var(--gold-2);font-weight:400}
-.cta-strip p{font-family:var(--serif);font-style:italic;font-size:clamp(16px,1.2vw,18px);color:var(--muted);margin:0 auto 40px;max-width:520px;line-height:1.6;font-weight:400}
-.btn-cta{display:inline-flex;align-items:center;gap:12px;font-size:11px;font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:#fff;background:var(--ink);padding:18px 40px;text-decoration:none;transition:background 0.4s,gap 0.5s var(--ease)}
+.cta-strip{padding:clamp(60px,7vw,96px) clamp(28px,6vw,80px);text-align:center;border-top:1px solid rgba(14,22,32,0.1);background:#f3f1ec}
+html.dark .cta-strip{background:var(--ink-2);border-top:1px solid var(--border-2)}
+.cta-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);display:inline-flex;align-items:center;gap:14px}
+.cta-eyebrow::before,.cta-eyebrow::after{content:'';width:32px;height:1.5px;background:var(--gold);opacity:0.6}
+.cta-strip h2{font-family:var(--serif);font-size:clamp(34px,4.4vw,60px);font-weight:400;color:#0e1620;margin:18px auto 16px;max-width:18ch;line-height:1.05;letter-spacing:-0.018em}
+html.dark .cta-strip h2{color:var(--cream)}
+.cta-strip h2 em{font-style:italic;color:var(--gold);font-weight:400}
+.cta-strip p{font-family:var(--serif);font-style:italic;font-size:clamp(15px,1.1vw,17px);color:#525a66;margin:0 auto 28px;max-width:520px;line-height:1.55;font-weight:400}
+html.dark .cta-strip p{color:var(--muted)}
+.btn-cta{display:inline-flex;align-items:center;gap:12px;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#fff;background:#0e1620;padding:16px 36px;text-decoration:none;transition:background 0.4s,gap 0.45s var(--ease)}
+html.dark .btn-cta{background:var(--gold);color:var(--ink)}
 .btn-cta:hover{background:var(--gold-2);gap:18px}
+html.dark .btn-cta:hover{background:var(--cream)}
 .btn-cta svg{width:13px;height:13px}
 
-/* FOOTER */
-.site-footer{padding:48px clamp(28px,6vw,96px);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:24px;border-top:1px solid var(--border);background:var(--paper)}
-.footer-brand{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:0.32em;text-transform:uppercase;color:var(--ink)}
-.footer-nav{display:flex;gap:24px;flex-wrap:wrap}
-.footer-nav a{font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color 0.3s}
-.footer-nav a:hover{color:var(--ink)}
-.footer-copy{font-size:10px;color:var(--muted-2);letter-spacing:0.1em;font-weight:500}
+.site-footer{padding:36px clamp(28px,6vw,80px);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px;border-top:1px solid rgba(14,22,32,0.08);background:#fafaf8}
+html.dark .site-footer{background:#070a0f;border-top:1px solid var(--border-2)}
+.footer-brand{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:0.32em;text-transform:uppercase;color:#0e1620}
+html.dark .footer-brand{color:var(--cream)}
+.footer-nav{display:flex;gap:20px;flex-wrap:wrap}
+.footer-nav a{font-size:10px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#525a66;text-decoration:none;transition:color 0.3s}
+.footer-nav a:hover{color:#0e1620}
+html.dark .footer-nav a{color:rgba(250,248,245,0.65)}
+html.dark .footer-nav a:hover{color:var(--gold)}
+.footer-copy{font-size:10px;color:#8a8f97;letter-spacing:0.1em;font-weight:500}
+html.dark .footer-copy{color:var(--muted-2)}
 
-/* TABLET */
+.card-image-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#1a2230 0%,#0a0f17 100%);color:var(--gold);padding:20px;text-align:center}
+.card-image-ph svg{width:32px;height:32px;opacity:0.6}
+.card-image-ph span{font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--cream);opacity:0.7}
+
 @media(min-width:768px) and (max-width:1199px){
-  .site-header{padding:0 40px}
-  .header-nav{gap:24px}
+  .site-header{padding:0 36px}
+  .header-nav{gap:22px}
   .header-cta{display:none}
-  .posts-section{padding-left:40px;padding-right:40px}
-  .posts-grid{grid-template-columns:repeat(8,1fr);column-gap:24px;row-gap:64px}
+  .posts-section{padding-left:32px;padding-right:32px}
+  .posts-grid{grid-template-columns:repeat(8,1fr);column-gap:14px;row-gap:28px}
   .post-card{grid-column:span 4}
-  .post-card[data-shape="feature"]{grid-column:span 8}
-  .post-card[data-shape="feature"] .card-image-wrap{aspect-ratio:16/9}
-  .post-card[data-shape="side"]{grid-template-columns:360px 1fr;gap:36px}
-  .featured-card{grid-template-columns:1fr;gap:32px}
-  .featured-card .card-image-wrap{aspect-ratio:16/9}
-  .journal-hero{padding-left:40px;padding-right:40px}
-  .breadcrumbs,.cat-nav-inner{padding-left:40px;padding-right:40px}
-  .site-footer{padding:42px 40px}
+  .post-card.featured-card{grid-column:span 8;margin-bottom:8px}
+  .post-card.featured-card .card-image-wrap{aspect-ratio:16/9}
+  .post-card.companion{grid-column:span 4}
+  .journal-hero{padding-left:32px;padding-right:32px}
+  .meta-strip{padding-left:32px;padding-right:32px}
+  .site-footer{padding:32px}
 }
 
-/* MOBILE */
 @media(max-width:767px){
-  .site-header{padding:0 20px;height:64px;grid-template-columns:auto auto}
+  .site-header{padding:0 18px;height:60px;grid-template-columns:auto auto}
   .header-left{gap:0}
   .header-right{gap:14px}
   .header-nav,.header-cta{display:none}
   .header-toggle{display:flex}
-  body{padding-top:64px}
-  .mobile-nav{top:64px}
+  body{padding-top:60px}
+  .mobile-nav{top:60px}
 
-  .journal-hero{padding:40px 22px 32px}
-  .journal-hero h1{font-size:clamp(36px,9.5vw,52px);max-width:none;line-height:1.05}
-  .journal-lede{font-size:16px;margin-bottom:32px}
-  .journal-stats{gap:24px}
-  .jstat .n{font-size:24px}
+  .journal-hero{padding:32px 20px 24px}
+  .journal-hero h1{font-size:clamp(32px,8.5vw,46px);max-width:none;line-height:1.06}
+  .journal-lede{font-size:15px;margin-bottom:16px}
+  .journal-stats{gap:14px}
+  .jstat .n{font-size:16px}
 
-  .breadcrumbs{padding:14px 22px 0}
-  .cat-nav{margin-top:24px}
-  .cat-nav-inner{flex-wrap:nowrap;overflow-x:auto;padding:18px 22px;gap:24px}
-  .cat-nav-label{padding-right:0;font-size:13px}
-  .cat-nav a{font-size:10px;letter-spacing:0.18em}
-  .cat-nav-inner::after{content:'';flex-shrink:0;width:8px}
+  .meta-strip{padding:12px 20px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
+  .meta-strip::-webkit-scrollbar{display:none}
+  .breadcrumbs{font-size:10.5px}
+  .cat-divider{display:none}
+  .cat-nav{flex-wrap:nowrap;gap:14px}
+  .cat-nav-label{font-size:13px}
+  .cat-nav a{font-size:13px}
+  .cat-dot{display:none}
 
-  .posts-section{padding:48px 22px 56px}
-  .posts-grid{grid-template-columns:1fr;row-gap:56px}
-  .post-card,
-  .post-card[data-shape="feature"],
-  .post-card[data-shape="side"]{grid-column:1/-1}
-
-  .featured-card{grid-column:1/-1;grid-template-columns:1fr;gap:24px;margin-bottom:32px;padding-bottom:40px}
-  .featured-card .card-image-wrap{aspect-ratio:4/5}
-  .featured-card h2{font-size:clamp(28px,7.5vw,38px);max-width:none}
-  .featured-card .card-excerpt{font-size:15.5px}
-
+  .posts-section{padding:24px 20px 56px}
+  .posts-grid{grid-template-columns:1fr;row-gap:24px;column-gap:0}
+  .post-card,.post-card.featured-card,.post-card.companion{grid-column:1/-1}
   .post-card .card-image-wrap,
-  .post-card[data-shape="feature"] .card-image-wrap{aspect-ratio:4/5;margin-bottom:24px}
+  .post-card:nth-child(6n+6) .card-image-wrap,
+  .post-card:nth-child(9n+9) .card-image-wrap{aspect-ratio:4/5;margin-bottom:12px}
+  .post-card.featured-card .card-image-wrap{aspect-ratio:4/5}
+  .post-card.featured-card .card-title{font-size:26px}
+  .post-card.featured-card .card-excerpt{font-size:15px}
+  .card-title{font-size:18px;line-height:1.22}
+  .card-label{left:12px;font-size:9.5px;padding:6px 10px;letter-spacing:0.13em}
 
-  .post-card[data-shape="side"]{grid-template-columns:1fr;gap:20px;margin:8px 0;padding:24px 0}
-  .post-card[data-shape="side"] .card-image-wrap{aspect-ratio:4/5;margin-bottom:0}
-  .post-card[data-shape="side"] .card-title{font-size:22px;line-height:1.22}
-  .post-card[data-shape="side"] .card-excerpt{font-size:15px;-webkit-line-clamp:3}
-  .post-card[data-shape="side"] .card-meta::after{display:none}
-
-  .card-label{left:18px;font-size:10px;padding:7px 13px}
-  .card-title{font-size:17px}
-  .post-card[data-shape="feature"] .card-title{font-size:21px}
-
-  .cta-strip{padding:64px 22px}
+  .cta-strip{padding:56px 20px}
   .cta-strip h2{font-size:clamp(28px,8vw,40px)}
-  .btn-cta{padding:16px 32px;font-size:10.5px}
+  .btn-cta{padding:15px 28px;font-size:10.5px}
 
-  .site-footer{padding:36px 22px;flex-direction:column;align-items:flex-start;gap:18px}
+  .site-footer{padding:28px 20px;flex-direction:column;align-items:flex-start;gap:14px}
 }
 </style>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
@@ -344,44 +344,52 @@ body{padding-top:78px}
   <a href="https://wa.me/529902046514?text=Hola%2C%20me%20interesa%20reservar%20una%20sesi%C3%B3n" target="_blank" rel="noopener">Reservar</a>
 </nav>
 
-<!-- HERO -->
+<!-- HERO — minimal, NYT section header style. ~30vh max -->
 <section class="journal-hero" id="main-content">
   <span class="journal-eyebrow rv">IVAE Journal</span>
   <h1 class="rv">Blog IVAE Studios &mdash; <em>Guías de Fotografía</em> de Lujo en México</h1>
   <p class="journal-lede rv">Planeación de bodas destino, tips de fotografía para parejas, qué ponerte, cuándo fotografiar y todo lo que necesitas saber antes de reservar un fotógrafo de lujo en Cancún, Riviera Maya o Los Cabos.</p>
   <div class="journal-stats rv">
-    <div class="jstat"><span class="n">28</span><span class="l">Guías</span></div>
-    <div class="jstat"><span class="n">3</span><span class="l">Destinos</span></div>
-    <div class="jstat"><span class="n"><em>500+</em></span><span class="l">Sesiones</span></div>
+    <span class="jstat"><span class="n">28</span><span class="l">Guías</span></span>
+    <span class="jstat-sep">&middot;</span>
+    <span class="jstat"><span class="n">3</span><span class="l">Destinos</span></span>
+    <span class="jstat-sep">&middot;</span>
+    <span class="jstat"><span class="n"><em>500+</em></span><span class="l">Sesiones</span></span>
   </div>
 </section>
 
-<!-- BREADCRUMBS -->
-<nav class="breadcrumbs" aria-label="Breadcrumb">
-  <a href="/es/">Inicio</a><span>/</span> Blog
-</nav>
-
-<!-- CATEGORY NAV -->
-<nav class="cat-nav" aria-label="Explorar por categoría">
-  <div class="cat-nav-inner">
+<!-- COMBINED META STRIP — breadcrumbs + categories in one tight band -->
+<div class="meta-strip">
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a href="/es/">Inicio</a><span class="sep">/</span><span>Blog</span>
+  </nav>
+  <span class="cat-divider" aria-hidden="true"></span>
+  <nav class="cat-nav" aria-label="Explorar por categoría">
     <span class="cat-nav-label">Explorar &mdash;</span>
     <a href="#weddings">Bodas</a>
+    <span class="cat-dot" aria-hidden="true">&middot;</span>
     <a href="#family">Familia</a>
+    <span class="cat-dot" aria-hidden="true">&middot;</span>
     <a href="#couples">Parejas y Lunas de Miel</a>
+    <span class="cat-dot" aria-hidden="true">&middot;</span>
     <a href="#proposals">Compromisos y Propuestas</a>
+    <span class="cat-dot" aria-hidden="true">&middot;</span>
     <a href="#maternity">Maternidad y Babymoons</a>
+    <span class="cat-dot" aria-hidden="true">&middot;</span>
     <a href="#events">Eventos</a>
-    <a href="#locations">Locaciones: Tulum, Cabo, Riviera Maya</a>
-    <a href="#guides">Guías de Compra y Cómo Hacer</a>
-  </div>
-</nav>
+    <span class="cat-dot" aria-hidden="true">&middot;</span>
+    <a href="#locations">Locaciones</a>
+    <span class="cat-dot" aria-hidden="true">&middot;</span>
+    <a href="#guides">Guías y Cómo Hacer</a>
+  </nav>
+</div>
 
-<!-- POSTS GRID -->
+<!-- POSTS GRID — DENSE 3-col, integrated featured first -->
 <section class="posts-section">
   <div class="posts-grid">
 
-    <!-- FEATURED — full row, image LEFT + text RIGHT -->
-    <a class="featured-card rv" href="/es/blog/fotografo-boda-destino-riviera-maya">
+    <!-- INTEGRATED FEATURED — span 8 cols, with eyebrow + excerpt + CTA -->
+    <a class="post-card featured-card rv" href="/es/blog/fotografo-boda-destino-riviera-maya">
       <div class="card-image-wrap">
         <picture>
           <source type="image/avif" srcset="/images/blog/destination-wedding-riviera-maya-og.avif"/>
@@ -392,14 +400,15 @@ body{padding-top:78px}
       </div>
       <div class="card-body">
         <span class="card-eyebrow">Bodas Destino &middot; 12 min de lectura</span>
-        <h2>Fotógrafo de Boda Destino en Riviera Maya: La <em>Guía Completa de Planeación</em> (2026)</h2>
+        <h2 class="card-title">Fotógrafo de Boda Destino en Riviera Maya: La <em>Guía Completa de Planeación</em> (2026)</h2>
         <p class="card-excerpt">Todo sobre cómo planear la fotografía de tu boda en Riviera Maya &mdash; mejores venues, horarios de ceremonia, qué ponerte y cómo elegir a tu fotógrafo.</p>
         <span class="card-cta">Leer la guía completa <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></span>
       </div>
     </a>
 
+    <!-- COMPANION (4 cols, beside featured) -->
     <div id="couples" class="anchor-mark" aria-hidden="true"></div>
-    <a class="post-card rv" href="/es/blog/fotografo-luna-de-miel-riviera-maya">
+    <a class="post-card companion rv" href="/es/blog/fotografo-luna-de-miel-riviera-maya">
       <div class="card-image-wrap">
         <picture>
           <source type="image/avif" srcset="/images/blog/honeymoon-photographer-riviera-maya-og.avif"/>
@@ -437,7 +446,7 @@ body{padding-top:78px}
         <picture>
           <source type="image/avif" srcset="/images/blog/couples-photographer-cancun-og.avif"/>
           <source type="image/webp" srcset="/images/blog/couples-photographer-cancun-og.webp"/>
-          <img src="/images/blog/couples-photographer-cancun-og.jpg" alt="Fotógrafo de parejas en Cancún sesión romántica en la playa - Blog IVAE Studios" width="1400" height="2100" loading="lazy" decoding="async"/>
+          <img src="/images/blog/couples-photographer-cancun-og.jpg" alt="Fotógrafo de parejas en Cancún sesión romántica en la playa - Blog IVAE Studios" width="1400" height="2100" loading="eager" decoding="async"/>
         </picture>
         <span class="card-label">Parejas &middot; Cancún</span>
       </div>
@@ -449,7 +458,7 @@ body{padding-top:78px}
     </a>
 
     <div id="proposals" class="anchor-mark" aria-hidden="true"></div>
-    <a class="post-card rv" data-shape="feature" href="/es/blog/sesion-compromiso-cancun-riviera-maya">
+    <a class="post-card rv" href="/es/blog/sesion-compromiso-cancun-riviera-maya">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/engagement-session-cancun-og.jpg" alt="Sesión de compromiso en Cancún y Riviera Maya con fotógrafo de lujo - Blog IVAE Studios" loading="lazy" decoding="async" width="1600" height="1000"/>
         <span class="card-label">Compromiso &middot; Cancún</span>
@@ -487,8 +496,7 @@ body{padding-top:78px}
     </a>
 
     <div id="locations" class="anchor-mark" aria-hidden="true"></div>
-    <!-- SIDE-FEATURE — every 7th -->
-    <a class="post-card rv" data-shape="side" href="/es/blog/fotos-vacaciones-familiares-mexico">
+    <a class="post-card rv" href="/es/blog/fotos-vacaciones-familiares-mexico">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/family-vacation-photos-mexico-og.jpg" alt="Fotos de vacaciones familiares en México en un resort de lujo - Blog IVAE Studios" loading="lazy" decoding="async" width="1200" height="900"/>
         <span class="card-label">Familias &middot; México</span>
@@ -538,7 +546,7 @@ body{padding-top:78px}
       </div>
     </a>
 
-    <a class="post-card rv" data-shape="feature" href="/es/blog/que-ponerte-fotos-playa-mexico">
+    <a class="post-card rv" href="/es/blog/que-ponerte-fotos-playa-mexico">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/what-to-wear-beach-photos-mexico-og.jpg" alt="Guía de estilo sobre qué ponerte para fotos de playa en México - Blog IVAE Studios" loading="lazy" decoding="async" width="1600" height="1000"/>
         <span class="card-label">Estilo &middot; México</span>
@@ -562,8 +570,7 @@ body{padding-top:78px}
       </div>
     </a>
 
-    <!-- SIDE-FEATURE — every 7th -->
-    <a class="post-card rv" data-shape="side" href="/es/blog/cancun-vs-riviera-maya-fotos">
+    <a class="post-card rv" href="/es/blog/cancun-vs-riviera-maya-fotos">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/cancun-vs-riviera-maya-photos-og.jpg" alt="Comparación Cancún vs Riviera Maya para fotos de vacaciones - Blog IVAE Studios" loading="lazy" decoding="async" width="1200" height="900"/>
         <span class="card-label">Guía &middot; México</span>
@@ -611,7 +618,7 @@ body{padding-top:78px}
       </div>
     </a>
 
-    <a class="post-card rv" data-shape="feature" href="/es/blog/fotografia-babymoon-cancun">
+    <a class="post-card rv" href="/es/blog/fotografia-babymoon-cancun">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/babymoon-photography-cancun-og.jpg" alt="Fotografía de babymoon en Cancún y Riviera Maya sesión de playa - Blog IVAE Studios" loading="lazy" decoding="async" width="1600" height="1000"/>
         <span class="card-label">Babymoon &middot; Cancún</span>
@@ -647,8 +654,7 @@ body{padding-top:78px}
       </div>
     </a>
 
-    <!-- SIDE-FEATURE — every 7th -->
-    <a class="post-card rv" data-shape="side" href="/es/blog/guia-fotografia-tulum">
+    <a class="post-card rv" href="/es/blog/guia-fotografia-tulum">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/tulum-photography-guide-og.jpg" alt="Guía de fotografía en Tulum con ruinas cenotes y playas - Blog IVAE Studios" loading="lazy" decoding="async" width="1200" height="900"/>
         <span class="card-label">Guía &middot; Tulum</span>
@@ -685,7 +691,7 @@ body{padding-top:78px}
       </div>
     </a>
 
-    <a class="post-card rv" data-shape="feature" href="/es/blog/sesion-cenote-submarina-tulum">
+    <a class="post-card rv" href="/es/blog/sesion-cenote-submarina-tulum">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/cenote-underwater-photoshoot-tulum-og.jpg" alt="Sesión de cenote submarina en Tulum retratos etéreos bajo la superficie - Blog IVAE Studios" loading="lazy" decoding="async" width="1600" height="1000"/>
         <span class="card-label">Aventura &middot; Tulum</span>
@@ -733,7 +739,7 @@ body{padding-top:78px}
       </div>
     </a>
 
-    <a class="post-card rv" data-shape="feature" href="/es/blog/sesion-revelacion-genero-cancun">
+    <a class="post-card rv" href="/es/blog/sesion-revelacion-genero-cancun">
       <div class="card-image-wrap">
         <div class="card-image-ph">
           <svg fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 7.5h16.5"/></svg>
@@ -782,7 +788,6 @@ body{padding-top:78px}
   var mobileNav = document.getElementById('mobileNav');
   var ticking = false;
 
-  // Header shadow on scroll
   function onScroll(){
     var y = window.scrollY || window.pageYOffset;
     if(header){header.classList.toggle('scrolled', y > 8);}
@@ -793,7 +798,6 @@ body{padding-top:78px}
   }, {passive:true});
   onScroll();
 
-  // Mobile toggle
   if(mobileToggle){
     mobileToggle.addEventListener('click', function(){
       mobileNav.classList.toggle('open');
@@ -802,7 +806,7 @@ body{padding-top:78px}
     });
   }
 
-  // Subtle fade-up reveal — IntersectionObserver, 80ms stagger per row
+  // Subtle fade-up reveal — IntersectionObserver, 60ms stagger capped at 360ms
   if('IntersectionObserver' in window){
     var revealItems = document.querySelectorAll('.rv');
     var io = new IntersectionObserver(function(entries){
@@ -813,12 +817,12 @@ body{padding-top:78px}
         if(reduceMotion){
           el.classList.add('vis');
         } else {
-          var delay = Math.min(i * 80, 480);
+          var delay = Math.min(i * 60, 360);
           setTimeout(function(){ el.classList.add('vis'); }, delay);
         }
         io.unobserve(el);
       });
-    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    }, { threshold: 0.1, rootMargin: '0px 0px -32px 0px' });
     revealItems.forEach(function(el){ io.observe(el); });
   } else {
     document.querySelectorAll('.rv').forEach(function(el){ el.classList.add('vis'); });
