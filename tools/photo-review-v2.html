@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>IVAE — Seleccionar y clasificar fotos del sitio</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+body { background: #0c1219; color: #faf8f5; padding: 24px; }
+header { max-width: 1400px; margin: 0 auto 20px; padding-bottom: 16px; border-bottom: 1px solid #2a3140; }
+h1 { font-size: 22px; font-weight: 600; color: #c9a54e; margin-bottom: 6px; }
+.lead { color: rgba(250,248,245,0.7); font-size: 13px; line-height: 1.5; }
+.lead code { background: rgba(196,165,78,0.15); padding: 2px 6px; border-radius: 3px; color: #c9a54e; font-family: monospace; font-size: 12px; }
+.controls { max-width: 1400px; margin: 0 auto 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+button { background: #c9a54e; color: #0c1219; border: none; padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 4px; }
+button:hover { background: #d4b35e; }
+button.sec { background: rgba(250,248,245,0.1); color: #faf8f5; border: 1px solid rgba(250,248,245,0.2); }
+button.sec:hover { background: rgba(250,248,245,0.2); }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+.stats { font-size: 12px; color: rgba(250,248,245,0.6); }
+.stats strong { color: #c9a54e; }
+.filter { background: #1a2230; padding: 4px 10px; border: 1px solid #2a3140; color: #faf8f5; border-radius: 3px; font-size: 12px; }
+.grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.card { background: #1a2230; border: 1px solid #2a3140; border-radius: 4px; overflow: hidden; transition: border-color 0.15s; }
+.card.selected { border-color: #c9a54e; box-shadow: 0 0 0 1px #c9a54e; }
+.card.in-use { border-color: rgba(120, 200, 120, 0.4); }
+.card .img { width: 100%; aspect-ratio: 4/3; background: #000; overflow: hidden; }
+.card .img img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer; }
+.card .body { padding: 8px 10px; }
+.fname { font-family: monospace; font-size: 9px; color: rgba(250,248,245,0.4); word-break: break-all; margin-bottom: 6px; line-height: 1.3; }
+.usage-tag { background: rgba(120,200,120,0.15); color: #8cd28c; font-size: 9px; padding: 2px 5px; display: inline-block; border-radius: 2px; margin-bottom: 4px; }
+.use-toggle { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+.use-toggle input[type="checkbox"] { width: 16px; height: 16px; accent-color: #c9a54e; cursor: pointer; }
+.use-toggle label { font-size: 11px; color: rgba(250,248,245,0.85); cursor: pointer; user-select: none; }
+.fields { display: none; }
+.card.selected .fields { display: block; }
+.field { margin-bottom: 5px; }
+.field select { width: 100%; background: #0c1219; color: #faf8f5; border: 1px solid #2a3140; padding: 4px 6px; font-size: 11px; border-radius: 2px; }
+.field select:focus { outline: none; border-color: #c9a54e; }
+.pagination { max-width: 1400px; margin: 20px auto; display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
+.pagination button { padding: 6px 12px; font-size: 12px; }
+.pagination .page-info { color: rgba(250,248,245,0.6); font-size: 12px; padding: 0 12px; }
+#output { max-width: 1400px; margin: 24px auto; padding: 16px; background: #1a2230; border: 1px solid #c9a54e; border-radius: 6px; display: none; }
+#output.show { display: block; }
+#output pre { background: #0c1219; padding: 12px; border-radius: 4px; max-height: 400px; overflow: auto; color: #c9a54e; font-size: 11px; line-height: 1.4; }
+.tip { background: rgba(196,165,78,0.1); padding: 8px 12px; border-left: 3px solid #c9a54e; font-size: 12px; color: rgba(250,248,245,0.85); margin-bottom: 16px; max-width: 1400px; margin-left: auto; margin-right: auto; line-height: 1.4; }
+.zoom-overlay { position: fixed; inset: 0; background: rgba(12,18,25,0.95); display: none; align-items: center; justify-content: center; z-index: 1000; cursor: pointer; padding: 40px; }
+.zoom-overlay.show { display: flex; }
+.zoom-overlay img { max-width: 100%; max-height: 100%; object-fit: contain; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📸 Seleccionar y clasificar fotos para el sitio</h1>
+  <p class="lead">
+    <strong id="totalCount">0</strong> fotos disponibles. Marca las que quieres USAR en el sitio (checkbox).<br>
+    Para cada una marcada: clasifica el tipo + lugar + dónde ponerla. Las verdes ya están en uso.<br>
+    Click en cualquier foto para verla grande.
+  </p>
+</header>
+
+<div class="tip">
+  💡 <strong>Tu progreso se guarda automáticamente.</strong> Puedes cerrar y volver. No tienes que clasificar las 1,023 — solo las que quieras agregar al sitio.
+</div>
+
+<div class="controls">
+  <button id="btnGenerate">📋 Generar JSON con seleccionadas</button>
+  <button class="sec" id="btnReset">🗑 Limpiar selección</button>
+  <select class="filter" id="filterDir">
+    <option value="">Todas las carpetas</option>
+    <option value="root">Root (/images/)</option>
+    <option value="library">Library (/images/library/)</option>
+    <option value="extra">Fotos extra</option>
+  </select>
+  <select class="filter" id="filterStatus">
+    <option value="">Todas</option>
+    <option value="in-use">Solo en uso (verdes)</option>
+    <option value="not-in-use">Solo NO usadas</option>
+    <option value="selected">Solo seleccionadas</option>
+  </select>
+  <span class="stats">
+    <strong id="selCount">0</strong> seleccionadas ·
+    <strong id="visibleCount">0</strong> visibles
+  </span>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="pagination" id="pagination"></div>
+
+<div id="output">
+  <h3 style="margin-bottom: 12px;">Mapping listo — pega esto en el chat de Claude:</h3>
+  <pre id="outputJson"></pre>
+  <button id="btnCopy" style="margin-top: 8px;">📋 Copiar al portapapeles</button>
+</div>
+
+<div class="zoom-overlay" id="zoom"><img src="" alt=""></div>
+
+<script>
+'use strict';
+
+const SESSION_TYPES = [
+  { v: '', label: '— tipo —' },
+  { v: 'family', label: 'Familia' },
+  { v: 'family-kids', label: 'Familia (niños)' },
+  { v: 'couple', label: 'Pareja' },
+  { v: 'engagement', label: 'Compromiso' },
+  { v: 'wedding', label: 'Boda' },
+  { v: 'wedding-reception', label: 'Boda — recepción' },
+  { v: 'wedding-decor', label: 'Boda — decor' },
+  { v: 'wedding-bride', label: 'Boda — novia' },
+  { v: 'wedding-groom', label: 'Boda — novio' },
+  { v: 'maternity', label: 'Maternidad' },
+  { v: 'newborn', label: 'Recién nacido' },
+  { v: 'quinceanera', label: 'Quinceañera' },
+  { v: 'birthday', label: 'Cumpleaños' },
+  { v: 'bachelorette', label: 'Despedida soltera' },
+  { v: 'cenote', label: 'Cenote' },
+  { v: 'yacht', label: 'Yate' },
+  { v: 'editorial', label: 'Editorial / Portafolio' },
+  { v: 'detail', label: 'Detalle / Decor' },
+  { v: 'resort', label: 'Resort / Locación' },
+];
+
+const LOCATIONS = [
+  { v: '', label: '— lugar —' },
+  { v: 'cancun', label: 'Cancún' },
+  { v: 'cancun-hotel-zone', label: 'Cancún — Zona Hotelera' },
+  { v: 'cancun-beach', label: 'Cancún — playa' },
+  { v: 'playa-mujeres', label: 'Playa Mujeres' },
+  { v: 'isla-mujeres', label: 'Isla Mujeres' },
+  { v: 'riviera-maya', label: 'Riviera Maya' },
+  { v: 'tulum', label: 'Tulum' },
+  { v: 'akumal', label: 'Akumal' },
+  { v: 'playa-del-carmen', label: 'Playa del Carmen' },
+  { v: 'mayakoba', label: 'Mayakoba' },
+  { v: 'maroma', label: 'Maroma' },
+  { v: 'los-cabos', label: 'Los Cabos' },
+  { v: 'cabo-san-lucas', label: 'Cabo San Lucas' },
+  { v: 'cenote-gran', label: 'Cenote Gran' },
+  { v: 'cenote-dos-ojos', label: 'Cenote Dos Ojos' },
+  { v: 'cenote-calavera', label: 'Cenote Calavera' },
+];
+
+const PLACEMENTS = [
+  { v: '', label: '— dónde ponerla —' },
+  // Homepage
+  { v: 'hero', label: 'Hero homepage (foto principal)' },
+  { v: 'gallery', label: 'Galería home (3x3)' },
+  { v: 'home-destinations', label: 'Card de destinos (home)' },
+  { v: 'home-services', label: 'Card de servicios (home)' },
+  // Service pages
+  { v: 'page-couples', label: 'Página Parejas (couples-photography)' },
+  { v: 'page-family', label: 'Página Familias (luxury-family-photos)' },
+  { v: 'page-weddings', label: 'Página Bodas (luxury-weddings)' },
+  { v: 'page-yacht', label: 'Página Yate' },
+  { v: 'page-cenote', label: 'Página Cenote' },
+  { v: 'page-maternity', label: 'Página Maternidad' },
+  // Destination pages
+  { v: 'page-cancun', label: 'Página Cancún' },
+  { v: 'page-riviera-maya', label: 'Página Riviera Maya' },
+  { v: 'page-los-cabos', label: 'Página Los Cabos' },
+  // Other
+  { v: 'page-about', label: 'Página About / Acerca de' },
+  { v: 'page-outfit-guide', label: 'Página Outfit Guide' },
+  { v: 'page-blog-index', label: 'Página Blog (index)' },
+  { v: 'portfolio', label: 'Portfolio (página nueva)' },
+  { v: 'other', label: 'Otra' },
+];
+
+const STORAGE_KEY = 'ivae-photo-review-v2';
+const PAGE_SIZE = 60;
+
+let allPhotos = [];
+let formState = {};
+let currentPage = 0;
+let filterDir = '';
+let filterStatus = '';
+
+const grid = document.getElementById('grid');
+const output = document.getElementById('output');
+const pagination = document.getElementById('pagination');
+
+function loadState() {
+  try { formState = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+  catch { formState = {}; }
+}
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(formState)); } catch {}
+}
+
+function getFilteredPhotos() {
+  return allPhotos.filter(p => {
+    if (filterDir === 'root' && !p.path.match(/^images\/[^/]+$/)) return false;
+    if (filterDir === 'library' && !p.path.startsWith('images/library/')) return false;
+    if (filterDir === 'extra' && !p.path.startsWith('images/fotos extra')) return false;
+    if (filterStatus === 'in-use' && !p.in_use) return false;
+    if (filterStatus === 'not-in-use' && p.in_use) return false;
+    if (filterStatus === 'selected' && !formState[p.path]?.use) return false;
+    return true;
+  });
+}
+
+function buildSelect(name, options, value) {
+  const sel = document.createElement('select');
+  sel.name = name;
+  for (const o of options) {
+    const opt = document.createElement('option');
+    opt.value = o.v;
+    opt.textContent = o.label;
+    if (o.v === value) opt.selected = true;
+    sel.appendChild(opt);
+  }
+  return sel;
+}
+
+function renderCard(photo) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  const state = formState[photo.path] || {};
+  if (state.use) card.classList.add('selected');
+  if (photo.in_use) card.classList.add('in-use');
+
+  // Image (relative path from tools/ → ../<path>, with URL encoding for spaces)
+  const safePath = '../' + photo.path.split('/').map(encodeURIComponent).join('/');
+  const fname = photo.path.split('/').pop();
+
+  card.innerHTML = `
+    <div class="img"><img src="${safePath}" alt="" loading="lazy"></div>
+    <div class="body">
+      ${photo.in_use ? '<span class="usage-tag">EN USO</span><br>' : ''}
+      <div class="fname">${fname}</div>
+      <div class="use-toggle">
+        <input type="checkbox" id="use-${photo.path}" ${state.use ? 'checked' : ''}>
+        <label for="use-${photo.path}">Usar en el sitio</label>
+      </div>
+      <div class="fields">
+        <div class="field"></div>
+        <div class="field"></div>
+      </div>
+    </div>
+  `;
+
+  const checkbox = card.querySelector('input[type="checkbox"]');
+  const fieldsDiv = card.querySelector('.fields');
+  const fieldDivs = card.querySelectorAll('.field');
+
+  const sel1 = buildSelect('type', SESSION_TYPES, state.type || '');
+  const sel2 = buildSelect('location', LOCATIONS, state.location || '');
+  fieldDivs[0].appendChild(sel1);
+  fieldDivs[1].appendChild(sel2);
+
+  // Click image to zoom
+  card.querySelector('img').addEventListener('click', e => {
+    e.stopPropagation();
+    const zoom = document.getElementById('zoom');
+    zoom.querySelector('img').src = safePath;
+    zoom.classList.add('show');
+  });
+
+  function updateState() {
+    const newState = {
+      use: checkbox.checked,
+      type: sel1.value,
+      location: sel2.value,
+    };
+    if (!newState.use && !newState.type && !newState.location) {
+      delete formState[photo.path];
+    } else {
+      formState[photo.path] = newState;
+    }
+    card.classList.toggle('selected', checkbox.checked);
+    saveState();
+    updateStats();
+  }
+  checkbox.addEventListener('change', updateState);
+  sel1.addEventListener('change', updateState);
+  sel2.addEventListener('change', updateState);
+
+  return card;
+}
+
+function render() {
+  const filtered = getFilteredPhotos();
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  if (currentPage >= totalPages) currentPage = Math.max(0, totalPages - 1);
+  const start = currentPage * PAGE_SIZE;
+  const pagePhotos = filtered.slice(start, start + PAGE_SIZE);
+
+  grid.innerHTML = '';
+  for (const p of pagePhotos) {
+    grid.appendChild(renderCard(p));
+  }
+
+  // Pagination
+  pagination.innerHTML = '';
+  if (totalPages > 1) {
+    const prev = document.createElement('button');
+    prev.className = 'sec';
+    prev.textContent = '← Anterior';
+    prev.disabled = currentPage === 0;
+    prev.onclick = () => { currentPage--; render(); window.scrollTo(0, 0); };
+    pagination.appendChild(prev);
+
+    const info = document.createElement('span');
+    info.className = 'page-info';
+    info.textContent = `Página ${currentPage + 1} / ${totalPages} · ${filtered.length} fotos filtradas`;
+    pagination.appendChild(info);
+
+    const next = document.createElement('button');
+    next.className = 'sec';
+    next.textContent = 'Siguiente →';
+    next.disabled = currentPage >= totalPages - 1;
+    next.onclick = () => { currentPage++; render(); window.scrollTo(0, 0); };
+    pagination.appendChild(next);
+  }
+
+  document.getElementById('visibleCount').textContent = pagePhotos.length;
+  updateStats();
+}
+
+function updateStats() {
+  const selected = Object.values(formState).filter(s => s.use).length;
+  document.getElementById('selCount').textContent = selected;
+}
+
+document.getElementById('filterDir').addEventListener('change', e => {
+  filterDir = e.target.value; currentPage = 0; render();
+});
+document.getElementById('filterStatus').addEventListener('change', e => {
+  filterStatus = e.target.value; currentPage = 0; render();
+});
+
+document.getElementById('btnReset').addEventListener('click', () => {
+  if (confirm('¿Borrar todas las selecciones?')) {
+    formState = {}; saveState(); render();
+  }
+});
+
+document.getElementById('btnGenerate').addEventListener('click', () => {
+  // Build mapping: only entries where use=true
+  const result = {};
+  for (const path in formState) {
+    const s = formState[path];
+    if (!s.use) continue;
+    const parts = [];
+    if (s.type) parts.push(s.type);
+    if (s.location) parts.push(s.location);
+    parts.push('ivae-studios');
+    const ext = path.split('.').pop();
+    const newName = parts.filter(Boolean).join('-') + '.' + ext;
+    result[path] = {
+      new_name: newName,
+      type: s.type,
+      location: s.location,
+    };
+  }
+  document.getElementById('outputJson').textContent = JSON.stringify(result, null, 2);
+  output.classList.add('show');
+  output.scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('btnCopy').onclick = () => {
+    navigator.clipboard.writeText(JSON.stringify(result, null, 2));
+    document.getElementById('btnCopy').textContent = '✓ Copiado';
+  };
+});
+
+document.getElementById('zoom').addEventListener('click', () => {
+  document.getElementById('zoom').classList.remove('show');
+});
+
+async function init() {
+  loadState();
+  const res = await fetch('_all-photos.json');
+  allPhotos = await res.json();
+  document.getElementById('totalCount').textContent = allPhotos.length.toLocaleString();
+  render();
+}
+
+init().catch(e => {
+  document.body.innerHTML = '<h1 style="color:#c9a54e;padding:40px">Error: ' + e.message + '</h1>';
+});
+</script>
+</body>
+</html>
