@@ -175,6 +175,8 @@ html.dark .card-meta{color:var(--muted-2)}
 .cat-nav a.is-active{color:var(--gold)}
 .cat-nav a.is-active::after{width:100%}
 .post-card.is-hidden{display:none !important}
+/* Hide leftover featured-card content (eyebrow + cta arrow) on all cards */
+.card-eyebrow,.card-cta{display:none !important}
 @media(prefers-reduced-motion: no-preference){
   .posts-grid.is-filtering .post-card{opacity:0;transition:opacity 180ms var(--ease-out)}
   .posts-grid:not(.is-filtering) .post-card{opacity:1;transition:opacity 220ms var(--ease-out)}
