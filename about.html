@@ -395,7 +395,7 @@ function sendHeight(){window.parent.postMessage({type:'iwh',value:document.docum
 window.addEventListener('load',sendHeight);window.addEventListener('resize',sendHeight);
 [500,1500,3000].forEach(t=>setTimeout(sendHeight,t));
 </script>
-<script src="/js/lang-detect.js" defer></script>
+<script src="/js/lang-detect.js" defer></script><script src="/js/services-dropdown.js" defer></script>
 <section class="credentials-section">
   <div class="credentials-inner">
   <span class="eyebrow">Credentials & Experience</span>

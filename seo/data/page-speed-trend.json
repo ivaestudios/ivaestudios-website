@@ -131,6 +131,17 @@
       "fcp_s": 0.7283917112141555,
       "tbt_ms": 0.0,
       "perf_score": 84.0
+    },
+    {
+      "url": "https://ivaestudios.com/luxury-weddings",
+      "strategy": "mobile",
+      "captured_at": "2026-05-07T06:16:20.815891+00:00",
+      "lcp_s": 8.562153258501809,
+      "inp_ms": 8966.135327555536,
+      "cls": 0.0,
+      "fcp_s": 3.0057433653163166,
+      "tbt_ms": 0.0,
+      "perf_score": 65.0
     }
   ]
 }

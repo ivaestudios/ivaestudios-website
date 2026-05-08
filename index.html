@@ -821,7 +821,7 @@ function sendHeight(){window.parent.postMessage({type:'iwh',value:document.docum
 window.addEventListener('load',sendHeight);window.addEventListener('resize',sendHeight);
 [500,1500,3000].forEach(t=>setTimeout(sendHeight,t));
 </script>
-<script src="/js/lang-detect.js" defer></script>
+<script src="/js/lang-detect.js" defer></script><script src="/js/services-dropdown.js" defer></script>
 <nav aria-label="Explore IVAE Studios services" class="explore-nav" style="background:var(--ink2);padding:56px clamp(24px,5vw,64px);border-top:1px solid rgba(196,163,90,0.12);text-align:center;color:var(--cream)">
   <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(22px,2.6vw,32px);font-weight:300;letter-spacing:-0.01em;color:var(--cream);margin:0 0 28px">Explore <em style="font-style:italic;color:var(--gold)">IVAE Studios</em></h2>
   <ul style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:14px 28px;max-width:980px;margin:0 auto">
