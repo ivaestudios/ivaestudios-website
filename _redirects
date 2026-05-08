@@ -247,3 +247,21 @@
 /es/blog/fotografo-bodas-cancun /es/blog/fotografo-boda-cancun 301
 /es/blog/sesion-gender-reveal-cancun /es/blog/sesion-revelacion-genero-cancun 301
 /es/bodas-lujo /es/fotografo-bodas-destino-mexico 301
+
+# ═══════════════════════════════════════════
+# Batch 1 fix — missing redirects for 7 posts (created 2026-05-08)
+# ═══════════════════════════════════════════
+/blog/best-months-photography-cancun /post-best-months-photography-cancun 200
+/post-best-months-photography-cancun.html /blog/best-months-photography-cancun 301
+/blog/boutique-vs-all-inclusive-photoshoot-mexico /post-boutique-vs-all-inclusive-photoshoot-mexico 200
+/post-boutique-vs-all-inclusive-photoshoot-mexico.html /blog/boutique-vs-all-inclusive-photoshoot-mexico 301
+/blog/destination-wedding-photographer-timeline /post-destination-wedding-photographer-timeline 200
+/post-destination-wedding-photographer-timeline.html /blog/destination-wedding-photographer-timeline 301
+/blog/drone-photography-cancun-resorts /post-drone-photography-cancun-resorts 200
+/post-drone-photography-cancun-resorts.html /blog/drone-photography-cancun-resorts 301
+/blog/indian-wedding-photographer-cancun /post-indian-wedding-photographer-cancun 200
+/post-indian-wedding-photographer-cancun.html /blog/indian-wedding-photographer-cancun 301
+/blog/mexico-destination-photography-faq /post-mexico-destination-photography-faq 200
+/post-mexico-destination-photography-faq.html /blog/mexico-destination-photography-faq 301
+/blog/wedding-photography-cancun-cost-2026 /post-wedding-photography-cancun-cost-2026 200
+/post-wedding-photography-cancun-cost-2026.html /blog/wedding-photography-cancun-cost-2026 301
