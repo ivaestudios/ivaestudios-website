@@ -153,11 +153,6 @@ html.dark .card-image-wrap{background:var(--ink-3)}
 .card-image-wrap img{object-fit:cover;transition:transform 0.7s var(--ease-out),filter 0.5s var(--ease-out);filter:saturate(0.94)}
 .post-card:hover .card-image-wrap img{transform:scale(1.04);filter:saturate(1.05)}
 
-/* Variedad masonry editorial cada 5/7/11 cards */
-.post-card:nth-child(5n+5) .card-image-wrap{aspect-ratio:1/1}
-.post-card:nth-child(7n+7) .card-image-wrap{aspect-ratio:3/4}
-.post-card:nth-child(11n+11) .card-image-wrap{aspect-ratio:5/7}
-
 .card-label{position:absolute;left:10px;bottom:0;background:#0a0f17;color:var(--cream);font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:6px 10px;line-height:1;z-index:2;border:1px solid transparent;transition:border-color 0.4s var(--ease)}
 html.dark .card-label{background:#070a0f;color:var(--cream)}
 .post-card:hover .card-label{border-color:var(--gold)}
@@ -174,19 +169,14 @@ html.dark .card-excerpt{color:var(--muted)}
 .card-meta{font-family:var(--sans);font-size:9.5px;font-weight:500;letter-spacing:0.08em;color:#8a8f97;margin-top:2px;display:inline-flex;align-items:center;gap:6px;text-transform:uppercase}
 html.dark .card-meta{color:var(--muted-2)}
 
-/* FEATURED card = igual que las demás visualmente, pero con label "Destacado" */
-.post-card.featured-card{grid-column:auto !important;margin-bottom:0}
-.post-card.featured-card .card-image-wrap{aspect-ratio:4/5 !important;margin-bottom:10px}
-.post-card.featured-card .card-eyebrow{display:none}
-.post-card.featured-card .card-title{font-family:var(--serif);font-size:16px;font-weight:500;line-height:1.22;letter-spacing:-0.005em;margin-bottom:4px;max-width:none}
-.post-card.featured-card .card-excerpt{display:none}
-.post-card.featured-card .card-cta{display:none}
-
-.post-card.companion{grid-column:auto !important}
-.post-card.companion .card-image-wrap{aspect-ratio:4/5}
-.post-card.companion .card-title{font-size:16px}
-
-.anchor-mark{grid-column:1/-1;height:0;scroll-margin-top:120px;pointer-events:none}
+/* Filter UI — active state + hidden cards + filter fade */
+.cat-nav a.is-active{color:var(--gold)}
+.cat-nav a.is-active::after{width:100%}
+.post-card.is-hidden{display:none !important}
+@media(prefers-reduced-motion: no-preference){
+  .posts-grid.is-filtering .post-card{opacity:0;transition:opacity 180ms var(--ease-out)}
+  .posts-grid:not(.is-filtering) .post-card{opacity:1;transition:opacity 220ms var(--ease-out)}
+}
 
 .cta-strip{padding:clamp(60px,7vw,96px) clamp(28px,6vw,80px);text-align:center;border-top:1px solid rgba(14,22,32,0.1);background:#f3f1ec}
 html.dark .cta-strip{background:var(--ink-2);border-top:1px solid var(--border-2)}
@@ -363,23 +353,25 @@ html.dark .footer-copy{color:var(--muted-2)}
     <a href="/es/">Inicio</a><span class="sep">/</span><span>Blog</span>
   </nav>
   <span class="cat-divider" aria-hidden="true"></span>
-  <nav class="cat-nav" aria-label="Explorar por categoría">
-    <span class="cat-nav-label">Explorar &mdash;</span>
-    <a href="#weddings">Bodas</a>
+  <nav class="cat-nav" aria-label="Filtrar por categoría">
+    <span class="cat-nav-label">Filtrar &mdash;</span>
+    <a href="/es/blog" data-filter="all" class="is-active" aria-current="page">Todo</a>
     <span class="cat-dot" aria-hidden="true">&middot;</span>
-    <a href="#family">Familia</a>
+    <a href="?category=weddings" data-filter="weddings">Bodas</a>
     <span class="cat-dot" aria-hidden="true">&middot;</span>
-    <a href="#couples">Parejas y Lunas de Miel</a>
+    <a href="?category=family" data-filter="family">Familia</a>
     <span class="cat-dot" aria-hidden="true">&middot;</span>
-    <a href="#proposals">Compromisos y Propuestas</a>
+    <a href="?category=couples" data-filter="couples">Parejas y Lunas de Miel</a>
     <span class="cat-dot" aria-hidden="true">&middot;</span>
-    <a href="#maternity">Maternidad y Babymoons</a>
+    <a href="?category=proposals" data-filter="proposals">Compromisos y Propuestas</a>
     <span class="cat-dot" aria-hidden="true">&middot;</span>
-    <a href="#events">Eventos</a>
+    <a href="?category=maternity" data-filter="maternity">Maternidad y Babymoons</a>
     <span class="cat-dot" aria-hidden="true">&middot;</span>
-    <a href="#locations">Locaciones</a>
+    <a href="?category=events" data-filter="events">Eventos</a>
     <span class="cat-dot" aria-hidden="true">&middot;</span>
-    <a href="#guides">Guías y Cómo Hacer</a>
+    <a href="?category=locations" data-filter="locations">Locaciones</a>
+    <span class="cat-dot" aria-hidden="true">&middot;</span>
+    <a href="?category=guides" data-filter="guides">Guías y Cómo Hacer</a>
   </nav>
 </div>
 
@@ -388,7 +380,7 @@ html.dark .footer-copy{color:var(--muted-2)}
   <div class="posts-grid">
 
     <!-- INTEGRATED FEATURED — span 8 cols, with eyebrow + excerpt + CTA -->
-    <a class="post-card featured-card rv" href="/es/blog/fotografo-boda-destino-riviera-maya">
+    <a class="post-card rv" data-category="weddings" href="/es/blog/fotografo-boda-destino-riviera-maya">
       <div class="card-image-wrap">
         <picture>
           <source type="image/avif" srcset="/images/blog/destination-wedding-riviera-maya-og.avif"/>
@@ -405,9 +397,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <!-- COMPANION (4 cols, beside featured) -->
-    <div id="couples" class="anchor-mark" aria-hidden="true"></div>
-    <a class="post-card companion rv" href="/es/blog/fotografo-luna-de-miel-riviera-maya">
+    <!-- COMPANION (4 cols, beside featured) -->    <a class="post-card rv" data-category="couples" href="/es/blog/fotografo-luna-de-miel-riviera-maya">
       <div class="card-image-wrap">
         <picture>
           <source type="image/avif" srcset="/images/blog/honeymoon-photographer-riviera-maya-og.avif"/>
@@ -421,10 +411,7 @@ html.dark .footer-copy{color:var(--muted-2)}
         <p class="card-excerpt">Mejores locaciones, horarios, outfits y tips para una sesión romántica en Riviera Maya.</p>
         <span class="card-meta">12 de Marzo, 2026 &middot; 10 min de lectura</span>
       </div>
-    </a>
-
-    <div id="weddings" class="anchor-mark" aria-hidden="true"></div>
-    <a class="post-card rv" href="/es/blog/fotografo-boda-cancun">
+    </a>    <a class="post-card rv" data-category="weddings" href="/es/blog/fotografo-boda-cancun">
       <div class="card-image-wrap">
         <picture>
           <source type="image/avif" srcset="/images/blog/wedding-photographer-cancun-og.avif"/>
@@ -440,7 +427,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/fotografo-parejas-cancun">
+    <a class="post-card rv" data-category="couples" href="/es/blog/fotografo-parejas-cancun">
       <div class="card-image-wrap">
         <picture>
           <source type="image/avif" srcset="/images/blog/couples-photographer-cancun-og.avif"/>
@@ -454,10 +441,7 @@ html.dark .footer-copy{color:var(--muted-2)}
         <p class="card-excerpt">Mejores playas, cenotes y rincones de resort para sesiones románticas.</p>
         <span class="card-meta">8 de Marzo, 2026 &middot; 10 min de lectura</span>
       </div>
-    </a>
-
-    <div id="proposals" class="anchor-mark" aria-hidden="true"></div>
-    <a class="post-card rv" href="/es/blog/sesion-compromiso-cancun-riviera-maya">
+    </a>    <a class="post-card rv" data-category="proposals" href="/es/blog/sesion-compromiso-cancun-riviera-maya">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/engagement-session-cancun-og.jpg" alt="Sesión de compromiso en Cancún y Riviera Maya con fotógrafo de lujo - Blog IVAE Studios" loading="lazy" decoding="async" width="1600" height="1000"/>
         <span class="card-label">Compromiso &middot; Cancún</span>
@@ -467,10 +451,7 @@ html.dark .footer-copy{color:var(--muted-2)}
         <p class="card-excerpt">Mejores locaciones, propuestas sorpresa, qué ponerte y tips de sesión editorial.</p>
         <span class="card-meta">5 de Marzo, 2026 &middot; 10 min de lectura</span>
       </div>
-    </a>
-
-    <div id="maternity" class="anchor-mark" aria-hidden="true"></div>
-    <a class="post-card rv" href="/es/blog/sesion-maternidad-cancun-riviera-maya">
+    </a>    <a class="post-card rv" data-category="maternity" href="/es/blog/sesion-maternidad-cancun-riviera-maya">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/maternity-photoshoot-cancun-og.jpg" alt="Sesión de maternidad en Cancún y Riviera Maya en la playa - Blog IVAE Studios" loading="lazy" decoding="async" width="800" height="1000"/>
         <span class="card-label">Maternidad &middot; Cancún</span>
@@ -482,7 +463,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/mejores-locaciones-foto-riviera-maya">
+    <a class="post-card rv" data-category="locations" href="/es/blog/mejores-locaciones-foto-riviera-maya">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/best-photo-locations-riviera-maya-og.jpg" alt="Mejores locaciones para fotos en Riviera Maya incluyendo cenotes y playas - Blog IVAE Studios" loading="lazy" decoding="async" width="800" height="1000"/>
         <span class="card-label">Locaciones &middot; Riviera Maya</span>
@@ -492,10 +473,7 @@ html.dark .footer-copy{color:var(--muted-2)}
         <p class="card-excerpt">Guía curada de los cenotes, playas y rincones ocultos más fotogénicos.</p>
         <span class="card-meta">1 de Abril, 2026 &middot; 11 min de lectura</span>
       </div>
-    </a>
-
-    <div id="locations" class="anchor-mark" aria-hidden="true"></div>
-    <a class="post-card rv" href="/es/blog/fotos-vacaciones-familiares-mexico">
+    </a>    <a class="post-card rv" data-category="family" href="/es/blog/fotos-vacaciones-familiares-mexico">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/family-vacation-photos-mexico-og.jpg" alt="Fotos de vacaciones familiares en México en un resort de lujo - Blog IVAE Studios" loading="lazy" decoding="async" width="1200" height="900"/>
         <span class="card-label">Familias &middot; México</span>
@@ -505,10 +483,7 @@ html.dark .footer-copy{color:var(--muted-2)}
         <p class="card-excerpt">Qué ponerte, preparar a los niños, timing de hora dorada, comparación de destinos &mdash; todo lo que necesitas para planear la sesión familiar en resort.</p>
         <span class="card-meta">1 de Abril, 2026 &middot; 11 min de lectura</span>
       </div>
-    </a>
-
-    <div id="family" class="anchor-mark" aria-hidden="true"></div>
-    <a class="post-card rv" href="/es/blog/guia-fotografo-los-cabos">
+    </a>    <a class="post-card rv" data-category="locations" href="/es/blog/guia-fotografo-los-cabos">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/los-cabos-photographer-guide-og.jpg" alt="Guía del fotógrafo de Los Cabos con mejores locaciones y tips de hora dorada - Blog IVAE Studios" loading="lazy" decoding="async" width="800" height="1000"/>
         <span class="card-label">Guía &middot; Los Cabos</span>
@@ -518,10 +493,7 @@ html.dark .footer-copy{color:var(--muted-2)}
         <p class="card-excerpt">Pacífico vs Mar de Cortés, mejores locaciones, resorts, hora dorada y qué ponerte.</p>
         <span class="card-meta">1 de Abril, 2026 &middot; 11 min de lectura</span>
       </div>
-    </a>
-
-    <div id="guides" class="anchor-mark" aria-hidden="true"></div>
-    <a class="post-card rv" href="/es/blog/como-elegir-fotografo-lujo-mexico">
+    </a>    <a class="post-card rv" data-category="guides" href="/es/blog/como-elegir-fotografo-lujo-mexico">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/choose-luxury-photographer-mexico-og.jpg" alt="Guía de cómo elegir un fotógrafo de lujo en México - Blog IVAE Studios" loading="lazy" decoding="async" width="800" height="1000"/>
         <span class="card-label">Tips &middot; México</span>
@@ -533,7 +505,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/fotografia-propuesta-sorpresa-cancun">
+    <a class="post-card rv" data-category="proposals" href="/es/blog/fotografia-propuesta-sorpresa-cancun">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/surprise-proposal-photography-cancun-og.jpg" alt="Fotografía de propuesta sorpresa en Cancún y Riviera Maya - Blog IVAE Studios" loading="lazy" decoding="async" width="800" height="1000"/>
         <span class="card-label">Propuestas &middot; Cancún</span>
@@ -545,7 +517,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/que-ponerte-fotos-playa-mexico">
+    <a class="post-card rv" data-category="guides" href="/es/blog/que-ponerte-fotos-playa-mexico">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/what-to-wear-beach-photos-mexico-og.jpg" alt="Guía de estilo sobre qué ponerte para fotos de playa en México - Blog IVAE Studios" loading="lazy" decoding="async" width="1600" height="1000"/>
         <span class="card-label">Estilo &middot; México</span>
@@ -557,7 +529,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/mejores-resorts-fotografia-cancun">
+    <a class="post-card rv" data-category="locations" href="/es/blog/mejores-resorts-fotografia-cancun">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/best-resorts-cancun-photography-og.jpg" alt="Mejores resorts en Cancún para fotografía incluyendo Hyatt Ziva y Le Blanc - Blog IVAE Studios" loading="lazy" decoding="async" width="800" height="1000"/>
         <span class="card-label">Resorts &middot; Cancún</span>
@@ -569,7 +541,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/cancun-vs-riviera-maya-fotos">
+    <a class="post-card rv" data-category="guides" href="/es/blog/cancun-vs-riviera-maya-fotos">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/cancun-vs-riviera-maya-photos-og.jpg" alt="Comparación Cancún vs Riviera Maya para fotos de vacaciones - Blog IVAE Studios" loading="lazy" decoding="async" width="1200" height="900"/>
         <span class="card-label">Guía &middot; México</span>
@@ -581,7 +553,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/fuga-boda-destino-mexico">
+    <a class="post-card rv" data-category="weddings" href="/es/blog/fuga-boda-destino-mexico">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/destination-elopement-mexico-og.jpg" alt="Guía para planear una fuga de boda destino en México - Blog IVAE Studios" loading="lazy" decoding="async" width="800" height="1000"/>
         <span class="card-label">Fugas &middot; México</span>
@@ -593,7 +565,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/fotografia-hora-dorada-mexico">
+    <a class="post-card rv" data-category="guides" href="/es/blog/fotografia-hora-dorada-mexico">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/golden-hour-photography-mexico-og.jpg" alt="Fotografía en hora dorada en México sesión de atardecer en resort de lujo - Blog IVAE Studios" loading="lazy" decoding="async" width="800" height="1000"/>
         <span class="card-label">Tips &middot; México</span>
@@ -605,7 +577,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/renovacion-votos-mexico-fotografia">
+    <a class="post-card rv" data-category="events" href="/es/blog/renovacion-votos-mexico-fotografia">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/vow-renewal-mexico-photography-og.jpg" alt="Fotografía de renovación de votos en México en un resort de lujo - Blog IVAE Studios" loading="lazy" decoding="async" width="800" height="1000"/>
         <span class="card-label">Celebraciones &middot; México</span>
@@ -617,7 +589,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/fotografia-babymoon-cancun">
+    <a class="post-card rv" data-category="maternity" href="/es/blog/fotografia-babymoon-cancun">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/babymoon-photography-cancun-og.jpg" alt="Fotografía de babymoon en Cancún y Riviera Maya sesión de playa - Blog IVAE Studios" loading="lazy" decoding="async" width="1600" height="1000"/>
         <span class="card-label">Babymoon &middot; Cancún</span>
@@ -629,7 +601,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/fotografia-aniversario-mexico">
+    <a class="post-card rv" data-category="events" href="/es/blog/fotografia-aniversario-mexico">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/anniversary-photography-mexico-og.jpg" alt="Fotografía de aniversario en México celebrando en un resort de lujo - Blog IVAE Studios" loading="lazy" decoding="async" width="800" height="1000"/>
         <span class="card-label">Aniversario &middot; México</span>
@@ -641,7 +613,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/fotografo-resort-todo-incluido-mexico">
+    <a class="post-card rv" data-category="locations" href="/es/blog/fotografo-resort-todo-incluido-mexico">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/all-inclusive-resort-photographer-mexico-og.jpg" alt="Guía de fotografía en resorts todo incluido en México para fotógrafos externos - Blog IVAE Studios" loading="lazy" decoding="async" width="800" height="1000"/>
         <span class="card-label">Resorts &middot; México</span>
@@ -653,7 +625,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/guia-fotografia-tulum">
+    <a class="post-card rv" data-category="locations" href="/es/blog/guia-fotografia-tulum">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/tulum-photography-guide-og.jpg" alt="Guía de fotografía en Tulum con ruinas cenotes y playas - Blog IVAE Studios" loading="lazy" decoding="async" width="1200" height="900"/>
         <span class="card-label">Guía &middot; Tulum</span>
@@ -663,10 +635,7 @@ html.dark .footer-copy{color:var(--muted-2)}
         <p class="card-excerpt">Acceso a Ruinas de Tulum, cenotes, beach clubs y qué ponerte &mdash; el mapa completo de un fotógrafo por la costa más cinematográfica de Riviera Maya.</p>
         <span class="card-meta">2 de Abril, 2026 &middot; 11 min de lectura</span>
       </div>
-    </a>
-
-    <div id="events" class="anchor-mark" aria-hidden="true"></div>
-    <a class="post-card rv" href="/es/blog/sesion-despedida-soltera-los-cabos">
+    </a>    <a class="post-card rv" data-category="events" href="/es/blog/sesion-despedida-soltera-los-cabos">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/bachelorette-photoshoot-los-cabos-og.jpg" alt="Sesión de despedida de soltera en Cabo con grupo en la playa - Blog IVAE Studios" loading="lazy" decoding="async" width="800" height="1000"/>
         <span class="card-label">Guía &middot; Los Cabos</span>
@@ -678,7 +647,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/sesion-cumpleanos-cancun">
+    <a class="post-card rv" data-category="events" href="/es/blog/sesion-cumpleanos-cancun">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/birthday-photoshoot-cancun-og.jpg" alt="Sesión de cumpleaños en Cancún celebrando un momento especial en el paraíso - Blog IVAE Studios" loading="lazy" decoding="async" width="800" height="1000"/>
         <span class="card-label">Celebraciones &middot; Cancún</span>
@@ -690,7 +659,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/sesion-cenote-submarina-tulum">
+    <a class="post-card rv" data-category="locations" href="/es/blog/sesion-cenote-submarina-tulum">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/cenote-underwater-photoshoot-tulum-og.jpg" alt="Sesión de cenote submarina en Tulum retratos etéreos bajo la superficie - Blog IVAE Studios" loading="lazy" decoding="async" width="1600" height="1000"/>
         <span class="card-label">Aventura &middot; Tulum</span>
@@ -702,7 +671,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/sesion-quinceanera-cancun">
+    <a class="post-card rv" data-category="events" href="/es/blog/sesion-quinceanera-cancun">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/quinceanera-photoshoot-cancun-og.jpg" alt="Sesión de quinceañera en Cancún celebrando su día especial - Blog IVAE Studios" loading="lazy" decoding="async" width="800" height="1000"/>
         <span class="card-label">Celebraciones &middot; Cancún</span>
@@ -714,7 +683,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/fotografia-yate-lujo-cancun">
+    <a class="post-card rv" data-category="events" href="/es/blog/fotografia-yate-lujo-cancun">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/luxury-yacht-photography-cancun-og.jpg" alt="Fotografía en yate de lujo en Cancún retratos en el Mar Caribe - Blog IVAE Studios" loading="lazy" decoding="async" width="800" height="1000"/>
         <span class="card-label">Experiencia &middot; Cancún</span>
@@ -726,7 +695,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/trash-the-dress-cancun">
+    <a class="post-card rv" data-category="weddings" href="/es/blog/trash-the-dress-cancun">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/trash-the-dress-cancun-og.jpg" alt="Trash the dress en Cancún sesión post-boda en la playa - Blog IVAE Studios" loading="lazy" decoding="async" width="800" height="1000"/>
         <span class="card-label">Bodas &middot; Cancún</span>
@@ -738,7 +707,7 @@ html.dark .footer-copy{color:var(--muted-2)}
       </div>
     </a>
 
-    <a class="post-card rv" href="/es/blog/sesion-revelacion-genero-cancun">
+    <a class="post-card rv" data-category="events" href="/es/blog/sesion-revelacion-genero-cancun">
       <div class="card-image-wrap">
         <div class="card-image-ph">
           <svg fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 7.5h16.5"/></svg>
@@ -826,6 +795,75 @@ html.dark .footer-copy{color:var(--muted-2)}
   } else {
     document.querySelectorAll('.rv').forEach(function(el){ el.classList.add('vis'); });
   }
+})();
+
+/* Client-side category filter — V6 */
+(function(){
+  var VALID = ['all','weddings','couples','proposals','maternity','family','events','locations','guides'];
+  var grid = document.querySelector('.posts-grid');
+  var nav  = document.querySelector('.cat-nav');
+  if (!grid || !nav) return;
+  var chips = nav.querySelectorAll('a[data-filter]');
+  var cards = grid.querySelectorAll('.post-card[data-category]');
+  var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var current = 'all';
+
+  function readURL(){
+    try {
+      var p = new URLSearchParams(location.search).get('category');
+      if (p && VALID.indexOf(p) !== -1) return p;
+    } catch(e){}
+    return 'all';
+  }
+
+  function applyFilter(slug, opts){
+    opts = opts || {};
+    if (VALID.indexOf(slug) === -1) slug = 'all';
+    if (slug === current) {
+      if (!opts.skipUrl) updateURL(slug);
+      return;
+    }
+    var run = function(){
+      cards.forEach(function(c){
+        var match = (slug === 'all') || (c.dataset.category === slug);
+        c.classList.toggle('is-hidden', !match);
+      });
+      chips.forEach(function(a){
+        var on = a.dataset.filter === slug;
+        a.classList.toggle('is-active', on);
+        if (on) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current');
+      });
+      current = slug;
+      requestAnimationFrame(function(){ grid.classList.remove('is-filtering'); });
+    };
+    if (reduceMotion) {
+      run();
+    } else {
+      grid.classList.add('is-filtering');
+      setTimeout(run, 180);
+    }
+    if (!opts.skipUrl) updateURL(slug);
+  }
+
+  function updateURL(slug){
+    var url = (slug === 'all') ? location.pathname : location.pathname + '?category=' + slug;
+    try { history.pushState({filter: slug}, '', url); } catch(e){}
+  }
+
+  nav.addEventListener('click', function(ev){
+    var t = ev.target.closest('a[data-filter]');
+    if (!t || !nav.contains(t)) return;
+    ev.preventDefault();
+    applyFilter(t.dataset.filter);
+  });
+
+  window.addEventListener('popstate', function(ev){
+    var slug = (ev.state && ev.state.filter) || readURL();
+    applyFilter(slug, {skipUrl: true});
+  });
+
+  var initial = readURL();
+  if (initial !== 'all') applyFilter(initial, {skipUrl: true});
 })();
 </script>
 <script src="/js/lang-detect.js" defer></script>
