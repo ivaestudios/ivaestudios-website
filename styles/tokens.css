@@ -1,0 +1,138 @@
+/* ═══════════════════════════════════════════════════════════════
+   IVAE Studios — Canonical Design Tokens
+   ───────────────────────────────────────────────────────────────
+   Single source of truth for color, typography, spacing, motion.
+   Loaded BEFORE dark-mode.css and components.css.
+
+   Backward-compat aliases preserve existing var() references
+   sitewide (--ink, --gold, --paper, --serif, --ease, etc.).
+
+   Structured tokens (--ink-1, --gold-deep, --s-4, --fs-15...) are
+   the going-forward names. Pages will migrate to these gradually
+   via Wave 5.
+
+   Refs: seo/design-audit/wave-1-audit.md §5
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── COLOR — INKS (dark surfaces) ─────────────────────────── */
+  --ink-1: #1a2230;
+  --ink-2: #131c2a;
+  --ink-3: #0c1219;
+  --ink-4: #0a0f17;
+
+  /* Legacy ink aliases (preserve current behavior) */
+  --ink:  #1a2230;
+  --ink2: #0c1219;
+
+  /* ── COLOR — CREAMS / SANDS (light surfaces) ──────────────── */
+  --cream-1: #faf8f5;
+  --cream-2: #f3f1ec;
+  --sand-1:  #eee8dc;
+  --sand-2:  #e5dacb;
+
+  /* Legacy cream/sand aliases */
+  --cream: #faf8f5;
+  --sand:  #eee8dc;
+  --sand2: #e5dacb;
+
+  /* ── COLOR — GOLD (accent) ────────────────────────────────── */
+  --gold:       #c9a54e;
+  --gold-deep:  #a8894a;
+  --gold-hover: #ceae64;
+  --gold-soft:  rgba(201,165,78,0.18);
+  --gold-line:  rgba(201,165,78,0.28);
+  --gold-glow:  rgba(201,165,78,0.06);
+
+  /* Legacy gold aliases */
+  --gold2: #b08e42;
+
+  /* ── COLOR — TEXT (semantic) ──────────────────────────────── */
+  --text-on-light:    #0e1620;
+  --text-on-light-2:  rgba(14,22,32,0.62);
+  --text-on-light-3:  rgba(14,22,32,0.40);
+  --text-on-dark:     #faf8f5;
+  --text-on-dark-2:   rgba(250,248,245,0.62);
+  --text-on-dark-3:   rgba(250,248,245,0.34);
+
+  /* Legacy muted aliases (preserve current behavior) */
+  --muted:    rgba(250,248,245,0.58);
+  --muted2:   rgba(250,248,245,0.34);
+  --muted-l:  rgba(26,34,48,0.60);
+  --muted-l2: rgba(26,34,48,0.38);
+
+  /* ── COLOR — LINES / BORDERS ──────────────────────────────── */
+  --line-on-light: rgba(14,22,32,0.10);
+  --line-on-dark:  rgba(250,248,245,0.10);
+
+  /* Legacy border aliases (preserve current behavior) */
+  --border:   rgba(201,165,78,0.18);
+  --border-l: rgba(26,34,48,0.09);
+
+  /* ── TYPOGRAPHY — FAMILIES ────────────────────────────────── */
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans:  'Syne', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* ── TYPOGRAPHY — SCALE (modular ratio ~1.333) ────────────── */
+  --fs-9:  9px;
+  --fs-10: 10px;
+  --fs-11: 11px;
+  --fs-13: 13px;
+  --fs-15: 15px;
+  --fs-18: 18px;
+  --fs-24: 24px;
+  --fs-32: 32px;
+  --fs-44: 44px;
+  --fs-60: 60px;
+  --fs-display: clamp(48px, 8.5vw, 120px);
+
+  /* ── SPACING (4px base) ────────────────────────────────────── */
+  --s-1:  4px;
+  --s-2:  8px;
+  --s-3:  12px;
+  --s-4:  16px;
+  --s-6:  24px;
+  --s-8:  32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+  --s-20: 80px;
+  --s-24: 96px;
+  --s-32: 128px;
+
+  /* Section / gutter clamps */
+  --s-section-y: clamp(80px, 9vw, 140px);
+  --s-gutter:    clamp(24px, 5vw, 64px);
+
+  /* ── ELEVATION ─────────────────────────────────────────────── */
+  --shadow-1:       0 2px 12px rgba(14,22,32,0.04);
+  --shadow-2:       0 6px 24px rgba(14,22,32,0.08);
+  --shadow-3:       0 12px 40px rgba(14,22,32,0.16);
+  --shadow-gold-sm: 0 2px 16px rgba(201,165,78,0.12);
+  --shadow-gold-lg: 0 6px 28px rgba(201,165,78,0.28);
+
+  /* ── MOTION (preserve current canonical curves) ───────────── */
+  --ease:        cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-smooth: cubic-bezier(0.65, 0, 0.05, 1);
+  --t-fast: 0.25s;
+  --t-med:  0.45s;
+  --t-slow: 0.9s;
+
+  /* Legacy motion aliases (verbatim from current index.html) */
+  --lux:    cubic-bezier(0.22, 0.61, 0.36, 1);
+  --smooth: cubic-bezier(0.65, 0, 0.05, 1);
+  --expo:   cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── RADIUS ────────────────────────────────────────────────── */
+  --r-0:      0;       /* default — keep edge-flush brand */
+  --r-sm:     2px;
+  --r-pill:   999px;
+  --r-circle: 50%;
+
+  /* ── BLOG ALIASES (so blog.html needs zero selector changes) */
+  --paper:   #faf8f5;
+  --paper-2: #f3f1ec;
+  --serif:   'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --sans:    'Syne', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}

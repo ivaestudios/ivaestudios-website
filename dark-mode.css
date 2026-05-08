@@ -33,13 +33,24 @@ html.dark main {
 }
 
 /* Cream/sand backgrounds → dark navy */
+/* Note: #f9f8f7 is v1 cream (legacy) — matched alongside #faf8f5 (v2)
+   during the design-system migration. Cleanup scheduled for Wave 7. */
 html.dark [style*="background:#faf8f5"],
 html.dark [style*="background: #faf8f5"],
+html.dark [style*="background:#f9f8f7"],
+html.dark [style*="background: #f9f8f7"],
 html.dark [style*="background:var(--cream)"],
 html.dark [style*="background: var(--cream)"],
+html.dark [style*="background:var(--cream-1)"],
+html.dark [style*="background: var(--cream-1)"],
+html.dark [style*="background:var(--paper)"],
+html.dark [style*="background: var(--paper)"],
 html.dark [style*="background:#eee8dc"],
+html.dark [style*="background:#ede8df"],
 html.dark [style*="background:var(--sand)"],
-html.dark [style*="background: var(--sand)"] {
+html.dark [style*="background: var(--sand)"],
+html.dark [style*="background:var(--sand-1)"],
+html.dark [style*="background: var(--sand-1)"] {
   background: #0c1219 !important;
 }
 

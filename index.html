@@ -32,20 +32,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <style>
 .skip-link{position:absolute;top:-100%;left:16px;background:var(--gold);color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;border-radius:0 0 4px 4px;transition:top 0.3s}
 .skip-link:focus{top:0}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --ink:#1a2230;--ink2:#0c1219;--cream:#faf8f5;--sand:#eee8dc;--sand2:#e5dacb;
-  --gold:#c9a54e;--gold2:#b08e42;
-  --muted:rgba(250,248,245,0.58);--muted2:rgba(250,248,245,0.34);
-  --muted-l:rgba(26,34,48,0.60);--muted-l2:rgba(26,34,48,0.38);
-  --border:rgba(201,165,78,0.18);--border-l:rgba(26,34,48,0.09);
-  --lux:cubic-bezier(0.22,0.61,0.36,1);--smooth:cubic-bezier(0.65,0,0.05,1);--expo:cubic-bezier(0.16,1,0.3,1)
-}
+/* :root tokens now live in /styles/tokens.css — single source of truth.
+   Page-specific overrides (if any) go below. */
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 ::selection{background:rgba(201,165,78,0.25);color:var(--ink)}
 ::-moz-selection{background:rgba(201,165,78,0.25);color:var(--ink)}
