@@ -117,26 +117,20 @@
 /post-mexico-based-vs-fly-in-photographer-pros-cons.html /blog/mexico-based-vs-fly-in-photographer-pros-cons 301
 /blog/same-sex-wedding-photographer-cancun-lgbtq-inclusive /post-same-sex-wedding-photographer-cancun-lgbtq-inclusive 200
 /post-same-sex-wedding-photographer-cancun-lgbtq-inclusive.html /blog/same-sex-wedding-photographer-cancun-lgbtq-inclusive 301
-/es/blog/fotografo-bodas-mismo-sexo-cancun-lgbtq /es/blog/fotografo-bodas-mismo-sexo-cancun-lgbtq.html 200
 /blog/wedding-day-photo-timeline-8-10-12-hours /post-wedding-day-photo-timeline-8-10-12-hours 200
 /post-wedding-day-photo-timeline-8-10-12-hours.html /blog/wedding-day-photo-timeline-8-10-12-hours 301
-/es/blog/timeline-foto-boda-8-10-12-horas /es/blog/timeline-foto-boda-8-10-12-horas.html 200
 /blog/sample-cancun-wedding-gallery-60-images /post-sample-cancun-wedding-gallery-60-images 200
 /post-sample-cancun-wedding-gallery-60-images.html /blog/sample-cancun-wedding-gallery-60-images 301
-/es/blog/galeria-muestra-boda-cancun-60-imagenes /es/blog/galeria-muestra-boda-cancun-60-imagenes.html 200
 /blog/resort-photographer-vs-outside-photographer-mexico /post-resort-photographer-vs-outside-photographer-mexico 200
 /post-resort-photographer-vs-outside-photographer-mexico.html /blog/resort-photographer-vs-outside-photographer-mexico 301
-/es/blog/fotografo-resort-vs-fotografo-externo-mexico /es/blog/fotografo-resort-vs-fotografo-externo-mexico.html 200
 
 # ═══════════════════════════════════════════
 # CLEAN URLs — Blog Posts (Press / E-E-A-T)
 # ═══════════════════════════════════════════
 /blog/ivae-studios-press-media-coverage /post-ivae-studios-press-media-coverage 200
 /post-ivae-studios-press-media-coverage.html /blog/ivae-studios-press-media-coverage 301
-/es/blog/ivae-studios-prensa-cobertura-medios /es/blog/ivae-studios-prensa-cobertura-medios.html 200
 /blog/vianey-diaz-luxury-photographer-journey /post-vianey-diaz-luxury-photographer-journey 200
 /post-vianey-diaz-luxury-photographer-journey.html /blog/vianey-diaz-luxury-photographer-journey 301
-/es/blog/vianey-diaz-fotografa-lujo-trayectoria /es/blog/vianey-diaz-fotografa-lujo-trayectoria.html 200
 
 # /blog and /about are handled automatically by Cloudflare Pages
 # (it serves blog.html and about.html without needing rules)
