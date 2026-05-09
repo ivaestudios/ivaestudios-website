@@ -339,17 +339,20 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 .h-cta{
   font-family:var(--font-sans);
   font-size:var(--fs-10);font-weight:600;
-  letter-spacing:var(--tracking-eyebrow-base);
+  letter-spacing:0.18em;
   text-transform:uppercase;
   color:var(--gold);
   border:1px solid var(--gold-line);
-  padding:12px 22px;
+  padding:14px 26px;
   min-height:var(--touch-target-min);
-  display:inline-flex;align-items:center;gap:10px;
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  white-space:nowrap;
   transition:background .35s var(--ease),border-color .35s var(--ease),color .35s var(--ease),transform .35s var(--ease);
   position:relative;
   overflow:hidden;
+  text-decoration:none;
 }
+.h-cta svg{flex-shrink:0;width:14px;height:14px}
 .h-cta::before{
   content:'';position:absolute;inset:0;
   background:linear-gradient(120deg,transparent 30%,rgba(201,165,78,.18) 50%,transparent 70%);
@@ -2442,7 +2445,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 <link rel="preload" as="image" fetchpriority="high" href="/images/wedding-bride-tulum-ivae-studios.jpg" type="image/jpeg">
 </head>
 <body>
-<a href="#main-content" class="skip-link">Skip to content</a>
+<a href="#main-content" class="skip-link">Saltar al contenido</a>
 
 <!-- ═══════════════════════════════════════════════════════════════
      CINEMATIC FILM LEADER (loader)
@@ -2528,7 +2531,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
   </div>
 
   <div class="ch-chapter" aria-hidden="true">
-    <span class="ch-chapter-label">Chapter 01</span>
+    <span class="ch-chapter-label">Capítulo 01</span>
     <span class="ch-chapter-rule"></span>
     <span class="ch-chapter-title">Luz, Brevemente Sostenida</span>
   </div>
@@ -2567,7 +2570,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
       </div>
       <div class="ch-rt-cell">
         <span class="ch-rt-n"><span data-count-to-decimal="5.0">0.0</span>&nbsp;&starf;</span>
-        <span class="ch-rt-l">Forty&#8209;Two Reviews</span>
+        <span class="ch-rt-l">Cuarenta y Dos Reseñas</span>
       </div>
       <div class="ch-rt-cell">
         <span class="ch-rt-n"><span data-count-to="72">0</span>&nbsp;<sub>hr</sub></span>
@@ -2576,7 +2579,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
     </div>
     <div class="ch-scroll-cue" aria-hidden="true">
       <span class="ch-scroll-dot"></span>
-      <span>Scroll. Chapter 02</span>
+      <span>Scroll. Capítulo 02</span>
       <span class="ch-scroll-line"></span>
     </div>
   </div>
@@ -2590,36 +2593,36 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
     <div class="manifesto-stage">
       <img src="/images/couple-mayakoba-ivae-studios.jpg" alt="A couple at sunset in Mayakoba, photographed by IVAE Studios" loading="lazy" width="1600" height="2000"/>
       <div class="manifesto-stage-overlay">
-        <span class="manifesto-stage-frame">Frame 02 &middot; Mayakoba &middot; <span id="manifestoTime">17:42</span></span>
+        <span class="manifesto-stage-frame">Frame 02 &middot; Mayakoba · <span id="manifestoTime">17:42</span></span>
       </div>
     </div>
 
     <div class="manifesto-text">
       <article class="manifesto-block rv" data-anim>
-        <span class="manifesto-chapter-tag">Chapter 02. Un Estudio</span>
-        <h2 id="manifesto-h2"><span class="w">A</span> <span class="w">studio</span> <span class="w">of</span> <span class="w"><em>one mind</em>,</span> <span class="w">two</span> <span class="w">languages,</span> <span class="w">three</span> <span class="w">coastlines.</span></h2>
+        <span class="manifesto-chapter-tag">Capítulo 02. Un Estudio</span>
+        <h2 id="manifesto-h2"><span class="w">A</span> <span class="w">studio</span> <span class="w">of</span> <span class="w"><em>una mente</em>,</span> <span class="w">two</span> <span class="w">languages,</span> <span class="w">three</span> <span class="w">coastlines.</span></h2>
         <p class="manifesto-lede dropcap-reveal">IVAE Studios was founded in Canc&uacute;n in 2023 by Vianey D&iacute;az. una fotógrafa mexicana con una década detrás de cámaras editoriales y una convicción singular: que lo más lujoso que podemos ofrecer a viajeros afluentes no es abundancia, sino restricción.</p>
         <p>No fotografiamos al mediodía. No fotografiamos cincuenta familias por semana. We do not deliver galleries in &ldquo;cuatro a seis semanas.&rdquo; Trabajamos, en cambio, en la <em>hour</em> en que la luz es honesta. y entregamos el trabajo en días, no semanas.</p>
         <aside class="marginalia">
-          <span>&ldquo;Luxury is not louder. It is quieter, slower, more deliberate. We&rsquo;ve built the studio around that single idea.&rdquo;</span>
-          <span class="marginalia-attr">. Vianey D&iacute;az, Founder</span>
+          <span>&ldquo;El lujo no es más ruidoso. Es más silencioso, más lento, más deliberado. Hemos construido el estudio alrededor de esa única idea.&rdquo;</span>
+          <span class="marginalia-attr">. Vianey Díaz, Fundadora</span>
         </aside>
       </article>
 
       <article class="manifesto-block rv" data-anim>
-        <span class="manifesto-chapter-tag">Chapter 02. Un Método</span>
-        <h2><span class="w">The</span> <span class="w">method</span> <span class="w">is</span> <span class="w"><em>a la antigua</em>.</span> <span class="w">So</span> <span class="w">is</span> <span class="w">the</span> <span class="w">result.</span></h2>
+        <span class="manifesto-chapter-tag">Capítulo 02. Un Método</span>
+        <h2><span class="w">The</span> <span class="w">method</span> <span class="w">es</span> <span class="w"><em>a la antigua</em>.</span> <span class="w">So</span> <span class="w">es</span> <span class="w">la</span> <span class="w">result.</span></h2>
         <p>Cada sesión IVAE comienza tres semanas antes que la cámara. Aprendemos tu itinerario, tu vestuario, la de tus suegros&rsquo; politics. Exploramos el resort a la hora exacta en que se hará tu sesión. sabemos qué palmera proyecta sombra a las 06:14 en marzo, qué cenote se vuelve índigo a las 17:38 en octubre.</p>
         <p>El día de la sesión, dirigimos en dos idiomas. Nos movemos como un director de arte en una sesión de portada. quietos, decididos, sin pedirte jamás que digas <em>whisky</em>.</p>
       </article>
 
       <article class="manifesto-block rv" data-anim>
-        <span class="manifesto-chapter-tag">Chapter 02. Una Promesa</span>
-        <h2><span class="w">The</span> <span class="w">frame</span> <span class="w">you</span> <span class="w">remember</span> <span class="w">is</span> <span class="w">the</span> <span class="w">frame</span> <span class="w"><em>we</em></span> <span class="w">remember.</span></h2>
+        <span class="manifesto-chapter-tag">Capítulo 02. Una Promesa</span>
+        <h2><span class="w">The</span> <span class="w">imagen</span> <span class="w">you</span> <span class="w">recuerdas</span> <span class="w">es</span> <span class="w">la</span> <span class="w">imagen</span> <span class="w"><em>we</em></span> <span class="w">remember.</span></h2>
         <p>Recibirás una galería privada en 72 horas. en la mayoría de los casos antes. Cada toma se edita a mano, nunca con auto-tono, nunca con IA. Te reconocerás en cada imagen. Tus nietos también.</p>
         <p>Esa es la promesa IVAE. escrita, firmada e indexada en nuestros términos.</p>
         <a class="btn-magnetic outline" href="/about" data-magnet style="margin-top:32px;color:var(--gold);border-color:var(--gold-line)">
-          Read the full manifesto
+          Leer el manifiesto completo
           <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
         </a>
       </article>
@@ -2632,16 +2635,16 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
      ═══════════════════════════════════════════════════════════════ -->
 <section class="light-study" id="light" aria-labelledby="ls-h2">
   <div class="ls-head">
-    <span class="ls-eyebrow eb-grow">Chapter 03. A Light Study</span>
-    <h2 id="ls-h2">Why we shoot only at the <em>edges</em> of the day.</h2>
-    <p class="breathe">Twenty-four hours of light. Less than ninety minutes of it look the way memory looks. Here is what that hour does. and why every IVAE session lives inside it.</p>
+    <span class="ls-eyebrow eb-grow">Capítulo 03. Un Estudio de Luz</span>
+    <h2 id="ls-h2">Por qué solo fotografiamos en la <em>edges</em> del día.</h2>
+    <p class="breathe">Veinticuatro horas de luz. Menos de noventa minutos de ella se ven como se ve la memoria. Esto es lo que hace esa hora. and why every IVAE session lives inside it.</p>
   </div>
 
   <div class="ls-grid">
     <!-- 24h golden hour clock SVG -->
     <div class="ls-clock" id="lsClock" data-anim>
       <svg viewBox="0 0 400 400" role="img" aria-labelledby="ls-clock-title">
-        <title id="ls-clock-title">Twenty-four hour clock with golden-hour windows highlighted and live sun position</title>
+        <title id="ls-clock-title">Reloj de veinticuatro horas con ventanas de hora dorada destacadas y posición solar en vivo</title>
         <defs>
           <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#a8894a"/>
@@ -2693,7 +2696,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 
         <!-- Center label -->
         <g class="ls-clock-center" transform="translate(200 200)">
-          <text class="ls-clock-center-label" y="-22">The Golden Hour</text>
+          <text class="ls-clock-center-label" y="-22">La Hora Dorada</text>
           <text class="ls-clock-center-value" id="lsClockCenterTime" y="22">06:14</text>
           <text class="ls-clock-center-label" y="52">&amp; 17:42 / March, Cancún</text>
         </g>
@@ -2706,30 +2709,30 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 
     <div class="ls-data">
       <div class="ls-stat rv" data-anim>
-        <div class="ls-stat-h">Sunrise window</div>
+        <div class="ls-stat-h">Ventana del amanecer</div>
         <div class="ls-stat-v"><span data-count-to="52">0</span><sub>min</sub></div>
-        <div class="ls-stat-d">From the moment the sky turns rose to the moment the light turns flat. We arrive thirty minutes before. We are working when most resorts are still pouring breakfast coffee.</div>
+        <div class="ls-stat-d">Desde que el cielo se vuelve rosa hasta que la luz se aplana. We arrive thirty minutes before. We are working when most resorts are still pouring breakfast coffee.</div>
       </div>
       <div class="ls-stat rv" data-anim>
-        <div class="ls-stat-h">Sunset window</div>
+        <div class="ls-stat-h">Ventana del atardecer</div>
         <div class="ls-stat-v"><span data-count-to="38">0</span><sub>min</sub></div>
-        <div class="ls-stat-d">The shorter, more cinematic window. Long shadows, copper highlights, the Caribbean turning a colour you cannot photograph after 18:20.</div>
+        <div class="ls-stat-d">La ventana más corta, más cinematográfica. Long shadows, copper highlights, the Caribbean turning a colour you cannot photograph after 18:20.</div>
       </div>
       <div class="ls-stat rv" data-anim>
-        <div class="ls-stat-h">Color temperature drop</div>
+        <div class="ls-stat-h">Caída de temperatura de color</div>
         <div class="ls-stat-v"><span data-count-to="5500">0</span><sub>K &rarr; 2,800 K</sub></div>
-        <div class="ls-stat-d">From clinical noon white to the warm, candle-coloured glow of late golden hour. The frame remembers the difference; you do, too.</div>
+        <div class="ls-stat-d">Del blanco clínico del mediodía al brillo cálido color vela de la última hora dorada. La imagen recuerda la diferencia; you do, too.</div>
       </div>
 
       <!-- Light spectrum bar -->
       <div class="ls-spectrum rv" data-anim>
-        <div class="ls-stat-h">Light through the day</div>
+        <div class="ls-stat-h">La luz a lo largo del día</div>
         <div class="ls-spectrum-bar">
           <div class="ls-spectrum-band" style="left:8%;width:13%">
-            <span class="ls-spectrum-band-label">Sunrise</span>
+            <span class="ls-spectrum-band-label">Amanecer</span>
           </div>
           <div class="ls-spectrum-band" style="left:78%;width:14%">
-            <span class="ls-spectrum-band-label">Sunset</span>
+            <span class="ls-spectrum-band-label">Atardecer</span>
           </div>
           <div class="ls-spectrum-marker" id="lsSpectrumMarker" style="left:50%"></div>
         </div>
@@ -2747,19 +2750,19 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
   <!-- Live destinations panel / current time + golden-hour status -->
   <div class="ls-live" data-anim>
     <div class="ls-live-card" data-tz="America/Cancun" data-loc="Cancún">
-      <span class="ls-live-card-eyebrow"><span class="ls-live-dot"></span>Live · Quintana Roo</span>
+      <span class="ls-live-card-eyebrow"><span class="ls-live-dot"></span>En vivo · Quintana Roo</span>
       <span class="ls-live-time" data-live-time>--:--<span class="sec">--</span></span>
       <span class="ls-live-meta">Cancún · Hotel Zone</span>
       <span class="ls-live-status" data-live-status></span>
     </div>
     <div class="ls-live-card" data-tz="America/Cancun" data-loc="Riviera Maya">
-      <span class="ls-live-card-eyebrow"><span class="ls-live-dot"></span>Live · Riviera Maya</span>
+      <span class="ls-live-card-eyebrow"><span class="ls-live-dot"></span>En vivo · Riviera Maya</span>
       <span class="ls-live-time" data-live-time>--:--<span class="sec">--</span></span>
       <span class="ls-live-meta">Mayakoba · Tulum</span>
       <span class="ls-live-status" data-live-status></span>
     </div>
     <div class="ls-live-card" data-tz="America/Mazatlan" data-loc="Los Cabos">
-      <span class="ls-live-card-eyebrow"><span class="ls-live-dot"></span>Live · Baja California Sur</span>
+      <span class="ls-live-card-eyebrow"><span class="ls-live-dot"></span>En vivo · Baja California Sur</span>
       <span class="ls-live-time" data-live-time>--:--<span class="sec">--</span></span>
       <span class="ls-live-meta">San Lucas · Pedregal</span>
       <span class="ls-live-status" data-live-status></span>
@@ -2773,12 +2776,12 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 <section class="reel" id="reel" aria-labelledby="reel-h2">
   <div class="reel-head">
     <div class="reel-head-left">
-      <span class="ls-eyebrow eb-grow">Chapter 04. The Reel</span>
-      <h2 id="reel-h2">Twelve frames from the <em>last twelve months</em>.</h2>
+      <span class="ls-eyebrow eb-grow">Capítulo 04. El Reel</span>
+      <h2 id="reel-h2">Doce imágenes de los <em>últimos doce meses</em>.</h2>
     </div>
     <div class="reel-counter" aria-hidden="true">
       <span id="reelCounterCurrent">01</span> / <span id="reelCounterTotal">12</span>
-      <span>&nbsp;Roll A</span>
+      <span>&nbsp;Rollo A</span>
     </div>
   </div>
 
@@ -2789,9 +2792,9 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
         <div class="reel-cap shimmer-cap">
           <div class="reel-cap-meta">
             <span class="reel-cap-no">Frame 01</span>
-            <span class="reel-cap-title">A Bride at the Cliff&rsquo;s Edge</span>
+            <span class="reel-cap-title">Una Novia al Borde del Acantilado</span>
           </div>
-          <span class="reel-cap-loc">Tulum &middot; 17:42</span>
+          <span class="reel-cap-loc">Tulum · 17:42</span>
         </div>
       </article>
       <article class="reel-frame">
@@ -2799,7 +2802,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
         <div class="reel-cap shimmer-cap">
           <div class="reel-cap-meta">
             <span class="reel-cap-no">Frame 02</span>
-            <span class="reel-cap-title">Mayakoba, In Three Languages</span>
+            <span class="reel-cap-title">Mayakoba, en Tres Idiomas</span>
           </div>
           <span class="reel-cap-loc">Riviera Maya &middot; 17:14</span>
         </div>
@@ -2809,9 +2812,9 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
         <div class="reel-cap shimmer-cap">
           <div class="reel-cap-meta">
             <span class="reel-cap-no">Frame 03</span>
-            <span class="reel-cap-title">Three Generations, One Coast</span>
+            <span class="reel-cap-title">Tres Generaciones, Una Costa</span>
           </div>
-          <span class="reel-cap-loc">Canc&uacute;n &middot; 06:24</span>
+          <span class="reel-cap-loc">Cancún · 06:24</span>
         </div>
       </article>
       <article class="reel-frame">
@@ -2819,9 +2822,9 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
         <div class="reel-cap shimmer-cap">
           <div class="reel-cap-meta">
             <span class="reel-cap-no">Frame 04</span>
-            <span class="reel-cap-title">A Quiet Anniversary</span>
+            <span class="reel-cap-title">Un Aniversario Silencioso</span>
           </div>
-          <span class="reel-cap-loc">Canc&uacute;n &middot; 17:31</span>
+          <span class="reel-cap-loc">Cancún · 17:31</span>
         </div>
       </article>
       <article class="reel-frame">
@@ -2829,9 +2832,9 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
         <div class="reel-cap shimmer-cap">
           <div class="reel-cap-meta">
             <span class="reel-cap-no">Frame 05</span>
-            <span class="reel-cap-title">A Cenote, Underwater</span>
+            <span class="reel-cap-title">Un Cenote, Bajo el Agua</span>
           </div>
-          <span class="reel-cap-loc">Tulum &middot; 11:08</span>
+          <span class="reel-cap-loc">Tulum · 11:08</span>
         </div>
       </article>
       <article class="reel-frame">
@@ -2839,7 +2842,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
         <div class="reel-cap shimmer-cap">
           <div class="reel-cap-meta">
             <span class="reel-cap-no">Frame 06</span>
-            <span class="reel-cap-title">The Pacific Side</span>
+            <span class="reel-cap-title">El Lado del Pacífico</span>
           </div>
           <span class="reel-cap-loc">Los Cabos &middot; 18:02</span>
         </div>
@@ -2849,7 +2852,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
         <div class="reel-cap shimmer-cap">
           <div class="reel-cap-meta">
             <span class="reel-cap-no">Frame 07</span>
-            <span class="reel-cap-title">A Resort, A Childhood</span>
+            <span class="reel-cap-title">Un Resort, Una Infancia</span>
           </div>
           <span class="reel-cap-loc">Hotel Zone &middot; 06:48</span>
         </div>
@@ -2908,7 +2911,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
   </div>
 
   <div class="reel-progress">
-    <span class="reel-progress-label">Roll A. Drag, scroll, or use arrow keys</span>
+    <span class="reel-progress-label">Rollo A. Drag, scroll, or use arrow keys</span>
     <div class="reel-progress-track" aria-hidden="true">
       <div class="reel-progress-fill" id="reelProgressFill"></div>
     </div>
@@ -2928,8 +2931,8 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
      ═══════════════════════════════════════════════════════════════ -->
 <section class="atlas" id="atlas" aria-labelledby="atlas-h2">
   <div class="atlas-head">
-    <span class="ls-eyebrow eb-grow">Chapter 05. The Atlas</span>
-    <h2 id="atlas-h2">Three coastlines. <em>One studio.</em></h2>
+    <span class="ls-eyebrow eb-grow">Capítulo 05. The Atlas</span>
+    <h2 id="atlas-h2">Tres costas. <em>One studio.</em></h2>
     <p>We work the Yucatán Peninsula and the Baja California Sur. Each coast asks for a different camera, a different language of light, a different rhythm. Here is where we shoot.</p>
   </div>
 
@@ -3034,8 +3037,8 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
      ═══════════════════════════════════════════════════════════════ -->
 <section class="pull-quote" aria-labelledby="pq-h2">
   <div class="pq-inner rv" data-anim>
-    <span class="pq-eyebrow">Chapter 06. Reviews</span>
-    <p class="pq-text" id="pq-h2"><span class="w">Every</span> <span class="w">frame</span> <span class="w">looked</span> <span class="w">like</span> <span class="w">it</span> <span class="w">belonged</span> <span class="w">in</span> <span class="w">a</span> <span class="w">magazine,</span> <span class="w">and</span> <span class="w">Vianey</span> <span class="w">made</span> <span class="w">our</span> <span class="w">kids</span> <span class="w">feel</span> <span class="w">completely</span> <span class="w">at</span> <span class="w">ease</span> <span class="w">during</span> <span class="w">golden</span> <span class="w">hour</span> <span class="w">on</span> <span class="w">the</span> <span class="w">beach.</span> <em><span class="w">It</span> <span class="w">was</span> <span class="w">the</span> <span class="w">calmest</span> <span class="w">hour</span> <span class="w">of</span> <span class="w">our</span> <span class="w">trip.</span></em></p>
+    <span class="pq-eyebrow">Capítulo 06. Reviews</span>
+    <p class="pq-text" id="pq-h2"><span class="w">Every</span> <span class="w">imagen</span> <span class="w">looked</span> <span class="w">like</span> <span class="w">it</span> <span class="w">belonged</span> <span class="w">in</span> <span class="w">a</span> <span class="w">magazine,</span> <span class="w">and</span> <span class="w">Vianey</span> <span class="w">made</span> <span class="w">our</span> <span class="w">kids</span> <span class="w">feel</span> <span class="w">completely</span> <span class="w">at</span> <span class="w">ease</span> <span class="w">during</span> <span class="w">golden</span> <span class="w">hour</span> <span class="w">on</span> <span class="w">la</span> <span class="w">beach.</span> <em><span class="w">It</span> <span class="w">was</span> <span class="w">la</span> <span class="w">calmest</span> <span class="w">hour</span> <span class="w">of</span> <span class="w">our</span> <span class="w">trip.</span></em></p>
     <div class="pq-author">
       <span class="pq-rule"></span>
       <span class="pq-author-name">Samantha Whitfield</span>
@@ -3069,7 +3072,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 <section class="dossier" id="dossier" aria-labelledby="dossier-h2">
   <div class="dossier-inner">
     <div class="dossier-left">
-      <span class="dossier-eyebrow">Chapter 07. Begin Inquiry</span>
+      <span class="dossier-eyebrow">Capítulo 07. Begin Inquiry</span>
       <h2 id="dossier-h2">A letter, <em>not a form</em>.</h2>
       <p class="dossier-lede">Tell us about the trip the way you would tell a friend. We&rsquo;ll write back within twenty-four hours, in your language, with a calendar opening. We answer every inquiry personally; nothing here is automated.</p>
 
@@ -3102,7 +3105,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
       <span class="inquiry-frame-no">No. 042 / 2026</span>
       <div class="inquiry-mark">IVAE<sup>&reg;</sup></div>
       <h3>To <em>Vianey</em>,</h3>
-      <p class="inquiry-sub">a few lines about your trip, your hour, your hopes. Nothing here is required. tell us what you know, we&rsquo;ll fill in the rest.</p>
+      <p class="inquiry-sub">a few lines about your trip, tu hora, tus esperanzas. Nada aquí es obligatorio. cuéntanos lo que sepas, nosotros llenamos el resto.</p>
 
       <form id="inquiryForm" novalidate>
         <div class="inquiry-row">
@@ -3164,7 +3167,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 <section class="journal-v3" id="journal" aria-labelledby="jrn-h2">
   <div class="jrn-head">
     <div class="jrn-head-left">
-      <span class="ls-eyebrow eb-grow">Chapter 08. The Journal</span>
+      <span class="ls-eyebrow eb-grow">Capítulo 08. El Diario</span>
       <h2 id="jrn-h2">Stories, dossiers, and the <em>ledger</em>.</h2>
     </div>
     <a href="/blog" class="jrn-link">All entries
@@ -3187,7 +3190,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
       <div class="jrn-img"><img src="/images/wedding-bride-tulum-ivae-studios.jpg" alt="Golden hour in Mexico essay" loading="lazy" width="1200" height="900"/></div>
       <div class="jrn-content">
         <span class="jrn-no">Essay</span>
-        <h3>Why we shoot only at <em>the edges</em> of the day.</h3>
+        <h3>Why we shoot only at <em>the edges</em> del día.</h3>
         <span class="jrn-go">Read the essay &rarr;</span>
       </div>
     </a>
@@ -3255,7 +3258,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
   <div class="colophon-cols">
     <div>
       <div class="col-h">The Studio</div>
-      <p>IVAE Studios is a luxury resort photography studio based in Canc&uacute;n, working across the Riviera Maya, Tulum, Isla Mujeres, and Los Cabos. Founded by Vianey D&iacute;az. ten years of editorial cameras, two languages, one obsession with the hour en que la luz es honesta.</p>
+      <p>IVAE Studios is a luxury resort photography studio based in Canc&uacute;n, working across the Riviera Maya, Tulum, Isla Mujeres, and Los Cabos. Founded by Vianey D&iacute;az. ten years of editorial cameras, dos idiomas, one obsession with the hour en que la luz es honesta.</p>
     </div>
     <div>
       <div class="col-h">Studio</div>

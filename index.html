@@ -339,17 +339,20 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 .h-cta{
   font-family:var(--font-sans);
   font-size:var(--fs-10);font-weight:600;
-  letter-spacing:var(--tracking-eyebrow-base);
+  letter-spacing:0.18em;
   text-transform:uppercase;
   color:var(--gold);
   border:1px solid var(--gold-line);
-  padding:12px 22px;
+  padding:14px 26px;
   min-height:var(--touch-target-min);
-  display:inline-flex;align-items:center;gap:10px;
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  white-space:nowrap;
   transition:background .35s var(--ease),border-color .35s var(--ease),color .35s var(--ease),transform .35s var(--ease);
   position:relative;
   overflow:hidden;
+  text-decoration:none;
 }
+.h-cta svg{flex-shrink:0;width:14px;height:14px}
 .h-cta::before{
   content:'';position:absolute;inset:0;
   background:linear-gradient(120deg,transparent 30%,rgba(201,165,78,.18) 50%,transparent 70%);
