@@ -651,7 +651,15 @@ body::after{
 }
 
 /* ───────────────────────────────────────────────────────────────
-   FEATURED FRAMES / hand-picked grid (animation #14 — ken burns)
+   FEATURED FRAMES / hand-picked grid
+   Animations:
+     1. Staggered clip-path scroll reveal (per-frame --i delay)
+     2. Idle Ken-Burns (12s, paused on grid hover)
+     3. Hover scale + saturate
+     4. Focal effect: hover-desaturate siblings (JS-driven .frames-grid.is-focusing)
+     5. Caption gold underline draw on hover
+     6. Year color shift + tabular-num scale on hover
+     7. 1px gold border-glow on hover (box-shadow)
    ─────────────────────────────────────────────────────────────── */
 .frames{background:var(--ink-2)}
 .frames-inner{max-width:1320px;margin:0 auto}
@@ -665,16 +673,75 @@ body::after{
 .frames-grid{
   display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(6px,0.6vw,10px);
 }
-.fr{position:relative;overflow:hidden;background:var(--ink-4);aspect-ratio:4/5}
+
+/* frame card */
+.fr{
+  position:relative;overflow:hidden;background:var(--ink-4);aspect-ratio:4/5;
+  outline:1px solid transparent;
+  box-shadow:0 0 0 0 transparent;
+  transition:box-shadow .55s var(--ease),outline-color .45s var(--ease),filter .55s var(--ease),transform .55s var(--ease);
+  will-change:transform,filter;
+}
 .fr-1,.fr-2,.fr-3,.fr-4,.fr-5,.fr-6{grid-column:span 1}
+
+/* ENTRANCE: staggered clip-path reveal, gated by .vis (set by IO) */
+.fr.fr-anim{
+  clip-path:inset(0 100% 0 0);
+  -webkit-clip-path:inset(0 100% 0 0);
+  opacity:0;
+  transition:clip-path 1.2s var(--ease-out),-webkit-clip-path 1.2s var(--ease-out),opacity .8s var(--ease-out);
+  transition-delay:calc(var(--i,0) * 60ms);
+}
+.fr.fr-anim.vis{
+  clip-path:inset(0 0 0 0);
+  -webkit-clip-path:inset(0 0 0 0);
+  opacity:1;
+}
+
+/* IMAGE: Ken-Burns idle + hover scale */
 .fr img{
   width:100%;height:100%;object-fit:cover;display:block;
   filter:saturate(.92) brightness(.94);
-  transform:scale(1.03);
-  transition:transform 1.4s var(--ease),filter 1.4s var(--ease);
-  will-change:transform;
+  transform:scale(1.02);
+  transition:transform .9s var(--ease),filter .6s var(--ease);
+  will-change:transform,filter;
 }
-.fr:hover img,.fr:focus-within img{transform:scale(1.07);filter:saturate(1) brightness(1)}
+.fr.fr-anim.vis img{
+  animation:frKenBurns 14s var(--ease) 1.2s infinite alternate;
+}
+@keyframes frKenBurns{
+  from{transform:scale(1.02)}
+  to  {transform:scale(1.06)}
+}
+
+/* HOVER: scale image + warm filter, pause Ken-Burns */
+.fr:hover img,
+.fr:focus-visible img,
+.fr:focus-within img{
+  transform:scale(1.07);
+  filter:saturate(1.05) brightness(1);
+  animation-play-state:paused;
+}
+
+/* FOCAL: when grid is being hovered, dim siblings */
+.frames-grid.is-focusing .fr:not(:hover):not(:focus-within){
+  filter:saturate(.5) brightness(.78);
+  transform:scale(.992);
+}
+
+/* HOVER: gold border glow */
+.fr:hover,
+.fr:focus-within{
+  box-shadow:0 0 0 1px var(--gold), 0 8px 28px -10px rgba(201,165,78,.35);
+}
+
+/* FOCUS-VISIBLE: keyboard-only ring */
+.fr:focus-visible{
+  outline:2px solid var(--gold);
+  outline-offset:2px;
+}
+
+/* CAPTION */
 .fr-cap{
   position:absolute;left:0;right:0;bottom:0;
   padding:18px 20px;
@@ -682,14 +749,61 @@ body::after{
   background:linear-gradient(180deg,transparent,rgba(10,15,23,.78));
   font-family:var(--font-sans);font-size:var(--fs-9);font-weight:500;
   letter-spacing:var(--tracking-eyebrow-wide);text-transform:uppercase;color:var(--cream);
+  transition:transform .55s var(--ease);
 }
-.fr-cap em{font-family:var(--font-serif);font-style:italic;font-weight:400;text-transform:none;letter-spacing:0;color:var(--gold);font-size:var(--fs-13)}
+/* city name with animated underline */
+.fr-cap > span:first-child{
+  position:relative;display:inline-block;padding-bottom:3px;
+}
+.fr-cap > span:first-child::after{
+  content:"";position:absolute;left:0;bottom:0;
+  width:0;height:1px;background:var(--gold);
+  transition:width .45s var(--ease);
+}
+.fr:hover .fr-cap > span:first-child::after,
+.fr:focus-visible .fr-cap > span:first-child::after,
+.fr:focus-within .fr-cap > span:first-child::after{width:100%}
+
+/* year: tabular feel + gold lift on hover */
+.fr-cap em{
+  font-family:var(--font-serif);font-style:italic;font-weight:400;
+  text-transform:none;letter-spacing:0;color:var(--gold);font-size:var(--fs-13);
+  font-variant-numeric:tabular-nums;
+  display:inline-block;
+  transform-origin:right baseline;
+  transition:transform .45s var(--ease),color .45s var(--ease),letter-spacing .45s var(--ease);
+}
+.fr:hover .fr-cap em,
+.fr:focus-visible .fr-cap em,
+.fr:focus-within .fr-cap em{
+  transform:scale(1.05);
+  letter-spacing:.02em;
+  color:var(--cream);
+}
+
 @media(max-width:900px){
   .frames-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:520px){
   .frames-grid{grid-template-columns:1fr}
   .fr{aspect-ratio:4/3}
+  .fr.fr-anim.vis img{animation:none}
+}
+
+/* REDUCED-MOTION: kill all frame animations */
+@media(prefers-reduced-motion:reduce){
+  .fr.fr-anim,
+  .fr.fr-anim.vis{
+    clip-path:none !important;-webkit-clip-path:none !important;
+    opacity:1 !important;transition:none !important;
+  }
+  .fr.fr-anim.vis img{animation:none !important;transform:none !important}
+  .fr,.fr img,.fr-cap,.fr-cap em,.fr-cap > span:first-child::after{
+    transition:none !important;
+  }
+  .frames-grid.is-focusing .fr:not(:hover):not(:focus-within){
+    filter:none !important;transform:none !important;
+  }
 }
 
 /* ───────────────────────────────────────────────────────────────
@@ -1153,28 +1267,28 @@ body::after{
         <p class="frames-cap rv d2">Not the loudest in the studio archive. The ones the team keeps coming back to.</p>
       </div>
     </div>
-    <div class="frames-grid">
-      <a href="/cancun-photographer" class="fr fr-1 rv">
+    <div class="frames-grid" data-frames-grid>
+      <a href="/cancun-photographer" class="fr fr-1 fr-anim" style="--i:0">
         <img src="/images/wedding-bride-tulum-ivae-studios.jpg" alt="A bride at golden hour on the Tulum coast, photographed by IVAE Studios" loading="lazy" width="1600" height="2000"/>
         <span class="fr-cap"><span>Tulum</span><em>2026</em></span>
       </a>
-      <a href="/cancun-photographer" class="fr fr-2 rv d1">
+      <a href="/cancun-photographer" class="fr fr-2 fr-anim" style="--i:1">
         <img src="/images/couple-mayakoba-ivae-studios.jpg" alt="A bride at golden hour on the Tulum coast, photographed by IVAE Studios" loading="lazy" width="1600" height="2000"/>
         <span class="fr-cap"><span>Mayakoba</span><em>2025</em></span>
       </a>
-      <a href="/luxury-family-photos-cancun" class="fr fr-3 rv d2">
+      <a href="/luxury-family-photos-cancun" class="fr fr-3 fr-anim" style="--i:2">
         <img src="/images/family-cancun-ivae-studios.jpg" alt="A family at sunset on a Cancún beach, photographed by IVAE Studios" loading="lazy" width="1600" height="1600"/>
         <span class="fr-cap"><span>Cancún</span><em>2025</em></span>
       </a>
-      <a href="/los-cabos-photographer" class="fr fr-4 rv d3">
+      <a href="/los-cabos-photographer" class="fr fr-4 fr-anim" style="--i:3">
         <img src="/images/couple-los-cabos-ivae-studios.jpg" alt="A couple in Los Cabos, photographed by IVAE Studios" loading="lazy" width="1600" height="1600"/>
         <span class="fr-cap"><span>Los Cabos</span><em>2024</em></span>
       </a>
-      <a href="/riviera-maya-photographer" class="fr fr-5 rv">
+      <a href="/riviera-maya-photographer" class="fr fr-5 fr-anim" style="--i:4">
         <img src="/images/couple-akumal-ivae-studios.jpg" alt="A couple on the Akumal shore, photographed by IVAE Studios" loading="lazy" width="2000" height="1600"/>
         <span class="fr-cap"><span>Akumal</span><em>2025</em></span>
       </a>
-      <a href="/cancun-photographer" class="fr fr-6 rv d1">
+      <a href="/cancun-photographer" class="fr fr-6 fr-anim" style="--i:5">
         <img src="/images/editorial-cancun-ivae-studios.jpg" alt="Editorial frame from a luxury session in Cancún by IVAE Studios" loading="lazy" width="2000" height="1600"/>
         <span class="fr-cap"><span>Cancún</span><em>2026</em></span>
       </a>
@@ -1334,9 +1448,23 @@ body::after{
         }
       });
     }, {threshold: 0.12, rootMargin: '0px 0px -80px 0px'});
-    $$('.rv, .clip-reveal, .pull-quote, .hero-h1').forEach(function(el){ io.observe(el); });
+    $$('.rv, .clip-reveal, .pull-quote, .hero-h1, .fr-anim').forEach(function(el){ io.observe(el); });
   } else {
-    $$('.rv, .clip-reveal, .pull-quote, .hero-h1').forEach(function(el){ el.classList.add('vis'); });
+    $$('.rv, .clip-reveal, .pull-quote, .hero-h1, .fr-anim').forEach(function(el){ el.classList.add('vis'); });
+  }
+
+  /* Frames focal-effect: dim siblings when hovering a frame */
+  if(!reduceMotion){
+    $$('[data-frames-grid]').forEach(function(grid){
+      var on = function(){ grid.classList.add('is-focusing'); };
+      var off = function(){ grid.classList.remove('is-focusing'); };
+      grid.addEventListener('mouseenter', on, {passive:true});
+      grid.addEventListener('mouseleave', off, {passive:true});
+      grid.addEventListener('focusin', on);
+      grid.addEventListener('focusout', function(e){
+        if(!grid.contains(e.relatedTarget)) off();
+      });
+    });
   }
 
   /* Light hero parallax */
