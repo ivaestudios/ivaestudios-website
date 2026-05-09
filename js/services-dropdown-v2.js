@@ -161,7 +161,7 @@
   }
 
   function init(){
-    var navs = document.querySelectorAll('.header-nav, ul.header-nav');
+    var navs = document.querySelectorAll('.header-nav, ul.header-nav, .h-nav, ul.h-nav');
     navs.forEach(function(nav){
       // Match any href ending in #services or #servicios (handles
       // /#services, /es/#services, #services, #servicios, etc.)
