@@ -135,4 +135,70 @@
   --paper-2: #f3f1ec;
   --serif:   'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --sans:    'Syne', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* ═══════════════════════════════════════════════════════════════
+     Wave 2C additions — added by design-system extend skill so the
+     v2 homepage can reference canonical values rather than inline
+     literals. All purely additive; nothing above is changed.
+     Refs: seo/design-audit/wave-2c-critique-report.md §4 (consistency)
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── SPACING (extras) ─────────────────────────────────────── */
+  --s-1-5:  6px;   /* editorial seam spacing for image grids */
+
+  /* ── TYPOGRAPHY (extras) ──────────────────────────────────── */
+  --fs-12: 12px;
+  --fs-14: 14px;
+  --fs-16: 16px;
+  --fs-21: 21px;
+
+  /* Letter-spacing scale (canonicalize uppercase eyebrow spread) */
+  --tracking-eyebrow-tight: 0.18em;  /* tags inside cards */
+  --tracking-eyebrow-base:  0.26em;  /* default eyebrow / link */
+  --tracking-eyebrow-wide:  0.32em;  /* section eyebrows / labels */
+  /* Cap on tracking — never exceed .32em. The previous .42em hero eyebrow
+     was at the upper edge of legibility per design-critique §3. */
+
+  /* Hover canon — used by all editorial card image treatments
+     (services, destinations, journal-feat, portfolio, pg-i) */
+  --hover-image-scale:      1.045;
+  --hover-image-brightness: 0.7;
+  --hover-image-saturate:   1;
+
+  /* ── COLOR — TEXT (additions for WCAG AA) ─────────────────── */
+  /* On hero and dark images, the text-on-dark-2 alpha .62 falls just
+     under the 7:1 ratio at small body sizes. New
+     --text-on-dark-readable raises alpha to .82 for hero subhead,
+     pillar lede, and any body-size copy on dark imagery.
+     Refs: wave-2c-accessibility-report.md §1 (contrast) */
+  --text-on-dark-readable:  rgba(250,248,245,0.82);
+  --text-on-light-readable: rgba(14,22,32,0.78);
+
+  /* ── ELEVATION (extras) ───────────────────────────────────── */
+  /* Hero text vignette — subtle radial darken behind hero copy so
+     body text on imagery passes contrast without changing image. */
+  --shadow-hero-vignette:    inset 0 0 240px 40px rgba(0,0,0,0.55);
+  --shadow-hero-text-scrim:  0 0 80px 30px rgba(10,15,23,0.55);
+
+  /* ── FOCUS RINGS (a11y canonical) ─────────────────────────── */
+  /* On gold backgrounds the gold focus ring is invisible — use ink. */
+  --focus-ring-on-light: 2px solid var(--ink-1);
+  --focus-ring-on-dark:  2px solid var(--gold);
+  --focus-ring-on-gold:  2px solid var(--ink-1);
+  --focus-ring-offset:   3px;
+
+  /* ── TOUCH TARGETS (a11y) ─────────────────────────────────── */
+  --touch-target-min: 44px;  /* WCAG 2.5.5 minimum */
+
+  /* ── Z-INDEX SCALE (canonical) ────────────────────────────── */
+  --z-base:      1;
+  --z-content:   10;
+  --z-sticky:    900;
+  --z-header:    1000;
+  --z-progress:  1001;
+  --z-banner:    1100;
+  --z-overlay:   9998;
+  --z-cursor:    9999;
+  --z-loader:    10000;
+  --z-skiplink:  10001;
 }

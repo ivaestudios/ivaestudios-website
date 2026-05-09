@@ -16,3 +16,5 @@ images/fotos extra pagina y blog/
 .claude/worktrees/
 tools/img-converter/node_modules/
 tools/img-converter/package-lock.json
+
+.claude-design-plugin/
