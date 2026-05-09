@@ -365,4 +365,117 @@
 
   /* ── Map flight-path stroke draw (Cancún → Riviera → Cabos) ─ */
   --flight-path-duration: 3.2s;
+
+  /* ═══════════════════════════════════════════════════════════════
+     Wave 6 additions — luxury-weddings v6 page tokens. All purely
+     additive; nothing above is changed. Used by /luxury-weddings.html
+     redesign (Phase 3 builds A / B / C consume these). Comments
+     identify the Phase 3 component owner for each token.
+     Refs: seo/design-audit/luxury-weddings-phase-1-brief.md §3 (Skill 2)
+     and §6 (visual / motion principles), §7 (direction prompts).
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── Investment tier — program-style hairlines ─────────────────
+     Tier card top rule. Mimics a wedding-program hairline above
+     each tier name. Used on .tier-card::before in all 3 directions;
+     the featured (middle) tier upgrades the rule color/weight via
+     --inv-tier-rule-featured. */
+  --ceremony-program-rule: 1px solid var(--gold-line);
+  --inv-tier-rule:          1px solid var(--line-on-dark);
+  --inv-tier-rule-featured: 2px solid var(--gold);
+
+  /* Vertical seam between adjacent tier cards (Direction C edge-flush
+     uses this; A and B fall back to gap only). */
+  --inv-tier-divider:  1px solid var(--line-on-dark);
+
+  /* Gap between the three tier columns. Wider on Direction A
+     (editorial breathing room), tighter on Direction C (edge-flush
+     hairline rhythm). Phase 3 may override per direction. */
+  --inv-tier-gap:      clamp(24px, 3vw, 48px);
+
+  /* Tier card internal padding rhythm. Vertical generous, horizontal
+     restrained — mirrors a vow card / program insert. */
+  --vow-card-padding:  clamp(36px, 4vw, 64px) clamp(28px, 3vw, 48px);
+
+  /* ── Pull-quote / testimonial attribution ──────────────────────
+     Couple-name attribution tracking. Spread enough to read as
+     editorial caption (Vogue convention) but never shouty. Used on
+     .pull-quote .attribution and tier "Most Chosen" badge. */
+  --couple-name-tracking: 0.18em;
+
+  /* ── Manifesto / Studio section ────────────────────────────────
+     Single-column copy width on the manifesto. Tight enough that
+     each line reads as one editorial breath (~52-58 char measure).
+     Used on .studio-copy and .case-study-caption. */
+  --manifesto-copy-max-width: 540px;
+
+  /* Drop-cap and hanging-punctuation aware text column. Slightly
+     wider than --manifesto-copy-max-width to accommodate the 60px
+     drop cap without a ragged left edge. Used on .studio-lede only
+     (drop cap appears once per page, on this paragraph). */
+  --photo-essay-margin: 600px;
+
+  /* ── A Wedding (case study) ────────────────────────────────────
+     Caption deck max-width below the cinemascope hero. Slightly
+     wider than manifesto so the venue/date/scale meta strip reads
+     as one line at desktop. */
+  --case-study-caption-max-width: 720px;
+
+  /* ── The Method (process timeline) ─────────────────────────────
+     Vertical hairline running through the 6 process steps. The
+     rushed preview used --timeline-rail-color at 0.22 alpha; we
+     thicken that on desktop only via this token so the rail reads
+     at typical zoom levels. Used on .method-rail::before. */
+  --method-step-rule: 1px solid var(--gold-line);
+
+  /* Process step row max-width — keeps the body copy from spanning
+     the full grid; aligns to the manifesto rhythm. */
+  --method-rail-max-width: 920px;
+
+  /* ── The Reel ───────────────────────────────────────────────────
+     Canonical reel-frame aspect ratio. 4:5 portrait — the editorial
+     bridal-feature default. NEVER mix ratios in a single reel
+     (mixed ratios read as stock-photo listing, per Phase 1 §2). */
+  --reel-card-aspect: 4 / 5;
+
+  /* Frame width on desktop. Wide enough that 3-4 frames are visible
+     across a 1440 viewport; narrow enough to invite scroll. */
+  --reel-frame-min-width:  clamp(220px, 32vw, 360px);
+
+  /* Snap behavior — "mandatory" on touch, "proximity" on pointer
+     (assigned via media query in components.css); kept here as the
+     default for desktop. */
+  --reel-snap-type:   x mandatory;
+
+  /* ── The Coastlines (locations) ────────────────────────────────
+     Locations card aspect — 3:4 portrait per Phase 1 §6 image art
+     direction. Differs from reel-card-aspect (4:5) on purpose:
+     locations need slightly more vertical real estate for the
+     overlay caption. */
+  --locations-card-aspect: 3 / 4;
+
+  /* Locations grid gap — tighter than tier gap; the three coastlines
+     should read as a triptych, not three separate pieces. */
+  --locations-gap: clamp(16px, 2vw, 32px);
+
+  /* ── Considered Questions (FAQ) ─────────────────────────────────
+     FAQ accordion column max-width. Anchored to the optical 880px
+     measure that holds long answers without horizontal sprawl. Used
+     on .faq-list and the .faq-section inner container. */
+  --faq-max-width: 880px;
+
+  /* FAQ accordion answer max-height during expanded state. Tall
+     enough to fit the longest answer (the pricing FAQ at ~110 words)
+     without clipping. Phase 3 builders may scale per direction. */
+  --faq-answer-max-h: 480px;
+
+  /* ── Begin (Inquiry) ────────────────────────────────────────────
+     Inquiry copy width. Narrower than manifesto — the inquiry block
+     is a single editorial breath, ~80 words, centered on a dark
+     image background. */
+  --inquiry-copy-max-width: 720px;
+
+  /* Inquiry meta strip cell min-width — keeps "Response Time / Same
+     business day" on one line at desktop. */
+  --inquiry-meta-min: 220px;
 }
