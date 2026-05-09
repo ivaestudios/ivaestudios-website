@@ -86,6 +86,330 @@ ul{list-style:none}
 .lw-rv.d3{transition-delay:.34s}
 .lw-rv.d4{transition-delay:.46s}
 
+/* ═══════════════════════════════════════════════════════════════
+   CINEMATIC ADDITIONS / WAVE 6
+   Local scoped tokens for the wow layer (additive, no global change).
+   Every animation gated on prefers-reduced-motion.
+   ═══════════════════════════════════════════════════════════════ */
+:root{
+  --lw-letterbox: 8%;
+  --lw-mote-count: 8;
+  --lw-grain-opacity: .035;
+  --lw-magnet-pull: 6px;
+  --lw-cursor-ring: 18px;
+  --lw-clock-size: clamp(220px, 22vw, 300px);
+  --lw-cinema-shadow: 0 50px 120px rgba(0,0,0,.55);
+}
+
+.lw-h1-word{display:inline-block;white-space:nowrap}
+.lw-h1-letter{display:inline-block;transform:translateY(0);opacity:1;will-change:transform,opacity}
+@media (prefers-reduced-motion: no-preference){
+  .js-on .lw-cascade .lw-h1-letter{
+    opacity:0;transform:translateY(28px);
+    transition:opacity .85s var(--ease-smooth), transform .85s var(--ease-smooth);
+  }
+  .js-on .lw-cascade.vis .lw-h1-letter{opacity:1;transform:translateY(0);}
+}
+
+.lw-hero-img{will-change:transform}
+@media (prefers-reduced-motion: no-preference) and (pointer:fine){
+  .lw-hero{perspective:1200px}
+  .lw-hero-img{transition:transform .6s var(--ease-out)}
+}
+
+.lw-motes{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.lw-mote{
+  position:absolute;width:3px;height:3px;border-radius:50%;
+  background:var(--gold);opacity:0;filter:blur(.6px);
+  box-shadow:0 0 8px rgba(201,165,78,.6);
+}
+@media (prefers-reduced-motion: no-preference){
+  .lw-mote{animation:lwMoteDrift 26s linear infinite;}
+}
+@keyframes lwMoteDrift{
+  0%{transform:translate3d(0,100%,0) scale(.5);opacity:0}
+  10%{opacity:.7}
+  50%{opacity:.55}
+  90%{opacity:.4}
+  100%{transform:translate3d(20px,-12vh,0) scale(1.1);opacity:0}
+}
+@media (prefers-reduced-motion: reduce){.lw-motes{display:none}}
+
+.lw-grain{
+  position:absolute;inset:0;z-index:2;pointer-events:none;
+  opacity:var(--lw-grain-opacity);mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='.6'/></svg>");
+}
+@media (prefers-reduced-motion: reduce){.lw-grain{display:none}}
+
+.lw-btn[data-magnet]{will-change:transform;position:relative;overflow:hidden}
+.lw-btn[data-magnet]::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(120deg, transparent 30%, rgba(250,248,245,.28) 50%, transparent 70%);
+  transform:translateX(-110%);transition:transform .9s var(--ease);pointer-events:none;
+}
+.lw-btn[data-magnet]:hover::after,
+.lw-btn[data-magnet]:focus-visible::after{transform:translateX(110%)}
+
+.lw-ring-svg{width:38px;height:38px;margin-left:14px;vertical-align:middle;display:inline-block}
+.lw-ring-svg circle{
+  fill:none;stroke:var(--gold);stroke-width:1.4;
+  stroke-dasharray:200;stroke-dashoffset:200;
+  transition:stroke-dashoffset 1.6s var(--ease-smooth);
+}
+.lw-ring-svg.lw-ring-on circle{stroke-dashoffset:0}
+@media (prefers-reduced-motion: reduce){
+  .lw-ring-svg circle{stroke-dashoffset:0;transition:none}
+}
+
+.lw-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:clamp(20px,3vw,48px);
+  margin-top:48px;padding:32px 0;
+  border-top:1px solid var(--gold-line);
+  border-bottom:1px solid var(--gold-line);
+}
+.lw-stat{display:flex;flex-direction:column;gap:6px}
+.lw-stat-eyebrow{
+  font-family:var(--font-sans);font-size:var(--fs-9);font-weight:500;
+  letter-spacing:var(--tracking-eyebrow-wide);
+  text-transform:uppercase;color:var(--gold);
+}
+.lw-stat-num{
+  font-family:var(--font-serif);font-weight:300;
+  font-size:clamp(40px,5.6vw,76px);line-height:1;color:var(--cream);
+  letter-spacing:-.018em;font-variant-numeric:tabular-nums;
+}
+.lw-stat-num em{font-style:italic;color:var(--gold)}
+.lw-stat-label{
+  font-family:var(--font-serif);font-style:italic;
+  font-size:var(--fs-15);color:var(--text-on-dark-readable);
+}
+@media(max-width:720px){
+  .lw-stats{grid-template-columns:1fr;gap:24px;padding:24px 0}
+  .lw-stat-num{font-size:48px}
+}
+
+.lw-pullquote{position:relative;margin:64px auto 0;max-width:880px;padding:48px 32px 32px;text-align:center}
+.lw-pullquote::before{
+  content:'\201C';position:absolute;top:-40px;left:50%;
+  transform:translateX(-50%);
+  font-family:var(--font-serif);font-style:italic;font-weight:300;
+  font-size:clamp(180px,22vw,320px);line-height:1;color:var(--gold);
+  opacity:.18;pointer-events:none;letter-spacing:0;
+}
+.lw-pullquote blockquote{
+  font-family:var(--font-serif);font-style:italic;font-weight:300;
+  font-size:clamp(22px,2.6vw,38px);line-height:1.32;
+  color:var(--cream);letter-spacing:-.012em;position:relative;z-index:1;
+}
+.lw-pullquote-source{
+  margin-top:24px;font-family:var(--font-sans);
+  font-size:var(--fs-10);font-weight:500;
+  letter-spacing:var(--tracking-eyebrow-wide);
+  text-transform:uppercase;color:var(--gold);
+}
+
+.feature-img.lw-cinema{
+  position:relative;aspect-ratio:auto;
+  height:clamp(420px,56vw,640px);
+  box-shadow:var(--lw-cinema-shadow);
+}
+.feature-img.lw-cinema::before,
+.feature-img.lw-cinema::after{
+  content:'';position:absolute;left:0;right:0;
+  height:var(--lw-letterbox);
+  background:var(--ink-4);z-index:2;pointer-events:none;
+}
+.feature-img.lw-cinema::before{top:0;border-bottom:1px solid var(--gold-line)}
+.feature-img.lw-cinema::after{bottom:0;border-top:1px solid var(--gold-line)}
+.feature-img.lw-cinema img{height:100%;object-fit:cover}
+
+.feature-text p.lw-dropcap::first-letter{
+  font-family:var(--font-serif);font-style:italic;font-weight:300;
+  font-size:clamp(64px,7vw,86px);
+  float:left;line-height:.86;
+  margin:6px 12px -2px 0;color:var(--gold);letter-spacing:-.02em;
+}
+
+.lw-clock-section{background:var(--ink-3)}
+.lw-clock-grid{
+  display:grid;grid-template-columns:var(--lw-clock-size) 1fr;
+  gap:clamp(28px,5vw,72px);align-items:center;margin-top:48px;
+}
+.lw-clock{width:var(--lw-clock-size);height:var(--lw-clock-size);position:relative;flex-shrink:0}
+.lw-clock svg{width:100%;height:100%;display:block}
+.lw-clock-ring-bg{fill:none;stroke:var(--gold-line);stroke-width:1}
+.lw-clock-ring-active{
+  fill:none;stroke:var(--gold);stroke-width:2;stroke-linecap:round;
+  transform-origin:50% 50%;transition:stroke-dasharray .8s var(--ease-smooth);
+}
+.lw-clock-tick{stroke:var(--gold-line);stroke-width:1}
+.lw-clock-tick.major{stroke:var(--gold);stroke-width:1.2}
+.lw-clock-label{
+  font-family:var(--font-sans);font-size:9px;
+  fill:var(--text-on-dark-3);letter-spacing:.2em;
+  text-transform:uppercase;text-anchor:middle;
+}
+.lw-clock-center{
+  font-family:var(--font-serif);font-style:italic;font-weight:300;
+  fill:var(--cream);text-anchor:middle;
+}
+.lw-clock-center.big{font-size:24px}
+.lw-clock-center.small{
+  font-size:10px;fill:var(--gold);letter-spacing:.16em;
+  text-transform:uppercase;font-style:normal;
+  font-family:var(--font-sans);font-weight:500;
+}
+.lw-clock-side{display:flex;flex-direction:column;gap:18px}
+.lw-clock-side .lw-section-eyebrow{margin-bottom:0}
+.lw-clock-months{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.lw-clock-mbtn{
+  font-family:var(--font-sans);font-size:var(--fs-10);
+  font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--text-on-dark-2);
+  border:1px solid var(--gold-line);background:transparent;
+  padding:8px 12px;min-height:36px;cursor:pointer;
+  transition:all .3s var(--ease);
+}
+.lw-clock-mbtn:hover,.lw-clock-mbtn:focus-visible{
+  color:var(--cream);border-color:var(--gold);
+}
+.lw-clock-mbtn[aria-pressed="true"]{
+  background:var(--gold);color:var(--ink-1);border-color:var(--gold);
+}
+html.dark .lw-clock-mbtn{color:var(--text-on-dark-2)}
+html.dark .lw-clock-mbtn[aria-pressed="true"]{color:var(--ink-1) !important}
+.lw-clock-caption{
+  font-family:var(--font-serif);font-style:italic;font-weight:300;
+  font-size:var(--fs-15);color:var(--text-on-dark-readable);max-width:480px;
+}
+@media(max-width:760px){
+  .lw-clock-grid{grid-template-columns:1fr;justify-items:center;text-align:center}
+  .lw-clock-side{align-items:center}
+}
+
+.frames-rail-wrap{margin-top:48px;position:relative}
+.frames-rail{
+  display:grid;grid-auto-flow:column;
+  grid-auto-columns:clamp(260px,32vw,420px);
+  gap:14px;overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;
+  scrollbar-width:thin;scrollbar-color:var(--gold-line) transparent;
+  padding:8px 0 24px;cursor:grab;
+}
+.frames-rail.is-dragging{cursor:grabbing;scroll-behavior:auto}
+.frames-rail::-webkit-scrollbar{height:4px}
+.frames-rail::-webkit-scrollbar-track{background:transparent}
+.frames-rail::-webkit-scrollbar-thumb{background:var(--gold-line);border-radius:2px}
+.frames-rail .frame{scroll-snap-align:start;aspect-ratio:4/5}
+.frame-num{
+  position:absolute;top:14px;left:14px;z-index:2;
+  font-family:var(--font-serif);font-style:italic;font-weight:300;
+  font-size:var(--fs-13);color:var(--gold);
+  letter-spacing:.04em;background:rgba(10,15,23,.65);
+  padding:4px 10px;pointer-events:none;opacity:.92;
+}
+.frames-rail-hint{
+  display:flex;align-items:center;gap:14px;margin-top:12px;
+  font-family:var(--font-sans);font-size:var(--fs-10);
+  letter-spacing:var(--tracking-eyebrow-wide);
+  text-transform:uppercase;color:var(--text-on-dark-3);
+}
+.frames-rail-hint::before{content:'';width:24px;height:1px;background:var(--gold)}
+@media (prefers-reduced-motion: no-preference){
+  .frames-rail-hint::before{animation:lwHint 2.4s ease-in-out infinite}
+}
+@keyframes lwHint{0%,100%{transform:translateX(0)}50%{transform:translateX(8px)}}
+
+.lw-img-preview{
+  position:fixed;top:0;left:0;width:240px;height:300px;
+  pointer-events:none;z-index:9500;opacity:0;
+  transform:translate3d(-120%,0,0) scale(.94);
+  transition:opacity .35s var(--ease),transform .45s var(--ease);
+  box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px var(--gold-line);
+  overflow:hidden;background:var(--ink-1);
+}
+.lw-img-preview img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  filter:saturate(.92) brightness(.95);
+}
+.lw-img-preview.is-on{opacity:1}
+@media (prefers-reduced-motion: reduce),(pointer:coarse){
+  .lw-img-preview{display:none !important}
+}
+
+.lw-cursor-dot,.lw-cursor-ring{
+  position:fixed;top:0;left:0;pointer-events:none;
+  z-index:9400;border-radius:50%;
+  transform:translate3d(-100px,-100px,0);will-change:transform;
+}
+.lw-cursor-dot{width:6px;height:6px;background:var(--gold);margin:-3px 0 0 -3px}
+.lw-cursor-ring{
+  width:var(--lw-cursor-ring);height:var(--lw-cursor-ring);
+  margin:calc(var(--lw-cursor-ring) / -2) 0 0 calc(var(--lw-cursor-ring) / -2);
+  border:1px solid var(--gold);opacity:.7;
+  transition:width .3s var(--ease),height .3s var(--ease),margin .3s var(--ease),border-color .3s var(--ease);
+}
+body.lw-cur-cta .lw-cursor-ring{
+  width:44px;height:44px;margin:-22px 0 0 -22px;border-color:var(--gold);
+}
+@media (prefers-reduced-motion: reduce),(pointer:coarse){
+  .lw-cursor-dot,.lw-cursor-ring{display:none !important}
+}
+
+@media (min-width:1024px) and (prefers-reduced-motion: no-preference){
+  .pillars .lw-inner{
+    display:grid;grid-template-columns:minmax(300px,1fr) minmax(0,1.6fr);
+    gap:clamp(40px,5vw,80px);align-items:start;
+  }
+  .pillars-stage{position:sticky;top:120px;align-self:start;}
+  .pillars-grid{margin-top:0;display:flex;flex-direction:column;gap:28px}
+  .pillars-grid .pillar{padding:24px 4px 24px;border-top:1px solid var(--gold-line)}
+}
+
+.lw-w-word{display:inline-block;will-change:transform,opacity}
+@media (prefers-reduced-motion: no-preference){
+  .js-on .lw-words .lw-w-word{
+    opacity:0;transform:translateY(14px);
+    transition:opacity .65s var(--ease-smooth),transform .65s var(--ease-smooth);
+  }
+  .js-on .lw-words.vis .lw-w-word{opacity:1;transform:translateY(0)}
+}
+
+.lw-availability{
+  margin-top:18px;display:inline-flex;align-items:center;gap:14px;
+  padding:14px 20px;border:1px solid var(--gold-line);
+  background:rgba(201,165,78,.06);
+  font-family:var(--font-sans);text-align:left;
+}
+.lw-availability-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--gold);
+  box-shadow:0 0 12px rgba(201,165,78,.7);flex-shrink:0;
+}
+@media (prefers-reduced-motion: no-preference){
+  .lw-availability-dot{animation:lwAvailPulse 2s ease-in-out infinite}
+}
+@keyframes lwAvailPulse{0%,100%{opacity:.65}50%{opacity:1}}
+.lw-availability-text{display:flex;flex-direction:column;gap:2px}
+.lw-availability-l{
+  font-size:var(--fs-9);font-weight:500;
+  letter-spacing:var(--tracking-eyebrow-wide);
+  text-transform:uppercase;color:var(--gold);
+}
+.lw-availability-v{
+  font-family:var(--font-serif);font-style:italic;font-weight:300;
+  font-size:var(--fs-15);color:var(--cream);
+}
+
+html.dark a.lw-btn-gold,
+html.dark a.lw-btn-gold:hover,
+html.dark a.lw-btn-gold:focus-visible,
+html.dark .lw-btn-gold,
+html.dark .lw-clock-mbtn[aria-pressed="true"]{
+  color:var(--ink-1) !important;
+}
+
 /* HEADER */
 .site-header{
   position:fixed !important;top:0 !important;left:0;right:0;
@@ -858,14 +1182,22 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 
 <!-- HERO -->
 <section class="lw-hero" aria-labelledby="lw-h1">
-  <div class="lw-hero-img" aria-hidden="true">
+  <div class="lw-hero-img" id="lwHeroImg" aria-hidden="true">
     <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" alt="" loading="eager" fetchpriority="high"/>
   </div>
   <div class="lw-hero-overlay" aria-hidden="true"></div>
+  <div class="lw-motes" id="lwMotes" aria-hidden="true"></div>
+  <div class="lw-grain" aria-hidden="true"></div>
 
   <div class="lw-hero-content">
-    <span class="lw-eyebrow">Bodas de Destino / México</span>
-    <h1 id="lw-h1" class="lw-rv">
+    <span class="lw-eyebrow">
+      Bodas de Destino / México
+      <svg class="lw-ring-svg" id="lwRing" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="22" r="11"/>
+        <circle cx="20" cy="22" r="11" style="opacity:.5;transform:translateX(6px)"/>
+      </svg>
+    </span>
+    <h1 id="lw-h1" class="lw-rv lw-cascade">
       Fotógrafo de Bodas de Destino<br/>
       <em>de Lujo</em> en México.
     </h1>
@@ -873,14 +1205,21 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
       <p>El estudio planea el día alrededor de la luz. Cancún, Riviera Maya, Los Cabos. Cobertura editorial, films cinematográficos, bilingüe en el día, calma en la sala.</p>
     </div>
     <div class="lw-actions lw-rv d3">
-      <a class="lw-btn lw-btn-gold" href="#inquiry">
+      <a class="lw-btn lw-btn-gold" href="#inquiry" data-magnet>
         Comenzar consulta
         <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
       </a>
-      <a class="lw-btn lw-btn-outline" href="#frames">
+      <a class="lw-btn lw-btn-outline" href="#frames" data-magnet>
         Ver los Cuadros
         <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
       </a>
+    </div>
+    <div class="lw-availability lw-rv d4" role="status">
+      <span class="lw-availability-dot" aria-hidden="true"></span>
+      <span class="lw-availability-text">
+        <span class="lw-availability-l">Próximo sábado disponible</span>
+        <span class="lw-availability-v" id="lwNextDate">Escriba para reservar la fecha.</span>
+      </span>
     </div>
   </div>
 
@@ -906,9 +1245,29 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 <!-- PILLARS -->
 <section class="lw-section pillars" aria-labelledby="pillars-h">
   <div class="lw-inner">
-    <span class="lw-section-eyebrow">Por qué el Estudio</span>
-    <h2 id="pillars-h" class="lw-rv">Un día de boda se compone, <em>no se monta.</em></h2>
-    <p class="lw-lede lw-rv d1">El estudio está hecho para la calma de una boda en resort de lujo. Llegamos temprano, leemos la sala, trabajamos la luz y dejamos el día intacto. Lo que entregamos es un archivo editorial que envejece bien, no una galería ruidosa que pasa de moda.</p>
+    <div class="pillars-stage">
+      <span class="lw-section-eyebrow">Por qué el Estudio</span>
+      <h2 id="pillars-h" class="lw-rv lw-words" data-words>Un día de boda se compone, <em>no se monta.</em></h2>
+      <p class="lw-lede lw-rv d1">El estudio está hecho para la calma de una boda en resort de lujo. Llegamos temprano, leemos la sala, trabajamos la luz y dejamos el día intacto. Lo que entregamos es un archivo editorial que envejece bien, no una galería ruidosa que pasa de moda.</p>
+
+      <div class="lw-stats lw-rv d2" id="lwStats">
+        <div class="lw-stat">
+          <span class="lw-stat-eyebrow">El Estudio en Cifras</span>
+          <span class="lw-stat-num" data-count-to="120" data-count-suffix="+">120+</span>
+          <span class="lw-stat-label">Bodas, desde 2019</span>
+        </div>
+        <div class="lw-stat">
+          <span class="lw-stat-eyebrow">Alcance Anual</span>
+          <span class="lw-stat-num" data-count-to="3">3</span>
+          <span class="lw-stat-label">Costas, año tras año</span>
+        </div>
+        <div class="lw-stat">
+          <span class="lw-stat-eyebrow">Disciplina de Color</span>
+          <span class="lw-stat-num"><em>1</em></span>
+          <span class="lw-stat-label">Tono de autor, cada cuadro</span>
+        </div>
+      </div>
+    </div>
 
     <div class="pillars-grid">
       <div class="pillar lw-rv d1">
@@ -932,6 +1291,11 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
         <p>El equipo se mueve como una sola respiración. Sin cámaras en la cara de la novia. Sin competir por ángulos con el videógrafo. El equipo de foto es parte de la ceremonia, nunca el espectáculo.</p>
       </div>
     </div>
+
+    <aside class="lw-pullquote lw-rv" aria-label="Filosofía del estudio">
+      <blockquote>El día no se dirige. Se prepara, y luego se observa. El trabajo del estudio es ser el ojo que no parpadea.</blockquote>
+      <div class="lw-pullquote-source">Notas de planeación del estudio</div>
+    </aside>
   </div>
 </section>
 
@@ -1040,13 +1404,13 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 <section class="lw-section feature" aria-labelledby="feat-h">
   <div class="lw-inner">
     <div class="feature-grid">
-      <div class="feature-img lw-rv">
+      <div class="feature-img lw-cinema lw-rv">
         <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-10.jpg" alt="Una novia en hora dorada en la Zona Hotelera de Cancún, fotografiada por IVAE Studios" loading="lazy"/>
       </div>
       <div class="feature-text lw-rv d2">
         <span class="lw-section-eyebrow">Una Boda / Cancún</span>
-        <h2 id="feat-h">Sesenta invitados. <em>Tres idiomas.</em> Una sola costa.</h2>
-        <p>La novia voló desde Londres, el novio desde São Paulo, y las familias se conocieron por primera vez la mañana del ensayo. El plan era pequeño. El plan se sostuvo. Ceremonia a las cinco, en una playa que el resort cierra solo para bodas, con la brisa entrando del este lo suficiente para levantar el velo y no para levantar la arena. Habíamos explorado la cala un mes antes con el equipo de bodas del resort y cronometramos los first looks contra la marea.</p>
+        <h2 id="feat-h" class="lw-words" data-words>Sesenta invitados. <em>Tres idiomas.</em> Una sola costa.</h2>
+        <p class="lw-dropcap">La novia voló desde Londres, el novio desde São Paulo, y las familias se conocieron por primera vez la mañana del ensayo. El plan era pequeño. El plan se sostuvo. Ceremonia a las cinco, en una playa que el resort cierra solo para bodas, con la brisa entrando del este lo suficiente para levantar el velo y no para levantar la arena. Habíamos explorado la cala un mes antes con el equipo de bodas del resort y cronometramos los first looks contra la marea.</p>
         <p>Lo que entregamos fue un archivo de setecientos cuadros, editados a un solo tono distintivo, más un film destacado de cuatro minutos que las familias hoy ponen en cada cumpleaños. El estudio trabajó en español con la planner, en inglés con la pareja y en portugués cuando importaba. El día permaneció en calma porque el timeline se sostuvo. Eso es lo que llamamos editorial.</p>
         <div class="feature-meta">
           <div class="feature-meta-cell">
@@ -1158,37 +1522,96 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   </div>
 </section>
 
+<!-- SUNSET CLOCK -->
+<section class="lw-section lw-clock-section" id="sunset" aria-labelledby="clock-h">
+  <div class="lw-inner">
+    <span class="lw-section-eyebrow">Brief de Luz / Día de la Boda</span>
+    <h2 id="clock-h" class="lw-rv lw-words" data-words>El día se construye <em>desde el atardecer.</em></h2>
+
+    <div class="lw-clock-grid">
+      <div class="lw-clock lw-rv" role="img" aria-labelledby="clock-h">
+        <svg viewBox="0 0 240 240" id="lwClock" aria-hidden="true">
+          <defs>
+            <linearGradient id="lwGoldGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#c9a54e"/>
+              <stop offset="100%" stop-color="#a8894a"/>
+            </linearGradient>
+          </defs>
+          <circle cx="120" cy="120" r="104" class="lw-clock-ring-bg"/>
+          <circle cx="120" cy="120" r="104" class="lw-clock-ring-active" id="lwClockArc"
+            stroke="url(#lwGoldGrad)"
+            stroke-dasharray="0 1000"
+            transform="rotate(-90 120 120)"
+          />
+          <g id="lwClockTicks"></g>
+          <g id="lwClockNumbers"></g>
+          <text x="120" y="108" class="lw-clock-center small">Hora Dorada</text>
+          <text x="120" y="138" class="lw-clock-center big" id="lwClockTime">5:30 PM</text>
+          <text x="120" y="158" class="lw-clock-center small" id="lwClockMonthLabel">Diciembre / Cancún</text>
+        </svg>
+      </div>
+
+      <div class="lw-clock-side">
+        <p class="lw-clock-caption">Elija el mes. El círculo muestra la hora en que la luz se vuelve sincera. Cerramos las ceremonias noventa minutos antes. Todo lo demás es papelería.</p>
+        <div class="lw-clock-months" role="group" aria-label="Elegir mes">
+          <button type="button" class="lw-clock-mbtn" data-m="0">Ene</button>
+          <button type="button" class="lw-clock-mbtn" data-m="1">Feb</button>
+          <button type="button" class="lw-clock-mbtn" data-m="2">Mar</button>
+          <button type="button" class="lw-clock-mbtn" data-m="3">Abr</button>
+          <button type="button" class="lw-clock-mbtn" data-m="4">May</button>
+          <button type="button" class="lw-clock-mbtn" data-m="5">Jun</button>
+          <button type="button" class="lw-clock-mbtn" data-m="6">Jul</button>
+          <button type="button" class="lw-clock-mbtn" data-m="7">Ago</button>
+          <button type="button" class="lw-clock-mbtn" data-m="8">Sep</button>
+          <button type="button" class="lw-clock-mbtn" data-m="9">Oct</button>
+          <button type="button" class="lw-clock-mbtn" data-m="10">Nov</button>
+          <button type="button" class="lw-clock-mbtn" data-m="11" aria-pressed="true">Dic</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- FRAMES -->
 <section class="lw-section frames" id="frames" aria-labelledby="frames-h">
   <div class="lw-inner">
     <span class="lw-section-eyebrow">El Reel</span>
-    <h2 id="frames-h" class="lw-rv">Seis cuadros del año. <em>Un solo tono distintivo.</em></h2>
+    <h2 id="frames-h" class="lw-rv lw-words" data-words>Seis cuadros del año. <em>Un solo tono distintivo.</em></h2>
 
-    <div class="frames-grid">
-      <figure class="frame lw-rv">
-        <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="Una novia en la Zona Hotelera de Cancún en hora dorada" loading="lazy"/>
-        <figcaption class="frame-cap">Cancún / Zona Hotelera</figcaption>
-      </figure>
-      <figure class="frame lw-rv">
-        <img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="Una novia en una playa de Cancún en luz editorial" loading="lazy"/>
-        <figcaption class="frame-cap">Cancún / Playa</figcaption>
-      </figure>
-      <figure class="frame lw-rv">
-        <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-5.jpg" alt="Una novia en retrato editorial privado, Cancún" loading="lazy"/>
-        <figcaption class="frame-cap">Cancún / Suite</figcaption>
-      </figure>
-      <figure class="frame lw-rv">
-        <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="Una novia fotografiada al atardecer en la terraza del resort" loading="lazy"/>
-        <figcaption class="frame-cap">Cancún / Terraza</figcaption>
-      </figure>
-      <figure class="frame lw-rv">
-        <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg" alt="Novia y ramo, cobertura editorial" loading="lazy"/>
-        <figcaption class="frame-cap">Cancún / Ramo</figcaption>
-      </figure>
-      <figure class="frame lw-rv">
-        <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-15.jpg" alt="Novia en hora azul después de la ceremonia" loading="lazy"/>
-        <figcaption class="frame-cap">Cancún / Hora Azul</figcaption>
-      </figure>
+    <div class="frames-rail-wrap">
+      <div class="frames-rail" id="lwFramesRail" tabindex="0" role="region" aria-label="Reel de cuadros de boda, desplaza horizontalmente">
+        <figure class="frame">
+          <span class="frame-num">Cuadro i. / vi.</span>
+          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="Una novia en la Zona Hotelera de Cancún en hora dorada" loading="lazy" data-preview/>
+          <figcaption class="frame-cap">Cancún / Zona Hotelera</figcaption>
+        </figure>
+        <figure class="frame">
+          <span class="frame-num">Cuadro ii. / vi.</span>
+          <img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="Una novia en una playa de Cancún en luz editorial" loading="lazy" data-preview/>
+          <figcaption class="frame-cap">Cancún / Playa</figcaption>
+        </figure>
+        <figure class="frame">
+          <span class="frame-num">Cuadro iii. / vi.</span>
+          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-5.jpg" alt="Una novia en retrato editorial privado, Cancún" loading="lazy" data-preview/>
+          <figcaption class="frame-cap">Cancún / Suite</figcaption>
+        </figure>
+        <figure class="frame">
+          <span class="frame-num">Cuadro iv. / vi.</span>
+          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="Una novia fotografiada al atardecer en la terraza del resort" loading="lazy" data-preview/>
+          <figcaption class="frame-cap">Cancún / Terraza</figcaption>
+        </figure>
+        <figure class="frame">
+          <span class="frame-num">Cuadro v. / vi.</span>
+          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg" alt="Novia y ramo, cobertura editorial" loading="lazy" data-preview/>
+          <figcaption class="frame-cap">Cancún / Ramo</figcaption>
+        </figure>
+        <figure class="frame">
+          <span class="frame-num">Cuadro vi. / vi.</span>
+          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-15.jpg" alt="Novia en hora azul después de la ceremonia" loading="lazy" data-preview/>
+          <figcaption class="frame-cap">Cancún / Hora Azul</figcaption>
+        </figure>
+      </div>
+      <div class="frames-rail-hint" aria-hidden="true">Arrastra para mover el reel</div>
     </div>
   </div>
 </section>
@@ -1313,14 +1736,21 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
     <p class="lw-rv d1">Envía la fecha, la costa y unas líneas sobre la boda que estás planeando. El estudio responde el mismo día hábil con una propuesta, galerías completas de muestra del venue más relevante y una nota corta de la Directora.</p>
 
     <div class="lw-actions" style="justify-content:center">
-      <a class="lw-btn lw-btn-gold" href="mailto:hello@ivaestudios.com?subject=Consulta%20de%20Boda">
+      <a class="lw-btn lw-btn-gold" href="mailto:hello@ivaestudios.com?subject=Consulta%20de%20Boda" data-magnet>
         Comenzar consulta
         <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
       </a>
-      <a class="lw-btn lw-btn-outline" href="https://wa.me/529902046514" target="_blank" rel="noopener">
+      <a class="lw-btn lw-btn-outline" href="https://wa.me/529902046514" target="_blank" rel="noopener" data-magnet>
         WhatsApp al Estudio
         <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
       </a>
+    </div>
+    <div class="lw-availability lw-rv d2" role="status" style="margin-top:24px">
+      <span class="lw-availability-dot" aria-hidden="true"></span>
+      <span class="lw-availability-text">
+        <span class="lw-availability-l">Próximo sábado disponible</span>
+        <span class="lw-availability-v" id="lwNextDate2">Escriba para reservar la fecha.</span>
+      </span>
     </div>
 
     <div class="inquiry-meta">
@@ -1341,6 +1771,11 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 </section>
 
 </main>
+
+<!-- Cinematic overlays (cursor, image preview) -->
+<div class="lw-cursor-ring" id="lwCurRing" aria-hidden="true"></div>
+<div class="lw-cursor-dot" id="lwCurDot" aria-hidden="true"></div>
+<div class="lw-img-preview" id="lwImgPreview" aria-hidden="true"><img alt="" id="lwImgPreviewImg"/></div>
 
 <!-- FOOTER -->
 <footer class="colophon" aria-label="Pie de página">
@@ -1455,6 +1890,339 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
       btn.setAttribute('aria-expanded', String(open));
     });
   });
+
+  /* ═══════ WAVE 6 / CINEMATIC ADDITIONS ═══════ */
+
+  (function letterCascade(){
+    var h1 = document.getElementById('lw-h1');
+    if(!h1) return;
+    if(reduceMotion) return;
+    function wrap(node){
+      var children = Array.prototype.slice.call(node.childNodes);
+      children.forEach(function(c){
+        if(c.nodeType === 3){
+          var text = c.textContent;
+          if(!text) return;
+          var frag = document.createDocumentFragment();
+          var i = 0;
+          var words = text.split(/(\s+)/);
+          words.forEach(function(w){
+            if(/^\s+$/.test(w)){ frag.appendChild(document.createTextNode(w)); return; }
+            if(!w) return;
+            var wordSpan = document.createElement('span');
+            wordSpan.className = 'lw-h1-word';
+            for(var k=0;k<w.length;k++){
+              var ch = document.createElement('span');
+              ch.className = 'lw-h1-letter';
+              ch.style.transitionDelay = (i*0.035) + 's';
+              ch.textContent = w[k];
+              wordSpan.appendChild(ch);
+              i++;
+            }
+            frag.appendChild(wordSpan);
+          });
+          c.parentNode.replaceChild(frag, c);
+        } else if(c.nodeType === 1 && c.tagName !== 'BR'){
+          wrap(c);
+        }
+      });
+    }
+    wrap(h1);
+  })();
+
+  (function wordsReveal(){
+    if(reduceMotion) return;
+    $$('[data-words]').forEach(function(el){
+      function walk(node){
+        var children = Array.prototype.slice.call(node.childNodes);
+        var idx = 0;
+        children.forEach(function(c){
+          if(c.nodeType === 3){
+            var text = c.textContent;
+            if(!text.trim()){ return; }
+            var frag = document.createDocumentFragment();
+            text.split(/(\s+)/).forEach(function(w){
+              if(/^\s+$/.test(w)){ frag.appendChild(document.createTextNode(w)); return; }
+              if(!w) return;
+              var s = document.createElement('span');
+              s.className = 'lw-w-word';
+              s.style.transitionDelay = (idx*0.06) + 's';
+              s.textContent = w;
+              frag.appendChild(s);
+              idx++;
+            });
+            c.parentNode.replaceChild(frag, c);
+          } else if(c.nodeType === 1){
+            walk(c);
+          }
+        });
+      }
+      walk(el);
+    });
+  })();
+
+  (function motes(){
+    var host = document.getElementById('lwMotes');
+    if(!host || reduceMotion) return;
+    var n = 8;
+    for(var i=0;i<n;i++){
+      var m = document.createElement('span');
+      m.className = 'lw-mote';
+      m.style.left = (Math.random()*100) + '%';
+      m.style.top = (Math.random()*100) + '%';
+      m.style.animationDelay = (-Math.random()*26) + 's';
+      m.style.animationDuration = (18 + Math.random()*16) + 's';
+      var size = 2 + Math.random()*3;
+      m.style.width = size + 'px';
+      m.style.height = size + 'px';
+      host.appendChild(m);
+    }
+  })();
+
+  (function heroParallax(){
+    if(reduceMotion) return;
+    if(!window.matchMedia('(pointer:fine)').matches) return;
+    var hero = document.querySelector('.lw-hero');
+    var img = document.getElementById('lwHeroImg');
+    if(!hero || !img) return;
+    var rect = null, raf = null, tx = 0, ty = 0;
+    function onMove(e){
+      if(!rect) rect = hero.getBoundingClientRect();
+      var x = (e.clientX - rect.left) / rect.width - 0.5;
+      var y = (e.clientY - rect.top) / rect.height - 0.5;
+      tx = x * -16; ty = y * -10;
+      if(!raf) raf = requestAnimationFrame(apply);
+    }
+    function apply(){ img.style.transform = 'translate3d(' + tx + 'px,' + ty + 'px,0)'; raf = null; }
+    function onLeave(){ tx = 0; ty = 0; img.style.transform = ''; rect = null; }
+    function onResize(){ rect = null; }
+    hero.addEventListener('mousemove', onMove, {passive:true});
+    hero.addEventListener('mouseleave', onLeave);
+    window.addEventListener('resize', onResize, {passive:true});
+  })();
+
+  (function magnet(){
+    if(reduceMotion) return;
+    if(!window.matchMedia('(pointer:fine)').matches) return;
+    $$('[data-magnet]').forEach(function(btn){
+      var raf = null, tx = 0, ty = 0;
+      btn.addEventListener('mousemove', function(e){
+        var r = btn.getBoundingClientRect();
+        var cx = r.left + r.width/2, cy = r.top + r.height/2;
+        tx = (e.clientX - cx) * 0.18;
+        ty = (e.clientY - cy) * 0.18;
+        if(Math.abs(tx) > 6) tx = tx > 0 ? 6 : -6;
+        if(Math.abs(ty) > 6) ty = ty > 0 ? 6 : -6;
+        if(!raf) raf = requestAnimationFrame(function(){
+          btn.style.transform = 'translate3d(' + tx + 'px,' + ty + 'px,0)';
+          raf = null;
+        });
+      });
+      btn.addEventListener('mouseleave', function(){ btn.style.transform = ''; });
+    });
+  })();
+
+  (function ring(){
+    var ring = document.getElementById('lwRing');
+    if(!ring) return;
+    if(reduceMotion){ ring.classList.add('lw-ring-on'); return; }
+    setTimeout(function(){ ring.classList.add('lw-ring-on'); }, 600);
+  })();
+
+  (function countUp(){
+    var stats = document.querySelectorAll('[data-count-to]');
+    if(!stats.length) return;
+    if(reduceMotion){
+      stats.forEach(function(el){
+        var n = parseInt(el.getAttribute('data-count-to'),10);
+        var s = el.getAttribute('data-count-suffix') || '';
+        el.textContent = n + s;
+      });
+      return;
+    }
+    if(!('IntersectionObserver' in window)) return;
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(!entry.isIntersecting) return;
+        var el = entry.target;
+        var target = parseInt(el.getAttribute('data-count-to'),10);
+        var suffix = el.getAttribute('data-count-suffix') || '';
+        var dur = 1400, t0 = null, from = 0;
+        function step(t){
+          if(!t0) t0 = t;
+          var p = Math.min(1, (t-t0)/dur);
+          var e = 1 - Math.pow(1-p, 3);
+          var v = Math.round(from + (target-from) * e);
+          el.textContent = v + suffix;
+          if(p < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+        obs.unobserve(el);
+      });
+    }, {threshold:0.45});
+    stats.forEach(function(el){ obs.observe(el); });
+  })();
+
+  (function sunsetClock(){
+    var clock = document.getElementById('lwClock');
+    if(!clock) return;
+    var sunsets = [17.95, 18.30, 18.55, 18.80, 19.10, 19.30, 19.30, 19.05, 18.60, 18.10, 17.75, 17.65];
+    var monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    var ticksHost = document.getElementById('lwClockTicks');
+    var numHost = document.getElementById('lwClockNumbers');
+    if(ticksHost && numHost){
+      var SVGNS = 'http://www.w3.org/2000/svg';
+      for(var h=0;h<24;h++){
+        var ang = (h/24)*Math.PI*2 - Math.PI/2;
+        var ox = 120 + Math.cos(ang)*108;
+        var oy = 120 + Math.sin(ang)*108;
+        var ix = 120 + Math.cos(ang)*(h%6===0?96:101);
+        var iy = 120 + Math.sin(ang)*(h%6===0?96:101);
+        var ln = document.createElementNS(SVGNS,'line');
+        ln.setAttribute('x1',ox);ln.setAttribute('y1',oy);
+        ln.setAttribute('x2',ix);ln.setAttribute('y2',iy);
+        ln.setAttribute('class','lw-clock-tick' + (h%6===0?' major':''));
+        ticksHost.appendChild(ln);
+        if(h%6===0){
+          var lab = document.createElementNS(SVGNS,'text');
+          var lx = 120 + Math.cos(ang)*84;
+          var ly = 120 + Math.sin(ang)*84 + 3;
+          lab.setAttribute('x',lx);lab.setAttribute('y',ly);
+          lab.setAttribute('class','lw-clock-label');
+          lab.textContent = (h===0?'00':(h<10?'0'+h:h));
+          numHost.appendChild(lab);
+        }
+      }
+    }
+    var arc = document.getElementById('lwClockArc');
+    var timeEl = document.getElementById('lwClockTime');
+    var monthLabel = document.getElementById('lwClockMonthLabel');
+    var btns = $$('.lw-clock-mbtn');
+    function setMonth(m){
+      var sunset = sunsets[m];
+      var startH = sunset - 1.0, endH = sunset + 0.25;
+      var circ = 2 * Math.PI * 104;
+      var startFrac = startH / 24, endFrac = endH / 24;
+      var lenFrac = endFrac - startFrac;
+      var lenLen = circ * lenFrac, offsetLen = circ * startFrac;
+      if(arc){
+        arc.setAttribute('stroke-dasharray', lenLen + ' ' + (circ - lenLen));
+        arc.setAttribute('stroke-dashoffset', -offsetLen);
+      }
+      var hr = Math.floor(sunset);
+      var mn = Math.round((sunset - hr) * 60);
+      var ampm = hr >= 12 ? 'PM' : 'AM';
+      var dispHr = hr % 12; if(dispHr === 0) dispHr = 12;
+      var mnStr = mn < 10 ? '0' + mn : mn;
+      if(timeEl) timeEl.textContent = dispHr + ':' + mnStr + ' ' + ampm;
+      if(monthLabel) monthLabel.textContent = monthNames[m] + ' / Cancún';
+      btns.forEach(function(b){
+        b.setAttribute('aria-pressed', String(parseInt(b.getAttribute('data-m'),10) === m));
+      });
+    }
+    btns.forEach(function(b){
+      b.addEventListener('click', function(){ setMonth(parseInt(b.getAttribute('data-m'),10)); });
+    });
+    setMonth(new Date().getMonth());
+  })();
+
+  (function dragRail(){
+    var rail = document.getElementById('lwFramesRail');
+    if(!rail) return;
+    var down = false, sx = 0, sl = 0;
+    rail.addEventListener('mousedown', function(e){
+      down = true; sx = e.pageX - rail.offsetLeft; sl = rail.scrollLeft;
+      rail.classList.add('is-dragging');
+    });
+    rail.addEventListener('mouseleave', function(){ down = false; rail.classList.remove('is-dragging'); });
+    rail.addEventListener('mouseup', function(){ down = false; rail.classList.remove('is-dragging'); });
+    rail.addEventListener('mousemove', function(e){
+      if(!down) return;
+      e.preventDefault();
+      var x = e.pageX - rail.offsetLeft;
+      var walk = (x - sx) * 1.6;
+      rail.scrollLeft = sl - walk;
+    });
+    rail.addEventListener('keydown', function(e){
+      var step = 320;
+      if(e.key === 'ArrowRight'){ rail.scrollBy({left:step,behavior:reduceMotion?'auto':'smooth'}); e.preventDefault(); }
+      if(e.key === 'ArrowLeft'){ rail.scrollBy({left:-step,behavior:reduceMotion?'auto':'smooth'}); e.preventDefault(); }
+    });
+  })();
+
+  (function imgPreview(){
+    if(reduceMotion) return;
+    if(!window.matchMedia('(pointer:fine)').matches) return;
+    var preview = document.getElementById('lwImgPreview');
+    var pImg = document.getElementById('lwImgPreviewImg');
+    if(!preview || !pImg) return;
+    var raf = null, mx = 0, my = 0;
+    var targets = $$('.frame img[data-preview], .coast-card img');
+    targets.forEach(function(t){
+      var parent = t.closest('.frame, .coast-card');
+      if(!parent) return;
+      parent.addEventListener('mouseenter', function(){
+        pImg.src = t.currentSrc || t.src;
+        preview.classList.add('is-on');
+      });
+      parent.addEventListener('mouseleave', function(){
+        preview.classList.remove('is-on');
+      });
+    });
+    document.addEventListener('mousemove', function(e){
+      mx = e.clientX + 24; my = e.clientY + 24;
+      if(!raf){
+        raf = requestAnimationFrame(function(){
+          var w = preview.offsetWidth, h = preview.offsetHeight;
+          if(mx + w > window.innerWidth - 12) mx = e.clientX - w - 24;
+          if(my + h > window.innerHeight - 12) my = e.clientY - h - 24;
+          preview.style.transform = 'translate3d(' + mx + 'px,' + my + 'px,0) scale(1)';
+          raf = null;
+        });
+      }
+    }, {passive:true});
+  })();
+
+  (function cursor(){
+    if(reduceMotion) return;
+    if(!window.matchMedia('(pointer:fine)').matches) return;
+    var dot = document.getElementById('lwCurDot');
+    var ring = document.getElementById('lwCurRing');
+    if(!dot || !ring) return;
+    var dx = 0, dy = 0, rx = 0, ry = 0, raf = null;
+    document.addEventListener('mousemove', function(e){
+      dx = e.clientX; dy = e.clientY;
+      if(!raf) raf = requestAnimationFrame(loop);
+    }, {passive:true});
+    function loop(){
+      rx += (dx - rx) * 0.18;
+      ry += (dy - ry) * 0.18;
+      dot.style.transform = 'translate3d(' + dx + 'px,' + dy + 'px,0)';
+      ring.style.transform = 'translate3d(' + rx + 'px,' + ry + 'px,0)';
+      if(Math.abs(dx-rx) > 0.4 || Math.abs(dy-ry) > 0.4){
+        raf = requestAnimationFrame(loop);
+      }else{ raf = null; }
+    }
+    var ctaSel = '.lw-btn, .h-cta, button, a';
+    document.addEventListener('mouseover', function(e){
+      if(e.target.closest(ctaSel)) document.body.classList.add('lw-cur-cta');
+    });
+    document.addEventListener('mouseout', function(e){
+      if(e.target.closest(ctaSel)) document.body.classList.remove('lw-cur-cta');
+    });
+  })();
+
+  (function nextDate(){
+    var els = [document.getElementById('lwNextDate'), document.getElementById('lwNextDate2')];
+    if(!els[0] && !els[1]) return;
+    var d = new Date();
+    d.setDate(d.getDate() + 60);
+    while(d.getDay() !== 6) d.setDate(d.getDate() + 1);
+    var months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    var txt = d.getDate() + ' de ' + months[d.getMonth()] + ' de ' + d.getFullYear();
+    els.forEach(function(el){ if(el) el.textContent = txt; });
+  })();
+
 })();
 </script>
 </body>
