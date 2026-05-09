@@ -137,8 +137,11 @@
       }
     }
 
-    // No stored preference → infer from browser language
-    if (!stored) {
+    // No stored preference → infer from browser language.
+    // Only auto-redirect from the ROOT (/) — never from deep links.
+    // Users who navigate explicitly to /about, /blog, /cancun, etc.
+    // get the page they asked for, regardless of browser language.
+    if (!stored && (path === "/" || path === "")) {
       var browser = detectBrowserLang();
       if (browser === "es" && !onSpanish) {
         var alt = counterpartPath(path);
