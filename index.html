@@ -3307,7 +3307,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
       const h1 = $('#ch-h1'); if(h1) h1.classList.add('vis');
       const stage = $('#atlasStage'); if(stage) stage.classList.add('vis');
     }else{
-      const dur = 1500;
+      const dur = 900;
       const t0 = performance.now();
       function tick(now){
         const t = Math.min(1,(now - t0)/dur);
@@ -3324,10 +3324,26 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
             document.body.classList.add('loaded');
             const h1 = $('#ch-h1'); if(h1) h1.classList.add('vis');
             const stage = $('#atlasStage'); if(stage) stage.classList.add('vis');
-          }, 280);
+          }, 120);
         }
       }
       requestAnimationFrame(tick);
+      // Safety: ensure loader is dismissed even if anything goes wrong
+      setTimeout(()=>{
+        if(leader && !leader.classList.contains('done')){
+          leader.classList.add('done');
+          document.body.classList.add('loaded');
+          const h1 = $('#ch-h1'); if(h1) h1.classList.add('vis');
+          const stage = $('#atlasStage'); if(stage) stage.classList.add('vis');
+        }
+      }, 2000);
+      // Click-to-dismiss
+      leader.addEventListener('click', ()=>{
+        leader.classList.add('done');
+        document.body.classList.add('loaded');
+        const h1 = $('#ch-h1'); if(h1) h1.classList.add('vis');
+        const stage = $('#atlasStage'); if(stage) stage.classList.add('vis');
+      }, { once: true });
     }
   }
 
@@ -3942,69 +3958,9 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
     }
   }
 
-  /* ───── 17. SMOOTH MOMENTUM SCROLL (animation #1) ───── */
-  // Vanilla Lenis-style smooth scroll, desktop only, mobile native
-  if(!reduceMotion && !isTouch && !('ontouchstart' in window)){
-    let target = window.scrollY;
-    let current = window.scrollY;
-    let rafId = null;
-    let active = true;
-    const ease = 0.085;
-
-    document.documentElement.classList.add('smooth-scroll-active');
-
-    function smoothLoop(){
-      const diff = target - current;
-      if(Math.abs(diff) > 0.4){
-        current += diff * ease;
-        window.scrollTo(0, current);
-      } else {
-        current = target;
-        active = false;
-        rafId = null;
-        return;
-      }
-      rafId = requestAnimationFrame(smoothLoop);
-    }
-
-    function onWheel(e){
-      // Skip if user is using horizontal scroll inside the reel
-      const reelEl = $('#reelTrackWrap');
-      if(reelEl && (reelEl === e.target || reelEl.contains(e.target))){
-        return;
-      }
-      // Prevent native scroll only when we're driving smooth scroll
-      e.preventDefault();
-      target += e.deltaY;
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      target = Math.max(0, Math.min(max, target));
-      if(!active){
-        active = true;
-        current = window.scrollY;
-        rafId = requestAnimationFrame(smoothLoop);
-      }
-    }
-
-    // Sync target if user scrolls via keyboard or anchor click
-    function syncTarget(){
-      target = window.scrollY;
-      current = window.scrollY;
-    }
-    window.addEventListener('keydown', (e)=>{
-      const keys = ['PageUp','PageDown','Home','End','ArrowUp','ArrowDown','Space'];
-      if(keys.includes(e.key)) setTimeout(syncTarget, 50);
-    });
-    document.addEventListener('click', (e)=>{
-      const a = e.target.closest && e.target.closest('a[href^="#"]');
-      if(a) setTimeout(syncTarget, 600);
-    });
-    // Only enable wheel hijack if no touch and screen is wide enough
-    if(window.innerWidth > 900){
-      window.addEventListener('wheel', onWheel, { passive: false });
-    } else {
-      document.documentElement.classList.remove('smooth-scroll-active');
-    }
-  }
+  /* ───── 17. SMOOTH SCROLL ───── */
+  // Use native CSS scroll-behavior:smooth (already in :root html).
+  // Custom wheel hijack was disabled because it broke scroll on some setups.
 
   /* ───── 18. THEME TRANSITION (animation #39) / handled by CSS via global transition ───── */
   // Already declared; theme toggle via /dark-mode.js will smoothly transition.
