@@ -62,15 +62,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .mobile-nav.open{display:flex}
 .eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold)}
 .eyebrow::after{content:'';display:block;width:36px;height:1px;background:var(--gold);opacity:0.55}
-/* .rv: fail-safe visible by default; only hide when html.js-ready set by IO */
+/* .rv: ALWAYS visible. Animations preserved on scroll if .vis is added. */
 .rv{opacity:1;transform:none;transition:opacity 1s var(--lux),transform 1s var(--lux)}
-html.js-ready .rv:not(.vis){opacity:0;transform:translateY(40px)}
-html.js-ready .rv.vis{opacity:1;transform:translateY(0)}
 .rv.vis{opacity:1;transform:translateY(0)}
 .d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}.d5{transition-delay:.4s}
 .rv-scale{opacity:1;transform:none;transition:opacity 1s var(--lux),transform 1.2s var(--lux)}
-html.js-ready .rv-scale:not(.vis){opacity:0;transform:scale(0.92)}
-html.js-ready .rv-scale.vis{opacity:1;transform:scale(1)}
 .rv-scale.vis{opacity:1;transform:scale(1)}
 .curtain{position:relative;overflow:hidden}
 .curtain::after{content:'';position:absolute;inset:0;background:var(--ink2);transform-origin:right;transform:scaleX(1);transition:transform 1.4s var(--smooth)}
