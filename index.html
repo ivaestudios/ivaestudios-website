@@ -2486,30 +2486,32 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
   <a href="/" class="h-logo">IVAE <em>Studios</em></a>
   <nav aria-label="Primary">
     <ul class="h-nav">
-      <li><a href="#services" data-preview="images/wedding-bride-tulum-ivae-studios.jpg">Services</a></li>
-      <li><a href="/cancun" data-preview="images/couple-mayakoba-ivae-studios.jpg">Cancún</a></li>
-      <li><a href="/riviera-maya" data-preview="images/couple-tulum-ivae-studios.jpg">Riviera Maya</a></li>
-      <li><a href="/los-cabos" data-preview="images/wedding-cabo-ivae-studios.jpg">Los Cabos</a></li>
-      <li><a href="/blog" data-preview="images/family-cancun-ivae-studios.jpg">Journal</a></li>
-      <li><a href="/about" data-preview="images/wedding-bride-tulum-ivae-studios.jpg">About</a></li>
+      <li><a href="/" class="is-active" aria-current="page">Home</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="/blog">Journal</a></li>
     </ul>
   </nav>
+  <div class="lang-switch" role="group" aria-label="Language">
+    <a href="/" data-lang-switch="en" hreflang="en" class="is-active" aria-current="page">EN</a>
+    <span class="lang-sep" aria-hidden="true">|</span>
+    <a href="/es/" data-lang-switch="es" hreflang="es" lang="es">ES</a>
+  </div>
   <a href="#dossier" class="h-cta">
     Begin Inquiry
     <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
   </a>
   <button class="h-burger" id="hBurger" type="button" aria-expanded="false" aria-controls="mNav" aria-label="Open navigation"><span></span><span></span><span></span></button>
 </header>
-<nav class="m-nav" id="mNav" aria-label="Mobile">
-  <a href="#services">Services</a>
-  <a href="/cancun">Cancún</a>
-  <a href="/riviera-maya">Riviera Maya</a>
-  <a href="/los-cabos">Los Cabos</a>
-  <a href="/luxury-weddings">Weddings</a>
-  <a href="/luxury-family-photos">Families</a>
-  <a href="/couples-photography">Couples</a>
-  <a href="/blog">Journal</a>
+<nav class="m-nav mobile-nav" id="mNav" aria-label="Mobile">
+  <div class="lang-switch" role="group" aria-label="Language">
+    <a href="/" data-lang-switch="en" hreflang="en" class="is-active" aria-current="page">EN</a>
+    <a href="/es/" data-lang-switch="es" hreflang="es" lang="es">ES</a>
+  </div>
+  <a href="/">Home</a>
   <a href="/about">About</a>
+  <a href="#services">Services</a>
+  <a href="/blog">Journal</a>
   <a href="#dossier">Begin Inquiry</a>
 </nav>
 
@@ -3292,7 +3294,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
   </div>
 </footer>
 
-<script src="/js/lang-switcher.js" defer></script>
+<script src="/js/lang-detect.js" defer></script>
 
 <!-- ═══════════════════════════════════════════════════════════════
      V5 INTERACTION SCRIPT / 40+ animations, all GPU-accelerated,
