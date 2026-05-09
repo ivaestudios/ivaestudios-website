@@ -671,18 +671,26 @@ body::after{
 }
 .frames-head .frames-cap{font-family:var(--font-serif);font-style:italic;font-weight:300;font-size:var(--fs-15);color:var(--text-on-dark-2);max-width:460px}
 .frames-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(6px,0.6vw,10px);
+  display:grid;grid-template-columns:repeat(12,1fr);
+  grid-auto-rows:clamp(140px,16vw,240px);
+  gap:0;
 }
 
-/* frame card */
+/* frame card — varied magazine sizes, image fills cell */
 .fr{
-  position:relative;overflow:hidden;background:var(--ink-4);aspect-ratio:4/5;
+  position:relative;overflow:hidden;background:var(--ink-4);
   outline:1px solid transparent;
   box-shadow:0 0 0 0 transparent;
   transition:box-shadow .55s var(--ease),outline-color .45s var(--ease),filter .55s var(--ease),transform .55s var(--ease);
   will-change:transform,filter;
 }
-.fr-1,.fr-2,.fr-3,.fr-4,.fr-5,.fr-6{grid-column:span 1}
+.fr img{width:100%;height:100%;object-fit:cover;display:block}
+.fr-1{grid-column:span 7;grid-row:span 2}
+.fr-2{grid-column:span 5;grid-row:span 1}
+.fr-3{grid-column:span 5;grid-row:span 1}
+.fr-4{grid-column:span 4;grid-row:span 1}
+.fr-5{grid-column:span 4;grid-row:span 1}
+.fr-6{grid-column:span 4;grid-row:span 1}
 
 /* ENTRANCE: visible by DEFAULT (fail-safe). If JS+IO work, animate in. */
 .fr.fr-anim{
@@ -789,11 +797,16 @@ html.js-ready .fr.fr-anim.vis{
 }
 
 @media(max-width:900px){
-  .frames-grid{grid-template-columns:repeat(2,1fr)}
+  .frames-grid{grid-template-columns:repeat(6,1fr);grid-auto-rows:clamp(120px,18vw,200px)}
+  .fr-1{grid-column:span 6;grid-row:span 2}
+  .fr-2,.fr-3{grid-column:span 3;grid-row:span 1}
+  .fr-4,.fr-5,.fr-6{grid-column:span 2;grid-row:span 1}
 }
 @media(max-width:520px){
-  .frames-grid{grid-template-columns:1fr}
-  .fr{aspect-ratio:4/3}
+  .frames-grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:clamp(140px,40vw,200px)}
+  .fr-1{grid-column:span 2;grid-row:span 2}
+  .fr-2,.fr-3{grid-column:span 1;grid-row:span 1}
+  .fr-4,.fr-5,.fr-6{grid-column:span 1;grid-row:span 1}
   .fr.fr-anim.vis img{animation:none}
 }
 
