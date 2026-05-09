@@ -478,4 +478,90 @@
   /* Inquiry meta strip cell min-width — keeps "Response Time / Same
      business day" on one line at desktop. */
   --inquiry-meta-min: 220px;
+
+  /* ═══════════════════════════════════════════════════════════════
+     Wave 7 additions — site header tokens. Purely additive; nothing
+     above is changed. Values formalize what was previously hardcoded
+     across .site-header / .h-logo / .h-nav / .h-cta / .lang-switch /
+     .m-nav inline styles. Drives the redesigned header on
+     /index.html and /es/index.html.
+     Refs: seo/design-audit/header-redesign-skills.md
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* Z-index — formalizes the !important override that fixes a stacking
+     bug elsewhere on the site. Header sits above everything except the
+     skiplink. */
+  --header-z:                  9000;
+
+  /* Heights — rest is the relaxed editorial state, scrolled tightens
+     by 8px so the page below feels like it gained breathing room. */
+  --header-height-rest:        68px;
+  --header-height-scrolled:    60px;
+
+  /* Padding — clamps so the header keeps generous gutters on desktop
+     and doesn't crush on mobile. */
+  --header-padding-x:          clamp(20px, 4vw, 56px);
+
+  /* Background fills — dark-ink transparent with subtle blur. The
+     scrolled state firms up to feel anchored. Light-mode equivalents
+     flip the value via dark-mode.css overrides. */
+  --header-bg-rest:            rgba(10, 15, 23, 0.85);
+  --header-bg-scrolled:        rgba(10, 15, 23, 0.94);
+  --header-bg-light-rest:      rgba(250, 248, 245, 0.86);
+  --header-bg-light-scrolled:  rgba(250, 248, 245, 0.96);
+
+  /* Backdrop filters — kept as a pair so saturate and blur scale
+     together. */
+  --header-blur-rest:          saturate(140%) blur(14px);
+  --header-blur-scrolled:      saturate(160%) blur(20px);
+
+  /* Borders — gold-line at low alpha, brightens on scroll. */
+  --header-border-rest:        1px solid rgba(201, 165, 78, 0.12);
+  --header-border-scrolled:    1px solid rgba(201, 165, 78, 0.28);
+
+  /* Logo sizing — IVAE in sans, Studios in italic serif. The serif
+     runs slightly larger to balance the optical weight of small-caps. */
+  --header-logo-fs:            15px;
+  --header-logo-italic-fs:     17px;
+  --header-logo-tracking:      0.32em;
+
+  /* Nav — small-caps editorial. Gap clamps tighter on scroll so the
+     nav reads as compact when the header firms up. */
+  --header-nav-gap-rest:       clamp(24px, 2.6vw, 36px);
+  --header-nav-gap-scrolled:   clamp(22px, 2.4vw, 32px);
+  --header-nav-fs:             11px;
+  --header-nav-tracking:       0.26em;
+  --header-nav-color-rest:     rgba(250, 248, 245, 0.82);
+  --header-nav-color-hover:    var(--cream);
+  --header-nav-color-active:   var(--gold);
+
+  /* Spacing between utility-cluster items (nav | lang | cta | theme | burger).
+     Single rhythm so the right side feels metronomic. */
+  --header-utility-gap:        clamp(18px, 2vw, 28px);
+
+  /* Lang-switch — raised inactive alpha from 0.55 → 0.62 (per
+     accessibility audit). Active gets full gold + underline. */
+  --lang-switch-fs:            11px;
+  --lang-switch-tracking:      0.22em;
+  --lang-switch-inactive:      rgba(250, 248, 245, 0.62);
+  --lang-switch-active:        var(--gold);
+  --lang-switch-sep:           rgba(250, 248, 245, 0.34);
+
+  /* CTA — min-width forces "RESERVAR" (8 chars) and "INQUIRE" (7 chars)
+     onto a single line. Previously CTA had no width constraint and the
+     longer Spanish copy wrapped. */
+  --header-cta-min-w:          144px;
+  --header-cta-max-w:          200px;
+  --header-cta-padding:        14px 22px;
+  --header-cta-fs:             11px;
+  --header-cta-tracking:       0.26em;
+
+  /* Mobile drawer — same dark transparent treatment, slightly stronger
+     to fully obscure the page underneath. */
+  --mobile-drawer-bg:          rgba(10, 15, 23, 0.97);
+  --mobile-drawer-blur:        saturate(160%) blur(24px);
+  --mobile-drawer-padding:     32px clamp(20px, 5vw, 48px) 48px;
+
+  /* Header transition — single ease for height/bg/blur/border tightening. */
+  --header-transition:         0.55s var(--ease);
 }
