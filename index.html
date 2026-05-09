@@ -279,14 +279,16 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
   display:flex;align-items:center;justify-content:space-between;
   padding:0 clamp(20px,4vw,48px);
   height:68px;
-  background:transparent;
+  background:rgba(10,15,23,.78);
+  backdrop-filter:saturate(140%) blur(14px);
+  -webkit-backdrop-filter:saturate(140%) blur(14px);
+  border-bottom:1px solid rgba(201,165,78,.10);
   transition:background .55s var(--ease),backdrop-filter .55s var(--ease),height .45s var(--ease),border-color .55s var(--ease);
-  border-bottom:1px solid transparent;
 }
 .site-header.scrolled{
-  background:rgba(10,15,23,.86);
-  backdrop-filter:saturate(140%) blur(18px);
-  -webkit-backdrop-filter:saturate(140%) blur(18px);
+  background:rgba(10,15,23,.94);
+  backdrop-filter:saturate(160%) blur(20px);
+  -webkit-backdrop-filter:saturate(160%) blur(20px);
   height:60px;
   border-bottom-color:var(--gold-line);
 }
