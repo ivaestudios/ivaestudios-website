@@ -201,4 +201,93 @@
   --z-cursor:    9999;
   --z-loader:    10000;
   --z-skiplink:  10001;
+
+  /* ═══════════════════════════════════════════════════════════════
+     Wave 4 additions — enterprise homepage tokens. All purely
+     additive; nothing above is changed. Used only by
+     /index-preview-v4.html. Refs: seo/design-audit/wave-4-*.md
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── Cinemascope aspect ratios ─────────────────────────────── */
+  --ratio-cinemascope: 21/9;
+  --ratio-academy:     4/3;
+  --ratio-wide:        16/9;
+  --ratio-portrait:    4/5;
+  --ratio-vertical:    3/4;
+
+  /* ── Particle field (canvas) ───────────────────────────────── */
+  --particle-soft:   rgba(201,165,78,0.18);
+  --particle-mid:    rgba(201,165,78,0.32);
+  --particle-bright: rgba(201,165,78,0.58);
+  --particle-count-desktop: 64;
+  --particle-count-tablet:  40;
+  --particle-count-mobile:  0;
+
+  /* ── WebGL fallback CSS filter ─────────────────────────────── */
+  --filter-shimmer-still: saturate(1.06) contrast(1.03) brightness(0.92);
+  --filter-shimmer-warm:  saturate(1.10) contrast(1.05) brightness(0.96);
+  --filter-shimmer-cool:  saturate(0.92) contrast(1.05) brightness(0.92);
+
+  /* ── Film grain stops ──────────────────────────────────────── */
+  --grain-static: 0.022;
+  --grain-moving: 0.030;
+
+  /* ── Chapter card colorways (ACT I-V) ──────────────────────── */
+  --act-1-tint: rgba(201,165,78,0.06);
+  --act-2-tint: rgba(46, 80, 80,0.10);
+  --act-3-tint: rgba(110,90, 60,0.10);
+  --act-4-tint: rgba(20, 30, 50,0.10);
+  --act-5-tint: rgba(168,137,74,0.10);
+
+  /* ── Before/after slider ───────────────────────────────────── */
+  --slider-handle-size:    56px;
+  --slider-handle-bg:      var(--cream-1);
+  --slider-handle-ring:    1px solid var(--gold);
+  --slider-handle-shadow:  0 6px 24px rgba(14,22,32,0.32);
+  --slider-divider-w:      2px;
+  --slider-divider-color:  var(--gold);
+
+  /* ── Heatmap density (5 levels) ────────────────────────────── */
+  --heat-0: rgba(201,165,78,0.04);
+  --heat-1: rgba(201,165,78,0.18);
+  --heat-2: rgba(201,165,78,0.36);
+  --heat-3: rgba(201,165,78,0.58);
+  --heat-4: rgba(201,165,78,0.88);
+
+  /* ── Process timeline ──────────────────────────────────────── */
+  --timeline-rail-w:     1px;
+  --timeline-rail-color: rgba(201,165,78,0.22);
+  --timeline-node:        14px;
+  --timeline-node-active: 18px;
+
+  /* ── Cinematic scroll blur ─────────────────────────────────── */
+  --blur-far:  6px;
+  --blur-mid:  3px;
+  --blur-near: 0px;
+
+  /* ── Pull-quote ornament scale ─────────────────────────────── */
+  --ornament-pull-quote:         clamp(280px, 40vw, 560px);
+  --ornament-pull-quote-opacity: 0.045;
+
+  /* ── Magazine masthead rules ───────────────────────────────── */
+  --rule-hairline: 1px;
+  --rule-medium:   2px;
+  --rule-heavy:    4px;
+
+  /* ── Issue / Volume framing ────────────────────────────────── */
+  --mast-issue-tracking: 0.42em;
+  --mast-issue-color:    var(--gold);
+
+  /* ── Editor's letter ───────────────────────────────────────── */
+  --letter-max-w:              640px;
+  --letter-italic-color:       var(--text-on-dark-readable);
+  --letter-signature-tracking: 0.18em;
+
+  /* ── View Transitions ──────────────────────────────────────── */
+  --vt-duration: 600ms;
+  --vt-ease:     var(--ease-smooth);
+
+  /* ── Velocity hairline ─────────────────────────────────────── */
+  --velocity-bar-h:    1.5px;
+  --velocity-bar-glow: 0 0 8px rgba(201,165,78,0.35);
 }
