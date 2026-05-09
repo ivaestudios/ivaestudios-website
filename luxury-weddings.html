@@ -62,10 +62,15 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .mobile-nav.open{display:flex}
 .eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold)}
 .eyebrow::after{content:'';display:block;width:36px;height:1px;background:var(--gold);opacity:0.55}
-.rv{opacity:0;transform:translateY(40px);transition:opacity 1s var(--lux),transform 1s var(--lux)}
+/* .rv: fail-safe visible by default; only hide when html.js-ready set by IO */
+.rv{opacity:1;transform:none;transition:opacity 1s var(--lux),transform 1s var(--lux)}
+html.js-ready .rv:not(.vis){opacity:0;transform:translateY(40px)}
+html.js-ready .rv.vis{opacity:1;transform:translateY(0)}
 .rv.vis{opacity:1;transform:translateY(0)}
 .d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}.d5{transition-delay:.4s}
-.rv-scale{opacity:0;transform:scale(0.92);transition:opacity 1s var(--lux),transform 1.2s var(--lux)}
+.rv-scale{opacity:1;transform:none;transition:opacity 1s var(--lux),transform 1.2s var(--lux)}
+html.js-ready .rv-scale:not(.vis){opacity:0;transform:scale(0.92)}
+html.js-ready .rv-scale.vis{opacity:1;transform:scale(1)}
 .rv-scale.vis{opacity:1;transform:scale(1)}
 .curtain{position:relative;overflow:hidden}
 .curtain::after{content:'';position:absolute;inset:0;background:var(--ink2);transform-origin:right;transform:scaleX(1);transition:transform 1.4s var(--smooth)}
@@ -275,7 +280,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 <link rel="manifest" href="/site.webmanifest"/>
 <meta name="theme-color" content="#0c1219"/>
-<link rel="preload" as="image" fetchpriority="high" href="images/wedding-cancun-hotel-zone-ivae-studios.avif" type="image/avif">
+<link rel="preload" as="image" fetchpriority="high" href="/images/wedding-bride-cabo-san-lucas-ivae-studios.avif" type="image/avif">
 </head>
 <body>
 <a href="#main-content" class="skip-link">Skip to content</a>
@@ -370,9 +375,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <section class="hero" id="main-content">
   <div class="hero-bg" id="heroBg">
     <picture>
-      <source type="image/avif" srcset="images/wedding-cancun-hotel-zone-ivae-studios.avif">
-      <source type="image/webp" srcset="images/wedding-cancun-hotel-zone-ivae-studios.webp">
-      <img loading="eager" src="images/wedding-cancun-hotel-zone-ivae-studios.jpg" alt="Editorial destination wedding photography by IVAE Studios at a luxury Mexico resort during golden hour" width="1600" height="1067" fetchpriority="high" decoding="async"/>
+      <source type="image/avif" srcset="/images/wedding-bride-cabo-san-lucas-ivae-studios.avif">
+      <source type="image/webp" srcset="/images/wedding-bride-cabo-san-lucas-ivae-studios.webp">
+      <img loading="eager" src="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" alt="A bride at golden hour in Cabo San Lucas, photographed by IVAE Studios" width="1600" height="1067" fetchpriority="high" decoding="async"/>
     </picture>
   </div>
   <div class="hero-overlay"></div>
@@ -1273,5 +1278,24 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   </ul>
 </nav>
 <script src="/js/lang-detect.js" defer></script><script src="/js/services-dropdown-v2.js" defer></script>
+
+<script>
+/* RV reveal-on-scroll: fail-safe visible by default; mark js-ready only when JS+IO work */
+(function(){
+  if(!('IntersectionObserver' in window)) return;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.documentElement.classList.add('js-ready');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('vis'); io.unobserve(e.target); }
+    });
+  }, {threshold: 0.05, rootMargin: '0px 0px 100px 0px'});
+  document.querySelectorAll('.rv, .rv-scale, [data-anim]').forEach(function(el){ io.observe(el); });
+  /* Safety net: 5s timeout force-reveals everything */
+  setTimeout(function(){
+    document.querySelectorAll('.rv:not(.vis), .rv-scale:not(.vis)').forEach(function(el){ el.classList.add('vis'); });
+  }, 5000);
+})();
+</script>
 </body>
 </html>
