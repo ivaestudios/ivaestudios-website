@@ -841,7 +841,14 @@ html.js-ready .fr.fr-anim.vis{
   pointer-events:none;
 }
 .connect-inner{position:relative;z-index:2;max-width:840px;margin:0 auto;text-align:center}
-.connect h2{font-size:clamp(40px,5vw,72px);margin-bottom:24px}
+.connect h2{font-family:var(--font-serif);font-weight:300;font-size:clamp(40px,5vw,72px);line-height:1.08;letter-spacing:-.015em;padding-bottom:.08em;margin-bottom:24px}
+.connect h2 em{font-style:italic;color:var(--gold)}
+/* btn-gold force dark text in dark mode (overrides html.dark a gold) */
+html.dark .btn-gold,
+html.dark a.btn-gold,
+html.dark a.btn.btn-gold{color:#1a2230 !important}
+html.dark .btn-gold:hover,
+html.dark a.btn-gold:hover{color:#1a2230 !important}
 .connect-lede{
   font-family:var(--font-serif);font-weight:300;font-style:italic;
   font-size:clamp(18px,1.8vw,22px);line-height:1.55;
