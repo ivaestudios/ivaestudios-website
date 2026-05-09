@@ -181,6 +181,18 @@ html.dark a:hover {
   color: #faf8f5;
 }
 
+/* Gold-bg buttons need DARK text (gold-on-gold is invisible) */
+html.dark a.btn-gold,
+html.dark .btn-gold,
+html.dark a.btn.btn-gold {
+  color: #1a2230 !important;
+}
+html.dark a.btn-gold:hover,
+html.dark .btn-gold:hover,
+html.dark a.btn.btn-gold:hover {
+  color: #1a2230 !important;
+}
+
 html.dark strong,
 html.dark b {
   color: #faf8f5;
