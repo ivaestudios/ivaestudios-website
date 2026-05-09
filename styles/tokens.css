@@ -290,4 +290,79 @@
   /* ── Velocity hairline ─────────────────────────────────────── */
   --velocity-bar-h:    1.5px;
   --velocity-bar-glow: 0 0 8px rgba(201,165,78,0.35);
+
+  /* ═══════════════════════════════════════════════════════════════
+     Wave 5 additions — animation tokens for /index-preview-v5.html.
+     All purely additive; nothing above is changed.
+     Refs: seo/design-audit/wave-5-animation-spec.md
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── Animation durations ──────────────────────────────────── */
+  --t-micro:   0.18s;   /* hover swaps, focus rings */
+  --t-quick:   0.28s;   /* button transforms */
+  --t-medium:  0.55s;   /* word reveals, image scales */
+  --t-cinema:  0.95s;   /* clip-path reveals, hero cascades */
+  --t-arc:     2.4s;    /* SVG stroke draws */
+  --t-loop-s:  4s;      /* eyebrow ornament pulse */
+  --t-loop-m:  8s;      /* marquee */
+  --t-loop-l:  18s;     /* Ken Burns */
+  --t-loop-xl: 25s;     /* hero parallax slow drift */
+
+  /* ── Animation easing (extras) ────────────────────────────── */
+  --ease-quint:    cubic-bezier(0.86, 0, 0.07, 1);     /* dramatic decel */
+  --ease-back:     cubic-bezier(0.34, 1.56, 0.64, 1);  /* tiny overshoot */
+  --ease-soft:     cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-cinema:   cubic-bezier(0.77, 0, 0.18, 1);     /* film cut */
+
+  /* ── Stagger increments ───────────────────────────────────── */
+  --stagger-tight:  60ms;
+  --stagger-base:   90ms;
+  --stagger-loose:  140ms;
+
+  /* ── Word/letter reveal y-offset ──────────────────────────── */
+  --reveal-y-sm:  14px;
+  --reveal-y-md:  28px;
+  --reveal-y-lg:  60px;
+
+  /* ── Cursor trail ─────────────────────────────────────────── */
+  --cursor-trail-count:  6;
+  --cursor-trail-fade:   600ms;
+
+  /* ── Scroll blur entrance ─────────────────────────────────── */
+  --enter-blur:  4px;
+
+  /* ── Image hover (cinema) ─────────────────────────────────── */
+  --hover-img-scale-cinema:      1.05;
+  --hover-img-brightness-cinema: 0.92;
+
+  /* ── Marquee speed (px/sec equivalent via duration) ───────── */
+  --marquee-duration-d:  48s;   /* desktop */
+  --marquee-duration-m:  32s;   /* mobile */
+
+  /* ── Count-up animation (number stat reveals) ─────────────── */
+  --count-up-duration:   1.6s;
+
+  /* ── Spotlight (gold radial under cursor on dark sections) ── */
+  --spotlight-radius:    420px;
+  --spotlight-color:     rgba(201,165,78,0.10);
+
+  /* ── Dust particle budget (canvas; mobile = 0) ────────────── */
+  --dust-count-desktop:  36;
+  --dust-count-tablet:   18;
+  --dust-count-mobile:   0;
+
+  /* ── Italic-to-roman crossfade ────────────────────────────── */
+  --italic-roman-fade:   0.7s;
+
+  /* ── Animated CTA border sweep (clockwise draw on hover) ──── */
+  --border-sweep-duration: 0.65s;
+
+  /* ── Section background blend (sticky color transitions) ──── */
+  --section-blend-duration: 1.2s;
+
+  /* ── Floating ornament range (translateY 0 → -2px → 0) ────── */
+  --float-y-range:       2px;
+
+  /* ── Map flight-path stroke draw (Cancún → Riviera → Cabos) ─ */
+  --flight-path-duration: 3.2s;
 }
