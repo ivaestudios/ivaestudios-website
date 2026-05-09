@@ -684,18 +684,27 @@ body::after{
 }
 .fr-1,.fr-2,.fr-3,.fr-4,.fr-5,.fr-6{grid-column:span 1}
 
-/* ENTRANCE: staggered clip-path reveal, gated by .vis (set by IO) */
+/* ENTRANCE: visible by DEFAULT (fail-safe). If JS+IO work, animate in. */
 .fr.fr-anim{
+  opacity:1;
+  clip-path:inset(0 0 0 0);
+  -webkit-clip-path:inset(0 0 0 0);
+}
+/* Only hide initially when JS marks the body — guarantees photos render even
+   if JS fails or IntersectionObserver doesn't fire */
+html.js-ready .fr.fr-anim:not(.vis){
   clip-path:inset(0 100% 0 0);
   -webkit-clip-path:inset(0 100% 0 0);
   opacity:0;
   transition:clip-path 1.2s var(--ease-out),-webkit-clip-path 1.2s var(--ease-out),opacity .8s var(--ease-out);
   transition-delay:calc(var(--i,0) * 60ms);
 }
-.fr.fr-anim.vis{
+html.js-ready .fr.fr-anim.vis{
   clip-path:inset(0 0 0 0);
   -webkit-clip-path:inset(0 0 0 0);
   opacity:1;
+  transition:clip-path 1.2s var(--ease-out),-webkit-clip-path 1.2s var(--ease-out),opacity .8s var(--ease-out);
+  transition-delay:calc(var(--i,0) * 60ms);
 }
 
 /* IMAGE: Ken-Burns idle + hover scale */
@@ -1438,8 +1447,9 @@ body::after{
     });
   }
 
-  /* Reveal-on-scroll */
-  if('IntersectionObserver' in window){
+  /* Reveal-on-scroll — mark js-ready ONLY if IO works, so photos default visible if it fails */
+  if('IntersectionObserver' in window && !reduceMotion){
+    document.documentElement.classList.add('js-ready');
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(e){
         if(e.isIntersecting){
@@ -1447,8 +1457,12 @@ body::after{
           io.unobserve(e.target);
         }
       });
-    }, {threshold: 0.12, rootMargin: '0px 0px -80px 0px'});
+    }, {threshold: 0.05, rootMargin: '0px 0px 100px 0px'});
     $$('.rv, .clip-reveal, .pull-quote, .hero-h1, .fr-anim').forEach(function(el){ io.observe(el); });
+    /* Safety net: force-reveal anything still hidden after 5s (catches edge cases) */
+    setTimeout(function(){
+      $$('.fr-anim:not(.vis)').forEach(function(el){ el.classList.add('vis'); });
+    }, 5000);
   } else {
     $$('.rv, .clip-reveal, .pull-quote, .hero-h1, .fr-anim').forEach(function(el){ el.classList.add('vis'); });
   }
