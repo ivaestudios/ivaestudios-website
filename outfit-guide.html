@@ -514,8 +514,8 @@ footer nav a:hover{color:var(--cream);transform:translateY(-2px)}
 <!-- HEADER -->
 <header class="site-header" id="siteHeader">
   <a class="header-logo" href="/">IVAE <span>Studios</span></a>
-  <nav>
-    <ul class="header-nav" role="navigation" aria-label="Main navigation">
+  <nav aria-label="Main navigation">
+    <ul class="header-nav">
       <li><a href="/">Home</a></li>
       <li><a href="/about">About</a></li>
       <li><a href="/#services">Services</a></li>
@@ -523,25 +523,25 @@ footer nav a:hover{color:var(--cream);transform:translateY(-2px)}
     </ul>
   </nav>
   <div class="lang-switch" role="group" aria-label="Language switcher">
-    <a href="https://ivaestudios.com/outfit-guide" data-lang-switch="en" hreflang="en" class="is-active" aria-current="true">EN</a>
+    <a href="https://ivaestudios.com/outfit-guide" data-lang-switch="en" hreflang="en" class="is-active" aria-current="page">EN</a>
     <span class="lang-sep" aria-hidden="true">|</span>
     <a href="https://ivaestudios.com/es/guia-vestuario" data-lang-switch="es" hreflang="es">ES</a>
   </div>
   <a class="header-cta" href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener">Book Now</a>
-  <button class="header-toggle" aria-expanded="false" aria-label="Toggle navigation" id="headerToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+  <button class="header-toggle" aria-expanded="false" aria-label="Toggle navigation" id="headerToggle"><span></span><span></span><span></span></button>
 </header>
-<div class="mobile-nav" id="mobileNav">
-  <div class="lang-switch" role="group" aria-label="Language switcher"><a href="https://ivaestudios.com/outfit-guide" data-lang-switch="en" hreflang="en" class="is-active" aria-current="true">EN</a><span class="lang-sep" aria-hidden="true">|</span><a href="https://ivaestudios.com/es/guia-vestuario" data-lang-switch="es" hreflang="es">ES</a></div>
+<nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
+  <div class="lang-switch" role="group" aria-label="Language switcher"><a href="https://ivaestudios.com/outfit-guide" data-lang-switch="en" hreflang="en" class="is-active" aria-current="page">EN</a><span class="lang-sep" aria-hidden="true">|</span><a href="https://ivaestudios.com/es/guia-vestuario" data-lang-switch="es" hreflang="es">ES</a></div>
   <a href="/">Home</a>
   <a href="/about">About</a>
   <a href="/#services">Services</a>
   <a href="/blog">Blog</a>
   <a href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener">Book Now</a>
-</div>
+</nav>
 
 <!-- 1. HERO -->
 <section class="hero" id="main-content">
-  <div class="hero-bg"><img src="https://images.unsplash.com/photo-1774840966357-53cbff0beb28?w=1600&q=80" alt="Couple embracing on tropical beach at golden hour" style="width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(0.45) saturate(0.85)" loading="lazy" decoding="async" width="1600" height="1067"/></div>
+  <div class="hero-bg"><img src="https://images.unsplash.com/photo-1774840966357-53cbff0beb28?w=1600&q=80" alt="Couple embracing on tropical beach at golden hour" style="width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(0.45) saturate(0.85)" loading="eager" decoding="async" fetchpriority="high" width="1600" height="1067"/></div>
   <div class="hero-content rv vis">
     <span class="hero-eyebrow">Style Guide</span>
     <h1>What to Wear for a Mexico <em>Beach Photoshoot</em></h1>
@@ -846,7 +846,7 @@ footer nav a:hover{color:var(--cream);transform:translateY(-2px)}
 </section>
 
 <!-- FOOTER -->
-<footer class="colophon" role="contentinfo" aria-label="Footer">
+<footer class="colophon" aria-label="Footer">
   <div class="colophon-mark">
     <span class="colophon-mark-name">IVAE<em>Studios</em></span>
     <span class="colophon-tag">Luxury Resort Photography. <em>Editorial. Bilingual. Golden hour, only.</em></span>

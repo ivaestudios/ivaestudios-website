@@ -82,21 +82,16 @@
 /* Local family tokens (additive, parallel to wedding-side --lw-*) */
 :root{
   --lf-grain-opacity:0.028;
-  --lf-tree-stroke:1.2px;
   --lf-age-ribbon-h:6px;
   --lf-age-ribbon-stop-newborn:rgba(250,248,245,0.18);
   --lf-age-ribbon-stop-toddler:rgba(201,165,78,0.55);
   --lf-age-ribbon-stop-school:rgba(201,165,78,0.78);
   --lf-age-ribbon-stop-teen:rgba(201,165,78,0.42);
-  --lf-month-chip-size:56px;
-  --lf-month-chip-gap:12px;
   --lf-pillar-gap:clamp(28px,3vw,56px);
-  --lf-tier-padding:clamp(32px,4vw,56px) clamp(24px,3vw,40px);
   --lf-reel-card-aspect:4 / 5;
   --lf-reel-frame-min-width:clamp(320px,34vw,480px);
   --lf-dropcap-size:clamp(96px,9vw,120px);
   --lf-letterbox:6%;
-  --lf-mote-count:8;
 }
 
 /* Reset */
@@ -187,13 +182,6 @@ a.btn-primary:focus-visible{outline-color:var(--ink-1,#1a2230)}
 /* Ghost (gold border + gold text on dark) */
 html.dark a.btn-ghost,a.btn-ghost{background:transparent;color:var(--gold,#c9a54e)!important;border:1px solid var(--gold,#c9a54e)}
 a.btn-ghost:hover{background:rgba(201,165,78,0.10)}
-/* Tier outline (cream-bg sections — gold-deep text for sub-18 contrast) */
-html.dark a.btn-tier-outline,a.btn-tier-outline{background:transparent;color:var(--gold-deep,#a8894a)!important;border:1px solid var(--gold-deep,#a8894a)}
-a.btn-tier-outline:hover{background:rgba(168,137,74,0.08);border-color:var(--gold-deep,#a8894a)}
-a.btn-tier-outline:focus-visible{outline-color:var(--ink-1,#1a2230)}
-/* Tier filled featured */
-html.dark a.btn-tier-filled,a.btn-tier-filled{background:var(--gold,#c9a54e);color:var(--ink-1,#1a2230)!important;border:1px solid var(--gold,#c9a54e)}
-
 /* ─── HERO ─── */
 .lf-hero{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:flex-end;background:var(--ink-3,#0c1219);overflow:hidden;perspective:1400px;padding-top:68px;}
 .lf-hero-bg{position:absolute;inset:0;z-index:0;transform-style:preserve-3d;will-change:transform;transition:transform 0.55s var(--ease,cubic-bezier(0.16,1,0.3,1))}
@@ -253,44 +241,6 @@ html.js-on .lf-h1-letter.is-in{opacity:1;transform:none}
   .lf-pillar{transition:none!important}
 }
 
-/* ─── COLLECTIONS / TIERS ─── */
-.lf-collections{background:var(--cream-1,#faf8f5);color:var(--ink-1,#1a2230);padding:clamp(80px,10vw,140px) clamp(24px,5vw,64px)}
-.lf-collections-header{max-width:780px;margin:0 auto 56px;text-align:center}
-.lf-collections-h2{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(36px,4vw,56px);font-weight:300;color:var(--ink-1,#1a2230);line-height:1.12;margin-top:18px}
-.lf-collections-h2 em{font-style:italic;color:var(--gold-deep,#a8894a)}
-.lf-collections-intro{margin-top:22px;font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(14,22,32,0.78)}
-.lf-tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1280px;margin:0 auto}
-.lf-tier{position:relative;padding:var(--lf-tier-padding);background:transparent;border-top:1px solid rgba(168,137,74,0.42);transition:background 0.4s var(--ease,cubic-bezier(0.16,1,0.3,1))}
-.lf-tier:hover{background:rgba(201,165,78,0.04)}
-.lf-tier--featured{border-top:2px solid var(--gold,#c9a54e);background:rgba(201,165,78,0.04);transform:none}
-@media (min-width: 900px){.lf-tier--featured{transform:scale(1.025)}}
-.lf-tier-badge{position:absolute;top:14px;right:14px;font-family:var(--font-sans,'Syne',sans-serif);font-size:9.5px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-deep,#a8894a);padding:6px 10px;border:1px solid var(--gold-deep,#a8894a)}
-.lf-tier-numeral{font-family:var(--font-sans,'Syne',sans-serif);font-size:10px;font-weight:600;letter-spacing:0.32em;color:var(--gold-deep,#a8894a);text-transform:uppercase;margin-bottom:10px}
-.lf-tier-tree{width:100%;height:36px;margin-bottom:14px;color:var(--gold-deep,#a8894a);overflow:visible}
-.lf-tier-tree path,.lf-tier-tree circle{stroke:currentColor;stroke-width:var(--lf-tree-stroke);fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:240;stroke-dashoffset:0;opacity:0.92}
-html.js-on .lf-tier-tree path,html.js-on .lf-tier-tree circle{stroke-dashoffset:240;opacity:0;transition:stroke-dashoffset 1.6s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1)),opacity 0.4s var(--ease,cubic-bezier(0.16,1,0.3,1))}
-html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-tree circle,html.js-on .lf-tier.is-in .lf-tier-tree path,html.js-on .lf-tier.is-in .lf-tier-tree circle{stroke-dashoffset:0;opacity:0.92}
-.lf-tier-tree .fig-2{transition-delay:0.10s}
-.lf-tier-tree .fig-3{transition-delay:0.20s}
-.lf-tier-tree .fig-4{transition-delay:0.30s}
-.lf-tier-tree .fig-5{transition-delay:0.40s}
-.lf-tier-tree .fig-6{transition-delay:0.50s}
-.lf-tier-name{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(28px,3vw,38px);font-weight:300;line-height:1.10;color:var(--ink-1,#1a2230)}
-.lf-tier-name em{font-style:italic}
-.lf-tier-lede{margin-top:10px;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:17px;font-weight:300;font-style:italic;color:rgba(14,22,32,0.72);line-height:1.5}
-.lf-tier-investment-label{margin-top:24px;font-family:var(--font-sans,'Syne',sans-serif);font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold-deep,#a8894a)}
-.lf-tier-price{margin-top:6px;font-family:var(--font-sans,'Syne',sans-serif);font-size:24px;font-weight:300;color:var(--ink-1,#1a2230)}
-.lf-tier-bullets{margin-top:22px;display:flex;flex-direction:column;gap:10px}
-.lf-tier-bullets li{position:relative;padding-left:18px;font-family:var(--font-sans,'Syne',sans-serif);font-size:13.5px;line-height:1.7;color:rgba(14,22,32,0.78)}
-.lf-tier-bullets li::before{content:'';position:absolute;left:0;top:11px;width:8px;height:1px;background:var(--gold-deep,#a8894a)}
-.lf-tier-differentiator{margin-top:22px;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:14.5px;font-style:italic;color:rgba(14,22,32,0.62);line-height:1.55}
-.btn-tier-cta{margin-top:24px;width:100%;min-width:0}
-.lf-collections-footnote{margin-top:36px;text-align:center;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:13px;font-style:italic;color:rgba(14,22,32,0.62);max-width:720px;margin-left:auto;margin-right:auto}
-.lf-collections-countup{margin-top:48px;text-align:center;padding-top:36px;border-top:1px solid rgba(168,137,74,0.32)}
-.lf-countup-num{display:inline-block;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(48px,6vw,84px);font-weight:300;color:var(--gold-deep,#a8894a);line-height:1}
-.lf-collections-countup span[aria-hidden="true"]:not(.lf-countup-num){font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(28px,3vw,42px);font-weight:300;color:var(--gold-deep,#a8894a);vertical-align:top;margin-left:4px}
-.lf-countup-label{display:block;margin-top:10px;font-family:var(--font-sans,'Syne',sans-serif);font-size:11px;letter-spacing:0.24em;text-transform:uppercase;color:rgba(14,22,32,0.62)}
-
 /* ─── INQUIRY-BRIDGE (replaces collections) ─── */
 .lf-inquiry-bridge{padding:clamp(80px,10vw,140px) clamp(24px,5vw,64px);background:var(--ink-3,#0a0f17)}
 .lf-inquiry-bridge-inner{max-width:1100px;margin:0 auto}
@@ -304,11 +254,8 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
 .lf-promise-cta{margin-top:48px}
 @media (max-width: 480px){
   .lf-meta-strip{grid-template-columns:1fr 1fr;gap:16px}
-  .lf-hero-h1{font-size:clamp(28px, 7vw, 38px)}
   .lf-hero-content{padding-bottom:60px}
-  .lf-stats{gap:12px;padding:16px 0}
   .lf-pillars-grid{gap:24px}
-  .lf-method-grid{grid-template-columns:1fr !important}
 }
 @media(max-width:720px){.lf-promise-list{grid-template-columns:1fr;gap:24px}}
 
@@ -483,13 +430,8 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
 
 /* ─── RESPONSIVE ─── */
 @media (max-width: 1023px){
-  
-  
   .lf-pillars-grid{grid-template-columns:1fr;gap:48px}
-  .lf-tier-grid{grid-template-columns:1fr;gap:14px}
-  .lf-tier--featured{transform:none}
   .lf-testimonial-grid{grid-template-columns:1fr 1fr}
-  
 }
 @media (max-width: 767px){
   .lf-meta-strip{grid-template-columns:1fr 1fr}
@@ -511,7 +453,6 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
   *,*::before,*::after{animation-duration:0.001ms!important;animation-iteration-count:1!important;transition-duration:0.001ms!important;scroll-behavior:auto!important}
   html.js-on .lf-h1-letter{opacity:1!important;transform:none!important}
   html.js-on .rv{opacity:1!important;transform:none!important;transition:none!important}
-  html.js-on .lf-tier-tree path,html.js-on .lf-tier-tree circle{stroke-dashoffset:0!important;opacity:0.92!important;transition:none!important}
   .lf-motes{display:none!important}
   .lf-grain{animation:none!important}
   .lf-availability-dot{animation:none!important}
@@ -548,7 +489,7 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
 <!-- ═══════════════════════════════════════════════════════════════
      SECTION 1 — HEADER
      ═══════════════════════════════════════════════════════════════ -->
-<header class="site-header" id="siteHeader" role="banner">
+<header class="site-header" id="siteHeader">
   <a href="/" class="h-logo">IVAE <em>Studios</em></a>
   <nav aria-label="Primary">
     <ul class="h-nav">
@@ -946,7 +887,7 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
 <!-- ═══════════════════════════════════════════════════════════════
      SECTION 12 · FOOTER (mirrors v5 home colophon)
      ═══════════════════════════════════════════════════════════════ -->
-<footer class="colophon" role="contentinfo" aria-label="Footer">
+<footer class="colophon" aria-label="Footer">
   <div class="colophon-mark">
     <span class="colophon-mark-name">IVAE<em>Studios</em></span>
     <span class="colophon-tag">Luxury Resort Photography. <em>Editorial. Bilingual. Golden hour, only.</em></span>
@@ -1154,21 +1095,6 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
       });
     }, { threshold: 0.4 });
     countEls.forEach(function(el){ countObs.observe(el); });
-  }
-
-  // ── Tier silhouette stroke-draw on scroll-into-view
-  if ('IntersectionObserver' in window && supportsMotion){
-    var tierObs = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if (e.isIntersecting){
-          e.target.classList.add('is-in');
-          tierObs.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.3 });
-    document.querySelectorAll('.lf-tier').forEach(function(t){ tierObs.observe(t); });
-  } else {
-    document.querySelectorAll('.lf-tier').forEach(function(t){ t.classList.add('is-in'); });
   }
 
   // ── Method: active step on scroll (gold accent intensifies as user reads)
