@@ -684,62 +684,7 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
   </ol>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     SECTION 7 — SUNSET-FRIENDLY TIME (signature feature)
-     ═══════════════════════════════════════════════════════════════ -->
-<section class="lf-sunset" id="sunset" aria-labelledby="sunset-heading">
-  <p class="eyebrow rv">Luz, Alrededor de los Niños</p>
-  <h2 class="lf-sunset-h2 rv d1" id="sunset-heading">Hora Amigable al Atardecer.</h2>
-  <p class="lf-sunset-intro rv d2">Elige el mes. El anillo muestra cuándo la luz se vuelve honesta. El estudio termina las sesiones familiares noventa minutos antes de eso, y comienza noventa minutos después de que el niño más pequeño se despierta.</p>
-  <div class="lf-sunset-stage rv">
-    <div class="lf-month-picker" role="group" aria-label="Seleccionar mes">
-      <button type="button" class="lf-sunset-month" aria-pressed="true" data-month="01" data-month-name="Enero" data-golden-start="4:00 PM" data-golden-end="5:30 PM" data-recommended="4:00 PM">Ene</button>
-      <button type="button" class="lf-sunset-month" aria-pressed="false" data-month="02" data-month-name="Febrero" data-golden-start="4:30 PM" data-golden-end="6:00 PM" data-recommended="4:30 PM">Feb</button>
-      <button type="button" class="lf-sunset-month" aria-pressed="false" data-month="03" data-month-name="Marzo" data-golden-start="4:50 PM" data-golden-end="6:20 PM" data-recommended="4:50 PM">Mar</button>
-      <button type="button" class="lf-sunset-month" aria-pressed="false" data-month="04" data-month-name="Abril" data-golden-start="5:10 PM" data-golden-end="6:40 PM" data-recommended="5:10 PM">Abr</button>
-      <button type="button" class="lf-sunset-month" aria-pressed="false" data-month="05" data-month-name="Mayo" data-golden-start="5:30 PM" data-golden-end="7:00 PM" data-recommended="5:30 PM">May</button>
-      <button type="button" class="lf-sunset-month" aria-pressed="false" data-month="06" data-month-name="Junio" data-golden-start="6:00 PM" data-golden-end="7:30 PM" data-recommended="6:00 PM">Jun</button>
-      <button type="button" class="lf-sunset-month" aria-pressed="false" data-month="07" data-month-name="Julio" data-golden-start="6:00 PM" data-golden-end="7:30 PM" data-recommended="6:00 PM">Jul</button>
-      <button type="button" class="lf-sunset-month" aria-pressed="false" data-month="08" data-month-name="Agosto" data-golden-start="5:50 PM" data-golden-end="7:20 PM" data-recommended="5:50 PM">Ago</button>
-      <button type="button" class="lf-sunset-month" aria-pressed="false" data-month="09" data-month-name="Septiembre" data-golden-start="5:30 PM" data-golden-end="7:00 PM" data-recommended="5:30 PM">Sep</button>
-      <button type="button" class="lf-sunset-month" aria-pressed="false" data-month="10" data-month-name="Octubre" data-golden-start="5:00 PM" data-golden-end="6:30 PM" data-recommended="5:00 PM">Oct</button>
-      <button type="button" class="lf-sunset-month" aria-pressed="false" data-month="11" data-month-name="Noviembre" data-golden-start="4:30 PM" data-golden-end="6:00 PM" data-recommended="4:30 PM">Nov</button>
-      <button type="button" class="lf-sunset-month" aria-pressed="false" data-month="12" data-month-name="Diciembre" data-golden-start="4:00 PM" data-golden-end="5:30 PM" data-recommended="4:00 PM">Dic</button>
-    </div>
-    <div class="lf-clock-wrap">
-      <svg class="lf-clock" role="img" aria-labelledby="lf-clock-label" viewBox="0 0 240 240">
-        <title id="lf-clock-label">La hora dorada para enero en Cancún comienza a las 4:00 PM y termina a las 5:30 PM. Inicio de sesión recomendado: 4:00 PM. Ventana amigable al niño después de la siesta: 3:30 PM en adelante.</title>
-        <circle class="lf-clock-face" cx="120" cy="120" r="100"/>
-        <!-- Nap-friendly band (3:30 PM and after, around 270deg-360deg in 12-hour clock) -->
-        <path class="lf-clock-nap-band" d="M 120 120 L 120 30 A 90 90 0 0 1 210 120 Z"/>
-        <!-- Golden ring -->
-        <circle class="lf-clock-golden-ring" id="lfGoldenRing" cx="120" cy="120" r="100" stroke-dasharray="78 628" stroke-dashoffset="-471" transform="rotate(-90 120 120)"/>
-        <!-- 12 hour ticks -->
-        <g>
-          <line class="lf-clock-tick" x1="120" y1="28" x2="120" y2="40"/>
-          <line class="lf-clock-tick" x1="166" y1="40.3" x2="160" y2="50.6"/>
-          <line class="lf-clock-tick" x1="199.7" y1="74" x2="189.4" y2="80"/>
-          <line class="lf-clock-tick" x1="212" y1="120" x2="200" y2="120"/>
-          <line class="lf-clock-tick" x1="199.7" y1="166" x2="189.4" y2="160"/>
-          <line class="lf-clock-tick" x1="166" y1="199.7" x2="160" y2="189.4"/>
-          <line class="lf-clock-tick" x1="120" y1="212" x2="120" y2="200"/>
-          <line class="lf-clock-tick" x1="74" y1="199.7" x2="80" y2="189.4"/>
-          <line class="lf-clock-tick" x1="40.3" y1="166" x2="50.6" y2="160"/>
-          <line class="lf-clock-tick" x1="28" y1="120" x2="40" y2="120"/>
-          <line class="lf-clock-tick" x1="40.3" y1="74" x2="50.6" y2="80"/>
-          <line class="lf-clock-tick" x1="74" y1="40.3" x2="80" y2="50.6"/>
-        </g>
-        <text class="lf-clock-numeral" x="120" y="22">12</text>
-        <text class="lf-clock-numeral" x="222" y="124">3</text>
-        <text class="lf-clock-numeral" x="120" y="226">6</text>
-        <text class="lf-clock-numeral" x="18" y="124">9</text>
-        <text class="lf-clock-center" x="120" y="116">hora dorada</text>
-        <text class="lf-clock-center" id="lfClockTimes" x="120" y="136" style="font-size:13px;font-style:normal">4:00–5:30 PM</text>
-      </svg>
-    </div>
-  </div>
-  <p class="lf-clock-status" aria-live="polite" aria-atomic="true" id="lfClockStatus">Enero seleccionado. Hora dorada de 4:00 PM a 5:30 PM. Inicio recomendado 4:00 PM.</p>
-</section>
+<!-- SECTION 7 (Sunset-Friendly Time widget) REMOVED — fake-functional widget. Method section above explains golden-hour timing editorially. -->
 
 <!-- ═══════════════════════════════════════════════════════════════
      SECTION 8a — VOICES (pull-quote, giant ❝)

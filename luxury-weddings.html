@@ -109,7 +109,6 @@ ul{list-style:none}
   --lw-grain-opacity: .035;
   --lw-magnet-pull: 6px;
   --lw-cursor-ring: 18px;
-  --lw-clock-size: clamp(220px, 22vw, 300px);
   --lw-cinema-shadow: 0 50px 120px rgba(0,0,0,.55);
 }
 
@@ -297,74 +296,6 @@ ul{list-style:none}
   letter-spacing:-.02em;
 }
 
-/* ── Sunset clock widget ── */
-.lw-clock-section{background:var(--ink-3)}
-.lw-clock-grid{
-  display:grid;grid-template-columns:var(--lw-clock-size) 1fr;
-  gap:clamp(28px,5vw,72px);
-  align-items:center;
-  margin-top:48px;
-}
-.lw-clock{
-  width:var(--lw-clock-size);height:var(--lw-clock-size);
-  position:relative;flex-shrink:0;
-}
-.lw-clock svg{width:100%;height:100%;display:block}
-.lw-clock-ring-bg{fill:none;stroke:var(--gold-line);stroke-width:1}
-.lw-clock-ring-active{
-  fill:none;stroke:var(--gold);stroke-width:2;
-  stroke-linecap:round;
-  transform-origin:50% 50%;
-  transition:stroke-dasharray .8s var(--ease-smooth);
-}
-.lw-clock-tick{stroke:var(--gold-line);stroke-width:1}
-.lw-clock-tick.major{stroke:var(--gold);stroke-width:1.2}
-.lw-clock-label{
-  font-family:var(--font-sans);font-size:9px;
-  fill:var(--text-on-dark-3);
-  letter-spacing:.2em;text-transform:uppercase;
-  text-anchor:middle;
-}
-.lw-clock-center{
-  font-family:var(--font-serif);font-style:italic;font-weight:300;
-  fill:var(--cream);
-  text-anchor:middle;
-}
-.lw-clock-center.big{font-size:24px}
-.lw-clock-center.small{font-size:10px;fill:var(--gold);letter-spacing:.16em;text-transform:uppercase;font-style:normal;font-family:var(--font-sans);font-weight:500}
-.lw-clock-side{display:flex;flex-direction:column;gap:18px}
-.lw-clock-side .lw-section-eyebrow{margin-bottom:0}
-.lw-clock-months{
-  display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;
-}
-.lw-clock-mbtn{
-  font-family:var(--font-sans);font-size:var(--fs-10);
-  font-weight:500;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--text-on-dark-2);
-  border:1px solid var(--gold-line);
-  background:transparent;
-  padding:8px 12px;
-  min-height:36px;cursor:pointer;
-  transition:all .3s var(--ease);
-}
-.lw-clock-mbtn:hover,.lw-clock-mbtn:focus-visible{
-  color:var(--cream);border-color:var(--gold);
-}
-.lw-clock-mbtn[aria-pressed="true"]{
-  background:var(--gold);color:var(--ink-1);border-color:var(--gold);
-}
-html.dark .lw-clock-mbtn{color:var(--text-on-dark-2)}
-html.dark .lw-clock-mbtn[aria-pressed="true"]{color:var(--ink-1) !important}
-.lw-clock-caption{
-  font-family:var(--font-serif);font-style:italic;font-weight:300;
-  font-size:var(--fs-15);color:var(--text-on-dark-readable);
-  max-width:480px;
-}
-@media(max-width:760px){
-  .lw-clock-grid{grid-template-columns:1fr;justify-items:center;text-align:center}
-  .lw-clock-side{align-items:center}
-}
-
 /* ── Horizontal drag-scroll frames reel ── */
 .frames-rail-wrap{
   margin-top:48px;
@@ -528,8 +459,7 @@ body.lw-cur-cta .lw-cursor-ring{
 html.dark a.lw-btn-gold,
 html.dark a.lw-btn-gold:hover,
 html.dark a.lw-btn-gold:focus-visible,
-html.dark .lw-btn-gold,
-html.dark .lw-clock-mbtn[aria-pressed="true"]{
+html.dark .lw-btn-gold{
   color:var(--ink-1) !important;
 }
 
@@ -1700,56 +1630,6 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   </div>
 </section>
 
-<!-- ═══════ SUNSET CLOCK ═══════ -->
-<section class="lw-section lw-clock-section" id="sunset" aria-labelledby="clock-h">
-  <div class="lw-inner">
-    <span class="lw-section-eyebrow">Light Brief / Wedding Day</span>
-    <h2 id="clock-h" class="lw-rv lw-words" data-words>The day is built backward <em>from sunset.</em></h2>
-
-    <div class="lw-clock-grid">
-      <div class="lw-clock lw-rv" role="img" aria-labelledby="clock-h">
-        <svg viewBox="0 0 240 240" id="lwClock" aria-hidden="true">
-          <defs>
-            <linearGradient id="lwGoldGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#c9a54e"/>
-              <stop offset="100%" stop-color="#a8894a"/>
-            </linearGradient>
-          </defs>
-          <circle cx="120" cy="120" r="104" class="lw-clock-ring-bg"/>
-          <circle cx="120" cy="120" r="104" class="lw-clock-ring-active" id="lwClockArc"
-            stroke="url(#lwGoldGrad)"
-            stroke-dasharray="0 1000"
-            transform="rotate(-90 120 120)"
-          />
-          <g id="lwClockTicks"></g>
-          <g id="lwClockNumbers"></g>
-          <text x="120" y="108" class="lw-clock-center small">Golden Hour</text>
-          <text x="120" y="138" class="lw-clock-center big" id="lwClockTime">5:30 PM</text>
-          <text x="120" y="158" class="lw-clock-center small" id="lwClockMonthLabel">December / Cancún</text>
-        </svg>
-      </div>
-
-      <div class="lw-clock-side">
-        <p class="lw-clock-caption">Pick the month. The ring shows the hour the light turns honest. We end ceremonies ninety minutes before that. Everything else is paperwork.</p>
-        <div class="lw-clock-months" role="group" aria-label="Choose month">
-          <button type="button" class="lw-clock-mbtn" data-m="0">Jan</button>
-          <button type="button" class="lw-clock-mbtn" data-m="1">Feb</button>
-          <button type="button" class="lw-clock-mbtn" data-m="2">Mar</button>
-          <button type="button" class="lw-clock-mbtn" data-m="3">Apr</button>
-          <button type="button" class="lw-clock-mbtn" data-m="4">May</button>
-          <button type="button" class="lw-clock-mbtn" data-m="5">Jun</button>
-          <button type="button" class="lw-clock-mbtn" data-m="6">Jul</button>
-          <button type="button" class="lw-clock-mbtn" data-m="7">Aug</button>
-          <button type="button" class="lw-clock-mbtn" data-m="8">Sep</button>
-          <button type="button" class="lw-clock-mbtn" data-m="9">Oct</button>
-          <button type="button" class="lw-clock-mbtn" data-m="10">Nov</button>
-          <button type="button" class="lw-clock-mbtn" data-m="11" aria-pressed="true">Dec</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ═══════ FRAMES ═══════ -->
 <section class="lw-section frames" id="frames" aria-labelledby="frames-h">
   <div class="lw-inner">
@@ -1808,7 +1688,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
           <span class="faq-icon" aria-hidden="true"></span>
         </button>
         <div class="faq-answer" id="faq-a-1" role="region" aria-labelledby="faq-q-1">
-          <p>The studio's wedding collections start at quoted to brief for an intimate four-hour ceremony or elopement and reach $3,500 and beyond for full-day photo and video coverage with a second photographer and a cinematic highlight film. Most couples choose the Signature collection at quoted to brief, which delivers eight hours from bridal prep through reception with six hundred editorial images. Pricing varies by hours, coast, whether video is added, and multi-day coverage. Every collection includes a private 4K gallery, unlimited downloads, print rights, and bilingual service.</p>
+          <p>Each wedding is quoted in conversation. An intimate four-hour ceremony or elopement is shaped one way; a full-day production with a second photographer and cinematic highlight film is shaped another. Most couples choose the Signature plan, which delivers eight hours from bridal prep through reception with roughly six hundred editorial images. Investment varies by hours, coast, whether video is added, and multi-day coverage. Every plan includes a private 4K gallery, unlimited downloads, print rights, and bilingual service.</p>
         </div>
       </div>
 
@@ -2271,84 +2151,6 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
       });
     }, {threshold:0.45});
     stats.forEach(function(el){ obs.observe(el); });
-  })();
-
-  /* 8. Sunset clock / golden hour by month for Riviera Maya / Cancún */
-  (function sunsetClock(){
-    var clock = document.getElementById('lwClock');
-    if(!clock) return;
-    // Approximate sunset hour (24h decimal) for Cancún latitude, year-round.
-    var sunsets = [17.95, 18.30, 18.55, 18.80, 19.10, 19.30, 19.30, 19.05, 18.60, 18.10, 17.75, 17.65];
-    var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    var ticksHost = document.getElementById('lwClockTicks');
-    var numHost = document.getElementById('lwClockNumbers');
-    if(ticksHost && numHost){
-      // 24-hour clock ticks on outer ring
-      var SVGNS = 'http://www.w3.org/2000/svg';
-      for(var h=0;h<24;h++){
-        var ang = (h/24)*Math.PI*2 - Math.PI/2;
-        var ox = 120 + Math.cos(ang)*108;
-        var oy = 120 + Math.sin(ang)*108;
-        var ix = 120 + Math.cos(ang)*(h%6===0?96:101);
-        var iy = 120 + Math.sin(ang)*(h%6===0?96:101);
-        var ln = document.createElementNS(SVGNS,'line');
-        ln.setAttribute('x1',ox);ln.setAttribute('y1',oy);
-        ln.setAttribute('x2',ix);ln.setAttribute('y2',iy);
-        ln.setAttribute('class','lw-clock-tick' + (h%6===0?' major':''));
-        ticksHost.appendChild(ln);
-        if(h%6===0){
-          var lab = document.createElementNS(SVGNS,'text');
-          var lx = 120 + Math.cos(ang)*84;
-          var ly = 120 + Math.sin(ang)*84 + 3;
-          lab.setAttribute('x',lx);lab.setAttribute('y',ly);
-          lab.setAttribute('class','lw-clock-label');
-          lab.textContent = (h===0?'00':(h<10?'0'+h:h));
-          numHost.appendChild(lab);
-        }
-      }
-    }
-
-    var arc = document.getElementById('lwClockArc');
-    var timeEl = document.getElementById('lwClockTime');
-    var monthLabel = document.getElementById('lwClockMonthLabel');
-    var btns = $$('.lw-clock-mbtn');
-
-    function setMonth(m){
-      var sunset = sunsets[m];
-      // Golden hour band: from sunset - 1.0h to sunset + 0.25h (about 75 min)
-      var startH = sunset - 1.0;
-      var endH = sunset + 0.25;
-      // Map to circumference fractions
-      var circ = 2 * Math.PI * 104; // r=104
-      var startFrac = startH / 24;
-      var endFrac = endH / 24;
-      var lenFrac = endFrac - startFrac;
-      var lenLen = circ * lenFrac;
-      var offsetLen = circ * startFrac;
-      if(arc){
-        arc.setAttribute('stroke-dasharray', lenLen + ' ' + (circ - lenLen));
-        arc.setAttribute('stroke-dashoffset', -offsetLen);
-      }
-      // Format hour as h:mm AM/PM
-      var hr = Math.floor(sunset);
-      var mn = Math.round((sunset - hr) * 60);
-      var ampm = hr >= 12 ? 'PM' : 'AM';
-      var dispHr = hr % 12; if(dispHr === 0) dispHr = 12;
-      var mnStr = mn < 10 ? '0' + mn : mn;
-      if(timeEl) timeEl.textContent = dispHr + ':' + mnStr + ' ' + ampm;
-      if(monthLabel) monthLabel.textContent = monthNames[m] + ' / Cancún';
-      btns.forEach(function(b){
-        b.setAttribute('aria-pressed', String(parseInt(b.getAttribute('data-m'),10) === m));
-      });
-    }
-
-    btns.forEach(function(b){
-      b.addEventListener('click', function(){
-        setMonth(parseInt(b.getAttribute('data-m'),10));
-      });
-    });
-    // Initial: current month
-    setMonth(new Date().getMonth());
   })();
 
   /* 9. Drag-scroll frames reel */
