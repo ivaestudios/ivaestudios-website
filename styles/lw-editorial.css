@@ -1,0 +1,20 @@
+/* IVAE Studios — Editorial framework reveal system.
+   Loaded on all 4 service pages (weddings, couples, family, editorial).
+   Default: content is visible. With JS, .lw-rv elements fade in on scroll. */
+
+.lw-rv{
+  opacity:1;
+  transform:none;
+  transition:opacity .9s var(--ease,cubic-bezier(.22,.61,.36,1)),
+             transform .9s var(--ease,cubic-bezier(.22,.61,.36,1));
+}
+@media (prefers-reduced-motion: no-preference){
+  .js-on .lw-rv{opacity:.94;transform:translateY(8px)}
+  .js-on .lw-rv.vis{opacity:1;transform:translateY(0)}
+}
+.lw-rv.d1{transition-delay:.10s}
+.lw-rv.d2{transition-delay:.22s}
+.lw-rv.d3{transition-delay:.34s}
+.lw-rv.d4{transition-delay:.46s}
+.lw-rv.d5{transition-delay:.58s}
+.lw-rv.d6{transition-delay:.70s}
