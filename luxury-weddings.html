@@ -41,7 +41,7 @@
 <link rel="stylesheet" href="/dark-mode.css"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <script src="/js/components.js?v=20260510a" defer></script>
-<script src="/js/services-dropdown-v2.js?v=20260510m" defer></script>
+<script src="/js/services-dropdown-v2.js?v=20260510n" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script src="/dark-mode.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="any"/>
@@ -1476,7 +1476,6 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 </nav>
 
 <main id="main-content">
-
 <!-- ═══════ HERO ═══════ -->
 <section class="lw-hero" aria-labelledby="lw-h1">
   <div class="lw-hero-img" id="lwHeroImg" aria-hidden="true">
@@ -1539,6 +1538,8 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   </div>
 </section>
 
+
+
 <!-- ═══════ PILLARS ═══════ -->
 <section class="lw-section pillars" aria-labelledby="pillars-h">
   <div class="lw-inner">
@@ -1596,94 +1597,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
     </aside>
 </section>
 
-<!-- ═══════ CREDIBILITY STRIP ═══════ -->
-<section class="lw-section credibility" aria-labelledby="credibility-h">
-  <div class="lw-inner">
-    <h2 id="credibility-h" class="lw-credibility-sr">The Studio, on the record</h2>
-    <div class="lw-credstrip lw-rv" role="list">
-      <div class="lw-credcell" role="listitem">
-        <span class="lw-credcell-num"><em>500</em><span class="lw-credcell-mark">+</span></span>
-        <span class="lw-credcell-label">Sessions, Delivered</span>
-      </div>
-      <div class="lw-credcell" role="listitem">
-        <span class="lw-credcell-num">5.0<span class="lw-credcell-mark">&starf;</span></span>
-        <span class="lw-credcell-label">Forty&#8209;Two Reviews</span>
-      </div>
-      <div class="lw-credcell" role="listitem">
-        <span class="lw-credcell-num"><em>10</em><span class="lw-credcell-mark">+</span></span>
-        <span class="lw-credcell-label">Years, Vianey&nbsp;Díaz</span>
-      </div>
-      <div class="lw-credcell" role="listitem">
-        <span class="lw-credcell-num"><em>9</em><span class="lw-credcell-mark lw-credcell-mark-soft">/&#8239;10</span></span>
-        <span class="lw-credcell-label">Riviera Maya Resorts</span>
-      </div>
-      <div class="lw-credcell" role="listitem">
-        <span class="lw-credcell-num"><em>EN&nbsp;/&nbsp;ES</em></span>
-        <span class="lw-credcell-label">Bilingual, On the Day</span>
-      </div>
-    </div>
-    <p class="lw-credstrip-foot lw-rv d2">
-      <span class="lw-credstrip-rule" aria-hidden="true"></span>
-      <span>Verified across <em>Cancún, the Riviera Maya, &amp; Los Cabos</em> &mdash; the studio's working coastline since 2015.</span>
-    </p>
-  </div>
-  <style>
-    .lw-section.credibility{padding-top:clamp(56px,7vw,96px);padding-bottom:clamp(56px,7vw,96px);background:linear-gradient(180deg,rgba(10,15,23,0) 0%,rgba(10,15,23,.55) 18%,rgba(10,15,23,.55) 82%,rgba(10,15,23,0) 100%);position:relative;overflow:hidden}
-    .lw-section.credibility::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,rgba(201,165,78,.045) 0,rgba(201,165,78,.045) 1px,transparent 1px,transparent 96px);mask-image:linear-gradient(180deg,transparent,#000 22%,#000 78%,transparent);-webkit-mask-image:linear-gradient(180deg,transparent,#000 22%,#000 78%,transparent);pointer-events:none;z-index:0}
-    .lw-section.credibility::after{content:'';position:absolute;left:clamp(20px,5vw,56px);right:clamp(20px,5vw,56px);top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,165,78,.55) 18%,rgba(201,165,78,.55) 82%,transparent);opacity:.9;z-index:1}
-    .lw-section.credibility .lw-inner{position:relative;z-index:2}
-    .lw-credibility-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-    .lw-credstrip{display:grid;grid-template-columns:repeat(5,1fr);align-items:stretch;border-top:1px solid rgba(201,165,78,.22);border-bottom:1px solid rgba(201,165,78,.22);padding:clamp(28px,3.6vw,52px) 0}
-    .lw-credcell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:6px clamp(14px,2vw,28px);border-right:1px solid rgba(201,165,78,.22);position:relative}
-    .lw-credcell:last-child{border-right:none}
-    .lw-credcell-num{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;color:#c9a54e;font-size:clamp(36px,3.4vw,44px);line-height:1;letter-spacing:-.012em;font-variant-numeric:tabular-nums lining-nums;display:inline-flex;align-items:baseline;justify-content:center;gap:.06em;white-space:nowrap}
-    .lw-credcell-num em{font-style:italic}
-    .lw-credcell-mark{font-family:'Cormorant Garamond',serif;font-style:normal;font-size:.62em;color:#c9a54e;letter-spacing:0;transform:translateY(-.1em)}
-    .lw-credcell-mark-soft{font-style:italic;color:#c9a54e;opacity:.78;font-size:.5em;transform:translateY(-.18em)}
-    .lw-credcell-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:rgba(250,248,245,.62);line-height:1.45}
-    .lw-credstrip-foot{margin-top:clamp(22px,2.4vw,32px);display:flex;align-items:center;gap:18px;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:15px;color:rgba(250,248,245,.78);letter-spacing:.005em;max-width:780px}
-    .lw-credstrip-foot em{font-style:italic;color:#c9a54e;font-weight:300}
-    .lw-credstrip-rule{flex:0 0 44px;height:1px;background:#c9a54e;opacity:.85;display:inline-block}
-    @media (max-width:1024px){.lw-credstrip{grid-template-columns:repeat(3,1fr);row-gap:clamp(24px,3vw,36px)}.lw-credcell{padding:14px 18px;border-right:1px solid rgba(201,165,78,.22);border-bottom:none}.lw-credcell:nth-child(3n){border-right:none}.lw-credcell:nth-child(-n+3){padding-bottom:clamp(20px,2.4vw,28px);border-bottom:1px solid rgba(201,165,78,.22)}.lw-credcell:last-child{border-right:none}}
-    @media (max-width:719px){.lw-section.credibility{padding-top:clamp(44px,9vw,64px);padding-bottom:clamp(44px,9vw,64px)}.lw-credstrip{grid-template-columns:1fr;padding:8px 0;row-gap:0}.lw-credcell{padding:22px 8px;border-right:none !important;border-bottom:1px solid rgba(201,165,78,.22) !important}.lw-credcell:last-child{border-bottom:none !important}.lw-credcell-num{font-size:38px}.lw-credstrip-foot{flex-direction:column;align-items:flex-start;gap:12px;margin-top:24px;font-size:14px}.lw-credstrip-rule{width:44px;flex:0 0 1px}}
-  </style>
-</section>
 
-<div class="lw-flourish" aria-hidden="true">
-  <span class="lw-flourish-rule"></span>
-  <span class="lw-flourish-mark"></span>
-  <span class="lw-flourish-rule"></span>
-</div>
-
-<!-- ═══════ HOW WE WORK (replaced Collections — every project quoted in conversation) ═══════ -->
-<section class="lw-section how-we-work" id="how-we-work" aria-labelledby="how-we-work-h">
-  <div class="lw-inner">
-    <span class="lw-section-eyebrow">A Private Brief</span>
-    <h2 id="how-we-work-h" class="lw-rv">A reply within one business day. <em>A proposal within two.</em></h2>
-    <p class="lw-lede lw-rv d1 lw-dropcap-art">No standard packages, no template proposals &mdash; only a private brief shaped to your dates, your venue, and the day you have in mind. Travel, scope, deliverables, and timeline are all built around the specific shape of your wedding.</p>
-
-    <ol class="lw-promise-list lw-rv d2">
-      <li><span class="lw-promise-num">01</span><span><em>A planning conversation</em> within 48 hours of inquiry.</span></li>
-      <li><span class="lw-promise-num">02</span><span><em>A private proposal</em> with scope, timeline, and tailored coverage.</span></li>
-      <li><span class="lw-promise-num">03</span><span><em>A pre-day site visit</em> when travel allows, to walk light and pace.</span></li>
-      <li><span class="lw-promise-num">04</span><span><em>Editorial delivery</em> within the agreed window. First frames in 72 hours.</span></li>
-    </ol>
-
-    <div class="lw-promise-cta lw-rv d3">
-      <a class="btn-primary lw-magnet" href="#inquiry" data-magnet>Begin Inquiry</a>
-    </div>
-  </div>
-</section>
-
-<style>
-.lw-section.how-we-work{background:var(--ink-3,#0a0f17)}
-.lw-promise-list{list-style:none;padding:0;margin:48px 0 0;display:grid;grid-template-columns:repeat(2,1fr);gap:32px;max-width:960px}
-.lw-promise-list li{display:flex;gap:18px;align-items:baseline;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(17px,1.4vw,20px);line-height:1.5;color:var(--cream,#faf8f5)}
-.lw-promise-list li em{font-style:italic;color:var(--gold,#c9a54e)}
-.lw-promise-num{font-family:var(--font-sans,'Syne',sans-serif);font-size:9px;font-weight:500;letter-spacing:.28em;color:var(--gold,#c9a54e);min-width:28px;line-height:1.6}
-.lw-promise-cta{margin-top:56px}
-@media(max-width:720px){.lw-promise-list{grid-template-columns:1fr;gap:24px}}
-</style>
 
 <!-- ═══════ COASTLINES ═══════ -->
 <section class="lw-section coastlines" id="coastlines" aria-labelledby="coast-h">
@@ -1729,157 +1643,154 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   <span class="lw-flourish-rule"></span>
 </div>
 
-<!-- ═══════ CTA BAND A — low pressure, planning-forward ═══════ -->
-<section class="lw-cta-band" aria-label="Begin a wedding inquiry">
-  <div class="lw-cta-inner">
-    <div class="lw-cta-copy">
-      <span class="lw-cta-eyebrow">The Director Replies in 24 Hours</span>
-      <h2 class="lw-cta-headline">Tell us your date. <em>We'll tell you what's possible.</em></h2>
-    </div>
-    <div class="lw-cta-actions">
-      <a class="lw-btn lw-btn-gold" href="#inquiry" data-magnet>Begin Inquiry<svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a>
-      <a class="lw-btn lw-btn-outline" href="https://wa.me/529902046514" target="_blank" rel="noopener" data-magnet>WhatsApp<svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a>
-    </div>
-  </div>
-</section>
 
-<!-- ═══════ DIRECTOR INTRO ═══════ -->
-<section class="lw-section lw-director" id="director" aria-labelledby="director-h">
+
+<!-- ═══════ VOICE (Director + Studio Note + Credentials) ═══════ -->
+<section class="lw-section lw-voice" id="director" aria-labelledby="voice-h">
   <div class="lw-inner">
-    <div class="lw-director-grid">
-      <figure class="lw-director-portrait lw-rv d1">
-        <div class="lw-director-frame">
+    <div class="lw-voice-grid">
+      <figure class="lw-voice-portrait lw-rv d1">
+        <div class="lw-voice-frame">
           <img src="https://assets.ivaestudios.com/vianey-diaz.jpg" alt="Editorial portrait of Vianey Díaz, founder and creative director of IVAE Studios, a luxury destination wedding photographer based in Cancún" loading="lazy" width="1200" height="1500"/>
           <span class="lw-director-corner lw-director-corner--tl" aria-hidden="true"></span>
           <span class="lw-director-corner lw-director-corner--br" aria-hidden="true"></span>
         </div>
-        <figcaption class="lw-director-caption">
-          <span class="lw-director-caption-mark">N<sup>o</sup></span>
-          <span class="lw-director-caption-text">Vianey Díaz, in studio · Cancún</span>
+        <figcaption class="lw-voice-caption">
+          <span class="lw-voice-caption-mark">N<sup>o</sup></span>
+          <span>Vianey Díaz · in studio · Cancún</span>
         </figcaption>
       </figure>
-      <div class="lw-director-text lw-rv d2">
+      <div class="lw-voice-text lw-rv d2">
         <span class="lw-section-eyebrow">The Director</span>
-        <h2 id="director-h" class="lw-rv">Vianey Díaz <em>directs every wedding.</em></h2>
-        <p class="lw-director-lede lw-dropcap-art"><em>Every wedding is shot the way I would shoot my own. One signature tone across the gallery, one director on the day, one studio answering email from the first inquiry to the final archive. The standard does not change between a forty-guest ceremony and a three-day celebration. It is the only way I know how to work.</em></p>
-        <ul class="lw-director-credits" aria-label="Director credentials">
-          <li>10+ years editorial</li>
-          <li><span aria-hidden="true">·</span> Founded IVAE 2023</li>
-          <li><span aria-hidden="true">·</span> Bilingual EN / ES</li>
+        <h2 id="voice-h">Vianey Díaz <em>directs every wedding.</em></h2>
+        <p class="lw-voice-lede lw-dropcap-art"><em>Every wedding is shot the way I would shoot my own. One signature tone across the gallery, one director on the day, one studio answering email from the first inquiry to the final archive. The standard does not change between a forty-guest ceremony and a three-day celebration.</em></p>
+        <blockquote class="lw-voice-quote">
+          <span class="lw-voice-quote-glyph" aria-hidden="true">&ldquo;</span>
+          <span>We do not write packages. <em>We write briefs.</em></span>
+        </blockquote>
+        <ul class="lw-voice-stats" aria-label="Studio on the record">
+          <li><span class="lw-voice-stat-num"><em>500</em><span class="lw-voice-stat-mark">+</span></span><span class="lw-voice-stat-label">Sessions Delivered</span></li>
+          <li><span class="lw-voice-stat-num"><em>5.0</em><span class="lw-voice-stat-mark">&starf;</span></span><span class="lw-voice-stat-label">Forty&#8209;Two Reviews</span></li>
+          <li><span class="lw-voice-stat-num"><em>10</em><span class="lw-voice-stat-mark">+</span></span><span class="lw-voice-stat-label">Years, Editorial</span></li>
         </ul>
-        <p class="lw-director-signature"><em>— Vianey Díaz, Director</em></p>
+        <p class="lw-voice-sig"><em>&mdash; Vianey Díaz, Director</em></p>
       </div>
     </div>
   </div>
   <style>
-    .lw-section.lw-director{background:#0d1219;background-image:radial-gradient(ellipse at 20% 0%,rgba(201,165,78,.05),transparent 60%);position:relative}
-    .lw-section.lw-director::before{content:"";position:absolute;left:50%;top:0;width:1px;height:64px;background:linear-gradient(to bottom,transparent,#c9a54e);opacity:.5}
-    .lw-director-grid{display:grid;grid-template-columns:minmax(0,42fr) minmax(0,58fr);gap:clamp(40px,6vw,96px);align-items:center;margin-top:8px}
-    .lw-director-portrait{margin:0;position:relative}
-    .lw-director-frame{position:relative;aspect-ratio:4/5;width:100%;overflow:hidden;border:1px solid rgba(201,165,78,.55);box-shadow:0 40px 90px rgba(0,0,0,.45),0 8px 24px rgba(0,0,0,.3);background:#0a0f17}
-    .lw-director-frame::after{content:"";position:absolute;inset:10px;border:1px solid rgba(201,165,78,.18);pointer-events:none}
-    .lw-director-frame img{width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;filter:saturate(.95) contrast(1.02)}
+    .lw-section.lw-voice{background:#0d1219;background-image:radial-gradient(ellipse at 20% 0%,rgba(201,165,78,.05),transparent 60%);position:relative}
+    .lw-section.lw-voice::before{content:"";position:absolute;left:50%;top:0;width:1px;height:64px;background:linear-gradient(to bottom,transparent,#c9a54e);opacity:.5}
+    .lw-voice-grid{display:grid;grid-template-columns:minmax(0,42fr) minmax(0,58fr);gap:clamp(40px,6vw,96px);align-items:center;margin-top:8px}
+    .lw-voice-portrait{margin:0;position:relative}
+    .lw-voice-frame{position:relative;aspect-ratio:4/5;width:100%;overflow:hidden;border:1px solid rgba(201,165,78,.55);box-shadow:0 40px 90px rgba(0,0,0,.45),0 8px 24px rgba(0,0,0,.3);background:#0a0f17}
+    .lw-voice-frame::after{content:"";position:absolute;inset:10px;border:1px solid rgba(201,165,78,.18);pointer-events:none}
+    .lw-voice-frame img{width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;filter:saturate(.95) contrast(1.02)}
     .lw-director-corner{position:absolute;width:22px;height:22px;border-color:#c9a54e;pointer-events:none;z-index:2}
     .lw-director-corner--tl{top:-1px;left:-1px;border-top:1px solid;border-left:1px solid}
     .lw-director-corner--br{bottom:-1px;right:-1px;border-bottom:1px solid;border-right:1px solid}
-    .lw-director-caption{display:flex;align-items:baseline;gap:10px;margin-top:18px;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:rgba(250,248,245,.55)}
-    .lw-director-caption-mark{color:#c9a54e;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;letter-spacing:0;text-transform:none}
-    .lw-director-caption-mark sup{font-size:.6em;margin-left:1px}
-    .lw-director-text{max-width:620px}
-    .lw-director-text h2{margin:0}
-    .lw-director-lede{margin-top:32px;font-family:'Cormorant Garamond',serif;font-size:clamp(20px,1.6vw,24px);line-height:1.55;color:#faf8f5;max-width:560px}
-    .lw-director-lede em{font-style:italic;color:rgba(250,248,245,.92)}
-    .lw-director-credits{list-style:none;padding:0;margin:36px 0 0;display:flex;flex-wrap:wrap;gap:14px 16px;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:#c9a54e}
-    .lw-director-credits li{display:inline-flex;gap:14px;align-items:center}
-    .lw-director-credits li span{opacity:.55}
-    .lw-director-signature{margin:32px 0 0;padding-top:24px;border-top:1px solid rgba(201,165,78,.18);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.4;color:rgba(250,248,245,.7);max-width:360px}
-    .lw-director-signature em{font-style:italic;color:#c9a54e}
-    @media (max-width:880px){.lw-director-grid{grid-template-columns:1fr;gap:40px}.lw-director-portrait{max-width:520px;margin:0 auto}.lw-director-text{max-width:100%}.lw-director-lede{font-size:19px;line-height:1.6}.lw-director-credits{gap:10px 12px}}
-    @media (max-width:520px){.lw-director-credits{flex-direction:column;align-items:flex-start;gap:8px}.lw-director-credits li span{display:none}}
+    .lw-voice-caption{display:flex;align-items:baseline;gap:10px;margin-top:18px;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:rgba(250,248,245,.55)}
+    .lw-voice-caption-mark{color:#c9a54e;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;letter-spacing:0;text-transform:none}
+    .lw-voice-caption-mark sup{font-size:.6em;margin-left:1px}
+    .lw-voice-text{max-width:640px}
+    .lw-voice-text h2{margin:0}
+    .lw-voice-lede{margin-top:32px;font-family:'Cormorant Garamond',serif;font-size:clamp(19px,1.55vw,23px);line-height:1.6;color:#faf8f5;max-width:560px}
+    .lw-voice-lede em{font-style:italic;color:rgba(250,248,245,.92)}
+    .lw-voice-quote{position:relative;margin:48px 0 0;padding:0 0 0 32px;border-left:1px solid rgba(201,165,78,.55);font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(26px,2.8vw,38px);line-height:1.25;letter-spacing:-.005em;color:#faf8f5;max-width:520px}
+    .lw-voice-quote em{font-style:italic;color:#c9a54e}
+    .lw-voice-quote-glyph{position:absolute;left:-12px;top:-22px;font-family:'Cormorant Garamond',serif;font-weight:300;color:#c9a54e;font-size:64px;line-height:.7;opacity:.55;font-style:italic}
+    .lw-voice-stats{list-style:none;padding:36px 0 0;margin:40px 0 0;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;border-top:1px solid rgba(201,165,78,.2);max-width:560px}
+    .lw-voice-stats li{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left}
+    .lw-voice-stat-num{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;color:#c9a54e;font-size:clamp(28px,2.6vw,34px);line-height:1;letter-spacing:-.012em;display:inline-flex;align-items:baseline;gap:.04em}
+    .lw-voice-stat-num em{font-style:italic}
+    .lw-voice-stat-mark{font-style:normal;font-size:.62em;color:#c9a54e}
+    .lw-voice-stat-label{font-family:'Syne',sans-serif;font-size:9.5px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:rgba(250,248,245,.55);line-height:1.45}
+    .lw-voice-sig{margin:32px 0 0;padding-top:24px;border-top:1px solid rgba(201,165,78,.18);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.4;color:rgba(250,248,245,.7);max-width:360px}
+    .lw-voice-sig em{font-style:italic;color:#c9a54e}
+    @media (max-width:880px){.lw-voice-grid{grid-template-columns:1fr;gap:40px}.lw-voice-portrait{max-width:520px;margin:0 auto}.lw-voice-text{max-width:100%}.lw-voice-lede{font-size:19px;line-height:1.6}.lw-voice-quote{font-size:24px;padding-left:22px}.lw-voice-stats{gap:18px}}
+    @media (max-width:520px){.lw-voice-stats{grid-template-columns:1fr;gap:14px}}
   </style>
 </section>
 
-<!-- ═══════ INCLUDED (replaces tier cards — every wedding is custom, no packages) ═══════ -->
-<section class="lw-section investment" id="investment" aria-labelledby="invest-h">
+
+
+<!-- ═══════ FRAMES ═══════ -->
+<section class="lw-section frames" id="frames" aria-labelledby="frames-h">
   <div class="lw-inner">
-    <span class="lw-section-eyebrow">What's Included</span>
-    <h2 id="invest-h" class="lw-rv">Every brief carries <em>the same standards.</em></h2>
-    
-    <figure class="lw-incl-hero lw-rv d1" aria-label="A bride at golden hour, Cancun Hotel Zone">
-      <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-14.jpg" alt="A bride photographed at golden hour on the Cancun Hotel Zone coastline, the breeze lifting her veil" loading="lazy" width="1600" height="1067"/>
-      <figcaption class="lw-incl-hero-cap"><em>Cancún Hotel Zone &middot; golden hour</em></figcaption>
-    </figure>
-    <p class="lw-lede lw-rv d1 lw-dropcap-art">No standard packages, no price sheet on a shelf. Every wedding is shaped in conversation around scope, hours, coast, and travel. These are the deliverables built into every brief, regardless of size or season.</p>
+    <span class="lw-section-eyebrow">The Reel</span>
+    <h2 id="frames-h" class="lw-rv lw-words" data-words>Six frames from the year. <em>One signature tone.</em></h2>
 
-    <dl class="lw-manifest" aria-label="What every brief includes">
-      <div class="lw-manifest-row lw-rv d1">
-        <dt class="lw-manifest-title"><span class="lw-manifest-num">i</span>Director on the day</dt>
-        <dd class="lw-manifest-body">Vianey shoots every wedding the studio takes. One creative voice from inquiry through final archive &mdash; never a junior, never a substitute.</dd>
+    <div class="frames-rail-wrap">
+      <div class="frames-rail" id="lwFramesRail" tabindex="0" role="region" aria-label="Wedding frames reel, scroll horizontally">
+        <figure class="frame" tabindex="0">
+          <span class="frame-num">Frame i. / vi.</span>
+          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="A bride at the Cancun Hotel Zone at golden hour" loading="lazy" data-preview width="1200" height="1500"/>
+          <figcaption class="frame-cap">Cancún / Hotel Zone</figcaption>
+        </figure>
+        <figure class="frame" tabindex="0">
+          <span class="frame-num">Frame ii. / vi.</span>
+          <img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="A bride on a Cancun beach in editorial light" loading="lazy" data-preview width="1200" height="1500"/>
+          <figcaption class="frame-cap">Cancún / Beach</figcaption>
+        </figure>
+        <figure class="frame" tabindex="0">
+          <span class="frame-num">Frame iii. / vi.</span>
+          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-5.jpg" alt="A bride in private editorial portrait, Cancun" loading="lazy" data-preview width="1200" height="1500"/>
+          <figcaption class="frame-cap">Cancún / Suite</figcaption>
+        </figure>
+        <figure class="frame" tabindex="0">
+          <span class="frame-num">Frame iv. / vi.</span>
+          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="A bride photographed at sunset on the resort terrace" loading="lazy" data-preview width="1200" height="1500"/>
+          <figcaption class="frame-cap">Cancún / Terrace</figcaption>
+        </figure>
+        <figure class="frame" tabindex="0">
+          <span class="frame-num">Frame v. / vi.</span>
+          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg" alt="A bride and bouquet, editorial coverage" loading="lazy" data-preview width="1200" height="1500"/>
+          <figcaption class="frame-cap">Cancún / Bouquet</figcaption>
+        </figure>
+        <figure class="frame" tabindex="0">
+          <span class="frame-num">Frame vi. / vi.</span>
+          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-15.jpg" alt="Bride at blue hour after the ceremony" loading="lazy" data-preview width="1200" height="1500"/>
+          <figcaption class="frame-cap">Cancún / Blue Hour</figcaption>
+        </figure>
       </div>
-      <div class="lw-manifest-row lw-rv d2">
-        <dt class="lw-manifest-title"><span class="lw-manifest-num">ii</span>Signature color grade</dt>
-        <dd class="lw-manifest-body">One editorial tone, applied frame by frame. Skin tones honest, whites kept white, blacks held &mdash; the gallery delivered only when every image meets the same standard.</dd>
-      </div>
-      <div class="lw-manifest-row lw-rv d3">
-        <dt class="lw-manifest-title"><span class="lw-manifest-num">iii</span>Private 4K gallery</dt>
-        <dd class="lw-manifest-body">Unlimited downloads, full print rights released to the couple, archive held with the studio forever for re-prints and family copies.</dd>
-      </div>
-      <div class="lw-manifest-row lw-rv d1">
-        <dt class="lw-manifest-title"><span class="lw-manifest-num">iv</span>Sunset and blue hour</dt>
-        <dd class="lw-manifest-body">Two portrait blocks built into every timeline &mdash; sunset first, blue hour after toasts. The second block is the one couples write us about a year later.</dd>
-      </div>
-      <div class="lw-manifest-row lw-rv d2">
-        <dt class="lw-manifest-title"><span class="lw-manifest-num">v</span>Bilingual coordination</dt>
-        <dd class="lw-manifest-body">Every conversation, every contract, every email &mdash; in English and Spanish. The studio works in both languages from inquiry through archive delivery.</dd>
-      </div>
-      <div class="lw-manifest-row lw-rv d3">
-        <dt class="lw-manifest-title"><span class="lw-manifest-num">vi</span>Venue scout, in advance</dt>
-        <dd class="lw-manifest-body">Pre-day site visit when travel allows. Light, pace, and plan B all walked thirty days before the date &mdash; submitted back to your planner as a route map.</dd>
-      </div>
-      <div class="lw-manifest-row lw-rv d1">
-        <dt class="lw-manifest-title"><span class="lw-manifest-num">vii</span>First teasers in ten days</dt>
-        <dd class="lw-manifest-body">Editorial selects sent within ten days of the wedding &mdash; for thank-you notes, first social posts, and the families who could not be there.</dd>
-      </div>
-      <div class="lw-manifest-row lw-rv d2">
-        <dt class="lw-manifest-title"><span class="lw-manifest-num">viii</span>Full gallery, on time</dt>
-        <dd class="lw-manifest-body">Complete edited gallery within three to four weeks. Cinematic film within eight. Delivery dates are written into your agreement, not estimated.</dd>
-      </div>
-      <div class="lw-manifest-row lw-rv d3">
-        <dt class="lw-manifest-title"><span class="lw-manifest-num">ix</span>Caribbean travel, included</dt>
-        <dd class="lw-manifest-body">Cancún through Tulum at no travel fee &mdash; the Riviera Maya is home. Los Cabos and beyond quoted at cost, transparently, with flights and one-night accommodation.</dd>
-      </div>
-    </dl>
-
-    <p class="lw-incl-foot lw-rv d3"><em>Cinematic film, second photographer, multi-day extension, engagement sessions, and welcome-party coverage are quoted alongside the brief — never sold off a shelf, never bundled into a tier.</em></p>
-
-    <div class="lw-incl-cta lw-rv d4">
-      <a class="lw-btn lw-btn-gold lw-magnet" href="#inquiry" data-magnet>Begin a Brief<svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a>
+      <div class="frames-rail-hint" aria-hidden="true">Drag to scroll the reel</div>
     </div>
   </div>
+
+  <!-- inline testimonial letters, no card chrome -->
+  <div class="lw-letters" aria-label="Letters from past couples">
+    <article class="lw-letter lw-rv d1">
+      <figure class="lw-letter-photo" aria-hidden="true"><img src="/images/couple-riviera-maya-ivae-studios.jpg" alt="" loading="lazy" width="600" height="800"/></figure>
+      <blockquote class="lw-letter-body">Our gallery from IVAE Studios looks like it belongs in a magazine. Every frame felt directed, never staged. We still scroll through it on the weekends.</blockquote>
+      <footer class="lw-letter-attr"><span class="lw-letter-name">Samantha Whitfield</span><span class="lw-letter-where">Rosewood Mayakoba / 2026</span></footer>
+    </article>
+    <article class="lw-letter lw-rv d2">
+      <figure class="lw-letter-photo" aria-hidden="true"><img src="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" alt="" loading="lazy" width="600" height="800"/></figure>
+      <blockquote class="lw-letter-body">The studio did not just photograph our wedding. They composed it. Vianey read the day like a film, and the team moved through it like one breath.</blockquote>
+      <footer class="lw-letter-attr"><span class="lw-letter-name">Marco Benedetti</span><span class="lw-letter-where">Four Seasons Costa Palmas / 2026</span></footer>
+    </article>
+    <article class="lw-letter lw-rv d3">
+      <figure class="lw-letter-photo" aria-hidden="true"><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="" loading="lazy" width="600" height="800"/></figure>
+      <blockquote class="lw-letter-body">The golden hour portraits on the beach are the most beautiful images we have ever seen of ourselves. A private archive, not a gallery.</blockquote>
+      <footer class="lw-letter-attr"><span class="lw-letter-name">Priya Raghavan</span><span class="lw-letter-where">Nizuc Cancún / 2025</span></footer>
+    </article>
+  </div>
   <style>
-    .lw-section.investment{position:relative;background:#0a0f17;overflow:hidden}
-    .lw-section.investment::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 18% 12%,rgba(201,165,78,.06),transparent 55%),radial-gradient(ellipse at 82% 90%,rgba(201,165,78,.04),transparent 60%)}
-    .lw-section.investment > .lw-inner{position:relative;z-index:1}
-    .lw-manifest{margin:64px 0 0;padding:0;display:grid;grid-template-columns:1fr;border-top:1px solid rgba(201,165,78,.25)}
-    .lw-manifest-row{display:grid;grid-template-columns:1fr;align-items:start;gap:8px;padding:24px 0 26px;border-bottom:1px solid rgba(201,165,78,.12);transition:background .35s cubic-bezier(.22,.8,.2,1),padding .35s cubic-bezier(.22,.8,.2,1)}
-    @media (min-width:880px){.lw-manifest-row{grid-template-columns:38% 62%;gap:clamp(24px,3vw,48px);padding:30px 0 32px}}
-    .lw-manifest-row:hover{padding-left:8px}
-    @media (max-width:879px){.lw-manifest-row:hover{padding-left:0}}
-    .lw-manifest-title{position:relative;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:400;font-size:clamp(22px,2vw,26px);line-height:1.18;letter-spacing:-.005em;color:#faf8f5;margin:0;padding-left:clamp(28px,3vw,42px);display:flex;align-items:baseline;gap:12px}
-    .lw-manifest-num{position:absolute;left:0;top:.18em;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:14px;letter-spacing:.04em;color:#c9a54e;opacity:.7;line-height:1;font-variant:small-caps;text-transform:none}
-    .lw-manifest-row:hover .lw-manifest-num{opacity:1}
-    .lw-manifest-body{margin:0;font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(15px,1.1vw,17px);line-height:1.6;color:rgba(250,248,245,.7);letter-spacing:.005em}
-    .lw-incl-foot{margin:48px auto 0;max-width:780px;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(15px,1.2vw,18px);line-height:1.55;color:rgba(250,248,245,.6);text-align:center}
-    .lw-incl-cta{margin:36px auto 0;display:flex;justify-content:center}
-    @media (prefers-reduced-motion:reduce){.lw-incl-card,.lw-incl-rule{transition:none}}
+    .lw-letters{margin-top:clamp(56px,7vw,88px);padding-top:clamp(36px,4vw,56px);border-top:1px solid rgba(201,165,78,.18);display:grid;grid-template-columns:1fr;gap:clamp(36px,4vw,56px) clamp(24px,3vw,48px)}
+    @media (min-width:880px){.lw-letters{grid-template-columns:repeat(3,1fr)}}
+    .lw-letter{display:grid;grid-template-columns:64px 1fr;gap:18px;align-items:start;padding:0;position:relative}
+    @media (max-width:520px){.lw-letter{grid-template-columns:54px 1fr;gap:14px}}
+    .lw-letter-photo{position:relative;width:64px;height:84px;overflow:hidden;border:1px solid rgba(201,165,78,.5);margin:0;flex-shrink:0;grid-row:span 2}
+    @media (max-width:520px){.lw-letter-photo{width:54px;height:72px}}
+    .lw-letter-photo::after{content:"";position:absolute;inset:4px;border:1px solid rgba(201,165,78,.18);pointer-events:none}
+    .lw-letter-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92) contrast(1.02) brightness(.96)}
+    .lw-letter-body{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:clamp(15px,1.15vw,17px);line-height:1.55;color:#faf8f5;margin:0;letter-spacing:.003em}
+    .lw-letter-attr{display:flex;flex-direction:column;gap:2px;margin-top:14px;grid-column:2}
+    .lw-letter-name{font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#c9a54e;font-weight:500}
+    .lw-letter-where{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:rgba(250,248,245,.55);letter-spacing:.005em}
   </style>
 </section>
 
-<div class="lw-flourish" aria-hidden="true">
-  <span class="lw-flourish-rule"></span>
-  <span class="lw-flourish-mark"></span>
-  <span class="lw-flourish-rule"></span>
-</div>
+
 
 <!-- ═══════ METHOD ═══════ -->
 <style>
@@ -2056,341 +1967,91 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 })();
 </script>
 
-<!-- ═══════ PULL QUOTE — the studio voice, magazine grade ═══════ -->
-<aside class="lw-pullquote" aria-label="A note from the studio">
-  <span class="lw-pullquote-bg" aria-hidden="true"></span>
-  <span class="lw-pullquote-mark" aria-hidden="true">&ldquo;</span>
-  <blockquote>We do not write packages. <em>We write briefs.</em></blockquote>
-  <p class="lw-pullquote-attr">
-    <span class="lw-pullquote-attr-mark">&mdash;</span>
-    <span>The Studio Note &middot; Vianey Díaz</span>
-  </p>
-</aside>
 
-<!-- ═══════ CTA BAND B — scarcity, time-sensitive ═══════ -->
-<section class="lw-cta-band lw-cta-band--time" aria-label="Hold a wedding date">
-  <div class="lw-cta-inner">
-    <div class="lw-cta-copy">
-      <span class="lw-cta-eyebrow">Reserved Dates</span>
-      <h2 class="lw-cta-headline">Holding 2027 dates by appointment <em>since November.</em></h2>
-    </div>
-    <div class="lw-cta-actions">
-      <a class="lw-btn lw-btn-gold" href="#inquiry" data-magnet>Hold a Date<svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a>
-    </div>
-  </div>
-</section>
 
-<!-- ═══════ AVAILABILITY / SCARCITY ═══════ -->
-<section class="lw-section lw-cal" id="availability" aria-labelledby="lw-cal-h">
+<!-- ═══════ INCLUDED (replaces tier cards — every wedding is custom, no packages) ═══════ -->
+<section class="lw-section investment" id="investment" aria-labelledby="invest-h">
   <div class="lw-inner">
-    <span class="lw-section-eyebrow lw-rv">Reserved Dates</span>
-    <h2 id="lw-cal-h" class="lw-rv">A small calendar, <em>by design.</em></h2>
-    <p class="lw-cal-lede lw-rv d1"><em>Vianey directs every wedding herself. The studio takes a limited number of weekends a year &mdash; peak season holds three to four dates per month. Closer to a date, the calendar fills quickly.</em></p>
-    <div class="lw-cal-grid" role="list" aria-label="Availability across three years">
-      <article class="lw-cal-col lw-rv d2" role="listitem" aria-labelledby="lw-cal-y-2026">
-        <header class="lw-cal-head">
-          <span class="lw-cal-status">Mostly Booked</span>
-          <h3 class="lw-cal-year" id="lw-cal-y-2026">2026</h3>
-          <span class="lw-cal-note">Current Season</span>
-        </header>
-        <ul class="lw-cal-months" aria-label="Availability in 2026 by month">
-          <li><span class="lw-cal-mo">Jan</span><ul class="lw-cal-dots" aria-label="January 2026: fully booked"><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li></ul></li>
-          <li><span class="lw-cal-mo">Feb</span><ul class="lw-cal-dots" aria-label="February 2026: fully booked"><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li></ul></li>
-          <li><span class="lw-cal-mo">Mar</span><ul class="lw-cal-dots" aria-label="March 2026: fully booked"><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li></ul></li>
-          <li><span class="lw-cal-mo">Apr</span><ul class="lw-cal-dots" aria-label="April 2026: fully booked"><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li></ul></li>
-          <li><span class="lw-cal-mo">May</span><ul class="lw-cal-dots" aria-label="May 2026: limited dates"><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Jun</span><ul class="lw-cal-dots" aria-label="June 2026: fully booked"><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li></ul></li>
-          <li><span class="lw-cal-mo">Jul</span><ul class="lw-cal-dots" aria-label="July 2026: fully booked"><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li></ul></li>
-          <li><span class="lw-cal-mo">Aug</span><ul class="lw-cal-dots" aria-label="August 2026: fully booked"><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li></ul></li>
-          <li><span class="lw-cal-mo">Sep</span><ul class="lw-cal-dots" aria-label="September 2026: limited"><li class="is-on" aria-label="Reserved"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Oct</span><ul class="lw-cal-dots" aria-label="October 2026: limited"><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Nov</span><ul class="lw-cal-dots" aria-label="November 2026: fully booked"><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li></ul></li>
-          <li><span class="lw-cal-mo">Dec</span><ul class="lw-cal-dots" aria-label="December 2026: fully booked"><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li></ul></li>
-        </ul>
-      </article>
-      <article class="lw-cal-col lw-rv d3" role="listitem" aria-labelledby="lw-cal-y-2027">
-        <header class="lw-cal-head">
-          <span class="lw-cal-status">Limited</span>
-          <h3 class="lw-cal-year" id="lw-cal-y-2027">2027</h3>
-          <span class="lw-cal-note">Holding Dates</span>
-        </header>
-        <ul class="lw-cal-months" aria-label="Availability in 2027 by month">
-          <li><span class="lw-cal-mo">Jan</span><ul class="lw-cal-dots"><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Feb</span><ul class="lw-cal-dots"><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Mar</span><ul class="lw-cal-dots"><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Apr</span><ul class="lw-cal-dots"><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">May</span><ul class="lw-cal-dots"><li class="is-on" aria-label="Reserved"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Jun</span><ul class="lw-cal-dots"><li class="is-on" aria-label="Reserved"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Jul</span><ul class="lw-cal-dots"><li aria-label="Open"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Aug</span><ul class="lw-cal-dots"><li class="is-on" aria-label="Reserved"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Sep</span><ul class="lw-cal-dots"><li aria-label="Open"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Oct</span><ul class="lw-cal-dots"><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Nov</span><ul class="lw-cal-dots"><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Dec</span><ul class="lw-cal-dots"><li class="is-on" aria-label="Reserved"></li><li class="is-on" aria-label="Reserved"></li><li aria-label="Open"></li></ul></li>
-        </ul>
-      </article>
-      <article class="lw-cal-col lw-rv d4" role="listitem" aria-labelledby="lw-cal-y-2028">
-        <header class="lw-cal-head">
-          <span class="lw-cal-status">Now Booking</span>
-          <h3 class="lw-cal-year" id="lw-cal-y-2028">2028</h3>
-          <span class="lw-cal-note">First Holds Open</span>
-        </header>
-        <ul class="lw-cal-months" aria-label="Availability in 2028 by month">
-          <li><span class="lw-cal-mo">Jan</span><ul class="lw-cal-dots"><li aria-label="Open"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Feb</span><ul class="lw-cal-dots"><li class="is-on" aria-label="Reserved"></li><li aria-label="Open"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Mar</span><ul class="lw-cal-dots"><li aria-label="Open"></li><li aria-label="Open"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Apr</span><ul class="lw-cal-dots"><li aria-label="Open"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">May</span><ul class="lw-cal-dots"><li aria-label="Open"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Jun</span><ul class="lw-cal-dots"><li aria-label="Open"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Jul</span><ul class="lw-cal-dots"><li aria-label="Open"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Aug</span><ul class="lw-cal-dots"><li aria-label="Open"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Sep</span><ul class="lw-cal-dots"><li aria-label="Open"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Oct</span><ul class="lw-cal-dots"><li aria-label="Open"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Nov</span><ul class="lw-cal-dots"><li class="is-on" aria-label="Reserved"></li><li aria-label="Open"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-          <li><span class="lw-cal-mo">Dec</span><ul class="lw-cal-dots"><li aria-label="Open"></li><li aria-label="Open"></li><li aria-label="Open"></li></ul></li>
-        </ul>
-      </article>
-    </div>
-    <div class="lw-cal-key" aria-hidden="true">
-      <span class="lw-cal-keyset"><span class="lw-cal-keydot is-on"></span>Reserved</span>
-      <span class="lw-cal-keyset"><span class="lw-cal-keydot"></span>Open</span>
-    </div>
-    <div class="lw-cal-foot lw-rv d5">
-      <p class="lw-cal-coda"><em>Two letters before the studio confirms a date: an inquiry, and a quiet conversation.</em></p>
-      <a class="btn-primary lw-magnet lw-cal-cta" href="#inquiry" data-magnet>Hold a Date</a>
+    <span class="lw-section-eyebrow">What's Included</span>
+    <h2 id="invest-h" class="lw-rv">Every brief carries <em>the same standards.</em></h2>
+    
+    <figure class="lw-incl-hero lw-rv d1" aria-label="A bride at golden hour, Cancun Hotel Zone">
+      <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-14.jpg" alt="A bride photographed at golden hour on the Cancun Hotel Zone coastline, the breeze lifting her veil" loading="lazy" width="1600" height="1067"/>
+      <figcaption class="lw-incl-hero-cap"><em>Cancún Hotel Zone &middot; golden hour</em></figcaption>
+    </figure>
+    <p class="lw-lede lw-rv d1 lw-dropcap-art">No standard packages, no price sheet on a shelf. Every wedding is shaped in conversation around scope, hours, coast, and travel. These are the deliverables built into every brief, regardless of size or season.</p>
+
+    <dl class="lw-manifest" aria-label="What every brief includes">
+      <div class="lw-manifest-row lw-rv d1">
+        <dt class="lw-manifest-title"><span class="lw-manifest-num" aria-hidden="true"></span>Director on the day</dt>
+        <dd class="lw-manifest-body">Vianey shoots every wedding the studio takes. One creative voice from inquiry through final archive &mdash; never a junior, never a substitute.</dd>
+      </div>
+      <div class="lw-manifest-row lw-rv d2">
+        <dt class="lw-manifest-title"><span class="lw-manifest-num" aria-hidden="true"></span>Signature color grade</dt>
+        <dd class="lw-manifest-body">One editorial tone, applied frame by frame. Skin tones honest, whites kept white, blacks held &mdash; the gallery delivered only when every image meets the same standard.</dd>
+      </div>
+      <div class="lw-manifest-row lw-rv d3">
+        <dt class="lw-manifest-title"><span class="lw-manifest-num" aria-hidden="true"></span>Private 4K gallery</dt>
+        <dd class="lw-manifest-body">Unlimited downloads, full print rights released to the couple, archive held with the studio forever for re-prints and family copies.</dd>
+      </div>
+      <div class="lw-manifest-row lw-rv d1">
+        <dt class="lw-manifest-title"><span class="lw-manifest-num" aria-hidden="true"></span>Sunset and blue hour</dt>
+        <dd class="lw-manifest-body">Two portrait blocks built into every timeline &mdash; sunset first, blue hour after toasts. The second block is the one couples write us about a year later.</dd>
+      </div>
+      <div class="lw-manifest-row lw-rv d2">
+        <dt class="lw-manifest-title"><span class="lw-manifest-num" aria-hidden="true"></span>Bilingual coordination</dt>
+        <dd class="lw-manifest-body">Every conversation, every contract, every email &mdash; in English and Spanish. The studio works in both languages from inquiry through archive delivery.</dd>
+      </div>
+      <div class="lw-manifest-row lw-rv d3">
+        <dt class="lw-manifest-title"><span class="lw-manifest-num" aria-hidden="true"></span>Venue scout, in advance</dt>
+        <dd class="lw-manifest-body">Pre-day site visit when travel allows. Light, pace, and plan B all walked thirty days before the date &mdash; submitted back to your planner as a route map.</dd>
+      </div>
+      <div class="lw-manifest-row lw-rv d1">
+        <dt class="lw-manifest-title"><span class="lw-manifest-num" aria-hidden="true"></span>First teasers in ten days</dt>
+        <dd class="lw-manifest-body">Editorial selects sent within ten days of the wedding &mdash; for thank-you notes, first social posts, and the families who could not be there.</dd>
+      </div>
+      <div class="lw-manifest-row lw-rv d2">
+        <dt class="lw-manifest-title"><span class="lw-manifest-num" aria-hidden="true"></span>Full gallery, on time</dt>
+        <dd class="lw-manifest-body">Complete edited gallery within three to four weeks. Cinematic film within eight. Delivery dates are written into your agreement, not estimated.</dd>
+      </div>
+      <div class="lw-manifest-row lw-rv d3">
+        <dt class="lw-manifest-title"><span class="lw-manifest-num" aria-hidden="true"></span>Caribbean travel, included</dt>
+        <dd class="lw-manifest-body">Cancún through Tulum at no travel fee &mdash; the Riviera Maya is home. Los Cabos and beyond quoted at cost, transparently, with flights and one-night accommodation.</dd>
+      </div>
+    </dl>
+
+    <p class="lw-incl-foot lw-rv d3"><em>Cinematic film, second photographer, multi-day extension, engagement sessions, and welcome-party coverage are quoted alongside the brief — never sold off a shelf, never bundled into a tier.</em></p>
+
+    <div class="lw-incl-cta lw-rv d4">
+      <a class="lw-btn lw-btn-gold lw-magnet" href="#inquiry" data-magnet>Begin a Brief<svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a>
     </div>
   </div>
   <style>
-    .lw-section.lw-cal{background:#0a0f17;position:relative}
-    .lw-section.lw-cal::before{content:'';position:absolute;left:clamp(20px,5vw,56px);right:clamp(20px,5vw,56px);top:0;height:1px;background:rgba(201,165,78,.18);pointer-events:none}
-    .lw-cal-lede{margin-top:28px;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(19px,1.6vw,24px);line-height:1.6;color:#faf8f5;max-width:780px;letter-spacing:-.005em}
-    .lw-cal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(24px,3vw,56px);margin-top:clamp(56px,7vw,96px);align-items:start}
-    .lw-cal-col{position:relative;padding:0;border-top:1px solid rgba(201,165,78,.22)}
-    .lw-cal-head{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:24px 0 28px;border-bottom:1px solid rgba(201,165,78,.18)}
-    .lw-cal-status{font-family:'Syne',sans-serif;font-size:9px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;line-height:1}
-    .lw-cal-year{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(72px,9vw,128px);line-height:.92;letter-spacing:-.025em;color:#faf8f5;margin:6px 0 0;font-variant-numeric:lining-nums}
-    .lw-cal-note{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(15px,1.15vw,17px);color:#c9a54e;letter-spacing:0;margin-top:2px;opacity:.92}
-    .lw-cal-months{list-style:none;padding:0;margin:0;display:flex;flex-direction:column}
-    .lw-cal-months > li{display:grid;grid-template-columns:48px 1fr;align-items:center;gap:18px;padding:14px 0;border-bottom:1px solid rgba(201,165,78,.10)}
-    .lw-cal-months > li:last-child{border-bottom:none}
-    .lw-cal-mo{font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:#faf8f5;opacity:.78;line-height:1}
-    .lw-cal-dots{list-style:none;padding:0;margin:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .lw-cal-dots > li{width:9px;height:9px;border-radius:50%;border:1px solid #c9a54e;background:transparent;flex:0 0 auto}
-    .lw-cal-dots > li.is-on{background:#c9a54e;border-color:#c9a54e;box-shadow:0 0 0 2px rgba(201,165,78,.08)}
-    .lw-cal-key{display:flex;justify-content:flex-end;align-items:center;gap:28px;margin-top:32px;padding-top:24px;border-top:1px solid rgba(201,165,78,.14)}
-    .lw-cal-keyset{display:inline-flex;align-items:center;gap:10px;font-family:'Syne',sans-serif;font-size:9px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:#faf8f5;opacity:.7}
-    .lw-cal-keydot{width:8px;height:8px;border-radius:50%;border:1px solid #c9a54e;background:transparent;display:inline-block}
-    .lw-cal-keydot.is-on{background:#c9a54e}
-    .lw-cal-foot{margin-top:clamp(56px,6vw,84px);display:flex;flex-direction:column;align-items:center;gap:32px;text-align:center}
-    .lw-cal-coda{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(18px,1.5vw,22px);line-height:1.55;color:#faf8f5;opacity:.88;max-width:620px;margin:0}
-    @media(max-width:900px){.lw-cal-grid{grid-template-columns:1fr;gap:48px}.lw-cal-key{justify-content:flex-start}}
-    @media(max-width:560px){.lw-cal-head{padding:20px 0 22px}.lw-cal-year{font-size:clamp(64px,18vw,96px)}.lw-cal-months > li{grid-template-columns:44px 1fr;gap:14px;padding:12px 0}.lw-cal-key{flex-wrap:wrap;gap:18px}}
+    .lw-section.investment{position:relative;background:#0a0f17;overflow:hidden}
+    .lw-section.investment::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 18% 12%,rgba(201,165,78,.06),transparent 55%),radial-gradient(ellipse at 82% 90%,rgba(201,165,78,.04),transparent 60%)}
+    .lw-section.investment > .lw-inner{position:relative;z-index:1}
+    .lw-manifest{margin:64px 0 0;padding:0;display:grid;grid-template-columns:1fr;border-top:1px solid rgba(201,165,78,.25)}
+    .lw-manifest-row{display:grid;grid-template-columns:1fr;align-items:start;gap:8px;padding:24px 0 26px;border-bottom:1px solid rgba(201,165,78,.12);transition:background .35s cubic-bezier(.22,.8,.2,1),padding .35s cubic-bezier(.22,.8,.2,1)}
+    @media (min-width:880px){.lw-manifest-row{grid-template-columns:38% 62%;gap:clamp(24px,3vw,48px);padding:30px 0 32px}}
+    .lw-manifest-row:hover{padding-left:8px}
+    @media (max-width:879px){.lw-manifest-row:hover{padding-left:0}}
+    .lw-manifest-title{position:relative;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:400;font-size:clamp(22px,2vw,26px);line-height:1.18;letter-spacing:-.005em;color:#faf8f5;margin:0;padding-left:clamp(28px,3vw,42px);display:flex;align-items:baseline;gap:12px}
+    .lw-manifest-num{position:absolute;left:0;top:.6em;width:5px;height:5px;border-radius:50%;background:#c9a54e;opacity:.5;transition:opacity .35s,transform .4s cubic-bezier(.22,.8,.2,1)}
+    .lw-manifest-row:hover .lw-manifest-num{opacity:1}
+    .lw-manifest-body{margin:0;font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(15px,1.1vw,17px);line-height:1.6;color:rgba(250,248,245,.7);letter-spacing:.005em}
+    .lw-incl-foot{margin:48px auto 0;max-width:780px;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(15px,1.2vw,18px);line-height:1.55;color:rgba(250,248,245,.6);text-align:center}
+    .lw-incl-cta{margin:36px auto 0;display:flex;justify-content:center}
+    @media (prefers-reduced-motion:reduce){.lw-incl-card,.lw-incl-rule{transition:none}}
   </style>
 </section>
 
-<!-- ═══════ RESORT WORDMARKS STRIP ═══════ -->
-<section class="lw-section lw-rooms" aria-labelledby="lw-rooms-h">
-  <style>
-    .lw-rooms{background:#0a0f17;padding:clamp(64px,7vw,108px) clamp(20px,5vw,56px);border-top:1px solid rgba(201,165,78,.10);border-bottom:1px solid rgba(201,165,78,.10);overflow:hidden}
-    .lw-rooms .lw-inner{max-width:1280px;margin:0 auto;text-align:center}
-    .lw-rooms-eyebrow{display:inline-flex;align-items:center;gap:14px;font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:#c9a54e;margin:0 0 18px;justify-content:center}
-    .lw-rooms-eyebrow::before,.lw-rooms-eyebrow::after{content:'';width:32px;height:1px;background:#c9a54e;opacity:.7}
-    .lw-rooms-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(18px,1.9vw,26px);line-height:1.4;letter-spacing:.005em;color:#faf8f5;opacity:.86;margin:0 auto clamp(34px,4vw,52px);max-width:680px}
-    .lw-rooms-list{list-style:none;padding:0;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:14px 22px;max-width:1180px}
-    .lw-rooms-item{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(13px,1vw,15px);letter-spacing:.18em;text-transform:uppercase;color:#c9a54e;opacity:.6;white-space:nowrap;transition:opacity .5s ease}
-    .lw-rooms-item:hover{opacity:.95}
-    .lw-rooms-dot{display:inline-block;width:3px;height:3px;border-radius:50%;background:#c9a54e;opacity:.45;flex:0 0 auto}
-    .lw-rooms-coda{margin:clamp(34px,4vw,52px) auto 0;font-family:'Syne',sans-serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#faf8f5;opacity:.42}
-    @media (max-width:720px){.lw-rooms-list{gap:10px 14px}.lw-rooms-item{font-size:12px;letter-spacing:.16em}.lw-rooms-dot{width:2px;height:2px}}
-    @media (prefers-reduced-motion:reduce){.lw-rooms-item{transition:none}}
-  </style>
-  <div class="lw-inner">
-    <span class="lw-rooms-eyebrow">Rooms we know</span>
-    <p id="lw-rooms-h" class="lw-rooms-sub">Among the resorts the studio has covered.</p>
-    <ul class="lw-rooms-list" role="list" aria-label="Luxury resorts where IVAE Studios has photographed weddings">
-      <li class="lw-rooms-item" role="listitem">Rosewood Mayakoba</li>
-      <li class="lw-rooms-dot" aria-hidden="true"></li>
-      <li class="lw-rooms-item" role="listitem">Fairmont Mayakoba</li>
-      <li class="lw-rooms-dot" aria-hidden="true"></li>
-      <li class="lw-rooms-item" role="listitem">Banyan Tree Mayakoba</li>
-      <li class="lw-rooms-dot" aria-hidden="true"></li>
-      <li class="lw-rooms-item" role="listitem">Four Seasons Costa Palmas</li>
-      <li class="lw-rooms-dot" aria-hidden="true"></li>
-      <li class="lw-rooms-item" role="listitem">One &amp; Only Palmilla</li>
-      <li class="lw-rooms-dot" aria-hidden="true"></li>
-      <li class="lw-rooms-item" role="listitem">Waldorf Astoria Pedregal</li>
-      <li class="lw-rooms-dot" aria-hidden="true"></li>
-      <li class="lw-rooms-item" role="listitem">Ritz-Carlton Cancún</li>
-      <li class="lw-rooms-dot" aria-hidden="true"></li>
-      <li class="lw-rooms-item" role="listitem">Nizuc</li>
-      <li class="lw-rooms-dot" aria-hidden="true"></li>
-      <li class="lw-rooms-item" role="listitem">Maroma Belmond</li>
-      <li class="lw-rooms-dot" aria-hidden="true"></li>
-      <li class="lw-rooms-item" role="listitem">Grand Velas Riviera Maya</li>
-      <li class="lw-rooms-dot" aria-hidden="true"></li>
-      <li class="lw-rooms-item" role="listitem">UNICO 20&deg;87&deg;</li>
-      <li class="lw-rooms-dot" aria-hidden="true"></li>
-      <li class="lw-rooms-item" role="listitem">Montage Los Cabos</li>
-      <li class="lw-rooms-dot" aria-hidden="true"></li>
-      <li class="lw-rooms-item" role="listitem">Las Ventanas al Para&iacute;so</li>
-    </ul>
-    <p class="lw-rooms-coda" aria-hidden="true">Cancún &middot; Riviera Maya &middot; Los Cabos</p>
-  </div>
-</section>
-
-<!-- ═══════ TESTIMONIALS ═══════ -->
-<section class="lw-section tlist" aria-labelledby="t-h">
-  <div class="lw-inner">
-    <span class="lw-section-eyebrow lw-rv">From the Couples</span>
-    <h2 id="t-h" class="lw-rv">What couples write us, <em>a year later.</em></h2>
-
-    <div class="tlist-grid">
-      <article class="tlist-card lw-rv d1">
-        <figure class="tlist-photo" aria-hidden="true">
-          <img src="/images/couple-riviera-maya-ivae-studios.jpg" alt="" loading="lazy" width="600" height="800"/>
-        </figure>
-        <div class="tlist-stars" aria-label="5 out of 5 stars">&starf; &starf; &starf; &starf; &starf;</div>
-        <blockquote>Our gallery from IVAE Studios looks like it belongs in a magazine. Every frame felt directed, never staged. We still scroll through it on the weekends.</blockquote>
-        <div class="tlist-attr">
-          <span class="tlist-name">Samantha Whitfield</span>
-          <span class="tlist-where">Rosewood Mayakoba / 2026</span>
-        </div>
-      </article>
-
-      <article class="tlist-card lw-rv d2">
-        <figure class="tlist-photo" aria-hidden="true">
-          <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" alt="" loading="lazy" width="600" height="800"/>
-        </figure>
-        <div class="tlist-stars" aria-label="5 out of 5 stars">&starf; &starf; &starf; &starf; &starf;</div>
-        <blockquote>The studio did not just photograph our wedding. They composed it. Vianey, the Director, read the day like a film, and the team moved through it like one breath.</blockquote>
-        <div class="tlist-attr">
-          <span class="tlist-name">Marco Benedetti</span>
-          <span class="tlist-where">Four Seasons Costa Palmas / 2026</span>
-        </div>
-      </article>
-
-      <article class="tlist-card lw-rv d3">
-        <figure class="tlist-photo" aria-hidden="true">
-          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="" loading="lazy" width="600" height="800"/>
-        </figure>
-        <div class="tlist-stars" aria-label="5 out of 5 stars">&starf; &starf; &starf; &starf; &starf;</div>
-        <blockquote>The golden hour portraits on the beach are the most beautiful images we have ever seen of ourselves. IVAE Studios delivered a private archive, not a gallery.</blockquote>
-        <div class="tlist-attr">
-          <span class="tlist-name">Priya Raghavan</span>
-          <span class="tlist-where">Nizuc Cancún / 2025</span>
-        </div>
-      </article>
-    </div>
-
-    <blockquote class="tlist-coda lw-rv d4" aria-label="A note from couples we have served">
-      A wedding archive is built for the years after the wedding. The studio shapes every frame for that long view.
-      <cite>The Studio Note / Vianey Díaz, Director</cite>
-    </blockquote>
-  </div>
-</section>
-
-<div class="lw-flourish" data-soft="true" aria-hidden="true">
+<div class="lw-flourish" aria-hidden="true">
   <span class="lw-flourish-rule"></span>
   <span class="lw-flourish-mark"></span>
   <span class="lw-flourish-rule"></span>
 </div>
 
-<!-- ═══════ FRAMES ═══════ -->
-<section class="lw-section frames" id="frames" aria-labelledby="frames-h">
-  <div class="lw-inner">
-    <span class="lw-section-eyebrow">The Reel</span>
-    <h2 id="frames-h" class="lw-rv lw-words" data-words>Six frames from the year. <em>One signature tone.</em></h2>
 
-    <div class="frames-rail-wrap">
-      <div class="frames-rail" id="lwFramesRail" tabindex="0" role="region" aria-label="Wedding frames reel, scroll horizontally">
-        <figure class="frame" tabindex="0">
-          <span class="frame-num">Frame i. / vi.</span>
-          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="A bride at the Cancun Hotel Zone at golden hour" loading="lazy" data-preview width="1200" height="1500"/>
-          <figcaption class="frame-cap">Cancún / Hotel Zone</figcaption>
-        </figure>
-        <figure class="frame" tabindex="0">
-          <span class="frame-num">Frame ii. / vi.</span>
-          <img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="A bride on a Cancun beach in editorial light" loading="lazy" data-preview width="1200" height="1500"/>
-          <figcaption class="frame-cap">Cancún / Beach</figcaption>
-        </figure>
-        <figure class="frame" tabindex="0">
-          <span class="frame-num">Frame iii. / vi.</span>
-          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-5.jpg" alt="A bride in private editorial portrait, Cancun" loading="lazy" data-preview width="1200" height="1500"/>
-          <figcaption class="frame-cap">Cancún / Suite</figcaption>
-        </figure>
-        <figure class="frame" tabindex="0">
-          <span class="frame-num">Frame iv. / vi.</span>
-          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="A bride photographed at sunset on the resort terrace" loading="lazy" data-preview width="1200" height="1500"/>
-          <figcaption class="frame-cap">Cancún / Terrace</figcaption>
-        </figure>
-        <figure class="frame" tabindex="0">
-          <span class="frame-num">Frame v. / vi.</span>
-          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg" alt="A bride and bouquet, editorial coverage" loading="lazy" data-preview width="1200" height="1500"/>
-          <figcaption class="frame-cap">Cancún / Bouquet</figcaption>
-        </figure>
-        <figure class="frame" tabindex="0">
-          <span class="frame-num">Frame vi. / vi.</span>
-          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-15.jpg" alt="Bride at blue hour after the ceremony" loading="lazy" data-preview width="1200" height="1500"/>
-          <figcaption class="frame-cap">Cancún / Blue Hour</figcaption>
-        </figure>
-      </div>
-      <div class="frames-rail-hint" aria-hidden="true">Drag to scroll the reel</div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════ COMMITMENT (RISK REVERSAL) ═══════ -->
-<section class="lw-section lw-commit" id="commitment" aria-labelledby="commit-h">
-  <div class="lw-inner">
-    <span class="lw-section-eyebrow lw-rv">Held in Writing</span>
-    <h2 id="commit-h" class="lw-rv">The way we shoulder <em>the unknown.</em></h2>
-    <p class="lw-commit-lede lw-rv d2">Four promises that mean the same thing on the day as in the contract.</p>
-    <div class="lw-commit-spread" role="list">
-      <article class="lw-commit-q lw-rv d1" data-q="tl" role="listitem">
-        <span class="lw-commit-q-mark">a</span>
-        <h3 class="lw-commit-title">Weather, planned for.</h3>
-        <p class="lw-commit-body">Mexico's tropical climate brings sudden afternoon showers. We scout indoor backups thirty days before your date and rehearse the plan B. Most rain windows are twenty minutes &mdash; and the light returns saturated.</p>
-      </article>
-      <article class="lw-commit-q lw-rv d2" data-q="tr" role="listitem">
-        <span class="lw-commit-q-mark">b</span>
-        <h3 class="lw-commit-title">The Director, on the day.</h3>
-        <p class="lw-commit-body">Vianey is on every wedding the studio takes. Not a junior. Not a substitute. If unforeseen circumstance ever required a substitute team &mdash; never has &mdash; you would be informed first and given right of cancellation with full retainer return.</p>
-      </article>
-      <article class="lw-commit-q lw-rv d3" data-q="bl" role="listitem">
-        <span class="lw-commit-q-mark">c</span>
-        <h3 class="lw-commit-title">Editorial gallery, on time.</h3>
-        <p class="lw-commit-body">First teasers within ten days. Full gallery in three to four weeks. Cinematic film within eight. The dates are written into your agreement.</p>
-      </article>
-      <article class="lw-commit-q lw-rv d4" data-q="br" role="listitem">
-        <span class="lw-commit-q-mark">d</span>
-        <h3 class="lw-commit-title">Bilingual, throughout.</h3>
-        <p class="lw-commit-body">Every conversation, every contract, every email &mdash; in your language. The studio works in English and Spanish across the entire experience, from inquiry through archive delivery, with planners in both languages.</p>
-      </article>
-    </div>
-  </div>
-  <style>
-    .lw-section.lw-commit{background:radial-gradient(ellipse at 18% -10%,rgba(201,165,78,.05),transparent 55%),radial-gradient(ellipse at 82% 110%,rgba(201,165,78,.04),transparent 60%),#0a0f17;border-top:1px solid rgba(201,165,78,.18);border-bottom:1px solid rgba(201,165,78,.18)}
-    .lw-commit-lede{margin-top:22px;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(17px,1.45vw,21px);line-height:1.55;letter-spacing:.005em;color:rgba(250,248,245,.78);max-width:680px}
-    .lw-commit-spread{position:relative;margin-top:clamp(48px,6vw,88px);display:grid;grid-template-columns:1fr;gap:0}
-    @media (min-width:880px){.lw-commit-spread{grid-template-columns:1fr 1fr;gap:0}}
-    .lw-commit-spread::before,.lw-commit-spread::after{content:'';position:absolute;background:linear-gradient(90deg,transparent 0%,rgba(201,165,78,.6) 50%,transparent 100%);pointer-events:none}
-    .lw-commit-spread::before{left:0;right:0;top:50%;height:1px;transform:translateY(-.5px);display:none}
-    @media (min-width:880px){.lw-commit-spread::before{display:block}}
-    .lw-commit-spread::after{display:none}
-    @media (min-width:880px){.lw-commit-spread::after{display:block;top:6%;bottom:6%;left:50%;width:1px;height:auto;transform:translateX(-.5px);background:linear-gradient(180deg,transparent 0%,rgba(201,165,78,.6) 50%,transparent 100%)}}
-    .lw-commit-q{position:relative;padding:clamp(28px,3.5vw,48px) clamp(18px,3vw,40px);transition:padding .45s cubic-bezier(.22,.8,.2,1)}
-    @media (min-width:880px){.lw-commit-q[data-q="tl"]{padding:clamp(36px,4vw,56px) clamp(36px,4vw,56px) clamp(36px,4vw,56px) 0}.lw-commit-q[data-q="tr"]{padding:clamp(36px,4vw,56px) 0 clamp(36px,4vw,56px) clamp(36px,4vw,56px)}.lw-commit-q[data-q="bl"]{padding:clamp(36px,4vw,56px) clamp(36px,4vw,56px) 0 0}.lw-commit-q[data-q="br"]{padding:clamp(36px,4vw,56px) 0 0 clamp(36px,4vw,56px)}}
-    .lw-commit-q::before{content:'';position:absolute;left:0;top:0;width:24px;height:1px;background:#c9a54e;opacity:0;transform:scaleX(.4);transform-origin:left center;transition:opacity .5s cubic-bezier(.22,.8,.2,1),transform .55s cubic-bezier(.22,.8,.2,1),width .55s cubic-bezier(.22,.8,.2,1)}
-    @media (min-width:880px){.lw-commit-q[data-q="tr"]::before,.lw-commit-q[data-q="br"]::before{left:clamp(36px,4vw,56px)}.lw-commit-q[data-q="bl"]::before,.lw-commit-q[data-q="br"]::before{top:clamp(36px,4vw,56px)}}
-    .lw-commit-q:hover::before{opacity:1;transform:scaleX(1);width:44px}
-    .lw-commit-q-mark{position:absolute;right:clamp(18px,3vw,40px);top:clamp(18px,2.5vw,32px);font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(36px,4vw,54px);color:rgba(201,165,78,.18);line-height:1;letter-spacing:-.02em;transition:color .5s cubic-bezier(.22,.8,.2,1),opacity .5s cubic-bezier(.22,.8,.2,1)}
-    @media (min-width:880px){.lw-commit-q[data-q="tr"] .lw-commit-q-mark,.lw-commit-q[data-q="br"] .lw-commit-q-mark{right:0}.lw-commit-q[data-q="bl"] .lw-commit-q-mark,.lw-commit-q[data-q="br"] .lw-commit-q-mark{top:clamp(36px,4vw,56px)}}
-    .lw-commit-q:hover .lw-commit-q-mark{color:rgba(201,165,78,.6)}
-    .lw-commit-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:clamp(22px,1.7vw,26px);line-height:1.18;letter-spacing:-.005em;color:#faf8f5;margin:0 0 16px;padding-top:18px;max-width:32ch}
-    .lw-commit-body{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(14.5px,1.05vw,16.5px);line-height:1.65;color:rgba(250,248,245,.65);margin:0;max-width:42ch}
-    @media (prefers-reduced-motion:reduce){.lw-commit-card,.lw-commit-rule{transition:none}.lw-commit-card:hover,.lw-commit-card:focus-within{transform:none}}
-  </style>
-</section>
 
 <!-- ═══════ FAQ ═══════ -->
 <section class="lw-section faq" id="faq" aria-labelledby="faq-h">
@@ -2500,6 +2161,36 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
         </div>
       </div>
 
+
+      <div class="faq-item lw-rv d11">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-11" id="faq-q-11">
+          <span class="faq-q">Will Vianey personally be on the day?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-11" role="region" aria-labelledby="faq-q-11">
+          <p>Yes. Every wedding the studio takes is shot by Vianey Díaz, the Director. The agreement carries a substitution clause: if a force majeure event prevents her from being on the day, the full retainer is returned, in writing, no negotiation. There is no junior shooter pipeline. The name on the contract is the name behind the camera.</p>
+        </div>
+      </div>
+
+      <div class="faq-item lw-rv d12">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-12" id="faq-q-12">
+          <span class="faq-q">Do you guarantee delivery dates?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-12" role="region" aria-labelledby="faq-q-12">
+          <p>First teasers within ten days. Full gallery in three to four weeks. Cinematic film within eight weeks. Each delivery window is written into your agreement, not estimated.</p>
+        </div>
+      </div>
+
+      <div class="faq-item lw-rv d12">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-13" id="faq-q-13">
+          <span class="faq-q">What is your cancellation policy?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-13" role="region" aria-labelledby="faq-q-13">
+          <p>The full retainer is transferable to a new wedding date within twelve months at no penalty. After twelve months, the retainer converts to partial credit toward a studio session or future wedding. Force majeure clauses (hurricane, government order, documented medical event) are written into the agreement.</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -2510,19 +2201,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   <span class="lw-flourish-rule"></span>
 </div>
 
-<!-- ═══════ CTA BAND C — warm, direct ═══════ -->
-<section class="lw-cta-band lw-cta-band--warm" aria-label="Begin a conversation with the studio">
-  <div class="lw-cta-inner">
-    <div class="lw-cta-copy">
-      <span class="lw-cta-eyebrow">Begin a Conversation</span>
-      <h2 class="lw-cta-headline">Send a few lines about <em>the day you're planning.</em></h2>
-    </div>
-    <div class="lw-cta-actions">
-      <a class="lw-btn lw-btn-gold" href="#inquiry" data-magnet>Begin Inquiry<svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a>
-      <a class="lw-btn lw-btn-outline" href="mailto:hello@ivaestudios.com" data-magnet>Email the Director<svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a>
-    </div>
-  </div>
-</section>
+
 
 <!-- ═══════ INQUIRY (enterprise upgrade — first-reply promise + micro-incentives + de-emphasized paths + IG block) ═══════ -->
 <section class="lw-section inquiry lw-inq" id="inquiry" aria-labelledby="inq-h">
@@ -2531,6 +2210,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
     <span class="inquiry-rule lw-rv" aria-hidden="true"></span>
     <h2 id="inq-h" class="lw-rv">The first reply, <em>the same business day.</em></h2>
     <p class="lw-rv d1">Tell us the date, the venue, the shape of the day. The Director replies the same business day with a private proposal, sample full galleries from the most relevant resort, and a short personal note. No template. No pressure. A conversation.</p>
+    <p class="lw-rv d2 lw-inq-cal"><em>The studio takes a limited calendar each year &mdash; currently holding <strong>2027</strong> dates by appointment.</em></p>
     <div class="lw-actions lw-rv d2" style="justify-content:center">
       <a class="lw-btn lw-btn-gold lw-magnet" href="mailto:hello@ivaestudios.com?subject=Wedding%20Inquiry" data-magnet aria-label="Begin a private inquiry by email">Begin Inquiry<svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a>
       <a class="lw-btn lw-btn-outline" href="https://wa.me/529902046514" target="_blank" rel="noopener" data-magnet aria-label="WhatsApp the Director directly">WhatsApp the Director<svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></a>
@@ -2606,6 +2286,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
     <p class="lw-signature-line">Every reply written by hand &middot; <em>Vianey Díaz, Director</em></p>
   </div>
   <style>
+    .lw-inq-cal{margin:14px auto 0;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(14px,1.1vw,16px);color:rgba(250,248,245,.6);text-align:center;max-width:560px}.lw-inq-cal strong{color:#c9a54e;font-weight:400;letter-spacing:.04em}
     .lw-inq-promises{list-style:none;padding:0;margin:48px auto 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;max-width:920px;border-top:1px solid rgba(201,165,78,.22);border-bottom:1px solid rgba(201,165,78,.22)}
     .lw-inq-promise{padding:26px 28px;text-align:left;border-left:1px solid rgba(201,165,78,.14);display:flex;flex-direction:column;gap:8px}
     .lw-inq-promise:first-child{border-left:0}
@@ -2630,6 +2311,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
     @media (prefers-reduced-motion:reduce){.lw-inq-path,.lw-inq-ig,.lw-inq-ig-arrow{transition:none !important}}
   </style>
 </section>
+
 
 </main>
 
