@@ -9,6 +9,8 @@
 <link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotografo-bodas-destino-mexico"/>
 <link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/destination-wedding-photographer-mexico"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
+<script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <meta name="robots" content="noindex, nofollow"/>
@@ -105,20 +107,7 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 /* ── Header ─────────────────────────────────────────────────── */
-.site-header {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: var(--z-header);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 clamp(28px, 6vw, 80px);
-  height: 76px;
-  background: rgba(250,248,245,0.86);
-  backdrop-filter: saturate(120%) blur(10px);
-  -webkit-backdrop-filter: saturate(120%) blur(10px);
-  border-bottom: 1px solid rgba(14,22,32,0.06);
-}
+
 .header-logo {
   font-family: var(--font-sans);
   font-size: var(--fs-13);
@@ -1005,7 +994,7 @@ section { padding: clamp(96px, 12vw, 180px) clamp(28px, 6vw, 80px); }
 
 /* ── Print ──────────────────────────────────────────────────── */
 @media print {
-  .site-header, .scroll-cue, .reel-section, .skip-link { display: none; }
+  
   body { background: #fff; color: #000; }
 }
 </style>

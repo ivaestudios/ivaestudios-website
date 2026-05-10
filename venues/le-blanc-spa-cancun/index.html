@@ -42,6 +42,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="alternate" type="text/plain" title="AI-readable site manifest" href="/llms.txt"/>
+<link rel="stylesheet" href="/styles/tokens.css"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
+<script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <link rel="icon" href="/favicon.ico" sizes="any"/>
@@ -61,8 +64,8 @@ a{color:inherit}
 .wrap{max-width:1200px;margin:0 auto;width:100%}
 .rv{opacity:0;transform:translateY(24px);transition:all 0.7s cubic-bezier(0.16,1,0.3,1)}.rv.vis{opacity:1;transform:none}
 .d1{transition-delay:0.08s}.d2{transition-delay:0.16s}.d3{transition-delay:0.24s}
-.site-header{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 64px;height:72px;background:rgba(26,36,51,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(196,163,90,0.15);transition:background 0.3s}
-.site-header.scrolled{background:rgba(26,36,51,0.98)}
+
+
 .header-logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#f9f8f7;text-decoration:none}
 .header-logo span{color:#c4a35a}
 .header-nav{display:flex;align-items:center;gap:40px;list-style:none}
@@ -142,7 +145,7 @@ a{color:inherit}
 .footer-nav a:hover{color:rgba(249,248,247,0.75)}
 .footer-copy{font-size:10px;color:rgba(249,248,247,0.28);letter-spacing:0.1em}
 @media(max-width:1024px){.spots-grid,.services-grid{grid-template-columns:1fr 1fr}.timing-grid{grid-template-columns:1fr}}
-@media(max-width:767px){.site-header{padding:0 24px}.header-nav,.header-cta{display:none}.header-toggle{display:flex}.hero{height:88svh}.hero-content{padding:0 24px}.hero h1{font-size:clamp(28px,8vw,42px)}.breadcrumb{padding:14px 24px}.about,.spots,.timing,.services,.venue-related{padding:60px 24px}.spots-grid,.services-grid,.timing-grid{grid-template-columns:1fr}.cta{padding:72px 24px}.site-footer{padding:36px 24px}.footer-nav{gap:20px}}
+@media(max-width:767px){.header-nav,.header-cta{display:none}.header-toggle{display:flex}.hero{height:88svh}.hero-content{padding:0 24px}.hero h1{font-size:clamp(28px,8vw,42px)}.breadcrumb{padding:14px 24px}.about,.spots,.timing,.services,.venue-related{padding:60px 24px}.spots-grid,.services-grid,.timing-grid{grid-template-columns:1fr}.cta{padding:72px 24px}.site-footer{padding:36px 24px}.footer-nav{gap:20px}}
 </style>
 </head>
 <body>

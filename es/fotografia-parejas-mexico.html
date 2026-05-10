@@ -29,6 +29,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <script src="/js/services-dropdown-v2.js" defer></script>
@@ -128,44 +129,19 @@ body::before{
 .lc-rv.d4{transition-delay:.46s}
 
 /* ═══ HEADER (parity with v5 home) ═══ */
-.site-header{
- position:fixed;top:0;left:0;right:0;
- z-index:var(--z-header);
- display:flex;align-items:center;justify-content:space-between;
- padding:0 clamp(20px,5vw,64px);
- height:68px;
- background:rgba(10,15,23,.85);
- backdrop-filter:saturate(140%) blur(14px);
- -webkit-backdrop-filter:saturate(140%) blur(14px);
- border-bottom:1px solid rgba(201,165,78,.12);
- transition:background .55s var(--ease),backdrop-filter .55s var(--ease),height .45s var(--ease),border-color .55s var(--ease);
-}
-.site-header.scrolled{
- background:rgba(10,15,23,.94);
- backdrop-filter:saturate(160%) blur(20px);
- -webkit-backdrop-filter:saturate(160%) blur(20px);
- height:60px;
- border-bottom-color:var(--gold-line,rgba(201,165,78,.36));
-}
-.h-logo{font-family:var(--font-sans);font-size:14px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:var(--cream-1);text-decoration:none;flex-shrink:0}
-.h-logo em{font-style:normal;color:var(--gold)}
-.h-nav{display:flex;align-items:center;gap:28px}
-.h-nav a{font-family:var(--font-sans);font-size:9px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:rgba(250,248,245,.82);text-decoration:none;transition:color .25s var(--ease),transform .25s var(--ease);position:relative;display:inline-block}
-.h-nav a::after{content:'';position:absolute;left:0;right:0;bottom:-6px;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:right;transition:transform .35s var(--ease)}
-.h-nav a:hover,.h-nav a:focus-visible,.h-nav a[aria-current="page"]{color:var(--cream-1)}
-.h-nav a:hover::after,.h-nav a:focus-visible::after,.h-nav a[aria-current="page"]::after{transform:scaleX(1);transform-origin:left}
-.h-cta{
- font-family:var(--font-sans);font-size:9px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;
- color:var(--gold);background:transparent;
- border:1px solid var(--gold-line);
- padding:8px 18px;text-decoration:none;
- display:inline-flex;align-items:center;gap:10px;
- position:relative;overflow:hidden;
- transition:color .35s var(--ease),background .35s var(--ease),border-color .35s var(--ease);
-}
-.h-cta::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(196,163,90,.18) 50%,transparent 70%);transform:translateX(-100%);transition:transform .8s var(--ease)}
-.h-cta:hover::before,.h-cta:focus-visible::before{transform:translateX(100%)}
-.h-cta:hover,.h-cta:focus-visible{color:var(--cream-1);background:var(--gold-soft);border-color:var(--gold)}
+
+
+
+
+
+
+
+
+
+
+
+
+
 .h-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;background:none;border:none;min-width:44px;min-height:44px;align-items:center;justify-content:center}
 .h-toggle span{display:block;width:22px;height:1.5px;background:var(--cream-1);transition:transform .3s var(--ease),opacity .3s var(--ease)}
 .h-mobile-nav{display:none;position:fixed;top:68px;left:0;right:0;background:var(--ink-4);padding:24px clamp(20px,5vw,64px);flex-direction:column;border-bottom:1px solid var(--gold-line);z-index:8999}
@@ -173,7 +149,7 @@ body::before{
 .h-mobile-nav a{font-family:var(--font-sans);font-size:var(--fs-13);font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--text-on-dark-readable);text-decoration:none;padding:14px 0;border-bottom:1px solid var(--gold-line)}
 .h-mobile-nav a:last-child{border-bottom:none}
 @media (max-width: 900px){
- .h-nav,.h-cta{display:none}
+ 
  .h-toggle{display:inline-flex}
 }
 

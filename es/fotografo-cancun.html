@@ -32,6 +32,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/styles/tokens.css"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
+<script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <style>
@@ -50,8 +53,8 @@ a{color:inherit}
 /* --- Curtain --- */
 .curtain{position:relative;overflow:hidden}.curtain::after{content:'';position:absolute;inset:0;background:var(--sand);transform:scaleX(1);transform-origin:right;transition:transform 0.9s cubic-bezier(0.16,1,0.3,1) 0.15s}.curtain.vis::after{transform:scaleX(0)}
 /* --- Header --- */
-.site-header{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 64px;height:72px;background:rgba(26,36,51,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(196,163,90,0.15);transition:background 0.3s}
-.site-header.scrolled{background:rgba(26,36,51,0.98)}
+
+
 .header-logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#f9f8f7;text-decoration:none}
 .header-logo span{color:#c4a35a}
 .header-nav{display:flex;align-items:center;gap:40px;list-style:none}
@@ -200,7 +203,7 @@ a{color:inherit}
 }
 /* --- Responsive: Mobile --- */
 @media(max-width:767px){
-.site-header{padding:0 24px}
+
 .header-nav,.header-cta{display:none}
 .header-toggle{display:flex}
 .hero{height:100svh}

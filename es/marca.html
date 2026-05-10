@@ -53,6 +53,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/styles/tokens.css"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
+<script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 
@@ -67,8 +70,8 @@
 .skip-link{position:absolute;top:-100%;left:16px;background:var(--gold);color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;border-radius:0 0 4px 4px;transition:top 0.3s}
 .skip-link:focus{top:0}
 body{font-family:'Syne',sans-serif;background:var(--cream);color:var(--ink);overflow-x:hidden;line-height:1.6}
-.site-header{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(24px,5vw,64px);height:72px;background:transparent;transition:background 0.5s,backdrop-filter 0.5s}
-.site-header.scrolled{background:rgba(14,22,32,0.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+
+
 .header-logo{font-size:15px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:var(--cream);text-decoration:none}
 .header-logo span{color:var(--gold)}
 .header-nav{display:flex;align-items:center;gap:40px;list-style:none}

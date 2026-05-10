@@ -29,6 +29,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
+<script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script type="application/json" id="direction-meta">{"direction": "B: Cinematic Film", "animations": 14, "phase": 3}</script>
@@ -84,18 +86,8 @@ a { color: inherit; }
 }
 
 /* ── Header ─────────────────────────────────────────────── */
-.site-header {
-  position: fixed; top:0; left:0; right:0;
-  display:flex; align-items:center; justify-content:space-between;
-  padding: 0 var(--s-gutter); height: 72px;
-  background: transparent;
-  transition: background var(--t-medium) var(--ease), backdrop-filter var(--t-medium) var(--ease);
-  z-index: var(--z-header);
-}
-.site-header.scrolled {
-  background: rgba(12,18,25,0.92);
-  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-}
+
+
 .header-logo {
   font-family: var(--font-sans); font-size: var(--fs-15); font-weight: 700;
   letter-spacing: var(--tracking-eyebrow-base); text-transform: uppercase;

@@ -30,6 +30,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
+<script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script type="application/json" id="direction-meta">{"direction": "A: Editorial Vogue", "animations": 10, "phase": 3}</script>
@@ -99,20 +101,8 @@ body::before {
 /* ═══════════════════════════════════════════════════════════════
    SITE HEADER (preserved a11y, magazine-restrained)
    ═══════════════════════════════════════════════════════════════ */
-.site-header {
-  position: fixed; top: 0; left: 0; right: 0;
-  z-index: var(--z-header);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 var(--s-gutter);
-  height: 76px;
-  background: transparent;
-  transition: background var(--t-medium) var(--ease), backdrop-filter var(--t-medium) var(--ease);
-}
-.site-header.scrolled {
-  background: rgba(10,15,23,0.92);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-}
+
+
 .header-logo {
   font-family: var(--font-sans);
   font-size: var(--fs-13);
