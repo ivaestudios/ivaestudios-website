@@ -130,14 +130,19 @@ body::before{
   z-index:var(--z-header);
   display:flex;align-items:center;justify-content:space-between;
   padding:0 clamp(20px,5vw,64px);
-  height:72px;
-  background:transparent;
-  transition:background .5s var(--ease),backdrop-filter .5s var(--ease);
+  height:68px;
+  background:rgba(10,15,23,.85);
+  backdrop-filter:saturate(140%) blur(14px);
+  -webkit-backdrop-filter:saturate(140%) blur(14px);
+  border-bottom:1px solid rgba(201,165,78,.12);
+  transition:background .55s var(--ease),backdrop-filter .55s var(--ease),height .45s var(--ease),border-color .55s var(--ease);
 }
 .site-header.scrolled{
-  background:var(--header-bg-scrolled);
-  backdrop-filter:var(--header-blur-scrolled);
-  -webkit-backdrop-filter:var(--header-blur-scrolled);
+  background:rgba(10,15,23,.94);
+  backdrop-filter:saturate(160%) blur(20px);
+  -webkit-backdrop-filter:saturate(160%) blur(20px);
+  height:60px;
+  border-bottom-color:var(--gold-line,rgba(201,165,78,.36));
 }
 .h-logo{font-family:var(--font-sans);font-size:14px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:var(--cream-1);text-decoration:none;flex-shrink:0}
 .h-logo em{font-style:normal;color:var(--gold)}
@@ -160,7 +165,7 @@ body::before{
 .h-cta:hover,.h-cta:focus-visible{color:var(--cream-1);background:var(--gold-soft);border-color:var(--gold)}
 .h-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;background:none;border:none;min-width:44px;min-height:44px;align-items:center;justify-content:center}
 .h-toggle span{display:block;width:22px;height:1.5px;background:var(--cream-1);transition:transform .3s var(--ease),opacity .3s var(--ease)}
-.h-mobile-nav{display:none;position:fixed;top:72px;left:0;right:0;background:var(--ink-4);padding:24px clamp(20px,5vw,64px);flex-direction:column;border-bottom:1px solid var(--gold-line);z-index:8999}
+.h-mobile-nav{display:none;position:fixed;top:68px;left:0;right:0;background:var(--ink-4);padding:24px clamp(20px,5vw,64px);flex-direction:column;border-bottom:1px solid var(--gold-line);z-index:8999}
 .h-mobile-nav.open{display:flex}
 .h-mobile-nav a{font-family:var(--font-sans);font-size:var(--fs-13);font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--text-on-dark-readable);text-decoration:none;padding:14px 0;border-bottom:1px solid var(--gold-line)}
 .h-mobile-nav a:last-child{border-bottom:none}
@@ -232,7 +237,7 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 /* ═══════════════════════════════════════════════════════════════
    SECTION 1 — HERO
    ═══════════════════════════════════════════════════════════════ */
-.lc-hero{position:relative;min-height:100vh;display:flex;align-items:flex-end;background:var(--ink-3);overflow:hidden;perspective:1200px;padding-top:72px}
+.lc-hero{position:relative;min-height:100vh;display:flex;align-items:flex-end;background:var(--ink-3);overflow:hidden;perspective:1200px;padding-top:68px}
 .lc-hero-bg{position:absolute;inset:0;z-index:0;transform-style:preserve-3d;transition:transform .6s var(--ease);will-change:transform}
 .lc-hero-bg img{width:100%;height:108%;object-fit:cover;object-position:center;filter:brightness(.45) saturate(.78);display:block}
 .lc-hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(170deg,rgba(7,11,17,.72) 0%,rgba(12,18,25,.30) 45%,rgba(7,11,17,.78) 100%);pointer-events:none}

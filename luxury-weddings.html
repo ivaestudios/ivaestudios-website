@@ -475,6 +475,8 @@ body.lw-cur-cta .lw-cursor-ring{
   }
   .pillars-grid{margin-top:0;display:flex;flex-direction:column;gap:28px}
   .pillars-grid .pillar{padding:24px 4px 24px;border-top:1px solid var(--gold-line)}
+  /* Pull-quote spans both columns below the grid (avoids overlap with sticky stats) */
+  .pillars .lw-inner .lw-pullquote{grid-column:1 / -1;margin-top:clamp(80px,8vw,140px)}
 }
 
 /* ── Word-by-word reveal on h2s ── */

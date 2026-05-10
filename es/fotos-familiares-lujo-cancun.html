@@ -141,7 +141,7 @@ html.js-on .rv.is-visible{opacity:1;transform:translateY(0)}
 .rv.d4{transition-delay:0.40s}
 
 /* ─── HEADER (mirrors v5 home: .site-header / .h-nav / .h-cta) ─── */
-.site-header{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 clamp(24px,5vw,64px);height:72px;background:transparent;transition:background 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),backdrop-filter 0.5s}
+.site-header{position:fixed !important;top:0 !important;left:0;right:0;z-index:9000 !important;display:flex !important;align-items:center;justify-content:space-between;gap:24px;padding:0 clamp(20px,4vw,48px);height:68px;background:rgba(10,15,23,.85);backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);border-bottom:1px solid rgba(201,165,78,.12);transition:background .55s var(--ease,cubic-bezier(0.16,1,0.3,1)),backdrop-filter .55s var(--ease),height .45s var(--ease),border-color .55s var(--ease)}
 .site-header.scrolled{background:rgba(14,22,32,0.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .h-logo{font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#faf8f5;text-decoration:none}
 .h-logo em{color:var(--gold,#c9a54e);font-style:normal}
@@ -162,7 +162,7 @@ a.h-cta svg{width:13px;height:13px}
 .h-burger[aria-expanded="true"] span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
 .h-burger[aria-expanded="true"] span:nth-child(2){opacity:0}
 .h-burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
-.m-nav{display:none;position:fixed;top:72px;left:0;right:0;background:rgba(14,22,32,0.98);padding:24px 32px;flex-direction:column;border-bottom:1px solid rgba(201,165,78,0.22);z-index:999}
+.m-nav{display:none;position:fixed;top:68px;left:0;right:0;background:rgba(14,22,32,0.98);padding:24px 32px;flex-direction:column;border-bottom:1px solid rgba(201,165,78,0.22);z-index:8999}
 .m-nav.is-open{display:flex}
 .m-nav a{font-family:var(--font-sans,'Syne',sans-serif);font-size:13px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:rgba(250,248,245,0.82);text-decoration:none;padding:14px 0;border-bottom:1px solid rgba(201,165,78,0.18);display:block}
 .m-nav a:last-child{border-bottom:none}
