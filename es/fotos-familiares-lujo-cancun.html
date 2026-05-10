@@ -30,6 +30,8 @@
 <link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<script src="/js/components.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <script src="/js/services-dropdown-v2.js" defer></script>
@@ -406,21 +408,21 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
 .lf-inquiry-meta dd{font-family:var(--font-sans,'Syne',sans-serif);font-size:13px;color:rgba(250,248,245,0.82)}
 
 /* ─── COLOPHON / FOOTER (mirrors v5 home colophon for sitewide cohesion) ─── */
-.colophon{background:var(--ink-4,#080d12);padding:clamp(60px,8vw,100px) clamp(24px,5vw,64px) 36px;border-top:1px solid rgba(201,165,78,0.22);color:rgba(250,248,245,0.72)}
-.colophon-mark{text-align:center;max-width:780px;margin:0 auto 56px}
-.colophon-mark-name{display:inline-block;font-family:var(--font-sans,'Syne',sans-serif);font-size:13px;font-weight:700;letter-spacing:0.32em;text-transform:uppercase;color:#faf8f5}
-.colophon-mark-name em{color:var(--gold,#c9a54e);font-style:normal}
-.colophon-tag{display:block;margin-top:14px;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:14px;font-style:italic;color:rgba(250,248,245,0.62);line-height:1.5}
-.colophon-tag em{color:var(--gold,#c9a54e)}
-.colophon-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:36px;max-width:1280px;margin:0 auto 56px}
-.col-h{font-family:var(--font-sans,'Syne',sans-serif);font-size:10px;font-weight:600;letter-spacing:0.32em;text-transform:uppercase;color:var(--gold,#c9a54e);margin-bottom:18px}
-.colophon-cols p{font-family:var(--font-sans,'Syne',sans-serif);font-size:13px;line-height:1.75;color:rgba(250,248,245,0.62)}
-.colophon-cols ul{display:flex;flex-direction:column;gap:10px}
-.colophon-cols ul a{font-family:var(--font-sans,'Syne',sans-serif);font-size:12.5px;color:rgba(250,248,245,0.78);text-decoration:none;transition:color 0.25s}
-.colophon-cols ul a:hover{color:var(--gold,#c9a54e)}
-.colophon-bottom{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:18px;padding-top:28px;border-top:1px solid rgba(201,165,78,0.18);font-family:var(--font-sans,'Syne',sans-serif);font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(250,248,245,0.42)}
-.colophon-bottom em{color:var(--gold,#c9a54e);font-style:italic;text-transform:none;letter-spacing:0.12em}
-.colophon-bottom-rule{display:inline-block;width:24px;height:1px;background:rgba(201,165,78,0.42)}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ─── RESPONSIVE ─── */
 @media (max-width: 1023px){
@@ -430,13 +432,13 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
   .lf-tier-grid{grid-template-columns:1fr;gap:14px}
   .lf-tier--featured{transform:none}
   .lf-testimonial-grid{grid-template-columns:1fr 1fr}
-  .colophon-cols{grid-template-columns:1fr 1fr}
+  
 }
 @media (max-width: 767px){
   .lf-meta-strip{grid-template-columns:1fr 1fr}
   .lf-feature-meta{grid-template-columns:1fr}
   .lf-testimonial-grid{grid-template-columns:1fr}
-  .colophon-cols{grid-template-columns:1fr}
+  
   .lf-inquiry-meta>div{border-left:none;padding:0}
   .lf-hero-content{padding-bottom:80px}
   .lf-cinema{aspect-ratio:16/10}
@@ -862,20 +864,20 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
 <footer class="colophon" role="contentinfo" aria-label="Pie de página">
   <div class="colophon-mark">
     <span class="colophon-mark-name">IVAE<em>Studios</em></span>
-    <span class="colophon-tag">Fotografía de Resort de Lujo. <em>Editorial. Bilingüe. Solo hora dorada.</em></span>
+    <span class="colophon-tag">Fotografía de resort de lujo. <em>Editorial. Bilingüe. Sólo hora dorada.</em></span>
   </div>
   <div class="colophon-cols">
     <div>
       <div class="col-h">El Estudio</div>
-      <p>IVAE Studios es un estudio de fotografía de resort de lujo con base en Cancún, que trabaja en la Riviera Maya, Tulum, Isla Mujeres, y Los Cabos. Fundado por Vianey Díaz. Diez años de cámaras editoriales, dos idiomas, una obsesión con la hora en que la luz es honesta.</p>
+      <p>IVAE Studios es un estudio de fotografía de resort de lujo con base en Cancún, trabajando en Riviera Maya, Tulum, Isla Mujeres y Los Cabos. Fundado y dirigido por la Directora Vianey Díaz. Diez años de cámaras editoriales, dos idiomas, una obsesión con la hora en que la luz es honesta.</p>
     </div>
     <div>
       <div class="col-h">Estudio</div>
       <ul>
         <li><a href="/es/acerca-de">Vianey Díaz</a></li>
-        <li><a href="/es/marca">Marca y Prensa</a></li>
+        <li><a href="/es/marca">Marca &amp; Prensa</a></li>
         <li><a href="/es/blog">El Diario</a></li>
-        <li><a href="#inquiry">Comenzar Consulta</a></li>
+        <li><a href="mailto:hello@ivaestudios.com">Comenzar consulta</a></li>
       </ul>
     </div>
     <div>
@@ -885,24 +887,25 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
         <li><a href="/es/fotografo-riviera-maya">Riviera Maya</a></li>
         <li><a href="/es/fotografo-los-cabos">Los Cabos</a></li>
         <li><a href="/es/fotografo-bodas-destino-mexico">Bodas</a></li>
-        <li><a href="/es/fotos-familiares-lujo-cancun" aria-current="page">Familias</a></li>
+        <li><a href="/es/fotos-familiares-lujo-cancun">Familias</a></li>
         <li><a href="/es/fotografia-parejas-mexico">Parejas</a></li>
+        <li><a href="/es/editorial-de-lujo">Editorial</a></li>
       </ul>
     </div>
     <div>
       <div class="col-h">Líneas directas</div>
       <ul>
         <li><a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a></li>
-        <li><a href="https://wa.me/529902046514" target="_blank" rel="noopener">WhatsApp al estudio</a></li>
+        <li><a href="https://wa.me/529902046514" target="_blank" rel="noopener">WhatsApp el estudio</a></li>
         <li><a href="https://www.instagram.com/ivaestudios.cancun/" target="_blank" rel="noopener">Instagram</a></li>
-        <li><a href="/luxury-family-photos-cancun" lang="en">English</a></li>
+        <li><a href="/" lang="en">English</a></li>
       </ul>
     </div>
   </div>
   <div class="colophon-bottom">
     <span>&copy; 2026 IVAE Studios &middot; Cancún, México</span>
     <span class="colophon-bottom-rule"></span>
-    <em>Tipografías Cormorant Garamond y Syne</em>
+    <em>Hecho en Cormorant Garamond &amp; Syne</em>
     <span class="colophon-bottom-rule"></span>
     <span>Cancún · Riviera Maya · Los Cabos · Español / English</span>
   </div>

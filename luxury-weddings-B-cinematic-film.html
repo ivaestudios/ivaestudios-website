@@ -32,6 +32,8 @@
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<script src="/js/components.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script type="application/json" id="direction-meta">{"direction": "B: Cinematic Film", "animations": 14, "phase": 3}</script>
 <style>
@@ -965,32 +967,13 @@ a { color: inherit; }
 }
 
 /* ── Footer ─────────────────────────────────────────────── */
-.site-footer {
-  background: var(--ink-4); padding: var(--s-12) var(--s-gutter);
-  border-top: 1px solid var(--gold-line);
-  display: flex; justify-content: space-between; align-items: center;
-  flex-wrap: wrap; gap: var(--s-6);
-}
-.footer-brand {
-  font-family: var(--font-sans); font-size: var(--fs-13); font-weight: 700;
-  letter-spacing: var(--tracking-eyebrow-base); text-transform: uppercase;
-  color: var(--gold);
-}
-.site-footer nav { display: flex; gap: var(--s-8); flex-wrap: wrap; }
-.site-footer nav a {
-  font-family: var(--font-sans); font-size: var(--fs-10); font-weight: 600;
-  letter-spacing: var(--tracking-eyebrow-tight); text-transform: uppercase;
-  color: var(--text-on-dark-2); text-decoration: none;
-  transition: color var(--t-quick) var(--ease);
-}
-.site-footer nav a:hover { color: var(--cream-1); }
-.site-footer nav a:focus-visible {
-  outline: var(--focus-ring-on-dark); outline-offset: var(--focus-ring-offset);
-}
-.footer-copy {
-  font-family: var(--font-sans); font-size: var(--fs-10);
-  color: var(--text-on-dark-3); letter-spacing: 0.10em;
-}
+
+
+
+
+
+
+
 
 /* Visually hidden utility */
 .visually-hidden {
@@ -1018,7 +1001,7 @@ a { color: inherit; }
   .trust-inner { grid-template-columns: 1fr 1fr; gap: var(--s-8); }
   .inquiry-meta-cell { border-right: none; padding: var(--s-4) 0; }
   .inquiry-meta { flex-direction: column; padding-top: var(--s-6); }
-  .site-footer { flex-direction: column; text-align: center; }
+  
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1590,18 +1573,54 @@ a { color: inherit; }
 
 </main>
 
-<footer class="site-footer" role="contentinfo">
-  <div class="footer-brand">IVAE Studios</div>
-  <nav aria-label="Footer">
-    <a href="/about">About</a>
-    <a href="/luxury-weddings.html">Weddings</a>
-    <a href="/luxury-family-photos.html">Family</a>
-    <a href="/cancun.html">Cancún</a>
-    <a href="/riviera-maya.html">Riviera Maya</a>
-    <a href="/los-cabos.html">Los Cabos</a>
-    <a href="/blog/">Journal</a>
-  </nav>
-  <span class="footer-copy">&copy; IVAE Studios &middot; Cancún, Quintana Roo</span>
+<footer class="colophon" role="contentinfo" aria-label="Footer">
+  <div class="colophon-mark">
+    <span class="colophon-mark-name">IVAE<em>Studios</em></span>
+    <span class="colophon-tag">Luxury Resort Photography. <em>Editorial. Bilingual. Golden hour, only.</em></span>
+  </div>
+  <div class="colophon-cols">
+    <div>
+      <div class="col-h">The Studio</div>
+      <p>IVAE Studios is a luxury resort photography studio based in Cancún, working across the Riviera Maya, Tulum, Isla Mujeres, and Los Cabos. Founded and led by Director Vianey Díaz. Ten years of editorial cameras, two languages, one obsession with the hour the light is honest.</p>
+    </div>
+    <div>
+      <div class="col-h">Studio</div>
+      <ul>
+        <li><a href="/about">Vianey Díaz</a></li>
+        <li><a href="/brand">Brand &amp; Press</a></li>
+        <li><a href="/blog">The Journal</a></li>
+        <li><a href="mailto:hello@ivaestudios.com">Begin Inquiry</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="col-h">Coastlines</div>
+      <ul>
+        <li><a href="/cancun-photographer">Cancún</a></li>
+        <li><a href="/riviera-maya-photographer">Riviera Maya</a></li>
+        <li><a href="/los-cabos-photographer">Los Cabos</a></li>
+        <li><a href="/destination-wedding-photographer-mexico">Weddings</a></li>
+        <li><a href="/luxury-family-photos-cancun">Families</a></li>
+        <li><a href="/couples-photography-mexico">Couples</a></li>
+        <li><a href="/luxury-editorial">Editorial</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="col-h">Direct lines</div>
+      <ul>
+        <li><a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a></li>
+        <li><a href="https://wa.me/529902046514" target="_blank" rel="noopener">WhatsApp the studio</a></li>
+        <li><a href="https://www.instagram.com/ivaestudios.cancun/" target="_blank" rel="noopener">Instagram</a></li>
+        <li><a href="/es/" lang="es">Español</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="colophon-bottom">
+    <span>&copy; 2026 IVAE Studios &middot; Cancún, México</span>
+    <span class="colophon-bottom-rule"></span>
+    <em>Set in Cormorant Garamond &amp; Syne</em>
+    <span class="colophon-bottom-rule"></span>
+    <span>Cancún · Riviera Maya · Los Cabos · English / Español</span>
+  </div>
 </footer>
 
 <script>

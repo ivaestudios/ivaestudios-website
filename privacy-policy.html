@@ -32,6 +32,8 @@
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<script src="/js/components.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <style>
 .skip-link{position:absolute;top:-100%;left:16px;background:var(--gold);color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;border-radius:0 0 4px 4px;transition:top 0.3s}
@@ -114,16 +116,16 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .legal-callout strong{display:block;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:500;color:var(--ink);margin-bottom:6px;letter-spacing:0.02em}
 
 /* FOOTER */
-.site-footer{background:var(--ink2);padding:64px clamp(24px,5vw,64px) 48px;border-top:none;display:flex;flex-direction:column;align-items:center;gap:0;position:relative}
-.site-footer::before{content:'';position:absolute;top:0;left:clamp(24px,5vw,64px);right:clamp(24px,5vw,64px);height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.footer-brand{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,2.5vw,30px);font-weight:300;letter-spacing:0.18em;text-transform:uppercase;color:var(--cream);margin-bottom:12px}
-.footer-brand span{color:var(--gold)}
+
+
+
+
 .footer-tagline{font-size:10px;font-weight:500;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);opacity:0.55;margin-bottom:36px}
-.site-footer nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:40px}
-.site-footer nav a{font-size:10px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:rgba(249,248,247,0.35);text-decoration:none;padding:6px 14px;border:1px solid transparent;transition:color 0.35s var(--lux),border-color 0.35s var(--lux)}
-.site-footer nav a:hover{color:var(--cream);border-color:rgba(196,163,90,0.25)}
+
+
+
 .footer-divider{width:48px;height:1px;background:var(--border);margin-bottom:28px}
-.footer-copy{font-size:10px;color:rgba(249,248,247,0.28);letter-spacing:0.14em;text-align:center}
+
 
 /* CTA */
 .legal-cta{background:var(--ink2);padding:80px clamp(24px,5vw,64px);text-align:center;color:var(--cream);position:relative;overflow:hidden}
@@ -145,7 +147,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   .legal-body h2{font-size:22px}
   .legal-body table{font-size:12.5px}
   .legal-body td,.legal-body th{padding:10px 8px}
-  .site-footer nav{gap:4px}.site-footer nav a{padding:8px 12px}
+  
 }
 @media(prefers-reduced-motion:reduce){
   .rv{transition:none!important;opacity:1!important;transform:none!important}
@@ -471,25 +473,54 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 </section>
 
 <!-- FOOTER -->
-<footer class="site-footer">
-  <span class="footer-brand"><span>IVAE</span> Studios</span>
-  <span class="footer-tagline">Luxury Resort Photography</span>
-  <nav>
-    <a href="/">Home</a>
-    <a href="/about">About</a>
-    <a href="/blog">Journal</a>
-    <a href="/cancun-photographer">Cancún</a>
-    <a href="/riviera-maya-photographer">Riviera Maya</a>
-    <a href="/cabo-photographer">Los Cabos</a>
-    <a href="/destination-wedding-photographer-mexico">Weddings</a>
-    <a href="/luxury-family-photos-cancun">Families</a>
-    <a href="/couples-photography-mexico">Couples</a>
-    <a href="/privacy-policy">Privacy</a>
-    <a href="/accessibility-statement">Accessibility</a>
-    <a href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Instagram</a>
-  </nav>
-  <div class="footer-divider"></div>
-  <span class="footer-copy">&copy; 2026 IVAE Studios &middot; Cancún, Mexico</span>
+<footer class="colophon" role="contentinfo" aria-label="Footer">
+  <div class="colophon-mark">
+    <span class="colophon-mark-name">IVAE<em>Studios</em></span>
+    <span class="colophon-tag">Luxury Resort Photography. <em>Editorial. Bilingual. Golden hour, only.</em></span>
+  </div>
+  <div class="colophon-cols">
+    <div>
+      <div class="col-h">The Studio</div>
+      <p>IVAE Studios is a luxury resort photography studio based in Cancún, working across the Riviera Maya, Tulum, Isla Mujeres, and Los Cabos. Founded and led by Director Vianey Díaz. Ten years of editorial cameras, two languages, one obsession with the hour the light is honest.</p>
+    </div>
+    <div>
+      <div class="col-h">Studio</div>
+      <ul>
+        <li><a href="/about">Vianey Díaz</a></li>
+        <li><a href="/brand">Brand &amp; Press</a></li>
+        <li><a href="/blog">The Journal</a></li>
+        <li><a href="mailto:hello@ivaestudios.com">Begin Inquiry</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="col-h">Coastlines</div>
+      <ul>
+        <li><a href="/cancun-photographer">Cancún</a></li>
+        <li><a href="/riviera-maya-photographer">Riviera Maya</a></li>
+        <li><a href="/los-cabos-photographer">Los Cabos</a></li>
+        <li><a href="/destination-wedding-photographer-mexico">Weddings</a></li>
+        <li><a href="/luxury-family-photos-cancun">Families</a></li>
+        <li><a href="/couples-photography-mexico">Couples</a></li>
+        <li><a href="/luxury-editorial">Editorial</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="col-h">Direct lines</div>
+      <ul>
+        <li><a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a></li>
+        <li><a href="https://wa.me/529902046514" target="_blank" rel="noopener">WhatsApp the studio</a></li>
+        <li><a href="https://www.instagram.com/ivaestudios.cancun/" target="_blank" rel="noopener">Instagram</a></li>
+        <li><a href="/es/" lang="es">Español</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="colophon-bottom">
+    <span>&copy; 2026 IVAE Studios &middot; Cancún, México</span>
+    <span class="colophon-bottom-rule"></span>
+    <em>Set in Cormorant Garamond &amp; Syne</em>
+    <span class="colophon-bottom-rule"></span>
+    <span>Cancún · Riviera Maya · Los Cabos · English / Español</span>
+  </div>
 </footer>
 
 <script>

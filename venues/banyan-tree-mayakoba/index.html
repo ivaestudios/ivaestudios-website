@@ -45,6 +45,8 @@
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<script src="/js/components.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script src="/dark-mode.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="any"/>
@@ -106,19 +108,19 @@ section .wrap ul li::before{content:'';position:absolute;left:0;top:11px;width:8
 .breadcrumb a:hover{color:var(--gold)}
 .breadcrumb .sep{color:var(--muted-l2)}
 .breadcrumb .current{color:var(--ink)}
-.site-footer{background:#1a2433;padding:48px 64px;border-top:1px solid rgba(196,163,90,0.15);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:24px}
-.footer-brand{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#c4a35a}
-.footer-nav{display:flex;gap:32px;flex-wrap:wrap}
-.footer-nav a{font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:rgba(249,248,247,0.45);text-decoration:none}
-.footer-nav a:hover{color:rgba(249,248,247,0.75)}
-.footer-copy{font-size:10px;color:rgba(249,248,247,0.28);letter-spacing:0.1em}
+
+
+
+
+
+
 @media(max-width:1024px){
 
 .header-nav,.header-cta{display:none}
 .header-toggle{display:flex}
 section .wrap ul{grid-template-columns:1fr;gap:12px}
-.site-footer{padding:36px 24px}
-.footer-nav{gap:20px}
+
+
 }
 @media(max-width:767px){
 .venue-hero{padding:48px 24px 32px}
@@ -221,21 +223,54 @@ section{padding:48px 0}
     </div>
   </section>
 </main>
-<footer class="site-footer">
-  <span class="footer-brand">IVAE Studios</span>
-  <nav class="footer-nav">
-    <a href="/">Home</a>
-    <a href="/about">About</a>
-    <a href="/blog">Journal</a>
-    <a href="/cancun-photographer">Cancún</a>
-    <a href="/riviera-maya-photographer">Riviera Maya</a>
-    <a href="/cabo-photographer">Los Cabos</a>
-    <a href="/luxury-weddings">Weddings</a>
-    <a href="/couples-photography">Couples</a>
-    <a href="/luxury-family-photos">Families</a>
-    <a href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Instagram</a>
-  </nav>
-  <span class="footer-copy">&copy; 2026 IVAE Studios &middot; Cancún, Mexico</span>
+<footer class="colophon" role="contentinfo" aria-label="Footer">
+  <div class="colophon-mark">
+    <span class="colophon-mark-name">IVAE<em>Studios</em></span>
+    <span class="colophon-tag">Luxury Resort Photography. <em>Editorial. Bilingual. Golden hour, only.</em></span>
+  </div>
+  <div class="colophon-cols">
+    <div>
+      <div class="col-h">The Studio</div>
+      <p>IVAE Studios is a luxury resort photography studio based in Cancún, working across the Riviera Maya, Tulum, Isla Mujeres, and Los Cabos. Founded and led by Director Vianey Díaz. Ten years of editorial cameras, two languages, one obsession with the hour the light is honest.</p>
+    </div>
+    <div>
+      <div class="col-h">Studio</div>
+      <ul>
+        <li><a href="/about">Vianey Díaz</a></li>
+        <li><a href="/brand">Brand &amp; Press</a></li>
+        <li><a href="/blog">The Journal</a></li>
+        <li><a href="mailto:hello@ivaestudios.com">Begin Inquiry</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="col-h">Coastlines</div>
+      <ul>
+        <li><a href="/cancun-photographer">Cancún</a></li>
+        <li><a href="/riviera-maya-photographer">Riviera Maya</a></li>
+        <li><a href="/los-cabos-photographer">Los Cabos</a></li>
+        <li><a href="/destination-wedding-photographer-mexico">Weddings</a></li>
+        <li><a href="/luxury-family-photos-cancun">Families</a></li>
+        <li><a href="/couples-photography-mexico">Couples</a></li>
+        <li><a href="/luxury-editorial">Editorial</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="col-h">Direct lines</div>
+      <ul>
+        <li><a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a></li>
+        <li><a href="https://wa.me/529902046514" target="_blank" rel="noopener">WhatsApp the studio</a></li>
+        <li><a href="https://www.instagram.com/ivaestudios.cancun/" target="_blank" rel="noopener">Instagram</a></li>
+        <li><a href="/es/" lang="es">Español</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="colophon-bottom">
+    <span>&copy; 2026 IVAE Studios &middot; Cancún, México</span>
+    <span class="colophon-bottom-rule"></span>
+    <em>Set in Cormorant Garamond &amp; Syne</em>
+    <span class="colophon-bottom-rule"></span>
+    <span>Cancún · Riviera Maya · Los Cabos · English / Español</span>
+  </div>
 </footer>
 <script>
 window.addEventListener('scroll',()=>{document.getElementById('siteHeader').classList.toggle('scrolled',scrollY>40)});
