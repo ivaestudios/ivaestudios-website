@@ -41,7 +41,7 @@
 <link rel="stylesheet" href="/dark-mode.css"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <script src="/js/components.js?v=20260510a" defer></script>
-<script src="/js/services-dropdown-v2.js?v=20260510j" defer></script>
+<script src="/js/services-dropdown-v2.js?v=20260510k" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script src="/dark-mode.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="any"/>
@@ -1203,6 +1203,19 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   .faq-answer,.faq-item::after{transition:none !important}
   .faq-q{background-image:none}
 }
+
+/* ═══════ FAQ — compact override (user feedback: smaller, less sprawling) ═══════ */
+.lw-section.faq{padding-top:clamp(56px,6vw,80px);padding-bottom:clamp(56px,6vw,80px)}
+.lw-section.faq .faq-inner{max-width:840px}
+.lw-section.faq .faq-list{margin-top:32px}
+.lw-section.faq .faq-trigger{padding:16px 0;gap:18px;min-height:auto}
+.lw-section.faq .faq-q{font-size:clamp(15px,1.15vw,17px);line-height:1.4;padding-bottom:1px}
+.lw-section.faq .faq-icon{width:22px;height:22px}
+.lw-section.faq .faq-icon::before{width:8px}
+.lw-section.faq .faq-icon::after{height:8px}
+.lw-section.faq .faq-answer p{padding:0 0 18px;font-size:14px;line-height:1.65}
+.lw-section.faq h2{font-size:clamp(28px,3.2vw,40px)}
+.lw-section.faq .lw-lede,.lw-section.faq p.lw-lede{font-size:clamp(15px,1.2vw,17px)}
 
 /* ═══════ Inquiry ═══════ */
 .inquiry{
