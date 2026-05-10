@@ -29,6 +29,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
+<script src="/js/services-dropdown-v2.js" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <link rel="preload" as="image" href="https://assets.ivaestudios.com/couples-photography-mexico-hero.jpg" fetchpriority="high"/>
 
@@ -146,16 +147,16 @@ body::before{
 }
 .h-logo{font-family:var(--font-sans);font-size:14px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:var(--cream-1);text-decoration:none;flex-shrink:0}
 .h-logo em{font-style:normal;color:var(--gold)}
-.h-nav{display:flex;align-items:center;gap:36px}
-.h-nav a{font-family:var(--font-sans);font-size:var(--fs-10);font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(250,248,245,.82);text-decoration:none;transition:color .25s var(--ease),transform .25s var(--ease);position:relative;display:inline-block}
+.h-nav{display:flex;align-items:center;gap:28px}
+.h-nav a{font-family:var(--font-sans);font-size:9px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:rgba(250,248,245,.82);text-decoration:none;transition:color .25s var(--ease),transform .25s var(--ease);position:relative;display:inline-block}
 .h-nav a::after{content:'';position:absolute;left:0;right:0;bottom:-6px;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:right;transition:transform .35s var(--ease)}
 .h-nav a:hover,.h-nav a:focus-visible,.h-nav a[aria-current="page"]{color:var(--cream-1)}
 .h-nav a:hover::after,.h-nav a:focus-visible::after,.h-nav a[aria-current="page"]::after{transform:scaleX(1);transform-origin:left}
 .h-cta{
-  font-family:var(--font-sans);font-size:var(--fs-10);font-weight:600;letter-spacing:.22em;text-transform:uppercase;
+  font-family:var(--font-sans);font-size:9px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;
   color:var(--gold);background:transparent;
   border:1px solid var(--gold-line);
-  padding:10px 22px;text-decoration:none;
+  padding:8px 18px;text-decoration:none;
   display:inline-flex;align-items:center;gap:10px;
   position:relative;overflow:hidden;
   transition:color .35s var(--ease),background .35s var(--ease),border-color .35s var(--ease);
@@ -843,7 +844,7 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 
   <figure class="lc-case-figure">
     <div class="lc-cinemascope">
-      <img src="https://assets.ivaestudios.com/couple-cabo-san-lucas-ivae-studios.jpg"
+      <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg"
            alt="Camila y Ana sobre la arena al pie del Arco de Cabo en hora dorada, una caminando adelante y la otra mirando hacia atrás, fotografiadas por IVAE Studios."
            loading="lazy"
            decoding="async"
@@ -1040,32 +1041,32 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
   <div class="lc-reel-track" id="lcReelTrack" role="region" aria-label="Reel de momentos románticos, seis imágenes" tabindex="0">
 
     <figure class="lc-reel-frame">
-      <img src="https://assets.ivaestudios.com/couple-proposal-tulum-ivae-studios.jpg" alt="Una propuesta sorpresa en una mesa privada de cena sobre la arena en Tulum en hora dorada, fotografiada por IVAE Studios." loading="lazy" decoding="async" width="800" height="1000">
+      <img src="/images/couple-tulum-ivae-studios.jpg" alt="Una propuesta sorpresa en una mesa privada de cena sobre la arena en Tulum en hora dorada, fotografiada por IVAE Studios." loading="lazy" decoding="async" width="800" height="1000">
       <figcaption class="lc-reel-caption">La rodilla.</figcaption>
     </figure>
 
     <figure class="lc-reel-frame">
-      <img src="https://assets.ivaestudios.com/couple-mayakoba-ivae-studios.jpg" alt="Una pareja en luna de miel caminando por la pasarela en hora dorada en Rosewood Mayakoba, fotografiada por IVAE Studios." loading="lazy" decoding="async" width="800" height="1000">
+      <img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Una pareja en luna de miel caminando por la pasarela en hora dorada en Rosewood Mayakoba, fotografiada por IVAE Studios." loading="lazy" decoding="async" width="800" height="1000">
       <figcaption class="lc-reel-caption">La mañana del vestido.</figcaption>
     </figure>
 
     <figure class="lc-reel-frame">
-      <img src="https://assets.ivaestudios.com/couple-cabo-arch-sunset-ivae-studios.jpg" alt="Una pareja al pie del Arco de Cabo al atardecer, una mirando hacia atrás por encima del hombro, fotografiada por IVAE Studios." loading="lazy" decoding="async" width="800" height="1000">
+      <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="Una pareja al pie del Arco de Cabo al atardecer, una mirando hacia atrás por encima del hombro, fotografiada por IVAE Studios." loading="lazy" decoding="async" width="800" height="1000">
       <figcaption class="lc-reel-caption">El segundo atardecer.</figcaption>
     </figure>
 
     <figure class="lc-reel-frame lc-reel-frame--same-sex">
-      <img src="https://assets.ivaestudios.com/couple-cabo-san-lucas-ivae-studios.jpg" alt="Camila y Ana en su aniversario número quince al pie del Arco de Cabo en hora dorada, fotografiadas por IVAE Studios." loading="lazy" decoding="async" width="800" height="1000">
+      <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="Camila y Ana en su aniversario número quince al pie del Arco de Cabo en hora dorada, fotografiadas por IVAE Studios." loading="lazy" decoding="async" width="800" height="1000">
       <figcaption class="lc-reel-caption">El año quince.</figcaption>
     </figure>
 
     <figure class="lc-reel-frame">
-      <img src="https://assets.ivaestudios.com/couple-cenote-riviera-maya-ivae-studios.jpg" alt="Una pareja saltando a un cenote en la Riviera Maya al mediodía con la luz del sol entrando por la apertura de la cueva, fotografiada por IVAE Studios." loading="lazy" decoding="async" width="800" height="1000">
+      <img src="/images/couple-riviera-maya-ivae-studios.jpg" alt="Una pareja saltando a un cenote en la Riviera Maya al mediodía con la luz del sol entrando por la apertura de la cueva, fotografiada por IVAE Studios." loading="lazy" decoding="async" width="800" height="1000">
       <figcaption class="lc-reel-caption">El clavado en el cenote.</figcaption>
     </figure>
 
     <figure class="lc-reel-frame">
-      <img src="https://assets.ivaestudios.com/couple-laughing-nizuc-ivae-studios.jpg" alt="Una pareja riendo en la playa en hora dorada en Nizuc Cancún, fotografiada por IVAE Studios." loading="lazy" decoding="async" width="800" height="1000">
+      <img src="/images/couple-cancun-hotel-zone-ivae-studios.jpg" alt="Una pareja riendo en la playa en hora dorada en Nizuc Cancún, fotografiada por IVAE Studios." loading="lazy" decoding="async" width="800" height="1000">
       <figcaption class="lc-reel-caption">La risa.</figcaption>
     </figure>
 

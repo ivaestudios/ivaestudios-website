@@ -145,15 +145,17 @@ html.js-on .rv.is-visible{opacity:1;transform:translateY(0)}
 .h-logo{font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#faf8f5;text-decoration:none}
 .h-logo em{color:var(--gold,#c9a54e);font-style:normal}
 .site-header nav{margin-left:auto}
-.h-nav{display:flex;align-items:center;gap:36px}
-.h-nav a{font-family:var(--font-sans,'Syne',sans-serif);font-size:10.5px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:rgba(250,248,245,0.82);text-decoration:none;transition:color 0.25s}
+.h-nav{display:flex;align-items:center;gap:28px}
+.h-nav a{font-family:var(--font-sans,'Syne',sans-serif);font-size:9px;font-weight:500;letter-spacing:0.28em;text-transform:uppercase;color:rgba(250,248,245,0.82);text-decoration:none;transition:color 0.25s;position:relative;padding-bottom:4px}
+.h-nav a::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--gold,#c9a54e);transform:scaleX(0);transform-origin:right;transition:transform 0.35s ease}
+.h-nav a:hover::after,.h-nav a:focus-visible::after,.h-nav a[aria-current="page"]::after{transform:scaleX(1);transform-origin:left}
 .h-nav a:hover,.h-nav a.is-active,.h-nav a[aria-current="page"]{color:#faf8f5}
 .lang-switch{display:flex;align-items:center;gap:8px;font-family:var(--font-sans,'Syne',sans-serif);font-size:10px;letter-spacing:0.18em;text-transform:uppercase}
 .lang-switch a{color:rgba(250,248,245,0.62);transition:color 0.25s;text-decoration:none}
 .lang-switch a.is-active,.lang-switch a[aria-current="page"]{color:var(--gold,#c9a54e)}
 .lang-switch a:hover{color:#faf8f5}
 .lang-sep{color:rgba(250,248,245,0.30)}
-html.dark a.h-cta,a.h-cta{display:inline-flex;align-items:center;gap:10px;font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold,#c9a54e)!important;border:1px solid rgba(201,165,78,0.4);padding:10px 22px;text-decoration:none;transition:background 0.3s,border-color 0.3s,color 0.3s;background:transparent}
+html.dark a.h-cta,a.h-cta{display:inline-flex;align-items:center;gap:10px;font-size:9px;font-weight:500;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold,#c9a54e)!important;border:1px solid rgba(201,165,78,0.4);padding:8px 18px;text-decoration:none;transition:background 0.3s,border-color 0.3s,color 0.3s;background:transparent}
 a.h-cta:hover{background:rgba(201,165,78,0.12);border-color:var(--gold,#c9a54e)}
 a.h-cta svg{width:13px;height:13px}
 .h-burger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;background:transparent;border:none}
@@ -681,7 +683,7 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
     <h2 class="lf-feature-h2 rv d1" id="feature-heading">Three generations, two languages, <em>one coastline.</em></h2>
   </div>
   <figure class="lf-cinema rv d2">
-    <img src="/family-riviera-maya-ivae-studios.jpg" alt="A grandfather lifts his grandson against the late-afternoon mangroves at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async" width="2400" height="1029">
+    <img src="/images/family-riviera-maya-ivae-studios.jpg" alt="A grandfather lifts his grandson against the late-afternoon mangroves at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async" width="2400" height="1029">
   </figure>
   <div class="lf-feature-body rv">
     <p class="lf-feature-caption">The reunion was set for the second week of April, on a private cay at Rosewood Mayakoba, with the lagoon at its back and the canopy of the Yucatán to the west. Three generations had flown in from Dallas, Mexico City, and London. Eight grandchildren, ages four through fourteen. The grandparents arrived two days early, the way grandparents do, and walked the boardwalks at the property's edge while the herons stood still long enough to be photographed.</p>
@@ -858,27 +860,27 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
   <p class="lf-reel-hint rv">Drag to scroll the reel</p>
   <div class="lf-reel-track" id="lfReelTrack" role="region" aria-label="Family photography reel, scrollable. Use arrow keys to navigate." tabindex="0">
     <figure class="lf-reel-frame">
-      <img src="/family-cancun-hotel-zone-ivae-studios.jpg" alt="A family poses on the white sand of the Cancún Hotel Zone at golden hour, photographed by IVAE Studios." loading="lazy" decoding="async">
+      <img src="/images/family-cancun-hotel-zone-ivae-studios.jpg" alt="A family poses on the white sand of the Cancún Hotel Zone at golden hour, photographed by IVAE Studios." loading="lazy" decoding="async">
       <figcaption class="lf-reel-caption" aria-hidden="true">Frame i. / vi.</figcaption>
     </figure>
     <figure class="lf-reel-frame">
-      <img src="/family-kids-cancun-beach-ivae-studios.jpg" alt="Two children laugh at the surf line in Cancún at sunset, photographed by IVAE Studios." loading="lazy" decoding="async">
+      <img src="/images/family-kids-cancun-beach-ivae-studios.jpg" alt="Two children laugh at the surf line in Cancún at sunset, photographed by IVAE Studios." loading="lazy" decoding="async">
       <figcaption class="lf-reel-caption" aria-hidden="true">Frame ii. / vi.</figcaption>
     </figure>
     <figure class="lf-reel-frame">
-      <img src="/family-kids-akumal-ivae-studios.jpg" alt="A family walks the boardwalk at Akumal in late afternoon light, photographed by IVAE Studios." loading="lazy" decoding="async">
+      <img src="/images/family-kids-akumal-ivae-studios.jpg" alt="A family walks the boardwalk at Akumal in late afternoon light, photographed by IVAE Studios." loading="lazy" decoding="async">
       <figcaption class="lf-reel-caption" aria-hidden="true">Frame iii. / vi.</figcaption>
     </figure>
     <figure class="lf-reel-frame">
-      <img src="/family-cancun-ivae-studios.jpg" alt="A family of five stands together on the wet sand at sunset in Cancún, photographed by IVAE Studios." loading="lazy" decoding="async">
+      <img src="/images/family-cancun-ivae-studios.jpg" alt="A family of five stands together on the wet sand at sunset in Cancún, photographed by IVAE Studios." loading="lazy" decoding="async">
       <figcaption class="lf-reel-caption" aria-hidden="true">Frame iv. / vi.</figcaption>
     </figure>
     <figure class="lf-reel-frame">
-      <img src="/family-kids-cancun-hotel-zone-ivae-studios-2.jpg" alt="A toddler holds a parent's hand on the path between the resort and the sea, photographed by IVAE Studios." loading="lazy" decoding="async">
+      <img src="/images/family-kids-cancun-hotel-zone-ivae-studios-2.jpg" alt="A toddler holds a parent's hand on the path between the resort and the sea, photographed by IVAE Studios." loading="lazy" decoding="async">
       <figcaption class="lf-reel-caption" aria-hidden="true">Frame v. / vi.</figcaption>
     </figure>
     <figure class="lf-reel-frame">
-      <img src="/family-kids-cancun-beach-ivae-studios-2.jpg" alt="A family laughs together as the wind catches their linens at golden hour in Cancún, photographed by IVAE Studios." loading="lazy" decoding="async">
+      <img src="/images/family-kids-cancun-beach-ivae-studios-2.jpg" alt="A family laughs together as the wind catches their linens at golden hour in Cancún, photographed by IVAE Studios." loading="lazy" decoding="async">
       <figcaption class="lf-reel-caption" aria-hidden="true">Frame vi. / vi.</figcaption>
     </figure>
   </div>

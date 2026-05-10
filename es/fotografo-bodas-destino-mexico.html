@@ -36,6 +36,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
+<script src="/js/services-dropdown-v2.js" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script src="/dark-mode.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="any"/>
@@ -448,11 +449,11 @@ html.dark .lw-clock-mbtn[aria-pressed="true"]{
   transition:transform .5s var(--ease);
 }
 .h-logo:hover em{transform:translateX(2px)}
-.h-nav{display:flex;gap:36px;list-style:none;align-items:center}
+.h-nav{display:flex;gap:28px;list-style:none;align-items:center}
 .h-nav a{
   font-family:var(--font-sans);
-  font-size:var(--fs-10);font-weight:500;
-  letter-spacing:var(--tracking-eyebrow-base);
+  font-size:9px;font-weight:500;
+  letter-spacing:.28em;
   text-transform:uppercase;
   color:var(--text-on-dark-2);
   position:relative;padding:6px 2px;
@@ -470,11 +471,11 @@ html.dark .lw-clock-mbtn[aria-pressed="true"]{
 .h-nav a:hover::after,.h-nav a:focus-visible::after{transform:scaleX(1);transform-origin:left}
 .h-cta{
   font-family:var(--font-sans);
-  font-size:var(--fs-10);font-weight:600;
-  letter-spacing:.18em;text-transform:uppercase;
+  font-size:9px;font-weight:500;
+  letter-spacing:.28em;text-transform:uppercase;
   color:var(--gold);
   border:1px solid var(--gold-line);
-  padding:14px 26px;
+  padding:8px 18px;
   min-height:var(--touch-target-min);
   display:inline-flex;align-items:center;justify-content:center;gap:10px;
   white-space:nowrap;
