@@ -80,3 +80,84 @@
     justify-content:center !important;
   }
 }
+
+
+/* ═══════ V·D Monogram (replaces broken vianey-diaz.jpg 404 site-wide) ═══════ */
+.lw-approach-portrait{
+  display:flex !important;align-items:center;justify-content:center;
+  background:
+    radial-gradient(ellipse at 30% 25%,rgba(201,165,78,.10),transparent 60%),
+    linear-gradient(180deg,#0a0f17 0%,#0d131c 100%) !important;
+  position:relative;
+}
+.lw-approach-portrait::before{
+  content:"";position:absolute;inset:14px;
+  border:1px solid rgba(201,165,78,.15);
+  pointer-events:none;
+}
+.lw-approach-monogram{
+  display:inline-flex;align-items:baseline;gap:.04em;
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-style:italic;font-weight:300;
+  color:#c9a54e;
+  font-size:clamp(80px,10vw,160px);
+  line-height:1;
+  letter-spacing:-.015em;
+  text-shadow:0 4px 30px rgba(201,165,78,.18);
+  user-select:none;
+}
+.lw-monogram-letter{display:inline-block}
+.lw-monogram-dot{
+  display:inline-block;
+  font-size:.46em;
+  color:#c9a54e;
+  opacity:.75;
+  transform:translateY(-.4em);
+  margin:0 .04em;
+}
+
+
+/* ═══════ TABLET (768-1024px) — bridging mobile and desktop ═══════ */
+@media (min-width:768px) and (max-width:1024px){
+  /* Hero CTAs side-by-side at tablet width (NOT full-width stack) */
+  .lw-actions, .lc-hero-ctas, .lf-hero-ctas, .le-hero-cta-wrap{
+    flex-direction:row !important;
+    align-items:center !important;
+    flex-wrap:wrap;
+  }
+  .lw-actions .lw-btn, .lc-hero-ctas .lc-btn, .lf-hero-ctas a.btn, .le-hero-cta-wrap a{
+    width:auto !important;
+  }
+  /* Body of Work plates: keep 3:2 at tablet (mobile was 4:5) */
+  .lw-plate-frame{aspect-ratio:3/2}
+  /* Approach: 2-column stays but tighter gap */
+  .lw-approach-inner{gap:48px !important}
+  .lw-approach-portrait{max-width:340px}
+  /* Section padding: between mobile and desktop scales */
+  .lw-test, .lw-inq2{padding-top:clamp(88px,11vw,140px) !important;padding-bottom:clamp(88px,11vw,140px) !important}
+  .lw-approach{padding-top:clamp(88px,11vw,140px) !important;padding-bottom:clamp(88px,11vw,140px) !important}
+  .lw-work{padding-top:clamp(88px,11vw,140px) !important;padding-bottom:clamp(64px,9vw,100px) !important}
+  /* Hero typography sweet spot at tablet */
+  .lw-hero h1, .lc-hero-h1, .hero-h1, .le-hero-h1{font-size:clamp(48px,7vw,68px) !important}
+  /* Approach typography */
+  .lw-approach-h{font-size:clamp(38px,5vw,52px) !important}
+  /* Body of Work caption width */
+  .lw-plate-caption{max-width:640px}
+  /* Hide sticky mobile CTA at tablet (room for in-page CTAs) */
+  .lw-sticky-mob-bar{display:none !important}
+  body.has-sticky-mob{padding-bottom:0 !important}
+  /* Approach monogram size */
+  .lw-approach-monogram{font-size:clamp(96px,11vw,140px) !important}
+}
+
+/* ═══════ MOBILE small (≤480px) — Vianey monogram + finer typography ═══════ */
+@media (max-width:480px){
+  .lw-approach-monogram{font-size:clamp(72px,18vw,100px) !important}
+  .lw-approach-portrait{aspect-ratio:4/5 !important;max-width:280px !important;margin:0 auto !important}
+  .lw-hero h1, .lc-hero-h1, .hero-h1, .le-hero-h1{font-size:clamp(32px,8vw,44px) !important;line-height:1.05 !important}
+  .lw-approach-h{font-size:clamp(32px,8vw,44px) !important}
+  .lw-test-quote p{font-size:clamp(24px,6.5vw,32px) !important;line-height:1.25 !important}
+  .lw-inq2-h{font-size:clamp(30px,8vw,42px) !important}
+  .lw-work-h{font-size:clamp(34px,9vw,48px) !important}
+  .lw-pause-line{font-size:clamp(26px,7vw,38px) !important}
+}
