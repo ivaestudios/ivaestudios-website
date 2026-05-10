@@ -45,8 +45,10 @@
 
 <link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
+<script src="/js/components.js?v=20260510a" defer></script>
 <script src="/js/services-dropdown-v2.js" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script src="/dark-mode.js"></script>
@@ -1452,49 +1454,18 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 }
 
 /* ═══════ Footer ═══════ */
-.le-footer{
-  background:var(--ink-1, #0a0d12);
-  padding:clamp(64px, 8vw, 96px) clamp(20px,5vw,56px) 32px;
-  border-top:1px solid var(--gold-line);
-}
-.le-footer-voice em{font-style:italic;color:var(--cream)}
-.le-footer-voice{
-  font-family:var(--font-serif);font-style:normal;font-weight:300;
-  font-size:clamp(20px, 2vw, 28px);
-  color:var(--gold);text-align:center;
-  margin:0 0 56px;letter-spacing:.02em;
-}
-.le-footer-grid{
-  display:grid;grid-template-columns:repeat(3, 1fr);gap:48px;
-  max-width:1200px;margin:0 auto 48px;
-  padding-bottom:36px;
-  border-bottom:1px solid var(--gold-line);
-}
-.le-footer-col-heading{
-  font-family:var(--font-sans);font-size:var(--fs-10, 10px);font-weight:600;
-  letter-spacing:var(--tracking-eyebrow-wide, .32em);
-  text-transform:uppercase;color:var(--gold);
-  margin:0 0 18px;
-}
-.le-footer-col ul{list-style:none;padding:0;margin:0}
-.le-footer-col li{
-  font-family:var(--font-sans);font-size:var(--fs-13, 13px);font-weight:400;
-  color:var(--text-on-dark-readable);padding:6px 0;
-}
-.le-footer-col a{
-  color:var(--text-on-dark-readable);text-decoration:none;
-  transition:color .3s var(--ease, ease);
-}
-.le-footer-col a:hover,.le-footer-col a:focus-visible{color:var(--gold)}
-.le-footer-col a[aria-current="page"]{color:var(--gold)}
-.le-footer-bottom{
-  text-align:center;
-  font-family:var(--font-sans);font-size:var(--fs-10, 10px);font-weight:400;
-  color:rgba(245,241,234,.6);margin:0;letter-spacing:.06em;
-}
-@media(max-width:768px){
-  .le-footer-grid{grid-template-columns:1fr;gap:32px}
-}
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ═══════ Comprehensive prefers-reduced-motion ═══════ */
 @media (prefers-reduced-motion: reduce){
@@ -2216,41 +2187,54 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 </main>
 
 <!-- ═══════ Section 11 - Footer ═══════ -->
-<footer class="le-footer" role="contentinfo">
-  <p class="le-footer-voice"><em>Editorial Photography.</em> Brand. Magazine. Resort. Cancun &middot; Riviera Maya &middot; Los Cabos.</p>
-  <div class="le-footer-grid">
-    <div class="le-footer-col">
-      <h3 class="le-footer-col-heading">Studio</h3>
+<footer class="colophon" role="contentinfo" aria-label="Footer">
+  <div class="colophon-mark">
+    <span class="colophon-mark-name">IVAE<em>Studios</em></span>
+    <span class="colophon-tag">Luxury Resort Photography. <em>Editorial. Bilingual. Golden hour, only.</em></span>
+  </div>
+  <div class="colophon-cols">
+    <div>
+      <div class="col-h">The Studio</div>
+      <p>IVAE Studios is a luxury resort photography studio based in Cancún, working across the Riviera Maya, Tulum, Isla Mujeres, and Los Cabos. Founded and led by Director Vianey Díaz. Ten years of editorial cameras, two languages, one obsession with the hour the light is honest.</p>
+    </div>
+    <div>
+      <div class="col-h">Studio</div>
       <ul>
-        <li><a href="/about">About the Studio</a></li>
-        <li><a href="/luxury-editorial" aria-current="page">Editorial</a></li>
-        <li><a href="/luxury-weddings">Weddings</a></li>
-        <li><a href="/luxury-family-photos-cancun">Family</a></li>
-        <li><a href="/cancun-couples-photographer">Couples</a></li>
+        <li><a href="/about">Vianey Díaz</a></li>
+        <li><a href="/brand">Brand &amp; Press</a></li>
         <li><a href="/blog">The Journal</a></li>
+        <li><a href="mailto:hello@ivaestudios.com">Begin Inquiry</a></li>
       </ul>
     </div>
-    <div class="le-footer-col">
-      <h3 class="le-footer-col-heading">Contact</h3>
+    <div>
+      <div class="col-h">Coastlines</div>
+      <ul>
+        <li><a href="/cancun-photographer">Cancún</a></li>
+        <li><a href="/riviera-maya-photographer">Riviera Maya</a></li>
+        <li><a href="/los-cabos-photographer">Los Cabos</a></li>
+        <li><a href="/destination-wedding-photographer-mexico">Weddings</a></li>
+        <li><a href="/luxury-family-photos-cancun">Families</a></li>
+        <li><a href="/couples-photography-mexico">Couples</a></li>
+        <li><a href="/luxury-editorial" aria-current="page">Editorial</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="col-h">Direct lines</div>
       <ul>
         <li><a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a></li>
-        <li>WhatsApp pending</li>
-        <li>Cancun &middot; Riviera Maya &middot; Los Cabos</li>
-        <li>Same-business-day response</li>
-        <li><a href="/es/editorial-de-lujo" hreflang="es" lang="es">Español</a></li>
-      </ul>
-    </div>
-    <div class="le-footer-col">
-      <h3 class="le-footer-col-heading">Legal</h3>
-      <ul>
-        <li><a href="/terms">Terms of service</a></li>
-        <li><a href="/privacy">Privacy policy</a></li>
-        <li><a href="/cookies">Cookie preferences</a></li>
-        <li><a href="/sitemap.xml">Site map</a></li>
+        <li><a href="https://wa.me/529902046514" target="_blank" rel="noopener">WhatsApp the studio</a></li>
+        <li><a href="https://www.instagram.com/ivaestudios.cancun/" target="_blank" rel="noopener">Instagram</a></li>
+        <li><a href="/es/editorial-de-lujo" lang="es">Español</a></li>
       </ul>
     </div>
   </div>
-  <p class="le-footer-bottom">&copy; 2026 IVAE Studios. All rights reserved. Built quietly, in Mexico. Editorial / v6</p>
+  <div class="colophon-bottom">
+    <span>&copy; 2026 IVAE Studios &middot; Cancún, México</span>
+    <span class="colophon-bottom-rule"></span>
+    <em>Set in Cormorant Garamond &amp; Syne</em>
+    <span class="colophon-bottom-rule"></span>
+    <span>Cancún · Riviera Maya · Los Cabos · English / Español</span>
+  </div>
 </footer>
 
 <script src="/js/lang-detect.js" defer></script>

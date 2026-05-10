@@ -36,8 +36,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
+<script src="/js/components.js?v=20260510a" defer></script>
 <script src="/js/services-dropdown-v2.js" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script src="/dark-mode.js"></script>
@@ -1237,101 +1239,25 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 }
 
 /* ═══════ FOOTER (replicates v5 home colophon) ═══════ */
-.colophon{
-  position:relative;
-  background:var(--ink-4);
-  padding:clamp(80px,10vw,140px) clamp(20px,5vw,48px) 48px;
-}
-.colophon-mark{
-  display:flex;align-items:center;justify-content:space-between;
-  gap:32px;flex-wrap:wrap;
-  padding-bottom:48px;
-  border-bottom:1px solid var(--gold-line);
-  max-width:1280px;margin:0 auto;
-}
-.colophon-mark-name{
-  font-family:var(--font-serif);
-  font-weight:300;font-style:italic;
-  font-size:clamp(48px,6vw,92px);line-height:1;
-  color:var(--cream);letter-spacing:-.022em;
-}
-.colophon-mark-name em{
-  font-style:normal;color:var(--gold);
-  font-family:var(--font-sans);font-weight:600;
-  font-size:.34em;letter-spacing:.32em;
-  text-transform:uppercase;vertical-align:middle;margin-left:14px;
-}
-.colophon-tag{
-  font-family:var(--font-serif);font-style:italic;
-  font-size:var(--fs-15);
-  color:var(--text-on-dark-2);
-  max-width:340px;text-align:right;
-  display:flex;flex-direction:column;gap:8px;
-}
-.colophon-tag-coast{
-  font-family:var(--font-sans);font-style:normal;
-  font-size:var(--fs-9);font-weight:500;
-  letter-spacing:var(--tracking-eyebrow-wide);
-  text-transform:uppercase;color:var(--gold);
-}
-.colophon-cols{
-  display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;
-  gap:48px;padding:64px 0;
-  max-width:1280px;margin:0 auto;
-  border-bottom:1px solid var(--gold-line);
-}
-.col-h{
-  font-family:var(--font-sans);
-  font-size:var(--fs-9);font-weight:500;
-  letter-spacing:var(--tracking-eyebrow-wide);
-  text-transform:uppercase;
-  color:var(--gold);margin-bottom:24px;
-}
-.colophon-cols p{
-  font-family:var(--font-sans);
-  font-size:var(--fs-13);line-height:1.74;
-  color:var(--text-on-dark-readable);
-}
-.colophon-cols ul{display:flex;flex-direction:column;gap:14px}
-.colophon-cols a{
-  font-family:var(--font-sans);
-  font-size:var(--fs-13);
-  color:var(--text-on-dark-readable);
-  display:inline-flex;align-items:center;gap:8px;
-  min-height:32px;
-  transition:color .3s ease,padding-left .3s ease;
-}
-.colophon-cols a:hover,.colophon-cols a:focus-visible{
-  color:var(--gold);padding-left:6px;
-}
-.colophon-cols a::before{
-  content:'';width:6px;height:1px;background:var(--gold);opacity:.5;
-  transition:width .3s ease;
-}
-.colophon-cols a:hover::before{width:14px;opacity:1}
-.colophon-bottom{
-  display:flex;align-items:center;justify-content:space-between;
-  gap:24px;flex-wrap:wrap;padding-top:48px;
-  max-width:1280px;margin:0 auto;
-  font-family:var(--font-sans);
-  font-size:var(--fs-11);letter-spacing:.18em;
-  text-transform:uppercase;
-  color:var(--text-on-dark-3);
-}
-.colophon-bottom em{
-  font-family:var(--font-serif);font-style:italic;font-weight:300;
-  text-transform:none;letter-spacing:0;
-  color:var(--gold);font-size:var(--fs-13);
-}
-.colophon-bottom-rule{flex:1;height:1px;background:var(--gold-line)}
-@media(max-width:1024px){
-  .colophon-cols{grid-template-columns:1fr 1fr;gap:48px}
-}
-@media(max-width:600px){
-  .colophon-cols{grid-template-columns:1fr;gap:36px}
-  .colophon-mark{flex-direction:column;align-items:flex-start;gap:18px}
-  .colophon-tag{text-align:left}
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </style>
 </head>
