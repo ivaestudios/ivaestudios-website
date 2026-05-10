@@ -1,0 +1,59 @@
+/* IVAE Studios — Responsive image system.
+   Use <picture> with 480w/960w/2400w sources + lazy loading.
+   Helper utilities for aspect ratios and object-fit. */
+
+.rimg{
+  display:block;
+  width:100%;
+  height:auto;
+  max-width:100%;
+}
+.rimg-cover{
+  object-fit:cover;
+  object-position:center;
+}
+.rimg-contain{
+  object-fit:contain;
+  object-position:center;
+}
+
+/* Aspect ratio helpers (use on the <picture> wrapper). */
+.aspect-1-1{aspect-ratio:1/1;overflow:hidden;}
+.aspect-3-2{aspect-ratio:3/2;overflow:hidden;}
+.aspect-3-4{aspect-ratio:3/4;overflow:hidden;}
+.aspect-4-3{aspect-ratio:4/3;overflow:hidden;}
+.aspect-4-5{aspect-ratio:4/5;overflow:hidden;}
+.aspect-16-9{aspect-ratio:16/9;overflow:hidden;}
+.aspect-21-9{aspect-ratio:21/9;overflow:hidden;}
+
+.aspect-1-1 > img,
+.aspect-3-2 > img,
+.aspect-3-4 > img,
+.aspect-4-3 > img,
+.aspect-4-5 > img,
+.aspect-16-9 > img,
+.aspect-21-9 > img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+  display:block;
+}
+
+/* Lazy-loaded images: only render visible content. */
+img[loading="lazy"]{
+  content-visibility:auto;
+  contain-intrinsic-size:auto 800px;
+}
+
+/* Prevent layout shift while images load.
+   Always include width + height attrs on <img>. */
+picture{
+  display:block;
+  position:relative;
+}
+
+/* Reduced motion: no smooth fade-in for late-loading images. */
+@media (prefers-reduced-motion:reduce){
+  img{transition:none !important;}
+}
