@@ -74,7 +74,9 @@ html{-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;scroll-beh
   --lc-mote-count:8;
   --lc-heart-stroke:1.5;
   --lc-reel-card-aspect:4 / 5;
-  --lc-reel-frame-min-width:clamp(220px,28vw,360px);
+  --lc-reel-frame-min-width:clamp(320px,34vw,480px);
+  --lc-reel-thumb-size:280px;
+  --lc-reel-thumb-offset:24px;
   --lc-tier-padding:clamp(28px,3.6vw,48px);
   --lc-section-gap:clamp(80px,10vw,160px);
 }
@@ -121,6 +123,8 @@ body::before{
 .lc-rv.d2{transition-delay:.22s}
 .lc-rv.d3{transition-delay:.34s}
 .lc-rv.d4{transition-delay:.46s}
+.lc-rv.d5{transition-delay:.58s}
+.lc-rv.d6{transition-delay:.70s}
 
 /* ═══ HEADER (parity with v5 home) ═══ */
 .site-header{
@@ -557,24 +561,41 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 .lc-pullquote-section .lc-eyebrow::after{background:var(--gold)}
 .lc-pullquote{position:relative;max-width:920px;margin:32px auto 0;padding:clamp(56px,7vw,112px) 0 clamp(32px,4vw,56px);text-align:center}
 .lc-pullquote__ornament{
-  position:absolute;top:-40px;left:50%;transform:translateX(-50%);
-  font-family:var(--font-serif);font-style:normal;
-  font-size:clamp(180px,22vw,320px);line-height:1;
-  color:var(--gold);opacity:.18;pointer-events:none;z-index:0;user-select:none;
+  position:absolute;top:-32px;left:50%;transform:translateX(-50%);
+  font-family:var(--font-serif);font-style:italic;font-weight:300;
+  font-size:clamp(240px,26vw,360px);line-height:1;
+  color:var(--gold);opacity:.20;pointer-events:none;z-index:0;user-select:none;
 }
 .lc-pullquote__body{position:relative;z-index:1;font-family:var(--font-serif);font-style:italic;font-size:clamp(22px,2.6vw,38px);font-weight:300;line-height:1.30;color:var(--cream-1);margin-bottom:36px;letter-spacing:-.005em}
-.lc-pullquote__attr{position:relative;z-index:1;font-family:var(--font-sans);font-size:var(--fs-13);font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-style:normal;display:block}
+.lc-pullquote__attr{position:relative;z-index:1;font-family:var(--font-sans);font-size:var(--fs-13);font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-style:normal;display:block;font-variant-caps:all-small-caps}
+
+/* Pull-quote reveal: ornament fades, then body + cite stagger. Gated by reduced-motion. */
+@media (prefers-reduced-motion: no-preference){
+  html.js-on .lc-pullquote__ornament{opacity:0;transition:opacity 1.1s var(--ease) .05s}
+  html.js-on .lc-pullquote.vis .lc-pullquote__ornament{opacity:.20}
+  html.js-on .lc-pullquote__body,
+  html.js-on .lc-pullquote__attr{opacity:0;transform:translateY(10px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+  html.js-on .lc-pullquote.vis .lc-pullquote__body{opacity:1;transform:none;transition-delay:.34s}
+  html.js-on .lc-pullquote.vis .lc-pullquote__attr{opacity:1;transform:none;transition-delay:.58s}
+}
 
 .lc-testimonials-section{padding:var(--lc-section-gap) clamp(20px,5vw,64px);background:var(--cream-1);color:var(--text-on-light)}
 .lc-testimonials-section .lc-eyebrow{color:var(--gold-deep)}
 .lc-testimonials-grid{display:grid;gap:clamp(24px,3vw,40px);grid-template-columns:1fr;max-width:1240px;margin:24px auto 0}
 @media (min-width: 768px){.lc-testimonials-grid{grid-template-columns:1fr 1fr}}
 @media (min-width: 1024px){.lc-testimonials-grid{grid-template-columns:1fr 1fr 1fr}}
-.lc-testimonial-card{padding:clamp(24px,3vw,36px);border-top:1px solid var(--gold-line);background:var(--cream-1);transition:border-color var(--t-base) var(--ease)}
-.lc-testimonial-card:hover{border-top-color:var(--gold)}
+.lc-testimonial-card{padding:clamp(24px,3vw,36px);border-top:1px solid var(--gold-line);background:var(--cream-1);transition:border-color var(--t-base) var(--ease),transform var(--t-base) var(--ease),box-shadow var(--t-base) var(--ease)}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference){
+  .lc-testimonial-card:hover{border-top-color:var(--gold);transform:translateY(-4px);box-shadow:0 12px 28px -18px rgba(168,137,74,.35)}
+}
+@media (prefers-reduced-motion: reduce){
+  .lc-testimonial-card{transition:none}
+  .lc-testimonial-card:hover{border-top-color:var(--gold);transform:none}
+}
 .lc-testimonial-card--anchor{border-top-width:2px;border-top-color:var(--gold)}
+.lc-testimonial-card blockquote{margin:0}
 .lc-testimonial-card blockquote p{font-family:var(--font-serif);font-style:italic;font-size:var(--fs-15);font-weight:300;line-height:1.6;color:var(--text-on-light-readable);margin-bottom:18px}
-.lc-testimonial-card cite{font-family:var(--font-sans);font-size:var(--fs-10);font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep);font-style:normal}
+.lc-testimonial-card cite{font-family:var(--font-sans);font-size:var(--fs-10);font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep);font-style:normal;display:block;padding-top:6px;border-top:1px solid var(--gold-line)}
 
 /* ═══════════════════════════════════════════════════════════════
    SECTION 7 — FRAMES REEL (drag-scroll)
@@ -582,32 +603,53 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 .lc-reel-section{padding:var(--lc-section-gap) 0 calc(var(--lc-section-gap) - 24px);background:var(--cream-2);color:var(--text-on-light)}
 .lc-reel-section .lc-eyebrow,.lc-reel-hint{padding-inline:clamp(20px,5vw,64px)}
 .lc-reel-section .lc-eyebrow{color:var(--gold-deep)}
-.lc-reel-hint{font-family:var(--font-sans);font-size:var(--fs-13);color:var(--gold-deep);margin-bottom:32px;letter-spacing:.05em}
+.lc-reel-hint{font-family:var(--font-sans);font-size:var(--fs-13);color:var(--gold-deep);margin-bottom:32px;letter-spacing:.05em;display:inline-flex;align-items:center;gap:10px}
+.lc-reel-hint::before{content:'';display:inline-block;width:28px;height:1px;background:var(--gold);opacity:.6}
 .lc-reel-track{
   display:flex;gap:24px;
   overflow-x:auto;scroll-snap-type:x mandatory;
+  scroll-behavior:smooth;
   -webkit-overflow-scrolling:touch;
   padding-inline:clamp(20px,5vw,64px);padding-bottom:16px;
   scrollbar-width:thin;cursor:grab;
+  overscroll-behavior-x:contain;
 }
+@media (prefers-reduced-motion: reduce){.lc-reel-track{scroll-behavior:auto}}
+.lc-reel-track::-webkit-scrollbar{height:6px}
+.lc-reel-track::-webkit-scrollbar-thumb{background:var(--gold-line);border-radius:3px}
 .lc-reel-track:active{cursor:grabbing}
+.lc-reel-track.is-dragging{cursor:grabbing;scroll-snap-type:none}
+.lc-reel-track.is-dragging img{pointer-events:none}
 .lc-reel-track:focus-visible{outline:2px solid var(--gold-deep);outline-offset:4px}
 .lc-reel-frame{flex:0 0 var(--lc-reel-frame-min-width);aspect-ratio:var(--lc-reel-card-aspect);scroll-snap-align:start;margin:0;position:relative;display:flex;flex-direction:column}
-.lc-reel-frame img{width:100%;height:calc(100% - 36px);object-fit:cover;display:block;filter:brightness(.95) saturate(1);transition:filter var(--t-base) var(--ease),transform var(--t-base) var(--ease)}
+.lc-reel-frame img{width:100%;height:calc(100% - 44px);object-fit:cover;display:block;filter:brightness(.95) saturate(1);transition:filter var(--t-base) var(--ease),transform var(--t-base) var(--ease);user-select:none;-webkit-user-drag:none}
 @media (hover: hover) and (prefers-reduced-motion: no-preference){
   .lc-reel-frame:hover img{filter:brightness(1) saturate(1.05);transform:scale(1.015)}
 }
-.lc-reel-caption{font-family:var(--font-serif);font-style:italic;font-size:var(--fs-15);font-weight:300;color:var(--ink-1);margin-top:12px;padding-inline:4px}
-.lc-reel-frame--same-sex{}
+.lc-reel-caption{font-family:var(--font-serif);font-style:italic;font-size:var(--fs-15);font-weight:300;color:var(--ink-1);margin-top:14px;padding-inline:4px;display:flex;align-items:baseline;gap:10px;line-height:1.4}
+.lc-reel-caption-num{font-family:var(--font-sans);font-style:normal;font-size:10.5px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-deep);flex-shrink:0;padding-top:2px}
+.lc-reel-caption-text{flex:1}
+/* Same-sex inclusion frame: subtle gold rule along the inner edge of the card. Quiet, not loud. */
+.lc-reel-frame--same-sex{position:relative}
+.lc-reel-frame--same-sex img{box-shadow:inset 0 0 0 1px rgba(196,163,90,.0)}
+.lc-reel-frame--same-sex .lc-reel-caption-num{color:var(--gold)}
 
-.lc-reel-controls{display:flex;gap:12px;padding-inline:clamp(20px,5vw,64px);margin-top:20px}
+.lc-reel-controls{display:flex;gap:12px;padding-inline:clamp(20px,5vw,64px);margin-top:20px;align-items:center}
+.lc-reel-progress{flex:1;height:1px;background:rgba(168,137,74,.18);position:relative;max-width:240px;margin-left:8px}
+.lc-reel-progress-bar{position:absolute;left:0;top:0;height:100%;width:16%;background:var(--gold-deep);transition:width var(--t-quick) var(--ease),left var(--t-quick) var(--ease)}
+@media (prefers-reduced-motion: reduce){.lc-reel-progress-bar{transition:none}}
 .lc-reel-btn{min-width:44px;min-height:44px;padding:12px;background:transparent;color:var(--gold-deep);border:1px solid var(--gold-line);cursor:pointer;font-size:18px;line-height:1;transition:background var(--t-quick) var(--ease),color var(--t-quick) var(--ease),border-color var(--t-quick) var(--ease)}
 .lc-reel-btn:hover{background:rgba(168,137,74,.10);color:var(--ink-1);border-color:var(--gold)}
 .lc-reel-btn:focus-visible{outline:2px solid var(--gold-deep);outline-offset:4px}
+.lc-reel-btn[aria-disabled="true"]{opacity:.35;cursor:not-allowed}
 
-/* Magnetic cursor preview (optional ornament for hover) */
-.lc-cursor-ring{position:fixed;left:0;top:0;width:36px;height:36px;border:1px solid var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);opacity:0;transition:opacity .25s var(--ease),width .25s var(--ease),height .25s var(--ease);will-change:transform,opacity}
-@media (hover: none),(pointer: coarse),(prefers-reduced-motion: reduce){.lc-cursor-ring{display:none!important}}
+/* Magnetic cursor preview ring (idle hover state on reel) */
+.lc-cursor-ring{position:fixed;left:0;top:0;width:44px;height:44px;border:1px solid var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);opacity:0;transition:opacity .25s var(--ease),width .25s var(--ease),height .25s var(--ease);will-change:transform,opacity}
+.lc-cursor-ring::after{content:attr(data-label);position:absolute;left:50%;top:calc(100% + 8px);transform:translateX(-50%);font-family:var(--font-sans);font-size:9.5px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-deep);white-space:nowrap}
+/* Magnetic thumb preview (280px) shown when cursor is over a frame image */
+.lc-cursor-thumb{position:fixed;left:0;top:0;width:var(--lc-reel-thumb-size);aspect-ratio:var(--lc-reel-card-aspect);background-size:cover;background-position:center;background-repeat:no-repeat;pointer-events:none;z-index:9998;opacity:0;transform:translate(calc(-50% + var(--lc-reel-thumb-offset) + var(--lc-reel-thumb-size) / 2),calc(-50% - var(--lc-reel-thumb-offset)));transition:opacity .25s var(--ease);will-change:transform,opacity;box-shadow:0 24px 60px rgba(7,11,17,.32);outline:1px solid rgba(196,163,90,.35)}
+.lc-cursor-thumb.is-visible{opacity:1}
+@media (hover: none),(pointer: coarse),(prefers-reduced-motion: reduce){.lc-cursor-ring,.lc-cursor-thumb{display:none!important}}
 
 /* ═══════════════════════════════════════════════════════════════
    SECTION 9 — FAQ
@@ -617,26 +659,49 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 .lc-faq-section .lc-eyebrow::after{background:var(--gold)}
 .lc-faq-section .lc-section-h2{color:var(--cream-1)}
 .lc-faq-section .lc-section-h2 em{color:var(--gold)}
-.lc-faq-list{max-width:880px;margin:32px auto 0;padding:0}
-.lc-faq-item{border-bottom:1px solid rgba(196,163,90,.18)}
+.lc-faq-list{max-width:880px;margin:32px auto 0;padding:0;list-style:none}
+.lc-faq-item{border-bottom:1px solid rgba(196,163,90,.22);opacity:0;transform:translateY(8px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.lc-faq-item.is-revealed{opacity:1;transform:none}
+.lc-faq-item.d1{transition-delay:.04s}
+.lc-faq-item.d2{transition-delay:.08s}
+.lc-faq-item.d3{transition-delay:.12s}
+.lc-faq-item.d4{transition-delay:.16s}
+.lc-faq-item.d5{transition-delay:.20s}
+.lc-faq-item.d6{transition-delay:.24s}
+.lc-faq-item.d7{transition-delay:.28s}
+.lc-faq-item.d8{transition-delay:.32s}
+.lc-faq-item.d9{transition-delay:.36s}
+.lc-faq-item.d10{transition-delay:.40s}
 .lc-faq-question-wrap{margin:0}
 .lc-faq-toggle{
   width:100%;background:transparent;border:none;padding:24px 0;
   display:flex;align-items:center;justify-content:space-between;gap:24px;
   text-align:left;cursor:pointer;
-  font-family:var(--font-serif);font-size:clamp(18px,2vw,24px);font-weight:300;
+  font-family:var(--font-serif);font-size:clamp(18px,1.6vw,22px);font-weight:300;letter-spacing:.005em;
   color:var(--cream-1);min-height:44px;line-height:1.3;
   transition:color var(--t-quick) var(--ease);
 }
+.lc-faq-toggle > span:first-child{position:relative;display:inline-block;background-image:linear-gradient(var(--gold),var(--gold));background-position:0 100%;background-repeat:no-repeat;background-size:0 1px;transition:background-size .35s var(--ease),color var(--t-quick) var(--ease);padding-bottom:2px}
 .lc-faq-toggle:hover{color:var(--gold)}
-.lc-faq-toggle:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
-.lc-faq-icon{position:relative;display:inline-block;width:14px;height:14px;flex-shrink:0}
-.lc-faq-icon::before,.lc-faq-icon::after{content:'';position:absolute;left:0;top:50%;display:block;width:14px;height:1px;background:var(--gold)}
-.lc-faq-icon::after{transform:rotate(90deg);transition:transform var(--t-quick) var(--ease)}
-.lc-faq-toggle[aria-expanded="true"] .lc-faq-icon::after{transform:rotate(0)}
-.lc-faq-panel{padding:0 0 24px}
-.lc-faq-panel p{font-size:var(--fs-15);line-height:1.85;color:var(--text-on-dark-readable);max-width:760px}
-@media (prefers-reduced-motion: reduce){.lc-faq-icon::after{transition:none!important}}
+.lc-faq-toggle:hover > span:first-child,
+.lc-faq-toggle:focus-visible > span:first-child,
+.lc-faq-toggle[aria-expanded="true"] > span:first-child{background-size:100% 1px;color:var(--gold)}
+.lc-faq-toggle:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
+.lc-faq-icon{position:relative;display:inline-block;width:14px;height:14px;flex-shrink:0;transition:transform .3s var(--ease)}
+.lc-faq-icon::before,.lc-faq-icon::after{content:'';position:absolute;left:0;top:50%;display:block;width:14px;height:1px;background:var(--gold);transform-origin:center}
+.lc-faq-icon::after{transform:translateY(-50%) rotate(90deg);transition:transform .3s var(--ease)}
+.lc-faq-icon::before{transform:translateY(-50%);transition:transform .3s var(--ease)}
+.lc-faq-toggle[aria-expanded="true"] .lc-faq-icon{transform:rotate(45deg)}
+.lc-faq-toggle[aria-expanded="true"] .lc-faq-icon::after{transform:translateY(-50%) rotate(90deg)}
+.lc-faq-panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s var(--ease);overflow:hidden}
+.lc-faq-panel[data-open="true"]{grid-template-rows:1fr}
+.lc-faq-panel-inner{min-height:0;overflow:hidden}
+.lc-faq-panel-inner > p{margin:0;padding:0 0 24px;font-family:var(--font-serif);font-style:italic;font-weight:300;font-size:16px;line-height:1.7;color:var(--cream-1);max-width:760px}
+.lc-faq-panel-inner > p strong{font-style:normal;font-weight:500;color:var(--gold)}
+@media (prefers-reduced-motion: reduce){
+  .lc-faq-icon,.lc-faq-icon::before,.lc-faq-icon::after,.lc-faq-toggle > span:first-child,.lc-faq-panel,.lc-faq-item{transition:none!important}
+  .lc-faq-item{opacity:1;transform:none}
+}
 
 /* ═══════════════════════════════════════════════════════════════
    SECTION 10 — INQUIRY (urgency-aware 3-CTA)
@@ -649,8 +714,17 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 .lc-inquiry-content .lc-eyebrow{color:var(--gold);justify-content:center}
 .lc-inquiry-content .lc-eyebrow::after{background:var(--gold)}
 .lc-inquiry-h2{font-family:var(--font-serif);font-size:clamp(36px,5vw,64px);font-weight:300;line-height:1.10;color:var(--cream-1);margin:8px 0 24px;letter-spacing:-.01em}
-.lc-inquiry-pitch{font-size:var(--fs-15);line-height:1.85;color:var(--text-on-dark-readable);margin-bottom:36px;max-width:600px;margin-left:auto;margin-right:auto}
+.lc-inquiry-pitch{font-size:var(--fs-15);line-height:1.85;color:var(--text-on-dark-readable);margin-bottom:28px;max-width:600px;margin-left:auto;margin-right:auto}
+.lc-inquiry-h2 em{font-style:italic;color:var(--gold);font-weight:300}
+.lc-inquiry-proposal-note{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-sans);font-size:var(--fs-12);letter-spacing:.04em;color:var(--gold);margin:0 auto 32px;padding:8px 18px;border:1px solid rgba(196,163,90,.32);border-radius:999px;background:rgba(196,163,90,.06)}
+.lc-inquiry-proposal-note::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgba(196,163,90,.18)}
 .lc-inquiry-ctas{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-items:center;margin-bottom:40px}
+.lc-inquiry-ctas .lc-btn--text{font-size:var(--fs-12);letter-spacing:.18em;text-transform:uppercase;padding:10px 14px}
+.lc-rv-stagger{opacity:1}
+@media (prefers-reduced-motion: no-preference){
+  html.js-on .lc-inquiry-content > .lc-rv{opacity:0;transform:translateY(14px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+  html.js-on .lc-inquiry-content > .lc-rv.vis{opacity:1;transform:none}
+}
 .lc-inquiry-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:0;margin-top:24px;padding-top:32px;border-top:1px solid rgba(196,163,90,.20)}
 .lc-inquiry-meta-cell{padding:8px 24px;border-right:1px solid rgba(196,163,90,.32);text-align:center}
 .lc-inquiry-meta-cell:last-child{border-right:none}
@@ -977,7 +1051,7 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
   <h2 id="voices-heading" class="visually-hidden">Voices</h2>
   <p class="lc-eyebrow lc-eyebrow--on-dark" style="justify-content:center;display:flex">Voices</p>
 
-  <blockquote class="lc-pullquote">
+  <blockquote class="lc-pullquote lc-rv">
     <span class="lc-pullquote__ornament" aria-hidden="true">&#10077;</span>
     <p class="lc-pullquote__body">We came back to the same beach where we got engaged. I cried when I saw the gallery. The pictures are more honest than the day was, and that is the highest compliment we know how to give.</p>
     <cite class="lc-pullquote__attr">Sarah &amp; Michael &nbsp;·&nbsp; Esperanza, <span lang="es">Cabo San Lucas</span> &nbsp;·&nbsp; March 2026</cite>
@@ -992,37 +1066,37 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
   <p class="lc-eyebrow">What Couples Say</p>
 
   <div class="lc-testimonials-grid">
-    <article class="lc-testimonial-card">
+    <article class="lc-testimonial-card lc-rv d1">
       <blockquote><p>The studio sat at the table behind us for forty minutes. I never saw them. The first frame in our gallery is the second I knelt. The look on her face is the picture I will keep on my desk for the rest of my life.</p></blockquote>
       <cite>Daniel &nbsp;·&nbsp; Le Blanc, Cancun &nbsp;·&nbsp; February 2026</cite>
       <span class="visually-hidden">Persona: proposal.</span>
     </article>
 
-    <article class="lc-testimonial-card">
+    <article class="lc-testimonial-card lc-rv d2">
       <blockquote><p>We had been married six weeks. We were tired in the way honeymoons make you tired. The studio met us at the boardwalk at six-twenty in the morning and we did not speak for the first ten minutes. The pictures look like the trip felt. We did not pose once.</p></blockquote>
       <cite><span lang="es">Ana</span> &amp; <span lang="es">Marco</span> &nbsp;·&nbsp; Rosewood <span lang="es">Mayakoba</span> &nbsp;·&nbsp; January 2026</cite>
       <span class="visually-hidden">Persona: honeymoon.</span>
     </article>
 
-    <article class="lc-testimonial-card lc-testimonial-card--anchor">
+    <article class="lc-testimonial-card lc-testimonial-card--anchor lc-rv d3">
       <blockquote><p>Fifteen years to the week. We came back to Mexico because we honeymooned here. The frames Vianey made of us at the arch are on the wall of our foyer. Our nieces ask whose wedding it was.</p></blockquote>
       <cite><span lang="es">Camila</span> &amp; <span lang="es">Ana</span> &nbsp;·&nbsp; Esperanza, <span lang="es">Cabo San Lucas</span> &nbsp;·&nbsp; October 2025</cite>
       <span class="visually-hidden">Persona: anniversary, same-sex couple.</span>
     </article>
 
-    <article class="lc-testimonial-card">
+    <article class="lc-testimonial-card lc-rv d4">
       <blockquote><p>Twenty-fifth anniversary. We did not want a wedding redo. We wanted one frame for the foyer and twenty for the album our daughters are building. The studio understood the difference on the first call.</p></blockquote>
       <cite>Priya &amp; Aman &nbsp;·&nbsp; Maroma Belmond &nbsp;·&nbsp; December 2025</cite>
       <span class="visually-hidden">Persona: anniversary.</span>
     </article>
 
-    <article class="lc-testimonial-card">
+    <article class="lc-testimonial-card lc-rv d5">
       <blockquote><p>The wedding was in Madrid. We honeymooned in the Riviera Maya because neither of us had been. The studio asked us what we ate for breakfast and what music we walked down the aisle to and built the morning around the answers.</p></blockquote>
       <cite><span lang="es">Pablo</span> &amp; <span lang="es">Tomás</span> &nbsp;·&nbsp; Banyan Tree <span lang="es">Mayakoba</span> &nbsp;·&nbsp; April 2026</cite>
       <span class="visually-hidden">Persona: honeymoon, same-sex couple.</span>
     </article>
 
-    <article class="lc-testimonial-card">
+    <article class="lc-testimonial-card lc-rv d6">
       <blockquote><p>Forty-eight hours before our trip, I emailed the studio. The reply came in two hours, a Saturday slot at sunset on a beach the hotel did not allow tripods on. Vianey called the resort and the resort said yes. He said yes, too.</p></blockquote>
       <cite>Mia &nbsp;·&nbsp; <span lang="es">Nizuc</span>, Cancun &nbsp;·&nbsp; November 2025</cite>
       <span class="visually-hidden">Persona: proposal.</span>
@@ -1038,36 +1112,36 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
   <p class="lc-eyebrow">Frames</p>
   <p class="lc-reel-hint">Drag to scroll the reel.</p>
 
-  <div class="lc-reel-track" id="lcReelTrack" role="region" aria-label="Romantic moments reel, six frames" tabindex="0">
+  <div class="lc-reel-track" id="lcReelTrack" role="region" aria-label="Romantic moments reel, six frames. Use arrow keys to scroll." tabindex="0" aria-roledescription="carousel">
 
-    <figure class="lc-reel-frame">
-      <img src="/images/couple-tulum-ivae-studios.jpg" alt="A surprise proposal at a private dinner table on the sand at Tulum at golden hour, photographed by IVAE Studios." loading="lazy" decoding="async" width="800" height="1000">
-      <figcaption class="lc-reel-caption">The kneel.</figcaption>
+    <figure class="lc-reel-frame" role="group" aria-roledescription="frame" aria-label="Frame 1 of 6">
+      <img src="/images/couple-tulum-ivae-studios.jpg" alt="The kneel. A private proposal at a candlelit dinner table set on the sand at Tulum at golden hour, the partner mid-yes, photographed by IVAE Studios under the direction of Vianey." loading="lazy" decoding="async" width="800" height="1000" draggable="false">
+      <figcaption class="lc-reel-caption"><span class="lc-reel-caption-num" aria-hidden="true">Frame i. / vi.</span><span class="lc-reel-caption-text">The kneel.</span></figcaption>
     </figure>
 
-    <figure class="lc-reel-frame">
-      <img src="/images/couple-mayakoba-ivae-studios.jpg" alt="A honeymoon couple walking the boardwalk at golden hour at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async" width="800" height="1000">
-      <figcaption class="lc-reel-caption">The morning of the dress.</figcaption>
+    <figure class="lc-reel-frame" role="group" aria-roledescription="frame" aria-label="Frame 2 of 6">
+      <img src="/images/couple-mayakoba-ivae-studios.jpg" alt="The morning of the dress. A honeymoon couple walking the wooden boardwalk at first light at Rosewood Mayakoba, photographed by IVAE Studios under the direction of Vianey." loading="lazy" decoding="async" width="800" height="1000" draggable="false">
+      <figcaption class="lc-reel-caption"><span class="lc-reel-caption-num" aria-hidden="true">Frame ii. / vi.</span><span class="lc-reel-caption-text">The morning of the dress.</span></figcaption>
     </figure>
 
-    <figure class="lc-reel-frame">
-      <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="A couple at the foot of the Cabo Arch at sunset, one looking back across her shoulder, photographed by IVAE Studios." loading="lazy" decoding="async" width="800" height="1000">
-      <figcaption class="lc-reel-caption">The second sunset.</figcaption>
+    <figure class="lc-reel-frame" role="group" aria-roledescription="frame" aria-label="Frame 3 of 6">
+      <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="The second sunset. A couple at the foot of the Cabo Arch at the close of day, one looking back across her shoulder into the warm light, photographed by IVAE Studios under the direction of Vianey." loading="lazy" decoding="async" width="800" height="1000" draggable="false">
+      <figcaption class="lc-reel-caption"><span class="lc-reel-caption-num" aria-hidden="true">Frame iii. / vi.</span><span class="lc-reel-caption-text">The second sunset.</span></figcaption>
     </figure>
 
-    <figure class="lc-reel-frame lc-reel-frame--same-sex">
-      <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="Camila and Ana at their fifteenth anniversary at the foot of the Cabo Arch at golden hour, photographed by IVAE Studios." loading="lazy" decoding="async" width="800" height="1000">
-      <figcaption class="lc-reel-caption">The year fifteen.</figcaption>
+    <figure class="lc-reel-frame lc-reel-frame--same-sex" role="group" aria-roledescription="frame" aria-label="Frame 4 of 6">
+      <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="The year fifteen. Camila and Ana on their fifteenth anniversary at the foot of the Cabo Arch at golden hour, foreheads touching, photographed by IVAE Studios under the direction of Vianey." loading="lazy" decoding="async" width="800" height="1000" draggable="false">
+      <figcaption class="lc-reel-caption"><span class="lc-reel-caption-num" aria-hidden="true">Frame iv. / vi.</span><span class="lc-reel-caption-text">The year fifteen.</span></figcaption>
     </figure>
 
-    <figure class="lc-reel-frame">
-      <img src="/images/couple-riviera-maya-ivae-studios.jpg" alt="A couple diving into a cenote in the Riviera Maya at midday with sunlight streaming through the cave opening, photographed by IVAE Studios." loading="lazy" decoding="async" width="800" height="1000">
-      <figcaption class="lc-reel-caption">The cenote dive.</figcaption>
+    <figure class="lc-reel-frame" role="group" aria-roledescription="frame" aria-label="Frame 5 of 6">
+      <img src="/images/couple-riviera-maya-ivae-studios.jpg" alt="The cenote dive. A couple suspended in clear water inside a Riviera Maya cenote at midday, sunlight streaming through the cave opening above, photographed by IVAE Studios under the direction of Vianey." loading="lazy" decoding="async" width="800" height="1000" draggable="false">
+      <figcaption class="lc-reel-caption"><span class="lc-reel-caption-num" aria-hidden="true">Frame v. / vi.</span><span class="lc-reel-caption-text">The cenote dive.</span></figcaption>
     </figure>
 
-    <figure class="lc-reel-frame">
-      <img src="/images/couple-cancun-hotel-zone-ivae-studios.jpg" alt="A couple laughing on the beach at golden hour at Nizuc Cancun, photographed by IVAE Studios." loading="lazy" decoding="async" width="800" height="1000">
-      <figcaption class="lc-reel-caption">The laugh.</figcaption>
+    <figure class="lc-reel-frame" role="group" aria-roledescription="frame" aria-label="Frame 6 of 6">
+      <img src="/images/couple-cancun-hotel-zone-ivae-studios.jpg" alt="The laugh. A couple unposed and laughing on the beach at golden hour at Nizuc Cancun, the wind in her hair, photographed by IVAE Studios under the direction of Vianey." loading="lazy" decoding="async" width="800" height="1000" draggable="false">
+      <figcaption class="lc-reel-caption"><span class="lc-reel-caption-num" aria-hidden="true">Frame vi. / vi.</span><span class="lc-reel-caption-text">The laugh.</span></figcaption>
     </figure>
 
   </div>
@@ -1079,10 +1153,14 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
     <button class="lc-reel-btn lc-reel-btn--next" id="lcReelNext" type="button" aria-label="Next frame">
       <span aria-hidden="true">&rarr;</span>
     </button>
+    <div class="lc-reel-progress" id="lcReelProgress" role="progressbar" aria-label="Reel scroll position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <span class="lc-reel-progress-bar" id="lcReelProgressBar"></span>
+    </div>
   </div>
 </section>
 
-<div class="lc-cursor-ring" id="lcCursorRing" aria-hidden="true"></div>
+<div class="lc-cursor-ring" id="lcCursorRing" data-label="Drag" aria-hidden="true"></div>
+<div class="lc-cursor-thumb" id="lcCursorThumb" aria-hidden="true"></div>
 
 <!-- ═══════════════════════════════════════════════════════════════
      SECTION 9 — FAQ (10 Q+A, FAQ 9 same-sex inclusion)
@@ -1093,123 +1171,143 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 
   <ul class="lc-faq-list" role="list">
 
-    <li class="lc-faq-item">
+    <li class="lc-faq-item d1">
       <h3 class="lc-faq-question-wrap">
         <button class="lc-faq-toggle" id="faq-1-question" type="button" aria-expanded="false" aria-controls="faq-1-panel">
           <span>When is golden hour at your destinations?</span>
           <span class="lc-faq-icon" aria-hidden="true"></span>
         </button>
       </h3>
-      <div class="lc-faq-panel" id="faq-1-panel" role="region" aria-labelledby="faq-1-question" hidden>
+      <div class="lc-faq-panel" id="faq-1-panel" role="region" aria-labelledby="faq-1-question" data-open="false">
+        <div class="lc-faq-panel-inner">
         <p>Golden hour shifts by month. In November along Cancun and the Riviera Maya, the light turns honest at five-twelve p.m.; by March it is at six-eighteen. In Los Cabos, the light tracks the Pacific and runs about thirty minutes later than the Caribbean coast. The studio starts every couples session ninety minutes before sunset and works through to the last useful light. Once your dates and resort are confirmed, the studio sends a precise call-time built around the season and the orientation of your beach.</p>
+        </div>
       </div>
     </li>
 
-    <li class="lc-faq-item">
+    <li class="lc-faq-item d2">
       <h3 class="lc-faq-question-wrap">
         <button class="lc-faq-toggle" id="faq-2-question" type="button" aria-expanded="false" aria-controls="faq-2-panel">
           <span>Where can the studio photograph us?</span>
           <span class="lc-faq-icon" aria-hidden="true"></span>
         </button>
       </h3>
-      <div class="lc-faq-panel" id="faq-2-panel" role="region" aria-labelledby="faq-2-question" hidden>
+      <div class="lc-faq-panel" id="faq-2-panel" role="region" aria-labelledby="faq-2-question" data-open="false">
+        <div class="lc-faq-panel-inner">
         <p>The studio works at every major resort along three coastlines: Cancun (Le Blanc, <span lang="es">Nizuc</span>, Ritz-Carlton), the Riviera Maya (Rosewood <span lang="es">Mayakoba</span>, Banyan Tree, Maroma Belmond, Fairmont <span lang="es">Mayakoba</span>, Grand Velas), and Los Cabos (Esperanza, Las Ventanas al Paraiso, One&amp;Only Palmilla, Waldorf Astoria Pedregal, Four Seasons Costa Palmas, Montage). Beach access is coordinated with each property's wedding or guest-experience desk. The studio carries the property permits and pays the resort fees on your behalf.</p>
+        </div>
       </div>
     </li>
 
-    <li class="lc-faq-item">
+    <li class="lc-faq-item d3">
       <h3 class="lc-faq-question-wrap">
         <button class="lc-faq-toggle" id="faq-3-question" type="button" aria-expanded="false" aria-controls="faq-3-panel">
           <span>What if it rains?</span>
           <span class="lc-faq-icon" aria-hidden="true"></span>
         </button>
       </h3>
-      <div class="lc-faq-panel" id="faq-3-panel" role="region" aria-labelledby="faq-3-question" hidden>
+      <div class="lc-faq-panel" id="faq-3-panel" role="region" aria-labelledby="faq-3-question" data-open="false">
+        <div class="lc-faq-panel-inner">
         <p>The studio reschedules at no additional cost within your travel dates. For honeymoon couples, this means re-routing to an indoor or covered location on the same property the same evening, or moving to the next clear morning. For proposals, the studio works with the restaurant to set a covered backup and will reschedule the post-yes portrait session for the next day. Hurricane-season cancellation (June through November) is handled case by case with full credit toward a future session.</p>
+        </div>
       </div>
     </li>
 
-    <li class="lc-faq-item">
+    <li class="lc-faq-item d4">
       <h3 class="lc-faq-question-wrap">
         <button class="lc-faq-toggle" id="faq-4-question" type="button" aria-expanded="false" aria-controls="faq-4-panel">
           <span>What should we wear?</span>
           <span class="lc-faq-icon" aria-hidden="true"></span>
         </button>
       </h3>
-      <div class="lc-faq-panel" id="faq-4-panel" role="region" aria-labelledby="faq-4-question" hidden>
+      <div class="lc-faq-panel" id="faq-4-panel" role="region" aria-labelledby="faq-4-question" data-open="false">
+        <div class="lc-faq-panel-inner">
         <p>Linen, silk, lightweight wool. One textured piece each, never two patterns at once. Avoid primary red, primary cobalt, and pure white at noon (the white reflects the sand and overexposes). The studio sends a wardrobe color palette by month so the dress or the suit agrees with the bougainvillea, the ocean, and the resort architecture. For proposals, the partner being proposed to wears whatever they would wear to dinner; the studio dresses the planner for the photographs after.</p>
+        </div>
       </div>
     </li>
 
-    <li class="lc-faq-item">
+    <li class="lc-faq-item d5">
       <h3 class="lc-faq-question-wrap">
         <button class="lc-faq-toggle" id="faq-5-question" type="button" aria-expanded="false" aria-controls="faq-5-panel">
           <span>Do you arrange hair and makeup?</span>
           <span class="lc-faq-icon" aria-hidden="true"></span>
         </button>
       </h3>
-      <div class="lc-faq-panel" id="faq-5-panel" role="region" aria-labelledby="faq-5-question" hidden>
+      <div class="lc-faq-panel" id="faq-5-panel" role="region" aria-labelledby="faq-5-question" data-open="false">
+        <div class="lc-faq-panel-inner">
         <p>The studio works with two preferred hair and makeup artists, one in Cancun and one in Cabo, both bilingual. Costs are billed directly by the artist and run from depending on the look. The studio recommends booking the artist for two hours before the session start time so the look has thirty minutes to settle and the studio can begin in the first soft light. For proposals, hair and makeup is not part of the workflow, the partner being proposed to should not be alerted by an unexpected hair appointment.</p>
+        </div>
       </div>
     </li>
 
-    <li class="lc-faq-item">
+    <li class="lc-faq-item d6">
       <h3 class="lc-faq-question-wrap">
         <button class="lc-faq-toggle" id="faq-6-question" type="button" aria-expanded="false" aria-controls="faq-6-panel">
           <span>We are not photogenic. Will you pose us?</span>
           <span class="lc-faq-icon" aria-hidden="true"></span>
         </button>
       </h3>
-      <div class="lc-faq-panel" id="faq-6-panel" role="region" aria-labelledby="faq-6-question" hidden>
+      <div class="lc-faq-panel" id="faq-6-panel" role="region" aria-labelledby="faq-6-question" data-open="false">
+        <div class="lc-faq-panel-inner">
         <p>The studio does not call it posing. The studio gives quiet direction. Walk back toward the water. Tell each other the thing you said in the cab. Stay where you are for a moment longer. The frame is composed; the couple is themselves. Most couples who say they are not photogenic discover, in the gallery, that they are. The studio's first ten minutes of every session are for warming up. The frames the studio considers signature usually arrive in minute thirty.</p>
+        </div>
       </div>
     </li>
 
-    <li class="lc-faq-item">
+    <li class="lc-faq-item d7">
       <h3 class="lc-faq-question-wrap">
         <button class="lc-faq-toggle" id="faq-7-question" type="button" aria-expanded="false" aria-controls="faq-7-panel">
           <span>When do we receive the photographs?</span>
           <span class="lc-faq-icon" aria-hidden="true"></span>
         </button>
       </h3>
-      <div class="lc-faq-panel" id="faq-7-panel" role="region" aria-labelledby="faq-7-question" hidden>
+      <div class="lc-faq-panel" id="faq-7-panel" role="region" aria-labelledby="faq-7-question" data-open="false">
+        <div class="lc-faq-panel-inner">
         <p>First frames within seventy-two hours of the session, twenty to thirty editorial images on a private link. The full gallery follows within seven to fourteen days depending on tier (The Hour: seven days, The Sunset: ten days, The Adventure Day: fourteen days). Every image is hand-edited in the IVAE color register, never auto-toned, never run through a preset. Galleries remain online for a year and are downloadable in print and web resolutions.</p>
+        </div>
       </div>
     </li>
 
-    <li class="lc-faq-item">
+    <li class="lc-faq-item d8">
       <h3 class="lc-faq-question-wrap">
         <button class="lc-faq-toggle" id="faq-8-question" type="button" aria-expanded="false" aria-controls="faq-8-panel">
           <span>What is the cancellation policy?</span>
           <span class="lc-faq-icon" aria-hidden="true"></span>
         </button>
       </h3>
-      <div class="lc-faq-panel" id="faq-8-panel" role="region" aria-labelledby="faq-8-question" hidden>
+      <div class="lc-faq-panel" id="faq-8-panel" role="region" aria-labelledby="faq-8-question" data-open="false">
+        <div class="lc-faq-panel-inner">
         <p>A 30 percent retainer holds the date. Cancellations more than 30 days from the session date receive the retainer as full credit toward a future session within twelve months. Cancellations within 30 days forfeit the retainer; the remaining balance is not charged. Reschedule requests inside the travel window are handled at no additional cost when the studio's calendar allows. Force majeure (hurricane, airline cancellation, illness with documentation) is handled case by case with full credit.</p>
+        </div>
       </div>
     </li>
 
-    <li class="lc-faq-item">
+    <li class="lc-faq-item d9">
       <h3 class="lc-faq-question-wrap">
         <button class="lc-faq-toggle" id="faq-9-question" type="button" aria-expanded="false" aria-controls="faq-9-panel">
           <span>Do you work in English? And do you photograph all couples?</span>
           <span class="lc-faq-icon" aria-hidden="true"></span>
         </button>
       </h3>
-      <div class="lc-faq-panel" id="faq-9-panel" role="region" aria-labelledby="faq-9-question" hidden>
+      <div class="lc-faq-panel" id="faq-9-panel" role="region" aria-labelledby="faq-9-question" data-open="false">
+        <div class="lc-faq-panel-inner">
         <p>The studio works in English and Spanish, on the day and on email. Director Vianey Diaz is bilingual and answers every first inquiry personally. Planning calls are scheduled in either language. Galleries arrive with bilingual notes. For couples whose primary language is Portuguese, French, or German, the studio works in English on the day and Director Vianey Diaz handles the planning in English. <strong>The studio photographs all couples. Same-sex weddings, proposals, and anniversaries are part of regular practice.</strong></p>
+        </div>
       </div>
     </li>
 
-    <li class="lc-faq-item">
+    <li class="lc-faq-item d10">
       <h3 class="lc-faq-question-wrap">
         <button class="lc-faq-toggle" id="faq-10-question" type="button" aria-expanded="false" aria-controls="faq-10-panel">
           <span>Can we do two or three locations in one session?</span>
           <span class="lc-faq-icon" aria-hidden="true"></span>
         </button>
       </h3>
-      <div class="lc-faq-panel" id="faq-10-panel" role="region" aria-labelledby="faq-10-question" hidden>
+      <div class="lc-faq-panel" id="faq-10-panel" role="region" aria-labelledby="faq-10-question" data-open="false">
+        <div class="lc-faq-panel-inner">
         <p>Yes. The Sunset includes two locations within the same resort or within a 15-minute drive. The Adventure Day includes three locations and may add a cenote, a yacht segment, or a second beach. Transportation between locations is handled by the studio (driver, vehicle, time padding). The studio recommends never more than three locations in one session: the light moves, the couple tires, and the frames the studio considers signature usually emerge in the second location, not the third.</p>
+        </div>
       </div>
     </li>
 
@@ -1224,17 +1322,19 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
     <img src="https://assets.ivaestudios.com/couples-photography-mexico-hero.jpg" alt="" loading="lazy" decoding="async">
   </div>
   <div class="lc-inquiry-content">
-    <p class="lc-eyebrow lc-eyebrow--on-dark">Begin</p>
-    <h2 id="inquiry-heading" class="lc-inquiry-h2">Tell us about the two of you.</h2>
-    <p class="lc-inquiry-pitch">Share your travel dates, your resort, and a sentence about the moment. The studio responds the same business day, in English or Spanish, with two questions and a candid sense of whether the date is open. The first reply will come from Director Vianey Diaz. For proposals, the studio confirms within twenty-four hours; the lead time is shorter for a reason.</p>
+    <p class="lc-eyebrow lc-eyebrow--on-dark lc-rv">Begin</p>
+    <h2 id="inquiry-heading" class="lc-inquiry-h2 lc-rv d1">Tell us about the <em>two</em> of you.</h2>
+    <p class="lc-inquiry-pitch lc-rv d2">Share your travel dates, your resort, and a sentence about the moment. The studio responds the same business day, in English or Spanish, with two questions and a candid sense of whether the date is open. The first reply will come from Director Vianey Diaz. For proposals, the studio confirms within twenty-four hours; the lead time is shorter for a reason.</p>
 
-    <div class="lc-inquiry-ctas" role="group" aria-label="Inquiry actions">
-      <a class="lc-btn lc-btn-gold lc-btn--primary" href="mailto:info@ivaestudios.com?subject=Couples%20Inquiry" data-magnet="true" aria-label="Begin Inquiry by email">Begin Inquiry</a>
-      <a class="lc-btn lc-btn--proposal" href="https://wa.me/529902046514?text=Proposal%20availability%20inquiry" data-magnet="true" aria-label="Check Proposal Availability on WhatsApp">Check Proposal Availability</a>
-      <a class="lc-btn lc-btn--text" href="https://wa.me/529902046514" aria-label="Message the studio on WhatsApp">WhatsApp the Studio</a>
+    <p class="lc-inquiry-proposal-note lc-rv d3" role="note">For surprise proposals, the studio responds the same day in Spanish or English.</p>
+
+    <div class="lc-inquiry-ctas lc-rv d4" role="group" aria-label="Inquiry actions">
+      <a class="lc-btn lc-btn-gold lc-btn--primary lc-magnet" href="mailto:info@ivaestudios.com?subject=Couples%20Inquiry" data-magnet="true" aria-label="Begin Inquiry by email">Begin Inquiry</a>
+      <a class="lc-btn lc-btn--ghost" href="https://wa.me/529902046514?text=Proposal%20availability%20inquiry" data-magnet="true" aria-label="Check Availability for proposal date">Check Availability</a>
+      <a class="lc-btn lc-btn--text" href="https://wa.me/529902046514" aria-label="Message the studio on WhatsApp">WhatsApp</a>
     </div>
 
-    <dl class="lc-inquiry-meta" role="group" aria-label="Studio response details">
+    <dl class="lc-inquiry-meta lc-rv d4" role="group" aria-label="Studio response details">
       <div class="lc-inquiry-meta-cell"><dt>Response Time</dt><dd>Same business day</dd></div>
       <div class="lc-inquiry-meta-cell"><dt>Languages</dt><dd>English / Spanish</dd></div>
       <div class="lc-inquiry-meta-cell"><dt>Hours</dt><dd>06:00 &ndash; 20:00 GMT-5</dd></div>
@@ -1247,8 +1347,10 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 <!-- ═══════════════════════════════════════════════════════════════
      SECTION 11 — FOOTER
      ═══════════════════════════════════════════════════════════════ -->
-<footer class="site-footer" role="contentinfo">
+<footer class="colophon site-footer" role="contentinfo">
+  <p class="site-footer__bilingual" style="text-align:center;font-family:var(--font-sans);font-size:var(--fs-10);font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);margin-bottom:18px"><span lang="es">Fotografia de Resort de Lujo</span> &nbsp;/&nbsp; <span lang="en">Luxury Resort Photography</span></p>
   <p class="site-footer__tag">Luxury Resort Photography. Editorial. Bilingual. Golden hour, only.</p>
+  <p class="site-footer__coastlines" style="text-align:center;font-family:var(--font-sans);font-size:var(--fs-12);letter-spacing:.22em;text-transform:uppercase;color:var(--text-on-dark-readable);margin-top:-48px;margin-bottom:56px">Cancun &middot; Riviera Maya &middot; Los Cabos</p>
 
   <div class="site-footer__cols">
     <div class="footer-col">
@@ -1557,58 +1659,109 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
   var reelTrack = document.getElementById('lcReelTrack');
   var reelPrev = document.getElementById('lcReelPrev');
   var reelNext = document.getElementById('lcReelNext');
+  var reelProgressEl = document.getElementById('lcReelProgress');
+  var reelProgressBar = document.getElementById('lcReelProgressBar');
+  function reelStep(){
+    if (!reelTrack) return 320;
+    var frame = reelTrack.querySelector('.lc-reel-frame');
+    return frame ? (frame.getBoundingClientRect().width + 24) : 320;
+  }
   function reelScrollBy(dir){
     if (!reelTrack) return;
-    var frame = reelTrack.querySelector('.lc-reel-frame');
-    var w = frame ? (frame.getBoundingClientRect().width + 24) : 320;
-    reelTrack.scrollBy({left: dir * w, behavior: reduce ? 'auto' : 'smooth'});
+    reelTrack.scrollBy({left: dir * reelStep(), behavior: reduce ? 'auto' : 'smooth'});
+  }
+  function reelUpdateProgress(){
+    if (!reelTrack || !reelProgressBar) return;
+    var max = Math.max(1, reelTrack.scrollWidth - reelTrack.clientWidth);
+    var pct = Math.min(100, Math.max(0, (reelTrack.scrollLeft / max) * 100));
+    var seg = (1 / 6) * 100; // six frames
+    reelProgressBar.style.left = (pct * (1 - seg / 100)) + '%';
+    reelProgressBar.style.width = seg + '%';
+    if (reelProgressEl) reelProgressEl.setAttribute('aria-valuenow', String(Math.round(pct)));
+    if (reelPrev) reelPrev.setAttribute('aria-disabled', reelTrack.scrollLeft <= 2 ? 'true' : 'false');
+    if (reelNext) reelNext.setAttribute('aria-disabled', reelTrack.scrollLeft >= max - 2 ? 'true' : 'false');
   }
   if (reelPrev) reelPrev.addEventListener('click', function(){ reelScrollBy(-1); });
   if (reelNext) reelNext.addEventListener('click', function(){ reelScrollBy(1); });
   if (reelTrack){
+    reelTrack.addEventListener('scroll', function(){
+      if (window.requestAnimationFrame) requestAnimationFrame(reelUpdateProgress);
+      else reelUpdateProgress();
+    });
     reelTrack.addEventListener('keydown', function(e){
       if (e.key === 'ArrowRight'){ reelScrollBy(1); e.preventDefault(); }
       else if (e.key === 'ArrowLeft'){ reelScrollBy(-1); e.preventDefault(); }
       else if (e.key === 'Home'){ reelTrack.scrollTo({left:0, behavior: reduce ? 'auto' : 'smooth'}); e.preventDefault(); }
       else if (e.key === 'End'){ reelTrack.scrollTo({left: reelTrack.scrollWidth, behavior: reduce ? 'auto' : 'smooth'}); e.preventDefault(); }
     });
-    // Pointer drag
-    var rIsDown = false, rStartX = 0, rStartScroll = 0;
+    // Pointer drag (mouse + touch + pen). Click suppression after a drag past threshold.
+    var rIsDown = false, rStartX = 0, rStartScroll = 0, rMoved = 0;
+    var DRAG_THRESHOLD = 6;
     reelTrack.addEventListener('pointerdown', function(e){
-      if (e.pointerType === 'mouse'){
-        rIsDown = true; rStartX = e.pageX; rStartScroll = reelTrack.scrollLeft;
-        try { reelTrack.setPointerCapture(e.pointerId); } catch(_) {}
-      }
+      rIsDown = true; rStartX = e.clientX; rStartScroll = reelTrack.scrollLeft; rMoved = 0;
+      reelTrack.classList.add('is-dragging');
+      try { reelTrack.setPointerCapture(e.pointerId); } catch(_) {}
     });
     reelTrack.addEventListener('pointermove', function(e){
       if (!rIsDown) return;
-      reelTrack.scrollLeft = rStartScroll - (e.pageX - rStartX);
+      var dx = e.clientX - rStartX;
+      rMoved = Math.max(rMoved, Math.abs(dx));
+      reelTrack.scrollLeft = rStartScroll - dx;
     });
-    function endDrag(){ rIsDown = false; }
+    function endDrag(){
+      rIsDown = false;
+      reelTrack.classList.remove('is-dragging');
+    }
     reelTrack.addEventListener('pointerup', endDrag);
     reelTrack.addEventListener('pointercancel', endDrag);
     reelTrack.addEventListener('pointerleave', endDrag);
+    // Suppress accidental click after a drag
+    reelTrack.addEventListener('click', function(e){
+      if (rMoved > DRAG_THRESHOLD){ e.preventDefault(); e.stopPropagation(); rMoved = 0; }
+    }, true);
+    // Initialize progress + button states
+    reelUpdateProgress();
+    if (window.addEventListener) window.addEventListener('resize', reelUpdateProgress);
   }
 
-  /* ═══ 11. Magnetic cursor ring (frames reel hover preview) ═══ */
+  /* ═══ 11. Magnetic cursor preview (ring + 280px thumb at 24px offset) ═══ */
   var cursorRing = document.getElementById('lcCursorRing');
+  var cursorThumb = document.getElementById('lcCursorThumb');
   if (canCinematic && cursorRing && reelTrack){
-    var cx = 0, cy = 0, craf = null;
+    var cx = 0, cy = 0, craf = null, currentImg = null;
+    function paintCursor(){
+      cursorRing.style.transform = 'translate(' + cx + 'px,' + cy + 'px) translate(-50%,-50%)';
+      if (cursorThumb) cursorThumb.style.transform = 'translate(' + cx + 'px,' + cy + 'px) translate(calc(-50% + 24px + 140px),calc(-50% - 24px))';
+      craf = null;
+    }
     function moveRing(e){
       cx = e.clientX; cy = e.clientY;
-      if (!craf){
-        craf = requestAnimationFrame(function(){
-          cursorRing.style.transform = 'translate(' + cx + 'px,' + cy + 'px) translate(-50%,-50%)';
-          craf = null;
-        });
+      if (!craf) craf = requestAnimationFrame(paintCursor);
+      // Detect frame image under pointer for thumb preview
+      if (cursorThumb){
+        var t = e.target && e.target.closest ? e.target.closest('.lc-reel-frame img') : null;
+        if (t && t !== currentImg){
+          currentImg = t;
+          var src = t.currentSrc || t.src;
+          cursorThumb.style.backgroundImage = 'url("' + src + '")';
+          cursorThumb.classList.add('is-visible');
+          cursorRing.style.opacity = '0';
+        } else if (!t && currentImg){
+          currentImg = null;
+          cursorThumb.classList.remove('is-visible');
+          cursorRing.style.opacity = '1';
+        }
       }
     }
-    reelTrack.addEventListener('pointerenter', function(){
+    reelTrack.addEventListener('pointerenter', function(e){
+      if (e.pointerType !== 'mouse') return;
       cursorRing.style.opacity = '1';
       document.addEventListener('pointermove', moveRing);
     });
     reelTrack.addEventListener('pointerleave', function(){
       cursorRing.style.opacity = '0';
+      if (cursorThumb) cursorThumb.classList.remove('is-visible');
+      currentImg = null;
       document.removeEventListener('pointermove', moveRing);
     });
   }
@@ -1647,18 +1800,39 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
   })();
 
   /* ═══ 12. FAQ accordion ═══ */
-  document.querySelectorAll('.lc-faq-toggle').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      var expanded = btn.getAttribute('aria-expanded') === 'true';
-      btn.setAttribute('aria-expanded', String(!expanded));
-      var pid = btn.getAttribute('aria-controls');
-      var panel = document.getElementById(pid);
-      if (panel){
-        if (expanded) panel.setAttribute('hidden','');
-        else panel.removeAttribute('hidden');
-      }
+  (function(){
+    var toggles = document.querySelectorAll('.lc-faq-toggle');
+    toggles.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var expanded = btn.getAttribute('aria-expanded') === 'true';
+        if (!expanded){
+          toggles.forEach(function(other){
+            if (other !== btn && other.getAttribute('aria-expanded') === 'true'){
+              other.setAttribute('aria-expanded','false');
+              var oid = other.getAttribute('aria-controls');
+              var op = oid && document.getElementById(oid);
+              if (op) op.setAttribute('data-open','false');
+            }
+          });
+        }
+        btn.setAttribute('aria-expanded', String(!expanded));
+        var pid = btn.getAttribute('aria-controls');
+        var panel = pid && document.getElementById(pid);
+        if (panel) panel.setAttribute('data-open', String(!expanded));
+      });
     });
-  });
+    var faqItems = document.querySelectorAll('.lc-faq-item');
+    if (faqItems.length && 'IntersectionObserver' in window){
+      var faqIO = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if (e.isIntersecting){ e.target.classList.add('is-revealed'); faqIO.unobserve(e.target); }
+        });
+      }, {threshold:.15, rootMargin:'0px 0px -10% 0px'});
+      faqItems.forEach(function(it){ faqIO.observe(it); });
+    } else {
+      faqItems.forEach(function(it){ it.classList.add('is-revealed'); });
+    }
+  })();
 
 })();
 </script>

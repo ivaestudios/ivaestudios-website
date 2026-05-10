@@ -98,6 +98,7 @@ ul{list-style:none}
 .lw-rv.d3{transition-delay:.34s}
 .lw-rv.d4{transition-delay:.46s}
 .lw-rv.d5{transition-delay:.58s}
+.lw-rv.d6{transition-delay:.70s}
 
 /* ═══════════════════════════════════════════════════════════════
    CINEMATIC ADDITIONS / WAVE 6
@@ -308,28 +309,34 @@ ul{list-style:none}
 }
 .frames-rail{
   display:grid;grid-auto-flow:column;
-  grid-auto-columns:clamp(260px,32vw,420px);
-  gap:14px;
+  grid-auto-columns:clamp(280px,30vw,480px);
+  gap:18px;
   overflow-x:auto;overflow-y:hidden;
   scroll-snap-type:x mandatory;
+  scroll-padding-inline:24px;
   scrollbar-width:thin;scrollbar-color:var(--gold-line) transparent;
-  padding:8px 0 24px;
+  padding:8px 4px 28px;
   cursor:grab;
+  outline:none;
 }
+.frames-rail:focus-visible{box-shadow:inset 0 0 0 1px var(--gold-line)}
 .frames-rail.is-dragging{cursor:grabbing;scroll-behavior:auto}
 .frames-rail::-webkit-scrollbar{height:4px}
 .frames-rail::-webkit-scrollbar-track{background:transparent}
 .frames-rail::-webkit-scrollbar-thumb{background:var(--gold-line);border-radius:2px}
 .frames-rail .frame{scroll-snap-align:start;aspect-ratio:4/5}
+.frames-rail .frame:nth-child(2n){aspect-ratio:3/4}
+.frames-rail .frame:nth-child(3n){aspect-ratio:5/7}
+.frames-rail .frame:nth-child(5n){aspect-ratio:2/3}
 .frame-num{
   position:absolute;top:14px;left:14px;z-index:2;
   font-family:var(--font-serif);font-style:italic;font-weight:300;
-  font-size:var(--fs-13);color:var(--gold);
-  letter-spacing:.04em;
-  background:rgba(10,15,23,.65);
-  padding:4px 10px;
+  font-size:var(--fs-14);color:var(--gold);
+  letter-spacing:.05em;
+  background:rgba(10,15,23,.62);
+  padding:4px 12px;
   pointer-events:none;
-  opacity:.92;
+  opacity:.94;
 }
 .frames-rail-hint{
   display:flex;align-items:center;gap:14px;
@@ -1032,30 +1039,42 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 
 /* ═══════ Testimonials ═══════ */
 .tlist{background:var(--ink-2)}
+.tlist .lw-section-eyebrow{margin-bottom:18px}
+.tlist h2{
+  font-feature-settings:"liga","dlig","onum";
+  letter-spacing:-.005em;
+}
 .tlist-grid{
   display:grid;grid-template-columns:repeat(3,1fr);
-  gap:clamp(16px,2vw,28px);
-  margin-top:56px;
+  gap:clamp(18px,2.2vw,32px);
+  margin-top:64px;
 }
 .tlist-card{
+  position:relative;
   background:var(--ink-1);
-  padding:42px 32px;
-  border-top:1px solid var(--gold-line);
-  display:flex;flex-direction:column;gap:18px;
+  padding:46px 34px 40px;
+  border-top:2px solid var(--gold);
+  display:flex;flex-direction:column;gap:20px;
+  transition:transform .55s var(--ease),border-color .55s var(--ease),box-shadow .55s var(--ease);
+  will-change:transform;
 }
 .tlist-stars{
-  display:flex;gap:4px;color:var(--gold);
+  display:flex;gap:5px;color:var(--gold);
   font-size:var(--fs-13);
-  letter-spacing:.05em;
+  letter-spacing:.08em;
 }
 .tlist-card blockquote{
+  margin:0;
   font-family:var(--font-serif);font-weight:300;font-style:italic;
-  font-size:var(--fs-18);line-height:1.55;
+  font-size:var(--fs-19,var(--fs-18));line-height:1.6;
   color:var(--cream);
+  font-feature-settings:"liga","dlig","onum";
 }
 .tlist-attr{
-  display:flex;flex-direction:column;gap:4px;
-  padding-top:14px;border-top:1px solid var(--gold-line);
+  display:flex;flex-direction:column;gap:6px;
+  padding-top:16px;
+  border-top:1px solid var(--gold-line);
+  margin-top:auto;
 }
 .tlist-name{
   font-family:var(--font-sans);
@@ -1065,10 +1084,44 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   color:var(--cream);
 }
 .tlist-where{
+  font-family:var(--font-serif);font-style:italic;font-weight:300;
+  font-size:var(--fs-13);
+  color:var(--gold);
+  letter-spacing:.02em;
+}
+.tlist-coda{
+  margin:clamp(56px,7vw,84px) auto 0;
+  max-width:760px;
+  text-align:center;
+  font-family:var(--font-serif);font-style:italic;font-weight:300;
+  font-size:clamp(17px,1.6vw,21px);line-height:1.55;
+  color:var(--cream);
+  border-top:1px solid var(--gold-line);
+  padding-top:clamp(28px,3.2vw,40px);
+}
+.tlist-coda cite{
+  display:block;
+  margin-top:12px;
+  font-size:var(--fs-12);
+  font-style:normal;
   font-family:var(--font-sans);
-  font-size:var(--fs-11);
-  color:var(--text-on-dark-3);
-  letter-spacing:.05em;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--gold);
+}
+@media(prefers-reduced-motion: no-preference) and (pointer:fine){
+  .tlist-card:hover{
+    transform:translateY(-4px);
+    border-top-color:var(--gold);
+    box-shadow:0 18px 44px -28px rgba(0,0,0,.55),0 1px 0 rgba(212,175,116,.18);
+  }
+  .tlist-card:hover .tlist-where{color:var(--gold)}
+}
+@media(prefers-reduced-motion: reduce){
+  .tlist-card{transition:none}
+}
+@media(max-width:1080px){
+  .tlist-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:900px){
   .tlist-grid{grid-template-columns:1fr}
@@ -1086,71 +1139,116 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 }
 .frame img{
   width:100%;height:100%;object-fit:cover;
-  filter:saturate(.88) brightness(.95);
-  transform:scale(1.0);
-  transition:transform 1.0s var(--ease),filter .5s var(--ease);
+  filter:saturate(.88) brightness(.95) contrast(.98);
+  transform:scale(1);
+  transition:transform 1.4s var(--ease),filter 1.4s var(--ease);
+  will-change:transform,filter;
 }
-.frame:hover img{
-  transform:scale(1.045);
-  filter:saturate(1.0) brightness(1.04);
+.frame:hover img,
+.frame:focus-visible img{
+  transform:scale(1.025);
+  filter:saturate(1.02) brightness(1.05) contrast(1.02);
 }
+.frame::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(10,15,23,0) 55%,rgba(10,15,23,.55) 100%);
+  opacity:.85;transition:opacity .8s var(--ease);
+}
+.frame:hover::after{opacity:1}
 .frame-cap{
-  position:absolute;left:14px;bottom:14px;
-  font-family:var(--font-sans);
-  font-size:var(--fs-9);font-weight:500;
-  letter-spacing:var(--tracking-eyebrow-wide);
-  text-transform:uppercase;
+  position:absolute;left:14px;bottom:14px;z-index:2;
+  font-family:var(--font-serif);
+  font-style:italic;font-weight:300;
+  font-size:var(--fs-13);
+  letter-spacing:.03em;
   color:var(--gold);
-  background:rgba(10,15,23,.78);
-  padding:6px 10px;
-  opacity:0;transition:opacity .4s var(--ease);
+  background:rgba(10,15,23,.62);
+  padding:5px 12px;
+  opacity:.92;transform:translateY(4px);
+  transition:opacity .8s var(--ease),transform .8s var(--ease);
 }
-.frame:hover .frame-cap{opacity:1}
+.frame:hover .frame-cap,
+.frame:focus-visible .frame-cap{opacity:1;transform:translateY(0)}
 @media(max-width:768px){
   .frames-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:480px){
   .frames-grid{grid-template-columns:1fr}
 }
+@media (prefers-reduced-motion: reduce){
+  .frame img{transition:none !important}
+  .frame:hover img,.frame:focus-visible img{transform:none;filter:saturate(.92) brightness(.98)}
+  .frame-cap{transition:none !important;transform:none}
+  .frames-rail{scroll-behavior:auto}
+}
 
 /* ═══════ FAQ ═══════ */
 .faq{background:var(--ink-2)}
 .faq-inner{max-width:var(--faq-max-width);margin:0 auto}
 .faq-list{margin-top:48px;border-top:1px solid var(--gold-line)}
-.faq-item{border-bottom:1px solid var(--gold-line)}
+.faq-item{border-bottom:1px solid var(--gold-line);position:relative}
+.faq-item::after{
+  content:'';position:absolute;left:0;bottom:-1px;height:1px;width:0;
+  background:linear-gradient(90deg, transparent, var(--gold) 50%, transparent);
+  transition:width .5s var(--ease);
+}
+.faq-item.open::after{width:100%}
 .faq-trigger{
-  width:100%;
+  width:100%;position:relative;
   display:flex;justify-content:space-between;align-items:center;
   padding:24px 0;gap:24px;
   text-align:left;cursor:pointer;
   background:none;border:none;color:inherit;
   min-height:var(--touch-target-min);
   font:inherit;
+  transition:color .3s var(--ease);
+  border-radius:2px;
+}
+.faq-trigger:hover .faq-q,
+.faq-trigger:focus-visible .faq-q{color:var(--gold)}
+.faq-trigger:focus-visible{
+  outline:none;
+  box-shadow:0 0 0 2px var(--gold-soft);
 }
 .faq-q{
   font-family:var(--font-serif);font-weight:300;
   font-size:clamp(18px,1.5vw,22px);
   line-height:1.32;color:var(--cream);
   flex:1;
+  transition:color .3s var(--ease);
+  background-image:linear-gradient(var(--gold), var(--gold));
+  background-repeat:no-repeat;
+  background-position:0 100%;
+  background-size:0 1px;
+  transition:color .3s var(--ease), background-size .4s var(--ease);
+  padding-bottom:2px;
 }
+.faq-trigger:hover .faq-q,
+.faq-trigger:focus-visible .faq-q{background-size:100% 1px}
 .faq-icon{
   flex-shrink:0;width:28px;height:28px;
   border:1px solid var(--gold-line);border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  color:var(--gold);
-  transition:transform .35s var(--ease),background .3s var(--ease);
+  color:var(--gold);position:relative;
+  transition:transform .4s var(--ease), background .4s var(--ease), border-color .4s var(--ease);
 }
 .faq-icon::before,.faq-icon::after{
   content:'';position:absolute;
   background:var(--gold);
+  transition:transform .4s var(--ease);
 }
 .faq-icon::before{width:10px;height:1px}
-.faq-icon::after{width:1px;height:10px;transition:transform .35s var(--ease)}
-.faq-item.open .faq-icon{transform:rotate(180deg);background:var(--gold-soft)}
-.faq-item.open .faq-icon::after{transform:scaleY(0)}
+.faq-icon::after{width:1px;height:10px}
+.faq-trigger:hover .faq-icon,
+.faq-trigger:focus-visible .faq-icon{border-color:var(--gold);background:var(--gold-soft)}
+.faq-item.open .faq-icon{
+  transform:rotate(45deg);
+  background:var(--gold-soft);
+  border-color:var(--gold);
+}
 .faq-answer{
   max-height:0;overflow:hidden;
-  transition:max-height .55s var(--ease);
+  transition:max-height .4s var(--ease);
 }
 .faq-item.open .faq-answer{max-height:var(--faq-answer-max-h)}
 .faq-answer p{
@@ -1158,6 +1256,12 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   font-family:var(--font-sans);
   font-size:var(--fs-14);line-height:1.78;
   color:var(--text-on-dark-readable);
+  font-style:italic;
+}
+@media (prefers-reduced-motion: reduce){
+  .faq-trigger,.faq-q,.faq-icon,.faq-icon::before,.faq-icon::after,
+  .faq-answer,.faq-item::after{transition:none !important}
+  .faq-q{background-image:none}
 }
 
 /* ═══════ Inquiry ═══════ */
@@ -1172,9 +1276,13 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   max-width:var(--inquiry-copy-max-width);
   margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:24px;
 }
+.inquiry-rule{
+  width:64px;height:1px;background:var(--gold);
+  opacity:.7;margin:0 auto 4px;
+}
 .inquiry h2{
-  font-family:var(--font-serif);font-weight:300;
-  font-size:clamp(34px,4vw,56px);
+  font-family:var(--font-serif);font-style:italic;font-weight:300;
+  font-size:clamp(36px,4vw,56px);
   line-height:1.06;letter-spacing:-.018em;
   color:var(--cream);
 }
@@ -1236,7 +1344,14 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   font-family:var(--font-serif);font-style:italic;
   font-size:var(--fs-15);
   color:var(--text-on-dark-2);
-  max-width:300px;text-align:right;
+  max-width:340px;text-align:right;
+  display:flex;flex-direction:column;gap:8px;
+}
+.colophon-tag-coast{
+  font-family:var(--font-sans);font-style:normal;
+  font-size:var(--fs-9);font-weight:500;
+  letter-spacing:var(--tracking-eyebrow-wide);
+  text-transform:uppercase;color:var(--gold);
 }
 .colophon-cols{
   display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;
@@ -1732,7 +1847,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 <!-- ═══════ TESTIMONIALS ═══════ -->
 <section class="lw-section tlist" aria-labelledby="t-h">
   <div class="lw-inner">
-    <span class="lw-section-eyebrow">In Their Words</span>
+    <span class="lw-section-eyebrow lw-rv">In Their Words</span>
     <h2 id="t-h" class="lw-rv">What couples say <em>about the studio.</em></h2>
 
     <div class="tlist-grid">
@@ -1763,6 +1878,11 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
         </div>
       </article>
     </div>
+
+    <blockquote class="tlist-coda lw-rv d4" aria-label="A note from couples we have served">
+      A wedding archive is built for the years after the wedding. The studio shapes every frame for that long view.
+      <cite>The Studio Note / Vianey Díaz, Director</cite>
+    </blockquote>
   </div>
 </section>
 
@@ -1774,32 +1894,32 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 
     <div class="frames-rail-wrap">
       <div class="frames-rail" id="lwFramesRail" tabindex="0" role="region" aria-label="Wedding frames reel, scroll horizontally">
-        <figure class="frame">
+        <figure class="frame" tabindex="0">
           <span class="frame-num">Frame i. / vi.</span>
           <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="A bride at the Cancun Hotel Zone at golden hour" loading="lazy" data-preview/>
           <figcaption class="frame-cap">Cancún / Hotel Zone</figcaption>
         </figure>
-        <figure class="frame">
+        <figure class="frame" tabindex="0">
           <span class="frame-num">Frame ii. / vi.</span>
           <img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="A bride on a Cancun beach in editorial light" loading="lazy" data-preview/>
           <figcaption class="frame-cap">Cancún / Beach</figcaption>
         </figure>
-        <figure class="frame">
+        <figure class="frame" tabindex="0">
           <span class="frame-num">Frame iii. / vi.</span>
           <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-5.jpg" alt="A bride in private editorial portrait, Cancun" loading="lazy" data-preview/>
           <figcaption class="frame-cap">Cancún / Suite</figcaption>
         </figure>
-        <figure class="frame">
+        <figure class="frame" tabindex="0">
           <span class="frame-num">Frame iv. / vi.</span>
           <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="A bride photographed at sunset on the resort terrace" loading="lazy" data-preview/>
           <figcaption class="frame-cap">Cancún / Terrace</figcaption>
         </figure>
-        <figure class="frame">
+        <figure class="frame" tabindex="0">
           <span class="frame-num">Frame v. / vi.</span>
           <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg" alt="A bride and bouquet, editorial coverage" loading="lazy" data-preview/>
           <figcaption class="frame-cap">Cancún / Bouquet</figcaption>
         </figure>
-        <figure class="frame">
+        <figure class="frame" tabindex="0">
           <span class="frame-num">Frame vi. / vi.</span>
           <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-15.jpg" alt="Bride at blue hour after the ceremony" loading="lazy" data-preview/>
           <figcaption class="frame-cap">Cancún / Blue Hour</figcaption>
@@ -1818,7 +1938,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 
     <div class="faq-list">
 
-      <div class="faq-item">
+      <div class="faq-item lw-rv d1">
         <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-1" id="faq-q-1">
           <span class="faq-q">How much is a destination wedding photographer in Mexico?</span>
           <span class="faq-icon" aria-hidden="true"></span>
@@ -1828,7 +1948,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
         </div>
       </div>
 
-      <div class="faq-item">
+      <div class="faq-item lw-rv d2">
         <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-2" id="faq-q-2">
           <span class="faq-q">How many hours do you cover for a Mexican wedding?</span>
           <span class="faq-icon" aria-hidden="true"></span>
@@ -1838,7 +1958,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
         </div>
       </div>
 
-      <div class="faq-item">
+      <div class="faq-item lw-rv d3">
         <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-3" id="faq-q-3">
           <span class="faq-q">Do you offer video and photo together?</span>
           <span class="faq-icon" aria-hidden="true"></span>
@@ -1848,7 +1968,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
         </div>
       </div>
 
-      <div class="faq-item">
+      <div class="faq-item lw-rv d4">
         <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-4" id="faq-q-4">
           <span class="faq-q">Can you photograph at Mayakoba / Rosewood / Four Seasons resorts?</span>
           <span class="faq-icon" aria-hidden="true"></span>
@@ -1858,7 +1978,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
         </div>
       </div>
 
-      <div class="faq-item">
+      <div class="faq-item lw-rv d5">
         <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-5" id="faq-q-5">
           <span class="faq-q">Will you travel to Tulum / Los Cabos for a wedding?</span>
           <span class="faq-icon" aria-hidden="true"></span>
@@ -1868,7 +1988,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
         </div>
       </div>
 
-      <div class="faq-item">
+      <div class="faq-item lw-rv d6">
         <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-6" id="faq-q-6">
           <span class="faq-q">When should I book a Mexico wedding photographer?</span>
           <span class="faq-icon" aria-hidden="true"></span>
@@ -1878,7 +1998,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
         </div>
       </div>
 
-      <div class="faq-item">
+      <div class="faq-item lw-rv d7">
         <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-7" id="faq-q-7">
           <span class="faq-q">What time should we schedule our ceremony for the best photos?</span>
           <span class="faq-icon" aria-hidden="true"></span>
@@ -1888,7 +2008,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
         </div>
       </div>
 
-      <div class="faq-item">
+      <div class="faq-item lw-rv d8">
         <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-8" id="faq-q-8">
           <span class="faq-q">How many photos will we receive from our wedding?</span>
           <span class="faq-icon" aria-hidden="true"></span>
@@ -1898,7 +2018,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
         </div>
       </div>
 
-      <div class="faq-item">
+      <div class="faq-item lw-rv d9">
         <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-9" id="faq-q-9">
           <span class="faq-q">Can we do an engagement session before the wedding in Mexico?</span>
           <span class="faq-icon" aria-hidden="true"></span>
@@ -1908,7 +2028,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
         </div>
       </div>
 
-      <div class="faq-item">
+      <div class="faq-item lw-rv d10">
         <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-10" id="faq-q-10">
           <span class="faq-q">What happens if it rains on our wedding day?</span>
           <span class="faq-icon" aria-hidden="true"></span>
@@ -1925,21 +2045,22 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 <!-- ═══════ INQUIRY ═══════ -->
 <section class="lw-section inquiry" id="inquiry" aria-labelledby="inq-h">
   <div class="inquiry-inner">
-    <span class="lw-section-eyebrow">Begin a Conversation</span>
+    <span class="lw-section-eyebrow lw-rv">Begin a Conversation</span>
+    <span class="inquiry-rule lw-rv" aria-hidden="true"></span>
     <h2 id="inq-h" class="lw-rv">Tell us about <em>the day.</em></h2>
-    <p class="lw-rv d1">Send the date, the coast, and a few lines about the wedding you are planning. The studio replies the same business day with a proposal, sample full galleries from the most relevant venue, and a short note from the Director.</p>
+    <p class="lw-rv d1">Tell us the date, the venue, the shape of the day. Send a few lines about the wedding you are planning, the coast you have chosen, and any moment that already feels essential. The Director replies the same business day with a proposal, sample full galleries from the most relevant resort, and a short personal note.</p>
 
-    <div class="lw-actions" style="justify-content:center">
-      <a class="lw-btn lw-btn-gold" href="mailto:hello@ivaestudios.com?subject=Wedding%20Inquiry" data-magnet>
+    <div class="lw-actions lw-rv d2" style="justify-content:center">
+      <a class="lw-btn lw-btn-gold lw-magnet" href="mailto:hello@ivaestudios.com?subject=Wedding%20Inquiry" data-magnet>
         Begin Inquiry
         <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
       </a>
       <a class="lw-btn lw-btn-outline" href="https://wa.me/529902046514" target="_blank" rel="noopener" data-magnet>
-        WhatsApp the Studio
+        WhatsApp the Director
         <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
       </a>
     </div>
-    <div class="lw-availability lw-rv d2" role="status" style="margin-top:24px">
+    <div class="lw-availability lw-rv d3" role="status" style="margin-top:24px">
       <span class="lw-availability-dot" aria-hidden="true"></span>
       <span class="lw-availability-text">
         <span class="lw-availability-l">Earliest Saturday open</span>
@@ -1947,7 +2068,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
       </span>
     </div>
 
-    <div class="inquiry-meta">
+    <div class="inquiry-meta lw-rv d3">
       <div class="inquiry-meta-cell">
         <span class="inquiry-meta-l">Response Time</span>
         <span class="inquiry-meta-v">Same business day</span>
@@ -1975,7 +2096,10 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 <footer class="colophon" aria-label="Footer">
   <div class="colophon-mark">
     <span class="colophon-mark-name">IVAE<em>Studios</em></span>
-    <span class="colophon-tag">Luxury Resort Photography. <em>Editorial. Bilingual. Golden hour, only.</em></span>
+    <span class="colophon-tag">
+      Luxury Resort Photography. <em>Editorial. Bilingual. Golden hour, only.</em>
+      <span class="colophon-tag-coast">Cancún &middot; Riviera Maya &middot; Los Cabos</span>
+    </span>
   </div>
 
   <div class="colophon-cols">
@@ -2085,12 +2209,20 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
     $$('.lw-rv').forEach(function(el){el.classList.add('vis')});
   }
 
-  /* FAQ accordion */
+  /* FAQ accordion (close-others-on-open) */
   $$('.faq-trigger').forEach(function(btn){
     btn.addEventListener('click', function(){
       var item = btn.closest('.faq-item');
-      var open = item.classList.toggle('open');
-      btn.setAttribute('aria-expanded', String(open));
+      var willOpen = !item.classList.contains('open');
+      $$('.faq-item.open').forEach(function(other){
+        if(other !== item){
+          other.classList.remove('open');
+          var otherBtn = other.querySelector('.faq-trigger');
+          if(otherBtn) otherBtn.setAttribute('aria-expanded','false');
+        }
+      });
+      item.classList.toggle('open', willOpen);
+      btn.setAttribute('aria-expanded', String(willOpen));
     });
   });
 

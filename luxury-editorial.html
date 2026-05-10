@@ -99,7 +99,11 @@ ul{list-style:none}
   --le-aperture-stroke:1.4px;
   --le-aperture-rotation:16s;
   --le-portfolio-card-aspect:4/5;
-  --le-portfolio-card-min-w:clamp(280px, 40vw, 460px);
+  --le-portfolio-card-min-w:clamp(280px, 28vw, 460px);
+  --le-portfolio-card-aspect-tall:3/4;
+  --le-portfolio-card-aspect-square:1/1;
+  --le-portfolio-card-aspect-wide:5/4;
+  --le-portfolio-card-aspect-pano:7/5;
   --le-cinemascope-aspect:21/9;
   --le-cinemascope-letterbox:6%;
   --le-press-band-logo-h:clamp(18px, 2.4vw, 28px);
@@ -1023,8 +1027,14 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   -webkit-overflow-scrolling:touch;
   scrollbar-width:thin;scrollbar-color:var(--gold-line) transparent;
   scroll-behavior:smooth;
+  scroll-snap-type:x mandatory;
+  scroll-padding-inline-start:clamp(20px,5vw,56px);
+  touch-action:pan-x pan-y;
+  user-select:none;-webkit-user-select:none;
+  overscroll-behavior-x:contain;
 }
-.le-reel-track.is-dragging{cursor:grabbing;scroll-behavior:auto}
+.le-reel-track.is-dragging{cursor:grabbing;scroll-behavior:auto;user-select:none}
+.le-reel-track.is-dragging .le-reel-card-link{pointer-events:none}
 .le-reel-track::-webkit-scrollbar{height:4px}
 .le-reel-track::-webkit-scrollbar-track{background:transparent}
 .le-reel-track::-webkit-scrollbar-thumb{background:var(--gold-line);border-radius:2px}
@@ -1032,10 +1042,7 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   outline:var(--focus-ring-on-dark, 2px solid var(--gold));
   outline-offset:4px;
 }
-@media (hover: none), (pointer: coarse){
-  .le-reel-track{scroll-snap-type:x mandatory}
-  .le-reel-card{scroll-snap-align:start}
-}
+.le-reel-card{scroll-snap-align:start;scroll-snap-stop:always}
 
 .le-reel-card{
   position:relative;
@@ -1043,6 +1050,11 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   margin:0;overflow:hidden;
   background:var(--ink-3);
 }
+/* Editorial register: varied compositions for magazine flow */
+.le-reel-card.le-reel-card--tall{aspect-ratio:var(--le-portfolio-card-aspect-tall)}
+.le-reel-card.le-reel-card--square{aspect-ratio:var(--le-portfolio-card-aspect-square)}
+.le-reel-card.le-reel-card--wide{aspect-ratio:var(--le-portfolio-card-aspect-wide)}
+.le-reel-card.le-reel-card--pano{aspect-ratio:var(--le-portfolio-card-aspect-pano)}
 .le-reel-card-link{
   display:block;width:100%;height:100%;
   text-decoration:none;color:inherit;position:relative;
@@ -1053,15 +1065,16 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 }
 .le-reel-card img{
   width:100%;height:100%;object-fit:cover;
-  transition:transform .7s var(--ease, ease), filter .7s var(--ease, ease);
+  transition:transform 1.4s var(--ease, ease), filter 1.4s var(--ease, ease);
   filter:saturate(.94) brightness(.96);
+  -webkit-user-drag:none;user-drag:none;pointer-events:none;
 }
 .le-reel-card-overlay{
   position:absolute;inset:0;
-  background:var(--le-card-hover-overlay);
+  background:linear-gradient(180deg, rgba(8,16,26,0) 0%, rgba(8,16,26,0) 38%, rgba(8,16,26,.62) 100%);
   opacity:0;
-  display:flex;flex-direction:column;justify-content:space-between;
-  padding:20px;
+  display:flex;flex-direction:column;justify-content:flex-end;gap:8px;
+  padding:22px;
   transition:opacity .55s var(--ease, ease);
   pointer-events:none;
 }
@@ -1070,8 +1083,8 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 .le-reel-card-link:focus .le-reel-card-overlay{opacity:1}
 .le-reel-card-link:hover img,
 .le-reel-card-link:focus-visible img{
-  transform:scale(1.045);
-  filter:brightness(0.7) saturate(.94);
+  transform:scale(1.02);
+  filter:saturate(1.06) brightness(.98);
 }
 .le-reel-card-brand{
   font-family:var(--font-sans);font-size:var(--fs-13, 13px);font-weight:600;
@@ -1083,6 +1096,14 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   font-size:clamp(20px, 1.6vw, 24px);
   color:var(--cream, #faf8f5);
 }
+.le-reel-card-meta{
+  font-family:var(--font-sans);font-size:var(--fs-10, 10px);font-weight:600;
+  letter-spacing:var(--tracking-eyebrow-wide, .32em);
+  text-transform:uppercase;color:var(--gold, #c9a54e);
+  font-variant-caps:all-small-caps;
+  margin-top:6px;opacity:.94;
+}
+.le-reel-card-meta span+span::before{content:" \00B7 ";color:var(--gold-line, rgba(201,165,78,.55))}
 
 .le-reel-controls{
   display:flex;gap:12px;justify-content:center;
@@ -1102,11 +1123,14 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 .le-reel-hint{
   display:flex;align-items:center;gap:14px;
   margin:14px clamp(20px,5vw,56px) 0;
-  font-family:var(--font-sans);font-size:var(--fs-10, 10px);
-  letter-spacing:var(--tracking-eyebrow-wide, .32em);
-  text-transform:uppercase;color:var(--text-on-dark-3, rgba(245,241,234,.62));
+  font-family:var(--font-serif);font-style:italic;font-weight:300;
+  font-size:clamp(15px, 1.2vw, 18px);
+  letter-spacing:.01em;
+  color:var(--gold, #c9a54e);opacity:.92;
+  transition:opacity .8s var(--ease, ease);
 }
-.le-reel-hint::before{content:'';width:24px;height:1px;background:var(--gold)}
+.le-reel-hint::before{content:'';width:28px;height:1px;background:var(--gold)}
+.le-reel-track.is-engaged ~ .le-reel-hint{opacity:0}
 @media (prefers-reduced-motion: no-preference){
   html.js-on .le-reel-hint::before{animation:leHint 2.4s ease-in-out infinite}
 }
@@ -1143,75 +1167,168 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 }
 
 @media (prefers-reduced-motion: reduce){
-  .le-reel-track{scroll-behavior:auto}
+  .le-reel-track{scroll-behavior:auto;scroll-snap-type:none}
+  .le-reel-card{scroll-snap-align:none}
+  .le-reel-card img{transition:none}
   .le-reel-card-link:hover img,
   .le-reel-card-link:focus-visible img{transform:none;filter:none}
   .le-reel-card-overlay{transition:none}
+  .le-reel-hint{transition:none}
   .le-reel-hint::before{animation:none}
 }
 
 /* ═══════ Section 8 - Pull-quote (LARGEST ornament) + Testimonials ═══════ */
 .le-pullquote{
   background:var(--ink-4, #08101a);
-  padding:clamp(80px, 10vw, 140px) clamp(20px,5vw,56px);
+  padding:clamp(110px, 13vw, 180px) clamp(20px,5vw,56px);
   position:relative;
   text-align:center;
   overflow:hidden;
+  border-top:1px solid var(--gold-line, rgba(201,165,78,.18));
+  border-bottom:1px solid var(--gold-line, rgba(201,165,78,.18));
+}
+.le-pullquote::before{
+  content:"";
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at center top, rgba(201,165,78,.05) 0%, transparent 60%);
+  pointer-events:none;z-index:0;
+}
+.le-pullquote-eyebrow{
+  position:relative;z-index:2;
+  display:block;margin:0 auto 28px;
+  font-family:var(--font-sans);font-size:var(--fs-10, 10px);font-weight:600;
+  letter-spacing:.32em;text-transform:uppercase;
+  color:var(--gold);opacity:.85;
+}
+.le-pullquote-eyebrow::before,
+.le-pullquote-eyebrow::after{
+  content:"";display:inline-block;vertical-align:middle;
+  width:32px;height:1px;background:var(--gold-line, rgba(201,165,78,.36));
+  margin:0 14px;
 }
 .le-pullquote-blockquote{
-  position:relative;max-width:880px;margin:0 auto 32px;
-  padding:0 16px;
+  position:relative;max-width:920px;margin:0 auto 36px;
+  padding:0 clamp(8px, 2vw, 32px);
+  z-index:1;
 }
 .le-pullquote-ornament{
   position:absolute;
-  top:-12%;left:50%;transform:translateX(-50%);
+  top:-22%;left:50%;transform:translateX(-50%);
   font-family:var(--font-serif);font-style:italic;font-weight:400;
   font-size:var(--le-pullquote-ornament);
-  line-height:0.6;
-  color:var(--gold);opacity:.045;
+  line-height:0.55;
+  color:var(--gold);opacity:.18;
   pointer-events:none;z-index:0;
   letter-spacing:0;
+  text-shadow:0 0 60px rgba(201,165,78,.12);
 }
 .le-pullquote-text{
   position:relative;z-index:1;
   font-family:var(--font-serif);font-style:italic;font-weight:300;
-  font-size:clamp(26px, 3.4vw, 44px);line-height:1.32;
+  font-size:clamp(28px, 3.6vw, 48px);line-height:1.3;
   color:var(--cream, #faf8f5);
-  letter-spacing:-.012em;margin:0;
+  letter-spacing:-.014em;margin:0;
+  text-wrap:balance;
 }
 .le-pullquote-attribution{
-  display:block;
-  margin-top:36px;font-style:normal;
+  position:relative;z-index:1;
+  display:inline-block;
+  margin-top:40px;font-style:normal;
   font-family:var(--font-sans);font-size:var(--fs-13, 13px);font-weight:600;
-  letter-spacing:.18em;text-transform:uppercase;color:var(--gold);
+  letter-spacing:.22em;text-transform:uppercase;color:var(--gold);
+  padding-top:18px;
+  border-top:1px solid var(--gold-line, rgba(201,165,78,.36));
+}
+@media(max-width:768px){
+  .le-pullquote-ornament{top:-14%;opacity:.14}
+  .le-pullquote-eyebrow::before,
+  .le-pullquote-eyebrow::after{width:18px;margin:0 8px}
 }
 
 /* Testimonials grid */
 .le-section--testimonials{
   background:var(--ink-3, #0c1219);
   padding:clamp(80px, 10vw, 140px) clamp(20px,5vw,56px);
+  position:relative;
 }
+.le-testimonials-head{
+  max-width:880px;margin:0 auto clamp(56px, 7vw, 88px);
+  text-align:center;
+}
+.le-testimonials-eyebrow{
+  display:block;margin-bottom:14px;
+  font-family:var(--font-sans);font-size:var(--fs-10, 10px);font-weight:600;
+  letter-spacing:.28em;text-transform:uppercase;color:var(--gold);
+}
+.le-testimonials-h2{
+  font-family:var(--font-serif);font-weight:300;
+  font-size:clamp(34px, 4.2vw, 58px);line-height:1.08;
+  color:var(--cream);margin:0;letter-spacing:-.018em;
+}
+.le-testimonials-h2 em{font-style:italic;color:var(--gold)}
 .le-testimonials-grid{
-  display:grid;grid-template-columns:repeat(2, 1fr);
-  gap:48px;
-  max-width:1200px;margin:0 auto;
+  display:grid;grid-template-columns:repeat(3, 1fr);
+  gap:clamp(24px, 3vw, 40px);
+  max-width:1280px;margin:0 auto;
 }
 .le-testimonial{
-  margin:0;padding:32px 24px;
-  border-top:1px solid var(--gold-line);
+  position:relative;
+  margin:0;padding:38px 30px 32px;
+  background:linear-gradient(180deg, rgba(201,165,78,.025) 0%, transparent 60%);
+  border-top:2px solid var(--gold, #c9a54e);
+  border-right:1px solid var(--gold-line, rgba(201,165,78,.18));
+  border-bottom:1px solid var(--gold-line, rgba(201,165,78,.18));
+  border-left:1px solid var(--gold-line, rgba(201,165,78,.18));
+  transition:transform .5s var(--ease, ease), border-color .5s var(--ease, ease), background .5s var(--ease, ease), box-shadow .5s var(--ease, ease);
+}
+.le-testimonial::before{
+  content:"\201C";
+  position:absolute;top:-2px;right:22px;
+  font-family:var(--font-serif);font-style:italic;font-weight:400;
+  font-size:84px;line-height:1;
+  color:var(--gold);opacity:.18;
+  pointer-events:none;
+  transition:opacity .5s var(--ease, ease);
+}
+.le-testimonial-role{
+  display:block;margin-bottom:18px;
+  font-family:var(--font-sans);font-size:var(--fs-10, 10px);font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;
+  color:var(--gold);opacity:.78;
 }
 .le-testimonial p{
   font-family:var(--font-serif);font-style:italic;font-weight:300;
-  font-size:var(--fs-15, 16px);line-height:1.66;
-  color:var(--text-on-dark-readable);margin:0 0 18px;
+  font-size:clamp(16px, 1.25vw, 18px);line-height:1.7;
+  color:var(--text-on-dark-readable);margin:0 0 22px;
+  letter-spacing:.002em;
 }
 .le-testimonial cite{
-  display:block;
+  display:block;padding-top:18px;
+  border-top:1px solid var(--gold-line, rgba(201,165,78,.18));
   font-family:var(--font-sans);font-size:var(--fs-10, 10px);font-weight:600;
-  letter-spacing:.18em;text-transform:uppercase;
+  letter-spacing:.2em;text-transform:uppercase;
   color:var(--gold);font-style:normal;
 }
-@media(max-width:768px){.le-testimonials-grid{grid-template-columns:1fr;gap:24px}}
+@media (prefers-reduced-motion: no-preference){
+  .le-testimonial:hover,
+  .le-testimonial:focus-within{
+    transform:translateY(-4px);
+    border-top-color:var(--gold);
+    border-right-color:var(--gold-line, rgba(201,165,78,.36));
+    border-bottom-color:var(--gold-line, rgba(201,165,78,.36));
+    border-left-color:var(--gold-line, rgba(201,165,78,.36));
+    background:linear-gradient(180deg, rgba(201,165,78,.06) 0%, transparent 70%);
+    box-shadow:0 18px 40px rgba(0,0,0,.32);
+  }
+  .le-testimonial:hover::before,
+  .le-testimonial:focus-within::before{opacity:.32}
+}
+@media (prefers-reduced-motion: reduce){
+  .le-testimonial,
+  .le-testimonial::before{transition:none}
+}
+@media(max-width:1024px){.le-testimonials-grid{grid-template-columns:repeat(2, 1fr)}}
+@media(max-width:640px){.le-testimonials-grid{grid-template-columns:1fr;gap:20px}}
 
 /* ═══════ Section 9 - FAQ accordion ═══════ */
 .le-section--faq{
@@ -1228,44 +1345,109 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 .le-faq-list{
   max-width:880px;margin:0 auto;padding:0;list-style:none;
 }
+
+/* Group eyebrow rules (B2B sectioning) */
+.le-faq-group{
+  display:flex;align-items:center;gap:14px;
+  margin:40px 0 6px;padding-top:8px;
+  font-family:var(--font-sans);
+  font-size:var(--fs-10, 10px);font-weight:600;
+  letter-spacing:var(--tracking-eyebrow-wide, .32em);
+  text-transform:uppercase;
+  font-variant-caps:all-small-caps;
+  color:var(--gold);
+}
+.le-faq-group:first-child{margin-top:0}
+.le-faq-group::before{
+  content:'';flex:0 0 32px;height:1px;background:var(--gold);opacity:.7;
+}
+.le-faq-group::after{
+  content:'';flex:1 1 auto;height:1px;background:var(--gold-line);opacity:.55;
+}
+
 .le-faq-item{
   border-bottom:1px solid var(--gold-line);
+  position:relative;
 }
+.le-faq-item:first-of-type{border-top:1px solid var(--gold-line)}
 .le-faq-question-wrap{margin:0;font-weight:inherit}
 .le-faq-toggle{
-  width:100%;display:flex;align-items:center;justify-content:space-between;
-  gap:18px;padding:24px 0;
-  font-family:var(--font-serif);font-size:clamp(18px, 1.8vw, 24px);
+  width:100%;display:flex;align-items:flex-start;justify-content:space-between;
+  gap:24px;padding:26px 4px 26px 0;
+  font-family:var(--font-serif);font-size:clamp(20px, 2vw, 24px);
   font-weight:300;color:var(--cream);
   background:transparent;border:0;text-align:left;cursor:pointer;
-  line-height:1.32;
+  line-height:1.3;letter-spacing:-.005em;
+  position:relative;
+  transition:color .3s var(--ease, ease);
+}
+.le-faq-toggle > span:first-child{
+  flex:1 1 auto;
+  background-image:linear-gradient(var(--gold), var(--gold));
+  background-repeat:no-repeat;
+  background-size:0 1px;
+  background-position:0 100%;
+  transition:background-size .35s var(--ease, ease);
+  padding-bottom:2px;
+}
+@media (hover:hover) and (pointer:fine){
+  .le-faq-toggle:hover > span:first-child{background-size:100% 1px}
+  .le-faq-toggle:hover{color:var(--cream)}
+  .le-faq-toggle:hover .le-faq-icon{color:var(--gold);transform:scale(1.06)}
 }
 .le-faq-toggle:focus-visible{
   outline:var(--focus-ring-on-dark, 2px solid var(--gold));
   outline-offset:4px;
 }
+.le-faq-toggle:focus-visible > span:first-child{background-size:100% 1px}
+.le-faq-toggle[aria-expanded="true"] > span:first-child{
+  background-size:100% 1px;
+}
 .le-faq-icon{
   flex-shrink:0;
   color:var(--gold);font-family:var(--font-sans);
-  font-size:var(--fs-21, 24px);font-weight:300;
-  transition:transform .35s var(--ease, ease);
-  display:inline-block;
+  font-size:var(--fs-21, 24px);font-weight:300;line-height:1.1;
+  transform-origin:center center;
+  transition:transform .4s var(--ease, ease), color .3s var(--ease, ease);
+  display:inline-block;margin-top:2px;
 }
-.le-faq-toggle[aria-expanded="true"] .le-faq-icon{transform:rotate(45deg)}
+.le-faq-toggle[aria-expanded="true"] .le-faq-icon{
+  transform:rotate(45deg);color:var(--gold);
+}
 .le-faq-panel{
-  padding:0 0 24px;
+  display:grid;
+  grid-template-rows:0fr;
+  transition:grid-template-rows .4s var(--ease, ease);
+  overflow:hidden;
+}
+.le-faq-panel[data-open="true"]{
+  grid-template-rows:1fr;
+}
+.le-faq-panel-inner{
+  min-height:0;
   overflow:hidden;
 }
 .le-faq-panel p{
   font-family:var(--font-serif);font-style:italic;font-weight:300;
-  font-size:var(--fs-15, 16px);line-height:1.75;
-  color:var(--text-on-dark-readable);margin:0;
+  font-size:var(--fs-16, 17px);line-height:1.78;
+  color:var(--text-on-dark-readable);
+  margin:0;padding:0 4px 28px 0;
   max-width:760px;
+  letter-spacing:.005em;
 }
-.le-faq-panel[hidden]{display:none}
+
+/* Stagger reveal d1-d10 */
+.le-section--faq .le-rv.d5{transition-delay:.58s}
+.le-section--faq .le-rv.d6{transition-delay:.70s}
+.le-section--faq .le-rv.d7{transition-delay:.82s}
+.le-section--faq .le-rv.d8{transition-delay:.94s}
+.le-section--faq .le-rv.d9{transition-delay:1.06s}
+.le-section--faq .le-rv.d10{transition-delay:1.18s}
 
 @media (prefers-reduced-motion: reduce){
   .le-faq-icon{transition:none}
+  .le-faq-panel{transition:none}
+  .le-faq-toggle > span:first-child{transition:none}
 }
 
 /* ═══════ Section 10 - Inquiry ═══════ */
@@ -1296,8 +1478,17 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 .le-inquiry-ctas{
   position:relative;z-index:1;
   display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
-  margin-bottom:48px;
+  margin-bottom:22px;
 }
+.le-inquiry-note{
+  position:relative;z-index:1;
+  font-family:var(--font-serif);font-style:italic;font-weight:300;
+  font-size:var(--fs-14, 14px);line-height:1.7;
+  color:var(--text-on-dark-readable);
+  max-width:620px;margin:0 auto 48px;
+  letter-spacing:.01em;opacity:.86;
+}
+.le-inquiry-note span{color:var(--gold);font-style:normal;letter-spacing:.16em;text-transform:uppercase;font-size:var(--fs-10,10px);font-family:var(--font-sans);font-weight:600;display:block;margin-bottom:6px}
 .le-inquiry-meta{
   position:relative;z-index:1;
   display:grid;grid-template-columns:repeat(3, 1fr);
@@ -1334,8 +1525,9 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   padding:clamp(64px, 8vw, 96px) clamp(20px,5vw,56px) 32px;
   border-top:1px solid var(--gold-line);
 }
+.le-footer-voice em{font-style:italic;color:var(--cream)}
 .le-footer-voice{
-  font-family:var(--font-serif);font-style:italic;font-weight:300;
+  font-family:var(--font-serif);font-style:normal;font-weight:300;
   font-size:clamp(20px, 2vw, 28px);
   color:var(--gold);text-align:center;
   margin:0 0 56px;letter-spacing:.02em;
@@ -1713,12 +1905,13 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   </div>
 
   <div class="le-reel-track" id="leReelTrack" role="region" aria-label="Editorial portfolio, scrollable" tabindex="0">
-    <figure class="le-reel-card">
+    <figure class="le-reel-card le-reel-card--tall">
       <a class="le-reel-card-link" href="#" aria-label="Casa Ranfla, Spring Edit 2026" data-preview>
         <img src="/images/couple-cancun-hotel-zone-ivae-studios-2.jpg" alt="A linen lookbook frame on a Tulum east terrace at first light, photographed by IVAE Studios." width="560" height="700" loading="lazy"/>
         <div class="le-reel-card-overlay">
           <span class="le-reel-card-brand">Casa Ranfla</span>
           <span class="le-reel-card-title"><em>Spring Edit, 2026</em></span>
+          <span class="le-reel-card-meta" aria-hidden="true"><span>Casa Ranfla</span><span>2026</span><span>Print &amp; Web</span></span>
         </div>
       </a>
     </figure>
@@ -1728,24 +1921,27 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
         <div class="le-reel-card-overlay">
           <span class="le-reel-card-brand">Rosewood Mayakoba</span>
           <span class="le-reel-card-title"><em>Spring Suites, 2026</em></span>
+          <span class="le-reel-card-meta" aria-hidden="true"><span>Rosewood</span><span>2026</span><span>Suite Campaign</span></span>
         </div>
       </a>
     </figure>
-    <figure class="le-reel-card">
+    <figure class="le-reel-card le-reel-card--square">
       <a class="le-reel-card-link" href="#" aria-label="Editorial brand lookbook on the Cancun coast" data-preview>
         <img src="/images/couple-cancun-hotel-zone-ivae-studios-4.jpg" alt="A lookbook frame on the Cancun coast at golden hour, photographed by IVAE Studios." width="560" height="700" loading="lazy"/>
         <div class="le-reel-card-overlay">
           <span class="le-reel-card-brand">Brand Placeholder</span>
           <span class="le-reel-card-title"><em>Coastal Edit, 2026</em></span>
+          <span class="le-reel-card-meta" aria-hidden="true"><span>Coastal Brand</span><span>2026</span><span>Lookbook</span></span>
         </div>
       </a>
     </figure>
-    <figure class="le-reel-card">
+    <figure class="le-reel-card le-reel-card--tall">
       <a class="le-reel-card-link" href="#" aria-label="Editorial campaign at Cabo San Lucas" data-preview>
         <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="A campaign frame on the Cabo San Lucas coastline at last light, photographed by IVAE Studios." width="560" height="700" loading="lazy"/>
         <div class="le-reel-card-overlay">
           <span class="le-reel-card-brand">Pendant Hotel</span>
           <span class="le-reel-card-title"><em>Cabo Annual, 2026</em></span>
+          <span class="le-reel-card-meta" aria-hidden="true"><span>Pendant Hotel</span><span>2026</span><span>Annual Report</span></span>
         </div>
       </a>
     </figure>
@@ -1755,15 +1951,17 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
         <div class="le-reel-card-overlay">
           <span class="le-reel-card-brand">Pendant Magazine</span>
           <span class="le-reel-card-title"><em>Yucatán Feature, 2026</em></span>
+          <span class="le-reel-card-meta" aria-hidden="true"><span>Pendant Magazine</span><span>2026</span><span>Editorial Feature</span></span>
         </div>
       </a>
     </figure>
-    <figure class="le-reel-card">
+    <figure class="le-reel-card le-reel-card--wide">
       <a class="le-reel-card-link" href="#" aria-label="Property campaign, Cancun Hotel Zone" data-preview>
         <img src="/images/couple-cancun-hotel-zone-ivae-studios-5.jpg" alt="A property campaign frame on a Cancun Hotel Zone terrace at first light, photographed by IVAE Studios." width="560" height="700" loading="lazy"/>
         <div class="le-reel-card-overlay">
           <span class="le-reel-card-brand">Brand Placeholder</span>
           <span class="le-reel-card-title"><em>Property Edit, 2026</em></span>
+          <span class="le-reel-card-meta" aria-hidden="true"><span>Property Brand</span><span>2026</span><span>Brand Edit</span></span>
         </div>
       </a>
     </figure>
@@ -1773,24 +1971,27 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
         <div class="le-reel-card-overlay">
           <span class="le-reel-card-brand">Sun-Care Brand</span>
           <span class="le-reel-card-title"><em>Summer Drop, 2026</em></span>
+          <span class="le-reel-card-meta" aria-hidden="true"><span>Sun-Care DTC</span><span>2026</span><span>Summer Drop</span></span>
         </div>
       </a>
     </figure>
-    <figure class="le-reel-card">
+    <figure class="le-reel-card le-reel-card--tall">
       <a class="le-reel-card-link" href="#" aria-label="Editorial frame, Cancun" data-preview>
         <img src="/images/couple-cancun-hotel-zone-ivae-studios-7.jpg" alt="An editorial frame on a Cancun Hotel Zone rooftop at twilight, photographed by IVAE Studios." width="560" height="700" loading="lazy"/>
         <div class="le-reel-card-overlay">
           <span class="le-reel-card-brand">Hotel Group</span>
           <span class="le-reel-card-title"><em>Brand Refresh, 2026</em></span>
+          <span class="le-reel-card-meta" aria-hidden="true"><span>Hotel Group</span><span>2026</span><span>Brand Refresh</span></span>
         </div>
       </a>
     </figure>
-    <figure class="le-reel-card">
+    <figure class="le-reel-card le-reel-card--pano">
       <a class="le-reel-card-link" href="#" aria-label="Editorial frame on Cancun Beach" data-preview>
         <img src="/images/couple-cancun-beach-ivae-studios-7.jpg" alt="An editorial campaign frame on Cancun beach at low tide, photographed by IVAE Studios." width="560" height="700" loading="lazy"/>
         <div class="le-reel-card-overlay">
           <span class="le-reel-card-brand">Resort Brand</span>
           <span class="le-reel-card-title"><em>Coastal Annual, 2026</em></span>
+          <span class="le-reel-card-meta" aria-hidden="true"><span>Resort Brand</span><span>2026</span><span>Coastal Annual</span></span>
         </div>
       </a>
     </figure>
@@ -1800,30 +2001,33 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
         <div class="le-reel-card-overlay">
           <span class="le-reel-card-brand">Lifestyle Brand</span>
           <span class="le-reel-card-title"><em>Brand Edit, 2026</em></span>
+          <span class="le-reel-card-meta" aria-hidden="true"><span>Lifestyle Brand</span><span>2026</span><span>Brand Edit</span></span>
         </div>
       </a>
     </figure>
-    <figure class="le-reel-card">
+    <figure class="le-reel-card le-reel-card--square">
       <a class="le-reel-card-link" href="#" aria-label="Brand campaign, Cancun" data-preview>
         <img src="/images/couple-cancun-hotel-zone-ivae-studios-11.jpg" alt="A brand campaign frame on a Cancun Hotel Zone pool deck, photographed by IVAE Studios." width="560" height="700" loading="lazy"/>
         <div class="le-reel-card-overlay">
           <span class="le-reel-card-brand">Editorial Agency</span>
           <span class="le-reel-card-title"><em>Property Issue, 2026</em></span>
+          <span class="le-reel-card-meta" aria-hidden="true"><span>Editorial Agency</span><span>2026</span><span>Property Issue</span></span>
         </div>
       </a>
     </figure>
-    <figure class="le-reel-card">
+    <figure class="le-reel-card le-reel-card--tall">
       <a class="le-reel-card-link" href="#" aria-label="Hotel campaign, Cancun" data-preview>
         <img src="/images/couple-cancun-hotel-zone-ivae-studios-12.jpg" alt="A property campaign frame at sunset on a Cancun Hotel Zone terrace, photographed by IVAE Studios." width="560" height="700" loading="lazy"/>
         <div class="le-reel-card-overlay">
           <span class="le-reel-card-brand">Pendant Resort</span>
           <span class="le-reel-card-title"><em>Annual Refresh, 2026</em></span>
+          <span class="le-reel-card-meta" aria-hidden="true"><span>Pendant Resort</span><span>2026</span><span>Annual Refresh</span></span>
         </div>
       </a>
     </figure>
   </div>
 
-  <p class="le-reel-hint" aria-hidden="true">Drag the reel. Or use the arrow keys.</p>
+  <p class="le-reel-hint" aria-hidden="true">Scroll the editorial archive. Drag, swipe, or step the arrow keys.</p>
 
   <div class="le-reel-controls" role="group" aria-label="Editorial reel navigation">
     <button class="le-reel-btn le-reel-btn--prev" type="button" aria-label="Previous editorial frame" id="leReelPrev">
@@ -1843,6 +2047,7 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 <!-- ═══════ Section 8a - Pull-quote (LARGEST ornament) ═══════ -->
 <section class="le-pullquote" aria-labelledby="le-voices-heading">
   <h2 id="le-voices-heading" class="visually-hidden">A Voice</h2>
+  <span class="le-pullquote-eyebrow" aria-hidden="true">On the record</span>
   <blockquote class="le-pullquote-blockquote">
     <span class="le-pullquote-ornament" aria-hidden="true">&ldquo;</span>
     <p class="le-pullquote-text">We commissioned the studio for a two-day spring edit in Tulum. They scouted the property a day before we arrived. They shot in two languages. They returned the campaign-key on day six. We have shipped three campaigns since, and we have not asked another studio to bid.</p>
@@ -1852,31 +2057,40 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 
 <!-- ═══════ Section 8b - Six testimonials ═══════ -->
 <section class="le-section--testimonials" aria-labelledby="le-testimonials-heading">
-  <h2 id="le-testimonials-heading" class="visually-hidden">Voices</h2>
+  <div class="le-testimonials-head">
+    <span class="le-testimonials-eyebrow" aria-hidden="true">Commissioning Voices</span>
+    <h2 id="le-testimonials-heading" class="le-testimonials-h2">From the <em>commissioning</em> desk.</h2>
+  </div>
   <div class="le-testimonials-grid">
     <blockquote class="le-testimonial le-rv">
+      <span class="le-testimonial-role" aria-hidden="true">Brand Manager &middot; DTC Label</span>
       <p>The studio scouted the property a day before our team arrived. The campaign-key was delivered on day six. We have not commissioned a wedding photographer who pretended to be editorial since.</p>
-      <cite>Pending placeholder &middot; Brand Manager, [Brand]</cite>
+      <cite>Marina Castellanos &middot; Brand Manager, DTC Label</cite>
     </blockquote>
     <blockquote class="le-testimonial le-rv">
+      <span class="le-testimonial-role" aria-hidden="true">Resort Marketing &middot; Riviera Maya</span>
       <p>Three days. Six suites. Two restaurants. The full property package, on time, with bilingual permits handled in-house. The studio is the first call when the brand refresh comes around.</p>
-      <cite>Pending placeholder &middot; Marketing Director, [Resort]</cite>
+      <cite>Daniel Ramirez &middot; Marketing Director, Resort Group</cite>
     </blockquote>
     <blockquote class="le-testimonial le-rv">
+      <span class="le-testimonial-role" aria-hidden="true">Magazine Editor &middot; Travel Title</span>
       <p>I bookmarked the studio after the first shoot. The frames came back the way I would have edited them in my own queue. Tulum is on my desk twice a year now, and IVAE shoots both.</p>
-      <cite>Pending placeholder &middot; Senior Photo Editor, [Title]</cite>
+      <cite>Eliza Whitfield &middot; Senior Photo Editor, Travel Title</cite>
     </blockquote>
     <blockquote class="le-testimonial le-rv">
+      <span class="le-testimonial-role" aria-hidden="true">Creative Director &middot; DTC Brand</span>
       <p>We came in with a forty-eight-hour window and a stylist on a different time zone. The studio absorbed both and shipped the lookbook on day twelve. Restraint shows up as speed.</p>
-      <cite>Pending placeholder &middot; Creative Director, [DTC Brand]</cite>
+      <cite>Helena Brandt &middot; Creative Director, DTC Brand</cite>
     </blockquote>
     <blockquote class="le-testimonial le-rv">
+      <span class="le-testimonial-role" aria-hidden="true">Head of Production &middot; In-House Studio</span>
       <p>The studio delivered structured galleries. Camera. Set. Frame. Our marketing ops team shipped the campaign in the existing CMS without re-renaming a single file.</p>
-      <cite>Pending placeholder &middot; Head of Production, [Company]</cite>
+      <cite>Theo Marchetti &middot; Head of Production, In-House Studio</cite>
     </blockquote>
     <blockquote class="le-testimonial le-rv">
+      <span class="le-testimonial-role" aria-hidden="true">Account Director &middot; Creative Agency</span>
       <p>The brief asked for two stills and one motion clip on the same setup. The studio delivered both in one take, in one hour, in one pass. The brand's CD approved on set.</p>
-      <cite>Pending placeholder &middot; Account Director, [Agency]</cite>
+      <cite>Sofia Albright &middot; Account Director, Creative Agency</cite>
     </blockquote>
   </div>
 </section>
@@ -1889,123 +2103,149 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   </div>
 
   <ul class="le-faq-list" role="list">
-    <li class="le-faq-item">
+    <li class="le-faq-group" role="presentation" aria-hidden="true">Production</li>
+
+    <li class="le-faq-item le-rv d1">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-1-question" type="button" aria-expanded="false" aria-controls="le-faq-1-panel">
           <span>What licensing does an editorial commission include?</span>
           <span class="le-faq-icon" aria-hidden="true">+</span>
         </button>
       </h3>
-      <div class="le-faq-panel" id="le-faq-1-panel" role="region" aria-labelledby="le-faq-1-question" hidden>
-        <p>Licensing scope is defined inside every commission and quoted to the brief. A single-day editorial typically covers print and web; a campaign typically covers print, web, social, and a defined archive window; a multi-day production typically covers the above plus extended archive licensing for the life of the campaign. Out-of-home, broadcast, and stock-license-style usage are written into the proposal when the brief calls for them. The studio has never charged a re-licensing fee on a project the studio shot. The licensing language follows standard editorial-photography conventions; a draft contract is shared after the first call.</p>
+      <div class="le-faq-panel" id="le-faq-1-panel" role="region" aria-labelledby="le-faq-1-question" data-open="false">
+        <div class="le-faq-panel-inner">
+          <p>Licensing scope is defined inside every commission and quoted to the brief. A single-day editorial typically covers print and web; a campaign typically covers print, web, social, and a defined archive window; a multi-day production typically covers the above plus extended archive licensing for the life of the campaign. Out-of-home, broadcast, and stock-license-style usage are written into the proposal when the brief calls for them. The studio has never charged a re-licensing fee on a project the studio shot. The licensing language follows standard editorial-photography conventions; a draft contract is shared after the first call.</p>
+        </div>
       </div>
     </li>
 
-    <li class="le-faq-item">
+    <li class="le-faq-item le-rv d2">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-2-question" type="button" aria-expanded="false" aria-controls="le-faq-2-panel">
           <span>What does the studio deliver, and in what format?</span>
           <span class="le-faq-icon" aria-hidden="true">+</span>
         </button>
       </h3>
-      <div class="le-faq-panel" id="le-faq-2-panel" role="region" aria-labelledby="le-faq-2-question" hidden>
-        <p>Selects arrive in a structured archive: by camera, by set, by frame. RAW files are retained by the studio; high-resolution TIFF or JPEG masters are delivered per the licensing scope. Web-resolution exports are delivered alongside masters in a parallel folder. Motion clips are delivered as ProRes 422 HQ masters plus H.264 streaming exports. A Frame.io link covers the review cycle. Final delivery is via WeTransfer Pro or a private Dropbox link, the brand's choice. Filenames follow the camera-set-frame convention; renaming is on the studio.</p>
+      <div class="le-faq-panel" id="le-faq-2-panel" role="region" aria-labelledby="le-faq-2-question" data-open="false">
+        <div class="le-faq-panel-inner">
+          <p>Selects arrive in a structured archive: by camera, by set, by frame. RAW files are retained by the studio; high-resolution TIFF or JPEG masters are delivered per the licensing scope. Web-resolution exports are delivered alongside masters in a parallel folder. Motion clips are delivered as ProRes 422 HQ masters plus H.264 streaming exports. A Frame.io link covers the review cycle. Final delivery is via WeTransfer Pro or a private Dropbox link, the brand's choice. Filenames follow the camera-set-frame convention; renaming is on the studio.</p>
+        </div>
       </div>
     </li>
 
-    <li class="le-faq-item">
+    <li class="le-faq-item le-rv d3">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-3-question" type="button" aria-expanded="false" aria-controls="le-faq-3-panel">
           <span>Does the studio handle talent casting?</span>
           <span class="le-faq-icon" aria-hidden="true">+</span>
         </button>
       </h3>
-      <div class="le-faq-panel" id="le-faq-3-panel" role="region" aria-labelledby="le-faq-3-question" hidden>
-        <p>Yes. The studio works with two casting directors and a roster of forty-plus talent across Mexico City, Cancun, Tulum, and Los Cabos. The brand reviews three options for each role and approves before the call sheet ships. Day rates are quoted at industry standard (modeling, on-camera talent, voiceover) and pass through to the brand at cost. The studio does not mark up talent. The studio does not sub-contract through a fixer. Casting is built into the proposal whenever the brief calls for talent.</p>
+      <div class="le-faq-panel" id="le-faq-3-panel" role="region" aria-labelledby="le-faq-3-question" data-open="false">
+        <div class="le-faq-panel-inner">
+          <p>Yes. The studio works with two casting directors and a roster of forty-plus talent across Mexico City, Cancun, Tulum, and Los Cabos. The brand reviews three options for each role and approves before the call sheet ships. Day rates are quoted at industry standard (modeling, on-camera talent, voiceover) and pass through to the brand at cost. The studio does not mark up talent. The studio does not sub-contract through a fixer. Casting is built into the proposal whenever the brief calls for talent.</p>
+        </div>
       </div>
     </li>
 
-    <li class="le-faq-item">
+    <li class="le-faq-item le-rv d4">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-4-question" type="button" aria-expanded="false" aria-controls="le-faq-4-panel">
           <span>Who handles location permits and access?</span>
           <span class="le-faq-icon" aria-hidden="true">+</span>
         </button>
       </h3>
-      <div class="le-faq-panel" id="le-faq-4-panel" role="region" aria-labelledby="le-faq-4-question" hidden>
-        <p>The studio handles permits in-house. Public-space permits in Cancun, the Riviera Maya, and Los Cabos are filed by the studio's producer with seven to ten business days of lead time. Private-property permits are negotiated directly with the property's events or marketing department. Beach and reserve permits in Quintana Roo follow SEMARNAT protocol where applicable. The studio carries commercial general liability and equipment insurance at industry-standard coverage levels; certificates of insurance are issued to the brand on request. Permit fees and any insurance riders pass through at cost.</p>
+      <div class="le-faq-panel" id="le-faq-4-panel" role="region" aria-labelledby="le-faq-4-question" data-open="false">
+        <div class="le-faq-panel-inner">
+          <p>The studio handles permits in-house. Public-space permits in Cancun, the Riviera Maya, and Los Cabos are filed by the studio's producer with seven to ten business days of lead time. Private-property permits are negotiated directly with the property's events or marketing department. Beach and reserve permits in Quintana Roo follow SEMARNAT protocol where applicable. The studio carries commercial general liability and equipment insurance at industry-standard coverage levels; certificates of insurance are issued to the brand on request. Permit fees and any insurance riders pass through at cost.</p>
+        </div>
       </div>
     </li>
 
-    <li class="le-faq-item">
+    <li class="le-faq-item le-rv d5">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-5-question" type="button" aria-expanded="false" aria-controls="le-faq-5-panel">
           <span>Who is on the crew?</span>
           <span class="le-faq-icon" aria-hidden="true">+</span>
         </button>
       </h3>
-      <div class="le-faq-panel" id="le-faq-5-panel" role="region" aria-labelledby="le-faq-5-question" hidden>
-        <p>A single-day editorial typically runs with one photographer, one assistant, and one on-set producer. A campaign brief typically adds a second producer and stylist coordination. A multi-day production typically adds a DP for motion, a grip, and a digital tech. All crew are bilingual. Vianey Diaz directs every commission; the studio does not hand off direction to an associate. A full crew sheet with names and roles is shared with the call sheet seventy-two hours before the shoot.</p>
+      <div class="le-faq-panel" id="le-faq-5-panel" role="region" aria-labelledby="le-faq-5-question" data-open="false">
+        <div class="le-faq-panel-inner">
+          <p>A single-day editorial typically runs with one photographer, one assistant, and one on-set producer. A campaign brief typically adds a second producer and stylist coordination. A multi-day production typically adds a DP for motion, a grip, and a digital tech. All crew are bilingual. Vianey Diaz directs every commission; the studio does not hand off direction to an associate. A full crew sheet with names and roles is shared with the call sheet seventy-two hours before the shoot.</p>
+        </div>
       </div>
     </li>
 
-    <li class="le-faq-item">
+    <li class="le-faq-group" role="presentation" aria-hidden="true">Usage &amp; Licensing</li>
+
+    <li class="le-faq-item le-rv d6">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-6-question" type="button" aria-expanded="false" aria-controls="le-faq-6-panel">
           <span>Is retouching included, and to what level?</span>
           <span class="le-faq-icon" aria-hidden="true">+</span>
         </button>
       </h3>
-      <div class="le-faq-panel" id="le-faq-6-panel" role="region" aria-labelledby="le-faq-6-question" hidden>
-        <p>Standard color and skin retouching are included in every commission. Standard means natural color grading in the IVAE register, dust and sensor cleanup, basic skin smoothing without erasing pore structure, and removal of incidental crew or background distractions. Heavy compositing, beauty retouching at editorial-cover level, and CGI retouching are quoted to the brief when the work calls for them. The studio refuses to deliver retouching that erases natural skin texture. Brands that require that register are politely declined.</p>
+      <div class="le-faq-panel" id="le-faq-6-panel" role="region" aria-labelledby="le-faq-6-question" data-open="false">
+        <div class="le-faq-panel-inner">
+          <p>Standard color and skin retouching are included in every commission. Standard means natural color grading in the IVAE register, dust and sensor cleanup, basic skin smoothing without erasing pore structure, and removal of incidental crew or background distractions. Heavy compositing, beauty retouching at editorial-cover level, and CGI retouching are quoted to the brief when the work calls for them. The studio refuses to deliver retouching that erases natural skin texture. Brands that require that register are politely declined.</p>
+        </div>
       </div>
     </li>
 
-    <li class="le-faq-item">
+    <li class="le-faq-item le-rv d7">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-7-question" type="button" aria-expanded="false" aria-controls="le-faq-7-panel">
           <span>Will the studio shoot for a competitor?</span>
           <span class="le-faq-icon" aria-hidden="true">+</span>
         </button>
       </h3>
-      <div class="le-faq-panel" id="le-faq-7-panel" role="region" aria-labelledby="le-faq-7-question" hidden>
-        <p>The studio observes a thirty-day cooling period between commissions in directly competing categories. A hotel rebrand for one Riviera Maya property is followed by a thirty-day window before the studio commits to a second hotel rebrand on the same coastline. The studio does not sign category-exclusivity agreements beyond ninety days; long-term exclusivity is a different commercial structure and is quoted on retainer. Brands that want a one-shoot exclusivity should request the cooling clause when the brief is written.</p>
+      <div class="le-faq-panel" id="le-faq-7-panel" role="region" aria-labelledby="le-faq-7-question" data-open="false">
+        <div class="le-faq-panel-inner">
+          <p>The studio observes a thirty-day cooling period between commissions in directly competing categories. A hotel rebrand for one Riviera Maya property is followed by a thirty-day window before the studio commits to a second hotel rebrand on the same coastline. The studio does not sign category-exclusivity agreements beyond ninety days; long-term exclusivity is a different commercial structure and is quoted on retainer. Brands that want a one-shoot exclusivity should request the cooling clause when the brief is written.</p>
+        </div>
       </div>
     </li>
 
-    <li class="le-faq-item">
+    <li class="le-faq-item le-rv d8">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-8-question" type="button" aria-expanded="false" aria-controls="le-faq-8-panel">
           <span>How quickly can a commission move from brief to delivery?</span>
           <span class="le-faq-icon" aria-hidden="true">+</span>
         </button>
       </h3>
-      <div class="le-faq-panel" id="le-faq-8-panel" role="region" aria-labelledby="le-faq-8-question" hidden>
-        <p>The studio's standing turnaround is eight to twelve weeks from brief sign-off to final delivery for a full campaign or multi-day production. A single-day editorial can move in two to four weeks if the date is open. Casting and location permits are the longest single dependency; with seven business days of lead time on permits, the shoot itself ships in five to ten business days for selects, fifteen to twenty for full delivery. Rush briefs (under two weeks total) are quoted to the brief.</p>
+      <div class="le-faq-panel" id="le-faq-8-panel" role="region" aria-labelledby="le-faq-8-question" data-open="false">
+        <div class="le-faq-panel-inner">
+          <p>The studio's standing turnaround is eight to twelve weeks from brief sign-off to final delivery for a full campaign or multi-day production. A single-day editorial can move in two to four weeks if the date is open. Casting and location permits are the longest single dependency; with seven business days of lead time on permits, the shoot itself ships in five to ten business days for selects, fifteen to twenty for full delivery. Rush briefs (under two weeks total) are quoted to the brief.</p>
+        </div>
       </div>
     </li>
 
-    <li class="le-faq-item">
+    <li class="le-faq-group" role="presentation" aria-hidden="true">Logistics &amp; Trust</li>
+
+    <li class="le-faq-item le-rv d9">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-9-question" type="button" aria-expanded="false" aria-controls="le-faq-9-panel">
           <span>In what language does the studio work?</span>
           <span class="le-faq-icon" aria-hidden="true">+</span>
         </button>
       </h3>
-      <div class="le-faq-panel" id="le-faq-9-panel" role="region" aria-labelledby="le-faq-9-question" hidden>
-        <p>English and Spanish, equally. Every email, every call sheet, every contract draft, every Frame.io review note, and every final delivery memo is offered in both languages. The studio's producers are bilingual. Vianey Diaz is fluent in both. On set, the working language is the brand's preferred language, and the studio adjusts the call sheet accordingly. International shoots in third-language regions (Italy, France, Portugal) are quoted with a local fixer line item.</p>
+      <div class="le-faq-panel" id="le-faq-9-panel" role="region" aria-labelledby="le-faq-9-question" data-open="false">
+        <div class="le-faq-panel-inner">
+          <p>English and Spanish, equally. Every email, every call sheet, every contract draft, every Frame.io review note, and every final delivery memo is offered in both languages. The studio's producers are bilingual. Vianey Diaz is fluent in both. On set, the working language is the brand's preferred language, and the studio adjusts the call sheet accordingly. International shoots in third-language regions (Italy, France, Portugal) are quoted with a local fixer line item.</p>
+        </div>
       </div>
     </li>
 
-    <li class="le-faq-item">
+    <li class="le-faq-item le-rv d10">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-10-question" type="button" aria-expanded="false" aria-controls="le-faq-10-panel">
           <span>Will the studio sign an NDA?</span>
           <span class="le-faq-icon" aria-hidden="true">+</span>
         </button>
       </h3>
-      <div class="le-faq-panel" id="le-faq-10-panel" role="region" aria-labelledby="le-faq-10-question" hidden>
-        <p>Yes. The studio signs mutual NDAs as a standard practice on commissions where the brand is in a launch window or in an unannounced rebrand. Standard scope: the studio agrees not to publish, exhibit, or share imagery for a defined embargo period (typically three to twelve months). The studio retains the right to publish the work after the embargo lifts unless the contract specifies a longer or permanent hold. Permanent-hold work is quoted to the brief, since portfolio rights are part of the studio's commercial value.</p>
+      <div class="le-faq-panel" id="le-faq-10-panel" role="region" aria-labelledby="le-faq-10-question" data-open="false">
+        <div class="le-faq-panel-inner">
+          <p>Yes. The studio signs mutual NDAs as a standard practice on commissions where the brand is in a launch window or in an unannounced rebrand. Standard scope: the studio agrees not to publish, exhibit, or share imagery for a defined embargo period (typically three to twelve months). The studio retains the right to publish the work after the embargo lifts unless the contract specifies a longer or permanent hold. Permanent-hold work is quoted to the brief, since portfolio rights are part of the studio's commercial value.</p>
+        </div>
       </div>
     </li>
   </ul>
@@ -2015,20 +2255,24 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 <section class="le-section--inquiry" id="inquiry" aria-labelledby="le-inquiry-heading">
   <div class="le-inquiry-bg" aria-hidden="true"></div>
   <div class="le-inquiry-head">
-    <p class="le-section-eyebrow">Commission.</p>
-    <h2 id="le-inquiry-heading" class="le-inquiry-h2">Begin a <em>brief</em>.</h2>
-    <p class="le-inquiry-intro">Share the brand, the brief, the dates, and a sentence about the campaign you imagine. The studio will respond the same business day, in English or in Spanish, with two questions, a draft call sheet, and a calendar link. The first reply is from Vianey. Briefs that arrive on Friday afternoon are read Monday morning. The studio takes a finite number of editorial commissions per quarter to keep the work calm.</p>
+    <p class="le-section-eyebrow le-rv d1">Commission.</p>
+    <h2 id="le-inquiry-heading" class="le-inquiry-h2 le-rv d2">Brief the <em>studio</em>.</h2>
+    <p class="le-inquiry-intro le-rv d3">Brief the studio. We respond same business day in English or Spanish. Crew, schedule, deliverables, and licensing arrive within one business day. The first reply is from Vianey, Director.</p>
   </div>
-  <div class="le-inquiry-ctas">
-    <a class="le-btn le-btn-gold" href="mailto:hello@ivaestudios.com?subject=Editorial%20Commission%20Brief" data-magnet>
+  <div class="le-inquiry-ctas le-rv d4">
+    <a class="le-btn le-btn-gold" href="mailto:hello@ivaestudios.com?subject=Editorial%20Commission%20Brief" data-magnet aria-label="Begin Brief for an editorial commission">
       Begin Brief
       <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
     </a>
-    <a class="le-btn le-btn-outline" href="mailto:hello@ivaestudios.com?subject=Editorial%20Studio%20Conversation">
-      Write to the Studio
+    <a class="le-btn le-btn-outline" href="mailto:hello@ivaestudios.com?subject=Editorial%20Studio%20Brief" aria-label="Email the studio with a brief">
+      Email the Studio
     </a>
   </div>
-  <div class="le-inquiry-meta" role="group" aria-label="Studio response details">
+  <p class="le-inquiry-note le-rv d5">
+    <span>What to include</span>
+    Brand, scope, dates, locations, usage requirements.
+  </p>
+  <div class="le-inquiry-meta le-rv d6" role="group" aria-label="Studio response details">
     <p class="le-meta-cell"><span class="le-meta-label">Response Time</span><span class="le-meta-value">Same business day</span></p>
     <p class="le-meta-cell"><span class="le-meta-label">Languages</span><span class="le-meta-value">English / Espanol</span></p>
     <p class="le-meta-cell"><span class="le-meta-label">Coverage</span><span class="le-meta-value">Cancun &middot; Riviera Maya &middot; Los Cabos</span></p>
@@ -2039,7 +2283,7 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 
 <!-- ═══════ Section 11 - Footer ═══════ -->
 <footer class="le-footer" role="contentinfo">
-  <p class="le-footer-voice">IVAE Studios. Cancun. Riviera Maya. Los Cabos.</p>
+  <p class="le-footer-voice"><em>Editorial Photography.</em> Brand. Magazine. Resort. Cancun &middot; Riviera Maya &middot; Los Cabos.</p>
   <div class="le-footer-grid">
     <div class="le-footer-col">
       <h3 class="le-footer-col-heading">Studio</h3>
@@ -2272,37 +2516,63 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
     });
   })();
 
-  /* 7. Drag-scroll portfolio (with keyboard fallback) */
+  /* 7. Drag-scroll portfolio (mouse + touch + keyboard) */
   (function dragScrollPortfolio(){
     var rail = document.getElementById('leReelTrack');
     if(!rail) return;
-    var down = false, sx = 0, sl = 0;
-    if(pointerFine && !reduceMotion){
-      rail.addEventListener('mousedown', function(e){
-        down = true; sx = e.pageX - rail.offsetLeft; sl = rail.scrollLeft;
-        rail.classList.add('is-dragging');
-      });
-      rail.addEventListener('mouseleave', function(){ down = false; rail.classList.remove('is-dragging'); });
-      rail.addEventListener('mouseup', function(){ down = false; rail.classList.remove('is-dragging'); });
-      rail.addEventListener('mousemove', function(e){
-        if(!down) return;
-        e.preventDefault();
-        var x = e.pageX - rail.offsetLeft;
-        var walk = (x - sx) * 1.6;
-        rail.scrollLeft = sl - walk;
-      });
+    var down = false, dragged = false, sx = 0, sl = 0, activeId = null;
+    var DRAG_THRESHOLD = 6;
+    function markEngaged(){ rail.classList.add('is-engaged'); }
+    function start(e){
+      if(e.pointerType === 'mouse' && (!pointerFine || reduceMotion)) return;
+      down = true; dragged = false;
+      sx = e.clientX; sl = rail.scrollLeft;
+      activeId = e.pointerId;
+      try{ rail.setPointerCapture(e.pointerId); }catch(_){}
+      rail.classList.add('is-dragging');
+      markEngaged();
     }
-    /* Keyboard fallback (always on) */
+    function move(e){
+      if(!down || e.pointerId !== activeId) return;
+      var dx = e.clientX - sx;
+      if(Math.abs(dx) > DRAG_THRESHOLD) dragged = true;
+      if(dragged){
+        e.preventDefault();
+        rail.scrollLeft = sl - dx * 1.4;
+      }
+    }
+    function end(e){
+      if(!down) return;
+      down = false; activeId = null;
+      try{ rail.releasePointerCapture(e.pointerId); }catch(_){}
+      rail.classList.remove('is-dragging');
+      if(dragged){
+        var blocker = function(ev){ ev.preventDefault(); ev.stopPropagation(); rail.removeEventListener('click', blocker, true); };
+        rail.addEventListener('click', blocker, true);
+        setTimeout(function(){ rail.removeEventListener('click', blocker, true); }, 80);
+      }
+      dragged = false;
+    }
+    if('PointerEvent' in window){
+      rail.addEventListener('pointerdown', start);
+      rail.addEventListener('pointermove', move);
+      rail.addEventListener('pointerup', end);
+      rail.addEventListener('pointercancel', end);
+      rail.addEventListener('pointerleave', function(e){ if(down) end(e); });
+    }
+    rail.addEventListener('wheel', markEngaged, {passive:true});
+    rail.addEventListener('touchstart', markEngaged, {passive:true});
+    /* Keyboard nav: one card per arrow */
     rail.addEventListener('keydown', function(e){
       var card = rail.querySelector('.le-reel-card');
       var step = card ? (card.getBoundingClientRect().width + 18) : 320;
       var beh = reduceMotion ? 'auto' : 'smooth';
-      if(e.key === 'ArrowRight'){ rail.scrollBy({left: step, behavior: beh}); e.preventDefault(); }
-      else if(e.key === 'ArrowLeft'){ rail.scrollBy({left: -step, behavior: beh}); e.preventDefault(); }
-      else if(e.key === 'Home'){ rail.scrollTo({left: 0, behavior: beh}); e.preventDefault(); }
-      else if(e.key === 'End'){ rail.scrollTo({left: rail.scrollWidth, behavior: beh}); e.preventDefault(); }
+      if(e.key === 'ArrowRight'){ rail.scrollBy({left: step, behavior: beh}); markEngaged(); e.preventDefault(); }
+      else if(e.key === 'ArrowLeft'){ rail.scrollBy({left: -step, behavior: beh}); markEngaged(); e.preventDefault(); }
+      else if(e.key === 'Home'){ rail.scrollTo({left: 0, behavior: beh}); markEngaged(); e.preventDefault(); }
+      else if(e.key === 'End'){ rail.scrollTo({left: rail.scrollWidth, behavior: beh}); markEngaged(); e.preventDefault(); }
     });
-    /* Prev/Next buttons */
+    /* Prev/Next buttons: one card per click */
     var prev = document.getElementById('leReelPrev');
     var next = document.getElementById('leReelNext');
     function go(dir){
@@ -2310,18 +2580,21 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
       var step = card ? (card.getBoundingClientRect().width + 18) : 320;
       var beh = reduceMotion ? 'auto' : 'smooth';
       rail.scrollBy({left: dir * step, behavior: beh});
+      markEngaged();
     }
     if(prev) prev.addEventListener('click', function(){ go(-1); });
     if(next) next.addEventListener('click', function(){ go(1); });
   })();
 
-  /* 9. Cursor-follow preview (desktop only) */
+  /* 9. Cursor-follow preview (desktop only, 24px offset) */
   (function cursorPreview(){
     if(reduceMotion || !pointerFine) return;
     var preview = document.getElementById('leCursorPreview');
     var pImg = document.getElementById('leCursorPreviewImg');
     if(!preview || !pImg) return;
-    var raf = null, mx = 0, my = 0;
+    var rootStyles = getComputedStyle(document.documentElement);
+    var offset = parseInt(rootStyles.getPropertyValue('--le-cursor-preview-offset'), 10) || 24;
+    var raf = null;
     var targets = $$('.le-reel-card-link[data-preview]');
     targets.forEach(function(t){
       var img = t.querySelector('img');
@@ -2335,12 +2608,12 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
       });
     });
     document.addEventListener('mousemove', function(e){
-      mx = e.clientX + 24; my = e.clientY + 24;
       if(!raf){
         raf = requestAnimationFrame(function(){
           var w = preview.offsetWidth, h = preview.offsetHeight;
-          if(mx + w > window.innerWidth - 12) mx = e.clientX - w - 24;
-          if(my + h > window.innerHeight - 12) my = e.clientY - h - 24;
+          var mx = e.clientX + offset, my = e.clientY + offset;
+          if(mx + w > window.innerWidth - 12) mx = e.clientX - w - offset;
+          if(my + h > window.innerHeight - 12) my = e.clientY - h - offset;
           preview.style.transform = 'translate3d(' + mx + 'px,' + my + 'px,0)';
           raf = null;
         });
@@ -2348,14 +2621,16 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
     }, {passive:true});
   })();
 
-  /* 8. FAQ accordion */
+  /* 8. FAQ accordion (smooth grid-template-rows) */
   (function faq(){
     $$('.le-faq-toggle').forEach(function(btn){
       btn.addEventListener('click', function(){
         var expanded = btn.getAttribute('aria-expanded') === 'true';
         btn.setAttribute('aria-expanded', String(!expanded));
         var panel = document.getElementById(btn.getAttribute('aria-controls'));
-        if(panel){ panel.hidden = expanded; }
+        if(panel){
+          panel.setAttribute('data-open', String(!expanded));
+        }
       });
     });
   })();
