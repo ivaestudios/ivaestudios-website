@@ -1268,6 +1268,8 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 .frames-rail .frame:nth-child(5n){aspect-ratio:2/3}
 
 </style>
+<link rel="stylesheet" href="/styles/lw-editorial.css?v=20260510v"/>
+<script src="/js/lw-editorial.js?v=20260510v" defer></script>
 </head>
 <body>
 
@@ -1428,432 +1430,252 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  </aside>
 </section>
 
-<!-- COLLECTIONS -->
-<!-- HOW WE WORK (reemplazó Colecciones — cada proyecto se cotiza en conversación) -->
-<section class="lw-section how-we-work" id="how-we-work" aria-labelledby="how-we-work-h">
- <div class="lw-inner">
- <span class="lw-section-eyebrow">Cómo Trabajamos</span>
- <h2 id="how-we-work-h" class="lw-rv">Cada boda, considerada. <em>Cotizada en conversación.</em></h2>
- <p class="lw-lede lw-rv d1">Cada boda de destino es a la medida. El estudio no publica paquetes estándar porque ningún día es igual a otro. Después de escuchar tus fechas, el venue y la forma del día, una propuesta privada llega dentro de un día hábil. El viaje, el alcance, los entregables y la línea de tiempo se construyen alrededor de tu necesidad específica.</p>
 
- <ol class="lw-promise-list lw-rv d2" role="list">
- <li><span class="lw-promise-num">01</span><span><em>Una conversación de planeación</em> dentro de las 48 horas posteriores a tu consulta.</span></li>
- <li><span class="lw-promise-num">02</span><span><em>Una propuesta privada</em> con alcance, calendario y cobertura a la medida.</span></li>
- <li><span class="lw-promise-num">03</span><span><em>Una visita previa al venue</em> cuando el viaje lo permite, para caminar la luz y el ritmo.</span></li>
- <li><span class="lw-promise-num">04</span><span><em>Entrega editorial</em> dentro de la ventana acordada. Primeros cuadros en 72 horas.</span></li>
- </ol>
-
- <div class="lw-promise-cta lw-rv d3">
- <a class="btn-primary lw-magnet" href="#inquiry" data-magnet>Comenzar Consulta</a>
- </div>
- </div>
-</section>
-
+<!-- ═══════ EDITORIAL FRAMEWORK CSS (ES — espejo de la versión EN) ═══════ -->
 <style>
-.lw-section.how-we-work{background:var(--ink-3,#0a0f17)}
-.lw-promise-list{list-style:none;padding:0;margin:48px 0 0;display:grid;grid-template-columns:repeat(2,1fr);gap:32px;max-width:960px}
-.lw-promise-list li{display:flex;gap:18px;align-items:baseline;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(17px,1.4vw,20px);line-height:1.5;color:var(--cream,#faf8f5)}
-.lw-promise-list li em{font-style:italic;color:var(--gold,#c9a54e)}
-.lw-promise-num{font-family:var(--font-sans,'Syne',sans-serif);font-size:9px;font-weight:500;letter-spacing:.28em;color:var(--gold,#c9a54e);min-width:28px;line-height:1.6}
-.lw-promise-cta{margin-top:56px}
-@media(max-width:720px){.lw-promise-list{grid-template-columns:1fr;gap:24px}}
+.lw-pause{position:relative;height:88vh;min-height:560px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#0a0f17}
+.lw-pause-img{position:absolute;inset:0;z-index:0;display:block}
+.lw-pause-img img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.9) contrast(1.04)}
+.lw-pause-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,15,23,.35),rgba(10,15,23,.65));z-index:1}
+.lw-pause-line{position:relative;z-index:2;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(28px,4.4vw,60px);line-height:1.2;color:#faf8f5;text-align:center;max-width:24ch;padding:0 24px;letter-spacing:-.008em}
+.lw-pause-line em{font-style:italic;color:#c9a54e}
+@media (max-width:600px){.lw-pause{height:78vh;min-height:480px}}
+.lw-approach{background:#faf8f5;color:#0a0f17;padding:clamp(80px,10vw,160px) clamp(20px,5vw,56px)}
+.lw-approach-inner{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:minmax(0,42fr) minmax(0,58fr);gap:clamp(48px,6vw,96px);align-items:center}
+.lw-approach-portrait{margin:0;aspect-ratio:4/5;overflow:hidden;background:#0a0f17;position:relative;box-shadow:0 40px 100px -32px rgba(10,15,23,.25);display:flex;align-items:center;justify-content:center}
+.lw-approach-portrait::before{content:"";position:absolute;inset:14px;border:1px solid rgba(201,165,78,.15);pointer-events:none}
+.lw-approach-monogram{display:inline-flex;align-items:baseline;gap:.04em;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;color:#c9a54e;font-size:clamp(80px,10vw,160px);line-height:1;letter-spacing:-.015em;text-shadow:0 4px 30px rgba(201,165,78,.18);user-select:none}
+.lw-monogram-letter{display:inline-block}
+.lw-monogram-dot{display:inline-block;font-size:.46em;color:#c9a54e;opacity:.75;transform:translateY(-.4em);margin:0 .04em}
+.lw-approach-text{max-width:580px}
+.lw-approach-text h2{margin:0}
+.lw-approach-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:18px}
+.lw-approach-h{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(34px,4vw,58px);line-height:1.06;letter-spacing:-.018em;color:#0a0f17;margin:0 0 32px}
+.lw-approach-h em{font-style:italic;color:#c9a54e}
+.lw-approach-body{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(17px,1.3vw,20px);line-height:1.6;color:rgba(10,15,23,.78);margin:0 0 28px}
+.lw-approach-quote{position:relative;margin:32px 0;padding:0 0 0 28px;border-left:1px solid #c9a54e;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:clamp(22px,2.2vw,30px);line-height:1.25;color:#0a0f17;letter-spacing:-.005em}
+.lw-approach-quote em{font-style:italic;color:#c9a54e}
+.lw-approach-sig{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:rgba(10,15,23,.5);margin:36px 0 0;padding-top:24px;border-top:1px solid rgba(10,15,23,.12)}
+@media (max-width:880px){.lw-approach-inner{grid-template-columns:1fr;gap:60px}.lw-approach-portrait{max-width:440px;margin:0 auto;width:100%}}
+.lw-work{padding:clamp(80px,10vw,160px) 0 clamp(60px,8vw,120px);background:#0a0f17}
+.lw-work-head{max-width:1280px;margin:0 auto clamp(64px,8vw,120px);padding:0 clamp(20px,5vw,56px)}
+.lw-work-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:18px}
+.lw-work-h{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(38px,5vw,72px);line-height:1.04;letter-spacing:-.02em;color:#faf8f5;margin:0;max-width:18ch}
+.lw-work-h em{font-style:italic;color:#c9a54e}
+.lw-plate{display:block;max-width:1280px;margin:0 auto;padding:0 clamp(20px,5vw,56px) clamp(72px,9vw,140px)}
+.lw-plate:last-of-type{padding-bottom:0}
+.lw-plate-frame{margin:0;overflow:hidden;background:#0a0f17;aspect-ratio:3/2}
+.lw-plate-frame img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92) contrast(1.02);transition:transform 1.4s cubic-bezier(.22,.61,.36,1)}
+.lw-plate:hover .lw-plate-frame img{transform:scale(1.02)}
+.lw-plate-caption{display:grid;grid-template-columns:1fr;gap:18px;padding:24px 0 0;border-top:1px solid rgba(201,165,78,.18);margin-top:24px;max-width:560px}
+.lw-plate-loc{font-family:'Syne',sans-serif;font-size:10.5px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:rgba(250,248,245,.55)}
+.lw-plate-sep{color:#c9a54e;margin:0 4px}
+.lw-plate-body{font-family:'Cormorant Garamond',serif;font-weight:400;font-style:italic;font-size:clamp(16px,1.2vw,19px);line-height:1.55;color:rgba(250,248,245,.75);margin:0;letter-spacing:.003em;max-width:48ch}
+.lw-test{padding:clamp(120px,14vw,200px) clamp(20px,5vw,56px);background:#0d1219;text-align:center;position:relative}
+.lw-test::before{content:"";position:absolute;left:50%;top:0;width:1px;height:80px;background:linear-gradient(to bottom,transparent,#c9a54e);opacity:.5}
+.lw-test-quote{position:relative;max-width:920px;margin:0 auto 72px;padding:0}
+.lw-test-glyph{position:absolute;top:-80px;left:50%;transform:translateX(-50%);font-family:'Cormorant Garamond',serif;color:#c9a54e;font-size:140px;line-height:1;opacity:.55;font-style:italic;font-weight:300}
+.lw-test-quote p{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:clamp(26px,3.4vw,50px);line-height:1.25;letter-spacing:-.008em;color:#faf8f5;margin:0}
+.lw-test-quote p em{font-style:italic;color:#c9a54e}
+.lw-test-attr{display:inline-flex;align-items:center;justify-content:center;gap:18px;padding-top:32px;border-top:1px solid rgba(201,165,78,.2)}
+.lw-test-photo{width:60px;height:80px;overflow:hidden;border:1px solid rgba(201,165,78,.5);flex-shrink:0;margin:0;position:relative}
+.lw-test-photo::after{content:"";position:absolute;inset:3px;border:1px solid rgba(201,165,78,.18);pointer-events:none}
+.lw-test-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92) contrast(1.02)}
+.lw-test-meta{text-align:left;display:flex;flex-direction:column;gap:4px}
+.lw-test-name{font-family:'Syne',sans-serif;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#c9a54e;font-weight:500}
+.lw-test-where{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:rgba(250,248,245,.55)}
+.lw-inq2{position:relative;min-height:92vh;padding:clamp(80px,10vw,140px) clamp(20px,5vw,56px);display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0a0f17}
+.lw-inq2-bg{position:absolute;inset:0;z-index:0;display:block}
+.lw-inq2-bg img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.85) contrast(1.05) brightness(.82)}
+.lw-inq2-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,15,23,.4) 0%,rgba(10,15,23,.65) 60%,rgba(10,15,23,.8) 100%);z-index:1}
+.lw-inq2-content{position:relative;z-index:2;text-align:center;max-width:680px;margin:0 auto;color:#faf8f5}
+.lw-inq2-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:11px;font-weight:500;letter-spacing:.36em;text-transform:uppercase;color:#c9a54e;margin-bottom:28px}
+.lw-inq2-h{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(32px,4.8vw,68px);line-height:1.08;letter-spacing:-.018em;color:#faf8f5;margin:0 auto 32px;max-width:22ch}
+.lw-inq2-body{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(17px,1.4vw,21px);line-height:1.5;color:rgba(250,248,245,.78);margin:0 auto 48px;max-width:540px}
+.lw-inq2-btn{display:inline-flex;align-items:center;gap:14px;padding:18px 38px;border:1px solid #c9a54e;background:rgba(201,165,78,.08);color:#faf8f5;font-family:'Syne',sans-serif;font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;transition:background .35s ease,transform .35s ease,box-shadow .35s ease,color .35s ease}
+.lw-inq2-btn svg{width:18px;height:18px}
+.lw-inq2-btn:hover{background:#c9a54e;color:#0a0f17;transform:translateY(-2px);box-shadow:0 16px 40px -12px rgba(201,165,78,.5)}
+.lw-inq2-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:rgba(250,248,245,.55);margin:28px 0 0}
+.lw-inq2-sub strong{color:#c9a54e;font-weight:400}
+.lw-inq2-wa{color:rgba(250,248,245,.65);text-decoration:none;border-bottom:1px solid rgba(201,165,78,.4)}
+.lw-inq2-wa:hover{color:#c9a54e;border-bottom-color:#c9a54e}
+.lw-inq2-sep{margin:0 14px}
+.lw-inq2-seal{margin:60px auto 0;width:56px;height:56px;border-radius:50%;border:1px solid rgba(201,165,78,.55);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-style:italic;color:#c9a54e;font-size:18px;position:relative;background:radial-gradient(circle at 30% 30%,rgba(201,165,78,.14),rgba(201,165,78,.04) 60%)}
+.lw-inq2-seal::before{content:"";position:absolute;inset:4px;border:1px solid rgba(201,165,78,.18);border-radius:50%}
+.lw-section.faq{background:#0a0f17;padding-top:clamp(56px,6vw,80px);padding-bottom:clamp(56px,6vw,80px)}
+.lw-section.faq .lw-inner{max-width:840px;margin:0 auto;padding:0 clamp(20px,5vw,56px)}
+.lw-section.faq .lw-section-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:18px}
+.lw-section.faq h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(26px,3vw,38px);line-height:1.05;letter-spacing:-.015em;color:#faf8f5;margin:0 0 32px}
+.lw-section.faq h2 em{font-style:italic;color:#c9a54e}
+.lw-section.faq .faq-list{margin-top:32px;border-top:1px solid rgba(201,165,78,.18)}
+.lw-section.faq .faq-item{border-bottom:1px solid rgba(201,165,78,.12);position:relative}
+.lw-section.faq .faq-trigger{width:100%;display:flex;justify-content:space-between;align-items:center;padding:16px 0;gap:18px;text-align:left;cursor:pointer;background:none;border:none;color:inherit;font:inherit;transition:color .3s ease}
+.lw-section.faq .faq-q{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(15px,1.15vw,17px);line-height:1.4;color:#faf8f5;flex:1}
+.lw-section.faq .faq-trigger:hover .faq-q{color:#c9a54e}
+.lw-section.faq .faq-icon{flex-shrink:0;width:22px;height:22px;border:1px solid rgba(201,165,78,.4);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#c9a54e;position:relative;transition:transform .4s ease,border-color .4s ease}
+.lw-section.faq .faq-icon::before,.lw-section.faq .faq-icon::after{content:'';position:absolute;background:#c9a54e;transition:transform .4s ease}
+.lw-section.faq .faq-icon::before{width:8px;height:1px}
+.lw-section.faq .faq-icon::after{width:1px;height:8px}
+.lw-section.faq .faq-item.open .faq-icon{transform:rotate(45deg);border-color:#c9a54e}
+.lw-section.faq .faq-answer{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.lw-section.faq .faq-item.open .faq-answer{max-height:600px}
+.lw-section.faq .faq-answer p{padding:0 0 18px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;line-height:1.65;color:rgba(250,248,245,.7);margin:0}
 </style>
 
-<!-- COASTLINES -->
-<section class="lw-section coastlines" id="coastlines" aria-labelledby="coast-h">
- <div class="lw-inner">
- <span class="lw-section-eyebrow">Las Costas</span>
- <h2 id="coast-h" class="lw-rv">Tres costas que el estudio <em>conoce de memoria.</em></h2>
- <p class="lw-lede lw-rv d1">Trabajamos las mismas tres regiones todo el año. Conocemos los equipos de bodas de los resorts, las políticas de acceso y el ángulo que cada propiedad le da al sol. Ese conocimiento se convierte en minutos sobre tu timeline.</p>
-
- <div class="coast-grid">
- <article class="coast-card lw-rv d1">
- <img src="/images/wedding-bride-cancun-beach-ivae-studios-2.jpg" alt="Una novia fotografiada en una playa de Cancún por IVAE Studios" loading="lazy" width="1600" height="1067"/>
- <div class="coast-overlay">
- <span class="coast-tag">Costa Uno</span>
- <h3>Cancún</h3>
- <p class="coast-venues">Ritz-Carlton Cancún. Nizuc. Live Aqua. Hyatt Ziva. Playa Mujeres. Costa Mujeres.</p>
- </div>
- </article>
-
- <article class="coast-card lw-rv d2">
- <img src="/images/couple-riviera-maya-ivae-studios.jpg" alt="Una pareja fotografiada en la Riviera Maya por IVAE Studios" loading="lazy" width="1600" height="1067"/>
- <div class="coast-overlay">
- <span class="coast-tag">Costa Dos</span>
- <h3>Riviera Maya</h3>
- <p class="coast-venues">Rosewood Mayakoba. Fairmont Mayakoba. Banyan Tree. Maroma Belmond. Grand Velas. UNICO.</p>
- </div>
- </article>
-
- <article class="coast-card lw-rv d3">
- <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="Una pareja fotografiada en Los Cabos por IVAE Studios" loading="lazy" width="1600" height="1067"/>
- <div class="coast-overlay">
- <span class="coast-tag">Costa Tres</span>
- <h3>Los Cabos</h3>
- <p class="coast-venues">Four Seasons Costa Palmas. One&Only Palmilla. Waldorf Astoria Pedregal. Las Ventanas. Montage.</p>
- </div>
- </article>
- </div>
- </div>
+<!-- ═══════ EDITORIAL PAUSE ═══════ -->
+<section class="lw-pause" aria-label="Una nota del estudio">
+  <picture class="lw-pause-img"><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-14.jpg" alt="" loading="lazy" decoding="async"/></picture>
+  <span class="lw-pause-veil" aria-hidden="true"></span>
+  <p class="lw-pause-line">Una boda es un día. <em>Las fotografías son el resto de tu vida.</em></p>
 </section>
 
-<!-- FEATURE -->
-<section class="lw-section feature" aria-labelledby="feat-h">
- <div class="lw-inner">
- <div class="feature-grid">
- <div class="feature-img lw-cinema lw-rv d1">
- <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-14.jpg" alt="Retrato dramático de una novia en hora dorada en la Zona Hotelera de Cancún, fotografiada y dirigida por Vianey Díaz, IVAE Studios" loading="lazy" width="1600" height="1067"/>
- </div>
- <div class="feature-text lw-rv d2">
- <span class="lw-section-eyebrow">Una Boda / Cancún</span>
- <h2 id="feat-h" class="lw-words" data-words>Sesenta invitados. <em>Tres idiomas.</em> Una sola costa.</h2>
- <p class="lw-dropcap">La novia voló desde Londres, el novio desde São Paulo, y las familias se conocieron por primera vez la mañana del ensayo. El plan era pequeño. El plan se sostuvo. Ceremonia a las cinco, en una playa que el resort cierra solo para bodas, con la brisa entrando del este lo suficiente para levantar el velo y no para levantar la arena. Habíamos explorado la cala un mes antes con el equipo de bodas del resort y cronometramos los first looks contra la marea.</p>
- <p>Lo que entregamos fue un archivo de setecientos cuadros, editados a un solo tono distintivo, más un film destacado de cuatro minutos que las familias hoy ponen en cada cumpleaños. El estudio trabajó en español con la planner, en inglés con la pareja y en portugués cuando importaba. El día permaneció en calma porque el timeline se sostuvo. Eso es lo que llamamos editorial.</p>
- <div class="feature-meta">
- <div class="feature-meta-cell">
- <span class="feature-meta-l">Locación</span>
- <span class="feature-meta-v">Cancún, Quintana Roo</span>
- </div>
- <div class="feature-meta-cell">
- <span class="feature-meta-l">Costa</span>
- <span class="feature-meta-v">Zona Hotelera, Caribe</span>
- </div>
- <div class="feature-meta-cell">
- <span class="feature-meta-l">Cobertura</span>
- <span class="feature-meta-v">Signature, diez horas</span>
- </div>
- <div class="feature-meta-cell">
- <span class="feature-meta-l">Temporada</span>
- <span class="feature-meta-v">Finales de noviembre, seca</span>
- </div>
- </div>
- </div>
- </div>
- </div>
+<!-- ═══════ THE APPROACH ═══════ -->
+<section class="lw-approach" id="director" aria-labelledby="approach-h">
+  <div class="lw-approach-inner">
+    <figure class="lw-approach-portrait">
+      <div class="lw-approach-monogram" role="img" aria-label="V·D — Vianey Díaz, Directora, IVAE Studios">
+        <span class="lw-monogram-letter">V</span><span class="lw-monogram-dot" aria-hidden="true">·</span><span class="lw-monogram-letter">D</span>
+      </div>
+    </figure>
+    <div class="lw-approach-text">
+      <span class="lw-approach-eyebrow">Dirigido por</span>
+      <h2 id="approach-h" class="lw-approach-h">Vianey Díaz <em>dirige cada boda.</em></h2>
+      <p class="lw-approach-body">Cada boda se fotografía como yo fotografiaría la mía. Una sola firma de color en toda la galería, una sola directora el día, un solo estudio respondiendo correos desde la primera consulta hasta el archivo final. El estándar no cambia entre cuarenta invitados y tres días.</p>
+      <blockquote class="lw-approach-quote">No escribimos paquetes. <em>Escribimos cartas.</em></blockquote>
+      <p class="lw-approach-body">Cada archivo se entrega en una caja de lino numerada a mano &mdash; pruebas impresas, USB, y un álbum lay-flat encuadernado en una prensa de Ciudad de México.</p>
+      <p class="lw-approach-sig">&mdash; Vianey Díaz, Directora</p>
+    </div>
+  </div>
 </section>
 
-<!-- METHOD -->
-<section class="lw-section method" aria-labelledby="method-h">
- <div class="lw-inner">
- <span class="lw-section-eyebrow">El Método</span>
- <h2 id="method-h" class="lw-rv">Cómo el estudio planea <em>un día de boda.</em></h2>
- <p class="lw-lede lw-rv d1">Lo hacemos igual cada vez. Seis pasos desde la carta de consulta hasta la impresión enmarcada en tu pared.</p>
+<!-- ═══════ THE BODY OF WORK ═══════ -->
+<section class="lw-work" aria-labelledby="work-h">
+  <header class="lw-work-head">
+    <span class="lw-work-eyebrow">Trabajo Reciente</span>
+    <h2 id="work-h" class="lw-work-h">Cuatro bodas, <em>cuatro habitaciones.</em></h2>
+  </header>
 
- <div class="method-rail">
- <div class="method-step lw-rv d1">
- <span class="method-ornament" aria-hidden="true"><svg viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="1"><circle cx="10.5" cy="10.5" r="9"/><circle cx="10.5" cy="10.5" r="3.5"/></svg></span>
- <span class="method-step-num">01 &middot; i.</span>
- <div>
- <h3>Plan de Atardecer</h3>
- <p>Antes de acordar las horas, buscamos el atardecer de tu fecha y tu costa, y construimos el timeline hacia atrás. Ceremonia, retratos, hora dorada, cena. Todo lo demás es papelería.</p>
- </div>
- </div>
- <div class="method-step lw-rv d2">
- <span class="method-ornament" aria-hidden="true"><svg viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="1"><circle cx="10.5" cy="10.5" r="9"/><path d="M10.5 1.5 L10.5 19.5 M1.5 10.5 L19.5 10.5"/></svg></span>
- <span class="method-step-num">02 &middot; ii.</span>
- <div>
- <h3>Exploración de Locación</h3>
- <p>El estudio recorre la propiedad treinta días antes, habla con el departamento de bodas del resort, fotografía cada locación preferida a la hora a la que correrá tu ceremonia y entrega el mapa de ruta a tu planner.</p>
- </div>
- </div>
- <div class="method-step lw-rv d3">
- <span class="method-ornament" aria-hidden="true"><svg viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="1"><circle cx="10.5" cy="10.5" r="9"/><circle cx="10.5" cy="10.5" r="5.5"/><circle cx="10.5" cy="10.5" r="2"/></svg></span>
- <span class="method-step-num">03 &middot; iii.</span>
- <div>
- <h3>Dirección Silenciosa</h3>
- <p>El día, no posamos. Ubicamos. Una mano aquí, un pie allá, una mirada hacia la pérgola en lugar de hacia la cámara. Las parejas que detestan la cámara nos escriben que esta es la parte que las sorprende.</p>
- </div>
- </div>
- <div class="method-step lw-rv d4">
- <span class="method-ornament" aria-hidden="true"><svg viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="1"><circle cx="10.5" cy="10.5" r="9"/><path d="M3 10.5 Q10.5 3 18 10.5 Q10.5 18 3 10.5 Z"/></svg></span>
- <span class="method-step-num">04 &middot; iv.</span>
- <div>
- <h3>Hora Dorada, Dos Veces</h3>
- <p>Un bloque de retratos al atardecer, un bloque silencioso después de los brindis cuando la luz se vuelve azul. El segundo bloque es lo que cada pareja nos escribe un año después.</p>
- </div>
- </div>
- <div class="method-step lw-rv d5">
- <span class="method-ornament" aria-hidden="true"><svg viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="1"><circle cx="10.5" cy="10.5" r="9"/><path d="M5.5 10.5 L9.5 14.5 L15.5 6.5"/></svg></span>
- <span class="method-step-num">05 &middot; v.</span>
- <div>
- <h3>Edición Editorial</h3>
- <p>Una sola gradación distintiva, aplicada cuadro a cuadro. Tonos de piel honestos, blancos blancos, negros sostenidos. Entregamos la galería solo cuando cada imagen cumple el mismo estándar.</p>
- </div>
- </div>
- <div class="method-step lw-rv d5">
- <span class="method-ornament" aria-hidden="true"><svg viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="1"><circle cx="10.5" cy="10.5" r="9"/><path d="M5 7 L10.5 12.5 L16 7 M5 7 L16 7" /></svg></span>
- <span class="method-step-num">06 &middot; vi.</span>
- <div>
- <h3>Entrega Privada</h3>
- <p>Un teaser de cuarenta cuadros en diez días, la galería completa en tres a cuatro semanas, el film cinematográfico en ocho. Derechos de impresión tuyos, descargas ilimitadas, archivo nuestro para siempre.</p>
- </div>
- </div>
- </div>
- </div>
+  <article class="lw-plate">
+    <figure class="lw-plate-frame"><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="" loading="lazy" width="2400" height="1600"/></figure>
+    <div class="lw-plate-caption">
+      <span class="lw-plate-loc">Cancún Hotel Zone <span class="lw-plate-sep">·</span> Hotel Esencia <span class="lw-plate-sep">·</span> Marzo 2026</span>
+      <p class="lw-plate-body">Sesenta invitados, tres idiomas, una cala que mira al este. La brisa vino justo lo suficiente para levantar el velo y no la arena. Ceremonia a las cinco. La luz aguantó.</p>
+    </div>
+  </article>
+
+  <article class="lw-plate">
+    <figure class="lw-plate-frame"><img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="" loading="lazy" width="2400" height="1600"/></figure>
+    <div class="lw-plate-caption">
+      <span class="lw-plate-loc">Cancún <span class="lw-plate-sep">·</span> Playa Delfines <span class="lw-plate-sep">·</span> Enero 2026</span>
+      <p class="lw-plate-body">Un primer encuentro la mañana de, antes de que nadie tocara el vestido. La novia pidió arena fría todavía de la noche. Caminamos hacia el norte una hora.</p>
+    </div>
+  </article>
+
+  <article class="lw-plate">
+    <figure class="lw-plate-frame"><img src="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" alt="" loading="lazy" width="2400" height="1600"/></figure>
+    <div class="lw-plate-caption">
+      <span class="lw-plate-loc">Cabo San Lucas <span class="lw-plate-sep">·</span> Waldorf Astoria Pedregal <span class="lw-plate-sep">·</span> Noviembre 2025</span>
+      <p class="lw-plate-body">El Pacífico no se anuncia. Llega. Esperamos a que el sol cayera detrás de las rocas y disparamos la procesión por el hueco mientras la luz volvía oro la piedra.</p>
+    </div>
+  </article>
+
+  <article class="lw-plate">
+    <figure class="lw-plate-frame"><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-15.jpg" alt="" loading="lazy" width="2400" height="1600"/></figure>
+    <div class="lw-plate-caption">
+      <span class="lw-plate-loc">Cancún <span class="lw-plate-sep">·</span> Terraza Hotel Zone <span class="lw-plate-sep">·</span> Diciembre 2025</span>
+      <p class="lw-plate-body">El último bloque, después de los brindis. Las lámparas se encendían a lo largo de la terraza. Ella se había quitado los zapatos hacía una hora. Es el cuadro que mandan a imprimir grande.</p>
+    </div>
+  </article>
+
 </section>
 
-<script>
-/* Method active-step on scroll (gated on reduced-motion + IO) */
-(function(){
- if(!('IntersectionObserver' in window)) return;
- if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
- var steps = document.querySelectorAll('.lw-section.method .method-step');
- if(!steps.length) return;
- var active = null;
- var io = new IntersectionObserver(function(entries){
- entries.forEach(function(e){
- if(e.isIntersecting){
- if(active && active !== e.target) active.classList.remove('is-active');
- e.target.classList.add('is-active');
- active = e.target;
- }
- });
- }, {rootMargin:'-40% 0px -40% 0px', threshold:0});
- steps.forEach(function(s){io.observe(s)});
-})();
-</script>
-
-<!-- TESTIMONIALS -->
-<section class="lw-section tlist" aria-labelledby="t-h">
- <div class="lw-inner">
- <span class="lw-section-eyebrow lw-rv">En Sus Palabras</span>
- <h2 id="t-h" class="lw-rv">Lo que dicen las parejas <em>sobre el estudio.</em></h2>
-
- <div class="tlist-grid">
- <article class="tlist-card lw-rv d1">
- <div class="tlist-stars" aria-label="5 de 5 estrellas">&starf; &starf; &starf; &starf; &starf;</div>
- <blockquote>Nuestra galería de IVAE Studios parece de revista. Cada cuadro se sintió dirigido, nunca montado. Todavía la repasamos los fines de semana.</blockquote>
- <div class="tlist-attr">
- <span class="tlist-name">Samantha Whitfield</span>
- <span class="tlist-where">Rosewood Mayakoba / 2026</span>
- </div>
- </article>
-
- <article class="tlist-card lw-rv d2">
- <div class="tlist-stars" aria-label="5 de 5 estrellas">&starf; &starf; &starf; &starf; &starf;</div>
- <blockquote>El estudio no solo fotografió nuestra boda. La compuso. Vianey, la Directora, leyó el día como una película, y el equipo se movió como una sola respiración.</blockquote>
- <div class="tlist-attr">
- <span class="tlist-name">Marco Benedetti</span>
- <span class="tlist-where">Four Seasons Costa Palmas / 2026</span>
- </div>
- </article>
-
- <article class="tlist-card lw-rv d3">
- <div class="tlist-stars" aria-label="5 de 5 estrellas">&starf; &starf; &starf; &starf; &starf;</div>
- <blockquote>Los retratos de hora dorada en la playa son las imágenes más bellas que hemos visto de nosotros mismos. IVAE Studios nos entregó un archivo privado, no una galería.</blockquote>
- <div class="tlist-attr">
- <span class="tlist-name">Priya Raghavan</span>
- <span class="tlist-where">Nizuc Cancún / 2025</span>
- </div>
- </article>
- </div>
-
- <blockquote class="tlist-coda lw-rv d4" aria-label="Una nota de las parejas que hemos atendido">
- Un archivo de boda se construye para los años después de la boda. El estudio compone cada cuadro pensando en esa mirada larga.
- <cite>La Nota del Estudio / Vianey Díaz, Directora</cite>
- </blockquote>
- </div>
+<!-- ═══════ ONE TESTIMONIAL ═══════ -->
+<section class="lw-test" aria-label="Una nota de un cliente">
+  <blockquote class="lw-test-quote">
+    <span class="lw-test-glyph" aria-hidden="true">&ldquo;</span>
+    <p>El estudio no solo fotografió nuestra boda. <em>La compuso.</em> Vianey leyó el día como una película, y el equipo se movió como una sola respiración.</p>
+  </blockquote>
+  <footer class="lw-test-attr">
+    <figure class="lw-test-photo" aria-hidden="true"><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg" alt="" loading="lazy"/></figure>
+    <div class="lw-test-meta">
+      <span class="lw-test-name">Marco Benedetti &amp; Aria Lyons</span>
+      <span class="lw-test-where">Cancún Hotel Zone <span style="color:#c9a54e">·</span> 2026</span>
+    </div>
+  </footer>
 </section>
 
-<!-- SUNSET CLOCK section removed - fake-functional widget. Method section explains golden-hour timing editorially. -->
-
-<!-- FRAMES -->
-<section class="lw-section frames" id="frames" aria-labelledby="frames-h">
- <div class="lw-inner">
- <span class="lw-section-eyebrow">El Reel</span>
- <h2 id="frames-h" class="lw-rv lw-words" data-words>Seis cuadros del año. <em>Un solo tono distintivo.</em></h2>
-
- <div class="frames-rail-wrap">
- <div class="frames-rail" id="lwFramesRail" tabindex="0" role="region" aria-label="Reel de cuadros de boda, desplaza horizontalmente">
- <figure class="frame" tabindex="0">
- <span class="frame-num">Cuadro i. / vi.</span>
- <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="Una novia en la Zona Hotelera de Cancún en hora dorada" loading="lazy" data-preview width="1200" height="1500"/>
- <figcaption class="frame-cap">Cancún / Zona Hotelera</figcaption>
- </figure>
- <figure class="frame" tabindex="0">
- <span class="frame-num">Cuadro ii. / vi.</span>
- <img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="Una novia en una playa de Cancún en luz editorial" loading="lazy" data-preview width="1200" height="1500"/>
- <figcaption class="frame-cap">Cancún / Playa</figcaption>
- </figure>
- <figure class="frame" tabindex="0">
- <span class="frame-num">Cuadro iii. / vi.</span>
- <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-5.jpg" alt="Una novia en retrato editorial privado, Cancún" loading="lazy" data-preview width="1200" height="1500"/>
- <figcaption class="frame-cap">Cancún / Suite</figcaption>
- </figure>
- <figure class="frame" tabindex="0">
- <span class="frame-num">Cuadro iv. / vi.</span>
- <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="Una novia fotografiada al atardecer en la terraza del resort" loading="lazy" data-preview width="1200" height="1500"/>
- <figcaption class="frame-cap">Cancún / Terraza</figcaption>
- </figure>
- <figure class="frame" tabindex="0">
- <span class="frame-num">Cuadro v. / vi.</span>
- <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg" alt="Novia y ramo, cobertura editorial" loading="lazy" data-preview width="1200" height="1500"/>
- <figcaption class="frame-cap">Cancún / Ramo</figcaption>
- </figure>
- <figure class="frame" tabindex="0">
- <span class="frame-num">Cuadro vi. / vi.</span>
- <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-15.jpg" alt="Novia en hora azul después de la ceremonia" loading="lazy" data-preview width="1200" height="1500"/>
- <figcaption class="frame-cap">Cancún / Hora Azul</figcaption>
- </figure>
- </div>
- <div class="frames-rail-hint" aria-hidden="true">Arrastra para mover el reel</div>
- </div>
- </div>
+<!-- ═══════ INQUIRY ═══════ -->
+<section class="lw-inq2" id="inquiry" aria-labelledby="inq-h">
+  <picture class="lw-inq2-bg" aria-hidden="true"><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="" loading="lazy"/></picture>
+  <span class="lw-inq2-veil" aria-hidden="true"></span>
+  <div class="lw-inq2-content">
+    <span class="lw-inq2-eyebrow">Por Invitación</span>
+    <h2 id="inq-h" class="lw-inq2-h">Aceptamos doce bodas al año.</h2>
+    <p class="lw-inq2-body">Cuéntanos la fecha, el venue, la forma del día. La Directora responde el mismo día con una propuesta privada y una nota personal.</p>
+    <a class="lw-inq2-btn" href="mailto:hello@ivaestudios.com?subject=Consulta" data-magnet>Iniciar Conversación<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <p class="lw-inq2-sub"><em>Reservando fechas <strong>2026</strong> por cita.</em> <span class="lw-inq2-sep" aria-hidden="true">·</span> <a href="https://wa.me/529902046514" target="_blank" rel="noopener" class="lw-inq2-wa">WhatsApp a la Directora</a></p>
+    <div class="lw-inq2-seal" aria-hidden="true"><span>V·D</span></div>
+  </div>
 </section>
 
-<!-- FAQ -->
+<!-- ═══════ FAQ ═══════ -->
 <section class="lw-section faq" id="faq" aria-labelledby="faq-h">
- <div class="lw-inner faq-inner">
- <span class="lw-section-eyebrow">Preguntas Consideradas</span>
- <h2 id="faq-h" class="lw-rv">Las preguntas que las parejas hacen <em>con más frecuencia.</em></h2>
+  <div class="lw-inner faq-inner">
+    <span class="lw-section-eyebrow">Preguntas Consideradas</span>
+    <h2 id="faq-h" class="lw-rv">Las preguntas que las clientas hacen <em>con más frecuencia.</em></h2>
+    <div class="faq-list">
+      <div class="faq-item lw-rv d1">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-1" id="faq-q-1">
+          <span class="faq-q">¿Cuánto cuesta un fotógrafo de bodas destino en México?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-1" role="region" aria-labelledby="faq-q-1">
+          <p>Cada boda es a la medida y se cotiza en conversación. El estudio no publica paquetes &mdash; cada propuesta se construye alrededor de tu fecha, venue, horas, y si se añade video. La inversión varía según el alcance. Cada propuesta incluye galería 4K privada, descargas ilimitadas, derechos de impresión, y servicio bilingüe.</p>
+        </div>
+      </div>
 
- <div class="faq-list">
+      <div class="faq-item lw-rv d2">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-2" id="faq-q-2">
+          <span class="faq-q">¿Vianey estará personalmente el día?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-2" role="region" aria-labelledby="faq-q-2">
+          <p>Sí. Cada boda que el estudio acepta la fotografía Vianey Díaz, la Directora. El contrato incluye cláusula de sustitución: si un evento de fuerza mayor le impide estar, el anticipo se devuelve completo, por escrito, sin negociación.</p>
+        </div>
+      </div>
 
- <div class="faq-item lw-rv d1">
- <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-1" id="faq-q-1">
- <span class="faq-q">¿Cuánto cuesta un fotógrafo de bodas de destino en México?</span>
- <span class="faq-icon" aria-hidden="true"></span>
- </button>
- <div class="faq-answer" id="faq-a-1" role="region" aria-labelledby="faq-q-1">
- <p>Las colecciones de boda del estudio inician en cotizado al brief para una ceremonia íntima de cuatro horas o fuga, y llegan a y más para cobertura de foto y video día completo con un segundo fotógrafo y film cinematográfico destacado. La mayoría de las parejas elige la colección Signature en cotizado al brief, que entrega ocho horas desde preparativos hasta recepción con seiscientas imágenes editoriales. Los precios varían por horas, costa, si se agrega video y cobertura multi-día. Cada colección incluye galería privada 4K, descargas ilimitadas, derechos de impresión y servicio bilingüe.</p>
- </div>
- </div>
+      <div class="faq-item lw-rv d3">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-3" id="faq-q-3">
+          <span class="faq-q">¿Qué pasa si llueve el día de la boda?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-3" role="region" aria-labelledby="faq-q-3">
+          <p>La lluvia es parte de la belleza de los destinos tropicales. Visitamos respaldos interiores treinta días antes de tu fecha. Las lluvias de tarde en México suelen durar veinte a cuarenta minutos, y los cuadros más románticos llegan justo cuando despeja y el cielo se llena de color.</p>
+        </div>
+      </div>
 
- <div class="faq-item lw-rv d2">
- <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-2" id="faq-q-2">
- <span class="faq-q">¿Cuántas horas cubren para una boda mexicana?</span>
- <span class="faq-icon" aria-hidden="true"></span>
- </button>
- <div class="faq-answer" id="faq-a-2" role="region" aria-labelledby="faq-q-2">
- <p>La cobertura típicamente va de cuatro a doce horas dependiendo de la colección. El bloque Essentials cubre hasta cuatro horas y es ideal para fugas, renovaciones de votos y micro-bodas. La colección Signature es la más elegida del estudio, con ocho horas desde preparativos hasta recepción. La colección Cinematic día completo dura doce horas e incluye un segundo fotógrafo para bodas más grandes, cobertura paralela de preparativos, candids de recepción y retratos extendidos de hora dorada. Cobertura multi-día de fin de semana incluyendo fiestas de bienvenida, cenas de ensayo y brunches post-boda se cotiza como un plan personalizado. Recomendamos terminar la ceremonia noventa minutos antes del atardecer para la mejor luz natural.</p>
- </div>
- </div>
+      <div class="faq-item lw-rv d4">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-4" id="faq-q-4">
+          <span class="faq-q">¿Qué tan rápido entregan las fotos?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-4" role="region" aria-labelledby="faq-q-4">
+          <p>Un teaser de quince a veinte cuadros editoriales en diez días. La galería completa en tres a cuatro semanas. La película cinemática en ocho semanas. Cada fecha de entrega está escrita en el contrato.</p>
+        </div>
+      </div>
 
- <div class="faq-item lw-rv d3">
- <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-3" id="faq-q-3">
- <span class="faq-q">¿Ofrecen video y foto juntos?</span>
- <span class="faq-icon" aria-hidden="true"></span>
- </button>
- <div class="faq-answer" id="faq-a-3" role="region" aria-labelledby="faq-q-3">
- <p>Sí. La colección Cinematic día completo combina fotografía y videografía cinematográfica con un solo equipo coordinado, por lo que no hay competencia por ángulos y el estilo visual se mantiene cohesivo a través de todo tu contenido de boda. El paquete entrega ochocientas imágenes editoriales más un film cinematográfico destacado de tres a cinco minutos y reels teaser cortos para redes sociales. Capturamos audio de ceremonia, votos y brindis en calidad broadcast. Complementos de solo video están disponibles para parejas que ya tienen un fotógrafo reservado. Un solo equipo para foto y video significa una Directora, un estilo, un timeline. Eso importa en un día apretado de destino.</p>
- </div>
- </div>
+      <div class="faq-item lw-rv d5">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-5" id="faq-q-5">
+          <span class="faq-q">¿Con cuánta anticipación debo reservar?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-5" role="region" aria-labelledby="faq-q-5">
+          <p>De ocho a catorce meses antes de tu fecha, especialmente para temporada alta (noviembre a abril). Los sábados populares en Rosewood Mayakoba, One &amp; Only Palmilla, Four Seasons Costa Palmas y Las Ventanas se reservan doce a dieciocho meses con anticipación.</p>
+        </div>
+      </div>
 
- <div class="faq-item lw-rv d4">
- <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-4" id="faq-q-4">
- <span class="faq-q">¿Pueden fotografiar en resorts Mayakoba / Rosewood / Four Seasons?</span>
- <span class="faq-icon" aria-hidden="true"></span>
- </button>
- <div class="faq-answer" id="faq-a-4" role="region" aria-labelledby="faq-q-4">
- <p>Absolutamente. El estudio ha cubierto bodas en Rosewood Mayakoba, Fairmont Mayakoba, Banyan Tree Mayakoba, Four Seasons Costa Palmas, Four Seasons Los Cabos, One and Only Palmilla, Waldorf Astoria Pedregal, Ritz-Carlton Cancún, Nizuc, Maroma Belmond, Grand Velas, UNICO 20°87°, Montage Los Cabos y Las Ventanas al Paraíso. Estamos familiarizados con las políticas de proveedores externos de cada resort, contactos de planner y locaciones preferidas para ceremonias. Coordinamos directamente con el departamento de bodas del resort para asegurar acceso, explorar sitios y construir un timeline alrededor de la luz de hora dorada de la propiedad. No se cobran tarifas de acceso adicionales para nuestras locaciones preferidas.</p>
- </div>
- </div>
-
- <div class="faq-item lw-rv d5">
- <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-5" id="faq-q-5">
- <span class="faq-q">¿Viajan a Tulum / Los Cabos para una boda?</span>
- <span class="faq-icon" aria-hidden="true"></span>
- </button>
- <div class="faq-answer" id="faq-a-5" role="region" aria-labelledby="faq-q-5">
- <p>Sí. Viajamos por todos los corredores de bodas de lujo de México como parte de nuestro servicio estándar. El tramo de la Riviera Maya, Playa del Carmen, Puerto Aventuras, Akumal y Tulum, está incluido sin tarifa de viaje. Los Cabos, incluyendo Cabo San Lucas, San José del Cabo, Palmilla, Pedregal y Costa Palmas, se cubre con vuelos y una noche de alojamiento facturada al costo. También estamos disponibles para bodas en Isla Mujeres, Playa Mujeres, Costa Mujeres, Sayulita, Puerto Vallarta, San Miguel de Allende y Oaxaca con cotizaciones de viaje personalizadas. Bodas de destino internacionales para clientes recurrentes se consideran caso por caso.</p>
- </div>
- </div>
-
- <div class="faq-item lw-rv d6">
- <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-6" id="faq-q-6">
- <span class="faq-q">¿Cuándo debo reservar un fotógrafo de bodas en México?</span>
- <span class="faq-icon" aria-hidden="true"></span>
- </button>
- <div class="faq-answer" id="faq-a-6" role="region" aria-labelledby="faq-q-6">
- <p>El estudio recomienda reservar de ocho a catorce meses antes de la fecha de tu boda, especialmente para fechas de temporada alta entre noviembre y abril. Sábados populares en resorts de lujo como Rosewood Mayakoba, One and Only Palmilla, Four Seasons Costa Palmas y Las Ventanas se reservan de doce a dieciocho meses con anticipación. Reservar con anticipación te da acceso a fechas preferidas, tiempo para una sesión de compromiso o nupcial pre-boda, una llamada de planeación con la Directora, Vianey Díaz, y exploración exhaustiva de la locación. Para cronogramas más cortos, siempre revisamos disponibilidad. Bodas de último minuto son ocasionalmente posibles, particularmente durante los meses de temporada intermedia de mayo, septiembre y octubre.</p>
- </div>
- </div>
-
- <div class="faq-item lw-rv d7">
- <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-7" id="faq-q-7">
- <span class="faq-q">¿A qué hora debemos programar la ceremonia para las mejores fotos?</span>
- <span class="faq-icon" aria-hidden="true"></span>
- </button>
- <div class="faq-answer" id="faq-a-7" role="region" aria-labelledby="faq-q-7">
- <p>Para la luz natural más favorecedora, programa que la ceremonia termine aproximadamente noventa minutos antes del atardecer. En Cancún y la Riviera Maya, la hora dorada cae alrededor de las 5:30 PM en invierno y 7:00 PM en verano. Una ceremonia a las 4:00 PM en invierno o 5:30 PM en verano da tiempo para la ceremonia, retratos de pareja durante la hora dorada y una recepción que abre en hora azul, cuando el cielo se llena de color y los faroles comienzan a leerse en cámara.</p>
- </div>
- </div>
-
- <div class="faq-item lw-rv d8">
- <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-8" id="faq-q-8">
- <span class="faq-q">¿Cuántas fotos recibiremos de nuestra boda?</span>
- <span class="faq-icon" aria-hidden="true"></span>
- </button>
- <div class="faq-answer" id="faq-a-8" role="region" aria-labelledby="faq-q-8">
- <p>Dependiendo de la colección, recibirás entre cuatrocientas y ochocientas imágenes profesionalmente editadas. La colección Signature entrega alrededor de seiscientos cuadros editados. La colección Cinematic día completo incluye ochocientos o más. Cada imagen lleva la gradación editorial distintiva del estudio. La galería completa se entrega dentro de tres a cuatro semanas vía una galería privada en línea con capacidades completas de descarga y compartido, y el film cinematográfico sigue dentro de ocho semanas.</p>
- </div>
- </div>
-
- <div class="faq-item lw-rv d9">
- <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-9" id="faq-q-9">
- <span class="faq-q">¿Podemos hacer una sesión de compromiso antes de la boda en México?</span>
- <span class="faq-icon" aria-hidden="true"></span>
- </button>
- <div class="faq-answer" id="faq-a-9" role="region" aria-labelledby="faq-q-9">
- <p>Absolutamente. El estudio ofrece sesiones de compromiso y nupciales en locaciones icónicas incluyendo cenotes, ruinas frente al mar en Tulum, el centro de Cancún o los jardines del resort donde se realizará tu boda. Muchas parejas programan la sesión para el día antes de la boda, combinando el día del ensayo con un bloque de retratos relajado. También funciona como un ensayo en persona del modo en que trabaja el equipo, que es la forma más rápida de sentirse cómoda frente a la cámara el día de la boda.</p>
- </div>
- </div>
-
- <div class="faq-item lw-rv d10">
- <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-10" id="faq-q-10">
- <span class="faq-q">¿Qué pasa si llueve el día de nuestra boda?</span>
- <span class="faq-icon" aria-hidden="true"></span>
- </button>
- <div class="faq-answer" id="faq-a-10" role="region" aria-labelledby="faq-q-10">
- <p>La lluvia es parte de la belleza de los destinos tropicales, y el equipo tiene experiencia adaptándose rápidamente. La mayoría de los resorts de lujo tienen impresionantes locaciones interiores de respaldo. Las exploramos en la visita previa para que el plan B ya esté fotografiado antes de necesitarse. Las lluvias vespertinas en México son típicamente breves, de veinte a cuarenta minutos, y a menudo los cuadros más románticos suceden el momento en que la lluvia despeja, cuando el cielo se llena de color y la luz vuelve saturada.</p>
- </div>
- </div>
-
- </div>
- </div>
-</section>
-
-<!-- INQUIRY -->
-<section class="lw-section inquiry" id="inquiry" aria-labelledby="inq-h">
- <div class="inquiry-inner">
- <span class="lw-section-eyebrow lw-rv">Conversa con el Estudio</span>
- <span class="inquiry-rule lw-rv" aria-hidden="true"></span>
- <h2 id="inq-h" class="lw-rv">Cuéntanos sobre <em>el día.</em></h2>
- <p class="lw-rv d1">Envía la fecha, la costa y unas líneas sobre la boda que estás planeando. El estudio responde el mismo día hábil con una propuesta, galerías completas de muestra del venue más relevante y una nota corta de la Directora.</p>
-
- <div class="lw-actions lw-rv d2" style="justify-content:center">
- <a class="lw-btn lw-btn-gold lw-magnet" href="mailto:hello@ivaestudios.com?subject=Consulta%20de%20Boda" data-magnet>
- Comenzar consulta
- <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
- </a>
- <a class="lw-btn lw-btn-outline" href="https://wa.me/529902046514" target="_blank" rel="noopener" data-magnet>
- WhatsApp al Estudio
- <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
- </a>
- </div>
- <div class="lw-availability lw-rv d3" role="status" style="margin-top:24px">
- <span class="lw-availability-dot" aria-hidden="true"></span>
- <span class="lw-availability-text">
- <span class="lw-availability-l">Próximo sábado disponible</span>
- <span class="lw-availability-v" id="lwNextDate2">Escriba para reservar la fecha.</span>
- </span>
- </div>
-
- <div class="inquiry-meta lw-rv d3">
- <div class="inquiry-meta-cell">
- <span class="inquiry-meta-l">Tiempo de Respuesta</span>
- <span class="inquiry-meta-v">Mismo día hábil</span>
- </div>
- <div class="inquiry-meta-cell">
- <span class="inquiry-meta-l">Idiomas</span>
- <span class="inquiry-meta-v">Español / Inglés</span>
- </div>
- <div class="inquiry-meta-cell">
- <span class="inquiry-meta-l">Contacto Directo</span>
- <span class="inquiry-meta-v">hello@ivaestudios.com</span>
- </div>
- </div>
- </div>
+    </div>
+  </div>
 </section>
 
 </main>

@@ -778,6 +778,8 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
  .lc-case-meta{grid-template-columns:repeat(3,1fr)}
 }
 </style>
+<link rel="stylesheet" href="/styles/lw-editorial.css?v=20260510v"/>
+<script src="/js/lw-editorial.js?v=20260510v" defer></script>
 </head>
 <body>
 
@@ -909,436 +911,252 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
  </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════
- SECTION 3a — TRUST STRIP (count-up "500+ couples since 2019")
- ═══════════════════════════════════════════════════════════════ -->
-<section class="lc-trust-section" aria-labelledby="trust-heading">
- <h2 id="trust-heading" class="visually-hidden">Estadísticas del Estudio</h2>
- <ul class="lc-stats" aria-label="Estadísticas del estudio: desde 2019, más de 500 parejas fotografiadas, 42 reseñas, calificación 5.0 estrellas" role="list">
- <li class="lc-stat">
- <span class="lc-stat-num" aria-hidden="true">2019</span>
- <span class="lc-stat-label">Desde</span>
- </li>
- <li class="lc-stat">
- <span class="lc-stat-num" aria-hidden="true"><span class="lc-count" data-count-to="500">500</span><span aria-hidden="true">+</span></span>
- <span class="lc-stat-label">Parejas</span>
- </li>
- <li class="lc-stat">
- <span class="lc-stat-num" aria-hidden="true">42</span>
- <span class="lc-stat-label">Cuarenta y Dos Reseñas</span>
- </li>
- <li class="lc-stat">
- <span class="lc-stat-num" aria-hidden="true">5.0 <span style="color:var(--gold)">★</span></span>
- <span class="lc-stat-label">Cinco Punto Cero Estrellas</span>
- </li>
- </ul>
+
+<!-- ═══════ EDITORIAL FRAMEWORK CSS (ES — espejo de la versión EN) ═══════ -->
+<style>
+.lw-pause{position:relative;height:88vh;min-height:560px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#0a0f17}
+.lw-pause-img{position:absolute;inset:0;z-index:0;display:block}
+.lw-pause-img img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.9) contrast(1.04)}
+.lw-pause-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,15,23,.35),rgba(10,15,23,.65));z-index:1}
+.lw-pause-line{position:relative;z-index:2;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(28px,4.4vw,60px);line-height:1.2;color:#faf8f5;text-align:center;max-width:24ch;padding:0 24px;letter-spacing:-.008em}
+.lw-pause-line em{font-style:italic;color:#c9a54e}
+@media (max-width:600px){.lw-pause{height:78vh;min-height:480px}}
+.lw-approach{background:#faf8f5;color:#0a0f17;padding:clamp(80px,10vw,160px) clamp(20px,5vw,56px)}
+.lw-approach-inner{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:minmax(0,42fr) minmax(0,58fr);gap:clamp(48px,6vw,96px);align-items:center}
+.lw-approach-portrait{margin:0;aspect-ratio:4/5;overflow:hidden;background:#0a0f17;position:relative;box-shadow:0 40px 100px -32px rgba(10,15,23,.25);display:flex;align-items:center;justify-content:center}
+.lw-approach-portrait::before{content:"";position:absolute;inset:14px;border:1px solid rgba(201,165,78,.15);pointer-events:none}
+.lw-approach-monogram{display:inline-flex;align-items:baseline;gap:.04em;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;color:#c9a54e;font-size:clamp(80px,10vw,160px);line-height:1;letter-spacing:-.015em;text-shadow:0 4px 30px rgba(201,165,78,.18);user-select:none}
+.lw-monogram-letter{display:inline-block}
+.lw-monogram-dot{display:inline-block;font-size:.46em;color:#c9a54e;opacity:.75;transform:translateY(-.4em);margin:0 .04em}
+.lw-approach-text{max-width:580px}
+.lw-approach-text h2{margin:0}
+.lw-approach-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:18px}
+.lw-approach-h{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(34px,4vw,58px);line-height:1.06;letter-spacing:-.018em;color:#0a0f17;margin:0 0 32px}
+.lw-approach-h em{font-style:italic;color:#c9a54e}
+.lw-approach-body{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(17px,1.3vw,20px);line-height:1.6;color:rgba(10,15,23,.78);margin:0 0 28px}
+.lw-approach-quote{position:relative;margin:32px 0;padding:0 0 0 28px;border-left:1px solid #c9a54e;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:clamp(22px,2.2vw,30px);line-height:1.25;color:#0a0f17;letter-spacing:-.005em}
+.lw-approach-quote em{font-style:italic;color:#c9a54e}
+.lw-approach-sig{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:rgba(10,15,23,.5);margin:36px 0 0;padding-top:24px;border-top:1px solid rgba(10,15,23,.12)}
+@media (max-width:880px){.lw-approach-inner{grid-template-columns:1fr;gap:60px}.lw-approach-portrait{max-width:440px;margin:0 auto;width:100%}}
+.lw-work{padding:clamp(80px,10vw,160px) 0 clamp(60px,8vw,120px);background:#0a0f17}
+.lw-work-head{max-width:1280px;margin:0 auto clamp(64px,8vw,120px);padding:0 clamp(20px,5vw,56px)}
+.lw-work-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:18px}
+.lw-work-h{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(38px,5vw,72px);line-height:1.04;letter-spacing:-.02em;color:#faf8f5;margin:0;max-width:18ch}
+.lw-work-h em{font-style:italic;color:#c9a54e}
+.lw-plate{display:block;max-width:1280px;margin:0 auto;padding:0 clamp(20px,5vw,56px) clamp(72px,9vw,140px)}
+.lw-plate:last-of-type{padding-bottom:0}
+.lw-plate-frame{margin:0;overflow:hidden;background:#0a0f17;aspect-ratio:3/2}
+.lw-plate-frame img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92) contrast(1.02);transition:transform 1.4s cubic-bezier(.22,.61,.36,1)}
+.lw-plate:hover .lw-plate-frame img{transform:scale(1.02)}
+.lw-plate-caption{display:grid;grid-template-columns:1fr;gap:18px;padding:24px 0 0;border-top:1px solid rgba(201,165,78,.18);margin-top:24px;max-width:560px}
+.lw-plate-loc{font-family:'Syne',sans-serif;font-size:10.5px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:rgba(250,248,245,.55)}
+.lw-plate-sep{color:#c9a54e;margin:0 4px}
+.lw-plate-body{font-family:'Cormorant Garamond',serif;font-weight:400;font-style:italic;font-size:clamp(16px,1.2vw,19px);line-height:1.55;color:rgba(250,248,245,.75);margin:0;letter-spacing:.003em;max-width:48ch}
+.lw-test{padding:clamp(120px,14vw,200px) clamp(20px,5vw,56px);background:#0d1219;text-align:center;position:relative}
+.lw-test::before{content:"";position:absolute;left:50%;top:0;width:1px;height:80px;background:linear-gradient(to bottom,transparent,#c9a54e);opacity:.5}
+.lw-test-quote{position:relative;max-width:920px;margin:0 auto 72px;padding:0}
+.lw-test-glyph{position:absolute;top:-80px;left:50%;transform:translateX(-50%);font-family:'Cormorant Garamond',serif;color:#c9a54e;font-size:140px;line-height:1;opacity:.55;font-style:italic;font-weight:300}
+.lw-test-quote p{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:clamp(26px,3.4vw,50px);line-height:1.25;letter-spacing:-.008em;color:#faf8f5;margin:0}
+.lw-test-quote p em{font-style:italic;color:#c9a54e}
+.lw-test-attr{display:inline-flex;align-items:center;justify-content:center;gap:18px;padding-top:32px;border-top:1px solid rgba(201,165,78,.2)}
+.lw-test-photo{width:60px;height:80px;overflow:hidden;border:1px solid rgba(201,165,78,.5);flex-shrink:0;margin:0;position:relative}
+.lw-test-photo::after{content:"";position:absolute;inset:3px;border:1px solid rgba(201,165,78,.18);pointer-events:none}
+.lw-test-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92) contrast(1.02)}
+.lw-test-meta{text-align:left;display:flex;flex-direction:column;gap:4px}
+.lw-test-name{font-family:'Syne',sans-serif;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#c9a54e;font-weight:500}
+.lw-test-where{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:rgba(250,248,245,.55)}
+.lw-inq2{position:relative;min-height:92vh;padding:clamp(80px,10vw,140px) clamp(20px,5vw,56px);display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0a0f17}
+.lw-inq2-bg{position:absolute;inset:0;z-index:0;display:block}
+.lw-inq2-bg img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.85) contrast(1.05) brightness(.82)}
+.lw-inq2-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,15,23,.4) 0%,rgba(10,15,23,.65) 60%,rgba(10,15,23,.8) 100%);z-index:1}
+.lw-inq2-content{position:relative;z-index:2;text-align:center;max-width:680px;margin:0 auto;color:#faf8f5}
+.lw-inq2-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:11px;font-weight:500;letter-spacing:.36em;text-transform:uppercase;color:#c9a54e;margin-bottom:28px}
+.lw-inq2-h{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(32px,4.8vw,68px);line-height:1.08;letter-spacing:-.018em;color:#faf8f5;margin:0 auto 32px;max-width:22ch}
+.lw-inq2-body{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(17px,1.4vw,21px);line-height:1.5;color:rgba(250,248,245,.78);margin:0 auto 48px;max-width:540px}
+.lw-inq2-btn{display:inline-flex;align-items:center;gap:14px;padding:18px 38px;border:1px solid #c9a54e;background:rgba(201,165,78,.08);color:#faf8f5;font-family:'Syne',sans-serif;font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;transition:background .35s ease,transform .35s ease,box-shadow .35s ease,color .35s ease}
+.lw-inq2-btn svg{width:18px;height:18px}
+.lw-inq2-btn:hover{background:#c9a54e;color:#0a0f17;transform:translateY(-2px);box-shadow:0 16px 40px -12px rgba(201,165,78,.5)}
+.lw-inq2-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:rgba(250,248,245,.55);margin:28px 0 0}
+.lw-inq2-sub strong{color:#c9a54e;font-weight:400}
+.lw-inq2-wa{color:rgba(250,248,245,.65);text-decoration:none;border-bottom:1px solid rgba(201,165,78,.4)}
+.lw-inq2-wa:hover{color:#c9a54e;border-bottom-color:#c9a54e}
+.lw-inq2-sep{margin:0 14px}
+.lw-inq2-seal{margin:60px auto 0;width:56px;height:56px;border-radius:50%;border:1px solid rgba(201,165,78,.55);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-style:italic;color:#c9a54e;font-size:18px;position:relative;background:radial-gradient(circle at 30% 30%,rgba(201,165,78,.14),rgba(201,165,78,.04) 60%)}
+.lw-inq2-seal::before{content:"";position:absolute;inset:4px;border:1px solid rgba(201,165,78,.18);border-radius:50%}
+.lw-section.faq{background:#0a0f17;padding-top:clamp(56px,6vw,80px);padding-bottom:clamp(56px,6vw,80px)}
+.lw-section.faq .lw-inner{max-width:840px;margin:0 auto;padding:0 clamp(20px,5vw,56px)}
+.lw-section.faq .lw-section-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:18px}
+.lw-section.faq h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(26px,3vw,38px);line-height:1.05;letter-spacing:-.015em;color:#faf8f5;margin:0 0 32px}
+.lw-section.faq h2 em{font-style:italic;color:#c9a54e}
+.lw-section.faq .faq-list{margin-top:32px;border-top:1px solid rgba(201,165,78,.18)}
+.lw-section.faq .faq-item{border-bottom:1px solid rgba(201,165,78,.12);position:relative}
+.lw-section.faq .faq-trigger{width:100%;display:flex;justify-content:space-between;align-items:center;padding:16px 0;gap:18px;text-align:left;cursor:pointer;background:none;border:none;color:inherit;font:inherit;transition:color .3s ease}
+.lw-section.faq .faq-q{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(15px,1.15vw,17px);line-height:1.4;color:#faf8f5;flex:1}
+.lw-section.faq .faq-trigger:hover .faq-q{color:#c9a54e}
+.lw-section.faq .faq-icon{flex-shrink:0;width:22px;height:22px;border:1px solid rgba(201,165,78,.4);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#c9a54e;position:relative;transition:transform .4s ease,border-color .4s ease}
+.lw-section.faq .faq-icon::before,.lw-section.faq .faq-icon::after{content:'';position:absolute;background:#c9a54e;transition:transform .4s ease}
+.lw-section.faq .faq-icon::before{width:8px;height:1px}
+.lw-section.faq .faq-icon::after{width:1px;height:8px}
+.lw-section.faq .faq-item.open .faq-icon{transform:rotate(45deg);border-color:#c9a54e}
+.lw-section.faq .faq-answer{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.lw-section.faq .faq-item.open .faq-answer{max-height:600px}
+.lw-section.faq .faq-answer p{padding:0 0 18px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;line-height:1.65;color:rgba(250,248,245,.7);margin:0}
+</style>
+
+<!-- ═══════ EDITORIAL PAUSE ═══════ -->
+<section class="lw-pause" aria-label="Una nota del estudio">
+  <picture class="lw-pause-img"><img src="/images/couple-cancun-hotel-zone-ivae-studios-7.jpg" alt="" loading="lazy" decoding="async"/></picture>
+  <span class="lw-pause-veil" aria-hidden="true"></span>
+  <p class="lw-pause-line">Unos días. <em>Las fotografías son el resto de sus años juntos.</em></p>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════
- SECTION 3 — COLLECTIONS (3 tiers + heart-and-infinity SVG progression)
- ═══════════════════════════════════════════════════════════════ -->
-<!-- INVESTMENT REPLACED WITH INQUIRY-DRIVEN SECTION -->
-<section class="lc-inquiry-bridge" id="how-we-work" aria-labelledby="how-we-work-h">
- <div class="lc-inquiry-bridge-inner">
- <p class="eyebrow">El Proceso</p>
- <h2 id="how-we-work-h">Cada pareja, considerada. <em>Cotizada en conversación.</em></h2>
- <p>Cada sesión de pareja es a la medida. No publicamos paquetes estándar porque ningún viaje, resort o historia es igual a otro. Después de conocer tus fechas, locación y la forma del día, el estudio prepara una propuesta privada en un día hábil. Viajes, alcance, entregables y tiempos se construyen alrededor de tu necesidad específica.</p>
- <ul class="lc-promise-list" role="list">
- <li><span class="lc-promise-num">01</span><span><em>Una conversación de planificación</em> dentro de las 48 horas de tu consulta.</span></li>
- <li><span class="lc-promise-num">02</span><span><em>Una propuesta privada</em> con alcance, tiempos y rango de inversión.</span></li>
- <li><span class="lc-promise-num">03</span><span><em>Una llamada previa</em> para repasar luz, locación y ritmo.</span></li>
- <li><span class="lc-promise-num">04</span><span><em>Entrega editorial</em> dentro del plazo acordado — primeras fotos en 72 horas.</span></li>
- </ul>
- <div class="lc-promise-cta">
- <a class="lc-btn lc-btn-gold" href="#inquiry">Comenzar Consulta</a>
- </div>
- </div>
+<!-- ═══════ THE APPROACH ═══════ -->
+<section class="lw-approach" id="director" aria-labelledby="approach-h">
+  <div class="lw-approach-inner">
+    <figure class="lw-approach-portrait">
+      <div class="lw-approach-monogram" role="img" aria-label="V·D — Vianey Díaz, Directora, IVAE Studios">
+        <span class="lw-monogram-letter">V</span><span class="lw-monogram-dot" aria-hidden="true">·</span><span class="lw-monogram-letter">D</span>
+      </div>
+    </figure>
+    <div class="lw-approach-text">
+      <span class="lw-approach-eyebrow">Dirigido por</span>
+      <h2 id="approach-h" class="lw-approach-h">Vianey Díaz <em>dirige cada sesión.</em></h2>
+      <p class="lw-approach-body">Cada sesión se fotografía como yo fotografiaría mi propia luna de miel. Una sola firma de color en toda la galería, una sola directora el día, un solo estudio respondiendo desde la consulta hasta el archivo final. El estándar no cambia entre un paseo de una hora y un retiro privado de tres días.</p>
+      <blockquote class="lw-approach-quote">No posamos a las parejas. <em>Las seguimos.</em></blockquote>
+      <p class="lw-approach-body">Cada archivo se entrega en una caja de lino numerada a mano &mdash; pruebas impresas, USB, y un libro encuadernado a mano en una prensa de Ciudad de México.</p>
+      <p class="lw-approach-sig">&mdash; Vianey Díaz, Directora</p>
+    </div>
+  </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════
- SECTION 4 — FEATURED CASE STUDY (cinemascope 21:9, drop cap, same-sex)
- ═══════════════════════════════════════════════════════════════ -->
-<section class="lc-case-section" id="feature" aria-labelledby="case-heading">
- <p class="lc-eyebrow">Una Pareja</p>
- <h2 id="case-heading" class="lc-section-h2">Camila y Ana, <em>Cabo San Lucas</em>.</h2>
+<!-- ═══════ THE BODY OF WORK ═══════ -->
+<section class="lw-work" aria-labelledby="work-h">
+  <header class="lw-work-head">
+    <span class="lw-work-eyebrow">Trabajo Reciente</span>
+    <h2 id="work-h" class="lw-work-h">Cuatro parejas, <em>cuatro habitaciones.</em></h2>
+  </header>
 
- <figure class="lc-case-figure">
- <div class="lc-cinemascope">
- <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg"
- alt="Camila y Ana sobre la arena al pie del Arco de Cabo en hora dorada, una caminando adelante y la otra mirando hacia atrás, fotografiadas por IVAE Studios."
- loading="lazy"
- decoding="async"
- width="2400"
- height="1029">
- </div>
- </figure>
+  <article class="lw-plate">
+    <figure class="lw-plate-frame"><img src="/images/couple-cancun-beach-ivae-studios-3.jpg" alt="" loading="lazy" width="2400" height="1600"/></figure>
+    <div class="lw-plate-caption">
+      <span class="lw-plate-loc">Cancún <span class="lw-plate-sep">·</span> Playa Delfines <span class="lw-plate-sep">·</span> Marzo 2026</span>
+      <p class="lw-plate-body">Llevaban seis semanas comprometidos. Nos encontramos a las seis de la mañana antes de que el resort despertara. Ella había traído los aretes de su abuela; él no había dormido.</p>
+    </div>
+  </article>
 
- <div class="lc-case-caption lc-rv">
- <p class="lc-case-caption-body">Quince años entre las dos. Camila le propuso matrimonio a Ana en Tulum en 2010, el segundo día de un viaje del que ninguna de sus familias sabía. Volvieron a México para el aniversario número quince, esta vez a Cabo, esta vez sin nadie ocultándose. El estudio las encontró sobre la arena a las cinco y cincuenta de la tarde a finales de octubre, cuando la luz que viene del Pacífico tiene el color del durazno cortado y el viento ha bajado a nada.</p>
+  <article class="lw-plate">
+    <figure class="lw-plate-frame"><img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="" loading="lazy" width="2400" height="1600"/></figure>
+    <div class="lw-plate-caption">
+      <span class="lw-plate-loc">Cabo San Lucas <span class="lw-plate-sep">·</span> Pedregal <span class="lw-plate-sep">·</span> Noviembre 2025</span>
+      <p class="lw-plate-body">Una luna de miel después de quince años y dos hijos. Nos pidieron fotografiarlos como lo habríamos hecho si tuvieran veintitrés. Sí.</p>
+    </div>
+  </article>
 
- <p class="lc-case-caption-body">Ana llevaba un vestido largo de lino color olivo. Camila llevaba pantalones azul marino y camisa blanca. Ninguna de las dos trajo estilista. El estudio trabajó noventa minutos con una sola bolsa, dos lentes, sin tripié. Las indicaciones fueron tres: caminen hacia el agua, regresen caminando, luego párense al pie del arco y cuéntense algo que la cámara no necesita escuchar.</p>
+  <article class="lw-plate">
+    <figure class="lw-plate-frame"><img src="/images/couple-akumal-ivae-studios.jpg" alt="" loading="lazy" width="2400" height="1600"/></figure>
+    <div class="lw-plate-caption">
+      <span class="lw-plate-loc">Akumal <span class="lw-plate-sep">·</span> Cenote <span class="lw-plate-sep">·</span> Octubre 2025</span>
+      <p class="lw-plate-body">Aniversario número siete. El cenote estaba vacío al mediodía. Él nadó en su traje. Ella lo dejó.</p>
+    </div>
+  </article>
 
- <p class="lc-case-caption-body">La imagen que el estudio considera firma es la de Ana mirando hacia atrás por encima del hombro mientras Camila camina adelante. No se están tocando. No están viéndose una a la otra. La luz cae sobre el rostro de Ana y sobre las manos de Camila. El viento ha levantado ligeramente la orilla del vestido de Ana. Una fragata cruza la esquina superior derecha del cuadro, algo que el estudio no notó en el momento y que Ana descubrió tres días después en la galería.</p>
+  <article class="lw-plate">
+    <figure class="lw-plate-frame"><img src="/images/couple-cancun-hotel-zone-ivae-studios-12.jpg" alt="" loading="lazy" width="2400" height="1600"/></figure>
+    <div class="lw-plate-caption">
+      <span class="lw-plate-loc">Cancún Hotel Zone <span class="lw-plate-sep">·</span> Terraza, hora azul <span class="lw-plate-sep">·</span> Febrero 2026</span>
+      <p class="lw-plate-body">El último bloque de la sesión, después de cenar. Ella volvió a ponerse los zapatos. Caminaron la terraza. Es el cuadro que mandan a imprimir grande.</p>
+    </div>
+  </article>
 
- <p class="lc-case-caption-body">Las primeras imágenes llegaron a la pareja setenta y un horas después de la sesión. La galería completa, cuatrocientas cuarenta imágenes, llegó dieciocho días más tarde.</p>
- </div>
-
- <dl class="lc-case-meta">
- <div class="lc-case-meta-cell">
- <dt>Costa</dt><dd>Los Cabos</dd>
- </div>
- <div class="lc-case-meta-cell">
- <dt>Años Juntas</dt><dd>Quince</dd>
- </div>
- <div class="lc-case-meta-cell">
- <dt>Cobertura</dt><dd>El Atardecer, noventa minutos</dd>
- </div>
- </dl>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════
- SECTION 5 — METHOD (5 steps + sunset clock + proposal countdown widget)
- ═══════════════════════════════════════════════════════════════ -->
-<section class="lc-method-section" id="method" aria-labelledby="method-heading">
- <p class="lc-eyebrow">El Método</p>
- <h2 id="method-heading" class="lc-section-h2">Cinco <em>pasos</em> considerados, de la planeación a la entrega.</h2>
- <p class="lc-method-intro">El estudio trabaja igual para cada pareja, sin importar la duración del viaje. La primera consulta se lee el mismo día hábil, en inglés o español. Después viene una llamada de planeación. Se mapea la luz. La sesión corre hasta la hora en que la luz se vuelve honesta. Las primeras imágenes viajan a casa con ustedes. La forma de la sesión se define temprano para que la sesión misma pueda improvisarse.</p>
-
- <ol class="lc-method-steps" role="list">
- <li class="lc-method-step lc-method-step--plan d1" data-step="01">
- <p class="lc-method-step-tag" aria-hidden="true">01 · Planificar</p>
- <h3 class="lc-method-step-name">Planificar</h3>
- <p class="lc-method-step-body">El primer correo puede llegar a cualquier hora. El estudio lo lee el mismo día hábil, con dos preguntas y una opinión franca sobre si las fechas están abiertas. La primera respuesta la envía la Directora Vianey Díaz. Para propuestas, el estudio confirma en menos de veinticuatro horas; el plazo es más corto por una razón.</p>
- </li>
- <li class="lc-method-step d2" data-step="02">
- <p class="lc-method-step-tag" aria-hidden="true">02 · Dirigir</p>
- <h3 class="lc-method-step-name">Dirigir</h3>
- <p class="lc-method-step-body">Dirección serena en los preparativos. Una nota de vestuario, un calendario de luz, un mapa de la locación con los puntos marcados. Para propuestas, el estudio coordina directamente con el restaurante o con el responsable de la playa del hotel para que la persona a quien se le propone no se entere hasta el momento de la rodilla. Para lunas de miel, el estudio envía una paleta de color de vestuario por mes para que el lino y la buganvilia se entiendan.</p>
- </li>
- <li class="lc-method-step d3" data-step="03">
- <p class="lc-method-step-tag" aria-hidden="true">03 · Iluminar</p>
- <h3 class="lc-method-step-name">Iluminar</h3>
- <p class="lc-method-step-body">La luz es la primera cita. El estudio llega a la locación noventa minutos antes del atardecer para El Atardecer y el Día de Aventura; para La Hora, el estudio llega en el momento en que la luz se vuelve honesta y trabaja hasta su final. El ritmo de la sesión lo marca el sol, no una lista de tomas. Hora dorada, solamente.</p>
- </li>
- </ol>
-
- <!-- ═══ CUÁNDO FOTOGRAFIAMOS (párrafo editorial, reemplaza widgets de reloj y countdown) ═══ -->
- <aside class="lc-when-block" aria-labelledby="when-heading">
- <p class="lc-eyebrow lc-eyebrow--centered">Cuándo Fotografiamos</p>
- <h3 id="when-heading" class="lc-when-h3">Una ventana de noventa minutos, <em>construida desde el atardecer hacia atrás</em>.</h3>
- <p class="lc-when-body">En noviembre a lo largo de Cancún y la Riviera Maya, la luz se vuelve honesta a las cinco con doce. En marzo, a las seis con dieciocho. En Los Cabos, el Pacífico corre unos treinta minutos más tarde que la costa caribeña. El estudio lee la temporada, el resort y la orientación de la playa, y propone una hora de llamado que los pone a ustedes dos frente a <em>la última luz cálida del día</em>. Las sesiones al amanecer son igualmente consideradas: treinta minutos antes de la primera luz, menos huéspedes en la arena, los tonos más suaves que el día sabe dar.</p>
- </aside>
-
- <ol class="lc-method-steps" role="list" start="4">
- <li class="lc-method-step d4" data-step="04">
- <p class="lc-method-step-tag" aria-hidden="true">04 · Capturar</p>
- <h3 class="lc-method-step-name">Capturar</h3>
- <p class="lc-method-step-body">Dirección serena el día de la sesión. El estudio trabaja con una sola bolsa, uno o dos lentes, sin tripié, sin flash. Los primeros diez minutos son para entrar en calor; los siguientes sesenta son el trabajo. Para propuestas, el estudio captura la cobertura discreta inicial desde una posición fija, y luego se acerca a la pareja recién comprometida en menos de noventa segundos para una sesión de retrato de treinta minutos. El ritmo es tranquilo. La pareja marca la cadencia.</p>
- </li>
- <li class="lc-method-step d5" data-step="05">
- <p class="lc-method-step-tag" aria-hidden="true">05 · Entregar</p>
- <h3 class="lc-method-step-name">Entregar</h3>
- <p class="lc-method-step-body">Primeras imágenes en setenta y dos horas, de veinte a treinta imágenes editoriales en un enlace privado. La galería completa llega en siete a catorce días según la colección, editada a mano en el registro de color IVAE, nunca con auto-tono, nunca pasada por un preset. Una entrega así de rápida con este nivel es poco común. El estudio la trata como una condición permanente, no como una promesa de marketing.</p>
- </li>
- </ol>
+<!-- ═══════ ONE TESTIMONIAL ═══════ -->
+<section class="lw-test" aria-label="Una nota de un cliente">
+  <blockquote class="lw-test-quote">
+    <span class="lw-test-glyph" aria-hidden="true">&ldquo;</span>
+    <p>Rara vez nos hemos sentido tan cómodos frente a una cámara. <em>El estudio entendió nuestro silencio</em>, no solo nuestras sonrisas.</p>
+  </blockquote>
+  <footer class="lw-test-attr">
+    <figure class="lw-test-photo" aria-hidden="true"><img src="/images/couple-cancun-hotel-zone-ivae-studios-9.jpg" alt="" loading="lazy"/></figure>
+    <div class="lw-test-meta">
+      <span class="lw-test-name">Helena &amp; Roman Voss</span>
+      <span class="lw-test-where">Cenote Akumal <span style="color:#c9a54e">·</span> 2026</span>
+    </div>
+  </footer>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════
- SECTION 7 — PULL-QUOTE (320px Cormorant ❝)
- ═══════════════════════════════════════════════════════════════ -->
-<section class="lc-pullquote-section on-dark" aria-labelledby="voices-heading">
- <h2 id="voices-heading" class="visually-hidden">Voces</h2>
- <p class="lc-eyebrow lc-eyebrow--on-dark" style="justify-content:center;display:flex">Voces</p>
-
- <blockquote class="lc-pullquote lc-rv">
- <span class="lc-pullquote__ornament" aria-hidden="true">&#10077;</span>
- <p class="lc-pullquote__body">Volvimos a la misma playa donde nos comprometimos. Lloré cuando vi la galería. Las fotos son más honestas de lo que fue el día, y ese es el cumplido más alto que sabemos dar.</p>
- <cite class="lc-pullquote__attr">Sarah y Michael &nbsp;·&nbsp; Esperanza, Cabo San Lucas &nbsp;·&nbsp; Marzo 2026</cite>
- </blockquote>
+<!-- ═══════ INQUIRY ═══════ -->
+<section class="lw-inq2" id="inquiry" aria-labelledby="inq-h">
+  <picture class="lw-inq2-bg" aria-hidden="true"><img src="/images/couple-cancun-beach-ivae-studios-5.jpg" alt="" loading="lazy"/></picture>
+  <span class="lw-inq2-veil" aria-hidden="true"></span>
+  <div class="lw-inq2-content">
+    <span class="lw-inq2-eyebrow">Por Cita</span>
+    <h2 id="inq-h" class="lw-inq2-h">Aceptamos veinte sesiones de parejas al año.</h2>
+    <p class="lw-inq2-body">Cuéntanos las fechas y el resort. La Directora responde el mismo día con una propuesta privada y una nota personal.</p>
+    <a class="lw-inq2-btn" href="mailto:hello@ivaestudios.com?subject=Consulta" data-magnet>Iniciar Conversación<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <p class="lw-inq2-sub"><em>Reservando fechas <strong>2026</strong> por cita.</em> <span class="lw-inq2-sep" aria-hidden="true">·</span> <a href="https://wa.me/529902046514" target="_blank" rel="noopener" class="lw-inq2-wa">WhatsApp a la Directora</a></p>
+    <div class="lw-inq2-seal" aria-hidden="true"><span>V·D</span></div>
+  </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════
- SECTION 7b — TESTIMONIALS GRID (6 cards, 2 same-sex)
- ═══════════════════════════════════════════════════════════════ -->
-<section class="lc-testimonials-section" aria-labelledby="testimonials-heading">
- <h2 id="testimonials-heading" class="visually-hidden">Lo Que Dicen las Parejas</h2>
- <p class="lc-eyebrow">Lo Que Dicen las Parejas</p>
+<!-- ═══════ FAQ ═══════ -->
+<section class="lw-section faq" id="faq" aria-labelledby="faq-h">
+  <div class="lw-inner faq-inner">
+    <span class="lw-section-eyebrow">Preguntas Consideradas</span>
+    <h2 id="faq-h" class="lw-rv">Las preguntas que las clientas hacen <em>con más frecuencia.</em></h2>
+    <div class="faq-list">
+      <div class="faq-item lw-rv d1">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-1" id="faq-q-1">
+          <span class="faq-q">¿Cuánto cuesta un fotógrafo de parejas en Cancún?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-1" role="region" aria-labelledby="faq-q-1">
+          <p>Cada sesión es a la medida y se cotiza en conversación. La inversión varía según horas, locación, cobertura multi-día, y viaje. Cada propuesta incluye galería 4K privada, descargas ilimitadas, derechos de impresión, y servicio bilingüe.</p>
+        </div>
+      </div>
 
- <div class="lc-testimonials-grid">
- <article class="lc-testimonial-card lc-rv d1">
- <blockquote><p>El estudio se sentó en la mesa detrás de nosotros durante cuarenta minutos. Nunca los vi. La primera imagen de nuestra galería es el segundo en que me arrodillé. La expresión en su cara es la foto que voy a tener sobre mi escritorio por el resto de mi vida.</p></blockquote>
- <cite>Daniel &nbsp;·&nbsp; Le Blanc, Cancún &nbsp;·&nbsp; Febrero 2026</cite>
- <span class="visually-hidden">Persona: propuesta.</span>
- </article>
+      <div class="faq-item lw-rv d2">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-2" id="faq-q-2">
+          <span class="faq-q">¿Vianey estará personalmente el día?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-2" role="region" aria-labelledby="faq-q-2">
+          <p>Sí. Cada sesión que el estudio acepta la fotografía Vianey Díaz, la Directora. El contrato incluye cláusula de sustitución: si un evento de fuerza mayor le impide estar, el anticipo se devuelve completo, por escrito.</p>
+        </div>
+      </div>
 
- <article class="lc-testimonial-card lc-rv d2">
- <blockquote><p>Llevábamos seis semanas casados. Estábamos cansados de esa manera en que las lunas de miel cansan. El estudio nos encontró en la pasarela a las seis y veinte de la mañana y no hablamos durante los primeros diez minutos. Las fotos se ven como se sintió el viaje. No posamos ni una vez.</p></blockquote>
- <cite>Ana y Marco &nbsp;·&nbsp; Rosewood Mayakoba &nbsp;·&nbsp; Enero 2026</cite>
- <span class="visually-hidden">Persona: luna de miel.</span>
- </article>
+      <div class="faq-item lw-rv d3">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-3" id="faq-q-3">
+          <span class="faq-q">¿Qué debemos vestir?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-3" role="region" aria-labelledby="faq-q-3">
+          <p>Telas fluidas en tonos neutros &mdash; crema, arena, hueso, azul polvo, terracota &mdash; se leen mejor a la hora dorada contra el Caribe. Después de reservar, cada pareja recibe una guía de estilo personalizada del estudio.</p>
+        </div>
+      </div>
 
- <article class="lc-testimonial-card lc-testimonial-card--anchor lc-rv d3">
- <blockquote><p>Quince años justos esa semana. Volvimos a México porque aquí pasamos la luna de miel. Las imágenes que Vianey nos hizo en el arco están en la pared del vestíbulo. Nuestras sobrinas preguntan de quién fue esa boda.</p></blockquote>
- <cite>Camila y Ana &nbsp;·&nbsp; Esperanza, Cabo San Lucas &nbsp;·&nbsp; Octubre 2025</cite>
- <span class="visually-hidden">Persona: aniversario, pareja del mismo sexo.</span>
- </article>
+      <div class="faq-item lw-rv d4">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-4" id="faq-q-4">
+          <span class="faq-q">¿Qué tan rápido recibimos las fotos?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-4" role="region" aria-labelledby="faq-q-4">
+          <p>Un teaser de quince cuadros en siete días. La galería completa editada en tres semanas. Cada fecha de entrega está escrita en el contrato.</p>
+        </div>
+      </div>
 
- <article class="lc-testimonial-card lc-rv d4">
- <blockquote><p>Veinticinco aniversario. No queríamos rehacer la boda. Queríamos una imagen para el vestíbulo y veinte para el álbum que están armando nuestras hijas. El estudio entendió la diferencia desde la primera llamada.</p></blockquote>
- <cite>Priya y Aman &nbsp;·&nbsp; Maroma Belmond &nbsp;·&nbsp; Diciembre 2025</cite>
- <span class="visually-hidden">Persona: aniversario.</span>
- </article>
+      <div class="faq-item lw-rv d5">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-5" id="faq-q-5">
+          <span class="faq-q">¿Pueden fotografiar en nuestro resort?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-5" role="region" aria-labelledby="faq-q-5">
+          <p>Sí. El estudio coordina directamente con el departamento de bodas o concierge en Rosewood Mayakoba, Nizuc, Banyan Tree, Four Seasons, Ritz-Carlton, Waldorf Astoria Pedregal, y la mayoría de propiedades de lujo en Cancún, la Riviera Maya, y Los Cabos.</p>
+        </div>
+      </div>
 
- <article class="lc-testimonial-card lc-rv d5">
- <blockquote><p>La boda fue en Madrid. La luna de miel fue en la Riviera Maya porque ninguno de los dos había estado. El estudio nos preguntó qué desayunamos y con qué música caminamos hacia el altar y construyó la mañana alrededor de las respuestas.</p></blockquote>
- <cite>Pablo y Tomás &nbsp;·&nbsp; Banyan Tree Mayakoba &nbsp;·&nbsp; Abril 2026</cite>
- <span class="visually-hidden">Persona: luna de miel, pareja del mismo sexo.</span>
- </article>
-
- <article class="lc-testimonial-card lc-rv d6">
- <blockquote><p>Cuarenta y ocho horas antes del viaje, le escribí al estudio. La respuesta llegó en dos horas, un sábado al atardecer en una playa donde el hotel no permitía tripiés. Vianey llamó al resort y el resort dijo que sí. Él también dijo que sí.</p></blockquote>
- <cite>Mía &nbsp;·&nbsp; Nizuc, Cancún &nbsp;·&nbsp; Noviembre 2025</cite>
- <span class="visually-hidden">Persona: propuesta.</span>
- </article>
- </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════
- SECTION 8 — FRAMES REEL (drag-scroll, 6 frames, frame 4 same-sex)
- ═══════════════════════════════════════════════════════════════ -->
-<section class="lc-reel-section" id="frames" aria-labelledby="reel-heading">
- <h2 id="reel-heading" class="visually-hidden">Momentos románticos</h2>
- <p class="lc-eyebrow">Imágenes</p>
- <p class="lc-reel-hint">Arrastra para ver el reel.</p>
-
- <div class="lc-reel-track" id="lcReelTrack" role="region" aria-label="Reel de momentos románticos, seis imágenes. Usa las flechas del teclado para desplazar." tabindex="0" aria-roledescription="carousel">
-
- <figure class="lc-reel-frame" role="group" aria-roledescription="frame" aria-label="Imagen 1 de 6">
- <img src="/images/couple-tulum-ivae-studios.jpg" alt="La rodilla. Una propuesta privada en una mesa de cena con velas sobre la arena en Tulum en hora dorada, la pareja en pleno sí, fotografiada por IVAE Studios bajo la dirección de Vianey." loading="lazy" decoding="async" width="800" height="1000" draggable="false">
- <figcaption class="lc-reel-caption"><span class="lc-reel-caption-num" aria-hidden="true">Imagen i. / vi.</span><span class="lc-reel-caption-text">La rodilla.</span></figcaption>
- </figure>
-
- <figure class="lc-reel-frame" role="group" aria-roledescription="frame" aria-label="Imagen 2 de 6">
- <img src="/images/couple-mayakoba-ivae-studios.jpg" alt="La mañana del vestido. Una pareja en luna de miel caminando por la pasarela de madera en la primera luz en Rosewood Mayakoba, fotografiada por IVAE Studios bajo la dirección de Vianey." loading="lazy" decoding="async" width="800" height="1000" draggable="false">
- <figcaption class="lc-reel-caption"><span class="lc-reel-caption-num" aria-hidden="true">Imagen ii. / vi.</span><span class="lc-reel-caption-text">La mañana del vestido.</span></figcaption>
- </figure>
-
- <figure class="lc-reel-frame" role="group" aria-roledescription="frame" aria-label="Imagen 3 de 6">
- <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="El segundo atardecer. Una pareja al pie del Arco de Cabo al cierre del día, una mirando hacia atrás por encima del hombro hacia la luz cálida, fotografiada por IVAE Studios bajo la dirección de Vianey." loading="lazy" decoding="async" width="800" height="1000" draggable="false">
- <figcaption class="lc-reel-caption"><span class="lc-reel-caption-num" aria-hidden="true">Imagen iii. / vi.</span><span class="lc-reel-caption-text">El segundo atardecer.</span></figcaption>
- </figure>
-
- <figure class="lc-reel-frame lc-reel-frame--same-sex" role="group" aria-roledescription="frame" aria-label="Imagen 4 de 6">
- <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="El año quince. Camila y Ana en su aniversario número quince al pie del Arco de Cabo en hora dorada, frentes tocándose, fotografiadas por IVAE Studios bajo la dirección de Vianey." loading="lazy" decoding="async" width="800" height="1000" draggable="false">
- <figcaption class="lc-reel-caption"><span class="lc-reel-caption-num" aria-hidden="true">Imagen iv. / vi.</span><span class="lc-reel-caption-text">El año quince.</span></figcaption>
- </figure>
-
- <figure class="lc-reel-frame" role="group" aria-roledescription="frame" aria-label="Imagen 5 de 6">
- <img src="/images/couple-riviera-maya-ivae-studios.jpg" alt="El clavado en el cenote. Una pareja suspendida en agua clara dentro de un cenote de la Riviera Maya al mediodía, la luz del sol entrando por la apertura de la caverna, fotografiada por IVAE Studios bajo la dirección de Vianey." loading="lazy" decoding="async" width="800" height="1000" draggable="false">
- <figcaption class="lc-reel-caption"><span class="lc-reel-caption-num" aria-hidden="true">Imagen v. / vi.</span><span class="lc-reel-caption-text">El clavado en el cenote.</span></figcaption>
- </figure>
-
- <figure class="lc-reel-frame" role="group" aria-roledescription="frame" aria-label="Imagen 6 de 6">
- <img src="/images/couple-cancun-hotel-zone-ivae-studios.jpg" alt="La risa. Una pareja sin posar y riendo en la playa en hora dorada en Nizuc Cancún, el viento en su cabello, fotografiada por IVAE Studios bajo la dirección de Vianey." loading="lazy" decoding="async" width="800" height="1000" draggable="false">
- <figcaption class="lc-reel-caption"><span class="lc-reel-caption-num" aria-hidden="true">Imagen vi. / vi.</span><span class="lc-reel-caption-text">La risa.</span></figcaption>
- </figure>
-
- </div>
-
- <div class="lc-reel-controls" role="group" aria-label="Navegación del reel">
- <button class="lc-reel-btn lc-reel-btn--prev" id="lcReelPrev" type="button" aria-label="Imagen anterior">
- <span aria-hidden="true">&larr;</span>
- </button>
- <button class="lc-reel-btn lc-reel-btn--next" id="lcReelNext" type="button" aria-label="Siguiente imagen">
- <span aria-hidden="true">&rarr;</span>
- </button>
- <div class="lc-reel-progress" id="lcReelProgress" role="progressbar" aria-label="Posición de desplazamiento del reel" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
- <span class="lc-reel-progress-bar" id="lcReelProgressBar"></span>
- </div>
- </div>
-</section>
-
-<div class="lc-cursor-ring" id="lcCursorRing" data-label="Arrastrar" aria-hidden="true"></div>
-<div class="lc-cursor-thumb" id="lcCursorThumb" aria-hidden="true"></div>
-
-<!-- ═══════════════════════════════════════════════════════════════
- SECTION 9 — FAQ (10 Q+A, FAQ 9 same-sex inclusion)
- ═══════════════════════════════════════════════════════════════ -->
-<section class="lc-faq-section" id="faq" aria-labelledby="faq-heading">
- <p class="lc-eyebrow">Preguntas Pensadas</p>
- <h2 id="faq-heading" class="lc-section-h2">Considerado, <em>antes de que preguntes</em>.</h2>
-
- <ul class="lc-faq-list" role="list">
-
- <li class="lc-faq-item d1">
- <h3 class="lc-faq-question-wrap">
- <button class="lc-faq-toggle" id="faq-1-question" type="button" aria-expanded="false" aria-controls="faq-1-panel">
- <span>¿A qué hora es la hora dorada en sus destinos?</span>
- <span class="lc-faq-icon" aria-hidden="true"></span>
- </button>
- </h3>
- <div class="lc-faq-panel" id="faq-1-panel" role="region" aria-labelledby="faq-1-question" data-open="false">
- <div class="lc-faq-panel-inner">
- <p>La hora dorada se mueve mes a mes. En noviembre, en Cancún y la Riviera Maya, la luz se vuelve honesta a las cinco con doce de la tarde; en marzo es a las seis con dieciocho. En Los Cabos, la luz sigue al Pacífico y corre unos treinta minutos más tarde que en la costa caribeña. El estudio inicia cada sesión de pareja noventa minutos antes del atardecer y trabaja hasta la última luz útil. Una vez confirmadas tus fechas y resort, el estudio envía una hora de llamado precisa construida alrededor de la temporada y la orientación de tu playa.</p>
- </div>
- </div>
- </li>
-
- <li class="lc-faq-item d2">
- <h3 class="lc-faq-question-wrap">
- <button class="lc-faq-toggle" id="faq-2-question" type="button" aria-expanded="false" aria-controls="faq-2-panel">
- <span>¿Dónde puede el estudio fotografiarnos?</span>
- <span class="lc-faq-icon" aria-hidden="true"></span>
- </button>
- </h3>
- <div class="lc-faq-panel" id="faq-2-panel" role="region" aria-labelledby="faq-2-question" data-open="false">
- <div class="lc-faq-panel-inner">
- <p>El estudio trabaja en cada resort importante de tres costas: Cancún (Le Blanc, Nizuc, Ritz-Carlton), la Riviera Maya (Rosewood Mayakoba, Banyan Tree, Maroma Belmond, Fairmont Mayakoba, Grand Velas) y Los Cabos (Esperanza, Las Ventanas al Paraíso, One&amp;Only Palmilla, Waldorf Astoria Pedregal, Four Seasons Costa Palmas, Montage). El acceso a la playa se coordina con el área de bodas o de experiencias para huéspedes de cada propiedad. El estudio cubre los permisos del recinto y paga las cuotas del resort en tu nombre.</p>
- </div>
- </div>
- </li>
-
- <li class="lc-faq-item d3">
- <h3 class="lc-faq-question-wrap">
- <button class="lc-faq-toggle" id="faq-3-question" type="button" aria-expanded="false" aria-controls="faq-3-panel">
- <span>¿Qué pasa si llueve?</span>
- <span class="lc-faq-icon" aria-hidden="true"></span>
- </button>
- </h3>
- <div class="lc-faq-panel" id="faq-3-panel" role="region" aria-labelledby="faq-3-question" data-open="false">
- <div class="lc-faq-panel-inner">
- <p>El estudio reagenda sin costo adicional dentro de tus fechas de viaje. Para parejas en luna de miel, esto significa moverse a una locación interior o cubierta dentro de la misma propiedad esa misma tarde, o pasar a la siguiente mañana despejada. Para propuestas, el estudio coordina con el restaurante un plan B cubierto y reagenda la sesión de retrato post-sí para el día siguiente. Las cancelaciones por temporada de huracanes (de junio a noviembre) se manejan caso por caso con crédito completo para una sesión futura.</p>
- </div>
- </div>
- </li>
-
- <li class="lc-faq-item d4">
- <h3 class="lc-faq-question-wrap">
- <button class="lc-faq-toggle" id="faq-4-question" type="button" aria-expanded="false" aria-controls="faq-4-panel">
- <span>¿Qué deberíamos usar?</span>
- <span class="lc-faq-icon" aria-hidden="true"></span>
- </button>
- </h3>
- <div class="lc-faq-panel" id="faq-4-panel" role="region" aria-labelledby="faq-4-question" data-open="false">
- <div class="lc-faq-panel-inner">
- <p>Lino, seda, lana ligera. Una pieza con textura cada quien, nunca dos estampados a la vez. Evita el rojo primario, el azul cobalto puro y el blanco puro al mediodía (el blanco refleja la arena y se sobreexpone). El estudio envía una paleta de color de vestuario por mes para que el vestido o el traje se entiendan con la buganvilia, el océano y la arquitectura del resort. Para propuestas, la persona a quien se le propone usa lo que usaría para una cena; el estudio viste a quien planea para las fotos posteriores.</p>
- </div>
- </div>
- </li>
-
- <li class="lc-faq-item d5">
- <h3 class="lc-faq-question-wrap">
- <button class="lc-faq-toggle" id="faq-5-question" type="button" aria-expanded="false" aria-controls="faq-5-panel">
- <span>¿Coordinan maquillaje y peinado?</span>
- <span class="lc-faq-icon" aria-hidden="true"></span>
- </button>
- </h3>
- <div class="lc-faq-panel" id="faq-5-panel" role="region" aria-labelledby="faq-5-question" data-open="false">
- <div class="lc-faq-panel-inner">
- <p>El estudio trabaja con dos artistas preferidas de maquillaje y peinado, una en Cancún y otra en Cabo, ambas bilingües. El costo lo factura la artista directamente y va de cotizado a la medida según el look. El estudio recomienda agendar a la artista dos horas antes de la hora de inicio de la sesión para que el look tenga treinta minutos para asentarse y el estudio pueda empezar en la primera luz suave. Para propuestas, maquillaje y peinado no son parte del flujo: la persona a quien se le propone no debería alertarse por una cita inesperada de maquillaje.</p>
- </div>
- </div>
- </li>
-
- <li class="lc-faq-item d6">
- <h3 class="lc-faq-question-wrap">
- <button class="lc-faq-toggle" id="faq-6-question" type="button" aria-expanded="false" aria-controls="faq-6-panel">
- <span>No somos fotogénicos. ¿Nos van a posar?</span>
- <span class="lc-faq-icon" aria-hidden="true"></span>
- </button>
- </h3>
- <div class="lc-faq-panel" id="faq-6-panel" role="region" aria-labelledby="faq-6-question" data-open="false">
- <div class="lc-faq-panel-inner">
- <p>El estudio no le llama posar. El estudio da dirección serena. Regresen caminando hacia el agua. Cuéntense lo que se dijeron en el taxi. Quédense ahí un momento más. El cuadro está compuesto; la pareja sigue siendo ella misma. La mayoría de las parejas que dicen no ser fotogénicas descubren, en la galería, que sí lo son. Los primeros diez minutos de cada sesión son para entrar en calor. Las imágenes que el estudio considera firma suelen llegar en el minuto treinta.</p>
- </div>
- </div>
- </li>
-
- <li class="lc-faq-item d7">
- <h3 class="lc-faq-question-wrap">
- <button class="lc-faq-toggle" id="faq-7-question" type="button" aria-expanded="false" aria-controls="faq-7-panel">
- <span>¿Cuándo recibimos las fotografías?</span>
- <span class="lc-faq-icon" aria-hidden="true"></span>
- </button>
- </h3>
- <div class="lc-faq-panel" id="faq-7-panel" role="region" aria-labelledby="faq-7-question" data-open="false">
- <div class="lc-faq-panel-inner">
- <p>Primeras imágenes en setenta y dos horas después de la sesión, de veinte a treinta imágenes editoriales en un enlace privado. La galería completa llega en siete a catorce días según la colección (La Hora: siete días, El Atardecer: diez días, El Día de Aventura: catorce días). Cada imagen se edita a mano en el registro de color IVAE, nunca con auto-tono, nunca pasada por un preset. Las galerías permanecen en línea durante un año y se pueden descargar en resoluciones de impresión y web.</p>
- </div>
- </div>
- </li>
-
- <li class="lc-faq-item d8">
- <h3 class="lc-faq-question-wrap">
- <button class="lc-faq-toggle" id="faq-8-question" type="button" aria-expanded="false" aria-controls="faq-8-panel">
- <span>¿Cuál es la política de cancelación?</span>
- <span class="lc-faq-icon" aria-hidden="true"></span>
- </button>
- </h3>
- <div class="lc-faq-panel" id="faq-8-panel" role="region" aria-labelledby="faq-8-question" data-open="false">
- <div class="lc-faq-panel-inner">
- <p>Un anticipo del 30 por ciento aparta la fecha. Las cancelaciones a más de 30 días de la fecha de sesión reciben el anticipo como crédito completo para una sesión futura dentro de doce meses. Las cancelaciones dentro de los 30 días pierden el anticipo; el saldo restante no se cobra. Las solicitudes de reagenda dentro de la ventana de viaje se manejan sin costo adicional cuando la agenda del estudio lo permite. Casos de fuerza mayor (huracán, cancelación de aerolínea, enfermedad con documentación) se manejan caso por caso con crédito completo.</p>
- </div>
- </div>
- </li>
-
- <li class="lc-faq-item d9">
- <h3 class="lc-faq-question-wrap">
- <button class="lc-faq-toggle" id="faq-9-question" type="button" aria-expanded="false" aria-controls="faq-9-panel">
- <span>¿Trabajan en inglés? ¿Y fotografían a todas las parejas?</span>
- <span class="lc-faq-icon" aria-hidden="true"></span>
- </button>
- </h3>
- <div class="lc-faq-panel" id="faq-9-panel" role="region" aria-labelledby="faq-9-question" data-open="false">
- <div class="lc-faq-panel-inner">
- <p>El estudio trabaja en inglés y español, el día de la sesión y por correo. La Directora Vianey Díaz es bilingüe y responde personalmente cada primera consulta. Las llamadas de planeación se agendan en el idioma que prefieras. Las galerías llegan con notas bilingües. Para parejas cuyo idioma principal es portugués, francés o alemán, el estudio trabaja en inglés el día de la sesión y la Directora Vianey Díaz lleva la planeación en inglés. <strong>Sí. Fotografiamos parejas de cualquier orientación. Camila y Ana, Pablo y Tomás aparecen en nuestro reel y testimonios. Bodas, propuestas y aniversarios entre personas del mismo sexo son parte de nuestra práctica habitual.</strong></p>
- </div>
- </div>
- </li>
-
- <li class="lc-faq-item d10">
- <h3 class="lc-faq-question-wrap">
- <button class="lc-faq-toggle" id="faq-10-question" type="button" aria-expanded="false" aria-controls="faq-10-panel">
- <span>¿Podemos hacer dos o tres locaciones en una sesión?</span>
- <span class="lc-faq-icon" aria-hidden="true"></span>
- </button>
- </h3>
- <div class="lc-faq-panel" id="faq-10-panel" role="region" aria-labelledby="faq-10-question" data-open="false">
- <div class="lc-faq-panel-inner">
- <p>Sí. El Atardecer incluye dos locaciones dentro del mismo resort o a 15 minutos en auto. El Día de Aventura incluye tres locaciones y puede añadir un cenote, un segmento en yate o una segunda playa. El traslado entre locaciones lo coordina el estudio (chofer, vehículo, margen de tiempo). El estudio recomienda nunca más de tres locaciones por sesión: la luz se mueve, la pareja se cansa y las imágenes que el estudio considera firma suelen aparecer en la segunda locación, no en la tercera.</p>
- </div>
- </div>
- </li>
-
- </ul>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════
- SECTION 10 — INQUIRY (urgency-aware 3-CTA, proposal-specific)
- ═══════════════════════════════════════════════════════════════ -->
-<section class="lc-inquiry-section" id="inquiry" aria-labelledby="inquiry-heading">
- <div class="lc-inquiry-bg" aria-hidden="true">
- <img src="https://assets.ivaestudios.com/couples-photography-mexico-hero.jpg" alt="" loading="lazy" decoding="async" width="2400" height="1600">
- </div>
- <div class="lc-inquiry-content">
- <p class="lc-eyebrow lc-eyebrow--on-dark lc-rv">Comenzar</p>
- <h2 id="inquiry-heading" class="lc-inquiry-h2 lc-rv d1">Cuéntennos de <em>ustedes dos</em>.</h2>
- <p class="lc-inquiry-pitch lc-rv d2">Comparte sus fechas de viaje, el resort y una frase sobre el momento. El estudio responde el mismo día hábil, en inglés o español, con dos preguntas y una opinión franca sobre si la fecha está abierta. La primera respuesta vendrá de la Directora Vianey Díaz. Para propuestas, el estudio confirma en menos de veinticuatro horas; el plazo es más corto por una razón.</p>
-
- <p class="lc-inquiry-proposal-note lc-rv d3" role="note">Para propuestas sorpresa, el estudio responde el mismo día en español o inglés.</p>
-
- <div class="lc-inquiry-ctas lc-rv d4" role="group" aria-label="Acciones de consulta">
- <a class="lc-btn lc-btn-gold lc-btn--primary lc-magnet" href="mailto:info@ivaestudios.com?subject=Consulta%20de%20Parejas" data-magnet="true" aria-label="Comenzar Consulta por correo">Comenzar Consulta</a>
- <a class="lc-btn lc-btn--ghost" href="https://wa.me/529902046514?text=Consulta%20de%20disponibilidad%20para%20propuesta" data-magnet="true" aria-label="Verificar Disponibilidad para fecha de propuesta">Verificar Disponibilidad</a>
- <a class="lc-btn lc-btn--text" href="https://wa.me/529902046514" aria-label="Escribir al estudio por WhatsApp">WhatsApp</a>
- </div>
-
- <div class="lc-inquiry-meta lc-rv d4" role="group" aria-label="Detalles de respuesta del estudio">
- <div class="lc-inquiry-meta-cell"><div class="meta-key">Tiempo de Respuesta</div><div class="meta-val">El mismo día hábil</div></div>
- <div class="lc-inquiry-meta-cell"><div class="meta-key">Idiomas</div><div class="meta-val">Inglés / Español</div></div>
- <div class="lc-inquiry-meta-cell"><div class="meta-key">Horario</div><div class="meta-val">06:00 &ndash; 20:00 GMT-5</div></div>
- </div>
- </div>
+    </div>
+  </div>
 </section>
 
 </main>
