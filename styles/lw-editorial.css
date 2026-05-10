@@ -18,3 +18,65 @@
 .lw-rv.d4{transition-delay:.46s}
 .lw-rv.d5{transition-delay:.58s}
 .lw-rv.d6{transition-delay:.70s}
+
+
+/* ═══════ Mobile fixes (audit: body-of-work plates, section padding caps, sticky CTA) ═══════ */
+@media (max-width:768px){
+  /* Body of Work plates: portrait 4/5 on mobile fills viewport better than 3/2 letterbox */
+  .lw-plate-frame{aspect-ratio:4/5}
+  /* Section vertical padding caps — avoid 96px+ dead space at narrow widths */
+  .lw-test, .lw-inq2{padding-top:clamp(64px,14vw,96px) !important;padding-bottom:clamp(64px,14vw,96px) !important}
+  .lw-approach{padding-top:clamp(64px,12vw,96px) !important;padding-bottom:clamp(64px,12vw,96px) !important}
+  .lw-work{padding-top:clamp(64px,12vw,96px) !important;padding-bottom:clamp(48px,8vw,80px) !important}
+  .lw-pause{height:78vh;min-height:480px}
+}
+
+/* ═══════ Sticky mobile CTA (port from weddings to couples/family/editorial) ═══════ */
+.lw-sticky-mob-bar{display:none}
+@media (max-width:900px){
+  .lw-sticky-mob-bar{
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;
+    position:fixed;left:0;right:0;bottom:0;z-index:80;
+    padding:12px 14px calc(12px + env(safe-area-inset-bottom,0px));
+    background:rgba(10,15,23,.92);
+    backdrop-filter:blur(14px) saturate(140%);
+    -webkit-backdrop-filter:blur(14px) saturate(140%);
+    border-top:1px solid rgba(201,165,78,.22);
+    box-shadow:0 -10px 30px -8px rgba(0,0,0,.45);
+    font-family:'Syne',sans-serif;
+    opacity:0;pointer-events:none;
+    transition:opacity .45s cubic-bezier(.22,.7,.22,1);
+  }
+  .lw-sticky-mob-bar[data-state="visible"]{opacity:1;pointer-events:auto}
+  .lw-sticky-mob-bar a{
+    display:inline-flex;align-items:center;justify-content:center;
+    gap:8px;height:46px;border-radius:2px;
+    text-decoration:none;
+    font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;font-weight:600;
+    transition:transform .25s ease,background .25s ease,color .25s ease;
+  }
+  .lw-sticky-mob-bar a.primary{background:#c9a54e;color:#0a0f17}
+  .lw-sticky-mob-bar a.primary:active{transform:scale(.98)}
+  .lw-sticky-mob-bar a.secondary{background:transparent;color:#faf8f5;border:1px solid rgba(250,248,245,.32)}
+  .lw-sticky-mob-bar a.secondary:active{background:rgba(250,248,245,.06)}
+  body.has-sticky-mob{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+}
+
+
+/* ═══════ Hero CTAs full-width on mobile (audit: side-by-side squeeze at 375px) ═══════ */
+@media (max-width:560px){
+  .lw-actions,
+  .lc-hero-ctas,
+  .lf-hero-ctas,
+  .le-hero-cta-wrap{
+    flex-direction:column !important;
+    align-items:stretch !important;
+  }
+  .lw-actions .lw-btn,
+  .lc-hero-ctas .lc-btn,
+  .lf-hero-ctas a.btn,
+  .le-hero-cta-wrap a{
+    width:100% !important;
+    justify-content:center !important;
+  }
+}

@@ -199,11 +199,12 @@ html.js-on .lf-h1-letter.is-in{opacity:1;transform:none}
 .lf-availability-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold,#c9a54e);box-shadow:0 0 0 4px rgba(201,165,78,0.18);animation:lf-pulse 4s ease-in-out infinite}
 @keyframes lf-pulse{0%,100%{opacity:1}50%{opacity:0.55}}
 .lf-hero-ctas{margin-top:36px;display:flex;flex-wrap:wrap;gap:14px}
-.lf-meta-strip{position:relative;z-index:3;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;padding:24px clamp(24px,5vw,64px);background:rgba(14,22,32,0.65);border-top:1px solid rgba(201,165,78,0.22);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.lf-stat{padding:18px 12px;text-align:center;background:rgba(12,18,25,0.6)}
-.lf-stat-num{display:inline-block;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(32px,4vw,52px);font-weight:300;color:var(--gold,#c9a54e);line-height:1}
-.lf-stat-num--word{font-size:clamp(20px,2.4vw,30px);font-style:italic}
-.lf-stat-suffix{display:inline-block;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(20px,2.6vw,32px);font-weight:300;color:var(--gold,#c9a54e);margin-left:2px;vertical-align:top}
+.lf-meta-strip{position:relative;z-index:3;display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:22px clamp(24px,5vw,64px);background:rgba(10,15,23,.55);border-top:1px solid rgba(201,165,78,0.22);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.lf-stat{padding:8px 18px;text-align:center;background:transparent;border-right:1px solid rgba(201,165,78,.18)}
+.lf-stat:last-child{border-right:none}
+.lf-stat-num{display:inline-block;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(24px,2.8vw,36px);font-weight:300;color:var(--gold,#c9a54e);line-height:1;letter-spacing:-.005em}
+.lf-stat-num--word{font-size:clamp(17px,1.9vw,22px);font-style:italic}
+.lf-stat-suffix{display:inline-block;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(14px,1.8vw,22px);font-weight:300;color:var(--gold,#c9a54e);margin-left:2px;vertical-align:.5em}
 .lf-stat-label{display:block;margin-top:6px;font-family:var(--font-sans,'Syne',sans-serif);font-size:9.5px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:rgba(250,248,245,0.62)}
 
 /* ─── 8 floating gold motes ─── */
@@ -253,7 +254,10 @@ html.js-on .lf-h1-letter.is-in{opacity:1;transform:none}
 .lf-promise-num{font-family:var(--font-sans,'Syne',sans-serif);font-size:9px;font-weight:500;letter-spacing:.28em;color:var(--gold,#c9a54e);min-width:24px}
 .lf-promise-cta{margin-top:48px}
 @media (max-width: 480px){
-  .lf-meta-strip{grid-template-columns:1fr 1fr;gap:16px}
+  .lf-meta-strip{grid-template-columns:1fr 1fr;gap:0;padding:18px 16px}
+.lf-meta-strip .lf-stat:nth-child(2){border-right:none}
+.lf-meta-strip .lf-stat:nth-child(3){border-top:1px solid rgba(201,165,78,.18)}
+.lf-meta-strip .lf-stat:nth-child(4){border-top:1px solid rgba(201,165,78,.18)}
   .lf-hero-content{padding-bottom:60px}
   .lf-pillars-grid{gap:24px}
 }
@@ -469,8 +473,8 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
   .lf-pillars-grid:hover .lf-pillars-stage{transform:translateZ(0)}
 }
 </style>
-<link rel="stylesheet" href="/styles/lw-editorial.css?v=20260510t"/>
-<script src="/js/lw-editorial.js?v=20260510t" defer></script>
+<link rel="stylesheet" href="/styles/lw-editorial.css?v=20260510u"/>
+<script src="/js/lw-editorial.js?v=20260510u" defer></script>
 </head>
 <body>
 <a href="#main-content" class="skip-link">Skip to main content</a>
