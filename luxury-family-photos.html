@@ -35,7 +35,7 @@
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <script src="/js/components.js?v=20260510a" defer></script>
-<script src="/js/services-dropdown-v2.js?v=20260510q" defer></script>
+<script src="/js/services-dropdown-v2.js?v=20260510r" defer></script>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
 <meta name="publisher" content="IVAE Studios"/>
 <meta name="copyright" content="IVAE Studios"/>
@@ -609,276 +609,254 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     SECTION 4 — COLLECTIONS (3 tiers + family-tree SVG + count-up)
-     ═══════════════════════════════════════════════════════════════ -->
-<!-- INVESTMENT REPLACED WITH INQUIRY-DRIVEN SECTION -->
-<section class="lf-inquiry-bridge" id="how-we-work" aria-labelledby="how-we-work-h">
-  <div class="lf-inquiry-bridge-inner">
-    <p class="eyebrow rv">How We Work</p>
-    <h2 id="how-we-work-h" class="rv d1">Each family, considered. <em>Quoted in conversation.</em></h2>
-    <p class="rv d2">Every family session is custom. We don't publish standard packages because no two families, resorts, or trips are alike. After we hear about your dates, location, group size, and the shape of the day, the studio prepares a private proposal within one business day. Travel, scope, deliverables, and timeline are all built around your specific need.</p>
-    <ul class="lf-promise-list rv d3" role="list">
-      <li><span class="lf-promise-num">01</span><span><em>A planning conversation</em> within 48 hours of inquiry.</span></li>
-      <li><span class="lf-promise-num">02</span><span><em>A private proposal</em> with scope, timeline, and investment range.</span></li>
-      <li><span class="lf-promise-num">03</span><span><em>A pre-session call</em> to walk light, location, and pace.</span></li>
-      <li><span class="lf-promise-num">04</span><span><em>Editorial delivery</em> within the agreed window, first frames in 72 hours.</span></li>
-    </ul>
-    <div class="lf-promise-cta rv d4">
-      <a class="btn btn-primary lf-magnet" href="#inquiry" data-magnet>Begin Inquiry</a>
+
+<!-- ═══════ EDITORIAL FRAMEWORK CSS (matches /luxury-weddings) ═══════ -->
+<style>
+.lw-pause{position:relative;height:88vh;min-height:560px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#0a0f17}
+.lw-pause-img{position:absolute;inset:0;z-index:0;display:block}
+.lw-pause-img img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.9) contrast(1.04)}
+.lw-pause-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,15,23,.35),rgba(10,15,23,.65));z-index:1}
+.lw-pause-line{position:relative;z-index:2;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(32px,4.8vw,64px);line-height:1.2;color:#faf8f5;text-align:center;max-width:24ch;padding:0 24px;letter-spacing:-.008em}
+.lw-pause-line em{font-style:italic;color:#c9a54e}
+@media (max-width:600px){.lw-pause{height:78vh;min-height:480px}}
+
+.lw-approach{background:#faf8f5;color:#0a0f17;padding:clamp(80px,10vw,160px) clamp(20px,5vw,56px)}
+.lw-approach-inner{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:minmax(0,42fr) minmax(0,58fr);gap:clamp(48px,6vw,96px);align-items:center}
+.lw-approach-portrait{margin:0;aspect-ratio:4/5;overflow:hidden;background:#0a0f17;position:relative;box-shadow:0 40px 100px -32px rgba(10,15,23,.25)}
+.lw-approach-portrait img{width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;filter:saturate(.95) contrast(1.02)}
+.lw-approach-cap{position:absolute;left:0;right:0;bottom:-40px;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:rgba(10,15,23,.5);display:flex;align-items:baseline;gap:10px;padding:14px 0 0;border-top:1px solid rgba(10,15,23,.12)}
+.lw-approach-cap span{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;letter-spacing:0;text-transform:none;color:#c9a54e}
+.lw-approach-cap span sup{font-size:.6em;margin-left:1px}
+.lw-approach-text{max-width:580px}
+.lw-approach-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:18px}
+.lw-approach-h{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(40px,4.5vw,66px);line-height:1.02;letter-spacing:-.02em;color:#0a0f17;margin:0 0 36px}
+.lw-approach-body{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(17px,1.3vw,20px);line-height:1.6;color:rgba(10,15,23,.78);margin:0 0 28px}
+.lw-approach-quote{position:relative;margin:32px 0;padding:0 0 0 28px;border-left:1px solid #c9a54e;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:clamp(22px,2.2vw,30px);line-height:1.25;color:#0a0f17;letter-spacing:-.005em}
+.lw-approach-quote em{font-style:italic;color:#c9a54e}
+.lw-approach-sig{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:rgba(10,15,23,.5);margin:36px 0 0;padding-top:24px;border-top:1px solid rgba(10,15,23,.12);letter-spacing:.005em}
+@media (max-width:880px){.lw-approach-inner{grid-template-columns:1fr;gap:60px}.lw-approach-portrait{max-width:440px;margin:0 auto;width:100%}.lw-approach-cap{position:static;margin-top:18px}}
+
+.lw-work{padding:clamp(80px,10vw,160px) 0 clamp(60px,8vw,120px);background:#0a0f17}
+.lw-work-head{max-width:1280px;margin:0 auto clamp(64px,8vw,120px);padding:0 clamp(20px,5vw,56px)}
+.lw-work-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:18px}
+.lw-work-h{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(40px,5.4vw,76px);line-height:1.02;letter-spacing:-.02em;color:#faf8f5;margin:0;max-width:18ch}
+.lw-work-h em{font-style:italic;color:#c9a54e}
+.lw-plate{display:block;max-width:1280px;margin:0 auto;padding:0 clamp(20px,5vw,56px) clamp(72px,9vw,140px)}
+.lw-plate:last-of-type{padding-bottom:0}
+.lw-plate-frame{margin:0;overflow:hidden;background:#0a0f17;aspect-ratio:3/2}
+.lw-plate-frame img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92) contrast(1.02);transition:transform 1.4s cubic-bezier(.22,.61,.36,1)}
+.lw-plate:hover .lw-plate-frame img{transform:scale(1.02)}
+.lw-plate-caption{display:grid;grid-template-columns:1fr;gap:18px;padding:24px 0 0;border-top:1px solid rgba(201,165,78,.18);margin-top:24px;max-width:560px}
+.lw-plate-loc{font-family:'Syne',sans-serif;font-size:10.5px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:rgba(250,248,245,.55)}
+.lw-plate-sep{color:#c9a54e;margin:0 4px}
+.lw-plate-body{font-family:'Cormorant Garamond',serif;font-weight:400;font-style:italic;font-size:clamp(16px,1.2vw,19px);line-height:1.55;color:rgba(250,248,245,.75);margin:0;letter-spacing:.003em;max-width:48ch}
+@media (prefers-reduced-motion:reduce){.lw-plate:hover .lw-plate-frame img{transform:none}}
+
+.lw-test{padding:clamp(120px,14vw,200px) clamp(20px,5vw,56px);background:#0d1219;text-align:center;position:relative}
+.lw-test::before{content:"";position:absolute;left:50%;top:0;width:1px;height:80px;background:linear-gradient(to bottom,transparent,#c9a54e);opacity:.5}
+.lw-test-quote{position:relative;max-width:920px;margin:0 auto 72px;padding:0}
+.lw-test-glyph{position:absolute;top:-80px;left:50%;transform:translateX(-50%);font-family:'Cormorant Garamond',serif;color:#c9a54e;font-size:140px;line-height:1;opacity:.55;font-style:italic;font-weight:300}
+.lw-test-quote p{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:clamp(28px,3.8vw,54px);line-height:1.22;letter-spacing:-.008em;color:#faf8f5;margin:0}
+.lw-test-quote p em{font-style:italic;color:#c9a54e}
+.lw-test-attr{display:inline-flex;align-items:center;justify-content:center;gap:18px;padding-top:32px;border-top:1px solid rgba(201,165,78,.2)}
+.lw-test-photo{width:60px;height:80px;overflow:hidden;border:1px solid rgba(201,165,78,.5);flex-shrink:0;margin:0;position:relative}
+.lw-test-photo::after{content:"";position:absolute;inset:3px;border:1px solid rgba(201,165,78,.18);pointer-events:none}
+.lw-test-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92) contrast(1.02)}
+.lw-test-meta{text-align:left;display:flex;flex-direction:column;gap:4px}
+.lw-test-name{font-family:'Syne',sans-serif;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#c9a54e;font-weight:500}
+.lw-test-where{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:rgba(250,248,245,.55)}
+
+.lw-inq2{position:relative;min-height:92vh;padding:clamp(80px,10vw,140px) clamp(20px,5vw,56px);display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0a0f17}
+.lw-inq2-bg{position:absolute;inset:0;z-index:0;display:block}
+.lw-inq2-bg img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.85) contrast(1.05) brightness(.82)}
+.lw-inq2-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,15,23,.4) 0%,rgba(10,15,23,.65) 60%,rgba(10,15,23,.8) 100%);z-index:1}
+.lw-inq2-content{position:relative;z-index:2;text-align:center;max-width:680px;margin:0 auto;color:#faf8f5}
+.lw-inq2-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:11px;font-weight:500;letter-spacing:.36em;text-transform:uppercase;color:#c9a54e;margin-bottom:28px}
+.lw-inq2-h{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(36px,5.2vw,72px);line-height:1.08;letter-spacing:-.018em;color:#faf8f5;margin:0 auto 32px;max-width:22ch}
+.lw-inq2-body{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(17px,1.4vw,21px);line-height:1.5;color:rgba(250,248,245,.78);margin:0 auto 48px;max-width:540px}
+.lw-inq2-btn{display:inline-flex;align-items:center;gap:14px;padding:18px 38px;border:1px solid #c9a54e;background:rgba(201,165,78,.08);color:#faf8f5;font-family:'Syne',sans-serif;font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;transition:background .35s ease,transform .35s ease,box-shadow .35s ease,color .35s ease}
+.lw-inq2-btn svg{width:18px;height:18px}
+.lw-inq2-btn:hover,.lw-inq2-btn:focus-visible{background:#c9a54e;color:#0a0f17;transform:translateY(-2px);box-shadow:0 16px 40px -12px rgba(201,165,78,.5);outline:none}
+.lw-inq2-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:rgba(250,248,245,.55);margin:28px 0 0}
+.lw-inq2-sub strong{color:#c9a54e;font-weight:400;letter-spacing:.04em}
+.lw-inq2-wa{color:rgba(250,248,245,.65);text-decoration:none;border-bottom:1px solid rgba(201,165,78,.4);padding-bottom:1px;transition:color .3s ease,border-color .3s ease}
+.lw-inq2-wa:hover{color:#c9a54e;border-bottom-color:#c9a54e}
+.lw-inq2-sep{margin:0 14px}
+.lw-inq2-seal{margin:60px auto 0;width:56px;height:56px;border-radius:50%;border:1px solid rgba(201,165,78,.55);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-style:italic;color:#c9a54e;font-size:18px;position:relative;background:radial-gradient(circle at 30% 30%,rgba(201,165,78,.14),rgba(201,165,78,.04) 60%)}
+.lw-inq2-seal::before{content:"";position:absolute;inset:4px;border:1px solid rgba(201,165,78,.18);border-radius:50%}
+
+.lw-section.faq{background:#0a0f17;padding-top:clamp(56px,6vw,80px);padding-bottom:clamp(56px,6vw,80px)}
+.lw-section.faq .lw-inner{max-width:840px;margin:0 auto;padding:0 clamp(20px,5vw,56px)}
+.lw-section.faq .lw-section-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:18px}
+.lw-section.faq h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(28px,3.2vw,40px);line-height:1.05;letter-spacing:-.015em;color:#faf8f5;margin:0 0 32px}
+.lw-section.faq h2 em{font-style:italic;color:#c9a54e}
+.lw-section.faq .faq-list{margin-top:32px;border-top:1px solid rgba(201,165,78,.18)}
+.lw-section.faq .faq-item{border-bottom:1px solid rgba(201,165,78,.12);position:relative}
+.lw-section.faq .faq-trigger{width:100%;display:flex;justify-content:space-between;align-items:center;padding:16px 0;gap:18px;text-align:left;cursor:pointer;background:none;border:none;color:inherit;font:inherit;transition:color .3s ease}
+.lw-section.faq .faq-q{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(15px,1.15vw,17px);line-height:1.4;color:#faf8f5;flex:1}
+.lw-section.faq .faq-trigger:hover .faq-q{color:#c9a54e}
+.lw-section.faq .faq-icon{flex-shrink:0;width:22px;height:22px;border:1px solid rgba(201,165,78,.4);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#c9a54e;position:relative;transition:transform .4s ease,background .4s ease,border-color .4s ease}
+.lw-section.faq .faq-icon::before,.lw-section.faq .faq-icon::after{content:'';position:absolute;background:#c9a54e;transition:transform .4s ease}
+.lw-section.faq .faq-icon::before{width:8px;height:1px}
+.lw-section.faq .faq-icon::after{width:1px;height:8px}
+.lw-section.faq .faq-item.open .faq-icon{transform:rotate(45deg);border-color:#c9a54e}
+.lw-section.faq .faq-answer{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.lw-section.faq .faq-item.open .faq-answer{max-height:600px}
+.lw-section.faq .faq-answer p{padding:0 0 18px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;line-height:1.65;color:rgba(250,248,245,.7);margin:0}
+</style>
+
+<!-- ═══════ EDITORIAL PAUSE ═══════ -->
+<section class="lw-pause" aria-label="A note from the studio">
+  <picture class="lw-pause-img"><img src="/images/family-cancun-hotel-zone-ivae-studios.jpg" alt="" loading="lazy" decoding="async"/></picture>
+  <span class="lw-pause-veil" aria-hidden="true"></span>
+  <p class="lw-pause-line">An afternoon. <em>The photographs are decades.</em></p>
+</section>
+
+<!-- ═══════ THE APPROACH ═══════ -->
+<section class="lw-approach" id="director" aria-labelledby="approach-h">
+  <div class="lw-approach-inner">
+    <figure class="lw-approach-portrait">
+      <img src="https://assets.ivaestudios.com/vianey-diaz.jpg" alt="Vianey Díaz, founder and director of IVAE Studios, Cancún" loading="lazy" width="1200" height="1500"/>
+      <figcaption class="lw-approach-cap"><span>N<sup>o</sup></span> Vianey Díaz · in studio · Cancún</figcaption>
+    </figure>
+    <div class="lw-approach-text">
+      <span class="lw-approach-eyebrow">Directed by</span>
+      <h2 id="approach-h" class="lw-approach-h">Vianey Díaz.</h2>
+      <p class="lw-approach-body">Every family session is shot the way I would shoot my own. One signature tone across the gallery, one director on the day, one studio answering email from the first inquiry to the final archive. The standard does not change between a quiet beach walk and a three-generation reunion.</p>
+      <blockquote class="lw-approach-quote">We do not direct children. <em>We follow them.</em></blockquote>
+      <p class="lw-approach-body">Each archive is delivered in a hand-numbered linen box &mdash; proof prints, a USB, and a hand-bound family book pressed in Mexico City.</p>
+      <p class="lw-approach-sig">&mdash; Vianey Díaz, Director</p>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     SECTION 5 — FEATURE / CINEMASCOPE (21:9 letterbox + drop cap)
-     ═══════════════════════════════════════════════════════════════ -->
-<section class="lf-feature" id="feature" aria-labelledby="feature-heading">
-  <div class="lf-feature-header">
-    <p class="eyebrow rv d1">A Reunion</p>
-    <h2 class="lf-feature-h2 rv d2" id="feature-heading">Three generations, two languages, <em>one coastline.</em></h2>
-  </div>
-  <figure class="lf-cinema rv d3">
-    <img src="/images/family-riviera-maya-ivae-studios.jpg" alt="A grandfather lifts his grandson against the late-afternoon mangroves at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async" width="2400" height="1029">
-  </figure>
-  <div class="lf-feature-body">
-    <p class="lf-feature-caption rv d1">The reunion was set for the second week of April, on a private cay at Rosewood Mayakoba, with the lagoon at its back and the canopy of the Yucatán to the west. Three generations had flown in from Dallas, Mexico City, and London. Eight grandchildren, ages four through fourteen. The grandparents arrived two days early, the way grandparents do, and walked the boardwalks at the property's edge while the herons stood still long enough to be photographed.</p>
-    <p class="rv d2">The session was ninety minutes long. The light turned honest at 6:18, and the studio met the family on a stretch of beach where a single palmera leaned the way the children later leaned into their grandfather. The youngest grandchild was three, and the studio worked at her pace. She watched a small crab for forty seconds. Her grandfather watched her watch the crab. The frame the family had quietly hoped for, three generations together, looking the same direction at the same small thing, was made in those forty seconds.</p>
-    <p class="rv d3">The team carried one bottle of water and two cameras. Spanish for the grandparents, English for the cousins from London, both for the parents. No herding. No counting to three. The reunion lasted the planned ninety minutes and used eighty-two of them for photographs and eight for a snack break the studio had built into the schedule.</p>
-    <p class="rv d4">The first frames were delivered seventy-one hours later. The grandparents framed two of them. The full gallery, four hundred and twelve images, traveled to a private link nineteen days after the session.</p>
-    <dl class="lf-feature-meta rv d4" role="group" aria-label="Reunion details">
-      <div><dt>Coast</dt><dd>Riviera Maya</dd></div>
-      <div><dt>Family Size</dt><dd>Eight grandchildren, three generations</dd></div>
-      <div><dt>Coverage</dt><dd>Ninety minutes, golden hour</dd></div>
-    </dl>
-  </div>
-</section>
+<!-- ═══════ THE BODY OF WORK ═══════ -->
+<section class="lw-work" aria-labelledby="work-h">
+  <header class="lw-work-head">
+    <span class="lw-work-eyebrow">Recent Work</span>
+    <h2 id="work-h" class="lw-work-h">Four families, <em>four afternoons.</em></h2>
+  </header>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     SECTION 6 — METHOD (5 steps)
-     ═══════════════════════════════════════════════════════════════ -->
-<section class="lf-method" id="method" aria-labelledby="method-heading">
-  <div class="lf-method-header">
-    <p class="eyebrow rv">The Method</p>
-    <h2 class="lf-method-h2 rv d1" id="method-heading">Five considered steps, <em>plan to delivery.</em></h2>
-    <p class="lf-method-intro rv d2">The studio works the same way for every family, regardless of size. The first inquiry is read the same business day. A planning conversation follows within the week. The wardrobe is calibrated to the month and the coastline. The light is built backward from sunset, the pace built around the kids. The first frames travel home before the suitcase has been unpacked.</p>
-  </div>
-  <ol class="lf-method-rail" role="list">
-    <li class="lf-step rv d1" id="step-plan">
-      <div class="lf-step-head">
-        <span class="lf-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="presentation" focusable="false"><rect x="3.5" y="5" width="17" height="15" rx="1.5"/><path d="M3.5 9.5h17"/><path d="M8 3.5v3M16 3.5v3"/></svg></span>
-        <p class="lf-step-tag"><span class="num">01</span><span class="sep">·</span>Plan</p>
-      </div>
-      <h3 class="lf-step-name"><em>Plan</em></h3>
-      <p class="lf-step-body">The first email is read the same business day, in English or Spanish. A short planning call follows within the week, forty-five minutes, on video. The studio listens first, asks about the kids, asks about the milestone if there is one, asks about the resort. By the end of the call, the family knows whether the studio is right for them, and the studio knows the shape of the hour.</p>
-    </li>
-    <li class="lf-step rv d2" id="step-style">
-      <div class="lf-step-head">
-        <span class="lf-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="presentation" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.4 0 2-1 2-2 0-.8-.5-1.4-.5-2.2 0-.9.8-1.8 1.8-1.8H17a4 4 0 0 0 4-4A8.5 8.5 0 0 0 12 3.5Z"/><circle cx="7.5" cy="11" r="1.1"/><circle cx="10" cy="7.5" r="1.1"/><circle cx="14.5" cy="7.5" r="1.1"/><circle cx="17.5" cy="11" r="1.1"/></svg></span>
-        <p class="lf-step-tag"><span class="num">02</span><span class="sep">·</span>Style</p>
-      </div>
-      <h3 class="lf-step-name"><em>Style</em></h3>
-      <p class="lf-step-body">A wardrobe guide travels the day after booking. The guide is calibrated to the month, the coastline, and the kids' ages. Tones, not outfits. Linen, ivory, sand, sage, dusty terracotta. The youngest child's outfit is built around what the youngest child will already wear without protest. Nothing is bought new for the session unless the family wants it bought new for the session.</p>
-    </li>
-    <li class="lf-step rv d3" id="step-light">
-      <div class="lf-step-head">
-        <span class="lf-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="presentation" focusable="false"><circle cx="12" cy="12" r="3.5"/><path d="M12 3v2.4M12 18.6V21M3 12h2.4M18.6 12H21M5.6 5.6l1.7 1.7M16.7 16.7l1.7 1.7M5.6 18.4l1.7-1.7M16.7 7.3l1.7-1.7"/></svg></span>
-        <p class="lf-step-tag"><span class="num">03</span><span class="sep">·</span>Light</p>
-      </div>
-      <h3 class="lf-step-name"><em>Light</em></h3>
-      <p class="lf-step-body">The session is timed to the final ninety minutes before sunset, ended fifteen minutes before the horizon turns. In December that is 4:00 to 5:30 in Cancún. In June that is 6:00 to 7:30. The studio walks the property the day before when travel allows, and marks the two or three locations where the light is most flattering. The schedule is built backward from sunset and forward from the youngest kid's nap end.</p>
-    </li>
-    <li class="lf-step rv d4" id="step-direct">
-      <div class="lf-step-head">
-        <span class="lf-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="presentation" focusable="false"><path d="M2.5 12C4.5 7.5 8 5 12 5s7.5 2.5 9.5 7c-2 4.5-5.5 7-9.5 7s-7.5-2.5-9.5-7Z"/><circle cx="12" cy="12" r="2.6"/></svg></span>
-        <p class="lf-step-tag"><span class="num">04</span><span class="sep">·</span>Direct</p>
-      </div>
-      <h3 class="lf-step-name"><em>Direct</em></h3>
-      <p class="lf-step-body">On the day, the studio arrives ten minutes early and meets the family at the meeting point. Direction is calm and quiet. The studio does not count to three. Snack breaks are built into the hour. Spanish for the grandparents who prefer Spanish. English for the cousins flying in. The pace is the pace of the family.</p>
-    </li>
-    <li class="lf-step rv d5" id="step-deliver">
-      <div class="lf-step-head">
-        <span class="lf-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="presentation" focusable="false"><path d="M12 3.2 3.5 7.5v9L12 20.8l8.5-4.3v-9L12 3.2Z"/><path d="M3.5 7.5 12 11.8l8.5-4.3"/><path d="M12 11.8v9"/></svg></span>
-        <p class="lf-step-tag"><span class="num">05</span><span class="sep">·</span>Deliver</p>
-      </div>
-      <h3 class="lf-step-name"><em>Deliver</em></h3>
-      <p class="lf-step-body">First frames travel home with the family. Twenty to thirty editorial images arrive within seventy-two hours, before the suit has been pressed and before the suitcase has been unpacked. The full gallery, ninety to two hundred hand-edited images depending on the collection, follows within three weeks. Print release rights are included. The gallery lives on a private link with unlimited downloads.</p>
-    </li>
-  </ol>
-</section>
-
-<!-- Section 7 (Sunset-friendly clock widget) removed: timing is already covered editorially in Section 6 (Method · Step 03 · Light). -->
-
-<!-- ═══════════════════════════════════════════════════════════════
-     SECTION 8a · VOICES (pull-quote, giant ❝)
-     ═══════════════════════════════════════════════════════════════ -->
-<section class="lf-voices" id="voices" aria-labelledby="voices-heading">
-  <h2 id="voices-heading" class="visually-hidden">Voices</h2>
-  <figure class="lf-pullquote rv d2">
-    <span class="lf-pullquote-ornament" aria-hidden="true">&ldquo;</span>
-    <blockquote class="lf-pullquote-body">
-      <p><em>The grandparent and grandchild portraits alone were worth the investment. My mother cried when she saw the gallery, and we cried with her. The studio worked at the kids' pace, and the frames look like our family, not like a photo session.</em></p>
-    </blockquote>
-    <figcaption>
-      <cite class="lf-pullquote-cite">The Nakamura Family  ·  Rosewood Mayakoba, April 2026</cite>
-    </figcaption>
-  </figure>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════
-     SECTION 8b · TESTIMONIALS GRID (6 cards)
-     ═══════════════════════════════════════════════════════════════ -->
-<section class="lf-testimonials" aria-labelledby="testimonials-heading">
-  <p class="eyebrow lf-testimonials-eyebrow rv">Voices</p>
-  <h2 id="testimonials-heading" class="visually-hidden">Testimonials</h2>
-  <div class="lf-testimonial-grid">
-    <figure class="lf-testimonial-card rv d1">
-      <blockquote><p><em>Three generations, eight grandchildren, ninety minutes. We had three days in Cancún and one of them was supposed to be the photo session. We worried the kids would be tired. They were not. The studio met us at the property, walked us to the light, and worked at the pace of the youngest. The grandparents have framed two of the images already.</em></p></blockquote>
-      <figcaption><cite>The Hartwell Family · Dallas, Texas</cite></figcaption>
-    </figure>
-    <figure class="lf-testimonial-card rv d2">
-      <blockquote><p><em>Our tenth anniversary trip, traveling with two kids ages six and nine. We wanted family photos and we wanted, separately, photos of the two of us as the couple we were before the kids. The studio built both into the same hour. We have one frame on the bedroom wall now, and one on the living-room wall.</em></p></blockquote>
-      <figcaption><cite>Sarah and Michael · Andaz Mayakoba, March 2026</cite></figcaption>
-    </figure>
-    <figure class="lf-testimonial-card rv d3">
-      <blockquote><p><em>First international trip with our two-year-old and four-year-old. We assumed family photos at a resort would be stressful. It was the opposite. The studio worked around the toddler's nap and built the schedule backward from sunset. The frames are unposed. The frames look like our kids on the day.</em></p></blockquote>
-      <figcaption><cite>The Patel Family · Hyatt Ziva Cancún, February 2026</cite></figcaption>
-    </figure>
-    <figure class="lf-testimonial-card rv d4">
-      <blockquote><p><em>The grandparent and grandchild portraits alone were worth the investment. My mother cried when she saw the gallery. The studio understood the frame we had not been able to articulate, and made it without us asking.</em></p></blockquote>
-      <figcaption><cite>The Nakamura Family · Rosewood Mayakoba, April 2026</cite></figcaption>
-    </figure>
-    <figure class="lf-testimonial-card rv d5">
-      <blockquote><p><em>We were photographed twice, once in Riviera Maya and once in Los Cabos, on the same trip. The studio coordinated both sessions, kept the same color register across both, and the gallery reads as a single arc. Two coastlines, four kids, both grandparents on the Cabo end.</em></p></blockquote>
-      <figcaption><cite>The Beauchamp Family · Toronto, Ontario</cite></figcaption>
-    </figure>
-    <figure class="lf-testimonial-card rv d6">
-      <blockquote><p><em>Bilingual session, half the family from Mexico City and half from Madrid. Spanish for my parents, English for my husband's family, both for the kids. The studio moved between the two without breaking the pace. The grandparents on both sides have the same frame on the same shelf, in two languages, in two cities.</em></p></blockquote>
-      <figcaption><cite>Familia López · Maroma Belmond, January 2026</cite></figcaption>
-    </figure>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════
-     SECTION 9 — FRAMES (ages ribbon + drag-scroll reel)
-     ═══════════════════════════════════════════════════════════════ -->
-<section class="lf-frames" id="frames" aria-labelledby="frames-heading">
-  <h2 id="frames-heading" class="visually-hidden">The Frames</h2>
-  <div class="lf-ages-ribbon rv" role="img" aria-label="Every age in the frame, from newborn through teen.">
-    <div class="lf-ages-bar" aria-hidden="true"></div>
-    <div class="lf-ages-labels" aria-hidden="true">
-      <span>Newborn</span>
-      <span>Toddler</span>
-      <span>School-age</span>
-      <span>Teen</span>
+  <article class="lw-plate">
+    <figure class="lw-plate-frame"><img src="/images/family-kids-cancun-beach-ivae-studios.jpg" alt="" loading="lazy" width="2400" height="1600"/></figure>
+    <div class="lw-plate-caption">
+      <span class="lw-plate-loc">Cancún <span class="lw-plate-sep">·</span> Playa Delfines <span class="lw-plate-sep">·</span> February 2026</span>
+      <p class="lw-plate-body">Three generations, six children, two languages. The youngest had never seen the ocean. We did not ask her to smile.</p>
     </div>
-  </div>
-  <p class="lf-reel-hint rv" id="lfReelHint">Drag to scroll the reel</p>
-  <div class="lf-reel-track" id="lfReelTrack" role="region" aria-label="Family photography reel, scrollable. Use arrow keys to navigate." tabindex="0">
-    <figure class="lf-reel-frame">
-      <img src="/images/family-cancun-hotel-zone-ivae-studios.jpg" alt="A family poses on the white sand of the Cancún Hotel Zone at golden hour, photographed by IVAE Studios with Vianey Díaz directing." loading="lazy" decoding="async" width="1200" height="1500">
-      <figcaption class="lf-reel-caption" aria-hidden="true">Frame i. / vi.</figcaption>
-    </figure>
-    <figure class="lf-reel-frame">
-      <img src="/images/family-kids-cancun-beach-ivae-studios.jpg" alt="Two children laugh at the surf line in Cancún at sunset, photographed by IVAE Studios with Vianey Díaz directing." loading="lazy" decoding="async" width="1200" height="1500">
-      <figcaption class="lf-reel-caption" aria-hidden="true">Frame ii. / vi.</figcaption>
-    </figure>
-    <figure class="lf-reel-frame">
-      <img src="/images/family-kids-akumal-ivae-studios.jpg" alt="A family walks the boardwalk at Akumal in late afternoon light, photographed by IVAE Studios with Vianey Díaz directing." loading="lazy" decoding="async" width="1200" height="1500">
-      <figcaption class="lf-reel-caption" aria-hidden="true">Frame iii. / vi.</figcaption>
-    </figure>
-    <figure class="lf-reel-frame">
-      <img src="/images/family-cancun-ivae-studios.jpg" alt="A family of five stands together on the wet sand at sunset in Cancún, photographed by IVAE Studios with Vianey Díaz directing." loading="lazy" decoding="async" width="1200" height="1500">
-      <figcaption class="lf-reel-caption" aria-hidden="true">Frame iv. / vi.</figcaption>
-    </figure>
-    <figure class="lf-reel-frame">
-      <img src="/images/family-kids-cancun-hotel-zone-ivae-studios-2.jpg" alt="A toddler holds a parent's hand on the path between the resort and the sea, photographed by IVAE Studios with Vianey Díaz directing." loading="lazy" decoding="async" width="1200" height="1500">
-      <figcaption class="lf-reel-caption" aria-hidden="true">Frame v. / vi.</figcaption>
-    </figure>
-    <figure class="lf-reel-frame">
-      <img src="/images/family-kids-cancun-beach-ivae-studios-2.jpg" alt="A family laughs together as the wind catches their linens at golden hour in Cancún, photographed by IVAE Studios with Vianey Díaz directing." loading="lazy" decoding="async" width="1200" height="1500">
-      <figcaption class="lf-reel-caption" aria-hidden="true">Frame vi. / vi.</figcaption>
-    </figure>
-  </div>
-</section>
+  </article>
 
-<!-- Magnetic cursor preview thumb (hidden until reel hover) -->
-<div class="lf-cursor-preview" id="lfCursorPreview" aria-hidden="true"><img id="lfCursorImg" src="" alt="" width="280" height="350"></div>
-
-<!-- ═══════════════════════════════════════════════════════════════
-     SECTION 10 — FAQ (10 considered questions)
-     ═══════════════════════════════════════════════════════════════ -->
-<section class="lf-faq" id="faq" aria-labelledby="faq-heading">
-  <div class="lf-faq-inner">
-    <p class="eyebrow rv">Considered Questions</p>
-    <h2 class="lf-faq-h2 rv d1" id="faq-heading">Considered, Before You Ask.</h2>
-    <ul class="lf-faq-list" role="list">
-      <li class="lf-faq-item rv d1">
-        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-1-q" aria-expanded="false" aria-controls="faq-1-p">How do you photograph toddlers and small children without losing the frame?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
-        <div class="lf-faq-panel" id="faq-1-p" role="region" aria-labelledby="faq-1-q"><div class="lf-faq-panel-inner"><p>The pace of the session is the pace of the youngest child. The studio does not count to three, does not herd, and does not bark "everybody smile." If a four-year-old is interested in a small crab on the path, she is photographed watching the small crab. If a two-year-old needs forty seconds to decide whether the camera is friend or stranger, she is given forty seconds. The frames the family keeps are made in those quiet moments, not in the staged ones. The studio is patient and bilingual, and the kids respond to that.</p></div></div>
-      </li>
-      <li class="lf-faq-item rv d2">
-        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-2-q" aria-expanded="false" aria-controls="faq-2-p">What time of day is the family session, and why does it matter?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
-        <div class="lf-faq-panel" id="faq-2-p" role="region" aria-labelledby="faq-2-q"><div class="lf-faq-panel-inner"><p>Every family session is timed to the final ninety minutes before sunset. The light turns honey-soft and amber, every age in the frame is flattered, and the horizon never blows out. In Cancún, sunset ranges from 5:30 PM in December to 7:30 PM in July. The session begins ninety minutes before, and ends fifteen minutes before the sun reaches the horizon. The Sunset-Friendly Time widget on this page shows the recommended start time for every month, calibrated to a typical resort nap-window for families with children under five.</p></div></div>
-      </li>
-      <li class="lf-faq-item rv d3">
-        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-3-q" aria-expanded="false" aria-controls="faq-3-p">Can you photograph a multi-generational reunion of ten or more?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
-        <div class="lf-faq-panel" id="faq-3-p" role="region" aria-labelledby="faq-3-q"><div class="lf-faq-panel-inner"><p>Yes, through The Reunion collection. Up to ten in the frame is the standard upper bound. Groups larger than ten are quoted on a per-trip basis and may include a second photographer for ninety minutes. The shot list is composed before the session, includes every meaningful pairing (the full group, each immediate family, grandparents with grandchildren, sibling clusters, and the couple inside the family), and is paced so the grandparents are seated when they need to be seated and walked when they need to be walked.</p></div></div>
-      </li>
-      <li class="lf-faq-item rv d4">
-        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-4-q" aria-expanded="false" aria-controls="faq-4-p">What happens if it rains the day of the session?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
-        <div class="lf-faq-panel" id="faq-4-p" role="region" aria-labelledby="faq-4-q"><div class="lf-faq-panel-inner"><p>Cancún and the Riviera Maya carry brief afternoon showers in summer that are typically twenty to forty-five minutes long, and the skies after them are often the most spectacular skies of the day. If a sustained rain is forecast, the studio reschedules the session within the family's travel window at no additional cost. The team monitors the weather daily during the trip and contacts the family the morning of the session if a shift looks likely. Light rain at the end of golden hour is sometimes worth photographing through, with the family's permission.</p></div></div>
-      </li>
-      <li class="lf-faq-item rv d5">
-        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-5-q" aria-expanded="false" aria-controls="faq-5-p">What should the family wear?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
-        <div class="lf-faq-panel" id="faq-5-p" role="region" aria-labelledby="faq-5-q"><div class="lf-faq-panel-inner"><p>A wardrobe guide is sent the day after booking, calibrated to the month and the coastline. The guide is built around tones rather than specific outfits: ivory, sand, sage, dusty blue, and soft terracotta photograph well at Mexico beach light. Linen and flowing fabrics catch the ocean breeze. Avoid neon, large logos, busy patterns, and wholly white outfits, which the camera reads as a bright shape rather than a person. The youngest child's outfit is built around what the youngest child will already wear without protest. Nothing needs to be bought new.</p></div></div>
-      </li>
-      <li class="lf-faq-item rv d6">
-        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-6-q" aria-expanded="false" aria-controls="faq-6-p">How long until the family receives the photographs?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
-        <div class="lf-faq-panel" id="faq-6-p" role="region" aria-labelledby="faq-6-q"><div class="lf-faq-panel-inner"><p>A first set of twenty to thirty editorial images is delivered within seventy-two hours of the session, before the suit has been pressed and before the suitcase has been unpacked. The full gallery, ninety to two hundred hand-edited images depending on the collection, follows within three weeks. The gallery lives on a private link with unlimited downloads. Print release rights are included. Every image is hand-edited in the IVAE color register, never auto-toned, never run through a preset.</p></div></div>
-      </li>
-      <li class="lf-faq-item rv d7">
-        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-7-q" aria-expanded="false" aria-controls="faq-7-p">How does payment and booking work?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
-        <div class="lf-faq-panel" id="faq-7-p" role="region" aria-labelledby="faq-7-q"><div class="lf-faq-panel-inner"><p>A fifty-percent retainer holds the date, paid by USD wire, USD card, or PayPal. The remaining balance is due seven days before the session. International cards in major currencies are accepted. The studio handles the FX without a markup. Booking is confirmed when the retainer clears and a calendar invitation is sent. The remaining balance covers the full collection plus any custom add-ons agreed during the planning call. There are no hidden fees and no upsells once the family arrives at the resort.</p></div></div>
-      </li>
-      <li class="lf-faq-item rv d8">
-        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-8-q" aria-expanded="false" aria-controls="faq-8-p">What if the family needs to cancel or reschedule?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
-        <div class="lf-faq-panel" id="faq-8-p" role="region" aria-labelledby="faq-8-q"><div class="lf-faq-panel-inner"><p>A reschedule within the family's existing travel window is at no additional cost, including for weather, illness, or a flight delay. A reschedule to a future trip within twelve months retains the full retainer toward that future booking. A cancellation more than thirty days before the session refunds the retainer in full, less a fifty-USD administrative fee. A cancellation inside thirty days is held as credit toward a future booking within twelve months. The studio understands that families travel with kids, and kids occasionally make calendar decisions that adults cannot override.</p></div></div>
-      </li>
-      <li class="lf-faq-item rv d9">
-        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-9-q" aria-expanded="false" aria-controls="faq-9-p">Can the session move between locations, or off the resort?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
-        <div class="lf-faq-panel" id="faq-9-p" role="region" aria-labelledby="faq-9-q"><div class="lf-faq-panel-inner"><p>Yes. The Afternoon and The Reunion collections cover two and three locations respectively, on the same property or within a fifteen-minute drive. Off-property locations include cenotes, archaeological sites, hidden coastlines, and private beaches the studio knows. Resort policies vary. The studio coordinates with the resort's wedding or family concierge to confirm permission, and handles any external-vendor paperwork directly. Travel within Cancún and the Riviera Maya is included in the collection price. Los Cabos sessions are quoted at cost for the trip portion.</p></div></div>
-      </li>
-      <li class="lf-faq-item rv d10">
-        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-10-q" aria-expanded="false" aria-controls="faq-10-p">Is the session conducted in English or Spanish?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
-        <div class="lf-faq-panel" id="faq-10-p" role="region" aria-labelledby="faq-10-q"><div class="lf-faq-panel-inner"><p>Both, and bilingual through every conversation, in either direction. The Director, Vianey, leads the session in the language the family prefers, switches between English and Spanish as the room requires, and accommodates a third language where the family includes a grandparent or partner whose first language is neither. The wardrobe guide, planning call, calendar invitation, and final gallery are delivered in the family's primary language. Spanish-language families receive the entire experience in Spanish from the first email forward.</p></div></div>
-      </li>
-    </ul>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════
-     SECTION 11 · INQUIRY CTA
-     ═══════════════════════════════════════════════════════════════ -->
-<section class="lf-inquiry" id="inquiry" aria-labelledby="inquiry-heading">
-  <div class="lf-inquiry-inner">
-    <span class="lf-inquiry-rule rv" aria-hidden="true"></span>
-    <p class="eyebrow rv">Begin</p>
-    <svg class="lf-inquiry-ornament rv d1" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true" focusable="false">
-      <circle cx="11" cy="11" r="3.2"/>
-      <path d="M11 1.2v3.4M11 17.4v3.4M1.2 11h3.4M17.4 11h3.4"/>
-    </svg>
-    <h2 class="lf-inquiry-h2 rv d2" id="inquiry-heading">Tell Us About the <em>Family.</em></h2>
-    <p class="lf-inquiry-body rv d3">Share the dates, the resort, the ages of the kids, and a sentence about the milestone if there is one. The studio responds the same business day, in English or Spanish, with one or two questions and a calendar link. The first reply will come from the Director. If the family would rather speak first, the WhatsApp button below is the fastest way to reach the studio.</p>
-    <div class="lf-inquiry-ctas rv d4">
-      <a class="btn btn-primary lf-magnet" href="mailto:hello@ivaestudios.com?subject=Family%20session%20inquiry" data-magnet>Begin Inquiry</a>
-      <a class="btn btn-ghost lf-magnet" href="https://wa.me/529902046514" target="_blank" rel="noopener" data-magnet>WhatsApp</a>
+  <article class="lw-plate">
+    <figure class="lw-plate-frame"><img src="/images/family-cancun-hotel-zone-ivae-studios.jpg" alt="" loading="lazy" width="2400" height="1600"/></figure>
+    <div class="lw-plate-caption">
+      <span class="lw-plate-loc">Cancún Hotel Zone <span class="lw-plate-sep">·</span> Resort terrace <span class="lw-plate-sep">·</span> December 2025</span>
+      <p class="lw-plate-body">A father's seventieth, the whole family flown in from Mexico City. The light dropped at six. The grandfather wept once.</p>
     </div>
-    <dl class="lf-inquiry-meta rv d4" role="group" aria-label="Studio response details">
-      <div><dt>Response Time</dt><dd>Same business day</dd></div>
-      <div><dt>Languages</dt><dd>English / Spanish</dd></div>
-      <div><dt>Hours</dt><dd>06:00 &ndash; 20:00 GMT-5</dd></div>
-    </dl>
+  </article>
+
+  <article class="lw-plate">
+    <figure class="lw-plate-frame"><img src="/images/family-kids-cancun-hotel-zone-ivae-studios-3.jpg" alt="" loading="lazy" width="2400" height="1600"/></figure>
+    <div class="lw-plate-caption">
+      <span class="lw-plate-loc">Cancún <span class="lw-plate-sep">·</span> Hotel Zone garden <span class="lw-plate-sep">·</span> November 2025</span>
+      <p class="lw-plate-body">Twins. Five years old. We promised them five minutes of being still in exchange for an hour of running. We kept our word.</p>
+    </div>
+  </article>
+
+  <article class="lw-plate">
+    <figure class="lw-plate-frame"><img src="/images/family-cancun-ivae-studios.jpg" alt="" loading="lazy" width="2400" height="1600"/></figure>
+    <div class="lw-plate-caption">
+      <span class="lw-plate-loc">Cancún <span class="lw-plate-sep">·</span> Private cove <span class="lw-plate-sep">·</span> January 2026</span>
+      <p class="lw-plate-body">The grandparents had never been photographed with all of their grandchildren in one frame. The sand was warm. Nobody noticed the time.</p>
+    </div>
+  </article>
+
+</section>
+
+<!-- ═══════ ONE TESTIMONIAL ═══════ -->
+<section class="lw-test" aria-label="A note from a past client">
+  <blockquote class="lw-test-quote">
+    <span class="lw-test-glyph" aria-hidden="true">&ldquo;</span>
+    <p>Our kids do not love the camera. By minute ten of the session, they had forgotten there was one. <em>Every photograph looks like a moment, not a pose.</em></p>
+  </blockquote>
+  <footer class="lw-test-attr">
+    <figure class="lw-test-photo" aria-hidden="true"><img src="/images/family-kids-cancun-hotel-zone-ivae-studios-5.jpg" alt="" loading="lazy" width="600" height="800"/></figure>
+    <div class="lw-test-meta">
+      <span class="lw-test-name">The Calderón Family</span>
+      <span class="lw-test-where">Rosewood Mayakoba <span style="color:#c9a54e">·</span> 2026</span>
+    </div>
+  </footer>
+</section>
+
+<!-- ═══════ INQUIRY ═══════ -->
+<section class="lw-inq2" id="inquiry" aria-labelledby="inq-h">
+  <picture class="lw-inq2-bg" aria-hidden="true"><img src="/images/family-kids-cancun-hotel-zone-ivae-studios-2.jpg" alt="" loading="lazy"/></picture>
+  <span class="lw-inq2-veil" aria-hidden="true"></span>
+  <div class="lw-inq2-content">
+    <span class="lw-inq2-eyebrow">By Appointment</span>
+    <h2 id="inq-h" class="lw-inq2-h">Family sessions, by appointment.</h2>
+    <p class="lw-inq2-body">Tell us the dates, the resort, and the ages of your children. The Director replies the same business day with a private proposal and a personal note.</p>
+    <a class="lw-inq2-btn" href="mailto:hello@ivaestudios.com?subject=Inquiry" data-magnet>Begin a Conversation<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <p class="lw-inq2-sub"><em>Currently holding <strong>2026</strong> dates by appointment.</em> <span class="lw-inq2-sep" aria-hidden="true">·</span> <a href="https://wa.me/529902046514" target="_blank" rel="noopener" class="lw-inq2-wa">WhatsApp the Director</a></p>
+    <div class="lw-inq2-seal" aria-hidden="true"><span>V·D</span></div>
+  </div>
+</section>
+
+<!-- ═══════ FAQ ═══════ -->
+<section class="lw-section faq" id="faq" aria-labelledby="faq-h">
+  <div class="lw-inner faq-inner">
+    <span class="lw-section-eyebrow">Considered Questions</span>
+    <h2 id="faq-h" class="lw-rv">The questions clients ask <em>most often.</em></h2>
+    <div class="faq-list">
+      <div class="faq-item lw-rv d1">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-1" id="faq-q-1">
+          <span class="faq-q">How much is a family photographer in Cancún?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-1" role="region" aria-labelledby="faq-q-1">
+          <p>Every session is custom and quoted in conversation. Investment varies with the size of the family, hours, location, and travel. Every brief includes a private 4K gallery, unlimited downloads, print rights, and bilingual service.</p>
+        </div>
+      </div>
+
+      <div class="faq-item lw-rv d2">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-2" id="faq-q-2">
+          <span class="faq-q">How does a family session work with young children?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-2" role="region" aria-labelledby="faq-q-2">
+          <p>We do not direct. We follow. Most sessions begin with the children playing and end with the parents barely posed at all. The team carries water, sunscreen, and patience. Sessions are scheduled at golden hour to avoid the midday heat.</p>
+        </div>
+      </div>
+
+      <div class="faq-item lw-rv d3">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-3" id="faq-q-3">
+          <span class="faq-q">What should we wear?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-3" role="region" aria-labelledby="faq-q-3">
+          <p>Flowing fabrics in neutrals — cream, sand, champagne, dusty blue — photograph beautifully against the Caribbean. Coordinate tones, do not match outfits. A personalized style guide is sent to every family after booking.</p>
+        </div>
+      </div>
+
+      <div class="faq-item lw-rv d4">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-4" id="faq-q-4">
+          <span class="faq-q">How long is a family session?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-4" role="region" aria-labelledby="faq-q-4">
+          <p>Most sessions run sixty to ninety minutes — one block, no rush. Longer coverage is available for multi-generation reunions or families wanting both a beach and a resort-grounds set.</p>
+        </div>
+      </div>
+
+      <div class="faq-item lw-rv d5">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-5" id="faq-q-5">
+          <span class="faq-q">Can you photograph at our resort?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-5" role="region" aria-labelledby="faq-q-5">
+          <p>Yes. The studio coordinates directly with the family concierge at Rosewood Mayakoba, Nizuc, Banyan Tree, Four Seasons, Ritz-Carlton, Waldorf Astoria Pedregal, and most luxury properties across Cancún, the Riviera Maya, and Los Cabos.</p>
+        </div>
+      </div>
+
+    </div>
   </div>
 </section>
 
