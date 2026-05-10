@@ -1,8 +1,7 @@
-/* IVAE Studios — Services dropdown (editorial thumbnail card grid)
-   Replaces the simple #services anchor link in the site header with a
-   2x2 editorial card grid of portrait-aspect thumbnails — Vanity Fair tiles
-   filtered through Aman Resorts restraint.
-   Loaded on every page via the existing /js/lang-detect.js position pattern. */
+/* IVAE Studios — Services dropdown (editorial mega-menu)
+   Full-bleed image mega-menu: left column is a tall photo that crossfades
+   as the user hovers each service in the right-hand serif index. Replaces
+   the simple #services / #servicios anchor link in the site header. */
 (function(){
   'use strict';
 
@@ -10,81 +9,95 @@
   var isES = lang.indexOf('es') === 0 || location.pathname.indexOf('/es/') === 0 || location.pathname === '/es';
 
   var items = isES ? [
-    { eyebrow: 'Destino',    title: 'Bodas',     href: '/es/fotografo-bodas-destino-mexico', img: '/images/wedding-bride-cancun-beach-ivae-studios-3.jpg', alt: 'Bodas destino en Cancún' },
-    { eyebrow: 'Resort',     title: 'Familia',   href: '/es/fotos-familiares-lujo-cancun',   img: '/images/family-cancun-ivae-studios.webp',                alt: 'Familia en resort de lujo' },
-    { eyebrow: 'Romance',    title: 'Parejas',   href: '/es/fotografia-parejas-mexico',      img: '/images/couple-cancun-beach-ivae-studios.jpg',           alt: 'Sesión de parejas en Cancún' },
-    { eyebrow: 'Campañas',   title: 'Editorial', href: '/es/editorial-de-lujo',              img: '/images/editorial-cancun-ivae-studios.jpg',              alt: 'Editorial de lujo' }
+    { title: 'Bodas',     desc: 'Bodas destino · cobertura editorial completa', href: '/es/fotografo-bodas-destino-mexico', img: '/images/wedding-bride-cancun-beach-ivae-studios-3.jpg', cap: 'Bodas destino · Riviera Maya' },
+    { title: 'Familia',   desc: 'Sesiones familiares en resorts de lujo',       href: '/es/fotos-familiares-lujo-cancun',  img: '/images/family-cancun-ivae-studios.webp',                cap: 'Familias · resorts de lujo' },
+    { title: 'Parejas',   desc: 'Lunas de miel, aniversarios, escapadas',       href: '/es/fotografia-parejas-mexico',     img: '/images/couple-cancun-beach-ivae-studios.jpg',           cap: 'Parejas · lunas de miel' },
+    { title: 'Editorial', desc: 'Campañas de marca y editoriales de revista',   href: '/es/editorial-de-lujo',             img: '/images/editorial-cancun-ivae-studios.jpg',              cap: 'Editorial · campañas de marca' }
   ] : [
-    { eyebrow: 'Destination', title: 'Weddings',  href: '/luxury-weddings',              img: '/images/wedding-bride-cancun-beach-ivae-studios-3.jpg', alt: 'Destination weddings in Cancún' },
-    { eyebrow: 'Resort',      title: 'Family',    href: '/luxury-family-photos-cancun',  img: '/images/family-cancun-ivae-studios.webp',                alt: 'Family at a luxury resort' },
-    { eyebrow: 'Romance',     title: 'Couples',   href: '/couples-photography-mexico',   img: '/images/couple-cancun-beach-ivae-studios.jpg',           alt: 'Couples photography in Cancún' },
-    { eyebrow: 'Campaigns',   title: 'Editorial', href: '/luxury-editorial',             img: '/images/editorial-cancun-ivae-studios.jpg',              alt: 'Editorial photography' }
+    { title: 'Weddings',  desc: 'Destination weddings · full editorial coverage', href: '/luxury-weddings',                img: '/images/wedding-bride-cancun-beach-ivae-studios-3.jpg', cap: 'Destination weddings · Riviera Maya' },
+    { title: 'Family',    desc: 'Family sessions at luxury resorts',              href: '/luxury-family-photos-cancun',    img: '/images/family-cancun-ivae-studios.webp',                cap: 'Families · luxury resorts' },
+    { title: 'Couples',   desc: 'Honeymoons, anniversaries, romantic getaways',   href: '/couples-photography-mexico',     img: '/images/couple-cancun-beach-ivae-studios.jpg',           cap: 'Couples · honeymoons' },
+    { title: 'Editorial', desc: 'Brand campaigns and magazine editorials',        href: '/luxury-editorial',               img: '/images/editorial-cancun-ivae-studios.jpg',              cap: 'Editorial · brand campaigns' }
   ];
 
   var triggerLabel = isES ? 'Servicios' : 'Services';
-  var exploreLabel = isES ? 'explorar' : 'explore';
+  var arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>';
   var caret = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
-  var tinyArrow = '<svg viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="6" x2="20" y2="6"/><polyline points="15 1.5 20 6 15 10.5"/></svg>';
 
-  // Inject CSS once
+  function preloadImages(){
+    items.forEach(function(it){ var i = new Image(); i.src = it.img; });
+  }
+
   if (!document.getElementById('ivae-services-dropdown-style')) {
     var style = document.createElement('style');
     style.id = 'ivae-services-dropdown-style';
     style.textContent = ''
-      /* Trigger */
       + '.svc-dd{position:relative;display:inline-flex;align-items:center}'
       + '.svc-dd-trigger{display:inline-flex;align-items:center;gap:7px;color:inherit;font:inherit;text-decoration:none;cursor:pointer;background:none;border:0;padding:0;letter-spacing:inherit;text-transform:inherit;font-weight:inherit;font-size:inherit}'
       + '.svc-dd-trigger svg{width:9px;height:9px;transition:transform 0.4s cubic-bezier(0.22,1,0.36,1);opacity:0.55}'
       + '.svc-dd[data-open="true"] .svc-dd-trigger svg,.svc-dd:hover .svc-dd-trigger svg{transform:rotate(180deg);opacity:1;color:#c4a35a}'
-      /* Menu shell — wide editorial panel */
-      + '.svc-dd-menu{position:absolute;top:calc(100% + 22px);left:50%;transform:translateX(-50%) translateY(-10px);transform-origin:top center;width:640px;max-width:calc(100vw - 32px);background:#fdfcfa;border:1px solid rgba(14,22,32,0.08);border-radius:2px;padding:0;box-shadow:0 30px 60px -20px rgba(14,22,32,0.18),0 18px 36px -18px rgba(14,22,32,0.10);opacity:0;visibility:hidden;pointer-events:none;transition:opacity 0.35s cubic-bezier(0.22,1,0.36,1),transform 0.45s cubic-bezier(0.22,1,0.36,1),visibility 0s linear 0.45s;z-index:1100}'
-      + '.svc-dd[data-open="true"] .svc-dd-menu,.svc-dd:hover .svc-dd-menu,.svc-dd:focus-within .svc-dd-menu{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(-50%) translateY(0);transition:opacity 0.35s cubic-bezier(0.22,1,0.36,1),transform 0.45s cubic-bezier(0.22,1,0.36,1)}'
-      /* Hover bridge */
-      + '.svc-dd-menu::before{content:"";position:absolute;top:-22px;left:0;right:0;height:22px}'
-      /* Header — single editorial line, off-center */
-      + '.svc-dd-head{padding:26px 28px 18px;border-bottom:1px solid rgba(14,22,32,0.06);position:relative;display:flex;align-items:baseline;gap:18px}'
-      + '.svc-dd-head::after{content:"";position:absolute;left:28px;bottom:-1px;width:42px;height:1px;background:#c4a35a}'
-      + '.svc-dd-eyebrow{font-family:Syne,system-ui,sans-serif;font-size:9.5px;font-weight:600;letter-spacing:0.34em;text-transform:uppercase;color:#c4a35a;line-height:1;flex-shrink:0}'
-      + '.svc-dd-tagline{font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-size:14px;font-weight:400;color:#525a66;line-height:1.3;letter-spacing:0.005em}'
-      /* Grid */
-      + '.svc-dd-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:18px}'
-      /* Card */
-      + '.svc-dd-card{position:relative;display:block;text-decoration:none;color:inherit;aspect-ratio:3/4;overflow:hidden;border:1px solid rgba(196,163,90,0.18);background:#0e1620;transition:border-color 0.45s cubic-bezier(0.22,1,0.36,1),transform 0.45s cubic-bezier(0.22,1,0.36,1)}'
-      + '.svc-dd-card:hover,.svc-dd-card:focus-visible{outline:none;border-color:rgba(196,163,90,0.95)}'
-      /* Image */
-      + '.svc-dd-card-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.001);transition:transform 0.8s cubic-bezier(0.22,1,0.36,1);filter:saturate(0.92) contrast(1.02)}'
-      + '.svc-dd-card:hover .svc-dd-card-img,.svc-dd-card:focus-visible .svc-dd-card-img{transform:scale(1.04)}'
-      /* Gradient veil */
-      + '.svc-dd-card-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,22,32,0) 35%,rgba(14,22,32,0.35) 60%,rgba(14,22,32,0.88) 100%);pointer-events:none;transition:opacity 0.45s cubic-bezier(0.22,1,0.36,1)}'
-      /* Caption stack */
-      + '.svc-dd-card-cap{position:absolute;left:16px;right:16px;bottom:14px;z-index:2;display:block;color:#fdfcfa}'
-      + '.svc-dd-card-eye{display:block;font-family:Syne,system-ui,sans-serif;font-size:8.5px;font-weight:600;letter-spacing:0.38em;text-transform:uppercase;color:#c4a35a;margin-bottom:6px;line-height:1}'
-      + '.svc-dd-card-ttl{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;font-weight:400;line-height:1.05;letter-spacing:-0.005em;color:#fdfcfa;margin-bottom:8px}'
-      + '.svc-dd-card-go{display:inline-flex;align-items:center;gap:8px;font-family:Syne,system-ui,sans-serif;font-size:9px;font-weight:500;letter-spacing:0.28em;text-transform:uppercase;color:rgba(253,252,250,0.78);transition:color 0.32s cubic-bezier(0.22,1,0.36,1),letter-spacing 0.32s cubic-bezier(0.22,1,0.36,1)}'
-      + '.svc-dd-card-go svg{width:18px;height:9px;stroke-width:1.2;transition:transform 0.34s cubic-bezier(0.22,1,0.36,1)}'
-      + '.svc-dd-card:hover .svc-dd-card-go,.svc-dd-card:focus-visible .svc-dd-card-go{color:#fdfcfa}'
-      + '.svc-dd-card:hover .svc-dd-card-go svg,.svc-dd-card:focus-visible .svc-dd-card-go svg{transform:translateX(4px)}'
-      /* Gold rule sweep */
-      + '.svc-dd-card-rule{position:absolute;left:0;right:0;bottom:0;height:1px;background:#c4a35a;transform:scaleX(0);transform-origin:left center;transition:transform 0.7s cubic-bezier(0.22,1,0.36,1);z-index:3}'
-      + '.svc-dd-card:hover .svc-dd-card-rule,.svc-dd-card:focus-visible .svc-dd-card-rule{transform:scaleX(1)}'
+      /* Mega-menu shell */
+      + '.svc-dd-menu{position:absolute;top:calc(100% + 20px);left:50%;transform:translateX(-50%) translateY(-8px);transform-origin:top center;width:720px;max-width:calc(100vw - 32px);background:#fdfcfa;border:1px solid rgba(14,22,32,0.10);border-radius:1px;padding:0;box-shadow:0 24px 60px -28px rgba(14,22,32,0.22),0 8px 24px -14px rgba(14,22,32,0.10);opacity:0;visibility:hidden;pointer-events:none;transition:opacity 0.42s cubic-bezier(0.22,1,0.36,1),transform 0.5s cubic-bezier(0.22,1,0.36,1),visibility 0s linear 0.5s;z-index:1100;overflow:hidden}'
+      + '.svc-dd[data-open="true"] .svc-dd-menu,.svc-dd:hover .svc-dd-menu,.svc-dd:focus-within .svc-dd-menu{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(-50%) translateY(0);transition:opacity 0.42s cubic-bezier(0.22,1,0.36,1),transform 0.5s cubic-bezier(0.22,1,0.36,1)}'
+      + '.svc-dd-menu::before{content:"";position:absolute;top:-20px;left:0;right:0;height:20px;background:transparent}'
+      + '.svc-dd-grid{display:grid;grid-template-columns:300px 1fr;align-items:stretch}'
+      /* LEFT — image stage */
+      + '.svc-dd-stage{position:relative;overflow:hidden;background:#0e1620;min-height:420px}'
+      + '.svc-dd-frame{position:absolute;inset:0}'
+      + '.svc-dd-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.9s cubic-bezier(0.4,0,0.2,1),transform 6s cubic-bezier(0.22,1,0.36,1);transform:scale(1.04);will-change:opacity,transform}'
+      + '.svc-dd-frame img.is-active{opacity:1;transform:scale(1)}'
+      + '.svc-dd-stage::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,22,32,0) 55%,rgba(14,22,32,0.55) 100%);pointer-events:none;z-index:1}'
+      + '.svc-dd-stage-top{position:absolute;top:18px;left:20px;right:20px;z-index:2;display:flex;align-items:center;color:rgba(253,252,250,0.9);font-family:Syne,system-ui,sans-serif;font-size:9px;font-weight:600;letter-spacing:0.34em;text-transform:uppercase}'
+      + '.svc-dd-stage-top::before{content:"";display:inline-block;width:18px;height:1px;background:#c4a35a;margin-right:10px}'
+      + '.svc-dd-stage-caption{position:absolute;left:20px;right:20px;bottom:18px;z-index:2;font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-size:13px;font-weight:400;line-height:1.3;color:#fdfcfa;letter-spacing:0.01em;opacity:0;transform:translateY(6px);transition:opacity 0.45s cubic-bezier(0.22,1,0.36,1) 0.05s,transform 0.55s cubic-bezier(0.22,1,0.36,1) 0.05s}'
+      + '.svc-dd-stage-caption.is-active{opacity:1;transform:translateY(0)}'
+      + '.svc-dd-stage-caption::before{content:"";display:block;width:22px;height:1px;background:#c4a35a;margin-bottom:8px;opacity:0.9}'
+      /* RIGHT — serif index */
+      + '.svc-dd-index{display:flex;flex-direction:column;padding:26px 30px 18px}'
+      + '.svc-dd-head{padding-bottom:14px;margin-bottom:6px;position:relative}'
+      + '.svc-dd-head::after{content:"";position:absolute;left:0;bottom:0;width:34px;height:1px;background:#c4a35a}'
+      + '.svc-dd-eyebrow{display:block;font-family:Syne,system-ui,sans-serif;font-size:9.5px;font-weight:600;letter-spacing:0.34em;text-transform:uppercase;color:#c4a35a;margin-bottom:6px}'
+      + '.svc-dd-tagline{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-size:14px;font-weight:400;color:#525a66;line-height:1.35;letter-spacing:0.005em}'
+      + '.svc-dd-list{display:flex;flex-direction:column;padding:4px 0 2px;flex:1}'
+      + '.svc-dd-item{display:grid;grid-template-columns:8px 1fr 14px;align-items:baseline;column-gap:14px;padding:14px 0;text-decoration:none;color:#0e1620;position:relative;border-bottom:1px solid rgba(14,22,32,0.07);transition:color 0.3s ease}'
+      + '.svc-dd-item:last-child{border-bottom:0}'
+      + '.svc-dd-item:focus-visible{outline:none}'
+      /* Tiny gold dot — replaces roman numerals */
+      + '.svc-dd-dot{width:5px;height:5px;border-radius:50%;background:rgba(196,163,90,0.4);align-self:center;transition:background 0.32s ease,transform 0.4s cubic-bezier(0.22,1,0.36,1)}'
+      + '.svc-dd-item:hover .svc-dd-dot,.svc-dd-item:focus-visible .svc-dd-dot,.svc-dd-item.is-active .svc-dd-dot{background:#c4a35a;transform:scale(1.3)}'
+      + '.svc-dd-text{min-width:0;position:relative}'
+      + '.svc-dd-title{display:inline-block;font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;font-weight:400;line-height:1.05;letter-spacing:-0.005em;color:#0e1620;margin-bottom:3px;position:relative;transition:transform 0.5s cubic-bezier(0.22,1,0.36,1)}'
+      + '.svc-dd-title::after{content:"";position:absolute;left:0;bottom:-2px;width:100%;height:1px;background:#c4a35a;transform:scaleX(0);transform-origin:left center;transition:transform 0.55s cubic-bezier(0.22,1,0.36,1)}'
+      + '.svc-dd-item:hover .svc-dd-title::after,.svc-dd-item:focus-visible .svc-dd-title::after,.svc-dd-item.is-active .svc-dd-title::after{transform:scaleX(1)}'
+      + '.svc-dd-item:hover .svc-dd-title,.svc-dd-item:focus-visible .svc-dd-title{transform:translateX(2px)}'
+      + '.svc-dd-desc{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-size:13px;line-height:1.4;color:#6b7280;font-weight:400;letter-spacing:0.005em;margin-top:2px}'
+      + '.svc-dd-arrow{align-self:center;width:14px;height:10px;color:#c4a35a;opacity:0;transform:translateX(-6px);transition:opacity 0.32s ease,transform 0.36s cubic-bezier(0.22,1,0.36,1)}'
+      + '.svc-dd-arrow svg{width:14px;height:10px;stroke-width:1.4}'
+      + '.svc-dd-item:hover .svc-dd-arrow,.svc-dd-item:focus-visible .svc-dd-arrow,.svc-dd-item.is-active .svc-dd-arrow{opacity:1;transform:translateX(0)}'
       /* Footer */
-      + '.svc-dd-footer{display:flex;align-items:center;justify-content:space-between;padding:16px 28px 20px;border-top:1px solid rgba(14,22,32,0.06);font-family:Syne,system-ui,sans-serif;font-size:10px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;color:#525a66;text-decoration:none;transition:color 0.3s;background:rgba(196,163,90,0.025)}'
-      + '.svc-dd-footer:hover{color:#c4a35a}'
-      + '.svc-dd-footer-arrow{display:inline-flex;align-items:center;width:20px;height:10px;transition:transform 0.32s cubic-bezier(0.22,1,0.36,1)}'
-      + '.svc-dd-footer-arrow svg{width:20px;height:10px;stroke-width:1.3}'
-      + '.svc-dd-footer:hover .svc-dd-footer-arrow{transform:translateX(5px)}'
+      + '.svc-dd-foot{display:flex;align-items:center;justify-content:space-between;padding:14px 0 2px;margin-top:6px;border-top:1px solid rgba(14,22,32,0.10);text-decoration:none;color:#0e1620;position:relative}'
+      + '.svc-dd-foot::before{content:"";position:absolute;left:0;top:-1px;width:34px;height:1px;background:#c4a35a}'
+      + '.svc-dd-foot-label{font-family:Syne,system-ui,sans-serif;font-size:10px;font-weight:600;letter-spacing:0.32em;text-transform:uppercase;color:#525a66;transition:color 0.3s ease}'
+      + '.svc-dd-foot:hover .svc-dd-foot-label{color:#c4a35a}'
+      + '.svc-dd-foot-arrow{display:inline-flex;align-items:center;width:22px;height:11px;color:#c4a35a;transition:transform 0.35s cubic-bezier(0.22,1,0.36,1)}'
+      + '.svc-dd-foot-arrow svg{width:22px;height:11px;stroke-width:1.4}'
+      + '.svc-dd-foot:hover .svc-dd-foot-arrow{transform:translateX(6px)}'
       /* Dark mode */
-      + 'html.dark .svc-dd-menu{background:#0d131c;border-color:rgba(196,163,90,0.18);box-shadow:0 30px 60px -20px rgba(0,0,0,0.7),0 18px 36px -18px rgba(0,0,0,0.5)}'
-      + 'html.dark .svc-dd-head{border-bottom-color:rgba(249,248,247,0.06)}'
+      + 'html.dark .svc-dd-menu{background:#0d131c;border-color:rgba(196,163,90,0.18);box-shadow:0 30px 60px -22px rgba(0,0,0,0.7),0 10px 26px -16px rgba(0,0,0,0.55)}'
+      + 'html.dark .svc-dd-stage{background:#06090d}'
+      + 'html.dark .svc-dd-stage::after{background:linear-gradient(180deg,rgba(6,9,13,0) 50%,rgba(6,9,13,0.65) 100%)}'
       + 'html.dark .svc-dd-tagline{color:rgba(249,248,247,0.55)}'
-      + 'html.dark .svc-dd-card{border-color:rgba(196,163,90,0.22)}'
-      + 'html.dark .svc-dd-card:hover,html.dark .svc-dd-card:focus-visible{border-color:#c4a35a}'
-      + 'html.dark .svc-dd-footer{border-top-color:rgba(249,248,247,0.06);color:rgba(249,248,247,0.6);background:rgba(196,163,90,0.04)}'
-      + 'html.dark .svc-dd-footer:hover{color:#c4a35a}'
-      /* Mobile: hide dropdown menu (mobile-nav handles its own list) */
+      + 'html.dark .svc-dd-item{color:#f9f8f7;border-bottom-color:rgba(249,248,247,0.08)}'
+      + 'html.dark .svc-dd-item:last-child{border-bottom:0}'
+      + 'html.dark .svc-dd-title{color:#f9f8f7}'
+      + 'html.dark .svc-dd-desc{color:rgba(249,248,247,0.55)}'
+      + 'html.dark .svc-dd-foot{color:#f9f8f7;border-top-color:rgba(249,248,247,0.10)}'
+      + 'html.dark .svc-dd-foot-label{color:rgba(249,248,247,0.6)}'
+      + 'html.dark .svc-dd-foot:hover .svc-dd-foot-label{color:#c4a35a}'
+      /* Mobile hide */
       + '@media(max-width:899px){.svc-dd-menu{display:none}}'
       /* Reduced motion */
-      + '@media (prefers-reduced-motion: reduce){.svc-dd-menu,.svc-dd-card,.svc-dd-card-img,.svc-dd-card-rule,.svc-dd-card-go,.svc-dd-card-go svg,.svc-dd-trigger svg,.svc-dd-footer-arrow{transition:opacity 0.2s !important}.svc-dd-menu{transform:translateX(-50%) !important}.svc-dd-card-img{transform:none !important}.svc-dd-card:hover .svc-dd-card-img,.svc-dd-card:focus-visible .svc-dd-card-img{transform:none !important}.svc-dd-card-rule{transform:scaleX(1) !important;opacity:0}.svc-dd-card:hover .svc-dd-card-rule,.svc-dd-card:focus-visible .svc-dd-card-rule{opacity:1}}';
+      + '@media (prefers-reduced-motion: reduce){.svc-dd-menu,.svc-dd-item,.svc-dd-arrow,.svc-dd-dot,.svc-dd-trigger svg,.svc-dd-frame img,.svc-dd-stage-caption,.svc-dd-title,.svc-dd-title::after,.svc-dd-foot-arrow{transition:opacity 0.2s !important;transform:none !important}.svc-dd-menu{transform:translateX(-50%) !important}.svc-dd-frame img{transform:none !important}}';
     document.head.appendChild(style);
   }
 
@@ -105,47 +118,97 @@
     menu.className = 'svc-dd-menu';
     menu.setAttribute('role', 'menu');
 
-    // Header: eyebrow + italic tagline on one editorial line
+    var grid = document.createElement('div');
+    grid.className = 'svc-dd-grid';
+
+    // ---- LEFT: image stage ----
+    var stage = document.createElement('div');
+    stage.className = 'svc-dd-stage';
+
+    var stageTop = document.createElement('div');
+    stageTop.className = 'svc-dd-stage-top';
+    stageTop.innerHTML = '<span>' + (isES ? 'Trabajo' : 'Work') + '</span>';
+    stage.appendChild(stageTop);
+
+    var frame = document.createElement('div');
+    frame.className = 'svc-dd-frame';
+    var imgEls = [];
+    items.forEach(function(it, i){
+      var img = document.createElement('img');
+      img.src = it.img;
+      img.alt = it.title + ' — IVAE Studios';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      if (i === 0) img.classList.add('is-active');
+      frame.appendChild(img);
+      imgEls.push(img);
+    });
+    stage.appendChild(frame);
+
+    var caption = document.createElement('div');
+    caption.className = 'svc-dd-stage-caption is-active';
+    caption.textContent = items[0].cap;
+    stage.appendChild(caption);
+
+    grid.appendChild(stage);
+
+    // ---- RIGHT: serif index ----
+    var index = document.createElement('div');
+    index.className = 'svc-dd-index';
+
     var head = document.createElement('div');
     head.className = 'svc-dd-head';
     head.innerHTML = ''
       + '<span class="svc-dd-eyebrow">' + (isES ? 'Servicios' : 'Services') + '</span>'
       + '<span class="svc-dd-tagline">' + (isES ? 'Cuatro disciplinas, una mirada cinematográfica.' : 'Four disciplines, one cinematic eye.') + '</span>';
-    menu.appendChild(head);
+    index.appendChild(head);
 
-    // Grid of 4 thumbnail cards
-    var grid = document.createElement('div');
-    grid.className = 'svc-dd-grid';
-    items.forEach(function(item){
+    var list = document.createElement('div');
+    list.className = 'svc-dd-list';
+
+    var itemEls = [];
+    items.forEach(function(item, i){
       var a = document.createElement('a');
-      a.className = 'svc-dd-card';
+      a.className = 'svc-dd-item' + (i === 0 ? ' is-active' : '');
       a.href = item.href;
       a.setAttribute('role', 'menuitem');
       a.innerHTML = ''
-        + '<img class="svc-dd-card-img" src="' + item.img + '" alt="' + item.alt + '" loading="lazy" decoding="async" />'
-        + '<span class="svc-dd-card-veil" aria-hidden="true"></span>'
-        + '<span class="svc-dd-card-rule" aria-hidden="true"></span>'
-        + '<span class="svc-dd-card-cap">'
-        +   '<span class="svc-dd-card-eye">' + item.eyebrow + '</span>'
-        +   '<span class="svc-dd-card-ttl">' + item.title + '</span>'
-        +   '<span class="svc-dd-card-go">' + exploreLabel + ' ' + tinyArrow + '</span>'
-        + '</span>';
-      grid.appendChild(a);
+        + '<span class="svc-dd-dot" aria-hidden="true"></span>'
+        + '<span class="svc-dd-text">'
+        +   '<span class="svc-dd-title">' + item.title + '</span>'
+        +   '<span class="svc-dd-desc">' + item.desc + '</span>'
+        + '</span>'
+        + '<span class="svc-dd-arrow" aria-hidden="true">' + arrow + '</span>';
+      list.appendChild(a);
+      itemEls.push(a);
     });
+    index.appendChild(list);
+
+    var foot = document.createElement('a');
+    foot.className = 'svc-dd-foot';
+    foot.href = isES ? '/es/' : '/';
+    foot.innerHTML = ''
+      + '<span class="svc-dd-foot-label">' + (isES ? 'Ver portafolio completo' : 'View full portfolio') + '</span>'
+      + '<span class="svc-dd-foot-arrow" aria-hidden="true">' + arrow + '</span>';
+    index.appendChild(foot);
+
+    grid.appendChild(index);
     menu.appendChild(grid);
-
-    // Footer link
-    var footer = document.createElement('a');
-    footer.className = 'svc-dd-footer';
-    footer.href = isES ? '/es/' : '/';
-    footer.innerHTML = ''
-      + '<span>' + (isES ? 'Ver todo el portafolio' : 'View full portfolio') + '</span>'
-      + '<span class="svc-dd-footer-arrow" aria-hidden="true">' + tinyArrow + '</span>';
-    menu.appendChild(footer);
-
     wrap.appendChild(menu);
 
-    // Click handler — toggle on tap (touch); hover already handled by CSS
+    function activate(i){
+      itemEls.forEach(function(el, j){ el.classList.toggle('is-active', j === i); });
+      imgEls.forEach(function(el, j){ el.classList.toggle('is-active', j === i); });
+      caption.classList.remove('is-active');
+      void caption.offsetWidth;
+      caption.textContent = items[i].cap;
+      caption.classList.add('is-active');
+    }
+    itemEls.forEach(function(el, i){
+      el.addEventListener('mouseenter', function(){ activate(i); });
+      el.addEventListener('focus', function(){ activate(i); });
+    });
+
     trig.addEventListener('click', function(ev){
       if (window.matchMedia && matchMedia('(hover: hover)').matches) {
         if ((trig.getAttribute('href') || '').charAt(0) === '#') return;
@@ -157,7 +220,6 @@
       trig.setAttribute('aria-expanded', open ? 'false' : 'true');
     });
 
-    // Click outside to close
     document.addEventListener('click', function(ev){
       if (!wrap.contains(ev.target)) {
         wrap.setAttribute('data-open', 'false');
@@ -165,7 +227,6 @@
       }
     });
 
-    // Esc to close
     wrap.addEventListener('keydown', function(ev){
       if (ev.key === 'Escape') {
         wrap.setAttribute('data-open', 'false');
@@ -178,6 +239,7 @@
   }
 
   function init(){
+    preloadImages();
     var navs = document.querySelectorAll('.header-nav, ul.header-nav, .h-nav, ul.h-nav');
     navs.forEach(function(nav){
       var candidates = nav.querySelectorAll('a[href*="#services"], a[href*="#servicios"]');
