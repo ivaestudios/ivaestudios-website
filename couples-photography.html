@@ -219,7 +219,7 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 /* ═══════════════════════════════════════════════════════════════
    SECTION 1 — HERO
    ═══════════════════════════════════════════════════════════════ */
-.lc-hero{position:relative;min-height:100vh;display:flex;align-items:flex-end;background:var(--ink-3);overflow:hidden;perspective:1200px;padding-top:68px;}
+.lc-hero{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:flex-end;background:var(--ink-3);overflow:hidden;perspective:1200px;padding-top:68px;}
 .lc-hero-bg{position:absolute;inset:0;z-index:0;transform-style:preserve-3d;transition:transform .6s var(--ease);will-change:transform}
 .lc-hero-bg img{width:100%;height:108%;object-fit:cover;object-position:center;filter:brightness(.45) saturate(.78);display:block}
 .lc-hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(170deg,rgba(7,11,17,.72) 0%,rgba(12,18,25,.30) 45%,rgba(7,11,17,.78) 100%);pointer-events:none}
@@ -1329,59 +1329,52 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
      SECTION 11 — FOOTER
      ═══════════════════════════════════════════════════════════════ -->
 <footer class="colophon" role="contentinfo" aria-label="Footer">
-  <p class="site-footer__bilingual" style="text-align:center;font-family:var(--font-sans);font-size:var(--fs-10);font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);margin-bottom:18px"><span lang="es">Fotografia de Resort de Lujo</span> &nbsp;/&nbsp; <span lang="en">Luxury Resort Photography</span></p>
-  <p class="site-footer__tag">Luxury Resort Photography. Editorial. Bilingual. Golden hour, only.</p>
-  <p class="site-footer__coastlines" style="text-align:center;font-family:var(--font-sans);font-size:var(--fs-12);letter-spacing:.22em;text-transform:uppercase;color:var(--text-on-dark-readable);margin-top:-48px;margin-bottom:56px">Cancun &middot; Riviera Maya &middot; Los Cabos</p>
-
-  <div class="site-footer__cols">
-    <div class="footer-col">
-      <h2 class="visually-hidden">Footer services</h2>
-      <p class="footer-col__title">Services</p>
-      <ul role="list">
-        <li><a href="/luxury-weddings.html">Weddings</a></li>
-        <li><a href="/couples-photography.html">Couples</a></li>
-        <li><a href="/family-photography.html">Family</a></li>
-        <li><a href="/editorial.html">Editorial</a></li>
+  <div class="colophon-mark">
+    <span class="colophon-mark-name">IVAE<em>Studios</em></span>
+    <span class="colophon-tag">Luxury Resort Photography. <em>Editorial. Bilingual. Golden hour, only.</em></span>
+  </div>
+  <div class="colophon-cols">
+    <div>
+      <div class="col-h">The Studio</div>
+      <p>IVAE Studios is a luxury resort photography studio based in Cancún, working across the Riviera Maya, Tulum, Isla Mujeres, and Los Cabos. Founded and led by Director Vianey Díaz. Ten years of editorial cameras, two languages, one obsession with the hour the light is honest.</p>
+    </div>
+    <div>
+      <div class="col-h">Studio</div>
+      <ul>
+        <li><a href="/about">Vianey Díaz</a></li>
+        <li><a href="/brand">Brand &amp; Press</a></li>
+        <li><a href="/blog">The Journal</a></li>
+        <li><a href="mailto:hello@ivaestudios.com">Begin Inquiry</a></li>
       </ul>
     </div>
-    <div class="footer-col">
-      <h2 class="visually-hidden">Footer coastlines</h2>
-      <p class="footer-col__title">Coastlines</p>
-      <ul role="list">
-        <li><a href="/cancun.html">Cancun</a></li>
-        <li><a href="/riviera-maya.html">Riviera Maya</a></li>
-        <li><a href="/los-cabos.html">Los Cabos</a></li>
+    <div>
+      <div class="col-h">Coastlines</div>
+      <ul>
+        <li><a href="/cancun-photographer">Cancún</a></li>
+        <li><a href="/riviera-maya-photographer">Riviera Maya</a></li>
+        <li><a href="/los-cabos-photographer">Los Cabos</a></li>
+        <li><a href="/destination-wedding-photographer-mexico">Weddings</a></li>
+        <li><a href="/luxury-family-photos-cancun">Families</a></li>
+        <li><a href="/couples-photography-mexico" aria-current="page">Couples</a></li>
+        <li><a href="/luxury-editorial">Editorial</a></li>
       </ul>
     </div>
-    <div class="footer-col">
-      <h2 class="visually-hidden">Footer studio</h2>
-      <p class="footer-col__title">Studio</p>
-      <ul role="list">
-        <li><a href="/about.html">About</a></li>
-        <li><a href="/vianey-diaz.html">Vianey</a></li>
-        <li><a href="/blog/">Journal</a></li>
-        <li><a href="#inquiry">Contact</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h2 class="visually-hidden">Footer legal</h2>
-      <p class="footer-col__title">Legal</p>
-      <ul role="list">
-        <li><a href="/privacy.html">Privacy</a></li>
-        <li><a href="/terms.html">Terms</a></li>
-        <li><a href="/sitemap.xml">Sitemap</a></li>
+    <div>
+      <div class="col-h">Direct lines</div>
+      <ul>
+        <li><a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a></li>
+        <li><a href="https://wa.me/529902046514" target="_blank" rel="noopener">WhatsApp the studio</a></li>
+        <li><a href="https://www.instagram.com/ivaestudios.cancun/" target="_blank" rel="noopener">Instagram</a></li>
+        <li><a href="/es/fotografia-parejas-mexico" lang="es">Español</a></li>
       </ul>
     </div>
   </div>
-
-  <div class="site-footer__base">
-    <p>IVAE Studios is a small editorial photography practice based in Cancun, working across the Yucatan and Los Cabos. Director Vianey Diaz leads every couples inquiry. The studio accepts a limited number of couples each month so the studio's attention never thins.</p>
-    <div class="lang-switcher" role="group" aria-label="Language switcher">
-      <a href="/couples-photography-mexico" hreflang="en" lang="en" aria-current="true" class="lang-link is-active">English</a>
-      <span class="lang-sep" aria-hidden="true">|</span>
-      <a href="/es/fotografia-parejas-mexico" hreflang="es" lang="es" aria-label="Cambiar a español" class="lang-link">Español</a>
-    </div>
-    <p class="site-footer__copyright">&copy; 2019&ndash;2026 IVAE Studios. Cancun, Mexico. All frames hand-edited.</p>
+  <div class="colophon-bottom">
+    <span>&copy; 2026 IVAE Studios &middot; Cancún, México</span>
+    <span class="colophon-bottom-rule"></span>
+    <em>Set in Cormorant Garamond &amp; Syne</em>
+    <span class="colophon-bottom-rule"></span>
+    <span>Cancún · Riviera Maya · Los Cabos · English / Español</span>
   </div>
 </footer>
 
