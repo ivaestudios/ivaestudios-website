@@ -12,12 +12,12 @@
     { title: 'Bodas', desc: 'Cobertura editorial completa de bodas destino', href: '/es/fotografo-bodas-destino-mexico', icon: 'wedding' },
     { title: 'Familia', desc: 'Sesiones familiares en resorts de lujo', href: '/es/fotos-familiares-lujo-cancun', icon: 'family' },
     { title: 'Parejas', desc: 'Lunas de miel, aniversarios, escapadas', href: '/es/fotografia-parejas-mexico', icon: 'couple' },
-    { title: 'Editorial', desc: 'Sesiones editoriales y estilo de marca', href: '/es/blog/estilo-fotografo-lujo-editorial-vs-documental', icon: 'editorial' }
+    { title: 'Editorial', desc: 'Campañas de marca y editoriales de revista', href: '/es/editorial-de-lujo', icon: 'editorial' }
   ] : [
     { title: 'Weddings', desc: 'Full editorial destination wedding coverage', href: '/luxury-weddings', icon: 'wedding' },
     { title: 'Family', desc: 'Family sessions at luxury resorts', href: '/luxury-family-photos-cancun', icon: 'family' },
     { title: 'Couples', desc: 'Honeymoons, anniversaries, romantic getaways', href: '/couples-photography-mexico', icon: 'couple' },
-    { title: 'Editorial', desc: 'Editorial sessions & brand styling', href: '/blog/luxury-photographer-style-editorial-vs-documentary', icon: 'editorial' }
+    { title: 'Editorial', desc: 'Brand campaigns and magazine editorials', href: '/luxury-editorial', icon: 'editorial' }
   ];
 
   var triggerLabel = isES ? 'Servicios' : 'Services';

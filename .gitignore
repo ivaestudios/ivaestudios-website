@@ -18,3 +18,8 @@ tools/img-converter/node_modules/
 tools/img-converter/package-lock.json
 
 .claude-design-plugin/
+
+# Phase 3 staging — temporary section HTML outputs assembled into final pages by Phase 4
+.tmp-family-sections/
+.tmp-couples-sections/
+.tmp-editorial-sections/

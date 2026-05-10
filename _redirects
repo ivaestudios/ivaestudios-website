@@ -52,12 +52,43 @@
 /accessibility /accessibility-statement 301
 /accesibilidad /es/declaracion-accesibilidad 301
 
+# Footer / legacy slug recovery (Wave F audit fixes)
+/terms /privacy-policy 301
+/cookies /privacy-policy 301
+/privacy.html /privacy-policy 301
+/terms.html /privacy-policy 301
+/cookies.html /privacy-policy 301
+/es/privacy /es/politica-de-privacidad 301
+/es/terms /es/politica-de-privacidad 301
+/es/cookies /es/politica-de-privacidad 301
+/es/privacidad.html /es/politica-de-privacidad 301
+/es/terminos.html /es/politica-de-privacidad 301
+/es/cookies.html /es/politica-de-privacidad 301
+/vianey-diaz.html /about 301
+/vianey-diaz /about 301
+/es/vianey-diaz.html /es/acerca-de 301
+/es/vianey-diaz /es/acerca-de 301
+/family-photography.html /luxury-family-photos-cancun 301
+/family-photography /luxury-family-photos-cancun 301
+/es/fotografia-familiar.html /es/fotos-familiares-lujo-cancun 301
+/es/fotografia-familiar /es/fotos-familiares-lujo-cancun 301
+/es/editorial.html /es/editorial-de-lujo 301
+/es/editorial /es/editorial-de-lujo 301
+
 # ═══════════════════════════════════════════
 # CLEAN URLs — Service Pages
 # ═══════════════════════════════════════════
 /destination-wedding-photographer-mexico /luxury-weddings 200
 /luxury-family-photos-cancun /luxury-family-photos 200
 /couples-photography-mexico /couples-photography 200
+/luxury-editorial /luxury-editorial.html 200
+/es/editorial-de-lujo /es/editorial-de-lujo.html 200
+
+# Recover blog post traffic to new editorial service page
+/blog/luxury-photographer-style-editorial-vs-documentary /luxury-editorial 301
+/es/blog/estilo-fotografo-lujo-editorial-vs-documental /es/editorial-de-lujo 301
+/post-luxury-photographer-style-editorial-vs-documentary.html /luxury-editorial 301
+/post-luxury-photographer-style-editorial-vs-documentary /luxury-editorial 301
 
 # ═══════════════════════════════════════════
 # CLEAN URLs — Blog Posts (Batch 1)
