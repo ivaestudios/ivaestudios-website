@@ -22,6 +22,18 @@
   transition:background .55s var(--ease, cubic-bezier(0.16,1,0.3,1)),backdrop-filter .55s var(--ease, cubic-bezier(0.16,1,0.3,1)),height .45s var(--ease, cubic-bezier(0.16,1,0.3,1)),border-color .55s var(--ease, cubic-bezier(0.16,1,0.3,1)) !important;
   gap:24px !important;
 }
+.site-header > a,
+.site-header > nav,
+.site-header > div,
+.site-header > button{
+  margin:0 !important;
+}
+.site-header nav,
+.site-header > nav,
+.site-header .h-nav{
+  margin-left:0 !important;
+  margin-right:0 !important;
+}
 .site-header.scrolled{
   background:rgba(10,15,23,.94) !important;
   backdrop-filter:saturate(160%) blur(20px) !important;
