@@ -787,35 +787,36 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 
 <!-- ═══════ HEADER ═══════ -->
 <header class="site-header" id="siteHeader" role="banner">
-  <a href="/" class="h-logo" aria-label="IVAE Studios home">IVAE <em>Studios</em></a>
+  <a href="/" class="h-logo">IVAE <em>Studios</em></a>
   <nav aria-label="Primary">
-    <ul class="h-nav" role="list">
-      <li><a href="/luxury-weddings.html">Weddings</a></li>
-      <li><a href="/couples-photography.html" aria-current="page">Couples</a></li>
-      <li><a href="/family-photography.html">Family</a></li>
-      <li><a href="/about.html">Studio</a></li>
+    <ul class="h-nav">
+      <li><a href="/">Home</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="/blog">Journal</a></li>
     </ul>
   </nav>
-  <div class="lang-switcher" role="group" aria-label="Language switcher">
-    <a href="/couples-photography-mexico" hreflang="en" lang="en" aria-current="true" class="lang-link is-active">English</a>
+  <div class="lang-switch" role="group" aria-label="Language">
+    <a href="/couples-photography-mexico" data-lang-switch="en" hreflang="en" class="is-active" aria-current="page">EN</a>
     <span class="lang-sep" aria-hidden="true">|</span>
-    <a href="/es/fotografia-parejas-mexico" hreflang="es" lang="es" aria-label="Cambiar a español" class="lang-link">Español</a>
+    <a href="/es/fotografia-parejas-mexico" data-lang-switch="es" hreflang="es" lang="es">ES</a>
   </div>
-  <a href="#inquiry" class="h-cta" data-magnet="true">
+  <a href="#inquiry" class="h-cta">
     Begin Inquiry
     <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
   </a>
-  <button class="h-toggle" id="hToggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="hMobileNav">
-    <span></span><span></span><span></span>
-  </button>
+  <button class="h-burger" id="hBurger" type="button" aria-expanded="false" aria-controls="mNav" aria-label="Open navigation"><span></span><span></span><span></span></button>
 </header>
-
-<nav id="hMobileNav" class="h-mobile-nav" aria-label="Mobile">
-  <a href="/luxury-weddings.html">Weddings</a>
-  <a href="/couples-photography.html" aria-current="page">Couples</a>
-  <a href="/family-photography.html">Family</a>
-  <a href="/about.html">Studio</a>
-  <a href="#inquiry" class="lc-btn lc-btn--ghost" style="margin-top:16px;align-self:flex-start">Begin Inquiry</a>
+<nav class="m-nav" id="mNav" aria-label="Mobile">
+  <a href="/">Home</a>
+  <a href="/about">About</a>
+  <a href="#services">Services</a>
+  <a href="/blog">Journal</a>
+  <a href="/luxury-family-photos-cancun">Families</a>
+  <a href="/luxury-weddings">Weddings</a>
+  <a href="/couples-photography-mexico" aria-current="page">Couples</a>
+  <a href="/luxury-editorial">Editorial</a>
+  <a href="/es/fotografia-parejas-mexico" lang="es">Español</a>
 </nav>
 
 <main id="main-content" tabindex="-1">
