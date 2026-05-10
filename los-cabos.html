@@ -58,8 +58,8 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .curtain::after{content:'';position:absolute;inset:0;background:var(--sand);transform:scaleX(1);transform-origin:right;transition:transform 0.9s cubic-bezier(0.16,1,0.3,1) 0.2s}
 .curtain.vis::after{transform:scaleX(0)}
 .hero{position:relative;height:80vh;display:flex;align-items:center;justify-content:center;overflow:hidden;text-align:center;padding:0 64px}
-.hero-bg{position:absolute;inset:0;z-index:0;will-change:transform}
-.hero-bg img{width:100%;height:120%;object-fit:cover;filter:brightness(0.38) saturate(0.85)}
+.hero-bg{position:absolute;inset:0;z-index:0;will-change:transform;overflow:hidden}
+.hero-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(0.38) saturate(0.85)}
 .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(14,22,32,0.25) 0%,rgba(14,22,32,0.55) 100%)}
 .hero-content{position:relative;z-index:2;max-width:min(820px,100%)}
 .hero-tag{font-size:10px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:block}
@@ -278,7 +278,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 <header class="site-header" id="siteHeader">
   <a class="header-logo" href="/">IVAE <span>Studios</span></a>
-  <nav><ul class="header-nav" role="navigation" aria-label="Main navigation">
+  <nav aria-label="Main navigation"><ul class="header-nav">
     <li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/#services">Services</a></li><li><a href="/blog">Blog</a></li>
   </ul></nav>
   <div class="lang-switch" role="group" aria-label="Language switcher">
@@ -533,17 +533,17 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="tst rv d1" data-anim="fade">
       <span class="tst-stars" aria-label="5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
       <p>We booked a family session at Waldorf Astoria Pedregal during spring break. The team knew exactly which terrace to use for the best sunset light and kept our three kids laughing the entire time. The images are genuinely the best photographs our family has ever had taken.</p>
-      <span class="tst-a">The Mitchell Family<span>Waldorf Astoria Los Cabos Pedregal</span></span>
+      <div class="tst-a">The Mitchell Family<span>Waldorf Astoria Los Cabos Pedregal</span></div>
     </div>
     <div class="tst rv d2" data-anim="fade">
       <span class="tst-stars" aria-label="5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
       <p>My husband proposed at The Cape and IVAE captured every second without us having any idea they were there. When we saw the photos afterward, we both cried. The cliffside, the sunset, his expression — everything was perfect. Hiring them was the best decision of the entire trip.</p>
-      <span class="tst-a">Rachel &amp; David K.<span>The Cape, a Thompson Hotel</span></span>
+      <div class="tst-a">Rachel &amp; David K.<span>The Cape, a Thompson Hotel</span></div>
     </div>
     <div class="tst rv d3" data-anim="fade">
       <span class="tst-stars" aria-label="5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
       <p>IVAE covered our ceremony at Esperanza and a next-day couple session at Palmilla Beach. The editorial quality of the images exceeded what we expected even from a high-end studio. Flawless communication from start to finish.</p>
-      <span class="tst-a">Jennifer &amp; Marcus W.<span>Esperanza, Auberge Resorts</span></span>
+      <div class="tst-a">Jennifer &amp; Marcus W.<span>Esperanza, Auberge Resorts</span></div>
     </div>
   </div>
 </section>

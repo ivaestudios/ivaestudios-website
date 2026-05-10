@@ -105,7 +105,6 @@ ul{list-style:none}
  --lw-grain-opacity: .035;
  --lw-magnet-pull: 6px;
  --lw-cursor-ring: 18px;
- --lw-clock-size: clamp(220px, 22vw, 300px);
  --lw-cinema-shadow: 0 50px 120px rgba(0,0,0,.55);
 }
 
@@ -247,63 +246,6 @@ ul{list-style:none}
  .feature-img img{transition:none !important}
 }
 
-.lw-clock-section{background:var(--ink-3)}
-.lw-clock-grid{
- display:grid;grid-template-columns:var(--lw-clock-size) 1fr;
- gap:clamp(28px,5vw,72px);align-items:center;margin-top:48px;
-}
-.lw-clock{width:var(--lw-clock-size);height:var(--lw-clock-size);position:relative;flex-shrink:0}
-.lw-clock svg{width:100%;height:100%;display:block}
-.lw-clock-ring-bg{fill:none;stroke:var(--gold-line);stroke-width:1}
-.lw-clock-ring-active{
- fill:none;stroke:var(--gold);stroke-width:2;stroke-linecap:round;
- transform-origin:50% 50%;transition:stroke-dasharray .8s var(--ease-smooth);
-}
-.lw-clock-tick{stroke:var(--gold-line);stroke-width:1}
-.lw-clock-tick.major{stroke:var(--gold);stroke-width:1.2}
-.lw-clock-label{
- font-family:var(--font-sans);font-size:9px;
- fill:var(--text-on-dark-3);letter-spacing:.2em;
- text-transform:uppercase;text-anchor:middle;
-}
-.lw-clock-center{
- font-family:var(--font-serif);font-style:italic;font-weight:300;
- fill:var(--cream);text-anchor:middle;
-}
-.lw-clock-center.big{font-size:24px}
-.lw-clock-center.small{
- font-size:10px;fill:var(--gold);letter-spacing:.16em;
- text-transform:uppercase;font-style:normal;
- font-family:var(--font-sans);font-weight:500;
-}
-.lw-clock-side{display:flex;flex-direction:column;gap:18px}
-.lw-clock-side .lw-section-eyebrow{margin-bottom:0}
-.lw-clock-months{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.lw-clock-mbtn{
- font-family:var(--font-sans);font-size:var(--fs-10);
- font-weight:500;letter-spacing:.18em;text-transform:uppercase;
- color:var(--text-on-dark-2);
- border:1px solid var(--gold-line);background:transparent;
- padding:8px 12px;min-height:36px;cursor:pointer;
- transition:all .3s var(--ease);
-}
-.lw-clock-mbtn:hover,.lw-clock-mbtn:focus-visible{
- color:var(--cream);border-color:var(--gold);
-}
-.lw-clock-mbtn[aria-pressed="true"]{
- background:var(--gold);color:var(--ink-1);border-color:var(--gold);
-}
-html.dark .lw-clock-mbtn{color:var(--text-on-dark-2)}
-html.dark .lw-clock-mbtn[aria-pressed="true"]{color:var(--ink-1) !important}
-.lw-clock-caption{
- font-family:var(--font-serif);font-style:italic;font-weight:300;
- font-size:var(--fs-15);color:var(--text-on-dark-readable);max-width:480px;
-}
-@media(max-width:760px){
- .lw-clock-grid{grid-template-columns:1fr;justify-items:center;text-align:center}
- .lw-clock-side{align-items:center}
-}
-
 .frames-rail-wrap{margin-top:48px;position:relative}
 .frames-rail{
  display:grid;grid-auto-flow:column;
@@ -387,7 +329,7 @@ body.lw-cur-cta .lw-cursor-ring{
  .pillars-stage{position:sticky;top:120px;align-self:start;}
  .pillars-grid{margin-top:0;display:flex;flex-direction:column;gap:28px}
  .pillars-grid .pillar{padding:24px 4px 24px;border-top:1px solid var(--gold-line)}
- .pillars .lw-inner .lw-pullquote{grid-column:1 / -1;margin-top:clamp(80px,8vw,140px)}
+ .pillars > .lw-pullquote{margin-top:clamp(80px,8vw,140px)}
 }
 
 .lw-w-word{display:inline-block;will-change:transform,opacity}
@@ -427,8 +369,7 @@ body.lw-cur-cta .lw-cursor-ring{
 html.dark a.lw-btn-gold,
 html.dark a.lw-btn-gold:hover,
 html.dark a.lw-btn-gold:focus-visible,
-html.dark .lw-btn-gold,
-html.dark .lw-clock-mbtn[aria-pressed="true"]{
+html.dark .lw-btn-gold{
  color:var(--ink-1) !important;
 }
 
@@ -1361,7 +1302,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  </div>
  <a href="/es/">Inicio</a>
  <a href="/es/acerca-de">Acerca</a>
- <a href="#services">Servicios</a>
+ <a href="/es/#services">Servicios</a>
  <a href="/es/blog">Diario</a>
  <a href="#inquiry">Comenzar consulta</a>
 </nav>
@@ -2231,69 +2172,6 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  });
  }, {threshold:0.45});
  stats.forEach(function(el){ obs.observe(el); });
- })();
-
- (function sunsetClock(){
- var clock = document.getElementById('lwClock');
- if(!clock) return;
- var sunsets = [17.95, 18.30, 18.55, 18.80, 19.10, 19.30, 19.30, 19.05, 18.60, 18.10, 17.75, 17.65];
- var monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
- var ticksHost = document.getElementById('lwClockTicks');
- var numHost = document.getElementById('lwClockNumbers');
- if(ticksHost && numHost){
- var SVGNS = 'http://www.w3.org/2000/svg';
- for(var h=0;h<24;h++){
- var ang = (h/24)*Math.PI*2 - Math.PI/2;
- var ox = 120 + Math.cos(ang)*108;
- var oy = 120 + Math.sin(ang)*108;
- var ix = 120 + Math.cos(ang)*(h%6===0?96:101);
- var iy = 120 + Math.sin(ang)*(h%6===0?96:101);
- var ln = document.createElementNS(SVGNS,'line');
- ln.setAttribute('x1',ox);ln.setAttribute('y1',oy);
- ln.setAttribute('x2',ix);ln.setAttribute('y2',iy);
- ln.setAttribute('class','lw-clock-tick' + (h%6===0?' major':''));
- ticksHost.appendChild(ln);
- if(h%6===0){
- var lab = document.createElementNS(SVGNS,'text');
- var lx = 120 + Math.cos(ang)*84;
- var ly = 120 + Math.sin(ang)*84 + 3;
- lab.setAttribute('x',lx);lab.setAttribute('y',ly);
- lab.setAttribute('class','lw-clock-label');
- lab.textContent = (h===0?'00':(h<10?'0'+h:h));
- numHost.appendChild(lab);
- }
- }
- }
- var arc = document.getElementById('lwClockArc');
- var timeEl = document.getElementById('lwClockTime');
- var monthLabel = document.getElementById('lwClockMonthLabel');
- var btns = $$('.lw-clock-mbtn');
- function setMonth(m){
- var sunset = sunsets[m];
- var startH = sunset - 1.0, endH = sunset + 0.25;
- var circ = 2 * Math.PI * 104;
- var startFrac = startH / 24, endFrac = endH / 24;
- var lenFrac = endFrac - startFrac;
- var lenLen = circ * lenFrac, offsetLen = circ * startFrac;
- if(arc){
- arc.setAttribute('stroke-dasharray', lenLen + ' ' + (circ - lenLen));
- arc.setAttribute('stroke-dashoffset', -offsetLen);
- }
- var hr = Math.floor(sunset);
- var mn = Math.round((sunset - hr) * 60);
- var ampm = hr >= 12 ? 'PM' : 'AM';
- var dispHr = hr % 12; if(dispHr === 0) dispHr = 12;
- var mnStr = mn < 10 ? '0' + mn : mn;
- if(timeEl) timeEl.textContent = dispHr + ':' + mnStr + ' ' + ampm;
- if(monthLabel) monthLabel.textContent = monthNames[m] + ' / Cancún';
- btns.forEach(function(b){
- b.setAttribute('aria-pressed', String(parseInt(b.getAttribute('data-m'),10) === m));
- });
- }
- btns.forEach(function(b){
- b.addEventListener('click', function(){ setMonth(parseInt(b.getAttribute('data-m'),10)); });
- });
- setMonth(new Date().getMonth());
  })();
 
  (function dragRail(){

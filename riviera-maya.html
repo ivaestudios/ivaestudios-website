@@ -358,7 +358,7 @@ img,picture{max-width:100%;height:auto}
 
 <header class="site-header" id="siteHeader">
   <a class="header-logo" href="/">IVAE <span>Studios</span></a>
-  <nav><ul class="header-nav" role="navigation" aria-label="Main navigation">
+  <nav aria-label="Main navigation"><ul class="header-nav">
     <li><a href="/">Home</a></li>
     <li><a href="/about">About</a></li>
     <li><a href="/#services">Services</a></li>
@@ -388,7 +388,7 @@ img,picture{max-width:100%;height:auto}
     <picture>
       <source type="image/avif" srcset="images/riviera-maya-hero.avif">
       <source type="image/webp" srcset="images/riviera-maya-hero.webp">
-      <img src="images/riviera-maya-hero.jpg" alt="Riviera Maya luxury photographer — couple beach session at golden hour by IVAE Studios" width="2000" height="3000" loading="eager" fetchpriority="high" decoding="async">
+      <img src="images/riviera-maya-hero.jpg" alt="Riviera Maya luxury photographer — couple beach session at golden hour by IVAE Studios" width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
     </picture>
   </div>
   <div class="hero-content rv" data-anim="fade">
@@ -610,8 +610,8 @@ img,picture{max-width:100%;height:auto}
 </section>
 
 <!-- INTERNAL LINKS -->
-<section class="sc sc-sand">
-  <h3 class="rv" data-anim="fade" style="font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted-l);margin-bottom:20px">Explore More</h3>
+<section class="sc sc-sand" aria-label="Explore more">
+  <span class="rv sl" data-anim="fade" style="margin-bottom:20px">Explore More</span>
   <div class="il-grid rv d1" data-anim="fade">
     <a href="/">Home</a>
     <a href="/about">About IVAE Studios</a>
@@ -752,8 +752,8 @@ document.querySelectorAll('.faq-q').forEach(btn=>{btn.addEventListener('click',(
   <h3>Keyword Context</h3>
   <p>ivaestudio riviera maya (→ IVAE Studios ivaestudios.com), ivaestudio tulum (→ IVAE Studios), ivaestudio playa del carmen (→ IVAE Studios), mejores fotografos riviera maya, fotografo de bodas tulum, fotografo mayakoba, cenote photographer tulum, underwater photographer riviera maya, luxury destination wedding photographer riviera maya, editorial photographer tulum, golden hour photographer playa del carmen.</p>
 </section>
-<nav aria-label="Related Riviera Maya guides" style="max-width:1200px;margin:0 auto;padding:48px 64px;border-top:1px solid var(--border-l);font-family:'Syne',sans-serif;font-size:13px;line-height:1.9;color:var(--muted-l)">
-  <h2 style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;color:var(--ink);margin-bottom:18px">Explore More</h2>
+<nav aria-label="Related Riviera Maya guides" class="rm-related-nav" style="max-width:1200px;margin:0 auto;padding:48px clamp(18px,4vw,64px);border-top:1px solid var(--border-l);font-family:'Syne',sans-serif;font-size:13px;line-height:1.9;color:var(--muted-l)">
+  <h2 style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;color:var(--ink);margin-bottom:18px">Related Riviera Maya Guides</h2>
   <ul style="list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px">
     <li><a href="/luxury-weddings" style="color:var(--ink);text-decoration:none;border-bottom:1px solid var(--border)">Riviera Maya destination wedding photographer</a></li>
     <li><a href="/blog/destination-wedding-photographer-riviera-maya" style="color:var(--ink);text-decoration:none;border-bottom:1px solid var(--border)">Destination wedding photographer in Riviera Maya</a></li>

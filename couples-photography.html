@@ -146,15 +146,14 @@ body::before{
 
 
 
-.h-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;background:none;border:none;min-width:44px;min-height:44px;align-items:center;justify-content:center}
-.h-toggle span{display:block;width:22px;height:1.5px;background:var(--cream-1);transition:transform .3s var(--ease),opacity .3s var(--ease)}
-.h-mobile-nav{display:none;position:fixed;top:68px;left:0;right:0;background:var(--ink-4);padding:24px clamp(20px,5vw,64px);flex-direction:column;border-bottom:1px solid var(--gold-line);z-index:8999}
-.h-mobile-nav.open{display:flex}
-.h-mobile-nav a{font-family:var(--font-sans);font-size:var(--fs-13);font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--text-on-dark-readable);text-decoration:none;padding:14px 0;border-bottom:1px solid var(--gold-line)}
-.h-mobile-nav a:last-child{border-bottom:none}
+.h-burger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;background:none;border:none;min-width:44px;min-height:44px;align-items:center;justify-content:center}
+.h-burger span{display:block;width:22px;height:1.5px;background:var(--cream-1);transition:transform .3s var(--ease),opacity .3s var(--ease)}
+.m-nav{display:none;position:fixed;top:68px;left:0;right:0;background:var(--ink-4);padding:24px clamp(20px,5vw,64px);flex-direction:column;border-bottom:1px solid var(--gold-line);z-index:8999}
+.m-nav.open{display:flex}
+.m-nav a{font-family:var(--font-sans);font-size:var(--fs-13);font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--text-on-dark-readable);text-decoration:none;padding:14px 0;border-bottom:1px solid var(--gold-line)}
+.m-nav a:last-child{border-bottom:none}
 @media (max-width: 900px){
-  
-  .h-toggle{display:inline-flex}
+  .h-burger{display:inline-flex}
 }
 
 /* ═══ Main wrapper ═══ */
@@ -378,14 +377,14 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 .lc-collections-note{max-width:720px;margin:clamp(40px,5vw,64px) auto 0;text-align:center;font-family:var(--font-serif);font-style:italic;font-size:var(--fs-13);color:var(--text-on-light-readable)}
 
 /* ─── INQUIRY-BRIDGE (replaces collections) ─── */
-.lc-inquiry-bridge{padding:var(--lc-section-gap) clamp(20px,5vw,64px);background:var(--ink-3);color:var(--cream)}
+.lc-inquiry-bridge{padding:var(--lc-section-gap) clamp(20px,5vw,64px);background:var(--ink-3);color:var(--cream-1)}
 .lc-inquiry-bridge-inner{max-width:1100px;margin:0 auto}
 .lc-inquiry-bridge .eyebrow{font-family:var(--font-sans);font-size:var(--fs-10);font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
-.lc-inquiry-bridge h2{font-family:var(--font-serif);font-weight:300;font-size:clamp(34px,4.4vw,62px);line-height:1.06;letter-spacing:-.018em;color:var(--cream);max-width:980px;margin-top:24px}
+.lc-inquiry-bridge h2{font-family:var(--font-serif);font-weight:300;font-size:clamp(34px,4.4vw,62px);line-height:1.06;letter-spacing:-.018em;color:var(--cream-1);max-width:980px;margin-top:24px}
 .lc-inquiry-bridge h2 em{font-style:italic;color:var(--gold)}
 .lc-inquiry-bridge p{margin-top:28px;font-family:var(--font-sans);font-size:var(--fs-15);line-height:1.78;color:rgba(250,248,245,.78);max-width:720px}
 .lc-promise-list{list-style:none;padding:0;margin:48px 0 0;display:grid;grid-template-columns:repeat(2,1fr);gap:32px;max-width:900px}
-.lc-promise-list li{display:flex;gap:18px;align-items:baseline;font-family:var(--font-serif);font-size:var(--fs-15);line-height:1.5;color:var(--cream)}
+.lc-promise-list li{display:flex;gap:18px;align-items:baseline;font-family:var(--font-serif);font-size:var(--fs-15);line-height:1.5;color:var(--cream-1)}
 .lc-promise-list li em{font-style:italic;color:var(--gold)}
 .lc-promise-num{font-family:var(--font-sans);font-size:9px;font-weight:500;letter-spacing:.28em;color:var(--gold);min-width:24px}
 .lc-promise-cta{margin-top:48px}
@@ -697,10 +696,10 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 .lc-inquiry-h2{font-family:var(--font-serif);font-size:clamp(36px,5vw,64px);font-weight:300;line-height:1.10;color:var(--cream-1);margin:8px 0 24px;letter-spacing:-.01em}
 .lc-inquiry-pitch{font-size:var(--fs-15);line-height:1.85;color:var(--text-on-dark-readable);margin-bottom:28px;max-width:600px;margin-left:auto;margin-right:auto}
 .lc-inquiry-h2 em{font-style:italic;color:var(--gold);font-weight:300}
-.lc-inquiry-proposal-note{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-sans);font-size:var(--fs-12);letter-spacing:.04em;color:var(--gold);margin:0 auto 32px;padding:8px 18px;border:1px solid rgba(196,163,90,.32);border-radius:999px;background:rgba(196,163,90,.06)}
+.lc-inquiry-proposal-note{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-sans);font-size:var(--fs-13);letter-spacing:.04em;color:var(--gold);margin:0 auto 32px;padding:8px 18px;border:1px solid rgba(196,163,90,.32);border-radius:999px;background:rgba(196,163,90,.06)}
 .lc-inquiry-proposal-note::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgba(196,163,90,.18)}
 .lc-inquiry-ctas{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-items:center;margin-bottom:40px}
-.lc-inquiry-ctas .lc-btn--text{font-size:var(--fs-12);letter-spacing:.18em;text-transform:uppercase;padding:10px 14px}
+.lc-inquiry-ctas .lc-btn--text{font-size:var(--fs-13);letter-spacing:.18em;text-transform:uppercase;padding:10px 14px}
 .lc-rv-stagger{opacity:1}
 @media (prefers-reduced-motion: no-preference){
   html.js-on .lc-inquiry-content > .lc-rv{opacity:0;transform:translateY(14px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
@@ -739,7 +738,6 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
   .lc-hero-ctas .lc-btn{width:100%}
   .lc-tier-grid{grid-template-columns:1fr}
   .lc-tier-card--featured{transform:none}
-  .lc-month-controls{justify-content:flex-start}
   .lc-pullquote__ornament{font-size:clamp(160px,40vw,220px);top:-20px}
   .lc-inquiry-ctas{flex-direction:column;align-items:stretch}
   .lc-inquiry-ctas .lc-btn{width:100%}
@@ -752,13 +750,11 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
   .lc-hero-ctas, .lc-inquiry-ctas{gap:10px}
   .lc-hero-h1{font-size:clamp(28px, 7vw, 42px)}
   .lc-tier-grid{grid-template-columns:1fr;gap:16px}
-  .lc-method-grid{grid-template-columns:1fr}
-  .lc-testimonials-grid, .lc-testimonial-grid{grid-template-columns:1fr;gap:20px}
+  .lc-testimonials-grid{grid-template-columns:1fr;gap:20px}
 }
 @media (min-width: 768px) and (max-width: 1023px){
   .lc-tier-grid{grid-template-columns:1fr 1fr}
-  .lc-testimonials-grid, .lc-testimonial-grid{grid-template-columns:1fr 1fr;gap:24px}
-  .lc-method-grid{grid-template-columns:1fr 1fr}
+  .lc-testimonials-grid{grid-template-columns:1fr 1fr;gap:24px}
   .lc-reel-track{padding-inline:24px}
 }
 </style>
@@ -768,13 +764,13 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 <a class="skip-link" href="#main-content">Skip to main content</a>
 
 <!-- ═══════ HEADER ═══════ -->
-<header class="site-header" id="siteHeader" role="banner">
+<header class="site-header" id="siteHeader">
   <a href="/" class="h-logo">IVAE <em>Studios</em></a>
   <nav aria-label="Primary">
     <ul class="h-nav">
       <li><a href="/">Home</a></li>
       <li><a href="/about">About</a></li>
-      <li><a href="#services">Services</a></li>
+      <li><a href="/#services">Services</a></li>
       <li><a href="/blog">Journal</a></li>
     </ul>
   </nav>
@@ -792,7 +788,7 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 <nav class="m-nav" id="mNav" aria-label="Mobile">
   <a href="/">Home</a>
   <a href="/about">About</a>
-  <a href="#services">Services</a>
+  <a href="/#services">Services</a>
   <a href="/blog">Journal</a>
   <a href="/luxury-family-photos-cancun">Families</a>
   <a href="/luxury-weddings">Weddings</a>
@@ -806,7 +802,7 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 <!-- ═══════════════════════════════════════════════════════════════
      SECTION 1 — HERO (h1 cascade, motes, parallax, magnetic CTAs)
      ═══════════════════════════════════════════════════════════════ -->
-<header class="lc-hero" id="hero" data-parallax-host aria-labelledby="hero-h1" role="region">
+<section class="lc-hero" id="hero" data-parallax-host aria-labelledby="hero-h1">
   <div class="lc-hero-bg" data-parallax-target>
     <img src="https://assets.ivaestudios.com/couples-photography-mexico-hero.jpg"
          alt="A couple at golden hour on the beach in Cancun, photographed by IVAE Studios."
@@ -859,7 +855,7 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
       <span>Since 2019</span>
     </div>
   </div>
-</header>
+</section>
 
 <!-- ═══════════════════════════════════════════════════════════════
      SECTION 2 — PILLARS (sticky-stage manifesto, Light/Direction/Discretion)
@@ -871,7 +867,7 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
     <p class="lc-manifesto-lead lc-rv d1">Two people, one light. The studio listens for the moment one of you laughs at the other. That is the frame the studio makes.</p>
     <p class="lc-manifesto-body lc-rv d2">The hour is built around the two of you. The light is shaped backward from sunset. Direction is quiet, never posed; the studio leaves the choreography to the day and steps in to compose, to soften, to ask one of you to look back across the sand. Couples are not poses. They are the seven seconds between two glances.</p>
     <p class="lc-manifesto-body lc-rv d3">The studio accepts a limited number of couples each month so the studio's attention never thins. Across three coastlines, at the resorts the planners trust most, the work proceeds in one register: calm, considered, golden-hour first. Honeymoon, anniversary, proposal. The same standard, the same care, the same delivery promise of first frames inside seventy-two hours and the full gallery inside three weeks.</p>
-    <p class="lc-manifesto-attr lc-rv d3"><span class="lc-attr-mark" aria-hidden="true"></span><em>Vianey Diaz, who directs the studio.</em></p>
+    <p class="lc-manifesto-attr lc-rv d4"><span class="lc-attr-mark" aria-hidden="true"></span><em>Vianey Diaz, who directs the studio.</em></p>
   </div>
 
   <div class="lc-pillars">
@@ -1032,7 +1028,7 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
      ═══════════════════════════════════════════════════════════════ -->
 <section class="lc-pullquote-section on-dark" aria-labelledby="voices-heading">
   <h2 id="voices-heading" class="visually-hidden">Voices</h2>
-  <p class="lc-eyebrow lc-eyebrow--on-dark" style="justify-content:center;display:flex">Voices</p>
+  <p class="lc-eyebrow lc-eyebrow--on-dark lc-eyebrow--centered">Voices</p>
 
   <blockquote class="lc-pullquote lc-rv">
     <span class="lc-pullquote__ornament" aria-hidden="true">&#10077;</span>
@@ -1330,7 +1326,7 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 <!-- ═══════════════════════════════════════════════════════════════
      SECTION 11 — FOOTER
      ═══════════════════════════════════════════════════════════════ -->
-<footer class="colophon" role="contentinfo" aria-label="Footer">
+<footer class="colophon" aria-label="Footer">
   <div class="colophon-mark">
     <span class="colophon-mark-name">IVAE<em>Studios</em></span>
     <span class="colophon-tag">Luxury Resort Photography. <em>Editorial. Bilingual. Golden hour, only.</em></span>
@@ -1464,8 +1460,8 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
   }
 
   /* ═══ 2. Mobile nav toggle ═══ */
-  var hToggle = document.getElementById('hToggle');
-  var hMobileNav = document.getElementById('hMobileNav');
+  var hToggle = document.getElementById('hBurger');
+  var hMobileNav = document.getElementById('mNav');
   if (hToggle && hMobileNav){
     hToggle.addEventListener('click', function(){
       var open = hMobileNav.classList.toggle('open');
