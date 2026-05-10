@@ -35,8 +35,10 @@
 <link rel="preload" as="image" fetchpriority="high" href="/images/blog/destination-wedding-riviera-maya-og.avif" type="image/avif"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
+<script src="/js/components.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <style>
 /* IVAE V4 — DENSE DARK EDITORIAL. NYT/Verge/It's Nice That density. Photography first. */
@@ -202,17 +204,17 @@ html.dark .btn-cta:hover{background:var(--cream)}
 .btn-cta svg{width:13px;height:13px}
 
 /* FOOTER */
-.site-footer{padding:36px clamp(28px,6vw,80px);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px;border-top:1px solid rgba(14,22,32,0.08);background:#fafaf8}
-html.dark .site-footer{background:#070a0f;border-top:1px solid var(--border-2)}
-.footer-brand{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:0.32em;text-transform:uppercase;color:#0e1620}
-html.dark .footer-brand{color:var(--cream)}
-.footer-nav{display:flex;gap:20px;flex-wrap:wrap}
-.footer-nav a{font-size:10px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#525a66;text-decoration:none;transition:color 0.3s}
-.footer-nav a:hover{color:#0e1620}
-html.dark .footer-nav a{color:rgba(250,248,245,0.65)}
-html.dark .footer-nav a:hover{color:var(--gold)}
-.footer-copy{font-size:10px;color:#8a8f97;letter-spacing:0.1em;font-weight:500}
-html.dark .footer-copy{color:var(--muted-2)}
+
+
+
+
+
+
+
+
+
+
+
 
 /* PHOTO PLACEHOLDER */
 .card-image-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#1a2230 0%,#0a0f17 100%);color:var(--gold);padding:20px;text-align:center}
@@ -231,7 +233,7 @@ html.dark .footer-copy{color:var(--muted-2)}
   .post-card.featured-card .card-image-wrap{aspect-ratio:4/5 !important}
   .journal-hero{padding-left:32px;padding-right:32px}
   .meta-strip{padding-left:32px;padding-right:32px}
-  .site-footer{padding:32px}
+  
 }
 
 /* MOBILE */
@@ -278,7 +280,7 @@ html.dark .footer-copy{color:var(--muted-2)}
   .cta-strip h2{font-size:clamp(28px,8vw,40px)}
   .btn-cta{padding:15px 28px;font-size:10.5px}
 
-  .site-footer{padding:28px 20px;flex-direction:column;align-items:flex-start;gap:14px}
+  
 }
 </style>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
@@ -759,16 +761,54 @@ html.dark .footer-copy{color:var(--muted-2)}
   </a>
 </section>
 
-<!-- FOOTER -->
-<footer class="site-footer">
-  <span class="footer-brand">IVAE Studios</span>
-  <nav class="footer-nav">
-    <a href="/">Home</a><a href="/about">About</a><a href="/blog">Journal</a>
-    <a href="/cancun-photographer">Cancun</a><a href="/riviera-maya-photographer">Riviera Maya</a><a href="/cabo-photographer">Los Cabos</a>
-    <a href="/destination-wedding-photographer-mexico">Weddings</a><a href="/luxury-family-photos-cancun">Families</a><a href="/couples-photography-mexico">Couples</a>
-    <a href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Instagram</a>
-  </nav>
-  <span class="footer-copy">&copy; 2026 IVAE Studios &middot; Cancun, Mexico</span>
+<!-- FOOTER (canonical .colophon — loaded from /styles/site-footer.css) -->
+<footer class="colophon" role="contentinfo" aria-label="Footer">
+  <div class="colophon-mark">
+    <span class="colophon-mark-name">IVAE<em>Studios</em></span>
+    <span class="colophon-tag">Luxury Resort Photography. <em>Editorial. Bilingual. Golden hour, only.</em></span>
+  </div>
+  <div class="colophon-cols">
+    <div>
+      <div class="col-h">The Studio</div>
+      <p>IVAE Studios is a luxury resort photography studio based in Cancún, working across the Riviera Maya, Tulum, Isla Mujeres, and Los Cabos. Founded and led by Director Vianey Díaz. Ten years of editorial cameras, two languages, one obsession with the hour the light is honest.</p>
+    </div>
+    <div>
+      <div class="col-h">Studio</div>
+      <ul>
+        <li><a href="/about">Vianey Díaz</a></li>
+        <li><a href="/brand">Brand &amp; Press</a></li>
+        <li><a href="/blog" aria-current="page">The Journal</a></li>
+        <li><a href="mailto:hello@ivaestudios.com">Begin Inquiry</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="col-h">Coastlines</div>
+      <ul>
+        <li><a href="/cancun-photographer">Cancún</a></li>
+        <li><a href="/riviera-maya-photographer">Riviera Maya</a></li>
+        <li><a href="/los-cabos-photographer">Los Cabos</a></li>
+        <li><a href="/destination-wedding-photographer-mexico">Weddings</a></li>
+        <li><a href="/luxury-family-photos-cancun">Families</a></li>
+        <li><a href="/couples-photography-mexico">Couples</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="col-h">Direct lines</div>
+      <ul>
+        <li><a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a></li>
+        <li><a href="https://wa.me/529902046514" target="_blank" rel="noopener">WhatsApp the studio</a></li>
+        <li><a href="https://www.instagram.com/ivaestudios.cancun/" target="_blank" rel="noopener">Instagram</a></li>
+        <li><a href="/es/blog" lang="es">Español</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="colophon-bottom">
+    <span>&copy; 2026 IVAE Studios &middot; Cancún, México</span>
+    <span class="colophon-bottom-rule"></span>
+    <em>Set in Cormorant Garamond &amp; Syne</em>
+    <span class="colophon-bottom-rule"></span>
+    <span>Cancún · Riviera Maya · Los Cabos · English / Español</span>
+  </div>
 </footer>
 
 <script>
