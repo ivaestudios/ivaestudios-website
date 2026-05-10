@@ -509,37 +509,41 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   overflow:hidden;
 }
 @media (min-width:1024px) and (prefers-reduced-motion: no-preference){
-  html.js-on .le-manifesto-stage{min-height:200vh}
+  html.js-on .le-manifesto-stage{min-height:300vh}
+  html.js-on .le-manifesto-stage .le-manifesto-track{
+    position:sticky;top:0;height:100vh;
+    display:flex;align-items:center;
+    overflow:hidden;
+  }
 }
-.le-manifesto-plates{position:absolute;inset:0;z-index:1;pointer-events:none}
+.le-manifesto-track{position:relative;width:100%}
+.le-manifesto-plates{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+}
 .le-manifesto-plate{
-  position:absolute;
-  width:30%;max-width:380px;height:auto;
-  opacity:0;filter:brightness(.50) saturate(.85);
-  transition:opacity 1.4s var(--ease-smooth, ease),transform 1.4s var(--ease-smooth, ease);
+  position:absolute;top:50%;left:50%;
+  width:min(46%, 520px);height:auto;aspect-ratio:4/5;object-fit:cover;
+  transform:translate(-50%, -50%) translateY(14px);
+  opacity:0;filter:brightness(.48) saturate(.85);
+  transition:opacity 1.2s var(--ease-smooth, ease), transform 1.2s var(--ease-smooth, ease);
   will-change:opacity, transform;
 }
-.le-manifesto-plate--1{top:8%;left:5%;transform:translateY(20px)}
-.le-manifesto-plate--2{top:42%;right:6%;transform:translateY(20px)}
-.le-manifesto-plate--3{bottom:10%;left:14%;transform:translateY(20px)}
-.le-manifesto-plate.is-revealed{opacity:.85;transform:translateY(0)}
-@media(max-width:1024px){
+.le-manifesto-plate--1{left:18%}
+.le-manifesto-plate--2{left:50%}
+.le-manifesto-plate--3{left:82%}
+.le-manifesto-plate.is-active{opacity:.78;transform:translate(-50%, -50%) translateY(0)}
+@media(max-width:1023px){
   .le-manifesto-plate{display:none}
 }
 
 .le-manifesto-text{
   position:relative;z-index:2;
-  max-width:600px;margin:0 auto;
+  max-width:640px;margin:0 auto;
   padding:0 clamp(20px,5vw,56px);
-}
-@media (min-width:1024px) and (prefers-reduced-motion: no-preference){
-  html.js-on .le-manifesto-text{
-    position:sticky;top:120px;
-  }
 }
 .le-manifesto-h2{
   font-family:var(--font-serif);font-weight:300;
-  font-size:clamp(36px,4vw,56px);line-height:1.10;letter-spacing:-.018em;
+  font-size:clamp(40px, 4.6vw, 64px);line-height:1.06;letter-spacing:-.020em;
   color:var(--cream);margin:18px 0 36px;
 }
 .le-manifesto-h2 em{font-style:italic;color:var(--gold)}
@@ -553,22 +557,25 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   margin-bottom:24px;
 }
 .le-manifesto-body p:first-of-type::first-letter{
-  font-family:var(--font-serif);font-style:italic;
-  font-size:var(--le-dropcap-fs);
-  font-weight:400;color:var(--gold);
-  float:left;padding:0 14px 0 0;line-height:0.86;
+  font-family:var(--font-serif);font-style:italic;font-weight:400;
+  font-size:80px;line-height:.86;
+  color:var(--gold);
+  float:left;padding:6px 14px 0 0;
 }
 .le-manifesto-body em{font-style:italic;color:var(--cream);font-weight:400}
+.le-manifesto-body em[lang="es"]{color:var(--gold);font-style:italic}
 .le-signoff{
   display:block;
-  font-family:var(--font-sans);font-size:var(--fs-13, 13px);font-weight:500;
-  letter-spacing:.18em;text-transform:uppercase;
-  color:var(--gold);margin-top:32px;font-style:normal;
+  font-family:var(--font-serif, 'Cormorant Garamond', serif);
+  font-style:italic;font-weight:400;
+  font-size:var(--fs-13, 13px);
+  font-variant:small-caps;letter-spacing:.14em;
+  color:var(--gold);margin-top:32px;
 }
 
 @media (prefers-reduced-motion: reduce){
   .le-manifesto-stage{min-height:auto !important}
-  .le-manifesto-text{position:static !important;transform:none !important}
+  .le-manifesto-track{position:static !important;height:auto !important}
   .le-manifesto-plate{display:none !important}
 }
 
@@ -598,8 +605,8 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 .le-cinemascope-frame::before,
 .le-cinemascope-frame::after{
   content:'';position:absolute;left:0;right:0;
-  height:var(--le-cinemascope-letterbox);
-  background:var(--ink-1, #1a2230);
+  height:6%;
+  background:var(--ink-1, #0a0f17);
   z-index:2;pointer-events:none;
 }
 .le-cinemascope-frame::before{top:0;border-bottom:1px solid var(--gold-line)}
@@ -607,6 +614,18 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 .le-cinemascope-frame img{
   width:100%;height:100%;object-fit:cover;
   filter:saturate(.92) brightness(.92);
+  transform:scale(1);
+}
+@media (prefers-reduced-motion: no-preference){
+  .le-cinemascope-frame img{
+    transition:transform 1.4s ease, filter 1.4s ease;
+    will-change:transform;
+  }
+  .le-cinemascope-frame:hover img,
+  .le-cinemascope-frame:focus-within img{
+    transform:scale(1.04);
+    filter:saturate(.98) brightness(.96);
+  }
 }
 
 .le-cinemascope-caption{
@@ -645,9 +664,40 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 }
 .le-case-study-body p:first-of-type::first-letter{
   font-family:var(--font-serif);font-style:italic;
-  font-size:clamp(56px, 6.4vw, 80px);
+  font-size:clamp(120px, 12vw, 160px);
   font-weight:400;color:var(--gold);
-  float:left;padding:0 12px 0 0;line-height:0.86;
+  float:left;padding:0.04em 16px 0 0;
+  line-height:0.84;
+  margin-top:0.04em;
+}
+
+/* Magazine credit lines */
+.le-feature-credits{
+  margin:36px auto 0;max-width:880px;
+  display:flex;flex-wrap:wrap;gap:14px 28px;
+  padding-top:18px;border-top:1px solid var(--gold-line);
+  font-family:var(--font-sans);font-size:var(--fs-10,10px);
+  font-weight:600;letter-spacing:var(--tracking-eyebrow-wide,.32em);
+  text-transform:uppercase;
+}
+.le-feature-credits span{color:var(--gold)}
+.le-feature-credits em{font-style:normal;color:rgba(245,241,234,.78);letter-spacing:.18em}
+
+/* Stagger reveal on case-study paragraphs */
+@media (prefers-reduced-motion: no-preference){
+  .le-case-study-body p{
+    opacity:0;transform:translateY(14px);
+    transition:opacity .9s ease, transform .9s ease;
+  }
+  .le-case-study-body.is-revealed p{opacity:1;transform:none}
+  .le-case-study-body.is-revealed p:nth-child(1){transition-delay:.05s}
+  .le-case-study-body.is-revealed p:nth-child(2){transition-delay:.18s}
+  .le-case-study-body.is-revealed p:nth-child(3){transition-delay:.31s}
+  .le-case-study-body.is-revealed p:nth-child(4){transition-delay:.44s}
+  .le-case-study-body.is-revealed p:nth-child(5){transition-delay:.57s}
+}
+@media (prefers-reduced-motion: reduce){
+  .le-case-study-body p{opacity:1;transform:none}
 }
 
 @media(max-width:768px){
@@ -809,16 +859,23 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   .le-brackets-grid{grid-template-columns:1fr;gap:24px}
 }
 
-/* ═══════ Section 6 - Method timeline ═══════ */
+/* ═══════ Section 6 - Method timeline (refined) ═══════ */
 .le-section--method{
   background:var(--ink-3, #0c1219);
   padding:clamp(80px, 10vw, 140px) clamp(20px,5vw,56px);
+  position:relative;
 }
-.le-method-head{max-width:720px;margin:0 auto 80px;text-align:center}
+.le-section--method::before{
+  content:'';position:absolute;left:50%;top:48px;
+  width:1px;height:42px;background:var(--gold);
+  transform:translateX(-50%);opacity:.55;
+}
+.le-method-head{max-width:760px;margin:0 auto 88px;text-align:center}
 .le-method-h2{
   font-family:var(--font-serif);font-weight:300;
   font-size:clamp(36px, 4.4vw, 62px);line-height:1.06;
   color:var(--cream);margin:18px auto;
+  letter-spacing:-.005em;
 }
 .le-method-h2 em{font-style:italic;color:var(--gold)}
 .le-method-intro{
@@ -833,19 +890,32 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 .le-method-rail::before{
   content:'';position:absolute;left:50%;top:0;bottom:0;
   width:var(--le-process-rail-w);
-  background:var(--gold-line);
+  background:linear-gradient(180deg, transparent 0%, var(--gold-line) 6%, var(--gold-line) 94%, transparent 100%);
   transform:translateX(-50%);
 }
 .le-method-step{
   position:relative;
   width:calc(50% - 36px);
-  padding:24px 0;
+  padding:28px 0;
   margin-bottom:var(--le-process-step-gap);
+  opacity:0;transform:translateY(18px);
+  transition:opacity .9s var(--ease, ease), transform .9s var(--ease, ease), border-color .5s var(--ease, ease);
+  border-left:1px solid transparent;border-right:1px solid transparent;
 }
-.le-method-step--left{margin-right:auto;padding-right:36px;text-align:right}
-.le-method-step--right{margin-left:auto;padding-left:36px;text-align:left}
+.le-method-step.is-revealed{opacity:1;transform:none}
+.le-method-step.d1{transition-delay:.05s}
+.le-method-step.d2{transition-delay:.18s}
+.le-method-step.d3{transition-delay:.31s}
+.le-method-step.d4{transition-delay:.44s}
+.le-method-step--left{margin-right:auto;padding-right:48px;text-align:right;border-right-color:rgba(201,165,78,.10)}
+.le-method-step--right{margin-left:auto;padding-left:48px;text-align:left;border-left-color:rgba(201,165,78,.10)}
+.le-method-step.is-active.le-method-step--left{border-right-color:var(--gold-deep, var(--gold))}
+.le-method-step.is-active.le-method-step--right{border-left-color:var(--gold-deep, var(--gold))}
+.le-method-step.is-active .le-method-step-name,
+.le-method-step.is-active .le-method-step-body{color:var(--cream)}
+.le-method-step.is-active .le-method-numeral{color:var(--gold);opacity:1}
 .le-method-node{
-  position:absolute;top:30px;
+  position:absolute;top:38px;
   width:14px;height:14px;
   border:1px solid var(--gold);border-radius:50%;
   background:var(--ink-3);
@@ -858,6 +928,26 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   background:var(--gold);
   box-shadow:0 0 16px rgba(201,165,78,.6);
 }
+.le-method-step-header{
+  display:flex;align-items:baseline;gap:18px;
+  margin-bottom:10px;
+}
+.le-method-step--left .le-method-step-header{justify-content:flex-end}
+.le-method-step--right .le-method-step-header{justify-content:flex-start}
+.le-method-numeral{
+  font-family:var(--font-serif);font-style:italic;font-weight:300;
+  font-size:clamp(34px, 3.4vw, 46px);
+  color:var(--gold);opacity:.78;line-height:1;
+  letter-spacing:.02em;
+  transition:opacity .5s var(--ease, ease), color .5s var(--ease, ease);
+}
+.le-method-icon{
+  width:26px;height:26px;flex:none;
+  color:var(--gold);opacity:.72;
+  transition:opacity .5s var(--ease, ease), transform .6s var(--ease, ease);
+}
+.le-method-step.is-active .le-method-icon{opacity:1;transform:scale(1.04)}
+.le-method-icon svg{width:100%;height:100%;display:block}
 .le-method-step-eyebrow{
   font-family:var(--font-sans);font-size:var(--fs-10, 10px);font-weight:600;
   letter-spacing:var(--tracking-eyebrow-wide, .32em);
@@ -865,20 +955,23 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   margin-bottom:8px;
 }
 .le-method-step-name{
-  font-family:var(--font-serif);font-weight:300;
-  font-size:clamp(28px, 3vw, 40px);color:var(--cream);
-  margin-bottom:8px;
+  font-family:var(--font-serif);font-weight:300;font-style:italic;
+  font-size:clamp(24px, 2.4vw, 32px);color:var(--cream);
+  margin-bottom:10px;letter-spacing:.005em;
+  transition:color .5s var(--ease, ease);
 }
 .le-method-step-name em{font-style:italic}
+.le-method-step:hover .le-method-step-name{color:var(--gold)}
 .le-method-step-time{
   font-family:var(--font-sans);font-size:var(--fs-10, 10px);font-weight:600;
   letter-spacing:.18em;text-transform:uppercase;
-  color:var(--gold);margin-bottom:18px;
+  color:var(--gold);margin-bottom:18px;opacity:.85;
 }
 .le-method-step-body{
   font-family:var(--font-serif);font-style:italic;font-weight:300;
-  font-size:var(--fs-15, 16px);line-height:1.75;
+  font-size:var(--fs-15, 16px);line-height:1.78;
   color:var(--text-on-dark-readable);margin:0;
+  transition:color .5s var(--ease, ease);
 }
 
 @media(max-width:768px){
@@ -886,9 +979,19 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   .le-method-step,.le-method-step--left,.le-method-step--right{
     width:100%;padding-left:42px;padding-right:0;
     text-align:left;margin-left:0;margin-right:0;
+    border-right-color:transparent;
   }
   .le-method-step--left .le-method-node,
   .le-method-step--right .le-method-node{left:7px;right:auto}
+  .le-method-step--left .le-method-step-header,
+  .le-method-step--right .le-method-step-header{justify-content:flex-start}
+  .le-method-step.is-active.le-method-step--left,
+  .le-method-step.is-active.le-method-step--right{border-left-color:var(--gold-deep, var(--gold));border-right-color:transparent}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .le-method-step{opacity:1;transform:none;transition:none}
+  .le-method-node,.le-method-icon,.le-method-step-name,.le-method-step-body,.le-method-numeral{transition:none}
 }
 
 /* ═══════ Section 7 - Drag-scroll editorial portfolio (LARGEST) ═══════ */
@@ -1381,20 +1484,22 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 
 <!-- ═══════ Section 2 - Manifesto sticky-stage ═══════ -->
 <section class="le-manifesto-stage" aria-labelledby="le-manifesto-heading">
-  <div class="le-manifesto-plates" aria-hidden="true">
-    <img class="le-manifesto-plate le-manifesto-plate--1" src="/images/couple-cancun-hotel-zone-ivae-studios.jpg" alt="" loading="lazy" width="600" height="750"/>
-    <img class="le-manifesto-plate le-manifesto-plate--2" src="/images/couple-cancun-beach-ivae-studios.jpg" alt="" loading="lazy" width="600" height="750"/>
-    <img class="le-manifesto-plate le-manifesto-plate--3" src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="" loading="lazy" width="600" height="750"/>
-  </div>
-  <div class="le-manifesto-text">
-    <p class="le-eyebrow">Manifesto.</p>
-    <h2 id="le-manifesto-heading" class="le-manifesto-h2">Three commitments <em>the studio keeps</em>.</h2>
-    <div class="le-manifesto-body">
-      <p>The studio shoots for the editorial register. That register has three commitments, and the work is judged by them. <em>Story</em> is first. The studio asks what the brief is about before it asks what the brief looks like. A shoot is not a list of frames; it is a sequence of decisions made before the call sheet, defended against the call sheet, and recovered when the call sheet breaks. The studio refuses briefs it cannot honor. It accepts the briefs it can.</p>
-      <p><em>Light</em> is the second commitment. The studio plans to the hour, scouts the building, and walks the property a day early. The studio knows which terrace turns honey at six eighteen in March and which suite holds north light through one in the afternoon. The shot list is built around the light, not the schedule. <em>Bilingüe en cada conversación.</em> The conversation that produces the light plan happens in English and in Spanish, in the same room, with the same studio.</p>
-      <p><em>Restraint</em> is the third. The studio works small. One photographer. One assistant. One producer. A stylist when the brief requires it, a DP when motion is added. The crew does not exceed the work. The studio does not arrive with a fashion-week posse for a sun-care lookbook. The studio arrives with the unit the brief earned, and not one body more.</p>
+  <div class="le-manifesto-track">
+    <div class="le-manifesto-plates" aria-hidden="true">
+      <img class="le-manifesto-plate le-manifesto-plate--1" data-pillar="story" src="/images/couple-cancun-hotel-zone-ivae-studios.jpg" alt="" loading="lazy" width="600" height="750"/>
+      <img class="le-manifesto-plate le-manifesto-plate--2" data-pillar="light" src="/images/couple-cancun-beach-ivae-studios.jpg" alt="" loading="lazy" width="600" height="750"/>
+      <img class="le-manifesto-plate le-manifesto-plate--3" data-pillar="restraint" src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="" loading="lazy" width="600" height="750"/>
     </div>
-    <cite class="le-signoff">Vianey Diaz / Director</cite>
+    <div class="le-manifesto-text">
+      <p class="le-eyebrow">Manifesto.</p>
+      <h2 id="le-manifesto-heading" class="le-manifesto-h2">Three commitments <em>the studio keeps</em>.</h2>
+      <div class="le-manifesto-body">
+        <p data-pillar="story">The studio shoots for the editorial register. That register has three commitments, and the work is judged by them. <em>Story</em> is first. The studio asks what the brief is about before it asks what the brief looks like. A shoot is not a list of frames; it is a sequence of decisions made before the call sheet, defended against the call sheet, and recovered when the call sheet breaks. The studio refuses briefs it cannot honor. It accepts the briefs it can.</p>
+        <p data-pillar="light"><em>Light</em> is the second commitment. The studio plans to the hour, scouts the building, and walks the property a day early. The studio knows which terrace turns honey at six eighteen in March and which suite holds north light through one in the afternoon. The shot list is built around the light, not the schedule. <em lang="es">Bilingüe en cada conversación.</em> The conversation that produces the light plan happens in English and in Spanish, in the same room, with the same studio.</p>
+        <p data-pillar="restraint"><em>Restraint</em> is the third. The studio works small. One photographer. One assistant. One producer. A stylist when the brief requires it, a DP when motion is added. The crew does not exceed the work. The studio does not arrive with a fashion-week posse for a sun-care lookbook. The studio arrives with the unit the brief earned, and not one body more.</p>
+      </div>
+      <cite class="le-signoff">Vianey Diaz / Director</cite>
+    </div>
   </div>
 </section>
 
@@ -1407,7 +1512,7 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 
   <figure class="le-cinemascope">
     <div class="le-cinemascope-frame">
-      <img src="/images/couple-cancun-hotel-zone-ivae-studios-2.jpg"
+      <img src="/images/wedding-cancun-hotel-zone-ivae-studios.jpg"
            alt="A linen lookbook frame on the east terrace of Casa Ranfla, Tulum, at first light, framed in 21:9 cinemascope by IVAE Studios."
            width="2400" height="1029"
            loading="lazy" decoding="async"/>
@@ -1418,15 +1523,42 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
         <p class="le-caption-cell"><span class="le-caption-label">Issue</span><span class="le-caption-value">Spring Edit 2026</span></p>
         <p class="le-caption-cell"><span class="le-caption-label">Location</span><span class="le-caption-value">Tulum, Quintana Roo</span></p>
       </div>
-      <div class="le-case-study-body">
+      <div class="le-case-study-body" data-le-reveal="case-study">
         <p>Casa Ranfla commissioned the studio for a two-day spring edit on the Tulum coast. The brief was four-fold. One linen lookbook, shot on three models, on the property's east terrace at first light. One interiors set, shot in the shaded courtyard between eleven and one. One golden-hour campaign-key, with the property's Mezcal bar set as the backdrop. One short motion clip, fifteen seconds, for the brand's launch loop on Instagram and on the brand's homepage. The brief was the studio's brief. The studio agreed to it as written.</p>
         <p>Day one began at five fifty-two. The lookbook was on its first frame at six oh four. The east terrace turns honey at six eighteen in late April; the studio scheduled the wide-angle close-ups for that window, and the tighter detail crops for the soft-shoulder light at six forty. The model's linen caftan caught the breeze on frame nineteen. That frame became the campaign key.</p>
         <p>The interior set was shot in a single one-hour pass between eleven thirty and twelve thirty. The studio used one camera, one prime, no flash, and a single bounce panel held by the assistant against the courtyard's south wall. The brand's creative director was on set for the interior pass and approved the take in real time. The day broke for two hours at one and resumed at three forty for the bar set.</p>
         <p>The motion clip was shot last, at six forty-five, on a single dolly run, in one take, with a focus pull halfway. The studio delivered selects on day six. Full delivery on day twelve. Casa Ranfla shipped the campaign on day fifteen.</p>
       </div>
+      <p class="le-feature-credits" role="text">
+        <span>Photography</span><em>IVAE Studios</em>
+        <span>Direction</span><em>Vianey Diaz, Director</em>
+        <span>Location</span><em>Tulum, Quintana Roo</em>
+      </p>
     </figcaption>
   </figure>
 </section>
+
+<script>
+(function(){
+  if (typeof window === 'undefined') return;
+  var prefersReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var bodies = document.querySelectorAll('.le-case-study-body[data-le-reveal="case-study"]');
+  if (!bodies.length) return;
+  if (prefersReduce || !('IntersectionObserver' in window)){
+    bodies.forEach(function(b){ b.classList.add('is-revealed'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (entry.isIntersecting){
+        entry.target.classList.add('is-revealed');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
+  bodies.forEach(function(b){ io.observe(b); });
+})();
+</script>
 
 <!-- ═══════ Section 4 - "Featured In" press band ═══════ -->
 <section class="le-press-band" aria-labelledby="le-press-heading">
@@ -1500,36 +1632,78 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   </div>
 
   <ol class="le-method-rail" role="list">
-    <li class="le-method-step le-method-step--left">
+    <li class="le-method-step le-method-step--left d1">
       <span class="le-method-node" aria-hidden="true"></span>
       <p class="le-method-step-eyebrow">01 &middot; Concept</p>
+      <div class="le-method-step-header">
+        <span class="le-method-numeral" aria-hidden="true"><em>I</em></span>
+        <span class="le-method-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14a5 5 0 1 0-6.18 0"/><path d="M12 14v4"/></svg></span>
+      </div>
       <h3 class="le-method-step-name"><em>Concept.</em></h3>
       <p class="le-method-step-time">3 to 5 days</p>
       <p class="le-method-step-body">The studio reads the brief, reads it again, and writes back with two paragraphs and four references. One reference will be from the brand's own back catalogue. One will not. The conversation is forty-five minutes on a video call. By the end, the brief has either tightened or it has changed.</p>
     </li>
-    <li class="le-method-step le-method-step--right">
+    <li class="le-method-step le-method-step--right d2">
       <span class="le-method-node" aria-hidden="true"></span>
       <p class="le-method-step-eyebrow">02 &middot; Casting</p>
+      <div class="le-method-step-header">
+        <span class="le-method-numeral" aria-hidden="true"><em>II</em></span>
+        <span class="le-method-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 21v-1a7 7 0 0 1 14 0v1"/></svg></span>
+      </div>
       <h3 class="le-method-step-name"><em>Casting.</em></h3>
       <p class="le-method-step-time">1 to 2 weeks</p>
       <p class="le-method-step-body">The studio works with two casting directors, one in Mexico City and one in Tulum, and a roster of forty-plus local talent. Locations are scouted in person. Permits are handled in-house. The brand reviews three options for each role and approves before the call sheet ships.</p>
     </li>
-    <li class="le-method-step le-method-step--left">
+    <li class="le-method-step le-method-step--left d3">
       <span class="le-method-node" aria-hidden="true"></span>
       <p class="le-method-step-eyebrow">03 &middot; Shoot</p>
+      <div class="le-method-step-header">
+        <span class="le-method-numeral" aria-hidden="true"><em>III</em></span>
+        <span class="le-method-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h3l2-2.5h8L18 8h3v11H3z"/><circle cx="12" cy="13.5" r="3.5"/></svg></span>
+      </div>
       <h3 class="le-method-step-name"><em>Shoot.</em></h3>
       <p class="le-method-step-time">1 to 3 days</p>
-      <p class="le-method-step-body">The studio arrives a day early. The crew is bilingual. The call sheet is bilingual. The day is paced to the light. The brand's creative director is welcome on set; if remote, a live frame-share runs from camera one to a private link. Lunch is hot, not catered cold. The shoot stays small.</p>
+      <p class="le-method-step-body">The studio arrives a day early, with a bilingual crew and a bilingual call sheet. The day is paced to the light, never to the schedule. Vianey, Director, runs camera one; if the brand is remote, a live frame-share carries every exposure to a private link. Lunch is hot. The shoot stays small.</p>
     </li>
-    <li class="le-method-step le-method-step--right">
+    <li class="le-method-step le-method-step--right d4">
       <span class="le-method-node" aria-hidden="true"></span>
       <p class="le-method-step-eyebrow">04 &middot; Edit</p>
+      <div class="le-method-step-header">
+        <span class="le-method-numeral" aria-hidden="true"><em>IV</em></span>
+        <span class="le-method-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="7" r="3"/><circle cx="6" cy="17" r="3"/><line x1="20" y1="4" x2="8.5" y2="15.5"/><line x1="20" y1="20" x2="8.5" y2="8.5"/></svg></span>
+      </div>
       <h3 class="le-method-step-name"><em>Edit.</em></h3>
       <p class="le-method-step-time">5 to 10 days for selects</p>
       <p class="le-method-step-body">Selects are color-graded by hand in the IVAE register. The brand reviews on a private Frame.io link. Revision rounds are scoped to the brief and written into the proposal. Final files are delivered as a structured archive: by camera, by set, by frame.</p>
     </li>
   </ol>
 </section>
+
+<script>
+(function(){
+  var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var steps = document.querySelectorAll('.le-section--method .le-method-step');
+  if(!steps.length) return;
+  if(prefersReduced || !('IntersectionObserver' in window)){
+    steps.forEach(function(s){ s.classList.add('is-revealed'); s.classList.add('is-active'); });
+    return;
+  }
+  var revealIO = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('is-revealed'); revealIO.unobserve(e.target); }
+    });
+  }, { threshold:0.18, rootMargin:'0px 0px -8% 0px' });
+  var activeIO = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting && e.intersectionRatio > 0.45){
+        steps.forEach(function(s){ s.classList.remove('is-active'); });
+        e.target.classList.add('is-active');
+      }
+    });
+  }, { threshold:[0.45, 0.6, 0.75] });
+  steps.forEach(function(s){ revealIO.observe(s); activeIO.observe(s); });
+})();
+</script>
 
 <!-- ═══════ Section 7 - Drag-scroll editorial portfolio (LARGEST) ═══════ -->
 <section class="le-section--reel" aria-labelledby="le-reel-heading">
@@ -2002,7 +2176,7 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
             for(var k=0;k<w.length;k++){
               var ch = document.createElement('span');
               ch.className = 'le-h1-letter';
-              ch.style.transitionDelay = (i*0.035) + 's';
+              ch.style.transitionDelay = (i*0.014) + 's';
               ch.textContent = w[k];
               wordSpan.appendChild(ch);
               i++;
@@ -2083,10 +2257,10 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
       btn.addEventListener('mousemove', function(e){
         var r = btn.getBoundingClientRect();
         var cx = r.left + r.width/2, cy = r.top + r.height/2;
-        tx = (e.clientX - cx) * 0.18;
-        ty = (e.clientY - cy) * 0.18;
-        if(Math.abs(tx) > 6) tx = tx > 0 ? 6 : -6;
-        if(Math.abs(ty) > 6) ty = ty > 0 ? 6 : -6;
+        tx = (e.clientX - cx) * 0.20;
+        ty = (e.clientY - cy) * 0.20;
+        if(Math.abs(tx) > 8) tx = tx > 0 ? 8 : -8;
+        if(Math.abs(ty) > 8) ty = ty > 0 ? 8 : -8;
         if(!raf) raf = requestAnimationFrame(function(){
           btn.style.transform = 'translate3d(' + tx + 'px,' + ty + 'px,0)';
           raf = null;
@@ -2200,20 +2374,28 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
     steps.forEach(function(s){ io2.observe(s); });
   })();
 
-  /* 11. Manifesto plate reveals */
+  /* 11. Manifesto plate rotation by pillar in view */
   (function manifestoPlates(){
     if(reduceMotion) return;
     if(!('IntersectionObserver' in window)) return;
     var plates = $$('.le-manifesto-plate');
-    if(!plates.length) return;
+    var pillars = $$('.le-manifesto-body p[data-pillar]');
+    if(!plates.length || !pillars.length) return;
+    function activate(name){
+      plates.forEach(function(p){
+        if(p.getAttribute('data-pillar') === name) p.classList.add('is-active');
+        else p.classList.remove('is-active');
+      });
+    }
+    activate(pillars[0].getAttribute('data-pillar'));
     var io3 = new IntersectionObserver(function(entries){
       entries.forEach(function(e){
         if(e.isIntersecting){
-          e.target.classList.add('is-revealed');
+          activate(e.target.getAttribute('data-pillar'));
         }
       });
-    }, {threshold: 0.2});
-    plates.forEach(function(p){ io3.observe(p); });
+    }, {threshold: 0.55, rootMargin:'-20% 0px -20% 0px'});
+    pillars.forEach(function(p){ io3.observe(p); });
   })();
 
 })();

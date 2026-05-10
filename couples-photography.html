@@ -239,6 +239,8 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 .lc-hero-bg{position:absolute;inset:0;z-index:0;transform-style:preserve-3d;transition:transform .6s var(--ease);will-change:transform}
 .lc-hero-bg img{width:100%;height:108%;object-fit:cover;object-position:center;filter:brightness(.45) saturate(.78);display:block}
 .lc-hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(170deg,rgba(7,11,17,.72) 0%,rgba(12,18,25,.30) 45%,rgba(7,11,17,.78) 100%);pointer-events:none}
+/* Section-level SVG film grain overlay (couples slightly more grainy than family) */
+.lc-grain{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.030;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='gn'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23gn)'/%3E%3C/svg%3E")}
 
 /* Motes */
 .lc-motes{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
@@ -259,15 +261,27 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 .lc-hero-h1{font-family:var(--font-serif);font-size:clamp(40px,7vw,92px);font-weight:300;line-height:1.04;letter-spacing:-.012em;color:var(--cream-1);margin-bottom:28px;max-width:18ch}
 .lc-hero-h1 em.lc-h1__italic{font-style:italic;color:var(--gold)}
 .lc-cascade .lc-h1-letter,
-.lc-hero-h1 .word{display:inline-block;opacity:1;transform:none;transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.lc-hero-h1 .word{display:inline-block;opacity:1;transform:none;transition:opacity 1.5s var(--ease),transform 1.5s var(--ease)}
+.lc-cascade .lc-h1-char{display:inline-block;opacity:1;transform:none;transition:opacity 1.5s cubic-bezier(.2,.7,.2,1),transform 1.5s cubic-bezier(.2,.7,.2,1)}
 @media (prefers-reduced-motion: no-preference){
   html.js-on .lc-hero-h1 .word{opacity:0;transform:translateY(24px)}
   html.js-on .lc-hero-h1 .word.vis{opacity:1;transform:translateY(0)}
+  html.js-on .lc-cascade .lc-h1-char{opacity:0;transform:translateY(28px)}
+  html.js-on .lc-cascade .lc-h1-char.vis{opacity:1;transform:translateY(0)}
 }
 .lc-hero-sub{font-size:var(--fs-15);line-height:1.78;color:var(--text-on-dark-readable);max-width:560px;margin-bottom:32px;display:flex;gap:20px;align-items:flex-start}
 .lc-hero-sub::before{content:'';flex-shrink:0;width:1px;height:48px;background:var(--gold);opacity:.6;margin-top:6px}
 .lc-availability-strip{display:flex;flex-direction:column;gap:6px;margin-bottom:32px;padding-left:21px}
-.lc-availability{font-family:var(--font-sans);font-size:var(--fs-10);font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+.lc-availability{font-family:var(--font-sans);font-size:var(--fs-10);font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:inline-flex;align-items:center;gap:10px}
+.lc-availability-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 0 rgba(201,165,78,.55);animation:lc-availability-pulse 2.4s ease-in-out infinite}
+@keyframes lc-availability-pulse{
+  0%{box-shadow:0 0 0 0 rgba(201,165,78,.55);transform:scale(1)}
+  70%{box-shadow:0 0 0 10px rgba(201,165,78,0);transform:scale(1.05)}
+  100%{box-shadow:0 0 0 0 rgba(201,165,78,0);transform:scale(1)}
+}
+@media (prefers-reduced-motion: reduce){
+  .lc-availability-dot{animation:none!important;box-shadow:none!important}
+}
 .lc-availability--proposal{color:var(--text-on-dark-readable);font-weight:500;letter-spacing:.18em}
 .lc-availability--proposal::before{content:'· ';color:var(--gold);margin-right:4px}
 
@@ -295,15 +309,31 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
   float:left;padding:6px 14px 0 0;line-height:.86;
 }
 .lc-manifesto-body{font-size:var(--fs-15);line-height:1.85;color:var(--text-on-light-readable);margin-bottom:20px;max-width:560px}
-.lc-manifesto-attr{font-family:var(--font-sans);font-size:var(--fs-10);font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-deep);margin-top:24px}
-.lc-manifesto-attr em{font-style:italic;letter-spacing:.18em}
+.lc-manifesto-attr{font-family:var(--font-serif);font-style:italic;font-size:clamp(15px,1.4vw,18px);font-weight:300;letter-spacing:.01em;text-transform:none;color:var(--text-on-light-readable);margin-top:32px;padding-top:18px;border-top:1px solid var(--gold-line);max-width:480px}
+.lc-manifesto-attr em{font-style:italic;color:var(--gold-deep);font-weight:400}
+.lc-manifesto-attr .lc-attr-mark{display:inline-block;width:18px;height:1px;background:var(--gold-deep);vertical-align:middle;margin-right:10px;opacity:.7}
 
 .lc-pillars{display:grid;gap:clamp(48px,6vw,80px)}
-.lc-pillar{padding-top:clamp(24px,3vw,36px);border-top:1px solid var(--gold-line)}
-.lc-pillar-roman{font-family:var(--font-sans);font-size:var(--fs-10);font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:14px}
+.lc-pillar{padding-top:clamp(24px,3vw,36px);border-top:1px solid var(--gold-line);position:relative}
+.lc-pillar-roman{font-family:var(--font-serif);font-style:italic;font-size:clamp(20px,2vw,26px);font-weight:300;letter-spacing:.04em;text-transform:none;color:var(--gold-deep);margin-bottom:14px;line-height:1}
 .lc-pillar-name{font-family:var(--font-serif);font-size:clamp(28px,3.4vw,44px);font-weight:300;color:var(--ink-1);margin-bottom:18px;line-height:1.12}
 .lc-pillar-name em{font-style:italic;color:var(--gold-deep)}
 .lc-pillar-body{font-size:var(--fs-15);line-height:1.85;color:var(--text-on-light-readable);max-width:560px}
+/* Discretion pillar — couples-specific emphasis (privacy-first proposals) */
+.lc-pillar[data-pillar="03"]{border-top-color:var(--gold-deep)}
+.lc-pillar[data-pillar="03"] .lc-pillar-name{position:relative;display:inline-block}
+.lc-pillar[data-pillar="03"] .lc-pillar-name::after{
+  content:"";position:absolute;left:0;right:0;bottom:-6px;height:1px;
+  background:linear-gradient(90deg,var(--gold-deep) 0%,var(--gold) 60%,transparent 100%);
+  transform:scaleX(0);transform-origin:left center;
+  transition:transform .6s var(--ease);
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference){
+  .lc-pillar[data-pillar="03"]:hover .lc-pillar-name::after{transform:scaleX(1)}
+}
+@media (prefers-reduced-motion: reduce){
+  .lc-pillar[data-pillar="03"] .lc-pillar-name::after{transition:none}
+}
 
 @media (min-width: 1024px){
   .lc-manifesto-section{grid-template-columns:5fr 7fr;gap:clamp(64px,8vw,112px)}
@@ -385,15 +415,15 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 .lc-cinemascope{
   position:relative;aspect-ratio:21 / 9;overflow:hidden;
   margin:clamp(32px,4vw,56px) 0 clamp(40px,5vw,72px);
-  background:var(--ink-3);
+  background:#000;
   box-shadow:0 50px 100px rgba(0,0,0,.18);
 }
 .lc-cinemascope::before,.lc-cinemascope::after{
-  content:'';position:absolute;left:0;right:0;height:var(--lc-letterbox);background:var(--ink-3);z-index:2;pointer-events:none;
+  content:'';position:absolute;left:0;right:0;height:6%;background:#000;z-index:2;pointer-events:none;
 }
 .lc-cinemascope::before{top:0;border-bottom:1px solid var(--gold-line)}
 .lc-cinemascope::after{bottom:0;border-top:1px solid var(--gold-line)}
-.lc-cinemascope img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 1.2s var(--ease)}
+.lc-cinemascope img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 1.4s var(--ease)}
 @media (hover: hover) and (prefers-reduced-motion: no-preference){
   .lc-cinemascope:hover img{transform:scale(1.025)}
 }
@@ -402,8 +432,15 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 .lc-case-caption-body{font-size:var(--fs-15);line-height:1.92;color:var(--text-on-light-readable);margin-bottom:22px}
 .lc-case-caption-body:first-of-type::first-letter{
   font-family:var(--font-serif);font-style:italic;font-weight:300;
-  font-size:var(--lc-dropcap-size);color:var(--gold-deep);
-  float:left;padding:6px 14px 0 0;line-height:.86;
+  font-size:clamp(96px,10vw,120px);color:var(--gold-deep);
+  float:left;padding:10px 16px 0 0;line-height:.82;
+}
+@media (prefers-reduced-motion: no-preference){
+  .lc-case-caption.lc-rv .lc-case-caption-body{opacity:0;transform:translateY(14px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+  .lc-case-caption.lc-rv.vis .lc-case-caption-body:nth-of-type(1){transition-delay:.05s;opacity:1;transform:none}
+  .lc-case-caption.lc-rv.vis .lc-case-caption-body:nth-of-type(2){transition-delay:.18s;opacity:1;transform:none}
+  .lc-case-caption.lc-rv.vis .lc-case-caption-body:nth-of-type(3){transition-delay:.31s;opacity:1;transform:none}
+  .lc-case-caption.lc-rv.vis .lc-case-caption-body:nth-of-type(4){transition-delay:.44s;opacity:1;transform:none}
 }
 .lc-case-meta{display:grid;grid-template-columns:repeat(3,1fr);max-width:720px;margin:clamp(48px,6vw,72px) auto 0;border-top:1px solid var(--gold-line);padding-top:32px}
 .lc-case-meta-cell{text-align:center;padding:0 16px;border-right:1px solid var(--gold-line)}
@@ -418,36 +455,99 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 .lc-method-section .lc-eyebrow{color:var(--gold-deep)}
 .lc-method-section .lc-section-h2{color:var(--ink-1)}
 .lc-method-intro{max-width:720px;font-size:var(--fs-15);line-height:1.9;color:var(--text-on-light-readable);margin-bottom:clamp(48px,6vw,80px)}
-.lc-method-steps{max-width:920px;padding:0;display:grid;gap:0}
-.lc-method-step{padding-left:clamp(20px,3vw,40px);border-left:1px solid var(--gold-line);padding-top:clamp(24px,3vw,36px);padding-bottom:clamp(24px,3vw,48px);position:relative}
-.lc-method-step::before{content:'';position:absolute;left:-5px;top:32px;width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px var(--cream-2)}
-.lc-method-step-tag{font-family:var(--font-sans);font-size:var(--fs-10);font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:12px}
-.lc-method-step-name{font-family:var(--font-serif);font-size:clamp(24px,2.8vw,34px);font-weight:300;color:var(--ink-1);margin-bottom:14px;line-height:1.15}
+
+/* Method rail: connected vertical gold timeline binding all 5 steps */
+.lc-method-steps{max-width:920px;padding:0;display:grid;gap:0;list-style:none;position:relative}
+.lc-method-steps::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:1px;
+  background:linear-gradient(to bottom,transparent 0,var(--gold-line) 8%,var(--gold-line) 92%,transparent 100%);
+  pointer-events:none;
+}
+.lc-method-step{
+  padding-left:clamp(28px,3.5vw,52px);
+  padding-top:clamp(24px,3vw,36px);padding-bottom:clamp(24px,3vw,48px);
+  position:relative;border-left:none;
+  transition:opacity .6s var(--ease),transform .6s var(--ease);
+}
+.lc-method-step::before{
+  content:'';position:absolute;left:-5px;top:34px;width:11px;height:11px;border-radius:50%;
+  background:var(--cream-2);border:1px solid var(--gold);
+  box-shadow:0 0 0 4px var(--cream-2);
+  transition:background var(--t-base) var(--ease),border-color var(--t-base) var(--ease),box-shadow var(--t-base) var(--ease),transform var(--t-base) var(--ease);
+}
+.lc-method-step.is-active::before{
+  background:var(--gold);border-color:var(--gold-deep);
+  box-shadow:0 0 0 4px var(--cream-2),0 0 0 8px rgba(168,137,74,.18);
+  transform:scale(1.08);
+}
+.lc-method-step-tag{
+  font-family:var(--font-sans);font-size:var(--fs-10);font-weight:600;
+  letter-spacing:.34em;text-transform:uppercase;color:var(--gold-deep);
+  margin-bottom:12px;display:inline-flex;align-items:center;gap:.55em;
+  transition:color var(--t-base) var(--ease),letter-spacing var(--t-base) var(--ease);
+}
+.lc-method-step.is-active .lc-method-step-tag{color:var(--gold);letter-spacing:.38em}
+.lc-method-step-name{
+  font-family:var(--font-serif);font-style:italic;font-size:clamp(26px,3vw,36px);
+  font-weight:300;color:var(--ink-1);margin-bottom:14px;line-height:1.15;letter-spacing:-.005em;
+}
+.lc-method-step.is-active .lc-method-step-name{color:var(--gold-deep)}
 .lc-method-step-body{font-size:var(--fs-15);line-height:1.85;color:var(--text-on-light-readable);max-width:680px}
 
-/* When We Photograph — editorial paragraph (replaces sunset-clock widget) */
+/* Plan step: discreet proposal-aware accent (subtle, no extra UI) */
+.lc-method-step--plan::after{
+  content:'';position:absolute;left:-5px;top:34px;width:11px;height:11px;border-radius:50%;
+  border:1px solid var(--gold);opacity:.45;pointer-events:none;
+  transform:scale(1);transition:transform 1.6s var(--ease),opacity 1.6s var(--ease);
+}
+@media (prefers-reduced-motion: no-preference){
+  .lc-method-step--plan.is-active::after{animation:lcPlanPulse 2.6s var(--ease) infinite}
+}
+@keyframes lcPlanPulse{
+  0%{transform:scale(1);opacity:.45}
+  60%{transform:scale(1.85);opacity:0}
+  100%{transform:scale(1.85);opacity:0}
+}
+
+/* Stagger reveal: per-step delays */
+@media (prefers-reduced-motion: no-preference){
+  .lc-method-step{opacity:0;transform:translateY(14px)}
+  .lc-method-step.is-revealed{opacity:1;transform:none}
+  .lc-method-step.d1{transition-delay:.05s}
+  .lc-method-step.d2{transition-delay:.15s}
+  .lc-method-step.d3{transition-delay:.25s}
+  .lc-method-step.d4{transition-delay:.10s}
+  .lc-method-step.d5{transition-delay:.20s}
+}
+@media (prefers-reduced-motion: reduce){
+  .lc-method-step{opacity:1;transform:none}
+  .lc-method-step.is-active::before{transform:none}
+}
+
+/* When We Photograph: editorial paragraph (replaces sunset-clock widget) */
 .lc-when-block{
-  max-width:780px;margin:clamp(40px,5vw,72px) auto;padding:clamp(36px,5vw,64px) clamp(20px,4vw,40px);
+  max-width:780px;margin:clamp(48px,6vw,80px) auto;padding:clamp(40px,5vw,68px) clamp(20px,4vw,40px);
   text-align:center;
   border-top:1px solid var(--gold-line);border-bottom:1px solid var(--gold-line);
   position:relative;
 }
 .lc-when-block::before,
 .lc-when-block::after{
-  content:'';position:absolute;left:50%;width:1px;height:18px;background:var(--gold);transform:translateX(-50%);
+  content:'';position:absolute;left:50%;width:1px;height:20px;background:var(--gold);transform:translateX(-50%);
 }
-.lc-when-block::before{top:-9px}
-.lc-when-block::after{bottom:-9px}
+.lc-when-block::before{top:-10px}
+.lc-when-block::after{bottom:-10px}
 .lc-eyebrow--centered{justify-content:center;display:flex}
 .lc-when-h3{
-  font-family:var(--font-serif);font-size:clamp(24px,2.8vw,36px);font-weight:300;line-height:1.18;
-  color:var(--ink-1);margin:14px auto 22px;max-width:18ch;
+  font-family:var(--font-serif);font-style:italic;font-size:clamp(24px,2.8vw,36px);font-weight:300;line-height:1.20;
+  color:var(--ink-1);margin:16px auto 24px;max-width:20ch;letter-spacing:-.005em;
 }
 .lc-when-h3 em{font-style:italic;color:var(--gold-deep)}
 .lc-when-body{
-  font-family:var(--font-serif);font-style:italic;font-size:clamp(16px,1.3vw,18px);
-  line-height:1.78;color:var(--text-on-light-readable);max-width:62ch;margin:0 auto;
+  font-family:var(--font-serif);font-style:italic;font-size:clamp(16px,1.32vw,18.5px);
+  line-height:1.82;color:var(--text-on-light-readable);max-width:60ch;margin:0 auto;font-weight:300;
 }
+.lc-when-body em{font-style:italic;color:var(--gold-deep);font-weight:400}
 
 /* ═══════════════════════════════════════════════════════════════
    SECTION 6 — PULL-QUOTE (320px Cormorant) + TESTIMONIALS
@@ -660,6 +760,7 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
          height="1350">
   </div>
   <div class="lc-hero-overlay" aria-hidden="true"></div>
+  <div class="lc-grain" aria-hidden="true"></div>
   <div class="lc-motes" aria-hidden="true">
     <span class="lc-mote" style="--mote-x: 8%;  --mote-delay: 0s;"></span>
     <span class="lc-mote" style="--mote-x: 22%; --mote-delay: 3.5s;"></span>
@@ -673,7 +774,7 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 
   <div class="lc-hero-content">
     <p class="lc-eyebrow">Couples / Mexico</p>
-    <h1 id="hero-h1" class="lc-hero-h1 lc-cascade">
+    <h1 id="hero-h1" class="lc-hero-h1 lc-cascade" data-cascade="letters">
       <span class="word lc-h1-letter">An</span>
       <span class="word lc-h1-letter">Editorial</span>
       <span class="word lc-h1-letter">Archive</span>
@@ -684,13 +785,13 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
     <p class="lc-hero-sub">The studio plans the hour around the two of you. Cancun, the Riviera Maya, Los Cabos. Editorial coverage, calm direction, bilingual on the day.</p>
 
     <div class="lc-availability-strip" role="group" aria-label="Studio availability">
-      <p class="lc-availability">Earliest open, hold the date.</p>
+      <p class="lc-availability"><span class="lc-availability-dot" aria-hidden="true"></span>Earliest open, hold the date.</p>
       <p class="lc-availability lc-availability--proposal">Next available proposal date: this Saturday.</p>
     </div>
 
     <div class="lc-hero-ctas">
-      <a class="lc-btn lc-btn-gold lc-btn--primary" href="#inquiry" data-magnet="true" aria-label="Begin Inquiry">Begin Inquiry</a>
-      <a class="lc-btn lc-btn--ghost" href="#frames" data-magnet="true">See the Frames</a>
+      <a class="lc-btn lc-btn-gold lc-btn--primary lc-magnet" href="#inquiry" data-magnet="true" aria-label="Begin Inquiry">Begin Inquiry</a>
+      <a class="lc-btn lc-btn--ghost lc-magnet" href="#inquiry" data-magnet="true" aria-label="Check Availability for proposal date">Check Availability</a>
     </div>
 
     <div class="lc-hero-meta" role="group" aria-label="Studio meta">
@@ -708,29 +809,28 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
      ═══════════════════════════════════════════════════════════════ -->
 <section class="lc-manifesto-section" id="pillars" aria-labelledby="manifesto-heading">
   <div class="lc-manifesto-stage">
-    <p class="lc-eyebrow">The Studio</p>
-    <h2 id="manifesto-heading" class="lc-manifesto-h2">Two people, <em>carefully</em> held.</h2>
-    <p class="lc-manifesto-lead">Two people, one light. The studio listens for the moment one of you laughs at the other. That is the frame the studio makes.</p>
-    <p class="lc-manifesto-body">The hour is built around the two of you. The light is built backward from sunset. Direction is quiet, never posed; the studio leaves the choreography to the day and steps in to compose, to soften, to ask one of you to look back across the sand. Couples are not poses. They are the seven seconds between two glances.</p>
-    <p class="lc-manifesto-body">The studio accepts a limited number of couples each month so the studio's attention never thins. Across three coastlines, at the resorts the planners trust most, the work proceeds in one register: calm, considered, golden-hour first. Honeymoon, anniversary, proposal. The same standard, the same care, the same delivery promise.</p>
-    <p class="lc-manifesto-body">First frames within seventy-two hours. The full gallery within three weeks.</p>
-    <p class="lc-manifesto-attr"><em>Director Vianey Diaz leads the studio.</em></p>
+    <p class="lc-eyebrow lc-rv">The Studio</p>
+    <h2 id="manifesto-heading" class="lc-manifesto-h2 lc-rv">Two people, <em>carefully</em> held.</h2>
+    <p class="lc-manifesto-lead lc-rv d1">Two people, one light. The studio listens for the moment one of you laughs at the other. That is the frame the studio makes.</p>
+    <p class="lc-manifesto-body lc-rv d2">The hour is built around the two of you. The light is shaped backward from sunset. Direction is quiet, never posed; the studio leaves the choreography to the day and steps in to compose, to soften, to ask one of you to look back across the sand. Couples are not poses. They are the seven seconds between two glances.</p>
+    <p class="lc-manifesto-body lc-rv d3">The studio accepts a limited number of couples each month so the studio's attention never thins. Across three coastlines, at the resorts the planners trust most, the work proceeds in one register: calm, considered, golden-hour first. Honeymoon, anniversary, proposal. The same standard, the same care, the same delivery promise of first frames inside seventy-two hours and the full gallery inside three weeks.</p>
+    <p class="lc-manifesto-attr lc-rv d3"><span class="lc-attr-mark" aria-hidden="true"></span><em>Vianey Diaz, who directs the studio.</em></p>
   </div>
 
   <div class="lc-pillars">
-    <article class="lc-pillar" data-pillar="01">
+    <article class="lc-pillar lc-rv d1" data-pillar="01">
       <p class="lc-pillar-roman" aria-hidden="true">I</p>
-      <h3 class="lc-pillar-name">Golden hour, <em>only</em>.</h3>
+      <h3 class="lc-pillar-name"><em>Light.</em></h3>
       <p class="lc-pillar-body">The studio does not photograph couples at noon, indoors under tungsten, or against the white-on-white midday glare of a beach in March. The hour is built backward from sunset, ninety minutes the right side of the horizon. The studio knows which Cabo arch turns honey at 5:42 in November and which Mayakoba boardwalk softens at 6:18 in March. The light is the first appointment on the calendar; everything else is scheduled around it.</p>
     </article>
-    <article class="lc-pillar" data-pillar="02">
+    <article class="lc-pillar lc-rv d2" data-pillar="02">
       <p class="lc-pillar-roman" aria-hidden="true">II</p>
-      <h3 class="lc-pillar-name">Direction, <em>not posing</em>.</h3>
+      <h3 class="lc-pillar-name"><em>Direction.</em></h3>
       <p class="lc-pillar-body">The studio never says "look at the camera and smile." The studio says "walk back toward the water," "tell each other the thing you said in the cab," "stay where you are for a moment longer." The frame is composed, the couple is themselves. You will look like the two of you. Composed, not posed. The day will look like itself. Pinterest stays in the inbox.</p>
     </article>
-    <article class="lc-pillar" data-pillar="03">
+    <article class="lc-pillar lc-rv d3" data-pillar="03">
       <p class="lc-pillar-roman" aria-hidden="true">III</p>
-      <h3 class="lc-pillar-name">Discreet, <em>always</em>.</h3>
+      <h3 class="lc-pillar-name"><em>Discretion.</em></h3>
       <p class="lc-pillar-body">For honeymoon and anniversary couples, the studio works with one camera and a quiet pace; the resort barely notices. For proposals, the studio is invisible: ninety minutes early, in plainclothes, at the table you cannot see, no frame taken until the kneel. The restaurant is briefed in advance, the hotel concierge is looped in by the studio, and the partner being proposed to remains unaware. Discretion is a discipline, not a personality.</p>
     </article>
   </div>
@@ -800,7 +900,7 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
     </div>
   </figure>
 
-  <div class="lc-case-caption">
+  <div class="lc-case-caption lc-rv">
     <p class="lc-case-caption-body">Fifteen years between the two of them. Camila proposed to Ana in Tulum in 2010, on the second day of a trip none of their families knew about. They came back to Mexico for the fifteenth anniversary, this time to <span lang="es">Cabo</span>, this time without anyone hiding. The studio met them on the sand at five-fifty p.m. in late October, when the light off the Pacific is the color of cut peach and the wind has dropped to nothing.</p>
 
     <p class="lc-case-caption-body">Ana wore a long olive linen dress. Camila wore navy trousers and a white shirt. Neither of them brought a stylist. The studio worked for ninety minutes from a single bag, two lenses, no tripod. The instructions were three: walk toward the water, walk back, then stand at the foot of the arch and tell each other something the camera did not need to hear.</p>
@@ -812,13 +912,13 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 
   <dl class="lc-case-meta">
     <div class="lc-case-meta-cell">
-      <dt>Coast</dt><dd>Los Cabos</dd>
-    </div>
-    <div class="lc-case-meta-cell">
-      <dt>Years Together</dt><dd>Fifteen</dd>
+      <dt>Coast</dt><dd>Pacific, Los Cabos</dd>
     </div>
     <div class="lc-case-meta-cell">
       <dt>Coverage</dt><dd>The Sunset, ninety minutes</dd>
+    </div>
+    <div class="lc-case-meta-cell">
+      <dt>Light</dt><dd>Late October, five-fifty p.m.</dd>
     </div>
   </dl>
 </section>
@@ -832,17 +932,17 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
   <p class="lc-method-intro">The studio works the same way for every couple, regardless of trip length. The first inquiry is read the same business day, in English or Spanish. A planning call follows. The light is mapped. The session runs to the hour the light turns honest. The first frames travel home with you. The shape of the session is decided early so the session itself can be improvised.</p>
 
   <ol class="lc-method-steps" role="list">
-    <li class="lc-method-step">
+    <li class="lc-method-step lc-method-step--plan d1" data-step="01">
       <p class="lc-method-step-tag" aria-hidden="true">01 · Plan</p>
       <h3 class="lc-method-step-name">Plan</h3>
       <p class="lc-method-step-body">The first email arrives at any hour. The studio reads it the same business day, with two questions and a candid sense of whether the dates are open. The first response is from Director Vianey Diaz. For proposals, the studio confirms within twenty-four hours; the lead time is shorter for a reason.</p>
     </li>
-    <li class="lc-method-step">
+    <li class="lc-method-step d2" data-step="02">
       <p class="lc-method-step-tag" aria-hidden="true">02 · Direct</p>
       <h3 class="lc-method-step-name">Direct</h3>
       <p class="lc-method-step-body">Quiet direction in the lead-up. A wardrobe note, a light schedule, a map of the location with the spots marked. For proposals, the studio coordinates with the restaurant or the hotel beach manager directly so the partner being proposed to remains unaware until the kneel. For honeymoons, the studio sends a wardrobe color palette by month so the linen and the bougainvillea agree.</p>
     </li>
-    <li class="lc-method-step">
+    <li class="lc-method-step d3" data-step="03">
       <p class="lc-method-step-tag" aria-hidden="true">03 · Light</p>
       <h3 class="lc-method-step-name">Light</h3>
       <p class="lc-method-step-body">The light is the first appointment. The studio arrives at the location ninety minutes before sunset for The Sunset and Adventure Day; for The Hour, the studio arrives at the time the light turns honest and works to its end. The session pace is set by the sun, not by a shot list. Golden hour, only.</p>
@@ -853,16 +953,16 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
   <aside class="lc-when-block" aria-labelledby="when-heading">
     <p class="lc-eyebrow lc-eyebrow--centered">When We Photograph</p>
     <h3 id="when-heading" class="lc-when-h3">A ninety-minute window, <em>built backward from sunset</em>.</h3>
-    <p class="lc-when-body">In November along Cancun and the Riviera Maya, the light turns honest at five-twelve. By March, six-eighteen. In Los Cabos, the Pacific runs about thirty minutes later than the Caribbean coast. The studio reads the season, the resort, and the orientation of the beach, and proposes a call-time that puts the two of you in front of the last warm light of the day. Sunrise sessions are equally considered: thirty minutes before first light, fewer guests on the sand, the softest tones the day has to give.</p>
+    <p class="lc-when-body">In November along Cancun and the Riviera Maya, the light turns honest at five-twelve. By March, six-eighteen. In Los Cabos, the Pacific runs about thirty minutes later than the Caribbean coast. The studio reads the season, the resort, and the orientation of the beach, and proposes a call-time that puts the two of you in front of <em>the last warm light of the day</em>. Sunrise sessions are equally considered: thirty minutes before first light, fewer guests on the sand, the softest tones the day has to give.</p>
   </aside>
 
   <ol class="lc-method-steps" role="list" start="4">
-    <li class="lc-method-step">
+    <li class="lc-method-step d4" data-step="04">
       <p class="lc-method-step-tag" aria-hidden="true">04 · Capture</p>
       <h3 class="lc-method-step-name">Capture</h3>
       <p class="lc-method-step-body">Quiet direction on the day. The studio works from a single bag, one or two lenses, no tripod, no flash. The first ten minutes are for warming up; the next sixty are the work. For proposals, the studio captures the discreet first-coverage from a fixed position, then meets the newly-engaged couple within ninety seconds for a thirty-minute portrait session. The pacing is calm. The couple sets the cadence.</p>
     </li>
-    <li class="lc-method-step">
+    <li class="lc-method-step d5" data-step="05">
       <p class="lc-method-step-tag" aria-hidden="true">05 · Deliver</p>
       <h3 class="lc-method-step-name">Deliver</h3>
       <p class="lc-method-step-body">First frames within seventy-two hours, twenty to thirty editorial images on a private link. The full gallery follows within seven to fourteen days depending on tier, hand-edited in the IVAE color register, never auto-toned, never run through a preset. Speed at this caliber is rare. The studio treats it as a standing condition, not a marketing claim.</p>
@@ -1303,18 +1403,56 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
     });
   }
 
-  /* ═══ 3. Hero h1 word cascade reveal ═══ */
-  var words = document.querySelectorAll('.lc-hero-h1 .word');
-  if (words.length){
+  /* ═══ 3. Hero h1 letter cascade reveal (14ms stagger, 1.5s ease) ═══ */
+  var cascadeRoot = document.querySelector('.lc-cascade[data-cascade]');
+  if (cascadeRoot){
+    // Split each word into per-character spans for letter-level cascade.
+    var wordEls = cascadeRoot.querySelectorAll('.word');
+    var charEls = [];
+    wordEls.forEach(function(w){
+      var txt = w.textContent;
+      w.textContent = '';
+      for (var i = 0; i < txt.length; i++){
+        var ch = txt.charAt(i);
+        if (ch === ' '){
+          w.appendChild(document.createTextNode(' '));
+          continue;
+        }
+        var s = document.createElement('span');
+        s.className = 'lc-h1-char';
+        s.setAttribute('aria-hidden','true');
+        s.textContent = ch;
+        w.appendChild(s);
+        charEls.push(s);
+      }
+      // Keep accessible word text for screen readers via data-word; visible text is now per-letter spans.
+      w.setAttribute('aria-label', txt);
+    });
     if (reduce){
-      words.forEach(function(w){ w.classList.add('vis'); });
+      charEls.forEach(function(c){ c.classList.add('vis'); });
+      wordEls.forEach(function(w){ w.classList.add('vis'); });
     } else {
-      words.forEach(function(w, i){ w.style.transitionDelay = (i * 90) + 'ms'; });
+      charEls.forEach(function(c, i){ c.style.transitionDelay = (i * 14) + 'ms'; });
       requestAnimationFrame(function(){
         requestAnimationFrame(function(){
-          words.forEach(function(w){ w.classList.add('vis'); });
+          charEls.forEach(function(c){ c.classList.add('vis'); });
+          wordEls.forEach(function(w){ w.classList.add('vis'); });
         });
       });
+    }
+  } else {
+    var words = document.querySelectorAll('.lc-hero-h1 .word');
+    if (words.length){
+      if (reduce){
+        words.forEach(function(w){ w.classList.add('vis'); });
+      } else {
+        words.forEach(function(w, i){ w.style.transitionDelay = (i * 90) + 'ms'; });
+        requestAnimationFrame(function(){
+          requestAnimationFrame(function(){
+            words.forEach(function(w){ w.classList.add('vis'); });
+          });
+        });
+      }
     }
   }
 
@@ -1333,19 +1471,25 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
     document.querySelectorAll('.lc-rv').forEach(function(el){ el.classList.add('vis'); });
   }
 
-  /* ═══ 5. 3D parallax hero (gated) ═══ */
+  /* ═══ 5. 3D parallax hero (gated, up to 5deg tilt) ═══ */
   if (canCinematic){
     var phost = document.querySelector('[data-parallax-host]');
     var ptarget = document.querySelector('[data-parallax-target]');
     if (phost && ptarget){
       var praf = null;
       var mx = 0, my = 0;
+      var TILT_MAX = 5; // deg
       phost.addEventListener('pointermove', function(e){
         var r = phost.getBoundingClientRect();
-        mx = (e.clientX - r.left - r.width/2) / r.width;
-        my = (e.clientY - r.top - r.height/2) / r.height;
+        mx = (e.clientX - r.left - r.width/2) / r.width;   // -0.5 .. 0.5
+        my = (e.clientY - r.top - r.height/2) / r.height;  // -0.5 .. 0.5
         if (!praf) praf = requestAnimationFrame(function(){
-          ptarget.style.transform = 'translate3d(' + (mx * -12) + 'px,' + (my * -12) + 'px,0) scale(1.04)';
+          var rotY = (mx * 2) * TILT_MAX;     // up to ±5deg
+          var rotX = (my * 2) * -TILT_MAX;    // invert Y for natural tilt
+          ptarget.style.transform =
+            'translate3d(' + (mx * -12) + 'px,' + (my * -12) + 'px,0) ' +
+            'rotateX(' + rotX.toFixed(2) + 'deg) rotateY(' + rotY.toFixed(2) + 'deg) ' +
+            'scale(1.04)';
           praf = null;
         });
       }, {passive:true});
@@ -1468,6 +1612,39 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
       document.removeEventListener('pointermove', moveRing);
     });
   }
+
+  /* ═══ 11b. Method steps — stagger reveal + active-on-scroll ═══ */
+  (function(){
+    var steps = document.querySelectorAll('.lc-method-section .lc-method-step');
+    if (!steps.length || !('IntersectionObserver' in window)) {
+      // Visibility-safe fallback: mark all revealed
+      Array.prototype.forEach.call(steps, function(s){ s.classList.add('is-revealed'); });
+      return;
+    }
+    if (reduce){
+      Array.prototype.forEach.call(steps, function(s){ s.classList.add('is-revealed'); });
+    } else {
+      var revealIO = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if (e.isIntersecting){
+            e.target.classList.add('is-revealed');
+            revealIO.unobserve(e.target);
+          }
+        });
+      }, {threshold:.18, rootMargin:'0px 0px -8% 0px'});
+      Array.prototype.forEach.call(steps, function(s){ revealIO.observe(s); });
+    }
+    var activeIO = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting && e.intersectionRatio > .55){
+          // Single active step at a time
+          Array.prototype.forEach.call(steps, function(s){ s.classList.remove('is-active'); });
+          e.target.classList.add('is-active');
+        }
+      });
+    }, {threshold:[.55,.75], rootMargin:'-30% 0px -30% 0px'});
+    Array.prototype.forEach.call(steps, function(s){ activeIO.observe(s); });
+  })();
 
   /* ═══ 12. FAQ accordion ═══ */
   document.querySelectorAll('.lc-faq-toggle').forEach(function(btn){

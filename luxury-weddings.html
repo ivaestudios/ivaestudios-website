@@ -97,6 +97,7 @@ ul{list-style:none}
 .lw-rv.d2{transition-delay:.22s}
 .lw-rv.d3{transition-delay:.34s}
 .lw-rv.d4{transition-delay:.46s}
+.lw-rv.d5{transition-delay:.58s}
 
 /* ═══════════════════════════════════════════════════════════════
    CINEMATIC ADDITIONS / WAVE 6
@@ -268,12 +269,13 @@ ul{list-style:none}
   color:var(--gold);
 }
 
-/* ── Cinemascope letterbox on featured wedding ── */
+/* ── Cinemascope letterbox on featured wedding (true 21:9) ── */
 .feature-img.lw-cinema{
   position:relative;
-  aspect-ratio:auto;
-  height:clamp(420px,56vw,640px);
-  box-shadow:var(--lw-cinema-shadow);
+  aspect-ratio:21/9;
+  height:auto;
+  box-shadow:var(--lw-cinema-shadow), 0 24px 60px rgba(0,0,0,.4);
+  overflow:hidden;
 }
 .feature-img.lw-cinema::before,
 .feature-img.lw-cinema::after{
@@ -284,16 +286,19 @@ ul{list-style:none}
 }
 .feature-img.lw-cinema::before{top:0;border-bottom:1px solid var(--gold-line)}
 .feature-img.lw-cinema::after{bottom:0;border-top:1px solid var(--gold-line)}
-.feature-img.lw-cinema img{height:100%;object-fit:cover}
+.feature-img.lw-cinema img{height:100%;width:100%;object-fit:cover;object-position:center 38%}
 
-/* ── Drop cap on featured paragraph ── */
+/* ── Drop cap on featured paragraph (Cormorant gold italic) ── */
 .feature-text p.lw-dropcap::first-letter{
   font-family:var(--font-serif);font-style:italic;font-weight:300;
-  font-size:clamp(64px,7vw,86px);
-  float:left;line-height:.86;
-  margin:6px 12px -2px 0;
+  font-size:clamp(96px,9.5vw,120px);
+  float:left;line-height:.84;
+  margin:8px 14px -4px 0;
   color:var(--gold);
-  letter-spacing:-.02em;
+  letter-spacing:-.025em;
+}
+@media (prefers-reduced-motion: reduce){
+  .feature-img img{transition:none !important}
 }
 
 /* ── Horizontal drag-scroll frames reel ── */
@@ -778,19 +783,25 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 }
 .pillar-num{
   font-family:var(--font-sans);
-  font-size:var(--fs-9);font-weight:500;
-  letter-spacing:var(--tracking-eyebrow-wide);
+  font-size:var(--fs-9);font-weight:400;
+  letter-spacing:.32em;
   text-transform:uppercase;
   color:var(--gold);
-  margin-bottom:18px;
+  margin-bottom:20px;
+  display:inline-flex;align-items:baseline;gap:.6ch;
 }
 .pillar h3{
   font-family:var(--font-serif);font-weight:300;
   font-size:clamp(22px,2vw,30px);
   line-height:1.18;color:var(--cream);
   margin-bottom:14px;
+  letter-spacing:-.005em;
 }
-.pillar h3 em{font-style:italic;color:var(--gold)}
+.pillar h3 em{font-style:italic;color:var(--gold);font-weight:300}
+@media (prefers-reduced-motion: no-preference){
+  .pillar{transition:border-color .5s var(--ease-smooth)}
+  .pillar:hover{border-color:var(--gold)}
+}
 .pillar p{
   font-family:var(--font-sans);
   font-size:var(--fs-14);line-height:1.74;
@@ -945,9 +956,10 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   width:100%;height:100%;object-fit:cover;
   filter:saturate(.88) brightness(.92);
   transform:scale(1.0);
-  transition:transform 1.2s var(--ease);
+  transition:transform 1.4s var(--ease), filter 1.4s var(--ease);
+  will-change:transform;
 }
-.feature-img:hover img{transform:scale(1.03)}
+.feature-img:hover img{transform:scale(1.025);filter:saturate(.94) brightness(.96)}
 .feature-text{display:flex;flex-direction:column;gap:24px}
 .feature-text h2{font-size:clamp(30px,3.4vw,48px);max-width:520px}
 .feature-text p{
@@ -957,11 +969,13 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   max-width:var(--case-study-caption-max-width);
 }
 .feature-meta{
-  display:flex;flex-wrap:wrap;gap:24px;
-  padding-top:18px;border-top:1px solid var(--gold-line);
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:22px 32px;
+  padding-top:22px;margin-top:6px;
+  border-top:1px solid var(--gold-line);
   font-family:var(--font-sans);
 }
-.feature-meta-cell{display:flex;flex-direction:column;gap:4px}
+.feature-meta-cell{display:flex;flex-direction:column;gap:6px}
 .feature-meta-l{
   font-size:var(--fs-9);font-weight:500;
   letter-spacing:var(--tracking-eyebrow-wide);
@@ -971,6 +985,10 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 .feature-meta-v{
   font-family:var(--font-serif);font-weight:300;font-style:italic;
   font-size:var(--fs-15);color:var(--cream);
+  letter-spacing:.005em;line-height:1.32;
+}
+@media(min-width:1100px){
+  .feature-meta{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px 28px}
 }
 @media(max-width:900px){
   .feature-grid{grid-template-columns:1fr;gap:48px}
@@ -1512,8 +1530,8 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 <section class="lw-section feature" aria-labelledby="feat-h">
   <div class="lw-inner">
     <div class="feature-grid">
-      <div class="feature-img lw-cinema lw-rv">
-        <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-10.jpg" alt="A bride at golden hour on the Cancun Hotel Zone, photographed by IVAE Studios" loading="lazy"/>
+      <div class="feature-img lw-cinema lw-rv d1">
+        <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-14.jpg" alt="A dramatic golden hour bride portrait on the Cancun Hotel Zone coastline, photographed and directed by Vianey Diaz, IVAE Studios" loading="lazy"/>
       </div>
       <div class="feature-text lw-rv d2">
         <span class="lw-section-eyebrow">A Wedding / Cancún</span>
@@ -1522,16 +1540,20 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
         <p>What we delivered was an archive of seven hundred frames, edited to one signature tone, plus a four minute highlight film that the families now play at every birthday. The studio worked in Spanish with the planner, English with the couple, and Portuguese where it mattered. The day stayed calm because the timeline did. That is what we mean by editorial.</p>
         <div class="feature-meta">
           <div class="feature-meta-cell">
-            <span class="feature-meta-l">Coast</span>
-            <span class="feature-meta-v">Cancún Hotel Zone</span>
+            <span class="feature-meta-l">Location</span>
+            <span class="feature-meta-v">Cancún, Quintana Roo</span>
           </div>
           <div class="feature-meta-cell">
-            <span class="feature-meta-l">Scale</span>
-            <span class="feature-meta-v">60 guests</span>
+            <span class="feature-meta-l">Coast</span>
+            <span class="feature-meta-v">Hotel Zone, Caribbean</span>
           </div>
           <div class="feature-meta-cell">
             <span class="feature-meta-l">Coverage</span>
-            <span class="feature-meta-v">Signature collection</span>
+            <span class="feature-meta-v">Signature, ten hours</span>
+          </div>
+          <div class="feature-meta-cell">
+            <span class="feature-meta-l">Season</span>
+            <span class="feature-meta-v">Late November, dry</span>
           </div>
         </div>
       </div>
@@ -1540,6 +1562,93 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 </section>
 
 <!-- ═══════ METHOD ═══════ -->
+<style>
+/* ═══════ Method / refined timeline ═══════ */
+.lw-section.method{position:relative;overflow:hidden}
+.method .method-rail{position:relative}
+.method .method-rail::before{
+  content:"";position:absolute;left:60px;top:0;bottom:0;width:1px;
+  background:linear-gradient(180deg,
+    rgba(201,165,78,0) 0%,
+    rgba(201,165,78,.08) 8%,
+    rgba(201,165,78,.55) 50%,
+    rgba(201,165,78,.08) 92%,
+    rgba(201,165,78,0) 100%);
+  pointer-events:none;
+}
+.method .method-step{
+  position:relative;
+  transition:background .6s var(--ease,cubic-bezier(.22,.61,.36,1)),
+             border-color .6s var(--ease,cubic-bezier(.22,.61,.36,1));
+}
+.method .method-step::before{
+  content:"";position:absolute;left:54px;top:38px;
+  width:13px;height:13px;border-radius:50%;
+  background:var(--ink-3,#0a0f17);
+  border:1px solid rgba(201,165,78,.45);
+  box-shadow:0 0 0 4px var(--ink-3,#0a0f17);
+  transition:border-color .6s var(--ease,cubic-bezier(.22,.61,.36,1)),
+             background .6s var(--ease,cubic-bezier(.22,.61,.36,1)),
+             box-shadow .6s var(--ease,cubic-bezier(.22,.61,.36,1));
+  z-index:1;
+}
+.method .method-step .method-ornament{
+  position:absolute;left:50px;top:30px;width:21px;height:21px;
+  pointer-events:none;opacity:.35;
+  transition:opacity .6s var(--ease,cubic-bezier(.22,.61,.36,1)),
+             transform .9s var(--ease,cubic-bezier(.22,.61,.36,1));
+  color:var(--gold,#c9a54e);
+}
+.method .method-step .method-ornament svg{display:block;width:100%;height:100%}
+.method .method-step .method-step-num{
+  font-family:var(--font-serif,'Cormorant Garamond',serif);
+  font-style:italic;font-weight:300;
+  color:var(--gold,#c9a54e);
+  letter-spacing:.04em;
+  position:relative;z-index:2;
+}
+.method .method-step h3{
+  position:relative;
+}
+.method .method-step h3 em{
+  font-family:var(--font-serif,'Cormorant Garamond',serif);
+  font-style:italic;font-weight:300;
+  color:var(--gold,#c9a54e);
+  text-transform:none;letter-spacing:.01em;
+  font-size:1.08em;
+  margin-left:.3em;
+}
+.method .method-step.is-active::before{
+  border-color:rgba(201,165,78,.95);
+  background:var(--gold,#c9a54e);
+  box-shadow:0 0 0 4px var(--ink-3,#0a0f17),0 0 18px rgba(201,165,78,.45);
+}
+.method .method-step.is-active .method-ornament{opacity:.85}
+.method .method-step.is-active .method-step-num{color:var(--gold,#c9a54e)}
+.method .method-step.is-active{border-bottom-color:rgba(201,165,78,.45)}
+@media (prefers-reduced-motion: no-preference) and (pointer:fine){
+  .method .method-step:hover{
+    background:linear-gradient(90deg,rgba(201,165,78,.04) 0%,rgba(201,165,78,0) 80%);
+  }
+  .method .method-step:hover::before{
+    border-color:rgba(201,165,78,.85);
+    box-shadow:0 0 0 4px var(--ink-3,#0a0f17),0 0 14px rgba(201,165,78,.35);
+  }
+  .method .method-step:hover .method-ornament{opacity:.7;transform:rotate(45deg)}
+}
+@media (prefers-reduced-motion: reduce){
+  .method .method-step,
+  .method .method-step::before,
+  .method .method-step .method-ornament{transition:none}
+}
+@media(max-width:600px){
+  .method .method-rail::before{left:10px}
+  .method .method-step::before{left:4px;top:32px}
+  .method .method-step .method-ornament{left:0;top:24px}
+  .method .method-step{padding-left:32px}
+}
+</style>
+
 <section class="lw-section method" aria-labelledby="method-h">
   <div class="lw-inner">
     <span class="lw-section-eyebrow">The Method</span>
@@ -1547,43 +1656,49 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
     <p class="lw-lede lw-rv d1">We do this the same way every time. Six steps from the inquiry letter to the framed print on your wall.</p>
 
     <div class="method-rail">
-      <div class="method-step lw-rv">
-        <span class="method-step-num">i.</span>
+      <div class="method-step lw-rv d1">
+        <span class="method-ornament" aria-hidden="true"><svg viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="1"><circle cx="10.5" cy="10.5" r="9"/><circle cx="10.5" cy="10.5" r="3.5"/></svg></span>
+        <span class="method-step-num">01 &middot; i.</span>
         <div>
           <h3>Sunset Plan</h3>
           <p>Before we agree on hours, we look up sunset for your date and your coast and build the timeline backwards. Ceremony, portraits, golden hour, dinner. Everything else is paperwork.</p>
         </div>
       </div>
-      <div class="method-step lw-rv">
-        <span class="method-step-num">ii.</span>
+      <div class="method-step lw-rv d2">
+        <span class="method-ornament" aria-hidden="true"><svg viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="1"><circle cx="10.5" cy="10.5" r="9"/><path d="M10.5 1.5 L10.5 19.5 M1.5 10.5 L19.5 10.5"/></svg></span>
+        <span class="method-step-num">02 &middot; ii.</span>
         <div>
           <h3>Venue Scout</h3>
           <p>The studio walks the property thirty days out, talks to the resort wedding department, photographs every preferred location at the hour your ceremony will run, and submits the route map back to your planner.</p>
         </div>
       </div>
-      <div class="method-step lw-rv">
-        <span class="method-step-num">iii.</span>
+      <div class="method-step lw-rv d3">
+        <span class="method-ornament" aria-hidden="true"><svg viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="1"><circle cx="10.5" cy="10.5" r="9"/><circle cx="10.5" cy="10.5" r="5.5"/><circle cx="10.5" cy="10.5" r="2"/></svg></span>
+        <span class="method-step-num">03 &middot; iii.</span>
         <div>
           <h3>Quiet Direction</h3>
           <p>On the day, we do not pose. We place. A hand here, a foot there, a glance through the trellis instead of into the lens. Couples who hate the camera tell us this is the part that surprises them.</p>
         </div>
       </div>
-      <div class="method-step lw-rv">
-        <span class="method-step-num">iv.</span>
+      <div class="method-step lw-rv d4">
+        <span class="method-ornament" aria-hidden="true"><svg viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="1"><circle cx="10.5" cy="10.5" r="9"/><path d="M3 10.5 Q10.5 3 18 10.5 Q10.5 18 3 10.5 Z"/></svg></span>
+        <span class="method-step-num">04 &middot; iv.</span>
         <div>
           <h3>Golden Hour, Twice</h3>
           <p>One block of portraits at sunset, one quiet block after the toasts when the light goes blue. The second block is what every couple writes us about a year later.</p>
         </div>
       </div>
-      <div class="method-step lw-rv">
-        <span class="method-step-num">v.</span>
+      <div class="method-step lw-rv d5">
+        <span class="method-ornament" aria-hidden="true"><svg viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="1"><circle cx="10.5" cy="10.5" r="9"/><path d="M5.5 10.5 L9.5 14.5 L15.5 6.5"/></svg></span>
+        <span class="method-step-num">05 &middot; v.</span>
         <div>
           <h3>Editorial Edit</h3>
           <p>One signature grade, applied frame by frame. Skin tones honest, whites kept white, blacks held. We deliver the gallery only when every image meets the same standard.</p>
         </div>
       </div>
-      <div class="method-step lw-rv">
-        <span class="method-step-num">vi.</span>
+      <div class="method-step lw-rv d5">
+        <span class="method-ornament" aria-hidden="true"><svg viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="1"><circle cx="10.5" cy="10.5" r="9"/><path d="M5 7 L10.5 12.5 L16 7 M5 7 L16 7" /></svg></span>
+        <span class="method-step-num">06 &middot; vi.</span>
         <div>
           <h3>Private Delivery</h3>
           <p>A teaser of forty frames within ten days, the full gallery within three to four weeks, the cinematic film within eight. Print rights yours, downloads unlimited, archive ours forever.</p>
@@ -1592,6 +1707,27 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
     </div>
   </div>
 </section>
+
+<script>
+/* Method active-step on scroll (gated on reduced-motion + IO) */
+(function(){
+  if(!('IntersectionObserver' in window)) return;
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var steps = document.querySelectorAll('.lw-section.method .method-step');
+  if(!steps.length) return;
+  var active = null;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        if(active && active !== e.target) active.classList.remove('is-active');
+        e.target.classList.add('is-active');
+        active = e.target;
+      }
+    });
+  }, {rootMargin:'-40% 0px -40% 0px', threshold:0});
+  steps.forEach(function(s){io.observe(s)});
+})();
+</script>
 
 <!-- ═══════ TESTIMONIALS ═══════ -->
 <section class="lw-section tlist" aria-labelledby="t-h">
@@ -2053,7 +2189,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
     }
   })();
 
-  /* 4. 3D mouse parallax on hero image */
+  /* 4. 3D mouse parallax on hero image (max 6deg rotation) */
   (function heroParallax(){
     if(reduceMotion) return;
     if(!window.matchMedia('(pointer:fine)').matches) return;
@@ -2062,20 +2198,25 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
     if(!hero || !img) return;
     var rect = null;
     var raf = null;
-    var tx = 0, ty = 0;
+    var rx = 0, ry = 0, tx = 0, ty = 0;
+    var MAX_DEG = 6;
     function onMove(e){
       if(!rect) rect = hero.getBoundingClientRect();
       var x = (e.clientX - rect.left) / rect.width - 0.5;
       var y = (e.clientY - rect.top) / rect.height - 0.5;
-      tx = x * -16; ty = y * -10;
+      ry = x * (MAX_DEG * 2);
+      rx = y * -(MAX_DEG * 2);
+      if(rx > MAX_DEG) rx = MAX_DEG; else if(rx < -MAX_DEG) rx = -MAX_DEG;
+      if(ry > MAX_DEG) ry = MAX_DEG; else if(ry < -MAX_DEG) ry = -MAX_DEG;
+      tx = x * -14; ty = y * -8;
       if(!raf) raf = requestAnimationFrame(apply);
     }
     function apply(){
-      img.style.transform = 'translate3d(' + tx + 'px,' + ty + 'px,0)';
+      img.style.transform = 'translate3d(' + tx + 'px,' + ty + 'px,0) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
       raf = null;
     }
     function onLeave(){
-      tx = 0; ty = 0;
+      rx = 0; ry = 0; tx = 0; ty = 0;
       img.style.transform = '';
       rect = null;
     }

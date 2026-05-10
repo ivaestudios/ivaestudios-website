@@ -89,8 +89,8 @@
   --lf-tier-padding:clamp(32px,4vw,56px) clamp(24px,3vw,40px);
   --lf-reel-card-aspect:4 / 5;
   --lf-reel-frame-min-width:clamp(220px,30vw,340px);
-  --lf-dropcap-size:clamp(58px,6.5vw,78px);
-  --lf-letterbox:8%;
+  --lf-dropcap-size:clamp(96px,9vw,120px);
+  --lf-letterbox:6%;
   --lf-mote-count:8;
 }
 
@@ -184,14 +184,14 @@ a.btn-tier-outline:focus-visible{outline-color:var(--ink-1,#1a2230)}
 html.dark a.btn-tier-filled,a.btn-tier-filled{background:var(--gold,#c9a54e);color:var(--ink-1,#1a2230)!important;border:1px solid var(--gold,#c9a54e)}
 
 /* ─── HERO ─── */
-.lf-hero{position:relative;min-height:100vh;display:flex;align-items:flex-end;background:var(--ink-3,#0c1219);overflow:hidden;perspective:1200px}
-.lf-hero-bg{position:absolute;inset:0;z-index:0}
-.lf-hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 38%;filter:brightness(0.45) saturate(0.85);will-change:transform;transition:transform 0.4s var(--ease,cubic-bezier(0.16,1,0.3,1));transform:scale(1.04)}
+.lf-hero{position:relative;min-height:100vh;display:flex;align-items:flex-end;background:var(--ink-3,#0c1219);overflow:hidden;perspective:1400px}
+.lf-hero-bg{position:absolute;inset:0;z-index:0;transform-style:preserve-3d;will-change:transform;transition:transform 0.55s var(--ease,cubic-bezier(0.16,1,0.3,1))}
+.lf-hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 38%;filter:brightness(0.45) saturate(0.85);will-change:transform;transition:transform 0.55s var(--ease,cubic-bezier(0.16,1,0.3,1));transform:scale(1.06)}
 .lf-hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(160deg,rgba(14,22,32,0.55),rgba(14,22,32,0.15) 45%,rgba(14,22,32,0.78))}
 .lf-hero-content{position:relative;z-index:3;padding:0 clamp(24px,5vw,64px) clamp(80px,10vw,140px);max-width:880px}
 .lf-cascade{display:block}
 .lf-h1-letter{display:inline-block;opacity:1;transform:none}
-html.js-on .lf-h1-letter{opacity:0;transform:translateY(28px) rotateX(-30deg);transition:opacity 0.55s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1)),transform 0.7s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1))}
+html.js-on .lf-h1-letter{opacity:0;transform:translateY(12px);transition:opacity 1.4s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1)),transform 1.4s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1))}
 html.js-on .lf-h1-letter.is-in{opacity:1;transform:none}
 .hero-h1{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(48px,7vw,92px);font-weight:300;line-height:1.06;color:#faf8f5;margin:0}
 .hero-h1__italic{font-style:italic;color:var(--gold,#c9a54e)}
@@ -209,25 +209,38 @@ html.js-on .lf-h1-letter.is-in{opacity:1;transform:none}
 
 /* ─── 8 floating gold motes ─── */
 .lf-motes{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2}
-.lf-mote{position:absolute;bottom:-12px;left:var(--lf-mote-x,50vw);width:4px;height:4px;background:var(--gold,#c9a54e);border-radius:50%;opacity:0;animation:lf-mote-rise 26s linear infinite;animation-delay:var(--lf-mote-delay,0s)}
+.lf-mote{position:absolute;bottom:-12px;left:var(--lf-mote-x,50vw);width:4px;height:4px;background:var(--gold,#c9a54e);border-radius:50%;opacity:0;box-shadow:0 0 6px rgba(201,165,78,0.45);animation:lf-mote-rise 30s linear infinite;animation-delay:var(--lf-mote-delay,0s)}
 @keyframes lf-mote-rise{0%{opacity:0;transform:translateY(0) translateX(0)}10%{opacity:0.7}50%{transform:translateY(-55vh) translateX(20px)}100%{opacity:0;transform:translateY(-110vh) translateX(-10px)}}
 
 /* ─── PILLARS / MANIFESTO ─── */
-.lf-pillars{background:var(--ink-2,#10161e);padding:clamp(80px,10vw,140px) clamp(24px,5vw,64px);position:relative}
-.lf-pillars-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--lf-pillar-gap);max-width:1400px;margin:0 auto}
-.lf-pillars-stage{position:static}
-.lf-pillars-h2{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(36px,4vw,56px);font-weight:300;color:#faf8f5;line-height:1.12;margin-top:18px}
+.lf-pillars{background:var(--ink-2,#10161e);padding:clamp(80px,10vw,140px) clamp(24px,5vw,64px);position:relative;overflow:hidden}
+.lf-pillars::before{content:'';position:absolute;left:50%;top:0;width:1px;height:64px;background:linear-gradient(to bottom,transparent,rgba(201,165,78,0.42));pointer-events:none;opacity:0.6}
+.lf-pillars-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--lf-pillar-gap);max-width:1400px;margin:0 auto;position:relative}
+.lf-pillars-stage{position:static;will-change:transform}
+.lf-pillars-h2{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(36px,4vw,56px);font-weight:300;color:#faf8f5;line-height:1.12;margin-top:18px;letter-spacing:-0.012em}
 .lf-pillars-h2 em{font-style:italic;color:var(--gold,#c9a54e)}
 .lf-manifesto-body{margin-top:24px;max-width:540px}
 .lf-manifesto-body p{font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.82);margin-top:18px}
 .lf-manifesto-body p em[lang="es"]{font-style:italic;color:var(--gold,#c9a54e)}
-.lf-attribution{margin-top:26px;font-family:var(--font-sans,'Syne',sans-serif);font-size:13px;letter-spacing:0.18em;color:rgba(250,248,245,0.62);font-style:italic}
-.lf-pillars-list{display:flex;flex-direction:column;gap:48px}
-.lf-pillar{position:relative;padding-left:0}
-.lf-pillar-numeral{font-family:var(--font-sans,'Syne',sans-serif);font-size:10px;font-weight:600;letter-spacing:0.32em;color:var(--gold,#c9a54e);text-transform:uppercase}
-.lf-pillar-name{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(22px,2.4vw,32px);font-weight:300;line-height:1.20;color:#faf8f5;margin-top:10px}
+.lf-manifesto-body p:first-child::first-letter{font-family:var(--font-serif,'Cormorant Garamond',serif);font-style:italic;font-weight:300;font-size:2.6em;color:var(--gold,#c9a54e);float:left;line-height:0.9;padding:4px 10px 0 0}
+.lf-attribution{margin-top:26px;padding-top:20px;border-top:1px solid rgba(201,165,78,0.22);font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:14px;letter-spacing:0.04em;color:rgba(201,165,78,0.82);font-style:italic;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.lf-attribution em{font-style:italic;color:rgba(201,165,78,0.92)}
+.lf-attribution-role{font-family:var(--font-sans,'Syne',sans-serif);font-size:9.5px;font-weight:600;font-style:normal;letter-spacing:0.32em;text-transform:uppercase;color:var(--gold,#c9a54e);opacity:0.78}
+.lf-pillars-list{display:flex;flex-direction:column;gap:0}
+.lf-pillar{position:relative;padding:36px 0;border-top:1px solid rgba(201,165,78,0.22);transition:border-color 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1))}
+.lf-pillar:first-child{border-top:none;padding-top:0}
+.lf-pillar:last-child{padding-bottom:0}
+.lf-pillar:hover{border-top-color:rgba(201,165,78,0.48)}
+.lf-pillar:hover + .lf-pillar{border-top-color:rgba(201,165,78,0.48)}
+.lf-pillar-numeral{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(28px,3vw,40px);font-weight:300;font-style:italic;letter-spacing:0.04em;color:var(--gold,#c9a54e);text-transform:none;opacity:0.62;line-height:1;transition:opacity 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),transform 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1));display:inline-block;margin-bottom:6px}
+.lf-pillar:hover .lf-pillar-numeral,.lf-pillar.is-visible .lf-pillar-numeral{opacity:1;transform:translateX(2px)}
+.lf-pillar-name{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(22px,2.4vw,32px);font-weight:300;line-height:1.20;color:#faf8f5;margin-top:10px;letter-spacing:-0.008em}
 .lf-pillar-name em{font-style:italic;color:var(--gold,#c9a54e)}
 .lf-pillar-body{margin-top:14px;font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.78);max-width:480px}
+@media (prefers-reduced-motion: reduce){
+  .lf-pillar-numeral{opacity:1!important;transform:none!important;transition:none!important}
+  .lf-pillar{transition:none!important}
+}
 
 /* ─── COLLECTIONS / TIERS ─── */
 .lf-collections{background:var(--cream-1,#faf8f5);color:var(--ink-1,#1a2230);padding:clamp(80px,10vw,140px) clamp(24px,5vw,64px)}
@@ -285,21 +298,21 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
 .lf-feature-header{padding:0 clamp(24px,5vw,64px);max-width:1200px;margin:0 auto;text-align:center}
 .lf-feature-h2{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(36px,4vw,56px);font-weight:300;color:#faf8f5;line-height:1.12;margin-top:18px}
 .lf-feature-h2 em{font-style:italic;color:var(--gold,#c9a54e)}
-.lf-cinema{position:relative;width:100%;max-width:1480px;margin:48px auto 0;aspect-ratio:21/9;overflow:hidden;background:var(--ink-4,#080d12)}
-.lf-cinema::before,.lf-cinema::after{content:'';position:absolute;left:0;right:0;height:var(--lf-letterbox);background:var(--ink-4,#080d12);z-index:2;pointer-events:none}
-.lf-cinema::before{top:0;border-bottom:1px solid rgba(201,165,78,0.32)}
-.lf-cinema::after{bottom:0;border-top:1px solid rgba(201,165,78,0.32)}
-.lf-cinema img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform 1.6s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1));will-change:transform}
+.lf-cinema{position:relative;width:100%;max-width:1480px;margin:48px auto 0;aspect-ratio:21/9;overflow:hidden;background:var(--ink-4,#080d12);box-shadow:inset 0 0 0 1px rgba(201,165,78,0.18)}
+.lf-cinema::before,.lf-cinema::after{content:'';position:absolute;left:0;right:0;height:var(--lf-letterbox);background:#000;z-index:2;pointer-events:none}
+.lf-cinema::before{top:0;border-bottom:1px solid rgba(201,165,78,0.32);box-shadow:inset 0 -1px 0 rgba(201,165,78,0.08)}
+.lf-cinema::after{bottom:0;border-top:1px solid rgba(201,165,78,0.32);box-shadow:inset 0 1px 0 rgba(201,165,78,0.08)}
+.lf-cinema img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform 1.4s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1));will-change:transform}
 .lf-cinema:hover img{transform:scale(1.025)}
-@media (prefers-reduced-motion: reduce){.lf-cinema:hover img{transform:none}}
+@media (prefers-reduced-motion: reduce){.lf-cinema:hover img{transform:none}.lf-cinema img{transition:none}}
 .lf-feature-body{max-width:760px;margin:48px auto 0;padding:0 clamp(24px,5vw,64px)}
 .lf-feature-caption{font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.82)}
-.lf-feature-caption::first-letter{font-family:var(--font-serif,'Cormorant Garamond',serif);font-style:italic;font-weight:300;font-size:var(--lf-dropcap-size);color:var(--gold,#c9a54e);float:left;line-height:0.86;padding:6px 12px 0 0}
+.lf-feature-caption::first-letter{font-family:var(--font-serif,'Cormorant Garamond',serif);font-style:italic;font-weight:300;font-size:var(--lf-dropcap-size);color:var(--gold,#c9a54e);float:left;line-height:0.82;padding:8px 14px 0 0;margin-top:2px}
 .lf-feature-body p{margin-top:18px;font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.82)}
-.lf-feature-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:36px;padding-top:24px;border-top:1px solid rgba(201,165,78,0.32)}
-.lf-feature-meta div{display:flex;flex-direction:column;gap:4px}
-.lf-feature-meta dt{font-family:var(--font-sans,'Syne',sans-serif);font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold,#c9a54e)}
-.lf-feature-meta dd{font-family:var(--font-sans,'Syne',sans-serif);font-size:13.5px;color:rgba(250,248,245,0.82);line-height:1.55}
+.lf-feature-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:44px;padding-top:28px;border-top:1px solid rgba(201,165,78,0.32)}
+.lf-feature-meta div{display:flex;flex-direction:column;gap:6px}
+.lf-feature-meta dt{font-family:var(--font-sans,'Syne',sans-serif);font-size:10px;font-weight:500;letter-spacing:0.26em;text-transform:uppercase;color:var(--gold,#c9a54e)}
+.lf-feature-meta dd{font-family:var(--font-serif,'Cormorant Garamond',serif);font-style:italic;font-weight:300;font-size:18px;color:rgba(250,248,245,0.92);line-height:1.45}
 
 /* ─── METHOD ─── */
 .lf-method{background:var(--ink-2,#10161e);padding:clamp(80px,10vw,140px) clamp(24px,5vw,64px)}
@@ -307,12 +320,29 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
 .lf-method-h2{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(36px,4vw,56px);font-weight:300;color:#faf8f5;line-height:1.12;margin-top:18px}
 .lf-method-h2 em{font-style:italic;color:var(--gold,#c9a54e)}
 .lf-method-intro{margin-top:22px;font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.78)}
-.lf-method-rail{max-width:920px;margin:0 auto;border-left:1px solid rgba(201,165,78,0.32);padding-left:32px}
-.lf-step{position:relative;padding:32px 0}
-.lf-step::before{content:'';position:absolute;left:-37px;top:42px;width:10px;height:10px;border-radius:50%;background:var(--gold,#c9a54e);box-shadow:0 0 0 4px var(--ink-2,#10161e),0 0 0 5px rgba(201,165,78,0.32)}
-.lf-step-tag{font-family:var(--font-sans,'Syne',sans-serif);font-size:10px;font-weight:600;letter-spacing:0.32em;text-transform:uppercase;color:var(--gold,#c9a54e)}
-.lf-step-name{margin-top:8px;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(22px,2.4vw,32px);font-weight:300;color:#faf8f5;line-height:1.10}
-.lf-step-body{margin-top:12px;font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.78);max-width:640px}
+.lf-method-rail{position:relative;max-width:920px;margin:0 auto;padding-left:48px;list-style:none}
+.lf-method-rail::before{content:'';position:absolute;left:5px;top:18px;bottom:18px;width:1px;background:linear-gradient(180deg,rgba(201,165,78,0) 0%,rgba(201,165,78,0.42) 12%,rgba(201,165,78,0.42) 88%,rgba(201,165,78,0) 100%);pointer-events:none}
+.lf-step{position:relative;padding:30px 18px 30px 24px;border-left:1px solid transparent;transition:background 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),border-color 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),transform 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1))}
+.lf-step + .lf-step{margin-top:6px}
+.lf-step::before{content:'';position:absolute;left:-48px;top:42px;width:11px;height:11px;border-radius:50%;background:var(--ink-2,#10161e);border:1px solid rgba(201,165,78,0.42);box-shadow:0 0 0 4px var(--ink-2,#10161e);transition:background 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),border-color 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),box-shadow 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),transform 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1));z-index:1}
+.lf-step.is-active::before{background:var(--gold,#c9a54e);border-color:var(--gold,#c9a54e);box-shadow:0 0 0 4px var(--ink-2,#10161e),0 0 0 7px rgba(201,165,78,0.22);transform:scale(1.06)}
+.lf-step:hover{background:linear-gradient(90deg,rgba(201,165,78,0.05) 0%,rgba(201,165,78,0) 70%);border-left-color:rgba(201,165,78,0.32)}
+.lf-step-head{display:flex;align-items:center;gap:14px;margin-bottom:4px}
+.lf-step-icon{flex:0 0 22px;width:22px;height:22px;color:var(--gold,#c9a54e);opacity:0.72;transition:opacity 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),transform 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1))}
+.lf-step-icon svg{display:block;width:100%;height:100%;stroke:currentColor;stroke-width:1.25;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.lf-step.is-active .lf-step-icon,.lf-step:hover .lf-step-icon{opacity:1;transform:translateX(2px)}
+.lf-step-tag{font-family:var(--font-serif,'Cormorant Garamond',serif);font-style:italic;font-weight:300;font-size:14px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold,#c9a54e);opacity:0.78;transition:opacity 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1));margin:0}
+.lf-step-tag .num{font-family:var(--font-sans,'Syne',sans-serif);font-style:normal;font-weight:600;font-size:11px;letter-spacing:0.32em;margin-right:10px;color:var(--gold,#c9a54e)}
+.lf-step-tag .sep{display:inline-block;margin:0 8px;color:rgba(201,165,78,0.5)}
+.lf-step.is-active .lf-step-tag{opacity:1}
+.lf-step-name{margin-top:8px;font-family:var(--font-serif,'Cormorant Garamond',serif);font-style:italic;font-size:clamp(24px,2.6vw,34px);font-weight:300;color:#faf8f5;line-height:1.10;letter-spacing:-0.005em}
+.lf-step-name em{font-style:italic;color:var(--gold,#c9a54e)}
+.lf-step-body{margin-top:14px;font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.78);max-width:640px}
+@media (prefers-reduced-motion: reduce){
+  .lf-step,.lf-step::before,.lf-step-icon,.lf-step-tag{transition:none!important}
+  .lf-step.is-active::before,.lf-step:hover{transform:none!important}
+  .lf-step{opacity:1!important;transform:none!important}
+}
 /* (Sunset clock CSS removed with the widget.) */
 
 /* ─── VOICES / PULL QUOTE ─── */
@@ -424,7 +454,8 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
   .lf-motes{display:none!important}
   .lf-grain{animation:none!important}
   .lf-availability-dot{animation:none!important}
-  .lf-hero-img{transform:scale(1.04)!important;transition:none!important}
+  .lf-hero-bg{transform:none!important;transition:none!important}
+  .lf-hero-img{transform:scale(1.06)!important;transition:none!important}
   .lf-pillars-stage{position:static!important}
   .lf-reel-track{scroll-behavior:auto!important}
   .lf-cursor-preview{display:none!important}
@@ -432,7 +463,8 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
 
 /* Sticky stage on desktop with motion */
 @media (min-width: 1024px) and (prefers-reduced-motion: no-preference){
-  .lf-pillars-stage{position:sticky;top:96px;align-self:start;height:fit-content}
+  .lf-pillars-stage{position:sticky;top:120px;align-self:start;height:fit-content;transition:opacity 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),transform 0.6s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1))}
+  .lf-pillars-grid:hover .lf-pillars-stage{transform:translateZ(0)}
 }
 </style>
 </head>
@@ -548,11 +580,11 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
     <div class="lf-pillars-stage">
       <p class="eyebrow rv">The Studio</p>
       <h2 class="lf-pillars-h2 rv d1" id="pillars-heading">The hour, <em>built around the kids.</em></h2>
-      <div class="lf-manifesto-body rv d2">
-        <p>Children do not follow shot lists, and the studio does not write them. The hour is built around the kids. Their nap window. Their snack break. Their quiet five minutes after the swim. The team arrives at the resort early, walks the property, learns the light, and leaves the day intact.</p>
-        <p>Editorial means the studio makes pictures that look like the family, not the trend. <em lang="es">Bilingüe en cada conversación,</em> bilingual through every conversation, from the first email to the final gallery, in English and in Spanish. Across three coastlines, at the resorts the planners trust most, the studio works in one register: quiet, considered, golden-hour first.</p>
-        <p>The work is delivered the way a magazine prints a feature. First frames within seventy-two hours. The full gallery within three weeks. Nothing rushed. Nothing forgotten.</p>
-        <p class="lf-attribution"><em>Vianey Díaz, who directs the studio.</em></p>
+      <div class="lf-manifesto-body">
+        <p class="rv d2">Children do not follow shot lists, and the studio does not write them. The hour is built around the kids. Their nap window. Their snack break. Their quiet five minutes after the swim. The team arrives at the resort early, walks the property, learns the light, and leaves the day intact.</p>
+        <p class="rv d3">Editorial means the studio makes pictures that look like the family, not the trend. <em lang="es">Bilingüe en cada conversación,</em> bilingual through every conversation, from the first email to the final gallery, in English and in Spanish. Across three coastlines, at the resorts the planners trust most, the studio works in one register: quiet, considered, golden-hour first.</p>
+        <p class="rv d3">The work is delivered the way a magazine prints a feature. First frames within seventy-two hours. The full gallery within three weeks. Nothing rushed. Nothing forgotten.</p>
+        <p class="lf-attribution rv d4"><span class="lf-attribution-role" aria-hidden="true">Director</span><em>Vianey Díaz, who directs the studio.</em></p>
       </div>
     </div>
     <ol class="lf-pillars-list" role="list">
@@ -601,18 +633,18 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
      ═══════════════════════════════════════════════════════════════ -->
 <section class="lf-feature" id="feature" aria-labelledby="feature-heading">
   <div class="lf-feature-header">
-    <p class="eyebrow rv">A Reunion</p>
-    <h2 class="lf-feature-h2 rv d1" id="feature-heading">Three generations, two languages, <em>one coastline.</em></h2>
+    <p class="eyebrow rv d1">A Reunion</p>
+    <h2 class="lf-feature-h2 rv d2" id="feature-heading">Three generations, two languages, <em>one coastline.</em></h2>
   </div>
-  <figure class="lf-cinema rv d2">
+  <figure class="lf-cinema rv d3">
     <img src="/images/family-riviera-maya-ivae-studios.jpg" alt="A grandfather lifts his grandson against the late-afternoon mangroves at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async" width="2400" height="1029">
   </figure>
-  <div class="lf-feature-body rv">
-    <p class="lf-feature-caption">The reunion was set for the second week of April, on a private cay at Rosewood Mayakoba, with the lagoon at its back and the canopy of the Yucatán to the west. Three generations had flown in from Dallas, Mexico City, and London. Eight grandchildren, ages four through fourteen. The grandparents arrived two days early, the way grandparents do, and walked the boardwalks at the property's edge while the herons stood still long enough to be photographed.</p>
-    <p>The session was ninety minutes long. The light turned honest at 6:18, and the studio met the family on a stretch of beach where a single palmera leaned the way the children later leaned into their grandfather. The youngest grandchild was three, and the studio worked at her pace. She watched a small crab for forty seconds. Her grandfather watched her watch the crab. The frame the family had quietly hoped for, three generations together, looking the same direction at the same small thing, was made in those forty seconds.</p>
-    <p>The team carried one bottle of water and two cameras. Spanish for the grandparents, English for the cousins from London, both for the parents. No herding. No counting to three. The reunion lasted the planned ninety minutes and used eighty-two of them for photographs and eight for a snack break the studio had built into the schedule.</p>
-    <p>The first frames were delivered seventy-one hours later. The grandparents framed two of them. The full gallery, four hundred and twelve images, traveled to a private link nineteen days after the session.</p>
-    <dl class="lf-feature-meta" role="group" aria-label="Reunion details">
+  <div class="lf-feature-body">
+    <p class="lf-feature-caption rv d1">The reunion was set for the second week of April, on a private cay at Rosewood Mayakoba, with the lagoon at its back and the canopy of the Yucatán to the west. Three generations had flown in from Dallas, Mexico City, and London. Eight grandchildren, ages four through fourteen. The grandparents arrived two days early, the way grandparents do, and walked the boardwalks at the property's edge while the herons stood still long enough to be photographed.</p>
+    <p class="rv d2">The session was ninety minutes long. The light turned honest at 6:18, and the studio met the family on a stretch of beach where a single palmera leaned the way the children later leaned into their grandfather. The youngest grandchild was three, and the studio worked at her pace. She watched a small crab for forty seconds. Her grandfather watched her watch the crab. The frame the family had quietly hoped for, three generations together, looking the same direction at the same small thing, was made in those forty seconds.</p>
+    <p class="rv d3">The team carried one bottle of water and two cameras. Spanish for the grandparents, English for the cousins from London, both for the parents. No herding. No counting to three. The reunion lasted the planned ninety minutes and used eighty-two of them for photographs and eight for a snack break the studio had built into the schedule.</p>
+    <p class="rv d4">The first frames were delivered seventy-one hours later. The grandparents framed two of them. The full gallery, four hundred and twelve images, traveled to a private link nineteen days after the session.</p>
+    <dl class="lf-feature-meta rv d4" role="group" aria-label="Reunion details">
       <div><dt>Coast</dt><dd>Riviera Maya</dd></div>
       <div><dt>Family Size</dt><dd>Eight grandchildren, three generations</dd></div>
       <div><dt>Coverage</dt><dd>Ninety minutes, golden hour</dd></div>
@@ -630,29 +662,44 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
     <p class="lf-method-intro rv d2">The studio works the same way for every family, regardless of size. The first inquiry is read the same business day. A planning conversation follows within the week. The wardrobe is calibrated to the month and the coastline. The light is built backward from sunset, the pace built around the kids. The first frames travel home before the suitcase has been unpacked.</p>
   </div>
   <ol class="lf-method-rail" role="list">
-    <li class="lf-step rv" id="step-plan">
-      <p class="lf-step-tag">01 · Plan</p>
-      <h3 class="lf-step-name">Plan</h3>
+    <li class="lf-step rv d1" id="step-plan">
+      <div class="lf-step-head">
+        <span class="lf-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="presentation" focusable="false"><rect x="3.5" y="5" width="17" height="15" rx="1.5"/><path d="M3.5 9.5h17"/><path d="M8 3.5v3M16 3.5v3"/></svg></span>
+        <p class="lf-step-tag"><span class="num">01</span><span class="sep">·</span>Plan</p>
+      </div>
+      <h3 class="lf-step-name"><em>Plan</em></h3>
       <p class="lf-step-body">The first email is read the same business day, in English or Spanish. A short planning call follows within the week, forty-five minutes, on video. The studio listens first, asks about the kids, asks about the milestone if there is one, asks about the resort. By the end of the call, the family knows whether the studio is right for them, and the studio knows the shape of the hour.</p>
     </li>
-    <li class="lf-step rv" id="step-style">
-      <p class="lf-step-tag">02 · Style</p>
-      <h3 class="lf-step-name">Style</h3>
+    <li class="lf-step rv d2" id="step-style">
+      <div class="lf-step-head">
+        <span class="lf-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="presentation" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.4 0 2-1 2-2 0-.8-.5-1.4-.5-2.2 0-.9.8-1.8 1.8-1.8H17a4 4 0 0 0 4-4A8.5 8.5 0 0 0 12 3.5Z"/><circle cx="7.5" cy="11" r="1.1"/><circle cx="10" cy="7.5" r="1.1"/><circle cx="14.5" cy="7.5" r="1.1"/><circle cx="17.5" cy="11" r="1.1"/></svg></span>
+        <p class="lf-step-tag"><span class="num">02</span><span class="sep">·</span>Style</p>
+      </div>
+      <h3 class="lf-step-name"><em>Style</em></h3>
       <p class="lf-step-body">A wardrobe guide travels the day after booking. The guide is calibrated to the month, the coastline, and the kids' ages. Tones, not outfits. Linen, ivory, sand, sage, dusty terracotta. The youngest child's outfit is built around what the youngest child will already wear without protest. Nothing is bought new for the session unless the family wants it bought new for the session.</p>
     </li>
-    <li class="lf-step rv" id="step-light">
-      <p class="lf-step-tag">03 · Light</p>
-      <h3 class="lf-step-name">Light</h3>
+    <li class="lf-step rv d3" id="step-light">
+      <div class="lf-step-head">
+        <span class="lf-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="presentation" focusable="false"><circle cx="12" cy="12" r="3.5"/><path d="M12 3v2.4M12 18.6V21M3 12h2.4M18.6 12H21M5.6 5.6l1.7 1.7M16.7 16.7l1.7 1.7M5.6 18.4l1.7-1.7M16.7 7.3l1.7-1.7"/></svg></span>
+        <p class="lf-step-tag"><span class="num">03</span><span class="sep">·</span>Light</p>
+      </div>
+      <h3 class="lf-step-name"><em>Light</em></h3>
       <p class="lf-step-body">The session is timed to the final ninety minutes before sunset, ended fifteen minutes before the horizon turns. In December that is 4:00 to 5:30 in Cancún. In June that is 6:00 to 7:30. The studio walks the property the day before when travel allows, and marks the two or three locations where the light is most flattering. The schedule is built backward from sunset and forward from the youngest kid's nap end.</p>
     </li>
-    <li class="lf-step rv" id="step-direct">
-      <p class="lf-step-tag">04 · Direct</p>
-      <h3 class="lf-step-name">Direct</h3>
+    <li class="lf-step rv d4" id="step-direct">
+      <div class="lf-step-head">
+        <span class="lf-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="presentation" focusable="false"><path d="M2.5 12C4.5 7.5 8 5 12 5s7.5 2.5 9.5 7c-2 4.5-5.5 7-9.5 7s-7.5-2.5-9.5-7Z"/><circle cx="12" cy="12" r="2.6"/></svg></span>
+        <p class="lf-step-tag"><span class="num">04</span><span class="sep">·</span>Direct</p>
+      </div>
+      <h3 class="lf-step-name"><em>Direct</em></h3>
       <p class="lf-step-body">On the day, the studio arrives ten minutes early and meets the family at the meeting point. Direction is calm and quiet. The studio does not count to three. Snack breaks are built into the hour. Spanish for the grandparents who prefer Spanish. English for the cousins flying in. The pace is the pace of the family.</p>
     </li>
-    <li class="lf-step rv" id="step-deliver">
-      <p class="lf-step-tag">05 · Deliver</p>
-      <h3 class="lf-step-name">Deliver</h3>
+    <li class="lf-step rv d5" id="step-deliver">
+      <div class="lf-step-head">
+        <span class="lf-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="presentation" focusable="false"><path d="M12 3.2 3.5 7.5v9L12 20.8l8.5-4.3v-9L12 3.2Z"/><path d="M3.5 7.5 12 11.8l8.5-4.3"/><path d="M12 11.8v9"/></svg></span>
+        <p class="lf-step-tag"><span class="num">05</span><span class="sep">·</span>Deliver</p>
+      </div>
+      <h3 class="lf-step-name"><em>Deliver</em></h3>
       <p class="lf-step-body">First frames travel home with the family. Twenty to thirty editorial images arrive within seventy-two hours, before the suit has been pressed and before the suitcase has been unpacked. The full gallery, ninety to two hundred hand-edited images depending on the collection, follows within three weeks. Print release rights are included. The gallery lives on a private link with unlimited downloads.</p>
     </li>
   </ol>
@@ -908,7 +955,7 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
         var s = document.createElement('span');
         s.className = 'lf-h1-letter';
         s.textContent = ch;
-        s.style.transitionDelay = (0.03 * i) + 's';
+        s.style.transitionDelay = (0.012 * i) + 's';
         node.appendChild(s);
         i++;
       });
@@ -968,19 +1015,36 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
     });
   }
 
-  // ── 3D mouse parallax hero (gated)
+  // ── 3D mouse parallax hero (gated; tilt on hero-bg, drift on hero-img)
   if (supportsParallax){
     var hero = document.querySelector('.lf-hero');
+    var heroBg = document.getElementById('lfHeroBg');
     var heroImg = document.querySelector('.lf-hero-img');
-    if (hero && heroImg){
-      hero.addEventListener('mousemove', function(e){
+    if (hero && heroBg && heroImg){
+      var heroRaf = 0;
+      var heroLastE = null;
+      function applyHeroTilt(){
+        heroRaf = 0;
+        if (!heroLastE) return;
         var rect = hero.getBoundingClientRect();
-        var dx = ((e.clientX - rect.left) / rect.width - 0.5) * 14;
-        var dy = ((e.clientY - rect.top) / rect.height - 0.5) * 14;
-        heroImg.style.transform = 'translate3d(' + (-dx) + 'px,' + (-dy) + 'px,0) scale(1.06)';
+        var nx = (heroLastE.clientX - rect.left) / rect.width - 0.5;
+        var ny = (heroLastE.clientY - rect.top) / rect.height - 0.5;
+        var rotY = nx * 6;     // max 6deg yaw
+        var rotX = -ny * 6;    // max 6deg pitch
+        var dx = -nx * 14;
+        var dy = -ny * 14;
+        heroBg.style.transform = 'rotateX(' + rotX.toFixed(2) + 'deg) rotateY(' + rotY.toFixed(2) + 'deg)';
+        heroImg.style.transform = 'translate3d(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px,0) scale(1.06)';
+      }
+      hero.addEventListener('mousemove', function(e){
+        heroLastE = e;
+        if (!heroRaf) heroRaf = requestAnimationFrame(applyHeroTilt);
       }, { passive: true });
       hero.addEventListener('mouseleave', function(){
-        heroImg.style.transform = 'scale(1.04)';
+        heroLastE = null;
+        if (heroRaf){ cancelAnimationFrame(heroRaf); heroRaf = 0; }
+        heroBg.style.transform = '';
+        heroImg.style.transform = 'scale(1.06)';
       });
     }
   }
@@ -1009,7 +1073,7 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
         var el = e.target;
         var target = parseInt(el.dataset.countTo, 10);
         var start = performance.now();
-        var dur = 1600;
+        var dur = 1800;
         function tick(now){
           var t = Math.min(1, (now - start) / dur);
           var eased = 1 - Math.pow(1 - t, 3);
@@ -1037,6 +1101,23 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
     document.querySelectorAll('.lf-tier').forEach(function(t){ tierObs.observe(t); });
   } else {
     document.querySelectorAll('.lf-tier').forEach(function(t){ t.classList.add('is-in'); });
+  }
+
+  // ── Method: active step on scroll (gold accent intensifies as user reads)
+  var methodSteps = document.querySelectorAll('.lf-method .lf-step');
+  if (methodSteps.length){
+    if (prefersReducedMotion || !('IntersectionObserver' in window)){
+      methodSteps.forEach(function(s){ s.classList.add('is-active'); });
+    } else {
+      var stepObs = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if (e.isIntersecting && e.intersectionRatio > 0.45){
+            e.target.classList.add('is-active');
+          }
+        });
+      }, { threshold: [0.45, 0.7], rootMargin: '-15% 0px -25% 0px' });
+      methodSteps.forEach(function(s){ stepObs.observe(s); });
+    }
   }
 
   // (Sunset clock JS removed — widget retired in favor of editorial timing in the Method section.)
