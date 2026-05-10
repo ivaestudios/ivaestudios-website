@@ -81,10 +81,10 @@
 /destination-wedding-photographer-mexico /luxury-weddings 200
 /luxury-family-photos-cancun /luxury-family-photos 200
 /couples-photography-mexico /couples-photography 200
-/luxury-editorial /luxury-editorial.html 200
-/es/editorial-de-lujo /es/editorial-de-lujo.html 200
 
 # Recover blog post traffic to new editorial service page
+# (Cloudflare auto-strips .html so /luxury-editorial serves luxury-editorial.html
+# automatically — no rewrite rule needed for the new editorial pages.)
 /blog/luxury-photographer-style-editorial-vs-documentary /luxury-editorial 301
 /es/blog/estilo-fotografo-lujo-editorial-vs-documental /es/editorial-de-lujo 301
 /post-luxury-photographer-style-editorial-vs-documentary.html /luxury-editorial 301
