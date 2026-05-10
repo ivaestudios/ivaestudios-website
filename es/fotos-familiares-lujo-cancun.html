@@ -229,7 +229,9 @@ html.js-on .lf-h1-letter.is-in{opacity:1;transform:none}
 .lf-manifesto-body{margin-top:24px;max-width:540px}
 .lf-manifesto-body p{font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.82);margin-top:18px}
 .lf-manifesto-body p em[lang="es"]{font-style:italic;color:var(--gold,#c9a54e)}
-.lf-attribution{margin-top:26px;font-family:var(--font-sans,'Syne',sans-serif);font-size:13px;letter-spacing:0.18em;color:rgba(250,248,245,0.62);font-style:italic}
+.lf-attribution{margin-top:26px;padding-top:20px;border-top:1px solid rgba(201,165,78,0.22);font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:14px;letter-spacing:0.04em;color:rgba(201,165,78,0.82);font-style:italic;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.lf-attribution em{font-style:italic;color:rgba(201,165,78,0.92)}
+.lf-attribution-role{font-family:var(--font-sans,'Syne',sans-serif);font-size:9.5px;font-weight:600;font-style:normal;letter-spacing:0.32em;text-transform:uppercase;color:var(--gold,#c9a54e);opacity:0.78}
 .lf-pillars-list{display:flex;flex-direction:column;gap:48px}
 .lf-pillar{position:relative;padding-left:0}
 .lf-pillar-numeral{font-family:var(--font-sans,'Syne',sans-serif);font-size:10px;font-weight:600;letter-spacing:0.32em;color:var(--gold,#c9a54e);text-transform:uppercase}
@@ -320,7 +322,8 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
 .lf-step-icon{flex:0 0 22px;width:22px;height:22px;color:var(--gold,#c9a54e);opacity:0.72;transition:opacity 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),transform 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1))}
 .lf-step-icon svg{display:block;width:100%;height:100%;stroke:currentColor;stroke-width:1.25;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .lf-step.is-active .lf-step-icon,.lf-step:hover .lf-step-icon{opacity:1;transform:translateX(2px)}
-.lf-step-name{margin-top:8px;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(22px,2.4vw,32px);font-weight:300;color:#faf8f5;line-height:1.10}
+.lf-step-name{margin-top:8px;font-family:var(--font-serif,'Cormorant Garamond',serif);font-style:italic;font-size:clamp(24px,2.6vw,34px);font-weight:300;color:#faf8f5;line-height:1.10;letter-spacing:-0.005em}
+.lf-step-name em{font-style:italic;color:var(--gold,#c9a54e)}
 .lf-step-body{margin-top:12px;font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.78);max-width:640px}
 .lf-step-deeplink{color:var(--gold,#c9a54e);text-decoration:underline;text-underline-offset:3px}
 .lf-step-deeplink:hover{color:#faf8f5}
@@ -586,11 +589,11 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
     <div class="lf-pillars-stage">
       <p class="eyebrow rv">El Estudio</p>
       <h2 class="lf-pillars-h2 rv d1" id="pillars-heading">La hora, <em>construida alrededor de los niños.</em></h2>
-      <div class="lf-manifesto-body rv d2">
-        <p>Los niños no siguen listas de tomas, y el estudio no las escribe. La hora se construye alrededor de los niños. Su ventana de siesta. Su pausa para el snack. Sus cinco minutos tranquilos después del baño. El equipo llega temprano al resort, recorre la propiedad, aprende la luz, y deja el día intacto.</p>
-        <p>Editorial significa que el estudio hace fotografías que se parecen a la familia, no a la tendencia. <em lang="es">Bilingüe en cada conversación,</em> bilingüe en cada conversación, desde el primer correo hasta la galería final, en inglés y en español. A través de tres costas, en los resorts en los que los planificadores más confían, el estudio trabaja en un solo registro: tranquilo, considerado, primero la hora dorada.</p>
-        <p>El trabajo se entrega como una revista imprime un reportaje. Las primeras fotografías dentro de las setenta y dos horas. La galería completa dentro de tres semanas. Nada apresurado. Nada olvidado.</p>
-        <p class="lf-attribution"><em>Vianey Díaz, quien dirige el estudio.</em></p>
+      <div class="lf-manifesto-body">
+        <p class="rv d2">Los niños no siguen listas de tomas, y el estudio no las escribe. La hora se construye alrededor de los niños. Su ventana de siesta. Su pausa para el snack. Sus cinco minutos tranquilos después del baño. El equipo llega temprano al resort, recorre la propiedad, aprende la luz, y deja el día intacto.</p>
+        <p class="rv d3">Editorial significa que el estudio hace fotografías que se parecen a la familia, no a la tendencia. <em lang="es">Bilingüe en cada conversación,</em> bilingüe en cada conversación, desde el primer correo hasta la galería final, en inglés y en español. A través de tres costas, en los resorts en los que los planificadores más confían, el estudio trabaja en un solo registro: tranquilo, considerado, primero la hora dorada.</p>
+        <p class="rv d3">El trabajo se entrega como una revista imprime un reportaje. Las primeras fotografías dentro de las setenta y dos horas. La galería completa dentro de tres semanas. Nada apresurado. Nada olvidado.</p>
+        <p class="lf-attribution rv d4"><span class="lf-attribution-role" aria-hidden="true">Directora</span><em>Vianey Díaz, quien dirige el estudio.</em></p>
       </div>
     </div>
     <ol class="lf-pillars-list" role="list">
@@ -670,27 +673,27 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
   <ol class="lf-method-rail" role="list">
     <li class="lf-step rv" id="step-plan">
       <p class="lf-step-tag">01 · Planificar</p>
-      <h3 class="lf-step-name">Planificar</h3>
+      <h3 class="lf-step-name"><em>Planificar</em></h3>
       <p class="lf-step-body">El primer correo se lee el mismo día hábil, en inglés o español. Una breve llamada de planificación sigue dentro de la semana, cuarenta y cinco minutos, por video. El estudio escucha primero, pregunta sobre los niños, pregunta sobre el hito si lo hay, pregunta sobre el resort. Para el final de la llamada, la familia sabe si el estudio es adecuado para ellos, y el estudio conoce la forma de la hora.</p>
     </li>
     <li class="lf-step rv" id="step-style">
       <p class="lf-step-tag">02 · Estilizar</p>
-      <h3 class="lf-step-name">Estilizar</h3>
+      <h3 class="lf-step-name"><em>Estilizar</em></h3>
       <p class="lf-step-body">Una guía de vestuario viaja al día siguiente de la reserva. La guía está calibrada al mes, a la costa, y a las edades de los niños. Tonos, no atuendos. Lino, marfil, arena, salvia, terracota apagado. El atuendo del niño más pequeño se construye alrededor de lo que el niño más pequeño ya usará sin protestar. Nada se compra nuevo para la sesión a menos que la familia quiera comprarlo nuevo para la sesión.</p>
     </li>
     <li class="lf-step rv" id="step-light">
       <p class="lf-step-tag">03 · Iluminar</p>
-      <h3 class="lf-step-name">Iluminar</h3>
+      <h3 class="lf-step-name"><em>Iluminar</em></h3>
       <p class="lf-step-body">La sesión se programa a los noventa minutos finales antes del atardecer, terminada quince minutos antes de que el horizonte cambie. En diciembre eso es de 4:00 a 5:30 en Cancún. En junio es de 6:00 a 7:30. El estudio recorre la propiedad el día anterior cuando el viaje lo permite, y marca las dos o tres locaciones donde la luz es más favorecedora. El horario se construye hacia atrás desde el atardecer y hacia adelante desde el fin de la siesta del niño más pequeño. <a href="#sunset" class="lf-step-deeplink">Ver el widget de Hora Amigable al Atardecer abajo.</a></p>
     </li>
     <li class="lf-step rv" id="step-direct">
       <p class="lf-step-tag">04 · Dirigir</p>
-      <h3 class="lf-step-name">Dirigir</h3>
+      <h3 class="lf-step-name"><em>Dirigir</em></h3>
       <p class="lf-step-body">El día, el estudio llega diez minutos antes y se encuentra con la familia en el punto de encuentro. La dirección es tranquila y silenciosa. El estudio no cuenta hasta tres. Las pausas para snack están integradas a la hora. Español para los abuelos que prefieren español. Inglés para los primos que llegan en avión. El ritmo es el ritmo de la familia.</p>
     </li>
     <li class="lf-step rv" id="step-deliver">
       <p class="lf-step-tag">05 · Entregar</p>
-      <h3 class="lf-step-name">Entregar</h3>
+      <h3 class="lf-step-name"><em>Entregar</em></h3>
       <p class="lf-step-body">Las primeras fotografías viajan a casa con la familia. De veinte a treinta imágenes editoriales llegan dentro de las setenta y dos horas, antes de que el traje haya sido planchado y antes de que la maleta haya sido deshecha. La galería completa, de noventa a doscientas imágenes editadas a mano según la colección, sigue dentro de tres semanas. Los derechos de impresión están incluidos. La galería vive en un enlace privado con descargas ilimitadas.</p>
     </li>
   </ol>

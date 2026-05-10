@@ -708,8 +708,8 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 .lc-inquiry-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:0;margin-top:24px;padding-top:32px;border-top:1px solid rgba(196,163,90,.20)}
 .lc-inquiry-meta-cell{padding:8px 24px;border-right:1px solid rgba(196,163,90,.32);text-align:center}
 .lc-inquiry-meta-cell:last-child{border-right:none}
-.lc-inquiry-meta dt{font-family:var(--font-sans);font-size:9.5px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
-.lc-inquiry-meta dd{font-size:var(--fs-13);color:var(--cream-1)}
+.lc-inquiry-meta .meta-key{font-family:var(--font-sans);font-size:9.5px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.lc-inquiry-meta .meta-val{font-size:var(--fs-13);color:var(--cream-1)}
 
 /* ═══════════════════════════════════════════════════════════════
    SECTION 11 — FOOTER (canon footer markup uses .colophon — see /styles/site-footer.css)
@@ -1307,11 +1307,11 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
       <a class="lc-btn lc-btn--text" href="https://wa.me/529902046514" aria-label="Message the studio on WhatsApp">WhatsApp</a>
     </div>
 
-    <dl class="lc-inquiry-meta lc-rv d4" role="group" aria-label="Studio response details">
-      <div class="lc-inquiry-meta-cell"><dt>Response Time</dt><dd>Same business day</dd></div>
-      <div class="lc-inquiry-meta-cell"><dt>Languages</dt><dd>English / Spanish</dd></div>
-      <div class="lc-inquiry-meta-cell"><dt>Hours</dt><dd>06:00 &ndash; 20:00 GMT-5</dd></div>
-    </dl>
+    <div class="lc-inquiry-meta lc-rv d4" role="group" aria-label="Studio response details">
+      <div class="lc-inquiry-meta-cell"><div class="meta-key">Response Time</div><div class="meta-val">Same business day</div></div>
+      <div class="lc-inquiry-meta-cell"><div class="meta-key">Languages</div><div class="meta-val">English / Spanish</div></div>
+      <div class="lc-inquiry-meta-cell"><div class="meta-key">Hours</div><div class="meta-val">06:00 &ndash; 20:00 GMT-5</div></div>
+    </div>
   </div>
 </section>
 
