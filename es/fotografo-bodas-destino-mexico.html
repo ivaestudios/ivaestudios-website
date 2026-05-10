@@ -90,6 +90,8 @@ ul{list-style:none}
 .lw-rv.d2{transition-delay:.22s}
 .lw-rv.d3{transition-delay:.34s}
 .lw-rv.d4{transition-delay:.46s}
+.lw-rv.d5{transition-delay:.58s}
+.lw-rv.d6{transition-delay:.70s}
 
 /* ═══════════════════════════════════════════════════════════════
  CINEMATIC ADDITIONS / WAVE 6
@@ -216,9 +218,11 @@ ul{list-style:none}
 }
 
 .feature-img.lw-cinema{
- position:relative;aspect-ratio:auto;
- height:clamp(420px,56vw,640px);
- box-shadow:var(--lw-cinema-shadow);
+ position:relative;
+ aspect-ratio:21/9;
+ height:auto;
+ box-shadow:var(--lw-cinema-shadow), 0 24px 60px rgba(0,0,0,.4);
+ overflow:hidden;
 }
 .feature-img.lw-cinema::before,
 .feature-img.lw-cinema::after{
@@ -228,13 +232,18 @@ ul{list-style:none}
 }
 .feature-img.lw-cinema::before{top:0;border-bottom:1px solid var(--gold-line)}
 .feature-img.lw-cinema::after{bottom:0;border-top:1px solid var(--gold-line)}
-.feature-img.lw-cinema img{height:100%;object-fit:cover}
+.feature-img.lw-cinema img{height:100%;width:100%;object-fit:cover;object-position:center 38%}
 
 .feature-text p.lw-dropcap::first-letter{
  font-family:var(--font-serif);font-style:italic;font-weight:300;
- font-size:clamp(64px,7vw,86px);
- float:left;line-height:.86;
- margin:6px 12px -2px 0;color:var(--gold);letter-spacing:-.02em;
+ font-size:clamp(96px,9.5vw,120px);
+ float:left;line-height:.84;
+ margin:8px 14px -4px 0;
+ color:var(--gold);
+ letter-spacing:-.025em;
+}
+@media (prefers-reduced-motion: reduce){
+ .feature-img img{transition:none !important}
 }
 
 .lw-clock-section{background:var(--ink-3)}
@@ -297,23 +306,28 @@ html.dark .lw-clock-mbtn[aria-pressed="true"]{color:var(--ink-1) !important}
 .frames-rail-wrap{margin-top:48px;position:relative}
 .frames-rail{
  display:grid;grid-auto-flow:column;
- grid-auto-columns:clamp(260px,32vw,420px);
- gap:14px;overflow-x:auto;overflow-y:hidden;
+ grid-auto-columns:clamp(280px,30vw,480px);
+ gap:18px;overflow-x:auto;overflow-y:hidden;
  scroll-snap-type:x mandatory;
+ scroll-padding-inline:24px;
  scrollbar-width:thin;scrollbar-color:var(--gold-line) transparent;
- padding:8px 0 24px;cursor:grab;
+ padding:8px 4px 28px;cursor:grab;outline:none;
 }
+.frames-rail:focus-visible{box-shadow:inset 0 0 0 1px var(--gold-line)}
 .frames-rail.is-dragging{cursor:grabbing;scroll-behavior:auto}
 .frames-rail::-webkit-scrollbar{height:4px}
 .frames-rail::-webkit-scrollbar-track{background:transparent}
 .frames-rail::-webkit-scrollbar-thumb{background:var(--gold-line);border-radius:2px}
 .frames-rail .frame{scroll-snap-align:start;aspect-ratio:4/5}
+.frames-rail .frame:nth-child(2n){aspect-ratio:3/4}
+.frames-rail .frame:nth-child(3n){aspect-ratio:5/7}
+.frames-rail .frame:nth-child(5n){aspect-ratio:2/3}
 .frame-num{
  position:absolute;top:14px;left:14px;z-index:2;
  font-family:var(--font-serif);font-style:italic;font-weight:300;
- font-size:var(--fs-13);color:var(--gold);
- letter-spacing:.04em;background:rgba(10,15,23,.65);
- padding:4px 10px;pointer-events:none;opacity:.92;
+ font-size:var(--fs-14);color:var(--gold);
+ letter-spacing:.05em;background:rgba(10,15,23,.62);
+ padding:4px 12px;pointer-events:none;opacity:.94;
 }
 .frames-rail-hint{
  display:flex;align-items:center;gap:14px;margin-top:12px;
@@ -343,6 +357,7 @@ html.dark .lw-clock-mbtn[aria-pressed="true"]{color:var(--ink-1) !important}
 @media (prefers-reduced-motion: reduce),(pointer:coarse){
  .lw-img-preview{display:none !important}
 }
+@media (max-width: 768px){.lw-img-preview{display:none !important}}
 
 .lw-cursor-dot,.lw-cursor-ring{
  position:fixed;top:0;left:0;pointer-events:none;
@@ -574,7 +589,7 @@ html.dark .lw-clock-mbtn[aria-pressed="true"]{
 .lw-hero-sub{
  margin-top:32px;
  display:grid;grid-template-columns:1px 1fr;gap:22px;
- max-width:560px;align-items:start;
+ max-width:540px;align-items:start;
 }
 .lw-hero-sub::before{
  content:'';width:1px;height:62px;
@@ -706,17 +721,25 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 .pillar{border-top:1px solid var(--gold-line);padding:32px 4px 0}
 .pillar-num{
  font-family:var(--font-sans);
- font-size:var(--fs-9);font-weight:500;
- letter-spacing:var(--tracking-eyebrow-wide);
+ font-size:var(--fs-9);font-weight:400;
+ letter-spacing:.32em;
  text-transform:uppercase;
- color:var(--gold);margin-bottom:18px;
+ color:var(--gold);
+ margin-bottom:20px;
+ display:inline-flex;align-items:baseline;gap:.6ch;
 }
 .pillar h3{
  font-family:var(--font-serif);font-weight:300;
  font-size:clamp(22px,2vw,30px);
- line-height:1.18;color:var(--cream);margin-bottom:14px;
+ line-height:1.18;color:var(--cream);
+ margin-bottom:14px;
+ letter-spacing:-.005em;
 }
-.pillar h3 em{font-style:italic;color:var(--gold)}
+.pillar h3 em{font-style:italic;color:var(--gold);font-weight:300}
+@media (prefers-reduced-motion: no-preference){
+ .pillar{transition:border-color .5s var(--ease-smooth)}
+ .pillar:hover{border-color:var(--gold)}
+}
 .pillar p{
  font-family:var(--font-sans);
  font-size:var(--fs-14);line-height:1.74;
@@ -741,6 +764,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 }
 .tier-card.featured{
  border-top:var(--inv-tier-rule-featured);
+ background:var(--ink-1);
  box-shadow:var(--shadow-2);
 }
 .tier-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-3)}
@@ -849,9 +873,10 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  width:100%;height:100%;object-fit:cover;
  filter:saturate(.88) brightness(.92);
  transform:scale(1.0);
- transition:transform 1.2s var(--ease);
+ transition:transform 1.4s var(--ease), filter 1.4s var(--ease);
+ will-change:transform;
 }
-.feature-img:hover img{transform:scale(1.03)}
+.feature-img:hover img{transform:scale(1.025);filter:saturate(.94) brightness(.96)}
 .feature-text{display:flex;flex-direction:column;gap:24px}
 .feature-text h2{font-size:clamp(30px,3.4vw,48px);max-width:520px}
 .feature-text p{
@@ -861,11 +886,13 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  max-width:var(--case-study-caption-max-width);
 }
 .feature-meta{
- display:flex;flex-wrap:wrap;gap:24px;
- padding-top:18px;border-top:1px solid var(--gold-line);
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:22px 32px;
+ padding-top:22px;margin-top:6px;
+ border-top:1px solid var(--gold-line);
  font-family:var(--font-sans);
 }
-.feature-meta-cell{display:flex;flex-direction:column;gap:4px}
+.feature-meta-cell{display:flex;flex-direction:column;gap:6px}
 .feature-meta-l{
  font-size:var(--fs-9);font-weight:500;
  letter-spacing:var(--tracking-eyebrow-wide);
@@ -874,6 +901,10 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 .feature-meta-v{
  font-family:var(--font-serif);font-weight:300;font-style:italic;
  font-size:var(--fs-15);color:var(--cream);
+ letter-spacing:.005em;line-height:1.32;
+}
+@media(min-width:1100px){
+ .feature-meta{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px 28px}
 }
 @media(max-width:900px){.feature-grid{grid-template-columns:1fr;gap:48px}}
 
@@ -908,38 +939,89 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 
 /* Testimonials */
 .tlist{background:var(--ink-2)}
+.tlist .lw-section-eyebrow{margin-bottom:18px}
+.tlist h2{
+ font-feature-settings:"liga","dlig","onum";
+ letter-spacing:-.005em;
+}
 .tlist-grid{
  display:grid;grid-template-columns:repeat(3,1fr);
- gap:clamp(16px,2vw,28px);margin-top:56px;
+ gap:clamp(18px,2.2vw,32px);
+ margin-top:64px;
 }
 .tlist-card{
+ position:relative;
  background:var(--ink-1);
- padding:42px 32px;
- border-top:1px solid var(--gold-line);
- display:flex;flex-direction:column;gap:18px;
+ padding:46px 34px 40px;
+ border-top:2px solid var(--gold);
+ display:flex;flex-direction:column;gap:20px;
+ transition:transform .55s var(--ease),border-color .55s var(--ease),box-shadow .55s var(--ease);
+ will-change:transform;
 }
 .tlist-stars{
- display:flex;gap:4px;color:var(--gold);
- font-size:var(--fs-13);letter-spacing:.05em;
+ display:flex;gap:5px;color:var(--gold);
+ font-size:var(--fs-13);
+ letter-spacing:.08em;
 }
 .tlist-card blockquote{
+ margin:0;
  font-family:var(--font-serif);font-weight:300;font-style:italic;
- font-size:var(--fs-18);line-height:1.55;color:var(--cream);
+ font-size:var(--fs-19,var(--fs-18));line-height:1.6;
+ color:var(--cream);
+ font-feature-settings:"liga","dlig","onum";
 }
 .tlist-attr{
- display:flex;flex-direction:column;gap:4px;
- padding-top:14px;border-top:1px solid var(--gold-line);
+ display:flex;flex-direction:column;gap:6px;
+ padding-top:16px;
+ border-top:1px solid var(--gold-line);
+ margin-top:auto;
 }
 .tlist-name{
  font-family:var(--font-sans);
  font-size:var(--fs-11);font-weight:600;
  letter-spacing:var(--couple-name-tracking);
- text-transform:uppercase;color:var(--cream);
+ text-transform:uppercase;
+ color:var(--cream);
 }
 .tlist-where{
+ font-family:var(--font-serif);font-style:italic;font-weight:300;
+ font-size:var(--fs-13);
+ color:var(--gold);
+ letter-spacing:.02em;
+}
+.tlist-coda{
+ margin:clamp(56px,7vw,84px) auto 0;
+ max-width:760px;
+ text-align:center;
+ font-family:var(--font-serif);font-style:italic;font-weight:300;
+ font-size:clamp(17px,1.6vw,21px);line-height:1.55;
+ color:var(--cream);
+ border-top:1px solid var(--gold-line);
+ padding-top:clamp(28px,3.2vw,40px);
+}
+.tlist-coda cite{
+ display:block;
+ margin-top:12px;
+ font-size:var(--fs-12);
+ font-style:normal;
  font-family:var(--font-sans);
- font-size:var(--fs-11);
- color:var(--text-on-dark-3);letter-spacing:.05em;
+ letter-spacing:.18em;
+ text-transform:uppercase;
+ color:var(--gold);
+}
+@media(prefers-reduced-motion: no-preference) and (pointer:fine){
+ .tlist-card:hover{
+ transform:translateY(-4px);
+ border-top-color:var(--gold);
+ box-shadow:0 18px 44px -28px rgba(0,0,0,.55),0 1px 0 rgba(212,175,116,.18);
+ }
+ .tlist-card:hover .tlist-where{color:var(--gold)}
+}
+@media(prefers-reduced-motion: reduce){
+ .tlist-card{transition:none}
+}
+@media(max-width:1080px){
+ .tlist-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:900px){.tlist-grid{grid-template-columns:1fr}}
 
@@ -955,58 +1037,117 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 }
 .frame img{
  width:100%;height:100%;object-fit:cover;
- filter:saturate(.88) brightness(.95);
- transform:scale(1.0);
- transition:transform 1.0s var(--ease),filter .5s var(--ease);
+ filter:saturate(.88) brightness(.95) contrast(.98);
+ transform:scale(1);
+ transition:transform 1.4s var(--ease),filter 1.4s var(--ease);
+ will-change:transform,filter;
 }
-.frame:hover img{transform:scale(1.045);filter:saturate(1.0) brightness(1.04)}
+.frame:hover img,
+.frame:focus-visible img{
+ transform:scale(1.025);
+ filter:saturate(1.02) brightness(1.05) contrast(1.02);
+}
+.frame::after{
+ content:'';position:absolute;inset:0;pointer-events:none;
+ background:linear-gradient(180deg,rgba(10,15,23,0) 55%,rgba(10,15,23,.55) 100%);
+ opacity:.85;transition:opacity .8s var(--ease);
+}
+.frame:hover::after{opacity:1}
 .frame-cap{
- position:absolute;left:14px;bottom:14px;
- font-family:var(--font-sans);
- font-size:var(--fs-9);font-weight:500;
- letter-spacing:var(--tracking-eyebrow-wide);
- text-transform:uppercase;
+ position:absolute;left:14px;bottom:14px;z-index:2;
+ font-family:var(--font-serif);
+ font-style:italic;font-weight:300;
+ font-size:var(--fs-13);
+ letter-spacing:.03em;
  color:var(--gold);
- background:rgba(10,15,23,.78);padding:6px 10px;
- opacity:0;transition:opacity .4s var(--ease);
+ background:rgba(10,15,23,.62);
+ padding:5px 12px;
+ opacity:.92;transform:translateY(4px);
+ transition:opacity .8s var(--ease),transform .8s var(--ease);
 }
-.frame:hover .frame-cap{opacity:1}
+.frame:hover .frame-cap,
+.frame:focus-visible .frame-cap{opacity:1;transform:translateY(0)}
 @media(max-width:768px){.frames-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:480px){.frames-grid{grid-template-columns:1fr}}
+@media (max-width: 480px){
+ .lw-hero h1{font-size:clamp(28px, 7vw, 42px)}
+ .lw-stats{grid-template-columns:1fr;gap:20px;padding:20px 0}
+ .pillars-grid{gap:24px}
+}
+@media (prefers-reduced-motion: reduce){
+ .frame img{transition:none !important}
+ .frame:hover img,.frame:focus-visible img{transform:none;filter:saturate(.92) brightness(.98)}
+ .frame-cap{transition:none !important;transform:none}
+ .frames-rail{scroll-behavior:auto}
+}
 
 /* FAQ */
 .faq{background:var(--ink-2)}
 .faq-inner{max-width:var(--faq-max-width);margin:0 auto}
 .faq-list{margin-top:48px;border-top:1px solid var(--gold-line)}
-.faq-item{border-bottom:1px solid var(--gold-line)}
+.faq-item{border-bottom:1px solid var(--gold-line);position:relative}
+.faq-item::after{
+ content:'';position:absolute;left:0;bottom:-1px;height:1px;width:0;
+ background:linear-gradient(90deg, transparent, var(--gold) 50%, transparent);
+ transition:width .5s var(--ease);
+}
+.faq-item.open::after{width:100%}
 .faq-trigger{
- width:100%;
+ width:100%;position:relative;
  display:flex;justify-content:space-between;align-items:center;
  padding:24px 0;gap:24px;
  text-align:left;cursor:pointer;
  background:none;border:none;color:inherit;
- min-height:var(--touch-target-min);font:inherit;
+ min-height:var(--touch-target-min);
+ font:inherit;
+ transition:color .3s var(--ease);
+ border-radius:2px;
+}
+.faq-trigger:hover .faq-q,
+.faq-trigger:focus-visible .faq-q{color:var(--gold)}
+.faq-trigger:focus-visible{
+ outline:none;
+ box-shadow:0 0 0 2px var(--gold-soft);
 }
 .faq-q{
  font-family:var(--font-serif);font-weight:300;
  font-size:clamp(18px,1.5vw,22px);
- line-height:1.32;color:var(--cream);flex:1;
+ line-height:1.32;color:var(--cream);
+ flex:1;
+ transition:color .3s var(--ease);
+ background-image:linear-gradient(var(--gold), var(--gold));
+ background-repeat:no-repeat;
+ background-position:0 100%;
+ background-size:0 1px;
+ transition:color .3s var(--ease), background-size .4s var(--ease);
+ padding-bottom:2px;
 }
+.faq-trigger:hover .faq-q,
+.faq-trigger:focus-visible .faq-q{background-size:100% 1px}
 .faq-icon{
  flex-shrink:0;width:28px;height:28px;
  border:1px solid var(--gold-line);border-radius:50%;
  display:flex;align-items:center;justify-content:center;
- color:var(--gold);
- transition:transform .35s var(--ease),background .3s var(--ease);
+ color:var(--gold);position:relative;
+ transition:transform .4s var(--ease), background .4s var(--ease), border-color .4s var(--ease);
 }
-.faq-icon::before,.faq-icon::after{content:'';position:absolute;background:var(--gold)}
+.faq-icon::before,.faq-icon::after{
+ content:'';position:absolute;
+ background:var(--gold);
+ transition:transform .4s var(--ease);
+}
 .faq-icon::before{width:10px;height:1px}
-.faq-icon::after{width:1px;height:10px;transition:transform .35s var(--ease)}
-.faq-item.open .faq-icon{transform:rotate(180deg);background:var(--gold-soft)}
-.faq-item.open .faq-icon::after{transform:scaleY(0)}
+.faq-icon::after{width:1px;height:10px}
+.faq-trigger:hover .faq-icon,
+.faq-trigger:focus-visible .faq-icon{border-color:var(--gold);background:var(--gold-soft)}
+.faq-item.open .faq-icon{
+ transform:rotate(45deg);
+ background:var(--gold-soft);
+ border-color:var(--gold);
+}
 .faq-answer{
  max-height:0;overflow:hidden;
- transition:max-height .55s var(--ease);
+ transition:max-height .4s var(--ease);
 }
 .faq-item.open .faq-answer{max-height:var(--faq-answer-max-h)}
 .faq-answer p{
@@ -1014,6 +1155,12 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  font-family:var(--font-sans);
  font-size:var(--fs-14);line-height:1.78;
  color:var(--text-on-dark-readable);
+ font-style:italic;
+}
+@media (prefers-reduced-motion: reduce){
+ .faq-trigger,.faq-q,.faq-icon,.faq-icon::before,.faq-icon::after,
+ .faq-answer,.faq-item::after{transition:none !important}
+ .faq-q{background-image:none}
 }
 
 /* Inquiry */
@@ -1026,13 +1173,17 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 }
 .inquiry-inner{
  max-width:var(--inquiry-copy-max-width);
- margin:0 auto;
- display:flex;flex-direction:column;align-items:center;gap:24px;
+ margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:24px;
+}
+.inquiry-rule{
+ width:64px;height:1px;background:var(--gold);
+ opacity:.7;margin:0 auto 4px;
 }
 .inquiry h2{
- font-family:var(--font-serif);font-weight:300;
- font-size:clamp(34px,4vw,56px);
- line-height:1.06;letter-spacing:-.018em;color:var(--cream);
+ font-family:var(--font-serif);font-style:italic;font-weight:300;
+ font-size:clamp(36px,4vw,56px);
+ line-height:1.06;letter-spacing:-.018em;
+ color:var(--cream);
 }
 .inquiry h2 em{font-style:italic;color:var(--gold)}
 .inquiry p{
@@ -1397,8 +1548,8 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 <section class="lw-section feature" aria-labelledby="feat-h">
  <div class="lw-inner">
  <div class="feature-grid">
- <div class="feature-img lw-cinema lw-rv">
- <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-10.jpg" alt="Una novia en hora dorada en la Zona Hotelera de Cancún, fotografiada por IVAE Studios" loading="lazy" width="1600" height="1067"/>
+ <div class="feature-img lw-cinema lw-rv d1">
+ <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-14.jpg" alt="Retrato dramático de una novia en hora dorada en la Zona Hotelera de Cancún, fotografiada y dirigida por Vianey Díaz, IVAE Studios" loading="lazy" width="1600" height="1067"/>
  </div>
  <div class="feature-text lw-rv d2">
  <span class="lw-section-eyebrow">Una Boda / Cancún</span>
@@ -1407,16 +1558,20 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  <p>Lo que entregamos fue un archivo de setecientos cuadros, editados a un solo tono distintivo, más un film destacado de cuatro minutos que las familias hoy ponen en cada cumpleaños. El estudio trabajó en español con la planner, en inglés con la pareja y en portugués cuando importaba. El día permaneció en calma porque el timeline se sostuvo. Eso es lo que llamamos editorial.</p>
  <div class="feature-meta">
  <div class="feature-meta-cell">
- <span class="feature-meta-l">Costa</span>
- <span class="feature-meta-v">Zona Hotelera Cancún</span>
+ <span class="feature-meta-l">Locación</span>
+ <span class="feature-meta-v">Cancún, Quintana Roo</span>
  </div>
  <div class="feature-meta-cell">
- <span class="feature-meta-l">Escala</span>
- <span class="feature-meta-v">60 invitados</span>
+ <span class="feature-meta-l">Costa</span>
+ <span class="feature-meta-v">Zona Hotelera, Caribe</span>
  </div>
  <div class="feature-meta-cell">
  <span class="feature-meta-l">Cobertura</span>
- <span class="feature-meta-v">Colección Signature</span>
+ <span class="feature-meta-v">Signature, diez horas</span>
+ </div>
+ <div class="feature-meta-cell">
+ <span class="feature-meta-l">Temporada</span>
+ <span class="feature-meta-v">Finales de noviembre, seca</span>
  </div>
  </div>
  </div>
@@ -1432,43 +1587,49 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  <p class="lw-lede lw-rv d1">Lo hacemos igual cada vez. Seis pasos desde la carta de consulta hasta la impresión enmarcada en tu pared.</p>
 
  <div class="method-rail">
- <div class="method-step lw-rv">
- <span class="method-step-num">i.</span>
+ <div class="method-step lw-rv d1">
+ <span class="method-ornament" aria-hidden="true"><svg viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="1"><circle cx="10.5" cy="10.5" r="9"/><circle cx="10.5" cy="10.5" r="3.5"/></svg></span>
+ <span class="method-step-num">01 &middot; i.</span>
  <div>
  <h3>Plan de Atardecer</h3>
  <p>Antes de acordar las horas, buscamos el atardecer de tu fecha y tu costa, y construimos el timeline hacia atrás. Ceremonia, retratos, hora dorada, cena. Todo lo demás es papelería.</p>
  </div>
  </div>
- <div class="method-step lw-rv">
- <span class="method-step-num">ii.</span>
+ <div class="method-step lw-rv d2">
+ <span class="method-ornament" aria-hidden="true"><svg viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="1"><circle cx="10.5" cy="10.5" r="9"/><path d="M10.5 1.5 L10.5 19.5 M1.5 10.5 L19.5 10.5"/></svg></span>
+ <span class="method-step-num">02 &middot; ii.</span>
  <div>
  <h3>Exploración de Locación</h3>
  <p>El estudio recorre la propiedad treinta días antes, habla con el departamento de bodas del resort, fotografía cada locación preferida a la hora a la que correrá tu ceremonia y entrega el mapa de ruta a tu planner.</p>
  </div>
  </div>
- <div class="method-step lw-rv">
- <span class="method-step-num">iii.</span>
+ <div class="method-step lw-rv d3">
+ <span class="method-ornament" aria-hidden="true"><svg viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="1"><circle cx="10.5" cy="10.5" r="9"/><circle cx="10.5" cy="10.5" r="5.5"/><circle cx="10.5" cy="10.5" r="2"/></svg></span>
+ <span class="method-step-num">03 &middot; iii.</span>
  <div>
  <h3>Dirección Silenciosa</h3>
  <p>El día, no posamos. Ubicamos. Una mano aquí, un pie allá, una mirada hacia la pérgola en lugar de hacia la cámara. Las parejas que detestan la cámara nos escriben que esta es la parte que las sorprende.</p>
  </div>
  </div>
- <div class="method-step lw-rv">
- <span class="method-step-num">iv.</span>
+ <div class="method-step lw-rv d4">
+ <span class="method-ornament" aria-hidden="true"><svg viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="1"><circle cx="10.5" cy="10.5" r="9"/><path d="M3 10.5 Q10.5 3 18 10.5 Q10.5 18 3 10.5 Z"/></svg></span>
+ <span class="method-step-num">04 &middot; iv.</span>
  <div>
  <h3>Hora Dorada, Dos Veces</h3>
  <p>Un bloque de retratos al atardecer, un bloque silencioso después de los brindis cuando la luz se vuelve azul. El segundo bloque es lo que cada pareja nos escribe un año después.</p>
  </div>
  </div>
- <div class="method-step lw-rv">
- <span class="method-step-num">v.</span>
+ <div class="method-step lw-rv d5">
+ <span class="method-ornament" aria-hidden="true"><svg viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="1"><circle cx="10.5" cy="10.5" r="9"/><path d="M5.5 10.5 L9.5 14.5 L15.5 6.5"/></svg></span>
+ <span class="method-step-num">05 &middot; v.</span>
  <div>
  <h3>Edición Editorial</h3>
  <p>Una sola gradación distintiva, aplicada cuadro a cuadro. Tonos de piel honestos, blancos blancos, negros sostenidos. Entregamos la galería solo cuando cada imagen cumple el mismo estándar.</p>
  </div>
  </div>
- <div class="method-step lw-rv">
- <span class="method-step-num">vi.</span>
+ <div class="method-step lw-rv d5">
+ <span class="method-ornament" aria-hidden="true"><svg viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="1"><circle cx="10.5" cy="10.5" r="9"/><path d="M5 7 L10.5 12.5 L16 7 M5 7 L16 7" /></svg></span>
+ <span class="method-step-num">06 &middot; vi.</span>
  <div>
  <h3>Entrega Privada</h3>
  <p>Un teaser de cuarenta cuadros en diez días, la galería completa en tres a cuatro semanas, el film cinematográfico en ocho. Derechos de impresión tuyos, descargas ilimitadas, archivo nuestro para siempre.</p>
@@ -1478,10 +1639,31 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  </div>
 </section>
 
+<script>
+/* Method active-step on scroll (gated on reduced-motion + IO) */
+(function(){
+ if(!('IntersectionObserver' in window)) return;
+ if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+ var steps = document.querySelectorAll('.lw-section.method .method-step');
+ if(!steps.length) return;
+ var active = null;
+ var io = new IntersectionObserver(function(entries){
+ entries.forEach(function(e){
+ if(e.isIntersecting){
+ if(active && active !== e.target) active.classList.remove('is-active');
+ e.target.classList.add('is-active');
+ active = e.target;
+ }
+ });
+ }, {rootMargin:'-40% 0px -40% 0px', threshold:0});
+ steps.forEach(function(s){io.observe(s)});
+})();
+</script>
+
 <!-- TESTIMONIALS -->
 <section class="lw-section tlist" aria-labelledby="t-h">
  <div class="lw-inner">
- <span class="lw-section-eyebrow">En Sus Palabras</span>
+ <span class="lw-section-eyebrow lw-rv">En Sus Palabras</span>
  <h2 id="t-h" class="lw-rv">Lo que dicen las parejas <em>sobre el estudio.</em></h2>
 
  <div class="tlist-grid">
@@ -1512,6 +1694,11 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  </div>
  </article>
  </div>
+
+ <blockquote class="tlist-coda lw-rv d4" aria-label="Una nota de las parejas que hemos atendido">
+ Un archivo de boda se construye para los años después de la boda. El estudio compone cada cuadro pensando en esa mirada larga.
+ <cite>La Nota del Estudio / Vianey Díaz, Directora</cite>
+ </blockquote>
  </div>
 </section>
 
@@ -1525,32 +1712,32 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 
  <div class="frames-rail-wrap">
  <div class="frames-rail" id="lwFramesRail" tabindex="0" role="region" aria-label="Reel de cuadros de boda, desplaza horizontalmente">
- <figure class="frame">
+ <figure class="frame" tabindex="0">
  <span class="frame-num">Cuadro i. / vi.</span>
  <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="Una novia en la Zona Hotelera de Cancún en hora dorada" loading="lazy" data-preview width="1200" height="1500"/>
  <figcaption class="frame-cap">Cancún / Zona Hotelera</figcaption>
  </figure>
- <figure class="frame">
+ <figure class="frame" tabindex="0">
  <span class="frame-num">Cuadro ii. / vi.</span>
  <img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="Una novia en una playa de Cancún en luz editorial" loading="lazy" data-preview width="1200" height="1500"/>
  <figcaption class="frame-cap">Cancún / Playa</figcaption>
  </figure>
- <figure class="frame">
+ <figure class="frame" tabindex="0">
  <span class="frame-num">Cuadro iii. / vi.</span>
  <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-5.jpg" alt="Una novia en retrato editorial privado, Cancún" loading="lazy" data-preview width="1200" height="1500"/>
  <figcaption class="frame-cap">Cancún / Suite</figcaption>
  </figure>
- <figure class="frame">
+ <figure class="frame" tabindex="0">
  <span class="frame-num">Cuadro iv. / vi.</span>
  <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="Una novia fotografiada al atardecer en la terraza del resort" loading="lazy" data-preview width="1200" height="1500"/>
  <figcaption class="frame-cap">Cancún / Terraza</figcaption>
  </figure>
- <figure class="frame">
+ <figure class="frame" tabindex="0">
  <span class="frame-num">Cuadro v. / vi.</span>
  <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg" alt="Novia y ramo, cobertura editorial" loading="lazy" data-preview width="1200" height="1500"/>
  <figcaption class="frame-cap">Cancún / Ramo</figcaption>
  </figure>
- <figure class="frame">
+ <figure class="frame" tabindex="0">
  <span class="frame-num">Cuadro vi. / vi.</span>
  <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-15.jpg" alt="Novia en hora azul después de la ceremonia" loading="lazy" data-preview width="1200" height="1500"/>
  <figcaption class="frame-cap">Cancún / Hora Azul</figcaption>
@@ -1569,7 +1756,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 
  <div class="faq-list">
 
- <div class="faq-item">
+ <div class="faq-item lw-rv d1">
  <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-1" id="faq-q-1">
  <span class="faq-q">¿Cuánto cuesta un fotógrafo de bodas de destino en México?</span>
  <span class="faq-icon" aria-hidden="true"></span>
@@ -1579,7 +1766,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  </div>
  </div>
 
- <div class="faq-item">
+ <div class="faq-item lw-rv d2">
  <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-2" id="faq-q-2">
  <span class="faq-q">¿Cuántas horas cubren para una boda mexicana?</span>
  <span class="faq-icon" aria-hidden="true"></span>
@@ -1589,7 +1776,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  </div>
  </div>
 
- <div class="faq-item">
+ <div class="faq-item lw-rv d3">
  <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-3" id="faq-q-3">
  <span class="faq-q">¿Ofrecen video y foto juntos?</span>
  <span class="faq-icon" aria-hidden="true"></span>
@@ -1599,7 +1786,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  </div>
  </div>
 
- <div class="faq-item">
+ <div class="faq-item lw-rv d4">
  <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-4" id="faq-q-4">
  <span class="faq-q">¿Pueden fotografiar en resorts Mayakoba / Rosewood / Four Seasons?</span>
  <span class="faq-icon" aria-hidden="true"></span>
@@ -1609,7 +1796,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  </div>
  </div>
 
- <div class="faq-item">
+ <div class="faq-item lw-rv d5">
  <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-5" id="faq-q-5">
  <span class="faq-q">¿Viajan a Tulum / Los Cabos para una boda?</span>
  <span class="faq-icon" aria-hidden="true"></span>
@@ -1619,7 +1806,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  </div>
  </div>
 
- <div class="faq-item">
+ <div class="faq-item lw-rv d6">
  <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-6" id="faq-q-6">
  <span class="faq-q">¿Cuándo debo reservar un fotógrafo de bodas en México?</span>
  <span class="faq-icon" aria-hidden="true"></span>
@@ -1629,7 +1816,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  </div>
  </div>
 
- <div class="faq-item">
+ <div class="faq-item lw-rv d7">
  <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-7" id="faq-q-7">
  <span class="faq-q">¿A qué hora debemos programar la ceremonia para las mejores fotos?</span>
  <span class="faq-icon" aria-hidden="true"></span>
@@ -1639,7 +1826,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  </div>
  </div>
 
- <div class="faq-item">
+ <div class="faq-item lw-rv d8">
  <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-8" id="faq-q-8">
  <span class="faq-q">¿Cuántas fotos recibiremos de nuestra boda?</span>
  <span class="faq-icon" aria-hidden="true"></span>
@@ -1649,7 +1836,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  </div>
  </div>
 
- <div class="faq-item">
+ <div class="faq-item lw-rv d9">
  <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-9" id="faq-q-9">
  <span class="faq-q">¿Podemos hacer una sesión de compromiso antes de la boda en México?</span>
  <span class="faq-icon" aria-hidden="true"></span>
@@ -1659,7 +1846,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  </div>
  </div>
 
- <div class="faq-item">
+ <div class="faq-item lw-rv d10">
  <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-10" id="faq-q-10">
  <span class="faq-q">¿Qué pasa si llueve el día de nuestra boda?</span>
  <span class="faq-icon" aria-hidden="true"></span>
@@ -1676,12 +1863,13 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 <!-- INQUIRY -->
 <section class="lw-section inquiry" id="inquiry" aria-labelledby="inq-h">
  <div class="inquiry-inner">
- <span class="lw-section-eyebrow">Conversa con el Estudio</span>
+ <span class="lw-section-eyebrow lw-rv">Conversa con el Estudio</span>
+ <span class="inquiry-rule lw-rv" aria-hidden="true"></span>
  <h2 id="inq-h" class="lw-rv">Cuéntanos sobre <em>el día.</em></h2>
  <p class="lw-rv d1">Envía la fecha, la costa y unas líneas sobre la boda que estás planeando. El estudio responde el mismo día hábil con una propuesta, galerías completas de muestra del venue más relevante y una nota corta de la Directora.</p>
 
- <div class="lw-actions" style="justify-content:center">
- <a class="lw-btn lw-btn-gold" href="mailto:hello@ivaestudios.com?subject=Consulta%20de%20Boda" data-magnet>
+ <div class="lw-actions lw-rv d2" style="justify-content:center">
+ <a class="lw-btn lw-btn-gold lw-magnet" href="mailto:hello@ivaestudios.com?subject=Consulta%20de%20Boda" data-magnet>
  Comenzar consulta
  <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
  </a>
@@ -1690,7 +1878,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
  </a>
  </div>
- <div class="lw-availability lw-rv d2" role="status" style="margin-top:24px">
+ <div class="lw-availability lw-rv d3" role="status" style="margin-top:24px">
  <span class="lw-availability-dot" aria-hidden="true"></span>
  <span class="lw-availability-text">
  <span class="lw-availability-l">Próximo sábado disponible</span>
@@ -1698,7 +1886,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  </span>
  </div>
 
- <div class="inquiry-meta">
+ <div class="inquiry-meta lw-rv d3">
  <div class="inquiry-meta-cell">
  <span class="inquiry-meta-l">Tiempo de Respuesta</span>
  <span class="inquiry-meta-v">Mismo día hábil</span>
@@ -1830,11 +2018,20 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  $$('.lw-rv').forEach(function(el){el.classList.add('vis')});
  }
 
+ /* FAQ accordion (close-others-on-open) */
  $$('.faq-trigger').forEach(function(btn){
  btn.addEventListener('click', function(){
  var item = btn.closest('.faq-item');
- var open = item.classList.toggle('open');
- btn.setAttribute('aria-expanded', String(open));
+ var willOpen = !item.classList.contains('open');
+ $$('.faq-item.open').forEach(function(other){
+ if(other !== item){
+ other.classList.remove('open');
+ var otherBtn = other.querySelector('.faq-trigger');
+ if(otherBtn) otherBtn.setAttribute('aria-expanded','false');
+ }
+ });
+ item.classList.toggle('open', willOpen);
+ btn.setAttribute('aria-expanded', String(willOpen));
  });
  });
 
@@ -1932,16 +2129,30 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  var hero = document.querySelector('.lw-hero');
  var img = document.getElementById('lwHeroImg');
  if(!hero || !img) return;
- var rect = null, raf = null, tx = 0, ty = 0;
+ var rect = null;
+ var raf = null;
+ var rx = 0, ry = 0, tx = 0, ty = 0;
+ var MAX_DEG = 6;
  function onMove(e){
  if(!rect) rect = hero.getBoundingClientRect();
  var x = (e.clientX - rect.left) / rect.width - 0.5;
  var y = (e.clientY - rect.top) / rect.height - 0.5;
- tx = x * -16; ty = y * -10;
+ ry = x * (MAX_DEG * 2);
+ rx = y * -(MAX_DEG * 2);
+ if(rx > MAX_DEG) rx = MAX_DEG; else if(rx < -MAX_DEG) rx = -MAX_DEG;
+ if(ry > MAX_DEG) ry = MAX_DEG; else if(ry < -MAX_DEG) ry = -MAX_DEG;
+ tx = x * -14; ty = y * -8;
  if(!raf) raf = requestAnimationFrame(apply);
  }
- function apply(){ img.style.transform = 'translate3d(' + tx + 'px,' + ty + 'px,0)'; raf = null; }
- function onLeave(){ tx = 0; ty = 0; img.style.transform = ''; rect = null; }
+ function apply(){
+ img.style.transform = 'translate3d(' + tx + 'px,' + ty + 'px,0) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
+ raf = null;
+ }
+ function onLeave(){
+ rx = 0; ry = 0; tx = 0; ty = 0;
+ img.style.transform = '';
+ rect = null;
+ }
  function onResize(){ rect = null; }
  hero.addEventListener('mousemove', onMove, {passive:true});
  hero.addEventListener('mouseleave', onLeave);

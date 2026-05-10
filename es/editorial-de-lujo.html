@@ -518,37 +518,41 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   overflow:hidden;
 }
 @media (min-width:1024px) and (prefers-reduced-motion: no-preference){
-  html.js-on .le-manifesto-stage{min-height:200vh}
+  html.js-on .le-manifesto-stage{min-height:300vh}
+  html.js-on .le-manifesto-stage .le-manifesto-track{
+    position:sticky;top:0;height:100vh;
+    display:flex;align-items:center;
+    overflow:hidden;
+  }
 }
-.le-manifesto-plates{position:absolute;inset:0;z-index:1;pointer-events:none}
+.le-manifesto-track{position:relative;width:100%}
+.le-manifesto-plates{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+}
 .le-manifesto-plate{
-  position:absolute;
-  width:30%;max-width:380px;height:auto;
-  opacity:0;filter:brightness(.50) saturate(.85);
-  transition:opacity 1.4s var(--ease-smooth, ease),transform 1.4s var(--ease-smooth, ease);
+  position:absolute;top:50%;left:50%;
+  width:min(46%, 520px);height:auto;aspect-ratio:4/5;object-fit:cover;
+  transform:translate(-50%, -50%) translateY(14px);
+  opacity:0;filter:brightness(.48) saturate(.85);
+  transition:opacity 1.2s var(--ease-smooth, ease), transform 1.2s var(--ease-smooth, ease);
   will-change:opacity, transform;
 }
-.le-manifesto-plate--1{top:8%;left:5%;transform:translateY(20px)}
-.le-manifesto-plate--2{top:42%;right:6%;transform:translateY(20px)}
-.le-manifesto-plate--3{bottom:10%;left:14%;transform:translateY(20px)}
-.le-manifesto-plate.is-revealed{opacity:.85;transform:translateY(0)}
-@media(max-width:1024px){
+.le-manifesto-plate--1{left:18%}
+.le-manifesto-plate--2{left:50%}
+.le-manifesto-plate--3{left:82%}
+.le-manifesto-plate.is-active{opacity:.78;transform:translate(-50%, -50%) translateY(0)}
+@media(max-width:1023px){
   .le-manifesto-plate{display:none}
 }
 
 .le-manifesto-text{
   position:relative;z-index:2;
-  max-width:600px;margin:0 auto;
+  max-width:640px;margin:0 auto;
   padding:0 clamp(20px,5vw,56px);
-}
-@media (min-width:1024px) and (prefers-reduced-motion: no-preference){
-  html.js-on .le-manifesto-text{
-    position:sticky;top:120px;
-  }
 }
 .le-manifesto-h2{
   font-family:var(--font-serif);font-weight:300;
-  font-size:clamp(36px,4vw,56px);line-height:1.10;letter-spacing:-.018em;
+  font-size:clamp(40px, 4.6vw, 64px);line-height:1.06;letter-spacing:-.020em;
   color:var(--cream);margin:18px 0 36px;
 }
 .le-manifesto-h2 em{font-style:italic;color:var(--gold)}
@@ -562,22 +566,25 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   margin-bottom:24px;
 }
 .le-manifesto-body p:first-of-type::first-letter{
-  font-family:var(--font-serif);font-style:italic;
-  font-size:var(--le-dropcap-fs);
-  font-weight:400;color:var(--gold);
-  float:left;padding:0 14px 0 0;line-height:0.86;
+  font-family:var(--font-serif);font-style:italic;font-weight:400;
+  font-size:80px;line-height:.86;
+  color:var(--gold);
+  float:left;padding:6px 14px 0 0;
 }
 .le-manifesto-body em{font-style:italic;color:var(--cream);font-weight:400}
+.le-manifesto-body em[lang="es"]{color:var(--gold);font-style:italic}
 .le-signoff{
   display:block;
-  font-family:var(--font-sans);font-size:var(--fs-13, 13px);font-weight:500;
-  letter-spacing:.18em;text-transform:uppercase;
-  color:var(--gold);margin-top:32px;font-style:normal;
+  font-family:var(--font-serif, 'Cormorant Garamond', serif);
+  font-style:italic;font-weight:400;
+  font-size:var(--fs-13, 13px);
+  font-variant:small-caps;letter-spacing:.14em;
+  color:var(--gold);margin-top:32px;
 }
 
 @media (prefers-reduced-motion: reduce){
   .le-manifesto-stage{min-height:auto !important}
-  .le-manifesto-text{position:static !important;transform:none !important}
+  .le-manifesto-track{position:static !important;height:auto !important}
   .le-manifesto-plate{display:none !important}
 }
 
@@ -654,9 +661,40 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 }
 .le-case-study-body p:first-of-type::first-letter{
   font-family:var(--font-serif);font-style:italic;
-  font-size:clamp(56px, 6.4vw, 80px);
+  font-size:clamp(120px, 12vw, 160px);
   font-weight:400;color:var(--gold);
-  float:left;padding:0 12px 0 0;line-height:0.86;
+  float:left;padding:0.04em 16px 0 0;
+  line-height:0.84;
+  margin-top:0.04em;
+}
+
+/* Magazine credit lines */
+.le-feature-credits{
+  margin:36px auto 0;max-width:880px;
+  display:flex;flex-wrap:wrap;gap:14px 28px;
+  padding-top:18px;border-top:1px solid var(--gold-line);
+  font-family:var(--font-sans);font-size:var(--fs-10,10px);
+  font-weight:600;letter-spacing:var(--tracking-eyebrow-wide,.32em);
+  text-transform:uppercase;
+}
+.le-feature-credits span{color:var(--gold)}
+.le-feature-credits em{font-style:normal;color:rgba(245,241,234,.78);letter-spacing:.18em}
+
+/* Stagger reveal on case-study paragraphs */
+@media (prefers-reduced-motion: no-preference){
+  .le-case-study-body p{
+    opacity:0;transform:translateY(14px);
+    transition:opacity .9s ease, transform .9s ease;
+  }
+  .le-case-study-body.is-revealed p{opacity:1;transform:none}
+  .le-case-study-body.is-revealed p:nth-child(1){transition-delay:.05s}
+  .le-case-study-body.is-revealed p:nth-child(2){transition-delay:.18s}
+  .le-case-study-body.is-revealed p:nth-child(3){transition-delay:.31s}
+  .le-case-study-body.is-revealed p:nth-child(4){transition-delay:.44s}
+  .le-case-study-body.is-revealed p:nth-child(5){transition-delay:.57s}
+}
+@media (prefers-reduced-motion: reduce){
+  .le-case-study-body p{opacity:1;transform:none}
 }
 
 @media(max-width:768px){
@@ -1118,6 +1156,10 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   color:var(--gold);font-style:normal;
 }
 @media(max-width:768px){.le-testimonials-grid{grid-template-columns:1fr;gap:24px}}
+@media (max-width: 1023px){
+  html.js-on .le-manifesto-stage{min-height:auto}
+  html.js-on .le-manifesto-track{position:relative;height:auto}
+}
 @media (max-width: 600px){
   .le-promise-list{grid-template-columns:1fr;gap:20px}
   .le-pullquote-ornament{font-size:clamp(160px, 30vw, 280px)}
@@ -1174,8 +1216,18 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 }
 .le-faq-panel[hidden]{display:none}
 
+/* Stagger reveal d1-d10 */
+.le-section--faq .le-rv.d5{transition-delay:.58s}
+.le-section--faq .le-rv.d6{transition-delay:.70s}
+.le-section--faq .le-rv.d7{transition-delay:.82s}
+.le-section--faq .le-rv.d8{transition-delay:.94s}
+.le-section--faq .le-rv.d9{transition-delay:1.06s}
+.le-section--faq .le-rv.d10{transition-delay:1.18s}
+
 @media (prefers-reduced-motion: reduce){
   .le-faq-icon{transition:none}
+  .le-faq-panel{transition:none}
+  .le-faq-toggle > span:first-child{transition:none}
 }
 
 /* ═══════ Section 10 - Inquiry ═══════ */
@@ -1206,8 +1258,17 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 .le-inquiry-ctas{
   position:relative;z-index:1;
   display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
-  margin-bottom:48px;
+  margin-bottom:22px;
 }
+.le-inquiry-note{
+  position:relative;z-index:1;
+  font-family:var(--font-serif);font-style:italic;font-weight:300;
+  font-size:var(--fs-14, 14px);line-height:1.7;
+  color:var(--text-on-dark-readable);
+  max-width:620px;margin:0 auto 48px;
+  letter-spacing:.01em;opacity:.86;
+}
+.le-inquiry-note span{color:var(--gold);font-style:normal;letter-spacing:.16em;text-transform:uppercase;font-size:var(--fs-10,10px);font-family:var(--font-sans);font-weight:600;display:block;margin-bottom:6px}
 .le-inquiry-meta{
   position:relative;z-index:1;
   display:grid;grid-template-columns:repeat(3, 1fr);
@@ -1410,9 +1471,36 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
         <p>El set de interiores se fotografió en una sola pasada de una hora, entre las once treinta y las doce treinta. El estudio usó una cámara, un lente prime, sin flash, y un panel rebote único sostenido por el asistente contra el muro sur del patio. La directora creativa de la marca estuvo en set durante la pasada de interiores y aprobó la toma en tiempo real. El día se interrumpió por dos horas a la una y se reanudó a las tres cuarenta para el set del bar.</p>
         <p>El clip de motion se fotografió al final, a las seis cuarenta y cinco, en una sola corrida de dolly, en una toma, con un foco que se desplaza a la mitad. El estudio entregó los selectos al sexto día. La entrega completa al duodécimo día. Casa Ranfla lanzó la campaña al decimoquinto día.</p>
       </div>
+      <p class="le-feature-credits" role="text">
+        <span>Fotografía</span><em>IVAE Studios</em>
+        <span>Dirección</span><em>Vianey Díaz, Directora</em>
+        <span>Locación</span><em>Tulum, Quintana Roo</em>
+      </p>
     </figcaption>
   </figure>
 </section>
+
+<script>
+(function(){
+  if (typeof window === 'undefined') return;
+  var prefersReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var bodies = document.querySelectorAll('.le-case-study-body[data-le-reveal="case-study"]');
+  if (!bodies.length) return;
+  if (prefersReduce || !('IntersectionObserver' in window)){
+    bodies.forEach(function(b){ b.classList.add('is-revealed'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (entry.isIntersecting){
+        entry.target.classList.add('is-revealed');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
+  bodies.forEach(function(b){ io.observe(b); });
+})();
+</script>
 
 <!-- ═══════ Section 4 - "Featured In" press band ═══════ -->
 <section class="le-press-band" aria-labelledby="le-press-heading">
@@ -1713,7 +1801,7 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   </div>
 
   <ul class="le-faq-list" role="list">
-    <li class="le-faq-item">
+    <li class="le-faq-item le-rv d1">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-1-question" type="button" aria-expanded="false" aria-controls="le-faq-1-panel">
           <span>¿Qué licencia incluye una comisión editorial?</span>
@@ -1725,7 +1813,7 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
       </div>
     </li>
 
-    <li class="le-faq-item">
+    <li class="le-faq-item le-rv d2">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-2-question" type="button" aria-expanded="false" aria-controls="le-faq-2-panel">
           <span>¿Qué entrega el estudio y en qué formato?</span>
@@ -1737,7 +1825,7 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
       </div>
     </li>
 
-    <li class="le-faq-item">
+    <li class="le-faq-item le-rv d3">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-3-question" type="button" aria-expanded="false" aria-controls="le-faq-3-panel">
           <span>¿El estudio gestiona el casting de talento?</span>
@@ -1749,7 +1837,7 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
       </div>
     </li>
 
-    <li class="le-faq-item">
+    <li class="le-faq-item le-rv d4">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-4-question" type="button" aria-expanded="false" aria-controls="le-faq-4-panel">
           <span>¿Quién gestiona los permisos y accesos de locación?</span>
@@ -1761,7 +1849,7 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
       </div>
     </li>
 
-    <li class="le-faq-item">
+    <li class="le-faq-item le-rv d5">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-5-question" type="button" aria-expanded="false" aria-controls="le-faq-5-panel">
           <span>¿Quién forma parte del equipo?</span>
@@ -1773,7 +1861,7 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
       </div>
     </li>
 
-    <li class="le-faq-item">
+    <li class="le-faq-item le-rv d6">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-6-question" type="button" aria-expanded="false" aria-controls="le-faq-6-panel">
           <span>¿El retoque está incluido y a qué nivel?</span>
@@ -1785,7 +1873,7 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
       </div>
     </li>
 
-    <li class="le-faq-item">
+    <li class="le-faq-item le-rv d7">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-7-question" type="button" aria-expanded="false" aria-controls="le-faq-7-panel">
           <span>¿El estudio fotografía para una marca competidora?</span>
@@ -1797,7 +1885,7 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
       </div>
     </li>
 
-    <li class="le-faq-item">
+    <li class="le-faq-item le-rv d8">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-8-question" type="button" aria-expanded="false" aria-controls="le-faq-8-panel">
           <span>¿Qué tan rápido puede pasar una comisión de brief a entrega?</span>
@@ -1809,7 +1897,7 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
       </div>
     </li>
 
-    <li class="le-faq-item">
+    <li class="le-faq-item le-rv d9">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-9-question" type="button" aria-expanded="false" aria-controls="le-faq-9-panel">
           <span>¿En qué idioma trabaja el estudio?</span>
@@ -1821,7 +1909,7 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
       </div>
     </li>
 
-    <li class="le-faq-item">
+    <li class="le-faq-item le-rv d10">
       <h3 class="le-faq-question-wrap">
         <button class="le-faq-toggle" id="le-faq-10-question" type="button" aria-expanded="false" aria-controls="le-faq-10-panel">
           <span>¿El estudio firma un NDA?</span>
@@ -1839,20 +1927,24 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 <section class="le-section--inquiry" id="inquiry" aria-labelledby="le-inquiry-heading">
   <div class="le-inquiry-bg" aria-hidden="true"></div>
   <div class="le-inquiry-head">
-    <p class="le-section-eyebrow">Comisión.</p>
+    <p class="le-section-eyebrow le-rv d1">Comisión.</p>
     <h2 id="le-inquiry-heading" class="le-inquiry-h2 le-rv d2">Comenzar un <em>brief</em>.</h2>
-    <p class="le-inquiry-intro">Comparte la marca, el brief, las fechas y una frase sobre la campaña que imaginas. El estudio responderá el mismo día hábil, en inglés o en español, con dos preguntas, una call sheet borrador y un enlace de calendario. La primera respuesta es de Vianey. Los briefs que llegan el viernes por la tarde se leen el lunes por la mañana. El estudio toma un número finito de comisiones editoriales por trimestre para mantener el trabajo calmado.</p>
+    <p class="le-inquiry-intro le-rv d3">Comparte la marca, el brief, las fechas y una frase sobre la campaña que imaginas. El estudio responderá el mismo día hábil, en inglés o en español, con dos preguntas, una call sheet borrador y un enlace de calendario. La primera respuesta es de Vianey. Los briefs que llegan el viernes por la tarde se leen el lunes por la mañana. El estudio toma un número finito de comisiones editoriales por trimestre para mantener el trabajo calmado.</p>
   </div>
-  <div class="le-inquiry-ctas">
-    <a class="le-btn le-btn-gold" href="mailto:hello@ivaestudios.com?subject=Brief%20de%20Comisi%C3%B3n%20Editorial" data-magnet>
+  <div class="le-inquiry-ctas le-rv d4">
+    <a class="le-btn le-btn-gold" href="mailto:hello@ivaestudios.com?subject=Brief%20de%20Comisi%C3%B3n%20Editorial" data-magnet aria-label="Comenzar brief para una comisión editorial">
       Comenzar Brief
       <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
     </a>
-    <a class="le-btn le-btn-outline" href="mailto:hello@ivaestudios.com?subject=Conversaci%C3%B3n%20con%20el%20Estudio%20Editorial">
+    <a class="le-btn le-btn-outline" href="mailto:hello@ivaestudios.com?subject=Conversaci%C3%B3n%20con%20el%20Estudio%20Editorial" aria-label="Escribir al estudio con un brief">
       Escribir al Estudio
     </a>
   </div>
-  <div class="le-inquiry-meta" role="group" aria-label="Detalles de respuesta del estudio">
+  <p class="le-inquiry-note le-rv d5">
+    <span>Qué incluir</span>
+    Marca, alcance, fechas, locaciones, requisitos de uso.
+  </p>
+  <div class="le-inquiry-meta le-rv d6" role="group" aria-label="Detalles de respuesta del estudio">
     <p class="le-meta-cell"><span class="le-meta-label">Tiempo de Respuesta</span><span class="le-meta-value">Mismo día hábil</span></p>
     <p class="le-meta-cell"><span class="le-meta-label">Idiomas</span><span class="le-meta-value">Español / Inglés</span></p>
     <p class="le-meta-cell"><span class="le-meta-label">Cobertura</span><span class="le-meta-value">Cancún &middot; Riviera Maya &middot; Los Cabos</span></p>
@@ -2211,20 +2303,28 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
     steps.forEach(function(s){ io2.observe(s); });
   })();
 
-  /* 11. Manifesto plate reveals */
+  /* 11. Manifesto plate rotation by pillar in view */
   (function manifestoPlates(){
     if(reduceMotion) return;
     if(!('IntersectionObserver' in window)) return;
     var plates = $$('.le-manifesto-plate');
-    if(!plates.length) return;
+    var pillars = $$('.le-manifesto-body p[data-pillar]');
+    if(!plates.length || !pillars.length) return;
+    function activate(name){
+      plates.forEach(function(p){
+        if(p.getAttribute('data-pillar') === name) p.classList.add('is-active');
+        else p.classList.remove('is-active');
+      });
+    }
+    activate(pillars[0].getAttribute('data-pillar'));
     var io3 = new IntersectionObserver(function(entries){
       entries.forEach(function(e){
         if(e.isIntersecting){
-          e.target.classList.add('is-revealed');
+          activate(e.target.getAttribute('data-pillar'));
         }
       });
-    }, {threshold: 0.2});
-    plates.forEach(function(p){ io3.observe(p); });
+    }, {threshold: 0.55, rootMargin:'-20% 0px -20% 0px'});
+    pillars.forEach(function(p){ io3.observe(p); });
   })();
 
 })();

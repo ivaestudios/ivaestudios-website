@@ -83,9 +83,6 @@
 :root{
   --lf-grain-opacity:0.028;
   --lf-tree-stroke:1.2px;
-  --lf-clock-size:clamp(220px,22vw,300px);
-  --lf-clock-window-band:rgba(201,165,78,0.12);
-  --lf-clock-golden-band:#c9a54e;
   --lf-age-ribbon-h:6px;
   --lf-age-ribbon-stop-newborn:rgba(250,248,245,0.18);
   --lf-age-ribbon-stop-toddler:rgba(201,165,78,0.55);
@@ -96,9 +93,9 @@
   --lf-pillar-gap:clamp(28px,3vw,56px);
   --lf-tier-padding:clamp(32px,4vw,56px) clamp(24px,3vw,40px);
   --lf-reel-card-aspect:4 / 5;
-  --lf-reel-frame-min-width:clamp(220px,30vw,340px);
-  --lf-dropcap-size:clamp(58px,6.5vw,78px);
-  --lf-letterbox:8%;
+  --lf-reel-frame-min-width:clamp(320px,34vw,480px);
+  --lf-dropcap-size:clamp(96px,9vw,120px);
+  --lf-letterbox:6%;
   --lf-mote-count:8;
 }
 
@@ -143,35 +140,41 @@ html.js-on .rv.is-visible{opacity:1;transform:translateY(0)}
 .rv.d2{transition-delay:0.20s}
 .rv.d3{transition-delay:0.30s}
 .rv.d4{transition-delay:0.40s}
+.rv.d5{transition-delay:0.50s}
+.rv.d6{transition-delay:0.60s}
+.rv.d7{transition-delay:0.70s}
+.rv.d8{transition-delay:0.80s}
+.rv.d9{transition-delay:0.90s}
+.rv.d10{transition-delay:1.00s}
 
 /* ─── HEADER (mirrors v5 home: .site-header / .h-nav / .h-cta) ─── */
-.site-header{position:fixed !important;top:0 !important;left:0;right:0;z-index:9000 !important;display:flex !important;align-items:center;justify-content:space-between;gap:24px;padding:0 clamp(20px,4vw,48px);height:68px;background:rgba(10,15,23,.85);backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);border-bottom:1px solid rgba(201,165,78,.12);transition:background .55s var(--ease,cubic-bezier(0.16,1,0.3,1)),backdrop-filter .55s var(--ease),height .45s var(--ease),border-color .55s var(--ease)}
-.site-header.scrolled{background:rgba(14,22,32,0.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-.h-logo{font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#faf8f5;text-decoration:none}
-.h-logo em{color:var(--gold,#c9a54e);font-style:normal}
-.site-header nav{margin-left:auto}
-.h-nav{display:flex;align-items:center;gap:28px}
-.h-nav a{font-family:var(--font-sans,'Syne',sans-serif);font-size:9px;font-weight:500;letter-spacing:0.28em;text-transform:uppercase;color:rgba(250,248,245,0.82);text-decoration:none;transition:color 0.25s;position:relative;padding-bottom:4px}
-.h-nav a::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--gold,#c9a54e);transform:scaleX(0);transform-origin:right;transition:transform 0.35s ease}
-.h-nav a:hover::after,.h-nav a:focus-visible::after,.h-nav a[aria-current="page"]::after{transform:scaleX(1);transform-origin:left}
-.h-nav a:hover,.h-nav a.is-active,.h-nav a[aria-current="page"]{color:#faf8f5}
-.lang-switch{display:flex;align-items:center;gap:8px;font-family:var(--font-sans,'Syne',sans-serif);font-size:10px;letter-spacing:0.18em;text-transform:uppercase}
-.lang-switch a{color:rgba(250,248,245,0.62);transition:color 0.25s;text-decoration:none}
-.lang-switch a.is-active,.lang-switch a[aria-current="page"]{color:var(--gold,#c9a54e)}
-.lang-switch a:hover{color:#faf8f5}
+
+
+
+
+
+
+
+
+
+
+
+
 .lang-sep{color:rgba(250,248,245,0.30)}
-html.dark a.h-cta,a.h-cta{display:inline-flex;align-items:center;gap:10px;font-size:9px;font-weight:500;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold,#c9a54e)!important;border:1px solid rgba(201,165,78,0.4);padding:8px 18px;text-decoration:none;transition:background 0.3s,border-color 0.3s,color 0.3s;background:transparent}
-a.h-cta:hover{background:rgba(201,165,78,0.12);border-color:var(--gold,#c9a54e)}
-a.h-cta svg{width:13px;height:13px}
-.h-burger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;background:transparent;border:none}
-.h-burger span{display:block;width:22px;height:1.5px;background:#faf8f5;transition:transform 0.3s,opacity 0.3s}
-.h-burger[aria-expanded="true"] span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
-.h-burger[aria-expanded="true"] span:nth-child(2){opacity:0}
-.h-burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
-.m-nav{display:none;position:fixed;top:68px;left:0;right:0;background:rgba(14,22,32,0.98);padding:24px 32px;flex-direction:column;border-bottom:1px solid rgba(201,165,78,0.22);z-index:8999}
-.m-nav.is-open{display:flex}
-.m-nav a{font-family:var(--font-sans,'Syne',sans-serif);font-size:13px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:rgba(250,248,245,0.82);text-decoration:none;padding:14px 0;border-bottom:1px solid rgba(201,165,78,0.18);display:block}
-.m-nav a:last-child{border-bottom:none}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ─── BUTTONS (visibility-safe, button color contracts) ─── */
 .btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;font-family:var(--font-sans,'Syne',sans-serif);font-size:13px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;padding:18px 36px;text-decoration:none;min-height:44px;cursor:pointer;transition:transform 0.4s var(--ease,cubic-bezier(0.16,1,0.3,1)),background 0.3s,border-color 0.3s,color 0.3s}
@@ -192,14 +195,14 @@ a.btn-tier-outline:focus-visible{outline-color:var(--ink-1,#1a2230)}
 html.dark a.btn-tier-filled,a.btn-tier-filled{background:var(--gold,#c9a54e);color:var(--ink-1,#1a2230)!important;border:1px solid var(--gold,#c9a54e)}
 
 /* ─── HERO ─── */
-.lf-hero{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:flex-end;background:var(--ink-3,#0c1219);overflow:hidden;perspective:1200px;padding-top:68px}
-.lf-hero-bg{position:absolute;inset:0;z-index:0;transform-style:preserve-3d;will-change:transform}
-.lf-hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 38%;filter:brightness(0.45) saturate(0.85);will-change:transform;transition:transform 0.4s var(--ease,cubic-bezier(0.16,1,0.3,1));transform:scale(1.04)}
+.lf-hero{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:flex-end;background:var(--ink-3,#0c1219);overflow:hidden;perspective:1400px;padding-top:68px;}
+.lf-hero-bg{position:absolute;inset:0;z-index:0;transform-style:preserve-3d;will-change:transform;transition:transform 0.55s var(--ease,cubic-bezier(0.16,1,0.3,1))}
+.lf-hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 38%;filter:brightness(0.45) saturate(0.85);will-change:transform;transition:transform 0.55s var(--ease,cubic-bezier(0.16,1,0.3,1));transform:scale(1.06)}
 .lf-hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(160deg,rgba(14,22,32,0.55),rgba(14,22,32,0.15) 45%,rgba(14,22,32,0.78))}
 .lf-hero-content{position:relative;z-index:3;padding:0 clamp(24px,5vw,64px) clamp(80px,10vw,140px);max-width:880px}
 .lf-cascade{display:block}
 .lf-h1-letter{display:inline-block;opacity:1;transform:none}
-html.js-on .lf-h1-letter{opacity:0;transform:translateY(28px) rotateX(-30deg);transition:opacity 0.55s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1)),transform 0.7s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1))}
+html.js-on .lf-h1-letter{opacity:0;transform:translateY(12px);transition:opacity 1.4s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1)),transform 1.4s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1))}
 html.js-on .lf-h1-letter.is-in{opacity:1;transform:none}
 .hero-h1{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(48px,7vw,92px);font-weight:300;line-height:1.06;color:#faf8f5;margin:0}
 .hero-h1__italic{font-style:italic;color:var(--gold,#c9a54e)}
@@ -217,27 +220,38 @@ html.js-on .lf-h1-letter.is-in{opacity:1;transform:none}
 
 /* ─── 8 floating gold motes ─── */
 .lf-motes{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2}
-.lf-mote{position:absolute;bottom:-12px;left:var(--lf-mote-x,50vw);width:4px;height:4px;background:var(--gold,#c9a54e);border-radius:50%;opacity:0;animation:lf-mote-rise 26s linear infinite;animation-delay:var(--lf-mote-delay,0s)}
+.lf-mote{position:absolute;bottom:-12px;left:var(--lf-mote-x,50vw);width:4px;height:4px;background:var(--gold,#c9a54e);border-radius:50%;opacity:0;box-shadow:0 0 6px rgba(201,165,78,0.45);animation:lf-mote-rise 30s linear infinite;animation-delay:var(--lf-mote-delay,0s)}
 @keyframes lf-mote-rise{0%{opacity:0;transform:translateY(0) translateX(0)}10%{opacity:0.7}50%{transform:translateY(-55vh) translateX(20px)}100%{opacity:0;transform:translateY(-110vh) translateX(-10px)}}
 
 /* ─── PILLARS / MANIFESTO ─── */
 .lf-pillars{background:var(--ink-2,#10161e);padding:clamp(80px,10vw,140px) clamp(24px,5vw,64px);position:relative;overflow:hidden}
-.lf-pillars-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--lf-pillar-gap);max-width:1400px;margin:0 auto}
-.lf-pillars-stage{position:static}
-.lf-pillars-h2{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(36px,4vw,56px);font-weight:300;color:#faf8f5;line-height:1.12;margin-top:18px}
+.lf-pillars::before{content:'';position:absolute;left:50%;top:0;width:1px;height:64px;background:linear-gradient(to bottom,transparent,rgba(201,165,78,0.42));pointer-events:none;opacity:0.6}
+.lf-pillars-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--lf-pillar-gap);max-width:1400px;margin:0 auto;position:relative}
+.lf-pillars-stage{position:static;will-change:transform}
+.lf-pillars-h2{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(36px,4vw,56px);font-weight:300;color:#faf8f5;line-height:1.12;margin-top:18px;letter-spacing:-0.012em}
 .lf-pillars-h2 em{font-style:italic;color:var(--gold,#c9a54e)}
 .lf-manifesto-body{margin-top:24px;max-width:540px}
 .lf-manifesto-body p{font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.82);margin-top:18px}
 .lf-manifesto-body p em[lang="es"]{font-style:italic;color:var(--gold,#c9a54e)}
+.lf-manifesto-body p:first-child::first-letter{font-family:var(--font-serif,'Cormorant Garamond',serif);font-style:italic;font-weight:300;font-size:2.6em;color:var(--gold,#c9a54e);float:left;line-height:0.9;padding:4px 10px 0 0}
 .lf-attribution{margin-top:26px;padding-top:20px;border-top:1px solid rgba(201,165,78,0.22);font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:14px;letter-spacing:0.04em;color:rgba(201,165,78,0.82);font-style:italic;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .lf-attribution em{font-style:italic;color:rgba(201,165,78,0.92)}
 .lf-attribution-role{font-family:var(--font-sans,'Syne',sans-serif);font-size:9.5px;font-weight:600;font-style:normal;letter-spacing:0.32em;text-transform:uppercase;color:var(--gold,#c9a54e);opacity:0.78}
-.lf-pillars-list{display:flex;flex-direction:column;gap:48px}
-.lf-pillar{position:relative;padding-left:0}
-.lf-pillar-numeral{font-family:var(--font-sans,'Syne',sans-serif);font-size:10px;font-weight:600;letter-spacing:0.32em;color:var(--gold,#c9a54e);text-transform:uppercase}
-.lf-pillar-name{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(22px,2.4vw,32px);font-weight:300;line-height:1.20;color:#faf8f5;margin-top:10px}
+.lf-pillars-list{display:flex;flex-direction:column;gap:0}
+.lf-pillar{position:relative;padding:36px 0;border-top:1px solid rgba(201,165,78,0.22);transition:border-color 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1))}
+.lf-pillar:first-child{border-top:none;padding-top:0}
+.lf-pillar:last-child{padding-bottom:0}
+.lf-pillar:hover{border-top-color:rgba(201,165,78,0.48)}
+.lf-pillar:hover + .lf-pillar{border-top-color:rgba(201,165,78,0.48)}
+.lf-pillar-numeral{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(28px,3vw,40px);font-weight:300;font-style:italic;letter-spacing:0.04em;color:var(--gold,#c9a54e);text-transform:none;opacity:0.62;line-height:1;transition:opacity 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),transform 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1));display:inline-block;margin-bottom:6px}
+.lf-pillar:hover .lf-pillar-numeral,.lf-pillar.is-visible .lf-pillar-numeral{opacity:1;transform:translateX(2px)}
+.lf-pillar-name{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(22px,2.4vw,32px);font-weight:300;line-height:1.20;color:#faf8f5;margin-top:10px;letter-spacing:-0.008em}
 .lf-pillar-name em{font-style:italic;color:var(--gold,#c9a54e)}
 .lf-pillar-body{margin-top:14px;font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.78);max-width:480px}
+@media (prefers-reduced-motion: reduce){
+  .lf-pillar-numeral{opacity:1!important;transform:none!important;transition:none!important}
+  .lf-pillar{transition:none!important}
+}
 
 /* ─── COLLECTIONS / TIERS ─── */
 .lf-collections{background:var(--cream-1,#faf8f5);color:var(--ink-1,#1a2230);padding:clamp(80px,10vw,140px) clamp(24px,5vw,64px)}
@@ -288,6 +302,11 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
 .lf-promise-list li em{font-style:italic;color:var(--gold,#c9a54e)}
 .lf-promise-num{font-family:var(--font-sans,'Syne',sans-serif);font-size:9px;font-weight:500;letter-spacing:.28em;color:var(--gold,#c9a54e);min-width:24px}
 .lf-promise-cta{margin-top:48px}
+@media (max-width: 480px){
+  .lf-meta-strip{grid-template-columns:1fr 1fr}
+  .lf-hero-content{padding-bottom:60px}
+  .lf-hero-h1{font-size:clamp(28px, 7vw, 38px)}
+}
 @media(max-width:720px){.lf-promise-list{grid-template-columns:1fr;gap:24px}}
 
 /* ─── FEATURE / CINEMASCOPE ─── */
@@ -296,18 +315,20 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
 .lf-feature-h2{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(36px,4vw,56px);font-weight:300;color:#faf8f5;line-height:1.12;margin-top:18px}
 .lf-feature-h2 em{font-style:italic;color:var(--gold,#c9a54e)}
 .lf-cinema{position:relative;width:100%;max-width:1480px;margin:48px auto 0;aspect-ratio:21/9;overflow:hidden;background:var(--ink-4,#080d12);box-shadow:inset 0 0 0 1px rgba(201,165,78,0.18)}
-.lf-cinema::before,.lf-cinema::after{content:'';position:absolute;left:0;right:0;height:var(--lf-letterbox);background:var(--ink-4,#080d12);z-index:2;pointer-events:none}
-.lf-cinema::before{top:0;border-bottom:1px solid rgba(201,165,78,0.32)}
-.lf-cinema::after{bottom:0;border-top:1px solid rgba(201,165,78,0.32)}
-.lf-cinema img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+.lf-cinema::before,.lf-cinema::after{content:'';position:absolute;left:0;right:0;height:var(--lf-letterbox);background:#000;z-index:2;pointer-events:none}
+.lf-cinema::before{top:0;border-bottom:1px solid rgba(201,165,78,0.32);box-shadow:inset 0 -1px 0 rgba(201,165,78,0.08)}
+.lf-cinema::after{bottom:0;border-top:1px solid rgba(201,165,78,0.32);box-shadow:inset 0 1px 0 rgba(201,165,78,0.08)}
+.lf-cinema img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform 1.4s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1));will-change:transform}
+.lf-cinema:hover img{transform:scale(1.025)}
+@media (prefers-reduced-motion: reduce){.lf-cinema:hover img{transform:none}.lf-cinema img{transition:none}}
 .lf-feature-body{max-width:760px;margin:48px auto 0;padding:0 clamp(24px,5vw,64px)}
 .lf-feature-caption{font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.82)}
-.lf-feature-caption::first-letter{font-family:var(--font-serif,'Cormorant Garamond',serif);font-style:italic;font-weight:300;font-size:var(--lf-dropcap-size);color:var(--gold,#c9a54e);float:left;line-height:0.86;padding:6px 12px 0 0}
+.lf-feature-caption::first-letter{font-family:var(--font-serif,'Cormorant Garamond',serif);font-style:italic;font-weight:300;font-size:var(--lf-dropcap-size);color:var(--gold,#c9a54e);float:left;line-height:0.82;padding:8px 14px 0 0;margin-top:2px}
 .lf-feature-body p{margin-top:18px;font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.82)}
-.lf-feature-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:36px;padding-top:24px;border-top:1px solid rgba(201,165,78,0.32)}
-.lf-feature-meta div{display:flex;flex-direction:column;gap:4px}
-.lf-feature-meta dt{font-family:var(--font-sans,'Syne',sans-serif);font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold,#c9a54e)}
-.lf-feature-meta dd{font-family:var(--font-sans,'Syne',sans-serif);font-size:13.5px;color:rgba(250,248,245,0.82);line-height:1.55}
+.lf-feature-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:44px;padding-top:28px;border-top:1px solid rgba(201,165,78,0.32)}
+.lf-feature-meta div{display:flex;flex-direction:column;gap:6px}
+.lf-feature-meta dt{font-family:var(--font-sans,'Syne',sans-serif);font-size:10px;font-weight:500;letter-spacing:0.26em;text-transform:uppercase;color:var(--gold,#c9a54e)}
+.lf-feature-meta dd{font-family:var(--font-serif,'Cormorant Garamond',serif);font-style:italic;font-weight:300;font-size:18px;color:rgba(250,248,245,0.92);line-height:1.45}
 
 /* ─── METHOD ─── */
 .lf-method{background:var(--ink-2,#10161e);padding:clamp(80px,10vw,140px) clamp(24px,5vw,64px)}
@@ -315,103 +336,130 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
 .lf-method-h2{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(36px,4vw,56px);font-weight:300;color:#faf8f5;line-height:1.12;margin-top:18px}
 .lf-method-h2 em{font-style:italic;color:var(--gold,#c9a54e)}
 .lf-method-intro{margin-top:22px;font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.78)}
-.lf-method-rail{max-width:920px;margin:0 auto;border-left:1px solid rgba(201,165,78,0.32);padding-left:32px}
-.lf-step{position:relative;padding:32px 0}
-.lf-step::before{content:'';position:absolute;left:-37px;top:42px;width:10px;height:10px;border-radius:50%;background:var(--gold,#c9a54e);box-shadow:0 0 0 4px var(--ink-2,#10161e),0 0 0 5px rgba(201,165,78,0.32)}
-.lf-step-tag{font-family:var(--font-sans,'Syne',sans-serif);font-size:10px;font-weight:600;letter-spacing:0.32em;text-transform:uppercase;color:var(--gold,#c9a54e)}
+.lf-method-rail{position:relative;max-width:920px;margin:0 auto;padding-left:48px;list-style:none}
+.lf-method-rail::before{content:'';position:absolute;left:5px;top:18px;bottom:18px;width:1px;background:linear-gradient(180deg,rgba(201,165,78,0) 0%,rgba(201,165,78,0.42) 12%,rgba(201,165,78,0.42) 88%,rgba(201,165,78,0) 100%);pointer-events:none}
+.lf-step{position:relative;padding:30px 18px 30px 24px;border-left:1px solid transparent;transition:background 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),border-color 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),transform 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1))}
+.lf-step + .lf-step{margin-top:6px}
+.lf-step::before{content:'';position:absolute;left:-48px;top:42px;width:11px;height:11px;border-radius:50%;background:var(--ink-2,#10161e);border:1px solid rgba(201,165,78,0.42);box-shadow:0 0 0 4px var(--ink-2,#10161e);transition:background 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),border-color 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),box-shadow 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),transform 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1));z-index:1}
+.lf-step.is-active::before{background:var(--gold,#c9a54e);border-color:var(--gold,#c9a54e);box-shadow:0 0 0 4px var(--ink-2,#10161e),0 0 0 7px rgba(201,165,78,0.22);transform:scale(1.06)}
+.lf-step:hover{background:linear-gradient(90deg,rgba(201,165,78,0.05) 0%,rgba(201,165,78,0) 70%);border-left-color:rgba(201,165,78,0.32)}
+.lf-step-head{display:flex;align-items:center;gap:14px;margin-bottom:4px}
 .lf-step-icon{flex:0 0 22px;width:22px;height:22px;color:var(--gold,#c9a54e);opacity:0.72;transition:opacity 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),transform 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1))}
 .lf-step-icon svg{display:block;width:100%;height:100%;stroke:currentColor;stroke-width:1.25;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .lf-step.is-active .lf-step-icon,.lf-step:hover .lf-step-icon{opacity:1;transform:translateX(2px)}
+.lf-step-tag{font-family:var(--font-serif,'Cormorant Garamond',serif);font-style:italic;font-weight:300;font-size:14px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold,#c9a54e);opacity:0.78;transition:opacity 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1));margin:0}
+.lf-step-tag .num{font-family:var(--font-sans,'Syne',sans-serif);font-style:normal;font-weight:600;font-size:11px;letter-spacing:0.32em;margin-right:10px;color:var(--gold,#c9a54e)}
+.lf-step-tag .sep{display:inline-block;margin:0 8px;color:rgba(201,165,78,0.5)}
+.lf-step.is-active .lf-step-tag{opacity:1}
 .lf-step-name{margin-top:8px;font-family:var(--font-serif,'Cormorant Garamond',serif);font-style:italic;font-size:clamp(24px,2.6vw,34px);font-weight:300;color:#faf8f5;line-height:1.10;letter-spacing:-0.005em}
 .lf-step-name em{font-style:italic;color:var(--gold,#c9a54e)}
-.lf-step-body{margin-top:12px;font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.78);max-width:640px}
-.lf-step-deeplink{color:var(--gold,#c9a54e);text-decoration:underline;text-underline-offset:3px}
-.lf-step-deeplink:hover{color:#faf8f5}
-
-/* ─── SUNSET WIDGET ─── */
-.lf-sunset{background:var(--ink-3,#0c1219);padding:clamp(80px,10vw,140px) clamp(24px,5vw,64px);text-align:center;border-top:1px solid rgba(201,165,78,0.18);border-bottom:1px solid rgba(201,165,78,0.18)}
-.lf-sunset-h2{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(36px,4vw,56px);font-weight:300;color:#faf8f5;line-height:1.12;margin-top:18px}
-.lf-sunset-h2 em{font-style:italic;color:var(--gold,#c9a54e)}
-.lf-sunset-intro{margin:22px auto 0;max-width:640px;font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.78)}
-.lf-sunset-stage{display:grid;grid-template-columns:1fr;gap:32px;margin-top:48px;align-items:center;justify-items:center;max-width:1100px;margin-left:auto;margin-right:auto}
-@media (min-width: 1024px){.lf-sunset-stage{grid-template-columns:1.1fr 1fr;text-align:left}}
-.lf-month-picker{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:520px}
-.lf-sunset-month{min-width:56px;min-height:44px;padding:10px 14px;background:transparent;border:1px solid rgba(201,165,78,0.32);color:var(--gold,#c9a54e);font-family:var(--font-sans,'Syne',sans-serif);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;transition:background 0.25s var(--ease,cubic-bezier(0.16,1,0.3,1)),border-color 0.25s,color 0.25s}
-.lf-sunset-month:hover{background:rgba(201,165,78,0.10);border-color:var(--gold,#c9a54e)}
-.lf-sunset-month[aria-pressed="true"]{background:rgba(201,165,78,0.18);border-color:var(--gold,#c9a54e);color:#faf8f5}
-.lf-sunset-month:focus-visible{outline:2px solid var(--gold,#c9a54e);outline-offset:3px}
-.lf-clock-wrap{display:flex;align-items:center;justify-content:center}
-.lf-clock{width:var(--lf-clock-size);height:var(--lf-clock-size)}
-.lf-clock-face{fill:none;stroke:rgba(201,165,78,0.18);stroke-width:1}
-.lf-clock-nap-band{fill:var(--lf-clock-window-band)}
-.lf-clock-golden-ring{fill:none;stroke:var(--lf-clock-golden-band);stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset 0.6s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1))}
-.lf-clock-tick{stroke:rgba(201,165,78,0.42);stroke-width:1}
-.lf-clock-numeral{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:11px;fill:rgba(250,248,245,0.62);text-anchor:middle}
-.lf-clock-center{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:14px;font-style:italic;fill:var(--gold,#c9a54e);text-anchor:middle}
-.lf-clock-status{margin:32px auto 0;max-width:640px;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:16px;font-style:italic;color:rgba(250,248,245,0.85);line-height:1.6}
+.lf-step-body{margin-top:14px;font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.78);max-width:640px}
+@media (prefers-reduced-motion: reduce){
+  .lf-step,.lf-step::before,.lf-step-icon,.lf-step-tag{transition:none!important}
+  .lf-step.is-active::before,.lf-step:hover{transform:none!important}
+  .lf-step{opacity:1!important;transform:none!important}
+}
+/* (Sunset clock CSS removed with the widget.) */
 
 /* ─── VOICES / PULL QUOTE ─── */
-.lf-voices{background:var(--ink-4,#080d12);padding:clamp(80px,10vw,140px) clamp(24px,5vw,64px);text-align:center;position:relative}
-.lf-pullquote{position:relative;max-width:920px;margin:0 auto;padding:48px 24px}
+.lf-voices{background:var(--ink-4,#080d12);padding:clamp(96px,12vw,160px) clamp(24px,5vw,64px);text-align:center;position:relative;overflow:hidden}
+.lf-voices::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:clamp(120px,30vw,360px);height:1px;background:linear-gradient(90deg,transparent 0%,rgba(201,165,78,0.42) 50%,transparent 100%);pointer-events:none}
+.lf-pullquote{position:relative;max-width:960px;margin:0 auto;padding:64px 24px 24px}
 .lf-pullquote-ornament{position:absolute;top:clamp(-90px,-7vw,-40px);left:50%;transform:translateX(-50%);font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(240px,28vw,360px);font-weight:300;font-style:italic;color:var(--gold,#c9a54e);opacity:0.20;pointer-events:none;user-select:none;line-height:0.82;z-index:0;letter-spacing:-0.02em}
+html.js-on .lf-pullquote-ornament{opacity:0;transition:opacity 1.4s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1))}
+html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
 .lf-pullquote-body{position:relative;z-index:1}
-.lf-pullquote-body p{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(22px,2.6vw,38px);font-weight:300;line-height:1.30;color:rgba(250,248,245,0.92)}
+.lf-pullquote-body p{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(22px,2.6vw,38px);font-weight:300;line-height:1.32;color:rgba(250,248,245,0.94);letter-spacing:0.005em}
 .lf-pullquote-body em{font-style:italic}
-.lf-pullquote-cite{display:block;margin-top:36px;font-family:var(--font-sans,'Syne',sans-serif);font-size:12.5px;font-style:normal;letter-spacing:0.22em;text-transform:uppercase;color:rgba(250,248,245,0.62)}
+.lf-pullquote-cite{display:inline-block;margin-top:40px;padding-top:20px;font-family:var(--font-sans,'Syne',sans-serif);font-size:11.5px;font-style:normal;letter-spacing:0.32em;text-transform:uppercase;color:var(--gold,#c9a54e);position:relative}
+.lf-pullquote-cite::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:36px;height:1px;background:var(--gold,#c9a54e);opacity:0.55}
+@media (prefers-reduced-motion: reduce){
+  html.js-on .lf-pullquote-ornament{opacity:0.20!important;transition:none!important}
+}
 
 /* ─── TESTIMONIALS GRID ─── */
 .lf-testimonials{background:var(--ink-3,#0c1219);padding:clamp(80px,10vw,140px) clamp(24px,5vw,64px)}
-.lf-testimonials-eyebrow{display:block;text-align:center;margin-bottom:36px}
-.lf-testimonial-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:36px;max-width:1280px;margin:0 auto}
-.lf-testimonial-card{padding:32px 24px;border-top:1px solid rgba(201,165,78,0.32)}
-.lf-testimonial-card blockquote p{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:16.5px;font-weight:300;font-style:italic;line-height:1.65;color:rgba(250,248,245,0.85)}
-.lf-testimonial-card cite{display:block;margin-top:22px;font-family:var(--font-sans,'Syne',sans-serif);font-size:11.5px;font-style:normal;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold,#c9a54e)}
+.lf-testimonials-eyebrow{display:block;text-align:center;margin:0 auto 48px;font-family:var(--font-sans,'Syne',sans-serif);font-size:10.5px;font-weight:600;letter-spacing:0.42em;text-transform:uppercase;color:var(--gold,#c9a54e);position:relative;padding-bottom:14px}
+.lf-testimonials-eyebrow::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:36px;height:1px;background:var(--gold,#c9a54e);opacity:0.55}
+.lf-testimonial-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(28px,3.4vw,44px);max-width:1280px;margin:0 auto}
+.lf-testimonial-card{padding:36px 26px 30px;border-top:1px solid rgba(201,165,78,0.34);background:linear-gradient(180deg,rgba(201,165,78,0.025) 0%,transparent 60%);transition:transform 0.55s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1)),border-top-color 0.45s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1)),background 0.55s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1))}
+.lf-testimonial-card:hover{transform:translateY(-4px);border-top-color:rgba(201,165,78,0.72);background:linear-gradient(180deg,rgba(201,165,78,0.05) 0%,transparent 60%)}
+.lf-testimonial-card blockquote{margin:0}
+.lf-testimonial-card blockquote p{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:16.5px;font-weight:300;font-style:italic;line-height:1.68;color:rgba(250,248,245,0.88)}
+.lf-testimonial-card figcaption{margin-top:22px;padding-top:14px;border-top:1px solid rgba(201,165,78,0.14)}
+.lf-testimonial-card cite{display:block;font-family:var(--font-sans,'Syne',sans-serif);font-size:11px;font-style:normal;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold,#c9a54e)}
+@media (prefers-reduced-motion: reduce){
+  .lf-testimonial-card{transition:none!important}
+  .lf-testimonial-card:hover{transform:none!important}
+}
 
 /* ─── FRAMES (ages ribbon + drag-scroll reel) ─── */
 .lf-frames{background:var(--ink-3,#0c1219);padding:clamp(60px,8vw,100px) 0 clamp(80px,10vw,140px);overflow:hidden}
 .lf-ages-ribbon{max-width:1100px;margin:0 auto 36px;padding:0 clamp(24px,5vw,64px)}
-.lf-ages-bar{height:var(--lf-age-ribbon-h);background:linear-gradient(90deg,var(--lf-age-ribbon-stop-newborn) 0%,var(--lf-age-ribbon-stop-toddler) 33%,var(--lf-age-ribbon-stop-school) 66%,var(--lf-age-ribbon-stop-teen) 100%);border-radius:3px}
+.lf-ages-bar{height:var(--lf-age-ribbon-h);background:linear-gradient(90deg,var(--lf-age-ribbon-stop-newborn) 0%,var(--lf-age-ribbon-stop-toddler) 33%,var(--lf-age-ribbon-stop-school) 66%,var(--lf-age-ribbon-stop-teen) 100%);border-radius:3px;box-shadow:0 0 0 1px rgba(201,165,78,0.18) inset}
 .lf-ages-labels{display:flex;justify-content:space-between;margin-top:10px;font-family:var(--font-sans,'Syne',sans-serif);font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold,#c9a54e)}
-.lf-reel-hint{padding:0 clamp(24px,5vw,64px);margin-bottom:18px;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:13px;font-style:italic;color:rgba(250,248,245,0.62)}
-.lf-reel-hint::before{content:'→ ';color:var(--gold,#c9a54e);font-style:normal}
-.lf-reel-track{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 clamp(24px,5vw,64px) 14px;-webkit-overflow-scrolling:touch;cursor:grab;scroll-behavior:smooth}
+.lf-reel-hint{padding:0 clamp(24px,5vw,64px);margin-bottom:18px;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:13.5px;font-style:italic;color:var(--gold,#c9a54e);opacity:0.92;transition:opacity 0.6s var(--ease,cubic-bezier(0.16,1,0.3,1))}
+.lf-reel-hint::before{content:'‹ › ';color:var(--gold,#c9a54e);font-style:normal;letter-spacing:0.04em;margin-right:4px}
+.lf-reel-hint.is-faded{opacity:0.18}
+.lf-reel-track{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 clamp(24px,5vw,64px) 14px;-webkit-overflow-scrolling:touch;cursor:grab;scroll-behavior:smooth;user-select:none;-webkit-user-select:none}
+.lf-reel-track.is-dragging{cursor:grabbing;scroll-snap-type:none}
 .lf-reel-track:active{cursor:grabbing}
 .lf-reel-track::-webkit-scrollbar{height:0}
 .lf-reel-track:focus-visible{outline:2px solid var(--gold,#c9a54e);outline-offset:6px}
-.lf-reel-frame{flex:0 0 var(--lf-reel-frame-min-width);aspect-ratio:var(--lf-reel-card-aspect);scroll-snap-align:start;position:relative;overflow:hidden;background:var(--ink-4,#080d12)}
+.lf-reel-frame{flex:0 0 var(--lf-reel-frame-min-width);aspect-ratio:var(--lf-reel-card-aspect);scroll-snap-align:start;position:relative;overflow:hidden;background:var(--ink-4,#080d12);border:1px solid rgba(201,165,78,0.0);transition:border-color 0.45s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1)),box-shadow 0.45s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1))}
+.lf-reel-frame:hover{border-color:rgba(201,165,78,0.62);box-shadow:0 0 0 1px rgba(201,165,78,0.32),0 18px 38px -22px rgba(0,0,0,0.85)}
 .lf-reel-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 0.7s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1));pointer-events:none}
 .lf-reel-frame:hover img{transform:scale(1.04)}
-.lf-reel-caption{position:absolute;left:14px;bottom:14px;font-family:var(--font-sans,'Syne',sans-serif);font-size:9.5px;font-weight:600;letter-spacing:0.32em;text-transform:uppercase;color:rgba(250,248,245,0.92);text-shadow:0 1px 4px rgba(0,0,0,0.6)}
-.lf-cursor-preview{position:fixed;top:0;left:0;width:280px;height:auto;aspect-ratio:4/5;pointer-events:none;z-index:9997;opacity:0;transform:translate(24px,24px) scale(0.94);transition:opacity 0.25s var(--ease,cubic-bezier(0.16,1,0.3,1)),transform 0.25s var(--ease,cubic-bezier(0.16,1,0.3,1));overflow:hidden;border:1px solid rgba(201,165,78,0.42)}
+.lf-reel-caption{position:absolute;left:14px;bottom:14px;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:13px;font-style:italic;letter-spacing:0.06em;color:var(--gold,#c9a54e);text-shadow:0 1px 4px rgba(0,0,0,0.7)}
+.lf-cursor-preview{position:fixed;top:0;left:0;width:280px;height:auto;aspect-ratio:4/5;pointer-events:none;z-index:9997;opacity:0;transform:translate(24px,24px) scale(0.94);transition:opacity 0.18s var(--ease,cubic-bezier(0.16,1,0.3,1)),transform 0.18s var(--ease,cubic-bezier(0.16,1,0.3,1));overflow:hidden;border:1px solid rgba(201,165,78,0.46);box-shadow:0 18px 44px -18px rgba(0,0,0,0.85)}
 .lf-cursor-preview img{width:100%;height:100%;object-fit:cover}
 .lf-cursor-preview.is-on{opacity:1}
+@media (hover: none),(pointer: coarse){.lf-cursor-preview{display:none!important}}
 
 /* ─── FAQ ─── */
 .lf-faq{background:var(--ink-2,#10161e);padding:clamp(80px,10vw,140px) clamp(24px,5vw,64px)}
 .lf-faq-inner{max-width:880px;margin:0 auto}
 .lf-faq-h2{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(36px,4vw,56px);font-weight:300;color:#faf8f5;line-height:1.12;margin-top:18px;margin-bottom:36px}
 .lf-faq-list{display:flex;flex-direction:column}
-.lf-faq-item{border-bottom:1px solid rgba(201,165,78,0.22)}
+.lf-faq-item{position:relative;border-bottom:1px solid rgba(201,165,78,0.22)}
+.lf-faq-item::after{content:"";position:absolute;left:0;bottom:-1px;width:0;height:1px;background:var(--gold,#c9a54e);transition:width 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1))}
+.lf-faq-item:hover::after,.lf-faq-item:focus-within::after{width:100%}
 .lf-faq-question-wrap{margin:0}
-.lf-faq-toggle{width:100%;padding:24px 0;background:transparent;border:none;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:24px;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(17px,1.6vw,21px);font-weight:300;color:#faf8f5;min-height:44px;transition:color 0.25s}
-.lf-faq-toggle:hover{color:var(--gold,#c9a54e)}
-.lf-faq-toggle:focus-visible{outline:2px solid var(--gold,#c9a54e);outline-offset:4px}
-.lf-faq-icon{flex-shrink:0;font-family:var(--font-sans,'Syne',sans-serif);font-size:24px;font-weight:300;color:var(--gold,#c9a54e);line-height:1;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;transition:transform 0.35s var(--ease,cubic-bezier(0.16,1,0.3,1))}
+.lf-faq-toggle{width:100%;padding:24px 0;background:transparent;border:none;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:24px;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(18px,1.6vw,22px);font-weight:300;color:#faf8f5;min-height:44px;transition:color 0.3s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1)),padding 0.3s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1))}
+.lf-faq-toggle:hover{color:var(--gold,#c9a54e);padding-left:6px}
+.lf-faq-toggle:focus-visible{outline:2px solid var(--gold,#c9a54e);outline-offset:4px;border-radius:2px}
+.lf-faq-toggle[aria-expanded="true"]{color:var(--gold,#c9a54e)}
+.lf-faq-icon{flex-shrink:0;font-family:var(--font-sans,'Syne',sans-serif);font-size:24px;font-weight:300;color:var(--gold,#c9a54e);line-height:1;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;transition:transform 0.3s ease,color 0.3s ease}
 .lf-faq-toggle[aria-expanded="true"] .lf-faq-icon{transform:rotate(45deg)}
-.lf-faq-panel{padding:0 0 28px;max-width:780px}
-.lf-faq-panel[hidden]{display:none}
-.lf-faq-panel p{font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.82)}
+.lf-faq-toggle:hover .lf-faq-icon{color:#e6c878}
+.lf-faq-panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows 0.4s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1));max-width:780px}
+.lf-faq-panel[data-open="true"]{grid-template-rows:1fr}
+.lf-faq-panel-inner{overflow:hidden;min-height:0}
+.lf-faq-panel-inner > p{margin:0;padding:4px 0 28px;font-family:var(--font-serif,'Cormorant Garamond',serif);font-style:italic;font-size:16px;font-weight:300;line-height:1.7;color:rgba(250,245,232,0.88)}
+@media (prefers-reduced-motion:reduce){
+  .lf-faq-toggle,.lf-faq-icon,.lf-faq-panel,.lf-faq-item::after{transition:none !important}
+  .lf-faq-toggle:hover{padding-left:0}
+}
 
 /* ─── INQUIRY ─── */
-.lf-inquiry{background:var(--ink-4,#080d12);padding:clamp(80px,10vw,140px) clamp(24px,5vw,64px);text-align:center;border-top:1px solid rgba(201,165,78,0.22)}
-.lf-inquiry-h2{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(36px,4vw,56px);font-weight:300;color:#faf8f5;line-height:1.12;margin-top:18px}
-.lf-inquiry-body{margin:22px auto 0;max-width:720px;font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.82)}
-.lf-inquiry-ctas{margin:36px 0;display:flex;flex-wrap:wrap;justify-content:center;gap:14px}
+.lf-inquiry{position:relative;background:var(--ink-3,#0a0f17);padding:clamp(96px,11vw,156px) clamp(24px,5vw,64px);text-align:center;border-top:1px solid rgba(201,165,78,0.22);overflow:hidden}
+.lf-inquiry::before{content:'';position:absolute;inset:0;background:radial-gradient(60% 50% at 50% 0%,rgba(201,165,78,0.08),transparent 70%);pointer-events:none}
+.lf-inquiry-inner{position:relative;max-width:1080px;margin:0 auto}
+.lf-inquiry-rule{display:block;width:64px;height:1px;background:linear-gradient(90deg,transparent,rgba(201,165,78,0.55),transparent);margin:0 auto 22px}
+.lf-inquiry-ornament{display:block;margin:0 auto 18px;color:var(--gold,#c9a54e);opacity:0.78}
+.lf-inquiry-h2{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(36px,4.4vw,56px);font-weight:300;color:#faf8f5;line-height:1.08;letter-spacing:-.012em;margin-top:18px}
+.lf-inquiry-h2 em{font-style:italic;color:var(--gold,#c9a54e);font-weight:300}
+.lf-inquiry-body{margin:24px auto 0;max-width:720px;font-family:var(--font-serif,'Cormorant Garamond',serif);font-style:italic;font-size:clamp(18px,1.6vw,22px);line-height:1.6;color:rgba(250,248,245,0.84)}
+.lf-inquiry-ctas{margin:40px 0 44px;display:flex;flex-wrap:wrap;justify-content:center;gap:14px}
+.lf-inquiry-ctas .btn{padding:16px 38px}
 .lf-inquiry-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:32px;max-width:780px;margin:0 auto}
 .lf-inquiry-meta>div{display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 16px;border-left:1px solid rgba(201,165,78,0.22)}
 .lf-inquiry-meta>div:first-child{border-left:none}
 .lf-inquiry-meta dt{font-family:var(--font-sans,'Syne',sans-serif);font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold,#c9a54e)}
 .lf-inquiry-meta dd{font-family:var(--font-sans,'Syne',sans-serif);font-size:13px;color:rgba(250,248,245,0.82)}
+@media (prefers-reduced-motion: reduce){
+  .lf-inquiry::before{display:none}
+}
 
 /* ─── COLOPHON / FOOTER (mirrors v5 home colophon for sitewide cohesion) ─── */
 
@@ -431,25 +479,20 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
 
 
 /* ─── RESPONSIVE ─── */
-@media (max-width: 480px){
-  .lf-meta-strip{grid-template-columns:1fr 1fr}
-  .lf-hero-content{padding-bottom:60px}
-  .lf-hero-h1{font-size:clamp(28px, 7vw, 38px)}
-}
 @media (max-width: 1023px){
-  .h-nav,.lang-switch,.h-cta{display:none}
-  .h-burger{display:flex}
+
+
   .lf-pillars-grid{grid-template-columns:1fr;gap:48px}
   .lf-tier-grid{grid-template-columns:1fr;gap:14px}
   .lf-tier--featured{transform:none}
   .lf-testimonial-grid{grid-template-columns:1fr 1fr}
-  
+
 }
 @media (max-width: 767px){
   .lf-meta-strip{grid-template-columns:1fr 1fr}
   .lf-feature-meta{grid-template-columns:1fr}
   .lf-testimonial-grid{grid-template-columns:1fr}
-  
+
   .lf-inquiry-meta>div{border-left:none;padding:0}
   .lf-hero-content{padding-bottom:80px}
   .lf-cinema{aspect-ratio:16/10}
@@ -464,16 +507,17 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
   .lf-motes{display:none!important}
   .lf-grain{animation:none!important}
   .lf-availability-dot{animation:none!important}
-  .lf-hero-img{transform:scale(1.04)!important;transition:none!important}
+  .lf-hero-bg{transform:none!important;transition:none!important}
+  .lf-hero-img{transform:scale(1.06)!important;transition:none!important}
   .lf-pillars-stage{position:static!important}
   .lf-reel-track{scroll-behavior:auto!important}
   .lf-cursor-preview{display:none!important}
-  .lf-clock-golden-ring{transition:none!important}
 }
 
 /* Sticky stage on desktop with motion */
 @media (min-width: 1024px) and (prefers-reduced-motion: no-preference){
-  .lf-pillars-stage{position:sticky;top:96px;align-self:start;height:fit-content}
+  .lf-pillars-stage{position:sticky;top:120px;z-index:5;align-self:start;height:fit-content;transition:opacity 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),transform 0.6s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1))}
+  .lf-pillars-grid:hover .lf-pillars-stage{transform:translateZ(0)}
 }
 </style>
 </head>
@@ -642,18 +686,18 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
      ═══════════════════════════════════════════════════════════════ -->
 <section class="lf-feature" id="feature" aria-labelledby="feature-heading">
   <div class="lf-feature-header">
-    <p class="eyebrow rv">Una Reunión</p>
-    <h2 class="lf-feature-h2 rv d1" id="feature-heading">Tres generaciones, dos idiomas, <em>una costa.</em></h2>
+    <p class="eyebrow rv d1">Una Reunión</p>
+    <h2 class="lf-feature-h2 rv d2" id="feature-heading">Tres generaciones, dos idiomas, <em>una costa.</em></h2>
   </div>
-  <figure class="lf-cinema rv d2">
+  <figure class="lf-cinema rv d3">
     <img src="/images/family-riviera-maya-ivae-studios.jpg" alt="Un abuelo levanta a su nieto contra los manglares de la tarde en Rosewood Mayakoba, fotografiado por IVAE Studios." loading="lazy" decoding="async" width="2400" height="1029">
   </figure>
-  <div class="lf-feature-body rv">
-    <p class="lf-feature-caption">La reunión se programó para la segunda semana de abril, en un cayo privado de Rosewood Mayakoba, con la laguna a sus espaldas y el dosel del Yucatán al oeste. Tres generaciones habían volado desde Dallas, Ciudad de México y Londres. Ocho nietos, de cuatro a catorce años. Los abuelos llegaron dos días antes, como hacen los abuelos, y caminaron por los senderos de madera al borde de la propiedad mientras las garzas se quedaban quietas el tiempo suficiente para ser fotografiadas.</p>
-    <p>La sesión duró noventa minutos. La luz se volvió honesta a las 6:18, y el estudio se encontró con la familia en un tramo de playa donde una sola palmera se inclinaba como los niños luego se inclinarían hacia su abuelo. La nieta más pequeña tenía tres años, y el estudio trabajó a su ritmo. Ella miró un pequeño cangrejo durante cuarenta segundos. Su abuelo la miró mirar el cangrejo. La fotografía que la familia había esperado en silencio, tres generaciones juntas, mirando en la misma dirección hacia la misma pequeña cosa, se hizo en esos cuarenta segundos.</p>
-    <p>El equipo llevó una botella de agua y dos cámaras. Español para los abuelos, inglés para los primos de Londres, ambos para los padres. Nada de arrear. Nada de contar hasta tres. La reunión duró los noventa minutos planeados y usó ochenta y dos de ellos en fotografías y ocho en una pausa para snack que el estudio había integrado al horario.</p>
-    <p>Las primeras fotografías se entregaron setenta y una horas después. Los abuelos enmarcaron dos de ellas. La galería completa, cuatrocientas doce imágenes, viajó a un enlace privado diecinueve días después de la sesión.</p>
-    <dl class="lf-feature-meta" role="group" aria-label="Detalles de la reunión">
+  <div class="lf-feature-body">
+    <p class="lf-feature-caption rv d1">La reunión se programó para la segunda semana de abril, en un cayo privado de Rosewood Mayakoba, con la laguna a sus espaldas y el dosel del Yucatán al oeste. Tres generaciones habían volado desde Dallas, Ciudad de México y Londres. Ocho nietos, de cuatro a catorce años. Los abuelos llegaron dos días antes, como hacen los abuelos, y caminaron por los senderos de madera al borde de la propiedad mientras las garzas se quedaban quietas el tiempo suficiente para ser fotografiadas.</p>
+    <p class="rv d2">La sesión duró noventa minutos. La luz se volvió honesta a las 6:18, y el estudio se encontró con la familia en un tramo de playa donde una sola palmera se inclinaba como los niños luego se inclinarían hacia su abuelo. La nieta más pequeña tenía tres años, y el estudio trabajó a su ritmo. Ella miró un pequeño cangrejo durante cuarenta segundos. Su abuelo la miró mirar el cangrejo. La fotografía que la familia había esperado en silencio, tres generaciones juntas, mirando en la misma dirección hacia la misma pequeña cosa, se hizo en esos cuarenta segundos.</p>
+    <p class="rv d3">El equipo llevó una botella de agua y dos cámaras. Español para los abuelos, inglés para los primos de Londres, ambos para los padres. Nada de arrear. Nada de contar hasta tres. La reunión duró los noventa minutos planeados y usó ochenta y dos de ellos en fotografías y ocho en una pausa para snack que el estudio había integrado al horario.</p>
+    <p class="rv d4">Las primeras fotografías se entregaron setenta y una horas después. Los abuelos enmarcaron dos de ellas. La galería completa, cuatrocientas doce imágenes, viajó a un enlace privado diecinueve días después de la sesión.</p>
+    <dl class="lf-feature-meta rv d4" role="group" aria-label="Detalles de la reunión">
       <div><dt>Costa</dt><dd>Riviera Maya</dd></div>
       <div><dt>Tamaño de Familia</dt><dd>Ocho nietos, tres generaciones</dd></div>
       <div><dt>Cobertura</dt><dd>Noventa minutos, hora dorada</dd></div>
@@ -671,42 +715,57 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
     <p class="lf-method-intro rv d2">El estudio trabaja del mismo modo para cada familia, sin importar el tamaño. La primera consulta se lee el mismo día hábil. Una conversación de planificación sigue dentro de la semana. El vestuario se calibra al mes y a la costa. La luz se construye hacia atrás desde el atardecer, el ritmo se construye alrededor de los niños. Las primeras fotografías viajan a casa antes de que la maleta sea deshecha.</p>
   </div>
   <ol class="lf-method-rail" role="list">
-    <li class="lf-step rv" id="step-plan">
-      <p class="lf-step-tag">01 · Planificar</p>
+    <li class="lf-step rv d1" id="step-plan">
+      <div class="lf-step-head">
+        <span class="lf-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="presentation" focusable="false"><rect x="3.5" y="5" width="17" height="15" rx="1.5"/><path d="M3.5 9.5h17"/><path d="M8 3.5v3M16 3.5v3"/></svg></span>
+        <p class="lf-step-tag"><span class="num">01</span><span class="sep">·</span>Planificar</p>
+      </div>
       <h3 class="lf-step-name"><em>Planificar</em></h3>
       <p class="lf-step-body">El primer correo se lee el mismo día hábil, en inglés o español. Una breve llamada de planificación sigue dentro de la semana, cuarenta y cinco minutos, por video. El estudio escucha primero, pregunta sobre los niños, pregunta sobre el hito si lo hay, pregunta sobre el resort. Para el final de la llamada, la familia sabe si el estudio es adecuado para ellos, y el estudio conoce la forma de la hora.</p>
     </li>
-    <li class="lf-step rv" id="step-style">
-      <p class="lf-step-tag">02 · Estilizar</p>
+    <li class="lf-step rv d2" id="step-style">
+      <div class="lf-step-head">
+        <span class="lf-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="presentation" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.4 0 2-1 2-2 0-.8-.5-1.4-.5-2.2 0-.9.8-1.8 1.8-1.8H17a4 4 0 0 0 4-4A8.5 8.5 0 0 0 12 3.5Z"/><circle cx="7.5" cy="11" r="1.1"/><circle cx="10" cy="7.5" r="1.1"/><circle cx="14.5" cy="7.5" r="1.1"/><circle cx="17.5" cy="11" r="1.1"/></svg></span>
+        <p class="lf-step-tag"><span class="num">02</span><span class="sep">·</span>Estilizar</p>
+      </div>
       <h3 class="lf-step-name"><em>Estilizar</em></h3>
       <p class="lf-step-body">Una guía de vestuario viaja al día siguiente de la reserva. La guía está calibrada al mes, a la costa, y a las edades de los niños. Tonos, no atuendos. Lino, marfil, arena, salvia, terracota apagado. El atuendo del niño más pequeño se construye alrededor de lo que el niño más pequeño ya usará sin protestar. Nada se compra nuevo para la sesión a menos que la familia quiera comprarlo nuevo para la sesión.</p>
     </li>
-    <li class="lf-step rv" id="step-light">
-      <p class="lf-step-tag">03 · Iluminar</p>
+    <li class="lf-step rv d3" id="step-light">
+      <div class="lf-step-head">
+        <span class="lf-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="presentation" focusable="false"><circle cx="12" cy="12" r="3.5"/><path d="M12 3v2.4M12 18.6V21M3 12h2.4M18.6 12H21M5.6 5.6l1.7 1.7M16.7 16.7l1.7 1.7M5.6 18.4l1.7-1.7M16.7 7.3l1.7-1.7"/></svg></span>
+        <p class="lf-step-tag"><span class="num">03</span><span class="sep">·</span>Iluminar</p>
+      </div>
       <h3 class="lf-step-name"><em>Iluminar</em></h3>
-      <p class="lf-step-body">La sesión se programa a los noventa minutos finales antes del atardecer, terminada quince minutos antes de que el horizonte cambie. En diciembre eso es de 4:00 a 5:30 en Cancún. En junio es de 6:00 a 7:30. El estudio recorre la propiedad el día anterior cuando el viaje lo permite, y marca las dos o tres locaciones donde la luz es más favorecedora. El horario se construye hacia atrás desde el atardecer y hacia adelante desde el fin de la siesta del niño más pequeño. <a href="#sunset" class="lf-step-deeplink">Ver el widget de Hora Amigable al Atardecer abajo.</a></p>
+      <p class="lf-step-body">La sesión se programa a los noventa minutos finales antes del atardecer, terminada quince minutos antes de que el horizonte cambie. En diciembre eso es de 4:00 a 5:30 en Cancún. En junio es de 6:00 a 7:30. El estudio recorre la propiedad el día anterior cuando el viaje lo permite, y marca las dos o tres locaciones donde la luz es más favorecedora. El horario se construye hacia atrás desde el atardecer y hacia adelante desde el fin de la siesta del niño más pequeño.</p>
     </li>
-    <li class="lf-step rv" id="step-direct">
-      <p class="lf-step-tag">04 · Dirigir</p>
+    <li class="lf-step rv d4" id="step-direct">
+      <div class="lf-step-head">
+        <span class="lf-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="presentation" focusable="false"><path d="M2.5 12C4.5 7.5 8 5 12 5s7.5 2.5 9.5 7c-2 4.5-5.5 7-9.5 7s-7.5-2.5-9.5-7Z"/><circle cx="12" cy="12" r="2.6"/></svg></span>
+        <p class="lf-step-tag"><span class="num">04</span><span class="sep">·</span>Dirigir</p>
+      </div>
       <h3 class="lf-step-name"><em>Dirigir</em></h3>
       <p class="lf-step-body">El día, el estudio llega diez minutos antes y se encuentra con la familia en el punto de encuentro. La dirección es tranquila y silenciosa. El estudio no cuenta hasta tres. Las pausas para snack están integradas a la hora. Español para los abuelos que prefieren español. Inglés para los primos que llegan en avión. El ritmo es el ritmo de la familia.</p>
     </li>
-    <li class="lf-step rv" id="step-deliver">
-      <p class="lf-step-tag">05 · Entregar</p>
+    <li class="lf-step rv d5" id="step-deliver">
+      <div class="lf-step-head">
+        <span class="lf-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="presentation" focusable="false"><path d="M12 3.2 3.5 7.5v9L12 20.8l8.5-4.3v-9L12 3.2Z"/><path d="M3.5 7.5 12 11.8l8.5-4.3"/><path d="M12 11.8v9"/></svg></span>
+        <p class="lf-step-tag"><span class="num">05</span><span class="sep">·</span>Entregar</p>
+      </div>
       <h3 class="lf-step-name"><em>Entregar</em></h3>
       <p class="lf-step-body">Las primeras fotografías viajan a casa con la familia. De veinte a treinta imágenes editoriales llegan dentro de las setenta y dos horas, antes de que el traje haya sido planchado y antes de que la maleta haya sido deshecha. La galería completa, de noventa a doscientas imágenes editadas a mano según la colección, sigue dentro de tres semanas. Los derechos de impresión están incluidos. La galería vive en un enlace privado con descargas ilimitadas.</p>
     </li>
   </ol>
 </section>
 
-<!-- SECTION 7 (Sunset-Friendly Time widget) REMOVED — fake-functional widget. Method section above explains golden-hour timing editorially. -->
+<!-- Section 7 (Sunset-friendly clock widget) removed: timing is already covered editorially in Section 6 (Method · Step 03 · Light). -->
 
 <!-- ═══════════════════════════════════════════════════════════════
-     SECTION 8a — VOICES (pull-quote, giant ❝)
+     SECTION 8a · VOICES (pull-quote, giant ❝)
      ═══════════════════════════════════════════════════════════════ -->
 <section class="lf-voices" id="voices" aria-labelledby="voices-heading">
   <h2 id="voices-heading" class="visually-hidden">Voces</h2>
-  <figure class="lf-pullquote rv">
+  <figure class="lf-pullquote rv d2">
     <span class="lf-pullquote-ornament" aria-hidden="true">&ldquo;</span>
     <blockquote class="lf-pullquote-body">
       <p><em>Los retratos de abuelos y nietos por sí solos valieron la inversión. Mi madre lloró cuando vio la galería, y nosotros lloramos con ella. El estudio trabajó al ritmo de los niños, y las fotografías se parecen a nuestra familia, no a una sesión de fotos.</em></p>
@@ -718,33 +777,33 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     SECTION 8b — TESTIMONIALS GRID (6 cards)
+     SECTION 8b · TESTIMONIALS GRID (6 cards)
      ═══════════════════════════════════════════════════════════════ -->
 <section class="lf-testimonials" aria-labelledby="testimonials-heading">
   <p class="eyebrow lf-testimonials-eyebrow rv">Voces</p>
   <h2 id="testimonials-heading" class="visually-hidden">Testimonios</h2>
   <div class="lf-testimonial-grid">
-    <figure class="lf-testimonial-card rv">
+    <figure class="lf-testimonial-card rv d1">
       <blockquote><p><em>Tres generaciones, ocho nietos, noventa minutos. Tuvimos tres días en Cancún y uno de ellos iba a ser la sesión de fotos. Nos preocupaba que los niños estuvieran cansados. No lo estuvieron. El estudio nos recibió en la propiedad, nos llevó a la luz, y trabajó al ritmo del más pequeño. Los abuelos ya enmarcaron dos de las imágenes.</em></p></blockquote>
       <figcaption><cite>Familia Hartwell · Dallas, Texas</cite></figcaption>
     </figure>
-    <figure class="lf-testimonial-card rv">
+    <figure class="lf-testimonial-card rv d2">
       <blockquote><p><em>Nuestro viaje de décimo aniversario, viajando con dos niños de seis y nueve años. Queríamos fotos familiares y queríamos, por separado, fotos de los dos como pareja, los que éramos antes de los niños. El estudio integró ambas en la misma hora. Ahora tenemos una fotografía en la pared del dormitorio, y otra en la pared de la sala.</em></p></blockquote>
       <figcaption><cite>Sarah y Michael · Andaz Mayakoba, marzo 2026</cite></figcaption>
     </figure>
-    <figure class="lf-testimonial-card rv">
+    <figure class="lf-testimonial-card rv d3">
       <blockquote><p><em>Primer viaje internacional con nuestro hijo de dos años y de cuatro. Asumimos que las fotos familiares en un resort serían estresantes. Fue lo opuesto. El estudio trabajó en torno a la siesta del pequeño y construyó el horario hacia atrás desde el atardecer. Las fotografías no están posadas. Las fotografías se parecen a nuestros niños ese día.</em></p></blockquote>
       <figcaption><cite>Familia Patel · Hyatt Ziva Cancún, febrero 2026</cite></figcaption>
     </figure>
-    <figure class="lf-testimonial-card rv">
+    <figure class="lf-testimonial-card rv d4">
       <blockquote><p><em>Los retratos de abuelos y nietos por sí solos valieron la inversión. Mi madre lloró cuando vio la galería. El estudio entendió la fotografía que no habíamos podido articular, y la hizo sin que se la pidiéramos.</em></p></blockquote>
       <figcaption><cite>Familia Nakamura · Rosewood Mayakoba, abril 2026</cite></figcaption>
     </figure>
-    <figure class="lf-testimonial-card rv">
+    <figure class="lf-testimonial-card rv d5">
       <blockquote><p><em>Nos fotografiaron dos veces, una en Riviera Maya y otra en Los Cabos, en el mismo viaje. El estudio coordinó ambas sesiones, mantuvo el mismo registro de color en las dos, y la galería se lee como un solo arco. Dos costas, cuatro niños, ambos abuelos del lado de Cabo.</em></p></blockquote>
       <figcaption><cite>Familia Beauchamp · Toronto, Ontario</cite></figcaption>
     </figure>
-    <figure class="lf-testimonial-card rv">
+    <figure class="lf-testimonial-card rv d6">
       <blockquote><p><em>Sesión bilingüe, mitad de la familia de Ciudad de México y mitad de Madrid. Español para mis padres, inglés para la familia de mi esposo, ambos para los niños. El estudio se movió entre los dos sin romper el ritmo. Los abuelos de ambos lados tienen la misma fotografía en la misma repisa, en dos idiomas, en dos ciudades.</em></p></blockquote>
       <figcaption><cite>Familia López · Maroma Belmond, enero 2026</cite></figcaption>
     </figure>
@@ -765,7 +824,7 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
       <span>Adolescente</span>
     </div>
   </div>
-  <p class="lf-reel-hint rv">Arrastra para ver el reel</p>
+  <p class="lf-reel-hint rv" id="lfReelHint">Arrastra para ver el reel</p>
   <div class="lf-reel-track" id="lfReelTrack" role="region" aria-label="Reel de fotografía familiar, desplazable. Usa las teclas de flecha para navegar." tabindex="0">
     <figure class="lf-reel-frame">
       <img src="/images/family-cancun-hotel-zone-ivae-studios.jpg" alt="Una familia posa en la arena blanca de la Zona Hotelera de Cancún en hora dorada, fotografiada por IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
@@ -805,66 +864,73 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
     <p class="eyebrow rv">Preguntas Consideradas</p>
     <h2 class="lf-faq-h2 rv d1" id="faq-heading">Consideradas, Antes de Preguntar.</h2>
     <ul class="lf-faq-list" role="list">
-      <li class="lf-faq-item">
-        <h3 class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-1-q" aria-expanded="false" aria-controls="faq-1-p">¿Cómo fotografían a los niños pequeños sin perder la fotografía?<span class="lf-faq-icon" aria-hidden="true">+</span></button></h3>
-        <div class="lf-faq-panel" id="faq-1-p" role="region" aria-labelledby="faq-1-q" hidden><p>El ritmo de la sesión es el ritmo del niño más pequeño. El estudio no cuenta hasta tres, no arrea, y no grita "todos sonrían." Si una niña de cuatro años está interesada en un pequeño cangrejo en el camino, es fotografiada mirando el pequeño cangrejo. Si una niña de dos años necesita cuarenta segundos para decidir si la cámara es amiga o extraña, se le dan cuarenta segundos. Las fotografías que la familia conserva se hacen en esos momentos tranquilos, no en los montados. El estudio es paciente y bilingüe, y los niños responden a eso.</p></div>
+      <li class="lf-faq-item rv d1">
+        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-1-q" aria-expanded="false" aria-controls="faq-1-p">¿Cómo fotografían a los niños pequeños sin perder la fotografía?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
+        <div class="lf-faq-panel" id="faq-1-p" role="region" aria-labelledby="faq-1-q"><div class="lf-faq-panel-inner"><p>El ritmo de la sesión es el ritmo del niño más pequeño. El estudio no cuenta hasta tres, no arrea, y no grita "todos sonrían." Si una niña de cuatro años está interesada en un pequeño cangrejo en el camino, es fotografiada mirando el pequeño cangrejo. Si una niña de dos años necesita cuarenta segundos para decidir si la cámara es amiga o extraña, se le dan cuarenta segundos. Las fotografías que la familia conserva se hacen en esos momentos tranquilos, no en los montados. El estudio es paciente y bilingüe, y los niños responden a eso.</p></div></div>
       </li>
-      <li class="lf-faq-item">
-        <h3 class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-2-q" aria-expanded="false" aria-controls="faq-2-p">¿A qué hora del día es la sesión familiar, y por qué importa?<span class="lf-faq-icon" aria-hidden="true">+</span></button></h3>
-        <div class="lf-faq-panel" id="faq-2-p" role="region" aria-labelledby="faq-2-q" hidden><p>Cada sesión familiar se programa para los noventa minutos finales antes del atardecer. La luz se vuelve suave color miel y ámbar, cada edad en cuadro se ve favorecida, y el horizonte nunca se quema. En Cancún, el atardecer va desde las 5:30 PM en diciembre hasta las 7:30 PM en julio. La sesión comienza noventa minutos antes, y termina quince minutos antes de que el sol llegue al horizonte. El widget de Hora Amigable al Atardecer en esta página muestra la hora de inicio recomendada para cada mes, calibrada a la ventana típica de siesta en resort para familias con niños menores de cinco años.</p></div>
+      <li class="lf-faq-item rv d2">
+        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-2-q" aria-expanded="false" aria-controls="faq-2-p">¿A qué hora del día es la sesión familiar, y por qué importa?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
+        <div class="lf-faq-panel" id="faq-2-p" role="region" aria-labelledby="faq-2-q"><div class="lf-faq-panel-inner"><p>Cada sesión familiar se programa para los noventa minutos finales antes del atardecer. La luz se vuelve suave color miel y ámbar, cada edad en cuadro se ve favorecida, y el horizonte nunca se quema. En Cancún, el atardecer va desde las 5:30 PM en diciembre hasta las 7:30 PM en julio. La sesión comienza noventa minutos antes, y termina quince minutos antes de que el sol llegue al horizonte. El widget de Hora Amigable al Atardecer en esta página muestra la hora de inicio recomendada para cada mes, calibrada a la ventana típica de siesta en resort para familias con niños menores de cinco años.</p></div></div>
       </li>
-      <li class="lf-faq-item">
-        <h3 class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-3-q" aria-expanded="false" aria-controls="faq-3-p">¿Pueden fotografiar una reunión multigeneracional de diez o más personas?<span class="lf-faq-icon" aria-hidden="true">+</span></button></h3>
-        <div class="lf-faq-panel" id="faq-3-p" role="region" aria-labelledby="faq-3-q" hidden><p>Sí, a través de la colección La Reunión. Hasta diez personas en cuadro es el límite estándar. Los grupos más grandes de diez se cotizan por viaje y pueden incluir un segundo fotógrafo durante noventa minutos. La lista de tomas se compone antes de la sesión, incluye cada pareja significativa (el grupo completo, cada familia inmediata, abuelos con nietos, grupos de hermanos, y la pareja dentro de la familia), y se acompasa para que los abuelos se sienten cuando necesitan sentarse y caminen cuando necesitan caminar.</p></div>
+      <li class="lf-faq-item rv d3">
+        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-3-q" aria-expanded="false" aria-controls="faq-3-p">¿Pueden fotografiar una reunión multigeneracional de diez o más personas?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
+        <div class="lf-faq-panel" id="faq-3-p" role="region" aria-labelledby="faq-3-q"><div class="lf-faq-panel-inner"><p>Sí, a través de la colección La Reunión. Hasta diez personas en cuadro es el límite estándar. Los grupos más grandes de diez se cotizan por viaje y pueden incluir un segundo fotógrafo durante noventa minutos. La lista de tomas se compone antes de la sesión, incluye cada pareja significativa (el grupo completo, cada familia inmediata, abuelos con nietos, grupos de hermanos, y la pareja dentro de la familia), y se acompasa para que los abuelos se sienten cuando necesitan sentarse y caminen cuando necesitan caminar.</p></div></div>
       </li>
-      <li class="lf-faq-item">
-        <h3 class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-4-q" aria-expanded="false" aria-controls="faq-4-p">¿Qué pasa si llueve el día de la sesión?<span class="lf-faq-icon" aria-hidden="true">+</span></button></h3>
-        <div class="lf-faq-panel" id="faq-4-p" role="region" aria-labelledby="faq-4-q" hidden><p>Cancún y la Riviera Maya tienen breves lluvias por la tarde en verano que típicamente duran de veinte a cuarenta y cinco minutos, y los cielos después de ellas son a menudo los cielos más espectaculares del día. Si se pronostica una lluvia sostenida, el estudio reprograma la sesión dentro de la ventana de viaje de la familia sin costo adicional. El equipo monitorea el clima a diario durante el viaje y contacta a la familia la mañana de la sesión si parece probable un cambio. La lluvia ligera al final de la hora dorada a veces vale la pena fotografiarla, con permiso de la familia.</p></div>
+      <li class="lf-faq-item rv d4">
+        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-4-q" aria-expanded="false" aria-controls="faq-4-p">¿Qué pasa si llueve el día de la sesión?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
+        <div class="lf-faq-panel" id="faq-4-p" role="region" aria-labelledby="faq-4-q"><div class="lf-faq-panel-inner"><p>Cancún y la Riviera Maya tienen breves lluvias por la tarde en verano que típicamente duran de veinte a cuarenta y cinco minutos, y los cielos después de ellas son a menudo los cielos más espectaculares del día. Si se pronostica una lluvia sostenida, el estudio reprograma la sesión dentro de la ventana de viaje de la familia sin costo adicional. El equipo monitorea el clima a diario durante el viaje y contacta a la familia la mañana de la sesión si parece probable un cambio. La lluvia ligera al final de la hora dorada a veces vale la pena fotografiarla, con permiso de la familia.</p></div></div>
       </li>
-      <li class="lf-faq-item">
-        <h3 class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-5-q" aria-expanded="false" aria-controls="faq-5-p">¿Qué debe usar la familia?<span class="lf-faq-icon" aria-hidden="true">+</span></button></h3>
-        <div class="lf-faq-panel" id="faq-5-p" role="region" aria-labelledby="faq-5-q" hidden><p>Una guía de vestuario se envía el día siguiente a la reserva, calibrada al mes y a la costa. La guía se construye en torno a tonos en lugar de atuendos específicos: marfil, arena, salvia, azul polvoriento, y terracota suave fotografían bien con la luz de playa de México. El lino y las telas fluidas atrapan la brisa del mar. Evita neón, logotipos grandes, patrones recargados, y atuendos enteramente blancos, que la cámara lee como una forma brillante en lugar de una persona. El atuendo del niño más pequeño se construye alrededor de lo que el niño más pequeño ya usará sin protestar. Nada necesita comprarse nuevo.</p></div>
+      <li class="lf-faq-item rv d5">
+        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-5-q" aria-expanded="false" aria-controls="faq-5-p">¿Qué debe usar la familia?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
+        <div class="lf-faq-panel" id="faq-5-p" role="region" aria-labelledby="faq-5-q"><div class="lf-faq-panel-inner"><p>Una guía de vestuario se envía el día siguiente a la reserva, calibrada al mes y a la costa. La guía se construye en torno a tonos en lugar de atuendos específicos: marfil, arena, salvia, azul polvoriento, y terracota suave fotografían bien con la luz de playa de México. El lino y las telas fluidas atrapan la brisa del mar. Evita neón, logotipos grandes, patrones recargados, y atuendos enteramente blancos, que la cámara lee como una forma brillante en lugar de una persona. El atuendo del niño más pequeño se construye alrededor de lo que el niño más pequeño ya usará sin protestar. Nada necesita comprarse nuevo.</p></div></div>
       </li>
-      <li class="lf-faq-item">
-        <h3 class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-6-q" aria-expanded="false" aria-controls="faq-6-p">¿Cuánto tarda la familia en recibir las fotografías?<span class="lf-faq-icon" aria-hidden="true">+</span></button></h3>
-        <div class="lf-faq-panel" id="faq-6-p" role="region" aria-labelledby="faq-6-q" hidden><p>Un primer conjunto de veinte a treinta imágenes editoriales se entrega dentro de las setenta y dos horas de la sesión, antes de que el traje haya sido planchado y antes de que la maleta haya sido deshecha. La galería completa, de noventa a doscientas imágenes editadas a mano según la colección, sigue dentro de tres semanas. La galería vive en un enlace privado con descargas ilimitadas. Los derechos de impresión están incluidos. Cada imagen se edita a mano en el registro de color IVAE, nunca con tono automático, nunca pasada por un preset.</p></div>
+      <li class="lf-faq-item rv d6">
+        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-6-q" aria-expanded="false" aria-controls="faq-6-p">¿Cuánto tarda la familia en recibir las fotografías?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
+        <div class="lf-faq-panel" id="faq-6-p" role="region" aria-labelledby="faq-6-q"><div class="lf-faq-panel-inner"><p>Un primer conjunto de veinte a treinta imágenes editoriales se entrega dentro de las setenta y dos horas de la sesión, antes de que el traje haya sido planchado y antes de que la maleta haya sido deshecha. La galería completa, de noventa a doscientas imágenes editadas a mano según la colección, sigue dentro de tres semanas. La galería vive en un enlace privado con descargas ilimitadas. Los derechos de impresión están incluidos. Cada imagen se edita a mano en el registro de color IVAE, nunca con tono automático, nunca pasada por un preset.</p></div></div>
       </li>
-      <li class="lf-faq-item">
-        <h3 class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-7-q" aria-expanded="false" aria-controls="faq-7-p">¿Cómo funcionan el pago y la reserva?<span class="lf-faq-icon" aria-hidden="true">+</span></button></h3>
-        <div class="lf-faq-panel" id="faq-7-p" role="region" aria-labelledby="faq-7-q" hidden><p>Un anticipo del cincuenta por ciento aparta la fecha, pagado por transferencia en USD, tarjeta en USD, o PayPal. El saldo restante se paga siete días antes de la sesión. Se aceptan tarjetas internacionales en monedas mayores. El estudio maneja el cambio sin recargo. La reserva se confirma cuando el anticipo se libera y se envía una invitación de calendario. El saldo restante cubre la colección completa más cualquier complemento acordado durante la llamada de planificación. No hay tarifas ocultas ni ventas adicionales una vez que la familia llega al resort.</p></div>
+      <li class="lf-faq-item rv d7">
+        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-7-q" aria-expanded="false" aria-controls="faq-7-p">¿Cómo funcionan el pago y la reserva?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
+        <div class="lf-faq-panel" id="faq-7-p" role="region" aria-labelledby="faq-7-q"><div class="lf-faq-panel-inner"><p>Un anticipo del cincuenta por ciento aparta la fecha, pagado por transferencia en USD, tarjeta en USD, o PayPal. El saldo restante se paga siete días antes de la sesión. Se aceptan tarjetas internacionales en monedas mayores. El estudio maneja el cambio sin recargo. La reserva se confirma cuando el anticipo se libera y se envía una invitación de calendario. El saldo restante cubre la colección completa más cualquier complemento acordado durante la llamada de planificación. No hay tarifas ocultas ni ventas adicionales una vez que la familia llega al resort.</p></div></div>
       </li>
-      <li class="lf-faq-item">
-        <h3 class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-8-q" aria-expanded="false" aria-controls="faq-8-p">¿Qué pasa si la familia necesita cancelar o reprogramar?<span class="lf-faq-icon" aria-hidden="true">+</span></button></h3>
-        <div class="lf-faq-panel" id="faq-8-p" role="region" aria-labelledby="faq-8-q" hidden><p>Una reprogramación dentro de la ventana de viaje existente de la familia no tiene costo adicional, incluyendo por clima, enfermedad, o retraso de vuelo. Una reprogramación a un viaje futuro dentro de doce meses retiene el anticipo completo para esa reserva futura. Una cancelación de más de treinta días antes de la sesión reembolsa el anticipo en su totalidad, menos una tarifa administrativa de cincuenta USD. Una cancelación dentro de treinta días se conserva como crédito hacia una reserva futura dentro de doce meses. El estudio entiende que las familias viajan con niños, y los niños ocasionalmente toman decisiones de calendario que los adultos no pueden anular.</p></div>
+      <li class="lf-faq-item rv d8">
+        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-8-q" aria-expanded="false" aria-controls="faq-8-p">¿Qué pasa si la familia necesita cancelar o reprogramar?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
+        <div class="lf-faq-panel" id="faq-8-p" role="region" aria-labelledby="faq-8-q"><div class="lf-faq-panel-inner"><p>Una reprogramación dentro de la ventana de viaje existente de la familia no tiene costo adicional, incluyendo por clima, enfermedad, o retraso de vuelo. Una reprogramación a un viaje futuro dentro de doce meses retiene el anticipo completo para esa reserva futura. Una cancelación de más de treinta días antes de la sesión reembolsa el anticipo en su totalidad, menos una tarifa administrativa de cincuenta USD. Una cancelación dentro de treinta días se conserva como crédito hacia una reserva futura dentro de doce meses. El estudio entiende que las familias viajan con niños, y los niños ocasionalmente toman decisiones de calendario que los adultos no pueden anular.</p></div></div>
       </li>
-      <li class="lf-faq-item">
-        <h3 class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-9-q" aria-expanded="false" aria-controls="faq-9-p">¿Puede la sesión moverse entre locaciones, o fuera del resort?<span class="lf-faq-icon" aria-hidden="true">+</span></button></h3>
-        <div class="lf-faq-panel" id="faq-9-p" role="region" aria-labelledby="faq-9-q" hidden><p>Sí. Las colecciones La Tarde y La Reunión cubren dos y tres locaciones respectivamente, en la misma propiedad o a quince minutos en auto. Las locaciones fuera de la propiedad incluyen cenotes, sitios arqueológicos, costas escondidas, y playas privadas que el estudio conoce. Las políticas de los resorts varían. El estudio coordina con el concierge de bodas o de familias del resort para confirmar el permiso, y maneja cualquier papeleo de proveedor externo directamente. El traslado dentro de Cancún y la Riviera Maya está incluido en el precio de la colección. Las sesiones en Los Cabos se cotizan al costo en la parte del viaje.</p></div>
+      <li class="lf-faq-item rv d9">
+        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-9-q" aria-expanded="false" aria-controls="faq-9-p">¿Puede la sesión moverse entre locaciones, o fuera del resort?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
+        <div class="lf-faq-panel" id="faq-9-p" role="region" aria-labelledby="faq-9-q"><div class="lf-faq-panel-inner"><p>Sí. Las colecciones La Tarde y La Reunión cubren dos y tres locaciones respectivamente, en la misma propiedad o a quince minutos en auto. Las locaciones fuera de la propiedad incluyen cenotes, sitios arqueológicos, costas escondidas, y playas privadas que el estudio conoce. Las políticas de los resorts varían. El estudio coordina con el concierge de bodas o de familias del resort para confirmar el permiso, y maneja cualquier papeleo de proveedor externo directamente. El traslado dentro de Cancún y la Riviera Maya está incluido en el precio de la colección. Las sesiones en Los Cabos se cotizan al costo en la parte del viaje.</p></div></div>
       </li>
-      <li class="lf-faq-item">
-        <h3 class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-10-q" aria-expanded="false" aria-controls="faq-10-p">¿La sesión se realiza en inglés o en español?<span class="lf-faq-icon" aria-hidden="true">+</span></button></h3>
-        <div class="lf-faq-panel" id="faq-10-p" role="region" aria-labelledby="faq-10-q" hidden><p>Ambos, y bilingüe en cada conversación, en cualquier dirección. La Directora, Vianey, dirige la sesión en el idioma que la familia prefiere, alterna entre inglés y español según lo requiera la sala, y acomoda un tercer idioma cuando la familia incluye a un abuelo o pareja cuyo primer idioma no es ninguno de los dos. La guía de vestuario, la llamada de planificación, la invitación de calendario, y la galería final se entregan en el idioma principal de la familia. Las familias hispanohablantes reciben toda la experiencia en español desde el primer correo en adelante.</p></div>
+      <li class="lf-faq-item rv d10">
+        <div class="lf-faq-question-wrap"><button class="lf-faq-toggle" type="button" id="faq-10-q" aria-expanded="false" aria-controls="faq-10-p">¿La sesión se realiza en inglés o en español?<span class="lf-faq-icon" aria-hidden="true">+</span></button></div>
+        <div class="lf-faq-panel" id="faq-10-p" role="region" aria-labelledby="faq-10-q"><div class="lf-faq-panel-inner"><p>Ambos, y bilingüe en cada conversación, en cualquier dirección. La Directora, Vianey, dirige la sesión en el idioma que la familia prefiere, alterna entre inglés y español según lo requiera la sala, y acomoda un tercer idioma cuando la familia incluye a un abuelo o pareja cuyo primer idioma no es ninguno de los dos. La guía de vestuario, la llamada de planificación, la invitación de calendario, y la galería final se entregan en el idioma principal de la familia. Las familias hispanohablantes reciben toda la experiencia en español desde el primer correo en adelante.</p></div></div>
       </li>
     </ul>
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     SECTION 11 — INQUIRY CTA
+     SECTION 11 · INQUIRY CTA
      ═══════════════════════════════════════════════════════════════ -->
 <section class="lf-inquiry" id="inquiry" aria-labelledby="inquiry-heading">
-  <p class="eyebrow rv">Comenzar</p>
-  <h2 class="lf-inquiry-h2 rv d1" id="inquiry-heading">Cuéntanos Sobre la Familia.</h2>
-  <p class="lf-inquiry-body rv d2">Comparte las fechas, el resort, las edades de los niños, y una frase sobre el hito si lo hay. El estudio responde el mismo día hábil, en inglés o español, con una o dos preguntas y un enlace de calendario. La primera respuesta vendrá de la Directora. Si la familia prefiere hablar primero, el botón de WhatsApp abajo es la forma más rápida de contactar al estudio.</p>
-  <div class="lf-inquiry-ctas rv">
-    <a class="btn btn-primary lf-magnet" href="mailto:hello@ivaestudios.com?subject=Consulta%20sesi%C3%B3n%20familiar" data-magnet>Comenzar Consulta</a>
-    <a class="btn btn-ghost lf-magnet" href="#frames" data-magnet>Ver el Reel</a>
+  <div class="lf-inquiry-inner">
+    <span class="lf-inquiry-rule rv" aria-hidden="true"></span>
+    <p class="eyebrow rv">Comenzar</p>
+    <svg class="lf-inquiry-ornament rv d1" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true" focusable="false">
+      <circle cx="11" cy="11" r="3.2"/>
+      <path d="M11 1.2v3.4M11 17.4v3.4M1.2 11h3.4M17.4 11h3.4"/>
+    </svg>
+    <h2 class="lf-inquiry-h2 rv d2" id="inquiry-heading">Cuéntanos Sobre la <em>Familia.</em></h2>
+    <p class="lf-inquiry-body rv d3">Comparte las fechas, el resort, las edades de los niños, y una frase sobre el hito si lo hay. El estudio responde el mismo día hábil, en inglés o español, con una o dos preguntas y un enlace de calendario. La primera respuesta vendrá de la Directora. Si la familia prefiere hablar primero, el botón de WhatsApp abajo es la forma más rápida de contactar al estudio.</p>
+    <div class="lf-inquiry-ctas rv d4">
+      <a class="btn btn-primary lf-magnet" href="mailto:hello@ivaestudios.com?subject=Consulta%20sesi%C3%B3n%20familiar" data-magnet>Comenzar Consulta</a>
+      <a class="btn btn-ghost lf-magnet" href="https://wa.me/529902046514" target="_blank" rel="noopener" data-magnet>WhatsApp</a>
+    </div>
+    <dl class="lf-inquiry-meta rv d4" role="group" aria-label="Detalles de respuesta del estudio">
+      <div><dt>Tiempo de Respuesta</dt><dd>Mismo día hábil</dd></div>
+      <div><dt>Idiomas</dt><dd>Inglés / Español</dd></div>
+      <div><dt>Horario</dt><dd>06:00 &ndash; 20:00 GMT-5</dd></div>
+    </dl>
   </div>
-  <dl class="lf-inquiry-meta" role="group" aria-label="Detalles de respuesta del estudio">
-    <div><dt>Tiempo de Respuesta</dt><dd>Mismo día hábil</dd></div>
-    <div><dt>Idiomas</dt><dd>Inglés / Español</dd></div>
-    <div><dt>Horario</dt><dd>06:00 &ndash; 20:00 GMT-5</dd></div>
-  </dl>
 </section>
 
 </main>
@@ -950,7 +1016,7 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
         var s = document.createElement('span');
         s.className = 'lf-h1-letter';
         s.textContent = ch;
-        s.style.transitionDelay = (0.03 * i) + 's';
+        s.style.transitionDelay = (0.012 * i) + 's';
         node.appendChild(s);
         i++;
       });
@@ -1010,19 +1076,36 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
     });
   }
 
-  // ── 3D mouse parallax hero (gated)
+  // ── 3D mouse parallax hero (gated; tilt on hero-bg, drift on hero-img)
   if (supportsParallax){
     var hero = document.querySelector('.lf-hero');
+    var heroBg = document.getElementById('lfHeroBg');
     var heroImg = document.querySelector('.lf-hero-img');
-    if (hero && heroImg){
-      hero.addEventListener('mousemove', function(e){
+    if (hero && heroBg && heroImg){
+      var heroRaf = 0;
+      var heroLastE = null;
+      function applyHeroTilt(){
+        heroRaf = 0;
+        if (!heroLastE) return;
         var rect = hero.getBoundingClientRect();
-        var dx = ((e.clientX - rect.left) / rect.width - 0.5) * 14;
-        var dy = ((e.clientY - rect.top) / rect.height - 0.5) * 14;
-        heroImg.style.transform = 'translate3d(' + (-dx) + 'px,' + (-dy) + 'px,0) scale(1.06)';
+        var nx = (heroLastE.clientX - rect.left) / rect.width - 0.5;
+        var ny = (heroLastE.clientY - rect.top) / rect.height - 0.5;
+        var rotY = nx * 6;     // max 6deg yaw
+        var rotX = -ny * 6;    // max 6deg pitch
+        var dx = -nx * 14;
+        var dy = -ny * 14;
+        heroBg.style.transform = 'rotateX(' + rotX.toFixed(2) + 'deg) rotateY(' + rotY.toFixed(2) + 'deg)';
+        heroImg.style.transform = 'translate3d(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px,0) scale(1.06)';
+      }
+      hero.addEventListener('mousemove', function(e){
+        heroLastE = e;
+        if (!heroRaf) heroRaf = requestAnimationFrame(applyHeroTilt);
       }, { passive: true });
       hero.addEventListener('mouseleave', function(){
-        heroImg.style.transform = 'scale(1.04)';
+        heroLastE = null;
+        if (heroRaf){ cancelAnimationFrame(heroRaf); heroRaf = 0; }
+        heroBg.style.transform = '';
+        heroImg.style.transform = 'scale(1.06)';
       });
     }
   }
@@ -1051,7 +1134,7 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
         var el = e.target;
         var target = parseInt(el.dataset.countTo, 10);
         var start = performance.now();
-        var dur = 1600;
+        var dur = 1800;
         function tick(now){
           var t = Math.min(1, (now - start) / dur);
           var eased = 1 - Math.pow(1 - t, 3);
@@ -1081,94 +1164,87 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
     document.querySelectorAll('.lf-tier').forEach(function(t){ t.classList.add('is-in'); });
   }
 
-  // ── Sunset clock month controls
-  var monthBtns = document.querySelectorAll('.lf-sunset-month');
-  var clockTitle = document.getElementById('lf-clock-label');
-  var clockTimes = document.getElementById('lfClockTimes');
-  var goldenRing = document.getElementById('lfGoldenRing');
-  var clockStatus = document.getElementById('lfClockStatus');
-
-  function timeToAngle(timeStr){
-    // "4:30 PM" → minutes from 12 (noon)
-    var m = timeStr.match(/(\d{1,2}):(\d{2})\s*PM/);
-    if (!m) return 0;
-    var h = parseInt(m[1], 10) % 12;
-    var mins = parseInt(m[2], 10);
-    return (h * 60 + mins); // minutes past noon
-  }
-  function updateClock(btn){
-    var name = btn.dataset.monthName;
-    var s = btn.dataset.goldenStart;
-    var e = btn.dataset.goldenEnd;
-    var rec = btn.dataset.recommended;
-    if (clockTitle) clockTitle.textContent = 'Golden hour for ' + name + ' in Cancún begins at ' + s + ' and ends at ' + e + '. Recommended session start: ' + rec + '. Post-nap kid-friendly window: 3:30 PM and after.';
-    if (clockStatus) clockStatus.textContent = name + ' selected. Golden hour ' + s + ' to ' + e + '. Recommended start ' + rec + '.';
-    if (clockTimes) clockTimes.textContent = s.replace(' PM','') + '–' + e.replace(' PM',' PM');
-    if (goldenRing){
-      // 12-hour clock, full circumference 2*PI*100 = ~628.32. Each minute = 628.32/720 ≈ 0.873 px arc length.
-      var startMins = timeToAngle(s);   // minutes past noon for golden start (e.g., 4:00 PM → 240)
-      var endMins = timeToAngle(e);
-      // SVG ring rotated -90deg so 12 is at top. Map noon → 0 angle. Hour 4 PM (240 min) → 4*30 = 120deg from top.
-      var arcLength = (endMins - startMins) * (628.32 / 720);
-      var totalCirc = 628.32;
-      // dashoffset positions the start; we use rotation transform to position too.
-      goldenRing.setAttribute('stroke-dasharray', arcLength + ' ' + (totalCirc - arcLength));
-      // Rotate so the start of the dash aligns with the start time. Each minute past noon = 0.5deg.
-      var rotateDeg = -90 + (startMins * 0.5);
-      goldenRing.setAttribute('transform', 'rotate(' + rotateDeg + ' 120 120)');
-      goldenRing.setAttribute('stroke-dashoffset', '0');
+  // ── Method: active step on scroll (gold accent intensifies as user reads)
+  var methodSteps = document.querySelectorAll('.lf-method .lf-step');
+  if (methodSteps.length){
+    if (prefersReducedMotion || !('IntersectionObserver' in window)){
+      methodSteps.forEach(function(s){ s.classList.add('is-active'); });
+    } else {
+      var stepObs = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if (e.isIntersecting && e.intersectionRatio > 0.45){
+            e.target.classList.add('is-active');
+          }
+        });
+      }, { threshold: [0.45, 0.7], rootMargin: '-15% 0px -25% 0px' });
+      methodSteps.forEach(function(s){ stepObs.observe(s); });
     }
   }
-  monthBtns.forEach(function(btn){
-    btn.addEventListener('click', function(){
-      monthBtns.forEach(function(b){ b.setAttribute('aria-pressed', 'false'); });
-      btn.setAttribute('aria-pressed', 'true');
-      updateClock(btn);
-    });
-  });
-  // Initialize with January (already aria-pressed=true)
-  var initBtn = document.querySelector('.lf-sunset-month[aria-pressed="true"]') || monthBtns[0];
-  if (initBtn) updateClock(initBtn);
 
-  // ── FAQ accordion
-  document.querySelectorAll('.lf-faq-toggle').forEach(function(btn){
+  // (Sunset clock JS removed — widget retired in favor of editorial timing in the Method section.)
+
+  // ── FAQ accordion (smooth grid-rows transition + close-others)
+  var faqToggles = document.querySelectorAll('.lf-faq-toggle');
+  function lfFaqClose(btn){
+    var pid = btn.getAttribute('aria-controls');
+    var panel = pid ? document.getElementById(pid) : null;
+    btn.setAttribute('aria-expanded', 'false');
+    var ic = btn.querySelector('.lf-faq-icon');
+    if (ic) ic.textContent = '+';
+    if (panel) panel.removeAttribute('data-open');
+  }
+  faqToggles.forEach(function(btn){
     btn.addEventListener('click', function(){
       var expanded = btn.getAttribute('aria-expanded') === 'true';
       var panelId = btn.getAttribute('aria-controls');
       var panel = document.getElementById(panelId);
+      if (!expanded){
+        // close-others-on-open
+        faqToggles.forEach(function(other){ if (other !== btn) lfFaqClose(other); });
+      }
       btn.setAttribute('aria-expanded', String(!expanded));
       var icon = btn.querySelector('.lf-faq-icon');
       if (icon) icon.textContent = expanded ? '+' : '×';
       if (panel){
-        if (expanded) panel.setAttribute('hidden', '');
-        else panel.removeAttribute('hidden');
+        if (expanded) panel.removeAttribute('data-open');
+        else panel.setAttribute('data-open', 'true');
       }
     });
   });
 
   // ── Reel: drag-scroll + keyboard arrow keys
   var reel = document.getElementById('lfReelTrack');
+  var reelHint = document.getElementById('lfReelHint');
+  function fadeReelHint(){ if (reelHint && !reelHint.classList.contains('is-faded')) reelHint.classList.add('is-faded'); }
   if (reel){
-    var isDown = false, startX = 0, startScroll = 0;
+    var isDown = false, startX = 0, startScroll = 0, dragMoved = 0;
     reel.addEventListener('mousedown', function(e){
-      isDown = true; startX = e.pageX - reel.offsetLeft; startScroll = reel.scrollLeft;
-      reel.style.cursor = 'grabbing';
+      isDown = true; dragMoved = 0;
+      startX = e.pageX - reel.offsetLeft; startScroll = reel.scrollLeft;
+      reel.classList.add('is-dragging');
     });
-    reel.addEventListener('mouseleave', function(){ isDown = false; reel.style.cursor = 'grab'; });
-    reel.addEventListener('mouseup', function(){ isDown = false; reel.style.cursor = 'grab'; });
+    reel.addEventListener('mouseleave', function(){ isDown = false; reel.classList.remove('is-dragging'); });
+    reel.addEventListener('mouseup', function(){ isDown = false; reel.classList.remove('is-dragging'); });
     reel.addEventListener('mousemove', function(e){
       if (!isDown) return;
       e.preventDefault();
       var x = e.pageX - reel.offsetLeft;
       var walk = (x - startX) * 1.4;
+      dragMoved = Math.abs(walk);
       reel.scrollLeft = startScroll - walk;
+      if (dragMoved > 6) fadeReelHint();
     });
+    // Suppress click after a meaningful drag (prevents stray link/figure activation)
+    reel.addEventListener('click', function(e){ if (dragMoved > 6){ e.preventDefault(); e.stopPropagation(); } }, true);
+    reel.addEventListener('touchstart', function(){ fadeReelHint(); }, { passive: true });
     reel.addEventListener('keydown', function(e){
       var frame = reel.querySelector('.lf-reel-frame');
       if (!frame) return;
       var stride = frame.offsetWidth + 14;
-      if (e.key === 'ArrowRight'){ reel.scrollBy({ left: stride, behavior: supportsMotion ? 'smooth' : 'auto' }); e.preventDefault(); }
-      if (e.key === 'ArrowLeft'){ reel.scrollBy({ left: -stride, behavior: supportsMotion ? 'smooth' : 'auto' }); e.preventDefault(); }
+      if (e.key === 'ArrowRight'){ reel.scrollBy({ left: stride, behavior: supportsMotion ? 'smooth' : 'auto' }); fadeReelHint(); e.preventDefault(); }
+      if (e.key === 'ArrowLeft'){ reel.scrollBy({ left: -stride, behavior: supportsMotion ? 'smooth' : 'auto' }); fadeReelHint(); e.preventDefault(); }
+      if (e.key === 'Home'){ reel.scrollTo({ left: 0, behavior: supportsMotion ? 'smooth' : 'auto' }); e.preventDefault(); }
+      if (e.key === 'End'){ reel.scrollTo({ left: reel.scrollWidth, behavior: supportsMotion ? 'smooth' : 'auto' }); e.preventDefault(); }
     });
 
     // ── Magnetic cursor preview thumb on reel hover (desktop only)
@@ -1190,6 +1266,7 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
           if (!preview.classList.contains('is-on')) return;
           preview.style.transform = 'translate(' + (e.clientX + 24) + 'px,' + (e.clientY + 24) + 'px) scale(1)';
         });
+        reel.addEventListener('mouseleave', function(){ preview.classList.remove('is-on'); });
       }
     }
   }
