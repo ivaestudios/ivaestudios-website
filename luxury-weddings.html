@@ -41,7 +41,7 @@
 <link rel="stylesheet" href="/dark-mode.css"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <script src="/js/components.js?v=20260510a" defer></script>
-<script src="/js/services-dropdown-v2.js?v=20260510k" defer></script>
+<script src="/js/services-dropdown-v2.js?v=20260510l" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script src="/dark-mode.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="any"/>
@@ -1374,6 +1374,68 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 @media (prefers-reduced-motion:reduce){.lw-flourish,.lw-pullquote,.lw-signature{transition:none !important}}
 </style>
 
+
+<style>
+/* ═══════ Section hero photographs (added per user feedback "muy pocas fotos") ═══════ */
+.lw-incl-hero, .lw-method-hero{
+  position:relative;
+  margin:clamp(40px,5vw,64px) 0 clamp(48px,6vw,80px);
+  overflow:hidden;
+  aspect-ratio:21/9;
+  background:#0a0f17;
+  border:1px solid rgba(201,165,78,.16);
+}
+.lw-incl-hero img, .lw-method-hero img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  filter:saturate(.92) contrast(1.02);
+  transition:transform 1.2s cubic-bezier(.22,.61,.36,1);
+}
+.lw-incl-hero:hover img, .lw-method-hero:hover img{ transform:scale(1.018); }
+.lw-incl-hero::after, .lw-method-hero::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(10,15,23,0) 55%,rgba(10,15,23,.55) 100%);
+}
+.lw-incl-hero-cap, .lw-method-hero-cap{
+  position:absolute;left:clamp(16px,2vw,28px);bottom:clamp(16px,2vw,24px);
+  z-index:2;
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(13px,1.1vw,15px);
+  color:#fdfcfa;letter-spacing:.005em;
+  padding:8px 16px 8px 14px;
+  background:rgba(10,15,23,.55);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border-left:1px solid #c9a54e;
+}
+.lw-incl-hero-cap em, .lw-method-hero-cap em{ font-style:italic; }
+@media (max-width:720px){
+  .lw-incl-hero, .lw-method-hero{ aspect-ratio:4/3; }
+}
+
+/* ═══════ Testimonial cards — inset portrait photo (top-left) ═══════ */
+.tlist-card{ position:relative; }
+.tlist-photo{
+  position:relative;
+  margin:0 0 18px;
+  width:64px;height:84px;
+  overflow:hidden;
+  border:1px solid rgba(201,165,78,.5);
+  flex-shrink:0;
+}
+.tlist-photo::after{
+  content:'';position:absolute;inset:4px;
+  border:1px solid rgba(201,165,78,.18);
+  pointer-events:none;
+}
+.tlist-photo img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  filter:saturate(.92) contrast(1.02) brightness(.96);
+}
+
+@media (prefers-reduced-motion:reduce){
+  .lw-incl-hero img, .lw-method-hero img{ transition:none; transform:none !important; }
+}
+</style>
+
 </head>
 <body>
 
@@ -1742,6 +1804,11 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   <div class="lw-inner">
     <span class="lw-section-eyebrow">What's Included</span>
     <h2 id="invest-h" class="lw-rv">Every brief carries <em>the same standards.</em></h2>
+    
+    <figure class="lw-incl-hero lw-rv d1" aria-label="A bride at golden hour, Cancun Hotel Zone">
+      <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-14.jpg" alt="A bride photographed at golden hour on the Cancun Hotel Zone coastline, the breeze lifting her veil" loading="lazy" width="1600" height="1067"/>
+      <figcaption class="lw-incl-hero-cap"><em>Cancún Hotel Zone &middot; golden hour</em></figcaption>
+    </figure>
     <p class="lw-lede lw-rv d1 lw-dropcap-art">No standard packages, no price sheet on a shelf. Every wedding is shaped in conversation around scope, hours, coast, and travel. These are the deliverables built into every brief, regardless of size or season.</p>
 
     <ul class="lw-incl-grid" role="list">
@@ -1918,6 +1985,13 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
     <span class="lw-section-eyebrow">Six Steps, Every Time</span>
     <h2 id="method-h" class="lw-rv">We do not pose. <em>We place.</em></h2>
     <p class="lw-lede lw-rv d1">Six steps from the inquiry letter to the framed print. The wedding day moves quickly because the planning, weeks before, did not.</p>
+
+    <figure class="lw-method-hero lw-rv d1" aria-label="A bride at blue hour after the ceremony">
+      <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-15.jpg" alt="A bride photographed at blue hour after the ceremony, the sky filled with saturated color" loading="lazy" width="1600" height="1067"/>
+      <figcaption class="lw-method-hero-cap"><em>Blue hour &middot; the second portrait block of every timeline</em></figcaption>
+    </figure>
+
+
 
     <div class="method-rail">
       <div class="method-step lw-rv d1">
@@ -2183,6 +2257,9 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 
     <div class="tlist-grid">
       <article class="tlist-card lw-rv d1">
+        <figure class="tlist-photo" aria-hidden="true">
+          <img src="/images/couple-riviera-maya-ivae-studios.jpg" alt="" loading="lazy" width="600" height="800"/>
+        </figure>
         <div class="tlist-stars" aria-label="5 out of 5 stars">&starf; &starf; &starf; &starf; &starf;</div>
         <blockquote>Our gallery from IVAE Studios looks like it belongs in a magazine. Every frame felt directed, never staged. We still scroll through it on the weekends.</blockquote>
         <div class="tlist-attr">
@@ -2192,6 +2269,9 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
       </article>
 
       <article class="tlist-card lw-rv d2">
+        <figure class="tlist-photo" aria-hidden="true">
+          <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" alt="" loading="lazy" width="600" height="800"/>
+        </figure>
         <div class="tlist-stars" aria-label="5 out of 5 stars">&starf; &starf; &starf; &starf; &starf;</div>
         <blockquote>The studio did not just photograph our wedding. They composed it. Vianey, the Director, read the day like a film, and the team moved through it like one breath.</blockquote>
         <div class="tlist-attr">
@@ -2201,6 +2281,9 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
       </article>
 
       <article class="tlist-card lw-rv d3">
+        <figure class="tlist-photo" aria-hidden="true">
+          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="" loading="lazy" width="600" height="800"/>
+        </figure>
         <div class="tlist-stars" aria-label="5 out of 5 stars">&starf; &starf; &starf; &starf; &starf;</div>
         <blockquote>The golden hour portraits on the beach are the most beautiful images we have ever seen of ourselves. IVAE Studios delivered a private archive, not a gallery.</blockquote>
         <div class="tlist-attr">
