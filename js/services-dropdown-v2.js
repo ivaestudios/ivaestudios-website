@@ -1,6 +1,7 @@
-/* IVAE Studios — Services dropdown (editorial luxury redesign)
+/* IVAE Studios — Services dropdown (editorial thumbnail card grid)
    Replaces the simple #services anchor link in the site header with a
-   refined editorial dropdown (Weddings / Family / Couples / Editorial).
+   2x2 editorial card grid of portrait-aspect thumbnails — Vanity Fair tiles
+   filtered through Aman Resorts restraint.
    Loaded on every page via the existing /js/lang-detect.js position pattern. */
 (function(){
   'use strict';
@@ -9,81 +10,81 @@
   var isES = lang.indexOf('es') === 0 || location.pathname.indexOf('/es/') === 0 || location.pathname === '/es';
 
   var items = isES ? [
-    { num: 'I',   title: 'Bodas',     desc: 'Bodas destino · cobertura editorial completa', href: '/es/fotografo-bodas-destino-mexico' },
-    { num: 'II',  title: 'Familia',   desc: 'Sesiones familiares en resorts de lujo',       href: '/es/fotos-familiares-lujo-cancun' },
-    { num: 'III', title: 'Parejas',   desc: 'Lunas de miel, aniversarios, escapadas',       href: '/es/fotografia-parejas-mexico' },
-    { num: 'IV',  title: 'Editorial', desc: 'Campañas de marca y editoriales de revista',   href: '/es/editorial-de-lujo' }
+    { eyebrow: 'Destino',    title: 'Bodas',     href: '/es/fotografo-bodas-destino-mexico', img: '/images/wedding-bride-cancun-beach-ivae-studios-3.jpg', alt: 'Bodas destino en Cancún' },
+    { eyebrow: 'Resort',     title: 'Familia',   href: '/es/fotos-familiares-lujo-cancun',   img: '/images/family-cancun-ivae-studios.webp',                alt: 'Familia en resort de lujo' },
+    { eyebrow: 'Romance',    title: 'Parejas',   href: '/es/fotografia-parejas-mexico',      img: '/images/couple-cancun-beach-ivae-studios.jpg',           alt: 'Sesión de parejas en Cancún' },
+    { eyebrow: 'Campañas',   title: 'Editorial', href: '/es/editorial-de-lujo',              img: '/images/editorial-cancun-ivae-studios.jpg',              alt: 'Editorial de lujo' }
   ] : [
-    { num: 'I',   title: 'Weddings',  desc: 'Destination weddings · full editorial coverage', href: '/luxury-weddings' },
-    { num: 'II',  title: 'Family',    desc: 'Family sessions at luxury resorts',              href: '/luxury-family-photos-cancun' },
-    { num: 'III', title: 'Couples',   desc: 'Honeymoons, anniversaries, romantic getaways',   href: '/couples-photography-mexico' },
-    { num: 'IV',  title: 'Editorial', desc: 'Brand campaigns and magazine editorials',        href: '/luxury-editorial' }
+    { eyebrow: 'Destination', title: 'Weddings',  href: '/luxury-weddings',              img: '/images/wedding-bride-cancun-beach-ivae-studios-3.jpg', alt: 'Destination weddings in Cancún' },
+    { eyebrow: 'Resort',      title: 'Family',    href: '/luxury-family-photos-cancun',  img: '/images/family-cancun-ivae-studios.webp',                alt: 'Family at a luxury resort' },
+    { eyebrow: 'Romance',     title: 'Couples',   href: '/couples-photography-mexico',   img: '/images/couple-cancun-beach-ivae-studios.jpg',           alt: 'Couples photography in Cancún' },
+    { eyebrow: 'Campaigns',   title: 'Editorial', href: '/luxury-editorial',             img: '/images/editorial-cancun-ivae-studios.jpg',              alt: 'Editorial photography' }
   ];
 
   var triggerLabel = isES ? 'Servicios' : 'Services';
-  var arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>';
+  var exploreLabel = isES ? 'explorar' : 'explore';
   var caret = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+  var tinyArrow = '<svg viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="6" x2="20" y2="6"/><polyline points="15 1.5 20 6 15 10.5"/></svg>';
 
   // Inject CSS once
   if (!document.getElementById('ivae-services-dropdown-style')) {
     var style = document.createElement('style');
     style.id = 'ivae-services-dropdown-style';
     style.textContent = ''
+      /* Trigger */
       + '.svc-dd{position:relative;display:inline-flex;align-items:center}'
       + '.svc-dd-trigger{display:inline-flex;align-items:center;gap:7px;color:inherit;font:inherit;text-decoration:none;cursor:pointer;background:none;border:0;padding:0;letter-spacing:inherit;text-transform:inherit;font-weight:inherit;font-size:inherit}'
       + '.svc-dd-trigger svg{width:9px;height:9px;transition:transform 0.4s cubic-bezier(0.22,1,0.36,1);opacity:0.55}'
       + '.svc-dd[data-open="true"] .svc-dd-trigger svg,.svc-dd:hover .svc-dd-trigger svg{transform:rotate(180deg);opacity:1;color:#c4a35a}'
-      /* Menu shell — wider, lighter, more editorial */
-      + '.svc-dd-menu{position:absolute;top:calc(100% + 22px);left:50%;transform:translateX(-50%) translateY(-10px);transform-origin:top center;width:480px;max-width:calc(100vw - 32px);background:#fdfcfa;border:1px solid rgba(14,22,32,0.08);border-radius:2px;padding:0;box-shadow:0 30px 60px -20px rgba(14,22,32,0.18),0 18px 36px -18px rgba(14,22,32,0.10);opacity:0;visibility:hidden;pointer-events:none;transition:opacity 0.35s cubic-bezier(0.22,1,0.36,1),transform 0.45s cubic-bezier(0.22,1,0.36,1),visibility 0s linear 0.45s;z-index:1100}'
+      /* Menu shell — wide editorial panel */
+      + '.svc-dd-menu{position:absolute;top:calc(100% + 22px);left:50%;transform:translateX(-50%) translateY(-10px);transform-origin:top center;width:640px;max-width:calc(100vw - 32px);background:#fdfcfa;border:1px solid rgba(14,22,32,0.08);border-radius:2px;padding:0;box-shadow:0 30px 60px -20px rgba(14,22,32,0.18),0 18px 36px -18px rgba(14,22,32,0.10);opacity:0;visibility:hidden;pointer-events:none;transition:opacity 0.35s cubic-bezier(0.22,1,0.36,1),transform 0.45s cubic-bezier(0.22,1,0.36,1),visibility 0s linear 0.45s;z-index:1100}'
       + '.svc-dd[data-open="true"] .svc-dd-menu,.svc-dd:hover .svc-dd-menu,.svc-dd:focus-within .svc-dd-menu{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(-50%) translateY(0);transition:opacity 0.35s cubic-bezier(0.22,1,0.36,1),transform 0.45s cubic-bezier(0.22,1,0.36,1)}'
-      /* Hover bridge — keeps menu open between trigger and panel */
+      /* Hover bridge */
       + '.svc-dd-menu::before{content:"";position:absolute;top:-22px;left:0;right:0;height:22px}'
-      /* Eyebrow — Syne, gold, ultra letterspaced */
-      + '.svc-dd-head{padding:30px 36px 18px;border-bottom:1px solid rgba(14,22,32,0.06);position:relative}'
-      + '.svc-dd-head::after{content:"";position:absolute;left:36px;bottom:-1px;width:42px;height:1px;background:#c4a35a}'
-      + '.svc-dd-eyebrow{display:block;font-family:Syne,system-ui,sans-serif;font-size:9.5px;font-weight:600;letter-spacing:0.32em;text-transform:uppercase;color:#c4a35a;margin-bottom:6px}'
-      + '.svc-dd-tagline{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-size:14px;font-weight:400;color:#525a66;line-height:1.4;letter-spacing:0.005em}'
-      /* Items list */
-      + '.svc-dd-list{padding:10px 0}'
-      + '.svc-dd-item{display:grid;grid-template-columns:54px 1fr 22px;align-items:baseline;gap:0;padding:18px 36px;text-decoration:none;color:#0e1620;position:relative;transition:background 0.32s cubic-bezier(0.22,1,0.36,1)}'
-      + '.svc-dd-item + .svc-dd-item{border-top:1px solid rgba(14,22,32,0.05)}'
-      + '.svc-dd-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:#c4a35a;transform:scaleY(0);transform-origin:center;transition:transform 0.4s cubic-bezier(0.22,1,0.36,1)}'
-      + '.svc-dd-item:hover,.svc-dd-item:focus-visible{background:rgba(196,163,90,0.04);outline:none}'
-      + '.svc-dd-item:hover::before,.svc-dd-item:focus-visible::before{transform:scaleY(1)}'
-      /* Roman numeral — small, editorial */
-      + '.svc-dd-num{font-family:"Cormorant Garamond",Georgia,serif;font-size:13px;font-weight:400;font-style:italic;color:#c4a35a;letter-spacing:0.08em;line-height:1;padding-top:6px;transition:color 0.3s,transform 0.4s cubic-bezier(0.22,1,0.36,1)}'
-      + '.svc-dd-item:hover .svc-dd-num{transform:translateX(-2px)}'
-      /* Text */
-      + '.svc-dd-text{min-width:0}'
-      + '.svc-dd-title{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;font-weight:400;line-height:1.1;letter-spacing:-0.01em;color:#0e1620;margin-bottom:4px;transition:color 0.3s}'
-      + '.svc-dd-item:hover .svc-dd-title{color:#0e1620}'
-      + '.svc-dd-desc{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-size:13.5px;line-height:1.45;color:#6b7280;font-weight:400;letter-spacing:0.005em}'
-      /* Arrow — minimal, editorial */
-      + '.svc-dd-arrow{align-self:center;width:22px;height:14px;color:#c4a35a;opacity:0;transform:translateX(-8px);transition:opacity 0.32s cubic-bezier(0.22,1,0.36,1),transform 0.34s cubic-bezier(0.22,1,0.36,1)}'
-      + '.svc-dd-arrow svg{width:22px;height:14px;stroke-width:1.4}'
-      + '.svc-dd-item:hover .svc-dd-arrow,.svc-dd-item:focus-visible .svc-dd-arrow{opacity:1;transform:translateX(0)}'
-      /* Footer — minimal */
-      + '.svc-dd-footer{display:flex;align-items:center;justify-content:space-between;padding:18px 36px 22px;border-top:1px solid rgba(14,22,32,0.06);font-family:Syne,system-ui,sans-serif;font-size:10px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;color:#525a66;text-decoration:none;transition:color 0.3s;background:rgba(196,163,90,0.025)}'
+      /* Header — single editorial line, off-center */
+      + '.svc-dd-head{padding:26px 28px 18px;border-bottom:1px solid rgba(14,22,32,0.06);position:relative;display:flex;align-items:baseline;gap:18px}'
+      + '.svc-dd-head::after{content:"";position:absolute;left:28px;bottom:-1px;width:42px;height:1px;background:#c4a35a}'
+      + '.svc-dd-eyebrow{font-family:Syne,system-ui,sans-serif;font-size:9.5px;font-weight:600;letter-spacing:0.34em;text-transform:uppercase;color:#c4a35a;line-height:1;flex-shrink:0}'
+      + '.svc-dd-tagline{font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-size:14px;font-weight:400;color:#525a66;line-height:1.3;letter-spacing:0.005em}'
+      /* Grid */
+      + '.svc-dd-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:18px}'
+      /* Card */
+      + '.svc-dd-card{position:relative;display:block;text-decoration:none;color:inherit;aspect-ratio:3/4;overflow:hidden;border:1px solid rgba(196,163,90,0.18);background:#0e1620;transition:border-color 0.45s cubic-bezier(0.22,1,0.36,1),transform 0.45s cubic-bezier(0.22,1,0.36,1)}'
+      + '.svc-dd-card:hover,.svc-dd-card:focus-visible{outline:none;border-color:rgba(196,163,90,0.95)}'
+      /* Image */
+      + '.svc-dd-card-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.001);transition:transform 0.8s cubic-bezier(0.22,1,0.36,1);filter:saturate(0.92) contrast(1.02)}'
+      + '.svc-dd-card:hover .svc-dd-card-img,.svc-dd-card:focus-visible .svc-dd-card-img{transform:scale(1.04)}'
+      /* Gradient veil */
+      + '.svc-dd-card-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,22,32,0) 35%,rgba(14,22,32,0.35) 60%,rgba(14,22,32,0.88) 100%);pointer-events:none;transition:opacity 0.45s cubic-bezier(0.22,1,0.36,1)}'
+      /* Caption stack */
+      + '.svc-dd-card-cap{position:absolute;left:16px;right:16px;bottom:14px;z-index:2;display:block;color:#fdfcfa}'
+      + '.svc-dd-card-eye{display:block;font-family:Syne,system-ui,sans-serif;font-size:8.5px;font-weight:600;letter-spacing:0.38em;text-transform:uppercase;color:#c4a35a;margin-bottom:6px;line-height:1}'
+      + '.svc-dd-card-ttl{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;font-weight:400;line-height:1.05;letter-spacing:-0.005em;color:#fdfcfa;margin-bottom:8px}'
+      + '.svc-dd-card-go{display:inline-flex;align-items:center;gap:8px;font-family:Syne,system-ui,sans-serif;font-size:9px;font-weight:500;letter-spacing:0.28em;text-transform:uppercase;color:rgba(253,252,250,0.78);transition:color 0.32s cubic-bezier(0.22,1,0.36,1),letter-spacing 0.32s cubic-bezier(0.22,1,0.36,1)}'
+      + '.svc-dd-card-go svg{width:18px;height:9px;stroke-width:1.2;transition:transform 0.34s cubic-bezier(0.22,1,0.36,1)}'
+      + '.svc-dd-card:hover .svc-dd-card-go,.svc-dd-card:focus-visible .svc-dd-card-go{color:#fdfcfa}'
+      + '.svc-dd-card:hover .svc-dd-card-go svg,.svc-dd-card:focus-visible .svc-dd-card-go svg{transform:translateX(4px)}'
+      /* Gold rule sweep */
+      + '.svc-dd-card-rule{position:absolute;left:0;right:0;bottom:0;height:1px;background:#c4a35a;transform:scaleX(0);transform-origin:left center;transition:transform 0.7s cubic-bezier(0.22,1,0.36,1);z-index:3}'
+      + '.svc-dd-card:hover .svc-dd-card-rule,.svc-dd-card:focus-visible .svc-dd-card-rule{transform:scaleX(1)}'
+      /* Footer */
+      + '.svc-dd-footer{display:flex;align-items:center;justify-content:space-between;padding:16px 28px 20px;border-top:1px solid rgba(14,22,32,0.06);font-family:Syne,system-ui,sans-serif;font-size:10px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;color:#525a66;text-decoration:none;transition:color 0.3s;background:rgba(196,163,90,0.025)}'
       + '.svc-dd-footer:hover{color:#c4a35a}'
-      + '.svc-dd-footer-arrow{display:inline-flex;align-items:center;width:18px;height:11px;transition:transform 0.32s cubic-bezier(0.22,1,0.36,1)}'
-      + '.svc-dd-footer-arrow svg{width:18px;height:11px;stroke-width:1.4}'
+      + '.svc-dd-footer-arrow{display:inline-flex;align-items:center;width:20px;height:10px;transition:transform 0.32s cubic-bezier(0.22,1,0.36,1)}'
+      + '.svc-dd-footer-arrow svg{width:20px;height:10px;stroke-width:1.3}'
       + '.svc-dd-footer:hover .svc-dd-footer-arrow{transform:translateX(5px)}'
-      /* Dark mode — true editorial dark */
+      /* Dark mode */
       + 'html.dark .svc-dd-menu{background:#0d131c;border-color:rgba(196,163,90,0.18);box-shadow:0 30px 60px -20px rgba(0,0,0,0.7),0 18px 36px -18px rgba(0,0,0,0.5)}'
       + 'html.dark .svc-dd-head{border-bottom-color:rgba(249,248,247,0.06)}'
       + 'html.dark .svc-dd-tagline{color:rgba(249,248,247,0.55)}'
-      + 'html.dark .svc-dd-item{color:#f9f8f7}'
-      + 'html.dark .svc-dd-item + .svc-dd-item{border-top-color:rgba(249,248,247,0.05)}'
-      + 'html.dark .svc-dd-item:hover{background:rgba(196,163,90,0.06)}'
-      + 'html.dark .svc-dd-title{color:#f9f8f7}'
-      + 'html.dark .svc-dd-item:hover .svc-dd-title{color:#fff}'
-      + 'html.dark .svc-dd-desc{color:rgba(249,248,247,0.55)}'
+      + 'html.dark .svc-dd-card{border-color:rgba(196,163,90,0.22)}'
+      + 'html.dark .svc-dd-card:hover,html.dark .svc-dd-card:focus-visible{border-color:#c4a35a}'
       + 'html.dark .svc-dd-footer{border-top-color:rgba(249,248,247,0.06);color:rgba(249,248,247,0.6);background:rgba(196,163,90,0.04)}'
       + 'html.dark .svc-dd-footer:hover{color:#c4a35a}'
       /* Mobile: hide dropdown menu (mobile-nav handles its own list) */
       + '@media(max-width:899px){.svc-dd-menu{display:none}}'
       /* Reduced motion */
-      + '@media (prefers-reduced-motion: reduce){.svc-dd-menu,.svc-dd-item,.svc-dd-arrow,.svc-dd-num,.svc-dd-trigger svg{transition:opacity 0.2s !important}.svc-dd-menu{transform:translateX(-50%) !important}}';
+      + '@media (prefers-reduced-motion: reduce){.svc-dd-menu,.svc-dd-card,.svc-dd-card-img,.svc-dd-card-rule,.svc-dd-card-go,.svc-dd-card-go svg,.svc-dd-trigger svg,.svc-dd-footer-arrow{transition:opacity 0.2s !important}.svc-dd-menu{transform:translateX(-50%) !important}.svc-dd-card-img{transform:none !important}.svc-dd-card:hover .svc-dd-card-img,.svc-dd-card:focus-visible .svc-dd-card-img{transform:none !important}.svc-dd-card-rule{transform:scaleX(1) !important;opacity:0}.svc-dd-card:hover .svc-dd-card-rule,.svc-dd-card:focus-visible .svc-dd-card-rule{opacity:1}}';
     document.head.appendChild(style);
   }
 
@@ -104,7 +105,7 @@
     menu.className = 'svc-dd-menu';
     menu.setAttribute('role', 'menu');
 
-    // Header: eyebrow + tagline
+    // Header: eyebrow + italic tagline on one editorial line
     var head = document.createElement('div');
     head.className = 'svc-dd-head';
     head.innerHTML = ''
@@ -112,41 +113,42 @@
       + '<span class="svc-dd-tagline">' + (isES ? 'Cuatro disciplinas, una mirada cinematográfica.' : 'Four disciplines, one cinematic eye.') + '</span>';
     menu.appendChild(head);
 
-    // Items list
-    var list = document.createElement('div');
-    list.className = 'svc-dd-list';
+    // Grid of 4 thumbnail cards
+    var grid = document.createElement('div');
+    grid.className = 'svc-dd-grid';
     items.forEach(function(item){
       var a = document.createElement('a');
-      a.className = 'svc-dd-item';
+      a.className = 'svc-dd-card';
       a.href = item.href;
       a.setAttribute('role', 'menuitem');
       a.innerHTML = ''
-        + '<span class="svc-dd-num" aria-hidden="true">' + item.num + '</span>'
-        + '<span class="svc-dd-text">'
-        +   '<span class="svc-dd-title">' + item.title + '</span>'
-        +   '<span class="svc-dd-desc">' + item.desc + '</span>'
-        + '</span>'
-        + '<span class="svc-dd-arrow" aria-hidden="true">' + arrow + '</span>';
-      list.appendChild(a);
+        + '<img class="svc-dd-card-img" src="' + item.img + '" alt="' + item.alt + '" loading="lazy" decoding="async" />'
+        + '<span class="svc-dd-card-veil" aria-hidden="true"></span>'
+        + '<span class="svc-dd-card-rule" aria-hidden="true"></span>'
+        + '<span class="svc-dd-card-cap">'
+        +   '<span class="svc-dd-card-eye">' + item.eyebrow + '</span>'
+        +   '<span class="svc-dd-card-ttl">' + item.title + '</span>'
+        +   '<span class="svc-dd-card-go">' + exploreLabel + ' ' + tinyArrow + '</span>'
+        + '</span>';
+      grid.appendChild(a);
     });
-    menu.appendChild(list);
+    menu.appendChild(grid);
 
-    // Footer link "View all" / "Ver todos"
+    // Footer link
     var footer = document.createElement('a');
     footer.className = 'svc-dd-footer';
     footer.href = isES ? '/es/' : '/';
     footer.innerHTML = ''
       + '<span>' + (isES ? 'Ver todo el portafolio' : 'View full portfolio') + '</span>'
-      + '<span class="svc-dd-footer-arrow" aria-hidden="true">' + arrow + '</span>';
+      + '<span class="svc-dd-footer-arrow" aria-hidden="true">' + tinyArrow + '</span>';
     menu.appendChild(footer);
 
     wrap.appendChild(menu);
 
-    // Click handler — toggle on tap (mobile/touch); hover already handled by CSS
+    // Click handler — toggle on tap (touch); hover already handled by CSS
     trig.addEventListener('click', function(ev){
       if (window.matchMedia && matchMedia('(hover: hover)').matches) {
-        // Desktop with hover — let the link work normally only if href has #
-        if ((trig.getAttribute('href') || '').charAt(0) === '#') return; // anchor scroll OK
+        if ((trig.getAttribute('href') || '').charAt(0) === '#') return;
         return;
       }
       ev.preventDefault();
@@ -178,8 +180,6 @@
   function init(){
     var navs = document.querySelectorAll('.header-nav, ul.header-nav, .h-nav, ul.h-nav');
     navs.forEach(function(nav){
-      // Match any href ending in #services or #servicios (handles
-      // /#services, /es/#services, #services, #servicios, etc.)
       var candidates = nav.querySelectorAll('a[href*="#services"], a[href*="#servicios"]');
       var link = null;
       candidates.forEach(function(a){
