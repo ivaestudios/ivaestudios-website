@@ -63,7 +63,8 @@
   --ease:cubic-bezier(0.22,1,0.36,1);
   --ease-out:cubic-bezier(0.16,1,0.3,1)
 }
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;scroll-padding-top:68px}
+@media (max-width: 767px){html{scroll-padding-top:60px}}
 body{font-family:var(--sans);background:var(--paper);color:#0e1620;overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"kern" 1,"liga" 1;line-height:1.5}
 ::selection{background:rgba(201,165,78,0.3);color:var(--cream)}
 :focus-visible{outline:2px solid var(--gold);outline-offset:3px}
@@ -160,7 +161,7 @@ html.dark .card-image-wrap{background:var(--ink-3)}
 .card-image-wrap img{object-fit:cover;transition:transform 0.7s var(--ease-out),filter 0.5s var(--ease-out);filter:saturate(0.94)}
 .post-card:hover .card-image-wrap img{transform:scale(1.04);filter:saturate(1.05)}
 
-.card-label{position:absolute;left:10px;bottom:0;background:#0a0f17;color:var(--cream);font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:6px 10px;line-height:1;z-index:2;border:1px solid transparent;transition:border-color 0.4s var(--ease)}
+.card-label{position:absolute;left:10px;bottom:0;background:#0a0f17;color:var(--cream);font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:8px 12px;min-height:44px;display:inline-flex;align-items:center;line-height:1;z-index:2;border:1px solid transparent;transition:border-color 0.4s var(--ease)}
 html.dark .card-label{background:#070a0f;color:var(--cream)}
 .post-card:hover .card-label{border-color:var(--gold)}
 
@@ -280,7 +281,13 @@ html.dark .btn-cta:hover{background:var(--cream)}
   .cta-strip h2{font-size:clamp(28px,8vw,40px)}
   .btn-cta{padding:15px 28px;font-size:10.5px}
 
-  
+
+}
+
+@media (max-width: 480px){
+  .posts-grid{grid-template-columns:1fr;gap:20px}
+  .cat-nav{flex-direction:column;align-items:flex-start;gap:8px}
+  .card-label{font-size:9px;padding:5px 8px}
 }
 </style>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
@@ -466,7 +473,8 @@ html.dark .btn-cta:hover{background:var(--cream)}
         <p class="card-excerpt">Best beaches, cenotes and resort spots for romantic photoshoots.</p>
         <span class="card-meta">March 8, 2026 &middot; 10 min read</span>
       </div>
-    </a>    <a class="post-card rv" data-category="proposals" href="/blog/engagement-session-cancun-riviera-maya">
+    </a>    <!-- TODO: Agregar <picture>/srcset a las 19 cards posteriores para optimización mobile -->
+    <a class="post-card rv" data-category="proposals" href="/blog/engagement-session-cancun-riviera-maya">
       <div class="card-image-wrap">
         <img src="https://assets.ivaestudios.com/blog/engagement-session-cancun-og.jpg" alt="Engagement session in Cancun and Riviera Maya with luxury photographer - IVAE Studios Blog" loading="lazy" decoding="async" width="1600" height="1000"/>
         <span class="card-label">Engagement &middot; Cancun</span>

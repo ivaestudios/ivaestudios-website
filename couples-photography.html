@@ -321,7 +321,7 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 
 @media (min-width: 1024px){
   .lc-manifesto-section{grid-template-columns:5fr 7fr;gap:clamp(64px,8vw,112px)}
-  .lc-manifesto-stage{position:sticky;top:120px;align-self:start;height:max-content}
+  .lc-manifesto-stage{position:sticky;top:120px;align-self:start;height:max-content;z-index:5}
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -654,7 +654,7 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 .lc-faq-item.d10{transition-delay:.40s}
 .lc-faq-question-wrap{margin:0}
 .lc-faq-toggle{
-  width:100%;background:transparent;border:none;padding:24px 0;
+  width:100%;background:transparent;border:none;padding:24px 12px;
   display:flex;align-items:center;justify-content:space-between;gap:24px;
   text-align:left;cursor:pointer;
   font-family:var(--font-serif);font-size:clamp(18px,1.6vw,22px);font-weight:300;letter-spacing:.005em;
@@ -712,22 +712,9 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 .lc-inquiry-meta dd{font-size:var(--fs-13);color:var(--cream-1)}
 
 /* ═══════════════════════════════════════════════════════════════
-   SECTION 11 — FOOTER
+   SECTION 11 — FOOTER (canon footer markup uses .colophon — see /styles/site-footer.css)
    ═══════════════════════════════════════════════════════════════ */
-.site-footer{padding:clamp(64px,8vw,120px) clamp(20px,5vw,64px) 48px;background:var(--ink-4);color:var(--text-on-dark-readable)}
-.site-footer__tag{font-family:var(--font-serif);font-style:italic;font-size:clamp(20px,2.4vw,28px);font-weight:300;color:var(--cream-1);text-align:center;margin-bottom:64px;max-width:720px;margin-left:auto;margin-right:auto;line-height:1.4}
-.site-footer__cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:48px;max-width:1240px;margin:0 auto 48px}
-.footer-col__title{font-family:var(--font-sans);font-size:var(--fs-10);font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);margin-bottom:18px}
-.footer-col li{margin-bottom:10px}
-.footer-col a{color:var(--cream-1);text-decoration:none;font-size:var(--fs-13);transition:color var(--t-quick) var(--ease)}
-.footer-col a:hover,.footer-col a:focus-visible{color:var(--gold)}
-.site-footer__base{max-width:1240px;margin:0 auto;padding-top:32px;border-top:1px solid rgba(196,163,90,.18);display:grid;gap:24px;text-align:center}
-.site-footer__base p{max-width:760px;margin:0 auto;font-size:13px;line-height:1.7;color:var(--text-on-dark-readable)}
-.site-footer__base .lang-switcher{display:flex;gap:14px;justify-content:center;align-items:center}
-.site-footer__base .lang-switcher a{color:var(--text-on-dark-readable);font-size:var(--fs-10);font-weight:600;letter-spacing:.22em;text-transform:uppercase;text-decoration:none;transition:color var(--t-quick) var(--ease)}
-.site-footer__base .lang-switcher a.is-active,.site-footer__base .lang-switcher a:hover{color:var(--gold)}
 .lang-sep{color:var(--gold-line)}
-.site-footer__copyright{font-family:var(--font-sans);font-size:var(--fs-10);font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--text-on-dark-readable)}
 
 /* ═══ Reduced motion master block ═══ */
 @media (prefers-reduced-motion: reduce){
@@ -758,6 +745,11 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
   .lc-case-meta{grid-template-columns:1fr;gap:24px}
   .lc-case-meta-cell{border-right:none;border-bottom:1px solid var(--gold-line);padding-bottom:24px}
   .lc-case-meta-cell:last-child{border-bottom:none;padding-bottom:0}
+}
+@media (max-width: 480px){
+  .lc-reel-track{gap:16px;padding-inline:clamp(16px,4vw,20px)}
+  .lc-hero-ctas, .lc-inquiry-ctas{gap:10px}
+  .lc-hero-h1{font-size:clamp(28px, 7vw, 42px)}
 }
 </style>
 </head>
@@ -1300,7 +1292,7 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
      ═══════════════════════════════════════════════════════════════ -->
 <section class="lc-inquiry-section" id="inquiry" aria-labelledby="inquiry-heading">
   <div class="lc-inquiry-bg" aria-hidden="true">
-    <img src="https://assets.ivaestudios.com/couples-photography-mexico-hero.jpg" alt="" loading="lazy" decoding="async">
+    <img src="https://assets.ivaestudios.com/couples-photography-mexico-hero.jpg" alt="" loading="lazy" decoding="async" width="2400" height="1600">
   </div>
   <div class="lc-inquiry-content">
     <p class="lc-eyebrow lc-eyebrow--on-dark lc-rv">Begin</p>

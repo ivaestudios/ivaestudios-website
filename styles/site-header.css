@@ -264,3 +264,13 @@
 body{
   padding-top:0 !important;
 }
+
+/* Scroll padding for in-page anchors — accommodates fixed header height. */
+html{
+  scroll-padding-top:68px !important;
+}
+@media (max-width:768px){
+  html{
+    scroll-padding-top:60px !important;
+  }
+}

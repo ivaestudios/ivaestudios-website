@@ -301,6 +301,11 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
 .lf-promise-list li em{font-style:italic;color:var(--gold,#c9a54e)}
 .lf-promise-num{font-family:var(--font-sans,'Syne',sans-serif);font-size:9px;font-weight:500;letter-spacing:.28em;color:var(--gold,#c9a54e);min-width:24px}
 .lf-promise-cta{margin-top:48px}
+@media (max-width: 480px){
+  .lf-meta-strip{grid-template-columns:1fr 1fr}
+  .lf-hero-content{padding-bottom:60px}
+  .lf-hero-h1{font-size:clamp(28px, 7vw, 38px)}
+}
 @media(max-width:720px){.lf-promise-list{grid-template-columns:1fr;gap:24px}}
 
 /* ─── FEATURE / CINEMASCOPE ─── */
@@ -510,7 +515,7 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
 
 /* Sticky stage on desktop with motion */
 @media (min-width: 1024px) and (prefers-reduced-motion: no-preference){
-  .lf-pillars-stage{position:sticky;top:120px;align-self:start;height:fit-content;transition:opacity 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),transform 0.6s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1))}
+  .lf-pillars-stage{position:sticky;top:120px;z-index:5;align-self:start;height:fit-content;transition:opacity 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),transform 0.6s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1))}
   .lf-pillars-grid:hover .lf-pillars-stage{transform:translateZ(0)}
 }
 </style>
@@ -821,27 +826,27 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
   <p class="lf-reel-hint rv" id="lfReelHint">Drag to scroll the reel</p>
   <div class="lf-reel-track" id="lfReelTrack" role="region" aria-label="Family photography reel, scrollable. Use arrow keys to navigate." tabindex="0">
     <figure class="lf-reel-frame">
-      <img src="/images/family-cancun-hotel-zone-ivae-studios.jpg" alt="A family poses on the white sand of the Cancún Hotel Zone at golden hour, photographed by IVAE Studios with Vianey Díaz directing." loading="lazy" decoding="async">
+      <img src="/images/family-cancun-hotel-zone-ivae-studios.jpg" alt="A family poses on the white sand of the Cancún Hotel Zone at golden hour, photographed by IVAE Studios with Vianey Díaz directing." loading="lazy" decoding="async" width="1200" height="1500">
       <figcaption class="lf-reel-caption" aria-hidden="true">Frame i. / vi.</figcaption>
     </figure>
     <figure class="lf-reel-frame">
-      <img src="/images/family-kids-cancun-beach-ivae-studios.jpg" alt="Two children laugh at the surf line in Cancún at sunset, photographed by IVAE Studios with Vianey Díaz directing." loading="lazy" decoding="async">
+      <img src="/images/family-kids-cancun-beach-ivae-studios.jpg" alt="Two children laugh at the surf line in Cancún at sunset, photographed by IVAE Studios with Vianey Díaz directing." loading="lazy" decoding="async" width="1200" height="1500">
       <figcaption class="lf-reel-caption" aria-hidden="true">Frame ii. / vi.</figcaption>
     </figure>
     <figure class="lf-reel-frame">
-      <img src="/images/family-kids-akumal-ivae-studios.jpg" alt="A family walks the boardwalk at Akumal in late afternoon light, photographed by IVAE Studios with Vianey Díaz directing." loading="lazy" decoding="async">
+      <img src="/images/family-kids-akumal-ivae-studios.jpg" alt="A family walks the boardwalk at Akumal in late afternoon light, photographed by IVAE Studios with Vianey Díaz directing." loading="lazy" decoding="async" width="1200" height="1500">
       <figcaption class="lf-reel-caption" aria-hidden="true">Frame iii. / vi.</figcaption>
     </figure>
     <figure class="lf-reel-frame">
-      <img src="/images/family-cancun-ivae-studios.jpg" alt="A family of five stands together on the wet sand at sunset in Cancún, photographed by IVAE Studios with Vianey Díaz directing." loading="lazy" decoding="async">
+      <img src="/images/family-cancun-ivae-studios.jpg" alt="A family of five stands together on the wet sand at sunset in Cancún, photographed by IVAE Studios with Vianey Díaz directing." loading="lazy" decoding="async" width="1200" height="1500">
       <figcaption class="lf-reel-caption" aria-hidden="true">Frame iv. / vi.</figcaption>
     </figure>
     <figure class="lf-reel-frame">
-      <img src="/images/family-kids-cancun-hotel-zone-ivae-studios-2.jpg" alt="A toddler holds a parent's hand on the path between the resort and the sea, photographed by IVAE Studios with Vianey Díaz directing." loading="lazy" decoding="async">
+      <img src="/images/family-kids-cancun-hotel-zone-ivae-studios-2.jpg" alt="A toddler holds a parent's hand on the path between the resort and the sea, photographed by IVAE Studios with Vianey Díaz directing." loading="lazy" decoding="async" width="1200" height="1500">
       <figcaption class="lf-reel-caption" aria-hidden="true">Frame v. / vi.</figcaption>
     </figure>
     <figure class="lf-reel-frame">
-      <img src="/images/family-kids-cancun-beach-ivae-studios-2.jpg" alt="A family laughs together as the wind catches their linens at golden hour in Cancún, photographed by IVAE Studios with Vianey Díaz directing." loading="lazy" decoding="async">
+      <img src="/images/family-kids-cancun-beach-ivae-studios-2.jpg" alt="A family laughs together as the wind catches their linens at golden hour in Cancún, photographed by IVAE Studios with Vianey Díaz directing." loading="lazy" decoding="async" width="1200" height="1500">
       <figcaption class="lf-reel-caption" aria-hidden="true">Frame vi. / vi.</figcaption>
     </figure>
   </div>

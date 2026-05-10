@@ -380,6 +380,7 @@ ul{list-style:none}
 @media (prefers-reduced-motion: reduce),(pointer:coarse){
   .lw-img-preview{display:none !important}
 }
+@media (max-width: 768px){.lw-img-preview{display:none !important}}
 
 /* ── Magnetic cursor ring ── */
 .lw-cursor-dot,.lw-cursor-ring{
@@ -420,6 +421,7 @@ body.lw-cur-cta .lw-cursor-ring{
   .pillars-stage{
     position:sticky;top:120px;
     align-self:start;
+    z-index:5;
   }
   .pillars-grid{margin-top:0;display:flex;flex-direction:column;gap:28px}
   .pillars-grid .pillar{padding:24px 4px 24px;border-top:1px solid var(--gold-line)}
@@ -1098,6 +1100,11 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 @media(max-width:480px){
   .frames-grid{grid-template-columns:1fr}
 }
+@media (max-width: 480px){
+  .lw-hero h1{font-size:clamp(28px, 7vw, 42px)}
+  .lw-stats{grid-template-columns:1fr;gap:20px;padding:20px 0}
+  .pillars-grid{gap:24px}
+}
 @media (prefers-reduced-motion: reduce){
   .frame img{transition:none !important}
   .frame:hover img,.frame:focus-visible img{transform:none;filter:saturate(.92) brightness(.98)}
@@ -1304,7 +1311,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 <!-- ═══════ HERO ═══════ -->
 <section class="lw-hero" aria-labelledby="lw-h1">
   <div class="lw-hero-img" id="lwHeroImg" aria-hidden="true">
-    <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" alt="" loading="eager" fetchpriority="high"/>
+    <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" alt="" loading="eager" fetchpriority="high" width="2400" height="1600"/>
   </div>
   <div class="lw-hero-overlay" aria-hidden="true"></div>
   <div class="lw-motes" id="lwMotes" aria-hidden="true"></div>
@@ -1459,7 +1466,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 
     <div class="coast-grid">
       <article class="coast-card lw-rv d1">
-        <img src="/images/wedding-bride-cancun-beach-ivae-studios-2.jpg" alt="A bride photographed on a Cancun beach by IVAE Studios" loading="lazy"/>
+        <img src="/images/wedding-bride-cancun-beach-ivae-studios-2.jpg" alt="A bride photographed on a Cancun beach by IVAE Studios" loading="lazy" width="1600" height="1067"/>
         <div class="coast-overlay">
           <span class="coast-tag">Coast One</span>
           <h3>Cancún</h3>
@@ -1468,7 +1475,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
       </article>
 
       <article class="coast-card lw-rv d2">
-        <img src="/images/couple-riviera-maya-ivae-studios.jpg" alt="A couple photographed on the Riviera Maya coastline by IVAE Studios" loading="lazy"/>
+        <img src="/images/couple-riviera-maya-ivae-studios.jpg" alt="A couple photographed on the Riviera Maya coastline by IVAE Studios" loading="lazy" width="1600" height="1067"/>
         <div class="coast-overlay">
           <span class="coast-tag">Coast Two</span>
           <h3>Riviera Maya</h3>
@@ -1477,7 +1484,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
       </article>
 
       <article class="coast-card lw-rv d3">
-        <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="A couple photographed in Los Cabos by IVAE Studios" loading="lazy"/>
+        <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="A couple photographed in Los Cabos by IVAE Studios" loading="lazy" width="1600" height="1067"/>
         <div class="coast-overlay">
           <span class="coast-tag">Coast Three</span>
           <h3>Los Cabos</h3>
@@ -1493,7 +1500,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   <div class="lw-inner">
     <div class="feature-grid">
       <div class="feature-img lw-cinema lw-rv d1">
-        <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-14.jpg" alt="A dramatic golden hour bride portrait on the Cancun Hotel Zone coastline, photographed and directed by Vianey Diaz, IVAE Studios" loading="lazy"/>
+        <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-14.jpg" alt="A dramatic golden hour bride portrait on the Cancun Hotel Zone coastline, photographed and directed by Vianey Diaz, IVAE Studios" loading="lazy" width="1600" height="1067"/>
       </div>
       <div class="feature-text lw-rv d2">
         <span class="lw-section-eyebrow">A Wedding / Cancún</span>
@@ -1743,32 +1750,32 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
       <div class="frames-rail" id="lwFramesRail" tabindex="0" role="region" aria-label="Wedding frames reel, scroll horizontally">
         <figure class="frame" tabindex="0">
           <span class="frame-num">Frame i. / vi.</span>
-          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="A bride at the Cancun Hotel Zone at golden hour" loading="lazy" data-preview/>
+          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="A bride at the Cancun Hotel Zone at golden hour" loading="lazy" data-preview width="1200" height="1500"/>
           <figcaption class="frame-cap">Cancún / Hotel Zone</figcaption>
         </figure>
         <figure class="frame" tabindex="0">
           <span class="frame-num">Frame ii. / vi.</span>
-          <img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="A bride on a Cancun beach in editorial light" loading="lazy" data-preview/>
+          <img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="A bride on a Cancun beach in editorial light" loading="lazy" data-preview width="1200" height="1500"/>
           <figcaption class="frame-cap">Cancún / Beach</figcaption>
         </figure>
         <figure class="frame" tabindex="0">
           <span class="frame-num">Frame iii. / vi.</span>
-          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-5.jpg" alt="A bride in private editorial portrait, Cancun" loading="lazy" data-preview/>
+          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-5.jpg" alt="A bride in private editorial portrait, Cancun" loading="lazy" data-preview width="1200" height="1500"/>
           <figcaption class="frame-cap">Cancún / Suite</figcaption>
         </figure>
         <figure class="frame" tabindex="0">
           <span class="frame-num">Frame iv. / vi.</span>
-          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="A bride photographed at sunset on the resort terrace" loading="lazy" data-preview/>
+          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="A bride photographed at sunset on the resort terrace" loading="lazy" data-preview width="1200" height="1500"/>
           <figcaption class="frame-cap">Cancún / Terrace</figcaption>
         </figure>
         <figure class="frame" tabindex="0">
           <span class="frame-num">Frame v. / vi.</span>
-          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg" alt="A bride and bouquet, editorial coverage" loading="lazy" data-preview/>
+          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg" alt="A bride and bouquet, editorial coverage" loading="lazy" data-preview width="1200" height="1500"/>
           <figcaption class="frame-cap">Cancún / Bouquet</figcaption>
         </figure>
         <figure class="frame" tabindex="0">
           <span class="frame-num">Frame vi. / vi.</span>
-          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-15.jpg" alt="Bride at blue hour after the ceremony" loading="lazy" data-preview/>
+          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-15.jpg" alt="Bride at blue hour after the ceremony" loading="lazy" data-preview width="1200" height="1500"/>
           <figcaption class="frame-cap">Cancún / Blue Hour</figcaption>
         </figure>
       </div>
@@ -1937,7 +1944,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 <!-- Cinematic overlays (cursor, image preview) -->
 <div class="lw-cursor-ring" id="lwCurRing" aria-hidden="true"></div>
 <div class="lw-cursor-dot" id="lwCurDot" aria-hidden="true"></div>
-<div class="lw-img-preview" id="lwImgPreview" aria-hidden="true"><img alt="" id="lwImgPreviewImg"/></div>
+<div class="lw-img-preview" id="lwImgPreview" aria-hidden="true"><img alt="" id="lwImgPreviewImg" width="240" height="300"/></div>
 
 <!-- ═══════ FOOTER ═══════ -->
 <footer class="colophon" aria-label="Footer">

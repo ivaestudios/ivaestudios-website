@@ -104,6 +104,10 @@ ul{list-style:none}
   --le-aperture-rotation:16s;
   --le-portfolio-card-aspect:4/5;
   --le-portfolio-card-min-w:clamp(280px, 40vw, 460px);
+  --le-portfolio-card-aspect-tall:3/4;
+  --le-portfolio-card-aspect-square:1/1;
+  --le-portfolio-card-aspect-wide:5/4;
+  --le-portfolio-card-aspect-pano:7/5;
   --le-cinemascope-aspect:21/9;
   --le-cinemascope-letterbox:6%;
   --le-press-band-logo-h:clamp(18px, 2.4vw, 28px);
@@ -1114,6 +1118,10 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   color:var(--gold);font-style:normal;
 }
 @media(max-width:768px){.le-testimonials-grid{grid-template-columns:1fr;gap:24px}}
+@media (max-width: 600px){
+  .le-promise-list{grid-template-columns:1fr;gap:20px}
+  .le-pullquote-ornament{font-size:clamp(160px, 30vw, 280px)}
+}
 
 /* ═══════ Section 9 - FAQ accordion ═══════ */
 .le-section--faq{

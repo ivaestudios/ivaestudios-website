@@ -1063,22 +1063,105 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 
 /* FOOTER */
 
+/* ─── Method / refined timeline (mirror of EN) ─── */
+.lw-section.method{position:relative;overflow:hidden}
+.method .method-rail{position:relative}
+.method .method-rail::before{
+ content:"";position:absolute;left:60px;top:0;bottom:0;width:1px;
+ background:linear-gradient(180deg,
+   rgba(201,165,78,0) 0%,
+   rgba(201,165,78,.08) 8%,
+   rgba(201,165,78,.55) 50%,
+   rgba(201,165,78,.08) 92%,
+   rgba(201,165,78,0) 100%);
+ pointer-events:none;
+}
+.method .method-step{
+ position:relative;
+ transition:background .6s var(--ease,cubic-bezier(.22,.61,.36,1)),
+            border-color .6s var(--ease,cubic-bezier(.22,.61,.36,1));
+}
+.method .method-step::before{
+ content:"";position:absolute;left:54px;top:38px;
+ width:13px;height:13px;border-radius:50%;
+ background:var(--ink-3,#0a0f17);
+ border:1px solid rgba(201,165,78,.45);
+ box-shadow:0 0 0 4px var(--ink-3,#0a0f17);
+ transition:border-color .6s var(--ease,cubic-bezier(.22,.61,.36,1)),
+            background .6s var(--ease,cubic-bezier(.22,.61,.36,1)),
+            box-shadow .6s var(--ease,cubic-bezier(.22,.61,.36,1));
+ z-index:1;
+}
+.method .method-step .method-ornament{
+ position:absolute;left:50px;top:30px;width:21px;height:21px;
+ pointer-events:none;opacity:.35;
+ transition:opacity .6s var(--ease,cubic-bezier(.22,.61,.36,1)),
+            transform .9s var(--ease,cubic-bezier(.22,.61,.36,1));
+ color:var(--gold,#c9a54e);
+}
+.method .method-step .method-ornament svg{display:block;width:100%;height:100%}
+.method .method-step .method-step-num{
+ font-family:var(--font-serif,'Cormorant Garamond',serif);
+ font-style:italic;font-weight:300;
+ color:var(--gold,#c9a54e);
+ letter-spacing:.04em;
+ position:relative;z-index:2;
+}
+.method .method-step h3{position:relative}
+.method .method-step h3 em{
+ font-family:var(--font-serif,'Cormorant Garamond',serif);
+ font-style:italic;font-weight:300;
+ color:var(--gold,#c9a54e);
+ text-transform:none;letter-spacing:.01em;
+ font-size:1.08em;margin-left:.3em;
+}
+.method .method-step.is-active::before{
+ border-color:rgba(201,165,78,.95);
+ background:var(--gold,#c9a54e);
+ box-shadow:0 0 0 4px var(--ink-3,#0a0f17),0 0 18px rgba(201,165,78,.45);
+}
+.method .method-step.is-active .method-ornament{opacity:.85}
+.method .method-step.is-active .method-step-num{color:var(--gold,#c9a54e)}
+.method .method-step.is-active{border-bottom-color:rgba(201,165,78,.45)}
+@media (prefers-reduced-motion: no-preference) and (pointer:fine){
+ .method .method-step:hover{
+   background:linear-gradient(90deg,rgba(201,165,78,.04) 0%,rgba(201,165,78,0) 80%);
+ }
+ .method .method-step:hover::before{
+   border-color:rgba(201,165,78,.85);
+   box-shadow:0 0 0 4px var(--ink-3,#0a0f17),0 0 14px rgba(201,165,78,.35);
+ }
+ .method .method-step:hover .method-ornament{opacity:.7;transform:rotate(45deg)}
+}
+@media (prefers-reduced-motion: reduce){
+ .method .method-step,
+ .method .method-step::before,
+ .method .method-step .method-ornament{transition:none}
+}
+@media(max-width:600px){
+ .method .method-rail::before{left:10px}
+ .method .method-step::before{left:4px;top:32px}
+ .method .method-step .method-ornament{left:0;top:24px}
+ .method .method-step{padding-left:32px}
+}
 
+/* ─── Mobile small (max-width:480px) hero/stats refinements ─── */
+@media (max-width: 480px){
+ .lw-hero h1{font-size:clamp(28px, 7vw, 42px)}
+ .lw-stats{grid-template-columns:1fr;gap:20px}
+}
 
+/* ─── Mobile: ensure preview overlay never shows on touch ─── */
+@media (max-width:768px){
+ .lw-img-preview{display:none !important}
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+/* ─── Frames (drag-scroll mirror of EN, varied aspect ratios) ─── */
+.frames-rail{scroll-padding-inline:24px;outline:none}
+.frames-rail:focus-visible{box-shadow:inset 0 0 0 1px var(--gold-line)}
+.frames-rail .frame:nth-child(2n){aspect-ratio:3/4}
+.frames-rail .frame:nth-child(3n){aspect-ratio:5/7}
+.frames-rail .frame:nth-child(5n){aspect-ratio:2/3}
 
 </style>
 </head>
@@ -1125,7 +1208,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 <!-- HERO -->
 <section class="lw-hero" aria-labelledby="lw-h1">
  <div class="lw-hero-img" id="lwHeroImg" aria-hidden="true">
- <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" alt="" loading="eager" fetchpriority="high"/>
+ <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" alt="" loading="eager" fetchpriority="high" width="2400" height="1600"/>
  </div>
  <div class="lw-hero-overlay" aria-hidden="true"></div>
  <div class="lw-motes" id="lwMotes" aria-hidden="true"></div>
@@ -1281,7 +1364,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 
  <div class="coast-grid">
  <article class="coast-card lw-rv d1">
- <img src="/images/wedding-bride-cancun-beach-ivae-studios-2.jpg" alt="Una novia fotografiada en una playa de Cancún por IVAE Studios" loading="lazy"/>
+ <img src="/images/wedding-bride-cancun-beach-ivae-studios-2.jpg" alt="Una novia fotografiada en una playa de Cancún por IVAE Studios" loading="lazy" width="1600" height="1067"/>
  <div class="coast-overlay">
  <span class="coast-tag">Costa Uno</span>
  <h3>Cancún</h3>
@@ -1290,7 +1373,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  </article>
 
  <article class="coast-card lw-rv d2">
- <img src="/images/couple-riviera-maya-ivae-studios.jpg" alt="Una pareja fotografiada en la Riviera Maya por IVAE Studios" loading="lazy"/>
+ <img src="/images/couple-riviera-maya-ivae-studios.jpg" alt="Una pareja fotografiada en la Riviera Maya por IVAE Studios" loading="lazy" width="1600" height="1067"/>
  <div class="coast-overlay">
  <span class="coast-tag">Costa Dos</span>
  <h3>Riviera Maya</h3>
@@ -1299,7 +1382,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  </article>
 
  <article class="coast-card lw-rv d3">
- <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="Una pareja fotografiada en Los Cabos por IVAE Studios" loading="lazy"/>
+ <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="Una pareja fotografiada en Los Cabos por IVAE Studios" loading="lazy" width="1600" height="1067"/>
  <div class="coast-overlay">
  <span class="coast-tag">Costa Tres</span>
  <h3>Los Cabos</h3>
@@ -1315,7 +1398,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  <div class="lw-inner">
  <div class="feature-grid">
  <div class="feature-img lw-cinema lw-rv">
- <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-10.jpg" alt="Una novia en hora dorada en la Zona Hotelera de Cancún, fotografiada por IVAE Studios" loading="lazy"/>
+ <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-10.jpg" alt="Una novia en hora dorada en la Zona Hotelera de Cancún, fotografiada por IVAE Studios" loading="lazy" width="1600" height="1067"/>
  </div>
  <div class="feature-text lw-rv d2">
  <span class="lw-section-eyebrow">Una Boda / Cancún</span>
@@ -1444,32 +1527,32 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  <div class="frames-rail" id="lwFramesRail" tabindex="0" role="region" aria-label="Reel de cuadros de boda, desplaza horizontalmente">
  <figure class="frame">
  <span class="frame-num">Cuadro i. / vi.</span>
- <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="Una novia en la Zona Hotelera de Cancún en hora dorada" loading="lazy" data-preview/>
+ <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="Una novia en la Zona Hotelera de Cancún en hora dorada" loading="lazy" data-preview width="1200" height="1500"/>
  <figcaption class="frame-cap">Cancún / Zona Hotelera</figcaption>
  </figure>
  <figure class="frame">
  <span class="frame-num">Cuadro ii. / vi.</span>
- <img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="Una novia en una playa de Cancún en luz editorial" loading="lazy" data-preview/>
+ <img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="Una novia en una playa de Cancún en luz editorial" loading="lazy" data-preview width="1200" height="1500"/>
  <figcaption class="frame-cap">Cancún / Playa</figcaption>
  </figure>
  <figure class="frame">
  <span class="frame-num">Cuadro iii. / vi.</span>
- <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-5.jpg" alt="Una novia en retrato editorial privado, Cancún" loading="lazy" data-preview/>
+ <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-5.jpg" alt="Una novia en retrato editorial privado, Cancún" loading="lazy" data-preview width="1200" height="1500"/>
  <figcaption class="frame-cap">Cancún / Suite</figcaption>
  </figure>
  <figure class="frame">
  <span class="frame-num">Cuadro iv. / vi.</span>
- <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="Una novia fotografiada al atardecer en la terraza del resort" loading="lazy" data-preview/>
+ <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="Una novia fotografiada al atardecer en la terraza del resort" loading="lazy" data-preview width="1200" height="1500"/>
  <figcaption class="frame-cap">Cancún / Terraza</figcaption>
  </figure>
  <figure class="frame">
  <span class="frame-num">Cuadro v. / vi.</span>
- <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg" alt="Novia y ramo, cobertura editorial" loading="lazy" data-preview/>
+ <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg" alt="Novia y ramo, cobertura editorial" loading="lazy" data-preview width="1200" height="1500"/>
  <figcaption class="frame-cap">Cancún / Ramo</figcaption>
  </figure>
  <figure class="frame">
  <span class="frame-num">Cuadro vi. / vi.</span>
- <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-15.jpg" alt="Novia en hora azul después de la ceremonia" loading="lazy" data-preview/>
+ <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-15.jpg" alt="Novia en hora azul después de la ceremonia" loading="lazy" data-preview width="1200" height="1500"/>
  <figcaption class="frame-cap">Cancún / Hora Azul</figcaption>
  </figure>
  </div>

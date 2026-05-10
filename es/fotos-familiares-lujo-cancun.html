@@ -192,8 +192,8 @@ a.btn-tier-outline:focus-visible{outline-color:var(--ink-1,#1a2230)}
 html.dark a.btn-tier-filled,a.btn-tier-filled{background:var(--gold,#c9a54e);color:var(--ink-1,#1a2230)!important;border:1px solid var(--gold,#c9a54e)}
 
 /* ─── HERO ─── */
-.lf-hero{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:flex-end;background:var(--ink-3,#0c1219);overflow:hidden;perspective:1200px}
-.lf-hero-bg{position:absolute;inset:0;z-index:0}
+.lf-hero{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:flex-end;background:var(--ink-3,#0c1219);overflow:hidden;perspective:1200px;padding-top:68px}
+.lf-hero-bg{position:absolute;inset:0;z-index:0;transform-style:preserve-3d;will-change:transform}
 .lf-hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 38%;filter:brightness(0.45) saturate(0.85);will-change:transform;transition:transform 0.4s var(--ease,cubic-bezier(0.16,1,0.3,1));transform:scale(1.04)}
 .lf-hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(160deg,rgba(14,22,32,0.55),rgba(14,22,32,0.15) 45%,rgba(14,22,32,0.78))}
 .lf-hero-content{position:relative;z-index:3;padding:0 clamp(24px,5vw,64px) clamp(80px,10vw,140px);max-width:880px}
@@ -221,7 +221,7 @@ html.js-on .lf-h1-letter.is-in{opacity:1;transform:none}
 @keyframes lf-mote-rise{0%{opacity:0;transform:translateY(0) translateX(0)}10%{opacity:0.7}50%{transform:translateY(-55vh) translateX(20px)}100%{opacity:0;transform:translateY(-110vh) translateX(-10px)}}
 
 /* ─── PILLARS / MANIFESTO ─── */
-.lf-pillars{background:var(--ink-2,#10161e);padding:clamp(80px,10vw,140px) clamp(24px,5vw,64px);position:relative}
+.lf-pillars{background:var(--ink-2,#10161e);padding:clamp(80px,10vw,140px) clamp(24px,5vw,64px);position:relative;overflow:hidden}
 .lf-pillars-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--lf-pillar-gap);max-width:1400px;margin:0 auto}
 .lf-pillars-stage{position:static}
 .lf-pillars-h2{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(36px,4vw,56px);font-weight:300;color:#faf8f5;line-height:1.12;margin-top:18px}
@@ -293,7 +293,7 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
 .lf-feature-header{padding:0 clamp(24px,5vw,64px);max-width:1200px;margin:0 auto;text-align:center}
 .lf-feature-h2{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(36px,4vw,56px);font-weight:300;color:#faf8f5;line-height:1.12;margin-top:18px}
 .lf-feature-h2 em{font-style:italic;color:var(--gold,#c9a54e)}
-.lf-cinema{position:relative;width:100%;max-width:1480px;margin:48px auto 0;aspect-ratio:21/9;overflow:hidden;background:var(--ink-4,#080d12)}
+.lf-cinema{position:relative;width:100%;max-width:1480px;margin:48px auto 0;aspect-ratio:21/9;overflow:hidden;background:var(--ink-4,#080d12);box-shadow:inset 0 0 0 1px rgba(201,165,78,0.18)}
 .lf-cinema::before,.lf-cinema::after{content:'';position:absolute;left:0;right:0;height:var(--lf-letterbox);background:var(--ink-4,#080d12);z-index:2;pointer-events:none}
 .lf-cinema::before{top:0;border-bottom:1px solid rgba(201,165,78,0.32)}
 .lf-cinema::after{bottom:0;border-top:1px solid rgba(201,165,78,0.32)}
@@ -317,6 +317,9 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
 .lf-step{position:relative;padding:32px 0}
 .lf-step::before{content:'';position:absolute;left:-37px;top:42px;width:10px;height:10px;border-radius:50%;background:var(--gold,#c9a54e);box-shadow:0 0 0 4px var(--ink-2,#10161e),0 0 0 5px rgba(201,165,78,0.32)}
 .lf-step-tag{font-family:var(--font-sans,'Syne',sans-serif);font-size:10px;font-weight:600;letter-spacing:0.32em;text-transform:uppercase;color:var(--gold,#c9a54e)}
+.lf-step-icon{flex:0 0 22px;width:22px;height:22px;color:var(--gold,#c9a54e);opacity:0.72;transition:opacity 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1)),transform 0.5s var(--ease,cubic-bezier(0.16,1,0.3,1))}
+.lf-step-icon svg{display:block;width:100%;height:100%;stroke:currentColor;stroke-width:1.25;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.lf-step.is-active .lf-step-icon,.lf-step:hover .lf-step-icon{opacity:1;transform:translateX(2px)}
 .lf-step-name{margin-top:8px;font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(22px,2.4vw,32px);font-weight:300;color:#faf8f5;line-height:1.10}
 .lf-step-body{margin-top:12px;font-family:var(--font-sans,'Syne',sans-serif);font-size:15px;line-height:1.85;color:rgba(250,248,245,0.78);max-width:640px}
 .lf-step-deeplink{color:var(--gold,#c9a54e);text-decoration:underline;text-underline-offset:3px}
@@ -347,7 +350,7 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
 /* ─── VOICES / PULL QUOTE ─── */
 .lf-voices{background:var(--ink-4,#080d12);padding:clamp(80px,10vw,140px) clamp(24px,5vw,64px);text-align:center;position:relative}
 .lf-pullquote{position:relative;max-width:920px;margin:0 auto;padding:48px 24px}
-.lf-pullquote-ornament{position:absolute;top:-28px;left:50%;transform:translateX(-50%);font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(180px,22vw,320px);font-weight:300;font-style:italic;color:var(--gold,#c9a54e);opacity:0.18;pointer-events:none;user-select:none;line-height:1;z-index:0}
+.lf-pullquote-ornament{position:absolute;top:clamp(-90px,-7vw,-40px);left:50%;transform:translateX(-50%);font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(240px,28vw,360px);font-weight:300;font-style:italic;color:var(--gold,#c9a54e);opacity:0.20;pointer-events:none;user-select:none;line-height:0.82;z-index:0;letter-spacing:-0.02em}
 .lf-pullquote-body{position:relative;z-index:1}
 .lf-pullquote-body p{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(22px,2.6vw,38px);font-weight:300;line-height:1.30;color:rgba(250,248,245,0.92)}
 .lf-pullquote-body em{font-style:italic}
@@ -425,6 +428,11 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
 
 
 /* ─── RESPONSIVE ─── */
+@media (max-width: 480px){
+  .lf-meta-strip{grid-template-columns:1fr 1fr}
+  .lf-hero-content{padding-bottom:60px}
+  .lf-hero-h1{font-size:clamp(28px, 7vw, 38px)}
+}
 @media (max-width: 1023px){
   .h-nav,.lang-switch,.h-cta{display:none}
   .h-burger{display:flex}
@@ -757,27 +765,27 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
   <p class="lf-reel-hint rv">Arrastra para ver el reel</p>
   <div class="lf-reel-track" id="lfReelTrack" role="region" aria-label="Reel de fotografía familiar, desplazable. Usa las teclas de flecha para navegar." tabindex="0">
     <figure class="lf-reel-frame">
-      <img src="/images/family-cancun-hotel-zone-ivae-studios.jpg" alt="Una familia posa en la arena blanca de la Zona Hotelera de Cancún en hora dorada, fotografiada por IVAE Studios." loading="lazy" decoding="async">
+      <img src="/images/family-cancun-hotel-zone-ivae-studios.jpg" alt="Una familia posa en la arena blanca de la Zona Hotelera de Cancún en hora dorada, fotografiada por IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
       <figcaption class="lf-reel-caption" aria-hidden="true">Cuadro i. / vi.</figcaption>
     </figure>
     <figure class="lf-reel-frame">
-      <img src="/images/family-kids-cancun-beach-ivae-studios.jpg" alt="Dos niños ríen en la línea de la rompiente en Cancún al atardecer, fotografiados por IVAE Studios." loading="lazy" decoding="async">
+      <img src="/images/family-kids-cancun-beach-ivae-studios.jpg" alt="Dos niños ríen en la línea de la rompiente en Cancún al atardecer, fotografiados por IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
       <figcaption class="lf-reel-caption" aria-hidden="true">Cuadro ii. / vi.</figcaption>
     </figure>
     <figure class="lf-reel-frame">
-      <img src="/images/family-kids-akumal-ivae-studios.jpg" alt="Una familia camina por el sendero de madera en Akumal con la luz de la tarde, fotografiada por IVAE Studios." loading="lazy" decoding="async">
+      <img src="/images/family-kids-akumal-ivae-studios.jpg" alt="Una familia camina por el sendero de madera en Akumal con la luz de la tarde, fotografiada por IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
       <figcaption class="lf-reel-caption" aria-hidden="true">Cuadro iii. / vi.</figcaption>
     </figure>
     <figure class="lf-reel-frame">
-      <img src="/images/family-cancun-ivae-studios.jpg" alt="Una familia de cinco se para junta en la arena mojada al atardecer en Cancún, fotografiada por IVAE Studios." loading="lazy" decoding="async">
+      <img src="/images/family-cancun-ivae-studios.jpg" alt="Una familia de cinco se para junta en la arena mojada al atardecer en Cancún, fotografiada por IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
       <figcaption class="lf-reel-caption" aria-hidden="true">Cuadro iv. / vi.</figcaption>
     </figure>
     <figure class="lf-reel-frame">
-      <img src="/images/family-kids-cancun-hotel-zone-ivae-studios-2.jpg" alt="Un niño pequeño toma la mano de uno de sus padres en el camino entre el resort y el mar, fotografiado por IVAE Studios." loading="lazy" decoding="async">
+      <img src="/images/family-kids-cancun-hotel-zone-ivae-studios-2.jpg" alt="Un niño pequeño toma la mano de uno de sus padres en el camino entre el resort y el mar, fotografiado por IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
       <figcaption class="lf-reel-caption" aria-hidden="true">Cuadro v. / vi.</figcaption>
     </figure>
     <figure class="lf-reel-frame">
-      <img src="/images/family-kids-cancun-beach-ivae-studios-2.jpg" alt="Una familia ríe junta mientras el viento atrapa sus prendas de lino en hora dorada en Cancún, fotografiada por IVAE Studios." loading="lazy" decoding="async">
+      <img src="/images/family-kids-cancun-beach-ivae-studios-2.jpg" alt="Una familia ríe junta mientras el viento atrapa sus prendas de lino en hora dorada en Cancún, fotografiada por IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
       <figcaption class="lf-reel-caption" aria-hidden="true">Cuadro vi. / vi.</figcaption>
     </figure>
   </div>
