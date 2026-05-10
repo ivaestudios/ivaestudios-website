@@ -41,7 +41,7 @@
 <link rel="stylesheet" href="/dark-mode.css"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <script src="/js/components.js?v=20260510a" defer></script>
-<script src="/js/services-dropdown-v2.js?v=20260510i" defer></script>
+<script src="/js/services-dropdown-v2.js?v=20260510j" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script src="/dark-mode.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="any"/>
@@ -1333,6 +1333,34 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 }
 </script>
 
+
+<style>
+.lw-flourish{display:flex;align-items:center;justify-content:center;gap:22px;padding:clamp(28px,4vw,56px) clamp(20px,5vw,56px);max-width:760px;margin:0 auto;opacity:.95;background:#0a0f17}
+.lw-flourish-rule{flex:1;height:1px;background:linear-gradient(90deg,transparent 0%,rgba(201,165,78,.45) 30%,rgba(201,165,78,.7) 50%,rgba(201,165,78,.45) 70%,transparent 100%);max-width:240px}
+.lw-flourish-mark{position:relative;width:8px;height:8px;background:#c9a54e;display:inline-block;transform:rotate(45deg);box-shadow:0 0 0 4px #0a0f17,0 0 0 5px rgba(201,165,78,.35)}
+.lw-flourish-mark::before{content:"";position:absolute;inset:-12px;border:1px solid rgba(201,165,78,.18);transform:rotate(0deg)}
+.lw-flourish[data-soft="true"]{opacity:.6}
+.lw-flourish[data-soft="true"] .lw-flourish-rule{background:linear-gradient(90deg,transparent 0%,rgba(201,165,78,.28) 50%,transparent 100%)}
+.lw-pullquote{position:relative;background:#0a0f17;padding:clamp(72px,9vw,132px) clamp(20px,5vw,56px);overflow:hidden;text-align:center}
+.lw-pullquote::before,.lw-pullquote::after{content:"";position:absolute;left:50%;transform:translateX(-50%);width:clamp(200px,28vw,320px);height:1px;background:linear-gradient(90deg,transparent,rgba(201,165,78,.45) 50%,transparent)}
+.lw-pullquote::before{top:clamp(48px,5vw,80px)}
+.lw-pullquote::after{bottom:clamp(48px,5vw,80px)}
+.lw-pullquote-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(201,165,78,.07),transparent 55%);pointer-events:none}
+.lw-pullquote-mark{display:inline-block;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;color:#c9a54e;font-size:clamp(72px,8vw,128px);line-height:.7;opacity:.55;margin:0 0 -.18em;transform:translateY(-.05em)}
+.lw-pullquote blockquote{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:clamp(34px,4.6vw,64px);line-height:1.18;letter-spacing:-.012em;color:#faf8f5;margin:clamp(20px,2.4vw,32px) auto 0;max-width:18ch;position:relative;z-index:1}
+.lw-pullquote blockquote em{font-style:italic;color:#c9a54e}
+.lw-pullquote-attr{display:inline-flex;align-items:center;gap:14px;margin-top:clamp(40px,5vw,72px);font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:rgba(250,248,245,.55);position:relative;z-index:1}
+.lw-pullquote-attr::before,.lw-pullquote-attr::after{content:"";display:inline-block;width:32px;height:1px;background:rgba(201,165,78,.55)}
+.lw-pullquote-attr-mark{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;letter-spacing:0;text-transform:none;color:#c9a54e;line-height:1;margin:0 4px}
+.lw-signature{display:flex;align-items:center;justify-content:center;gap:14px;margin:clamp(56px,7vw,88px) auto 0;padding-top:clamp(36px,4vw,56px);border-top:1px solid rgba(201,165,78,.2);max-width:420px}
+.lw-signature-rule{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(201,165,78,.45) 50%,transparent);max-width:96px}
+.lw-signature-seal{position:relative;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(201,165,78,.12),rgba(201,165,78,.04) 60%);border:1px solid rgba(201,165,78,.6);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;color:#c9a54e;letter-spacing:.04em;font-weight:400;flex-shrink:0}
+.lw-signature-seal::before{content:"";position:absolute;inset:3px;border:1px solid rgba(201,165,78,.18);border-radius:50%}
+.lw-signature-line{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:rgba(250,248,245,.5);letter-spacing:.01em;text-align:center}
+.lw-dropcap-art::first-letter{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;color:#c9a54e;font-size:clamp(56px,5.5vw,88px);line-height:.85;float:left;padding:.05em 14px 0 0;margin-top:.05em}
+@media (prefers-reduced-motion:reduce){.lw-flourish,.lw-pullquote,.lw-signature{transition:none !important}}
+</style>
+
 </head>
 <body>
 
@@ -1546,12 +1574,18 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   </style>
 </section>
 
+<div class="lw-flourish" aria-hidden="true">
+  <span class="lw-flourish-rule"></span>
+  <span class="lw-flourish-mark"></span>
+  <span class="lw-flourish-rule"></span>
+</div>
+
 <!-- ═══════ HOW WE WORK (replaced Collections — every project quoted in conversation) ═══════ -->
 <section class="lw-section how-we-work" id="how-we-work" aria-labelledby="how-we-work-h">
   <div class="lw-inner">
     <span class="lw-section-eyebrow">A Private Brief</span>
     <h2 id="how-we-work-h" class="lw-rv">A reply within one business day. <em>A proposal within two.</em></h2>
-    <p class="lw-lede lw-rv d1">No standard packages, no template proposals &mdash; only a private brief shaped to your dates, your venue, and the day you have in mind. Travel, scope, deliverables, and timeline are all built around the specific shape of your wedding.</p>
+    <p class="lw-lede lw-rv d1 lw-dropcap-art">No standard packages, no template proposals &mdash; only a private brief shaped to your dates, your venue, and the day you have in mind. Travel, scope, deliverables, and timeline are all built around the specific shape of your wedding.</p>
 
     <ol class="lw-promise-list lw-rv d2">
       <li><span class="lw-promise-num">01</span><span><em>A planning conversation</em> within 48 hours of inquiry.</span></li>
@@ -1614,6 +1648,12 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   </div>
 </section>
 
+<div class="lw-flourish" data-soft="true" aria-hidden="true">
+  <span class="lw-flourish-rule"></span>
+  <span class="lw-flourish-mark"></span>
+  <span class="lw-flourish-rule"></span>
+</div>
+
 <!-- ═══════ CTA BAND A — low pressure, planning-forward ═══════ -->
 <section class="lw-cta-band" aria-label="Begin a wedding inquiry">
   <div class="lw-cta-inner">
@@ -1646,7 +1686,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
       <div class="lw-director-text lw-rv d2">
         <span class="lw-section-eyebrow">The Director</span>
         <h2 id="director-h" class="lw-rv">Vianey Díaz <em>directs every wedding.</em></h2>
-        <p class="lw-director-lede"><em>Every wedding is shot the way I would shoot my own. One signature tone across the gallery, one director on the day, one studio answering email from the first inquiry to the final archive. The standard does not change between a forty-guest ceremony and a three-day celebration. It is the only way I know how to work.</em></p>
+        <p class="lw-director-lede lw-dropcap-art"><em>Every wedding is shot the way I would shoot my own. One signature tone across the gallery, one director on the day, one studio answering email from the first inquiry to the final archive. The standard does not change between a forty-guest ceremony and a three-day celebration. It is the only way I know how to work.</em></p>
         <ul class="lw-director-credits" aria-label="Director credentials">
           <li>10+ years editorial</li>
           <li><span aria-hidden="true">·</span> Founded IVAE 2023</li>
@@ -1689,7 +1729,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   <div class="lw-inner">
     <span class="lw-section-eyebrow">What's Included</span>
     <h2 id="invest-h" class="lw-rv">Every brief carries <em>the same standards.</em></h2>
-    <p class="lw-lede lw-rv d1">No standard packages, no price sheet on a shelf. Every wedding is shaped in conversation around scope, hours, coast, and travel. These are the deliverables built into every brief, regardless of size or season.</p>
+    <p class="lw-lede lw-rv d1 lw-dropcap-art">No standard packages, no price sheet on a shelf. Every wedding is shaped in conversation around scope, hours, coast, and travel. These are the deliverables built into every brief, regardless of size or season.</p>
 
     <ul class="lw-incl-grid" role="list">
       <li class="lw-incl-card lw-rv d1">
@@ -1765,6 +1805,12 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
     @media (prefers-reduced-motion:reduce){.lw-incl-card,.lw-incl-rule{transition:none}}
   </style>
 </section>
+
+<div class="lw-flourish" aria-hidden="true">
+  <span class="lw-flourish-rule"></span>
+  <span class="lw-flourish-mark"></span>
+  <span class="lw-flourish-rule"></span>
+</div>
 
 <!-- ═══════ METHOD ═══════ -->
 <style>
@@ -1933,6 +1979,17 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   steps.forEach(function(s){io.observe(s)});
 })();
 </script>
+
+<!-- ═══════ PULL QUOTE — the studio voice, magazine grade ═══════ -->
+<aside class="lw-pullquote" aria-label="A note from the studio">
+  <span class="lw-pullquote-bg" aria-hidden="true"></span>
+  <span class="lw-pullquote-mark" aria-hidden="true">&ldquo;</span>
+  <blockquote>We do not write packages. <em>We write briefs.</em></blockquote>
+  <p class="lw-pullquote-attr">
+    <span class="lw-pullquote-attr-mark">&mdash;</span>
+    <span>The Studio Note &middot; Vianey Díaz</span>
+  </p>
+</aside>
 
 <!-- ═══════ CTA BAND B — scarcity, time-sensitive ═══════ -->
 <section class="lw-cta-band lw-cta-band--time" aria-label="Hold a wedding date">
@@ -2147,6 +2204,12 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   </div>
 </section>
 
+<div class="lw-flourish" data-soft="true" aria-hidden="true">
+  <span class="lw-flourish-rule"></span>
+  <span class="lw-flourish-mark"></span>
+  <span class="lw-flourish-rule"></span>
+</div>
+
 <!-- ═══════ FRAMES ═══════ -->
 <section class="lw-section frames" id="frames" aria-labelledby="frames-h">
   <div class="lw-inner">
@@ -2349,6 +2412,12 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   </div>
 </section>
 
+<div class="lw-flourish" data-soft="true" aria-hidden="true">
+  <span class="lw-flourish-rule"></span>
+  <span class="lw-flourish-mark"></span>
+  <span class="lw-flourish-rule"></span>
+</div>
+
 <!-- ═══════ CTA BAND C — warm, direct ═══════ -->
 <section class="lw-cta-band lw-cta-band--warm" aria-label="Begin a conversation with the studio">
   <div class="lw-cta-inner">
@@ -2436,7 +2505,13 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
         <span class="inquiry-meta-l">Direct Line</span>
         <span class="inquiry-meta-v">hello@ivaestudios.com</span>
       </div>
+
+    <div class="lw-signature" aria-hidden="true">
+      <span class="lw-signature-rule"></span>
+      <span class="lw-signature-seal"><span>V·D</span></span>
+      <span class="lw-signature-rule"></span>
     </div>
+    <p class="lw-signature-line">Every reply written by hand &middot; <em>Vianey Díaz, Director</em></p>
   </div>
   <style>
     .lw-inq-promises{list-style:none;padding:0;margin:48px auto 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;max-width:920px;border-top:1px solid rgba(201,165,78,.22);border-bottom:1px solid rgba(201,165,78,.22)}
