@@ -50,7 +50,7 @@
 <link rel="stylesheet" href="/dark-mode.css"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <script src="/js/components.js?v=20260510a" defer></script>
-<script src="/js/services-dropdown-v2.js?v=20260510r" defer></script>
+<script src="/js/services-dropdown-v2.js?v=20260510s" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script src="/dark-mode.js"></script>
 
@@ -1506,6 +1506,248 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 }
 </style>
 
+
+<style data-source="IVAE-LW-HERO-PILLARS-CSS">
+/* ═══════ HERO ═══════ */
+.lw-hero{
+  position:relative;
+  min-height:100vh;min-height:100svh;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  background:var(--ink-4);
+  overflow:hidden;
+  padding-top:68px;
+}
+.lw-hero-img{
+  position:absolute;inset:0;z-index:0;
+  overflow:hidden;
+}
+.lw-hero-img img{
+  width:100%;height:100%;
+  object-fit:cover;object-position:center 40%;
+  filter:brightness(.46) saturate(.82) contrast(1.04);
+  transform:scale(1.04);
+  display:block;
+}
+@media (prefers-reduced-motion: no-preference){
+  .lw-hero-img img{
+    animation:lwKenBurns 18s ease-in-out infinite alternate;
+  }
+}
+@keyframes lwKenBurns{
+  from{transform:scale(1.04) translate3d(0,0,0)}
+  to{transform:scale(1.10) translate3d(-1.5%,-1%,0)}
+}
+.lw-hero-overlay{
+  position:absolute;inset:0;z-index:1;
+  background:linear-gradient(180deg, rgba(10,15,23,.18) 0%, rgba(10,15,23,.05) 38%, rgba(10,15,23,.78) 100%);
+}
+.lw-hero-content{
+  position:relative;z-index:2;
+  padding:0 clamp(20px,5vw,56px) clamp(48px,7vw,96px);
+  max-width:1280px;
+  width:100%;margin:0 auto;
+}
+.lw-eyebrow{
+  display:inline-flex;align-items:center;gap:14px;
+  font-family:var(--font-sans);
+  font-size:var(--fs-10);font-weight:500;
+  letter-spacing:var(--tracking-eyebrow-wide);
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:24px;
+}
+.lw-eyebrow::before{
+  content:'';width:32px;height:1px;background:var(--gold);opacity:.7;
+}
+.lw-hero h1{
+  font-family:var(--font-serif);font-weight:300;
+  font-size:clamp(40px,6.4vw,90px);
+  line-height:1.0;letter-spacing:-.022em;
+  color:var(--cream);
+  max-width:1080px;
+}
+.lw-hero h1 em{font-style:italic;color:var(--gold)}
+.lw-hero-sub{
+  margin-top:32px;
+  display:grid;grid-template-columns:1px 1fr;gap:22px;
+  max-width:540px;align-items:start;
+}
+.lw-hero-sub::before{
+  content:'';width:1px;height:62px;
+  background:linear-gradient(to bottom,var(--gold),transparent);
+  opacity:.7;margin-top:6px;
+}
+.lw-hero-sub p{
+  font-family:var(--font-sans);
+  font-size:var(--fs-15);line-height:1.78;
+  color:var(--text-on-dark-readable);
+}
+.lw-actions{
+  margin-top:clamp(32px,5vw,48px);
+  display:flex;gap:16px;flex-wrap:wrap;
+}
+.lw-btn{
+  font-family:var(--font-sans);
+  font-size:var(--fs-10);font-weight:600;
+  letter-spacing:var(--tracking-eyebrow-base);
+  text-transform:uppercase;
+  padding:18px 36px;
+  min-height:var(--touch-target-min);
+  display:inline-flex;align-items:center;gap:12px;
+  white-space:nowrap;
+  text-decoration:none;
+  transition:background .3s var(--ease),color .3s var(--ease),border-color .3s var(--ease);
+  position:relative;
+}
+.lw-btn svg{width:14px;height:14px;transition:transform .35s var(--ease)}
+.lw-btn:hover svg,.lw-btn:focus-visible svg{transform:translateX(4px)}
+.lw-btn-gold{
+  background:var(--gold);
+  color:var(--ink-1);
+  border:1px solid var(--gold);
+}
+.lw-btn-gold:hover,.lw-btn-gold:focus-visible{
+  background:var(--gold-hover);
+  color:var(--ink-1);
+  border-color:var(--gold-hover);
+}
+.lw-btn-outline{
+  color:var(--gold);
+  border:1px solid var(--gold-line);
+  background:transparent;
+}
+.lw-btn-outline:hover,.lw-btn-outline:focus-visible{
+  background:var(--gold-soft);
+  border-color:var(--gold);
+  color:var(--cream);
+}
+/* Critical: dark-mode overrides for gold-bg buttons (override
+   the global html.dark a{color:var(--gold)} rule). */
+html.dark a.lw-btn-gold,
+html.dark a.lw-btn-gold:hover,
+html.dark a.lw-btn-gold:focus-visible{
+  color:var(--ink-1) !important;
+}
+html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
+.lw-meta{
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px clamp(20px,5vw,56px);
+  background:linear-gradient(180deg,transparent,rgba(10,15,23,.85));
+  border-top:1px solid var(--gold-line);
+  flex-wrap:wrap;gap:18px;
+  font-family:var(--font-sans);
+}
+.lw-meta-row{display:flex;flex-wrap:wrap}
+.lw-meta-cell{
+  padding:0 28px;
+  border-right:1px solid var(--gold-line);
+}
+.lw-meta-cell:first-child{padding-left:0}
+.lw-meta-cell:last-child{border-right:none;padding-right:0}
+.lw-meta-n{
+  font-family:var(--font-serif);font-weight:300;
+  font-size:var(--fs-24);
+  color:var(--cream);display:block;
+  letter-spacing:-.01em;line-height:1.1;
+  font-variant-numeric:tabular-nums;
+}
+.lw-meta-l{
+  font-family:var(--font-sans);
+  font-size:var(--fs-9);font-weight:500;
+  letter-spacing:var(--tracking-eyebrow-wide);
+  text-transform:uppercase;
+  color:var(--text-on-dark-3);
+  margin-top:6px;
+}
+.lw-meta-cities{
+  font-family:var(--font-serif);font-style:italic;
+  font-size:var(--fs-15);
+  color:var(--text-on-dark-readable);
+}
+@media(max-width:768px){
+  .lw-meta{flex-direction:column;align-items:flex-start;padding:18px 20px}
+  .lw-meta-row{width:100%;flex-wrap:wrap;gap:12px}
+  .lw-meta-cell{padding:0;border:none;flex:1 0 50%}
+}
+
+/* ═══════ Section base ═══════ */
+.lw-section{
+  padding:var(--s-section-y) clamp(20px,5vw,56px);
+  position:relative;
+}
+.lw-inner{max-width:1280px;margin:0 auto}
+.lw-section-eyebrow{
+  display:inline-flex;align-items:center;gap:14px;
+  font-family:var(--font-sans);
+  font-size:var(--fs-10);font-weight:500;
+  letter-spacing:var(--tracking-eyebrow-wide);
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:20px;
+}
+.lw-section-eyebrow::before{
+  content:'';width:32px;height:1px;background:var(--gold);opacity:.7;
+}
+.lw-section h2{
+  font-family:var(--font-serif);font-weight:300;
+  font-size:clamp(34px,4.4vw,62px);
+  line-height:1.06;letter-spacing:-.018em;
+  color:var(--cream);max-width:980px;
+}
+.lw-section h2 em{font-style:italic;color:var(--gold)}
+.lw-lede{
+  margin-top:28px;
+  font-family:var(--font-sans);
+  font-size:var(--fs-16);line-height:1.78;
+  color:var(--text-on-dark-readable);
+  max-width:var(--manifesto-copy-max-width);
+}
+
+/* ═══════ Pillars ═══════ */
+.pillars{background:var(--ink-3)}
+.pillars-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:clamp(16px,2vw,32px);
+  margin-top:64px;
+}
+.pillar{
+  border-top:1px solid var(--gold-line);
+  padding:32px 4px 0;
+}
+.pillar-num{
+  font-family:var(--font-sans);
+  font-size:var(--fs-9);font-weight:400;
+  letter-spacing:.32em;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:20px;
+  display:inline-flex;align-items:baseline;gap:.6ch;
+}
+.pillar h3{
+  font-family:var(--font-serif);font-weight:300;
+  font-size:clamp(22px,2vw,30px);
+  line-height:1.18;color:var(--cream);
+  margin-bottom:14px;
+  letter-spacing:-.005em;
+}
+.pillar h3 em{font-style:italic;color:var(--gold);font-weight:300}
+@media (prefers-reduced-motion: no-preference){
+  .pillar{transition:border-color .5s var(--ease-smooth)}
+  .pillar:hover{border-color:var(--gold)}
+}
+.pillar p{
+  font-family:var(--font-sans);
+  font-size:var(--fs-14);line-height:1.74;
+  color:var(--text-on-dark-readable);
+}
+@media(max-width:900px){
+  .pillars-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:560px){
+  .pillars-grid{grid-template-columns:1fr;gap:32px}
+}
+</style>
 </head>
 <body class="le-page">
 
@@ -1554,162 +1796,126 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 
 <main id="main-content" tabindex="-1">
 
-<!-- ═══════ Section 1b - Hero ═══════ -->
-<section class="le-hero" aria-labelledby="le-hero-h1">
-  <div class="le-hero-img" id="leHeroImg">
-    <img src="/images/editorial-cancun-ivae-studios.jpg"
-         alt="An editorial campaign frame on the Cancun coast at first light, photographed by IVAE Studios."
-         width="2400" height="1600"
-         fetchpriority="high"
-         decoding="async"/>
+<!-- ═══════ HERO ═══════ -->
+<section class="lw-hero" aria-labelledby="lw-h1">
+  <div class="lw-hero-img" id="lwHeroImg" aria-hidden="true">
+    <img src="/images/editorial-cancun-ivae-studios.jpg" alt="" loading="eager" fetchpriority="high" width="2400" height="1600"/>
   </div>
-  <div class="le-hero-overlay" aria-hidden="true"></div>
-  <div class="le-motes" id="leMotes" aria-hidden="true"></div>
-  <div class="le-grain" aria-hidden="true"></div>
+  <div class="lw-hero-overlay" aria-hidden="true"></div>
+  <div class="lw-motes" id="lwMotes" aria-hidden="true"></div>
+  <div class="lw-grain" aria-hidden="true"></div>
 
-  <div class="le-hero-content">
-    <p class="le-eyebrow">Editorial Photography &middot; Mexico</p>
-    <h1 id="le-hero-h1" class="le-hero-h1 le-h1 le-cascade">Luxury Editorial Photographer <em class="le-italic">Mexico</em></h1>
-    <div class="le-hero-sub">
-      <p>Brand campaigns, magazine commissions, hotel rebrands, and lookbooks. Shot across Cancun, the Riviera Maya, and Los Cabos.</p>
-    </div>
-    <div class="le-hero-cta-wrap">
-      <svg class="le-aperture" width="48" height="48" viewBox="0 0 48 48" aria-hidden="true" focusable="false" role="presentation">
-        <circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" stroke-width="1.4"/>
-        <circle cx="24" cy="24" r="14" fill="none" stroke="currentColor" stroke-width="1.4"/>
-        <line x1="24" y1="2" x2="24" y2="14" stroke="currentColor" stroke-width="1.4"/>
-        <line x1="24" y1="34" x2="24" y2="46" stroke="currentColor" stroke-width="1.4"/>
-        <line x1="2" y1="24" x2="14" y2="24" stroke="currentColor" stroke-width="1.4"/>
-        <line x1="34" y1="24" x2="46" y2="24" stroke="currentColor" stroke-width="1.4"/>
-        <line x1="8.5" y1="8.5" x2="17" y2="17" stroke="currentColor" stroke-width="1.4"/>
-        <line x1="31" y1="31" x2="39.5" y2="39.5" stroke="currentColor" stroke-width="1.4"/>
-        <line x1="8.5" y1="39.5" x2="17" y2="31" stroke="currentColor" stroke-width="1.4"/>
-        <line x1="31" y1="17" x2="39.5" y2="8.5" stroke="currentColor" stroke-width="1.4"/>
+  <div class="lw-hero-content">
+    <span class="lw-eyebrow">
+      Editorial &amp; Brand / Mexico
+      <svg class="lw-ring-svg" id="lwRing" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="22" r="11"/>
+        <circle cx="20" cy="22" r="11" style="opacity:.5;transform:translateX(6px)"/>
       </svg>
-      <a href="#inquiry" class="le-btn le-btn-gold" data-magnet>
-        Begin Brief
+    </span>
+    <h1 id="lw-h1" class="lw-rv lw-cascade">
+      Editorial &amp; Brand<br/>
+      <em>Photographer</em> Mexico.
+    </h1>
+    <div class="lw-hero-sub lw-rv d2">
+      <p>The studio shoots brand campaigns and magazine editorials from the brief through the final print-ready file. One creative voice, full-service direction, bilingual production across Mexico.</p>
+    </div>
+    <div class="lw-actions lw-rv d3">
+      <a class="lw-btn lw-btn-gold" href="#inquiry" data-magnet>
+        Begin Inquiry
+        <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
+      </a>
+      <a class="lw-btn lw-btn-outline" href="#work" data-magnet>
+        See the Work
         <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
       </a>
     </div>
-  </div>
-</section>
-
-<!-- ═══════ Section 2 - Manifesto sticky-stage ═══════ -->
-<section class="le-manifesto-stage" aria-labelledby="le-manifesto-heading">
-  <div class="le-manifesto-track">
-    <div class="le-manifesto-plates" aria-hidden="true">
-      <img class="le-manifesto-plate le-manifesto-plate--1" data-pillar="story" src="/images/couple-cancun-hotel-zone-ivae-studios.jpg" alt="" loading="lazy" width="600" height="750"/>
-      <img class="le-manifesto-plate le-manifesto-plate--2" data-pillar="light" src="/images/couple-cancun-beach-ivae-studios.jpg" alt="" loading="lazy" width="600" height="750"/>
-      <img class="le-manifesto-plate le-manifesto-plate--3" data-pillar="restraint" src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="" loading="lazy" width="600" height="750"/>
+    <div class="lw-availability lw-rv d4" role="status">
+      <span class="lw-availability-dot" aria-hidden="true"></span>
+      <span class="lw-availability-text">
+        <span class="lw-availability-l">Earliest Saturday open</span>
+        <span class="lw-availability-v" id="lwNextDate">Inquire to hold the date.</span>
+      </span>
     </div>
-    <div class="le-manifesto-text">
-      <p class="le-eyebrow">Manifesto.</p>
-      <h2 id="le-manifesto-heading" class="le-manifesto-h2">Three commitments <em>the studio keeps</em>.</h2>
-      <div class="le-manifesto-body">
-        <p data-pillar="story">The studio shoots for the editorial register. That register has three commitments, and the work is judged by them. <em>Story</em> is first. The studio asks what the brief is about before it asks what the brief looks like. A shoot is not a list of frames; it is a sequence of decisions made before the call sheet, defended against the call sheet, and recovered when the call sheet breaks. The studio refuses briefs it cannot honor. It accepts the briefs it can.</p>
-        <p data-pillar="light"><em>Light</em> is the second commitment. The studio plans to the hour, scouts the building, and walks the property a day early. The studio knows which terrace turns honey at six eighteen in March and which suite holds north light through one in the afternoon. The shot list is built around the light, not the schedule. <em lang="es">Bilingüe en cada conversación.</em> The conversation that produces the light plan happens in English and in Spanish, in the same room, with the same studio.</p>
-        <p data-pillar="restraint"><em>Restraint</em> is the third. The studio works small. One photographer. One assistant. One producer. A stylist when the brief requires it, a DP when motion is added. The crew does not exceed the work. The studio does not arrive with a fashion-week posse for a sun-care lookbook. The studio arrives with the unit the brief earned, and not one body more.</p>
+  </div>
+
+  <div class="lw-meta">
+    <div class="lw-meta-row">
+      <div class="lw-meta-cell">
+        <span class="lw-meta-n">Since 2019</span>
+        <span class="lw-meta-l">In the Field</span>
       </div>
-      <cite class="le-signoff">Vianey Diaz / Director</cite>
+      <div class="lw-meta-cell">
+        <span class="lw-meta-n">3</span>
+        <span class="lw-meta-l">Coastlines Covered</span>
+      </div>
+      <div class="lw-meta-cell">
+        <span class="lw-meta-n">5.0&nbsp;&starf;</span>
+        <span class="lw-meta-l">Forty&#8209;Two Reviews</span>
+      </div>
     </div>
+    <div class="lw-meta-cities">Cancún / Riviera Maya / Los Cabos</div>
   </div>
 </section>
 
 
-<!-- ═══════ EDITORIAL FRAMEWORK CSS (matches /luxury-weddings) ═══════ -->
-<style>
-.lw-pause{position:relative;height:88vh;min-height:560px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#0a0f17}
-.lw-pause-img{position:absolute;inset:0;z-index:0;display:block}
-.lw-pause-img img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.9) contrast(1.04)}
-.lw-pause-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,15,23,.35),rgba(10,15,23,.65));z-index:1}
-.lw-pause-line{position:relative;z-index:2;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(32px,4.8vw,64px);line-height:1.2;color:#faf8f5;text-align:center;max-width:24ch;padding:0 24px;letter-spacing:-.008em}
-.lw-pause-line em{font-style:italic;color:#c9a54e}
-@media (max-width:600px){.lw-pause{height:78vh;min-height:480px}}
 
-.lw-approach{background:#faf8f5;color:#0a0f17;padding:clamp(80px,10vw,160px) clamp(20px,5vw,56px)}
-.lw-approach-inner{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:minmax(0,42fr) minmax(0,58fr);gap:clamp(48px,6vw,96px);align-items:center}
-.lw-approach-portrait{margin:0;aspect-ratio:4/5;overflow:hidden;background:#0a0f17;position:relative;box-shadow:0 40px 100px -32px rgba(10,15,23,.25)}
-.lw-approach-portrait img{width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;filter:saturate(.95) contrast(1.02)}
-.lw-approach-cap{position:absolute;left:0;right:0;bottom:-40px;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:rgba(10,15,23,.5);display:flex;align-items:baseline;gap:10px;padding:14px 0 0;border-top:1px solid rgba(10,15,23,.12)}
-.lw-approach-cap span{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;letter-spacing:0;text-transform:none;color:#c9a54e}
-.lw-approach-cap span sup{font-size:.6em;margin-left:1px}
-.lw-approach-text{max-width:580px}
-.lw-approach-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:18px}
-.lw-approach-h{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(40px,4.5vw,66px);line-height:1.02;letter-spacing:-.02em;color:#0a0f17;margin:0 0 36px}
-.lw-approach-body{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(17px,1.3vw,20px);line-height:1.6;color:rgba(10,15,23,.78);margin:0 0 28px}
-.lw-approach-quote{position:relative;margin:32px 0;padding:0 0 0 28px;border-left:1px solid #c9a54e;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:clamp(22px,2.2vw,30px);line-height:1.25;color:#0a0f17;letter-spacing:-.005em}
-.lw-approach-quote em{font-style:italic;color:#c9a54e}
-.lw-approach-sig{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:rgba(10,15,23,.5);margin:36px 0 0;padding-top:24px;border-top:1px solid rgba(10,15,23,.12);letter-spacing:.005em}
-@media (max-width:880px){.lw-approach-inner{grid-template-columns:1fr;gap:60px}.lw-approach-portrait{max-width:440px;margin:0 auto;width:100%}.lw-approach-cap{position:static;margin-top:18px}}
+<!-- ═══════ PILLARS ═══════ -->
+<section class="lw-section pillars" aria-labelledby="pillars-h">
+  <div class="lw-inner">
+    <div class="pillars-stage">
+      <span class="lw-section-eyebrow">Why the Studio</span>
+      <h2 id="pillars-h" class="lw-rv lw-words" data-words>A frame is composed, <em>not staged.</em></h2>
+      <p class="lw-lede lw-rv d1">The studio is built for the precision of a commercial commission. We read the brief, scout the location, run the day, and deliver an edit that goes to print untouched.</p>
 
-.lw-work{padding:clamp(80px,10vw,160px) 0 clamp(60px,8vw,120px);background:#0a0f17}
-.lw-work-head{max-width:1280px;margin:0 auto clamp(64px,8vw,120px);padding:0 clamp(20px,5vw,56px)}
-.lw-work-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:18px}
-.lw-work-h{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(40px,5.4vw,76px);line-height:1.02;letter-spacing:-.02em;color:#faf8f5;margin:0;max-width:18ch}
-.lw-work-h em{font-style:italic;color:#c9a54e}
-.lw-plate{display:block;max-width:1280px;margin:0 auto;padding:0 clamp(20px,5vw,56px) clamp(72px,9vw,140px)}
-.lw-plate:last-of-type{padding-bottom:0}
-.lw-plate-frame{margin:0;overflow:hidden;background:#0a0f17;aspect-ratio:3/2}
-.lw-plate-frame img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92) contrast(1.02);transition:transform 1.4s cubic-bezier(.22,.61,.36,1)}
-.lw-plate:hover .lw-plate-frame img{transform:scale(1.02)}
-.lw-plate-caption{display:grid;grid-template-columns:1fr;gap:18px;padding:24px 0 0;border-top:1px solid rgba(201,165,78,.18);margin-top:24px;max-width:560px}
-.lw-plate-loc{font-family:'Syne',sans-serif;font-size:10.5px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:rgba(250,248,245,.55)}
-.lw-plate-sep{color:#c9a54e;margin:0 4px}
-.lw-plate-body{font-family:'Cormorant Garamond',serif;font-weight:400;font-style:italic;font-size:clamp(16px,1.2vw,19px);line-height:1.55;color:rgba(250,248,245,.75);margin:0;letter-spacing:.003em;max-width:48ch}
-@media (prefers-reduced-motion:reduce){.lw-plate:hover .lw-plate-frame img{transform:none}}
+      <div class="lw-stats lw-rv d2" id="lwStats">
+        <div class="lw-stat">
+          <span class="lw-stat-eyebrow">The Studio in Numbers</span>
+          <span class="lw-stat-num" data-count-to="120" data-count-suffix="+">40+</span>
+          <span class="lw-stat-label">Commissions, since 2019</span>
+        </div>
+        <div class="lw-stat">
+          <span class="lw-stat-eyebrow">Year-round Range</span>
+          <span class="lw-stat-num" data-count-to="3">3</span>
+          <span class="lw-stat-label">Coastlines, year after year</span>
+        </div>
+        <div class="lw-stat">
+          <span class="lw-stat-eyebrow">Color Discipline</span>
+          <span class="lw-stat-num"><em>1</em></span>
+          <span class="lw-stat-label">Signature tone, every frame</span>
+        </div>
+      </div>
+    </div>
 
-.lw-test{padding:clamp(120px,14vw,200px) clamp(20px,5vw,56px);background:#0d1219;text-align:center;position:relative}
-.lw-test::before{content:"";position:absolute;left:50%;top:0;width:1px;height:80px;background:linear-gradient(to bottom,transparent,#c9a54e);opacity:.5}
-.lw-test-quote{position:relative;max-width:920px;margin:0 auto 72px;padding:0}
-.lw-test-glyph{position:absolute;top:-80px;left:50%;transform:translateX(-50%);font-family:'Cormorant Garamond',serif;color:#c9a54e;font-size:140px;line-height:1;opacity:.55;font-style:italic;font-weight:300}
-.lw-test-quote p{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:clamp(28px,3.8vw,54px);line-height:1.22;letter-spacing:-.008em;color:#faf8f5;margin:0}
-.lw-test-quote p em{font-style:italic;color:#c9a54e}
-.lw-test-attr{display:inline-flex;align-items:center;justify-content:center;gap:18px;padding-top:32px;border-top:1px solid rgba(201,165,78,.2)}
-.lw-test-photo{width:60px;height:80px;overflow:hidden;border:1px solid rgba(201,165,78,.5);flex-shrink:0;margin:0;position:relative}
-.lw-test-photo::after{content:"";position:absolute;inset:3px;border:1px solid rgba(201,165,78,.18);pointer-events:none}
-.lw-test-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92) contrast(1.02)}
-.lw-test-meta{text-align:left;display:flex;flex-direction:column;gap:4px}
-.lw-test-name{font-family:'Syne',sans-serif;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#c9a54e;font-weight:500}
-.lw-test-where{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:rgba(250,248,245,.55)}
+    <div class="pillars-grid">
+      <div class="pillar lw-rv d1">
+        <div class="pillar-num">01 / Light</div>
+        <h3>Golden hour, <em>only</em></h3>
+        <p>We build every shot list backward from the hero frame. The talent at the right hour, the styling at the right ten minutes, the set lit so it reads editorial, not flat.</p>
+      </div>
+      <div class="pillar lw-rv d2">
+        <div class="pillar-num">02 / Tone</div>
+        <h3>Editorial, <em>not loud</em></h3>
+        <p>One signature color grade across the gallery. Skin tones honest. Whites kept white. Frames you would put on the wall before you would post them.</p>
+      </div>
+      <div class="pillar lw-rv d3">
+        <div class="pillar-num">03 / Voice</div>
+        <h3>Bilingual, <em>always</em></h3>
+        <p>Spanish for the local crew. English for the agency. Nothing is lost between the brief and the master file.</p>
+      </div>
+      <div class="pillar lw-rv d4">
+        <div class="pillar-num">04 / Pace</div>
+        <h3>Calm, <em>by design</em></h3>
+        <p>The team moves like one breath. No competing for angles. No improvisation outside the brief. The studio is the second-cleanest set on the property.</p>
+      </div>
+    </div>
+  </div>
 
-.lw-inq2{position:relative;min-height:92vh;padding:clamp(80px,10vw,140px) clamp(20px,5vw,56px);display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0a0f17}
-.lw-inq2-bg{position:absolute;inset:0;z-index:0;display:block}
-.lw-inq2-bg img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.85) contrast(1.05) brightness(.82)}
-.lw-inq2-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,15,23,.4) 0%,rgba(10,15,23,.65) 60%,rgba(10,15,23,.8) 100%);z-index:1}
-.lw-inq2-content{position:relative;z-index:2;text-align:center;max-width:680px;margin:0 auto;color:#faf8f5}
-.lw-inq2-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:11px;font-weight:500;letter-spacing:.36em;text-transform:uppercase;color:#c9a54e;margin-bottom:28px}
-.lw-inq2-h{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(36px,5.2vw,72px);line-height:1.08;letter-spacing:-.018em;color:#faf8f5;margin:0 auto 32px;max-width:22ch}
-.lw-inq2-body{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(17px,1.4vw,21px);line-height:1.5;color:rgba(250,248,245,.78);margin:0 auto 48px;max-width:540px}
-.lw-inq2-btn{display:inline-flex;align-items:center;gap:14px;padding:18px 38px;border:1px solid #c9a54e;background:rgba(201,165,78,.08);color:#faf8f5;font-family:'Syne',sans-serif;font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;transition:background .35s ease,transform .35s ease,box-shadow .35s ease,color .35s ease}
-.lw-inq2-btn svg{width:18px;height:18px}
-.lw-inq2-btn:hover,.lw-inq2-btn:focus-visible{background:#c9a54e;color:#0a0f17;transform:translateY(-2px);box-shadow:0 16px 40px -12px rgba(201,165,78,.5);outline:none}
-.lw-inq2-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:rgba(250,248,245,.55);margin:28px 0 0}
-.lw-inq2-sub strong{color:#c9a54e;font-weight:400;letter-spacing:.04em}
-.lw-inq2-wa{color:rgba(250,248,245,.65);text-decoration:none;border-bottom:1px solid rgba(201,165,78,.4);padding-bottom:1px;transition:color .3s ease,border-color .3s ease}
-.lw-inq2-wa:hover{color:#c9a54e;border-bottom-color:#c9a54e}
-.lw-inq2-sep{margin:0 14px}
-.lw-inq2-seal{margin:60px auto 0;width:56px;height:56px;border-radius:50%;border:1px solid rgba(201,165,78,.55);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-style:italic;color:#c9a54e;font-size:18px;position:relative;background:radial-gradient(circle at 30% 30%,rgba(201,165,78,.14),rgba(201,165,78,.04) 60%)}
-.lw-inq2-seal::before{content:"";position:absolute;inset:4px;border:1px solid rgba(201,165,78,.18);border-radius:50%}
-
-.lw-section.faq{background:#0a0f17;padding-top:clamp(56px,6vw,80px);padding-bottom:clamp(56px,6vw,80px)}
-.lw-section.faq .lw-inner{max-width:840px;margin:0 auto;padding:0 clamp(20px,5vw,56px)}
-.lw-section.faq .lw-section-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:18px}
-.lw-section.faq h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(28px,3.2vw,40px);line-height:1.05;letter-spacing:-.015em;color:#faf8f5;margin:0 0 32px}
-.lw-section.faq h2 em{font-style:italic;color:#c9a54e}
-.lw-section.faq .faq-list{margin-top:32px;border-top:1px solid rgba(201,165,78,.18)}
-.lw-section.faq .faq-item{border-bottom:1px solid rgba(201,165,78,.12);position:relative}
-.lw-section.faq .faq-trigger{width:100%;display:flex;justify-content:space-between;align-items:center;padding:16px 0;gap:18px;text-align:left;cursor:pointer;background:none;border:none;color:inherit;font:inherit;transition:color .3s ease}
-.lw-section.faq .faq-q{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(15px,1.15vw,17px);line-height:1.4;color:#faf8f5;flex:1}
-.lw-section.faq .faq-trigger:hover .faq-q{color:#c9a54e}
-.lw-section.faq .faq-icon{flex-shrink:0;width:22px;height:22px;border:1px solid rgba(201,165,78,.4);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#c9a54e;position:relative;transition:transform .4s ease,background .4s ease,border-color .4s ease}
-.lw-section.faq .faq-icon::before,.lw-section.faq .faq-icon::after{content:'';position:absolute;background:#c9a54e;transition:transform .4s ease}
-.lw-section.faq .faq-icon::before{width:8px;height:1px}
-.lw-section.faq .faq-icon::after{width:1px;height:8px}
-.lw-section.faq .faq-item.open .faq-icon{transform:rotate(45deg);border-color:#c9a54e}
-.lw-section.faq .faq-answer{max-height:0;overflow:hidden;transition:max-height .4s ease}
-.lw-section.faq .faq-item.open .faq-answer{max-height:600px}
-.lw-section.faq .faq-answer p{padding:0 0 18px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;line-height:1.65;color:rgba(250,248,245,.7);margin:0}
-</style>
+    <aside class="lw-pullquote lw-rv" aria-label="Studio philosophy">
+      <blockquote>The frame is not improvised. It is briefed, set, and noticed. The studio's job is to be the eye that does not blink.</blockquote>
+      <div class="lw-pullquote-source">From the studio's planning notes</div>
+    </aside>
+</section>
 
 <!-- ═══════ EDITORIAL PAUSE ═══════ -->
 <section class="lw-pause" aria-label="A note from the studio">
