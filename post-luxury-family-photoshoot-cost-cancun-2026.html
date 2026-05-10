@@ -43,6 +43,24 @@
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
+<style>
+@media(max-width:767px){
+  .post-article{padding:36px 22px 56px}
+  .post-article p,.post-article ul li,.post-article ol li{font-size:16px;line-height:1.85}
+  .post-lead{font-size:19px;line-height:1.7;margin-bottom:36px}
+  .post-hero h1{font-size:clamp(26px,7vw,36px)}
+  .post-meta-bar{font-size:11px;flex-wrap:wrap;gap:6px}
+  figure.inline-photo,.inline-photo{margin:28px 0}
+  .toc,.toc-box{padding-left:22px;padding-right:22px}
+}
+@media(min-width:768px) and (max-width:1023px){
+  .post-article{padding:44px 48px 64px}
+  .post-article p,.post-article ul li,.post-article ol li{font-size:15.5px}
+}
+.post-article{max-width:760px}
+.post-article img,.inline-photo img,figure img{max-width:100%;height:auto;display:block}
+</style>
 <script src="/js/components.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <link rel="me" href="https://instagram.com/ivaestudios.cancun"/>
@@ -142,7 +160,7 @@
 <!-- HERO -->
 <section class="post-hero">
   <div class="post-hero-ph"><span>&#9733; Luxury family photoshoot cost Canc&uacute;n 2026 &middot; Real tiers, real numbers</span></div>
-  <img src="/images/family-cancun-ivae-studios.jpg" alt="Luxury family photoshoot on Canc&uacute;n beach at golden hour, IVAE Studios" loading="eager"/>
+  <img src="/images/family-cancun-ivae-studios.jpg" alt="Luxury family photoshoot on Canc&uacute;n beach at golden hour, IVAE Studios" loading="eager" width="1600" height="900" fetchpriority="high"/>
   <div class="post-hero-overlay"></div>
   <div class="post-hero-content">
     <a class="post-back" href="/blog"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg> Back to Journal</a>
@@ -229,7 +247,7 @@
   <p>The longest format we offer. Three hours, three or more locations, on-site styling support, optional second shooter, optional short-form video, and a printed proof box mailed after delivery. Editorial sessions are typically booked by families marking a specific occasion: a milestone anniversary trip, a multi-generational reunion that may not happen again for a decade, a vow renewal that includes the children, or a magazine-style portrait commission. The deliverable is closer to a custom commission than a standard family session.</p>
 
   <figure class="inline-photo">
-    <img src="/images/family-kids-cancun-hotel-zone-ivae-studios.jpg" alt="Family with kids walking on Canc&uacute;n Hotel Zone beach at sunset, IVAE Studios"/>
+    <img src="/images/family-kids-cancun-hotel-zone-ivae-studios.jpg" alt="Family with kids walking on Canc&uacute;n Hotel Zone beach at sunset, IVAE Studios" loading="lazy" width="1200" height="800"/>
     <figcaption>Signature session at Canc&uacute;n Hotel Zone &mdash; the most common luxury family booking.</figcaption>
   </figure>
 
@@ -459,7 +477,7 @@
 </section>
 
 <figure class="inline-photo">
-  <img src="/images/family-kids-cancun-hotel-zone-ivae-studios-3.jpg" alt="Multi-generational family portrait at Canc&uacute;n golden hour, IVAE Studios"/>
+  <img src="/images/family-kids-cancun-hotel-zone-ivae-studios-3.jpg" alt="Multi-generational family portrait at Canc&uacute;n golden hour, IVAE Studios" loading="lazy" width="1200" height="800"/>
   <figcaption>Multi-generational reunion at Costa Mujeres &mdash; a 13-person group with a second photographer.</figcaption>
 </figure>
 

@@ -46,6 +46,7 @@
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
 <script src="/js/components.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script src="/dark-mode.js"></script>
@@ -125,6 +126,27 @@ section .wrap ul{grid-template-columns:1fr;gap:12px}
 @media(max-width:767px){
 .venue-hero{padding:48px 24px 32px}
 section{padding:48px 0}
+}
+@media(min-width:768px) and (max-width:1023px){
+.wrap{padding:0 32px}
+.venue-hero{padding:64px 32px 40px}
+section .wrap ul{grid-template-columns:repeat(2,1fr);gap:14px 24px}
+.breadcrumb ol{padding:0 8px}
+}
+@media(max-width:480px){
+body{padding-top:64px}
+.wrap{padding:0 18px}
+.venue-hero{padding:36px 18px 28px}
+.eyebrow{font-size:10px;letter-spacing:0.18em;margin-bottom:18px}
+h1{font-size:clamp(28px,8vw,36px);margin-bottom:16px}
+.lede{font-size:15px;line-height:1.65}
+section{padding:40px 0}
+section .wrap h2{font-size:clamp(24px,6.5vw,30px);margin-bottom:18px}
+section .wrap p{font-size:14.5px;line-height:1.75}
+section .wrap ul{grid-template-columns:1fr;gap:10px}
+section .wrap ul li{font-size:14.5px}
+.breadcrumb{padding:14px 18px}
+.breadcrumb ol{font-size:10px;letter-spacing:0.12em;gap:6px}
 }
 </style>
 </head>

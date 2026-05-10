@@ -89,15 +89,16 @@ body {
 .error-inner { max-width: 560px; }
 .error-code {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 120px; font-weight: 400;
+  font-size: clamp(72px, 12vw, 120px); font-weight: 400;
   color: var(--gold); opacity: 0.3;
   line-height: 1; margin-bottom: 16px;
 }
 .error-title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 36px; font-weight: 400;
+  font-size: clamp(26px, 4.5vw, 36px); font-weight: 400;
   margin-bottom: 20px; line-height: 1.3;
 }
+.popular-pages h2 { font-size: clamp(18px, 2.4vw, 22px); }
 .error-text {
   font-size: 14px; font-weight: 300;
   color: rgba(249,248,247,0.6);
@@ -193,6 +194,7 @@ body {
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","@id":"https://ivaestudios.com/404#webpage","url":"https://ivaestudios.com/404","name":"Page Not Found","description":"The page you're looking for isn't here. Explore IVAE Studios' luxury resort photography in Cancún, Riviera Maya and Los Cabos.","inLanguage":"en","isPartOf":{"@id":"https://ivaestudios.com/#website"},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://ivaestudios.com/"},{"@type":"ListItem","position":2,"name":"Page Not Found","item":"https://ivaestudios.com/404"}]},"mainEntity":{"@type":"SiteNavigationElement","name":"Top Destinations","hasPart":[{"@type":"SiteNavigationElement","name":"Home","url":"https://ivaestudios.com/"},{"@type":"SiteNavigationElement","name":"Blog","url":"https://ivaestudios.com/blog"},{"@type":"SiteNavigationElement","name":"Cancun Photographer","url":"https://ivaestudios.com/cancun-photographer"},{"@type":"SiteNavigationElement","name":"Riviera Maya Photographer","url":"https://ivaestudios.com/riviera-maya-photographer"},{"@type":"SiteNavigationElement","name":"Cabo Photographer","url":"https://ivaestudios.com/cabo-photographer"},{"@type":"SiteNavigationElement","name":"Contact","url":"https://ivaestudios.com/contact"}]}}</script>
 <link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <script src="/js/services-dropdown-v2.js" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>

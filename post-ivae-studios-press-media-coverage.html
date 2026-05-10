@@ -244,6 +244,24 @@
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
+<style>
+@media(max-width:767px){
+  .post-article{padding:36px 22px 56px}
+  .post-article p,.post-article ul li,.post-article ol li{font-size:16px;line-height:1.85}
+  .post-lead{font-size:19px;line-height:1.7;margin-bottom:36px}
+  .post-hero h1{font-size:clamp(26px,7vw,36px)}
+  .post-meta-bar{font-size:11px;flex-wrap:wrap;gap:6px}
+  figure.inline-photo,.inline-photo{margin:28px 0}
+  .toc,.toc-box{padding-left:22px;padding-right:22px}
+}
+@media(min-width:768px) and (max-width:1023px){
+  .post-article{padding:44px 48px 64px}
+  .post-article p,.post-article ul li,.post-article ol li{font-size:15.5px}
+}
+.post-article{max-width:760px}
+.post-article img,.inline-photo img,figure img{max-width:100%;height:auto;display:block}
+</style>
 <script src="/js/components.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 
@@ -337,7 +355,7 @@
 
 <!-- HERO -->
 <section class="post-hero">
-  <img src="/images/editorial-cancun-ivae-studios.jpg" alt="IVAE Studios editorial photography in Cancún — press features and media coverage of luxury destination photographer Vianey Díaz" loading="eager"/>
+  <img src="/images/editorial-cancun-ivae-studios.jpg" alt="IVAE Studios editorial photography in Cancún — press features and media coverage of luxury destination photographer Vianey Díaz" loading="eager" width="1600" height="900" fetchpriority="high"/>
   <div class="post-hero-overlay"></div>
   <div class="post-hero-content">
     <a class="post-back" href="/blog"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg> Back to Journal</a>
@@ -409,7 +427,7 @@
 
   <!-- TODO Vianey: replace this entire press-card with the real Vogue Mexico feature when it publishes. Update title, image, year, excerpt, and outbound link. Remove the [PENDING] badge from the heading and swap the pending-badge class for confirmed-badge once live. -->
   <div class="press-card">
-    <img class="press-card-img" src="/images/editorial-cancun-ivae-studios.jpg" alt="IVAE Studios editorial feature placeholder — Vogue Mexico pending"/>
+    <img class="press-card-img" src="/images/editorial-cancun-ivae-studios.jpg" alt="IVAE Studios editorial feature placeholder — Vogue Mexico pending" loading="lazy" width="800" height="600"/>
     <div>
       <div class="press-card-meta">Vogue Mexico · 2026 <span class="pending-badge">Pending Real Feature</span></div>
       <h3 class="press-card-title">Vogue Mexico — Editorial Feature [PENDING REAL FEATURE]</h3>
@@ -420,7 +438,7 @@
 
   <!-- TODO Vianey: replace this card with the real Brides Magazine feature when it publishes. -->
   <div class="press-card">
-    <img class="press-card-img" src="/images/wedding-bride-cancun-beach-ivae-studios.jpg" alt="IVAE Studios editorial feature placeholder — Brides Magazine pending"/>
+    <img class="press-card-img" src="/images/wedding-bride-cancun-beach-ivae-studios.jpg" alt="IVAE Studios editorial feature placeholder — Brides Magazine pending" loading="lazy" width="800" height="600"/>
     <div>
       <div class="press-card-meta">Brides Magazine · 2026 <span class="pending-badge">Pending</span></div>
       <h3 class="press-card-title">Brides Magazine — Featured Photographer [PENDING]</h3>
@@ -431,7 +449,7 @@
 
   <!-- TODO Vianey: replace this card with the real Hello! Mexico wedding coverage when it publishes. -->
   <div class="press-card">
-    <img class="press-card-img" src="/images/couple-cancun-beach-ivae-studios.jpg" alt="IVAE Studios editorial feature placeholder — Hello Mexico wedding coverage pending"/>
+    <img class="press-card-img" src="/images/couple-cancun-beach-ivae-studios.jpg" alt="IVAE Studios editorial feature placeholder — Hello Mexico wedding coverage pending" loading="lazy" width="800" height="600"/>
     <div>
       <div class="press-card-meta">Hello! Mexico · 2026 <span class="pending-badge">Pending</span></div>
       <h3 class="press-card-title">Hello! Mexico — Wedding Coverage [PENDING]</h3>

@@ -29,6 +29,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <script src="/js/services-dropdown-v2.js" defer></script>
@@ -1002,7 +1003,23 @@ a { color: inherit; }
   .trust-inner { grid-template-columns: 1fr 1fr; gap: var(--s-8); }
   .inquiry-meta-cell { border-right: none; padding: var(--s-4) 0; }
   .inquiry-meta { flex-direction: column; padding-top: var(--s-6); }
-  
+
+}
+@media (max-width: 480px) {
+  .commit-grid, .case-deck, .coast-grid, .tier-grid, .studio-inner, .method-inner, .trust-inner { grid-template-columns: 1fr !important; gap: var(--s-6); }
+  .hero h1, #hero-h1 { font-size: clamp(30px, 8.5vw, 44px); line-height: 1.05; }
+  .hero-sub p { font-size: clamp(15px, 4vw, 17px); }
+  h2, .coast-h2, .faq-h2, .inquiry-h2 { font-size: clamp(26px, 7.5vw, 38px); line-height: 1.1; }
+  h3 { font-size: clamp(20px, 5.5vw, 26px); }
+  p { font-size: clamp(14px, 4vw, 16px); }
+  .btn { min-width: 100%; }
+  section { padding-left: var(--s-4); padding-right: var(--s-4); }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .commit-grid, .case-deck, .coast-grid, .tier-grid, .trust-inner { grid-template-columns: 1fr 1fr !important; gap: var(--s-8); }
+  .studio-inner, .method-inner { grid-template-columns: 1fr !important; gap: var(--s-12); }
+  .hero h1, #hero-h1 { font-size: clamp(48px, 7vw, 72px); }
+  h2, .coast-h2, .faq-h2, .inquiry-h2 { font-size: clamp(36px, 6vw, 56px); }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1162,7 +1179,7 @@ a { color: inherit; }
   <section class="studio" aria-labelledby="studio-heading">
     <div class="studio-inner">
       <figure class="studio-stage clip-reveal">
-        <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-2.jpg" alt="Bride and her mother walk the boardwalks at golden hour at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async">
+        <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-2.jpg" alt="Bride and her mother walk the boardwalks at golden hour at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
         <span class="studio-corner" aria-hidden="true"></span>
       </figure>
       <div class="studio-copy">
@@ -1221,16 +1238,16 @@ a { color: inherit; }
     </div>
 
     <figure class="case-hero clip-reveal">
-      <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="Sarah and Michael share a private first look at golden hour in the gardens at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async">
+      <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="Sarah and Michael share a private first look at golden hour in the gardens at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
       <span class="case-frame-meta" aria-hidden="true">Frame 01 &middot; Mayakoba &middot; 17:42</span>
     </figure>
 
     <div class="case-deck">
       <figure class="rv">
-        <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-4.jpg" alt="Bride in Belgian lace photographed in profile against the canopy of the Yucatán at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async">
+        <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-4.jpg" alt="Bride in Belgian lace photographed in profile against the canopy of the Yucatán at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
       </figure>
       <figure class="rv d1">
-        <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-5.jpg" alt="Couple walks the beach barefoot in dress and suit during the cocktail hour at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async">
+        <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-5.jpg" alt="Couple walks the beach barefoot in dress and suit during the cocktail hour at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
       </figure>
     </div>
 
@@ -1399,28 +1416,28 @@ a { color: inherit; }
         tabindex="0"
         id="reelTrack">
         <figure class="reel-frame">
-          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-2.jpg" alt="Bride at golden hour walking the boardwalks at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async">
+          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-2.jpg" alt="Bride at golden hour walking the boardwalks at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
         </figure>
         <figure class="reel-frame">
-          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="First-look pavilion at Mayakoba, doors closed, photographed by IVAE Studios." loading="lazy" decoding="async">
+          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="First-look pavilion at Mayakoba, doors closed, photographed by IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
         </figure>
         <figure class="reel-frame">
-          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-4.jpg" alt="Bride in Belgian lace photographed against the Yucatán canopy, photographed by IVAE Studios." loading="lazy" decoding="async">
+          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-4.jpg" alt="Bride in Belgian lace photographed against the Yucatán canopy, photographed by IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
         </figure>
         <figure class="reel-frame">
-          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-5.jpg" alt="Couple barefoot on the beach at golden hour at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async">
+          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-5.jpg" alt="Couple barefoot on the beach at golden hour at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
         </figure>
         <figure class="reel-frame">
-          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-6.jpg" alt="Ceremony recessional through paper lanterns at One&Only Palmilla, photographed by IVAE Studios." loading="lazy" decoding="async">
+          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-6.jpg" alt="Ceremony recessional through paper lanterns at One&Only Palmilla, photographed by IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
         </figure>
         <figure class="reel-frame">
-          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="Bridal portrait at honey-soft golden hour in the terrace at Four Seasons Costa Palmas, photographed by IVAE Studios." loading="lazy" decoding="async">
+          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="Bridal portrait at honey-soft golden hour in the terrace at Four Seasons Costa Palmas, photographed by IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
         </figure>
         <figure class="reel-frame">
-          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-8.jpg" alt="Couple at the reception cocktail-warm at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async">
+          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-8.jpg" alt="Couple at the reception cocktail-warm at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
         </figure>
         <figure class="reel-frame">
-          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-9.jpg" alt="Detail of grandmother's Belgian lace at golden hour at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async">
+          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-9.jpg" alt="Detail of grandmother's Belgian lace at golden hour at Rosewood Mayakoba, photographed by IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
         </figure>
       </div>
     </div>
@@ -1444,7 +1461,7 @@ a { color: inherit; }
       </div>
       <div class="coast-grid">
         <article class="coast-card rv">
-          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-6.jpg" alt="Couple at the Cancún hotel zone shoreline at golden hour, photographed by IVAE Studios." loading="lazy" decoding="async">
+          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-6.jpg" alt="Couple at the Cancún hotel zone shoreline at golden hour, photographed by IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
           <div class="coast-info">
             <span class="coast-tag">Quintana Roo</span>
             <h3>Cancún</h3>
@@ -1452,7 +1469,7 @@ a { color: inherit; }
           </div>
         </article>
         <article class="coast-card rv d1">
-          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="Mangrove and lagoon ceremony at Rosewood Mayakoba at golden hour, photographed by IVAE Studios." loading="lazy" decoding="async">
+          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="Mangrove and lagoon ceremony at Rosewood Mayakoba at golden hour, photographed by IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
           <div class="coast-info">
             <span class="coast-tag">Yucatán</span>
             <h3>Riviera Maya</h3>
@@ -1460,7 +1477,7 @@ a { color: inherit; }
           </div>
         </article>
         <article class="coast-card rv d2">
-          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-8.jpg" alt="Cliffside ceremony at One&Only Palmilla in Los Cabos at golden hour, photographed by IVAE Studios." loading="lazy" decoding="async">
+          <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-8.jpg" alt="Cliffside ceremony at One&Only Palmilla in Los Cabos at golden hour, photographed by IVAE Studios." loading="lazy" decoding="async" width="1200" height="1500">
           <div class="coast-info">
             <span class="coast-tag">Baja California Sur</span>
             <h3>Los Cabos</h3>
@@ -1543,7 +1560,7 @@ a { color: inherit; }
   <!-- ═══ BEGIN (Inquiry) ════════════════════════════════════ -->
   <section class="inquiry" aria-labelledby="inquiry-heading" id="inquiry">
     <div class="inquiry-bg" aria-hidden="true">
-      <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-9.jpg" alt="" loading="lazy" decoding="async">
+      <img src="images/wedding-bride-cancun-hotel-zone-ivae-studios-9.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1500">
     </div>
     <div class="inquiry-inner">
       <div class="chapter-card rv" style="justify-content:center">

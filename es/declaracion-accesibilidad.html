@@ -30,6 +30,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
@@ -136,7 +137,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   .legal-toc{padding:24px 22px;margin-bottom:40px}
   .legal-toc ol{columns:1}
   .legal-body h2{font-size:22px}
-  
+
+}
+@media(min-width:768px) and (max-width:1023px){
+  .legal-hero{padding:120px 32px 56px}
+  .legal-section{padding:64px 32px}
+  .legal-toc{padding:28px 28px}
 }
 @media(prefers-reduced-motion:reduce){
   .rv{transition:none!important;opacity:1!important;transform:none!important}

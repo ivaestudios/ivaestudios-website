@@ -124,6 +124,24 @@
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
+<style>
+@media(max-width:767px){
+  .post-article{padding:36px 22px 56px}
+  .post-article p,.post-article ul li,.post-article ol li{font-size:16px;line-height:1.85}
+  .post-lead{font-size:19px;line-height:1.7;margin-bottom:36px}
+  .post-hero h1{font-size:clamp(26px,7vw,36px)}
+  .post-meta-bar{font-size:11px;flex-wrap:wrap;gap:6px}
+  figure.inline-photo,.inline-photo{margin:28px 0}
+  .toc,.toc-box{padding-left:22px;padding-right:22px}
+}
+@media(min-width:768px) and (max-width:1023px){
+  .post-article{padding:44px 48px 64px}
+  .post-article p,.post-article ul li,.post-article ol li{font-size:15.5px}
+}
+.post-article{max-width:760px}
+.post-article img,.inline-photo img,figure img{max-width:100%;height:auto;display:block}
+</style>
 <script src="/js/components.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 
@@ -212,7 +230,7 @@
 <!-- HERO -->
 <section class="post-hero">
   <div class="post-hero-ph"><span>★ Hero image · El Arco rock formation at sunset with Pacific Ocean swells, Los Cabos</span></div>
-  <img src="https://assets.ivaestudios.com/blog/los-cabos-photographer-guide-og.jpg" alt="Blog hero image" loading="eager"/>
+  <img src="https://assets.ivaestudios.com/blog/los-cabos-photographer-guide-og.jpg" alt="Blog hero image" loading="eager" width="1600" height="900" fetchpriority="high"/>
   <div class="post-hero-overlay"></div>
   <div class="post-hero-content">
     <a class="post-back" href="/blog"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg> Back to Journal</a>

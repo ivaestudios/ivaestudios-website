@@ -30,6 +30,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
@@ -108,7 +109,8 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .legal-body ul li{position:relative;padding:8px 0 8px 24px;font-size:14px;line-height:1.85;color:var(--muted-l);border-bottom:1px solid var(--border-l)}
 .legal-body ul li:last-child{border-bottom:none}
 .legal-body ul li::before{content:'';position:absolute;left:0;top:17px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
-.legal-body table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13.5px}
+.legal-body table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13.5px;display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media(min-width:768px){.legal-body table{display:table}}
 .legal-body th{text-align:left;font-family:'Syne',sans-serif;font-size:10.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold2);font-weight:600;padding:12px 14px;border-bottom:1px solid var(--gold)}
 .legal-body td{padding:14px;vertical-align:top;color:var(--muted-l);line-height:1.7;border-bottom:1px solid var(--border-l)}
 .legal-body td strong{color:var(--ink)}
@@ -145,9 +147,16 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   .legal-toc{padding:24px 22px;margin-bottom:40px}
   .legal-toc ol{columns:1}
   .legal-body h2{font-size:22px}
-  .legal-body table{font-size:12.5px}
+  .legal-body table{font-size:12.5px;white-space:nowrap}
   .legal-body td,.legal-body th{padding:10px 8px}
-  
+
+}
+@media(min-width:768px) and (max-width:1023px){
+  .legal-hero{padding:120px 32px 56px}
+  .legal-section{padding:64px 32px}
+  .legal-toc{padding:28px 28px}
+  .legal-body table{font-size:12.5px}
+  .legal-body td,.legal-body th{padding:11px 10px}
 }
 @media(prefers-reduced-motion:reduce){
   .rv{transition:none!important;opacity:1!important;transform:none!important}

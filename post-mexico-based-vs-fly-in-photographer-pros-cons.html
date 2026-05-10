@@ -142,6 +142,24 @@
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
+<style>
+@media(max-width:767px){
+  .post-article{padding:36px 22px 56px}
+  .post-article p,.post-article ul li,.post-article ol li{font-size:16px;line-height:1.85}
+  .post-lead{font-size:19px;line-height:1.7;margin-bottom:36px}
+  .post-hero h1{font-size:clamp(26px,7vw,36px)}
+  .post-meta-bar{font-size:11px;flex-wrap:wrap;gap:6px}
+  figure.inline-photo,.inline-photo{margin:28px 0}
+  .toc,.toc-box{padding-left:22px;padding-right:22px}
+}
+@media(min-width:768px) and (max-width:1023px){
+  .post-article{padding:44px 48px 64px}
+  .post-article p,.post-article ul li,.post-article ol li{font-size:15.5px}
+}
+.post-article{max-width:760px}
+.post-article img,.inline-photo img,figure img{max-width:100%;height:auto;display:block}
+</style>
 <script src="/js/components.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 
@@ -207,7 +225,7 @@
 
 <!-- HERO -->
 <section class="post-hero">
-  <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-5.jpg" alt="Bride at Cancún Hotel Zone luxury resort photographed by Mexico-based local destination wedding photographer IVAE Studios" loading="eager"/>
+  <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-5.jpg" alt="Bride at Cancún Hotel Zone luxury resort photographed by Mexico-based local destination wedding photographer IVAE Studios" loading="eager" width="1600" height="900" fetchpriority="high"/>
   <div class="post-hero-overlay"></div>
   <div class="post-hero-content">
     <a class="post-back" href="/blog"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg> Back to Journal</a>
@@ -264,7 +282,7 @@
   <p>The mistake is rarely "hired the wrong photographer." The mistake is "hired a US photographer to fly in because the Pinterest board was American, when an in-region Mexican studio shoots the same venue every weekend." The rest of this guide breaks down exactly why.</p>
 
   <figure class="inline-photo">
-    <img src="/images/wedding-bride-cancun-beach-ivae-studios-4.jpg" alt="Editorial bride at Cancun beach photographed locally by Mexico-based wedding photographer IVAE Studios" loading="lazy"/>
+    <img src="/images/wedding-bride-cancun-beach-ivae-studios-4.jpg" alt="Editorial bride at Cancun beach photographed locally by Mexico-based wedding photographer IVAE Studios" loading="lazy" width="1200" height="800"/>
     <figcaption>Cancún beach bridal portrait — photographed by local Mexico-based studio IVAE Studios</figcaption>
   </figure>
 
@@ -296,7 +314,7 @@
   <p><strong>Vendor network.</strong> The local florist, MUA, planner, videographer, DJ and live-music acts in Cancún and Tulum are people we have shot alongside dozens of times. We know who runs late, who needs a coffee at hour six, who stages the bouquet for the right side of the bride. A fly-in photographer is meeting all of them for the first time on the morning of the wedding.</p>
 
   <figure class="inline-photo">
-    <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="Bride at hidden Cancun resort location only known to local Mexico-based wedding photographers IVAE Studios" loading="lazy"/>
+    <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="Bride at hidden Cancun resort location only known to local Mexico-based wedding photographers IVAE Studios" loading="lazy" width="1200" height="800"/>
     <figcaption>Hidden resort corner — photographed by local studio with venue knowledge</figcaption>
   </figure>
 
@@ -322,7 +340,7 @@
   <p>If your reason for flying someone in does not match one of those three, the math almost always favors hiring a local studio. Our <a href="/blog/choose-luxury-photographer">guide to choosing a luxury photographer in Mexico</a> walks through the portfolio audit that confirms whether your local options match your aesthetic.</p>
 
   <figure class="inline-photo">
-    <img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="Cancun beach bride photographed by local Mexican wedding photographer with full vendor network access — IVAE Studios" loading="lazy"/>
+    <img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="Cancun beach bride photographed by local Mexican wedding photographer with full vendor network access — IVAE Studios" loading="lazy" width="1200" height="800"/>
     <figcaption>Beach ceremony moment, Cancún — IVAE Studios local vendor coordination</figcaption>
   </figure>
 
@@ -357,7 +375,7 @@
   <p>The couple booked locally. The delivered gallery was 980 fully edited high-resolution images in 6 weeks. They estimate the visual quality was indistinguishable from what the Chicago studio would have produced — same beach, same golden hour, same dance-floor reception — and saved <strong>$5,000 USD</strong> that went toward upgrading from a Premier Beachfront Suite to an Overwater Lagoon Suite for the honeymoon week. That is the math when local hiring goes correctly.</p>
 
   <figure class="inline-photo">
-    <img src="/images/couple-cancun-hotel-zone-ivae-studios-5.jpg" alt="Cancun couple session photographed by local studio IVAE Studios with same editorial quality as US photographer" loading="lazy"/>
+    <img src="/images/couple-cancun-hotel-zone-ivae-studios-5.jpg" alt="Cancun couple session photographed by local studio IVAE Studios with same editorial quality as US photographer" loading="lazy" width="1200" height="800"/>
     <figcaption>Same editorial quality, $5,000 saved — local Mexico-based studio delivery</figcaption>
   </figure>
 

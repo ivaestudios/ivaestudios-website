@@ -30,6 +30,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
@@ -1414,6 +1415,31 @@ body::before {
 @media (max-width: 480px) {
   .btn { min-width: 100%; }
   .hero-content { padding-bottom: var(--s-16); }
+  .hero-h1 { font-size: clamp(32px, 9vw, 48px); line-height: 1.05; }
+  .hero-sub { font-size: clamp(15px, 4vw, 17px); }
+  h2 { font-size: clamp(28px, 8vw, 40px); line-height: 1.1; }
+  h3 { font-size: clamp(20px, 5.5vw, 26px); }
+  p, .studio-copy p, .case-study-caption p, .faq-panel p { font-size: clamp(14px, 4vw, 16px); }
+  .trust-grid { grid-template-columns: 1fr !important; gap: var(--s-6); }
+  .commitments-grid { grid-template-columns: 1fr !important; }
+  .case-study-deck { grid-template-columns: 1fr !important; gap: var(--s-4); }
+  .tier-grid { grid-template-columns: 1fr !important; }
+  .method-inner { grid-template-columns: 1fr !important; }
+  .locations-grid { grid-template-columns: 1fr !important; }
+  .inquiry-meta { grid-template-columns: 1fr !important; }
+  .studio { grid-template-columns: 1fr !important; }
+  section { padding-left: var(--s-4); padding-right: var(--s-4); }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .trust-grid { grid-template-columns: 1fr 1fr !important; gap: var(--s-8); }
+  .commitments-grid { grid-template-columns: 1fr 1fr !important; }
+  .case-study-deck { grid-template-columns: 1fr 1fr !important; }
+  .tier-grid { grid-template-columns: 1fr 1fr !important; }
+  .locations-grid { grid-template-columns: 1fr 1fr !important; }
+  .inquiry-meta { grid-template-columns: 1fr 1fr !important; }
+  .studio { grid-template-columns: 1fr !important; }
+  .hero-h1 { font-size: clamp(48px, 7vw, 72px); }
+  h2 { font-size: clamp(36px, 6vw, 56px); }
 }
 
 </style>

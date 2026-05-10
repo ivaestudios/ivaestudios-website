@@ -40,6 +40,7 @@
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
 <script src="/js/components.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 
@@ -244,6 +245,63 @@ a{color:inherit;text-decoration:none}
 
 
 .sv-card img,.pg-i img,.loc-img img,.curtain img{object-position:center 20%}
+}
+
+/* Tablet 768-1023 — explicit 2-column safe */
+@media(min-width:768px) and (max-width:1023px){
+.header-nav,.header-cta{display:none}
+.header-toggle{display:flex}
+.hero-content{padding:0 32px;max-width:720px}
+.bc{padding:16px 32px}
+.stats{padding:32px 32px;gap:32px}
+.sc{padding:72px 32px}
+.why-grid{grid-template-columns:1fr;gap:36px}
+.why-img{height:340px}
+.sv-grid{grid-template-columns:repeat(2,1fr);gap:18px}
+.pg{grid-template-columns:repeat(2,1fr);grid-auto-rows:220px}
+.pg-i.feat{grid-column:span 2;grid-row:span 1}
+.loc-grid{grid-template-columns:repeat(2,1fr);gap:20px}
+.tl{grid-template-columns:repeat(2,1fr);gap:24px}
+.tm-grid{grid-template-columns:repeat(2,1fr);gap:20px}
+.cta{padding:80px 32px}
+}
+
+/* Small mobile <=480 */
+@media(max-width:480px){
+.hero-content{padding:0 16px}
+.hero h1{font-size:clamp(28px,9vw,42px);margin-bottom:18px}
+.hero-sub{font-size:13px;margin-bottom:26px}
+.btn{padding:14px 26px;font-size:9.5px;letter-spacing:0.16em}
+.bc{padding:12px 16px}
+.stats{padding:24px 16px;grid-template-columns:1fr 1fr;gap:18px}
+.stat-i .n{font-size:24px}
+.sc{padding:48px 16px}
+.sc h2{font-size:clamp(24px,7.4vw,34px)}
+.sc p.intro{font-size:13.5px;margin-bottom:32px}
+.why-grid{grid-template-columns:1fr;gap:22px}
+.why-img{height:240px}
+.sv-grid,.loc-grid,.tm-grid{grid-template-columns:1fr !important;gap:14px}
+.sv-card img{height:180px}
+.sv-card-body{padding:20px 16px}
+.sv-card h3{font-size:19px}
+.sv-card p{font-size:12px}
+.pg{grid-template-columns:1fr;grid-auto-rows:200px;gap:4px}
+.pg-i.feat{grid-column:auto;grid-row:auto}
+.loc-card h3{font-size:19px}
+.loc-card h3,.loc-card p{padding-left:20px;padding-right:20px}
+.loc-img{height:180px}
+.tl{grid-template-columns:1fr}
+.chip{padding:11px 18px;font-size:15px}
+.tm-card{padding:28px 20px}
+.tm-card blockquote{font-size:12.5px}
+.faq-list{max-width:none}
+.faq-q{font-size:13.5px}
+.faq-a p{font-size:12.5px}
+.il-grid{gap:10px}
+.il-grid a{font-size:11.5px;padding:9px 16px}
+.cta{padding:56px 16px}
+.cta h2{font-size:clamp(22px,7vw,34px)}
+.cta p{font-size:13px;margin-bottom:24px}
 }
 </style>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>

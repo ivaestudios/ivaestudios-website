@@ -133,6 +133,11 @@
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
+<style>
+@media(max-width:767px){.post-article{padding:32px 24px 56px}.post-article p,.post-article ul li,.post-article ol li{font-size:16px;line-height:1.85}.post-lead{font-size:18px;line-height:1.7;margin-bottom:32px}.post-hero h1{font-size:clamp(26px,7vw,40px)}.post-meta-bar{font-size:11px;flex-wrap:wrap;gap:6px}.post-meta-bar span:nth-child(even){display:none}.toc-box{padding:20px}.faq-section{padding:48px 24px}.author-box{padding:32px 24px}.internal-links{padding:48px 24px}}
+@media(min-width:768px) and (max-width:1199px){.post-article{padding:48px 56px 64px;max-width:720px}.post-article p,.post-article ul li,.post-article ol li{font-size:15.5px;line-height:1.9}}
+</style>
 <script src="/js/components.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <link rel="stylesheet" href="/styles/blog.css"/>
@@ -221,7 +226,7 @@
 <!-- HERO -->
 <section class="post-hero">
   <div class="post-hero-ph"><span>★ Imagen principal · Sesión de cumpleaños en playa de arena blanca en la Zona Hotelera de Cancún en hora dorada</span></div>
-  <img src="https://assets.ivaestudios.com/blog/birthday-photoshoot-cancun-og.jpg" alt="Imagen principal del artículo" loading="eager"/>
+  <img src="https://assets.ivaestudios.com/blog/birthday-photoshoot-cancun-og.jpg" alt="Imagen principal del artículo" loading="eager" fetchpriority="high" width="1200" height="630"/>
   <div class="post-hero-overlay"></div>
   <div class="post-hero-content">
     <a class="post-back" href="/es/blog"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg> Volver al Blog</a>

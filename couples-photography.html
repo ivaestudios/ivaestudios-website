@@ -31,6 +31,7 @@
 <link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <script src="/js/components.js?v=20260510a" defer></script>
@@ -747,9 +748,18 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
   .lc-case-meta-cell:last-child{border-bottom:none;padding-bottom:0}
 }
 @media (max-width: 480px){
-  .lc-reel-track{gap:16px;padding-inline:clamp(16px,4vw,20px)}
+  .lc-reel-track{gap:16px;padding-inline:16px}
   .lc-hero-ctas, .lc-inquiry-ctas{gap:10px}
   .lc-hero-h1{font-size:clamp(28px, 7vw, 42px)}
+  .lc-tier-grid{grid-template-columns:1fr;gap:16px}
+  .lc-method-grid{grid-template-columns:1fr}
+  .lc-testimonials-grid, .lc-testimonial-grid{grid-template-columns:1fr;gap:20px}
+}
+@media (min-width: 768px) and (max-width: 1023px){
+  .lc-tier-grid{grid-template-columns:1fr 1fr}
+  .lc-testimonials-grid, .lc-testimonial-grid{grid-template-columns:1fr 1fr;gap:24px}
+  .lc-method-grid{grid-template-columns:1fr 1fr}
+  .lc-reel-track{padding-inline:24px}
 }
 </style>
 </head>

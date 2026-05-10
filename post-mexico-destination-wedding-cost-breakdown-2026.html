@@ -215,6 +215,24 @@
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
+<style>
+@media(max-width:767px){
+  .post-article{padding:36px 22px 56px}
+  .post-article p,.post-article ul li,.post-article ol li{font-size:16px;line-height:1.85}
+  .post-lead{font-size:19px;line-height:1.7;margin-bottom:36px}
+  .post-hero h1{font-size:clamp(26px,7vw,36px)}
+  .post-meta-bar{font-size:11px;flex-wrap:wrap;gap:6px}
+  figure.inline-photo,.inline-photo{margin:28px 0}
+  .toc,.toc-box{padding-left:22px;padding-right:22px}
+}
+@media(min-width:768px) and (max-width:1023px){
+  .post-article{padding:44px 48px 64px}
+  .post-article p,.post-article ul li,.post-article ol li{font-size:15.5px}
+}
+.post-article{max-width:760px}
+.post-article img,.inline-photo img,figure img{max-width:100%;height:auto;display:block}
+</style>
 <script src="/js/components.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 
@@ -280,7 +298,7 @@
 
 <!-- HERO -->
 <section class="post-hero">
-  <img src="/images/wedding-bride-playa-mujeres-ivae-studios.jpg" alt="Luxury destination wedding bride at Playa Mujeres resort in Mexico — IVAE Studios destination wedding photographer" loading="eager"/>
+  <img src="/images/wedding-bride-playa-mujeres-ivae-studios.jpg" alt="Luxury destination wedding bride at Playa Mujeres resort in Mexico — IVAE Studios destination wedding photographer" loading="eager" width="1600" height="900" fetchpriority="high"/>
   <div class="post-hero-overlay"></div>
   <div class="post-hero-content">
     <a class="post-back" href="/blog"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg> Back to Journal</a>
@@ -337,7 +355,7 @@
   <p>The market sorts itself into three honest bands. An <strong>Intimate</strong> celebration of around 30 guests at a mid-tier all-inclusive lands at $30,000 to $50,000. A <strong>Premium</strong> 80-guest, four-day event at a polished upscale resort runs $75,000 to $120,000. A <strong>Luxury Editorial</strong> 150-guest, week-long celebration at a top-shelf property reaches $150,000 to $250,000 or more. The sections below break each tier down by category in real USD numbers, including the per-guest math that planners actually work from.</p>
 
   <figure class="inline-photo">
-    <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios.jpg" alt="Bride at luxury Cancún hotel zone wedding — IVAE Studios destination wedding photographer Mexico" loading="lazy"/>
+    <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios.jpg" alt="Bride at luxury Cancún hotel zone wedding — IVAE Studios destination wedding photographer Mexico" loading="lazy" width="1200" height="800"/>
     <figcaption>Bridal portrait, Cancún Hotel Zone luxury resort — IVAE Studios</figcaption>
   </figure>
 
@@ -390,7 +408,7 @@
   <p>The Premium tier is where the Mexico price advantage really shows up. A comparable four-day, 80-guest wedding at the same production level in Napa, the Hamptons, or coastal South Florida lands at $140K to $220K once venue and labor markups are included. Couples who want a wedding that <em>looks</em> like the editorial weddings on Magnolia Rouge, Once Wed or Vogue Weddings, but at a 35–45 percent discount versus their U.S. equivalent, almost always end up at this tier in Mexico.</p>
 
   <figure class="inline-photo">
-    <img src="/images/wedding-decor-cancun-hotel-zone-ivae-studios.jpg" alt="Wedding reception decor and florals at premium Cancún hotel zone resort — IVAE Studios" loading="lazy"/>
+    <img src="/images/wedding-decor-cancun-hotel-zone-ivae-studios.jpg" alt="Wedding reception decor and florals at premium Cancún hotel zone resort — IVAE Studios" loading="lazy" width="1200" height="800"/>
     <figcaption>Premium-tier reception decor — Cancún Hotel Zone | IVAE Studios</figcaption>
   </figure>
 
@@ -419,12 +437,12 @@
   <p>The cap at this tier is essentially unlimited — fly-in talent (a Grammy headliner, a renowned chef, a fly-in mixologist) routinely adds $40K to $200K. Imported orchid walls and chandelier installs from Mexico City florists routinely add $20K. A single second-night band fly-in ranges $25K–$80K. Couples planning at this level are typically advised to set a hard ceiling early in the process — without it, the budget very quickly grows by 30 to 50 percent during the design phase.</p>
 
   <figure class="inline-photo">
-    <img src="/images/wedding-cancun-hotel-zone-ivae-studios.jpg" alt="Editorial luxury destination wedding scene at Cancún hotel zone resort — IVAE Studios" loading="lazy"/>
+    <img src="/images/wedding-cancun-hotel-zone-ivae-studios.jpg" alt="Editorial luxury destination wedding scene at Cancún hotel zone resort — IVAE Studios" loading="lazy" width="1200" height="800"/>
     <figcaption>Editorial-tier wedding scene — luxury Cancún resort | IVAE Studios</figcaption>
   </figure>
 
   <figure class="inline-photo">
-    <img src="/images/wedding-decor-playa-mujeres-ivae-studios.jpg" alt="Luxury wedding decor and florals at Playa Mujeres resort — IVAE Studios destination wedding photographer Mexico" loading="lazy"/>
+    <img src="/images/wedding-decor-playa-mujeres-ivae-studios.jpg" alt="Luxury wedding decor and florals at Playa Mujeres resort — IVAE Studios destination wedding photographer Mexico" loading="lazy" width="1200" height="800"/>
     <figcaption>Luxury-tier wedding decor — Playa Mujeres | IVAE Studios</figcaption>
   </figure>
 
@@ -493,7 +511,7 @@
   <p>Stack any three of these and a $10,000 reduction is comfortable. Stack five and you are saving $20K to $40K depending on starting tier — without changing how the wedding looks, feels, or photographs.</p>
 
   <figure class="inline-photo">
-    <img src="/images/wedding-bride-cancun-beach-ivae-studios-2.jpg" alt="Bride at Cancún beachfront wedding ceremony — IVAE Studios destination wedding photographer" loading="lazy"/>
+    <img src="/images/wedding-bride-cancun-beach-ivae-studios-2.jpg" alt="Bride at Cancún beachfront wedding ceremony — IVAE Studios destination wedding photographer" loading="lazy" width="1200" height="800"/>
     <figcaption>Beachfront ceremony portrait, Cancún — IVAE Studios</figcaption>
   </figure>
 
@@ -525,7 +543,7 @@
   <p>Couples often ask whether they should wait to book photo until after they have locked the venue and planner. The honest answer is no — top studios book Saturday peak-season dates 9 to 14 months out. Reserve photo within four weeks of locking your date. The same logic applies to the planner, but for the opposite reason: a great planner often introduces you to the photographer they trust most, which can save you a long shortlist process. Our long-form take on <a href="/blog/destination-wedding">destination wedding photography in Mexico</a> covers the booking sequence end-to-end.</p>
 
   <figure class="inline-photo">
-    <img src="/images/wedding-bride-tulum-ivae-studios.jpg" alt="Editorial bride portrait at Tulum destination wedding — IVAE Studios luxury wedding photographer Mexico" loading="lazy"/>
+    <img src="/images/wedding-bride-tulum-ivae-studios.jpg" alt="Editorial bride portrait at Tulum destination wedding — IVAE Studios luxury wedding photographer Mexico" loading="lazy" width="1200" height="800"/>
     <figcaption>Editorial bride portrait, Tulum — IVAE Studios</figcaption>
   </figure>
 

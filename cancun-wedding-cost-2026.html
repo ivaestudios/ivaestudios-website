@@ -40,6 +40,7 @@
 <link rel="stylesheet" href="/styles/blog.css"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
@@ -75,7 +76,9 @@
 .budget-card .b-label{font-size:10px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold2);margin-bottom:10px}
 .budget-card .b-num{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--ink);line-height:1.1;margin-bottom:8px}
 .budget-card .b-detail{font-size:13px;color:var(--muted-l);line-height:1.6}
+.cost-table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 @media(max-width:767px){.cost-table{font-size:12px;display:block;overflow-x:auto;white-space:nowrap}.cost-table .row-label{font-size:14px}.budget-cards{grid-template-columns:1fr;gap:14px}.budget-card{padding:22px 18px}.budget-card .b-num{font-size:26px}}
+@media(min-width:768px) and (max-width:1023px){.cost-table{font-size:12.5px}.cost-table th,.cost-table td{padding:12px 10px}.budget-cards{grid-template-columns:repeat(3,1fr);gap:14px}.budget-card{padding:22px 18px}}
 </style>
 <link rel="icon" href="/favicon.ico" sizes="any"/>
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>

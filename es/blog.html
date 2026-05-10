@@ -38,6 +38,7 @@
 <link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <script src="/js/components.js?v=20260510a" defer></script>
@@ -277,9 +278,32 @@ html.dark .btn-cta:hover{background:var(--cream)}
 }
 
 @media (max-width: 480px){
-  .posts-grid{grid-template-columns:1fr;gap:20px}
+  .posts-grid{grid-template-columns:1fr !important;gap:16px;column-gap:0;row-gap:16px}
   .cat-nav{flex-direction:column;align-items:flex-start;gap:8px}
   .card-label{font-size:9px;padding:5px 8px}
+  .journal-hero{padding:24px 16px 16px}
+  .journal-hero h1{font-size:clamp(26px,7.5vw,36px)}
+  .journal-lede{font-size:13px}
+  .meta-strip{padding:10px 16px;gap:4px 14px}
+  .posts-section{padding:18px 16px 40px}
+  .card-title{font-size:14px;line-height:1.22}
+  .card-meta{font-size:9px}
+  .cta-strip{padding:48px 16px}
+  .cta-strip h2{font-size:clamp(24px,7.2vw,34px)}
+  .cta-strip p{font-size:13px;margin-bottom:22px}
+  .btn-cta{padding:13px 24px;font-size:10px}
+}
+
+/* Tablet — 768 to 1023 — 2-column safe grid */
+@media (min-width: 768px) and (max-width: 1023px){
+  .posts-grid{grid-template-columns:repeat(2,1fr) !important;column-gap:14px;row-gap:24px}
+  .post-card,.post-card.featured-card,.post-card.companion{grid-column:auto !important}
+  .post-card.featured-card .card-image-wrap{aspect-ratio:4/5 !important}
+  .posts-section{padding-left:32px;padding-right:32px}
+  .journal-hero{padding-left:32px;padding-right:32px}
+  .meta-strip{padding-left:32px;padding-right:32px}
+  .card-title{font-size:15px}
+  .header-cta{display:none}
 }
 </style>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>

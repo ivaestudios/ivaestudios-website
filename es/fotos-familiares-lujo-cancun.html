@@ -29,8 +29,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
-<link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
+<link rel="stylesheet" href="/dark-mode.css"/>
 <script src="/js/components.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
@@ -303,9 +304,17 @@ html.js-on .lf-tier:hover .lf-tier-tree path,html.js-on .lf-tier:hover .lf-tier-
 .lf-promise-num{font-family:var(--font-sans,'Syne',sans-serif);font-size:9px;font-weight:500;letter-spacing:.28em;color:var(--gold,#c9a54e);min-width:24px}
 .lf-promise-cta{margin-top:48px}
 @media (max-width: 480px){
-  .lf-meta-strip{grid-template-columns:1fr 1fr}
-  .lf-hero-content{padding-bottom:60px}
+  .lf-meta-strip{grid-template-columns:1fr 1fr;gap:16px}
   .lf-hero-h1{font-size:clamp(28px, 7vw, 38px)}
+  .lf-hero-content{padding-bottom:60px}
+  .lf-stats{gap:12px;padding:16px 0}
+  .lf-pillars-grid{gap:24px}
+  .lf-method-grid{grid-template-columns:1fr !important}
+}
+@media (min-width: 768px) and (max-width: 1023px){
+  .lf-pillars-grid{grid-template-columns:1fr 1fr;gap:32px}
+  .lf-testimonial-grid{grid-template-columns:1fr 1fr;gap:24px}
+  .lf-hero-content{padding-bottom:80px}
 }
 @media(max-width:720px){.lf-promise-list{grid-template-columns:1fr;gap:24px}}
 

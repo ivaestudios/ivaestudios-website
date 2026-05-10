@@ -36,6 +36,7 @@
 <link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <script src="/js/components.js?v=20260510a" defer></script>
@@ -284,9 +285,18 @@ html.dark .btn-cta:hover{background:var(--cream)}
 
 }
 
+@media (min-width: 768px) and (max-width: 1023px){
+  .posts-grid{grid-template-columns:1fr 1fr;gap:24px}
+  .cat-nav{gap:8px}
+}
+
 @media (max-width: 480px){
-  .posts-grid{grid-template-columns:1fr;gap:20px}
-  .cat-nav{flex-direction:column;align-items:flex-start;gap:8px}
+  .posts-grid{grid-template-columns:1fr;gap:16px}
+  .cat-nav{gap:4px;flex-wrap:wrap}
+  .cat-nav a{padding:8px 12px;font-size:12px}
+  .card-title{font-size:18px}
+  .card-excerpt{font-size:13px}
+  .journal-hero h1{font-size:clamp(28px,7vw,38px)}
   .card-label{font-size:9px;padding:5px 8px}
 }
 </style>
@@ -473,10 +483,14 @@ html.dark .btn-cta:hover{background:var(--cream)}
         <p class="card-excerpt">Best beaches, cenotes and resort spots for romantic photoshoots.</p>
         <span class="card-meta">March 8, 2026 &middot; 10 min read</span>
       </div>
-    </a>    <!-- TODO: Agregar <picture>/srcset a las 19 cards posteriores para optimización mobile -->
+    </a>    <!-- TODO: Agregar <picture>/srcset a las 15 cards posteriores para optimización mobile -->
     <a class="post-card rv" data-category="proposals" href="/blog/engagement-session-cancun-riviera-maya">
       <div class="card-image-wrap">
-        <img src="https://assets.ivaestudios.com/blog/engagement-session-cancun-og.jpg" alt="Engagement session in Cancun and Riviera Maya with luxury photographer - IVAE Studios Blog" loading="lazy" decoding="async" width="1600" height="1000"/>
+        <picture>
+          <source type="image/avif" srcset="https://assets.ivaestudios.com/blog/engagement-session-cancun-og.avif"/>
+          <source type="image/webp" srcset="https://assets.ivaestudios.com/blog/engagement-session-cancun-og.webp"/>
+          <img src="https://assets.ivaestudios.com/blog/engagement-session-cancun-og.jpg" alt="Engagement session in Cancun and Riviera Maya with luxury photographer - IVAE Studios Blog" loading="lazy" decoding="async" width="1600" height="1000"/>
+        </picture>
         <span class="card-label">Engagement &middot; Cancun</span>
       </div>
       <div class="card-body">
@@ -486,7 +500,11 @@ html.dark .btn-cta:hover{background:var(--cream)}
       </div>
     </a>    <a class="post-card rv" data-category="maternity" href="/blog/maternity-photoshoot-cancun-riviera-maya">
       <div class="card-image-wrap">
-        <img src="https://assets.ivaestudios.com/blog/maternity-photoshoot-cancun-og.jpg" alt="Maternity photoshoot in Cancun and Riviera Maya at the beach - IVAE Studios Blog" loading="lazy" decoding="async" width="800" height="1000"/>
+        <picture>
+          <source type="image/avif" srcset="https://assets.ivaestudios.com/blog/maternity-photoshoot-cancun-og.avif"/>
+          <source type="image/webp" srcset="https://assets.ivaestudios.com/blog/maternity-photoshoot-cancun-og.webp"/>
+          <img src="https://assets.ivaestudios.com/blog/maternity-photoshoot-cancun-og.jpg" alt="Maternity photoshoot in Cancun and Riviera Maya at the beach - IVAE Studios Blog" loading="lazy" decoding="async" width="800" height="1000"/>
+        </picture>
         <span class="card-label">Maternity &middot; Cancun</span>
       </div>
       <div class="card-body">
@@ -498,7 +516,11 @@ html.dark .btn-cta:hover{background:var(--cream)}
 
     <a class="post-card rv" data-category="locations" href="/blog/best-photo-locations-riviera-maya">
       <div class="card-image-wrap">
-        <img src="https://assets.ivaestudios.com/blog/best-photo-locations-riviera-maya-og.jpg" alt="Best photo locations in Riviera Maya including cenotes and beaches - IVAE Studios Blog" loading="lazy" decoding="async" width="800" height="1000"/>
+        <picture>
+          <source type="image/avif" srcset="https://assets.ivaestudios.com/blog/best-photo-locations-riviera-maya-og.avif"/>
+          <source type="image/webp" srcset="https://assets.ivaestudios.com/blog/best-photo-locations-riviera-maya-og.webp"/>
+          <img src="https://assets.ivaestudios.com/blog/best-photo-locations-riviera-maya-og.jpg" alt="Best photo locations in Riviera Maya including cenotes and beaches - IVAE Studios Blog" loading="lazy" decoding="async" width="800" height="1000"/>
+        </picture>
         <span class="card-label">Locations &middot; Riviera Maya</span>
       </div>
       <div class="card-body">
@@ -508,7 +530,11 @@ html.dark .btn-cta:hover{background:var(--cream)}
       </div>
     </a>    <a class="post-card rv" data-category="family" href="/blog/family-vacation-photos-mexico">
       <div class="card-image-wrap">
-        <img src="https://assets.ivaestudios.com/blog/family-vacation-photos-mexico-og.jpg" alt="Family vacation photos in Mexico at a luxury resort - IVAE Studios Blog" loading="lazy" decoding="async" width="1200" height="900"/>
+        <picture>
+          <source type="image/avif" srcset="https://assets.ivaestudios.com/blog/family-vacation-photos-mexico-og.avif"/>
+          <source type="image/webp" srcset="https://assets.ivaestudios.com/blog/family-vacation-photos-mexico-og.webp"/>
+          <img src="https://assets.ivaestudios.com/blog/family-vacation-photos-mexico-og.jpg" alt="Family vacation photos in Mexico at a luxury resort - IVAE Studios Blog" loading="lazy" decoding="async" width="1200" height="900"/>
+        </picture>
         <span class="card-label">Families &middot; Mexico</span>
       </div>
       <div class="card-body">
@@ -518,7 +544,11 @@ html.dark .btn-cta:hover{background:var(--cream)}
       </div>
     </a>    <a class="post-card rv" data-category="locations" href="/blog/los-cabos-photographer-guide">
       <div class="card-image-wrap">
-        <img src="https://assets.ivaestudios.com/blog/los-cabos-photographer-guide-og.jpg" alt="Los Cabos photographer guide with top locations and golden hour tips - IVAE Studios Blog" loading="lazy" decoding="async" width="800" height="1000"/>
+        <picture>
+          <source type="image/avif" srcset="https://assets.ivaestudios.com/blog/los-cabos-photographer-guide-og.avif"/>
+          <source type="image/webp" srcset="https://assets.ivaestudios.com/blog/los-cabos-photographer-guide-og.webp"/>
+          <img src="https://assets.ivaestudios.com/blog/los-cabos-photographer-guide-og.jpg" alt="Los Cabos photographer guide with top locations and golden hour tips - IVAE Studios Blog" loading="lazy" decoding="async" width="800" height="1000"/>
+        </picture>
         <span class="card-label">Guide &middot; Los Cabos</span>
       </div>
       <div class="card-body">
@@ -528,7 +558,11 @@ html.dark .btn-cta:hover{background:var(--cream)}
       </div>
     </a>    <a class="post-card rv" data-category="guides" href="/blog/how-to-choose-luxury-photographer-mexico">
       <div class="card-image-wrap">
-        <img src="https://assets.ivaestudios.com/blog/choose-luxury-photographer-mexico-og.jpg" alt="How to choose a luxury photographer in Mexico guide - IVAE Studios Blog" loading="lazy" decoding="async" width="800" height="1000"/>
+        <picture>
+          <source type="image/avif" srcset="https://assets.ivaestudios.com/blog/choose-luxury-photographer-mexico-og.avif"/>
+          <source type="image/webp" srcset="https://assets.ivaestudios.com/blog/choose-luxury-photographer-mexico-og.webp"/>
+          <img src="https://assets.ivaestudios.com/blog/choose-luxury-photographer-mexico-og.jpg" alt="How to choose a luxury photographer in Mexico guide - IVAE Studios Blog" loading="lazy" decoding="async" width="800" height="1000"/>
+        </picture>
         <span class="card-label">Tips &middot; Mexico</span>
       </div>
       <div class="card-body">
@@ -540,7 +574,11 @@ html.dark .btn-cta:hover{background:var(--cream)}
 
     <a class="post-card rv" data-category="proposals" href="/blog/surprise-proposal-photography-cancun">
       <div class="card-image-wrap">
-        <img src="https://assets.ivaestudios.com/blog/surprise-proposal-photography-cancun-og.jpg" alt="Surprise proposal photography in Cancun and Riviera Maya - IVAE Studios Blog" loading="lazy" decoding="async" width="800" height="1000"/>
+        <picture>
+          <source type="image/avif" srcset="https://assets.ivaestudios.com/blog/surprise-proposal-photography-cancun-og.avif"/>
+          <source type="image/webp" srcset="https://assets.ivaestudios.com/blog/surprise-proposal-photography-cancun-og.webp"/>
+          <img src="https://assets.ivaestudios.com/blog/surprise-proposal-photography-cancun-og.jpg" alt="Surprise proposal photography in Cancun and Riviera Maya - IVAE Studios Blog" loading="lazy" decoding="async" width="800" height="1000"/>
+        </picture>
         <span class="card-label">Proposals &middot; Cancun</span>
       </div>
       <div class="card-body">
@@ -552,7 +590,11 @@ html.dark .btn-cta:hover{background:var(--cream)}
 
     <a class="post-card rv" data-category="guides" href="/blog/what-to-wear-beach-photos-mexico">
       <div class="card-image-wrap">
-        <img src="https://assets.ivaestudios.com/blog/what-to-wear-beach-photos-mexico-og.jpg" alt="What to wear for beach photos in Mexico styling guide - IVAE Studios Blog" loading="lazy" decoding="async" width="1600" height="1000"/>
+        <picture>
+          <source type="image/avif" srcset="https://assets.ivaestudios.com/blog/what-to-wear-beach-photos-mexico-og.avif"/>
+          <source type="image/webp" srcset="https://assets.ivaestudios.com/blog/what-to-wear-beach-photos-mexico-og.webp"/>
+          <img src="https://assets.ivaestudios.com/blog/what-to-wear-beach-photos-mexico-og.jpg" alt="What to wear for beach photos in Mexico styling guide - IVAE Studios Blog" loading="lazy" decoding="async" width="1600" height="1000"/>
+        </picture>
         <span class="card-label">Style &middot; Mexico</span>
       </div>
       <div class="card-body">

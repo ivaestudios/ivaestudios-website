@@ -31,6 +31,7 @@
 <link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <script src="/js/components.js?v=20260510a" defer></script>
@@ -759,9 +760,31 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
  .lc-case-meta-cell:last-child{border-bottom:none;padding-bottom:0}
 }
 @media (max-width: 480px){
- .lc-reel-track{gap:16px;padding-inline:clamp(16px,4vw,20px)}
+ .lc-reel-track{gap:16px;padding-inline:clamp(16px,4vw,20px);scroll-snap-type:x mandatory}
+ .lc-reel-frame{flex:0 0 min(82vw,360px)}
  .lc-hero-ctas, .lc-inquiry-ctas{gap:10px}
- .lc-hero-h1{font-size:clamp(28px, 7vw, 42px)}
+ .lc-hero-h1{font-size:clamp(28px, 7vw, 42px);max-width:100%}
+ .lc-tier-grid{grid-template-columns:1fr;max-width:100%}
+ .lc-method-grid{grid-template-columns:1fr;max-width:100%}
+ .lc-testimonial-grid,
+ .lc-testimonials-grid{grid-template-columns:1fr;max-width:100%}
+ .lc-promise-list{grid-template-columns:1fr}
+ .lc-case-meta{grid-template-columns:1fr}
+ .lc-stats{gap:24px}
+ .lc-stat{min-width:auto;flex:1 1 40%}
+}
+
+/* ═══ Tablet (768–1023px) ═══ */
+@media (min-width: 768px) and (max-width: 1023px){
+ .lc-tier-grid{grid-template-columns:1fr 1fr}
+ .lc-tier-card--featured{transform:none}
+ .lc-testimonial-grid,
+ .lc-testimonials-grid{grid-template-columns:1fr 1fr}
+ .lc-method-grid{grid-template-columns:1fr 1fr}
+ .lc-promise-list{grid-template-columns:1fr 1fr}
+ .lc-hero-h1{font-size:clamp(40px,6vw,68px)}
+ .lc-reel-frame{flex:0 0 clamp(280px,42vw,420px)}
+ .lc-case-meta{grid-template-columns:repeat(3,1fr)}
 }
 </style>
 </head>

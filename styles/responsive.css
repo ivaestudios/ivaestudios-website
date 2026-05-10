@@ -1,0 +1,123 @@
+/* IVAE Studios — Responsive utilities (mobile-first).
+   Single source of truth for breakpoints + touch targets + image overflow safety.
+   Loaded after site-header.css on all pages. */
+
+/* ─── Box-sizing safety ─── */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ─── Image overflow protection (no horizontal scroll on mobile) ─── */
+img, picture, video, iframe, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ─── Body padding-top to account for fixed header ─── */
+body {
+  padding-top: 0;
+}
+@media (min-width: 769px) {
+  body { padding-top: 0; }
+}
+
+/* ─── Touch targets minimum 44×44 (Apple HIG / WCAG 2.5.5) ─── */
+@media (pointer: coarse), (max-width: 768px) {
+  a, button, [role="button"], input[type="button"], input[type="submit"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .colophon-cols ul a,
+  .colophon-bottom a,
+  .h-nav a,
+  .lang-switch a,
+  .footer-nav a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* ─── Mobile: prevent horizontal scroll site-wide ─── */
+html, body { overflow-x: clip; max-width: 100vw; }
+
+/* ─── Smooth scroll + scroll-padding for anchors ─── */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 68px;
+}
+@media (max-width: 768px) {
+  html { scroll-padding-top: 60px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+/* ─── 100vh → 100svh fallback for mobile Safari ─── */
+.full-vh { min-height: 100vh; min-height: 100svh; }
+
+/* ─── Hide elements only on mobile / only on desktop ─── */
+@media (max-width: 768px) { .hide-mobile { display: none !important; } }
+@media (min-width: 769px) { .hide-desktop { display: none !important; } }
+@media (max-width: 1023px) { .hide-tablet { display: none !important; } }
+
+/* ─── Container responsive ─── */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 4vw, 48px);
+}
+
+/* ─── Print: hide non-essential ─── */
+@media print {
+  .site-header, .colophon, .h-cta, video, audio { display: none !important; }
+}
+
+/* ─── Blog post mobile/tablet typography + readable measure ───
+   Applied via .post-article (used on every post-*.html). Mobile-first clamps
+   keep body copy comfortable from 360px phones up to wide viewports, and the
+   720px max-width on the inner content gives a luxury-magazine measure of
+   ~70 characters per line on tablet/desktop. */
+.post-article {
+  width: 100%;
+}
+.post-article > *:not(.post-fullbleed):not(figure):not(.post-pullquote):not(.post-cta-card) {
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.post-article p,
+.post-article li {
+  font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  line-height: 1.7;
+}
+.post-article h2 {
+  font-size: clamp(1.5rem, 1.2rem + 1.6vw, 2.25rem);
+  line-height: 1.2;
+}
+.post-article h3 {
+  font-size: clamp(1.25rem, 1.05rem + 1vw, 1.625rem);
+  line-height: 1.3;
+}
+.post-article h4 {
+  font-size: clamp(1.05rem, 0.95rem + 0.6vw, 1.25rem);
+  line-height: 1.35;
+}
+.post-hero h1 {
+  font-size: clamp(1.75rem, 1.2rem + 3vw, 3.25rem);
+  line-height: 1.15;
+}
+@media (max-width: 768px) {
+  .post-article {
+    padding-left: clamp(16px, 5vw, 24px);
+    padding-right: clamp(16px, 5vw, 24px);
+  }
+  .post-hero h1 {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+.post-article img {
+  width: 100%;
+  height: auto;
+  display: block;
+}

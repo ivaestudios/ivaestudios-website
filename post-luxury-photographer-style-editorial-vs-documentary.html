@@ -181,6 +181,24 @@
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
+<style>
+@media(max-width:767px){
+  .post-article{padding:36px 22px 56px}
+  .post-article p,.post-article ul li,.post-article ol li{font-size:16px;line-height:1.85}
+  .post-lead{font-size:19px;line-height:1.7;margin-bottom:36px}
+  .post-hero h1{font-size:clamp(26px,7vw,36px)}
+  .post-meta-bar{font-size:11px;flex-wrap:wrap;gap:6px}
+  figure.inline-photo,.inline-photo{margin:28px 0}
+  .toc,.toc-box{padding-left:22px;padding-right:22px}
+}
+@media(min-width:768px) and (max-width:1023px){
+  .post-article{padding:44px 48px 64px}
+  .post-article p,.post-article ul li,.post-article ol li{font-size:15.5px}
+}
+.post-article{max-width:760px}
+.post-article img,.inline-photo img,figure img{max-width:100%;height:auto;display:block}
+</style>
 <script src="/js/components.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 
@@ -252,7 +270,7 @@
 
 <!-- HERO -->
 <section class="post-hero">
-  <img src="/images/editorial-cancun-ivae-studios.jpg" alt="Editorial luxury photography session in Cancún by IVAE Studios — directed pose, golden hour light, magazine-style composition" loading="eager"/>
+  <img src="/images/editorial-cancun-ivae-studios.jpg" alt="Editorial luxury photography session in Cancún by IVAE Studios — directed pose, golden hour light, magazine-style composition" loading="eager" width="1600" height="900" fetchpriority="high"/>
   <div class="post-hero-overlay"></div>
   <div class="post-hero-content">
     <a class="post-back" href="/blog"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg> Back to Journal</a>
@@ -328,7 +346,7 @@
   <p><strong>The visual reference, in our work,</strong> looks like this: a couple at golden hour in front of the Cancún Hotel Zone shoreline, the woman's dress pulled by ocean wind in a single sustained gesture, her face turned three-quarters toward soft backlight, the man's hand placed at the small of her back rather than wherever it landed naturally. Skin tones are warm but not orange. The sky is exposed for color rather than blown out. The image looks like a fashion editorial because it was built like one.</p>
 
   <figure class="inline-photo">
-    <img src="/images/editorial-cancun-ivae-studios.jpg" alt="Editorial portrait at golden hour in Cancún — directed pose, ocean backlight, magazine-style composition by IVAE Studios"/>
+    <img src="/images/editorial-cancun-ivae-studios.jpg" alt="Editorial portrait at golden hour in Cancún — directed pose, ocean backlight, magazine-style composition by IVAE Studios" loading="lazy" width="1200" height="800"/>
     <figcaption>Editorial direction at golden hour, Cancún | IVAE Studios</figcaption>
   </figure>
 
@@ -343,7 +361,7 @@
   <p><strong>Documentary editing</strong> tends toward neutral. Color grading is light. The goal is to preserve what was actually in front of the camera rather than to construct a unified visual identity. This is a feature, not a flaw — but it is a different aesthetic philosophy than editorial.</p>
 
   <figure class="inline-photo">
-    <img src="/images/couple-cancun-ivae-studios-3.jpg" alt="Documentary-style couple photography in Cancún — observed candid moment, neutral grading"/>
+    <img src="/images/couple-cancun-ivae-studios-3.jpg" alt="Documentary-style couple photography in Cancún — observed candid moment, neutral grading" loading="lazy" width="1200" height="800"/>
     <figcaption>Documentary observation, candid moment | IVAE Studios</figcaption>
   </figure>
 
@@ -407,7 +425,7 @@
   <p>The hybrid version delivers more usable variety. The pure editorial version delivers fewer but stronger hero images. The pure documentary version delivers emotional truth but inconsistent visual identity across the gallery. None is wrong. They are answering different questions.</p>
 
   <figure class="inline-photo">
-    <img src="/images/couple-cancun-beach-ivae-studios.jpg" alt="Hybrid couples photography on a Cancún beach — directed walk with documentary candid moments captured between marks"/>
+    <img src="/images/couple-cancun-beach-ivae-studios.jpg" alt="Hybrid couples photography on a Cancún beach — directed walk with documentary candid moments captured between marks" loading="lazy" width="1200" height="800"/>
     <figcaption>Hybrid: directed walk, captured candidly inside the frame | IVAE Studios</figcaption>
   </figure>
 
@@ -470,7 +488,7 @@
   <p>None of this is unusual at the luxury level. What I have learned over ten years is that the consistency of doing all of it on every shoot — without skipping the planning call, without phoning in the post, without delivering raw exports labeled as "candid" — is what actually separates working luxury photographers from photographers charging luxury prices.</p>
 
   <figure class="inline-photo">
-    <img src="/images/wedding-bride-cancun-beach-ivae-studios.jpg" alt="Editorial bridal portrait on a Cancún beach — directed pose, magazine composition, IVAE Studios"/>
+    <img src="/images/wedding-bride-cancun-beach-ivae-studios.jpg" alt="Editorial bridal portrait on a Cancún beach — directed pose, magazine composition, IVAE Studios" loading="lazy" width="1200" height="800"/>
     <figcaption>Editorial bridal portrait, Cancún | IVAE Studios</figcaption>
   </figure>
 

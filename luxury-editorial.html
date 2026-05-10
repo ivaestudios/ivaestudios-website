@@ -46,6 +46,7 @@
 <link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <script src="/js/components.js?v=20260510a" defer></script>
@@ -1730,6 +1731,20 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 .le-how-we-work-cta{margin:48px auto 0;max-width:1100px}
 .le-how-we-work-footnote{margin:48px auto 0;max-width:1100px;font-family:var(--font-serif,'Cormorant Garamond',serif);font-style:italic;font-size:15px;color:rgba(250,248,245,.55)}
 @media(max-width:720px){.le-promise-list{grid-template-columns:1fr;gap:24px}}
+
+/* ═══════ Responsive optimizations - Mobile + Tablet (v=20260510a) ═══════ */
+@media (max-width: 480px){
+  .le-hero h1 { font-size: clamp(28px, 7vw, 42px); }
+  .le-reel-track { gap: 12px; padding-inline: 16px; }
+  .le-promise-list { grid-template-columns: 1fr; gap: 16px; }
+  .le-testimonials-grid { grid-template-columns: 1fr; gap: 20px; }
+  .le-pullquote-ornament { font-size: clamp(120px, 28vw, 200px); }
+}
+@media (min-width: 768px) and (max-width: 1023px){
+  .le-promise-list { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .le-testimonials-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .le-method-grid { grid-template-columns: 1fr 1fr; }
+}
 </style>
 
 <!-- ═══════ Section 6 - Method timeline ═══════ -->

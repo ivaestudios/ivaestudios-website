@@ -214,6 +214,24 @@
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
+<style>
+@media(max-width:767px){
+  .post-article{padding:36px 22px 56px}
+  .post-article p,.post-article ul li,.post-article ol li{font-size:16px;line-height:1.85}
+  .post-lead{font-size:19px;line-height:1.7;margin-bottom:36px}
+  .post-hero h1{font-size:clamp(26px,7vw,36px)}
+  .post-meta-bar{font-size:11px;flex-wrap:wrap;gap:6px}
+  figure.inline-photo,.inline-photo{margin:28px 0}
+  .toc,.toc-box{padding-left:22px;padding-right:22px}
+}
+@media(min-width:768px) and (max-width:1023px){
+  .post-article{padding:44px 48px 64px}
+  .post-article p,.post-article ul li,.post-article ol li{font-size:15.5px}
+}
+.post-article{max-width:760px}
+.post-article img,.inline-photo img,figure img{max-width:100%;height:auto;display:block}
+</style>
 <script src="/js/components.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 
@@ -291,7 +309,7 @@
 <!-- HERO -->
 <section class="post-hero">
   <div class="post-hero-ph"><span>★ Hero image · Bride at golden hour, Mayakoba beach — luxury Riviera Maya wedding photographer</span></div>
-  <img src="/images/wedding-bride-cancun-beach-ivae-studios.jpg" alt="Bride at golden hour on the Mayakoba beach photographed by IVAE Studios, luxury Riviera Maya wedding photographer" loading="eager"/>
+  <img src="/images/wedding-bride-cancun-beach-ivae-studios.jpg" alt="Bride at golden hour on the Mayakoba beach photographed by IVAE Studios, luxury Riviera Maya wedding photographer" loading="eager" width="1600" height="900" fetchpriority="high"/>
   <div class="post-hero-overlay"></div>
   <div class="post-hero-content">
     <a class="post-back" href="/blog"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg> Back to Journal</a>
@@ -360,7 +378,7 @@
   <p>Around 4:30 PM, with the light beginning to soften, we moved the couple onto the Rosewood beach for an editorial portrait block ahead of the Saturday wedding. Treating this as a separate session pays off massively on the wedding day itself: the couple already has editorial portraits in their gallery before the ceremony, which removes pressure from the post-ceremony golden-hour window. By the time Saturday's golden hour arrives, the couple is loose, the photographer-couple chemistry is established and the few minutes of wedding-day light produce a different kind of image — celebratory rather than introductory.</p>
 
   <figure class="inline-photo">
-    <img src="/images/wedding-bride-cancun-beach-ivae-studios-2.jpg" alt="Bride on the Mayakoba beach during the pre-wedding portrait block by IVAE Studios" loading="lazy"/>
+    <img src="/images/wedding-bride-cancun-beach-ivae-studios-2.jpg" alt="Bride on the Mayakoba beach during the pre-wedding portrait block by IVAE Studios" loading="lazy" width="1200" height="800"/>
     <figcaption>Pre-wedding bridal portrait — Rosewood Mayakoba beach | IVAE Studios, Mayakoba wedding photographer</figcaption>
   </figure>
 
@@ -415,7 +433,7 @@
   <p>Final hour of dance floor energy plus the planned sparkler exit at 9:30. Eight hours, exactly to the minute, gallery complete.</p>
 
   <figure class="inline-photo">
-    <img src="/images/wedding-cancun-hotel-zone-ivae-studios.jpg" alt="Wedding ceremony at Fairmont Mayakoba chapel photographed by IVAE Studios" loading="lazy"/>
+    <img src="/images/wedding-cancun-hotel-zone-ivae-studios.jpg" alt="Wedding ceremony at Fairmont Mayakoba chapel photographed by IVAE Studios" loading="lazy" width="1200" height="800"/>
     <figcaption>Ceremony coverage — Fairmont Mayakoba chapel | IVAE Studios, Banyan Tree Mayakoba wedding photographer</figcaption>
   </figure>
 
@@ -497,7 +515,7 @@
   <p>A second shooter for the wedding day is non-negotiable for the cross-property timeline. Single coverage is workable for a one-resort wedding; for Mayakoba's geography, you need two cameras moving in parallel.</p>
 
   <figure class="inline-photo">
-    <img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="Editorial bridal portrait at Mayakoba photographed by IVAE Studios luxury wedding photographer" loading="lazy"/>
+    <img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="Editorial bridal portrait at Mayakoba photographed by IVAE Studios luxury wedding photographer" loading="lazy" width="1200" height="800"/>
     <figcaption>Editorial bridal portrait — Mayakoba | IVAE Studios, Rosewood Mayakoba wedding photographer</figcaption>
   </figure>
 
@@ -589,27 +607,27 @@
 <!-- INLINE PHOTO GRID -->
 <section class="image-strip" aria-label="More Mayakoba wedding work">
   <figure class="inline-photo">
-    <img src="/images/wedding-decor-cancun-beach-ivae-studios.jpg" alt="Tropical reception decor at Mayakoba beach photographed by IVAE Studios" loading="lazy"/>
+    <img src="/images/wedding-decor-cancun-beach-ivae-studios.jpg" alt="Tropical reception decor at Mayakoba beach photographed by IVAE Studios" loading="lazy" width="1200" height="800"/>
     <figcaption>Tropical reception decor — Mayakoba beach | IVAE Studios</figcaption>
   </figure>
   <figure class="inline-photo">
-    <img src="/images/wedding-groom-cancun-beach-ivae-studios.jpg" alt="Groom portrait on Mayakoba beach photographed by IVAE Studios luxury wedding photographer" loading="lazy"/>
+    <img src="/images/wedding-groom-cancun-beach-ivae-studios.jpg" alt="Groom portrait on Mayakoba beach photographed by IVAE Studios luxury wedding photographer" loading="lazy" width="1200" height="800"/>
     <figcaption>Groom portrait — Mayakoba beach | IVAE Studios, Banyan Tree Mayakoba wedding photographer</figcaption>
   </figure>
   <figure class="inline-photo">
-    <img src="/images/wedding-cancun-hotel-zone-ivae-studios-2.jpg" alt="Wedding reception coverage at Mayakoba photographed by IVAE Studios" loading="lazy"/>
+    <img src="/images/wedding-cancun-hotel-zone-ivae-studios-2.jpg" alt="Wedding reception coverage at Mayakoba photographed by IVAE Studios" loading="lazy" width="1200" height="800"/>
     <figcaption>Reception coverage — Mayakoba | IVAE Studios, Mayakoba wedding photography</figcaption>
   </figure>
   <figure class="inline-photo">
-    <img src="/images/wedding-bride-cancun-beach-ivae-studios-4.jpg" alt="Bride at Mayakoba mangrove canal photographed by IVAE Studios" loading="lazy"/>
+    <img src="/images/wedding-bride-cancun-beach-ivae-studios-4.jpg" alt="Bride at Mayakoba mangrove canal photographed by IVAE Studios" loading="lazy" width="1200" height="800"/>
     <figcaption>Bride near Mayakoba mangrove canal | IVAE Studios</figcaption>
   </figure>
   <figure class="inline-photo">
-    <img src="/images/wedding-decor-cancun-hotel-zone-ivae-studios.jpg" alt="Wedding chapel detail at Fairmont Mayakoba photographed by IVAE Studios" loading="lazy"/>
+    <img src="/images/wedding-decor-cancun-hotel-zone-ivae-studios.jpg" alt="Wedding chapel detail at Fairmont Mayakoba photographed by IVAE Studios" loading="lazy" width="1200" height="800"/>
     <figcaption>Fairmont Mayakoba chapel detail | IVAE Studios</figcaption>
   </figure>
   <figure class="inline-photo">
-    <img src="/images/wedding-groom-cancun-beach-ivae-studios-3.jpg" alt="Groom and groomsmen at Mayakoba pre-ceremony photographed by IVAE Studios" loading="lazy"/>
+    <img src="/images/wedding-groom-cancun-beach-ivae-studios-3.jpg" alt="Groom and groomsmen at Mayakoba pre-ceremony photographed by IVAE Studios" loading="lazy" width="1200" height="800"/>
     <figcaption>Groom and groomsmen pre-ceremony | IVAE Studios</figcaption>
   </figure>
 </section>

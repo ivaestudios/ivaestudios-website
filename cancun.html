@@ -40,7 +40,9 @@ html{scroll-behavior:smooth}
 body{font-family:'Syne',sans-serif;background:var(--cream);color:var(--ink);overflow-x:hidden;padding-top:72px}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:0.022;pointer-events:none;z-index:9999}
 a{color:inherit}
-.wrap{max-width:1200px;margin:0 auto;width:100%}
+.wrap{max-width:min(1200px,100%);margin:0 auto;width:100%;padding:0 clamp(16px,4vw,32px)}
+img,picture{max-width:100%;height:auto}
+.svc-img img,.pg-i img,.loc img,.why-img img,.hero-bg img{max-width:100%}
 /* --- Reveal system --- */
 .rv{opacity:0;transform:translateY(24px);transition:all 0.7s cubic-bezier(0.16,1,0.3,1)}.rv[data-anim="scale"]{transform:scale(0.97);opacity:0}.rv.vis{opacity:1;transform:none}
 .d1{transition-delay:0.08s}.d2{transition-delay:0.16s}.d3{transition-delay:0.24s}.d4{transition-delay:0.32s}.d5{transition-delay:0.4s}
@@ -185,15 +187,24 @@ a{color:inherit}
 
 
 
-/* --- Responsive: Tablet --- */
-@media(max-width:1024px){
+/* --- Responsive: Tablet (768-1023px) — 2-col grids --- */
+@media(min-width:768px) and (max-width:1023px){
 .why-grid{grid-template-columns:1fr;gap:48px}
 .why-img img{height:360px}
-.services-grid,.timeline{grid-template-columns:1fr 1fr}
-.pg{grid-template-columns:1fr 1fr;grid-auto-rows:200px}
+.services-grid{grid-template-columns:1fr 1fr;gap:2px}
+.timeline{grid-template-columns:1fr 1fr}
+.pg{grid-template-columns:1fr 1fr;grid-auto-rows:220px}
+.pg-i.feat{grid-column:span 2;grid-row:span 2}
 .loc-grid{grid-template-columns:1fr 1fr}
 .test-grid{grid-template-columns:1fr 1fr}
 .test:nth-child(3){grid-column:1/-1}
+.why,.services,.locations,.process,.resorts,.testimonials,.faq,.int-links,.gallery{padding:80px 40px}
+.breadcrumb,.stats-strip{padding-left:40px;padding-right:40px}
+.hero-content{padding:0 40px}
+}
+/* Legacy combined tablet+mobile fallback */
+@media(max-width:1024px) and (min-width:1024px){
+.why-grid{grid-template-columns:1fr;gap:48px}
 }
 /* --- Responsive: Mobile --- */
 @media(max-width:767px){
@@ -243,6 +254,69 @@ a{color:inherit}
 .timeline .step::before{content:'';position:absolute;left:-38px;top:44px;width:9px;height:9px;border-radius:50%;background:var(--gold);border:2px solid var(--sand)}
 .svc-img img,.pg-i img,.loc img,.why-img img{object-position:center 20%}
 }
+/* --- Responsive: Small Mobile (<=480px) — mobile-first refinements --- */
+@media(max-width:480px){
+.hero{height:90svh;min-height:560px}
+.hero-content{padding:0 18px;max-width:100%}
+.hero h1{font-size:clamp(26px,9vw,38px);line-height:1.15}
+.hero-sub{font-size:12.5px;line-height:1.7;margin-top:18px}
+.hero-btn{margin-top:26px;font-size:9.5px;padding:13px 28px;letter-spacing:0.2em}
+.breadcrumb{padding:12px 18px}
+.breadcrumb ol{font-size:8.5px;letter-spacing:0.12em;flex-wrap:wrap}
+.stats-strip{padding:28px 18px}
+.stats-inner{grid-template-columns:1fr 1fr;gap:22px 12px}
+.stat-item .n{font-size:24px}
+.stat-item .l{font-size:9px;letter-spacing:0.12em}
+.why,.services,.locations,.process,.resorts,.testimonials,.faq,.int-links,.gallery{padding:48px 18px}
+.cta{padding:64px 18px}
+.sec-h{font-size:clamp(24px,7.5vw,32px)}
+.section-label{font-size:8.5px;margin-bottom:22px;gap:10px}
+.section-label::after{width:28px}
+.why-grid{gap:28px}
+.why-img img{height:220px}
+.why-text p{font-size:13px;line-height:1.75}
+.quote-block{margin:24px 0;padding:18px 20px}
+.quote-block p{font-size:17px;line-height:1.5}
+.services-grid{grid-template-columns:1fr;gap:12px;margin-top:36px}
+.svc-img{height:200px}
+.svc-body{padding:22px 18px}
+.svc-num{font-size:36px;margin-bottom:10px}
+.svc h3{font-size:19px;margin-bottom:10px}
+.svc p{font-size:12.5px;line-height:1.7}
+.pg{grid-template-columns:1fr 1fr;grid-auto-rows:140px;gap:3px;margin-top:36px}
+.pg-i.feat{grid-column:span 2;grid-row:span 1}
+.loc-grid{grid-template-columns:1fr;gap:6px;margin-top:36px}
+.loc{height:180px}
+.loc h3{font-size:18px}
+.loc-tag{font-size:8.5px;letter-spacing:0.12em}
+.timeline{padding-left:42px;margin-top:36px}
+.timeline::before{left:14px}
+.timeline .step::before{left:-32px;top:36px;width:8px;height:8px}
+.step{padding:24px 18px}
+.step-num{font-size:34px;margin-bottom:12px}
+.step h3{font-size:18px}
+.step p{font-size:12.5px;line-height:1.7}
+.resort-list{gap:8px;margin-top:28px}
+.resort-chip{font-size:9.5px;padding:9px 14px;letter-spacing:0.1em}
+.test-grid{grid-template-columns:1fr;gap:8px;margin-top:36px}
+.test{padding:28px 22px}
+.test blockquote{font-size:15.5px;line-height:1.55;margin-bottom:18px}
+.test .stars{font-size:12px;letter-spacing:3px;margin-bottom:14px}
+.test .author,.test .detail{font-size:10px}
+.faq-list{margin-top:32px}
+.faq-q{font-size:13px;padding:18px 0;gap:14px;line-height:1.4}
+.faq-q::after{font-size:24px}
+.faq-item.open .faq-a{padding-bottom:18px}
+.faq-a p{font-size:12.5px;line-height:1.75}
+.cta h2{font-size:clamp(24px,8vw,34px);margin-bottom:14px}
+.cta-btns{gap:10px;margin-top:28px;flex-direction:column;align-items:stretch;max-width:280px;margin-left:auto;margin-right:auto}
+.cta-btn{font-size:9px;padding:13px 22px;letter-spacing:0.2em}
+.int-links-list{gap:10px;margin-top:24px}
+.int-link{font-size:9.5px;padding:9px 14px;letter-spacing:0.1em}
+.colophon-cols{grid-template-columns:1fr}
+nav[aria-label="Cancun services"]{padding:24px 18px;font-size:11px}
+nav[aria-label="Cancun services"] a{display:inline-block;margin:4px 8px}
+}
 </style>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
 <meta name="publisher" content="IVAE Studios"/>
@@ -271,6 +345,7 @@ a{color:inherit}
 <link rel="me" href="https://instagram.com/ivaestudios.cancun"/>
 <link rel="alternate" type="text/plain" title="AI-readable site manifest" href="/llms.txt"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>

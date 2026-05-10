@@ -38,6 +38,7 @@
 <link rel="stylesheet" href="/styles/site-header.css?v=20260510a"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260510a"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260510a"/>
 <script src="/js/components.js?v=20260510a" defer></script>
 <script src="/js/site-header.js?v=20260510a" defer></script>
 <script src="/js/services-dropdown-v2.js" defer></script>
@@ -1300,6 +1301,17 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 @media (max-width: 480px){
  .lw-hero h1{font-size:clamp(28px, 7vw, 42px)}
  .lw-stats{grid-template-columns:1fr;gap:20px}
+ .pillars-grid{grid-template-columns:1fr;gap:24px}
+ .feature-meta{grid-template-columns:1fr;gap:14px 0}
+ .frames-rail{gap:12px;padding-inline:16px;scroll-padding-inline:16px}
+ .tlist-grid{grid-template-columns:1fr}
+}
+
+/* ─── Tablet (768–1023px) two-column refinements ─── */
+@media (min-width:768px) and (max-width:1023px){
+ .pillars-grid{grid-template-columns:1fr 1fr;gap:clamp(20px,2.4vw,32px)}
+ .tlist-grid{grid-template-columns:1fr 1fr}
+ .feature-meta{grid-template-columns:1fr 1fr;gap:20px 28px}
 }
 
 /* ─── Mobile: ensure preview overlay never shows on touch ─── */
