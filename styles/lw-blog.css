@@ -1,10 +1,6 @@
-/* ──────────────────────────────────────────────────────────────────────
-   IVAE Studios — Journal (Blog Index) Architecture
-   Scope: /blog.html (index only). Tokens from tokens.css.
-   Sections: masthead, hero-feature, dossier (1 wide + 2 portrait),
-   categories (sticky), archive (3 typologies), newsletter (split).
-   Mobile-first: base ≤599px, tablet 600+, desktop 1024+.
-   ────────────────────────────────────────────────────────────────────── */
+/* IVAE Studios — Journal (Blog Index) Architecture.
+   Scope: /blog.html index. Tokens from tokens.css.
+   Mobile-first: base ≤599px, tablet 600+, desktop 1024+. */
 
 /* 0. SHELL / RESETS */
 
@@ -724,9 +720,7 @@
 .lw-blog-newsletter__fineprint a:hover{color:var(--gold)}
 
 
-/* ═══════════════════════════════════════════════════════════════════════
-   7.  RESPONSIVE COLLAPSES + ACCESSIBILITY
-   ═══════════════════════════════════════════════════════════════════════ */
+/* 7. RESPONSIVE + A11Y */
 
 @media(max-width:599px){
   /* Masthead title scales below clamp floor on very small phones */
