@@ -2,6 +2,15 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#0a0f17" media="(prefers-color-scheme: dark)"/>
+<meta name="theme-color" content="#c9a54e" media="(prefers-color-scheme: light)"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="IVAE Studios"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/cormorantgaramond/v16/co3WmX5slCNuHLi8bLeY9MK7whWMhyjornFLsS6V7w.woff2"/>
 <title>Fotógrafa de Parejas en Cancún | IVAE Studios</title>
 <meta name="description" content="Fotógrafa de parejas y luna de miel de lujo en Cancún. Sesiones en playa en hora dorada, parejas en cenotes, sesiones en resort. Poses editoriales, dirección bilingüe, galerías 4K."/>
 <link rel="canonical" href="https://ivaestudios.com/es/fotografia-parejas-mexico"/>
@@ -777,6 +786,16 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
  .lc-reel-frame{flex:0 0 clamp(280px,42vw,420px)}
  .lc-case-meta{grid-template-columns:repeat(3,1fr)}
 }
+
+/* ─── Sticky bottom CTA gold thread (mobile) ─── */
+@media (max-width:768px){
+  .lw-actions::before,.lw-actions::after,
+  .lc-hero-ctas::before,.lc-hero-ctas::after,
+  .lf-hero-ctas::before,.lf-hero-ctas::after,
+  .le-hero-cta-wrap::before,.le-hero-cta-wrap::after{
+    content:'';display:block;width:1px;height:22px;background:rgba(201,165,78,.55);margin:8px auto;
+  }
+}
 </style>
 <link rel="stylesheet" href="/styles/lw-editorial.css?v=20260511a"/>
 <script src="/js/lw-editorial.js?v=20260511a" defer></script>
@@ -830,13 +849,19 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
  ═══════════════════════════════════════════════════════════════ -->
 <section class="lc-hero" id="hero" data-parallax-host aria-labelledby="hero-h1">
  <div class="lc-hero-bg" data-parallax-target>
- <img src="https://assets.ivaestudios.com/couples-photography-mexico-hero.jpg"
+ <picture>
+  <source type="image/avif" srcset="https://assets.ivaestudios.com/couples-photography-mexico-hero-480.avif 480w, https://assets.ivaestudios.com/couples-photography-mexico-hero-768.avif 768w, https://assets.ivaestudios.com/couples-photography-mexico-hero-1200.avif 1200w, https://assets.ivaestudios.com/couples-photography-mexico-hero-1920.avif 1920w, https://assets.ivaestudios.com/couples-photography-mexico-hero-2400.avif 2400w" sizes="100vw"/>
+  <source type="image/webp" srcset="https://assets.ivaestudios.com/couples-photography-mexico-hero-480.webp 480w, https://assets.ivaestudios.com/couples-photography-mexico-hero-768.webp 768w, https://assets.ivaestudios.com/couples-photography-mexico-hero-1200.webp 1200w, https://assets.ivaestudios.com/couples-photography-mexico-hero-1920.webp 1920w, https://assets.ivaestudios.com/couples-photography-mexico-hero-2400.webp 2400w" sizes="100vw"/>
+  <img src="https://assets.ivaestudios.com/couples-photography-mexico-hero.jpg"
+ srcset="https://assets.ivaestudios.com/couples-photography-mexico-hero-480.jpg 480w, https://assets.ivaestudios.com/couples-photography-mexico-hero-768.jpg 768w, https://assets.ivaestudios.com/couples-photography-mexico-hero-1200.jpg 1200w, https://assets.ivaestudios.com/couples-photography-mexico-hero-1920.jpg 1920w, https://assets.ivaestudios.com/couples-photography-mexico-hero-2400.jpg 2400w"
+ sizes="100vw"
  alt="Una pareja en hora dorada en la playa de Cancún, fotografiada por IVAE Studios."
  loading="eager"
  fetchpriority="high"
  decoding="async"
  width="2400"
  height="1350">
+ </picture>
  </div>
  <div class="lc-hero-overlay" aria-hidden="true"></div>
  <div class="lc-grain" aria-hidden="true"></div>
@@ -1099,7 +1124,7 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
     <h2 id="inq-h" class="lw-inq2-h">Aceptamos veinte sesiones de parejas al año.</h2>
     <p class="lw-inq2-body">Cuéntanos las fechas y el resort. La Directora responde el mismo día con una propuesta privada y una nota personal.</p>
     <a class="lw-inq2-btn" href="mailto:hello@ivaestudios.com?subject=Consulta" data-magnet>Iniciar Conversación<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-    <p class="lw-inq2-sub"><em>Reservando fechas <strong>2026</strong> por cita.</em> <span class="lw-inq2-sep" aria-hidden="true">·</span> <a href="https://wa.me/529902046514" target="_blank" rel="noopener" class="lw-inq2-wa">WhatsApp a la Directora</a></p>
+    <p class="lw-inq2-sub"><em>Reservando fechas <strong>2026</strong> por cita.</em> <span class="lw-inq2-sep" aria-hidden="true">·</span> <a href="https://wa.me/529902046514?text=Hola%20Vianey%2C%20busco%20fotograf%C3%ADa%20de%20pareja%20en%20Canc%C3%BAn%20o%20Riviera%20Maya" target="_blank" rel="noopener" class="lw-inq2-wa">WhatsApp a la Directora</a></p>
     <div class="lw-inq2-seal" aria-hidden="true"><span>V·D</span></div>
   </div>
 </section>
@@ -1204,7 +1229,7 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
       <div class="col-h">Líneas directas</div>
       <ul>
         <li><a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a></li>
-        <li><a href="https://wa.me/529902046514" target="_blank" rel="noopener">WhatsApp el estudio</a></li>
+        <li><a href="https://wa.me/529902046514?text=Hola%20Vianey%2C%20busco%20fotograf%C3%ADa%20de%20pareja%20en%20Canc%C3%BAn%20o%20Riviera%20Maya" target="_blank" rel="noopener">WhatsApp el estudio</a></li>
         <li><a href="https://www.instagram.com/ivaestudios.cancun/" target="_blank" rel="noopener">Instagram</a></li>
         <li><a href="/" lang="en">English</a></li>
       </ul>
@@ -1636,5 +1661,6 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
 })();
 </script>
 <script src="/js/lang-detect.js" defer></script>
+<script src="/js/pwa-register.js?v=20260511a" defer></script>
 </body>
 </html>

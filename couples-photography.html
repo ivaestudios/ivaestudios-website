@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <meta name="theme-color" content="#0a0f17" media="(prefers-color-scheme: dark)"/>
-<meta name="theme-color" content="#c9a54e"/>
+<meta name="theme-color" content="#c9a54e" media="(prefers-color-scheme: light)"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="IVAE Studios"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+<link rel="manifest" href="/manifest.json"/>
 <title>Cancún Couples Photographer | Beach &amp; Resort | IVAE Studios</title>
 <meta name="description" content="Luxury Cancún couples &amp; honeymoon photographer. Golden hour beach photoshoots, cenote couples, resort sessions. Editorial poses, bilingual direction, 4K galleries."/>
 <link rel="canonical" href="https://ivaestudios.com/couples-photography-mexico"/>
@@ -30,6 +36,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="preload" as="font" type="font/woff2" crossorigin
+  href="https://fonts.gstatic.com/s/cormorantgaramond/v16/co3WmX5slCNuHLi8bLeY9MK7whWMhyjornFLsS6V7w.woff2"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260511a"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260511a"/>
@@ -1090,6 +1098,16 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   .lw-mob-sheet,.lw-mob-scrim,.lw-mob-fab,.lw-mob-chapter-strip,.lw-mob-hero-depth{transition:none !important;animation:none !important}
   .lw-mob-story-rail{scroll-behavior:auto}
 }
+@media (max-width:768px){
+  .lw-actions::before,.lw-actions::after,
+  .lw-hero-ctas::before,.lw-hero-ctas::after,
+  .le-hero-cta-wrap::before,.le-hero-cta-wrap::after{
+    content:'';display:block;width:1px;height:22px;background:rgba(201,165,78,.55);margin:8px auto;
+  }
+  .lc-hero-ctas::before,.lc-hero-ctas::after{
+    content:'';display:block;width:1px;height:22px;background:rgba(201,165,78,.55);margin:8px auto;
+  }
+}
 </style>
 </head>
 <body>
@@ -1137,13 +1155,27 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
      ═══════════════════════════════════════════════════════════════ -->
 <section class="lc-hero" id="hero" data-chapter="1" data-theme-color="#0a0f17" data-hero data-parallax-host aria-labelledby="hero-h1">
   <div class="lc-hero-bg" data-anim="ken-burns" data-parallax-target>
-    <img src="/images/couple-cancun-hotel-zone-ivae-studios-9.jpg"
-         alt="A couple at golden hour on the beach in Cancun, photographed by IVAE Studios."
-         loading="eager"
-         fetchpriority="high"
-         decoding="async"
-         width="2400"
-         height="1350">
+    <picture>
+      <source type="image/avif" sizes="100vw" srcset="
+        /images/optimized/couple-cancun-hotel-zone-ivae-studios-9-480.avif 480w,
+        /images/optimized/couple-cancun-hotel-zone-ivae-studios-9-768.avif 768w,
+        /images/optimized/couple-cancun-hotel-zone-ivae-studios-9-1200.avif 1200w,
+        /images/optimized/couple-cancun-hotel-zone-ivae-studios-9-1920.avif 1920w,
+        /images/optimized/couple-cancun-hotel-zone-ivae-studios-9-2400.avif 2400w"/>
+      <source type="image/webp" sizes="100vw" srcset="
+        /images/optimized/couple-cancun-hotel-zone-ivae-studios-9-480.webp 480w,
+        /images/optimized/couple-cancun-hotel-zone-ivae-studios-9-768.webp 768w,
+        /images/optimized/couple-cancun-hotel-zone-ivae-studios-9-1200.webp 1200w,
+        /images/optimized/couple-cancun-hotel-zone-ivae-studios-9-1920.webp 1920w,
+        /images/optimized/couple-cancun-hotel-zone-ivae-studios-9-2400.webp 2400w"/>
+      <img src="/images/couple-cancun-hotel-zone-ivae-studios-9.jpg"
+           alt="A couple at golden hour on the beach in Cancun, photographed by IVAE Studios."
+           loading="eager"
+           fetchpriority="high"
+           decoding="async"
+           width="2400"
+           height="1350">
+    </picture>
   </div>
   <div class="lc-hero-overlay" aria-hidden="true"></div>
   <div class="lc-grain" aria-hidden="true"></div>
@@ -1417,7 +1449,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
     <h2 id="inq-h" class="lw-inq2-h">We accept twenty couple sessions each year.</h2>
     <p class="lw-inq2-body">Tell us the dates and the resort. The Director replies the same business day with a private proposal and a personal note.</p>
     <a class="lw-inq2-btn" href="mailto:hello@ivaestudios.com?subject=Inquiry" data-magnet aria-label="Begin a conversation — email hello@ivaestudios.com">Begin a Conversation<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-    <p class="lw-inq2-sub"><em>Currently holding <strong>2026</strong> dates by appointment.</em> <span class="lw-inq2-sep" aria-hidden="true">·</span> <a href="https://wa.me/529902046514" target="_blank" rel="noopener" class="lw-inq2-wa" aria-label="WhatsApp the Director — opens chat in new tab">WhatsApp the Director</a></p>
+    <p class="lw-inq2-sub"><em>Currently holding <strong>2026</strong> dates by appointment.</em> <span class="lw-inq2-sep" aria-hidden="true">·</span> <a href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20looking%20for%20couples%20photography%20in%20Canc%C3%BAn%20or%20Riviera%20Maya" target="_blank" rel="noopener" class="lw-inq2-wa" aria-label="WhatsApp the Director — opens chat in new tab">WhatsApp the Director</a></p>
     <div class="lw-inq2-seal" aria-hidden="true"><span>V·D</span></div>
   </div>
 </section>
@@ -1573,7 +1605,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
       <div class="col-h">Direct lines</div>
       <ul>
         <li><a href="mailto:hello@ivaestudios.com" aria-label="Email the studio at hello@ivaestudios.com">hello@ivaestudios.com</a></li>
-        <li><a href="https://wa.me/529902046514" target="_blank" rel="noopener" aria-label="WhatsApp the studio — opens chat in new tab">WhatsApp the studio</a></li>
+        <li><a href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20looking%20for%20couples%20photography%20in%20Canc%C3%BAn%20or%20Riviera%20Maya" target="_blank" rel="noopener" aria-label="WhatsApp the studio — opens chat in new tab">WhatsApp the studio</a></li>
         <li><a href="https://www.instagram.com/ivaestudios.cancun/" target="_blank" rel="noopener" aria-label="Follow IVAE Studios on Instagram — opens in new tab">Instagram</a></li>
         <li><a href="/es/fotografia-parejas-mexico" lang="es" aria-label="Cambiar a español">Español</a></li>
       </ul>
@@ -2067,7 +2099,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
         +     '<button type="submit" class="lw-mob-sheet-submit">Send to the Director'
         +       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
         +     '</button>'
-        +     '<p class="lw-mob-sheet-foot">Or message on <a href="https://wa.me/529902046514" target="_blank" rel="noopener">WhatsApp</a> &middot; <a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a></p>'
+        +     '<p class="lw-mob-sheet-foot">Or message on <a href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20looking%20for%20couples%20photography%20in%20Canc%C3%BAn%20or%20Riviera%20Maya" target="_blank" rel="noopener">WhatsApp</a> &middot; <a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a></p>'
         +   '</form>'
         + '</div>';
       document.body.appendChild(scrim);
@@ -2141,7 +2173,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
     (function buildFab(){
       var fab = document.createElement('a');
       fab.className = 'lw-mob-fab';
-      fab.href = 'https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20inquire%20about%20a%20couples%20session';
+      fab.href = 'https://wa.me/529902046514?text=Hi%20Vianey%2C%20looking%20for%20couples%20photography%20in%20Canc%C3%BAn%20or%20Riviera%20Maya';
       fab.target = '_blank';
       fab.rel = 'noopener';
       fab.setAttribute('aria-label','WhatsApp the Director');
@@ -2334,6 +2366,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   });
 })();
 </script>
+<script src="/js/pwa-register.js?v=20260511a" defer></script>
 
 </body>
 </html>

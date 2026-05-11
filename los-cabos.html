@@ -420,8 +420,15 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
 <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png"/>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-<link rel="manifest" href="/site.webmanifest"/>
-<meta name="theme-color" content="#0c1219"/>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#0a0f17" media="(prefers-color-scheme: dark)"/>
+<meta name="theme-color" content="#c9a54e" media="(prefers-color-scheme: light)"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="IVAE Studios"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<link rel="preload" as="font" type="font/woff2" crossorigin
+  href="https://fonts.gstatic.com/s/cormorantgaramond/v16/co3WmX5slCNuHLi8bLeY9MK7whWMhyjornFLsS6V7w.woff2"/>
 <link rel="preload" as="image" fetchpriority="high" href="images/los-cabos-hero.avif" type="image/avif">
 
 <!-- ═══════════════════════════════════════════════════════════════
@@ -569,7 +576,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <span class="lang-sep" aria-hidden="true">|</span>
     <a href="https://ivaestudios.com/es/fotografo-los-cabos" data-lang-switch="es" hreflang="es">ES</a>
   </div>
-  <a class="header-cta" href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener">Book Now</a>
+  <a class="header-cta" href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20visiting%20Los%20Cabos%20and%20interested%20in%20a%20photo%20session" target="_blank" rel="noopener">Book Now</a>
   <button class="header-toggle" id="headerToggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
 </header>
 <nav class="mobile-nav" id="mobileNav">
@@ -579,7 +586,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <a href="https://ivaestudios.com/es/fotografo-los-cabos" data-lang-switch="es" hreflang="es">ES</a>
   </div>
   <a href="/">Home</a><a href="/about">About</a><a href="/#services">Services</a><a href="/blog">Blog</a>
-  <a href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener">Book Now</a>
+  <a href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20visiting%20Los%20Cabos%20and%20interested%20in%20a%20photo%20session" target="_blank" rel="noopener">Book Now</a>
 </nav>
 
 <!-- HERO -->
@@ -595,7 +602,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <span class="hero-tag rv d1" data-anim="fade">Los Cabos, Baja California Sur</span>
     <h1 class="rv d2" data-anim="fade">Luxury Photographer in <em>Los Cabos, Mexico</em></h1>
     <p class="hero-sub rv d3" data-anim="fade">Editorial photography where desert cliffs meet the Pacific. Families, couples, weddings, and proposals at the finest resorts in Los Cabos.</p>
-    <div class="rv d4" data-anim="fade"><a class="btn btn--gold" href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener">Book Your Session <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+    <div class="rv d4" data-anim="fade"><a class="btn btn--gold" href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20visiting%20Los%20Cabos%20and%20interested%20in%20a%20photo%20session" target="_blank" rel="noopener">Book Your Session <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
   </div>
 </section>
 
@@ -1031,7 +1038,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <h2 class="rv d1" data-anim="fade">Let's Create Something <em>Extraordinary</em></h2>
     <p class="rv d2" data-anim="fade">Your Los Cabos story deserves more than snapshots. Reserve your session and let our team craft images as cinematic as the destination itself.</p>
     <div class="rv d3" data-anim="fade" style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center">
-      <a class="btn btn--gold" href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener">Book Your Session <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <a class="btn btn--gold" href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20visiting%20Los%20Cabos%20and%20interested%20in%20a%20photo%20session" target="_blank" rel="noopener">Book Your Session <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       <a class="btn btn--outline" href="mailto:info@ivaestudios.com">Email Us</a>
     </div>
   </div>
@@ -1269,7 +1276,7 @@ document.querySelectorAll('.faq-q').forEach(btn=>{btn.addEventListener('click',(
     (function buildFab(){
       var fab = document.createElement('a');
       fab.className = 'lw-mob-fab';
-      fab.href = 'https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20inquire%20about%20a%20Los%20Cabos%20session';
+      fab.href = 'https://wa.me/529902046514?text=Hi%20Vianey%2C%20visiting%20Los%20Cabos%20and%20interested%20in%20a%20photo%20session';
       fab.target = '_blank';
       fab.rel = 'noopener';
       fab.setAttribute('aria-label','WhatsApp the Director');
@@ -1466,6 +1473,7 @@ document.querySelectorAll('.faq-q').forEach(btn=>{btn.addEventListener('click',(
   });
 })();
 </script>
+<script src="/js/pwa-register.js?v=20260511a" defer></script>
 
 </body>
 </html>

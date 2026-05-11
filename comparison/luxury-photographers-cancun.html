@@ -36,6 +36,8 @@
 <meta name="DC.coverage" content="Cancún, Quintana Roo, Mexico"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="preload" as="font" type="font/woff2" crossorigin
+  href="https://fonts.gstatic.com/s/cormorantgaramond/v16/co3WmX5slCNuHLi8bLeY9MK7whWMhyjornFLsS6V7w.woff2"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/blog.css"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
@@ -91,8 +93,13 @@
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
 <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png"/>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-<link rel="manifest" href="/site.webmanifest"/>
-<meta name="theme-color" content="#0c1219"/>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#0a0f17" media="(prefers-color-scheme: dark)"/>
+<meta name="theme-color" content="#c9a54e" media="(prefers-color-scheme: light)"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="IVAE Studios"/>
+<meta name="mobile-web-app-capable" content="yes"/>
 <script src="/dark-mode.js"></script>
 </head>
 <body>
@@ -115,7 +122,7 @@
     <span class="lang-sep" aria-hidden="true">|</span>
     <a href="https://ivaestudios.com/es/comparativa/fotografos-lujo-cancun" data-lang-switch="es" hreflang="es">ES</a>
   </div>
-  <a class="header-cta" href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener">Book Now</a>
+  <a class="header-cta" href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20read%20the%20photographer%20comparison%20and%20want%20to%20chat" target="_blank" rel="noopener">Book Now</a>
   <button class="header-toggle" id="headerToggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
 </header>
 <nav class="mobile-nav" id="mobileNav">
@@ -128,7 +135,7 @@
   <a href="/about">About</a>
   <a href="/#services">Services</a>
   <a href="/blog">Blog</a>
-  <a href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener">Book Now</a>
+  <a href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20read%20the%20photographer%20comparison%20and%20want%20to%20chat" target="_blank" rel="noopener">Book Now</a>
 </nav>
 
 <!-- HERO -->
@@ -292,7 +299,7 @@
   <h2>Send your dates. <em>We&rsquo;ll send a quote.</em></h2>
   <p>Resort, travel dates, and the kind of session you have in mind. We respond within 24 hours.</p>
   <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;">
-    <a class="btn-cta" href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener">
+    <a class="btn-cta" href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20read%20the%20photographer%20comparison%20and%20want%20to%20chat" target="_blank" rel="noopener">
         Message Us on WhatsApp
         <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
     </a>
@@ -357,5 +364,6 @@ window.addEventListener('scroll',()=>{document.getElementById('siteHeader').clas
 document.getElementById('headerToggle').addEventListener('click',()=>{document.getElementById('mobileNav').classList.toggle('open')});
 </script>
 <script src="/js/lang-detect.js" defer></script><script src="/js/services-dropdown-v2.js?v=20260510r" defer></script>
+<script src="/js/pwa-register.js?v=20260511a" defer></script>
 </body>
 </html>

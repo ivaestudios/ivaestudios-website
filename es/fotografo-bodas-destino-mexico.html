@@ -2,6 +2,15 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#0a0f17" media="(prefers-color-scheme: dark)"/>
+<meta name="theme-color" content="#c9a54e" media="(prefers-color-scheme: light)"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="IVAE Studios"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/cormorantgaramond/v16/co3WmX5slCNuHLi8bLeY9MK7whWMhyjornFLsS6V7w.woff2"/>
 <title>Fotógrafo de Bodas de Destino de Lujo en México | IVAE Studios</title>
 <meta name="description" content="Fotógrafo editorial de bodas de destino en Cancún, Riviera Maya y Los Cabos. Cobertura día completo, films cinematográficos, bilingüe."/>
 <link rel="canonical" href="https://ivaestudios.com/es/fotografo-bodas-destino-mexico"/>
@@ -1260,6 +1269,16 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
  .lw-img-preview{display:none !important}
 }
 
+/* ─── Sticky bottom CTA gold thread (mobile) ─── */
+@media (max-width:768px){
+  .lw-actions::before,.lw-actions::after,
+  .lc-hero-ctas::before,.lc-hero-ctas::after,
+  .lf-hero-ctas::before,.lf-hero-ctas::after,
+  .le-hero-cta-wrap::before,.le-hero-cta-wrap::after{
+    content:'';display:block;width:1px;height:22px;background:rgba(201,165,78,.55);margin:8px auto;
+  }
+}
+
 /* ─── Frames (drag-scroll mirror of EN, varied aspect ratios) ─── */
 .frames-rail{scroll-padding-inline:24px;outline:none}
 .frames-rail:focus-visible{box-shadow:inset 0 0 0 1px var(--gold-line)}
@@ -1318,7 +1337,11 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 <!-- HERO -->
 <section class="lw-hero" aria-labelledby="lw-h1">
  <div class="lw-hero-img" id="lwHeroImg" aria-hidden="true">
- <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" alt="Novia a la hora dorada en acantilado del Pacífico, Cabo San Lucas" loading="eager" fetchpriority="high" width="2400" height="1600"/>
+ <picture>
+  <source type="image/avif" srcset="/images/wedding-bride-cabo-san-lucas-ivae-studios-480.avif 480w, /images/wedding-bride-cabo-san-lucas-ivae-studios-768.avif 768w, /images/wedding-bride-cabo-san-lucas-ivae-studios-1200.avif 1200w, /images/wedding-bride-cabo-san-lucas-ivae-studios-1920.avif 1920w, /images/wedding-bride-cabo-san-lucas-ivae-studios-2400.avif 2400w" sizes="100vw"/>
+  <source type="image/webp" srcset="/images/wedding-bride-cabo-san-lucas-ivae-studios-480.webp 480w, /images/wedding-bride-cabo-san-lucas-ivae-studios-768.webp 768w, /images/wedding-bride-cabo-san-lucas-ivae-studios-1200.webp 1200w, /images/wedding-bride-cabo-san-lucas-ivae-studios-1920.webp 1920w, /images/wedding-bride-cabo-san-lucas-ivae-studios-2400.webp 2400w" sizes="100vw"/>
+  <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" srcset="/images/wedding-bride-cabo-san-lucas-ivae-studios-480.jpg 480w, /images/wedding-bride-cabo-san-lucas-ivae-studios-768.jpg 768w, /images/wedding-bride-cabo-san-lucas-ivae-studios-1200.jpg 1200w, /images/wedding-bride-cabo-san-lucas-ivae-studios-1920.jpg 1920w, /images/wedding-bride-cabo-san-lucas-ivae-studios-2400.jpg 2400w" sizes="100vw" alt="Novia a la hora dorada en acantilado del Pacífico, Cabo San Lucas" loading="eager" fetchpriority="high" decoding="async" width="2400" height="1600"/>
+ </picture>
  </div>
  <div class="lw-hero-overlay" aria-hidden="true"></div>
  <div class="lw-motes" id="lwMotes" aria-hidden="true"></div>
@@ -1618,7 +1641,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
     <h2 id="inq-h" class="lw-inq2-h">Aceptamos doce bodas al año.</h2>
     <p class="lw-inq2-body">Cuéntanos la fecha, el venue, la forma del día. La Directora responde el mismo día con una propuesta privada y una nota personal.</p>
     <a class="lw-inq2-btn" href="mailto:hello@ivaestudios.com?subject=Consulta" data-magnet>Iniciar Conversación<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-    <p class="lw-inq2-sub"><em>Reservando fechas <strong>2026</strong> por cita.</em> <span class="lw-inq2-sep" aria-hidden="true">·</span> <a href="https://wa.me/529902046514" target="_blank" rel="noopener" class="lw-inq2-wa" aria-label="WhatsApp directo con la Directora (se abre en una pestaña nueva)">WhatsApp a la Directora</a></p>
+    <p class="lw-inq2-sub"><em>Reservando fechas <strong>2026</strong> por cita.</em> <span class="lw-inq2-sep" aria-hidden="true">·</span> <a href="https://wa.me/529902046514?text=Hola%20Vianey%2C%20estoy%20planeando%20mi%20boda%20de%20destino%20en%20M%C3%A9xico%20y%20quisiera%20hablar%20sobre%20fotograf%C3%ADa" target="_blank" rel="noopener" class="lw-inq2-wa" aria-label="WhatsApp directo con la Directora (se abre en una pestaña nueva)">WhatsApp a la Directora</a></p>
     <div class="lw-inq2-seal" aria-hidden="true"><span>V·D</span></div>
   </div>
 </section>
@@ -1726,7 +1749,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
       <div class="col-h">Líneas directas</div>
       <ul>
         <li><a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a></li>
-        <li><a href="https://wa.me/529902046514" target="_blank" rel="noopener" aria-label="Escribir al estudio por WhatsApp (se abre en una pestaña nueva)">WhatsApp el estudio</a></li>
+        <li><a href="https://wa.me/529902046514?text=Hola%20Vianey%2C%20estoy%20planeando%20mi%20boda%20de%20destino%20en%20M%C3%A9xico%20y%20quisiera%20hablar%20sobre%20fotograf%C3%ADa" target="_blank" rel="noopener" aria-label="Escribir al estudio por WhatsApp (se abre en una pestaña nueva)">WhatsApp el estudio</a></li>
         <li><a href="https://www.instagram.com/ivaestudios.cancun/" target="_blank" rel="noopener" aria-label="Instagram de IVAE Studios (se abre en una pestaña nueva)">Instagram</a></li>
         <li><a href="/" lang="en" aria-label="View site in English">English</a></li>
       </ul>
@@ -2100,5 +2123,6 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 
 })();
 </script>
+<script src="/js/pwa-register.js?v=20260511a" defer></script>
 </body>
 </html>

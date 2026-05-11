@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <meta name="theme-color" content="#0a0f17" media="(prefers-color-scheme: dark)"/>
-<meta name="theme-color" content="#c9a54e"/>
+<meta name="theme-color" content="#c9a54e" media="(prefers-color-scheme: light)"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="IVAE Studios"/>
+<meta name="mobile-web-app-capable" content="yes"/>
 <title>Luxury Destination Wedding Photographer Mexico | IVAE Studios</title>
 <meta name="description" content="Editorial destination wedding photographer in Cancún, Riviera Maya &amp; Los Cabos. Full-day coverage, cinematic films, bilingual. Luxury resort expertise since 2019."/>
 <link rel="canonical" href="https://ivaestudios.com/destination-wedding-photographer-mexico"/>
@@ -36,6 +40,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="preload" as="font" type="font/woff2" crossorigin
+  href="https://fonts.gstatic.com/s/cormorantgaramond/v16/co3WmX5slCNuHLi8bLeY9MK7whWMhyjornFLsS6V7w.woff2"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260511a"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260511a"/>
@@ -1769,6 +1775,13 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   .lw-mob-sheet,.lw-mob-scrim,.lw-mob-fab,.lw-mob-chapter-strip,.lw-mob-hero-depth{transition:none !important;animation:none !important}
   .lw-mob-story-rail{scroll-behavior:auto}
 }
+@media (max-width:768px){
+  .lw-actions::before,.lw-actions::after,
+  .lw-hero-ctas::before,.lw-hero-ctas::after,
+  .le-hero-cta-wrap::before,.le-hero-cta-wrap::after{
+    content:'';display:block;width:1px;height:22px;background:rgba(201,165,78,.55);margin:8px auto;
+  }
+}
 </style>
 </head>
 <body>
@@ -2119,7 +2132,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
     <h2 id="inq-h" class="lw-inq2-h">We accept twelve weddings each year.</h2>
     <p class="lw-inq2-body">Tell us the date, the venue, the shape of the day. The Director replies the same business day with a private proposal and a personal note.</p>
     <a class="lw-inq2-btn" href="mailto:hello@ivaestudios.com?subject=Wedding%20Inquiry" data-magnet>Begin a Conversation<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-    <p class="lw-inq2-sub"><em>Currently holding <strong>2027</strong> dates by appointment.</em> <span class="lw-inq2-sep" aria-hidden="true">·</span> <a href="https://wa.me/529902046514" target="_blank" rel="noopener" class="lw-inq2-wa" aria-label="Contact the Director on WhatsApp">WhatsApp the Director</a></p>
+    <p class="lw-inq2-sub"><em>Currently holding <strong>2027</strong> dates by appointment.</em> <span class="lw-inq2-sep" aria-hidden="true">·</span> <a href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20I%27m%20planning%20a%20destination%20wedding%20in%20Mexico%20and%20would%20love%20to%20discuss%20photography" target="_blank" rel="noopener" class="lw-inq2-wa" aria-label="Contact the Director on WhatsApp">WhatsApp the Director</a></p>
     <div class="lw-inq2-seal" aria-hidden="true"><span>V·D</span></div>
   </div>
   <style>
@@ -2298,7 +2311,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
       <div class="col-h">Direct lines</div>
       <ul>
         <li><a href="mailto:hello@ivaestudios.com" aria-label="Email IVAE Studios">hello@ivaestudios.com</a></li>
-        <li><a href="https://wa.me/529902046514" target="_blank" rel="noopener" aria-label="Contact us on WhatsApp">WhatsApp the Director</a></li>
+        <li><a href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20I%27m%20planning%20a%20destination%20wedding%20in%20Mexico%20and%20would%20love%20to%20discuss%20photography" target="_blank" rel="noopener" aria-label="Contact us on WhatsApp">WhatsApp the Director</a></li>
         <li><a href="https://www.instagram.com/ivaestudios.cancun/" target="_blank" rel="noopener" aria-label="Follow IVAE Studios on Instagram">Instagram</a></li>
         <li><a href="/es/fotografo-bodas-destino-mexico">Español</a></li>
       </ul>
@@ -2714,7 +2727,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   </a>
   <div class="lw-sticky-mob" role="group" aria-label="Quick contact bar">
     <a class="lw-sticky-mob-btn lw-sticky-mob-primary" href="#inquiry" aria-label="Begin private inquiry"><span>Begin Inquiry</span></a>
-    <a class="lw-sticky-mob-btn lw-sticky-mob-secondary" href="https://wa.me/529902046514" target="_blank" rel="noopener" aria-label="Open WhatsApp chat with the Director">
+    <a class="lw-sticky-mob-btn lw-sticky-mob-secondary" href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20I%27m%20planning%20a%20destination%20wedding%20in%20Mexico%20and%20would%20love%20to%20discuss%20photography" target="_blank" rel="noopener" aria-label="Open WhatsApp chat with the Director">
       <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12a8.25 8.25 0 1 1 3.62 6.84L3 20l1.22-4.27A8.21 8.21 0 0 1 3.75 12Z"/></svg>
       <span>WhatsApp</span>
     </a>
@@ -2799,7 +2812,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
         +     '<button type="submit" class="lw-mob-sheet-submit">Send to the Director'
         +       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
         +     '</button>'
-        +     '<p class="lw-mob-sheet-foot">Or message on <a href="https://wa.me/529902046514" target="_blank" rel="noopener">WhatsApp</a> &middot; <a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a></p>'
+        +     '<p class="lw-mob-sheet-foot">Or message on <a href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20I%27m%20planning%20a%20destination%20wedding%20in%20Mexico%20and%20would%20love%20to%20discuss%20photography" target="_blank" rel="noopener">WhatsApp</a> &middot; <a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a></p>'
         +   '</form>'
         + '</div>';
       document.body.appendChild(scrim);
@@ -2897,7 +2910,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
     (function buildFab(){
       var fab = document.createElement('a');
       fab.className = 'lw-mob-fab';
-      fab.href = 'https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20inquire%20about%20a%20wedding';
+      fab.href = 'https://wa.me/529902046514?text=Hi%20Vianey%2C%20I%27m%20planning%20a%20destination%20wedding%20in%20Mexico%20and%20would%20love%20to%20discuss%20photography';
       fab.target = '_blank';
       fab.rel = 'noopener';
       fab.setAttribute('aria-label','WhatsApp the Director');
@@ -3092,6 +3105,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   });
 })();
 </script>
+<script src="/js/pwa-register.js?v=20260511a" defer></script>
 
 </body>
 </html>
