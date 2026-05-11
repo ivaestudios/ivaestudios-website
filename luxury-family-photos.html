@@ -34,13 +34,13 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin
   href="https://fonts.gstatic.com/s/cormorantgaramond/v16/co3WmX5slCNuHLi8bLeY9MK7whWMhyjornFLsS6V7w.woff2"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
-<link rel="stylesheet" href="/styles/site-header.css?v=20260511a"/>
-<link rel="stylesheet" href="/styles/site-footer.css?v=20260511a"/>
-<link rel="stylesheet" href="/styles/responsive.css?v=20260511a"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20260511c"/>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20260511c"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260511c"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
-<script src="/js/site-header.js?v=20260511a" defer></script>
-<script src="/js/components.js?v=20260511a" defer></script>
+<script src="/js/site-header.js?v=20260511c" defer></script>
+<script src="/js/components.js?v=20260511c" defer></script>
 <script src="/js/services-dropdown-v2.js?v=20260510r" defer></script>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
 <meta name="publisher" content="IVAE Studios"/>
@@ -194,9 +194,14 @@ a.btn-ghost:hover{background:rgba(201,165,78,0.10)}
 .lf-hero-bg{position:absolute;inset:0;z-index:0;transform-style:preserve-3d;will-change:transform;transition:transform 0.55s var(--ease,cubic-bezier(0.16,1,0.3,1))}
 .lf-hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 38%;filter:brightness(0.45) saturate(0.85);will-change:transform;transition:transform 0.55s var(--ease,cubic-bezier(0.16,1,0.3,1));transform:scale(1.06)}
 .lf-hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(160deg,rgba(14,22,32,0.55),rgba(14,22,32,0.15) 45%,rgba(14,22,32,0.78))}
-.lf-hero-content{position:relative;z-index:3;padding:0 clamp(24px,5vw,64px) clamp(80px,10vw,140px);max-width:880px}
+.lf-hero-content{position:relative;z-index:3;padding:0 clamp(24px,5vw,64px) clamp(80px,10vw,140px);max-width:880px;width:100%;flex:1 1 auto}
+@media (max-width:768px){
+  .lf-hero{flex-direction:column;align-items:stretch;justify-content:flex-end}
+  .lf-hero-content{flex:1 1 100%;width:100%;padding-top:92px}
+  .lf-meta-strip{flex:0 0 auto;width:100%}
+}
 .lf-cascade{display:block}
-.lf-h1-letter{display:inline-block;opacity:1;transform:none}
+.lf-h1-letter{display:inline-block;opacity:1;transform:none;white-space:pre}
 html.js-on .lf-h1-letter{opacity:0;transform:translateY(12px);transition:opacity 1.4s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1)),transform 1.4s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1))}
 html.js-on .lf-h1-letter.is-in{opacity:1;transform:none}
 .hero-h1{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(48px,7vw,92px);font-weight:300;line-height:1.06;color:#faf8f5;margin:0}
@@ -480,14 +485,14 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
   .lf-pillars-grid:hover .lf-pillars-stage{transform:translateZ(0)}
 }
 </style>
-<link rel="preload" href="/styles/lw-editorial.css?v=20260511a" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
-<noscript><link rel="stylesheet" href="/styles/lw-editorial.css?v=20260511a"/></noscript>
-<script src="/js/lw-editorial.js?v=20260511a" defer></script>
-<link rel="stylesheet" href="/styles/lw-a11y.css?v=20260511a"/>
-<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511a"/>
-<link rel="stylesheet" href="/styles/lw-tablet.css?v=20260511a"/>
-<link rel="preload" href="/styles/lw-mobile-anim.css?v=20260511a" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
-<noscript><link rel="stylesheet" href="/styles/lw-mobile-anim.css?v=20260511a"/></noscript>
+<link rel="preload" href="/styles/lw-editorial.css?v=20260511c" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript><link rel="stylesheet" href="/styles/lw-editorial.css?v=20260511c"/></noscript>
+<script src="/js/lw-editorial.js?v=20260511c" defer></script>
+<link rel="stylesheet" href="/styles/lw-a11y.css?v=20260511c"/>
+<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511c"/>
+<link rel="stylesheet" href="/styles/lw-tablet.css?v=20260511c"/>
+<link rel="preload" href="/styles/lw-mobile-anim.css?v=20260511c" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript><link rel="stylesheet" href="/styles/lw-mobile-anim.css?v=20260511c"/></noscript>
 <style id="critical-mobile">
 :root{--ink:#0a0f17;--gold:#c9a54e;--cream:#faf8f5;--paper:#fafaf8;--paper-2:#f3f1ec;--ink-1:#0c1219;--ink-2:#131c2a;--ink-3:#1a2230}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -501,7 +506,7 @@ html.dark body{background:var(--ink);color:var(--cream)}
 .lf-hero h1{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:clamp(40px,7vw,80px);line-height:1.06;color:var(--cream)}
 @media (max-width:768px){html{scroll-padding-top:60px}.site-header{height:60px;padding:0 16px}}
 </style>
-<script src="/js/lw-mobile-anim.js?v=20260511a" defer></script>
+<script src="/js/lw-mobile-anim.js?v=20260511c" defer></script>
 <script defer>
 /* ═══ Mobile carousel dots & ready flag (≤900px) ═══ */
 (function(){
@@ -1974,7 +1979,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   });
 })();
 </script>
-<script src="/js/pwa-register.js?v=20260511a" defer></script>
+<script src="/js/pwa-register.js?v=20260511c" defer></script>
 
 <!-- ═══════ LUXURY-APP MOBILE FINAL POLISH — bottom tab nav ═══════ -->
 <aside class="lw-mob-tabs" aria-label="Quick navigation" hidden>
@@ -2008,8 +2013,8 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   });
 })();
 </script>
-<script src="/js/lw-mob-haptics.js?v=20260511a" defer></script>
-<script src="/js/lw-mob-install.js?v=20260511a" defer></script>
+<script src="/js/lw-mob-haptics.js?v=20260511c" defer></script>
+<script src="/js/lw-mob-install.js?v=20260511c" defer></script>
 
 </body>
 </html>
