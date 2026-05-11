@@ -595,8 +595,9 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
 <meta name="mobile-web-app-capable" content="yes"/>
 <link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/cormorantgaramond/v16/co3WmX5slCNuHLi8bLeY9MK7whWMhyjornFLsS6V7w.woff2"/>
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260512a">
+<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512l">
 </head>
-<body class="has-bottom-tabs">
+<body class="has-bottom-tabs ivm-page">
 <a href="#main-content" class="skip-link">Skip to content</a>
 <div class="ai-disambiguation" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
 <h2>About IVAE Studios</h2>
@@ -632,6 +633,328 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
 </nav>
 
 <main class="lw-blog" id="main-content">
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     MOBILE SCROLLYTELLING — Blog/Journal (6 acts) ≤899px
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="ivm">
+
+  <!-- ACT 0 — LOADER -->
+  <div class="ivm-loader" id="ivmLoader" aria-hidden="true">
+    <div class="ivm-loader__mark">
+      <span>I</span><span>V</span><span>A</span><span>E</span><span class="dot">.</span>
+    </div>
+    <div class="ivm-loader__sub">The Journal · Vol III</div>
+  </div>
+
+  <!-- ACT I — HERO -->
+  <section class="ivm-act-hero" aria-labelledby="ivm-blog-h1">
+    <div class="ivm-act-hero__layer">
+      <picture>
+        <img class="ivm-act-hero__photo"
+             src="/images/editorial-cancun-ivae-studios-1600.jpg"
+             srcset="/images/editorial-cancun-ivae-studios-960.jpg 960w,
+                     /images/editorial-cancun-ivae-studios-1600.jpg 1600w,
+                     /images/editorial-cancun-ivae-studios.jpg 2400w"
+             sizes="100vw"
+             alt="Editorial frame from a Cancún campaign by IVAE Studios"
+             loading="eager" fetchpriority="high" decoding="async"
+             width="1333" height="2000">
+      </picture>
+      <div class="ivm-act-hero__veil" aria-hidden="true"></div>
+    </div>
+    <div class="ivm-act-hero__copy">
+      <span class="ivm-act-hero__eyebrow">Vol. III · Issue 05 · 2026</span>
+      <h1 class="ivm-act-hero__title" id="ivm-blog-h1">
+        <span class="w" style="animation-delay:2.4s">The </span><span class="w" style="animation-delay:2.55s"><em>Journal.</em></span>
+      </h1>
+    </div>
+    <div class="ivm-act-hero__scroll" aria-hidden="true">Scroll</div>
+  </section>
+
+  <!-- ACT II — Sticky scroll story -->
+  <section class="ivm-act-hour" aria-label="The journal voice">
+    <div class="ivm-act-hour__pin">
+      <div class="ivm-act-hour__photo"
+           style="background-image:url('/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg');"></div>
+      <div class="ivm-act-hour__stage">
+        <p class="ivm-act-hour__line" data-line="0">Field notes</p>
+        <p class="ivm-act-hour__line" data-line="1">from the hour</p>
+        <p class="ivm-act-hour__line" data-line="2">the light is honest.</p>
+        <p class="ivm-act-hour__line" data-line="3"><em>by Vianey Díaz.</em></p>
+      </div>
+      <div class="ivm-act-hour__progress" aria-hidden="true">
+        <span data-prog="0"></span><span data-prog="1"></span><span data-prog="2"></span><span data-prog="3"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT III — 4 featured guides as 3D cards -->
+  <section class="ivm-act-services" aria-labelledby="ivm-blog-cats-h">
+    <div class="ivm-act-services__pin">
+      <div class="ivm-act-services__title">
+        <span class="ivm-act-services__eyebrow">Featured guides</span>
+        <h2 id="ivm-blog-cats-h">Four <em>essays.</em></h2>
+      </div>
+      <div class="ivm-act-services__stage">
+        <a class="ivm-svc" href="/blog/golden-hour-photography-mexico" data-svc-idx="0">
+          <div class="ivm-svc__photo">
+            <img src="/images/wedding-bride-tulum-ivae-studios-960.jpg" alt="Golden hour guide" loading="lazy">
+            <span class="ivm-svc__num">I.</span>
+          </div>
+          <div class="ivm-svc__body">
+            <h3 class="ivm-svc__title">On <em>golden hour</em>, in Mexico.</h3>
+            <p class="ivm-svc__desc">Why we schedule every session backward from sunset. Field notes from three coastlines.</p>
+            <span class="ivm-svc__arrow">Read →</span>
+          </div>
+        </a>
+        <a class="ivm-svc" href="/blog/what-to-wear-beach-photos-mexico" data-svc-idx="1">
+          <div class="ivm-svc__photo">
+            <img src="/images/couple-cancun-beach-ivae-studios-3.jpg" alt="What to wear guide" loading="lazy">
+            <span class="ivm-svc__num">II.</span>
+          </div>
+          <div class="ivm-svc__body">
+            <h3 class="ivm-svc__title">What to <em>wear.</em></h3>
+            <p class="ivm-svc__desc">Wardrobe planning for beach sessions. Tones that breathe with sand, sky, and the hour we shoot.</p>
+            <span class="ivm-svc__arrow">Read →</span>
+          </div>
+        </a>
+        <a class="ivm-svc" href="/blog/cancun-vs-riviera-maya-photos" data-svc-idx="2">
+          <div class="ivm-svc__photo">
+            <img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Cancun vs Riviera Maya" loading="lazy">
+            <span class="ivm-svc__num">III.</span>
+          </div>
+          <div class="ivm-svc__body">
+            <h3 class="ivm-svc__title">Cancún <em>vs.</em> Riviera Maya.</h3>
+            <p class="ivm-svc__desc">Which coastline to pick for your session. A side-by-side of light, access, and feeling.</p>
+            <span class="ivm-svc__arrow">Read →</span>
+          </div>
+        </a>
+        <a class="ivm-svc" href="/blog/destination-wedding-photographer-riviera-maya" data-svc-idx="3">
+          <div class="ivm-svc__photo">
+            <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg" alt="Destination wedding guide" loading="lazy">
+            <span class="ivm-svc__num">IV.</span>
+          </div>
+          <div class="ivm-svc__body">
+            <h3 class="ivm-svc__title">Planning a <em>destination wedding.</em></h3>
+            <p class="ivm-svc__desc">The hours that matter on a destination wedding day. A complete editorial timeline.</p>
+            <span class="ivm-svc__arrow">Read →</span>
+          </div>
+        </a>
+      </div>
+      <div class="ivm-act-services__dots" aria-hidden="true">
+        <span class="is-on"></span><span></span><span></span><span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT IV — Counter -->
+  <section class="ivm-act-counter" aria-labelledby="ivm-blog-cnt-h">
+    <span class="ivm-act-counter__eyebrow">By the numbers</span>
+    <h2 id="ivm-blog-cnt-h">Three years. <em>Forty-seven guides.</em></h2>
+    <div class="ivm-act-counter__grid">
+      <div class="ivm-stat">
+        <span class="ivm-stat__num" data-count-to="47">0</span>
+        <span class="ivm-stat__label">Guides written</span>
+      </div>
+      <div class="ivm-stat">
+        <span class="ivm-stat__num" data-count-to="500" data-suffix="+">0</span>
+        <span class="ivm-stat__label">Sessions behind them</span>
+      </div>
+      <div class="ivm-stat">
+        <span class="ivm-stat__num" data-count-to="3">0</span>
+        <span class="ivm-stat__label">Coastlines</span>
+      </div>
+      <div class="ivm-stat">
+        <span class="ivm-stat__num" data-count-to="2">0</span>
+        <span class="ivm-stat__label">Languages</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT V — More posts reel -->
+  <section class="ivm-act-reel" aria-labelledby="ivm-blog-reel-h">
+    <div class="ivm-act-reel__head">
+      <span class="ivm-act-reel__eyebrow">From the archive</span>
+      <h2 id="ivm-blog-reel-h">More <em>essays.</em></h2>
+    </div>
+    <div class="ivm-act-reel__track" id="ivmReelTrack" role="region" aria-label="More guides carousel">
+      <a class="ivm-reel-card" href="/blog/tulum-photography-guide">
+        <img src="/images/wedding-bride-tulum-ivae-studios-960.jpg" alt="Tulum photography guide" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">Guide · Tulum</span>
+          <span class="ivm-reel-card__title">A photographer's guide to Tulum</span>
+        </div>
+      </a>
+      <a class="ivm-reel-card" href="/blog/honeymoon-photographer-riviera-maya">
+        <img src="/images/couple-cancun-hotel-zone-ivae-studios-9-960.jpg" alt="Honeymoon photographer" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">Guide · Honeymoon</span>
+          <span class="ivm-reel-card__title">Honeymoon sessions in the Riviera Maya</span>
+        </div>
+      </a>
+      <a class="ivm-reel-card" href="/blog/family-vacation-photos-mexico">
+        <img src="/images/family-cancun-hotel-zone-ivae-studios-960.jpg" alt="Family vacation photos" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">Guide · Family</span>
+          <span class="ivm-reel-card__title">Family vacation photography that doesn't feel staged</span>
+        </div>
+      </a>
+      <a class="ivm-reel-card" href="/blog/surprise-proposal-photography-cancun">
+        <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="Surprise proposal guide" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">Guide · Proposal</span>
+          <span class="ivm-reel-card__title">Planning a surprise proposal in Cancún</span>
+        </div>
+      </a>
+      <a class="ivm-reel-card" href="/blog/cenote-underwater-photoshoot-tulum">
+        <img src="/images/editorial-cancun-ivae-studios-960.jpg" alt="Cenote underwater guide" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">Guide · Cenote</span>
+          <span class="ivm-reel-card__title">Underwater sessions in a Tulum cenote</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ACT VI — CTA -->
+  <section class="ivm-act-cta" id="ivm-blog-cta">
+    <div class="ivm-act-cta__bg" style="background-image:url('/images/wedding-bride-cancun-ivae-studios-960.jpg');" aria-hidden="true"></div>
+    <div class="ivm-act-cta__veil" aria-hidden="true"></div>
+    <div class="ivm-act-cta__inner">
+      <span class="ivm-act-cta__eyebrow">Plan your own session</span>
+      <h2 class="ivm-act-cta__title">Begin the<br><em>conversation.</em></h2>
+      <p class="ivm-act-cta__sub">Read enough? Tell us about your date, your venue, your light.</p>
+      <a class="ivm-act-cta__btn" href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20found%20IVAE%20through%20the%20Journal" target="_blank" rel="noopener">
+        <span>Message Vianey →</span>
+      </a>
+      <a class="ivm-act-cta__alt" href="mailto:hello@ivaestudios.com">or write hello@ivaestudios.com</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="ivm-act-foot">
+    <p class="ivm-act-foot__mark">IVAE <em>Studios</em></p>
+    <p class="ivm-act-foot__tag">The Journal · IVAE Studios</p>
+    <div class="ivm-act-foot__links">
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/es/blog" lang="es">ES</a>
+    </div>
+    <p class="ivm-act-foot__copy">© 2026 IVAE Studios · Cancún, México</p>
+  </footer>
+
+</div>
+<script>
+(function(){
+  if (window.matchMedia && !matchMedia('(max-width:899px)').matches) return;
+  setTimeout(function(){ document.body.classList.add('ivm-loaded'); }, 3700);
+  var hourSection = document.querySelector('.ivm-act-hour');
+  var hourLines = document.querySelectorAll('.ivm-act-hour__line');
+  var hourProg  = document.querySelectorAll('.ivm-act-hour__progress span');
+  var hourPhoto = document.querySelector('.ivm-act-hour__photo');
+  if (hourSection && hourLines.length) {
+    var hourTicking = false;
+    function updateHour() {
+      hourTicking = false;
+      var rect = hourSection.getBoundingClientRect();
+      var total = rect.height - window.innerHeight;
+      var scrolled = -rect.top;
+      var p = Math.max(0, Math.min(1, scrolled / total));
+      var lineIdx = Math.min(3, Math.floor(p * 4));
+      hourLines.forEach(function(line, i){
+        line.classList.remove('is-on', 'is-off');
+        if (i === lineIdx) line.classList.add('is-on');
+        else if (i < lineIdx) line.classList.add('is-off');
+      });
+      hourProg.forEach(function(s, i){ s.classList.toggle('is-on', i <= lineIdx); });
+      if (hourPhoto) {
+        var zoom = 1 + p * 0.12;
+        var ty = (p - 0.5) * 60;
+        hourPhoto.style.transform = 'scale(' + zoom + ') translateY(' + ty + 'px)';
+      }
+    }
+    window.addEventListener('scroll', function(){ if (!hourTicking) { requestAnimationFrame(updateHour); hourTicking = true; } }, {passive: true});
+    updateHour();
+  }
+  var svcSection = document.querySelector('.ivm-act-services');
+  var svcCards = document.querySelectorAll('.ivm-svc');
+  var svcDots = document.querySelectorAll('.ivm-act-services__dots span');
+  if (svcSection && svcCards.length) {
+    var svcTicking = false;
+    function updateSvc() {
+      svcTicking = false;
+      var rect = svcSection.getBoundingClientRect();
+      var total = rect.height - window.innerHeight;
+      var scrolled = -rect.top;
+      var p = Math.max(0, Math.min(1, scrolled / total));
+      var activeIdx = Math.min(3, Math.floor(p * 4));
+      svcCards.forEach(function(card, i){
+        if (i === activeIdx) card.setAttribute('data-pos', 'active');
+        else if (i === activeIdx - 1) card.setAttribute('data-pos', 'behind');
+        else if (i < activeIdx) card.setAttribute('data-pos', 'past');
+        else card.setAttribute('data-pos', 'below');
+      });
+      svcDots.forEach(function(d, i){ d.classList.toggle('is-on', i === activeIdx); });
+    }
+    svcCards.forEach(function(card, i){ card.setAttribute('data-pos', i === 0 ? 'active' : 'below'); });
+    window.addEventListener('scroll', function(){ if (!svcTicking) { requestAnimationFrame(updateSvc); svcTicking = true; } }, {passive: true});
+  }
+  var counters = document.querySelectorAll('[data-count-to]');
+  if (counters.length) {
+    var cio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (!e.isIntersecting) return;
+        var el = e.target;
+        if (el.dataset.counted === '1') return;
+        el.dataset.counted = '1';
+        var target = parseFloat(el.dataset.countTo);
+        var suffix = el.dataset.suffix || '';
+        var dur = 1800;
+        var start = performance.now();
+        function tick(now){
+          var t = Math.min(1, (now - start) / dur);
+          var eased = 1 - Math.pow(1 - t, 3);
+          var val = target * eased;
+          if (target >= 100) el.textContent = Math.floor(val).toLocaleString() + suffix;
+          else if (target < 10) el.textContent = (target * eased).toFixed(1).replace('.0', '') + suffix;
+          else el.textContent = Math.floor(val) + suffix;
+          if (t < 1) requestAnimationFrame(tick);
+          else el.textContent = target + suffix;
+        }
+        requestAnimationFrame(tick);
+        cio.unobserve(el);
+      });
+    }, {threshold: 0.4});
+    counters.forEach(function(c){ cio.observe(c); });
+  }
+  var reelTrack = document.getElementById('ivmReelTrack');
+  var reelCards = document.querySelectorAll('.ivm-reel-card');
+  if (reelTrack && reelCards.length) {
+    var reelTicking = false;
+    function updateReelCenter() {
+      reelTicking = false;
+      var trackRect = reelTrack.getBoundingClientRect();
+      var centerX = trackRect.left + trackRect.width / 2;
+      var bestIdx = -1;
+      var bestDist = Infinity;
+      reelCards.forEach(function(c, i){
+        var r = c.getBoundingClientRect();
+        var cardCenter = r.left + r.width / 2;
+        var d = Math.abs(cardCenter - centerX);
+        if (d < bestDist) { bestDist = d; bestIdx = i; }
+      });
+      reelCards.forEach(function(c, i){ c.classList.toggle('is-center', i === bestIdx); });
+    }
+    reelTrack.addEventListener('scroll', function(){ if (!reelTicking) { requestAnimationFrame(updateReelCenter); reelTicking = true; } }, {passive: true});
+    window.addEventListener('resize', updateReelCenter, {passive: true});
+    setTimeout(updateReelCenter, 50);
+  }
+})();
+</script>
+<!-- END MOBILE SCROLLYTELLING -->
+
+<div class="ivm-desktop-only">
 
 <nav class="lw-blog-stories" aria-label="Featured guides">
   <div class="lw-blog-stories__inner">
@@ -1262,6 +1585,9 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
     </div>
   </div>
 </section>
+
+</div>
+<!-- end ivm-desktop-only -->
 
 </main>
 
