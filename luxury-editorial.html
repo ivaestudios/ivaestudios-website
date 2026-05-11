@@ -874,6 +874,15 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 }
 .le-method-step--left .le-method-node{right:-43px}
 .le-method-step--right .le-method-node{left:-43px}
+/* Mobile: collapse staggered timeline to single column to avoid text overlap */
+@media (max-width:600px){
+  .le-method-step{width:100% !important;padding:24px 0 24px 36px !important;text-align:left !important;border-right:none !important;border-left:1px solid rgba(201,165,78,.18) !important;margin:0 0 18px !important}
+  .le-method-step--left,.le-method-step--right{margin-left:0 !important;margin-right:auto !important;padding-right:0 !important}
+  .le-method-step.is-active{border-left-color:var(--gold-deep, var(--gold)) !important;border-right-color:transparent !important}
+  .le-method-step--left .le-method-node,.le-method-step--right .le-method-node{left:-7px !important;right:auto !important;top:34px}
+  .le-method-step--left .le-method-step-header,.le-method-step--right .le-method-step-header{justify-content:flex-start !important}
+  .le-method-step--left{text-align:left}
+}
 .le-method-step.is-active .le-method-node{
   width:18px;height:18px;
   background:var(--gold);
@@ -1670,6 +1679,10 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
     display:grid;
     grid-template-columns:repeat(3, 1fr);
     gap:6px;
+  }
+  /* Tiny screens (<480px iPhone SE): 2-col grid so tiles aren't tiny */
+  @media (max-width:480px){
+    .le-mph-grid{grid-template-columns:repeat(2, 1fr);gap:8px}
   }
   .le-mph-tile{
     margin:0;position:relative;

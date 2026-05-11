@@ -310,6 +310,10 @@ body::after{
   letter-spacing:-.025em;color:var(--cream);
   max-width:1100px;margin:0;
 }
+/* Mobile: smaller H1 so it doesn't wrap to 4 lines */
+@media (max-width:480px){
+  .hero-h1{font-size:clamp(26px,8vw,36px);line-height:1.06;letter-spacing:-.018em}
+}
 .hero-h1 em{font-style:italic;color:var(--gold)}
 .hero-h1 .line{display:block;overflow:hidden;padding-bottom:.06em}
 .hero-h1 .line>span{
