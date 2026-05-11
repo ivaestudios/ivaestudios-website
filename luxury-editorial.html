@@ -299,11 +299,16 @@ ul{list-style:none}
 /* H1 letter cascade */
 .le-hero-h1,.le-h1{
   font-family:var(--font-serif, 'Cormorant Garamond', serif);font-weight:300;
-  font-size:clamp(42px, 6.4vw, 92px);
-  line-height:1.04;letter-spacing:-.022em;
+  font-size:clamp(34px, 7vw, 92px);
+  line-height:1.04;letter-spacing:-.018em;
   color:var(--cream, #faf8f5);max-width:1080px;
+  word-break:break-word;overflow-wrap:break-word;hyphens:auto;
 }
-.le-h1-word{display:inline-block;white-space:nowrap}
+.le-h1-word{display:inline-block;white-space:normal}
+@media (max-width:480px){
+  .le-hero-h1,.le-h1{font-size:clamp(30px, 8.5vw, 44px);letter-spacing:-.012em;line-height:1.06}
+  .le-h1-word{white-space:normal}
+}
 .le-h1-letter{
   display:inline-block;transform:translateY(0);opacity:1;
   will-change:transform,opacity;
