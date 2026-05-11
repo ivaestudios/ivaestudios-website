@@ -2638,5 +2638,145 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 })();
 </script>
 <script src="/js/pwa-register.js?v=20260511a" defer></script>
+
+<!-- ═══════ MOBILE POLISH — bottom tabs, hero CTA height, BTL strip load, image-fade init ═══════ -->
+<style>
+/* Bottom-tab mobile nav (ES) — only visible <=900px */
+.lw-mob-tabs{display:none}
+@media (max-width:900px){
+  .lw-mob-tabs{
+    display:flex;
+    position:fixed;left:0;right:0;bottom:0;z-index:9000;
+    padding:6px 8px calc(env(safe-area-inset-bottom,0px) + 6px);
+    background:rgba(10,15,23,.92);
+    -webkit-backdrop-filter:saturate(1.2) blur(18px);
+    backdrop-filter:saturate(1.2) blur(18px);
+    border-top:1px solid rgba(201,165,78,.18);
+    box-shadow:0 -8px 24px rgba(0,0,0,.32);
+    justify-content:space-around;align-items:stretch;
+    gap:4px;
+  }
+  .lw-mob-tabs__btn{
+    flex:1 1 0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:4px;min-height:54px;min-width:44px;padding:6px 4px;
+    color:rgba(250,248,245,.7);text-decoration:none;
+    font-family:'Syne',sans-serif;font-size:9.5px;font-weight:600;
+    letter-spacing:.14em;text-transform:uppercase;
+    border-radius:10px;
+    transition:color .2s ease,background .2s ease,transform .12s ease;
+    touch-action:manipulation;
+  }
+  .lw-mob-tabs__btn svg{width:22px;height:22px;display:block;stroke-width:1.5}
+  .lw-mob-tabs__btn:active{transform:scale(.94);background:rgba(201,165,78,.08)}
+  .lw-mob-tabs__btn--accent{color:#c9a54e}
+  .lw-mob-tabs__btn--accent:active{background:rgba(201,165,78,.14)}
+  body.has-bottom-tabs{padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}
+
+  /* Hero CTA min-height 64px below 480px for thumb confidence */
+  @media (max-width:480px){
+    .le-hero .le-btn,
+    .le-hero .le-btn-gold,
+    .le-hero .le-hero-cta-wrap a{
+      min-height:64px;
+      padding:20px 28px;
+      font-size:12px;
+    }
+    .le-hero-cta-wrap{gap:12px}
+  }
+
+  /* BEHIND-THE-LENS strip — promote first image to eager loading and add scroll-shadow affordance */
+  .le-mph-strip-h{position:relative}
+  .le-mph-strip-h:not(.is-scrolled)::after{
+    content:'\203A';
+    position:absolute;right:6px;top:50%;transform:translateY(-50%);
+    color:#c9a54e;font-size:24px;line-height:1;opacity:.55;
+    pointer-events:none;
+    animation:lwBtlHintBounce 1.6s ease-in-out infinite;
+  }
+  .le-mph-strip-h.is-scrolled::after{display:none}
+}
+@keyframes lwBtlHintBounce{
+  0%,100%{transform:translateY(-50%) translateX(0);opacity:.55}
+  50%{transform:translateY(-50%) translateX(5px);opacity:.85}
+}
+@media (prefers-reduced-motion: reduce){
+  .le-mph-strip-h:not(.is-scrolled)::after{animation:none}
+}
+</style>
+
+<aside class="lw-mob-tabs" aria-label="Navegación rápida">
+  <a href="/es/" class="lw-mob-tabs__btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V9.5Z"/></svg>
+    <span>Inicio</span>
+  </a>
+  <a href="/es/#servicios" class="lw-mob-tabs__btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 8h6m-7 4h8m-9 4h10M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z"/></svg>
+    <span>Servicios</span>
+  </a>
+  <a href="/es/blog" class="lw-mob-tabs__btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10"/></svg>
+    <span>Diario</span>
+  </a>
+  <a href="#inquiry" class="lw-mob-tabs__btn lw-mob-tabs__btn--accent">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    <span>Reservar</span>
+  </a>
+</aside>
+
+<script>
+/* Mobile polish init: bottom-tabs body class, image-fade, scroll-shadow, BTL strip eager-load first */
+(function(){
+  'use strict';
+  var mq = window.matchMedia('(max-width:900px)');
+  function setTabsClass(){
+    if(mq.matches){ document.body.classList.add('has-bottom-tabs'); }
+    else{ document.body.classList.remove('has-bottom-tabs'); }
+  }
+  setTabsClass();
+  if(mq.addEventListener){ mq.addEventListener('change', setTabsClass); }
+  else if(mq.addListener){ mq.addListener(setTabsClass); }
+
+  /* Image fade-in: mark loaded lazy images so CSS can transition them in */
+  function markLoaded(img){ if(img && !img.classList.contains('is-loaded')) img.classList.add('is-loaded'); }
+  var lazyImgs = document.querySelectorAll('picture img[loading="lazy"], figure.inline-photo img[loading="lazy"]');
+  Array.prototype.forEach.call(lazyImgs, function(img){
+    if(img.complete && img.naturalWidth > 0){ markLoaded(img); }
+    else{
+      img.addEventListener('load', function(){ markLoaded(img); }, {once:true});
+      img.addEventListener('error', function(){ markLoaded(img); }, {once:true});
+    }
+  });
+
+  /* Scroll-shadow: add .is-scrolled on horizontal reels once the user has nudged them */
+  var reels = document.querySelectorAll('.lw-blog-categories__inner, .lw-mob-stories__inner, .lw-plate-reel, [data-mobile-reel], .le-mph-strip-h, .le-mph-reel');
+  Array.prototype.forEach.call(reels, function(r){
+    var done=false;
+    r.addEventListener('scroll', function(){
+      if(done) return;
+      if(r.scrollLeft > 8){ r.classList.add('is-scrolled'); done=true; }
+    }, {passive:true});
+  });
+
+  /* BEHIND-THE-LENS strip — promote the first card image to eager+high priority on mobile so the strip reads instantly when the section enters the viewport. Lazy-load the rest. */
+  function promoteBtlStrip(){
+    if(!mq.matches) return;
+    var strip = document.querySelector('.le-mobile-photos-4 .le-mph-strip-h');
+    if(!strip || strip.dataset.btlInit === '1') return;
+    var firstCard = strip.querySelector('.le-mph-strip-card img');
+    if(firstCard){
+      firstCard.setAttribute('loading','eager');
+      firstCard.setAttribute('fetchpriority','high');
+      firstCard.setAttribute('decoding','async');
+    }
+    strip.dataset.btlInit = '1';
+  }
+  if(document.readyState === 'complete' || document.readyState === 'interactive'){
+    promoteBtlStrip();
+  } else {
+    document.addEventListener('DOMContentLoaded', promoteBtlStrip);
+  }
+})();
+</script>
 </body>
 </html>
