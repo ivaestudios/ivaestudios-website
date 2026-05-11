@@ -505,31 +505,183 @@ a{color:inherit;text-decoration:none}
 </section>
 
 <!-- HOW IT WORKS -->
-<section class="sc sc-sand">
-  <div class="rv" data-anim="fade">
+<section class="sc sc-sand" id="rv-process" aria-labelledby="rv-process-h">
+  <style>
+    #rv-process{position:relative}
+    #rv-process .rv-proc-head{margin-bottom:64px;max-width:min(720px,100%)}
+    #rv-process .rv-proc-head h2{margin-bottom:0}
+    #rv-process .rv-proc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid rgba(26,36,51,0.14)}
+    #rv-process .rv-proc-card{position:relative;padding:56px 28px 40px;border-right:1px solid rgba(26,36,51,0.10);overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;min-height:300px}
+    #rv-process .rv-proc-card:last-child{border-right:none}
+    #rv-process .rv-proc-num{position:absolute;top:14px;left:-8px;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(72px,9vw,140px);line-height:1;color:var(--gold);opacity:0;letter-spacing:-0.02em;pointer-events:none;user-select:none;transform:translateY(14px);transition:opacity 1.2s cubic-bezier(0.16,1,0.3,1) 0.15s,transform 1.2s cubic-bezier(0.16,1,0.3,1) 0.15s;z-index:1}
+    #rv-process .rv-proc-card.vis .rv-proc-num{opacity:0.15;transform:translateY(0)}
+    #rv-process .rv-proc-eye{position:relative;z-index:2;font-family:'Syne',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:inline-flex;align-items:center;gap:10px;align-self:flex-start}
+    #rv-process .rv-proc-eye::before{content:'';width:18px;height:1px;background:var(--gold);opacity:0.6}
+    #rv-process .rv-proc-h{position:relative;z-index:2;font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;line-height:1.15;color:var(--ink);margin-bottom:14px;letter-spacing:-0.005em}
+    #rv-process .rv-proc-h em{font-style:italic;color:var(--gold)}
+    #rv-process .rv-proc-b{position:relative;z-index:2;font-family:'Syne',sans-serif;font-size:12.5px;line-height:1.7;color:var(--muted-l);max-width:32ch}
+    @media(max-width:1023px){
+      #rv-process .rv-proc-grid{grid-template-columns:repeat(2,1fr)}
+      #rv-process .rv-proc-card{border-right:1px solid rgba(26,36,51,0.10);border-bottom:1px solid rgba(26,36,51,0.10)}
+      #rv-process .rv-proc-card:nth-child(2n){border-right:none}
+      #rv-process .rv-proc-card:nth-last-child(-n+2){border-bottom:none}
+    }
+    @media(max-width:767px){
+      #rv-process .rv-proc-head{margin-bottom:40px}
+      #rv-process .rv-proc-card{padding:40px 4px 28px;min-height:240px}
+      #rv-process .rv-proc-num{top:12px;left:-4px}
+      #rv-process .rv-proc-h{font-size:24px}
+    }
+    @media(max-width:480px){
+      #rv-process .rv-proc-grid{grid-template-columns:1fr}
+      #rv-process .rv-proc-card{border-right:none;border-bottom:1px solid rgba(26,36,51,0.10);padding:36px 2px 28px;min-height:0}
+      #rv-process .rv-proc-card:last-child{border-bottom:none}
+      #rv-process .rv-proc-num{font-size:clamp(64px,18vw,96px)}
+    }
+    @media(prefers-reduced-motion:reduce){
+      #rv-process .rv-proc-num{opacity:0.15;transform:none;transition:none}
+    }
+  </style>
+  <div class="rv rv-proc-head" data-anim="fade">
     <span class="sl">El Proceso IVAE</span>
-    <h2>Cómo se <em>desarrolla</em> tu sesión</h2>
+    <h2 id="rv-process-h">Cómo se <em>desarrolla</em> tu sesión</h2>
   </div>
-  <div class="tl">
-    <div class="tl-step rv d1" data-anim="fade"><div class="tl-n">01</div><h3>Consulta y Planeación</h3><p>Comparte tus fechas de viaje, resort y visión. Respondemos en 24 horas con recomendaciones de ubicación y un plan detallado de sesión.</p></div>
-    <div class="tl-step rv d2" data-anim="fade"><div class="tl-n">02</div><h3>Estilismo y Preparación</h3><p>Recibes una guía de estilo personalizada acorde a tus ubicaciones, además de una línea de tiempo con puntos de encuentro y ventanas de hora dorada para tus fechas.</p></div>
-    <div class="tl-step rv d3" data-anim="fade"><div class="tl-n">03</div><h3>Día de la Sesión</h3><p>Llegamos con tiempo para evaluar la luz. Una dirección sutil combinada con momentos orgánicos mantiene la energía relajada y natural de principio a fin.</p></div>
-    <div class="tl-step rv d4" data-anim="fade"><div class="tl-n">04</div><h3>Edición y Entrega</h3><p>Galería editada a mano entregada en 10-14 días hábiles mediante galería privada en línea. Archivos en alta resolución con licencia de impresión incluidos. Entrega rápida disponible.</p></div>
+  <div class="rv-proc-grid">
+    <article class="rv-proc-card rv d1" data-anim="fade">
+      <span class="rv-proc-num" aria-hidden="true">01</span>
+      <span class="rv-proc-eye">Fase Uno</span>
+      <h3 class="rv-proc-h">Itinerario</h3>
+      <p class="rv-proc-b">Brief por escrito, mood-board compartido y exploración del litoral.</p>
+    </article>
+    <article class="rv-proc-card rv d2" data-anim="fade">
+      <span class="rv-proc-num" aria-hidden="true">02</span>
+      <span class="rv-proc-eye">Fase Dos</span>
+      <h3 class="rv-proc-h">Dirección</h3>
+      <p class="rv-proc-b">Agenda en hora dorada, blocking familiar y asesoría de vestuario.</p>
+    </article>
+    <article class="rv-proc-card rv d3" data-anim="fade">
+      <span class="rv-proc-num" aria-hidden="true">03</span>
+      <span class="rv-proc-eye">Fase Tres</span>
+      <h3 class="rv-proc-h">Edición</h3>
+      <p class="rv-proc-b">Selección preliminar en 72 horas y galería completa en tres semanas.</p>
+    </article>
+    <article class="rv-proc-card rv d4" data-anim="fade">
+      <span class="rv-proc-num" aria-hidden="true">04</span>
+      <span class="rv-proc-eye">Fase Cuatro</span>
+      <h3 class="rv-proc-h">Legado</h3>
+      <p class="rv-proc-b">Masters listos para impresión, entrega de galería y archivo permanente.</p>
+    </article>
   </div>
 </section>
 
 <!-- RESORTS -->
-<section class="sc sc-cream">
-  <div class="rv" data-anim="fade">
+<section class="sc sc-cream" id="rv-resorts" aria-labelledby="rv-resorts-h">
+  <style>
+    #rv-resorts .rv-mono-head{margin-bottom:56px;max-width:min(720px,100%)}
+    #rv-resorts .rv-mono-head h2{margin-bottom:18px}
+    #rv-resorts .rv-mono-head p.intro{margin-bottom:0}
+    #rv-resorts .rv-mono-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+    #rv-resorts .rv-mono-plate{position:relative;aspect-ratio:5/3;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 18px;text-align:center;transition:background 0.5s ease}
+    #rv-resorts .rv-mono-plate::before{content:'';position:absolute;inset:0;border:1px solid var(--gold);opacity:0.32;transition:opacity 0.6s ease,border-color 0.6s ease;pointer-events:none}
+    #rv-resorts .rv-mono-plate:hover{background:rgba(196,163,90,0.04)}
+    #rv-resorts .rv-mono-plate:hover::before{opacity:0}
+    #rv-resorts .rv-mono-wm{width:100%;max-width:240px;height:auto;display:block;overflow:visible}
+    #rv-resorts .rv-mono-wm text{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;fill:var(--ink);letter-spacing:0.005em}
+    #rv-resorts .rv-mono-rule{width:18px;height:1px;background:var(--gold);margin:14px 0 12px;opacity:0.7}
+    #rv-resorts .rv-mono-sub{font-family:'Syne',sans-serif;font-size:9.5px;font-weight:500;letter-spacing:0.28em;text-transform:uppercase;color:var(--muted-l);font-variant:small-caps}
+    @media(min-width:1024px) and (max-width:1199px){
+      #rv-resorts .rv-mono-wm{max-width:200px}
+    }
+    @media(min-width:768px) and (max-width:1023px){
+      #rv-resorts .rv-mono-head{margin-bottom:44px}
+      #rv-resorts .rv-mono-grid{grid-template-columns:repeat(2,1fr)}
+      #rv-resorts .rv-mono-plate{aspect-ratio:5/3;padding:32px 22px}
+      #rv-resorts .rv-mono-wm{max-width:280px}
+    }
+    @media(max-width:767px){
+      #rv-resorts .rv-mono-head{margin-bottom:36px}
+      #rv-resorts .rv-mono-grid{grid-template-columns:repeat(2,1fr)}
+      #rv-resorts .rv-mono-plate{aspect-ratio:6/5;padding:22px 14px}
+      #rv-resorts .rv-mono-wm{max-width:180px}
+      #rv-resorts .rv-mono-sub{font-size:8.5px;letter-spacing:0.22em}
+      #rv-resorts .rv-mono-rule{margin:10px 0 8px}
+    }
+    @media(max-width:480px){
+      #rv-resorts .rv-mono-plate{padding:18px 10px;aspect-ratio:5/4}
+      #rv-resorts .rv-mono-wm{max-width:150px}
+      #rv-resorts .rv-mono-sub{font-size:8px;letter-spacing:0.2em}
+    }
+  </style>
+  <div class="rv rv-mono-head" data-anim="fade">
     <span class="sl">Resorts con los que Trabajamos</span>
-    <h2>La confianza de las mejores propiedades de <em>Riviera Maya</em></h2>
-    <p class="intro">Coordinamos directamente con los equipos de conserjería de cada propiedad para un acceso impecable.</p>
+    <h2 id="rv-resorts-h">La confianza de las mejores propiedades de <em>Riviera Maya</em></h2>
+    <p class="intro">Coordinamos directamente con el equipo de conserjería de cada propiedad para un acceso impecable.</p>
   </div>
-  <div class="chips rv d1" data-anim="fade">
-    <span class="chip">Rosewood Mayakoba</span><span class="chip">Banyan Tree Mayakoba</span><span class="chip">Belmond Maroma</span>
-    <span class="chip">Fairmont Mayakoba</span><span class="chip">Grand Velas</span><span class="chip">Secrets Akumal</span>
-    <span class="chip">Andaz Mayakoba</span><span class="chip">UNICO 20&deg;87&deg;</span><span class="chip">Hotel Xcaret Arte</span>
-    <span class="chip">Secrets Maroma Beach</span><span class="chip">Kempinski</span><span class="chip">Conrad Tulum</span>
+  <div class="rv-mono-grid rv d1" data-anim="fade" role="list" aria-label="Resorts asociados en la Riviera Maya">
+    <div class="rv-mono-plate" role="listitem">
+      <svg class="rv-mono-wm" viewBox="0 0 240 64" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+        <text x="120" y="32" text-anchor="middle" dominant-baseline="middle" font-size="26">Rosewood</text>
+        <text x="120" y="54" text-anchor="middle" dominant-baseline="middle" font-size="14" font-style="normal" font-weight="300">Mayakoba</text>
+      </svg>
+      <span class="rv-mono-rule" aria-hidden="true"></span>
+      <span class="rv-mono-sub">Mayakoba &middot; Quintana Roo</span>
+    </div>
+    <div class="rv-mono-plate" role="listitem">
+      <svg class="rv-mono-wm" viewBox="0 0 240 64" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+        <text x="120" y="32" text-anchor="middle" dominant-baseline="middle" font-size="24">Banyan Tree</text>
+        <text x="120" y="54" text-anchor="middle" dominant-baseline="middle" font-size="14" font-style="normal" font-weight="300">Mayakoba</text>
+      </svg>
+      <span class="rv-mono-rule" aria-hidden="true"></span>
+      <span class="rv-mono-sub">Mayakoba &middot; Quintana Roo</span>
+    </div>
+    <div class="rv-mono-plate" role="listitem">
+      <svg class="rv-mono-wm" viewBox="0 0 240 64" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+        <text x="120" y="32" text-anchor="middle" dominant-baseline="middle" font-size="26">Belmond</text>
+        <text x="120" y="54" text-anchor="middle" dominant-baseline="middle" font-size="14" font-style="normal" font-weight="300">Maroma</text>
+      </svg>
+      <span class="rv-mono-rule" aria-hidden="true"></span>
+      <span class="rv-mono-sub">Maroma &middot; Quintana Roo</span>
+    </div>
+    <div class="rv-mono-plate" role="listitem">
+      <svg class="rv-mono-wm" viewBox="0 0 240 64" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+        <text x="120" y="32" text-anchor="middle" dominant-baseline="middle" font-size="26">Andaz</text>
+        <text x="120" y="54" text-anchor="middle" dominant-baseline="middle" font-size="14" font-style="normal" font-weight="300">Mayakoba</text>
+      </svg>
+      <span class="rv-mono-rule" aria-hidden="true"></span>
+      <span class="rv-mono-sub">Mayakoba &middot; Quintana Roo</span>
+    </div>
+    <div class="rv-mono-plate" role="listitem">
+      <svg class="rv-mono-wm" viewBox="0 0 240 64" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+        <text x="120" y="32" text-anchor="middle" dominant-baseline="middle" font-size="26">Fairmont</text>
+        <text x="120" y="54" text-anchor="middle" dominant-baseline="middle" font-size="14" font-style="normal" font-weight="300">Mayakoba</text>
+      </svg>
+      <span class="rv-mono-rule" aria-hidden="true"></span>
+      <span class="rv-mono-sub">Mayakoba &middot; Quintana Roo</span>
+    </div>
+    <div class="rv-mono-plate" role="listitem">
+      <svg class="rv-mono-wm" viewBox="0 0 240 64" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+        <text x="120" y="32" text-anchor="middle" dominant-baseline="middle" font-size="26">One&amp;Only</text>
+        <text x="120" y="54" text-anchor="middle" dominant-baseline="middle" font-size="14" font-style="normal" font-weight="300">Mandarina</text>
+      </svg>
+      <span class="rv-mono-rule" aria-hidden="true"></span>
+      <span class="rv-mono-sub">Mandarina &middot; Nayarit</span>
+    </div>
+    <div class="rv-mono-plate" role="listitem">
+      <svg class="rv-mono-wm" viewBox="0 0 240 64" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+        <text x="120" y="32" text-anchor="middle" dominant-baseline="middle" font-size="26">Conrad</text>
+        <text x="120" y="54" text-anchor="middle" dominant-baseline="middle" font-size="14" font-style="normal" font-weight="300">Tulum</text>
+      </svg>
+      <span class="rv-mono-rule" aria-hidden="true"></span>
+      <span class="rv-mono-sub">Tulum &middot; Quintana Roo</span>
+    </div>
+    <div class="rv-mono-plate" role="listitem">
+      <svg class="rv-mono-wm" viewBox="0 0 240 64" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+        <text x="120" y="32" text-anchor="middle" dominant-baseline="middle" font-size="22">The Lighthouse</text>
+        <text x="120" y="54" text-anchor="middle" dominant-baseline="middle" font-size="14" font-style="normal" font-weight="300">Punta Allen</text>
+      </svg>
+      <span class="rv-mono-rule" aria-hidden="true"></span>
+      <span class="rv-mono-sub">Punta Allen &middot; Sian Ka'an</span>
+    </div>
   </div>
 </section>
 
