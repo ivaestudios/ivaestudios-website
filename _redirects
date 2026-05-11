@@ -40,11 +40,11 @@
 
 # ═══════════════════════════════════════════
 # CLEAN URLs — Legal & Compliance Pages
+# Cloudflare Pages auto-serves /privacy-policy.html when /privacy-policy
+# is requested (auto-strip .html). The previous 200 rewrites here caused
+# an infinite redirect loop because CF re-stripped .html on its own. No
+# rules needed — CF handles these natively.
 # ═══════════════════════════════════════════
-/privacy-policy /privacy-policy.html 200
-/accessibility-statement /accessibility-statement.html 200
-/es/politica-de-privacidad /es/politica-de-privacidad.html 200
-/es/declaracion-accesibilidad /es/declaracion-accesibilidad.html 200
 
 # Common alternate slugs → canonical legal pages
 /privacy /privacy-policy 301
