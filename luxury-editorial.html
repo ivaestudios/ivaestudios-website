@@ -1510,6 +1510,389 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   .le-reel-hint::before{animation:none !important}
   .le-hero-img img{animation:none !important;transform:none !important}
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   LUXURY EDITORIAL · MOBILE PHOTO ENRICHMENT (V·D request, May 2026)
+   le-mobile-photos-* namespace. Mobile-only (≤768px).
+   Hero strip · Manifesto plates mobile · Contact sheet grid ·
+   Approach strip · Light/Hour/Place gallery · Inline figures.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Shared mobile photo defaults */
+.le-mobile-photos-1,
+.le-mobile-photos-2,
+.le-mobile-photos-3,
+.le-mobile-photos-4,
+.le-mobile-photos-5,
+.le-mobile-photos-6{display:none}
+
+@media (max-width:768px){
+
+  /* 1. Hero photo strip — horizontal scroll-snap reel of portrait 5:7 thumbs */
+  .le-mobile-photos-1{
+    display:block;position:relative;
+    background:#0a0f17;
+    padding:28px 0 36px;
+    border-bottom:1px solid rgba(201,165,78,.18);
+  }
+  .le-mobile-photos-1 .le-mph-eyebrow{
+    display:block;
+    font-family:'Syne',sans-serif;
+    font-size:10px;font-weight:500;
+    letter-spacing:.32em;text-transform:uppercase;
+    color:#c9a54e;
+    padding:0 20px 14px;
+  }
+  .le-mph-reel{
+    display:flex;gap:12px;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    padding:0 20px 12px;
+    scrollbar-width:none;
+  }
+  .le-mph-reel::-webkit-scrollbar{display:none}
+  .le-mph-card{
+    flex:0 0 auto;
+    width:280px;
+    margin:0;
+    scroll-snap-align:start;
+  }
+  .le-mph-card .le-mph-img-wrap{
+    width:100%;
+    aspect-ratio:5/7;
+    overflow:hidden;
+    border:1px solid #c9a54e;
+    background:#0a0f17;
+  }
+  .le-mph-card .le-mph-img-wrap img{
+    width:100%;height:100%;
+    object-fit:cover;display:block;
+    filter:saturate(.92) contrast(1.02);
+  }
+  .le-mph-card figcaption{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-top:10px;
+    font-family:'Syne',sans-serif;
+    font-size:9.5px;font-weight:500;
+    letter-spacing:.22em;text-transform:uppercase;
+    color:rgba(250,248,245,.62);
+  }
+  .le-mph-card figcaption .le-mph-mo{color:#c9a54e}
+
+  /* 2. Manifesto plates → vertical 1-col 4:5 portraits, mobile only */
+  .le-mobile-photos-2{
+    display:block;
+    padding:24px 20px 40px;
+    background:#0a0f17;
+  }
+  .le-mobile-photos-2 .le-mph-eyebrow{
+    display:block;
+    font-family:'Syne',sans-serif;
+    font-size:10px;font-weight:500;
+    letter-spacing:.32em;text-transform:uppercase;
+    color:#c9a54e;
+    margin-bottom:18px;
+  }
+  .le-mph-plate-stack{
+    display:flex;flex-direction:column;gap:28px;
+  }
+  .le-mph-plate{
+    margin:0;
+    position:relative;
+  }
+  .le-mph-plate .le-mph-img-wrap{
+    aspect-ratio:4/5;overflow:hidden;
+    background:#0a0f17;
+    border:1px solid rgba(201,165,78,.28);
+  }
+  .le-mph-plate img{
+    width:100%;height:100%;
+    object-fit:cover;display:block;
+    filter:saturate(.92) contrast(1.02) brightness(.94);
+  }
+  .le-mph-plate figcaption{
+    margin-top:14px;
+    padding-top:12px;
+    border-top:1px solid rgba(201,165,78,.22);
+    display:flex;justify-content:space-between;align-items:baseline;
+    gap:14px;
+  }
+  .le-mph-plate-loc{
+    font-family:'Syne',sans-serif;
+    font-size:9.5px;font-weight:500;
+    letter-spacing:.28em;text-transform:uppercase;
+    color:rgba(250,248,245,.62);
+  }
+  .le-mph-plate-tag{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;font-size:13px;
+    color:#c9a54e;
+  }
+
+  /* 3. Recent Commissions contact sheet — 3×3 square grid */
+  .le-mobile-photos-3{
+    display:block;
+    background:#0a0f17;
+    padding:60px 20px;
+    border-top:1px solid rgba(201,165,78,.14);
+  }
+  .le-mobile-photos-3 .le-mph-head{margin-bottom:22px}
+  .le-mobile-photos-3 .le-mph-eyebrow{
+    display:block;
+    font-family:'Syne',sans-serif;
+    font-size:10px;font-weight:500;
+    letter-spacing:.32em;text-transform:uppercase;
+    color:#c9a54e;
+    margin-bottom:14px;
+  }
+  .le-mobile-photos-3 h2{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:300;font-style:italic;
+    font-size:clamp(28px,7vw,36px);
+    line-height:1.08;letter-spacing:-.014em;
+    color:#faf8f5;margin:0 0 12px;
+  }
+  .le-mobile-photos-3 h2 em{color:#c9a54e}
+  .le-mobile-photos-3 .le-mph-sub{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;font-size:14px;
+    color:rgba(250,248,245,.6);
+    margin:0 0 24px;max-width:36ch;
+  }
+  .le-mph-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:6px;
+  }
+  .le-mph-tile{
+    margin:0;position:relative;
+    aspect-ratio:1/1;overflow:hidden;
+    background:#0a0f17;
+  }
+  .le-mph-tile img{
+    width:100%;height:100%;
+    object-fit:cover;display:block;
+    filter:saturate(.94) contrast(1.02);
+    transition:transform .8s cubic-bezier(.22,.61,.36,1), filter .6s ease;
+  }
+  .le-mph-tile:active img,
+  .le-mph-tile:focus-within img{
+    transform:scale(1.04);
+    filter:saturate(1) contrast(1.05);
+  }
+  /* gold corner marks */
+  .le-mph-tile::before,
+  .le-mph-tile::after{
+    content:'';position:absolute;
+    width:12px;height:12px;
+    border:1px solid #c9a54e;
+    opacity:0;
+    transition:opacity .35s ease;
+    pointer-events:none;
+  }
+  .le-mph-tile::before{top:6px;left:6px;border-right:0;border-bottom:0}
+  .le-mph-tile::after{bottom:6px;right:6px;border-left:0;border-top:0}
+  .le-mph-tile:active::before,
+  .le-mph-tile:active::after,
+  .le-mph-tile:focus-within::before,
+  .le-mph-tile:focus-within::after{opacity:.95}
+  .le-mph-tile-cap{
+    position:absolute;left:0;right:0;bottom:0;
+    padding:8px 10px;
+    background:linear-gradient(180deg, transparent, rgba(10,15,23,.78));
+    font-family:'Syne',sans-serif;
+    font-size:8.5px;font-weight:600;
+    letter-spacing:.22em;text-transform:uppercase;
+    color:#faf8f5;line-height:1.35;
+    opacity:0;
+    transition:opacity .35s ease;
+    pointer-events:none;
+  }
+  .le-mph-tile:active .le-mph-tile-cap,
+  .le-mph-tile:focus-within .le-mph-tile-cap{opacity:1}
+
+  /* 4. Approach behind-the-lens strip — horizontal 200px-tall */
+  .le-mobile-photos-4{
+    display:block;
+    background:#faf8f5;
+    padding:28px 0 12px;
+  }
+  .le-mobile-photos-4 .le-mph-eyebrow{
+    display:block;
+    font-family:'Syne',sans-serif;
+    font-size:10px;font-weight:500;
+    letter-spacing:.32em;text-transform:uppercase;
+    color:#c9a54e;
+    padding:0 20px 14px;
+  }
+  .le-mph-strip-h{
+    display:flex;gap:10px;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    padding:0 20px 18px;
+    scrollbar-width:none;
+  }
+  .le-mph-strip-h::-webkit-scrollbar{display:none}
+  .le-mph-strip-card{
+    flex:0 0 auto;
+    height:200px;
+    margin:0;
+    scroll-snap-align:start;
+    position:relative;
+    background:#0a0f17;
+  }
+  .le-mph-strip-card.is-pano{width:300px}
+  .le-mph-strip-card.is-portrait{width:160px}
+  .le-mph-strip-card.is-square{width:200px}
+  .le-mph-strip-card img{
+    width:100%;height:100%;
+    object-fit:cover;display:block;
+    filter:saturate(.94) contrast(1.04);
+  }
+  .le-mph-strip-card figcaption{
+    position:absolute;left:0;right:0;bottom:0;
+    padding:6px 10px;
+    font-family:'Syne',sans-serif;
+    font-size:8.5px;font-weight:600;
+    letter-spacing:.22em;text-transform:uppercase;
+    color:#faf8f5;
+    background:linear-gradient(180deg,transparent,rgba(10,15,23,.66));
+  }
+
+  /* 5. Full-bleed gallery: 'The light, the hour, the place' */
+  .le-mobile-photos-5{
+    display:block;
+    background:#0a0f17;
+    padding:0;
+  }
+  .le-mobile-photos-5 .le-mph-head{
+    padding:64px 20px 32px;
+    text-align:center;
+  }
+  .le-mobile-photos-5 .le-mph-eyebrow{
+    display:block;
+    font-family:'Syne',sans-serif;
+    font-size:10px;font-weight:500;
+    letter-spacing:.32em;text-transform:uppercase;
+    color:#c9a54e;
+    margin-bottom:14px;
+  }
+  .le-mobile-photos-5 h2{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:300;
+    font-size:clamp(30px,7.4vw,40px);
+    line-height:1.08;letter-spacing:-.018em;
+    color:#faf8f5;margin:0;max-width:18ch;
+    margin-left:auto;margin-right:auto;
+  }
+  .le-mobile-photos-5 h2 em{font-style:italic;color:#c9a54e}
+  .le-mobile-photos-5 .le-mph-sub{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;font-size:14px;
+    color:rgba(250,248,245,.62);
+    margin:18px auto 0;max-width:32ch;
+  }
+  .le-mph-mosaic{
+    display:flex;flex-direction:column;gap:0;
+  }
+  .le-mph-mosaic-cell{
+    margin:0;position:relative;
+    aspect-ratio:16/9;overflow:hidden;
+    background:#0a0f17;
+  }
+  .le-mph-mosaic-cell img{
+    width:100%;height:100%;
+    object-fit:cover;display:block;
+    filter:saturate(.94) contrast(1.02);
+  }
+  .le-mph-mosaic-cell figcaption{
+    position:absolute;left:14px;right:14px;bottom:14px;
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;font-weight:400;
+    font-size:14px;line-height:1.35;
+    color:#faf8f5;
+    text-shadow:0 1px 14px rgba(0,0,0,.6);
+    padding:8px 0 0;
+    border-top:1px solid rgba(201,165,78,.55);
+    max-width:42ch;
+  }
+
+  /* 6. Inquiry behind-text texture strip */
+  .le-mobile-photos-6{display:none}
+
+  /* 7. Inline body figures */
+  .lw-inline-photo{
+    margin:36px 20px;
+    padding:0;
+  }
+  .lw-inline-photo .lw-inline-photo-frame{
+    margin:0;
+    aspect-ratio:16/9;overflow:hidden;
+    background:#0a0f17;
+    border:1px solid rgba(201,165,78,.22);
+  }
+  .lw-inline-photo img{
+    width:100%;height:100%;
+    object-fit:cover;display:block;
+    filter:saturate(.92) contrast(1.04);
+  }
+  .lw-inline-photo figcaption{
+    margin-top:12px;
+    padding-top:10px;
+    border-top:1px solid rgba(201,165,78,.22);
+    display:flex;justify-content:space-between;align-items:baseline;
+    gap:14px;
+    font-family:'Syne',sans-serif;
+    font-size:9.5px;font-weight:500;
+    letter-spacing:.26em;text-transform:uppercase;
+    color:rgba(250,248,245,.62);
+  }
+  .lw-inline-photo figcaption em{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;font-size:13px;
+    letter-spacing:.005em;text-transform:none;
+    color:#c9a54e;
+  }
+  /* On approach (light bg) the inline image inverts colors */
+  .lw-approach .lw-inline-photo figcaption{
+    border-top-color:rgba(10,15,23,.18);
+    color:rgba(10,15,23,.55);
+  }
+  .lw-approach .lw-inline-photo figcaption em{color:#c9a54e}
+  .lw-approach .lw-inline-photo .lw-inline-photo-frame{
+    border-color:rgba(10,15,23,.12);
+  }
+}
+
+/* The inquiry texture strip is a desktop+mobile decorative band at 8% behind CTA */
+.lw-inq2 .le-mobile-photos-6{
+  display:block;
+  position:absolute;inset:0;
+  z-index:0;
+  pointer-events:none;overflow:hidden;
+}
+.le-mph-texture{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  display:flex;gap:14px;
+  width:max-content;
+  opacity:.08;
+  filter:grayscale(.3) saturate(.7);
+}
+.le-mph-texture-cell{
+  flex:0 0 auto;
+  width:240px;height:160px;
+  margin:0;background:#0a0f17;overflow:hidden;
+}
+.le-mph-texture-cell img{
+  width:100%;height:100%;
+  object-fit:cover;display:block;
+}
+@media (max-width:768px){
+  .le-mph-texture-cell{width:180px;height:120px}
+}
 </style>
 
 <link rel="stylesheet" href="/styles/lw-editorial.css?v=20260510x"/>
@@ -1793,6 +2176,41 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   </div>
 </section>
 
+<!-- ═══════ Section 1c - Mobile hero photo strip (≤768px only) ═══════ -->
+<section class="le-mobile-photos-1" aria-label="Recent editorial frames">
+  <span class="le-mph-eyebrow">A glance at the archive</span>
+  <div class="le-mph-reel" role="list">
+    <figure class="le-mph-card" role="listitem">
+      <div class="le-mph-img-wrap"><img src="/images/couple-cancun-hotel-zone-ivae-studios-11.jpg" alt="Couple at the Cancún Hotel Zone captured in golden hour by IVAE Studios" loading="lazy" decoding="async" width="1600" height="2240"/></div>
+      <figcaption><span>Cancún</span><span class="le-mph-mo">Mar</span></figcaption>
+    </figure>
+    <figure class="le-mph-card" role="listitem">
+      <div class="le-mph-img-wrap"><img src="/images/couple-tulum-ivae-studios.jpg" alt="Couple at Tulum photographed by IVAE Studios" loading="lazy" decoding="async" width="1600" height="2240"/></div>
+      <figcaption><span>Tulum</span><span class="le-mph-mo">Feb</span></figcaption>
+    </figure>
+    <figure class="le-mph-card" role="listitem">
+      <div class="le-mph-img-wrap"><img src="/images/wedding-bride-tulum-ivae-studios.jpg" alt="Bride at Tulum photographed by IVAE Studios" loading="lazy" decoding="async" width="1600" height="2240"/></div>
+      <figcaption><span>Tulum</span><span class="le-mph-mo">Apr</span></figcaption>
+    </figure>
+    <figure class="le-mph-card" role="listitem">
+      <div class="le-mph-img-wrap"><img src="/images/couple-isla-mujeres-ivae-studios.jpg" alt="Couple at Isla Mujeres photographed by IVAE Studios" loading="lazy" decoding="async" width="1600" height="2240"/></div>
+      <figcaption><span>Isla Mujeres</span><span class="le-mph-mo">Jan</span></figcaption>
+    </figure>
+    <figure class="le-mph-card" role="listitem">
+      <div class="le-mph-img-wrap"><img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Couple at Mayakoba photographed by IVAE Studios" loading="lazy" decoding="async" width="1600" height="2240"/></div>
+      <figcaption><span>Mayakoba</span><span class="le-mph-mo">May</span></figcaption>
+    </figure>
+    <figure class="le-mph-card" role="listitem">
+      <div class="le-mph-img-wrap"><img src="/images/couple-playa-mujeres-ivae-studios-3.jpg" alt="Couple at Playa Mujeres at sunset by IVAE Studios" loading="lazy" decoding="async" width="1600" height="2240"/></div>
+      <figcaption><span>Playa Mujeres</span><span class="le-mph-mo">Dec</span></figcaption>
+    </figure>
+    <figure class="le-mph-card" role="listitem">
+      <div class="le-mph-img-wrap"><img src="/images/couple-los-cabos-ivae-studios.jpg" alt="Couple at Los Cabos photographed by IVAE Studios" loading="lazy" decoding="async" width="1600" height="2240"/></div>
+      <figcaption><span>Los Cabos</span><span class="le-mph-mo">Nov</span></figcaption>
+    </figure>
+  </div>
+</section>
+
 <!-- ═══════ Section 2 - Manifesto sticky-stage ═══════ -->
 <section class="le-manifesto-stage" data-chapter="2" data-theme-color="#0a0f17" aria-labelledby="le-manifesto-heading">
   <div class="le-manifesto-track">
@@ -1812,6 +2230,34 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
       <div class="pillars-dots" data-pillars-dots aria-hidden="true"></div>
       <cite class="le-signoff">Vianey Diaz / Director</cite>
     </div>
+  </div>
+</section>
+
+<!-- ═══════ Section 2b - Manifesto plates, mobile vertical (≤768px) ═══════ -->
+<section class="le-mobile-photos-2" aria-label="Manifesto plates">
+  <span class="le-mph-eyebrow">Three frames, three commitments</span>
+  <div class="le-mph-plate-stack">
+    <figure class="le-mph-plate">
+      <div class="le-mph-img-wrap"><img src="/images/couple-cancun-hotel-zone-ivae-studios.jpg" alt="Couple at the Cancún Hotel Zone photographed by IVAE Studios" loading="lazy" decoding="async" width="1600" height="2000"/></div>
+      <figcaption>
+        <span class="le-mph-plate-loc">Pillar I · Story</span>
+        <span class="le-mph-plate-tag"><em>What the brief is about.</em></span>
+      </figcaption>
+    </figure>
+    <figure class="le-mph-plate">
+      <div class="le-mph-img-wrap"><img src="/images/couple-cancun-beach-ivae-studios.jpg" alt="Couple at a Cancún beach photographed by IVAE Studios" loading="lazy" decoding="async" width="1600" height="2000"/></div>
+      <figcaption>
+        <span class="le-mph-plate-loc">Pillar II · Light</span>
+        <span class="le-mph-plate-tag"><em>Planned to the hour.</em></span>
+      </figcaption>
+    </figure>
+    <figure class="le-mph-plate">
+      <div class="le-mph-img-wrap"><img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="Couple at Cabo San Lucas photographed by IVAE Studios" loading="lazy" decoding="async" width="1600" height="2000"/></div>
+      <figcaption>
+        <span class="le-mph-plate-loc">Pillar III · Restraint</span>
+        <span class="le-mph-plate-tag"><em>One photographer. One unit.</em></span>
+      </figcaption>
+    </figure>
   </div>
 </section>
 
@@ -1932,8 +2378,39 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
       <p class="lw-approach-body">Every commission is shot the way I would shoot for a print issue. One signature tone, one art director on the day (me), one studio answering email from creative brief through delivery. The standard does not change between a fragrance launch and a hotel brand book.</p>
       <blockquote class="lw-approach-quote">We do not shoot to the brief. <em>We shoot through it.</em></blockquote>
       <p class="lw-approach-body">Each commission is delivered as a private mood-board, hi-res masters, social-cut derivatives, and an album of selected frames pressed in Mexico City for the client archive.</p>
+      <figure class="lw-inline-photo">
+        <div class="lw-inline-photo-frame"><img src="/images/wedding-decor-cancun-beach-ivae-studios.jpg" alt="Wedding decor at a Cancún beach photographed by IVAE Studios" loading="lazy" decoding="async" width="1600" height="900"/></div>
+        <figcaption><span>Set detail · Cancún beach · 6:18 am</span><em>The hour the light is honest.</em></figcaption>
+      </figure>
       <p class="lw-approach-sig">&mdash; Vianey Díaz, Director</p>
     </div>
+  </div>
+</section>
+
+<!-- ═══════ Section 4b - Behind-the-lens strip, mobile (≤768px) ═══════ -->
+<section class="le-mobile-photos-4" aria-label="Behind the lens">
+  <span class="le-mph-eyebrow">Behind the lens</span>
+  <div class="le-mph-strip-h" role="list">
+    <figure class="le-mph-strip-card is-pano" role="listitem">
+      <img src="/images/wedding-decor-cancun-ivae-studios.jpg" alt="Wedding decor in Cancún photographed by IVAE Studios" loading="lazy" decoding="async" width="1600" height="1067"/>
+      <figcaption>Set · Cancún</figcaption>
+    </figure>
+    <figure class="le-mph-strip-card is-portrait" role="listitem">
+      <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-9.jpg" alt="Bride at the Cancún Hotel Zone framed by palms by IVAE Studios" loading="lazy" decoding="async" width="1600" height="2000"/>
+      <figcaption>6:18 am · Mar</figcaption>
+    </figure>
+    <figure class="le-mph-strip-card is-square" role="listitem">
+      <img src="/images/wedding-reception-cancun-ivae-studios.jpg" alt="Wedding reception in Cancún photographed by IVAE Studios" loading="lazy" decoding="async" width="1600" height="1600"/>
+      <figcaption>Tablescape · Riviera</figcaption>
+    </figure>
+    <figure class="le-mph-strip-card is-portrait" role="listitem">
+      <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-14.jpg" alt="A bride photographed at golden hour on the Cancún Hotel Zone coastline by IVAE Studios" loading="lazy" decoding="async" width="1600" height="2000"/>
+      <figcaption>Golden hour · Cancún</figcaption>
+    </figure>
+    <figure class="le-mph-strip-card is-pano" role="listitem">
+      <img src="/images/wedding-decor-playa-mujeres-ivae-studios.jpg" alt="Wedding decor at Playa Mujeres photographed by IVAE Studios" loading="lazy" decoding="async" width="1600" height="1067"/>
+      <figcaption>Set · Playa Mujeres</figcaption>
+    </figure>
   </div>
 </section>
 
@@ -1973,6 +2450,53 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
 
 </section>
 
+<!-- ═══════ Section 5b - Recent commissions contact sheet, mobile (≤768px) ═══════ -->
+<section class="le-mobile-photos-3" aria-label="Recent commissions contact sheet">
+  <header class="le-mph-head">
+    <span class="le-mph-eyebrow">From the archive · 2025—2026</span>
+    <h2>The contact sheet, <em>uncut.</em></h2>
+    <p class="le-mph-sub">Nine frames from recent commissions across the Mexican coast.</p>
+  </header>
+  <div class="le-mph-grid">
+    <figure class="le-mph-tile">
+      <img src="/images/couple-cancun-hotel-zone-ivae-studios-7.jpg" alt="Couple at the Cancún Hotel Zone walking the coastline by IVAE Studios" loading="lazy" decoding="async" width="1600" height="1600"/>
+      <figcaption class="le-mph-tile-cap">Mar · Mayakoba · Brand launch</figcaption>
+    </figure>
+    <figure class="le-mph-tile">
+      <img src="/images/couple-cancun-beach-ivae-studios-3.jpg" alt="Couple at a Cancún beach captured in golden light by IVAE Studios" loading="lazy" decoding="async" width="1600" height="1600"/>
+      <figcaption class="le-mph-tile-cap">Feb · Cancún · Editorial</figcaption>
+    </figure>
+    <figure class="le-mph-tile">
+      <img src="/images/couple-tulum-ivae-studios-2.jpg" alt="Couple at Tulum on a white-sand beach by IVAE Studios" loading="lazy" decoding="async" width="1600" height="1600"/>
+      <figcaption class="le-mph-tile-cap">Jan · Tulum · Lookbook</figcaption>
+    </figure>
+    <figure class="le-mph-tile">
+      <img src="/images/wedding-bride-playa-mujeres-ivae-studios.jpg" alt="Bride at Playa Mujeres photographed by IVAE Studios" loading="lazy" decoding="async" width="1600" height="1600"/>
+      <figcaption class="le-mph-tile-cap">Dec · Playa Mujeres · Bridal</figcaption>
+    </figure>
+    <figure class="le-mph-tile">
+      <img src="/images/couple-riviera-maya-ivae-studios-3.jpg" alt="Couple at the Riviera Maya in a turquoise water portrait by IVAE Studios" loading="lazy" decoding="async" width="1600" height="1600"/>
+      <figcaption class="le-mph-tile-cap">Nov · Riviera Maya · Resort</figcaption>
+    </figure>
+    <figure class="le-mph-tile">
+      <img src="/images/couple-isla-mujeres-ivae-studios-2.jpg" alt="Couple at Isla Mujeres with Caribbean blue water by IVAE Studios" loading="lazy" decoding="async" width="1600" height="1600"/>
+      <figcaption class="le-mph-tile-cap">Oct · Isla Mujeres · Campaign</figcaption>
+    </figure>
+    <figure class="le-mph-tile">
+      <img src="/images/couple-playa-mujeres-ivae-studios-4.jpg" alt="Couple at Playa Mujeres in an editorial seaside portrait by IVAE Studios" loading="lazy" decoding="async" width="1600" height="1600"/>
+      <figcaption class="le-mph-tile-cap">Sep · Playa Mujeres · Hotel</figcaption>
+    </figure>
+    <figure class="le-mph-tile">
+      <img src="/images/couple-cancun-hotel-zone-ivae-studios-8.jpg" alt="Couple at the Cancún Hotel Zone framed by palms by IVAE Studios" loading="lazy" decoding="async" width="1600" height="1600"/>
+      <figcaption class="le-mph-tile-cap">Aug · Cancún · Editorial</figcaption>
+    </figure>
+    <figure class="le-mph-tile">
+      <img src="/images/wedding-bride-cancun-beach-ivae-studios-5.jpg" alt="Bride at a Cancún beach in an editorial bridal portrait by IVAE Studios" loading="lazy" decoding="async" width="1600" height="1600"/>
+      <figcaption class="le-mph-tile-cap">Jul · Cancún · Bridal</figcaption>
+    </figure>
+  </div>
+</section>
+
 <!-- ═══════ ONE TESTIMONIAL ═══════ -->
 <section class="lw-test" data-chapter="6" data-theme-color="#0d1219" aria-label="A note from a past client">
   <blockquote class="lw-test-quote pull-quote">
@@ -1988,9 +2512,52 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   </footer>
 </section>
 
+<!-- ═══════ Section 6b - Full-bleed gallery, mobile vertical (≤768px) ═══════ -->
+<section class="le-mobile-photos-5" aria-label="The light, the hour, the place">
+  <header class="le-mph-head">
+    <span class="le-mph-eyebrow">A folio</span>
+    <h2>The light, the hour, <em>the place.</em></h2>
+    <p class="le-mph-sub">Six frames, no captions on the print spread.</p>
+  </header>
+  <div class="le-mph-mosaic">
+    <figure class="le-mph-mosaic-cell">
+      <img src="/images/couple-cancun-hotel-zone-ivae-studios-2.jpg" alt="Couple at the Cancún Hotel Zone enjoying a sunset session by IVAE Studios" loading="lazy" decoding="async" width="1600" height="900"/>
+      <figcaption><em>Cancún · 6:32 pm · March light.</em></figcaption>
+    </figure>
+    <figure class="le-mph-mosaic-cell">
+      <img src="/images/wedding-tulum-ivae-studios.jpg" alt="Wedding at Tulum photographed by IVAE Studios" loading="lazy" decoding="async" width="1600" height="900"/>
+      <figcaption><em>Tulum · the long shadow.</em></figcaption>
+    </figure>
+    <figure class="le-mph-mosaic-cell">
+      <img src="/images/couple-riviera-maya-ivae-studios-2.jpg" alt="Couple at the Riviera Maya in a tropical jungle setting by IVAE Studios" loading="lazy" decoding="async" width="1600" height="900"/>
+      <figcaption><em>Riviera Maya · the canopy.</em></figcaption>
+    </figure>
+    <figure class="le-mph-mosaic-cell">
+      <img src="/images/wedding-riviera-maya-ivae-studios.jpg" alt="Wedding at the Riviera Maya photographed by IVAE Studios" loading="lazy" decoding="async" width="1600" height="900"/>
+      <figcaption><em>Riviera Maya · ceremony at five.</em></figcaption>
+    </figure>
+    <figure class="le-mph-mosaic-cell">
+      <img src="/images/couple-cancun-beach-ivae-studios-8.jpg" alt="Couple at a Cancún beach in a cinematic portrait by IVAE Studios" loading="lazy" decoding="async" width="1600" height="900"/>
+      <figcaption><em>Cancún · the second cup of coffee.</em></figcaption>
+    </figure>
+    <figure class="le-mph-mosaic-cell">
+      <img src="/images/wedding-isla-mujeres-ivae-studios.jpg" alt="Wedding at Isla Mujeres photographed by IVAE Studios" loading="lazy" decoding="async" width="1600" height="900"/>
+      <figcaption><em>Isla Mujeres · the last frame.</em></figcaption>
+    </figure>
+  </div>
+</section>
+
 <!-- ═══════ INQUIRY ═══════ -->
 <section class="lw-inq2" data-chapter="7" data-theme-color="#c9a54e" id="inquiry" aria-labelledby="inq-h">
   <picture class="lw-inq2-bg" aria-hidden="true"><img src="/images/couple-cancun-hotel-zone-ivae-studios-4.jpg" alt="" loading="lazy"/></picture>
+  <div class="le-mobile-photos-6" aria-hidden="true">
+    <div class="le-mph-texture">
+      <figure class="le-mph-texture-cell"><img src="/images/couple-cancun-hotel-zone-ivae-studios-10.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1067"/></figure>
+      <figure class="le-mph-texture-cell"><img src="/images/couple-riviera-maya-ivae-studios-4.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1067"/></figure>
+      <figure class="le-mph-texture-cell"><img src="/images/wedding-playa-mujeres-ivae-studios.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1067"/></figure>
+      <figure class="le-mph-texture-cell"><img src="/images/couple-tulum-ivae-studios-3.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1067"/></figure>
+    </div>
+  </div>
   <span class="lw-inq2-veil" aria-hidden="true"></span>
   <div class="lw-inq2-content">
     <span class="lw-inq2-eyebrow">By Commission</span>
