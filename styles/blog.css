@@ -32,11 +32,14 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 /* POST HERO */
 .post-hero{position:relative;height:70vh;min-height:520px;overflow:hidden;background:var(--ink)}
-.post-hero img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;filter:brightness(0.6) saturate(0.8)}
-.post-hero-ph{width:100%;height:100%;background:linear-gradient(135deg,#1e2c3e 0%,#243448 100%);display:flex;align-items:center;justify-content:center}
+.post-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;filter:brightness(0.6) saturate(0.8);z-index:1}
+/* Placeholder sits behind the image — only visible if the <img> fails to load.
+   Previously the placeholder occupied the full hero height in normal flow,
+   pushing the real <img> below the overflow-hidden viewport. */
+.post-hero-ph{position:absolute;inset:0;background:linear-gradient(135deg,#1e2c3e 0%,#243448 100%);display:flex;align-items:center;justify-content:center;z-index:0}
 .post-hero-ph span{font-size:9.5px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:rgba(196,163,90,0.4)}
-.post-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(26,36,51,0.85) 0%,rgba(26,36,51,0.2) 60%,transparent 100%)}
-.post-hero-content{position:absolute;bottom:0;left:0;right:0;padding:52px 64px;z-index:2}
+.post-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(26,36,51,0.85) 0%,rgba(26,36,51,0.2) 60%,transparent 100%);z-index:2}
+.post-hero-content{position:absolute;bottom:0;left:0;right:0;padding:52px 64px;z-index:3}
 .post-back{display:inline-flex;align-items:center;gap:8px;font-size:9.5px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);text-decoration:none;margin-bottom:20px;transition:color 0.2s}
 .post-back:hover{color:var(--cream)}
 .post-back svg{width:12px;height:12px}
@@ -78,6 +81,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .inline-photo{margin:36px 0;overflow:hidden;position:relative;height:400px;background:linear-gradient(135deg,#ddd8cf,#c8c0b4)}
 .inline-photo img{width:100%;height:100%;object-fit:cover;display:block}
 .inline-photo figcaption{position:absolute;bottom:0;left:0;right:0;padding:14px 20px;background:linear-gradient(transparent,rgba(26,36,51,0.7));font-size:11px;letter-spacing:0.1em;color:rgba(255,255,255,0.8)}
+/* Hide image-less placeholder boxes — 148 figures across 56 posts have no <img>,
+   so the grey gradient was rendering as an empty "ugly box" between paragraphs. */
+.inline-photo:not(:has(img)){display:none}
+.post-hero-ph:not(:has(+ img)){display:none}
 
 /* COMPARISON TABLE */
 .comparison-table{width:100%;border-collapse:collapse;margin:32px 0 28px;font-size:14px}
