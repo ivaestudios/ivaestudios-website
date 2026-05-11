@@ -312,12 +312,103 @@ img,picture{max-width:100%;height:auto}
 .chips{justify-content:flex-start}
 }
 
+/* ============================================================
+   MOBILE-AS-ITS-OWN-MEDIUM — Editorial mobile treatment
+   ============================================================ */
+@media(max-width:768px){
+  /* Hero — editorial cover treatment */
+  .hero{padding-top:env(safe-area-inset-top,0)}
+  .hero-content{padding:0 22px}
+  .hero h1{font-size:clamp(34px,9.5vw,52px);line-height:1.04;letter-spacing:-0.005em;margin-bottom:18px}
+  .hero-sub{font-size:13.5px;line-height:1.75;max-width:340px;margin-left:auto;margin-right:auto;margin-bottom:28px;color:rgba(249,248,247,0.62)}
+  /* Hero gold thread above CTA */
+  .hero-content::before{content:'';display:block;width:1px;height:32px;background:var(--gold);opacity:0.55;margin:0 auto 24px}
+  .hero .btn{padding:15px 30px;letter-spacing:0.2em;font-size:9.5px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+
+  /* Breadcrumb — pulled tight */
+  .bc{padding:14px 22px;font-size:9.5px;letter-spacing:0.14em;border-top:1px solid var(--border-l);background:var(--cream)}
+
+  /* Stats — 2x2 grid with serif numerals + caps labels */
+  .stats{padding:36px 22px;display:grid;grid-template-columns:1fr 1fr;gap:28px 16px;border-top:1px solid var(--border)}
+  .stats .stat-i{text-align:center;position:relative}
+  .stats .stat-i:not(:last-child)::after{content:'';position:absolute;right:-8px;top:14%;bottom:14%;width:1px;background:var(--border);opacity:0.7}
+  .stats .stat-i:nth-child(2n)::after{display:none}
+  .stat-i .n{font-size:30px;font-weight:300;letter-spacing:-0.01em}
+  .stat-i .l{font-size:9px;letter-spacing:0.18em;margin-top:6px;font-variant:small-caps}
+
+  /* Service grid — horizontal swipe-snap reel */
+  .sv-grid{display:flex;flex-direction:row;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-left:22px;gap:14px;margin:0 -22px;padding:8px 22px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .sv-grid::-webkit-scrollbar{display:none}
+  .sv-card{flex:0 0 82%;scroll-snap-align:start;min-height:340px;display:flex;flex-direction:column}
+  .sv-card img{height:200px;flex-shrink:0}
+  .sv-card-body{padding:22px 20px 24px;display:flex;flex-direction:column;gap:8px;position:relative;flex:1}
+  .sv-card-body::after{content:'\2192';position:absolute;right:20px;bottom:20px;font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);opacity:0.85}
+  .sv-card h3{font-size:20px}
+  .sv-card p{font-size:12.5px;padding-right:32px}
+  /* Reel progress indicator (visual hint) */
+  .sv-grid::before{content:'';position:absolute;left:0;right:0;height:1px}
+
+  /* Gallery — vertical 4:5 reel */
+  .pg{display:flex;flex-direction:column;grid-template-columns:none;grid-auto-rows:auto;gap:24px;counter-reset:pgnum}
+  .pg-i,.pg-i.feat{grid-column:auto;grid-row:auto;aspect-ratio:4/5;height:auto;width:100%;position:relative;counter-increment:pgnum}
+  .pg-i img{width:100%;height:100%;object-fit:cover}
+  .pg-i::after{content:counter(pgnum) " / 11";position:absolute;bottom:14px;right:14px;font-family:'Syne',sans-serif;font-size:9.5px;font-weight:600;letter-spacing:0.2em;color:var(--cream);background:rgba(14,22,32,0.55);padding:6px 10px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+
+  /* Locations — already 1-col, but tighter */
+  .loc-card{border:none;border-bottom:1px solid var(--border-l);padding-bottom:24px}
+
+  /* Resorts monogram grid already mobile-friendly; ensure spacing */
+  #rv-resorts .rv-mono-plate{aspect-ratio:6/5;padding:22px 14px}
+
+  /* Testimonials — full-bleed editorial single column with pull-quote glyph */
+  .tm-grid{display:flex;flex-direction:column;gap:0;padding:0;margin:0 -22px}
+  .tm-card{padding:48px 28px 44px;border:none;border-bottom:1px solid var(--border-l);background:var(--cream);position:relative;padding-left:max(28px,env(safe-area-inset-left));padding-right:max(28px,env(safe-area-inset-right))}
+  .tm-card:last-child{border-bottom:none}
+  .tm-card::before{position:absolute;top:18px;right:24px;font-size:88px;line-height:1;opacity:0.18;margin:0}
+  .tm-card blockquote{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;line-height:1.55;color:var(--ink);margin-bottom:22px;font-weight:400}
+  .tm-card cite{font-size:10.5px;letter-spacing:0.18em}
+  .tm-card .cd{font-size:10px}
+
+  /* FAQ — smaller body, tighter padding, gold chevron rotation */
+  .faq-item{padding:18px 0}
+  .faq-q{font-size:13.5px;letter-spacing:0.005em;padding-right:8px;min-height:44px}
+  .faq-q::after{content:'\203A';font-family:'Cormorant Garamond',serif;font-size:24px;transform:rotate(90deg);transition:transform 0.3s ease}
+  .faq-item.open .faq-q::after{transform:rotate(-90deg)}
+  .faq-a p{font-size:13px;line-height:1.75}
+
+  /* Internal links — touch friendly */
+  .il-grid a{padding:12px 18px;font-size:11.5px;min-height:42px;display:inline-flex;align-items:center}
+
+  /* CTA — gold thread top/bottom of button */
+  .cta{padding:72px 22px;padding-bottom:max(72px,calc(72px + env(safe-area-inset-bottom)))}
+  .cta h2{font-size:clamp(26px,7.5vw,38px);line-height:1.12}
+  .cta-btns{display:flex;flex-direction:column;align-items:stretch;gap:16px;max-width:320px;margin:0 auto;position:relative}
+  .cta-btns::before,.cta-btns::after{content:'';display:block;width:1px;height:22px;background:var(--gold);opacity:0.55;margin:0 auto}
+  .cta-btns .btn{width:100%;min-height:50px;display:inline-flex;align-items:center;justify-content:center;letter-spacing:0.2em}
+  .cta-btns .btn:first-of-type{color:var(--ink);background:var(--gold);border-color:var(--gold)}
+
+  /* Section spacing — tighter rhythm */
+  .sc{padding:56px 22px}
+  .sc-cream,.sc-sand{padding-left:22px;padding-right:22px}
+}
+
+@media(max-width:560px){
+  .hero-sub{max-width:290px;font-size:13px}
+  .hero h1{font-size:clamp(30px,10vw,42px)}
+  .sv-card{flex:0 0 86%}
+  .pg-i::after{font-size:9px;padding:5px 9px}
+  .tm-card blockquote{font-size:17px}
+  .stats{padding:32px 18px;gap:24px 14px}
+  .stat-i .n{font-size:26px}
+}
+
 /* PREFERS REDUCED MOTION */
 @media(prefers-reduced-motion:reduce){
 .rv,.rv[data-anim="fade"]{opacity:1!important;transform:none!important;transition:none!important}
 .curtain::after{transition:none!important}
 html{scroll-behavior:auto}
 .pg-i img,.loc-card:hover .loc-img img{transition:none!important;transform:none!important}
+.hero-bg{transform:none!important}
 }
 
 /* FOCUS VISIBILITY */
@@ -480,16 +571,16 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
   </div>
   <div class="pg rv d1" data-anim="fade" role="list" aria-label="Photo gallery of Riviera Maya sessions">
     <div class="pg-i feat"><img src="/images/couple-riviera-maya-ivae-studios-2.jpg" alt="Couple beach session Riviera Maya by IVAE Studios" loading="lazy" width="1600" height="1067"/></div>
-    <div class="pg-i"><img src="/images/family-riviera-maya-ivae-studios-2.jpg" alt="Family portrait Riviera Maya resort by IVAE Studios" loading="lazy" width="1600" height="1067"/></div>
-    <div class="pg-i"><img src="/images/wedding-riviera-maya-ivae-studios.jpg" alt="Destination wedding Riviera Maya by IVAE Studios" loading="lazy" width="1600" height="1067"/></div>
-    <div class="pg-i"><img src="/images/couple-tulum-ivae-studios.jpg" alt="Couple session at Tulum cliffs by IVAE Studios" loading="lazy" width="1600" height="1067"/></div>
-    <div class="pg-i"><img src="/images/couple-akumal-ivae-studios.jpg" alt="Couple session at Akumal beach by IVAE Studios" loading="lazy" width="1600" height="1067"/></div>
-    <div class="pg-i feat"><img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Couple session at Mayakoba luxury resort by IVAE Studios" loading="lazy" width="1600" height="1067"/></div>
-    <div class="pg-i"><img src="/images/couple-riviera-maya-ivae-studios-3.jpg" alt="Riviera Maya golden hour couple session by IVAE Studios" loading="lazy" width="1600" height="1067"/></div>
-    <div class="pg-i"><img src="/images/family-kids-riviera-maya-ivae-studios-2.jpg" alt="Family with kids Riviera Maya garden session by IVAE Studios" loading="lazy" width="1600" height="1067"/></div>
-    <div class="pg-i"><img src="/images/couple-tulum-ivae-studios-2.jpg" alt="Anniversary couple session Tulum by IVAE Studios" loading="lazy" width="1600" height="1067"/></div>
-    <div class="pg-i"><img src="/images/couple-riviera-maya-ivae-studios-4.jpg" alt="Couple beach walk Riviera Maya by IVAE Studios" loading="lazy" width="1600" height="1067"/></div>
-    <div class="pg-i"><img src="/images/wedding-tulum-ivae-studios.jpg" alt="Group celebration wedding Tulum resort by IVAE Studios" loading="lazy" width="1600" height="1067"/></div>
+    <div class="pg-i"><img src="/images/family-riviera-maya-ivae-studios-2.jpg" alt="Family portrait Riviera Maya resort by IVAE Studios" loading="lazy" fetchpriority="low" width="1600" height="1067"/></div>
+    <div class="pg-i"><img src="/images/wedding-riviera-maya-ivae-studios.jpg" alt="Destination wedding Riviera Maya by IVAE Studios" loading="lazy" fetchpriority="low" width="1600" height="1067"/></div>
+    <div class="pg-i"><img src="/images/couple-tulum-ivae-studios.jpg" alt="Couple session at Tulum cliffs by IVAE Studios" loading="lazy" fetchpriority="low" width="1600" height="1067"/></div>
+    <div class="pg-i"><img src="/images/couple-akumal-ivae-studios.jpg" alt="Couple session at Akumal beach by IVAE Studios" loading="lazy" fetchpriority="low" width="1600" height="1067"/></div>
+    <div class="pg-i feat"><img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Couple session at Mayakoba luxury resort by IVAE Studios" loading="lazy" fetchpriority="low" width="1600" height="1067"/></div>
+    <div class="pg-i"><img src="/images/couple-riviera-maya-ivae-studios-3.jpg" alt="Riviera Maya golden hour couple session by IVAE Studios" loading="lazy" fetchpriority="low" width="1600" height="1067"/></div>
+    <div class="pg-i"><img src="/images/family-kids-riviera-maya-ivae-studios-2.jpg" alt="Family with kids Riviera Maya garden session by IVAE Studios" loading="lazy" fetchpriority="low" width="1600" height="1067"/></div>
+    <div class="pg-i"><img src="/images/couple-tulum-ivae-studios-2.jpg" alt="Anniversary couple session Tulum by IVAE Studios" loading="lazy" fetchpriority="low" width="1600" height="1067"/></div>
+    <div class="pg-i"><img src="/images/couple-riviera-maya-ivae-studios-4.jpg" alt="Couple beach walk Riviera Maya by IVAE Studios" loading="lazy" fetchpriority="low" width="1600" height="1067"/></div>
+    <div class="pg-i"><img src="/images/wedding-tulum-ivae-studios.jpg" alt="Group celebration wedding Tulum resort by IVAE Studios" loading="lazy" fetchpriority="low" width="1600" height="1067"/></div>
   </div>
 </section>
 
@@ -552,11 +643,14 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
       #rv-process .rv-proc-num{top:12px;left:-4px}
       #rv-process .rv-proc-h{font-size:24px}
     }
-    @media(max-width:480px){
-      #rv-process .rv-proc-grid{grid-template-columns:1fr}
-      #rv-process .rv-proc-card{border-right:none;border-bottom:1px solid rgba(26,36,51,0.10);padding:36px 2px 28px;min-height:0}
-      #rv-process .rv-proc-card:last-child{border-bottom:none}
+    @media(max-width:560px){
+      #rv-process .rv-proc-grid{display:flex;flex-direction:row;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-left:22px;gap:0;border-top:none;padding:8px 22px 16px 0;margin:0 -22px;scrollbar-width:none;-webkit-overflow-scrolling:touch;grid-template-columns:none}
+      #rv-process .rv-proc-grid::-webkit-scrollbar{display:none}
+      #rv-process .rv-proc-card{flex:0 0 80%;scroll-snap-align:start;border-right:1px solid rgba(26,36,51,0.10);border-bottom:none;padding:36px 18px 28px;min-height:220px;background:rgba(196,163,90,0.03)}
+      #rv-process .rv-proc-card:last-child{border-right:none}
       #rv-process .rv-proc-num{font-size:clamp(64px,18vw,96px)}
+      /* Gold thread of dots beneath */
+      #rv-process::after{content:'';display:block;height:1px;background:repeating-linear-gradient(to right,var(--gold) 0 4px,transparent 4px 12px);opacity:0.4;margin:14px 22px 0;max-width:160px}
     }
     @media(prefers-reduced-motion:reduce){
       #rv-process .rv-proc-num{opacity:0.15;transform:none;transition:none}
@@ -862,7 +956,7 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
   if(toggle&&mobileNav){toggle.addEventListener('click',function(){var open=mobileNav.classList.toggle('open');toggle.setAttribute('aria-expanded',open?'true':'false');});}
   var reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var hero=document.querySelector('.hero');
-  if(hero&&!reduceMotion){var bg=hero.querySelector('.hero-bg');if(bg){var ticking=false;window.addEventListener('scroll',function(){if(!ticking){requestAnimationFrame(function(){bg.style.transform='translateY('+scrollY*0.35+'px)';ticking=false});ticking=true}},{passive:true});}}
+  if(hero&&!reduceMotion){var bg=hero.querySelector('.hero-bg');if(bg){var ticking=false;var isMobile=window.matchMedia&&window.matchMedia('(max-width:768px)').matches;var rate=isMobile?0.06:0.35;window.addEventListener('scroll',function(){if(!ticking){requestAnimationFrame(function(){bg.style.transform='translate3d(0,'+scrollY*rate+'px,0)';ticking=false});ticking=true}},{passive:true});}}
   if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('vis');io.unobserve(e.target);}})},{threshold:0.05,rootMargin:'200px 0px 200px 0px'});document.querySelectorAll('.rv').forEach(function(el){io.observe(el)});}else{document.querySelectorAll('.rv').forEach(function(el){el.classList.add('vis')});}
   /* Safety net: force-reveal any .rv still missing .vis after 1.8s. */
   setTimeout(function(){document.querySelectorAll('.rv:not(.vis)').forEach(function(el){el.classList.add('vis');});},1800);

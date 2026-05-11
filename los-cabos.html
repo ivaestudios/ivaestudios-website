@@ -220,6 +220,164 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .il-g{grid-template-columns:repeat(3,1fr)}
 .breadcrumbs{padding:20px 48px 0}
 }
+
+/* ============================================================
+   RESORT MONOGRAM GRID — Mobile-first SVG plate pattern
+   ============================================================ */
+#lc-resorts .lc-mono-head{margin-bottom:56px;max-width:min(720px,100%)}
+#lc-resorts .lc-mono-head h2{margin-bottom:18px}
+#lc-resorts .lc-mono-head p.intro{font-size:14px;line-height:1.85;color:var(--muted-l);max-width:min(580px,100%);margin-bottom:0}
+#lc-resorts .lc-mono-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
+#lc-resorts .lc-mono-plate{position:relative;aspect-ratio:5/3;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 18px;text-align:center;transition:background 0.5s ease}
+#lc-resorts .lc-mono-plate::before{content:'';position:absolute;inset:0;border:1px solid var(--gold);opacity:0.32;transition:opacity 0.6s ease,border-color 0.6s ease;pointer-events:none}
+#lc-resorts .lc-mono-plate:hover{background:rgba(196,163,90,0.04)}
+#lc-resorts .lc-mono-plate:hover::before{opacity:0}
+#lc-resorts .lc-mono-wm{width:100%;max-width:240px;height:auto;display:block;overflow:visible}
+#lc-resorts .lc-mono-wm text{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;fill:var(--ink);letter-spacing:0.005em}
+#lc-resorts .lc-mono-rule{width:18px;height:1px;background:var(--gold);margin:14px 0 12px;opacity:0.7}
+#lc-resorts .lc-mono-sub{font-family:'Syne',sans-serif;font-size:9.5px;font-weight:500;letter-spacing:0.28em;text-transform:uppercase;color:var(--muted-l);font-variant:small-caps}
+@media(min-width:768px) and (max-width:1023px){
+  #lc-resorts .lc-mono-head{margin-bottom:44px}
+  #lc-resorts .lc-mono-grid{grid-template-columns:repeat(2,1fr)}
+  #lc-resorts .lc-mono-plate{aspect-ratio:5/3;padding:32px 22px}
+  #lc-resorts .lc-mono-wm{max-width:280px}
+}
+@media(max-width:767px){
+  #lc-resorts .lc-mono-head{margin-bottom:36px}
+  #lc-resorts .lc-mono-grid{grid-template-columns:repeat(2,1fr)}
+  #lc-resorts .lc-mono-plate{aspect-ratio:6/5;padding:22px 14px}
+  #lc-resorts .lc-mono-wm{max-width:180px}
+  #lc-resorts .lc-mono-sub{font-size:8.5px;letter-spacing:0.22em}
+  #lc-resorts .lc-mono-rule{margin:10px 0 8px}
+}
+@media(max-width:480px){
+  #lc-resorts .lc-mono-plate{padding:18px 10px;aspect-ratio:5/4}
+  #lc-resorts .lc-mono-wm{max-width:150px}
+  #lc-resorts .lc-mono-sub{font-size:8px;letter-spacing:0.2em}
+}
+
+/* ============================================================
+   MOBILE-AS-ITS-OWN-MEDIUM — Editorial mobile treatment
+   ============================================================ */
+@media(max-width:768px){
+  /* Hero — editorial cover with safe-area */
+  body{padding-top:env(safe-area-inset-top,72px)}
+  .hero{padding:0 22px env(safe-area-inset-bottom,0)}
+  .hero-content{padding:0}
+  .hero-tag{font-size:9.5px;letter-spacing:0.22em;margin-bottom:14px}
+  .hero h1{font-size:clamp(34px,10vw,52px);line-height:1.04;letter-spacing:-0.005em;margin-bottom:18px}
+  .hero-sub{font-size:13.5px;line-height:1.75;max-width:340px;color:rgba(249,248,247,0.62);margin-bottom:26px}
+  /* Gold thread above CTA */
+  .hero-content > div.rv:last-child{display:flex;flex-direction:column;align-items:center;position:relative}
+  .hero-content > div.rv:last-child::before{content:'';display:block;width:1px;height:28px;background:var(--gold);opacity:0.55;margin-bottom:18px}
+  .hero .btn{min-height:46px;padding:15px 28px;letter-spacing:0.2em;font-size:9.5px}
+
+  /* Breadcrumbs */
+  .breadcrumbs{padding:14px 22px 0;font-size:10px;letter-spacing:0.12em}
+
+  /* Stats — 3-up to 2x2 grid (los-cabos has 3 stats: split them across rows) */
+  .stats{padding:36px 22px;display:grid;grid-template-columns:1fr 1fr;gap:28px 14px;border-top:1px solid var(--border-l);justify-content:initial}
+  .stats .stat:nth-child(3){grid-column:1 / -1}
+  .stat{text-align:center;position:relative}
+  .stat:nth-child(1)::after{content:'';position:absolute;right:-7px;top:14%;bottom:14%;width:1px;background:var(--border-l)}
+  .stat strong{font-size:30px;font-weight:300;letter-spacing:-0.01em}
+  .stat span{font-size:9px;letter-spacing:0.18em;margin-top:6px;font-variant:small-caps}
+
+  /* Services — horizontal swipe-snap reel */
+  .sc{padding:56px 22px}
+  .sc--sand[id="services"]{padding:56px 0 56px 22px}
+  .sc--sand[id="services"] > .sc-c{padding-right:22px}
+  .srv-g{display:flex;flex-direction:row;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-left:22px;gap:14px;margin-top:36px;padding:8px 22px 12px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch;grid-template-columns:none;max-width:100%}
+  .srv-g::-webkit-scrollbar{display:none}
+  .srv{flex:0 0 82%;scroll-snap-align:start;min-height:360px;display:flex;flex-direction:column}
+  .srv-img{height:200px;flex-shrink:0}
+  .srv-body{padding:22px 20px 28px;position:relative;flex:1}
+  .srv-body::after{content:'\2192';position:absolute;right:20px;bottom:20px;font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);opacity:0.85}
+  .srv .srv-n{font-size:34px;margin-bottom:8px}
+  .srv h3{font-size:20px}
+  .srv p{font-size:12.5px;padding-right:32px}
+
+  /* Gallery — vertical 4:5 reel */
+  .sc--ink[id="gallery"]{padding:56px 22px}
+  .pg{display:flex;flex-direction:column;grid-template-columns:none;grid-auto-rows:auto;gap:24px;counter-reset:pgnum;margin-top:32px}
+  .pg-i,.pg-i.feat{grid-column:auto;grid-row:auto;aspect-ratio:4/5;height:auto;width:100%;position:relative;counter-increment:pgnum}
+  .pg-i img{width:100%;height:100%;object-fit:cover}
+  .pg-i::after{content:counter(pgnum) " / 6";position:absolute;bottom:14px;right:14px;font-family:'Syne',sans-serif;font-size:9.5px;font-weight:600;letter-spacing:0.2em;color:var(--cream);background:rgba(14,22,32,0.55);padding:6px 10px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+
+  /* Locations — 1-col tighter */
+  .loc-g{display:flex;flex-direction:column;gap:6px;margin-top:32px}
+  .loc{height:240px;width:100%}
+  .loc-ov{padding:22px}
+  .loc h3{font-size:20px}
+
+  /* Process — horizontal swipe-snap (replaces vertical timeline pattern) */
+  .sc--sand[id="process"]{padding:56px 0 56px 22px}
+  .sc--sand[id="process"] > .sc-c{padding-right:22px}
+  .tl{display:flex;flex-direction:row;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-left:22px;gap:14px;margin:32px 0 0;padding:8px 22px 32px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch;grid-template-columns:none;position:relative;max-width:100%}
+  .tl::-webkit-scrollbar{display:none}
+  .tl::before{display:none}
+  .tl-step{flex:0 0 80%;scroll-snap-align:start;background:var(--cream);padding:28px 22px;text-align:left;position:relative;min-height:200px}
+  .tl-step::before{display:none}
+  .tl-n{font-size:36px;margin-bottom:10px}
+  .tl-step h3{font-size:18px;margin-bottom:8px}
+  .tl-step p{font-size:12.5px;line-height:1.7}
+
+  /* Testimonials — full-bleed single column with pull-quote glyph */
+  .sc--cream[id="testimonials"]{padding:0 0 56px;border-top:1px solid var(--border-l)}
+  .sc--cream[id="testimonials"] > .sc-c{padding:56px 22px 0}
+  .tst-g{display:flex;flex-direction:column;gap:0;margin-top:32px}
+  .tst{padding:48px 28px 44px;background:var(--cream);border:none;border-bottom:1px solid var(--border-l);position:relative;min-height:240px}
+  .tst:last-child{border-bottom:none}
+  .tst::after{content:'\201C';font-family:'Cormorant Garamond',serif;position:absolute;top:18px;right:24px;font-size:88px;line-height:1;color:var(--gold);opacity:0.18;font-weight:300}
+  .tst-stars{font-size:13px;letter-spacing:3px;margin-bottom:14px}
+  .tst p{font-size:17px;line-height:1.55;margin-bottom:22px;padding-right:44px}
+  .tst-a{font-size:10.5px;letter-spacing:0.16em}
+  .tst-a span{font-size:10px;margin-top:4px}
+
+  /* FAQ — smaller body, tighter padding, gold chevron */
+  .sc--ink[id="faq"]{padding:56px 22px}
+  .faq-item{padding:0}
+  .faq-q{font-size:14px;padding:18px 0;min-height:44px;line-height:1.5}
+  .faq-q::after{content:'\203A';font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;transform:rotate(90deg);transition:transform 0.3s ease}
+  .faq-item.open .faq-q::after{transform:rotate(-90deg)}
+  .faq-ans{font-size:13px;line-height:1.75}
+
+  /* Internal links — 1 col, touch-friendly */
+  .il-a{padding:16px 18px;min-height:54px;display:flex;flex-direction:column;justify-content:center}
+  .il-a .il-tag{font-size:9px}
+  .il-a .il-t{font-size:13px}
+
+  /* CTA — gold thread above/below button */
+  .cta-s{padding:64px 22px;padding-bottom:max(64px,calc(64px + env(safe-area-inset-bottom)))}
+  .cta-s h2{font-size:clamp(26px,7.5vw,38px);line-height:1.12}
+  .cta-s p{font-size:13.5px;margin-bottom:28px}
+  .cta-s > .cta-inner > div.rv:last-child{display:flex;flex-direction:column;align-items:stretch;gap:14px;max-width:320px;margin:0 auto;position:relative}
+  .cta-s > .cta-inner > div.rv:last-child::before,
+  .cta-s > .cta-inner > div.rv:last-child::after{content:'';display:block;width:1px;height:22px;background:var(--gold);opacity:0.55;margin:0 auto}
+  .cta-s .btn{width:100%;min-height:50px;display:inline-flex;align-items:center;justify-content:center;letter-spacing:0.2em;padding:16px 22px}
+
+  /* Why-grid (1-col already) — tighter */
+  .why-img{height:280px}
+  .why-img img{object-position:center 30%}
+}
+
+@media(max-width:560px){
+  .hero h1{font-size:clamp(30px,10vw,42px)}
+  .hero-sub{max-width:290px;font-size:13px}
+  .srv{flex:0 0 86%}
+  .tl-step{flex:0 0 84%}
+  .pg-i::after{font-size:9px;padding:5px 9px}
+  .tst p{font-size:16px}
+  .stats{padding:32px 18px}
+  .stat strong{font-size:26px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .rv{opacity:1!important;transform:none!important;transition:none!important}
+  .curtain::after{transition:none!important}
+  .hero-bg{transform:none!important}
+  html{scroll-behavior:auto}
+}
 </style>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
 <meta name="publisher" content="IVAE Studios"/>
@@ -399,19 +557,19 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="Couple portrait at sunset in Cabo San Lucas by IVAE Studios" loading="lazy" width="1600" height="1067"/>
     </div>
     <div class="pg-i">
-      <img src="/images/couple-los-cabos-ivae-studios.jpg" alt="Romantic couple session in Los Cabos by IVAE Studios" loading="lazy" width="1600" height="1067"/>
+      <img src="/images/couple-los-cabos-ivae-studios.jpg" alt="Romantic couple session in Los Cabos by IVAE Studios" loading="lazy" fetchpriority="low" width="1600" height="1067"/>
     </div>
     <div class="pg-i">
-      <img src="/images/family-kids-los-cabos-ivae-studios.jpg" alt="Family with children portrait at a Los Cabos resort by IVAE Studios" loading="lazy" width="1600" height="1067"/>
+      <img src="/images/family-kids-los-cabos-ivae-studios.jpg" alt="Family with children portrait at a Los Cabos resort by IVAE Studios" loading="lazy" fetchpriority="low" width="1600" height="1067"/>
     </div>
     <div class="pg-i">
-      <img src="/images/family-kids-los-cabos-ivae-studios-2.jpg" alt="Family session with kids on Los Cabos beach by IVAE Studios" loading="lazy" width="1600" height="1067"/>
+      <img src="/images/family-kids-los-cabos-ivae-studios-2.jpg" alt="Family session with kids on Los Cabos beach by IVAE Studios" loading="lazy" fetchpriority="low" width="1600" height="1067"/>
     </div>
     <div class="pg-i">
-      <img src="/images/family-kids-los-cabos-ivae-studios-3.jpg" alt="Multi-generational family portrait Los Cabos by IVAE Studios" loading="lazy" width="1600" height="1067"/>
+      <img src="/images/family-kids-los-cabos-ivae-studios-3.jpg" alt="Multi-generational family portrait Los Cabos by IVAE Studios" loading="lazy" fetchpriority="low" width="1600" height="1067"/>
     </div>
     <div class="pg-i">
-      <img src="https://assets.ivaestudios.com/locations/cabo-desert-landscape.jpg" alt="Cardon cactus and desert rock formations in Baja California Sur" loading="lazy" width="1600" height="1067"/>
+      <img src="https://assets.ivaestudios.com/locations/cabo-desert-landscape.jpg" alt="Cardon cactus and desert rock formations in Baja California Sur" loading="lazy" fetchpriority="low" width="1600" height="1067"/>
     </div>
   </div>
 </section>
@@ -506,21 +664,61 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 </section>
 
 <!-- RESORTS -->
-<section class="sc sc--cream" id="resorts" aria-label="Luxury resorts we cover">
-  <div class="sc-c">
-    <span class="sc-tag rv" data-anim="fade">Resort Experience</span>
-    <h2 class="rv d1" data-anim="fade">Trusted by the Finest <em>Properties</em></h2>
-    <p class="sc-intro rv d2" data-anim="fade">We know each property's character, policies, and best photography locations, ensuring a seamless experience from check-in to gallery delivery.</p>
+<section class="sc sc--cream" id="lc-resorts" aria-labelledby="lc-resorts-h">
+  <div class="rv lc-mono-head" data-anim="fade">
+    <span class="sc-tag">Resort Experience</span>
+    <h2 id="lc-resorts-h">Trusted by Los Cabos' <em>finest</em> properties</h2>
+    <p class="intro">We coordinate directly with concierge teams at each property for seamless access.</p>
   </div>
-  <div class="chips rv d3" data-anim="fade">
-    <div class="chip"><span>Waldorf Astoria Pedregal</span></div>
-    <div class="chip"><span>One&amp;Only Palmilla</span></div>
-    <div class="chip"><span>Esperanza (Auberge)</span></div>
-    <div class="chip"><span>The Cape, Thompson</span></div>
-    <div class="chip"><span>Chileno Bay Resort</span></div>
-    <div class="chip"><span>Nobu Hotel Los Cabos</span></div>
-    <div class="chip"><span>Montage Los Cabos</span></div>
-    <div class="chip"><span>Solaz, Luxury Collection</span></div>
+  <div class="lc-mono-grid rv d1" data-anim="fade" role="list" aria-label="Los Cabos resort partners">
+    <div class="lc-mono-plate" role="listitem">
+      <svg class="lc-mono-wm" viewBox="0 0 240 64" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+        <text x="120" y="32" text-anchor="middle" dominant-baseline="middle" font-size="24">One&amp;Only</text>
+        <text x="120" y="54" text-anchor="middle" dominant-baseline="middle" font-size="14" font-style="normal" font-weight="300">Palmilla</text>
+      </svg>
+      <span class="lc-mono-rule" aria-hidden="true"></span>
+      <span class="lc-mono-sub">Palmilla &middot; Corridor</span>
+    </div>
+    <div class="lc-mono-plate" role="listitem">
+      <svg class="lc-mono-wm" viewBox="0 0 240 64" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+        <text x="120" y="32" text-anchor="middle" dominant-baseline="middle" font-size="22">Las Ventanas</text>
+        <text x="120" y="54" text-anchor="middle" dominant-baseline="middle" font-size="14" font-style="normal" font-weight="300">al Paraíso</text>
+      </svg>
+      <span class="lc-mono-rule" aria-hidden="true"></span>
+      <span class="lc-mono-sub">Rosewood &middot; Corridor</span>
+    </div>
+    <div class="lc-mono-plate" role="listitem">
+      <svg class="lc-mono-wm" viewBox="0 0 240 64" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+        <text x="120" y="32" text-anchor="middle" dominant-baseline="middle" font-size="26">Esperanza</text>
+        <text x="120" y="54" text-anchor="middle" dominant-baseline="middle" font-size="14" font-style="normal" font-weight="300">Auberge</text>
+      </svg>
+      <span class="lc-mono-rule" aria-hidden="true"></span>
+      <span class="lc-mono-sub">Punta Ballena &middot; Corridor</span>
+    </div>
+    <div class="lc-mono-plate" role="listitem">
+      <svg class="lc-mono-wm" viewBox="0 0 240 64" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+        <text x="120" y="32" text-anchor="middle" dominant-baseline="middle" font-size="22">Waldorf Astoria</text>
+        <text x="120" y="54" text-anchor="middle" dominant-baseline="middle" font-size="14" font-style="normal" font-weight="300">Pedregal</text>
+      </svg>
+      <span class="lc-mono-rule" aria-hidden="true"></span>
+      <span class="lc-mono-sub">Pedregal &middot; Cabo San Lucas</span>
+    </div>
+    <div class="lc-mono-plate" role="listitem">
+      <svg class="lc-mono-wm" viewBox="0 0 240 64" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+        <text x="120" y="32" text-anchor="middle" dominant-baseline="middle" font-size="26">Chileno Bay</text>
+        <text x="120" y="54" text-anchor="middle" dominant-baseline="middle" font-size="14" font-style="normal" font-weight="300">Auberge</text>
+      </svg>
+      <span class="lc-mono-rule" aria-hidden="true"></span>
+      <span class="lc-mono-sub">Chileno Bay &middot; Corridor</span>
+    </div>
+    <div class="lc-mono-plate" role="listitem">
+      <svg class="lc-mono-wm" viewBox="0 0 240 64" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+        <text x="120" y="32" text-anchor="middle" dominant-baseline="middle" font-size="26">Montage</text>
+        <text x="120" y="54" text-anchor="middle" dominant-baseline="middle" font-size="14" font-style="normal" font-weight="300">Los Cabos</text>
+      </svg>
+      <span class="lc-mono-rule" aria-hidden="true"></span>
+      <span class="lc-mono-sub">Santa María &middot; Corridor</span>
+    </div>
   </div>
 </section>
 
@@ -714,7 +912,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <script>
 window.addEventListener('scroll',()=>{document.getElementById('siteHeader').classList.toggle('scrolled',scrollY>40)});
 document.getElementById('headerToggle').addEventListener('click',()=>{document.getElementById('mobileNav').classList.toggle('open')});
-const hero=document.querySelector('.hero');if(hero){const bg=hero.querySelector('.hero-bg');let ticking=false;window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(()=>{bg.style.transform='translateY('+scrollY*0.35+'px)';ticking=false});ticking=true}})}
+const hero=document.querySelector('.hero');const reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(hero&&!reduceMotion){const bg=hero.querySelector('.hero-bg');let ticking=false;const isMobile=window.matchMedia&&window.matchMedia('(max-width:768px)').matches;const rate=isMobile?0.06:0.35;window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(()=>{bg.style.transform='translate3d(0,'+scrollY*rate+'px,0)';ticking=false});ticking=true}},{passive:true})}
 if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('vis');io.unobserve(e.target);}})},{threshold:0.05,rootMargin:'200px 0px 200px 0px'});document.querySelectorAll('.rv').forEach(function(el){io.observe(el);});}else{document.querySelectorAll('.rv').forEach(function(el){el.classList.add('vis');});}
 /* Safety net: any .rv still missing .vis after 1.8s is force-revealed (prevents black-band sections if observer never fires). */
 setTimeout(function(){document.querySelectorAll('.rv:not(.vis)').forEach(function(el){el.classList.add('vis');});},1800);
