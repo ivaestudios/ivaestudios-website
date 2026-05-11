@@ -422,11 +422,7 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
     display:block;
     padding:14px 0 18px;
     background:var(--paper);
-    border-bottom:1px solid rgba(14,22,32,0.08);
-  }
-  html.dark .lw-blog-stories{
-    background:var(--ink-1);
-    border-color:rgba(250,248,245,0.08);
+    border-bottom:1px solid var(--border-l);
   }
   .lw-blog-stories__inner{
     display:flex;gap:14px;
@@ -457,20 +453,18 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
   .lw-blog-stories__avatar img{
     width:100%;height:100%;border-radius:50%;
     object-fit:cover;
-    border:2px solid #faf8f5;
+    border:2px solid var(--paper);
     box-sizing:border-box;
     display:block;
   }
-  html.dark .lw-blog-stories__avatar img{border-color:#0c1219}
   .lw-blog-stories__label{
     font-family:'Syne',sans-serif;font-size:9px;font-weight:600;
     letter-spacing:.16em;text-transform:uppercase;
-    color:rgba(14,22,32,0.7);
+    color:var(--text-on-light-2);
     text-align:center;
     line-height:1.2;
     max-width:80px;
   }
-  html.dark .lw-blog-stories__label{color:rgba(250,248,245,0.7)}
 }
 </style>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
