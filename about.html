@@ -1182,7 +1182,7 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
 }
 </style>
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260512a">
-<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512l">
+<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512m">
 </head>
 <body class="has-bottom-tabs ivm-page">
 <a href="#main-content" class="skip-link">Skip to content</a>
@@ -1240,201 +1240,132 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
 <main id="main-content">
 
 <!-- ═══════════════════════════════════════════════════════════════════════
-     MOBILE SCROLLYTELLING — About (6 acts) ≤899px
+     MOBILE — "The Folio" magazine-spread experience ≤899px
      ═══════════════════════════════════════════════════════════════════════ -->
 <div class="ivm">
 
-  <!-- ACT 0 — LOADER -->
+  <!-- ACT 0 — Loader -->
   <div class="ivm-loader" id="ivmLoader" aria-hidden="true">
     <div class="ivm-loader__mark">
       <span>I</span><span>V</span><span>A</span><span>E</span><span class="dot">.</span>
     </div>
-    <div class="ivm-loader__sub">About · The Studio</div>
+    <div class="ivm-loader__sub">Issue No 3 · The Folio</div>
   </div>
 
-  <!-- ACT I — HERO -->
-  <section class="ivm-act-hero" aria-labelledby="ivm-about-h1">
-    <div class="ivm-act-hero__layer">
-      <picture>
-        <img class="ivm-act-hero__photo"
-             src="/images/wedding-bride-isla-mujeres-ivae-studios-1280.jpg"
-             srcset="/images/wedding-bride-isla-mujeres-ivae-studios-960.jpg 960w,
-                     /images/wedding-bride-isla-mujeres-ivae-studios-1280.jpg 1280w,
-                     /images/wedding-bride-isla-mujeres-ivae-studios-1600.jpg 1600w,
-                     /images/wedding-bride-isla-mujeres-ivae-studios.jpg 2400w"
-             sizes="100vw"
-             alt="A bride and groom share their first dance under warm string lights, photographed by Vianey Díaz at IVAE Studios"
-             loading="eager" fetchpriority="high" decoding="async"
-             width="1600" height="1067">
-      </picture>
-      <div class="ivm-act-hero__veil" aria-hidden="true"></div>
-    </div>
-    <div class="ivm-act-hero__copy">
-      <span class="ivm-act-hero__eyebrow">Vianey Díaz · Founder &amp; Lead Photographer</span>
-      <h1 class="ivm-act-hero__title" id="ivm-about-h1">
-        <span class="w" style="animation-delay:2.4s">A </span><span class="w" style="animation-delay:2.55s">studio </span><span class="w" style="animation-delay:2.7s">of <em>one hour.</em></span>
-      </h1>
-    </div>
-    <div class="ivm-act-hero__scroll" aria-hidden="true">Scroll</div>
+  <!-- ACT I — Typographic Masthead -->
+  <section class="ivm-about-mast">
+    <h1 class="ivm-about-mast__name">VIANEY <em>Díaz.</em></h1>
+    <p class="ivm-about-mast__role">Founder &amp; Lead Photographer of IVAE Studios. Cancún · Riviera Maya · Los Cabos.</p>
+    <figure class="ivm-about-mast__polaroid">
+      <img src="/images/wedding-bride-isla-mujeres-ivae-studios-480.jpg" alt="Vianey Díaz on set during a destination wedding">
+      <figcaption>On set · 2025</figcaption>
+    </figure>
+    <span class="ivm-about-mast__scroll">Turn the page ↓</span>
   </section>
 
-  <!-- ACT II — Sticky scroll story -->
-  <section class="ivm-act-hour" aria-label="The studio philosophy">
-    <div class="ivm-act-hour__pin">
-      <div class="ivm-act-hour__photo"
-           style="background-image:url('/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg');"></div>
-      <div class="ivm-act-hour__stage">
-        <p class="ivm-act-hour__line" data-line="0">We work the hour</p>
-        <p class="ivm-act-hour__line" data-line="1">the light becomes honest.</p>
-        <p class="ivm-act-hour__line" data-line="2">Bilingual by design.</p>
-        <p class="ivm-act-hour__line" data-line="3"><em>Editorial by conviction.</em></p>
-      </div>
-      <div class="ivm-act-hour__progress" aria-hidden="true">
-        <span data-prog="0"></span><span data-prog="1"></span><span data-prog="2"></span><span data-prog="3"></span>
-      </div>
-    </div>
+  <!-- ACT II — Editor's Letter -->
+  <section class="ivm-about-letter">
+    <span class="ivm-about-letter__ornament">§</span>
+    <span class="ivm-about-letter__eyebrow">From the editor</span>
+    <blockquote>
+      I work backward from the light. I plan the hour around the family.
+      I direct in silence. <em>I deliver in three days.</em>
+    </blockquote>
+    <cite>— Vianey Díaz</cite>
   </section>
 
-  <!-- ACT III — 4 beliefs as 3D cards -->
-  <section class="ivm-act-services" aria-labelledby="ivm-about-beliefs-h">
-    <div class="ivm-act-services__pin">
-      <div class="ivm-act-services__title">
-        <span class="ivm-act-services__eyebrow">What we believe</span>
-        <h2 id="ivm-about-beliefs-h">Four convictions. <em>One studio.</em></h2>
-      </div>
-      <div class="ivm-act-services__stage">
-        <a class="ivm-svc" href="#ivm-about-cta" data-svc-idx="0">
-          <div class="ivm-svc__photo">
-            <img src="/images/wedding-bride-tulum-ivae-studios-960.jpg" alt="Golden hour philosophy" loading="lazy">
-            <span class="ivm-svc__num">I.</span>
-          </div>
-          <div class="ivm-svc__body">
-            <h3 class="ivm-svc__title">The <em>hour</em> first.</h3>
-            <p class="ivm-svc__desc">We choose the light before the location. Golden hour, only. Every brief is built backward from sunset.</p>
-            <span class="ivm-svc__arrow">Continue ↓</span>
-          </div>
-        </a>
-        <a class="ivm-svc" href="#ivm-about-cta" data-svc-idx="1">
-          <div class="ivm-svc__photo">
-            <img src="/images/editorial-cancun-ivae-studios-960.jpg" alt="Editorial conviction" loading="lazy">
-            <span class="ivm-svc__num">II.</span>
-          </div>
-          <div class="ivm-svc__body">
-            <h3 class="ivm-svc__title">Editorial, <em>never staged.</em></h3>
-            <p class="ivm-svc__desc">Calm direction. We pose with movement and breath, never frozen smiles. The room forgets the camera.</p>
-            <span class="ivm-svc__arrow">Continue ↓</span>
-          </div>
-        </a>
-        <a class="ivm-svc" href="#ivm-about-cta" data-svc-idx="2">
-          <div class="ivm-svc__photo">
-            <img src="/images/couple-cancun-hotel-zone-ivae-studios-9-960.jpg" alt="Bilingual experience" loading="lazy">
-            <span class="ivm-svc__num">III.</span>
-          </div>
-          <div class="ivm-svc__body">
-            <h3 class="ivm-svc__title">Bilingual <em>on the day.</em></h3>
-            <p class="ivm-svc__desc">English or Spanish, never both at once. Wardrobe planning in your language. Direction in your language.</p>
-            <span class="ivm-svc__arrow">Continue ↓</span>
-          </div>
-        </a>
-        <a class="ivm-svc" href="#ivm-about-cta" data-svc-idx="3">
-          <div class="ivm-svc__photo">
-            <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-8-960.jpg" alt="Three-day delivery" loading="lazy">
-            <span class="ivm-svc__num">IV.</span>
-          </div>
-          <div class="ivm-svc__body">
-            <h3 class="ivm-svc__title">Three-day <em>delivery.</em></h3>
-            <p class="ivm-svc__desc">Hand-edited galleries in three business days. No two-week waits. We stay close to the work.</p>
-            <span class="ivm-svc__arrow">Continue ↓</span>
-          </div>
-        </a>
-      </div>
-      <div class="ivm-act-services__dots" aria-hidden="true">
-        <span class="is-on"></span><span></span><span></span><span></span>
-      </div>
+  <!-- ACT III — Career Timeline -->
+  <section class="ivm-about-timeline">
+    <header class="ivm-about-timeline__head">
+      <span class="ivm-act-counter__eyebrow">The folio</span>
+      <h2>A decade <em>behind the lens.</em></h2>
+    </header>
+    <ol class="ivm-about-timeline__list" id="ivmAboutTimeline">
+      <li class="ivm-about-chapter">
+        <span class="ivm-about-chapter__year">2014</span>
+        <span class="ivm-about-chapter__place">Cancún, México</span>
+        <h3 class="ivm-about-chapter__title">A <em>borrowed</em> camera.</h3>
+        <p class="ivm-about-chapter__body">A friend's Canon Rebel. Three rolls of mistakes. One frame I could not stop looking at — a cousin at her abuela's kitchen window, the light hitting the steam from her café.</p>
+      </li>
+      <li class="ivm-about-chapter">
+        <span class="ivm-about-chapter__year">2019</span>
+        <span class="ivm-about-chapter__place">Tulum, Quintana Roo</span>
+        <h3 class="ivm-about-chapter__title">My first <em>destination wedding.</em></h3>
+        <p class="ivm-about-chapter__body">An American couple I met by accident at a Playa del Carmen café. They flew home, then flew back six months later for the ceremony. I shot in 38°C with a borrowed second camera.</p>
+      </li>
+      <li class="ivm-about-chapter">
+        <span class="ivm-about-chapter__year">2023</span>
+        <span class="ivm-about-chapter__place">Cancún, México</span>
+        <h3 class="ivm-about-chapter__title">IVAE Studios <em>founded.</em></h3>
+        <p class="ivm-about-chapter__body">A studio with one rule: we plan the hour, not the location. Golden hour, only. Bilingual, always. Galleries in three days, never weeks.</p>
+      </li>
+      <li class="ivm-about-chapter">
+        <span class="ivm-about-chapter__year">2026</span>
+        <span class="ivm-about-chapter__place">Three coastlines</span>
+        <h3 class="ivm-about-chapter__title">Twelve weddings, <em>by appointment.</em></h3>
+        <p class="ivm-about-chapter__body">Today the studio holds twelve weddings a year and selects a handful of families and editorial commissions in between. Cancún is still home. Riviera Maya and Los Cabos are on the calendar.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ACT IV — Gallery Masonry -->
+  <section class="ivm-about-gallery">
+    <header class="ivm-about-gallery__head">
+      <span class="eyebrow">From the archive</span>
+      <h2>Frames I keep <em>coming back to.</em></h2>
+    </header>
+    <div class="ivm-about-gallery__grid">
+      <figure><img src="/images/wedding-bride-isla-mujeres-ivae-studios-960.jpg" alt="First dance under string lights" loading="lazy"></figure>
+      <figure><img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Couple in Mayakoba" loading="lazy"></figure>
+      <figure><img src="/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg" alt="Bride and groom in Cabo" loading="lazy"></figure>
+      <figure><img src="/images/family-cancun-hotel-zone-ivae-studios-960.jpg" alt="Family of four at sunset" loading="lazy"></figure>
+      <figure><img src="/images/couple-cancun-hotel-zone-ivae-studios-9-960.jpg" alt="Couple on Cancun rocks" loading="lazy"></figure>
+      <figure><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-8-960.jpg" alt="Mariachi serenade" loading="lazy"></figure>
+      <figure><img src="/images/editorial-cancun-ivae-studios-960.jpg" alt="Editorial frame on a Cancun sandbar" loading="lazy"></figure>
+      <figure><img src="/images/wedding-bride-tulum-ivae-studios-960.jpg" alt="Bride walking down beach aisle" loading="lazy"></figure>
     </div>
   </section>
 
-  <!-- ACT IV — Counter -->
-  <section class="ivm-act-counter" aria-labelledby="ivm-about-cnt-h">
-    <span class="ivm-act-counter__eyebrow">The runtime</span>
-    <h2 id="ivm-about-cnt-h">Ten years. <em>Three coastlines.</em></h2>
-    <div class="ivm-act-counter__grid">
-      <div class="ivm-stat">
-        <span class="ivm-stat__num" data-count-to="10">0</span>
-        <span class="ivm-stat__label">Years editorial</span>
+  <!-- ACT V — In Her Voice (3 swipeable quotes) -->
+  <section class="ivm-about-voice">
+    <header class="ivm-about-voice__head">
+      <span class="eyebrow">In her voice</span>
+      <h2>Three <em>convictions.</em></h2>
+    </header>
+    <div class="ivm-about-voice__track" id="ivmAboutVoice">
+      <div class="ivm-about-voice__slide">
+        <span class="ivm-about-voice__num">I.</span>
+        <p class="ivm-about-voice__quote"><em>Direction</em> is silence.</p>
+        <span class="ivm-about-voice__attr">— Vianey, on set</span>
       </div>
-      <div class="ivm-stat">
-        <span class="ivm-stat__num" data-count-to="500" data-suffix="+">0</span>
-        <span class="ivm-stat__label">Sessions delivered</span>
+      <div class="ivm-about-voice__slide">
+        <span class="ivm-about-voice__num">II.</span>
+        <p class="ivm-about-voice__quote">I work the <em>hour</em> the light is honest.</p>
+        <span class="ivm-about-voice__attr">— Studio rule №1</span>
       </div>
-      <div class="ivm-stat">
-        <span class="ivm-stat__num" data-count-to="3">0</span>
-        <span class="ivm-stat__label">Coastlines</span>
+      <div class="ivm-about-voice__slide">
+        <span class="ivm-about-voice__num">III.</span>
+        <p class="ivm-about-voice__quote">We deliver in <em>three days</em> because waiting forgets.</p>
+        <span class="ivm-about-voice__attr">— Studio rule №2</span>
       </div>
-      <div class="ivm-stat">
-        <span class="ivm-stat__num" data-count-to="2023">0</span>
-        <span class="ivm-stat__label">Studio est.</span>
-      </div>
+    </div>
+    <div class="ivm-about-voice__dots" aria-hidden="true">
+      <span class="is-active"></span><span></span><span></span>
     </div>
   </section>
 
-  <!-- ACT V — Reel -->
-  <section class="ivm-act-reel" aria-labelledby="ivm-about-reel-h">
-    <div class="ivm-act-reel__head">
-      <span class="ivm-act-reel__eyebrow">From the archive</span>
-      <h2 id="ivm-about-reel-h">Recent <em>work.</em></h2>
-    </div>
-    <div class="ivm-act-reel__track" id="ivmReelTrack" role="region" aria-label="Recent work carousel">
-      <a class="ivm-reel-card" href="/luxury-weddings">
-        <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg" alt="Wedding at Capella Pedregal" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Capella Pedregal · 2026</span>
-          <span class="ivm-reel-card__title">A wedding above Land's End</span>
-        </div>
-      </a>
-      <a class="ivm-reel-card" href="/couples-photography">
-        <img src="/images/couple-cancun-hotel-zone-ivae-studios-9-960.jpg" alt="Couple session at Rosewood Mayakoba" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Rosewood Mayakoba · 2026</span>
-          <span class="ivm-reel-card__title">An anniversary, quietly photographed</span>
-        </div>
-      </a>
-      <a class="ivm-reel-card" href="/luxury-family-photos">
-        <img src="/images/family-cancun-hotel-zone-ivae-studios-960.jpg" alt="Family of six at Banyan Tree" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Banyan Tree · 2026</span>
-          <span class="ivm-reel-card__title">A family of six, in three quiet hours</span>
-        </div>
-      </a>
-      <a class="ivm-reel-card" href="/luxury-editorial">
-        <img src="/images/editorial-cancun-ivae-studios-960.jpg" alt="Editorial brand commission" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Editorial · 2025</span>
-          <span class="ivm-reel-card__title">A campaign on a Cancun sandbar</span>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <!-- ACT VI — CTA -->
-  <section class="ivm-act-cta" id="ivm-about-cta">
-    <div class="ivm-act-cta__bg" style="background-image:url('/images/wedding-bride-cancun-ivae-studios-960.jpg');" aria-hidden="true"></div>
-    <div class="ivm-act-cta__veil" aria-hidden="true"></div>
-    <div class="ivm-act-cta__inner">
-      <span class="ivm-act-cta__eyebrow">By appointment</span>
-      <h2 class="ivm-act-cta__title">Begin the<br><em>conversation.</em></h2>
-      <p class="ivm-act-cta__sub">Same-business-day replies. Bilingual on the day. Limited 2026 / 2027 dates.</p>
-      <a class="ivm-act-cta__btn" href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20I%27m%20interested%20in%20a%20session" target="_blank" rel="noopener">
-        <span>Message Vianey →</span>
-      </a>
-      <a class="ivm-act-cta__alt" href="mailto:hello@ivaestudios.com">or write hello@ivaestudios.com</a>
-    </div>
+  <!-- ACT VI — Personal CTA -->
+  <section class="ivm-about-write">
+    <h2 class="ivm-about-write__opener">Write <em>me.</em></h2>
+    <p class="ivm-about-write__signature">— Vianey</p>
+    <a class="ivm-about-write__email" href="mailto:hello@ivaestudios.com?subject=A%20note%20for%20Vianey">hello@ivaestudios.com</a>
+    <span class="ivm-about-write__alt">or <a href="https://wa.me/529902046514?text=Hi%20Vianey" target="_blank" rel="noopener">WhatsApp the studio</a></span>
   </section>
 
   <!-- FOOTER -->
   <footer class="ivm-act-foot">
     <p class="ivm-act-foot__mark">IVAE <em>Studios</em></p>
-    <p class="ivm-act-foot__tag">Editorial photography · Mexico</p>
+    <p class="ivm-act-foot__tag">Issue No 3 · Vol II · 2026</p>
     <div class="ivm-act-foot__links">
       <a href="/">Home</a>
       <a href="/blog">Journal</a>
@@ -1448,106 +1379,31 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
 (function(){
   if (window.matchMedia && !matchMedia('(max-width:899px)').matches) return;
   setTimeout(function(){ document.body.classList.add('ivm-loaded'); }, 3700);
-  var hourSection = document.querySelector('.ivm-act-hour');
-  var hourLines = document.querySelectorAll('.ivm-act-hour__line');
-  var hourProg  = document.querySelectorAll('.ivm-act-hour__progress span');
-  var hourPhoto = document.querySelector('.ivm-act-hour__photo');
-  if (hourSection && hourLines.length) {
-    var hourTicking = false;
-    function updateHour() {
-      hourTicking = false;
-      var rect = hourSection.getBoundingClientRect();
-      var total = rect.height - window.innerHeight;
-      var scrolled = -rect.top;
-      var p = Math.max(0, Math.min(1, scrolled / total));
-      var lineIdx = Math.min(3, Math.floor(p * 4));
-      hourLines.forEach(function(line, i){
-        line.classList.remove('is-on', 'is-off');
-        if (i === lineIdx) line.classList.add('is-on');
-        else if (i < lineIdx) line.classList.add('is-off');
-      });
-      hourProg.forEach(function(s, i){ s.classList.toggle('is-on', i <= lineIdx); });
-      if (hourPhoto) {
-        var zoom = 1 + p * 0.12;
-        var ty = (p - 0.5) * 60;
-        hourPhoto.style.transform = 'scale(' + zoom + ') translateY(' + ty + 'px)';
-      }
-    }
-    window.addEventListener('scroll', function(){ if (!hourTicking) { requestAnimationFrame(updateHour); hourTicking = true; } }, {passive: true});
-    updateHour();
-  }
-  var svcSection = document.querySelector('.ivm-act-services');
-  var svcCards = document.querySelectorAll('.ivm-svc');
-  var svcDots = document.querySelectorAll('.ivm-act-services__dots span');
-  if (svcSection && svcCards.length) {
-    var svcTicking = false;
-    function updateSvc() {
-      svcTicking = false;
-      var rect = svcSection.getBoundingClientRect();
-      var total = rect.height - window.innerHeight;
-      var scrolled = -rect.top;
-      var p = Math.max(0, Math.min(1, scrolled / total));
-      var activeIdx = Math.min(3, Math.floor(p * 4));
-      svcCards.forEach(function(card, i){
-        if (i === activeIdx) card.setAttribute('data-pos', 'active');
-        else if (i === activeIdx - 1) card.setAttribute('data-pos', 'behind');
-        else if (i < activeIdx) card.setAttribute('data-pos', 'past');
-        else card.setAttribute('data-pos', 'below');
-      });
-      svcDots.forEach(function(d, i){ d.classList.toggle('is-on', i === activeIdx); });
-    }
-    svcCards.forEach(function(card, i){ card.setAttribute('data-pos', i === 0 ? 'active' : 'below'); });
-    window.addEventListener('scroll', function(){ if (!svcTicking) { requestAnimationFrame(updateSvc); svcTicking = true; } }, {passive: true});
-  }
-  var counters = document.querySelectorAll('[data-count-to]');
-  if (counters.length) {
+
+  /* Timeline chapter active-state on scroll */
+  var chapters = document.querySelectorAll('#ivmAboutTimeline .ivm-about-chapter');
+  if (chapters.length) {
     var cio = new IntersectionObserver(function(entries){
       entries.forEach(function(e){
-        if (!e.isIntersecting) return;
-        var el = e.target;
-        if (el.dataset.counted === '1') return;
-        el.dataset.counted = '1';
-        var target = parseFloat(el.dataset.countTo);
-        var suffix = el.dataset.suffix || '';
-        var dur = 1800;
-        var start = performance.now();
-        function tick(now){
-          var t = Math.min(1, (now - start) / dur);
-          var eased = 1 - Math.pow(1 - t, 3);
-          var val = target * eased;
-          if (target >= 100) el.textContent = Math.floor(val).toLocaleString() + suffix;
-          else if (target < 10) el.textContent = (target * eased).toFixed(1).replace('.0', '') + suffix;
-          else el.textContent = Math.floor(val) + suffix;
-          if (t < 1) requestAnimationFrame(tick);
-          else el.textContent = target + suffix;
-        }
-        requestAnimationFrame(tick);
-        cio.unobserve(el);
+        if (e.intersectionRatio > 0.4) e.target.classList.add('is-on');
       });
-    }, {threshold: 0.4});
-    counters.forEach(function(c){ cio.observe(c); });
+    }, {threshold: [0, 0.4, 0.7], rootMargin: '-30% 0% -30% 0%'});
+    chapters.forEach(function(c){ cio.observe(c); });
   }
-  var reelTrack = document.getElementById('ivmReelTrack');
-  var reelCards = document.querySelectorAll('.ivm-reel-card');
-  if (reelTrack && reelCards.length) {
-    var reelTicking = false;
-    function updateReelCenter() {
-      reelTicking = false;
-      var trackRect = reelTrack.getBoundingClientRect();
-      var centerX = trackRect.left + trackRect.width / 2;
-      var bestIdx = -1;
-      var bestDist = Infinity;
-      reelCards.forEach(function(c, i){
-        var r = c.getBoundingClientRect();
-        var cardCenter = r.left + r.width / 2;
-        var d = Math.abs(cardCenter - centerX);
-        if (d < bestDist) { bestDist = d; bestIdx = i; }
-      });
-      reelCards.forEach(function(c, i){ c.classList.toggle('is-center', i === bestIdx); });
+
+  /* Voice carousel dots */
+  var voiceTrack = document.getElementById('ivmAboutVoice');
+  var voiceDots = document.querySelectorAll('.ivm-about-voice__dots span');
+  if (voiceTrack && voiceDots.length) {
+    var ticking = false;
+    function updateDots() {
+      ticking = false;
+      var idx = Math.round(voiceTrack.scrollLeft / voiceTrack.clientWidth);
+      voiceDots.forEach(function(d, i){ d.classList.toggle('is-active', i === idx); });
     }
-    reelTrack.addEventListener('scroll', function(){ if (!reelTicking) { requestAnimationFrame(updateReelCenter); reelTicking = true; } }, {passive: true});
-    window.addEventListener('resize', updateReelCenter, {passive: true});
-    setTimeout(updateReelCenter, 50);
+    voiceTrack.addEventListener('scroll', function(){
+      if (!ticking) { requestAnimationFrame(updateDots); ticking = true; }
+    }, {passive: true});
   }
 })();
 </script>

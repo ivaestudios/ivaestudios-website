@@ -799,6 +799,501 @@
   }
 
   /* ════════════════════════════════════════════════════════════════
+     ABOUT EXCLUSIVE — "The Folio" magazine-spread design
+     Completely different from home's photo-first scrollytelling.
+     ════════════════════════════════════════════════════════════════ */
+
+  /* ── ACT I — Typographic Masthead (no full-bleed hero photo) ─── */
+  .ivm-about-mast {
+    position: relative;
+    min-height: 100svh;
+    background: var(--ivm-paper);
+    color: var(--ivm-ink);
+    padding: calc(80px + env(safe-area-inset-top, 0px)) 24px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .ivm-about-mast::before {
+    content: 'ISSUE NO 3 · VOL II · 2026';
+    position: absolute;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--ivm-gold-2);
+  }
+  .ivm-about-mast::after {
+    content: '';
+    position: absolute;
+    top: 130px;
+    left: 24px;
+    right: 24px;
+    height: 1px;
+    background: var(--ivm-gold);
+    opacity: .4;
+  }
+  .ivm-about-mast__bylinetop {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--ivm-gold-2);
+    margin-bottom: 20px;
+  }
+  .ivm-about-mast__name {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(54px, 16vw, 96px);
+    line-height: 0.92;
+    letter-spacing: -0.025em;
+    color: var(--ivm-ink);
+    margin: 0;
+  }
+  .ivm-about-mast__name em {
+    font-style: italic;
+    color: var(--ivm-gold-2);
+    display: block;
+    padding-left: 8%;
+  }
+  .ivm-about-mast__role {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    line-height: 1.4;
+    color: rgba(10,15,23,.65);
+    margin: 24px 0 0;
+    max-width: 24ch;
+  }
+  .ivm-about-mast__polaroid {
+    margin: 56px auto 0;
+    background: white;
+    padding: 14px 14px 32px;
+    box-shadow: 0 14px 36px rgba(10,15,23,.18), 0 2px 6px rgba(10,15,23,.08);
+    transform: rotate(-2.5deg);
+    width: min(220px, 60vw);
+    position: relative;
+  }
+  .ivm-about-mast__polaroid img {
+    width: 100%;
+    aspect-ratio: 4/5;
+    object-fit: cover;
+    display: block;
+    filter: saturate(0.92) contrast(1.02);
+  }
+  .ivm-about-mast__polaroid figcaption {
+    position: absolute;
+    bottom: 8px;
+    left: 14px;
+    right: 14px;
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgba(10,15,23,.55);
+    text-align: center;
+  }
+  .ivm-about-mast__scroll {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(10,15,23,.5);
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+  }
+
+  /* ── ACT II — Editor's Letter ─────────────────────────────── */
+  .ivm-about-letter {
+    background: var(--ivm-cream);
+    color: var(--ivm-ink);
+    padding: 96px 32px;
+    text-align: center;
+    border-top: 1px solid rgba(201,165,78,.22);
+    border-bottom: 1px solid rgba(201,165,78,.22);
+    position: relative;
+  }
+  .ivm-about-letter__ornament {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 48px;
+    color: var(--ivm-gold);
+    line-height: 1;
+    margin-bottom: 20px;
+    display: block;
+  }
+  .ivm-about-letter__eyebrow {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--ivm-gold-2);
+    margin-bottom: 22px;
+  }
+  .ivm-about-letter blockquote {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 26px;
+    line-height: 1.35;
+    color: var(--ivm-ink);
+    margin: 0;
+    max-width: 22ch;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .ivm-about-letter blockquote em {
+    color: var(--ivm-gold-2);
+    font-style: italic;
+  }
+  .ivm-about-letter cite {
+    display: block;
+    margin-top: 32px;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--ivm-gold-2);
+    font-style: normal;
+  }
+
+  /* ── ACT III — Career Timeline ─────────────────────────────── */
+  .ivm-about-timeline {
+    background: var(--ivm-ink);
+    color: var(--ivm-cream);
+    padding: 96px 24px 64px;
+  }
+  .ivm-about-timeline__head {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+  .ivm-about-timeline__head .ivm-act-counter__eyebrow {
+    margin-bottom: 12px;
+  }
+  .ivm-about-timeline__head h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(28px, 8vw, 38px);
+    line-height: 1.05;
+    color: var(--ivm-cream);
+    margin: 0;
+  }
+  .ivm-about-timeline__head em {
+    font-style: italic;
+    color: var(--ivm-gold);
+  }
+  .ivm-about-timeline__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    padding-left: 56px;
+  }
+  .ivm-about-timeline__list::before {
+    content: '';
+    position: absolute;
+    left: 18px;
+    top: 12px;
+    bottom: 12px;
+    width: 1px;
+    background: linear-gradient(180deg,
+      var(--ivm-gold) 0%,
+      var(--ivm-gold) 50%,
+      transparent 100%);
+  }
+  .ivm-about-chapter {
+    position: relative;
+    padding-bottom: 56px;
+  }
+  .ivm-about-chapter:last-child { padding-bottom: 0; }
+  .ivm-about-chapter::before {
+    content: '';
+    position: absolute;
+    left: -44px;
+    top: 8px;
+    width: 13px;
+    height: 13px;
+    border: 1px solid var(--ivm-gold);
+    background: var(--ivm-ink);
+    border-radius: 50%;
+    transition: background 0.4s var(--ivm-ease), box-shadow 0.4s var(--ivm-ease);
+  }
+  .ivm-about-chapter.is-on::before {
+    background: var(--ivm-gold);
+    box-shadow: 0 0 0 4px rgba(201,165,78,.18);
+  }
+  .ivm-about-chapter__year {
+    display: inline-block;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 32px;
+    color: var(--ivm-gold);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .ivm-about-chapter__place {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 9.5px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: rgba(250,248,245,.5);
+    margin-bottom: 12px;
+  }
+  .ivm-about-chapter__title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 1.18;
+    color: var(--ivm-cream);
+    margin: 0 0 8px;
+  }
+  .ivm-about-chapter__title em {
+    font-style: italic;
+    color: var(--ivm-gold);
+  }
+  .ivm-about-chapter__body {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 15px;
+    line-height: 1.55;
+    color: rgba(250,248,245,.72);
+    margin: 0;
+  }
+
+  /* ── ACT IV — Gallery Masonry (no scroll-snap, just stagger) ── */
+  .ivm-about-gallery {
+    background: var(--ivm-ink-2);
+    color: var(--ivm-cream);
+    padding: 96px 16px 80px;
+  }
+  .ivm-about-gallery__head {
+    padding: 0 8px;
+    margin-bottom: 32px;
+  }
+  .ivm-about-gallery__head .eyebrow {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--ivm-gold);
+    margin-bottom: 10px;
+  }
+  .ivm-about-gallery__head h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(28px, 8vw, 38px);
+    line-height: 1.05;
+    color: var(--ivm-cream);
+    margin: 0;
+  }
+  .ivm-about-gallery__head em {
+    font-style: italic;
+    color: var(--ivm-gold);
+  }
+  .ivm-about-gallery__grid {
+    column-count: 2;
+    column-gap: 8px;
+  }
+  .ivm-about-gallery__grid figure {
+    break-inside: avoid;
+    margin: 0 0 8px;
+    overflow: hidden;
+    background: var(--ivm-ink);
+  }
+  .ivm-about-gallery__grid img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.7s var(--ivm-ease);
+  }
+  .ivm-about-gallery__grid figure:active img {
+    transform: scale(1.04);
+  }
+  .ivm-about-gallery__caption {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 8px 12px;
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,.7));
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--ivm-cream);
+    pointer-events: none;
+  }
+
+  /* ── ACT V — Voice (3 swipeable quotes) ───────────────────── */
+  .ivm-about-voice {
+    background: var(--ivm-paper);
+    color: var(--ivm-ink);
+    padding: 96px 0 80px;
+    overflow: hidden;
+  }
+  .ivm-about-voice__head {
+    text-align: center;
+    padding: 0 32px;
+    margin-bottom: 48px;
+  }
+  .ivm-about-voice__head .eyebrow {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--ivm-gold-2);
+    margin-bottom: 10px;
+  }
+  .ivm-about-voice__head h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(28px, 8vw, 38px);
+    color: var(--ivm-ink);
+    margin: 0;
+  }
+  .ivm-about-voice__head em {
+    font-style: italic;
+    color: var(--ivm-gold-2);
+  }
+  .ivm-about-voice__track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 16px 0 24px;
+  }
+  .ivm-about-voice__track::-webkit-scrollbar { display: none; }
+  .ivm-about-voice__slide {
+    flex: 0 0 100%;
+    scroll-snap-align: center;
+    padding: 0 40px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  .ivm-about-voice__num {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--ivm-gold-2);
+    opacity: 0.6;
+  }
+  .ivm-about-voice__quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(28px, 7.5vw, 36px);
+    line-height: 1.18;
+    color: var(--ivm-ink);
+    margin: 0;
+    max-width: 18ch;
+  }
+  .ivm-about-voice__quote em {
+    color: var(--ivm-gold-2);
+  }
+  .ivm-about-voice__attr {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--ivm-gold-2);
+  }
+  .ivm-about-voice__dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 24px;
+  }
+  .ivm-about-voice__dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(10,15,23,.18);
+    transition: background 0.3s var(--ivm-ease), width 0.3s var(--ivm-ease);
+  }
+  .ivm-about-voice__dots span.is-active {
+    width: 24px;
+    border-radius: 3px;
+    background: var(--ivm-gold-2);
+  }
+
+  /* ── ACT VI — Personal CTA (different from home's gold block) ── */
+  .ivm-about-write {
+    background: var(--ivm-ink);
+    color: var(--ivm-cream);
+    padding: 120px 32px 100px;
+    text-align: center;
+    position: relative;
+  }
+  .ivm-about-write::before {
+    content: '§';
+    display: block;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 36px;
+    color: var(--ivm-gold);
+    opacity: 0.5;
+    margin-bottom: 28px;
+  }
+  .ivm-about-write__opener {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(40px, 11vw, 56px);
+    line-height: 1;
+    color: var(--ivm-cream);
+    margin: 0 0 12px;
+  }
+  .ivm-about-write__opener em {
+    font-style: italic;
+    color: var(--ivm-gold);
+  }
+  .ivm-about-write__signature {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--ivm-gold);
+    margin: 0 0 56px;
+  }
+  .ivm-about-write__email {
+    display: inline-block;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--ivm-cream);
+    text-decoration: underline;
+    text-decoration-color: var(--ivm-gold);
+    text-underline-offset: 8px;
+    margin-bottom: 24px;
+  }
+  .ivm-about-write__alt {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: rgba(250,248,245,.5);
+    margin-top: 16px;
+  }
+  .ivm-about-write__alt a {
+    color: var(--ivm-gold);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
      FOOTER — minimal
      ════════════════════════════════════════════════════════════════ */
   .ivm-act-foot {
