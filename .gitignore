@@ -27,3 +27,4 @@ tools/img-converter/package-lock.json
 # Auto-generated image variants (created by optimize-images workflow)
 images/optimized/
 scripts/node_modules/
+serve.json
