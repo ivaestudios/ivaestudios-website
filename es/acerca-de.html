@@ -1175,8 +1175,9 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
 }
 </style>
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260512a">
+<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512l">
 </head>
-<body class="has-bottom-tabs">
+<body class="has-bottom-tabs ivm-page">
 <a href="#main-content" class="skip-link">Saltar al contenido</a>
 <div class="ai-disambiguation" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
 <h2>Acerca de IVAE Studios</h2>
@@ -1230,6 +1231,322 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
 </nav>
 
 <main id="main-content">
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     MOBILE SCROLLYTELLING — Acerca (6 actos) ≤899px
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="ivm">
+
+  <!-- ACT 0 — LOADER -->
+  <div class="ivm-loader" id="ivmLoader" aria-hidden="true">
+    <div class="ivm-loader__mark">
+      <span>I</span><span>V</span><span>A</span><span>E</span><span class="dot">.</span>
+    </div>
+    <div class="ivm-loader__sub">Acerca · El Estudio</div>
+  </div>
+
+  <!-- ACT I — HERO -->
+  <section class="ivm-act-hero" aria-labelledby="ivm-about-h1">
+    <div class="ivm-act-hero__layer">
+      <picture>
+        <img class="ivm-act-hero__photo"
+             src="/images/wedding-bride-isla-mujeres-ivae-studios-1280.jpg"
+             srcset="/images/wedding-bride-isla-mujeres-ivae-studios-960.jpg 960w,
+                     /images/wedding-bride-isla-mujeres-ivae-studios-1280.jpg 1280w,
+                     /images/wedding-bride-isla-mujeres-ivae-studios-1600.jpg 1600w,
+                     /images/wedding-bride-isla-mujeres-ivae-studios.jpg 2400w"
+             sizes="100vw"
+             alt="Una pareja en su primer baile bajo luces cálidas, fotografiada por Vianey Díaz para IVAE Studios"
+             loading="eager" fetchpriority="high" decoding="async"
+             width="1600" height="1067">
+      </picture>
+      <div class="ivm-act-hero__veil" aria-hidden="true"></div>
+    </div>
+    <div class="ivm-act-hero__copy">
+      <span class="ivm-act-hero__eyebrow">Vianey Díaz · Fundadora &amp; Fotógrafa Principal</span>
+      <h1 class="ivm-act-hero__title" id="ivm-about-h1">
+        <span class="w" style="animation-delay:2.4s">Un </span><span class="w" style="animation-delay:2.55s">estudio </span><span class="w" style="animation-delay:2.7s">de <em>una hora.</em></span>
+      </h1>
+    </div>
+    <div class="ivm-act-hero__scroll" aria-hidden="true">Desliza</div>
+  </section>
+
+  <!-- ACT II — Sticky scroll story -->
+  <section class="ivm-act-hour" aria-label="La filosofía del estudio">
+    <div class="ivm-act-hour__pin">
+      <div class="ivm-act-hour__photo"
+           style="background-image:url('/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg');"></div>
+      <div class="ivm-act-hour__stage">
+        <p class="ivm-act-hour__line" data-line="0">Trabajamos la hora</p>
+        <p class="ivm-act-hour__line" data-line="1">en que la luz se vuelve honesta.</p>
+        <p class="ivm-act-hour__line" data-line="2">Bilingüe por diseño.</p>
+        <p class="ivm-act-hour__line" data-line="3"><em>Editorial por convicción.</em></p>
+      </div>
+      <div class="ivm-act-hour__progress" aria-hidden="true">
+        <span data-prog="0"></span><span data-prog="1"></span><span data-prog="2"></span><span data-prog="3"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT III — 4 convicciones como tarjetas 3D -->
+  <section class="ivm-act-services" aria-labelledby="ivm-about-beliefs-h">
+    <div class="ivm-act-services__pin">
+      <div class="ivm-act-services__title">
+        <span class="ivm-act-services__eyebrow">Lo que creemos</span>
+        <h2 id="ivm-about-beliefs-h">Cuatro convicciones. <em>Un estudio.</em></h2>
+      </div>
+      <div class="ivm-act-services__stage">
+        <a class="ivm-svc" href="#ivm-about-cta" data-svc-idx="0">
+          <div class="ivm-svc__photo">
+            <img src="/images/wedding-bride-tulum-ivae-studios-960.jpg" alt="Filosofía de hora dorada" loading="lazy">
+            <span class="ivm-svc__num">I.</span>
+          </div>
+          <div class="ivm-svc__body">
+            <h3 class="ivm-svc__title">La <em>hora</em> primero.</h3>
+            <p class="ivm-svc__desc">Elegimos la luz antes que la locación. Hora dorada, siempre. Cada brief se construye desde el atardecer hacia atrás.</p>
+            <span class="ivm-svc__arrow">Continúa ↓</span>
+          </div>
+        </a>
+        <a class="ivm-svc" href="#ivm-about-cta" data-svc-idx="1">
+          <div class="ivm-svc__photo">
+            <img src="/images/editorial-cancun-ivae-studios-960.jpg" alt="Convicción editorial" loading="lazy">
+            <span class="ivm-svc__num">II.</span>
+          </div>
+          <div class="ivm-svc__body">
+            <h3 class="ivm-svc__title">Editorial, <em>nunca posado.</em></h3>
+            <p class="ivm-svc__desc">Dirección calmada. Posamos con movimiento y respiración, nunca sonrisas congeladas. La sala olvida la cámara.</p>
+            <span class="ivm-svc__arrow">Continúa ↓</span>
+          </div>
+        </a>
+        <a class="ivm-svc" href="#ivm-about-cta" data-svc-idx="2">
+          <div class="ivm-svc__photo">
+            <img src="/images/couple-cancun-hotel-zone-ivae-studios-9-960.jpg" alt="Experiencia bilingüe" loading="lazy">
+            <span class="ivm-svc__num">III.</span>
+          </div>
+          <div class="ivm-svc__body">
+            <h3 class="ivm-svc__title">Bilingüe <em>en el día.</em></h3>
+            <p class="ivm-svc__desc">Inglés o español, nunca los dos a la vez. Planeación de vestuario en tu idioma. Dirección en tu idioma.</p>
+            <span class="ivm-svc__arrow">Continúa ↓</span>
+          </div>
+        </a>
+        <a class="ivm-svc" href="#ivm-about-cta" data-svc-idx="3">
+          <div class="ivm-svc__photo">
+            <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-8-960.jpg" alt="Entrega en tres días" loading="lazy">
+            <span class="ivm-svc__num">IV.</span>
+          </div>
+          <div class="ivm-svc__body">
+            <h3 class="ivm-svc__title">Entrega en <em>tres días.</em></h3>
+            <p class="ivm-svc__desc">Galerías editadas a mano en tres días hábiles. Sin esperas de dos semanas. Nos quedamos cerca del trabajo.</p>
+            <span class="ivm-svc__arrow">Continúa ↓</span>
+          </div>
+        </a>
+      </div>
+      <div class="ivm-act-services__dots" aria-hidden="true">
+        <span class="is-on"></span><span></span><span></span><span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT IV — Counter -->
+  <section class="ivm-act-counter" aria-labelledby="ivm-about-cnt-h">
+    <span class="ivm-act-counter__eyebrow">El recorrido</span>
+    <h2 id="ivm-about-cnt-h">Diez años. <em>Tres costas.</em></h2>
+    <div class="ivm-act-counter__grid">
+      <div class="ivm-stat">
+        <span class="ivm-stat__num" data-count-to="10">0</span>
+        <span class="ivm-stat__label">Años editorial</span>
+      </div>
+      <div class="ivm-stat">
+        <span class="ivm-stat__num" data-count-to="500" data-suffix="+">0</span>
+        <span class="ivm-stat__label">Sesiones entregadas</span>
+      </div>
+      <div class="ivm-stat">
+        <span class="ivm-stat__num" data-count-to="3">0</span>
+        <span class="ivm-stat__label">Costas cubiertas</span>
+      </div>
+      <div class="ivm-stat">
+        <span class="ivm-stat__num" data-count-to="2023">0</span>
+        <span class="ivm-stat__label">Estudio fundado</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT V — Reel -->
+  <section class="ivm-act-reel" aria-labelledby="ivm-about-reel-h">
+    <div class="ivm-act-reel__head">
+      <span class="ivm-act-reel__eyebrow">Del archivo</span>
+      <h2 id="ivm-about-reel-h">Trabajo <em>reciente.</em></h2>
+    </div>
+    <div class="ivm-act-reel__track" id="ivmReelTrack" role="region" aria-label="Carrusel de trabajo reciente">
+      <a class="ivm-reel-card" href="/es/fotografo-bodas-destino-mexico">
+        <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg" alt="Boda en Capella Pedregal" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">Capella Pedregal · 2026</span>
+          <span class="ivm-reel-card__title">Una boda sobre Land's End</span>
+        </div>
+      </a>
+      <a class="ivm-reel-card" href="/es/fotografia-parejas-mexico">
+        <img src="/images/couple-cancun-hotel-zone-ivae-studios-9-960.jpg" alt="Sesión de pareja en Rosewood Mayakoba" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">Rosewood Mayakoba · 2026</span>
+          <span class="ivm-reel-card__title">Un aniversario, fotografiado en silencio</span>
+        </div>
+      </a>
+      <a class="ivm-reel-card" href="/es/fotos-familiares-lujo-cancun">
+        <img src="/images/family-cancun-hotel-zone-ivae-studios-960.jpg" alt="Familia de seis en Banyan Tree" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">Banyan Tree · 2026</span>
+          <span class="ivm-reel-card__title">Una familia de seis, en tres horas tranquilas</span>
+        </div>
+      </a>
+      <a class="ivm-reel-card" href="/es/editorial-de-lujo">
+        <img src="/images/editorial-cancun-ivae-studios-960.jpg" alt="Comisión editorial de marca" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">Editorial · 2025</span>
+          <span class="ivm-reel-card__title">Una campaña en un banco de arena de Cancún</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ACT VI — CTA -->
+  <section class="ivm-act-cta" id="ivm-about-cta">
+    <div class="ivm-act-cta__bg" style="background-image:url('/images/wedding-bride-cancun-ivae-studios-960.jpg');" aria-hidden="true"></div>
+    <div class="ivm-act-cta__veil" aria-hidden="true"></div>
+    <div class="ivm-act-cta__inner">
+      <span class="ivm-act-cta__eyebrow">Por cita</span>
+      <h2 class="ivm-act-cta__title">Comienza la<br><em>conversación.</em></h2>
+      <p class="ivm-act-cta__sub">Respuestas el mismo día hábil. Bilingüe en la sesión. Fechas limitadas 2026 / 2027.</p>
+      <a class="ivm-act-cta__btn" href="https://wa.me/529902046514?text=Hola%20Vianey%2C%20me%20interesa%20una%20sesi%C3%B3n" target="_blank" rel="noopener">
+        <span>Escribir a Vianey →</span>
+      </a>
+      <a class="ivm-act-cta__alt" href="mailto:hello@ivaestudios.com">o escribe a hello@ivaestudios.com</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="ivm-act-foot">
+    <p class="ivm-act-foot__mark">IVAE <em>Studios</em></p>
+    <p class="ivm-act-foot__tag">Fotografía editorial · México</p>
+    <div class="ivm-act-foot__links">
+      <a href="/es/">Inicio</a>
+      <a href="/es/blog">Diario</a>
+      <a href="/about" lang="en">EN</a>
+    </div>
+    <p class="ivm-act-foot__copy">© 2026 IVAE Studios · Cancún, México</p>
+  </footer>
+
+</div>
+<script>
+(function(){
+  if (window.matchMedia && !matchMedia('(max-width:899px)').matches) return;
+  setTimeout(function(){ document.body.classList.add('ivm-loaded'); }, 3700);
+  var hourSection = document.querySelector('.ivm-act-hour');
+  var hourLines = document.querySelectorAll('.ivm-act-hour__line');
+  var hourProg  = document.querySelectorAll('.ivm-act-hour__progress span');
+  var hourPhoto = document.querySelector('.ivm-act-hour__photo');
+  if (hourSection && hourLines.length) {
+    var hourTicking = false;
+    function updateHour() {
+      hourTicking = false;
+      var rect = hourSection.getBoundingClientRect();
+      var total = rect.height - window.innerHeight;
+      var scrolled = -rect.top;
+      var p = Math.max(0, Math.min(1, scrolled / total));
+      var lineIdx = Math.min(3, Math.floor(p * 4));
+      hourLines.forEach(function(line, i){
+        line.classList.remove('is-on', 'is-off');
+        if (i === lineIdx) line.classList.add('is-on');
+        else if (i < lineIdx) line.classList.add('is-off');
+      });
+      hourProg.forEach(function(s, i){ s.classList.toggle('is-on', i <= lineIdx); });
+      if (hourPhoto) {
+        var zoom = 1 + p * 0.12;
+        var ty = (p - 0.5) * 60;
+        hourPhoto.style.transform = 'scale(' + zoom + ') translateY(' + ty + 'px)';
+      }
+    }
+    window.addEventListener('scroll', function(){ if (!hourTicking) { requestAnimationFrame(updateHour); hourTicking = true; } }, {passive: true});
+    updateHour();
+  }
+  var svcSection = document.querySelector('.ivm-act-services');
+  var svcCards = document.querySelectorAll('.ivm-svc');
+  var svcDots = document.querySelectorAll('.ivm-act-services__dots span');
+  if (svcSection && svcCards.length) {
+    var svcTicking = false;
+    function updateSvc() {
+      svcTicking = false;
+      var rect = svcSection.getBoundingClientRect();
+      var total = rect.height - window.innerHeight;
+      var scrolled = -rect.top;
+      var p = Math.max(0, Math.min(1, scrolled / total));
+      var activeIdx = Math.min(3, Math.floor(p * 4));
+      svcCards.forEach(function(card, i){
+        if (i === activeIdx) card.setAttribute('data-pos', 'active');
+        else if (i === activeIdx - 1) card.setAttribute('data-pos', 'behind');
+        else if (i < activeIdx) card.setAttribute('data-pos', 'past');
+        else card.setAttribute('data-pos', 'below');
+      });
+      svcDots.forEach(function(d, i){ d.classList.toggle('is-on', i === activeIdx); });
+    }
+    svcCards.forEach(function(card, i){ card.setAttribute('data-pos', i === 0 ? 'active' : 'below'); });
+    window.addEventListener('scroll', function(){ if (!svcTicking) { requestAnimationFrame(updateSvc); svcTicking = true; } }, {passive: true});
+  }
+  var counters = document.querySelectorAll('[data-count-to]');
+  if (counters.length) {
+    var cio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (!e.isIntersecting) return;
+        var el = e.target;
+        if (el.dataset.counted === '1') return;
+        el.dataset.counted = '1';
+        var target = parseFloat(el.dataset.countTo);
+        var suffix = el.dataset.suffix || '';
+        var dur = 1800;
+        var start = performance.now();
+        function tick(now){
+          var t = Math.min(1, (now - start) / dur);
+          var eased = 1 - Math.pow(1 - t, 3);
+          var val = target * eased;
+          if (target >= 100) el.textContent = Math.floor(val).toLocaleString() + suffix;
+          else if (target < 10) el.textContent = (target * eased).toFixed(1).replace('.0', '') + suffix;
+          else el.textContent = Math.floor(val) + suffix;
+          if (t < 1) requestAnimationFrame(tick);
+          else el.textContent = target + suffix;
+        }
+        requestAnimationFrame(tick);
+        cio.unobserve(el);
+      });
+    }, {threshold: 0.4});
+    counters.forEach(function(c){ cio.observe(c); });
+  }
+  var reelTrack = document.getElementById('ivmReelTrack');
+  var reelCards = document.querySelectorAll('.ivm-reel-card');
+  if (reelTrack && reelCards.length) {
+    var reelTicking = false;
+    function updateReelCenter() {
+      reelTicking = false;
+      var trackRect = reelTrack.getBoundingClientRect();
+      var centerX = trackRect.left + trackRect.width / 2;
+      var bestIdx = -1;
+      var bestDist = Infinity;
+      reelCards.forEach(function(c, i){
+        var r = c.getBoundingClientRect();
+        var cardCenter = r.left + r.width / 2;
+        var d = Math.abs(cardCenter - centerX);
+        if (d < bestDist) { bestDist = d; bestIdx = i; }
+      });
+      reelCards.forEach(function(c, i){ c.classList.toggle('is-center', i === bestIdx); });
+    }
+    reelTrack.addEventListener('scroll', function(){ if (!reelTicking) { requestAnimationFrame(updateReelCenter); reelTicking = true; } }, {passive: true});
+    window.addEventListener('resize', updateReelCenter, {passive: true});
+    setTimeout(updateReelCenter, 50);
+  }
+})();
+</script>
+<!-- END MOBILE SCROLLYTELLING -->
+
+<div class="ivm-desktop-only">
 
 <!-- HERO -->
 <section class="hero" aria-labelledby="hero-h1">
@@ -1593,6 +1910,9 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
     <p class="connect-handwritten">Una carta, nunca un formulario. <em>IVAE</em></p>
   </div>
 </section>
+
+</div>
+<!-- end ivm-desktop-only -->
 
 </main>
 
