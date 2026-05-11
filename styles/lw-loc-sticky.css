@@ -1,0 +1,35 @@
+/* IVAE Studios — Sticky mobile CTA bar for location pages.
+   Loaded on cancun / los-cabos / riviera-maya (+ ES mirrors).
+   Mobile-only (≤900px). Slides up after 600px scroll, persistent
+   thereafter. Primary CTA → WhatsApp. Secondary → email. */
+
+.lw-loc-sticky{display:none}
+@media (max-width:900px){
+  .lw-loc-sticky{
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;
+    position:fixed;left:0;right:0;bottom:0;z-index:80;
+    padding:12px 14px calc(12px + env(safe-area-inset-bottom,0px));
+    background:rgba(10,15,23,.92);
+    backdrop-filter:blur(14px) saturate(140%);
+    -webkit-backdrop-filter:blur(14px) saturate(140%);
+    border-top:1px solid rgba(201,165,78,.22);
+    box-shadow:0 -10px 30px -8px rgba(0,0,0,.45);
+    font-family:'Syne',sans-serif;
+    opacity:0;pointer-events:none;
+    transition:opacity .45s cubic-bezier(.22,.7,.22,1);
+  }
+  .lw-loc-sticky[data-state="visible"]{opacity:1;pointer-events:auto}
+  .lw-loc-sticky a{
+    display:inline-flex;align-items:center;justify-content:center;
+    gap:8px;min-height:46px;border-radius:2px;
+    text-decoration:none;
+    font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;font-weight:600;
+    transition:transform .25s ease,background .25s ease,color .25s ease;
+  }
+  .lw-loc-sticky a.primary{background:#c9a54e;color:#0a0f17}
+  .lw-loc-sticky a.primary:active{transform:scale(.98)}
+  .lw-loc-sticky a.secondary{background:transparent;color:#faf8f5;border:1px solid rgba(250,248,245,.32)}
+  .lw-loc-sticky a.secondary:active{background:rgba(250,248,245,.06)}
+  .lw-loc-sticky a svg{width:14px;height:14px;flex-shrink:0}
+  body.has-loc-sticky{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+}
