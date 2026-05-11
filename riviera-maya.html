@@ -1214,5 +1214,321 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
 </nav>
 <script src="/js/lw-loc-sticky.js?v=20260510a" defer></script>
 <script src="/js/lang-detect.js" defer></script><script src="/js/services-dropdown-v2.js?v=20260510r" defer></script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MOBILE-NATIVE INIT (≤900px) — bottom-sheet, FAB, chapter strip,
+     story carousel, pull-thumb, depth ghost, planner widget.
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  'use strict';
+  if(!(window.matchMedia && window.matchMedia('(max-width:900px)').matches)) return;
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function ready(fn){ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', fn); else fn(); }
+
+  ready(function(){
+    var body = document.body;
+
+    /* ── A. BOTTOM-SHEET INQUIRY FORM ─────────────────────── */
+    (function buildSheet(){
+      var scrim = document.createElement('div');
+      scrim.className = 'lw-mob-scrim';
+      scrim.setAttribute('aria-hidden','true');
+      var sheet = document.createElement('div');
+      sheet.className = 'lw-mob-sheet';
+      sheet.setAttribute('role','dialog');
+      sheet.setAttribute('aria-modal','true');
+      sheet.setAttribute('aria-labelledby','lwMobSheetH');
+      sheet.setAttribute('aria-hidden','true');
+      sheet.innerHTML = ''
+        + '<div class="lw-mob-sheet-handle" aria-hidden="true"></div>'
+        + '<div class="lw-mob-sheet-head">'
+        +   '<span class="lw-mob-sheet-eyebrow">Begin Inquiry</span>'
+        +   '<h2 class="lw-mob-sheet-h" id="lwMobSheetH">Tell us about your <em>Riviera Maya</em> trip.</h2>'
+        +   '<button type="button" class="lw-mob-sheet-close" aria-label="Close inquiry form">&times;</button>'
+        + '</div>'
+        + '<div class="lw-mob-sheet-body">'
+        +   '<form class="lw-mob-sheet-form" id="lwMobSheetForm" novalidate>'
+        +     '<div class="lw-mob-sheet-field"><label for="lwmfDate">Session date</label><input id="lwmfDate" name="date" type="date" autocomplete="off"/></div>'
+        +     '<div class="lw-mob-sheet-field"><label for="lwmfDest">Resort / Hotel</label><input id="lwmfDest" name="destination" type="text" placeholder="e.g. Mayakoba, Tulum, Akumal&hellip;" autocomplete="off"/></div>'
+        +     '<div class="lw-mob-sheet-row">'
+        +       '<div class="lw-mob-sheet-field"><label for="lwmfGuests">People</label><input id="lwmfGuests" name="guests" type="number" inputmode="numeric" min="1" placeholder="e.g. 4"/></div>'
+        +       '<div class="lw-mob-sheet-field"><label for="lwmfHours">Hours</label><input id="lwmfHours" name="hours" type="number" inputmode="numeric" min="1" placeholder="e.g. 2"/></div>'
+        +     '</div>'
+        +     '<div class="lw-mob-sheet-field"><label for="lwmfEmail">Your email</label><input id="lwmfEmail" name="email" type="email" placeholder="you@email.com" autocomplete="email" required/></div>'
+        +     '<div class="lw-mob-sheet-field"><label for="lwmfNote">A short note</label><textarea id="lwmfNote" name="message" placeholder="What kind of session, anything we should know&hellip;" rows="3"></textarea></div>'
+        +     '<button type="submit" class="lw-mob-sheet-submit">Send to the Director'
+        +       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        +     '</button>'
+        +     '<p class="lw-mob-sheet-foot">Or message on <a href="https://wa.me/529902046514" target="_blank" rel="noopener">WhatsApp</a> &middot; <a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a></p>'
+        +   '</form>'
+        + '</div>';
+      document.body.appendChild(scrim);
+      document.body.appendChild(sheet);
+
+      var lastFocus = null;
+      function openSheet(){
+        lastFocus = document.activeElement;
+        scrim.setAttribute('data-open','1');
+        sheet.setAttribute('data-open','1');
+        sheet.setAttribute('aria-hidden','false');
+        body.classList.add('lw-mob-sheet-on');
+        setTimeout(function(){ var f = sheet.querySelector('input,select,textarea'); if(f) f.focus(); }, 360);
+      }
+      function closeSheet(){
+        scrim.removeAttribute('data-open');
+        sheet.removeAttribute('data-open');
+        sheet.setAttribute('aria-hidden','true');
+        body.classList.remove('lw-mob-sheet-on');
+        if(lastFocus && lastFocus.focus) try{ lastFocus.focus(); }catch(e){}
+      }
+      window.lwMobSheetOpen = openSheet;
+      window.lwMobSheetClose = closeSheet;
+
+      scrim.addEventListener('click', closeSheet);
+      sheet.querySelector('.lw-mob-sheet-close').addEventListener('click', closeSheet);
+      document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape' && sheet.getAttribute('data-open')==='1') closeSheet();
+      });
+
+      var handle = sheet.querySelector('.lw-mob-sheet-handle');
+      var startY = 0, currentY = 0, dragging = false;
+      function onStart(e){ if(reduceMotion) return; var t = e.touches ? e.touches[0] : e; startY = t.clientY; currentY = 0; dragging = true; sheet.setAttribute('data-dragging','1'); }
+      function onMove(e){ if(!dragging) return; var t = e.touches ? e.touches[0] : e; currentY = Math.max(0, t.clientY - startY); sheet.style.transform = 'translateY(' + currentY + 'px)'; }
+      function onEnd(){ if(!dragging) return; dragging = false; sheet.removeAttribute('data-dragging'); sheet.style.transform = ''; if(currentY > 110) closeSheet(); }
+      handle.addEventListener('touchstart', onStart, {passive:true});
+      handle.addEventListener('touchmove', onMove, {passive:true});
+      handle.addEventListener('touchend', onEnd);
+      handle.addEventListener('touchcancel', onEnd);
+
+      var form = sheet.querySelector('#lwMobSheetForm');
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        var fd = new FormData(form);
+        var lines = [
+          'Hello Vianey,', '',
+          'Session date: ' + (fd.get('date')||'(to be set)'),
+          'Resort: ' + (fd.get('destination')||'(not specified)'),
+          'People: ' + (fd.get('guests')||'(not specified)'),
+          'Coverage hours: ' + (fd.get('hours')||'(not specified)'),
+          '', (fd.get('message')||''), '',
+          '— Sent from the IVAE Studios Riviera Maya mobile inquiry sheet.'
+        ];
+        var subject = 'Riviera Maya Inquiry — ' + (fd.get('destination')||'IVAE Studios');
+        var mailto = 'mailto:hello@ivaestudios.com' + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
+        if(fd.get('email')) mailto += '&from=' + encodeURIComponent(fd.get('email'));
+        window.location.href = mailto;
+      });
+
+      var triggers = document.querySelectorAll('a[href="#inquiry"], a[href="mailto:hello@ivaestudios.com"], a[href^="mailto:hello@ivaestudios.com"], .cta-btns a.btn, .header-cta, .hero-btn');
+      Array.prototype.forEach.call(triggers, function(a){
+        a.addEventListener('click', function(e){
+          if(window.innerWidth > 900) return;
+          if(a.href && a.href.indexOf('wa.me') !== -1) return;
+          e.preventDefault();
+          openSheet();
+        });
+      });
+    })();
+
+    /* ── B. FLOATING WHATSAPP FAB ─────────────────────────── */
+    (function buildFab(){
+      var fab = document.createElement('a');
+      fab.className = 'lw-mob-fab';
+      fab.href = 'https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20inquire%20about%20a%20Riviera%20Maya%20session';
+      fab.target = '_blank';
+      fab.rel = 'noopener';
+      fab.setAttribute('aria-label','WhatsApp the Director');
+      fab.innerHTML = '<svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 3C9.4 3 4 8.4 4 15c0 2.3.6 4.4 1.7 6.3L4 29l7.9-1.6c1.8 1 3.9 1.5 6.1 1.5h.1c6.6 0 12-5.4 12-12S22.6 3 16 3zm0 21.8c-1.9 0-3.7-.5-5.3-1.5l-.4-.2-4.7 1 1-4.5-.2-.4c-1-1.7-1.5-3.6-1.5-5.5C5 9.5 9.9 4.7 16 4.7S26.9 9.5 26.9 15 22 24.8 16 24.8zm6-7.5c-.3-.2-1.9-1-2.2-1.1-.3-.1-.5-.2-.7.2-.2.3-.8 1.1-1 1.3-.2.2-.4.2-.7 0-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-2-1.8-2.3-.2-.3 0-.5.1-.6.1-.1.3-.4.5-.6.2-.2.2-.3.3-.5.1-.2 0-.4 0-.6-.1-.2-.7-1.7-1-2.4-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.1 1.1-1.1 2.7 0 1.6 1.2 3.1 1.3 3.3.2.2 2.3 3.5 5.6 4.9.8.3 1.4.5 1.9.7.8.2 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.1-.3-.2-.6-.4z"/></svg>';
+      document.body.appendChild(fab);
+
+      var inquiry = document.querySelector('#inquiry, .cta');
+      if('IntersectionObserver' in window && inquiry){
+        var io = new IntersectionObserver(function(entries){
+          entries.forEach(function(en){
+            if(en.isIntersecting) fab.setAttribute('data-hidden','1');
+            else fab.removeAttribute('data-hidden');
+          });
+        },{rootMargin:'0px 0px -20% 0px',threshold:0.02});
+        io.observe(inquiry);
+      }
+
+      if(!reduceMotion){
+        var pulseInt = setInterval(function(){
+          if(fab.getAttribute('data-hidden')==='1') return;
+          fab.setAttribute('data-pulse','1');
+          setTimeout(function(){ fab.removeAttribute('data-pulse'); }, 1500);
+        }, 8000);
+        window.addEventListener('pagehide', function(){ clearInterval(pulseInt); });
+      }
+    })();
+
+    /* ── C. STICKY CHAPTER STRIP ──────────────────────────── */
+    (function buildStrip(){
+      var strip = document.createElement('div');
+      strip.className = 'lw-mob-chapter-strip';
+      strip.setAttribute('aria-hidden','true');
+      strip.innerHTML = '<span class="lw-mob-chapter-strip-inner"><span class="lw-mob-chapter-strip-dot" aria-hidden="true"></span><span class="lw-mob-chapter-strip-label">Riviera Maya</span></span>';
+      document.body.appendChild(strip);
+      var label = strip.querySelector('.lw-mob-chapter-strip-label');
+
+      var sectionLabels = {
+        'main-content':'Riviera Maya / Mexico',
+        'services':'Sessions',
+        'rv-process':'The Process',
+        'rv-resorts':'Resorts',
+        'rv-testimonials':'Reviews',
+        'lw-mob-details':'In the Details',
+        'faq':'Questions',
+        'inquiry':'Begin Inquiry'
+      };
+
+      if('IntersectionObserver' in window){
+        var io = new IntersectionObserver(function(entries){
+          entries.forEach(function(en){
+            if(en.isIntersecting){
+              var name = null;
+              if(en.target.id && sectionLabels[en.target.id]) name = sectionLabels[en.target.id];
+              if(!name){
+                var cls = en.target.className.split(' ');
+                for(var i=0;i<cls.length;i++){ if(sectionLabels[cls[i]]) { name = sectionLabels[cls[i]]; break; } }
+              }
+              if(name){ label.textContent = name; }
+            }
+          });
+        },{rootMargin:'-30% 0px -55% 0px',threshold:0});
+        document.querySelectorAll('section[data-chapter]').forEach(function(s){ io.observe(s); });
+      }
+
+      window.addEventListener('scroll', function(){
+        var show = window.scrollY > 220;
+        if(show){ strip.setAttribute('data-visible','1'); }
+        else { strip.removeAttribute('data-visible'); }
+      }, {passive:true});
+    })();
+
+    /* ── D. VERTICAL TESTIMONIAL STORY ────────────────────── */
+    (function buildStory(){
+      var testimonials = [
+        {q:'We booked IVAE for a family session at Playa del Carmen and a second morning at Cenote Azul. <em>Stunning every single image.</em>', name:'The Mitchell Family', where:'Playa del Carmen + Cenote Azul · 2026', bg:'/images/couple-riviera-maya-ivae-studios.jpg'},
+        {q:'Cenote Dos Ojos was on our bucket list. IVAE made it <em>look unreal</em>. We have a 30x40 print over the mantel.', name:'Elena & Mark Vasquez', where:'Tulum + Cenote Dos Ojos · 2025', bg:'/images/couple-tulum-ivae-studios.jpg'},
+        {q:'Mayakoba at sunrise with the team felt <em>cinematic</em>. The kids were calm; the photographs are honest.', name:'The Khan Family', where:'Rosewood Mayakoba · 2025', bg:'/images/couple-mayakoba-ivae-studios.jpg'}
+      ];
+
+      var story = document.createElement('section');
+      story.className = 'lw-mob-story';
+      story.setAttribute('data-active','1');
+      story.setAttribute('aria-label','Past clients in Riviera Maya');
+      var progress = '<div class="lw-mob-story-progress" aria-hidden="true">';
+      testimonials.forEach(function(_,i){ progress += '<span' + (i===0?' class="is-active"':'') + '></span>'; });
+      progress += '</div>';
+      story.innerHTML = progress + '<div class="lw-mob-story-rail" role="list">' + testimonials.map(function(t){
+        return '<article class="lw-mob-story-card" role="listitem">'
+          + '<div class="lw-mob-story-bg" style="background-image:url(' + t.bg + ')"></div>'
+          + '<div class="lw-mob-story-veil"></div>'
+          + '<div class="lw-mob-story-content">'
+          +   '<span class="lw-mob-story-stars" aria-label="Five stars">★ ★ ★ ★ ★</span>'
+          +   '<p class="lw-mob-story-q">' + t.q + '</p>'
+          +   '<span class="lw-mob-story-author">' + t.name + '</span>'
+          +   '<span class="lw-mob-story-where">' + t.where + '</span>'
+          + '</div>'
+          + '</article>';
+      }).join('') + '</div>';
+
+      var testSection = document.getElementById('rv-testimonials');
+      if(testSection && testSection.parentNode){
+        testSection.parentNode.insertBefore(story, testSection.nextSibling);
+        body.classList.add('lw-mob-story-on');
+      }
+
+      var rail = story.querySelector('.lw-mob-story-rail');
+      var dots = story.querySelectorAll('.lw-mob-story-progress span');
+      var current = 0;
+      rail.addEventListener('scroll', function(){
+        var w = rail.clientWidth;
+        var idx = Math.round(rail.scrollLeft / Math.max(1, w));
+        idx = Math.max(0, Math.min(testimonials.length-1, idx));
+        if(idx === current) return;
+        for(var i=0;i<dots.length;i++){
+          dots[i].classList.remove('is-active');
+          dots[i].classList.remove('is-past');
+          if(i < idx) dots[i].classList.add('is-past');
+          if(i === idx) dots[i].classList.add('is-active');
+        }
+        current = idx;
+      }, {passive:true});
+    })();
+
+    /* ── E. PULL-QUOTE PHOTO CALLOUT ──────────────────────── */
+    (function pullThumbs(){
+      var thumbSrc = '/images/couple-tulum-ivae-studios.jpg';
+      var quotes = document.querySelectorAll('blockquote, .quote-block');
+      Array.prototype.forEach.call(quotes, function(q){
+        if(q.querySelector('.lw-mob-pull-thumb')) return;
+        var thumb = document.createElement('span');
+        thumb.className = 'lw-mob-pull-thumb';
+        thumb.setAttribute('aria-hidden','true');
+        thumb.innerHTML = '<img src="' + thumbSrc + '" alt=""/>';
+        q.insertBefore(thumb, q.firstChild);
+      });
+    })();
+
+    /* ── F. HERO PARALLAX DEPTH GHOST ─────────────────────── */
+    (function depthGhost(){
+      if(reduceMotion) return;
+      var hero = document.querySelector('.hero');
+      if(!hero) return;
+      var heroImg = hero.querySelector('.hero-bg img, picture img');
+      if(!heroImg) return;
+      var ghost = document.createElement('div');
+      ghost.className = 'lw-mob-hero-depth';
+      ghost.setAttribute('aria-hidden','true');
+      var img = document.createElement('img');
+      img.src = heroImg.currentSrc || heroImg.src;
+      img.alt = '';
+      ghost.appendChild(img);
+      var heroBg = hero.querySelector('.hero-bg');
+      if(heroBg && heroBg.parentNode){
+        heroBg.parentNode.insertBefore(ghost, heroBg.nextSibling);
+      } else {
+        hero.appendChild(ghost);
+      }
+      body.classList.add('lw-mob-depth-scroll');
+      var ticking = false;
+      window.addEventListener('scroll', function(){
+        if(ticking) return; ticking = true;
+        requestAnimationFrame(function(){
+          var y = window.scrollY * 0.04;
+          ghost.style.transform = 'translate(8px, ' + (8 + y) + 'px)';
+          ticking = false;
+        });
+      }, {passive:true});
+    })();
+
+    /* ── G. TRIP-PLANNER WIDGET ───────────────────────────── */
+    (function planner(){
+      var sel = document.getElementById('lwMobPlanner');
+      var out = document.getElementById('lwMobPlannerResult');
+      if(!sel || !out) return;
+      var advice = {
+        'mayakoba':'Mayakoba: <strong>January – March</strong>. The lagoon mist at sunrise is rare and worth shooting at 6:30 AM.',
+        'playa-del-carmen':'Playa del Carmen / Playacar: <strong>December – April</strong>. The widest beach light hits 5:38 PM in winter; quieter past 9th Avenue.',
+        'puerto-aventuras':'Puerto Aventuras / Paamul: <strong>November – April</strong>. Calmer water; great for cenote-adjacent couples sessions.',
+        'akumal':'Akumal: <strong>November – April</strong>. Turtle season runs May-Oct; for portraits, the jungle corridor at 5:40 PM is the move.',
+        'tulum':'Tulum: <strong>November – early March</strong>. Sargassum is lowest December through February; the ruins at sunrise are unforgettable.',
+        'cenotes':'Cenote sessions: <strong>year-round</strong>, best mid-morning (10-11 AM) for the light beams at Dos Ojos and Gran Cenote.'
+      };
+      sel.addEventListener('change', function(){
+        var v = sel.value;
+        if(!v){ out.removeAttribute('data-shown'); return; }
+        out.innerHTML = advice[v] || '';
+        out.setAttribute('data-shown','1');
+      });
+    })();
+
+  });
+})();
+</script>
+
 </body>
 </html>
