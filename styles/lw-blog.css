@@ -794,3 +794,65 @@
   .lw-blog-newsletter{display:none}
   .lw-blog{background:#fff;color:#000}
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DARK MODE — flip tokens within .lw-blog when html.dark is set
+   ═══════════════════════════════════════════════════════════════════════ */
+html.dark .lw-blog,
+html.dark .lw-blog-masthead,
+html.dark .lw-blog-hero-feature,
+html.dark .lw-blog-dossier,
+html.dark .lw-blog-categories,
+html.dark .lw-blog-archive,
+html.dark .lw-blog-newsletter{
+  --paper:#0c1219;
+  --paper-2:#131c2a;
+  --ink-1:#faf8f5;
+  --text-on-light:rgba(250,248,245,0.92);
+  --text-on-light-readable:rgba(250,248,245,0.82);
+  --text-on-light-2:rgba(250,248,245,0.66);
+  --text-on-light-3:rgba(250,248,245,0.46);
+  --border-l:rgba(250,248,245,0.12);
+  --border:rgba(250,248,245,0.20);
+}
+html.dark .lw-blog-archive__card,
+html.dark .lw-blog-dossier__card,
+html.dark .lw-blog-archive__card--text{
+  background:rgba(250,248,245,0.03);
+  border-color:rgba(250,248,245,0.10);
+}
+html.dark .lw-blog-archive__card:hover,
+html.dark .lw-blog-dossier__card:hover{
+  background:rgba(201,165,78,0.06);
+  border-color:rgba(201,165,78,0.32);
+}
+html.dark .lw-blog-categories{
+  background:rgba(12,18,25,0.92);
+  backdrop-filter:saturate(140%) blur(14px);
+  -webkit-backdrop-filter:saturate(140%) blur(14px);
+  border-bottom:1px solid rgba(250,248,245,0.10);
+}
+html.dark .lw-blog-categories__btn{
+  background:transparent;
+  color:rgba(250,248,245,0.66);
+  border-color:rgba(250,248,245,0.18);
+}
+html.dark .lw-blog-categories__btn:hover{color:#faf8f5;border-color:rgba(201,165,78,0.5)}
+html.dark .lw-blog-categories__btn.is-active{
+  background:#c9a54e;color:#0c1219;border-color:#c9a54e;
+}
+html.dark .lw-blog-newsletter{background:#131c2a}
+html.dark .lw-blog-newsletter__field input{
+  background:transparent;
+  border-bottom:1px solid rgba(250,248,245,0.24);
+  color:#faf8f5;
+}
+html.dark .lw-blog-newsletter__field input::placeholder{color:rgba(250,248,245,0.42)}
+html.dark .lw-blog-archive__pagination button{
+  background:transparent;
+  color:rgba(250,248,245,0.62);
+  border-color:rgba(250,248,245,0.18);
+}
+html.dark .lw-blog-archive__pagination button.is-active{
+  background:#c9a54e;color:#0c1219;border-color:#c9a54e;
+}
