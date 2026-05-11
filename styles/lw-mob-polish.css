@@ -1,0 +1,201 @@
+/* =============================================================
+   lw-mob-polish.css
+   Universal mobile polish: loading skeletons, button press
+   feedback, swipe affordances on carousels, image fade-in,
+   tap highlight removal, and reduced-motion compliance.
+   Scope: <= 900px viewports (mobile-first premium feel).
+   Per Vianey: mobile must feel premium-app.
+   ============================================================= */
+
+
+/* -------------------------------------------------------------
+   SECTION 1: Loading skeletons
+   Shimmer placeholder behind <picture>/<figure.inline-photo>
+   wrappers while the inner lazy <img> has not yet finished
+   loading (i.e. has not been marked .is-loaded by the JS init).
+   Uses :has() to detect unloaded images. Browsers that do not
+   support :has() will simply not render the shimmer — graceful
+   no-op fallback.
+   ------------------------------------------------------------- */
+@media (max-width: 900px) {
+  picture:has(img[loading="lazy"]):not(:has(img.is-loaded)),
+  figure.inline-photo:has(img[loading="lazy"]):not(:has(img.is-loaded)) {
+    background: linear-gradient(
+      90deg,
+      rgba(201, 165, 78, 0.04) 0%,
+      rgba(201, 165, 78, 0.10) 50%,
+      rgba(201, 165, 78, 0.04) 100%
+    );
+    background-size: 200% 100%;
+    animation: lwMobShimmer 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes lwMobShimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+
+/* -------------------------------------------------------------
+   SECTION 2: Button press feedback
+   Universal active-state for mobile taps. touch-action:
+   manipulation eliminates the 300ms tap delay on older mobile
+   browsers and prevents accidental double-tap zoom.
+   ------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .lw-btn-gold,
+  .btn-gold,
+  .lw-btn-outline,
+  .btn-ghost,
+  .lw-loc-sticky a,
+  .lw-inq2-btn,
+  .hero-btn,
+  .btn-magnetic,
+  .lw-blog-categories__btn,
+  .faq-trigger,
+  .faq-q,
+  button[type="submit"] {
+    touch-action: manipulation;
+    transition:
+      transform   0.12s ease-out,
+      opacity     0.12s ease-out,
+      background  0.25s ease,
+      color       0.25s ease,
+      border-color 0.25s ease;
+  }
+
+  .lw-btn-gold:active,
+  .btn-gold:active,
+  .lw-btn-outline:active,
+  .lw-loc-sticky a:active,
+  .lw-inq2-btn:active,
+  .hero-btn:active,
+  .lw-blog-categories__btn:active,
+  .faq-trigger:active {
+    transform: scale(0.97);
+    opacity: 0.92;
+  }
+}
+
+
+/* -------------------------------------------------------------
+   SECTION 3: Swipe affordance on reels
+   For any horizontal scroll-snap container, fade the right edge
+   with a mask gradient (suggesting more content) until the user
+   has scrolled at least once. A small bouncing chevron is also
+   shown as an extra hint, removed once .is-scrolled is added by
+   the scroll listener in JS.
+   ------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .lw-blog-categories__inner:not(.is-scrolled),
+  .lw-mob-stories__inner:not(.is-scrolled),
+  .lw-plate-reel:not(.is-scrolled),
+  [data-mobile-reel]:not(.is-scrolled) {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      black 0%,
+      black calc(100% - 60px),
+      rgba(0, 0, 0, 0.4) calc(100% - 30px),
+      transparent 100%
+    );
+            mask-image: linear-gradient(
+      to right,
+      black 0%,
+      black calc(100% - 60px),
+      rgba(0, 0, 0, 0.4) calc(100% - 30px),
+      transparent 100%
+    );
+  }
+
+  /* Subtle bouncing chevron hint on the right edge */
+  .lw-blog-categories,
+  .lw-plate-reel {
+    position: relative;
+  }
+
+  .lw-blog-categories::after,
+  .lw-plate-reel::after {
+    content: '\203A'; /* › single right-pointing angle quotation mark */
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #c9a54e;
+    font-size: 22px;
+    line-height: 1;
+    opacity: 0.4;
+    animation: lwMobHintBounce 1.8s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .is-scrolled::after,
+  .lw-blog-categories.is-scrolled::after,
+  .lw-plate-reel.is-scrolled::after {
+    display: none;
+  }
+}
+
+@keyframes lwMobHintBounce {
+  0%, 100% {
+    transform: translateY(-50%) translateX(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(-50%) translateX(4px);
+    opacity: 0.7;
+  }
+}
+
+
+/* -------------------------------------------------------------
+   SECTION 4: Image fade-in on load
+   When the JS init adds .is-loaded to a lazy <img> on its load
+   event, fade it in over 0.4s. Before that, the <img> is hidden
+   so the shimmer behind it (Section 1) reads cleanly.
+   ------------------------------------------------------------- */
+@media (max-width: 900px) {
+  picture img[loading="lazy"]:not(.is-loaded),
+  figure.inline-photo img[loading="lazy"]:not(.is-loaded) {
+    opacity: 0;
+  }
+
+  picture img.is-loaded,
+  figure.inline-photo img.is-loaded {
+    opacity: 1;
+    transition: opacity 0.4s ease;
+  }
+}
+
+
+/* -------------------------------------------------------------
+   SECTION 5: Tap highlight removal
+   Cleaner mobile feel — kills the default grey/blue flash that
+   iOS Safari and Android Chrome paint over tapped elements.
+   Applied globally because it pairs with our custom :active
+   feedback in Section 2.
+   ------------------------------------------------------------- */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+/* -------------------------------------------------------------
+   SECTION 6: Prefers-reduced-motion compliance
+   Respect the user's OS-level motion preference. Disables the
+   shimmer, the bouncing chevron, and the press-scale transition
+   for users who have asked for less motion.
+   ------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* =============================================================
+   End lw-mob-polish.css
+   ============================================================= */

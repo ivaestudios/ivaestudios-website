@@ -554,15 +554,18 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 }
 .ch-photo{
   position:absolute;inset:-6%;
-  background-image:url('/images/wedding-bride-tulum-ivae-studios.jpg');
-  background-size:cover;background-position:center 40%;
+  width:112%;height:112%;max-width:none;
+  object-fit:cover;object-position:center 40%;
+  display:block;
   filter:brightness(.46) saturate(.78) contrast(1.04);
   transform:translateZ(-200px) scale(1.08);
   transition:filter 1.4s var(--ease);
   will-change:transform;
 }
-.ch-photo::after{
-  content:'';position:absolute;inset:0;
+.ch-photo-scrim{
+  position:absolute;inset:-6%;
+  pointer-events:none;
+  z-index:1;
   background:
     radial-gradient(ellipse at 30% 40%,transparent 0%,rgba(10,15,23,.5) 75%),
     linear-gradient(180deg,rgba(10,15,23,.4) 0%,transparent 30%,rgba(10,15,23,.85) 100%);
@@ -2417,7 +2420,9 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
   .ls-clock-sun-trail{stroke-dashoffset:0 !important}
   .atlas-coast,.atlas-tracer{stroke-dashoffset:0 !important}
   .ls-clock-pulse,.atlas-pin-ring,.atlas-pin-ring2,.atlas-pin-dot,.ch-scroll-line::after,.ch-scroll-dot,.gold-mote,.ls-live-dot,.marquee-track,.breathe,.btn-magnetic.gold.attn-pulse{animation:none !important}
-  .ch-photo,.ch-stage,.ch-mid,.cur-dot,.cur-ring,.cur-preview,.cur-trail,.scroll-velo,.gold-motes{transform:none !important;will-change:auto !important;display:none}
+  .ch-stage,.ch-mid,.cur-dot,.cur-ring,.cur-preview,.cur-trail,.scroll-velo,.gold-motes{transform:none !important;will-change:auto !important}
+  .cur-dot,.cur-ring,.cur-preview,.cur-trail,.scroll-velo,.gold-motes{display:none}
+  .ch-photo{transform:none !important;will-change:auto !important}
   .reel-frame{opacity:1 !important;transform:none !important}
   .jrn-feat,.jrn-mini{transform:none !important;opacity:1 !important}
   .ch-chapter{animation:none !important;transform:none !important}
@@ -2638,7 +2643,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png"/>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-<link rel="manifest" href="/site.webmanifest"/>
+<link rel="manifest" href="/manifest.json"/>
 <meta name="theme-color" content="#0a0f17" media="(prefers-color-scheme: dark)"/>
 <meta name="theme-color" content="#c9a54e" media="(prefers-color-scheme: light)"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -2681,7 +2686,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 <div class="cur-trail" id="curTrail3" aria-hidden="true"></div>
 <div class="cur-trail" id="curTrail4" aria-hidden="true"></div>
 <div class="cur-preview" id="curPreview" aria-hidden="true">
-  <img src="/images/wedding-bride-tulum-ivae-studios.jpg" alt="" id="curPreviewImg"/>
+  <img src="/images/wedding-bride-tulum-ivae-studios.jpg" width="3840" height="2559" alt="" id="curPreviewImg"/>
 </div>
 
 <!-- Scroll progress + scroll velocity hairline + page edge progress -->
@@ -2735,7 +2740,12 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
      ═══════════════════════════════════════════════════════════════ -->
 <section class="cinematic-hero" aria-labelledby="ch-h1">
   <div class="ch-stage" id="chStage">
-    <div class="ch-photo" id="chPhoto" role="img" aria-label="A bride at golden hour on the Tulum coast, photographed by IVAE Studios"></div>
+    <picture>
+      <source type="image/avif" sizes="100vw" srcset="/images/optimized/wedding-bride-tulum-ivae-studios-480.avif?v=20260511a 480w, /images/optimized/wedding-bride-tulum-ivae-studios-768.avif?v=20260511a 768w, /images/optimized/wedding-bride-tulum-ivae-studios-1200.avif?v=20260511a 1200w, /images/optimized/wedding-bride-tulum-ivae-studios-1920.avif?v=20260511a 1920w, /images/optimized/wedding-bride-tulum-ivae-studios-2400.avif?v=20260511a 2400w"/>
+      <source type="image/webp" sizes="100vw" srcset="/images/optimized/wedding-bride-tulum-ivae-studios-480.webp?v=20260511a 480w, /images/optimized/wedding-bride-tulum-ivae-studios-768.webp?v=20260511a 768w, /images/optimized/wedding-bride-tulum-ivae-studios-1200.webp?v=20260511a 1200w, /images/optimized/wedding-bride-tulum-ivae-studios-1920.webp?v=20260511a 1920w, /images/optimized/wedding-bride-tulum-ivae-studios-2400.webp?v=20260511a 2400w"/>
+      <img class="ch-photo cinematic-hero__bg-img" id="chPhoto" src="/images/wedding-bride-tulum-ivae-studios.jpg" alt="Novia al atardecer en una playa de Tulum durante una boda de destino fotografiada por IVAE Studios" loading="eager" fetchpriority="high" width="2400" height="1600" decoding="async"/>
+    </picture>
+    <div class="ch-photo-scrim" aria-hidden="true"></div>
     <div class="ch-mid" id="chMid" aria-hidden="true"></div>
     <div class="ch-grain" aria-hidden="true"></div>
   </div>
@@ -3229,7 +3239,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 
     <!-- Hover preview cards -->
     <div class="atlas-card" id="atlasCard-cancun" data-card="cancun" style="left:60%;top:6%">
-      <div class="atlas-card-img"><img src="/images/wedding-bride-cancun-beach-ivae-studios.jpg" alt="Cancún wedding photography by IVAE Studios" loading="lazy"/></div>
+      <div class="atlas-card-img"><img src="/images/wedding-bride-cancun-beach-ivae-studios.jpg" width="3840" height="2560" alt="Cancún wedding photography by IVAE Studios" loading="lazy"/></div>
       <div class="atlas-card-body">
         <div class="atlas-card-eyebrow">Quintana Roo &middot; Yucat&aacute;n</div>
         <div class="atlas-card-title">Canc&uacute;n &amp; the Hotel Zone</div>
@@ -3237,7 +3247,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
       </div>
     </div>
     <div class="atlas-card" id="atlasCard-riviera" data-card="riviera" style="left:62%;top:50%">
-      <div class="atlas-card-img"><img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Riviera Maya photography by IVAE Studios" loading="lazy"/></div>
+      <div class="atlas-card-img"><img src="/images/couple-mayakoba-ivae-studios.jpg" width="3840" height="2560" alt="Riviera Maya photography by IVAE Studios" loading="lazy"/></div>
       <div class="atlas-card-body">
         <div class="atlas-card-eyebrow">Riviera Maya &middot; Yucat&aacute;n</div>
         <div class="atlas-card-title">Mayakoba to Tulum</div>
@@ -3245,7 +3255,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
       </div>
     </div>
     <div class="atlas-card" id="atlasCard-cabos" data-card="cabos" style="left:8%;top:18%">
-      <div class="atlas-card-img"><img src="/images/couple-los-cabos-ivae-studios.jpg" alt="Los Cabos photography by IVAE Studios" loading="lazy"/></div>
+      <div class="atlas-card-img"><img src="/images/couple-los-cabos-ivae-studios.jpg" width="1333" height="2000" alt="Los Cabos photography by IVAE Studios" loading="lazy"/></div>
       <div class="atlas-card-body">
         <div class="atlas-card-eyebrow">Baja California Sur</div>
         <div class="atlas-card-title">San Lucas &amp; Pedregal</div>

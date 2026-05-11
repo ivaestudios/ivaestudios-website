@@ -42,6 +42,9 @@
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260511a"/>
 <link rel="stylesheet" href="/styles/responsive.css?v=20260511a"/>
 <link rel="stylesheet" href="/styles/lw-loc-sticky.css?v=20260511a"/>
+<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511a"/>
+<script src="/js/lw-mob-haptics.js?v=20260511a" defer></script>
+<script src="/js/lw-mob-install.js?v=20260511a" defer></script>
 <script src="/js/components.js?v=20260511a" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 
@@ -1018,5 +1021,17 @@ document.querySelectorAll('.faq-q').forEach(btn=>{btn.addEventListener('click',(
 <script src="/js/lw-loc-sticky.js?v=20260511a" defer></script>
 <script src="/js/lang-detect.js" defer></script><script src="/js/services-dropdown-v2.js?v=20260510r" defer></script>
 <script src="/js/pwa-register.js?v=20260511a" defer></script>
+<script>
+(function(){
+  if(!window.matchMedia('(max-width:900px)').matches) return;
+  document.querySelectorAll('.pg, .pg-i, [data-mobile-reel], .lw-plate-reel').forEach(function(el){
+    el.addEventListener('scroll', function(){ el.classList.add('is-scrolled'); }, { passive:true, once:true });
+  });
+  document.querySelectorAll('picture img[loading="lazy"], figure.inline-photo img[loading="lazy"]').forEach(function(img){
+    if(img.complete) img.classList.add('is-loaded');
+    else img.addEventListener('load', function(){ img.classList.add('is-loaded'); });
+  });
+})();
+</script>
 </body>
 </html>

@@ -37,11 +37,32 @@
 <link rel="stylesheet" href="/styles/site-header.css?v=20260511a"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260511a"/>
 <link rel="stylesheet" href="/styles/responsive.css?v=20260511a"/>
-<link rel="stylesheet" href="/styles/lw-blog.css?v=20260511a"/>
+<link rel="preload" href="/styles/lw-blog.css?v=20260511a" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript><link rel="stylesheet" href="/styles/lw-blog.css?v=20260511a"/></noscript>
+<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511a"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <script src="/js/site-header.js?v=20260511a" defer></script>
 <script src="/js/components.js?v=20260511a" defer></script>
+<script src="/js/lw-mob-haptics.js?v=20260511a" defer></script>
+<script src="/js/lw-mob-install.js?v=20260511a" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
+<style id="critical-mobile">
+:root{--ink:#0a0f17;--gold:#c9a54e;--cream:#faf8f5;--paper:#fafaf8;--paper-2:#f3f1ec;--ink-1:#0c1219;--ink-2:#131c2a;--ink-3:#1a2230}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:68px}
+body{font-family:'Syne','Inter',system-ui,-apple-system,sans-serif;background:var(--paper);color:var(--ink);overflow-x:hidden;line-height:1.5}
+html.dark body{background:var(--ink);color:var(--cream)}
+.skip-link{position:absolute;top:-100%;left:16px;background:var(--gold);color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;transition:top .3s}
+.skip-link:focus{top:0}
+.site-header{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,4vw,48px);height:68px;background:rgba(10,15,23,.85);backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);border-bottom:1px solid rgba(201,165,78,.12)}
+.lw-blog-masthead{padding:clamp(80px,12vw,140px) clamp(20px,5vw,48px) clamp(40px,6vw,72px);text-align:center;background:var(--paper)}
+.lw-blog-masthead__title{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:clamp(48px,15vw,90px);line-height:1.02;color:var(--ink-1)}
+.lw-blog-hero-feature{position:relative;min-height:560px;overflow:hidden}
+.lw-blog-hero-feature__media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.lw-mob-tabs{position:fixed;left:0;right:0;bottom:0;z-index:999;display:none}
+@media (max-width:900px){.lw-mob-tabs{display:flex}}
+@media (max-width:768px){html{scroll-padding-top:60px}.site-header{height:60px;padding:0 16px}}
+</style>
 <style>
 /* IVAE V4 — DENSE DARK EDITORIAL. NYT/Verge/It's Nice That density. Photography first. */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -339,6 +360,119 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
 .lw-blog-newsletter__static em{font-style:italic;color:var(--gold,#c9a54e)}
 .lw-blog-newsletter__mail-link{color:var(--gold,#c9a54e);text-decoration:underline;text-underline-offset:3px;font-weight:500}
 .lw-blog-newsletter__mail-link:hover{color:var(--cream-1,#faf8f5)}
+
+/* ─── INSTAGRAM-QUALITY MOBILE POLISH (v2026-05-11a) ─────────────────────── */
+/* Scroll-shadow + image fade-in for mobile category strip & archive media */
+@media (max-width:900px){
+  .lw-blog-categories__inner.is-scrolled{
+    -webkit-mask-image:linear-gradient(to right,transparent 0%,black 32px,black calc(100% - 40px),transparent 100%);
+    mask-image:linear-gradient(to right,transparent 0%,black 32px,black calc(100% - 40px),transparent 100%);
+  }
+  .lw-blog-archive__media img,
+  .lw-blog-hero-feature__media,
+  .lw-blog-dossier__card-media img,
+  .lw-blog-stories__avatar img{
+    transition:opacity .55s var(--ease-out),transform .9s var(--ease-out);
+  }
+  .lw-blog-archive__media img[loading="lazy"]:not(.is-loaded),
+  .lw-blog-dossier__card-media img[loading="lazy"]:not(.is-loaded){
+    opacity:0;transform:scale(1.02);
+  }
+  .lw-blog-archive__media img.is-loaded,
+  .lw-blog-dossier__card-media img.is-loaded{opacity:1;transform:scale(1)}
+
+  /* Larger touch targets on filter chips */
+  .lw-blog-categories__btn{min-height:44px;padding:10px 16px;font-size:11px}
+  /* Archive cards: portrait-phone image aspect */
+  .lw-blog-archive__card .lw-blog-archive__media{aspect-ratio:5/6}
+  /* Visual gap between cards */
+  .lw-blog-archive__grid{gap:24px}
+  /* Filter active chip pill style (re-affirm on this layer) */
+  .lw-blog-categories__btn.is-active{background:#c9a54e;color:#0c1219;border-radius:999px}
+}
+@media (max-width:480px){
+  /* Pagination: bigger touch targets on small phones */
+  .lw-blog-archive__page{min-width:48px;height:48px;font-size:15px}
+}
+
+/* ─── Load-more guides — mobile-only paginator affordance ────────────────── */
+.lw-blog-archive__load-more{display:none}
+@media (max-width:900px){
+  .lw-blog-archive__load-more{
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    margin:32px auto 0;padding:14px 32px;
+    background:transparent;border:1px solid #c9a54e;color:#c9a54e;
+    font-family:'Syne',sans-serif;font-size:11px;font-weight:600;
+    letter-spacing:.22em;text-transform:uppercase;cursor:pointer;
+    min-height:48px;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .25s var(--ease),color .25s var(--ease),transform .15s var(--ease);
+  }
+  .lw-blog-archive__load-more:active{transform:scale(.97)}
+  .lw-blog-archive__load-more:hover{background:#c9a54e;color:#0c1219}
+  .lw-blog-archive__load-more[hidden]{display:none}
+  .lw-blog-archive__load-more svg{width:14px;height:14px}
+  .lw-blog-archive{display:flex;flex-direction:column;align-items:stretch}
+  .lw-blog-archive__load-more{align-self:center}
+}
+
+/* ─── Stories strip (Instagram-style featured reel) ──────────────────────── */
+.lw-blog-stories{display:none}
+@media (max-width:900px){
+  .lw-blog-stories{
+    display:block;
+    padding:14px 0 18px;
+    background:var(--paper);
+    border-bottom:1px solid rgba(14,22,32,0.08);
+  }
+  html.dark .lw-blog-stories{
+    background:var(--ink-1);
+    border-color:rgba(250,248,245,0.08);
+  }
+  .lw-blog-stories__inner{
+    display:flex;gap:14px;
+    overflow-x:auto;
+    scroll-snap-type:x proximity;
+    padding:0 16px;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .lw-blog-stories__inner::-webkit-scrollbar{display:none}
+  .lw-blog-stories__item{
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    flex-shrink:0;
+    scroll-snap-align:center;
+    text-decoration:none;
+    -webkit-tap-highlight-color:transparent;
+    width:80px;
+    transition:transform .15s var(--ease);
+  }
+  .lw-blog-stories__item:active{transform:scale(.95)}
+  .lw-blog-stories__avatar{
+    display:block;width:72px;height:72px;border-radius:50%;
+    padding:2px;
+    background:linear-gradient(135deg,#c9a54e,#a8894a);
+    overflow:hidden;
+    box-sizing:border-box;
+  }
+  .lw-blog-stories__avatar img{
+    width:100%;height:100%;border-radius:50%;
+    object-fit:cover;
+    border:2px solid #faf8f5;
+    box-sizing:border-box;
+    display:block;
+  }
+  html.dark .lw-blog-stories__avatar img{border-color:#0c1219}
+  .lw-blog-stories__label{
+    font-family:'Syne',sans-serif;font-size:9px;font-weight:600;
+    letter-spacing:.16em;text-transform:uppercase;
+    color:rgba(14,22,32,0.7);
+    text-align:center;
+    line-height:1.2;
+    max-width:80px;
+  }
+  html.dark .lw-blog-stories__label{color:rgba(250,248,245,0.7)}
+}
 </style>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
 <meta name="publisher" content="IVAE Studios"/>
@@ -375,7 +509,7 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
 <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png"/>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-<link rel="manifest" href="/site.webmanifest"/>
+<link rel="manifest" href="/manifest.json"/>
 <meta name="theme-color" content="#0a0f17" media="(prefers-color-scheme: dark)"/>
 <meta name="theme-color" content="#c9a54e" media="(prefers-color-scheme: light)"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -420,6 +554,39 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
 </nav>
 
 <main class="lw-blog" id="main-content">
+
+<nav class="lw-blog-stories" aria-label="Featured guides">
+  <div class="lw-blog-stories__inner">
+    <a class="lw-blog-stories__item" href="/blog/wedding-photographer-cancun">
+      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/wedding-photographer-cancun-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
+      <span class="lw-blog-stories__label">Weddings</span>
+    </a>
+    <a class="lw-blog-stories__item" href="/blog/couples-photographer-cancun">
+      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/couples-photographer-cancun-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
+      <span class="lw-blog-stories__label">Couples</span>
+    </a>
+    <a class="lw-blog-stories__item" href="/blog/family-vacation-photos-mexico">
+      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/family-vacation-photos-mexico-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
+      <span class="lw-blog-stories__label">Family</span>
+    </a>
+    <a class="lw-blog-stories__item" href="/blog/surprise-proposal-photography-cancun">
+      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/surprise-proposal-photography-cancun-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
+      <span class="lw-blog-stories__label">Proposal</span>
+    </a>
+    <a class="lw-blog-stories__item" href="/blog/cancun-cenote-photoshoot-guide">
+      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/cancun-cenote-photoshoot-guide-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
+      <span class="lw-blog-stories__label">Cenote</span>
+    </a>
+    <a class="lw-blog-stories__item" href="/blog/luxury-yacht-photography-cancun">
+      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/destination-wedding-riviera-maya-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
+      <span class="lw-blog-stories__label">Yacht</span>
+    </a>
+    <a class="lw-blog-stories__item" href="/blog/los-cabos-photographer-guide">
+      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/los-cabos-photographer-guide-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
+      <span class="lw-blog-stories__label">Los Cabos</span>
+    </a>
+  </div>
+</nav>
 
 <section class="lw-blog-masthead" aria-labelledby="lw-blog-masthead-title">
   <span class="lw-blog-masthead__eyebrow">Vol. III &middot; Issue 05 &middot; 2026</span>
@@ -1012,6 +1179,10 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
     <button class="lw-blog-archive__page" type="button">03</button>
     <button class="lw-blog-archive__page" type="button" aria-label="Next page">&rarr;</button>
   </nav>
+  <button class="lw-blog-archive__load-more" type="button" data-load-more>
+    <span>Load more guides</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+  </button>
 </section>
 
 <section class="lw-blog-newsletter" aria-labelledby="lw-blog-newsletter-title">
@@ -1184,22 +1355,52 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
     document.body.setAttribute('data-current-filter', slug);
     renderPagination(slug);
     applyPagination(slug);
+    syncLoadMore();
     if (!opts.skipUrl) updateURL(slug);
     if (!opts.skipScroll && !reduceMotion){
       try { bar.scrollIntoView({behavior:'smooth', block:'start'}); } catch(e){}
     }
   }
 
-  function goToPage(p){
+  function goToPage(p, opts){
+    opts = opts || {};
     var pages = totalPages(current);
     if (p < 1) p = 1;
     if (p > pages) p = pages;
     currentPage = p;
     renderPagination(current);
     applyPagination(current);
-    if (!reduceMotion){
+    syncLoadMore();
+    if (!opts.skipScroll && !reduceMotion){
       try { bar.scrollIntoView({behavior:'smooth', block:'start'}); } catch(e){}
     }
+  }
+
+  /* ── Load-more (mobile additive control) ── */
+  var loadMoreBtn = document.querySelector('[data-load-more]');
+  function syncLoadMore(){
+    if (!loadMoreBtn) return;
+    var pages = totalPages(current);
+    if (currentPage >= pages) loadMoreBtn.setAttribute('hidden','');
+    else loadMoreBtn.removeAttribute('hidden');
+  }
+  if (loadMoreBtn){
+    loadMoreBtn.addEventListener('click', function(ev){
+      ev.preventDefault();
+      var pages = totalPages(current);
+      if (currentPage >= pages) return;
+      var prevHeight = document.documentElement.scrollHeight;
+      var prevScroll = window.scrollY || window.pageYOffset || 0;
+      goToPage(currentPage + 1, {skipScroll:true});
+      /* Preserve scroll anchor: keep button approximately in view */
+      try {
+        requestAnimationFrame(function(){
+          var newHeight = document.documentElement.scrollHeight;
+          var delta = newHeight - prevHeight;
+          if (delta > 0) window.scrollTo({top: prevScroll + 0, behavior: 'auto'});
+        });
+      } catch(e){}
+    });
   }
 
   function readURL(){
@@ -1489,6 +1690,18 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
   }
 
   onScroll();
+})();
+</script>
+<script>
+(function(){
+  if(!window.matchMedia('(max-width:900px)').matches) return;
+  document.querySelectorAll('.lw-blog-categories__inner, .lw-mob-stories__inner').forEach(function(el){
+    el.addEventListener('scroll', function(){ el.classList.add('is-scrolled'); }, { passive:true, once:true });
+  });
+  document.querySelectorAll('picture img[loading="lazy"], .lw-blog-archive__media img[loading="lazy"]').forEach(function(img){
+    if(img.complete) img.classList.add('is-loaded');
+    else img.addEventListener('load', function(){ img.classList.add('is-loaded'); });
+  });
 })();
 </script>
 <script src="/js/pwa-register.js?v=20260511a" defer></script>

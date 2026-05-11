@@ -23,3 +23,7 @@ tools/img-converter/package-lock.json
 .tmp-family-sections/
 .tmp-couples-sections/
 .tmp-editorial-sections/
+
+# Auto-generated image variants (created by optimize-images workflow)
+images/optimized/
+scripts/node_modules/

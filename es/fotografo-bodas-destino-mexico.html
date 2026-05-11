@@ -57,7 +57,7 @@
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
 <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png"/>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-<link rel="manifest" href="/site.webmanifest"/>
+<link rel="manifest" href="/manifest.json"/>
 
 <!-- ═══════════════════════════════════════════════════════════════
  JSON-LD / preserved verbatim from prior schema (Org, Service,
@@ -1293,6 +1293,9 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 <link rel="stylesheet" href="/styles/lw-tablet.css?v=20260511a"/>
 <link rel="stylesheet" href="/styles/lw-mobile-anim.css?v=20260511a"/>
 <script src="/js/lw-mobile-anim.js?v=20260511a" defer></script>
+<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511a"/>
+<script src="/js/lw-mob-haptics.js?v=20260511a" defer></script>
+<script src="/js/lw-mob-install.js?v=20260511a" defer></script>
 </head>
 <body>
 
@@ -1552,7 +1555,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 
 <!-- ═══════ EDITORIAL PAUSE ═══════ -->
 <section class="lw-pause" aria-label="Una nota del estudio">
-  <picture class="lw-pause-img"><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-14.jpg" alt="Novia a la hora dorada, costa de Cancún" loading="lazy" decoding="async"/></picture>
+  <picture class="lw-pause-img"><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-14.jpg" width="2559" height="3840" alt="Novia a la hora dorada, costa de Cancún" loading="lazy" decoding="async"/></picture>
   <span class="lw-pause-veil" aria-hidden="true"></span>
   <p class="lw-pause-line">Una boda es un día. <em>Las fotografías son el resto de tu vida.</em></p>
 </section>
@@ -1624,7 +1627,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
     <p>El estudio no solo fotografió nuestra boda. <em>La compuso.</em> Vianey leyó el día como una película, y el equipo se movió como una sola respiración.</p>
   </blockquote>
   <footer class="lw-test-attr">
-    <figure class="lw-test-photo" aria-hidden="true"><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg" alt="" loading="lazy"/></figure>
+    <figure class="lw-test-photo" aria-hidden="true"><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg" width="2560" height="3839" alt="" loading="lazy"/></figure>
     <div class="lw-test-meta">
       <span class="lw-test-name">Marco Benedetti &amp; Aria Lyons</span>
       <span class="lw-test-where">Cancún Hotel Zone <span style="color:#c9a54e">·</span> 2026</span>
@@ -1634,7 +1637,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 
 <!-- ═══════ INQUIRY ═══════ -->
 <section class="lw-inq2" id="inquiry" aria-labelledby="inq-h">
-  <picture class="lw-inq2-bg" aria-hidden="true"><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" alt="" loading="lazy"/></picture>
+  <picture class="lw-inq2-bg" aria-hidden="true"><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-7.jpg" width="3840" height="2560" alt="" loading="lazy"/></picture>
   <span class="lw-inq2-veil" aria-hidden="true"></span>
   <div class="lw-inq2-content">
     <span class="lw-inq2-eyebrow">Por Invitación</span>
@@ -2124,5 +2127,194 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 })();
 </script>
 <script src="/js/pwa-register.js?v=20260511a" defer></script>
+
+<!-- ═══════ MOBILE POLISH — bottom tabs, hero CTA height, pillars snap, image-fade init ═══════ -->
+<style>
+/* Bottom-tab mobile nav (ES) — only visible <=900px */
+.lw-mob-tabs{display:none}
+@media (max-width:900px){
+  .lw-mob-tabs{
+    display:flex;
+    position:fixed;left:0;right:0;bottom:0;z-index:9000;
+    padding:6px 8px calc(env(safe-area-inset-bottom,0px) + 6px);
+    background:rgba(10,15,23,.92);
+    -webkit-backdrop-filter:saturate(1.2) blur(18px);
+    backdrop-filter:saturate(1.2) blur(18px);
+    border-top:1px solid rgba(201,165,78,.18);
+    box-shadow:0 -8px 24px rgba(0,0,0,.32);
+    justify-content:space-around;align-items:stretch;
+    gap:4px;
+  }
+  .lw-mob-tabs__btn{
+    flex:1 1 0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:4px;min-height:54px;min-width:44px;padding:6px 4px;
+    color:rgba(250,248,245,.7);text-decoration:none;
+    font-family:'Syne',sans-serif;font-size:9.5px;font-weight:600;
+    letter-spacing:.14em;text-transform:uppercase;
+    border-radius:10px;
+    transition:color .2s ease,background .2s ease,transform .12s ease;
+    touch-action:manipulation;
+  }
+  .lw-mob-tabs__btn svg{width:22px;height:22px;display:block;stroke-width:1.5}
+  .lw-mob-tabs__btn:active{transform:scale(.94);background:rgba(201,165,78,.08)}
+  .lw-mob-tabs__btn--accent{color:#c9a54e}
+  .lw-mob-tabs__btn--accent:active{background:rgba(201,165,78,.14)}
+  body.has-bottom-tabs{padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}
+
+  /* Hero CTA min-height 64px below 480px for thumb confidence */
+  @media (max-width:480px){
+    .lw-hero .lw-btn,
+    .lw-hero .lw-btn-gold,
+    .lw-hero .lw-btn-outline{
+      min-height:64px;
+      padding:20px 28px;
+      font-size:11px;
+    }
+    .lw-actions{gap:12px}
+  }
+
+  /* Pillars: scroll-snap horizontal carousel on mobile with dots */
+  .pillars-grid{
+    display:flex;flex-direction:row;
+    overflow-x:auto;overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;-ms-overflow-style:none;
+    gap:0;
+    padding:0 20px 4px;
+    margin:0 -20px;
+    scroll-padding-left:20px;
+  }
+  .pillars-grid::-webkit-scrollbar{display:none}
+  .pillars-grid .pillar{
+    flex:0 0 86%;max-width:86%;
+    scroll-snap-align:start;
+    margin-right:14px;
+    border-top:1px solid var(--gold-line);
+    padding:24px 4px 24px;
+  }
+  .pillars-grid .pillar:last-child{margin-right:0}
+  .pillars-dots{
+    display:flex;justify-content:center;align-items:center;gap:8px;
+    margin:18px 0 0;
+    list-style:none;padding:0;
+  }
+  .pillars-dot{
+    width:6px;height:6px;border-radius:50%;
+    background:rgba(201,165,78,.32);
+    transition:background .25s ease,transform .25s ease;
+    cursor:pointer;border:none;padding:0;
+  }
+  .pillars-dot.is-active{background:#c9a54e;transform:scale(1.4)}
+}
+</style>
+
+<aside class="lw-mob-tabs" aria-label="Navegación rápida">
+  <a href="/es/" class="lw-mob-tabs__btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V9.5Z"/></svg>
+    <span>Inicio</span>
+  </a>
+  <a href="/es/#servicios" class="lw-mob-tabs__btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 8h6m-7 4h8m-9 4h10M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z"/></svg>
+    <span>Servicios</span>
+  </a>
+  <a href="/es/blog" class="lw-mob-tabs__btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10"/></svg>
+    <span>Diario</span>
+  </a>
+  <a href="#inquiry" class="lw-mob-tabs__btn lw-mob-tabs__btn--accent">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    <span>Reservar</span>
+  </a>
+</aside>
+
+<script>
+/* Mobile polish init: bottom-tabs body class, image-fade, scroll-shadow, pillars carousel dots */
+(function(){
+  'use strict';
+  var mq = window.matchMedia('(max-width:900px)');
+  function setTabsClass(){
+    if(mq.matches){ document.body.classList.add('has-bottom-tabs'); }
+    else{ document.body.classList.remove('has-bottom-tabs'); }
+  }
+  setTabsClass();
+  if(mq.addEventListener){ mq.addEventListener('change', setTabsClass); }
+  else if(mq.addListener){ mq.addListener(setTabsClass); }
+
+  /* Image fade-in: mark loaded lazy images so CSS can transition them in */
+  function markLoaded(img){ if(img && !img.classList.contains('is-loaded')) img.classList.add('is-loaded'); }
+  var lazyImgs = document.querySelectorAll('picture img[loading="lazy"], figure.inline-photo img[loading="lazy"]');
+  Array.prototype.forEach.call(lazyImgs, function(img){
+    if(img.complete && img.naturalWidth > 0){ markLoaded(img); }
+    else{
+      img.addEventListener('load', function(){ markLoaded(img); }, {once:true});
+      img.addEventListener('error', function(){ markLoaded(img); }, {once:true});
+    }
+  });
+
+  /* Scroll-shadow: add .is-scrolled on horizontal reels once the user has nudged them */
+  var reels = document.querySelectorAll('.lw-blog-categories__inner, .lw-mob-stories__inner, .lw-plate-reel, [data-mobile-reel], .pillars-grid');
+  Array.prototype.forEach.call(reels, function(r){
+    var done=false;
+    r.addEventListener('scroll', function(){
+      if(done) return;
+      if(r.scrollLeft > 8){ r.classList.add('is-scrolled'); done=true; }
+    }, {passive:true});
+  });
+
+  /* Pillars carousel dots — only attach on mobile */
+  function initPillarsDots(){
+    if(!mq.matches) return;
+    var grid = document.querySelector('.pillars-grid');
+    if(!grid || grid.dataset.dotsInit === '1') return;
+    var pillars = grid.querySelectorAll('.pillar');
+    if(pillars.length < 2) return;
+    var dots = document.createElement('ol');
+    dots.className = 'pillars-dots';
+    dots.setAttribute('aria-hidden','true');
+    for(var i=0;i<pillars.length;i++){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'pillars-dot' + (i===0 ? ' is-active' : '');
+      b.setAttribute('aria-label','Ir al pilar '+(i+1));
+      (function(idx){
+        b.addEventListener('click', function(){
+          var target = pillars[idx];
+          if(target && target.scrollIntoView){
+            grid.scrollTo({ left: target.offsetLeft - grid.offsetLeft, behavior:'smooth' });
+          }
+        });
+      })(i);
+      var li = document.createElement('li');
+      li.style.cssText='display:inline-flex';
+      li.appendChild(b);
+      dots.appendChild(li);
+    }
+    grid.parentNode.insertBefore(dots, grid.nextSibling);
+    grid.dataset.dotsInit = '1';
+
+    var dotEls = dots.querySelectorAll('.pillars-dot');
+    grid.addEventListener('scroll', function(){
+      var center = grid.scrollLeft + grid.clientWidth/2;
+      var best=0, bestDist=Infinity;
+      for(var i=0;i<pillars.length;i++){
+        var p = pillars[i];
+        var c = p.offsetLeft + p.offsetWidth/2 - grid.offsetLeft;
+        var d = Math.abs(c - center);
+        if(d < bestDist){ bestDist = d; best = i; }
+      }
+      for(var j=0;j<dotEls.length;j++){
+        dotEls[j].classList.toggle('is-active', j===best);
+      }
+    }, {passive:true});
+  }
+  if(document.readyState === 'complete' || document.readyState === 'interactive'){
+    initPillarsDots();
+  } else {
+    document.addEventListener('DOMContentLoaded', initPillarsDots);
+  }
+})();
+</script>
 </body>
 </html>

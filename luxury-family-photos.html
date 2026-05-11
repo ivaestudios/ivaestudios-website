@@ -74,7 +74,7 @@
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
 <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png"/>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-<link rel="manifest" href="/site.webmanifest"/>
+<link rel="manifest" href="/manifest.json"/>
 <meta name="theme-color" content="#0c1219" media="(prefers-color-scheme: dark)"/>
 <meta name="theme-color" content="#c9a54e" media="(prefers-color-scheme: light)"/>
 <link rel="preload" as="image" fetchpriority="high" href="/images/family-cancun-hotel-zone-ivae-studios.jpg">
@@ -480,11 +480,27 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
   .lf-pillars-grid:hover .lf-pillars-stage{transform:translateZ(0)}
 }
 </style>
-<link rel="stylesheet" href="/styles/lw-editorial.css?v=20260511a"/>
+<link rel="preload" href="/styles/lw-editorial.css?v=20260511a" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript><link rel="stylesheet" href="/styles/lw-editorial.css?v=20260511a"/></noscript>
 <script src="/js/lw-editorial.js?v=20260511a" defer></script>
 <link rel="stylesheet" href="/styles/lw-a11y.css?v=20260511a"/>
+<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511a"/>
 <link rel="stylesheet" href="/styles/lw-tablet.css?v=20260511a"/>
-<link rel="stylesheet" href="/styles/lw-mobile-anim.css?v=20260511a"/>
+<link rel="preload" href="/styles/lw-mobile-anim.css?v=20260511a" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript><link rel="stylesheet" href="/styles/lw-mobile-anim.css?v=20260511a"/></noscript>
+<style id="critical-mobile">
+:root{--ink:#0a0f17;--gold:#c9a54e;--cream:#faf8f5;--paper:#fafaf8;--paper-2:#f3f1ec;--ink-1:#0c1219;--ink-2:#131c2a;--ink-3:#1a2230}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:68px}
+body{font-family:'Syne','Inter',system-ui,-apple-system,sans-serif;background:var(--paper);color:var(--ink);overflow-x:hidden;line-height:1.5}
+html.dark body{background:var(--ink);color:var(--cream)}
+.skip-link{position:absolute;top:-100%;left:16px;background:var(--gold);color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;transition:top .3s}
+.skip-link:focus{top:0}
+.site-header{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,4vw,48px);height:68px;background:rgba(10,15,23,.85);backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);border-bottom:1px solid rgba(201,165,78,.12)}
+.lf-hero{position:relative;min-height:100svh;background:var(--ink);overflow:hidden}
+.lf-hero h1{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:clamp(40px,7vw,80px);line-height:1.06;color:var(--cream)}
+@media (max-width:768px){html{scroll-padding-top:60px}.site-header{height:60px;padding:0 16px}}
+</style>
 <script src="/js/lw-mobile-anim.js?v=20260511a" defer></script>
 <script defer>
 /* ═══ Mobile carousel dots & ready flag (≤900px) ═══ */
@@ -818,6 +834,44 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
     content:'';display:block;width:1px;height:22px;background:rgba(201,165,78,.55);margin:8px auto;
   }
 }
+
+/* ═══════ LUXURY-APP MOBILE FINAL POLISH (2026-05-11a) ═══════
+   Bottom-tab nav, hero CTA reinforcement, scroll-shadow targets. */
+.lw-mob-tabs{display:none}
+@media (max-width:900px){
+  .lw-mob-tabs[hidden]{display:none}
+  .lw-mob-tabs:not([hidden]){
+    display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+    position:fixed;left:0;right:0;bottom:0;z-index:75;
+    padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px));
+    background:rgba(10,15,23,0.92);
+    backdrop-filter:blur(14px) saturate(140%);
+    -webkit-backdrop-filter:blur(14px) saturate(140%);
+    border-top:1px solid rgba(201,165,78,0.18);
+  }
+  .lw-mob-tabs__btn{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:4px;padding:6px 4px;min-height:48px;
+    color:rgba(250,248,245,0.62);font-size:9px;font-weight:600;
+    letter-spacing:.18em;text-transform:uppercase;text-decoration:none;
+    transition:color .25s ease;
+  }
+  .lw-mob-tabs__btn svg{width:20px;height:20px;flex-shrink:0}
+  .lw-mob-tabs__btn:active{color:#c9a54e}
+  .lw-mob-tabs__btn--accent{color:#c9a54e}
+  body.has-bottom-tabs{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+}
+@media (max-width:480px){
+  .lw-actions .lw-btn-gold:first-child,
+  .lc-hero-ctas .lc-btn:first-child,
+  .lf-hero-ctas .btn-gold:first-child,
+  .le-hero-cta-wrap a.le-btn-gold{
+    width:100%;
+    min-height:64px;
+    font-size:11px;
+    letter-spacing:.28em;
+  }
+}
 </style>
 </head>
 <body>
@@ -1077,7 +1131,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
 
 <!-- ═══════ EDITORIAL PAUSE ═══════ -->
 <section class="lw-pause" data-chapter="3" data-theme-color="#0a0f17" aria-label="A note from the studio">
-  <picture class="lw-pause-img"><img src="/images/family-cancun-hotel-zone-ivae-studios.jpg" alt="" loading="lazy" decoding="async"/></picture>
+  <picture class="lw-pause-img"><img src="/images/family-cancun-hotel-zone-ivae-studios.jpg" width="3840" height="2560" alt="" loading="lazy" decoding="async"/></picture>
   <span class="lw-pause-veil" aria-hidden="true"></span>
   <p class="lw-pause-line">An afternoon. <em>The photographs are decades.</em></p>
 </section>
@@ -1161,7 +1215,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
 
 <!-- ═══════ INQUIRY ═══════ -->
 <section class="lw-inq2" data-chapter="7" data-theme-color="#c9a54e" id="inquiry" aria-labelledby="inq-h">
-  <picture class="lw-inq2-bg" aria-hidden="true"><img src="/images/family-kids-cancun-hotel-zone-ivae-studios-2.jpg" alt="" loading="lazy"/></picture>
+  <picture class="lw-inq2-bg" aria-hidden="true"><img src="/images/family-kids-cancun-hotel-zone-ivae-studios-2.jpg" width="2000" height="1333" alt="" loading="lazy"/></picture>
   <span class="lw-inq2-veil" aria-hidden="true"></span>
   <div class="lw-inq2-content">
     <span class="lw-inq2-eyebrow">By Appointment</span>
@@ -1935,6 +1989,41 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
 })();
 </script>
 <script src="/js/pwa-register.js?v=20260511a" defer></script>
+
+<!-- ═══════ LUXURY-APP MOBILE FINAL POLISH — bottom tab nav ═══════ -->
+<aside class="lw-mob-tabs" aria-label="Quick navigation" hidden>
+  <a href="/" class="lw-mob-tabs__btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V9.5Z"/></svg>
+    <span>Home</span>
+  </a>
+  <a href="/#services" class="lw-mob-tabs__btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 8h6m-7 4h8m-9 4h10M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z"/></svg>
+    <span>Services</span>
+  </a>
+  <a href="/blog" class="lw-mob-tabs__btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10"/></svg>
+    <span>Journal</span>
+  </a>
+  <a href="#inquiry" class="lw-mob-tabs__btn lw-mob-tabs__btn--accent">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    <span>Book</span>
+  </a>
+</aside>
+<script>(function(){var t=document.querySelector('.lw-mob-tabs');if(t&&window.matchMedia('(max-width:900px)').matches){t.hidden=false;document.body.classList.add('has-bottom-tabs');}})();</script>
+<script>
+(function(){
+  if(!window.matchMedia('(max-width:900px)').matches) return;
+  document.querySelectorAll('.lw-blog-categories__inner, .lw-mob-stories__inner, .lw-plate-reel, [data-mobile-reel]').forEach(function(el){
+    el.addEventListener('scroll', function(){ el.classList.add('is-scrolled'); }, { passive:true, once:true });
+  });
+  document.querySelectorAll('picture img[loading="lazy"], figure.inline-photo img[loading="lazy"]').forEach(function(img){
+    if(img.complete) img.classList.add('is-loaded');
+    else img.addEventListener('load', function(){ img.classList.add('is-loaded'); });
+  });
+})();
+</script>
+<script src="/js/lw-mob-haptics.js?v=20260511a" defer></script>
+<script src="/js/lw-mob-install.js?v=20260511a" defer></script>
 
 </body>
 </html>

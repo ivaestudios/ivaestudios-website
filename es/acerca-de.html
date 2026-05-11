@@ -66,7 +66,7 @@
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
 <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png"/>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-<link rel="manifest" href="/site.webmanifest"/>
+<link rel="manifest" href="/manifest.json"/>
 <meta name="theme-color" content="#0a0f17" media="(prefers-color-scheme: dark)"/>
 <meta name="theme-color" content="#c9a54e" media="(prefers-color-scheme: light)"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -256,15 +256,18 @@ body::after{
 .hero-stage{position:absolute;inset:0;z-index:1;will-change:transform}
 .hero-photo{
   position:absolute;inset:-6%;
-  background-image:url('/images/wedding-bride-isla-mujeres-ivae-studios.jpg');
-  background-size:cover;background-position:center 36%;
+  width:112%;height:112%;max-width:none;
+  object-fit:cover;object-position:center 36%;
+  display:block;
   filter:brightness(.46) saturate(.82) contrast(1.04);
   transform:scale(1.06);
   transition:transform 1.6s var(--ease),filter 1.6s var(--ease);
   will-change:transform;
 }
-.hero-photo::after{
-  content:'';position:absolute;inset:0;
+.hero-photo-scrim{
+  position:absolute;inset:-6%;
+  pointer-events:none;
+  z-index:1;
   background:
     radial-gradient(ellipse at 30% 50%,transparent 0%,rgba(10,15,23,.5) 75%),
     linear-gradient(180deg,rgba(10,15,23,.3) 0%,transparent 30%,rgba(10,15,23,.85) 100%);
@@ -1121,7 +1124,12 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
 <!-- HERO -->
 <section class="hero" aria-labelledby="hero-h1">
   <div class="hero-stage">
-    <div class="hero-photo" id="heroPhoto" role="img" aria-label="A bride at golden hour in Mayakoba, photographed by Vianey Díaz for IVAE Studios"></div>
+    <picture>
+      <source type="image/avif" sizes="100vw" srcset="/images/optimized/wedding-bride-isla-mujeres-ivae-studios-480.avif?v=20260511a 480w, /images/optimized/wedding-bride-isla-mujeres-ivae-studios-768.avif?v=20260511a 768w, /images/optimized/wedding-bride-isla-mujeres-ivae-studios-1200.avif?v=20260511a 1200w, /images/optimized/wedding-bride-isla-mujeres-ivae-studios-1920.avif?v=20260511a 1920w, /images/optimized/wedding-bride-isla-mujeres-ivae-studios-2400.avif?v=20260511a 2400w"/>
+      <source type="image/webp" sizes="100vw" srcset="/images/optimized/wedding-bride-isla-mujeres-ivae-studios-480.webp?v=20260511a 480w, /images/optimized/wedding-bride-isla-mujeres-ivae-studios-768.webp?v=20260511a 768w, /images/optimized/wedding-bride-isla-mujeres-ivae-studios-1200.webp?v=20260511a 1200w, /images/optimized/wedding-bride-isla-mujeres-ivae-studios-1920.webp?v=20260511a 1920w, /images/optimized/wedding-bride-isla-mujeres-ivae-studios-2400.webp?v=20260511a 2400w"/>
+      <img class="hero-photo hero__bg-img" id="heroPhoto" src="/images/wedding-bride-isla-mujeres-ivae-studios.jpg" alt="Retrato de novia en la playa de Isla Mujeres por IVAE Studios en la hora dorada" loading="eager" fetchpriority="high" width="2400" height="1600" decoding="async"/>
+    </picture>
+    <div class="hero-photo-scrim" aria-hidden="true"></div>
     <div class="hero-grain" aria-hidden="true"></div>
   </div>
 
