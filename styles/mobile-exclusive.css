@@ -26,6 +26,17 @@
 @media (max-width: 899px) {
   .ivm { display: block; }
   body.ivm-page .ivm-desktop-only { display: none !important; }
+  /* Hide DESKTOP loader (.film-leader) on mobile — we use .ivm-loader instead */
+  body.ivm-page .film-leader,
+  body.ivm-page #filmLeader { display: none !important; }
+  /* Hide desktop-only overlay elements that may peek through */
+  body.ivm-page .lw-mob-pull-hint,
+  body.ivm-page .cur-dot,
+  body.ivm-page .cur-ring,
+  body.ivm-page .cur-preview,
+  body.ivm-page .cur-trail,
+  body.ivm-page .scroll-velo,
+  body.ivm-page .gold-motes { display: none !important; }
 }
 
 /* ═══ MOBILE STYLES ALL INSIDE THIS @MEDIA ═══════════════════════════ */
