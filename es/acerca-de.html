@@ -1175,7 +1175,7 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
 }
 </style>
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260512a">
-<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512m">
+<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512n">
 </head>
 <body class="has-bottom-tabs ivm-page">
 <a href="#main-content" class="skip-link">Saltar al contenido</a>
@@ -1233,7 +1233,7 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
 <main id="main-content">
 
 <!-- ═══════════════════════════════════════════════════════════════════════
-     MOBILE — "El Folio" experiencia magazine-spread ≤899px
+     MOBILE — "IVAE The Studio" 8-act 3D scroll experience ≤899px
      ═══════════════════════════════════════════════════════════════════════ -->
 <div class="ivm">
 
@@ -1242,123 +1242,222 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
     <div class="ivm-loader__mark">
       <span>I</span><span>V</span><span>A</span><span>E</span><span class="dot">.</span>
     </div>
-    <div class="ivm-loader__sub">Edición No 3 · El Folio</div>
+    <div class="ivm-loader__sub">Estudio Editorial</div>
   </div>
 
-  <!-- ACT I — Masthead tipográfico -->
-  <section class="ivm-about-mast">
-    <h1 class="ivm-about-mast__name">VIANEY <em>Díaz.</em></h1>
-    <p class="ivm-about-mast__role">Fundadora y Fotógrafa Principal de IVAE Studios. Cancún · Riviera Maya · Los Cabos.</p>
-    <figure class="ivm-about-mast__polaroid">
-      <img src="/images/wedding-bride-isla-mujeres-ivae-studios-480.jpg" alt="Vianey Díaz en una sesión de boda destino">
-      <figcaption>En sesión · 2025</figcaption>
-    </figure>
-    <span class="ivm-about-mast__scroll">Pasa la página ↓</span>
+  <!-- ACT I — HERO IVAE 3D letters -->
+  <section class="ivm-st-hero">
+    <div class="ivm-st-hero__bg" aria-hidden="true"></div>
+    <div class="ivm-st-hero__motes" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <span class="ivm-st-hero__eyebrow">Estudio Editorial · Fundado 2023</span>
+    <div class="ivm-st-hero__letters" aria-label="IVAE">
+      <span>I</span><span>V</span><span>A</span><span>E</span>
+    </div>
+    <p class="ivm-st-hero__sub">Un estudio de <em>una hora.</em></p>
+    <div class="ivm-st-hero__meta">
+      <span>Cancún</span><span>Riviera Maya</span><span>Los Cabos</span>
+    </div>
+    <span class="ivm-st-hero__scroll" aria-hidden="true">Comenzar</span>
   </section>
 
-  <!-- ACT II — Carta de la editora -->
-  <section class="ivm-about-letter">
-    <span class="ivm-about-letter__ornament">§</span>
-    <span class="ivm-about-letter__eyebrow">De la editora</span>
-    <blockquote>
-      Trabajo desde la luz hacia atrás. Planeo la hora alrededor de la familia.
-      Dirijo en silencio. <em>Entrego en tres días.</em>
-    </blockquote>
-    <cite>— Vianey Díaz</cite>
+  <!-- ACT II — MANIFIESTO sticky 3D reveal -->
+  <section class="ivm-st-manifesto" aria-label="Manifiesto del estudio">
+    <div class="ivm-st-manifesto__pin">
+      <div class="ivm-st-manifesto__bg" aria-hidden="true"></div>
+      <div class="ivm-st-manifesto__stage">
+        <p class="ivm-st-manifesto__phrase" data-phrase="0">Trabajamos la hora.</p>
+        <p class="ivm-st-manifesto__phrase" data-phrase="1">Planeamos la luz.</p>
+        <p class="ivm-st-manifesto__phrase" data-phrase="2">Dirigimos en silencio.</p>
+        <p class="ivm-st-manifesto__phrase" data-phrase="3"><em>Entregamos en tres días.</em></p>
+      </div>
+      <div class="ivm-st-manifesto__progress" aria-hidden="true">
+        <span data-prog="0"></span><span data-prog="1"></span><span data-prog="2"></span><span data-prog="3"></span>
+      </div>
+    </div>
   </section>
 
-  <!-- ACT III — Timeline carrera -->
-  <section class="ivm-about-timeline">
-    <header class="ivm-about-timeline__head">
-      <span class="ivm-act-counter__eyebrow">El folio</span>
-      <h2>Una década <em>detrás del lente.</em></h2>
+  <!-- ACT III — EL MÉTODO card stack 3D fan -->
+  <section class="ivm-st-method" aria-label="Cómo trabaja el estudio">
+    <div class="ivm-st-method__pin">
+      <div class="ivm-st-method__head">
+        <span class="eyebrow">El método del estudio</span>
+        <h2>Cuatro pasos. <em>Un brief.</em></h2>
+      </div>
+      <div class="ivm-st-method__deck" id="ivmStMethodDeck">
+        <article class="ivm-st-card" data-step="0">
+          <div class="ivm-st-card__num">I.</div>
+          <h3 class="ivm-st-card__title">Un <em>brief</em>, no un formulario.</h3>
+          <p class="ivm-st-card__body">Cuéntanos la fecha, el venue, el sentimiento. Respondemos en un día hábil, en tu idioma, con una fecha abierta en el calendario.</p>
+          <span class="ivm-st-card__tag">Consulta</span>
+        </article>
+        <article class="ivm-st-card" data-step="1">
+          <div class="ivm-st-card__num">II.</div>
+          <h3 class="ivm-st-card__title">Planear <em>la hora.</em></h3>
+          <p class="ivm-st-card__body">Una llamada creativa de 45 minutos. Mapeamos luz solar, vestuario, locación y el ritmo del día antes de que el día llegue.</p>
+          <span class="ivm-st-card__tag">Pre-producción</span>
+        </article>
+        <article class="ivm-st-card" data-step="2">
+          <div class="ivm-st-card__num">III.</div>
+          <h3 class="ivm-st-card__title">Dirigir en <em>silencio.</em></h3>
+          <p class="ivm-st-card__body">En set trabajamos en calma. Sin sonrisas congeladas. Movimiento, aliento, los momentos intermedios. El cuarto olvida la cámara.</p>
+          <span class="ivm-st-card__tag">La sesión</span>
+        </article>
+        <article class="ivm-st-card" data-step="3">
+          <div class="ivm-st-card__num">IV.</div>
+          <h3 class="ivm-st-card__title">Entregar en <em>tres días.</em></h3>
+          <p class="ivm-st-card__body">Una galería privada editada a mano con licencia de impresión. Sin esperas de dos semanas. Porque la espera olvida, y nos quedamos cerca del trabajo.</p>
+          <span class="ivm-st-card__tag">Entrega</span>
+        </article>
+      </div>
+      <div class="ivm-st-method__progress" aria-hidden="true">
+        <span class="is-on"></span><span></span><span></span><span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT IV — FUNDADORA (Vianey mencionada brevemente) -->
+  <section class="ivm-st-founder" aria-labelledby="ivm-st-found-h">
+    <span class="ivm-st-founder__eyebrow">Fundadora y Directora Creativa</span>
+    <h2 id="ivm-st-found-h">Liderado por <em>Vianey Díaz.</em></h2>
+    <div class="ivm-st-founder__wall">
+      <figure class="ivm-st-founder__pola ivm-st-founder__pola--1">
+        <img src="/images/wedding-bride-isla-mujeres-ivae-studios-480.jpg" alt="En set, Cancún 2025">
+        <figcaption>Cancún · 2025</figcaption>
+      </figure>
+      <figure class="ivm-st-founder__pola ivm-st-founder__pola--2">
+        <img src="/images/editorial-cancun-ivae-studios-480.jpg" alt="Comisión editorial 2025">
+        <figcaption>Editorial · 2025</figcaption>
+      </figure>
+      <figure class="ivm-st-founder__pola ivm-st-founder__pola--3">
+        <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios-480.jpg" alt="Boda en Cabo 2026">
+        <figcaption>Cabo · 2026</figcaption>
+      </figure>
+    </div>
+    <div class="ivm-st-founder__body">
+      <p>Vianey Díaz fundó IVAE Studios en 2023 después de una década de trabajo editorial por todo México. Lidera la dirección creativa de cada comisión y fotografía personalmente cada sesión.</p>
+      <p>Detrás del estudio hay un pequeño equipo bilingüe que maneja la planeación, dirección de arte y post-producción — para que el día mismo se sienta <em>silencioso</em>.</p>
+    </div>
+    <p class="ivm-st-founder__sign">— El estudio</p>
+  </section>
+
+  <!-- ACT V — ATLAS México SVG con marcadores pulsantes -->
+  <section class="ivm-st-atlas" aria-labelledby="ivm-st-atlas-h">
+    <header class="ivm-st-atlas__head">
+      <span class="ivm-st-atlas__eyebrow">El atlas</span>
+      <h2 id="ivm-st-atlas-h">Tres costas. <em>Un estudio.</em></h2>
     </header>
-    <ol class="ivm-about-timeline__list" id="ivmAboutTimeline">
-      <li class="ivm-about-chapter">
-        <span class="ivm-about-chapter__year">2014</span>
-        <span class="ivm-about-chapter__place">Cancún, México</span>
-        <h3 class="ivm-about-chapter__title">Una cámara <em>prestada.</em></h3>
-        <p class="ivm-about-chapter__body">La Canon Rebel de una amiga. Tres rollos de errores. Un cuadro que no podía dejar de mirar — una prima en la ventana de la cocina de mi abuela, la luz pegando en el vapor de su café.</p>
-      </li>
-      <li class="ivm-about-chapter">
-        <span class="ivm-about-chapter__year">2019</span>
-        <span class="ivm-about-chapter__place">Tulum, Quintana Roo</span>
-        <h3 class="ivm-about-chapter__title">Mi primera <em>boda destino.</em></h3>
-        <p class="ivm-about-chapter__body">Una pareja americana que conocí por accidente en un café de Playa del Carmen. Volaron a casa, luego volaron de regreso seis meses después para la ceremonia. Disparé a 38°C con una segunda cámara prestada.</p>
-      </li>
-      <li class="ivm-about-chapter">
-        <span class="ivm-about-chapter__year">2023</span>
-        <span class="ivm-about-chapter__place">Cancún, México</span>
-        <h3 class="ivm-about-chapter__title">IVAE Studios <em>fundado.</em></h3>
-        <p class="ivm-about-chapter__body">Un estudio con una regla: planeamos la hora, no la locación. Hora dorada, siempre. Bilingüe, siempre. Galerías en tres días, nunca semanas.</p>
-      </li>
-      <li class="ivm-about-chapter">
-        <span class="ivm-about-chapter__year">2026</span>
-        <span class="ivm-about-chapter__place">Tres costas</span>
-        <h3 class="ivm-about-chapter__title">Doce bodas, <em>por cita.</em></h3>
-        <p class="ivm-about-chapter__body">Hoy el estudio reserva doce bodas al año y selecciona algunas familias y comisiones editoriales entre ellas. Cancún sigue siendo casa. Riviera Maya y Los Cabos están en el calendario.</p>
-      </li>
-    </ol>
-  </section>
-
-  <!-- ACT IV — Galería masonry -->
-  <section class="ivm-about-gallery">
-    <header class="ivm-about-gallery__head">
-      <span class="eyebrow">Del archivo</span>
-      <h2>Cuadros a los que <em>vuelvo.</em></h2>
-    </header>
-    <div class="ivm-about-gallery__grid">
-      <figure><img src="/images/wedding-bride-isla-mujeres-ivae-studios-960.jpg" alt="Primer baile bajo string lights" loading="lazy"></figure>
-      <figure><img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Pareja en Mayakoba" loading="lazy"></figure>
-      <figure><img src="/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg" alt="Novios en Cabo" loading="lazy"></figure>
-      <figure><img src="/images/family-cancun-hotel-zone-ivae-studios-960.jpg" alt="Familia de cuatro al atardecer" loading="lazy"></figure>
-      <figure><img src="/images/couple-cancun-hotel-zone-ivae-studios-9-960.jpg" alt="Pareja en rocas de Cancún" loading="lazy"></figure>
-      <figure><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-8-960.jpg" alt="Serenata de mariachi" loading="lazy"></figure>
-      <figure><img src="/images/editorial-cancun-ivae-studios-960.jpg" alt="Cuadro editorial en banco de arena de Cancún" loading="lazy"></figure>
-      <figure><img src="/images/wedding-bride-tulum-ivae-studios-960.jpg" alt="Novia caminando en aisle de playa" loading="lazy"></figure>
+    <div class="ivm-st-atlas__map" aria-hidden="true">
+      <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+        <!-- Simplified Mexico coastline outline -->
+        <path class="ivm-st-atlas__coast" d="
+          M 60 130
+          C 80 110, 110 100, 140 105
+          C 170 110, 195 130, 220 145
+          C 240 150, 260 145, 280 135
+          C 310 125, 340 115, 360 105
+          C 370 100, 375 105, 372 120
+          C 365 145, 355 165, 340 180
+          C 320 195, 295 200, 270 205
+          C 250 210, 235 215, 225 225
+          C 215 235, 215 250, 215 260
+          C 200 255, 180 245, 165 230
+          C 150 215, 140 195, 130 175
+          C 115 160, 95 150, 75 145
+          C 65 142, 58 138, 60 130 Z" />
+        <!-- Cancún (right) -->
+        <circle class="ivm-st-atlas__pin-ring" cx="328" cy="138" r="4"/>
+        <circle class="ivm-st-atlas__pin" cx="328" cy="138" r="4"/>
+        <!-- Riviera Maya (slightly south of Cancún) -->
+        <circle class="ivm-st-atlas__pin-ring" cx="335" cy="162" r="4" style="animation-delay:.6s"/>
+        <circle class="ivm-st-atlas__pin" cx="335" cy="162" r="4" style="animation-delay:.6s"/>
+        <!-- Los Cabos (far left/south) -->
+        <circle class="ivm-st-atlas__pin-ring" cx="92" cy="180" r="4" style="animation-delay:1.2s"/>
+        <circle class="ivm-st-atlas__pin" cx="92" cy="180" r="4" style="animation-delay:1.2s"/>
+      </svg>
+    </div>
+    <div class="ivm-st-atlas__labels">
+      <span>Cabos</span>
+      <span>Cancún</span>
+      <span>Riviera Maya</span>
     </div>
   </section>
 
-  <!-- ACT V — En su voz -->
-  <section class="ivm-about-voice">
-    <header class="ivm-about-voice__head">
-      <span class="eyebrow">En su voz</span>
-      <h2>Tres <em>convicciones.</em></h2>
+  <!-- ACT VI — NÚMEROS 3D flip -->
+  <section class="ivm-st-numbers" aria-labelledby="ivm-st-nums-h">
+    <header class="ivm-st-numbers__head">
+      <span class="eyebrow">En cifras</span>
+      <h2 id="ivm-st-nums-h">Tres años. <em>Doce bodas.</em></h2>
     </header>
-    <div class="ivm-about-voice__track" id="ivmAboutVoice">
-      <div class="ivm-about-voice__slide">
-        <span class="ivm-about-voice__num">I.</span>
-        <p class="ivm-about-voice__quote"><em>Dirigir</em> es callar.</p>
-        <span class="ivm-about-voice__attr">— Vianey, en sesión</span>
+    <div class="ivm-st-numbers__grid" id="ivmStNumbersGrid">
+      <div class="ivm-st-num">
+        <span class="ivm-st-num__val">12</span>
+        <span class="ivm-st-num__lbl">Bodas al año</span>
       </div>
-      <div class="ivm-about-voice__slide">
-        <span class="ivm-about-voice__num">II.</span>
-        <p class="ivm-about-voice__quote">Trabajo la <em>hora</em> en que la luz es honesta.</p>
-        <span class="ivm-about-voice__attr">— Regla №1 del estudio</span>
+      <div class="ivm-st-num">
+        <span class="ivm-st-num__val">500+</span>
+        <span class="ivm-st-num__lbl">Sesiones entregadas</span>
       </div>
-      <div class="ivm-about-voice__slide">
-        <span class="ivm-about-voice__num">III.</span>
-        <p class="ivm-about-voice__quote">Entregamos en <em>tres días</em> porque la espera olvida.</p>
-        <span class="ivm-about-voice__attr">— Regla №2 del estudio</span>
+      <div class="ivm-st-num">
+        <span class="ivm-st-num__val">3</span>
+        <span class="ivm-st-num__lbl">Costas</span>
       </div>
-    </div>
-    <div class="ivm-about-voice__dots" aria-hidden="true">
-      <span class="is-active"></span><span></span><span></span>
+      <div class="ivm-st-num">
+        <span class="ivm-st-num__val">2</span>
+        <span class="ivm-st-num__lbl">Idiomas</span>
+      </div>
     </div>
   </section>
 
-  <!-- ACT VI — CTA personal -->
-  <section class="ivm-about-write">
-    <h2 class="ivm-about-write__opener">Escríbe<em>me.</em></h2>
-    <p class="ivm-about-write__signature">— Vianey</p>
-    <a class="ivm-about-write__email" href="mailto:hello@ivaestudios.com?subject=Una%20nota%20para%20Vianey">hello@ivaestudios.com</a>
-    <span class="ivm-about-write__alt">o <a href="https://wa.me/529902046514?text=Hola%20Vianey" target="_blank" rel="noopener">WhatsApp al estudio</a></span>
+  <!-- ACT VII — VALORES 3D cubo rotando -->
+  <section class="ivm-st-values" aria-label="Valores del estudio">
+    <div class="ivm-st-values__pin">
+      <div class="ivm-st-values__head">
+        <span class="eyebrow">Lo que creemos</span>
+        <h2>Cuatro <em>convicciones.</em></h2>
+      </div>
+      <div class="ivm-st-values__cube" id="ivmStValuesCube">
+        <div class="ivm-st-values__face ivm-st-values__face--front">
+          <span class="v-num">I.</span>
+          <h3 class="v-title">Hora <em>dorada</em>, siempre.</h3>
+          <p class="v-body">Elegimos la luz antes que la locación.</p>
+        </div>
+        <div class="ivm-st-values__face ivm-st-values__face--right">
+          <span class="v-num">II.</span>
+          <h3 class="v-title">Editorial, <em>nunca posada.</em></h3>
+          <p class="v-body">Movimiento, aliento, los momentos intermedios.</p>
+        </div>
+        <div class="ivm-st-values__face ivm-st-values__face--back">
+          <span class="v-num">III.</span>
+          <h3 class="v-title">Bilingüe <em>en el día.</em></h3>
+          <p class="v-body">Español o inglés — tu idioma, el nuestro.</p>
+        </div>
+        <div class="ivm-st-values__face ivm-st-values__face--left">
+          <span class="v-num">IV.</span>
+          <h3 class="v-title">Entrega en <em>tres días.</em></h3>
+          <p class="v-body">Porque la espera olvida.</p>
+        </div>
+      </div>
+      <span class="ivm-st-values__hint">Desliza para rotar ↻</span>
+    </div>
+  </section>
+
+  <!-- ACT VIII — BRAND CTA -->
+  <section class="ivm-st-cta" id="ivm-st-cta">
+    <div class="ivm-st-cta__inner">
+      <span class="ivm-st-cta__eyebrow">Comenzar un brief</span>
+      <h2 class="ivm-st-cta__title">Un estudio <em>por cita.</em></h2>
+      <p class="ivm-st-cta__sub">Bilingüe en el día. Fechas limitadas 2026 / 2027. Respuestas en el mismo día hábil.</p>
+      <a class="ivm-st-cta__btn" href="mailto:hello@ivaestudios.com?subject=Un%20brief%20para%20IVAE%20Studios">Email al estudio →</a>
+      <a class="ivm-st-cta__alt" href="https://wa.me/529902046514?text=Hola%20IVAE%2C%20me%20gustar%C3%ADa%20comenzar%20un%20brief" target="_blank" rel="noopener">o WhatsApp al estudio</a>
+    </div>
   </section>
 
   <!-- FOOTER -->
   <footer class="ivm-act-foot">
     <p class="ivm-act-foot__mark">IVAE <em>Studios</em></p>
-    <p class="ivm-act-foot__tag">Edición No 3 · Vol II · 2026</p>
+    <p class="ivm-act-foot__tag">Un estudio de fotografía editorial</p>
     <div class="ivm-act-foot__links">
       <a href="/es/">Inicio</a>
       <a href="/es/blog">Diario</a>
@@ -1372,27 +1471,94 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
 (function(){
   if (window.matchMedia && !matchMedia('(max-width:899px)').matches) return;
   setTimeout(function(){ document.body.classList.add('ivm-loaded'); }, 3700);
-  var chapters = document.querySelectorAll('#ivmAboutTimeline .ivm-about-chapter');
-  if (chapters.length) {
-    var cio = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if (e.intersectionRatio > 0.4) e.target.classList.add('is-on');
-      });
-    }, {threshold: [0, 0.4, 0.7], rootMargin: '-30% 0% -30% 0%'});
-    chapters.forEach(function(c){ cio.observe(c); });
-  }
-  var voiceTrack = document.getElementById('ivmAboutVoice');
-  var voiceDots = document.querySelectorAll('.ivm-about-voice__dots span');
-  if (voiceTrack && voiceDots.length) {
+
+  /* ── ACT II Manifesto sticky 3D phrase reveal ── */
+  var manSec = document.querySelector('.ivm-st-manifesto');
+  var phrases = document.querySelectorAll('.ivm-st-manifesto__phrase');
+  var manProg = document.querySelectorAll('.ivm-st-manifesto__progress span');
+  if (manSec && phrases.length) {
     var ticking = false;
-    function updateDots() {
+    function update() {
       ticking = false;
-      var idx = Math.round(voiceTrack.scrollLeft / voiceTrack.clientWidth);
-      voiceDots.forEach(function(d, i){ d.classList.toggle('is-active', i === idx); });
+      var rect = manSec.getBoundingClientRect();
+      var total = rect.height - window.innerHeight;
+      var p = Math.max(0, Math.min(1, -rect.top / total));
+      var idx = Math.min(3, Math.floor(p * 4));
+      phrases.forEach(function(ph, i){
+        ph.classList.remove('is-on', 'is-off');
+        if (i === idx) ph.classList.add('is-on');
+        else if (i < idx) ph.classList.add('is-off');
+      });
+      manProg.forEach(function(s, i){ s.classList.toggle('is-on', i <= idx); });
     }
-    voiceTrack.addEventListener('scroll', function(){
-      if (!ticking) { requestAnimationFrame(updateDots); ticking = true; }
+    window.addEventListener('scroll', function(){
+      if (!ticking) { requestAnimationFrame(update); ticking = true; }
     }, {passive: true});
+    update();
+  }
+
+  /* ── ACT III Method deck card stack ── */
+  var methSec = document.querySelector('.ivm-st-method');
+  var cards = document.querySelectorAll('.ivm-st-card');
+  var methProg = document.querySelectorAll('.ivm-st-method__progress span');
+  if (methSec && cards.length) {
+    var ticking2 = false;
+    function update2() {
+      ticking2 = false;
+      var rect = methSec.getBoundingClientRect();
+      var total = rect.height - window.innerHeight;
+      var p = Math.max(0, Math.min(1, -rect.top / total));
+      var activeIdx = Math.min(3, Math.floor(p * 4));
+      cards.forEach(function(card, i){
+        if (i === activeIdx) card.setAttribute('data-pos', 'active');
+        else if (i === activeIdx + 1) card.setAttribute('data-pos', 'next');
+        else if (i === activeIdx - 1) card.setAttribute('data-pos', 'prev');
+        else if (i > activeIdx) card.setAttribute('data-pos', 'deep');
+        else card.setAttribute('data-pos', 'past');
+      });
+      methProg.forEach(function(s, i){ s.classList.toggle('is-on', i === activeIdx); });
+    }
+    cards.forEach(function(card, i){
+      card.setAttribute('data-pos', i === 0 ? 'active' : (i === 1 ? 'next' : 'deep'));
+    });
+    window.addEventListener('scroll', function(){
+      if (!ticking2) { requestAnimationFrame(update2); ticking2 = true; }
+    }, {passive: true});
+    update2();
+  }
+
+  /* ── ACT VI Numbers 3D flip on viewport ── */
+  var nums = document.querySelectorAll('.ivm-st-num');
+  if (nums.length) {
+    var nio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (!e.isIntersecting) return;
+        var idx = [...nums].indexOf(e.target);
+        setTimeout(function(){ e.target.classList.add('is-flipped'); }, idx * 150);
+        nio.unobserve(e.target);
+      });
+    }, {threshold: 0.4});
+    nums.forEach(function(n){ nio.observe(n); });
+  }
+
+  /* ── ACT VII Cube rotating with scroll ── */
+  var valSec = document.querySelector('.ivm-st-values');
+  var cube = document.getElementById('ivmStValuesCube');
+  if (valSec && cube) {
+    var ticking3 = false;
+    function updateCube() {
+      ticking3 = false;
+      var rect = valSec.getBoundingClientRect();
+      var total = rect.height - window.innerHeight;
+      var p = Math.max(0, Math.min(1, -rect.top / total));
+      var rotY = p * 360;
+      var rotX = -20 + Math.sin(p * Math.PI * 2) * 5;
+      cube.style.transform = 'rotateX(' + rotX + 'deg) rotateY(' + rotY + 'deg)';
+    }
+    window.addEventListener('scroll', function(){
+      if (!ticking3) { requestAnimationFrame(updateCube); ticking3 = true; }
+    }, {passive: true});
+    updateCube();
   }
 })();
 </script>

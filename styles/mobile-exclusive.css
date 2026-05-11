@@ -799,8 +799,852 @@
   }
 
   /* ════════════════════════════════════════════════════════════════
-     ABOUT EXCLUSIVE — "The Folio" magazine-spread design
-     Completely different from home's photo-first scrollytelling.
+     ABOUT — "IVAE The Studio"
+     Brand-first about page with heavy 3D scroll effects.
+     Vianey is mentioned as founder, but the subject is THE STUDIO.
+     ════════════════════════════════════════════════════════════════ */
+
+  /* ── ACT I — Hero "IVAE" 3D parallax letters ──────────────── */
+  .ivm-st-hero {
+    position: relative;
+    min-height: 100svh;
+    background: var(--ivm-ink);
+    color: var(--ivm-cream);
+    overflow: hidden;
+    perspective: 1400px;
+    perspective-origin: 50% 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: calc(72px + env(safe-area-inset-top, 0px)) 16px 80px;
+  }
+  .ivm-st-hero__bg {
+    position: absolute;
+    inset: -10%;
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(201,165,78,.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 80%, rgba(201,165,78,.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .ivm-st-hero__motes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .ivm-st-hero__motes span {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: var(--ivm-gold);
+    border-radius: 50%;
+    opacity: 0;
+    animation: ivmMoteFloat 6s ease-in-out infinite;
+  }
+  .ivm-st-hero__motes span:nth-child(1){left:8%;top:22%;animation-delay:.0s}
+  .ivm-st-hero__motes span:nth-child(2){left:78%;top:18%;animation-delay:1.2s}
+  .ivm-st-hero__motes span:nth-child(3){left:22%;top:74%;animation-delay:2.4s}
+  .ivm-st-hero__motes span:nth-child(4){left:64%;top:64%;animation-delay:3.0s}
+  .ivm-st-hero__motes span:nth-child(5){left:42%;top:38%;animation-delay:4.2s}
+  @keyframes ivmMoteFloat {
+    0%,100% { opacity: 0; transform: translateY(0) scale(.7); }
+    50% { opacity: .9; transform: translateY(-12px) scale(1.2); }
+  }
+  .ivm-st-hero__eyebrow {
+    position: relative;
+    z-index: 2;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--ivm-gold);
+    margin-bottom: 28px;
+    opacity: 0;
+    animation: ivmFadeIn 0.8s var(--ivm-ease) 2s forwards;
+  }
+  .ivm-st-hero__letters {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    gap: 0;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    margin-bottom: 12px;
+  }
+  .ivm-st-hero__letters span {
+    display: inline-block;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(86px, 28vw, 160px);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    color: var(--ivm-cream);
+    opacity: 0;
+    transform: translateY(80px) rotateX(60deg) translateZ(-200px);
+    animation: ivmLetter3D 1.2s var(--ivm-ease) forwards;
+    will-change: transform, opacity;
+  }
+  .ivm-st-hero__letters span:nth-child(1){ animation-delay: 1.6s; }
+  .ivm-st-hero__letters span:nth-child(2){ animation-delay: 1.78s; }
+  .ivm-st-hero__letters span:nth-child(3){ animation-delay: 1.96s; }
+  .ivm-st-hero__letters span:nth-child(4){ animation-delay: 2.14s; color: var(--ivm-gold); }
+  @keyframes ivmLetter3D {
+    to { opacity: 1; transform: translateY(0) rotateX(0) translateZ(0); }
+  }
+  .ivm-st-hero__sub {
+    position: relative;
+    z-index: 2;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 22px;
+    color: rgba(250,248,245,.7);
+    text-align: center;
+    margin: 32px 0 0;
+    opacity: 0;
+    animation: ivmFadeIn 0.8s var(--ivm-ease) 3s forwards;
+  }
+  .ivm-st-hero__sub em { color: var(--ivm-gold); font-style: italic; }
+  .ivm-st-hero__meta {
+    position: relative;
+    z-index: 2;
+    margin-top: 48px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'Syne', sans-serif;
+    font-size: 9.5px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: rgba(250,248,245,.5);
+    opacity: 0;
+    animation: ivmFadeIn 0.8s var(--ivm-ease) 3.4s forwards;
+  }
+  .ivm-st-hero__meta span + span::before {
+    content: '·';
+    margin-right: 14px;
+    color: var(--ivm-gold);
+  }
+  .ivm-st-hero__scroll {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: rgba(250,248,245,.5);
+    opacity: 0;
+    animation: ivmFadeIn 0.6s var(--ivm-ease) 3.8s forwards;
+  }
+  .ivm-st-hero__scroll::before {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 28px;
+    margin: 0 auto 12px;
+    background: linear-gradient(180deg, transparent, var(--ivm-gold));
+    animation: ivmScrollPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes ivmFadeIn { to { opacity: 1; } }
+
+  /* ── ACT II — Manifesto: sticky 3D phrase reveal ─────────── */
+  .ivm-st-manifesto {
+    position: relative;
+    height: 400vh;
+    background: var(--ivm-ink);
+  }
+  .ivm-st-manifesto__pin {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    perspective: 1200px;
+  }
+  .ivm-st-manifesto__stage {
+    position: relative;
+    text-align: center;
+    padding: 0 24px;
+    transform-style: preserve-3d;
+  }
+  .ivm-st-manifesto__phrase {
+    display: block;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(44px, 13vw, 68px);
+    line-height: 1.04;
+    color: var(--ivm-cream);
+    letter-spacing: -0.018em;
+    margin: 0;
+    opacity: 0;
+    transform: rotateX(80deg) translateZ(-100px);
+    transition: opacity 1.2s var(--ivm-ease), transform 1.4s var(--ivm-ease);
+    will-change: opacity, transform;
+    position: absolute;
+    inset: 50% 0 auto 0;
+    transform-origin: center bottom;
+    width: 100%;
+    padding: 0 24px;
+  }
+  .ivm-st-manifesto__phrase em {
+    font-style: italic;
+    color: var(--ivm-gold);
+  }
+  .ivm-st-manifesto__phrase.is-on {
+    opacity: 1;
+    transform: rotateX(0) translateZ(0) translateY(-50%);
+  }
+  .ivm-st-manifesto__phrase.is-off {
+    opacity: 0;
+    transform: rotateX(-80deg) translateZ(-100px) translateY(-50%);
+  }
+  .ivm-st-manifesto__bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 50%, rgba(201,165,78,.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .ivm-st-manifesto__progress {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 2;
+  }
+  .ivm-st-manifesto__progress span {
+    width: 24px;
+    height: 1px;
+    background: rgba(250,248,245,.2);
+    overflow: hidden;
+    position: relative;
+  }
+  .ivm-st-manifesto__progress span::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--ivm-gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s var(--ivm-ease);
+  }
+  .ivm-st-manifesto__progress span.is-on::after { transform: scaleX(1); }
+
+  /* ── ACT III — The Method: 3D card stack fan-out ─────────── */
+  .ivm-st-method {
+    position: relative;
+    height: 500vh;
+    background: var(--ivm-ink-2);
+  }
+  .ivm-st-method__pin {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    perspective: 1500px;
+    padding: 0 16px;
+  }
+  .ivm-st-method__head {
+    position: absolute;
+    top: 8vh;
+    left: 0; right: 0;
+    text-align: center;
+    z-index: 10;
+    padding: 22px 24px 16px;
+    background: linear-gradient(180deg,
+      rgba(16,22,30,.92) 0%,
+      rgba(16,22,30,.8) 60%,
+      rgba(16,22,30,0) 100%);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    pointer-events: none;
+  }
+  .ivm-st-method__head .eyebrow {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--ivm-gold);
+    margin-bottom: 8px;
+  }
+  .ivm-st-method__head h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(24px, 7vw, 32px);
+    line-height: 1.1;
+    color: var(--ivm-cream);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .ivm-st-method__head em {
+    font-style: italic;
+    color: var(--ivm-gold);
+  }
+  .ivm-st-method__deck {
+    position: relative;
+    width: 80vw;
+    max-width: 320px;
+    height: 60svh;
+    max-height: 460px;
+    transform-style: preserve-3d;
+    margin-top: 14vh;
+  }
+  .ivm-st-card {
+    position: absolute;
+    inset: 0;
+    background: var(--ivm-cream);
+    color: var(--ivm-ink);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 22px;
+    overflow: hidden;
+    box-shadow:
+      0 28px 64px rgba(0,0,0,.5),
+      0 12px 24px rgba(0,0,0,.32),
+      inset 0 0 0 1px rgba(201,165,78,.18);
+    transition: transform 0.7s var(--ivm-ease), opacity 0.6s var(--ivm-ease);
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+  }
+  .ivm-st-card__num {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 48px;
+    color: var(--ivm-gold-2);
+    line-height: 1;
+    margin-bottom: 12px;
+    opacity: 0.6;
+  }
+  .ivm-st-card__title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: 28px;
+    line-height: 1.1;
+    color: var(--ivm-ink);
+    margin: 0 0 14px;
+  }
+  .ivm-st-card__title em { color: var(--ivm-gold-2); font-style: italic; }
+  .ivm-st-card__body {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    line-height: 1.5;
+    color: rgba(10,15,23,.7);
+    margin: 0;
+    flex: 1;
+  }
+  .ivm-st-card__tag {
+    margin-top: auto;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--ivm-gold-2);
+    padding-top: 18px;
+    border-top: 1px solid rgba(201,165,78,.2);
+  }
+  /* Deck positions controlled via data-pos */
+  .ivm-st-card[data-pos="deep"]   { transform: translateY(40vh) translateZ(-200px) rotateX(20deg); opacity: 0; z-index: 1; }
+  .ivm-st-card[data-pos="next"]   { transform: translateY(8vh) translateZ(-60px) rotateX(6deg) scale(0.92); opacity: 0.6; z-index: 2; }
+  .ivm-st-card[data-pos="active"] { transform: translateY(0) translateZ(0) rotateX(0) scale(1); opacity: 1; z-index: 4; }
+  .ivm-st-card[data-pos="prev"]   { transform: translateY(-12vh) translateZ(-80px) rotateX(-10deg) scale(0.88); opacity: 0.3; z-index: 3; }
+  .ivm-st-card[data-pos="past"]   { transform: translateY(-40vh) translateZ(-200px) rotateX(-20deg); opacity: 0; z-index: 0; }
+
+  .ivm-st-method__progress {
+    position: absolute;
+    bottom: 10vh;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+  }
+  .ivm-st-method__progress span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(250,248,245,.18);
+    transition: background 0.4s var(--ivm-ease), width 0.4s var(--ivm-ease);
+  }
+  .ivm-st-method__progress span.is-on {
+    width: 28px;
+    border-radius: 4px;
+    background: var(--ivm-gold);
+  }
+
+  /* ── ACT IV — Founder: Vianey mentioned as Founder ─────────── */
+  .ivm-st-founder {
+    position: relative;
+    background: var(--ivm-paper);
+    color: var(--ivm-ink);
+    padding: 96px 24px 80px;
+    overflow: hidden;
+  }
+  .ivm-st-founder__eyebrow {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--ivm-gold-2);
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .ivm-st-founder h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(28px, 8vw, 38px);
+    line-height: 1.05;
+    color: var(--ivm-ink);
+    margin: 0 0 40px;
+    text-align: center;
+  }
+  .ivm-st-founder h2 em {
+    font-style: italic;
+    color: var(--ivm-gold-2);
+  }
+  .ivm-st-founder__wall {
+    position: relative;
+    min-height: 360px;
+    perspective: 1000px;
+    margin: 32px auto 32px;
+    max-width: 360px;
+  }
+  .ivm-st-founder__pola {
+    position: absolute;
+    background: white;
+    padding: 10px 10px 26px;
+    box-shadow:
+      0 18px 36px rgba(10,15,23,.20),
+      0 4px 10px rgba(10,15,23,.10);
+    will-change: transform;
+  }
+  .ivm-st-founder__pola img {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    display: block;
+    filter: saturate(0.92);
+  }
+  .ivm-st-founder__pola figcaption {
+    position: absolute;
+    bottom: 4px;
+    left: 10px;
+    right: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 8px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(10,15,23,.55);
+    text-align: center;
+  }
+  .ivm-st-founder__pola--1 {
+    top: 12px;
+    left: 8px;
+    width: 56%;
+    transform: rotate(-5deg);
+  }
+  .ivm-st-founder__pola--2 {
+    top: 60px;
+    right: 4px;
+    width: 50%;
+    transform: rotate(4deg);
+  }
+  .ivm-st-founder__pola--3 {
+    bottom: 28px;
+    left: 18%;
+    width: 60%;
+    transform: rotate(-2deg);
+  }
+  .ivm-st-founder__body {
+    text-align: center;
+    max-width: 36ch;
+    margin: 0 auto;
+  }
+  .ivm-st-founder__body p {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 17px;
+    line-height: 1.55;
+    color: rgba(10,15,23,.72);
+    margin: 0;
+  }
+  .ivm-st-founder__body p + p { margin-top: 16px; }
+  .ivm-st-founder__body em {
+    font-style: italic;
+    color: var(--ivm-gold-2);
+  }
+  .ivm-st-founder__sign {
+    margin-top: 32px;
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--ivm-gold-2);
+  }
+
+  /* ── ACT V — Atlas: SVG Mexico with pulsing markers ────────── */
+  .ivm-st-atlas {
+    position: relative;
+    background: var(--ivm-ink);
+    color: var(--ivm-cream);
+    padding: 96px 16px 80px;
+    overflow: hidden;
+    text-align: center;
+  }
+  .ivm-st-atlas__head {
+    margin-bottom: 32px;
+  }
+  .ivm-st-atlas__eyebrow {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--ivm-gold);
+    margin-bottom: 12px;
+  }
+  .ivm-st-atlas__head h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(28px, 8vw, 38px);
+    line-height: 1.05;
+    color: var(--ivm-cream);
+    margin: 0;
+  }
+  .ivm-st-atlas__head em { font-style: italic; color: var(--ivm-gold); }
+  .ivm-st-atlas__map {
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto 32px;
+    aspect-ratio: 4/3;
+    position: relative;
+  }
+  .ivm-st-atlas__map svg {
+    width: 100%; height: 100%;
+    overflow: visible;
+  }
+  .ivm-st-atlas__coast {
+    fill: none;
+    stroke: var(--ivm-gold);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.45;
+    stroke-dasharray: 2000;
+    stroke-dashoffset: 2000;
+    animation: ivmCoastDraw 3s var(--ivm-ease) forwards;
+  }
+  @keyframes ivmCoastDraw {
+    to { stroke-dashoffset: 0; }
+  }
+  .ivm-st-atlas__pin {
+    fill: var(--ivm-gold);
+    transform-origin: center;
+    animation: ivmPinPulse 2.4s ease-in-out infinite;
+  }
+  .ivm-st-atlas__pin-ring {
+    fill: none;
+    stroke: var(--ivm-gold);
+    stroke-width: 1;
+    opacity: 0;
+    animation: ivmPinRing 2.4s ease-out infinite;
+  }
+  @keyframes ivmPinPulse {
+    0%,100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.8; }
+  }
+  @keyframes ivmPinRing {
+    0% { r: 4; opacity: 0.8; }
+    100% { r: 22; opacity: 0; }
+  }
+  .ivm-st-atlas__labels {
+    display: flex;
+    justify-content: space-around;
+    gap: 12px;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ivm-gold);
+    margin-top: 12px;
+  }
+
+  /* ── ACT VI — Numbers with 3D flip ──────────────────────── */
+  .ivm-st-numbers {
+    position: relative;
+    background: var(--ivm-ink-2);
+    color: var(--ivm-cream);
+    padding: 96px 16px 80px;
+    overflow: hidden;
+  }
+  .ivm-st-numbers__head {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .ivm-st-numbers__head .eyebrow {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--ivm-gold);
+    margin-bottom: 12px;
+  }
+  .ivm-st-numbers__head h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(28px, 8vw, 38px);
+    color: var(--ivm-cream);
+    margin: 0;
+  }
+  .ivm-st-numbers__head em { font-style: italic; color: var(--ivm-gold); }
+  .ivm-st-numbers__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: rgba(201,165,78,.22);
+    border: 1px solid rgba(201,165,78,.22);
+    max-width: 380px;
+    margin: 0 auto;
+    perspective: 600px;
+  }
+  .ivm-st-num {
+    background: var(--ivm-ink-2);
+    padding: 36px 14px;
+    text-align: center;
+    transform-style: preserve-3d;
+    transform: rotateX(-90deg);
+    opacity: 0;
+    transition: transform 0.9s var(--ivm-ease), opacity 0.7s var(--ivm-ease);
+    will-change: transform, opacity;
+  }
+  .ivm-st-num.is-flipped {
+    transform: rotateX(0);
+    opacity: 1;
+  }
+  .ivm-st-num__val {
+    display: block;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(40px, 11vw, 56px);
+    line-height: 1;
+    color: var(--ivm-gold);
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .ivm-st-num__lbl {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(250,248,245,.6);
+    line-height: 1.4;
+  }
+
+  /* ── ACT VII — Values 3D cube rotating ──────────────────── */
+  .ivm-st-values {
+    position: relative;
+    height: 350vh;
+    background: var(--ivm-ink);
+  }
+  .ivm-st-values__pin {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    perspective: 1000px;
+  }
+  .ivm-st-values__head {
+    position: absolute;
+    top: 12vh;
+    left: 0; right: 0;
+    text-align: center;
+    padding: 0 24px;
+    z-index: 5;
+  }
+  .ivm-st-values__head .eyebrow {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--ivm-gold);
+    margin-bottom: 12px;
+  }
+  .ivm-st-values__head h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(24px, 7vw, 32px);
+    color: var(--ivm-cream);
+    margin: 0;
+  }
+  .ivm-st-values__head em { font-style: italic; color: var(--ivm-gold); }
+  .ivm-st-values__cube {
+    width: min(220px, 60vw);
+    height: min(220px, 60vw);
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(-20deg) rotateY(0deg);
+    transition: transform 0.4s ease-out;
+    will-change: transform;
+  }
+  .ivm-st-values__face {
+    position: absolute;
+    inset: 0;
+    background: rgba(201,165,78,.06);
+    border: 1px solid rgba(201,165,78,.32);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+  }
+  .ivm-st-values__face .v-num {
+    font-style: italic;
+    font-size: 28px;
+    color: var(--ivm-gold);
+    margin-bottom: 10px;
+    line-height: 1;
+  }
+  .ivm-st-values__face .v-title {
+    font-size: 22px;
+    color: var(--ivm-cream);
+    font-weight: 400;
+    line-height: 1.15;
+    margin: 0 0 10px;
+  }
+  .ivm-st-values__face .v-title em { font-style: italic; color: var(--ivm-gold); }
+  .ivm-st-values__face .v-body {
+    font-style: italic;
+    font-size: 14px;
+    color: rgba(250,248,245,.7);
+    line-height: 1.4;
+    margin: 0;
+  }
+  .ivm-st-values__face--front  { transform: rotateY(0deg)   translateZ(calc(min(110px, 30vw))); }
+  .ivm-st-values__face--right  { transform: rotateY(90deg)  translateZ(calc(min(110px, 30vw))); }
+  .ivm-st-values__face--back   { transform: rotateY(180deg) translateZ(calc(min(110px, 30vw))); }
+  .ivm-st-values__face--left   { transform: rotateY(-90deg) translateZ(calc(min(110px, 30vw))); }
+  .ivm-st-values__hint {
+    position: absolute;
+    bottom: 10vh;
+    left: 0; right: 0;
+    text-align: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: rgba(250,248,245,.4);
+  }
+
+  /* ── ACT VIII — CTA Brand-focused ───────────────────────── */
+  .ivm-st-cta {
+    position: relative;
+    background: var(--ivm-gold);
+    color: var(--ivm-ink);
+    padding: 120px 32px;
+    text-align: center;
+    overflow: hidden;
+  }
+  .ivm-st-cta::before {
+    content: '';
+    position: absolute;
+    inset: -20%;
+    background: radial-gradient(ellipse at 30% 30%, rgba(255,255,255,.18), transparent 50%);
+    pointer-events: none;
+  }
+  .ivm-st-cta__inner {
+    position: relative;
+    z-index: 2;
+    max-width: 380px;
+    margin: 0 auto;
+  }
+  .ivm-st-cta__eyebrow {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--ivm-ink);
+    opacity: 0.7;
+    margin-bottom: 20px;
+  }
+  .ivm-st-cta__title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(40px, 11vw, 56px);
+    line-height: 1;
+    color: var(--ivm-ink);
+    margin: 0 0 20px;
+    letter-spacing: -0.018em;
+  }
+  .ivm-st-cta__title em { font-style: italic; }
+  .ivm-st-cta__sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: rgba(14,22,32,.78);
+    line-height: 1.5;
+    margin: 0 0 40px;
+  }
+  .ivm-st-cta__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 240px;
+    height: 64px;
+    padding: 0 28px;
+    background: var(--ivm-ink);
+    color: var(--ivm-cream);
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    text-decoration: none;
+    box-shadow: 0 16px 40px -10px rgba(10,15,23,.45);
+    transition: transform 0.18s var(--ivm-ease-back);
+  }
+  .ivm-st-cta__btn:active { transform: scale(0.97); }
+  .ivm-st-cta__alt {
+    display: block;
+    margin-top: 22px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--ivm-ink);
+    text-decoration: underline;
+    text-decoration-color: rgba(14,22,32,.4);
+    text-underline-offset: 4px;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     ABOUT EXCLUSIVE — "The Folio" magazine-spread design (LEGACY)
      ════════════════════════════════════════════════════════════════ */
 
   /* ── ACT I — Typographic Masthead (no full-bleed hero photo) ─── */
