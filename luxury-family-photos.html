@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Cancún Family Photographer | Resort Portraits | IVAE Studios</title>
 <meta name="description" content="Luxury Cancún family photographer. Golden hour resort portraits, beach sessions, up to 10 people. Styling guide included. Editorial galleries in 1-3 days. Book now."/>
 <link rel="canonical" href="https://ivaestudios.com/luxury-family-photos-cancun"/>
@@ -69,7 +69,8 @@
 <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png"/>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 <link rel="manifest" href="/site.webmanifest"/>
-<meta name="theme-color" content="#0c1219"/>
+<meta name="theme-color" content="#0c1219" media="(prefers-color-scheme: dark)"/>
+<meta name="theme-color" content="#c9a54e"/>
 <link rel="preload" as="image" fetchpriority="high" href="/images/family-cancun-hotel-zone-ivae-studios.jpg">
 <style>
 /* ═══════════════════════════════════════════════════════════════
@@ -479,6 +480,204 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
 <link rel="stylesheet" href="/styles/lw-tablet.css?v=20260510x"/>
 <link rel="stylesheet" href="/styles/lw-mobile-anim.css?v=20260510x"/>
 <script src="/js/lw-mobile-anim.js?v=20260510x" defer></script>
+<script defer>
+/* ═══ Mobile carousel dots & ready flag (≤900px) ═══ */
+(function(){
+  'use strict';
+  if (window.matchMedia && !window.matchMedia('(max-width: 900px)').matches) return;
+  function ready(fn){ if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', fn); else fn(); }
+  ready(function(){
+    document.body.classList.add('is-mobile-anim-ready');
+    function buildDots(track, dotsHost){
+      if (!track || !dotsHost) return;
+      var items = track.children;
+      if (!items || items.length<2) return;
+      dotsHost.innerHTML = '';
+      for (var i=0;i<items.length;i++){
+        var s = document.createElement('span');
+        if (i===0) s.className='is-active';
+        dotsHost.appendChild(s);
+      }
+      var dots = dotsHost.children;
+      var current = 0;
+      track.addEventListener('scroll', function(){
+        var w = track.clientWidth;
+        var idx = Math.round(track.scrollLeft / Math.max(1, w*0.78));
+        idx = Math.max(0, Math.min(items.length-1, idx));
+        if (idx===current) return;
+        if (dots[current]) dots[current].classList.remove('is-active');
+        if (dots[idx]) dots[idx].classList.add('is-active');
+        current = idx;
+      }, { passive:true });
+    }
+    var pillarsTrack = document.querySelector('.lf-pillars-list');
+    var pillarsDots  = document.querySelector('[data-pillars-dots]');
+    buildDots(pillarsTrack, pillarsDots);
+    var platesTrack  = document.querySelector('[data-plates-reel]');
+    var platesDots   = document.querySelector('[data-plates-dots]');
+    buildDots(platesTrack, platesDots);
+  });
+})();
+</script>
+
+<!-- ═══════ MOBILE EDITORIAL ENHANCEMENTS (≤560/768/900px) ═══════
+     Pillars carousel · plates reel · hero meta stack · sticky inquiry CTA ·
+     full-screen testimonial · native FAQ · safe-area insets · 44px touch. -->
+<style>
+@media (max-width:768px){
+  html{scroll-padding-top:64px}
+
+  /* ── 1. HERO meta-strip stacked as gold-rule rows ─────────── */
+  .lf-meta-strip{
+    flex-direction:column !important;align-items:stretch !important;gap:0 !important;
+    padding:0 18px !important;
+    background:rgba(10,15,23,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border-top:1px solid rgba(201,165,78,.22)
+  }
+  .lf-meta-strip .lf-stat{
+    flex:1 1 auto;width:100%;display:flex;align-items:baseline;justify-content:space-between;
+    padding:14px 0;border-top:1px solid rgba(201,165,78,.16)
+  }
+  .lf-meta-strip .lf-stat:first-child{border-top:none}
+  .lf-meta-strip .lf-stat-num{font-size:18px}
+  .lf-meta-strip .lf-stat-label{font-size:9.5px;letter-spacing:.28em;text-align:right;color:rgba(201,165,78,.78)}
+  .lf-hero .hero-h1{font-size:clamp(34px,9vw,52px) !important;line-height:1.04 !important;letter-spacing:-.022em}
+
+  /* ── 2. PILLARS list as horizontal carousel on mobile ─────── */
+  .lf-pillars-grid{display:block !important;padding:0 !important}
+  .lf-pillars-stage{padding:48px 22px 24px !important}
+  .lf-pillars-h2{font-size:clamp(28px,7vw,40px) !important;line-height:1.06}
+  .lf-pillars-list{
+    display:flex !important;flex-direction:row !important;gap:0 !important;
+    overflow-x:auto;overflow-y:hidden;
+    scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+    scroll-padding-inline:22px;padding:8px 22px 22px !important;
+    scrollbar-width:none;
+    list-style:none;margin:0
+  }
+  .lf-pillars-list::-webkit-scrollbar{display:none}
+  .lf-pillars-list .lf-pillar{
+    flex:0 0 86%;max-width:380px;scroll-snap-align:center;margin-right:14px;
+    padding:28px 22px !important;background:rgba(255,255,255,.02);
+    border:1px solid rgba(201,165,78,.18);border-top:1px solid rgba(201,165,78,.45) !important;
+    min-height:300px
+  }
+  .lf-pillars-list .lf-pillar:last-child{margin-right:22px}
+  .lf-pillars-list .lf-pillar-name{font-size:clamp(22px,5.6vw,30px) !important;line-height:1.1}
+  .lf-pillars-list .lf-pillar-body{font-size:15px;line-height:1.55}
+  .pillars-dots{display:flex;gap:8px;justify-content:center;padding:6px 0 22px}
+  .pillars-dots span{display:block;width:6px;height:6px;border-radius:50%;background:rgba(201,165,78,.28);transition:background .35s,transform .35s}
+  .pillars-dots span.is-active{background:#c9a54e;transform:scale(1.45)}
+
+  /* ── 3. BODY OF WORK plates as full-bleed reel ────────────── */
+  .lw-work{padding:64px 0 48px !important}
+  .lw-work-head{padding:0 22px !important;margin-bottom:36px !important}
+  .lw-work-h{font-size:clamp(30px,8vw,44px) !important;line-height:1.04 !important}
+  .lw-work[data-mobile-reel="1"] .lw-plate-reel{
+    display:flex;flex-direction:row;gap:0;
+    overflow-x:auto;overflow-y:hidden;
+    scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+    scroll-padding-inline:22px;
+    padding:0 22px 28px;
+    scrollbar-width:none
+  }
+  .lw-work[data-mobile-reel="1"] .lw-plate-reel::-webkit-scrollbar{display:none}
+  .lw-work[data-mobile-reel="1"] .lw-plate{
+    flex:0 0 88%;max-width:420px;padding:0 !important;margin:0 12px 0 0;scroll-snap-align:center
+  }
+  .lw-work[data-mobile-reel="1"] .lw-plate:last-child{margin-right:22px}
+  .lw-work[data-mobile-reel="1"] .lw-plate-frame{aspect-ratio:4/5 !important}
+  .lw-work[data-mobile-reel="1"] .lw-plate-caption{padding:16px 0 0 !important;margin-top:14px !important;max-width:none !important}
+  .lw-work[data-mobile-reel="1"] .lw-plate-loc{font-size:9.5px;letter-spacing:.24em}
+  .lw-work[data-mobile-reel="1"] .lw-plate-body{font-size:15px;line-height:1.5}
+  .lw-work-dots{display:flex;gap:8px;justify-content:center;padding:2px 0 8px}
+  .lw-work-dots span{display:block;width:6px;height:6px;border-radius:50%;background:rgba(201,165,78,.28);transition:background .35s,transform .35s}
+  .lw-work-dots span.is-active{background:#c9a54e;transform:scale(1.45)}
+
+  /* ── 4. APPROACH / V·D portrait — flowing single column ───── */
+  .lw-approach-inner{gap:36px !important}
+  .lw-approach-portrait{width:100% !important;max-width:none !important;aspect-ratio:3/4 !important;height:auto !important;min-height:55vh}
+  .lw-approach-portrait::before{inset:10px}
+  .lw-approach-text{padding:0 4px}
+  .lw-approach-eyebrow{font-size:9.5px;letter-spacing:.36em;text-align:center;display:block}
+  .lw-approach-h{text-align:center;margin-bottom:24px !important}
+  .lw-approach-body{font-size:17px;line-height:1.6;text-align:left}
+  .lw-approach-quote{font-size:22px !important;margin:24px 0 !important;padding-left:18px !important;text-align:left}
+  .lw-approach-sig{text-align:right}
+  .lw-approach-portrait::after{
+    content:"";position:absolute;left:50%;bottom:-22px;transform:translateX(-50%);
+    width:1px;height:36px;
+    background:linear-gradient(to bottom,#c9a54e,transparent);
+    pointer-events:none
+  }
+
+  /* ── 5. TESTIMONIAL — full-screen pause ───────────────────── */
+  .lw-test{
+    min-height:100svh !important;
+    padding:72px 24px 96px !important;
+    display:flex !important;flex-direction:column;justify-content:space-between
+  }
+  .lw-test-quote{margin:auto 0 !important;padding:0 4px}
+  .lw-test-quote p{font-size:clamp(24px,7vw,36px) !important;line-height:1.22 !important}
+  .lw-test-glyph{font-size:96px !important;top:-44px !important}
+  .lw-test-attr{padding-top:24px !important;flex-wrap:wrap;justify-content:center}
+  .lw-test-name{font-size:10.5px !important}
+
+  /* ── 6. INQUIRY — sticky-pin "Begin Inquiry" button ───────── */
+  .lw-inq2{
+    min-height:calc(100svh - 72px) !important;
+    padding:80px 22px calc(112px + env(safe-area-inset-bottom,0px)) !important
+  }
+  .lw-inq2-h{font-size:clamp(30px,8vw,42px) !important;line-height:1.08 !important;margin-bottom:20px !important}
+  .lw-inq2-body{font-size:16px !important;line-height:1.55 !important;margin-bottom:28px !important}
+  .lw-inq2-btn{
+    position:sticky;bottom:calc(20px + env(safe-area-inset-bottom,0px));
+    width:auto;align-self:center;min-height:54px;
+    box-shadow:0 12px 32px -8px rgba(0,0,0,.55),0 0 0 1px rgba(201,165,78,.6) inset;
+    background:#c9a54e;color:#0a0f17
+  }
+  .lw-inq2-btn:active{transform:scale(.98)}
+  .lw-inq2-sub{font-size:13px !important;margin-top:18px !important}
+  .lw-inq2-seal{margin-top:32px !important}
+
+  /* ── 7. FAQ on mobile — lighter, breathing room, rotating chevron ── */
+  .lw-section.faq{padding:48px 0 80px !important}
+  .lw-section.faq .lw-inner{padding:0 22px !important}
+  .lw-section.faq h2{font-size:clamp(26px,6.8vw,34px) !important;margin-bottom:24px !important}
+  .lw-section.faq .faq-list{margin-top:24px}
+  .lw-section.faq .faq-item{padding:4px 0}
+  .lw-section.faq .faq-trigger{padding:18px 4px !important;min-height:54px}
+  .lw-section.faq .faq-q{font-size:15px !important;line-height:1.42 !important}
+  .lw-section.faq .faq-icon{width:26px;height:26px;transition:transform .4s cubic-bezier(.22,.61,.36,1),border-color .4s ease}
+  .lw-section.faq .faq-item.open .faq-icon{transform:rotate(180deg);border-color:#c9a54e;background:rgba(201,165,78,.08)}
+  .lw-section.faq .faq-answer p{font-size:14.5px !important;line-height:1.65 !important;padding-bottom:22px !important}
+
+  /* ── ensure all interactive controls hit 44px ─────────────── */
+  .lw-btn,.lc-btn,.lf-hero-ctas a.btn,.le-hero-cta-wrap a,
+  .h-cta,.faq-trigger{min-height:44px}
+}
+
+@media (max-width:560px){
+  .lf-hero-content{padding-bottom:120px}
+  .lf-meta-strip .lf-stat-label{font-size:9px;letter-spacing:.26em}
+  .lf-pillars-list .lf-pillar{flex-basis:90%}
+  .lw-work[data-mobile-reel="1"] .lw-plate{flex-basis:90%}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .lf-pillars-list,.lw-plate-reel{scroll-behavior:auto}
+  .lw-approach-portrait::after{animation:none}
+}
+
+body.is-mobile-anim-ready .lw-approach-portrait::after{
+  opacity:.7;
+  animation:lfArrowCue 2.4s cubic-bezier(.22,.61,.36,1) infinite
+}
+@keyframes lfArrowCue{
+  0%,100%{transform:translateX(-50%) translateY(0);opacity:.7}
+  50%{transform:translateX(-50%) translateY(6px);opacity:1}
+}
+</style>
 </head>
 <body>
 <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -536,8 +735,8 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
 <!-- ═══════════════════════════════════════════════════════════════
      SECTION 2 — HERO (h1 cascade, motes, parallax, magnetic CTA, count-up)
      ═══════════════════════════════════════════════════════════════ -->
-<section class="lf-hero" id="hero" aria-labelledby="hero-h1">
-  <div class="lf-hero-bg" id="lfHeroBg" aria-hidden="true">
+<section class="lf-hero" id="hero" data-chapter="1" data-theme-color="#0a0f17" data-hero aria-labelledby="hero-h1">
+  <div class="lf-hero-bg" id="lfHeroBg" data-anim="ken-burns" aria-hidden="true">
     <img class="lf-hero-img" src="/images/family-cancun-hotel-zone-ivae-studios.jpg" alt="" loading="eager" fetchpriority="high" decoding="async" width="2400" height="1350">
     <div class="lf-hero-overlay"></div>
   </div>
@@ -587,7 +786,7 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
 <!-- ═══════════════════════════════════════════════════════════════
      SECTION 3 — PILLARS (sticky-stage manifesto + 3 pillars)
      ═══════════════════════════════════════════════════════════════ -->
-<section class="lf-pillars" id="pillars" aria-labelledby="pillars-heading">
+<section class="lf-pillars" id="pillars" data-chapter="2" data-theme-color="#0a0f17" aria-labelledby="pillars-heading">
   <div class="lf-pillars-grid">
     <div class="lf-pillars-stage">
       <p class="eyebrow rv">The Studio</p>
@@ -617,6 +816,7 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
       </li>
     </ol>
   </div>
+  <div class="pillars-dots" data-pillars-dots aria-hidden="true"></div>
 </section>
 
 
@@ -717,14 +917,14 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
 </style>
 
 <!-- ═══════ EDITORIAL PAUSE ═══════ -->
-<section class="lw-pause" aria-label="A note from the studio">
+<section class="lw-pause" data-chapter="3" data-theme-color="#0a0f17" aria-label="A note from the studio">
   <picture class="lw-pause-img"><img src="/images/family-cancun-hotel-zone-ivae-studios.jpg" alt="" loading="lazy" decoding="async"/></picture>
   <span class="lw-pause-veil" aria-hidden="true"></span>
   <p class="lw-pause-line">An afternoon. <em>The photographs are decades.</em></p>
 </section>
 
 <!-- ═══════ THE APPROACH ═══════ -->
-<section class="lw-approach" id="director" aria-labelledby="approach-h">
+<section class="lw-approach" data-chapter="4" data-theme-color="#faf8f5" id="director" aria-labelledby="approach-h">
   <div class="lw-approach-inner">
     <figure class="lw-approach-portrait">
       <div class="lw-approach-monogram" role="img" aria-label="V·D monogram for Vianey Díaz, Director, IVAE Studios"><span class="lw-monogram-letter">V</span><span class="lw-monogram-dot" aria-hidden="true">·</span><span class="lw-monogram-letter">D</span></div>
@@ -742,12 +942,13 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
 </section>
 
 <!-- ═══════ THE BODY OF WORK ═══════ -->
-<section class="lw-work" aria-labelledby="work-h">
+<section class="lw-work" data-chapter="5" data-theme-color="#0a0f17" data-mobile-reel="1" aria-labelledby="work-h">
   <header class="lw-work-head">
     <span class="lw-work-eyebrow">Recent Work</span>
-    <h2 id="work-h" class="lw-work-h">Four families, <em>four afternoons.</em></h2>
+    <h2 id="work-h" class="lw-work-h section-title">Four families, <em>four afternoons.</em></h2>
   </header>
 
+  <div class="lw-plate-reel" data-plates-reel>
   <article class="lw-plate">
     <figure class="lw-plate-frame"><img src="/images/family-kids-cancun-beach-ivae-studios.jpg" alt="Three generations of a family with six children on Playa Delfines beach in Cancún at golden hour, the youngest seeing the ocean for the first time" loading="lazy" width="2400" height="1600"/></figure>
     <div class="lw-plate-caption">
@@ -779,12 +980,14 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
       <p class="lw-plate-body">The grandparents had never been photographed with all of their grandchildren in one frame. The sand was warm. Nobody noticed the time.</p>
     </div>
   </article>
+  </div>
+  <div class="lw-work-dots" data-plates-dots aria-hidden="true"></div>
 
 </section>
 
 <!-- ═══════ ONE TESTIMONIAL ═══════ -->
-<section class="lw-test" aria-label="A note from a past client">
-  <blockquote class="lw-test-quote">
+<section class="lw-test" data-chapter="6" data-theme-color="#0d1219" aria-label="A note from a past client">
+  <blockquote class="lw-test-quote pull-quote">
     <span class="lw-test-glyph" aria-hidden="true">&ldquo;</span>
     <p>Our kids do not love the camera. By minute ten of the session, they had forgotten there was one. <em>Every photograph looks like a moment, not a pose.</em></p>
   </blockquote>
@@ -798,7 +1001,7 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
 </section>
 
 <!-- ═══════ INQUIRY ═══════ -->
-<section class="lw-inq2" id="inquiry" aria-labelledby="inq-h">
+<section class="lw-inq2" data-chapter="7" data-theme-color="#c9a54e" id="inquiry" aria-labelledby="inq-h">
   <picture class="lw-inq2-bg" aria-hidden="true"><img src="/images/family-kids-cancun-hotel-zone-ivae-studios-2.jpg" alt="" loading="lazy"/></picture>
   <span class="lw-inq2-veil" aria-hidden="true"></span>
   <div class="lw-inq2-content">
@@ -812,7 +1015,7 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
 </section>
 
 <!-- ═══════ FAQ ═══════ -->
-<section class="lw-section faq" id="faq" aria-labelledby="faq-h">
+<section class="lw-section faq" data-chapter="8" data-theme-color="#0a0f17" id="faq" aria-labelledby="faq-h">
   <div class="lw-inner faq-inner">
     <span class="lw-section-eyebrow">Considered Questions</span>
     <h2 id="faq-h" class="lw-rv">The questions clients ask <em>most often.</em></h2>
