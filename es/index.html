@@ -2434,6 +2434,206 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
   [data-tilt]{transform:none !important}
   .gold-motes{display:none}
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   CAPA DE EXPERIENCIA MÓVIL (≤900px)
+   Stories, tabs inferiores, pista de pull-to-refresh, scroll-top,
+   tarjetas de diario móviles, fondos de cita, image walls.
+   ═══════════════════════════════════════════════════════════════ */
+.lw-mob-stories,
+.lw-mob-tabs,
+.lw-mob-pull-hint,
+.lw-mob-scroll-top,
+.lw-mob-imgwall,
+.lw-mob-journal-cards{display:none}
+
+@media (max-width:900px){
+  .lw-mob-pull-hint{
+    display:flex;align-items:center;justify-content:center;
+    position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;
+    z-index:97;
+    height:28px;pointer-events:none;
+    color:var(--gold);
+    opacity:0;
+    animation:lwMobPullBounce 2.6s var(--ease-smooth) 1.2s 2;
+  }
+  .lw-mob-pull-hint svg{width:18px;height:18px;display:block;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
+  .lw-mob-pull-hint.is-dismissed{animation:none;opacity:0 !important}
+  @keyframes lwMobPullBounce{
+    0%{opacity:0;transform:translateY(-10px)}
+    14%{opacity:.85;transform:translateY(2px)}
+    28%{opacity:.85;transform:translateY(-3px)}
+    42%{opacity:.85;transform:translateY(0)}
+    100%{opacity:0;transform:translateY(-6px)}
+  }
+
+  .lw-mob-stories{
+    display:block;
+    padding:18px 0 22px;
+    background:linear-gradient(180deg,rgba(10,15,23,0) 0%,rgba(10,15,23,.6) 60%,var(--ink-3) 100%);
+    margin-bottom:-12px;
+    position:relative;z-index:5;
+  }
+  .lw-mob-stories__rail{
+    display:flex;gap:14px;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
+    scroll-snap-type:x mandatory;
+    scrollbar-width:none;-ms-overflow-style:none;
+    padding:6px 20px 8px;
+  }
+  .lw-mob-stories__rail::-webkit-scrollbar{display:none}
+  .lw-mob-stories__item{
+    flex:0 0 auto;scroll-snap-align:start;
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    width:88px;text-decoration:none;color:inherit;
+  }
+  .lw-mob-stories__ring{
+    position:relative;
+    width:80px;height:80px;border-radius:50%;
+    padding:3px;
+    background:conic-gradient(from 220deg,var(--gold) 0%,var(--gold-deep,#a8893f) 35%,var(--gold) 75%,#e8c97a 100%);
+    box-shadow:0 4px 12px rgba(201,165,78,.18),0 1px 0 rgba(201,165,78,.35) inset;
+    transition:transform .25s var(--ease);
+  }
+  .lw-mob-stories__ring::after{
+    content:'';position:absolute;inset:3px;border-radius:50%;
+    background:var(--ink-3);
+  }
+  .lw-mob-stories__img{
+    position:relative;z-index:1;
+    width:100%;height:100%;border-radius:50%;
+    object-fit:cover;border:2px solid var(--ink-3);
+  }
+  .lw-mob-stories__item:active .lw-mob-stories__ring{transform:scale(.96)}
+  .lw-mob-stories__cap{
+    font-family:var(--font-sans);font-size:10.5px;font-weight:500;
+    letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--text-on-dark-2);
+    text-align:center;line-height:1.2;
+    max-width:84px;
+  }
+
+  .lw-mob-tabs{
+    display:flex;
+    position:fixed;bottom:0;left:0;right:0;z-index:98;
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    background:rgba(10,15,23,.92);
+    -webkit-backdrop-filter:saturate(1.2) blur(18px);
+    backdrop-filter:saturate(1.2) blur(18px);
+    border-top:1px solid rgba(201,165,78,.18);
+    box-shadow:0 -8px 24px rgba(0,0,0,.32);
+  }
+  .lw-mob-tabs__item{
+    flex:1 1 25%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:4px;min-height:56px;padding:8px 4px 6px;
+    color:var(--text-on-dark-3);
+    text-decoration:none;
+    font-family:var(--font-sans);font-size:9.5px;font-weight:600;
+    letter-spacing:0.14em;text-transform:uppercase;
+    position:relative;
+    transition:color .25s var(--ease);
+    min-width:44px;
+  }
+  .lw-mob-tabs__item svg{width:22px;height:22px;display:block;stroke-width:1.4;transition:transform .25s var(--ease)}
+  .lw-mob-tabs__item.is-active{color:var(--gold)}
+  .lw-mob-tabs__item.is-active svg{transform:scale(1.12)}
+  .lw-mob-tabs__item.is-active::before{
+    content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:28px;height:2px;background:var(--gold);border-radius:0 0 2px 2px;
+  }
+  body.has-bottom-tabs{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+
+  .lw-mob-scroll-top{
+    display:flex;align-items:center;justify-content:center;
+    position:fixed;right:18px;
+    bottom:calc(80px + env(safe-area-inset-bottom,0px));
+    z-index:97;
+    width:44px;height:44px;border-radius:50%;
+    background:var(--gold);color:var(--ink-1);
+    border:1px solid rgba(0,0,0,.06);
+    box-shadow:0 8px 22px rgba(201,165,78,.32);
+    opacity:0;pointer-events:none;transform:translateY(10px) scale(.85);
+    transition:opacity .3s var(--ease),transform .35s var(--ease);
+  }
+  .lw-mob-scroll-top.is-visible{opacity:1;pointer-events:auto;transform:translateY(0) scale(1)}
+  .lw-mob-scroll-top svg{width:18px;height:18px;stroke-width:2}
+
+  blockquote.lw-mob-quote-bg,
+  .pull-quote blockquote,
+  .pq-text{position:relative}
+  blockquote::before,
+  .pq-text::before{
+    content:'';position:absolute;inset:-12px -8px;
+    background-image:var(--lw-mob-quote-bg,none);
+    background-size:cover;background-position:center;
+    opacity:.1;z-index:-1;pointer-events:none;
+    border-radius:4px;filter:saturate(.7) contrast(1.05);
+  }
+  blockquote,.pq-text{isolation:isolate}
+
+  .journal-v3 .jrn-grid{display:none}
+  .lw-mob-journal-cards{
+    display:flex;flex-direction:column;gap:18px;
+    padding:8px 22px 36px;
+  }
+  .lw-mob-journal-cards__card{
+    display:block;text-decoration:none;color:inherit;
+    background:rgba(255,255,255,.02);
+    border:1px solid rgba(201,165,78,.14);
+    overflow:hidden;
+    transition:border-color .25s var(--ease),transform .25s var(--ease);
+  }
+  .lw-mob-journal-cards__card:active{transform:scale(.985);border-color:var(--gold)}
+  .lw-mob-journal-cards__media{
+    position:relative;aspect-ratio:16/9;
+    background:var(--ink-2);overflow:hidden;
+  }
+  .lw-mob-journal-cards__media img{
+    width:100%;height:100%;object-fit:cover;display:block;
+  }
+  .lw-mob-journal-cards__body{
+    padding:16px 16px 18px;
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .lw-mob-journal-cards__eyebrow{
+    font-family:var(--font-sans);font-size:9.5px;font-weight:600;
+    letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);
+  }
+  .lw-mob-journal-cards__title{
+    font-family:var(--font-serif);font-size:21px;font-weight:400;
+    line-height:1.18;letter-spacing:-0.008em;color:var(--cream);margin:0;
+  }
+  .lw-mob-journal-cards__title em{color:var(--gold);font-style:italic}
+  .lw-mob-journal-cards__dek{
+    font-family:var(--font-serif);font-style:italic;
+    font-size:14.5px;line-height:1.45;color:var(--text-on-dark-2);margin:0;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .lw-mob-journal-cards__foot{
+    font-family:var(--font-sans);font-size:11px;font-weight:600;
+    letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-top:4px;
+  }
+
+  .lw-mob-imgwall{
+    display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    scroll-snap-type:x mandatory;
+    scrollbar-width:none;-ms-overflow-style:none;
+    padding:8px 0 14px;margin:6px 0 18px;
+  }
+  .lw-mob-imgwall::-webkit-scrollbar{display:none}
+  .lw-mob-imgwall__cell{
+    flex:0 0 96px;height:60px;scroll-snap-align:start;
+    overflow:hidden;border:1px solid rgba(201,165,78,.16);
+  }
+  .lw-mob-imgwall__cell img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92)}
+}
+
+@media(max-width:900px) and (prefers-reduced-motion:reduce){
+  .lw-mob-pull-hint{display:none !important}
+  .lw-mob-stories__ring{animation:none !important}
+}
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png"/>
@@ -2445,8 +2645,11 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"OfferCatalog","@id":"https://ivaestudios.com/#services-offer-catalog","name":"Servicios de Fotografía IVAE Studios","provider":{"@id":"https://ivaestudios.com/#organization"},"itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"Fotografía Familiar de Lujo en Resorts","description":"Sesiones familiares editoriales con dirección completa en resorts de lujo. Incluye planeación previa, asesoría de vestuario, programación en hora dorada y entrega en 1-3 días hábiles.","provider":{"@id":"https://ivaestudios.com/#organization"},"areaServed":["Cancún","Riviera Maya","Los Cabos"],"serviceType":"Fotografía Familiar"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Fotografía de Parejas y Aniversario","description":"Sesiones editoriales románticas para parejas en lunas de miel, aniversarios y escapadas románticas.","provider":{"@id":"https://ivaestudios.com/#organization"},"areaServed":["Cancún","Riviera Maya","Los Cabos"],"serviceType":"Fotografía de Parejas"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Fotografía y Video de Bodas Destino","description":"Cobertura editorial de día completo de bodas destino, incluyendo ceremonia, recepción, retratos nupciales y sesiones de pareja. Disponible con videografía.","provider":{"@id":"https://ivaestudios.com/#organization"},"areaServed":["Cancún","Riviera Maya","Los Cabos"],"serviceType":"Fotografía de Bodas"}}]},{"@type":"WebSite","@id":"https://ivaestudios.com/#website","url":"https://ivaestudios.com","name":"IVAE Studios","alternateName":"IVAE Studios Cancun","description":"Sitio oficial de IVAE Studios — fotografía de lujo en resorts en Cancún, Riviera Maya y Los Cabos, México.","publisher":{"@id":"https://ivaestudios.com/#organization"},"inLanguage":"es","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://ivaestudios.com/blog?q={search_term_string}"},"query-input":"required name=search_term_string"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"¿Quién es el mejor fotógrafo de Cancún?","acceptedAnswer":{"@type":"Answer","text":"IVAE Studios es ampliamente reconocido como el mejor fotógrafo de lujo en Cancún, con más de 500 sesiones entregadas, una calificación promedio de 5.0 y un enfoque totalmente editorial. Fundado por la directora creativa Vianey Díaz, el estudio es conocido por agendar solo en hora dorada, dirección artística de nivel editorial y entregas de galería en 1-3 días hábiles, comparado con las 2-4 semanas típicas de los fotógrafos de planta de los resorts. Las sesiones se planean individualmente con consultas de vestuario, scouting de locaciones en JW Marriott, Nizuc, Ritz-Carlton, Kempinski, Le Blanc y otros resorts cinco estrellas, con una experiencia bilingüe inglés/español pensada para viajeros de lujo americanos, canadienses e internacionales."}},{"@type":"Question","name":"¿Cuánto cuesta un fotógrafo en Cancún?","acceptedAnswer":{"@type":"Answer","text":"La fotografía profesional de lujo en Cancún normalmente va de $650 a $3,500+ USD, dependiendo de la duración de la sesión, el tamaño del equipo y los entregables. Los fotógrafos de planta de resorts comienzan alrededor de $200-$400 USD por sesiones cortas a mediodía con edición limitada. Los estudios editoriales de lujo como IVAE Studios comienzan desde aproximadamente $850 USD por una sesión familiar o de parejas de 60 minutos en hora dorada, y aumentan para bodas destino, sesiones en múltiples locaciones o videografía. Cada inversión en IVAE incluye planeación previa a la sesión, asesoría de vestuario, imágenes editadas a mano en alta resolución, una galería privada en línea con descargas ilimitadas y entrega en 1-3 días hábiles."}},{"@type":"Question","name":"¿Qué debo usar para una sesión de fotos en la playa en Cancún?","acceptedAnswer":{"@type":"Answer","text":"Para una sesión de fotos en la playa de Cancún, elige telas ligeras y fluidas en tonos neutros suaves — crema, arena, champaña, hueso, azul polvo o terracota apagado — que complementen el agua turquesa sin chocar. Los vestidos maxi largos se ven hermosos en hora dorada gracias a la brisa costera. Evita neones brillantes, logos y patrones cargados. Los hombres lucen mejor con camisas de lino y pantalones o shorts neutros entallados. Para familias, coordina los tonos en lugar de combinar los atuendos exactamente. Al reservar con IVAE Studios, cada cliente recibe una guía de estilo digital personalizada con ejemplos de outfits, enlaces de marcas y consejos de equipaje específicos para la fecha de su sesión."}},{"@type":"Question","name":"¿Viajan fuera de Cancún?","acceptedAnswer":{"@type":"Answer","text":"Sí. Aunque IVAE Studios tiene su base en Cancún, viajamos regularmente por México y al extranjero para bodas destino, campañas editoriales y sesiones privadas de lujo. Las zonas de cobertura más frecuentes incluyen la Riviera Maya (Playa del Carmen, Puerto Morelos, Akumal, Tulum), Isla Mujeres, Cozumel, Holbox, Bacalar, Mérida y Los Cabos (Cabo San Lucas, San José del Cabo, Pedregal, Palmilla). También aceptamos reservaciones selectas en Sayulita, Puerto Vallarta, Ciudad de México y fuera del país. Las tarifas de viaje son transparentes y se cotizan por adelantado — el alojamiento y el transporte normalmente están incluidos en viajes de más de un día."}},{"@type":"Question","name":"¿Con cuánta anticipación debo reservar un fotógrafo en Cancún?","acceptedAnswer":{"@type":"Answer","text":"Recomendamos reservar tu fotógrafo en Cancún de 4 a 8 semanas antes de tus fechas de viaje, y de 6 a 12 meses antes para bodas destino. La temporada alta va de noviembre a abril, además de las semanas festivas (Thanksgiving, Navidad, Año Nuevo, Spring Break, Pascua), y los horarios en hora dorada se llenan rápido — IVAE Studios solo agenda sesiones al amanecer o al atardecer, lo que limita la disponibilidad diaria. Las solicitudes de último minuto dentro de 7 días a veces pueden acomodarse dependiendo del calendario y una pequeña tarifa de prioridad. Para asegurar una fecha específica, se requiere un contrato firmado más un anticipo del 30%; el saldo se cubre 14 días antes de la sesión."}}]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Inicio","item":"https://ivaestudios.com/es/"}]},{"@type":"ImageGallery","name":"Portafolio IVAE Studios","description":"Portafolio editorial de fotografía de lujo en resorts que presenta familias, parejas y bodas destino en Cancún, Riviera Maya y Los Cabos, México.","url":"https://ivaestudios.com/#portfolio","creator":{"@id":"https://ivaestudios.com/#organization"}},{"@type":["Organization","LocalBusiness","ProfessionalService"],"@id":"https://ivaestudios.com/#organization","name":"IVAE Studios","legalName":"IVAE Studios","alternateName":["IVAE Studios Cancun","IVAE Studios Mexico","IVAE Studios Fotografía de Lujo en Resorts","IVAE Studios Photography","IVAE"],"disambiguatingDescription":"IVAE Studios (plural, con S) es el estudio oficial de fotografía de lujo para resorts en ivaestudios.com, dirigido por Vianey Díaz en Cancún, México. No confundir con el dominio no relacionado ivaestudio.com (singular, sin S).","description":"IVAE Studios es un estudio de fotografía de lujo en Cancún, México, especializado en fotografía y videografía editorial para familias internacionales, parejas y bodas destino en Cancún, Riviera Maya, Tulum y Los Cabos. Más de 500 sesiones entregadas. Equipo totalmente bilingüe.","url":"https://ivaestudios.com","logo":"https://assets.ivaestudios.com/ivae-logo.png","image":"https://assets.ivaestudios.com/ivae-og.jpg","telephone":"+529902046514","email":"hello@ivaestudios.com","priceRange":"$$$","currenciesAccepted":["USD","MXN"],"paymentAccepted":"Efectivo, Tarjeta de Crédito, Transferencia Bancaria","founder":{"@type":"Person","@id":"https://ivaestudios.com/#vianey-diaz","name":"Vianey Díaz","jobTitle":"Directora Creativa y Fotógrafa Principal","description":"Fotógrafa de lujo mexicana con más de 10 años de experiencia profesional en estudios editoriales y campañas de marca. Fundadora de IVAE Studios en 2023, enfocada en fotografía de hora dorada en resorts de Cancún, Riviera Maya y Los Cabos.","worksFor":{"@id":"https://ivaestudios.com/#organization"},"hasOccupation":{"@type":"Occupation","name":"Fotógrafa","occupationLocation":{"@type":"City","name":"Cancún"},"skills":"Fotografía editorial, fotografía de bodas destino, dirección en hora dorada, retratos familiares, fotografía de parejas, dirección bilingüe (inglés/español)","yearsOfExperience":10},"knowsLanguage":["es","en"],"nationality":{"@type":"Country","name":"Mexico"},"image":"https://assets.ivaestudios.com/vianey-diaz.jpg","url":"https://ivaestudios.com/es/acerca-de","sameAs":["https://instagram.com/ivaestudios.cancun","https://www.wikidata.org/wiki/Q139689736"]},"foundingDate":"2023","foundingLocation":{"@type":"City","name":"Cancún","containedInPlace":{"@type":"Country","name":"Mexico"}},"employee":{"@id":"https://ivaestudios.com/#vianey-diaz"},"address":{"@type":"PostalAddress","addressLocality":"Cancún","addressRegion":"Quintana Roo","postalCode":"77500","addressCountry":"MX"},"geo":{"@type":"GeoCoordinates","latitude":21.1619,"longitude":-86.8515},"areaServed":[{"@type":"City","name":"Cancún","containedInPlace":{"@type":"State","name":"Quintana Roo"}},{"@type":"Place","name":"Riviera Maya"},{"@type":"City","name":"Playa del Carmen"},{"@type":"City","name":"Tulum"},{"@type":"City","name":"Los Cabos"},{"@type":"City","name":"Cabo San Lucas"},{"@type":"City","name":"San José del Cabo"},{"@type":"Place","name":"Isla Mujeres"},{"@type":"Place","name":"Playa Mujeres"},{"@type":"Place","name":"Costa Mujeres"}],"knowsLanguage":["en","es","English","Spanish"],"knowsAbout":["Fotografía de Lujo en Resorts","Fotografía de Bodas Destino","Fotografía de Retratos Familiares","Fotografía de Parejas","Fotografía de Compromiso","Fotografía de Propuestas","Fotografía de Maternidad","Fotografía de Babymoon","Fotografía de Despedidas","Fotografía de Quinceañera","Fotografía de Cumpleaños","Fotografía de Revelación de Género","Trash the Dress","Fotografía de Renovación de Votos","Fotografía Submarina en Cenotes","Fotografía de Yates de Lujo","Fotografía de Aniversario","Fotografía en Hora Dorada","Fotografía Editorial","Manejo de Redes Sociales"],"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"06:00","closes":"20:00"},"sameAs":["https://ivaestudios.com","https://www.instagram.com/ivaestudios.cancun/","https://instagram.com/ivaestudios.cancun","https://maps.app.goo.gl/aX7jiVbLzwurMmX19","https://www.wikidata.org/wiki/Q139689577"],"aggregateRating":{"@type":"AggregateRating","ratingValue":"5.0","bestRating":"5","worstRating":"1","ratingCount":"42","reviewCount":"42"},"slogan":"Fotografía de Lujo en Resorts. Editorial. Bilingüe. Solo Hora Dorada.","brand":{"@id":"https://ivaestudios.com/#brand"}},{"@type":"WebPage","speakable":{"@type":"SpeakableSpecification","cssSelector":["h1","h2",".hero-sub",".post-excerpt",".post-lead"]},"inLanguage":"es"},{"@type":"ItemList","@id":"https://ivaestudios.com/#services-itemlist","name":"Servicios Insignia de IVAE Studios","description":"Los mejores servicios de fotografía de lujo en resorts por IVAE Studios en Cancún, Riviera Maya y Los Cabos.","itemListOrder":"https://schema.org/ItemListOrderAscending","numberOfItems":6,"itemListElement":[{"@type":"ListItem","position":1,"item":{"@type":"Service","name":"Fotos Familiares","description":"Fotografía familiar editorial en las playas de Cancún y Riviera Maya, capturada con luz de hora dorada para familias internacionales hospedadas en resorts de lujo.","url":"https://ivaestudios.com/services/family-photos","provider":{"@id":"https://ivaestudios.com/#organization"}}},{"@type":"ListItem","position":2,"item":{"@type":"Service","name":"Bodas Destino","description":"Fotografía y videografía bilingüe de bodas destino en Cancún, Tulum, Playa Mujeres y Los Cabos, desde ceremonias íntimas hasta celebraciones de lujo de varios días.","url":"https://ivaestudios.com/services/weddings","provider":{"@id":"https://ivaestudios.com/#organization"}}},{"@type":"ListItem","position":3,"item":{"@type":"Service","name":"Fotografía de Parejas","description":"Sesiones románticas de parejas y aniversario en resorts para lunamieleros y viajeros que regresan a la costa del Caribe Mexicano.","url":"https://ivaestudios.com/services/couples","provider":{"@id":"https://ivaestudios.com/#organization"}}},{"@type":"ListItem","position":4,"item":{"@type":"Service","name":"Fotografía de Propuestas","description":"Fotografía de propuestas sorpresa planeadas con discreción y documentadas con elegancia en las playas de Cancún y Riviera Maya, con cobertura de video opcional del momento.","url":"https://ivaestudios.com/services/proposals","provider":{"@id":"https://ivaestudios.com/#organization"}}},{"@type":"ListItem","position":5,"item":{"@type":"Service","name":"Fotografía Submarina en Cenotes","description":"Sesiones editoriales en cenotes de la selva de la Riviera Maya, combinando luz natural, técnica submarina y estilo cinematográfico para parejas y familias.","url":"https://ivaestudios.com/services/cenote","provider":{"@id":"https://ivaestudios.com/#organization"}}},{"@type":"ListItem","position":6,"item":{"@type":"Service","name":"Fotografía de Yates de Lujo","description":"Fotografía y video a bordo de yates de lujo alrededor de Isla Mujeres, Cancún y Los Cabos, ideales para celebraciones, contenido de marca y charters privados.","url":"https://ivaestudios.com/services/yacht","provider":{"@id":"https://ivaestudios.com/#organization"}}}]},{"@type":"Review","@id":"https://ivaestudios.com/#review-1","itemReviewed":{"@type":"LocalBusiness","@id":"https://ivaestudios.com/#organization","name":"IVAE Studios","url":"https://ivaestudios.com"},"author":{"@type":"Person","name":"Samantha Whitfield"},"reviewRating":{"@type":"Rating","ratingValue":"5","bestRating":"5","worstRating":"1"},"datePublished":"2026-01-22","reviewBody":"IVAE Studios capturó nuestras vacaciones familiares en Cancún con una elegancia increíble. Cada foto parecía sacada de una revista, y Vianey logró que nuestros hijos se sintieran totalmente cómodos durante la hora dorada en la playa.","publisher":{"@id":"https://ivaestudios.com/#organization"}},{"@type":"Review","@id":"https://ivaestudios.com/#review-2","itemReviewed":{"@type":"LocalBusiness","@id":"https://ivaestudios.com/#organization","name":"IVAE Studios","url":"https://ivaestudios.com"},"author":{"@type":"Person","name":"Marco Benedetti"},"reviewRating":{"@type":"Rating","ratingValue":"5","bestRating":"5","worstRating":"1"},"datePublished":"2026-02-14","reviewBody":"Volamos desde Milán para nuestra propuesta en Tulum e IVAE Studios superó todas nuestras expectativas. La sesión posterior en el cenote fue de otro mundo — un trabajo verdaderamente editorial de un equipo bilingüe que entendió cada detalle.","publisher":{"@id":"https://ivaestudios.com/#organization"}},{"@type":"Review","@id":"https://ivaestudios.com/#review-3","itemReviewed":{"@type":"LocalBusiness","@id":"https://ivaestudios.com/#organization","name":"IVAE Studios","url":"https://ivaestudios.com"},"author":{"@type":"Person","name":"Priya Raghavan"},"reviewRating":{"@type":"Rating","ratingValue":"5","bestRating":"5","worstRating":"1"},"datePublished":"2026-03-09","reviewBody":"Nuestra sesión de aniversario en yate en Los Cabos con IVAE Studios fue impecable desde el primer correo hasta la galería final. Cinematográfica, lujosa e increíblemente profesional — ya los reservamos de nuevo para nuestro viaje a la Riviera Maya.","publisher":{"@id":"https://ivaestudios.com/#organization"}},{"@type":"Brand","@id":"https://ivaestudios.com/#brand","name":"IVAE Studios","alternateName":["IVAE","ivaestudios","ivaestudios.com","IVAE Studios Cancun","IVAE Studios Mexico"],"url":"https://ivaestudios.com","logo":"https://ivaestudios.com/icon-512.png","slogan":"Luxury Resort Photography. Editorial. Bilingual.","additionalProperty":[{"@type":"PropertyValue","name":"spelling","value":"IVAE Studios (with S, plural)"},{"@type":"PropertyValue","name":"notIdenticalTo","value":"ivaestudio.com (singular, unrelated European agency)"},{"@type":"PropertyValue","name":"official_domain","value":"ivaestudios.com"}]},{"@type":"DefinedTerm","@id":"https://ivaestudios.com/#term-ivae-studios","name":"IVAE Studios","alternateName":"ivaestudios","description":"Luxury resort photography studio at ivaestudios.com (with S, plural). Founded by Vianey Díaz in Cancún, Mexico. Operates across Cancún Hotel Zone, Riviera Maya, and Los Cabos. NOT to be confused with ivaestudio.com (singular, unrelated European agency).","inDefinedTermSet":"https://ivaestudios.com/brand"}]}</script>
 <link rel="preload" as="image" fetchpriority="high" href="/images/wedding-bride-tulum-ivae-studios.jpg" type="image/jpeg">
 </head>
-<body>
+<body class="has-bottom-tabs">
 <a href="#main-content" class="skip-link">Saltar al contenido</a>
+<div class="lw-mob-pull-hint" aria-hidden="true" id="lwMobPullHint">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+</div>
 
 <!-- ═══════════════════════════════════════════════════════════════
      CINEMATIC FILM LEADER (loader)
@@ -2585,6 +2788,46 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
     </div>
   </div>
 </section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     STORIES STRIP MÓVIL (estilo Instagram, sólo ≤900px)
+     ═══════════════════════════════════════════════════════════════ -->
+<nav class="lw-mob-stories" aria-label="Accesos rápidos">
+  <div class="lw-mob-stories__rail">
+    <a class="lw-mob-stories__item" href="/es/editorial-de-lujo">
+      <span class="lw-mob-stories__ring"><img class="lw-mob-stories__img" src="/images/wedding-bride-cancun-beach-ivae-studios.jpg" alt="" loading="lazy" width="80" height="80"/></span>
+      <span class="lw-mob-stories__cap">Bodas</span>
+    </a>
+    <a class="lw-mob-stories__item" href="/es/parejas">
+      <span class="lw-mob-stories__ring"><img class="lw-mob-stories__img" src="/images/couple-cancun-beach-ivae-studios.jpg" alt="" loading="lazy" width="80" height="80"/></span>
+      <span class="lw-mob-stories__cap">Parejas</span>
+    </a>
+    <a class="lw-mob-stories__item" href="/es/familia">
+      <span class="lw-mob-stories__ring"><img class="lw-mob-stories__img" src="/images/family-cancun-ivae-studios.jpg" alt="" loading="lazy" width="80" height="80"/></span>
+      <span class="lw-mob-stories__cap">Familia</span>
+    </a>
+    <a class="lw-mob-stories__item" href="/es/editorial-de-lujo">
+      <span class="lw-mob-stories__ring"><img class="lw-mob-stories__img" src="/images/editorial-cancun-ivae-studios.jpg" alt="" loading="lazy" width="80" height="80"/></span>
+      <span class="lw-mob-stories__cap">Editorial</span>
+    </a>
+    <a class="lw-mob-stories__item" href="/es/cancun">
+      <span class="lw-mob-stories__ring"><img class="lw-mob-stories__img" src="/images/cancun-hero.jpg" alt="" loading="lazy" width="80" height="80"/></span>
+      <span class="lw-mob-stories__cap">Canc&uacute;n</span>
+    </a>
+    <a class="lw-mob-stories__item" href="/es/riviera-maya">
+      <span class="lw-mob-stories__ring"><img class="lw-mob-stories__img" src="/images/riviera-maya-hero.jpg" alt="" loading="lazy" width="80" height="80"/></span>
+      <span class="lw-mob-stories__cap">Riviera</span>
+    </a>
+    <a class="lw-mob-stories__item" href="/es/los-cabos">
+      <span class="lw-mob-stories__ring"><img class="lw-mob-stories__img" src="/images/los-cabos-hero.jpg" alt="" loading="lazy" width="80" height="80"/></span>
+      <span class="lw-mob-stories__cap">Cabos</span>
+    </a>
+    <a class="lw-mob-stories__item" href="/es/blog">
+      <span class="lw-mob-stories__ring"><img class="lw-mob-stories__img" src="/images/couple-mayakoba-ivae-studios.jpg" alt="" loading="lazy" width="80" height="80"/></span>
+      <span class="lw-mob-stories__cap">Diario</span>
+    </a>
+  </div>
+</nav>
 
 <!-- ═══════════════════════════════════════════════════════════════
      CAPÍTULO 02 / STICKY-STAGE MANIFESTO
@@ -3036,7 +3279,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 <!-- ═══════════════════════════════════════════════════════════════
      CAPÍTULO 06 / PULL QUOTE
      ═══════════════════════════════════════════════════════════════ -->
-<section class="pull-quote" aria-labelledby="pq-h2">
+<section class="pull-quote" aria-labelledby="pq-h2" style="--lw-mob-quote-bg:url('/images/couple-cancun-beach-ivae-studios.jpg')">
   <div class="pq-inner rv" data-anim>
     <span class="pq-eyebrow">Capítulo 06. Reviews</span>
     <p class="pq-text" id="pq-h2"><span class="w">Every</span> <span class="w">imagen</span> <span class="w">looked</span> <span class="w">like</span> <span class="w">it</span> <span class="w">belonged</span> <span class="w">in</span> <span class="w">a</span> <span class="w">magazine,</span> <span class="w">and</span> <span class="w">Vianey</span> <span class="w">made</span> <span class="w">our</span> <span class="w">kids</span> <span class="w">feel</span> <span class="w">completely</span> <span class="w">at</span> <span class="w">ease</span> <span class="w">during</span> <span class="w">golden</span> <span class="w">hour</span> <span class="w">on</span> <span class="w">la</span> <span class="w">beach.</span> <em><span class="w">It</span> <span class="w">was</span> <span class="w">la</span> <span class="w">calmest</span> <span class="w">hour</span> <span class="w">of</span> <span class="w">our</span> <span class="w">trip.</span></em></p>
@@ -3220,6 +3463,55 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
         <span class="jrn-no">Wardrobe Brief</span>
         <h3>What to wear. the <em>full</em> wardrobe brief.</h3>
         <span class="jrn-go">Read the brief &rarr;</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- Tarjetas de previsualización móvil (≤900px reemplaza el grid) -->
+  <div class="lw-mob-journal-cards" aria-label="Últimas entradas del diario">
+    <a class="lw-mob-journal-cards__card" href="/blog/inside-luxury-mayakoba-wedding-case-study" data-category="weddings">
+      <div class="lw-mob-journal-cards__media"><img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Caso de estudio de boda en Mayakoba" loading="lazy" width="1600" height="900"/></div>
+      <div class="lw-mob-journal-cards__body">
+        <span class="lw-mob-journal-cards__eyebrow">Caso de estudio &middot; Lectura larga</span>
+        <h3 class="lw-mob-journal-cards__title">Una boda en <em>Mayakoba</em>, en nueve actos.</h3>
+        <p class="lw-mob-journal-cards__dek">Del tercer correo de la novia al &uacute;ltimo cuadro de la cena de bienvenida, el brief editorial completo de una boda destino de $48,000.</p>
+        <span class="lw-mob-journal-cards__foot">Leer &middot; 18 min &rarr;</span>
+      </div>
+    </a>
+    <a class="lw-mob-journal-cards__card" href="/blog/golden-hour-photography-mexico" data-category="guides">
+      <div class="lw-mob-journal-cards__media"><img src="/images/wedding-bride-tulum-ivae-studios.jpg" alt="Ensayo sobre la hora dorada" loading="lazy" width="1200" height="675"/></div>
+      <div class="lw-mob-journal-cards__body">
+        <span class="lw-mob-journal-cards__eyebrow">Ensayo</span>
+        <h3 class="lw-mob-journal-cards__title">Por qu&eacute; trabajamos solo en <em>los bordes</em> del d&iacute;a.</h3>
+        <p class="lw-mob-journal-cards__dek">La hora despu&eacute;s del amanecer y la hora antes del atardecer no son la misma hora. Un breve ensayo de campo sobre c&oacute;mo leer la costa.</p>
+        <span class="lw-mob-journal-cards__foot">Leer &middot; 9 min &rarr;</span>
+      </div>
+    </a>
+    <a class="lw-mob-journal-cards__card" href="/blog/destination-wedding-photographer-timeline" data-category="weddings">
+      <div class="lw-mob-journal-cards__media"><img src="/images/wedding-bride-cancun-beach-ivae-studios.jpg" alt="Itinerario de una boda destino" loading="lazy" width="1200" height="675"/></div>
+      <div class="lw-mob-journal-cards__body">
+        <span class="lw-mob-journal-cards__eyebrow">Apuntes de campo</span>
+        <h3 class="lw-mob-journal-cards__title">El itinerario de <em>doce horas</em> de una boda, abierto.</h3>
+        <p class="lw-mob-journal-cards__dek">Cada bloque del d&iacute;a de una boda destino, en el orden en que realmente lo fotograf&iacute;a un equipo editorial.</p>
+        <span class="lw-mob-journal-cards__foot">Leer &middot; 12 min &rarr;</span>
+      </div>
+    </a>
+    <a class="lw-mob-journal-cards__card" href="/blog/cancun-cenote-photoshoot-guide" data-category="cenote">
+      <div class="lw-mob-journal-cards__media"><img src="/images/couple-tulum-ivae-studios.jpg" alt="Gu&iacute;a de sesiones en cenotes" loading="lazy" width="1200" height="675"/></div>
+      <div class="lw-mob-journal-cards__body">
+        <span class="lw-mob-journal-cards__eyebrow">Apuntes de campo</span>
+        <h3 class="lw-mob-journal-cards__title">Una gu&iacute;a a los <em>cenotes</em>, la luz y el cuadro bajo el agua.</h3>
+        <p class="lw-mob-journal-cards__dek">Qu&eacute; cenotes se ponen &iacute;ndigo a qu&eacute; hora, qu&eacute; usar en el agua y c&oacute;mo resaltar la piedra caliza sin perder a las personas.</p>
+        <span class="lw-mob-journal-cards__foot">Leer &middot; 11 min &rarr;</span>
+      </div>
+    </a>
+    <a class="lw-mob-journal-cards__card" href="/blog/what-to-wear-beach-photos" data-category="guides">
+      <div class="lw-mob-journal-cards__media"><img src="/images/family-cancun-ivae-studios.jpg" alt="Gu&iacute;a de vestuario" loading="lazy" width="1200" height="675"/></div>
+      <div class="lw-mob-journal-cards__body">
+        <span class="lw-mob-journal-cards__eyebrow">Gu&iacute;a de vestuario</span>
+        <h3 class="lw-mob-journal-cards__title">Qu&eacute; usar. La gu&iacute;a <em>completa</em> de vestuario.</h3>
+        <p class="lw-mob-journal-cards__dek">Lino, neutros y lo que se fotograf&iacute;a con honestidad en la arena mexicana. Una gu&iacute;a corta para familias, parejas y bodas.</p>
+        <span class="lw-mob-journal-cards__foot">Leer &middot; 7 min &rarr;</span>
       </div>
     </a>
   </div>
@@ -3982,6 +4274,112 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
   /* ───── 18. THEME TRANSITION (animation #39) / handled by CSS via global transition ───── */
   // Already declared; theme toggle via /dark-mode.js will smoothly transition.
 
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SOLO MÓVIL: PASTILLA SCROLL-TOP + TABS INFERIORES
+     ═══════════════════════════════════════════════════════════════ -->
+<button class="lw-mob-scroll-top" id="lwMobScrollTop" type="button" aria-label="Volver arriba">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg>
+</button>
+<nav class="lw-mob-tabs" aria-label="Navegación móvil">
+  <a class="lw-mob-tabs__item is-active" href="/es/" aria-current="page">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>
+    Inicio
+  </a>
+  <a class="lw-mob-tabs__item" href="/es/#services">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
+    Servicios
+  </a>
+  <a class="lw-mob-tabs__item" href="/es/blog">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h12a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2Z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h4"/></svg>
+    Diario
+  </a>
+  <a class="lw-mob-tabs__item" href="#dossier">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>
+    Reservar
+  </a>
+</nav>
+
+<script>
+/* ─── CABLEADO MÓVIL (≤900px) — scroll-top, theme-color, pull-hint ─── */
+(function(){
+  if (typeof window === 'undefined') return;
+  var mq = window.matchMedia('(max-width:900px)');
+  if (!mq.matches) return;
+  var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var topBtn = document.getElementById('lwMobScrollTop');
+  var pullHint = document.getElementById('lwMobPullHint');
+  var themeMeta = document.querySelector('meta[name="theme-color"]');
+  var dismissed = false;
+
+  var anchors = [
+    {sel:'.cinematic-hero',   color:'#c9a54e'},
+    {sel:'.manifesto',        color:'#0a0f17'},
+    {sel:'.light-study',      color:'#0a0f17'},
+    {sel:'.atlas',            color:'#0a0f17'},
+    {sel:'.pull-quote',       color:'#1a1f28'},
+    {sel:'.dossier',          color:'#0a0f17'},
+    {sel:'.journal-v3',       color:'#f5f1e8'}
+  ].map(function(a){
+    var el = document.querySelector(a.sel);
+    return el ? {el:el, color:a.color} : null;
+  }).filter(Boolean);
+
+  var lastColor = null;
+  function onScroll(){
+    var y = window.scrollY || window.pageYOffset || 0;
+
+    if (topBtn){
+      if (y > 800) topBtn.classList.add('is-visible');
+      else topBtn.classList.remove('is-visible');
+    }
+
+    if (!dismissed && pullHint && y > 8){
+      pullHint.classList.add('is-dismissed');
+      dismissed = true;
+    }
+
+    if (themeMeta && anchors.length){
+      var vMid = y + window.innerHeight * 0.35;
+      var chosen = anchors[0].color;
+      for (var i=0;i<anchors.length;i++){
+        var top = anchors[i].el.getBoundingClientRect().top + y;
+        if (top <= vMid) chosen = anchors[i].color;
+      }
+      if (chosen !== lastColor){
+        themeMeta.setAttribute('content', chosen);
+        lastColor = chosen;
+      }
+    }
+  }
+
+  var ticking = false;
+  window.addEventListener('scroll', function(){
+    if (!ticking){
+      requestAnimationFrame(function(){ onScroll(); ticking=false; });
+      ticking = true;
+    }
+  }, {passive:true});
+
+  if (topBtn){
+    topBtn.addEventListener('click', function(){
+      try { window.scrollTo({top:0, behavior: reduceMotion ? 'auto' : 'smooth'}); }
+      catch(e){ window.scrollTo(0,0); }
+    });
+  }
+
+  try {
+    var path = location.pathname.replace(/\/+$/,'') || '/';
+    document.querySelectorAll('.lw-mob-tabs__item').forEach(function(a){
+      var href = a.getAttribute('href');
+      a.classList.remove('is-active');
+      if (href === path || (path === '/es' && href === '/es/')) a.classList.add('is-active');
+    });
+  } catch(e){}
+
+  onScroll();
 })();
 </script>
 </body>
