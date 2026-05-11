@@ -45,17 +45,30 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold)}
 .eyebrow::after{content:'';display:block;width:36px;height:1px;background:var(--gold);opacity:0.55}
 
-/* REVEAL SYSTEM */
-.rv{opacity:0;transform:translateY(40px);transition:opacity 1s var(--lux),transform 1s var(--lux)}
+/* REVEAL SYSTEM
+   Safe-default fallback: content is visible by default. Hidden initial
+   state only applies when JS sets <html class="js-on"> AND user has
+   no reduced-motion preference. If JS fails or no observer runs, every
+   .rv stays visible — no black bands. */
+.rv{opacity:1;transform:none;transition:opacity 1s var(--lux),transform 1s var(--lux)}
 .rv.vis{opacity:1;transform:translateY(0)}
 .d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}.d5{transition-delay:.4s}
-/* Curtain reveal */
+/* Curtain reveal — same safe-default pattern */
 .curtain{position:relative;overflow:hidden}
-.curtain::after{content:'';position:absolute;inset:0;background:var(--ink2);transform-origin:right;transform:scaleX(1);transition:transform 1.4s var(--smooth)}
+.curtain::after{content:'';position:absolute;inset:0;background:var(--ink2);transform-origin:right;transform:scaleX(0);transition:transform 1.4s var(--smooth);pointer-events:none}
 .curtain.vis::after{transform:scaleX(0)}
 /* Scale reveal */
-.rv-scale{opacity:0;transform:scale(0.92);transition:opacity 1s var(--lux),transform 1.2s var(--lux)}
+.rv-scale{opacity:1;transform:none;transition:opacity 1s var(--lux),transform 1.2s var(--lux)}
 .rv-scale.vis{opacity:1;transform:scale(1)}
+/* JS-gated hidden initial states (only animate when JS is wired) */
+@media (prefers-reduced-motion: no-preference){
+  .js-on .rv{opacity:0;transform:translateY(40px)}
+  .js-on .rv.vis{opacity:1;transform:translateY(0)}
+  .js-on .curtain::after{transform:scaleX(1)}
+  .js-on .curtain.vis::after{transform:scaleX(0)}
+  .js-on .rv-scale{opacity:0;transform:scale(0.92)}
+  .js-on .rv-scale.vis{opacity:1;transform:scale(1)}
+}
 /* Word reveal */
 .word-wrap{overflow:hidden;display:inline-flex;vertical-align:bottom;padding-bottom:4px}
 .word-wrap .word{display:inline-block;transform:translateY(110%);transition:transform 0.8s var(--expo)}

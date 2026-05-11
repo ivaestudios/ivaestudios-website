@@ -710,7 +710,9 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
   var reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var hero=document.querySelector('.hero');
   if(hero&&!reduceMotion){var bg=hero.querySelector('.hero-bg');if(bg){var ticking=false;window.addEventListener('scroll',function(){if(!ticking){requestAnimationFrame(function(){bg.style.transform='translateY('+scrollY*0.35+'px)';ticking=false});ticking=true}},{passive:true});}}
-  if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('vis');io.unobserve(e.target);}})},{threshold:0.12,rootMargin:'0px 0px -40px 0px'});document.querySelectorAll('.rv').forEach(function(el){io.observe(el)});}else{document.querySelectorAll('.rv').forEach(function(el){el.classList.add('vis')});}
+  if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('vis');io.unobserve(e.target);}})},{threshold:0.05,rootMargin:'200px 0px 200px 0px'});document.querySelectorAll('.rv').forEach(function(el){io.observe(el)});}else{document.querySelectorAll('.rv').forEach(function(el){el.classList.add('vis')});}
+  /* Safety net: force-reveal any .rv still missing .vis after 1.8s. */
+  setTimeout(function(){document.querySelectorAll('.rv:not(.vis)').forEach(function(el){el.classList.add('vis');});},1800);
   document.querySelectorAll('.faq-q').forEach(function(btn){btn.addEventListener('click',function(){var item=btn.parentElement;var wasOpen=item.classList.contains('open');document.querySelectorAll('.faq-item.open').forEach(function(i){i.classList.remove('open');var q=i.querySelector('.faq-q');if(q)q.setAttribute('aria-expanded','false')});if(!wasOpen){item.classList.add('open');btn.setAttribute('aria-expanded','true')}});btn.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();btn.click();}});});
 })();
 </script>
