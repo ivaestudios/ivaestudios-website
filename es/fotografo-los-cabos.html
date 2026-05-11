@@ -273,22 +273,22 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   <nav aria-label="Navegación principal"><ul class="header-nav">
     <li><a href="/es/">Inicio</a></li><li><a href="/es/acerca-de">Acerca de</a></li><li><a href="/es/#services">Servicios</a></li><li><a href="/es/blog">Blog</a></li>
   </ul></nav>
-  <div class="lang-switch" role="group" aria-label="Language switcher">
-    <a href="/cabo-photographer" data-lang-switch="en" hreflang="en">EN</a>
+  <div class="lang-switch" role="group" aria-label="Selector de idioma">
+    <a href="/cabo-photographer" data-lang-switch="en" hreflang="en" aria-label="Switch to English">EN</a>
     <span class="lang-sep" aria-hidden="true">|</span>
-    <a href="/es/fotografo-los-cabos" data-lang-switch="es" hreflang="es" class="is-active">ES</a>
+    <a href="/es/fotografo-los-cabos" data-lang-switch="es" hreflang="es" class="is-active" aria-current="page" aria-label="Español (idioma actual)">ES</a>
   </div>
-  <a class="header-cta" href="https://wa.me/529902046514?text=Hola%2C%20me%20interesa%20reservar%20una%20sesi%C3%B3n" target="_blank" rel="noopener">Reservar</a>
-  <button class="header-toggle" id="headerToggle" aria-label="Alternar navegación"><span></span><span></span><span></span></button>
+  <a class="header-cta" href="https://wa.me/529902046514?text=Hola%2C%20me%20interesa%20reservar%20una%20sesi%C3%B3n" target="_blank" rel="noopener" aria-label="Reservar sesión fotográfica en Los Cabos por WhatsApp (se abre en una pestaña nueva)">Reservar</a>
+  <button type="button" class="header-toggle" id="headerToggle" aria-label="Abrir navegación" aria-expanded="false" aria-controls="mobileNav"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button>
 </header>
-<nav class="mobile-nav" id="mobileNav">
-  <div class="lang-switch" role="group" aria-label="Language switcher">
-    <a href="/cabo-photographer" data-lang-switch="en" hreflang="en">EN</a>
+<nav class="mobile-nav" id="mobileNav" aria-label="Navegación móvil">
+  <div class="lang-switch" role="group" aria-label="Selector de idioma">
+    <a href="/cabo-photographer" data-lang-switch="en" hreflang="en" aria-label="Switch to English">EN</a>
     <span class="lang-sep" aria-hidden="true">|</span>
-    <a href="/es/fotografo-los-cabos" data-lang-switch="es" hreflang="es" class="is-active">ES</a>
+    <a href="/es/fotografo-los-cabos" data-lang-switch="es" hreflang="es" class="is-active" aria-current="page" aria-label="Español (idioma actual)">ES</a>
   </div>
   <a href="/es/">Inicio</a><a href="/es/acerca-de">Acerca de</a><a href="/es/#services">Servicios</a><a href="/es/blog">Blog</a>
-  <a href="https://wa.me/529902046514?text=Hola%2C%20me%20interesa%20reservar%20una%20sesi%C3%B3n" target="_blank" rel="noopener">Reservar</a>
+  <a href="https://wa.me/529902046514?text=Hola%2C%20me%20interesa%20reservar%20una%20sesi%C3%B3n" target="_blank" rel="noopener" aria-label="Reservar sesión fotográfica en Los Cabos por WhatsApp (se abre en una pestaña nueva)">Reservar</a>
 </nav>
 
 <!-- HERO -->
@@ -304,7 +304,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <span class="hero-tag rv d1" data-anim="fade">Los Cabos, Baja California Sur</span>
     <h1 class="rv d2" data-anim="fade">Fotógrafo de Lujo en <em>Los Cabos, México</em></h1>
     <p class="hero-sub rv d3" data-anim="fade">Fotografía editorial donde los acantilados del desierto se encuentran con el Pacífico. Familias, parejas, bodas y propuestas en los mejores resorts de Los Cabos.</p>
-    <div class="rv d4" data-anim="fade"><a class="btn btn--gold" href="https://wa.me/529902046514?text=Hola%2C%20me%20interesa%20reservar%20una%20sesi%C3%B3n" target="_blank" rel="noopener">Reserva tu sesión <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+    <div class="rv d4" data-anim="fade"><a class="btn btn--gold" href="https://wa.me/529902046514?text=Hola%2C%20me%20interesa%20reservar%20una%20sesi%C3%B3n" target="_blank" rel="noopener" aria-label="Reservar tu sesión de fotografía en Los Cabos por WhatsApp (se abre en una pestaña nueva)">Reserva tu sesión <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
   </div>
 </section>
 

@@ -211,10 +211,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   <a href="/">Home</a><a href="/about">About</a><a href="/blog">Journal</a><a href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener">Book Now</a>
 </nav>
 
-<section class="legal-hero" id="main-content">
+<main id="main-content" role="main">
+<section class="legal-hero" aria-labelledby="page-title">
   <div class="legal-hero-inner">
     <span class="eyebrow rv" data-anim>Legal &middot; Accessibility</span>
-    <h1 class="rv d1" data-anim>Accessibility <em>Statement</em></h1>
+    <h1 id="page-title" class="rv d1" data-anim>Accessibility <em>Statement</em></h1>
     <div class="hero-meta rv d2" data-anim>
       <span><strong>Last updated</strong> &nbsp;7 May 2026</span>
       <span><strong>Last assessed</strong> &nbsp;7 May 2026</span>
@@ -388,13 +389,14 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   </div>
 </section>
 
-<section class="legal-cta">
+</main>
+<section class="legal-cta" aria-labelledby="cta-related-title">
   <div class="legal-cta-inner">
     <span class="eyebrow" style="justify-content:center">Related</span>
-    <h2>Privacy is the <em>other half</em> of the trust we owe you.</h2>
+    <h2 id="cta-related-title">Privacy is the <em>other half</em> of the trust we owe you.</h2>
     <p>Read how we collect, use, store and protect your personal data — and the rights you have over it.</p>
-    <a class="btn-ghost" href="/privacy-policy">Privacy Policy
-      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="width:13px;height:13px"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
+    <a class="btn-ghost" href="/privacy-policy" aria-label="Read the IVAE Studios privacy policy">Privacy Policy
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="width:13px;height:13px" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
     </a>
   </div>
 </section>
