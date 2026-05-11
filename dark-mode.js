@@ -16,8 +16,29 @@
       var stored = localStorage.getItem(STORAGE_KEY);
       if (stored === 'dark' || stored === 'light') return stored;
     } catch (e) {}
-    return 'dark'; // default
+    // No stored preference — respect OS-level color-scheme preference.
+    try {
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+        return 'light';
+      }
+    } catch (e) {}
+    return 'dark'; // ultimate default
   }
+
+  // Re-apply when OS theme changes mid-session (only if user hasn't explicitly chosen).
+  try {
+    var mql = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+    if (mql && mql.addEventListener) {
+      mql.addEventListener('change', function (e) {
+        // Only auto-flip if the user has never set a manual preference.
+        try {
+          if (!localStorage.getItem(STORAGE_KEY)) {
+            applyTheme(e.matches ? 'dark' : 'light');
+          }
+        } catch (err) {}
+      });
+    }
+  } catch (e) {}
 
   function applyTheme(theme) {
     if (theme === 'dark') {

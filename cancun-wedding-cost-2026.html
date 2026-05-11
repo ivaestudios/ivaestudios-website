@@ -77,7 +77,19 @@
 .budget-card .b-num{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--ink);line-height:1.1;margin-bottom:8px}
 .budget-card .b-detail{font-size:13px;color:var(--muted-l);line-height:1.6}
 .cost-table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
-@media(max-width:767px){.cost-table{font-size:12px;display:block;overflow-x:auto;white-space:nowrap}.cost-table .row-label{font-size:14px}.budget-cards{grid-template-columns:1fr;gap:14px}.budget-card{padding:22px 18px}.budget-card .b-num{font-size:26px}}
+@media(max-width:767px){
+  /* Stack 4-col table as cards on mobile — column labels injected via ::before per nth-child */
+  .cost-table,.cost-table thead,.cost-table tbody,.cost-table tr,.cost-table td{display:block;width:100%;border:none}
+  .cost-table thead{display:none}
+  .cost-table tr{margin-bottom:14px;padding:18px 16px;background:var(--cream);border:1px solid var(--border-l)}
+  .cost-table td{padding:6px 0;text-align:left;white-space:normal;font-size:14px}
+  .cost-table .row-label{font-size:19px;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink);border-bottom:1px solid var(--border-l);padding-bottom:10px;margin-bottom:8px;white-space:normal}
+  .cost-table td:nth-child(2)::before{content:'% of total · ';font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-l)}
+  .cost-table td:nth-child(3)::before{content:'USD · ';font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-l)}
+  .cost-table td:nth-child(3){font-weight:600;color:var(--ink)}
+  .cost-table td:nth-child(4){font-size:13px;line-height:1.6;color:var(--muted-l);padding-top:10px;border-top:1px dashed var(--border-l);margin-top:6px}
+  .budget-cards{grid-template-columns:1fr;gap:14px}.budget-card{padding:22px 18px}.budget-card .b-num{font-size:26px}
+}
 @media(min-width:768px) and (max-width:1023px){.cost-table{font-size:12.5px}.cost-table th,.cost-table td{padding:12px 10px}.budget-cards{grid-template-columns:repeat(3,1fr);gap:14px}.budget-card{padding:22px 18px}}
 </style>
 <link rel="icon" href="/favicon.ico" sizes="any"/>

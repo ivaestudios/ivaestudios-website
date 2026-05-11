@@ -123,3 +123,18 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 /* COLOR CONTRAST FIX */
 .header-nav a{color:rgba(249,248,247,0.78)}
+
+/* ═══════ Reduced-motion safety net (WCAG 2.3.3) ═══════ */
+@media (prefers-reduced-motion: reduce){
+  .rv,.rv-scale{opacity:1 !important;transform:none !important;transition:none !important}
+  .curtain::after{transform:scaleX(0) !important;transition:none !important}
+  .word-wrap .word{transform:none !important;transition:none !important}
+  .scroll-progress{animation:none !important;transform:scaleX(0) !important}
+  .cursor{display:none !important}
+  *,*::before,*::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+    scroll-behavior:auto !important;
+  }
+}

@@ -81,10 +81,16 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .inline-photo{margin:36px 0;overflow:hidden;position:relative;height:400px;background:linear-gradient(135deg,#ddd8cf,#c8c0b4)}
 .inline-photo img{width:100%;height:100%;object-fit:cover;display:block}
 .inline-photo figcaption{position:absolute;bottom:0;left:0;right:0;padding:14px 20px;background:linear-gradient(transparent,rgba(26,36,51,0.7));font-size:11px;letter-spacing:0.1em;color:rgba(255,255,255,0.8)}
-/* Hide image-less placeholder boxes — 148 figures across 56 posts have no <img>,
-   so the grey gradient was rendering as an empty "ugly box" between paragraphs. */
-.inline-photo:not(:has(img)){display:none}
-.post-hero-ph:not(:has(+ img)){display:none}
+/* Hide image-less placeholder boxes — 148 figures across 56 posts had no <img>,
+   so the grey gradient was rendering as an empty "ugly box" between paragraphs.
+   The `.is-empty` class is the iOS Safari < 16.4 fallback (added by
+   /js/components.js since :has() isn't supported until 16.4). */
+.inline-photo.is-empty,
+.post-hero-ph.is-empty{display:none}
+@supports selector(:has(*)){
+  .inline-photo:not(:has(img)),
+  .post-hero-ph:not(:has(+ img)){display:none}
+}
 
 /* COMPARISON TABLE */
 .comparison-table{width:100%;border-collapse:collapse;margin:32px 0 28px;font-size:14px}
@@ -200,3 +206,17 @@ footer nav a:hover{color:var(--cream)}
 
 /* COLOR CONTRAST FIX */
 .header-nav a{color:rgba(249,248,247,0.78)}
+
+/* ═══════ Reduced-motion safety net (WCAG 2.3.3) ═══════ */
+@media (prefers-reduced-motion: reduce){
+  .site-header,.header-nav a,.header-cta,.breadcrumbs a,.post-back,
+  .toc-list li a,.post-article a,.pricing-card,.faq-q::after,.faq-a,
+  .il-link,.btn-cta,.rel-card,footer nav a{transition:none !important}
+  .post-hero img{filter:brightness(0.7) saturate(0.85) !important;transition:none !important}
+  *,*::before,*::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+    scroll-behavior:auto !important;
+  }
+}

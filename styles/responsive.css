@@ -121,3 +121,41 @@ html {
   height: auto;
   display: block;
 }
+
+/* ═══════ Landscape mobile (≤500px tall) — collapse heavy min-heights ═══════
+   Audit found that CTA sections with min-height:60vh and heroes with 100svh
+   crush to 200-300px usable area on iPhone Pro Max landscape (812×375),
+   making content inaccessible without scrolling 5× to find the button. */
+@media (orientation:landscape) and (max-height:500px){
+  .hero,.lw-hero,.lc-hero,.lf-hero,.le-hero,
+  .cinematic-hero,.post-hero{
+    min-height:auto !important;
+    height:auto !important;
+    padding:96px 0 56px !important;
+  }
+  .hero img,.lw-hero img,.post-hero img{
+    height:100% !important;
+    max-height:100vh !important;
+  }
+  .lw-inq2,.le-inquiry,.lc-inquiry,.lf-inquiry,
+  .cta-section,.post-cta,.inq2{
+    min-height:auto !important;
+    padding:64px clamp(20px,5vw,56px) !important;
+  }
+  .lw-pause,.le-pause,.pull-quote{
+    height:auto !important;
+    min-height:auto !important;
+    padding:64px 0 !important;
+  }
+  /* Reduce hero parallax even further on landscape */
+  .lw-hero-bg img,.hero-bg img,.lc-hero-bg img,.lf-hero-bg img,.le-hero-bg img{
+    transform:none !important;
+  }
+}
+
+/* ═══════ 480px breakpoint — fills the 375-768 gap (iPhone Pro Max portrait) ═══════ */
+@media (max-width:480px){
+  .pillars-grid,.lc-pillars,.lf-pillars-list{padding-left:16px !important;padding-right:16px !important}
+  .cta-btns,.lw-actions{gap:10px !important}
+  .post-article{padding-left:16px !important;padding-right:16px !important;font-size:14.5px}
+}

@@ -73,7 +73,18 @@
 .cmp-table .row-label{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;color:var(--ink);font-style:italic}
 .cmp-table .ivae-col{background:rgba(196,163,90,0.06)}
 .cmp-table .ivae-col:hover{background:rgba(196,163,90,0.1)}
-@media(max-width:767px){.cmp-table{font-size:12px;display:block;overflow-x:auto;white-space:nowrap}.cmp-table .row-label{font-size:14px}}
+@media(max-width:767px){
+  /* Stack 4-col comparison as cards — column labels injected via ::before per nth-child */
+  .cmp-table,.cmp-table thead,.cmp-table tbody,.cmp-table tr,.cmp-table td{display:block;width:100%;border:none}
+  .cmp-table thead{display:none}
+  .cmp-table tr{margin-bottom:14px;padding:18px 16px;background:var(--cream);border:1px solid var(--border-l)}
+  .cmp-table td{padding:8px 0;text-align:left;white-space:normal;font-size:14px;line-height:1.55}
+  .cmp-table .row-label{font-size:19px;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink);border-bottom:1px solid var(--border-l);padding-bottom:10px;margin-bottom:8px}
+  .cmp-table td:nth-child(2)::before{content:'IVAE · ';font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#c9a54e;font-weight:600}
+  .cmp-table td:nth-child(3)::before{content:'Resort in-house · ';font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-l)}
+  .cmp-table td:nth-child(4)::before{content:'Freelance · ';font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-l)}
+  .cmp-table td.ivae-col{background:rgba(196,163,90,.06);padding-left:8px;padding-right:8px;margin:4px -8px;border-radius:2px}
+}
 @media(min-width:768px) and (max-width:1023px){.cmp-table{font-size:12.5px}.cmp-table th,.cmp-table td{padding:12px 10px}.cmp-table .row-label{font-size:15px}}
 </style>
 <link rel="icon" href="/favicon.ico" sizes="any"/>

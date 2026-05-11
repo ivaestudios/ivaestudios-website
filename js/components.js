@@ -79,11 +79,22 @@
     });
   }
 
+  // ─── Empty-figure detector (fallback for iOS Safari < 16.4 which lacks :has()) ─
+  // CSS already hides figure.inline-photo:not(:has(img)). Add an .is-empty class
+  // so non-:has browsers (iOS 15, old Chromium) can rely on a simple class rule.
+  function initEmptyFigures(){
+    document.querySelectorAll('figure.inline-photo,.post-hero-ph').forEach(function(el){
+      if(el.tagName === 'FIGURE' && !el.querySelector('img')) el.classList.add('is-empty');
+      if(el.classList.contains('post-hero-ph') && !el.nextElementSibling?.matches('img')) el.classList.add('is-empty');
+    });
+  }
+
   function init(){
     initReveal();
     initSmoothScroll();
     initReels();
     initFaq();
+    initEmptyFigures();
   }
 
   if(document.readyState === 'loading'){
