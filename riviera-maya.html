@@ -449,6 +449,130 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
 <link rel="manifest" href="/site.webmanifest"/>
 <meta name="theme-color" content="#0c1219"/>
 <link rel="preload" as="image" fetchpriority="high" href="images/riviera-maya-hero.avif" type="image/avif">
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MOBILE-NATIVE DEEPENING (≤900px) — phone-specific patterns
+     ═══════════════════════════════════════════════════════════════ -->
+<style>
+@media (max-width:900px){
+  /* ── 1. BOTTOM-SHEET inquiry form ────────────────────────── */
+  .lw-mob-scrim{position:fixed;inset:0;background:rgba(6,10,16,.62);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:120;opacity:0;visibility:hidden;transition:opacity .28s ease,visibility .28s ease}
+  .lw-mob-scrim[data-open="1"]{opacity:1;visibility:visible}
+  .lw-mob-sheet{position:fixed;left:0;right:0;bottom:0;z-index:121;max-height:75svh;height:75svh;background:#0d1219;color:#faf8f5;border-top:1px solid rgba(201,165,78,.32);border-radius:18px 18px 0 0;box-shadow:0 -24px 60px -12px rgba(0,0,0,.6);transform:translateY(100%);transition:transform .34s cubic-bezier(.22,.61,.36,1);overscroll-behavior:contain;will-change:transform;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0)}
+  .lw-mob-sheet[data-open="1"]{transform:translateY(0)}
+  .lw-mob-sheet[data-dragging="1"]{transition:none}
+  .lw-mob-sheet-handle{display:flex;justify-content:center;padding:10px 0 6px;cursor:grab;touch-action:none;flex:0 0 auto}
+  .lw-mob-sheet-handle::before{content:"";width:44px;height:4px;border-radius:3px;background:rgba(201,165,78,.42)}
+  .lw-mob-sheet-head{padding:6px 22px 12px;border-bottom:1px solid rgba(201,165,78,.16);flex:0 0 auto;position:relative}
+  .lw-mob-sheet-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:6px}
+  .lw-mob-sheet-h{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:22px;line-height:1.15;color:#faf8f5;letter-spacing:-.01em;margin:0}
+  .lw-mob-sheet-h em{font-style:italic;color:#c9a54e}
+  .lw-mob-sheet-close{position:absolute;right:14px;top:8px;width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;color:rgba(250,248,245,.7);background:transparent;border:1px solid rgba(201,165,78,.24);border-radius:50%;font-size:18px;line-height:1;cursor:pointer}
+  .lw-mob-sheet-close:focus-visible{outline:2px solid #c9a54e;outline-offset:2px}
+  .lw-mob-sheet-body{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 22px 22px}
+  .lw-mob-sheet-form{display:flex;flex-direction:column;gap:12px}
+  .lw-mob-sheet-field{display:flex;flex-direction:column;gap:6px}
+  .lw-mob-sheet-field label{font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(201,165,78,.85);font-weight:500}
+  .lw-mob-sheet-field input,.lw-mob-sheet-field select,.lw-mob-sheet-field textarea{font:inherit;font-family:'Cormorant Garamond',Georgia,serif;font-size:16px;line-height:1.4;color:#faf8f5;background:rgba(255,255,255,.04);border:1px solid rgba(201,165,78,.22);border-radius:4px;padding:14px 12px;min-height:48px;width:100%;appearance:none;-webkit-appearance:none;transition:border-color .24s ease,background .24s ease}
+  .lw-mob-sheet-field input:focus,.lw-mob-sheet-field select:focus,.lw-mob-sheet-field textarea:focus{outline:none;border-color:#c9a54e;background:rgba(255,255,255,.06)}
+  .lw-mob-sheet-field textarea{resize:vertical;min-height:86px;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic}
+  .lw-mob-sheet-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .lw-mob-sheet-submit{margin-top:8px;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:54px;background:#c9a54e;color:#0a0f17;border:none;font-family:'Syne',sans-serif;font-size:12px;letter-spacing:.26em;text-transform:uppercase;font-weight:600;border-radius:3px;cursor:pointer;transition:transform .24s ease,box-shadow .24s ease}
+  .lw-mob-sheet-submit:active{transform:scale(.985)}
+  .lw-mob-sheet-submit svg{width:16px;height:16px}
+  .lw-mob-sheet-foot{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:13px;color:rgba(250,248,245,.55);text-align:center;margin-top:14px}
+  .lw-mob-sheet-foot a{color:#c9a54e;text-decoration:underline;text-decoration-color:rgba(201,165,78,.4);text-underline-offset:3px}
+  body.lw-mob-sheet-on{overflow:hidden}
+
+  /* ── 2. DETAILS image gallery ────────────────────────────── */
+  .lw-mob-details{display:block;padding:48px 0 8px;background:#0c1219}
+  .lw-mob-details-head{padding:0 22px 18px}
+  .lw-mob-details-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:10px}
+  .lw-mob-details-h{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:26px;line-height:1.12;color:#faf8f5;letter-spacing:-.01em;margin:0}
+  .lw-mob-details-h em{font-style:italic;color:#c9a54e}
+  .lw-mob-details-rail{display:flex;flex-direction:row;gap:12px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:6px 22px 22px;scrollbar-width:none}
+  .lw-mob-details-rail::-webkit-scrollbar{display:none}
+  .lw-mob-details-card{flex:0 0 68%;max-width:280px;scroll-snap-align:center;position:relative}
+  .lw-mob-details-card figure{margin:0;aspect-ratio:4/5;overflow:hidden;background:#0c1219;border:1px solid rgba(201,165,78,.18)}
+  .lw-mob-details-card img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.94) contrast(1.02)}
+  .lw-mob-details-cap{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:13px;line-height:1.4;color:rgba(250,248,245,.62);padding:8px 2px 0;border-top:1px solid rgba(201,165,78,.2);margin-top:8px}
+
+  /* ── 3. STICKY CHAPTER STRIP ─────────────────────────────── */
+  .lw-mob-chapter-strip{position:fixed;left:0;right:0;top:0;z-index:62;height:30px;display:flex;align-items:center;justify-content:center;background:rgba(10,15,23,.86);backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);border-bottom:1px solid rgba(201,165,78,.18);pointer-events:none;opacity:0;transform:translateY(-100%);transition:opacity .28s ease,transform .28s ease;padding:0 18px}
+  .lw-mob-chapter-strip[data-visible="1"]{opacity:1;transform:translateY(0)}
+  .lw-mob-chapter-strip-inner{font-family:'Syne',sans-serif;font-size:9.5px;letter-spacing:.28em;text-transform:uppercase;color:#faf8f5;display:inline-flex;align-items:center;gap:10px;max-width:88vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .lw-mob-chapter-strip-dot{width:5px;height:5px;border-radius:50%;background:#c9a54e;flex-shrink:0}
+
+  /* ── 4. Floating WhatsApp FAB ────────────────────────────── */
+  .lw-mob-fab{position:fixed;right:14px;bottom:calc(86px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;background:#25D366;color:#fff;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 12px 28px -8px rgba(37,211,102,.5),0 4px 10px rgba(0,0,0,.25);z-index:78;text-decoration:none;transition:opacity .3s ease,transform .3s ease,visibility .3s ease}
+  .lw-mob-fab svg{width:30px;height:30px}
+  .lw-mob-fab[data-hidden="1"]{opacity:0;visibility:hidden;transform:scale(.7)}
+  .lw-mob-fab:active{transform:scale(.94)}
+  @media (prefers-reduced-motion:no-preference){
+    .lw-mob-fab[data-pulse="1"]{animation:lwMobFabPulse 1.4s cubic-bezier(.22,.61,.36,1) 1}
+  }
+  @keyframes lwMobFabPulse{0%{box-shadow:0 12px 28px -8px rgba(37,211,102,.5),0 4px 10px rgba(0,0,0,.25),0 0 0 0 rgba(37,211,102,.55)}70%{box-shadow:0 12px 28px -8px rgba(37,211,102,.5),0 4px 10px rgba(0,0,0,.25),0 0 0 18px rgba(37,211,102,0)}100%{box-shadow:0 12px 28px -8px rgba(37,211,102,.5),0 4px 10px rgba(0,0,0,.25),0 0 0 0 rgba(37,211,102,0)}}
+
+  /* ── 5. Vertical testimonial story ───────────────────────── */
+  .lw-mob-story{position:relative;background:#0d1219;padding:0;margin:0;display:none}
+  .lw-mob-story[data-active="1"]{display:block}
+  .lw-mob-story-rail{display:flex;flex-direction:row;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;height:88svh;min-height:520px}
+  .lw-mob-story-rail::-webkit-scrollbar{display:none}
+  .lw-mob-story-card{flex:0 0 100%;width:100%;scroll-snap-align:center;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:60px 26px 90px;text-align:center;overflow:hidden}
+  .lw-mob-story-bg{position:absolute;inset:0;z-index:0;opacity:.1;background-size:cover;background-position:center;filter:saturate(.85) contrast(1.04)}
+  .lw-mob-story-veil{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(13,18,25,.6) 0%,rgba(13,18,25,.9) 100%)}
+  .lw-mob-story-content{position:relative;z-index:2;max-width:520px;display:flex;flex-direction:column;align-items:center;gap:22px}
+  .lw-mob-story-stars{display:inline-flex;gap:3px;color:#c9a54e;font-size:14px;letter-spacing:.08em}
+  .lw-mob-story-q{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-style:italic;font-size:clamp(22px,5.8vw,30px);line-height:1.26;color:#faf8f5;letter-spacing:-.005em;margin:0}
+  .lw-mob-story-q em{font-style:italic;color:#c9a54e}
+  .lw-mob-story-author{font-family:'Syne',sans-serif;font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:rgba(250,248,245,.72);margin-top:8px}
+  .lw-mob-story-where{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:13px;color:rgba(250,248,245,.5);margin-top:2px}
+  .lw-mob-story-progress{position:absolute;top:16px;left:18px;right:18px;display:flex;gap:5px;z-index:3}
+  .lw-mob-story-progress span{flex:1;height:2px;background:rgba(250,248,245,.18);border-radius:1px;overflow:hidden;position:relative}
+  .lw-mob-story-progress span::after{content:"";position:absolute;left:0;top:0;bottom:0;background:#c9a54e;width:0;transition:width .35s ease}
+  .lw-mob-story-progress span.is-active::after{width:100%}
+  .lw-mob-story-progress span.is-past::after{width:100%;background:rgba(201,165,78,.55)}
+  body.lw-mob-story-on .rv-testimonials{display:none}
+
+  /* ── 6. Pull-quote photo callout ─────────────────────────── */
+  .lw-mob-pull-thumb{display:inline-block;width:64px;height:64px;border-radius:50%;overflow:hidden;border:1px solid rgba(201,165,78,.55);float:right;margin:0 0 8px 14px;flex-shrink:0;background:#0a0f17;position:relative}
+  .lw-mob-pull-thumb::after{content:"";position:absolute;inset:3px;border-radius:50%;border:1px solid rgba(201,165,78,.18);pointer-events:none}
+  .lw-mob-pull-thumb img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.9) contrast(1.02)}
+
+  /* ── 7. Hero parallax depth ghost ────────────────────────── */
+  .lw-mob-hero-depth{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.5;transform:translate(8px,8px);overflow:hidden;mix-blend-mode:screen}
+  .lw-mob-hero-depth img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.85) contrast(1.1) blur(.4px)}
+  body.lw-mob-depth-scroll .lw-mob-hero-depth{transition:transform .15s linear}
+
+  /* ── 8. Trip-planner mini widget ─────────────────────────── */
+  .lw-mob-planner{margin:32px 18px 96px;padding:22px 20px;background:linear-gradient(180deg,rgba(201,165,78,.06),rgba(201,165,78,.02));border:1px solid rgba(201,165,78,.28);border-radius:6px;position:relative;overflow:hidden;color:#faf8f5;background-color:#0c1219}
+  .lw-mob-planner::before{content:"";position:absolute;left:0;top:0;width:3px;height:100%;background:linear-gradient(180deg,#c9a54e 0%,rgba(201,165,78,.3) 100%)}
+  .lw-mob-planner-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:9.5px;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:8px}
+  .lw-mob-planner-h{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:20px;line-height:1.2;color:#faf8f5;margin:0 0 6px}
+  .lw-mob-planner-h em{font-style:italic;color:#c9a54e}
+  .lw-mob-planner-body{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:14px;line-height:1.5;color:rgba(250,248,245,.7);margin:0 0 14px}
+  .lw-mob-planner-select{display:block;width:100%;font:inherit;font-family:'Cormorant Garamond',Georgia,serif;font-size:15px;color:#faf8f5;background:rgba(255,255,255,.04);border:1px solid rgba(201,165,78,.32);border-radius:3px;padding:13px 12px;min-height:48px;appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#c9a54e 50%),linear-gradient(135deg,#c9a54e 50%,transparent 50%);background-position:calc(100% - 18px) 22px,calc(100% - 12px) 22px;background-size:6px 6px,6px 6px;background-repeat:no-repeat}
+  .lw-mob-planner-result{margin-top:12px;padding:12px 14px;background:rgba(201,165,78,.08);border-left:2px solid #c9a54e;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:14px;line-height:1.55;color:#faf8f5;min-height:50px;display:none}
+  .lw-mob-planner-result[data-shown="1"]{display:block}
+
+  /* ── 9. Inline images ────────────────────────────────────── */
+  .lw-mob-inline-img{display:block;width:100%;margin:24px 0;position:relative}
+  .lw-mob-inline-img img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border:1px solid rgba(201,165,78,.18)}
+  .lw-mob-inline-img figcaption{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:12.5px;line-height:1.42;color:var(--muted-l,rgba(10,15,23,.55));padding:8px 0 0;border-top:1px solid rgba(201,165,78,.2);margin-top:8px;display:flex;gap:8px;align-items:baseline}
+  .lw-mob-inline-img figcaption::before{content:"";display:inline-block;width:16px;height:1px;background:#c9a54e;flex-shrink:0;margin-top:7px}
+}
+
+/* ── 10. Hero CTA stacking — ≤480px ─────────────────────── */
+@media (max-width:480px){
+  .hero-content .btn,.hero-content .hero-btn{width:100% !important;min-height:64px !important;font-size:.78rem !important;letter-spacing:.26em !important;justify-content:center !important;padding:18px 22px !important;background:#c9a54e !important;color:#0a0f17 !important;box-shadow:0 14px 30px -10px rgba(201,165,78,.4) !important;display:inline-flex;align-items:center;text-align:center}
+  .hero-content::after{content:"View portfolio →";display:block;margin-top:14px;font-family:'Syne',sans-serif;font-size:.72rem !important;letter-spacing:.22em;text-transform:uppercase;color:#c9a54e;text-decoration:underline;text-decoration-color:rgba(201,165,78,.4);text-underline-offset:5px;width:100%;text-align:center}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .lw-mob-sheet,.lw-mob-scrim,.lw-mob-fab,.lw-mob-chapter-strip,.lw-mob-hero-depth{transition:none !important;animation:none !important}
+  .lw-mob-story-rail{scroll-behavior:auto}
+}
+</style>
 </head>
 <body>
 <a href="#main-content" class="skip-link">Skip to content</a>
@@ -488,7 +612,7 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
 </nav>
 
 <!-- HERO -->
-<section class="hero" id="main-content">
+<section class="hero" id="main-content" data-chapter="1">
   <div class="hero-bg">
     <picture>
       <source type="image/avif" srcset="images/riviera-maya-hero.avif">
@@ -514,7 +638,7 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
 </div>
 
 <!-- WHY IVAE -->
-<section class="sc sc-cream">
+<section class="sc sc-cream" data-chapter="2">
   <div class="why-grid">
     <div class="curtain rv why-img" data-anim="fade">
       <img src="https://assets.ivaestudios.com/pages/riviera-maya/couple-beach-riviera-maya.jpg" alt="Couple embracing on a Riviera Maya beach as natural light beams reflect off the Caribbean water" loading="lazy" width="1600" height="1067"/>
@@ -523,13 +647,17 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
       <span class="sl">Why IVAE in Riviera Maya</span>
       <h2>A luxury photographer who understands the <em>landscape</em> and the light</h2>
       <p>Our team has photographed across every major Riviera Maya location -- from cenotes with dramatic light beams to the clifftop ruins of Tulum. We know which cenotes allow morning access before the crowds, which beach angles catch golden hour perfectly, and which jungle paths create the most editorial compositions. That familiarity translates directly into better images.</p>
+      <figure class="lw-mob-inline-img" aria-hidden="true">
+        <img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Couple at Mayakoba boardwalk at golden hour" loading="lazy" width="1600" height="900"/>
+        <figcaption>Mayakoba boardwalk &mdash; the lagoon softens at 6:18 in March.</figcaption>
+      </figure>
       <p>We work exclusively with travelers from the United States and Canada, communicate in fluent English, accept USD payments, and deliver the premium experience international guests expect from Riviera Maya's finest resorts.</p>
     </div>
   </div>
 </section>
 
 <!-- SERVICES -->
-<section class="sc sc-sand" id="services">
+<section class="sc sc-sand" id="services" data-chapter="3">
   <div class="rv" data-anim="fade">
     <span class="sl">Our Services</span>
     <h2>Luxury photography <em>experiences</em> across Riviera Maya</h2>
@@ -564,7 +692,7 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
 </section>
 
 <!-- PHOTO GALLERY -->
-<section class="sc sc-ink" aria-labelledby="gallery-heading">
+<section class="sc sc-ink" data-chapter="4" aria-labelledby="gallery-heading">
   <div class="rv" data-anim="fade">
     <span class="sl">Gallery</span>
     <h2 id="gallery-heading">Riviera Maya <em>moments</em></h2>
@@ -585,7 +713,7 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
 </section>
 
 <!-- LOCATIONS -->
-<section class="sc sc-cream">
+<section class="sc sc-cream" data-chapter="5">
   <div class="rv" data-anim="fade">
     <span class="sl">Best Locations</span>
     <h2>Where we photograph in <em>Riviera Maya</em></h2>
@@ -616,7 +744,7 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
 </section>
 
 <!-- HOW IT WORKS -->
-<section class="sc sc-sand" id="rv-process" aria-labelledby="rv-process-h">
+<section class="sc sc-sand" id="rv-process" data-chapter="6" aria-labelledby="rv-process-h">
   <style>
     #rv-process{position:relative}
     #rv-process .rv-proc-head{margin-bottom:64px;max-width:min(720px,100%)}
@@ -689,7 +817,7 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
 </section>
 
 <!-- RESORTS -->
-<section class="sc sc-cream" id="rv-resorts" aria-labelledby="rv-resorts-h">
+<section class="sc sc-cream" id="rv-resorts" data-chapter="7" aria-labelledby="rv-resorts-h">
   <style>
     #rv-resorts .rv-mono-head{margin-bottom:56px;max-width:min(720px,100%)}
     #rv-resorts .rv-mono-head h2{margin-bottom:18px}
@@ -800,7 +928,7 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
 </section>
 
 <!-- TESTIMONIALS -->
-<section class="sc sc-cream" style="border-top:1px solid var(--border-l)">
+<section class="sc sc-cream rv-testimonials" id="rv-testimonials" data-chapter="8" style="border-top:1px solid var(--border-l)">
   <div class="rv" data-anim="fade" style="text-align:center;margin-bottom:48px">
     <h2>What our <em>clients</em> say</h2>
   </div>
@@ -824,7 +952,41 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
 </section>
 
 <!-- FAQ -->
-<section class="sc sc-ink" id="faq">
+<!-- ═══════ MOBILE-ONLY DETAILS GALLERY (Pattern 2) ═══════ -->
+<section class="lw-mob-details" aria-label="Riviera Maya detail photographs" data-chapter="9b">
+  <header class="lw-mob-details-head">
+    <span class="lw-mob-details-eyebrow">In the Details</span>
+    <h2 class="lw-mob-details-h">The frames <em>between the cenotes.</em></h2>
+  </header>
+  <div class="lw-mob-details-rail" role="list">
+    <article class="lw-mob-details-card" role="listitem">
+      <figure><img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Couple at Mayakoba lagoon" loading="lazy" width="800" height="1000"/></figure>
+      <p class="lw-mob-details-cap">Mayakoba mist, before the rest.</p>
+    </article>
+    <article class="lw-mob-details-card" role="listitem">
+      <figure><img src="/images/couple-akumal-ivae-studios.jpg" alt="Couple in Akumal jungle" loading="lazy" width="800" height="1000"/></figure>
+      <p class="lw-mob-details-cap">Akumal &mdash; the green corridor.</p>
+    </article>
+    <article class="lw-mob-details-card" role="listitem">
+      <figure><img src="/images/couple-tulum-ivae-studios.jpg" alt="Couple in Tulum" loading="lazy" width="800" height="1000"/></figure>
+      <p class="lw-mob-details-cap">Tulum at first light.</p>
+    </article>
+    <article class="lw-mob-details-card" role="listitem">
+      <figure><img src="/images/couple-riviera-maya-ivae-studios-2.jpg" alt="Couple on Riviera Maya beach" loading="lazy" width="800" height="1000"/></figure>
+      <p class="lw-mob-details-cap">A couple, the soft sand.</p>
+    </article>
+    <article class="lw-mob-details-card" role="listitem">
+      <figure><img src="/images/couple-tulum-ivae-studios-2.jpg" alt="Couple at Tulum cliff" loading="lazy" width="800" height="1000"/></figure>
+      <p class="lw-mob-details-cap">Cliff edge, blue water.</p>
+    </article>
+    <article class="lw-mob-details-card" role="listitem">
+      <figure><img src="/images/couple-riviera-maya-ivae-studios-3.jpg" alt="Riviera Maya detail" loading="lazy" width="800" height="1000"/></figure>
+      <p class="lw-mob-details-cap">A walk along the shoreline.</p>
+    </article>
+  </div>
+</section>
+
+<section class="sc sc-ink" id="faq" data-chapter="10">
   <div class="rv" data-anim="fade">
     <span class="sl">Frequently Asked</span>
     <h2>Riviera Maya photography <em>questions</em></h2>
@@ -882,8 +1044,25 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
   </div>
 </section>
 
+<!-- ═══════ MOBILE-ONLY TRIP-PLANNER WIDGET (Pattern 8) ═══════ -->
+<section class="lw-mob-planner" data-chapter="11b" aria-label="Trip planner widget">
+  <span class="lw-mob-planner-eyebrow">Planning your trip?</span>
+  <h2 class="lw-mob-planner-h">Tap to see ideal months by <em>resort</em></h2>
+  <p class="lw-mob-planner-body">The Riviera Maya is a corridor of hours. Pick the resort closest to your stay &mdash; we will recommend the months that hold the light.</p>
+  <select class="lw-mob-planner-select" id="lwMobPlanner" aria-label="Choose resort area">
+    <option value="">Choose your resort area&hellip;</option>
+    <option value="mayakoba">Mayakoba (Rosewood, Fairmont, Andaz, Banyan)</option>
+    <option value="playa-del-carmen">Playa del Carmen / Playacar</option>
+    <option value="puerto-aventuras">Puerto Aventuras / Paamul</option>
+    <option value="akumal">Akumal / Akumal Bay</option>
+    <option value="tulum">Tulum (Nomade, Be, Azulik, Habitas)</option>
+    <option value="cenotes">Cenote sessions (Dos Ojos, Azul, Gran Cenote)</option>
+  </select>
+  <div class="lw-mob-planner-result" id="lwMobPlannerResult" aria-live="polite"></div>
+</section>
+
 <!-- CTA -->
-<section class="cta">
+<section class="cta" id="inquiry" data-chapter="11">
   <div class="cta-bg"></div>
   <div class="cta-inner rv" data-anim="fade">
     <span class="sl" style="justify-content:center;margin-bottom:24px">Ready?</span>

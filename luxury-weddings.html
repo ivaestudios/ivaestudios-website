@@ -1635,6 +1635,141 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   50%{transform:translateX(-50%) translateY(6px);opacity:1}
 }
 </style>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MOBILE-NATIVE DEEPENING (≤900px) — phone-specific patterns
+     1. Bottom-sheet inquiry form    6. Pull-quote photo callout
+     2. Details image gallery        7. Hero parallax depth ghost
+     3. Sticky chapter strip         8. Trip-planner mini widget
+     4. Floating WhatsApp FAB        9. Inline body images
+     5. Vertical testimonial story  10. Hero CTA stacking
+     ═══════════════════════════════════════════════════════════════ -->
+<style>
+@media (max-width:900px){
+  /* ── 1. BOTTOM-SHEET inquiry form ────────────────────────── */
+  .lw-mob-scrim{position:fixed;inset:0;background:rgba(6,10,16,.62);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:120;opacity:0;visibility:hidden;transition:opacity .28s ease,visibility .28s ease}
+  .lw-mob-scrim[data-open="1"]{opacity:1;visibility:visible}
+  .lw-mob-sheet{position:fixed;left:0;right:0;bottom:0;z-index:121;max-height:75svh;height:75svh;background:#0d1219;color:#faf8f5;border-top:1px solid rgba(201,165,78,.32);border-radius:18px 18px 0 0;box-shadow:0 -24px 60px -12px rgba(0,0,0,.6);transform:translateY(100%);transition:transform .34s cubic-bezier(.22,.61,.36,1);overscroll-behavior:contain;will-change:transform;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0)}
+  .lw-mob-sheet[data-open="1"]{transform:translateY(0)}
+  .lw-mob-sheet[data-dragging="1"]{transition:none}
+  .lw-mob-sheet-handle{display:flex;justify-content:center;padding:10px 0 6px;cursor:grab;touch-action:none;flex:0 0 auto}
+  .lw-mob-sheet-handle::before{content:"";width:44px;height:4px;border-radius:3px;background:rgba(201,165,78,.42)}
+  .lw-mob-sheet-head{padding:6px 22px 12px;border-bottom:1px solid rgba(201,165,78,.16);flex:0 0 auto;position:relative}
+  .lw-mob-sheet-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:6px}
+  .lw-mob-sheet-h{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:22px;line-height:1.15;color:#faf8f5;letter-spacing:-.01em;margin:0}
+  .lw-mob-sheet-h em{font-style:italic;color:#c9a54e}
+  .lw-mob-sheet-close{position:absolute;right:14px;top:8px;width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;color:rgba(250,248,245,.7);background:transparent;border:1px solid rgba(201,165,78,.24);border-radius:50%;font-size:18px;line-height:1;cursor:pointer}
+  .lw-mob-sheet-close:focus-visible{outline:2px solid #c9a54e;outline-offset:2px}
+  .lw-mob-sheet-body{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 22px 22px}
+  .lw-mob-sheet-form{display:flex;flex-direction:column;gap:12px}
+  .lw-mob-sheet-field{display:flex;flex-direction:column;gap:6px}
+  .lw-mob-sheet-field label{font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(201,165,78,.85);font-weight:500}
+  .lw-mob-sheet-field input,.lw-mob-sheet-field select,.lw-mob-sheet-field textarea{font:inherit;font-family:'Cormorant Garamond',Georgia,serif;font-size:16px;line-height:1.4;color:#faf8f5;background:rgba(255,255,255,.04);border:1px solid rgba(201,165,78,.22);border-radius:4px;padding:14px 12px;min-height:48px;width:100%;appearance:none;-webkit-appearance:none;transition:border-color .24s ease,background .24s ease}
+  .lw-mob-sheet-field input:focus,.lw-mob-sheet-field select:focus,.lw-mob-sheet-field textarea:focus{outline:none;border-color:#c9a54e;background:rgba(255,255,255,.06)}
+  .lw-mob-sheet-field textarea{resize:vertical;min-height:86px;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic}
+  .lw-mob-sheet-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .lw-mob-sheet-submit{margin-top:8px;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:54px;background:#c9a54e;color:#0a0f17;border:none;font-family:'Syne',sans-serif;font-size:12px;letter-spacing:.26em;text-transform:uppercase;font-weight:600;border-radius:3px;cursor:pointer;transition:transform .24s ease,box-shadow .24s ease}
+  .lw-mob-sheet-submit:active{transform:scale(.985)}
+  .lw-mob-sheet-submit svg{width:16px;height:16px}
+  .lw-mob-sheet-foot{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:13px;color:rgba(250,248,245,.55);text-align:center;margin-top:14px}
+  .lw-mob-sheet-foot a{color:#c9a54e;text-decoration:underline;text-decoration-color:rgba(201,165,78,.4);text-underline-offset:3px}
+  body.lw-mob-sheet-on{overflow:hidden}
+
+  /* ── 2. DETAILS image gallery (horizontal scroll-snap) ───── */
+  .lw-mob-details{display:block;padding:48px 0 8px;background:#0a0f17}
+  .lw-mob-details-head{padding:0 22px 18px}
+  .lw-mob-details-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:10px}
+  .lw-mob-details-h{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:26px;line-height:1.12;color:#faf8f5;letter-spacing:-.01em;margin:0}
+  .lw-mob-details-h em{font-style:italic;color:#c9a54e}
+  .lw-mob-details-rail{display:flex;flex-direction:row;gap:12px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:6px 22px 22px;scrollbar-width:none}
+  .lw-mob-details-rail::-webkit-scrollbar{display:none}
+  .lw-mob-details-card{flex:0 0 68%;max-width:280px;scroll-snap-align:center;position:relative}
+  .lw-mob-details-card figure{margin:0;aspect-ratio:4/5;overflow:hidden;background:#0a0f17;border:1px solid rgba(201,165,78,.18)}
+  .lw-mob-details-card img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.94) contrast(1.02)}
+  .lw-mob-details-cap{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:13px;line-height:1.4;color:rgba(250,248,245,.62);padding:8px 2px 0;border-top:1px solid rgba(201,165,78,.2);margin-top:8px}
+
+  /* ── 3. STICKY CHAPTER STRIP ─────────────────────────────── */
+  .lw-mob-chapter-strip{position:fixed;left:0;right:0;top:0;z-index:62;height:30px;display:flex;align-items:center;justify-content:center;background:rgba(10,15,23,.86);backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);border-bottom:1px solid rgba(201,165,78,.18);pointer-events:none;opacity:0;transform:translateY(-100%);transition:opacity .28s ease,transform .28s ease;padding:0 18px}
+  .lw-mob-chapter-strip[data-visible="1"]{opacity:1;transform:translateY(0)}
+  .lw-mob-chapter-strip-inner{font-family:'Syne',sans-serif;font-size:9.5px;letter-spacing:.28em;text-transform:uppercase;color:#faf8f5;display:inline-flex;align-items:center;gap:10px;max-width:88vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .lw-mob-chapter-strip-dot{width:5px;height:5px;border-radius:50%;background:#c9a54e;flex-shrink:0}
+  body.lw-mob-strip-on .site-header{transform:translateY(30px)}
+
+  /* ── 4. Floating WhatsApp FAB ────────────────────────────── */
+  .lw-mob-fab{position:fixed;right:14px;bottom:calc(86px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;background:#25D366;color:#fff;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 12px 28px -8px rgba(37,211,102,.5),0 4px 10px rgba(0,0,0,.25);z-index:78;text-decoration:none;transition:opacity .3s ease,transform .3s ease,visibility .3s ease}
+  .lw-mob-fab svg{width:30px;height:30px}
+  .lw-mob-fab[data-hidden="1"]{opacity:0;visibility:hidden;transform:scale(.7)}
+  .lw-mob-fab:active{transform:scale(.94)}
+  @media (prefers-reduced-motion:no-preference){
+    .lw-mob-fab[data-pulse="1"]{animation:lwMobFabPulse 1.4s cubic-bezier(.22,.61,.36,1) 1}
+  }
+  @keyframes lwMobFabPulse{0%{box-shadow:0 12px 28px -8px rgba(37,211,102,.5),0 4px 10px rgba(0,0,0,.25),0 0 0 0 rgba(37,211,102,.55)}70%{box-shadow:0 12px 28px -8px rgba(37,211,102,.5),0 4px 10px rgba(0,0,0,.25),0 0 0 18px rgba(37,211,102,0)}100%{box-shadow:0 12px 28px -8px rgba(37,211,102,.5),0 4px 10px rgba(0,0,0,.25),0 0 0 0 rgba(37,211,102,0)}}
+
+  /* ── 5. Vertical testimonial story (full-screen swipe) ───── */
+  .lw-mob-story{position:relative;background:#0d1219;padding:0;margin:0;display:none}
+  .lw-mob-story[data-active="1"]{display:block}
+  .lw-mob-story-rail{display:flex;flex-direction:row;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;height:88svh;min-height:520px}
+  .lw-mob-story-rail::-webkit-scrollbar{display:none}
+  .lw-mob-story-card{flex:0 0 100%;width:100%;scroll-snap-align:center;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:60px 26px 90px;text-align:center;overflow:hidden}
+  .lw-mob-story-bg{position:absolute;inset:0;z-index:0;opacity:.1;background-size:cover;background-position:center;filter:saturate(.85) contrast(1.04)}
+  .lw-mob-story-veil{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(13,18,25,.6) 0%,rgba(13,18,25,.9) 100%)}
+  .lw-mob-story-content{position:relative;z-index:2;max-width:520px;display:flex;flex-direction:column;align-items:center;gap:22px}
+  .lw-mob-story-stars{display:inline-flex;gap:3px;color:#c9a54e;font-size:14px;letter-spacing:.08em}
+  .lw-mob-story-q{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-style:italic;font-size:clamp(22px,5.8vw,30px);line-height:1.26;color:#faf8f5;letter-spacing:-.005em;margin:0}
+  .lw-mob-story-q em{font-style:italic;color:#c9a54e}
+  .lw-mob-story-author{font-family:'Syne',sans-serif;font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:rgba(250,248,245,.72);margin-top:8px}
+  .lw-mob-story-where{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:13px;color:rgba(250,248,245,.5);margin-top:2px}
+  .lw-mob-story-progress{position:absolute;top:16px;left:18px;right:18px;display:flex;gap:5px;z-index:3}
+  .lw-mob-story-progress span{flex:1;height:2px;background:rgba(250,248,245,.18);border-radius:1px;overflow:hidden;position:relative}
+  .lw-mob-story-progress span::after{content:"";position:absolute;left:0;top:0;bottom:0;background:#c9a54e;width:0;transition:width .35s ease}
+  .lw-mob-story-progress span.is-active::after{width:100%}
+  .lw-mob-story-progress span.is-past::after{width:100%;background:rgba(201,165,78,.55)}
+
+  /* hide the desktop testimonial when mobile story takes over */
+  body.lw-mob-story-on .lw-test{display:none}
+
+  /* ── 6. Pull-quote photo callout ─────────────────────────── */
+  .lw-mob-pull-thumb{display:inline-block;width:64px;height:64px;border-radius:50%;overflow:hidden;border:1px solid rgba(201,165,78,.55);float:right;margin:0 0 8px 14px;flex-shrink:0;background:#0a0f17;position:relative}
+  .lw-mob-pull-thumb::after{content:"";position:absolute;inset:3px;border-radius:50%;border:1px solid rgba(201,165,78,.18);pointer-events:none}
+  .lw-mob-pull-thumb img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.9) contrast(1.02)}
+
+  /* ── 7. Hero parallax depth ghost ────────────────────────── */
+  .lw-mob-hero-depth{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.5;transform:translate(8px,8px);overflow:hidden;mix-blend-mode:screen}
+  .lw-mob-hero-depth img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.85) contrast(1.1) blur(.4px)}
+  body.lw-mob-depth-scroll .lw-mob-hero-depth{transition:transform .15s linear}
+
+  /* ── 8. Trip-planner mini widget ─────────────────────────── */
+  .lw-mob-planner{margin:32px 18px 96px;padding:22px 20px;background:linear-gradient(180deg,rgba(201,165,78,.06),rgba(201,165,78,.02));border:1px solid rgba(201,165,78,.28);border-radius:6px;position:relative;overflow:hidden}
+  .lw-mob-planner::before{content:"";position:absolute;left:0;top:0;width:3px;height:100%;background:linear-gradient(180deg,#c9a54e 0%,rgba(201,165,78,.3) 100%)}
+  .lw-mob-planner-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:9.5px;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:8px}
+  .lw-mob-planner-h{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:20px;line-height:1.2;color:#faf8f5;margin:0 0 6px}
+  .lw-mob-planner-h em{font-style:italic;color:#c9a54e}
+  .lw-mob-planner-body{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:14px;line-height:1.5;color:rgba(250,248,245,.7);margin:0 0 14px}
+  .lw-mob-planner-select{display:block;width:100%;font:inherit;font-family:'Cormorant Garamond',Georgia,serif;font-size:15px;color:#faf8f5;background:rgba(255,255,255,.04);border:1px solid rgba(201,165,78,.32);border-radius:3px;padding:13px 12px;min-height:48px;appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#c9a54e 50%),linear-gradient(135deg,#c9a54e 50%,transparent 50%);background-position:calc(100% - 18px) 22px,calc(100% - 12px) 22px;background-size:6px 6px,6px 6px;background-repeat:no-repeat}
+  .lw-mob-planner-result{margin-top:12px;padding:12px 14px;background:rgba(201,165,78,.08);border-left:2px solid #c9a54e;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:14px;line-height:1.55;color:#faf8f5;min-height:50px;display:none}
+  .lw-mob-planner-result[data-shown="1"]{display:block}
+
+  /* ── 9. Inline images (interleaved with body text) ───────── */
+  .lw-mob-inline-img{display:block;width:100%;margin:24px 0;position:relative}
+  .lw-mob-inline-img img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border:1px solid rgba(201,165,78,.18)}
+  .lw-mob-inline-img figcaption{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:12.5px;line-height:1.42;color:rgba(250,248,245,.55);padding:8px 0 0;border-top:1px solid rgba(201,165,78,.2);margin-top:8px;display:flex;gap:8px;align-items:baseline}
+  .lw-mob-inline-img figcaption::before{content:"";display:inline-block;width:16px;height:1px;background:#c9a54e;flex-shrink:0;margin-top:7px}
+}
+
+/* ── 10. Hero CTA stacking — ≤480px ─────────────────────── */
+@media (max-width:480px){
+  .lw-actions{flex-direction:column !important;gap:14px !important;width:100%}
+  .lw-actions .lw-btn-gold{width:100% !important;min-height:64px !important;font-size:.78rem !important;letter-spacing:.26em !important;justify-content:center !important;padding:18px 22px !important;background:#c9a54e !important;color:#0a0f17 !important;box-shadow:0 14px 30px -10px rgba(201,165,78,.4) !important}
+  .lw-actions .lw-btn-outline{background:transparent !important;border:none !important;color:#c9a54e !important;text-decoration:underline;text-decoration-color:rgba(201,165,78,.4);text-underline-offset:5px;font-size:.72rem !important;letter-spacing:.22em !important;padding:6px 0 !important;min-height:auto !important;justify-content:center !important;width:100% !important}
+  .lw-actions .lw-btn-outline svg{transform:translateX(0);transition:transform .25s ease}
+  .lw-actions .lw-btn-outline:active svg{transform:translateX(4px)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .lw-mob-sheet,.lw-mob-scrim,.lw-mob-fab,.lw-mob-chapter-strip,.lw-mob-hero-depth{transition:none !important;animation:none !important}
+  .lw-mob-story-rail{scroll-behavior:auto}
+}
+</style>
 </head>
 <body>
 
@@ -1856,6 +1991,10 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
       <span class="lw-approach-eyebrow">Directed by</span>
       <h2 id="approach-h" class="lw-approach-h">Vianey Díaz.</h2>
       <p class="lw-approach-body">Every wedding is shot the way I would shoot my own. One signature tone across the gallery, one director on the day, one studio answering email from the first inquiry to the final archive. The standard does not change between forty guests and three days.</p>
+      <figure class="lw-mob-inline-img" aria-hidden="true">
+        <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-8.jpg" alt="Bride in soft afternoon light at a Cancun resort terrace" loading="lazy" width="1600" height="900"/>
+        <figcaption>The hour before the ceremony &mdash; a quiet frame the bride remembers.</figcaption>
+      </figure>
       <blockquote class="lw-approach-quote">We do not write packages. <em>We write briefs.</em></blockquote>
       <p class="lw-approach-body">Each archive is delivered in a hand-numbered linen box &mdash; proof prints, a USB, and a lay-flat album bound at a press in Mexico City.</p>
       <p class="lw-approach-sig">&mdash; Vianey Díaz, Director</p>
@@ -2006,6 +2145,40 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   </style>
 </section>
 
+<!-- ═══════ MOBILE-ONLY DETAILS GALLERY (Pattern 2) ═══════ -->
+<section class="lw-mob-details" aria-label="Wedding detail photographs" data-chapter="7b" data-theme-color="#0a0f17">
+  <header class="lw-mob-details-head">
+    <span class="lw-mob-details-eyebrow">In the Details</span>
+    <h2 class="lw-mob-details-h">The frames <em>between the frames.</em></h2>
+  </header>
+  <div class="lw-mob-details-rail" role="list">
+    <article class="lw-mob-details-card" role="listitem">
+      <figure><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-10.jpg" alt="Detail of bridal hands holding bouquet" loading="lazy" width="800" height="1000"/></figure>
+      <p class="lw-mob-details-cap">The bouquet, set down.</p>
+    </article>
+    <article class="lw-mob-details-card" role="listitem">
+      <figure><img src="/images/wedding-decor-cancun-ivae-studios.jpg" alt="Wedding reception table setting and floral details" loading="lazy" width="800" height="1000"/></figure>
+      <p class="lw-mob-details-cap">A table, before the guests.</p>
+    </article>
+    <article class="lw-mob-details-card" role="listitem">
+      <figure><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-9.jpg" alt="Detail of bride's dress and veil at golden hour" loading="lazy" width="800" height="1000"/></figure>
+      <p class="lw-mob-details-cap">The veil in the last light.</p>
+    </article>
+    <article class="lw-mob-details-card" role="listitem">
+      <figure><img src="/images/wedding-decor-playa-mujeres-ivae-studios.jpg" alt="Wedding ceremony floral arch details" loading="lazy" width="800" height="1000"/></figure>
+      <p class="lw-mob-details-cap">The arch, the ocean behind.</p>
+    </article>
+    <article class="lw-mob-details-card" role="listitem">
+      <figure><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-11.jpg" alt="Bride's shoes and ring detail" loading="lazy" width="800" height="1000"/></figure>
+      <p class="lw-mob-details-cap">The shoes, the rings, the morning.</p>
+    </article>
+    <article class="lw-mob-details-card" role="listitem">
+      <figure><img src="/images/wedding-reception-cancun-ivae-studios.jpg" alt="Reception detail of place setting and candlelight" loading="lazy" width="800" height="1000"/></figure>
+      <p class="lw-mob-details-cap">Candle, plate, place card.</p>
+    </article>
+  </div>
+</section>
+
 <!-- ═══════ FAQ (5 questions, accordion, below the close) ═══════ -->
 <section class="lw-section faq" data-chapter="8" data-theme-color="#0a0f17" id="faq" aria-labelledby="faq-h">
   <div class="lw-inner faq-inner">
@@ -2066,6 +2239,22 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   </div>
 </section>
 
+<!-- ═══════ MOBILE-ONLY TRIP-PLANNER WIDGET (Pattern 8) ═══════ -->
+<section class="lw-mob-planner" data-chapter="9b" aria-label="Trip planner widget">
+  <span class="lw-mob-planner-eyebrow">Planning your trip?</span>
+  <h2 class="lw-mob-planner-h">Tap to see ideal months by <em>resort</em></h2>
+  <p class="lw-mob-planner-body">Each coastline has its hour. Pick the resort closest to your stay &mdash; we will recommend the months that hold the light.</p>
+  <select class="lw-mob-planner-select" id="lwMobPlanner" aria-label="Choose resort area">
+    <option value="">Choose your resort area&hellip;</option>
+    <option value="cancun-hz">Cancún Hotel Zone (Nizuc, JW Marriott, Ritz, Kempinski)</option>
+    <option value="playa-mujeres">Playa Mujeres / Costa Mujeres (Excellence, SLS)</option>
+    <option value="mayakoba">Mayakoba (Rosewood, Fairmont, Andaz, Banyan)</option>
+    <option value="tulum">Tulum (Nomade, Be, Azulik, Habitas)</option>
+    <option value="los-cabos">Los Cabos (One&amp;Only, Las Ventanas, Esperanza)</option>
+    <option value="costa-palmas">Costa Palmas (Four Seasons, Amanvari)</option>
+  </select>
+  <div class="lw-mob-planner-result" id="lwMobPlannerResult" aria-live="polite"></div>
+</section>
 </main>
 
 <!-- Cinematic overlays (cursor, image preview) -->
@@ -2561,6 +2750,346 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   window.addEventListener('scroll',function(){if(ticking)return;ticking=true;requestAnimationFrame(function(){update();ticking=false})},{passive:true});
   window.addEventListener('resize',function(){if(cta.getAttribute('data-state')==='visible'&&window.innerWidth<=900){document.body.classList.add('lw-sticky-mob-on')}else if(window.innerWidth>900){document.body.classList.remove('lw-sticky-mob-on')}});
   update();
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MOBILE-NATIVE INIT (≤900px) — bottom-sheet, FAB, chapter strip,
+     story carousel, pull-thumb, depth ghost, planner widget.
+     Self-contained. Respects prefers-reduced-motion. No external deps.
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  'use strict';
+  if(!(window.matchMedia && window.matchMedia('(max-width:900px)').matches)) return;
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function ready(fn){ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', fn); else fn(); }
+
+  ready(function(){
+    var body = document.body;
+
+    /* ── A. BOTTOM-SHEET INQUIRY FORM ─────────────────────── */
+    (function buildSheet(){
+      var scrim = document.createElement('div');
+      scrim.className = 'lw-mob-scrim';
+      scrim.setAttribute('aria-hidden','true');
+      var sheet = document.createElement('div');
+      sheet.className = 'lw-mob-sheet';
+      sheet.setAttribute('role','dialog');
+      sheet.setAttribute('aria-modal','true');
+      sheet.setAttribute('aria-labelledby','lwMobSheetH');
+      sheet.setAttribute('aria-hidden','true');
+      sheet.innerHTML = ''
+        + '<div class="lw-mob-sheet-handle" aria-hidden="true"></div>'
+        + '<div class="lw-mob-sheet-head">'
+        +   '<span class="lw-mob-sheet-eyebrow">Begin Inquiry</span>'
+        +   '<h2 class="lw-mob-sheet-h" id="lwMobSheetH">Tell us the <em>shape</em> of the day.</h2>'
+        +   '<button type="button" class="lw-mob-sheet-close" aria-label="Close inquiry form">&times;</button>'
+        + '</div>'
+        + '<div class="lw-mob-sheet-body">'
+        +   '<form class="lw-mob-sheet-form" id="lwMobSheetForm" novalidate>'
+        +     '<div class="lw-mob-sheet-field"><label for="lwmfDate">Wedding date</label><input id="lwmfDate" name="date" type="date" autocomplete="off"/></div>'
+        +     '<div class="lw-mob-sheet-field"><label for="lwmfDest">Destination / Resort</label><input id="lwmfDest" name="destination" type="text" placeholder="Cancún · Mayakoba · Cabo&hellip;" autocomplete="off"/></div>'
+        +     '<div class="lw-mob-sheet-row">'
+        +       '<div class="lw-mob-sheet-field"><label for="lwmfGuests">Guests</label><input id="lwmfGuests" name="guests" type="number" inputmode="numeric" min="2" placeholder="e.g. 60"/></div>'
+        +       '<div class="lw-mob-sheet-field"><label for="lwmfHours">Hours</label><input id="lwmfHours" name="hours" type="number" inputmode="numeric" min="1" placeholder="e.g. 8"/></div>'
+        +     '</div>'
+        +     '<div class="lw-mob-sheet-field"><label for="lwmfEmail">Your email</label><input id="lwmfEmail" name="email" type="email" placeholder="you@email.com" autocomplete="email" required/></div>'
+        +     '<div class="lw-mob-sheet-field"><label for="lwmfNote">A short note</label><textarea id="lwmfNote" name="message" placeholder="Anything we should know about the day&hellip;" rows="3"></textarea></div>'
+        +     '<button type="submit" class="lw-mob-sheet-submit">Send to the Director'
+        +       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        +     '</button>'
+        +     '<p class="lw-mob-sheet-foot">Or message on <a href="https://wa.me/529902046514" target="_blank" rel="noopener">WhatsApp</a> &middot; <a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a></p>'
+        +   '</form>'
+        + '</div>';
+      document.body.appendChild(scrim);
+      document.body.appendChild(sheet);
+
+      var lastFocus = null;
+      function openSheet(){
+        lastFocus = document.activeElement;
+        scrim.setAttribute('data-open','1');
+        sheet.setAttribute('data-open','1');
+        sheet.setAttribute('aria-hidden','false');
+        body.classList.add('lw-mob-sheet-on');
+        setTimeout(function(){ var f = sheet.querySelector('input,select,textarea'); if(f) f.focus(); }, 360);
+      }
+      function closeSheet(){
+        scrim.removeAttribute('data-open');
+        sheet.removeAttribute('data-open');
+        sheet.setAttribute('aria-hidden','true');
+        body.classList.remove('lw-mob-sheet-on');
+        if(lastFocus && lastFocus.focus) try{ lastFocus.focus(); }catch(e){}
+      }
+      window.lwMobSheetOpen = openSheet;
+      window.lwMobSheetClose = closeSheet;
+
+      scrim.addEventListener('click', closeSheet);
+      sheet.querySelector('.lw-mob-sheet-close').addEventListener('click', closeSheet);
+      document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape' && sheet.getAttribute('data-open')==='1') closeSheet();
+      });
+
+      /* Drag-down dismiss */
+      var handle = sheet.querySelector('.lw-mob-sheet-handle');
+      var startY = 0, currentY = 0, dragging = false;
+      function onStart(e){
+        if(reduceMotion) return;
+        var t = e.touches ? e.touches[0] : e;
+        startY = t.clientY; currentY = 0; dragging = true;
+        sheet.setAttribute('data-dragging','1');
+      }
+      function onMove(e){
+        if(!dragging) return;
+        var t = e.touches ? e.touches[0] : e;
+        currentY = Math.max(0, t.clientY - startY);
+        sheet.style.transform = 'translateY(' + currentY + 'px)';
+      }
+      function onEnd(){
+        if(!dragging) return;
+        dragging = false;
+        sheet.removeAttribute('data-dragging');
+        sheet.style.transform = '';
+        if(currentY > 110) closeSheet();
+      }
+      handle.addEventListener('touchstart', onStart, {passive:true});
+      handle.addEventListener('touchmove', onMove, {passive:true});
+      handle.addEventListener('touchend', onEnd);
+      handle.addEventListener('touchcancel', onEnd);
+
+      /* Form submit to mailto */
+      var form = sheet.querySelector('#lwMobSheetForm');
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        var fd = new FormData(form);
+        var lines = [
+          'Hello Vianey,',
+          '',
+          'Wedding date: ' + (fd.get('date')||'(to be set)'),
+          'Destination: ' + (fd.get('destination')||'(not specified)'),
+          'Guests: ' + (fd.get('guests')||'(not specified)'),
+          'Coverage hours: ' + (fd.get('hours')||'(not specified)'),
+          '',
+          (fd.get('message')||'') ,
+          '',
+          '— Sent from the IVAE Studios mobile inquiry sheet.'
+        ];
+        var subject = 'Wedding Inquiry — ' + (fd.get('destination')||'IVAE Studios');
+        var mailto = 'mailto:hello@ivaestudios.com'
+          + '?subject=' + encodeURIComponent(subject)
+          + '&body=' + encodeURIComponent(lines.join('\n'));
+        if(fd.get('email')) mailto += '&from=' + encodeURIComponent(fd.get('email'));
+        window.location.href = mailto;
+      });
+
+      /* Hijack primary inquiry CTAs to open sheet on mobile */
+      var triggers = document.querySelectorAll('a[href="#inquiry"], a[href="mailto:hello@ivaestudios.com"], a[href^="mailto:hello@ivaestudios.com?"], .lw-inq2-btn, .h-cta, .lw-sticky-mob-primary');
+      Array.prototype.forEach.call(triggers, function(a){
+        a.addEventListener('click', function(e){
+          if(window.innerWidth > 900) return;
+          e.preventDefault();
+          openSheet();
+        });
+      });
+    })();
+
+    /* ── B. FLOATING WHATSAPP FAB ─────────────────────────── */
+    (function buildFab(){
+      var fab = document.createElement('a');
+      fab.className = 'lw-mob-fab';
+      fab.href = 'https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20inquire%20about%20a%20wedding';
+      fab.target = '_blank';
+      fab.rel = 'noopener';
+      fab.setAttribute('aria-label','WhatsApp the Director');
+      fab.innerHTML = '<svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 3C9.4 3 4 8.4 4 15c0 2.3.6 4.4 1.7 6.3L4 29l7.9-1.6c1.8 1 3.9 1.5 6.1 1.5h.1c6.6 0 12-5.4 12-12S22.6 3 16 3zm0 21.8c-1.9 0-3.7-.5-5.3-1.5l-.4-.2-4.7 1 1-4.5-.2-.4c-1-1.7-1.5-3.6-1.5-5.5C5 9.5 9.9 4.7 16 4.7S26.9 9.5 26.9 15 22 24.8 16 24.8zm6-7.5c-.3-.2-1.9-1-2.2-1.1-.3-.1-.5-.2-.7.2-.2.3-.8 1.1-1 1.3-.2.2-.4.2-.7 0-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-2-1.8-2.3-.2-.3 0-.5.1-.6.1-.1.3-.4.5-.6.2-.2.2-.3.3-.5.1-.2 0-.4 0-.6-.1-.2-.7-1.7-1-2.4-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.1 1.1-1.1 2.7 0 1.6 1.2 3.1 1.3 3.3.2.2 2.3 3.5 5.6 4.9.8.3 1.4.5 1.9.7.8.2 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.1-.3-.2-.6-.4z"/></svg>';
+      document.body.appendChild(fab);
+      window.lwMobFab = fab;
+
+      var inquiry = document.getElementById('inquiry');
+      if('IntersectionObserver' in window && inquiry){
+        var io = new IntersectionObserver(function(entries){
+          entries.forEach(function(en){
+            if(en.isIntersecting) fab.setAttribute('data-hidden','1');
+            else fab.removeAttribute('data-hidden');
+          });
+        },{rootMargin:'0px 0px -20% 0px',threshold:0.02});
+        io.observe(inquiry);
+      }
+
+      /* Gentle pulse every 8s */
+      if(!reduceMotion){
+        var pulseInt = setInterval(function(){
+          if(fab.getAttribute('data-hidden')==='1') return;
+          fab.setAttribute('data-pulse','1');
+          setTimeout(function(){ fab.removeAttribute('data-pulse'); }, 1500);
+        }, 8000);
+        window.addEventListener('pagehide', function(){ clearInterval(pulseInt); });
+      }
+    })();
+
+    /* ── C. STICKY CHAPTER STRIP ──────────────────────────── */
+    (function buildStrip(){
+      var strip = document.createElement('div');
+      strip.className = 'lw-mob-chapter-strip';
+      strip.setAttribute('aria-hidden','true');
+      strip.innerHTML = '<span class="lw-mob-chapter-strip-inner"><span class="lw-mob-chapter-strip-dot" aria-hidden="true"></span><span class="lw-mob-chapter-strip-label">Hero</span></span>';
+      document.body.appendChild(strip);
+      var label = strip.querySelector('.lw-mob-chapter-strip-label');
+
+      var sectionLabels = {
+        'lw-hero':'The Studio',
+        'pillars':'Why the Studio',
+        'lw-pause':'A Pause',
+        'lw-approach':'The Director',
+        'lw-work':'Recent Work',
+        'lw-test':'A Past Couple',
+        'lw-mob-details':'In the Details',
+        'lw-inq2':'Begin Inquiry',
+        'faq':'Questions'
+      };
+
+      if('IntersectionObserver' in window){
+        var io = new IntersectionObserver(function(entries){
+          entries.forEach(function(en){
+            if(en.isIntersecting){
+              var cls = en.target.className.split(' ');
+              var name = null;
+              for(var i=0;i<cls.length;i++){ if(sectionLabels[cls[i]]) { name = sectionLabels[cls[i]]; break; } }
+              if(!name && en.target.id && sectionLabels[en.target.id]) name = sectionLabels[en.target.id];
+              if(name){ label.textContent = name; }
+            }
+          });
+        },{rootMargin:'-30% 0px -55% 0px',threshold:0});
+        document.querySelectorAll('section[data-chapter]').forEach(function(s){ io.observe(s); });
+      }
+
+      window.addEventListener('scroll', function(){
+        var show = window.scrollY > 220;
+        if(show){ strip.setAttribute('data-visible','1'); body.classList.add('lw-mob-strip-on'); }
+        else { strip.removeAttribute('data-visible'); body.classList.remove('lw-mob-strip-on'); }
+      }, {passive:true});
+    })();
+
+    /* ── D. VERTICAL TESTIMONIAL STORY ────────────────────── */
+    (function buildStory(){
+      var testimonials = [
+        {q:'The studio did not just photograph our wedding. They composed it. <em>Vianey read the day like a film</em>, and the team moved through it like one breath.', name:'Marco Benedetti & Aria Lyons', where:'Cancún Hotel Zone · 2026', bg:'/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg'},
+        {q:'Our gallery from IVAE Studios looks like it belongs in a <em>magazine</em>. Every frame felt directed, never staged. We still scroll through it on the weekends.', name:'Samantha Whitfield', where:'Mayakoba · 2026', bg:'/images/wedding-bride-cancun-hotel-zone-ivae-studios-15.jpg'},
+        {q:'The golden hour portraits on the beach are the most beautiful images we have ever seen <em>of ourselves</em>. IVAE delivered a private archive, not a gallery.', name:'Priya Raghavan', where:'Cabo San Lucas · 2025', bg:'/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg'}
+      ];
+
+      var story = document.createElement('section');
+      story.className = 'lw-mob-story';
+      story.setAttribute('data-active','1');
+      story.setAttribute('aria-label','Past couples');
+      var progress = '<div class="lw-mob-story-progress" aria-hidden="true">';
+      testimonials.forEach(function(_,i){ progress += '<span' + (i===0?' class="is-active"':'') + '></span>'; });
+      progress += '</div>';
+      story.innerHTML = progress + '<div class="lw-mob-story-rail" role="list">' + testimonials.map(function(t){
+        return '<article class="lw-mob-story-card" role="listitem">'
+          + '<div class="lw-mob-story-bg" style="background-image:url(' + t.bg + ')"></div>'
+          + '<div class="lw-mob-story-veil"></div>'
+          + '<div class="lw-mob-story-content">'
+          +   '<span class="lw-mob-story-stars" aria-label="Five stars">★ ★ ★ ★ ★</span>'
+          +   '<p class="lw-mob-story-q">' + t.q + '</p>'
+          +   '<span class="lw-mob-story-author">' + t.name + '</span>'
+          +   '<span class="lw-mob-story-where">' + t.where + '</span>'
+          + '</div>'
+          + '</article>';
+      }).join('') + '</div>';
+
+      var testSection = document.querySelector('.lw-test');
+      if(testSection && testSection.parentNode){
+        testSection.parentNode.insertBefore(story, testSection.nextSibling);
+        body.classList.add('lw-mob-story-on');
+      }
+
+      var rail = story.querySelector('.lw-mob-story-rail');
+      var dots = story.querySelectorAll('.lw-mob-story-progress span');
+      var current = 0;
+      rail.addEventListener('scroll', function(){
+        var w = rail.clientWidth;
+        var idx = Math.round(rail.scrollLeft / Math.max(1, w));
+        idx = Math.max(0, Math.min(testimonials.length-1, idx));
+        if(idx === current) return;
+        for(var i=0;i<dots.length;i++){
+          dots[i].classList.remove('is-active');
+          dots[i].classList.remove('is-past');
+          if(i < idx) dots[i].classList.add('is-past');
+          if(i === idx) dots[i].classList.add('is-active');
+        }
+        current = idx;
+      }, {passive:true});
+    })();
+
+    /* ── E. PULL-QUOTE PHOTO CALLOUT ──────────────────────── */
+    (function pullThumbs(){
+      var thumbSrc = '/images/wedding-bride-cancun-hotel-zone-ivae-studios-13.jpg';
+      var quotes = document.querySelectorAll('.lw-pullquote blockquote, .lw-approach-quote');
+      Array.prototype.forEach.call(quotes, function(q){
+        if(q.querySelector('.lw-mob-pull-thumb')) return;
+        var thumb = document.createElement('span');
+        thumb.className = 'lw-mob-pull-thumb';
+        thumb.setAttribute('aria-hidden','true');
+        thumb.innerHTML = '<img src="' + thumbSrc + '" alt=""/>';
+        q.insertBefore(thumb, q.firstChild);
+      });
+    })();
+
+    /* ── F. HERO PARALLAX DEPTH GHOST ─────────────────────── */
+    (function depthGhost(){
+      if(reduceMotion) return;
+      var hero = document.querySelector('.lw-hero');
+      if(!hero) return;
+      var heroImg = hero.querySelector('.lw-hero-img img, picture img');
+      if(!heroImg) return;
+      var ghost = document.createElement('div');
+      ghost.className = 'lw-mob-hero-depth';
+      ghost.setAttribute('aria-hidden','true');
+      var img = document.createElement('img');
+      img.src = heroImg.currentSrc || heroImg.src;
+      img.alt = '';
+      ghost.appendChild(img);
+      var heroBg = hero.querySelector('.lw-hero-img');
+      if(heroBg && heroBg.parentNode){
+        heroBg.parentNode.insertBefore(ghost, heroBg.nextSibling);
+      } else {
+        hero.appendChild(ghost);
+      }
+      body.classList.add('lw-mob-depth-scroll');
+      var ticking = false;
+      window.addEventListener('scroll', function(){
+        if(ticking) return; ticking = true;
+        requestAnimationFrame(function(){
+          var y = window.scrollY * 0.04;
+          ghost.style.transform = 'translate(8px, ' + (8 + y) + 'px)';
+          ticking = false;
+        });
+      }, {passive:true});
+    })();
+
+    /* ── G. TRIP-PLANNER WIDGET ───────────────────────────── */
+    (function planner(){
+      var sel = document.getElementById('lwMobPlanner');
+      var out = document.getElementById('lwMobPlannerResult');
+      if(!sel || !out) return;
+      var advice = {
+        'cancun-hz':'Cancún Hotel Zone: <strong>Nov – April</strong> for dry season. December and February hold the calmest light. Avoid late August (hurricane window).',
+        'playa-mujeres':'Playa Mujeres: <strong>December – March</strong>. Early sunsets, mild breeze, the sand stays cool through the ceremony.',
+        'mayakoba':'Mayakoba: <strong>January – March</strong>. The lagoon mist at sunrise is rare and worth shooting at 6:30 AM.',
+        'tulum':'Tulum: <strong>November – early March</strong>. Jungle humidity drops; sargassum is lowest December through February.',
+        'los-cabos':'Los Cabos: <strong>October – May</strong>. The Pacific side is windy &mdash; we shoot from the Sea of Cortez at dawn.',
+        'costa-palmas':'Costa Palmas: <strong>November – April</strong>. Sea of Cortez light is at its honest peak in February.'
+      };
+      sel.addEventListener('change', function(){
+        var v = sel.value;
+        if(!v){ out.removeAttribute('data-shown'); return; }
+        out.innerHTML = advice[v] || '';
+        out.setAttribute('data-shown','1');
+      });
+    })();
+
+  });
 })();
 </script>
 
