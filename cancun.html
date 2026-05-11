@@ -747,8 +747,9 @@ html.dark body{background:var(--ink);color:var(--cream)}
 </style>
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260512a">
 <link rel="stylesheet" href="/styles/bottom-nav.css?v=20260512a">
+<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512l">
 </head>
-<body class="has-bottom-tabs">
+<body class="has-bottom-tabs ivm-page">
 <a href="#main-content" class="skip-link">Skip to content</a>
 <div class="ai-disambiguation" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
 <h2>About IVAE Studios</h2>
@@ -786,6 +787,361 @@ html.dark body{background:var(--ink);color:var(--cream)}
   <a href="/blog">Blog</a>
   <a href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20visiting%20Cancún%20and%20interested%20in%20a%20photo%20session" target="_blank" rel="noopener" aria-label="Book a session on WhatsApp (opens in new tab)">Book Now</a>
 </nav>
+<!-- ═══════════════════════════════════════════════════════════════════════
+     MOBILE SCROLLYTELLING — Cancún location page (EN) — ≤768px exclusive
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="ivm">
+
+  <!-- ACT 0 — LOADER -->
+  <div class="ivm-loader" id="ivmLoader" aria-hidden="true">
+    <div class="ivm-loader__mark">
+      <span>I</span><span>V</span><span>A</span><span>E</span><span class="dot">.</span>
+    </div>
+    <div class="ivm-loader__sub">Cancún · Quintana Roo</div>
+  </div>
+
+  <!-- ACT I — HERO -->
+  <section class="ivm-act-hero" aria-labelledby="ivm-cnc-h1">
+    <div class="ivm-act-hero__layer">
+      <picture>
+        <img class="ivm-act-hero__photo"
+             src="/images/family-cancun-hotel-zone-ivae-studios-1280.jpg"
+             srcset="/images/family-cancun-hotel-zone-ivae-studios-960.jpg 960w,
+                     /images/family-cancun-hotel-zone-ivae-studios-1280.jpg 1280w,
+                     /images/family-cancun-hotel-zone-ivae-studios-1600.jpg 1600w,
+                     /images/family-cancun-hotel-zone-ivae-studios.jpg 2400w"
+             sizes="100vw"
+             alt="A family at sunset on a Cancún Hotel Zone beach photographed by IVAE Studios"
+             loading="eager" fetchpriority="high" decoding="async"
+             width="1600" height="1067">
+      </picture>
+      <div class="ivm-act-hero__veil" aria-hidden="true"></div>
+    </div>
+    <div class="ivm-act-hero__copy">
+      <span class="ivm-act-hero__eyebrow">Cancún · Mexico</span>
+      <h1 class="ivm-act-hero__title" id="ivm-cnc-h1" data-cascade>
+        <span class="w" style="animation-delay:2.4s">Cancún </span><span class="w" style="animation-delay:2.55s">photography </span><span class="w" style="animation-delay:2.7s"><em>by appointment.</em></span>
+      </h1>
+    </div>
+    <div class="ivm-act-hero__scroll" aria-hidden="true">Scroll</div>
+  </section>
+
+  <!-- ACT II — Three lights, one coast (sticky reveal) -->
+  <section class="ivm-act-hour" aria-labelledby="ivm-cnc-beliefs-h">
+    <h2 id="ivm-cnc-beliefs-h" class="visually-hidden" style="position:absolute;left:-9999px">Three lights on one coast</h2>
+    <div class="ivm-act-hour__pin">
+      <div class="ivm-act-hour__photo"
+           style="background-image:url('/images/couple-cancun-hotel-zone-ivae-studios-9-960.jpg');"></div>
+      <div class="ivm-act-hour__stage">
+        <p class="ivm-act-hour__line" data-line="0">Playa Delfines, sunrise.</p>
+        <p class="ivm-act-hour__line" data-line="1">Hotel Zone, sunset.</p>
+        <p class="ivm-act-hour__line" data-line="2">Playa Mujeres, blue hour.</p>
+        <p class="ivm-act-hour__line" data-line="3"><em>One coast. Three lights.</em></p>
+      </div>
+      <div class="ivm-act-hour__progress" aria-hidden="true">
+        <span data-prog="0"></span><span data-prog="1"></span><span data-prog="2"></span><span data-prog="3"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT III — Services in Cancún (4 card stack) -->
+  <section class="ivm-act-services" id="ivm-cnc-services" aria-labelledby="ivm-cnc-svc-h">
+    <div class="ivm-act-services__pin">
+      <div class="ivm-act-services__title">
+        <span class="ivm-act-services__eyebrow">Services in Cancún</span>
+        <h2 id="ivm-cnc-svc-h">Four ways to <em>be photographed.</em></h2>
+      </div>
+
+      <div class="ivm-act-services__stage" id="ivmSvcStage">
+        <a class="ivm-svc" href="/luxury-weddings" data-svc-idx="0">
+          <div class="ivm-svc__photo">
+            <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-8-960.jpg" alt="Cancún destination wedding photography" loading="lazy">
+            <span class="ivm-svc__num">I.</span>
+          </div>
+          <div class="ivm-svc__body">
+            <h3 class="ivm-svc__title"><em>Weddings</em></h3>
+            <p class="ivm-svc__desc">Editorial coverage at JW Marriott, Nizuc, Kempinski, Le Blanc. Rehearsal to last dance.</p>
+            <span class="ivm-svc__arrow">Open →</span>
+          </div>
+        </a>
+        <a class="ivm-svc" href="/couples-photography" data-svc-idx="1">
+          <div class="ivm-svc__photo">
+            <img src="/images/couple-cancun-hotel-zone-ivae-studios-9-960.jpg" alt="Cancún couples and honeymoon photography" loading="lazy">
+            <span class="ivm-svc__num">II.</span>
+          </div>
+          <div class="ivm-svc__body">
+            <h3 class="ivm-svc__title">Couples</h3>
+            <p class="ivm-svc__desc">Honeymoons and anniversaries at sunset on Playa Delfines and Hotel Zone beaches.</p>
+            <span class="ivm-svc__arrow">Open →</span>
+          </div>
+        </a>
+        <a class="ivm-svc" href="/luxury-family-photos" data-svc-idx="2">
+          <div class="ivm-svc__photo">
+            <img src="/images/family-cancun-hotel-zone-ivae-studios-960.jpg" alt="Cancún family editorial sessions" loading="lazy">
+            <span class="ivm-svc__num">III.</span>
+          </div>
+          <div class="ivm-svc__body">
+            <h3 class="ivm-svc__title"><em>Family</em></h3>
+            <p class="ivm-svc__desc">Multi-generational sessions at luxury resorts. Calm direction, three quiet hours.</p>
+            <span class="ivm-svc__arrow">Open →</span>
+          </div>
+        </a>
+        <a class="ivm-svc" href="/couples-photography" data-svc-idx="3">
+          <div class="ivm-svc__photo">
+            <img src="/images/couple-cabo-san-lucas-ivae-studios-960.jpg" alt="Cancún proposal photography" loading="lazy">
+            <span class="ivm-svc__num">IV.</span>
+          </div>
+          <div class="ivm-svc__body">
+            <h3 class="ivm-svc__title">Proposals</h3>
+            <p class="ivm-svc__desc">Surprise proposals on Cancún beaches. Discreet planning, perfect timing, hidden setup.</p>
+            <span class="ivm-svc__arrow">Open →</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="ivm-act-services__dots" aria-hidden="true" id="ivmSvcDots">
+        <span class="is-on"></span><span></span><span></span><span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT IV — Counter -->
+  <section class="ivm-act-counter" aria-labelledby="ivm-cnc-cnt-h">
+    <span class="ivm-act-counter__eyebrow">In Cancún</span>
+    <h2 id="ivm-cnc-cnt-h">Three lights. <em>One coast.</em></h2>
+    <div class="ivm-act-counter__grid">
+      <div class="ivm-stat">
+        <span class="ivm-stat__num" data-count-to="200" data-suffix="+">0</span>
+        <span class="ivm-stat__label">Sessions in Cancún</span>
+      </div>
+      <div class="ivm-stat">
+        <span class="ivm-stat__num" data-count-to="5">0</span>
+        <span class="ivm-stat__label">Reviews ★</span>
+      </div>
+      <div class="ivm-stat">
+        <span class="ivm-stat__num" data-count-to="24">0</span>
+        <span class="ivm-stat__label">Hour reply</span>
+      </div>
+      <div class="ivm-stat">
+        <span class="ivm-stat__num" data-count-to="100" data-suffix="%">0</span>
+        <span class="ivm-stat__label">Bilingual</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT V — Reel -->
+  <section class="ivm-act-reel" aria-labelledby="ivm-cnc-reel-h">
+    <div class="ivm-act-reel__head">
+      <span class="ivm-act-reel__eyebrow">Recent work in Cancún</span>
+      <h2 id="ivm-cnc-reel-h">From the <em>coast.</em></h2>
+    </div>
+    <div class="ivm-act-reel__track" id="ivmReelTrack" role="region" aria-label="Recent Cancún work">
+      <a class="ivm-reel-card" href="/luxury-family-photos">
+        <img src="/images/family-cancun-hotel-zone-ivae-studios-960.jpg" alt="Family beach session at JW Marriott Cancun at sunset" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">JW Marriott Cancun</span>
+          <span class="ivm-reel-card__title">Family beach session at sunset</span>
+        </div>
+      </a>
+      <a class="ivm-reel-card" href="/couples-photography">
+        <img src="/images/couple-cancun-hotel-zone-ivae-studios-9-960.jpg" alt="Couple's anniversary at Nizuc Resort at golden hour" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">Nizuc Resort</span>
+          <span class="ivm-reel-card__title">Couple's anniversary at golden hour</span>
+        </div>
+      </a>
+      <a class="ivm-reel-card" href="/luxury-weddings">
+        <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-8-960.jpg" alt="Wedding rehearsal dinner at Kempinski Cancun" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">Kempinski Cancun</span>
+          <span class="ivm-reel-card__title">Wedding rehearsal dinner</span>
+        </div>
+      </a>
+      <a class="ivm-reel-card" href="/couples-photography">
+        <img src="/images/couple-cabo-san-lucas-ivae-studios-960.jpg" alt="Proposal at Le Blanc Spa Cancun at sunset" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">Le Blanc Spa</span>
+          <span class="ivm-reel-card__title">Proposal at sunset</span>
+        </div>
+      </a>
+      <a class="ivm-reel-card" href="/luxury-editorial">
+        <img src="/images/editorial-cancun-ivae-studios-960.jpg" alt="Sunrise editorial at Playa Delfines Cancun" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">Playa Delfines</span>
+          <span class="ivm-reel-card__title">Sunrise editorial</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ACT VI — Final CTA -->
+  <section class="ivm-act-cta" id="ivm-cnc-cta">
+    <div class="ivm-act-cta__bg" style="background-image:url('/images/wedding-bride-cancun-hotel-zone-ivae-studios-8-960.jpg');" aria-hidden="true"></div>
+    <div class="ivm-act-cta__veil" aria-hidden="true"></div>
+    <div class="ivm-act-cta__inner">
+      <span class="ivm-act-cta__eyebrow">Inquire 2026 dates</span>
+      <h2 class="ivm-act-cta__title">Begin the<br><em>conversation.</em></h2>
+      <p class="ivm-act-cta__sub">Same-business-day replies. Bilingual on the day. Limited 2026 / 2027 Cancún dates.</p>
+      <a class="ivm-act-cta__btn" href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20visiting%20Canc%C3%BAn%20and%20interested%20in%20a%20photo%20session" target="_blank" rel="noopener">
+        <span>Message Vianey →</span>
+      </a>
+      <a class="ivm-act-cta__alt" href="mailto:hello@ivaestudios.com">or write hello@ivaestudios.com</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="ivm-act-foot">
+    <p class="ivm-act-foot__mark">IVAE <em>Studios</em></p>
+    <p class="ivm-act-foot__tag">Cancún · Quintana Roo · México</p>
+    <div class="ivm-act-foot__links">
+      <a href="/about">About</a>
+      <a href="/blog">Journal</a>
+      <a href="/es/fotografo-cancun" lang="es">ES</a>
+    </div>
+    <p class="ivm-act-foot__copy">© 2026 IVAE Studios · Cancún, México</p>
+  </footer>
+</div>
+<!-- ═══════════════════════════════════════════════════════════════════════
+     END MOBILE-EXCLUSIVE — Cancún (EN)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<script>
+/* IVAE Mobile Scrollytelling — Cancún location orchestrator */
+(function(){
+  if (window.matchMedia && !matchMedia('(max-width:899px)').matches) return;
+
+  setTimeout(function(){ document.body.classList.add('ivm-loaded'); }, 3700);
+
+  var hourSection = document.querySelector('.ivm-act-hour');
+  var hourLines = document.querySelectorAll('.ivm-act-hour__line');
+  var hourProg  = document.querySelectorAll('.ivm-act-hour__progress span');
+  var hourPhoto = document.querySelector('.ivm-act-hour__photo');
+  if (hourSection && hourLines.length) {
+    var hourTicking = false;
+    function updateHour() {
+      hourTicking = false;
+      var rect = hourSection.getBoundingClientRect();
+      var total = rect.height - window.innerHeight;
+      var scrolled = -rect.top;
+      var p = Math.max(0, Math.min(1, scrolled / total));
+      var lineIdx = Math.min(3, Math.floor(p * 4));
+      hourLines.forEach(function(line, i){
+        line.classList.remove('is-on', 'is-off');
+        if (i === lineIdx) line.classList.add('is-on');
+        else if (i < lineIdx) line.classList.add('is-off');
+      });
+      hourProg.forEach(function(s, i){ s.classList.toggle('is-on', i <= lineIdx); });
+      if (hourPhoto) {
+        var zoom = 1 + p * 0.12;
+        var ty = (p - 0.5) * 60;
+        hourPhoto.style.transform = 'scale(' + zoom + ') translateY(' + ty + 'px)';
+      }
+    }
+    window.addEventListener('scroll', function(){
+      if (!hourTicking) {
+        requestAnimationFrame(updateHour);
+        hourTicking = true;
+      }
+    }, {passive: true});
+    updateHour();
+  }
+
+  var svcSection = document.querySelector('.ivm-act-services');
+  var svcCards = document.querySelectorAll('.ivm-svc');
+  var svcDots = document.querySelectorAll('.ivm-act-services__dots span');
+  if (svcSection && svcCards.length) {
+    var svcTicking = false;
+    function updateSvc() {
+      svcTicking = false;
+      var rect = svcSection.getBoundingClientRect();
+      var total = rect.height - window.innerHeight;
+      var scrolled = -rect.top;
+      var p = Math.max(0, Math.min(1, scrolled / total));
+      var activeIdx = Math.min(3, Math.floor(p * 4));
+      svcCards.forEach(function(card, i){
+        if (i === activeIdx) card.setAttribute('data-pos', 'active');
+        else if (i === activeIdx - 1) card.setAttribute('data-pos', 'behind');
+        else if (i < activeIdx) card.setAttribute('data-pos', 'past');
+        else card.setAttribute('data-pos', 'below');
+      });
+      svcDots.forEach(function(d, i){ d.classList.toggle('is-on', i === activeIdx); });
+    }
+    svcCards.forEach(function(card, i){
+      card.setAttribute('data-pos', i === 0 ? 'active' : 'below');
+    });
+    window.addEventListener('scroll', function(){
+      if (!svcTicking) {
+        requestAnimationFrame(updateSvc);
+        svcTicking = true;
+      }
+    }, {passive: true});
+  }
+
+  var counters = document.querySelectorAll('.ivm [data-count-to]');
+  if (counters.length) {
+    var cio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (!e.isIntersecting) return;
+        var el = e.target;
+        if (el.dataset.counted === '1') return;
+        el.dataset.counted = '1';
+        var target = parseFloat(el.dataset.countTo);
+        var suffix = el.dataset.suffix || '';
+        var dur = 1800;
+        var start = performance.now();
+        function tick(now){
+          var t = Math.min(1, (now - start) / dur);
+          var eased = 1 - Math.pow(1 - t, 3);
+          var val = target * eased;
+          if (target >= 100) {
+            el.textContent = Math.floor(val).toLocaleString() + suffix;
+          } else if (target < 10) {
+            el.textContent = (target * eased).toFixed(1).replace('.0', '') + suffix;
+          } else {
+            el.textContent = Math.floor(val) + suffix;
+          }
+          if (t < 1) requestAnimationFrame(tick);
+          else el.textContent = target + suffix;
+        }
+        requestAnimationFrame(tick);
+        cio.unobserve(el);
+      });
+    }, {threshold: 0.4});
+    counters.forEach(function(c){ cio.observe(c); });
+  }
+
+  var reelTrack = document.getElementById('ivmReelTrack');
+  var reelCards = document.querySelectorAll('.ivm-reel-card');
+  if (reelTrack && reelCards.length) {
+    var reelTicking = false;
+    function updateReelCenter() {
+      reelTicking = false;
+      var trackRect = reelTrack.getBoundingClientRect();
+      var centerX = trackRect.left + trackRect.width / 2;
+      var bestIdx = -1;
+      var bestDist = Infinity;
+      reelCards.forEach(function(c, i){
+        var r = c.getBoundingClientRect();
+        var cardCenter = r.left + r.width / 2;
+        var d = Math.abs(cardCenter - centerX);
+        if (d < bestDist) { bestDist = d; bestIdx = i; }
+      });
+      reelCards.forEach(function(c, i){
+        c.classList.toggle('is-center', i === bestIdx);
+      });
+    }
+    reelTrack.addEventListener('scroll', function(){
+      if (!reelTicking) { requestAnimationFrame(updateReelCenter); reelTicking = true; }
+    }, {passive: true});
+    window.addEventListener('resize', updateReelCenter, {passive: true});
+    setTimeout(updateReelCenter, 50);
+  }
+
+})();
+</script>
+<!-- ═══════════════════════════════════════════════════════════════════════
+     Below: desktop-only (hidden ≤768px).
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="ivm-desktop-only">
 <!-- Hero -->
 <section class="hero" id="main-content" data-chapter="1">
   <div class="hero-bg">
@@ -1640,6 +1996,10 @@ document.querySelectorAll('.faq-q').forEach(btn=>{btn.addEventListener('click',(
   });
 })();
 </script>
+</div>
+<!-- ═══════════════════════════════════════════════════════════════════════
+     END DESKTOP-ONLY — Cancún (EN)
+     ═══════════════════════════════════════════════════════════════════════ -->
 <!-- WhatsApp FAB (site-wide CTA) -->
 <a class="ivae-wa-fab" href="https://wa.me/529902046514?text=Hola%20IVAE%2C%20me%20interesa%20una%20sesi%C3%B3n%20de%20fotograf%C3%ADa" target="_blank" rel="noopener" aria-label="Message Vianey on WhatsApp (opens in new tab)" data-pulse="1"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.967-.94 1.164-.173.198-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413"/></svg></a>
 

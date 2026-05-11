@@ -664,8 +664,9 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
 </style>
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260512a">
 <link rel="stylesheet" href="/styles/bottom-nav.css?v=20260512a">
+<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512l">
 </head>
-<body class="has-bottom-tabs">
+<body class="has-bottom-tabs ivm-page">
 <a href="#main-content" class="skip-link">Skip to content</a>
 <div class="ai-disambiguation" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
 <h2>About IVAE Studios</h2>
@@ -702,8 +703,363 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
   <a href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20visiting%20Riviera%20Maya%20and%20interested%20in%20a%20photo%20session" target="_blank" rel="noopener" aria-label="Book a photography session via WhatsApp (opens in a new tab)">Book Now</a>
 </nav>
 
+<main id="main-content">
+<!-- ═══════════════════════════════════════════════════════════════════════
+     MOBILE SCROLLYTELLING — Riviera Maya, animation-driven ≤899px
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="ivm">
+
+  <!-- ACT 0 — LOADER -->
+  <div class="ivm-loader" id="ivmLoader" aria-hidden="true">
+    <div class="ivm-loader__mark">
+      <span>I</span><span>V</span><span>A</span><span>E</span><span class="dot">.</span>
+    </div>
+    <div class="ivm-loader__sub">Riviera Maya &middot; Tulum &middot; Mayakoba</div>
+  </div>
+
+  <!-- ACT I — HERO with 3D word cascade + photo zoom -->
+  <section class="ivm-act-hero" aria-labelledby="ivm-rvr-h1">
+    <div class="ivm-act-hero__layer">
+      <picture>
+        <img class="ivm-act-hero__photo"
+             src="/images/wedding-bride-tulum-ivae-studios-1600.jpg"
+             srcset="/images/wedding-bride-tulum-ivae-studios-480.jpg 480w,
+                     /images/wedding-bride-tulum-ivae-studios-960.jpg 960w,
+                     /images/wedding-bride-tulum-ivae-studios-1600.jpg 1600w,
+                     /images/wedding-bride-tulum-ivae-studios.jpg 2400w"
+             sizes="100vw"
+             alt="Bride at golden hour on a Tulum beach during a destination wedding photographed by IVAE Studios"
+             loading="eager" fetchpriority="high" decoding="async"
+             width="1600" height="1067">
+      </picture>
+      <div class="ivm-act-hero__veil" aria-hidden="true"></div>
+    </div>
+    <div class="ivm-act-hero__copy">
+      <span class="ivm-act-hero__eyebrow">Riviera Maya &middot; Mexico</span>
+      <h1 class="ivm-act-hero__title" id="ivm-rvr-h1" data-cascade>
+        <span class="w" style="animation-delay:2.4s">Riviera Maya </span><span class="w" style="animation-delay:2.55s">photography </span><span class="w" style="animation-delay:2.7s"><em>by appointment.</em></span>
+      </h1>
+    </div>
+    <div class="ivm-act-hero__scroll" aria-hidden="true">Scroll</div>
+  </section>
+
+  <!-- ACT II — "The Hour" sticky scroll story -->
+  <section class="ivm-act-hour" aria-label="The hour we work">
+    <div class="ivm-act-hour__pin">
+      <div class="ivm-act-hour__photo"
+           style="background-image:url('/images/wedding-bride-tulum-ivae-studios-960.jpg');"></div>
+      <div class="ivm-act-hour__stage">
+        <p class="ivm-act-hour__line" data-line="0">Tulum at sunrise.</p>
+        <p class="ivm-act-hour__line" data-line="1">Mayakoba at sunset.</p>
+        <p class="ivm-act-hour__line" data-line="2">Cenotes at blue hour,</p>
+        <p class="ivm-act-hour__line" data-line="3"><em>jungle on the way back.</em></p>
+      </div>
+      <div class="ivm-act-hour__progress" aria-hidden="true">
+        <span data-prog="0"></span><span data-prog="1"></span><span data-prog="2"></span><span data-prog="3"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT III — Resorts & locations (sticky 3D card stack, 4 cards) -->
+  <section class="ivm-act-services" id="ivm-rvr-beliefs" aria-labelledby="ivm-rvr-beliefs-h">
+    <div class="ivm-act-services__pin">
+      <div class="ivm-act-services__title">
+        <span class="ivm-act-services__eyebrow">Where we photograph</span>
+        <h2 id="ivm-rvr-beliefs-h">Four resorts. <em>One light.</em></h2>
+      </div>
+
+      <div class="ivm-act-services__stage" id="ivmSvcStage">
+        <a class="ivm-svc" href="#ivm-rvr-cta" data-svc-idx="0">
+          <div class="ivm-svc__photo">
+            <img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Couple at Rosewood Mayakoba lagoons" loading="lazy">
+            <span class="ivm-svc__num">I.</span>
+          </div>
+          <div class="ivm-svc__body">
+            <h3 class="ivm-svc__title"><em>Rosewood Mayakoba</em></h3>
+            <p class="ivm-svc__desc">Lagoons, mangroves, butler service. Editorial coverage in the studio's home resort.</p>
+            <span class="ivm-svc__arrow">Inquire &rarr;</span>
+          </div>
+        </a>
+        <a class="ivm-svc" href="#ivm-rvr-cta" data-svc-idx="1">
+          <div class="ivm-svc__photo">
+            <img src="/images/wedding-bride-tulum-ivae-studios-960.jpg" alt="Bride at Banyan Tree Mayakoba" loading="lazy">
+            <span class="ivm-svc__num">II.</span>
+          </div>
+          <div class="ivm-svc__body">
+            <h3 class="ivm-svc__title">Banyan Tree</h3>
+            <p class="ivm-svc__desc">Forty-two acres on the Mayan jungle's edge. Bridges, water villas, gold hour.</p>
+            <span class="ivm-svc__arrow">Inquire &rarr;</span>
+          </div>
+        </a>
+        <a class="ivm-svc" href="#ivm-rvr-cta" data-svc-idx="2">
+          <div class="ivm-svc__photo">
+            <img src="/images/couple-akumal-ivae-studios.jpg" alt="Couple session at Tulum beach palapas" loading="lazy">
+            <span class="ivm-svc__num">III.</span>
+          </div>
+          <div class="ivm-svc__body">
+            <h3 class="ivm-svc__title"><em>Tulum</em></h3>
+            <p class="ivm-svc__desc">Cenotes, beach palapas, jungle ruins. The boho-luxury aesthetic, edited.</p>
+            <span class="ivm-svc__arrow">Inquire &rarr;</span>
+          </div>
+        </a>
+        <a class="ivm-svc" href="#ivm-rvr-cta" data-svc-idx="3">
+          <div class="ivm-svc__photo">
+            <img src="/images/editorial-cancun-ivae-studios-960.jpg" alt="Editorial underwater cenote session in Akumal" loading="lazy">
+            <span class="ivm-svc__num">IV.</span>
+          </div>
+          <div class="ivm-svc__body">
+            <h3 class="ivm-svc__title">Akumal &amp; <em>cenotes</em></h3>
+            <p class="ivm-svc__desc">Underwater editorial sessions in private cenotes. Bilingual, calm, never staged.</p>
+            <span class="ivm-svc__arrow">Inquire &rarr;</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="ivm-act-services__dots" aria-hidden="true" id="ivmSvcDots">
+        <span class="is-on"></span><span></span><span></span><span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT IV — Counter -->
+  <section class="ivm-act-counter" aria-labelledby="ivm-rvr-cnt-h">
+    <span class="ivm-act-counter__eyebrow">In the Riviera</span>
+    <h2 id="ivm-rvr-cnt-h">Four resorts. <em>One light.</em></h2>
+    <div class="ivm-act-counter__grid">
+      <div class="ivm-stat">
+        <span class="ivm-stat__num" data-count-to="220" data-suffix="+">0</span>
+        <span class="ivm-stat__label">Sessions in Riviera</span>
+      </div>
+      <div class="ivm-stat">
+        <span class="ivm-stat__num" data-count-to="5.0">0</span>
+        <span class="ivm-stat__label">Reviews &starf;</span>
+      </div>
+      <div class="ivm-stat">
+        <span class="ivm-stat__num" data-count-to="24" data-suffix="h">0</span>
+        <span class="ivm-stat__label">Hour reply</span>
+      </div>
+      <div class="ivm-stat">
+        <span class="ivm-stat__num" data-count-to="100" data-suffix="%">0</span>
+        <span class="ivm-stat__label">Bilingual</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT V — Depth reel (horizontal carousel) -->
+  <section class="ivm-act-reel" aria-labelledby="ivm-rvr-reel-h">
+    <div class="ivm-act-reel__head">
+      <span class="ivm-act-reel__eyebrow">Recent work</span>
+      <h2 id="ivm-rvr-reel-h">From the <em>Riviera.</em></h2>
+    </div>
+    <div class="ivm-act-reel__track" id="ivmReelTrack" role="region" aria-label="Recent work carousel">
+      <a class="ivm-reel-card" href="#ivm-rvr-cta">
+        <img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Anniversary session at Rosewood Mayakoba" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">Rosewood Mayakoba</span>
+          <span class="ivm-reel-card__title">An anniversary, quietly photographed</span>
+        </div>
+      </a>
+      <a class="ivm-reel-card" href="#ivm-rvr-cta">
+        <img src="/images/family-riviera-maya-ivae-studios.jpg" alt="Family of six at Banyan Tree Mayakoba" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">Banyan Tree</span>
+          <span class="ivm-reel-card__title">Family of six on the lagoons</span>
+        </div>
+      </a>
+      <a class="ivm-reel-card" href="#ivm-rvr-cta">
+        <img src="/images/wedding-bride-tulum-ivae-studios-960.jpg" alt="Boho-luxury wedding in Tulum at sunset" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">Tulum</span>
+          <span class="ivm-reel-card__title">Boho-luxury wedding at sunset</span>
+        </div>
+      </a>
+      <a class="ivm-reel-card" href="#ivm-rvr-cta">
+        <img src="/images/couple-akumal-ivae-studios.jpg" alt="Underwater cenote session in Akumal at blue hour" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">Akumal cenote</span>
+          <span class="ivm-reel-card__title">Underwater session at blue hour</span>
+        </div>
+      </a>
+      <a class="ivm-reel-card" href="#ivm-rvr-cta">
+        <img src="/images/couple-tulum-ivae-studios.jpg" alt="Romantic getaway editorial at Hotel Esencia" loading="lazy">
+        <div class="ivm-reel-card__meta">
+          <span class="ivm-reel-card__venue">Hotel Esencia</span>
+          <span class="ivm-reel-card__title">Romantic getaway editorial</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ACT VI — Final CTA with mask reveal -->
+  <section class="ivm-act-cta" id="ivm-rvr-cta">
+    <div class="ivm-act-cta__bg" style="background-image:url('/images/wedding-bride-tulum-ivae-studios-960.jpg');" aria-hidden="true"></div>
+    <div class="ivm-act-cta__veil" aria-hidden="true"></div>
+    <div class="ivm-act-cta__inner">
+      <span class="ivm-act-cta__eyebrow">Inquire 2026 dates</span>
+      <h2 class="ivm-act-cta__title">Begin the<br><em>conversation.</em></h2>
+      <p class="ivm-act-cta__sub">Same-business-day replies. Bilingual on the day. Limited 2026 / 2027 dates.</p>
+      <a class="ivm-act-cta__btn" href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20visiting%20Riviera%20Maya%20and%20interested%20in%20a%20photo%20session" target="_blank" rel="noopener">
+        <span>Message Vianey &rarr;</span>
+      </a>
+      <a class="ivm-act-cta__alt" href="mailto:hello@ivaestudios.com">or write hello@ivaestudios.com</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="ivm-act-foot">
+    <p class="ivm-act-foot__mark">IVAE <em>Studios</em></p>
+    <p class="ivm-act-foot__tag">Riviera Maya &middot; Mexico</p>
+    <div class="ivm-act-foot__links">
+      <a href="/about">About</a>
+      <a href="/blog">Journal</a>
+      <a href="/es/fotografo-riviera-maya" lang="es">ES</a>
+    </div>
+    <p class="ivm-act-foot__copy">&copy; 2026 IVAE Studios &middot; Riviera Maya, México</p>
+  </footer>
+</div>
+<!-- ═══════════════════════════════════════════════════════════════════════
+     END MOBILE-EXCLUSIVE
+     ═══════════════════════════════════════════════════════════════════════ -->
+<script>
+/* IVAE Mobile Scrollytelling — animation orchestrator (Riviera Maya) */
+(function(){
+  if (window.matchMedia && !matchMedia('(max-width:899px)').matches) return;
+
+  /* ── ACT 0: Loader exit ──────────── */
+  setTimeout(function(){ document.body.classList.add('ivm-loaded'); }, 3700);
+
+  /* ── ACT II: "The Hour" sticky scroll ──────── */
+  var hourSection = document.querySelector('.ivm-act-hour');
+  var hourLines = document.querySelectorAll('.ivm-act-hour__line');
+  var hourProg  = document.querySelectorAll('.ivm-act-hour__progress span');
+  var hourPhoto = document.querySelector('.ivm-act-hour__photo');
+  if (hourSection && hourLines.length) {
+    var hourTicking = false;
+    function updateHour() {
+      hourTicking = false;
+      var rect = hourSection.getBoundingClientRect();
+      var total = rect.height - window.innerHeight;
+      var scrolled = -rect.top;
+      var p = Math.max(0, Math.min(1, scrolled / total));
+      var lineIdx = Math.min(3, Math.floor(p * 4));
+      hourLines.forEach(function(line, i){
+        line.classList.remove('is-on', 'is-off');
+        if (i === lineIdx) line.classList.add('is-on');
+        else if (i < lineIdx) line.classList.add('is-off');
+      });
+      hourProg.forEach(function(s, i){ s.classList.toggle('is-on', i <= lineIdx); });
+      if (hourPhoto) {
+        var zoom = 1 + p * 0.12;
+        var ty = (p - 0.5) * 60;
+        hourPhoto.style.transform = 'scale(' + zoom + ') translateY(' + ty + 'px)';
+      }
+    }
+    window.addEventListener('scroll', function(){
+      if (!hourTicking) { requestAnimationFrame(updateHour); hourTicking = true; }
+    }, {passive: true});
+    updateHour();
+  }
+
+  /* ── ACT III: Services 3D card stack ──── */
+  var svcSection = document.querySelector('.ivm-act-services');
+  var svcCards = document.querySelectorAll('.ivm-svc');
+  var svcDots = document.querySelectorAll('.ivm-act-services__dots span');
+  if (svcSection && svcCards.length) {
+    var svcTicking = false;
+    function updateSvc() {
+      svcTicking = false;
+      var rect = svcSection.getBoundingClientRect();
+      var total = rect.height - window.innerHeight;
+      var scrolled = -rect.top;
+      var p = Math.max(0, Math.min(1, scrolled / total));
+      var activeIdx = Math.min(3, Math.floor(p * 4));
+      svcCards.forEach(function(card, i){
+        if (i === activeIdx) card.setAttribute('data-pos', 'active');
+        else if (i === activeIdx - 1) card.setAttribute('data-pos', 'behind');
+        else if (i < activeIdx) card.setAttribute('data-pos', 'past');
+        else card.setAttribute('data-pos', 'below');
+      });
+      svcDots.forEach(function(d, i){ d.classList.toggle('is-on', i === activeIdx); });
+    }
+    svcCards.forEach(function(card, i){
+      card.setAttribute('data-pos', i === 0 ? 'active' : 'below');
+    });
+    window.addEventListener('scroll', function(){
+      if (!svcTicking) { requestAnimationFrame(updateSvc); svcTicking = true; }
+    }, {passive: true});
+  }
+
+  /* ── ACT IV: Counter tick-up ───────── */
+  var counters = document.querySelectorAll('[data-count-to]');
+  if (counters.length) {
+    var cio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (!e.isIntersecting) return;
+        var el = e.target;
+        if (el.dataset.counted === '1') return;
+        el.dataset.counted = '1';
+        var target = parseFloat(el.dataset.countTo);
+        var suffix = el.dataset.suffix || '';
+        var dur = 1800;
+        var start = performance.now();
+        function tick(now){
+          var t = Math.min(1, (now - start) / dur);
+          var eased = 1 - Math.pow(1 - t, 3);
+          var val = target * eased;
+          if (target >= 100) {
+            el.textContent = Math.floor(val).toLocaleString() + suffix;
+          } else if (target < 10) {
+            el.textContent = (target * eased).toFixed(1).replace('.0', '') + suffix;
+          } else {
+            el.textContent = Math.floor(val) + suffix;
+          }
+          if (t < 1) requestAnimationFrame(tick);
+          else el.textContent = target + suffix;
+        }
+        requestAnimationFrame(tick);
+        cio.unobserve(el);
+      });
+    }, {threshold: 0.4});
+    counters.forEach(function(c){ cio.observe(c); });
+  }
+
+  /* ── ACT V: Reel center-card detection ───── */
+  var reelTrack = document.getElementById('ivmReelTrack');
+  var reelCards = document.querySelectorAll('.ivm-reel-card');
+  if (reelTrack && reelCards.length) {
+    var reelTicking = false;
+    function updateReelCenter() {
+      reelTicking = false;
+      var trackRect = reelTrack.getBoundingClientRect();
+      var centerX = trackRect.left + trackRect.width / 2;
+      var bestIdx = -1;
+      var bestDist = Infinity;
+      reelCards.forEach(function(c, i){
+        var r = c.getBoundingClientRect();
+        var cardCenter = r.left + r.width / 2;
+        var d = Math.abs(cardCenter - centerX);
+        if (d < bestDist) { bestDist = d; bestIdx = i; }
+      });
+      reelCards.forEach(function(c, i){
+        c.classList.toggle('is-center', i === bestIdx);
+      });
+    }
+    reelTrack.addEventListener('scroll', function(){
+      if (!reelTicking) { requestAnimationFrame(updateReelCenter); reelTicking = true; }
+    }, {passive: true});
+    window.addEventListener('resize', updateReelCenter, {passive: true});
+    setTimeout(updateReelCenter, 50);
+  }
+
+})();
+</script>
+<!-- ═══════════════════════════════════════════════════════════════════════
+     Below: desktop-only (hidden ≤899px).
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="ivm-desktop-only">
+
 <!-- HERO -->
-<section class="hero" id="main-content" data-chapter="1">
+<section class="hero" data-chapter="1">
   <div class="hero-bg">
     <picture>
       <source type="image/avif" srcset="images/riviera-maya-hero.avif">
@@ -1633,6 +1989,9 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
   });
 })();
 </script>
+
+</div><!-- /.ivm-desktop-only -->
+</main>
 
 <!-- WhatsApp FAB (site-wide CTA) -->
 <a class="ivae-wa-fab" href="https://wa.me/529902046514?text=Hola%20IVAE%2C%20me%20interesa%20una%20sesi%C3%B3n%20de%20fotograf%C3%ADa" target="_blank" rel="noopener" aria-label="Message Vianey on WhatsApp (opens in new tab)" data-pulse="1"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.967-.94 1.164-.173.198-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413"/></svg></a>
