@@ -13,8 +13,10 @@
   display:flex !important;
   align-items:center !important;
   justify-content:space-between !important;
-  padding:0 clamp(20px,4vw,48px) !important;
-  height:68px !important;
+  padding:env(safe-area-inset-top,0px) clamp(20px,4vw,48px) 0 clamp(20px,4vw,48px) !important;
+  padding-left:max(clamp(20px,4vw,48px), env(safe-area-inset-left,0px)) !important;
+  padding-right:max(clamp(20px,4vw,48px), env(safe-area-inset-right,0px)) !important;
+  height:calc(68px + env(safe-area-inset-top,0px)) !important;
   background:rgba(10,15,23,.85) !important;
   backdrop-filter:saturate(140%) blur(14px) !important;
   -webkit-backdrop-filter:saturate(140%) blur(14px) !important;
