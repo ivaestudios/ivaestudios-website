@@ -1,0 +1,179 @@
+/* ==========================================================================
+   lw-a11y.css — Accessibility layer (focus, contrast, touch, links, skip)
+   Loaded last so it overrides component styles where needed.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Focus rings — visible on ALL links/buttons via :focus-visible
+   -------------------------------------------------------------------------- */
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus,
+[role="button"]:focus,
+[tabindex]:focus {
+  outline: none; /* baseline reset, real ring below */
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible,
+summary:focus-visible {
+  outline: 2px solid #c9a54e;
+  outline-offset: 3px;
+  border-radius: 2px;
+  box-shadow: 0 0 0 4px rgba(201, 165, 78, 0.18);
+  transition: outline-offset 120ms ease;
+}
+
+/* Stronger ring when focus lands inside dark cards/buttons */
+.btn:focus-visible,
+.cta:focus-visible,
+[data-dark]:focus-visible {
+  outline-color: #e9c97a;
+  box-shadow: 0 0 0 4px rgba(233, 201, 122, 0.25);
+}
+
+/* --------------------------------------------------------------------------
+   2. Contrast fixes — secondary grey text must read on dark backgrounds
+   -------------------------------------------------------------------------- */
+.text-muted,
+.text-secondary,
+.subtle,
+.meta,
+.caption,
+small,
+figcaption,
+.footer-meta,
+.eyebrow {
+  color: rgba(250, 248, 245, 0.7);
+}
+
+/* Force the same minimum on any inline grey we may have inherited */
+[style*="color:#999"],
+[style*="color:#888"],
+[style*="color:#777"],
+[style*="color: #999"],
+[style*="color: #888"],
+[style*="color: #777"] {
+  color: rgba(250, 248, 245, 0.7) !important;
+}
+
+/* On light surfaces, fall back to a dark muted token */
+.bg-light .text-muted,
+.bg-light .text-secondary,
+.bg-light small,
+.bg-light figcaption {
+  color: rgba(20, 18, 16, 0.72);
+}
+
+/* --------------------------------------------------------------------------
+   3. Touch targets — minimum 44px on mobile for switcher / nav / social
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .lang-switcher a,
+  .lang-switcher button,
+  [data-lang],
+  .nav a,
+  .site-nav a,
+  header nav a,
+  .footer-social a,
+  .social-icons a,
+  .footer a[href^="mailto:"],
+  .footer a[href^="tel:"] {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  /* Separator between EN | ES should not be tappable */
+  .lang-switcher .sep,
+  .lang-switcher [aria-hidden="true"] {
+    min-width: 0;
+    padding: 0 4px;
+    pointer-events: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. Persistent underline on body text links (not just :hover)
+   -------------------------------------------------------------------------- */
+.prose a,
+article a,
+.editorial a,
+main p a,
+main li a,
+.rich-text a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(201, 165, 78, 0.6);
+}
+
+.prose a:hover,
+article a:hover,
+.editorial a:hover,
+main p a:hover,
+main li a:hover,
+.rich-text a:hover {
+  text-decoration-thickness: 2px;
+  text-decoration-color: #c9a54e;
+}
+
+/* Nav/CTA/button-style links keep their original look */
+.btn,
+.cta,
+.nav a,
+.site-nav a,
+.footer-social a,
+.lang-switcher a {
+  text-decoration: none;
+}
+
+/* --------------------------------------------------------------------------
+   5. Skip-to-content link — invisible until focus, then prominent
+   -------------------------------------------------------------------------- */
+.skip-link,
+a.skip-to-content,
+a[href="#main"].skip {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 9999;
+  padding: 12px 18px;
+  background: #141210;
+  color: #c9a54e;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  border: 2px solid #c9a54e;
+  border-radius: 4px;
+  transform: translateY(-150%);
+  transition: transform 160ms ease;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible,
+a.skip-to-content:focus,
+a.skip-to-content:focus-visible {
+  transform: translateY(0);
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(201, 165, 78, 0.3);
+}
+
+/* Respect users who prefer no motion */
+@media (prefers-reduced-motion: reduce) {
+  .skip-link,
+  a.skip-to-content {
+    transition: none;
+  }
+}

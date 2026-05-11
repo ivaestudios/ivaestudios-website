@@ -158,7 +158,7 @@ body{font-family:'Syne',sans-serif;background:var(--cream);color:var(--ink);over
     <a href="/es/marca" data-lang-switch="es" hreflang="es">ES</a>
   </div>
   <a class="header-cta" href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener">Book Now</a>
-  <button class="header-toggle" aria-expanded="false" aria-label="Toggle navigation" id="headerToggle"><span></span><span></span><span></span></button>
+  <button class="header-toggle" aria-expanded="false" aria-controls="mobileNav" aria-label="Toggle navigation" id="headerToggle"><span></span><span></span><span></span></button>
 </header>
 <nav class="mobile-nav" id="mobileNav">
   <div class="lang-switch" role="group" aria-label="Language switcher">
@@ -294,7 +294,7 @@ body{font-family:'Syne',sans-serif;background:var(--cream);color:var(--ink);over
 
 <script>
 window.addEventListener('scroll',()=>{document.getElementById('siteHeader').classList.toggle('scrolled',window.scrollY>60)},{passive:true});
-document.getElementById('headerToggle').addEventListener('click',()=>document.getElementById('mobileNav').classList.toggle('open'));
+document.getElementById('headerToggle').addEventListener('click',function(){var nav=document.getElementById('mobileNav');var open=nav.classList.toggle('open');this.setAttribute('aria-expanded',open?'true':'false')});
 function sendHeight(){window.parent.postMessage({type:'iwh',value:document.documentElement.scrollHeight},'*')}
 window.addEventListener('load',sendHeight);window.addEventListener('resize',sendHeight);
 [500,1500,3000].forEach(t=>setTimeout(sendHeight,t));

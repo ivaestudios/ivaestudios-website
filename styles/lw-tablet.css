@@ -1,0 +1,289 @@
+/* ==========================================================================
+   IVAE Estudios — Tablet Stylesheet (768px – 1024px)
+   Service pages: luxury-weddings, couples-photography,
+                  luxury-family-photos, luxury-editorial
+   Brand: dark editorial · Cormorant Garamond + Syne · gold #c9a54e
+   ========================================================================== */
+
+@media (min-width: 768px) and (max-width: 1024px) {
+
+  /* ---------- Base container ---------- */
+  .lw-container {
+    max-width: 960px;
+    padding-inline: 40px;
+    margin-inline: auto;
+  }
+
+  /* ---------- HERO ---------- */
+  .lw-hero {
+    min-height: 90vh;
+    padding: 96px 40px;
+  }
+  .lw-hero__image,
+  .lw-hero__media {
+    height: 90vh;
+    object-fit: cover;
+  }
+  .lw-hero__title,
+  .lw-hero h1 {
+    font-family: "Cormorant Garamond", serif;
+    font-size: clamp(48px, 6vw, 68px);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    max-width: 720px;
+  }
+  .lw-hero__subtitle {
+    font-size: 18px;
+    line-height: 1.6;
+    max-width: 560px;
+    margin-top: 24px;
+  }
+  .lw-hero__ctas,
+  .lw-hero__actions {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+  }
+  .lw-hero__ctas .lw-btn,
+  .lw-hero__actions .lw-btn {
+    flex: 0 1 auto;
+    min-width: 200px;
+  }
+
+  /* ---------- PILLARS (4 cols -> 2 cols) ---------- */
+  .lw-pillars {
+    padding: 96px 40px;
+  }
+  .lw-pillars__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 48px 40px;
+  }
+  .lw-pillar {
+    padding: 32px 0;
+  }
+  .lw-pillar__title {
+    font-family: "Syne", sans-serif;
+    font-size: 20px;
+    letter-spacing: 0.02em;
+  }
+  .lw-pillar__body {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+  .lw-stats,
+  .lw-pillars__stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px 32px;
+    margin-top: 64px;
+  }
+  .lw-stat__number {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 56px;
+    color: #c9a54e;
+  }
+  .lw-stat__label {
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* ---------- EDITORIAL PAUSE ---------- */
+  .lw-pause,
+  .lw-editorial-pause {
+    padding: 0;
+  }
+  .lw-pause__image,
+  .lw-editorial-pause__image {
+    height: 60vh;
+    width: 100%;
+    object-fit: cover;
+  }
+  .lw-pause__quote,
+  .lw-editorial-pause__line {
+    font-family: "Cormorant Garamond", serif;
+    font-style: italic;
+    font-size: clamp(28px, 4.2vw, 44px);
+    line-height: 1.25;
+    max-width: 720px;
+    margin: 64px auto;
+    padding-inline: 40px;
+    text-align: center;
+    color: #ece7dd;
+  }
+
+  /* ---------- THE APPROACH (2 col, reduced gap) ---------- */
+  .lw-approach {
+    padding: 96px 40px;
+  }
+  .lw-approach__grid,
+  .lw-approach__inner {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+  .lw-approach__portrait,
+  .lw-approach__image {
+    width: 340px;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+  }
+  .lw-approach__title {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 40px;
+    line-height: 1.15;
+  }
+  .lw-approach__body,
+  .lw-approach__text {
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  /* ---------- BODY OF WORK (plates) ---------- */
+  .lw-work,
+  .lw-body-of-work {
+    padding: 96px 40px;
+  }
+  .lw-plates {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 72px;
+  }
+  .lw-plate {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .lw-plate__image,
+  .lw-plate img {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+  }
+  .lw-plate__caption {
+    font-family: "Cormorant Garamond", serif;
+    font-style: italic;
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 640px;
+    color: #b8b1a3;
+  }
+
+  /* ---------- TESTIMONIAL ---------- */
+  .lw-testimonial {
+    padding: 112px 40px;
+    text-align: center;
+  }
+  .lw-testimonial__quote,
+  .lw-testimonial blockquote {
+    font-family: "Cormorant Garamond", serif;
+    font-style: italic;
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.3;
+    max-width: 800px;
+    margin: 0 auto 32px;
+    color: #ece7dd;
+  }
+  .lw-testimonial__attribution,
+  .lw-testimonial cite {
+    font-family: "Syne", sans-serif;
+    font-style: normal;
+    font-size: 13px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #c9a54e;
+  }
+
+  /* ---------- INQUIRY ---------- */
+  .lw-inquiry {
+    padding: 96px 40px;
+  }
+  .lw-inquiry__grid,
+  .lw-inquiry__form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    max-width: 560px;
+    margin-inline: auto;
+  }
+  .lw-inquiry__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .lw-inquiry__input,
+  .lw-inquiry__textarea {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    background: transparent;
+    border: 1px solid rgba(201, 165, 78, 0.3);
+    color: #ece7dd;
+  }
+  .lw-inquiry__button,
+  .lw-inquiry .lw-btn--submit {
+    display: block;
+    width: 100%;
+    max-width: 320px;
+    margin: 24px auto 0;
+    padding: 16px 32px;
+    background: #c9a54e;
+    color: #0e0d0b;
+    font-family: "Syne", sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* ---------- FAQ ---------- */
+  .lw-faq {
+    padding: 96px 40px;
+    max-width: 720px;
+    margin-inline: auto;
+  }
+  .lw-faq__title {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 36px;
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .lw-faq__item {
+    border-bottom: 1px solid rgba(201, 165, 78, 0.18);
+    padding: 24px 0;
+  }
+  .lw-faq__question {
+    font-family: "Syne", sans-serif;
+    font-size: 16px;
+    letter-spacing: 0.02em;
+    color: #ece7dd;
+    cursor: pointer;
+  }
+  .lw-faq__answer {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 17px;
+    line-height: 1.7;
+    color: #b8b1a3;
+    margin-top: 16px;
+  }
+
+  /* ---------- Shared utility ---------- */
+  .lw-section__eyebrow {
+    font-family: "Syne", sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #c9a54e;
+    margin-bottom: 16px;
+  }
+  .lw-section__title {
+    font-family: "Cormorant Garamond", serif;
+    font-size: clamp(32px, 4vw, 44px);
+    line-height: 1.15;
+    margin-bottom: 32px;
+  }
+}

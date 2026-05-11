@@ -109,7 +109,7 @@
     <a href="https://ivaestudios.com/es/costo-boda-cancun-2026" data-lang-switch="es" hreflang="es">ES</a>
   </div>
   <a class="header-cta" href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener">Book Now</a>
-  <button class="header-toggle" id="headerToggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+  <button class="header-toggle" id="headerToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="mobileNav"><span></span><span></span><span></span></button>
 </header>
 <nav class="mobile-nav" id="mobileNav">
   <div class="lang-switch" role="group" aria-label="Language switcher">
@@ -129,7 +129,7 @@
   <div class="post-hero-ph"><span>&#9733; Cancún wedding cost 2026 &middot; Real numbers from a local</span></div>
   <div class="post-hero-overlay"></div>
   <div class="post-hero-content">
-    <a class="post-back" href="/blog"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg> Back to Journal</a>
+    <a class="post-back" href="/blog"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg> Back to Journal</a>
     <span class="post-tag-hero">Planning &middot; Budget</span>
     <h1>What does a destination wedding in Canc&uacute;n really cost in 2026?</h1>
     <div class="post-meta-bar">
@@ -184,6 +184,7 @@
 
   <p>Inside any of those totals, the proportions follow a fairly stable pattern. The table below shows what each category typically takes as a percentage of the total budget, plus a ballpark USD range based on a 100-guest wedding in the $85K&ndash;$160K bracket.</p>
 
+  <div class="cost-table-wrap" role="region" aria-label="Cancún wedding cost breakdown by category" tabindex="0">
   <table class="cost-table">
     <thead>
       <tr>
@@ -238,6 +239,7 @@
       </tr>
     </tbody>
   </table>
+  </div>
 
   <p>The remaining 5&ndash;10% covers stationery, transportation, gifts, attire alterations, and a contingency line that experienced planners insist on. If a budget sheet does not reserve roughly 5% for unexpected items, the contingency comes out of someone&rsquo;s photography or florals budget at the last minute.</p>
 
@@ -320,7 +322,7 @@
   <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;">
     <a class="btn-cta" href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener">
         Message Us on WhatsApp
-        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
     </a>
     <a class="btn-cta" href="mailto:hello@ivaestudios.com" style="background:transparent;border:1px solid rgba(196,163,90,0.4);color:#c4a35a;">
         Email hello@ivaestudios.com
@@ -380,7 +382,7 @@
 
 <script>
 window.addEventListener('scroll',()=>{document.getElementById('siteHeader').classList.toggle('scrolled',scrollY>40)});
-document.getElementById('headerToggle').addEventListener('click',()=>{document.getElementById('mobileNav').classList.toggle('open')});
+document.getElementById('headerToggle').addEventListener('click',function(){var nav=document.getElementById('mobileNav');var open=nav.classList.toggle('open');this.setAttribute('aria-expanded',open?'true':'false')});
 </script>
 <script src="/js/lang-detect.js" defer></script><script src="/js/services-dropdown-v2.js?v=20260510r" defer></script>
 </body>

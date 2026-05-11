@@ -528,7 +528,7 @@ footer nav a:hover{color:var(--cream);transform:translateY(-2px)}
     <a href="https://ivaestudios.com/es/guia-vestuario" data-lang-switch="es" hreflang="es">ES</a>
   </div>
   <a class="header-cta" href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener">Book Now</a>
-  <button class="header-toggle" aria-expanded="false" aria-label="Toggle navigation" id="headerToggle"><span></span><span></span><span></span></button>
+  <button class="header-toggle" aria-expanded="false" aria-controls="mobileNav" aria-label="Toggle navigation" id="headerToggle"><span></span><span></span><span></span></button>
 </header>
 <nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
   <div class="lang-switch" role="group" aria-label="Language switcher"><a href="https://ivaestudios.com/outfit-guide" data-lang-switch="en" hreflang="en" class="is-active" aria-current="page">EN</a><span class="lang-sep" aria-hidden="true">|</span><a href="https://ivaestudios.com/es/guia-vestuario" data-lang-switch="es" hreflang="es">ES</a></div>
@@ -547,9 +547,9 @@ footer nav a:hover{color:var(--cream);transform:translateY(-2px)}
     <h1>What to Wear for a Mexico <em>Beach Photoshoot</em></h1>
     <p>Curated outfit inspiration for your luxury photo session on Mexico's Caribbean coast. Browse palettes, explore looks, and get personalized recommendations.</p>
   </div>
-  <a class="hero-scroll" href="#palette">
+  <a class="hero-scroll" href="#palette" aria-label="Scroll down to color palette">
     Explore
-    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3"/></svg>
+    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3"/></svg>
   </a>
 </section>
 
@@ -598,11 +598,11 @@ footer nav a:hover{color:var(--cream);transform:translateY(-2px)}
   <h2 class="section-title rv">Our Inspiration <em>Board</em></h2>
   <p class="section-subtitle rv">Browse real outfit inspiration curated by our creative team for beach sessions in Mexico.</p>
   <div class="pinterest-wrap rv">
-    <a data-pin-do="embedBoard" data-pin-board-width="960" data-pin-scale-height="900" data-pin-scale-width="80" href="https://www.pinterest.com/ivaestudios/what-to-wear/"></a>
+    <a data-pin-do="embedBoard" data-pin-board-width="960" data-pin-scale-height="900" data-pin-scale-width="80" href="https://www.pinterest.com/ivaestudios/what-to-wear/" aria-label="IVAE Studios &quot;What to Wear&quot; Pinterest board"></a>
   </div>
   <div class="pinterest-fallback" id="pinterestFallback">
     <p>Explore our curated outfit inspiration board on Pinterest for real-world outfit ideas and color palettes.</p>
-    <a href="https://www.pinterest.com/ivaestudios/what-to-wear/" target="_blank" rel="noopener">View on Pinterest <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg></a>
+    <a href="https://www.pinterest.com/ivaestudios/what-to-wear/" target="_blank" rel="noopener">View on Pinterest <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg></a>
   </div>
 </section>
 
@@ -902,7 +902,7 @@ footer nav a:hover{color:var(--cream);transform:translateY(-2px)}
 <script>
 // Header scroll effect + mobile toggle
 window.addEventListener('scroll',()=>{document.getElementById('siteHeader').classList.toggle('scrolled',scrollY>40)});
-document.getElementById('headerToggle').addEventListener('click',()=>{document.getElementById('mobileNav').classList.toggle('open')});
+document.getElementById('headerToggle').addEventListener('click',function(){var nav=document.getElementById('mobileNav');var open=nav.classList.toggle('open');this.setAttribute('aria-expanded',open?'true':'false')});
 
 // Scroll-reveal
 const rvEls=document.querySelectorAll('.rv');

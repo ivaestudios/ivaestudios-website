@@ -265,10 +265,9 @@ html.dark .btn-cta:hover{background:var(--cream)}
   .post-card.featured-card .card-image-wrap{aspect-ratio:4/5 !important}
   .post-card.featured-card .card-title{font-size:13px}
   .post-card.featured-card .card-excerpt{display:none}
-  .card-title{font-size:13px;line-height:1.2;margin-bottom:2px}
-  .card-meta{font-size:8.5px}
-  .card-label{font-size:8.5px;left:8px;padding:5px 8px;letter-spacing:0.12em}
-  .card-label{left:12px;font-size:9.5px;padding:6px 10px;letter-spacing:0.13em}
+  .card-title{font-size:14px;line-height:1.25;margin-bottom:3px}
+  .card-meta{font-size:10.5px}
+  .card-label{left:12px;font-size:10px;padding:6px 10px;letter-spacing:0.13em;min-height:36px}
 
   .cta-strip{padding:56px 20px}
   .cta-strip h2{font-size:clamp(28px,8vw,40px)}
@@ -279,19 +278,19 @@ html.dark .btn-cta:hover{background:var(--cream)}
 
 @media (max-width: 480px){
   .posts-grid{grid-template-columns:1fr !important;gap:16px;column-gap:0;row-gap:16px}
-  .cat-nav{flex-direction:column;align-items:flex-start;gap:8px}
-  .card-label{font-size:9px;padding:5px 8px}
+  .cat-nav{flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 14px}
+  .card-label{font-size:10px;padding:6px 10px;min-height:36px}
   .journal-hero{padding:24px 16px 16px}
   .journal-hero h1{font-size:clamp(26px,7.5vw,36px)}
-  .journal-lede{font-size:13px}
+  .journal-lede{font-size:14px;line-height:1.5}
   .meta-strip{padding:10px 16px;gap:4px 14px}
   .posts-section{padding:18px 16px 40px}
-  .card-title{font-size:14px;line-height:1.22}
-  .card-meta{font-size:9px}
+  .card-title{font-size:16px;line-height:1.25}
+  .card-meta{font-size:10.5px}
   .cta-strip{padding:48px 16px}
   .cta-strip h2{font-size:clamp(24px,7.2vw,34px)}
-  .cta-strip p{font-size:13px;margin-bottom:22px}
-  .btn-cta{padding:13px 24px;font-size:10px}
+  .cta-strip p{font-size:14px;margin-bottom:22px}
+  .btn-cta{padding:13px 24px;font-size:11px}
 }
 
 /* Tablet — 768 to 1023 — 2-column safe grid */
@@ -430,7 +429,7 @@ html.dark .btn-cta:hover{background:var(--cream)}
         <span class="card-eyebrow">Bodas Destino &middot; 12 min de lectura</span>
         <h2 class="card-title">Fotógrafo de Boda Destino en Riviera Maya: La <em>Guía Completa de Planeación</em> (2026)</h2>
         <p class="card-excerpt">Todo sobre cómo planear la fotografía de tu boda en Riviera Maya &mdash; mejores venues, horarios de ceremonia, qué ponerte y cómo elegir a tu fotógrafo.</p>
-        <span class="card-cta">Leer la guía completa <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></span>
+        <span class="card-cta">Leer la guía completa <svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg></span>
       </div>
     </a>
 
@@ -745,10 +744,10 @@ html.dark .btn-cta:hover{background:var(--cream)}
       </div>
     </a>
 
-    <a class="post-card rv" data-category="events" href="/es/blog/sesion-revelacion-genero-cancun">
+    <a class="post-card rv" data-category="events" href="/es/blog/sesion-revelacion-genero-cancun" aria-label="Guía de Sesión de Revelación de Género en Cancún">
       <div class="card-image-wrap">
-        <div class="card-image-ph">
-          <svg fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 7.5h16.5"/></svg>
+        <div class="card-image-ph" role="img" aria-label="Marcador de imagen de sesión de revelación de género">
+          <svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 7.5h16.5"/></svg>
           <span>&#9733; Foto &middot; Sesión de celebración de revelación de género</span>
         </div>
         <span class="card-label">Temporada &middot; Canc&uacute;n</span>
@@ -770,12 +769,12 @@ html.dark .btn-cta:hover{background:var(--cream)}
   <p>Envíanos tu resort y fechas de viaje. Nuestro equipo responde en menos de 24 horas.</p>
   <a class="btn-cta" href="https://wa.me/529902046514?text=Hola%2C%20me%20interesa%20reservar%20una%20sesi%C3%B3n" target="_blank" rel="noopener">
     Escríbenos por Instagram
-    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
+    <svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
   </a>
 </section>
 
 <!-- FOOTER -->
-<footer class="colophon" aria-label="Pie de página">
+<footer class="colophon" role="contentinfo" aria-label="Pie de página">
   <div class="colophon-mark">
     <span class="colophon-mark-name">IVAE<em>Studios</em></span>
     <span class="colophon-tag">Fotografía de resort de lujo. <em>Editorial. Bilingüe. Sólo hora dorada.</em></span>

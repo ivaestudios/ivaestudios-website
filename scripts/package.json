@@ -1,0 +1,19 @@
+{
+  "name": "ivae-image-optimizer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Generates responsive AVIF/WebP/JPG variants + LQIP manifest for /images.",
+  "main": "optimize-images.js",
+  "scripts": {
+    "optimize": "node optimize-images.js",
+    "start": "node optimize-images.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "sharp": "^0.33.5",
+    "glob": "^10.4.5",
+    "p-limit": "^3.1.0"
+  }
+}

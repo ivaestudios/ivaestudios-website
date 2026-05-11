@@ -1,0 +1,184 @@
+/* ============================================================
+   IVAE Studios — Mobile-only editorial animations (≤900px)
+   Brand: dark editorial · Cormorant + Syne · gold #c9a54e
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+  :root {
+    --ivae-gold: #c9a54e;
+    --ivae-ink: #0b0b0c;
+    --ivae-paper: #f5f1ea;
+    --ivae-ease: cubic-bezier(.22,.61,.36,1);
+  }
+
+  /* ---------- 1) Ken Burns drift on hero images -------------- */
+  .lw-hero-image,
+  .hero-image,
+  [data-anim="ken-burns"] {
+    overflow: hidden;
+    position: relative;
+  }
+  .lw-hero-image > img,
+  .hero-image > img,
+  [data-anim="ken-burns"] > img,
+  [data-anim="ken-burns"] > picture > img {
+    will-change: transform;
+    transform-origin: 52% 48%;
+    animation: ivae-kenburns 16s var(--ivae-ease) infinite alternate;
+  }
+  @keyframes ivae-kenburns {
+    0%   { transform: scale(1.04) translate3d(0,0,0); }
+    100% { transform: scale(1.12) translate3d(-1.5%, -1.2%, 0); }
+  }
+
+  /* ---------- 2) Scroll-driven gold thread under h2 ---------- */
+  h2[data-anim="gold-thread"],
+  .section-title {
+    position: relative;
+    padding-bottom: .35em;
+  }
+  h2[data-anim="gold-thread"]::after,
+  .section-title::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 64%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--ivae-gold) 18%, var(--ivae-gold) 82%, transparent 100%);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 1.4s var(--ivae-ease);
+  }
+  h2[data-anim="gold-thread"].is-inview::after,
+  .section-title.is-inview::after {
+    transform: scaleX(1);
+  }
+  /* SVG stroke variant */
+  .gold-thread-svg path {
+    stroke: var(--ivae-gold);
+    stroke-width: 1;
+    fill: none;
+    stroke-dasharray: 320;
+    stroke-dashoffset: 320;
+    transition: stroke-dashoffset 1.6s var(--ivae-ease);
+  }
+  .gold-thread-svg.is-inview path { stroke-dashoffset: 0; }
+
+  /* ---------- 3) Sticky chapter counter ---------------------- */
+  .ivae-chapter-counter {
+    position: fixed;
+    top: 14px;
+    right: 16px;
+    z-index: 60;
+    font-family: "Syne", "Syne Mono", ui-monospace, monospace;
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: .22em;
+    color: var(--ivae-paper);
+    mix-blend-mode: difference;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity .5s ease, transform .5s var(--ivae-ease);
+    pointer-events: none;
+  }
+  .ivae-chapter-counter.is-visible {
+    opacity: .86;
+    transform: translateY(0);
+  }
+  .ivae-chapter-counter .sep { color: var(--ivae-gold); margin: 0 4px; }
+  .ivae-chapter-counter .current { transition: opacity .25s ease; }
+  .ivae-chapter-counter.is-swap .current { opacity: 0; }
+
+  /* ---------- 4) Pull-quote clip-path reveal ----------------- */
+  blockquote[data-anim="clip-reveal"],
+  .pull-quote {
+    font-family: "Cormorant Garamond", "Cormorant", serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(1.4rem, 5.2vw, 2.1rem);
+    line-height: 1.25;
+    color: var(--ivae-paper);
+    clip-path: inset(0 100% 0 0);
+    -webkit-clip-path: inset(0 100% 0 0);
+    transition: clip-path 1.4s var(--ivae-ease), -webkit-clip-path 1.4s var(--ivae-ease);
+  }
+  blockquote[data-anim="clip-reveal"].is-inview,
+  .pull-quote.is-inview {
+    clip-path: inset(0 0 0 0);
+    -webkit-clip-path: inset(0 0 0 0);
+  }
+
+  /* ---------- 5) Section transition gold-wash overlay -------- */
+  .ivae-section-wash {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 70;
+    background: linear-gradient(180deg, transparent 0%, rgba(201,165,78,.18) 50%, transparent 100%);
+    opacity: 0;
+    transition: opacity .6s ease;
+  }
+  .ivae-section-wash.is-active { opacity: 1; }
+
+  /* ---------- 6) Letter-by-letter blur bloom (hero h1) ------- */
+  h1[data-anim="blur-bloom"] .ch,
+  .hero-title .ch {
+    display: inline-block;
+    opacity: 0;
+    filter: blur(14px);
+    transform: translateY(8px);
+    transition: opacity .9s var(--ivae-ease), filter .9s var(--ivae-ease), transform .9s var(--ivae-ease);
+  }
+  h1[data-anim="blur-bloom"] .ch.is-in,
+  .hero-title .ch.is-in {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+  h1[data-anim="blur-bloom"] .ch.space,
+  .hero-title .ch.space { width: .28em; }
+
+  /* ---------- Pull-to-reveal hint at hero -------------------- */
+  .ivae-pull-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 22px;
+    transform: translate(-50%, 0);
+    font-family: "Syne", sans-serif;
+    font-size: 10px;
+    letter-spacing: .32em;
+    color: var(--ivae-paper);
+    opacity: 0;
+    transition: opacity .45s ease, transform .45s var(--ivae-ease);
+    pointer-events: none;
+  }
+  .ivae-pull-hint.is-shown {
+    opacity: .82;
+    transform: translate(-50%, -8px);
+  }
+
+  /* ---------- Body of Work swipe plates ---------------------- */
+  .body-of-work[data-swipe] {
+    touch-action: pan-y;
+    will-change: transform;
+    transition: transform .42s var(--ivae-ease);
+  }
+  .body-of-work[data-swipe].is-dragging { transition: none; }
+
+  /* ---------- Reduced motion --------------------------------- */
+  @media (prefers-reduced-motion: reduce) {
+    .lw-hero-image > img,
+    .hero-image > img,
+    [data-anim="ken-burns"] > img,
+    [data-anim="ken-burns"] > picture > img { animation: none !important; }
+    h2[data-anim="gold-thread"]::after,
+    .section-title::after { transform: scaleX(1); transition: none; }
+    blockquote[data-anim="clip-reveal"],
+    .pull-quote { clip-path: inset(0 0 0 0); -webkit-clip-path: inset(0 0 0 0); transition: none; }
+    h1[data-anim="blur-bloom"] .ch,
+    .hero-title .ch { opacity: 1; filter: none; transform: none; transition: none; }
+    .ivae-section-wash { display: none; }
+  }
+}

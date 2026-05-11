@@ -39,6 +39,10 @@
 <style>
 .skip-link{position:absolute;top:-100%;left:16px;background:var(--gold);color:var(--ink);padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;border-radius:0 0 4px 4px;transition:top 0.3s}
 .skip-link:focus{top:0}
+a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:2px}
+.legal-body a:focus-visible{outline-offset:2px;background:rgba(196,163,90,0.08)}
+.legal-toc a:focus-visible{outline-offset:4px}
+.btn-ghost:focus-visible,.header-cta:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --ink:#1a2433;--ink2:#0e1620;--cream:#f9f8f7;--sand:#ede8df;--sand2:#e6dccf;
@@ -101,7 +105,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .legal-body h2 em{font-style:italic;color:var(--gold2)}
 .legal-body h2 .secnum{font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--gold2);font-weight:300;margin-right:14px;letter-spacing:0.04em}
 .legal-body h3{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;color:var(--ink);margin-top:28px;margin-bottom:10px}
-.legal-body p{font-size:14.5px;line-height:1.92;color:var(--muted-l);margin-bottom:14px}
+.legal-body p{font-size:15px;line-height:1.92;color:var(--muted-l);margin-bottom:14px}
 .legal-body strong{color:var(--ink);font-weight:600}
 .legal-body a{color:var(--gold2);text-decoration:underline;text-decoration-color:rgba(168,137,74,0.3);text-underline-offset:3px;transition:color 0.2s}
 .legal-body a:hover{color:var(--ink)}
@@ -143,12 +147,17 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 @media(max-width:767px){
   .header-nav,.header-cta{display:none}.header-toggle{display:flex}
   .legal-hero{padding:104px 24px 48px}
-  .legal-section{padding:56px 24px}
+  .legal-section{padding:56px 20px}
   .legal-toc{padding:24px 22px;margin-bottom:40px}
   .legal-toc ol{columns:1}
+  .legal-toc ol li{font-size:14px;line-height:2;padding:4px 0 4px 36px}
   .legal-body h2{font-size:22px}
-  .legal-body table{font-size:12.5px;white-space:nowrap}
+  .legal-body h3{font-size:17px}
+  .legal-body p{font-size:15.5px;line-height:1.85}
+  .legal-body ul li{font-size:15px;line-height:1.8;padding:10px 0 10px 24px}
+  .legal-body table{font-size:13px;white-space:nowrap}
   .legal-body td,.legal-body th{padding:10px 8px}
+  .legal-callout{padding:20px 22px;font-size:14.5px}
 
 }
 @media(min-width:768px) and (max-width:1023px){
@@ -204,10 +213,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <span class="lang-sep" aria-hidden="true">|</span>
     <a href="/es/politica-de-privacidad" data-lang-switch="es" hreflang="es">ES</a>
   </div>
-  <a class="header-cta" href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener">Book Now</a>
-  <button class="header-toggle" aria-expanded="false" aria-label="Toggle navigation" id="headerToggle"><span></span><span></span><span></span></button>
+  <a class="header-cta" href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener" aria-label="Book a photo session via WhatsApp (opens in new tab)">Book Now</a>
+  <button class="header-toggle" aria-expanded="false" aria-label="Toggle navigation menu" aria-controls="mobileNav" id="headerToggle"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button>
 </header>
-<nav class="mobile-nav" id="mobileNav">
+<nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
   <div class="lang-switch" role="group" aria-label="Language switcher">
     <a href="/privacy-policy" data-lang-switch="en" hreflang="en" class="is-active">EN</a>
     <span class="lang-sep" aria-hidden="true">|</span>
@@ -217,10 +226,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 </nav>
 
 <!-- HERO -->
-<section class="legal-hero" id="main-content">
+<main id="main-content" role="main">
+<section class="legal-hero" aria-labelledby="page-title">
   <div class="legal-hero-inner">
     <span class="eyebrow rv" data-anim>Legal &middot; Data protection</span>
-    <h1 class="rv d1" data-anim>Privacy <em>Policy</em></h1>
+    <h1 id="page-title" class="rv d1" data-anim>Privacy <em>Policy</em></h1>
     <div class="hero-meta rv d2" data-anim>
       <span><strong>Effective</strong> &nbsp;7 May 2026</span>
       <span><strong>Last reviewed</strong> &nbsp;7 May 2026</span>
@@ -469,14 +479,15 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   </div>
 </section>
 
+</main>
 <!-- CTA -->
-<section class="legal-cta">
+<section class="legal-cta" aria-labelledby="cta-related-title">
   <div class="legal-cta-inner">
     <span class="eyebrow" style="justify-content:center">Related</span>
-    <h2>See our <em>accessibility</em> commitment.</h2>
+    <h2 id="cta-related-title">See our <em>accessibility</em> commitment.</h2>
     <p>Privacy is one half of the trust we owe you. The other is making sure every visitor — including those using assistive technology — can experience the work we do.</p>
-    <a class="btn-ghost" href="/accessibility-statement">Accessibility Statement
-      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="width:13px;height:13px"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
+    <a class="btn-ghost" href="/accessibility-statement" aria-label="Read the IVAE Studios accessibility statement">Accessibility Statement
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="width:13px;height:13px" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
     </a>
   </div>
 </section>
