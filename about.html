@@ -56,7 +56,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
-<link rel="stylesheet" href="/styles/site-header.css?v=20260511c"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20260511d"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script src="/js/services-dropdown-v2.js?v=20260510r" defer></script>
@@ -958,6 +958,111 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
   .story-aside-frame img{aspect-ratio:4/3}
 }
 
+/* ───────────────────────────────────────────────────────────────
+   MOBILE HERO — SPLIT LAYOUT (photo top / cream text bottom)
+   Fixes overlap-dimming: image and copy live in separate areas.
+   ─────────────────────────────────────────────────────────────── */
+@media (max-width:768px){
+  .hero{
+    min-height:auto !important;
+    height:auto !important;
+    display:flex !important;
+    flex-direction:column !important;
+    background:var(--paper,#fafaf8) !important;
+    grid-template-rows:none !important;
+  }
+  .hero-stage{
+    position:relative !important;
+    inset:auto !important;
+    height:55svh !important;
+    min-height:380px !important;
+    max-height:540px !important;
+    flex:0 0 auto !important;
+    width:100% !important;
+    overflow:hidden;
+  }
+  .hero-photo{
+    position:absolute !important;
+    inset:0 !important;
+    width:100% !important;
+    height:100% !important;
+    filter:brightness(0.94) saturate(1) contrast(1.02) !important;
+    transform:none !important;
+    will-change:auto !important;
+    object-position:center 38% !important;
+  }
+  .hero-photo-scrim{
+    inset:0 !important;
+    background:linear-gradient(180deg,rgba(10,15,23,.35) 0%,transparent 30%,transparent 80%,rgba(10,15,23,.18) 100%) !important;
+  }
+  .hero-grain{opacity:.04 !important}
+  .hero-chapter{
+    top:auto !important;
+    bottom:auto !important;
+    position:absolute !important;
+    left:20px !important;
+    right:auto !important;
+    z-index:5 !important;
+    padding-top:0 !important;
+    animation:none !important;
+  }
+  .hero-content{
+    position:relative !important;
+    z-index:2 !important;
+    background:var(--paper,#fafaf8) !important;
+    color:var(--ink-1,#0a0f17) !important;
+    padding:36px 24px 40px !important;
+    align-self:auto !important;
+    flex:1 1 auto !important;
+    max-width:none !important;
+  }
+  .hero-byline{
+    color:var(--gold-2,#a8894a) !important;
+    margin-bottom:18px !important;
+  }
+  .hero-byline-name{
+    color:var(--ink-1,#0a0f17) !important;
+  }
+  .hero-byline-sep{
+    background:rgba(14,22,32,.25) !important;
+  }
+  .hero-h1{
+    color:var(--ink-1,#0a0f17) !important;
+    font-size:clamp(30px,7.8vw,42px) !important;
+    line-height:1.06 !important;
+    letter-spacing:-.018em !important;
+  }
+  .hero-h1 em{color:var(--gold-2,#a8894a) !important}
+  .hero-sub{
+    margin-top:22px !important;
+    grid-template-columns:1px 1fr !important;
+    gap:18px !important;
+  }
+  .hero-sub::before{
+    background:linear-gradient(to bottom,var(--gold-2,#a8894a),transparent) !important;
+    opacity:.6 !important;
+    height:48px !important;
+  }
+  .hero-sub p{
+    color:rgba(14,22,32,.72) !important;
+    font-size:15px !important;
+    line-height:1.66 !important;
+  }
+  .hero-meta{
+    background:var(--paper-2,#f3f1ec) !important;
+    color:var(--ink-1) !important;
+    border-top:1px solid rgba(14,22,32,.12) !important;
+    padding:18px 20px !important;
+  }
+  .hero-meta .hr-n{color:var(--ink-1,#0a0f17) !important}
+  .hero-meta .hr-l{color:rgba(14,22,32,.55) !important}
+  .hero-meta .hr-cell{border-color:rgba(14,22,32,.12) !important}
+  .hero-cue{color:var(--gold-2,#a8894a) !important}
+  .hero-cue-line{background:var(--gold-2,#a8894a) !important;opacity:.4 !important}
+  .hero-cue-line::after{background:rgba(14,22,32,.4) !important}
+  .hero-cue-dot{background:var(--gold-2,#a8894a) !important}
+}
+
 /* ═══════════════════════════════════════════════════════════════
    MOBILE-NATIVE EXPERIENCE LAYER (≤900px)
    Bottom tabs, scroll-top, blockquote bg, parallax portrait.
@@ -1771,6 +1876,6 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
   onScroll();
 })();
 </script>
-<script src="/js/pwa-register.js?v=20260511c" defer></script>
+<script src="/js/pwa-register.js?v=20260511d" defer></script>
 </body>
 </html>

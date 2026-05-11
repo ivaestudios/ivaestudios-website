@@ -34,13 +34,13 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin
   href="https://fonts.gstatic.com/s/cormorantgaramond/v16/co3WmX5slCNuHLi8bLeY9MK7whWMhyjornFLsS6V7w.woff2"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
-<link rel="stylesheet" href="/styles/site-header.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/site-footer.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/responsive.css?v=20260511c"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260511d"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
-<script src="/js/site-header.js?v=20260511c" defer></script>
-<script src="/js/components.js?v=20260511c" defer></script>
+<script src="/js/site-header.js?v=20260511d" defer></script>
+<script src="/js/components.js?v=20260511d" defer></script>
 <script src="/js/services-dropdown-v2.js?v=20260510r" defer></script>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
 <meta name="publisher" content="IVAE Studios"/>
@@ -485,14 +485,14 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
   .lf-pillars-grid:hover .lf-pillars-stage{transform:translateZ(0)}
 }
 </style>
-<link rel="preload" href="/styles/lw-editorial.css?v=20260511c" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
-<noscript><link rel="stylesheet" href="/styles/lw-editorial.css?v=20260511c"/></noscript>
-<script src="/js/lw-editorial.js?v=20260511c" defer></script>
-<link rel="stylesheet" href="/styles/lw-a11y.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/lw-tablet.css?v=20260511c"/>
-<link rel="preload" href="/styles/lw-mobile-anim.css?v=20260511c" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
-<noscript><link rel="stylesheet" href="/styles/lw-mobile-anim.css?v=20260511c"/></noscript>
+<link rel="preload" href="/styles/lw-editorial.css?v=20260511d" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript><link rel="stylesheet" href="/styles/lw-editorial.css?v=20260511d"/></noscript>
+<script src="/js/lw-editorial.js?v=20260511d" defer></script>
+<link rel="stylesheet" href="/styles/lw-a11y.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/lw-tablet.css?v=20260511d"/>
+<link rel="preload" href="/styles/lw-mobile-anim.css?v=20260511d" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript><link rel="stylesheet" href="/styles/lw-mobile-anim.css?v=20260511d"/></noscript>
 <style id="critical-mobile">
 :root{--ink:#0a0f17;--gold:#c9a54e;--cream:#faf8f5;--paper:#fafaf8;--paper-2:#f3f1ec;--ink-1:#0c1219;--ink-2:#131c2a;--ink-3:#1a2230}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -506,7 +506,7 @@ html.dark body{background:var(--ink);color:var(--cream)}
 .lf-hero h1{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:clamp(40px,7vw,80px);line-height:1.06;color:var(--cream)}
 @media (max-width:768px){html{scroll-padding-top:60px}.site-header{height:60px;padding:0 16px}}
 </style>
-<script src="/js/lw-mobile-anim.js?v=20260511c" defer></script>
+<script src="/js/lw-mobile-anim.js?v=20260511d" defer></script>
 <script defer>
 /* ═══ Mobile carousel dots & ready flag (≤900px) ═══ */
 (function(){
@@ -1118,6 +1118,114 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
 .lw-section.faq .faq-answer{max-height:0;overflow:hidden;transition:max-height .4s ease}
 .lw-section.faq .faq-item.open .faq-answer{max-height:600px}
 .lw-section.faq .faq-answer p{padding:0 0 18px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;line-height:1.65;color:rgba(250,248,245,.7);margin:0}
+
+/* ═══ MOBILE HERO RESTRUCTURE — photo on top, text in cream area below ═══ */
+@media (max-width:768px){
+  .lf-hero{
+    display:flex !important;
+    flex-direction:column !important;
+    min-height:auto !important;
+    height:auto !important;
+    background:var(--paper,#fafaf8) !important;
+    perspective:none !important;
+    padding-top:0 !important;
+    align-items:stretch !important;
+    justify-content:flex-start !important;
+  }
+  .lf-hero-bg{
+    position:relative !important;
+    inset:auto !important;
+    top:auto !important;left:auto !important;right:auto !important;bottom:auto !important;
+    height:60svh !important;
+    min-height:420px !important;
+    max-height:560px !important;
+    width:100% !important;
+    flex:0 0 60svh !important;
+    transform:none !important;
+    will-change:auto !important;
+    transform-style:flat !important;
+  }
+  .lf-hero-img{
+    position:absolute !important;
+    inset:0 !important;
+    width:100% !important;
+    height:100% !important;
+    object-fit:cover !important;
+    object-position:center 38% !important;
+    filter:brightness(0.94) saturate(1) contrast(1.02) !important;
+    transform:none !important;
+  }
+  .lf-hero-overlay{
+    position:absolute !important;
+    top:0 !important;left:0 !important;right:0 !important;bottom:0 !important;
+    background:linear-gradient(180deg,rgba(10,15,23,.45) 0%,rgba(10,15,23,.10) 22%,transparent 38%,transparent 80%,rgba(10,15,23,.22) 100%) !important;
+    pointer-events:none !important;
+  }
+  .lf-motes{
+    height:60svh !important;
+    top:0 !important;bottom:auto !important;
+  }
+  .lf-hero-content{
+    position:static !important;
+    z-index:auto !important;
+    background:var(--paper,#fafaf8) !important;
+    color:var(--ink-1,#0a0f17) !important;
+    padding:48px 24px 60px !important;
+    padding-top:48px !important;
+    flex:1 1 auto !important;
+    max-width:none !important;
+    width:100% !important;
+  }
+  .lf-hero-content .hero-h1,
+  .lf-hero .hero-h1{
+    color:var(--ink-1,#0a0f17) !important;
+    font-size:clamp(34px,8vw,46px) !important;
+    line-height:1.04 !important;
+    letter-spacing:-.012em !important;
+  }
+  .lf-hero-content .hero-h1__italic,
+  .lf-hero-content .hero-h1 em{
+    color:var(--gold-2,#a8894a) !important;
+  }
+  .lf-hero-content .hero-sub{
+    color:rgba(14,22,32,.72) !important;
+  }
+  .lf-hero-content .eyebrow{
+    position:absolute !important;
+    top:84px !important;
+    left:24px !important;
+    right:auto !important;
+    z-index:6 !important;
+    color:#fff !important;
+    background:rgba(10,15,23,.42) !important;
+    padding:8px 14px !important;
+    border-radius:2px !important;
+    margin:0 !important;
+    opacity:1 !important;
+    transform:none !important;
+    backdrop-filter:blur(6px) saturate(140%) !important;
+    -webkit-backdrop-filter:blur(6px) saturate(140%) !important;
+  }
+  .lf-hero-content .eyebrow::after{
+    background:#c9a54e !important;
+  }
+  /* Force hero text-reveal items visible on mobile so users see them at scroll-top */
+  html.js-on .lf-hero-content .rv,
+  html.js-on .lf-hero-content .lf-cascade{
+    opacity:1 !important;
+    transform:none !important;
+  }
+  .lf-availability{
+    color:rgba(14,22,32,.72) !important;
+  }
+  .lf-availability-dot{
+    background:var(--gold-2,#a8894a) !important;
+  }
+  .lf-hero-ctas .btn-ghost{
+    color:var(--gold-2,#a8894a) !important;
+  }
+  .lf-meta-strip{display:none !important}
+}
 </style>
 
 <!-- ═══════ EDITORIAL PAUSE ═══════ -->
@@ -1979,7 +2087,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   });
 })();
 </script>
-<script src="/js/pwa-register.js?v=20260511c" defer></script>
+<script src="/js/pwa-register.js?v=20260511d" defer></script>
 
 <!-- ═══════ LUXURY-APP MOBILE FINAL POLISH — bottom tab nav ═══════ -->
 <aside class="lw-mob-tabs" aria-label="Quick navigation" hidden>
@@ -2013,8 +2121,8 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   });
 })();
 </script>
-<script src="/js/lw-mob-haptics.js?v=20260511c" defer></script>
-<script src="/js/lw-mob-install.js?v=20260511c" defer></script>
+<script src="/js/lw-mob-haptics.js?v=20260511d" defer></script>
+<script src="/js/lw-mob-install.js?v=20260511d" defer></script>
 
 </body>
 </html>

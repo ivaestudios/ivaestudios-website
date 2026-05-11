@@ -44,12 +44,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
-<link rel="stylesheet" href="/styles/site-header.css?v=20260511c"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20260511d"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
-<link rel="stylesheet" href="/styles/site-footer.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/responsive.css?v=20260511c"/>
-<script src="/js/components.js?v=20260511c" defer></script>
-<script src="/js/site-header.js?v=20260511c" defer></script>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260511d"/>
+<script src="/js/components.js?v=20260511d" defer></script>
+<script src="/js/site-header.js?v=20260511d" defer></script>
 <script src="/js/services-dropdown-v2.js?v=20260510r" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script src="/dark-mode.js"></script>
@@ -118,7 +118,7 @@ ul{list-style:none}
 }
 
 .lw-h1-word{display:inline-block;white-space:nowrap}
-.lw-h1-letter{display:inline-block;transform:translateY(0);opacity:1;will-change:transform,opacity}
+.lw-h1-letter{display:inline-block;transform:translateY(0);opacity:1;will-change:transform,opacity;white-space:pre}
 @media (prefers-reduced-motion: no-preference){
  .js-on .lw-cascade .lw-h1-letter{
  opacity:0;transform:translateY(28px);
@@ -1286,16 +1286,128 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 .frames-rail .frame:nth-child(3n){aspect-ratio:5/7}
 .frames-rail .frame:nth-child(5n){aspect-ratio:2/3}
 
+/* ─── NO-OVERLAP HERO RESTRUCTURE (mobile ≤768px) ─────────────────
+   Splits hero into two stacked panels:
+   • Top  → 60svh photo, full brightness (no dark overlay)
+   • Bottom → cream paper panel with dark text H1, body, CTAs
+   Eyebrow gold caps remain in Spanish. */
+@media (max-width:768px){
+  .lw-hero{
+    min-height:auto !important;
+    display:flex !important;flex-direction:column !important;justify-content:flex-start !important;
+    background:var(--paper) !important;
+    padding-top:0 !important;
+  }
+  /* Top — photo panel at 60svh, full brightness */
+  .lw-hero-img{
+    position:relative !important;inset:auto !important;
+    width:100% !important;height:60svh !important;min-height:60svh !important;
+    flex:0 0 auto !important;order:1;
+    z-index:0;overflow:hidden;
+  }
+  .lw-hero-img img{
+    width:100% !important;height:100% !important;
+    object-fit:cover !important;object-position:center 38% !important;
+    filter:brightness(.94) saturate(.95) !important;
+    transform:none !important;animation:none !important;
+  }
+  .lw-hero-overlay{display:none !important}
+  .lw-motes{display:none !important}
+  .lw-grain{display:none !important}
+
+  /* Bottom — cream paper text panel, no overlap */
+  .lw-hero-content{
+    position:relative !important;z-index:2 !important;order:2;
+    background:var(--paper) !important;color:var(--ink) !important;
+    padding:36px 22px 28px !important;max-width:none !important;width:100% !important;
+    display:flex;flex-direction:column;gap:0;
+  }
+  .lw-hero-content .lw-eyebrow{
+    color:var(--gold) !important;
+    margin-bottom:18px !important;
+    font-size:10.5px;letter-spacing:.32em;
+  }
+  .lw-hero-content .lw-eyebrow::before{background:var(--gold) !important;opacity:.85 !important}
+  .lw-hero h1{
+    color:var(--ink) !important;
+    font-size:clamp(30px,8.5vw,44px) !important;
+    line-height:1.06 !important;letter-spacing:-.018em !important;
+    max-width:none !important;margin:0 0 24px;
+  }
+  .lw-hero h1 em{color:var(--gold) !important}
+  .lw-hero-sub{
+    margin-top:0 !important;
+    grid-template-columns:1px 1fr !important;gap:16px !important;
+    max-width:none !important;
+  }
+  .lw-hero-sub::before{
+    background:linear-gradient(to bottom,var(--gold),rgba(201,165,78,.15)) !important;
+    height:48px !important;
+  }
+  .lw-hero-sub p{
+    color:rgba(10,15,23,.78) !important;
+    font-size:15px !important;line-height:1.6 !important;
+  }
+  .lw-actions{
+    margin-top:28px !important;gap:12px !important;
+    flex-direction:column !important;align-items:stretch !important;
+  }
+  .lw-actions .lw-btn{
+    width:100% !important;justify-content:center !important;
+    min-height:54px !important;
+  }
+  .lw-availability{
+    margin-top:22px !important;color:rgba(10,15,23,.7) !important;
+    background:rgba(201,165,78,.08) !important;
+    border:1px solid rgba(201,165,78,.28) !important;
+    padding:10px 14px;border-radius:2px;
+  }
+  .lw-availability-l{color:var(--ink) !important}
+  .lw-availability-v{color:rgba(10,15,23,.66) !important}
+  /* Meta strip moves below text panel — dark navy ribbon */
+  .lw-meta{
+    order:3;position:relative !important;z-index:2 !important;
+    background:var(--ink-1) !important;
+    border-top:1px solid rgba(201,165,78,.28) !important;
+    padding:18px 22px !important;
+    flex-direction:column !important;align-items:stretch !important;gap:0 !important;
+  }
+  .lw-meta-row{flex-direction:column !important;width:100%;gap:0 !important}
+  .lw-meta-cell{
+    flex:1 1 auto;width:100%;
+    display:flex;align-items:baseline;justify-content:space-between;
+    padding:12px 0 !important;
+    border-top:1px solid rgba(201,165,78,.16) !important;
+    border-right:none !important;
+  }
+  .lw-meta-cell:first-child{border-top:none !important}
+  .lw-meta-n{font-size:18px !important;letter-spacing:-.005em !important}
+  .lw-meta-l{font-size:9.5px !important;letter-spacing:.28em !important;text-align:right !important;color:rgba(201,165,78,.78) !important;margin-top:0 !important}
+  .lw-meta-cities{
+    padding:14px 0 0 !important;border-top:1px solid rgba(201,165,78,.16) !important;
+    text-align:center;font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;
+    font-family:var(--font-sans);font-style:normal !important;color:rgba(201,165,78,.78) !important;
+  }
+  /* Force hero text-reveal items visible on mobile so users see them at scroll-top */
+  html.js-on .lw-hero-content .lw-rv,
+  html.js-on .lw-hero-content .lw-cascade,
+  html.js-on .lw-hero-content .lw-h1-letter,
+  html.js-on .lw-hero-content .lw-h1-char{
+    opacity:1 !important;
+    transform:none !important;
+  }
+}
+
 </style>
-<link rel="stylesheet" href="/styles/lw-editorial.css?v=20260511c"/>
-<script src="/js/lw-editorial.js?v=20260511c" defer></script>
-<link rel="stylesheet" href="/styles/lw-a11y.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/lw-tablet.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/lw-mobile-anim.css?v=20260511c"/>
-<script src="/js/lw-mobile-anim.js?v=20260511c" defer></script>
-<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511c"/>
-<script src="/js/lw-mob-haptics.js?v=20260511c" defer></script>
-<script src="/js/lw-mob-install.js?v=20260511c" defer></script>
+<link rel="stylesheet" href="/styles/lw-editorial.css?v=20260511d"/>
+<script src="/js/lw-editorial.js?v=20260511d" defer></script>
+<link rel="stylesheet" href="/styles/lw-a11y.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/lw-tablet.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/lw-mobile-anim.css?v=20260511d"/>
+<script src="/js/lw-mobile-anim.js?v=20260511d" defer></script>
+<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511d"/>
+<script src="/js/lw-mob-haptics.js?v=20260511d" defer></script>
+<script src="/js/lw-mob-install.js?v=20260511d" defer></script>
 </head>
 <body>
 
@@ -2126,7 +2238,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 
 })();
 </script>
-<script src="/js/pwa-register.js?v=20260511c" defer></script>
+<script src="/js/pwa-register.js?v=20260511d" defer></script>
 
 <!-- ═══════ MOBILE POLISH — bottom tabs, hero CTA height, pillars snap, image-fade init ═══════ -->
 <style>

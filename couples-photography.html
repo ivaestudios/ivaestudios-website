@@ -39,12 +39,12 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin
   href="https://fonts.gstatic.com/s/cormorantgaramond/v16/co3WmX5slCNuHLi8bLeY9MK7whWMhyjornFLsS6V7w.woff2"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
-<link rel="stylesheet" href="/styles/site-header.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/site-footer.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/responsive.css?v=20260511c"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260511d"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
-<script src="/js/site-header.js?v=20260511c" defer></script>
-<script src="/js/components.js?v=20260511c" defer></script>
+<script src="/js/site-header.js?v=20260511d" defer></script>
+<script src="/js/components.js?v=20260511d" defer></script>
 <script src="/js/services-dropdown-v2.js?v=20260510r" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <link rel="preload" as="image" href="/images/couple-cancun-hotel-zone-ivae-studios-9.jpg" fetchpriority="high"/>
@@ -768,13 +768,13 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
   .lc-reel-track{padding-inline:24px}
 }
 </style>
-<link rel="stylesheet" href="/styles/lw-editorial.css?v=20260511c"/>
-<script src="/js/lw-editorial.js?v=20260511c" defer></script>
-<link rel="stylesheet" href="/styles/lw-a11y.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/lw-tablet.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/lw-mobile-anim.css?v=20260511c"/>
-<script src="/js/lw-mobile-anim.js?v=20260511c" defer></script>
+<link rel="stylesheet" href="/styles/lw-editorial.css?v=20260511d"/>
+<script src="/js/lw-editorial.js?v=20260511d" defer></script>
+<link rel="stylesheet" href="/styles/lw-a11y.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/lw-tablet.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/lw-mobile-anim.css?v=20260511d"/>
+<script src="/js/lw-mobile-anim.js?v=20260511d" defer></script>
 <script defer>
 /* ═══ Mobile carousel dots & ready flag (≤900px) ═══ */
 (function(){
@@ -1379,6 +1379,123 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
 .lw-section.faq .faq-answer{max-height:0;overflow:hidden;transition:max-height .4s ease}
 .lw-section.faq .faq-item.open .faq-answer{max-height:600px}
 .lw-section.faq .faq-answer p{padding:0 0 18px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;line-height:1.65;color:rgba(250,248,245,.7);margin:0}
+
+/* ═══ MOBILE HERO RESTRUCTURE — photo on top, text in cream area below ═══ */
+@media (max-width:768px){
+  .lc-hero{
+    display:flex !important;
+    flex-direction:column !important;
+    min-height:auto !important;
+    height:auto !important;
+    background:var(--paper,#fafaf8) !important;
+    perspective:none !important;
+    padding-top:0 !important;
+    align-items:stretch !important;
+    justify-content:flex-start !important;
+  }
+  .lc-hero-bg{
+    position:relative !important;
+    inset:auto !important;
+    top:auto !important;left:auto !important;right:auto !important;bottom:auto !important;
+    height:60svh !important;
+    min-height:420px !important;
+    max-height:560px !important;
+    width:100% !important;
+    flex:0 0 60svh !important;
+    transform:none !important;
+    will-change:auto !important;
+    transform-style:flat !important;
+  }
+  .lc-hero-bg img{
+    width:100% !important;
+    height:100% !important;
+    object-fit:cover !important;
+    object-position:center !important;
+    filter:brightness(0.94) saturate(1) contrast(1.02) !important;
+    transform:none !important;
+  }
+  .lc-hero-overlay{
+    position:absolute !important;
+    top:0 !important;left:0 !important;right:0 !important;bottom:auto !important;
+    height:60svh !important;
+    background:linear-gradient(180deg,rgba(10,15,23,.45) 0%,rgba(10,15,23,.10) 22%,transparent 38%,transparent 80%,rgba(10,15,23,.22) 100%) !important;
+    pointer-events:none !important;
+  }
+  .lc-grain,.lc-motes{
+    height:60svh !important;
+    top:0 !important;bottom:auto !important;
+  }
+  .lc-hero-content{
+    position:static !important;
+    z-index:auto !important;
+    background:var(--paper,#fafaf8) !important;
+    color:var(--ink-1,#0a0f17) !important;
+    padding:48px 24px 60px !important;
+    flex:1 1 auto !important;
+    max-width:none !important;
+    width:100% !important;
+  }
+  .lc-hero-h1,
+  .lc-hero-content .lc-hero-h1{
+    color:var(--ink-1,#0a0f17) !important;
+    font-size:clamp(34px,8vw,46px) !important;
+    line-height:1.04 !important;
+    letter-spacing:-.012em !important;
+  }
+  .lc-hero-h1 em,
+  .lc-hero-h1 em.lc-h1__italic{
+    color:var(--gold-2,#a8894a) !important;
+  }
+  .lc-hero-sub{
+    color:rgba(14,22,32,.72) !important;
+  }
+  .lc-hero-sub::before{
+    background:var(--gold-2,#a8894a) !important;
+    opacity:.6 !important;
+  }
+  .lc-hero-content .lc-eyebrow{
+    position:absolute !important;
+    top:84px !important;
+    left:24px !important;
+    right:auto !important;
+    z-index:6 !important;
+    color:#fff !important;
+    background:rgba(10,15,23,.42) !important;
+    padding:8px 14px !important;
+    border-radius:2px !important;
+    margin:0 !important;
+    backdrop-filter:blur(6px) saturate(140%) !important;
+    -webkit-backdrop-filter:blur(6px) saturate(140%) !important;
+  }
+  .lc-hero-content .lc-eyebrow::after{
+    background:#c9a54e !important;
+  }
+  .lc-availability,
+  .lc-availability--proposal{
+    color:rgba(14,22,32,.72) !important;
+  }
+  .lc-availability-dot{
+    background:var(--gold-2,#a8894a) !important;
+  }
+  .lc-hero-meta,
+  .lc-hero-meta > span{
+    color:rgba(14,22,32,.58) !important;
+  }
+  .lc-hero-meta-sep{
+    background:rgba(14,22,32,.2) !important;
+  }
+  .lc-btn--ghost{
+    color:var(--gold-2,#a8894a) !important;
+  }
+  /* Force hero text-reveal items visible on mobile so users see them at scroll-top */
+  html.js-on .lc-hero-content .lc-rv,
+  html.js-on .lc-hero-content .lc-hero-h1 .word,
+  html.js-on .lc-hero-content .lc-cascade .lc-h1-char,
+  html.js-on .lc-hero-content .lc-hero-h1 .lc-h1-letter{
+    opacity:1 !important;
+    transform:none !important;
+  }
+}
 </style>
 
 <!-- ═══════ EDITORIAL PAUSE ═══════ -->
@@ -2414,7 +2531,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   });
 })();
 </script>
-<script src="/js/pwa-register.js?v=20260511c" defer></script>
+<script src="/js/pwa-register.js?v=20260511d" defer></script>
 
 <!-- ═══════ LUXURY-APP MOBILE FINAL POLISH — bottom tab nav ═══════ -->
 <aside class="lw-mob-tabs" aria-label="Quick navigation" hidden>
@@ -2448,8 +2565,8 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   });
 })();
 </script>
-<script src="/js/lw-mob-haptics.js?v=20260511c" defer></script>
-<script src="/js/lw-mob-install.js?v=20260511c" defer></script>
+<script src="/js/lw-mob-haptics.js?v=20260511d" defer></script>
+<script src="/js/lw-mob-install.js?v=20260511d" defer></script>
 
 </body>
 </html>

@@ -51,12 +51,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 
 <link rel="stylesheet" href="/styles/tokens.css"/>
-<link rel="stylesheet" href="/styles/site-header.css?v=20260511c"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20260511d"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
-<link rel="stylesheet" href="/styles/site-footer.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/responsive.css?v=20260511c"/>
-<script src="/js/components.js?v=20260511c" defer></script>
-<script src="/js/site-header.js?v=20260511c" defer></script>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260511d"/>
+<script src="/js/components.js?v=20260511d" defer></script>
+<script src="/js/site-header.js?v=20260511d" defer></script>
 <script src="/js/services-dropdown-v2.js?v=20260510r" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script src="/dark-mode.js"></script>
@@ -383,6 +383,7 @@ ul{list-style:none}
 .le-h1-letter{
   display:inline-block;transform:translateY(0);opacity:1;
   will-change:transform,opacity;
+  white-space:pre;
 }
 .le-h1-letter.le-italic{font-style:italic;color:var(--gold)}
 @media (prefers-reduced-motion: no-preference){
@@ -1707,17 +1708,103 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
     content:'';display:block;width:1px;height:22px;background:rgba(201,165,78,.55);margin:8px auto;
   }
 }
+
+/* ─── NO-OVERLAP HERO RESTRUCTURE (mobile ≤768px) ─────────────────
+   Splits hero into two stacked panels:
+   • Top  → 60svh photo, full brightness (no dark overlay)
+   • Bottom → cream paper panel with dark text H1, body, CTAs
+   Eyebrow gold caps remain in Spanish. */
+@media (max-width:768px){
+  .le-hero{
+    min-height:auto !important;
+    display:flex !important;flex-direction:column !important;justify-content:flex-start !important;
+    background:var(--paper,#fafaf8) !important;
+    overflow:visible !important;
+  }
+  /* Top — photo panel at 60svh, full brightness */
+  .le-hero-img{
+    position:relative !important;inset:auto !important;
+    width:100% !important;height:60svh !important;min-height:60svh !important;
+    flex:0 0 auto !important;order:1;
+    z-index:0;overflow:hidden;
+  }
+  .le-hero-img img{
+    width:100% !important;height:100% !important;
+    object-fit:cover !important;object-position:center 38% !important;
+    filter:brightness(.94) saturate(.95) !important;
+    transform:none !important;animation:none !important;
+  }
+  .le-hero-overlay{display:none !important}
+  .le-motes,.le-grain{display:none !important}
+
+  /* Bottom — cream paper text panel, no overlap */
+  .le-hero-content{
+    position:relative !important;z-index:2 !important;order:2;
+    background:var(--paper,#fafaf8) !important;color:var(--ink-1,#1a2230) !important;
+    padding:36px 22px 36px !important;max-width:none !important;width:100% !important;
+    display:flex;flex-direction:column;gap:0;margin:0 !important;
+  }
+  .le-hero-content .le-eyebrow{
+    color:var(--gold,#c9a54e) !important;
+    margin-bottom:18px !important;
+    font-size:10.5px;letter-spacing:.32em;
+  }
+  .le-hero-content .le-eyebrow::before{background:var(--gold,#c9a54e) !important;opacity:.85 !important}
+  .le-hero-h1,.le-h1{
+    color:var(--ink-1,#1a2230) !important;
+    font-size:clamp(30px,8.5vw,44px) !important;
+    line-height:1.06 !important;letter-spacing:-.018em !important;
+    max-width:none !important;
+    margin:0 0 22px !important;
+  }
+  .le-hero-h1 em.le-italic,
+  .le-h1-letter.le-italic{color:var(--gold,#c9a54e) !important}
+  .le-hero-sub{
+    margin-top:0 !important;margin-bottom:24px !important;
+    grid-template-columns:1px 1fr !important;gap:16px !important;
+    max-width:none !important;
+  }
+  .le-hero-sub::before{
+    background:linear-gradient(to bottom,var(--gold,#c9a54e),rgba(201,165,78,.15)) !important;
+    height:48px !important;
+  }
+  .le-hero-sub p{
+    color:rgba(14,22,32,.78) !important;
+    font-size:15px !important;line-height:1.6 !important;
+  }
+  .le-hero-cta-wrap{
+    margin-top:0 !important;
+    flex-direction:column !important;align-items:stretch !important;gap:14px !important;
+  }
+  .le-aperture{
+    color:var(--gold,#c9a54e) !important;opacity:.7;
+    align-self:center;width:36px !important;height:36px !important;
+    margin-bottom:4px;
+  }
+  .le-hero-cta-wrap .le-btn,
+  .le-hero-cta-wrap a{
+    width:100% !important;justify-content:center !important;
+    min-height:54px !important;
+  }
+  /* Force hero text-reveal items visible on mobile so users see them at scroll-top */
+  html.js-on .le-hero-content .le-rv,
+  html.js-on .le-hero-content .le-cascade,
+  html.js-on .le-hero-content .le-h1-letter{
+    opacity:1 !important;
+    transform:none !important;
+  }
+}
 </style>
 
-<link rel="stylesheet" href="/styles/lw-editorial.css?v=20260511c"/>
-<script src="/js/lw-editorial.js?v=20260511c" defer></script>
-<link rel="stylesheet" href="/styles/lw-a11y.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/lw-tablet.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/lw-mobile-anim.css?v=20260511c"/>
-<script src="/js/lw-mobile-anim.js?v=20260511c" defer></script>
-<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511c"/>
-<script src="/js/lw-mob-haptics.js?v=20260511c" defer></script>
-<script src="/js/lw-mob-install.js?v=20260511c" defer></script>
+<link rel="stylesheet" href="/styles/lw-editorial.css?v=20260511d"/>
+<script src="/js/lw-editorial.js?v=20260511d" defer></script>
+<link rel="stylesheet" href="/styles/lw-a11y.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/lw-tablet.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/lw-mobile-anim.css?v=20260511d"/>
+<script src="/js/lw-mobile-anim.js?v=20260511d" defer></script>
+<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511d"/>
+<script src="/js/lw-mob-haptics.js?v=20260511d" defer></script>
+<script src="/js/lw-mob-install.js?v=20260511d" defer></script>
 </head>
 <body class="le-page">
 
@@ -2637,7 +2724,7 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
 
 })();
 </script>
-<script src="/js/pwa-register.js?v=20260511c" defer></script>
+<script src="/js/pwa-register.js?v=20260511d" defer></script>
 
 <!-- ═══════ MOBILE POLISH — bottom tabs, hero CTA height, BTL strip load, image-fade init ═══════ -->
 <style>

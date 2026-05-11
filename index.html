@@ -33,7 +33,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
-<link rel="stylesheet" href="/styles/site-header.css?v=20260511c"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20260511d"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <script src="/js/services-dropdown-v2.js?v=20260510r" defer></script>
@@ -555,20 +555,27 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 .ch-photo{
   position:absolute;inset:-6%;
   width:112%;height:112%;max-width:none;
-  object-fit:cover;object-position:center 40%;
+  object-fit:cover;object-position:center 55%;
   display:block;
-  filter:brightness(.46) saturate(.78) contrast(1.04);
+  filter:brightness(.72) saturate(.88) contrast(1.03);
   transform:translateZ(-200px) scale(1.08);
   transition:filter 1.4s var(--ease);
   will-change:transform;
+}
+@media (max-width:768px){
+  .ch-photo{filter:brightness(.78) saturate(.92) contrast(1.02);object-position:center 65%}
 }
 .ch-photo-scrim{
   position:absolute;inset:-6%;
   pointer-events:none;
   z-index:1;
   background:
-    radial-gradient(ellipse at 30% 40%,transparent 0%,rgba(10,15,23,.5) 75%),
-    linear-gradient(180deg,rgba(10,15,23,.4) 0%,transparent 30%,rgba(10,15,23,.85) 100%);
+    linear-gradient(180deg,rgba(10,15,23,.12) 0%,transparent 25%,transparent 55%,rgba(10,15,23,.78) 100%);
+}
+@media (max-width:768px){
+  .ch-photo-scrim{
+    background:linear-gradient(180deg,rgba(10,15,23,.05) 0%,transparent 30%,transparent 55%,rgba(10,15,23,.82) 100%);
+  }
 }
 /* Mid layer for parallax (animation #8) */
 .ch-mid{
@@ -807,6 +814,84 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
   .ch-runtime{width:100%;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .ch-rt-cell{padding:0;border:none;flex:1 0 50%}
   .ch-rt-cell:not(:last-child){padding-bottom:12px}
+}
+
+/* ───────────────────────────────────────────────────────────────
+   MOBILE HERO — SPLIT LAYOUT (photo top / cream text bottom)
+   Fixes overlap-dimming: image and copy live in separate areas.
+   ─────────────────────────────────────────────────────────────── */
+@media (max-width:768px){
+  .cinematic-hero{
+    min-height:auto !important;
+    display:flex !important;
+    flex-direction:column !important;
+    background:var(--paper,#fafaf8);
+  }
+  .ch-stage{
+    position:relative !important;
+    height:60svh !important;
+    min-height:420px !important;
+    max-height:560px !important;
+    inset:auto !important;
+    flex:0 0 60svh !important;
+  }
+  .ch-photo{
+    filter:brightness(0.94) saturate(1) contrast(1.02) !important;
+    transform:none !important;
+    will-change:auto !important;
+    object-position:center 75% !important;
+  }
+  .ch-photo-scrim{
+    background:linear-gradient(180deg,rgba(10,15,23,.45) 0%,transparent 30%,transparent 80%,rgba(10,15,23,.22) 100%) !important;
+  }
+  .ch-mid,.ch-motes{display:none !important}
+  .ch-chapter{
+    top:auto !important;
+    bottom:auto !important;
+    position:absolute !important;
+    left:0 !important;
+    right:0 !important;
+    z-index:5 !important;
+    padding:80px 20px 14px !important;
+    color:var(--gold,#c9a54e) !important;
+    background:linear-gradient(180deg,rgba(10,15,23,.62) 0%,rgba(10,15,23,.42) 70%,transparent 100%) !important;
+    animation:none !important;
+  }
+  .ch-chapter-title{
+    color:var(--cream,#faf8f5) !important;
+  }
+  .ch-chapter::after{display:none}
+  .ch-content{
+    position:relative !important;
+    background:var(--paper,#fafaf8) !important;
+    color:var(--ink-1,#0e1620) !important;
+    padding:48px 24px 60px !important;
+    flex:1 1 auto;
+    align-self:auto !important;
+  }
+  .ch-content .ch-h1,
+  .ch-content h1{
+    color:var(--ink-1,#0e1620) !important;
+    font-size:clamp(32px,8vw,44px) !important;
+    line-height:1.04 !important;
+    letter-spacing:-.015em !important;
+  }
+  .ch-content .ch-h1 em,
+  .ch-content h1 em{color:var(--gold-2,#a8894a) !important}
+  .ch-content .ch-sub,
+  .ch-content .ch-sub p,
+  .ch-content .ch-lede,
+  .ch-content .ch-runtime{
+    color:rgba(14,22,32,.7) !important;
+  }
+  /* Stats strip below stays cream too */
+  .ch-meta,.ch-runtime{
+    background:var(--paper-2,#f3f1ec) !important;
+    color:var(--ink-1) !important;
+    border-top:1px solid rgba(14,22,32,.12);
+  }
+  .ch-rt-num,.ch-rt-n{color:var(--ink-1) !important}
+  .ch-rt-label,.ch-rt-l{color:rgba(14,22,32,.55) !important}
 }
 
 
@@ -4422,6 +4507,6 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
   onScroll();
 })();
 </script>
-<script src="/js/pwa-register.js?v=20260511c" defer></script>
+<script src="/js/pwa-register.js?v=20260511d" defer></script>
 </body>
 </html>

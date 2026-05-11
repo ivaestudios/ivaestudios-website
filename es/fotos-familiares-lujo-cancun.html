@@ -37,13 +37,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
-<link rel="stylesheet" href="/styles/site-header.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/site-footer.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/responsive.css?v=20260511c"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260511d"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
-<script src="/js/components.js?v=20260511c" defer></script>
+<script src="/js/components.js?v=20260511d" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
-<script src="/js/site-header.js?v=20260511c" defer></script>
+<script src="/js/site-header.js?v=20260511d" defer></script>
 <script src="/js/services-dropdown-v2.js?v=20260510r" defer></script>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
 <meta name="publisher" content="IVAE Studios"/>
@@ -208,7 +208,7 @@ html.dark a.btn-tier-filled,a.btn-tier-filled{background:var(--gold,#c9a54e);col
 .lf-hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(160deg,rgba(14,22,32,0.55),rgba(14,22,32,0.15) 45%,rgba(14,22,32,0.78))}
 .lf-hero-content{position:relative;z-index:3;padding:0 clamp(24px,5vw,64px) clamp(80px,10vw,140px);max-width:880px}
 .lf-cascade{display:block}
-.lf-h1-letter{display:inline-block;opacity:1;transform:none}
+.lf-h1-letter{display:inline-block;opacity:1;transform:none;white-space:pre}
 html.js-on .lf-h1-letter{opacity:0;transform:translateY(12px);transition:opacity 1.4s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1)),transform 1.4s var(--ease-cinema,cubic-bezier(0.22,1,0.36,1))}
 html.js-on .lf-h1-letter.is-in{opacity:1;transform:none}
 .hero-h1{font-family:var(--font-serif,'Cormorant Garamond',serif);font-size:clamp(48px,7vw,92px);font-weight:300;line-height:1.06;color:#faf8f5;margin:0}
@@ -544,16 +544,114 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
     content:'';display:block;width:1px;height:22px;background:rgba(201,165,78,.55);margin:8px auto;
   }
 }
+
+/* ─── NO-OVERLAP HERO RESTRUCTURE (mobile ≤768px) ─────────────────
+   Splits hero into two stacked panels:
+   • Top  → 60svh photo, full brightness (no dark overlay)
+   • Bottom → cream paper panel with dark text H1, body, CTAs
+   Eyebrow gold caps remain in Spanish. */
+@media (max-width:768px){
+  .lf-hero{
+    min-height:auto !important;
+    display:flex !important;flex-direction:column !important;
+    align-items:stretch !important;justify-content:flex-start !important;
+    background:var(--paper,#fafaf8) !important;
+    padding-top:0 !important;
+    perspective:none !important;overflow:visible !important;
+  }
+  /* Top — photo panel at 60svh, full brightness */
+  .lf-hero-bg{
+    position:relative !important;inset:auto !important;
+    width:100% !important;height:60svh !important;min-height:60svh !important;
+    flex:0 0 auto !important;order:1;
+    z-index:0;overflow:hidden;transform:none !important;
+  }
+  .lf-hero-img{
+    position:absolute !important;inset:0;
+    width:100% !important;height:100% !important;
+    object-fit:cover !important;object-position:center 38% !important;
+    filter:brightness(.94) saturate(.95) !important;
+    transform:none !important;animation:none !important;
+  }
+  .lf-hero-overlay{display:none !important}
+  .lf-motes,.lf-grain{display:none !important}
+
+  /* Bottom — cream paper text panel, no overlap */
+  .lf-hero-content{
+    position:relative !important;z-index:2 !important;order:2;
+    background:var(--paper,#fafaf8) !important;color:var(--ink-1,#1a2230) !important;
+    padding:36px 22px 32px !important;
+    max-width:none !important;width:100% !important;flex:1 1 auto !important;
+    display:flex;flex-direction:column;gap:0;
+  }
+  .lf-hero-content .eyebrow{
+    color:var(--gold,#c9a54e) !important;
+    margin-bottom:18px !important;
+    font-size:10.5px;letter-spacing:.32em;text-transform:uppercase;
+    font-family:'Syne',sans-serif;font-weight:500;
+  }
+  .lf-hero-content .hero-h1{
+    color:var(--ink-1,#1a2230) !important;
+    font-size:clamp(30px,8.5vw,44px) !important;
+    line-height:1.06 !important;letter-spacing:-.018em !important;
+    margin:0 0 22px !important;
+  }
+  .lf-hero-content .hero-h1__italic{color:var(--gold,#c9a54e) !important}
+  .lf-hero-content .hero-sub{
+    color:rgba(14,22,32,.78) !important;
+    max-width:none !important;
+    font-size:15px !important;line-height:1.6 !important;
+    margin-top:0 !important;margin-bottom:22px !important;
+  }
+  .lf-availability{
+    color:rgba(14,22,32,.78) !important;
+    background:rgba(201,165,78,.08) !important;
+    border:1px solid rgba(201,165,78,.28) !important;
+    padding:10px 14px !important;border-radius:2px;
+    margin-top:0 !important;margin-bottom:22px !important;
+    font-size:10.5px;letter-spacing:.22em;
+  }
+  .lf-hero-ctas{
+    margin-top:0 !important;gap:12px !important;
+    flex-direction:column !important;align-items:stretch !important;
+  }
+  .lf-hero-ctas .btn{
+    width:100% !important;min-height:54px;justify-content:center;
+  }
+  /* Meta strip moves below text panel — dark navy ribbon */
+  .lf-meta-strip{
+    order:3;width:100% !important;
+    grid-template-columns:1fr 1fr !important;gap:1px !important;
+    background:var(--ink-1,#1a2230) !important;
+    border-top:1px solid rgba(201,165,78,.28) !important;
+    padding:0 !important;
+  }
+  .lf-meta-strip .lf-stat{
+    background:rgba(12,18,25,.85) !important;
+    padding:14px 8px !important;
+  }
+  .lf-meta-strip .lf-stat-num{font-size:22px !important}
+  .lf-meta-strip .lf-stat-num--word{font-size:14px !important}
+  .lf-meta-strip .lf-stat-suffix{font-size:14px !important}
+  .lf-meta-strip .lf-stat-label{font-size:9px !important;letter-spacing:.22em !important;margin-top:4px}
+  /* Force hero text-reveal items visible on mobile so users see them at scroll-top */
+  html.js-on .lf-hero-content .rv,
+  html.js-on .lf-hero-content .lf-cascade,
+  html.js-on .lf-hero-content .lf-h1-letter{
+    opacity:1 !important;
+    transform:none !important;
+  }
+}
 </style>
-<link rel="stylesheet" href="/styles/lw-editorial.css?v=20260511c"/>
-<script src="/js/lw-editorial.js?v=20260511c" defer></script>
-<link rel="stylesheet" href="/styles/lw-a11y.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/lw-tablet.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/lw-mobile-anim.css?v=20260511c"/>
-<script src="/js/lw-mobile-anim.js?v=20260511c" defer></script>
-<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511c"/>
-<script src="/js/lw-mob-haptics.js?v=20260511c" defer></script>
-<script src="/js/lw-mob-install.js?v=20260511c" defer></script>
+<link rel="stylesheet" href="/styles/lw-editorial.css?v=20260511d"/>
+<script src="/js/lw-editorial.js?v=20260511d" defer></script>
+<link rel="stylesheet" href="/styles/lw-a11y.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/lw-tablet.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/lw-mobile-anim.css?v=20260511d"/>
+<script src="/js/lw-mobile-anim.js?v=20260511d" defer></script>
+<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511d"/>
+<script src="/js/lw-mob-haptics.js?v=20260511d" defer></script>
+<script src="/js/lw-mob-install.js?v=20260511d" defer></script>
 </head>
 <body>
 <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
@@ -1300,7 +1398,7 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
 
 })();
 </script>
-<script src="/js/pwa-register.js?v=20260511c" defer></script>
+<script src="/js/pwa-register.js?v=20260511d" defer></script>
 
 <!-- ═══════ MOBILE POLISH — bottom tabs, hero CTA height, image-fade init ═══════ -->
 <style>

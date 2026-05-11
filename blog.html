@@ -34,17 +34,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&family=Inter:wght@400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="preload" as="image" fetchpriority="high" href="https://assets.ivaestudios.com/blog/destination-wedding-riviera-maya-og.jpg" imagesrcset="https://assets.ivaestudios.com/blog/destination-wedding-riviera-maya-og.jpg 2000w" type="image/jpeg"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
-<link rel="stylesheet" href="/styles/site-header.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/site-footer.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/responsive.css?v=20260511c"/>
-<link rel="preload" href="/styles/lw-blog.css?v=20260511c" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
-<noscript><link rel="stylesheet" href="/styles/lw-blog.css?v=20260511c"/></noscript>
-<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511c"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260511d"/>
+<link rel="preload" href="/styles/lw-blog.css?v=20260511d" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript><link rel="stylesheet" href="/styles/lw-blog.css?v=20260511d"/></noscript>
+<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511d"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
-<script src="/js/site-header.js?v=20260511c" defer></script>
-<script src="/js/components.js?v=20260511c" defer></script>
-<script src="/js/lw-mob-haptics.js?v=20260511c" defer></script>
-<script src="/js/lw-mob-install.js?v=20260511c" defer></script>
+<script src="/js/site-header.js?v=20260511d" defer></script>
+<script src="/js/components.js?v=20260511d" defer></script>
+<script src="/js/lw-mob-haptics.js?v=20260511d" defer></script>
+<script src="/js/lw-mob-install.js?v=20260511d" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <style id="critical-mobile">
 :root{--ink:#0a0f17;--gold:#c9a54e;--cream:#faf8f5;--paper:#fafaf8;--paper-2:#f3f1ec;--ink-1:#0c1219;--ink-2:#131c2a;--ink-3:#1a2230}
@@ -466,6 +466,88 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
     text-align:center;
     line-height:1.2;
     max-width:80px;
+  }
+}
+
+/* ─── MOBILE HERO-FEATURE — SPLIT LAYOUT (photo top / cream text bottom) ─── */
+/* Fixes overlap-dimming: image and copy live in separate areas. */
+@media (max-width:768px){
+  .lw-blog-hero-feature{
+    height:auto !important;
+    max-height:none !important;
+    background:var(--paper,#fafaf8) !important;
+  }
+  .lw-blog-hero-feature__link{
+    position:relative !important;
+    inset:auto !important;
+    aspect-ratio:auto !important;
+    display:flex !important;
+    flex-direction:column !important;
+    height:auto !important;
+    width:100% !important;
+  }
+  .lw-blog-hero-feature__media{
+    position:relative !important;
+    inset:auto !important;
+    height:55svh !important;
+    min-height:380px !important;
+    max-height:540px !important;
+    width:100% !important;
+    filter:brightness(0.94) saturate(1) contrast(1.02) !important;
+    aspect-ratio:unset !important;
+    object-fit:cover !important;
+  }
+  .lw-blog-hero-feature__scrim{
+    position:absolute !important;
+    inset:0 auto auto 0 !important;
+    top:0 !important;left:0 !important;right:0 !important;
+    background:linear-gradient(180deg,rgba(10,15,23,.35) 0%,transparent 30%,transparent 100%) !important;
+    height:55svh !important;
+    max-height:540px !important;
+    min-height:380px !important;
+    pointer-events:none !important;
+  }
+  .lw-blog-hero-feature__body{
+    position:relative !important;
+    inset:auto !important;
+    left:auto !important;right:auto !important;bottom:auto !important;
+    background:var(--paper,#fafaf8) !important;
+    color:var(--ink-1,#0a0f17) !important;
+    padding:36px 24px 48px !important;
+  }
+  .lw-blog-hero-feature__eyebrow{
+    color:var(--gold-2,#a8894a) !important;
+  }
+  .lw-blog-hero-feature__eyebrow::before{
+    background:var(--gold-2,#a8894a) !important;
+  }
+  .lw-blog-hero-feature__title,
+  .lw-blog-hero-feature__dek{
+    color:var(--ink-1,#0a0f17) !important;
+  }
+  .lw-blog-hero-feature__title{
+    font-size:clamp(28px,7.2vw,38px) !important;
+    line-height:1.08 !important;
+    letter-spacing:-.012em !important;
+  }
+  .lw-blog-hero-feature__title em{
+    color:var(--gold-2,#a8894a) !important;
+    opacity:1 !important;
+  }
+  .lw-blog-hero-feature__dek{
+    font-size:16px !important;
+    line-height:1.58 !important;
+    color:rgba(14,22,32,.72) !important;
+  }
+  .lw-blog-hero-feature__byline{
+    color:rgba(14,22,32,.55) !important;
+  }
+  .lw-blog-hero-feature__byline strong{
+    color:var(--ink-1,#0a0f17) !important;
+  }
+  .lw-blog-hero-feature__link:hover .lw-blog-hero-feature__media{
+    transform:none !important;
+    filter:brightness(0.94) saturate(1) contrast(1.02) !important;
   }
 }
 </style>
@@ -1685,6 +1767,6 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
   });
 })();
 </script>
-<script src="/js/pwa-register.js?v=20260511c" defer></script>
+<script src="/js/pwa-register.js?v=20260511d" defer></script>
 </body>
 </html>

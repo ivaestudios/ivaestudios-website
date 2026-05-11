@@ -36,16 +36,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
-<link rel="stylesheet" href="/styles/site-header.css?v=20260511c"/>
-<script src="/js/site-header.js?v=20260511c" defer></script>
+<link rel="stylesheet" href="/styles/site-header.css?v=20260511d"/>
+<script src="/js/site-header.js?v=20260511d" defer></script>
 <link rel="stylesheet" href="/dark-mode.css"/>
-<link rel="stylesheet" href="/styles/site-footer.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/responsive.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/lw-loc-sticky.css?v=20260511c"/>
-<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511c"/>
-<script src="/js/lw-mob-haptics.js?v=20260511c" defer></script>
-<script src="/js/lw-mob-install.js?v=20260511c" defer></script>
-<script src="/js/components.js?v=20260511c" defer></script>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/responsive.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/lw-loc-sticky.css?v=20260511d"/>
+<link rel="stylesheet" href="/styles/lw-mob-polish.css?v=20260511d"/>
+<script src="/js/lw-mob-haptics.js?v=20260511d" defer></script>
+<script src="/js/lw-mob-install.js?v=20260511d" defer></script>
+<script src="/js/components.js?v=20260511d" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 
 
@@ -399,6 +399,85 @@ a{color:inherit;text-decoration:none}
 
 @media(prefers-reduced-motion:reduce){
 .hero-bg{transform:none!important}
+}
+/* ============================================================
+   MOBILE HERO RESTRUCTURE — No-overlap (foto arriba, texto sobre crema)
+   La foto se mantiene totalmente visible (sin atenuar). Texto se lee sobre crema abajo.
+   ============================================================ */
+@media (max-width:768px){
+  .hero{
+    display:flex !important;
+    flex-direction:column !important;
+    min-height:auto !important;
+    height:auto !important;
+    background:var(--cream,#f9f8f7) !important;
+    overflow:visible !important;
+    text-align:left !important;
+    align-items:stretch !important;
+  }
+  .hero-bg{
+    position:relative !important;
+    inset:auto !important;
+    height:60svh !important;
+    min-height:420px !important;
+    max-height:560px !important;
+    width:100% !important;
+    flex:0 0 60svh !important;
+    transform:none !important;
+    overflow:hidden !important;
+  }
+  .hero-bg img{
+    filter:brightness(0.97) saturate(1.02) contrast(1.02) !important;
+  }
+  .hero::after{
+    background:linear-gradient(180deg,rgba(10,15,23,.30) 0%,rgba(10,15,23,0) 30%,rgba(10,15,23,0) 75%,rgba(10,15,23,.16) 100%) !important;
+    height:60svh !important;
+    inset:0 0 auto 0 !important;
+    pointer-events:none !important;
+  }
+  .hero-content{
+    position:relative !important;
+    z-index:5 !important;
+    background:var(--cream,#f9f8f7) !important;
+    color:var(--ink,#1a2433) !important;
+    padding:48px 24px 60px !important;
+    max-width:100% !important;
+    flex:1 1 auto !important;
+    text-align:left !important;
+  }
+  .hero h1{
+    color:var(--ink,#1a2433) !important;
+    font-size:clamp(34px,8vw,44px) !important;
+    line-height:1.05 !important;
+    letter-spacing:-0.005em !important;
+  }
+  .hero h1 em{
+    color:var(--gold2,#a8894a) !important;
+    font-style:italic !important;
+  }
+  .hero-sub{
+    color:rgba(26,36,51,.70) !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    max-width:100% !important;
+  }
+  /* CTA principal — oro sólido sobre crema */
+  .hero-content .btn{
+    background:var(--gold,#c4a35a) !important;
+    color:var(--ink,#1a2433) !important;
+    border:1px solid var(--gold,#c4a35a) !important;
+    box-shadow:0 12px 28px -10px rgba(196,163,90,.42) !important;
+  }
+  .hero-content .btn:hover{
+    background:var(--gold2,#a8894a) !important;
+    border-color:var(--gold2,#a8894a) !important;
+    color:var(--ink,#1a2433) !important;
+  }
+  /* Barra CTA fija — mantener oro en contexto crema */
+  .lw-loc-sticky a.primary{
+    background:var(--gold,#c4a35a) !important;
+    color:var(--ink,#1a2433) !important;
+  }
 }
 </style>
 <meta name="author" content="Vianey Díaz / IVAE Studios"/>
@@ -1018,9 +1097,9 @@ document.querySelectorAll('.faq-q').forEach(btn=>{btn.addEventListener('click',(
     <li><a href="/es/fotografo-cancun" style="color:var(--ink);text-decoration:none;border-bottom:1px solid var(--border)">Fotógrafo en Cancún</a></li>
   </ul>
 </nav>
-<script src="/js/lw-loc-sticky.js?v=20260511c" defer></script>
+<script src="/js/lw-loc-sticky.js?v=20260511d" defer></script>
 <script src="/js/lang-detect.js" defer></script><script src="/js/services-dropdown-v2.js?v=20260510r" defer></script>
-<script src="/js/pwa-register.js?v=20260511c" defer></script>
+<script src="/js/pwa-register.js?v=20260511d" defer></script>
 <script>
 (function(){
   if(!window.matchMedia('(max-width:900px)').matches) return;
