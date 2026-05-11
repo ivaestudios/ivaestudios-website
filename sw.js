@@ -1,7 +1,7 @@
 // IVAE Studios — Service Worker. Cache-first for static assets,
 // network-first for HTML, gracefully fall back to /offline.html if
 // disconnected.
-const CACHE_VERSION = 'ivae-v2-2026-05-12-mobile-exclusive';
+const CACHE_VERSION = 'ivae-v3-2026-05-12-scrollytelling';
 const STATIC_CACHE = `ivae-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `ivae-runtime-${CACHE_VERSION}`;
 const PRECACHE_URLS = [
