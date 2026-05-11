@@ -1,0 +1,57 @@
+/* ───────────────────────────────────────────────────────────────
+   IVAE WhatsApp Floating Action Button — site-wide
+   Position: fixed bottom-right, above the bottom-nav tabs on mobile.
+   Mobile-first; lifts down to viewport edge on desktop.
+   ─────────────────────────────────────────────────────────────── */
+.ivae-wa-fab{
+  position:fixed;
+  right:14px;
+  bottom:calc(86px + env(safe-area-inset-bottom,0px));
+  width:56px;height:56px;border-radius:50%;
+  background:#25D366;color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;
+  box-shadow:0 12px 28px -8px rgba(37,211,102,.45), 0 4px 10px rgba(0,0,0,.2);
+  z-index:78;
+  text-decoration:none;
+  transition:transform .3s cubic-bezier(.22,.61,.36,1),
+             box-shadow .3s cubic-bezier(.22,.61,.36,1),
+             opacity .3s ease,
+             visibility .3s ease;
+}
+.ivae-wa-fab svg{width:30px;height:30px;display:block}
+.ivae-wa-fab:hover,
+.ivae-wa-fab:focus-visible{
+  transform:scale(1.05);
+  box-shadow:0 16px 36px -8px rgba(37,211,102,.55), 0 6px 14px rgba(0,0,0,.22);
+  outline:none;
+}
+.ivae-wa-fab:focus-visible{outline:2px solid #c9a54e;outline-offset:3px}
+.ivae-wa-fab:active{transform:scale(.95)}
+.ivae-wa-fab[data-hidden="1"]{opacity:0;visibility:hidden;transform:scale(.7)}
+
+/* Desktop: FAB lifts to viewport edge (no bottom-nav above 900px) */
+@media (min-width:901px){
+  .ivae-wa-fab{
+    bottom:24px;
+    right:24px;
+    width:60px;height:60px;
+  }
+  .ivae-wa-fab svg{width:32px;height:32px}
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion:reduce){
+  .ivae-wa-fab,
+  .ivae-wa-fab:hover,
+  .ivae-wa-fab:active{transition:none;transform:none}
+}
+
+/* Subtle entry pulse — once on first paint */
+@media (prefers-reduced-motion:no-preference){
+  @keyframes ivaeWaFabPulse{
+    0%{box-shadow:0 12px 28px -8px rgba(37,211,102,.45), 0 4px 10px rgba(0,0,0,.2), 0 0 0 0 rgba(37,211,102,.5)}
+    70%{box-shadow:0 12px 28px -8px rgba(37,211,102,.45), 0 4px 10px rgba(0,0,0,.2), 0 0 0 18px rgba(37,211,102,0)}
+    100%{box-shadow:0 12px 28px -8px rgba(37,211,102,.45), 0 4px 10px rgba(0,0,0,.2), 0 0 0 0 rgba(37,211,102,0)}
+  }
+  .ivae-wa-fab[data-pulse="1"]{animation:ivaeWaFabPulse 1.4s cubic-bezier(.22,.61,.36,1) 1.2s 2}
+}
