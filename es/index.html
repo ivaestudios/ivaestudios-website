@@ -1550,6 +1550,71 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 .reel-btn svg{width:14px;height:14px;transition:transform .3s var(--ease)}
 
 /* ───────────────────────────────────────────────────────────────
+   CAPÍTULO 04½ / SERVICIOS QUICK-NAV — mobile-first, 1-2-4 cols
+   Target para /es/#services (bottom-nav SERVICIOS button)
+   ─────────────────────────────────────────────────────────────── */
+.services-quick{
+  position:relative;background:var(--paper,#fafaf8);color:var(--ink-1,#0c1219);
+  padding:56px 22px 64px;
+}
+.services-quick-head{max-width:680px;margin:0 auto 32px;text-align:center}
+.services-quick-eyebrow{
+  display:inline-block;color:var(--gold,#c9a54e);font-family:'Syne',sans-serif;
+  font-size:11.5px;letter-spacing:.34em;text-transform:uppercase;font-weight:500;
+}
+.services-quick-head h2{
+  font-family:'Cormorant Garamond',serif;font-weight:400;
+  font-size:clamp(28px,7vw,40px);line-height:1.05;letter-spacing:-.012em;
+  margin:14px 0 0;color:var(--ink-1,#0c1219);
+}
+.services-quick-head h2 em{color:var(--gold-2,#a8894a);font-style:italic}
+.services-quick-grid{display:grid;gap:14px;max-width:1100px;margin:0 auto}
+.services-quick-card{
+  position:relative;display:flex;flex-direction:column;
+  padding:24px 22px 22px;min-height:44px;
+  background:var(--paper-2,#f3f1ec);
+  border:1px solid rgba(201,165,78,.18);
+  text-decoration:none;color:inherit;
+  transition:transform .4s var(--ease,cubic-bezier(.22,.61,.36,1)),
+             border-color .4s var(--ease,cubic-bezier(.22,.61,.36,1)),
+             box-shadow .4s var(--ease,cubic-bezier(.22,.61,.36,1));
+}
+.services-quick-card:hover,
+.services-quick-card:focus-visible{
+  transform:translateY(-2px);border-color:var(--gold,#c9a54e);
+  box-shadow:0 8px 24px rgba(12,18,25,.08);outline:none;
+}
+.services-quick-card:focus-visible{outline:2px solid var(--gold,#c9a54e);outline-offset:3px}
+.services-quick-num{
+  color:var(--gold,#c9a54e);font-family:'Syne',sans-serif;
+  font-size:10.5px;letter-spacing:.34em;font-weight:500;margin-bottom:10px;
+}
+.services-quick-card h3{
+  font-family:'Cormorant Garamond',serif;font-weight:500;
+  font-size:22px;line-height:1.15;letter-spacing:-.005em;
+  margin:0 0 8px;color:var(--ink-1,#0c1219);
+}
+.services-quick-card p{
+  font-size:14px;line-height:1.55;color:rgba(14,22,32,.7);margin:0 0 14px;
+}
+.services-quick-arrow{
+  margin-top:auto;align-self:flex-end;
+  color:var(--gold,#c9a54e);font-size:18px;line-height:1;
+  transition:transform .4s var(--ease,cubic-bezier(.22,.61,.36,1));
+}
+.services-quick-card:hover .services-quick-arrow{transform:translateX(4px)}
+@media (min-width:600px){
+  .services-quick{padding:72px 28px 80px}
+  .services-quick-grid{grid-template-columns:repeat(2,1fr);gap:18px}
+}
+@media (min-width:1024px){
+  .services-quick{padding:96px 40px 104px}
+  .services-quick-grid{grid-template-columns:repeat(4,1fr);gap:22px}
+  .services-quick-card{padding:32px 26px 26px}
+  .services-quick-card h3{font-size:24px}
+}
+
+/* ───────────────────────────────────────────────────────────────
    CAPÍTULO 05 / MEXICO INTERACTIVE SVG MAP
    ─────────────────────────────────────────────────────────────── */
 .atlas{
@@ -3265,6 +3330,42 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
         <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
       </button>
     </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     CAPÍTULO 04½ / SERVICIOS QUICK-NAV (target #services para bottom-nav)
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="services-quick" id="services" aria-labelledby="services-h2">
+  <div class="services-quick-head">
+    <span class="services-quick-eyebrow">Qué fotografiamos</span>
+    <h2 id="services-h2">Cuatro capítulos. <em>Un estudio.</em></h2>
+  </div>
+  <div class="services-quick-grid">
+    <a class="services-quick-card" href="/es/fotografo-bodas-destino-mexico.html">
+      <span class="services-quick-num">01</span>
+      <h3>Bodas de Destino</h3>
+      <p>Cobertura editorial del ensayo al último baile.</p>
+      <span class="services-quick-arrow" aria-hidden="true">&rarr;</span>
+    </a>
+    <a class="services-quick-card" href="/es/fotografia-parejas-mexico.html">
+      <span class="services-quick-num">02</span>
+      <h3>Parejas &amp; Lunas de Miel</h3>
+      <p>Cuadros cinematográficos para ustedes dos.</p>
+      <span class="services-quick-arrow" aria-hidden="true">&rarr;</span>
+    </a>
+    <a class="services-quick-card" href="/es/fotos-familiares-lujo-cancun.html">
+      <span class="services-quick-num">03</span>
+      <h3>Sesiones Familiares</h3>
+      <p>Archivo editorial de la gente que amas.</p>
+      <span class="services-quick-arrow" aria-hidden="true">&rarr;</span>
+    </a>
+    <a class="services-quick-card" href="/es/editorial-de-lujo.html">
+      <span class="services-quick-num">04</span>
+      <h3>Editorial &amp; Marca</h3>
+      <p>Producción nivel revista para resorts.</p>
+      <span class="services-quick-arrow" aria-hidden="true">&rarr;</span>
+    </a>
   </div>
 </section>
 
