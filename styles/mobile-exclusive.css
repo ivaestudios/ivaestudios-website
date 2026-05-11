@@ -7,7 +7,7 @@
    STRUCTURE = ANIMATIONS. Pinned scroll, 3D rotates, mask reveals,
    text cascades, counter ticks, depth carousels.
 
-   Active only @media (max-width: 768px). Desktop unchanged.
+   Active only @media (max-width: 899px). Desktop unchanged.
    ═══════════════════════════════════════════════════════════════════════ */
 
 :root {
@@ -23,13 +23,13 @@
 
 /* ═══ visibility gates ═══════════════════════════════════════════════ */
 .ivm { display: none; }
-@media (max-width: 768px) {
+@media (max-width: 899px) {
   .ivm { display: block; }
   body.ivm-page .ivm-desktop-only { display: none !important; }
 }
 
 /* ═══ MOBILE STYLES ALL INSIDE THIS @MEDIA ═══════════════════════════ */
-@media (max-width: 768px) {
+@media (max-width: 899px) {
 
   body.ivm-page {
     background: var(--ivm-ink);
