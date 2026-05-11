@@ -142,7 +142,8 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 56% 42%;
+    object-position: 50% 38%;
+    image-rendering: -webkit-optimize-contrast;
     transform: scale(1.02);
     opacity: 0;
     animation: ivmHeroPhotoIn 1.6s var(--ivm-ease) 1.4s forwards,
