@@ -801,7 +801,8 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 
 @media(max-width:768px){
   .ch-chapter{top:80px}
-  .ch-content{padding-bottom:48px}
+  .ch-content{padding-top:92px;padding-bottom:48px}
+  .ch-h1{font-size:clamp(32px,8.5vw,44px);line-height:1.04}
   .ch-meta{flex-direction:column;align-items:flex-start;padding:18px 20px}
   .ch-runtime{width:100%;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .ch-rt-cell{padding:0;border:none;flex:1 0 50%}
@@ -2740,11 +2741,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
      ═══════════════════════════════════════════════════════════════ -->
 <section class="cinematic-hero" aria-labelledby="ch-h1">
   <div class="ch-stage" id="chStage">
-    <picture>
-      <source type="image/avif" sizes="100vw" srcset="/images/optimized/wedding-bride-tulum-ivae-studios-480.avif?v=20260511a 480w, /images/optimized/wedding-bride-tulum-ivae-studios-768.avif?v=20260511a 768w, /images/optimized/wedding-bride-tulum-ivae-studios-1200.avif?v=20260511a 1200w, /images/optimized/wedding-bride-tulum-ivae-studios-1920.avif?v=20260511a 1920w, /images/optimized/wedding-bride-tulum-ivae-studios-2400.avif?v=20260511a 2400w"/>
-      <source type="image/webp" sizes="100vw" srcset="/images/optimized/wedding-bride-tulum-ivae-studios-480.webp?v=20260511a 480w, /images/optimized/wedding-bride-tulum-ivae-studios-768.webp?v=20260511a 768w, /images/optimized/wedding-bride-tulum-ivae-studios-1200.webp?v=20260511a 1200w, /images/optimized/wedding-bride-tulum-ivae-studios-1920.webp?v=20260511a 1920w, /images/optimized/wedding-bride-tulum-ivae-studios-2400.webp?v=20260511a 2400w"/>
-      <img class="ch-photo cinematic-hero__bg-img" id="chPhoto" src="/images/wedding-bride-tulum-ivae-studios.jpg" alt="Novia al atardecer en una playa de Tulum durante una boda de destino fotografiada por IVAE Studios" loading="eager" fetchpriority="high" width="2400" height="1600" decoding="async"/>
-    </picture>
+    <img class="ch-photo cinematic-hero__bg-img" id="chPhoto" src="/images/wedding-bride-tulum-ivae-studios.jpg" alt="Novia al atardecer en una playa de Tulum durante una boda de destino fotografiada por IVAE Studios" loading="eager" fetchpriority="high" width="2400" height="1600" decoding="async"/>
     <div class="ch-photo-scrim" aria-hidden="true"></div>
     <div class="ch-mid" id="chMid" aria-hidden="true"></div>
     <div class="ch-grain" aria-hidden="true"></div>

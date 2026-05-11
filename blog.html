@@ -57,8 +57,10 @@ html.dark body{background:var(--ink);color:var(--cream)}
 .site-header{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,4vw,48px);height:68px;background:rgba(10,15,23,.85);backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);border-bottom:1px solid rgba(201,165,78,.12)}
 .lw-blog-masthead{padding:clamp(80px,12vw,140px) clamp(20px,5vw,48px) clamp(40px,6vw,72px);text-align:center;background:var(--paper)}
 .lw-blog-masthead__title{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:clamp(48px,15vw,90px);line-height:1.02;color:var(--ink-1)}
-.lw-blog-hero-feature{position:relative;min-height:560px;overflow:hidden}
-.lw-blog-hero-feature__media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.lw-blog-hero-feature{position:relative;overflow:hidden;height:calc(100vw * 1.25);max-height:680px}
+@media (min-width:768px){.lw-blog-hero-feature{height:calc(100vw * 0.4286);max-height:780px}}
+.lw-blog-hero-feature__link{display:block;position:absolute;inset:0;width:100%;height:100%}
+.lw-blog-hero-feature__media{position:absolute;inset:0;width:100% !important;height:100% !important;object-fit:cover;z-index:1;aspect-ratio:unset !important}
 .lw-mob-tabs{position:fixed;left:0;right:0;bottom:0;z-index:999;display:none}
 @media (max-width:900px){.lw-mob-tabs{display:flex}}
 @media (max-width:768px){html{scroll-padding-top:60px}.site-header{height:60px;padding:0 16px}}
@@ -599,21 +601,7 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
 
 <section class="lw-blog-hero-feature" aria-labelledby="lw-blog-hero-title">
   <a class="lw-blog-hero-feature__link" href="/blog/destination-wedding-photographer-riviera-maya">
-    <picture>
-      <source type="image/avif" sizes="100vw" srcset="
-        /images/optimized/destination-wedding-riviera-maya-og-480.avif 480w,
-        /images/optimized/destination-wedding-riviera-maya-og-768.avif 768w,
-        /images/optimized/destination-wedding-riviera-maya-og-1200.avif 1200w,
-        /images/optimized/destination-wedding-riviera-maya-og-1920.avif 1920w,
-        /images/optimized/destination-wedding-riviera-maya-og-2400.avif 2400w"/>
-      <source type="image/webp" sizes="100vw" srcset="
-        /images/optimized/destination-wedding-riviera-maya-og-480.webp 480w,
-        /images/optimized/destination-wedding-riviera-maya-og-768.webp 768w,
-        /images/optimized/destination-wedding-riviera-maya-og-1200.webp 1200w,
-        /images/optimized/destination-wedding-riviera-maya-og-1920.webp 1920w,
-        /images/optimized/destination-wedding-riviera-maya-og-2400.webp 2400w"/>
-      <img class="lw-blog-hero-feature__media" src="https://assets.ivaestudios.com/blog/destination-wedding-riviera-maya-og.jpg" alt="Bride and groom at sunset on a Riviera Maya beach during a luxury destination wedding ceremony" width="2000" height="857" fetchpriority="high" loading="eager" decoding="async"/>
-    </picture>
+    <img class="lw-blog-hero-feature__media" src="https://assets.ivaestudios.com/blog/destination-wedding-riviera-maya-og.jpg" alt="Bride and groom at sunset on a Riviera Maya beach during a luxury destination wedding ceremony" width="2000" height="857" fetchpriority="high" loading="eager" decoding="async"/>
     <span class="lw-blog-hero-feature__scrim" aria-hidden="true"></span>
     <div class="lw-blog-hero-feature__body">
       <span class="lw-blog-hero-feature__eyebrow">Cover Story &middot; Weddings</span>
@@ -630,7 +618,7 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
       <span class="lw-blog-dossier__eyebrow">The Dossier</span>
       <h2 class="lw-blog-dossier__title" id="lw-blog-dossier-title">Editor&rsquo;s <em>Curation</em></h2>
     </div>
-    <span class="lw-blog-dossier__count">Editor&rsquo;s Curation</span>
+    <span class="lw-blog-dossier__count">3 Featured</span>
   </header>
   <div class="lw-blog-dossier__grid">
   <a class="lw-blog-dossier__card lw-blog-dossier__card--wide" href="/blog/wedding-photographer-cancun" data-category="weddings">

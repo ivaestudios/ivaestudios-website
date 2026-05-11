@@ -54,8 +54,14 @@
   align-items:baseline !important;
   gap:6px !important;
   position:relative !important;
-  overflow:hidden !important;
+  overflow:visible !important;
   text-decoration:none !important;
+  flex-shrink:0 !important;
+  white-space:nowrap !important;
+}
+@media (max-width:480px){
+  .site-header .h-logo{letter-spacing:.18em !important;font-size:12px !important;gap:4px !important}
+  .site-header .h-logo em{font-size:13px !important}
 }
 .site-header .h-logo em{
   font-style:normal !important;
