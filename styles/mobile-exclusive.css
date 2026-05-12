@@ -2342,26 +2342,9 @@
     perspective: 1800px;
     perspective-origin: 50% 50%;
   }
-  /* Magazine masthead — top bar */
+  /* Magazine masthead — REMOVED by request (was competing with hero photo) */
   .ivm-wd-cinema__masthead {
-    position: absolute;
-    top: calc(72px + env(safe-area-inset-top, 0px));
-    left: 24px;
-    right: 24px;
-    z-index: 6;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-family: 'Syne', sans-serif;
-    font-size: 9px;
-    letter-spacing: 0.45em;
-    text-transform: uppercase;
-    color: rgba(250,248,245,.85);
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(201,165,78,.42);
-  }
-  .ivm-wd-cinema__masthead span:last-child {
-    color: var(--ivm-gold);
+    display: none !important;
   }
   /* Deck of full-bleed frames stacked */
   .ivm-wd-cinema__deck {
