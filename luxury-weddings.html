@@ -1838,7 +1838,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
 }
 </style>
 <!-- Hide duplicate sticky CTA bar on service pages (unified bottom-nav handles nav, FAB handles WhatsApp) --><style>@media (max-width:900px){.lw-sticky-mob-bar{display:none !important}}</style>
-<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512y">
+<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512z">
 </head>
 <body class="ivm-page">
 
@@ -1995,73 +1995,88 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
     </ol>
   </section>
 
-  <!-- ACT IV — VENUES — editorial polaroid mosaic -->
-  <section class="ivm-wd-venues" aria-labelledby="ivm-wd-vn-h">
-    <header class="ivm-wd-venues__head">
-      <span class="ivm-wd-venues__eyebrow">Recent venues</span>
-      <h2 id="ivm-wd-vn-h">Five-star <em>weddings.</em></h2>
-    </header>
-    <div class="ivm-wd-venues__grid">
-      <figure class="ivm-wd-venue">
-        <div class="ivm-wd-venue__frame">
-          <img src="/images/wedding-bride-cancun-ivae-studios-960.jpg" alt="Wedding at Rosewood Mayakoba" loading="lazy">
-          <div class="shade"></div>
-        </div>
-        <figcaption>
-          <span class="ivm-wd-venue__name">Rosewood Mayakoba</span>
-          <span class="ivm-wd-venue__date">April 2026 · 142 guests</span>
-        </figcaption>
-      </figure>
-      <figure class="ivm-wd-venue">
-        <div class="ivm-wd-venue__frame">
-          <img src="/images/wedding-bride-tulum-ivae-studios-960.jpg" alt="Wedding at Banyan Tree Mayakoba" loading="lazy">
-          <div class="shade"></div>
-        </div>
-        <figcaption>
-          <span class="ivm-wd-venue__name">Banyan Tree</span>
-          <span class="ivm-wd-venue__date">February 2026 · 96 guests</span>
-        </figcaption>
-      </figure>
-      <figure class="ivm-wd-venue">
-        <div class="ivm-wd-venue__frame">
-          <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg" alt="Wedding at Capella Pedregal" loading="lazy">
-          <div class="shade"></div>
-        </div>
-        <figcaption>
-          <span class="ivm-wd-venue__name">Capella Pedregal</span>
-          <span class="ivm-wd-venue__date">November 2025 · 78 guests</span>
-        </figcaption>
-      </figure>
-      <figure class="ivm-wd-venue">
-        <div class="ivm-wd-venue__frame">
-          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-8-960.jpg" alt="Wedding at Esperanza Cabo" loading="lazy">
-          <div class="shade"></div>
-        </div>
-        <figcaption>
-          <span class="ivm-wd-venue__name">Esperanza Cabo</span>
-          <span class="ivm-wd-venue__date">January 2026 · 110 guests</span>
-        </figcaption>
-      </figure>
-      <figure class="ivm-wd-venue">
-        <div class="ivm-wd-venue__frame">
-          <img src="/images/wedding-bride-isla-mujeres-ivae-studios-960.jpg" alt="Wedding at One and Only Palmilla" loading="lazy">
-          <div class="shade"></div>
-        </div>
-        <figcaption>
-          <span class="ivm-wd-venue__name">One &amp; Only Palmilla</span>
-          <span class="ivm-wd-venue__date">December 2025 · 64 guests</span>
-        </figcaption>
-      </figure>
-      <figure class="ivm-wd-venue">
-        <div class="ivm-wd-venue__frame">
-          <img src="/images/wedding-bride-cancun-beach-ivae-studios-2.jpg" alt="Wedding at Fairmont Mayakoba" loading="lazy">
-          <div class="shade"></div>
-        </div>
-        <figcaption>
-          <span class="ivm-wd-venue__name">Fairmont Mayakoba</span>
-          <span class="ivm-wd-venue__date">October 2025 · 88 guests</span>
-        </figcaption>
-      </figure>
+  <!-- ACT IV — CINEMA DECK — sticky full-bleed slideshow -->
+  <section class="ivm-wd-cinema" aria-label="Recent wedding venues">
+    <div class="ivm-wd-cinema__pin">
+      <header class="ivm-wd-cinema__masthead">
+        <span>IVAE Wedding Archive</span>
+        <span>Vol. III · MMXXVI</span>
+      </header>
+      <div class="ivm-wd-cinema__counter" aria-hidden="true">
+        <strong id="ivmWdCinCount">01</strong>
+        <em>/ 06</em>
+      </div>
+      <div class="ivm-wd-cinema__deck" id="ivmWdCinemaDeck">
+        <article class="ivm-wd-frame" data-frame="0">
+          <div class="ivm-wd-frame__photo">
+            <img src="/images/wedding-bride-cancun-ivae-studios-960.jpg" alt="Wedding at Rosewood Mayakoba">
+          </div>
+          <div class="ivm-wd-frame__veil" aria-hidden="true"></div>
+          <div class="ivm-wd-frame__copy">
+            <span class="ivm-wd-frame__num">No. 01</span>
+            <h3 class="ivm-wd-frame__name">Rosewood <em>Mayakoba.</em></h3>
+            <span class="ivm-wd-frame__meta">April 2026 · 142 guests</span>
+          </div>
+        </article>
+        <article class="ivm-wd-frame" data-frame="1">
+          <div class="ivm-wd-frame__photo">
+            <img src="/images/wedding-bride-tulum-ivae-studios-960.jpg" alt="Wedding at Banyan Tree Mayakoba">
+          </div>
+          <div class="ivm-wd-frame__veil" aria-hidden="true"></div>
+          <div class="ivm-wd-frame__copy">
+            <span class="ivm-wd-frame__num">No. 02</span>
+            <h3 class="ivm-wd-frame__name">Banyan <em>Tree.</em></h3>
+            <span class="ivm-wd-frame__meta">February 2026 · 96 guests</span>
+          </div>
+        </article>
+        <article class="ivm-wd-frame" data-frame="2">
+          <div class="ivm-wd-frame__photo">
+            <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg" alt="Wedding at Capella Pedregal">
+          </div>
+          <div class="ivm-wd-frame__veil" aria-hidden="true"></div>
+          <div class="ivm-wd-frame__copy">
+            <span class="ivm-wd-frame__num">No. 03</span>
+            <h3 class="ivm-wd-frame__name">Capella <em>Pedregal.</em></h3>
+            <span class="ivm-wd-frame__meta">November 2025 · 78 guests</span>
+          </div>
+        </article>
+        <article class="ivm-wd-frame" data-frame="3">
+          <div class="ivm-wd-frame__photo">
+            <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-8-960.jpg" alt="Wedding at Esperanza Cabo">
+          </div>
+          <div class="ivm-wd-frame__veil" aria-hidden="true"></div>
+          <div class="ivm-wd-frame__copy">
+            <span class="ivm-wd-frame__num">No. 04</span>
+            <h3 class="ivm-wd-frame__name">Esperanza <em>Cabo.</em></h3>
+            <span class="ivm-wd-frame__meta">January 2026 · 110 guests</span>
+          </div>
+        </article>
+        <article class="ivm-wd-frame" data-frame="4">
+          <div class="ivm-wd-frame__photo">
+            <img src="/images/wedding-bride-isla-mujeres-ivae-studios-960.jpg" alt="Wedding at One and Only Palmilla">
+          </div>
+          <div class="ivm-wd-frame__veil" aria-hidden="true"></div>
+          <div class="ivm-wd-frame__copy">
+            <span class="ivm-wd-frame__num">No. 05</span>
+            <h3 class="ivm-wd-frame__name">One &amp; Only <em>Palmilla.</em></h3>
+            <span class="ivm-wd-frame__meta">December 2025 · 64 guests</span>
+          </div>
+        </article>
+        <article class="ivm-wd-frame" data-frame="5">
+          <div class="ivm-wd-frame__photo">
+            <img src="/images/wedding-bride-cancun-beach-ivae-studios-2.jpg" alt="Wedding at Fairmont Mayakoba">
+          </div>
+          <div class="ivm-wd-frame__veil" aria-hidden="true"></div>
+          <div class="ivm-wd-frame__copy">
+            <span class="ivm-wd-frame__num">No. 06</span>
+            <h3 class="ivm-wd-frame__name">Fairmont <em>Mayakoba.</em></h3>
+            <span class="ivm-wd-frame__meta">October 2025 · 88 guests</span>
+          </div>
+        </article>
+      </div>
+      <div class="ivm-wd-cinema__progress" aria-hidden="true">
+        <span class="is-on"></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
     </div>
   </section>
 
@@ -2162,45 +2177,39 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
     entries.forEach(function(e){ tlio.observe(e); });
   }
 
-  /* ── ACT IV Venues — 3D reveal + scroll-driven tilt parallax ──
-     Phase 1 (reveal): rotateY ±22° + translateZ -120 → 0 + opacity on intersection.
-     Phase 2 (live): while in viewport, frame tilts in 3D based on distance
-     from viewport center for continuous cinematic depth. */
-  var venues = document.querySelectorAll('.ivm-wd-venue');
-  if (venues.length) {
-    var vio = new IntersectionObserver(function(items){
-      items.forEach(function(e){
-        if (e.isIntersecting && !e.target.classList.contains('is-on')) {
-          var idx = [].indexOf.call(venues, e.target);
-          setTimeout(function(){ e.target.classList.add('is-on'); }, idx * 80);
-        }
+  /* ── ACT IV Cinema Deck — sticky scroll-driven slideshow ──
+     One venue at a time, 600vh section = 6 venues × 100vh of scroll.
+     Crossfade with 3D depth between active / next / past frames. */
+  var cinSec = document.querySelector('.ivm-wd-cinema');
+  var frames = document.querySelectorAll('.ivm-wd-frame');
+  var cinDots = document.querySelectorAll('.ivm-wd-cinema__progress span');
+  var cinCount = document.getElementById('ivmWdCinCount');
+  if (cinSec && frames.length) {
+    var cinTicking = false;
+    var frameN = frames.length;
+    function updateCinema(){
+      cinTicking = false;
+      var rect = cinSec.getBoundingClientRect();
+      var total = rect.height - window.innerHeight;
+      var p = Math.max(0, Math.min(1, -rect.top / total));
+      var activeIdx = Math.min(frameN - 1, Math.floor(p * frameN));
+      frames.forEach(function(f, i){
+        if (i === activeIdx) f.setAttribute('data-pos', 'active');
+        else if (i === activeIdx + 1) f.setAttribute('data-pos', 'next');
+        else if (i === activeIdx - 1) f.setAttribute('data-pos', 'past');
+        else f.setAttribute('data-pos', 'deep');
       });
-    }, { threshold: 0.15 });
-    venues.forEach(function(v){ vio.observe(v); });
-
-    var tiltActive = false;
-    function updateTilt(){
-      tiltActive = false;
-      var vh = window.innerHeight;
-      var vc = vh / 2;
-      venues.forEach(function(v, idx){
-        if (!v.classList.contains('is-on')) return;
-        var rect = v.getBoundingClientRect();
-        if (rect.bottom < 0 || rect.top > vh) return;
-        var center = rect.top + rect.height / 2;
-        var offset = (center - vc) / vh;
-        var rotX = Math.max(-8, Math.min(8, -offset * 14));
-        var rotY = (idx % 2 === 0 ? 1 : -1) * Math.max(-4, Math.min(4, offset * 6));
-        var frame = v.querySelector('.ivm-wd-venue__frame');
-        if (frame) {
-          frame.style.transform = 'translateZ(20px) rotateX(' + rotX.toFixed(2) + 'deg) rotateY(' + rotY.toFixed(2) + 'deg)';
-        }
-      });
+      cinDots.forEach(function(d, i){ d.classList.toggle('is-on', i <= activeIdx); });
+      if (cinCount) cinCount.textContent = '0' + (activeIdx + 1);
     }
+    // Initial state
+    frames.forEach(function(f, i){
+      f.setAttribute('data-pos', i === 0 ? 'active' : (i === 1 ? 'next' : 'deep'));
+    });
     window.addEventListener('scroll', function(){
-      if (!tiltActive) { requestAnimationFrame(updateTilt); tiltActive = true; }
+      if (!cinTicking) { requestAnimationFrame(updateCinema); cinTicking = true; }
     }, {passive: true});
-    updateTilt();
+    updateCinema();
   }
 
   /* ── ACT V Numbers 3D flip on viewport ── */
