@@ -25,6 +25,15 @@
 .ivm { display: none; }
 @media (max-width: 899px) {
   .ivm { display: block; }
+  /* CRITICAL: body.ivm-page must NOT have overflow-y: auto or sticky breaks.
+     Some pages (luxury-weddings) have inline body styles that set
+     overflow-x: hidden, which makes the browser compute overflow-y: auto
+     (per CSS spec: if one axis is hidden, the other becomes auto). That
+     hidden/auto state turns body into the scroll container but with no
+     defined height, sticky descendants stop sticking. Force overflow
+     visible to keep the document/viewport as the scrollport. */
+  body.ivm-page { overflow: visible !important; }
+  html:has(body.ivm-page) { overflow-x: clip; }
   body.ivm-page .ivm-desktop-only { display: none !important; }
   /* Hide DESKTOP loader (.film-leader) on mobile — we use .ivm-loader instead */
   body.ivm-page .film-leader,
