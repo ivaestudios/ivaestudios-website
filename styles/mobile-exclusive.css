@@ -2342,53 +2342,105 @@
     letter-spacing: -0.015em;
   }
   .ivm-wd-venues__head em { font-style: italic; color: var(--ivm-gold); }
-  /* Each venue = full-width editorial spread, stacked vertically */
+  /* 3D editorial spread stack — each venue tilts on scroll */
   .ivm-wd-venues__grid {
     display: flex;
     flex-direction: column;
     gap: 80px;
+    counter-reset: venue;
+    perspective: 1400px;
+    perspective-origin: 50% 50%;
   }
   .ivm-wd-venue {
     position: relative;
     padding: 0 24px;
+    transform-style: preserve-3d;
     opacity: 0;
-    transform: translateY(32px);
-    transition: transform 1.0s var(--ivm-ease), opacity 1.0s var(--ivm-ease);
+    transform: rotateY(-22deg) rotateX(8deg) translateZ(-120px) translateY(40px);
+    transition:
+      transform 1.4s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 1.0s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform, opacity;
   }
-  .ivm-wd-venue.is-on {
+  .ivm-wd-venue:nth-child(even) {
+    transform: rotateY(22deg) rotateX(8deg) translateZ(-120px) translateY(40px);
+  }
+  .ivm-wd-venue.is-on,
+  .ivm-wd-venue.is-on:nth-child(even) {
     opacity: 1;
-    transform: translateY(0);
+    transform: rotateY(0) rotateX(0) translateZ(0) translateY(0);
   }
   /* Editorial spread number — top right of each venue */
   .ivm-wd-venue::before {
     content: counter(venue, decimal-leading-zero) ' / 06';
     counter-increment: venue;
     position: absolute;
-    top: -28px;
+    top: -32px;
     right: 24px;
     font-family: 'Syne', sans-serif;
-    font-size: 9px;
-    letter-spacing: 0.4em;
-    color: rgba(201,165,78,.55);
+    font-size: 10px;
+    letter-spacing: 0.42em;
+    color: rgba(201,165,78,.7);
     text-transform: uppercase;
     z-index: 3;
+    transform: translateZ(40px);
   }
-  .ivm-wd-venues__grid { counter-reset: venue; }
+  /* Photo frame — its own 3D layer */
+  .ivm-wd-venue__frame {
+    position: relative;
+    transform-style: preserve-3d;
+    transform: translateZ(20px);
+    overflow: hidden;
+    box-shadow:
+      0 50px 100px rgba(0,0,0,.65),
+      0 24px 48px rgba(0,0,0,.45),
+      0 0 0 1px rgba(201,165,78,.12);
+  }
+  /* Gold L-corner brackets on the photo, in 3D */
+  .ivm-wd-venue__frame::before,
+  .ivm-wd-venue__frame::after {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border: 1px solid var(--ivm-gold);
+    pointer-events: none;
+    z-index: 4;
+    transform: translateZ(2px);
+  }
+  .ivm-wd-venue__frame::before {
+    top: 10px; left: 10px;
+    border-right: none; border-bottom: none;
+  }
+  .ivm-wd-venue__frame::after {
+    bottom: 10px; right: 10px;
+    border-left: none; border-top: none;
+  }
   .ivm-wd-venue img {
     width: 100%;
     aspect-ratio: 3/4;
     object-fit: cover;
     display: block;
-    filter: saturate(0.94) contrast(1.04);
-    box-shadow:
-      0 40px 80px rgba(0,0,0,.55),
-      0 18px 36px rgba(0,0,0,.35);
+    filter: saturate(0.94) contrast(1.05);
+    transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+    /* Slight scale on entry, settles to 1 */
+  }
+  /* Gold scrim at bottom of image for caption legibility */
+  .ivm-wd-venue__frame > div.shade {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 38%;
+    background: linear-gradient(180deg, transparent, rgba(10,15,23,.72));
+    pointer-events: none;
+    z-index: 2;
+    transform: translateZ(1px);
   }
   .ivm-wd-venue figcaption {
-    margin-top: 22px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(201,165,78,.28);
+    margin-top: 26px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(201,165,78,.32);
     text-align: left;
+    transform: translateZ(0);
   }
   /* Alternate caption alignment for editorial rhythm */
   .ivm-wd-venue:nth-child(even) figcaption {
@@ -2399,19 +2451,23 @@
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
     font-weight: 400;
-    font-size: clamp(22px, 6vw, 28px);
+    font-size: clamp(24px, 6.5vw, 30px);
     color: var(--ivm-cream);
     line-height: 1.05;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     letter-spacing: -0.01em;
   }
   .ivm-wd-venue__date {
     display: block;
     font-family: 'Syne', sans-serif;
     font-size: 10px;
-    letter-spacing: 0.42em;
+    letter-spacing: 0.45em;
     color: var(--ivm-gold);
     text-transform: uppercase;
+  }
+  /* While in viewport: scroll-driven tilt animation via data-tilt */
+  .ivm-wd-venue[data-tilt] .ivm-wd-venue__frame {
+    transition: transform 0.4s linear;
   }
 
   /* ── ACT I — Typographic Masthead (no full-bleed hero photo) ─── */

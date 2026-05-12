@@ -1409,7 +1409,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 <script src="/js/lw-mob-haptics.js?v=20260511d" defer></script>
 <script src="/js/lw-mob-install.js?v=20260511d" defer></script>
 <!-- Hide duplicate sticky CTA bar on service pages (unified bottom-nav handles nav, FAB handles WhatsApp) --><style>@media (max-width:900px){.lw-sticky-mob-bar{display:none !important}}</style>
-<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512x">
+<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512y">
 </head>
 <body class="ivm-page">
 
@@ -1574,42 +1574,60 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
     </header>
     <div class="ivm-wd-venues__grid">
       <figure class="ivm-wd-venue">
-        <img src="/images/wedding-bride-cancun-ivae-studios-960.jpg" alt="Boda en Rosewood Mayakoba" loading="lazy">
+        <div class="ivm-wd-venue__frame">
+          <img src="/images/wedding-bride-cancun-ivae-studios-960.jpg" alt="Boda en Rosewood Mayakoba" loading="lazy">
+          <div class="shade"></div>
+        </div>
         <figcaption>
           <span class="ivm-wd-venue__name">Rosewood Mayakoba</span>
           <span class="ivm-wd-venue__date">Abril 2026 · 142 invitados</span>
         </figcaption>
       </figure>
       <figure class="ivm-wd-venue">
-        <img src="/images/wedding-bride-tulum-ivae-studios-960.jpg" alt="Boda en Banyan Tree Mayakoba" loading="lazy">
+        <div class="ivm-wd-venue__frame">
+          <img src="/images/wedding-bride-tulum-ivae-studios-960.jpg" alt="Boda en Banyan Tree Mayakoba" loading="lazy">
+          <div class="shade"></div>
+        </div>
         <figcaption>
           <span class="ivm-wd-venue__name">Banyan Tree</span>
           <span class="ivm-wd-venue__date">Febrero 2026 · 96 invitados</span>
         </figcaption>
       </figure>
       <figure class="ivm-wd-venue">
-        <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg" alt="Boda en Capella Pedregal" loading="lazy">
+        <div class="ivm-wd-venue__frame">
+          <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg" alt="Boda en Capella Pedregal" loading="lazy">
+          <div class="shade"></div>
+        </div>
         <figcaption>
           <span class="ivm-wd-venue__name">Capella Pedregal</span>
           <span class="ivm-wd-venue__date">Noviembre 2025 · 78 invitados</span>
         </figcaption>
       </figure>
       <figure class="ivm-wd-venue">
-        <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-8-960.jpg" alt="Boda en Esperanza Cabo" loading="lazy">
+        <div class="ivm-wd-venue__frame">
+          <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-8-960.jpg" alt="Boda en Esperanza Cabo" loading="lazy">
+          <div class="shade"></div>
+        </div>
         <figcaption>
           <span class="ivm-wd-venue__name">Esperanza Cabo</span>
           <span class="ivm-wd-venue__date">Enero 2026 · 110 invitados</span>
         </figcaption>
       </figure>
       <figure class="ivm-wd-venue">
-        <img src="/images/wedding-bride-isla-mujeres-ivae-studios-960.jpg" alt="Boda en One and Only Palmilla" loading="lazy">
+        <div class="ivm-wd-venue__frame">
+          <img src="/images/wedding-bride-isla-mujeres-ivae-studios-960.jpg" alt="Boda en One and Only Palmilla" loading="lazy">
+          <div class="shade"></div>
+        </div>
         <figcaption>
           <span class="ivm-wd-venue__name">One &amp; Only Palmilla</span>
           <span class="ivm-wd-venue__date">Diciembre 2025 · 64 invitados</span>
         </figcaption>
       </figure>
       <figure class="ivm-wd-venue">
-        <img src="/images/wedding-bride-cancun-beach-ivae-studios-2.jpg" alt="Boda en Fairmont Mayakoba" loading="lazy">
+        <div class="ivm-wd-venue__frame">
+          <img src="/images/wedding-bride-cancun-beach-ivae-studios-2.jpg" alt="Boda en Fairmont Mayakoba" loading="lazy">
+          <div class="shade"></div>
+        </div>
         <figcaption>
           <span class="ivm-wd-venue__name">Fairmont Mayakoba</span>
           <span class="ivm-wd-venue__date">Octubre 2025 · 88 invitados</span>
@@ -1713,18 +1731,42 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
     entries.forEach(function(e){ tlio.observe(e); });
   }
 
-  /* ── ACT IV Venues mosaic reveal ── */
+  /* ── ACT IV Venues — 3D reveal + scroll-driven tilt parallax ── */
   var venues = document.querySelectorAll('.ivm-wd-venue');
   if (venues.length) {
     var vio = new IntersectionObserver(function(items){
       items.forEach(function(e){
-        if (!e.isIntersecting) return;
-        var idx = [].indexOf.call(venues, e.target);
-        setTimeout(function(){ e.target.classList.add('is-on'); }, idx * 100);
-        vio.unobserve(e.target);
+        if (e.isIntersecting && !e.target.classList.contains('is-on')) {
+          var idx = [].indexOf.call(venues, e.target);
+          setTimeout(function(){ e.target.classList.add('is-on'); }, idx * 80);
+        }
       });
-    }, { threshold: 0.2 });
+    }, { threshold: 0.15 });
     venues.forEach(function(v){ vio.observe(v); });
+
+    var tiltActive = false;
+    function updateTilt(){
+      tiltActive = false;
+      var vh = window.innerHeight;
+      var vc = vh / 2;
+      venues.forEach(function(v, idx){
+        if (!v.classList.contains('is-on')) return;
+        var rect = v.getBoundingClientRect();
+        if (rect.bottom < 0 || rect.top > vh) return;
+        var center = rect.top + rect.height / 2;
+        var offset = (center - vc) / vh;
+        var rotX = Math.max(-8, Math.min(8, -offset * 14));
+        var rotY = (idx % 2 === 0 ? 1 : -1) * Math.max(-4, Math.min(4, offset * 6));
+        var frame = v.querySelector('.ivm-wd-venue__frame');
+        if (frame) {
+          frame.style.transform = 'translateZ(20px) rotateX(' + rotX.toFixed(2) + 'deg) rotateY(' + rotY.toFixed(2) + 'deg)';
+        }
+      });
+    }
+    window.addEventListener('scroll', function(){
+      if (!tiltActive) { requestAnimationFrame(updateTilt); tiltActive = true; }
+    }, {passive: true});
+    updateTilt();
   }
 
   /* ── ACT V Números 3D flip ── */
