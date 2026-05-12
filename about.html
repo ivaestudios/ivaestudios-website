@@ -1182,7 +1182,7 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
 }
 </style>
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260512a">
-<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512n">
+<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512o">
 </head>
 <body class="has-bottom-tabs ivm-page">
 <a href="#main-content" class="skip-link">Skip to content</a>
@@ -1273,11 +1273,20 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
   <section class="ivm-st-manifesto" aria-label="The studio manifesto">
     <div class="ivm-st-manifesto__pin">
       <div class="ivm-st-manifesto__bg" aria-hidden="true"></div>
+      <div class="ivm-st-manifesto__motes" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <span class="ivm-st-manifesto__eyebrow">The Manifesto · IV Principles</span>
+      <div class="ivm-st-manifesto__counter" aria-hidden="true">
+        <strong id="ivmStManCount">01</strong>
+        <em>/ 04</em>
+        <span>The Manifesto</span>
+      </div>
       <div class="ivm-st-manifesto__stage">
-        <p class="ivm-st-manifesto__phrase" data-phrase="0">We work the hour.</p>
-        <p class="ivm-st-manifesto__phrase" data-phrase="1">We plan the light.</p>
-        <p class="ivm-st-manifesto__phrase" data-phrase="2">We direct in silence.</p>
-        <p class="ivm-st-manifesto__phrase" data-phrase="3"><em>We deliver in three days.</em></p>
+        <p class="ivm-st-manifesto__phrase" data-phrase="0" data-num="I. — On Time" data-byline="The hour comes once.">We work the hour.</p>
+        <p class="ivm-st-manifesto__phrase" data-phrase="1" data-num="II. — On Craft" data-byline="Light decides the location.">We plan the light.</p>
+        <p class="ivm-st-manifesto__phrase" data-phrase="2" data-num="III. — On Presence" data-byline="The camera forgets itself.">We direct in silence.</p>
+        <p class="ivm-st-manifesto__phrase" data-phrase="3" data-num="IV. — On Promise" data-byline="Waiting forgets."><em>We deliver in three days.</em></p>
       </div>
       <div class="ivm-st-manifesto__progress" aria-hidden="true">
         <span data-prog="0"></span><span data-prog="1"></span><span data-prog="2"></span><span data-prog="3"></span>
@@ -1469,6 +1478,7 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
   var manSec = document.querySelector('.ivm-st-manifesto');
   var phrases = document.querySelectorAll('.ivm-st-manifesto__phrase');
   var manProg = document.querySelectorAll('.ivm-st-manifesto__progress span');
+  var manCount = document.getElementById('ivmStManCount');
   if (manSec && phrases.length) {
     var ticking = false;
     function update() {
@@ -1483,6 +1493,7 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
         else if (i < idx) ph.classList.add('is-off');
       });
       manProg.forEach(function(s, i){ s.classList.toggle('is-on', i <= idx); });
+      if (manCount) manCount.textContent = '0' + (idx + 1);
     }
     window.addEventListener('scroll', function(){
       if (!ticking) { requestAnimationFrame(update); ticking = true; }

@@ -967,12 +967,43 @@
     justify-content: center;
     overflow: hidden;
     perspective: 1200px;
+    /* Cinematographic backdrop — abstract light, heavily dimmed */
+    background-color: var(--ivm-ink);
+    background-image:
+      linear-gradient(180deg, rgba(10,15,23,.97) 0%, rgba(10,15,23,.80) 50%, rgba(10,15,23,.97) 100%),
+      url('/images/editorial-cancun-ivae-studios-960.jpg');
+    background-size: cover, cover;
+    background-position: center, 50% 35%;
+    background-blend-mode: normal, normal;
+  }
+  /* Gold radial ambient + extra scrim layer */
+  .ivm-st-manifesto__pin::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 40%, rgba(201,165,78,.14) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 80%, rgba(201,165,78,.06) 0%, transparent 50%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  /* Single thin gold rule frame (top + bottom only) */
+  .ivm-st-manifesto__pin::after {
+    content: '';
+    position: absolute;
+    left: 32px; right: 32px;
+    top: 110px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,165,78,.4) 20%, rgba(201,165,78,.4) 80%, transparent);
+    pointer-events: none;
+    z-index: 2;
   }
   .ivm-st-manifesto__stage {
     position: relative;
     text-align: center;
     padding: 0 24px;
     transform-style: preserve-3d;
+    z-index: 3;
   }
   .ivm-st-manifesto__phrase {
     display: block;
@@ -992,6 +1023,36 @@
     transform-origin: center bottom;
     width: 100%;
     padding: 0 24px;
+    text-shadow: 0 1px 32px rgba(10,15,23,.85);
+  }
+  /* Gold Roman numeral above each phrase */
+  .ivm-st-manifesto__phrase::before {
+    content: attr(data-num);
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.55em;
+    color: var(--ivm-gold);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    padding-bottom: 18px;
+    position: relative;
+  }
+  .ivm-st-manifesto__phrase::after {
+    content: attr(data-byline);
+    display: block;
+    width: fit-content;
+    margin: 36px auto 0;
+    padding-top: 18px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 16px;
+    color: rgba(250,248,245,.55);
+    letter-spacing: 0.04em;
+    border-top: 1px solid rgba(201,165,78,.28);
+    white-space: nowrap;
   }
   .ivm-st-manifesto__phrase em {
     font-style: italic;
@@ -1012,6 +1073,66 @@
       radial-gradient(ellipse at 50% 50%, rgba(201,165,78,.05) 0%, transparent 60%);
     pointer-events: none;
   }
+  /* Floating gold motes — ambient texture */
+  .ivm-st-manifesto__motes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .ivm-st-manifesto__motes span {
+    position: absolute;
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: var(--ivm-gold);
+    opacity: 0;
+    animation: ivmManMote 9s ease-in-out infinite;
+  }
+  .ivm-st-manifesto__motes span:nth-child(1){left:12%;top:18%;animation-delay:0s}
+  .ivm-st-manifesto__motes span:nth-child(2){left:84%;top:28%;animation-delay:1.5s}
+  .ivm-st-manifesto__motes span:nth-child(3){left:18%;top:78%;animation-delay:3s}
+  .ivm-st-manifesto__motes span:nth-child(4){left:74%;top:72%;animation-delay:4.5s}
+  .ivm-st-manifesto__motes span:nth-child(5){left:48%;top:14%;animation-delay:6s}
+  .ivm-st-manifesto__motes span:nth-child(6){left:6%;top:48%;animation-delay:7.5s}
+  @keyframes ivmManMote {
+    0%, 100% { opacity: 0; transform: translateY(0); }
+    50% { opacity: .55; transform: translateY(-18px); }
+  }
+  /* Counter row above progress dots */
+  .ivm-st-manifesto__counter {
+    position: absolute;
+    bottom: 76px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-family: 'Cormorant Garamond', serif;
+    letter-spacing: 0.02em;
+  }
+  .ivm-st-manifesto__counter strong {
+    font-style: italic;
+    font-weight: 400;
+    font-size: 36px;
+    color: var(--ivm-gold);
+    line-height: 1;
+    transition: opacity .4s var(--ivm-ease);
+  }
+  .ivm-st-manifesto__counter em {
+    font-style: normal;
+    color: rgba(250,248,245,.4);
+    font-size: 16px;
+    line-height: 1;
+  }
+  .ivm-st-manifesto__counter span {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.5em;
+    color: rgba(250,248,245,.35);
+    text-transform: uppercase;
+    margin-left: 12px;
+  }
   .ivm-st-manifesto__progress {
     position: absolute;
     bottom: 32px;
@@ -1019,10 +1140,10 @@
     transform: translateX(-50%);
     display: flex;
     gap: 12px;
-    z-index: 2;
+    z-index: 3;
   }
   .ivm-st-manifesto__progress span {
-    width: 24px;
+    width: 32px;
     height: 1px;
     background: rgba(250,248,245,.2);
     overflow: hidden;
@@ -1038,6 +1159,30 @@
     transition: transform 0.5s var(--ivm-ease);
   }
   .ivm-st-manifesto__progress span.is-on::after { transform: scaleX(1); }
+  /* Eyebrow ornament at top */
+  .ivm-st-manifesto__eyebrow {
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.55em;
+    color: rgba(201,165,78,.7);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    white-space: nowrap;
+  }
+  .ivm-st-manifesto__eyebrow::before,
+  .ivm-st-manifesto__eyebrow::after {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: rgba(201,165,78,.5);
+  }
 
   /* ── ACT III — The Method: 3D card stack fan-out ─────────── */
   .ivm-st-method {
