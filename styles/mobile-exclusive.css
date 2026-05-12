@@ -3378,6 +3378,31 @@
   html:not(.dark) body.ivm-page .ivm-act-foot__links a { color: var(--ivm-gold); }
   html:not(.dark) body.ivm-page .ivm-act-foot__copy { color: rgba(10,15,23,.4); }
 
+  /* ── ABOUT HERO (.ivm-st-hero — IVAE letter cascade) ── */
+  html:not(.dark) body.ivm-page .ivm-st-hero {
+    background: var(--ivm-cream);
+    color: var(--ivm-ink);
+  }
+  html:not(.dark) body.ivm-page .ivm-st-hero__letters span {
+    color: var(--ivm-ink);
+  }
+  html:not(.dark) body.ivm-page .ivm-st-hero__letters span:nth-last-child(1),
+  html:not(.dark) body.ivm-page .ivm-st-hero__letters span.is-gold {
+    color: var(--ivm-gold);
+  }
+  html:not(.dark) body.ivm-page .ivm-st-hero__eyebrow { color: var(--ivm-gold); }
+  html:not(.dark) body.ivm-page .ivm-st-hero__sub {
+    color: rgba(10,15,23,.7);
+  }
+  html:not(.dark) body.ivm-page .ivm-st-hero__sub em { color: var(--ivm-gold); }
+  html:not(.dark) body.ivm-page .ivm-st-hero__meta span {
+    color: rgba(10,15,23,.7);
+    border-color: rgba(201,165,78,.42);
+  }
+  html:not(.dark) body.ivm-page .ivm-st-hero__scroll {
+    color: rgba(10,15,23,.55);
+  }
+
   /* ── MANIFESTO (about, weddings) ── */
   html:not(.dark) body.ivm-page .ivm-st-manifesto { background: var(--ivm-cream); }
   html:not(.dark) body.ivm-page .ivm-st-manifesto__pin {
@@ -3465,14 +3490,26 @@
     color: var(--ivm-ink);
     text-shadow: 0 2px 28px rgba(250,248,245,.8);
   }
-  html:not(.dark) body.ivm-page .ivm-act-hero__eyebrow {
+  html:not(.dark) body.ivm-page .ivm-act-hero__eyebrow,
+  html:not(.dark) body.ivm-page .ivm-wd-hero__eyebrow {
     color: var(--ivm-gold);
     text-shadow: 0 2px 12px rgba(250,248,245,.7);
   }
-  html:not(.dark) body.ivm-page .ivm-act-hero__scroll {
-    color: rgba(10,15,23,.6);
+  html:not(.dark) body.ivm-page .ivm-act-hero__scroll,
+  html:not(.dark) body.ivm-page .ivm-wd-hero__scroll {
+    color: rgba(10,15,23,.7);
+    text-shadow: 0 1px 8px rgba(250,248,245,.7);
   }
   html:not(.dark) body.ivm-page .ivm-wd-hero__sub { color: var(--ivm-ink); }
+
+  /* Wedding hero location pills — flip to ink text + darker gold border */
+  html:not(.dark) body.ivm-page .ivm-wd-hero__meta span {
+    color: var(--ivm-ink);
+    border-color: rgba(201,165,78,.75);
+    background: rgba(250,248,245,.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
 
   /* ── COUNTER stat cards (ink → cream w/ gold border) ── */
   html:not(.dark) body.ivm-page .ivm-stat {
