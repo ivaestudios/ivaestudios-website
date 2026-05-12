@@ -1000,10 +1000,16 @@
   }
   .ivm-st-manifesto__stage {
     position: relative;
+    width: 100%;
+    max-width: 600px;
     text-align: center;
     padding: 0 24px;
     transform-style: preserve-3d;
     z-index: 3;
+    /* Stage needs height for absolutely-positioned phrases to center against;
+       phrases are full-viewport-positioned via inset:50% from this stage */
+    min-height: 100svh;
+    box-sizing: border-box;
   }
   .ivm-st-manifesto__phrase {
     display: block;
