@@ -60,8 +60,8 @@
   white-space:nowrap !important;
 }
 @media (max-width:480px){
-  .site-header .h-logo{letter-spacing:.18em !important;font-size:12px !important;gap:4px !important}
-  .site-header .h-logo em{font-size:13px !important}
+  body .site-header .h-logo{letter-spacing:.18em !important;font-size:12px !important;gap:4px !important}
+  body .site-header .h-logo em{font-size:13px !important}
 }
 .site-header .h-logo em{
   font-style:normal !important;
@@ -252,17 +252,17 @@
 
 /* Mobile breakpoint */
 @media(max-width:768px){
-  .site-header .h-nav,
-  .site-header .h-cta{display:none !important}
-  .site-header .h-burger{display:flex !important}
+  body .site-header .h-nav,
+  body .site-header .h-cta{display:none !important}
+  body .site-header .h-burger{display:flex !important}
 }
 
 /* Reduced-motion: kill non-essential transitions */
 @media (prefers-reduced-motion: reduce){
   .site-header,
-  .site-header *,
-  .m-nav,
-  .m-nav *{
+  body .site-header *,
+  body .m-nav,
+  body .m-nav *{
     transition:none !important;
     animation:none !important;
   }
@@ -290,7 +290,7 @@ html{
    ════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
   /* Header bar — soft halo, not a box */
-  .site-header {
+  body .site-header {
     height: calc(56px + env(safe-area-inset-top, 0px)) !important;
     padding: env(safe-area-inset-top, 0px) 18px 0 18px !important;
     background:
@@ -308,7 +308,7 @@ html{
     align-items: center !important;
     gap: 0 !important;
   }
-  .site-header.scrolled {
+  body .site-header.scrolled {
     height: calc(50px + env(safe-area-inset-top, 0px)) !important;
     background:
       linear-gradient(180deg,
@@ -319,7 +319,7 @@ html{
   }
 
   /* LOGO — center column, editorial masthead */
-  .site-header .h-logo {
+  body .site-header .h-logo {
     grid-column: 2 !important;
     justify-self: center !important;
     font-size: 13px !important;
@@ -328,12 +328,12 @@ html{
     position: relative !important;
     padding: 8px 4px !important;
   }
-  .site-header .h-logo em {
+  body .site-header .h-logo em {
     font-size: 16px !important;
     letter-spacing: 0.01em !important;
   }
   /* Tiny gold dot under the logo as editorial accent */
-  .site-header .h-logo::after {
+  body .site-header .h-logo::after {
     content: '';
     position: absolute;
     left: 50%;
@@ -347,7 +347,7 @@ html{
   }
 
   /* BURGER — refined asymmetric two-line mark (NOT 3 stacked squares) */
-  .site-header .h-burger {
+  body .site-header .h-burger {
     grid-column: 1 !important;
     justify-self: start !important;
     display: flex !important;
@@ -361,10 +361,10 @@ html{
     position: relative !important;
   }
   /* Hide the 3rd line — only 2 lines for the editorial mark */
-  .site-header .h-burger span:nth-child(3) {
+  body .site-header .h-burger span:nth-child(3) {
     display: none !important;
   }
-  .site-header .h-burger span {
+  body .site-header .h-burger span {
     width: 22px !important;
     height: 1.2px !important;
     background: var(--cream, #faf8f5) !important;
@@ -374,18 +374,18 @@ html{
       background-color .3s ease !important;
   }
   /* Bottom line is half-width, right-aligned — asymmetric editorial mark */
-  .site-header .h-burger span:nth-child(2) {
+  body .site-header .h-burger span:nth-child(2) {
     width: 12px !important;
     align-self: flex-start !important;
     margin-left: 10px !important;
     background: var(--gold, #c9a54e) !important;
   }
   /* Open state — clean X morph */
-  .site-header .h-burger[aria-expanded="true"] span:nth-child(1) {
+  body .site-header .h-burger[aria-expanded="true"] span:nth-child(1) {
     width: 22px !important;
     transform: translateY(4px) rotate(45deg) !important;
   }
-  .site-header .h-burger[aria-expanded="true"] span:nth-child(2) {
+  body .site-header .h-burger[aria-expanded="true"] span:nth-child(2) {
     width: 22px !important;
     margin-left: 0 !important;
     background: var(--cream, #faf8f5) !important;
@@ -393,33 +393,37 @@ html{
   }
 
   /* LANG SWITCH — top-right, tiny, no separator pipe */
-  .site-header .lang-switch {
+  body .site-header .lang-switch {
     grid-column: 3 !important;
     justify-self: end !important;
     gap: 8px !important;
   }
-  .site-header .lang-switch .lang-sep {
+  body .site-header .lang-switch .lang-sep {
     display: none !important;
   }
-  .site-header .lang-switch a {
+  body .site-header .lang-switch a {
     font-size: 10px !important;
     letter-spacing: 0.26em !important;
     opacity: 0.78 !important;
     padding: 4px 2px !important;
   }
-  .site-header .lang-switch a.is-active {
+  body .site-header .lang-switch a.is-active {
     opacity: 1 !important;
   }
 
   /* Hide CTA from header bar on mobile (lives in drawer) */
-  .site-header .h-cta {
+  body .site-header .h-cta {
+    display: none !important;
+  }
+  /* Hide the empty <nav> wrapper so it doesn't claim a grid cell */
+  body .site-header > nav {
     display: none !important;
   }
 
   /* ──────────────────────────────────────────────────────────────────────
      MOBILE DRAWER — full viewport editorial overlay
      ────────────────────────────────────────────────────────────────────── */
-  .m-nav {
+  body .m-nav {
     top: 0 !important;
     height: 100svh !important;
     padding: 0 !important;
@@ -439,8 +443,8 @@ html{
     opacity: 0;
     transition: opacity .4s var(--ease, cubic-bezier(0.16,1,0.3,1));
   }
-  .m-nav.is-open,
-  .m-nav.open {
+  body .m-nav.is-open,
+  body .m-nav.open {
     display: flex !important;
     opacity: 1;
     animation: ivmDrawerIn .6s var(--ease, cubic-bezier(0.16,1,0.3,1));
@@ -451,7 +455,7 @@ html{
   }
 
   /* Subtle paper noise inside the drawer */
-  .m-nav::before {
+  body .m-nav::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -462,7 +466,7 @@ html{
   }
 
   /* Drawer top eyebrow — magazine masthead repeated above menu */
-  .m-nav::after {
+  body .m-nav::after {
     content: 'IVAE · CHAPTERS';
     position: absolute;
     top: calc(env(safe-area-inset-top, 0px) + 88px);
@@ -479,14 +483,14 @@ html{
   }
 
   /* Lang switch inside drawer — top of overlay */
-  .m-nav .lang-switch {
+  body .m-nav .lang-switch {
     position: absolute !important;
     top: calc(env(safe-area-inset-top, 0px) + 18px);
     right: 24px !important;
     flex-direction: row !important;
     gap: 14px !important;
   }
-  .m-nav .lang-switch a {
+  body .m-nav .lang-switch a {
     font-family: 'Syne', system-ui, sans-serif !important;
     font-size: 10px !important;
     font-weight: 500 !important;
@@ -498,12 +502,12 @@ html{
     text-decoration: none !important;
     transition: color .3s ease !important;
   }
-  .m-nav .lang-switch a.is-active {
+  body .m-nav .lang-switch a.is-active {
     color: var(--gold, #c9a54e) !important;
   }
 
   /* Menu links — editorial big serif, numbered, generous spacing */
-  .m-nav a:not(.lang-switch a) {
+  body .m-nav a:not(.lang-switch a) {
     font-family: 'Cormorant Garamond', serif !important;
     font-weight: 300 !important;
     font-size: 36px !important;
@@ -524,7 +528,7 @@ html{
     animation: ivmMenuItemIn .55s var(--ease, cubic-bezier(0.16,1,0.3,1)) forwards;
   }
   /* Roman counters in gold, italic, small */
-  .m-nav a:not(.lang-switch a)::before {
+  body .m-nav a:not(.lang-switch a)::before {
     content: counter(ivmMenu, upper-roman) ".";
     font-family: 'Cormorant Garamond', serif !important;
     font-style: italic !important;
@@ -534,37 +538,37 @@ html{
     transform: translateY(-6px);
   }
   /* Stagger the entry */
-  .m-nav.is-open a:not(.lang-switch a):nth-of-type(1) { animation-delay: .14s; }
-  .m-nav.is-open a:not(.lang-switch a):nth-of-type(2) { animation-delay: .22s; }
-  .m-nav.is-open a:not(.lang-switch a):nth-of-type(3) { animation-delay: .30s; }
-  .m-nav.is-open a:not(.lang-switch a):nth-of-type(4) { animation-delay: .38s; }
-  .m-nav.is-open a:not(.lang-switch a):nth-of-type(5) { animation-delay: .46s; }
+  body .m-nav.is-open a:not(.lang-switch a):nth-of-type(1) { animation-delay: .14s; }
+  body .m-nav.is-open a:not(.lang-switch a):nth-of-type(2) { animation-delay: .22s; }
+  body .m-nav.is-open a:not(.lang-switch a):nth-of-type(3) { animation-delay: .30s; }
+  body .m-nav.is-open a:not(.lang-switch a):nth-of-type(4) { animation-delay: .38s; }
+  body .m-nav.is-open a:not(.lang-switch a):nth-of-type(5) { animation-delay: .46s; }
   @keyframes ivmMenuItemIn {
     to { opacity: 1; transform: translateY(0); }
   }
   /* Counter reset on parent */
-  .m-nav {
+  body .m-nav {
     counter-reset: ivmMenu !important;
   }
   /* Hover/focus state — gold + slight indent */
-  .m-nav a:not(.lang-switch a):hover,
-  .m-nav a:not(.lang-switch a):focus-visible {
+  body .m-nav a:not(.lang-switch a):hover,
+  body .m-nav a:not(.lang-switch a):focus-visible {
     color: var(--gold, #c9a54e) !important;
     padding-left: 0 !important; /* override old indent */
   }
   /* Last item — visual CTA emphasis (Begin Inquiry / Comenzar Consulta) */
-  .m-nav a:not(.lang-switch a):last-of-type {
+  body .m-nav a:not(.lang-switch a):last-of-type {
     margin-top: 22px;
     font-style: italic;
     color: var(--gold, #c9a54e) !important;
   }
-  .m-nav a:not(.lang-switch a):last-of-type::before {
+  body .m-nav a:not(.lang-switch a):last-of-type::before {
     content: '—';
     color: var(--gold, #c9a54e) !important;
   }
 
   /* Footer signature in drawer bottom */
-  .m-nav .lang-switch ~ a:last-of-type::after {
+  body .m-nav .lang-switch ~ a:last-of-type::after {
     content: '';
   }
 
@@ -581,7 +585,7 @@ html{
 
 /* Very small phones — reduce menu font */
 @media (max-width: 380px) {
-  .m-nav a:not(.lang-switch a) {
+  body .m-nav a:not(.lang-switch a) {
     font-size: 32px !important;
   }
 }
