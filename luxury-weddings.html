@@ -43,7 +43,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin
   href="https://fonts.gstatic.com/s/cormorantgaramond/v16/co3WmX5slCNuHLi8bLeY9MK7whWMhyjornFLsS6V7w.woff2"/>
 <link rel="stylesheet" href="/styles/tokens.css"/>
-<link rel="stylesheet" href="/styles/site-header.css?v=20260512av"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20260512ax"/>
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260511d"/>
 <link rel="stylesheet" href="/styles/responsive.css?v=20260511d"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
@@ -1710,12 +1710,10 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   .lw-mob-details-card img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.94) contrast(1.02)}
   .lw-mob-details-cap{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:13px;line-height:1.4;color:rgba(250,248,245,.62);padding:8px 2px 0;border-top:1px solid rgba(201,165,78,.2);margin-top:8px}
 
-  /* ── 3. STICKY CHAPTER STRIP ─────────────────────────────── */
-  .lw-mob-chapter-strip{position:fixed;left:0;right:0;top:0;z-index:62;height:30px;display:flex;align-items:center;justify-content:center;background:rgba(10,15,23,.86);backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);border-bottom:1px solid rgba(201,165,78,.18);pointer-events:none;opacity:0;transform:translateY(-100%);transition:opacity .28s ease,transform .28s ease;padding:0 18px}
-  .lw-mob-chapter-strip[data-visible="1"]{opacity:1;transform:translateY(0)}
-  .lw-mob-chapter-strip-inner{font-family:'Syne',sans-serif;font-size:9.5px;letter-spacing:.28em;text-transform:uppercase;color:#faf8f5;display:inline-flex;align-items:center;gap:10px;max-width:88vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-  .lw-mob-chapter-strip-dot{width:5px;height:5px;border-radius:50%;background:#c9a54e;flex-shrink:0}
-  body.lw-mob-strip-on .site-header{transform:translateY(30px)}
+  /* ── 3. STICKY CHAPTER STRIP — disabled (redundant with new cinema masthead) ── */
+  .lw-mob-chapter-strip{display:none !important}
+  /* (formerly: body.lw-mob-strip-on .site-header{transform:translateY(30px)} — REMOVED, it was
+     pushing the redesigned mobile header off-position and exposing the burger below the bar.) */
 
   /* ── 4. Floating WhatsApp FAB ────────────────────────────── */
   .lw-mob-fab{position:fixed;right:14px;bottom:calc(86px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;background:#25D366;color:#fff;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 12px 28px -8px rgba(37,211,102,.5),0 4px 10px rgba(0,0,0,.25);z-index:78;text-decoration:none;transition:opacity .3s ease,transform .3s ease,visibility .3s ease}
