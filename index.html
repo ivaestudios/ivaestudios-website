@@ -2830,7 +2830,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 <link rel="preload" as="image" fetchpriority="high" href="/images/wedding-bride-tulum-ivae-studios.jpg" type="image/jpeg" media="(min-width:900px)">
 <link rel="preload" as="image" fetchpriority="high" href="/images/wedding-bride-cancun-ivae-studios-1280.jpg" type="image/jpeg" media="(max-width:899px)">
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260512a">
-<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512al">
+<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512am">
 </head>
 <body class="has-bottom-tabs ivm-page">
 <a href="#main-content" class="skip-link">Skip to content</a>
@@ -3053,51 +3053,6 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
     </div>
   </section>
 
-  <!-- ACT V — Depth reel (Apple-style horizontal carousel) -->
-  <section class="ivm-act-reel" aria-labelledby="ivm-reel-h">
-    <div class="ivm-act-reel__head">
-      <span class="ivm-act-reel__eyebrow">Recent work</span>
-      <h2 id="ivm-reel-h">From the <em>archive.</em></h2>
-    </div>
-    <div class="ivm-act-reel__track" id="ivmReelTrack" role="region" aria-label="Recent work carousel">
-      <a class="ivm-reel-card" href="/luxury-weddings">
-        <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg" alt="Wedding at Capella Pedregal" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Capella Pedregal</span>
-          <span class="ivm-reel-card__title">A wedding above Land's End</span>
-        </div>
-      </a>
-      <a class="ivm-reel-card" href="/couples-photography">
-        <img src="/images/couple-cancun-hotel-zone-ivae-studios-9-960.jpg" alt="Couple session at Rosewood Mayakoba" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Rosewood Mayakoba</span>
-          <span class="ivm-reel-card__title">An anniversary, quietly photographed</span>
-        </div>
-      </a>
-      <a class="ivm-reel-card" href="/luxury-family-photos">
-        <img src="/images/family-cancun-hotel-zone-ivae-studios-960.jpg" alt="Family of six at Banyan Tree" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Banyan Tree Mayakoba</span>
-          <span class="ivm-reel-card__title">A family of six, in three quiet hours</span>
-        </div>
-      </a>
-      <a class="ivm-reel-card" href="/luxury-editorial">
-        <img src="/images/editorial-cancun-ivae-studios-960.jpg" alt="Editorial campaign on a Cancun sandbar" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Editorial · Spirits</span>
-          <span class="ivm-reel-card__title">A campaign on a Cancun sandbar</span>
-        </div>
-      </a>
-      <a class="ivm-reel-card" href="/luxury-weddings">
-        <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-8-960.jpg" alt="Beachfront ceremony at Cancun" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Hotel Zone</span>
-          <span class="ivm-reel-card__title">A first look at golden hour</span>
-        </div>
-      </a>
-    </div>
-  </section>
-
   <!-- ACT VI — Final CTA with mask reveal -->
   <section class="ivm-act-cta" id="ivm-inquire">
     <div class="ivm-act-cta__bg" style="background-image:url('/images/wedding-bride-tulum-ivae-studios-960.jpg');" aria-hidden="true"></div>
@@ -3241,33 +3196,6 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
     counters.forEach(function(c){ cio.observe(c); });
   }
 
-  /* ── ACT V: Reel center-card detection (proximity-based) ───── */
-  var reelTrack = document.getElementById('ivmReelTrack');
-  var reelCards = document.querySelectorAll('.ivm-reel-card');
-  if (reelTrack && reelCards.length) {
-    var reelTicking = false;
-    function updateReelCenter() {
-      reelTicking = false;
-      var trackRect = reelTrack.getBoundingClientRect();
-      var centerX = trackRect.left + trackRect.width / 2;
-      var bestIdx = -1;
-      var bestDist = Infinity;
-      reelCards.forEach(function(c, i){
-        var r = c.getBoundingClientRect();
-        var cardCenter = r.left + r.width / 2;
-        var d = Math.abs(cardCenter - centerX);
-        if (d < bestDist) { bestDist = d; bestIdx = i; }
-      });
-      reelCards.forEach(function(c, i){
-        c.classList.toggle('is-center', i === bestIdx);
-      });
-    }
-    reelTrack.addEventListener('scroll', function(){
-      if (!reelTicking) { requestAnimationFrame(updateReelCenter); reelTicking = true; }
-    }, {passive: true});
-    window.addEventListener('resize', updateReelCenter, {passive: true});
-    setTimeout(updateReelCenter, 50);
-  }
 
 })();
 </script>
