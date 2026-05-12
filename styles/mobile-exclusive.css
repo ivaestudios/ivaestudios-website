@@ -270,7 +270,7 @@
      ════════════════════════════════════════════════════════════════ */
   .ivm-act-hour {
     position: relative;
-    height: 350vh;
+    height: 240vh;
     background: var(--ivm-ink);
   }
   .ivm-act-hour__pin {
@@ -289,6 +289,8 @@
     background-position: center;
     filter: brightness(0.5) saturate(0.85);
     will-change: transform;
+    /* Smooth catch-up between iOS Safari's sparse scroll events */
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .ivm-act-hour__photo::after {
     content: '';
