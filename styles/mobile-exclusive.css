@@ -29,6 +29,9 @@
   /* Hide DESKTOP loader (.film-leader) on mobile — we use .ivm-loader instead */
   body.ivm-page .film-leader,
   body.ivm-page #filmLeader { display: none !important; }
+  /* Hide the desktop COLOPHON footer on mobile — we use .ivm-act-foot instead */
+  body.ivm-page footer.colophon,
+  body.ivm-page .site-footer { display: none !important; }
   /* Hide desktop-only overlay elements that may peek through */
   body.ivm-page .lw-mob-pull-hint,
   body.ivm-page .lw-mob-tabs,
@@ -970,7 +973,7 @@
   /* ── ACT II — Manifesto: sticky 3D phrase reveal ─────────── */
   .ivm-st-manifesto {
     position: relative;
-    height: 400vh;
+    height: 320vh;
     background: var(--ivm-ink);
   }
   .ivm-st-manifesto__pin {
@@ -2330,10 +2333,22 @@
   .ivm-wd-venue {
     position: relative;
     aspect-ratio: 4/5;
-    transition: transform 0.6s var(--ivm-ease), opacity 0.6s var(--ivm-ease);
+    opacity: 0;
+    transform: translateY(28px) rotate(-1.5deg) scale(0.94);
+    transition: transform 0.9s var(--ivm-ease), opacity 0.9s var(--ivm-ease);
   }
-  .ivm-wd-venue:nth-child(odd) { transform: rotate(-1.5deg); }
-  .ivm-wd-venue:nth-child(even) { transform: rotate(1.5deg); margin-top: 18px; }
+  .ivm-wd-venue:nth-child(even) {
+    transform: translateY(28px) rotate(1.5deg) scale(0.94);
+    margin-top: 18px;
+  }
+  .ivm-wd-venue.is-on:nth-child(odd) {
+    opacity: 1;
+    transform: translateY(0) rotate(-1.5deg) scale(1);
+  }
+  .ivm-wd-venue.is-on:nth-child(even) {
+    opacity: 1;
+    transform: translateY(0) rotate(1.5deg) scale(1);
+  }
   .ivm-wd-venue::before,
   .ivm-wd-venue::after {
     content: '';

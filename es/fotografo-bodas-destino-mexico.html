@@ -1409,7 +1409,7 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
 <script src="/js/lw-mob-haptics.js?v=20260511d" defer></script>
 <script src="/js/lw-mob-install.js?v=20260511d" defer></script>
 <!-- Hide duplicate sticky CTA bar on service pages (unified bottom-nav handles nav, FAB handles WhatsApp) --><style>@media (max-width:900px){.lw-sticky-mob-bar{display:none !important}}</style>
-<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512u">
+<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512v">
 </head>
 <body class="ivm-page">
 
@@ -1711,6 +1711,20 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
       });
     }, { threshold: [0, 0.25, 0.5], rootMargin: '-15% 0px -15% 0px' });
     entries.forEach(function(e){ tlio.observe(e); });
+  }
+
+  /* ── ACT IV Venues mosaic reveal ── */
+  var venues = document.querySelectorAll('.ivm-wd-venue');
+  if (venues.length) {
+    var vio = new IntersectionObserver(function(items){
+      items.forEach(function(e){
+        if (!e.isIntersecting) return;
+        var idx = [].indexOf.call(venues, e.target);
+        setTimeout(function(){ e.target.classList.add('is-on'); }, idx * 100);
+        vio.unobserve(e.target);
+      });
+    }, { threshold: 0.2 });
+    venues.forEach(function(v){ vio.observe(v); });
   }
 
   /* ── ACT V Números 3D flip ── */
