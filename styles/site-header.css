@@ -282,3 +282,306 @@ html{
     scroll-padding-top:60px !important;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   MOBILE LUXURY HEADER REDESIGN (≤768px)
+   Editorial magazine masthead — logo centered, asymmetric mark for menu,
+   dissolved background gradient (no hard rectangle), full-viewport drawer.
+   ════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Header bar — soft halo, not a box */
+  .site-header {
+    height: calc(56px + env(safe-area-inset-top, 0px)) !important;
+    padding: env(safe-area-inset-top, 0px) 18px 0 18px !important;
+    background:
+      linear-gradient(180deg,
+        rgba(10,15,23,.86) 0%,
+        rgba(10,15,23,.68) 55%,
+        rgba(10,15,23,0) 100%) !important;
+    backdrop-filter: saturate(140%) blur(16px) !important;
+    -webkit-backdrop-filter: saturate(140%) blur(16px) !important;
+    border-bottom: 0 !important;
+    /* a single hair-line of gold at very bottom of the halo, fades on edges */
+    box-shadow: none !important;
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr !important;
+    align-items: center !important;
+    gap: 0 !important;
+  }
+  .site-header.scrolled {
+    height: calc(50px + env(safe-area-inset-top, 0px)) !important;
+    background:
+      linear-gradient(180deg,
+        rgba(10,15,23,.94) 0%,
+        rgba(10,15,23,.84) 70%,
+        rgba(10,15,23,.40) 100%) !important;
+    border-bottom: 0 !important;
+  }
+
+  /* LOGO — center column, editorial masthead */
+  .site-header .h-logo {
+    grid-column: 2 !important;
+    justify-self: center !important;
+    font-size: 13px !important;
+    letter-spacing: 0.32em !important;
+    gap: 6px !important;
+    position: relative !important;
+    padding: 8px 4px !important;
+  }
+  .site-header .h-logo em {
+    font-size: 16px !important;
+    letter-spacing: 0.01em !important;
+  }
+  /* Tiny gold dot under the logo as editorial accent */
+  .site-header .h-logo::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    width: 3px;
+    height: 3px;
+    background: var(--gold, #c9a54e);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    opacity: .85;
+  }
+
+  /* BURGER — refined asymmetric two-line mark (NOT 3 stacked squares) */
+  .site-header .h-burger {
+    grid-column: 1 !important;
+    justify-self: start !important;
+    display: flex !important;
+    width: 44px !important;
+    height: 44px !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    flex-direction: column !important;
+    gap: 7px !important;
+    padding: 14px 0 !important;
+    position: relative !important;
+  }
+  /* Hide the 3rd line — only 2 lines for the editorial mark */
+  .site-header .h-burger span:nth-child(3) {
+    display: none !important;
+  }
+  .site-header .h-burger span {
+    width: 22px !important;
+    height: 1.2px !important;
+    background: var(--cream, #faf8f5) !important;
+    transition:
+      width .4s var(--ease, cubic-bezier(0.16,1,0.3,1)),
+      transform .4s var(--ease, cubic-bezier(0.16,1,0.3,1)),
+      background-color .3s ease !important;
+  }
+  /* Bottom line is half-width, right-aligned — asymmetric editorial mark */
+  .site-header .h-burger span:nth-child(2) {
+    width: 12px !important;
+    align-self: flex-start !important;
+    margin-left: 10px !important;
+    background: var(--gold, #c9a54e) !important;
+  }
+  /* Open state — clean X morph */
+  .site-header .h-burger[aria-expanded="true"] span:nth-child(1) {
+    width: 22px !important;
+    transform: translateY(4px) rotate(45deg) !important;
+  }
+  .site-header .h-burger[aria-expanded="true"] span:nth-child(2) {
+    width: 22px !important;
+    margin-left: 0 !important;
+    background: var(--cream, #faf8f5) !important;
+    transform: translateY(-4px) rotate(-45deg) !important;
+  }
+
+  /* LANG SWITCH — top-right, tiny, no separator pipe */
+  .site-header .lang-switch {
+    grid-column: 3 !important;
+    justify-self: end !important;
+    gap: 8px !important;
+  }
+  .site-header .lang-switch .lang-sep {
+    display: none !important;
+  }
+  .site-header .lang-switch a {
+    font-size: 10px !important;
+    letter-spacing: 0.26em !important;
+    opacity: 0.78 !important;
+    padding: 4px 2px !important;
+  }
+  .site-header .lang-switch a.is-active {
+    opacity: 1 !important;
+  }
+
+  /* Hide CTA from header bar on mobile (lives in drawer) */
+  .site-header .h-cta {
+    display: none !important;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────────
+     MOBILE DRAWER — full viewport editorial overlay
+     ────────────────────────────────────────────────────────────────────── */
+  .m-nav {
+    top: 0 !important;
+    height: 100svh !important;
+    padding: 0 !important;
+    background:
+      radial-gradient(ellipse at 50% 18%, rgba(201,165,78,.06) 0%, transparent 60%),
+      linear-gradient(180deg, #0a0f17 0%, #060a10 100%) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 0 !important;
+    z-index: 8990 !important;
+    /* Center the menu list vertically; lang switch sits in own stack */
+    display: none !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    opacity: 0;
+    transition: opacity .4s var(--ease, cubic-bezier(0.16,1,0.3,1));
+  }
+  .m-nav.is-open,
+  .m-nav.open {
+    display: flex !important;
+    opacity: 1;
+    animation: ivmDrawerIn .6s var(--ease, cubic-bezier(0.16,1,0.3,1));
+  }
+  @keyframes ivmDrawerIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Subtle paper noise inside the drawer */
+  .m-nav::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+    opacity: .04;
+    mix-blend-mode: screen;
+  }
+
+  /* Drawer top eyebrow — magazine masthead repeated above menu */
+  .m-nav::after {
+    content: 'IVAE · CHAPTERS';
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 88px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Syne', system-ui, sans-serif;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    color: var(--gold, #c9a54e);
+    opacity: .85;
+    white-space: nowrap;
+  }
+
+  /* Lang switch inside drawer — top of overlay */
+  .m-nav .lang-switch {
+    position: absolute !important;
+    top: calc(env(safe-area-inset-top, 0px) + 18px);
+    right: 24px !important;
+    flex-direction: row !important;
+    gap: 14px !important;
+  }
+  .m-nav .lang-switch a {
+    font-family: 'Syne', system-ui, sans-serif !important;
+    font-size: 10px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.28em !important;
+    text-transform: uppercase !important;
+    color: rgba(250,248,245,.55) !important;
+    padding: 4px 2px !important;
+    border-bottom: 0 !important;
+    text-decoration: none !important;
+    transition: color .3s ease !important;
+  }
+  .m-nav .lang-switch a.is-active {
+    color: var(--gold, #c9a54e) !important;
+  }
+
+  /* Menu links — editorial big serif, numbered, generous spacing */
+  .m-nav a:not(.lang-switch a) {
+    font-family: 'Cormorant Garamond', serif !important;
+    font-weight: 300 !important;
+    font-size: 36px !important;
+    line-height: 1.05 !important;
+    letter-spacing: -0.02em !important;
+    color: var(--cream, #faf8f5) !important;
+    padding: 14px 0 !important;
+    border-bottom: 0 !important;
+    position: relative !important;
+    text-decoration: none !important;
+    background: transparent !important;
+    counter-increment: ivmMenu !important;
+    display: inline-flex !important;
+    align-items: baseline !important;
+    gap: 18px !important;
+    opacity: 0;
+    transform: translateY(14px);
+    animation: ivmMenuItemIn .55s var(--ease, cubic-bezier(0.16,1,0.3,1)) forwards;
+  }
+  /* Roman counters in gold, italic, small */
+  .m-nav a:not(.lang-switch a)::before {
+    content: counter(ivmMenu, upper-roman) ".";
+    font-family: 'Cormorant Garamond', serif !important;
+    font-style: italic !important;
+    font-size: 16px !important;
+    color: var(--gold, #c9a54e) !important;
+    letter-spacing: 0 !important;
+    transform: translateY(-6px);
+  }
+  /* Stagger the entry */
+  .m-nav.is-open a:not(.lang-switch a):nth-of-type(1) { animation-delay: .14s; }
+  .m-nav.is-open a:not(.lang-switch a):nth-of-type(2) { animation-delay: .22s; }
+  .m-nav.is-open a:not(.lang-switch a):nth-of-type(3) { animation-delay: .30s; }
+  .m-nav.is-open a:not(.lang-switch a):nth-of-type(4) { animation-delay: .38s; }
+  .m-nav.is-open a:not(.lang-switch a):nth-of-type(5) { animation-delay: .46s; }
+  @keyframes ivmMenuItemIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  /* Counter reset on parent */
+  .m-nav {
+    counter-reset: ivmMenu !important;
+  }
+  /* Hover/focus state — gold + slight indent */
+  .m-nav a:not(.lang-switch a):hover,
+  .m-nav a:not(.lang-switch a):focus-visible {
+    color: var(--gold, #c9a54e) !important;
+    padding-left: 0 !important; /* override old indent */
+  }
+  /* Last item — visual CTA emphasis (Begin Inquiry / Comenzar Consulta) */
+  .m-nav a:not(.lang-switch a):last-of-type {
+    margin-top: 22px;
+    font-style: italic;
+    color: var(--gold, #c9a54e) !important;
+  }
+  .m-nav a:not(.lang-switch a):last-of-type::before {
+    content: '—';
+    color: var(--gold, #c9a54e) !important;
+  }
+
+  /* Footer signature in drawer bottom */
+  .m-nav .lang-switch ~ a:last-of-type::after {
+    content: '';
+  }
+
+  /* Reduced motion respected by the drawer */
+  @media (prefers-reduced-motion: reduce) {
+    .m-nav a:not(.lang-switch a),
+    .m-nav.is-open {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+}
+
+/* Very small phones — reduce menu font */
+@media (max-width: 380px) {
+  .m-nav a:not(.lang-switch a) {
+    font-size: 32px !important;
+  }
+}
