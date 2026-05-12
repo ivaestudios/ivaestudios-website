@@ -3428,7 +3428,13 @@
   /* ── NUMBERS (about, weddings) ── */
   html:not(.dark) body.ivm-page .ivm-st-numbers { background: var(--ivm-cream); }
   html:not(.dark) body.ivm-page .ivm-st-numbers__head h2 { color: var(--ivm-ink); }
-  html:not(.dark) body.ivm-page .ivm-st-num__val { color: var(--ivm-ink); }
+  /* Number CARDS were ink-2 — flip to cream w/ gold border */
+  html:not(.dark) body.ivm-page .ivm-st-num {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(247,243,236,.96) 100%);
+    box-shadow: inset 0 0 0 1px rgba(201,165,78,.28);
+  }
+  html:not(.dark) body.ivm-page .ivm-st-num__val { color: var(--ivm-gold); }
   html:not(.dark) body.ivm-page .ivm-st-num__lbl { color: rgba(10,15,23,.6); }
 
   /* ── FOUNDER (about) ── */
