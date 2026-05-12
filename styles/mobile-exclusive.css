@@ -1961,7 +1961,7 @@
     line-height: 1.5;
     margin: 0 0 40px;
   }
-  .ivm-st-cta__btn {
+  .ivm a.ivm-st-cta__btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
