@@ -993,35 +993,31 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    perspective: 1200px;
-    /* Cinematographic backdrop — abstract light, heavily dimmed */
+    perspective: 1400px;
+    /* Pure typographic stage — NO photo backdrop */
     background-color: var(--ivm-ink);
-    background-image:
-      linear-gradient(180deg, rgba(10,15,23,.97) 0%, rgba(10,15,23,.80) 50%, rgba(10,15,23,.97) 100%),
-      url('/images/editorial-cancun-ivae-studios-960.jpg');
-    background-size: cover, cover;
-    background-position: center, 50% 35%;
-    background-blend-mode: normal, normal;
   }
-  /* Gold radial ambient + extra scrim layer */
+  /* Gold radial ambient + faint geometric grid overlay */
   .ivm-st-manifesto__pin::before {
     content: '';
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse at 50% 40%, rgba(201,165,78,.14) 0%, transparent 55%),
-      radial-gradient(ellipse at 80% 80%, rgba(201,165,78,.06) 0%, transparent 50%);
+      radial-gradient(ellipse at 50% 40%, rgba(201,165,78,.10) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 80%, rgba(201,165,78,.05) 0%, transparent 50%);
     z-index: 1;
     pointer-events: none;
   }
-  /* Single thin gold rule frame (top + bottom only) */
+  /* Editorial frame: gold rule top + gold corner ornaments */
   .ivm-st-manifesto__pin::after {
     content: '';
     position: absolute;
-    left: 32px; right: 32px;
-    top: 110px;
+    top: 84px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(60%, 240px);
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(201,165,78,.4) 20%, rgba(201,165,78,.4) 80%, transparent);
+    background: linear-gradient(90deg, transparent, rgba(201,165,78,.55) 20%, rgba(201,165,78,.55) 80%, transparent);
     pointer-events: none;
     z-index: 2;
   }
@@ -2290,12 +2286,12 @@
     color: rgba(250,248,245,.75);
   }
 
-  /* ── ACT IV — Venues editorial mosaic ───────────────────────── */
+  /* ── ACT IV — Venues editorial spread (Architectural Digest-style) ── */
   .ivm-wd-venues {
     position: relative;
     background: var(--ivm-ink);
     color: var(--ivm-cream);
-    padding: 96px 24px 96px;
+    padding: 100px 0 60px;
     overflow: hidden;
     isolation: isolate;
   }
@@ -2304,114 +2300,118 @@
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse at 30% 30%, rgba(201,165,78,.08) 0%, transparent 55%),
-      radial-gradient(ellipse at 70% 80%, rgba(201,165,78,.05) 0%, transparent 50%);
+      radial-gradient(ellipse at 50% 0%, rgba(201,165,78,.08) 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
   }
   .ivm-wd-venues > * { position: relative; z-index: 1; }
   .ivm-wd-venues__head {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 70px;
+    padding: 0 24px;
   }
   .ivm-wd-venues__eyebrow {
-    display: block;
+    display: inline-block;
     font-family: 'Syne', sans-serif;
     font-size: 10px;
-    letter-spacing: 0.5em;
+    letter-spacing: 0.55em;
     color: var(--ivm-gold);
     text-transform: uppercase;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
+    padding: 0 18px;
+    position: relative;
   }
+  .ivm-wd-venues__eyebrow::before,
+  .ivm-wd-venues__eyebrow::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 28px;
+    height: 1px;
+    background: rgba(201,165,78,.4);
+  }
+  .ivm-wd-venues__eyebrow::before { right: 100%; }
+  .ivm-wd-venues__eyebrow::after { left: 100%; }
   .ivm-wd-venues__head h2 {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 300;
-    font-size: clamp(28px, 8vw, 38px);
-    line-height: 1.05;
+    font-size: clamp(30px, 9vw, 42px);
+    line-height: 1.02;
     color: var(--ivm-cream);
     margin: 0;
+    letter-spacing: -0.015em;
   }
   .ivm-wd-venues__head em { font-style: italic; color: var(--ivm-gold); }
+  /* Each venue = full-width editorial spread, stacked vertically */
   .ivm-wd-venues__grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 26px 14px;
-    max-width: 400px;
-    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 80px;
   }
   .ivm-wd-venue {
     position: relative;
-    aspect-ratio: 4/5;
+    padding: 0 24px;
     opacity: 0;
-    transform: translateY(28px) rotate(-1.5deg) scale(0.94);
-    transition: transform 0.9s var(--ivm-ease), opacity 0.9s var(--ivm-ease);
+    transform: translateY(32px);
+    transition: transform 1.0s var(--ivm-ease), opacity 1.0s var(--ivm-ease);
   }
-  .ivm-wd-venue:nth-child(even) {
-    transform: translateY(28px) rotate(1.5deg) scale(0.94);
-    margin-top: 18px;
-  }
-  .ivm-wd-venue.is-on:nth-child(odd) {
+  .ivm-wd-venue.is-on {
     opacity: 1;
-    transform: translateY(0) rotate(-1.5deg) scale(1);
+    transform: translateY(0);
   }
-  .ivm-wd-venue.is-on:nth-child(even) {
-    opacity: 1;
-    transform: translateY(0) rotate(1.5deg) scale(1);
-  }
-  .ivm-wd-venue::before,
-  .ivm-wd-venue::after {
-    content: '';
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    border: 1px solid rgba(201,165,78,.75);
-    pointer-events: none;
-    z-index: 2;
-  }
+  /* Editorial spread number — top right of each venue */
   .ivm-wd-venue::before {
-    top: -5px;
-    left: -5px;
-    border-right: none;
-    border-bottom: none;
+    content: counter(venue, decimal-leading-zero) ' / 06';
+    counter-increment: venue;
+    position: absolute;
+    top: -28px;
+    right: 24px;
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.4em;
+    color: rgba(201,165,78,.55);
+    text-transform: uppercase;
+    z-index: 3;
   }
-  .ivm-wd-venue::after {
-    bottom: -5px;
-    right: -5px;
-    border-left: none;
-    border-top: none;
-  }
+  .ivm-wd-venues__grid { counter-reset: venue; }
   .ivm-wd-venue img {
     width: 100%;
-    height: 100%;
+    aspect-ratio: 3/4;
     object-fit: cover;
     display: block;
-    filter: saturate(0.92) contrast(1.04);
-    box-shadow: 0 28px 56px rgba(0,0,0,.5), 0 12px 24px rgba(0,0,0,.32);
+    filter: saturate(0.94) contrast(1.04);
+    box-shadow:
+      0 40px 80px rgba(0,0,0,.55),
+      0 18px 36px rgba(0,0,0,.35);
   }
   .ivm-wd-venue figcaption {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 32px 10px 8px;
-    background: linear-gradient(180deg, transparent, rgba(10,15,23,.85));
-    z-index: 3;
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(201,165,78,.28);
+    text-align: left;
+  }
+  /* Alternate caption alignment for editorial rhythm */
+  .ivm-wd-venue:nth-child(even) figcaption {
+    text-align: right;
   }
   .ivm-wd-venue__name {
     display: block;
-    font-family: 'Syne', sans-serif;
-    font-size: 8.5px;
-    letter-spacing: 0.32em;
-    text-transform: uppercase;
-    color: var(--ivm-gold);
-    margin-bottom: 3px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(22px, 6vw, 28px);
+    color: var(--ivm-cream);
+    line-height: 1.05;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
   }
   .ivm-wd-venue__date {
     display: block;
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 11px;
-    color: rgba(250,248,245,.65);
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.42em;
+    color: var(--ivm-gold);
+    text-transform: uppercase;
   }
 
   /* ── ACT I — Typographic Masthead (no full-bleed hero photo) ─── */
