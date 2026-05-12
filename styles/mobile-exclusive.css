@@ -3295,9 +3295,29 @@
    Photos stay full-bleed; backgrounds + text invert; gold stays gold.
    ════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 899px) {
+  /* WARM IVORY/CHAMPAGNE palette — luxury editorial (Vogue/AD) */
   html:not(.dark) body.ivm-page {
-    background: var(--ivm-cream);
-    color: var(--ivm-ink);
+    /* Subtle warm gradient base */
+    background:
+      linear-gradient(180deg, #f6efe1 0%, #f0e6d2 100%);
+    color: #231f1a;
+    /* Paper grain texture for richness */
+    position: relative;
+  }
+  html:not(.dark) body.ivm-page::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    background-image:
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
+    opacity: 0.06;
+    mix-blend-mode: multiply;
+  }
+  /* Deeper gold variable for light mode — better contrast on ivory */
+  html:not(.dark) body.ivm-page {
+    --ivm-gold-deep: #a8842b;
   }
 
   /* ── HERO (photo-driven, scrim softened) ── */
@@ -3324,170 +3344,283 @@
   }
   html:not(.dark) body.ivm-page .ivm-act-hour__line { color: var(--ivm-ink); }
 
-  /* ── SERVICES (3D card stack) ── */
-  html:not(.dark) body.ivm-page .ivm-act-services { background: var(--ivm-cream); }
-  html:not(.dark) body.ivm-page .ivm-act-services__title h2 { color: var(--ivm-ink); }
-  html:not(.dark) body.ivm-page .ivm-act-services__title em { color: var(--ivm-gold); }
-  html:not(.dark) body.ivm-page .ivm-act-services__eyebrow { color: var(--ivm-gold); }
+  /* ── SERVICES (3D card stack) — alternate warm sandstone bg ── */
+  html:not(.dark) body.ivm-page .ivm-act-services {
+    background: linear-gradient(180deg, #ede2c9 0%, #e7daba 100%);
+    position: relative;
+  }
+  /* Editorial gold rule at top */
+  html:not(.dark) body.ivm-page .ivm-act-services::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(60%, 240px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(168,132,43,.55), transparent);
+  }
+  html:not(.dark) body.ivm-page .ivm-act-services__title h2 { color: #231f1a; }
+  html:not(.dark) body.ivm-page .ivm-act-services__title em { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-act-services__eyebrow { color: #a8842b; }
 
-  /* Service cards → cream w/ ink text */
+  /* Service cards → warm ivory with deeper gold accents */
   html:not(.dark) body.ivm-page .ivm-svc {
     background:
-      linear-gradient(180deg, rgba(255,255,255,.96) 0%, rgba(247,243,236,.98) 100%);
-    color: var(--ivm-ink);
+      linear-gradient(180deg, #fbf6e9 0%, #f5ecd4 100%);
+    color: #231f1a;
     box-shadow:
-      0 32px 64px rgba(10,15,23,.16),
-      0 12px 28px rgba(10,15,23,.10),
-      inset 0 0 0 1px rgba(201,165,78,.32);
+      0 32px 64px rgba(60,42,18,.18),
+      0 12px 28px rgba(60,42,18,.12),
+      inset 0 0 0 1px rgba(168,132,43,.42);
   }
   html:not(.dark) body.ivm-page .ivm-svc::before,
   html:not(.dark) body.ivm-page .ivm-svc::after {
-    border-color: rgba(201,165,78,.6);
+    border-color: rgba(168,132,43,.7);
   }
-  html:not(.dark) body.ivm-page .ivm-svc__title { color: var(--ivm-ink); }
-  html:not(.dark) body.ivm-page .ivm-svc__title em { color: var(--ivm-gold); }
-  html:not(.dark) body.ivm-page .ivm-svc__desc { color: rgba(10,15,23,.62); }
+  html:not(.dark) body.ivm-page .ivm-svc__title { color: #231f1a; }
+  html:not(.dark) body.ivm-page .ivm-svc__title em { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-svc__desc { color: rgba(35,31,26,.7); }
   html:not(.dark) body.ivm-page .ivm-svc__arrow {
-    color: var(--ivm-gold);
-    border-top-color: rgba(201,165,78,.32);
+    color: #a8842b;
+    border-top-color: rgba(168,132,43,.4);
   }
   html:not(.dark) body.ivm-page .ivm-act-services__dots span {
-    background: rgba(10,15,23,.22);
+    background: rgba(35,31,26,.22);
   }
   html:not(.dark) body.ivm-page .ivm-act-services__dots span.is-on {
-    background: var(--ivm-gold);
+    background: #a8842b;
   }
 
-  /* ── COUNTER section ── */
-  html:not(.dark) body.ivm-page .ivm-act-counter { background: var(--ivm-cream); }
-  html:not(.dark) body.ivm-page .ivm-act-counter__eyebrow { color: var(--ivm-gold); }
-  html:not(.dark) body.ivm-page .ivm-act-counter h2 { color: var(--ivm-ink); }
-  html:not(.dark) body.ivm-page .ivm-act-counter em { color: var(--ivm-gold); }
-  html:not(.dark) body.ivm-page .ivm-stat__num { color: var(--ivm-ink); }
-  html:not(.dark) body.ivm-page .ivm-stat__label { color: rgba(10,15,23,.6); }
+  /* ── COUNTER section (warm ivory) ── */
+  html:not(.dark) body.ivm-page .ivm-act-counter {
+    background: linear-gradient(180deg, #f6efe1 0%, #f0e6d2 100%);
+    position: relative;
+  }
+  html:not(.dark) body.ivm-page .ivm-act-counter::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(60%, 240px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(168,132,43,.55), transparent);
+  }
+  html:not(.dark) body.ivm-page .ivm-act-counter__eyebrow { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-act-counter h2 { color: #231f1a; }
+  html:not(.dark) body.ivm-page .ivm-act-counter em { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-stat__num { color: #231f1a; }
+  html:not(.dark) body.ivm-page .ivm-stat__label { color: rgba(35,31,26,.6); }
 
-  /* ── FOOTER ── */
+  /* ── FOOTER (deeper sandstone) ── */
   html:not(.dark) body.ivm-page .ivm-act-foot {
-    background: var(--ivm-cream);
-    color: var(--ivm-ink);
-    border-top: 1px solid rgba(201,165,78,.18);
+    background: linear-gradient(180deg, #ede2c9 0%, #e7daba 100%);
+    color: #231f1a;
+    border-top: 1px solid rgba(168,132,43,.32);
   }
-  html:not(.dark) body.ivm-page .ivm-act-foot__mark { color: var(--ivm-ink); }
-  html:not(.dark) body.ivm-page .ivm-act-foot__mark em { color: var(--ivm-gold); }
-  html:not(.dark) body.ivm-page .ivm-act-foot__tag { color: rgba(10,15,23,.55); }
-  html:not(.dark) body.ivm-page .ivm-act-foot__links a { color: var(--ivm-gold); }
-  html:not(.dark) body.ivm-page .ivm-act-foot__copy { color: rgba(10,15,23,.4); }
+  html:not(.dark) body.ivm-page .ivm-act-foot__mark { color: #231f1a; }
+  html:not(.dark) body.ivm-page .ivm-act-foot__mark em { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-act-foot__tag { color: rgba(35,31,26,.6); }
+  html:not(.dark) body.ivm-page .ivm-act-foot__links a { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-act-foot__copy { color: rgba(35,31,26,.45); }
 
-  /* ── ABOUT HERO (.ivm-st-hero — IVAE letter cascade) ── */
+  /* ── ABOUT HERO (.ivm-st-hero — IVAE letter cascade) — warm ivory ── */
   html:not(.dark) body.ivm-page .ivm-st-hero {
-    background: var(--ivm-cream);
-    color: var(--ivm-ink);
+    background: linear-gradient(180deg, #f6efe1 0%, #f0e6d2 100%);
+    color: #231f1a;
   }
   html:not(.dark) body.ivm-page .ivm-st-hero__letters span {
-    color: var(--ivm-ink);
+    color: #231f1a;
   }
   html:not(.dark) body.ivm-page .ivm-st-hero__letters span:nth-last-child(1),
   html:not(.dark) body.ivm-page .ivm-st-hero__letters span.is-gold {
-    color: var(--ivm-gold);
+    color: #a8842b;
   }
-  html:not(.dark) body.ivm-page .ivm-st-hero__eyebrow { color: var(--ivm-gold); }
+  html:not(.dark) body.ivm-page .ivm-st-hero__eyebrow { color: #a8842b; }
   html:not(.dark) body.ivm-page .ivm-st-hero__sub {
-    color: rgba(10,15,23,.7);
+    color: rgba(35,31,26,.75);
   }
-  html:not(.dark) body.ivm-page .ivm-st-hero__sub em { color: var(--ivm-gold); }
+  html:not(.dark) body.ivm-page .ivm-st-hero__sub em { color: #a8842b; }
   html:not(.dark) body.ivm-page .ivm-st-hero__meta span {
-    color: rgba(10,15,23,.7);
-    border-color: rgba(201,165,78,.42);
+    color: rgba(35,31,26,.75);
+    border-color: rgba(168,132,43,.5);
   }
   html:not(.dark) body.ivm-page .ivm-st-hero__scroll {
-    color: rgba(10,15,23,.55);
+    color: rgba(35,31,26,.55);
   }
 
-  /* ── MANIFESTO (about, weddings) ── */
-  html:not(.dark) body.ivm-page .ivm-st-manifesto { background: var(--ivm-cream); }
+  /* ── MANIFESTO (about, weddings) — alternating sandstone ── */
+  html:not(.dark) body.ivm-page .ivm-st-manifesto {
+    background: linear-gradient(180deg, #ede2c9 0%, #e7daba 100%);
+  }
   html:not(.dark) body.ivm-page .ivm-st-manifesto__pin {
-    background-color: var(--ivm-cream);
+    background-color: transparent;
     background-image: none;
   }
   html:not(.dark) body.ivm-page .ivm-st-manifesto__pin::before {
     background:
-      radial-gradient(ellipse at 50% 40%, rgba(201,165,78,.08) 0%, transparent 55%);
+      radial-gradient(ellipse at 50% 40%, rgba(168,132,43,.10) 0%, transparent 55%);
   }
+  html:not(.dark) body.ivm-page .ivm-st-manifesto__eyebrow { color: #a8842b; }
   html:not(.dark) body.ivm-page .ivm-st-manifesto__phrase {
-    color: var(--ivm-ink);
+    color: #231f1a;
     text-shadow: none;
   }
+  html:not(.dark) body.ivm-page .ivm-st-manifesto__phrase em { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-st-manifesto__phrase::before { color: #a8842b; }
   html:not(.dark) body.ivm-page .ivm-st-manifesto__phrase::after {
-    color: rgba(10,15,23,.55);
-    border-top-color: rgba(201,165,78,.4);
+    color: rgba(35,31,26,.6);
+    border-top-color: rgba(168,132,43,.5);
   }
   html:not(.dark) body.ivm-page .ivm-st-manifesto__progress span {
-    background: rgba(10,15,23,.18);
+    background: rgba(35,31,26,.22);
+  }
+  html:not(.dark) body.ivm-page .ivm-st-manifesto__progress span.is-on::after {
+    background: #a8842b;
   }
 
-  /* ── NUMBERS (about, weddings) ── */
-  html:not(.dark) body.ivm-page .ivm-st-numbers { background: var(--ivm-cream); }
-  html:not(.dark) body.ivm-page .ivm-st-numbers__head h2 { color: var(--ivm-ink); }
-  /* Number CARDS were ink-2 — flip to cream w/ gold border */
+  /* ── NUMBERS (about, weddings) — warm ivory ── */
+  html:not(.dark) body.ivm-page .ivm-st-numbers {
+    background: linear-gradient(180deg, #f6efe1 0%, #f0e6d2 100%);
+    position: relative;
+  }
+  html:not(.dark) body.ivm-page .ivm-st-numbers::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(60%, 240px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(168,132,43,.55), transparent);
+  }
+  html:not(.dark) body.ivm-page .ivm-st-numbers__head h2 { color: #231f1a; }
+  html:not(.dark) body.ivm-page .ivm-st-numbers__head em { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-st-numbers__head .eyebrow { color: #a8842b; }
   html:not(.dark) body.ivm-page .ivm-st-num {
-    background:
-      linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(247,243,236,.96) 100%);
-    box-shadow: inset 0 0 0 1px rgba(201,165,78,.28);
+    background: linear-gradient(180deg, #fbf6e9 0%, #f5ecd4 100%);
+    box-shadow: inset 0 0 0 1px rgba(168,132,43,.42);
   }
-  html:not(.dark) body.ivm-page .ivm-st-num__val { color: var(--ivm-gold); }
-  html:not(.dark) body.ivm-page .ivm-st-num__lbl { color: rgba(10,15,23,.6); }
+  html:not(.dark) body.ivm-page .ivm-st-num__val { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-st-num__lbl { color: rgba(35,31,26,.6); }
 
-  /* ── FOUNDER (about) ── */
+  /* ── FOUNDER (about) — sandstone w/ section divider ── */
   html:not(.dark) body.ivm-page .ivm-st-founder {
-    background: var(--ivm-cream);
-    color: var(--ivm-ink);
+    background: linear-gradient(180deg, #ede2c9 0%, #e7daba 100%);
+    color: #231f1a;
   }
-  html:not(.dark) body.ivm-page .ivm-st-founder h2 { color: var(--ivm-ink); }
-  html:not(.dark) body.ivm-page .ivm-st-founder h2 em { color: var(--ivm-gold); }
-  html:not(.dark) body.ivm-page .ivm-st-founder__body p { color: rgba(10,15,23,.72); }
-  html:not(.dark) body.ivm-page .ivm-st-founder__sign { color: var(--ivm-gold); }
-  html:not(.dark) body.ivm-page .ivm-st-founder__pola figcaption {
-    color: var(--ivm-gold);
+  html:not(.dark) body.ivm-page .ivm-st-founder::before {
+    background:
+      radial-gradient(ellipse at 50% 22%, rgba(168,132,43,.10) 0%, transparent 55%);
+  }
+  html:not(.dark) body.ivm-page .ivm-st-founder::after {
+    background: linear-gradient(90deg, transparent, rgba(168,132,43,.55), transparent);
+  }
+  html:not(.dark) body.ivm-page .ivm-st-founder__eyebrow { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-st-founder h2 { color: #231f1a; }
+  html:not(.dark) body.ivm-page .ivm-st-founder h2 em { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-st-founder__body p { color: rgba(35,31,26,.75); }
+  html:not(.dark) body.ivm-page .ivm-st-founder__body em { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-st-founder__sign { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-st-founder__pola figcaption { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-st-founder__pola::before,
+  html:not(.dark) body.ivm-page .ivm-st-founder__pola::after {
+    border-color: rgba(168,132,43,.85);
   }
 
-  /* ── ATLAS (about) ── */
+  /* ── ATLAS (about) — ivory w/ section divider ── */
   html:not(.dark) body.ivm-page .ivm-st-atlas {
-    background: var(--ivm-cream);
-    color: var(--ivm-ink);
+    background: linear-gradient(180deg, #f6efe1 0%, #f0e6d2 100%);
+    color: #231f1a;
+    position: relative;
   }
-  html:not(.dark) body.ivm-page .ivm-st-atlas__head h2 { color: var(--ivm-ink); }
+  html:not(.dark) body.ivm-page .ivm-st-atlas::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(60%, 240px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(168,132,43,.55), transparent);
+    z-index: 1;
+  }
+  html:not(.dark) body.ivm-page .ivm-st-atlas__head h2 { color: #231f1a; }
+  html:not(.dark) body.ivm-page .ivm-st-atlas__head em { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-st-atlas__eyebrow { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-st-atlas__labels span { color: rgba(35,31,26,.6); }
+  html:not(.dark) body.ivm-page .ivm-st-atlas__coast { stroke: rgba(168,132,43,.55); }
 
-  /* ── VALUES cube (about) ── */
+  /* ── VALUES cube (about) — sandstone w/ frosted faces ── */
   html:not(.dark) body.ivm-page .ivm-st-values {
-    background: var(--ivm-cream);
-    color: var(--ivm-ink);
+    background: linear-gradient(180deg, #ede2c9 0%, #e7daba 100%);
+    color: #231f1a;
+    position: relative;
   }
-  html:not(.dark) body.ivm-page .ivm-st-values__head h2 { color: var(--ivm-ink); }
+  html:not(.dark) body.ivm-page .ivm-st-values::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(60%, 240px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(168,132,43,.55), transparent);
+    z-index: 1;
+  }
+  html:not(.dark) body.ivm-page .ivm-st-values__head h2 { color: #231f1a; }
+  html:not(.dark) body.ivm-page .ivm-st-values__head em { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-st-values__head .eyebrow { color: #a8842b; }
   html:not(.dark) body.ivm-page .ivm-st-values__face {
-    background: rgba(255,255,255,.7);
-    border-color: rgba(201,165,78,.5);
+    background: rgba(251,246,233,.7);
+    border-color: rgba(168,132,43,.6);
   }
-  html:not(.dark) body.ivm-page .ivm-st-values__face .v-title { color: var(--ivm-ink); }
-  html:not(.dark) body.ivm-page .ivm-st-values__face .v-body { color: rgba(10,15,23,.65); }
+  html:not(.dark) body.ivm-page .ivm-st-values__face .v-num { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-st-values__face .v-title { color: #231f1a; }
+  html:not(.dark) body.ivm-page .ivm-st-values__face .v-title em { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-st-values__face .v-body { color: rgba(35,31,26,.7); }
+  html:not(.dark) body.ivm-page .ivm-st-values__hint { color: rgba(35,31,26,.5); }
 
-  /* ── CINEMA DECK (weddings) — chrome only, photos stay ── */
-  html:not(.dark) body.ivm-page .ivm-wd-cinema { background: var(--ivm-cream); }
-  /* The pin is full-bleed photo + scrim, so its inner stays dark for legibility */
+  /* ── CINEMA DECK (weddings) — chrome ivory, photos stay full-bleed ── */
+  html:not(.dark) body.ivm-page .ivm-wd-cinema {
+    background: linear-gradient(180deg, #f6efe1 0%, #f0e6d2 100%);
+  }
 
-  /* ── TIMELINE (weddings) ── */
+  /* ── TIMELINE (weddings) — warm ivory + section divider ── */
   html:not(.dark) body.ivm-page .ivm-wd-timeline {
-    background: var(--ivm-cream);
-    color: var(--ivm-ink);
+    background: linear-gradient(180deg, #ede2c9 0%, #e7daba 100%);
+    color: #231f1a;
+    position: relative;
   }
-  html:not(.dark) body.ivm-page .ivm-wd-timeline__head h2 { color: var(--ivm-ink); }
-  html:not(.dark) body.ivm-page .ivm-wd-timeline__title { color: var(--ivm-ink); }
-  html:not(.dark) body.ivm-page .ivm-wd-timeline__desc { color: rgba(10,15,23,.55); }
+  html:not(.dark) body.ivm-page .ivm-wd-timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(60%, 240px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(168,132,43,.55), transparent);
+    z-index: 1;
+  }
+  html:not(.dark) body.ivm-page .ivm-wd-timeline__head h2 { color: #231f1a; }
+  html:not(.dark) body.ivm-page .ivm-wd-timeline__head em { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-wd-timeline__eyebrow { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-wd-timeline__title { color: #231f1a; }
+  html:not(.dark) body.ivm-page .ivm-wd-timeline__title em { color: #a8842b; }
+  html:not(.dark) body.ivm-page .ivm-wd-timeline__desc { color: rgba(35,31,26,.6); }
+  html:not(.dark) body.ivm-page .ivm-wd-timeline__time { color: #a8842b; }
   html:not(.dark) body.ivm-page .ivm-wd-timeline__list::before {
     background: linear-gradient(180deg,
-      transparent 0%, rgba(201,165,78,.45) 8%, rgba(201,165,78,.45) 92%, transparent 100%);
+      transparent 0%, rgba(168,132,43,.55) 8%, rgba(168,132,43,.55) 92%, transparent 100%);
   }
   html:not(.dark) body.ivm-page .ivm-wd-timeline__entry::before {
-    background: var(--ivm-cream);
+    background: #ede2c9;
+    border-color: #a8842b;
+  }
+  html:not(.dark) body.ivm-page .ivm-wd-timeline__entry[data-star]::before {
+    background: #a8842b;
   }
 
   /* ── HERO TEXT (when photo is bright, cream needs stronger scrim) ── */
