@@ -31,6 +31,21 @@
   body.ivm-page #filmLeader { display: none !important; }
   /* Hide desktop-only overlay elements that may peek through */
   body.ivm-page .lw-mob-pull-hint,
+  body.ivm-page .lw-mob-tabs,
+  body.ivm-page .lw-mob-scroll-top,
+  body.ivm-page .lw-mob-portrait-hero,
+  body.ivm-page .lw-section-indicator,
+  body.ivm-page .lw-chapter-rail,
+  body.ivm-page .lw-scroll-progress,
+  body.ivm-page .lw-mob-chips,
+  body.ivm-page .lw-mob-chapter-strip,
+  body.ivm-page .lw-mob-chapter-strip-label,
+  body.ivm-page .lw-sticky-mob,
+  body.ivm-page .lw-sticky-desk,
+  body.ivm-page .lw-mob-scrim,
+  body.ivm-page .lw-mob-sheet,
+  body.ivm-page .lw-mob-fab,
+  body.ivm-page .ivae-chapter-counter,
   body.ivm-page .cur-dot,
   body.ivm-page .cur-ring,
   body.ivm-page .cur-preview,
@@ -1970,8 +1985,410 @@
   }
 
   /* ════════════════════════════════════════════════════════════════
-     ABOUT EXCLUSIVE — "The Folio" magazine-spread design (LEGACY)
+     WEDDINGS — Six-act cinematic experience (.ivm-wd-*)
      ════════════════════════════════════════════════════════════════ */
+
+  /* ── ACT I — Wedding hero: full-bleed photo + serif title ──── */
+  .ivm-wd-hero {
+    position: relative;
+    min-height: 100svh;
+    overflow: hidden;
+    background: var(--ivm-ink);
+    color: var(--ivm-cream);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: calc(72px + env(safe-area-inset-top, 0px)) 24px 96px;
+  }
+  .ivm-wd-hero__photo {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .ivm-wd-hero__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 40%;
+    transform: scale(1.04);
+    opacity: 0;
+    animation: ivmWdHeroIn 1.6s var(--ivm-ease) 1.3s forwards;
+  }
+  @keyframes ivmWdHeroIn {
+    to { transform: scale(1); opacity: 1; }
+  }
+  .ivm-wd-hero__veil {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg,
+        rgba(10,15,23,.42) 0%,
+        rgba(10,15,23,.10) 30%,
+        rgba(10,15,23,.55) 70%,
+        rgba(10,15,23,.95) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .ivm-wd-hero__motes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .ivm-wd-hero__motes span {
+    position: absolute;
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: var(--ivm-gold);
+    opacity: 0;
+    animation: ivmManMote 9s ease-in-out infinite;
+  }
+  .ivm-wd-hero__motes span:nth-child(1){left:18%;top:30%;animation-delay:.0s}
+  .ivm-wd-hero__motes span:nth-child(2){left:82%;top:46%;animation-delay:2s}
+  .ivm-wd-hero__motes span:nth-child(3){left:42%;top:72%;animation-delay:4s}
+  .ivm-wd-hero__motes span:nth-child(4){left:70%;top:24%;animation-delay:6s}
+  .ivm-wd-hero__copy {
+    position: relative;
+    z-index: 3;
+    max-width: 560px;
+  }
+  .ivm-wd-hero__eyebrow {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.55em;
+    color: var(--ivm-gold);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    opacity: 0;
+    transform: translateY(8px);
+    animation: ivmWdFadeUp 0.8s var(--ivm-ease) 1.0s forwards;
+  }
+  .ivm-wd-hero__title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(40px, 12vw, 60px);
+    line-height: 1.02;
+    margin: 0 0 24px;
+    color: var(--ivm-cream);
+    letter-spacing: -0.015em;
+    text-shadow: 0 2px 32px rgba(10,15,23,.6);
+  }
+  .ivm-wd-hero__title em {
+    font-style: italic;
+    color: var(--ivm-gold);
+  }
+  .ivm-wd-hero__title .line {
+    display: block;
+    overflow: hidden;
+  }
+  .ivm-wd-hero__title .line > span {
+    display: inline-block;
+    transform: translateY(110%);
+    animation: ivmWdLineIn 1.0s var(--ivm-ease) forwards;
+  }
+  .ivm-wd-hero__title .line:nth-child(1) > span { animation-delay: 1.4s; }
+  .ivm-wd-hero__title .line:nth-child(2) > span { animation-delay: 1.65s; }
+  @keyframes ivmWdLineIn { to { transform: translateY(0); } }
+  .ivm-wd-hero__sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(16px, 4.4vw, 19px);
+    line-height: 1.4;
+    color: rgba(250,248,245,.78);
+    margin: 0 0 22px;
+    max-width: 38ch;
+    opacity: 0;
+    animation: ivmWdFadeUp 0.8s var(--ivm-ease) 2.0s forwards;
+  }
+  .ivm-wd-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+    opacity: 0;
+    animation: ivmWdFadeUp 0.8s var(--ivm-ease) 2.3s forwards;
+  }
+  .ivm-wd-hero__meta span {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.42em;
+    color: rgba(250,248,245,.78);
+    text-transform: uppercase;
+    padding: 7px 14px;
+    border: 1px solid rgba(201,165,78,.42);
+    border-radius: 999px;
+  }
+  @keyframes ivmWdFadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .ivm-wd-hero__scroll {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.55em;
+    color: rgba(201,165,78,.65);
+    text-transform: uppercase;
+    padding-bottom: 22px;
+    opacity: 0;
+    animation: ivmWdFadeUp 0.8s var(--ivm-ease) 2.6s forwards;
+  }
+  .ivm-wd-hero__scroll::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    height: 14px;
+    background: linear-gradient(180deg, transparent, var(--ivm-gold));
+    animation: ivmScrollPulse 2.4s ease-in-out infinite;
+  }
+
+  /* ── ACT III — Timeline of the wedding day ──────────────────── */
+  .ivm-wd-timeline {
+    position: relative;
+    background: var(--ivm-ink);
+    color: var(--ivm-cream);
+    padding: 96px 20px 80px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .ivm-wd-timeline::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 60% 20%, rgba(201,165,78,.10) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .ivm-wd-timeline > * { position: relative; z-index: 1; }
+  .ivm-wd-timeline__head {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+  .ivm-wd-timeline__eyebrow {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.5em;
+    color: var(--ivm-gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .ivm-wd-timeline__head h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(28px, 8vw, 38px);
+    line-height: 1.05;
+    color: var(--ivm-cream);
+    margin: 0;
+  }
+  .ivm-wd-timeline__head em { font-style: italic; color: var(--ivm-gold); }
+  .ivm-wd-timeline__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+  }
+  /* Vertical gold line running through timeline */
+  .ivm-wd-timeline__list::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
+    left: 56px;
+    width: 1px;
+    background: linear-gradient(180deg,
+      transparent 0%,
+      rgba(201,165,78,.45) 8%,
+      rgba(201,165,78,.45) 92%,
+      transparent 100%);
+  }
+  .ivm-wd-timeline__entry {
+    position: relative;
+    padding: 14px 0 28px 96px;
+    display: grid;
+    gap: 8px;
+    transition: opacity 0.6s var(--ivm-ease), transform 0.6s var(--ivm-ease);
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  .ivm-wd-timeline__entry.is-on {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Gold pin dot on the line */
+  .ivm-wd-timeline__entry::before {
+    content: '';
+    position: absolute;
+    left: 51px;
+    top: 22px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--ivm-ink);
+    border: 2px solid var(--ivm-gold);
+    box-shadow: 0 0 14px rgba(201,165,78,.5);
+    z-index: 2;
+  }
+  /* Highlight: the golden hour entry (data-star) */
+  .ivm-wd-timeline__entry[data-star]::before {
+    background: var(--ivm-gold);
+    box-shadow: 0 0 20px rgba(201,165,78,.85);
+  }
+  .ivm-wd-timeline__time {
+    position: absolute;
+    left: 0;
+    top: 14px;
+    width: 46px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--ivm-gold);
+    text-align: right;
+    line-height: 1;
+    letter-spacing: 0.01em;
+  }
+  .ivm-wd-timeline__title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: 19px;
+    color: var(--ivm-cream);
+    margin: 0;
+    line-height: 1.2;
+  }
+  .ivm-wd-timeline__title em { font-style: italic; color: var(--ivm-gold); }
+  .ivm-wd-timeline__desc {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    line-height: 1.4;
+    color: rgba(250,248,245,.55);
+    margin: 0;
+  }
+  .ivm-wd-timeline__entry[data-star] .ivm-wd-timeline__title {
+    color: var(--ivm-gold);
+  }
+  .ivm-wd-timeline__entry[data-star] .ivm-wd-timeline__desc {
+    color: rgba(250,248,245,.75);
+  }
+
+  /* ── ACT IV — Venues editorial mosaic ───────────────────────── */
+  .ivm-wd-venues {
+    position: relative;
+    background: var(--ivm-ink);
+    color: var(--ivm-cream);
+    padding: 96px 24px 96px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .ivm-wd-venues::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 30%, rgba(201,165,78,.08) 0%, transparent 55%),
+      radial-gradient(ellipse at 70% 80%, rgba(201,165,78,.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .ivm-wd-venues > * { position: relative; z-index: 1; }
+  .ivm-wd-venues__head {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .ivm-wd-venues__eyebrow {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.5em;
+    color: var(--ivm-gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .ivm-wd-venues__head h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(28px, 8vw, 38px);
+    line-height: 1.05;
+    color: var(--ivm-cream);
+    margin: 0;
+  }
+  .ivm-wd-venues__head em { font-style: italic; color: var(--ivm-gold); }
+  .ivm-wd-venues__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 26px 14px;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  .ivm-wd-venue {
+    position: relative;
+    aspect-ratio: 4/5;
+    transition: transform 0.6s var(--ivm-ease), opacity 0.6s var(--ivm-ease);
+  }
+  .ivm-wd-venue:nth-child(odd) { transform: rotate(-1.5deg); }
+  .ivm-wd-venue:nth-child(even) { transform: rotate(1.5deg); margin-top: 18px; }
+  .ivm-wd-venue::before,
+  .ivm-wd-venue::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 1px solid rgba(201,165,78,.75);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .ivm-wd-venue::before {
+    top: -5px;
+    left: -5px;
+    border-right: none;
+    border-bottom: none;
+  }
+  .ivm-wd-venue::after {
+    bottom: -5px;
+    right: -5px;
+    border-left: none;
+    border-top: none;
+  }
+  .ivm-wd-venue img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: saturate(0.92) contrast(1.04);
+    box-shadow: 0 28px 56px rgba(0,0,0,.5), 0 12px 24px rgba(0,0,0,.32);
+  }
+  .ivm-wd-venue figcaption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 32px 10px 8px;
+    background: linear-gradient(180deg, transparent, rgba(10,15,23,.85));
+    z-index: 3;
+  }
+  .ivm-wd-venue__name {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 8.5px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--ivm-gold);
+    margin-bottom: 3px;
+  }
+  .ivm-wd-venue__date {
+    display: block;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 11px;
+    color: rgba(250,248,245,.65);
+  }
 
   /* ── ACT I — Typographic Masthead (no full-bleed hero photo) ─── */
   .ivm-about-mast {
