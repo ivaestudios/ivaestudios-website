@@ -25,6 +25,9 @@
 .ivm { display: none; }
 @media (max-width: 899px) {
   .ivm { display: block; }
+  /* Legacy desktop magazine masthead (editorial pages) — hide on mobile so
+     only the .ivm experience shows. Applies to EN + ES editorial pages. */
+  .le-masthead { display: none !important; }
   /* CRITICAL: body.ivm-page must NOT have overflow-y: auto or sticky breaks.
      Some pages (luxury-weddings) have inline body styles that set
      overflow-x: hidden, which makes the browser compute overflow-y: auto
