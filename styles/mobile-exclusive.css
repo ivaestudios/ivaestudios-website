@@ -502,12 +502,14 @@
   .ivm-svc[data-pos="behind"]  { transform: translateX(-30vw) rotateY(35deg) scale(0.85); opacity: 0.4; z-index: 2; }
   .ivm-svc[data-pos="past"]    { transform: translateX(-100vw) rotateY(60deg); opacity: 0; z-index: 1; }
 
+  /* Vertical dots on right edge — signals downward scroll, not horizontal */
   .ivm-act-services__dots {
     position: absolute;
-    bottom: 12vh;
-    left: 50%;
-    transform: translateX(-50%);
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
+    flex-direction: column;
     gap: 10px;
     z-index: 5;
   }
@@ -515,10 +517,10 @@
     width: 6px; height: 6px;
     border-radius: 50%;
     background: rgba(250,248,245,.24);
-    transition: width 0.4s var(--ivm-ease), background 0.4s var(--ivm-ease);
+    transition: height 0.4s var(--ivm-ease), background 0.4s var(--ivm-ease);
   }
   .ivm-act-services__dots span.is-on {
-    width: 22px;
+    height: 22px;
     border-radius: 3px;
     background: var(--ivm-gold);
   }
