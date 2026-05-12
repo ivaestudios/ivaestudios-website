@@ -1182,7 +1182,7 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
 }
 </style>
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260512a">
-<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512o">
+<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512p">
 </head>
 <body class="has-bottom-tabs ivm-page">
 <a href="#main-content" class="skip-link">Skip to content</a>
@@ -1303,28 +1303,68 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
       </div>
       <div class="ivm-st-method__deck" id="ivmStMethodDeck">
         <article class="ivm-st-card" data-step="0">
+          <span class="ivm-st-card__step">Step 01 / IV</span>
           <div class="ivm-st-card__num">I.</div>
           <h3 class="ivm-st-card__title">A <em>brief</em>, not a form.</h3>
-          <p class="ivm-st-card__body">Tell us about the date, the venue, the feeling. We answer within one business day, in your language, with a calendar opening.</p>
-          <span class="ivm-st-card__tag">Inquiry</span>
+          <p class="ivm-st-card__body">Tell us the date, the venue, the feeling. We answer in your language with a calendar opening.</p>
+          <ul class="ivm-st-card__list">
+            <li>Calendar opening</li>
+            <li>Sample work</li>
+            <li>Pricing brief</li>
+            <li>Same-business-day reply</li>
+          </ul>
+          <div class="ivm-st-card__meta">
+            <span class="ivm-st-card__duration"><strong>~24</strong><small>hours</small></span>
+            <span class="ivm-st-card__tag">Inquiry</span>
+          </div>
         </article>
         <article class="ivm-st-card" data-step="1">
+          <span class="ivm-st-card__step">Step 02 / IV</span>
           <div class="ivm-st-card__num">II.</div>
           <h3 class="ivm-st-card__title">Plan <em>the hour.</em></h3>
-          <p class="ivm-st-card__body">A 45-minute creative call. We map sunlight, wardrobe, location, and the rhythm of the day before the day arrives.</p>
-          <span class="ivm-st-card__tag">Pre-production</span>
+          <p class="ivm-st-card__body">A creative call. We map sunlight, wardrobe, and the rhythm of the day before the day arrives.</p>
+          <ul class="ivm-st-card__list">
+            <li>Sunrise / sunset map</li>
+            <li>Wardrobe palette</li>
+            <li>Location scout</li>
+            <li>Beat sheet</li>
+          </ul>
+          <div class="ivm-st-card__meta">
+            <span class="ivm-st-card__duration"><strong>45</strong><small>minutes</small></span>
+            <span class="ivm-st-card__tag">Pre-production</span>
+          </div>
         </article>
         <article class="ivm-st-card" data-step="2">
+          <span class="ivm-st-card__step">Step 03 / IV</span>
           <div class="ivm-st-card__num">III.</div>
           <h3 class="ivm-st-card__title">Direct in <em>silence.</em></h3>
-          <p class="ivm-st-card__body">On set, we work calmly. No frozen smiles. Movement, breath, the moments between. The room forgets the camera.</p>
-          <span class="ivm-st-card__tag">The session</span>
+          <p class="ivm-st-card__body">On set, we work calmly. Movement, breath, the moments between. The room forgets the camera.</p>
+          <ul class="ivm-st-card__list">
+            <li>Movement &amp; breath</li>
+            <li>The in-between</li>
+            <li>No frozen smiles</li>
+            <li>Bilingual direction</li>
+          </ul>
+          <div class="ivm-st-card__meta">
+            <span class="ivm-st-card__duration"><strong>1&ndash;2</strong><small>hours</small></span>
+            <span class="ivm-st-card__tag">The session</span>
+          </div>
         </article>
         <article class="ivm-st-card" data-step="3">
+          <span class="ivm-st-card__step">Step 04 / IV</span>
           <div class="ivm-st-card__num">IV.</div>
           <h3 class="ivm-st-card__title">Deliver in <em>three days.</em></h3>
-          <p class="ivm-st-card__body">A hand-edited private gallery with print release. No two-week waits. Because waiting forgets, and we stay close to the work.</p>
-          <span class="ivm-st-card__tag">Delivery</span>
+          <p class="ivm-st-card__body">A hand-edited private gallery with print release. No two-week waits. Because waiting forgets.</p>
+          <ul class="ivm-st-card__list">
+            <li>Hand-edited frames</li>
+            <li>Private gallery</li>
+            <li>Print release</li>
+            <li>WhatsApp share</li>
+          </ul>
+          <div class="ivm-st-card__meta">
+            <span class="ivm-st-card__duration"><strong>3</strong><small>days</small></span>
+            <span class="ivm-st-card__tag">Delivery</span>
+          </div>
         </article>
       </div>
       <div class="ivm-st-method__progress" aria-hidden="true">
@@ -1545,24 +1585,39 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
     nums.forEach(function(n){ nio.observe(n); });
   }
 
-  /* ── ACT VII Cube rotating with scroll ── */
+  /* ── ACT VII Cube rotating with scroll ──
+     iOS Safari throttles scroll events during momentum scroll, which made
+     the cube lag/snap. Continuous rAF loop (gated by IntersectionObserver
+     so it only runs while visible) gives buttery rotation on iOS. */
   var valSec = document.querySelector('.ivm-st-values');
   var cube = document.getElementById('ivmStValuesCube');
   if (valSec && cube) {
-    var ticking3 = false;
-    function updateCube() {
-      ticking3 = false;
+    var cubeRunning = false;
+    var cubeTargetY = 0, cubeTargetX = -20, cubeCurY = 0, cubeCurX = -20;
+    function cubeLoop() {
+      if (!cubeRunning) return;
       var rect = valSec.getBoundingClientRect();
       var total = rect.height - window.innerHeight;
       var p = Math.max(0, Math.min(1, -rect.top / total));
-      var rotY = p * 360;
-      var rotX = -20 + Math.sin(p * Math.PI * 2) * 5;
-      cube.style.transform = 'rotateX(' + rotX + 'deg) rotateY(' + rotY + 'deg)';
+      cubeTargetY = p * 360;
+      cubeTargetX = -20 + Math.sin(p * Math.PI * 2) * 5;
+      // Smooth interpolation: ease toward target each frame
+      cubeCurY += (cubeTargetY - cubeCurY) * 0.18;
+      cubeCurX += (cubeTargetX - cubeCurX) * 0.18;
+      cube.style.transform = 'rotateX(' + cubeCurX.toFixed(2) + 'deg) rotateY(' + cubeCurY.toFixed(2) + 'deg)';
+      requestAnimationFrame(cubeLoop);
     }
-    window.addEventListener('scroll', function(){
-      if (!ticking3) { requestAnimationFrame(updateCube); ticking3 = true; }
-    }, {passive: true});
-    updateCube();
+    var cubeIO = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting && !cubeRunning) {
+          cubeRunning = true;
+          requestAnimationFrame(cubeLoop);
+        } else if (!e.isIntersecting && cubeRunning) {
+          cubeRunning = false;
+        }
+      });
+    }, { threshold: 0, rootMargin: '20% 0px 20% 0px' });
+    cubeIO.observe(valSec);
   }
 })();
 </script>
