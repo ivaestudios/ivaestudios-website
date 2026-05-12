@@ -3459,5 +3459,56 @@
     background: var(--ivm-cream);
   }
 
+  /* ── HERO TEXT (when photo is bright, cream needs stronger scrim) ── */
+  html:not(.dark) body.ivm-page .ivm-act-hero__title,
+  html:not(.dark) body.ivm-page .ivm-wd-hero__title {
+    color: var(--ivm-ink);
+    text-shadow: 0 2px 28px rgba(250,248,245,.8);
+  }
+  html:not(.dark) body.ivm-page .ivm-act-hero__eyebrow {
+    color: var(--ivm-gold);
+    text-shadow: 0 2px 12px rgba(250,248,245,.7);
+  }
+  html:not(.dark) body.ivm-page .ivm-act-hero__scroll {
+    color: rgba(10,15,23,.6);
+  }
+  html:not(.dark) body.ivm-page .ivm-wd-hero__sub { color: var(--ivm-ink); }
+
+  /* ── COUNTER stat cards (ink → cream w/ gold border) ── */
+  html:not(.dark) body.ivm-page .ivm-stat {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(247,243,236,.96) 100%);
+    box-shadow: inset 0 0 0 1px rgba(201,165,78,.28);
+  }
+  html:not(.dark) body.ivm-page .ivm-stat::before {
+    background: radial-gradient(circle at 50% 100%, rgba(201,165,78,.12), transparent 60%);
+  }
+  /* num stays gold — works on both */
+  html:not(.dark) body.ivm-page .ivm-stat__label {
+    color: rgba(10,15,23,.55);
+  }
+
+  /* ── HOME CTA (.ivm-act-cta — photo-bg w/ dark veil) ── */
+  html:not(.dark) body.ivm-page .ivm-act-cta {
+    background: var(--ivm-cream);
+  }
+  html:not(.dark) body.ivm-page .ivm-act-cta__veil {
+    background: radial-gradient(circle at center,
+      transparent 0%,
+      rgba(250,248,245,.55) 50%,
+      rgba(250,248,245,.95) 100%);
+  }
+  html:not(.dark) body.ivm-page .ivm-act-cta__title {
+    color: var(--ivm-ink);
+    text-shadow: 0 2px 24px rgba(250,248,245,.6);
+  }
+  html:not(.dark) body.ivm-page .ivm-act-cta__sub {
+    color: rgba(10,15,23,.72);
+  }
+  html:not(.dark) body.ivm-page .ivm-act-cta__alt {
+    color: var(--ivm-ink);
+    text-decoration-color: rgba(10,15,23,.4);
+  }
+
   /* ── BLOG header etc — defer */
 }
