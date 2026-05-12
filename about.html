@@ -1182,7 +1182,7 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
 }
 </style>
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260512a">
-<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512r">
+<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512s">
 </head>
 <body class="has-bottom-tabs ivm-page">
 <a href="#main-content" class="skip-link">Skip to content</a>
@@ -1299,11 +1299,11 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
     <div class="ivm-st-method__pin">
       <div class="ivm-st-method__head">
         <span class="eyebrow">The studio method</span>
-        <h2>Four steps. <em>One brief.</em></h2>
+        <h2>Three steps. <em>One brief.</em></h2>
       </div>
       <div class="ivm-st-method__deck" id="ivmStMethodDeck">
         <article class="ivm-st-card" data-step="0">
-          <span class="ivm-st-card__step">Step 01 / IV</span>
+          <span class="ivm-st-card__step">Step 01 / III</span>
           <div class="ivm-st-card__num">I.</div>
           <h3 class="ivm-st-card__title">A <em>brief</em>, not a form.</h3>
           <p class="ivm-st-card__body">Tell us the date, the venue, the feeling. We answer in your language with a calendar opening.</p>
@@ -1319,7 +1319,7 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
           </div>
         </article>
         <article class="ivm-st-card" data-step="1">
-          <span class="ivm-st-card__step">Step 02 / IV</span>
+          <span class="ivm-st-card__step">Step 02 / III</span>
           <div class="ivm-st-card__num">II.</div>
           <h3 class="ivm-st-card__title">Plan <em>the hour.</em></h3>
           <p class="ivm-st-card__body">A creative call. We map sunlight, wardrobe, and the rhythm of the day before the day arrives.</p>
@@ -1335,7 +1335,7 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
           </div>
         </article>
         <article class="ivm-st-card" data-step="2">
-          <span class="ivm-st-card__step">Step 03 / IV</span>
+          <span class="ivm-st-card__step">Step 03 / III</span>
           <div class="ivm-st-card__num">III.</div>
           <h3 class="ivm-st-card__title">Direct in <em>silence.</em></h3>
           <p class="ivm-st-card__body">On set, we work calmly. Movement, breath, the moments between. The room forgets the camera.</p>
@@ -1350,25 +1350,9 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
             <span class="ivm-st-card__tag">The session</span>
           </div>
         </article>
-        <article class="ivm-st-card" data-step="3">
-          <span class="ivm-st-card__step">Step 04 / IV</span>
-          <div class="ivm-st-card__num">IV.</div>
-          <h3 class="ivm-st-card__title">Deliver in <em>three days.</em></h3>
-          <p class="ivm-st-card__body">A hand-edited private gallery with print release. No two-week waits. Because waiting forgets.</p>
-          <ul class="ivm-st-card__list">
-            <li>Hand-edited frames</li>
-            <li>Private gallery</li>
-            <li>Print release</li>
-            <li>WhatsApp share</li>
-          </ul>
-          <div class="ivm-st-card__meta">
-            <span class="ivm-st-card__duration"><strong>3</strong><small>days</small></span>
-            <span class="ivm-st-card__tag">Delivery</span>
-          </div>
-        </article>
       </div>
       <div class="ivm-st-method__progress" aria-hidden="true">
-        <span class="is-on"></span><span></span><span></span><span></span>
+        <span class="is-on"></span><span></span><span></span>
       </div>
     </div>
   </section>
@@ -1541,18 +1525,19 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
     update();
   }
 
-  /* ── ACT III Method deck card stack ── */
+  /* ── ACT III Method deck card stack — 3 cards ── */
   var methSec = document.querySelector('.ivm-st-method');
   var cards = document.querySelectorAll('.ivm-st-card');
   var methProg = document.querySelectorAll('.ivm-st-method__progress span');
   if (methSec && cards.length) {
     var ticking2 = false;
+    var stepN = cards.length;
     function update2() {
       ticking2 = false;
       var rect = methSec.getBoundingClientRect();
       var total = rect.height - window.innerHeight;
       var p = Math.max(0, Math.min(1, -rect.top / total));
-      var activeIdx = Math.min(3, Math.floor(p * 4));
+      var activeIdx = Math.min(stepN - 1, Math.floor(p * stepN));
       cards.forEach(function(card, i){
         if (i === activeIdx) card.setAttribute('data-pos', 'active');
         else if (i === activeIdx + 1) card.setAttribute('data-pos', 'next');

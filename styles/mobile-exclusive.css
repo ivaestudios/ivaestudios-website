@@ -1190,10 +1190,10 @@
     background: rgba(201,165,78,.5);
   }
 
-  /* ── ACT III — The Method: 3D card stack fan-out ─────────── */
+  /* ── ACT III — The Method: 3D card stack fan-out (3 cards) ── */
   .ivm-st-method {
     position: relative;
-    height: 500vh;
+    height: 400vh;
     background: var(--ivm-ink-2);
   }
   .ivm-st-method__pin {
