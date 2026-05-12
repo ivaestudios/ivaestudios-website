@@ -1258,45 +1258,79 @@
   .ivm-st-card {
     position: absolute;
     inset: 0;
-    background: var(--ivm-cream);
-    color: var(--ivm-ink);
+    background:
+      linear-gradient(180deg, rgba(20,28,38,.96) 0%, rgba(14,20,28,.98) 100%);
+    color: var(--ivm-cream);
     display: flex;
     flex-direction: column;
-    padding: 24px 22px;
+    padding: 26px 24px;
     overflow: hidden;
     box-shadow:
-      0 28px 64px rgba(0,0,0,.5),
-      0 12px 24px rgba(0,0,0,.32),
-      inset 0 0 0 1px rgba(201,165,78,.18);
+      0 32px 72px rgba(0,0,0,.6),
+      0 14px 30px rgba(0,0,0,.4),
+      inset 0 0 0 1px rgba(201,165,78,.32);
     transition: transform 0.7s var(--ivm-ease), opacity 0.6s var(--ivm-ease);
     will-change: transform, opacity;
     backface-visibility: hidden;
   }
+  /* Gold L-corner brackets — editorial frame */
+  .ivm-st-card::before,
+  .ivm-st-card::after {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 1px solid rgba(201,165,78,.55);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .ivm-st-card::before {
+    top: 12px;
+    left: 12px;
+    border-right: none;
+    border-bottom: none;
+  }
+  .ivm-st-card::after {
+    bottom: 12px;
+    right: 12px;
+    border-left: none;
+    border-top: none;
+  }
+  /* Soft gold ambient at top-left corner */
+  .ivm-st-card-glow {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(201,165,78,.10) 0%, transparent 55%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .ivm-st-card > * { position: relative; z-index: 1; }
   .ivm-st-card__num {
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
     font-weight: 300;
     font-size: 48px;
-    color: var(--ivm-gold-2);
+    color: var(--ivm-gold);
     line-height: 1;
     margin-bottom: 12px;
-    opacity: 0.6;
+    opacity: 0.9;
   }
   .ivm-st-card__title {
     font-family: 'Cormorant Garamond', serif;
-    font-weight: 400;
+    font-weight: 300;
     font-size: 28px;
     line-height: 1.1;
-    color: var(--ivm-ink);
+    color: var(--ivm-cream);
     margin: 0 0 14px;
   }
-  .ivm-st-card__title em { color: var(--ivm-gold-2); font-style: italic; }
+  .ivm-st-card__title em { color: var(--ivm-gold); font-style: italic; }
   .ivm-st-card__body {
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
     font-size: 15px;
-    line-height: 1.5;
-    color: rgba(10,15,23,.7);
+    line-height: 1.55;
+    color: rgba(250,248,245,.65);
     margin: 0 0 14px;
   }
   /* Step counter — top-right of card */
@@ -1307,9 +1341,9 @@
     font-family: 'Syne', sans-serif;
     font-size: 9px;
     letter-spacing: 0.4em;
-    color: rgba(12,18,25,.38);
+    color: rgba(201,165,78,.55);
     text-transform: uppercase;
-    z-index: 2;
+    z-index: 3;
   }
   /* Bullet list of mini-steps */
   .ivm-st-card__list {
@@ -1322,7 +1356,7 @@
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
     font-size: 14px;
-    color: rgba(12,18,25,.62);
+    color: rgba(250,248,245,.62);
     position: relative;
     padding: 4px 0 4px 22px;
     letter-spacing: 0.01em;
@@ -1335,13 +1369,13 @@
     top: calc(0.62em + 4px);
     width: 12px;
     height: 1px;
-    background: var(--ivm-gold-2);
+    background: var(--ivm-gold);
   }
   /* Meta row at bottom: big duration figure + tag */
   .ivm-st-card__meta {
     margin-top: auto;
     padding-top: 16px;
-    border-top: 1px solid rgba(12,18,25,.08);
+    border-top: 1px solid rgba(201,165,78,.18);
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
@@ -1365,7 +1399,7 @@
     font-family: 'Syne', sans-serif;
     font-size: 9px;
     letter-spacing: 0.32em;
-    color: rgba(12,18,25,.52);
+    color: rgba(250,248,245,.45);
     text-transform: uppercase;
     line-height: 1;
   }
@@ -1374,7 +1408,7 @@
     font-size: 10px;
     letter-spacing: 0.32em;
     text-transform: uppercase;
-    color: var(--ivm-gold-2);
+    color: var(--ivm-gold);
     line-height: 1;
     text-align: right;
   }
@@ -1410,18 +1444,44 @@
   /* ── ACT IV — Founder: Vianey mentioned as Founder ─────────── */
   .ivm-st-founder {
     position: relative;
-    background: var(--ivm-paper);
-    color: var(--ivm-ink);
+    background: var(--ivm-ink);
+    color: var(--ivm-cream);
     padding: 96px 24px 80px;
     overflow: hidden;
+    isolation: isolate;
   }
+  /* Gold ambient layers — luxury atmosphere */
+  .ivm-st-founder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 22%, rgba(201,165,78,.14) 0%, transparent 55%),
+      radial-gradient(ellipse at 30% 78%, rgba(201,165,78,.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  /* Thin top + bottom gold rule dividers */
+  .ivm-st-founder::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: min(60%, 220px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,165,78,.45), transparent);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .ivm-st-founder > * { position: relative; z-index: 2; }
   .ivm-st-founder__eyebrow {
     display: block;
     font-family: 'Syne', sans-serif;
     font-size: 10px;
-    letter-spacing: 0.42em;
+    letter-spacing: 0.5em;
     text-transform: uppercase;
-    color: var(--ivm-gold-2);
+    color: var(--ivm-gold);
     margin-bottom: 14px;
     text-align: center;
   }
@@ -1430,63 +1490,92 @@
     font-weight: 300;
     font-size: clamp(28px, 8vw, 38px);
     line-height: 1.05;
-    color: var(--ivm-ink);
+    color: var(--ivm-cream);
     margin: 0 0 40px;
     text-align: center;
+    letter-spacing: -0.005em;
   }
   .ivm-st-founder h2 em {
     font-style: italic;
-    color: var(--ivm-gold-2);
+    color: var(--ivm-gold);
   }
   .ivm-st-founder__wall {
     position: relative;
-    min-height: 360px;
+    min-height: 380px;
     perspective: 1000px;
-    margin: 32px auto 32px;
+    margin: 32px auto 40px;
     max-width: 360px;
   }
+  /* Editorial photo frames — NO white card, just the image with gold corner brackets */
   .ivm-st-founder__pola {
     position: absolute;
-    background: white;
-    padding: 10px 10px 26px;
-    box-shadow:
-      0 18px 36px rgba(10,15,23,.20),
-      0 4px 10px rgba(10,15,23,.10);
+    background: transparent;
+    padding: 0;
     will-change: transform;
+  }
+  /* Gold L-corner brackets — editorial magazine accent */
+  .ivm-st-founder__pola::before,
+  .ivm-st-founder__pola::after {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border: 1px solid rgba(201,165,78,.85);
+    pointer-events: none;
+    z-index: 3;
+  }
+  .ivm-st-founder__pola::before {
+    top: -6px;
+    left: -6px;
+    border-right: none;
+    border-bottom: none;
+  }
+  .ivm-st-founder__pola::after {
+    bottom: -6px;
+    right: -6px;
+    border-left: none;
+    border-top: none;
   }
   .ivm-st-founder__pola img {
     width: 100%;
-    aspect-ratio: 1/1;
+    aspect-ratio: 4/5;
     object-fit: cover;
     display: block;
-    filter: saturate(0.92);
+    filter: saturate(0.92) contrast(1.06);
+    box-shadow:
+      0 32px 64px rgba(0,0,0,.55),
+      0 14px 28px rgba(0,0,0,.35);
   }
+  /* Gold scrim + caption inside bottom of image */
   .ivm-st-founder__pola figcaption {
     position: absolute;
-    bottom: 4px;
-    left: 10px;
-    right: 10px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 36px 12px 10px;
+    background: linear-gradient(180deg, transparent, rgba(10,15,23,.78));
     font-family: 'Syne', sans-serif;
     font-size: 8px;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.34em;
     text-transform: uppercase;
-    color: rgba(10,15,23,.55);
+    color: var(--ivm-gold);
     text-align: center;
+    z-index: 2;
   }
   .ivm-st-founder__pola--1 {
-    top: 12px;
-    left: 8px;
-    width: 56%;
-    transform: rotate(-5deg);
+    top: 8px;
+    left: 4px;
+    width: 54%;
+    transform: rotate(-6deg);
   }
   .ivm-st-founder__pola--2 {
-    top: 60px;
-    right: 4px;
-    width: 50%;
-    transform: rotate(4deg);
+    top: 56px;
+    right: 0;
+    width: 48%;
+    transform: rotate(5deg);
   }
   .ivm-st-founder__pola--3 {
-    bottom: 28px;
+    bottom: 18px;
     left: 18%;
     width: 60%;
     transform: rotate(-2deg);
@@ -1500,22 +1589,37 @@
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
     font-size: 17px;
-    line-height: 1.55;
-    color: rgba(10,15,23,.72);
+    line-height: 1.6;
+    color: rgba(250,248,245,.78);
     margin: 0;
+    letter-spacing: 0.005em;
   }
-  .ivm-st-founder__body p + p { margin-top: 16px; }
+  .ivm-st-founder__body p + p { margin-top: 18px; }
   .ivm-st-founder__body em {
     font-style: italic;
-    color: var(--ivm-gold-2);
+    color: var(--ivm-gold);
   }
   .ivm-st-founder__sign {
-    margin-top: 32px;
+    margin-top: 36px;
     text-align: center;
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
     font-size: 22px;
-    color: var(--ivm-gold-2);
+    color: var(--ivm-gold);
+    position: relative;
+    padding-top: 28px;
+  }
+  /* Gold ornament dot above signature */
+  .ivm-st-founder__sign::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--ivm-gold);
+    box-shadow: 0 0 12px rgba(201,165,78,.6);
   }
 
   /* ── ACT V — Atlas: SVG Mexico with pulsing markers ────────── */
