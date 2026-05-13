@@ -618,7 +618,7 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
 <meta name="mobile-web-app-capable" content="yes"/>
 <link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/cormorantgaramond/v16/co3WmX5slCNuHLi8bLeY9MK7whWMhyjornFLsS6V7w.woff2"/>
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260512a">
-<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512bk">
+<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512bm">
 </head>
 <body class="has-bottom-tabs ivm-page">
 <a href="#main-content" class="skip-link">Saltar al contenido</a>
@@ -659,198 +659,165 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
     <div class="ivm-loader__mark">
       <span>I</span><span>V</span><span>A</span><span>E</span><span class="dot">.</span>
     </div>
-    <div class="ivm-loader__sub">El Diario · Vol III</div>
+    <div class="ivm-loader__sub">El Diario · Vol. III</div>
   </div>
 
-  <!-- ACT I — HERO -->
-  <section class="ivm-act-hero" aria-labelledby="ivm-blog-h1">
-    <div class="ivm-act-hero__layer">
-      <picture>
-        <img class="ivm-act-hero__photo"
-             src="/images/editorial-cancun-ivae-studios-1600.jpg"
-             srcset="/images/editorial-cancun-ivae-studios-960.jpg 960w,
-                     /images/editorial-cancun-ivae-studios-1600.jpg 1600w,
-                     /images/editorial-cancun-ivae-studios.jpg 2400w"
-             sizes="100vw"
-             alt="Cuadro editorial de una campaña en Cancún fotografiada por IVAE Studios"
-             loading="eager" fetchpriority="high" decoding="async"
-             width="1333" height="2000">
-      </picture>
-      <div class="ivm-act-hero__veil" aria-hidden="true"></div>
-    </div>
-    <div class="ivm-act-hero__copy">
-      <span class="ivm-act-hero__eyebrow">Vol. III · Edición 05 · 2026</span>
-      <h1 class="ivm-act-hero__title" id="ivm-blog-h1">
-        <span class="w" style="animation-delay:2.4s">El </span><span class="w" style="animation-delay:2.55s"><em>Diario.</em></span>
-      </h1>
-    </div>
-    <div class="ivm-act-hero__scroll" aria-hidden="true">Desliza</div>
+  <!-- ACT I — MASTHEAD -->
+  <section class="ivm-jl-masthead" aria-labelledby="ivm-jl-h1">
+    <span class="ivm-jl-masthead__eyebrow">Vol. III · Número 05 · MMXXVI</span>
+    <h1 class="ivm-jl-masthead__title" id="ivm-jl-h1">El <em>Diario.</em></h1>
+    <p class="ivm-jl-masthead__tag">Notas de campo desde tres costas.</p>
   </section>
 
-  <!-- ACT II — Sticky scroll story -->
-  <section class="ivm-act-hour" aria-label="La voz del diario">
-    <div class="ivm-act-hour__pin">
-      <div class="ivm-act-hour__photo"
-           style="background-image:url('/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg');"></div>
-      <div class="ivm-act-hour__stage">
-        <p class="ivm-act-hour__line" data-line="0">Notas de campo</p>
-        <p class="ivm-act-hour__line" data-line="1">de la hora</p>
-        <p class="ivm-act-hour__line" data-line="2">en que la luz es honesta.</p>
-        <p class="ivm-act-hour__line" data-line="3"><em>por Vianey Díaz.</em></p>
-      </div>
-      <div class="ivm-act-hour__progress" aria-hidden="true">
-        <span data-prog="0"></span><span data-prog="1"></span><span data-prog="2"></span><span data-prog="3"></span>
-      </div>
+  <!-- ACT II — FEATURED STORY -->
+  <a class="ivm-jl-feature" href="/es/blog/dentro-boda-lujo-mayakoba-caso-estudio" aria-label="Destacado: Dentro de una boda de lujo en Mayakoba">
+    <div class="ivm-jl-feature__photo">
+      <img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Pareja de novios en Mayakoba fotografiados por IVAE Studios" loading="eager" fetchpriority="high" decoding="async" width="1600" height="1067">
     </div>
+    <div class="ivm-jl-feature__veil" aria-hidden="true"></div>
+    <div class="ivm-jl-feature__copy">
+      <span class="ivm-jl-feature__cat">Destacado · Caso de estudio</span>
+      <h2 class="ivm-jl-feature__title">Dentro de una boda de lujo en <em>Mayakoba.</em></h2>
+      <p class="ivm-jl-feature__desc">Cuatro días en Rosewood Mayakoba — desde la cena de bienvenida hasta el último baile. Detrás de cada toma, cada decisión, cada hora de luz.</p>
+      <span class="ivm-jl-feature__cta">Leer el caso</span>
+    </div>
+  </a>
+
+  <!-- ACT III — CATEGORY PILLS -->
+  <nav class="ivm-jl-cats" aria-label="Categorías">
+    <div class="ivm-jl-cats__row">
+      <a class="ivm-jl-cats__pill is-on" href="#all">Todo</a>
+      <a class="ivm-jl-cats__pill" href="#bodas">Bodas</a>
+      <a class="ivm-jl-cats__pill" href="#parejas">Parejas</a>
+      <a class="ivm-jl-cats__pill" href="#familia">Familia</a>
+      <a class="ivm-jl-cats__pill" href="#guias">Guías</a>
+      <a class="ivm-jl-cats__pill" href="#viaje">Viaje</a>
+      <a class="ivm-jl-cats__pill" href="#vendors">Vendors</a>
+    </div>
+  </nav>
+
+  <!-- ACT IV — ARTICLE GRID -->
+  <section class="ivm-jl-grid" aria-labelledby="ivm-jl-grid-h">
+    <header class="ivm-jl-grid__head">
+      <span class="ivm-jl-grid__eyebrow">Historias recientes</span>
+      <h2 class="ivm-jl-grid__h2" id="ivm-jl-grid-h">Lee el <em>Diario.</em></h2>
+    </header>
+
+    <a class="ivm-jl-card" href="/es/blog/fotografia-hora-dorada-mexico">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" alt="Hora dorada sobre Cabo San Lucas" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">Guía · Luz</span>
+      <h3 class="ivm-jl-card__title">Sobre la hora dorada, en <em>México.</em></h3>
+      <p class="ivm-jl-card__desc">Por qué programamos cada sesión hacia atrás desde el atardecer. Notas de campo de tres costas.</p>
+      <span class="ivm-jl-card__read">Leer</span>
+    </a>
+
+    <a class="ivm-jl-card" href="/es/blog/que-ponerse-fotos-playa-mexico">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/couple-playa-mujeres-ivae-studios.jpg" alt="Pareja en lino crema en Playa Mujeres" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">Estilo · Vestuario</span>
+      <h3 class="ivm-jl-card__title">Qué ponerse para las <em>fotos en playa.</em></h3>
+      <p class="ivm-jl-card__desc">Tonos que respiran con la arena, el cielo y la hora. Paletas aprobadas por stylists.</p>
+      <span class="ivm-jl-card__read">Leer</span>
+    </a>
+
+    <a class="ivm-jl-card" href="/es/blog/cancun-vs-riviera-maya-fotos">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/couple-riviera-maya-ivae-studios.jpg" alt="Pareja en Riviera Maya" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">Viaje · Comparativa</span>
+      <h3 class="ivm-jl-card__title">Cancún vs <em>Riviera Maya.</em></h3>
+      <p class="ivm-jl-card__desc">Playas, cenotes, luz, logística — elige la costa correcta para tu sesión.</p>
+      <span class="ivm-jl-card__read">Leer</span>
+    </a>
+
+    <a class="ivm-jl-card" href="/es/blog/guia-cenotes-cancun">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/wedding-bride-tulum-ivae-studios.jpg" alt="Novia cerca de un cenote en la Riviera Maya" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">Locación · Cenotes</span>
+      <h3 class="ivm-jl-card__title">Cenote para <em>fotos en Cancún.</em></h3>
+      <p class="ivm-jl-card__desc">Los mejores cenotes a 1–2 horas de Cancún. Timing del haz de luz, vestuario, logística.</p>
+      <span class="ivm-jl-card__read">Leer</span>
+    </a>
+
+    <a class="ivm-jl-card" href="/es/blog/fotografo-luna-de-miel-riviera-maya">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/blog/honeymoon-photographer-riviera-maya-og.jpg" alt="Pareja en luna de miel en Riviera Maya" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">Parejas · Luna de miel</span>
+      <h3 class="ivm-jl-card__title">Fotógrafo de luna de miel, <em>Riviera Maya.</em></h3>
+      <p class="ivm-jl-card__desc">Las mejores playas, cenotes y resorts para fotos románticas — qué ponerse, cuándo disparar.</p>
+      <span class="ivm-jl-card__read">Leer</span>
+    </a>
+
+    <a class="ivm-jl-card" href="/es/blog/mejores-resorts-cancun-fotos">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg" alt="Resort en zona hotelera de Cancún" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">Vendors · Resorts</span>
+      <h3 class="ivm-jl-card__title">Mejores resorts en Cancún para <em>fotos.</em></h3>
+      <p class="ivm-jl-card__desc">Los favoritos de la Zona Hotelera para sesiones de parejas, familia y boda.</p>
+      <span class="ivm-jl-card__read">Leer</span>
+    </a>
+
+    <a class="ivm-jl-card" href="/es/blog/fotos-familiares-vacaciones">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/family-kids-isla-mujeres-ivae-studios.jpg" alt="Familia en Isla Mujeres" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">Familia · Vacaciones</span>
+      <h3 class="ivm-jl-card__title">Fotos familiares de <em>vacaciones.</em></h3>
+      <p class="ivm-jl-card__desc">Planeando una sesión multigeneracional — los niños siguen siendo niños mientras trabajamos en juego.</p>
+      <span class="ivm-jl-card__read">Leer</span>
+    </a>
+
+    <a class="ivm-jl-card" href="/es/blog/fotografia-bachelorette-los-cabos">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/family-kids-los-cabos-ivae-studios.jpg" alt="Grupo de chicas en Los Cabos" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">Lifestyle · Cabo</span>
+      <h3 class="ivm-jl-card__title">Bachelorette en <em>Los Cabos.</em></h3>
+      <p class="ivm-jl-card__desc">Las mejores playas, ideas de outfit, tips de pose grupal — para el fin de semana antes de la boda.</p>
+      <span class="ivm-jl-card__read">Leer</span>
+    </a>
+
+    <a class="ivm-jl-card" href="/es/blog/guia-fotografia-tulum">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/couple-tulum-ivae-studios-3.jpg" alt="Pareja en Tulum" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">Viaje · Tulum</span>
+      <h3 class="ivm-jl-card__title">Guía de <em>fotografía en Tulum.</em></h3>
+      <p class="ivm-jl-card__desc">Ruinas, palmas, arena blanca — el tramo de Tulum que planeamos para sesiones editoriales.</p>
+      <span class="ivm-jl-card__read">Leer</span>
+    </a>
+
+    <a class="ivm-jl-card" href="/es/blog/10-preguntas-fotografo-bodas-antes-reservar">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/wedding-bride-cancun-ivae-studios-4.jpg" alt="Novia en zona hotelera de Cancún" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">Guía · Reservar</span>
+      <h3 class="ivm-jl-card__title">Diez preguntas antes de <em>reservar.</em></h3>
+      <p class="ivm-jl-card__desc">Lo que toda pareja debe preguntar antes de firmar — y cómo suena una buena respuesta.</p>
+      <span class="ivm-jl-card__read">Leer</span>
+    </a>
+
+    <a class="ivm-jl-all" href="#todas-las-historias">Las 48 historias</a>
   </section>
 
-  <!-- ACT III — 4 guías destacadas como tarjetas 3D -->
-  <section class="ivm-act-services" aria-labelledby="ivm-blog-cats-h">
-    <div class="ivm-act-services__pin">
-      <div class="ivm-act-services__title">
-        <span class="ivm-act-services__eyebrow">Guías destacadas</span>
-        <h2 id="ivm-blog-cats-h">Cuatro <em>ensayos.</em></h2>
-      </div>
-      <div class="ivm-act-services__stage">
-        <a class="ivm-svc" href="/es/blog/fotografia-hora-dorada-mexico" data-svc-idx="0">
-          <div class="ivm-svc__photo">
-            <img src="/images/wedding-bride-tulum-ivae-studios-960.jpg" alt="Guía de hora dorada" loading="lazy">
-            <span class="ivm-svc__num">I.</span>
-          </div>
-          <div class="ivm-svc__body">
-            <h3 class="ivm-svc__title">Sobre la <em>hora dorada</em>, en México.</h3>
-            <p class="ivm-svc__desc">Por qué agendamos cada sesión desde el atardecer hacia atrás. Notas de tres costas.</p>
-            <span class="ivm-svc__arrow">Leer →</span>
-          </div>
-        </a>
-        <a class="ivm-svc" href="/es/blog/que-ponerte-fotos-playa-mexico" data-svc-idx="1">
-          <div class="ivm-svc__photo">
-            <img src="/images/couple-cancun-beach-ivae-studios-3.jpg" alt="Qué ponerte" loading="lazy">
-            <span class="ivm-svc__num">II.</span>
-          </div>
-          <div class="ivm-svc__body">
-            <h3 class="ivm-svc__title">Qué <em>ponerte.</em></h3>
-            <p class="ivm-svc__desc">Planeación de vestuario para sesiones en la playa. Tonos que respiran con arena, cielo y la hora.</p>
-            <span class="ivm-svc__arrow">Leer →</span>
-          </div>
-        </a>
-        <a class="ivm-svc" href="/es/blog/cancun-vs-riviera-maya-fotos" data-svc-idx="2">
-          <div class="ivm-svc__photo">
-            <img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Cancun vs Riviera Maya" loading="lazy">
-            <span class="ivm-svc__num">III.</span>
-          </div>
-          <div class="ivm-svc__body">
-            <h3 class="ivm-svc__title">Cancún <em>vs.</em> Riviera Maya.</h3>
-            <p class="ivm-svc__desc">Qué costa elegir para tu sesión. Una comparación lado a lado de luz, acceso y sensación.</p>
-            <span class="ivm-svc__arrow">Leer →</span>
-          </div>
-        </a>
-        <a class="ivm-svc" href="/es/blog/fotografo-boda-destino-riviera-maya" data-svc-idx="3">
-          <div class="ivm-svc__photo">
-            <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg" alt="Guía de boda destino" loading="lazy">
-            <span class="ivm-svc__num">IV.</span>
-          </div>
-          <div class="ivm-svc__body">
-            <h3 class="ivm-svc__title">Planear una <em>boda destino.</em></h3>
-            <p class="ivm-svc__desc">Las horas que importan en una boda destino. Una línea de tiempo editorial completa.</p>
-            <span class="ivm-svc__arrow">Leer →</span>
-          </div>
-        </a>
-      </div>
-      <div class="ivm-act-services__dots" aria-hidden="true">
-        <span class="is-on"></span><span></span><span></span><span></span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ACT IV — Counter -->
-  <section class="ivm-act-counter" aria-labelledby="ivm-blog-cnt-h">
-    <span class="ivm-act-counter__eyebrow">En números</span>
-    <h2 id="ivm-blog-cnt-h">Tres años. <em>Cuarenta y siete guías.</em></h2>
-    <div class="ivm-act-counter__grid">
-      <div class="ivm-stat">
-        <span class="ivm-stat__num" data-count-to="47">0</span>
-        <span class="ivm-stat__label">Guías escritas</span>
-      </div>
-      <div class="ivm-stat">
-        <span class="ivm-stat__num" data-count-to="500" data-suffix="+">0</span>
-        <span class="ivm-stat__label">Sesiones detrás</span>
-      </div>
-      <div class="ivm-stat">
-        <span class="ivm-stat__num" data-count-to="3">0</span>
-        <span class="ivm-stat__label">Costas</span>
-      </div>
-      <div class="ivm-stat">
-        <span class="ivm-stat__num" data-count-to="2">0</span>
-        <span class="ivm-stat__label">Idiomas</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ACT V — More posts reel -->
-  <section class="ivm-act-reel" aria-labelledby="ivm-blog-reel-h">
-    <div class="ivm-act-reel__head">
-      <span class="ivm-act-reel__eyebrow">Del archivo</span>
-      <h2 id="ivm-blog-reel-h">Más <em>ensayos.</em></h2>
-    </div>
-    <div class="ivm-act-reel__track" id="ivmReelTrack" role="region" aria-label="Más guías">
-      <a class="ivm-reel-card" href="/es/blog/guia-fotografia-tulum">
-        <img src="/images/wedding-bride-tulum-ivae-studios-960.jpg" alt="Guía Tulum" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Guía · Tulum</span>
-          <span class="ivm-reel-card__title">Guía de fotógrafa para Tulum</span>
-        </div>
-      </a>
-      <a class="ivm-reel-card" href="/es/blog/fotografo-luna-de-miel-riviera-maya">
-        <img src="/images/couple-cancun-hotel-zone-ivae-studios-9-960.jpg" alt="Fotógrafa luna de miel" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Guía · Luna de miel</span>
-          <span class="ivm-reel-card__title">Sesiones de luna de miel en la Riviera Maya</span>
-        </div>
-      </a>
-      <a class="ivm-reel-card" href="/es/blog/fotos-vacaciones-familiares-mexico">
-        <img src="/images/family-cancun-hotel-zone-ivae-studios-960.jpg" alt="Fotos vacaciones familiares" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Guía · Familia</span>
-          <span class="ivm-reel-card__title">Fotografía familiar sin pose forzada</span>
-        </div>
-      </a>
-      <a class="ivm-reel-card" href="/es/blog/fotografia-propuesta-sorpresa-cancun">
-        <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="Propuesta sorpresa" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Guía · Propuesta</span>
-          <span class="ivm-reel-card__title">Planear una propuesta sorpresa en Cancún</span>
-        </div>
-      </a>
-      <a class="ivm-reel-card" href="/es/blog/sesion-cenote-submarina-tulum">
-        <img src="/images/editorial-cancun-ivae-studios-960.jpg" alt="Cenote submarina" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Guía · Cenote</span>
-          <span class="ivm-reel-card__title">Sesiones submarinas en un cenote de Tulum</span>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <!-- ACT VI — CTA -->
-  <section class="ivm-act-cta" id="ivm-blog-cta">
-    <div class="ivm-act-cta__bg" style="background-image:url('/images/wedding-bride-cancun-ivae-studios-960.jpg');" aria-hidden="true"></div>
-    <div class="ivm-act-cta__veil" aria-hidden="true"></div>
-    <div class="ivm-act-cta__inner">
-      <span class="ivm-act-cta__eyebrow">Planea tu sesión</span>
-      <h2 class="ivm-act-cta__title">Comienza la<br><em>conversación.</em></h2>
-      <p class="ivm-act-cta__sub">¿Suficiente lectura? Cuéntanos tu fecha, tu venue, tu luz.</p>
-      <a class="ivm-act-cta__btn" href="https://wa.me/529902046514?text=Hola%20Vianey%2C%20encontr%C3%A9%20IVAE%20a%20trav%C3%A9s%20del%20Diario" target="_blank" rel="noopener">
-        <span>Escribir a Vianey →</span>
-      </a>
-      <a class="ivm-act-cta__alt" href="mailto:hello@ivaestudios.com">o escribe a hello@ivaestudios.com</a>
-    </div>
+  <!-- ACT V — SUBSCRIBE -->
+  <section class="ivm-jl-sub" aria-label="Suscribirse al diario">
+    <span class="ivm-jl-sub__eyebrow">Cada primer domingo</span>
+    <h2 class="ivm-jl-sub__h2">Suscríbete al <em>Vol. IV.</em></h2>
+    <p class="ivm-jl-sub__desc">Una carta editorial corta — un ensayo, una locación, una imagen. Nunca semanal, nunca spam.</p>
+    <a class="ivm-jl-sub__btn" href="mailto:hello@ivaestudios.com?subject=Suscribirse%20al%20Diario">Envíame el Vol. IV →</a>
   </section>
 
   <!-- FOOTER -->
   <footer class="ivm-act-foot">
     <p class="ivm-act-foot__mark">IVAE <em>Studios</em></p>
-    <p class="ivm-act-foot__tag">El Diario · IVAE Studios</p>
+    <p class="ivm-act-foot__tag">El Diario · México</p>
     <div class="ivm-act-foot__links">
       <a href="/es/">Inicio</a>
       <a href="/es/acerca-de">Acerca</a>
@@ -858,950 +825,32 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
     </div>
     <p class="ivm-act-foot__copy">© 2026 IVAE Studios · Cancún, México</p>
   </footer>
-
 </div>
+<!-- ═══════════════════════════════════════════════════════════════════════
+     END MOBILE — Diario
+     ═══════════════════════════════════════════════════════════════════════ -->
 <script>
 (function(){
   if (window.matchMedia && !matchMedia('(max-width:899px)').matches) return;
   setTimeout(function(){ document.body.classList.add('ivm-loaded'); }, 3700);
-  var hourSection = document.querySelector('.ivm-act-hour');
-  var hourLines = document.querySelectorAll('.ivm-act-hour__line');
-  var hourProg  = document.querySelectorAll('.ivm-act-hour__progress span');
-  var hourPhoto = document.querySelector('.ivm-act-hour__photo');
-  if (hourSection && hourLines.length) {
-    var hourTicking = false;
-    function updateHour() {
-      hourTicking = false;
-      var rect = hourSection.getBoundingClientRect();
-      var total = rect.height - window.innerHeight;
-      var scrolled = -rect.top;
-      var p = Math.max(0, Math.min(1, scrolled / total));
-      var lineIdx = Math.min(3, Math.floor(p * 4));
-      hourLines.forEach(function(line, i){
-        line.classList.remove('is-on', 'is-off');
-        if (i === lineIdx) line.classList.add('is-on');
-        else if (i < lineIdx) line.classList.add('is-off');
-      });
-      hourProg.forEach(function(s, i){ s.classList.toggle('is-on', i <= lineIdx); });
-      if (hourPhoto) {
-        var zoom = 1 + p * 0.12;
-        var ty = (p - 0.5) * 60;
-        hourPhoto.style.transform = 'scale(' + zoom + ') translateY(' + ty + 'px)';
-      }
-    }
-    window.addEventListener('scroll', function(){ if (!hourTicking) { requestAnimationFrame(updateHour); hourTicking = true; } }, {passive: true});
-    updateHour();
-  }
-  var svcSection = document.querySelector('.ivm-act-services');
-  var svcCards = document.querySelectorAll('.ivm-svc');
-  var svcDots = document.querySelectorAll('.ivm-act-services__dots span');
-  if (svcSection && svcCards.length) {
-    var svcTicking = false;
-    function updateSvc() {
-      svcTicking = false;
-      var rect = svcSection.getBoundingClientRect();
-      var total = rect.height - window.innerHeight;
-      var scrolled = -rect.top;
-      var p = Math.max(0, Math.min(1, scrolled / total));
-      var activeIdx = Math.min(3, Math.floor(p * 4));
-      svcCards.forEach(function(card, i){
-        if (i === activeIdx) card.setAttribute('data-pos', 'active');
-        else if (i === activeIdx - 1) card.setAttribute('data-pos', 'behind');
-        else if (i < activeIdx) card.setAttribute('data-pos', 'past');
-        else card.setAttribute('data-pos', 'below');
-      });
-      svcDots.forEach(function(d, i){ d.classList.toggle('is-on', i === activeIdx); });
-    }
-    svcCards.forEach(function(card, i){ card.setAttribute('data-pos', i === 0 ? 'active' : 'below'); });
-    window.addEventListener('scroll', function(){ if (!svcTicking) { requestAnimationFrame(updateSvc); svcTicking = true; } }, {passive: true});
-  }
-  var counters = document.querySelectorAll('[data-count-to]');
-  if (counters.length) {
-    var cio = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if (!e.isIntersecting) return;
-        var el = e.target;
-        if (el.dataset.counted === '1') return;
-        el.dataset.counted = '1';
-        var target = parseFloat(el.dataset.countTo);
-        var suffix = el.dataset.suffix || '';
-        var dur = 1800;
-        var start = performance.now();
-        function tick(now){
-          var t = Math.min(1, (now - start) / dur);
-          var eased = 1 - Math.pow(1 - t, 3);
-          var val = target * eased;
-          if (target >= 100) el.textContent = Math.floor(val).toLocaleString() + suffix;
-          else if (target < 10) el.textContent = (target * eased).toFixed(1).replace('.0', '') + suffix;
-          else el.textContent = Math.floor(val) + suffix;
-          if (t < 1) requestAnimationFrame(tick);
-          else el.textContent = target + suffix;
+  var cards = document.querySelectorAll('.ivm-jl-card');
+  if (cards.length && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function(items){
+      items.forEach(function(e){
+        if (e.intersectionRatio > 0.15) {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+          io.unobserve(e.target);
         }
-        requestAnimationFrame(tick);
-        cio.unobserve(el);
       });
-    }, {threshold: 0.4});
-    counters.forEach(function(c){ cio.observe(c); });
-  }
-  var reelTrack = document.getElementById('ivmReelTrack');
-  var reelCards = document.querySelectorAll('.ivm-reel-card');
-  if (reelTrack && reelCards.length) {
-    var reelTicking = false;
-    function updateReelCenter() {
-      reelTicking = false;
-      var trackRect = reelTrack.getBoundingClientRect();
-      var centerX = trackRect.left + trackRect.width / 2;
-      var bestIdx = -1;
-      var bestDist = Infinity;
-      reelCards.forEach(function(c, i){
-        var r = c.getBoundingClientRect();
-        var cardCenter = r.left + r.width / 2;
-        var d = Math.abs(cardCenter - centerX);
-        if (d < bestDist) { bestDist = d; bestIdx = i; }
-      });
-      reelCards.forEach(function(c, i){ c.classList.toggle('is-center', i === bestIdx); });
-    }
-    reelTrack.addEventListener('scroll', function(){ if (!reelTicking) { requestAnimationFrame(updateReelCenter); reelTicking = true; } }, {passive: true});
-    window.addEventListener('resize', updateReelCenter, {passive: true});
-    setTimeout(updateReelCenter, 50);
-  }
-})();
-</script>
-<!-- END MOBILE SCROLLYTELLING -->
-
-<div class="ivm-desktop-only">
-
-<nav class="lw-blog-stories" aria-label="Guías destacadas">
-  <div class="lw-blog-stories__inner">
-    <a class="lw-blog-stories__item" href="/es/blog/fotografo-boda-cancun">
-      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/wedding-photographer-cancun-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
-      <span class="lw-blog-stories__label">Bodas</span>
-    </a>
-    <a class="lw-blog-stories__item" href="/es/blog/fotografo-parejas-cancun">
-      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/couples-photographer-cancun-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
-      <span class="lw-blog-stories__label">Parejas</span>
-    </a>
-    <a class="lw-blog-stories__item" href="/es/blog/fotos-vacaciones-familiares-mexico">
-      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/family-vacation-photos-mexico-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
-      <span class="lw-blog-stories__label">Familia</span>
-    </a>
-    <a class="lw-blog-stories__item" href="/es/blog/fotografia-propuesta-sorpresa-cancun">
-      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/surprise-proposal-photography-cancun-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
-      <span class="lw-blog-stories__label">Propuesta</span>
-    </a>
-    <a class="lw-blog-stories__item" href="/es/blog/guia-foto-cenote-cancun">
-      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/cancun-cenote-photoshoot-guide-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
-      <span class="lw-blog-stories__label">Cenote</span>
-    </a>
-    <a class="lw-blog-stories__item" href="/es/blog/fotografia-yate-lujo-cancun">
-      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/luxury-yacht-photography-cancun-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
-      <span class="lw-blog-stories__label">Yate</span>
-    </a>
-    <a class="lw-blog-stories__item" href="/es/blog/guia-fotografo-los-cabos">
-      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/los-cabos-photographer-guide-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
-      <span class="lw-blog-stories__label">Los Cabos</span>
-    </a>
-  </div>
-</nav>
-
-<section class="lw-blog-masthead" aria-labelledby="lw-blog-masthead-title">
-  <span class="lw-blog-masthead__eyebrow">Vol. III &middot; N&uacute;m. 05 &middot; 2026</span>
-  <h1 class="lw-blog-masthead__title" id="lw-blog-masthead-title">El <em>Diario</em> IVAE</h1>
-  <div class="lw-blog-masthead__rule" aria-hidden="true"></div>
-  <div class="lw-blog-masthead__meta" role="list">
-    <span class="lw-blog-masthead__meta-item" role="listitem"><strong data-stat="total">47</strong>&nbsp;Gu&iacute;as</span>
-    <span class="lw-blog-masthead__meta-sep" aria-hidden="true"></span>
-    <span class="lw-blog-masthead__meta-item" role="listitem"><strong>3</strong>&nbsp;Destinos</span>
-    <span class="lw-blog-masthead__meta-sep" aria-hidden="true"></span>
-    <span class="lw-blog-masthead__meta-item" role="listitem"><strong>500+</strong>&nbsp;Sesiones</span>
-    <span class="lw-blog-masthead__meta-sep" aria-hidden="true"></span>
-    <span class="lw-blog-masthead__meta-item" role="listitem">Por <strong>Vianey D&iacute;az</strong></span>
-  </div>
-  <p class="lw-blog-masthead__tagline">Apuntes de campo desde la hora en que la luz es honesta. Despachos editoriales sobre fotograf&iacute;a de resort de lujo en Canc&uacute;n, Riviera Maya y Los Cabos.</p>
-</section>
-
-<section class="lw-blog-hero-feature" aria-labelledby="lw-blog-hero-title">
-  <a class="lw-blog-hero-feature__link" href="/es/blog/fotografo-boda-destino-riviera-maya">
-    <img class="lw-blog-hero-feature__media" src="https://assets.ivaestudios.com/blog/destination-wedding-riviera-maya-og.jpg" alt="Novios al atardecer en una playa de Riviera Maya durante una ceremonia de boda destino de lujo" width="2000" height="857" fetchpriority="high" loading="eager" decoding="async"/>
-    <span class="lw-blog-hero-feature__scrim" aria-hidden="true"></span>
-    <div class="lw-blog-hero-feature__body">
-      <span class="lw-blog-hero-feature__eyebrow">Portada &middot; Bodas</span>
-      <h2 class="lw-blog-hero-feature__title" id="lw-blog-hero-title">Fotógrafo de Bodas de Destino en Riviera Maya: <em>La Guía Completa de Planeación (2026)</em></h2>
-      <p class="lw-blog-hero-feature__dek">Todo lo que necesitas saber para planear la fotografía de tu boda de destino en Riviera Maya: venues, timing, vestuario y los tips de experto que solo un fotógrafo local conoce.</p>
-      <div class="lw-blog-hero-feature__byline"><span>Por <strong>Vianey D&iacute;az</strong></span><span class="lw-blog-hero-feature__byline-sep" aria-hidden="true"></span><span>10 de Mayo, 2026</span><span class="lw-blog-hero-feature__byline-sep" aria-hidden="true"></span><span>11 min de lectura</span></div>
-    </div>
-  </a>
-</section>
-
-<section class="lw-blog-dossier" aria-labelledby="lw-blog-dossier-title">
-  <header class="lw-blog-dossier__head">
-    <div>
-      <span class="lw-blog-dossier__eyebrow">El Expediente</span>
-      <h2 class="lw-blog-dossier__title" id="lw-blog-dossier-title"><em>Selecci&oacute;n</em> Editorial</h2>
-    </div>
-    <span class="lw-blog-dossier__count">3 Destacados</span>
-  </header>
-  <div class="lw-blog-dossier__grid">
-  <a class="lw-blog-dossier__card lw-blog-dossier__card--wide" href="/es/blog/fotografo-boda-cancun" data-category="weddings">
-    <div class="lw-blog-dossier__card-media">
-      <img src="https://assets.ivaestudios.com/blog/wedding-photographer-cancun-og.jpg" alt="Fotógrafo de Bodas en Cancún: Tu Guía Completa para una Ceremonia de Playa de Ensueño (2026)" width="1200" height="900" loading="eager" fetchpriority="high" decoding="async"/>
-    </div>
-    <span class="lw-blog-dossier__card-cat">Bodas</span>
-    <h3 class="lw-blog-dossier__card-title">Fotógrafo de Bodas en Cancún: Tu Guía Completa para una Ceremonia de Playa de <em>Ensueño (2026)</em></h3>
-    <p class="lw-blog-dossier__card-dek">Planea tu boda de playa en Cancún. Los mejores venues, hora dorada, logística de ceremonia y cómo elegir un fotógrafo para tu gran día.</p>
-    <div class="lw-blog-dossier__card-meta"><span>9 de Mayo, 2026</span><span class="lw-blog-dossier__card-meta-sep" aria-hidden="true"></span><span>10 min de lectura</span></div>
-  </a>
-  <a class="lw-blog-dossier__card lw-blog-dossier__card--portrait" href="/es/blog/fotos-vacaciones-familiares-mexico" data-category="family">
-    <div class="lw-blog-dossier__card-media">
-      <img src="https://assets.ivaestudios.com/blog/family-vacation-photos-mexico-og.jpg" alt="Fotos de Vacaciones Familiares en México: La Guía Completa para Viajeros de Resort (2026)" width="1200" height="900" loading="lazy" decoding="async"/>
-    </div>
-    <span class="lw-blog-dossier__card-cat">Familia</span>
-    <h3 class="lw-blog-dossier__card-title">Fotos de Vacaciones Familiares en México: <em>La Guía Completa para Viajeros de Resort (2026)</em></h3>
-    <p class="lw-blog-dossier__card-dek">¿Planeas tus fotos de vacaciones familiares en México? Descubre las mejores edades, outfits, hora dorada y destinos — Cancún, Riviera Maya...</p>
-    <div class="lw-blog-dossier__card-meta"><span>6 de Mayo, 2026</span><span class="lw-blog-dossier__card-meta-sep" aria-hidden="true"></span><span>11 min de lectura</span></div>
-  </a>
-  <a class="lw-blog-dossier__card lw-blog-dossier__card--portrait" href="/es/blog/fotografo-luna-de-miel-riviera-maya" data-category="couples">
-    <div class="lw-blog-dossier__card-media">
-      <img src="https://assets.ivaestudios.com/blog/honeymoon-photographer-riviera-maya-og.jpg" alt="Fotógrafo de Luna de Miel en Riviera Maya: Captura Tu Primera Aventura como Recién Casados (2026)" width="1200" height="900" loading="lazy" decoding="async"/>
-    </div>
-    <span class="lw-blog-dossier__card-cat">Parejas</span>
-    <h3 class="lw-blog-dossier__card-title">Fotógrafo de Luna de Miel en Riviera Maya: <em>Captura Tu Primera Aventura como Recién Casados (2026)</em></h3>
-    <p class="lw-blog-dossier__card-dek">¿Buscas un fotógrafo de luna de miel en Riviera Maya? Descubre las mejores playas, cenotes y resorts para fotos románticas — qué ponerte...</p>
-    <div class="lw-blog-dossier__card-meta"><span>3 de Mayo, 2026</span><span class="lw-blog-dossier__card-meta-sep" aria-hidden="true"></span><span>10 min de lectura</span></div>
-  </a>
-  </div>
-</section>
-
-<div class="lw-mob-filter-count" id="lwMobFilterCount" aria-live="polite"><em>47</em> entradas</div>
-<nav class="lw-blog-categories" aria-label="Filtrar por categor&iacute;a">
-  <div class="lw-blog-categories__inner">
-    <span class="lw-blog-categories__label">Filtrar</span>
-    <ul class="lw-blog-categories__list">
-      <li class="lw-blog-categories__item"><button class="lw-blog-categories__btn is-active" data-filter="all" aria-current="true" type="button">Todas <span class="lw-blog-categories__btn-count">47</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="weddings" type="button">Bodas <span class="lw-blog-categories__btn-count">13</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="couples" type="button">Parejas <span class="lw-blog-categories__btn-count">03</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="family" type="button">Familia <span class="lw-blog-categories__btn-count">05</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="proposals" type="button">Propuestas <span class="lw-blog-categories__btn-count">02</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="maternity" type="button">Maternidad <span class="lw-blog-categories__btn-count">03</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="cenote" type="button">Cenote <span class="lw-blog-categories__btn-count">02</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="yacht" type="button">Yate <span class="lw-blog-categories__btn-count">01</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="editorial" type="button">Editorial <span class="lw-blog-categories__btn-count">01</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="locations" type="button">Locaciones <span class="lw-blog-categories__btn-count">07</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="guides" type="button">Guías <span class="lw-blog-categories__btn-count">10</span></button></li>
-    </ul>
-  </div>
-</nav>
-
-<div class="lw-blog-filter-status" id="lwBlogFilterStatus" aria-live="polite">Mostrando <strong><span id="lwFilterCount">0</span></strong> entradas en <strong><span id="lwFilterCategory">Categor&iacute;a</span></strong></div>
-
-</nav>
-
-<section class="lw-blog-archive" aria-labelledby="lw-blog-archive-title">
-  <header class="lw-blog-archive__head">
-    <h2 class="lw-blog-archive__title" id="lw-blog-archive-title">El <em>Archivo</em></h2>
-    <span class="lw-blog-archive__meta">44 despachos</span>
-  </header>
-  <div class="lw-blog-archive__grid">
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="guides">
-    <a href="/es/blog/ivae-studios-prensa-cobertura-medios">
-      <div class="lw-blog-archive__media">
-        <img src="/images/editorial-cancun-ivae-studios.jpg" alt="IVAE Studios fotografía editorial en Cancún — coberturas de prensa y menciones en medios de la fotógrafa de destino de lujo Vianey Díaz" width="1200" height="900" loading="eager" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Guías</span>
-      <h3 class="lw-blog-archive__title-card">IVAE Studios en la Prensa: Coberturas Editoriales, Menciones y Reconocimientos de <em>la Industria</em></h3>
-      <p class="lw-blog-archive__dek">Coberturas editoriales, premios, membresías de la industria y kit de prensa completo para IVAE Studios — el estudio de fotografía de resort de lujo dirigido...</p>
-      <div class="lw-blog-archive__meta-card"><span>Guías</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>8 de Mayo, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>8 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="guides">
-    <a href="/es/blog/vianey-diaz-fotografa-lujo-trayectoria">
-      <div class="lw-blog-archive__media">
-        <img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Vianey Díaz, fundadora de IVAE Studios, detrás de la cámara en Cancún — fotógrafa de destino de lujo en México" width="1200" height="900" loading="eager" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Guías</span>
-      <h3 class="lw-blog-archive__title-card">Vianey Díaz: Detrás de 10 Años de Fotografía de Lujo en México — De Asistente Editorial a Fundar <em>IVAE Studios</em></h3>
-      <p class="lw-blog-archive__dek">La historia de la fundadora detrás de IVAE Studios. Vianey Díaz sobre una década de fotografía profesional en México, el vacío que vio en el mercado de lujo y...</p>
-      <div class="lw-blog-archive__meta-card"><span>Guías</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>8 de Mayo, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/es/blog/10-preguntas-fotografo-bodas-antes-reservar">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/10-questions-wedding-photographer-og.jpg" alt="Novia en resort de lujo de la Zona Hotelera de Cancún durante retrato editorial — IVAE Studios fotógrafa de boda destino" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Bodas</span>
-      <h3 class="lw-blog-archive__title-card">10 Preguntas que Hacerle a tu Fotógrafo de Bodas Antes <em>de Reservar</em></h3>
-      <p class="lw-blog-archive__dek">La mayoría de parejas hace las preguntas equivocadas. Estas diez revelan a un verdadero fotógrafo de lujo — plan de respaldo, política RAW, equipo, seguros...</p>
-      <div class="lw-blog-archive__meta-card"><span>Bodas</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>5 de Mayo, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/es/blog/costo-boda-destino-mexico-desglose-2026">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/mexico-destination-wedding-cost-breakdown-2026-og.jpg" alt="Novia de boda destino de lujo en resort de Playa Mujeres, México — IVAE Studios fotógrafo de boda destino" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Bodas</span>
-      <h3 class="lw-blog-archive__title-card">Costo Boda Destino México — Desglose Real desde $30K hasta <em>$200K (2026)</em></h3>
-      <p class="lw-blog-archive__dek">El desglose completo del costo de una boda destino en México 2026 — tres niveles reales de presupuesto, math por rubro, costos ocultos y plan de ahorro de un...</p>
-      <div class="lw-blog-archive__meta-card"><span>Bodas</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>24 de Abril, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>15 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/es/blog/dentro-boda-lujo-mayakoba-caso-estudio">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/inside-luxury-mayakoba-wedding-case-study-og.jpg" alt="Novia en hora dorada en la playa de Mayakoba fotografiada por IVAE Studios, fotógrafo de bodas de lujo en Riviera Maya" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Bodas</span>
-      <h3 class="lw-blog-archive__title-card">Dentro de una Boda de Lujo en Mayakoba — Caso de Estudio del <em>Fotógrafo (2026)</em></h3>
-      <p class="lw-blog-archive__dek">Boda de lujo de 4 días en Mayakoba fotografiada por IVAE Studios. Fotógrafo bodas Mayakoba detrás de cámaras — jardines Banyan Tree, canales manglar, capilla...</p>
-      <div class="lw-blog-archive__meta-card"><span>Bodas</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>1 de Mayo, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>12 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/es/blog/fotografo-bodas-mismo-sexo-cancun-lgbtq">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/same-sex-wedding-photographer-cancun-lgbtq-inclusive-og.jpg" alt="Fotógrafo de bodas del mismo sexo en Cancún — cobertura LGBTQ+ inclusiva por IVAE Studios" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Bodas</span>
-      <h3 class="lw-blog-archive__title-card">Fotógrafo de Bodas del Mismo Sexo en Cancún — Cobertura de Lujo Inclusiva para <em>Parejas LGBTQ+</em></h3>
-      <p class="lw-blog-archive__dek">¿Buscas fotógrafo de bodas LGBTQ+ en Cancún o Riviera Maya? Igualdad federal, resorts amigables, red de proveedores afines y un enfoque fotográfico diseñado...</p>
-      <div class="lw-blog-archive__meta-card"><span>Bodas</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>20 de Abril, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--wide" data-category="guides">
-    <a href="/es/blog/fotografo-local-mexico-vs-fotografo-extranjero">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/mexico-based-vs-fly-in-photographer-og.jpg" alt="Novia en resort de lujo Zona Hotelera Cancún fotografiada por fotógrafa local mexicana de bodas destino IVAE Studios" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Guías</span>
-      <h3 class="lw-blog-archive__title-card">Fotógrafo Local México vs Fotógrafo Extranjero (EE.UU.): <em>Pros y Contras Honestos</em></h3>
-      <p class="lw-blog-archive__dek">Siete de cada diez parejas de lujo deberían contratar local — y tres no. La comparación real de costos, visas, seguros, red de proveedores y calidad, escrito...</p>
-      <div class="lw-blog-archive__meta-card"><span>Guías</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>28 de Abril, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>12 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="guides">
-    <a href="/es/blog/fotografo-resort-vs-fotografo-externo-mexico">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/resort-photographer-vs-outside-photographer-mexico-og.jpg" alt="Novia en resort todo incluido de lujo en Cancún mostrando la diferencia entre el fotógrafo interno del resort y un fotógrafo editorial externo" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Guías</span>
-      <h3 class="lw-blog-archive__title-card">Por Qué el Fotógrafo del Hotel No Es Suficiente — Cuándo (y Cómo) <em>Contratar Externo</em></h3>
-      <p class="lw-blog-archive__dek">Los paquetes de fotos del resort cuestan $200 a $800 USD. ¿Por qué las parejas gastan $3,000 a $10,000 en un fotógrafo externo? Volumen, equipo, edición y la...</p>
-      <div class="lw-blog-archive__meta-card"><span>Guías</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>22 de Abril, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/es/blog/galeria-muestra-boda-cancun-60-imagenes">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/sample-cancun-wedding-gallery-60-images-og.jpg" alt="Novia en hora dorada durante boda de lujo en Cancún por IVAE Studios — galería muestra 60 imágenes" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Bodas</span>
-      <h3 class="lw-blog-archive__title-card">Galería Muestra Boda Cancún — 60 Imágenes Editoriales de un <em>Día Real</em></h3>
-      <p class="lw-blog-archive__dek">Mira un día completo de boda en Cancún en 60 imágenes editoriales — preparativos, primer encuentro, ceremonia, formales familiares y recepción por IVAE...</p>
-      <div class="lw-blog-archive__meta-card"><span>Bodas</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>17 de Abril, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>8 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/es/blog/timeline-foto-boda-8-10-12-horas">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/wedding-day-photo-timeline-8-10-12-hours-og.jpg" alt="Novia en hora dorada durante una boda de lujo en Cancún fotografiada por IVAE Studios — timeline de fotografía de boda" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Bodas</span>
-      <h3 class="lw-blog-archive__title-card">Timeline Foto Boda — Horarios de Cobertura de 8, 10 y 12 <em>Horas (2026)</em></h3>
-      <p class="lw-blog-archive__dek">Timelines de fotografía de boda detalladas de IVAE Studios — horarios de muestra de 8, 10 y 12 horas con marcas de tiempo, eventos multiculturales, hora del...</p>
-      <div class="lw-blog-archive__meta-card"><span>Bodas</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>14 de Abril, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>15 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--text" data-category="editorial">
-    <a href="/es/blog/estilo-fotografo-lujo-editorial-vs-documental">
-      <span class="lw-blog-archive__cat">Editorial</span>
-      <h3 class="lw-blog-archive__title-card">¿Qué Hace &#x27;de Lujo&#x27; a un Fotógrafo? Editorial vs Documental vs <em>Híbrido Explicado</em></h3>
-      <p class="lw-blog-archive__dek">Dirección editorial, equipo premium, proceso personalizado y curaduría implacable. El desglose de un fotógrafo en activo sobre lo que realmente significa...</p>
-      <div class="lw-blog-archive__meta-card"><span>Editorial</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 de Abril, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="guides">
-    <a href="/es/blog/boutique-vs-todo-incluido-fotos-mexico">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/boutique-vs-all-inclusive-photoshoot-mexico-og.jpg" alt="Pareja en hotel boutique de Mayakoba durante sesión de fotos de lujo en Riviera Maya por IVAE Studios" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Guías</span>
-      <h3 class="lw-blog-archive__title-card">Boutique vs Todo Incluido en México para Sesiones de Fotos: <em>Comparación Honesta</em></h3>
-      <p class="lw-blog-archive__dek">Resort boutique vs todo incluido para sesiones de fotos en México: estética, políticas de fotografía, privacidad, ajuste multigeneracional, espacio para bodas...</p>
-      <div class="lw-blog-archive__meta-card"><span>Guías</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>7 de Abril, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/es/blog/costo-fotografia-bodas-cancun-2026">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/wedding-photography-cancun-cost-2026-og.jpg" alt="Novia con vestido de lujo al atardecer en la zona hotelera de Cancún — IVAE Studios fotógrafo de boda destino" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Bodas</span>
-      <h3 class="lw-blog-archive__title-card">Costo Fotografía de Bodas Cancún 2026 — Guía Completa <em>de Precios</em></h3>
-      <p class="lw-blog-archive__dek">¿Cuánto cuesta realmente un fotógrafo de bodas en Cancún en 2026? Rangos reales en USD de $1,500 a $12,000, qué incluye cada paquete y costos ocultos. Escrito...</p>
-      <div class="lw-blog-archive__meta-card"><span>Bodas</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>18 de Marzo, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--wide" data-category="family">
-    <a href="/es/blog/costo-sesion-familiar-lujo-cancun-2026">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/family-photoshoot-cost-cancun-og.jpg" alt="Sesión familiar de lujo en playa de Cancún a hora dorada, IVAE Studios" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Familia</span>
-      <h3 class="lw-blog-archive__title-card">¿Cuánto cuesta una sesión familiar de lujo en Cancún? Guía de <em>precios 2026</em></h3>
-      <p class="lw-blog-archive__dek">Niveles Mini, Signature y Editorial en USD. Modificadores por número de personas, costos ocultos, paquetes multi-día y la diferencia visible entre una sesión...</p>
-      <div class="lw-blog-archive__meta-card"><span>Familia</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>24 de Marzo, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>9 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="guides">
-    <a href="/es/blog/faq-fotografia-destino-mexico-30-preguntas">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/mexico-destination-photography-faq-og.jpg" alt="Retrato editorial de pareja al atardecer en playa de Riviera Maya por IVAE Studios" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Guías</span>
-      <h3 class="lw-blog-archive__title-card">FAQ Fotografía de Destino México — 30 <em>Preguntas Respondidas</em></h3>
-      <p class="lw-blog-archive__dek">Reservas, bodas, familias, parejas, locaciones y precios — 30 respuestas expertas sobre fotografía de destino en México por IVAE Studios.</p>
-      <div class="lw-blog-archive__meta-card"><span>Guías</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>21 de Marzo, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>19 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="locations">
-    <a href="/es/blog/fotografia-drone-cancun-resorts">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/drone-photography-cancun-resorts-og.jpg" alt="Foto aérea con drone de una boda de lujo en la playa de la Zona Hotelera de Cancún en hora dorada, capturada por IVAE Studios" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Locaciones</span>
-      <h3 class="lw-blog-archive__title-card">Fotografía con Drone en Resorts de Cancún: <em>Reglas, Mejores Locaciones y Qué Esperar</em></h3>
-      <p class="lw-blog-archive__dek">Guía completa 2026 de fotografía con drone en Cancún y la Riviera Maya — permisos AFAC, políticas resort por resort, mejores locaciones aéreas y precios para...</p>
-      <div class="lw-blog-archive__meta-card"><span>Locaciones</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>30 de Marzo, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>10 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/es/blog/fotografo-bodas-indias-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/indian-wedding-photographer-cancun-og.jpg" alt="Novia de boda india de destino en resort de Cancún, fotografiada por IVAE Studios" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Bodas</span>
-      <h3 class="lw-blog-archive__title-card">Fotógrafo de Bodas Indias en Cancún: Cobertura Multi-Día para Mehndi, Sangeet, Ceremonia y <em>Recepción (2026)</em></h3>
-      <p class="lw-blog-archive__dek">¿Buscas un fotógrafo de bodas indias en Cancún? Cobertura editorial multi-día para bodas hindúes de destino — mejores resorts, timeline con sensibilidad...</p>
-      <div class="lw-blog-archive__meta-card"><span>Bodas</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>27 de Marzo, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="cenote">
-    <a href="/es/blog/guia-foto-cenote-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/cancun-cenote-photoshoot-guide-og.jpg" alt="Fotos cenote Cancún — pareja en un cenote turquesa cerca de la zona hotelera" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Cenote</span>
-      <h3 class="lw-blog-archive__title-card">Guía de Fotos en Cenote desde Cancún: <em>Mejores Cenotes, Iluminación y Logística</em></h3>
-      <p class="lw-blog-archive__dek">Fotos cenote Cancún: mejores cenotes a 1–2 horas de la zona hotelera, ventanas de haz de luz, qué ponerte, reglas de chaleco, equipo y precios para tu sesión...</p>
-      <div class="lw-blog-archive__meta-card"><span>Cenote</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>4 de Abril, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>12 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="locations">
-    <a href="/es/blog/mejor-mes-fotografia-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/best-months-photography-cancun-og.jpg" alt="Pareja fotografiada en playa de Cancún en hora dorada durante temporada seca — mejor mes para fotos en Cancún" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Locaciones</span>
-      <h3 class="lw-blog-archive__title-card">Mejor Mes para Fotos en Cancún: <em>Calendario de Clima, Luz y Multitudes (2026)</em></h3>
-      <p class="lw-blog-archive__dek">¿Cuándo ir a Cancún para fotos? Un calendario mes a mes que cubre clima, claridad del agua, sargazo, huracanes, posición del sol, multitudes y la estrategia...</p>
-      <div class="lw-blog-archive__meta-card"><span>Locaciones</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>9 de Abril, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>12 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/es/blog/timeline-fotografo-boda-destino">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/destination-wedding-photographer-timeline-og.jpg" alt="Ceremonia de boda de destino en Cancún fotografiada por IVAE Studios en hora dorada" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Bodas</span>
-      <h3 class="lw-blog-archive__title-card">Timeline Fotógrafo de Boda de Destino: Cuándo Reservar y Qué Planear con 12 Meses de <em>Anticipación (2026)</em></h3>
-      <p class="lw-blog-archive__dek">Reserva tu fotógrafo de boda de destino con 9–12 meses de anticipación. La lista completa mes a mes para bodas en México: sesión de compromiso, llamadas...</p>
-      <div class="lw-blog-archive__meta-card"><span>Bodas</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>2 de Abril, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--wide" data-category="guides">
-    <a href="/es/blog/fotografo-resort-todo-incluido-mexico">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/all-inclusive-resort-photographer-mexico-og.jpg" alt="Fotografía en Resort Todo Incluido en México: Todo lo que Necesitas Saber Antes de Reservar" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Guías</span>
-      <h3 class="lw-blog-archive__title-card">Fotografía en Resort Todo Incluido en México: <em>Todo lo que Necesitas Saber Antes de Reservar</em></h3>
-      <p class="lw-blog-archive__dek">¿Puedes llevar un fotógrafo externo a un resort todo incluido en México? Conoce las políticas del resort, tarifas de proveedor, mejores resorts para fotos y...</p>
-      <div class="lw-blog-archive__meta-card"><span>Guías</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>14 de Marzo, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--text" data-category="couples">
-    <a href="/es/blog/fotografia-aniversario-mexico">
-      <span class="lw-blog-archive__cat">Parejas</span>
-      <h3 class="lw-blog-archive__title-card">Fotografía de Aniversario en México: <em>Cómo Celebrar tu Amor en un Resort de Lujo</em></h3>
-      <p class="lw-blog-archive__dek">¿Planeas un viaje de aniversario a México? Descubre cómo capturar esos años juntos con fotografía profesional en resorts de lujo en Cancún, Riviera Maya y Los...</p>
-      <div class="lw-blog-archive__meta-card"><span>Parejas</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 de Marzo, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="maternity">
-    <a href="/es/blog/fotografia-babymoon-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/babymoon-photography-cancun-og.jpg" alt="Fotografía Babymoon en Cancún y Riviera Maya: Celebra Antes de que Llegue el Bebé" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Maternidad</span>
-      <h3 class="lw-blog-archive__title-card">Fotografía Babymoon en Cancún y Riviera Maya: <em>Celebra Antes de que Llegue el Bebé</em></h3>
-      <p class="lw-blog-archive__dek">¿Planeas un babymoon en Cancún o Riviera Maya? Descubre las mejores locaciones, qué ponerte, el trimestre ideal para viajar y fotografiarte, y cómo combinar...</p>
-      <div class="lw-blog-archive__meta-card"><span>Maternidad</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>9 de Marzo, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="proposals">
-    <a href="/es/blog/fotografia-propuesta-sorpresa-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/surprise-proposal-photography-cancun-og.jpg" alt="Fotografía de Propuesta Sorpresa en Cancún y Riviera Maya: Cómo Planear el Momento Perfecto" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Propuestas</span>
-      <h3 class="lw-blog-archive__title-card">Fotografía de Propuesta Sorpresa en Cancún y Riviera Maya: <em>Cómo Planear el Momento Perfecto</em></h3>
-      <p class="lw-blog-archive__dek">¿Planeas una propuesta sorpresa en Cancún o Riviera Maya? Conoce las mejores playas y cenotes, cómo el fotógrafo se mantiene oculto, tips de ring shot y...</p>
-      <div class="lw-blog-archive__meta-card"><span>Propuestas</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>3 de Febrero, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="yacht">
-    <a href="/es/blog/fotografia-yate-lujo-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/luxury-yacht-photography-cancun-og.jpg" alt="Fotografía en Yate de Lujo en Cancún: Captura Momentos Inolvidables en el Mar Caribe" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Yate</span>
-      <h3 class="lw-blog-archive__title-card">Fotografía en Yate de Lujo en Cancún: <em>Captura Momentos Inolvidables en el Mar Caribe</em></h3>
-      <p class="lw-blog-archive__dek">Fotografía en yate de lujo en Cancún — navega el Caribe mientras un fotógrafo profesional captura retratos impresionantes. Explora nuestros paquetes de yate...</p>
-      <div class="lw-blog-archive__meta-card"><span>Yate</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>12 de Febrero, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="couples">
-    <a href="/es/blog/fotografo-parejas-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/couples-photographer-cancun-og.jpg" alt="Fotógrafo de Parejas en Cancún: Capturando el Romance en Lunas de Miel, Aniversarios y Escapadas Románticas (2026)" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Parejas</span>
-      <h3 class="lw-blog-archive__title-card">Fotógrafo de Parejas en Cancún: Capturando el Romance en Lunas de Miel, Aniversarios y Escapadas <em>Románticas (2026)</em></h3>
-      <p class="lw-blog-archive__dek">¿Buscas un fotógrafo de parejas en Cancún? Descubre las mejores playas, resorts y cenotes para sesiones románticas — qué ponerte, cuándo reservar y qué hace...</p>
-      <div class="lw-blog-archive__meta-card"><span>Parejas</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>24 de Febrero, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>10 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/es/blog/fuga-boda-destino-mexico">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/destination-elopement-mexico-og.jpg" alt="Cómo Planear una Fuga de Boda de Destino en México: Locaciones, Legalidades y Fotografía" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Bodas</span>
-      <h3 class="lw-blog-archive__title-card">Cómo Planear una Fuga de Boda de Destino en México: <em>Locaciones, Legalidades y Fotografía</em></h3>
-      <p class="lw-blog-archive__dek">¿Planeas una fuga de boda de destino en México? Descubre las mejores locaciones de Tulum a Los Cabos, requisitos legales, qué ponerte, tips de fotografía...</p>
-      <div class="lw-blog-archive__meta-card"><span>Bodas</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>22 de Febrero, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--wide" data-category="locations">
-    <a href="/es/blog/guia-fotografia-tulum">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/tulum-photography-guide-og.jpg" alt="Guía de Fotografía en Tulum: Ruinas Antiguas, Playas de Arena Blanca y Cenotes Escondidos" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Locaciones</span>
-      <h3 class="lw-blog-archive__title-card">Guía de Fotografía en Tulum: <em>Ruinas Antiguas, Playas de Arena Blanca y Cenotes Escondidos</em></h3>
-      <p class="lw-blog-archive__dek">Mejores lugares para fotos en Tulum: ruinas, playas y cenotes. Horarios, consejos de acceso, qué ponerte y cómo llegar desde Cancún.</p>
-      <div class="lw-blog-archive__meta-card"><span>Locaciones</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>30 de Enero, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="locations">
-    <a href="/es/blog/guia-fotografo-los-cabos">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/los-cabos-photographer-guide-og.jpg" alt="Guía del Fotógrafo en Los Cabos: Dónde Fotografiar, Cuándo Reservar y Qué Esperar (2026)" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Locaciones</span>
-      <h3 class="lw-blog-archive__title-card">Guía del Fotógrafo en Los Cabos: <em>Dónde Fotografiar, Cuándo Reservar y Qué Esperar (2026)</em></h3>
-      <p class="lw-blog-archive__dek">¿Planeas una sesión de fotos en Los Cabos? Descubre las mejores locaciones desde el Arco hasta Flora Farms, horarios de hora dorada por temporada, resorts...</p>
-      <div class="lw-blog-archive__meta-card"><span>Locaciones</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>14 de Febrero, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="locations">
-    <a href="/es/blog/mejores-locaciones-foto-riviera-maya">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/best-photo-locations-riviera-maya-og.jpg" alt="Mejores Locaciones para Fotos en Riviera Maya: Guía de una Fotógrafa a Cenotes, Playas y Lugares Escondidos" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Locaciones</span>
-      <h3 class="lw-blog-archive__title-card">Mejores Locaciones para Fotos en Riviera Maya: Guía de una Fotógrafa a Cenotes, Playas y <em>Lugares Escondidos</em></h3>
-      <p class="lw-blog-archive__dek">Descubre las mejores locaciones para fotos en Riviera Maya — desde cenotes impresionantes y playas de arena blanca hasta senderos escondidos en la selva y...</p>
-      <div class="lw-blog-archive__meta-card"><span>Locaciones</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>7 de Febrero, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="locations">
-    <a href="/es/blog/mejores-resorts-fotografia-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/best-resorts-cancun-photography-og.jpg" alt="Mejores Resorts en Cancún para Fotografía: Guía Interna de una Fotógrafa Sobre la Zona Hotelera" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Locaciones</span>
-      <h3 class="lw-blog-archive__title-card">Mejores Resorts en Cancún para Fotografía: <em>Guía Interna de una Fotógrafa Sobre la Zona Hotelera</em></h3>
-      <p class="lw-blog-archive__dek">Descubre los mejores resorts en Cancún para fotografía — desde locaciones para parejas y familias hasta sitios para ceremonias de boda. Guía interna de una...</p>
-      <div class="lw-blog-archive__meta-card"><span>Locaciones</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>4 de Marzo, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/es/blog/renovacion-votos-mexico-fotografia">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/vow-renewal-mexico-photography-og.jpg" alt="Renovación de Votos en México: Guía Completa de Fotografía para Parejas que Celebran de Nuevo" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Bodas</span>
-      <h3 class="lw-blog-archive__title-card">Renovación de Votos en México: Guía Completa de Fotografía para Parejas que Celebran <em>de Nuevo</em></h3>
-      <p class="lw-blog-archive__dek">Planea tu renovación de votos en México. Mejores locaciones, ceremonias en playa, cenotes, villas privadas, qué ponerte y paquetes de fotografía.</p>
-      <div class="lw-blog-archive__meta-card"><span>Bodas</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>27 de Enero, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--text" data-category="cenote">
-    <a href="/es/blog/sesion-cenote-submarina-tulum">
-      <span class="lw-blog-archive__cat">Cenote</span>
-      <h3 class="lw-blog-archive__title-card">Sesión Submarina en Cenote Tulum: <em>La Guía Definitiva (2026)</em></h3>
-      <p class="lw-blog-archive__dek">Planea tu sesión submarina en cenote en Tulum con IVAE Studios. Mejores cenotes, qué ponerte, tips de seguridad, precios y cómo reservar.</p>
-      <div class="lw-blog-archive__meta-card"><span>Cenote</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>26 de Febrero, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="proposals">
-    <a href="/es/blog/sesion-compromiso-cancun-riviera-maya">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/engagement-session-cancun-og.jpg" alt="Sesión de Compromiso en Cancún y Riviera Maya: La Guía Definitiva (2026)" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Propuestas</span>
-      <h3 class="lw-blog-archive__title-card">Sesión de Compromiso en Cancún y Riviera Maya: <em>La Guía Definitiva (2026)</em></h3>
-      <p class="lw-blog-archive__dek">¿Planeas una sesión de compromiso en Cancún o Riviera Maya? Esta guía completa cubre las mejores locaciones, el horario ideal, qué usar y cómo elegir un...</p>
-      <div class="lw-blog-archive__meta-card"><span>Propuestas</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>19 de Febrero, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>10 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--wide" data-category="family">
-    <a href="/es/blog/sesion-cumpleanos-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/birthday-photoshoot-cancun-og.jpg" alt="Sesión de Cumpleaños en Cancún: La Guía Completa para Celebrar con Estilo" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Familia</span>
-      <h3 class="lw-blog-archive__title-card">Sesión de Cumpleaños en Cancún: <em>La Guía Completa para Celebrar con Estilo</em></h3>
-      <p class="lw-blog-archive__dek">Planea una increíble sesión de cumpleaños en Cancún con IVAE Studios. Locaciones de resort, playa y rooftop, tips de estilo, paquetes y cómo reservar tu sesión.</p>
-      <div class="lw-blog-archive__meta-card"><span>Familia</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>1 de Marzo, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="family">
-    <a href="/es/blog/sesion-despedida-soltera-los-cabos">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/bachelorette-photoshoot-los-cabos-og.jpg" alt="Sesión de Despedida de Soltera en Los Cabos: La Guía Completa de Planeación (2026)" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Familia</span>
-      <h3 class="lw-blog-archive__title-card">Sesión de Despedida de Soltera en Los Cabos: <em>La Guía Completa de Planeación (2026)</em></h3>
-      <p class="lw-blog-archive__dek">Planea la despedida de soltera perfecta en Los Cabos — mejores locaciones, ideas de outfits, paquetes desde $450 USD y cómo reservar tu sesión grupal con IVAE...</p>
-      <div class="lw-blog-archive__meta-card"><span>Familia</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>6 de Marzo, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="maternity">
-    <a href="/es/blog/sesion-maternidad-cancun-riviera-maya">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/maternity-photoshoot-cancun-og.jpg" alt="Sesión de Maternidad en Cancún y Riviera Maya: Tu Guía Completa (2026)" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Maternidad</span>
-      <h3 class="lw-blog-archive__title-card">Sesión de Maternidad en Cancún y Riviera Maya: <em>Tu Guía Completa (2026)</em></h3>
-      <p class="lw-blog-archive__dek">¿Planeas una sesión de maternidad en Cancún? Esta guía completa 2026 cubre el mejor trimestre, qué ponerte, locaciones ideales, horarios y cómo sentirte segura...</p>
-      <div class="lw-blog-archive__meta-card"><span>Maternidad</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>10 de Febrero, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>10 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="family">
-    <a href="/es/blog/sesion-quinceanera-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/quinceanera-photoshoot-cancun-og.jpg" alt="Sesión de XV Años en Cancún: La Guía Definitiva de tu Celebración de Quinceañera" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Familia</span>
-      <h3 class="lw-blog-archive__title-card">Sesión de XV Años en Cancún: <em>La Guía Definitiva de tu Celebración de Quinceañera</em></h3>
-      <p class="lw-blog-archive__dek">Planea tu sesión de XV años en Cancún. Mejores locaciones de resort, tips de estilo, paquetes desde $450 USD y consejos de experta para tu celebración de...</p>
-      <div class="lw-blog-archive__meta-card"><span>Familia</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>5 de Febrero, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>14 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="maternity">
-    <a href="/es/blog/sesion-revelacion-genero-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/gender-reveal-photoshoot-cancun-og.jpg" alt="Sesión Revelación de Género en Cancún: Celebra tu Gran Anuncio en el Paraíso" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Maternidad</span>
-      <h3 class="lw-blog-archive__title-card">Sesión Revelación de Género en Cancún: <em>Celebra tu Gran Anuncio en el Paraíso</em></h3>
-      <p class="lw-blog-archive__dek">Planea una espectacular sesión de revelación de género en Cancún con IVAE Studios. Playa, resort y cenotes, ideas de props creativos y paquetes desde $450.</p>
-      <div class="lw-blog-archive__meta-card"><span>Maternidad</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>17 de Febrero, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/es/blog/trash-the-dress-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/trash-the-dress-cancun-og.jpg" alt="Trash the Dress Cancún Playa: La Guía Completa de tu Sesión Post-Boda" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Bodas</span>
-      <h3 class="lw-blog-archive__title-card">Trash the Dress Cancún Playa: <em>La Guía Completa de tu Sesión Post-Boda</em></h3>
-      <p class="lw-blog-archive__dek">Reserva tu sesión Trash the Dress en playa de Cancún con IVAE Studios. Opciones en océano, cenote y bajo el agua. Tips expertos, mejores locaciones, paquetes...</p>
-      <div class="lw-blog-archive__meta-card"><span>Bodas</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>1 de Febrero, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="locations">
-    <a href="/es/blog/cancun-vs-riviera-maya-fotos">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/cancun-vs-riviera-maya-photos-og.jpg" alt="Cancún vs Riviera Maya: ¿Qué destino es mejor para tus fotos de vacaciones?" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Locaciones</span>
-      <h3 class="lw-blog-archive__title-card">Cancún vs Riviera Maya: <em>¿Qué destino es mejor para tus fotos de vacaciones?</em></h3>
-      <p class="lw-blog-archive__dek">¿Cancún o Riviera Maya para fotografía? Compara playas, cenotes, calidad de luz, logística y variedad de fotos para elegir el mejor destino para parejas...</p>
-      <div class="lw-blog-archive__meta-card"><span>Locaciones</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>24 de Enero, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--wide" data-category="guides">
-    <a href="/es/blog/fotografia-hora-dorada-mexico">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/golden-hour-photography-mexico-og.jpg" alt="Fotografía en Hora Dorada en México: Por Qué las Mejores Fotos de Resort Ocurren al Atardecer" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Guías</span>
-      <h3 class="lw-blog-archive__title-card">Fotografía en Hora Dorada en México: Por Qué las Mejores Fotos de Resort Ocurren <em>al Atardecer</em></h3>
-      <p class="lw-blog-archive__dek">Descubre por qué la fotografía en hora dorada en México produce las fotos de resort más impresionantes. Conoce los mejores horarios para fotos en Cancún...</p>
-      <div class="lw-blog-archive__meta-card"><span>Guías</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>21 de Enero, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="guides">
-    <a href="/es/blog/que-ponerte-fotos-playa-mexico">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/what-to-wear-beach-photos-mexico-og.jpg" alt="Qué Ponerte para Fotos de Playa en México: Guía Aprobada por Estilista para Familias, Parejas y Bodas" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Guías</span>
-      <h3 class="lw-blog-archive__title-card">Qué Ponerte para Fotos de Playa en México: <em>Guía Aprobada por Estilista para Familias, Parejas y Bodas</em></h3>
-      <p class="lw-blog-archive__dek">Qué ponerte para fotos de playa en México. Ideas de vestuario para familias, parejas y bodas — telas, colores y accesorios.</p>
-      <div class="lw-blog-archive__meta-card"><span>Guías</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>18 de Enero, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--text" data-category="guides">
-    <a href="/es/blog/como-elegir-fotografo-lujo-mexico">
-      <span class="lw-blog-archive__cat">Guías</span>
-      <h3 class="lw-blog-archive__title-card">Cómo Elegir un Fotógrafo de Lujo en México: <em>Señales de Alerta, Preguntas Clave y Qué Esperar</em></h3>
-      <p class="lw-blog-archive__dek">¿Vas a contratar un fotógrafo de lujo en México? Descubre 7 señales de alerta, 10 preguntas esenciales, rangos de precio y qué significa realmente la...</p>
-      <div class="lw-blog-archive__meta-card"><span>Guías</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>15 de Enero, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min lectura</span></div>
-    </a>
-  </article>
-  </div>
-  <nav class="lw-blog-archive__pagination" aria-label="Paginación del archivo">
-    <button class="lw-blog-archive__page" type="button" aria-current="page">01</button>
-    <button class="lw-blog-archive__page" type="button">02</button>
-    <button class="lw-blog-archive__page" type="button">03</button>
-    <button class="lw-blog-archive__page" type="button" aria-label="Siguiente página">&rarr;</button>
-  </nav>
-  <button class="lw-blog-archive__load-more" type="button" data-load-more>
-    <span>Cargar más guías</span>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-  </button>
-</section>
-
-<section class="lw-blog-newsletter" aria-labelledby="lw-blog-newsletter-title">
-  <div class="lw-blog-newsletter__inner">
-    <div>
-      <span class="lw-blog-newsletter__eyebrow">El Despacho</span>
-      <h2 class="lw-blog-newsletter__title" id="lw-blog-newsletter-title">Una carta del <em>estudio</em>, cada mes.</h2>
-      <p class="lw-blog-newsletter__lede">Nuevas gu&iacute;as de campo, apuntes de hora dorada desde Canc&uacute;n y Riviera Maya, y un adelanto editorial ocasional &mdash; enviado el primer domingo de cada mes.</p>
-    </div>
-    <div class="lw-blog-newsletter__form">
-      <p class="lw-blog-newsletter__static">Para suscribirte a <em>El Despacho</em>, escribe un correo r&aacute;pido a <a class="lw-blog-newsletter__mail-link" href="mailto:hello@ivaestudios.com?subject=Suscripci%C3%B3n%20al%20Diario&body=Por%20favor%20agr%C3%A9guenme%20al%20bolet%C3%ADn%20El%20Despacho.">hello@ivaestudios.com</a> y te agregaremos a la lista antes del pr&oacute;ximo n&uacute;mero.</p>
-      <p class="lw-blog-newsletter__fineprint">Sin spam. Cancela respondiendo al correo. Lee nuestro <a href="/es/politica-de-privacidad">aviso de privacidad</a>.</p>
-    </div>
-  </div>
-</section>
-
-</div>
-<!-- end ivm-desktop-only -->
-
-</main>
-
-<script>
-/* lw-blog ES — counts + filter + pagination + hero-hide (v2026-05-10b) */
-(function(){
-  var VALID = ['all','weddings','couples','family','proposals','maternity','cenote','yacht','editorial','locations','guides'];
-  var LABELS = {
-    all:'Todas',weddings:'Bodas',couples:'Parejas',family:'Familia',proposals:'Propuestas',
-    maternity:'Maternidad',cenote:'Cenote',yacht:'Yate',editorial:'Editorial',locations:'Locaciones',guides:'Guías'
-  };
-  var PER_PAGE = 12;
-  var bar  = document.querySelector('.lw-blog-categories');
-  if (!bar) return;
-  var btns = bar.querySelectorAll('.lw-blog-categories__btn');
-  var dossierCards = document.querySelectorAll('.lw-blog-dossier__card[data-category]');
-  var archiveCards = document.querySelectorAll('.lw-blog-archive__card[data-category]');
-  var pagination = document.querySelector('.lw-blog-archive__pagination');
-  var filterCount = document.getElementById('lwFilterCount');
-  var filterCategory = document.getElementById('lwFilterCategory');
-  var mobFilterCount = document.getElementById('lwMobFilterCount');
-  var totalStat = document.querySelector('[data-stat="total"]');
-  var archiveMeta = document.querySelector('.lw-blog-archive__meta');
-  var current = 'all';
-  var currentPage = 1;
-  var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  function computeCounts(){
-    var counts = {all:0};
-    VALID.slice(1).forEach(function(k){counts[k]=0});
-    [].forEach.call(archiveCards, function(c){
-      var k = c.dataset.category; counts.all++; if(counts[k] !== undefined) counts[k]++;
-    });
-    [].forEach.call(dossierCards, function(c){
-      var k = c.dataset.category; counts.all++; if(counts[k] !== undefined) counts[k]++;
-    });
-    return counts;
-  }
-  function updateChipCounts(counts){
-    [].forEach.call(btns, function(b){
-      var k = b.dataset.filter;
-      var span = b.querySelector('.lw-blog-categories__btn-count');
-      if (span && counts[k] !== undefined){
-        var n = counts[k];
-        span.textContent = (k === 'all') ? String(n) : (n < 10 ? '0'+n : String(n));
-      }
+    }, { threshold: [0, 0.15] });
+    cards.forEach(function(c){
+      c.style.opacity = '0';
+      c.style.transform = 'translateY(24px)';
+      c.style.transition = 'opacity .8s cubic-bezier(0.22,1,0.36,1), transform .8s cubic-bezier(0.22,1,0.36,1)';
+      io.observe(c);
     });
   }
-  function visibleArchiveCards(slug){
-    var arr = [];
-    [].forEach.call(archiveCards, function(c){
-      if (slug === 'all' || c.dataset.category === slug) arr.push(c);
-    });
-    return arr;
-  }
-  function totalPages(slug){ return Math.max(1, Math.ceil(visibleArchiveCards(slug).length / PER_PAGE)); }
-  function renderPagination(slug){
-    if (!pagination) return;
-    var pages = totalPages(slug);
-    pagination.innerHTML = '';
-    if (pages <= 1){ pagination.style.display = 'none'; return; }
-    pagination.style.display = '';
-    if (currentPage > 1){
-      var prev = document.createElement('button');
-      prev.type='button'; prev.className='lw-blog-archive__page';
-      prev.setAttribute('aria-label','Página anterior');
-      prev.innerHTML='←'; prev.dataset.action='prev';
-      pagination.appendChild(prev);
-    }
-    for (var p = 1; p <= pages; p++){
-      var b = document.createElement('button');
-      b.type='button';
-      b.className = 'lw-blog-archive__page' + (p === currentPage ? ' is-active' : '');
-      b.textContent = (p < 10 ? '0'+p : String(p));
-      if (p === currentPage) b.setAttribute('aria-current','page');
-      b.dataset.page = String(p);
-      pagination.appendChild(b);
-    }
-    if (currentPage < pages){
-      var next = document.createElement('button');
-      next.type='button'; next.className='lw-blog-archive__page';
-      next.setAttribute('aria-label','Página siguiente');
-      next.innerHTML='→'; next.dataset.action='next';
-      pagination.appendChild(next);
-    }
-  }
-  function applyPagination(slug){
-    var visible = visibleArchiveCards(slug);
-    visible.forEach(function(c, i){
-      var page = Math.floor(i / PER_PAGE) + 1;
-      if (page === currentPage) c.removeAttribute('data-page-hidden');
-      else c.setAttribute('data-page-hidden','1');
-    });
-  }
-  function applyFilter(slug, opts){
-    opts = opts || {};
-    if (VALID.indexOf(slug) === -1) slug = 'all';
-    if (!opts.force && slug === current){ if (!opts.skipUrl) updateURL(slug); return; }
-    current = slug; currentPage = 1;
-    [].forEach.call(dossierCards, function(c){
-      c.style.display = (slug === 'all' || c.dataset.category === slug) ? '' : 'none';
-    });
-    [].forEach.call(archiveCards, function(c){
-      c.style.display = (slug === 'all' || c.dataset.category === slug) ? '' : 'none';
-    });
-    [].forEach.call(btns, function(b){
-      var on = b.dataset.filter === slug;
-      b.classList.toggle('is-active', on);
-      if (on) b.setAttribute('aria-current','true'); else b.removeAttribute('aria-current');
-    });
-    if (slug !== 'all'){
-      document.body.setAttribute('data-filter-status','active');
-      if (filterCount) filterCount.textContent = String(visibleArchiveCards(slug).length);
-      if (filterCategory) filterCategory.textContent = LABELS[slug] || slug;
-    } else {
-      document.body.removeAttribute('data-filter-status');
-    }
-    if (mobFilterCount){
-      var n = visibleArchiveCards(slug).length + (slug === 'all' ? dossierCards.length : 0);
-      var label = (slug === 'all') ? 'entradas' : (LABELS[slug] || slug).toLowerCase() + ' · entradas';
-      mobFilterCount.innerHTML = '<em>' + n + '</em> ' + label;
-    }
-    document.body.setAttribute('data-current-filter', slug);
-    renderPagination(slug);
-    applyPagination(slug);
-    syncLoadMore();
-    if (!opts.skipUrl) updateURL(slug);
-    if (!opts.skipScroll && !reduceMotion){
-      try { bar.scrollIntoView({behavior:'smooth', block:'start'}); } catch(e){}
-    }
-  }
-  function goToPage(p, opts){
-    opts = opts || {};
-    var pages = totalPages(current);
-    if (p < 1) p = 1; if (p > pages) p = pages;
-    currentPage = p;
-    renderPagination(current); applyPagination(current);
-    syncLoadMore();
-    if (!opts.skipScroll && !reduceMotion){ try { bar.scrollIntoView({behavior:'smooth',block:'start'}); } catch(e){} }
-  }
-
-  /* ── Cargar más (mobile additive control) ── */
-  var loadMoreBtn = document.querySelector('[data-load-more]');
-  function syncLoadMore(){
-    if (!loadMoreBtn) return;
-    var pages = totalPages(current);
-    if (currentPage >= pages) loadMoreBtn.setAttribute('hidden','');
-    else loadMoreBtn.removeAttribute('hidden');
-  }
-  if (loadMoreBtn){
-    loadMoreBtn.addEventListener('click', function(ev){
-      ev.preventDefault();
-      var pages = totalPages(current);
-      if (currentPage >= pages) return;
-      var prevScroll = window.scrollY || window.pageYOffset || 0;
-      goToPage(currentPage + 1, {skipScroll:true});
-      try {
-        requestAnimationFrame(function(){
-          window.scrollTo({top: prevScroll, behavior: 'auto'});
-        });
-      } catch(e){}
-    });
-  }
-  function readURL(){
-    try { var p = new URLSearchParams(location.search).get('category');
-      if (p && VALID.indexOf(p) !== -1) return p; } catch(e){}
-    return 'all';
-  }
-  function updateURL(slug){
-    var url = (slug === 'all') ? location.pathname : location.pathname + '?category=' + slug;
-    try { history.pushState({filter: slug}, '', url); } catch(e){}
-  }
-  bar.addEventListener('click', function(ev){
-    var t = ev.target.closest('.lw-blog-categories__btn');
-    if (!t) return;
-    ev.preventDefault();
-    applyFilter(t.dataset.filter);
-  });
-  if (pagination){
-    pagination.addEventListener('click', function(ev){
-      var t = ev.target.closest('.lw-blog-archive__page');
-      if (!t) return;
-      ev.preventDefault();
-      if (t.dataset.action === 'next') return goToPage(currentPage + 1);
-      if (t.dataset.action === 'prev') return goToPage(currentPage - 1);
-      var p = parseInt(t.dataset.page, 10);
-      if (!isNaN(p)) goToPage(p);
-    });
-  }
-  window.addEventListener('popstate', function(ev){
-    var slug = (ev.state && ev.state.filter) || readURL();
-    applyFilter(slug, {skipUrl:true, skipScroll:true, force:true});
-  });
-  var counts = computeCounts();
-  updateChipCounts(counts);
-  if (totalStat) totalStat.textContent = counts.all;
-  if (archiveMeta) archiveMeta.textContent = (archiveCards.length) + ' despachos';
-  var initial = readURL();
-  applyFilter(initial, {skipUrl:true, skipScroll:true, force:true});
 })();
 </script>
 

@@ -595,7 +595,7 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
 <meta name="mobile-web-app-capable" content="yes"/>
 <link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/cormorantgaramond/v16/co3WmX5slCNuHLi8bLeY9MK7whWMhyjornFLsS6V7w.woff2"/>
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260512a">
-<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512bk">
+<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512bm">
 </head>
 <body class="has-bottom-tabs ivm-page">
 <a href="#main-content" class="skip-link">Skip to content</a>
@@ -644,198 +644,165 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
     <div class="ivm-loader__mark">
       <span>I</span><span>V</span><span>A</span><span>E</span><span class="dot">.</span>
     </div>
-    <div class="ivm-loader__sub">The Journal · Vol III</div>
+    <div class="ivm-loader__sub">The Journal · Vol. III</div>
   </div>
 
-  <!-- ACT I — HERO -->
-  <section class="ivm-act-hero" aria-labelledby="ivm-blog-h1">
-    <div class="ivm-act-hero__layer">
-      <picture>
-        <img class="ivm-act-hero__photo"
-             src="/images/editorial-cancun-ivae-studios-1600.jpg"
-             srcset="/images/editorial-cancun-ivae-studios-960.jpg 960w,
-                     /images/editorial-cancun-ivae-studios-1600.jpg 1600w,
-                     /images/editorial-cancun-ivae-studios.jpg 2400w"
-             sizes="100vw"
-             alt="Editorial frame from a Cancún campaign by IVAE Studios"
-             loading="eager" fetchpriority="high" decoding="async"
-             width="1333" height="2000">
-      </picture>
-      <div class="ivm-act-hero__veil" aria-hidden="true"></div>
-    </div>
-    <div class="ivm-act-hero__copy">
-      <span class="ivm-act-hero__eyebrow">Vol. III · Issue 05 · 2026</span>
-      <h1 class="ivm-act-hero__title" id="ivm-blog-h1">
-        <span class="w" style="animation-delay:2.4s">The </span><span class="w" style="animation-delay:2.55s"><em>Journal.</em></span>
-      </h1>
-    </div>
-    <div class="ivm-act-hero__scroll" aria-hidden="true">Scroll</div>
+  <!-- ACT I — MASTHEAD -->
+  <section class="ivm-jl-masthead" aria-labelledby="ivm-jl-h1">
+    <span class="ivm-jl-masthead__eyebrow">Vol. III · Issue 05 · MMXXVI</span>
+    <h1 class="ivm-jl-masthead__title" id="ivm-jl-h1">The <em>Journal.</em></h1>
+    <p class="ivm-jl-masthead__tag">Field notes from three coastlines.</p>
   </section>
 
-  <!-- ACT II — Sticky scroll story -->
-  <section class="ivm-act-hour" aria-label="The journal voice">
-    <div class="ivm-act-hour__pin">
-      <div class="ivm-act-hour__photo"
-           style="background-image:url('/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg');"></div>
-      <div class="ivm-act-hour__stage">
-        <p class="ivm-act-hour__line" data-line="0">Field notes</p>
-        <p class="ivm-act-hour__line" data-line="1">from the hour</p>
-        <p class="ivm-act-hour__line" data-line="2">the light is honest.</p>
-        <p class="ivm-act-hour__line" data-line="3"><em>by Vianey Díaz.</em></p>
-      </div>
-      <div class="ivm-act-hour__progress" aria-hidden="true">
-        <span data-prog="0"></span><span data-prog="1"></span><span data-prog="2"></span><span data-prog="3"></span>
-      </div>
+  <!-- ACT II — FEATURED STORY -->
+  <a class="ivm-jl-feature" href="/post-inside-luxury-mayakoba-wedding-case-study" aria-label="Featured: Inside a luxury Mayakoba wedding">
+    <div class="ivm-jl-feature__photo">
+      <img src="/images/couple-mayakoba-ivae-studios.jpg" alt="A bride and groom at Mayakoba photographed by IVAE Studios" loading="eager" fetchpriority="high" decoding="async" width="1600" height="1067">
     </div>
+    <div class="ivm-jl-feature__veil" aria-hidden="true"></div>
+    <div class="ivm-jl-feature__copy">
+      <span class="ivm-jl-feature__cat">Featured · Case study</span>
+      <h2 class="ivm-jl-feature__title">Inside a luxury <em>Mayakoba</em> wedding.</h2>
+      <p class="ivm-jl-feature__desc">Four days at Rosewood Mayakoba — from welcome dinner to last dance. Behind every frame, every decision, every hour of light.</p>
+      <span class="ivm-jl-feature__cta">Read the case study</span>
+    </div>
+  </a>
+
+  <!-- ACT III — CATEGORY PILLS -->
+  <nav class="ivm-jl-cats" aria-label="Story categories">
+    <div class="ivm-jl-cats__row">
+      <a class="ivm-jl-cats__pill is-on" href="#all">All</a>
+      <a class="ivm-jl-cats__pill" href="#weddings">Weddings</a>
+      <a class="ivm-jl-cats__pill" href="#couples">Couples</a>
+      <a class="ivm-jl-cats__pill" href="#families">Families</a>
+      <a class="ivm-jl-cats__pill" href="#how-to">How-to</a>
+      <a class="ivm-jl-cats__pill" href="#travel">Travel</a>
+      <a class="ivm-jl-cats__pill" href="#vendors">Vendors</a>
+    </div>
+  </nav>
+
+  <!-- ACT IV — ARTICLE GRID -->
+  <section class="ivm-jl-grid" aria-labelledby="ivm-jl-grid-h">
+    <header class="ivm-jl-grid__head">
+      <span class="ivm-jl-grid__eyebrow">Recent stories</span>
+      <h2 class="ivm-jl-grid__h2" id="ivm-jl-grid-h">Read the <em>Journal.</em></h2>
+    </header>
+
+    <a class="ivm-jl-card" href="/post-golden-hour-photography-mexico">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" alt="Golden hour over Cabo San Lucas" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">How-to · Light</span>
+      <h3 class="ivm-jl-card__title">On golden hour, in <em>Mexico.</em></h3>
+      <p class="ivm-jl-card__desc">Why we schedule every session backward from sunset. Field notes from three coastlines.</p>
+      <span class="ivm-jl-card__read">Read</span>
+    </a>
+
+    <a class="ivm-jl-card" href="/post-what-to-wear-beach-photos">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/couple-playa-mujeres-ivae-studios.jpg" alt="Couple in cream linen on Playa Mujeres" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">Style · Wardrobe</span>
+      <h3 class="ivm-jl-card__title">What to wear for <em>beach photos.</em></h3>
+      <p class="ivm-jl-card__desc">Tones that breathe with sand, sky, and the hour we shoot. Stylist-approved palettes.</p>
+      <span class="ivm-jl-card__read">Read</span>
+    </a>
+
+    <a class="ivm-jl-card" href="/post-cancun-vs-riviera-maya">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/couple-riviera-maya-ivae-studios.jpg" alt="Couple in Riviera Maya" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">Travel · Compare</span>
+      <h3 class="ivm-jl-card__title">Cancún vs <em>Riviera Maya.</em></h3>
+      <p class="ivm-jl-card__desc">Beaches, cenotes, light, logistics — choose the right coastline for your session.</p>
+      <span class="ivm-jl-card__read">Read</span>
+    </a>
+
+    <a class="ivm-jl-card" href="/post-cancun-cenote-photoshoot-guide">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/wedding-bride-tulum-ivae-studios.jpg" alt="Bride near a cenote in the Riviera Maya" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">Location · Cenotes</span>
+      <h3 class="ivm-jl-card__title">Cancún cenote <em>photoshoot.</em></h3>
+      <p class="ivm-jl-card__desc">Best cenotes within 1–2 hours of Cancún. Light beam timing, wardrobe, logistics.</p>
+      <span class="ivm-jl-card__read">Read</span>
+    </a>
+
+    <a class="ivm-jl-card" href="/post-honeymoon">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/blog/honeymoon-photographer-riviera-maya-og.jpg" alt="Honeymoon couple in Riviera Maya" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">Couples · Honeymoon</span>
+      <h3 class="ivm-jl-card__title">Honeymoon photographer, <em>Riviera Maya.</em></h3>
+      <p class="ivm-jl-card__desc">Best beaches, cenotes, and resort spots for romantic photos — what to wear, when to shoot.</p>
+      <span class="ivm-jl-card__read">Read</span>
+    </a>
+
+    <a class="ivm-jl-card" href="/post-best-resorts-cancun-photography">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg" alt="Resort in Cancún hotel zone" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">Vendors · Resorts</span>
+      <h3 class="ivm-jl-card__title">Best Cancún resorts for <em>photos.</em></h3>
+      <p class="ivm-jl-card__desc">Top Hotel Zone picks for couples, family, and wedding sessions — by the rooms and the grounds.</p>
+      <span class="ivm-jl-card__read">Read</span>
+    </a>
+
+    <a class="ivm-jl-card" href="/post-family-vacation-photos">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/family-kids-isla-mujeres-ivae-studios.jpg" alt="Family on Isla Mujeres" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">Families · Vacation</span>
+      <h3 class="ivm-jl-card__title">Family vacation <em>photos.</em></h3>
+      <p class="ivm-jl-card__desc">Planning a generational session — how to keep the kids being kids while we work in play.</p>
+      <span class="ivm-jl-card__read">Read</span>
+    </a>
+
+    <a class="ivm-jl-card" href="/post-bachelorette-photoshoot-los-cabos">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/family-kids-los-cabos-ivae-studios.jpg" alt="Group of girls in Los Cabos" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">Lifestyle · Cabo</span>
+      <h3 class="ivm-jl-card__title">Bachelorette in <em>Los Cabos.</em></h3>
+      <p class="ivm-jl-card__desc">Top beaches, outfit ideas, group posing tips — for the long weekend before the wedding.</p>
+      <span class="ivm-jl-card__read">Read</span>
+    </a>
+
+    <a class="ivm-jl-card" href="/post-tulum-photography-guide">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/couple-tulum-ivae-studios-3.jpg" alt="Couple in Tulum" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">Travel · Tulum</span>
+      <h3 class="ivm-jl-card__title">A Tulum <em>photography guide.</em></h3>
+      <p class="ivm-jl-card__desc">Ruins, palms, white sand — the Tulum stretch we plan around for editorial couples sessions.</p>
+      <span class="ivm-jl-card__read">Read</span>
+    </a>
+
+    <a class="ivm-jl-card" href="/post-10-questions-wedding-photographer-before-booking">
+      <div class="ivm-jl-card__photo">
+        <img src="/images/wedding-bride-cancun-ivae-studios-4.jpg" alt="Bride in Cancún hotel zone" loading="lazy" decoding="async">
+      </div>
+      <span class="ivm-jl-card__cat">How-to · Booking</span>
+      <h3 class="ivm-jl-card__title">Ten questions before <em>booking.</em></h3>
+      <p class="ivm-jl-card__desc">What every couple should ask before signing — and what a good answer sounds like.</p>
+      <span class="ivm-jl-card__read">Read</span>
+    </a>
+
+    <a class="ivm-jl-all" href="#all-stories">All 48 stories</a>
   </section>
 
-  <!-- ACT III — 4 featured guides as 3D cards -->
-  <section class="ivm-act-services" aria-labelledby="ivm-blog-cats-h">
-    <div class="ivm-act-services__pin">
-      <div class="ivm-act-services__title">
-        <span class="ivm-act-services__eyebrow">Featured guides</span>
-        <h2 id="ivm-blog-cats-h">Four <em>essays.</em></h2>
-      </div>
-      <div class="ivm-act-services__stage">
-        <a class="ivm-svc" href="/blog/golden-hour-photography-mexico" data-svc-idx="0">
-          <div class="ivm-svc__photo">
-            <img src="/images/wedding-bride-tulum-ivae-studios-960.jpg" alt="Golden hour guide" loading="lazy">
-            <span class="ivm-svc__num">I.</span>
-          </div>
-          <div class="ivm-svc__body">
-            <h3 class="ivm-svc__title">On <em>golden hour</em>, in Mexico.</h3>
-            <p class="ivm-svc__desc">Why we schedule every session backward from sunset. Field notes from three coastlines.</p>
-            <span class="ivm-svc__arrow">Read →</span>
-          </div>
-        </a>
-        <a class="ivm-svc" href="/blog/what-to-wear-beach-photos-mexico" data-svc-idx="1">
-          <div class="ivm-svc__photo">
-            <img src="/images/couple-cancun-beach-ivae-studios-3.jpg" alt="What to wear guide" loading="lazy">
-            <span class="ivm-svc__num">II.</span>
-          </div>
-          <div class="ivm-svc__body">
-            <h3 class="ivm-svc__title">What to <em>wear.</em></h3>
-            <p class="ivm-svc__desc">Wardrobe planning for beach sessions. Tones that breathe with sand, sky, and the hour we shoot.</p>
-            <span class="ivm-svc__arrow">Read →</span>
-          </div>
-        </a>
-        <a class="ivm-svc" href="/blog/cancun-vs-riviera-maya-photos" data-svc-idx="2">
-          <div class="ivm-svc__photo">
-            <img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Cancun vs Riviera Maya" loading="lazy">
-            <span class="ivm-svc__num">III.</span>
-          </div>
-          <div class="ivm-svc__body">
-            <h3 class="ivm-svc__title">Cancún <em>vs.</em> Riviera Maya.</h3>
-            <p class="ivm-svc__desc">Which coastline to pick for your session. A side-by-side of light, access, and feeling.</p>
-            <span class="ivm-svc__arrow">Read →</span>
-          </div>
-        </a>
-        <a class="ivm-svc" href="/blog/destination-wedding-photographer-riviera-maya" data-svc-idx="3">
-          <div class="ivm-svc__photo">
-            <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg" alt="Destination wedding guide" loading="lazy">
-            <span class="ivm-svc__num">IV.</span>
-          </div>
-          <div class="ivm-svc__body">
-            <h3 class="ivm-svc__title">Planning a <em>destination wedding.</em></h3>
-            <p class="ivm-svc__desc">The hours that matter on a destination wedding day. A complete editorial timeline.</p>
-            <span class="ivm-svc__arrow">Read →</span>
-          </div>
-        </a>
-      </div>
-      <div class="ivm-act-services__dots" aria-hidden="true">
-        <span class="is-on"></span><span></span><span></span><span></span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ACT IV — Counter -->
-  <section class="ivm-act-counter" aria-labelledby="ivm-blog-cnt-h">
-    <span class="ivm-act-counter__eyebrow">By the numbers</span>
-    <h2 id="ivm-blog-cnt-h">Three years. <em>Forty-seven guides.</em></h2>
-    <div class="ivm-act-counter__grid">
-      <div class="ivm-stat">
-        <span class="ivm-stat__num" data-count-to="47">0</span>
-        <span class="ivm-stat__label">Guides written</span>
-      </div>
-      <div class="ivm-stat">
-        <span class="ivm-stat__num" data-count-to="500" data-suffix="+">0</span>
-        <span class="ivm-stat__label">Sessions behind them</span>
-      </div>
-      <div class="ivm-stat">
-        <span class="ivm-stat__num" data-count-to="3">0</span>
-        <span class="ivm-stat__label">Coastlines</span>
-      </div>
-      <div class="ivm-stat">
-        <span class="ivm-stat__num" data-count-to="2">0</span>
-        <span class="ivm-stat__label">Languages</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ACT V — More posts reel -->
-  <section class="ivm-act-reel" aria-labelledby="ivm-blog-reel-h">
-    <div class="ivm-act-reel__head">
-      <span class="ivm-act-reel__eyebrow">From the archive</span>
-      <h2 id="ivm-blog-reel-h">More <em>essays.</em></h2>
-    </div>
-    <div class="ivm-act-reel__track" id="ivmReelTrack" role="region" aria-label="More guides carousel">
-      <a class="ivm-reel-card" href="/blog/tulum-photography-guide">
-        <img src="/images/wedding-bride-tulum-ivae-studios-960.jpg" alt="Tulum photography guide" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Guide · Tulum</span>
-          <span class="ivm-reel-card__title">A photographer's guide to Tulum</span>
-        </div>
-      </a>
-      <a class="ivm-reel-card" href="/blog/honeymoon-photographer-riviera-maya">
-        <img src="/images/couple-cancun-hotel-zone-ivae-studios-9-960.jpg" alt="Honeymoon photographer" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Guide · Honeymoon</span>
-          <span class="ivm-reel-card__title">Honeymoon sessions in the Riviera Maya</span>
-        </div>
-      </a>
-      <a class="ivm-reel-card" href="/blog/family-vacation-photos-mexico">
-        <img src="/images/family-cancun-hotel-zone-ivae-studios-960.jpg" alt="Family vacation photos" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Guide · Family</span>
-          <span class="ivm-reel-card__title">Family vacation photography that doesn't feel staged</span>
-        </div>
-      </a>
-      <a class="ivm-reel-card" href="/blog/surprise-proposal-photography-cancun">
-        <img src="/images/couple-cabo-san-lucas-ivae-studios.jpg" alt="Surprise proposal guide" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Guide · Proposal</span>
-          <span class="ivm-reel-card__title">Planning a surprise proposal in Cancún</span>
-        </div>
-      </a>
-      <a class="ivm-reel-card" href="/blog/cenote-underwater-photoshoot-tulum">
-        <img src="/images/editorial-cancun-ivae-studios-960.jpg" alt="Cenote underwater guide" loading="lazy">
-        <div class="ivm-reel-card__meta">
-          <span class="ivm-reel-card__venue">Guide · Cenote</span>
-          <span class="ivm-reel-card__title">Underwater sessions in a Tulum cenote</span>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <!-- ACT VI — CTA -->
-  <section class="ivm-act-cta" id="ivm-blog-cta">
-    <div class="ivm-act-cta__bg" style="background-image:url('/images/wedding-bride-cancun-ivae-studios-960.jpg');" aria-hidden="true"></div>
-    <div class="ivm-act-cta__veil" aria-hidden="true"></div>
-    <div class="ivm-act-cta__inner">
-      <span class="ivm-act-cta__eyebrow">Plan your own session</span>
-      <h2 class="ivm-act-cta__title">Begin the<br><em>conversation.</em></h2>
-      <p class="ivm-act-cta__sub">Read enough? Tell us about your date, your venue, your light.</p>
-      <a class="ivm-act-cta__btn" href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20found%20IVAE%20through%20the%20Journal" target="_blank" rel="noopener">
-        <span>Message Vianey →</span>
-      </a>
-      <a class="ivm-act-cta__alt" href="mailto:hello@ivaestudios.com">or write hello@ivaestudios.com</a>
-    </div>
+  <!-- ACT V — SUBSCRIBE -->
+  <section class="ivm-jl-sub" aria-label="Subscribe to the journal">
+    <span class="ivm-jl-sub__eyebrow">Every first Sunday</span>
+    <h2 class="ivm-jl-sub__h2">Subscribe to <em>Vol. IV.</em></h2>
+    <p class="ivm-jl-sub__desc">A short editorial letter — one essay, one location, one image. Never weekly, never spam.</p>
+    <a class="ivm-jl-sub__btn" href="mailto:hello@ivaestudios.com?subject=Subscribe%20to%20the%20Journal">Send me Vol. IV →</a>
   </section>
 
   <!-- FOOTER -->
   <footer class="ivm-act-foot">
     <p class="ivm-act-foot__mark">IVAE <em>Studios</em></p>
-    <p class="ivm-act-foot__tag">The Journal · IVAE Studios</p>
+    <p class="ivm-act-foot__tag">The Journal · Mexico</p>
     <div class="ivm-act-foot__links">
       <a href="/">Home</a>
       <a href="/about">About</a>
@@ -843,1001 +810,34 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
     </div>
     <p class="ivm-act-foot__copy">© 2026 IVAE Studios · Cancún, México</p>
   </footer>
-
 </div>
+<!-- ═══════════════════════════════════════════════════════════════════════
+     END MOBILE — Journal
+     ═══════════════════════════════════════════════════════════════════════ -->
 <script>
 (function(){
   if (window.matchMedia && !matchMedia('(max-width:899px)').matches) return;
   setTimeout(function(){ document.body.classList.add('ivm-loaded'); }, 3700);
-  var hourSection = document.querySelector('.ivm-act-hour');
-  var hourLines = document.querySelectorAll('.ivm-act-hour__line');
-  var hourProg  = document.querySelectorAll('.ivm-act-hour__progress span');
-  var hourPhoto = document.querySelector('.ivm-act-hour__photo');
-  if (hourSection && hourLines.length) {
-    var hourTicking = false;
-    function updateHour() {
-      hourTicking = false;
-      var rect = hourSection.getBoundingClientRect();
-      var total = rect.height - window.innerHeight;
-      var scrolled = -rect.top;
-      var p = Math.max(0, Math.min(1, scrolled / total));
-      var lineIdx = Math.min(3, Math.floor(p * 4));
-      hourLines.forEach(function(line, i){
-        line.classList.remove('is-on', 'is-off');
-        if (i === lineIdx) line.classList.add('is-on');
-        else if (i < lineIdx) line.classList.add('is-off');
-      });
-      hourProg.forEach(function(s, i){ s.classList.toggle('is-on', i <= lineIdx); });
-      if (hourPhoto) {
-        var zoom = 1 + p * 0.12;
-        var ty = (p - 0.5) * 60;
-        hourPhoto.style.transform = 'scale(' + zoom + ') translateY(' + ty + 'px)';
-      }
-    }
-    window.addEventListener('scroll', function(){ if (!hourTicking) { requestAnimationFrame(updateHour); hourTicking = true; } }, {passive: true});
-    updateHour();
-  }
-  var svcSection = document.querySelector('.ivm-act-services');
-  var svcCards = document.querySelectorAll('.ivm-svc');
-  var svcDots = document.querySelectorAll('.ivm-act-services__dots span');
-  if (svcSection && svcCards.length) {
-    var svcTicking = false;
-    function updateSvc() {
-      svcTicking = false;
-      var rect = svcSection.getBoundingClientRect();
-      var total = rect.height - window.innerHeight;
-      var scrolled = -rect.top;
-      var p = Math.max(0, Math.min(1, scrolled / total));
-      var activeIdx = Math.min(3, Math.floor(p * 4));
-      svcCards.forEach(function(card, i){
-        if (i === activeIdx) card.setAttribute('data-pos', 'active');
-        else if (i === activeIdx - 1) card.setAttribute('data-pos', 'behind');
-        else if (i < activeIdx) card.setAttribute('data-pos', 'past');
-        else card.setAttribute('data-pos', 'below');
-      });
-      svcDots.forEach(function(d, i){ d.classList.toggle('is-on', i === activeIdx); });
-    }
-    svcCards.forEach(function(card, i){ card.setAttribute('data-pos', i === 0 ? 'active' : 'below'); });
-    window.addEventListener('scroll', function(){ if (!svcTicking) { requestAnimationFrame(updateSvc); svcTicking = true; } }, {passive: true});
-  }
-  var counters = document.querySelectorAll('[data-count-to]');
-  if (counters.length) {
-    var cio = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if (!e.isIntersecting) return;
-        var el = e.target;
-        if (el.dataset.counted === '1') return;
-        el.dataset.counted = '1';
-        var target = parseFloat(el.dataset.countTo);
-        var suffix = el.dataset.suffix || '';
-        var dur = 1800;
-        var start = performance.now();
-        function tick(now){
-          var t = Math.min(1, (now - start) / dur);
-          var eased = 1 - Math.pow(1 - t, 3);
-          var val = target * eased;
-          if (target >= 100) el.textContent = Math.floor(val).toLocaleString() + suffix;
-          else if (target < 10) el.textContent = (target * eased).toFixed(1).replace('.0', '') + suffix;
-          else el.textContent = Math.floor(val) + suffix;
-          if (t < 1) requestAnimationFrame(tick);
-          else el.textContent = target + suffix;
+
+  /* Subtle reveal on cards as they enter viewport */
+  var cards = document.querySelectorAll('.ivm-jl-card');
+  if (cards.length && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function(items){
+      items.forEach(function(e){
+        if (e.intersectionRatio > 0.15) {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+          io.unobserve(e.target);
         }
-        requestAnimationFrame(tick);
-        cio.unobserve(el);
       });
-    }, {threshold: 0.4});
-    counters.forEach(function(c){ cio.observe(c); });
-  }
-  var reelTrack = document.getElementById('ivmReelTrack');
-  var reelCards = document.querySelectorAll('.ivm-reel-card');
-  if (reelTrack && reelCards.length) {
-    var reelTicking = false;
-    function updateReelCenter() {
-      reelTicking = false;
-      var trackRect = reelTrack.getBoundingClientRect();
-      var centerX = trackRect.left + trackRect.width / 2;
-      var bestIdx = -1;
-      var bestDist = Infinity;
-      reelCards.forEach(function(c, i){
-        var r = c.getBoundingClientRect();
-        var cardCenter = r.left + r.width / 2;
-        var d = Math.abs(cardCenter - centerX);
-        if (d < bestDist) { bestDist = d; bestIdx = i; }
-      });
-      reelCards.forEach(function(c, i){ c.classList.toggle('is-center', i === bestIdx); });
-    }
-    reelTrack.addEventListener('scroll', function(){ if (!reelTicking) { requestAnimationFrame(updateReelCenter); reelTicking = true; } }, {passive: true});
-    window.addEventListener('resize', updateReelCenter, {passive: true});
-    setTimeout(updateReelCenter, 50);
-  }
-})();
-</script>
-<!-- END MOBILE SCROLLYTELLING -->
-
-<div class="ivm-desktop-only">
-
-<nav class="lw-blog-stories" aria-label="Featured guides">
-  <div class="lw-blog-stories__inner">
-    <a class="lw-blog-stories__item" href="/blog/wedding-photographer-cancun">
-      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/wedding-photographer-cancun-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
-      <span class="lw-blog-stories__label">Weddings</span>
-    </a>
-    <a class="lw-blog-stories__item" href="/blog/couples-photographer-cancun">
-      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/couples-photographer-cancun-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
-      <span class="lw-blog-stories__label">Couples</span>
-    </a>
-    <a class="lw-blog-stories__item" href="/blog/family-vacation-photos-mexico">
-      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/family-vacation-photos-mexico-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
-      <span class="lw-blog-stories__label">Family</span>
-    </a>
-    <a class="lw-blog-stories__item" href="/blog/surprise-proposal-photography-cancun">
-      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/surprise-proposal-photography-cancun-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
-      <span class="lw-blog-stories__label">Proposal</span>
-    </a>
-    <a class="lw-blog-stories__item" href="/blog/cancun-cenote-photoshoot-guide">
-      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/cancun-cenote-photoshoot-guide-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
-      <span class="lw-blog-stories__label">Cenote</span>
-    </a>
-    <a class="lw-blog-stories__item" href="/blog/luxury-yacht-photography-cancun">
-      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/destination-wedding-riviera-maya-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
-      <span class="lw-blog-stories__label">Yacht</span>
-    </a>
-    <a class="lw-blog-stories__item" href="/blog/los-cabos-photographer-guide">
-      <span class="lw-blog-stories__avatar"><img src="https://assets.ivaestudios.com/blog/los-cabos-photographer-guide-og.jpg" alt="" width="80" height="80" loading="lazy" decoding="async"/></span>
-      <span class="lw-blog-stories__label">Los Cabos</span>
-    </a>
-  </div>
-</nav>
-
-<section class="lw-blog-masthead" aria-labelledby="lw-blog-masthead-title">
-  <span class="lw-blog-masthead__eyebrow">Vol. III &middot; Issue 05 &middot; 2026</span>
-  <h1 class="lw-blog-masthead__title" id="lw-blog-masthead-title">The <em>Journal</em></h1>
-  <div class="lw-blog-masthead__rule" aria-hidden="true"></div>
-  <div class="lw-blog-masthead__meta" role="list">
-    <span class="lw-blog-masthead__meta-item" role="listitem"><strong data-stat="total">47</strong>&nbsp;Guides</span>
-    <span class="lw-blog-masthead__meta-sep" aria-hidden="true"></span>
-    <span class="lw-blog-masthead__meta-item" role="listitem"><strong>3</strong>&nbsp;Destinations</span>
-    <span class="lw-blog-masthead__meta-sep" aria-hidden="true"></span>
-    <span class="lw-blog-masthead__meta-item" role="listitem"><strong>500+</strong>&nbsp;Sessions</span>
-    <span class="lw-blog-masthead__meta-sep" aria-hidden="true"></span>
-    <span class="lw-blog-masthead__meta-item" role="listitem">By <strong>Vianey D&iacute;az</strong></span>
-  </div>
-  <p class="lw-blog-masthead__tagline">Field notes from the hour the light is honest. Editorial dispatches on luxury resort photography across Canc&uacute;n, Riviera Maya and Los Cabos.</p>
-</section>
-
-<section class="lw-blog-hero-feature" aria-labelledby="lw-blog-hero-title">
-  <a class="lw-blog-hero-feature__link" href="/blog/destination-wedding-photographer-riviera-maya">
-    <img class="lw-blog-hero-feature__media" src="https://assets.ivaestudios.com/blog/destination-wedding-riviera-maya-og.jpg" alt="Bride and groom at sunset on a Riviera Maya beach during a luxury destination wedding ceremony" width="2000" height="857" fetchpriority="high" loading="eager" decoding="async"/>
-    <span class="lw-blog-hero-feature__scrim" aria-hidden="true"></span>
-    <div class="lw-blog-hero-feature__body">
-      <span class="lw-blog-hero-feature__eyebrow">Cover Story &middot; Weddings</span>
-      <h2 class="lw-blog-hero-feature__title" id="lw-blog-hero-title">Destination Wedding Photographer in Riviera Maya: <em>The Complete Planning Guide (2026)</em></h2>
-      <p class="lw-blog-hero-feature__dek">Everything you need to know about planning your destination wedding photography in Riviera Maya — venues, timing, outfits, and the insider tips only a local photographer knows.</p>
-      <div class="lw-blog-hero-feature__byline"><span>By <strong>Vianey D&iacute;az</strong></span><span class="lw-blog-hero-feature__byline-sep" aria-hidden="true"></span><span>May 10, 2026</span><span class="lw-blog-hero-feature__byline-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </div>
-  </a>
-</section>
-
-<section class="lw-blog-dossier" aria-labelledby="lw-blog-dossier-title">
-  <header class="lw-blog-dossier__head">
-    <div>
-      <span class="lw-blog-dossier__eyebrow">The Dossier</span>
-      <h2 class="lw-blog-dossier__title" id="lw-blog-dossier-title">Editor&rsquo;s <em>Curation</em></h2>
-    </div>
-    <span class="lw-blog-dossier__count">3 Featured</span>
-  </header>
-  <div class="lw-blog-dossier__grid">
-  <a class="lw-blog-dossier__card lw-blog-dossier__card--wide" href="/blog/wedding-photographer-cancun" data-category="weddings">
-    <div class="lw-blog-dossier__card-media">
-      <img src="https://assets.ivaestudios.com/blog/wedding-photographer-cancun-og.jpg" alt="Wedding Photographer in Cancún: Your Complete Guide to a Dreamy Beach Ceremony (2026)" width="1200" height="900" loading="eager" fetchpriority="high" decoding="async"/>
-    </div>
-    <span class="lw-blog-dossier__card-cat">Weddings</span>
-    <h3 class="lw-blog-dossier__card-title">Wedding Photographer in Cancún: <em>Your Complete Guide to a Dreamy Beach Ceremony (2026)</em></h3>
-    <p class="lw-blog-dossier__card-dek">Plan your Cancún beach wedding. Best venues, golden-hour timing, ceremony logistics, and how to choose a photographer for your day.</p>
-    <div class="lw-blog-dossier__card-meta"><span>May 9, 2026</span><span class="lw-blog-dossier__card-meta-sep" aria-hidden="true"></span><span>10 min read</span></div>
-  </a>
-  <a class="lw-blog-dossier__card lw-blog-dossier__card--portrait" href="/blog/family-vacation-photos-mexico" data-category="family">
-    <div class="lw-blog-dossier__card-media">
-      <img src="https://assets.ivaestudios.com/blog/family-vacation-photos-mexico-og.jpg" alt="Family Vacation Photos in Mexico: The Complete Guide for Resort Travelers (2026)" width="1200" height="900" loading="lazy" decoding="async"/>
-    </div>
-    <span class="lw-blog-dossier__card-cat">Family</span>
-    <h3 class="lw-blog-dossier__card-title">Family Vacation Photos in Mexico: <em>The Complete Guide for Resort Travelers (2026)</em></h3>
-    <p class="lw-blog-dossier__card-dek">Planning family vacation photos in Mexico? Discover the best ages, outfits, golden hour timing, and destinations — Cancún, Riviera Maya, or...</p>
-    <div class="lw-blog-dossier__card-meta"><span>May 6, 2026</span><span class="lw-blog-dossier__card-meta-sep" aria-hidden="true"></span><span>11 min read</span></div>
-  </a>
-  <a class="lw-blog-dossier__card lw-blog-dossier__card--portrait" href="/blog/honeymoon-photographer-riviera-maya" data-category="couples">
-    <div class="lw-blog-dossier__card-media">
-      <img src="https://assets.ivaestudios.com/blog/honeymoon-photographer-riviera-maya-og.jpg" alt="Honeymoon Photographer in Riviera Maya: Capture Your First Adventure as Newlyweds (2026)" width="1200" height="900" loading="lazy" decoding="async"/>
-    </div>
-    <span class="lw-blog-dossier__card-cat">Couples</span>
-    <h3 class="lw-blog-dossier__card-title">Honeymoon Photographer in Riviera Maya: <em>Capture Your First Adventure as Newlyweds (2026)</em></h3>
-    <p class="lw-blog-dossier__card-dek">Looking for a honeymoon photographer in Riviera Maya? Discover the best beaches, cenotes, and resort spots for romantic photos — plus what...</p>
-    <div class="lw-blog-dossier__card-meta"><span>May 3, 2026</span><span class="lw-blog-dossier__card-meta-sep" aria-hidden="true"></span><span>10 min read</span></div>
-  </a>
-  </div>
-</section>
-
-<div class="lw-mob-filter-count" id="lwMobFilterCount" aria-live="polite"><em>47</em> entries</div>
-<nav class="lw-blog-categories" aria-label="Filter by category">
-  <div class="lw-blog-categories__inner">
-    <span class="lw-blog-categories__label">Filter</span>
-    <ul class="lw-blog-categories__list">
-      <li class="lw-blog-categories__item"><button class="lw-blog-categories__btn is-active" data-filter="all" aria-current="true" type="button">All <span class="lw-blog-categories__btn-count">47</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="weddings" type="button">Weddings <span class="lw-blog-categories__btn-count">13</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="couples" type="button">Couples <span class="lw-blog-categories__btn-count">03</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="family" type="button">Family <span class="lw-blog-categories__btn-count">05</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="proposals" type="button">Proposals <span class="lw-blog-categories__btn-count">02</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="maternity" type="button">Maternity <span class="lw-blog-categories__btn-count">03</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="cenote" type="button">Cenote <span class="lw-blog-categories__btn-count">02</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="yacht" type="button">Yacht <span class="lw-blog-categories__btn-count">01</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="editorial" type="button">Editorial <span class="lw-blog-categories__btn-count">01</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="locations" type="button">Locations <span class="lw-blog-categories__btn-count">07</span></button></li>
-<li class="lw-blog-categories__item"><button class="lw-blog-categories__btn" data-filter="guides" type="button">Guides <span class="lw-blog-categories__btn-count">10</span></button></li>
-    </ul>
-  </div>
-</nav>
-
-<div class="lw-blog-filter-status" id="lwBlogFilterStatus" aria-live="polite">Showing <strong><span id="lwFilterCount">0</span></strong> entries in <strong><span id="lwFilterCategory">Category</span></strong></div>
-
-</nav>
-
-<section class="lw-blog-archive" aria-labelledby="lw-blog-archive-title">
-  <header class="lw-blog-archive__head">
-    <h2 class="lw-blog-archive__title" id="lw-blog-archive-title">The <em>Archive</em></h2>
-    <span class="lw-blog-archive__meta">44 dispatches</span>
-  </header>
-  <div class="lw-blog-archive__grid">
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="guides">
-    <a href="/blog/ivae-studios-press-media-coverage">
-      <div class="lw-blog-archive__media">
-        <picture><source media="(max-width:600px)" srcset="/images/editorial-cancun-ivae-studios-480.jpg"><source media="(max-width:1024px)" srcset="/images/editorial-cancun-ivae-studios-960.jpg"><source media="(max-width:1800px)" srcset="/images/editorial-cancun-ivae-studios-1600.jpg"><img src="/images/editorial-cancun-ivae-studios.jpg" alt="IVAE Studios editorial photography in Cancún — press features and media coverage of luxury destination photographer Vianey Díaz" width="1200" height="900" loading="eager" decoding="async"/></picture>
-      </div>
-      <span class="lw-blog-archive__cat">Guides</span>
-      <h3 class="lw-blog-archive__title-card">IVAE Studios in the Press: <em>Featured Coverage, Editorial Mentions &amp; Industry Recognition</em></h3>
-      <p class="lw-blog-archive__dek">Editorial features, awards, industry memberships and a complete press kit for IVAE Studios — the luxury resort photography studio led by Vianey Díaz in Cancún...</p>
-      <div class="lw-blog-archive__meta-card"><span>Guides</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>May 8, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>8 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="guides">
-    <a href="/blog/vianey-diaz-luxury-photographer-journey">
-      <div class="lw-blog-archive__media">
-        <img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Vianey Díaz, founder of IVAE Studios, behind the camera in Cancún — luxury destination photographer Mexico" width="1200" height="900" loading="eager" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Guides</span>
-      <h3 class="lw-blog-archive__title-card">Vianey Díaz: Behind 10 Years of Luxury Photography in Mexico — A Journey from Editorial Assistant to Founding <em>IVAE Studios</em></h3>
-      <p class="lw-blog-archive__dek">The founder story behind IVAE Studios. Vianey Díaz on a decade of professional photography in Mexico, the gap she saw in the luxury market, and the bilingual...</p>
-      <div class="lw-blog-archive__meta-card"><span>Guides</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>May 8, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/blog/10-questions-wedding-photographer-before-booking">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/10-questions-wedding-photographer-og.jpg" alt="Bride at Cancún Hotel Zone luxury resort during interview-style portrait — IVAE Studios destination wedding photographer" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Weddings</span>
-      <h3 class="lw-blog-archive__title-card">10 Questions to Ask Your Wedding Photographer <em>Before Booking</em></h3>
-      <p class="lw-blog-archive__dek">Most couples ask the wrong questions. These ten reveal a true luxury photographer — backup plans, RAW policy, gear, insurance, turnaround, and the...</p>
-      <div class="lw-blog-archive__meta-card"><span>Weddings</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>May 5, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/blog/inside-luxury-mayakoba-wedding-case-study">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/inside-luxury-mayakoba-wedding-case-study-og.jpg" alt="Bride at golden hour on the Mayakoba beach photographed by IVAE Studios, luxury Riviera Maya wedding photographer" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Weddings</span>
-      <h3 class="lw-blog-archive__title-card">Inside a Luxury Mayakoba Wedding — A Photographer&#x27;s Case <em>Study (2026)</em></h3>
-      <p class="lw-blog-archive__dek">A 4-day luxury wedding at Mayakoba photographed by IVAE Studios. Rosewood Mayakoba wedding photographer behind-the-scenes — Banyan Tree gardens, mangrove...</p>
-      <div class="lw-blog-archive__meta-card"><span>Weddings</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>May 1, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>12 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="guides">
-    <a href="/blog/mexico-based-vs-fly-in-photographer-pros-cons">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/mexico-based-vs-fly-in-photographer-og.jpg" alt="Bride at Cancún Hotel Zone luxury resort photographed by Mexico-based local destination wedding photographer IVAE Studios" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Guides</span>
-      <h3 class="lw-blog-archive__title-card">Mexico-Based Photographer vs Flying One In From the US: <em>Honest Pros &amp; Cons</em></h3>
-      <p class="lw-blog-archive__dek">Seven of ten luxury couples should hire local — and three should not. The real cost, visa, insurance, vendor and quality comparison, written by a Cancún...</p>
-      <div class="lw-blog-archive__meta-card"><span>Guides</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>April 28, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>12 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/blog/mexico-destination-wedding-cost-breakdown-2026">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/mexico-destination-wedding-cost-breakdown-2026-og.jpg" alt="Luxury destination wedding bride at Playa Mujeres resort in Mexico — IVAE Studios destination wedding photographer" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Weddings</span>
-      <h3 class="lw-blog-archive__title-card">Mexico Destination Wedding Cost Breakdown — Real Budgets from $30K to <em>$200K (2026)</em></h3>
-      <p class="lw-blog-archive__dek">The full Mexico destination wedding cost breakdown for 2026 — three real budget tiers, line-item math, hidden fees and a saving playbook from a Cancún-based...</p>
-      <div class="lw-blog-archive__meta-card"><span>Weddings</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>April 24, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>15 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--wide" data-category="guides">
-    <a href="/blog/resort-photographer-vs-outside-photographer-mexico">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/resort-photographer-vs-outside-photographer-mexico-og.jpg" alt="Bride at luxury Cancun all-inclusive resort showing the difference between in-house resort photography and an outside editorial photographer" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Guides</span>
-      <h3 class="lw-blog-archive__title-card">Why Your Resort&#x27;s In-House Photographer Isn&#x27;t Enough — When (and How) to <em>Hire Outside</em></h3>
-      <p class="lw-blog-archive__dek">Resort photo packages cost $200 to $800. Why do couples drop $3,000 to $10,000 on outside photographers? Volume, equipment, editing, and the exclusive-vendor...</p>
-      <div class="lw-blog-archive__meta-card"><span>Guides</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>April 22, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/blog/same-sex-wedding-photographer-cancun-lgbtq-inclusive">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/same-sex-wedding-photographer-cancun-lgbtq-inclusive-og.jpg" alt="Same-sex wedding photographer in Cancún — LGBTQ+ inclusive luxury coverage by IVAE Studios" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Weddings</span>
-      <h3 class="lw-blog-archive__title-card">Same-Sex Wedding Photographer in Cancún — Inclusive Luxury Coverage for <em>LGBTQ+ Couples</em></h3>
-      <p class="lw-blog-archive__dek">Searching for an LGBTQ+ wedding photographer in Cancún or the Riviera Maya? Federal marriage equality, friendly resorts, vetted vendor network, and a...</p>
-      <div class="lw-blog-archive__meta-card"><span>Weddings</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>April 20, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/blog/sample-cancun-wedding-gallery-60-images">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/sample-cancun-wedding-gallery-60-images-og.jpg" alt="Bride at golden hour during a luxury Cancún wedding photographed by IVAE Studios — sample wedding photo gallery 60 images" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Weddings</span>
-      <h3 class="lw-blog-archive__title-card">Sample Cancún Wedding Gallery — 60 Editorial Images from a Real <em>Coverage Day</em></h3>
-      <p class="lw-blog-archive__dek">See an editorial sample of a full Cancún wedding day in 60 images — getting ready, first look, ceremony, family formals and reception by IVAE Studios. Real...</p>
-      <div class="lw-blog-archive__meta-card"><span>Weddings</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>April 17, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>8 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/blog/wedding-day-photo-timeline-8-10-12-hours">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/wedding-day-photo-timeline-8-10-12-hours-og.jpg" alt="Bride at golden hour during a luxury wedding in Cancún photographed by IVAE Studios — wedding day photography timeline" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Weddings</span>
-      <h3 class="lw-blog-archive__title-card">Wedding Day Photo Timeline — Sample 8, 10 &amp; 12-Hour Coverage <em>Schedules (2026)</em></h3>
-      <p class="lw-blog-archive__dek">Detailed wedding day photography timelines from IVAE Studios — 8-hour, 10-hour and 12-hour sample schedules with timestamps, multi-cultural events, sunset...</p>
-      <div class="lw-blog-archive__meta-card"><span>Weddings</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>April 14, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>15 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--text" data-category="editorial">
-    <a href="/blog/luxury-photographer-style-editorial-vs-documentary">
-      <span class="lw-blog-archive__cat">Editorial</span>
-      <h3 class="lw-blog-archive__title-card">What Makes a Photographer &#x27;Luxury&#x27;? Editorial vs Documentary vs Hybrid <em>Styles Explained</em></h3>
-      <p class="lw-blog-archive__dek">Editorial direction, premium gear, high-touch process, ruthless curation. A working photographer&#x27;s breakdown of what &#x27;luxury&#x27; actually means in 2026 — and how...</p>
-      <div class="lw-blog-archive__meta-card"><span>Editorial</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>April 11, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="locations">
-    <a href="/blog/best-months-photography-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/best-months-photography-cancun-og.jpg" alt="Couple photographed on Cancún beach at golden hour during dry season — best months for photography in Cancún" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Locations</span>
-      <h3 class="lw-blog-archive__title-card">Best Months for Photography in Cancún: <em>Weather, Light, and Crowds Calendar (2026)</em></h3>
-      <p class="lw-blog-archive__dek">When is the best time to go to Cancún for photos? A month-by-month calendar covering weather, water clarity, sargassum, hurricanes, sun position, crowds and...</p>
-      <div class="lw-blog-archive__meta-card"><span>Locations</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>April 9, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>12 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="guides">
-    <a href="/blog/boutique-vs-all-inclusive-photoshoot-mexico">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/boutique-vs-all-inclusive-photoshoot-mexico-og.jpg" alt="Couple at boutique hotel Mayakoba during luxury photoshoot in Riviera Maya by IVAE Studios" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Guides</span>
-      <h3 class="lw-blog-archive__title-card">Boutique vs All-Inclusive Resorts in Mexico for Photoshoots: <em>An Honest Comparison</em></h3>
-      <p class="lw-blog-archive__dek">Boutique vs all-inclusive resorts in Mexico for photoshoots: aesthetics, photo permission policies, privacy, multi-generational fit, wedding ceremony space...</p>
-      <div class="lw-blog-archive__meta-card"><span>Guides</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>April 7, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--wide" data-category="cenote">
-    <a href="/blog/cancun-cenote-photoshoot-guide">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/cancun-cenote-photoshoot-guide-og.jpg" alt="Cenote photoshoot Cancún — couple at a turquoise cenote within reach of the hotel zone" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Cenote</span>
-      <h3 class="lw-blog-archive__title-card">Cancún Cenote Photoshoot Guide: <em>Best Cenotes, Lighting, and Logistics</em></h3>
-      <p class="lw-blog-archive__dek">Cenote photoshoot Cancún: the best cenotes within 1–2 hours of the hotel zone, light beam timing, what to wear, life-jacket rules, equipment, and pricing for a...</p>
-      <div class="lw-blog-archive__meta-card"><span>Cenote</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>April 4, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>12 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/blog/destination-wedding-photographer-timeline">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/destination-wedding-photographer-timeline-og.jpg" alt="Destination wedding ceremony in Cancún photographed by IVAE Studios at golden hour" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Weddings</span>
-      <h3 class="lw-blog-archive__title-card">Destination Wedding Photographer Timeline: When to Book and What to Plan 12 Months <em>Out (2026)</em></h3>
-      <p class="lw-blog-archive__dek">Book your destination wedding photographer 9–12 months ahead. The complete month-by-month planning timeline for Mexico weddings — engagement session, consults...</p>
-      <div class="lw-blog-archive__meta-card"><span>Weddings</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>April 2, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="locations">
-    <a href="/blog/drone-photography-cancun-resorts">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/drone-photography-cancun-resorts-og.jpg" alt="Aerial drone photo of a luxury wedding ceremony on the Cancún Hotel Zone beach at golden hour, captured by IVAE Studios" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Locations</span>
-      <h3 class="lw-blog-archive__title-card">Drone Photography in Cancún Resorts: <em>Rules, Best Locations and What to Expect</em></h3>
-      <p class="lw-blog-archive__dek">A complete 2026 guide to drone photography in Cancún and the Riviera Maya — Mexican AFAC permits, resort-by-resort drone policies, best aerial locations, and...</p>
-      <div class="lw-blog-archive__meta-card"><span>Locations</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>March 30, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>10 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/blog/indian-wedding-photographer-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/indian-wedding-photographer-cancun-og.jpg" alt="Indian destination wedding bride at Cancún resort, photographed by IVAE Studios" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Weddings</span>
-      <h3 class="lw-blog-archive__title-card">Indian Wedding Photographer in Cancún: Multi-Day Coverage for Mehndi, Sangeet, Ceremony, and <em>Reception (2026)</em></h3>
-      <p class="lw-blog-archive__dek">Looking for an Indian wedding photographer in Cancún? Editorial multi-day coverage for South Asian destination weddings — best resorts, cultural-fluent...</p>
-      <div class="lw-blog-archive__meta-card"><span>Weddings</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>March 27, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="family">
-    <a href="/blog/luxury-family-photoshoot-cost-cancun-2026">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/family-photoshoot-cost-cancun-og.jpg" alt="Luxury family photoshoot on Cancún beach at golden hour, IVAE Studios" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Family</span>
-      <h3 class="lw-blog-archive__title-card">How Much Does a Luxury Family Photoshoot Cost in Cancún? Pricing <em>Guide 2026</em></h3>
-      <p class="lw-blog-archive__dek">Mini, Signature, and Editorial pricing tiers in USD. Group-size modifiers, hidden costs, multi-day packages, and the visible difference between a cheap and a...</p>
-      <div class="lw-blog-archive__meta-card"><span>Family</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>March 24, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>9 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="guides">
-    <a href="/blog/mexico-destination-photography-faq">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/mexico-destination-photography-faq-og.jpg" alt="Editorial couple portrait at sunset on Riviera Maya beach by IVAE Studios" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Guides</span>
-      <h3 class="lw-blog-archive__title-card">The Ultimate Mexico Destination Photography FAQ — 30 <em>Questions Answered</em></h3>
-      <p class="lw-blog-archive__dek">Booking, weddings, families, couples, locations and pricing — 30 expert answers about destination photography in Mexico from IVAE Studios.</p>
-      <div class="lw-blog-archive__meta-card"><span>Guides</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>March 21, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>19 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/blog/wedding-photography-cancun-cost-2026">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/wedding-photography-cancun-cost-2026-og.jpg" alt="Bride in luxury wedding gown at sunset in Cancún Hotel Zone — IVAE Studios destination wedding photographer" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Weddings</span>
-      <h3 class="lw-blog-archive__title-card">Wedding Photography Cancún Cost 2026 — Complete <em>Pricing Guide</em></h3>
-      <p class="lw-blog-archive__dek">What does a Cancún wedding photographer really cost in 2026? Real USD ranges from $1,500 to $12,000, what is included at each tier and hidden fees to watch...</p>
-      <div class="lw-blog-archive__meta-card"><span>Weddings</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>March 18, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>12 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--wide" data-category="guides">
-    <a href="/blog/all-inclusive-resort-photographer-mexico">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/all-inclusive-resort-photographer-mexico-og.jpg" alt="All-Inclusive Resort Photography in Mexico: Everything You Need to Know Before Booking" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Guides</span>
-      <h3 class="lw-blog-archive__title-card">All-Inclusive Resort Photography in Mexico: <em>Everything You Need to Know Before Booking</em></h3>
-      <p class="lw-blog-archive__dek">Can you bring an outside photographer to an all-inclusive resort in Mexico? Learn about resort photography policies, vendor fees, the best resorts for photos...</p>
-      <div class="lw-blog-archive__meta-card"><span>Guides</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>March 14, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--text" data-category="couples">
-    <a href="/blog/anniversary-photography-mexico">
-      <span class="lw-blog-archive__cat">Couples</span>
-      <h3 class="lw-blog-archive__title-card">Anniversary Photography in Mexico: <em>How to Celebrate Your Love at a Luxury Resort</em></h3>
-      <p class="lw-blog-archive__dek">Planning an anniversary trip to Mexico? Discover how to capture milestone celebrations with professional photography at luxury resorts in Cancun, Riviera Maya...</p>
-      <div class="lw-blog-archive__meta-card"><span>Couples</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>March 11, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="maternity">
-    <a href="/blog/babymoon-photography-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/babymoon-photography-cancun-og.jpg" alt="Babymoon Photography in Cancún &amp; Riviera Maya: Celebrate Before Baby Arrives" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Maternity</span>
-      <h3 class="lw-blog-archive__title-card">Babymoon Photography in Cancún &amp; Riviera Maya: <em>Celebrate Before Baby Arrives</em></h3>
-      <p class="lw-blog-archive__dek">Planning a babymoon in Cancún or Riviera Maya? Discover the best locations, what to wear, ideal trimester for travel and photos, and how to combine maternity...</p>
-      <div class="lw-blog-archive__meta-card"><span>Maternity</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>March 9, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="family">
-    <a href="/blog/bachelorette-photoshoot-los-cabos">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/bachelorette-photoshoot-los-cabos-og.jpg" alt="Bachelorette Photoshoot in Los Cabos: The Complete Planning Guide (2026)" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Family</span>
-      <h3 class="lw-blog-archive__title-card">Bachelorette Photoshoot in Los Cabos: <em>The Complete Planning Guide (2026)</em></h3>
-      <p class="lw-blog-archive__dek">Plan the ultimate bachelorette photoshoot in Los Cabos — top locations, outfit ideas, packages from $450 USD, and how to book your group session with IVAE...</p>
-      <div class="lw-blog-archive__meta-card"><span>Family</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>March 6, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="locations">
-    <a href="/blog/best-resorts-cancun-photography">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/best-resorts-cancun-photography-og.jpg" alt="Best Resorts in Cancún for Photography: A Photographer&#x27;s Inside Guide to the Hotel Zone" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Locations</span>
-      <h3 class="lw-blog-archive__title-card">Best Resorts in Cancún for Photography: <em>A Photographer&#x27;s Inside Guide to the Hotel Zone</em></h3>
-      <p class="lw-blog-archive__dek">Discover the best resorts in Cancún for photography — from couples and family photo spots to wedding ceremony locations. An insider guide by a local luxury...</p>
-      <div class="lw-blog-archive__meta-card"><span>Locations</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>March 4, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="family">
-    <a href="/blog/birthday-photoshoot-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/birthday-photoshoot-cancun-og.jpg" alt="Birthday Photoshoot in Cancún: The Complete Guide to Celebrating in Style" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Family</span>
-      <h3 class="lw-blog-archive__title-card">Birthday Photoshoot in Cancún: <em>The Complete Guide to Celebrating in Style</em></h3>
-      <p class="lw-blog-archive__dek">Plan a stunning birthday photoshoot in Cancún with IVAE Studios. Resort, beach, and rooftop settings, styling tips, pricing, and how to book your session.</p>
-      <div class="lw-blog-archive__meta-card"><span>Family</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>March 1, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="cenote">
-    <a href="/blog/cenote-underwater-photoshoot-tulum">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/cenote-underwater-photoshoot-tulum-og.jpg" alt="Cenote Underwater Photoshoot Tulum: The Definitive Guide (2026)" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Cenote</span>
-      <h3 class="lw-blog-archive__title-card">Cenote Underwater Photoshoot Tulum: <em>The Definitive Guide (2026)</em></h3>
-      <p class="lw-blog-archive__dek">Plan your cenote underwater photoshoot in Tulum with IVAE Studios. Best cenotes, what to wear, safety tips, pricing, and how to book your luxury session.</p>
-      <div class="lw-blog-archive__meta-card"><span>Cenote</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>February 26, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--wide" data-category="couples">
-    <a href="/blog/couples-photographer-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/couples-photographer-cancun-og.jpg" alt="Couples Photographer in Cancún: Capturing Romance on Honeymoons, Anniversaries &amp; Romantic Getaways (2026)" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Couples</span>
-      <h3 class="lw-blog-archive__title-card">Couples Photographer in Cancún: Capturing Romance on Honeymoons, Anniversaries &amp; Romantic <em>Getaways (2026)</em></h3>
-      <p class="lw-blog-archive__dek">Looking for a couples photographer in Cancún? Explore the best beaches, resorts, and cenotes for romantic photoshoots — plus what to wear, when to book, and...</p>
-      <div class="lw-blog-archive__meta-card"><span>Couples</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>February 24, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>10 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/blog/destination-elopement-mexico">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/destination-elopement-mexico-og.jpg" alt="How to Plan a Destination Elopement in Mexico: Locations, Legalities &amp; Photography" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Weddings</span>
-      <h3 class="lw-blog-archive__title-card">How to Plan a Destination Elopement in Mexico: <em>Locations, Legalities &amp; Photography</em></h3>
-      <p class="lw-blog-archive__dek">Planning a destination elopement in Mexico? Discover the best locations from Tulum to Los Cabos, legal requirements, what to wear, photography tips, budget...</p>
-      <div class="lw-blog-archive__meta-card"><span>Weddings</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>February 22, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="proposals">
-    <a href="/blog/engagement-session-cancun-riviera-maya">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/engagement-session-cancun-og.jpg" alt="Engagement Session in Cancún &amp; Riviera Maya: The Ultimate Guide (2026)" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Proposals</span>
-      <h3 class="lw-blog-archive__title-card">Engagement Session in Cancún &amp; Riviera Maya: <em>The Ultimate Guide (2026)</em></h3>
-      <p class="lw-blog-archive__dek">Planning an engagement photoshoot in Cancún or Riviera Maya? This complete guide covers the best locations, ideal timing, what to wear, and how to find a...</p>
-      <div class="lw-blog-archive__meta-card"><span>Proposals</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>February 19, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>10 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="maternity">
-    <a href="/blog/gender-reveal-photoshoot-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/gender-reveal-photoshoot-cancun-og.jpg" alt="Gender Reveal Photoshoot in Cancún: Celebrate Your Big Announcement in Paradise" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Maternity</span>
-      <h3 class="lw-blog-archive__title-card">Gender Reveal Photoshoot in Cancún: <em>Celebrate Your Big Announcement in Paradise</em></h3>
-      <p class="lw-blog-archive__dek">Plan a stunning gender reveal photoshoot in Cancún with IVAE Studios. Beach, resort, and cenote settings, creative prop ideas, session formats, and pricing...</p>
-      <div class="lw-blog-archive__meta-card"><span>Maternity</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>February 17, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="locations">
-    <a href="/blog/los-cabos-photographer-guide">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/los-cabos-photographer-guide-og.jpg" alt="Los Cabos Photographer Guide: Where to Shoot, When to Book &amp; What to Expect (2026)" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Locations</span>
-      <h3 class="lw-blog-archive__title-card">Los Cabos Photographer Guide: Where to Shoot, When to Book &amp; What to <em>Expect (2026)</em></h3>
-      <p class="lw-blog-archive__dek">Planning a photo session in Los Cabos? Discover the best photography locations from El Arco to Flora Farms, golden hour timing by season, top resort venues...</p>
-      <div class="lw-blog-archive__meta-card"><span>Locations</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>February 14, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--text" data-category="yacht">
-    <a href="/blog/luxury-yacht-photography-cancun">
-      <span class="lw-blog-archive__cat">Yacht</span>
-      <h3 class="lw-blog-archive__title-card">Luxury Yacht Photography in Cancun: <em>Capture Unforgettable Moments on the Caribbean Sea</em></h3>
-      <p class="lw-blog-archive__dek">Luxury yacht photography in Cancun — sail the Caribbean while a professional photographer captures stunning portraits. Explore our yacht packages from $550...</p>
-      <div class="lw-blog-archive__meta-card"><span>Yacht</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>February 12, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="maternity">
-    <a href="/blog/maternity-photoshoot-cancun-riviera-maya">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/maternity-photoshoot-cancun-og.jpg" alt="Maternity Photoshoot in Cancún &amp; Riviera Maya: Your Complete Guide (2026)" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Maternity</span>
-      <h3 class="lw-blog-archive__title-card">Maternity Photoshoot in Cancún &amp; Riviera Maya: <em>Your Complete Guide (2026)</em></h3>
-      <p class="lw-blog-archive__dek">Planning a maternity photoshoot in Cancún? This complete 2026 guide covers the best trimester for photos, what to wear, ideal locations, timing tips, and how...</p>
-      <div class="lw-blog-archive__meta-card"><span>Maternity</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>February 10, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>10 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--wide" data-category="locations">
-    <a href="/blog/best-photo-locations-riviera-maya">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/best-photo-locations-riviera-maya-og.jpg" alt="Best Photo Locations in Riviera Maya: A Photographer&#x27;s Guide to Cenotes, Beaches &amp; Hidden Spots" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Locations</span>
-      <h3 class="lw-blog-archive__title-card">Best Photo Locations in Riviera Maya: <em>A Photographer&#x27;s Guide to Cenotes, Beaches &amp; Hidden Spots</em></h3>
-      <p class="lw-blog-archive__dek">Discover the best photo locations in Riviera Maya — from stunning cenotes and white-sand beaches to hidden jungle paths and luxury resort spots. A professional...</p>
-      <div class="lw-blog-archive__meta-card"><span>Locations</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>February 7, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="family">
-    <a href="/blog/quinceanera-photoshoot-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/quinceanera-photoshoot-cancun-og.jpg" alt="Quinceañera Photoshoot in Cancún: The Definitive Guide to Your XV Años Celebration" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Family</span>
-      <h3 class="lw-blog-archive__title-card">Quinceañera Photoshoot in Cancún: <em>The Definitive Guide to Your XV Años Celebration</em></h3>
-      <p class="lw-blog-archive__dek">Plan a quinceañera photoshoot in Cancún. Best resort locations, styling tips, pricing from $450, and expert advice for your XV años celebration.</p>
-      <div class="lw-blog-archive__meta-card"><span>Family</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>February 5, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>14 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="proposals">
-    <a href="/blog/surprise-proposal-photography-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/surprise-proposal-photography-cancun-og.jpg" alt="Surprise Proposal Photography in Cancún &amp; Riviera Maya: How to Plan the Perfect Moment" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Proposals</span>
-      <h3 class="lw-blog-archive__title-card">Surprise Proposal Photography in Cancún &amp; Riviera Maya: <em>How to Plan the Perfect Moment</em></h3>
-      <p class="lw-blog-archive__dek">Planning a surprise proposal in Cancún or Riviera Maya? Learn the best beach and cenote locations, how the photographer stays hidden, ring shot tips, and a...</p>
-      <div class="lw-blog-archive__meta-card"><span>Proposals</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>February 3, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/blog/trash-the-dress-cancun">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/trash-the-dress-cancun-og.jpg" alt="Trash the Dress Cancún Beach: The Complete Guide to Your Post-Wedding Photoshoot" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Weddings</span>
-      <h3 class="lw-blog-archive__title-card">Trash the Dress Cancún Beach: <em>The Complete Guide to Your Post-Wedding Photoshoot</em></h3>
-      <p class="lw-blog-archive__dek">Book your trash the dress Cancún beach session with IVAE Studios. Stunning ocean, cenote &amp; underwater options. Expert tips, best locations, packages from $500.</p>
-      <div class="lw-blog-archive__meta-card"><span>Weddings</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>February 1, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>13 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="locations">
-    <a href="/blog/tulum-photography-guide">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/tulum-photography-guide-og.jpg" alt="Tulum Photography Guide: Ancient Ruins, White Sand Beaches &amp; Hidden Cenotes" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Locations</span>
-      <h3 class="lw-blog-archive__title-card">Tulum Photography Guide: <em>Ancient Ruins, White Sand Beaches &amp; Hidden Cenotes</em></h3>
-      <p class="lw-blog-archive__dek">Best Tulum photo spots at the ruins, beaches, and cenotes. Timing, access tips, what to wear, and how to get there from Cancún.</p>
-      <div class="lw-blog-archive__meta-card"><span>Locations</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>January 30, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="weddings">
-    <a href="/blog/vow-renewal-mexico-photography">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/vow-renewal-mexico-photography-og.jpg" alt="Vow Renewal in Mexico: A Complete Photography Guide for Couples Celebrating Again" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Weddings</span>
-      <h3 class="lw-blog-archive__title-card">Vow Renewal in Mexico: <em>A Complete Photography Guide for Couples Celebrating Again</em></h3>
-      <p class="lw-blog-archive__dek">Plan a vow renewal in Mexico. Best locations, beach ceremonies, cenotes, private villas, what to wear, and photography packages.</p>
-      <div class="lw-blog-archive__meta-card"><span>Weddings</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>January 27, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="locations">
-    <a href="/blog/cancun-vs-riviera-maya-photos">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/cancun-vs-riviera-maya-photos-og.jpg" alt="Cancún vs Riviera Maya: Which Destination Is Better for Your Vacation Photos?" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Locations</span>
-      <h3 class="lw-blog-archive__title-card">Cancún vs Riviera Maya: <em>Which Destination Is Better for Your Vacation Photos?</em></h3>
-      <p class="lw-blog-archive__dek">Cancún or Riviera Maya for photography? Compare beaches, cenotes, light quality, logistics, and photo variety to choose the best destination for couples...</p>
-      <div class="lw-blog-archive__meta-card"><span>Locations</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>January 24, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--wide" data-category="guides">
-    <a href="/blog/golden-hour-photography-mexico">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/golden-hour-photography-mexico-og.jpg" alt="Golden Hour Photography in Mexico: Why the Best Resort Photos Happen at Sunset" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Guides</span>
-      <h3 class="lw-blog-archive__title-card">Golden Hour Photography in Mexico: <em>Why the Best Resort Photos Happen at Sunset</em></h3>
-      <p class="lw-blog-archive__dek">Discover why golden hour photography in Mexico produces the most stunning resort photos. Learn the best times for photos in Cancún, Riviera Maya, and Los Cabos...</p>
-      <div class="lw-blog-archive__meta-card"><span>Guides</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>January 21, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--portrait" data-category="guides">
-    <a href="/blog/what-to-wear-beach-photos-mexico">
-      <div class="lw-blog-archive__media">
-        <img src="https://assets.ivaestudios.com/blog/what-to-wear-beach-photos-mexico-og.jpg" alt="What to Wear for Beach Photos in Mexico: A Stylist-Approved Guide for Families, Couples &amp; Weddings" width="1200" height="900" loading="lazy" decoding="async"/>
-      </div>
-      <span class="lw-blog-archive__cat">Guides</span>
-      <h3 class="lw-blog-archive__title-card">What to Wear for Beach Photos in Mexico: <em>A Stylist-Approved Guide for Families, Couples &amp; Weddings</em></h3>
-      <p class="lw-blog-archive__dek">What to wear for beach photos in Mexico. Outfit ideas for families, couples, and weddings — fabrics, colors, and accessories.</p>
-      <div class="lw-blog-archive__meta-card"><span>Guides</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>January 18, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  <article class="lw-blog-archive__card lw-blog-archive__card--text" data-category="guides">
-    <a href="/blog/how-to-choose-luxury-photographer-mexico">
-      <span class="lw-blog-archive__cat">Guides</span>
-      <h3 class="lw-blog-archive__title-card">How to Choose a Luxury Photographer in Mexico: <em>Red Flags, Questions to Ask &amp; What to Expect</em></h3>
-      <p class="lw-blog-archive__dek">Hiring a luxury photographer in Mexico? Learn the 7 red flags, 10 essential questions, price ranges, and what editorial photography actually means — so your...</p>
-      <div class="lw-blog-archive__meta-card"><span>Guides</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>January 15, 2026</span><span class="lw-blog-archive__meta-card-sep" aria-hidden="true"></span><span>11 min read</span></div>
-    </a>
-  </article>
-  </div>
-  <nav class="lw-blog-archive__pagination" aria-label="Archive pagination">
-    <button class="lw-blog-archive__page" type="button" aria-current="page">01</button>
-    <button class="lw-blog-archive__page" type="button">02</button>
-    <button class="lw-blog-archive__page" type="button">03</button>
-    <button class="lw-blog-archive__page" type="button" aria-label="Next page">&rarr;</button>
-  </nav>
-  <button class="lw-blog-archive__load-more" type="button" data-load-more>
-    <span>Load more guides</span>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-  </button>
-</section>
-
-<section class="lw-blog-newsletter" aria-labelledby="lw-blog-newsletter-title">
-  <div class="lw-blog-newsletter__inner">
-    <div>
-      <span class="lw-blog-newsletter__eyebrow">The Dispatch</span>
-      <h2 class="lw-blog-newsletter__title" id="lw-blog-newsletter-title">A letter from the <em>studio</em>, monthly.</h2>
-      <p class="lw-blog-newsletter__lede">New field guides, golden-hour notes from Canc&uacute;n and Riviera Maya, and the occasional editorial preview &mdash; sent the first Sunday of every month.</p>
-    </div>
-    <div class="lw-blog-newsletter__form">
-      <p class="lw-blog-newsletter__static">To subscribe to <em>The Dispatch</em>, send a quick email to <a class="lw-blog-newsletter__mail-link" href="mailto:hello@ivaestudios.com?subject=Subscribe%20to%20The%20Journal&body=Please%20add%20me%20to%20The%20Dispatch%20newsletter.">hello@ivaestudios.com</a> and we&rsquo;ll add you to the list before the next issue.</p>
-      <p class="lw-blog-newsletter__fineprint">No spam. Unsubscribe by reply. Read our <a href="/privacy-policy">privacy policy</a>.</p>
-    </div>
-  </div>
-</section>
-
-</div>
-<!-- end ivm-desktop-only -->
-
-</main>
-
-<script>
-/* lw-blog — counts + filter + pagination + hero-hide (v2026-05-10b) */
-(function(){
-  var VALID = ['all','weddings','couples','family','proposals','maternity','cenote','yacht','editorial','locations','guides'];
-  var LABELS = {
-    all:'All',weddings:'Weddings',couples:'Couples',family:'Family',proposals:'Proposals',
-    maternity:'Maternity',cenote:'Cenote',yacht:'Yacht',editorial:'Editorial',locations:'Locations',guides:'Guides'
-  };
-  var PER_PAGE = 12;
-  var bar  = document.querySelector('.lw-blog-categories');
-  if (!bar) return;
-  var btns = bar.querySelectorAll('.lw-blog-categories__btn');
-  var dossierCards = document.querySelectorAll('.lw-blog-dossier__card[data-category]');
-  var archiveCards = document.querySelectorAll('.lw-blog-archive__card[data-category]');
-  var pagination = document.querySelector('.lw-blog-archive__pagination');
-  var statusBar = document.getElementById('lwBlogFilterStatus');
-  var filterCount = document.getElementById('lwFilterCount');
-  var filterCategory = document.getElementById('lwFilterCategory');
-  var mobFilterCount = document.getElementById('lwMobFilterCount');
-  var totalStat = document.querySelector('[data-stat="total"]');
-  var archiveMeta = document.querySelector('.lw-blog-archive__meta');
-  var current = 'all';
-  var currentPage = 1;
-  var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  /* ── 1. Compute counts from actual DOM ── */
-  function computeCounts(){
-    var counts = {all:0};
-    VALID.slice(1).forEach(function(k){counts[k]=0});
-    // Count archive + dossier
-    [].forEach.call(archiveCards, function(c){
-      var k = c.dataset.category;
-      counts.all++; if(counts[k] !== undefined) counts[k]++;
-    });
-    [].forEach.call(dossierCards, function(c){
-      var k = c.dataset.category;
-      counts.all++; if(counts[k] !== undefined) counts[k]++;
-    });
-    return counts;
-  }
-
-  function updateChipCounts(counts){
-    [].forEach.call(btns, function(b){
-      var k = b.dataset.filter;
-      var span = b.querySelector('.lw-blog-categories__btn-count');
-      if (span && counts[k] !== undefined){
-        var n = counts[k];
-        span.textContent = (k === 'all') ? String(n) : (n < 10 ? '0'+n : String(n));
-      }
+    }, { threshold: [0, 0.15] });
+    cards.forEach(function(c){
+      c.style.opacity = '0';
+      c.style.transform = 'translateY(24px)';
+      c.style.transition = 'opacity .8s cubic-bezier(0.22,1,0.36,1), transform .8s cubic-bezier(0.22,1,0.36,1)';
+      io.observe(c);
     });
   }
-
-  /* ── 2. Pagination across visible (filtered) archive cards ── */
-  function visibleArchiveCards(slug){
-    var arr = [];
-    [].forEach.call(archiveCards, function(c){
-      if (slug === 'all' || c.dataset.category === slug) arr.push(c);
-    });
-    return arr;
-  }
-
-  function totalPages(slug){
-    var n = visibleArchiveCards(slug).length;
-    return Math.max(1, Math.ceil(n / PER_PAGE));
-  }
-
-  function renderPagination(slug){
-    if (!pagination) return;
-    var pages = totalPages(slug);
-    pagination.innerHTML = '';
-    if (pages <= 1){ pagination.style.display = 'none'; return; }
-    pagination.style.display = '';
-    for (var p = 1; p <= pages; p++){
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'lw-blog-archive__page' + (p === currentPage ? ' is-active' : '');
-      b.textContent = (p < 10 ? '0'+p : String(p));
-      if (p === currentPage) b.setAttribute('aria-current','page');
-      b.dataset.page = String(p);
-      pagination.appendChild(b);
-    }
-    if (currentPage < pages){
-      var next = document.createElement('button');
-      next.type = 'button';
-      next.className = 'lw-blog-archive__page';
-      next.setAttribute('aria-label','Next page');
-      next.innerHTML = '→';
-      next.dataset.action = 'next';
-      pagination.appendChild(next);
-    }
-    if (currentPage > 1){
-      var prev = document.createElement('button');
-      prev.type = 'button';
-      prev.className = 'lw-blog-archive__page';
-      prev.setAttribute('aria-label','Previous page');
-      prev.innerHTML = '←';
-      prev.dataset.action = 'prev';
-      pagination.insertBefore(prev, pagination.firstChild);
-    }
-  }
-
-  function applyPagination(slug){
-    var visible = visibleArchiveCards(slug);
-    visible.forEach(function(c, i){
-      var page = Math.floor(i / PER_PAGE) + 1;
-      if (page === currentPage){
-        c.removeAttribute('data-page-hidden');
-      } else {
-        c.setAttribute('data-page-hidden','1');
-      }
-    });
-  }
-
-  /* ── 3. Apply filter (category) + update status bar + hide hero/dossier when filtered ── */
-  function applyFilter(slug, opts){
-    opts = opts || {};
-    if (VALID.indexOf(slug) === -1) slug = 'all';
-    if (!opts.force && slug === current){
-      if (!opts.skipUrl) updateURL(slug);
-      return;
-    }
-    current = slug;
-    currentPage = 1;
-    /* dossier cards */
-    [].forEach.call(dossierCards, function(c){
-      c.style.display = (slug === 'all' || c.dataset.category === slug) ? '' : 'none';
-    });
-    /* archive cards: visibility only, pagination handles per-page hiding */
-    [].forEach.call(archiveCards, function(c){
-      c.style.display = (slug === 'all' || c.dataset.category === slug) ? '' : 'none';
-    });
-    /* chip active state */
-    [].forEach.call(btns, function(b){
-      var on = b.dataset.filter === slug;
-      b.classList.toggle('is-active', on);
-      if (on) b.setAttribute('aria-current','true'); else b.removeAttribute('aria-current');
-    });
-    /* hero/dossier hide on filter — set body attribute ── */
-    if (slug !== 'all'){
-      document.body.setAttribute('data-filter-status','active');
-      if (filterCount) filterCount.textContent = String(visibleArchiveCards(slug).length);
-      if (filterCategory) filterCategory.textContent = LABELS[slug] || slug;
-    } else {
-      document.body.removeAttribute('data-filter-status');
-    }
-    /* mobile filter count */
-    if (mobFilterCount){
-      var n = visibleArchiveCards(slug).length + (slug === 'all' ? dossierCards.length : 0);
-      var label = (slug === 'all') ? 'entries' : (LABELS[slug] || slug).toLowerCase() + ' entries';
-      mobFilterCount.innerHTML = '<em>' + n + '</em> ' + label;
-    }
-    document.body.setAttribute('data-current-filter', slug);
-    renderPagination(slug);
-    applyPagination(slug);
-    syncLoadMore();
-    if (!opts.skipUrl) updateURL(slug);
-    if (!opts.skipScroll && !reduceMotion){
-      try { bar.scrollIntoView({behavior:'smooth', block:'start'}); } catch(e){}
-    }
-  }
-
-  function goToPage(p, opts){
-    opts = opts || {};
-    var pages = totalPages(current);
-    if (p < 1) p = 1;
-    if (p > pages) p = pages;
-    currentPage = p;
-    renderPagination(current);
-    applyPagination(current);
-    syncLoadMore();
-    if (!opts.skipScroll && !reduceMotion){
-      try { bar.scrollIntoView({behavior:'smooth', block:'start'}); } catch(e){}
-    }
-  }
-
-  /* ── Load-more (mobile additive control) ── */
-  var loadMoreBtn = document.querySelector('[data-load-more]');
-  function syncLoadMore(){
-    if (!loadMoreBtn) return;
-    var pages = totalPages(current);
-    if (currentPage >= pages) loadMoreBtn.setAttribute('hidden','');
-    else loadMoreBtn.removeAttribute('hidden');
-  }
-  if (loadMoreBtn){
-    loadMoreBtn.addEventListener('click', function(ev){
-      ev.preventDefault();
-      var pages = totalPages(current);
-      if (currentPage >= pages) return;
-      var prevHeight = document.documentElement.scrollHeight;
-      var prevScroll = window.scrollY || window.pageYOffset || 0;
-      goToPage(currentPage + 1, {skipScroll:true});
-      /* Preserve scroll anchor: keep button approximately in view */
-      try {
-        requestAnimationFrame(function(){
-          var newHeight = document.documentElement.scrollHeight;
-          var delta = newHeight - prevHeight;
-          if (delta > 0) window.scrollTo({top: prevScroll + 0, behavior: 'auto'});
-        });
-      } catch(e){}
-    });
-  }
-
-  function readURL(){
-    try {
-      var p = new URLSearchParams(location.search).get('category');
-      if (p && VALID.indexOf(p) !== -1) return p;
-    } catch(e){}
-    return 'all';
-  }
-
-  function updateURL(slug){
-    var url = (slug === 'all') ? location.pathname : location.pathname + '?category=' + slug;
-    try { history.pushState({filter: slug}, '', url); } catch(e){}
-  }
-
-  /* ── Event wiring ── */
-  bar.addEventListener('click', function(ev){
-    var t = ev.target.closest('.lw-blog-categories__btn');
-    if (!t) return;
-    ev.preventDefault();
-    applyFilter(t.dataset.filter);
-  });
-
-  if (pagination){
-    pagination.addEventListener('click', function(ev){
-      var t = ev.target.closest('.lw-blog-archive__page');
-      if (!t) return;
-      ev.preventDefault();
-      if (t.dataset.action === 'next') return goToPage(currentPage + 1);
-      if (t.dataset.action === 'prev') return goToPage(currentPage - 1);
-      var p = parseInt(t.dataset.page, 10);
-      if (!isNaN(p)) goToPage(p);
-    });
-  }
-
-  window.addEventListener('popstate', function(ev){
-    var slug = (ev.state && ev.state.filter) || readURL();
-    applyFilter(slug, {skipUrl: true, skipScroll: true, force: true});
-  });
-
-  /* ── INIT ── */
-  var counts = computeCounts();
-  updateChipCounts(counts);
-  if (totalStat) totalStat.textContent = counts.all;
-  if (archiveMeta) archiveMeta.textContent = (archiveCards.length) + ' dispatches';
-  var initial = readURL();
-  applyFilter(initial, {skipUrl:true, skipScroll:true, force:true});
 })();
 </script>
 
