@@ -173,6 +173,23 @@ def is_well_formed_url(value):
     return p.scheme in ("http", "https") and bool(p.netloc)
 
 
+def _is_image_object(v):
+    """RELAXED 2026-05-13: schema.org allows Thing.image to be an ImageObject
+    (dict with @type=ImageObject and url/contentUrl) or a URL string. The
+    validator was too strict — it expected only strings, which flagged 60
+    valid ImageGallery entries as errors.
+    """
+    if not isinstance(v, dict):
+        return False
+    t = v.get("@type")
+    if isinstance(t, list):
+        is_io = "ImageObject" in t
+    else:
+        is_io = t == "ImageObject"
+    has_url = isinstance(v.get("contentUrl"), str) or isinstance(v.get("url"), str)
+    return is_io and has_url
+
+
 def validate_url_field(node, field, results, rel, block_idx, type_label):
     val = node.get(field)
     if val is None:
@@ -183,17 +200,24 @@ def validate_url_field(node, field, results, rel, block_idx, type_label):
                 rel, "ERROR", "url-format",
                 f"Block #{block_idx} {type_label}.{field} is not a well-formed URL: {val!r}",
             ))
+    elif field == "image" and _is_image_object(val):
+        # Single ImageObject inline — valid per schema.org
+        return
     elif isinstance(val, list):
         for i, v in enumerate(val):
-            if not isinstance(v, str):
+            if isinstance(v, str):
+                if not is_well_formed_url(v):
+                    results.append((
+                        rel, "ERROR", "url-format",
+                        f"Block #{block_idx} {type_label}.{field}[{i}] is not a well-formed URL: {v!r}",
+                    ))
+            elif field == "image" and _is_image_object(v):
+                # ImageObject inline in an image array — valid
+                continue
+            else:
                 results.append((
                     rel, "ERROR", "url-format",
                     f"Block #{block_idx} {type_label}.{field}[{i}] is not a string",
-                ))
-            elif not is_well_formed_url(v):
-                results.append((
-                    rel, "ERROR", "url-format",
-                    f"Block #{block_idx} {type_label}.{field}[{i}] is not a well-formed URL: {v!r}",
                 ))
 
 

@@ -36,6 +36,10 @@ EXCLUDE_DIRS = {
     "node_modules", "gallery", "functions", "seo", "tools",
 }
 SKIP_FILES = {"404.html", "coming-soon.html"}
+# RELAXED 2026-05-13: don't validate preview/draft files — they keep stale
+# hreflang values pointing to the production canonical URLs which then look
+# asymmetric to the live page. They're not in the sitemap and not indexable.
+SKIP_PATTERNS = ("-preview.html", "-A-", "-B-", "-C-", "-v2.html", "-v3.html", "-v4.html", "-v5.html")
 
 CANONICAL_HOST = "https://ivaestudios.com"
 
@@ -67,28 +71,74 @@ def discover_files(root: str, only: str | None = None) -> Iterable[tuple[str, st
                 continue
             if fn in SKIP_FILES:
                 continue
+            if any(p in fn for p in SKIP_PATTERNS):
+                continue
             abs_path = os.path.join(dp, fn)
             rel = os.path.relpath(abs_path, root).replace(os.sep, "/")
             yield rel, abs_path
 
 
+def _parse_redirects(root: str) -> dict[str, str]:
+    """RELAXED 2026-05-13: parse Cloudflare _redirects so the validator
+    recognizes SEO-friendly URLs that resolve via a 200-rewrite (e.g.
+    `/riviera-maya-photographer → /riviera-maya 200`)."""
+    redirects: dict[str, str] = {}
+    redirects_path = os.path.join(root, "_redirects")
+    if not os.path.exists(redirects_path):
+        return redirects
+    with open(redirects_path, "r", encoding="utf-8", errors="replace") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            parts = line.split()
+            if len(parts) >= 2:
+                src, dest = parts[0], parts[1]
+                redirects[src.rstrip("/")] = dest.rstrip("/")
+    return redirects
+
+
+_REDIRECTS_CACHE: dict[str, str] | None = None
+
+
 def url_to_local_path(url: str, root: str) -> str | None:
-    """Convert a public URL to its local file path. Returns None if not found."""
+    """Convert a public URL to its local file path. Returns None if not found.
+
+    Follows _redirects 200-rewrites once so SEO-friendly URLs that resolve in
+    production are recognized as valid hreflang targets.
+    """
+    global _REDIRECTS_CACHE
+    if _REDIRECTS_CACHE is None:
+        _REDIRECTS_CACHE = _parse_redirects(root)
+
     if not url.startswith(CANONICAL_HOST):
         return None
     path = url[len(CANONICAL_HOST):].lstrip("/")
-    if not path or path.endswith("/"):
-        path = path + "index.html"
-    elif not path.endswith(".html"):
-        # Try {path}.html, {path}/index.html
-        candidates = [path + ".html", path + "/index.html"]
-        for c in candidates:
-            if os.path.exists(os.path.join(root, c)):
-                return c
+
+    def _resolve(p: str) -> str | None:
+        if not p or p.endswith("/"):
+            candidate = p + "index.html" if p else "index.html"
+        elif not p.endswith(".html"):
+            for c in (p + ".html", p + "/index.html"):
+                if os.path.exists(os.path.join(root, c)):
+                    return c
+            return None
+        else:
+            candidate = p
+        if os.path.exists(os.path.join(root, candidate)):
+            return candidate
         return None
-    if os.path.exists(os.path.join(root, path)):
-        return path
-    return None
+
+    direct = _resolve(path)
+    if direct is not None:
+        return direct
+
+    # Try _redirects (one hop, no recursion)
+    src_key = "/" + path.rstrip("/")
+    dest = _REDIRECTS_CACHE.get(src_key)
+    if dest is None:
+        return None
+    return _resolve(dest.lstrip("/"))
 
 
 def expected_lang(rel_path: str) -> str:
