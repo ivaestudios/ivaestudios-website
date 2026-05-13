@@ -2,155 +2,246 @@
   "fetched_at": "2026-05-13T04:42:40Z",
   "geo": "MX",
   "source": "gsc",
+  "count": 30,
   "keywords": [
     {
       "keyword": "fotografo de bodas cancun",
       "category": "weddings",
+      "velocity": 16.0,
+      "relevance": 19,
+      "intent": 1.0,
       "score": 199.0
     },
     {
       "keyword": "fotografo cancun",
       "category": "destinations",
+      "velocity": 2.0,
+      "relevance": 19,
+      "intent": 1.0,
       "score": 192.0
     },
     {
       "keyword": "cancun family portraits photographer",
       "category": "couples_family",
+      "velocity": 24.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 167.0
     },
     {
       "keyword": "luxury wedding photographer cancun",
       "category": "weddings",
+      "velocity": 4.0,
+      "relevance": 15,
+      "intent": 1.5,
       "score": 167.0
     },
     {
       "keyword": "photographer in cancun mexico",
       "category": "couples_family",
+      "velocity": 4.0,
+      "relevance": 16,
+      "intent": 1.0,
       "score": 166.0
     },
     {
       "keyword": "wedding photographer cancun mexico",
       "category": "weddings",
+      "velocity": 4.0,
+      "relevance": 16,
+      "intent": 1.0,
       "score": 166.0
     },
     {
       "keyword": "best photographer in cancun",
       "category": "couples_family",
+      "velocity": 1.5,
+      "relevance": 15,
+      "intent": 1.5,
       "score": 165.75
     },
     {
       "keyword": "photographer cancun mexico",
       "category": "couples_family",
+      "velocity": 2.0,
+      "relevance": 16,
+      "intent": 1.0,
       "score": 165.0
     },
     {
       "keyword": "cancun family photographer",
       "category": "couples_family",
+      "velocity": 16.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 163.0
     },
     {
       "keyword": "surprise proposal photographer cancun",
       "category": "couples_family",
+      "velocity": 16.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 163.0
     },
     {
       "keyword": "cancun photographer",
       "category": "couples_family",
+      "velocity": 15.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 162.5
     },
     {
       "keyword": "photographer in cancun",
       "category": "couples_family",
+      "velocity": 9.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 159.5
     },
     {
       "keyword": "inclusive wedding photographer cancun",
       "category": "weddings",
+      "velocity": 7.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 158.5
     },
     {
       "keyword": "cancun elopement photographer",
       "category": "couples_family",
+      "velocity": 6.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 158.0
     },
     {
       "keyword": "destination wedding photographer cancun",
       "category": "weddings",
+      "velocity": 6.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 158.0
     },
     {
       "keyword": "cancun photographer family",
       "category": "couples_family",
+      "velocity": 5.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 157.5
     },
     {
       "keyword": "bilingual wedding photographer cancun",
       "category": "weddings",
+      "velocity": 4.5,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 157.25
     },
     {
       "keyword": "indian wedding photographer cancun",
       "category": "weddings",
+      "velocity": 3.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 156.5
     },
     {
       "keyword": "wedding photographers cancun mexico",
       "category": "weddings",
+      "velocity": 3.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 156.5
     },
     {
       "keyword": "wedding photographers in cancun mexico",
       "category": "weddings",
+      "velocity": 3.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 156.5
     },
     {
       "keyword": "cancun wedding photographer in cancun",
       "category": "weddings",
+      "velocity": 2.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 156.0
     },
     {
       "keyword": "hire a photographer in cancun",
       "category": "couples_family",
+      "velocity": 2.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 156.0
     },
     {
       "keyword": "wedding photographer cancun",
       "category": "weddings",
+      "velocity": 2.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 156.0
     },
     {
       "keyword": "cancun wedding photographer",
       "category": "weddings",
+      "velocity": 1.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 155.5
     },
     {
       "keyword": "couples photographer cancun",
       "category": "couples_family",
+      "velocity": 1.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 155.5
     },
     {
       "keyword": "elopement photographer cancun",
       "category": "couples_family",
+      "velocity": 1.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 155.5
     },
     {
       "keyword": "photographer cancun",
       "category": "couples_family",
+      "velocity": 1.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 155.5
     },
     {
       "keyword": "two grooms wedding photographer cancun",
       "category": "weddings",
+      "velocity": 1.0,
+      "relevance": 15,
+      "intent": 1.0,
       "score": 155.5
     },
     {
       "keyword": "cancun mexico photographers",
       "category": "couples_family",
+      "velocity": 7.0,
+      "relevance": 14,
+      "intent": 1.0,
       "score": 149.5
     },
     {
       "keyword": "photographers cancun mexico",
       "category": "couples_family",
+      "velocity": 7.0,
+      "relevance": 14,
+      "intent": 1.0,
       "score": 149.5
     }
   ]

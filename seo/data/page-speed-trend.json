@@ -142,6 +142,94 @@
       "fcp_s": 3.0057433653163166,
       "tbt_ms": 0.0,
       "perf_score": 65.0
+    },
+    {
+      "url": "https://ivaestudios.com/",
+      "strategy": "mobile",
+      "captured_at": "2026-05-13T04:43:24.622708+00:00",
+      "lcp_s": 11.1145,
+      "inp_ms": 11114.5,
+      "cls": 0.0,
+      "fcp_s": 3.162466534782159,
+      "tbt_ms": 0.0,
+      "perf_score": 62.0
+    },
+    {
+      "url": "https://ivaestudios.com/",
+      "strategy": "desktop",
+      "captured_at": "2026-05-13T04:43:24.622708+00:00",
+      "lcp_s": 2.1725,
+      "inp_ms": 2172.5,
+      "cls": 0.001278,
+      "fcp_s": 0.8125848383036132,
+      "tbt_ms": 0.0,
+      "perf_score": 85.0
+    },
+    {
+      "url": "https://ivaestudios.com/es/",
+      "strategy": "mobile",
+      "captured_at": "2026-05-13T04:43:24.622708+00:00",
+      "lcp_s": 11.052,
+      "inp_ms": 11052.0,
+      "cls": 0.0,
+      "fcp_s": 3.163483377335883,
+      "tbt_ms": 49.0,
+      "perf_score": 61.0
+    },
+    {
+      "url": "https://ivaestudios.com/cancun",
+      "strategy": "mobile",
+      "captured_at": "2026-05-13T04:43:24.622708+00:00",
+      "lcp_s": 5.251,
+      "inp_ms": 5251.0,
+      "cls": 0.0,
+      "fcp_s": 3.011974057572426,
+      "tbt_ms": 0.0,
+      "perf_score": 69.0
+    },
+    {
+      "url": "https://ivaestudios.com/luxury-weddings",
+      "strategy": "mobile",
+      "captured_at": "2026-05-13T04:43:24.622708+00:00",
+      "lcp_s": 33.376,
+      "inp_ms": 34043.5,
+      "cls": 0.0,
+      "fcp_s": 3.1909860830334495,
+      "tbt_ms": 0.0,
+      "perf_score": 60.0
+    },
+    {
+      "url": "https://ivaestudios.com/luxury-weddings",
+      "strategy": "desktop",
+      "captured_at": "2026-05-13T04:43:24.622708+00:00",
+      "lcp_s": 5.6795,
+      "inp_ms": 5783.700000000001,
+      "cls": 0.00019500000000000002,
+      "fcp_s": 0.8053089565316718,
+      "tbt_ms": 26.0,
+      "perf_score": 74.0
+    },
+    {
+      "url": "https://ivaestudios.com/brand",
+      "strategy": "mobile",
+      "captured_at": "2026-05-13T04:43:24.622708+00:00",
+      "lcp_s": 3.120341645,
+      "inp_ms": 3120.341645,
+      "cls": 0.0,
+      "fcp_s": 3.120341645,
+      "tbt_ms": 0.0,
+      "perf_score": 88.0
+    },
+    {
+      "url": "https://ivaestudios.com/brand",
+      "strategy": "desktop",
+      "captured_at": "2026-05-13T04:43:24.622708+00:00",
+      "lcp_s": 0.7531422349999999,
+      "inp_ms": 753.1422349999999,
+      "cls": 0.301853,
+      "fcp_s": 0.7531422349999999,
+      "tbt_ms": 0.0,
+      "perf_score": 84.0
     }
   ]
 }
