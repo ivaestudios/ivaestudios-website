@@ -248,4 +248,18 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  <!-- NEW: Mayakoba wedding photographer landing page (high commercial query) -->
+  <url>
+    <loc>https://ivaestudios.com/mayakoba-wedding-photographer</loc>
+    <lastmod>2026-05-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <!-- NEW: Cenote photographer Tulum landing page (high niche commercial) -->
+  <url>
+    <loc>https://ivaestudios.com/cenote-photographer-tulum</loc>
+    <lastmod>2026-05-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
 </urlset>

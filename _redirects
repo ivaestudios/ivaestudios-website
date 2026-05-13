@@ -332,6 +332,18 @@
 /portfolio/wedding-tulum /luxury-weddings 301
 /portfolio/wedding-decor-cancun /luxury-weddings 301
 /portfolio/family-cancun-pier /luxury-family-photos 301
+
+# ═══════════════════════════════════════════
+# Batch 3 — NEW landing pages 2026-05-13
+# Mayakoba + Cenote Tulum dedicated pages for high commercial queries
+# ═══════════════════════════════════════════
+/mayakoba-wedding-photographer /mayakoba-wedding-photographer.html 200
+/mayakoba-photographer /mayakoba-wedding-photographer 301
+/mayakoba /mayakoba-wedding-photographer 301
+/cenote-photographer-tulum /cenote-photographer-tulum.html 200
+/cenote-photographer /cenote-photographer-tulum 301
+/tulum-cenote-photographer /cenote-photographer-tulum 301
+/cenote-tulum /cenote-photographer-tulum 301
 /portfolio/family-cancun-beach /luxury-family-photos 301
 /portfolio/couple-riviera-maya /couples-photography 301
 /portfolio/couple-los-cabos /couples-photography 301
