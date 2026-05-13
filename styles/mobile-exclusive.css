@@ -3279,15 +3279,14 @@
      ════════════════════════════════════════════════════════════════ */
   .ivm-jl-masthead {
     position: relative;
-    min-height: 50svh;
-    padding: 110px 24px 56px;
+    padding: calc(80px + env(safe-area-inset-top, 0px)) 24px 56px;
     background:
-      radial-gradient(ellipse at 50% 35%, rgba(201,165,78,.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 50%, rgba(201,165,78,.06) 0%, transparent 60%),
       linear-gradient(180deg, var(--ivm-ink) 0%, #060a10 100%);
     color: var(--ivm-cream);
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    justify-content: center;
     align-items: center;
     text-align: center;
     overflow: hidden;
