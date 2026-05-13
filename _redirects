@@ -65,10 +65,12 @@
 /es/privacidad.html /es/politica-de-privacidad 301
 /es/terminos.html /es/politica-de-privacidad 301
 /es/cookies.html /es/politica-de-privacidad 301
-/vianey-diaz.html /about 301
-/vianey-diaz /about 301
-/es/vianey-diaz.html /es/acerca-de 301
-/es/vianey-diaz /es/acerca-de 301
+# Vianey Díaz canonical author bio URL — points to dedicated founder story
+# (deepest E-E-A-T author signal). /about remains the studio page.
+/vianey-diaz.html /blog/vianey-diaz-luxury-photographer-journey 301
+/vianey-diaz /blog/vianey-diaz-luxury-photographer-journey 301
+/es/vianey-diaz.html /es/blog/vianey-diaz-fotografa-lujo-trayectoria 301
+/es/vianey-diaz /es/blog/vianey-diaz-fotografa-lujo-trayectoria 301
 /family-photography.html /luxury-family-photos-cancun 301
 /family-photography /luxury-family-photos-cancun 301
 /es/fotografia-familiar.html /es/fotos-familiares-lujo-cancun 301
