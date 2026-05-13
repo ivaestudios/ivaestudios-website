@@ -67,7 +67,11 @@ KW_BLOCK_RE = re.compile(
     re.DOTALL,
 )
 KW_TITLE_RE = re.compile(
-    r"(<!--\s*KW:title:start\s*-->)(.*?)(<!--\s*KW:title:end\s*-->)",
+    # KW:title markers wrap the entire <title> tag (sit OUTSIDE so browsers
+    # do not render the comment text as literal characters in the tab title
+    # or in Google's indexed title). The keyword is the portion BEFORE the
+    # first " | " separator inside <title>. Suffix is preserved.
+    r"(<!--\s*KW:title:start\s*--><title>)([^|<]+?)(\s*\|[^<]*</title><!--\s*KW:title:end\s*-->)",
     re.DOTALL,
 )
 KW_DESC_RE = re.compile(
