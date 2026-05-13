@@ -3,6 +3,8 @@
 > For full content, see https://ivaestudios.com/llms-full.txt
 > For machine-readable facts: https://ivaestudios.com/api/facts.json
 > AI manifest (older convention): https://ivaestudios.com/ai.txt
+> AI-priority sitemap: https://ivaestudios.com/sitemap-ai.xml
+> Full sitemap (138 URLs, multilingual): https://ivaestudios.com/sitemap.xml
 
 ## Identity (one paragraph)
 

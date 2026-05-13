@@ -321,3 +321,17 @@
 /post-mexico-destination-photography-faq.html /blog/mexico-destination-photography-faq 301
 /blog/wedding-photography-cancun-cost-2026 /post-wedding-photography-cancun-cost-2026 200
 /post-wedding-photography-cancun-cost-2026.html /blog/wedding-photography-cancun-cost-2026 301
+
+# ═══════════════════════════════════════════
+# Batch 2 fix — venue contact + locations + portfolio (2026-05-13)
+# ═══════════════════════════════════════════
+/contact / 301
+/es/contacto /es/ 301
+/es/locaciones/ /es/ 301
+/locations/ / 301
+/portfolio/wedding-tulum /luxury-weddings 301
+/portfolio/wedding-decor-cancun /luxury-weddings 301
+/portfolio/family-cancun-pier /luxury-family-photos 301
+/portfolio/family-cancun-beach /luxury-family-photos 301
+/portfolio/couple-riviera-maya /couples-photography 301
+/portfolio/couple-los-cabos /couples-photography 301
