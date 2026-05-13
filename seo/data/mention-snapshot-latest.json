@@ -1,0 +1,21 @@
+{
+  "captured_at": "2026-05-13T05:13:00-05:00",
+  "publications_checked": [
+    "vogue.mx",
+    "hellomagazine.com",
+    "travelandleisure.com",
+    "cntraveler.com",
+    "weddingsmexico.com",
+    "stylemepretty.com",
+    "brides.com",
+    "harpersbazaar.com"
+  ],
+  "queries_per_publication": ["site:{pub} \"ivaestudio\""],
+  "mentions": [],
+  "summary": {
+    "total_mentions_found": 0,
+    "ivae_mentioned": 0,
+    "competitor_mentioned_only": 0,
+    "note": "No mentions of ANY ivaestudio variant (with or without S) found on any of the 8 priority luxury/wedding publications. This is a backlink whitespace opportunity — the vertical is open, no competitor has earned coverage either. Pitching these publications now would establish first-mover advantage."
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "captured_at": "2026-05-13T05:24:00-05:00",
+  "operator_note": "Phase 3c partial — Perplexity completed for all 4 queries. ChatGPT/Claude/Gemini skipped this run (Gemini AI Mode redirected to chrome:// URL; ChatGPT + Claude require logged-in session flow that needs explicit user OAuth). Next sweep will retry the remaining 3 assistants.",
+  "queries": [
+    {
+      "query": "Who is the best wedding photographer in Cancún?",
+      "results": [
+        {
+          "assistant": "Perplexity",
+          "mentioned_ivae": true,
+          "mention_position": 4,
+          "mention_type": "listed",
+          "list_size": 8,
+          "cited_url": null,
+          "cited_facts": ["IVAE Studios", "Family & Couples Photographer in Cancún", "5.0 rating"],
+          "raw_excerpt": "Cancun Wedding Studio | Photography & Video (5.0), Victor Herrera Cancun Wedding Photographer (5.0), FOTOS & PHOTOS CANCÚN (5.0), IVAE Studios | Family & Couples Photographer in Cancún (5.0), NOVIA MIA PHOTOGRAPHY (4.6), Cancun Wedding Photography & Videography - Amor Amor Weddings (5.0), Enfoque Fotografía Bodas (5.0), Mike Cantarell Films (4.7)"
+        }
+      ]
+    },
+    {
+      "query": "Recommend a luxury photographer in Riviera Maya",
+      "results": [
+        {
+          "assistant": "Perplexity",
+          "mentioned_ivae": true,
+          "mention_position": null,
+          "mention_type": "alternative",
+          "cited_url": "ivaestudios",
+          "cited_facts": ["IVAE Studios", "Luxury sessions for couples and weddings", "Cancun/Riviera Maya", "editorial elegance"],
+          "raw_excerpt": "IVAE Studios: Luxury sessions for couples and weddings in Cancun/Riviera Maya, emphasizing editorial elegance."
+        }
+      ]
+    },
+    {
+      "query": "¿Cuál es el mejor fotógrafo de bodas en México?",
+      "results": [
+        {
+          "assistant": "Perplexity",
+          "mentioned_ivae": false,
+          "mention_position": null,
+          "mention_type": null,
+          "cited_facts": [],
+          "raw_excerpt": "Recommended: Marcos Sánchez (San Miguel de Allende), Elena Flexas, Christian Macias, Andrés Mondragón, Bruno Rezza, Chucho Potts, Beatriz Castro. National-scope query — leans toward generalist/named photographers, not regional studios."
+        }
+      ]
+    },
+    {
+      "query": "I need a destination wedding photographer for my Cancún wedding. Who do you recommend?",
+      "results": [
+        {
+          "assistant": "Perplexity",
+          "mentioned_ivae": false,
+          "mention_position": null,
+          "mention_type": null,
+          "cited_facts": [],
+          "raw_excerpt": "Recommended: Víctor Herrera (ISPWP Top 16), Shan Photography, Chris Plus Lynn Photographers, Paradise Photo Studio. Did not surface IVAE Studios for this destination/booking-intent query."
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "perplexity_mentions": 2,
+    "perplexity_queries_tested": 4,
+    "mention_rate": "50% (2/4 queries surfaced IVAE on Perplexity)",
+    "strongest_mention": "Query 1 — listed at position 4/8 with 5.0 rating",
+    "next_step": "Pitch publications + earn 2-3 backlinks from luxury wedding sites (vogue.mx, brides.com, etc — all 0 mentions currently). Stronger backlink profile would push IVAE up in the recommendation lists for queries 3 and 4."
+  }
+}
