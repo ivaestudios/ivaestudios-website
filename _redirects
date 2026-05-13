@@ -255,6 +255,28 @@
 /proposal-photographer /blog/surprise-proposal-photography-cancun 301
 /family-photoshoot /luxury-family-photos-cancun 301
 
+# Fix broken internal links found by link audit (May 2026)
+/blog/engagement /blog/engagement-session-cancun-riviera-maya 301
+/blog/wedding-cancun /blog/wedding-photographer-cancun 301
+/blog/cancun-wedding-cost-2026 /cancun-wedding-cost-2026 301
+/blog/all-inclusive-resort-photographer /blog/all-inclusive-resort-photographer-mexico 301
+/comparison/ /comparison/luxury-photographers-cancun.html 301
+/es/comparativa/ /es/comparativa/fotografos-lujo-cancun.html 301
+/es/destination-wedding-photographer-mexico /es/fotografo-bodas-destino-mexico 301
+/es/blog/destination-wedding /es/blog/fotografo-boda-destino-riviera-maya 301
+/es/riviera-maya-photographer /es/fotografo-riviera-maya 301
+/portfolio/couple-cancun-beach /couples-photography-mexico 301
+
+# Additional link-audit fixes May 2026 — point 30+ broken refs to correct URLs
+/blog/destination-wedding /blog/destination-wedding-photographer-riviera-maya 301
+/es/luxury-weddings /es/fotografo-bodas-destino-mexico 301
+/blog/choose-luxury-photographer /blog/how-to-choose-luxury-photographer-mexico 301
+/es/about /es/acerca-de 301
+/es/cancun-photographer /es/fotografo-cancun 301
+/venues /venues/banyan-tree-mayakoba 301
+/portfolio /luxury-weddings 301
+/portfolio/* /luxury-weddings 301
+
 # ═══════════════════════════════════════════
 # Fix broken internal links — April 2026 audit (ES — EN slug used in ES path)
 # ═══════════════════════════════════════════
