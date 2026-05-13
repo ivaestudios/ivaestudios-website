@@ -21,7 +21,7 @@
     { title: 'Parejas',   desc: 'Lunas de miel, aniversarios y escapadas',        href: '/es/fotografia-parejas-mexico',     icon: 'couple' },
     { title: 'Editorial', desc: 'Campañas de marca y editoriales de revista',     href: '/es/editorial-de-lujo',             icon: 'editorial' }
   ] : [
-    { title: 'Weddings',  desc: 'Full editorial destination wedding coverage',    href: '/luxury-weddings',                  icon: 'wedding' },
+    { title: 'Weddings',  desc: 'Full editorial destination wedding coverage',    href: '/destination-wedding-photographer-mexico', icon: 'wedding' },
     { title: 'Family',    desc: 'Family sessions at luxury resorts',              href: '/luxury-family-photos-cancun',      icon: 'family' },
     { title: 'Couples',   desc: 'Honeymoons, anniversaries, romantic getaways',   href: '/couples-photography-mexico',       icon: 'couple' },
     { title: 'Editorial', desc: 'Brand campaigns and magazine editorials',        href: '/luxury-editorial',                 icon: 'editorial' }
