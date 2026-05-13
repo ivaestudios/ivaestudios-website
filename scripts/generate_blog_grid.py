@@ -53,6 +53,82 @@ G_END = "<!-- AUTOGEN-CARDS:END -->"
 # ────────────────────────────────────────────────────────────────────────────
 # Category derivation — turn slug + articleSection into a tight editorial label
 # ────────────────────────────────────────────────────────────────────────────
+# Fallback image picker — assets.ivaestudios.com/blog/*-og.jpg URLs are 404 for
+# most posts (never uploaded). Match the post slug to a local /images/* photo
+# we know exists. Falls back to a generic editorial shot.
+def derive_image(slug: str, cdn_url: str) -> str:
+    s = slug.lower()
+    # Priority order: most specific topic first, then location
+    mapping = [
+        ("mayakoba",              "/images/couple-mayakoba-ivae-studios.jpg"),
+        ("tulum",                 "/images/couple-tulum-ivae-studios-3.jpg"),
+        ("cenote",                "/images/wedding-bride-tulum-ivae-studios.jpg"),
+        ("cabo",                  "/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg"),
+        ("riviera",               "/images/couple-riviera-maya-ivae-studios.jpg"),
+        ("playa-mujeres",         "/images/couple-playa-mujeres-ivae-studios.jpg"),
+        ("isla-mujeres",          "/images/couple-isla-mujeres-ivae-studios.jpg"),
+        ("akumal",                "/images/couple-akumal-ivae-studios.jpg"),
+        ("honeymoon",             "/images/blog/honeymoon-photographer-riviera-maya-og.jpg"),
+        ("luna-de-miel",          "/images/blog/honeymoon-photographer-riviera-maya-og.jpg"),
+        ("luna-miel",             "/images/blog/honeymoon-photographer-riviera-maya-og.jpg"),
+        ("babymoon",              "/images/family-kids-cancun-hotel-zone-ivae-studios-3.jpg"),
+        ("maternity",             "/images/family-kids-cancun-hotel-zone-ivae-studios-4.jpg"),
+        ("maternidad",            "/images/family-kids-cancun-hotel-zone-ivae-studios-4.jpg"),
+        ("gender-reveal",         "/images/family-kids-cancun-hotel-zone-ivae-studios-5.jpg"),
+        ("quinceanera",           "/images/family-kids-cancun-hotel-zone-ivae-studios-7.jpg"),
+        ("birthday",              "/images/family-kids-cancun-hotel-zone-ivae-studios-8.jpg"),
+        ("bachelorette",          "/images/family-kids-los-cabos-ivae-studios.jpg"),
+        ("anniversary",           "/images/couple-cancun-hotel-zone-ivae-studios-12.jpg"),
+        ("aniversario",           "/images/couple-cancun-hotel-zone-ivae-studios-12.jpg"),
+        ("proposal",              "/images/couple-cancun-beach-ivae-studios-4.jpg"),
+        ("propuesta",             "/images/couple-cancun-beach-ivae-studios-4.jpg"),
+        ("engagement",            "/images/couple-cancun-beach-ivae-studios-3.jpg"),
+        ("compromiso",            "/images/couple-cancun-beach-ivae-studios-3.jpg"),
+        ("family-photoshoot",     "/images/family-cancun-hotel-zone-ivae-studios.jpg"),
+        ("luxury-family",         "/images/family-cancun-hotel-zone-ivae-studios.jpg"),
+        ("family-vacation",       "/images/family-kids-isla-mujeres-ivae-studios.jpg"),
+        ("family",                "/images/family-cancun-ivae-studios-2.jpg"),
+        ("familia",               "/images/family-cancun-ivae-studios-2.jpg"),
+        ("yacht",                 "/images/couple-cancun-hotel-zone-ivae-studios-9.jpg"),
+        ("yate",                  "/images/couple-cancun-hotel-zone-ivae-studios-9.jpg"),
+        ("drone",                 "/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg"),
+        ("dron",                  "/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg"),
+        ("what-to-wear",          "/images/couple-playa-mujeres-ivae-studios-3.jpg"),
+        ("que-ponerse",           "/images/couple-playa-mujeres-ivae-studios-3.jpg"),
+        ("vestuario",             "/images/couple-playa-mujeres-ivae-studios-3.jpg"),
+        ("golden-hour",           "/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg"),
+        ("hora-dorada",           "/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg"),
+        ("vow-renewal",           "/images/wedding-bride-cancun-ivae-studios-3.jpg"),
+        ("renovacion",            "/images/wedding-bride-cancun-ivae-studios-3.jpg"),
+        ("elopement",             "/images/wedding-bride-isla-mujeres-ivae-studios.jpg"),
+        ("indian-wedding",        "/images/wedding-bride-cancun-ivae-studios-5.jpg"),
+        ("bodas-indias",          "/images/wedding-bride-cancun-ivae-studios-5.jpg"),
+        ("same-sex",              "/images/couple-cancun-hotel-zone-ivae-studios-10.jpg"),
+        ("mismo-sexo",            "/images/couple-cancun-hotel-zone-ivae-studios-10.jpg"),
+        ("lgbtq",                 "/images/couple-cancun-hotel-zone-ivae-studios-10.jpg"),
+        ("wedding-timeline",      "/images/wedding-bride-cancun-hotel-zone-ivae-studios-8.jpg"),
+        ("destination-wedding",   "/images/blog/destination-wedding-riviera-maya-og.jpg"),
+        ("boda-destino",          "/images/blog/destination-wedding-riviera-maya-og.jpg"),
+        ("resort",                "/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg"),
+        ("press",                 "/images/editorial-cancun-ivae-studios.jpg"),
+        ("vianey",                "/images/editorial-cancun-ivae-studios.jpg"),
+        ("editorial",             "/images/editorial-cancun-ivae-studios.jpg"),
+        ("couples-photographer",  "/images/blog/couples-photographer-cancun-og.jpg"),
+        ("wedding-photographer",  "/images/blog/wedding-photographer-cancun-og.jpg"),
+        ("photographer",          "/images/wedding-bride-cancun-ivae-studios-4.jpg"),
+        ("fotografo",             "/images/wedding-bride-cancun-ivae-studios-4.jpg"),
+        ("wedding",               "/images/wedding-bride-cancun-ivae-studios-2.jpg"),
+        ("boda",                  "/images/wedding-bride-cancun-ivae-studios-2.jpg"),
+        ("couple",                "/images/couple-cancun-hotel-zone-ivae-studios-2.jpg"),
+        ("pareja",                "/images/couple-cancun-hotel-zone-ivae-studios-2.jpg"),
+        ("cancun",                "/images/couple-cancun-beach-ivae-studios.jpg"),
+    ]
+    for needle, local in mapping:
+        if needle in s:
+            return local
+    return "/images/editorial-cancun-ivae-studios.jpg"
+
+
 def derive_category(slug: str, article_section: str, lang: str) -> str:
     """Return a 'Primary · Secondary' label like 'Couples · Honeymoon'.
 
@@ -316,11 +392,15 @@ def parse_post(path: Path, lang: str) -> dict | None:
     # Trim "Guide 2026" / "Pricing Guide 2026" tail
     clean_title = re.sub(r"\s+(?:Pricing\s+)?Guide\s+\d{4}\.?$", "", clean_title).strip()
     clean_title = clean_title.rstrip(":")
+    # The og:image points at assets.ivaestudios.com/blog/*-og.jpg — most of
+    # those return 404. Pick a local fallback that matches the slug topic.
+    local_image = derive_image(slug, image)
     return {
         "slug": slug,
         "title": clean_title,
         "description": (description or "").strip(),
-        "image": image.strip(),
+        "image": local_image,
+        "image_cdn": image.strip(),
         "date": d,
         "section": (section or "").strip(),
         "url": url,
