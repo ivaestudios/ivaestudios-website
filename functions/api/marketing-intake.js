@@ -265,6 +265,7 @@ export async function onRequestPost(context) {
   const fromEmail = env.INTAKE_FROM_EMAIL || 'intake@ivaestudios.com';
 
   try {
+    // 1) Send full brief to IVAE Marketing team
     const send = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -283,6 +284,30 @@ export async function onRequestPost(context) {
       const text = await send.text();
       console.error('Resend API failed:', send.status, text);
       return json({ error: 'We could not deliver your brief. Please write to info@ivaestudios.com directly.' }, 502);
+    }
+
+    // 2) Send confirmation to client (best-effort, do not block on failure)
+    try {
+      const firstName = (f.contact_name || '').split(' ')[0] || '';
+      const clientSubject = 'Hemos recibido tu brief — IVAE Marketing';
+      const clientHtml = buildClientConfirmationHtml(f, firstName);
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: `IVAE Marketing <${fromEmail}>`,
+          to: [f.contact_email],
+          reply_to: toEmail,
+          subject: clientSubject,
+          html: clientHtml,
+        }),
+      });
+    } catch (e) {
+      // Confirmation email is best-effort — don't fail the form submission
+      console.warn('Client confirmation email failed:', e.message);
     }
   } catch (e) {
     console.error('Resend network error:', e.message);
@@ -315,6 +340,187 @@ function json(data, status = 200) {
       'Cache-Control': 'no-store',
     },
   });
+}
+
+// Client confirmation email — IVAE Marketing purple/pink branding.
+// Sent to the prospect's email after they submit the brief.
+function buildClientConfirmationHtml(f, firstName) {
+  const safeName = escapeHtml(firstName);
+  const safeBrand = escapeHtml(f.legal_name || f.commercial_name || 'tu marca');
+
+  return `<!DOCTYPE html><html lang="es"><head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hemos recibido tu brief — IVAE Marketing</title>
+</head>
+<body style="margin:0;padding:0;background:#0a0a0f;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#f0eee9;-webkit-font-smoothing:antialiased;">
+
+<!-- Wrapper -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0a0a0f;padding:40px 16px;">
+<tr><td align="center">
+
+  <!-- Container -->
+  <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:linear-gradient(180deg,#12121a 0%,#0a0a0f 100%);border:1px solid rgba(167,139,250,0.18);border-radius:16px;overflow:hidden;">
+
+    <!-- Header with gradient bar -->
+    <tr>
+      <td style="background:linear-gradient(135deg,#a78bfa 0%,#c084fc 40%,#ec4899 100%);height:4px;line-height:4px;font-size:0;">&nbsp;</td>
+    </tr>
+
+    <!-- Logo + Eyebrow -->
+    <tr>
+      <td style="padding:40px 40px 0 40px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td style="font-family:'Outfit',sans-serif;font-weight:700;font-size:16px;color:#f0eee9;letter-spacing:-0.01em;">
+              <span style="display:inline-block;width:10px;height:10px;background:linear-gradient(135deg,#a78bfa,#ec4899);border-radius:50%;margin-right:8px;vertical-align:middle;"></span>
+              IVAE Marketing
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top:24px;">
+              <span style="display:inline-block;font-family:'Courier New',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.22em;color:#a78bfa;padding:8px 16px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.18);border-radius:100px;">
+                ◉ BRIEF RECIBIDO
+              </span>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <!-- Hero -->
+    <tr>
+      <td style="padding:32px 40px 24px 40px;">
+        <h1 style="font-family:'Outfit',sans-serif;font-size:38px;font-weight:900;line-height:1.05;letter-spacing:-0.025em;color:#f0eee9;margin:0 0 20px 0;">
+          Gracias, ${safeName || 'gracias'}.<br/>
+          <span style="background:linear-gradient(105deg,#a78bfa 0%,#c084fc 18%,#d8b4fe 28%,#ec4899 50%,#f472b6 70%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#ec4899;">El brief llegó.</span>
+        </h1>
+        <p style="font-family:'Outfit',sans-serif;font-size:16px;line-height:1.7;color:#c4b5fd;margin:0;">
+          Recibimos toda la información de <strong style="color:#f0eee9;">${safeBrand}</strong>. Nuestro equipo de estrategia ya está revisando los detalles. Esto es lo que sigue exactamente.
+        </p>
+      </td>
+    </tr>
+
+    <!-- Timeline -->
+    <tr>
+      <td style="padding:8px 40px 16px 40px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid rgba(167,139,250,0.18);">
+
+          <tr>
+            <td style="padding:20px 0;border-bottom:1px solid rgba(167,139,250,0.10);" valign="top">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td width="100" valign="top" style="font-family:'Courier New',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.2em;background:linear-gradient(135deg,#a78bfa,#ec4899);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#a78bfa;padding-top:2px;">
+                    En 24h
+                  </td>
+                  <td valign="top" style="font-family:'Outfit',sans-serif;font-size:15px;line-height:1.65;color:#f0eee9;">
+                    Un acuse de recibo personal de tu estratega confirmando que el brief llegó.
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:20px 0;border-bottom:1px solid rgba(167,139,250,0.10);" valign="top">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td width="100" valign="top" style="font-family:'Courier New',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.2em;background:linear-gradient(135deg,#a78bfa,#ec4899);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#a78bfa;padding-top:2px;">
+                    En 72h
+                  </td>
+                  <td valign="top" style="font-family:'Outfit',sans-serif;font-size:15px;line-height:1.65;color:#f0eee9;">
+                    Una invitación a llamada de descubrimiento de 30 minutos con una agenda de 3 preguntas que enviamos por adelantado.
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:20px 0;border-bottom:1px solid rgba(167,139,250,0.10);" valign="top">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td width="100" valign="top" style="font-family:'Courier New',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.2em;background:linear-gradient(135deg,#a78bfa,#ec4899);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#a78bfa;padding-top:2px;">
+                    En 7 días
+                  </td>
+                  <td valign="top" style="font-family:'Outfit',sans-serif;font-size:15px;line-height:1.65;color:#f0eee9;">
+                    Tu <strong style="color:#c4b5fd;">Social Strategy Snapshot</strong> personalizado — 6 páginas de análisis hechas a la medida de tu brief. Sin compromiso.
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:20px 0;" valign="top">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td width="100" valign="top" style="font-family:'Courier New',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.2em;background:linear-gradient(135deg,#a78bfa,#ec4899);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#a78bfa;padding-top:2px;">
+                    Día 14
+                  </td>
+                  <td valign="top" style="font-family:'Outfit',sans-serif;font-size:15px;line-height:1.65;color:#f0eee9;">
+                    Llamada de propuesta si ambas partes vemos compatibilidad. Si no, el snapshot es tuyo para quedarte.
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+
+    <!-- CTA + Contact -->
+    <tr>
+      <td style="padding:8px 40px 40px 40px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:linear-gradient(135deg,rgba(167,139,250,0.10),rgba(236,72,153,0.06));border:1px solid rgba(167,139,250,0.25);border-radius:12px;">
+          <tr>
+            <td style="padding:24px 28px;">
+              <p style="font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.15em;color:#a78bfa;margin:0 0 8px 0;">
+                ¿Algo urgente?
+              </p>
+              <p style="font-family:'Outfit',sans-serif;font-size:15px;line-height:1.6;color:#f0eee9;margin:0;">
+                Escríbenos directamente a <a href="mailto:info@ivaestudios.com" style="color:#c4b5fd;text-decoration:none;font-weight:500;border-bottom:1px solid rgba(167,139,250,0.4);">info@ivaestudios.com</a> o por <a href="https://wa.me/529902046514" style="color:#c4b5fd;text-decoration:none;font-weight:500;border-bottom:1px solid rgba(167,139,250,0.4);">WhatsApp</a>.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <!-- Signature -->
+    <tr>
+      <td style="padding:0 40px 40px 40px;">
+        <p style="font-family:'Outfit',sans-serif;font-size:14px;color:#8b85a3;margin:0 0 4px 0;font-style:italic;">
+          Un abrazo,
+        </p>
+        <p style="font-family:'Outfit',sans-serif;font-size:15px;color:#f0eee9;font-weight:500;margin:0;">
+          Equipo de IVAE Marketing
+        </p>
+      </td>
+    </tr>
+
+    <!-- Footer -->
+    <tr>
+      <td style="background:rgba(167,139,250,0.04);padding:24px 40px;border-top:1px solid rgba(167,139,250,0.12);">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td style="font-family:'Courier New',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.2em;color:#6b6580;line-height:1.7;">
+              IVAE Marketing · Agencia de Redes Sociales<br/>
+              Cancún · Riviera Maya · Los Cabos · México<br/>
+              <a href="https://ivaestudios.com/es/manejo-redes-sociales" style="color:#a78bfa;text-decoration:none;">ivaestudios.com</a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+  </table>
+
+</td></tr>
+</table>
+
+</body></html>`;
 }
 
 // Plain-text version of the brief for mailto: fallback. No HTML escaping
