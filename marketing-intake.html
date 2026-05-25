@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<!-- KW:title:start --><title>Client Intake — IVAE Marketing | Strategy Brief</title><!-- KW:title:end -->
+<meta name="description" content="The IVAE Marketing strategy brief. Eighteen minutes that change the next twelve months of your brand's social presence. Bilingual intake form for boutique hotels, restaurants, and luxury clinics in Mexico."/>
+<meta name="robots" content="noindex, follow"/>
+<link rel="canonical" href="https://ivaestudios.com/marketing-intake"/>
+<link rel="alternate" hreflang="en" href="https://ivaestudios.com/marketing-intake"/>
+<link rel="alternate" hreflang="es" href="https://ivaestudios.com/marketing-intake?lang=es"/>
+<link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/marketing-intake"/>
+
+<meta property="og:title" content="IVAE Marketing — Strategy Brief"/>
+<meta property="og:description" content="Eighteen minutes that change the next twelve months of your brand."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://ivaestudios.com/marketing-intake"/>
+<meta property="og:image" content="https://assets.ivaestudios.com/ivae-marketing-og.jpg"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:site_name" content="IVAE Marketing"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:locale:alternate" content="es_MX"/>
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="IVAE Marketing — Strategy Brief"/>
+<meta name="twitter:description" content="Eighteen minutes that change the next twelve months of your brand."/>
+<meta name="twitter:image" content="https://assets.ivaestudios.com/ivae-marketing-og.jpg"/>
+
+<link rel="icon" href="/favicon.ico" sizes="any"/>
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+<meta name="theme-color" content="#0F1419"/>
+
+<!-- IVAE Marketing visual identity — Inter sans, no serifs, Ink/Bone/Signal -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- Cloudflare Turnstile -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   IVAE MARKETING — Design Tokens
+   "Performance with restraint"
+   Deliberately distinct from IVAE Studios photography brand.
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --imkt-bg: #F4F2ED;
+  --imkt-fg: #0F1419;
+  --imkt-surface: #FFFFFF;
+  --imkt-surface-elevated: #1F262E;
+  --imkt-muted: #6B7380;
+  --imkt-muted-strong: #4A5260;
+  --imkt-border: #D9D6CF;
+  --imkt-border-strong: #B5B0A6;
+  --imkt-accent: #E8FF5C;
+  --imkt-accent-dark: #C9DC40;
+  --imkt-accent-fg: #0F1419;
+  --imkt-alert: #FF5436;
+  --imkt-success: #2D7A4F;
+  --imkt-font-display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --imkt-font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --imkt-font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --imkt-tracking-display: -0.02em;
+  --imkt-tracking-eyebrow: 0.16em;
+  --imkt-unit: 8px;
+  --imkt-radius-sm: 2px;
+  --imkt-radius-md: 4px;
+  --imkt-border-width: 1px;
+  --imkt-maxw: 1080px;
+  --imkt-maxw-form: 720px;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--imkt-bg);
+  color: var(--imkt-fg);
+  font-family: var(--imkt-font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Mono font for data/metrics */
+.mono { font-family: var(--imkt-font-mono); font-size: 0.85em; letter-spacing: 0; }
+
+/* ═══════════════════════════════════════════
+   HEADER — minimal, distinct from IVAE Studios
+   ═══════════════════════════════════════════ */
+.imkt-header {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--imkt-bg);
+  border-bottom: var(--imkt-border-width) solid var(--imkt-border);
+}
+.imkt-header-inner {
+  max-width: var(--imkt-maxw);
+  margin: 0 auto;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.imkt-logo {
+  font-family: var(--imkt-font-display);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  color: var(--imkt-fg);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.imkt-logo-mark {
+  display: inline-block;
+  width: 8px; height: 8px;
+  background: var(--imkt-accent);
+  border-radius: 1px;
+}
+.imkt-logo-suffix {
+  color: var(--imkt-muted);
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.imkt-header-cta {
+  font-family: var(--imkt-font-mono);
+  font-size: 11px;
+  color: var(--imkt-muted);
+  text-decoration: none;
+}
+.imkt-header-cta:hover { color: var(--imkt-fg); }
+
+/* ═══════════════════════════════════════════
+   HERO — declarative, numbers-forward
+   ═══════════════════════════════════════════ */
+.imkt-hero {
+  max-width: var(--imkt-maxw);
+  margin: 0 auto;
+  padding: 80px 24px 56px;
+}
+.imkt-eyebrow {
+  display: inline-block;
+  font-family: var(--imkt-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: var(--imkt-tracking-eyebrow);
+  color: var(--imkt-muted-strong);
+  padding-left: 18px;
+  position: relative;
+  margin-bottom: 28px;
+}
+.imkt-eyebrow::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%; transform: translateY(-50%);
+  width: 12px; height: 1px;
+  background: var(--imkt-fg);
+}
+.imkt-h1 {
+  font-family: var(--imkt-font-display);
+  font-size: clamp(36px, 5.5vw, 64px);
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: var(--imkt-tracking-display);
+  color: var(--imkt-fg);
+  margin: 0 0 24px;
+  max-width: 880px;
+}
+.imkt-h1 .accent {
+  background: var(--imkt-accent);
+  padding: 0 6px;
+  margin-left: -6px;
+}
+.imkt-hero-sub {
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--imkt-muted-strong);
+  max-width: 620px;
+  margin: 0 0 36px;
+}
+
+/* Hero meta strip */
+.imkt-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  padding-top: 32px;
+  border-top: var(--imkt-border-width) solid var(--imkt-border);
+}
+.imkt-meta-item { min-width: 0; }
+.imkt-meta-label {
+  display: block;
+  font-family: var(--imkt-font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: var(--imkt-tracking-eyebrow);
+  color: var(--imkt-muted);
+  margin-bottom: 6px;
+}
+.imkt-meta-value {
+  font-family: var(--imkt-font-display);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--imkt-fg);
+}
+
+/* ═══════════════════════════════════════════
+   FORM — multi-step, Swiss editorial
+   ═══════════════════════════════════════════ */
+.imkt-form-wrap {
+  max-width: var(--imkt-maxw);
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+.imkt-form-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 32px;
+  font-family: var(--imkt-font-mono);
+  font-size: 11px;
+  color: var(--imkt-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--imkt-tracking-eyebrow);
+}
+.imkt-progress-bar {
+  flex: 1;
+  height: 2px;
+  background: var(--imkt-border);
+  position: relative;
+  overflow: hidden;
+}
+.imkt-progress-fill {
+  position: absolute;
+  inset: 0 100% 0 0;
+  background: var(--imkt-fg);
+  transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.imkt-form {
+  background: var(--imkt-surface);
+  border: var(--imkt-border-width) solid var(--imkt-border);
+  border-radius: var(--imkt-radius-md);
+  padding: 48px;
+  max-width: var(--imkt-maxw-form);
+  margin: 0 auto;
+}
+
+.imkt-step { display: none; }
+.imkt-step.active { display: block; animation: imktFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes imktFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.imkt-step-eyebrow {
+  font-family: var(--imkt-font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: var(--imkt-tracking-eyebrow);
+  color: var(--imkt-muted);
+  margin-bottom: 12px;
+}
+.imkt-step-title {
+  font-family: var(--imkt-font-display);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin: 0 0 8px;
+}
+.imkt-step-lede {
+  font-size: 15px;
+  color: var(--imkt-muted-strong);
+  margin: 0 0 32px;
+  line-height: 1.55;
+}
+
+.imkt-field {
+  margin-bottom: 28px;
+}
+.imkt-field label, .imkt-field .imkt-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--imkt-fg);
+  margin-bottom: 6px;
+}
+.imkt-field-help {
+  font-family: var(--imkt-font-mono);
+  font-size: 11px;
+  color: var(--imkt-muted);
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
+}
+.imkt-field-required {
+  color: var(--imkt-alert);
+  margin-left: 2px;
+}
+
+.imkt-input, .imkt-textarea, .imkt-select {
+  width: 100%;
+  padding: 12px 0;
+  font-family: var(--imkt-font-body);
+  font-size: 16px;
+  color: var(--imkt-fg);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--imkt-border-strong);
+  border-radius: 0;
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.imkt-input:focus, .imkt-textarea:focus, .imkt-select:focus {
+  border-bottom-color: var(--imkt-fg);
+  border-bottom-width: 2px;
+  padding-bottom: 11px;
+}
+.imkt-input::placeholder, .imkt-textarea::placeholder { color: var(--imkt-muted); }
+.imkt-textarea { min-height: 100px; resize: vertical; padding: 12px 0; }
+.imkt-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%230F1419' stroke-width='1.5' d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+  padding-right: 24px;
+}
+
+/* Radio + Checkbox: minimal squares */
+.imkt-choices { display: grid; gap: 8px; }
+.imkt-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--imkt-border-strong);
+  border-radius: var(--imkt-radius-sm);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  font-size: 15px;
+}
+.imkt-choice:hover { border-color: var(--imkt-fg); }
+.imkt-choice input { margin-top: 2px; accent-color: var(--imkt-fg); }
+.imkt-choice input:checked ~ * { font-weight: 500; }
+.imkt-choice:has(input:checked) { border-color: var(--imkt-fg); background: rgba(232, 255, 92, 0.12); }
+.imkt-choice-label { flex: 1; }
+.imkt-choice-help {
+  display: block;
+  font-family: var(--imkt-font-mono);
+  font-size: 11px;
+  color: var(--imkt-muted);
+  margin-top: 2px;
+}
+
+/* Two-column field row */
+.imkt-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+/* ═══════════════════════════════════════════
+   BUTTONS — engineered, not crafted
+   ═══════════════════════════════════════════ */
+.imkt-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--imkt-border);
+}
+.imkt-btn {
+  font-family: var(--imkt-font-display);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  padding: 14px 28px;
+  border: 1px solid var(--imkt-fg);
+  border-radius: var(--imkt-radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+  background: transparent;
+  color: var(--imkt-fg);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.imkt-btn:hover { background: var(--imkt-fg); color: var(--imkt-bg); }
+.imkt-btn--primary { background: var(--imkt-fg); color: var(--imkt-bg); }
+.imkt-btn--primary:hover { background: var(--imkt-accent); color: var(--imkt-accent-fg); border-color: var(--imkt-accent); }
+.imkt-btn--accent { background: var(--imkt-accent); color: var(--imkt-accent-fg); border-color: var(--imkt-accent); }
+.imkt-btn--accent:hover { background: var(--imkt-accent-dark); border-color: var(--imkt-accent-dark); }
+.imkt-btn--ghost { border-color: var(--imkt-border-strong); color: var(--imkt-muted-strong); }
+.imkt-btn--ghost:hover { background: transparent; color: var(--imkt-fg); border-color: var(--imkt-fg); }
+.imkt-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.imkt-btn-arrow { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.5; fill: none; }
+
+/* ═══════════════════════════════════════════
+   THANK-YOU STATE
+   ═══════════════════════════════════════════ */
+.imkt-thanks {
+  text-align: left;
+  padding: 24px 0;
+}
+.imkt-thanks-tag {
+  display: inline-block;
+  font-family: var(--imkt-font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: var(--imkt-tracking-eyebrow);
+  background: var(--imkt-accent);
+  color: var(--imkt-accent-fg);
+  padding: 6px 12px;
+  margin-bottom: 24px;
+}
+.imkt-thanks h2 {
+  font-family: var(--imkt-font-display);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0 0 16px;
+}
+.imkt-thanks p { font-size: 16px; color: var(--imkt-muted-strong); margin: 0 0 24px; }
+.imkt-timeline { list-style: none; padding: 0; margin: 32px 0; border-top: 1px solid var(--imkt-border); }
+.imkt-timeline li {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--imkt-border);
+  font-size: 15px;
+  align-items: start;
+}
+.imkt-timeline .when {
+  font-family: var(--imkt-font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: var(--imkt-tracking-eyebrow);
+  color: var(--imkt-muted);
+  padding-top: 2px;
+}
+.imkt-timeline .what { color: var(--imkt-fg); }
+
+/* Status (errors / sending) */
+.imkt-status {
+  margin-top: 16px;
+  padding: 12px 16px;
+  font-family: var(--imkt-font-mono);
+  font-size: 12px;
+  border-radius: var(--imkt-radius-sm);
+}
+.imkt-status--error {
+  background: rgba(255, 84, 54, 0.08);
+  color: var(--imkt-alert);
+  border: 1px solid rgba(255, 84, 54, 0.3);
+}
+.imkt-status--sending {
+  color: var(--imkt-muted);
+}
+
+/* Footer */
+.imkt-footer {
+  max-width: var(--imkt-maxw);
+  margin: 0 auto;
+  padding: 40px 24px;
+  border-top: 1px solid var(--imkt-border);
+  font-family: var(--imkt-font-mono);
+  font-size: 11px;
+  color: var(--imkt-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--imkt-tracking-eyebrow);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.imkt-footer a { color: var(--imkt-muted); text-decoration: none; border-bottom: 1px dotted var(--imkt-muted); }
+.imkt-footer a:hover { color: var(--imkt-fg); border-bottom-color: var(--imkt-fg); }
+
+/* Honeypot — must be invisible to humans */
+.imkt-honeypot {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Turnstile container */
+.cf-turnstile { margin: 16px 0; }
+
+/* ═══════════════════════════════════════════
+   MOBILE (99% IVAE clients view on phone)
+   ═══════════════════════════════════════════ */
+@media (max-width: 720px) {
+  .imkt-hero { padding: 48px 20px 32px; }
+  .imkt-h1 { font-size: 32px; line-height: 1.08; }
+  .imkt-hero-sub { font-size: 16px; }
+  .imkt-hero-meta { gap: 24px; padding-top: 24px; }
+  .imkt-meta-item { flex: 1 1 calc(50% - 12px); min-width: 140px; }
+  .imkt-form-wrap { padding: 0 20px 56px; }
+  .imkt-form { padding: 28px 20px; }
+  .imkt-step-title { font-size: 22px; }
+  .imkt-row { grid-template-columns: 1fr; gap: 0; }
+  .imkt-actions { flex-direction: column-reverse; gap: 12px; }
+  .imkt-actions .imkt-btn { width: 100%; justify-content: center; }
+  .imkt-footer { font-size: 10px; flex-direction: column; }
+  .imkt-timeline li { grid-template-columns: 1fr; gap: 4px; }
+  .imkt-header-inner { padding: 14px 20px; }
+}
+</style>
+</head>
+<body>
+
+<header class="imkt-header">
+  <div class="imkt-header-inner">
+    <a href="/social-media-management" class="imkt-logo">
+      <span class="imkt-logo-mark"></span>
+      IVAE Marketing
+      <span class="imkt-logo-suffix">· Strategy Brief</span>
+    </a>
+    <a href="mailto:info@ivaestudios.com" class="imkt-header-cta">info@ivaestudios.com</a>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════
+     HERO
+     ═══════════════════════════════════════════ -->
+<section class="imkt-hero">
+  <span class="imkt-eyebrow">STRATEGY BRIEF · CONFIDENTIAL</span>
+  <h1 class="imkt-h1">
+    Eighteen minutes that change<br/>
+    the next <span class="accent">twelve months</span><br/>
+    of your brand.
+  </h1>
+  <p class="imkt-hero-sub">
+    This is not a contact form. It is the same brief our strategy team uses on day one with every IVAE Marketing client. Complete it once and we will return a tailored social strategy snapshot within seven days, no obligation.
+  </p>
+
+  <div class="imkt-hero-meta">
+    <div class="imkt-meta-item">
+      <span class="imkt-meta-label">Time required</span>
+      <span class="imkt-meta-value">~18 minutes</span>
+    </div>
+    <div class="imkt-meta-item">
+      <span class="imkt-meta-label">Sent to</span>
+      <span class="imkt-meta-value mono">info@ivaestudios.com</span>
+    </div>
+    <div class="imkt-meta-item">
+      <span class="imkt-meta-label">First reply</span>
+      <span class="imkt-meta-value">Within 24 hours</span>
+    </div>
+    <div class="imkt-meta-item">
+      <span class="imkt-meta-label">Strategy snapshot</span>
+      <span class="imkt-meta-value">Within 7 days</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FORM
+     ═══════════════════════════════════════════ -->
+<section class="imkt-form-wrap">
+  <div class="imkt-form-progress" aria-live="polite">
+    <span id="progressLabel">Section 1 of 8</span>
+    <div class="imkt-progress-bar" aria-hidden="true">
+      <div class="imkt-progress-fill" id="progressFill"></div>
+    </div>
+    <span class="mono" id="progressPercent">12%</span>
+  </div>
+
+  <form id="imkt-form" class="imkt-form" novalidate>
+
+    <!-- Honeypot field — bots will fill it -->
+    <div class="imkt-honeypot" aria-hidden="true">
+      <label>Website (leave empty)
+        <input type="text" name="website" tabindex="-1" autocomplete="off"/>
+      </label>
+    </div>
+
+    <!-- ═══ STEP 1: THE BUSINESS ═══ -->
+    <div class="imkt-step active" data-step="1">
+      <p class="imkt-step-eyebrow">01 · The business</p>
+      <h2 class="imkt-step-title">Let us know who we are talking with.</h2>
+      <p class="imkt-step-lede">The basics. We promise this is the most generic section of the brief.</p>
+
+      <div class="imkt-row">
+        <div class="imkt-field">
+          <label for="legal_name">Legal business name<span class="imkt-field-required">*</span></label>
+          <input class="imkt-input" type="text" id="legal_name" name="legal_name" required maxlength="120" autocomplete="organization"/>
+        </div>
+        <div class="imkt-field">
+          <label for="commercial_name">DBA / commercial name</label>
+          <p class="imkt-field-help">If different from legal</p>
+          <input class="imkt-input" type="text" id="commercial_name" name="commercial_name" maxlength="120"/>
+        </div>
+      </div>
+
+      <div class="imkt-row">
+        <div class="imkt-field">
+          <label for="year_founded">Year founded</label>
+          <input class="imkt-input" type="number" id="year_founded" name="year_founded" min="1900" max="2026" inputmode="numeric"/>
+        </div>
+        <div class="imkt-field">
+          <label for="website_url">Website URL</label>
+          <input class="imkt-input" type="url" id="website_url" name="website_url" placeholder="https://" maxlength="200"/>
+        </div>
+      </div>
+
+      <div class="imkt-field">
+        <label for="location">Physical location(s)</label>
+        <p class="imkt-field-help">City, state, country. Add multiple lines if multi-location.</p>
+        <textarea class="imkt-textarea" id="location" name="location" rows="2" maxlength="400"></textarea>
+      </div>
+
+      <div class="imkt-field">
+        <label for="one_sentence">In one sentence, how would you describe the business to a stranger at dinner?<span class="imkt-field-required">*</span></label>
+        <p class="imkt-field-help">No marketing language. The way you would actually say it.</p>
+        <textarea class="imkt-textarea" id="one_sentence" name="one_sentence" required rows="2" maxlength="400"></textarea>
+      </div>
+    </div>
+
+    <!-- ═══ STEP 2: CONTACT ═══ -->
+    <div class="imkt-step" data-step="2">
+      <p class="imkt-step-eyebrow">02 · Decision-makers</p>
+      <h2 class="imkt-step-title">Who will we be working with?</h2>
+      <p class="imkt-step-lede">We want to know the day-to-day point person and the final approver from the start.</p>
+
+      <div class="imkt-row">
+        <div class="imkt-field">
+          <label for="contact_name">Primary contact — full name<span class="imkt-field-required">*</span></label>
+          <input class="imkt-input" type="text" id="contact_name" name="contact_name" required maxlength="100" autocomplete="name"/>
+        </div>
+        <div class="imkt-field">
+          <label for="contact_role">Role / title<span class="imkt-field-required">*</span></label>
+          <input class="imkt-input" type="text" id="contact_role" name="contact_role" required maxlength="100"/>
+        </div>
+      </div>
+
+      <div class="imkt-row">
+        <div class="imkt-field">
+          <label for="contact_email">Email<span class="imkt-field-required">*</span></label>
+          <input class="imkt-input" type="email" id="contact_email" name="contact_email" required maxlength="200" autocomplete="email"/>
+        </div>
+        <div class="imkt-field">
+          <label for="contact_whatsapp">WhatsApp / phone</label>
+          <input class="imkt-input" type="tel" id="contact_whatsapp" name="contact_whatsapp" maxlength="40" inputmode="tel" autocomplete="tel"/>
+        </div>
+      </div>
+
+      <div class="imkt-field">
+        <label for="decision_maker">Final decision-maker</label>
+        <p class="imkt-field-help">If different from primary contact (name + role)</p>
+        <input class="imkt-input" type="text" id="decision_maker" name="decision_maker" maxlength="200"/>
+      </div>
+
+      <div class="imkt-field">
+        <span class="imkt-label">Preferred communication channel</span>
+        <div class="imkt-choices">
+          <label class="imkt-choice"><input type="radio" name="comm_channel" value="whatsapp"/> <span class="imkt-choice-label">WhatsApp <span class="imkt-choice-help">Fast, conversational</span></span></label>
+          <label class="imkt-choice"><input type="radio" name="comm_channel" value="email"/> <span class="imkt-choice-label">Email <span class="imkt-choice-help">Async, paper trail</span></span></label>
+          <label class="imkt-choice"><input type="radio" name="comm_channel" value="slack"/> <span class="imkt-choice-label">Slack <span class="imkt-choice-help">Shared channel</span></span></label>
+          <label class="imkt-choice"><input type="radio" name="comm_channel" value="meet"/> <span class="imkt-choice-label">Weekly call <span class="imkt-choice-help">Google Meet / Zoom</span></span></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ STEP 3: GOALS ═══ -->
+    <div class="imkt-step" data-step="3">
+      <p class="imkt-step-eyebrow">03 · Goals</p>
+      <h2 class="imkt-step-title">What does winning look like?</h2>
+      <p class="imkt-step-lede">Specific over generic. Honest over impressive. There are no wrong answers.</p>
+
+      <div class="imkt-field">
+        <label for="goal_12mo">Twelve months from now, what does success look like that does not show up in a spreadsheet?<span class="imkt-field-required">*</span></label>
+        <textarea class="imkt-textarea" id="goal_12mo" name="goal_12mo" required rows="3" maxlength="800"></textarea>
+      </div>
+
+      <div class="imkt-field">
+        <span class="imkt-label">90-day priorities — pick up to three<span class="imkt-field-required">*</span></span>
+        <p class="imkt-field-help">If everything is a priority, nothing is.</p>
+        <div class="imkt-choices">
+          <label class="imkt-choice"><input type="checkbox" name="priority" value="awareness"/> <span class="imkt-choice-label">Brand awareness <span class="imkt-choice-help">Get on the right radar</span></span></label>
+          <label class="imkt-choice"><input type="checkbox" name="priority" value="lead-gen"/> <span class="imkt-choice-label">Lead generation <span class="imkt-choice-help">Predictable inquiries</span></span></label>
+          <label class="imkt-choice"><input type="checkbox" name="priority" value="tourism"/> <span class="imkt-choice-label">International / tourism inquiries <span class="imkt-choice-help">US / Canada / Europe</span></span></label>
+          <label class="imkt-choice"><input type="checkbox" name="priority" value="local"/> <span class="imkt-choice-label">Local market growth <span class="imkt-choice-help">Mexican audience</span></span></label>
+          <label class="imkt-choice"><input type="checkbox" name="priority" value="reputation"/> <span class="imkt-choice-label">Reputation / authority <span class="imkt-choice-help">Press, recognition</span></span></label>
+          <label class="imkt-choice"><input type="checkbox" name="priority" value="launch"/> <span class="imkt-choice-label">Launch a new service / location</span></label>
+          <label class="imkt-choice"><input type="checkbox" name="priority" value="hiring"/> <span class="imkt-choice-label">Hiring / recruitment</span></label>
+        </div>
+      </div>
+
+      <div class="imkt-field">
+        <label for="kpis">Specific KPIs you would want us measured against</label>
+        <p class="imkt-field-help">Followers? Inquiries per month? Cost per qualified lead? Engagement rate? Direct booking %?</p>
+        <textarea class="imkt-textarea" id="kpis" name="kpis" rows="3" maxlength="600"></textarea>
+      </div>
+
+      <div class="imkt-field">
+        <label for="fire_reason">What would make you fire an agency three months in?</label>
+        <p class="imkt-field-help">Tells us what to never become.</p>
+        <textarea class="imkt-textarea" id="fire_reason" name="fire_reason" rows="2" maxlength="500"></textarea>
+      </div>
+    </div>
+
+    <!-- ═══ STEP 4: AUDIENCE ═══ -->
+    <div class="imkt-step" data-step="4">
+      <p class="imkt-step-eyebrow">04 · Audience</p>
+      <h2 class="imkt-step-title">Who walks through the door?</h2>
+      <p class="imkt-step-lede">If we know your best client emotionally, we know the content.</p>
+
+      <div class="imkt-field">
+        <label for="ideal_client">Describe your ideal client in one paragraph<span class="imkt-field-required">*</span></label>
+        <p class="imkt-field-help">Age, where they live, what they do, why they chose you over the next place.</p>
+        <textarea class="imkt-textarea" id="ideal_client" name="ideal_client" required rows="4" maxlength="1000"></textarea>
+      </div>
+
+      <div class="imkt-field">
+        <label for="client_mix">Client mix today (approximate %)</label>
+        <p class="imkt-field-help">Local Cancún / Mexican domestic / US-Canada / European / other</p>
+        <input class="imkt-input" type="text" id="client_mix" name="client_mix" placeholder="e.g. 40% local · 20% MX · 30% US/CA · 10% EU" maxlength="200"/>
+      </div>
+
+      <div class="imkt-field">
+        <label for="emotional_state">What does your best client feel before walking in?</label>
+        <p class="imkt-field-help">Nervous? Skeptical? Excited? In need of trust? This shapes the tone.</p>
+        <textarea class="imkt-textarea" id="emotional_state" name="emotional_state" rows="3" maxlength="600"></textarea>
+      </div>
+
+      <div class="imkt-field">
+        <span class="imkt-label">Languages your audience speaks</span>
+        <div class="imkt-choices">
+          <label class="imkt-choice"><input type="checkbox" name="audience_lang" value="es"/> <span class="imkt-choice-label">Spanish</span></label>
+          <label class="imkt-choice"><input type="checkbox" name="audience_lang" value="en"/> <span class="imkt-choice-label">English</span></label>
+          <label class="imkt-choice"><input type="checkbox" name="audience_lang" value="pt"/> <span class="imkt-choice-label">Portuguese</span></label>
+          <label class="imkt-choice"><input type="checkbox" name="audience_lang" value="fr"/> <span class="imkt-choice-label">French</span></label>
+          <label class="imkt-choice"><input type="checkbox" name="audience_lang" value="de"/> <span class="imkt-choice-label">German</span></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ STEP 5: VOICE + REFERENCES ═══ -->
+    <div class="imkt-step" data-step="5">
+      <p class="imkt-step-eyebrow">05 · Voice &amp; references</p>
+      <h2 class="imkt-step-title">The brands you admire teach us most.</h2>
+      <p class="imkt-step-lede">Three Instagram accounts whose presence you respect. Any industry. And one you never want to be confused with.</p>
+
+      <div class="imkt-row">
+        <div class="imkt-field">
+          <label for="adj_yes">Three adjectives that describe the brand</label>
+          <input class="imkt-input" type="text" id="adj_yes" name="adj_yes" placeholder="e.g. precise · warm · quiet" maxlength="120"/>
+        </div>
+        <div class="imkt-field">
+          <label for="adj_no">Three adjectives that do NOT describe the brand</label>
+          <input class="imkt-input" type="text" id="adj_no" name="adj_no" placeholder="e.g. loud · clinical · cheap" maxlength="120"/>
+        </div>
+      </div>
+
+      <div class="imkt-field">
+        <label for="ref_1">Inspiration account #1 — handle + one specific reason</label>
+        <textarea class="imkt-textarea" id="ref_1" name="ref_1" rows="2" maxlength="400" placeholder="@example_brand — Their grid feels like a magazine, not an ad. The color grading is consistent across every post."></textarea>
+      </div>
+      <div class="imkt-field">
+        <label for="ref_2">Inspiration account #2</label>
+        <textarea class="imkt-textarea" id="ref_2" name="ref_2" rows="2" maxlength="400"></textarea>
+      </div>
+      <div class="imkt-field">
+        <label for="ref_3">Inspiration account #3</label>
+        <textarea class="imkt-textarea" id="ref_3" name="ref_3" rows="2" maxlength="400"></textarea>
+      </div>
+
+      <div class="imkt-field">
+        <label for="ref_avoid">One account you would NEVER want to be confused with — and why</label>
+        <textarea class="imkt-textarea" id="ref_avoid" name="ref_avoid" rows="2" maxlength="400"></textarea>
+      </div>
+    </div>
+
+    <!-- ═══ STEP 6: CURRENT STATE ═══ -->
+    <div class="imkt-step" data-step="6">
+      <p class="imkt-step-eyebrow">06 · Current state</p>
+      <h2 class="imkt-step-title">Where are you today?</h2>
+      <p class="imkt-step-lede">Honest, even if it is messy. We are not here to judge what is working or not.</p>
+
+      <div class="imkt-row">
+        <div class="imkt-field">
+          <label for="ig_handle">Instagram handle</label>
+          <input class="imkt-input" type="text" id="ig_handle" name="ig_handle" placeholder="@yourbrand" maxlength="60"/>
+        </div>
+        <div class="imkt-field">
+          <label for="tiktok_handle">TikTok handle</label>
+          <input class="imkt-input" type="text" id="tiktok_handle" name="tiktok_handle" placeholder="@yourbrand" maxlength="60"/>
+        </div>
+      </div>
+
+      <div class="imkt-row">
+        <div class="imkt-field">
+          <label for="fb_handle">Facebook page</label>
+          <input class="imkt-input" type="text" id="fb_handle" name="fb_handle" maxlength="100"/>
+        </div>
+        <div class="imkt-field">
+          <label for="other_channels">Other channels</label>
+          <input class="imkt-input" type="text" id="other_channels" name="other_channels" placeholder="LinkedIn, YouTube, etc." maxlength="200"/>
+        </div>
+      </div>
+
+      <div class="imkt-field">
+        <span class="imkt-label">Currently working with an agency?</span>
+        <div class="imkt-choices">
+          <label class="imkt-choice"><input type="radio" name="current_agency" value="yes"/> <span class="imkt-choice-label">Yes</span></label>
+          <label class="imkt-choice"><input type="radio" name="current_agency" value="in-house"/> <span class="imkt-choice-label">No, in-house team</span></label>
+          <label class="imkt-choice"><input type="radio" name="current_agency" value="solo"/> <span class="imkt-choice-label">No, founder/owner handles it</span></label>
+          <label class="imkt-choice"><input type="radio" name="current_agency" value="none"/> <span class="imkt-choice-label">No, nobody handles it consistently</span></label>
+        </div>
+      </div>
+
+      <div class="imkt-field">
+        <label for="working_not_working">What is working today? What is not?</label>
+        <textarea class="imkt-textarea" id="working_not_working" name="working_not_working" rows="3" maxlength="800"></textarea>
+      </div>
+
+      <div class="imkt-field">
+        <label for="monthly_inquiries">Monthly new inquiries from social today (estimate)</label>
+        <input class="imkt-input" type="text" id="monthly_inquiries" name="monthly_inquiries" maxlength="100" placeholder="e.g. ~15 DM inquiries / 4 booked"/>
+      </div>
+    </div>
+
+    <!-- ═══ STEP 7: COMPETITORS ═══ -->
+    <div class="imkt-step" data-step="7">
+      <p class="imkt-step-eyebrow">07 · Competitive landscape</p>
+      <h2 class="imkt-step-title">Who else is in the room?</h2>
+      <p class="imkt-step-lede">Direct competitors plus the aspirational tier. The contrast tells us the strategy.</p>
+
+      <div class="imkt-field">
+        <label for="competitors">Name 3–5 competitors and their handles or websites<span class="imkt-field-required">*</span></label>
+        <p class="imkt-field-help">Local, regional, or category competitors. One per line.</p>
+        <textarea class="imkt-textarea" id="competitors" name="competitors" required rows="5" maxlength="800"></textarea>
+      </div>
+
+      <div class="imkt-field">
+        <label for="competitor_strengths">For each — what do they do better than you?</label>
+        <textarea class="imkt-textarea" id="competitor_strengths" name="competitor_strengths" rows="3" maxlength="600"></textarea>
+      </div>
+
+      <div class="imkt-field">
+        <label for="aspiration">Who is the brand you wish you were perceived as a peer of?</label>
+        <p class="imkt-field-help">The aspirational anchor. Could be a competitor, could be a different industry entirely.</p>
+        <input class="imkt-input" type="text" id="aspiration" name="aspiration" maxlength="200"/>
+      </div>
+    </div>
+
+    <!-- ═══ STEP 8: INVESTMENT + SEND ═══ -->
+    <div class="imkt-step" data-step="8">
+      <p class="imkt-step-eyebrow">08 · Investment &amp; next steps</p>
+      <h2 class="imkt-step-title">A few last questions, then we begin.</h2>
+      <p class="imkt-step-lede">No payment. No commitment. Just the information we need to send you the strategy snapshot.</p>
+
+      <div class="imkt-field">
+        <span class="imkt-label">Investment range comfortable for the first 90 days<span class="imkt-field-required">*</span></span>
+        <p class="imkt-field-help">USD per month. Helps us match the right plan tier.</p>
+        <div class="imkt-choices">
+          <label class="imkt-choice"><input type="radio" name="budget" value="under-2k" required/> <span class="imkt-choice-label">Under $2,000 USD/mo <span class="imkt-choice-help">Essential tier</span></span></label>
+          <label class="imkt-choice"><input type="radio" name="budget" value="2k-5k"/> <span class="imkt-choice-label">$2,000 — $5,000 USD/mo <span class="imkt-choice-help">Editorial tier</span></span></label>
+          <label class="imkt-choice"><input type="radio" name="budget" value="5k-10k"/> <span class="imkt-choice-label">$5,000 — $10,000 USD/mo <span class="imkt-choice-help">Signature tier</span></span></label>
+          <label class="imkt-choice"><input type="radio" name="budget" value="10k-plus"/> <span class="imkt-choice-label">$10,000+ USD/mo <span class="imkt-choice-help">Custom partnership</span></span></label>
+          <label class="imkt-choice"><input type="radio" name="budget" value="not-sure"/> <span class="imkt-choice-label">Not sure yet — recommend a tier</span></label>
+        </div>
+      </div>
+
+      <div class="imkt-row">
+        <div class="imkt-field">
+          <label for="start_date">Desired start date</label>
+          <input class="imkt-input" type="text" id="start_date" name="start_date" placeholder="e.g. June 2026, ASAP, Q3 2026" maxlength="100"/>
+        </div>
+        <div class="imkt-field">
+          <label for="deadlines">Any fixed deadlines or events?</label>
+          <input class="imkt-input" type="text" id="deadlines" name="deadlines" placeholder="High season, launch date" maxlength="200"/>
+        </div>
+      </div>
+
+      <div class="imkt-field">
+        <label for="restrictions">Anything we should NOT post about?</label>
+        <p class="imkt-field-help">Topics, treatments, claims, words. Regulatory or personal preference.</p>
+        <textarea class="imkt-textarea" id="restrictions" name="restrictions" rows="2" maxlength="500"></textarea>
+      </div>
+
+      <div class="imkt-field">
+        <label for="anything_else">Anything else we should know that we have not asked?</label>
+        <textarea class="imkt-textarea" id="anything_else" name="anything_else" rows="3" maxlength="1000"></textarea>
+      </div>
+
+      <!-- Cloudflare Turnstile -->
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAAA_PLACEHOLDER_REPLACE_IN_DASHBOARD" data-theme="light"></div>
+
+      <div class="imkt-field" style="margin-top: 24px;">
+        <label class="imkt-choice" style="background: rgba(232,255,92,0.12); border-color: var(--imkt-fg);">
+          <input type="checkbox" name="want_call" value="yes" checked/>
+          <span class="imkt-choice-label">Yes, schedule a 30-minute discovery call within the next 7 days <span class="imkt-choice-help">No charge. No commitment.</span></span>
+        </label>
+      </div>
+
+      <div id="imkt-status" class="imkt-status" style="display:none;" role="status" aria-live="polite"></div>
+    </div>
+
+    <!-- ═══ ACTIONS ═══ -->
+    <div class="imkt-actions" id="formActions">
+      <button type="button" class="imkt-btn imkt-btn--ghost" id="btnBack" style="visibility:hidden">
+        <svg class="imkt-btn-arrow" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Back
+      </button>
+      <button type="button" class="imkt-btn imkt-btn--primary" id="btnNext">
+        Next
+        <svg class="imkt-btn-arrow" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <button type="submit" class="imkt-btn imkt-btn--accent" id="btnSubmit" style="display:none">
+        Send to IVAE strategy team
+        <svg class="imkt-btn-arrow" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+  </form>
+
+  <!-- Thank-you state (hidden until submit) -->
+  <div class="imkt-form imkt-thanks" id="imkt-thanks" style="display:none; max-width: var(--imkt-maxw-form); margin: 0 auto;">
+    <span class="imkt-thanks-tag">Brief received</span>
+    <h2>Thank you. The strategy team has your brief.</h2>
+    <p id="thanksMessage">A written acknowledgement is on its way to your inbox. Here is exactly what happens next.</p>
+    <ul class="imkt-timeline">
+      <li><span class="when">Within 24h</span><span class="what">A written acknowledgement from your strategist, confirming the brief was received.</span></li>
+      <li><span class="when">Within 72h</span><span class="what">A 30-minute discovery call invitation with a 3-question agenda we will send in advance.</span></li>
+      <li><span class="when">Within 7 days</span><span class="what">A custom <strong>Social Strategy Snapshot</strong> — 6 pages of analysis tailored to your brief, no obligation.</span></li>
+      <li><span class="when">Day 14</span><span class="what">A proposal call if both sides see a fit. If not, the snapshot is yours to keep.</span></li>
+    </ul>
+    <p style="font-family: var(--imkt-font-mono); font-size: 12px; color: var(--imkt-muted); margin-top: 32px;">
+      In the meantime, if anything is urgent, write to <a href="mailto:info@ivaestudios.com" style="color: var(--imkt-fg);">info@ivaestudios.com</a>.
+    </p>
+  </div>
+</section>
+
+<footer class="imkt-footer">
+  <span>IVAE Marketing · Social Media Management · Cancún · Mexico</span>
+  <span><a href="/social-media-management">Service overview</a> · <a href="/about">About IVAE Studios</a> · <a href="mailto:info@ivaestudios.com">info@ivaestudios.com</a></span>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  var TOTAL_STEPS = 8;
+  var currentStep = 1;
+  var form = document.getElementById('imkt-form');
+  var thanks = document.getElementById('imkt-thanks');
+  var actions = document.getElementById('formActions');
+  var btnBack = document.getElementById('btnBack');
+  var btnNext = document.getElementById('btnNext');
+  var btnSubmit = document.getElementById('btnSubmit');
+  var status = document.getElementById('imkt-status');
+  var progressLabel = document.getElementById('progressLabel');
+  var progressFill = document.getElementById('progressFill');
+  var progressPercent = document.getElementById('progressPercent');
+
+  function showStep(n) {
+    document.querySelectorAll('.imkt-step').forEach(function(el){
+      el.classList.toggle('active', parseInt(el.getAttribute('data-step'), 10) === n);
+    });
+    currentStep = n;
+    btnBack.style.visibility = n === 1 ? 'hidden' : 'visible';
+    btnNext.style.display = n === TOTAL_STEPS ? 'none' : 'inline-flex';
+    btnSubmit.style.display = n === TOTAL_STEPS ? 'inline-flex' : 'none';
+    var pct = Math.round((n / TOTAL_STEPS) * 100);
+    progressFill.style.right = (100 - pct) + '%';
+    progressLabel.textContent = 'Section ' + n + ' of ' + TOTAL_STEPS;
+    progressPercent.textContent = pct + '%';
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
+  function validateStep(n) {
+    var step = document.querySelector('.imkt-step[data-step="' + n + '"]');
+    if (!step) return true;
+    var reqs = step.querySelectorAll('[required]');
+    for (var i = 0; i < reqs.length; i++) {
+      if (!reqs[i].value.trim()) {
+        reqs[i].focus();
+        reqs[i].style.borderBottomColor = 'var(--imkt-alert)';
+        setTimeout(function(el){ return function(){ el.style.borderBottomColor = ''; }; }(reqs[i]), 2200);
+        showStatus('Please complete the required fields before continuing.', 'error');
+        return false;
+      }
+    }
+    // Special: priority checkboxes max 3
+    if (n === 3) {
+      var checked = step.querySelectorAll('input[name="priority"]:checked');
+      if (checked.length > 3) {
+        showStatus('Please pick up to three priorities.', 'error');
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function showStatus(msg, type) {
+    status.textContent = msg;
+    status.className = 'imkt-status imkt-status--' + (type || 'sending');
+    status.style.display = 'block';
+    if (type === 'error') {
+      setTimeout(function(){ status.style.display = 'none'; }, 4500);
+    }
+  }
+  function hideStatus() { status.style.display = 'none'; }
+
+  btnBack.addEventListener('click', function(){
+    if (currentStep > 1) showStep(currentStep - 1);
+  });
+  btnNext.addEventListener('click', function(){
+    if (!validateStep(currentStep)) return;
+    hideStatus();
+    if (currentStep < TOTAL_STEPS) showStep(currentStep + 1);
+  });
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    if (!validateStep(TOTAL_STEPS)) return;
+
+    // Collect all data
+    var data = {};
+    var fd = new FormData(form);
+    fd.forEach(function(v, k){
+      if (data[k] === undefined) data[k] = v;
+      else if (Array.isArray(data[k])) data[k].push(v);
+      else data[k] = [data[k], v];
+    });
+    // Collect multi-checkbox into arrays
+    ['priority', 'audience_lang'].forEach(function(k){
+      var checked = form.querySelectorAll('input[name="' + k + '"]:checked');
+      data[k] = Array.from(checked).map(function(el){ return el.value; });
+    });
+
+    // Turnstile token
+    var turnstileToken = (window.turnstile && form.querySelector('[name="cf-turnstile-response"]'))
+      ? form.querySelector('[name="cf-turnstile-response"]').value
+      : null;
+    data.turnstileToken = turnstileToken;
+
+    btnSubmit.disabled = true;
+    showStatus('Sending your brief to the strategy team...', 'sending');
+
+    try {
+      var res = await fetch('/api/marketing-intake', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      var json = await res.json();
+      if (res.ok && json.ok) {
+        form.style.display = 'none';
+        actions.style.display = 'none';
+        document.querySelector('.imkt-form-progress').style.display = 'none';
+        thanks.style.display = 'block';
+        var name = (data.contact_name || '').split(' ')[0];
+        if (name) {
+          document.getElementById('thanksMessage').innerHTML =
+            'Thank you, <strong>' + name.replace(/[<>&]/g, '') + '</strong>. A written acknowledgement is on its way to your inbox. Here is exactly what happens next.';
+        }
+        window.scrollTo({top: 0, behavior: 'smooth'});
+      } else {
+        btnSubmit.disabled = false;
+        showStatus(json.error || 'We could not send your brief. Please try again or write to info@ivaestudios.com.', 'error');
+        if (window.turnstile) window.turnstile.reset();
+      }
+    } catch (err) {
+      btnSubmit.disabled = false;
+      showStatus('Network error. Please check your connection and try again.', 'error');
+    }
+  });
+
+  showStep(1);
+})();
+</script>
+
+</body>
+</html>
