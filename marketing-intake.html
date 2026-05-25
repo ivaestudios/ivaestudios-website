@@ -1056,7 +1056,44 @@ body {
         body: JSON.stringify(data),
       });
       var json = await res.json();
+
+      // Server happy-path OR mailto-fallback are both treated as success.
       if (res.ok && json.ok) {
+
+        // ─── MAILTO FALLBACK ───
+        // Backend says Resend isn't configured yet. Open the prospect's email
+        // client with the brief prefilled and let them press Send.
+        if (json.fallback === 'mailto' && json.mailto) {
+          var mt = 'mailto:' + encodeURIComponent(json.mailto.to)
+                 + '?subject=' + encodeURIComponent(json.mailto.subject)
+                 + '&body=' + encodeURIComponent(json.mailto.body);
+          // mailto: URLs have a length limit (~2000 chars in most clients).
+          // If exceeded, truncate the body and append a notice.
+          if (mt.length > 1900) {
+            var head = json.mailto.body.split('\n').slice(0, 40).join('\n');
+            mt = 'mailto:' + encodeURIComponent(json.mailto.to)
+               + '?subject=' + encodeURIComponent(json.mailto.subject)
+               + '&body=' + encodeURIComponent(head + '\n\n[Brief truncated — full version follows in your email client]');
+          }
+          // Trigger the email client
+          window.location.href = mt;
+          // Then show the thanks panel (slight delay so mailto fires first)
+          setTimeout(function(){
+            form.style.display = 'none';
+            actions.style.display = 'none';
+            document.querySelector('.imkt-form-progress').style.display = 'none';
+            thanks.style.display = 'block';
+            var name = (data.contact_name || '').split(' ')[0];
+            if (name) {
+              document.getElementById('thanksMessage').innerHTML =
+                'Thank you, <strong>' + name.replace(/[<>&]/g, '') + '</strong>. Your email client should have opened with the brief ready to send. Press Send to deliver it to the IVAE strategy team. <br><br>If nothing opened, write directly to <a href="mailto:info@ivaestudios.com" style="color:var(--imkt-fg)">info@ivaestudios.com</a> with whatever you remember from the brief — we will follow up.';
+            }
+            window.scrollTo({top: 0, behavior: 'smooth'});
+          }, 200);
+          return;
+        }
+
+        // ─── HAPPY PATH (Resend configured, silent API send) ───
         form.style.display = 'none';
         actions.style.display = 'none';
         document.querySelector('.imkt-form-progress').style.display = 'none';

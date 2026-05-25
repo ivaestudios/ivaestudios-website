@@ -244,10 +244,21 @@ export async function onRequestPost(context) {
 
   // ─── 8. Send via Resend ───
   if (!env.RESEND_API_KEY) {
-    console.error('RESEND_API_KEY not configured');
+    // Graceful fallback: build a plain-text version of the brief and instruct
+    // the client to open mailto: with it prefilled. The form still "works" —
+    // it just routes through the prospect's email client instead of silently
+    // via API. This unblocks the form before Resend secrets are configured.
+    const plainTextBrief = buildPlainTextBrief(f, submittedAt);
     return json({
-      error: 'Email service not configured. Please write directly to info@ivaestudios.com.',
-    }, 500);
+      ok: true,
+      fallback: 'mailto',
+      mailto: {
+        to: env.INTAKE_TO_EMAIL || 'info@ivaestudios.com',
+        subject,
+        body: plainTextBrief,
+      },
+      note: 'Email service not yet configured. Opening your email client to send the brief directly.',
+    });
   }
 
   const toEmail = env.INTAKE_TO_EMAIL || 'info@ivaestudios.com';
@@ -304,4 +315,83 @@ function json(data, status = 200) {
       'Cache-Control': 'no-store',
     },
   });
+}
+
+// Plain-text version of the brief for mailto: fallback. No HTML escaping
+// because mailto: bodies are plain text.
+function buildPlainTextBrief(f, submittedAt) {
+  const line = (label, value) => value ? `${label}: ${value}\n` : '';
+  const section = (title, body) => body.trim() ? `\n────────────────────────────────\n${title.toUpperCase()}\n────────────────────────────────\n${body}` : '';
+
+  return `IVAE MARKETING — STRATEGY BRIEF
+Submitted: ${submittedAt}
+
+${section('Business', [
+  line('Legal name', f.legal_name),
+  line('Commercial name', f.commercial_name),
+  line('Year founded', f.year_founded),
+  line('Website', f.website_url),
+  line('Location(s)', f.location),
+  line('In one sentence', f.one_sentence),
+].join(''))}
+
+${section('Decision-makers', [
+  line('Primary contact', `${f.contact_name} — ${f.contact_role}`),
+  line('Email', f.contact_email),
+  line('WhatsApp / phone', f.contact_whatsapp),
+  line('Final decision-maker', f.decision_maker),
+  line('Preferred channel', f.comm_channel),
+].join(''))}
+
+${section('Goals', [
+  line('12-month vision', f.goal_12mo),
+  line('90-day priorities', f.priority),
+  line('KPIs to measure', f.kpis),
+  line('What would fire an agency', f.fire_reason),
+].join(''))}
+
+${section('Audience', [
+  line('Ideal client', f.ideal_client),
+  line('Client mix', f.client_mix),
+  line('Emotional state', f.emotional_state),
+  line('Languages', f.audience_lang),
+].join(''))}
+
+${section('Voice & references', [
+  line('Adjectives YES', f.adj_yes),
+  line('Adjectives NO', f.adj_no),
+  line('Inspiration 1', f.ref_1),
+  line('Inspiration 2', f.ref_2),
+  line('Inspiration 3', f.ref_3),
+  line('Avoid being like', f.ref_avoid),
+].join(''))}
+
+${section('Current state', [
+  line('Instagram', f.ig_handle),
+  line('TikTok', f.tiktok_handle),
+  line('Facebook', f.fb_handle),
+  line('Other channels', f.other_channels),
+  line('Currently working with', f.current_agency),
+  line('What is working / not working', f.working_not_working),
+  line('Monthly inquiries from social', f.monthly_inquiries),
+].join(''))}
+
+${section('Competitive landscape', [
+  line('Competitors', f.competitors),
+  line('Competitor strengths', f.competitor_strengths),
+  line('Aspirational peer', f.aspiration),
+].join(''))}
+
+${section('Investment & next steps', [
+  line('Budget tier', f.budget),
+  line('Desired start date', f.start_date),
+  line('Fixed deadlines', f.deadlines),
+  line('Restrictions / no-go', f.restrictions),
+  line('Anything else', f.anything_else),
+  line('Wants discovery call', f.want_call === 'yes' ? 'YES — schedule within 7 days' : 'No'),
+].join(''))}
+
+────────────────────────────────
+Submitted from ivaestudios.com/marketing-intake
+`;
 }
