@@ -196,46 +196,41 @@ body > * { position: relative; z-index: 1; }
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: var(--imkt-tracking-eyebrow);
-  color: var(--imkt-muted-strong);
-  padding: 8px 16px;
-  background: var(--imkt-surface);
-  border: 1px solid var(--imkt-border);
+  letter-spacing: 0.2em;
+  color: var(--imkt-purple);
+  padding: 10px 20px;
+  background: rgba(167, 139, 250, 0.08);
+  border: 1px solid rgba(167, 139, 250, 0.18);
   border-radius: 100px;
-  margin-bottom: 32px;
+  margin-bottom: 36px;
 }
 .imkt-eyebrow::before {
   content: '';
-  width: 6px; height: 6px;
-  background: var(--imkt-purple);
+  width: 7px; height: 7px;
+  background: #22c55e;
   border-radius: 50%;
-  box-shadow: 0 0 8px rgba(167, 139, 250, 0.8);
-  animation: imktPulse 2s infinite;
-}
-@keyframes imktPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.15); }
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
 }
 .imkt-h1 {
   font-family: var(--imkt-font-display);
-  font-size: clamp(40px, 7vw, 78px);
+  font-size: clamp(44px, 7vw, 78px);
   font-weight: 900;
-  line-height: 1.0;
+  line-height: 1.05;
   letter-spacing: -0.025em;
   color: var(--imkt-fg);
   margin: 0 0 28px;
   max-width: 880px;
 }
 .imkt-h1 .accent {
-  background: var(--imkt-gradient);
+  background: linear-gradient(105deg, #a78bfa 0%, #c084fc 18%, #d8b4fe 28%, #ec4899 50%, #f472b6 70%, #ef4444 90%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
   padding: 0;
   margin: 0;
-  font-style: italic;
-  font-weight: 800;
+  font-style: normal;
+  font-weight: 900;
 }
 .imkt-hero-sub {
   font-size: 18px;
@@ -674,32 +669,32 @@ body > * { position: relative; z-index: 1; }
      HERO
      ═══════════════════════════════════════════ -->
 <section class="imkt-hero">
-  <span class="imkt-eyebrow">STRATEGY BRIEF · CONFIDENTIAL</span>
+  <span class="imkt-eyebrow">BRIEF ESTRATÉGICO</span>
   <h1 class="imkt-h1">
-    Eighteen minutes that change<br/>
-    the next <span class="accent">twelve months</span><br/>
-    of your brand.
+    Brief de<br/>
+    <span class="accent">Estrategia</span><br/>
+    para tu Marca
   </h1>
   <p class="imkt-hero-sub">
-    This is not a contact form. It is the same brief our strategy team uses on day one with every IVAE Marketing client. Complete it once and we will return a tailored social strategy snapshot within seven days, no obligation.
+    No es un formulario de contacto. Es el mismo brief que nuestro equipo usa el día uno con cada cliente de IVAE Marketing. Complétalo una vez y recibirás un Snapshot de Estrategia Social personalizado en siete días. Sin compromiso.
   </p>
 
   <div class="imkt-hero-meta">
     <div class="imkt-meta-item">
-      <span class="imkt-meta-label">Time required</span>
-      <span class="imkt-meta-value">~18 minutes</span>
+      <span class="imkt-meta-label">Tiempo</span>
+      <span class="imkt-meta-value">~18 min</span>
     </div>
     <div class="imkt-meta-item">
-      <span class="imkt-meta-label">Sent to</span>
+      <span class="imkt-meta-label">Enviado a</span>
       <span class="imkt-meta-value mono">info@ivaestudios.com</span>
     </div>
     <div class="imkt-meta-item">
-      <span class="imkt-meta-label">First reply</span>
-      <span class="imkt-meta-value">Within 24 hours</span>
+      <span class="imkt-meta-label">Primera respuesta</span>
+      <span class="imkt-meta-value">En 24 horas</span>
     </div>
     <div class="imkt-meta-item">
       <span class="imkt-meta-label">Strategy snapshot</span>
-      <span class="imkt-meta-value">Within 7 days</span>
+      <span class="imkt-meta-value">En 7 días</span>
     </div>
   </div>
 </section>
