@@ -75,7 +75,7 @@ export async function onRequestPost(context) {
   const competitors = sanitize(body.competitors, MAX.mediumText);
   const budget = sanitize(body.budget, 50);
 
-  if (!legal_name || !contact_name || !contact_email || !contact_role || !one_sentence || !goal_12mo || !ideal_client || !competitors || !budget) {
+  if (!legal_name || !contact_name || !contact_email || !contact_role || !one_sentence || !ideal_client || !competitors) {
     return json({ error: 'Required fields are missing.' }, 400);
   }
   if (!isValidEmail(contact_email)) {
