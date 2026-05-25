@@ -262,4 +262,18 @@
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+  <!-- IVAE Marketing — Social Media Management (EN) -->
+  <url>
+    <loc>https://ivaestudios.com/social-media-management</loc>
+    <lastmod>2026-05-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <!-- IVAE Marketing — Manejo Redes Sociales (ES) -->
+  <url>
+    <loc>https://ivaestudios.com/es/manejo-redes-sociales</loc>
+    <lastmod>2026-05-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
 </urlset>

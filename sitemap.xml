@@ -1232,10 +1232,11 @@
   <url>
     <loc>https://ivaestudios.com/es/manejo-redes-sociales</loc>
     <lastmod>2026-05-13</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/manejo-redes-sociales"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/es/manejo-redes-sociales"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-management"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/social-media-management"/>
   </url>
 
   <url>
@@ -1245,6 +1246,16 @@
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/mayakoba-wedding-photographer"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/mayakoba-wedding-photographer"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/social-media-management</loc>
+    <lastmod>2026-05-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-management"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/manejo-redes-sociales"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/social-media-management"/>
   </url>
 
   <url>

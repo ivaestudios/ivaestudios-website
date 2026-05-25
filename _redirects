@@ -344,6 +344,22 @@
 /cenote-photographer /cenote-photographer-tulum 301
 /tulum-cenote-photographer /cenote-photographer-tulum 301
 /cenote-tulum /cenote-photographer-tulum 301
+
+# ═══════════════════════════════════════════
+# Batch 4 — IVAE Marketing sub-brand 2026-05-13
+# Social media management service alias redirects
+# ═══════════════════════════════════════════
+/marketing /social-media-management 301
+/ivae-marketing /social-media-management 301
+/social-media /social-media-management 301
+/social-media-agency /social-media-management 301
+/social-media-agency-cancun /social-media-management 301
+/instagram-management /social-media-management 301
+/es/marketing /es/manejo-redes-sociales 301
+/es/ivae-marketing /es/manejo-redes-sociales 301
+/es/redes-sociales /es/manejo-redes-sociales 301
+/es/agencia-social-media /es/manejo-redes-sociales 301
+/es/manejo-instagram /es/manejo-redes-sociales 301
 /portfolio/family-cancun-beach /luxury-family-photos 301
 /portfolio/couple-riviera-maya /couples-photography 301
 /portfolio/couple-los-cabos /couples-photography 301
