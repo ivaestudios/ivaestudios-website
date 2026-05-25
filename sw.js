@@ -1,40 +1,44 @@
-// IVAE Studios — Service Worker. Cache-first for static assets,
-// network-first for HTML, gracefully fall back to /offline.html if
-// disconnected.
-const CACHE_VERSION = 'ivae-v6-2026-05-12-services-reel';
+// IVAE Studios — Service Worker.
+// Network-first for HTML (always fresh), cache-first for static assets.
+// Falls back to /offline.html on disconnect.
+//
+// IMPORTANT: bump CACHE_VERSION on every change to force the browser
+// to re-install. The activate event clears every cache whose name does
+// not end in CACHE_VERSION, so old assets are dropped automatically.
+
+const CACHE_VERSION = 'ivae-v7-2026-05-25-purge';
 const STATIC_CACHE = `ivae-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `ivae-runtime-${CACHE_VERSION}`;
+
+// Precache ONLY un-versioned, stable URLs. Versioned URLs (?v=...)
+// change too often — better to let runtime cache handle them on demand.
 const PRECACHE_URLS = [
   '/',
-  '/blog',
-  '/cancun-photographer',
-  '/luxury-editorial',
-  '/styles/site-header.css?v=20260511a',
-  '/styles/site-footer.css?v=20260511a',
-  '/styles/responsive.css?v=20260511a',
-  '/styles/lw-blog.css?v=20260511a',
-  '/styles/lw-editorial.css?v=20260511a',
-  '/dark-mode.css',
-  '/dark-mode.js',
-  '/js/site-header.js?v=20260511a',
-  '/js/components.js?v=20260511a',
-  '/manifest.json'
+  '/manifest.json',
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE_URLS).catch(()=>{}))
+    caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE_URLS).catch(() => {}))
   );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => !k.endsWith(CACHE_VERSION)).map((k) => caches.delete(k)))
-    )
+    Promise.all([
+      // Delete EVERY cache from previous versions
+      caches.keys().then((keys) =>
+        Promise.all(
+          keys
+            .filter((k) => !k.endsWith(CACHE_VERSION))
+            .map((k) => caches.delete(k))
+        )
+      ),
+      // Take control of all open clients immediately
+      self.clients.claim(),
+    ])
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
@@ -43,24 +47,54 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  // Network-first for HTML
+  // Bypass cache entirely for the gallery sub-app and api endpoints
+  if (url.pathname.startsWith('/gallery/') || url.pathname.startsWith('/api/')) {
+    return;
+  }
+
+  // Network-first for HTML (always fetch fresh — no stale UI bug)
   if (req.headers.get('accept')?.includes('text/html')) {
     event.respondWith(
-      fetch(req).then((res) => {
-        const copy = res.clone();
-        caches.open(RUNTIME_CACHE).then((cache) => cache.put(req, copy)).catch(()=>{});
-        return res;
-      }).catch(() => caches.match(req).then((r) => r || caches.match('/')))
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches
+            .open(RUNTIME_CACHE)
+            .then((cache) => cache.put(req, copy))
+            .catch(() => {});
+          return res;
+        })
+        .catch(() =>
+          caches.match(req).then((r) => r || caches.match('/offline.html') || caches.match('/'))
+        )
     );
     return;
   }
 
-  // Cache-first for CSS/JS/fonts/images
+  // Cache-first for CSS/JS/fonts/images, with stale-while-revalidate
+  // semantics: serve cached, but kick off a background refresh.
   event.respondWith(
-    caches.match(req).then((cached) => cached || fetch(req).then((res) => {
-      const copy = res.clone();
-      caches.open(RUNTIME_CACHE).then((cache) => cache.put(req, copy)).catch(()=>{});
-      return res;
-    }))
+    caches.match(req).then((cached) => {
+      const networkFetch = fetch(req)
+        .then((res) => {
+          if (res && res.status === 200) {
+            const copy = res.clone();
+            caches
+              .open(RUNTIME_CACHE)
+              .then((cache) => cache.put(req, copy))
+              .catch(() => {});
+          }
+          return res;
+        })
+        .catch(() => cached);
+      return cached || networkFetch;
+    })
   );
+});
+
+// Listen for skipWaiting message from clients
+self.addEventListener('message', (event) => {
+  if (event.data === 'skipWaiting' || event.data?.type === 'skipWaiting') {
+    self.skipWaiting();
+  }
 });
