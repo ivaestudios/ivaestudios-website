@@ -67,8 +67,8 @@
 /es/cookies.html /es/politica-de-privacidad 301
 # Vianey Díaz canonical author bio URL — points to dedicated founder story
 # (deepest E-E-A-T author signal). /about remains the studio page.
-/vianey-diaz.html /blog/vianey-diaz-luxury-photographer-journey 301
-/vianey-diaz /blog/vianey-diaz-luxury-photographer-journey 301
+# /vianey-diaz now serves as a real E-E-A-T author profile page (May 2026).
+# /es/vianey-diaz still redirects to ES blog post until dedicated ES page exists.
 /es/vianey-diaz.html /es/blog/vianey-diaz-fotografa-lujo-trayectoria 301
 /es/vianey-diaz /es/blog/vianey-diaz-fotografa-lujo-trayectoria 301
 /family-photography.html /luxury-family-photos-cancun 301
