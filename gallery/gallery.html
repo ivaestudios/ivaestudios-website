@@ -165,7 +165,7 @@
   <div class="gallery-footer-inner">
     <div class="gallery-footer-brand">
       <a href="https://ivaestudios.com" class="gallery-footer-logo">IVAE <span>Studios</span></a>
-      <p class="gallery-footer-tag">Luxury wedding &amp; portrait photography — Cancún, México</p>
+      <p class="gallery-footer-tag">Luxury wedding &amp; portrait photography. Cancún, México</p>
     </div>
     <div class="gallery-footer-meta">
       <a href="https://ivaestudios.com" rel="noopener">ivaestudios.com</a>
@@ -1187,7 +1187,7 @@ async function shareFromLightbox() {
     }
     showToast('Link copied');
   } catch (e) {
-    showToast('Could not copy — ' + url);
+    showToast('Could not copy. ' + url);
   }
 }
 
@@ -1407,7 +1407,7 @@ async function downloadAllPhotos(mode) {
 }
 
 function scrollToFavorites() {
-  if (selectedIds.size === 0) { showToast('No favorites yet — tap the heart on photos you like'); return; }
+  if (selectedIds.size === 0) { showToast('No favorites yet. Tap the heart on photos you like.'); return; }
   const first = document.querySelector('.photo-cell.selected');
   if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
@@ -1844,7 +1844,7 @@ async function submitProof(e) {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || 'Submission failed');
     closeProofModal();
-    showToast('Selections sent — your photographer will be in touch.');
+    showToast('Selections sent. Your photographer will be in touch.');
     if (isByLinkView) { try { localStorage.removeItem('pic_sel_' + galleryId); } catch {} }
     proofingLocked = true;
     updateSelBar();

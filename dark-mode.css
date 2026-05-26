@@ -184,6 +184,8 @@ html.dark a:hover {
 /* Gold-bg buttons need DARK text (gold-on-gold is invisible) */
 html.dark a.btn-gold,
 html.dark .btn-gold,
+html.dark a.btn--gold,
+html.dark .btn--gold,
 html.dark a.btn.btn-gold,
 html.dark a.ivm-act-cta__btn,
 html.dark .ivm-act-cta__btn,
@@ -196,17 +198,23 @@ html.dark a.lc-btn-gold,
 html.dark a.le-btn-gold,
 html.dark a.lw-btn-gold,
 html.dark a.btn-primary,
-html.dark .btn-primary {
-  color: #1a2230 !important;
+html.dark .btn-primary,
+html.dark a.m-nav-cta,
+html.dark .m-nav-cta {
+  color: var(--ink-1, #1a2230) !important;
 }
 html.dark a.btn-gold:hover,
 html.dark .btn-gold:hover,
+html.dark a.btn--gold:hover,
+html.dark .btn--gold:hover,
 html.dark a.btn.btn-gold:hover,
 html.dark a.ivm-act-cta__btn:hover,
 html.dark .ivm-act-cta__btn:hover,
 html.dark a.btn-magnetic.gold:hover,
-html.dark a.btn-primary:hover {
-  color: #1a2230 !important;
+html.dark a.btn-primary:hover,
+html.dark a.m-nav-cta:hover,
+html.dark .m-nav-cta:hover {
+  color: var(--ink-1, #1a2230) !important;
 }
 
 html.dark strong,

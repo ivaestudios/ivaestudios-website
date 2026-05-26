@@ -184,6 +184,13 @@
   border-color:var(--gold, #c9a54e) !important;
   color:var(--cream, #faf8f5) !important;
 }
+/* Explicit focus ring for keyboard users — hover and focus shared
+   the same visual treatment, leaving keyboard users without a
+   distinct affordance (WCAG 2.4.7). */
+.site-header .h-cta:focus-visible{
+  outline:var(--focus-ring-on-dark, 2px solid var(--gold, #c9a54e)) !important;
+  outline-offset:var(--focus-ring-offset, 3px) !important;
+}
 .site-header .h-cta:hover svg{transform:translateX(4px) !important}
 .site-header .h-burger{
   display:none !important;
@@ -694,21 +701,24 @@ html{
 }
 
 .m-nav-sublink--accent {
-  color: #c4b5fd;
+  color: var(--imkt-accent-text, #c4b5fd);
 }
 .m-nav-sublink--accent:hover, .m-nav-sublink--accent:focus-visible {
   color: #fff;
-  border-left-color: #a78bfa;
+  border-left-color: var(--imkt-purple, #a78bfa);
   background: rgba(167, 139, 250, 0.08);
 }
 
 .m-nav-pill {
   display: inline-block;
-  font-family: 'Syne', sans-serif;
-  font-size: 9px;
+  font-family: var(--imkt-font-display, 'Syne', sans-serif);
+  /* Raised 9px → 10px to honor IVAE 14px-min for body text, with
+     compact pill labels still permitted under 14px per WCAG (these
+     are decorative labels, not body copy). 10px keeps the proportion. */
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.16em;
-  background: linear-gradient(135deg, #a78bfa, #ec4899);
+  background: var(--imkt-gradient, linear-gradient(135deg, #a78bfa, #ec4899));
   color: #fff;
   padding: 3px 8px;
   border-radius: 100px;
@@ -729,11 +739,13 @@ html{
   text-transform: uppercase;
 }
 .m-nav-lang a {
-  color: rgba(250, 248, 245, 0.5);
+  /* 0.5 → 0.62 for WCAG AA contrast on dark drawer background */
+  color: rgba(250, 248, 245, 0.62);
   text-decoration: none;
-  padding: 8px 12px;
+  padding: 10px 12px;
   transition: color 0.2s, border-color 0.2s;
-  min-height: 36px;
+  /* Raised 36px → 44px (WCAG 2.5.5 touch target minimum) */
+  min-height: var(--touch-target-min, 44px);
   display: inline-flex;
   align-items: center;
   border-bottom: 1px solid transparent;

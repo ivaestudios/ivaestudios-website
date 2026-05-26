@@ -53,11 +53,16 @@
   --text-on-light-3:  rgba(14,22,32,0.40);
   --text-on-dark:     #faf8f5;
   --text-on-dark-2:   rgba(250,248,245,0.62);
-  --text-on-dark-3:   rgba(250,248,245,0.34);
+  /* --text-on-dark-3 raised from 0.34 → 0.55 for WCAG AA (Agent 16 audit).
+     0.34 produced ~2.8:1 contrast on #0c1219 ink-3, failing 4.5:1 for body
+     copy. 0.55 yields ~4.6:1. Decorative-only usages (separators) may pass
+     at lower; everything reading as body text now meets AA. */
+  --text-on-dark-3:   rgba(250,248,245,0.55);
 
   /* Legacy muted aliases (preserve current behavior) */
   --muted:    rgba(250,248,245,0.58);
-  --muted2:   rgba(250,248,245,0.34);
+  /* --muted2 raised from 0.34 → 0.55 (mirror of --text-on-dark-3 fix). */
+  --muted2:   rgba(250,248,245,0.55);
   --muted-l:  rgba(26,34,48,0.60);
   --muted-l2: rgba(26,34,48,0.38);
 
@@ -545,7 +550,8 @@
   --lang-switch-tracking:      0.22em;
   --lang-switch-inactive:      rgba(250, 248, 245, 0.62);
   --lang-switch-active:        var(--gold);
-  --lang-switch-sep:           rgba(250, 248, 245, 0.34);
+  /* Separator (decorative pipe), raised 0.34 → 0.55 to stay visible at AA. */
+  --lang-switch-sep:           rgba(250, 248, 245, 0.55);
 
   /* CTA — min-width forces "RESERVAR" (8 chars) and "INQUIRE" (7 chars)
      onto a single line. Previously CTA had no width constraint and the
@@ -564,4 +570,47 @@
 
   /* Header transition — single ease for height/bg/blur/border tightening. */
   --header-transition:         0.55s var(--ease);
+
+  /* ═══════════════════════════════════════════════════════════════
+     Wave 8 additions — IVAE Marketing (sister brand) tokens and
+     shared breakpoint scale. Purely additive; nothing above is
+     changed. The marketing brand uses a violet→pink gradient with
+     a different display + mono font pair, distinct from Studios'
+     gold-and-editorial palette.
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── IVAE Marketing color tokens ──────────────────────────── */
+  --imkt-purple:        #a78bfa;
+  --imkt-purple-deep:   #7c3aed;
+  --imkt-pink:          #ec4899;
+  --imkt-pink-deep:     #db2777;
+  --imkt-gradient:      linear-gradient(135deg, var(--imkt-purple), var(--imkt-pink));
+  /* Accent text color used inside the Studios drawer for the
+     "Marketing NEW" entry — slightly lighter purple so it reads
+     legibly on dark ink without losing brand identity. */
+  --imkt-accent-text:   #c4b5fd;
+
+  /* ── IVAE Marketing typography ────────────────────────────── */
+  /* Display: a wide editorial sans (e.g. Space Grotesk) reserved
+     for marketing pages and brand pill labels. Mono: tabular code
+     font used for the marketing dashboard / pricing tables. */
+  --imkt-font-display:  'Space Grotesk', 'Syne', 'Inter', system-ui, sans-serif;
+  --imkt-font-mono:     'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* ── Canonical font aliases (forward-compat names) ────────── */
+  /* Pages migrating off --font-serif / --font-sans can target these
+     semantic names instead. Both alias the existing canonical stacks
+     so nothing breaks. */
+  --font-display:       var(--font-serif);
+  --font-body:          var(--font-sans);
+
+  /* ── Breakpoint scale (single source of truth) ────────────── */
+  /* CSS custom properties are NOT usable inside @media queries
+     (per spec), but exposing the numeric values here lets JS read
+     them via getComputedStyle and keeps the magic numbers grep-able
+     across stylesheets. Conventional 3-tier scale. */
+  --bp-sm: 480px;   /* small phones */
+  --bp-md: 768px;   /* tablet / mobile-desktop break */
+  --bp-lg: 1024px;  /* small desktop */
+  --bp-xl: 1440px;  /* large desktop */
 }

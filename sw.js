@@ -1,12 +1,20 @@
 // IVAE Studios — Service Worker.
-// Network-first for HTML (always fresh), cache-first for static assets.
-// Falls back to /offline.html on disconnect.
+// Network-first for HTML (always fresh), stale-while-revalidate for assets.
+// On disconnect, HTML falls back to the most recent cached copy of the
+// request, or to the cached root ("/").
 //
 // IMPORTANT: bump CACHE_VERSION on every change to force the browser
 // to re-install. The activate event clears every cache whose name does
 // not end in CACHE_VERSION, so old assets are dropped automatically.
+//
+// v9 (2026-05-26): removed dead /offline.html fallback (file does not
+// exist in the repo and was silently 404-ing on offline navigations).
+// Offline HTML now degrades to the cached request, then cached "/".
+// Marketing pages are NOT precached on purpose — HTML stays network-first
+// so the runtime cache picks them up on first visit without bloating
+// install with routes that may change frequently.
 
-const CACHE_VERSION = 'ivae-v8-2026-05-25-mobile-nav';
+const CACHE_VERSION = 'ivae-v9-2026-05-26-offline-fix';
 const STATIC_CACHE = `ivae-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `ivae-runtime-${CACHE_VERSION}`;
 
@@ -65,7 +73,7 @@ self.addEventListener('fetch', (event) => {
           return res;
         })
         .catch(() =>
-          caches.match(req).then((r) => r || caches.match('/offline.html') || caches.match('/'))
+          caches.match(req).then((r) => r || caches.match('/'))
         )
     );
     return;

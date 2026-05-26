@@ -16,7 +16,14 @@
     '/es/editorial-de-lujo': '/luxury-editorial',
     '/es/fotografo-bodas-destino-mexico': '/luxury-weddings',
     '/es/blog': '/blog',
-    '/es/marca': '/brand'
+    '/es/marca': '/brand',
+    '/es/manejo-redes-sociales': '/social-media-management',
+    '/es/redes-sociales-hoteles-lujo-mexico': '/social-media-luxury-hotels-mexico',
+    '/es/redes-sociales-restaurantes-cancun': '/social-media-restaurants-cancun',
+    '/es/redes-sociales-spa-wellness-mexico': '/social-media-spa-wellness-mexico',
+    '/es/redes-sociales-clinica-dental-mexico': '/social-media-dental-clinic-mexico',
+    '/es/agencia-tiktok-hoteles-mexico': '/tiktok-agency-hotels-mexico',
+    '/es/manejo-instagram-cancun': '/instagram-management-cancun'
   };
   var esFromEn = {};
   Object.keys(enFromEs).forEach(function (k) { esFromEn[enFromEs[k]] = k; });
@@ -105,6 +112,16 @@
     + '<div class="m-nav-scrim" id="mNavScrim" aria-hidden="true"></div>';
 
   function inject() {
+    // Remove any pre-existing mobile-nav DOM so the canonical injection
+    // below never produces duplicate IDs (#mNav / #mNavScrim). Pages that
+    // shipped a static <nav id="mNav"> would otherwise leave a ghost
+    // drawer behind that swallows getElementById lookups and breaks the
+    // burger toggle.
+    var staleMNav = document.getElementById('mNav');
+    if (staleMNav) staleMNav.parentNode.removeChild(staleMNav);
+    var staleScrim = document.getElementById('mNavScrim');
+    if (staleScrim) staleScrim.parentNode.removeChild(staleScrim);
+
     var existing = document.getElementById('siteHeader');
     if (existing) {
       // Replace inline static header with the canonical one

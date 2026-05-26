@@ -35,7 +35,10 @@
 # ═══════════════════════════════════════════
 # CLEAN URLs — Standalone Pages
 # ═══════════════════════════════════════════
-/social-media-management /es/manejo-redes-sociales 301
+# NOTE: /social-media-management.html is served via Cloudflare auto-strip.
+# Do NOT redirect /social-media-management to the ES counterpart — that
+# made the EN master page unreachable and broke aliases like /marketing,
+# /ivae-marketing, /social-media which all 301 to /social-media-management.
 /outfit-guide /outfit-guide 200
 
 # ═══════════════════════════════════════════
