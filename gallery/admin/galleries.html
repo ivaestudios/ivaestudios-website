@@ -467,7 +467,7 @@ function renderCard(g) {
   const titleEsc = escapeHtml(g.title || 'Untitled');
 
   const coverImgHtml = g.cover_key || g.photo_count > 0
-    ? `<img src="/api/gallery/galleries/${g.id}/cover" alt="${titleEsc}" loading="lazy" style="object-position:${focalX}% ${focalY}%;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/>
+    ? `<img src="/api/gallery/galleries/${g.id}/cover" alt="${titleEsc}" loading="lazy" style="object-position:${focalX}% ${focalY}%;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" decoding="async"/>
        <div class="gx-cover-fallback" style="display:none;background:${bgColor};color:${txtColor};">${escapeHtml(getInitials(g.title))}</div>`
     : `<div class="gx-cover-fallback" style="display:flex;background:${bgColor};color:${txtColor};">${escapeHtml(getInitials(g.title))}</div>`;
 

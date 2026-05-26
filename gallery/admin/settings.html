@@ -830,11 +830,11 @@ function setupLogoUpload() {
 
   function refreshLogoPreview(src) {
     // brand_logo_key is stored as a data: URL by setupLogoUpload below
-    // (no R2 pipeline yet). Accept any data:/http(s): URL as a direct <img src>;
+    // (no R2 pipeline yet). Accept any data:/http(s): URL as a direct <img src decoding="async">;
     // anything else (legacy R2 keys) shows the empty state until a real
     // /admin/logo endpoint exists.
     if (src && /^(data:|https?:)/i.test(src)) {
-      preview.innerHTML = `<img src="${src}" alt="Studio logo"/>`;
+      preview.innerHTML = `<img src="${src}" alt="Studio logo" decoding="async"/>`;
       remove.style.display = '';
     } else {
       preview.innerHTML = '<span class="logo-empty">No logo</span>';
@@ -851,7 +851,7 @@ function setupLogoUpload() {
     reader.onload = () => {
       $('brand_primary'); // touch
       currentSettings.brand_logo_key = reader.result;
-      preview.innerHTML = `<img src="${reader.result}" alt="Logo preview"/>`;
+      preview.innerHTML = `<img src="${reader.result}" alt="Logo preview" loading="lazy" decoding="async"/>`;
       remove.style.display = '';
       // Save immediately so the data persists
       API.put('/admin/settings', { brand_logo_key: reader.result })

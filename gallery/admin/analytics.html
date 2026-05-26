@@ -1114,7 +1114,7 @@ async function loadDownloads(galleryId) {
 
   const body = rows.map(r => {
     const thumb = r.photo_id
-      ? `<img class="dl-thumb" src="/api/gallery/photos/${encodeURIComponent(r.photo_id)}/thumb" alt="" loading="lazy">`
+      ? `<img class="dl-thumb" src="/api/gallery/photos/${encodeURIComponent(r.photo_id)}/thumb" alt="" loading="lazy" decoding="async">`
       : '<div class="dl-thumb-empty"></div>';
     const filename = r.filename ? escHtml(r.filename) : '<span class="dl-anon">deleted</span>';
     const who = r.visitor_email

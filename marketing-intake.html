@@ -16,6 +16,7 @@
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://ivaestudios.com/marketing-intake"/>
 <meta property="og:image" content="https://assets.ivaestudios.com/ivae-marketing-og.jpg"/>
+<meta property="og:image:type" content="image/jpeg"/>
 <meta property="og:image:width" content="1200"/>
 <meta property="og:image:height" content="630"/>
 <meta property="og:site_name" content="IVAE Marketing"/>
@@ -26,6 +27,7 @@
 <meta name="twitter:title" content="IVAE Marketing — Brief de Estrategia"/>
 <meta name="twitter:description" content="Dieciocho minutos que definen los próximos doce meses de tu marca."/>
 <meta name="twitter:image" content="https://assets.ivaestudios.com/ivae-marketing-og.jpg"/>
+<meta name="twitter:image:alt" content="IVAE Studios — Luxury resort photography in Cancún, Riviera Maya and Los Cabos"/>
 
 <link rel="icon" href="/favicon.ico" sizes="any"/>
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
@@ -85,6 +87,35 @@
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
+
+/* Skip-to-content link — WCAG 2.4.1 */
+.imkt-skip-link {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  background: var(--imkt-purple);
+  color: #0a0a0f;
+  padding: 12px 24px;
+  z-index: 10001;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 0 0 4px 4px;
+  transition: top 0.3s;
+}
+.imkt-skip-link:focus { top: 0; outline: 2px solid var(--imkt-pink); outline-offset: 2px; }
+
+/* Global focus-visible — WCAG 2.4.7 */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--imkt-pink);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.imkt-choice:has(input:focus-visible) {
+  outline: 2px solid var(--imkt-pink);
+  outline-offset: 3px;
+}
+
 body {
   margin: 0;
   background: var(--imkt-bg);
@@ -742,6 +773,8 @@ body > * { position: relative; z-index: 1; }
 </head>
 <body>
 
+<a href="#main-content" class="imkt-skip-link">Saltar al formulario</a>
+
 <header class="imkt-header">
   <div class="imkt-header-inner">
     <a href="/es/manejo-redes-sociales" class="imkt-logo">
@@ -817,7 +850,7 @@ body > * { position: relative; z-index: 1; }
       <div class="imkt-row">
         <div class="imkt-field">
           <label for="legal_name">Nombre legal del negocio<span class="imkt-field-required">*</span></label>
-          <input class="imkt-input" type="text" id="legal_name" name="legal_name" required maxlength="120" autocomplete="organization"/>
+          <input class="imkt-input" type="text" id="legal_name" name="legal_name" required aria-required="true" maxlength="120" autocomplete="organization"/>
         </div>
         <div class="imkt-field">
           <label for="commercial_name">Nombre comercial</label>
@@ -846,7 +879,7 @@ body > * { position: relative; z-index: 1; }
       <div class="imkt-field">
         <label for="one_sentence">En una oración, ¿cómo describirías tu negocio a un desconocido en una cena?<span class="imkt-field-required">*</span></label>
         <p class="imkt-field-help">Sin lenguaje de marketing. Como realmente lo dirías.</p>
-        <textarea class="imkt-textarea" id="one_sentence" name="one_sentence" required rows="2" maxlength="400"></textarea>
+        <textarea class="imkt-textarea" id="one_sentence" name="one_sentence" required aria-required="true" rows="2" maxlength="400"></textarea>
       </div>
     </div>
 
@@ -858,19 +891,19 @@ body > * { position: relative; z-index: 1; }
 
       <div class="imkt-row">
         <div class="imkt-field">
-          <label for="contact_name">Contacto principal — nombre completo<span class="imkt-field-required">*</span></label>
-          <input class="imkt-input" type="text" id="contact_name" name="contact_name" required maxlength="100" autocomplete="name"/>
+          <label for="contact_name">Contacto principal. nombre completo<span class="imkt-field-required" aria-hidden="true">*</span><span style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">(obligatorio)</span></label>
+          <input class="imkt-input" type="text" id="contact_name" name="contact_name" required aria-required="true" maxlength="100" autocomplete="name"/>
         </div>
         <div class="imkt-field">
           <label for="contact_role">Rol / cargo<span class="imkt-field-required">*</span></label>
-          <input class="imkt-input" type="text" id="contact_role" name="contact_role" required maxlength="100"/>
+          <input class="imkt-input" type="text" id="contact_role" name="contact_role" required aria-required="true" maxlength="100"/>
         </div>
       </div>
 
       <div class="imkt-row">
         <div class="imkt-field">
           <label for="contact_email">Correo electrónico<span class="imkt-field-required">*</span></label>
-          <input class="imkt-input" type="email" id="contact_email" name="contact_email" required maxlength="200" autocomplete="email"/>
+          <input class="imkt-input" type="email" id="contact_email" name="contact_email" required aria-required="true" maxlength="200" autocomplete="email"/>
         </div>
         <div class="imkt-field">
           <label for="contact_whatsapp">WhatsApp / teléfono</label>
@@ -902,7 +935,7 @@ body > * { position: relative; z-index: 1; }
       <p class="imkt-step-lede">Específico sobre genérico. Honesto sobre impresionante. No hay respuestas incorrectas.</p>
 
       <div class="imkt-field">
-        <span class="imkt-label">Prioridades a 90 días — elige hasta tres<span class="imkt-field-required">*</span></span>
+        <span class="imkt-label">Prioridades a 90 días. elige hasta tres<span class="imkt-field-required" aria-hidden="true">*</span><span style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">(obligatorio)</span></span>
         <p class="imkt-field-help">Si todo es prioridad, nada lo es.</p>
         <div class="imkt-choices">
           <label class="imkt-choice"><input type="checkbox" name="priority" value="awareness"/> <span class="imkt-choice-label">Reconocimiento de marca <span class="imkt-choice-help">Estar en el radar correcto</span></span></label>
@@ -931,7 +964,7 @@ body > * { position: relative; z-index: 1; }
       <div class="imkt-field">
         <label for="ideal_client">Describe a tu cliente ideal en un párrafo<span class="imkt-field-required">*</span></label>
         <p class="imkt-field-help">Edad, dónde vive, qué hace, por qué te eligió a ti sobre el lugar de al lado.</p>
-        <textarea class="imkt-textarea" id="ideal_client" name="ideal_client" required rows="4" maxlength="1000"></textarea>
+        <textarea class="imkt-textarea" id="ideal_client" name="ideal_client" required aria-required="true" rows="4" maxlength="1000"></textarea>
       </div>
 
       <div class="imkt-field">
@@ -970,8 +1003,8 @@ body > * { position: relative; z-index: 1; }
       </div>
 
       <div class="imkt-field">
-        <label for="ref_1">Cuenta de inspiración #1 — handle + una razón específica</label>
-        <textarea class="imkt-textarea" id="ref_1" name="ref_1" rows="2" maxlength="400" placeholder="@marca_ejemplo — Su feed parece una revista, no un anuncio. La colorimetría es consistente en cada post."></textarea>
+        <label for="ref_1">Cuenta de inspiración #1. handle + una razón específica</label>
+        <textarea class="imkt-textarea" id="ref_1" name="ref_1" rows="2" maxlength="400" placeholder="@marca_ejemplo. Su feed parece una revista, no un anuncio. La colorimetría es consistente en cada post."></textarea>
       </div>
       <div class="imkt-field">
         <label for="ref_2">Cuenta de inspiración #2</label>
@@ -1033,11 +1066,11 @@ body > * { position: relative; z-index: 1; }
       <div class="imkt-field">
         <label for="competitors">Nombra 3 a 5 competidores con sus handles o sitios web<span class="imkt-field-required">*</span></label>
         <p class="imkt-field-help">Competidores locales, regionales o de categoría. Uno por línea.</p>
-        <textarea class="imkt-textarea" id="competitors" name="competitors" required rows="5" maxlength="800"></textarea>
+        <textarea class="imkt-textarea" id="competitors" name="competitors" required aria-required="true" rows="5" maxlength="800"></textarea>
       </div>
 
       <div class="imkt-field">
-        <label for="competitor_strengths">De cada uno — ¿qué hacen mejor que tú?</label>
+        <label for="competitor_strengths">De cada uno. ¿qué hacen mejor que tú?</label>
         <textarea class="imkt-textarea" id="competitor_strengths" name="competitor_strengths" rows="3" maxlength="600"></textarea>
       </div>
 
@@ -1063,6 +1096,10 @@ body > * { position: relative; z-index: 1; }
       <div class="cf-turnstile" data-sitekey="0x4AAAAAAA_PLACEHOLDER_REPLACE_IN_DASHBOARD" data-theme="dark"></div>
 
       <div id="imkt-status" class="imkt-status" style="display:none;" role="status" aria-live="polite"></div>
+
+      <p class="imkt-privacy" style="font-family: var(--imkt-font-mono); font-size: 12px; line-height: 1.55; color: var(--imkt-muted); margin-top: 18px;">
+        Al enviar este brief, aceptas nuestra <a href="/privacy-policy" style="color: var(--imkt-fg); text-decoration: underline;">Política de Privacidad</a>. Usamos esta información solo para preparar tu Social Strategy Snapshot y coordinar la conversación inicial.
+      </p>
     </div>
 
     <!-- ═══ ACCIONES ═══ -->
@@ -1103,6 +1140,10 @@ body > * { position: relative; z-index: 1; }
 <footer class="imkt-footer">
   <span>IVAE Marketing · Agencia de Redes Sociales · Cancún · México</span>
   <span><a href="/es/manejo-redes-sociales">Servicio</a> · <a href="/es/acerca-de">Acerca de IVAE</a> · <a href="mailto:info@ivaestudios.com">info@ivaestudios.com</a></span>
+
+  <p class="footer-compliance" style="text-align:center;margin:8px 0 0;padding:8px 0 0;font-size:11px;letter-spacing:0.04em;opacity:0.7">
+    <a href="/es/politica-de-privacidad" style="color:inherit;text-decoration:none">Privacidad</a> &middot; <a href="/es/declaracion-accesibilidad" style="color:inherit;text-decoration:none">Accesibilidad</a>
+  </p>
 </footer>
 
 <script>

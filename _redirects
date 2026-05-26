@@ -39,7 +39,8 @@
 # Do NOT redirect /social-media-management to the ES counterpart — that
 # made the EN master page unreachable and broke aliases like /marketing,
 # /ivae-marketing, /social-media which all 301 to /social-media-management.
-/outfit-guide /outfit-guide 200
+# /outfit-guide is served via Cloudflare auto-strip (no rewrite rule needed —
+# previous `/outfit-guide /outfit-guide 200` was a self-loop).
 
 # ═══════════════════════════════════════════
 # CLEAN URLs — Legal & Compliance Pages
@@ -108,7 +109,8 @@
 /blog/family-vacation-photos-mexico /post-family-vacation-photos 200
 /blog/los-cabos-photographer-guide /post-los-cabos-guide 200
 /blog/how-to-choose-luxury-photographer-mexico /post-choose-luxury-photographer 200
-/blog/luxury-photographer-style-editorial-vs-documentary /post-luxury-photographer-style-editorial-vs-documentary 200
+# /blog/luxury-photographer-style-editorial-vs-documentary 301→/luxury-editorial
+# is declared earlier (line ~93) — do NOT add a 200 rewrite here; first match wins.
 /blog/surprise-proposal-photography-cancun /post-surprise-proposal 200
 
 # ═══════════════════════════════════════════
@@ -190,7 +192,8 @@
 /post-family-vacation-photos.html /blog/family-vacation-photos-mexico 301
 /post-los-cabos-guide.html /blog/los-cabos-photographer-guide 301
 /post-choose-luxury-photographer.html /blog/how-to-choose-luxury-photographer-mexico 301
-/post-luxury-photographer-style-editorial-vs-documentary.html /blog/luxury-photographer-style-editorial-vs-documentary 301
+# /post-luxury-photographer-style-editorial-vs-documentary.html 301→/luxury-editorial
+# is declared earlier (line ~95) — duplicate rule removed.
 /post-surprise-proposal.html /blog/surprise-proposal-photography-cancun 301
 /blog.html /blog 301
 /post-what-to-wear-beach-photos.html /blog/what-to-wear-beach-photos-mexico 301
@@ -392,6 +395,18 @@
 /post-anniversary-photography-cancun-mexico.html /blog/anniversary-photography-cancun-mexico 301
 /blog/hotel-instagram-strategy-mexico-2026 /post-hotel-instagram-strategy-mexico-2026 200
 /post-hotel-instagram-strategy-mexico-2026.html /blog/hotel-instagram-strategy-mexico-2026 301
+
+# 5 new IVAE Marketing blog posts (2026-05-26) — match existing pattern
+/blog/restaurant-social-media-mexico-2026 /post-restaurant-social-media-mexico-2026 200
+/post-restaurant-social-media-mexico-2026.html /blog/restaurant-social-media-mexico-2026 301
+/blog/dental-clinic-social-media-mexico /post-dental-clinic-social-media-mexico 200
+/post-dental-clinic-social-media-mexico.html /blog/dental-clinic-social-media-mexico 301
+/blog/spa-wellness-social-media-mexico /post-spa-wellness-social-media-mexico 200
+/post-spa-wellness-social-media-mexico.html /blog/spa-wellness-social-media-mexico 301
+/blog/tiktok-for-luxury-hotels-mexico /post-tiktok-for-luxury-hotels-mexico 200
+/post-tiktok-for-luxury-hotels-mexico.html /blog/tiktok-for-luxury-hotels-mexico 301
+/blog/luxury-hospitality-content-strategy-mexico /post-luxury-hospitality-content-strategy-mexico 200
+/post-luxury-hospitality-content-strategy-mexico.html /blog/luxury-hospitality-content-strategy-mexico 301
 
 # ═══════════════════════════════════════════
 # IVAE Marketing — Industry vertical landing pages (2026-05-26)

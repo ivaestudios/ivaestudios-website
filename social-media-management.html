@@ -31,6 +31,7 @@
 <meta property="og:image:width" content="1200"/>
 <meta property="og:image:height" content="630"/>
 <meta property="og:image:alt" content="IVAE Studios — Social Media Management Agency in Cancun, Mexico"/>
+<meta property="og:image:type" content="image/jpeg"/>
 <meta property="og:site_name" content="IVAE Studios"/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:locale:alternate" content="es_MX"/>
@@ -332,6 +333,12 @@
 <style>
 .skip-link{position:absolute;top:-100%;left:16px;background:#a78bfa;color:#0a0a0f;padding:12px 24px;z-index:10001;font-size:14px;font-weight:600;text-decoration:none;border-radius:0 0 4px 4px;transition:top 0.3s}
 .skip-link:focus{top:0;outline:2px solid #ec4899;outline-offset:2px}
+/* Global focus-visible — WCAG 2.4.7 — every interactive element gets a visible ring */
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible, summary:focus-visible {
+  outline: 2px solid #ec4899;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
 /* ══════════════════════════════════════════
    RESET & BASE
    ══════════════════════════════════════════ */
@@ -735,7 +742,7 @@ a { color: inherit; text-decoration: none; }
   font-size: 12px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(240, 238, 233, 0.4);
+  color: rgba(240, 238, 233, 0.6);
 }
 
 /* ══════════════════════════════════════════
@@ -759,7 +766,7 @@ a { color: inherit; text-decoration: none; }
 }
 .stat-label {
   font-size: clamp(12px, 1.2vw, 14px);
-  color: rgba(240, 238, 233, 0.45);
+  color: rgba(240, 238, 233, 0.65);
   line-height: 1.55;
   letter-spacing: 0.02em;
 }
@@ -853,7 +860,7 @@ a { color: inherit; text-decoration: none; }
 }
 .bento-card p {
   font-size: clamp(14px, 1.4vw, 16px);
-  color: rgba(240, 238, 233, 0.5);
+  color: rgba(240, 238, 233, 0.68);
   line-height: 1.75;
   letter-spacing: 0.01em;
 }
@@ -922,7 +929,7 @@ a { color: inherit; text-decoration: none; }
 }
 .timeline-content p {
   font-size: clamp(14px, 1.4vw, 16px);
-  color: rgba(240, 238, 233, 0.5);
+  color: rgba(240, 238, 233, 0.68);
   line-height: 1.75;
   max-width: 560px;
   letter-spacing: 0.01em;
@@ -1031,7 +1038,7 @@ a { color: inherit; text-decoration: none; }
 .cta-note {
   margin-top: 28px;
   font-size: 13px;
-  color: rgba(240, 238, 233, 0.3);
+  color: rgba(240, 238, 233, 0.6);
   letter-spacing: 0.04em;
 }
 
@@ -1066,7 +1073,7 @@ a { color: inherit; text-decoration: none; }
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(240, 238, 233, 0.35);
+  color: rgba(240, 238, 233, 0.7);
   transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 .smm-footer-links a:hover {
@@ -1075,7 +1082,7 @@ a { color: inherit; text-decoration: none; }
 }
 .smm-footer-copy {
   font-size: 11px;
-  color: rgba(240, 238, 233, 0.2);
+  color: rgba(240, 238, 233, 0.6);
   letter-spacing: 0.1em;
 }
 
@@ -2135,7 +2142,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 <div class="gradient-bg"></div>
 
 <!-- ═══ FLOATING SOCIAL ICONS ═══ -->
-<div class="floating-icons">
+<div class="floating-icons" aria-hidden="true">
   <!-- Instagram -->
   <svg class="floating-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
   <!-- Facebook -->
@@ -2174,7 +2181,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
           WhatsApp
         </a>
       </div>
-      <p class="rv d4" style="margin-top:18px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:rgba(240,238,233,0.5);">5.0 · 42 reviews · Bilingual · 10 years editorial</p>
+      <p class="rv d4" style="margin-top:18px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:rgba(240,238,233,0.7);">5.0 · 42 reviews · Bilingual · 10 years editorial</p>
     </div>
     <div class="hero-visual rv d2">
       <div class="hero-mockup">
@@ -2240,7 +2247,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
     <p class="rv d2" style="font-size:17px; color:rgba(240,238,233,0.6); line-height:1.8;">
       IVAE Studios began as a photography studio and audiovisual production house, and that creative root sets the work apart. Every digital strategy the studio builds starts from original content: editorial-grade imagery and video produced in-house, never pulled from generic stock libraries. As a social media agency rooted in Cancun, the team doesn't just manage communities. It builds them with the same intention you'd bring to a luxury brand.
     </p>
-    <p class="rv d3" style="font-size:15px; color:rgba(240,238,233,0.5); line-height:1.7; margin-top:1.5rem; text-align:center;">
+    <p class="rv d3" style="font-size:15px; color:rgba(240,238,233,0.7); line-height:1.7; margin-top:1.5rem; text-align:center;">
       IVAE Marketing is the social media sub-brand of <a href="/" style="color:#c4b5fd;text-decoration:underline;text-underline-offset:3px;">IVAE Studios</a>, the luxury resort photography studio led by Director Vianey Díaz in Cancun.
     </p>
   </div>
@@ -2450,7 +2457,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 <!-- ══════════════════════════════════════════
      PLANS & PRICING
      ══════════════════════════════════════════ -->
-<section class="section-pad" id="planes">
+<section class="section-pad" id="plans">
   <div class="container">
     <div class="section-label rv">Plans</div>
     <h2 class="section-title rv d1">Plans & <span class="gradient-text">Pricing</span></h2>
@@ -2461,7 +2468,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
         <div class="card-light-reflection"></div>
         <h3>Essential Plan</h3>
         <p><strong>Ideal for emerging brands</strong> that need visual consistency and an active presence. Includes one monthly photo and video session, 12 posts distributed across Instagram and Facebook, weekly stories, copywriting, an editorial calendar and a monthly metrics report.</p>
-        <p style="font-family:'Space Mono',monospace;font-size:12px;color:rgba(240,238,233,0.5);margin-top:12px;letter-spacing:0.06em;">Investment: by inquiry</p>
+        <p style="font-family:'Space Mono',monospace;font-size:12px;color:rgba(240,238,233,0.7);margin-top:12px;letter-spacing:0.06em;">Investment: by inquiry</p>
         <div class="bento-tags">
           <span class="bento-tag">12 posts/month</span>
           <span class="bento-tag">IG + FB</span>
@@ -2474,7 +2481,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
         <div class="card-light-reflection"></div>
         <h3>Editorial Plan</h3>
         <p><strong>The most popular plan</strong> for boutique hotels, restaurants and spas seeking sustained growth. Includes two monthly photo and video sessions, 20 posts, editorial Reels, management across Instagram, Facebook and TikTok, daily community management and strategic reports.</p>
-        <p style="font-family:'Space Mono',monospace;font-size:12px;color:rgba(240,238,233,0.5);margin-top:12px;letter-spacing:0.06em;">Investment: by inquiry</p>
+        <p style="font-family:'Space Mono',monospace;font-size:12px;color:rgba(240,238,233,0.7);margin-top:12px;letter-spacing:0.06em;">Investment: by inquiry</p>
         <div class="bento-tags">
           <span class="bento-tag">20 posts/month</span>
           <span class="bento-tag">IG + FB + TikTok</span>
@@ -2487,7 +2494,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
         <div class="card-light-reflection"></div>
         <h3>Signature Plan</h3>
         <p><strong>Full production</strong> for resorts, chains and luxury brands with multiple properties. Includes weekly sessions, daily publishing, paid campaigns, UGC, local influencer management, executive reports and a dedicated brand strategist.</p>
-        <p style="font-family:'Space Mono',monospace;font-size:12px;color:rgba(240,238,233,0.5);margin-top:12px;letter-spacing:0.06em;">Investment: by inquiry</p>
+        <p style="font-family:'Space Mono',monospace;font-size:12px;color:rgba(240,238,233,0.7);margin-top:12px;letter-spacing:0.06em;">Investment: by inquiry</p>
         <div class="bento-tags">
           <span class="bento-tag">Daily</span>
           <span class="bento-tag">Multi-platform</span>
@@ -2620,12 +2627,12 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   <div class="container" style="text-align:center;">
     <div class="section-label rv">Trusted by</div>
     <div class="clients-grid rv d1" style="display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:40px 56px;margin-top:40px;">
-      <a href="https://instagram.com/oliu.hair" target="_blank" rel="noopener" class="client-logo" style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;letter-spacing:0.08em;color:rgba(240,238,233,0.3);transition:color 0.3s ease,transform 0.3s cubic-bezier(0.34,1.56,0.64,1);text-decoration:none;">@oliu.hair</a>
-      <a href="https://instagram.com/Holydesing" target="_blank" rel="noopener" class="client-logo" style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;letter-spacing:0.08em;color:rgba(240,238,233,0.3);transition:color 0.3s ease,transform 0.3s cubic-bezier(0.34,1.56,0.64,1);text-decoration:none;">@Holydesing</a>
-      <a href="https://instagram.com/solcarena.hair" target="_blank" rel="noopener" class="client-logo" style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;letter-spacing:0.08em;color:rgba(240,238,233,0.3);transition:color 0.3s ease,transform 0.3s cubic-bezier(0.34,1.56,0.64,1);text-decoration:none;">@solcarena.hair</a>
-      <a href="https://instagram.com/Regeneristherapy" target="_blank" rel="noopener" class="client-logo" style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;letter-spacing:0.08em;color:rgba(240,238,233,0.3);transition:color 0.3s ease,transform 0.3s cubic-bezier(0.34,1.56,0.64,1);text-decoration:none;">@Regeneristherapy</a>
-      <a href="https://instagram.com/melisagcfitness" target="_blank" rel="noopener" class="client-logo" style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;letter-spacing:0.08em;color:rgba(240,238,233,0.3);transition:color 0.3s ease,transform 0.3s cubic-bezier(0.34,1.56,0.64,1);text-decoration:none;">@melisagcfitness</a>
-      <a href="https://instagram.com/divinastarproductions" target="_blank" rel="noopener" class="client-logo" style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;letter-spacing:0.08em;color:rgba(240,238,233,0.3);transition:color 0.3s ease,transform 0.3s cubic-bezier(0.34,1.56,0.64,1);text-decoration:none;">@divinastarproductions</a>
+      <a href="https://instagram.com/oliu.hair" target="_blank" rel="noopener" class="client-logo" style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;letter-spacing:0.08em;color:rgba(240,238,233,0.65);transition:color 0.3s ease,transform 0.3s cubic-bezier(0.34,1.56,0.64,1);text-decoration:none;">@oliu.hair</a>
+      <a href="https://instagram.com/Holydesing" target="_blank" rel="noopener" class="client-logo" style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;letter-spacing:0.08em;color:rgba(240,238,233,0.65);transition:color 0.3s ease,transform 0.3s cubic-bezier(0.34,1.56,0.64,1);text-decoration:none;">@Holydesing</a>
+      <a href="https://instagram.com/solcarena.hair" target="_blank" rel="noopener" class="client-logo" style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;letter-spacing:0.08em;color:rgba(240,238,233,0.65);transition:color 0.3s ease,transform 0.3s cubic-bezier(0.34,1.56,0.64,1);text-decoration:none;">@solcarena.hair</a>
+      <a href="https://instagram.com/Regeneristherapy" target="_blank" rel="noopener" class="client-logo" style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;letter-spacing:0.08em;color:rgba(240,238,233,0.65);transition:color 0.3s ease,transform 0.3s cubic-bezier(0.34,1.56,0.64,1);text-decoration:none;">@Regeneristherapy</a>
+      <a href="https://instagram.com/melisagcfitness" target="_blank" rel="noopener" class="client-logo" style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;letter-spacing:0.08em;color:rgba(240,238,233,0.65);transition:color 0.3s ease,transform 0.3s cubic-bezier(0.34,1.56,0.64,1);text-decoration:none;">@melisagcfitness</a>
+      <a href="https://instagram.com/divinastarproductions" target="_blank" rel="noopener" class="client-logo" style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;letter-spacing:0.08em;color:rgba(240,238,233,0.65);transition:color 0.3s ease,transform 0.3s cubic-bezier(0.34,1.56,0.64,1);text-decoration:none;">@divinastarproductions</a>
     </div>
   </div>
 </section>
@@ -2706,6 +2713,10 @@ html, body { overflow-x: hidden; max-width: 100vw; }
     <span class="colophon-bottom-rule"></span>
     <span>Cancun · Riviera Maya · Los Cabos · Spanish / English</span>
   </div>
+
+  <p class="footer-compliance" style="text-align:center;margin:8px 0 0;padding:8px 0 0;font-size:11px;letter-spacing:0.04em;opacity:0.7">
+    <a href="/privacy-policy" style="color:inherit;text-decoration:none">Privacy</a> &middot; <a href="/accessibility-statement" style="color:inherit;text-decoration:none">Accessibility</a>
+  </p>
 </footer>
 
 </div><!-- /content-wrapper -->

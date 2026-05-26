@@ -94,7 +94,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   <button id="btnCopy" style="margin-top: 8px;">📋 Copiar al portapapeles</button>
 </div>
 
-<div class="zoom-overlay" id="zoom"><img src="" alt=""></div>
+<div class="zoom-overlay" id="zoom"><img src="" alt="" decoding="async"></div>
 
 <script>
 'use strict';
@@ -226,7 +226,7 @@ function renderCard(photo) {
   const fname = photo.path.split('/').pop();
 
   card.innerHTML = `
-    <div class="img"><img src="${safePath}" alt="" loading="lazy"></div>
+    <div class="img"><img src="${safePath}" alt="" loading="lazy" decoding="async"></div>
     <div class="body">
       ${photo.in_use ? '<span class="usage-tag">EN USO</span><br>' : ''}
       <div class="fname">${fname}</div>

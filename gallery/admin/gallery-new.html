@@ -596,7 +596,7 @@
     <button class="pv-viewer-nav prev" onclick="navigatePhoto(-1)">
       <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
     </button>
-    <img id="pvViewerImg" src="" alt="Photo"/>
+    <img id="pvViewerImg" src="" alt="Photo" decoding="async"/>
     <button class="pv-viewer-nav next" onclick="navigatePhoto(1)">
       <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
     </button>
@@ -611,7 +611,7 @@
     <span class="fp-hint">Click on the image to set the center focus</span>
   </div>
   <div class="fp-container" id="fpContainer" onclick="setFocalPoint(event)">
-    <img id="fpImage" src="" alt="Cover"/>
+    <img id="fpImage" src="" alt="Cover" decoding="async"/>
     <div class="fp-crosshair" id="fpCrosshair" style="left:50%;top:50%;">
       <div class="fp-crosshair-dot"></div>
     </div>
@@ -1312,7 +1312,7 @@ function createPhotoCell(p, idx) {
   cell.className = 'photo-cell';
   cell.dataset.photoId = p.id;
   cell.dataset.filename = p.filename || '';
-  cell.innerHTML = `<img loading="lazy" src="/api/gallery/photos/${p.id}/thumb" alt="${p.filename || ''}"/>
+  cell.innerHTML = `<img loading="lazy" src="/api/gallery/photos/${p.id}/thumb" alt="${p.filename || ''}" decoding="async"/>
     <div class="photo-cell-overlay" onclick="openPhotoViewer('${p.id}')">
       <button class="photo-cell-expand" onclick="event.stopPropagation();openPhotoViewer('${p.id}')">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9m11.25-5.25v4.5m0-4.5h-4.5m4.5 0L15 9m-11.25 11.25v-4.5m0 4.5h4.5m-4.5 0L9 15m11.25 5.25v-4.5m0 4.5h-4.5m4.5 0L15 15"/></svg>
@@ -1432,7 +1432,7 @@ function buildPhotoStrip(photos) {
   photos.forEach(p => {
     const thumb = document.createElement('div');
     thumb.className = 'strip-thumb';
-    thumb.innerHTML = `<img src="/api/gallery/photos/${p.id}/thumb" alt="${p.filename || ''}" loading="lazy" onclick="openPhotoViewer('${p.id}')"/>`;
+    thumb.innerHTML = `<img src="/api/gallery/photos/${p.id}/thumb" alt="${p.filename || ''}" loading="lazy" onclick="openPhotoViewer('${p.id}')" decoding="async"/>`;
     strip.appendChild(thumb);
   });
 }

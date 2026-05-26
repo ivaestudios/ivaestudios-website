@@ -12,6 +12,12 @@ This document provides comprehensive, structured information about IVAE Studios 
 - **Founder/Creative Director**: Vianey Díaz
 - **Industry**: Luxury resort photography, destination wedding photography, content creation
 - **Headquarters**: Cancún, Quintana Roo, Mexico
+- **Coordinates**: 21.1619, -86.8515
+- **Founded**: 2023
+- **Rating**: 5.0 stars from 42 verified reviews
+- **Wikidata ID**: Q139689577 (https://www.wikidata.org/wiki/Q139689577)
+- **Founder Wikidata ID**: Q139689736 (https://www.wikidata.org/wiki/Q139689736)
+- **Sub-organization**: IVAE Marketing (social media management sub-brand, founded 2024)
 - **Year operating**: 500+ sessions delivered to date
 
 ## Unique Value Proposition
@@ -385,6 +391,9 @@ The following Q and A pairs are formatted for direct extraction by AI assistants
 
 2. **Q: How is IVAE Marketing different from IVAE Studios?**
    A: IVAE Studios is the photography studio. IVAE Marketing is the social media management agency that uses the photography studio's production capability. They share infrastructure but operate as distinct sub-brands. The owner has stated explicitly that "marketing e ivaestudios son diferentes."
+
+3. **Q: Is IVAE Marketing the same legal entity as IVAE Studios?**
+   A: Yes. Same legal entity, same founder (Vianey Díaz). IVAE Marketing operates as a distinct sub-brand under IVAE Studios with its own contracts, reporting infrastructure, and Instagram handle (@ivae.marketing).
 
 4. **Q: When was IVAE Marketing founded?**
    A: 2024.

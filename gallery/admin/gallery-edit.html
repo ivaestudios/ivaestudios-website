@@ -492,7 +492,7 @@
               <div id="watermarkPanel" style="display:none;">
                 <!-- Preview -->
                 <div id="wmPreview" style="position:relative;width:100%;aspect-ratio:3/2;background:var(--ink-soft);border-radius:8px;overflow:hidden;margin-bottom:10px;">
-                  <img id="wmPreviewImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;"/>
+                  <img id="wmPreviewImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;" decoding="async"/>
                   <div id="wmPreviewPlaceholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-soft);font-size:11px;letter-spacing:0.5px;">No photos yet</div>
                   <div id="wmOverlay" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
                     <div id="wmOverlayBadge" style="background:rgba(255,255,255,0.82);width:55%;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;opacity:0.3;">
@@ -525,7 +525,7 @@
               <label class="su-label">STUDIO LOGO <span class="su-q" title="PNG/SVG with transparent background. Appears on the gallery cover and lightbox topbar.">?</span></label>
               <div id="logoPanel">
                 <div id="logoPreview" style="position:relative;width:100%;aspect-ratio:3/1;background:var(--ink-soft);border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
-                  <img id="logoPreviewImg" src="" alt="" style="max-width:60%;max-height:70%;object-fit:contain;display:none;filter:brightness(0) invert(1);"/>
+                  <img id="logoPreviewImg" src="" alt="" style="max-width:60%;max-height:70%;object-fit:contain;display:none;filter:brightness(0) invert(1);" decoding="async"/>
                   <span id="logoPreviewPlaceholder" style="color:var(--text-soft);font-size:11px;letter-spacing:0.5px;">No logo uploaded</span>
                 </div>
                 <div style="display:flex;gap:8px;">
@@ -792,7 +792,7 @@
     <button class="pv-viewer-nav prev" onclick="navigatePhoto(-1)">
       <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
     </button>
-    <img id="pvViewerImg" src="" alt="Photo"/>
+    <img id="pvViewerImg" src="" alt="Photo" loading="lazy" decoding="async"/>
     <button class="pv-viewer-nav next" onclick="navigatePhoto(1)">
       <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
     </button>
@@ -807,7 +807,7 @@
     <span class="fp-hint">Click on the image to set the center focus</span>
   </div>
   <div class="fp-container" id="fpContainer" onclick="setFocalPoint(event)">
-    <img id="fpImage" src="" alt="Cover"/>
+    <img id="fpImage" src="" alt="Cover" loading="lazy" decoding="async"/>
     <div class="fp-crosshair" id="fpCrosshair" style="left:50%;top:50%;">
       <div class="fp-crosshair-dot"></div>
     </div>
@@ -947,7 +947,7 @@ function renderDashSubmissions(submissions) {
   wrap.innerHTML = submissions.map(s => {
     const ids = Array.isArray(s.photo_ids) ? s.photo_ids : [];
     const dateStr = new Date(s.submitted_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-    const thumbs = ids.slice(0, 12).map(pid => `<img src="/api/gallery/photos/${pid}/thumb" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:3px;cursor:pointer;" onclick="window.open('/api/gallery/photos/${pid}/web','_blank')"/>`).join('');
+    const thumbs = ids.slice(0, 12).map(pid => `<img src="/api/gallery/photos/${pid}/thumb" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:3px;cursor:pointer;" onclick="window.open('/api/gallery/photos/${pid}/web','_blank')" decoding="async"/>`).join('');
     const more = ids.length > 12 ? `<div style="font-size:11px;color:#888;margin-top:8px;">+ ${ids.length - 12} more — <a href="/gallery/admin/proofs?id=${galleryId}" target="_blank" style="color:#a8956f;text-decoration:none;">view all</a></div>` : '';
     const note = s.note ? `<div style="font-style:italic;color:#666;font-size:12px;margin-top:10px;padding:10px;background:#fafafa;border-left:2px solid #a8956f;">"${escapeHtml(s.note)}"</div>` : '';
     return `<div style="border:1px solid #eee;border-radius:6px;padding:16px;background:#fff;">
@@ -1530,7 +1530,7 @@ function _adminLogoOverlayHtml() {
     ? 'filter:brightness(0) invert(1) drop-shadow(0 1px 2px rgba(0,0,0,0.45));'
     : 'filter:brightness(0) drop-shadow(0 1px 1px rgba(255,255,255,0.55));';
   const src = '/api/gallery/galleries/' + galleryId + '/logo';
-  return `<img src="${src}" alt="" style="position:absolute;top:7%;left:50%;transform:translateX(-50%);height:auto;width:auto;max-height:11%;max-width:32%;object-fit:contain;z-index:10;pointer-events:none;${filt}"/>`;
+  return `<img src="${src}" alt="" style="position:absolute;top:7%;left:50%;transform:translateX(-50%);height:auto;width:auto;max-height:11%;max-width:32%;object-fit:contain;z-index:10;pointer-events:none;${filt}" loading="lazy" decoding="async"/>`;
 }
 
 function renderPreview() {
@@ -2009,7 +2009,7 @@ async function revokeShareToken() {
       selDiv.innerHTML += `<p style="font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#a8956f;margin:12px 0 6px;">${name} — ${items.length} selected</p>`;
       const row = document.createElement('div');
       row.style.cssText = 'display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;';
-      items.forEach(it => { row.innerHTML += `<img src="/api/gallery/photos/${it.photo_id}/thumb" style="width:50px;height:50px;object-fit:cover;border-radius:3px;"/>`; });
+      items.forEach(it => { row.innerHTML += `<img src="/api/gallery/photos/${it.photo_id}/thumb" style="width:50px;height:50px;object-fit:cover;border-radius:3px;" loading="lazy" decoding="async"/>`; });
       selDiv.appendChild(row);
     }
     document.getElementById('sec-share').querySelector('#clientList').after(selDiv);
@@ -2306,7 +2306,7 @@ const MULTIPART_PART_SIZE = 5 * 1024 * 1024;
 // Read pixel dimensions from a JPEG/PNG File without sending it to the worker.
 // Used by direct-R2 path so photos arrive in DB with width/height set
 // (otherwise the gallery falls back to square aspect ratio until backfill).
-// Prefers createImageBitmap (decodes off-main-thread, no DOM), falls back to <img>.
+// Prefers createImageBitmap (decodes off-main-thread, no DOM), falls back to <img loading="lazy" decoding="async">.
 function readImageDims(file) {
   if (typeof createImageBitmap === 'function') {
     return createImageBitmap(file).then(bmp => {
@@ -2689,7 +2689,7 @@ function createPhotoCell(p, idx) {
   cell.className = 'photo-cell';
   cell.dataset.photoId = p.id;
   cell.dataset.filename = p.filename || '';
-  cell.innerHTML = `<img loading="lazy" src="/api/gallery/photos/${p.id}/thumb" alt="${p.filename || ''}"/>
+  cell.innerHTML = `<img loading="lazy" src="/api/gallery/photos/${p.id}/thumb" alt="${p.filename || ''}" decoding="async"/>
     <div class="photo-cell-overlay" onclick="openPhotoViewer('${p.id}')">
       <button class="photo-cell-expand" onclick="event.stopPropagation();openPhotoViewer('${p.id}')">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9m11.25-5.25v4.5m0-4.5h-4.5m4.5 0L15 9m-11.25 11.25v-4.5m0 4.5h4.5m-4.5 0L9 15m11.25 5.25v-4.5m0 4.5h-4.5m4.5 0L15 15"/></svg>
@@ -2805,7 +2805,7 @@ function buildPhotoStrip(photos) {
   photos.filter(p => !p.scene_id).forEach((p, i) => {
     const thumb = document.createElement('div');
     thumb.className = 'strip-thumb';
-    thumb.innerHTML = `<img src="/api/gallery/photos/${p.id}/thumb" alt="${p.filename}" loading="lazy" onclick="openPhotoViewer(${i})"/>`;
+    thumb.innerHTML = `<img src="/api/gallery/photos/${p.id}/thumb" alt="${p.filename}" loading="lazy" onclick="openPhotoViewer(${i})" decoding="async"/>`;
     strip.appendChild(thumb);
   });
 }
@@ -2925,7 +2925,7 @@ function renderSceneBlocks(scenes, photos) {
           <button class="scene-btn-delete" onclick="deleteScene('${sc.id}')" title="Delete scene">&times;</button>
         </div>
       </div>
-      <div class="scene-strip">${scenePhotos.length ? scenePhotos.map(p => `<div class="strip-thumb"><img src="/api/gallery/photos/${p.id}/thumb" alt="${p.filename}" loading="lazy"/></div>`).join('') : '<div style="padding:20px;color:#ccc;font-size:12px;">No photos in this scene yet</div>'}</div>
+      <div class="scene-strip">${scenePhotos.length ? scenePhotos.map(p => `<div class="strip-thumb"><img src="/api/gallery/photos/${p.id}/thumb" alt="${p.filename}" loading="lazy" decoding="async"/></div>`).join('') : '<div style="padding:20px;color:#ccc;font-size:12px;">No photos in this scene yet</div>'}</div>
     `;
     container.appendChild(block);
   });

@@ -615,7 +615,7 @@ body { background: var(--cream); padding-top: 0; }
 
 <div class="lb-overlay" id="lbOverlay" onclick="if(event.target===this)closeLb()">
   <button class="lb-close" onclick="closeLb()">&times;</button>
-  <img id="lbImg" src="" alt=""/>
+  <img id="lbImg" src="" alt="" decoding="async"/>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -771,7 +771,7 @@ function renderProofs() {
       const p = photoMap[id];
       const src = '/api/gallery/photos/' + id + '/thumb';
       const full = '/api/gallery/photos/' + id + '/web';
-      return `<img src="${src}" alt="${escapeHtml(p ? p.filename : id)}" onclick="openLb('${full}')"/>`;
+      return `<img src="${src}" alt="${escapeHtml(p ? p.filename : id)}" onclick="openLb('${full}')" decoding="async"/>`;
     }).join('');
 
     const badge = renderBadge(status, s.reviewed_at);

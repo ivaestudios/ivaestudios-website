@@ -20,6 +20,7 @@
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://ivaestudios.com/social-media-luxury-hotels-mexico"/>
 <meta property="og:image" content="https://assets.ivaestudios.com/ivae-og.jpg"/>
+<meta property="og:image:type" content="image/jpeg"/>
 <meta property="og:image:width" content="1200"/>
 <meta property="og:image:height" content="630"/>
 <meta property="og:site_name" content="IVAE Marketing"/>
@@ -30,6 +31,7 @@
 <meta name="twitter:title" content="Social Media Management for Luxury Hotels in Mexico"/>
 <meta name="twitter:description" content="Editorial Instagram and TikTok content for boutique hotels and resorts."/>
 <meta name="twitter:image" content="https://assets.ivaestudios.com/ivae-og.jpg"/>
+<meta name="twitter:image:alt" content="IVAE Studios — Luxury resort photography in Cancún, Riviera Maya and Los Cabos"/>
 
 <meta name="geo.region" content="MX-ROO"/>
 <meta name="geo.placename" content="Cancun"/>
@@ -167,7 +169,11 @@ img{max-width:100%;display:block}
 .faq .ans{padding:0 24px 22px;color:rgba(240,238,233,.7);font-size:14.5px;line-height:1.7}
 
 .skip-to-main{position:absolute;left:-9999px;top:0;z-index:200;padding:12px 18px;background:#a78bfa;color:#0a0a0f;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;border-radius:0 0 12px 0}
-.skip-to-main:focus{left:0}
+.skip-to-main:focus{left:0;outline:2px solid #ec4899;outline-offset:2px}
+/* Global focus-visible — WCAG 2.4.7 */
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,[tabindex]:focus-visible,summary:focus-visible{outline:2px solid #ec4899;outline-offset:3px;border-radius:4px}
+/* Reduced motion — WCAG 2.3.3 */
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition-duration:.01ms!important;scroll-behavior:auto!important}.gradient-bg::before,.gradient-bg::after{animation:none!important}}
 
 .cta-band{padding:clamp(56px,9vw,100px) 0;text-align:center;position:relative}
 .cta-band h2{font-size:clamp(30px,5vw,52px);font-weight:800;line-height:1.1;letter-spacing:-.025em;margin-bottom:18px}
@@ -183,7 +189,7 @@ footer .container{display:grid;grid-template-columns:1fr;gap:36px}
 .foot-col ul{list-style:none;display:flex;flex-direction:column;gap:10px}
 .foot-col a{font-size:14px;color:rgba(240,238,233,.65);transition:color .25s}
 .foot-col a:hover{color:#c4b5fd}
-.foot-base{margin-top:36px;padding-top:24px;border-top:1px solid rgba(255,255,255,.05);font-size:12px;color:rgba(240,238,233,.4);font-family:'Space Mono',monospace;letter-spacing:.12em;text-align:center}
+.foot-base{margin-top:36px;padding-top:24px;border-top:1px solid rgba(255,255,255,.05);font-size:12px;color:rgba(240,238,233,.6);font-family:'Space Mono',monospace;letter-spacing:.12em;text-align:center}
 
 input,textarea,select,button{font-size:16px}
 @supports(padding:max(0px)){body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}.topnav{padding-left:max(clamp(16px,4vw,32px),env(safe-area-inset-left));padding-right:max(clamp(16px,4vw,32px),env(safe-area-inset-right))}}
@@ -443,6 +449,10 @@ input,textarea,select,button{font-size:16px}
   <div class="container">
     <div class="foot-base">IVAE MARKETING / DIRECTED BY VIANEY DIAZ / CANCUN, MEXICO</div>
   </div>
+
+  <p class="footer-compliance" style="text-align:center;margin:8px 0 0;padding:8px 0 0;font-size:11px;letter-spacing:0.04em;opacity:0.7">
+    <a href="/privacy-policy" style="color:inherit;text-decoration:none">Privacy</a> &middot; <a href="/accessibility-statement" style="color:inherit;text-decoration:none">Accessibility</a>
+  </p>
 </footer>
 
 <script>

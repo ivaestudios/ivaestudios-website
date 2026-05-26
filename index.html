@@ -3884,15 +3884,19 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
       <h3>To <em>Vianey</em>,</h3>
       <p class="inquiry-sub">a few lines about your trip, your hour, your hopes. Nothing here is required. tell us what you know, we&rsquo;ll fill in the rest.</p>
 
-      <form id="inquiryForm" novalidate>
+      <form id="inquiryForm" novalidate aria-describedby="inqStatus inqPrivacy">
+        <div class="inq-honeypot" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none">
+          <label for="inqWebsite">Website (leave blank)</label>
+          <input type="text" id="inqWebsite" name="website" tabindex="-1" autocomplete="off"/>
+        </div>
         <div class="inquiry-row">
           <div class="inq-field">
             <label for="inqName">Your name</label>
             <input type="text" id="inqName" name="name" placeholder="e.g. Camille &amp; Henri" autocomplete="name"/>
           </div>
           <div class="inq-field">
-            <label for="inqEmail">Email</label>
-            <input type="email" id="inqEmail" name="email" placeholder="best email to reach you" autocomplete="email" required/>
+            <label for="inqEmail">Email <span aria-hidden="true" style="color:var(--gold-deep)">*</span><span style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">(required)</span></label>
+            <input type="email" id="inqEmail" name="email" placeholder="best email to reach you" autocomplete="email" required aria-required="true"/>
           </div>
         </div>
         <div class="inquiry-row">
@@ -3928,10 +3932,12 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
           <label for="inqMsg">A few lines</label>
           <textarea id="inqMsg" name="message" placeholder="What does this trip mean to you? Who is coming? What would you like to remember in twenty years?"></textarea>
         </div>
-        <button class="inq-cta" type="submit">
+        <div id="inqStatus" class="inq-status" role="status" aria-live="polite" style="font-family:var(--font-serif);font-style:italic;font-size:var(--fs-13);color:var(--text-on-light-readable);min-height:1.5em;margin:6px 0 0"></div>
+        <button class="inq-cta" type="submit" aria-label="Send your inquiry letter to Vianey at IVAE Studios">
           Send your letter
           <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
         </button>
+        <p id="inqPrivacy" class="inq-foot" style="margin-top:14px">By submitting, you accept our <a href="/privacy-policy">Privacy Policy</a>. We use your details only to reply to this inquiry.</p>
         <p class="inq-foot">Or write us directly at <a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a>. or, if it is urgent, message Vianey on WhatsApp at <a href="https://wa.me/529902046514?text=Hola%20IVAE%2C%20me%20interesa%20una%20sesi%C3%B3n%20de%20fotograf%C3%ADa" target="_blank" rel="noopener">+52 990 204 6514</a>.</p>
       </form>
     </div>
@@ -4700,16 +4706,27 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
     form.addEventListener('submit', (e)=>{
       e.preventDefault();
       const fd = new FormData(form);
+      const honey = (fd.get('website')||'').toString().trim();
+      if(honey){ return; } /* honeypot tripped */
       const name = (fd.get('name')||'').toString().trim();
       const email = (fd.get('email')||'').toString().trim();
       const message = (fd.get('message')||'').toString().trim();
       const where = (fd.get('where')||'').toString();
       const dates = (fd.get('dates')||'').toString();
       const sessionType = (fd.get('sessionType')||'').toString();
+      const status = $('#inqStatus');
+      const emailField = $('#inqEmail');
       if(!email){
-        const f = $('#inqEmail'); if(f){ f.focus(); f.style.borderBottomColor = '#a8894a'; }
+        if(emailField){
+          emailField.focus();
+          emailField.setAttribute('aria-invalid','true');
+          emailField.style.borderBottomColor = '#a8894a';
+        }
+        if(status) status.textContent = 'Please add your email so we can write back.';
         return;
       }
+      if(emailField) emailField.removeAttribute('aria-invalid');
+      if(status) status.textContent = 'Opening your mail app. thank you for writing.';
       const subj = `IVAE inquiry / ${name || 'a letter'}${where ? ' (' + where + ')' : ''}`;
       const bodyLines = [];
       if(name) bodyLines.push('From: ' + name);

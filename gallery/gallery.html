@@ -428,7 +428,7 @@
 
 <!-- Slideshow Modal -->
 <div class="slideshow-overlay" id="slideshowOverlay" style="display:none;">
-  <img id="slideshowImg" src="" alt="" />
+  <img id="slideshowImg" src="" alt="" decoding="async"/>
   <div class="slideshow-controls">
     <button class="ss-btn" onclick="ssTogglePlay()" title="Play / Pause" id="ssPlayBtn">
       <svg id="ssPlayIcon" width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
@@ -471,7 +471,7 @@
 <div class="lightbox" id="lightbox">
   <div class="lightbox-topbar">
     <div class="lightbox-topbar-left-wrap">
-      <img id="lightboxLogo" class="lightbox-logo" src="" alt="" style="display:none;"/>
+      <img id="lightboxLogo" class="lightbox-logo" src="" alt="" style="display:none;" decoding="async"/>
       <span class="lightbox-topbar-left" id="lightboxFilename"></span>
     </div>
     <div class="lightbox-topbar-right">
@@ -483,7 +483,7 @@
     <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)" aria-label="Previous photo">&#8249;</button>
     <picture>
       <source id="lightboxSourceWebp" type="image/webp" srcset="">
-      <img id="lightboxImg" src="" alt=""/>
+      <img id="lightboxImg" src="" alt="" decoding="async"/>
     </picture>
     <div id="lightboxWm" class="lightbox-wm" style="display:none;">
       <div class="wm-badge wm-badge-lg"><span class="wm-title" id="lbWmTitle">IVAE</span><span class="wm-sub" id="lbWmSub">STUDIOS</span></div>
@@ -924,11 +924,11 @@ function renderPhotoSection(container, sectionPhotos, indexOffset) {
       const wAttr = Math.round(it.displayWidth);
       const hAttr = Math.round(it.displayHeight);
       // <picture> wrapper enables WebP delivery + responsive sizes on
-      // capable browsers. The inner <img> keeps every existing attribute
+      // capable browsers. The inner <img decoding="async"> keeps every existing attribute
       // (loading=lazy, dims, data-* for dimension backfill, opacity fade-in)
       // and is what the layout/observer logic still queries via
       // cell.querySelector('img'). Browsers without <picture> support fall
-      // through to the <img>'s src — which is the same /thumb URL we used
+      // through to the <img decoding="async">'s src — which is the same /thumb URL we used
       // before, so behaviour is unchanged on legacy clients.
       cell.innerHTML = `
         <picture>
@@ -1104,7 +1104,7 @@ function loadLightboxPhoto(index) {
     return false;
   }
   // Keep <source> srcset in sync so <picture> picks WebP when supported.
-  // Falls back to the <img> src (web.jpg via /web) on legacy browsers and
+  // Falls back to the <img loading="lazy" decoding="async"> src (web.jpg via /web) on legacy browsers and
   // when the daemon hasn't generated .webp yet.
   const srcWebp = document.getElementById('lightboxSourceWebp');
   if (srcWebp) {

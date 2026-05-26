@@ -3656,9 +3656,9 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
      ═══════════════════════════════════════════════════════════════ -->
 <section class="atlas" id="atlas" aria-labelledby="atlas-h2">
   <div class="atlas-head">
-    <span class="ls-eyebrow eb-grow">Capítulo 05. The Atlas</span>
-    <h2 id="atlas-h2">Tres costas. <em>One studio.</em></h2>
-    <p>We work the Yucatán Peninsula and the Baja California Sur. Each coast asks for a different camera, a different language of light, a different rhythm. Here is where we shoot.</p>
+    <span class="ls-eyebrow eb-grow">Capítulo 05. El Atlas</span>
+    <h2 id="atlas-h2">Tres costas. <em>Un estudio.</em></h2>
+    <p>Trabajamos en la Península de Yucatán y en Baja California Sur. Cada costa pide una cámara distinta, un lenguaje de luz distinto, un ritmo distinto. Aquí es donde fotografiamos.</p>
   </div>
 
   <div class="atlas-stage" id="atlasStage" aria-hidden="true">
@@ -3797,30 +3797,30 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 <section class="dossier" id="dossier" aria-labelledby="dossier-h2">
   <div class="dossier-inner">
     <div class="dossier-left">
-      <span class="dossier-eyebrow">Capítulo 07. Begin Inquiry</span>
-      <h2 id="dossier-h2">A letter, <em>not a form</em>.</h2>
-      <p class="dossier-lede">Tell us about the trip the way you would tell a friend. We&rsquo;ll write back within twenty-four hours, in your language, with a calendar opening. We answer every inquiry personally; nothing here is automated.</p>
+      <span class="dossier-eyebrow">Capítulo 07. Iniciar consulta</span>
+      <h2 id="dossier-h2">Una carta, <em>no un formulario</em>.</h2>
+      <p class="dossier-lede">Cuéntanos sobre tu viaje como se lo contarías a una amiga. Te respondemos en menos de veinticuatro horas, en tu idioma, con una fecha disponible en el calendario. Respondemos cada consulta de forma personal; nada aquí es automatizado.</p>
 
-      <ol class="acts" aria-label="The IVAE inquiry process, three acts">
+      <ol class="acts" aria-label="El proceso de consulta de IVAE, tres actos">
         <li class="act rv" data-anim>
           <span class="act-num">I</span>
           <div>
-            <span class="act-h">A letter</span>
-            <span class="act-d">You send a few lines. We read every word. (Twenty-four hours, never longer.)</span>
+            <span class="act-h">Una carta</span>
+            <span class="act-d">Nos envías unas líneas. Leemos cada palabra. (Veinticuatro horas, nunca más.)</span>
           </div>
         </li>
         <li class="act rv" data-anim>
           <span class="act-num">II</span>
           <div>
-            <span class="act-h">A conversation</span>
-            <span class="act-d">A short call. in English or Spanish. to find your hour, your light, your wardrobe.</span>
+            <span class="act-h">Una conversación</span>
+            <span class="act-d">Una llamada breve. en inglés o español. para encontrar tu hora, tu luz, tu vestuario.</span>
           </div>
         </li>
         <li class="act rv" data-anim>
           <span class="act-num">III</span>
           <div>
-            <span class="act-h">A signed agreement</span>
-            <span class="act-d">A 30% retainer holds your golden hour. We send a written timing brief. The rest is the work.</span>
+            <span class="act-h">Un acuerdo firmado</span>
+            <span class="act-d">Un anticipo del 30% reserva tu hora dorada. Te enviamos un brief escrito con los tiempos. El resto es el trabajo.</span>
           </div>
         </li>
       </ol>
@@ -3832,55 +3832,61 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
       <h3>To <em>Vianey</em>,</h3>
       <p class="inquiry-sub">a few lines about your trip, tu hora, tus esperanzas. Nada aquí es obligatorio. cuéntanos lo que sepas, nosotros llenamos el resto.</p>
 
-      <form id="inquiryForm" novalidate>
+      <form id="inquiryForm" novalidate aria-describedby="inqStatus inqPrivacy">
+        <div class="inq-honeypot" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none">
+          <label for="inqWebsite">Sitio web (dejar en blanco)</label>
+          <input type="text" id="inqWebsite" name="website" tabindex="-1" autocomplete="off"/>
+        </div>
         <div class="inquiry-row">
           <div class="inq-field">
             <label for="inqName">Tu nombre</label>
-            <input type="text" id="inqName" name="name" placeholder="e.g. Camille &amp; Henri" autocomplete="name"/>
+            <input type="text" id="inqName" name="name" placeholder="ej. Camila &amp; Andrés" autocomplete="name"/>
           </div>
           <div class="inq-field">
-            <label for="inqEmail">Correo</label>
-            <input type="email" id="inqEmail" name="email" placeholder="best email to reach you" autocomplete="email" required/>
+            <label for="inqEmail">Correo <span aria-hidden="true" style="color:var(--gold-deep)">*</span><span style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">(obligatorio)</span></label>
+            <input type="email" id="inqEmail" name="email" placeholder="el correo donde te alcanzamos" autocomplete="email" required aria-required="true"/>
           </div>
         </div>
         <div class="inquiry-row">
           <div class="inq-field">
-            <label for="inqDates">Travel window</label>
-            <input type="text" id="inqDates" name="dates" placeholder="e.g. early March 2026"/>
+            <label for="inqDates">Ventana de viaje</label>
+            <input type="text" id="inqDates" name="dates" placeholder="ej. principios de marzo 2026"/>
           </div>
           <div class="inq-field">
-            <label for="inqWhere">Coast</label>
+            <label for="inqWhere">Costa</label>
             <select id="inqWhere" name="where">
-              <option value="">Pick a coast (optional)</option>
-              <option value="cancun">Canc&uacute;n &amp; Hotel Zone</option>
+              <option value="">Elige una costa (opcional)</option>
+              <option value="cancun">Canc&uacute;n &amp; Zona Hotelera</option>
               <option value="riviera">Riviera Maya (Mayakoba. Tulum)</option>
-              <option value="cabos">Los Cabos &amp; Pacific</option>
-              <option value="other">Somewhere else</option>
+              <option value="cabos">Los Cabos &amp; Pacífico</option>
+              <option value="other">En otro lugar</option>
             </select>
           </div>
         </div>
         <div class="inq-field">
-          <label for="inqType">What you&rsquo;d like to capture</label>
+          <label for="inqType">Lo que te gustaría capturar</label>
           <select id="inqType" name="sessionType">
-            <option value="">A session type (optional)</option>
-            <option value="family">Family at the resort</option>
-            <option value="couple">Couple. honeymoon, anniversary</option>
-            <option value="proposal">A surprise proposal</option>
-            <option value="wedding">Destination wedding</option>
-            <option value="cenote">Cenote / underwater</option>
-            <option value="yacht">Yacht / luxury charter</option>
-            <option value="brand">Editorial / brand</option>
+            <option value="">Un tipo de sesión (opcional)</option>
+            <option value="family">Familia en el resort</option>
+            <option value="couple">Pareja. luna de miel, aniversario</option>
+            <option value="proposal">Una propuesta sorpresa</option>
+            <option value="wedding">Boda de destino</option>
+            <option value="cenote">Cenote / submarino</option>
+            <option value="yacht">Yate / chárter de lujo</option>
+            <option value="brand">Editorial / marca</option>
           </select>
         </div>
         <div class="inq-field">
-          <label for="inqMsg">A few lines</label>
-          <textarea id="inqMsg" name="message" placeholder="What does this trip mean to you? Who is coming? What would you like to remember in twenty years?"></textarea>
+          <label for="inqMsg">Unas líneas</label>
+          <textarea id="inqMsg" name="message" placeholder="¿Qué significa este viaje para ti? ¿Quién viene? ¿Qué te gustaría recordar en veinte años?"></textarea>
         </div>
-        <button class="inq-cta" type="submit">
-          Send your letter
+        <div id="inqStatus" class="inq-status" role="status" aria-live="polite" style="font-family:var(--font-serif);font-style:italic;font-size:var(--fs-13);color:var(--text-on-light-readable);min-height:1.5em;margin:6px 0 0"></div>
+        <button class="inq-cta" type="submit" aria-label="Enviar tu carta de consulta a Vianey en IVAE Studios">
+          Enviar tu carta
           <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
         </button>
-        <p class="inq-foot">Or write us directly at <a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a>. or, if it is urgent, message Vianey on WhatsApp at <a href="https://wa.me/529902046514?text=Hola%20IVAE%2C%20me%20interesa%20una%20sesi%C3%B3n%20de%20fotograf%C3%ADa" target="_blank" rel="noopener">+52 990 204 6514</a>.</p>
+        <p id="inqPrivacy" class="inq-foot" style="margin-top:14px">Al enviar, aceptas nuestra <a href="/privacy-policy">Política de Privacidad</a>. Usamos tus datos solo para responder a esta consulta.</p>
+        <p class="inq-foot">O escríbenos directamente a <a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a>. o, si es urgente, manda WhatsApp a Vianey al <a href="https://wa.me/529902046514?text=Hola%20IVAE%2C%20me%20interesa%20una%20sesi%C3%B3n%20de%20fotograf%C3%ADa" target="_blank" rel="noopener">+52 990 204 6514</a>.</p>
       </form>
     </div>
   </div>
@@ -3893,9 +3899,9 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
   <div class="jrn-head">
     <div class="jrn-head-left">
       <span class="ls-eyebrow eb-grow">Capítulo 08. El Diario</span>
-      <h2 id="jrn-h2">Stories, dossiers, and the <em>ledger</em>.</h2>
+      <h2 id="jrn-h2">Historias, dossiers y la <em>bitácora</em>.</h2>
     </div>
-    <a href="/blog" class="jrn-link">All entries
+    <a href="/blog" class="jrn-link">Todas las entradas
       <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
     </a>
   </div>
@@ -3904,46 +3910,46 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
     <a class="jrn-feat" href="/blog/inside-luxury-mayakoba-wedding-case-study" data-preview="/images/couple-mayakoba-ivae-studios.jpg" data-tilt>
       <div class="jrn-img"><img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Mayakoba wedding case study" loading="lazy" width="1600" height="1200"/></div>
       <div class="jrn-content">
-        <span class="jrn-no">Case Study &middot; Long Read</span>
-        <h3>Inside a <em>Mayakoba</em> wedding. a case study, in nine acts.</h3>
-        <p>From the bride&rsquo;s third email through the last frame of the welcome dinner, the full editorial brief of a $48,000 destination wedding. opened in full.</p>
-        <span class="jrn-go">Read the case study &rarr;</span>
+        <span class="jrn-no">Caso de Estudio &middot; Lectura Larga</span>
+        <h3>Dentro de una boda en <em>Mayakoba</em>. un caso de estudio, en nueve actos.</h3>
+        <p>Desde el tercer correo de la novia hasta el último cuadro de la cena de bienvenida, el brief editorial completo de una boda de destino de $48,000 USD. abierto por completo.</p>
+        <span class="jrn-go">Leer el caso de estudio &rarr;</span>
       </div>
     </a>
 
     <a class="jrn-mini" href="/blog/golden-hour-photography-mexico" data-preview="/images/wedding-bride-tulum-ivae-studios.jpg" data-tilt>
-      <div class="jrn-img"><img src="/images/wedding-bride-tulum-ivae-studios.jpg" alt="Golden hour in Mexico essay" loading="lazy" width="1200" height="900"/></div>
+      <div class="jrn-img"><img src="/images/wedding-bride-tulum-ivae-studios.jpg" alt="Ensayo sobre la hora dorada en México" loading="lazy" width="1200" height="900"/></div>
       <div class="jrn-content">
-        <span class="jrn-no">Essay</span>
-        <h3>Why we shoot only at <em>the edges</em> del día.</h3>
-        <span class="jrn-go">Read the essay &rarr;</span>
+        <span class="jrn-no">Ensayo</span>
+        <h3>Por qué fotografiamos sólo en <em>los bordes</em> del día.</h3>
+        <span class="jrn-go">Leer el ensayo &rarr;</span>
       </div>
     </a>
 
     <a class="jrn-mini" href="/blog/destination-wedding-photographer-timeline" data-preview="/images/wedding-bride-cancun-beach-ivae-studios.jpg" data-tilt>
-      <div class="jrn-img"><img src="/images/wedding-bride-cancun-beach-ivae-studios.jpg" alt="Destination wedding timeline" loading="lazy" width="1200" height="900"/></div>
+      <div class="jrn-img"><img src="/images/wedding-bride-cancun-beach-ivae-studios.jpg" alt="Cronograma de boda de destino" loading="lazy" width="1200" height="900"/></div>
       <div class="jrn-content">
-        <span class="jrn-no">Field Notes</span>
-        <h3>The <em>twelve-hour</em> wedding timeline, opened up.</h3>
-        <span class="jrn-go">Open notes &rarr;</span>
+        <span class="jrn-no">Notas de Campo</span>
+        <h3>El cronograma de una boda de <em>doce horas</em>, abierto.</h3>
+        <span class="jrn-go">Abrir notas &rarr;</span>
       </div>
     </a>
 
     <a class="jrn-mini" href="/blog/cancun-cenote-photoshoot-guide" data-preview="/images/couple-tulum-ivae-studios.jpg" data-tilt>
-      <div class="jrn-img"><img src="/images/couple-tulum-ivae-studios.jpg" alt="Cancún cenote photoshoot guide" loading="lazy" width="1200" height="900"/></div>
+      <div class="jrn-img"><img src="/images/couple-tulum-ivae-studios.jpg" alt="Guía de sesión en cenotes de Cancún" loading="lazy" width="1200" height="900"/></div>
       <div class="jrn-content">
-        <span class="jrn-no">Field Notes</span>
-        <h3>A guide to <em>cenotes</em>, light, and the underwater frame.</h3>
-        <span class="jrn-go">Open notes &rarr;</span>
+        <span class="jrn-no">Notas de Campo</span>
+        <h3>Una guía de <em>cenotes</em>, luz y el cuadro submarino.</h3>
+        <span class="jrn-go">Abrir notas &rarr;</span>
       </div>
     </a>
 
     <a class="jrn-mini" href="/blog/what-to-wear-beach-photos" data-preview="/images/family-cancun-ivae-studios.jpg" data-tilt>
-      <div class="jrn-img"><img src="/images/family-cancun-ivae-studios.jpg" alt="What to wear for beach photos" loading="lazy" width="1200" height="900"/></div>
+      <div class="jrn-img"><img src="/images/family-cancun-ivae-studios.jpg" alt="Qué usar en fotos de playa" loading="lazy" width="1200" height="900"/></div>
       <div class="jrn-content">
-        <span class="jrn-no">Wardrobe Brief</span>
-        <h3>What to wear. the <em>full</em> wardrobe brief.</h3>
-        <span class="jrn-go">Read the brief &rarr;</span>
+        <span class="jrn-no">Brief de Vestuario</span>
+        <h3>Qué usar. el brief <em>completo</em> de vestuario.</h3>
+        <span class="jrn-go">Leer el brief &rarr;</span>
       </div>
     </a>
   </div>
@@ -4029,19 +4035,19 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 <footer class="colophon" aria-label="Footer">
   <div class="colophon-mark">
     <span class="colophon-mark-name">IVAE<em>Studios</em></span>
-    <span class="colophon-tag">Luxury Resort Photography. <em>Editorial. Bilingual. Solo hora dorada.</em></span>
+    <span class="colophon-tag">Fotograf&iacute;a de Lujo en Resorts. <em>Editorial. Biling&uuml;e. Solo hora dorada.</em></span>
   </div>
 
   <div class="colophon-cols">
     <div>
-      <div class="col-h">The Studio</div>
-      <p>IVAE Studios is a luxury resort photography studio based in Canc&uacute;n, working across the Riviera Maya, Tulum, Isla Mujeres, and Los Cabos. Founded by Vianey D&iacute;az. ten years of editorial cameras, dos idiomas, one obsession with the hour en que la luz es honesta.</p>
+      <div class="col-h">El Estudio</div>
+      <p>IVAE Studios es un estudio de fotograf&iacute;a de lujo en resorts con base en Canc&uacute;n, trabajando en la Riviera Maya, Tulum, Isla Mujeres y Los Cabos. Fundado por Vianey D&iacute;az. diez a&ntilde;os de c&aacute;maras editoriales, dos idiomas, una obsesi&oacute;n por la hora en que la luz es honesta.</p>
     </div>
     <div>
-      <div class="col-h">Studio</div>
+      <div class="col-h">Estudio</div>
       <ul>
         <li><a href="/es/acerca-de">Vianey D&iacute;az</a></li>
-        <li><a href="/brand">Brand &amp; Press</a></li>
+        <li><a href="/brand">Marca y Prensa</a></li>
         <li><a href="/blog">El Diario</a></li>
         <li><a href="/es/manejo-redes-sociales">IVAE Marketing</a></li>
         <li><a href="#dossier">Comenzar consulta</a></li>
@@ -4056,7 +4062,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
       </ul>
     </div>
     <div>
-      <div class="col-h">Direct lines</div>
+      <div class="col-h">Contacto directo</div>
       <ul>
         <li><a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a></li>
         <li><a href="https://wa.me/529902046514?text=Hola%20IVAE%2C%20me%20interesa%20una%20sesi%C3%B3n%20de%20fotograf%C3%ADa" target="_blank" rel="noopener">WhatsApp Vianey</a></li>
@@ -4654,18 +4660,29 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
       const where = (fd.get('where')||'').toString();
       const dates = (fd.get('dates')||'').toString();
       const sessionType = (fd.get('sessionType')||'').toString();
+      const honey = (fd.get('website')||'').toString().trim();
+      if(honey){ return; }
+      const status = $('#inqStatus');
+      const emailField = $('#inqEmail');
       if(!email){
-        const f = $('#inqEmail'); if(f){ f.focus(); f.style.borderBottomColor = '#a8894a'; }
+        if(emailField){
+          emailField.focus();
+          emailField.setAttribute('aria-invalid','true');
+          emailField.style.borderBottomColor = '#a8894a';
+        }
+        if(status) status.textContent = 'Por favor agrega tu correo para que podamos responderte.';
         return;
       }
-      const subj = `IVAE inquiry / ${name || 'a letter'}${where ? ' (' + where + ')' : ''}`;
+      if(emailField) emailField.removeAttribute('aria-invalid');
+      if(status) status.textContent = 'Abriendo tu app de correo. gracias por escribir.';
+      const subj = `Consulta IVAE / ${name || 'una carta'}${where ? ' (' + where + ')' : ''}`;
       const bodyLines = [];
-      if(name) bodyLines.push('From: ' + name);
-      if(dates) bodyLines.push('Travel window: ' + dates);
-      if(where) bodyLines.push('Coast: ' + where);
-      if(sessionType) bodyLines.push('Session type: ' + sessionType);
+      if(name) bodyLines.push('De: ' + name);
+      if(dates) bodyLines.push('Ventana de viaje: ' + dates);
+      if(where) bodyLines.push('Costa: ' + where);
+      if(sessionType) bodyLines.push('Tipo de sesión: ' + sessionType);
       bodyLines.push('');
-      bodyLines.push(message || '(a few lines about the trip)');
+      bodyLines.push(message || '(unas líneas sobre el viaje)');
       const body = bodyLines.join('\n');
       window.location.href = 'mailto:hello@ivaestudios.com?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(body);
     });

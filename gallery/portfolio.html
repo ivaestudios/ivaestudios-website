@@ -238,7 +238,7 @@ body{font-family:'Syne',sans-serif;background:#fff;color:#1a1a1a;-webkit-font-sm
           : '';
 
         card.innerHTML = `
-          ${coverSrc ? `<img src="${coverSrc}" alt="${g.title}" loading="lazy" onload="this.style.opacity=1"/>` : ''}
+          ${coverSrc ? `<img src="${coverSrc}" alt="${g.title}" loading="lazy" onload="this.style.opacity=1" decoding="async"/>` : ''}
           <div class="pf-card-overlay">
             <div class="pf-card-title">${g.title}</div>
             <div class="pf-card-meta">${[occasion, dateStr].filter(Boolean).join(' · ')}</div>

@@ -1,279 +1,363 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- IVAE Studios — AI-priority sitemap for LLM crawlers
      Subset of sitemap.xml with editorial/citation value for AI Q&A.
-     Last updated: 2026-05-13 -->
+     Last updated: 2026-05-26 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Studio homepage — core identity -->
   <url>
     <loc>https://ivaestudios.com/</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <!-- Studio homepage Spanish -->
   <url>
     <loc>https://ivaestudios.com/es/</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <!-- Studio about page — Vianey Díaz founder -->
   <url>
     <loc>https://ivaestudios.com/about</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Acerca de — Directora Vianey Díaz -->
   <url>
     <loc>https://ivaestudios.com/es/acerca-de</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Brand entity disambiguation page -->
   <url>
     <loc>https://ivaestudios.com/brand</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Founder bio E-E-A-T page -->
   <url>
     <loc>https://ivaestudios.com/vianey-diaz</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Destination wedding photography -->
   <url>
     <loc>https://ivaestudios.com/luxury-weddings</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Luxury family photography -->
   <url>
     <loc>https://ivaestudios.com/luxury-family-photos-cancun</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Couples photography -->
   <url>
     <loc>https://ivaestudios.com/couples-photography-mexico</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Editorial brand photography -->
   <url>
     <loc>https://ivaestudios.com/luxury-editorial</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Fotografía bodas destino -->
   <url>
     <loc>https://ivaestudios.com/es/fotografo-bodas-destino-mexico</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Fotografía familiar lujo -->
   <url>
     <loc>https://ivaestudios.com/es/fotos-familiares-lujo-cancun</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Fotografía parejas -->
   <url>
     <loc>https://ivaestudios.com/es/fotografia-parejas-mexico</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Fotografía editorial -->
   <url>
     <loc>https://ivaestudios.com/es/editorial-de-lujo</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Cancún photographer -->
   <url>
     <loc>https://ivaestudios.com/cancun-photographer</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Riviera Maya photographer -->
   <url>
     <loc>https://ivaestudios.com/riviera-maya-photographer</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Los Cabos photographer -->
   <url>
     <loc>https://ivaestudios.com/cabo-photographer</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Fotógrafo Cancún -->
   <url>
     <loc>https://ivaestudios.com/es/fotografo-cancun</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Fotógrafo Riviera Maya -->
   <url>
     <loc>https://ivaestudios.com/es/fotografo-riviera-maya</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Fotógrafo Los Cabos -->
   <url>
     <loc>https://ivaestudios.com/es/fotografo-los-cabos</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Wedding cost guide 2026 -->
   <url>
     <loc>https://ivaestudios.com/cancun-wedding-cost-2026</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- Costo boda 2026 -->
   <url>
     <loc>https://ivaestudios.com/es/costo-boda-cancun-2026</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- Photographer comparison -->
   <url>
     <loc>https://ivaestudios.com/comparison/luxury-photographers-cancun</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- Comparativa fotógrafos -->
   <url>
     <loc>https://ivaestudios.com/es/comparativa/fotografos-lujo-cancun</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- Founder story -->
   <url>
     <loc>https://ivaestudios.com/blog/vianey-diaz-luxury-photographer-journey</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- How to choose guide -->
   <url>
     <loc>https://ivaestudios.com/blog/how-to-choose-luxury-photographer-mexico</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- Destination wedding RM -->
   <url>
     <loc>https://ivaestudios.com/blog/destination-wedding-photographer-riviera-maya</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- Wedding photographer Cancún -->
   <url>
     <loc>https://ivaestudios.com/blog/wedding-photographer-cancun</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- Cost breakdown -->
   <url>
     <loc>https://ivaestudios.com/blog/mexico-destination-wedding-cost-breakdown-2026</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- FAQ for AI Q&A -->
   <url>
     <loc>https://ivaestudios.com/blog/mexico-destination-photography-faq</loc>
-    <lastmod>2026-05-13</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Style guide -->
-  <url>
-    <loc>https://ivaestudios.com/blog/luxury-photographer-style-editorial-vs-documentary</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- LGBTQ inclusive -->
   <url>
     <loc>https://ivaestudios.com/blog/same-sex-wedding-photographer-cancun-lgbtq-inclusive</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- Case study Mayakoba -->
   <url>
     <loc>https://ivaestudios.com/blog/inside-luxury-mayakoba-wedding-case-study</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- Best resorts list -->
   <url>
     <loc>https://ivaestudios.com/blog/best-resorts-cancun-photography</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <!-- Wedding photo cost -->
   <url>
     <loc>https://ivaestudios.com/blog/wedding-photography-cancun-cost-2026</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <!-- NEW: Mayakoba wedding photographer landing page (high commercial query) -->
   <url>
     <loc>https://ivaestudios.com/mayakoba-wedding-photographer</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- NEW: Cenote photographer Tulum landing page (high niche commercial) -->
   <url>
     <loc>https://ivaestudios.com/cenote-photographer-tulum</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- IVAE Marketing — Social Media Management (EN) -->
   <url>
     <loc>https://ivaestudios.com/social-media-management</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- IVAE Marketing — Manejo Redes Sociales (ES) -->
   <url>
     <loc>https://ivaestudios.com/es/manejo-redes-sociales</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-05-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+  </url>
+  <!-- IVAE Marketing — Luxury hotels vertical -->
+  <url>
+    <loc>https://ivaestudios.com/social-media-luxury-hotels-mexico</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- IVAE Marketing — Restaurants vertical -->
+  <url>
+    <loc>https://ivaestudios.com/social-media-restaurants-cancun</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- IVAE Marketing — Spa & wellness vertical -->
+  <url>
+    <loc>https://ivaestudios.com/social-media-spa-wellness-mexico</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- IVAE Marketing — Dental clinic vertical -->
+  <url>
+    <loc>https://ivaestudios.com/social-media-dental-clinic-mexico</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- IVAE Marketing — Instagram Cancun -->
+  <url>
+    <loc>https://ivaestudios.com/instagram-management-cancun</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- IVAE Marketing — TikTok hotels -->
+  <url>
+    <loc>https://ivaestudios.com/tiktok-agency-hotels-mexico</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- IVAE Marketing blog — Luxury hospitality content strategy -->
+  <url>
+    <loc>https://ivaestudios.com/blog/luxury-hospitality-content-strategy-mexico</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- IVAE Marketing blog — Hotel Instagram strategy 2026 -->
+  <url>
+    <loc>https://ivaestudios.com/blog/hotel-instagram-strategy-mexico-2026</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- IVAE Marketing blog — TikTok luxury hotels Mexico -->
+  <url>
+    <loc>https://ivaestudios.com/blog/tiktok-for-luxury-hotels-mexico</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Rosewood Mayakoba landing -->
+  <url>
+    <loc>https://ivaestudios.com/rosewood-mayakoba-wedding-photographer</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Banyan Tree Mayakoba landing -->
+  <url>
+    <loc>https://ivaestudios.com/banyan-tree-mayakoba-photographer</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Nizuc Resort landing -->
+  <url>
+    <loc>https://ivaestudios.com/nizuc-resort-wedding-photographer</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Le Blanc Cancun landing -->
+  <url>
+    <loc>https://ivaestudios.com/le-blanc-cancun-wedding-photographer</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>

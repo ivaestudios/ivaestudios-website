@@ -141,7 +141,7 @@ function renderCard(path, info) {
   card.className = 'card';
   const state = formState[path] || {};
   card.innerHTML = `
-    <div class="img"><img src="../${path}" alt=""></div>
+    <div class="img"><img src="../${path}" alt="" decoding="async"></div>
     <div class="body">
       <div class="filename">${path}</div>
       ${info.used_in.length ? `<div class="used-in">Aparece en: ${info.used_in.join(', ')}</div>` : ''}
