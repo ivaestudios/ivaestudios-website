@@ -6,7 +6,7 @@
 // to re-install. The activate event clears every cache whose name does
 // not end in CACHE_VERSION, so old assets are dropped automatically.
 
-const CACHE_VERSION = 'ivae-v7-2026-05-25-purge';
+const CACHE_VERSION = 'ivae-v8-2026-05-25-mobile-nav';
 const STATIC_CACHE = `ivae-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `ivae-runtime-${CACHE_VERSION}`;
 

@@ -42,6 +42,19 @@
   var enActive = !isES ? ' class="is-active" aria-current="page"' : '';
   var esActive = isES ? ' class="is-active" aria-current="page"' : '';
 
+  // Service URLs (EN + ES) for the mobile nav drawer
+  var weddingsHref = isES ? '/es/fotografo-bodas-destino-mexico' : '/destination-wedding-photographer-mexico';
+  var familyHref = isES ? '/es/fotos-familiares-lujo-cancun' : '/luxury-family-photos-cancun';
+  var couplesHref = isES ? '/es/fotografia-parejas-mexico' : '/couples-photography-mexico';
+  var editorialHref = isES ? '/es/editorial-de-lujo' : '/luxury-editorial';
+  var marketingHref = isES ? '/es/manejo-redes-sociales' : '/social-media-management';
+
+  var serviceLabels = isES ? {
+    weddings: 'Bodas', family: 'Familia', couples: 'Parejas', editorial: 'Editorial', marketing: 'Marketing'
+  } : {
+    weddings: 'Weddings', family: 'Family', couples: 'Couples', editorial: 'Editorial', marketing: 'Marketing'
+  };
+
   var headerHTML = ''
     + '<header class="site-header" id="siteHeader" role="banner" data-injected="true">'
     +   '<a href="' + homeHref + '" class="h-logo">IVAE <em>Studios</em></a>'
@@ -63,7 +76,33 @@
     +     '<svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>'
     +   '</a>'
     +   '<button class="h-burger" id="hBurger" type="button" aria-expanded="false" aria-controls="mNav" aria-label="' + labels.menuOpen + '"><span></span><span></span><span></span></button>'
-    + '</header>';
+    + '</header>'
+    // Mobile navigation drawer — full-screen on mobile, slides in from right
+    + '<nav class="m-nav" id="mNav" aria-label="Mobile navigation" aria-hidden="true">'
+    +   '<button class="m-nav-close" id="mNavClose" type="button" aria-label="' + (isES ? 'Cerrar navegación' : 'Close navigation') + '">'
+    +     '<svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>'
+    +   '</button>'
+    +   '<div class="m-nav-inner">'
+    +     '<a href="' + homeHref + '" class="m-nav-link">' + labels.home + '</a>'
+    +     '<a href="' + aboutHref + '" class="m-nav-link">' + labels.about + '</a>'
+    +     '<div class="m-nav-section">'
+    +       '<div class="m-nav-section-label">' + labels.services + '</div>'
+    +       '<a href="' + weddingsHref + '" class="m-nav-sublink">' + serviceLabels.weddings + '</a>'
+    +       '<a href="' + familyHref + '" class="m-nav-sublink">' + serviceLabels.family + '</a>'
+    +       '<a href="' + couplesHref + '" class="m-nav-sublink">' + serviceLabels.couples + '</a>'
+    +       '<a href="' + editorialHref + '" class="m-nav-sublink">' + serviceLabels.editorial + '</a>'
+    +       '<a href="' + marketingHref + '" class="m-nav-sublink m-nav-sublink--accent">' + serviceLabels.marketing + ' <span class="m-nav-pill">NEW</span></a>'
+    +     '</div>'
+    +     '<a href="' + blogHref + '" class="m-nav-link">' + labels.blog + '</a>'
+    +     '<div class="m-nav-lang">'
+    +       '<a href="' + enHref + '" data-lang-switch="en" hreflang="en"' + enActive + '>EN</a>'
+    +       '<span aria-hidden="true">·</span>'
+    +       '<a href="' + esHref + '" data-lang-switch="es" hreflang="es"' + esActive + '>ES</a>'
+    +     '</div>'
+    +     '<a href="#inquiry" class="m-nav-cta">' + labels.cta + '</a>'
+    +   '</div>'
+    + '</nav>'
+    + '<div class="m-nav-scrim" id="mNavScrim" aria-hidden="true"></div>';
 
   function inject() {
     var existing = document.getElementById('siteHeader');
@@ -92,18 +131,42 @@
       }
     });
 
-    // Wire burger toggle
+    // Wire burger toggle — opens mobile nav drawer
     var burger = document.getElementById('hBurger');
     var mNav = document.getElementById('mNav');
+    var mNavScrim = document.getElementById('mNavScrim');
+    var mNavClose = document.getElementById('mNavClose');
+
+    function setNavOpen(open) {
+      if (burger) burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (mNav) {
+        mNav.classList.toggle('is-open', open);
+        mNav.setAttribute('aria-hidden', open ? 'false' : 'true');
+      }
+      if (mNavScrim) mNavScrim.classList.toggle('is-open', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
+
     if (burger) {
       burger.addEventListener('click', function () {
         var open = burger.getAttribute('aria-expanded') === 'true';
-        burger.setAttribute('aria-expanded', open ? 'false' : 'true');
-        if (mNav) {
-          mNav.classList.toggle('is-open', !open);
-        }
+        setNavOpen(!open);
       });
     }
+    if (mNavClose) mNavClose.addEventListener('click', function () { setNavOpen(false); });
+    if (mNavScrim) mNavScrim.addEventListener('click', function () { setNavOpen(false); });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && mNav && mNav.classList.contains('is-open')) {
+        setNavOpen(false);
+      }
+    });
+
+    // Close drawer when a nav link is clicked
+    document.querySelectorAll('#mNav a').forEach(function (link) {
+      link.addEventListener('click', function () { setNavOpen(false); });
+    });
 
     // Scrolled class on header for scroll effects
     var header = document.getElementById('siteHeader');
