@@ -2110,6 +2110,52 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   </div>
 </section>
 
+<!-- ═══════ Ciudades donde trabaja el estudio ═══════ -->
+<style>
+.cities-where-we-work{background:var(--ink-3,#0a0f17);color:var(--cream-1,#faf8f5);padding:96px 32px;border-top:1px solid rgba(201,165,78,0.18);border-bottom:1px solid rgba(201,165,78,0.18)}
+.cities-where-we-work .cities-inner{max-width:1180px;margin:0 auto}
+.cities-where-we-work .cities-eyebrow{display:inline-flex;align-items:center;gap:14px;font-family:'Syne',sans-serif;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.28em;color:var(--gold,#c9a54e);margin:0 0 24px}
+.cities-where-we-work .cities-eyebrow::before{content:'';width:40px;height:1px;background:var(--gold,#c9a54e)}
+.cities-where-we-work h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(32px,4vw,52px);font-weight:300;line-height:1.08;letter-spacing:-0.01em;margin:0 0 18px;color:var(--cream-1,#faf8f5)}
+.cities-where-we-work h2 em{font-style:italic;color:var(--gold,#c9a54e)}
+.cities-where-we-work .cities-lead{font-family:'Syne',sans-serif;font-size:16px;line-height:1.7;color:rgba(250,248,245,0.75);margin:0 0 56px;max-width:640px}
+.cities-where-we-work .cities-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.cities-where-we-work .city-card{display:block;text-decoration:none;padding:36px 32px;border:1px solid rgba(201,165,78,0.28);background:rgba(201,165,78,0.025);transition:background 0.3s,border-color 0.3s,transform 0.3s}
+.cities-where-we-work .city-card:hover{background:rgba(201,165,78,0.07);border-color:var(--gold,#c9a54e);transform:translateY(-2px)}
+.cities-where-we-work .city-card h3{font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;font-weight:300;letter-spacing:-0.005em;margin:0 0 14px;color:var(--cream-1,#faf8f5)}
+.cities-where-we-work .city-card:hover h3{color:var(--gold,#c9a54e)}
+.cities-where-we-work .city-card p{font-family:'Syne',sans-serif;font-size:13.5px;line-height:1.65;color:rgba(250,248,245,0.7);margin:0}
+@media (max-width:880px){
+  .cities-where-we-work{padding:72px 20px}
+  .cities-where-we-work .cities-grid{grid-template-columns:1fr;gap:14px}
+  .cities-where-we-work .city-card{padding:28px 24px}
+  .cities-where-we-work .city-card h3{font-size:26px}
+  .cities-where-we-work h2{font-size:clamp(28px,7vw,40px)}
+  .cities-where-we-work .cities-lead{margin-bottom:36px}
+}
+</style>
+<section class="cities-where-we-work" aria-label="Zonas de servicio">
+  <div class="cities-inner">
+    <p class="cities-eyebrow">Donde trabaja el estudio</p>
+    <h2>Tres litorales, <em>un solo estudio.</em></h2>
+    <p class="cities-lead">Del Caribe al Pacífico, la disciplina editorial viaja con el estudio.</p>
+    <div class="cities-grid">
+      <a href="/es/fotografo-cancun" class="city-card">
+        <h3>Cancún</h3>
+        <p>Zona Hotelera, Playa Mujeres, Costa Mujeres, Isla Mujeres</p>
+      </a>
+      <a href="/es/fotografo-riviera-maya" class="city-card">
+        <h3>Riviera Maya</h3>
+        <p>Mayakoba, Playa del Carmen, Tulum, Akumal, Puerto Aventuras</p>
+      </a>
+      <a href="/es/fotografo-los-cabos" class="city-card">
+        <h3>Los Cabos</h3>
+        <p>Cabo San Lucas, San José del Cabo, Pedregal, Palmilla</p>
+      </a>
+    </div>
+  </div>
+</section>
+
 <!-- ═══════ FAQ ═══════ -->
 <section class="lw-section faq" id="faq" aria-labelledby="faq-h">
   <div class="lw-inner faq-inner">

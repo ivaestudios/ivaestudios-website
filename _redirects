@@ -68,9 +68,8 @@
 # Vianey Díaz canonical author bio URL — points to dedicated founder story
 # (deepest E-E-A-T author signal). /about remains the studio page.
 # /vianey-diaz now serves as a real E-E-A-T author profile page (May 2026).
-# /es/vianey-diaz still redirects to ES blog post until dedicated ES page exists.
-/es/vianey-diaz.html /es/blog/vianey-diaz-fotografa-lujo-trayectoria 301
-/es/vianey-diaz /es/blog/vianey-diaz-fotografa-lujo-trayectoria 301
+# /es/vianey-diaz is now a real ES author profile page (May 2026).
+/es/vianey-diaz.html /es/vianey-diaz 301
 /family-photography.html /luxury-family-photos-cancun 301
 /family-photography /luxury-family-photos-cancun 301
 /es/fotografia-familiar.html /es/fotos-familiares-lujo-cancun 301
@@ -371,3 +370,18 @@
 /portfolio/family-cancun-beach /luxury-family-photos 301
 /portfolio/couple-riviera-maya /couples-photography 301
 /portfolio/couple-los-cabos /couples-photography 301
+
+# ═══════════════════════════════════════════
+# Batch 5 — NEW high-value niche blog posts (2026-05-26)
+# Jewish wedding, micro-wedding, newborn, anniversary, hotel IG strategy
+# ═══════════════════════════════════════════
+/blog/jewish-wedding-photographer-mexico /post-jewish-wedding-photographer-mexico 200
+/post-jewish-wedding-photographer-mexico.html /blog/jewish-wedding-photographer-mexico 301
+/blog/micro-wedding-photographer-cancun-tulum /post-micro-wedding-photographer-cancun-tulum 200
+/post-micro-wedding-photographer-cancun-tulum.html /blog/micro-wedding-photographer-cancun-tulum 301
+/blog/newborn-photography-cancun-resorts /post-newborn-photography-cancun-resorts 200
+/post-newborn-photography-cancun-resorts.html /blog/newborn-photography-cancun-resorts 301
+/blog/anniversary-photography-cancun-mexico /post-anniversary-photography-cancun-mexico 200
+/post-anniversary-photography-cancun-mexico.html /blog/anniversary-photography-cancun-mexico 301
+/blog/hotel-instagram-strategy-mexico-2026 /post-hotel-instagram-strategy-mexico-2026 200
+/post-hotel-instagram-strategy-mexico-2026.html /blog/hotel-instagram-strategy-mexico-2026 301
