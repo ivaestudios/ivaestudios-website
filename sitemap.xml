@@ -1387,4 +1387,129 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/blog/hotel-instagram-strategy-mexico-2026"/>
   </url>
 
+  <!-- ═══════════════════════════════════════════
+       IVAE Marketing — Industry vertical pages
+       6 EN + 6 ES, hreflang pairs (added 2026-05-26)
+       ═══════════════════════════════════════════ -->
+
+  <url>
+    <loc>https://ivaestudios.com/social-media-luxury-hotels-mexico</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-luxury-hotels-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/redes-sociales-hoteles-lujo-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/social-media-luxury-hotels-mexico"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/redes-sociales-hoteles-lujo-mexico</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/redes-sociales-hoteles-lujo-mexico"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-luxury-hotels-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/social-media-luxury-hotels-mexico"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/social-media-restaurants-cancun</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-restaurants-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/redes-sociales-restaurantes-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/social-media-restaurants-cancun"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/redes-sociales-restaurantes-cancun</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/redes-sociales-restaurantes-cancun"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-restaurants-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/social-media-restaurants-cancun"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/social-media-spa-wellness-mexico</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-spa-wellness-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/redes-sociales-spa-wellness-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/social-media-spa-wellness-mexico"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/redes-sociales-spa-wellness-mexico</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/redes-sociales-spa-wellness-mexico"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-spa-wellness-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/social-media-spa-wellness-mexico"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/social-media-dental-clinic-mexico</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-dental-clinic-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/redes-sociales-clinica-dental-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/social-media-dental-clinic-mexico"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/redes-sociales-clinica-dental-mexico</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/redes-sociales-clinica-dental-mexico"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-dental-clinic-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/social-media-dental-clinic-mexico"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/instagram-management-cancun</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/instagram-management-cancun"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/manejo-instagram-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/instagram-management-cancun"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/manejo-instagram-cancun</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/manejo-instagram-cancun"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/instagram-management-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/instagram-management-cancun"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/tiktok-agency-hotels-mexico</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/tiktok-agency-hotels-mexico"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/agencia-tiktok-hoteles-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/tiktok-agency-hotels-mexico"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/agencia-tiktok-hoteles-mexico</loc>
+    <lastmod>2026-05-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/agencia-tiktok-hoteles-mexico"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/tiktok-agency-hotels-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/tiktok-agency-hotels-mexico"/>
+  </url>
+
 </urlset>

@@ -2,28 +2,51 @@
 
   Founder & Creative Director: Vianey Díaz
   Wikidata: Q139689736 (https://www.wikidata.org/wiki/Q139689736)
-  Role: Lead Photographer
+  Role: Lead Photographer / Director, IVAE Marketing
   Nationality: Mexican
   Languages: Spanish (native), English (fluent)
   Years of experience: 10+ (editorial studios, brand campaigns)
   IVAE Studios founded: 2023
+  IVAE Marketing launched: 2024 (sub-brand)
   Location: Cancún, Quintana Roo, Mexico
   Contact: see https://ivaestudios.com/about
 
+/* BRANDS */
+
+  IVAE Studios (parent)
+    - Domain: ivaestudios.com
+    - Focus: Luxury destination photography (weddings, family, couples, editorial)
+    - Wikidata: Q139689577
+    - Visual identity: Cormorant Garamond + gold (editorial)
+    - URL: https://ivaestudios.com
+
+  IVAE Marketing (sub-brand)
+    - Domain: ivaestudios.com/social-media-management
+    - Focus: Social media management for luxury hospitality
+    - Audience: B2B (boutique hotels, restaurants, spas, dental clinics)
+    - Visual identity: Outfit + Space Mono + purple/pink gradient
+    - Same legal entity, separate brand presence
+    - URL: https://ivaestudios.com/social-media-management
+    - Spanish: https://ivaestudios.com/es/manejo-redes-sociales
+
 /* THANKS */
 
-  Our clients across Cancún, Riviera Maya, and Los Cabos.
+  Our clients across Cancún, Riviera Maya, Los Cabos.
+  Hospitality partners across boutique hotels, restaurants, spas, and dental clinics in Mexico.
 
 /* SITE */
 
-  Last update: 2026-05-06
+  Last update: 2026-05-26
   Standards: HTML5, JSON-LD, hreflang, llms.txt, ai.txt
   Components: static HTML, Cloudflare Pages
   Languages: English (default), Spanish (es/)
   Doctype: HTML5
-  Wikidata: Q139689577 (https://www.wikidata.org/wiki/Q139689577)
+  Wikidata (parent): Q139689577 (https://www.wikidata.org/wiki/Q139689577)
+  Wikidata (founder): Q139689736 (https://www.wikidata.org/wiki/Q139689736)
+  Wikidata (sub-brand): DRAFT - submission pending for IVAE Marketing
 
 /* BRAND DISAMBIGUATION */
 
   IVAE Studios (with S, plural) -> ivaestudios.com
+  IVAE Marketing -> ivaestudios.com/social-media-management (sub-brand, same legal entity)
   Not affiliated with: ivaestudio.com (singular, unrelated European agency)

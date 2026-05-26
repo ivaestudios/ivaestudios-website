@@ -390,7 +390,7 @@ body > * { position: relative; z-index: 1; }
   width: 100%;
   padding: 14px 18px;
   font-family: var(--imkt-font-body);
-  font-size: 15px;
+  font-size: 16px;
   color: var(--imkt-fg);
   background: rgba(10, 10, 15, 0.4);
   border: 1px solid var(--imkt-border);
@@ -399,6 +399,7 @@ body > * { position: relative; z-index: 1; }
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
   -webkit-appearance: none;
   appearance: none;
+  min-height: 48px;
 }
 .imkt-input:focus, .imkt-textarea:focus, .imkt-select:focus {
   border-color: var(--imkt-purple);
@@ -789,7 +790,7 @@ body > * { position: relative; z-index: 1; }
 <!-- ═══════════════════════════════════════════
      FORM
      ═══════════════════════════════════════════ -->
-<section class="imkt-form-wrap">
+<section class="imkt-form-wrap" id="main-content" role="main" tabindex="-1">
   <div class="imkt-form-progress" aria-live="polite">
     <span id="progressLabel">Sección 1 de 8</span>
     <div class="imkt-progress-bar" aria-hidden="true">

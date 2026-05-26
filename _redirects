@@ -348,6 +348,10 @@
 # Batch 4 — IVAE Marketing sub-brand 2026-05-13
 # Social media management service alias redirects
 # ═══════════════════════════════════════════
+# Specific vertical landing pages take precedence over master aliases
+/instagram-management-cancun /instagram-management-cancun.html 200
+/es/manejo-instagram-cancun /es/manejo-instagram-cancun.html 200
+
 /marketing /social-media-management 301
 /ivae-marketing /social-media-management 301
 /social-media /social-media-management 301
@@ -385,3 +389,45 @@
 /post-anniversary-photography-cancun-mexico.html /blog/anniversary-photography-cancun-mexico 301
 /blog/hotel-instagram-strategy-mexico-2026 /post-hotel-instagram-strategy-mexico-2026 200
 /post-hotel-instagram-strategy-mexico-2026.html /blog/hotel-instagram-strategy-mexico-2026 301
+
+# ═══════════════════════════════════════════
+# IVAE Marketing — Industry vertical landing pages (2026-05-26)
+# 6 EN + 6 ES, clean URL → .html rewrites
+# ═══════════════════════════════════════════
+
+# Hotels (luxury)
+/social-media-luxury-hotels-mexico /social-media-luxury-hotels-mexico.html 200
+/es/redes-sociales-hoteles-lujo-mexico /es/redes-sociales-hoteles-lujo-mexico.html 200
+
+# Restaurants
+/social-media-restaurants-cancun /social-media-restaurants-cancun.html 200
+/es/redes-sociales-restaurantes-cancun /es/redes-sociales-restaurantes-cancun.html 200
+
+# Spa & wellness
+/social-media-spa-wellness-mexico /social-media-spa-wellness-mexico.html 200
+/es/redes-sociales-spa-wellness-mexico /es/redes-sociales-spa-wellness-mexico.html 200
+
+# Dental clinics
+/social-media-dental-clinic-mexico /social-media-dental-clinic-mexico.html 200
+/es/redes-sociales-clinica-dental-mexico /es/redes-sociales-clinica-dental-mexico.html 200
+
+# Instagram (Cancun) — rules already declared earlier in the file
+# to take precedence over /instagram-management and /es/manejo-instagram aliases
+
+# TikTok (hotels)
+/tiktok-agency-hotels-mexico /tiktok-agency-hotels-mexico.html 200
+/es/agencia-tiktok-hoteles-mexico /es/agencia-tiktok-hoteles-mexico.html 200
+
+# Common alias recovery
+/social-media-hotels /social-media-luxury-hotels-mexico 301
+/social-media-restaurants /social-media-restaurants-cancun 301
+/social-media-spa /social-media-spa-wellness-mexico 301
+/social-media-dental /social-media-dental-clinic-mexico 301
+/instagram-cancun /instagram-management-cancun 301
+/tiktok-hotels /tiktok-agency-hotels-mexico 301
+/es/redes-sociales-hoteles /es/redes-sociales-hoteles-lujo-mexico 301
+/es/redes-sociales-restaurantes /es/redes-sociales-restaurantes-cancun 301
+/es/redes-sociales-spa /es/redes-sociales-spa-wellness-mexico 301
+/es/redes-sociales-dental /es/redes-sociales-clinica-dental-mexico 301
+/es/instagram-cancun /es/manejo-instagram-cancun 301
+/es/tiktok-hoteles /es/agencia-tiktok-hoteles-mexico 301

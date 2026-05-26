@@ -97,5 +97,122 @@
   "founded_in": "Cancún, Mexico",
   "schema_org_id": "https://ivaestudios.com/#organization",
   "brand_schema_id": "https://ivaestudios.com/#brand",
-  "last_updated": "2026-05-06"
+  "marketing": {
+    "name": "IVAE Marketing",
+    "alternate_names": [
+      "IVAE Marketing Agency",
+      "IVAE Studios Marketing",
+      "IVAE Marketing Cancún",
+      "IVAE Marketing México"
+    ],
+    "subOrganizationOf": "IVAE Studios",
+    "parent_organization_schema_id": "https://ivaestudios.com/#organization",
+    "schema_org_id": "https://ivaestudios.com/social-media-management#ivae-marketing",
+    "service_schema_id": "https://ivaestudios.com/social-media-management#service",
+    "domain": "ivaestudios.com/social-media-management",
+    "official_urls": {
+      "en": "https://ivaestudios.com/social-media-management",
+      "es": "https://ivaestudios.com/es/manejo-redes-sociales"
+    },
+    "founded": "2024",
+    "founding_year": 2024,
+    "founder": {
+      "name": "Vianey Díaz",
+      "role": "Directora / Creative Director"
+    },
+    "type": "Social media marketing agency",
+    "category": "Hospitality marketing",
+    "industry": [
+      "Social media marketing",
+      "Digital marketing",
+      "Hospitality industry"
+    ],
+    "audiences": [
+      "Luxury hospitality",
+      "Boutique hotels",
+      "Resorts and resort chains",
+      "Premium restaurants and fine dining",
+      "Spa and wellness venues",
+      "Dental clinics",
+      "Real estate developers",
+      "Hospitality consultants"
+    ],
+    "services": [
+      "Editorial content production",
+      "Instagram management",
+      "TikTok management",
+      "Facebook management",
+      "Community management",
+      "Monthly performance reporting"
+    ],
+    "plans": [
+      {
+        "name": "Essential",
+        "tier": 1,
+        "summary": "One monthly editorial session, 12 posts, weekly stories, monthly report. For emerging luxury brands.",
+        "price": "By inquiry",
+        "currency": ["USD", "MXN"]
+      },
+      {
+        "name": "Editorial",
+        "tier": 2,
+        "summary": "Two monthly editorial sessions, 20 posts, editorial reels, daily community management, strategic reports. For boutique hotels and luxury restaurants.",
+        "price": "By inquiry",
+        "currency": ["USD", "MXN"]
+      },
+      {
+        "name": "Signature",
+        "tier": 3,
+        "summary": "Weekly sessions, daily multi-platform publishing, paid campaign management, UGC curation, dedicated brand strategist. For resorts, hotel chains, luxury brands and pre-opening campaigns.",
+        "price": "By inquiry",
+        "currency": ["USD", "MXN"]
+      }
+    ],
+    "deliverables_per_month": {
+      "editorial_plan": [
+        "8 to 12 editorial reels",
+        "20 to 30 stories",
+        "16 to 20 feed posts",
+        "One monthly performance report",
+        "One monthly content calendar",
+        "One monthly strategy call"
+      ]
+    },
+    "service_areas": [
+      "Cancún",
+      "Cancún Hotel Zone",
+      "Playa del Carmen",
+      "Tulum",
+      "Riviera Maya",
+      "Mayakoba",
+      "Los Cabos",
+      "Cabo San Lucas",
+      "San José del Cabo",
+      "Mexico City"
+    ],
+    "languages": ["English", "Spanish"],
+    "platforms_managed": ["Instagram", "TikTok", "Facebook", "LinkedIn", "Pinterest"],
+    "instagram": "https://www.instagram.com/ivae.marketing",
+    "instagram_handle": "@ivae.marketing",
+    "rating": {
+      "value": 5.0,
+      "count": 42,
+      "best": 5,
+      "worst": 1,
+      "source": "inherited from IVAE Studios"
+    },
+    "brand_dos": [
+      "Editorial discipline on every asset",
+      "Native bilingual production",
+      "Hospitality specialization"
+    ],
+    "brand_donts": [
+      "No template-style content",
+      "No engagement pods",
+      "No fake followers"
+    ],
+    "wikidata": "DRAFT - submission pending",
+    "wikidata_draft_path": "/seo/playbooks/wikidata-ivae-marketing.md"
+  },
+  "last_updated": "2026-05-26"
 }

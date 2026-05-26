@@ -12,6 +12,85 @@ const MAX = {
   url: 300,
 };
 
+// Allowed origins for CORS. Apex + www + local preview.
+const ALLOWED_ORIGINS = new Set([
+  'https://ivaestudios.com',
+  'https://www.ivaestudios.com',
+  'http://localhost:8788',
+  'http://127.0.0.1:8788',
+]);
+
+// Pick the allowed origin for the current request — falls back to the
+// canonical apex if the Origin header is missing or unknown.
+function pickOrigin(request) {
+  const origin = request.headers.get('Origin') || '';
+  if (ALLOWED_ORIGINS.has(origin)) return origin;
+  return 'https://ivaestudios.com';
+}
+
+// In-memory fallback rate limiter (per-isolate, best-effort). The
+// authoritative limit is the Cloudflare INTAKE_RATELIMIT binding when
+// available; this kicks in only when the binding is missing so the form
+// is never wide open. 3 requests / 60s per IP.
+const RL_WINDOW_MS = 60_000;
+const RL_MAX = 3;
+const rlBucket = new Map();
+function memoryRateLimit(ip) {
+  const now = Date.now();
+  const arr = (rlBucket.get(ip) || []).filter((t) => now - t < RL_WINDOW_MS);
+  if (arr.length >= RL_MAX) {
+    rlBucket.set(ip, arr);
+    return false;
+  }
+  arr.push(now);
+  rlBucket.set(ip, arr);
+  // Cheap GC so the map doesn't grow forever.
+  if (rlBucket.size > 5000) {
+    for (const [k, v] of rlBucket) {
+      const fresh = v.filter((t) => now - t < RL_WINDOW_MS);
+      if (fresh.length === 0) rlBucket.delete(k);
+      else rlBucket.set(k, fresh);
+    }
+  }
+  return true;
+}
+
+// Resend send with retry on transient failures (5xx + network errors).
+// Returns { ok: boolean, status: number }. Never throws.
+async function resendSendWithRetry(env, payload, { attempts = 3, label = 'send' } = {}) {
+  let lastStatus = 0;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      lastStatus = res.status;
+      if (res.ok) return { ok: true, status: res.status };
+      // 4xx — permanent, don't retry. 5xx — transient, retry with backoff.
+      if (res.status < 500) {
+        // Read but don't log the body (may echo user input).
+        try { await res.text(); } catch {}
+        console.error(`Resend ${label} permanent failure status=${res.status}`);
+        return { ok: false, status: res.status };
+      }
+      console.warn(`Resend ${label} transient failure status=${res.status} attempt=${i + 1}`);
+    } catch (e) {
+      // Network error — log type only, never the full error (may include URLs/tokens).
+      console.warn(`Resend ${label} network error attempt=${i + 1}: ${e.name || 'Error'}`);
+    }
+    // Exponential backoff: 200ms, 600ms.
+    if (i < attempts - 1) {
+      await new Promise((r) => setTimeout(r, 200 * Math.pow(3, i)));
+    }
+  }
+  return { ok: false, status: lastStatus };
+}
+
 const escapeHtml = (s) => String(s || '').replace(/[&<>"']/g, (c) => (
   { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
 ));
@@ -37,17 +116,26 @@ const section = (title, html) => html
 export async function onRequestPost(context) {
   const { request, env } = context;
   const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const allowedOrigin = pickOrigin(request);
 
-  // ─── 1. Rate limit (if binding available) ───
+  // ─── 1. Rate limit ───
+  // Prefer the Cloudflare binding; fall back to in-memory bucket so the
+  // endpoint is never unlimited if the binding is missing/misconfigured.
+  let limited = false;
   if (env.INTAKE_RATELIMIT) {
     try {
       const { success } = await env.INTAKE_RATELIMIT.limit({ key: ip });
-      if (!success) {
-        return json({ error: 'Too many requests. Please try again in a minute.' }, 429);
-      }
+      if (!success) limited = true;
     } catch (e) {
-      // Rate limiter not configured — proceed
+      console.warn('Rate-limit binding threw, falling back to in-memory bucket');
+      if (!memoryRateLimit(ip)) limited = true;
     }
+  } else {
+    if (!memoryRateLimit(ip)) limited = true;
+  }
+  if (limited) {
+    console.log(`marketing-intake rate-limited ip=${ip}`);
+    return json({ error: 'Too many requests. Please try again in a minute.' }, 429, allowedOrigin);
   }
 
   // ─── 2. Parse body ───
@@ -55,13 +143,14 @@ export async function onRequestPost(context) {
   try {
     body = await request.json();
   } catch {
-    return json({ error: 'Invalid JSON body.' }, 400);
+    return json({ error: 'Invalid JSON body.' }, 400, allowedOrigin);
   }
 
   // ─── 3. Honeypot ───
   if (body.website && String(body.website).trim() !== '') {
     // Silently 200 to avoid tipping off bots
-    return json({ ok: true });
+    console.log(`marketing-intake honeypot tripped ip=${ip}`);
+    return json({ ok: true }, 200, allowedOrigin);
   }
 
   // ─── 4. Validate required fields ───
@@ -76,17 +165,17 @@ export async function onRequestPost(context) {
   const budget = sanitize(body.budget, 50);
 
   if (!legal_name || !contact_name || !contact_email || !contact_role || !one_sentence || !ideal_client || !competitors) {
-    return json({ error: 'Required fields are missing.' }, 400);
+    return json({ error: 'Required fields are missing.' }, 400, allowedOrigin);
   }
   if (!isValidEmail(contact_email)) {
-    return json({ error: 'Email address is not valid.' }, 400);
+    return json({ error: 'Email address is not valid.' }, 400, allowedOrigin);
   }
 
   // ─── 5. Turnstile verification (if secret configured) ───
   const turnstileToken = body.turnstileToken;
   if (env.TURNSTILE_SECRET_KEY) {
     if (!turnstileToken) {
-      return json({ error: 'Anti-bot verification required.' }, 400);
+      return json({ error: 'Anti-bot verification required.' }, 400, allowedOrigin);
     }
     try {
       const verify = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
@@ -100,11 +189,15 @@ export async function onRequestPost(context) {
       });
       const tsRes = await verify.json();
       if (!tsRes.success) {
-        return json({ error: 'Anti-bot verification failed. Please refresh and try again.' }, 403);
+        // Log only the error-code list (safe enum), never raw body.
+        const codes = Array.isArray(tsRes['error-codes']) ? tsRes['error-codes'].join(',') : 'unknown';
+        console.warn(`Turnstile verification rejected ip=${ip} codes=${codes}`);
+        return json({ error: 'Anti-bot verification failed. Please refresh and try again.' }, 403, allowedOrigin);
       }
     } catch (e) {
-      // Network error to Turnstile — soft fail
-      console.warn('Turnstile verification network error:', e.message);
+      // Network error to Turnstile — log type only, soft-fail to avoid
+      // blocking real users on Cloudflare-side issues.
+      console.warn(`Turnstile network error: ${e.name || 'Error'}`);
     }
   }
 
@@ -243,12 +336,14 @@ export async function onRequestPost(context) {
 </body></html>`;
 
   // ─── 8. Send via Resend ───
+  const plainTextBrief = buildPlainTextBrief(f, submittedAt);
+
   if (!env.RESEND_API_KEY) {
     // Graceful fallback: build a plain-text version of the brief and instruct
     // the client to open mailto: with it prefilled. The form still "works" —
     // it just routes through the prospect's email client instead of silently
     // via API. This unblocks the form before Resend secrets are configured.
-    const plainTextBrief = buildPlainTextBrief(f, submittedAt);
+    console.log('marketing-intake mailto-fallback (RESEND_API_KEY not set)');
     return json({
       ok: true,
       fallback: 'mailto',
@@ -258,86 +353,98 @@ export async function onRequestPost(context) {
         body: plainTextBrief,
       },
       note: 'Email service not yet configured. Opening your email client to send the brief directly.',
-    });
+    }, 200, allowedOrigin);
   }
 
   const toEmail = env.INTAKE_TO_EMAIL || 'info@ivaestudios.com';
   const fromEmail = env.INTAKE_FROM_EMAIL || 'intake@ivaestudios.com';
 
-  try {
-    // 1) Send full brief to IVAE Marketing team
-    const send = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: `IVAE Marketing Intake <${fromEmail}>`,
-        to: [toEmail],
-        reply_to: f.contact_email,
-        subject,
-        html,
-      }),
-    });
-    if (!send.ok) {
-      const text = await send.text();
-      console.error('Resend API failed:', send.status, text);
-      return json({ error: 'We could not deliver your brief. Please write to info@ivaestudios.com directly.' }, 502);
-    }
+  // 1) Send full brief to IVAE Marketing team (with retry on transient errors).
+  const teamSend = await resendSendWithRetry(env, {
+    from: `IVAE Marketing Intake <${fromEmail}>`,
+    to: [toEmail],
+    reply_to: f.contact_email,
+    subject,
+    html,
+    text: plainTextBrief,
+  }, { attempts: 3, label: 'team-brief' });
 
-    // 2) Send confirmation to client (best-effort, do not block on failure)
-    try {
-      const firstName = (f.contact_name || '').split(' ')[0] || '';
-      const clientSubject = 'Hemos recibido tu brief — IVAE Marketing';
-      const clientHtml = buildClientConfirmationHtml(f, firstName);
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: `IVAE Marketing <${fromEmail}>`,
-          to: [f.contact_email],
-          reply_to: toEmail,
-          subject: clientSubject,
-          html: clientHtml,
-        }),
-      });
-    } catch (e) {
-      // Confirmation email is best-effort — don't fail the form submission
-      console.warn('Client confirmation email failed:', e.message);
-    }
-  } catch (e) {
-    console.error('Resend network error:', e.message);
-    return json({ error: 'Network error sending your brief. Please try again.' }, 502);
+  if (!teamSend.ok) {
+    return json(
+      { error: 'We could not deliver your brief. Please write to info@ivaestudios.com directly.' },
+      502,
+      allowedOrigin,
+    );
   }
 
+  // 2) Send confirmation to client (best-effort, do not block on failure).
+  try {
+    const firstName = (f.contact_name || '').split(' ')[0] || '';
+    const clientSubject = 'Hemos recibido tu brief — IVAE Marketing';
+    const clientHtml = buildClientConfirmationHtml(f, firstName);
+    const clientText = buildClientConfirmationText(f, firstName);
+    await resendSendWithRetry(env, {
+      from: `IVAE Marketing <${fromEmail}>`,
+      to: [f.contact_email],
+      reply_to: toEmail,
+      subject: clientSubject,
+      html: clientHtml,
+      text: clientText,
+    }, { attempts: 2, label: 'client-confirmation' });
+  } catch (e) {
+    // Confirmation email is best-effort — don't fail the form submission.
+    console.warn(`Client confirmation skipped: ${e.name || 'Error'}`);
+  }
+
+  console.log(`marketing-intake ok ip=${ip} brand="${(f.legal_name || '').slice(0, 60)}"`);
+
   // ─── 9. Success ───
-  return json({ ok: true });
+  return json({ ok: true }, 200, allowedOrigin);
 }
 
-// CORS preflight
-export function onRequestOptions() {
+// CORS preflight — echoes the request Origin if it's on the allowlist.
+export function onRequestOptions(context) {
+  const allowedOrigin = pickOrigin(context.request);
   return new Response(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': 'https://ivaestudios.com',
+      'Access-Control-Allow-Origin': allowedOrigin,
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
       'Access-Control-Max-Age': '86400',
+      'Vary': 'Origin',
     },
   });
 }
 
-function json(data, status = 200) {
+// Reject any non-POST/OPTIONS verbs explicitly with a sane CORS body.
+export function onRequest(context) {
+  const method = context.request.method;
+  if (method === 'POST') return onRequestPost(context);
+  if (method === 'OPTIONS') return onRequestOptions(context);
+  const allowedOrigin = pickOrigin(context.request);
+  return new Response(JSON.stringify({ error: 'Method not allowed.' }), {
+    status: 405,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Access-Control-Allow-Origin': allowedOrigin,
+      'Allow': 'POST, OPTIONS',
+      'Vary': 'Origin',
+      'Cache-Control': 'no-store',
+    },
+  });
+}
+
+function json(data, status = 200, origin = 'https://ivaestudios.com') {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
-      'Access-Control-Allow-Origin': 'https://ivaestudios.com',
+      'Access-Control-Allow-Origin': origin,
+      'Vary': 'Origin',
       'Cache-Control': 'no-store',
+      'X-Content-Type-Options': 'nosniff',
+      'Referrer-Policy': 'no-referrer',
     },
   });
 }
@@ -521,6 +628,49 @@ function buildClientConfirmationHtml(f, firstName) {
 </table>
 
 </body></html>`;
+}
+
+// Plain-text alternative for the client confirmation email. Used as the
+// `text` field next to the HTML so spam filters and text-only clients
+// (and accessibility tooling) still get a readable version.
+function buildClientConfirmationText(f, firstName) {
+  const brand = f.legal_name || f.commercial_name || 'tu marca';
+  const name = firstName ? `${firstName}, ` : '';
+  return `IVAE MARKETING — BRIEF RECIBIDO
+
+Gracias, ${name}el brief llegó.
+
+Recibimos toda la información de ${brand}. Nuestro equipo de
+estrategia ya está revisando los detalles. Esto es lo que sigue:
+
+EN 24H
+  Un acuse de recibo personal de tu estratega confirmando que
+  el brief llegó.
+
+EN 72H
+  Una invitación a llamada de descubrimiento de 30 minutos con
+  una agenda de 3 preguntas que enviamos por adelantado.
+
+EN 7 DÍAS
+  Tu Social Strategy Snapshot personalizado — 6 páginas de
+  análisis hechas a la medida de tu brief. Sin compromiso.
+
+DÍA 14
+  Llamada de propuesta si ambas partes vemos compatibilidad.
+  Si no, el snapshot es tuyo para quedarte.
+
+¿Algo urgente?
+  Email:    info@ivaestudios.com
+  WhatsApp: https://wa.me/529902046514
+
+Un abrazo,
+Equipo de IVAE Marketing
+
+────────────────────────────────
+IVAE Marketing · Agencia de Redes Sociales
+Cancún · Riviera Maya · Los Cabos · México
+https://ivaestudios.com/es/manejo-redes-sociales
+`;
 }
 
 // Plain-text version of the brief for mailto: fallback. No HTML escaping

@@ -1,3 +1,17 @@
+# ═══════════════════════════════════════════════════════════════════════
+# DEPRECATED / LEGACY — Netlify configuration file.
+# This site is hosted on Cloudflare Pages, which IGNORES this file entirely.
+# Cloudflare only reads `_redirects` and `_headers` at the repo root.
+#
+# DO NOT add new redirects or headers here — they will not take effect.
+# Source of truth for routing: /_redirects
+# Source of truth for headers: /_headers
+#
+# This file is kept only as a historical artifact from the old Netlify
+# deployment and as a reference for the redirect URL mapping. If migrating
+# back to Netlify (no current plan to), the rules below would still apply.
+# ═══════════════════════════════════════════════════════════════════════
+
 [build]
   publish = "/"
 

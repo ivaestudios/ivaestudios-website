@@ -156,27 +156,161 @@
 }
 </script>
 
-<!-- Schema: Service (Social Media Management) -->
+<!-- Schema: Service (IVAE Marketing — Manejo de Redes Sociales para Hospitalidad de Lujo) -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Service",
-  "@id": "https://ivaestudios.com/es/manejo-redes-sociales#service-smm",
-  "name": "Agencia de Manejo de Redes Sociales en Cancún",
-  "alternateName": ["Administración de Redes Sociales en Cancún", "Social Media Management Cancún"],
-  "serviceType": "Social Media Management",
-  "category": "Marketing Digital",
-  "description": "Servicio profesional de administración y manejo de redes sociales en Cancún. Creación de contenido visual, estrategia editorial, gestión diaria de Instagram, TikTok y Facebook, copywriting, community management y reportes mensuales.",
-  "provider": {"@id": "https://ivaestudios.com/es/manejo-redes-sociales#business"},
+  "@id": "https://ivaestudios.com/es/manejo-redes-sociales#service",
+  "name": "Manejo de Redes Sociales para Hospitalidad de Lujo",
+  "alternateName": [
+    "IVAE Marketing",
+    "Agencia Social Media Cancún",
+    "Agencia de Marketing Hotelero México",
+    "Manejo Instagram Hotel Lujo México"
+  ],
+  "serviceType": "Agencia de Marketing en Redes Sociales",
+  "category": "Marketing de Hospitalidad",
+  "description": "Manejo editorial de redes sociales para marcas de hospitalidad de lujo en México. Producción de contenido propio, administración de Instagram, TikTok y Facebook, community management y reportes mensuales. Construido por un estudio editorial de fotografía de lujo: los feeds parecen una revista, no un calendario de marketing. Equipo bilingüe nativo basado en Cancún, sirviendo Riviera Maya, Tulum, Playa del Carmen, Los Cabos y Ciudad de México.",
+  "url": "https://ivaestudios.com/es/manejo-redes-sociales",
+  "inLanguage": "es",
+  "availableLanguage": [
+    {"@type": "Language", "name": "Spanish", "alternateName": "es"},
+    {"@type": "Language", "name": "English", "alternateName": "en"}
+  ],
+  "slogan": "Redes sociales editoriales para hospitalidad de lujo. Contenido nivel revista, bilingüe nativo, hospitalidad primero.",
+  "provider": {
+    "@type": "Organization",
+    "@id": "https://ivaestudios.com/social-media-management#ivae-marketing",
+    "name": "IVAE Marketing",
+    "alternateName": ["IVAE Marketing Agency", "IVAE Studios Marketing"],
+    "url": "https://ivaestudios.com/es/manejo-redes-sociales",
+    "logo": "https://assets.ivaestudios.com/ivae-logo.png",
+    "description": "Sub-marca de manejo de redes sociales de IVAE Studios, especializada en marketing de hospitalidad de lujo en México.",
+    "foundingDate": "2024",
+    "knowsLanguage": ["es", "en"],
+    "areaServed": [
+      {"@type": "City", "name": "Cancún"},
+      {"@type": "City", "name": "Playa del Carmen"},
+      {"@type": "City", "name": "Tulum"},
+      {"@type": "City", "name": "Los Cabos"},
+      {"@type": "City", "name": "Ciudad de México"},
+      {"@type": "Place", "name": "Riviera Maya"}
+    ],
+    "subOrganizationOf": {
+      "@id": "https://ivaestudios.com/#organization"
+    },
+    "parentOrganization": {
+      "@id": "https://ivaestudios.com/#organization"
+    },
+    "sameAs": [
+      "https://www.instagram.com/ivae.marketing",
+      "https://www.instagram.com/ivaestudios.cancun",
+      "https://www.facebook.com/ivaestudios",
+      "https://www.wikidata.org/wiki/Q139689577"
+    ]
+  },
   "areaServed": [
-    {"@type": "City", "name": "Cancún"},
+    {"@type": "City", "name": "Cancún", "containedInPlace": {"@type": "State", "name": "Quintana Roo"}},
     {"@type": "City", "name": "Playa del Carmen"},
     {"@type": "City", "name": "Tulum"},
-    {"@type": "Place", "name": "Riviera Maya"}
+    {"@type": "City", "name": "Los Cabos"},
+    {"@type": "City", "name": "Cabo San Lucas"},
+    {"@type": "City", "name": "San José del Cabo"},
+    {"@type": "City", "name": "Ciudad de México"},
+    {"@type": "Place", "name": "Riviera Maya"},
+    {"@type": "Country", "name": "México"}
   ],
-  "availableLanguage": [{"@type": "Language", "name": "Spanish", "alternateName": "es"}],
-  "inLanguage": "es",
-  "url": "https://ivaestudios.com/es/manejo-redes-sociales"
+  "audience": {
+    "@type": "BusinessAudience",
+    "name": "Marcas de Hospitalidad de Lujo en México",
+    "audienceType": "Hospitalidad de Lujo, Hoteles Boutique, Resorts, Restaurantes Premium, Spa y Wellness, Clínicas Dentales, Desarrolladoras Inmobiliarias",
+    "geographicArea": {
+      "@type": "Country",
+      "name": "México"
+    }
+  },
+  "serviceOutput": [
+    {"@type": "Thing", "name": "Paquetes de fotografía editorial"},
+    {"@type": "Thing", "name": "Reels verticales y video de formato corto"},
+    {"@type": "Thing", "name": "Stories y contenido efímero diario"},
+    {"@type": "Thing", "name": "Publicaciones editoriales y carruseles para feed"},
+    {"@type": "Thing", "name": "Reportes mensuales de desempeño y crecimiento"},
+    {"@type": "Thing", "name": "Calendario editorial de contenido"}
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Planes Mensuales IVAE Marketing",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "name": "Plan Essential",
+        "description": "Plan mensual para marcas de lujo emergentes. Una sesión editorial de foto y video, 12 publicaciones en Instagram y Facebook, stories semanales, calendario editorial y reporte mensual de desempeño. Base para consistencia visual desde el primer mes.",
+        "category": "Manejo de Redes Sociales",
+        "availability": "https://schema.org/InStock",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "priceCurrency": "USD",
+          "description": "Por cotización"
+        },
+        "itemOffered": {
+          "@type": "Service",
+          "name": "IVAE Marketing Plan Essential",
+          "serviceType": "Manejo de Redes Sociales"
+        }
+      },
+      {
+        "@type": "Offer",
+        "name": "Plan Editorial",
+        "description": "Plan mensual premium para hoteles boutique y restaurantes de lujo. Dos sesiones editoriales por mes, 20 publicaciones en Instagram, Facebook y TikTok, reels editoriales, community management diario y reportes estratégicos.",
+        "category": "Manejo de Redes Sociales",
+        "availability": "https://schema.org/InStock",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "priceCurrency": "USD",
+          "description": "Por cotización"
+        },
+        "itemOffered": {
+          "@type": "Service",
+          "name": "IVAE Marketing Plan Editorial",
+          "serviceType": "Manejo de Redes Sociales"
+        }
+      },
+      {
+        "@type": "Offer",
+        "name": "Plan Signature",
+        "description": "Plan mensual integral para resorts, cadenas hoteleras y marcas de lujo. Sesiones editoriales semanales, publicación diaria multi-plataforma, manejo de campañas pagadas, curaduría UGC y estratega de marca dedicado.",
+        "category": "Manejo de Redes Sociales",
+        "availability": "https://schema.org/InStock",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "priceCurrency": "USD",
+          "description": "Por cotización"
+        },
+        "itemOffered": {
+          "@type": "Service",
+          "name": "IVAE Marketing Plan Signature",
+          "serviceType": "Manejo de Redes Sociales"
+        }
+      }
+    ]
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "5.0",
+    "bestRating": "5",
+    "worstRating": "1",
+    "ratingCount": "42",
+    "reviewCount": "42",
+    "description": "Heredada de la organización matriz IVAE Studios a través de fotografía editorial y manejo de redes sociales."
+  },
+  "award": [],
+  "sameAs": [
+    "https://www.instagram.com/ivae.marketing",
+    "https://www.instagram.com/ivaestudios.cancun",
+    "https://www.facebook.com/ivaestudios",
+    "https://www.wikidata.org/wiki/Q139689577"
+  ]
 }
 </script>
 
@@ -2019,7 +2153,6 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 <script type="application/ld+json">{"@context":"https://schema.org","@type":["Organization","LocalBusiness","ProfessionalService"],"@id":"https://ivaestudios.com/#organization","name":"IVAE Studios","legalName":"IVAE Studios","alternateName":["IVAE Studios Cancun","IVAE Studios Mexico","IVAE Studios Luxury Resort Photography","IVAE Studios Photography","IVAE"],"disambiguatingDescription":"IVAE Studios (plural, with S) is the official luxury resort photography studio at ivaestudios.com, led by Vianey Díaz in Cancún, Mexico. Not to be confused with the unrelated domain ivaestudio.com (singular, no S).","description":"IVAE Studios is a luxury resort photography studio in Cancún, Mexico, specializing in editorial-quality photography and videography for international families, couples, and destination weddings across Cancún, Riviera Maya, Tulum, and Los Cabos. Over 500 sessions delivered. Fully bilingual team.","url":"https://ivaestudios.com","logo":"https://assets.ivaestudios.com/ivae-logo.png","image":"https://assets.ivaestudios.com/ivae-og.jpg","telephone":"+529902046514","email":"hello@ivaestudios.com","priceRange":"$$$","currenciesAccepted":["USD","MXN"],"paymentAccepted":"Cash, Credit Card, Bank Transfer","founder":{"@type":"Person","@id":"https://ivaestudios.com/#vianey-diaz","name":"Vianey Díaz","jobTitle":"Creative Director & Lead Photographer","worksFor":{"@id":"https://ivaestudios.com/#organization"},"image":"https://assets.ivaestudios.com/vianey-diaz.jpg","url":"https://ivaestudios.com/about","sameAs":["https://www.wikidata.org/wiki/Q139689577","https://www.instagram.com/ivaestudios.cancun/","https://instagram.com/ivaestudios.cancun","https://maps.app.goo.gl/aX7jiVbLzwurMmX19","https://ivaestudios.com"]},"employee":{"@id":"https://ivaestudios.com/#vianey-diaz"},"address":{"@type":"PostalAddress","addressLocality":"Cancún","addressRegion":"Quintana Roo","postalCode":"77500","addressCountry":"MX"},"geo":{"@type":"GeoCoordinates","latitude":21.1619,"longitude":-86.8515},"areaServed":[{"@type":"City","name":"Cancún","containedInPlace":{"@type":"State","name":"Quintana Roo"}},{"@type":"Place","name":"Riviera Maya"},{"@type":"City","name":"Playa del Carmen"},{"@type":"City","name":"Tulum"},{"@type":"City","name":"Los Cabos"},{"@type":"City","name":"Cabo San Lucas"},{"@type":"City","name":"San José del Cabo"},{"@type":"Place","name":"Isla Mujeres"},{"@type":"Place","name":"Playa Mujeres"},{"@type":"Place","name":"Costa Mujeres"}],"knowsLanguage":["en","es","English","Spanish"],"knowsAbout":["Luxury Resort Photography","Destination Wedding Photography","Family Portrait Photography","Couples Photography","Engagement Photography","Proposal Photography","Maternity Photography","Babymoon Photography","Bachelorette Photography","Quinceañera Photography","Birthday Photography","Gender Reveal Photography","Trash the Dress","Vow Renewal Photography","Cenote Underwater Photography","Luxury Yacht Photography","Anniversary Photography","Golden Hour Photography","Editorial Photography","Social Media Management"],"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"06:00","closes":"20:00"},"sameAs":["https://www.wikidata.org/wiki/Q139689577","https://www.instagram.com/ivaestudios.cancun/","https://instagram.com/ivaestudios.cancun","https://maps.app.goo.gl/aX7jiVbLzwurMmX19","https://ivaestudios.com"],"aggregateRating":{"@type":"AggregateRating","ratingValue":"5.0","bestRating":"5","worstRating":"1","ratingCount":"42","reviewCount":"42"},"slogan":"Luxury Resort Photography. Editorial. Bilingual. Golden Hour Only.","brand":{"@type":"Brand","name":"IVAE Studios","logo":"https://assets.ivaestudios.com/ivae-logo.png"}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","@id":"https://ivaestudios.com/#website","url":"https://ivaestudios.com","name":"IVAE Studios","alternateName":"IVAE Studios Cancun","description":"Official website of IVAE Studios — luxury resort photography in Cancún, Riviera Maya and Los Cabos, Mexico.","publisher":{"@id":"https://ivaestudios.com/#organization"},"inLanguage":"en","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://ivaestudios.com/blog?q={search_term_string}"},"query-input":"required name=search_term_string"}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","speakable":{"@type":"SpeakableSpecification","cssSelector":["h1","h2",".hero-sub",".post-excerpt",".post-lead"]},"inLanguage":"es"}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","@id":"https://ivaestudios.com/es/manejo-redes-sociales#service","name":"Social Media Management Cancún","serviceType":"Social Media Management","category":"Marketing","description":"Gestión profesional de redes sociales en Cancún y Riviera Maya: creación de contenido, estrategia, administración de plataformas y reportes mensuales para hoteles, resorts y marcas de lujo.","provider":{"@id":"https://ivaestudios.com/#organization"},"areaServed":[{"@type":"City","name":"Cancún","containedInPlace":{"@type":"State","name":"Quintana Roo"}},{"@type":"Country","name":"Mexico"}],"availableLanguage":[{"@type":"Language","name":"Spanish","alternateName":"es"}],"inLanguage":"es","url":"https://ivaestudios.com/es/manejo-redes-sociales","hasOfferCatalog":{"@type":"OfferCatalog","name":"Servicios de Gestión de Redes Sociales","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"Creación de Contenido","description":"Producción de fotografía, video y reels editoriales listos para redes sociales."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Estrategia de Redes Sociales","description":"Planeación de contenido, calendario editorial y posicionamiento de marca."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Administración de Plataformas","description":"Gestión diaria de Instagram, Facebook, TikTok y otras plataformas, incluyendo publicación y community management."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Reportes y Analítica","description":"Reportes mensuales de desempeño, métricas y recomendaciones estratégicas."}}]}}</script>
 <script src="/dark-mode.js?v=20260512au"></script>
 <link rel="icon" href="/favicon.ico" sizes="any"/>
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
