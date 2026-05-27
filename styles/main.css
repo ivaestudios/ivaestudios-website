@@ -2,7 +2,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --ink:#1a2433;--ink2:#0e1620;--cream:#f9f8f7;--sand:#ede8df;--sand2:#e6dccf;
-  --gold:#c4a35a;--gold2:#a8894a;
+  --gold2:#a8894a;
   --muted:rgba(249,248,247,0.52);--muted2:rgba(249,248,247,0.28);
   --muted-l:rgba(26,36,51,0.55);--muted-l2:rgba(26,36,51,0.32);
   --border:rgba(196,163,90,0.22);--border-l:rgba(26,36,51,0.11);
