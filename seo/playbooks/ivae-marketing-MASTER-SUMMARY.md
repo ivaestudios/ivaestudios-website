@@ -2,7 +2,7 @@
 
 **Para Vianey.** Una sola fuente de verdad de todo lo que se construyó en esta sesión de SEO push enterprise para IVAE Marketing.
 
-**Fecha:** Mayo 2026
+**Fecha:** 2026-05-26
 **Scope:** SEO + content + infraestructura específicamente para IVAE MARKETING (sub-marca SMM). NO toca IVAE Studios fotografía.
 
 ---

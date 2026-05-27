@@ -123,13 +123,6 @@
       trig.setAttribute('aria-expanded', open ? 'false' : 'true');
     });
 
-    document.addEventListener('click', function(ev){
-      if (!wrap.contains(ev.target)) {
-        wrap.setAttribute('data-open', 'false');
-        trig.setAttribute('aria-expanded', 'false');
-      }
-    });
-
     wrap.addEventListener('keydown', function(ev){
       if (ev.key === 'Escape') {
         wrap.setAttribute('data-open', 'false');
@@ -139,6 +132,21 @@
     });
 
     return wrap;
+  }
+
+  // Single document-level outside-click handler shared by every dropdown
+  // instance — registered once at init time to avoid stacking handlers
+  // when init() runs across multiple nav elements.
+  function bindOutsideClick(){
+    document.addEventListener('click', function(ev){
+      document.querySelectorAll('[data-svc-dropdown]').forEach(function(wrap){
+        if (!wrap.contains(ev.target)) {
+          wrap.setAttribute('data-open', 'false');
+          var trig = wrap.querySelector('.svc-dd-trigger');
+          if (trig) trig.setAttribute('aria-expanded', 'false');
+        }
+      });
+    });
   }
 
   function init(){
@@ -164,9 +172,14 @@
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
+  function start(){
     init();
+    bindOutsideClick();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
   }
 })();

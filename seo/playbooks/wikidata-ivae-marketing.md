@@ -189,4 +189,4 @@ A draft article is realistic 12-18 months after launch with documented client po
 ---
 
 Maintained by: Vianey Díaz, Directora, IVAE Studios
-Last updated: May 2026
+Last updated: 2026-05-26

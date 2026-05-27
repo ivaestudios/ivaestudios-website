@@ -99,8 +99,8 @@ Por cada directorio, usar contenido pre-llenado del playbook:
 - [ ] Sortlist — submit profile
 - [ ] DesignRush — submit profile
 - [ ] Agency Spotter — submit profile
-- [ ] The Manifest — submit profile
-- [ ] Visual Objects — submit profile
+- [ ] The Manifest — submit profile (auto-claim post-Clutch)
+- [ ] TopDevelopers / TopMarketingAgencies — submit profile
 - [ ] Hotel Tech Report — submit (vertical hotel)
 
 **IMPORTANTE:** Tener listos los 5 client references ANTES de submit a Clutch (te llamarán a verificar).

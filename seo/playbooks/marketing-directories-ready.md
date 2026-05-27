@@ -26,9 +26,9 @@ Spanish copy in Mexican forms, zero em-dashes anywhere in the body.
 | Legal entity | IVAE Studios S.A. de C.V. (Vianey to confirm RFC final) |
 | Founder | Vianey Díaz |
 | Founder title | Founder & Creative Director |
-| Business email | hello@ivaestudios.com |
-| New business email | partnerships@ivaestudios.com |
-| Phone / WhatsApp | +52 990 204 6514 (placeholder until verified line) |
+| Business email | info@ivaestudios.com |
+| New business email | info@ivaestudios.com (partnerships@ alias once provisioned) |
+| Phone / WhatsApp | +52 990 204 6514 (placeholder area code 990 is invalid; replace with verified GBP line before submit) |
 | Website | https://ivaestudios.com/social-media-management |
 | Spanish website | https://ivaestudios.com/es/manejo-redes-sociales |
 | Instagram (agency) | @ivae.marketing |
@@ -47,7 +47,7 @@ Spanish copy in Mexican forms, zero em-dashes anywhere in the body.
 | Minimum project size | $1,500 USD |
 | Average project size | $4,000 USD per month |
 | Service focus | Social media management, editorial content production, hospitality marketing |
-| Vertical focus | Boutique hotels, luxury resorts, premium restaurants, wellness spas, hospitality real estate |
+| Vertical focus | Boutique hotels, luxury resorts, premium restaurants, wellness spas, dental and aesthetic clinics, hospitality real estate |
 | Geographic focus | Cancún, Riviera Maya, Tulum, Los Cabos, Mexico City |
 
 Field variance kills entity coherence for AI ranking. If Clutch lists 4 to 6

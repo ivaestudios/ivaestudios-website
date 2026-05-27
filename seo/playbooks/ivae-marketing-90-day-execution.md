@@ -30,14 +30,16 @@
 
 ### Lo que falta (necesita acción de Vianey)
 
-1. **Crear cuenta Resend** (`resend.com`) — añadir API key como Cloudflare Pages env var `RESEND_API_KEY`
-2. **Configurar dominio `ivaestudios.com`** en Resend (verificar DNS records)
-3. **Crear cuenta Cloudflare Turnstile** — añadir env vars `TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY`
-4. **5 referencias verificables** (clientes que aceptan llamada de Clutch)
-5. **3 case studies** con métricas reales (hotel/restaurante)
-6. **Tier 0 brand:** logo PNG transparente, foto del equipo, foto de oficina/estudio
-7. **Google Business Profile separado** para IVAE Marketing (categoría: "Social Media Marketing Agency")
-8. **LinkedIn Company Page** independiente para IVAE Marketing
+1. **[TIER 0] Crear cuenta Resend** (`resend.com`) — añadir API key como Cloudflare Pages env var `RESEND_API_KEY`
+2. **[TIER 0] Configurar dominio `ivaestudios.com`** en Resend (verificar DNS records)
+3. **[TIER 0] Crear cuenta Cloudflare Turnstile** — añadir env vars `TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY`
+4. **[TIER 0] 5 referencias verificables** (clientes que aceptan llamada de Clutch — bloqueante para Clutch submit)
+5. **[TIER 0] 3 case studies** con métricas reales (hotel/restaurante)
+6. **[TIER 0] Brand assets:** logo PNG transparente, foto del equipo, foto de oficina/estudio
+7. **[TIER 0] Phone GBP real:** el `+52 990 204 6514` actual usa código de área 990 (inválido en MX); reemplazar antes de submit a directorios
+8. **[TIER 0] Decisión engagement mínimo:** FAQ master dice 6 meses, directorios playbook dice 3 meses. Alinear antes de submit
+9. **[TIER 1] Google Business Profile separado** para IVAE Marketing (categoría: "Social Media Marketing Agency")
+10. **[TIER 1] LinkedIn Company Page** independiente para IVAE Marketing
 
 ---
 

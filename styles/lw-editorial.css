@@ -104,6 +104,7 @@
   line-height:1;
   letter-spacing:-.015em;
   text-shadow:0 4px 30px rgba(201,165,78,.18);
+  -webkit-user-select:none;
   user-select:none;
 }
 .lw-monogram-letter{display:inline-block}

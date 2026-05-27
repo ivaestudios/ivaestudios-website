@@ -123,10 +123,14 @@
         if (!deferredPrompt) { hideBanner(); return; }
         try {
           deferredPrompt.prompt();
-          deferredPrompt.userChoice.then(function () {
+          if (deferredPrompt.userChoice && typeof deferredPrompt.userChoice.then === 'function') {
+            deferredPrompt.userChoice
+              .then(function () { deferredPrompt = null; hideBanner(); })
+              .catch(function () { deferredPrompt = null; hideBanner(); });
+          } else {
             deferredPrompt = null;
             hideBanner();
-          });
+          }
         } catch (err) {
           hideBanner();
         }

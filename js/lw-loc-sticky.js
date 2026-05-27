@@ -61,7 +61,7 @@
       ticking = true;
       requestAnimationFrame(function(){ update(); ticking = false; });
     }, { passive: true });
-    window.addEventListener('resize', update);
+    window.addEventListener('resize', update, { passive: true });
     update();
   }
   if (document.readyState === 'loading'){

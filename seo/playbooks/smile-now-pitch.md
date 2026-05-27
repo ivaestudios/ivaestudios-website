@@ -119,7 +119,7 @@ parte:
 https://ivaestudios.com/marketing-intake
 
 Si prefieres conversar directamente primero, puedes responder este correo
-o escribirme al WhatsApp +52 [número de Vianey].
+o escribirme al WhatsApp +52 998 [VERIFICAR número personal de Vianey antes de enviar].
 
 Un saludo respetuoso,
 
@@ -180,3 +180,70 @@ Estructura sugerida para el documento PDF de 6 páginas:
 
 Vianey diseña el PDF usando Figma o Pages con la nueva identidad IVAE Marketing
 (Ink/Bone/Signal yellow-green, Inter typography, Swiss editorial).
+
+---
+
+## Pre-pitch readiness checklist (run before sending Message 1)
+
+Antes de enviar cualquiera de los mensajes, verifica que estos cinco puntos
+estén listos. Si alguno falla, retrasa el envío 24-48 horas y arréglalo.
+
+- [ ] **Landing en EN funciona** — https://ivaestudios.com/social-media-dental-clinic-mexico carga, tiene WhatsApp CTA, datos del mercado dental mexicano 2026, y FAQ con LFPDPPP. (Verificado 2026-05-26)
+- [ ] **Landing en ES funciona** — https://ivaestudios.com/es/redes-sociales-clinica-dental-mexico carga, tiene WhatsApp CTA, sección in-house vs agencia, proyección 90 días. (Verificado 2026-05-26)
+- [ ] **Blog post listo** — https://ivaestudios.com/post-dental-clinic-social-media-mexico (3,300 palabras, LFPDPPP, before-and-after rules, paid benchmarks). Adjuntable como link en el email si pide profundidad.
+- [ ] **Marketing intake form vivo** — https://ivaestudios.com/marketing-intake responde en EN/ES y entrega notificación a info@ivaestudios.com
+- [ ] **WhatsApp del estudio responde** — +52 990 204 6514 conectado y monitoreado en horario de oficina. (Atención: este número usa código 990 que es inválido en México — confirmar con CLAUDE.md → reemplazar con código real antes de enviar pitch).
+
+## Hooks específicos para Smile Now (usar uno por mensaje)
+
+Si necesitas variación en mensajes de follow-up, estos son hooks
+calibrados al perfil público de Smile Now:
+
+1. **TikTok gap** — "A1 Smile Design ya tiene 47K en TikTok y Smile Now aún no aparece. Ese es el canal #1 de descubrimiento para turismo dental hoy."
+2. **English funnel** — "Tu Instagram en español es impecable. El contenido en inglés es donde está el gap vs el potencial real de capturar pacientes US."
+3. **SMILE iLab under-marketed** — "El lanzamiento de SMILE iLab en 2024 es uno de los movimientos clínicos más sofisticados en Cancún y casi no se siente en el feed."
+4. **Founder brand consolidation** — "Tu cuenta personal está canibalizando la marca principal. Hay una forma elegante de migrar audiencia sin perder autoridad médica."
+5. **Forbes credential under-utilized** — "El reconocimiento de Forbes es un activo de SEO y trust que aparece muy poco en el feed y en ads."
+
+## Subject line alternatives (A/B test si haces follow-up)
+
+- v1: "Tres ideas concretas para el feed de Smile Now — Vianey Díaz, IVAE Studios"
+- v2: "Dra. Peñuela — gap de TikTok que vimos en Smile Now (3 min de lectura)"
+- v3: "Smile Now en inglés: oportunidad de turismo dental que vale revisar"
+- v4: "Felicidades por los 28K — y una observación editorial sobre el feed"
+
+Recomendación: usar v1 para email formal (Message 2). v2 o v3 si la
+respuesta inicial fue tibia y necesitas un segundo touch con ángulo más
+sharp.
+
+## Post-respuesta: el primer follow-up
+
+Cuando la Dra. Peñuela responda (positivo, negativo o ambiguo), el primer
+follow-up debe:
+
+1. Mencionar 1-2 detalles específicos de su respuesta (señal humana)
+2. Ofrecer la siguiente acción de bajo compromiso (Discovery Call 30 min)
+3. Adjuntar 1 ejemplo concreto (Reel editorial o caso similar)
+4. No empujar hacia "compra" todavía. Solo construir relación.
+
+Plantilla:
+
+```
+Dra. Peñuela,
+
+Gracias por el mensaje. Me llamó especialmente la atención lo que
+mencionó sobre [DETALLE ESPECÍFICO QUE ESCRIBIÓ EN SU RESPUESTA].
+
+Para darle contexto visual de cómo trabajamos, le adjunto un ejemplo
+reciente de [REEL EDITORIAL DE HOTEL O CASO PARECIDO]. La intención no
+es vender todavía, sino que vea el bar de producción antes de cualquier
+conversación comercial.
+
+Si tiene 30 minutos esta o la próxima semana, podemos hacer una llamada
+breve para que conozca a fondo a Smile Now y veamos si hay match.
+
+Le dejo mi calendar link: [Calendly o similar]
+
+Un abrazo,
+Vianey
+```

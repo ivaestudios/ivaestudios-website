@@ -74,9 +74,9 @@ Test queries en cada IA cada lunes. Buscar mención de IVAE Marketing en respues
 | Sortlist | B2B Directory | 76 | — | Pending submit | — |
 | DesignRush | B2B Directory | 70 | — | Pending submit | — |
 | Agency Spotter | B2B Directory | 65 | — | Pending submit | — |
-| The Manifest | B2B Directory | 68 | — | Pending submit | — |
-| Visual Objects | B2B Directory | 56 | — | Pending submit | — |
-| Hotel Tech Report | Hospitality | 71 | — | Pending submit | — |
+| The Manifest | B2B Directory | 68 | — | Pending submit | Auto-claim from Clutch |
+| TopDevelopers / TopMarketingAgencies | B2B Directory | 60-65 | — | Pending submit | — |
+| Hotel Tech Report | Hospitality | 72 | — | Pending submit | DA 72 per directories playbook |
 | Behance Case Study 1 | Portfolio | 95 | — | Draft | — |
 | Behance Case Study 2 | Portfolio | 95 | — | Draft | — |
 | Behance Case Study 3 | Portfolio | 95 | — | Draft | — |

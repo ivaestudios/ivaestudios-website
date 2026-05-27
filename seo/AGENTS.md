@@ -27,6 +27,12 @@ Cost: $0/month. Owner involvement: zero (system is fully autonomous).
 **Wikidata:** `Q139689577` (IVAE Studios) + `Q139689736` (Vianey Díaz)
 **Site age:** ~3 months in production (May 2026)
 **Current GSC traffic:** ~42 clicks total, 91 distinct queries with impressions
+**Sitemap:** 173 URL entries in `sitemap.xml`; 51 AI-priority URLs in `sitemap-ai.xml`
+**Two brands on one site:** **IVAE Studios** (parent — luxury photography, gold/Cormorant)
+and **IVAE Marketing** (sub-brand — B2B social-media management for hotels,
+restaurants, spas, dental; purple/pink visual identity at `/social-media-management.html`
+and 6 industry landings + ES mirrors). All IVAE Marketing playbooks live under
+`seo/playbooks/ivae-marketing-*.md` + `seo/playbooks/marketing-*.md`.
 
 **ACCOUNT NOTE:**
 For all IVAE work use `vianeydm07@gmail.com` (Vianey, `authuser=1` in Chrome).

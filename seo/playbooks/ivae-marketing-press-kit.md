@@ -190,7 +190,7 @@ A: Trabajan directo con marcas. No hacen white-label para otras agencias.
 
 - **Wikidata IVAE Studios:** Q139689577 — https://www.wikidata.org/wiki/Q139689577
 - **Wikidata Vianey Díaz:** Q139689736 — https://www.wikidata.org/wiki/Q139689736
-- **Google Reviews:** 5.0 stars, 42 reviews (Q1 2026)
+- **Google Reviews:** 5.0 stars, 42 reviews (as of 2026-05-26; verify against live GBP before each pitch)
 - **Sitio web:** https://ivaestudios.com
 - **Instagram:** @ivaestudios.cancun (verificable)
 
