@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Calendario Editorial — IVAE Marketing</title>
+<meta name="description" content="Calendario editorial interno de IVAE Marketing. Planificación mensual de contenido para Instagram, TikTok y blog."/>
+<meta name="robots" content="noindex, nofollow"/>
+<meta name="theme-color" content="#0a0a0f"/>
+
+<link rel="canonical" href="https://ivaestudios.com/editorial-calendar"/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap"/>
+<link rel="icon" href="/favicon.ico"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+
+<style>
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; font-size:16px; -webkit-text-size-adjust:100%; }
+body {
+  font-family:'Outfit', system-ui, -apple-system, sans-serif;
+  background:#0a0a0f;
+  color:#f0eee9;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  line-height:1.6;
+  letter-spacing:.015em;
+  position:relative;
+}
+
+/* Ambient background gradient */
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(167,139,250,.12), transparent 50%),
+    radial-gradient(circle at 80% 85%, rgba(236,72,153,.08), transparent 55%),
+    radial-gradient(circle at 50% 50%, rgba(192,132,252,.05), transparent 70%);
+}
+body > * { position:relative; z-index:1; }
+
+.mono { font-family:'Space Mono', monospace; letter-spacing:.02em; }
+
+.gradient-text {
+  background:linear-gradient(135deg, #a78bfa 0%, #c084fc 40%, #ec4899 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  color:transparent;
+}
+
+/* ═══════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════ */
+.cal-header {
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:rgba(10,10,15,.75);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(167,139,250,.18);
+}
+.cal-header-inner {
+  max-width:1400px;
+  margin:0 auto;
+  padding:18px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+}
+.cal-logo {
+  display:inline-flex;
+  align-items:baseline;
+  gap:10px;
+  font-weight:700;
+  font-size:15px;
+  letter-spacing:-.01em;
+  color:#f0eee9;
+  text-decoration:none;
+}
+.cal-logo-dot {
+  display:inline-block;
+  width:10px;
+  height:10px;
+  background:linear-gradient(135deg, #a78bfa, #ec4899);
+  border-radius:50%;
+  box-shadow:0 0 12px rgba(167,139,250,.6);
+}
+.cal-logo-suffix {
+  font-family:'Space Mono', monospace;
+  font-weight:400;
+  font-size:10px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:#c4b5fd;
+}
+.cal-header-meta {
+  display:flex;
+  align-items:center;
+  gap:24px;
+  font-family:'Space Mono', monospace;
+  font-size:11px;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  color:rgba(240,238,233,.55);
+}
+.cal-header-meta strong { color:#c4b5fd; font-weight:700; }
+
+/* ═══════════════════════════════════════════
+   HERO
+   ═══════════════════════════════════════════ */
+.cal-hero {
+  max-width:1400px;
+  margin:0 auto;
+  padding:60px 24px 32px;
+}
+.cal-eyebrow {
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  font-family:'Space Mono', monospace;
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.2em;
+  color:#a78bfa;
+  padding:8px 16px;
+  background:rgba(167,139,250,.08);
+  border:1px solid rgba(167,139,250,.2);
+  border-radius:100px;
+  margin-bottom:24px;
+}
+.cal-eyebrow::before {
+  content:'';
+  width:6px;
+  height:6px;
+  background:linear-gradient(135deg, #a78bfa, #ec4899);
+  border-radius:50%;
+  box-shadow:0 0 8px rgba(167,139,250,.8);
+}
+.cal-hero h1 {
+  font-size:clamp(32px, 5vw, 56px);
+  font-weight:800;
+  line-height:1.05;
+  letter-spacing:-.03em;
+  margin-bottom:18px;
+}
+.cal-hero p {
+  font-size:clamp(15px, 1.5vw, 17px);
+  color:rgba(240,238,233,.65);
+  max-width:680px;
+  line-height:1.65;
+}
+
+/* ═══════════════════════════════════════════
+   STATS STRIP
+   ═══════════════════════════════════════════ */
+.cal-stats {
+  max-width:1400px;
+  margin:0 auto 40px;
+  padding:0 24px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+  gap:16px;
+}
+.stat-card {
+  padding:20px 24px;
+  background:rgba(167,139,250,.06);
+  border:1px solid rgba(167,139,250,.15);
+  border-radius:14px;
+  position:relative;
+  overflow:hidden;
+}
+.stat-card::before {
+  content:'';
+  position:absolute;
+  top:0;
+  left:0;
+  width:3px;
+  height:100%;
+  background:linear-gradient(180deg, #a78bfa, #ec4899);
+}
+.stat-card-label {
+  font-family:'Space Mono', monospace;
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.2em;
+  color:#a78bfa;
+  margin-bottom:8px;
+}
+.stat-card-value {
+  font-size:32px;
+  font-weight:800;
+  letter-spacing:-.02em;
+  line-height:1;
+}
+.stat-card-sub {
+  font-size:12px;
+  color:rgba(240,238,233,.5);
+  margin-top:6px;
+  font-family:'Space Mono', monospace;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+}
+
+/* ═══════════════════════════════════════════
+   FILTERS
+   ═══════════════════════════════════════════ */
+.cal-filters {
+  max-width:1400px;
+  margin:0 auto 24px;
+  padding:0 24px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.filter-label {
+  font-family:'Space Mono', monospace;
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.2em;
+  color:rgba(240,238,233,.5);
+  margin-right:8px;
+}
+.filter-chip {
+  font-family:'Space Mono', monospace;
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  color:#c4b5fd;
+  padding:8px 14px;
+  background:transparent;
+  border:1px solid rgba(167,139,250,.25);
+  border-radius:100px;
+  cursor:pointer;
+  transition:all .2s;
+  min-height:36px;
+}
+.filter-chip:hover {
+  background:rgba(167,139,250,.08);
+  color:#f0eee9;
+}
+.filter-chip.is-active {
+  background:linear-gradient(135deg, rgba(167,139,250,.2), rgba(236,72,153,.15));
+  border-color:#a78bfa;
+  color:#f0eee9;
+  box-shadow:0 0 16px rgba(167,139,250,.25);
+}
+
+/* ═══════════════════════════════════════════
+   TABLE
+   ═══════════════════════════════════════════ */
+.cal-table-wrap {
+  max-width:1400px;
+  margin:0 auto;
+  padding:0 24px 80px;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.cal-table {
+  width:100%;
+  min-width:1200px;
+  border-collapse:separate;
+  border-spacing:0;
+  background:rgba(10,10,15,.4);
+  border:1px solid rgba(167,139,250,.15);
+  border-radius:14px;
+  overflow:hidden;
+}
+.cal-table thead {
+  background:linear-gradient(180deg, rgba(167,139,250,.08), rgba(167,139,250,.04));
+}
+.cal-table th {
+  font-family:'Space Mono', monospace;
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.2em;
+  color:#a78bfa;
+  padding:18px 16px;
+  text-align:left;
+  border-bottom:1px solid rgba(167,139,250,.2);
+  white-space:nowrap;
+}
+.cal-table td {
+  padding:16px;
+  border-bottom:1px solid rgba(167,139,250,.08);
+  vertical-align:top;
+  font-size:14px;
+  color:rgba(240,238,233,.85);
+}
+.cal-table tr:last-child td { border-bottom:none; }
+.cal-table tr.row { transition:background .2s; }
+.cal-table tr.row:hover { background:rgba(167,139,250,.04); }
+
+/* Status badges */
+.badge {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-family:'Space Mono', monospace;
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  padding:6px 12px;
+  border-radius:100px;
+  white-space:nowrap;
+}
+.badge::before {
+  content:'';
+  width:6px;
+  height:6px;
+  border-radius:50%;
+}
+.badge-no-iniciado { background:rgba(240,238,233,.06); color:rgba(240,238,233,.5); }
+.badge-no-iniciado::before { background:rgba(240,238,233,.4); }
+.badge-en-produccion { background:rgba(167,139,250,.15); color:#c4b5fd; }
+.badge-en-produccion::before { background:#a78bfa; box-shadow:0 0 6px #a78bfa; }
+.badge-en-revision { background:rgba(192,132,252,.15); color:#c084fc; }
+.badge-en-revision::before { background:#c084fc; box-shadow:0 0 6px #c084fc; }
+.badge-publicado {
+  background:linear-gradient(135deg, rgba(167,139,250,.2), rgba(236,72,153,.15));
+  color:#f0eee9;
+  border:1px solid rgba(236,72,153,.3);
+}
+.badge-publicado::before { background:#ec4899; box-shadow:0 0 6px #ec4899; }
+
+/* Platform pills */
+.platform {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-family:'Space Mono', monospace;
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  padding:6px 12px;
+  border-radius:6px;
+  white-space:nowrap;
+}
+.platform-instagram { background:rgba(236,72,153,.12); color:#f472b6; border:1px solid rgba(236,72,153,.25); }
+.platform-tiktok { background:rgba(167,139,250,.12); color:#c4b5fd; border:1px solid rgba(167,139,250,.25); }
+.platform-linkedin { background:rgba(96,165,250,.12); color:#93c5fd; border:1px solid rgba(96,165,250,.25); }
+.platform-blog { background:rgba(192,132,252,.12); color:#d8b4fe; border:1px solid rgba(192,132,252,.25); }
+
+/* Type pills */
+.type {
+  font-family:'Space Mono', monospace;
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.15em;
+  color:rgba(240,238,233,.6);
+}
+
+/* Priority indicator */
+.priority {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:24px;
+  height:24px;
+  border-radius:6px;
+  font-family:'Space Mono', monospace;
+  font-size:11px;
+  font-weight:700;
+  background:linear-gradient(135deg, #a78bfa, #ec4899);
+  color:#0a0a0f;
+}
+.priority.p1 { background:linear-gradient(135deg, #ec4899, #f472b6); }
+.priority.p2 { background:linear-gradient(135deg, #c084fc, #a78bfa); }
+.priority.p3 { background:rgba(167,139,250,.3); color:#c4b5fd; }
+
+/* Caption text */
+.caption-text {
+  font-family:'Outfit', sans-serif;
+  font-size:13px;
+  color:rgba(240,238,233,.75);
+  line-height:1.5;
+  max-width:340px;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+
+.date-cell {
+  font-family:'Space Mono', monospace;
+  font-size:12px;
+  color:rgba(240,238,233,.7);
+  white-space:nowrap;
+}
+
+.notes-empty {
+  color:rgba(240,238,233,.3);
+  font-style:italic;
+  font-size:12px;
+}
+
+/* ═══════════════════════════════════════════
+   ADD BUTTON
+   ═══════════════════════════════════════════ */
+.add-row {
+  max-width:1400px;
+  margin:24px auto;
+  padding:0 24px;
+}
+.add-row button {
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  font-family:'Outfit', sans-serif;
+  font-size:13px;
+  font-weight:600;
+  color:#c4b5fd;
+  background:transparent;
+  border:1px dashed rgba(167,139,250,.3);
+  padding:14px 24px;
+  border-radius:10px;
+  cursor:pointer;
+  transition:all .2s;
+  min-height:48px;
+}
+.add-row button:hover {
+  background:rgba(167,139,250,.06);
+  border-color:#a78bfa;
+  color:#f0eee9;
+}
+
+/* ═══════════════════════════════════════════
+   HOW-TO PANEL
+   ═══════════════════════════════════════════ */
+.howto {
+  max-width:1400px;
+  margin:60px auto;
+  padding:0 24px;
+}
+.howto-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+  gap:16px;
+}
+.howto-card {
+  padding:24px;
+  background:rgba(167,139,250,.04);
+  border:1px solid rgba(167,139,250,.12);
+  border-radius:12px;
+}
+.howto-card-num {
+  font-family:'Space Mono', monospace;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:#a78bfa;
+  margin-bottom:10px;
+}
+.howto-card h3 {
+  font-size:17px;
+  font-weight:700;
+  letter-spacing:-.01em;
+  margin-bottom:10px;
+}
+.howto-card p {
+  font-size:13px;
+  color:rgba(240,238,233,.65);
+  line-height:1.6;
+}
+
+/* ═══════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════ */
+.cal-footer {
+  background:#0a0a0f;
+  padding:60px 24px 40px;
+  border-top:1px solid rgba(167,139,250,.12);
+}
+.cal-footer-inner {
+  max-width:1080px;
+  margin:0 auto;
+  text-align:center;
+}
+.cal-footer-mark {
+  display:inline-flex;
+  align-items:baseline;
+  gap:0;
+  font-weight:700;
+  font-size:18px;
+  letter-spacing:-.01em;
+  color:#f0eee9;
+  text-decoration:none;
+  margin-bottom:16px;
+}
+.cal-footer-tag {
+  font-style:italic;
+  color:rgba(240,238,233,.6);
+  font-size:14px;
+  margin-bottom:30px;
+}
+.cal-footer-meta {
+  font-family:'Space Mono', monospace;
+  font-size:10px;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  color:rgba(240,238,233,.4);
+  border-top:1px solid rgba(167,139,250,.1);
+  padding-top:24px;
+}
+.cal-footer-meta a {
+  color:rgba(240,238,233,.55);
+  text-decoration:none;
+  margin:0 6px;
+}
+.cal-footer-meta a:hover { color:#c4b5fd; }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .cal-hero { padding:40px 16px 24px; }
+  .cal-stats { padding:0 16px; }
+  .cal-filters { padding:0 16px; }
+  .cal-table-wrap { padding:0 16px 60px; }
+  .cal-header-inner { padding:14px 16px; }
+  .cal-header-meta { display:none; }
+  .stat-card-value { font-size:26px; }
+  .howto { margin:40px auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:0.01ms !important;
+    transition-duration:0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<header class="cal-header">
+  <div class="cal-header-inner">
+    <a href="/social-media-management" class="cal-logo">
+      <span class="cal-logo-dot"></span>
+      IVAE<span class="cal-logo-suffix">MARKETING</span>
+    </a>
+    <div class="cal-header-meta">
+      <span>Calendario · <strong>Junio 2026</strong></span>
+      <span>Última edición · <strong>26 may</strong></span>
+    </div>
+  </div>
+</header>
+
+<section class="cal-hero">
+  <span class="cal-eyebrow">Calendario editorial interno</span>
+  <h1>El plan de contenido de <span class="gradient-text">IVAE Marketing</span>.</h1>
+  <p>Dieciocho piezas por mes. Tres plataformas. Una sola voz editorial. Este es el dashboard que organiza el contenido propio de la sub-marca, separado de los calendarios de clientes.</p>
+</section>
+
+<section class="cal-stats">
+  <div class="stat-card">
+    <div class="stat-card-label">Piezas en pipeline</div>
+    <div class="stat-card-value">18</div>
+    <div class="stat-card-sub">Junio 2026</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-label">Publicadas este mes</div>
+    <div class="stat-card-value">4</div>
+    <div class="stat-card-sub">22% del calendar</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-label">En producción</div>
+    <div class="stat-card-value">6</div>
+    <div class="stat-card-sub">Active queue</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-label">Plataformas</div>
+    <div class="stat-card-value">4</div>
+    <div class="stat-card-sub">IG · TikTok · LI · Blog</div>
+  </div>
+</section>
+
+<section class="cal-filters" aria-label="Filtros">
+  <span class="filter-label">Filtrar:</span>
+  <button class="filter-chip is-active" data-filter="all">Todos</button>
+  <button class="filter-chip" data-filter="instagram">Instagram</button>
+  <button class="filter-chip" data-filter="tiktok">TikTok</button>
+  <button class="filter-chip" data-filter="linkedin">LinkedIn</button>
+  <button class="filter-chip" data-filter="blog">Blog</button>
+  <span style="flex:1;"></span>
+  <button class="filter-chip" data-status="no-iniciado">No iniciado</button>
+  <button class="filter-chip" data-status="en-produccion">En producción</button>
+  <button class="filter-chip" data-status="publicado">Publicado</button>
+</section>
+
+<section class="cal-table-wrap">
+<table class="cal-table">
+  <thead>
+    <tr>
+      <th style="width:50px;">P</th>
+      <th>Tarea</th>
+      <th>Tipo</th>
+      <th>Caption / Idea</th>
+      <th>Estado</th>
+      <th>Plataforma</th>
+      <th>Publicación</th>
+      <th>Notas</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="row" data-platform="instagram" data-status="publicado">
+      <td><span class="priority p1">1</span></td>
+      <td><strong>El feed de un hotel boutique en 2026</strong></td>
+      <td><span class="type">Reel</span></td>
+      <td><div class="caption-text">Antes y después de un feed boutique después de 90 días con IVAE Marketing. Save este si manejas Instagram de un hotel.</div></td>
+      <td><span class="badge badge-publicado">Publicado</span></td>
+      <td><span class="platform platform-instagram">Instagram</span></td>
+      <td><div class="date-cell">2 jun 2026</div></td>
+      <td><div class="notes-empty">—</div></td>
+    </tr>
+    <tr class="row" data-platform="instagram" data-status="publicado">
+      <td><span class="priority p1">1</span></td>
+      <td><strong>Por qué los hoteles boutique pierden contra los all-inclusive en social</strong></td>
+      <td><span class="type">Carousel</span></td>
+      <td><div class="caption-text">Cinco diferencias estructurales entre el feed de un boutique y un all-inclusive. Pista: no es el presupuesto.</div></td>
+      <td><span class="badge badge-publicado">Publicado</span></td>
+      <td><span class="platform platform-instagram">Instagram</span></td>
+      <td><div class="date-cell">5 jun 2026</div></td>
+      <td><div class="notes-empty">—</div></td>
+    </tr>
+    <tr class="row" data-platform="tiktok" data-status="publicado">
+      <td><span class="priority p2">2</span></td>
+      <td><strong>POV: nos contratan para reabrir un hotel</strong></td>
+      <td><span class="type">TikTok</span></td>
+      <td><div class="caption-text">POV de los primeros 14 días de onboarding con un hotel que reabre temporada. Behind the scenes editorial.</div></td>
+      <td><span class="badge badge-publicado">Publicado</span></td>
+      <td><span class="platform platform-tiktok">TikTok</span></td>
+      <td><div class="date-cell">8 jun 2026</div></td>
+      <td><div class="notes-empty">—</div></td>
+    </tr>
+    <tr class="row" data-platform="instagram" data-status="publicado">
+      <td><span class="priority p1">1</span></td>
+      <td><strong>3 errores que veo en feeds de spa en Cancún</strong></td>
+      <td><span class="type">Carousel</span></td>
+      <td><div class="caption-text">Auditoría visual rápida de tres feeds spa de la zona hotelera. Sin nombres, solo patrones.</div></td>
+      <td><span class="badge badge-publicado">Publicado</span></td>
+      <td><span class="platform platform-instagram">Instagram</span></td>
+      <td><div class="date-cell">12 jun 2026</div></td>
+      <td><div class="notes-empty">—</div></td>
+    </tr>
+    <tr class="row" data-platform="instagram" data-status="en-produccion">
+      <td><span class="priority p1">1</span></td>
+      <td><strong>Detrás de cámaras: shoot Rosewood Mayakoba</strong></td>
+      <td><span class="type">Reel</span></td>
+      <td><div class="caption-text">Cómo se ve un día de producción para un cliente Signature. 60 segundos de proceso editorial.</div></td>
+      <td><span class="badge badge-en-produccion">En producción</span></td>
+      <td><span class="platform platform-instagram">Instagram</span></td>
+      <td><div class="date-cell">15 jun 2026</div></td>
+      <td><div class="notes-empty">—</div></td>
+    </tr>
+    <tr class="row" data-platform="blog" data-status="en-produccion">
+      <td><span class="priority p2">2</span></td>
+      <td><strong>Hotel Instagram strategy: el playbook completo 2026</strong></td>
+      <td><span class="type">Blog post</span></td>
+      <td><div class="caption-text">Ya publicado en EN. Traducir y adaptar la versión ES para audiencia local.</div></td>
+      <td><span class="badge badge-en-produccion">En producción</span></td>
+      <td><span class="platform platform-blog">Blog</span></td>
+      <td><div class="date-cell">16 jun 2026</div></td>
+      <td><div class="notes-empty">—</div></td>
+    </tr>
+    <tr class="row" data-platform="linkedin" data-status="en-produccion">
+      <td><span class="priority p1">1</span></td>
+      <td><strong>Por qué extendimos un estudio fotográfico a SMM</strong></td>
+      <td><span class="type">Artículo</span></td>
+      <td><div class="caption-text">El origin story de IVAE Marketing. Para audiencia B2B en LinkedIn. 1,200 palabras.</div></td>
+      <td><span class="badge badge-en-produccion">En producción</span></td>
+      <td><span class="platform platform-linkedin">LinkedIn</span></td>
+      <td><div class="date-cell">18 jun 2026</div></td>
+      <td><div class="notes-empty">—</div></td>
+    </tr>
+    <tr class="row" data-platform="instagram" data-status="en-revision">
+      <td><span class="priority p2">2</span></td>
+      <td><strong>El método de los 18 minutos</strong></td>
+      <td><span class="type">Carousel</span></td>
+      <td><div class="caption-text">Cómo funciona el brief de estrategia y por qué cambió todo en la conversión.</div></td>
+      <td><span class="badge badge-en-revision">En revisión</span></td>
+      <td><span class="platform platform-instagram">Instagram</span></td>
+      <td><div class="date-cell">19 jun 2026</div></td>
+      <td><div class="notes-empty">—</div></td>
+    </tr>
+    <tr class="row" data-platform="tiktok" data-status="en-revision">
+      <td><span class="priority p2">2</span></td>
+      <td><strong>Edit POV: cómo limpiamos un feed en 30 días</strong></td>
+      <td><span class="type">TikTok</span></td>
+      <td><div class="caption-text">Time-lapse del antes/después de un feed restaurante. Fast cut sobre música editorial.</div></td>
+      <td><span class="badge badge-en-revision">En revisión</span></td>
+      <td><span class="platform platform-tiktok">TikTok</span></td>
+      <td><div class="date-cell">21 jun 2026</div></td>
+      <td><div class="notes-empty">—</div></td>
+    </tr>
+    <tr class="row" data-platform="instagram" data-status="no-iniciado">
+      <td><span class="priority p1">1</span></td>
+      <td><strong>Anatomy of a luxury restaurant feed</strong></td>
+      <td><span class="type">Carousel</span></td>
+      <td><div class="caption-text">Diseccionar el feed de un restaurante de autor en Cancún. Composición, color, ritmo.</div></td>
+      <td><span class="badge badge-no-iniciado">No iniciado</span></td>
+      <td><span class="platform platform-instagram">Instagram</span></td>
+      <td><div class="date-cell">22 jun 2026</div></td>
+      <td><div class="notes-empty">—</div></td>
+    </tr>
+    <tr class="row" data-platform="instagram" data-status="no-iniciado">
+      <td><span class="priority p2">2</span></td>
+      <td><strong>Trend hoy: el feed minimalista de Tulum</strong></td>
+      <td><span class="type">Reel</span></td>
+      <td><div class="caption-text">Reaction edit sobre el patrón visual que repiten todos los boutiques de Tulum. Pros y contras.</div></td>
+      <td><span class="badge badge-no-iniciado">No iniciado</span></td>
+      <td><span class="platform platform-instagram">Instagram</span></td>
+      <td><div class="date-cell">24 jun 2026</div></td>
+      <td><div class="notes-empty">—</div></td>
+    </tr>
+    <tr class="row" data-platform="blog" data-status="no-iniciado">
+      <td><span class="priority p3">3</span></td>
+      <td><strong>Restaurant social media: Mexico playbook 2026</strong></td>
+      <td><span class="type">Blog post</span></td>
+      <td><div class="caption-text">Ya publicado en EN. Adaptación ES con datos del mercado mexicano.</div></td>
+      <td><span class="badge badge-no-iniciado">No iniciado</span></td>
+      <td><span class="platform platform-blog">Blog</span></td>
+      <td><div class="date-cell">25 jun 2026</div></td>
+      <td><div class="notes-empty">—</div></td>
+    </tr>
+    <tr class="row" data-platform="linkedin" data-status="no-iniciado">
+      <td><span class="priority p2">2</span></td>
+      <td><strong>Carta a un GM de hotel boutique</strong></td>
+      <td><span class="type">Post LinkedIn</span></td>
+      <td><div class="caption-text">Texto editorial corto. Lo que un GM realmente necesita oír sobre social en 2026.</div></td>
+      <td><span class="badge badge-no-iniciado">No iniciado</span></td>
+      <td><span class="platform platform-linkedin">LinkedIn</span></td>
+      <td><div class="date-cell">26 jun 2026</div></td>
+      <td><div class="notes-empty">—</div></td>
+    </tr>
+    <tr class="row" data-platform="instagram" data-status="no-iniciado">
+      <td><span class="priority p1">1</span></td>
+      <td><strong>Sunset shoot: el rooftop de un cliente</strong></td>
+      <td><span class="type">Reel</span></td>
+      <td><div class="caption-text">Producción in-situ. Golden hour. La hora exacta. Sin presets genéricos.</div></td>
+      <td><span class="badge badge-no-iniciado">No iniciado</span></td>
+      <td><span class="platform platform-instagram">Instagram</span></td>
+      <td><div class="date-cell">28 jun 2026</div></td>
+      <td><div class="notes-empty">—</div></td>
+    </tr>
+    <tr class="row" data-platform="instagram" data-status="no-iniciado">
+      <td><span class="priority p2">2</span></td>
+      <td><strong>Saves más que likes</strong></td>
+      <td><span class="type">Carousel</span></td>
+      <td><div class="caption-text">La métrica que importa para hoteles: por qué los saves predicen reservas mejor que los likes.</div></td>
+      <td><span class="badge badge-no-iniciado">No iniciado</span></td>
+      <td><span class="platform platform-instagram">Instagram</span></td>
+      <td><div class="date-cell">29 jun 2026</div></td>
+      <td><div class="notes-empty">—</div></td>
+    </tr>
+    <tr class="row" data-platform="tiktok" data-status="no-iniciado">
+      <td><span class="priority p3">3</span></td>
+      <td><strong>POV: prepping una sesión spa</strong></td>
+      <td><span class="type">TikTok</span></td>
+      <td><div class="caption-text">El ritual de pre-producción de un shoot de spa. Cómo se construye el ambient mood.</div></td>
+      <td><span class="badge badge-no-iniciado">No iniciado</span></td>
+      <td><span class="platform platform-tiktok">TikTok</span></td>
+      <td><div class="date-cell">30 jun 2026</div></td>
+      <td><div class="notes-empty">—</div></td>
+    </tr>
+    <tr class="row" data-platform="blog" data-status="no-iniciado">
+      <td><span class="priority p1">1</span></td>
+      <td><strong>Dental clinic SMM: case-study Smile Now</strong></td>
+      <td><span class="type">Blog post</span></td>
+      <td><div class="caption-text">Si Smile Now cierra, primer case study completo de la vertical dental.</div></td>
+      <td><span class="badge badge-no-iniciado">No iniciado</span></td>
+      <td><span class="platform platform-blog">Blog</span></td>
+      <td><div class="date-cell">30 jun 2026</div></td>
+      <td><div class="notes-empty">Esperando confirmación Vianey</div></td>
+    </tr>
+    <tr class="row" data-platform="instagram" data-status="no-iniciado">
+      <td><span class="priority p3">3</span></td>
+      <td><strong>Cierre del mes: stats internas</strong></td>
+      <td><span class="type">Story</span></td>
+      <td><div class="caption-text">Resumen visual del mes en 5 slides para audiencia interesada en métricas reales.</div></td>
+      <td><span class="badge badge-no-iniciado">No iniciado</span></td>
+      <td><span class="platform platform-instagram">Instagram</span></td>
+      <td><div class="date-cell">30 jun 2026</div></td>
+      <td><div class="notes-empty">—</div></td>
+    </tr>
+  </tbody>
+</table>
+</section>
+
+<div class="add-row">
+  <button onclick="alert('Para añadir nueva pieza, edita /editorial-calendar.html en el repo o duplica esta página en Notion.')">+ Añadir nueva pieza</button>
+</div>
+
+<section class="howto">
+  <div class="howto-grid">
+    <div class="howto-card">
+      <div class="howto-card-num">01 · METODOLOGÍA</div>
+      <h3>El método de los 18</h3>
+      <p>Dieciocho piezas por mes. Cuatro semanas. Una pieza cada 1-2 días. Mezcla de plataformas (60% Instagram, 25% TikTok, 10% LinkedIn, 5% blog).</p>
+    </div>
+    <div class="howto-card">
+      <div class="howto-card-num">02 · PRIORIDAD</div>
+      <h3>P1 / P2 / P3</h3>
+      <p>P1 = imprescindible esta semana. P2 = ideal pero negociable. P3 = nice-to-have, mover si la semana se llena.</p>
+    </div>
+    <div class="howto-card">
+      <div class="howto-card-num">03 · ESTADOS</div>
+      <h3>Cuatro estados</h3>
+      <p>No iniciado → En producción → En revisión → Publicado. La pieza no salta estados. La revisión es obligatoria antes de publicar.</p>
+    </div>
+    <div class="howto-card">
+      <div class="howto-card-num">04 · VOICE</div>
+      <h3>Editorial, no calendar</h3>
+      <p>El feed de IVAE Marketing tiene que parecer una revista, no un calendario de marketing. Sin clichés. Sin engagement pods. Sin viral content.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="cal-footer">
+  <div class="cal-footer-inner">
+    <a href="/social-media-management" class="cal-footer-mark">
+      IVAE<span style="background:linear-gradient(135deg,#a78bfa,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;margin-left:6px;">MARKETING</span>
+    </a>
+    <p class="cal-footer-tag">Calendario editorial interno. Mismo método que aplicamos en cada cliente.</p>
+    <div class="cal-footer-meta">
+      © 2026 IVAE MARKETING · SUB-MARCA DE IVAE STUDIOS · CANCÚN, MÉXICO ·
+      <a href="/social-media-management">Servicios</a> ·
+      <a href="/marketing-intake">Brief de Estrategia</a> ·
+      <a href="/privacy-policy">Privacidad</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+
+  const chips = document.querySelectorAll('.filter-chip');
+  const rows = document.querySelectorAll('.cal-table tbody tr.row');
+
+  let activePlatform = 'all';
+  let activeStatus = null;
+
+  function applyFilters() {
+    rows.forEach(row => {
+      const platform = row.dataset.platform;
+      const status = row.dataset.status;
+      const platformMatch = activePlatform === 'all' || platform === activePlatform;
+      const statusMatch = !activeStatus || status === activeStatus;
+      row.style.display = (platformMatch && statusMatch) ? '' : 'none';
+    });
+  }
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      if (chip.dataset.filter) {
+        // Platform chip
+        chips.forEach(c => { if (c.dataset.filter) c.classList.remove('is-active'); });
+        chip.classList.add('is-active');
+        activePlatform = chip.dataset.filter;
+      } else if (chip.dataset.status) {
+        // Status chip — toggle
+        if (activeStatus === chip.dataset.status) {
+          chip.classList.remove('is-active');
+          activeStatus = null;
+        } else {
+          chips.forEach(c => { if (c.dataset.status) c.classList.remove('is-active'); });
+          chip.classList.add('is-active');
+          activeStatus = chip.dataset.status;
+        }
+      }
+      applyFilters();
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
