@@ -28,9 +28,9 @@ body {
   line-height:1.6;
   letter-spacing:.015em;
   position:relative;
+  min-height:100vh;
 }
 
-/* Ambient background gradient */
 body::before {
   content:'';
   position:fixed;
@@ -54,224 +54,242 @@ body > * { position:relative; z-index:1; }
   color:transparent;
 }
 
-/* ═══════════════════════════════════════════
-   HEADER
-   ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════ HEADER */
 .cal-header {
-  position:sticky;
-  top:0;
-  z-index:50;
-  background:rgba(10,10,15,.75);
+  position:sticky; top:0; z-index:50;
+  background:rgba(10,10,15,.85);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
   border-bottom:1px solid rgba(167,139,250,.18);
 }
 .cal-header-inner {
-  max-width:1400px;
-  margin:0 auto;
-  padding:18px 24px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-  flex-wrap:wrap;
+  max-width:1400px; margin:0 auto;
+  padding:14px 24px;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:16px; flex-wrap:wrap;
 }
 .cal-logo {
-  display:inline-flex;
-  align-items:baseline;
-  gap:10px;
-  font-weight:700;
-  font-size:15px;
-  letter-spacing:-.01em;
-  color:#f0eee9;
+  display:inline-flex; align-items:baseline; gap:10px;
+  font-weight:700; font-size:15px;
+  letter-spacing:-.01em; color:#f0eee9;
   text-decoration:none;
 }
 .cal-logo-dot {
-  display:inline-block;
-  width:10px;
-  height:10px;
+  width:10px; height:10px;
   background:linear-gradient(135deg, #a78bfa, #ec4899);
   border-radius:50%;
   box-shadow:0 0 12px rgba(167,139,250,.6);
 }
 .cal-logo-suffix {
   font-family:'Space Mono', monospace;
-  font-weight:400;
-  font-size:10px;
-  letter-spacing:.2em;
-  text-transform:uppercase;
+  font-weight:400; font-size:10px;
+  letter-spacing:.2em; text-transform:uppercase;
   color:#c4b5fd;
 }
-.cal-header-meta {
-  display:flex;
-  align-items:center;
-  gap:24px;
-  font-family:'Space Mono', monospace;
-  font-size:11px;
-  letter-spacing:.15em;
-  text-transform:uppercase;
-  color:rgba(240,238,233,.55);
+.cal-header-actions {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
 }
-.cal-header-meta strong { color:#c4b5fd; font-weight:700; }
+.btn {
+  font-family:'Space Mono', monospace;
+  font-size:11px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase;
+  padding:9px 14px;
+  border-radius:8px; border:1px solid rgba(167,139,250,.25);
+  background:transparent; color:#c4b5fd;
+  cursor:pointer;
+  transition:all .2s;
+  min-height:38px;
+  display:inline-flex; align-items:center; gap:6px;
+}
+.btn:hover { background:rgba(167,139,250,.08); color:#f0eee9; }
+.btn-primary {
+  background:linear-gradient(135deg, #a78bfa, #ec4899);
+  color:#0a0a0f;
+  border-color:transparent;
+  font-weight:700;
+}
+.btn-primary:hover { box-shadow:0 4px 16px rgba(167,139,250,.4); color:#0a0a0f; }
 
-/* ═══════════════════════════════════════════
-   HERO
-   ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════ HERO */
 .cal-hero {
-  max-width:1400px;
-  margin:0 auto;
-  padding:60px 24px 32px;
+  max-width:1400px; margin:0 auto;
+  padding:48px 24px 24px;
 }
 .cal-eyebrow {
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
+  display:inline-flex; align-items:center; gap:10px;
   font-family:'Space Mono', monospace;
-  font-size:11px;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:.2em;
+  font-size:11px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.2em;
   color:#a78bfa;
   padding:8px 16px;
   background:rgba(167,139,250,.08);
   border:1px solid rgba(167,139,250,.2);
-  border-radius:100px;
-  margin-bottom:24px;
+  border-radius:100px; margin-bottom:20px;
 }
 .cal-eyebrow::before {
-  content:'';
-  width:6px;
-  height:6px;
+  content:''; width:6px; height:6px;
   background:linear-gradient(135deg, #a78bfa, #ec4899);
   border-radius:50%;
   box-shadow:0 0 8px rgba(167,139,250,.8);
 }
 .cal-hero h1 {
-  font-size:clamp(32px, 5vw, 56px);
-  font-weight:800;
-  line-height:1.05;
-  letter-spacing:-.03em;
-  margin-bottom:18px;
+  font-size:clamp(28px, 5vw, 48px);
+  font-weight:800; line-height:1.05;
+  letter-spacing:-.03em; margin-bottom:14px;
 }
 .cal-hero p {
   font-size:clamp(15px, 1.5vw, 17px);
   color:rgba(240,238,233,.65);
-  max-width:680px;
-  line-height:1.65;
+  max-width:680px; line-height:1.65;
 }
 
-/* ═══════════════════════════════════════════
-   STATS STRIP
-   ═══════════════════════════════════════════ */
+/* Month switcher */
+.month-switcher {
+  display:inline-flex;
+  align-items:center; gap:8px;
+  margin-top:20px;
+  padding:6px;
+  background:rgba(167,139,250,.06);
+  border:1px solid rgba(167,139,250,.2);
+  border-radius:100px;
+}
+.month-btn {
+  width:32px; height:32px;
+  border-radius:50%;
+  background:transparent;
+  border:none;
+  color:#c4b5fd;
+  cursor:pointer;
+  font-size:16px;
+  display:inline-flex; align-items:center; justify-content:center;
+  transition:all .2s;
+}
+.month-btn:hover { background:rgba(167,139,250,.15); color:#f0eee9; }
+.month-display {
+  font-family:'Space Mono', monospace;
+  font-size:13px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase;
+  color:#f0eee9;
+  padding:0 12px; min-width:140px; text-align:center;
+}
+
+/* ═══════════════════════════════════════════ STATS STRIP */
 .cal-stats {
-  max-width:1400px;
-  margin:0 auto 40px;
+  max-width:1400px; margin:0 auto 32px;
   padding:0 24px;
   display:grid;
   grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
-  gap:16px;
+  gap:14px;
 }
 .stat-card {
-  padding:20px 24px;
+  padding:18px 22px;
   background:rgba(167,139,250,.06);
   border:1px solid rgba(167,139,250,.15);
   border-radius:14px;
-  position:relative;
-  overflow:hidden;
+  position:relative; overflow:hidden;
+  transition:all .3s;
 }
+.stat-card:hover { transform:translateY(-2px); border-color:rgba(167,139,250,.3); }
 .stat-card::before {
-  content:'';
-  position:absolute;
-  top:0;
-  left:0;
-  width:3px;
-  height:100%;
+  content:''; position:absolute;
+  top:0; left:0; width:3px; height:100%;
   background:linear-gradient(180deg, #a78bfa, #ec4899);
 }
 .stat-card-label {
   font-family:'Space Mono', monospace;
-  font-size:10px;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:.2em;
-  color:#a78bfa;
-  margin-bottom:8px;
+  font-size:10px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.2em;
+  color:#a78bfa; margin-bottom:6px;
 }
 .stat-card-value {
-  font-size:32px;
-  font-weight:800;
-  letter-spacing:-.02em;
-  line-height:1;
+  font-size:30px; font-weight:800;
+  letter-spacing:-.02em; line-height:1;
+  transition:color .3s;
 }
 .stat-card-sub {
-  font-size:12px;
-  color:rgba(240,238,233,.5);
+  font-size:11px; color:rgba(240,238,233,.5);
   margin-top:6px;
   font-family:'Space Mono', monospace;
-  text-transform:uppercase;
-  letter-spacing:.1em;
+  text-transform:uppercase; letter-spacing:.1em;
 }
 
-/* ═══════════════════════════════════════════
-   FILTERS
-   ═══════════════════════════════════════════ */
-.cal-filters {
-  max-width:1400px;
-  margin:0 auto 24px;
+.progress-bar {
+  height:4px; background:rgba(167,139,250,.1);
+  border-radius:4px; overflow:hidden;
+  margin-top:10px;
+}
+.progress-fill {
+  height:100%;
+  background:linear-gradient(90deg, #a78bfa, #ec4899);
+  border-radius:4px;
+  transition:width .6s ease;
+}
+
+/* ═══════════════════════════════════════════ TOOLBAR */
+.cal-toolbar {
+  max-width:1400px; margin:0 auto 16px;
   padding:0 24px;
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  align-items:center;
+  display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+}
+.search-input {
+  flex:1; min-width:200px;
+  font-family:'Outfit', sans-serif;
+  font-size:14px;
+  padding:10px 14px;
+  background:rgba(10,10,15,.6);
+  border:1px solid rgba(167,139,250,.2);
+  border-radius:10px;
+  color:#f0eee9;
+  min-height:42px;
+  outline:none;
+  transition:border-color .2s;
+}
+.search-input:focus { border-color:#a78bfa; box-shadow:0 0 0 3px rgba(167,139,250,.15); }
+.search-input::placeholder { color:rgba(240,238,233,.4); }
+
+/* Filter chips */
+.cal-filters {
+  max-width:1400px; margin:0 auto 20px;
+  padding:0 24px;
+  display:flex; gap:8px; flex-wrap:wrap; align-items:center;
 }
 .filter-label {
   font-family:'Space Mono', monospace;
-  font-size:10px;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:.2em;
+  font-size:10px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.2em;
   color:rgba(240,238,233,.5);
-  margin-right:8px;
+  margin-right:6px;
 }
 .filter-chip {
   font-family:'Space Mono', monospace;
-  font-size:11px;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:.1em;
+  font-size:11px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.1em;
   color:#c4b5fd;
-  padding:8px 14px;
+  padding:7px 13px;
   background:transparent;
   border:1px solid rgba(167,139,250,.25);
   border-radius:100px;
   cursor:pointer;
   transition:all .2s;
-  min-height:36px;
+  min-height:34px;
 }
-.filter-chip:hover {
-  background:rgba(167,139,250,.08);
-  color:#f0eee9;
-}
+.filter-chip:hover { background:rgba(167,139,250,.08); color:#f0eee9; }
 .filter-chip.is-active {
-  background:linear-gradient(135deg, rgba(167,139,250,.2), rgba(236,72,153,.15));
+  background:linear-gradient(135deg, rgba(167,139,250,.25), rgba(236,72,153,.18));
   border-color:#a78bfa;
   color:#f0eee9;
   box-shadow:0 0 16px rgba(167,139,250,.25);
 }
 
-/* ═══════════════════════════════════════════
-   TABLE
-   ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════ TABLE */
 .cal-table-wrap {
-  max-width:1400px;
-  margin:0 auto;
-  padding:0 24px 80px;
+  max-width:1400px; margin:0 auto;
+  padding:0 24px 40px;
   overflow-x:auto;
   -webkit-overflow-scrolling:touch;
 }
 .cal-table {
-  width:100%;
-  min-width:1200px;
+  width:100%; min-width:1100px;
   border-collapse:separate;
   border-spacing:0;
   background:rgba(10,10,15,.4);
@@ -280,265 +298,311 @@ body > * { position:relative; z-index:1; }
   overflow:hidden;
 }
 .cal-table thead {
-  background:linear-gradient(180deg, rgba(167,139,250,.08), rgba(167,139,250,.04));
+  background:linear-gradient(180deg, rgba(167,139,250,.1), rgba(167,139,250,.04));
+  position:sticky; top:64px; z-index:10;
 }
 .cal-table th {
   font-family:'Space Mono', monospace;
-  font-size:10px;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:.2em;
+  font-size:10px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.2em;
   color:#a78bfa;
-  padding:18px 16px;
+  padding:16px 14px;
   text-align:left;
-  border-bottom:1px solid rgba(167,139,250,.2);
+  border-bottom:1px solid rgba(167,139,250,.25);
   white-space:nowrap;
+  background:rgba(10,10,15,.95);
 }
 .cal-table td {
-  padding:16px;
+  padding:14px;
   border-bottom:1px solid rgba(167,139,250,.08);
   vertical-align:top;
-  font-size:14px;
+  font-size:13.5px;
   color:rgba(240,238,233,.85);
 }
 .cal-table tr:last-child td { border-bottom:none; }
 .cal-table tr.row { transition:background .2s; }
 .cal-table tr.row:hover { background:rgba(167,139,250,.04); }
+.cal-table tr.is-editing { background:rgba(167,139,250,.08); }
 
-/* Status badges */
-.badge {
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  font-family:'Space Mono', monospace;
-  font-size:10px;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:.1em;
-  padding:6px 12px;
-  border-radius:100px;
-  white-space:nowrap;
-}
-.badge::before {
-  content:'';
-  width:6px;
-  height:6px;
-  border-radius:50%;
-}
-.badge-no-iniciado { background:rgba(240,238,233,.06); color:rgba(240,238,233,.5); }
-.badge-no-iniciado::before { background:rgba(240,238,233,.4); }
-.badge-en-produccion { background:rgba(167,139,250,.15); color:#c4b5fd; }
-.badge-en-produccion::before { background:#a78bfa; box-shadow:0 0 6px #a78bfa; }
-.badge-en-revision { background:rgba(192,132,252,.15); color:#c084fc; }
-.badge-en-revision::before { background:#c084fc; box-shadow:0 0 6px #c084fc; }
-.badge-publicado {
-  background:linear-gradient(135deg, rgba(167,139,250,.2), rgba(236,72,153,.15));
-  color:#f0eee9;
-  border:1px solid rgba(236,72,153,.3);
-}
-.badge-publicado::before { background:#ec4899; box-shadow:0 0 6px #ec4899; }
-
-/* Platform pills */
-.platform {
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  font-family:'Space Mono', monospace;
-  font-size:10px;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:.1em;
-  padding:6px 12px;
+/* Editable cells */
+[contenteditable] {
+  outline:none;
+  padding:6px 8px;
+  margin:-6px -8px;
   border-radius:6px;
-  white-space:nowrap;
+  transition:background .15s;
+  min-height:24px;
+  cursor:text;
 }
-.platform-instagram { background:rgba(236,72,153,.12); color:#f472b6; border:1px solid rgba(236,72,153,.25); }
-.platform-tiktok { background:rgba(167,139,250,.12); color:#c4b5fd; border:1px solid rgba(167,139,250,.25); }
-.platform-linkedin { background:rgba(96,165,250,.12); color:#93c5fd; border:1px solid rgba(96,165,250,.25); }
-.platform-blog { background:rgba(192,132,252,.12); color:#d8b4fe; border:1px solid rgba(192,132,252,.25); }
-
-/* Type pills */
-.type {
-  font-family:'Space Mono', monospace;
-  font-size:10px;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:.15em;
-  color:rgba(240,238,233,.6);
+[contenteditable]:hover {
+  background:rgba(167,139,250,.06);
+}
+[contenteditable]:focus {
+  background:rgba(167,139,250,.1);
+  box-shadow:inset 0 0 0 1px rgba(167,139,250,.4);
 }
 
-/* Priority indicator */
-.priority {
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:24px;
-  height:24px;
-  border-radius:6px;
-  font-family:'Space Mono', monospace;
-  font-size:11px;
-  font-weight:700;
-  background:linear-gradient(135deg, #a78bfa, #ec4899);
-  color:#0a0a0f;
-}
-.priority.p1 { background:linear-gradient(135deg, #ec4899, #f472b6); }
-.priority.p2 { background:linear-gradient(135deg, #c084fc, #a78bfa); }
-.priority.p3 { background:rgba(167,139,250,.3); color:#c4b5fd; }
+/* Cells */
+.cell-priority { width:54px; text-align:center; }
+.cell-task { min-width:200px; font-weight:600; color:#f0eee9; }
+.cell-type { width:110px; }
+.cell-caption { min-width:260px; max-width:380px; }
+.cell-status { width:130px; }
+.cell-platform { width:120px; }
+.cell-date { width:110px; }
+.cell-notes { min-width:140px; }
+.cell-actions { width:54px; text-align:center; }
 
-/* Caption text */
 .caption-text {
-  font-family:'Outfit', sans-serif;
-  font-size:13px;
-  color:rgba(240,238,233,.75);
-  line-height:1.5;
-  max-width:340px;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
+  font-size:13px; color:rgba(240,238,233,.75); line-height:1.5;
 }
 
 .date-cell {
   font-family:'Space Mono', monospace;
   font-size:12px;
-  color:rgba(240,238,233,.7);
+  color:rgba(240,238,233,.8);
   white-space:nowrap;
 }
 
 .notes-empty {
-  color:rgba(240,238,233,.3);
-  font-style:italic;
-  font-size:12px;
+  color:rgba(240,238,233,.3); font-style:italic; font-size:12px;
 }
 
-/* ═══════════════════════════════════════════
-   ADD BUTTON
-   ═══════════════════════════════════════════ */
-.add-row {
-  max-width:1400px;
-  margin:24px auto;
-  padding:0 24px;
+/* Status / Platform / Type pills */
+.badge {
+  display:inline-flex; align-items:center; gap:6px;
+  font-family:'Space Mono', monospace;
+  font-size:10px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.1em;
+  padding:6px 11px;
+  border-radius:100px;
+  white-space:nowrap;
+  cursor:pointer;
+  border:none;
+  transition:all .2s;
 }
-.add-row button {
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
+.badge::before {
+  content:''; width:6px; height:6px; border-radius:50%;
+}
+.badge:hover { filter:brightness(1.15); transform:scale(1.03); }
+.badge-no-iniciado { background:rgba(240,238,233,.06); color:rgba(240,238,233,.65); }
+.badge-no-iniciado::before { background:rgba(240,238,233,.4); }
+.badge-en-produccion { background:rgba(167,139,250,.18); color:#d8b4fe; }
+.badge-en-produccion::before { background:#a78bfa; box-shadow:0 0 6px #a78bfa; }
+.badge-en-revision { background:rgba(192,132,252,.18); color:#e9d5ff; }
+.badge-en-revision::before { background:#c084fc; box-shadow:0 0 6px #c084fc; }
+.badge-publicado {
+  background:linear-gradient(135deg, rgba(167,139,250,.25), rgba(236,72,153,.2));
+  color:#f0eee9; border:1px solid rgba(236,72,153,.35);
+}
+.badge-publicado::before { background:#ec4899; box-shadow:0 0 6px #ec4899; }
+
+.platform {
+  display:inline-flex; align-items:center; gap:5px;
+  font-family:'Space Mono', monospace;
+  font-size:10px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.1em;
+  padding:6px 11px;
+  border-radius:6px;
+  white-space:nowrap;
+  cursor:pointer;
+  border:none;
+  transition:filter .2s;
+}
+.platform:hover { filter:brightness(1.15); }
+.platform-instagram { background:rgba(236,72,153,.14); color:#f9a8d4; border:1px solid rgba(236,72,153,.3); }
+.platform-tiktok { background:rgba(167,139,250,.14); color:#c4b5fd; border:1px solid rgba(167,139,250,.3); }
+.platform-linkedin { background:rgba(96,165,250,.14); color:#93c5fd; border:1px solid rgba(96,165,250,.3); }
+.platform-blog { background:rgba(192,132,252,.14); color:#d8b4fe; border:1px solid rgba(192,132,252,.3); }
+
+.type-pill {
+  font-family:'Space Mono', monospace;
+  font-size:10px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.15em;
+  color:rgba(240,238,233,.55);
+  padding:4px 0;
+  cursor:pointer;
+}
+
+.priority {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px;
+  border-radius:7px;
+  font-family:'Space Mono', monospace;
+  font-size:11px; font-weight:700;
+  color:#0a0a0f;
+  cursor:pointer;
+  user-select:none;
+}
+.priority.p1 { background:linear-gradient(135deg, #ec4899, #f472b6); }
+.priority.p2 { background:linear-gradient(135deg, #c084fc, #a78bfa); }
+.priority.p3 { background:rgba(167,139,250,.3); color:#c4b5fd; }
+
+.delete-btn {
+  width:28px; height:28px;
+  border-radius:6px;
+  background:transparent;
+  border:1px solid transparent;
+  color:rgba(240,238,233,.3);
+  cursor:pointer;
+  transition:all .2s;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:14px;
+}
+.delete-btn:hover { background:rgba(239,68,68,.12); color:#fca5a5; border-color:rgba(239,68,68,.3); }
+
+/* Add row button */
+.add-row-bar {
+  max-width:1400px; margin:16px auto 40px;
+  padding:0 24px;
+  display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+}
+.add-row-bar button {
+  display:inline-flex; align-items:center; gap:8px;
   font-family:'Outfit', sans-serif;
-  font-size:13px;
-  font-weight:600;
+  font-size:13px; font-weight:600;
   color:#c4b5fd;
   background:transparent;
-  border:1px dashed rgba(167,139,250,.3);
-  padding:14px 24px;
+  border:1px dashed rgba(167,139,250,.35);
+  padding:12px 20px;
   border-radius:10px;
   cursor:pointer;
   transition:all .2s;
-  min-height:48px;
+  min-height:44px;
 }
-.add-row button:hover {
+.add-row-bar button:hover {
   background:rgba(167,139,250,.06);
   border-color:#a78bfa;
+  border-style:solid;
   color:#f0eee9;
 }
 
-/* ═══════════════════════════════════════════
-   HOW-TO PANEL
-   ═══════════════════════════════════════════ */
+/* Toast notification */
+.toast {
+  position:fixed;
+  bottom:24px; left:50%;
+  transform:translateX(-50%) translateY(80px);
+  background:rgba(10,10,15,.95);
+  border:1px solid rgba(167,139,250,.3);
+  padding:14px 22px;
+  border-radius:100px;
+  font-family:'Space Mono', monospace;
+  font-size:11px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.15em;
+  color:#c4b5fd;
+  z-index:1000;
+  opacity:0;
+  transition:opacity .3s, transform .3s;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  pointer-events:none;
+}
+.toast.show {
+  opacity:1; transform:translateX(-50%) translateY(0);
+}
+.toast::before {
+  content:'';
+  display:inline-block;
+  width:6px; height:6px;
+  background:linear-gradient(135deg, #a78bfa, #ec4899);
+  border-radius:50%;
+  margin-right:10px;
+  box-shadow:0 0 6px #a78bfa;
+}
+
+/* ═══════════════════════════════════════════ HOW-TO */
 .howto {
-  max-width:1400px;
-  margin:60px auto;
+  max-width:1400px; margin:60px auto;
   padding:0 24px;
+}
+.howto h2 {
+  font-size:24px; font-weight:700;
+  letter-spacing:-.02em; margin-bottom:20px;
 }
 .howto-grid {
   display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
-  gap:16px;
+  grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+  gap:14px;
 }
 .howto-card {
-  padding:24px;
+  padding:22px;
   background:rgba(167,139,250,.04);
   border:1px solid rgba(167,139,250,.12);
   border-radius:12px;
+  transition:all .25s;
 }
+.howto-card:hover { transform:translateY(-3px); border-color:rgba(167,139,250,.25); }
 .howto-card-num {
   font-family:'Space Mono', monospace;
-  font-size:10px;
-  font-weight:700;
-  letter-spacing:.2em;
-  text-transform:uppercase;
-  color:#a78bfa;
-  margin-bottom:10px;
+  font-size:10px; font-weight:700;
+  letter-spacing:.2em; text-transform:uppercase;
+  color:#a78bfa; margin-bottom:8px;
 }
 .howto-card h3 {
-  font-size:17px;
-  font-weight:700;
-  letter-spacing:-.01em;
-  margin-bottom:10px;
+  font-size:16px; font-weight:700;
+  letter-spacing:-.01em; margin-bottom:8px;
 }
 .howto-card p {
-  font-size:13px;
-  color:rgba(240,238,233,.65);
-  line-height:1.6;
+  font-size:13px; color:rgba(240,238,233,.65); line-height:1.6;
 }
 
-/* ═══════════════════════════════════════════
-   FOOTER
-   ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════ FOOTER */
 .cal-footer {
   background:#0a0a0f;
   padding:60px 24px 40px;
   border-top:1px solid rgba(167,139,250,.12);
+  margin-top:60px;
 }
 .cal-footer-inner {
-  max-width:1080px;
-  margin:0 auto;
+  max-width:1080px; margin:0 auto;
   text-align:center;
 }
 .cal-footer-mark {
-  display:inline-flex;
-  align-items:baseline;
-  gap:0;
-  font-weight:700;
-  font-size:18px;
-  letter-spacing:-.01em;
-  color:#f0eee9;
+  display:inline-flex; align-items:baseline; gap:0;
+  font-weight:700; font-size:18px;
+  letter-spacing:-.01em; color:#f0eee9;
   text-decoration:none;
-  margin-bottom:16px;
+  margin-bottom:14px;
 }
 .cal-footer-tag {
   font-style:italic;
   color:rgba(240,238,233,.6);
-  font-size:14px;
-  margin-bottom:30px;
+  font-size:14px; margin-bottom:28px;
 }
 .cal-footer-meta {
   font-family:'Space Mono', monospace;
-  font-size:10px;
-  letter-spacing:.15em;
-  text-transform:uppercase;
-  color:rgba(240,238,233,.4);
+  font-size:10px; letter-spacing:.15em;
+  text-transform:uppercase; color:rgba(240,238,233,.4);
   border-top:1px solid rgba(167,139,250,.1);
-  padding-top:24px;
+  padding-top:22px;
 }
 .cal-footer-meta a {
-  color:rgba(240,238,233,.55);
-  text-decoration:none;
+  color:rgba(240,238,233,.55); text-decoration:none;
   margin:0 6px;
 }
 .cal-footer-meta a:hover { color:#c4b5fd; }
 
-/* ═══════════════════════════════════════════
-   RESPONSIVE
-   ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════ EMPTY STATE */
+.empty-state {
+  padding:60px 24px;
+  text-align:center;
+  color:rgba(240,238,233,.5);
+}
+.empty-state-icon {
+  font-size:32px; opacity:.4;
+  margin-bottom:12px;
+}
+
+/* ═══════════════════════════════════════════ RESPONSIVE */
 @media (max-width: 768px) {
-  .cal-hero { padding:40px 16px 24px; }
-  .cal-stats { padding:0 16px; }
-  .cal-filters { padding:0 16px; }
-  .cal-table-wrap { padding:0 16px 60px; }
-  .cal-header-inner { padding:14px 16px; }
-  .cal-header-meta { display:none; }
-  .stat-card-value { font-size:26px; }
+  .cal-hero { padding:32px 16px 20px; }
+  .cal-stats, .cal-toolbar, .cal-filters, .cal-table-wrap, .add-row-bar, .howto { padding-left:16px; padding-right:16px; }
+  .cal-header-inner { padding:12px 16px; }
+  .stat-card-value { font-size:24px; }
   .howto { margin:40px auto; }
+  .cal-table thead { top:0; position:static; }
+  .month-switcher { width:100%; justify-content:space-between; }
+  .month-display { flex:1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -546,6 +610,16 @@ body > * { position:relative; z-index:1; }
     animation-duration:0.01ms !important;
     transition-duration:0.01ms !important;
   }
+}
+
+/* Print styles */
+@media print {
+  body { background:#fff; color:#000; }
+  body::before { display:none; }
+  .cal-header, .cal-filters, .cal-toolbar, .add-row-bar, .howto, .cal-footer, .month-switcher { display:none; }
+  .cal-table-wrap { overflow:visible; padding:0; }
+  .cal-table { border:1px solid #000; min-width:auto; }
+  .cal-table th, .cal-table td { color:#000; }
 }
 </style>
 </head>
@@ -557,9 +631,12 @@ body > * { position:relative; z-index:1; }
       <span class="cal-logo-dot"></span>
       IVAE<span class="cal-logo-suffix">MARKETING</span>
     </a>
-    <div class="cal-header-meta">
-      <span>Calendario · <strong>Junio 2026</strong></span>
-      <span>Última edición · <strong>26 may</strong></span>
+    <div class="cal-header-actions">
+      <button class="btn" id="exportJsonBtn" title="Exportar como JSON">↓ JSON</button>
+      <button class="btn" id="exportCsvBtn" title="Exportar como CSV">↓ CSV</button>
+      <button class="btn" id="printBtn" title="Imprimir">⎙ Print</button>
+      <button class="btn" id="resetBtn" title="Restaurar valores por defecto">↻ Reset</button>
+      <button class="btn btn-primary" id="addRowTopBtn">+ Nueva pieza</button>
     </div>
   </div>
 </header>
@@ -567,269 +644,118 @@ body > * { position:relative; z-index:1; }
 <section class="cal-hero">
   <span class="cal-eyebrow">Calendario editorial interno</span>
   <h1>El plan de contenido de <span class="gradient-text">IVAE Marketing</span>.</h1>
-  <p>Dieciocho piezas por mes. Tres plataformas. Una sola voz editorial. Este es el dashboard que organiza el contenido propio de la sub-marca, separado de los calendarios de clientes.</p>
+  <p>Dashboard funcional con persistencia local. Edita cualquier celda directo, cambia estados con un click, añade o elimina piezas, exporta a JSON / CSV. Tus cambios se guardan automáticamente en este dispositivo.</p>
+  <div class="month-switcher">
+    <button class="month-btn" id="prevMonthBtn" aria-label="Mes anterior">‹</button>
+    <div class="month-display" id="monthDisplay">JUNIO 2026</div>
+    <button class="month-btn" id="nextMonthBtn" aria-label="Mes siguiente">›</button>
+  </div>
 </section>
 
-<section class="cal-stats">
+<section class="cal-stats" id="statsStrip">
   <div class="stat-card">
-    <div class="stat-card-label">Piezas en pipeline</div>
-    <div class="stat-card-value">18</div>
-    <div class="stat-card-sub">Junio 2026</div>
+    <div class="stat-card-label">Total piezas</div>
+    <div class="stat-card-value" id="statTotal">0</div>
+    <div class="stat-card-sub" id="statMonth">Junio 2026</div>
   </div>
   <div class="stat-card">
-    <div class="stat-card-label">Publicadas este mes</div>
-    <div class="stat-card-value">4</div>
-    <div class="stat-card-sub">22% del calendar</div>
+    <div class="stat-card-label">Publicadas</div>
+    <div class="stat-card-value" id="statPublished">0</div>
+    <div class="progress-bar"><div class="progress-fill" id="statPublishedBar" style="width:0%"></div></div>
   </div>
   <div class="stat-card">
     <div class="stat-card-label">En producción</div>
-    <div class="stat-card-value">6</div>
-    <div class="stat-card-sub">Active queue</div>
+    <div class="stat-card-value" id="statProduction">0</div>
+    <div class="stat-card-sub" id="statProductionSub">Active queue</div>
   </div>
   <div class="stat-card">
-    <div class="stat-card-label">Plataformas</div>
-    <div class="stat-card-value">4</div>
-    <div class="stat-card-sub">IG · TikTok · LI · Blog</div>
+    <div class="stat-card-label">No iniciadas</div>
+    <div class="stat-card-value" id="statPending">0</div>
+    <div class="stat-card-sub" id="statPendingSub">Pendientes</div>
   </div>
 </section>
 
+<section class="cal-toolbar">
+  <input type="search" class="search-input" id="searchInput" placeholder="Buscar por tarea, caption, plataforma…" autocomplete="off"/>
+</section>
+
 <section class="cal-filters" aria-label="Filtros">
-  <span class="filter-label">Filtrar:</span>
+  <span class="filter-label">Plataforma:</span>
   <button class="filter-chip is-active" data-filter="all">Todos</button>
   <button class="filter-chip" data-filter="instagram">Instagram</button>
   <button class="filter-chip" data-filter="tiktok">TikTok</button>
   <button class="filter-chip" data-filter="linkedin">LinkedIn</button>
   <button class="filter-chip" data-filter="blog">Blog</button>
-  <span style="flex:1;"></span>
+  <span style="flex:1; min-width:8px;"></span>
+  <span class="filter-label">Estado:</span>
   <button class="filter-chip" data-status="no-iniciado">No iniciado</button>
   <button class="filter-chip" data-status="en-produccion">En producción</button>
+  <button class="filter-chip" data-status="en-revision">En revisión</button>
   <button class="filter-chip" data-status="publicado">Publicado</button>
 </section>
 
 <section class="cal-table-wrap">
-<table class="cal-table">
+<table class="cal-table" id="calTable">
   <thead>
     <tr>
-      <th style="width:50px;">P</th>
-      <th>Tarea</th>
-      <th>Tipo</th>
-      <th>Caption / Idea</th>
-      <th>Estado</th>
-      <th>Plataforma</th>
-      <th>Publicación</th>
-      <th>Notas</th>
+      <th class="cell-priority" title="Prioridad — click P para ciclar P1/P2/P3">P</th>
+      <th class="cell-task">Tarea</th>
+      <th class="cell-type">Tipo</th>
+      <th class="cell-caption">Caption / Idea</th>
+      <th class="cell-status">Estado</th>
+      <th class="cell-platform">Plataforma</th>
+      <th class="cell-date">Publicación</th>
+      <th class="cell-notes">Notas</th>
+      <th class="cell-actions" aria-label="Acciones"></th>
     </tr>
   </thead>
-  <tbody>
-    <tr class="row" data-platform="instagram" data-status="publicado">
-      <td><span class="priority p1">1</span></td>
-      <td><strong>El feed de un hotel boutique en 2026</strong></td>
-      <td><span class="type">Reel</span></td>
-      <td><div class="caption-text">Antes y después de un feed boutique después de 90 días con IVAE Marketing. Save este si manejas Instagram de un hotel.</div></td>
-      <td><span class="badge badge-publicado">Publicado</span></td>
-      <td><span class="platform platform-instagram">Instagram</span></td>
-      <td><div class="date-cell">2 jun 2026</div></td>
-      <td><div class="notes-empty">—</div></td>
-    </tr>
-    <tr class="row" data-platform="instagram" data-status="publicado">
-      <td><span class="priority p1">1</span></td>
-      <td><strong>Por qué los hoteles boutique pierden contra los all-inclusive en social</strong></td>
-      <td><span class="type">Carousel</span></td>
-      <td><div class="caption-text">Cinco diferencias estructurales entre el feed de un boutique y un all-inclusive. Pista: no es el presupuesto.</div></td>
-      <td><span class="badge badge-publicado">Publicado</span></td>
-      <td><span class="platform platform-instagram">Instagram</span></td>
-      <td><div class="date-cell">5 jun 2026</div></td>
-      <td><div class="notes-empty">—</div></td>
-    </tr>
-    <tr class="row" data-platform="tiktok" data-status="publicado">
-      <td><span class="priority p2">2</span></td>
-      <td><strong>POV: nos contratan para reabrir un hotel</strong></td>
-      <td><span class="type">TikTok</span></td>
-      <td><div class="caption-text">POV de los primeros 14 días de onboarding con un hotel que reabre temporada. Behind the scenes editorial.</div></td>
-      <td><span class="badge badge-publicado">Publicado</span></td>
-      <td><span class="platform platform-tiktok">TikTok</span></td>
-      <td><div class="date-cell">8 jun 2026</div></td>
-      <td><div class="notes-empty">—</div></td>
-    </tr>
-    <tr class="row" data-platform="instagram" data-status="publicado">
-      <td><span class="priority p1">1</span></td>
-      <td><strong>3 errores que veo en feeds de spa en Cancún</strong></td>
-      <td><span class="type">Carousel</span></td>
-      <td><div class="caption-text">Auditoría visual rápida de tres feeds spa de la zona hotelera. Sin nombres, solo patrones.</div></td>
-      <td><span class="badge badge-publicado">Publicado</span></td>
-      <td><span class="platform platform-instagram">Instagram</span></td>
-      <td><div class="date-cell">12 jun 2026</div></td>
-      <td><div class="notes-empty">—</div></td>
-    </tr>
-    <tr class="row" data-platform="instagram" data-status="en-produccion">
-      <td><span class="priority p1">1</span></td>
-      <td><strong>Detrás de cámaras: shoot Rosewood Mayakoba</strong></td>
-      <td><span class="type">Reel</span></td>
-      <td><div class="caption-text">Cómo se ve un día de producción para un cliente Signature. 60 segundos de proceso editorial.</div></td>
-      <td><span class="badge badge-en-produccion">En producción</span></td>
-      <td><span class="platform platform-instagram">Instagram</span></td>
-      <td><div class="date-cell">15 jun 2026</div></td>
-      <td><div class="notes-empty">—</div></td>
-    </tr>
-    <tr class="row" data-platform="blog" data-status="en-produccion">
-      <td><span class="priority p2">2</span></td>
-      <td><strong>Hotel Instagram strategy: el playbook completo 2026</strong></td>
-      <td><span class="type">Blog post</span></td>
-      <td><div class="caption-text">Ya publicado en EN. Traducir y adaptar la versión ES para audiencia local.</div></td>
-      <td><span class="badge badge-en-produccion">En producción</span></td>
-      <td><span class="platform platform-blog">Blog</span></td>
-      <td><div class="date-cell">16 jun 2026</div></td>
-      <td><div class="notes-empty">—</div></td>
-    </tr>
-    <tr class="row" data-platform="linkedin" data-status="en-produccion">
-      <td><span class="priority p1">1</span></td>
-      <td><strong>Por qué extendimos un estudio fotográfico a SMM</strong></td>
-      <td><span class="type">Artículo</span></td>
-      <td><div class="caption-text">El origin story de IVAE Marketing. Para audiencia B2B en LinkedIn. 1,200 palabras.</div></td>
-      <td><span class="badge badge-en-produccion">En producción</span></td>
-      <td><span class="platform platform-linkedin">LinkedIn</span></td>
-      <td><div class="date-cell">18 jun 2026</div></td>
-      <td><div class="notes-empty">—</div></td>
-    </tr>
-    <tr class="row" data-platform="instagram" data-status="en-revision">
-      <td><span class="priority p2">2</span></td>
-      <td><strong>El método de los 18 minutos</strong></td>
-      <td><span class="type">Carousel</span></td>
-      <td><div class="caption-text">Cómo funciona el brief de estrategia y por qué cambió todo en la conversión.</div></td>
-      <td><span class="badge badge-en-revision">En revisión</span></td>
-      <td><span class="platform platform-instagram">Instagram</span></td>
-      <td><div class="date-cell">19 jun 2026</div></td>
-      <td><div class="notes-empty">—</div></td>
-    </tr>
-    <tr class="row" data-platform="tiktok" data-status="en-revision">
-      <td><span class="priority p2">2</span></td>
-      <td><strong>Edit POV: cómo limpiamos un feed en 30 días</strong></td>
-      <td><span class="type">TikTok</span></td>
-      <td><div class="caption-text">Time-lapse del antes/después de un feed restaurante. Fast cut sobre música editorial.</div></td>
-      <td><span class="badge badge-en-revision">En revisión</span></td>
-      <td><span class="platform platform-tiktok">TikTok</span></td>
-      <td><div class="date-cell">21 jun 2026</div></td>
-      <td><div class="notes-empty">—</div></td>
-    </tr>
-    <tr class="row" data-platform="instagram" data-status="no-iniciado">
-      <td><span class="priority p1">1</span></td>
-      <td><strong>Anatomy of a luxury restaurant feed</strong></td>
-      <td><span class="type">Carousel</span></td>
-      <td><div class="caption-text">Diseccionar el feed de un restaurante de autor en Cancún. Composición, color, ritmo.</div></td>
-      <td><span class="badge badge-no-iniciado">No iniciado</span></td>
-      <td><span class="platform platform-instagram">Instagram</span></td>
-      <td><div class="date-cell">22 jun 2026</div></td>
-      <td><div class="notes-empty">—</div></td>
-    </tr>
-    <tr class="row" data-platform="instagram" data-status="no-iniciado">
-      <td><span class="priority p2">2</span></td>
-      <td><strong>Trend hoy: el feed minimalista de Tulum</strong></td>
-      <td><span class="type">Reel</span></td>
-      <td><div class="caption-text">Reaction edit sobre el patrón visual que repiten todos los boutiques de Tulum. Pros y contras.</div></td>
-      <td><span class="badge badge-no-iniciado">No iniciado</span></td>
-      <td><span class="platform platform-instagram">Instagram</span></td>
-      <td><div class="date-cell">24 jun 2026</div></td>
-      <td><div class="notes-empty">—</div></td>
-    </tr>
-    <tr class="row" data-platform="blog" data-status="no-iniciado">
-      <td><span class="priority p3">3</span></td>
-      <td><strong>Restaurant social media: Mexico playbook 2026</strong></td>
-      <td><span class="type">Blog post</span></td>
-      <td><div class="caption-text">Ya publicado en EN. Adaptación ES con datos del mercado mexicano.</div></td>
-      <td><span class="badge badge-no-iniciado">No iniciado</span></td>
-      <td><span class="platform platform-blog">Blog</span></td>
-      <td><div class="date-cell">25 jun 2026</div></td>
-      <td><div class="notes-empty">—</div></td>
-    </tr>
-    <tr class="row" data-platform="linkedin" data-status="no-iniciado">
-      <td><span class="priority p2">2</span></td>
-      <td><strong>Carta a un GM de hotel boutique</strong></td>
-      <td><span class="type">Post LinkedIn</span></td>
-      <td><div class="caption-text">Texto editorial corto. Lo que un GM realmente necesita oír sobre social en 2026.</div></td>
-      <td><span class="badge badge-no-iniciado">No iniciado</span></td>
-      <td><span class="platform platform-linkedin">LinkedIn</span></td>
-      <td><div class="date-cell">26 jun 2026</div></td>
-      <td><div class="notes-empty">—</div></td>
-    </tr>
-    <tr class="row" data-platform="instagram" data-status="no-iniciado">
-      <td><span class="priority p1">1</span></td>
-      <td><strong>Sunset shoot: el rooftop de un cliente</strong></td>
-      <td><span class="type">Reel</span></td>
-      <td><div class="caption-text">Producción in-situ. Golden hour. La hora exacta. Sin presets genéricos.</div></td>
-      <td><span class="badge badge-no-iniciado">No iniciado</span></td>
-      <td><span class="platform platform-instagram">Instagram</span></td>
-      <td><div class="date-cell">28 jun 2026</div></td>
-      <td><div class="notes-empty">—</div></td>
-    </tr>
-    <tr class="row" data-platform="instagram" data-status="no-iniciado">
-      <td><span class="priority p2">2</span></td>
-      <td><strong>Saves más que likes</strong></td>
-      <td><span class="type">Carousel</span></td>
-      <td><div class="caption-text">La métrica que importa para hoteles: por qué los saves predicen reservas mejor que los likes.</div></td>
-      <td><span class="badge badge-no-iniciado">No iniciado</span></td>
-      <td><span class="platform platform-instagram">Instagram</span></td>
-      <td><div class="date-cell">29 jun 2026</div></td>
-      <td><div class="notes-empty">—</div></td>
-    </tr>
-    <tr class="row" data-platform="tiktok" data-status="no-iniciado">
-      <td><span class="priority p3">3</span></td>
-      <td><strong>POV: prepping una sesión spa</strong></td>
-      <td><span class="type">TikTok</span></td>
-      <td><div class="caption-text">El ritual de pre-producción de un shoot de spa. Cómo se construye el ambient mood.</div></td>
-      <td><span class="badge badge-no-iniciado">No iniciado</span></td>
-      <td><span class="platform platform-tiktok">TikTok</span></td>
-      <td><div class="date-cell">30 jun 2026</div></td>
-      <td><div class="notes-empty">—</div></td>
-    </tr>
-    <tr class="row" data-platform="blog" data-status="no-iniciado">
-      <td><span class="priority p1">1</span></td>
-      <td><strong>Dental clinic SMM: case-study Smile Now</strong></td>
-      <td><span class="type">Blog post</span></td>
-      <td><div class="caption-text">Si Smile Now cierra, primer case study completo de la vertical dental.</div></td>
-      <td><span class="badge badge-no-iniciado">No iniciado</span></td>
-      <td><span class="platform platform-blog">Blog</span></td>
-      <td><div class="date-cell">30 jun 2026</div></td>
-      <td><div class="notes-empty">Esperando confirmación Vianey</div></td>
-    </tr>
-    <tr class="row" data-platform="instagram" data-status="no-iniciado">
-      <td><span class="priority p3">3</span></td>
-      <td><strong>Cierre del mes: stats internas</strong></td>
-      <td><span class="type">Story</span></td>
-      <td><div class="caption-text">Resumen visual del mes en 5 slides para audiencia interesada en métricas reales.</div></td>
-      <td><span class="badge badge-no-iniciado">No iniciado</span></td>
-      <td><span class="platform platform-instagram">Instagram</span></td>
-      <td><div class="date-cell">30 jun 2026</div></td>
-      <td><div class="notes-empty">—</div></td>
-    </tr>
+  <tbody id="calTbody">
+    <!-- rows injected via JS -->
   </tbody>
 </table>
+
+<div class="empty-state" id="emptyState" style="display:none;">
+  <div class="empty-state-icon">◌</div>
+  <p>No hay piezas que coincidan con los filtros activos.</p>
+</div>
 </section>
 
-<div class="add-row">
-  <button onclick="alert('Para añadir nueva pieza, edita /editorial-calendar.html en el repo o duplica esta página en Notion.')">+ Añadir nueva pieza</button>
+<div class="add-row-bar">
+  <button id="addRowBtn">+ Añadir nueva pieza al calendario</button>
 </div>
 
 <section class="howto">
+  <h2 class="gradient-text">Cómo usar este dashboard</h2>
   <div class="howto-grid">
     <div class="howto-card">
-      <div class="howto-card-num">01 · METODOLOGÍA</div>
-      <h3>El método de los 18</h3>
-      <p>Dieciocho piezas por mes. Cuatro semanas. Una pieza cada 1-2 días. Mezcla de plataformas (60% Instagram, 25% TikTok, 10% LinkedIn, 5% blog).</p>
+      <div class="howto-card-num">01 · EDITAR</div>
+      <h3>Click directo en cualquier celda</h3>
+      <p>Todas las celdas (Tarea, Caption, Notas, Fecha) son editables in-line. Click y escribe. Auto-guarda en localStorage del navegador.</p>
     </div>
     <div class="howto-card">
-      <div class="howto-card-num">02 · PRIORIDAD</div>
-      <h3>P1 / P2 / P3</h3>
-      <p>P1 = imprescindible esta semana. P2 = ideal pero negociable. P3 = nice-to-have, mover si la semana se llena.</p>
+      <div class="howto-card-num">02 · ESTADO</div>
+      <h3>Click el badge para ciclar</h3>
+      <p>No iniciado → En producción → En revisión → Publicado. Click en el badge avanza al siguiente estado. Stats arriba se actualizan al instante.</p>
     </div>
     <div class="howto-card">
-      <div class="howto-card-num">03 · ESTADOS</div>
-      <h3>Cuatro estados</h3>
-      <p>No iniciado → En producción → En revisión → Publicado. La pieza no salta estados. La revisión es obligatoria antes de publicar.</p>
+      <div class="howto-card-num">03 · PRIORIDAD</div>
+      <h3>P1 / P2 / P3 ciclables</h3>
+      <p>P1 = imprescindible. P2 = ideal. P3 = nice-to-have. Click la pildora numérica para cambiar prioridad.</p>
     </div>
     <div class="howto-card">
-      <div class="howto-card-num">04 · VOICE</div>
-      <h3>Editorial, no calendar</h3>
-      <p>El feed de IVAE Marketing tiene que parecer una revista, no un calendario de marketing. Sin clichés. Sin engagement pods. Sin viral content.</p>
+      <div class="howto-card-num">04 · PLATAFORMA</div>
+      <h3>Click pill para cambiar canal</h3>
+      <p>Instagram → TikTok → LinkedIn → Blog. Cicla el destino. Colores diferentes por plataforma.</p>
+    </div>
+    <div class="howto-card">
+      <div class="howto-card-num">05 · EXPORTAR</div>
+      <h3>JSON, CSV o Print</h3>
+      <p>Descarga el calendario como JSON (para backup), CSV (Excel/Sheets/Notion), o imprime directo a PDF. Botones en el header.</p>
+    </div>
+    <div class="howto-card">
+      <div class="howto-card-num">06 · MES</div>
+      <h3>Cada mes se guarda separado</h3>
+      <p>Switch entre meses con las flechas. Cada mes tiene su propio set de piezas guardadas en local. Reset restaura defaults solo del mes activo.</p>
     </div>
   </div>
 </section>
@@ -849,47 +775,442 @@ body > * { position:relative; z-index:1; }
   </div>
 </footer>
 
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script>
 (function(){
   'use strict';
 
-  const chips = document.querySelectorAll('.filter-chip');
-  const rows = document.querySelectorAll('.cal-table tbody tr.row');
+  // ═══════════════════════════════════════════ DATA MODEL
+  const STATUS_CYCLE = ['no-iniciado', 'en-produccion', 'en-revision', 'publicado'];
+  const STATUS_LABELS = {
+    'no-iniciado': 'No iniciado',
+    'en-produccion': 'En producción',
+    'en-revision': 'En revisión',
+    'publicado': 'Publicado'
+  };
+  const PRIORITY_CYCLE = ['p1', 'p2', 'p3'];
+  const PRIORITY_LABELS = { p1:'1', p2:'2', p3:'3' };
+  const PLATFORM_CYCLE = ['instagram', 'tiktok', 'linkedin', 'blog'];
+  const PLATFORM_LABELS = {
+    'instagram':'Instagram',
+    'tiktok':'TikTok',
+    'linkedin':'LinkedIn',
+    'blog':'Blog'
+  };
 
-  let activePlatform = 'all';
-  let activeStatus = null;
+  const DEFAULT_DATA = {
+    '2026-06': [
+      { id:1, priority:'p1', task:'El feed de un hotel boutique en 2026', type:'Reel', caption:'Antes y después de un feed boutique después de 90 días con IVAE Marketing. Save este si manejas Instagram de un hotel.', status:'publicado', platform:'instagram', date:'2026-06-02', notes:'' },
+      { id:2, priority:'p1', task:'Por qué los hoteles boutique pierden contra los all-inclusive en social', type:'Carousel', caption:'Cinco diferencias estructurales entre el feed de un boutique y un all-inclusive. Pista: no es el presupuesto.', status:'publicado', platform:'instagram', date:'2026-06-05', notes:'' },
+      { id:3, priority:'p2', task:'POV: nos contratan para reabrir un hotel', type:'TikTok', caption:'POV de los primeros 14 días de onboarding con un hotel que reabre temporada. Behind the scenes editorial.', status:'publicado', platform:'tiktok', date:'2026-06-08', notes:'' },
+      { id:4, priority:'p1', task:'3 errores que veo en feeds de spa en Cancún', type:'Carousel', caption:'Auditoría visual rápida de tres feeds spa de la zona hotelera. Sin nombres, solo patrones.', status:'publicado', platform:'instagram', date:'2026-06-12', notes:'' },
+      { id:5, priority:'p1', task:'Detrás de cámaras: shoot Rosewood Mayakoba', type:'Reel', caption:'Cómo se ve un día de producción para un cliente Signature. 60 segundos de proceso editorial.', status:'en-produccion', platform:'instagram', date:'2026-06-15', notes:'' },
+      { id:6, priority:'p2', task:'Hotel Instagram strategy: el playbook completo 2026', type:'Blog post', caption:'Ya publicado en EN. Traducir y adaptar la versión ES para audiencia local.', status:'en-produccion', platform:'blog', date:'2026-06-16', notes:'' },
+      { id:7, priority:'p1', task:'Por qué extendimos un estudio fotográfico a SMM', type:'Artículo', caption:'El origin story de IVAE Marketing. Para audiencia B2B en LinkedIn. 1,200 palabras.', status:'en-produccion', platform:'linkedin', date:'2026-06-18', notes:'' },
+      { id:8, priority:'p2', task:'El método de los 18 minutos', type:'Carousel', caption:'Cómo funciona el brief de estrategia y por qué cambió todo en la conversión.', status:'en-revision', platform:'instagram', date:'2026-06-19', notes:'' },
+      { id:9, priority:'p2', task:'Edit POV: cómo limpiamos un feed en 30 días', type:'TikTok', caption:'Time-lapse del antes/después de un feed restaurante. Fast cut sobre música editorial.', status:'en-revision', platform:'tiktok', date:'2026-06-21', notes:'' },
+      { id:10, priority:'p1', task:'Anatomy of a luxury restaurant feed', type:'Carousel', caption:'Diseccionar el feed de un restaurante de autor en Cancún. Composición, color, ritmo.', status:'no-iniciado', platform:'instagram', date:'2026-06-22', notes:'' },
+      { id:11, priority:'p2', task:'Trend hoy: el feed minimalista de Tulum', type:'Reel', caption:'Reaction edit sobre el patrón visual que repiten todos los boutiques de Tulum.', status:'no-iniciado', platform:'instagram', date:'2026-06-24', notes:'' },
+      { id:12, priority:'p3', task:'Restaurant social media: Mexico playbook 2026 (ES)', type:'Blog post', caption:'Ya publicado en EN. Adaptación ES con datos del mercado mexicano.', status:'no-iniciado', platform:'blog', date:'2026-06-25', notes:'' },
+      { id:13, priority:'p2', task:'Carta a un GM de hotel boutique', type:'Post', caption:'Texto editorial corto. Lo que un GM realmente necesita oír sobre social en 2026.', status:'no-iniciado', platform:'linkedin', date:'2026-06-26', notes:'' },
+      { id:14, priority:'p1', task:'Sunset shoot: el rooftop de un cliente', type:'Reel', caption:'Producción in-situ. Golden hour. La hora exacta. Sin presets genéricos.', status:'no-iniciado', platform:'instagram', date:'2026-06-28', notes:'' },
+      { id:15, priority:'p2', task:'Saves más que likes', type:'Carousel', caption:'La métrica que importa para hoteles: por qué los saves predicen reservas mejor que los likes.', status:'no-iniciado', platform:'instagram', date:'2026-06-29', notes:'' },
+      { id:16, priority:'p3', task:'POV: prepping una sesión spa', type:'TikTok', caption:'El ritual de pre-producción de un shoot de spa. Cómo se construye el ambient mood.', status:'no-iniciado', platform:'tiktok', date:'2026-06-30', notes:'' },
+      { id:17, priority:'p1', task:'Dental clinic SMM: case-study Smile Now', type:'Blog post', caption:'Si Smile Now cierra, primer case study completo de la vertical dental.', status:'no-iniciado', platform:'blog', date:'2026-06-30', notes:'Esperando confirmación' },
+      { id:18, priority:'p3', task:'Cierre del mes: stats internas', type:'Story', caption:'Resumen visual del mes en 5 slides para audiencia interesada en métricas reales.', status:'no-iniciado', platform:'instagram', date:'2026-06-30', notes:'' }
+    ]
+  };
 
-  function applyFilters() {
-    rows.forEach(row => {
-      const platform = row.dataset.platform;
-      const status = row.dataset.status;
-      const platformMatch = activePlatform === 'all' || platform === activePlatform;
-      const statusMatch = !activeStatus || status === activeStatus;
-      row.style.display = (platformMatch && statusMatch) ? '' : 'none';
-    });
+  const MONTH_NAMES = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+
+  // ═══════════════════════════════════════════ STATE
+  let currentMonth = '2026-06';
+  let nextId = 100;
+  let rowsCache = [];
+  let filterPlatform = 'all';
+  let filterStatus = null;
+  let searchQuery = '';
+
+  function storageKey(month) { return 'ivae-mkt-cal-' + month; }
+
+  function loadMonth(month) {
+    try {
+      const stored = localStorage.getItem(storageKey(month));
+      if (stored) return JSON.parse(stored);
+    } catch(e) {}
+    return (DEFAULT_DATA[month] ? JSON.parse(JSON.stringify(DEFAULT_DATA[month])) : []);
   }
 
-  chips.forEach(chip => {
+  function saveMonth(month, data) {
+    try {
+      localStorage.setItem(storageKey(month), JSON.stringify(data));
+      return true;
+    } catch(e) {
+      toast('No se pudo guardar — espacio lleno');
+      return false;
+    }
+  }
+
+  function nextMonthStr(month, delta) {
+    const [y, m] = month.split('-').map(Number);
+    const date = new Date(y, m - 1 + delta, 1);
+    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+  }
+
+  function formatMonthDisplay(month) {
+    const [y, m] = month.split('-').map(Number);
+    return MONTH_NAMES[m - 1] + ' ' + y;
+  }
+
+  // ═══════════════════════════════════════════ RENDER
+  function escapeHtml(str) {
+    return String(str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function formatDateDisplay(iso) {
+    if (!iso) return '—';
+    try {
+      const [y, m, d] = iso.split('-');
+      const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+      return parseInt(d, 10) + ' ' + months[parseInt(m, 10) - 1] + ' ' + y;
+    } catch (e) { return iso; }
+  }
+
+  function renderRow(piece) {
+    const tr = document.createElement('tr');
+    tr.className = 'row';
+    tr.dataset.id = piece.id;
+    tr.dataset.platform = piece.platform;
+    tr.dataset.status = piece.status;
+
+    tr.innerHTML = `
+      <td class="cell-priority"><button class="priority ${piece.priority}" data-action="cycle-priority" title="Click para cambiar prioridad">${PRIORITY_LABELS[piece.priority]}</button></td>
+      <td class="cell-task"><div contenteditable="true" data-field="task" spellcheck="false">${escapeHtml(piece.task)}</div></td>
+      <td class="cell-type"><div contenteditable="true" data-field="type" class="type-pill" spellcheck="false">${escapeHtml(piece.type)}</div></td>
+      <td class="cell-caption"><div contenteditable="true" data-field="caption" class="caption-text" spellcheck="false">${escapeHtml(piece.caption)}</div></td>
+      <td class="cell-status"><button class="badge badge-${piece.status}" data-action="cycle-status" title="Click para cambiar estado">${STATUS_LABELS[piece.status]}</button></td>
+      <td class="cell-platform"><button class="platform platform-${piece.platform}" data-action="cycle-platform" title="Click para cambiar plataforma">${PLATFORM_LABELS[piece.platform]}</button></td>
+      <td class="cell-date"><div contenteditable="true" data-field="date" class="date-cell" spellcheck="false">${escapeHtml(piece.date)}</div></td>
+      <td class="cell-notes"><div contenteditable="true" data-field="notes" spellcheck="false">${piece.notes ? escapeHtml(piece.notes) : '<span class="notes-empty">—</span>'}</div></td>
+      <td class="cell-actions"><button class="delete-btn" data-action="delete" title="Eliminar pieza" aria-label="Eliminar">✕</button></td>
+    `;
+
+    return tr;
+  }
+
+  function renderAll() {
+    rowsCache = loadMonth(currentMonth);
+
+    // Sort by date asc
+    rowsCache.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+    const tbody = document.getElementById('calTbody');
+    tbody.innerHTML = '';
+    rowsCache.forEach(piece => {
+      tbody.appendChild(renderRow(piece));
+    });
+
+    applyFilters();
+    updateStats();
+    document.getElementById('monthDisplay').textContent = formatMonthDisplay(currentMonth);
+    document.getElementById('statMonth').textContent = formatMonthDisplay(currentMonth).toLowerCase().replace(/^(\w)/, c => c.toUpperCase());
+  }
+
+  function applyFilters() {
+    const tbody = document.getElementById('calTbody');
+    const rows = tbody.querySelectorAll('tr.row');
+    let visibleCount = 0;
+    const q = searchQuery.toLowerCase().trim();
+
+    rows.forEach(row => {
+      const id = parseInt(row.dataset.id, 10);
+      const piece = rowsCache.find(p => p.id === id);
+      if (!piece) return;
+
+      const platformMatch = filterPlatform === 'all' || piece.platform === filterPlatform;
+      const statusMatch = !filterStatus || piece.status === filterStatus;
+      const searchMatch = !q || (
+        piece.task.toLowerCase().includes(q) ||
+        piece.caption.toLowerCase().includes(q) ||
+        piece.type.toLowerCase().includes(q) ||
+        piece.platform.toLowerCase().includes(q) ||
+        (piece.notes || '').toLowerCase().includes(q)
+      );
+
+      const show = platformMatch && statusMatch && searchMatch;
+      row.style.display = show ? '' : 'none';
+      if (show) visibleCount++;
+    });
+
+    document.getElementById('emptyState').style.display = visibleCount === 0 ? 'block' : 'none';
+  }
+
+  function updateStats() {
+    const total = rowsCache.length;
+    const published = rowsCache.filter(p => p.status === 'publicado').length;
+    const production = rowsCache.filter(p => p.status === 'en-produccion' || p.status === 'en-revision').length;
+    const pending = rowsCache.filter(p => p.status === 'no-iniciado').length;
+
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statPublished').textContent = published;
+    document.getElementById('statProduction').textContent = production;
+    document.getElementById('statPending').textContent = pending;
+
+    const pct = total > 0 ? Math.round((published / total) * 100) : 0;
+    document.getElementById('statPublishedBar').style.width = pct + '%';
+    document.getElementById('statProductionSub').textContent = production > 0 ? 'Active queue' : 'Sin activos';
+    document.getElementById('statPendingSub').textContent = pending > 0 ? 'Pendientes' : 'Sin pendientes';
+  }
+
+  function save() {
+    saveMonth(currentMonth, rowsCache);
+  }
+
+  // ═══════════════════════════════════════════ ACTIONS
+  function cycleField(id, field, cycle) {
+    const piece = rowsCache.find(p => p.id === id);
+    if (!piece) return;
+    const idx = cycle.indexOf(piece[field]);
+    piece[field] = cycle[(idx + 1) % cycle.length];
+    save();
+    renderAll();
+  }
+
+  function updateField(id, field, value) {
+    const piece = rowsCache.find(p => p.id === id);
+    if (!piece) return;
+    piece[field] = value;
+    save();
+    updateStats();
+  }
+
+  function deletePiece(id) {
+    if (!confirm('¿Eliminar esta pieza?')) return;
+    rowsCache = rowsCache.filter(p => p.id !== id);
+    save();
+    renderAll();
+    toast('Pieza eliminada');
+  }
+
+  function addPiece() {
+    const id = nextId++;
+    const newPiece = {
+      id: id,
+      priority: 'p2',
+      task: 'Nueva pieza',
+      type: 'Post',
+      caption: 'Click aquí para editar el caption.',
+      status: 'no-iniciado',
+      platform: 'instagram',
+      date: currentMonth + '-' + String(new Date().getDate()).padStart(2, '0'),
+      notes: ''
+    };
+    rowsCache.push(newPiece);
+    save();
+    renderAll();
+    toast('Pieza añadida');
+
+    // Scroll to + focus new row
+    setTimeout(() => {
+      const row = document.querySelector(`tr.row[data-id="${id}"]`);
+      if (row) {
+        row.scrollIntoView({ behavior:'smooth', block:'center' });
+        const taskCell = row.querySelector('[data-field="task"]');
+        if (taskCell) {
+          taskCell.focus();
+          // Select all
+          const range = document.createRange();
+          range.selectNodeContents(taskCell);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      }
+    }, 100);
+  }
+
+  function resetMonth() {
+    if (!confirm('¿Restaurar el mes ' + formatMonthDisplay(currentMonth) + ' a los valores por defecto? Esto borrará todos los cambios locales de este mes.')) return;
+    localStorage.removeItem(storageKey(currentMonth));
+    renderAll();
+    toast('Mes restaurado');
+  }
+
+  // ═══════════════════════════════════════════ EXPORT
+  function downloadFile(filename, content, mime) {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function exportJson() {
+    const data = { month: currentMonth, exported: new Date().toISOString(), pieces: rowsCache };
+    downloadFile(`ivae-marketing-calendar-${currentMonth}.json`, JSON.stringify(data, null, 2), 'application/json');
+    toast('Exportado JSON');
+  }
+
+  function exportCsv() {
+    const headers = ['Priority','Task','Type','Caption','Status','Platform','Date','Notes'];
+    const csvSafe = v => '"' + String(v || '').replace(/"/g, '""') + '"';
+    const lines = [headers.join(',')];
+    rowsCache.forEach(p => {
+      lines.push([
+        csvSafe(PRIORITY_LABELS[p.priority]),
+        csvSafe(p.task),
+        csvSafe(p.type),
+        csvSafe(p.caption),
+        csvSafe(STATUS_LABELS[p.status]),
+        csvSafe(PLATFORM_LABELS[p.platform]),
+        csvSafe(p.date),
+        csvSafe(p.notes)
+      ].join(','));
+    });
+    downloadFile(`ivae-marketing-calendar-${currentMonth}.csv`, lines.join('\n'), 'text/csv;charset=utf-8;');
+    toast('Exportado CSV');
+  }
+
+  // ═══════════════════════════════════════════ TOAST
+  let toastTimeout = null;
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  // ═══════════════════════════════════════════ EVENT LISTENERS
+
+  // Table delegation
+  document.getElementById('calTbody').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const row = btn.closest('tr.row');
+    if (!row) return;
+    const id = parseInt(row.dataset.id, 10);
+    const action = btn.dataset.action;
+
+    if (action === 'cycle-status') cycleField(id, 'status', STATUS_CYCLE);
+    else if (action === 'cycle-priority') cycleField(id, 'priority', PRIORITY_CYCLE);
+    else if (action === 'cycle-platform') cycleField(id, 'platform', PLATFORM_CYCLE);
+    else if (action === 'delete') deletePiece(id);
+  });
+
+  // Editable cells
+  document.getElementById('calTbody').addEventListener('focusin', (e) => {
+    const cell = e.target.closest('[contenteditable]');
+    if (cell) {
+      cell.closest('tr')?.classList.add('is-editing');
+      // Remove placeholder span if present
+      if (cell.dataset.field === 'notes') {
+        const empty = cell.querySelector('.notes-empty');
+        if (empty) cell.innerHTML = '';
+      }
+    }
+  });
+
+  document.getElementById('calTbody').addEventListener('focusout', (e) => {
+    const cell = e.target.closest('[contenteditable]');
+    if (!cell) return;
+    const row = cell.closest('tr');
+    row?.classList.remove('is-editing');
+    const id = parseInt(row.dataset.id, 10);
+    const field = cell.dataset.field;
+    let value = cell.textContent.trim();
+
+    // Restore placeholder for empty notes
+    if (field === 'notes' && !value) {
+      cell.innerHTML = '<span class="notes-empty">—</span>';
+    }
+
+    updateField(id, field, value);
+  });
+
+  // Enter key prevents newline in single-line fields
+  document.getElementById('calTbody').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const cell = e.target.closest('[contenteditable]');
+      if (cell && (cell.dataset.field === 'task' || cell.dataset.field === 'date' || cell.dataset.field === 'type')) {
+        e.preventDefault();
+        cell.blur();
+      }
+    }
+  });
+
+  // Filters
+  document.querySelectorAll('.filter-chip').forEach(chip => {
     chip.addEventListener('click', () => {
       if (chip.dataset.filter) {
-        // Platform chip
-        chips.forEach(c => { if (c.dataset.filter) c.classList.remove('is-active'); });
+        document.querySelectorAll('.filter-chip[data-filter]').forEach(c => c.classList.remove('is-active'));
         chip.classList.add('is-active');
-        activePlatform = chip.dataset.filter;
+        filterPlatform = chip.dataset.filter;
       } else if (chip.dataset.status) {
-        // Status chip — toggle
-        if (activeStatus === chip.dataset.status) {
+        if (filterStatus === chip.dataset.status) {
           chip.classList.remove('is-active');
-          activeStatus = null;
+          filterStatus = null;
         } else {
-          chips.forEach(c => { if (c.dataset.status) c.classList.remove('is-active'); });
+          document.querySelectorAll('.filter-chip[data-status]').forEach(c => c.classList.remove('is-active'));
           chip.classList.add('is-active');
-          activeStatus = chip.dataset.status;
+          filterStatus = chip.dataset.status;
         }
       }
       applyFilters();
     });
   });
+
+  // Search
+  let searchTimeout = null;
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      searchQuery = e.target.value;
+      applyFilters();
+    }, 120);
+  });
+
+  // Month switcher
+  document.getElementById('prevMonthBtn').addEventListener('click', () => {
+    currentMonth = nextMonthStr(currentMonth, -1);
+    renderAll();
+  });
+  document.getElementById('nextMonthBtn').addEventListener('click', () => {
+    currentMonth = nextMonthStr(currentMonth, +1);
+    renderAll();
+  });
+
+  // Header buttons
+  document.getElementById('exportJsonBtn').addEventListener('click', exportJson);
+  document.getElementById('exportCsvBtn').addEventListener('click', exportCsv);
+  document.getElementById('printBtn').addEventListener('click', () => window.print());
+  document.getElementById('resetBtn').addEventListener('click', resetMonth);
+  document.getElementById('addRowTopBtn').addEventListener('click', addPiece);
+  document.getElementById('addRowBtn').addEventListener('click', addPiece);
+
+  // Initialize nextId based on existing data
+  function initNextId() {
+    let maxId = 0;
+    Object.keys(localStorage).filter(k => k.startsWith('ivae-mkt-cal-')).forEach(k => {
+      try {
+        const data = JSON.parse(localStorage.getItem(k)) || [];
+        data.forEach(p => { if (p.id > maxId) maxId = p.id; });
+      } catch(e){}
+    });
+    Object.values(DEFAULT_DATA).forEach(arr => {
+      arr.forEach(p => { if (p.id > maxId) maxId = p.id; });
+    });
+    nextId = maxId + 1;
+  }
+
+  // ═══════════════════════════════════════════ INIT
+  initNextId();
+  renderAll();
 })();
 </script>
 
