@@ -355,8 +355,8 @@
 # Social media management service alias redirects
 # ═══════════════════════════════════════════
 # Specific vertical landing pages take precedence over master aliases
-/instagram-management-cancun /instagram-management-cancun.html 200
-/es/manejo-instagram-cancun /es/manejo-instagram-cancun.html 200
+# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /instagram-management-cancun
+# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /es/manejo-instagram-cancun
 
 /marketing /social-media-management 301
 /ivae-marketing /social-media-management 301
@@ -415,27 +415,27 @@
 # ═══════════════════════════════════════════
 
 # Hotels (luxury)
-/social-media-luxury-hotels-mexico /social-media-luxury-hotels-mexico.html 200
-/es/redes-sociales-hoteles-lujo-mexico /es/redes-sociales-hoteles-lujo-mexico.html 200
+# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /social-media-luxury-hotels-mexico
+# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /es/redes-sociales-hoteles-lujo-mexico
 
 # Restaurants
-/social-media-restaurants-cancun /social-media-restaurants-cancun.html 200
-/es/redes-sociales-restaurantes-cancun /es/redes-sociales-restaurantes-cancun.html 200
+# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /social-media-restaurants-cancun
+# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /es/redes-sociales-restaurantes-cancun
 
 # Spa & wellness
-/social-media-spa-wellness-mexico /social-media-spa-wellness-mexico.html 200
-/es/redes-sociales-spa-wellness-mexico /es/redes-sociales-spa-wellness-mexico.html 200
+# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /social-media-spa-wellness-mexico
+# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /es/redes-sociales-spa-wellness-mexico
 
 # Dental clinics
-/social-media-dental-clinic-mexico /social-media-dental-clinic-mexico.html 200
-/es/redes-sociales-clinica-dental-mexico /es/redes-sociales-clinica-dental-mexico.html 200
+# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /social-media-dental-clinic-mexico
+# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /es/redes-sociales-clinica-dental-mexico
 
 # Instagram (Cancun) — rules already declared earlier in the file
 # to take precedence over /instagram-management and /es/manejo-instagram aliases
 
 # TikTok (hotels)
-/tiktok-agency-hotels-mexico /tiktok-agency-hotels-mexico.html 200
-/es/agencia-tiktok-hoteles-mexico /es/agencia-tiktok-hoteles-mexico.html 200
+# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /tiktok-agency-hotels-mexico
+# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /es/agencia-tiktok-hoteles-mexico
 
 # Common alias recovery
 /social-media-hotels /social-media-luxury-hotels-mexico 301
