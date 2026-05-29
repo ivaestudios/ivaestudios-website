@@ -182,7 +182,7 @@
     // and the bare `.smm-lang-switch` (master pages). Also clear the IVAE
     // Studios injected drawer (#mNav/#mNavScrim) in case site-header.js ran.
     var removeSelectors = [
-      '.smm-lang-switch', '.topnav', '.imkt-header',
+      '.smm-lang-switch', '.lang-switch', '.topnav', '.imkt-header',
       'header.site-header', '#siteHeader', '#mNav', '#mNavScrim',
       '#imktHeader', '#imktMnav', '#imktMnavScrim'
     ];

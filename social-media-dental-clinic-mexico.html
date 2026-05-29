@@ -97,7 +97,7 @@ img{max-width:100%;display:block}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 48px rgba(167,139,250,.35),0 0 24px rgba(236,72,153,.2)}
 .btn-outline{background:transparent;border:1px solid rgba(167,139,250,.4);color:#c4b5fd}
 .btn-outline:hover{background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.7)}
-.hero{min-height:92vh;display:flex;align-items:center;padding:120px 0 80px;position:relative;overflow:hidden}
+.hero{min-height:calc(100vh - 64px);display:flex;align-items:center;padding:64px 0 80px;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;width:60vw;height:60vw;max-width:780px;max-height:780px;top:-12%;left:-10%;background:radial-gradient(ellipse at 30% 40%,rgba(167,139,250,.14) 0%,transparent 60%),radial-gradient(ellipse at 70% 60%,rgba(236,72,153,.10) 0%,transparent 50%);filter:blur(80px);pointer-events:none;z-index:0}
 .hero::after{content:'';position:absolute;width:50vw;height:50vw;max-width:680px;max-height:680px;bottom:-10%;right:-5%;background:radial-gradient(ellipse at 60% 50%,rgba(239,68,68,.07) 0%,transparent 55%),radial-gradient(ellipse at 30% 70%,rgba(167,139,250,.12) 0%,transparent 50%);filter:blur(80px);pointer-events:none;z-index:0}
 .hero .container{position:relative;z-index:2;display:grid;grid-template-columns:1fr;gap:40px;align-items:center}
@@ -174,7 +174,7 @@ footer .container{display:grid;grid-template-columns:1fr;gap:36px}
 .foot-base{margin-top:36px;padding-top:24px;border-top:1px solid rgba(255,255,255,.05);font-size:12px;color:rgba(240,238,233,.6);font-family:'Space Mono',monospace;letter-spacing:.12em;text-align:center}
 input,textarea,select,button{font-size:16px}
 @supports(padding:max(0px)){body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}.topnav{padding-left:max(clamp(16px,4vw,32px),env(safe-area-inset-left));padding-right:max(clamp(16px,4vw,32px),env(safe-area-inset-right))}}
-@media(max-width:640px){.hero{min-height:auto;padding:110px 0 60px}.hero-card{aspect-ratio:9/13;padding:22px}.section{padding:64px 0}.card{padding:24px}.plan{padding:28px 22px}.case{padding:28px 22px}.faq summary{padding:18px 18px;font-size:15px}.faq .ans{padding:0 18px 20px;font-size:14px}}
+@media(max-width:640px){.hero{min-height:auto;padding:40px 0 56px}.hero-card{aspect-ratio:9/13;padding:22px}.section{padding:64px 0}.card{padding:24px}.plan{padding:28px 22px}.case{padding:28px 22px}.faq summary{padding:18px 18px;font-size:15px}.faq .ans{padding:0 18px 20px;font-size:14px}}
 </style>
 </head>
 <body>
@@ -182,22 +182,6 @@ input,textarea,select,button{font-size:16px}
 <a href="#main" class="skip-to-main">Skip to main content</a>
 
 <div class="gradient-bg" aria-hidden="true"></div>
-
-<header class="topnav">
-  <a href="/social-media-management" class="brand">IVAE <span>MARKETING</span></a>
-  <nav>
-    <a href="/social-media-management">Overview</a>
-    <a href="#plans">Plans</a>
-    <a href="#faq">FAQ</a>
-    <a href="/marketing-intake">Intake</a>
-  </nav>
-</header>
-
-<div class="lang-switch" role="navigation" aria-label="Language">
-  <a href="/social-media-dental-clinic-mexico" class="on">EN</a>
-  <span class="sep">/</span>
-  <a href="/es/redes-sociales-clinica-dental-mexico">ES</a>
-</div>
 
 <main class="wrap" id="main">
 
