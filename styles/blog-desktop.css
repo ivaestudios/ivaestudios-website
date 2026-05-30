@@ -1,0 +1,162 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   IVAE Studios — Desktop Journal (blog index, >= 900px)
+   ───────────────────────────────────────────────────────────────────────
+   The blog index ships a mobile-first .ivm journal (feature + filter pills +
+   card grid) that mobile-exclusive.css renders only <=899px. On desktop the
+   .ivm was hidden and nothing replaced it -> blank page. This stylesheet
+   reuses the SAME generated markup and lays it out as a wide editorial grid
+   for >=900px. Mobile is untouched (all rules gated @min-width:900px).
+   Tokens (--ivm-*) come from mobile-exclusive.css :root; fallbacks inlined.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 900px) {
+  /* Reveal the journal on desktop for the blog only; hide mobile-only chrome */
+  .lw-blog .ivm { display: block; }
+  .lw-blog .ivm-loader,
+  .lw-blog .ivm-act-foot,
+  .lw-blog .ivm-jl-feature__veil { display: none !important; }
+
+  .lw-blog .ivm {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 132px 48px 96px;
+    background: var(--ivm-ink, #0a0f17);
+    color: var(--ivm-cream, #faf8f5);
+    font-family: 'Syne', system-ui, sans-serif;
+    box-sizing: border-box;
+  }
+
+  /* ── Masthead ─────────────────────────────────────────────────────── */
+  .lw-blog .ivm-jl-masthead { text-align: center; margin: 0 0 8px; }
+  .lw-blog .ivm-jl-masthead__eyebrow {
+    display: inline-block; font-family: 'Syne', sans-serif; font-size: 11px;
+    letter-spacing: 0.42em; text-transform: uppercase; color: var(--ivm-gold, #c9a54e);
+  }
+  .lw-blog .ivm-jl-masthead__title {
+    font-family: 'Cormorant Garamond', serif; font-weight: 300;
+    font-size: clamp(52px, 6vw, 88px); line-height: 1.02; letter-spacing: -0.02em;
+    margin: 16px 0 14px;
+  }
+  .lw-blog .ivm-jl-masthead__title em { font-style: italic; color: var(--ivm-gold, #c9a54e); }
+  .lw-blog .ivm-jl-masthead__tag {
+    font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 21px;
+    line-height: 1.5; color: rgba(250, 248, 245, 0.62); max-width: 560px; margin: 0 auto;
+  }
+
+  /* ── Category filter pills ───────────────────────────────────────── */
+  .lw-blog .ivm-jl-cats { margin: 44px 0 56px; }
+  .lw-blog .ivm-jl-cats__row {
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+    border-top: 1px solid rgba(201, 165, 78, 0.18);
+    border-bottom: 1px solid rgba(201, 165, 78, 0.18);
+    padding: 22px 0;
+  }
+  .lw-blog .ivm-jl-cats__pill {
+    font-family: 'Syne', sans-serif; font-size: 11px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(250, 248, 245, 0.6); padding: 9px 20px;
+    border: 1px solid rgba(201, 165, 78, 0.26); border-radius: 999px;
+    text-decoration: none; cursor: pointer;
+    transition: color .3s, border-color .3s, background .3s;
+  }
+  .lw-blog .ivm-jl-cats__pill:hover { color: var(--ivm-cream, #faf8f5); border-color: rgba(201, 165, 78, 0.5); }
+  .lw-blog .ivm-jl-cats__pill.is-on {
+    background: var(--ivm-gold, #c9a54e); color: var(--ivm-ink, #0a0f17);
+    border-color: var(--ivm-gold, #c9a54e);
+  }
+
+  /* ── Featured story (wide, image + copy) ─────────────────────────── */
+  .lw-blog .ivm-jl-feature {
+    display: grid; grid-template-columns: 1.25fr 1fr; gap: 0; margin: 0 0 64px;
+    min-height: 460px; position: relative; overflow: hidden; text-decoration: none;
+    border: 1px solid rgba(201, 165, 78, 0.22);
+  }
+  .lw-blog .ivm-jl-feature__photo { position: relative; min-height: 460px; overflow: hidden; background: var(--ivm-ink, #0a0f17); }
+  .lw-blog .ivm-jl-feature__photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .8s var(--ivm-ease, cubic-bezier(.22,1,.36,1)); }
+  .lw-blog .ivm-jl-feature:hover .ivm-jl-feature__photo img { transform: scale(1.045); }
+  .lw-blog .ivm-jl-feature__copy {
+    display: flex; flex-direction: column; justify-content: center; padding: 56px;
+    background: var(--ivm-ink-2, #10161e);
+  }
+  .lw-blog .ivm-jl-feature__cat {
+    font-family: 'Syne', sans-serif; font-size: 11px; letter-spacing: 0.32em;
+    text-transform: uppercase; color: var(--ivm-gold, #c9a54e); margin-bottom: 18px;
+  }
+  .lw-blog .ivm-jl-feature__title {
+    font-family: 'Cormorant Garamond', serif; font-weight: 300;
+    font-size: clamp(32px, 3vw, 46px); line-height: 1.08; margin: 0 0 18px; color: var(--ivm-cream, #faf8f5);
+  }
+  .lw-blog .ivm-jl-feature__title em { font-style: italic; color: var(--ivm-gold, #c9a54e); }
+  .lw-blog .ivm-jl-feature__desc {
+    font-family: 'Cormorant Garamond', serif; font-size: 18px; line-height: 1.6;
+    color: rgba(250, 248, 245, 0.68); margin: 0 0 26px;
+  }
+  .lw-blog .ivm-jl-feature__cta {
+    font-family: 'Syne', sans-serif; font-size: 11px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--ivm-gold, #c9a54e);
+  }
+
+  /* ── Grid header ─────────────────────────────────────────────────── */
+  .lw-blog .ivm-jl-grid__head { text-align: center; margin: 0 0 36px; }
+  .lw-blog .ivm-jl-grid__eyebrow {
+    font-family: 'Syne', sans-serif; font-size: 10px; letter-spacing: 0.42em;
+    text-transform: uppercase; color: var(--ivm-gold, #c9a54e);
+  }
+  .lw-blog .ivm-jl-grid__h2 {
+    font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 34px; margin: 10px 0 0;
+  }
+  .lw-blog .ivm-jl-grid__h2 em { font-style: italic; color: var(--ivm-gold, #c9a54e); }
+
+  /* ── Card grid (3 columns) ───────────────────────────────────────── */
+  .lw-blog .ivm-jl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px 32px; }
+  .lw-blog .ivm-jl-grid__head { grid-column: 1 / -1; }
+  .lw-blog .ivm-jl-card { display: flex; flex-direction: column; text-decoration: none; color: inherit; }
+  .lw-blog .ivm-jl-card__photo { aspect-ratio: 4 / 3; overflow: hidden; margin-bottom: 18px; background: var(--ivm-ink-2, #10161e); }
+  .lw-blog .ivm-jl-card__photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s var(--ivm-ease, cubic-bezier(.22,1,.36,1)); }
+  .lw-blog .ivm-jl-card:hover .ivm-jl-card__photo img { transform: scale(1.05); }
+  .lw-blog .ivm-jl-card__cat {
+    font-family: 'Syne', sans-serif; font-size: 10px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--ivm-gold, #c9a54e); margin-bottom: 11px;
+  }
+  .lw-blog .ivm-jl-card__title {
+    font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 25px;
+    line-height: 1.16; margin: 0 0 11px; color: var(--ivm-cream, #faf8f5);
+  }
+  .lw-blog .ivm-jl-card__title em { font-style: italic; color: var(--ivm-gold, #c9a54e); }
+  .lw-blog .ivm-jl-card__desc {
+    font-family: 'Cormorant Garamond', serif; font-size: 15px; line-height: 1.55;
+    color: rgba(250, 248, 245, 0.62); margin: 0 0 14px;
+  }
+  .lw-blog .ivm-jl-card__read {
+    font-family: 'Syne', sans-serif; font-size: 10px; letter-spacing: 0.28em;
+    text-transform: uppercase; color: var(--ivm-gold, #c9a54e); margin-top: auto;
+  }
+  .lw-blog .ivm-jl-all {
+    grid-column: 1 / -1; justify-self: center; margin-top: 28px; padding: 16px 40px;
+    font-family: 'Syne', sans-serif; font-size: 11px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--ivm-gold, #c9a54e); text-decoration: none;
+    border: 1px solid rgba(201, 165, 78, 0.32); transition: background .3s, color .3s;
+  }
+  .lw-blog .ivm-jl-all:hover { background: var(--ivm-gold, #c9a54e); color: var(--ivm-ink, #0a0f17); }
+
+  /* ── Subscribe / closing block ───────────────────────────────────── */
+  .lw-blog .ivm-jl-sub { text-align: center; margin: 88px auto 0; max-width: 600px; }
+  .lw-blog .ivm-jl-sub__eyebrow {
+    font-family: 'Syne', sans-serif; font-size: 10px; letter-spacing: 0.42em;
+    text-transform: uppercase; color: var(--ivm-gold, #c9a54e);
+  }
+  .lw-blog .ivm-jl-sub__h2 { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 38px; margin: 14px 0 12px; }
+  .lw-blog .ivm-jl-sub__h2 em { font-style: italic; color: var(--ivm-gold, #c9a54e); }
+  .lw-blog .ivm-jl-sub__desc { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 18px; color: rgba(250, 248, 245, 0.62); }
+  .lw-blog .ivm-jl-sub__btn {
+    display: inline-block; margin-top: 22px; padding: 15px 34px;
+    background: var(--ivm-gold, #c9a54e); color: var(--ivm-ink, #0a0f17);
+    font-family: 'Syne', sans-serif; font-size: 11px; letter-spacing: 0.3em;
+    text-transform: uppercase; text-decoration: none; transition: opacity .3s;
+  }
+  .lw-blog .ivm-jl-sub__btn:hover { opacity: 0.9; }
+
+  /* On wide screens drop to 2 columns sooner than 3 looks cramped */
+  @media (max-width: 1100px) {
+    .lw-blog .ivm-jl-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+}

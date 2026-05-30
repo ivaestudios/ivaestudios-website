@@ -604,6 +604,7 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
 <link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/cormorantgaramond/v16/co3WmX5slCNuHLi8bLeY9MK7whWMhyjornFLsS6V7w.woff2"/>
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260512a">
 <link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260512bo">
+<link rel="stylesheet" href="/styles/blog-desktop.css?v=20260530">
 </head>
 <body class="has-bottom-tabs ivm-page">
 <a href="#main-content" class="skip-link">Skip to content</a>
@@ -815,7 +816,7 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
      ═══════════════════════════════════════════════════════════════════════ -->
 <script>
 (function(){
-  if (window.matchMedia && !matchMedia('(max-width:899px)').matches) return;
+  // desktop journal reuses this markup via blog-desktop.css - run on all viewports
   setTimeout(function(){ document.body.classList.add('ivm-loaded'); }, 3700);
 
   var grid   = document.querySelector('.ivm-jl-grid');
