@@ -472,3 +472,47 @@ html.dark body.loaded .theme-toggle:hover {
     padding: 8px 6px;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Venue landing pages — authored on a LIGHT (cream/sand) palette, so their
+   body copy + sub-headings use dark-navy ink (var(--ink)/var(--muted-l)).
+   The global dark theme darkens the page background, which left that text
+   dark-on-dark (invisible). Force venue body text light for AA contrast.
+   ═══════════════════════════════════════════════════════════════════════ */
+html.dark .venue-hero .lede,
+html.dark [class*="venue-"] p,
+html.dark [class*="venue-"] li,
+html.dark [class*="venue-"] figcaption,
+html.dark .venue-related a,
+html.dark section .wrap p,
+html.dark section .wrap li {
+  color: rgba(249, 248, 247, 0.80) !important;
+}
+html.dark [class*="venue-"] h2,
+html.dark [class*="venue-"] h3,
+html.dark section .wrap h2,
+html.dark section .wrap h3,
+html.dark .venue-hero h1 {
+  color: #f4f1ec !important;
+}
+html.dark [class*="venue-"] strong,
+html.dark section .wrap strong { color: #ffffff !important; }
+
+/* ───────────────────────────────────────────────────────────────────────
+   Catch-all: light-authored content pages (legal, guides, brand, venues)
+   define dark-ink body text for their original cream bg. Under the global
+   dark theme this rendered dark-on-dark. Force ALL body copy + sub-headings
+   inside <main> light. Buttons/links (<a>/<button>) are untouched, so gold
+   CTAs keep their dark text.
+   ─────────────────────────────────────────────────────────────────────── */
+html.dark main p,
+html.dark main li,
+html.dark main .lede,
+html.dark main blockquote,
+html.dark main figcaption,
+html.dark main dd, html.dark main dt {
+  color: rgba(249, 248, 245, 0.82) !important;
+}
+html.dark main h2, html.dark main h3, html.dark main h4, html.dark main h5, html.dark main h6 {
+  color: #f4f1ec !important;
+}
