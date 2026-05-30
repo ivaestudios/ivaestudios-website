@@ -104,6 +104,31 @@ POST_TO_BLOG_SLUG = {
     "post-gender-reveal-photoshoot-cancun.html": "gender-reveal-photoshoot-cancun",
 }
 
+
+def _merge_blog_redirects() -> None:
+    """Keep POST_TO_BLOG_SLUG complete from _redirects (the source of truth),
+    so newly added blog posts are never dropped from the sitemap. Parses the
+    `/blog/<slug> /post-<file> 200` rewrite rules."""
+    redirects = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "_redirects"
+    )
+    try:
+        with open(redirects, encoding="utf-8") as fh:
+            for line in fh:
+                parts = line.split()
+                if len(parts) < 3 or parts[2] != "200":
+                    continue
+                src, dst = parts[0], parts[1].lstrip("/")
+                if src.startswith("/blog/") and dst.startswith("post-"):
+                    if not dst.endswith(".html"):
+                        dst += ".html"
+                    POST_TO_BLOG_SLUG.setdefault(dst, src[len("/blog/"):])
+    except OSError:
+        pass
+
+
+_merge_blog_redirects()
+
 # EN-blog-slug  ↔  ES-blog-slug (under /blog/ and /es/blog/ respectively).
 # Used to compute hreflang pairs.
 BLOG_EN_TO_ES = {
@@ -188,6 +213,14 @@ def walk_html(root):
                 continue
             rel = os.path.relpath(os.path.join(dp, fn), root)
             if rel in EXCLUDE_FILES:
+                continue
+            base = os.path.basename(rel)
+            # Never index preview / draft / experimental variant pages.
+            if (
+                "-preview" in base
+                or base.startswith("index-preview")
+                or base.startswith(("luxury-weddings-A-", "luxury-weddings-B-", "luxury-weddings-C-"))
+            ):
                 continue
             yield rel, os.path.join(dp, fn)
 
