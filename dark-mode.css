@@ -532,7 +532,9 @@ html.dark a.ivm-st-cta__alt { color: var(--ivm-ink, #0a0f17) !important; }
 /* Breadcrumb current/active item is authored as var(--ink) (dark) for the
    light page design; on the dark breadcrumb bar it was invisible. Light it. */
 html.dark .breadcrumb .current,
-html.dark .breadcrumb [aria-current="page"] { color: rgba(249, 248, 245, 0.7) !important; }
+html.dark .breadcrumb [aria-current="page"],
+html.dark .breadcrumbs [aria-current="page"],
+html.dark nav[aria-label="Breadcrumb"] [aria-current="page"] { color: rgba(249, 248, 245, 0.7) !important; }
 
 /* Legal pages (privacy / accessibility, EN + ES) are light-authored documents
    with sand callout cards + a data table. dark-mode lightens the body text but
@@ -552,3 +554,9 @@ html.dark .legal-callout strong { color: #f4f1ec !important; }
    inline-styled var(--ink) and need lightening on the dark section. */
 html.dark .spelling-list li { color: #1a2433 !important; }
 html.dark .palette-group h3 span { color: rgba(249, 248, 245, 0.55) !important; }
+
+/* Inline cream-bg "card" links (e.g. related-pages grids on the outfit guide):
+   dark-mode darkens the inline cream background but can't override the inline
+   color:var(--ink), so they were dark-on-dark. Light the text. */
+html.dark a[style*="background:var(--cream)"],
+html.dark a[style*="background: var(--cream)"] { color: rgba(249, 248, 245, 0.9) !important; }
