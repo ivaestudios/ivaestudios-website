@@ -308,7 +308,6 @@ a{color:inherit}
 </footer>
 <script>
 window.addEventListener('scroll',()=>{document.getElementById('siteHeader').classList.toggle('scrolled',scrollY>40)});
-document.getElementById('headerToggle').addEventListener('click',()=>{document.getElementById('mobileNav').classList.toggle('open')});
 const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');io.unobserve(e.target)}})},{threshold:0.12,rootMargin:'0px 0px -40px 0px'});document.querySelectorAll('.rv').forEach(el=>io.observe(el));
 </script>
 <script src="/dark-mode.js?v=20260512au"></script>

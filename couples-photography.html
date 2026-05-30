@@ -2216,17 +2216,21 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   // Mark .js-on so reveal animations can opt-in (visibility-safe default: visible)
   html.classList.add('js-on');
 
-  /* ═══ 1. Header scroll state ═══ */
-  var header = document.getElementById('siteHeader');
-  if (header) {
+  /* ═══ 1. Header scroll state ═══
+     Re-resolves siteHeader each tick because /js/site-header.js replaces
+     the static node via outerHTML after this IIFE runs. */
+  {
     var lastY = 0;
     var ticking = false;
     function onScroll(){
       if (!ticking){
         requestAnimationFrame(function(){
+          var header = document.getElementById('siteHeader');
           var y = window.pageYOffset;
-          if (y > 32) header.classList.add('scrolled');
-          else header.classList.remove('scrolled');
+          if (header) {
+            if (y > 32) header.classList.add('scrolled');
+            else header.classList.remove('scrolled');
+          }
           lastY = y;
           ticking = false;
         });

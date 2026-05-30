@@ -2988,7 +2988,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
       <div class="ivm-act-services__stage" id="ivmSvcStage">
         <a class="ivm-svc" href="/luxury-weddings" data-svc-idx="0">
           <div class="ivm-svc__photo">
-            <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg" alt="Destination wedding photography" loading="lazy">
+            <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg" alt="Destination wedding photography" loading="lazy" width="960" height="640" decoding="async">
             <span class="ivm-svc__num">I.</span>
           </div>
           <div class="ivm-svc__body">
@@ -2999,7 +2999,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
         </a>
         <a class="ivm-svc" href="/couples-photography" data-svc-idx="1">
           <div class="ivm-svc__photo">
-            <img src="/images/couple-cancun-hotel-zone-ivae-studios-9-960.jpg" alt="Couples and honeymoon photography" loading="lazy">
+            <img src="/images/couple-cancun-hotel-zone-ivae-studios-9-960.jpg" alt="Couples and honeymoon photography" loading="lazy" width="960" height="640" decoding="async">
             <span class="ivm-svc__num">II.</span>
           </div>
           <div class="ivm-svc__body">
@@ -3010,7 +3010,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
         </a>
         <a class="ivm-svc" href="/luxury-family-photos" data-svc-idx="2">
           <div class="ivm-svc__photo">
-            <img src="/images/family-cancun-hotel-zone-ivae-studios-960.jpg" alt="Family editorial sessions" loading="lazy">
+            <img src="/images/family-cancun-hotel-zone-ivae-studios-960.jpg" alt="Family editorial sessions" loading="lazy" width="960" height="640" decoding="async">
             <span class="ivm-svc__num">III.</span>
           </div>
           <div class="ivm-svc__body">
@@ -3021,7 +3021,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
         </a>
         <a class="ivm-svc" href="/luxury-editorial" data-svc-idx="3">
           <div class="ivm-svc__photo">
-            <img src="/images/editorial-cancun-ivae-studios-960.jpg" alt="Editorial brand photography" loading="lazy">
+            <img src="/images/editorial-cancun-ivae-studios-960.jpg" alt="Editorial brand photography" loading="lazy" width="640" height="960" decoding="async">
             <span class="ivm-svc__num">IV.</span>
           </div>
           <div class="ivm-svc__body">
@@ -4260,15 +4260,16 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
     }
   }
 
-  /* ───── STICKY HEADER ───── */
-  const header = $('#siteHeader');
-  if(header){
-    const onScroll = ()=>{
-      header.classList.toggle('scrolled', window.scrollY > 24);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-  }
+  /* ───── STICKY HEADER ─────
+     Re-resolve #siteHeader inside onScroll so the canonical site-header.js
+     injector can replace the inline static header without breaking the
+     scroll-state class toggle (the original cached node would be stale). */
+  const onScroll = ()=>{
+    const h = document.getElementById('siteHeader');
+    if(h) h.classList.toggle('scrolled', window.scrollY > 24);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
   const burger = $('#hBurger');
   const mNav = $('#mNav');
   if(burger && mNav){
@@ -4277,11 +4278,13 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
       burger.classList.toggle('open', open);
       burger.setAttribute('aria-expanded', String(open));
       burger.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+      document.body.style.overflow = open ? 'hidden' : '';
     });
     mNav.querySelectorAll('a').forEach(a => a.addEventListener('click', ()=>{
       mNav.classList.remove('open');
       burger.classList.remove('open');
       burger.setAttribute('aria-expanded','false');
+      document.body.style.overflow = '';
     }));
   }
 
@@ -4745,6 +4748,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
     if(e.key === 'Escape'){
       if(mNav && mNav.classList.contains('open')){
         mNav.classList.remove('open');
+        document.body.style.overflow = '';
         if(burger){ burger.classList.remove('open'); burger.setAttribute('aria-expanded','false'); burger.focus(); }
       }
     }

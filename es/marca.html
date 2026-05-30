@@ -338,7 +338,6 @@ body{font-family:'Syne',sans-serif;background:var(--cream);color:var(--ink);over
 
 <script>
 window.addEventListener('scroll',()=>{document.getElementById('siteHeader').classList.toggle('scrolled',window.scrollY>60)},{passive:true});
-document.getElementById('headerToggle').addEventListener('click',()=>document.getElementById('mobileNav').classList.toggle('open'));
 function sendHeight(){window.parent.postMessage({type:'iwh',value:document.documentElement.scrollHeight},'*')}
 window.addEventListener('load',sendHeight);window.addEventListener('resize',sendHeight);
 [500,1500,3000].forEach(t=>setTimeout(sendHeight,t));

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Privacy Policy | IVAE Studios: How We Handle Your Data</title>
 <meta name="description" content="Privacy Policy for IVAE Studios. How we collect, use, and protect your personal information when you visit our site or book a session with us."/>
 <meta name="ai-name" content="IVAE Studios"/>
@@ -547,7 +547,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 <script>
 window.addEventListener('scroll',()=>{document.getElementById('siteHeader').classList.toggle('scrolled',window.scrollY>60)},{passive:true});
-document.getElementById('headerToggle').addEventListener('click',()=>document.getElementById('mobileNav').classList.toggle('open'));
 
 const revObs=new IntersectionObserver(entries=>{
   entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');revObs.unobserve(e.target)}});

@@ -923,7 +923,6 @@ footer nav a:hover{color:var(--cream);transform:translateY(-2px)}
 <script>
 // Header scroll effect + mobile toggle
 window.addEventListener('scroll',()=>{document.getElementById('siteHeader').classList.toggle('scrolled',scrollY>40)});
-document.getElementById('headerToggle').addEventListener('click',function(){var nav=document.getElementById('mobileNav');var open=nav.classList.toggle('open');this.setAttribute('aria-expanded',open?'true':'false')});
 
 // Scroll-reveal
 const rvEls=document.querySelectorAll('.rv');

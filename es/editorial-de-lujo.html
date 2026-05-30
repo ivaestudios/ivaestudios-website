@@ -2747,15 +2747,14 @@ html.dark a.le-btn-gold svg{stroke:var(--ink-1)}
   var $ = function(s,sc){return (sc||document).querySelector(s)};
   var $$ = function(s,sc){return Array.prototype.slice.call((sc||document).querySelectorAll(s))};
 
-  /* 12. Sticky header scrolled state */
-  var header = $('#siteHeader');
-  if(header){
-    var onScroll = function(){
-      header.classList.toggle('scrolled', window.scrollY > 24);
-    };
-    window.addEventListener('scroll', onScroll, {passive:true});
-    onScroll();
-  }
+  /* 12. Sticky header scrolled state — re-resolves siteHeader each tick because
+     /js/site-header.js replaces the static node via outerHTML after load. */
+  var onScroll = function(){
+    var header = document.getElementById('siteHeader');
+    if (header) header.classList.toggle('scrolled', window.scrollY > 24);
+  };
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
 
   /* Mobile burger */
   var burger = $('#hBurger');

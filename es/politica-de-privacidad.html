@@ -536,7 +536,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 <script>
 window.addEventListener('scroll',()=>{document.getElementById('siteHeader').classList.toggle('scrolled',window.scrollY>60)},{passive:true});
-document.getElementById('headerToggle').addEventListener('click',()=>document.getElementById('mobileNav').classList.toggle('open'));
 
 const revObs=new IntersectionObserver(entries=>{
   entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');revObs.unobserve(e.target)}});

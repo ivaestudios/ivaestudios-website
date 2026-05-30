@@ -1307,15 +1307,15 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
     <h2 id="ivm-st-found-h">Led by <em>Vianey Díaz.</em></h2>
     <div class="ivm-st-founder__wall">
       <figure class="ivm-st-founder__pola ivm-st-founder__pola--1">
-        <img src="/images/wedding-bride-isla-mujeres-ivae-studios-480.jpg" alt="On set, Cancún 2025">
+        <img src="/images/wedding-bride-isla-mujeres-ivae-studios-480.jpg" alt="On set, Cancún 2025" width="480" height="320" loading="lazy" decoding="async">
         <figcaption>Cancún · 2025</figcaption>
       </figure>
       <figure class="ivm-st-founder__pola ivm-st-founder__pola--2">
-        <img src="/images/editorial-cancun-ivae-studios-480.jpg" alt="Editorial commission 2025">
+        <img src="/images/editorial-cancun-ivae-studios-480.jpg" alt="Editorial commission 2025" width="320" height="480" loading="lazy" decoding="async">
         <figcaption>Editorial · 2025</figcaption>
       </figure>
       <figure class="ivm-st-founder__pola ivm-st-founder__pola--3">
-        <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios-480.jpg" alt="Cabo wedding 2026">
+        <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios-480.jpg" alt="Cabo wedding 2026" width="480" height="320" loading="lazy" decoding="async">
         <figcaption>Cabo · 2026</figcaption>
       </figure>
     </div>
@@ -1969,15 +1969,17 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
   }
   window.addEventListener('load', dismissLoader);
 
-  /* Header scroll state */
-  var header = $('#siteHeader');
+  /* Header scroll state — re-resolve #siteHeader inside onScroll so the
+     canonical site-header.js injector can replace the inline static header
+     without breaking the scroll-state class toggle (cached node would be stale). */
   function onScroll(){
-    if(header) header.classList.toggle('scrolled', window.scrollY > 60);
+    var h = document.getElementById('siteHeader');
+    if(h) h.classList.toggle('scrolled', window.scrollY > 60);
     var prog = $('#scrollProg');
     if(prog){
-      var h = document.documentElement;
-      var max = (h.scrollHeight - h.clientHeight) || 1;
-      var pct = Math.max(0, Math.min(1, h.scrollTop / max));
+      var hd = document.documentElement;
+      var max = (hd.scrollHeight - hd.clientHeight) || 1;
+      var pct = Math.max(0, Math.min(1, hd.scrollTop / max));
       prog.style.transform = 'scaleX(' + pct.toFixed(4) + ')';
     }
   }
@@ -1992,12 +1994,14 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
       var open = mNav.classList.toggle('open');
       burger.classList.toggle('open', open);
       burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      document.body.style.overflow = open ? 'hidden' : '';
     });
     mNav.addEventListener('click', function(e){
       if(e.target.tagName === 'A'){
         mNav.classList.remove('open');
         burger.classList.remove('open');
         burger.setAttribute('aria-expanded','false');
+        document.body.style.overflow = '';
       }
     });
     document.addEventListener('keydown', function(e){
@@ -2005,6 +2009,7 @@ html.dark a.btn-gold:hover{color:#1a2230 !important}
         mNav.classList.remove('open');
         burger.classList.remove('open');
         burger.setAttribute('aria-expanded','false');
+        document.body.style.overflow = '';
         burger.focus();
       }
     });

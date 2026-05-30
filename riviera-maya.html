@@ -1590,8 +1590,7 @@ a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--
 
 <script>
 (function(){
-  var header=document.getElementById('siteHeader');
-  if(header){window.addEventListener('scroll',function(){header.classList.toggle('scrolled',scrollY>40)},{passive:true});}
+  window.addEventListener('scroll',function(){var header=document.getElementById('siteHeader');if(header)header.classList.toggle('scrolled',scrollY>40)},{passive:true});
   var toggle=document.getElementById('headerToggle');
   var mobileNav=document.getElementById('mobileNav');
   if(toggle&&mobileNav){toggle.addEventListener('click',function(){var open=mobileNav.classList.toggle('open');toggle.setAttribute('aria-expanded',open?'true':'false');});}

@@ -1902,15 +1902,14 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
     document.querySelectorAll('.rv').forEach(function(el){ el.classList.add('is-visible'); });
   }
 
-  // ── Header scroll
-  var header = document.getElementById('siteHeader');
-  if (header){
-    var onScroll = function(){
-      header.classList.toggle('scrolled', window.scrollY > 40);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-  }
+  // ── Header scroll (re-resolves siteHeader on each tick because /js/site-header.js
+  // replaces the static node post-load via outerHTML)
+  var onScroll = function(){
+    var header = document.getElementById('siteHeader');
+    if (header) header.classList.toggle('scrolled', window.scrollY > 40);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 
   // ── Mobile menu
   var burger = document.getElementById('hBurger');
