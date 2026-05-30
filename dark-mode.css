@@ -543,3 +543,12 @@ html.dark .legal-toc,
 html.dark .legal-callout { background: #141c26 !important; }
 html.dark .legal-section td { color: rgba(249, 248, 245, 0.82) !important; }
 html.dark .legal-section td strong { color: #f4f1ec !important; }
+/* Callout title is an em/strong authored var(--ink); light it on the dark card. */
+html.dark .legal-callout em,
+html.dark .legal-callout strong { color: #f4f1ec !important; }
+
+/* Brand-guidelines page: the "accepted spellings" chips are light sand tags,
+   so keep their text dark ink; the muted italic palette sub-labels are
+   inline-styled var(--ink) and need lightening on the dark section. */
+html.dark .spelling-list li { color: #1a2433 !important; }
+html.dark .palette-group h3 span { color: rgba(249, 248, 245, 0.55) !important; }
