@@ -17,6 +17,9 @@
     '/es/fotografo-bodas-destino-mexico': '/luxury-weddings',
     '/es/blog': '/blog',
     '/es/marca': '/brand',
+    '/es/politica-de-privacidad': '/privacy-policy',
+    '/es/declaracion-accesibilidad': '/accessibility-statement',
+    '/es/vianey-diaz': '/vianey-diaz',
     '/es/manejo-redes-sociales': '/social-media-management',
     '/es/redes-sociales-hoteles-lujo-mexico': '/social-media-luxury-hotels-mexico',
     '/es/redes-sociales-restaurantes-cancun': '/social-media-restaurants-cancun',
@@ -198,6 +201,18 @@
       };
       onScroll();
       window.addEventListener('scroll', onScroll, { passive: true });
+    }
+
+    // Resolve the primary CTA target. Most interior pages (venues, legal,
+    // author, blog posts) have no in-page #inquiry section, so the gold
+    // "Begin Inquiry"/"Comenzar Consulta" button would scroll nowhere. Fall
+    // back to the studio's canonical consultation email when no #inquiry
+    // anchor exists on the page; keep the smooth-scroll on pages that have it.
+    if (!document.getElementById('inquiry')) {
+      var ctaFallback = 'mailto:hello@ivaestudios.com';
+      document.querySelectorAll('#siteHeader .h-cta, #mNav .m-nav-cta').forEach(function (a) {
+        a.setAttribute('href', ctaFallback);
+      });
     }
 
     // Notify dependent scripts (e.g., services-dropdown-v2.js) that the
