@@ -585,9 +585,13 @@ html.dark .ivm-desktop-only .btn--gold,
 html.dark .ivm-desktop-only a[class*="btn"][class*="gold"],
 html.dark .ivm-desktop-only button[class*="gold"] { color: #0a0f17 !important; }
 
-/* Blog-post data / comparison tables: the body-text rules cover p/li but not
-   table cells, so <td>s authored as dark ink (for the light page) rendered
-   dark-on-dark on the dark post body (e.g. the cost-breakdown tables: 100+
-   invisible cells). Light the cells; the gold <th> headers already read. */
-html.dark .post-article td,
-html.dark .comparison-table td { color: rgba(249, 248, 245, 0.85) !important; }
+/* Blog-post comparison tables are transparent (dark post body) with cells
+   authored as dark ink, so they rendered dark-on-dark (100+ invisible cells
+   on the cost-breakdown posts). Light those cells. NOTE: .cost-table is a
+   light cream pricing table (its dark cells are correct, leave them) and
+   .data-table already authors light text, so scope only to the dark tables. */
+html.dark .comparison-table td,
+html.dark .post-table td { color: rgba(249, 248, 245, 0.85) !important; }
+/* .cost-table is a light cream pricing table — keep its text dark ink; the
+   global strong-lightening had made the bold tier names cream-on-cream. */
+html.dark .cost-table strong { color: #1a2433 !important; }
