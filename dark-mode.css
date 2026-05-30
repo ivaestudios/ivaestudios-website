@@ -543,6 +543,13 @@ html.dark nav[aria-label="Breadcrumb"] [aria-current="page"] { color: rgba(249, 
    so the lightened text reads, and light the table cells. */
 html.dark .legal-toc,
 html.dark .legal-callout { background: #141c26 !important; }
+/* Body copy: EN legal pages wrap content in <main> (caught by the main-text
+   rule), but the ES mirrors do not, so .legal-body p/li kept their dark
+   var(--muted-l). Light the legal body text directly. */
+html.dark .legal-section p,
+html.dark .legal-section li,
+html.dark .legal-section dd,
+html.dark .legal-section dt { color: rgba(249, 248, 245, 0.82) !important; }
 html.dark .legal-section td { color: rgba(249, 248, 245, 0.82) !important; }
 html.dark .legal-section td strong { color: #f4f1ec !important; }
 /* Callout title is an em/strong authored var(--ink); light it on the dark card. */
