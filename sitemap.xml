@@ -184,13 +184,6 @@
   </url>
 
   <url>
-    <loc>https://ivaestudios.com/editorial-calendar</loc>
-    <lastmod>2026-05-30</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-
-  <url>
     <loc>https://ivaestudios.com/es/agencia-tiktok-hoteles-mexico</loc>
     <lastmod>2026-05-30</lastmod>
     <changefreq>monthly</changefreq>
@@ -299,13 +292,6 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/luxury-family-photos-cancun"/>
     <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotos-familiares-lujo-cancun"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/luxury-family-photos-cancun"/>
-  </url>
-
-  <url>
-    <loc>https://ivaestudios.com/marketing-intake</loc>
-    <lastmod>2026-05-30</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
   </url>
 
   <url>
@@ -1499,14 +1485,14 @@
 
   <url>
     <loc>https://ivaestudios.com/api/facts.json</loc>
-    <lastmod>2026-05-26</lastmod>
+    <lastmod>2026-05-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://ivaestudios.com/llms-full.txt</loc>
-    <lastmod>2026-05-26</lastmod>
+    <lastmod>2026-05-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

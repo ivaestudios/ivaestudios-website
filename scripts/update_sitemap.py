@@ -222,6 +222,17 @@ def walk_html(root):
                 or base.startswith(("luxury-weddings-A-", "luxury-weddings-B-", "luxury-weddings-C-"))
             ):
                 continue
+            # Never include pages explicitly marked noindex: a noindex URL in
+            # the sitemap triggers Search Console's "Submitted URL marked
+            # noindex" error. Covers utility/form pages (editorial-calendar,
+            # marketing-intake) and any future noindex page automatically.
+            try:
+                with open(os.path.join(dp, fn), encoding="utf-8", errors="ignore") as fh:
+                    head = fh.read(4096)
+                if re.search(r'name=["\']robots["\'][^>]*noindex', head, re.I):
+                    continue
+            except OSError:
+                pass
             yield rel, os.path.join(dp, fn)
 
 
