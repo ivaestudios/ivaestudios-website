@@ -52,17 +52,21 @@
     padding: 22px 0;
   }
   .lw-blog .ivm-jl-cats__pill {
-    font-family: 'Syne', sans-serif; font-size: 11px; letter-spacing: 0.2em;
-    text-transform: uppercase; color: rgba(250, 248, 245, 0.6); padding: 9px 20px;
-    border: 1px solid rgba(201, 165, 78, 0.26); border-radius: 999px;
+    position: relative;
+    font-family: 'Syne', sans-serif; font-size: 11px; letter-spacing: 0.24em;
+    text-transform: uppercase; color: rgba(250, 248, 245, 0.5); padding: 10px 18px;
+    border: 0; background: transparent; border-radius: 0;
     text-decoration: none; cursor: pointer;
-    transition: color .3s, border-color .3s, background .3s;
+    transition: color .3s;
   }
-  .lw-blog .ivm-jl-cats__pill:hover { color: var(--ivm-cream, #faf8f5); border-color: rgba(201, 165, 78, 0.5); }
-  .lw-blog .ivm-jl-cats__pill.is-on {
-    background: var(--ivm-gold, #c9a54e); color: var(--ivm-ink, #0a0f17);
-    border-color: var(--ivm-gold, #c9a54e);
+  .lw-blog .ivm-jl-cats__pill::after {
+    content: ''; position: absolute; left: 18px; right: 18px; bottom: -2px; height: 1.5px;
+    background: var(--ivm-gold, #c9a54e); transform: scaleX(0); transform-origin: center;
+    transition: transform .35s cubic-bezier(.22,1,.36,1);
   }
+  .lw-blog .ivm-jl-cats__pill:hover { color: var(--ivm-cream, #faf8f5); }
+  .lw-blog .ivm-jl-cats__pill.is-on { color: var(--ivm-gold, #c9a54e); }
+  .lw-blog .ivm-jl-cats__pill.is-on::after { transform: scaleX(1); }
 
   /* ── Featured story (wide, image + copy) ─────────────────────────── */
   .lw-blog .ivm-jl-feature {

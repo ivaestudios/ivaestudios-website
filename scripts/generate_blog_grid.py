@@ -327,6 +327,9 @@ def emphasize_title(title: str, max_chars: int = 60) -> str:
             words_check.pop()
         title = " ".join(words_check)
 
+    # Strip any punctuation left at the (new) end after truncation, so the
+    # gold-italic tail never doubles the end period (e.g. "Mexico..").
+    title = title.rstrip(" .?!,;:")
     words = title.split()
     if len(words) <= 2:
         return f"<em>{escape(title)}{end_punct}</em>"

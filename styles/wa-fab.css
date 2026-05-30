@@ -8,9 +8,9 @@
   right:14px;
   bottom:calc(86px + env(safe-area-inset-bottom,0px));
   width:56px;height:56px;border-radius:50%;
-  background:#25D366;color:#fff;
+  background:#ffffff;color:#25D366;border:1px solid rgba(0,0,0,.06);
   display:inline-flex;align-items:center;justify-content:center;
-  box-shadow:0 12px 28px -8px rgba(37,211,102,.45), 0 4px 10px rgba(0,0,0,.2);
+  box-shadow:0 12px 28px -8px rgba(0,0,0,.22), 0 4px 10px rgba(0,0,0,.2);
   z-index:78;
   text-decoration:none;
   transition:transform .3s cubic-bezier(.22,.61,.36,1),
@@ -22,7 +22,7 @@
 .ivae-wa-fab:hover,
 .ivae-wa-fab:focus-visible{
   transform:scale(1.05);
-  box-shadow:0 16px 36px -8px rgba(37,211,102,.55), 0 6px 14px rgba(0,0,0,.22);
+  box-shadow:0 16px 36px -8px rgba(0,0,0,.30), 0 6px 14px rgba(0,0,0,.22);
   outline:none;
 }
 .ivae-wa-fab:focus-visible{outline:2px solid #c9a54e;outline-offset:3px}
@@ -49,9 +49,9 @@
 /* Subtle entry pulse — once on first paint */
 @media (prefers-reduced-motion:no-preference){
   @keyframes ivaeWaFabPulse{
-    0%{box-shadow:0 12px 28px -8px rgba(37,211,102,.45), 0 4px 10px rgba(0,0,0,.2), 0 0 0 0 rgba(37,211,102,.5)}
-    70%{box-shadow:0 12px 28px -8px rgba(37,211,102,.45), 0 4px 10px rgba(0,0,0,.2), 0 0 0 18px rgba(37,211,102,0)}
-    100%{box-shadow:0 12px 28px -8px rgba(37,211,102,.45), 0 4px 10px rgba(0,0,0,.2), 0 0 0 0 rgba(37,211,102,0)}
+    0%{box-shadow:0 12px 28px -8px rgba(0,0,0,.22), 0 4px 10px rgba(0,0,0,.2), 0 0 0 0 rgba(201,165,78,.5)}
+    70%{box-shadow:0 12px 28px -8px rgba(0,0,0,.22), 0 4px 10px rgba(0,0,0,.2), 0 0 0 18px rgba(201,165,78,0)}
+    100%{box-shadow:0 12px 28px -8px rgba(0,0,0,.22), 0 4px 10px rgba(0,0,0,.2), 0 0 0 0 rgba(201,165,78,0)}
   }
   .ivae-wa-fab[data-pulse="1"]{animation:ivaeWaFabPulse 1.4s cubic-bezier(.22,.61,.36,1) 1.2s 2}
 }

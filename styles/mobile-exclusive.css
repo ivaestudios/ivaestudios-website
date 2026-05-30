@@ -3370,10 +3370,11 @@
     position: absolute;
     inset: 0;
     background: linear-gradient(180deg,
-      rgba(10,15,23,.18) 0%,
-      rgba(10,15,23,.06) 28%,
-      rgba(10,15,23,.45) 68%,
-      rgba(10,15,23,.94) 100%);
+      rgba(10,15,23,.12) 0%,
+      rgba(10,15,23,.04) 20%,
+      rgba(10,15,23,.40) 52%,
+      rgba(10,15,23,.78) 78%,
+      rgba(10,15,23,.95) 100%);
     z-index: 1;
   }
   .ivm-jl-feature__copy {
@@ -3450,37 +3451,49 @@
   /* Category pills — horizontal scroll */
   .ivm-jl-cats {
     background: var(--ivm-ink);
-    padding: 42px 0 28px;
+    padding: 22px 0 14px;
   }
   .ivm-jl-cats__row {
     display: flex;
-    gap: 10px;
+    gap: 6px;
     overflow-x: auto;
-    padding: 0 24px 4px;
+    padding: 0 20px;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
   }
   .ivm-jl-cats__row::-webkit-scrollbar { display: none; }
   .ivm-jl-cats__pill {
     flex: 0 0 auto;
-    padding: 11px 20px;
-    border: 1px solid rgba(201,165,78,.34);
-    border-radius: 40px;
+    padding: 9px 13px;
+    border: 0;
+    background: transparent;
+    border-radius: 0;
     font-family: 'Syne', sans-serif;
     font-size: 10px;
     font-weight: 500;
-    letter-spacing: 0.32em;
+    letter-spacing: 0.24em;
     text-transform: uppercase;
-    color: rgba(250,248,245,.72);
+    color: rgba(250,248,245,.5);
     text-decoration: none;
     white-space: nowrap;
-    transition: all .35s var(--ivm-ease);
-    background: transparent;
+    position: relative;
+    transition: color .3s var(--ivm-ease);
+  }
+  .ivm-jl-cats__pill::after {
+    content: '';
+    position: absolute;
+    left: 13px; right: 13px; bottom: 0;
+    height: 1.5px;
+    background: var(--ivm-gold);
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform .35s var(--ivm-ease);
   }
   .ivm-jl-cats__pill.is-on {
-    background: var(--ivm-gold);
-    border-color: var(--ivm-gold);
-    color: var(--ivm-ink);
+    color: var(--ivm-gold);
+  }
+  .ivm-jl-cats__pill.is-on::after {
+    transform: scaleX(1);
   }
   .ivm-jl-cats__pill:active {
     transform: scale(0.97);
