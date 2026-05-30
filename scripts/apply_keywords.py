@@ -34,14 +34,19 @@ LATEST_PATH = os.path.join(REPO_ROOT, "seo", "data", "latest.json")
 
 
 PAGE_CATEGORY: dict[str, str] = {
-    # English root pages
-    "index.html": "destinations",
-    "cancun.html": "destinations",
-    "riviera-maya.html": "destinations",
-    "los-cabos.html": "destinations",
-    "luxury-weddings.html": "weddings",
-    "couples-photography.html": "couples_family",
-    "luxury-family-photos.html": "couples_family",
+    # English root pages — titles HAND-CURATED 2026-05-30 for the foreign
+    # (US/Canada) English audience: lead with generic terms (Cancún/Wedding/
+    # Family/Couples Photographer) + luxury/editorial as qualifier. Removed
+    # from auto-rotation because the seed's categories are Spanish (es-MX),
+    # which was putting "fotografo cancun" on the English pages. To re-enable
+    # rotation here later, make pick_keyword() language-aware first.
+    #   "index.html": "destinations",
+    #   "cancun.html": "destinations",
+    #   "riviera-maya.html": "destinations",
+    #   "los-cabos.html": "destinations",
+    #   "luxury-weddings.html": "weddings",
+    #   "couples-photography.html": "couples_family",
+    #   "luxury-family-photos.html": "couples_family",
     # Spanish mirrors
     "es/index.html": "destinations",
     "es/fotografo-cancun.html": "destinations",

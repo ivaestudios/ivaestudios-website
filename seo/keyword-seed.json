@@ -9,7 +9,13 @@
       "fotografo tulum",
       "fotografo los cabos",
       "fotografo playa del carmen",
-      "fotografo cabo san lucas"
+      "fotografo cabo san lucas",
+      "cancun photographer",
+      "cancun wedding photographer",
+      "riviera maya wedding photographer",
+      "los cabos wedding photographer",
+      "photographer cancun mexico",
+      "tulum wedding photographer"
     ],
     "weddings": [
       "fotografo bodas cancun",
@@ -17,7 +23,13 @@
       "fotografo bodas destino",
       "wedding photographer cancun",
       "wedding photographer mexico",
-      "destination wedding photographer"
+      "destination wedding photographer",
+      "beach wedding photographer cancun",
+      "jewish wedding photographer mexico",
+      "jewish destination wedding cancun",
+      "destination wedding photographer for american couples",
+      "destination wedding photographer for canadian couples",
+      "elopement photographer cancun"
     ],
     "couples_family": [
       "fotografo parejas cancun",
@@ -25,7 +37,11 @@
       "fotografo compromiso",
       "couples photographer cancun",
       "family photographer cancun",
-      "engagement photographer mexico"
+      "engagement photographer mexico",
+      "honeymoon photographer cancun",
+      "vacation photographer cancun",
+      "proposal photographer cancun",
+      "cancun photographer for families"
     ],
     "specialty": [
       "fotografo cenote",
@@ -75,5 +91,24 @@
       "top",
       "premium"
     ]
-  }
+  },
+  "audience": {
+    "primary_markets": [
+      "United States",
+      "Canada"
+    ],
+    "language_priority": [
+      "en",
+      "es"
+    ],
+    "note": "100% foreign clientele for sessions & weddings; English pages target US/Canada, Spanish pages target local MX."
+  },
+  "niches": [
+    "jewish destination wedding",
+    "chuppah wedding photographer",
+    "american couples mexico",
+    "canadian couples mexico",
+    "editorial wedding photographer",
+    "beach wedding photographer"
+  ]
 }
