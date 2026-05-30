@@ -3727,3 +3727,23 @@
     border-color: var(--ivm-gold);
   }
 
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TABLET PORTRAIT (600–899px)
+   The .ivm layout is phone-first; at tablet width its single-column card
+   grids stretch edge-to-edge (e.g. journal cards ~720px wide). Lay cards
+   out two-up and tighten spacing so the tablet uses its width. Full-bleed
+   cinematic acts already scale, so only the grids need help.
+   ═══════════════════════════════════════════════════════════════════════ */
+@media (min-width: 600px) and (max-width: 899px) {
+  .ivm-jl-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 28px;
+    row-gap: 8px;
+    padding: 56px 40px 24px;
+  }
+  .ivm-jl-grid__head,
+  .ivm-jl-all { grid-column: 1 / -1; }
+  .ivm-jl-card { margin: 0 0 44px; }
+}

@@ -2091,6 +2091,8 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 <link rel="manifest" href="/manifest.json"/>
 <meta name="theme-color" content="#0c1219"/>
   <link rel="stylesheet" href="/styles/wa-fab.css?v=20260512a">
+<style>/* tablet portrait (641-899px): keep the bento + vs comparison grids 2-up instead of falling to the phone single column */
+@media (min-width:641px) and (max-width:899px){.bento-grid{grid-template-columns:repeat(2,1fr) !important}.vs-grid{grid-template-columns:repeat(2,1fr) !important}}</style>
 </head>
 <body>
 <a href="#main-content" class="skip-link">Saltar al contenido</a>
