@@ -595,3 +595,18 @@ html.dark .post-table td { color: rgba(249, 248, 245, 0.85) !important; }
 /* .cost-table is a light cream pricing table — keep its text dark ink; the
    global strong-lightening had made the bold tier names cream-on-cream. */
 html.dark .cost-table strong { color: #1a2433 !important; }
+
+/* Bold text should follow its surrounding copy, not a fixed var(--ink). Some
+   light-authored pages pin strong{color:var(--ink)}, which went dark-on-dark
+   inside the (now-lightened) body copy — e.g. venue intros, where bold words
+   vanished mid-paragraph. `inherit` makes <strong> match its corrected
+   context; higher-specificity intentional strong colors (cost-table, etc.)
+   still win, and gold accent strongs keep their own rule via load order. */
+html.dark strong,
+html.dark b { color: inherit !important; }
+
+/* Venue fact box + venue spot cards are light sand/cream cards whose text the
+   dark theme lightened to invisible on the light fill; darken them to subtle
+   panels like the legal callouts. */
+html.dark .factbox,
+html.dark .spot { background: #141c26 !important; }
