@@ -13,8 +13,15 @@
 // Marketing pages are NOT precached on purpose — HTML stays network-first
 // so the runtime cache picks them up on first visit without bloating
 // install with routes that may change frequently.
+//
+// v10 (2026-05-30): cache-bust. CSS/JS are served cache-first
+// (stale-while-revalidate), so returning visitors kept rendering the blog
+// and other pages with STALE stylesheets after CSS-only fixes were pushed
+// (the layout looked out of date / "desordenado" until a second visit).
+// Bumping the version drops every old cache on activate so all devices
+// re-fetch the current CSS immediately.
 
-const CACHE_VERSION = 'ivae-v9-2026-05-26-offline-fix';
+const CACHE_VERSION = 'ivae-v10-2026-05-30-css-refresh';
 const STATIC_CACHE = `ivae-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `ivae-runtime-${CACHE_VERSION}`;
 
