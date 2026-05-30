@@ -254,17 +254,9 @@ body {
     </ul>
   </nav>
   <a class="header-cta" href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener" aria-label="Book a photo session via WhatsApp (opens in new tab)">Book Now</a>
-  <button class="header-toggle" aria-expanded="false" aria-label="Toggle navigation menu" aria-controls="mobileNav" id="headerToggle">
-    <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
-  </button>
+  
 </header>
-<nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
-  <a href="/">Home</a>
-  <a href="/about">About</a>
-  <a href="/#services">Services</a>
-  <a href="/blog">Blog</a>
-  <a href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session" target="_blank" rel="noopener">Book Now</a>
-</nav>
+<!-- Old static #mobileNav removed — drawer is now injected by /js/site-header.js. -->
 <script>
   window.addEventListener('scroll', () => {
     document.getElementById('siteHeader').classList.toggle('scrolled', window.scrollY > 40);

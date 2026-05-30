@@ -631,14 +631,10 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
       <a href="/es/blog" data-lang-switch="es" hreflang="es">ES</a>
     </div>
     <a class="header-cta" href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20found%20IVAE%20through%20the%20journal%20%E2%80%94%20can%20you%20share%20availability%3F" target="_blank" rel="noopener">Book Now</a>
-    <button class="header-toggle" aria-expanded="false" aria-label="Toggle navigation" id="headerToggle"><span></span><span></span><span></span></button>
+    <!-- Mobile burger + drawer are injected by /js/site-header.js (#hBurger → #mNav). -->
   </div>
 </header>
-<nav class="mobile-nav" id="mobileNav">
-  <div class="lang-switch" role="group" aria-label="Language switcher"><a href="/blog" data-lang-switch="en" hreflang="en" class="is-active">EN</a><span class="lang-sep" aria-hidden="true">|</span><a href="/es/blog" data-lang-switch="es" hreflang="es">ES</a></div>
-  <a href="/">Home</a><a href="/about">About</a><a href="/#services">Services</a><a href="/blog" class="active">Blog</a>
-  <a href="https://wa.me/529902046514?text=Hi%20Vianey%2C%20found%20IVAE%20through%20the%20journal%20%E2%80%94%20can%20you%20share%20availability%3F" target="_blank" rel="noopener">Book Now</a>
-</nav>
+<!-- Old static #mobileNav panel removed — replaced by the canonical drawer injected by /js/site-header.js. -->
 
 <main class="lw-blog" id="main-content">
 
@@ -942,15 +938,14 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
 <script>
 (function(){
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var header = document.getElementById('siteHeader');
-  var mobileToggle = document.getElementById('headerToggle');
-  var mobileNav = document.getElementById('mobileNav');
   var ticking = false;
 
-  // Header shadow on scroll
+  // Header shadow on scroll — re-resolve #siteHeader each time because
+  // /js/site-header.js replaces the original element after page load.
   function onScroll(){
     var y = window.scrollY || window.pageYOffset;
-    if(header){header.classList.toggle('scrolled', y > 8);}
+    var h = document.getElementById('siteHeader');
+    if(h){ h.classList.toggle('scrolled', y > 8); }
     ticking = false;
   }
   window.addEventListener('scroll', function(){
@@ -958,14 +953,7 @@ body[data-filter-status="active"] .lw-blog-dossier{display:none}
   }, {passive:true});
   onScroll();
 
-  // Mobile toggle
-  if(mobileToggle){
-    mobileToggle.addEventListener('click', function(){
-      mobileNav.classList.toggle('open');
-      var open = mobileNav.classList.contains('open');
-      mobileToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
-  }
+  // (Mobile toggle is owned by /js/site-header.js — burger #hBurger opens drawer #mNav.)
 
   // Subtle fade-up reveal — IntersectionObserver, 60ms stagger capped at 360ms
   if('IntersectionObserver' in window){
