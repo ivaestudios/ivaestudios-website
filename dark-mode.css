@@ -528,3 +528,18 @@ html.dark .ivm-st-cta__title,
 html.dark .ivm-st-cta__sub,
 html.dark .ivm-st-cta__eyebrow,
 html.dark a.ivm-st-cta__alt { color: var(--ivm-ink, #0a0f17) !important; }
+
+/* Breadcrumb current/active item is authored as var(--ink) (dark) for the
+   light page design; on the dark breadcrumb bar it was invisible. Light it. */
+html.dark .breadcrumb .current,
+html.dark .breadcrumb [aria-current="page"] { color: rgba(249, 248, 245, 0.7) !important; }
+
+/* Legal pages (privacy / accessibility, EN + ES) are light-authored documents
+   with sand callout cards + a data table. dark-mode lightens the body text but
+   left the cards light (lightened text vanished on cream) and never lightened
+   the table cells (dark ink stayed on the now-dark section). Darken the cards
+   so the lightened text reads, and light the table cells. */
+html.dark .legal-toc,
+html.dark .legal-callout { background: #141c26 !important; }
+html.dark .legal-section td { color: rgba(249, 248, 245, 0.82) !important; }
+html.dark .legal-section td strong { color: #f4f1ec !important; }
