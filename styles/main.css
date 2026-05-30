@@ -80,7 +80,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .site-footer nav{display:flex;gap:28px;flex-wrap:wrap}
 .site-footer nav a{font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:rgba(249,248,247,0.4);text-decoration:none;transition:color 0.2s}
 .site-footer nav a:hover{color:var(--cream)}
-.footer-copy{font-size:10px;color:rgba(249,248,247,0.22);letter-spacing:0.1em}
+.footer-copy{font-size:10px;color:rgba(249,248,247,0.5);letter-spacing:0.1em}
 
 /* LIGHTBOX */
 .lightbox{position:fixed;inset:0;z-index:10000;background:rgba(10,14,20,0.96);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity 0.4s}
