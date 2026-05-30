@@ -367,4 +367,11 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+  <!-- Jewish destination wedding photographer (Spanish) -->
+  <url>
+    <loc>https://ivaestudios.com/es/blog/fotografo-bodas-judias-mexico</loc>
+    <lastmod>2026-05-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
