@@ -516,3 +516,15 @@ html.dark main dd, html.dark main dt {
 html.dark main h2, html.dark main h3, html.dark main h4, html.dark main h5, html.dark main h6 {
   color: #f4f1ec !important;
 }
+
+/* ── Preserve intentionally-colored panels under the dark theme ──────────
+   The blanket `html.dark section { background:#0c1219 }` rule (0,1,2) was
+   flattening sections that are *designed* with a non-dark fill, hiding the
+   dark-ink text authored to sit on them. Restore those fills. */
+html.dark .ivm-st-cta { background: var(--ivm-gold, #c9a54e) !important; }
+/* ...and keep that panel's text dark ink (the body-text catch-all above was
+   forcing the title/sub light, washing them out on the gold). */
+html.dark .ivm-st-cta__title,
+html.dark .ivm-st-cta__sub,
+html.dark .ivm-st-cta__eyebrow,
+html.dark a.ivm-st-cta__alt { color: var(--ivm-ink, #0a0f17) !important; }
