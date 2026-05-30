@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>IVAE Studios | Página oficial de marca · ivaestudios.com</title>
 <meta name="description" content="IVAE Studios es el estudio oficial de fotografía de resort de lujo en ivaestudios.com (con S), fundado por Vianey Díaz en Cancún. Distinto de ivaestudio.com."/>
 <link rel="canonical" href="https://ivaestudios.com/es/marca"/>
@@ -337,7 +337,7 @@ body{font-family:'Syne',sans-serif;background:var(--cream);color:var(--ink);over
 </footer>
 
 <script>
-window.addEventListener('scroll',()=>{document.getElementById('siteHeader').classList.toggle('scrolled',window.scrollY>60)},{passive:true});
+window.addEventListener('scroll',()=>{(function(_h){if(_h)_h.classList.toggle('scrolled',window.scrollY>60)})(document.getElementById('siteHeader'))},{passive:true});
 function sendHeight(){window.parent.postMessage({type:'iwh',value:document.documentElement.scrollHeight},'*')}
 window.addEventListener('load',sendHeight);window.addEventListener('resize',sendHeight);
 [500,1500,3000].forEach(t=>setTimeout(sendHeight,t));

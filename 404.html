@@ -259,7 +259,7 @@ body {
 <!-- Old static #mobileNav removed — drawer is now injected by /js/site-header.js. -->
 <script>
   window.addEventListener('scroll', () => {
-    document.getElementById('siteHeader').classList.toggle('scrolled', window.scrollY > 40);
+    (function(_h){if(_h)_h.classList.toggle('scrolled',window.scrollY > 40)})(document.getElementById('siteHeader'));
   });
   </script>
 

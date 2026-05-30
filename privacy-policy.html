@@ -546,7 +546,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 </footer>
 
 <script>
-window.addEventListener('scroll',()=>{document.getElementById('siteHeader').classList.toggle('scrolled',window.scrollY>60)},{passive:true});
+window.addEventListener('scroll',()=>{(function(_h){if(_h)_h.classList.toggle('scrolled',window.scrollY>60)})(document.getElementById('siteHeader'))},{passive:true});
 
 const revObs=new IntersectionObserver(entries=>{
   entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');revObs.unobserve(e.target)}});

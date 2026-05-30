@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Accessibility Statement | WCAG 2.1 AA | IVAE Studios</title>
 <meta name="description" content="IVAE Studios accessibility statement. Our commitment to WCAG 2.1 Level AA conformance, known limitations, assistive technologies and feedback."/>
 <meta name="ai-name" content="IVAE Studios"/>
@@ -451,7 +451,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 </footer>
 
 <script>
-window.addEventListener('scroll',()=>{document.getElementById('siteHeader').classList.toggle('scrolled',window.scrollY>60)},{passive:true});
+window.addEventListener('scroll',()=>{(function(_h){if(_h)_h.classList.toggle('scrolled',window.scrollY>60)})(document.getElementById('siteHeader'))},{passive:true});
 
 const revObs=new IntersectionObserver(entries=>{
   entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');revObs.unobserve(e.target)}});

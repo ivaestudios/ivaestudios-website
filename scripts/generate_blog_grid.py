@@ -48,6 +48,8 @@ F_START = "<!-- AUTOGEN-FEATURED:START -->"
 F_END = "<!-- AUTOGEN-FEATURED:END -->"
 G_START = "<!-- AUTOGEN-CARDS:START -->"
 G_END = "<!-- AUTOGEN-CARDS:END -->"
+P_START = "<!-- AUTOGEN-PILLS:START -->"
+P_END = "<!-- AUTOGEN-PILLS:END -->"
 
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -208,6 +210,72 @@ def derive_category(slug: str, article_section: str, lang: str) -> str:
     if article_section:
         return article_section
     return "Journal" if lang == "en" else "Diario"
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# Filter bucket — collapse each post into ONE of the canonical pill categories
+# so the mobile category menu (nav.ivm-jl-cats) can actually filter the grid.
+# Returns (slug, label). Order of the rules = priority (first match wins).
+# ────────────────────────────────────────────────────────────────────────────
+# Canonical taxonomy + display labels per language. Order here = pill order.
+CAT_ORDER = ["weddings", "couples", "families", "how-to", "travel", "vendors", "studio"]
+CAT_LABELS = {
+    "en": {
+        "all": "All", "weddings": "Weddings", "couples": "Couples",
+        "families": "Families", "how-to": "How-to", "travel": "Travel",
+        "vendors": "Vendors", "studio": "Studio",
+    },
+    "es": {
+        "all": "Todo", "weddings": "Bodas", "couples": "Parejas",
+        "families": "Familia", "how-to": "Guías", "travel": "Viaje",
+        "vendors": "Vendors", "studio": "Estudio",
+    },
+}
+# (keyword in slug) -> canonical bucket. Checked top-to-bottom; first hit wins.
+_CAT_RULES = [
+    ("studio",   ("press", "prensa", "vianey", "founder", "fundadora", "editorial",
+                  "media", "medios", "marca", "award", "premio", "about-studio")),
+    ("weddings", ("wedding", "boda", "nupcial", "bridal", "elopement",
+                  "vow-renewal", "renovacion-votos")),
+    ("couples",  ("honeymoon", "luna-de-miel", "luna-miel", "engagement", "compromiso",
+                  "proposal", "propuesta", "anniversary", "aniversario", "same-sex",
+                  "mismo-sexo", "lgbtq", "couple", "pareja")),
+    ("families", ("babymoon", "maternity", "maternidad", "gender-reveal", "gender",
+                  "genero", "quinceanera", "birthday", "cumpleanos", "family",
+                  "familia", "kids", "ninos")),
+    ("vendors",  ("resort", "hotel", "yacht", "yate", "drone", "dron", "planner",
+                  "venue", "vendor", "proveedor")),
+    ("travel",   ("tulum", "cabo", "riviera", "cancun", "cenote", "playa-mujeres",
+                  "isla-mujeres", "akumal", "mayakoba", "destination", "destino",
+                  "location", "locacion", "where", "donde", "guide-to", "guia-de")),
+    ("how-to",   ("faq", "questions", "preguntas", "cost", "costo", "price", "precio",
+                  "what-to-wear", "que-ponerse", "vestuario", "wardrobe", "golden-hour",
+                  "hora-dorada", "timeline", "checklist", "tips", "how-to", "como-",
+                  "-vs-", "compare", "comparativa", "guide", "guia")),
+]
+
+
+def derive_cat_slug(slug: str, lang: str) -> tuple[str, str]:
+    s = slug.lower()
+    for bucket, needles in _CAT_RULES:
+        if any(n in s for n in needles):
+            return bucket, CAT_LABELS[lang][bucket]
+    # Generic editorial fallback -> Studio/Estudio (always a real, reachable pill)
+    return "studio", CAT_LABELS[lang]["studio"]
+
+
+def render_pills(buckets_present: list[str], lang: str) -> str:
+    """Build the category-filter pills from the buckets actually present in the
+    grid, in canonical order, with an always-first 'All/Todo' pill. Data-driven
+    so a category with zero posts never shows a dead-end pill."""
+    L = CAT_LABELS[lang]
+    ordered = [b for b in CAT_ORDER if b in buckets_present]
+    pills = [f'      <a class="ivm-jl-cats__pill is-on" href="#all" data-cat="all">{L["all"]}</a>']
+    for b in ordered:
+        pills.append(
+            f'      <a class="ivm-jl-cats__pill" href="#{b}" data-cat="{b}">{escape(L[b])}</a>'
+        )
+    return "\n".join(pills)
 
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -405,6 +473,7 @@ def parse_post(path: Path, lang: str) -> dict | None:
         "section": (section or "").strip(),
         "url": url,
         "category": derive_category(slug, section or "", lang),
+        "cat_slug": derive_cat_slug(slug, lang)[0],
     }
 
 
@@ -419,7 +488,8 @@ def render_card(p: dict, lang: str) -> str:
     img_src = escape(p["image"])
     href = escape(p["url"])
     read = "Read" if lang == "en" else "Leer"
-    return f"""    <a class="ivm-jl-card" href="{href}">
+    cat_slug = escape(p.get("cat_slug", "studio"))
+    return f"""    <a class="ivm-jl-card" href="{href}" data-cat="{cat_slug}">
       <div class="ivm-jl-card__photo">
         <img src="{img_src}" alt="{img_alt}" loading="lazy" decoding="async">
       </div>
@@ -442,7 +512,8 @@ def render_featured(p: dict, lang: str) -> str:
     aria = (
         f"Featured: {escape(p['title'])}" if lang == "en" else f"Destacado: {escape(p['title'])}"
     )
-    return f"""  <a class="ivm-jl-feature" href="{href}" aria-label="{aria}">
+    cat_slug = escape(p.get("cat_slug", "studio"))
+    return f"""  <a class="ivm-jl-feature" href="{href}" data-cat="{cat_slug}" aria-label="{aria}">
     <div class="ivm-jl-feature__photo">
       <img src="{img_src}" alt="{img_alt}" loading="eager" fetchpriority="high" decoding="async" width="1600" height="1067">
     </div>
@@ -504,10 +575,22 @@ def build(lang: str):
 
     feat_html = render_featured(featured, lang)
     cards_html = "\n".join(render_card(p, lang) for p in grid)
+    # Pills are data-driven: only categories present in the grid get a pill.
+    present = []
+    for p in grid:
+        b = p.get("cat_slug", "studio")
+        if b not in present:
+            present.append(b)
+    pills_html = render_pills(present, lang)
+    print(f"  categories in grid: {', '.join(present)}")
 
     txt = target.read_text(encoding="utf-8")
     txt = splice(txt, F_START, F_END, feat_html)
     txt = splice(txt, G_START, G_END, cards_html)
+    if P_START in txt and P_END in txt:
+        txt = splice(txt, P_START, P_END, pills_html)
+    else:
+        print(f"  !! AUTOGEN-PILLS markers missing in {target.name} — pills NOT updated")
     target.write_text(txt, encoding="utf-8")
     print(f"  → wrote {target.relative_to(ROOT)}")
 
