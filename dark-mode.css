@@ -560,3 +560,20 @@ html.dark .palette-group h3 span { color: rgba(249, 248, 245, 0.55) !important; 
    color:var(--ink), so they were dark-on-dark. Light the text. */
 html.dark a[style*="background:var(--cream)"],
 html.dark a[style*="background: var(--cream)"] { color: rgba(249, 248, 245, 0.9) !important; }
+
+/* Desktop city layout (.ivm-desktop-only on cancun/los-cabos/riviera-maya/
+   mayakoba) is light-authored: dark-mode darkens its sections but the page
+   pins body copy + sub-labels to var(--ink)/var(--muted-l) (dark ink), so
+   they were invisible on the dark sections (desktop only; mobile uses .ivm).
+   Re-point those vars to light inside the desktop wrapper. Gold buttons use
+   dark ink ON the gold fill, so re-assert dark there. */
+html.dark .ivm-desktop-only {
+  --ink: #f5f2ec;
+  --ink-1: #f5f2ec;
+  --ink2: #f5f2ec;
+  --muted-l: rgba(249, 248, 245, 0.72);
+  --muted-l2: rgba(249, 248, 245, 0.55);
+}
+html.dark .ivm-desktop-only .btn--gold,
+html.dark .ivm-desktop-only a[class*="btn"][class*="gold"],
+html.dark .ivm-desktop-only button[class*="gold"] { color: #0a0f17 !important; }
