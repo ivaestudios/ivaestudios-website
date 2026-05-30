@@ -19,6 +19,12 @@
              visibility .3s ease;
 }
 .ivae-wa-fab svg{width:30px;height:30px;display:block}
+/* Lock the glyph to WhatsApp green on every page — the global dark theme
+   rule `html.dark a{color:var(--gold)}` would otherwise tint it gold, since
+   the SVG paints with currentColor. */
+.ivae-wa-fab,
+html.dark a.ivae-wa-fab,
+html a.ivae-wa-fab{color:#25D366 !important}
 .ivae-wa-fab:hover,
 .ivae-wa-fab:focus-visible{
   transform:scale(1.05);
