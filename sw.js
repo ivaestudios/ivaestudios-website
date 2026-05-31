@@ -20,8 +20,15 @@
 // (the layout looked out of date / "desordenado" until a second visit).
 // Bumping the version drops every old cache on activate so all devices
 // re-fetch the current CSS immediately.
+//
+// v11 (2026-05-31): the cache-first JS bug also pinned an OLD site-header.js
+// (the mobile menu) because its ?v= query string had not changed in weeks, so
+// the cached asset URL stayed identical and the SW never re-fetched it. Fix is
+// two-fold: (a) every CSS/JS include site-wide bumped to ?v=20260531a so the
+// asset URLs change (guaranteed cache-miss -> fresh fetch on ANY SW version),
+// and (b) this cache version bump drops all old caches on activate.
 
-const CACHE_VERSION = 'ivae-v10-2026-05-30-css-refresh';
+const CACHE_VERSION = 'ivae-v11-2026-05-31-asset-version-bump';
 const STATIC_CACHE = `ivae-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `ivae-runtime-${CACHE_VERSION}`;
 

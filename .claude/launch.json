@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "ivae-site",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "-l", "3456", "."],
-      "port": 3456
+      "name": "ivae-home",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "3471"],
+      "port": 3471
     }
   ]
 }
