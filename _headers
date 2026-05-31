@@ -14,6 +14,13 @@
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
 
+# Service worker script must never be cached, so version bumps (and the
+# cache-invalidation they trigger) reach every device on the next visit
+# instead of being delayed up to 4h by the default JS cache.
+/sw.js
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Service-Worker-Allowed: /
+
 /images/*
   Cache-Control: public, max-age=31536000, immutable
 
