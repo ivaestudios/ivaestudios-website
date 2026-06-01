@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+<script>document.documentElement.classList.add('js-on');</script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Social Media Agency Cancún &amp; Mexico City | IVAE Marketing</title>
 <meta name="description" content="Social media agency for hotels, restaurants &amp; premium brands in Cancún and Mexico City. Editorial content native to every strategy. Bilingual team."/>
@@ -74,6 +76,19 @@
 .smm-lang-switch a.is-active{color:#c4b5fd;border-bottom-color:#a78bfa}
 .smm-lang-switch .lang-sep{color:rgba(240,238,233,0.25);font-weight:400}
 @media (max-width:600px){.smm-lang-switch{top:12px;right:12px;padding:6px 10px;font-size:10px}}
+
+/* ── REVEAL VISIBILITY SAFETY ──
+   .rv content is hidden (for the scroll-reveal animation) only when JS is
+   confirmed running (html.js-on, set in <head> before paint). With JS off
+   or if the reveal script never runs, html.js-on is absent and every .rv
+   stays fully visible instead of leaving the page blank. */
+html:not(.js-on) .rv,
+html:not(.js-on) .bento-card.rv {
+  opacity: 1 !important;
+  transform: none !important;
+  clip-path: none !important;
+  filter: none !important;
+}
 </style>
 
 <!-- Schema: LocalBusiness / ProfessionalService -->
@@ -2635,194 +2650,6 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 
 </div><!-- /content-wrapper -->
 
-<!-- ═══ ENHANCED ANIMATION SCRIPT ═══ -->
-<script>
-(function() {
-  'use strict';
-
-  /* ── 11. REDUCED MOTION CHECK ── */
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  /* ── HERO PARALLAX (CSS transform, GPU-accelerated) ── */
-  if (!prefersReduced) {
-    const heroEl = document.querySelector('.hero');
-    if (heroEl) {
-      let ticking = false;
-      window.addEventListener('scroll', () => {
-        if (!ticking) {
-          ticking = true;
-          requestAnimationFrame(() => {
-            const scrollY = window.scrollY;
-            const heroBottom = heroEl.offsetTop + heroEl.offsetHeight;
-            if (scrollY < heroBottom) {
-              heroEl.style.setProperty('--forllax-y', scrollY * 0.35 + 'px');
-            }
-            ticking = false;
-          });
-        }
-      }, { passive: true });
-    }
-  }
-
-  /* ── REVEAL ON SCROLL ── */
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('in');
-        obs.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.08 });
-  document.querySelectorAll('.rv').forEach(el => obs.observe(el));
-
-  /* ── 1. HERO TEXT REVEAL — CSS clip-path handles this, no JS needed ── */
-
-  /* ── CURSOR GLOW ── */
-  const glow = document.getElementById('cursorGlow');
-  if (glow && window.innerWidth > 1024 && !prefersReduced) {
-    let glowX = 0, glowY = 0, currentX = 0, currentY = 0;
-    document.addEventListener('mousemove', e => {
-      glowX = e.clientX;
-      glowY = e.clientY;
-    });
-    function animateGlow() {
-      currentX += (glowX - currentX) * 0.08;
-      currentY += (glowY - currentY) * 0.08;
-      glow.style.transform = `translate(${currentX - 300}px, ${currentY - 300}px)`;
-      requestAnimationFrame(animateGlow);
-    }
-    animateGlow();
-  }
-
-  /* ── 6. BENTO CARD 3D TILT (max 4deg) + LIGHT REFLECTION ── */
-  if (window.innerWidth > 1024 && !prefersReduced) {
-    document.querySelectorAll('.bento-card').forEach(card => {
-      card.addEventListener('mousemove', e => {
-        const r = card.getBoundingClientRect();
-        const x = (e.clientX - r.left) / r.width - 0.5;
-        const y = (e.clientY - r.top) / r.height - 0.5;
-        const tiltX = x * 8;
-        const tiltY = y * -8;
-        const shadowX = -x * 20;
-        const shadowY = -y * 20;
-        card.style.transform = `rotateY(${tiltX}deg) rotateX(${tiltY}deg) translateY(-6px) translateZ(8px)`;
-        card.style.boxShadow = `
-          ${shadowX}px ${shadowY + 8}px 40px rgba(0, 0, 0, 0.25),
-          ${shadowX * 0.5}px ${shadowY * 0.5 + 4}px 16px rgba(0, 0, 0, 0.15),
-          0 0 0 1px rgba(167, 139, 250, 0.08),
-          inset 0 1px 0 rgba(255, 255, 255, 0.06)
-        `;
-        card.style.setProperty('--mouse-x', (x + 0.5) * 100 + '%');
-        card.style.setProperty('--mouse-y', (y + 0.5) * 100 + '%');
-      });
-      card.addEventListener('mouseleave', () => {
-        card.style.transform = 'rotateY(0) rotateX(0) translateY(0) translateZ(0)';
-        card.style.boxShadow = '';
-      });
-    });
-    /* Light reflection + subtle tilt for other glass cards (stat, vs) */
-    document.querySelectorAll('.glass:not(.bento-card)').forEach(card => {
-      card.addEventListener('mousemove', e => {
-        const r = card.getBoundingClientRect();
-        const x = (e.clientX - r.left) / r.width - 0.5;
-        const y = (e.clientY - r.top) / r.height - 0.5;
-        card.style.setProperty('--mouse-x', (x + 0.5) * 100 + '%');
-        card.style.setProperty('--mouse-y', (y + 0.5) * 100 + '%');
-        card.style.transform = `rotateY(${x * 4}deg) rotateX(${y * -4}deg)`;
-        const sx = -x * 12;
-        const sy = -y * 12;
-        card.style.boxShadow = `
-          ${sx}px ${sy + 6}px 32px rgba(0, 0, 0, 0.2),
-          0 0 0 1px rgba(255, 255, 255, 0.04),
-          inset 0 1px 0 rgba(255, 255, 255, 0.05)
-        `;
-      });
-      card.addEventListener('mouseleave', () => {
-        card.style.transform = '';
-        card.style.boxShadow = '';
-      });
-    });
-  }
-
-  /* ── MAGNETIC BUTTONS ── */
-  if (!prefersReduced) {
-    document.querySelectorAll('.btn').forEach(btn => {
-      btn.addEventListener('mousemove', e => {
-        const rect = btn.getBoundingClientRect();
-        const x = e.clientX - rect.left - rect.width / 2;
-        const y = e.clientY - rect.top - rect.height / 2;
-        btn.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px) scale(1.02)`;
-      });
-      btn.addEventListener('mouseleave', () => {
-        btn.style.transform = 'translate(0, 0) scale(1)';
-      });
-    });
-  }
-
-  /* ── 5. STAT COUNT-UP (easeOutExpo, handles 500+, 3, 100%, 24/7) ── */
-  const countObs = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      const el = entry.target;
-      if (el.dataset.static) { countObs.unobserve(el); return; }
-      const target = parseInt(el.dataset.count), suffix = el.dataset.suffix || '';
-      const dur = 2000, start = performance.now();
-      (function tick(now) {
-        const t = Math.min((now - start) / dur, 1);
-        const ease = t === 1 ? 1 : 1 - Math.pow(2, -10 * t); /* easeOutExpo */
-        el.textContent = Math.round(ease * target) + suffix;
-        if (t < 1) requestAnimationFrame(tick);
-      })(start);
-      countObs.unobserve(el);
-    });
-  }, { threshold: 0.5 });
-  document.querySelectorAll('.stat-number[data-count]').forEach(el => countObs.observe(el));
-
-  /* ── 7. TIMELINE — SCROLL-DRIVEN LINE DRAW (rAF) ── */
-  const tl = document.querySelector('.timeline');
-  if (tl) {
-    const steps = tl.querySelectorAll('.timeline-step');
-    steps.forEach(s => { s.classList.remove('rv','d1','d2','d3','d4'); });
-    function drawTimeline() {
-      const rect = tl.getBoundingClientRect();
-      const vh = window.innerHeight;
-      const progress = Math.min(Math.max((vh - rect.top) / (rect.height + vh * 0.3), 0), 1);
-      tl.style.setProperty('--timeline-progress', (progress * 100) + '%');
-      steps.forEach((step, i) => {
-        const stepRect = step.getBoundingClientRect();
-        if (stepRect.top < vh * 0.85) step.classList.add('step-visible');
-      });
-      requestAnimationFrame(drawTimeline);
-    }
-    requestAnimationFrame(drawTimeline);
-  }
-
-  /* ── FAQ ACCORDION ── */
-  window.toggleFaq = function(questionEl) {
-    const item = questionEl.parentElement;
-    const wasActive = item.classList.contains('faq-active');
-    document.querySelectorAll('.faq-item.faq-active').forEach(i => i.classList.remove('faq-active'));
-    if (!wasActive) item.classList.add('faq-active');
-  };
-
-  /* ── FAQ STAGGERED REVEAL ON SCROLL ── */
-  const faqObs = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        const items = e.target.querySelectorAll('.faq-item');
-        items.forEach((item, i) => {
-          setTimeout(() => item.classList.add('faq-visible'), i * 100);
-        });
-        faqObs.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.15 });
-  const faqGrid = document.querySelector('.faq-grid');
-  if (faqGrid) faqObs.observe(faqGrid);
-
-*/})();
-</script>
-
 <!-- ═══ IMPROVED ANIMATION SCRIPT ═══ -->
 <script>
 (function() {
@@ -3017,5 +2844,26 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 <script src="/js/lang-detect.js" defer></script><script src="/js/services-dropdown-v2.js?v=20260531a" defer></script>
 <script src="/js/marketing-header.js?v=20260531a" defer></script>
   <a class="ivae-wa-fab" href="https://wa.me/529902046514?text=Hola%20IVAE%2C%20me%20interesa%20una%20sesi%C3%B3n%20de%20fotograf%C3%ADa" target="_blank" rel="noopener" aria-label="Message Vianey on WhatsApp (opens in new tab)" data-pulse="1"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.967-.94 1.164-.173.198-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413"/></svg></a>
+<script>
+/* ─── REVEAL SAFETY NET (independent of the enhancement script) ───
+   Guarantees every .rv element becomes visible. Reveals on scroll via its own
+   IntersectionObserver, force-reveals everything after a short timeout, and
+   reveals all on any error, so the page can never be left blank if the
+   enhancement script below ever fails to run. */
+(function () {
+  var nodes = document.querySelectorAll('.rv');
+  function showAll() { for (var i = 0; i < nodes.length; i++) { nodes[i].classList.add('in'); } }
+  try {
+    if (!('IntersectionObserver' in window)) { showAll(); return; }
+    var io = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) { entries[i].target.classList.add('in'); io.unobserve(entries[i].target); }
+      }
+    }, { threshold: 0.08 });
+    for (var j = 0; j < nodes.length; j++) { io.observe(nodes[j]); }
+    setTimeout(showAll, 2600);
+  } catch (e) { showAll(); }
+})();
+</script>
 </body>
 </html>
