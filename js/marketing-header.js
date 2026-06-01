@@ -52,7 +52,7 @@
     langGroup: 'Language', tagline: 'Social media for luxury hospitality'
   };
 
-  var blogHref = isES ? '/es/blog' : '/blog';
+  var blogHref = '/marketing-blog';
   var studioHref = isES ? '/es/' : '/';
   var intakeHref = '/marketing-intake';
 
