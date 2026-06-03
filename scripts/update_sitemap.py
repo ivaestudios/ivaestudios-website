@@ -161,6 +161,19 @@ BLOG_EN_TO_ES = {
     # trash-the-dress-cancun has the same slug in EN and ES.
     "trash-the-dress-cancun": "trash-the-dress-cancun",
     "gender-reveal-photoshoot-cancun": "sesion-revelacion-genero-cancun",
+    # Reforzar push (2026-06) — blog/<slug>.html EN directory ↔ es/blog/<slug>.html
+    "luxury-event-photography-what-to-expect": "fotografia-eventos-lujo-que-esperar",
+    "how-to-plan-a-destination-celebration-cancun": "como-planear-una-celebracion-destino-cancun",
+    "best-time-of-day-family-beach-photos-cancun": "mejor-hora-fotos-familiares-playa-cancun",
+    "what-to-wear-family-photoshoot-mexico": "que-ponerse-sesion-familiar-mexico",
+    "best-proposal-spots-cancun-riviera-maya": "mejores-lugares-propuesta-cancun-riviera-maya",
+    "honeymoon-photoshoot-planning-guide": "guia-sesion-luna-de-miel",
+    "best-cancun-wedding-venues-2026": "mejores-lugares-boda-cancun-2026",
+    "elopement-photographer-tulum-cancun": "fotografo-elopement-tulum-cancun",
+    "how-many-hours-wedding-photography-coverage": "cuantas-horas-cobertura-fotografia-boda",
+    "sunset-wedding-photography-best-times-cancun": "fotografia-boda-atardecer-mejores-horas-cancun",
+    "black-and-white-vs-color-wedding-photography": "fotografia-boda-blanco-negro-vs-color",
+    "welcome-dinner-rehearsal-wedding-photography": "fotografia-cena-bienvenida-ensayo-boda",
 }
 
 # Top-level EN page slug ↔ Spanish page slug (under es/<slug>).
@@ -262,6 +275,9 @@ def file_to_url(rel_path):
     # Root index.
     if rel in EN_ROOT_OVERRIDES:
         return EN_ROOT_OVERRIDES[rel], "en"
+    # blog/<slug>.html → /blog/<slug>  (EN blog directory, mirrors es/blog/)
+    if rel.startswith("blog/") and rel.endswith(".html"):
+        return "/" + rel[: -len(".html")], "en"
     # post-*.html → /blog/<slug>
     if rel.startswith("post-") and rel.endswith(".html"):
         slug = POST_TO_BLOG_SLUG.get(rel)
