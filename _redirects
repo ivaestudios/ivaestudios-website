@@ -450,3 +450,9 @@
 /es/redes-sociales-dental /es/redes-sociales-clinica-dental-mexico 301
 /es/instagram-cancun /es/manejo-instagram-cancun 301
 /es/tiktok-hoteles /es/agencia-tiktok-hoteles-mexico 301
+
+# IVAE Studios — Events vertical blog posts (clean /blog/ URLs)
+/blog/luxury-event-photography-what-to-expect /post-luxury-event-photography-what-to-expect 200
+/post-luxury-event-photography-what-to-expect.html /blog/luxury-event-photography-what-to-expect 301
+/blog/how-to-plan-a-destination-celebration-cancun /post-how-to-plan-a-destination-celebration-cancun 200
+/post-how-to-plan-a-destination-celebration-cancun.html /blog/how-to-plan-a-destination-celebration-cancun 301
