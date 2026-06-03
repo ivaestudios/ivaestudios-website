@@ -192,6 +192,8 @@ PAGE_EN_TO_ES = {
     "/brand": "/es/marca",
     "/cancun-wedding-cost-2026": "/es/costo-boda-cancun-2026",
     "/comparison/luxury-photographers-cancun": "/es/comparativa/fotografos-lujo-cancun",
+    "/los-cabos-family-photographer": "/es/fotografo-familiar-los-cabos",
+    "/social-media-management-mexico-city": "/es/redes-sociales-ciudad-de-mexico",
 }
 
 # ES-only pages that have no EN counterpart. Listed so we can emit them

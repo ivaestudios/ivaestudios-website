@@ -159,7 +159,7 @@
 
   <url>
     <loc>https://ivaestudios.com/couples-photography-mexico</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-06-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/couples-photography-mexico"/>
@@ -169,7 +169,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/fotografia-parejas-mexico</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-06-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/couples-photography-mexico"/>
@@ -179,7 +179,7 @@
 
   <url>
     <loc>https://ivaestudios.com/destination-wedding-photographer-mexico</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-06-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/destination-wedding-photographer-mexico"/>
@@ -189,7 +189,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/fotografo-bodas-destino-mexico</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-06-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/destination-wedding-photographer-mexico"/>
@@ -317,13 +317,6 @@
   </url>
 
   <url>
-    <loc>https://ivaestudios.com/es/redes-sociales-ciudad-de-mexico</loc>
-    <lastmod>2026-06-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-
-  <url>
     <loc>https://ivaestudios.com/es/redes-sociales-clinica-dental-mexico</loc>
     <lastmod>2026-06-01</lastmod>
     <changefreq>monthly</changefreq>
@@ -394,6 +387,26 @@
   </url>
 
   <url>
+    <loc>https://ivaestudios.com/los-cabos-family-photographer</loc>
+    <lastmod>2026-06-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/los-cabos-family-photographer"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotografo-familiar-los-cabos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/los-cabos-family-photographer"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/fotografo-familiar-los-cabos</loc>
+    <lastmod>2026-06-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/los-cabos-family-photographer"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotografo-familiar-los-cabos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/los-cabos-family-photographer"/>
+  </url>
+
+  <url>
     <loc>https://ivaestudios.com/luxury-editorial</loc>
     <lastmod>2026-05-31</lastmod>
     <changefreq>monthly</changefreq>
@@ -409,7 +422,7 @@
 
   <url>
     <loc>https://ivaestudios.com/luxury-family-photos-cancun</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-06-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/luxury-family-photos-cancun"/>
@@ -419,7 +432,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/fotos-familiares-lujo-cancun</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-06-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/luxury-family-photos-cancun"/>
@@ -539,9 +552,29 @@
 
   <url>
     <loc>https://ivaestudios.com/social-media-management</loc>
-    <lastmod>2026-06-01</lastmod>
+    <lastmod>2026-06-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/social-media-management-mexico-city</loc>
+    <lastmod>2026-06-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-management-mexico-city"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/redes-sociales-ciudad-de-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/social-media-management-mexico-city"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/redes-sociales-ciudad-de-mexico</loc>
+    <lastmod>2026-06-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/social-media-management-mexico-city"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/redes-sociales-ciudad-de-mexico"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/social-media-management-mexico-city"/>
   </url>
 
   <url>
@@ -595,7 +628,7 @@
 
   <url>
     <loc>https://ivaestudios.com/blog</loc>
-    <lastmod>2026-06-01</lastmod>
+    <lastmod>2026-06-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog"/>
@@ -605,7 +638,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/blog</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-06-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/blog"/>
@@ -1905,7 +1938,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/manejo-redes-sociales</loc>
-    <lastmod>2026-06-01</lastmod>
+    <lastmod>2026-06-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/manejo-redes-sociales"/>
@@ -1914,14 +1947,14 @@
 
   <url>
     <loc>https://ivaestudios.com/api/facts.json</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-06-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://ivaestudios.com/llms-full.txt</loc>
-    <lastmod>2026-05-30</lastmod>
+    <lastmod>2026-06-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
