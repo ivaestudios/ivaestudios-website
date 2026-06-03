@@ -1390,6 +1390,55 @@ html.js-on .lf-pullquote.is-visible .lf-pullquote-ornament{opacity:0.20}
 </div>
 <!-- end ivm-desktop-only -->
 
+<!-- ═══════════════════════════════════════════════════════════════
+     SERVICIOS RELACIONADOS: enlaces internos a páginas hermanas
+     (fuera de ivm-desktop-only: visible en móvil y escritorio)
+     ═══════════════════════════════════════════════════════════════ -->
+<style>
+.lf-siblings{background:var(--ink-2,#10161e);color:var(--cream-1,#faf8f5);padding:clamp(72px,9vw,120px) clamp(24px,5vw,64px);border-top:1px solid rgba(201,165,78,0.18)}
+.lf-siblings-inner{max-width:1180px;margin:0 auto}
+.lf-siblings-eyebrow{display:inline-flex;align-items:center;gap:14px;font-family:'Syne',sans-serif;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.28em;color:var(--gold,#c9a54e);margin:0 0 24px}
+.lf-siblings-eyebrow::before{content:'';width:40px;height:1px;background:var(--gold,#c9a54e)}
+.lf-siblings h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(32px,4vw,52px);font-weight:300;line-height:1.10;letter-spacing:-0.01em;margin:0 0 18px;color:var(--cream-1,#faf8f5)}
+.lf-siblings h2 em{font-style:italic;color:var(--gold,#c9a54e)}
+.lf-siblings-lead{font-family:'Syne',sans-serif;font-size:16px;line-height:1.7;color:rgba(250,248,245,0.75);margin:0 0 48px;max-width:680px}
+.lf-siblings-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.lf-sib-card{display:block;text-decoration:none;padding:36px 32px;border:1px solid rgba(201,165,78,0.28);background:rgba(201,165,78,0.025);transition:background 0.3s,border-color 0.3s,transform 0.3s}
+.lf-sib-card:hover{background:rgba(201,165,78,0.07);border-color:var(--gold,#c9a54e);transform:translateY(-2px)}
+.lf-sib-card h3{font-family:'Cormorant Garamond',Georgia,serif;font-size:28px;font-weight:300;letter-spacing:-0.005em;margin:0 0 12px;color:var(--cream-1,#faf8f5)}
+.lf-sib-card:hover h3{color:var(--gold,#c9a54e)}
+.lf-sib-card p{font-family:'Syne',sans-serif;font-size:13.5px;line-height:1.65;color:rgba(250,248,245,0.7);margin:0}
+@media (max-width:880px){
+  .lf-siblings{padding:64px 20px}
+  .lf-siblings-grid{grid-template-columns:1fr;gap:14px}
+  .lf-sib-card{padding:28px 24px}
+  .lf-sib-card h3{font-size:26px}
+  .lf-siblings h2{font-size:clamp(28px,7vw,40px)}
+  .lf-siblings-lead{margin-bottom:32px}
+}
+</style>
+<section class="lf-siblings" aria-label="Servicios familiares relacionados">
+  <div class="lf-siblings-inner">
+    <p class="lf-siblings-eyebrow">Más fotografía familiar</p>
+    <h2>Otras formas de <em>reunir a la familia.</em></h2>
+    <p class="lf-siblings-lead">Cada familia llega por una razón distinta. Si la tuya gira en torno a un reencuentro, varias generaciones bajo el mismo techo o una semana entera de vacaciones, el estudio cubre cada uno con la misma dirección editorial a la hora dorada.</p>
+    <div class="lf-siblings-grid">
+      <a href="/es/fotografo-reunion-familiar-cancun" class="lf-sib-card">
+        <h3>Fotografía de Reunión Familiar</h3>
+        <p>Grupos grandes que viajan de lejos para verse: abuelos, hermanos, primos y nietos reunidos en una sola toma.</p>
+      </a>
+      <a href="/es/fotografia-familiar-multigeneracional-mexico" class="lf-sib-card">
+        <h3>Fotografía Familiar Multigeneracional</h3>
+        <p>Tres y hasta cuatro generaciones en cuadro, con retratos por rama y el grupo completo, sin prisas.</p>
+      </a>
+      <a href="/es/fotografo-vacaciones-familia-riviera-maya" class="lf-sib-card">
+        <h3>Fotografía de Vacaciones Familiares</h3>
+        <p>Cobertura relajada a lo largo de tu estancia en la Riviera Maya, de la alberca al atardecer en la playa.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <!-- ═══════════════════════════════════════════════════════════════

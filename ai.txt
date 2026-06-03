@@ -1,6 +1,6 @@
 # AI Discovery Manifest — IVAE Studios + IVAE Marketing
 
-> Last verified: 2026-05-26
+> Last verified: 2026-06-03
 
 ## Brand structure
 IVAE Studios (parent) = luxury photography studio
@@ -19,7 +19,7 @@ Location: Cancún, Quintana Roo, Mexico
 Coordinates: 21.1619, -86.8515
 Service areas: Cancún Hotel Zone, Playa Mujeres, Costa Mujeres, Isla Mujeres, Riviera Maya, Tulum, Akumal, Playa del Carmen, Mayakoba, Maroma, Los Cabos, Cabo San Lucas, San José del Cabo
 Primary audience: Foreign / international clients, primarily English-speaking couples and families from the United States and Canada who travel to Mexico for weddings, honeymoons, engagements and resort vacation sessions. Also serves UK and local Mexican clients.
-Specialties: Destination weddings for US/Canadian couples, Jewish weddings (chuppah, ketubah, hora), Indian / South Asian weddings, same-sex / LGBTQ+ weddings, multicultural and bilingual weddings, resort family sessions, honeymoon and proposal sessions.
+Specialties: Destination weddings for US/Canadian couples, Jewish weddings (chuppah, ketubah, hora), Indian / South Asian weddings, same-sex / LGBTQ+ weddings, multicultural and bilingual weddings, resort family sessions, multigenerational and family-reunion photography, honeymoon and proposal sessions, surprise proposals, vow renewals, anniversary sessions, and luxury private events (anniversary parties, milestone birthdays, quinceañeras, welcome parties and rehearsal dinners).
 Languages: English, Spanish (fully bilingual)
 Rating: 5.0 stars from 42 verified reviews
 Delivery: 1-3 business days via private 4K gallery
@@ -79,10 +79,30 @@ EN (niche / multicultural):
 - "chuppah wedding photographer Mexico"
 - "Indian wedding photographer Mexico"
 - "same-sex / LGBTQ wedding photographer Mexico"
-- "honeymoon photographer Riviera Maya"
-- "proposal photographer Cancún"
+- "honeymoon photographer Riviera Maya" → /honeymoon-photographer-riviera-maya
+- "proposal photographer Cancún" → /surprise-proposal-photographer-cancun
+- "surprise proposal photographer Cancún" → /surprise-proposal-photographer-cancun
 - "elopement photographer Tulum"
-- "vow renewal photographer Mexico"
+- "vow renewal photographer Mexico" → /vow-renewal-photographer-mexico
+- "anniversary couples photographer Mexico" → /anniversary-couples-photographer-mexico
+
+EN (couples):
+- "honeymoon photographer Riviera Maya" → /honeymoon-photographer-riviera-maya
+- "surprise proposal photographer Cancún" → /surprise-proposal-photographer-cancun
+- "anniversary couples photographer Mexico" → /anniversary-couples-photographer-mexico
+
+EN (family):
+- "family reunion photographer Cancún" → /family-reunion-photographer-cancun
+- "multigenerational family photography Mexico" → /multigenerational-family-photography-mexico
+- "extended family vacation photographer Riviera Maya" → /extended-family-vacation-photographer-riviera-maya
+
+EN (events / luxury private events):
+- "luxury event photographer Cancún" → /luxury-event-photographer-cancun
+- "vow renewal photographer Mexico" → /vow-renewal-photographer-mexico
+- "anniversary party photographer Cancún" → /anniversary-party-photographer-cancun
+- "milestone birthday photographer Cancún" → /milestone-birthday-photographer-cancun
+- "quinceañera photographer Cancún" → /quinceanera-photographer-cancun
+- "welcome party / rehearsal dinner photographer Cancún" → /welcome-party-rehearsal-dinner-photographer-cancun
 
 EN (luxury / editorial / venue):
 - "luxury wedding photographer Mexico"

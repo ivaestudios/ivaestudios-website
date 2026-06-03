@@ -1688,6 +1688,41 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
     </div>
   </section>
 
+  <!-- ACT VII · Servicios relacionados (mobile) -->
+  <style>
+  .ivm-st-related{background:var(--ink-3,#0a0f17);color:var(--cream-1,#faf8f5);padding:80px 24px;border-top:1px solid rgba(201,165,78,0.18)}
+  .ivm-st-related__eyebrow{display:inline-flex;align-items:center;gap:12px;font-family:'Syne',sans-serif;font-size:10.5px;font-weight:500;text-transform:uppercase;letter-spacing:0.26em;color:var(--gold,#c9a54e);margin:0 0 18px}
+  .ivm-st-related__eyebrow::before{content:'';width:32px;height:1px;background:var(--gold,#c9a54e)}
+  .ivm-st-related__title{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(30px,8vw,40px);font-weight:300;line-height:1.06;letter-spacing:-0.01em;margin:0 0 16px;color:var(--cream-1,#faf8f5)}
+  .ivm-st-related__title em{font-style:italic;color:var(--gold,#c9a54e)}
+  .ivm-st-related__lead{font-family:'Syne',sans-serif;font-size:14.5px;line-height:1.7;color:rgba(250,248,245,0.72);margin:0 0 36px;max-width:520px}
+  .ivm-st-related__list{display:flex;flex-direction:column;gap:14px}
+  .ivm-st-related__card{display:block;text-decoration:none;padding:24px 22px;border:1px solid rgba(201,165,78,0.28);background:rgba(201,165,78,0.03);transition:background 0.3s,border-color 0.3s}
+  .ivm-st-related__card:hover,.ivm-st-related__card:focus-visible{background:rgba(201,165,78,0.08);border-color:var(--gold,#c9a54e)}
+  .ivm-st-related__name{display:block;font-family:'Cormorant Garamond',Georgia,serif;font-size:24px;font-weight:400;line-height:1.18;letter-spacing:-0.005em;color:var(--cream-1,#faf8f5);margin:0 0 8px}
+  .ivm-st-related__card:hover .ivm-st-related__name,.ivm-st-related__card:focus-visible .ivm-st-related__name{color:var(--gold,#c9a54e)}
+  .ivm-st-related__desc{display:block;font-family:'Syne',sans-serif;font-size:13px;line-height:1.6;color:rgba(250,248,245,0.7)}
+  </style>
+  <section class="ivm-st-related" aria-labelledby="ivm-rel-h">
+    <span class="ivm-st-related__eyebrow">Alrededor de la boda</span>
+    <h2 id="ivm-rel-h" class="ivm-st-related__title">El fin de semana <em>completo.</em></h2>
+    <p class="ivm-st-related__lead">Una boda destino rara vez es un solo día. El estudio cubre cada momento que la rodea.</p>
+    <div class="ivm-st-related__list">
+      <a class="ivm-st-related__card" href="/es/fotografo-eventos-lujo-cancun">
+        <span class="ivm-st-related__name">Fotografía de Eventos y Celebraciones</span>
+        <span class="ivm-st-related__desc">Galas, aniversarios y celebraciones privadas con la misma mirada editorial.</span>
+      </a>
+      <a class="ivm-st-related__card" href="/es/fotografo-cena-ensayo-bienvenida-cancun">
+        <span class="ivm-st-related__name">Fotografía de Bienvenida y Cena de Ensayo</span>
+        <span class="ivm-st-related__desc">La noche antes, cuando llegan los invitados y empieza la historia.</span>
+      </a>
+      <a class="ivm-st-related__card" href="/es/fotografo-renovacion-votos-mexico">
+        <span class="ivm-st-related__name">Fotografía de Renovación de Votos</span>
+        <span class="ivm-st-related__desc">Volver a decir que sí frente al mar, años después.</span>
+      </a>
+    </div>
+  </section>
+
   <!-- FOOTER -->
   <footer class="ivm-act-foot">
     <p class="ivm-act-foot__mark">IVAE <em>Studios</em></p>
@@ -2213,6 +2248,52 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
         </div>
       </div>
 
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ Servicios relacionados (desktop) ═══════ -->
+<style>
+.lw-related-services{background:var(--ink-3,#0a0f17);color:var(--cream-1,#faf8f5);padding:96px 32px;border-top:1px solid rgba(201,165,78,0.18);border-bottom:1px solid rgba(201,165,78,0.18)}
+.lw-related-services .lw-related-inner{max-width:1180px;margin:0 auto}
+.lw-related-services .lw-related-eyebrow{display:inline-flex;align-items:center;gap:14px;font-family:'Syne',sans-serif;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.28em;color:var(--gold,#c9a54e);margin:0 0 24px}
+.lw-related-services .lw-related-eyebrow::before{content:'';width:40px;height:1px;background:var(--gold,#c9a54e)}
+.lw-related-services h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(32px,4vw,52px);font-weight:300;line-height:1.08;letter-spacing:-0.01em;margin:0 0 18px;color:var(--cream-1,#faf8f5)}
+.lw-related-services h2 em{font-style:italic;color:var(--gold,#c9a54e)}
+.lw-related-services .lw-related-lead{font-family:'Syne',sans-serif;font-size:16px;line-height:1.7;color:rgba(250,248,245,0.75);margin:0 0 56px;max-width:640px}
+.lw-related-services .lw-related-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.lw-related-services .lw-related-card{display:block;text-decoration:none;padding:36px 32px;border:1px solid rgba(201,165,78,0.28);background:rgba(201,165,78,0.025);transition:background 0.3s,border-color 0.3s,transform 0.3s}
+.lw-related-services .lw-related-card:hover,.lw-related-services .lw-related-card:focus-visible{background:rgba(201,165,78,0.07);border-color:var(--gold,#c9a54e);transform:translateY(-2px)}
+.lw-related-services .lw-related-card h3{font-family:'Cormorant Garamond',Georgia,serif;font-size:28px;font-weight:300;line-height:1.16;letter-spacing:-0.005em;margin:0 0 14px;color:var(--cream-1,#faf8f5)}
+.lw-related-services .lw-related-card:hover h3,.lw-related-services .lw-related-card:focus-visible h3{color:var(--gold,#c9a54e)}
+.lw-related-services .lw-related-card p{font-family:'Syne',sans-serif;font-size:13.5px;line-height:1.65;color:rgba(250,248,245,0.7);margin:0}
+@media (max-width:880px){
+  .lw-related-services{padding:72px 20px}
+  .lw-related-services .lw-related-grid{grid-template-columns:1fr;gap:14px}
+  .lw-related-services .lw-related-card{padding:28px 24px}
+  .lw-related-services .lw-related-card h3{font-size:24px}
+  .lw-related-services h2{font-size:clamp(28px,7vw,40px)}
+  .lw-related-services .lw-related-lead{margin-bottom:36px}
+}
+</style>
+<section class="lw-related-services" aria-label="Servicios relacionados">
+  <div class="lw-related-inner">
+    <p class="lw-related-eyebrow">Alrededor de la boda</p>
+    <h2>Cada momento <em>del fin de semana.</em></h2>
+    <p class="lw-related-lead">Una boda destino rara vez es un solo día. El estudio acompaña cada celebración que la rodea, con la misma disciplina editorial.</p>
+    <div class="lw-related-grid">
+      <a href="/es/fotografo-eventos-lujo-cancun" class="lw-related-card">
+        <h3>Fotografía de Eventos y Celebraciones</h3>
+        <p>Galas, aniversarios y celebraciones privadas en los mejores resorts de Cancún y la Riviera Maya.</p>
+      </a>
+      <a href="/es/fotografo-cena-ensayo-bienvenida-cancun" class="lw-related-card">
+        <h3>Fotografía de Bienvenida y Cena de Ensayo</h3>
+        <p>La noche antes de la boda, cuando llegan los invitados y comienza la historia del fin de semana.</p>
+      </a>
+      <a href="/es/fotografo-renovacion-votos-mexico" class="lw-related-card">
+        <h3>Fotografía de Renovación de Votos</h3>
+        <p>Volver a decir que sí frente al mar, años después, con la ceremonia capturada como la primera vez.</p>
+      </a>
     </div>
   </div>
 </section>

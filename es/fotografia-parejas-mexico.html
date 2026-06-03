@@ -1164,6 +1164,45 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
     </div>
   </section>
 
+  <!-- SERVICIOS RELACIONADOS -->
+  <style>
+  .ivm-related{background:var(--ivm-ink,#0a0f17);color:var(--ivm-cream,#faf8f5);padding:88px 20px 72px;border-top:1px solid rgba(201,165,78,.12)}
+  .ivm-related__head{text-align:center;margin-bottom:40px}
+  .ivm-related__eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.42em;text-transform:uppercase;color:var(--ivm-gold,#c9a54e);margin-bottom:12px}
+  .ivm-related__title{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(28px,8vw,38px);line-height:1.1;color:var(--ivm-cream,#faf8f5);margin:0}
+  .ivm-related__title em{font-style:italic;color:var(--ivm-gold,#c9a54e)}
+  .ivm-related__list{display:flex;flex-direction:column;gap:1px;background:rgba(201,165,78,.22);border:1px solid rgba(201,165,78,.22);max-width:420px;margin:0 auto}
+  .ivm a.ivm-related__card{display:block;background:var(--ivm-ink-2,#10161e);padding:26px 22px;text-decoration:none;transition:background .3s var(--ivm-ease)}
+  .ivm a.ivm-related__card:active{background:rgba(201,165,78,.08)}
+  .ivm-related__name{display:block;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:24px;line-height:1.15;color:var(--ivm-cream,#faf8f5);margin-bottom:8px}
+  .ivm-related__name em{font-style:italic;color:var(--ivm-gold,#c9a54e)}
+  .ivm-related__desc{display:block;font-family:'Syne',sans-serif;font-size:12.5px;line-height:1.6;color:rgba(250,248,245,.62);margin:0}
+  </style>
+  <section class="ivm-related" aria-label="Servicios relacionados">
+    <div class="ivm-related__head">
+      <span class="ivm-related__eyebrow">Más sesiones para parejas</span>
+      <h2 class="ivm-related__title">Cada capítulo, <em>su propia sesión.</em></h2>
+    </div>
+    <div class="ivm-related__list">
+      <a class="ivm-related__card" href="/es/fotografo-propuesta-sorpresa-cancun">
+        <span class="ivm-related__name">Propuesta <em>Sorpresa</em></span>
+        <span class="ivm-related__desc">El sí frente al Caribe, capturado en secreto.</span>
+      </a>
+      <a class="ivm-related__card" href="/es/fotografo-luna-de-miel-riviera-maya">
+        <span class="ivm-related__name">Luna de <em>Miel</em></span>
+        <span class="ivm-related__desc">Los primeros días de casados en la Riviera Maya.</span>
+      </a>
+      <a class="ivm-related__card" href="/es/fotografo-aniversario-pareja-mexico">
+        <span class="ivm-related__name">Aniversario de <em>Pareja</em></span>
+        <span class="ivm-related__desc">Regresen al lugar que marcó su historia.</span>
+      </a>
+      <a class="ivm-related__card" href="/es/fotografo-eventos-lujo-cancun">
+        <span class="ivm-related__name">Eventos y <em>Celebraciones</em></span>
+        <span class="ivm-related__desc">Cobertura editorial para los momentos que reúnen a todos.</span>
+      </a>
+    </div>
+  </section>
+
   <!-- FOOTER -->
   <footer class="ivm-act-foot">
     <p class="ivm-act-foot__mark">IVAE <em>Studios</em></p>
@@ -1652,6 +1691,57 @@ html.dark .lc-btn--primary{color:var(--ink-1)!important}
         </div>
       </div>
 
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ Servicios relacionados para parejas ═══════ -->
+<style>
+.related-services{background:var(--ink-4,#070b11);color:var(--cream-1,#faf8f5);padding:96px 32px;border-top:1px solid rgba(201,165,78,0.18)}
+.related-services .related-inner{max-width:1180px;margin:0 auto}
+.related-services .related-eyebrow{display:inline-flex;align-items:center;gap:14px;font-family:'Syne',sans-serif;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.28em;color:var(--gold,#c9a54e);margin:0 0 24px}
+.related-services .related-eyebrow::before{content:'';width:40px;height:1px;background:var(--gold,#c9a54e)}
+.related-services h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(32px,4vw,52px);font-weight:300;line-height:1.08;letter-spacing:-0.01em;margin:0 0 18px;color:var(--cream-1,#faf8f5)}
+.related-services h2 em{font-style:italic;color:var(--gold,#c9a54e)}
+.related-services .related-lead{font-family:'Syne',sans-serif;font-size:16px;line-height:1.7;color:rgba(250,248,245,0.75);margin:0 0 56px;max-width:640px}
+.related-services .related-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.related-services .related-card{display:block;text-decoration:none;padding:36px 32px;border:1px solid rgba(201,165,78,0.28);background:rgba(201,165,78,0.025);transition:background 0.3s,border-color 0.3s,transform 0.3s}
+.related-services .related-card:hover{background:rgba(201,165,78,0.07);border-color:var(--gold,#c9a54e);transform:translateY(-2px)}
+.related-services .related-card h3{font-family:'Cormorant Garamond',Georgia,serif;font-size:30px;font-weight:300;letter-spacing:-0.005em;margin:0 0 14px;color:var(--cream-1,#faf8f5)}
+.related-services .related-card h3 em{font-style:italic;color:var(--gold,#c9a54e)}
+.related-services .related-card:hover h3{color:var(--gold,#c9a54e)}
+.related-services .related-card p{font-family:'Syne',sans-serif;font-size:13.5px;line-height:1.65;color:rgba(250,248,245,0.7);margin:0}
+@media (max-width:880px){
+  .related-services{padding:72px 20px}
+  .related-services .related-grid{grid-template-columns:1fr;gap:14px}
+  .related-services .related-card{padding:28px 24px}
+  .related-services .related-card h3{font-size:26px}
+  .related-services h2{font-size:clamp(28px,7vw,40px)}
+  .related-services .related-lead{margin-bottom:36px}
+}
+</style>
+<section class="related-services" aria-label="Servicios relacionados">
+  <div class="related-inner">
+    <p class="related-eyebrow">Más formas de fotografiar su historia</p>
+    <h2>Cada capítulo, <em>su propia sesión.</em></h2>
+    <p class="related-lead">Una propuesta secreta, la luna de miel, el aniversario que vuelve cada año, la celebración que reúne a todos. El estudio cubre cada momento con la misma mirada editorial.</p>
+    <div class="related-grid">
+      <a href="/es/fotografo-propuesta-sorpresa-cancun" class="related-card">
+        <h3>Propuesta <em>Sorpresa</em></h3>
+        <p>El sí frente al Caribe, capturado en secreto. Logística discreta y un fotógrafo escondido para el momento exacto.</p>
+      </a>
+      <a href="/es/fotografo-luna-de-miel-riviera-maya" class="related-card">
+        <h3>Luna de <em>Miel</em></h3>
+        <p>Los primeros días de casados en la Riviera Maya. Sesiones al amanecer en la playa, en el resort y entre cenotes.</p>
+      </a>
+      <a href="/es/fotografo-aniversario-pareja-mexico" class="related-card">
+        <h3>Aniversario de <em>Pareja</em></h3>
+        <p>Un año, diez o veinticinco. Regresen al lugar que los marcó y dejen que el estudio cuente cuánto ha crecido el amor.</p>
+      </a>
+      <a href="/es/fotografo-eventos-lujo-cancun" class="related-card">
+        <h3>Eventos y <em>Celebraciones</em></h3>
+        <p>Cumpleaños, votos renovados, reuniones íntimas. Cobertura editorial para las celebraciones que merecen recordarse.</p>
+      </a>
     </div>
   </div>
 </section>
