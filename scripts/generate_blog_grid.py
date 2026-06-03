@@ -433,7 +433,10 @@ def parse_post(path: Path, lang: str) -> dict | None:
         # derive from path
         if lang == "en":
             slug = path.stem.replace("post-", "")
-            url = f"/{path.stem}"  # /post-foo  (rewritten by _redirects to /blog/foo)
+            if path.parent.name == "blog":
+                url = f"/blog/{path.stem}"  # blog/<slug>.html served directly at /blog/<slug>
+            else:
+                url = f"/{path.stem}"  # /post-foo  (rewritten by _redirects to /blog/foo)
         else:
             url = f"/es/blog/{path.stem}"
 
@@ -549,7 +552,7 @@ def splice(text: str, start: str, end: str, payload: str) -> str:
 # ────────────────────────────────────────────────────────────────────────────
 def build(lang: str):
     if lang == "en":
-        files = sorted(ROOT.glob(EN_POSTS_GLOB))
+        files = sorted(list(ROOT.glob(EN_POSTS_GLOB)) + list(ROOT.glob("blog/*.html")))
         target = EN_BLOG
     else:
         files = sorted(ROOT.glob(ES_POSTS_GLOB))
