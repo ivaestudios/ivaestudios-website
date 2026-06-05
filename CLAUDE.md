@@ -174,9 +174,13 @@ performance attributes, WCAG, sitemaps, AI manifests.
 These are the hard blockers that no agent can resolve without human input
 or external account access. Listed in priority order:
 
-1. **Phone number.** `+52 990 204 6514` uses area code 990 which doesn't
-   exist in Mexico. Currently embedded in 77 schema instances site-wide.
-   Replace with the real GBP phone.
+1. **Phone number — RESOLVED (2026-06-05).** Both numbers are REAL, confirmed by
+   Vianey: `+52 228 857 0584` = phone CALLS (this is the Google Business Profile
+   number) and `+52 990 204 6514` = WhatsApp. Schema `telephone` is now the CALL
+   number (matches GBP for NAP) on 165 pages; WhatsApp stays in all wa.me links + a
+   ContactPoint. DO NOT treat either number as fake or "invalid". The 4 owner-protected
+   pages still carry the old WhatsApp number in their #organization telephone, pending
+   owner OK to edit their schema.
 2. **GBP coordinates / single canonical address.** Schema uses Cancún
    (`21.1619, -86.8515`) but the GBP pin may be in Riviera Maya
    (`20.4785722, -87.0756298`). Pick one canonical address (street + lat/lng)
@@ -190,17 +194,22 @@ or external account access. Listed in priority order:
    sends via Resend to `info@ivaestudios.com`. Verify `ivaestudios.com`
    in Resend (DKIM + SPF + DMARC), generate an API key, store as
    `RESEND_API_KEY` in GitHub Secrets + Cloudflare Pages env.
-5. **Real testimonials.** Replace the three placeholder reviews on
-   `index.html` + `es/index.html` (Samantha Whitfield, Marco Benedetti,
-   Priya Raghavan) with real client reviews.
+5. **Real testimonials — IN PROGRESS (2026-06-05).** IVAE has 47 REAL 5-star Google
+   reviews (5.0 average). Three captured + added as visible testimonials + Review
+   JSON-LD on the weddings/family/couples pillars: Joni Blake, Danielle Prager, Angila
+   Golik. Placeholder names (Whitfield/Benedetti/Raghavan, plus Voss/Carter/Marin/
+   Calderon/etc) were removed from all non-protected pages. STILL TODO: placeholders
+   remain on the owner-protected `index.html` + `es/index.html` (need owner OK), and the
+   other 44 real reviews need pulling from GBP (Google blocks bulk auto-extraction —
+   collect via screenshots) + diversifying across pages.
 6. **Real session pricing.** FAQ schema currently shows `$650–$3,500+`
    placeholder. Replace with real session rates so `Offer.price` +
    `priceValidUntil` schema can ship.
 
 ### Lower priority (Vianey may want to act on these)
 
-- `AggregateRating` 5.0 / 42 reviews — verify against the live GBP and
-  update in a single pass once we have the real number.
+- `AggregateRating` — RESOLVED (2026-06-05): the real GBP rating is **5.0 / 47
+  reviews**, set on the #organization node site-wide. (Was a placeholder 5.0/42.)
 - No street address in `Organization` schema yet (waiting on #2 above).
 - Separate Google Business Profile for IVAE Marketing (sub-brand).
 - Pricing blocks on `cancun.html` + `riviera-maya.html` (placeholder).
