@@ -280,7 +280,8 @@
 /blog/choose-luxury-photographer /blog/how-to-choose-luxury-photographer-mexico 301
 /es/about /es/acerca-de 301
 /es/cancun-photographer /es/fotografo-cancun 301
-/venues /venues/banyan-tree-mayakoba 301
+# /venues now serves the "Weddings by Venue" hub page (venues.html). The old
+# redirect to /venues/banyan-tree-mayakoba is retired so the hub is reachable.
 /portfolio /luxury-weddings 301
 /portfolio/* /luxury-weddings 301
 
