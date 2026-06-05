@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- IVAE Studios — AI-priority sitemap for LLM crawlers
      Subset of sitemap.xml with editorial/citation value for AI Q&A.
-     Last updated: 2026-05-26 -->
+     Last updated: 2026-06-04 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Studio homepage — core identity -->
   <url>
@@ -357,6 +357,62 @@
   <url>
     <loc>https://ivaestudios.com/le-blanc-cancun-wedding-photographer</loc>
     <lastmod>2026-05-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- NEW: Cancún wedding videographer / cinematic wedding film (EN), #1 new priority -->
+  <url>
+    <loc>https://ivaestudios.com/cancun-wedding-videographer</loc>
+    <lastmod>2026-06-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <!-- NEW: Videógrafo de bodas Cancún / cine de bodas (ES), #1 new priority -->
+  <url>
+    <loc>https://ivaestudios.com/es/videografo-bodas-cancun</loc>
+    <lastmod>2026-06-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <!-- Surprise proposal photographer Cancún (EN) -->
+  <url>
+    <loc>https://ivaestudios.com/surprise-proposal-photographer-cancun</loc>
+    <lastmod>2026-06-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Fotógrafo propuesta sorpresa Cancún (ES) -->
+  <url>
+    <loc>https://ivaestudios.com/es/fotografo-propuesta-sorpresa-cancun</loc>
+    <lastmod>2026-06-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Honeymoon photographer Riviera Maya (EN) -->
+  <url>
+    <loc>https://ivaestudios.com/honeymoon-photographer-riviera-maya</loc>
+    <lastmod>2026-06-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Fotógrafo luna de miel Riviera Maya (ES) -->
+  <url>
+    <loc>https://ivaestudios.com/es/fotografo-luna-de-miel-riviera-maya</loc>
+    <lastmod>2026-06-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Anniversary couples photographer Mexico (EN) -->
+  <url>
+    <loc>https://ivaestudios.com/anniversary-couples-photographer-mexico</loc>
+    <lastmod>2026-06-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Fotógrafo aniversario de pareja México (ES) -->
+  <url>
+    <loc>https://ivaestudios.com/es/fotografo-aniversario-pareja-mexico</loc>
+    <lastmod>2026-06-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

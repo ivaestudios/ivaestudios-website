@@ -188,6 +188,7 @@ PAGE_EN_TO_ES = {
     "/destination-wedding-photographer-mexico": "/es/fotografo-bodas-destino-mexico",
     "/couples-photography-mexico": "/es/fotografia-parejas-mexico",
     "/luxury-family-photos-cancun": "/es/fotos-familiares-lujo-cancun",
+    "/cancun-wedding-videographer": "/es/videografo-bodas-cancun",
     "/outfit-guide": "/es/guia-vestuario",
     "/brand": "/es/marca",
     "/cancun-wedding-cost-2026": "/es/costo-boda-cancun-2026",

@@ -52,9 +52,11 @@
 <link rel="stylesheet" href="/styles/site-footer.css?v=20260531a"/>
 <link rel="stylesheet" href="/styles/responsive.css?v=20260531a"/>
 <link rel="stylesheet" href="/dark-mode.css"/>
-<!-- LCP hero preload — responsive variants to slash mobile LCP from 33s -->
-<link rel="preload" as="image" fetchpriority="high" href="/images/wedding-bride-cabo-san-lucas-ivae-studios-480.jpg" type="image/jpeg" media="(max-width:600px)">
-<link rel="preload" as="image" fetchpriority="high" href="/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg" type="image/jpeg" media="(min-width:601px) and (max-width:1024px)">
+<!-- LCP hero preload — matched to the actual rendered hero per breakpoint.
+     Mobile is canonical (<=899px): the .ivm hero renders wedding-bride-playa-mujeres.
+     Desktop (>=900px): the .lw-hero renders the cabo-san-lucas responsive variants. -->
+<link rel="preload" as="image" fetchpriority="high" href="/images/wedding-bride-playa-mujeres-ivae-studios.jpg" type="image/jpeg" media="(max-width:899px)">
+<link rel="preload" as="image" fetchpriority="high" href="/images/wedding-bride-cabo-san-lucas-ivae-studios-960.jpg" type="image/jpeg" media="(min-width:900px) and (max-width:1024px)">
 <link rel="preload" as="image" fetchpriority="high" href="/images/wedding-bride-cabo-san-lucas-ivae-studios-1600.jpg" type="image/jpeg" media="(min-width:1025px)">
 <script src="/js/site-header.js?v=20260531a" defer></script>
 <script src="/js/components.js?v=20260531a" defer></script>
@@ -71,8 +73,9 @@
      JSON-LD / preserved verbatim from prior schema (Org, Service,
      Offers, Breadcrumbs, FAQ, Brand, DefinedTerm + Reviews block).
      ═══════════════════════════════════════════════════════════════ -->
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":["Organization","LocalBusiness","ProfessionalService"],"@id":"https://ivaestudios.com/#organization","name":"IVAE Studios","legalName":"IVAE Studios","alternateName":["IVAE Studios Cancun","IVAE Studios Mexico","IVAE Studios Luxury Resort Photography","IVAE Studios Photography","IVAE"],"disambiguatingDescription":"IVAE Studios (plural, with S) is the official luxury resort photography studio at ivaestudios.com, led by Vianey Díaz in Cancún, Mexico. Not to be confused with the unrelated domain ivaestudio.com (singular, no S).","description":"IVAE Studios is a luxury resort photography studio in Cancún, Mexico, specializing in editorial-quality photography and videography for international families, couples, and destination weddings across Cancún, Riviera Maya, Tulum, and Los Cabos. Over 500 sessions delivered. Fully bilingual team.","url":"https://ivaestudios.com","logo":"https://assets.ivaestudios.com/ivae-logo.png","image":"https://assets.ivaestudios.com/ivae-og.jpg","telephone":"+529902046514","email":"hello@ivaestudios.com","currenciesAccepted":["USD","MXN"],"paymentAccepted":"Cash, Credit Card, Bank Transfer","founder":{"@type":"Person","@id":"https://ivaestudios.com/#vianey-diaz","name":"Vianey Díaz","jobTitle":"Founder & Creative Director, Lead Photographer","worksFor":{"@id":"https://ivaestudios.com/#organization"},"image":"https://assets.ivaestudios.com/vianey-diaz.jpg","url":"https://ivaestudios.com/about","sameAs":["https://www.wikidata.org/wiki/Q139689577","https://www.instagram.com/ivaestudios.cancun/","https://instagram.com/ivaestudios.cancun","https://maps.app.goo.gl/aX7jiVbLzwurMmX19","https://ivaestudios.com"]},"employee":{"@id":"https://ivaestudios.com/#vianey-diaz"},"address":{"@type":"PostalAddress","addressLocality":"Cancún","addressRegion":"Quintana Roo","postalCode":"77500","addressCountry":"MX"},"geo":{"@type":"GeoCoordinates","latitude":21.1619,"longitude":-86.8515},"areaServed":[{"@type":"City","name":"Cancún","containedInPlace":{"@type":"State","name":"Quintana Roo"}},{"@type":"Place","name":"Riviera Maya"},{"@type":"City","name":"Playa del Carmen"},{"@type":"City","name":"Tulum"},{"@type":"City","name":"Los Cabos"},{"@type":"City","name":"Cabo San Lucas"},{"@type":"City","name":"San José del Cabo"},{"@type":"Place","name":"Isla Mujeres"},{"@type":"Place","name":"Playa Mujeres"},{"@type":"Place","name":"Costa Mujeres"}],"knowsLanguage":["en","es","English","Spanish"],"knowsAbout":["Luxury Resort Photography","Destination Wedding Photography","Family Portrait Photography","Couples Photography","Engagement Photography","Proposal Photography","Maternity Photography","Babymoon Photography","Bachelorette Photography","Quinceañera Photography","Birthday Photography","Gender Reveal Photography","Trash the Dress","Vow Renewal Photography","Cenote Underwater Photography","Luxury Yacht Photography","Anniversary Photography","Golden Hour Photography","Editorial Photography","Social Media Management"],"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"06:00","closes":"20:00"},"sameAs":["https://www.wikidata.org/wiki/Q139689577","https://www.instagram.com/ivaestudios.cancun/","https://instagram.com/ivaestudios.cancun","https://maps.app.goo.gl/aX7jiVbLzwurMmX19","https://ivaestudios.com"],"aggregateRating":{"@type":"AggregateRating","ratingValue":"5.0","bestRating":"5","worstRating":"1","ratingCount":"42","reviewCount":"42"},"slogan":"Luxury Resort Photography. Editorial. Bilingual. Golden Hour Only.","brand":{"@id":"https://ivaestudios.com/#brand"},"subOrganization":[{"@type":"Organization","@id":"https://ivaestudios.com/social-media-management#ivae-marketing","name":"IVAE Marketing","url":"https://ivaestudios.com/social-media-management","description":"Social Media Management agency for luxury hospitality. Sub-brand of IVAE Studios."}]},{"@type":"WebSite","@id":"https://ivaestudios.com/#website","url":"https://ivaestudios.com","name":"IVAE Studios","alternateName":"IVAE Studios Cancun","description":"Official website of IVAE Studios — luxury resort photography in Cancún, Riviera Maya and Los Cabos, Mexico.","publisher":{"@id":"https://ivaestudios.com/#organization"},"inLanguage":"en","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://ivaestudios.com/blog?q={search_term_string}"},"query-input":"required name=search_term_string"}},{"@type":"WebPage","@id":"https://ivaestudios.com/destination-wedding-photographer-mexico#webpage","url":"https://ivaestudios.com/destination-wedding-photographer-mexico","name":"Luxury Destination Wedding Photographer Mexico | IVAE Studios","datePublished":"2025-01-15","dateModified":"2026-04-21","isPartOf":{"@id":"https://ivaestudios.com/#website"},"about":{"@id":"https://ivaestudios.com/destination-wedding-photographer-mexico#service"},"speakable":{"@type":"SpeakableSpecification","cssSelector":["h1","h2",".hero-sub",".post-excerpt",".post-lead"]},"inLanguage":"en"},{"@type":"Service","@id":"https://ivaestudios.com/destination-wedding-photographer-mexico#service","name":"Destination Wedding Photography Mexico","serviceType":"Destination Wedding Photography","description":"Luxury editorial destination wedding photography across Mexico's premier resort destinations — full-day coverage, cinematic films, and bilingual service for international couples in Cancún, Riviera Maya, Tulum, Mayakoba, and Los Cabos.","url":"https://ivaestudios.com/destination-wedding-photographer-mexico","priceRange":"$1800-$8000 USD","provider":{"@id":"https://ivaestudios.com/#organization"},"brand":{"@id":"https://ivaestudios.com/#brand"},"areaServed":[{"@type":"City","name":"Cancún","containedInPlace":{"@type":"State","name":"Quintana Roo"}},{"@type":"Place","name":"Riviera Maya"},{"@type":"City","name":"Playa del Carmen"},{"@type":"City","name":"Tulum"},{"@type":"Place","name":"Mayakoba"},{"@type":"City","name":"Los Cabos"},{"@type":"City","name":"Cabo San Lucas"},{"@type":"City","name":"San José del Cabo"},{"@type":"Place","name":"Isla Mujeres"}],"availableLanguage":[{"@type":"Language","name":"English","alternateName":"en"},{"@type":"Language","name":"Spanish","alternateName":"es"}],"audience":{"@type":"Audience","audienceType":"Couples","name":"International destination wedding couples, primarily English-speaking couples from the United States and Canada, including Jewish, Indian, same-sex and multicultural weddings","geographicArea":[{"@type":"Country","name":"United States"},{"@type":"Country","name":"Canada"},{"@type":"Country","name":"Mexico"}]},"hasOfferCatalog":{"@type":"OfferCatalog","name":"Wedding Photography Packages","itemListElement":[{"@type":"Offer","name":"Editorial Half-Day","description":"Up to 4 hours of editorial wedding coverage with golden-hour focus.","priceCurrency":"USD","priceRange":"1800-2800","availability":"https://schema.org/InStock","priceValidUntil":"2026-12-31","itemOffered":{"@type":"Service","name":"Half-Day Wedding Photography"}},{"@type":"Offer","name":"Full-Day Coverage","description":"8-10 hours of full editorial wedding coverage with second shooter and venue scouting.","priceCurrency":"USD","priceRange":"3500-5500","availability":"https://schema.org/InStock","priceValidUntil":"2026-12-31","itemOffered":{"@type":"Service","name":"Full-Day Wedding Photography"}},{"@type":"Offer","name":"Full Coverage + Cinematic Film","description":"Complete full-day coverage with cinematic highlight film and ceremony edit.","priceCurrency":"USD","priceRange":"5500-8000","availability":"https://schema.org/InStock","priceValidUntil":"2026-12-31","itemOffered":{"@type":"Service","name":"Wedding Photography + Cinematic Film"}}]},"offers":{"@type":"Offer","priceCurrency":"USD","priceRange":"$1800-$8000","availability":"https://schema.org/InStock","priceValidUntil":"2026-12-31","url":"https://ivaestudios.com/destination-wedding-photographer-mexico"},"aggregateRating":{"@id":"https://ivaestudios.com/#organization-aggregaterating","@type":"AggregateRating","ratingValue":"5.0","bestRating":"5","worstRating":"1","ratingCount":"42","reviewCount":"42"}},{"@type":"BreadcrumbList","@id":"https://ivaestudios.com/destination-wedding-photographer-mexico#breadcrumbs","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://ivaestudios.com/"},{"@type":"ListItem","position":2,"name":"Destination Weddings","item":"https://ivaestudios.com/destination-wedding-photographer-mexico"}]},{"@type":"Brand","@id":"https://ivaestudios.com/#brand","name":"IVAE Studios","alternateName":["IVAE","ivaestudios","ivaestudios.com"],"url":"https://ivaestudios.com","logo":"https://ivaestudios.com/icon-512.png","additionalProperty":[{"@type":"PropertyValue","name":"spelling","value":"IVAE Studios (with S, plural)"},{"@type":"PropertyValue","name":"notIdenticalTo","value":"ivaestudio.com (singular, unrelated European agency)"}]},{"@type":"DefinedTerm","@id":"https://ivaestudios.com/#term-ivae-studios","name":"IVAE Studios","description":"Luxury resort photography studio at ivaestudios.com (with S, plural). Founded by Vianey Díaz in Cancún, Mexico. NOT to be confused with ivaestudio.com.","inDefinedTermSet":"https://ivaestudios.com/brand"}]}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Review","@id":"https://ivaestudios.com/luxury-weddings#review-whitfield","itemReviewed":{"@id":"https://ivaestudios.com/#organization"},"author":{"@type":"Person","name":"Samantha Whitfield"},"reviewRating":{"@type":"Rating","ratingValue":"5","bestRating":"5","worstRating":"1"},"datePublished":"2026-03-18","reviewBody":"Our gallery from IVAE Studios looks like it belongs in a magazine. Every frame felt directed, never staged. We still scroll through it on the weekends.","publisher":{"@id":"https://ivaestudios.com/#organization"}},{"@type":"Review","@id":"https://ivaestudios.com/luxury-weddings#review-benedetti","itemReviewed":{"@id":"https://ivaestudios.com/#organization"},"author":{"@type":"Person","name":"Marco Benedetti"},"reviewRating":{"@type":"Rating","ratingValue":"5","bestRating":"5","worstRating":"1"},"datePublished":"2026-01-29","reviewBody":"The studio did not just photograph our wedding. They composed it. Vianey, the Director, read the day like a film, and the team moved through it like one breath.","publisher":{"@id":"https://ivaestudios.com/#organization"}},{"@type":"Review","@id":"https://ivaestudios.com/luxury-weddings#review-raghavan","itemReviewed":{"@id":"https://ivaestudios.com/#organization"},"author":{"@type":"Person","name":"Priya Raghavan"},"reviewRating":{"@type":"Rating","ratingValue":"5","bestRating":"5","worstRating":"1"},"datePublished":"2025-11-22","reviewBody":"The golden hour portraits on the beach are the most beautiful images we have ever seen of ourselves. IVAE Studios delivered a private archive, not a gallery.","publisher":{"@id":"https://ivaestudios.com/#organization"}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":["Organization","LocalBusiness","ProfessionalService"],"@id":"https://ivaestudios.com/#organization","name":"IVAE Studios","legalName":"IVAE Studios","alternateName":["IVAE Studios Cancun","IVAE Studios Mexico","IVAE Studios Luxury Resort Photography","IVAE Studios Photography","IVAE"],"disambiguatingDescription":"IVAE Studios (plural, with S) is the official luxury resort photography studio at ivaestudios.com, led by Vianey Díaz in Cancún, Mexico. Not to be confused with the unrelated domain ivaestudio.com (singular, no S).","description":"IVAE Studios is a luxury resort photography studio in Cancún, Mexico, specializing in editorial-quality photography and videography for international families, couples, and destination weddings across Cancún, Riviera Maya, Tulum, and Los Cabos. Over 500 sessions delivered. Fully bilingual team.","url":"https://ivaestudios.com","logo":"https://assets.ivaestudios.com/ivae-logo.png","image":"https://assets.ivaestudios.com/ivae-og.jpg","telephone":"+529902046514","email":"hello@ivaestudios.com","currenciesAccepted":["USD","MXN"],"paymentAccepted":"Cash, Credit Card, Bank Transfer","founder":{"@type":"Person","@id":"https://ivaestudios.com/#vianey-diaz","name":"Vianey Díaz","jobTitle":"Founder & Creative Director, Lead Photographer","worksFor":{"@id":"https://ivaestudios.com/#organization"},"image":"https://assets.ivaestudios.com/vianey-diaz.jpg","url":"https://ivaestudios.com/about","sameAs":["https://www.wikidata.org/wiki/Q139689577","https://www.instagram.com/ivaestudios.cancun/","https://instagram.com/ivaestudios.cancun","https://maps.app.goo.gl/aX7jiVbLzwurMmX19","https://ivaestudios.com"]},"employee":{"@id":"https://ivaestudios.com/#vianey-diaz"},"address":{"@type":"PostalAddress","addressLocality":"Cancún","addressRegion":"Quintana Roo","postalCode":"77500","addressCountry":"MX"},"geo":{"@type":"GeoCoordinates","latitude":21.1619,"longitude":-86.8515},"areaServed":[{"@type":"City","name":"Cancún","containedInPlace":{"@type":"State","name":"Quintana Roo"}},{"@type":"Place","name":"Riviera Maya"},{"@type":"City","name":"Playa del Carmen"},{"@type":"City","name":"Tulum"},{"@type":"City","name":"Los Cabos"},{"@type":"City","name":"Cabo San Lucas"},{"@type":"City","name":"San José del Cabo"},{"@type":"Place","name":"Isla Mujeres"},{"@type":"Place","name":"Playa Mujeres"},{"@type":"Place","name":"Costa Mujeres"}],"knowsLanguage":["en","es","English","Spanish"],"knowsAbout":["Luxury Resort Photography","Destination Wedding Photography","Family Portrait Photography","Couples Photography","Engagement Photography","Proposal Photography","Maternity Photography","Babymoon Photography","Bachelorette Photography","Quinceañera Photography","Birthday Photography","Gender Reveal Photography","Trash the Dress","Vow Renewal Photography","Cenote Underwater Photography","Luxury Yacht Photography","Anniversary Photography","Golden Hour Photography","Editorial Photography","Social Media Management"],"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"06:00","closes":"20:00"},"sameAs":["https://www.wikidata.org/wiki/Q139689577","https://www.instagram.com/ivaestudios.cancun/","https://instagram.com/ivaestudios.cancun","https://maps.app.goo.gl/aX7jiVbLzwurMmX19","https://ivaestudios.com"],"slogan":"Luxury Resort Photography. Editorial. Bilingual. Golden Hour Only.","brand":{"@id":"https://ivaestudios.com/#brand"},"subOrganization":[{"@type":"Organization","@id":"https://ivaestudios.com/social-media-management#ivae-marketing","name":"IVAE Marketing","url":"https://ivaestudios.com/social-media-management","description":"Social Media Management agency for luxury hospitality. Sub-brand of IVAE Studios."}]},{"@type":"WebSite","@id":"https://ivaestudios.com/#website","url":"https://ivaestudios.com","name":"IVAE Studios","alternateName":"IVAE Studios Cancun","description":"Official website of IVAE Studios — luxury resort photography in Cancún, Riviera Maya and Los Cabos, Mexico.","publisher":{"@id":"https://ivaestudios.com/#organization"},"inLanguage":"en","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://ivaestudios.com/blog?q={search_term_string}"},"query-input":"required name=search_term_string"}},{"@type":"WebPage","@id":"https://ivaestudios.com/destination-wedding-photographer-mexico#webpage","url":"https://ivaestudios.com/destination-wedding-photographer-mexico","name":"Luxury Destination Wedding Photographer Mexico | IVAE Studios","datePublished":"2025-01-15","dateModified":"2026-04-21","isPartOf":{"@id":"https://ivaestudios.com/#website"},"about":{"@id":"https://ivaestudios.com/destination-wedding-photographer-mexico#service"},"author":{"@id":"https://ivaestudios.com/vianey-diaz#person"},"speakable":{"@type":"SpeakableSpecification","cssSelector":["h1","h2",".hero-sub",".post-excerpt",".post-lead"]},"inLanguage":"en"},{"@type":"Person","@id":"https://ivaestudios.com/vianey-diaz#person","name":"Vianey Diaz","jobTitle":"Director","url":"https://ivaestudios.com/vianey-diaz","worksFor":{"@id":"https://ivaestudios.com/#organization"},"sameAs":["https://ivaestudios.com/vianey-diaz","https://www.wikidata.org/wiki/Q139689577","https://www.instagram.com/ivaestudios.cancun/"],"knowsAbout":["Wedding Photography","Cinematography","Destination Wedding Photography","Editorial Photography","Golden Hour Photography"]},{"@type":"Service","@id":"https://ivaestudios.com/destination-wedding-photographer-mexico#service","name":"Destination Wedding Photography Mexico","serviceType":"Destination Wedding Photography","description":"Luxury editorial destination wedding photography across Mexico's premier resort destinations — full-day coverage, cinematic films, and bilingual service for international couples in Cancún, Riviera Maya, Tulum, Mayakoba, and Los Cabos.","url":"https://ivaestudios.com/destination-wedding-photographer-mexico","priceRange":"$1800-$8000 USD","provider":{"@id":"https://ivaestudios.com/#organization"},"brand":{"@id":"https://ivaestudios.com/#brand"},"areaServed":[{"@type":"City","name":"Cancún","containedInPlace":{"@type":"State","name":"Quintana Roo"}},{"@type":"Place","name":"Riviera Maya"},{"@type":"City","name":"Playa del Carmen"},{"@type":"City","name":"Tulum"},{"@type":"Place","name":"Mayakoba"},{"@type":"City","name":"Los Cabos"},{"@type":"City","name":"Cabo San Lucas"},{"@type":"City","name":"San José del Cabo"},{"@type":"Place","name":"Isla Mujeres"}],"availableLanguage":[{"@type":"Language","name":"English","alternateName":"en"},{"@type":"Language","name":"Spanish","alternateName":"es"}],"audience":{"@type":"Audience","audienceType":"Couples","name":"International destination wedding couples, primarily English-speaking couples from the United States and Canada, including Jewish, Indian, same-sex and multicultural weddings","geographicArea":[{"@type":"Country","name":"United States"},{"@type":"Country","name":"Canada"},{"@type":"Country","name":"Mexico"}]},"hasOfferCatalog":{"@type":"OfferCatalog","name":"Wedding Photography Packages","itemListElement":[{"@type":"Offer","name":"Editorial Half-Day","description":"Up to 4 hours of editorial wedding coverage with golden-hour focus.","priceCurrency":"USD","priceSpecification":{"@type":"PriceSpecification","minPrice":1800,"maxPrice":2800,"priceCurrency":"USD"},"availability":"https://schema.org/InStock","priceValidUntil":"2026-12-31","itemOffered":{"@type":"Service","name":"Half-Day Wedding Photography"}},{"@type":"Offer","name":"Full-Day Coverage","description":"8-10 hours of full editorial wedding coverage with second shooter and venue scouting.","priceCurrency":"USD","priceSpecification":{"@type":"PriceSpecification","minPrice":3500,"maxPrice":5500,"priceCurrency":"USD"},"availability":"https://schema.org/InStock","priceValidUntil":"2026-12-31","itemOffered":{"@type":"Service","name":"Full-Day Wedding Photography"}},{"@type":"Offer","name":"Full Coverage + Cinematic Film","description":"Complete full-day photography coverage with an optional cinematic highlight film and ceremony edit, available by inquiry. Film is produced through the studio's filmmaking partners and confirmed during planning.","priceCurrency":"USD","priceSpecification":{"@type":"PriceSpecification","minPrice":5500,"maxPrice":8000,"priceCurrency":"USD"},"availability":"https://schema.org/PreOrder","priceValidUntil":"2026-12-31","itemOffered":{"@type":"Service","name":"Wedding Photography + Cinematic Film"}}]},"offers":{"@type":"Offer","priceCurrency":"USD","priceSpecification":{"@type":"PriceSpecification","minPrice":1800,"maxPrice":8000,"priceCurrency":"USD"},"availability":"https://schema.org/InStock","priceValidUntil":"2026-12-31","url":"https://ivaestudios.com/destination-wedding-photographer-mexico"}},{"@type":"BreadcrumbList","@id":"https://ivaestudios.com/destination-wedding-photographer-mexico#breadcrumbs","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://ivaestudios.com/"},{"@type":"ListItem","position":2,"name":"Destination Weddings","item":"https://ivaestudios.com/destination-wedding-photographer-mexico"}]},{"@type":"Brand","@id":"https://ivaestudios.com/#brand","name":"IVAE Studios","alternateName":["IVAE","ivaestudios","ivaestudios.com"],"url":"https://ivaestudios.com","logo":"https://ivaestudios.com/icon-512.png","additionalProperty":[{"@type":"PropertyValue","name":"spelling","value":"IVAE Studios (with S, plural)"},{"@type":"PropertyValue","name":"notIdenticalTo","value":"ivaestudio.com (singular, unrelated European agency)"}]},{"@type":"DefinedTerm","@id":"https://ivaestudios.com/#term-ivae-studios","name":"IVAE Studios","description":"Luxury resort photography studio at ivaestudios.com (with S, plural). Founded by Vianey Díaz in Cancún, Mexico. NOT to be confused with ivaestudio.com.","inDefinedTermSet":"https://ivaestudios.com/brand"}]}</script>
+<!-- Review JSON-LD removed: no verified client reviews to cite. Real testimonials will be added once collected. -->
+
 
 <style>
 /* ═══════════════════════════════════════════════════════════════
@@ -1354,11 +1357,20 @@ html.dark a.lw-btn-gold svg{stroke:var(--ink-1)}
   "@id": "https://ivaestudios.com/luxury-weddings#faq",
   "mainEntity": [
     {"@type":"Question","name":"How much does a destination wedding photographer in Mexico cost?","acceptedAnswer":{"@type":"Answer","text":"Every wedding is custom and quoted in conversation. The studio does not publish standard packages — each brief is shaped around your dates, venue, hours, and whether video is added. Investment varies with scope: an intimate four-hour ceremony is shaped one way, a full-day production with a second photographer and cinematic film is shaped another. Every brief includes a private 4K gallery, unlimited downloads, print rights, and bilingual service from inquiry through delivery."}},
-    {"@type":"Question","name":"How quickly will I get my photos back?","acceptedAnswer":{"@type":"Answer","text":"A teaser of fifteen to twenty editorial frames lands in your inbox within ten days of the wedding. The complete edited gallery follows in three to four weeks through a private 4K viewer. The cinematic highlight film and ceremony edit are delivered within eight weeks. Each delivery window is signed into the agreement, so the timeline is committed in writing rather than estimated."}},
+    {"@type":"Question","name":"How quickly will I get my photos back?","acceptedAnswer":{"@type":"Answer","text":"A teaser of fifteen to twenty editorial frames lands in your inbox within ten days of the wedding. The complete edited gallery follows in three to four weeks through a private 4K viewer. When a cinematic highlight film and ceremony edit are commissioned, they follow within eight weeks. Each delivery window is signed into the agreement, so the timeline is committed in writing rather than estimated."}},
     {"@type":"Question","name":"What if it rains on our wedding day?","acceptedAnswer":{"@type":"Answer","text":"Rain is part of the beauty of tropical destinations, and the team is built to adapt fast. Most luxury resorts hold stunning indoor backup locations, which we scout on the venue visit so the plan B is already photographed before it is needed. Afternoon showers in Mexico are typically brief, twenty to forty minutes, and the most romantic frames often arrive the moment the rain clears and the sky fills with saturated color."}},
     {"@type":"Question","name":"When should I book a Mexico wedding photographer?","acceptedAnswer":{"@type":"Answer","text":"The studio recommends booking eight to fourteen months before your wedding date, especially for peak season dates between November and April. Popular Saturdays at luxury resorts like Rosewood Mayakoba, One and Only Palmilla, Four Seasons Costa Palmas, and Las Ventanas book up twelve to eighteen months in advance. Early booking gives you access to preferred dates, time for a pre-wedding engagement or bridal session, a planning call with the Director, and thorough venue scouting."}},
     {"@type":"Question","name":"Will Vianey personally be on the day?","acceptedAnswer":{"@type":"Answer","text":"Yes. Every wedding the studio takes is shot by Vianey Diaz, the Director. The agreement carries a substitution clause: if a force majeure event prevents her from being on the day, the full retainer is returned, in writing, no negotiation. There is no junior shooter pipeline. The name on the contract is the name behind the camera."}},
-    {"@type":"Question","name":"What is your cancellation and postponement policy?","acceptedAnswer":{"@type":"Answer","text":"The full retainer is transferable to a new wedding date within twelve months at no penalty. After twelve months, the retainer converts to partial credit toward a studio session, an engagement block, or a future wedding. Force majeure clauses (hurricane, government order, documented medical event) are written into the agreement so the path forward is already drafted before it is needed. Cancellations outside force majeure forfeit the retainer."}}
+    {"@type":"Question","name":"What is your cancellation and postponement policy?","acceptedAnswer":{"@type":"Answer","text":"The full retainer is transferable to a new wedding date within twelve months at no penalty. After twelve months, the retainer converts to partial credit toward a studio session, an engagement block, or a future wedding. Force majeure clauses (hurricane, government order, documented medical event) are written into the agreement so the path forward is already drafted before it is needed. Cancellations outside force majeure forfeit the retainer."}},
+    {"@type":"Question","name":"How many edited photos do you deliver, and at what resolution?","acceptedAnswer":{"@type":"Answer","text":"A half-day delivers roughly 300 to 400 edited frames, a full day 600 to 900, depending on the day's rhythm. Every image is hand color graded and delivered as a high resolution full size JPEG through a private 4K gallery, with unlimited downloads and a print release included."}},
+    {"@type":"Question","name":"How many hours of coverage do you offer?","acceptedAnswer":{"@type":"Answer","text":"Coverage is shaped to your day. The half-day brief runs up to four hours, ideal for an intimate ceremony and golden hour portraits. Full day coverage runs eight to ten continuous hours, from morning preparations through the reception, so the entire arc of the celebration is photographed without gaps."}},
+    {"@type":"Question","name":"Do you bring a second shooter?","acceptedAnswer":{"@type":"Answer","text":"A second photographer is included in the full day brief and available as an add on for the half day. The second shooter captures the groom's preparations, wide reception scenes, and reverse angles during the ceremony, giving the gallery two perspectives on every key moment of the day."}},
+    {"@type":"Question","name":"Do you offer an engagement or pre-wedding session?","acceptedAnswer":{"@type":"Answer","text":"Yes. An engagement or pre-wedding session is one of our favorite ways to work together before the day. It is shot at a cenote, beach, or resort of your choosing, lets you grow comfortable in front of the camera, and produces images for save the dates and welcome signage."}},
+    {"@type":"Question","name":"What are the best months for a Cancun or Riviera Maya wedding?","acceptedAnswer":{"@type":"Answer","text":"November through April is peak season, with dry skies, gentle humidity, and the cleanest water. Sargassum seaweed is most likely from May to August, and hurricane season runs June through November. We plan timelines and backup locations around these windows so the light and the coastline both cooperate."}},
+    {"@type":"Question","name":"Does the resort charge an outside vendor or photography fee?","acceptedAnswer":{"@type":"Answer","text":"Some resorts apply an outside vendor fee when you bring a photographer who is not on their in house list. We work at these properties regularly and help you confirm the policy early, so the fee, if any, is budgeted from the start rather than discovered at checkout."}},
+    {"@type":"Question","name":"Do you offer video or drone coverage?","acceptedAnswer":{"@type":"Answer","text":"Photography is the studio's core craft. A cinematic film is available by inquiry, produced with our filmmaking partners and confirmed during planning rather than offered as a stock package. Drone aerials can be arranged where the venue and local regulations permit, and we coordinate the permissions on your behalf."}},
+    {"@type":"Question","name":"What is the deposit, and how does payment work?","acceptedAnswer":{"@type":"Answer","text":"A retainer of fifty percent reserves your date and is due on signing, with the balance payable two weeks before the wedding. We accept cards, bank transfer, and US dollars or Mexican pesos. The retainer holds your date exclusively, so no other booking can claim it once it is paid."}},
+    {"@type":"Question","name":"Do you travel, and is there a destination fee?","acceptedAnswer":{"@type":"Answer","text":"We are based in Cancun and travel across the Riviera Maya, Tulum, Isla Mujeres, and Los Cabos as part of every brief. For weddings beyond these regions, a transparent travel fee covers flights and lodging, quoted up front in your proposal with no surprises added later."}}
   ]
 }
 </script>
@@ -1909,7 +1921,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
           src="/images/wedding-bride-playa-mujeres-ivae-studios.jpg"
           srcset="/images/wedding-bride-playa-mujeres-ivae-studios.jpg 1280w"
           sizes="100vw"
-          alt="A bride at golden hour above Land's End at a destination wedding in Cabo San Lucas, photographed by IVAE Studios"
+          alt="A bride at golden hour on the Playa Mujeres coastline at a destination wedding in Cancun, photographed by IVAE Studios"
           loading="eager" fetchpriority="high" decoding="async"
           width="1600" height="1067">
       </picture>
@@ -1927,6 +1939,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
       <div class="ivm-wd-hero__meta">
         <span>Cancún</span><span>Riviera Maya</span><span>Los Cabos</span>
       </div>
+      <p class="ivm-wd-hero__byline" style="font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(250,248,245,.62);margin:16px 0 0">Directed by <a href="/vianey-diaz" rel="author" style="color:#c9a54e;text-decoration:none;border-bottom:1px solid rgba(201,165,78,.5);padding-bottom:1px">Vianey Díaz</a></p>
     </div>
     <span class="ivm-wd-hero__scroll" aria-hidden="true">The day</span>
   </section>
@@ -2269,8 +2282,9 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
       <em>Photographer</em> Mexico.
     </h1>
     <div class="lw-hero-sub lw-rv d2">
-      <p>The studio plans the day around the light. Cancún, the Riviera Maya, Los Cabos. Editorial coverage, cinematic films, bilingual on the day, calm in the room.</p>
+      <p>The studio plans the day around the light. Cancún, the Riviera Maya, Los Cabos. Editorial coverage, cinematic film by inquiry, bilingual on the day, calm in the room.</p>
     </div>
+    <p class="lw-hero-byline lw-rv d2" style="font-family:'Syne',sans-serif;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(250,248,245,.6);margin:18px 0 0">Directed by <a href="/vianey-diaz" rel="author" style="color:#c9a54e;text-decoration:none;border-bottom:1px solid rgba(201,165,78,.5);padding-bottom:1px">Vianey Díaz</a></p>
     <div class="lw-actions lw-rv d3">
       <a class="lw-btn lw-btn-gold" href="#inquiry" data-magnet>
         Begin Inquiry
@@ -2487,17 +2501,17 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
   </style>
 </section>
 
-<!-- ═══════ ONE TESTIMONIAL (single, large) ═══════ -->
-<section class="lw-test" data-chapter="6" data-theme-color="#0d1219" aria-label="A note from a past couple">
+<!-- ═══════ STUDIO NOTE (single, large) ═══════ -->
+<section class="lw-test" data-chapter="6" data-theme-color="#0d1219" aria-label="A note from the studio">
   <blockquote class="lw-test-quote pull-quote">
     <span class="lw-test-glyph" aria-hidden="true">&ldquo;</span>
-    <p>The studio did not just photograph our wedding. They composed it. <em>Vianey read the day like a film</em>, and the team moved through it like one breath.</p>
+    <p>We do not just photograph the wedding. We compose it. <em>The day is read like a film</em>, and the team moves through it like one breath.</p>
   </blockquote>
   <footer class="lw-test-attr">
     <figure class="lw-test-photo" aria-hidden="true"><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg" alt="Wedding portrait of a bride at a Cancún Hotel Zone resort" loading="lazy" width="600" height="800" decoding="async"/></figure>
     <div class="lw-test-meta">
-      <span class="lw-test-name">Marco Benedetti &amp; Aria Lyons</span>
-      <span class="lw-test-where">Cancún Hotel Zone <span style="color:#c9a54e">·</span> 2026</span>
+      <span class="lw-test-name"><a href="/vianey-diaz" style="color:inherit;text-decoration:none">Vianey Díaz</a>, Director</span>
+      <span class="lw-test-where">IVAE Studios <span style="color:#c9a54e">·</span> Cancún</span>
     </div>
   </footer>
   <style>
@@ -2781,7 +2795,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
           <span class="faq-icon" aria-hidden="true"></span>
         </button>
         <div class="faq-answer" id="faq-a-4" role="region" aria-labelledby="faq-q-4">
-          <p>A teaser of fifteen to twenty editorial frames within ten days. The complete edited gallery in three to four weeks. The cinematic film within eight weeks. Each delivery window is written into your agreement.</p>
+          <p>A teaser of fifteen to twenty editorial frames within ten days. The complete edited gallery in three to four weeks. When a cinematic film is commissioned, it follows within eight weeks. Each delivery window is written into your agreement.</p>
         </div>
       </div>
 
@@ -2792,6 +2806,106 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
         </button>
         <div class="faq-answer" id="faq-a-5" role="region" aria-labelledby="faq-q-5">
           <p>Eight to fourteen months before your wedding date, especially for peak season (November through April). Popular Saturdays at <a href="/mayakoba-wedding-photographer">Rosewood Mayakoba</a>, One &amp; Only Palmilla, Four Seasons Costa Palmas, and Las Ventanas often book twelve to eighteen months out. For <a href="/cenote-photographer-tulum">cenote ceremonies in Tulum</a>, plan an additional two to three months for permit logistics.</p>
+        </div>
+      </div>
+
+      <div class="faq-item lw-rv d1">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-6" id="faq-q-6">
+          <span class="faq-q">How many edited photos do you deliver, and at what resolution?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-6" role="region" aria-labelledby="faq-q-6">
+          <p>A half-day delivers roughly 300 to 400 edited frames, a full day 600 to 900, depending on the day's rhythm. Every image is hand color graded and delivered as a high resolution full size JPEG through a private 4K gallery, with unlimited downloads and a print release included.</p>
+        </div>
+      </div>
+
+      <div class="faq-item lw-rv d2">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-7" id="faq-q-7">
+          <span class="faq-q">How many hours of coverage do you offer?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-7" role="region" aria-labelledby="faq-q-7">
+          <p>Coverage is shaped to your day. The half-day brief runs up to four hours, ideal for an intimate ceremony and golden hour portraits. Full day coverage runs eight to ten continuous hours, from morning preparations through the reception, so the entire arc of the celebration is photographed without gaps.</p>
+        </div>
+      </div>
+
+      <div class="faq-item lw-rv d3">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-8" id="faq-q-8">
+          <span class="faq-q">Do you bring a second shooter?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-8" role="region" aria-labelledby="faq-q-8">
+          <p>A second photographer is included in the full day brief and available as an add on for the half day. The second shooter captures the groom's preparations, wide reception scenes, and reverse angles during the ceremony, giving the gallery two perspectives on every key moment of the day.</p>
+        </div>
+      </div>
+
+      <div class="faq-item lw-rv d4">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-9" id="faq-q-9">
+          <span class="faq-q">Do you offer an engagement or pre-wedding session?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-9" role="region" aria-labelledby="faq-q-9">
+          <p>Yes. An engagement or pre-wedding session is one of our favorite ways to work together before the day. It is shot at a cenote, beach, or resort of your choosing, lets you grow comfortable in front of the camera, and produces images for save the dates and welcome signage.</p>
+        </div>
+      </div>
+
+      <div class="faq-item lw-rv d5">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-10" id="faq-q-10">
+          <span class="faq-q">What are the best months for a Cancún or Riviera Maya wedding?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-10" role="region" aria-labelledby="faq-q-10">
+          <p>November through April is peak season, with dry skies, gentle humidity, and the cleanest water. Sargassum seaweed is most likely from May to August, and hurricane season runs June through November. We plan timelines and backup locations around these windows so the light and the coastline both cooperate.</p>
+        </div>
+      </div>
+
+      <div class="faq-item lw-rv d6">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-11" id="faq-q-11">
+          <span class="faq-q">Does the resort charge an outside vendor or photography fee?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-11" role="region" aria-labelledby="faq-q-11">
+          <p>Some resorts apply an outside vendor fee when you bring a photographer who is not on their in house list. We work at these properties regularly and help you confirm the policy early, so the fee, if any, is budgeted from the start rather than discovered at checkout.</p>
+        </div>
+      </div>
+
+      <div class="faq-item lw-rv d1">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-12" id="faq-q-12">
+          <span class="faq-q">Do you offer video or drone coverage?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-12" role="region" aria-labelledby="faq-q-12">
+          <p>Photography is the studio's core craft. A cinematic film is available by inquiry, produced with our filmmaking partners and confirmed during planning rather than offered as a stock package. Drone aerials can be arranged where the venue and local regulations permit, and we coordinate the permissions on your behalf.</p>
+        </div>
+      </div>
+
+      <div class="faq-item lw-rv d2">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-13" id="faq-q-13">
+          <span class="faq-q">What is the deposit, and how does payment work?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-13" role="region" aria-labelledby="faq-q-13">
+          <p>A retainer of fifty percent reserves your date and is due on signing, with the balance payable two weeks before the wedding. We accept cards, bank transfer, and US dollars or Mexican pesos. The retainer holds your date exclusively, so no other booking can claim it once it is paid.</p>
+        </div>
+      </div>
+
+      <div class="faq-item lw-rv d3">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-14" id="faq-q-14">
+          <span class="faq-q">Do you travel, and is there a destination fee?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-14" role="region" aria-labelledby="faq-q-14">
+          <p>We are based in Cancún and travel across the Riviera Maya, Tulum, Isla Mujeres, and Los Cabos as part of every brief. For weddings beyond these regions, a transparent travel fee covers flights and lodging, quoted up front in your proposal with no surprises added later.</p>
+        </div>
+      </div>
+
+      <div class="faq-item lw-rv d4">
+        <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a-15" id="faq-q-15">
+          <span class="faq-q">What is your cancellation and postponement policy?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-answer" id="faq-a-15" role="region" aria-labelledby="faq-q-15">
+          <p>The full retainer is transferable to a new wedding date within twelve months at no penalty. After twelve months, it converts to partial credit toward a studio session or a future wedding. Force majeure clauses for hurricane, government order, or a documented medical event are written into the agreement.</p>
         </div>
       </div>
     </div>
@@ -3564,18 +3678,18 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
       }, {passive:true});
     })();
 
-    /* ── D. VERTICAL TESTIMONIAL STORY ────────────────────── */
+    /* ── D. VERTICAL STUDIO-NOTE STORY ────────────────────── */
     (function buildStory(){
       var testimonials = [
-        {q:'The studio did not just photograph our wedding. They composed it. <em>Vianey read the day like a film</em>, and the team moved through it like one breath.', name:'Marco Benedetti & Aria Lyons', where:'Cancún Hotel Zone · 2026', bg:'/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg'},
-        {q:'Our gallery from IVAE Studios looks like it belongs in a <em>magazine</em>. Every frame felt directed, never staged. We still scroll through it on the weekends.', name:'Samantha Whitfield', where:'Mayakoba · 2026', bg:'/images/wedding-bride-cancun-hotel-zone-ivae-studios-15.jpg'},
-        {q:'The golden hour portraits on the beach are the most beautiful images we have ever seen <em>of ourselves</em>. IVAE delivered a private archive, not a gallery.', name:'Priya Raghavan', where:'Cabo San Lucas · 2025', bg:'/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg'}
+        {q:'We do not just photograph the wedding. We compose it. <em>The day is read like a film</em>, and the team moves through it like one breath.', name:'The Studio', where:'On presence', bg:'/images/wedding-bride-cancun-hotel-zone-ivae-studios-12.jpg'},
+        {q:'A wedding gallery should look like it belongs in a <em>magazine</em>. Every frame is directed, never staged, and built to be returned to for years.', name:'The Studio', where:'On craft', bg:'/images/wedding-bride-cancun-hotel-zone-ivae-studios-15.jpg'},
+        {q:'The golden hour portraits on the beach are the frames couples keep closest. We deliver a private archive, <em>not a gallery</em>.', name:'The Studio', where:'On the hour', bg:'/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg'}
       ];
 
       var story = document.createElement('section');
       story.className = 'lw-mob-story';
       story.setAttribute('data-active','1');
-      story.setAttribute('aria-label','Past couples');
+      story.setAttribute('aria-label','Notes from the studio');
       var progress = '<div class="lw-mob-story-progress" aria-hidden="true">';
       testimonials.forEach(function(_,i){ progress += '<span' + (i===0?' class="is-active"':'') + '></span>'; });
       progress += '</div>';
@@ -3584,7 +3698,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
           + '<div class="lw-mob-story-bg" style="background-image:url(' + t.bg + ')"></div>'
           + '<div class="lw-mob-story-veil"></div>'
           + '<div class="lw-mob-story-content">'
-          +   '<span class="lw-mob-story-stars" aria-label="Five stars">★ ★ ★ ★ ★</span>'
+          +   '<span class="lw-mob-story-stars" aria-hidden="true">&middot; &middot; &middot;</span>'
           +   '<p class="lw-mob-story-q">' + t.q + '</p>'
           +   '<span class="lw-mob-story-author">' + t.name + '</span>'
           +   '<span class="lw-mob-story-where">' + t.where + '</span>'
