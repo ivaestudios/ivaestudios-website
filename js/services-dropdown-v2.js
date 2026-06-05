@@ -10,6 +10,7 @@
 
   var icons = {
     wedding:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="14" r="5"/><circle cx="15" cy="14" r="5"/><path d="M7 6l2 3M17 6l-2 3M9 4h6"/></svg>',
+    film:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="12" rx="1.5"/><path d="M16 10l5-3v10l-5-3z"/></svg>',
     family:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="7" r="2.5"/><circle cx="16" cy="7" r="2.5"/><circle cx="12" cy="14" r="1.8"/><path d="M3.5 19.5c.5-2.5 2.4-4 4.5-4s4 1.5 4.5 4M11.5 19.5c.5-2.5 2.4-4 4.5-4s4 1.5 4.5 4"/></svg>',
     couple:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5l-7-7a4.5 4.5 0 0 1 6.5-6.2L12 8l.5-.7a4.5 4.5 0 0 1 6.5 6.2l-7 7z"/></svg>',
     events:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l-1 6.5a3 3 0 0 1-6 0z"/><path d="M12 12.5V20M8.5 20h7"/></svg>',
@@ -19,6 +20,7 @@
 
   var items = isES ? [
     { title: 'Bodas',     desc: 'Cobertura editorial completa de bodas destino',  href: '/es/fotografo-bodas-destino-mexico', icon: 'wedding' },
+    { title: 'Video de Bodas', desc: 'Cine de bodas y highlight films',          href: '/es/videografo-bodas-cancun',       icon: 'film' },
     { title: 'Familia',   desc: 'Sesiones familiares en resorts de lujo',         href: '/es/fotos-familiares-lujo-cancun',  icon: 'family' },
     { title: 'Parejas',   desc: 'Lunas de miel, aniversarios y escapadas',        href: '/es/fotografia-parejas-mexico',     icon: 'couple' },
     { title: 'Eventos',   desc: 'Renovación de votos, aniversarios y quinceañeras', href: '/es/fotografo-eventos-lujo-cancun', icon: 'events' },
@@ -26,6 +28,7 @@
     { title: 'Marketing', desc: 'Manejo de redes sociales para hoteles y marcas', href: '/es/manejo-redes-sociales',         icon: 'marketing' }
   ] : [
     { title: 'Weddings',  desc: 'Full editorial destination wedding coverage',    href: '/destination-wedding-photographer-mexico', icon: 'wedding' },
+    { title: 'Wedding Films', desc: 'Cinematic wedding films and highlight reels', href: '/cancun-wedding-videographer',    icon: 'film' },
     { title: 'Family',    desc: 'Family sessions at luxury resorts',              href: '/luxury-family-photos-cancun',      icon: 'family' },
     { title: 'Couples',   desc: 'Honeymoons, anniversaries, romantic getaways',   href: '/couples-photography-mexico',       icon: 'couple' },
     { title: 'Events',    desc: 'Vow renewals, anniversaries, milestone moments', href: '/luxury-event-photographer-cancun', icon: 'events' },
