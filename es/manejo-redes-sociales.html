@@ -83,7 +83,8 @@
    or if the reveal script never runs, html.js-on is absent and every .rv
    stays fully visible instead of leaving the page blank. */
 html:not(.js-on) .rv,
-html:not(.js-on) .bento-card.rv {
+html:not(.js-on) .bento-card.rv,
+html:not(.js-on) .faq-item {
   opacity: 1 !important;
   transform: none !important;
   clip-path: none !important;
@@ -1888,6 +1889,10 @@ body::after {
     opacity: 1 !important;
     transform: none !important;
   }
+  .faq-item {
+    opacity: 1 !important;
+    transform: none !important;
+  }
   .floating-icon {
     animation: none !important;
   }
@@ -2908,8 +2913,8 @@ html, body { overflow-x: hidden; max-width: 100vw; }
    script aborts or its IntersectionObserver never fires. Reveals on-screen
    content immediately, then everything shortly after, as a backstop. */
 (function(){
-  var nodes=document.querySelectorAll('.rv');
-  function show(el){el.classList.add('in');}
+  var nodes=document.querySelectorAll('.rv, .faq-item, .timeline-step');
+  function show(el){el.classList.add('in');if(el.classList.contains('faq-item'))el.classList.add('faq-visible');if(el.classList.contains('timeline-step'))el.classList.add('step-visible');}
   function showAll(){for(var i=0;i<nodes.length;i++){show(nodes[i]);}}
   function showInView(){var vh=window.innerHeight||document.documentElement.clientHeight;for(var i=0;i<nodes.length;i++){var r=nodes[i].getBoundingClientRect();if(r.top<vh&&r.bottom>-40){show(nodes[i]);}}}
   try{
