@@ -201,6 +201,24 @@ PAGE_EN_TO_ES = {
     "/comparison/luxury-photographers-cancun": "/es/comparativa/fotografos-lujo-cancun",
     "/los-cabos-family-photographer": "/es/fotografo-familiar-los-cabos",
     "/social-media-management-mexico-city": "/es/redes-sociales-ciudad-de-mexico",
+    # Venue consolidation (owner decision 2026-06): three venues had BOTH a deep
+    # root /xxx-photographer page and a thinner /venues/<slug>/ subpage competing
+    # for the same EN query (keyword cannibalization). We consolidate toward the
+    # root. The EN subpage now rel=canonicals to the root and is dropped from the
+    # sitemap (see CONSOLIDATED_EN_SUBS + file_to_url). The ES subpage is the only
+    # ES page for the venue, so it stays and pairs with the EN root for hreflang.
+    "/le-blanc-cancun-wedding-photographer": "/es/locaciones/le-blanc-spa-cancun/",
+    "/banyan-tree-mayakoba-photographer": "/es/locaciones/banyan-tree-mayakoba/",
+    "/rosewood-mayakoba-wedding-photographer": "/es/locaciones/rosewood-mayakoba/",
+}
+
+# EN /venues/<slug>/ subpages consolidated into a root page (above). They keep a
+# rel=canonical to the root in-page but must NOT appear in the sitemap, or Search
+# Console flags the canonical/sitemap conflict.
+CONSOLIDATED_EN_SUBS = {
+    "/venues/le-blanc-spa-cancun/",
+    "/venues/banyan-tree-mayakoba/",
+    "/venues/rosewood-mayakoba/",
 }
 
 # ES-only pages that have no EN counterpart. Listed so we can emit them
@@ -297,7 +315,11 @@ def file_to_url(rel_path):
         return "/blog/" + slug, "en"
     # venues/<slug>/index.html → /venues/<slug>/
     if rel.startswith("venues/") and rel.endswith("/index.html"):
-        return "/" + rel[: -len("index.html")], "en"
+        path = "/" + rel[: -len("index.html")]
+        # Skip EN subpages consolidated into a root page (canonical → root).
+        if path in CONSOLIDATED_EN_SUBS:
+            return None
+        return path, "en"
     # comparison/<slug>.html → /comparison/<slug>
     if rel.startswith("comparison/") and rel.endswith(".html"):
         return "/" + rel[: -len(".html")], "en"
