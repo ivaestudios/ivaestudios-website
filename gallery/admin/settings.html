@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  IVAE Gallery — Studio Settings (admin)
+  IVAE Gallery, Studio Settings (admin)
   Single-row settings panel. Tabs: Profile / Brand / Watermark / Defaults / Storage.
   Reads + writes /api/gallery/admin/settings (singleton row id='studio').
 -->
@@ -8,7 +8,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<title>Settings — IVAE Studios Admin</title>
+<title>Settings, IVAE Studios Admin</title>
 <link rel="icon" type="image/svg+xml" href="/gallery/favicon.svg"/>
 <link rel="preload" as="font" type="font/woff2" crossorigin href="/gallery/fonts/cormorant-garamond-latin.woff2?v=20260428b"><link rel="preload" as="font" type="font/woff2" crossorigin href="/gallery/fonts/syne-latin.woff2?v=20260428b"><link rel="stylesheet" href="/gallery/fonts/fonts.css?v=20260428b"/>
 <link rel="stylesheet" href="/gallery/css/gallery.css?v=20260428b"/>
@@ -392,7 +392,7 @@
         <div class="set-control"><input class="set-input" id="studio_name" placeholder="IVAE Studios"/></div>
       </div>
       <div class="set-row">
-        <div class="set-label">Tagline<small>Optional — appears under the studio name</small></div>
+        <div class="set-label">Tagline<small>Optional, appears under the studio name</small></div>
         <div class="set-control"><input class="set-input" id="tagline" placeholder="Luxury Resort Photography · Cancún"/></div>
       </div>
       <div class="set-row">
@@ -417,7 +417,7 @@
       </div>
       <div class="set-row">
         <div class="set-label">Email signature<small>Appended to outbound emails</small></div>
-        <div class="set-control"><textarea class="set-textarea" id="default_signature" placeholder="IVAE Studios — Cancún"></textarea></div>
+        <div class="set-control"><textarea class="set-textarea" id="default_signature" placeholder="IVAE Studios, Cancún"></textarea></div>
       </div>
       <div class="set-row">
         <div class="set-label">Email "From" name<small>Shown as sender in client inbox</small></div>
@@ -495,11 +495,11 @@
         </div>
       </div>
       <div class="set-row">
-        <div class="set-label">Watermark text<small>Top line — usually studio initials</small></div>
+        <div class="set-label">Watermark text<small>Top line, usually studio initials</small></div>
         <div class="set-control"><input class="set-input" id="default_watermark_text" maxlength="20" placeholder="IVAE"/></div>
       </div>
       <div class="set-row">
-        <div class="set-label">Watermark subtext<small>Second line — usually word mark</small></div>
+        <div class="set-label">Watermark subtext<small>Second line, usually word mark</small></div>
         <div class="set-control"><input class="set-input" id="default_watermark_subtext" maxlength="40" placeholder="STUDIOS"/></div>
       </div>
       <div class="set-row">
@@ -564,7 +564,7 @@
         </div>
       </div>
       <div class="set-row">
-        <div class="set-label">Email me on visitor registration<small>Off by default — high volume</small></div>
+        <div class="set-label">Email me on visitor registration<small>Off by default, high volume</small></div>
         <div class="set-control">
           <label class="set-switch">
             <input type="checkbox" id="notify_admin_on_visit"/>
@@ -580,7 +580,7 @@
       <p class="set-pane-intro">R2 storage usage across all galleries.</p>
 
       <div class="storage-card">
-        <div class="storage-headline" id="storageHeadline">— GB <small>/ — GB</small></div>
+        <div class="storage-headline" id="storageHeadline">— GB <small>/, GB</small></div>
         <div style="font-size:12px;color:var(--muted);letter-spacing:.04em;margin-bottom:4px;">Used storage</div>
         <div class="storage-bar-track"><div class="storage-bar-fill" id="storageFill" style="width:0%"></div></div>
         <div class="storage-numbers">
@@ -640,7 +640,7 @@
             <div style="font-weight:600;font-size:12px;color:var(--text-soft);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.08em;">Pending (next to send)</div>
             <div id="schedPendingList" style="border:1px solid var(--line);border-radius:6px;font-size:12px;"></div>
           </div>
-          <div id="schedEmpty" style="display:none;color:var(--text-soft);font-size:12px;font-style:italic;">No scheduled emails yet — they appear after a gallery is published with the testimonial or anniversary templates enabled.</div>
+          <div id="schedEmpty" style="display:none;color:var(--text-soft);font-size:12px;font-style:italic;">No scheduled emails yet, they appear after a gallery is published with the testimonial or anniversary templates enabled.</div>
         </div>
       </div>
     </section>
