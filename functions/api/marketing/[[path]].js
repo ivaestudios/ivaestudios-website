@@ -61,6 +61,54 @@ function getCookie(request, name) {
   return match ? match[1] : null;
 }
 
+// ── JSON column helpers (defensive parse; never throw) ──
+// Parse a stored JSON array of short strings → array (defaults to []).
+function parseNoteLabels(raw) {
+  try {
+    const v = JSON.parse(raw == null || raw === '' ? '[]' : raw);
+    if (!Array.isArray(v)) return [];
+    return v.filter((s) => typeof s === 'string' && s.trim()).map((s) => String(s).trim()).slice(0, 12);
+  } catch { return []; }
+}
+// Parse a stored JSON object {person: noteText} → object (defaults to {}).
+function parseNotesPeople(raw) {
+  try {
+    const v = JSON.parse(raw == null || raw === '' ? '{}' : raw);
+    if (!v || typeof v !== 'object' || Array.isArray(v)) return {};
+    const out = {};
+    for (const [k, val] of Object.entries(v)) {
+      if (typeof k === 'string') out[k] = val == null ? '' : String(val);
+    }
+    return out;
+  } catch { return {}; }
+}
+// Validate an incoming note_labels value: must be an array of short strings.
+// Returns a sanitized array, or null if the input is not a valid array.
+function sanitizeNoteLabels(input) {
+  if (!Array.isArray(input)) return null;
+  const out = [];
+  for (const s of input) {
+    if (typeof s !== 'string') continue;
+    const t = s.trim();
+    if (!t) continue;
+    if (t.length > 40) return null; // "short strings" guard
+    out.push(t);
+    if (out.length >= 12) break;
+  }
+  return out;
+}
+// Validate an incoming notes_people value: must be a plain object of
+// {string: string-ish}. Returns a sanitized object, or null if invalid.
+function sanitizeNotesPeople(input) {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return null;
+  const out = {};
+  for (const [k, v] of Object.entries(input)) {
+    if (typeof k !== 'string' || !k.trim()) continue;
+    out[k.trim()] = v == null ? '' : String(v);
+  }
+  return out;
+}
+
 // ── MARKETING-SPECIFIC HELPERS ──
 
 // Temp password generator (mirrors the gallery's generateSimplePassword shape):
@@ -150,7 +198,8 @@ const POST_EDITABLE_FIELDS = [
   'hashtags', 'notes_team', 'client_visible'
 ];
 
-// Fields returned in a post object (per spec).
+// Fields returned in a post object (per spec). `notes_people` is a JSON column
+// shaped separately (parsed to an object) in shapePost/publicPost.
 const POST_RETURN_FIELDS = [
   'id', 'client_id', 'title', 'content_type', 'grabacion', 'publish_date',
   'assignee', 'platform', 'status', 'caption', 'inspo_url', 'video_url',
@@ -167,7 +216,9 @@ function publicPost(post) {
   if (!post) return post;
   const out = {};
   for (const f of POST_RETURN_FIELDS) out[f] = post[f];
-  delete out.notes_team; // never expose internal notes to a client
+  delete out.notes_team;    // never expose internal notes to a client
+  // notes_people is INTERNAL (per-person team notes) — never expose to a client.
+  // We do not even include it in the public shape.
   return out;
 }
 
@@ -175,6 +226,7 @@ function publicPost(post) {
 function shapePost(post) {
   const out = {};
   for (const f of POST_RETURN_FIELDS) out[f] = post[f];
+  out.notes_people = parseNotesPeople(post.notes_people); // parsed object {person: text}
   return out;
 }
 
@@ -312,6 +364,7 @@ function shapeClient(c, counts) {
     brand_color: c.brand_color,
     logo_url: c.logo_url,
     instagram_handle: c.instagram_handle,
+    note_labels: parseNoteLabels(c.note_labels), // parsed array of person names
     archived: c.archived,
     counts: counts || { posts: 0, pending: 0 }
   };
@@ -338,18 +391,27 @@ async function handleCreateClient(request, env, session) {
   const { name, brand_color, instagram_handle, logo_url, timezone, notes } = bodyObj || {};
   if (!name || !String(name).trim()) return json({ error: 'Client name required' }, 400);
 
+  // Optional per-person note labels (must be an array of short strings).
+  let noteLabels = [];
+  if (bodyObj && Object.prototype.hasOwnProperty.call(bodyObj, 'note_labels')) {
+    const sane = sanitizeNoteLabels(bodyObj.note_labels);
+    if (sane === null) return json({ error: 'note_labels must be an array of short strings' }, 400);
+    noteLabels = sane;
+  }
+
   const id = randomId();
   const slug = await uniqueSlug(env, name);
   await env.DB.prepare(
-    `INSERT INTO mkt_clients (id, name, slug, brand_color, logo_url, instagram_handle, timezone, notes)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO mkt_clients (id, name, slug, brand_color, logo_url, instagram_handle, timezone, notes, note_labels)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).bind(
     id, String(name).trim(), slug,
     brand_color || '#7c3aed',
     logo_url || null,
     instagram_handle || null,
     timezone || 'America/Cancun',
-    notes || null
+    notes || null,
+    JSON.stringify(noteLabels)
   ).run();
 
   const c = await env.DB.prepare('SELECT * FROM mkt_clients WHERE id = ?').bind(id).first();
@@ -371,6 +433,13 @@ async function handlePatchClient(request, env, session, clientId) {
       sets.push(`${f} = ?`);
       vals.push(f === 'archived' ? (bodyObj[f] ? 1 : 0) : bodyObj[f]);
     }
+  }
+  // note_labels is a JSON column → validate + stringify separately.
+  if (bodyObj && Object.prototype.hasOwnProperty.call(bodyObj, 'note_labels')) {
+    const sane = sanitizeNoteLabels(bodyObj.note_labels);
+    if (sane === null) return json({ error: 'note_labels must be an array of short strings' }, 400);
+    sets.push('note_labels = ?');
+    vals.push(JSON.stringify(sane));
   }
   if (!sets.length) return json({ error: 'No editable fields supplied' }, 400);
   sets.push("updated_at = datetime('now')");
@@ -578,6 +647,14 @@ async function handleCreatePost(request, env, session) {
       vals.push(v);
     }
   }
+  // notes_people is INTERNAL (team/admin only) + a JSON column → handle apart.
+  if (Object.prototype.hasOwnProperty.call(bodyObj, 'notes_people')) {
+    const sane = sanitizeNotesPeople(bodyObj.notes_people);
+    if (sane === null) return json({ error: 'notes_people must be an object of {person: text}' }, 400);
+    cols.push('notes_people');
+    placeholders.push('?');
+    vals.push(JSON.stringify(sane));
+  }
   await env.DB.prepare(
     `INSERT INTO mkt_posts (${cols.join(', ')}) VALUES (${placeholders.join(', ')})`
   ).bind(...vals).run();
@@ -644,6 +721,12 @@ async function handlePatchPost(request, env, session, postId) {
   // Allow position to be patched directly too (drag/drop convenience).
   if (Object.prototype.hasOwnProperty.call(bodyObj, 'position')) {
     sets.push('position = ?'); vals.push(Number(bodyObj.position) || 0);
+  }
+  // notes_people is INTERNAL (team/admin only, already gated above) + JSON column.
+  if (Object.prototype.hasOwnProperty.call(bodyObj, 'notes_people')) {
+    const sane = sanitizeNotesPeople(bodyObj.notes_people);
+    if (sane === null) return json({ error: 'notes_people must be an object of {person: text}' }, 400);
+    sets.push('notes_people = ?'); vals.push(JSON.stringify(sane));
   }
   if (!sets.length) return json({ error: 'No editable fields supplied' }, 400);
   sets.push("updated_at = datetime('now')");

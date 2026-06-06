@@ -130,6 +130,13 @@
 
     /* Empty cal day on desktop should still accept a chip drop visually */
     .cal-day { cursor: default; }
+
+    /* List view: more Notion-like columns (Caption, Inspo, Videos, Notas).
+       Widen the min-width so the extra columns stay readable; .tbl-wrap scrolls
+       horizontally on mobile already. */
+    .tbl { min-width: 1040px; }
+    .tbl-link { font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+    .tbl-link:hover { text-decoration: underline; }
   </style>
 </head>
 <body>

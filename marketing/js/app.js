@@ -698,12 +698,33 @@ const LIST_COLS = [
   { key: 'grabacion',     label: 'Grabación', sortable: true,  cls: 'cell-num' },
   { key: 'content_type',  label: 'Tipo',      sortable: true },
   { key: 'title',         label: 'Tarea',     sortable: true,  cls: 'cell-title' },
+  { key: 'caption',       label: 'Caption',   sortable: false },
   { key: 'publish_date',  label: 'Fecha',     sortable: true },
   { key: 'assignee',      label: 'Hecho por', sortable: true },
   { key: 'status',        label: 'Estado',    sortable: true },
   { key: 'platform',      label: 'Plataforma',sortable: true },
+  { key: 'inspo_url',     label: 'Inspo',     sortable: false },
+  { key: 'video_url',     label: 'Videos',    sortable: false },
+  { key: 'notes_people',  label: 'Notas',     sortable: false },
   { key: 'approval_state',label: 'Aprobación',sortable: true },
 ];
+
+// Person names that have a non-empty note on a post, e.g. "Jairo, Meli".
+function notesPeopleNames(p) {
+  const np = p && p.notes_people;
+  if (!np || typeof np !== 'object') return [];
+  return Object.keys(np).filter((k) => np[k] != null && String(np[k]).trim());
+}
+
+// A small "open link" cell that doesn't trigger the row's editor click.
+function linkCell(url, label) {
+  if (!url) return el('span', { class: 'muted', text: '—' });
+  return el('a', {
+    class: 'tbl-link', href: url, target: '_blank', rel: 'noopener noreferrer',
+    title: url, text: label,
+    onclick: (e) => { e.stopPropagation(); },
+  });
+}
 
 function renderList() {
   const posts = filteredPosts();
@@ -751,14 +772,21 @@ function renderList() {
 
   const tbody = el('tbody');
   for (const p of sorted) {
+    const capFull = p.caption || '';
+    const capPreview = capFull.length > 40 ? capFull.slice(0, 40).trimEnd() + '…' : capFull;
+    const noteNames = notesPeopleNames(p);
     const row = el('tr', { onclick: () => openEditorFor(p.id) }, [
       el('td', { class: 'cell-num' }, [p.grabacion ? el('span', { class: 'board-card__grab', text: 'G' + p.grabacion }) : el('span', { class: 'muted', text: '—' })]),
       el('td', {}, [chip(p.content_type)]),
       el('td', { class: 'cell-title' }, [el('span', { class: 'truncate', style: { maxWidth: '280px', display: 'inline-block' }, text: p.title })]),
+      el('td', {}, [capFull ? el('span', { class: 'truncate', style: { maxWidth: '220px', display: 'inline-block' }, title: capFull, text: capPreview }) : el('span', { class: 'muted', text: '—' })]),
       el('td', {}, [p.publish_date ? el('span', { text: fmtDate(p.publish_date, { day: 'numeric', month: 'short', year: 'numeric' }) }) : el('span', { class: 'muted', text: 'Sin fecha' })]),
       el('td', {}, [p.assignee ? el('span', { class: 'flex items-center gap-2' }, [avatar(p.assignee, true), el('span', { text: p.assignee })]) : el('span', { class: 'muted', text: '—' })]),
       el('td', {}, [statusBadge(p.status)]),
       el('td', {}, [p.platform ? el('span', { class: 'tag', text: p.platform }) : el('span', { class: 'muted', text: '—' })]),
+      el('td', {}, [linkCell(p.inspo_url, 'Inspo')]),
+      el('td', {}, [linkCell(p.video_url, 'Video')]),
+      el('td', {}, [noteNames.length ? el('span', { class: 'tag', title: 'Notas de: ' + noteNames.join(', '), text: noteNames.join(', ') }) : el('span', { class: 'muted', text: '—' })]),
       el('td', {}, [approvalBadge(p.approval_state)]),
     ]);
     tbody.appendChild(row);
@@ -789,7 +817,7 @@ async function openEditorFor(id) {
     id: null, client_id: state.activeClientId, title: '', content_type: 'reel',
     grabacion: '', publish_date: '', assignee: '', platform: 'Instagram', status: 'idea',
     caption: '', inspo_url: '', video_url: '', hook: '', body: '', cta: '', hashtags: '',
-    notes_team: '', client_visible: 1, approval_state: 'pending', position: 0,
+    notes_team: '', notes_people: {}, client_visible: 1, approval_state: 'pending', position: 0,
   };
   let comments = [];
 
@@ -835,6 +863,23 @@ async function openEditorFor(id) {
     el('span', { class: 'switch__label', text: 'Visible para el cliente' }),
   ]);
 
+  // ── Per-person notes (one textarea per person configured on this client) ──
+  // note_labels comes from the active client (configurable in the client modal).
+  const cl = activeClient();
+  const noteLabels = (cl && Array.isArray(cl.note_labels)) ? cl.note_labels : [];
+  const existingNotes = (post.notes_people && typeof post.notes_people === 'object') ? post.notes_people : {};
+  const personNoteInputs = {}; // person → textarea
+  const personNotesNodes = [];
+  if (noteLabels.length) {
+    for (const person of noteLabels) {
+      const ta = el('textarea', { class: 'textarea', placeholder: 'Notas para ' + person }); ta.value = existingNotes[person] || '';
+      personNoteInputs[person] = ta;
+      personNotesNodes.push(field('Notas ' + person, ta));
+    }
+  } else {
+    personNotesNodes.push(el('div', { class: 'help', text: 'Configura las personas que dejan notas en "Editar cliente" para tener una nota por persona.' }));
+  }
+
   const detailsPane = el('div', {}, [
     field('Título', titleInput, { req: true }),
     el('div', { class: 'field-grid' }, [field('Tipo', ctSel), field('Grabación (prioridad)', grabSel)]),
@@ -844,6 +889,7 @@ async function openEditorFor(id) {
     el('div', { class: 'field-grid' }, [field('Inspiración (URL)', inspoInput), field('Video / asset (URL)', videoInput)]),
     el('div', { class: 'field' }, [visibleField]),
     field('Notas internas', notesInput, { help: 'Solo el equipo ve estas notas.' }),
+    ...personNotesNodes,
   ]);
 
   // ── Tab: Script & Caption ──
@@ -903,6 +949,12 @@ async function openEditorFor(id) {
   saveBtn.addEventListener('click', async () => {
     const title = titleInput.value.trim();
     if (!title) { toast('Escribe un título.', 'error'); titleInput.focus(); return; }
+    // Collect per-person notes into a {person: text} object (only non-empty kept).
+    const notesPeople = {};
+    for (const [person, ta] of Object.entries(personNoteInputs)) {
+      const v = ta.value.trim();
+      if (v) notesPeople[person] = v;
+    }
     const payload = {
       client_id: state.activeClientId,
       title,
@@ -916,6 +968,7 @@ async function openEditorFor(id) {
       inspo_url: inspoInput.value.trim() || null,
       video_url: videoInput.value.trim() || null,
       notes_team: notesInput.value.trim() || null,
+      notes_people: notesPeople,
       client_visible: visibleSwitch.checked ? 1 : 0,
       hook: hookInput.value.trim() || null,
       body: bodyInput.value.trim() || null,
@@ -1051,6 +1104,8 @@ function openClientModal(existing = null) {
   const isNew = !existing;
   const nameInput = el('input', { class: 'input', value: existing ? existing.name : '', placeholder: 'Nombre del cliente' });
   const igInput = el('input', { class: 'input', value: existing ? (existing.instagram_handle || '') : '', placeholder: '@usuario' });
+  const existingLabels = (existing && Array.isArray(existing.note_labels)) ? existing.note_labels : [];
+  const notePeopleInput = el('input', { class: 'input', value: existingLabels.join(', '), placeholder: 'Jairo, Natalia' });
   let color = existing && existing.brand_color ? existing.brand_color : '#7c3aed';
 
   const colorInput = el('input', { type: 'color', value: color });
@@ -1068,6 +1123,7 @@ function openClientModal(existing = null) {
     field('Nombre', nameInput, { req: true }),
     field('Instagram', igInput),
     field('Color de marca', el('div', { class: 'swatch-row' }, [colorInput, presets])),
+    field('Personas que dejan notas (separadas por coma)', notePeopleInput, { help: 'Una nota por persona en cada contenido. Ej: Jairo, Natalia' }),
   ]);
 
   const saveBtn = el('button', { class: 'btn btn-primary', text: isNew ? 'Crear cliente' : 'Guardar' });
@@ -1080,7 +1136,11 @@ function openClientModal(existing = null) {
   saveBtn.addEventListener('click', async () => {
     const name = nameInput.value.trim();
     if (!name) { toast('Escribe un nombre.', 'error'); nameInput.focus(); return; }
-    const payload = { name, brand_color: color, instagram_handle: igInput.value.trim() || null };
+    // Parse comma-separated people into a deduped array of short names.
+    const noteLabels = [...new Set(
+      notePeopleInput.value.split(',').map((s) => s.trim()).filter(Boolean)
+    )].slice(0, 12);
+    const payload = { name, brand_color: color, instagram_handle: igInput.value.trim() || null, note_labels: noteLabels };
     saveBtn.dataset.loading = 'true';
     try {
       if (isNew) {
