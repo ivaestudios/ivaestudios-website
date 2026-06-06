@@ -1,7 +1,6 @@
 /* TEAM */
 
   Founder & Creative Director: Vianey Díaz
-  Wikidata: Q139689736 (https://www.wikidata.org/wiki/Q139689736)
   Role: Lead Photographer / Director, IVAE Marketing
   Nationality: Mexican
   Languages: Spanish (native), English (fluent)
@@ -16,7 +15,6 @@
   IVAE Studios (parent)
     - Domain: ivaestudios.com
     - Focus: Luxury destination photography (weddings, family, couples, editorial)
-    - Wikidata: Q139689577
     - Visual identity: Cormorant Garamond + gold (editorial)
     - URL: https://ivaestudios.com
 
@@ -41,8 +39,6 @@
   Components: static HTML, Cloudflare Pages
   Languages: English (default), Spanish (es/)
   Doctype: HTML5
-  Wikidata (parent): Q139689577 (https://www.wikidata.org/wiki/Q139689577)
-  Wikidata (founder): Q139689736 (https://www.wikidata.org/wiki/Q139689736)
   Wikidata (sub-brand): DRAFT - submission pending for IVAE Marketing
 
 /* BRAND DISAMBIGUATION */

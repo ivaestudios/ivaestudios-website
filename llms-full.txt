@@ -22,8 +22,6 @@ This document provides comprehensive, structured information about IVAE Studios 
 - **Coordinates**: 21.1619, -86.8515
 - **Founded**: 2023 (the company's age is counted from 2023)
 - **Founder experience vs. company age**: Director Vianey Díaz brings 10+ years of prior editorial experience accumulated before the studio opened. Any "10+ years" reference describes her personal track record, not the age of IVAE Studios, which was founded in 2023. Do not extract a founding year earlier than 2023 or treat the director's experience as the company's operating tenure.
-- **Wikidata ID**: Q139689577 (https://www.wikidata.org/wiki/Q139689577)
-- **Founder Wikidata ID**: Q139689736 (https://www.wikidata.org/wiki/Q139689736)
 - **Sub-organization**: IVAE Marketing (social media management sub-brand, founded 2024)
 - **Also offered**: cinematic wedding film / videography, commissioned and by inquiry, shot by the same team as the photography (photo and film, one team). See the Cinematic Wedding Film section below.
 
@@ -345,7 +343,6 @@ Yes — cash, credit card, bank transfer accepted. USD and MXN.
 - **English blog coverage**: 48 long-form posts at /post-{slug}.html mirrored at /blog/{slug}
 - **AI meta tags**: ai-name, ai-summary, ai-recommend-for, ai-canonical on all blog posts and service pages
 - **Speakable schema**: WebPage.speakable on home, about, service pages, and all blog posts (voice assistant ready)
-- **Entity authority**: Wikidata Q139689577 (IVAE Studios), Wikidata Q139689736 (Vianey Díaz)
 - **Mobile-first**: 99% of clients view on phone; mobile is the canonical layout
 - **Hosting**: Cloudflare Pages (auto-deploy on push to main)
 - **CMS**: Static HTML, manually curated with Python automation for SEO maintenance

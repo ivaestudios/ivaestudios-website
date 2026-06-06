@@ -194,6 +194,7 @@ PAGE_EN_TO_ES = {
     "/best-places-to-propose-cancun-riviera-maya": "/es/mejores-lugares-proponer-cancun-riviera-maya",
     "/venues": "/es/venues",
     "/jewish-destination-wedding-photographer-mexico": "/es/fotografo-bodas-judias-destino-mexico",
+    "/planning-a-luxury-destination-wedding-cancun-riviera-maya": "/es/planear-boda-destino-lujo-cancun-riviera-maya",
     "/outfit-guide": "/es/guia-vestuario",
     "/brand": "/es/marca",
     "/cancun-wedding-cost-2026": "/es/costo-boda-cancun-2026",
