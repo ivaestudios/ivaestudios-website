@@ -193,6 +193,7 @@ PAGE_EN_TO_ES = {
     "/engagement-photographer-cancun": "/es/fotografo-compromiso-cancun",
     "/best-places-to-propose-cancun-riviera-maya": "/es/mejores-lugares-proponer-cancun-riviera-maya",
     "/venues": "/es/venues",
+    "/jewish-destination-wedding-photographer-mexico": "/es/fotografo-bodas-judias-destino-mexico",
     "/outfit-guide": "/es/guia-vestuario",
     "/brand": "/es/marca",
     "/cancun-wedding-cost-2026": "/es/costo-boda-cancun-2026",
