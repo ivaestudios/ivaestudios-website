@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#0b0b12">
+  <title>Panel · IVAE Marketing</title>
+  <meta name="description" content="Panel de equipo: calendario de contenido, tablero y aprobaciones de IVAE Marketing.">
+
+  <!-- Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/marketing/css/app.css">
+
+  <!-- Minimal scoped additions. Everything else comes from app.css. -->
+  <style>
+    /* Initial full-screen boot loader (before the app hydrates) */
+    .boot {
+      position: fixed; inset: 0; z-index: 300;
+      display: grid; place-items: center;
+      background: var(--bg);
+      transition: opacity .3s var(--ease);
+    }
+    .boot.is-hidden { opacity: 0; pointer-events: none; }
+
+    /* Sidebar logo header row (logo + close on mobile) */
+    .sidebar__head { display: flex; align-items: center; gap: var(--s-3); }
+    .sidebar__head .drawer__close { display: none; margin-left: auto; }
+
+    /* Brand color dot reused for client list items (overrides nav-item .dot bg) */
+    .nav-item .dot[data-brand] { background: var(--brand); }
+
+    /* Topbar client title block */
+    .topbar__client { display: flex; align-items: center; gap: var(--s-2); min-width: 0; }
+    .topbar__client .dot { width: 11px; height: 11px; border-radius: 50%; flex: none; box-shadow: 0 0 0 3px rgba(255,255,255,.06); }
+
+    /* Keep the search from growing past the bar on desktop. */
+    .topbar .search { flex: 0 1 280px; }
+
+    /* On phones the topbar would overflow with title + seg + search + button on
+       one fixed-height row. Strategy: the topbar stays a single compact row
+       (menu + client name + an icon-only "+"), and the view switcher + search
+       move into a sticky sub-header at the top of the scroll area (.view-controls).
+       app.js renders .view-controls only on mobile widths. */
+    @media (max-width: 720px) {
+      /* Sidebar is off-canvas (position:fixed) so .main is the only flow child.
+         Collapse the grid to a single row so .main fills the viewport and its
+         own flex column (sticky topbar + scrolling body) works as on desktop. */
+      .app-shell { grid-template-rows: 100dvh; }
+      .topbar .search,
+      .topbar .seg { display: none; }                /* moved into sub-header */
+      .topbar .btn-primary { padding: 0; width: 44px; min-height: 44px; flex: none; }
+      .topbar .btn-primary span { display: none; }    /* icon-only on phones */
+    }
+    /* Sticky in-content controls row (mobile only). */
+    .view-controls { display: none; }
+    @media (max-width: 720px) {
+      .view-controls {
+        display: flex; flex-direction: column; gap: var(--s-3);
+        position: sticky; top: 0; z-index: 10;
+        margin: calc(-1 * var(--s-4)) calc(-1 * var(--s-4)) var(--s-4);
+        padding: var(--s-3) var(--s-4);
+        background: rgba(11,11,18,.92); backdrop-filter: saturate(140%) blur(10px);
+        border-bottom: 1px solid var(--border);
+      }
+    }
+
+    /* Calendar chip "+N more" affordance */
+    .cal-day__more { font-size: 11px; font-weight: 700; color: var(--text-mute); padding: 1px 7px; cursor: pointer; }
+    .cal-day__more:hover { color: var(--text); }
+
+    /* Drop placeholder inside a board column while dragging */
+    .board-card--ghost {
+      border: 1px dashed var(--border-strong); background: var(--surface-3);
+      min-height: 54px; border-radius: var(--r);
+    }
+
+    /* Agenda item row (reuses board-card look, but for the mobile calendar) */
+    .agenda-item {
+      display: flex; align-items: center; gap: var(--s-3);
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 10px 12px; cursor: pointer;
+      transition: border-color var(--t-fast);
+    }
+    .agenda-item:hover { border-color: var(--border-strong); }
+    .agenda-item__main { min-width: 0; flex: 1 1 auto; }
+    .agenda-item__title { font-size: 14px; font-weight: 600; }
+    .agenda-item__meta { display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+
+    /* Editor field two-up rows on wider screens */
+    .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); }
+    @media (max-width: 520px) { .field-grid { grid-template-columns: 1fr; } }
+
+    /* Comment composer */
+    .composer { display: flex; flex-direction: column; gap: var(--s-2); margin-top: var(--s-4); }
+    .composer__row { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; }
+    .composer__row .spacer { flex: 1 1 auto; }
+
+    /* Generated-password notice */
+    .secret-note { margin-top: var(--s-3); }
+
+    /* Color swatch picker (brand color) */
+    .swatch-row { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; }
+    .swatch-row input[type="color"] {
+      width: 46px; height: 44px; padding: 0; border: 1px solid var(--border);
+      border-radius: var(--r); background: var(--surface-2); cursor: pointer;
+    }
+    .swatch-presets { display: flex; gap: 6px; flex-wrap: wrap; }
+    .swatch-preset {
+      width: 26px; height: 26px; border-radius: 50%; border: 2px solid transparent;
+      cursor: pointer; padding: 0;
+    }
+    .swatch-preset.is-active { border-color: var(--text); }
+
+    /* User row in team list */
+    .user-row {
+      display: flex; align-items: center; gap: var(--s-3);
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .user-row:last-child { border-bottom: 0; }
+    .user-row__main { min-width: 0; flex: 1 1 auto; }
+    .user-row__name { font-weight: 600; }
+    .user-row__sub { font-size: 12.5px; color: var(--text-mute); }
+    .user-row__actions { display: flex; align-items: center; gap: var(--s-2); flex: none; }
+
+    /* Role tag pill */
+    .role-tag { text-transform: capitalize; }
+
+    /* Empty cal day on desktop should still accept a chip drop visually */
+    .cal-day { cursor: default; }
+  </style>
+</head>
+<body>
+  <!-- Boot loader: shown until app.js hydrates (visibility-safe loading state) -->
+  <div class="boot" id="boot">
+    <div class="loading-state">
+      <span class="spinner spinner--lg" aria-hidden="true"></span>
+      <span class="muted">Cargando tu panel.</span>
+    </div>
+  </div>
+
+  <!-- App shell. app.js fills #sidebar, #topbar and #view. -->
+  <div class="app-shell" id="app" hidden>
+    <aside class="sidebar" id="sidebar" aria-label="Navegación principal"></aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
+
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <div class="main__scroll">
+        <div class="page" id="view"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Editor drawer (post create/edit). Filled by app.js. -->
+  <div class="overlay" id="editorOverlay"></div>
+  <aside class="drawer" id="editorDrawer" role="dialog" aria-modal="true" aria-labelledby="editorTitle"></aside>
+
+  <!-- Generic modal (clients, team, activity, confirms). Filled by app.js. -->
+  <div class="overlay" id="modalOverlay"></div>
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"></div>
+
+  <div class="toast-host" role="status" aria-live="polite"></div>
+
+  <script type="module" src="/marketing/js/app.js"></script>
+</body>
+</html>

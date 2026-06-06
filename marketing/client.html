@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#0b0b12">
+  <title>Tu contenido · IVAE Marketing</title>
+  <meta name="description" content="Tu calendario de contenido y aprobaciones con IVAE Marketing.">
+
+  <!-- Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/marketing/css/app.css">
+
+  <!-- Client-portal-only tweaks. Reuses the design tokens from app.css. -->
+  <style>
+    /* The portal is a single centered column, not the team app shell. */
+    .portal {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+    .portal__main {
+      flex: 1 1 auto;
+      width: 100%;
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: var(--s-6) var(--s-5) var(--s-12);
+    }
+
+    /* Header bar with the client's brand accent. --accent is set inline by JS. */
+    .portal__header {
+      position: sticky; top: 0; z-index: 20;
+      display: flex; align-items: center; gap: var(--s-3);
+      padding: var(--s-3) var(--s-5);
+      border-bottom: 1px solid var(--border);
+      background: rgba(11,11,18,.82);
+      backdrop-filter: saturate(140%) blur(10px);
+    }
+    .portal__brandline {
+      position: absolute; left: 0; right: 0; top: 0; height: 3px;
+      background: var(--accent, var(--grad));
+    }
+    .portal__logo {
+      width: 38px; height: 38px; border-radius: 10px; flex: none;
+      display: grid; place-items: center; overflow: hidden;
+      background: var(--accent, var(--grad));
+      color: #fff; font-weight: 800; font-size: 15px; letter-spacing: -.02em;
+      box-shadow: var(--sh-glow);
+    }
+    .portal__logo img { width: 100%; height: 100%; object-fit: cover; }
+    .portal__id { min-width: 0; }
+    .portal__name { font-size: 16px; font-weight: 800; letter-spacing: -.01em; }
+    .portal__by { font-size: 11.5px; color: var(--text-mute); font-weight: 600; }
+    .portal__spacer { flex: 1 1 auto; }
+
+    /* Friendly greeting / hero. */
+    .greet { margin-bottom: var(--s-6); }
+    .greet h1 { font-size: 24px; letter-spacing: -.02em; }
+    .greet p { color: var(--text-dim); margin-top: 6px; font-size: 14.5px; max-width: 60ch; }
+
+    /* "Por aprobar" card list. */
+    .approve-list { display: grid; gap: var(--s-3); grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .pcard {
+      display: flex; flex-direction: column; gap: 10px;
+      padding: var(--s-4); text-align: left; cursor: pointer; width: 100%;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-lg); box-shadow: var(--sh-1);
+      transition: border-color var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
+    }
+    .pcard:hover { border-color: var(--border-strong); transform: translateY(-2px); box-shadow: var(--sh-2); }
+    .pcard__top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .pcard__date { font-size: 12px; font-weight: 700; color: var(--text-mute); margin-left: auto; }
+    .pcard__title { font-size: 15px; font-weight: 700; line-height: 1.3; }
+    .pcard__preview { font-size: 13px; color: var(--text-dim); line-height: 1.5;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    /* Accent the "Por aprobar" section so it reads as the priority. */
+    .needs-you {
+      border-radius: var(--r-xl);
+      background: var(--grad-soft);
+      border: 1px solid rgba(139,92,246,.28);
+      padding: var(--s-5);
+      margin-bottom: var(--s-8);
+    }
+    .needs-you .section-head { margin-bottom: var(--s-4); }
+    .needs-you .section-head h2 { font-size: 17px; }
+    .pill-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 24px; height: 24px; padding: 0 8px; border-radius: var(--r-pill);
+      background: var(--grad); color: #fff; font-size: 12px; font-weight: 800;
+    }
+
+    /* Read-only detail blocks inside the modal. */
+    .detail-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: var(--s-4); }
+    .detail-block { margin-bottom: var(--s-5); }
+    .detail-block__label {
+      font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+      color: var(--text-mute); display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+    }
+    .detail-block__label .spacer { flex: 1 1 auto; }
+    .readbox {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 12px 14px;
+      font-size: 14px; line-height: 1.6; color: var(--text);
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .readbox.is-empty { color: var(--text-mute); font-style: italic; }
+    .script-part { margin-bottom: 10px; }
+    .script-part:last-child { margin-bottom: 0; }
+    .script-part__tag {
+      font-size: 10.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+      color: var(--brand); margin-bottom: 4px;
+    }
+    .hashtags { color: var(--brand); }
+    .btn-copy {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text-dim); cursor: pointer;
+      height: 28px; padding: 0 10px; border-radius: var(--r-sm);
+      font-size: 12px; font-weight: 600;
+      transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+    }
+    .btn-copy:hover { background: var(--surface-3); color: var(--text); border-color: var(--border-strong); }
+    .btn-copy .ico { width: 14px; height: 14px; }
+
+    /* The decision area at the bottom of the modal body. */
+    .decide {
+      border-top: 1px solid var(--border); margin-top: var(--s-5); padding-top: var(--s-5);
+    }
+    .decide__status { display: flex; align-items: center; gap: 10px; margin-bottom: var(--s-4); font-size: 13.5px; color: var(--text-dim); }
+    .thanks {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px; border-radius: var(--r);
+      background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.4); color: #bbf7d0;
+      font-size: 14px; font-weight: 600;
+    }
+    .thanks .ico { width: 18px; height: 18px; flex: none; }
+    .comment-form { margin-top: var(--s-4); }
+
+    /* Comment author avatar tint by role. */
+    .comment.is-mine .avatar { background: var(--accent, var(--grad)); }
+
+    /* Calendar header row for the portal (lighter than the team topbar). */
+    .cal__nav-btn {
+      width: 38px; height: 38px; border-radius: var(--r); flex: none;
+      display: grid; place-items: center; cursor: pointer;
+      background: var(--surface-2); border: 1px solid var(--border); color: var(--text-dim);
+      transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+    }
+    .cal__nav-btn:hover { background: var(--surface); color: var(--text); border-color: var(--brand); }
+    .cal__nav-btn svg { width: 18px; height: 18px; }
+
+    /* Agenda item card (mobile calendar). */
+    .agenda-item {
+      display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+      padding: 10px 12px; cursor: pointer;
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+      transition: border-color var(--t-fast), background var(--t-fast);
+    }
+    .agenda-item:hover { border-color: var(--border-strong); background: var(--surface-2); }
+    .agenda-item__bar { width: 4px; align-self: stretch; border-radius: 2px; background: var(--c, var(--brand)); flex: none; }
+    .agenda-item__body { min-width: 0; flex: 1 1 auto; }
+    .agenda-item__title { font-size: 14px; font-weight: 600; }
+    .agenda-item__meta { display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+
+    @media (max-width: 720px) {
+      .portal__main { padding: var(--s-5) var(--s-4) var(--s-10); }
+      .greet h1 { font-size: 21px; }
+      .approve-list { grid-template-columns: 1fr; }
+      .needs-you { padding: var(--s-4); border-radius: var(--r-lg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading state shown until the portal hydrates (visibility-safe). -->
+  <div id="boot" class="loading-state" style="min-height:100dvh">
+    <span class="spinner spinner--lg" aria-hidden="true"></span>
+    <p>Cargando tu contenido...</p>
+  </div>
+
+  <!-- The portal is rendered by client.js into #app once auth + data load. -->
+  <div id="app" class="portal hidden"></div>
+
+  <!-- Read-only post detail modal (populated by JS). -->
+  <div class="overlay" id="overlay" hidden></div>
+  <aside class="modal modal--wide" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
+    <header class="modal__head">
+      <h2 class="modal__title" id="modalTitle">Detalle</h2>
+      <button class="modal__close" id="modalClose" type="button" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </header>
+    <div class="modal__body" id="modalBody"></div>
+  </aside>
+
+  <div class="toast-host" role="status" aria-live="polite"></div>
+
+  <script type="module" src="/marketing/js/client.js"></script>
+</body>
+</html>

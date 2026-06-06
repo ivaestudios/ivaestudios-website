@@ -359,7 +359,7 @@
 # (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /instagram-management-cancun
 # (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /es/manejo-instagram-cancun
 
-/marketing /social-media-management 301
+# /marketing/ is the IVAE Marketing app (login + calendar). Public vanity alias kept on /ivae-marketing.
 /ivae-marketing /social-media-management 301
 /social-media /social-media-management 301
 /social-media-agency /social-media-management 301
@@ -376,7 +376,6 @@
 /ivae-marketing/intake /marketing-intake 301
 /intake /marketing-intake 301
 /strategy-brief /marketing-intake 301
-/marketing/brief /marketing-intake 301
 /es/intake /marketing-intake 301
 /es/brief /marketing-intake 301
 /portfolio/family-cancun-beach /luxury-family-photos 301
