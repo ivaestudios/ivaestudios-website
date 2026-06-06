@@ -69,7 +69,34 @@
 
       <p class="auth-foot">
         Acceso privado de clientes y equipo IVAE Marketing.
+        <br>
+        <button type="button" id="toggleSetup"
+          style="background:none;border:0;color:var(--brand);cursor:pointer;font:inherit;text-decoration:underline;margin-top:10px;padding:6px">
+          Configuración inicial (primera vez)
+        </button>
       </p>
+
+      <!-- First-admin bootstrap. /auth/register only succeeds ONCE, for the authorized
+           owner email, when no admin exists yet. Self-disables afterward (returns 403). -->
+      <form id="setupForm" novalidate hidden
+        style="margin-top:var(--s-4);border-top:1px solid var(--border);padding-top:var(--s-5)">
+        <p class="auth-card__sub" style="margin-bottom:var(--s-4)">
+          Crea la cuenta de administradora. Solo se permite una vez, con el correo autorizado.
+        </p>
+        <div class="field">
+          <label class="label" for="suName">Tu nombre</label>
+          <div class="input-wrap"><input class="input" id="suName" type="text" placeholder="Vianey Díaz" required></div>
+        </div>
+        <div class="field">
+          <label class="label" for="suEmail">Correo de administradora</label>
+          <div class="input-wrap"><input class="input" id="suEmail" type="email" inputmode="email" autocomplete="email" placeholder="vianeydm07@gmail.com" required></div>
+        </div>
+        <div class="field">
+          <label class="label" for="suPass">Crea una contraseña</label>
+          <div class="input-wrap"><input class="input" id="suPass" type="password" autocomplete="new-password" placeholder="Mínimo 6 caracteres" required></div>
+        </div>
+        <button class="btn btn-primary" id="suBtn" type="submit">Crear administradora</button>
+      </form>
     </section>
   </main>
 
@@ -138,6 +165,36 @@
 
     // Clear the inline error as soon as the user edits a field.
     [emailEl, passEl].forEach((f) => f.addEventListener('input', clearError));
+
+    // ── First-admin bootstrap (only succeeds once, for the authorized owner email) ──
+    const toggleSetup = document.getElementById('toggleSetup');
+    const setupForm   = document.getElementById('setupForm');
+    toggleSetup.addEventListener('click', () => {
+      setupForm.hidden = !setupForm.hidden;
+      if (!setupForm.hidden) document.getElementById('suName').focus();
+    });
+    setupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearError();
+      const name     = document.getElementById('suName').value.trim();
+      const email    = document.getElementById('suEmail').value.trim();
+      const password = document.getElementById('suPass').value;
+      if (!name || !email || !password) { showError('Completa nombre, correo y contraseña.'); return; }
+      if (password.length < 6) { showError('La contraseña debe tener al menos 6 caracteres.'); return; }
+      const b = document.getElementById('suBtn');
+      b.dataset.loading = 'true'; b.setAttribute('aria-busy', 'true');
+      try {
+        const user = await api.post('/auth/register', { name, email, password });
+        toast('Cuenta de administradora creada.', 'success', 1500);
+        location.replace(destFor(user.role));
+      } catch (err) {
+        showError(err.status === 403
+          ? 'El registro inicial ya se hizo, o este correo no es el autorizado. Inicia sesión arriba.'
+          : (err.message || 'No se pudo crear la cuenta. Revisa que ya corriste la migración de la base de datos.'));
+      } finally {
+        delete b.dataset.loading; b.removeAttribute('aria-busy');
+      }
+    });
   </script>
 </body>
 </html>
