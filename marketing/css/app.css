@@ -630,16 +630,17 @@ ul { margin: 0; padding: 0; list-style: none; }
 .modal.is-open { opacity: 1; visibility: visible; transform: translate(-50%, -50%); }
 .modal--wide { width: min(760px, calc(100vw - 32px)); }
 
+/* Editor: centered modal (NOT a side drawer) so there is no "barra lateral". */
 .drawer {
-  position: fixed; z-index: 101; top: 0; right: 0; bottom: 0;
-  width: min(560px, 100vw);
-  transform: translateX(100%); opacity: 1; visibility: hidden;
+  position: fixed; z-index: 101; top: 50%; left: 50%;
+  width: min(680px, calc(100vw - 32px)); max-height: min(86dvh, 860px);
+  transform: translate(-50%, -48%); opacity: 0; visibility: hidden;
   display: flex; flex-direction: column;
-  background: var(--surface); border-left: 1px solid var(--border);
-  box-shadow: var(--sh-3);
-  transition: transform var(--t), visibility var(--t);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); box-shadow: var(--sh-3);
+  transition: opacity var(--t), transform var(--t), visibility var(--t);
 }
-.drawer.is-open { transform: translateX(0); visibility: visible; }
+.drawer.is-open { transform: translate(-50%, -50%); opacity: 1; visibility: visible; }
 
 .modal__head, .drawer__head {
   display: flex; align-items: center; gap: var(--s-3);
@@ -906,7 +907,13 @@ ul { margin: 0; padding: 0; list-style: none; }
     border-radius: var(--r-xl) var(--r-xl) 0 0; border-bottom: 0;
   }
   .modal.is-open { transform: translateY(0); }
-  .drawer { width: 100vw; }
+  /* Editor on mobile = bottom sheet too (no side drawer). */
+  .drawer {
+    top: auto; bottom: 0; left: 0; transform: translateY(100%);
+    width: 100vw; max-width: none; max-height: 92dvh;
+    border-radius: var(--r-xl) var(--r-xl) 0 0; border: 0; border-top: 1px solid var(--border);
+  }
+  .drawer.is-open { transform: translateY(0); }
 
   .seg { width: 100%; }
   .seg button { flex: 1 1 0; }
