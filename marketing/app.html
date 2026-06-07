@@ -137,6 +137,121 @@
     .tbl { min-width: 1040px; }
     .tbl-link { font-size: 12.5px; font-weight: 600; white-space: nowrap; }
     .tbl-link:hover { text-decoration: underline; }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       NOTION-STYLE EDITABLE GRID (Tabla view).
+       Reuses .tbl/.tbl-wrap/.chip/.status-badge/.input/.select shells; everything
+       below is the in-place editing layer (hover affordance, active input,
+       dropdown popover, add row). All colors via existing CSS vars.
+       ════════════════════════════════════════════════════════════════════════ */
+    .grid-wrap { overflow: auto; max-height: calc(100dvh - 150px); border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--surface); }
+    .grid { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; min-width: 1180px; }
+
+    /* Sticky header */
+    .grid thead th {
+      position: sticky; top: 0; z-index: 5;
+      text-align: left; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+      text-transform: uppercase; color: var(--text-mute);
+      background: var(--surface-2); padding: 9px var(--s-3);
+      border-bottom: 1px solid var(--border-strong);
+      white-space: nowrap; user-select: none;
+    }
+    .grid thead th + th { border-left: 1px solid var(--border); }
+
+    .grid tbody td {
+      border-bottom: 1px solid var(--border);
+      border-left: 1px solid var(--border);
+      padding: 0; vertical-align: middle; background: var(--surface);
+    }
+    .grid tbody td:first-child { border-left: 0; }
+    .grid tbody tr:hover td { background: var(--surface-2); }
+
+    /* The clickable cell surface. Min-height keeps rows tappable on mobile. */
+    .gcell {
+      display: flex; align-items: center; gap: 6px;
+      min-height: 40px; padding: 6px var(--s-3);
+      cursor: text; width: 100%; box-sizing: border-box;
+      color: var(--text);
+    }
+    .gcell.is-pick { cursor: pointer; }
+    .gcell:hover { box-shadow: inset 0 0 0 1px var(--border-strong); }
+    .gcell.is-active { box-shadow: inset 0 0 0 2px var(--brand); background: var(--surface); }
+    .gcell__placeholder { color: var(--text-mute); }
+    .gcell__text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+
+    /* Column sizing */
+    .gc-grab   { width: 70px; }
+    .gc-grab .gcell { justify-content: center; cursor: pointer; }
+    .gc-title  { min-width: 220px; }
+    .gc-status, .gc-platform, .gc-type { width: 150px; }
+    .gc-date   { width: 130px; }
+    .gc-by     { width: 140px; }
+    .gc-caption{ min-width: 240px; }
+    .gc-note   { min-width: 180px; }
+    .gc-link   { width: 110px; }
+
+    /* Inline editors that fill the cell (no extra chrome, Notion-flat). */
+    .gedit {
+      width: 100%; font: inherit; font-size: 13.5px; color: var(--text);
+      background: var(--surface); border: 0; outline: none;
+      padding: 8px var(--s-3); box-sizing: border-box;
+      box-shadow: inset 0 0 0 2px var(--brand); border-radius: var(--r-sm);
+    }
+    textarea.gedit { resize: vertical; min-height: 70px; line-height: 1.45; }
+
+    /* Title cell: hover reveals a tiny "Abrir" button → full drawer */
+    .gc-title .gcell { justify-content: space-between; }
+    .gtitle-open {
+      flex: none; opacity: 0; transition: opacity var(--t-fast);
+      font-size: 11px; font-weight: 700; color: var(--brand);
+      background: var(--surface-3); border: 1px solid var(--border);
+      border-radius: var(--r-pill); padding: 2px 8px; min-height: 22px;
+      display: inline-flex; align-items: center; gap: 3px; cursor: pointer;
+    }
+    .gc-title .gcell:hover .gtitle-open,
+    .gtitle-open:focus-visible { opacity: 1; }
+    .gtitle-open:hover { color: #fff; background: var(--brand); border-color: var(--brand); }
+    @media (max-width: 720px) { .gtitle-open { opacity: 1; } } /* no hover on touch */
+
+    /* Link cell: small link when filled, "+ URL" affordance when empty */
+    .glink { font-size: 12.5px; font-weight: 600; white-space: nowrap; color: var(--brand); }
+    .glink:hover { text-decoration: underline; }
+
+    /* Dropdown popover (statuses, platforms, types, grabación). */
+    .gpop {
+      position: fixed; z-index: 120;
+      background: var(--surface); border: 1px solid var(--border-strong);
+      border-radius: var(--r); box-shadow: var(--sh-3);
+      padding: 5px; min-width: 160px; max-height: 280px; overflow-y: auto;
+    }
+    .gpop__opt {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%; padding: 7px 8px; min-height: 36px;
+      border-radius: var(--r-sm); cursor: pointer; background: none; border: 0;
+      color: var(--text); font: inherit; font-size: 13px; text-align: left;
+    }
+    .gpop__opt:hover, .gpop__opt.is-focus { background: var(--surface-2); }
+    .gpop__opt.is-current { box-shadow: inset 0 0 0 1px var(--brand); }
+    .gpop__num {
+      width: 24px; height: 24px; flex: none; display: grid; place-items: center;
+      border-radius: var(--r-sm); font-weight: 700; font-size: 12px;
+      background: var(--surface-2); color: var(--text-dim);
+    }
+
+    /* Add-row: full-width "+ Nuevo contenido" pinned at the bottom of the grid. */
+    .grid tbody tr.grid-addrow td { background: var(--surface); border-left: 0; }
+    .grid tbody tr.grid-addrow:hover td { background: var(--surface-2); }
+    .grid-add {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%; padding: 11px var(--s-3); min-height: 42px;
+      background: none; border: 0; cursor: pointer;
+      color: var(--text-mute); font: inherit; font-size: 13px; font-weight: 600;
+    }
+    .grid-add:hover { color: var(--brand); }
+    .grid-add .ico svg { width: 16px; height: 16px; }
+
+    /* Recording-priority pill reused from board card look */
+    .gcell .board-card__grab { cursor: pointer; }
   </style>
 </head>
 <body>

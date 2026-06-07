@@ -293,7 +293,7 @@ function renderTopbar() {
   const seg = el('div', { class: 'seg', role: 'tablist', 'aria-label': 'Vista' }, [
     segBtn('calendar', 'Calendario'),
     segBtn('board', 'Tablero'),
-    segBtn('list', 'Lista'),
+    segBtn('list', 'Tabla'),
   ]);
 
   // Search
@@ -421,7 +421,7 @@ function mobileViewControls() {
   const seg = el('div', { class: 'seg', role: 'tablist', 'aria-label': 'Vista' }, [
     segBtn('calendar', 'Calendario'),
     segBtn('board', 'Tablero'),
-    segBtn('list', 'Lista'),
+    segBtn('list', 'Tabla'),
   ]);
   const searchInput = el('input', {
     class: 'input', type: 'search', placeholder: 'Buscar por título o caption',
@@ -693,21 +693,11 @@ function cardAfterPoint(body, y) {
   return null;
 }
 
-// ── 5c. LIST (table) ─────────────────────────────────────────────────────────
-const LIST_COLS = [
-  { key: 'grabacion',     label: 'Grabación', sortable: true,  cls: 'cell-num' },
-  { key: 'content_type',  label: 'Tipo',      sortable: true },
-  { key: 'title',         label: 'Tarea',     sortable: true,  cls: 'cell-title' },
-  { key: 'caption',       label: 'Caption',   sortable: false },
-  { key: 'publish_date',  label: 'Fecha',     sortable: true },
-  { key: 'assignee',      label: 'Hecho por', sortable: true },
-  { key: 'status',        label: 'Estado',    sortable: true },
-  { key: 'platform',      label: 'Plataforma',sortable: true },
-  { key: 'inspo_url',     label: 'Inspo',     sortable: false },
-  { key: 'video_url',     label: 'Videos',    sortable: false },
-  { key: 'notes_people',  label: 'Notas',     sortable: false },
-  { key: 'approval_state',label: 'Aprobación',sortable: true },
-];
+// ── 5c. TABLA (Notion-style inline-editable grid) ────────────────────────────
+// Every cell edits IN PLACE: click → input/select/popover → commit on blur/Enter,
+// Esc cancels. Each commit fires a single-field PATCH (api.patch('/posts/'+id,{...}))
+// with an optimistic local update + rollback/toast on error. A bottom add-row
+// POSTs a new post and focuses its Tarea cell.
 
 // Person names that have a non-empty note on a post, e.g. "Jairo, Meli".
 function notesPeopleNames(p) {
@@ -716,84 +706,409 @@ function notesPeopleNames(p) {
   return Object.keys(np).filter((k) => np[k] != null && String(np[k]).trim());
 }
 
-// A small "open link" cell that doesn't trigger the row's editor click.
-function linkCell(url, label) {
-  if (!url) return el('span', { class: 'muted', text: '—' });
-  return el('a', {
-    class: 'tbl-link', href: url, target: '_blank', rel: 'noopener noreferrer',
-    title: url, text: label,
-    onclick: (e) => { e.stopPropagation(); },
+// PATCH one field of a post with optimistic update + rollback. Returns a Promise.
+// `revert` is called (with the old value) if the API rejects, so the cell can
+// re-render its previous state.
+async function patchField(post, field, value, { silent = false } = {}) {
+  const prev = post[field];
+  post[field] = value;                                  // optimistic
+  try {
+    await api.patch('/posts/' + encodeURIComponent(post.id), { [field]: value });
+    if (!silent) toast('Guardado.', 'success', 1200);
+    return true;
+  } catch (err) {
+    post[field] = prev;                                 // rollback
+    toast(err.message || 'No se pudo guardar.', 'error');
+    return false;
+  }
+}
+
+// ── In-cell editor primitives ────────────────────────────────────────────────
+// Each returns nothing; they swap the cell's content for an editor and restore
+// the read view via `rerender()` when done.
+
+// Generic text/url/date/number input editor inside a cell.
+function editInput(td, { value, type = 'text', commit, rerender }) {
+  const cell = td.querySelector('.gcell');
+  if (cell) cell.classList.add('is-active');
+  const inp = el('input', { class: 'gedit', type, value: value == null ? '' : String(value) });
+  td.replaceChildren(inp);
+  let done = false;
+  const finish = async (save) => {
+    if (done) return; done = true;
+    if (save) { const ok = await commit(inp.value); if (ok === false) { rerender(); return; } }
+    rerender();
+  };
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+    else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
   });
+  inp.addEventListener('blur', () => finish(true));
+  inp.focus();
+  if (type === 'text' || type === 'url') inp.select();
+}
+
+// Expanding textarea editor (caption + per-person notes). Commits on blur/Cmd+Enter.
+function editTextarea(td, { value, commit, rerender }) {
+  const cell = td.querySelector('.gcell');
+  if (cell) cell.classList.add('is-active');
+  const ta = el('textarea', { class: 'gedit' });
+  ta.value = value == null ? '' : String(value);
+  const autosize = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 260) + 'px'; };
+  td.replaceChildren(ta);
+  autosize();
+  let done = false;
+  const finish = async (save) => {
+    if (done) return; done = true;
+    if (save) { const ok = await commit(ta.value); if (ok === false) { rerender(); return; } }
+    rerender();
+  };
+  ta.addEventListener('input', autosize);
+  ta.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+    else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); finish(true); }
+  });
+  ta.addEventListener('blur', () => finish(true));
+  ta.focus();
+  ta.setSelectionRange(ta.value.length, ta.value.length);
+}
+
+// Anchored dropdown popover (statuses, platforms, types, grabación). `options` is
+// [{value, render(), current}]; `onPick(value)` commits. Closes on outside click /
+// Esc; keyboard arrows + Enter navigate.
+function openPopover(anchor, options, onPick) {
+  document.querySelectorAll('.gpop').forEach((p) => p.remove());
+  const cell = anchor.querySelector ? anchor.querySelector('.gcell') : null;
+  if (cell) cell.classList.add('is-active');
+
+  const pop = el('div', { class: 'gpop', role: 'listbox' });
+  const optEls = [];
+  let focusIdx = options.findIndex((o) => o.current);
+  if (focusIdx < 0) focusIdx = 0;
+
+  options.forEach((o, i) => {
+    const b = el('button', {
+      class: 'gpop__opt' + (o.current ? ' is-current' : ''), type: 'button', role: 'option',
+      onclick: () => { close(); onPick(o.value); },
+      onmouseenter: () => setFocus(i),
+    }, [o.render()]);
+    optEls.push(b);
+    pop.appendChild(b);
+  });
+  document.body.appendChild(pop);
+
+  // Position under the anchor, flipping up / clamping to viewport.
+  const r = anchor.getBoundingClientRect();
+  const pr = pop.getBoundingClientRect();
+  let top = r.bottom + 4, left = r.left;
+  if (top + pr.height > window.innerHeight - 8) top = Math.max(8, r.top - pr.height - 4);
+  if (left + pr.width > window.innerWidth - 8) left = Math.max(8, window.innerWidth - pr.width - 8);
+  pop.style.top = top + 'px';
+  pop.style.left = left + 'px';
+
+  function setFocus(i) {
+    focusIdx = i;
+    optEls.forEach((e, j) => e.classList.toggle('is-focus', j === i));
+  }
+  setFocus(focusIdx);
+
+  let closed = false;
+  function close() {
+    if (closed) return; closed = true;
+    pop.remove();
+    if (cell) cell.classList.remove('is-active');
+    document.removeEventListener('mousedown', onOutside, true);
+    document.removeEventListener('keydown', onKey, true);
+  }
+  function onOutside(e) { if (!pop.contains(e.target)) close(); }
+  function onKey(e) {
+    if (e.key === 'Escape') { e.preventDefault(); close(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); setFocus((focusIdx + 1) % options.length); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setFocus((focusIdx - 1 + options.length) % options.length); }
+    else if (e.key === 'Enter') { e.preventDefault(); const o = options[focusIdx]; close(); if (o) onPick(o.value); }
+  }
+  // Defer outside-listener so the opening click doesn't immediately close it.
+  setTimeout(() => {
+    document.addEventListener('mousedown', onOutside, true);
+    document.addEventListener('keydown', onKey, true);
+  }, 0);
+  return close;
+}
+
+// ── Cell renderers ───────────────────────────────────────────────────────────
+// Each builds a <td> whose .gcell shows the read view and, on click, swaps to its
+// editor. `rerender` rebuilds the whole <td> in place after a commit/cancel.
+
+function gridCell(td, contentNodes, { pick = false } = {}) {
+  const cell = el('div', { class: 'gcell' + (pick ? ' is-pick' : '') }, contentNodes);
+  td.replaceChildren(cell);
+  return cell;
+}
+
+// 1. Grabación (1-5 + blank) → popover → PATCH grabacion
+function cellGrab(p) {
+  const td = el('td', { class: 'gc-grab' });
+  const render = () => {
+    const node = p.grabacion
+      ? el('span', { class: 'board-card__grab', text: 'G' + p.grabacion })
+      : el('span', { class: 'gcell__placeholder', text: '—' });
+    const cell = gridCell(td, [node], { pick: true });
+    cell.addEventListener('click', () => {
+      const opts = [{ value: '', label: 'Sin', cur: !p.grabacion }, ...GRABACION_LEVELS.map((n) => ({ value: n, label: 'G' + n, cur: p.grabacion === n }))];
+      openPopover(td, opts.map((o) => ({
+        value: o.value, current: o.cur,
+        render: () => el('span', { class: 'flex items-center gap-2' }, [
+          el('span', { class: 'gpop__num', text: o.value === '' ? '—' : String(o.value) }),
+          el('span', { text: o.value === '' ? 'Sin prioridad' : 'Prioridad ' + o.value }),
+        ]),
+      })), async (v) => {
+        await patchField(p, 'grabacion', v === '' ? null : Number(v));
+        render();
+      });
+    });
+  };
+  render();
+  return td;
+}
+
+// 2. Tarea / title → inline text + hover "Abrir" → openEditorFor
+function cellTitle(p) {
+  const td = el('td', { class: 'gc-title' });
+  const render = () => {
+    const txt = el('span', { class: 'gcell__text', title: p.title, text: p.title || '' });
+    const open = el('button', { class: 'gtitle-open', type: 'button', title: 'Abrir ficha completa', 'aria-label': 'Abrir ficha completa',
+      onclick: (e) => { e.stopPropagation(); openEditorFor(p.id); } }, [icon('edit'), el('span', { text: 'Abrir' })]);
+    const cell = gridCell(td, [txt, open]);
+    cell.addEventListener('click', (e) => {
+      if (e.target.closest('.gtitle-open')) return;
+      editInput(td, { value: p.title, commit: (v) => patchField(p, 'title', v.trim() || 'Sin título'), rerender: render });
+    });
+  };
+  render();
+  return td;
+}
+
+// 3. Estado → popover of 8 statuses as colored chips → PATCH status
+function cellStatus(p) {
+  const td = el('td', { class: 'gc-status' });
+  const render = () => {
+    const cell = gridCell(td, [statusBadge(p.status)], { pick: true });
+    cell.addEventListener('click', () => {
+      openPopover(td, STATUS_ORDER.map((s) => ({
+        value: s, current: s === p.status, render: () => statusBadge(s),
+      })), async (v) => { await patchField(p, 'status', v); refreshClientCounts(); render(); });
+    });
+  };
+  render();
+  return td;
+}
+
+// 4. Plataforma → popover of PLATFORMS → PATCH platform
+function cellPlatform(p) {
+  const td = el('td', { class: 'gc-platform' });
+  const render = () => {
+    const node = p.platform ? el('span', { class: 'tag', text: p.platform }) : el('span', { class: 'gcell__placeholder', text: '—' });
+    const cell = gridCell(td, [node], { pick: true });
+    cell.addEventListener('click', () => {
+      openPopover(td, PLATFORMS.map((pl) => ({
+        value: pl, current: pl === p.platform, render: () => el('span', { class: 'tag', text: pl }),
+      })), async (v) => { await patchField(p, 'platform', v); render(); });
+    });
+  };
+  render();
+  return td;
+}
+
+// 5. Tipo / content_type → popover of CONTENT_TYPES as colored chips → PATCH content_type
+function cellType(p) {
+  const td = el('td', { class: 'gc-type' });
+  const render = () => {
+    const cell = gridCell(td, [chip(p.content_type)], { pick: true });
+    cell.addEventListener('click', () => {
+      openPopover(td, CONTENT_TYPE_ORDER.map((t) => ({
+        value: t, current: t === p.content_type, render: () => chip(t),
+      })), async (v) => { await patchField(p, 'content_type', v); render(); });
+    });
+  };
+  render();
+  return td;
+}
+
+// 6. Fecha → native date input → PATCH publish_date (YYYY-MM-DD)
+function cellDate(p) {
+  const td = el('td', { class: 'gc-date' });
+  const render = () => {
+    const node = p.publish_date
+      ? el('span', { class: 'gcell__text', text: fmtDate(p.publish_date, { day: 'numeric', month: 'short', year: 'numeric' }) })
+      : el('span', { class: 'gcell__placeholder', text: 'Sin fecha' });
+    const cell = gridCell(td, [node]);
+    cell.addEventListener('click', () => {
+      editInput(td, {
+        value: p.publish_date ? String(p.publish_date).slice(0, 10) : '', type: 'date',
+        commit: (v) => patchField(p, 'publish_date', v || null), rerender: render,
+      });
+    });
+  };
+  render();
+  return td;
+}
+
+// 7. Hecho por / assignee → text input → PATCH assignee
+function cellAssignee(p) {
+  const td = el('td', { class: 'gc-by' });
+  const render = () => {
+    const node = p.assignee
+      ? el('span', { class: 'flex items-center gap-2' }, [avatar(p.assignee, true), el('span', { class: 'gcell__text', text: p.assignee })])
+      : el('span', { class: 'gcell__placeholder', text: '—' });
+    const cell = gridCell(td, [node]);
+    cell.addEventListener('click', () => {
+      editInput(td, { value: p.assignee, commit: (v) => patchField(p, 'assignee', v.trim() || null), rerender: render });
+    });
+  };
+  render();
+  return td;
+}
+
+// 8. Caption → expanding textarea, truncated preview when not editing → PATCH caption
+function cellCaption(p) {
+  const td = el('td', { class: 'gc-caption' });
+  const render = () => {
+    const full = p.caption || '';
+    const preview = full.length > 60 ? full.slice(0, 60).trimEnd() + '…' : full;
+    const node = full
+      ? el('span', { class: 'gcell__text', title: full, text: preview })
+      : el('span', { class: 'gcell__placeholder', text: 'Agregar caption' });
+    const cell = gridCell(td, [node]);
+    cell.addEventListener('click', () => {
+      editTextarea(td, { value: p.caption, commit: (v) => patchField(p, 'caption', v.trim() || null), rerender: render });
+    });
+  };
+  render();
+  return td;
+}
+
+// 9. One column per person in note_labels → textarea → PATCH notes_people (merged)
+function cellNote(p, person) {
+  const td = el('td', { class: 'gc-note' });
+  const getNotes = () => (p.notes_people && typeof p.notes_people === 'object') ? p.notes_people : {};
+  const render = () => {
+    const cur = getNotes()[person] || '';
+    const preview = cur.length > 50 ? cur.slice(0, 50).trimEnd() + '…' : cur;
+    const node = cur
+      ? el('span', { class: 'gcell__text', title: cur, text: preview })
+      : el('span', { class: 'gcell__placeholder', text: '—' });
+    const cell = gridCell(td, [node]);
+    cell.addEventListener('click', () => {
+      editTextarea(td, {
+        value: cur,
+        commit: (v) => {
+          const merged = { ...getNotes() };
+          const t = v.trim();
+          if (t) merged[person] = t; else delete merged[person];
+          return patchField(p, 'notes_people', merged);
+        },
+        rerender: render,
+      });
+    });
+  };
+  render();
+  return td;
+}
+
+// 10 + 11. URL cells (video_url / inspo_url) → text input; small link when filled.
+function cellUrl(p, field, label) {
+  const td = el('td', { class: 'gc-link' });
+  const render = () => {
+    const url = p[field];
+    const node = url
+      ? el('a', { class: 'glink', href: url, target: '_blank', rel: 'noopener noreferrer', title: url, text: label,
+          onclick: (e) => { e.stopPropagation(); } })
+      : el('span', { class: 'gcell__placeholder', text: '+ URL' });
+    const cell = gridCell(td, [node]);
+    cell.addEventListener('click', (e) => {
+      if (e.target.closest('a')) return;
+      editInput(td, { value: url, type: 'url', commit: (v) => patchField(p, field, v.trim() || null), rerender: render });
+    });
+  };
+  render();
+  return td;
 }
 
 function renderList() {
   const posts = filteredPosts();
-  if (!posts.length) {
-    $viewBody.replaceChildren(emptyState(
-      'Aún no hay contenido',
-      'Crea el primero para verlo en la lista.',
-      el('button', { class: 'btn btn-primary', onclick: () => openEditorFor(null) }, [icon('plus'), el('span', { text: 'Nuevo contenido' })]),
-    ));
-    return;
-  }
+  const cl = activeClient();
+  const noteLabels = (cl && Array.isArray(cl.note_labels)) ? cl.note_labels : [];
 
-  const { key, dir } = state.sort;
-  const sorted = [...posts].sort((a, b) => {
-    let va = a[key], vb = b[key];
-    if (key === 'content_type') { va = contentTypeLabel(va); vb = contentTypeLabel(vb); }
-    if (key === 'status') { va = STATUSES[va] ? STATUSES[va].order : 99; vb = STATUSES[vb] ? STATUSES[vb].order : 99; }
-    if (key === 'grabacion') { va = va || 0; vb = vb || 0; }
-    if (va == null) va = ''; if (vb == null) vb = '';
-    if (typeof va === 'string') va = va.toLowerCase(); if (typeof vb === 'string') vb = vb.toLowerCase();
-    const cmp = va < vb ? -1 : va > vb ? 1 : 0;
-    return dir === 'asc' ? cmp : -cmp;
-  });
+  // Column header definitions in the owner's Notion order.
+  const headers = [
+    'Grabación', 'Tarea', 'Estado', 'Plataforma', 'Tipo', 'Fecha', 'Hecho por', 'Caption',
+    ...noteLabels.map((person) => 'Notas ' + person),
+    'Videos', 'Inspo',
+  ];
+  const colCount = headers.length;
 
-  const table = el('table', { class: 'tbl' });
+  const table = el('table', { class: 'grid' });
   const thead = el('thead');
-  const tr = el('tr');
-  for (const col of LIST_COLS) {
-    const th = el('th', {
-      class: col.sortable ? 'is-sortable' : '',
-      onclick: col.sortable ? () => {
-        if (state.sort.key === col.key) state.sort.dir = state.sort.dir === 'asc' ? 'desc' : 'asc';
-        else { state.sort.key = col.key; state.sort.dir = 'asc'; }
-        renderList();
-      } : null,
-    }, [col.label]);
-    if (state.sort.key === col.key) {
-      th.setAttribute('aria-sort', dir === 'asc' ? 'ascending' : 'descending');
-      th.appendChild(el('span', { class: 'sort-arrow', text: dir === 'asc' ? '▲' : '▼' }));
-    }
-    tr.appendChild(th);
-  }
-  thead.appendChild(tr);
+  const trh = el('tr');
+  for (const h of headers) trh.appendChild(el('th', { text: h }));
+  thead.appendChild(trh);
   table.appendChild(thead);
 
   const tbody = el('tbody');
-  for (const p of sorted) {
-    const capFull = p.caption || '';
-    const capPreview = capFull.length > 40 ? capFull.slice(0, 40).trimEnd() + '…' : capFull;
-    const noteNames = notesPeopleNames(p);
-    const row = el('tr', { onclick: () => openEditorFor(p.id) }, [
-      el('td', { class: 'cell-num' }, [p.grabacion ? el('span', { class: 'board-card__grab', text: 'G' + p.grabacion }) : el('span', { class: 'muted', text: '—' })]),
-      el('td', {}, [chip(p.content_type)]),
-      el('td', { class: 'cell-title' }, [el('span', { class: 'truncate', style: { maxWidth: '280px', display: 'inline-block' }, text: p.title })]),
-      el('td', {}, [capFull ? el('span', { class: 'truncate', style: { maxWidth: '220px', display: 'inline-block' }, title: capFull, text: capPreview }) : el('span', { class: 'muted', text: '—' })]),
-      el('td', {}, [p.publish_date ? el('span', { text: fmtDate(p.publish_date, { day: 'numeric', month: 'short', year: 'numeric' }) }) : el('span', { class: 'muted', text: 'Sin fecha' })]),
-      el('td', {}, [p.assignee ? el('span', { class: 'flex items-center gap-2' }, [avatar(p.assignee, true), el('span', { text: p.assignee })]) : el('span', { class: 'muted', text: '—' })]),
-      el('td', {}, [statusBadge(p.status)]),
-      el('td', {}, [p.platform ? el('span', { class: 'tag', text: p.platform }) : el('span', { class: 'muted', text: '—' })]),
-      el('td', {}, [linkCell(p.inspo_url, 'Inspo')]),
-      el('td', {}, [linkCell(p.video_url, 'Video')]),
-      el('td', {}, [noteNames.length ? el('span', { class: 'tag', title: 'Notas de: ' + noteNames.join(', '), text: noteNames.join(', ') }) : el('span', { class: 'muted', text: '—' })]),
-      el('td', {}, [approvalBadge(p.approval_state)]),
-    ]);
-    tbody.appendChild(row);
-  }
-  table.appendChild(tbody);
 
-  $viewBody.replaceChildren(el('div', { class: 'tbl-wrap' }, [table]));
+  function appendRow(p, focusTitle = false) {
+    const row = el('tr', { dataset: { id: p.id } }, [
+      cellGrab(p),
+      cellTitle(p),
+      cellStatus(p),
+      cellPlatform(p),
+      cellType(p),
+      cellDate(p),
+      cellAssignee(p),
+      cellCaption(p),
+      ...noteLabels.map((person) => cellNote(p, person)),
+      cellUrl(p, 'video_url', 'Video'),
+      cellUrl(p, 'inspo_url', 'Inspo'),
+    ]);
+    tbody.insertBefore(row, addRow);
+    if (focusTitle) {
+      const cell = row.children[1] && row.children[1].querySelector('.gcell');
+      if (cell) setTimeout(() => cell.click(), 30);
+    }
+  }
+
+  // Bottom add-row (POST → append editable row → focus Tarea).
+  const addRow = el('tr', { class: 'grid-addrow' });
+  const addBtn = el('button', { class: 'grid-add', type: 'button' }, [icon('plus'), el('span', { text: 'Nuevo contenido' })]);
+  addBtn.addEventListener('click', async () => {
+    addBtn.disabled = true;
+    try {
+      const created = await api.post('/posts', {
+        client_id: state.activeClientId,
+        title: 'Nuevo contenido', content_type: 'reel', status: 'idea',
+      });
+      const np = (created && created.post) ? created.post : created;
+      // Normalize the local record so cells read consistent shapes.
+      const post = Object.assign({
+        title: 'Nuevo contenido', content_type: 'reel', status: 'idea', platform: 'Instagram',
+        grabacion: null, publish_date: null, assignee: null, caption: null,
+        notes_people: {}, video_url: null, inspo_url: null, approval_state: 'pending',
+        client_id: state.activeClientId,
+      }, np || {});
+      state.posts.push(post);
+      appendRow(post, /*focusTitle*/ true);
+      refreshClientCounts();
+    } catch (err) {
+      toast(err.message || 'No se pudo crear el contenido.', 'error');
+    } finally { addBtn.disabled = false; }
+  });
+  addRow.appendChild(el('td', { colspan: String(colCount), style: { borderLeft: '0' } }, [addBtn]));
+  tbody.appendChild(addRow);
+
+  for (const p of posts) appendRow(p);
+
+  table.appendChild(tbody);
+  $viewBody.replaceChildren(el('div', { class: 'grid-wrap' }, [table]));
 }
 
 // ── 6. POST EDITOR (drawer) ──────────────────────────────────────────────────
