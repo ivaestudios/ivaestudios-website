@@ -1107,7 +1107,7 @@ function renderList() {
   const headers = [
     'Grabación', 'Tarea', 'Estado', 'Plataforma', 'Tipo', 'Fecha', 'Hecho por', 'Caption',
     ...noteLabels.map((person) => 'Notas ' + person),
-    'Videos', 'Inspo',
+    'Inspo',
   ];
   const colCount = headers.length;
 
@@ -1131,7 +1131,6 @@ function renderList() {
       cellAssignee(p),
       cellCaption(p),
       ...noteLabels.map((person) => cellNote(p, person)),
-      cellUrl(p, 'video_url', 'Video'),
       cellUrl(p, 'inspo_url', 'Inspo'),
     ]);
     tbody.insertBefore(row, addRow);
