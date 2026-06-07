@@ -748,31 +748,6 @@ function editInput(td, { value, type = 'text', commit, rerender }) {
   if (type === 'text' || type === 'url') inp.select();
 }
 
-// Expanding textarea editor (caption + per-person notes). Commits on blur/Cmd+Enter.
-function editTextarea(td, { value, commit, rerender }) {
-  const cell = td.querySelector('.gcell');
-  if (cell) cell.classList.add('is-active');
-  const ta = el('textarea', { class: 'gedit' });
-  ta.value = value == null ? '' : String(value);
-  const autosize = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 260) + 'px'; };
-  td.replaceChildren(ta);
-  autosize();
-  let done = false;
-  const finish = async (save) => {
-    if (done) return; done = true;
-    if (save) { const ok = await commit(ta.value); if (ok === false) { rerender(); return; } }
-    rerender();
-  };
-  ta.addEventListener('input', autosize);
-  ta.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { e.preventDefault(); finish(false); }
-    else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); finish(true); }
-  });
-  ta.addEventListener('blur', () => finish(true));
-  ta.focus();
-  ta.setSelectionRange(ta.value.length, ta.value.length);
-}
-
 // Anchored dropdown popover (statuses, platforms, types, grabación). `options` is
 // [{value, render(), current}]; `onPick(value)` commits. Closes on outside click /
 // Esc; keyboard arrows + Enter navigate.
@@ -835,6 +810,79 @@ function openPopover(anchor, options, onPick) {
   return close;
 }
 
+// Anchored EXPANDED editor popover (Notion-style cell expand) for text cells.
+// Shares openPopover's anchoring/flip/clamp + outside-click/Esc machinery, but
+// renders a roomy multi-line textarea with the field label as a header.
+//   label  : small header shown above the textarea
+//   value  : prefilled full content
+//   commit(v) -> Promise<bool>|bool : persists; return false on failed save so
+//                the popover stays open (edits aren't lost; rollback by caller)
+//   onClose() : called once when the popover is gone (used to re-render the cell)
+// Saves on blur or Cmd/Ctrl+Enter; Esc cancels; outside-click commits.
+function openExpandPopover(anchor, { label, value, commit, onClose }) {
+  document.querySelectorAll('.gpop, .gexpand').forEach((p) => p.remove());
+  const cell = anchor.querySelector ? anchor.querySelector('.gcell') : null;
+  if (cell) cell.classList.add('is-active');
+
+  const pop = el('div', { class: 'gexpand', role: 'dialog', 'aria-label': label });
+  pop.appendChild(el('div', { class: 'gexpand__label', text: label }));
+  const ta = el('textarea', { class: 'gexpand__ta', rows: '5', 'aria-label': label });
+  ta.value = value == null ? '' : String(value);
+  const autosize = () => { ta.style.height = 'auto'; ta.style.height = Math.min(Math.max(ta.scrollHeight, 96), 360) + 'px'; };
+  pop.appendChild(ta);
+  pop.appendChild(el('div', { class: 'gexpand__hint', text: 'Cmd/Ctrl + Enter para guardar · Esc para cancelar' }));
+  document.body.appendChild(pop);
+  autosize();
+
+  // Position under the anchor, flipping up / clamping to viewport (mirrors openPopover).
+  const r = anchor.getBoundingClientRect();
+  const pr = pop.getBoundingClientRect();
+  let top = r.bottom + 4, left = r.left;
+  if (top + pr.height > window.innerHeight - 8) top = Math.max(8, r.top - pr.height - 4);
+  if (top < 8) top = 8;
+  if (left + pr.width > window.innerWidth - 8) left = Math.max(8, window.innerWidth - pr.width - 8);
+  pop.style.top = top + 'px';
+  pop.style.left = left + 'px';
+
+  let closed = false, done = false;
+  function teardown() {
+    if (closed) return; closed = true;
+    pop.remove();
+    if (cell) cell.classList.remove('is-active');
+    document.removeEventListener('mousedown', onOutside, true);
+    document.removeEventListener('keydown', onKey, true);
+    if (onClose) onClose();
+  }
+  async function finish(save) {
+    if (done) return; done = true;
+    if (save) {
+      const ok = await commit(ta.value);
+      if (ok === false) { done = false; return; }   // keep open so edits aren't lost
+    }
+    teardown();
+  }
+  function onOutside(e) { if (!pop.contains(e.target)) finish(true); }
+  function onKey(e) {
+    if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+    else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); finish(true); }
+  }
+  ta.addEventListener('input', autosize);
+  ta.addEventListener('blur', () => finish(true));
+  // Defer outside-listener so the opening click doesn't immediately close it.
+  setTimeout(() => {
+    document.addEventListener('mousedown', onOutside, true);
+    document.addEventListener('keydown', onKey, true);
+  }, 0);
+  ta.focus();
+  ta.setSelectionRange(ta.value.length, ta.value.length);
+  return teardown;
+}
+
+// Small "⤢" expand affordance shown on hover in a text cell's top-right corner.
+function expandIcon() {
+  return el('span', { class: 'gexpand-ico', 'aria-hidden': 'true', text: '⤢' });
+}
+
 // ── Cell renderers ───────────────────────────────────────────────────────────
 // Each builds a <td> whose .gcell shows the read view and, on click, swaps to its
 // editor. `rerender` rebuilds the whole <td> in place after a commit/cancel.
@@ -871,17 +919,21 @@ function cellGrab(p) {
   return td;
 }
 
-// 2. Tarea / title → inline text + hover "Abrir" → openEditorFor
+// 2. Tarea / title → expand editor for the title text + "Abrir" → full drawer
 function cellTitle(p) {
   const td = el('td', { class: 'gc-title' });
   const render = () => {
     const txt = el('span', { class: 'gcell__text', title: p.title, text: p.title || '' });
     const open = el('button', { class: 'gtitle-open', type: 'button', title: 'Abrir ficha completa', 'aria-label': 'Abrir ficha completa',
       onclick: (e) => { e.stopPropagation(); openEditorFor(p.id); } }, [icon('edit'), el('span', { text: 'Abrir' })]);
-    const cell = gridCell(td, [txt, open]);
+    const cell = gridCell(td, [txt, open, expandIcon()]);
     cell.addEventListener('click', (e) => {
       if (e.target.closest('.gtitle-open')) return;
-      editInput(td, { value: p.title, commit: (v) => patchField(p, 'title', v.trim() || 'Sin título'), rerender: render });
+      openExpandPopover(td, {
+        label: 'Tarea', value: p.title,
+        commit: (v) => patchField(p, 'title', v.trim() || 'Sin título'),
+        onClose: render,
+      });
     });
   };
   render();
@@ -953,23 +1005,27 @@ function cellDate(p) {
   return td;
 }
 
-// 7. Hecho por / assignee → text input → PATCH assignee
+// 7. Hecho por / assignee → expand editor → PATCH assignee
 function cellAssignee(p) {
   const td = el('td', { class: 'gc-by' });
   const render = () => {
     const node = p.assignee
       ? el('span', { class: 'flex items-center gap-2' }, [avatar(p.assignee, true), el('span', { class: 'gcell__text', text: p.assignee })])
       : el('span', { class: 'gcell__placeholder', text: '—' });
-    const cell = gridCell(td, [node]);
+    const cell = gridCell(td, [node, expandIcon()]);
     cell.addEventListener('click', () => {
-      editInput(td, { value: p.assignee, commit: (v) => patchField(p, 'assignee', v.trim() || null), rerender: render });
+      openExpandPopover(td, {
+        label: 'Hecho por', value: p.assignee,
+        commit: (v) => patchField(p, 'assignee', v.trim() || null),
+        onClose: render,
+      });
     });
   };
   render();
   return td;
 }
 
-// 8. Caption → expanding textarea, truncated preview when not editing → PATCH caption
+// 8. Caption → expand editor, truncated preview when not editing → PATCH caption
 function cellCaption(p) {
   const td = el('td', { class: 'gc-caption' });
   const render = () => {
@@ -978,16 +1034,20 @@ function cellCaption(p) {
     const node = full
       ? el('span', { class: 'gcell__text', title: full, text: preview })
       : el('span', { class: 'gcell__placeholder', text: 'Agregar caption' });
-    const cell = gridCell(td, [node]);
+    const cell = gridCell(td, [node, expandIcon()]);
     cell.addEventListener('click', () => {
-      editTextarea(td, { value: p.caption, commit: (v) => patchField(p, 'caption', v.trim() || null), rerender: render });
+      openExpandPopover(td, {
+        label: 'Caption', value: p.caption,
+        commit: (v) => patchField(p, 'caption', v.trim() || null),
+        onClose: render,
+      });
     });
   };
   render();
   return td;
 }
 
-// 9. One column per person in note_labels → textarea → PATCH notes_people (merged)
+// 9. One column per person in note_labels → expand editor → PATCH notes_people (merged)
 function cellNote(p, person) {
   const td = el('td', { class: 'gc-note' });
   const getNotes = () => (p.notes_people && typeof p.notes_people === 'object') ? p.notes_people : {};
@@ -997,17 +1057,17 @@ function cellNote(p, person) {
     const node = cur
       ? el('span', { class: 'gcell__text', title: cur, text: preview })
       : el('span', { class: 'gcell__placeholder', text: '—' });
-    const cell = gridCell(td, [node]);
+    const cell = gridCell(td, [node, expandIcon()]);
     cell.addEventListener('click', () => {
-      editTextarea(td, {
-        value: cur,
+      openExpandPopover(td, {
+        label: 'Notas ' + person, value: cur,
         commit: (v) => {
           const merged = { ...getNotes() };
           const t = v.trim();
           if (t) merged[person] = t; else delete merged[person];
           return patchField(p, 'notes_people', merged);
         },
-        rerender: render,
+        onClose: render,
       });
     });
   };
@@ -1015,7 +1075,7 @@ function cellNote(p, person) {
   return td;
 }
 
-// 10 + 11. URL cells (video_url / inspo_url) → text input; small link when filled.
+// 10 + 11. URL cells (video_url / inspo_url) → expand editor; small link when filled.
 function cellUrl(p, field, label) {
   const td = el('td', { class: 'gc-link' });
   const render = () => {
@@ -1024,10 +1084,14 @@ function cellUrl(p, field, label) {
       ? el('a', { class: 'glink', href: url, target: '_blank', rel: 'noopener noreferrer', title: url, text: label,
           onclick: (e) => { e.stopPropagation(); } })
       : el('span', { class: 'gcell__placeholder', text: '+ URL' });
-    const cell = gridCell(td, [node]);
+    const cell = gridCell(td, [node, expandIcon()]);
     cell.addEventListener('click', (e) => {
       if (e.target.closest('a')) return;
-      editInput(td, { value: url, type: 'url', commit: (v) => patchField(p, field, v.trim() || null), rerender: render });
+      openExpandPopover(td, {
+        label: label === 'Video' ? 'Videos (URL)' : 'Inspo (URL)', value: url,
+        commit: (v) => patchField(p, field, v.trim() || null),
+        onClose: render,
+      });
     });
   };
   render();
