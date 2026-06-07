@@ -178,10 +178,10 @@
 /gallery/galleries.html
   Cache-Control: public, max-age=0, must-revalidate
 
-# IVAE Marketing app (calendar) — short TTL so deploys propagate (no content
-# hashing in filenames), same pattern as /gallery/*.
+# IVAE Marketing app (calendar) — always revalidate so the owner sees every
+# change on a normal reload (no stale JS/CSS while we iterate on the tool).
 /marketing/js/*.js
-  Cache-Control: public, max-age=300, must-revalidate
+  Cache-Control: public, max-age=0, must-revalidate
 
 /marketing/css/*.css
-  Cache-Control: public, max-age=300, must-revalidate
+  Cache-Control: public, max-age=0, must-revalidate
