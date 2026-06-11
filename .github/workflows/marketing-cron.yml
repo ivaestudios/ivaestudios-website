@@ -1,0 +1,64 @@
+# Daily cron sweep for the IVAE Marketing backend (OPTIONAL BACKUP).
+#
+# The PRIMARY mechanism for time-based recipes (recordatorio_publicacion,
+# marcar_atrasado, alerta_sin_aprobar) and pruning is the throttled lazySweep
+# that runs server-side whenever someone polls /notifications/unread-count:
+# the app works perfectly without this Action. This cron only guarantees the
+# sweep also runs on days when nobody opens the app.
+#
+# Cloudflare Pages Functions does NOT support scheduled handlers (only Workers
+# do), so this Action triggers the work over HTTP once a day. It POSTs to:
+#   https://ivaestudios.com/api/marketing/cron
+# with `Authorization: Bearer <secret>`. The endpoint runs the full lazySweep
+# (forced, ignoring the 15-minute throttle) + pruning of old notifications,
+# automation runs and expired sessions.
+#
+# Required GitHub Secret:
+#   MKT_CRON_SECRET — must match the env.MKT_CRON_SECRET configured in
+#                     Cloudflare Pages → Settings → Environment variables
+#                     (Production).
+#
+# To set the secret from a local checkout (one-time):
+#   gh secret set MKT_CRON_SECRET --body "<the-MKT_CRON_SECRET-value-from-cloudflare>"
+#
+# Manual run for testing: Actions tab → "Marketing - daily cron sweep" →
+# "Run workflow", or from the CLI: `gh workflow run marketing-cron.yml`.
+
+name: Marketing - daily cron sweep
+
+on:
+  schedule:
+    - cron: '0 12 * * *'   # 12:00 UTC = 07:00 Cancun (UTC-5, no DST observed)
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: marketing-cron
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    name: POST /api/marketing/cron
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger marketing cron sweep
+        env:
+          CRON_BEARER: ${{ secrets.MKT_CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_BEARER" ]; then
+            echo "::error::Missing MKT_CRON_SECRET secret. Set it with: gh secret set MKT_CRON_SECRET"
+            exit 1
+          fi
+          echo "Calling https://ivaestudios.com/api/marketing/cron ..."
+          # curl -f makes the step fail on any non-2xx response, so a broken
+          # cron surfaces as a failed Action (and an email from GitHub).
+          response=$(curl -fsS -X POST \
+            -H "Authorization: Bearer $CRON_BEARER" \
+            -H "Content-Type: application/json" \
+            --connect-timeout 30 --max-time 60 \
+            -w "\nHTTP_STATUS:%{http_code}\n" \
+            https://ivaestudios.com/api/marketing/cron)
+          echo "$response"
+          echo "Sweep complete."
