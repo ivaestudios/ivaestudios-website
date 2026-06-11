@@ -1,0 +1,919 @@
+/* ============================================================================
+   IVAE Marketing — Vista Tabla enterprise. Namespace .etable (JAMAS .grid:
+   esa clase es la utilidad del legacy y la colision esta documentada).
+   Mobile-first: disenada a 390px (tarjetas-fila por grupo); la tabla real
+   solo existe a >=768px. Consume tokens v1 (app.css) + v2 (tokens2.css).
+   Targets tactiles >= var(--tap). Vencidos = texto rojo + icono (AA).
+   ============================================================================ */
+
+.etable {
+  --etbl-toolbar-h: 52px;
+  --etbl-head-h: 38px;
+  --etbl-overdue: #f87171;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  min-height: 50dvh;
+}
+
+/* Espacio extra cuando la barra de seleccion flota abajo. */
+.etable.has-bulkbar { padding-bottom: 76px; }
+
+/* ── Toolbar sticky (chips de control + contador) ──────────────────────────── */
+.etable-toolbar {
+  position: sticky;
+  top: calc(var(--topbar-h2) + var(--subhead-h));
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: var(--etbl-toolbar-h);
+  padding: 6px 0;
+  margin: calc(-1 * var(--s-2)) 0 0;
+  background: var(--bg);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.etable-toolbar::-webkit-scrollbar { display: none; }
+.etable-toolbar__spacer { flex: 1 1 auto; min-width: var(--s-2); }
+
+.etable-chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-2);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color var(--t-fast), background var(--t-fast);
+}
+.etable-chip:hover { border-color: var(--border-strong); background: var(--surface-2); }
+.etable-chip:focus-visible { outline: none; box-shadow: var(--ring); }
+.etable-chip .ico { color: var(--text-dim); }
+.etable-chip--icon { padding: 0; width: 40px; justify-content: center; }
+
+/* Chips por breakpoint: --m solo movil, --d solo desktop. */
+.etable-chip--d { display: none; }
+
+.etable-count {
+  flex: none;
+  font-size: var(--fs-1);
+  font-weight: 700;
+  color: var(--text-mute);
+  white-space: nowrap;
+  padding-right: 2px;
+}
+
+/* ── Chips de vistas guardadas ──────────────────────────────────────────────── */
+.etable-views {
+  display: flex;
+  gap: var(--s-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+}
+.etable-views::-webkit-scrollbar { display: none; }
+.etable-vchip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--text-dim);
+  font: inherit;
+  font-size: var(--fs-1);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.etable-vchip:hover { border-color: var(--border-strong); color: var(--text); }
+.etable-vchip:focus-visible { outline: none; box-shadow: var(--ring); }
+.etable-vchip.is-active {
+  border-color: transparent;
+  background: var(--client-accent-soft);
+  box-shadow: inset 0 0 0 1.5px var(--client-accent);
+  color: var(--text);
+}
+.etable-vchip--add .ico { color: var(--text-mute); }
+.etable-vchip__txt { max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+
+/* ── Aviso de filtros activos ──────────────────────────────────────────────── */
+.etable-notice {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: 8px 12px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r);
+  font-size: var(--fs-2);
+  color: var(--text-dim);
+}
+.etable-notice__clear {
+  border: 0;
+  background: none;
+  color: var(--brand);
+  font: inherit;
+  font-size: var(--fs-2);
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 32px;
+  padding: 0 6px;
+}
+.etable-notice__clear:focus-visible { outline: none; box-shadow: var(--ring); border-radius: var(--r-sm); }
+
+/* ── Battery bar (distribucion de status del grupo) ────────────────────────── */
+.etable-batt {
+  display: flex;
+  flex: 1 1 64px;
+  min-width: 56px;
+  max-width: 180px;
+  height: 8px;
+  border-radius: var(--r-pill);
+  overflow: hidden;
+  background: var(--surface-3);
+  margin-left: auto;
+}
+.etable-batt__seg { display: block; height: 100%; min-width: 3px; }
+.etable-batt__seg + .etable-batt__seg { margin-left: 1px; }
+.etable-batt__seg--empty { background: var(--surface-3); }
+
+/* ── Header de grupo (compartido) ──────────────────────────────────────────── */
+.etable-caret {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  color: var(--gc, var(--client-accent));
+  transition: transform .18s var(--ease);
+}
+.etable-caret.is-collapsed { transform: rotate(-90deg); }
+
+.etable-ghead__name {
+  font-size: var(--fs-3);
+  font-weight: 800;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.etable-ghead__count {
+  flex: none;
+  min-width: 24px;
+  padding: 1px 8px;
+  border-radius: var(--r-pill);
+  background: var(--surface-3);
+  color: var(--text-dim);
+  font-size: var(--fs-1);
+  font-weight: 800;
+  text-align: center;
+}
+
+/* Checkbox (fila, tarjeta y grupo) */
+.etable-check {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: var(--tap);
+  cursor: pointer;
+  flex: none;
+}
+.etable-check input,
+.etable-gcheck input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--brand);
+  cursor: pointer;
+}
+.etable-check input:focus-visible,
+.etable-gcheck input:focus-visible { outline: none; box-shadow: var(--ring); border-radius: 4px; }
+.etable-gcheck {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: var(--tap);
+  cursor: pointer;
+  flex: none;
+}
+
+/* ── MOVIL: grupos + tarjetas-fila (layout base, 390px) ────────────────────── */
+.etable-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.etable-g { display: flex; flex-direction: column; gap: var(--s-2); }
+
+.etable-ghead--m {
+  position: sticky;
+  top: calc(var(--topbar-h2) + var(--subhead-h) + var(--etbl-toolbar-h));
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: var(--tap);
+  padding: 6px 10px 6px 8px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--gc, var(--client-accent));
+  border-radius: var(--r);
+  background: var(--surface);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.etable-ghead--m:focus-visible { outline: none; box-shadow: var(--ring); }
+/* El checkbox del grupo solo aparece en modo seleccion (movil). */
+.etable-ghead--m .etable-gcheck { display: none; }
+.etable.is-selectmode .etable-ghead--m .etable-gcheck { display: inline-grid; }
+
+.etable-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.etable-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 64px;
+  padding: 10px 12px 10px 8px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--gc, var(--client-accent));
+  border-radius: var(--r);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color var(--t-fast), background var(--t-fast);
+  touch-action: pan-y;
+}
+.etable-card:hover { border-color: var(--border-strong); }
+.etable-card:focus-visible { outline: none; box-shadow: var(--ring); }
+.etable-card.is-selected {
+  background: var(--client-accent-soft);
+  border-color: var(--client-accent);
+}
+
+.etable-card__check { display: none; }
+.etable.is-selectmode .etable-card__check { display: inline-grid; }
+
+.etable-card__main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.etable-card__title {
+  font-size: var(--fs-3);
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.etable-card__client { font-size: var(--fs-1); color: var(--text-mute); font-weight: 700; }
+.etable-card__chips {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.etable-card__chipbtn { cursor: pointer; }
+.etable-card__avatar { flex: none; }
+
+.etable-card__date {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font: inherit;
+  font-size: var(--fs-1);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.etable-card__date:focus-visible { outline: none; box-shadow: var(--ring); }
+.etable-card__date.is-overdue { color: var(--etbl-overdue); border-color: color-mix(in srgb, var(--etbl-overdue) 45%, transparent); }
+
+.etable-card__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: var(--fs-1);
+  font-weight: 700;
+  white-space: nowrap;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Chip de Estado (tenido con color-mix del color --st-*) ────────────────── */
+.etable-st {
+  --stc: var(--text-mute);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 11px;
+  border: 1px solid color-mix(in srgb, var(--stc) 42%, transparent);
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--stc) 16%, transparent);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-1);
+  font-weight: 800;
+  white-space: nowrap;
+}
+button.etable-st { cursor: pointer; }
+button.etable-st:focus-visible { outline: none; box-shadow: var(--ring); }
+.etable-st__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--stc); flex: none; }
+.etable-st__txt { overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+
+.etable-st[data-status='idea']       { --stc: var(--st-idea); }
+.etable-st[data-status='guion']      { --stc: var(--st-guion); }
+.etable-st[data-status='grabacion']  { --stc: var(--st-grabacion); }
+.etable-st[data-status='edicion']    { --stc: var(--st-edicion); }
+.etable-st[data-status='revision']   { --stc: var(--st-revision); }
+.etable-st[data-status='aprobado']   { --stc: var(--st-aprobado); }
+.etable-st[data-status='programado'] { --stc: var(--st-programado); }
+.etable-st[data-status='publicado']  { --stc: var(--st-publicado); }
+.etable-st[data-status='otro']       { --stc: var(--text-mute); }
+
+/* ── Aprobacion (dot + texto, igual look en tabla y tarjeta) ───────────────── */
+.etable-appr {
+  --apc: #f59e0b;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-1);
+  font-weight: 700;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.etable-appr__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--apc); flex: none; }
+.etable-appr[data-approval='approved'] { --apc: #22c55e; }
+.etable-appr[data-approval='changes']  { --apc: #ec4899; }
+.etable-appr[data-approval='pending']  { --apc: #f59e0b; }
+
+/* ── Otros renders de celda ────────────────────────────────────────────────── */
+.etable-muted { color: var(--text-mute); font-size: var(--fs-2); }
+.etable-trunc {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-2);
+}
+.etable-date { display: inline-flex; align-items: center; gap: 5px; font-size: var(--fs-2); }
+.etable-date.is-overdue { color: var(--etbl-overdue); font-weight: 700; }
+.etable-date.is-overdue .ico { color: var(--etbl-overdue); }
+.etable-person { display: inline-flex; align-items: center; gap: 7px; min-width: 0; }
+.etable-ct { display: inline-flex; align-items: center; gap: 6px; min-width: 0; font-size: var(--fs-2); }
+.etable-ct__dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.etable-grab {
+  display: inline-grid;
+  place-items: center;
+  min-width: 30px;
+  padding: 3px 7px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  font-size: var(--fs-1);
+  font-weight: 800;
+  color: var(--text-dim);
+}
+.etable-grab[data-g='1'], .etable-grab[data-g='2'] {
+  color: #fbbf24;
+  border-color: color-mix(in srgb, #f59e0b 50%, transparent);
+}
+.etable-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--brand);
+  font-size: var(--fs-2);
+  font-weight: 700;
+  text-decoration: none;
+  min-height: 32px;
+}
+.etable-link:hover { text-decoration: underline; }
+.etable-link:focus-visible { outline: none; box-shadow: var(--ring); border-radius: var(--r-sm); }
+
+/* ── Quick-add ─────────────────────────────────────────────────────────────── */
+.etable-qa__mbtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: var(--tap);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r);
+  background: none;
+  color: var(--text-dim);
+  font: inherit;
+  font-size: var(--fs-2);
+  font-weight: 700;
+  cursor: pointer;
+}
+.etable-qa__mbtn:hover { color: var(--text); border-color: var(--brand); }
+.etable-qa__mbtn:focus-visible { outline: none; box-shadow: var(--ring); }
+
+.etable-qa__cell { padding: 4px 8px; }
+.etable-qa__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--text-mute);
+  font: inherit;
+  font-size: var(--fs-2);
+  font-weight: 600;
+  cursor: pointer;
+}
+.etable-qa__open:hover { color: var(--text); background: var(--surface-2); }
+.etable-qa__open:focus-visible { outline: none; box-shadow: var(--ring); }
+.etable-qa__form { display: flex; align-items: center; gap: var(--s-3); }
+.etable-qa__input { max-width: 420px; min-height: 38px; }
+.etable-qa__hint { font-size: var(--fs-1); color: var(--text-mute); white-space: nowrap; }
+
+.etable-qa__chips { display: flex; gap: var(--s-2); flex-wrap: wrap; margin-bottom: var(--s-4); }
+.etable-qa__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-2);
+  font-weight: 600;
+  cursor: pointer;
+}
+.etable-qa__chip:hover { border-color: var(--border-strong); }
+.etable-qa__chip:focus-visible { outline: none; box-shadow: var(--ring); }
+/* El boton Crear queda visible con el teclado abierto (sticky en el sheet). */
+.etable-qa__footer { position: sticky; bottom: 0; background: var(--surface); }
+
+/* ── Barra flotante de acciones masivas ────────────────────────────────────── */
+.etable-bulkbar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 10px);
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  max-width: calc(100vw - 16px);
+  padding: 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  box-shadow: var(--e3);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.etable-bulkbar::-webkit-scrollbar { display: none; }
+.etable-bulkbar__count {
+  flex: none;
+  padding: 0 10px;
+  font-size: var(--fs-2);
+  font-weight: 800;
+  color: var(--text);
+  white-space: nowrap;
+}
+.etable-bulkbar__btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-width: var(--tap);
+  min-height: var(--tap);
+  padding: 4px 8px;
+  border: 0;
+  border-radius: var(--r);
+  background: none;
+  color: var(--text-dim);
+  font: inherit;
+  cursor: pointer;
+}
+.etable-bulkbar__btn:hover { background: var(--surface-2); color: var(--text); }
+.etable-bulkbar__btn:focus-visible { outline: none; box-shadow: var(--ring); }
+.etable-bulkbar__lbl { font-size: 10px; font-weight: 700; }
+.etable-bulkbar__btn--danger { color: #fca5a5; }
+.etable-bulkbar__btn--danger:hover { background: rgba(239, 68, 68, .14); color: #fecaca; }
+.etable-bulkbar__btn--close .etable-bulkbar__lbl { display: none; }
+
+/* Los toasts suben para no tapar la barra de seleccion. */
+body:has(.etable-bulkbar:not([hidden])) .toast-host {
+  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 76px);
+}
+
+/* ── Sheets propios (menu de filas, stepper, confirm) ──────────────────────── */
+.etable-menu { display: flex; flex-direction: column; gap: 2px; }
+.etable-menu__hint { font-size: var(--fs-1); color: var(--text-mute); margin: 0 0 var(--s-3); }
+.etable-menu-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-height: 48px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: var(--r);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-3);
+  text-align: left;
+  cursor: pointer;
+}
+.etable-menu-row:hover { background: var(--surface-2); }
+.etable-menu-row:focus-visible { outline: none; box-shadow: var(--ring); }
+.etable-menu-row .ico:first-child { color: var(--text-dim); }
+.etable-menu-row > .ico:last-child { color: var(--text-mute); margin-left: auto; }
+.etable-menu-row__label { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.etable-menu-row__check { color: var(--brand); font-weight: 800; margin-left: auto; }
+.etable-menu-row--static { cursor: default; padding-right: 4px; }
+.etable-menu-row__apply {
+  flex: 1 1 auto;
+  min-height: 44px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-3);
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--r-sm);
+}
+.etable-menu-row__apply:hover { background: var(--surface-2); }
+.etable-menu-row__apply:focus-visible { outline: none; box-shadow: var(--ring); }
+.etable-menu-row__del {
+  flex: none;
+  width: var(--tap);
+  height: var(--tap);
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: #fca5a5;
+  cursor: pointer;
+}
+.etable-menu-row__del:hover { background: rgba(239, 68, 68, .14); }
+.etable-menu-row__del:focus-visible { outline: none; box-shadow: var(--ring); }
+
+.etable-step {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  margin: var(--s-3) 0;
+}
+.etable-step__btn {
+  min-width: 52px;
+  min-height: 48px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-3);
+  font-weight: 800;
+  cursor: pointer;
+}
+.etable-step__btn:hover { border-color: var(--border-strong); }
+.etable-step__btn:focus-visible { outline: none; box-shadow: var(--ring); }
+.etable-step__num {
+  min-width: 72px;
+  text-align: center;
+  font-size: var(--fs-6);
+  font-weight: 800;
+  color: var(--text);
+}
+.etable-step__hint { text-align: center; font-size: var(--fs-2); color: var(--text-dim); margin: 0 0 var(--s-3); }
+.etable-confirm__txt { font-size: var(--fs-3); color: var(--text); line-height: 1.5; margin: 0 0 var(--s-4); }
+
+/* ── Skeleton y vacios ─────────────────────────────────────────────────────── */
+.etable-skel { display: flex; flex-direction: column; gap: var(--s-2); }
+.etable-skel__head,
+.etable-skel__row {
+  border-radius: var(--r);
+  background: var(--surface);
+  position: relative;
+  overflow: hidden;
+}
+.etable-skel__head { height: 44px; }
+.etable-skel__row { height: 64px; }
+.etable-skel__head::after,
+.etable-skel__row::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .05) 50%, transparent 70%);
+  animation: etable-shimmer 1.4s infinite;
+}
+@keyframes etable-shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+.etable-empty { margin-top: var(--s-6); }
+
+/* ── DESKTOP (>=768px): tabla real con thead sticky y titulo sticky left ───── */
+@media (min-width: 768px) {
+  .etable-chip--m { display: none; }
+  .etable-chip--d { display: inline-flex; }
+
+  /* La vista ocupa el alto util: el scroll vive en .etable-scroll. */
+  .etable.is-desktop {
+    height: calc(100dvh - var(--topbar-h2) - var(--subhead-h)
+            - var(--nav-h) - env(safe-area-inset-bottom, 0px) - 24px);
+    min-height: 360px;
+  }
+  .etable.is-desktop .etable-toolbar { position: static; margin: 0; flex: none; }
+  .etable.is-desktop .etable-views,
+  .etable.is-desktop .etable-notice { flex: none; }
+  .etable.is-desktop .etable-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .etable-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    background: var(--bg);
+    overscroll-behavior: contain;
+  }
+
+  .etable__table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    min-width: 760px;
+  }
+
+  /* THEAD sticky */
+  .etable__thead th {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    height: var(--etbl-head-h);
+    padding: 0 8px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-strong);
+    text-align: left;
+    font-size: var(--fs-1);
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    white-space: nowrap;
+  }
+  .etable__th--check { width: 44px; min-width: 44px; left: 0; z-index: 5; }
+  .etable__th--title { left: 44px; z-index: 5; min-width: 240px; }
+
+  .etable__sortbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 30px;
+    padding: 0 6px;
+    margin-left: -6px;
+    border: 0;
+    border-radius: var(--r-sm);
+    background: none;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+  }
+  .etable__sortbtn:hover { color: var(--text); background: var(--surface-2); }
+  .etable__sortbtn:focus-visible { outline: none; box-shadow: var(--ring); }
+  .etable__sortbtn.is-active { color: var(--text); }
+  .etable__sortarrow { font-size: 11px; min-width: 10px; }
+
+  /* Header de grupo dentro de la tabla (sticky bajo el thead) */
+  .etable-ghead__cell {
+    position: sticky;
+    top: var(--etbl-head-h);
+    z-index: 3;
+    left: 0;
+    padding: 0;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .etable-ghead__in {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    min-height: var(--tap);
+    padding: 4px 10px 4px 6px;
+    border-left: 4px solid var(--gc, var(--client-accent));
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    /* El header de grupo no se mueve con el scroll horizontal. */
+    position: sticky;
+    left: 0;
+    max-width: calc(100vw - 80px);
+  }
+  .etable-ghead__in:focus-visible { outline: none; box-shadow: var(--ring); }
+  .etable-ghead__in .etable-batt { max-width: 220px; }
+
+  /* Filas */
+  .etable__td {
+    padding: 0;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    background: var(--bg);
+  }
+  .etable-row:hover .etable__td { background: var(--surface); }
+  .etable-row.is-selected .etable__td { background: var(--client-accent-soft); }
+
+  .etable__td--check {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    width: 44px;
+    min-width: 44px;
+    box-shadow: inset 3px 0 0 var(--gc, var(--client-accent));
+  }
+  /* El checkbox queda siempre visible por defecto (tablets touch >=768px
+     no tienen hover). Solo se oculta hasta hover en punteros finos: ver el
+     bloque @media (hover: hover) and (pointer: fine) al final. */
+
+  .etable__td--title {
+    position: sticky;
+    left: 44px;
+    z-index: 2;
+    min-width: 240px;
+    max-width: 340px;
+    border-right: 1px solid var(--border);
+  }
+  .etable-title {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    padding: 4px 8px;
+    min-height: 46px;
+  }
+  .etable-title__main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+  .etable-title__txt {
+    border: 0;
+    background: none;
+    color: var(--text);
+    font: inherit;
+    font-size: var(--fs-2);
+    font-weight: 600;
+    text-align: left;
+    padding: 4px 6px;
+    margin-left: -6px;
+    border-radius: var(--r-sm);
+    cursor: text;
+    min-height: 30px;
+    max-width: 100%;
+  }
+  .etable-title__txt span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .etable-title__txt:hover { background: var(--surface-2); }
+  .etable-title__txt:focus-visible { outline: none; box-shadow: var(--ring); }
+  .etable-title__client { font-size: var(--fs-1); color: var(--text-mute); font-weight: 700; padding-left: 0; }
+  .etable-title__open {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 30px;
+    padding: 0 9px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-pill);
+    background: var(--surface-2);
+    color: var(--text-dim);
+    font: inherit;
+    font-size: var(--fs-1);
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity var(--t-fast);
+  }
+  /* "Abrir" siempre visible por defecto; en touch no hay hover que lo revele.
+     El ocultamiento hasta hover vive en el bloque (hover: hover) del final. */
+  .etable-title__open:hover { color: var(--text); border-color: var(--border-strong); }
+  .etable-title__open:focus-visible { outline: none; box-shadow: var(--ring); opacity: 1; }
+
+  /* Celdas tipadas: toda la celda es el target de edicion. */
+  .etable__cellbtn {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 46px;
+    padding: 4px 10px;
+    border: 0;
+    background: none;
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 0;
+    min-width: 0;
+  }
+  .etable__cellbtn:hover { background: var(--surface-2); }
+  .etable__cellbtn:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--brand); }
+
+  /* Estado: chip a lo ancho de la celda (estilo Monday). */
+  .etable__td--status .etable__cellbtn { padding: 5px 6px; }
+  .etable__td--status .etable-st {
+    width: 100%;
+    justify-content: center;
+    border-radius: var(--r-sm);
+    min-height: 34px;
+  }
+
+  /* Texto largo en celdas: una linea con ellipsis. */
+  .etable__td--text .etable-trunc { max-width: 280px; }
+
+  /* Quick-add row */
+  .etable-qa td { border-bottom: 1px solid var(--border); background: var(--bg); }
+
+  /* Tarjetas: a >=768px no existen (la tabla las reemplaza). */
+  .etable-groups { display: none; }
+
+  .etable-bulkbar {
+    bottom: 24px;
+  }
+  .etable-bulkbar__lbl { font-size: var(--fs-1); }
+  body:has(.etable-bulkbar:not([hidden])) .toast-host { bottom: 96px; }
+}
+
+/* ── Affordances solo-hover (exclusivo de mouse/trackpad) ──────────────────────
+   En tablets touch >=768px no existe hover, asi que el checkbox de fila y el
+   boton "Abrir" quedan SIEMPRE visibles por defecto (reglas de arriba). Solo
+   cuando hay hover real y puntero fino se ocultan hasta pasar el cursor,
+   igual que el patron de mywork.css. */
+@media (min-width: 768px) and (hover: hover) and (pointer: fine) {
+  .etable__td--check .etable-check input { opacity: 0; }
+  .etable-row:hover .etable-check input,
+  .etable-row:focus-within .etable-check input,
+  .etable-row.is-selected .etable-check input,
+  .etable.is-selectmode .etable-check input { opacity: 1; }
+
+  .etable-title__open { opacity: 0; }
+  .etable-row:hover .etable-title__open,
+  .etable-row:focus-within .etable-title__open,
+  .etable-title__open:focus-visible { opacity: 1; }
+}
+
+/* ── Densidad compacta (pref del shell) ────────────────────────────────────── */
+[data-density='compact'] .etable-card { min-height: 54px; padding-top: 6px; padding-bottom: 6px; }
+@media (min-width: 768px) {
+  [data-density='compact'] .etable__cellbtn { min-height: 38px; }
+  [data-density='compact'] .etable-title { min-height: 38px; }
+}
+
+/* ── Movimiento reducido ───────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .etable-caret { transition: none; }
+  .etable-card,
+  .etable-chip,
+  .etable-title__open { transition: none; }
+  .etable-skel__head::after,
+  .etable-skel__row::after { animation: none; }
+}

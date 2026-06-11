@@ -12,7 +12,19 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-  <link rel="stylesheet" href="/marketing/css/app.css?v=3">
+  <link rel="stylesheet" href="/marketing/css/app.css?v=4">
+  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=4">
+
+  <style>
+    /* Toques v2 (solo estetica, el flujo de auth no cambia): targets tactiles
+       y tipografia de la escala nueva de tokens2.css. Inputs a 16px SIEMPRE:
+       con <16px iOS Safari zoomea toda la pagina al enfocar (y el login es la
+       entrada movil mas frecuente). */
+    .auth-card .btn { min-height: var(--tap, 44px); }
+    .auth-card .input { min-height: var(--tap, 44px); font-size: 16px; }
+    .auth-card__sub { font-size: var(--fs-2, 13px); }
+    .auth-foot { font-size: var(--fs-2, 13px); }
+  </style>
 </head>
 <body>
   <main class="auth-wrap">
@@ -67,7 +79,36 @@
         <button class="btn btn-primary" id="submitBtn" type="submit">Entrar</button>
       </form>
 
-      <p class="auth-foot">
+      <!-- Cambio de contraseña forzado (must_reset): se muestra tras un login
+           exitoso con contraseña temporal. No se redirige hasta cambiarla. -->
+      <form id="resetForm" novalidate hidden>
+        <p class="auth-card__sub" style="margin-bottom:var(--s-4)">
+          Tu contraseña es temporal. Crea una nueva para continuar.
+        </p>
+        <div class="field">
+          <label class="label" for="newPass">Nueva contraseña</label>
+          <div class="input-wrap">
+            <span class="ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            </span>
+            <input class="input" id="newPass" type="password"
+                   autocomplete="new-password" placeholder="Mínimo 6 caracteres" required>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label" for="newPass2">Confirma la nueva contraseña</label>
+          <div class="input-wrap">
+            <span class="ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            </span>
+            <input class="input" id="newPass2" type="password"
+                   autocomplete="new-password" placeholder="Repite la contraseña" required>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="resetBtn" type="submit">Guardar y entrar</button>
+      </form>
+
+      <p class="auth-foot" id="authFoot">
         Acceso privado de clientes y equipo IVAE Marketing.
         <br>
         <button type="button" id="toggleSetup"
@@ -103,7 +144,7 @@
   <div class="toast-host" role="status" aria-live="polite"></div>
 
   <script type="module">
-    import { api, toast } from '/marketing/js/api.js';
+    import { api, toast } from '/marketing/js/api.js?v=4';
 
     const form    = document.getElementById('loginForm');
     const emailEl  = document.getElementById('email');
@@ -123,14 +164,79 @@
       return role === 'client' ? '/marketing/client.html' : '/marketing/app.html';
     }
 
+    // returnTo: el shell guarda el hash en prefs (mkt2.<userId>.returnTo, JSON)
+    // cuando una sesión staff expira con 401. Aquí se consume UNA vez tras el
+    // login para devolver a la dueña al deep-link exacto (#/post/x?comment=y).
+    // Solo staff (el portal cliente no usa hash) y solo hashes (#...): nada de
+    // rutas inyectadas.
+    function takeReturnTo(user) {
+      if (!user || !user.id || user.role === 'client') return '';
+      const key = 'mkt2.' + user.id + '.returnTo';
+      let hash = '';
+      try {
+        hash = JSON.parse(localStorage.getItem(key) || '""');
+        localStorage.removeItem(key);
+      } catch { hash = ''; }
+      return (typeof hash === 'string' && hash.startsWith('#')) ? hash : '';
+    }
+
+    function goToApp(user) {
+      location.replace(destFor(user.role) + takeReturnTo(user));
+    }
+
     // If already logged in, skip the form. Non-blocking: the form renders
     // regardless, this just redirects in the background if a session exists.
     (async () => {
       try {
         const me = await api.get('/auth/me');
-        if (me && me.role) location.replace(destFor(me.role));
-      } catch { /* not logged in — stay on login, that's fine */ }
+        if (me && me.role) goToApp(me);
+      } catch { /* not logged in, stay on login, that's fine */ }
     })();
+
+    // ── Cambio de contraseña forzado (must_reset) ──────────────────────────────
+    // POST /auth/login devuelve must_reset=true para cuentas con contraseña
+    // temporal: NO se redirige; se pide una nueva contraseña y solo tras
+    // /auth/change-password (que limpia must_reset en el server) se entra.
+    const resetForm = document.getElementById('resetForm');
+    const newPassEl = document.getElementById('newPass');
+    const newPass2El = document.getElementById('newPass2');
+    const resetBtn  = document.getElementById('resetBtn');
+    const authFoot  = document.getElementById('authFoot');
+    let pendingReset = null; // { user, current } del login recién hecho
+
+    function showResetForm(user, currentPassword) {
+      pendingReset = { user, current: currentPassword };
+      form.hidden = true;
+      authFoot.hidden = true;
+      document.getElementById('setupForm').hidden = true;
+      document.getElementById('authTitle').textContent = 'Crea tu nueva contraseña';
+      document.querySelector('.auth-card__sub').textContent =
+        'Hola, ' + (user.name ? user.name.split(' ')[0] : '') + '. Por seguridad, cambia tu contraseña temporal.';
+      resetForm.hidden = false;
+      newPassEl.focus();
+    }
+
+    resetForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearError();
+      if (!pendingReset) return;
+      const next = newPassEl.value;
+      if (next.length < 6) { showError('La nueva contraseña debe tener al menos 6 caracteres.'); return; }
+      if (next !== newPass2El.value) { showError('Las contraseñas no coinciden.'); return; }
+      resetBtn.dataset.loading = 'true';
+      resetBtn.setAttribute('aria-busy', 'true');
+      try {
+        await api.post('/auth/change-password', { current: pendingReset.current, next });
+        toast('Contraseña actualizada.', 'success', 1500);
+        goToApp(pendingReset.user);
+      } catch (err) {
+        showError(err.message || 'No se pudo cambiar la contraseña. Inténtalo de nuevo.');
+      } finally {
+        delete resetBtn.dataset.loading;
+        resetBtn.removeAttribute('aria-busy');
+      }
+    });
+    [newPassEl, newPass2El].forEach((f) => f.addEventListener('input', clearError));
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -148,8 +254,12 @@
       btn.setAttribute('aria-busy', 'true');
       try {
         const user = await api.post('/auth/login', { email, password });
+        if (user && user.must_reset) {
+          showResetForm(user, password);
+          return;
+        }
         toast('Bienvenido, ' + (user.name ? user.name.split(' ')[0] : '') + '.', 'success', 1500);
-        location.replace(destFor(user.role));
+        goToApp(user);
       } catch (err) {
         const msg = err.status === 401
           ? 'Correo o contraseña incorrectos.'
@@ -186,7 +296,7 @@
       try {
         const user = await api.post('/auth/register', { name, email, password });
         toast('Cuenta de administradora creada.', 'success', 1500);
-        location.replace(destFor(user.role));
+        goToApp(user);
       } catch (err) {
         showError(err.status === 403
           ? 'El registro inicial ya se hizo, o este correo no es el autorizado. Inicia sesión arriba.'

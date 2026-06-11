@@ -1,0 +1,545 @@
+/* ============================================================================
+   IVAE Marketing — Vista Tablero (kanban). Mobile-first, disenada a 390px.
+   Consume tokens v1 (app.css) + v2 (tokens2.css). Targets >= var(--tap).
+   ============================================================================ */
+
+/* ── Raiz: ocupa el alto util de la pantalla (sin scroll vertical de pagina).
+      Escapa el padding de #view con margen negativo para que el tablero
+      llegue a los bordes en movil. ─────────────────────────────────────────── */
+.kb-root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin: calc(-1 * var(--s-4));
+  padding: var(--s-2) 0 0;
+  height: calc(100dvh - var(--topbar-h2) - var(--subhead-h)
+          - var(--nav-h) - env(safe-area-inset-bottom, 0px) - 20px);
+  min-height: 320px;
+}
+
+/* ── Bateria de estados (un solo target tactil >= 44px) ────────────────────── */
+.kb-battery {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: none;
+  min-height: var(--tap);
+  margin: 0 var(--s-4);
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface);
+  cursor: pointer;
+  font: inherit;
+  color: var(--text);
+  text-align: left;
+  transition: border-color var(--t-fast), background var(--t-fast);
+}
+.kb-battery:hover { border-color: var(--border-strong); background: var(--surface-2); }
+.kb-battery:focus-visible { outline: none; box-shadow: var(--ring); }
+.kb-battery__meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+.kb-battery__total { font-size: var(--fs-2); font-weight: 700; }
+.kb-battery__top { font-size: var(--fs-1); color: var(--text-mute); }
+.kb-battery__bar {
+  display: flex;
+  height: 8px;
+  border-radius: var(--r-pill);
+  overflow: hidden;
+  background: var(--surface-3);
+}
+.kb-battery__seg { display: block; height: 100%; }
+.kb-battery__seg + .kb-battery__seg { margin-left: 2px; }
+
+/* ── Aviso de filtros sin resultados ───────────────────────────────────────── */
+.kb-notice {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin: 0 var(--s-4);
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: var(--fs-2);
+}
+.kb-notice__clear {
+  min-height: 36px;
+  padding: 0 10px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--fs-2);
+  font-weight: 800;
+  background-image: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ── Tablero: columnas con scroll-snap horizontal ──────────────────────────── */
+.kb-board {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  gap: var(--s-3);
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  padding: 0 var(--s-4) var(--s-3);
+  scrollbar-width: thin;
+}
+
+/* ── Columna ───────────────────────────────────────────────────────────────── */
+.kb-col {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  width: min(84vw, 320px);
+  min-height: 0;
+  scroll-snap-align: start;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.kb-col.is-drop-target {
+  border-color: var(--client-accent-line);
+  box-shadow: inset 0 0 0 1px var(--client-accent-line), var(--e2);
+}
+.kb-col.is-drop-denied {
+  border-color: var(--danger);
+  box-shadow: inset 0 0 0 1px var(--danger);
+}
+
+.kb-col__head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tap);
+  padding: 6px 6px 6px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.kb-col__dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.kb-col__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--fs-3);
+  font-weight: 800;
+  letter-spacing: -.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kb-col__count {
+  flex: none;
+  min-width: 24px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: var(--r-pill);
+  background: var(--surface-3);
+  color: var(--text-dim);
+  font-size: var(--fs-1);
+  font-weight: 800;
+  line-height: 22px;
+  text-align: center;
+}
+.kb-col__collapse {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--text-mute);
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.kb-col__collapse:hover { background: var(--surface-2); color: var(--text); }
+
+.kb-col__list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-2) var(--s-3);
+}
+.kb-col__empty {
+  margin: var(--s-3) var(--s-2);
+  padding: var(--s-4);
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--r);
+  color: var(--text-mute);
+  font-size: var(--fs-2);
+  text-align: center;
+}
+.kb-col__note {
+  flex: none;
+  padding: 8px 12px 12px;
+  color: var(--text-mute);
+  font-size: var(--fs-1);
+}
+.kb-col--others { border-style: dashed; }
+
+/* Columna colapsada: tira angosta, un solo target para expandir */
+.kb-col.is-collapsed { width: 52px; }
+.kb-col__expand {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+}
+.kb-col__expand:hover { background: var(--surface-2); border-radius: var(--r-lg); }
+.kb-col__vlabel {
+  writing-mode: vertical-rl;
+  font-size: var(--fs-2);
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: .02em;
+}
+
+/* ── Tarjeta ───────────────────────────────────────────────────────────────── */
+.kb-card {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface-2);
+  box-shadow: var(--e1);
+  overflow: hidden;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.kb-card:hover { border-color: var(--border-strong); box-shadow: var(--e2); }
+.kb-card__edge { flex: none; width: 4px; }
+
+.kb-card__open {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 10px 4px 10px 10px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.kb-card__open:focus-visible { outline: none; box-shadow: var(--ring); border-radius: var(--r); }
+
+.kb-card__client { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.kb-card__clientdot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.kb-card__clientname {
+  font-size: var(--fs-1);
+  font-weight: 700;
+  color: var(--text-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kb-card__title {
+  font-size: var(--fs-3);
+  font-weight: 600;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.kb-card__chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.kb-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-1);
+  font-weight: 700;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kb-chip--plat { text-transform: capitalize; }
+.kb-chip__dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+
+.kb-card__foot { display: flex; align-items: center; gap: 8px; min-height: 22px; }
+.kb-card__date {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-1);
+  font-weight: 700;
+  color: var(--text-dim);
+}
+.kb-card__date.is-empty { color: var(--text-mute); font-weight: 600; }
+.kb-card__date.is-overdue { color: var(--danger); }
+.kb-card__date.is-today { color: var(--client-accent); }
+.kb-card__prio { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.kb-card__spacer { flex: 1 1 auto; }
+.kb-card__avatar { flex: none; display: grid; place-items: center; }
+.kb-card__avatar .avatar { width: 24px; height: 24px; font-size: 10px; }
+
+.kb-card__menu {
+  flex: none;
+  align-self: stretch;
+  display: grid;
+  place-items: center;
+  width: var(--tap);
+  min-height: var(--tap);
+  border: 0;
+  background: none;
+  color: var(--text-mute);
+  cursor: pointer;
+  transition: color var(--t-fast), background var(--t-fast);
+}
+.kb-card__menu:hover { color: var(--text); background: var(--surface-3); }
+.kb-card__menu:focus-visible { outline: none; box-shadow: var(--ring); }
+
+/* Placeholder de insercion durante el drag */
+.kb-placeholder {
+  flex: none;
+  border: 1.5px dashed var(--client-accent-line);
+  border-radius: var(--r);
+  background: var(--client-accent-soft);
+}
+
+/* ── Composer de alta rapida al pie de columna ─────────────────────────────── */
+.kb-composer { flex: none; padding: 0 var(--s-2) var(--s-2); }
+.kb-composer__open {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: var(--tap);
+  border: 0;
+  border-radius: var(--r);
+  background: none;
+  color: var(--text-mute);
+  font: inherit;
+  font-size: var(--fs-2);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.kb-composer__open:hover { background: var(--surface-2); color: var(--text); }
+.kb-composer__open:focus-visible { outline: none; box-shadow: var(--ring); }
+.kb-composer__form { display: flex; flex-direction: column; gap: var(--s-2); }
+.kb-composer__input { min-height: var(--tap); }
+.kb-composer__actions { display: flex; gap: var(--s-2); }
+.kb-composer__save { flex: 1 1 auto; min-height: var(--tap); }
+.kb-composer__cancel { flex: none; min-width: var(--tap); min-height: var(--tap); }
+
+/* ── Filas de menu propias (menu de tarjeta, filtros, opciones) ────────────── */
+.kb-menu { display: flex; flex-direction: column; gap: 2px; }
+.kb-menu__sectitle {
+  font-size: var(--fs-1);
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  margin: var(--s-2) 0;
+}
+.kb-menu-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  min-height: 48px;
+  padding: 8px var(--s-3);
+  border: 0;
+  border-radius: var(--r);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-3);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--t-fast);
+}
+.kb-menu-row:hover { background: var(--surface-2); }
+.kb-menu-row:focus-visible { outline: none; box-shadow: var(--ring); }
+.kb-menu-row .ico:first-child { color: var(--text-dim); flex: none; }
+.kb-menu-row > .ico:last-child { color: var(--text-mute); flex: none; }
+.kb-menu-row__label { flex: 1 1 auto; min-width: 0; font-weight: 600; }
+.kb-menu-row__value {
+  flex: none;
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-mute);
+  font-size: var(--fs-2);
+}
+.kb-menu-row__check { flex: none; color: var(--brand); font-weight: 800; min-width: 18px; text-align: center; }
+.kb-menu-row--danger, .kb-menu-row--danger .ico { color: var(--danger); }
+
+.kb-filter-clear { width: 100%; min-height: 48px; margin-top: var(--s-3); }
+.kb-confirm__txt { margin: var(--s-2) 0 0; color: var(--text-dim); font-size: var(--fs-3); line-height: 1.5; }
+
+/* ── Filas del sheet de alta rapida ────────────────────────────────────────── */
+.kb-qa-rows { display: flex; flex-direction: column; gap: 2px; margin-top: var(--s-3); }
+.kb-qa-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  min-height: 48px;
+  padding: 8px var(--s-3);
+  border: 0;
+  border-radius: var(--r);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-3);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--t-fast);
+}
+.kb-qa-row:hover { background: var(--surface-2); }
+.kb-qa-row:focus-visible { outline: none; box-shadow: var(--ring); }
+.kb-qa-row .ico { color: var(--text-dim); flex: none; }
+.kb-qa-row > .ico:last-child { color: var(--text-mute); }
+.kb-qa-row__dot { width: 12px; height: 12px; border-radius: 50%; flex: none; background: var(--text-mute); }
+.kb-qa-row__label { flex: 1 1 auto; font-weight: 600; }
+.kb-qa-row__value {
+  flex: none;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-mute);
+  font-size: var(--fs-2);
+}
+
+/* ── Controles del subhead ─────────────────────────────────────────────────── */
+.kb-ctl {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
+}
+.kb-ctl:hover { border-color: var(--border-strong); color: var(--text); background: var(--surface-2); }
+.kb-ctl:focus-visible { outline: none; box-shadow: var(--ring); }
+.kb-ctl__badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--r-pill);
+  background: var(--grad);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 16px;
+  text-align: center;
+  box-shadow: 0 0 0 2px var(--bg);
+}
+
+/* ── Empty state y skeleton ────────────────────────────────────────────────── */
+.kb-empty {
+  flex: 1 1 auto;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  max-width: 420px;
+  margin: 0 auto;
+  padding: var(--s-8) var(--s-5);
+  text-align: center;
+}
+.kb-empty__icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--grad-soft);
+  color: var(--brand);
+  margin-bottom: var(--s-2);
+}
+.kb-empty h3 { margin: 0; font-size: var(--fs-5); letter-spacing: -.01em; }
+.kb-empty p { margin: 0 0 var(--s-3); color: var(--text-mute); font-size: var(--fs-2); }
+.kb-empty .btn { min-height: 48px; }
+
+.kb-col--skel { padding: var(--s-2); gap: var(--s-2); }
+.kb-skel {
+  border-radius: var(--r);
+  background: linear-gradient(100deg, var(--surface-2) 40%, var(--surface-3) 50%, var(--surface-2) 60%);
+  background-size: 200% 100%;
+  animation: kb-shimmer 1.4s ease-in-out infinite;
+}
+.kb-skel--head { height: 36px; }
+.kb-skel--card { height: 86px; }
+@keyframes kb-shimmer {
+  from { background-position: 120% 0; }
+  to { background-position: -80% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kb-skel { animation: none; }
+  .kb-card, .kb-col { transition: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   TABLET >= 768px: columnas fijas mas angostas, sin snap obligatorio.
+   ════════════════════════════════════════════════════════════════════════════ */
+@media (min-width: 768px) {
+  .kb-col { width: 300px; }
+  .kb-board { scroll-snap-type: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   DESKTOP >= 1024px: sin bottom-nav (alto recalculado), columnas 284px,
+   la raiz respeta el max-width de #view.
+   ════════════════════════════════════════════════════════════════════════════ */
+@media (min-width: 1024px) {
+  .kb-root {
+    height: calc(100dvh - var(--topbar-h2) - var(--subhead-h) - 32px);
+  }
+  .kb-col { width: 284px; }
+  .kb-battery { max-width: 560px; }
+}

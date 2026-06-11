@@ -249,3 +249,41 @@ export function approvalBadge(state) {
 export function avatar(name, sm = false) {
   return el('span', { class: 'avatar' + (sm ? ' avatar--sm' : ''), title: name || '', text: initials(name) });
 }
+
+// ════════════════════════════════════════════════════════════════════════════
+// v2 (shell-core) — extensiones ADITIVAS. Todo lo anterior queda intacto:
+// el legacy app.js / client.js siguen importando sin cambios.
+// ════════════════════════════════════════════════════════════════════════════
+
+// priority: key → { label, color }  (migracion 005; enum JS, sin CHECK SQL)
+export const PRIORITIES = {
+  baja:    { label: 'Baja',    color: '#64748b' },
+  media:   { label: 'Media',   color: '#3b82f6' },
+  alta:    { label: 'Alta',    color: '#f59e0b' },
+  urgente: { label: 'Urgente', color: '#ef4444' },
+};
+export const PRIORITY_ORDER = ['baja', 'media', 'alta', 'urgente'];
+export const priorityLabel = (k) => (PRIORITIES[k] && PRIORITIES[k].label) || k || '';
+
+export function priorityBadge(priority) {
+  return el('span', { class: 'priority-badge', 'data-priority': priority }, [
+    el('span', { class: 'dot' }),
+    priorityLabel(priority),
+  ]);
+}
+
+// Tipos de aviso (mkt_notifications.type) → etiqueta es-MX.
+// El body llega YA resuelto del server; esto es solo para filtros/encabezados.
+export const NOTIF_TYPE_LABELS = {
+  aprobacion:    'Aprobación',
+  cambios:       'Cambios pedidos', // mismo termino que APPROVALS.changes y el boton "Pedir cambios"
+  comentario:    'Comentario',
+  mencion:       'Mención',
+  asignacion:    'Asignación',
+  recordatorio:  'Recordatorio',
+  atrasado:      'Atrasado',
+  revision:      'Revisión del cliente',
+  sin_aprobar:   'Sin aprobar',
+  sistema:       'Aviso',
+};
+export const notifTypeLabel = (k) => NOTIF_TYPE_LABELS[k] || 'Aviso';
