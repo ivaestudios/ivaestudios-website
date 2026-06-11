@@ -531,12 +531,15 @@ function shapeClientForPortal(c, counts) {
 }
 
 async function handleListClients(env, session) {
-  // A client sees ONLY their own client object, shaped by allowlist.
+  // El cliente ve SOLO su propia marca, pero con el objeto COMPLETO (incl.
+  // note_labels) porque ahora usa el calendario compartido idéntico al del
+  // equipo (decision de la duena: el cliente ve y edita todo lo suyo). El
+  // aislamiento entre marcas se mantiene: solo se devuelve SU client_id.
   if (session.role === 'client') {
     if (!session.client_id) return json([]);
     const c = await env.DB.prepare('SELECT * FROM mkt_clients WHERE id = ?').bind(session.client_id).first();
     if (!c) return json([]);
-    return json([shapeClientForPortal(c, await clientCounts(env, c.id))]);
+    return json([shapeClient(c, await clientCounts(env, c.id))]);
   }
   const res = await env.DB.prepare('SELECT * FROM mkt_clients ORDER BY archived ASC, name COLLATE NOCASE ASC').all();
   const rows = res.results || [];
