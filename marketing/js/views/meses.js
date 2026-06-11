@@ -84,11 +84,30 @@ function monthLabel(ym) {
 
 function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
+// Valor de una columna para ordenar (texto en minusculas o numero).
+function sortValOf(p, key) {
+  switch (key) {
+    case 'task':     return String(p.title || '').toLowerCase();
+    case 'status':   return (statusLabel(p.status) || '').toLowerCase();
+    case 'platform': return String(p.platform || '').toLowerCase();
+    case 'type':     return (contentTypeLabel(p.content_type) || '').toLowerCase();
+    case 'grab':     return (p.grabacion == null || p.grabacion === '') ? 99 : Number(p.grabacion);
+    case 'date':
+    default:         return String(p.publish_date || '9999-99-99');
+  }
+}
+
 function sortRows(rows) {
+  const { key, dir } = getSort();
+  const mul = dir === 'desc' ? -1 : 1;
   return [...rows].sort((a, b) => {
-    const da = String(a.publish_date || '9999-99-99');
-    const db = String(b.publish_date || '9999-99-99');
-    if (da !== db) return da < db ? -1 : 1;
+    const va = sortValOf(a, key);
+    const vb = sortValOf(b, key);
+    let c;
+    if (typeof va === 'number' && typeof vb === 'number') c = va - vb;
+    else c = va < vb ? -1 : va > vb ? 1 : 0;
+    if (c !== 0) return c * mul;
+    // Desempate estable: posicion y luego id.
     const pa = Number(a.position) || 0;
     const pb = Number(b.position) || 0;
     if (pa !== pb) return pa - pb;
@@ -605,29 +624,33 @@ function buildRow(post, noteLabels) {
 function buildTable(rows, noteLabels) {
   // Encabezados con filtro INTEGRADO (estilo Excel): clic en la columna abre
   // el picker de esa columna; si hay filtro activo se pinta con la marca.
-  const filterTh = (dimKey, label, extra = {}) => {
-    const d = FILTER_DIMS.find((x) => x.dim === dimKey);
+  // Encabezado con menu ordenar+filtrar integrado (estilo Excel). La flecha
+  // apunta arriba/abajo cuando ESA columna es la que ordena.
+  const colHeader = ({ skey, sortType, label, filterDim, extra = {} }) => {
     const f = getFilters();
-    const active = !!f[dimKey];
+    const s = getSort();
+    const dimDef = filterDim ? FILTER_DIMS.find((x) => x.dim === filterDim) : null;
+    const filtered = !!(filterDim && f[filterDim]);
+    const sorted = !!(skey && s.key === skey);
+    const txt = filtered ? `${label}: ${dimDef.labelOf(f[filterDim])}` : label;
     return el('th', { scope: 'col', ...extra }, [
       el('button', {
-        class: 'meses-th__filter' + (active ? ' is-active' : ''),
-        type: 'button', 'aria-haspopup': 'dialog',
-        title: active ? `Filtrado: ${d.labelOf(f[dimKey])}. Clic para cambiar o quitar.` : `Filtrar por ${label.toLowerCase()}`,
-        onclick: (e) => onFilterChip(d, allPostsForFilters, e.currentTarget),
+        class: 'meses-th__filter' + (filtered ? ' is-active' : '') + (sorted ? ' is-sorted' : ''),
+        type: 'button', 'aria-haspopup': 'dialog', title: 'Ordenar y filtrar',
+        onclick: (e) => openColMenu({ skey, sortType, label, filterDim }, e.currentTarget),
       }, [
-        el('span', { text: active ? `${label}: ${d.labelOf(f[dimKey])}` : label }),
-        icon('down', 12),
+        el('span', { text: txt }),
+        icon(sorted && s.dir === 'asc' ? 'up' : 'down', 12),
       ]),
     ]);
   };
   const headCells = [
-    filterTh('grab', 'Grab.', { class: 'meses-col--grab' }),
-    el('th', { class: 'meses-col--task', text: 'Tarea', scope: 'col' }),
-    filterTh('status', 'Estado'),
-    el('th', { text: 'Fecha publicación', scope: 'col' }),
-    filterTh('platform', 'Plataforma'),
-    filterTh('type', 'Tipo'),
+    colHeader({ skey: 'grab', sortType: 'num', label: 'Grab.', filterDim: 'grab', extra: { class: 'meses-col--grab' } }),
+    colHeader({ skey: 'task', sortType: 'text', label: 'Tarea', filterDim: null, extra: { class: 'meses-col--task' } }),
+    colHeader({ skey: 'status', sortType: 'text', label: 'Estado', filterDim: 'status' }),
+    colHeader({ skey: 'date', sortType: 'date', label: 'Fecha publicación', filterDim: null }),
+    colHeader({ skey: 'platform', sortType: 'text', label: 'Plataforma', filterDim: 'platform' }),
+    colHeader({ skey: 'type', sortType: 'text', label: 'Tipo', filterDim: 'type' }),
     el('th', { text: 'Captions', scope: 'col' }),
     ...noteLabels.map((p) => el('th', { text: `Notas ${p}`, scope: 'col' })),
     el('th', { text: 'Inspo', scope: 'col' }),
@@ -875,6 +898,56 @@ function applyFilters(posts) {
   return posts.filter((p) => FILTER_DIMS.every(({ dim, getVal }) => !f[dim] || getVal(p) === f[dim]));
 }
 
+// ── Orden (persistido por cliente) ───────────────────────────────────────────
+
+function sortPrefKey() {
+  const { activeClientId } = ctx.store.getState();
+  return `meses.orden.${activeClientId || 'global'}`;
+}
+
+function getSort() {
+  const s = ctx.prefs.get(sortPrefKey(), null);
+  return (s && s.key) ? { key: s.key, dir: s.dir === 'desc' ? 'desc' : 'asc' } : { key: 'date', dir: 'asc' };
+}
+
+function setSort(key, dir) {
+  ctx.prefs.set(sortPrefKey(), { key, dir: dir === 'desc' ? 'desc' : 'asc' });
+}
+
+// Menu de columna estilo Excel: ordenar (segun la columna) + filtrar (si aplica).
+async function openColMenu({ skey, sortType, label, filterDim }, anchor) {
+  const f = getFilters();
+  const s = getSort();
+  const options = [];
+  if (skey) {
+    if (sortType === 'date') {
+      options.push({ value: 'sort:asc',  label: 'Ordenar: más antiguo primero', current: s.key === skey && s.dir === 'asc' });
+      options.push({ value: 'sort:desc', label: 'Ordenar: más reciente primero', current: s.key === skey && s.dir === 'desc' });
+    } else if (sortType === 'num') {
+      options.push({ value: 'sort:asc',  label: 'Ordenar: 1 → 5', current: s.key === skey && s.dir === 'asc' });
+      options.push({ value: 'sort:desc', label: 'Ordenar: 5 → 1', current: s.key === skey && s.dir === 'desc' });
+    } else {
+      options.push({ value: 'sort:asc',  label: 'Ordenar: A → Z', current: s.key === skey && s.dir === 'asc' });
+      options.push({ value: 'sort:desc', label: 'Ordenar: Z → A', current: s.key === skey && s.dir === 'desc' });
+    }
+  }
+  if (filterDim) {
+    const dimDef = FILTER_DIMS.find((x) => x.dim === filterDim);
+    const seen = new Map();
+    for (const p of allPostsForFilters) { const v = dimDef.getVal(p); if (v) seen.set(v, (seen.get(v) || 0) + 1); }
+    options.push({ value: 'all', label: 'Mostrar todos', current: !f[filterDim] });
+    for (const [v, n] of [...seen.entries()].sort((a, b) => String(a[0]).localeCompare(String(b[0])))) {
+      options.push({ value: 'f:' + v, label: `${dimDef.labelOf(v)} (${n})`, current: f[filterDim] === v });
+    }
+  }
+  const v = await ctx.sheet.pickFrom({ title: label, options, anchor });
+  if (!v) return;
+  if (v.startsWith('sort:')) setSort(skey, v.slice(5));
+  else if (v === 'all') setFilters({ ...f, [filterDim]: '' });
+  else if (v.startsWith('f:')) setFilters({ ...f, [filterDim]: v.slice(2) });
+  render();
+}
+
 async function onFilterChip(dimDef, allPosts, anchor) {
   const f = getFilters();
   const seen = new Map();
@@ -892,10 +965,36 @@ async function onFilterChip(dimDef, allPosts, anchor) {
   render();
 }
 
+const SORT_MENU = [
+  { value: 'date:asc',     label: 'Fecha: antiguo primero' },
+  { value: 'date:desc',    label: 'Fecha: reciente primero' },
+  { value: 'task:asc',     label: 'Tarea: A → Z' },
+  { value: 'task:desc',    label: 'Tarea: Z → A' },
+  { value: 'status:asc',   label: 'Estado: A → Z' },
+  { value: 'platform:asc', label: 'Plataforma: A → Z' },
+  { value: 'type:asc',     label: 'Tipo: A → Z' },
+  { value: 'grab:asc',     label: 'Grabación: 1 → 5' },
+];
+
+async function onSortChip(anchor) {
+  const s = getSort();
+  const cur = `${s.key}:${s.dir}`;
+  const options = SORT_MENU.map((o) => ({ ...o, current: o.value === cur }));
+  const v = await ctx.sheet.pickFrom({ title: 'Ordenar', options, anchor });
+  if (!v) return;
+  const [key, dir] = v.split(':');
+  setSort(key, dir);
+  render();
+}
+
 function buildFilterBar(allPosts) {
   const f = getFilters();
   const anyActive = Object.values(f).some(Boolean);
-  const bar = el('div', { class: 'meses-filters', role: 'toolbar', 'aria-label': 'Filtros' }, [icon('filter', 14)]);
+  const bar = el('div', { class: 'meses-filters', role: 'toolbar', 'aria-label': 'Ordenar y filtrar' }, [icon('filter', 14)]);
+  bar.appendChild(el('button', {
+    class: 'meses-filter', type: 'button', 'aria-haspopup': 'dialog',
+    onclick: (e) => onSortChip(e.currentTarget),
+  }, [el('span', { text: 'Ordenar' })]));
   for (const d of FILTER_DIMS) {
     const active = !!f[d.dim];
     bar.appendChild(el('button', {
