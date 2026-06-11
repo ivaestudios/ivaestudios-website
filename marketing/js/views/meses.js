@@ -26,8 +26,8 @@ import {
   el, clear,
   STATUSES, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606110343';
-import { icon } from '../shell/icons.js?v=202606110343';
+} from '../api.js?v=202606111127';
+import { icon } from '../shell/icons.js?v=202606111127';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -770,13 +770,14 @@ function buildMobileItem(post) {
   const typeDef = CONTENT_TYPES[post.content_type];
   const statusDef = STATUSES[post.status];
 
+  // Chips en orden de lectura para el cliente: FECHA primero (cuándo se
+  // publica), luego tipo y estado, y al final plataforma/grabación.
   const chips = el('div', { class: 'meses-item__chips' }, [
     mobileChip({
-      text: grab && GRAB_COLORS[grab] ? `G${grab}` : 'Grab.',
-      color: grab ? GRAB_COLORS[grab] : null,
-      ghost: !grab,
-      aria: grab ? `Grabación nivel ${grab}, cambiar` : 'Asignar grabación',
-      onTap: (a) => onPickGrabacion(post, a),
+      text: post.publish_date ? fmtDate(post.publish_date) : 'Fecha',
+      ghost: !post.publish_date,
+      aria: post.publish_date ? `Fecha ${fmtDate(post.publish_date, { day: 'numeric', month: 'long' })}, cambiar` : 'Asignar fecha',
+      onTap: (a) => onPickDate(post, a),
     }),
     mobileChip({
       text: post.content_type ? contentTypeLabel(post.content_type) : 'Tipo',
@@ -786,12 +787,6 @@ function buildMobileItem(post) {
       onTap: (a) => onPickType(post, a),
     }),
     mobileChip({
-      text: post.platform || 'Plataforma',
-      ghost: !post.platform,
-      aria: post.platform ? `Plataforma ${post.platform}, cambiar` : 'Asignar plataforma',
-      onTap: (a) => onPickPlatform(post, a),
-    }),
-    mobileChip({
       text: statusLabel(post.status) || 'Estado',
       color: (statusDef && statusDef.color) || null,
       ghost: !STATUSES[post.status],
@@ -799,14 +794,21 @@ function buildMobileItem(post) {
       onTap: (a) => onPickStatus(post, a),
     }),
     mobileChip({
-      text: post.publish_date ? fmtDate(post.publish_date) : 'Fecha',
-      ghost: !post.publish_date,
-      aria: post.publish_date ? `Fecha ${fmtDate(post.publish_date, { day: 'numeric', month: 'long' })}, cambiar` : 'Asignar fecha',
-      onTap: (a) => onPickDate(post, a),
+      text: post.platform || 'Plataforma',
+      ghost: !post.platform,
+      aria: post.platform ? `Plataforma ${post.platform}, cambiar` : 'Asignar plataforma',
+      onTap: (a) => onPickPlatform(post, a),
+    }),
+    mobileChip({
+      text: grab && GRAB_COLORS[grab] ? `G${grab}` : 'Grab.',
+      color: grab ? GRAB_COLORS[grab] : null,
+      ghost: !grab,
+      aria: grab ? `Grabación nivel ${grab}, cambiar` : 'Asignar grabación',
+      onTap: (a) => onPickGrabacion(post, a),
     }),
   ]);
 
-  return el('div', { class: 'meses-item' }, [
+  const card = el('div', { class: 'meses-item' }, [
     el('div', { class: 'meses-item__top' }, [
       el('button', {
         class: 'meses-item__main', type: 'button',
@@ -821,8 +823,20 @@ function buildMobileItem(post) {
         onclick: () => confirmDeleteRow(post),
       }, [icon('trash', 18)]),
     ]),
-    chips,
   ]);
+
+  // Preview del caption (el CONTENIDO real): es lo que el cliente quiere leer.
+  // Toca para abrir el caption completo en panel.
+  const cap = String(post.caption || '').trim();
+  if (cap) {
+    card.appendChild(el('button', {
+      class: 'meses-item__cap', type: 'button', 'aria-label': 'Ver caption completo',
+      onclick: () => openCaptionDrawer(post),
+    }, [el('span', { class: 'meses-item__captext', text: cap })]));
+  }
+
+  card.appendChild(chips);
+  return card;
 }
 
 // ── Composer "+ Nueva linea" ─────────────────────────────────────────────────
