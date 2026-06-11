@@ -291,6 +291,77 @@ function saveNote(post, person, value) {
   patchWithUndo(post, { notes_people: merged }, { notes_people: prev }, `Nota de ${person} guardada.`);
 }
 
+// ── Panel lateral de caption (estilo side peek de Notion) ────────────────────
+// Los captions son largos: la celda solo muestra un preview y el panel lateral
+// da espacio completo para leer y editar. Vive en document.body (sobrevive a
+// los re-renders de la tabla).
+
+let drawerEl = null;
+
+function closeCaptionDrawer() {
+  if (!drawerEl) return;
+  try { drawerEl.remove(); } catch { /* noop */ }
+  drawerEl = null;
+  document.removeEventListener('keydown', onDrawerKeydown, true);
+}
+
+function onDrawerKeydown(e) {
+  if (e.key === 'Escape') { e.stopPropagation(); closeCaptionDrawer(); }
+}
+
+function openCaptionDrawer(post) {
+  closeCaptionDrawer();
+
+  const ta = el('textarea', {
+    class: 'meses-drawer__ta',
+    placeholder: 'Escribe el caption completo aquí...',
+    maxLength: 4000,
+  });
+  ta.value = post.caption || '';
+
+  const save = () => {
+    const v = ta.value;
+    closeCaptionDrawer();
+    if ((v || '').trim() !== (post.caption || '').trim()) saveCaption(post, v);
+  };
+
+  ta.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); save(); }
+  });
+
+  drawerEl = el('div', { class: 'meses-drawer__wrap', role: 'dialog', 'aria-modal': 'true', 'aria-label': `Caption de ${post.title || 'contenido'}` }, [
+    el('div', { class: 'meses-drawer__overlay', onclick: () => closeCaptionDrawer() }),
+    el('aside', { class: 'meses-drawer' }, [
+      el('header', { class: 'meses-drawer__head' }, [
+        el('div', { class: 'meses-drawer__titles' }, [
+          el('span', { class: 'meses-drawer__kicker', text: 'Caption' }),
+          el('h3', { class: 'meses-drawer__title', text: post.title || 'Sin título' }),
+        ]),
+        el('button', {
+          class: 'meses-drawer__close', type: 'button', 'aria-label': 'Cerrar',
+          onclick: () => closeCaptionDrawer(),
+        }, [icon('close', 18)]),
+      ]),
+      ta,
+      el('footer', { class: 'meses-drawer__foot' }, [
+        el('span', { class: 'meses-drawer__hint', text: 'Cmd+Enter guarda · Esc cierra' }),
+        el('div', { class: 'meses-drawer__actions' }, [
+          el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => closeCaptionDrawer() }),
+          el('button', { class: 'btn btn-primary', type: 'button', text: 'Guardar', onclick: save }),
+        ]),
+      ]),
+    ]),
+  ]);
+
+  document.body.appendChild(drawerEl);
+  document.addEventListener('keydown', onDrawerKeydown, true);
+  requestAnimationFrame(() => {
+    drawerEl && drawerEl.classList.add('is-open');
+    ta.focus();
+    ta.setSelectionRange(ta.value.length, ta.value.length);
+  });
+}
+
 // ── Enlaces (Inspo / Video final) ────────────────────────────────────────────
 
 function openUrlSheet(post, field, title) {
@@ -492,19 +563,12 @@ function buildRow(post, noteLabels) {
     ),
   ]);
 
-  // Captions (texto inline)
+  // Captions: panel lateral (los captions largos no caben en la celda).
   const tdCaption = el('td', { class: 'meses-td meses-td--text' });
   tdCaption.appendChild(cellButton(
     textCellNode(post.caption, 'Agregar caption'),
-    () => openInlineEdit({
-      cell: tdCaption,
-      current: post.caption || '',
-      label: 'Captions',
-      maxLength: 4000,
-      multiline: true,
-      onSave: (v) => saveCaption(post, v),
-    }),
-    'Editar captions',
+    () => openCaptionDrawer(post),
+    'Abrir caption completo',
   ));
 
   // Orden EXACTO de su Notion: Grab | Tarea | Estado | Fecha | Plataforma | Tipo | Captions
@@ -974,7 +1038,7 @@ export default {
       // Regla anti popovers huerfanos: antes de procesar posts:changed se
       // cierran sheets/pickers abiertos (su anchor pudo dejar de existir).
       ctx.store.on('posts:changed', () => { try { ctx.sheet.closeAll(); } catch { /* noop */ } }),
-      ctx.store.on('client:changed', () => { composer = null; composerInput = null; }),
+      ctx.store.on('client:changed', () => { composer = null; composerInput = null; closeCaptionDrawer(); }),
     );
 
     mq = window.matchMedia('(min-width: 768px)');
@@ -990,6 +1054,7 @@ export default {
   },
 
   unmount() {
+    closeCaptionDrawer();
     for (const u of unsubs) { try { u(); } catch { /* noop */ } }
     unsubs = [];
     if (mq && mqHandler) {
