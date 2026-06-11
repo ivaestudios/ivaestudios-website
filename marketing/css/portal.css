@@ -734,3 +734,11 @@ button.ig-ico:hover { color: var(--text); background: var(--surface-2); }
 .pcal-row .meses-td { padding: 12px 14px; vertical-align: middle; }
 .pcal-task { font-weight: 600; color: var(--text-1, #fff); }
 .pcal-caption { color: var(--text-mute); max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Desktop: el calendario (tabla) usa ancho amplio como el panel; el resto
+   (progreso, tabs, feed Por aprobar) se mantiene angosto y centrado. */
+@media (min-width: 768px) {
+  .portal__main { max-width: 1120px; }
+  #progress, #tabs, #inbox { max-width: 600px; margin-left: auto; margin-right: auto; }
+  .pcal-wrap .meses-table { min-width: 0; width: 100%; }
+}
