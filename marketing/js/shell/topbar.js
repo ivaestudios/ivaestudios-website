@@ -158,9 +158,12 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
               el('div', { class: 'acct-head__sub', text: me ? `${me.email} · ${me.role === 'admin' ? 'Administradora' : 'Equipo'}` : '' }),
             ]),
           ]),
-          accountRow('users', 'Equipo', () => { close(); openTeamSheet(); }),
-          accountRow('link', 'Accesos de cliente', () => { close(); openClientAccessSheet(); }),
-          accountRow('activity', 'Actividad', () => { close(); openActivitySheet(); }),
+          // Herramientas de agencia: SOLO staff (el cliente no las ve).
+          ...(me && me.role !== 'client' ? [
+            accountRow('users', 'Equipo', () => { close(); openTeamSheet(); }),
+            accountRow('link', 'Accesos de cliente', () => { close(); openClientAccessSheet(); }),
+            accountRow('activity', 'Actividad', () => { close(); openActivitySheet(); }),
+          ] : []),
           accountRow('bell', 'Ajustes de avisos', () => { close(); openNotifications(bellBtn, { tab: 'all' }); }),
           accountRow('key', 'Cambiar contraseña', () => { close(); openChangePassword(); }),
           accountRow('logout', 'Salir', async () => {

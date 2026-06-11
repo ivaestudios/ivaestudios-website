@@ -160,8 +160,9 @@
     function clearError() { alertBox.hidden = true; alertMsg.textContent = ''; }
 
     function destFor(role) {
-      // admin/team → team app; client → client portal.
-      return role === 'client' ? '/marketing/client.html' : '/marketing/app.html';
+      // Todos (staff y cliente) usan la app; el shell limita la vista del cliente
+      // a SU marca (calendario compartido editable).
+      return '/marketing/app.html';
     }
 
     // returnTo: el shell guarda el hash en prefs (mkt2.<userId>.returnTo, JSON)

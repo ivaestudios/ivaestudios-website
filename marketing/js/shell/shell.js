@@ -227,7 +227,10 @@ export async function boot() {
     return;
   }
   if (!me || !me.role) { location.replace('/marketing/'); return; }
-  if (me.role === 'client') { location.replace('/marketing/client'); return; }
+  // El cliente ahora usa la MISMA app (calendario compartido editable), no el
+  // portal de solo lectura. Marca el body para ocultar el chrome de agencia
+  // (Equipo, Accesos de cliente, etc.). El backend limita todo a SU marca.
+  if (me.role === 'client') document.body.classList.add('is-client');
 
   prefs.init(me.id);
   prefs.migrate();

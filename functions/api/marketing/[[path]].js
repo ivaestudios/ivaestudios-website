@@ -1142,7 +1142,9 @@ async function handleListPosts(request, env, session, url) {
   const vals = [];
   if (scope.scopedClientId) { where.push('client_id = ?'); vals.push(scope.scopedClientId); }
   if (scopeAll) { where.push('client_id IN (SELECT id FROM mkt_clients WHERE archived = 0)'); }
-  if (isClient) { where.push('client_visible = 1'); }
+  // Cliente con edicion completa (modo "calendario compartido"): ve TODOS los
+  // posts de SU marca (resolveClientScope ya lo limito a su client_id), sin el
+  // filtro client_visible. El aislamiento por marca se mantiene intacto.
   if (from) { where.push('publish_date >= ?'); vals.push(from); }
   if (to) { where.push('publish_date <= ?'); vals.push(to); }
   if (status) {
@@ -1154,11 +1156,11 @@ async function handleListPosts(request, env, session, url) {
   const sql = `SELECT * FROM mkt_posts${whereSql} ORDER BY position ASC, created_at ASC`;
   const res = await env.DB.prepare(sql).bind(...vals).all();
   const rows = res.results || [];
-  const out = rows.map(isClient ? publicPost : shapePost);
+  const out = rows.map(shapePost);
 
-  // V2: ?include=checklist (staff only) → checklist_done / checklist_total
-  // per post via ONE GROUP BY (no N+1). Missing table (pre-004) = no counts.
-  if (!isClient && url.searchParams.get('include') === 'checklist' && out.length) {
+  // V2: ?include=checklist → checklist_done / checklist_total per post via ONE
+  // GROUP BY (no N+1). Missing table (pre-004) = no counts.
+  if (url.searchParams.get('include') === 'checklist' && out.length) {
     try {
       const counts = await env.DB.prepare(
         `SELECT i.post_id AS post_id, COUNT(*) AS total, COALESCE(SUM(i.done), 0) AS done
@@ -1214,6 +1216,11 @@ async function buildV2PostColumns(env, bodyObj) {
 async function handleCreatePost(request, env, session) {
   let bodyObj;
   try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+  // El cliente solo crea en SU marca (ignora cualquier client_id del body).
+  if (session.role === 'client') {
+    if (!session.client_id) return json({ error: 'No client assigned to this account' }, 403);
+    bodyObj.client_id = session.client_id;
+  }
   const clientId = bodyObj && bodyObj.client_id;
   if (!clientId) return json({ error: 'client_id required' }, 400);
   const client = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(clientId).first();
@@ -1295,42 +1302,38 @@ async function handleGetPost(request, env, session, postId) {
   const post = await env.DB.prepare('SELECT * FROM mkt_posts WHERE id = ?').bind(postId).first();
   if (!post) return json({ error: 'Post not found' }, 404);
 
-  // Client isolation: a client may only read their own client's visible posts.
-  if (session.role === 'client') {
-    if (post.client_id !== session.client_id) return json({ error: 'Forbidden' }, 403);
-    if (post.client_visible !== 1) return json({ error: 'Forbidden' }, 403);
+  // Aislamiento por marca: un cliente solo accede a posts de SU client_id.
+  // (Con edicion completa ya NO se exige client_visible: ve todo lo suyo.)
+  if (session.role === 'client' && post.client_id !== session.client_id) {
+    return json({ error: 'Forbidden' }, 403);
   }
 
-  const isClient = session.role === 'client';
-  const commentsSql = isClient
-    ? 'SELECT id, post_id, author_name, author_role, body, internal, created_at FROM mkt_comments WHERE post_id = ? AND internal = 0 ORDER BY created_at ASC'
-    : 'SELECT id, post_id, user_id, author_name, author_role, body, internal, created_at FROM mkt_comments WHERE post_id = ? ORDER BY created_at ASC';
-  const commentsRes = await env.DB.prepare(commentsSql).bind(postId).all();
+  const commentsRes = await env.DB.prepare(
+    'SELECT id, post_id, user_id, author_name, author_role, body, internal, created_at FROM mkt_comments WHERE post_id = ? ORDER BY created_at ASC'
+  ).bind(postId).all();
 
   const approvalsRes = await env.DB.prepare(
     'SELECT id, post_id, actor_name, decision, comment, created_at FROM mkt_approvals WHERE post_id = ? ORDER BY created_at ASC'
   ).bind(postId).all();
 
   const payload = {
-    post: isClient ? publicPost(post) : shapePost(post),
+    post: shapePost(post),
     comments: commentsRes.results || [],
     approvals: approvalsRes.results || []
   };
-  // V2 (staff only): the post's checklist, ordered by position. The client
-  // response shape is UNCHANGED. Pre-004 (missing table) → empty list.
-  if (!isClient) {
-    try { payload.checklist = await listChecklistItems(env, postId); }
-    catch (e) { if (isMissingTableError(e)) payload.checklist = []; else throw e; }
-  }
+  // Checklist del post (Pre-004 / tabla ausente → lista vacia).
+  try { payload.checklist = await listChecklistItems(env, postId); }
+  catch (e) { if (isMissingTableError(e)) payload.checklist = []; else throw e; }
   return json(payload);
 }
 
 async function handlePatchPost(request, env, session, postId) {
-  // team/admin only — clients get 403 (enforced by router, double-checked here).
-  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
-
   const post = await env.DB.prepare('SELECT * FROM mkt_posts WHERE id = ?').bind(postId).first();
   if (!post) return json({ error: 'Post not found' }, 404);
+  // Aislamiento: el cliente solo edita posts de SU marca.
+  if (session.role === 'client' && post.client_id !== session.client_id) {
+    return json({ error: 'Forbidden' }, 403);
+  }
 
   let bodyObj;
   try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
@@ -1410,9 +1413,12 @@ async function handlePatchPost(request, env, session, postId) {
 }
 
 async function handleDeletePost(env, session, postId) {
-  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
   const post = await env.DB.prepare('SELECT id, client_id, title FROM mkt_posts WHERE id = ?').bind(postId).first();
   if (!post) return json({ error: 'Post not found' }, 404);
+  // Aislamiento: el cliente solo borra posts de SU marca.
+  if (session.role === 'client' && post.client_id !== session.client_id) {
+    return json({ error: 'Forbidden' }, 403);
+  }
   await env.DB.prepare('DELETE FROM mkt_posts WHERE id = ?').bind(postId).run();
   await logActivity(env, { client_id: post.client_id, post_id: postId, session, action: 'post.delete', detail: post.title });
   return json({ ok: true });
@@ -1425,7 +1431,6 @@ async function handleApprovalDecision(request, env, session, postId, decision) {
 
   if (session.role === 'client') {
     if (post.client_id !== session.client_id) return json({ error: 'Forbidden' }, 403);
-    if (post.client_visible !== 1) return json({ error: 'Forbidden' }, 403);
   }
 
   let bodyObj = {};
@@ -1477,7 +1482,6 @@ async function handleAddComment(request, env, session, postId) {
 
   if (session.role === 'client') {
     if (post.client_id !== session.client_id) return json({ error: 'Forbidden' }, 403);
-    if (post.client_visible !== 1) return json({ error: 'Forbidden' }, 403);
   }
 
   let bodyObj;
@@ -1506,13 +1510,21 @@ async function handleAddComment(request, env, session, postId) {
   return json(created, 201);
 }
 
-// Bulk reorder/move (drag & drop). team/admin only.
+// Bulk reorder/move (drag & drop). staff o cliente (este ultimo solo su marca).
 async function handleReorder(request, env, session) {
-  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
   let bodyObj;
   try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
   const updates = bodyObj && bodyObj.updates;
   if (!Array.isArray(updates) || !updates.length) return json({ error: 'updates[] required' }, 400);
+
+  // Aislamiento del cliente: TODOS los ids deben ser de SU marca, o 403.
+  if (session.role === 'client') {
+    const ids = updates.map((u) => u && u.id).filter(Boolean);
+    if (!ids.length) return json({ error: 'Each update needs an id' }, 400);
+    const ph = ids.map(() => '?').join(',');
+    const owned = await env.DB.prepare(`SELECT id FROM mkt_posts WHERE id IN (${ph}) AND client_id = ?`).bind(...ids, session.client_id).all();
+    if ((owned.results || []).length !== ids.length) return json({ error: 'Forbidden' }, 403);
+  }
 
   const statements = [];
   for (const u of updates) {
@@ -2533,21 +2545,16 @@ async function route(request, env) {
     }
     if (parts.length === 1) {
       if (method === 'GET') return handleListPosts(request, env, session, url);
-      if (method === 'POST') {
-        if (!isStaff) return json({ error: 'Forbidden' }, 403);
-        return handleCreatePost(request, env, session);
-      }
+      // Crear: staff o cliente (el handler fuerza el client_id del cliente).
+      if (method === 'POST') return handleCreatePost(request, env, session);
       return json({ error: 'Method not allowed' }, 405);
     }
     if (parts.length === 2) {
       const postId = parts[1];
       if (method === 'GET') return handleGetPost(request, env, session, postId);
-      if (method === 'PATCH') {
-        if (!isStaff) return json({ error: 'Forbidden' }, 403);
-        return handlePatchPost(request, env, session, postId);
-      }
+      // Editar / borrar: staff o cliente (el handler verifica la marca del post).
+      if (method === 'PATCH') return handlePatchPost(request, env, session, postId);
       if (method === 'DELETE') {
-        if (!isStaff) return json({ error: 'Forbidden' }, 403);
         return handleDeletePost(env, session, postId);
       }
       return json({ error: 'Method not allowed' }, 405);
