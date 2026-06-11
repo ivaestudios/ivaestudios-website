@@ -703,5 +703,14 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
 }
 
 /* Cliente: marca como etiqueta fija (sin selector de agencia). */
-.tb-client--static { cursor: default; }
-.tb-client--static:hover { background: transparent; }
+/* Vista de cliente: el nombre de su marca NO es un control, es el titulo de su
+   dashboard. Quitamos borde, fondo y forma de pildora para que se lea como un
+   encabezado (solo el punto de marca + el nombre). */
+.tb-client--static {
+  cursor: default;
+  padding-left: 0;
+  border-color: transparent;
+  background: transparent;
+  font-weight: 700;
+}
+.tb-client--static:hover { background: transparent; border-color: transparent; }
