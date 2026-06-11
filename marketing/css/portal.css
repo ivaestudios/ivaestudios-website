@@ -740,5 +740,16 @@ button.ig-ico:hover { color: var(--text); background: var(--surface-2); }
 @media (min-width: 768px) {
   .portal__main { max-width: 1120px; }
   #progress, #tabs, #inbox { max-width: 600px; margin-left: auto; margin-right: auto; }
-  .pcal-wrap .meses-table { min-width: 0; width: 100%; }
+  /* Tabla del cliente: ancho completo y columnas parejas (sin el pegado ni el
+     min-width del panel del equipo, que dejaban Tipo aplastado). */
+  .pcal-wrap .meses-table { min-width: 0; width: 100%; table-layout: fixed; }
+  .pcal-wrap .meses-col--task { position: static; left: auto; max-width: none; }
+  .pcal-wrap th, .pcal-wrap td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pcal-wrap th:nth-child(1), .pcal-wrap td:nth-child(1) { width: 30%; }
+  .pcal-wrap th:nth-child(2), .pcal-wrap td:nth-child(2) { width: 12%; }
+  .pcal-wrap th:nth-child(3), .pcal-wrap td:nth-child(3) { width: 14%; }
+  .pcal-wrap th:nth-child(4), .pcal-wrap td:nth-child(4) { width: 13%; }
+  .pcal-wrap th:nth-child(5), .pcal-wrap td:nth-child(5) { width: 19%; }
+  .pcal-wrap th:nth-child(6), .pcal-wrap td:nth-child(6) { width: 12%; }
+  .pcal-caption { max-width: none; }
 }
