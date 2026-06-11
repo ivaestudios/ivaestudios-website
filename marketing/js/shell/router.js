@@ -101,6 +101,10 @@ export function navigate(view, params = {}, { replace = false } = {}) {
 // ── Capas de history (sheets / overlays vs boton atras) ─────────────────────
 let layerSeq = 0;
 const layerStack = []; // [{id, close}]
+// Backs programaticos pendientes: cuando release() hace history.back() para
+// consumir su propio state, el popstate resultante NO debe cerrar otra capa
+// (p.ej. un sheet que se abrio inmediatamente despues, encadenado).
+let pendingProgrammaticBacks = 0;
 
 /**
  * Registra una capa cerrable con el boton atras. Devuelve release():
@@ -116,7 +120,8 @@ export function pushLayer(close) {
     if (idx === -1) return; // ya consumida por popstate
     layerStack.splice(idx, 1);
     if (history.state && history.state.mktLayer === id) {
-      try { history.back(); } catch { /* noop */ }
+      pendingProgrammaticBacks += 1;
+      try { history.back(); } catch { pendingProgrammaticBacks -= 1; }
     }
   };
 }
@@ -132,6 +137,12 @@ export function closeAllLayers() {
 }
 
 function onPopState() {
+  // Eco de un history.back() programatico (release de una capa): ya se quito
+  // del stack; ignorar para no cerrar una capa recien abierta encadenada.
+  if (pendingProgrammaticBacks > 0) {
+    pendingProgrammaticBacks -= 1;
+    return;
+  }
   if (layerStack.length) {
     const top = layerStack.pop();
     try { top.close({ fromHistory: true }); } catch { /* noop */ }
