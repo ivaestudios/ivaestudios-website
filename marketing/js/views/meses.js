@@ -26,8 +26,8 @@ import {
   el, clear,
   STATUSES, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606110013';
-import { icon } from '../shell/icons.js?v=202606110013';
+} from '../api.js?v=202606110017';
+import { icon } from '../shell/icons.js?v=202606110017';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1039,7 +1039,9 @@ function buildSideNav(ordered, byMonth, sinMes, isTodos) {
       el('span', { class: 'meses-side__n', text: String(it.n) }),
     ]));
   }
-  if (!isTodos) {
+  // "Agregar mes" es solo para el equipo: el cliente ve los meses cuando hay
+  // contenido, no crea meses vacios.
+  if (!isTodos && !document.body.classList.contains('is-client')) {
     sideEl.appendChild(el('button', {
       class: 'meses-side__add', type: 'button',
       onclick: () => openAddMonth(),
@@ -1152,7 +1154,7 @@ function render() {
     }));
   }
 
-  if (!isTodos) {
+  if (!isTodos && !document.body.classList.contains('is-client')) {
     sectionsEl.appendChild(el('button', {
       class: 'meses-addmonth', type: 'button',
       onclick: () => openAddMonth(),

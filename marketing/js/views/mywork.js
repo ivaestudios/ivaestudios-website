@@ -22,9 +22,9 @@
 // Contrato de vista: export default { mount(el, ctx), unmount(), onParams() }.
 // ============================================================================
 
-import { api, el, clear, STATUSES, statusBadge } from '../api.js?v=202606110013';
-import { icon } from '../shell/icons.js?v=202606110013';
-import { todayISO, diffDays, relativeDay, fmtShort } from '../lib/dates.js?v=202606110013';
+import { api, el, clear, STATUSES, statusBadge } from '../api.js?v=202606110017';
+import { icon } from '../shell/icons.js?v=202606110017';
+import { todayISO, diffDays, relativeDay, fmtShort } from '../lib/dates.js?v=202606110017';
 
 // CSS del paquete (compartido con la vista Automatizaciones). Lazy y con
 // guard: si app.html ya lo linkea (o la otra vista ya lo inyecto), no duplica.
