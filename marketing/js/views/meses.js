@@ -355,11 +355,12 @@ function openCaptionDrawer(post) {
 
   document.body.appendChild(drawerEl);
   document.addEventListener('keydown', onDrawerKeydown, true);
-  requestAnimationFrame(() => {
-    drawerEl && drawerEl.classList.add('is-open');
-    ta.focus();
-    ta.setSelectionRange(ta.value.length, ta.value.length);
-  });
+  // Reflow forzado en lugar de rAF: rAF se congela en pestanas tapadas y la
+  // transicion de entrada nunca corria (el panel quedaba invisible).
+  void drawerEl.offsetWidth;
+  drawerEl.classList.add('is-open');
+  ta.focus();
+  ta.setSelectionRange(ta.value.length, ta.value.length);
 }
 
 // ── Enlaces (Inspo / Video final) ────────────────────────────────────────────
