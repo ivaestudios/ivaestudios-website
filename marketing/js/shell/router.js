@@ -101,15 +101,19 @@ export function navigate(view, params = {}, { replace = false } = {}) {
 // ── Capas de history (sheets / overlays vs boton atras) ─────────────────────
 let layerSeq = 0;
 const layerStack = []; // [{id, close}]
-// Backs programaticos pendientes: cuando release() hace history.back() para
-// consumir su propio state, el popstate resultante NO debe cerrar otra capa
-// (p.ej. un sheet que se abrio inmediatamente despues, encadenado).
-let pendingProgrammaticBacks = 0;
 
 /**
  * Registra una capa cerrable con el boton atras. Devuelve release():
- * llamalo cuando la capa se cierre por OTRO medio (X, backdrop) para
- * consumir el history state sin re-cerrar.
+ * llamalo cuando la capa se cierre por OTRO medio (X, backdrop, seleccion)
+ * para consumir el history state sin re-cerrar.
+ *
+ * IMPORTANTE: release() NO usa history.back(). Un back programatico es
+ * asincrono y se COME cualquier navegacion que ocurra justo despues de
+ * cerrar (p.ej. el switcher de cliente: close() + selectClient() -> el back
+ * revertia el hash nuevo y parecia que "no cambiaba de cliente"). En su
+ * lugar se limpia el marcador de capa con replaceState: queda una entrada
+ * duplicada de la misma ruta en el historial (inofensivo) y la navegacion
+ * posterior ya no tiene carrera.
  */
 export function pushLayer(close) {
   const id = ++layerSeq;
@@ -120,8 +124,7 @@ export function pushLayer(close) {
     if (idx === -1) return; // ya consumida por popstate
     layerStack.splice(idx, 1);
     if (history.state && history.state.mktLayer === id) {
-      pendingProgrammaticBacks += 1;
-      try { history.back(); } catch { pendingProgrammaticBacks -= 1; }
+      try { history.replaceState({ ...(history.state || {}), mktLayer: null }, ''); } catch { /* noop */ }
     }
   };
 }
@@ -137,12 +140,6 @@ export function closeAllLayers() {
 }
 
 function onPopState() {
-  // Eco de un history.back() programatico (release de una capa): ya se quito
-  // del stack; ignorar para no cerrar una capa recien abierta encadenada.
-  if (pendingProgrammaticBacks > 0) {
-    pendingProgrammaticBacks -= 1;
-    return;
-  }
   if (layerStack.length) {
     const top = layerStack.pop();
     try { top.close({ fromHistory: true }); } catch { /* noop */ }
