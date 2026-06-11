@@ -724,3 +724,16 @@
   .meses-drawer { width: 100vw; }
   .meses-drawer__hint { display: none; }
 }
+
+/* ── Filtro integrado en el encabezado (estilo Excel) ───────────────────────── */
+.meses-table th .meses-th__filter {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: none; border: 0; padding: 2px 4px; margin: -2px -4px;
+  font: inherit; color: inherit; letter-spacing: inherit; text-transform: inherit;
+  cursor: pointer; border-radius: 6px; white-space: nowrap;
+}
+.meses-th__filter:hover { color: var(--text-1, #fff); background: var(--bg-2, rgba(255,255,255,.05)); }
+.meses-th__filter.is-active { color: var(--brand, #a855f7); }
+.meses-th__filter .ico { opacity: .55; flex: none; }
+.meses-th__filter:focus-visible { outline: none; box-shadow: var(--ring); }
+@media (min-width: 768px) { .meses-filters { display: none; } }

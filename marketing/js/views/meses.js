@@ -59,6 +59,7 @@ let inlineEditing = false;  // hay un input/textarea inline abierto
 let composer = null;        // { key:'YYYY-MM'|'sin', value:string, wantFocus:bool }
 let composerInput = null;   // input vivo del composer (para restaurar foco)
 let visibleKeys = new Set();// meses visibles del ultimo render (para Agregar mes)
+let allPostsForFilters = []; // posts SIN filtrar del ultimo render (opciones de filtros)
 
 // ── Helpers de fechas / agrupacion ───────────────────────────────────────────
 
@@ -602,13 +603,31 @@ function buildRow(post, noteLabels) {
 }
 
 function buildTable(rows, noteLabels) {
+  // Encabezados con filtro INTEGRADO (estilo Excel): clic en la columna abre
+  // el picker de esa columna; si hay filtro activo se pinta con la marca.
+  const filterTh = (dimKey, label, extra = {}) => {
+    const d = FILTER_DIMS.find((x) => x.dim === dimKey);
+    const f = getFilters();
+    const active = !!f[dimKey];
+    return el('th', { scope: 'col', ...extra }, [
+      el('button', {
+        class: 'meses-th__filter' + (active ? ' is-active' : ''),
+        type: 'button', 'aria-haspopup': 'dialog',
+        title: active ? `Filtrado: ${d.labelOf(f[dimKey])}. Clic para cambiar o quitar.` : `Filtrar por ${label.toLowerCase()}`,
+        onclick: (e) => onFilterChip(d, allPostsForFilters, e.currentTarget),
+      }, [
+        el('span', { text: active ? `${label}: ${d.labelOf(f[dimKey])}` : label }),
+        icon('down', 12),
+      ]),
+    ]);
+  };
   const headCells = [
-    el('th', { class: 'meses-col--grab', text: 'Grab.', scope: 'col', title: 'Grabación' }),
+    filterTh('grab', 'Grab.', { class: 'meses-col--grab' }),
     el('th', { class: 'meses-col--task', text: 'Tarea', scope: 'col' }),
-    el('th', { text: 'Estado', scope: 'col' }),
+    filterTh('status', 'Estado'),
     el('th', { text: 'Fecha publicación', scope: 'col' }),
-    el('th', { text: 'Plataforma', scope: 'col' }),
-    el('th', { text: 'Tipo', scope: 'col' }),
+    filterTh('platform', 'Plataforma'),
+    filterTh('type', 'Tipo'),
     el('th', { text: 'Captions', scope: 'col' }),
     ...noteLabels.map((p) => el('th', { text: `Notas ${p}`, scope: 'col' })),
     el('th', { text: 'Inspo', scope: 'col' }),
@@ -923,6 +942,7 @@ function render() {
 
   // Filtros activos (por cliente) + agrupar por mes + bucket "Sin mes".
   const allPosts = posts || [];
+  allPostsForFilters = allPosts;
   const visiblePosts = applyFilters(allPosts);
   const byMonth = new Map();
   const sinMes = [];
@@ -965,8 +985,9 @@ function render() {
 
   clear(sectionsEl);
 
-  // Barra de filtros (opciones desde TODOS los posts, no los ya filtrados).
-  sectionsEl.appendChild(buildFilterBar(allPosts));
+  // En desktop los filtros viven en los encabezados de la tabla (estilo Excel).
+  // La barra de chips solo se usa en movil (la lista no tiene encabezados).
+  if (!desktop) sectionsEl.appendChild(buildFilterBar(allPosts));
 
   if (isTodos) {
     sectionsEl.appendChild(el('div', {
