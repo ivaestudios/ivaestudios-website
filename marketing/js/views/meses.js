@@ -60,6 +60,7 @@ let composer = null;        // { key:'YYYY-MM'|'sin', value:string, wantFocus:bo
 let composerInput = null;   // input vivo del composer (para restaurar foco)
 let visibleKeys = new Set();// meses visibles del ultimo render (para Agregar mes)
 let allPostsForFilters = []; // posts SIN filtrar del ultimo render (opciones de filtros)
+let sideEl = null;           // barra lateral de meses (desktop)
 
 // ── Helpers de fechas / agrupacion ───────────────────────────────────────────
 
@@ -1012,6 +1013,40 @@ function buildFilterBar(allPosts) {
   return bar;
 }
 
+// ── Barra lateral de meses (desktop) ─────────────────────────────────────────
+
+function jumpToSection(key) {
+  setCollapsed(key, false);
+  render();
+  requestAnimationFrame(() => {
+    const sec = sectionsEl && sectionsEl.querySelector(`[data-mes="${CSS.escape(key)}"]`);
+    if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
+function buildSideNav(ordered, byMonth, sinMes, isTodos) {
+  if (!sideEl) return;
+  clear(sideEl);
+  const items = ordered.map((ym) => ({ key: ym, label: capitalize(monthLabel(ym)), n: (byMonth.get(ym) || []).length }));
+  if (sinMes.length) items.push({ key: SIN_MES, label: 'Sin mes', n: sinMes.length });
+  sideEl.appendChild(el('div', { class: 'meses-side__title', text: 'Meses' }));
+  for (const it of items) {
+    sideEl.appendChild(el('button', {
+      class: 'meses-side__item', type: 'button',
+      onclick: () => jumpToSection(it.key),
+    }, [
+      el('span', { class: 'meses-side__lbl', text: it.label }),
+      el('span', { class: 'meses-side__n', text: String(it.n) }),
+    ]));
+  }
+  if (!isTodos) {
+    sideEl.appendChild(el('button', {
+      class: 'meses-side__add', type: 'button',
+      onclick: () => openAddMonth(),
+    }, [icon('plus', 14), el('span', { text: 'Agregar mes' })]));
+  }
+}
+
 // ── Render principal ─────────────────────────────────────────────────────────
 
 function render() {
@@ -1124,6 +1159,9 @@ function render() {
     }, [icon('plus', 16), el('span', { text: 'Agregar mes' })]));
   }
 
+  // Barra lateral de meses (desktop): salta y expande la seccion del mes.
+  buildSideNav(ordered, byMonth, sinMes, isTodos);
+
   // Restaurar scroll horizontal.
   for (const sec of sectionsEl.querySelectorAll('.meses-sec')) {
     const left = prevScroll.get(sec.dataset.mes);
@@ -1151,7 +1189,11 @@ export default {
   mount(host, c) {
     ctx = c;
     sectionsEl = el('div', { class: 'meses-sections' });
-    rootEl = el('div', { class: 'meses-root' }, [sectionsEl]);
+    sideEl = el('nav', { class: 'meses-side', 'aria-label': 'Meses' });
+    rootEl = el('div', { class: 'meses-root' }, [
+      sideEl,
+      el('div', { class: 'meses-main' }, [sectionsEl]),
+    ]);
     host.appendChild(rootEl);
 
     unsubs.push(
@@ -1191,6 +1233,7 @@ export default {
     composerInput = null;
     visibleKeys = new Set();
     sectionsEl = null;
+    sideEl = null;
     rootEl = null;
     ctx = null;
   },

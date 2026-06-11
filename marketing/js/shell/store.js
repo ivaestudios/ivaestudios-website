@@ -259,6 +259,9 @@ export async function reorder(updates) {
   }
 }
 
+/** Invalida la cache de usuarios (tras crear/restablecer un acceso). */
+export function invalidateUsers() { set({ users: null }); }
+
 /** Cache lazy de usuarios staff (GET /users). */
 export async function loadUsers() {
   if (Array.isArray(state.users)) return state.users;

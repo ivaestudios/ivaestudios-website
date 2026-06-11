@@ -10,7 +10,7 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials } from '../api.js';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js';
 import * as store from './store.js';
 import { openSheet } from './sheet.js';
 import { toast } from './toast.js';
@@ -159,6 +159,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
             ]),
           ]),
           accountRow('users', 'Equipo', () => { close(); openTeamSheet(); }),
+          accountRow('link', 'Accesos de cliente', () => { close(); openClientAccessSheet(); }),
           accountRow('activity', 'Actividad', () => { close(); openActivitySheet(); }),
           accountRow('bell', 'Ajustes de avisos', () => { close(); openNotifications(bellBtn, { tab: 'all' }); }),
           accountRow('key', 'Cambiar contraseña', () => { close(); openChangePassword(); }),
@@ -201,6 +202,116 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
             ]));
           }
         });
+      },
+    });
+  }
+
+  // ── Accesos de cliente (login por empresa: el cliente ve SOLO su calendario) ─
+  function openClientAccessSheet() {
+    openSheet({
+      title: 'Accesos de cliente',
+      mode: 'menu',
+      build(body) {
+        body.appendChild(el('p', { class: 'acct-intro', text: 'Cada cliente entra a su portal y ve solo el calendario de su empresa. Aquí creas su acceso (su correo es el usuario y tú le pasas la contraseña).' }));
+        const list = el('div', { class: 'acct-list' });
+        list.appendChild(el('div', { class: 'muted acct-loading', text: 'Cargando' }));
+        body.appendChild(list);
+        store.loadUsers().catch(() => []).then((users) => {
+          clear(list);
+          const clients = (store.getState().clients || []).filter((c) => !c.archived);
+          if (!clients.length) {
+            list.appendChild(el('div', { class: 'muted', text: 'Primero crea una marca/cliente.' }));
+            return;
+          }
+          for (const c of clients) {
+            const login = (users || []).find((u) => u.role === 'client' && u.client_id === c.id);
+            list.appendChild(el('div', { class: 'acct-user' }, [
+              el('span', { class: 'acct-user__dot', style: { background: c.brand_color || 'var(--brand)' } }),
+              el('div', { class: 'acct-user__main' }, [
+                el('div', { class: 'acct-user__name', text: c.name }),
+                el('div', { class: 'acct-user__sub', text: login ? login.email : 'Sin acceso aún' }),
+              ]),
+              login
+                ? el('button', { class: 'btn btn-sm', type: 'button', text: 'Restablecer', onclick: () => resetClientPw(login, c) })
+                : el('button', { class: 'btn btn-primary btn-sm', type: 'button', text: 'Crear acceso', onclick: () => openCreateClientLogin(c) }),
+            ]));
+          }
+        });
+      },
+    });
+  }
+
+  function openCreateClientLogin(brand) {
+    openSheet({
+      title: `Acceso para ${brand.name}`,
+      mode: 'form',
+      build(body, close) {
+        const nameIn = el('input', { class: 'input', type: 'text', placeholder: 'Nombre del contacto', maxlength: '80' });
+        const emailIn = el('input', { class: 'input', type: 'email', placeholder: 'correo@cliente.com', maxlength: '120' });
+        const saveBtn = el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: 'Crear acceso' });
+        saveBtn.addEventListener('click', async () => {
+          const name = nameIn.value.trim();
+          const email = emailIn.value.trim();
+          if (!name) { toast('Escribe el nombre del contacto.', { type: 'error' }); nameIn.focus(); return; }
+          if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { toast('Escribe un correo válido.', { type: 'error' }); emailIn.focus(); return; }
+          saveBtn.disabled = true;
+          try {
+            const u = await api.post('/users', { name, email, role: 'client', client_id: brand.id });
+            store.invalidateUsers();
+            close({ source: 'saved' });
+            showClientCredentials({ brand, email, password: u && u.password });
+          } catch (e) {
+            toast(e.message || 'No se pudo crear el acceso.', { type: 'error' });
+            saveBtn.disabled = false;
+          }
+        });
+        body.append(
+          el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Nombre del contacto' }), nameIn]),
+          el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Correo (será su usuario)' }), emailIn]),
+          el('div', { class: 'sheet__footer' }, [
+            el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
+            saveBtn,
+          ]),
+        );
+        setTimeout(() => nameIn.focus(), 50);
+      },
+    });
+  }
+
+  async function resetClientPw(login, brand) {
+    try {
+      const r = await api.post(`/users/${login.id}/reset-password`);
+      showClientCredentials({ brand, email: login.email, password: r && r.password });
+    } catch (e) {
+      toast(e.message || 'No se pudo restablecer la contraseña.', { type: 'error' });
+    }
+  }
+
+  function credRow(label, value) {
+    return el('div', { class: 'cred-row' }, [
+      el('div', { class: 'cred-row__main' }, [
+        el('div', { class: 'cred-row__label', text: label }),
+        el('div', { class: 'cred-row__value', text: value }),
+      ]),
+      el('button', { class: 'btn btn-sm', type: 'button', text: 'Copiar', onclick: async () => { await copyText(value); toast('Copiado.', { type: 'success' }); } }),
+    ]);
+  }
+
+  function showClientCredentials({ brand, email, password }) {
+    const url = 'https://ivaestudios.com/marketing/client';
+    const msg = `Hola! Ya está listo tu calendario de contenido de ${brand.name}.\n\nEntra aquí para verlo y aprobarlo: ${url}\nUsuario: ${email}\nContraseña: ${password}\n\nVas a ver tu calendario por meses y puedes aprobar o pedir cambios en cada publicación.`;
+    openSheet({
+      title: 'Acceso listo',
+      mode: 'menu',
+      build(body, close) {
+        body.append(
+          el('p', { class: 'acct-intro', text: `Comparte estos datos con ${brand.name}. La contraseña se muestra una sola vez.` }),
+          credRow('Portal', url),
+          credRow('Usuario', email),
+          credRow('Contraseña', password || '—'),
+          el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: 'Copiar mensaje para enviar', onclick: async () => { await copyText(msg); toast('Mensaje copiado. Pégalo en WhatsApp.', { type: 'success' }); } }),
+          el('button', { class: 'btn', type: 'button', text: 'Listo', onclick: () => close({ source: 'done' }) }),
+        );
       },
     });
   }

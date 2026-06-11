@@ -739,3 +739,34 @@
 @media (min-width: 768px) { .meses-filters { display: none; } }
 
 .meses-th__filter.is-sorted .ico { opacity: 1; color: var(--brand, #a855f7); }
+
+/* ── Barra lateral de meses (desktop) ───────────────────────────────────────── */
+.meses-side { display: none; }
+.meses-main { min-width: 0; }
+@media (min-width: 1024px) {
+  .meses-root { display: flex; align-items: flex-start; gap: 22px; }
+  .meses-main { flex: 1; min-width: 0; }
+  .meses-side {
+    display: flex; flex-direction: column; gap: 2px;
+    width: 190px; flex: none;
+    position: sticky; top: calc(var(--topbar-h2, 56px) + 14px);
+    max-height: calc(100dvh - var(--topbar-h2, 56px) - 28px);
+    overflow-y: auto;
+  }
+}
+.meses-side__title { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-mute); padding: 4px 10px 8px; }
+.meses-side__item {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  width: 100%; padding: 8px 10px; min-height: 38px;
+  background: none; border: 0; border-radius: 8px; color: var(--text-2);
+  font: inherit; cursor: pointer; text-align: left;
+}
+.meses-side__item:hover { background: var(--surface-3); color: var(--text-1, #fff); }
+.meses-side__lbl { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.meses-side__n { font-size: 12px; color: var(--text-mute); background: var(--surface-2); border-radius: 999px; padding: 1px 8px; flex: none; }
+.meses-side__add {
+  display: flex; align-items: center; gap: 6px; width: 100%; margin-top: 6px;
+  padding: 8px 10px; background: none; border: 1px dashed var(--border-strong);
+  border-radius: 8px; color: var(--text-mute); font: inherit; cursor: pointer;
+}
+.meses-side__add:hover { color: var(--text-1, #fff); border-color: var(--brand); }
