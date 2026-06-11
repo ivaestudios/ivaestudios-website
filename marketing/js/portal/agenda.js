@@ -26,15 +26,15 @@ let mqHandler = null;
 export function mount(host, { onOpenDetail }) {
   hostEl = host;
   openDetailFn = onOpenDetail;
-  render();
-  unsubs.push(store.on('month', () => render()));
-  unsubs.push(store.on('posts', () => render()));
-  unsubs.push(store.on('approval', () => render()));
-  // Cambia entre tabla (desktop) y tarjetas (movil) al rotar/redimensionar.
+  // Define desktop/movil ANTES del primer render (tabla vs tarjetas).
   mq = window.matchMedia('(min-width: 768px)');
   mqHandler = () => render();
   if (mq.addEventListener) mq.addEventListener('change', mqHandler);
   else mq.addListener(mqHandler);
+  render();
+  unsubs.push(store.on('month', () => render()));
+  unsubs.push(store.on('posts', () => render()));
+  unsubs.push(store.on('approval', () => render()));
 }
 
 export function unmount() {
