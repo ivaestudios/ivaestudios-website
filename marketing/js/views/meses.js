@@ -26,8 +26,8 @@ import {
   el, clear,
   STATUSES, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606110217';
-import { icon } from '../shell/icons.js?v=202606110217';
+} from '../api.js?v=202606110223';
+import { icon } from '../shell/icons.js?v=202606110223';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1170,8 +1170,11 @@ function render() {
   const extra = extraAll.filter((m) => !byMonth.has(m));
   if (!isTodos && extra.length !== extraAll.length) ctx.prefs.set(extraKey(), extra);
 
-  // Meses visibles: con posts + agregados a mano + el mes actual siempre.
-  const keySet = new Set([...byMonth.keys(), ...extra, currentYM()]);
+  // Meses visibles: los que tienen contenido + los agregados a mano. El mes
+  // actual SOLO se fuerza si no hay nada mas (cliente recien creado), para no
+  // mostrar un mes vacio de relleno (p. ej. Junio 0 cuando el plan es Julio).
+  const keySet = new Set([...byMonth.keys(), ...extra]);
+  if (keySet.size === 0) keySet.add(currentYM());
   const ordered = [...keySet].sort();
   visibleKeys = new Set(ordered);
 
