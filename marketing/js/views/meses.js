@@ -26,8 +26,8 @@ import {
   el, clear,
   STATUSES, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606110149';
-import { icon } from '../shell/icons.js?v=202606110149';
+} from '../api.js?v=202606110201';
+import { icon } from '../shell/icons.js?v=202606110201';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
