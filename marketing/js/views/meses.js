@@ -26,8 +26,8 @@ import {
   el, clear,
   STATUSES, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606110201';
-import { icon } from '../shell/icons.js?v=202606110201';
+} from '../api.js?v=202606110217';
+import { icon } from '../shell/icons.js?v=202606110217';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -61,6 +61,8 @@ let composerInput = null;   // input vivo del composer (para restaurar foco)
 let visibleKeys = new Set();// meses visibles del ultimo render (para Agregar mes)
 let allPostsForFilters = []; // posts SIN filtrar del ultimo render (opciones de filtros)
 let sideEl = null;           // barra lateral de meses (desktop)
+let activeMonth = null;      // mes seleccionado: el area principal muestra SOLO este
+                             // (la navegacion por mes es la barra lateral / barra de meses)
 
 // ── Helpers de fechas / agrupacion ───────────────────────────────────────────
 
@@ -850,12 +852,8 @@ async function openAddMonth() {
     list.push(v);
     ctx.prefs.set(extraKey(), list);
   }
-  setCollapsed(v, false); // el mes nuevo abre expandido
+  activeMonth = v; // el mes nuevo queda activo (la navegacion es por mes)
   render();
-  requestAnimationFrame(() => {
-    const sec = sectionsEl && sectionsEl.querySelector(`[data-mes="${v}"]`);
-    if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
 }
 
 // ── Secciones ────────────────────────────────────────────────────────────────
@@ -871,20 +869,31 @@ function toggleSection(secEl, key) {
   setCollapsed(key, collapsed);
 }
 
-function buildSection({ key, rows, noteLabels, collapsed, desktop, isTodos }) {
+function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTodos, single = false }) {
   const label = key === SIN_MES ? 'Sin mes' : monthLabel(key);
   const bodyId = `meses-body-${key.replace(/[^a-z0-9-]/gi, '')}`;
 
-  const head = el('button', {
-    class: 'meses-sec__head', type: 'button',
-    'aria-expanded': collapsed ? 'false' : 'true',
-    'aria-controls': bodyId,
-  }, [
-    el('span', { class: 'meses-sec__chev' }, [icon('down', 16)]),
-    el('span', { class: 'meses-sec__title', text: label }),
-    el('span', { class: 'meses-sec__count', text: String(rows.length) }),
-  ]);
-  const heading = el('h2', { class: 'meses-sec__h' }, [head]);
+  let heading;
+  let head = null;
+  if (single) {
+    // Modo "mes activo": encabezado simple (NO colapsable). La navegacion por
+    // mes es la barra lateral (desktop) / la barra de meses (movil).
+    heading = el('h2', { class: 'meses-sec__h meses-sec__h--single' }, [
+      el('span', { class: 'meses-sec__title', text: label }),
+      el('span', { class: 'meses-sec__count', text: String(rows.length) }),
+    ]);
+  } else {
+    head = el('button', {
+      class: 'meses-sec__head', type: 'button',
+      'aria-expanded': collapsed ? 'false' : 'true',
+      'aria-controls': bodyId,
+    }, [
+      el('span', { class: 'meses-sec__chev' }, [icon('down', 16)]),
+      el('span', { class: 'meses-sec__title', text: label }),
+      el('span', { class: 'meses-sec__count', text: String(rows.length) }),
+    ]);
+    heading = el('h2', { class: 'meses-sec__h' }, [head]);
+  }
 
   const bodyKids = [];
   if (rows.length) {
@@ -894,15 +903,16 @@ function buildSection({ key, rows, noteLabels, collapsed, desktop, isTodos }) {
   }
   if (!isTodos) bodyKids.push(buildComposer(key, rows));
 
-  const body = el('div', { class: 'meses-sec__body', id: bodyId, hidden: collapsed }, bodyKids);
+  const showCollapsed = !single && collapsed;
+  const body = el('div', { class: 'meses-sec__body', id: bodyId, hidden: showCollapsed }, bodyKids);
 
   const sec = el('section', {
-    class: 'meses-sec' + (collapsed ? ' is-collapsed' : ''),
+    class: 'meses-sec' + (showCollapsed ? ' is-collapsed' : ''),
     dataset: { mes: key },
     'aria-label': `${label}, ${rows.length} ${rows.length === 1 ? 'fila' : 'filas'}`,
   }, [heading, body]);
 
-  head.addEventListener('click', () => toggleSection(sec, key));
+  if (head) head.addEventListener('click', () => toggleSection(sec, key));
   return sec;
 }
 
@@ -1052,13 +1062,36 @@ function buildFilterBar(allPosts) {
 
 // ── Barra lateral de meses (desktop) ─────────────────────────────────────────
 
-function jumpToSection(key) {
-  setCollapsed(key, false);
+// Selecciona el mes activo (la navegacion por mes). El area principal se
+// re-renderiza mostrando SOLO ese mes; nada de secciones apiladas.
+function selectMonth(key) {
+  if (activeMonth === key) return;
+  activeMonth = key;
   render();
-  requestAnimationFrame(() => {
-    const sec = sectionsEl && sectionsEl.querySelector(`[data-mes="${CSS.escape(key)}"]`);
-    if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
+  if (rootEl) {
+    const main = rootEl.querySelector('.meses-main');
+    if (main && main.scrollIntoView) main.scrollIntoView({ block: 'start' });
+  }
+}
+
+// Barra de meses horizontal para movil/tablet (la barra lateral solo existe
+// >=1024px). Mismas opciones que la lateral, en chips.
+function buildMonthBar(keys, byMonth, sinMes) {
+  const bar = el('div', { class: 'meses-monthbar', role: 'tablist', 'aria-label': 'Meses' });
+  for (const k of keys) {
+    const label = k === SIN_MES ? 'Sin mes' : capitalize(monthLabel(k));
+    const n = k === SIN_MES ? sinMes.length : (byMonth.get(k) || []).length;
+    const active = k === activeMonth;
+    bar.appendChild(el('button', {
+      class: 'meses-monthpill' + (active ? ' is-active' : ''),
+      type: 'button', role: 'tab', 'aria-selected': active ? 'true' : 'false',
+      onclick: () => selectMonth(k),
+    }, [
+      el('span', { class: 'meses-monthpill__lbl', text: label }),
+      el('span', { class: 'meses-monthpill__n', text: String(n) }),
+    ]));
+  }
+  return bar;
 }
 
 function buildSideNav(ordered, byMonth, sinMes, isTodos) {
@@ -1068,9 +1101,12 @@ function buildSideNav(ordered, byMonth, sinMes, isTodos) {
   if (sinMes.length) items.push({ key: SIN_MES, label: 'Sin mes', n: sinMes.length });
   sideEl.appendChild(el('div', { class: 'meses-side__title', text: 'Meses' }));
   for (const it of items) {
+    const active = it.key === activeMonth;
     sideEl.appendChild(el('button', {
-      class: 'meses-side__item', type: 'button',
-      onclick: () => jumpToSection(it.key),
+      class: 'meses-side__item' + (active ? ' is-active' : ''),
+      type: 'button',
+      'aria-current': active ? 'true' : 'false',
+      onclick: () => selectMonth(it.key),
     }, [
       el('span', { class: 'meses-side__lbl', text: it.label }),
       el('span', { class: 'meses-side__n', text: String(it.n) }),
@@ -1169,27 +1205,33 @@ function render() {
     }));
   }
 
-  for (const ym of ordered) {
-    sectionsEl.appendChild(buildSection({
-      key: ym,
-      rows: sortRows(byMonth.get(ym) || []),
-      noteLabels,
-      collapsed: isCollapsed(ym, collapseMap),
-      desktop,
-      isTodos,
-    }));
+  // La navegacion por mes vive en la barra lateral (desktop) / barra de meses
+  // (movil). El area principal muestra SOLO el mes activo, sin secciones
+  // colapsables apiladas. Por defecto cae en el mes actual si tiene contenido,
+  // o en el primer mes con contenido (asi no abre en un mes vacio).
+  const selectableKeys = [...ordered];
+  if (sinMes.length) selectableKeys.push(SIN_MES);
+  const withPosts = ordered.filter((ym) => (byMonth.get(ym) || []).length > 0);
+  if (!activeMonth || !selectableKeys.includes(activeMonth)) {
+    activeMonth = withPosts.includes(currentYM())
+      ? currentYM()
+      : (withPosts[0] || (ordered.includes(currentYM()) ? currentYM() : (selectableKeys[0] || currentYM())));
   }
 
-  if (sinMes.length) {
-    sectionsEl.appendChild(buildSection({
-      key: SIN_MES,
-      rows: sortRows(sinMes),
-      noteLabels,
-      collapsed: isCollapsed(SIN_MES, collapseMap),
-      desktop,
-      isTodos,
-    }));
+  // Selector de meses para movil/tablet (la barra lateral solo existe >=1024px).
+  if (selectableKeys.length > 1) {
+    sectionsEl.appendChild(buildMonthBar(selectableKeys, byMonth, sinMes));
   }
+
+  const activeRows = activeMonth === SIN_MES ? sinMes : (byMonth.get(activeMonth) || []);
+  sectionsEl.appendChild(buildSection({
+    key: activeMonth,
+    rows: sortRows(activeRows),
+    noteLabels,
+    desktop,
+    isTodos,
+    single: true,
+  }));
 
   if (!isTodos && !document.body.classList.contains('is-client')) {
     sectionsEl.appendChild(el('button', {
@@ -1240,7 +1282,7 @@ export default {
       // Regla anti popovers huerfanos: antes de procesar posts:changed se
       // cierran sheets/pickers abiertos (su anchor pudo dejar de existir).
       ctx.store.on('posts:changed', () => { try { ctx.sheet.closeAll(); } catch { /* noop */ } }),
-      ctx.store.on('client:changed', () => { composer = null; composerInput = null; closeCaptionDrawer(); }),
+      ctx.store.on('client:changed', () => { composer = null; composerInput = null; activeMonth = null; closeCaptionDrawer(); }),
     );
 
     mq = window.matchMedia('(min-width: 768px)');
@@ -1271,6 +1313,7 @@ export default {
     composer = null;
     composerInput = null;
     visibleKeys = new Set();
+    activeMonth = null;
     sectionsEl = null;
     sideEl = null;
     rootEl = null;

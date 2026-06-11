@@ -56,6 +56,27 @@
 
 .meses-sections { display: flex; flex-direction: column; }
 
+/* Barra de meses horizontal: navegacion por mes en movil/tablet (donde la
+   barra lateral esta oculta). Se oculta >=1024px (ahi manda la lateral). */
+.meses-monthbar {
+  display: flex; gap: 8px; overflow-x: auto;
+  padding: 2px 6px 12px; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.meses-monthbar::-webkit-scrollbar { display: none; }
+.meses-monthpill {
+  display: inline-flex; align-items: center; gap: 7px; flex: none;
+  padding: 8px 13px; min-height: 40px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 999px; color: var(--text-2);
+  font: inherit; font-size: var(--fs-2); font-weight: 600;
+  white-space: nowrap; cursor: pointer;
+}
+.meses-monthpill:hover { background: var(--surface-3); }
+.meses-monthpill.is-active { background: var(--client-accent, var(--brand)); border-color: transparent; color: #fff; }
+.meses-monthpill__n { font-size: var(--fs-1); background: var(--surface-3); color: var(--text-mute); border-radius: 999px; padding: 1px 8px; }
+.meses-monthpill.is-active .meses-monthpill__n { background: rgba(255, 255, 255, .22); color: #fff; }
+@media (min-width: 1024px) { .meses-monthbar { display: none; } }
+
 .meses-todos-note {
   font-size: var(--fs-2);
   color: var(--text-mute);
@@ -67,6 +88,9 @@
 .meses-sec { margin-bottom: 4px; }
 
 .meses-sec__h { margin: 0; }
+/* Encabezado del mes activo: titulo simple, NO colapsable (la navegacion por
+   mes vive en la barra lateral / barra de meses). */
+.meses-sec__h--single { display: flex; align-items: center; gap: 10px; margin: 0; padding: 4px 10px 12px; }
 
 .meses-sec__head {
   display: flex;
@@ -795,6 +819,7 @@
   font: inherit; cursor: pointer; text-align: left;
 }
 .meses-side__item:hover { background: var(--surface-3); color: var(--text-1, #fff); }
+.meses-side__item.is-active { background: var(--surface-3); color: var(--text-1, #fff); font-weight: 700; box-shadow: inset 2px 0 0 var(--client-accent, var(--brand)); }
 .meses-side__lbl { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .meses-side__n { font-size: 12px; color: var(--text-mute); background: var(--surface-2); border-radius: 999px; padding: 1px 8px; flex: none; }
 .meses-side__add {
