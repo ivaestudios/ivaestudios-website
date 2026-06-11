@@ -7,8 +7,51 @@
 
 .meses-root {
   padding: 10px 12px calc(var(--nav-h, 56px) + 28px);
-  max-width: 1280px;
+  max-width: none; /* la tabla usa TODO el ancho disponible (pedido de Vianey) */
   margin: 0 auto;
+}
+
+@media (min-width: 1024px) {
+  .meses-root { padding-left: 24px; padding-right: 24px; }
+}
+
+/* ── Barra de filtros (estilo Notion) ───────────────────────────────────────── */
+
+.meses-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 2px 2px 12px;
+  color: var(--text-mute);
+}
+
+.meses-filter {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 12.5px;
+  line-height: 1;
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  min-height: 34px;
+}
+
+.meses-filter:hover { background: var(--bg-2, rgba(255,255,255,.04)); }
+
+.meses-filter.is-active {
+  border-color: var(--brand, #a855f7);
+  color: var(--text-1, #fff);
+  background: color-mix(in srgb, var(--brand, #a855f7) 16%, transparent);
+}
+
+.meses-filter--clear { border-style: dashed; }
+
+@media (max-width: 767px) {
+  .meses-filter { min-height: 44px; padding: 10px 14px; }
 }
 
 .meses-sections { display: flex; flex-direction: column; }

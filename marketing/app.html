@@ -24,6 +24,14 @@
   <link rel="stylesheet" href="/marketing/css/dashboard.css?v=4">
   <link rel="stylesheet" href="/marketing/css/meses.css?v=4">
   <link rel="stylesheet" href="/marketing/css/calendar.css?v=4">
+
+  <!-- SW del sitio (v13+): sirve /marketing/ con cache no-store para que cada
+       deploy llegue al instante (el TTL de 4h de la zona pisa el max-age=0). -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(function () {});
+    }
+  </script>
   <link rel="stylesheet" href="/marketing/css/kanban.css?v=4">
   <link rel="stylesheet" href="/marketing/css/table.css?v=4">
   <link rel="stylesheet" href="/marketing/css/timeline.css?v=4">

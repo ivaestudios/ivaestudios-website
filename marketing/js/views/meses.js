@@ -761,6 +761,74 @@ function buildSection({ key, rows, noteLabels, collapsed, desktop, isTodos }) {
   return sec;
 }
 
+// ── Filtros (persistidos por cliente, estilo Notion) ─────────────────────────
+
+const FILTER_DIMS = [
+  { dim: 'status',   label: 'Estado',     getVal: (p) => p.status || '',       labelOf: (v) => statusLabel(v) || v },
+  { dim: 'type',     label: 'Tipo',       getVal: (p) => p.content_type || '', labelOf: (v) => contentTypeLabel(v) || v },
+  { dim: 'platform', label: 'Plataforma', getVal: (p) => p.platform || '',     labelOf: (v) => v },
+  { dim: 'grab',     label: 'Grabación',  getVal: (p) => (p.grabacion == null || p.grabacion === '' ? '' : String(p.grabacion)), labelOf: (v) => `Nivel ${v}` },
+];
+
+function filtersKey() {
+  const { activeClientId } = ctx.store.getState();
+  return `meses.filtros.${activeClientId || 'global'}`;
+}
+
+function getFilters() {
+  const f = ctx.prefs.get(filtersKey(), null);
+  return (f && typeof f === 'object' && !Array.isArray(f)) ? f : {};
+}
+
+function setFilters(f) {
+  const any = Object.values(f).some(Boolean);
+  ctx.prefs.set(filtersKey(), any ? f : undefined); // undefined = borrar la pref
+}
+
+function applyFilters(posts) {
+  const f = getFilters();
+  if (!Object.values(f).some(Boolean)) return posts;
+  return posts.filter((p) => FILTER_DIMS.every(({ dim, getVal }) => !f[dim] || getVal(p) === f[dim]));
+}
+
+async function onFilterChip(dimDef, allPosts, anchor) {
+  const f = getFilters();
+  const seen = new Map();
+  for (const p of allPosts) {
+    const v = dimDef.getVal(p);
+    if (v) seen.set(v, (seen.get(v) || 0) + 1);
+  }
+  const options = [{ value: 'all', label: 'Todos', current: !f[dimDef.dim] }];
+  for (const [v, n] of [...seen.entries()].sort((a, b) => String(a[0]).localeCompare(String(b[0])))) {
+    options.push({ value: v, label: `${dimDef.labelOf(v)} (${n})`, current: f[dimDef.dim] === v });
+  }
+  const v = await ctx.sheet.pickFrom({ title: `Filtrar por ${dimDef.label.toLowerCase()}`, options, anchor });
+  if (!v) return;
+  setFilters({ ...f, [dimDef.dim]: v === 'all' ? '' : v });
+  render();
+}
+
+function buildFilterBar(allPosts) {
+  const f = getFilters();
+  const anyActive = Object.values(f).some(Boolean);
+  const bar = el('div', { class: 'meses-filters', role: 'toolbar', 'aria-label': 'Filtros' }, [icon('filter', 14)]);
+  for (const d of FILTER_DIMS) {
+    const active = !!f[d.dim];
+    bar.appendChild(el('button', {
+      class: 'meses-filter' + (active ? ' is-active' : ''),
+      type: 'button', 'aria-haspopup': 'dialog',
+      onclick: (e) => onFilterChip(d, allPosts, e.currentTarget),
+    }, [el('span', { text: active ? `${d.label}: ${d.labelOf(f[d.dim])}` : d.label })]));
+  }
+  if (anyActive) {
+    bar.appendChild(el('button', {
+      class: 'meses-filter meses-filter--clear', type: 'button', text: 'Limpiar',
+      onclick: () => { setFilters({}); render(); },
+    }));
+  }
+  return bar;
+}
+
 // ── Render principal ─────────────────────────────────────────────────────────
 
 function render() {
@@ -788,10 +856,12 @@ function render() {
     return;
   }
 
-  // Agrupar por mes (YYYY-MM de publish_date) + bucket "Sin mes".
+  // Filtros activos (por cliente) + agrupar por mes + bucket "Sin mes".
+  const allPosts = posts || [];
+  const visiblePosts = applyFilters(allPosts);
   const byMonth = new Map();
   const sinMes = [];
-  for (const p of posts || []) {
+  for (const p of visiblePosts) {
     const k = monthKeyOf(p);
     if (k) {
       if (!byMonth.has(k)) byMonth.set(k, []);
@@ -829,6 +899,9 @@ function render() {
   composerInput = null;
 
   clear(sectionsEl);
+
+  // Barra de filtros (opciones desde TODOS los posts, no los ya filtrados).
+  sectionsEl.appendChild(buildFilterBar(allPosts));
 
   if (isTodos) {
     sectionsEl.appendChild(el('div', {

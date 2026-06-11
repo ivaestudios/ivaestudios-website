@@ -34,7 +34,14 @@
 // pin stale code/responses. /api/marketing/ was already covered by the /api/
 // bypass; /marketing/ is new.
 
-const CACHE_VERSION = 'ivae-v12-2026-06-10-marketing-bypass';
+// v13 (2026-06-11): the v12 bypass (return; -> browser default) was not enough
+// for /marketing/ STATIC assets: the zone-level Browser Cache TTL (4h)
+// overrides the origin's max-age=0, so the HTTP cache pinned deployed modules
+// for hours. Now /marketing/ js/css/html fetches go out with cache:'no-store'
+// (always revalidate at the edge; deploys propagate on next load). /api/ and
+// /gallery/ keep the plain bypass.
+
+const CACHE_VERSION = 'ivae-v13-2026-06-11-marketing-nostore';
 const STATIC_CACHE = `ivae-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `ivae-runtime-${CACHE_VERSION}`;
 
@@ -75,11 +82,18 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  // Bypass cache entirely for the gallery + marketing sub-apps and api
-  // endpoints (network-only; /api/ already covers /api/marketing/).
+  // Marketing app: network with cache:'no-store' so the HTTP cache never pins
+  // deployed modules (the zone Browser Cache TTL overrides origin max-age=0).
+  // The edge still answers fast; deploys propagate on the next load.
+  if (url.pathname.startsWith('/marketing/')) {
+    event.respondWith(fetch(req, { cache: 'no-store' }));
+    return;
+  }
+
+  // Bypass cache entirely for the gallery sub-app and api endpoints
+  // (network-only; /api/ already covers /api/marketing/).
   if (
     url.pathname.startsWith('/gallery/') ||
-    url.pathname.startsWith('/marketing/') ||
     url.pathname.startsWith('/api/')
   ) {
     return;
