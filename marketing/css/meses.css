@@ -770,3 +770,7 @@
   border-radius: 8px; color: var(--text-mute); font: inherit; cursor: pointer;
 }
 .meses-side__add:hover { color: var(--text-1, #fff); border-color: var(--brand); }
+
+/* Full screen para el calendario: el shell topa #view a 1240px; aqui lo
+   liberamos SOLO cuando esta montada la vista de meses (sin afectar las demas). */
+#view:has(.meses-root) { max-width: none; }
