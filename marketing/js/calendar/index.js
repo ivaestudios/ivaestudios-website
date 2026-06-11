@@ -15,19 +15,19 @@
 // URL, espejados por el shell en store.filters.
 // ============================================================================
 
-import { el, clear } from '../api.js';
+import { el, clear } from '../api.js?v=202606110013';
 import {
   fmtYMD, parseYMD, addDays, addMonths, startOfMonth, startOfWeek,
   monthTitle, weekTitle, parseFilters, countActiveFilters, applyFilters,
   groupByDay, backlogPosts,
-} from './data.js';
-import * as calState from './state.js';
-import { renderMonth } from './month.js';
-import { renderWeek } from './week.js';
-import { renderAgenda } from './agenda.js';
-import { renderBacklog } from './backlog.js';
-import { buildControls } from './filters.js';
-import { openQuickCreate } from './quickcreate.js';
+} from './data.js?v=202606110013';
+import * as calState from './state.js?v=202606110013';
+import { renderMonth } from './month.js?v=202606110013';
+import { renderWeek } from './week.js?v=202606110013';
+import { renderAgenda } from './agenda.js?v=202606110013';
+import { renderBacklog } from './backlog.js?v=202606110013';
+import { buildControls } from './filters.js?v=202606110013';
+import { openQuickCreate } from './quickcreate.js?v=202606110013';
 
 const MQ_DESKTOP = '(min-width: 768px)';
 

@@ -25,8 +25,8 @@
 // Contrato de vista: export default { mount(el, ctx), unmount(), onParams() }.
 // ============================================================================
 
-import { api, el, clear, timeAgo } from '../api.js';
-import { icon } from '../shell/icons.js';
+import { api, el, clear, timeAgo } from '../api.js?v=202606110013';
+import { icon } from '../shell/icons.js?v=202606110013';
 
 // CSS del paquete (vive en css/mywork.css junto a la vista Mi trabajo).
 // Lazy y con guard: si app.html ya lo linkea, no duplica.

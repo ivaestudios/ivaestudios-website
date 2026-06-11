@@ -20,9 +20,9 @@
 //     publicadosMes, porEstado:{}, porTipo:{}, porPersona:{}, porCliente:{} }
 // ============================================================================
 
-import { api } from '../api.js';
-import * as store from '../shell/store.js';
-import { addDaysISO, todayISO } from '../lib/dates.js';
+import { api } from '../api.js?v=202606110013';
+import * as store from '../shell/store.js?v=202606110013';
+import { addDaysISO, todayISO } from '../lib/dates.js?v=202606110013';
 
 export const STATS_TTL_MS = 60000;
 
