@@ -26,8 +26,8 @@ import {
   el, clear,
   STATUSES, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606110024';
-import { icon } from '../shell/icons.js?v=202606110024';
+} from '../api.js?v=202606110149';
+import { icon } from '../shell/icons.js?v=202606110149';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -204,6 +204,31 @@ async function patchWithUndo(post, fields, prevFields, msg) {
       action: { label: 'Deshacer', onAction: () => { ctx.store.patchPost(post.id, prevFields); } },
     });
   }
+}
+
+// Eliminar una fila (post) con confirmacion. El store es optimista: quita la
+// fila al instante y hace rollback si la red falla.
+function confirmDeleteRow(post) {
+  ctx.sheet.openSheet({
+    title: 'Eliminar fila',
+    mode: 'form',
+    build(body, close) {
+      body.append(
+        el('p', { class: 'meses-confirm__txt', text: `Se eliminará "${post.title || 'Sin título'}". Esta acción no se puede deshacer.` }),
+        el('div', { class: 'sheet__footer' }, [
+          el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
+          el('button', {
+            class: 'btn btn-danger sheet-cta', type: 'button', text: 'Eliminar',
+            onclick: async () => {
+              close({ source: 'confirm' });
+              const ok = await ctx.store.removePost(post.id);
+              if (ok) ctx.toast('Fila eliminada.', { type: 'success' });
+            },
+          }),
+        ]),
+      );
+    },
+  });
 }
 
 async function onPickGrabacion(post, anchor) {
@@ -558,7 +583,12 @@ function buildRow(post, noteLabels) {
     title: 'Abrir',
     onclick: () => ctx.openEditor(post.id),
   }, [icon('edit', 14)]);
-  tdTask.appendChild(el('span', { class: 'meses-task' }, [titleBtn, openBtn]));
+  const deleteBtn = el('button', {
+    class: 'meses-task__del', type: 'button', 'aria-label': 'Eliminar fila',
+    title: 'Eliminar fila',
+    onclick: () => confirmDeleteRow(post),
+  }, [icon('trash', 14)]);
+  tdTask.appendChild(el('span', { class: 'meses-task' }, [titleBtn, openBtn, deleteBtn]));
 
   // Plataforma / Tipo / Estado (pickers compartidos)
   const tdPlat = el('td', { class: 'meses-td' }, [
@@ -718,12 +748,19 @@ function buildMobileItem(post) {
   ]);
 
   return el('div', { class: 'meses-item' }, [
-    el('button', {
-      class: 'meses-item__main', type: 'button',
-      onclick: () => ctx.openEditor(post.id),
-    }, [
-      el('span', { class: 'meses-item__title', text: post.title || 'Sin título' }),
-      icon('right', 16),
+    el('div', { class: 'meses-item__top' }, [
+      el('button', {
+        class: 'meses-item__main', type: 'button',
+        onclick: () => ctx.openEditor(post.id),
+      }, [
+        el('span', { class: 'meses-item__title', text: post.title || 'Sin título' }),
+        icon('right', 16),
+      ]),
+      el('button', {
+        class: 'meses-item__del', type: 'button', 'aria-label': 'Eliminar fila',
+        title: 'Eliminar fila',
+        onclick: () => confirmDeleteRow(post),
+      }, [icon('trash', 18)]),
     ]),
     chips,
   ]);

@@ -19,9 +19,9 @@ import {
   STATUSES, STATUS_ORDER,
   CONTENT_TYPES, PLATFORMS,
   statusBadge, approvalBadge,
-} from '../api.js?v=202606110024';
-import { icon } from '../shell/icons.js?v=202606110024';
-import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202606110024';
+} from '../api.js?v=202606110149';
+import { icon } from '../shell/icons.js?v=202606110149';
+import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202606110149';
 
 // Bucket para status que ya no existen en el enum (NUNCA invisibles).
 export const OTROS_KEY = '__otros';
