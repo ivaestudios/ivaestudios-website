@@ -32,20 +32,24 @@ const DESKTOP_TABS = [
 
 export function createTopbar({ root, router, selectClient, openSearch, openNotifications }) {
   let notifAvailable = true;
+  // El cliente tiene UNA sola marca: el selector "Tus clientes" es de agencia
+  // (solo staff). Para el cliente, la marca se muestra como etiqueta fija.
+  const isClient = ((store.getState().me || {}).role === 'client');
 
   // ── Nodos persistentes ─────────────────────────────────────────────────────
   const clientDot = el('span', { class: 'tb-client__dot' });
   const clientName = el('span', { class: 'tb-client__name', text: 'Cargando' });
-  const clientBtn = el('button', {
-    class: 'tb-client', type: 'button',
-    'aria-label': 'Cambiar de cliente', 'aria-haspopup': 'dialog',
-    onclick: () => openClientSwitcher({ anchor: clientBtn, selectClient }),
-  }, [clientDot, clientName, icon('down', 16)]);
+  const clientBtn = isClient
+    ? el('div', { class: 'tb-client tb-client--static' }, [clientDot, clientName])
+    : el('button', {
+        class: 'tb-client', type: 'button',
+        'aria-label': 'Cambiar de cliente', 'aria-haspopup': 'dialog',
+        onclick: () => openClientSwitcher({ anchor: clientBtn, selectClient }),
+      }, [clientDot, clientName, icon('down', 16)]);
 
   const tabsWrap = el('nav', { class: 'tb-tabs', 'aria-label': 'Vistas' });
   const tabBtns = new Map();
   // El cliente solo ve las dos vistas de calendario.
-  const isClient = ((store.getState().me || {}).role === 'client');
   const visibleTabs = isClient ? DESKTOP_TABS.filter((t) => t.id === 'meses' || t.id === 'calendario') : DESKTOP_TABS;
   for (const t of visibleTabs) {
     const b = el('button', {

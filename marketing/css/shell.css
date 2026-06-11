@@ -701,3 +701,7 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
   .gs-overlay--desktop .gs-bar,
   .gs-overlay--desktop .gs-results { width: 100%; }
 }
+
+/* Cliente: marca como etiqueta fija (sin selector de agencia). */
+.tb-client--static { cursor: default; }
+.tb-client--static:hover { background: transparent; }
