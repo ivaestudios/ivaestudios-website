@@ -355,6 +355,16 @@
 }
 .meses-urlremove:hover { background: color-mix(in srgb, var(--danger) 12%, transparent); }
 
+/* ── Subir video (hoja "Video final") ── */
+.meses-upbtn { display: inline-flex; align-items: center; gap: 7px; width: 100%; justify-content: center; }
+.meses-uphint { margin: 8px 2px 0; }
+.meses-or {
+  display: flex; align-items: center; gap: 10px;
+  margin: 14px 0 6px; color: var(--text-mute); font-size: var(--fs-1);
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.meses-or::before, .meses-or::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
 /* ── Skeleton de carga ──────────────────────────────────────────────────────── */
 
 .meses-sec--skel { padding: 8px 6px 18px; }

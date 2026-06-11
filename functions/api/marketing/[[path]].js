@@ -2458,6 +2458,102 @@ function corsPreflight(request) {
   return new Response(null, { status: 204, headers });
 }
 
+// ── VIDEO FINAL (subida directa a R2; 1 video por post) ──────────────────────
+// Acceso: staff o el cliente dueño de la marca del post. Se guarda en R2 como
+// marketing/video/<postId>.<ext>; video_url guarda la URL absoluta de servido,
+// asi el resto de la UI lo trata como un enlace normal. Reusa el binding R2 del
+// proyecto (env.R2_BUCKET, el mismo de la galeria).
+const MKT_VIDEO_MIMES = {
+  'video/mp4': 'mp4', 'video/quicktime': 'mov', 'video/webm': 'webm',
+  'video/x-m4v': 'm4v', 'video/mpeg': 'mpeg', 'video/3gpp': '3gp',
+};
+const MKT_VIDEO_EXTS = [...new Set(Object.values(MKT_VIDEO_MIMES))];
+const MKT_MAX_VIDEO_BYTES = 100 * 1024 * 1024; // ~100 MB (limite practico del Worker)
+
+async function mktPostForVideo(env, session, postId) {
+  const post = await env.DB.prepare('SELECT id, client_id FROM mkt_posts WHERE id = ?').bind(postId).first();
+  if (!post) return { error: json({ error: 'Post not found' }, 404) };
+  if (session.role === 'client' && post.client_id !== session.client_id) {
+    return { error: json({ error: 'Forbidden' }, 403) };
+  }
+  return { post };
+}
+
+async function handleUploadVideo(request, env, session, postId) {
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento de video no disponible' }, 503);
+  const { error } = await mktPostForVideo(env, session, postId);
+  if (error) return error;
+
+  const ct = request.headers.get('Content-Type') || '';
+  let file = null;
+  if (ct.includes('multipart/form-data')) {
+    const form = await request.formData();
+    file = form.get('video') || form.get('file');
+  }
+  if (!file || typeof file === 'string' || typeof file.arrayBuffer !== 'function') {
+    return json({ error: 'Adjunta el archivo en el campo "video".' }, 400);
+  }
+  const mime = String(file.type || '').toLowerCase();
+  const ext = MKT_VIDEO_MIMES[mime];
+  if (!ext) return json({ error: 'Formato no soportado. Usa MP4, MOV o WebM.' }, 415);
+  if (file.size && file.size > MKT_MAX_VIDEO_BYTES) {
+    return json({ error: 'El video supera 100 MB. Comprímelo o pega un enlace.' }, 413);
+  }
+
+  // Limpia versiones previas con otra extensión (cambio de formato) y guarda.
+  for (const e of MKT_VIDEO_EXTS) {
+    if (e !== ext) { try { await env.R2_BUCKET.delete(`marketing/video/${postId}.${e}`); } catch {} }
+  }
+  await env.R2_BUCKET.put(`marketing/video/${postId}.${ext}`, file.stream(), {
+    httpMetadata: { contentType: mime, cacheControl: 'private, max-age=3600' },
+  });
+
+  const origin = new URL(request.url).origin;
+  const videoUrl = `${origin}/api/marketing/posts/${postId}/video`;
+  await env.DB.prepare("UPDATE mkt_posts SET video_url = ?, updated_at = datetime('now') WHERE id = ?").bind(videoUrl, postId).run();
+  const updated = await env.DB.prepare('SELECT * FROM mkt_posts WHERE id = ?').bind(postId).first();
+  return json(shapePost(updated), 200);
+}
+
+async function handleServeVideo(request, env, session, postId) {
+  if (!env.R2_BUCKET) return new Response('Almacenamiento no disponible', { status: 503 });
+  const { error } = await mktPostForVideo(env, session, postId);
+  if (error) return new Response('Forbidden', { status: 403 });
+
+  const rangeOpt = request.headers.get('Range') ? { range: request.headers } : undefined;
+  let obj = null;
+  for (const e of MKT_VIDEO_EXTS) {
+    obj = await env.R2_BUCKET.get(`marketing/video/${postId}.${e}`, rangeOpt);
+    if (obj) break;
+  }
+  if (!obj) return new Response('Sin video', { status: 404 });
+
+  const headers = new Headers();
+  obj.writeHttpMetadata(headers);
+  headers.set('Cache-Control', 'private, max-age=3600');
+  headers.set('Accept-Ranges', 'bytes');
+  headers.set('Content-Disposition', 'inline');
+  if (obj.range && Object.prototype.hasOwnProperty.call(obj.range, 'offset')) {
+    const offset = obj.range.offset || 0;
+    const len = (obj.range.length != null) ? obj.range.length : (obj.size - offset);
+    headers.set('Content-Range', `bytes ${offset}-${offset + len - 1}/${obj.size}`);
+    headers.set('Content-Length', String(len));
+    return new Response(obj.body, { status: 206, headers });
+  }
+  headers.set('Content-Length', String(obj.size));
+  return new Response(obj.body, { status: 200, headers });
+}
+
+async function handleDeleteVideo(env, session, postId) {
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
+  const { error } = await mktPostForVideo(env, session, postId);
+  if (error) return error;
+  for (const e of MKT_VIDEO_EXTS) { try { await env.R2_BUCKET.delete(`marketing/video/${postId}.${e}`); } catch {} }
+  await env.DB.prepare("UPDATE mkt_posts SET video_url = NULL, updated_at = datetime('now') WHERE id = ?").bind(postId).run();
+  const updated = await env.DB.prepare('SELECT * FROM mkt_posts WHERE id = ?').bind(postId).first();
+  return json(shapePost(updated), 200);
+}
+
 // Main router. `path` is the URL pathname AFTER the /api/marketing prefix has
 // been stripped (e.g. '/auth/login', '/posts/abc/approve').
 // Route discipline: LITERAL routes always sit before :id matchers (post ids
@@ -2571,6 +2667,13 @@ async function route(request, env) {
       if (sub === 'duplicate' && method === 'POST') {
         if (!isStaff) return json({ error: 'Forbidden' }, 403);
         return guardTables(() => handleDuplicatePost(request, env, session, postId));
+      }
+      // Video final: subida directa a R2 (staff o cliente dueño de la marca).
+      if (sub === 'video') {
+        if (method === 'POST') return handleUploadVideo(request, env, session, postId);
+        if (method === 'GET') return handleServeVideo(request, env, session, postId);
+        if (method === 'DELETE') return handleDeleteVideo(env, session, postId);
+        return json({ error: 'Method not allowed' }, 405);
       }
     }
     // ── CHECKLIST (staff only; nested under the post → ownership re-check) ──

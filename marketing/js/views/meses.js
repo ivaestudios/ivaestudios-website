@@ -26,8 +26,8 @@ import {
   el, clear,
   STATUSES, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606110328';
-import { icon } from '../shell/icons.js?v=202606110328';
+} from '../api.js?v=202606110343';
+import { icon } from '../shell/icons.js?v=202606110343';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -413,9 +413,12 @@ function openCaptionDrawer(post) {
 
 // ── Enlaces (Inspo / Video final) ────────────────────────────────────────────
 
-function openUrlSheet(post, field, title) {
+function openUrlSheet(post, field, title, { allowUpload = false } = {}) {
   const current = safeUrl(post[field]) || '';
   const msgSaved = 'Enlace guardado.';
+  // ¿El valor actual es un video subido a R2 (no un enlace externo)?
+  const isUploaded = allowUpload && /\/posts\/[a-z0-9]+\/video(?:\?|$)/i.test(current);
+
   ctx.sheet.openSheet({
     title,
     mode: 'form',
@@ -424,18 +427,28 @@ function openUrlSheet(post, field, title) {
         class: 'input meses-urlinput', type: 'url', inputmode: 'url',
         placeholder: 'https://...', 'aria-label': title,
       });
-      input.value = current;
+      // Si lo actual es un video subido, el campo de enlace arranca vacío.
+      input.value = isUploaded ? '' : current;
       const help = el('div', { class: 'help meses-urlhelp', text: 'Pega un enlace que empiece con http:// o https://' });
+
+      // Quitar el valor actual (enlace externo o video subido en R2).
+      const removeNow = async () => {
+        close({ source: 'save' });
+        if (isUploaded) {
+          try {
+            const r = await fetch(`/api/marketing/posts/${post.id}/video`, { method: 'DELETE', credentials: 'include' });
+            if (r.ok) { ctx.store.upsertPost(await r.json()); ctx.toast('Video quitado.', { type: 'success' }); return; }
+          } catch { /* cae al patch */ }
+          patchWithUndo(post, { video_url: null }, { video_url: current }, 'Video quitado.');
+        } else {
+          patchWithUndo(post, { [field]: null }, { [field]: current }, 'Enlace quitado.');
+        }
+      };
 
       const save = () => {
         const raw = input.value.trim();
         if (!raw) {
-          if (current) {
-            close({ source: 'save' });
-            patchWithUndo(post, { [field]: null }, { [field]: current }, 'Enlace quitado.');
-          } else {
-            close({ source: 'cancel' });
-          }
+          if (current) { removeNow(); } else { close({ source: 'cancel' }); }
           return;
         }
         const url = safeUrl(raw);
@@ -454,12 +467,58 @@ function openUrlSheet(post, field, title) {
       });
 
       const footer = el('div', { class: 'sheet__footer' }, [
-        el('button', {
-          class: 'btn', type: 'button', text: 'Cancelar',
-          onclick: () => close({ source: 'cancel' }),
-        }),
+        el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
         el('button', { class: 'btn btn-primary', type: 'button', text: 'Guardar', onclick: save }),
       ]);
+
+      // ── Subir archivo (solo Video final): sube directo a R2 con progreso ──
+      if (allowUpload) {
+        const fileInput = el('input', {
+          type: 'file', accept: 'video/mp4,video/quicktime,video/webm,video/*',
+          style: { display: 'none' },
+        });
+        const upHint = el('div', { class: 'help meses-uphint', text: 'MP4, MOV o WebM · hasta 100 MB' });
+        const upBtn = el('button', { class: 'btn meses-upbtn', type: 'button', onclick: () => fileInput.click() },
+          [icon('plus', 16), el('span', { text: isUploaded ? 'Reemplazar video' : 'Subir video' })]);
+
+        fileInput.addEventListener('change', () => {
+          const f = fileInput.files && fileInput.files[0];
+          if (!f) return;
+          if (f.size > 100 * 1024 * 1024) {
+            upHint.textContent = 'El video supera 100 MB. Comprímelo o pega un enlace.';
+            upHint.classList.add('meses-urlhelp--error');
+            return;
+          }
+          upBtn.disabled = true;
+          upHint.classList.remove('meses-urlhelp--error');
+          const fd = new FormData(); fd.append('video', f);
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', `/api/marketing/posts/${post.id}/video`);
+          xhr.withCredentials = true;
+          xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) upHint.textContent = `Subiendo… ${Math.round((e.loaded / e.total) * 100)}%`;
+          };
+          xhr.onload = () => {
+            upBtn.disabled = false;
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try { ctx.store.upsertPost(JSON.parse(xhr.responseText)); } catch { /* noop */ }
+              close({ source: 'save' });
+              ctx.toast('Video subido.', { type: 'success' });
+            } else {
+              let m = 'No se pudo subir el video.';
+              try { m = JSON.parse(xhr.responseText).error || m; } catch { /* noop */ }
+              upHint.textContent = m; upHint.classList.add('meses-urlhelp--error');
+            }
+          };
+          xhr.onerror = () => { upBtn.disabled = false; upHint.textContent = 'Error de red al subir.'; upHint.classList.add('meses-urlhelp--error'); };
+          xhr.send(fd);
+        });
+
+        body.append(
+          el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Subir archivo' }), upBtn, fileInput, upHint]),
+          el('div', { class: 'meses-or', text: 'o pega un enlace' }),
+        );
+      }
 
       body.append(
         el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Enlace' }), input]),
@@ -467,15 +526,13 @@ function openUrlSheet(post, field, title) {
       );
       if (current) {
         body.appendChild(el('button', {
-          class: 'meses-urlremove', type: 'button', text: 'Quitar enlace',
-          onclick: () => {
-            close({ source: 'save' });
-            patchWithUndo(post, { [field]: null }, { [field]: current }, 'Enlace quitado.');
-          },
+          class: 'meses-urlremove', type: 'button',
+          text: isUploaded ? 'Quitar video' : 'Quitar enlace',
+          onclick: removeNow,
         }));
       }
       body.appendChild(footer);
-      setTimeout(() => { try { input.focus(); } catch { /* noop */ } }, 60);
+      if (!allowUpload) setTimeout(() => { try { input.focus(); } catch { /* noop */ } }, 60);
     },
   });
 }
@@ -538,7 +595,7 @@ function buildUrlCell(post, field, label) {
   if (!url) {
     td.appendChild(cellButton(
       el('span', { class: 'meses-muted', text: '+' }),
-      () => openUrlSheet(post, field, label),
+      () => openUrlSheet(post, field, label, { allowUpload: field === 'video_url' }),
       `Agregar ${label}`,
     ));
     return td;
@@ -548,7 +605,7 @@ function buildUrlCell(post, field, label) {
   }, [icon('link', 13), el('span', { text: shortUrl(url) })]);
   const editBtn = el('button', {
     class: 'meses-url__edit', type: 'button', 'aria-label': `Cambiar ${label}`,
-    onclick: () => openUrlSheet(post, field, label),
+    onclick: () => openUrlSheet(post, field, label, { allowUpload: field === 'video_url' }),
   }, [icon('edit', 13)]);
   td.appendChild(el('span', { class: 'meses-url' }, [link, editBtn]));
   return td;
