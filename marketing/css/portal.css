@@ -722,3 +722,15 @@ button.ig-ico:hover { color: var(--text); background: var(--surface-2); }
   .pdetail__bar { justify-content: center; }
   .pdetail__bar .btn-primary { max-width: 420px; }
 }
+
+/* ── Calendario del cliente: tabla por meses (solo lectura, estilo panel) ───── */
+.pcal-sechead { display: flex; align-items: center; gap: 10px; padding: 14px 2px 10px; }
+.pcal-sechead__title { font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--text-dim, #cbb8e8); }
+.pcal-sechead__count { font-size: 12px; font-weight: 600; color: var(--text-mute); background: var(--surface-2, rgba(255,255,255,.06)); border-radius: 999px; padding: 2px 9px; }
+.pcal-wrap { margin-bottom: 16px; }
+.pcal-row { cursor: pointer; }
+.pcal-row:hover { background: var(--surface-3, rgba(255,255,255,.05)); }
+.pcal-row:focus-visible { outline: none; box-shadow: var(--ring); }
+.pcal-row .meses-td { padding: 12px 14px; vertical-align: middle; }
+.pcal-task { font-weight: 600; color: var(--text-1, #fff); }
+.pcal-caption { color: var(--text-mute); max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

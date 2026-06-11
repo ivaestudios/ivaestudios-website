@@ -20,6 +20,8 @@ const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 
 let hostEl = null;
 let openDetailFn = null;
 let unsubs = [];
+let mq = null;
+let mqHandler = null;
 
 export function mount(host, { onOpenDetail }) {
   hostEl = host;
@@ -28,11 +30,22 @@ export function mount(host, { onOpenDetail }) {
   unsubs.push(store.on('month', () => render()));
   unsubs.push(store.on('posts', () => render()));
   unsubs.push(store.on('approval', () => render()));
+  // Cambia entre tabla (desktop) y tarjetas (movil) al rotar/redimensionar.
+  mq = window.matchMedia('(min-width: 768px)');
+  mqHandler = () => render();
+  if (mq.addEventListener) mq.addEventListener('change', mqHandler);
+  else mq.addListener(mqHandler);
 }
 
 export function unmount() {
   for (const off of unsubs) off();
   unsubs = [];
+  if (mq && mqHandler) {
+    if (mq.removeEventListener) mq.removeEventListener('change', mqHandler);
+    else mq.removeListener(mqHandler);
+  }
+  mq = null;
+  mqHandler = null;
   hostEl = null;
 }
 
@@ -62,28 +75,29 @@ export function render() {
     ]),
   ]));
 
-  // ── Dias del mes ───────────────────────────────────────────────────────────
+  // ── Contenido del mes ──────────────────────────────────────────────────────
   const byDay = store.postsByDay(cursor);
-  if (!byDay.size) {
+  const monthPosts = [];
+  for (const key of [...byDay.keys()].sort()) for (const p of byDay.get(key)) monthPosts.push(p);
+
+  // Encabezado de seccion estilo "JUNIO 2026 · 13" (como el panel del equipo).
+  hostEl.append(el('div', { class: 'pcal-sechead' }, [
+    el('span', { class: 'pcal-sechead__title', text: label.toUpperCase() }),
+    el('span', { class: 'pcal-sechead__count', text: String(monthPosts.length) }),
+  ]));
+
+  if (!monthPosts.length) {
     hostEl.append(el('div', { class: 'pagenda-empty empty' }, [
       el('div', { class: 'empty__icon', html: ICONS.calendar }),
       el('h3', { text: 'Sin contenido este mes' }),
-      el('p', { text: 'Cuando tu equipo programe contenido para este mes, aparecerá aquí en orden por fecha.' }),
+      el('p', { text: 'Cuando tu equipo programe contenido para este mes, aparecerá aquí.' }),
     ]));
+  } else if (mq && mq.matches) {
+    // Desktop: tabla por meses (solo lectura). Toca una fila para ver y aprobar.
+    hostEl.append(buildTable(monthPosts));
   } else {
-    const todayKey = ymd(new Date());
-    for (const key of [...byDay.keys()].sort()) {
-      const d = parseDate(key);
-      const isToday = key === todayKey;
-      const group = el('section', { class: 'pday' + (isToday ? ' is-today' : '') });
-      group.append(el('div', { class: 'pday__label' }, [
-        el('span', { class: 'pday__num', text: String(d.getDate()) }),
-        el('span', { text: fmtDate(key, { weekday: 'long' }) }),
-        isToday ? el('span', { class: 'pday__today-tag', text: 'Hoy' }) : null,
-      ]));
-      for (const p of byDay.get(key)) group.append(item(p));
-      hostEl.append(group);
-    }
+    // Movil: tarjetas compactas (mejor que una tabla a 390px).
+    for (const p of monthPosts) hostEl.append(item(p));
   }
 
   // ── Sin fecha (N): SIEMPRE alcanzables (fix v1) ────────────────────────────
@@ -101,6 +115,37 @@ export function render() {
     for (const p of undated) sec.append(item(p));
     hostEl.append(sec);
   }
+}
+
+function buildTable(posts) {
+  const head = el('tr', {}, [
+    el('th', { class: 'meses-col--task', scope: 'col', text: 'Contenido' }),
+    el('th', { scope: 'col', text: 'Tipo' }),
+    el('th', { scope: 'col', text: 'Fecha' }),
+    el('th', { scope: 'col', text: 'Plataforma' }),
+    el('th', { scope: 'col', text: 'Caption' }),
+    el('th', { scope: 'col', text: 'Estado' }),
+  ]);
+  const open = (id) => openDetailFn && openDetailFn(id);
+  const rows = posts.map((p) => {
+    const cap = p.caption ? (p.caption.length > 80 ? p.caption.slice(0, 80) + '…' : p.caption) : '';
+    return el('tr', {
+      class: 'meses-row pcal-row', tabindex: '0', role: 'button',
+      'aria-label': `${p.title || contentTypeLabel(p.content_type)}, ver y aprobar`,
+      onclick: () => open(p.id),
+      onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(p.id); } },
+    }, [
+      el('td', { class: 'meses-td meses-col--task' }, [el('span', { class: 'pcal-task', text: p.title || contentTypeLabel(p.content_type) })]),
+      el('td', { class: 'meses-td' }, [chip(p.content_type)]),
+      el('td', { class: 'meses-td meses-td--date', text: p.publish_date ? fmtDate(p.publish_date, { day: 'numeric', month: 'long' }) : '—' }),
+      el('td', { class: 'meses-td', text: p.platform || '—' }),
+      el('td', { class: 'meses-td pcal-caption', text: cap || '—' }),
+      el('td', { class: 'meses-td' }, [approvalBadge(p.approval_state)]),
+    ]);
+  });
+  return el('div', { class: 'meses-tablewrap pcal-wrap' }, [
+    el('table', { class: 'meses-table' }, [el('thead', {}, [head]), el('tbody', {}, rows)]),
+  ]);
 }
 
 function item(p) {
