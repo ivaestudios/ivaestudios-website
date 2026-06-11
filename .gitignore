@@ -28,3 +28,6 @@ tools/img-converter/package-lock.json
 images/optimized/
 scripts/node_modules/
 serve.json
+
+# Solo desarrollo local (Pages se configura en dashboard)
+wrangler.toml

@@ -12,370 +12,56 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-  <link rel="stylesheet" href="/marketing/css/app.css?v=3">
 
-  <!--
-    Client-portal-only styling. Reuses app.css design tokens + components
-    (.btn, .chip, .approval-badge, .modal, .empty, .spinner, .toast...).
-    Goal: premium, warm, friendly, effortless on a phone. We never edit app.css.
-    The client's brand color is injected as --accent on .portal (used only as a
-    SUBTLE accent: header line, logo, soft glows); the violet→pink gradient stays
-    the primary action color so IVAE Marketing reads as the high-end brand.
-  -->
+  <!-- CSS: tokens v1 + componentes (app.css), tokens v2, shell (sheets y toasts
+       que el portal reusa por import) y la hoja propia del portal al final. -->
+  <link rel="stylesheet" href="/marketing/css/app.css?v=4">
+  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=4">
+  <link rel="stylesheet" href="/marketing/css/shell.css?v=4">
+  <link rel="stylesheet" href="/marketing/css/portal.css?v=4">
+
   <style>
-    /* The portal is a single warm centered column, not the team app shell. */
-    .portal {
-      min-height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      /* A soft, warm ambient glow behind everything (accent-tinted when set). */
-      background:
-        radial-gradient(120% 60% at 50% -10%, var(--accent-glow, rgba(124,58,237,.16)), transparent 62%),
-        radial-gradient(90% 50% at 100% 8%, rgba(236,72,153,.10), transparent 60%),
-        var(--bg);
-      background-attachment: fixed;
-    }
-    .portal__main {
-      flex: 1 1 auto;
-      width: 100%;
-      max-width: 880px;
-      margin: 0 auto;
-      padding: var(--s-6) var(--s-5) var(--s-12);
-    }
-
-    /* ── Header: brand line + logo + name, calm and premium. ─────────────── */
-    .portal__header {
-      position: sticky; top: 0; z-index: 20;
-      display: flex; align-items: center; gap: var(--s-3);
-      padding: var(--s-3) var(--s-5);
-      border-bottom: 1px solid var(--border);
-      background: rgba(11,11,18,.78);
-      backdrop-filter: saturate(160%) blur(14px);
-      -webkit-backdrop-filter: saturate(160%) blur(14px);
-    }
-    .portal__brandline {
-      position: absolute; left: 0; right: 0; top: 0; height: 3px;
-      background: var(--grad);
-      opacity: .9;
-    }
-    .portal__logo {
-      width: 40px; height: 40px; border-radius: 12px; flex: none;
-      display: grid; place-items: center; overflow: hidden;
-      background: var(--accent, var(--grad));
-      color: #fff; font-weight: 800; font-size: 15px; letter-spacing: -.02em;
-      box-shadow: 0 6px 18px var(--accent-shadow, rgba(124,58,237,.35));
-    }
-    .portal__logo img { width: 100%; height: 100%; object-fit: cover; }
-    .portal__id { min-width: 0; }
-    .portal__name { font-size: 15.5px; font-weight: 800; letter-spacing: -.01em; line-height: 1.15; }
-    .portal__by { font-size: 11px; color: var(--text-mute); font-weight: 600; margin-top: 1px; }
-    .portal__spacer { flex: 1 1 auto; }
-
-    /* ── Warm welcome / hero. ────────────────────────────────────────────── */
-    .greet { margin-bottom: var(--s-7); }
-    .greet h1 {
-      font-size: 27px; line-height: 1.18; letter-spacing: -.025em; font-weight: 800;
-    }
-    .greet h1 .wave { display: inline-block; }
-    @media (prefers-reduced-motion: no-preference) {
-      .greet h1 .wave { animation: portal-wave 2.4s var(--ease) 1; transform-origin: 70% 70%; }
-    }
-    @keyframes portal-wave {
-      0%,60%,100% { transform: rotate(0deg); }
-      10% { transform: rotate(14deg); } 20% { transform: rotate(-8deg); }
-      30% { transform: rotate(14deg); } 40% { transform: rotate(-4deg); }
-      50% { transform: rotate(10deg); }
-    }
-    .greet p {
-      color: var(--text-dim); margin-top: 10px; font-size: 15px; line-height: 1.6;
-      max-width: 52ch;
-    }
-
-    /* ── Section heads (calm, generous). ─────────────────────────────────── */
-    .p-section { margin-bottom: var(--s-8); }
-    .p-section__head {
-      display: flex; align-items: center; gap: 10px; margin-bottom: var(--s-4);
-    }
-    .p-section__head h2 { font-size: 18px; font-weight: 800; letter-spacing: -.01em; }
-    .p-section__head .ico { width: 19px; height: 19px; color: var(--brand); flex: none; }
-    .pill-count {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-width: 24px; height: 24px; padding: 0 9px; border-radius: var(--r-pill);
-      background: var(--grad); color: #fff; font-size: 12px; font-weight: 800;
-      box-shadow: var(--sh-glow);
-    }
-    .p-section__head .spacer { flex: 1 1 auto; }
-
-    /* ── "Por aprobar": the inviting priority block. ─────────────────────── */
-    .needs-you {
-      border-radius: var(--r-xl);
-      background:
-        radial-gradient(140% 120% at 0% 0%, rgba(124,58,237,.14), transparent 55%),
-        var(--grad-soft);
-      border: 1px solid rgba(139,92,246,.30);
-      padding: var(--s-6) var(--s-5);
-      box-shadow: var(--sh-2);
-    }
-    .needs-you .p-section__head { margin-bottom: var(--s-5); }
-
-    .approve-list { display: flex; flex-direction: column; gap: var(--s-4); }
-
-    /* A pending post card that feels like a content preview, not a row. */
-    .pcard {
-      position: relative; overflow: hidden;
-      display: flex; flex-direction: column; gap: var(--s-3);
-      padding: var(--s-5); text-align: left; width: 100%;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--r-lg); box-shadow: var(--sh-1);
-      transition: border-color var(--t), transform var(--t), box-shadow var(--t);
-    }
-    .pcard::before {
-      content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
-      background: var(--grad);
-    }
-    .pcard:hover, .pcard:focus-within { border-color: var(--border-strong); transform: translateY(-2px); box-shadow: var(--sh-2); }
-    .pcard__top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .pcard__date {
-      margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12.5px; font-weight: 700; color: var(--text-dim);
-    }
-    .pcard__date .ico { width: 14px; height: 14px; color: var(--text-mute); }
-    .pcard__title { font-size: 17px; font-weight: 800; line-height: 1.3; letter-spacing: -.01em; }
-    .pcard__preview {
-      font-size: 14px; color: var(--text-dim); line-height: 1.55;
-      display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-    }
-    .pcard__preview.muted { font-style: italic; }
-    /* Card actions live right on the card so approving is one tap. */
-    .pcard__actions { display: flex; gap: var(--s-3); margin-top: 2px; flex-wrap: wrap; }
-    .pcard__actions .btn { flex: 1 1 140px; justify-content: center; }
-    .pcard__open {
-      align-self: flex-start; font-size: 12.5px; font-weight: 700; color: var(--brand);
-      background: none; border: 0; cursor: pointer; padding: 2px 0;
-      display: inline-flex; align-items: center; gap: 4px;
-      transition: color var(--t-fast), gap var(--t-fast);
-    }
-    .pcard__open:hover { color: var(--fuchsia); gap: 7px; }
-
-    /* Big touch targets for the primary actions everywhere. */
-    .btn-lg { min-height: 48px; padding: 0 18px; font-size: 14.5px; font-weight: 700; border-radius: var(--r); }
-
-    /* Success "pop" overlay shown after approving from a card. */
-    .pcard.is-done {
-      border-color: rgba(34,197,94,.5);
-      background: linear-gradient(135deg, rgba(34,197,94,.10), var(--surface));
-    }
-    .pcard.is-done::before { background: var(--ok); }
-    .done-banner {
-      display: flex; align-items: center; gap: 10px;
-      color: #bbf7d0; font-size: 14.5px; font-weight: 700;
-    }
-    .done-banner .check {
-      width: 30px; height: 30px; border-radius: 50%; flex: none;
-      display: grid; place-items: center; color: #fff; background: var(--ok);
-    }
-    .done-banner .check .ico { width: 17px; height: 17px; }
-    @media (prefers-reduced-motion: no-preference) {
-      .done-banner .check { animation: pop-in .4s var(--ease) 1; }
-    }
-    @keyframes pop-in { 0% { transform: scale(.4); opacity: 0; } 60% { transform: scale(1.12); } 100% { transform: scale(1); opacity: 1; } }
-
-    /* Friendly "all approved" empty state inside the priority block. */
-    .needs-you .empty { padding: var(--s-8) var(--s-5); }
-    .needs-you .empty__icon { width: 60px; height: 60px; }
-
-    /* ── Agenda feed (the friendly mobile-first calendar). ───────────────── */
-    .feed-head {
-      display: flex; align-items: center; gap: var(--s-2); margin-bottom: var(--s-2);
-    }
-    .feed-head .ico { width: 19px; height: 19px; color: var(--brand); flex: none; }
-    .feed-head h2 { font-size: 18px; font-weight: 800; letter-spacing: -.01em; flex: 1 1 auto; }
-    .feed-nav { display: flex; align-items: center; gap: 8px; }
-    .feed-month {
-      font-size: 13.5px; font-weight: 700; color: var(--text-dim);
-      min-width: 96px; text-align: center;
-    }
-    .feed-nav__btn {
-      width: 40px; height: 40px; border-radius: var(--r); flex: none;
-      display: grid; place-items: center; cursor: pointer;
-      background: var(--surface-2); border: 1px solid var(--border); color: var(--text-dim);
-      transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
-    }
-    .feed-nav__btn:hover { background: var(--surface); color: var(--text); border-color: var(--brand); }
-    .feed-nav__btn svg { width: 18px; height: 18px; }
-    .feed-today {
-      height: 40px; padding: 0 14px; border-radius: var(--r);
-      background: var(--surface-2); border: 1px solid var(--border); color: var(--text-dim);
-      font-size: 13px; font-weight: 700; cursor: pointer;
-      transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
-    }
-    .feed-today:hover { background: var(--surface); color: var(--text); border-color: var(--brand); }
-
-    .feed-groups { display: flex; flex-direction: column; gap: var(--s-6); }
-    .feed-group { display: flex; flex-direction: column; gap: 10px; }
-    .feed-group__label {
-      display: flex; align-items: baseline; gap: 8px;
-      font-size: 13px; font-weight: 800; letter-spacing: .01em;
-      color: var(--text-dim); text-transform: capitalize;
-    }
-    .feed-group__label .num {
-      font-size: 22px; font-weight: 800; letter-spacing: -.02em; color: var(--text);
-      line-height: 1;
-    }
-    .feed-group.is-today .feed-group__label .num { color: var(--brand); }
-    .feed-group__label .dow { font-size: 12px; font-weight: 700; color: var(--text-mute); text-transform: uppercase; letter-spacing: .04em; }
-    .feed-group__label .today-tag {
-      margin-left: auto; font-size: 10.5px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
-      color: #fff; background: var(--grad); border-radius: var(--r-pill); padding: 2px 9px;
-    }
-
-    .feed-item {
-      position: relative; overflow: hidden;
-      display: flex; align-items: center; gap: var(--s-3); width: 100%; text-align: left;
-      padding: 14px var(--s-4); cursor: pointer; min-height: 60px;
-      background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
-      box-shadow: var(--sh-1);
-      transition: border-color var(--t), background var(--t), transform var(--t-fast);
-    }
-    .feed-item::before {
-      content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
-      background: var(--c, var(--brand));
-    }
-    .feed-item:hover, .feed-item:focus-visible { border-color: var(--border-strong); transform: translateY(-1px); }
-    .feed-item__body { min-width: 0; flex: 1 1 auto; }
-    .feed-item__title { font-size: 15px; font-weight: 700; line-height: 1.3; }
-    .feed-item__meta { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
-    .feed-item__chev { color: var(--text-mute); flex: none; width: 18px; height: 18px; }
-    .feed-item:hover .feed-item__chev { color: var(--brand); }
-
-    /* ── Read-only detail blocks inside the modal. ───────────────────────── */
-    .detail-hero {
-      display: flex; flex-direction: column; gap: 10px;
-      padding-bottom: var(--s-4); margin-bottom: var(--s-5);
-      border-bottom: 1px solid var(--border);
-    }
-    .detail-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .detail-date {
-      display: inline-flex; align-items: center; gap: 7px;
-      font-size: 14px; font-weight: 700; color: var(--text);
-    }
-    .detail-date .ico { width: 16px; height: 16px; color: var(--brand); }
-
-    .detail-block { margin-bottom: var(--s-5); }
-    .detail-block__label {
-      font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
-      color: var(--text-mute); display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
-    }
-    .detail-block__label .spacer { flex: 1 1 auto; }
-    .readbox {
-      background: var(--surface-2); border: 1px solid var(--border);
-      border-radius: var(--r); padding: 13px 15px;
-      font-size: 14.5px; line-height: 1.65; color: var(--text);
-      white-space: pre-wrap; word-break: break-word;
-    }
-    .readbox.is-empty { color: var(--text-mute); font-style: italic; }
-    .script-part { margin-bottom: 12px; }
-    .script-part:last-child { margin-bottom: 0; }
-    .script-part__tag {
-      font-size: 10.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase;
-      color: var(--brand); margin-bottom: 4px;
-    }
-    .script-part__text { line-height: 1.6; }
-    .hashtags { color: var(--brand); }
-    .btn-copy {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: var(--surface); border: 1px solid var(--border);
-      color: var(--text-dim); cursor: pointer;
-      height: 30px; padding: 0 11px; border-radius: var(--r-sm);
-      font-size: 12px; font-weight: 700;
-      transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
-    }
-    .btn-copy:hover { background: var(--surface-3); color: var(--text); border-color: var(--border-strong); }
-    .btn-copy .ico { width: 14px; height: 14px; }
-
-    /* ── Decision area (approve / request-changes) in the modal. ─────────── */
-    .decide {
-      border-top: 1px solid var(--border); margin-top: var(--s-5); padding-top: var(--s-5);
-    }
-    .decide__status {
-      display: flex; align-items: center; gap: 10px; margin-bottom: var(--s-4);
-      font-size: 13.5px; color: var(--text-dim);
-    }
-    .decide .btn-row .btn { flex: 1 1 160px; justify-content: center; }
-    .thanks {
-      display: flex; align-items: center; gap: 12px;
-      padding: 14px 16px; border-radius: var(--r);
-      background: rgba(34,197,94,.10); border: 1px solid rgba(34,197,94,.42); color: #bbf7d0;
-      font-size: 14.5px; font-weight: 600; line-height: 1.45;
-    }
-    .thanks .check {
-      width: 28px; height: 28px; border-radius: 50%; flex: none;
-      display: grid; place-items: center; color: #fff; background: var(--ok);
-    }
-    .thanks .check .ico { width: 16px; height: 16px; }
-    @media (prefers-reduced-motion: no-preference) {
-      .thanks .check { animation: pop-in .4s var(--ease) 1; }
-    }
-    .changes-box { margin-top: var(--s-4); }
-
-    /* ── Comment thread. ─────────────────────────────────────────────────── */
-    .comment.is-mine { flex-direction: row-reverse; }
-    .comment.is-mine .comment__meta { flex-direction: row-reverse; }
-    .comment.is-mine .comment__bubble {
-      background: var(--grad-soft); border-color: rgba(139,92,246,.3);
-    }
-    .comment.is-mine .avatar { background: var(--accent, var(--grad)); color: #fff; }
-    .comment-empty { font-size: 13.5px; color: var(--text-mute); line-height: 1.5; }
-    .comment-form { margin-top: var(--s-4); }
-
-    /* ── Reassurance footer. ─────────────────────────────────────────────── */
-    .portal__foot {
-      text-align: center; color: var(--text-mute); font-size: 12.5px; line-height: 1.6;
-      padding-top: var(--s-4); margin-top: var(--s-6);
-      border-top: 1px solid var(--border);
-    }
-    .portal__foot .grad-text { font-weight: 700; }
-
-    /* ── Phone-first tuning. ─────────────────────────────────────────────── */
-    @media (max-width: 720px) {
-      .portal__main { padding: var(--s-5) var(--s-4) var(--s-10); }
-      .greet h1 { font-size: 23px; }
-      .greet p { font-size: 14.5px; }
-      .needs-you { padding: var(--s-5) var(--s-4); border-radius: var(--r-lg); }
-      .pcard { padding: var(--s-4); }
-      .pcard__title { font-size: 16px; }
-      .feed-head { flex-wrap: wrap; }
-      .feed-head h2 { flex: 1 1 100%; }
-    }
-    @media (max-width: 420px) {
-      .pcard__actions .btn { flex: 1 1 100%; }
-    }
+    /* El atributo hidden SIEMPRE gana, incluso sobre reglas display de autor
+       (.pboot y #inbox/#agenda se togglean con hidden desde portal/main.js). */
+    [hidden] { display: none !important; }
   </style>
 </head>
 <body>
-  <!-- Loading state shown until the portal hydrates (visibility-safe). -->
-  <div id="boot" class="loading-state" style="min-height:100dvh">
+  <!-- Splash: portal/main.js lo oculta al hidratar o lo reusa para bootFailed. -->
+  <div id="boot" class="pboot" role="status" aria-live="polite">
     <span class="spinner spinner--lg" aria-hidden="true"></span>
-    <p>Cargando tu contenido...</p>
+    <span class="muted">Cargando tu contenido</span>
   </div>
 
-  <!-- The portal is rendered by client.js into #app once auth + data load. -->
-  <div id="app" class="portal hidden"></div>
+  <!-- Portal v2 (app aislada del shell de equipo). main.js llena cada ancla:
+       #pheader (header), #progress (badge del mes), #tabs (segmented),
+       #inbox (Por aprobar) y #agenda (Calendario). -->
+  <div id="app" class="portal" hidden>
+    <header id="pheader" class="portal__header"></header>
+    <main class="portal__main">
+      <div id="progress" class="pprogress-slot"></div>
+      <div id="tabs" class="ptabs"></div>
+      <section id="inbox" role="tabpanel" aria-labelledby="ptabInbox" hidden></section>
+      <section id="agenda" role="tabpanel" aria-labelledby="ptabAgenda" hidden></section>
+    </main>
+    <footer class="portal__foot">Hecho con 💜 por IVAE Marketing</footer>
+  </div>
 
-  <!-- Read-only post detail modal (centered, populated by JS). -->
-  <div class="overlay" id="overlay" hidden></div>
-  <aside class="modal modal--wide" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
-    <header class="modal__head">
-      <h2 class="modal__title" id="modalTitle">Detalle</h2>
-      <button class="modal__close" id="modalClose" type="button" aria-label="Cerrar">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </header>
-    <div class="modal__body" id="modalBody"></div>
-  </aside>
+  <!-- Detalle full-screen como ruta #post=<id> (hermano de #app: recibe su
+       propio --accent desde applyAccent). -->
+  <div id="detail" class="pdetail" role="dialog" aria-modal="true" aria-label="Detalle del contenido" hidden></div>
 
-  <div class="toast-host" role="status" aria-live="polite"></div>
+  <!-- Capas globales del shell reusadas por el portal (sheet.js y toast.js). -->
+  <div id="sheetHost"></div>
+  <div id="toastHost" class="toast-host" role="status" aria-live="polite"></div>
 
-  <script type="module" src="/marketing/js/client.js?v=3"></script>
+  <noscript>
+    <p style="padding:24px;text-align:center">Necesitas JavaScript activado para ver tu contenido.</p>
+  </noscript>
+
+  <!-- Unico script del portal v2.
+       ROLLBACK INSTANTANEO: re-apuntar esta linea a /marketing/js/client.js?v=3
+       y restaurar el esqueleto legacy; js/client.js sigue intacto en el repo. -->
+  <script type="module" src="/marketing/js/portal/main.js?v=4"></script>
 </body>
 </html>

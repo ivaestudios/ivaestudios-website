@@ -28,7 +28,13 @@
 // asset URLs change (guaranteed cache-miss -> fresh fetch on ANY SW version),
 // and (b) this cache version bump drops all old caches on activate.
 
-const CACHE_VERSION = 'ivae-v11-2026-05-31-asset-version-bump';
+// v12 (2026-06-10): /marketing/ joins the cache bypass (network-only, like
+// /gallery/). The marketing app v2 is ~60 ES modules imported without ?v=
+// query strings, so any SW caching of /marketing/* or /api/marketing/* would
+// pin stale code/responses. /api/marketing/ was already covered by the /api/
+// bypass; /marketing/ is new.
+
+const CACHE_VERSION = 'ivae-v12-2026-06-10-marketing-bypass';
 const STATIC_CACHE = `ivae-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `ivae-runtime-${CACHE_VERSION}`;
 
@@ -69,8 +75,13 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  // Bypass cache entirely for the gallery sub-app and api endpoints
-  if (url.pathname.startsWith('/gallery/') || url.pathname.startsWith('/api/')) {
+  // Bypass cache entirely for the gallery + marketing sub-apps and api
+  // endpoints (network-only; /api/ already covers /api/marketing/).
+  if (
+    url.pathname.startsWith('/gallery/') ||
+    url.pathname.startsWith('/marketing/') ||
+    url.pathname.startsWith('/api/')
+  ) {
     return;
   }
 

@@ -1,206 +1,293 @@
-# IVAE Marketing — Content Calendar App
+# IVAE Marketing, Centro de Contenido v2 (enterprise)
 
-Multi-tenant content-calendar web app for **IVAE Marketing** (the social-media
-agency sub-brand of IVAE Studios). Replaces a basic Notion calendar. It is a
-static front end (vanilla HTML/CSS/JS, no build step) served by Cloudflare Pages
-with a single catch-all Pages Function for the API, backed by Cloudflare D1.
+App interna de gestion de contenido para los clientes de IVAE Marketing
+(calendario editorial, tablero, aprobaciones de cliente, avisos y
+automatizaciones). Vive bajo `/marketing/` en el mismo proyecto de
+Cloudflare Pages que el sitio y la galeria. La autenticacion es propia
+(cookie `mkt_session`, tablas `mkt_users`/`mkt_sessions`): comparte D1 con
+la galeria pero jamas comparte login.
 
-This README covers the **backend API** (`functions/api/marketing/[[path]].js`),
-its bindings, the migration command, the URL map, and how to bootstrap the
-first admin. The front-end pages (`marketing/index.html`, `app.html`,
-`client.html`) are built separately.
+> **Mobile-first real.** El 99% del uso es en telefono: cada vista se diseña
+> primero a 390px, touch targets de 44px o mas, `100dvh` y safe-areas.
+> UI 100% en español (es-MX), sin em-dashes en texto visible.
 
----
+## Stack (reglas duras)
 
-## Architecture
+- **Frontend:** vanilla ES modules. SIN build step, SIN npm, SIN frameworks.
+  ~60 modulos cargados con `import()` lazy por vista.
+- **Backend:** Cloudflare Pages Functions, un solo catch-all
+  `functions/api/marketing/[[path]].js` + `_dashboard.js` importado
+  (sin `export onRequest` propio).
+- **Datos:** D1 (SQLite) `ivae-gallery-db` (compartida con la galeria),
+  tablas con prefijo `mkt_`.
+- **Cache:** `sw.js` v12 hace bypass total de `/marketing/*` (network-only,
+  igual que `/gallery/*`). Obligatorio: los ES modules internos se importan
+  sin `?v=`, solo los entry points de los HTML llevan `?v=4`.
 
-- **Static assets** live under `marketing/` (login, team app, client portal).
-- **API** is ONE catch-all Pages Function at
-  `functions/api/marketing/[[path]].js`, mounted at `/api/marketing/*`. The
-  `onRequest` entry point strips the `/api/marketing` prefix and routes the
-  rest (e.g. `/api/marketing/auth/login` → internal route `/auth/login`).
-- **Database** is Cloudflare D1 — the **same** database as the gallery app
-  (`ivae-gallery-db`). All of this app's tables are namespaced `mkt_*` so they
-  never collide with the gallery tables. Schema:
-  `marketing/migrations/001_init.sql`.
-- **Auth is fully isolated from the gallery.** This app uses its own cookie
-  name **`mkt_session`** (the gallery uses `session`), its own users
-  (`mkt_users`) and sessions (`mkt_sessions`). The two apps share a database
-  but never share a login.
-- Crypto (PBKDF2 password hashing, `randomId`, the cookie/JSON helpers) is
-  copied verbatim from the proven gallery function.
+## Arquitectura v2
 
----
-
-## Bindings (Cloudflare Pages → Settings → Functions)
-
-| Binding | Type | Value / default | Purpose |
-|---|---|---|---|
-| `DB` | D1 database | `ivae-gallery-db` | Shared D1; this app uses the `mkt_*` tables. |
-| `ADMIN_EMAIL` | env var (plain) | `vianeydm07@gmail.com` | The only email allowed to bootstrap the first admin via `POST /auth/register`. |
-| `SESSION_EXPIRY_SECONDS` | env var (plain) | `604800` (7 days) | Session lifetime. Code defaults to `'604800'` if unset. |
-
-No secrets are required by this API (no R2, no Resend, no API keys). Do not put
-secrets in code.
-
-> The gallery function already binds `DB`, `ADMIN_EMAIL`, and
-> `SESSION_EXPIRY_SECONDS` for the same Pages project, so in practice these are
-> already configured. Confirm `ADMIN_EMAIL` is `vianeydm07@gmail.com`.
-
----
-
-## Migration
-
-Apply the schema to the remote D1 database (run from the repo root):
-
-```bash
-wrangler d1 execute ivae-gallery-db --remote --file=marketing/migrations/001_init.sql
+```
+marketing/
+  index.html            login (usa js/api.js?v=4 desde un module inline)
+  app.html              app de equipo (entry: js/main.js?v=4)
+  client.html           portal del cliente (entry: js/portal/main.js?v=4)
+  css/
+    app.css             base v1 absorbida (+ rename .grid -> .dgrid, tokens --pri-*)
+    tokens2.css         tokens v2 aditivos (nav, sheets, z-index, densidad)
+    shell.css           chrome del shell (topbar, bottom-nav, sheets, toasts)
+    dashboard|calendar|kanban|table|timeline|mywork|editor|portal.css
+  js/
+    api.js              cliente HTTP + helpers DOM + catalogos (compartido v1/v2)
+    main.js             composition root: registra vistas lazy y shell.boot()
+    shell/              shell singleton: router, store, prefs, topbar,
+                        clientswitcher, bottomnav+FAB, sheet, toast, icons,
+                        search, notifications
+    ui/                 primitivas compartidas: pickers.js (tipados) y
+                        dnd.js (UNICO motor drag por Pointer Events, move/resize)
+    services/           dominio sin DOM: bulk, checklist, views, stats, automations
+    lib/                dates.js (ISO es-MX) y effort.js (carga de trabajo)
+    views/              dashboard, kanban, table, timeline, workload,
+                        mywork, automations (+ dash-widgets)
+    calendar/           vista flagship (mes/semana/agenda, backlog, quick-create)
+    table/ kanban/      submodulos de sus vistas
+    editor/             item card #/post/:id (5 tabs, autosave, plantillas)
+    portal/             app AISLADA del cliente (store propio EventTarget)
+    app.js              LEGACY v1 MUERTO (rollback; ningun HTML lo carga)
+    client.js           LEGACY v1 MUERTO (rollback; ningun HTML lo carga)
+  migrations/           001..005 (004 idempotente, 005 ALTERs)
+functions/api/marketing/
+  [[path]].js           catch-all unico (toda la API v1+v2)
+  _dashboard.js         handleDashboard importado por el catch-all
+.github/workflows/marketing-cron.yml   respaldo diario del lazySweep
 ```
 
-The migration is idempotent (`CREATE TABLE IF NOT EXISTS` / `CREATE INDEX IF
-NOT EXISTS`), so re-running it is safe. For a local dev DB drop `--remote`.
+Principios:
 
----
+- **Un solo dueño por primitiva:** UN sheet (`js/shell/sheet.js`), UN store,
+  UN pickers tipado, UN motor DnD (`js/ui/dnd.js`). Jamas HTML5 DnD; todo
+  drag tiene fallback visible ("Mover a...").
+- **Vistas = plugins.** `main.js` las registra con `import()` dinamico; si un
+  modulo falla, la vista degrada a un empty state con Reintentar y el shell
+  sigue vivo.
+- **Mutaciones SIEMPRE optimistas:** snapshot, fetch, reconciliar con la
+  respuesta o rollback + toast "No se pudo guardar, intenta de nuevo."
+- **Degradacion limpia:** sin migracion 004 la campana y el tab Avisos se
+  ocultan (404), `/search` cae a busqueda en memoria, `?scope=all` cae a
+  multi-fetch por cliente, `/views` cae a modo local en prefs, los servicios
+  bulk caen a PATCH/DELETE por post (API v1).
+- **El portal es otra app.** `js/portal/*` con store propio; solo importa
+  `api.js`, `js/shell/sheet.js` y `js/shell/toast.js`. Cero estado compartido.
 
-## URL map
+## Contrato del shell (CONGELADO)
 
-| URL | Serves | Audience |
+Registro de vista (en `main.js`, via `shell.registerView`, que re-exporta
+`router.registerView`):
+
+```js
+registerView({ id, label, icon, mount(el, ctx), unmount?(), onParams?(params) });
+// El modulo de vista exporta: export default { mount, unmount?, onParams? }
+```
+
+`ctx` entregado a cada `mount(el, ctx)`:
+
+```js
+{
+  store,                       // getState/set/subscribe/optimistic/emit/on
+                               // + acciones: loadPosts, patchPost, createPost,
+                               //   removePost, upsertPost, reorder, loadUsers,
+                               //   refreshClientCounts
+  prefs,                       // get/set/remove namespaced mkt2.<userId>.*
+  router: { navigate, current },
+  sheet:  { openSheet, pickFrom, closeAll },
+  pickers,                     // status, fecha, persona, plataforma, tipo,
+                               // grabacion, aprobacion, prioridad, textExpand
+  dnd,                         // motor Pointer Events, modos move y resize
+  toast,                       // toast(msg, {type, ms, action:{label,onAction}})
+  setFab, setViewControls, setTabBadge,
+  openEditor(id, {tab, commentId}),
+  selectClient(id),
+  icons, params,
+}
+```
+
+Eventos de dominio del store: `client:changed`, `posts:changed`,
+`post:updated`, `post:created`, `post:deleted`, `mutated`,
+`notifications:read`, `view:applied`, y de servicios: `bulk:selection`,
+`checklist:changed`, `checklist:counts`, `views:changed`.
+
+Reglas duras para vistas: nunca tocan `localStorage` ni `location.hash`
+directo (todo via prefs y router); nunca importan otra vista ni el legacy;
+dato de usuario siempre via `textContent` (`innerHTML` solo en
+`icons.js`); el rol client jamas entra a `app.html` (gate en boot); el shell
+centraliza `loadPosts` (boot y cambio de cliente).
+
+## Rutas hash (app de equipo)
+
+| Ruta | Vista | Modulo |
 |---|---|---|
-| `/marketing/` (`index.html`) | Login page | Everyone |
-| `/marketing/app.html` | Team dashboard (calendar + board + list + editor + clients + team mgmt) | admin / team |
-| `/marketing/client.html` | Client portal (their calendar, approve / request-changes / comment) | client |
-| `/api/marketing/*` | JSON API (this Pages Function) | All roles (server-enforced) |
+| `#/inicio` | Dashboard (scope cliente/agencia) | `js/views/dashboard.js` |
+| `#/calendario` | Calendario (mes/semana desktop, agenda movil) | `js/calendar/index.js` |
+| `#/tablero` | Kanban (8 columnas + Otros) | `js/views/kanban.js` |
+| `#/tabla` | Tabla enterprise (grupos, bulk, quick-add) | `js/views/table.js` |
+| `#/timeline` | Gantt ligero (work_start a publish_date) | `js/views/timeline.js` |
+| `#/carga` | Carga semanal por persona | `js/views/workload.js` |
+| `#/mi-trabajo` | Mi trabajo cross-cliente | `js/views/mywork.js` |
+| `#/automatizaciones` | 8 recetas con switch | `js/views/automations.js` |
+| `#/post/<id>` | Editor del post (deep-link de busqueda y avisos) | `js/editor/editor.js` |
 
-Every page should carry `<meta name="robots" content="noindex,nofollow">` — the
-app is behind login and must never be indexed.
+Params de URL (espejados a `store.filters` por el shell): `cliente`, `q`,
+`estado`, `tipo`, `persona`, `desde`, `hasta`; el editor agrega `tab` y
+`comment`. `estado` y `tipo` aceptan multi-seleccion separada por comas
+(`estado=idea,guion`). Portal del cliente: `/marketing/client#post=<id>`
+(deep-link canonico, sin `.html`).
 
----
+Bottom-nav (4 tabs): Inicio, Contenido (recuerda la ultima vista de contenido
+usada), Mi trabajo, Avisos (overlay; se oculta si `/notifications` da 404).
 
-## Bootstrapping the admin
+## Catalogo de prefs (`mkt2.<userId>.*`)
 
-Open registration is **disabled**. The very first account is created by a
-one-time bootstrap:
+Shell: `lastClient`, `lastView.<clientId>`, `recentSearches`, `density`,
+`returnTo`. Vistas: `collapsedGroups.<view>.<clientId>`, `boardCols`,
+`cardFields` (kanban), `calMode`, `calFilters`, `calMini`, `calBacklog`,
+`tableGroupBy`, `tableSort`, `tableCols`, `tableCardFields`, `swimlane`,
+`tlScale`, `tlCollapsed.<clientId>`, `dashScope`, `myworkShowDone`,
+`savedViewActive.<clientId>`, `savedViewsLocal.<clientId>` (modo local de
+vistas guardadas). `prefs.migrate()` copia una sola vez `mkt.view` /
+`mkt.client` del legacy sin borrarlas. `sessionStorage mkt.jump` = drill-down
+del dashboard (se consume una vez con `prefs.takeJump()`).
 
-1. Deploy with `ADMIN_EMAIL=vianeydm07@gmail.com` bound.
-2. Apply the migration (above).
-3. Register exactly once:
+## API v2 (todo bajo `/api/marketing`, mismo catch-all)
 
-   ```bash
-   curl -X POST https://ivaestudios.com/api/marketing/auth/register \
-     -H 'Content-Type: application/json' \
-     -d '{"name":"Vianey","email":"vianeydm07@gmail.com","password":"<choose-a-strong-password>"}'
-   ```
+Sin cambios: `auth/*`, `clients` CRUD, `posts` CRUD, `reorder`, `approve`,
+`request-changes`, `comments`, `users`, `activity`. Nuevo o extendido:
 
-   This succeeds **only if** the email equals `ADMIN_EMAIL` **and** no admin row
-   exists yet. The first admin is auto-logged-in (a `mkt_session` cookie is set
-   in the response). Any later attempt (different email, or admin already
-   exists) returns `403`.
+- **Posts:** `POST /posts/bulk-update` `{ids, patch}` o
+  `{updates:[{id, publish_date}]}` (mismo cliente, max 100, devuelve
+  `{ok, updated, posts, missing_ids}`); `POST /posts/bulk-delete` `{ids}`;
+  `POST /posts/:id/duplicate`; `GET /posts?include=checklist` agrega
+  `checklist_done/checklist_total`; `GET /posts?scope=all` (staff, modo
+  Todos y Mi trabajo); `PATCH /posts/:id` acepta ademas `priority`, `tags`,
+  `assignee_user_id`, `work_start`, `effort_points` y opcional
+  `expected_updated_at` (responde `409 {post}` si hubo conflicto);
+  `overdue` es server-managed (solo lectura).
+- **Checklist (staff, ANIDADA bajo el post):**
+  `GET|POST /posts/:id/checklist` (`{label, position}`),
+  `PATCH|DELETE /posts/:id/checklist/:itemId` (`{label?|done?|position?}`),
+  `POST /posts/:id/checklist/reorder` `{updates}`,
+  `POST /posts/:id/checklist/bulk` (plantillas). No existe
+  `/checklist/counts`: los conteos salen de `GET /posts?include=checklist`.
+- **Notificaciones (cualquier rol, scoped a la sesion):**
+  `GET /notifications?filter=all|unread|mentions|assigned&limit=&before=`
+  devuelve `{notifications, unread, next_before}`;
+  `GET /notifications/unread-count` (polling 60s, corre el lazySweep
+  throttled 15 min); `POST /notifications/read` `{ids}|{all:true}|{ids,
+  unread:true}`; `POST /notifications/delete` `{ids}`. Tipos: aprobacion,
+  cambios_solicitados, comentario, mencion, asignacion, recordatorio,
+  vencido, revision_pendiente. Links de aviso: `#/post/<id>`.
+- **Busqueda:** `GET /search?q=` (staff) devuelve `{posts, clients}`.
+- **Dashboard:** `GET /dashboard?month=YYYY-MM[&client_id=]` (staff), UNICO
+  agregador (no existe `GET /stats`), un solo `env.DB.batch`, hora Cancun
+  UTC-5.
+- **Carga:** `GET /workload?from=&to=` (cap 12 semanas) devuelve
+  `{posts, undated, capacities}` con `client_name` y `brand_color`;
+  `GET /capacities`; `POST /capacities` `{assignee, weekly_points}` upsert
+  (POST y no PUT a proposito: el preflight CORS no lista PUT).
+- **Automatizaciones:** `GET /automations` y
+  `PATCH /automations/:recipe_key` `{enabled?, config?}`. 8 recetas fijas:
+  `aprobado_mueve_estado`, `aviso_cambios`, `aviso_comentario`,
+  `aviso_asignacion`, `recordatorio_publicacion` (config `days_before` 1|2),
+  `marcar_atrasado`, `aviso_revision_cliente`, `alerta_sin_aprobar`.
+  Motor: hooks try/catch tras commit + lazySweep como mecanismo PRIMARIO
+  (throttle 15 min via `mkt_kv`); el cron de GitHub es solo respaldo.
+- **Vistas guardadas:** `GET /views?client_id=`, `POST /views`
+  `{name, view_type, client_id|null, config, is_shared?}`,
+  `PATCH /views/:id`, `DELETE /views/:id`. El frontend
+  (`js/services/views.js`) traduce `base/filters` a `view_type/config`.
+- **Cron:** `POST /cron` con `Authorization: Bearer MKT_CRON_SECRET` (rama
+  antes del gate de sesion). Sin el secreto configurado responde 503 y no
+  pasa nada: el lazySweep cubre todo.
+- **Endurecimiento:** las respuestas a rol client usan la allowlist
+  `CLIENT_VISIBLE_FIELDS`; `status`, `grabacion`, `assignee`, `inspo_url`,
+  `priority`, `tags`, `overdue`, `work_start`, `effort_points` y la
+  checklist JAMAS viajan al portal.
 
-4. From then on, the admin (or any `team` user) creates the rest of the team and
-   the client logins via `POST /api/marketing/users`. When you create a user
-   without a password, the API generates a temporary one (`ivae-xxxxx`) and
-   returns it **once** in the response so it can be shared; that user is flagged
-   `must_reset=1` and should change it on first login.
+## Migraciones
 
----
+La base es la MISMA D1 de la galeria. Ruta con espacios: SIEMPRE entre
+comillas.
 
-## Roles & access (enforced server-side)
+```bash
+# 004: 100% idempotente y re-ejecutable (solo CREATE IF NOT EXISTS / INSERT OR IGNORE)
+wrangler d1 execute ivae-gallery-db --remote --file="marketing/migrations/004_enterprise.sql"
 
-The API is the security boundary; the front end is not trusted.
+# 005: los 6 ALTER de mkt_posts (priority, tags, assignee_user_id, overdue,
+# work_start, effort_points). NO es re-ejecutable: si truena con
+# "duplicate column name" es que ya estaba aplicada (inofensivo).
+wrangler d1 execute ivae-gallery-db --remote --file="marketing/migrations/005_posts_v2_columns.sql"
+```
 
-- **admin** — everything: manage clients, team, all posts.
-- **team** — manage all clients + posts; can also invite team members and
-  create client logins.
-- **client** — **read-only** on their own `client_id`'s posts where
-  `client_visible=1`, **except** they may approve / request-changes / comment.
-  A client:
-  - is auto-scoped to their own `client_id` from the session — passing a
-    different `?client_id` returns **403**;
-  - never sees other clients, internal team notes (`notes_team`), or internal
-    comments (`internal=1`) — these are stripped from every client response;
-  - gets **403** on any post create / edit / delete / reorder.
+004 crea: `mkt_notifications`, `mkt_automations` (+seed 8 recetas),
+`mkt_automation_runs`, `mkt_checklist_items`, `mkt_templates`,
+`mkt_saved_views`, `mkt_capacities`, `mkt_kv` (+`tz_offset`), indices
+correctivos y el ledger `mkt_schema_migrations`.
 
-`team`/`admin` may pass `?client_id=` to scope reads.
+## Release escalonado (checklist)
 
----
+El backend es 100% aditivo: cada paso deja el sistema funcionando con el
+paso anterior. Orden obligatorio:
 
-## API contract
+1. **Aplicar 004** (comando arriba). Verificar:
+   `wrangler d1 execute ivae-gallery-db --remote --command="SELECT name FROM mkt_schema_migrations"`.
+2. **Aplicar 005.**
+3. **Secreto `MKT_CRON_SECRET`** (opcional pero recomendado): mismo valor en
+   CF Pages (env vars Production) y en GitHub
+   (`gh secret set MKT_CRON_SECRET`). Sin el, `/cron` responde 503 y el
+   lazySweep sigue siendo el mecanismo primario.
+4. **Limpiar artefactos de construccion antes del push:** borrar
+   `_staging-shell-core/`, `_staging-portal-cliente/` y los `*.bak-pre-*`
+   (NO deben llegar a Pages: todo lo que se commitea se publica).
+5. **Deploy backend + frontend** (mismo push: `[[path]].js`, `_dashboard.js`,
+   los 3 HTML con `?v=4`, `sw.js` v12 y todo `marketing/js|css`). El sw.js
+   v12 debe salir junto con (o antes de) los HTML.
+6. **Smoke tests obligatorios post-deploy** (leccion del hotfix 57431945:
+   el proyecto Pages es COMPARTIDO con la galeria):
+   - **Foto servida desde una galeria PRIVADA / email-gated** (no solo
+     endpoints publicos de galeria).
+   - Login staff (y un usuario con `must_reset`) llega a `/marketing/app`.
+   - Las 7 vistas cargan a 390px; tabla sin colision `.grid` (usa `.etable`).
+   - `GET /api/marketing/notifications` responde 200 con 004 aplicada
+     (y 404 limpio si se prueba un entorno sin 004: la campana se oculta).
+   - Flujo aviso: campana, abrir aviso, llega a `#/post/<id>`, responder.
+   - Portal: login cliente, listar, aprobar un post, pedir cambios con
+     comentario; verificar que la respuesta JSON NO incluye `status` ni
+     `grabacion` ni `assignee` ni `inspo_url`.
+   - PATCH legacy de un post sin campos v2 (compat v1).
+   - Crear/marcar un item de checklist desde el editor.
+7. **Solo despues de verificar TODO:** retirar `js/app.js` y `js/client.js`
+   (hoy quedan muertos en el repo como rollback; ningun HTML los carga).
 
-All endpoints are under `/api/marketing`, return JSON, and use the
-`mkt_session` cookie. Errors return `{ "error": "..." }` with an appropriate
-status (400 / 401 / 403 / 404 / 409 / 500).
+## Rollback
 
-### Auth
-| Method | Path | Body | Notes |
-|---|---|---|---|
-| POST | `/auth/login` | `{email,password}` | Returns `{id,email,name,role,client_id,must_reset}` + `Set-Cookie: mkt_session`. `401` on bad creds, `403` if deactivated. |
-| POST | `/auth/register` | `{name,email,password}` | Only if `email===ADMIN_EMAIL` and no admin exists yet, else `403`. Auto-logs in the first admin. |
-| POST | `/auth/logout` | — | `{ok:true}`, clears the cookie. |
-| GET | `/auth/me` | — | `{id,email,name,role,client_id}` or `401`. |
-| POST | `/auth/change-password` | `{current,next}` | `{ok:true}` for any logged-in user. |
+- **Frontend:** `git revert` de `marketing/app.html`, `marketing/client.html`
+  y `marketing/index.html` completos (el esqueleto v2 cambio: NO basta
+  re-apuntar la linea del script). El legacy `js/app.js` / `js/client.js`
+  sigue intacto en el repo y volveria a funcionar con los HTML viejos.
+  Tambien revertir `marketing/css/app.css` y `marketing/js/api.js` si se
+  quiere el estado v1 exacto (la version v2 es aditiva y no estorba).
+- **Backend:** `git revert` de `functions/api/marketing/[[path]].js` al
+  commit `f0cfec6` (router legacy) y borrar `_dashboard.js`. Las tablas 004
+  y columnas 005 pueden quedarse: el backend v1 las ignora.
+- **SW:** revertir `sw.js` re-cachea `/marketing/*`; mientras el frontend
+  sea v1 con `?v=3` no hay conflicto.
 
-### Clients (admin/team unless noted)
-| Method | Path | Body | Notes |
-|---|---|---|---|
-| GET | `/clients` | — | `[{id,name,slug,brand_color,logo_url,instagram_handle,archived,counts:{posts,pending}}]`. A **client** gets only their own client object. |
-| POST | `/clients` | `{name,brand_color?,instagram_handle?,logo_url?}` | Creates a client; slug is auto-generated and uniqued. |
-| PATCH | `/clients/:id` | `{...fields}` | Updates editable fields. |
-| DELETE | `/clients/:id` | — | Archives (`archived=1`); never hard-deletes. |
+## Desarrollo local
 
-### Users (admin/team only)
-| Method | Path | Body | Notes |
-|---|---|---|---|
-| GET | `/users` | — | `[{id,email,name,role,client_id,active,last_login}]`. |
-| POST | `/users` | `{name,email,role,client_id?,password?}` | `role ∈ {team,client}`; `client` needs `client_id`. If no `password`, one is generated and returned **once** (`{...,password}`) with `must_reset=1`. |
-| PATCH | `/users/:id` | `{name?,active?,role?}` | Only an admin may assign the `admin` role. |
-| POST | `/users/:id/reset-password` | — | `{password}` — generates a new temp password, returns it once, sets `must_reset=1`. |
+```bash
+cd "/Users/ivae/Desktop/WEB IVAE ESTUDIOS PROYECTO/ivae-6-extracted"
+wrangler pages dev . --d1=DB=ivae-gallery-db --local
+# Verificacion rapida de sintaxis de todos los modulos:
+for f in $(find marketing/js functions/api/marketing -name "*.js"); do
+  node --input-type=module --check < "$f" || echo "FALLA: $f"; done
+```
 
-### Posts
-| Method | Path | Body / query | Notes |
-|---|---|---|---|
-| GET | `/posts?client_id=&from=&to=&status=` | — | `[post...]`. Client role auto-scoped + only `client_visible=1`; internal fields (`notes_team`) stripped. |
-| POST | `/posts` | `{client_id,title,...}` | Creates a post (team/admin only). |
-| GET | `/posts/:id` | — | `{post, comments:[...], approvals:[...]}`. Client sees only non-internal comments and a stripped post. |
-| PATCH | `/posts/:id` | `{editable fields}` | Updates (team/admin only; client → 403). |
-| DELETE | `/posts/:id` | — | Deletes (team/admin only). |
-| POST | `/posts/:id/approve` | `{comment?}` | Sets `approval_state='approved'`, logs `mkt_approvals` + activity (client OR team). |
-| POST | `/posts/:id/request-changes` | `{comment}` | Sets `approval_state='changes'` (comment required), logs (client OR team). |
-| POST | `/posts/:id/comments` | `{body, internal?}` | Adds a comment. A client can never set `internal=1`. |
-| POST | `/posts/reorder` | `{updates:[{id,status?,position,publish_date?}]}` | Bulk drag/drop move, applied as a D1 batch (team/admin only). |
-
-**Post object fields:** `id, client_id, title, content_type, grabacion,
-publish_date, assignee, platform, status, caption, inspo_url, video_url, hook,
-body, cta, hashtags, notes_team, client_visible, approval_state, position,
-created_at, updated_at`. For the client role, `notes_team` and any internal
-comments are removed.
-
-### Activity (admin/team only)
-| Method | Path | Notes |
-|---|---|---|
-| GET | `/activity?client_id=&limit=` | Recent activity rows (newest first). `limit` defaults to 50, capped at 200. |
-
-Every mutating action appends an `mkt_activity` row (best-effort; logging
-failures never fail the request).
-
----
-
-## Enums
-
-- **content_type:** `reel, tiktok, informativo, carrusel, experiencia, pauta,
-  tratamientos, historia, foto`
-- **status** (pipeline order): `idea, guion, grabacion, edicion, revision,
-  aprobado, programado, publicado`
-- **grabacion:** `1..5` (recording priority, nullable)
-- **platform:** `Instagram, TikTok, Facebook, YouTube, LinkedIn`
-- **approval_state:** `pending, approved, changes`
-
----
-
-## Notes / constraints
-
-- Vanilla Workers-runtime JS only (Web APIs); no npm, no imports, no build step.
-- All SQL is parameterized (no string interpolation of user input into queries).
-- The function only touches `mkt_*` tables; it does not read or write any
-  gallery table.
-- Do not edit `_redirects` / `_headers` / `sitemap*` for this app — routing for
-  `/marketing/` and `/api/marketing/*` is handled separately by the site owner.
+Probar SIEMPRE primero a 390px (iPhone) y despues a 1024px o mas.

@@ -1,0 +1,72 @@
+/* ============================================================================
+   IVAE Marketing — Design tokens v2 (capa ADITIVA sobre :root de app.css).
+   NO duplica los tokens v1 (colores de marca, superficies, sombras, spacing):
+   solo agrega lo que el shell v2 necesita. Identidad violeta/rosa intacta.
+   ============================================================================ */
+
+:root {
+  /* Alturas del chrome v2 */
+  --topbar-h2: 56px;
+  --subhead-h: 48px;
+  --nav-h: 56px;
+  --offline-h: 28px; /* barra "Sin conexión" (shell.css desplaza el chrome) */
+
+  /* Target tactil minimo universal */
+  --tap: 44px;
+
+  /* Radio de sheets */
+  --sheet-radius: 18px;
+
+  /* Escala tipografica v2 */
+  --fs-1: 12px;
+  --fs-2: 13px;
+  --fs-3: 15px;
+  --fs-4: 17px;
+  --fs-5: 20px;
+  --fs-6: 24px;
+
+  /* Elevaciones v2 (complementan --sh-1..3 del v1) */
+  --e1: 0 1px 2px rgba(8, 5, 18, .35);
+  --e2: 0 4px 14px -4px rgba(8, 5, 18, .45), 0 2px 6px -2px rgba(8, 5, 18, .3);
+  --e3: 0 14px 40px -10px rgba(8, 5, 18, .6), 0 4px 12px -6px rgba(8, 5, 18, .4);
+  --e4: 0 24px 70px -16px rgba(8, 5, 18, .72), 0 8px 24px -10px rgba(8, 5, 18, .5);
+
+  /* Acento del cliente activo (shell.js lo escribe en body.style tras validar
+     hex 3/6/8; fallback al violeta de marca). Solo TINTE: el gradiente IVAE
+     sigue siendo el unico color de accion. */
+  --client-accent: var(--brand);
+  --client-accent-soft: color-mix(in srgb, var(--client-accent) 18%, transparent);
+  --client-accent-line: color-mix(in srgb, var(--client-accent) 35%, transparent);
+
+  /* Z-index v2 (documentados en los huecos de la escala v1:
+     gpop 120, gexpand 130, toast 200, boot 300) */
+  --z-subhead: 15;
+  --z-nav: 90;
+  --z-sheet-backdrop: 138;
+  --z-sheet: 140;
+  --z-search: 150;
+  --z-notif: 160;
+  --z-drag: 190;
+}
+
+/* ── Inputs a 16px en movil (anti auto-zoom de iOS Safari) ─────────────────────
+   Enfocar un control con fuente <16px hace que iOS zoomee TODA la pagina; con
+   topbar y bottom-nav fijos el layout queda zoomeado y con paneo horizontal.
+   Regla aditiva (app.css v1 intacto = rollback limpio): aplica a todos los
+   forms de sheets, pickers, filtros y portal cliente que usan estas clases.
+   NUNCA usar maximum-scale=1 en el viewport: rompe accesibilidad. */
+@media (max-width: 767.98px) {
+  .input, .select, .textarea { font-size: 16px; }
+}
+
+/* ── Densidad compacta (pref de usuario; hook para la vista Tabla) ─────────── */
+[data-density='compact'] {
+  --tap: 40px;
+  --fs-3: 14px;
+  --row-pad: 6px;
+}
+
+/* ── Tema claro: punto de extension declarado, NO se embarca en v1 ─────────── */
+[data-theme='light'] {
+  /* Reservado. El shell no lo activa todavia. */
+}
