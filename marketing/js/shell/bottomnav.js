@@ -69,7 +69,12 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
     onTap: () => openNotifications(tabAvisos),
   });
 
-  clear(root).append(tabInicio, tabContenido, tabTrabajo, tabAvisos);
+  // El cliente solo ve Contenido (su calendario) + Avisos. Sin Inicio ni Mi trabajo.
+  if ((store.getState().me || {}).role === 'client') {
+    clear(root).append(tabContenido, tabAvisos);
+  } else {
+    clear(root).append(tabInicio, tabContenido, tabTrabajo, tabAvisos);
+  }
 
   // ── Parches quirurgicos ────────────────────────────────────────────────────
   function patchActive() {

@@ -44,7 +44,10 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
 
   const tabsWrap = el('nav', { class: 'tb-tabs', 'aria-label': 'Vistas' });
   const tabBtns = new Map();
-  for (const t of DESKTOP_TABS) {
+  // El cliente solo ve las dos vistas de calendario.
+  const isClient = ((store.getState().me || {}).role === 'client');
+  const visibleTabs = isClient ? DESKTOP_TABS.filter((t) => t.id === 'meses' || t.id === 'calendario') : DESKTOP_TABS;
+  for (const t of visibleTabs) {
     const b = el('button', {
       class: 'tb-tab', type: 'button', text: t.label,
       onclick: () => {

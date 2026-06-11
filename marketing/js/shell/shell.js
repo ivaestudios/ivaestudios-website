@@ -36,6 +36,10 @@ import * as dnd from '../ui/dnd.js';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
+// El cliente solo ve las vistas de calendario (Calendario = meses,
+// Cuadrícula = calendario). Nada de Inicio/Tablero/Tabla/Timeline/Carga.
+const CLIENT_VIEWS = ['meses', 'calendario'];
+const isClientRole = () => ((store.getState().me || {}).role === 'client');
 const CONTENT_LABELS = {
   meses: 'Calendario',
   calendario: 'Cuadrícula',
@@ -144,7 +148,8 @@ function updateSubhead() {
 
 function buildSubhead(root) {
   subheadSeg = el('div', { class: 'seg subhead-seg', role: 'tablist', 'aria-label': 'Vista de contenido' });
-  for (const v of CONTENT_VIEWS) {
+  const segViews = isClientRole() ? CONTENT_VIEWS.filter((v) => CLIENT_VIEWS.includes(v)) : CONTENT_VIEWS;
+  for (const v of segViews) {
     const label = CONTENT_LABELS[v] || v;
     subheadSeg.appendChild(el('button', {
       type: 'button', role: 'tab', dataset: { view: v }, text: label,
@@ -316,6 +321,12 @@ export async function boot() {
     fallback: 'tablero',
     onUnknownView: () => toast('Esa vista no existe. Te llevamos al tablero.', { type: 'info' }),
     onBeforeMount(view, params, { paramsOnly }) {
+      // El cliente solo entra a las vistas de calendario (+ editor de post via
+      // deep-link). Cualquier otra vista lo regresa a su Calendario.
+      if (isClientRole() && !CLIENT_VIEWS.includes(view) && view !== 'post') {
+        router.navigate('meses', params.cliente ? { cliente: params.cliente } : {});
+        return;
+      }
       // Coherencia de cliente: la URL manda. La validez se calcula con el
       // estado VIVO (store.clients), no con el Set del boot: clientes creados
       // despues (switcher u otra sesion) tambien cuentan para deep-links.
