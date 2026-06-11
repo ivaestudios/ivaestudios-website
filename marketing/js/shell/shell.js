@@ -37,7 +37,8 @@ import * as dnd from '../ui/dnd.js';
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
 const CONTENT_LABELS = {
-  calendario: 'Calendario',
+  meses: 'Calendario',
+  calendario: 'Cuadrícula',
   tablero: 'Tablero',
   tabla: 'Tabla',
   timeline: 'Timeline',

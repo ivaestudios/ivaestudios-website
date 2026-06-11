@@ -22,7 +22,8 @@ const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
 
 const DESKTOP_TABS = [
   { id: 'inicio', label: 'Inicio' },
-  { id: 'calendario', label: 'Calendario' },
+  { id: 'meses', label: 'Calendario' },
+  { id: 'calendario', label: 'Cuadrícula' },
   { id: 'tablero', label: 'Tablero' },
   { id: 'tabla', label: 'Tabla' },
   { id: 'timeline', label: 'Timeline' },

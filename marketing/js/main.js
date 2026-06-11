@@ -91,7 +91,10 @@ function lazyView({ id, label, icon: iconName, loader }) {
 
 // ── Registro de vistas (ids en espanol = rutas hash) ─────────────────────────
 lazyView({ id: 'inicio', label: 'Inicio', icon: 'home', loader: () => import('./views/dashboard.js') });
-lazyView({ id: 'calendario', label: 'Calendario', icon: 'calendar', loader: () => import('./calendar/index.js') });
+// Meses: la pantalla principal por marca (flujo Notion de la duena: secciones
+// por mes desplegables + tabla con sus columnas + nueva linea inline).
+lazyView({ id: 'meses', label: 'Calendario', icon: 'calendar', loader: () => import('./views/meses.js') });
+lazyView({ id: 'calendario', label: 'Cuadrícula', icon: 'grip', loader: () => import('./calendar/index.js') });
 lazyView({ id: 'tablero', label: 'Tablero', icon: 'board', loader: () => import('./views/kanban.js') });
 lazyView({ id: 'tabla', label: 'Tabla', icon: 'table', loader: () => import('./views/table.js') });
 lazyView({ id: 'timeline', label: 'Timeline', icon: 'gantt', loader: () => import('./views/timeline.js') });

@@ -57,6 +57,16 @@ const LEGACY_VIEW_MAP = { calendar: 'calendario', board: 'tablero', list: 'tabla
  * NO borra mkt.view / mkt.client: el rollback instantaneo al v3 las necesita.
  */
 export function migrate() {
+  // 2026-06-10: la vista Meses (flujo Notion) pasa a ser la pantalla principal.
+  // Reset UNICO de las vistas recordadas para que todos aterricen ahi una vez.
+  if (!get('mesesIntro')) {
+    set('mesesIntro', true);
+    set('lastViewDefault', 'meses');
+    try {
+      const pre = ns('lastView.');
+      Object.keys(localStorage).filter((k) => k.startsWith(pre)).forEach((k) => localStorage.removeItem(k));
+    } catch { /* sin storage: nada que resetear */ }
+  }
   if (get('migrated', false)) return;
   try {
     const legacyClient = localStorage.getItem('mkt.client');
@@ -77,12 +87,12 @@ export function migrate() {
  * Vistas de contenido por cliente (lista CANONICA: la consumen el seg del
  * subhead en shell.js, el tab Contenido del bottom-nav y este whitelist).
  */
-export const CONTENT_VIEWS = ['calendario', 'tablero', 'tabla', 'timeline', 'carga'];
+export const CONTENT_VIEWS = ['meses', 'calendario', 'tablero', 'tabla', 'timeline', 'carga'];
 
 /** Ultima vista de contenido usada para un cliente (whitelist CONTENT_VIEWS). */
 export function lastContentView(clientId) {
-  const v = get(`lastView.${clientId}`) || get('lastViewDefault') || 'tablero';
-  return CONTENT_VIEWS.includes(v) ? v : 'tablero';
+  const v = get(`lastView.${clientId}`) || get('lastViewDefault') || 'meses';
+  return CONTENT_VIEWS.includes(v) ? v : 'meses';
 }
 
 export function setLastContentView(clientId, view) {
