@@ -1338,3 +1338,13 @@ textarea.gedit { resize: vertical; min-height: 70px; line-height: 1.45; }
 .cred-row__main { flex: 1; min-width: 0; }
 .cred-row__label { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-mute); }
 .cred-row__value { font-size: 14px; color: var(--text-1, #fff); word-break: break-all; }
+
+/* ── Anti auto-zoom de iOS (movil) ──────────────────────────────────────────
+   Safari/iOS hace zoom a toda la pagina al enfocar un campo con fuente menor
+   a 16px (y la deja "resizada"). En movil TODOS los campos de texto van a
+   16px: cubre el caption (14.5px), la edicion inline (13px), los formularios
+   de sheets (14px) y el login. !important para ganarle a los selectores
+   especificos de cada vista. */
+@media (max-width: 767px) {
+  input, select, textarea { font-size: 16px !important; }
+}

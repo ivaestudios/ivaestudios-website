@@ -823,6 +823,10 @@
 @media (max-width: 767px) {
   .meses-drawer { width: 100vw; }
   .meses-drawer__hint { display: none; }
+  /* iPhone: el pie del drawer no debe quedar bajo el home bar. */
+  .meses-drawer__foot { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+  /* El caption se lee mejor con un poco mas de aire en pantalla chica. */
+  .meses-drawer__ta { line-height: 1.55; }
 }
 
 /* ── Filtro integrado en el encabezado (estilo Excel) ───────────────────────── */
