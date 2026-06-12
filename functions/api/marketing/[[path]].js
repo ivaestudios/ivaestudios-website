@@ -42,7 +42,10 @@
 // 404 ("No disponible") and everything legacy keeps working.
 
 import { handleDashboard } from './_dashboard.js';
-import { handleAiAssist, handleCalendarIcs, handleDuplicateMonth } from './_enterprise.js';
+import {
+  handleAiAssist, handleCalendarIcs, handleDuplicateMonth,
+  handleTemplates, handleMonthlyReport, sendClientReviewEmail,
+} from './_enterprise.js';
 
 // ============================================================================
 // CRYPTO / UTILITY HELPERS  (copied VERBATIM from the gallery function)
@@ -673,7 +676,7 @@ async function handlePatchClient(request, env, session, clientId) {
 
   let bodyObj;
   try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
-  const allowed = ['name', 'brand_color', 'logo_url', 'instagram_handle', 'timezone', 'notes', 'archived'];
+  const allowed = ['name', 'brand_color', 'logo_url', 'instagram_handle', 'timezone', 'notes', 'archived', 'contact_email'];
   const sets = [];
   const vals = [];
   for (const f of allowed) {
@@ -1058,6 +1061,8 @@ async function hookPatchPost(env, session, before, after, bodyObj) {
       body: `${after.title} pasó a Revisión y espera al cliente`,
       link, post_id: after.id, client_id: after.client_id, actor_name: session.name
     });
+    // Aviso por correo al cliente (no-op sin RESEND_API_KEY; nunca truena).
+    try { await sendClientReviewEmail(env, after); } catch { /* noop */ }
   }
 }
 
@@ -2822,6 +2827,17 @@ async function route(request, env) {
   }
 
   // ── EXPORTAR CALENDARIO .ics (staff o cliente; el cliente va forzado a SU marca) ──
+  // ── TEMPLATES (plantillas de mes; solo staff) ──
+  if (parts[0] === 'templates') {
+    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    return handleTemplates(request, env, session, parts, method);
+  }
+
+  // Reporte mensual del cliente (HTML imprimible; cliente forzado a su marca).
+  if (path === '/report' && method === 'GET') {
+    return handleMonthlyReport(request, env, session, url);
+  }
+
   if (path === '/calendar.ics' && method === 'GET') {
     return handleCalendarIcs(request, env, session, url);
   }

@@ -233,6 +233,264 @@ export async function handleCalendarIcs(request, env, session, url) {
   });
 }
 
+// ── Plantillas de mes (snapshot reutilizable, estilo Monday templates) ──────
+// POST /templates {name, client_id, from} — guardar un mes como plantilla.
+// GET /templates — listar. DELETE /templates/:id — borrar.
+// POST /templates/:id/apply {client_id, to} — sembrar un mes desde plantilla.
+
+const TPL_FIELDS = ['title', 'content_type', 'platform', 'caption', 'hook', 'body', 'cta', 'hashtags', 'notes_team', 'grabacion', 'client_visible'];
+
+export async function handleTemplates(request, env, session, parts, method) {
+  try {
+    // GET /templates
+    if (parts.length === 1 && method === 'GET') {
+      const res = await env.DB.prepare('SELECT id, name, data, created_at FROM mkt_month_templates ORDER BY created_at DESC').all();
+      const rows = (res.results || []).map((t) => {
+        let n = 0;
+        try { n = (JSON.parse(t.data) || []).length; } catch { /* noop */ }
+        return { id: t.id, name: t.name, count: n, created_at: t.created_at };
+      });
+      return json({ templates: rows });
+    }
+
+    // POST /templates — snapshot de un mes
+    if (parts.length === 1 && method === 'POST') {
+      let b; try { b = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+      const name = String((b && b.name) || '').trim().slice(0, 80);
+      const clientId = b && b.client_id;
+      const from = String((b && b.from) || '');
+      if (!name || !clientId || !/^\d{4}-\d{2}$/.test(from)) {
+        return json({ error: 'name, client_id y from (AAAA-MM) son requeridos' }, 400);
+      }
+      const res = await env.DB.prepare(
+        'SELECT * FROM mkt_posts WHERE client_id = ? AND publish_date LIKE ? ORDER BY publish_date, position'
+      ).bind(clientId, `${from}-%`).all();
+      const posts = res.results || [];
+      if (!posts.length) return json({ error: 'Ese mes no tiene contenidos' }, 400);
+      const data = posts.map((p) => {
+        const row = { day: Number(String(p.publish_date).slice(8, 10)) || 1 };
+        for (const f of TPL_FIELDS) row[f] = p[f];
+        return row;
+      });
+      const r = await env.DB.prepare(
+        'INSERT INTO mkt_month_templates (name, created_by, data) VALUES (?, ?, ?) RETURNING id'
+      ).bind(name, session.user_id, JSON.stringify(data)).first();
+      return json({ ok: true, id: r && r.id, name, count: data.length }, 201);
+    }
+
+    // DELETE /templates/:id
+    if (parts.length === 2 && method === 'DELETE') {
+      await env.DB.prepare('DELETE FROM mkt_month_templates WHERE id = ?').bind(parts[1]).run();
+      return json({ ok: true });
+    }
+
+    // POST /templates/:id/apply
+    if (parts.length === 3 && parts[2] === 'apply' && method === 'POST') {
+      let b; try { b = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+      const clientId = b && b.client_id;
+      const to = String((b && b.to) || '');
+      if (!clientId || !/^\d{4}-\d{2}$/.test(to)) return json({ error: 'client_id y to (AAAA-MM) son requeridos' }, 400);
+      const client = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(clientId).first();
+      if (!client) return json({ error: 'Cliente no encontrado' }, 404);
+      const tpl = await env.DB.prepare('SELECT * FROM mkt_month_templates WHERE id = ?').bind(parts[0] === 'templates' ? parts[1] : parts[0]).first();
+      if (!tpl) return json({ error: 'Plantilla no encontrada' }, 404);
+      let items;
+      try { items = JSON.parse(tpl.data) || []; } catch { return json({ error: 'Plantilla corrupta' }, 500); }
+      if (!items.length) return json({ error: 'La plantilla está vacía' }, 400);
+
+      const [ty, tm] = to.split('-').map(Number);
+      const lastDay = new Date(ty, tm, 0).getDate();
+      let created = 0;
+      for (const it of items) {
+        const day = Math.min(Math.max(Number(it.day) || 1, 1), lastDay);
+        const date = `${to}-${String(day).padStart(2, '0')}`;
+        await env.DB.prepare(
+          `INSERT INTO mkt_posts (id, client_id, title, content_type, grabacion, publish_date,
+             platform, status, caption, hook, body, cta, hashtags, notes_team,
+             client_visible, approval_state, position, created_by)
+           VALUES (lower(hex(randomblob(16))), ?, ?, ?, ?, ?, ?, 'idea', ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`
+        ).bind(
+          clientId, it.title || 'Contenido', it.content_type || 'reel', it.grabacion ?? null, date,
+          it.platform || 'instagram', it.caption ?? null, it.hook ?? null, it.body ?? null,
+          it.cta ?? null, it.hashtags ?? null, it.notes_team ?? null,
+          it.client_visible ?? 1, created, session.user_id
+        ).run();
+        created += 1;
+      }
+      return json({ ok: true, created, to });
+    }
+  } catch (e) {
+    if (/no such table/i.test((e && e.message) || '')) return json({ error: 'Migracion 007 pendiente' }, 409);
+    throw e;
+  }
+  return json({ error: 'Method not allowed' }, 405);
+}
+
+// ── Aviso por correo al cliente (Resend) ────────────────────────────────────
+// Se dispara cuando un contenido pasa a Revisión visible para el cliente.
+// Sin RESEND_API_KEY no hace nada (la app sigue normal). Destinatarios:
+// contact_email de la marca + usuarios cliente con correo real (@).
+// Incluye el link mágico si existe, para aprobar sin contraseña.
+
+export async function sendClientReviewEmail(env, post) {
+  if (!env.RESEND_API_KEY) return { skipped: 'sin RESEND_API_KEY' };
+  try {
+    const client = await env.DB.prepare('SELECT * FROM mkt_clients WHERE id = ?').bind(post.client_id).first();
+    if (!client) return { skipped: 'sin cliente' };
+
+    const users = await env.DB.prepare(
+      "SELECT email FROM mkt_users WHERE role = 'client' AND client_id = ? AND active = 1"
+    ).bind(post.client_id).all();
+    const to = [...new Set([
+      ...(client.contact_email && client.contact_email.includes('@') ? [client.contact_email.trim()] : []),
+      ...((users.results || []).map((u) => u.email).filter((e) => e && e.includes('@'))),
+    ])];
+    if (!to.length) return { skipped: 'sin correos de cliente' };
+
+    const base = env.MKT_PUBLIC_ORIGIN || 'https://ivaestudios.com';
+    const link = client.share_token
+      ? `${base}/api/marketing/share/${client.share_token}`
+      : `${base}/marketing/`;
+    const fecha = post.publish_date ? ` (programado para el ${post.publish_date})` : '';
+
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      signal: (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) ? AbortSignal.timeout(15000) : undefined,
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.RESEND_API_KEY}` },
+      body: JSON.stringify({
+        from: env.RESEND_FROM || 'IVAE Marketing <info@ivaestudios.com>',
+        to,
+        subject: `Tienes contenido por aprobar — ${client.name}`,
+        text: [
+          `Hola,`,
+          ``,
+          `"${post.title || 'Nuevo contenido'}"${fecha} está listo para tu revisión.`,
+          ``,
+          `Entra aquí para verlo y aprobarlo:`,
+          link,
+          ``,
+          `— IVAE Marketing`,
+        ].join('\n'),
+      }),
+    });
+    if (!r.ok) return { skipped: `resend ${r.status}` };
+    return { sent: to.length };
+  } catch (e) {
+    return { skipped: (e && e.message) || 'error' };
+  }
+}
+
+// ── Reporte mensual del cliente (imprimible / compartible) ──────────────────
+// GET /report?client_id&month=YYYY-MM — HTML con el branding de la marca.
+
+const REP_MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const REP_STATUS = {
+  idea: 'Idea', guion: 'Guion', grabacion: 'Grabación', edicion: 'Edición',
+  revision: 'Revisión', aprobado: 'Aprobado', programado: 'Programado', publicado: 'Publicado',
+};
+
+function esc(s) {
+  return String(s || '').replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
+export async function handleMonthlyReport(request, env, session, url) {
+  let clientId = url.searchParams.get('client_id') || '';
+  if (session.role === 'client') clientId = session.client_id;
+  const month = String(url.searchParams.get('month') || '');
+  if (!clientId || !/^\d{4}-\d{2}$/.test(month)) {
+    return new Response('client_id y month (AAAA-MM) requeridos', { status: 400 });
+  }
+  const client = await env.DB.prepare('SELECT * FROM mkt_clients WHERE id = ?').bind(clientId).first();
+  if (!client) return new Response('Cliente no encontrado', { status: 404 });
+
+  const res = await env.DB.prepare(
+    'SELECT * FROM mkt_posts WHERE client_id = ? AND publish_date LIKE ? ORDER BY publish_date, position'
+  ).bind(clientId, `${month}-%`).all();
+  const posts = res.results || [];
+
+  const [y, m] = month.split('-').map(Number);
+  const label = `${REP_MONTHS[(m || 1) - 1]} ${y}`;
+  const accent = /^#[0-9a-fA-F]{3,8}$/.test(client.brand_color || '') ? client.brand_color : '#7c3aed';
+  const byType = {};
+  let publicados = 0;
+  for (const p of posts) {
+    const t = p.content_type || 'otro';
+    byType[t] = (byType[t] || 0) + 1;
+    if (p.status === 'publicado') publicados += 1;
+  }
+  const plural = { reel: 'reels', foto: 'fotos', carrusel: 'carruseles', historia: 'historias' };
+  const typeChips = Object.entries(byType)
+    .map(([t, n]) => `<span class="chip">${n} ${esc(n === 1 ? t : (plural[t] || t))}</span>`).join('');
+
+  const rows = posts.map((p) => `
+    <article class="post">
+      <div class="post__head">
+        <span class="post__date">${esc(String(p.publish_date).slice(8, 10))} ${esc(REP_MONTHS[(m || 1) - 1]).slice(0, 3)}</span>
+        <span class="post__type">${esc(p.content_type || 'post')}</span>
+        <span class="post__status" data-s="${esc(p.status)}">${esc(REP_STATUS[p.status] || p.status || '')}</span>
+      </div>
+      <h3>${esc(p.title || 'Sin título')}</h3>
+      ${p.caption ? `<p class="post__cap">${esc(String(p.caption).slice(0, 400))}${String(p.caption).length > 400 ? '…' : ''}</p>` : ''}
+    </article>`).join('\n');
+
+  const html = `<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Reporte ${esc(label)} · ${esc(client.name)}</title>
+<style>
+  :root { --accent: ${accent}; }
+  * { box-sizing: border-box; margin: 0; }
+  body { font: 15px/1.55 -apple-system, 'Segoe UI', Roboto, sans-serif; color: #1a1a24; background: #f6f6f9; padding: 0 0 48px; }
+  .band { height: 8px; background: var(--accent); }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 28px 20px; }
+  header.rep { display: flex; align-items: center; gap: 16px; margin-bottom: 6px; }
+  header.rep img { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; }
+  header.rep .logo-fallback { width: 56px; height: 56px; border-radius: 12px; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 24px; font-weight: 800; }
+  h1 { font-size: 22px; } .sub { color: #666; margin-bottom: 20px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+  .chip { background: #fff; border: 1px solid #e3e3ec; border-radius: 999px; padding: 6px 14px; font-size: 13px; font-weight: 600; }
+  .chip--hero { background: var(--accent); color: #fff; border-color: transparent; }
+  .post { background: #fff; border: 1px solid #e7e7f0; border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; break-inside: avoid; }
+  .post__head { display: flex; gap: 10px; align-items: center; font-size: 12.5px; margin-bottom: 6px; }
+  .post__date { font-weight: 700; color: var(--accent); text-transform: uppercase; }
+  .post__type { text-transform: uppercase; letter-spacing: .04em; color: #888; font-weight: 700; }
+  .post__status { margin-left: auto; font-weight: 600; color: #555; background: #f0f0f6; border-radius: 999px; padding: 2px 10px; }
+  .post__status[data-s="publicado"], .post__status[data-s="aprobado"] { background: #e5f7ec; color: #177245; }
+  h3 { font-size: 16px; margin-bottom: 4px; }
+  .post__cap { color: #555; font-size: 13.5px; white-space: pre-wrap; }
+  footer { margin-top: 30px; text-align: center; color: #999; font-size: 12.5px; }
+  .printbtn { position: fixed; right: 18px; bottom: 18px; background: var(--accent); color: #fff; border: 0; border-radius: 999px; padding: 12px 20px; font: inherit; font-weight: 700; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+  @media print { .printbtn { display: none; } body { background: #fff; } .post { border-color: #ddd; } }
+</style></head><body>
+<div class="band"></div>
+<div class="wrap">
+  <header class="rep">
+    ${client.logo_url ? `<img src="${esc(client.logo_url)}" alt="">` : `<div class="logo-fallback">${esc((client.name || '?').charAt(0).toUpperCase())}</div>`}
+    <div>
+      <h1>${esc(client.name)}</h1>
+      <div class="sub">Reporte de contenido · ${esc(label.charAt(0).toUpperCase() + label.slice(1))}</div>
+    </div>
+  </header>
+  <div class="stats">
+    <span class="chip chip--hero">${posts.length} contenidos</span>
+    <span class="chip">${publicados} publicados</span>
+    ${typeChips}
+  </div>
+  ${rows || '<p style="color:#888">Este mes no tiene contenidos.</p>'}
+  <footer>Generado por IVAE Marketing · ivaestudios.com</footer>
+</div>
+<button class="printbtn" onclick="print()">Imprimir / PDF</button>
+</body></html>`;
+
+  return new Response(html, {
+    headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' },
+  });
+}
+
 // ── Duplicar mes (plantillas de mes estilo Monday) ───────────────────────────
 // POST /posts/duplicate-month  { client_id, from: 'YYYY-MM', to: 'YYYY-MM' }
 // Copia las filas del mes origen al destino conservando el día (recortado al
