@@ -67,6 +67,25 @@ function currentMonth() {
   return todayISO().slice(0, 7);
 }
 
+/**
+ * Mes inicial de Inicio: HOY si tiene contenido (o si no hay datos aún);
+ * si HOY está vacío, el mes con posts más cercano hacia adelante (o el
+ * último con contenido). Evita aterrizar en un dashboard vacío cuando
+ * todo el contenido vive en el mes siguiente.
+ */
+function initialMonth(c) {
+  const today = currentMonth();
+  try {
+    const posts = (c.store.getState().posts || []).filter((p) => p.publish_date);
+    if (!posts.length) return today;
+    const months = [...new Set(posts.map((p) => String(p.publish_date).slice(0, 7)))].sort();
+    if (months.includes(today)) return today;
+    return months.find((m) => m > today) || months[months.length - 1];
+  } catch {
+    return today;
+  }
+}
+
 function shiftMonthStr(month, delta) {
   const d = addMonths(parseISO(`${month}-01`), delta);
   return d ? toISO(d).slice(0, 7) : month;
@@ -570,7 +589,7 @@ export default {
 
   mount(host, c) {
     ctx = c;
-    dmonth = currentMonth(); // decision deliberada: Inicio siempre abre en HOY
+    dmonth = initialMonth(c); // HOY, o el mes con contenido más cercano si HOY está vacío
     dataState = { data: null, loading: false, error: null };
 
     buildHead();

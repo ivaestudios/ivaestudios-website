@@ -1005,6 +1005,141 @@ async function openDuplicateMonth() {
   }
 }
 
+// Generar con IA los captions de TODO el mes activo (solo los que están
+// vacíos), uno por uno con progreso visible. Estilo "columna IA" de Monday.
+function openBulkCaptions() {
+  const { activeClientId, posts } = ctx.store.getState();
+  if (!activeClientId || activeClientId === 'todos' || !activeMonth || activeMonth === SIN_MES) return;
+  const pending = (posts || []).filter((p) =>
+    String(p.publish_date || '').startsWith(activeMonth) && !String(p.caption || '').trim());
+  if (!pending.length) {
+    ctx.toast('Todos los contenidos de este mes ya tienen caption. ✨', { type: 'info' });
+    return;
+  }
+  let cancelled = false;
+  ctx.sheet.openSheet({
+    title: '✨ Captions del mes con IA',
+    mode: 'form',
+    onClose: () => { cancelled = true; },
+    build(body, close) {
+      const prog = el('p', { class: 'meses-confirm__txt', text: '' });
+      const goBtn = el('button', {
+        class: 'btn btn-primary sheet-cta', type: 'button',
+        text: `✨ Generar ${pending.length} caption${pending.length === 1 ? '' : 's'}`,
+      });
+      const cancelBtn = el('button', {
+        class: 'btn', type: 'button', text: 'Cancelar',
+        onclick: () => { cancelled = true; close({ source: 'cancel' }); },
+      });
+      goBtn.onclick = async () => {
+        goBtn.disabled = true;
+        goBtn.textContent = 'Generando…';
+        let ok = 0; let fail = 0;
+        for (let i = 0; i < pending.length; i++) {
+          if (cancelled) break;
+          const p = pending[i];
+          prog.textContent = `${i + 1}/${pending.length} — ${p.title || 'Sin título'}…`;
+          try {
+            const r = await fetch(`/api/marketing/posts/${p.id}/ai`, {
+              method: 'POST', credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action: 'caption' }),
+            });
+            const data = await r.json().catch(() => ({}));
+            if (!r.ok || !data.text) throw new Error(data.error || 'sin texto');
+            await ctx.store.patchPost(p.id, { caption: data.text });
+            ok += 1;
+          } catch {
+            fail += 1;
+          }
+        }
+        close({ source: 'done' });
+        ctx.toast(
+          fail ? `${ok} captions generados, ${fail} fallaron.` : `${ok} captions generados. Revísalos y edítalos a tu gusto. ✨`,
+          { type: fail ? 'info' : 'success' }
+        );
+      };
+      body.append(
+        el('p', {
+          class: 'meses-confirm__txt',
+          text: `La IA escribirá un caption para los ${pending.length} contenidos sin caption de ${capitalize(monthLabel(activeMonth))}, uno por uno. Después tú los revisas y editas.`,
+        }),
+        prog,
+        el('div', { class: 'sheet__footer' }, [cancelBtn, goBtn]),
+      );
+    },
+  });
+}
+
+// Link mágico del cliente: entra a su panel SIN contraseña. Rotable/revocable.
+function openShareLink() {
+  const { activeClientId, clients } = ctx.store.getState();
+  if (!activeClientId || activeClientId === 'todos') return;
+  const brand = (clients || []).find((c) => c.id === activeClientId);
+  const base = `/api/marketing/clients/${activeClientId}/share-link`;
+  const urlOf = (t) => `${location.origin}/api/marketing/share/${t}`;
+
+  ctx.sheet.openSheet({
+    title: `🔗 Link de ${(brand && brand.name) || 'cliente'}`,
+    mode: 'form',
+    build(body, close) {
+      const input = el('input', { class: 'input meses-sharelink__input', readonly: '', value: 'Cargando…' });
+      const copyBtn = el('button', {
+        class: 'btn btn-primary sheet-cta', type: 'button', text: 'Copiar link',
+        onclick: async () => {
+          try {
+            await navigator.clipboard.writeText(input.value);
+            ctx.toast('Link copiado. Mándaselo por WhatsApp. 📲', { type: 'success' });
+          } catch {
+            input.select();
+            document.execCommand('copy');
+            ctx.toast('Link copiado.', { type: 'success' });
+          }
+        },
+      });
+      const rotateBtn = el('button', {
+        class: 'btn', type: 'button', text: 'Generar nuevo',
+        title: 'Crea un link nuevo; el anterior deja de funcionar',
+        onclick: async () => {
+          rotateBtn.disabled = true;
+          const r = await fetch(base, { method: 'POST', credentials: 'include' });
+          const d = await r.json().catch(() => ({}));
+          rotateBtn.disabled = false;
+          if (r.ok && d.token) { input.value = urlOf(d.token); ctx.toast('Link nuevo generado. El anterior ya no sirve.', { type: 'success' }); }
+          else ctx.toast(d.error || 'No se pudo generar.', { type: 'error' });
+        },
+      });
+      const revokeBtn = el('button', {
+        class: 'btn btn-danger', type: 'button', text: 'Revocar',
+        title: 'Desactiva el link; el cliente vuelve a necesitar contraseña',
+        onclick: async () => {
+          const r = await fetch(base, { method: 'DELETE', credentials: 'include' });
+          if (r.ok) { close({ source: 'revoke' }); ctx.toast('Link revocado.', { type: 'success' }); }
+        },
+      });
+      body.append(
+        el('p', {
+          class: 'meses-confirm__txt',
+          text: 'Con este link tu cliente entra directo a su calendario, sin usuario ni contraseña. Cualquiera con el link puede entrar: compártelo solo con tu cliente.',
+        }),
+        input,
+        el('div', { class: 'sheet__footer' }, [revokeBtn, rotateBtn, copyBtn]),
+      );
+      // Cargar el token actual; si no existe, crear uno al vuelo.
+      (async () => {
+        let r = await fetch(base, { credentials: 'include' });
+        let d = await r.json().catch(() => ({}));
+        if (r.ok && !d.token) {
+          r = await fetch(base, { method: 'POST', credentials: 'include' });
+          d = await r.json().catch(() => ({}));
+        }
+        if (r.ok && d.token) input.value = urlOf(d.token);
+        else { input.value = ''; ctx.toast(d.error || 'No se pudo cargar el link.', { type: 'error' }); }
+      })();
+    },
+  });
+}
+
 // ── Secciones ────────────────────────────────────────────────────────────────
 
 function toggleSection(secEl, key) {
@@ -1399,7 +1534,17 @@ function render() {
         class: 'meses-addmonth meses-dupmonth', type: 'button',
         onclick: () => openDuplicateMonth(),
       }, [icon('copy', 16), el('span', { text: `Duplicar ${capitalize(monthLabel(activeMonth))} a…` })]));
+      // IA en lote: captions para todo el mes (estilo columna IA de Monday).
+      sectionsEl.appendChild(el('button', {
+        class: 'meses-addmonth meses-bulkai', type: 'button',
+        onclick: () => openBulkCaptions(),
+      }, [icon('spark', 16), el('span', { text: 'Captions del mes con IA' })]));
     }
+    // Link mágico: el cliente entra sin contraseña.
+    sectionsEl.appendChild(el('button', {
+      class: 'meses-addmonth meses-sharelink', type: 'button',
+      onclick: () => openShareLink(),
+    }, [icon('link', 16), el('span', { text: 'Link del cliente (sin contraseña)' })]));
   }
   // Exportar a Google/Apple Calendar (.ics) — admin Y cliente.
   if (!isTodos && activeClientId) {

@@ -215,6 +215,14 @@
   .meses-icslink { min-height: 44px; padding: 10px 12px; }
 }
 
+/* Input del link mágico (sheet): ancho completo, seleccionable de un tap */
+.meses-sharelink__input {
+  width: 100%; margin: 4px 0 2px;
+  font-size: 13px; color: var(--text-dim);
+  overflow: hidden; text-overflow: ellipsis;
+}
+@media (max-width: 767px) { .meses-sharelink__input { font-size: 16px; } }
+
 .meses-item__main {
   display: flex;
   align-items: center;
