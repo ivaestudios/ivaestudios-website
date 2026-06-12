@@ -179,6 +179,36 @@
 /* Texto del dialogo de confirmacion de borrado. */
 .meses-confirm__txt { margin: 0 0 4px; color: var(--text-mute); line-height: 1.5; }
 
+/* ── Barra de IA del caption (drawer; solo staff) ── */
+.meses-ai {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+  padding: 10px 20px 4px;
+}
+.meses-ai__btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  min-height: 32px; padding: 4px 11px;
+  background: color-mix(in srgb, var(--brand, #a855f7) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--brand, #a855f7) 35%, transparent);
+  border-radius: 999px; color: var(--text);
+  font: inherit; font-size: var(--fs-1); font-weight: 600; cursor: pointer;
+  transition: background var(--t-fast);
+}
+.meses-ai__btn:hover { background: color-mix(in srgb, var(--brand, #a855f7) 24%, transparent); }
+.meses-ai__btn:disabled { opacity: .5; cursor: wait; }
+.meses-ai__btn.is-busy { animation: meses-ai-pulse 1s ease-in-out infinite; }
+@keyframes meses-ai-pulse { 50% { opacity: .55; } }
+.meses-ai__status { font-size: var(--fs-1); color: var(--text-mute); margin-left: 4px; }
+
+/* ── Acciones bajo la tabla: duplicar mes + exportar .ics ── */
+.meses-dupmonth { margin-top: 6px; }
+.meses-icslink {
+  display: inline-flex; align-items: center; gap: 7px;
+  margin-top: 12px; padding: 8px 10px;
+  color: var(--text-mute); font-size: var(--fs-2); text-decoration: none;
+  border-radius: var(--r-sm);
+}
+.meses-icslink:hover { color: var(--text); background: var(--surface-2); text-decoration: none; }
+
 .meses-item__main {
   display: flex;
   align-items: center;

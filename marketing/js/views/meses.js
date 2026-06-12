@@ -377,6 +377,52 @@ function openCaptionDrawer(post) {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); save(); }
   });
 
+  // ── Barra de IA (solo staff: consume créditos de la agencia) ──
+  // Generar/Mejorar/Traducir reemplazan el texto del textarea (NO guardan:
+  // Vianey revisa y da Guardar). Hashtags se anexan al final.
+  let aiBar = null;
+  if (!document.body.classList.contains('is-client')) {
+    const aiStatus = el('span', { class: 'meses-ai__status', text: '' });
+    const runAi = async (action, btn) => {
+      const bar = aiBar;
+      try {
+        bar.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+        btn.classList.add('is-busy');
+        aiStatus.textContent = 'Pensando…';
+        const r = await fetch(`/api/marketing/posts/${post.id}/ai`, {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action, text: action === 'improve' || action === 'translate' ? ta.value : '' }),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.error || 'Error de IA');
+        if (action === 'hashtags') {
+          ta.value = (ta.value ? ta.value.replace(/\s+$/, '') + '\n\n' : '') + data.text;
+        } else {
+          ta.value = data.text;
+        }
+        aiStatus.textContent = data.source === 'plantilla' ? 'Plantilla local (sin API key)' : 'Listo ✨ Revisa y Guarda';
+        ta.focus();
+      } catch (e) {
+        aiStatus.textContent = e.message || 'Error de IA';
+      } finally {
+        bar.querySelectorAll('button').forEach((b) => { b.disabled = false; });
+        btn.classList.remove('is-busy');
+      }
+    };
+    const aiBtn = (label, action, title) => el('button', {
+      class: 'meses-ai__btn', type: 'button', title,
+      onclick: (e) => runAi(action, e.currentTarget),
+    }, [el('span', { text: label })]);
+    aiBar = el('div', { class: 'meses-ai' }, [
+      aiBtn('✨ Generar', 'caption', 'Escribir un caption nuevo con IA'),
+      aiBtn('Mejorar', 'improve', 'Mejorar el caption actual'),
+      aiBtn('EN ↔ ES', 'translate', 'Traducir el caption'),
+      aiBtn('# Hashtags', 'hashtags', 'Sugerir hashtags'),
+      aiStatus,
+    ]);
+  }
+
   drawerEl = el('div', { class: 'meses-drawer__wrap', role: 'dialog', 'aria-modal': 'true', 'aria-label': `Caption de ${post.title || 'contenido'}` }, [
     el('div', { class: 'meses-drawer__overlay', onclick: () => closeCaptionDrawer() }),
     el('aside', { class: 'meses-drawer' }, [
@@ -390,6 +436,7 @@ function openCaptionDrawer(post) {
           onclick: () => closeCaptionDrawer(),
         }, [icon('close', 18)]),
       ]),
+      ...(aiBar ? [aiBar] : []),
       ta,
       el('footer', { class: 'meses-drawer__foot' }, [
         el('span', { class: 'meses-drawer__hint', text: 'Cmd+Enter guarda · Esc cierra' }),
@@ -927,6 +974,37 @@ async function openAddMonth() {
   render();
 }
 
+// Duplicar el mes activo completo a otro mes (copia filas con captions/notas;
+// el estado vuelve a "Idea"). Backend: POST /posts/duplicate-month.
+async function openDuplicateMonth() {
+  const { activeClientId } = ctx.store.getState();
+  if (!activeClientId || activeClientId === 'todos' || !activeMonth || activeMonth === SIN_MES) return;
+  const from = activeMonth;
+  const [fy, fm] = from.split('-').map(Number);
+  const options = [];
+  for (let i = 1; i <= 12; i++) {
+    const d = new Date(fy, (fm - 1) + i, 1);
+    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    options.push({ value: ym, label: capitalize(monthLabel(ym)), current: false });
+  }
+  const to = await ctx.sheet.pickFrom({ title: `Duplicar ${capitalize(monthLabel(from))} a…`, options });
+  if (!to) return;
+  try {
+    const r = await fetch('/api/marketing/posts/duplicate-month', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ client_id: activeClientId, from, to }),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || 'No se pudo duplicar el mes.');
+    ctx.toast(`${data.created} contenidos copiados a ${capitalize(monthLabel(to))}.`, { type: 'success' });
+    activeMonth = to;
+    await ctx.store.loadPosts(activeClientId);
+  } catch (e) {
+    ctx.toast(e.message || 'No se pudo duplicar el mes.', { type: 'error' });
+  }
+}
+
 // ── Secciones ────────────────────────────────────────────────────────────────
 
 function toggleSection(secEl, key) {
@@ -1309,11 +1387,27 @@ function render() {
     single: true,
   }));
 
-  if (!isTodos && !document.body.classList.contains('is-client')) {
+  const isClientRole = document.body.classList.contains('is-client');
+  if (!isTodos && !isClientRole) {
     sectionsEl.appendChild(el('button', {
       class: 'meses-addmonth', type: 'button',
       onclick: () => openAddMonth(),
     }, [icon('plus', 16), el('span', { text: 'Agregar mes' })]));
+    // Duplicar el mes activo a otro mes (plantillas de mes, estilo Monday).
+    if (activeMonth && activeMonth !== SIN_MES && (byMonth.get(activeMonth) || []).length) {
+      sectionsEl.appendChild(el('button', {
+        class: 'meses-addmonth meses-dupmonth', type: 'button',
+        onclick: () => openDuplicateMonth(),
+      }, [icon('copy', 16), el('span', { text: `Duplicar ${capitalize(monthLabel(activeMonth))} a…` })]));
+    }
+  }
+  // Exportar a Google/Apple Calendar (.ics) — admin Y cliente.
+  if (!isTodos && activeClientId) {
+    sectionsEl.appendChild(el('a', {
+      class: 'meses-icslink',
+      href: `/api/marketing/calendar.ics?client_id=${encodeURIComponent(activeClientId)}`,
+      download: '',
+    }, [icon('calendar', 15), el('span', { text: 'Exportar a mi calendario (.ics)' })]));
   }
 
   // Barra lateral de meses (desktop): salta y expande la seccion del mes.

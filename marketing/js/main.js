@@ -95,6 +95,8 @@ lazyView({ id: 'inicio', label: 'Inicio', icon: 'home', loader: () => import('./
 // por mes desplegables + tabla con sus columnas + nueva linea inline).
 lazyView({ id: 'meses', label: 'Calendario', icon: 'calendar', loader: () => import('./views/meses.js?v=202606112051') });
 lazyView({ id: 'calendario', label: 'Cuadrícula', icon: 'grip', loader: () => import('./calendar/index.js?v=202606112051') });
+// Galería: grid visual del contenido del mes (estilo "Galería" de Monday).
+lazyView({ id: 'galeria', label: 'Galería', icon: 'camera', loader: () => import('./views/galeria.js?v=202606112051') });
 lazyView({ id: 'tablero', label: 'Tablero', icon: 'board', loader: () => import('./views/kanban.js?v=202606112051') });
 lazyView({ id: 'tabla', label: 'Tabla', icon: 'table', loader: () => import('./views/table.js?v=202606112051') });
 lazyView({ id: 'timeline', label: 'Timeline', icon: 'gantt', loader: () => import('./views/timeline.js?v=202606112051') });

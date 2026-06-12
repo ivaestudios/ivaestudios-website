@@ -27,6 +27,7 @@ const DESKTOP_TABS = [
   { id: 'inicio', label: 'Inicio' },
   { id: 'meses', label: 'Calendario' },
   { id: 'calendario', label: 'Cuadrícula' },
+  { id: 'galeria', label: 'Galería' },
 ];
 
 export function createTopbar({ root, router, selectClient, openSearch, openNotifications }) {
@@ -49,7 +50,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
   const tabsWrap = el('nav', { class: 'tb-tabs', 'aria-label': 'Vistas' });
   const tabBtns = new Map();
   // El cliente solo ve las dos vistas de calendario.
-  const visibleTabs = isClient ? DESKTOP_TABS.filter((t) => t.id === 'meses' || t.id === 'calendario') : DESKTOP_TABS;
+  const visibleTabs = isClient ? DESKTOP_TABS.filter((t) => t.id === 'meses' || t.id === 'calendario' || t.id === 'galeria') : DESKTOP_TABS;
   for (const t of visibleTabs) {
     const b = el('button', {
       class: 'tb-tab', type: 'button', text: t.label,

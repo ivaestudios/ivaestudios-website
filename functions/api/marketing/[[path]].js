@@ -42,6 +42,7 @@
 // 404 ("No disponible") and everything legacy keeps working.
 
 import { handleDashboard } from './_dashboard.js';
+import { handleAiAssist, handleCalendarIcs, handleDuplicateMonth } from './_enterprise.js';
 
 // ============================================================================
 // CRYPTO / UTILITY HELPERS  (copied VERBATIM from the gallery function)
@@ -2642,6 +2643,11 @@ async function route(request, env) {
       if (!isStaff) return json({ error: 'Forbidden' }, 403);
       return handleBulkDelete(request, env, session);
     }
+    // Duplicar mes completo (plantillas de mes, estilo Monday). Solo staff.
+    if (parts.length === 2 && parts[1] === 'duplicate-month' && method === 'POST') {
+      if (!isStaff) return json({ error: 'Forbidden' }, 403);
+      return handleDuplicateMonth(request, env, session);
+    }
     if (parts.length === 1) {
       if (method === 'GET') return handleListPosts(request, env, session, url);
       // Crear: staff o cliente (el handler fuerza el client_id del cliente).
@@ -2667,6 +2673,10 @@ async function route(request, env) {
       if (sub === 'duplicate' && method === 'POST') {
         if (!isStaff) return json({ error: 'Forbidden' }, 403);
         return guardTables(() => handleDuplicatePost(request, env, session, postId));
+      }
+      // IA de contenido (captions/hashtags/ideas). Solo staff: consume créditos.
+      if (sub === 'ai' && method === 'POST') {
+        return handleAiAssist(request, env, session, postId);
       }
       // Video final: subida directa a R2 (staff o cliente dueño de la marca).
       if (sub === 'video') {
@@ -2716,6 +2726,11 @@ async function route(request, env) {
   if (path === '/dashboard' && method === 'GET') {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);
     return handleDashboard(request, env, session, url);
+  }
+
+  // ── EXPORTAR CALENDARIO .ics (staff o cliente; el cliente va forzado a SU marca) ──
+  if (path === '/calendar.ics' && method === 'GET') {
+    return handleCalendarIcs(request, env, session, url);
   }
 
   // ── SEARCH (staff) ──

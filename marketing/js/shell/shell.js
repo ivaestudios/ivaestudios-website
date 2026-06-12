@@ -38,11 +38,12 @@ import * as dnd from '../ui/dnd.js?v=202606112051';
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
 // El cliente solo ve las vistas de calendario (Calendario = meses,
 // Cuadrícula = calendario). Nada de Inicio/Tablero/Tabla/Timeline/Carga.
-const CLIENT_VIEWS = ['meses', 'calendario'];
+const CLIENT_VIEWS = ['meses', 'calendario', 'galeria'];
 const isClientRole = () => ((store.getState().me || {}).role === 'client');
 const CONTENT_LABELS = {
   meses: 'Calendario',
   calendario: 'Cuadrícula',
+  galeria: 'Galería',
   tablero: 'Tablero',
   tabla: 'Tabla',
   timeline: 'Timeline',
@@ -151,7 +152,7 @@ function buildSubhead(root) {
   // Vianey pidio quitar Tablero/Tabla/Timeline/Carga de su admin: tanto admin
   // como cliente solo ven las dos vistas de calendario (Calendario = meses,
   // Cuadricula = calendario).
-  const VISIBLE_CONTENT_VIEWS = ['meses', 'calendario'];
+  const VISIBLE_CONTENT_VIEWS = ['meses', 'calendario', 'galeria'];
   const segViews = CONTENT_VIEWS.filter((v) => VISIBLE_CONTENT_VIEWS.includes(v));
   for (const v of segViews) {
     const label = CONTENT_LABELS[v] || v;
