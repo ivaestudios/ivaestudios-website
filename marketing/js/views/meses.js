@@ -26,8 +26,8 @@ import {
   el, clear,
   STATUSES, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606111127';
-import { icon } from '../shell/icons.js?v=202606111127';
+} from '../api.js?v=202606112040';
+import { icon } from '../shell/icons.js?v=202606112040';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -968,7 +968,9 @@ function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTod
 
   const bodyKids = [];
   if (rows.length) {
-    bodyKids.push(desktop ? buildTable(rows, noteLabels) : el('div', { class: 'meses-list' }, rows.map(buildMobileItem)));
+    // SIEMPRE la tabla (tambien en movil, donde se desliza a la derecha con
+    // Grab+Tarea fijas, como Notion). Vianey: el cliente debe ver FILAS.
+    bodyKids.push(buildTable(rows, noteLabels));
   } else {
     bodyKids.push(el('div', { class: 'meses-empty', text: 'Sin contenidos este mes.' }));
   }

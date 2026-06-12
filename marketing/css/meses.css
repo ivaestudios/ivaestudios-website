@@ -403,12 +403,16 @@
   to { background-position: -200% 0; }
 }
 
-/* ── Desktop (>=768px): tabla estilo Notion ─────────────────────────────────── */
+/* ── Tabla estilo Notion en TODOS los tamanos ───────────────────────────────
+   En movil se desliza a la derecha con Grab+Tarea fijas (igual que Notion en
+   el telefono). Pedido de Vianey: el cliente debe ver el calendario en FILAS,
+   no en tarjetas. Los ajustes de ancho movil van al final del bloque. */
 
 @media (min-width: 768px) {
   .meses-root { padding: 14px 18px 40px; }
 
   .meses-newline__input { font-size: var(--fs-2); }
+}
 
   .meses-tablewrap {
     overflow-x: auto;
@@ -681,6 +685,16 @@
   }
   .meses-url__edit:hover { background: var(--surface-3); color: var(--text); }
   .meses-url__edit:focus-visible { outline: none; box-shadow: var(--ring); opacity: 1; }
+
+/* Ajustes MOVIL de la tabla: columnas fijas mas angostas para que al deslizar
+   quede espacio visible, y celdas un poco mas compactas. */
+@media (max-width: 767px) {
+  .meses-root { padding: 8px 8px 40px; }
+  .meses-col--grab { width: 42px; min-width: 42px; max-width: 42px; }
+  .meses-col--task { left: 42px; min-width: 148px; max-width: 168px; }
+  .meses-td--text { min-width: 170px; max-width: 210px; }
+  .meses-table { min-width: 760px; }
+  .meses-table th { font-size: 10px; }
 }
 
 /* Affordances discretas: visibles al hover en desktop con mouse, siempre en
