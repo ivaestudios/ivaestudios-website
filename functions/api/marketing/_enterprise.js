@@ -23,7 +23,7 @@ function esc(s) {
   ));
 }
 
-export async function handleMonthlyReport(request, env, session, url) {
+export async function handleMonthlyReport(request, env, session, url, igFetcher = null) {
   let clientId = url.searchParams.get('client_id') || '';
   if (session.role === 'client') clientId = session.client_id;
   const month = String(url.searchParams.get('month') || '');
@@ -63,6 +63,26 @@ export async function handleMonthlyReport(request, env, session, url) {
       ${p.caption ? `<p class="post__cap">${esc(String(p.caption).slice(0, 400))}${String(p.caption).length > 400 ? '…' : ''}</p>` : ''}
     </article>`).join('\n');
 
+  // Resultados de Instagram (solo si la marca está conectada; nunca truena).
+  let igHtml = '';
+  if (igFetcher) {
+    try {
+      const ig = await igFetcher(env, clientId, month);
+      if (ig && ig.connected && ig.data && !ig.error) {
+        const mm = (ig.data.months || {})[month] || { posts: 0, likes: 0, comments: 0 };
+        const fmtN = (n) => (n == null ? '—' : Number(n).toLocaleString('es-MX'));
+        igHtml = `
+  <h2 class="igh">Resultados en Instagram · @${esc(ig.username || '')}</h2>
+  <div class="stats">
+    <span class="chip chip--hero">${fmtN(ig.data.followers)} seguidores</span>
+    <span class="chip">${fmtN(ig.data.reach_28d)} alcance (28 días)</span>
+    <span class="chip">${fmtN(mm.likes + mm.comments)} interacciones del mes</span>
+    <span class="chip">${fmtN(mm.posts)} publicados en IG</span>
+  </div>`;
+      }
+    } catch { /* el reporte sale aunque IG falle */ }
+  }
+
   const html = `<!doctype html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -78,6 +98,7 @@ export async function handleMonthlyReport(request, env, session, url) {
   header.rep img { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; }
   header.rep .logo-fallback { width: 56px; height: 56px; border-radius: 12px; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 24px; font-weight: 800; }
   h1 { font-size: 22px; } .sub { color: #666; margin-bottom: 20px; }
+  .igh { font-size: 15px; margin: 4px 0 10px; color: #444; }
   .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
   .chip { background: #fff; border: 1px solid #e3e3ec; border-radius: 999px; padding: 6px 14px; font-size: 13px; font-weight: 600; }
   .chip--hero { background: var(--accent); color: #fff; border-color: transparent; }
@@ -107,6 +128,7 @@ export async function handleMonthlyReport(request, env, session, url) {
     <span class="chip">${publicados} publicados</span>
     ${typeChips}
   </div>
+  ${igHtml}
   ${rows || '<p style="color:#888">Este mes no tiene contenidos.</p>'}
   <footer>Generado por IVAE Marketing · ivaestudios.com</footer>
 </div>

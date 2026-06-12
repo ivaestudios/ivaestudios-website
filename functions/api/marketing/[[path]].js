@@ -43,6 +43,10 @@
 
 import { handleDashboard } from './_dashboard.js';
 import { handleMonthlyReport } from './_enterprise.js';
+import {
+  handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
+  handleIgMetrics, fetchIgMetrics,
+} from './_instagram.js';
 
 // ============================================================================
 // CRYPTO / UTILITY HELPERS  (copied VERBATIM from the gallery function)
@@ -2578,6 +2582,11 @@ async function route(request, env) {
   if (path === '/auth/login' && method === 'POST') return handleLogin(request, env);
   if (path === '/auth/register' && method === 'POST') return handleRegister(request, env);
 
+  // Instagram OAuth: el callback llega sin cookie (SameSite=Strict) y se
+  // valida con nonce de un solo uso; el assign del selector igual.
+  if (path === '/ig/callback' && method === 'GET') return handleIgCallback(request, env, url);
+  if (path === '/ig/assign' && method === 'POST') return handleIgAssign(request, env);
+
   // ── CRON (no session; Bearer MKT_CRON_SECRET) — BEFORE the session gate ──
   if (path === '/cron' && method === 'POST') return handleCron(request, env);
 
@@ -2723,9 +2732,17 @@ async function route(request, env) {
   }
 
   // ── EXPORTAR CALENDARIO .ics (staff o cliente; el cliente va forzado a SU marca) ──
+  // ── INSTAGRAM (conexión y métricas) ──
+  if (parts[0] === 'ig') {
+    if (path === '/ig/login' && method === 'GET') return handleIgLogin(request, env, session, url);
+    if (path === '/ig/metrics' && method === 'GET') return handleIgMetrics(request, env, session, url);
+    if (path === '/ig/disconnect' && method === 'POST') return handleIgDisconnect(request, env, session);
+    return json({ error: 'Not found' }, 404);
+  }
+
   // Reporte mensual del cliente (HTML imprimible; cliente forzado a su marca).
   if (path === '/report' && method === 'GET') {
-    return handleMonthlyReport(request, env, session, url);
+    return handleMonthlyReport(request, env, session, url, fetchIgMetrics);
   }
 
   // ── SEARCH (staff) ──

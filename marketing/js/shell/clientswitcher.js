@@ -10,11 +10,11 @@
 //   el set optimista + pref lastClient + ?cliente= replace + client:changed.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202606121357';
-import { openSheet } from './sheet.js?v=202606121357';
-import { toast } from './toast.js?v=202606121357';
-import * as store from './store.js?v=202606121357';
-import { icon } from './icons.js?v=202606121357';
+import { api, el } from '../api.js?v=202606121616';
+import { openSheet } from './sheet.js?v=202606121616';
+import { toast } from './toast.js?v=202606121616';
+import * as store from './store.js?v=202606121616';
+import { icon } from './icons.js?v=202606121616';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -196,6 +196,10 @@ export function openEditClient(client, { selectClient } = {}) {
         class: 'input', type: 'url', placeholder: 'https://… (logo, opcional)', maxlength: '500',
         value: client.logo_url || '',
       });
+      const mailIn = el('input', {
+        class: 'input', type: 'email', placeholder: 'correo@cliente.com (opcional)', maxlength: '120',
+        value: client.contact_email || '',
+      });
 
       const saveBtn = el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: 'Guardar cambios' });
       saveBtn.addEventListener('click', async () => {
@@ -203,6 +207,8 @@ export function openEditClient(client, { selectClient } = {}) {
         if (!name) { toast('El nombre no puede quedar vacío.', { type: 'error' }); nameIn.focus(); return; }
         const logo = logoIn.value.trim();
         if (logo && !/^https?:\/\//i.test(logo)) { toast('El logo debe ser un link http(s).', { type: 'error' }); logoIn.focus(); return; }
+        const mail = mailIn.value.trim();
+        if (mail && !mail.includes('@')) { toast('Ese correo no se ve válido.', { type: 'error' }); mailIn.focus(); return; }
         saveBtn.disabled = true;
         try {
           await api.patch(`/clients/${client.id}`, {
@@ -210,6 +216,7 @@ export function openEditClient(client, { selectClient } = {}) {
             brand_color: colorIn.value,
             instagram_handle: igIn.value.trim().replace(/^@/, '') || null,
             logo_url: logo || null,
+            contact_email: mail || null,
           });
           await store.refreshClientCounts();
           toast(`Marca actualizada: ${name}.`, { type: 'success' });
@@ -251,6 +258,35 @@ export function openEditClient(client, { selectClient } = {}) {
           el('div', { class: 'cs-color-row' }, [colorIn, presets]),
         ]),
         el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Logo (para el reporte)' }), logoIn]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Correo del cliente' }), mailIn]),
+        el('div', { class: 'field' }, [
+          el('label', { class: 'label', text: 'Instagram (métricas para el reporte)' }),
+          client.ig_username
+            ? el('div', { class: 'cs-igrow' }, [
+                el('span', { class: 'cs-igok', text: `✅ @${client.ig_username} conectado` }),
+                el('button', {
+                  class: 'btn', type: 'button', text: 'Desconectar',
+                  onclick: async (e) => {
+                    e.currentTarget.disabled = true;
+                    const r = await fetch('/api/marketing/ig/disconnect', {
+                      method: 'POST', credentials: 'include',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ client_id: client.id }),
+                    });
+                    if (r.ok) { await store.refreshClientCounts(); toast('Instagram desconectado.', { type: 'success' }); close({ source: 'ig' }); }
+                  },
+                }),
+              ])
+            : el('button', {
+                class: 'btn cs-igconnect', type: 'button',
+                onclick: async () => {
+                  // pre-chequeo: si falta la app de Meta, avisar en vez de navegar a un error
+                  const r = await fetch(`/api/marketing/ig/login?client_id=${client.id}`, { credentials: 'include', redirect: 'manual' });
+                  if (r.status === 503) { toast('Falta configurar la app de Meta (te paso la guía).', { type: 'error' }); return; }
+                  window.location.href = `/api/marketing/ig/login?client_id=${client.id}`;
+                },
+              }, [icon('camera', 16), el('span', { text: 'Conectar Instagram' })]),
+        ]),
         el('div', { class: 'sheet__footer' }, [
           archiveBtn,
           el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),

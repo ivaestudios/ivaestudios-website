@@ -725,3 +725,8 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
 }
 .cs-row__edit:hover { color: var(--text); background: var(--surface-2); }
 .cs-archive { margin-right: auto; }
+
+/* Conexión de Instagram en el editor de marca */
+.cs-igrow { display: flex; align-items: center; gap: 10px; }
+.cs-igok { color: var(--text-dim); font-size: 13.5px; }
+.cs-igconnect { width: 100%; justify-content: center; }
