@@ -104,6 +104,11 @@ export async function handleAiAssist(request, env, session, postId) {
 
   const post = await env.DB.prepare('SELECT * FROM mkt_posts WHERE id = ?').bind(postId).first();
   if (!post) return json({ error: 'Post not found' }, 404);
+  // Mejorar/traducir sin caption no tiene sentido: aviso claro en vez de
+  // mandarle a la IA una instrucción imposible.
+  if ((action === 'improve' || action === 'translate') && !String(post.caption || '').trim()) {
+    return json({ error: 'Este post aún no tiene caption. Usa ✨ Generar primero.' }, 400);
+  }
   const client = await env.DB.prepare('SELECT id, name FROM mkt_clients WHERE id = ?').bind(post.client_id).first();
 
   const apiKey = env.ANTHROPIC_API_KEY;
@@ -114,6 +119,8 @@ export async function handleAiAssist(request, env, session, postId) {
   try {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
+      // Sin timeout, una request colgada deja el botón girando indefinidamente.
+      signal: (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) ? AbortSignal.timeout(45000) : undefined,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
@@ -146,6 +153,9 @@ export async function handleAiAssist(request, env, session, postId) {
     if (!text) return json({ error: 'La IA no devolvió texto. Intenta de nuevo.' }, 502);
     return json({ text, source: 'claude', action, model: data.model });
   } catch (e) {
+    if (e && (e.name === 'TimeoutError' || e.name === 'AbortError')) {
+      return json({ error: 'La IA tardó demasiado en responder. Intenta de nuevo.' }, 504);
+    }
     return json({ error: 'No se pudo contactar a la IA: ' + (e.message || 'error de red') }, 502);
   }
 }
@@ -158,7 +168,25 @@ function icsEscape(s) {
     .replace(/\\/g, '\\\\')
     .replace(/;/g, '\\;')
     .replace(/,/g, '\\,')
-    .replace(/\r?\n/g, '\\n');
+    .replace(/\r\n|\r|\n/g, '\\n');
+}
+
+// RFC 5545 §3.1: las líneas no deben pasar de 75 octetos; se continúan con
+// CRLF + espacio. Parsers estrictos (Outlook) rechazan líneas largas.
+function icsFold(line) {
+  const bytes = new TextEncoder().encode(line);
+  if (bytes.length <= 75) return line;
+  const out = [];
+  let cur = '';
+  let curLen = 0;
+  for (const ch of line) {
+    const chLen = new TextEncoder().encode(ch).length;
+    if (curLen + chLen > (out.length ? 74 : 75)) { out.push(cur); cur = ''; curLen = 0; }
+    cur += ch;
+    curLen += chLen;
+  }
+  if (cur) out.push(cur);
+  return out.join('\r\n ');
 }
 
 export async function handleCalendarIcs(request, env, session, url) {
@@ -196,7 +224,7 @@ export async function handleCalendarIcs(request, env, session, url) {
   }
   lines.push('END:VCALENDAR');
 
-  return new Response(lines.join('\r\n'), {
+  return new Response(lines.map(icsFold).join('\r\n'), {
     headers: {
       'Content-Type': 'text/calendar; charset=utf-8',
       'Content-Disposition': `attachment; filename="contenido-${(client.name || 'marca').toLowerCase().replace(/[^a-z0-9]+/g, '-')}.ics"`,

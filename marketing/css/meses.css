@@ -209,6 +209,12 @@
 }
 .meses-icslink:hover { color: var(--text); background: var(--surface-2); text-decoration: none; }
 
+/* Móvil: targets táctiles ≥44px para la barra IA y el link del calendario */
+@media (max-width: 767px) {
+  .meses-ai__btn { min-height: 44px; padding: 8px 14px; }
+  .meses-icslink { min-height: 44px; padding: 10px 12px; }
+}
+
 .meses-item__main {
   display: flex;
   align-items: center;

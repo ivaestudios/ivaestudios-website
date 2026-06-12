@@ -11,7 +11,7 @@
 // Datos SOLO del store global (cero fetch propio), igual que meses.js.
 // ============================================================================
 
-import { el, clear, STATUSES, CONTENT_TYPES, statusLabel, contentTypeLabel, fmtDate } from '../api.js?v=202606112051';
+import { el, clear, STATUSES, statusLabel, contentTypeLabel, fmtDate } from '../api.js?v=202606112051';
 import { icon } from '../shell/icons.js?v=202606112051';
 
 let ctx = null;
@@ -53,9 +53,7 @@ function scheduleRender() {
 // ── Tarjeta ──────────────────────────────────────────────────────────────────
 
 function buildCard(post) {
-  const typeDef = CONTENT_TYPES[post.content_type];
   const statusDef = STATUSES[post.status];
-  const isClient = document.body.classList.contains('is-client');
 
   // Medio: video subido/enlazado > icono por tipo de contenido.
   const hasVideo = !!post.video_url;
@@ -145,12 +143,12 @@ function render() {
   }
 
   // Encabezado: selector de mes (pills) + conteo.
-  const bar = el('div', { class: 'gal-monthbar', role: 'tablist' });
+  const bar = el('div', { class: 'gal-monthbar' });
   for (const ym of ordered) {
     const active = ym === activeMonth;
     bar.appendChild(el('button', {
       class: 'gal-monthpill' + (active ? ' is-active' : ''),
-      type: 'button', role: 'tab', 'aria-selected': active ? 'true' : 'false',
+      type: 'button', 'aria-pressed': active ? 'true' : 'false',
       onclick: () => { activeMonth = ym; render(); },
     }, [
       el('span', { text: cap(monthLabel(ym)) }),
