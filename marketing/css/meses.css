@@ -897,3 +897,20 @@
 /* Toggle de avisos automáticos por marca */
 .meses-remtoggle.is-off { color: var(--text-mute); }
 .meses-remtoggle.is-off .meses-remtoggle__txt { text-decoration: line-through; text-decoration-thickness: 1px; }
+
+/* ── Drag & drop de filas ── */
+.meses-task__drag {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; min-width: 22px; align-self: stretch;
+  background: none; border: 0; padding: 0;
+  color: var(--text-mute); cursor: grab; touch-action: none;
+  opacity: .55; border-radius: 4px;
+}
+.meses-task__drag:hover { opacity: 1; background: var(--surface-2); }
+.meses-task__drag:active { cursor: grabbing; }
+@media (max-width: 767px) { .meses-task__drag { width: 28px; min-width: 28px; opacity: .75; } }
+tr.meses-row.dnd-origin { opacity: .35; }
+tr.meses-row--ph td {
+  height: 6px; padding: 0; border: 0;
+  background: var(--client-accent, var(--brand)); opacity: .8; border-radius: 3px;
+}

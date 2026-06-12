@@ -714,3 +714,14 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
   font-weight: 700;
 }
 .tb-client--static:hover { background: transparent; border-color: transparent; }
+
+/* ── Switcher: fila con lápiz de edición (staff) ── */
+.cs-rowwrap { display: flex; align-items: stretch; gap: 2px; }
+.cs-rowwrap .cs-row { flex: 1; min-width: 0; }
+.cs-row__edit {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; min-width: 44px; background: none; border: 0; padding: 0;
+  color: var(--text-mute); cursor: pointer; border-radius: var(--r-sm);
+}
+.cs-row__edit:hover { color: var(--text); background: var(--surface-2); }
+.cs-archive { margin-right: auto; }

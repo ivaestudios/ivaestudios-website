@@ -26,8 +26,9 @@ import {
   el, clear,
   STATUSES, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606121328';
-import { icon } from '../shell/icons.js?v=202606121328';
+} from '../api.js?v=202606121357';
+import { icon } from '../shell/icons.js?v=202606121357';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202606121357';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -95,6 +96,7 @@ function sortValOf(p, key) {
     case 'platform': return String(p.platform || '').toLowerCase();
     case 'type':     return (contentTypeLabel(p.content_type) || '').toLowerCase();
     case 'grab':     return (p.grabacion == null || p.grabacion === '') ? 99 : Number(p.grabacion);
+    case 'manual':   return Number(p.position) || 0;
     case 'date':
     default:         return String(p.publish_date || '9999-99-99');
   }
@@ -647,7 +649,11 @@ function buildRow(post, noteLabels) {
     title: 'Eliminar fila',
     onclick: () => confirmDeleteRow(post),
   }, [icon('trash', 14)]);
-  tdTask.appendChild(el('span', { class: 'meses-task' }, [titleBtn, openBtn, deleteBtn]));
+  const dragBtn = el('button', {
+    class: 'meses-task__drag', type: 'button',
+    'aria-label': 'Arrastrar para reordenar', title: 'Arrastrar para reordenar',
+  }, [icon('grip', 14)]);
+  tdTask.appendChild(el('span', { class: 'meses-task' }, [dragBtn, titleBtn, openBtn, deleteBtn]));
 
   // Plataforma / Tipo / Estado (pickers compartidos)
   const tdPlat = el('td', { class: 'meses-td' }, [
@@ -711,6 +717,59 @@ function buildRow(post, noteLabels) {
   return tr;
 }
 
+// ── Drag & drop de filas (reordenar con el puño ⠿; persiste en position) ────
+let dndDispose = null;
+
+function wireRowDnd(tbody) {
+  if (!ctx || !ctx.dnd) return;
+  if (dndDispose) { try { dndDispose(); } catch { /* noop */ } dndDispose = null; }
+  let ph = null;
+  const clearPh = () => { if (ph) { ph.remove(); ph = null; } };
+  dndDispose = ctx.dnd.draggableList(tbody, 'tr.meses-row', (tr) => ({
+    mode: 'move',
+    data: { id: tr.dataset.id },
+    handle: tr.querySelector('.meses-task__drag'),
+    dropSelector: 'tbody',
+    touchAction: 'none',
+    onMove: (c) => {
+      if (!ph) ph = el('tr', { class: 'meses-row--ph' }, [el('td', { colspan: '99' })]);
+      const others = [...tbody.querySelectorAll('tr.meses-row:not(.dnd-origin)')];
+      let before = null;
+      for (const r of others) {
+        const rect = r.getBoundingClientRect();
+        if (c.y < rect.top + rect.height / 2) { before = r; break; }
+      }
+      if (before) tbody.insertBefore(ph, before);
+      else tbody.appendChild(ph);
+    },
+    onDrop: async (c) => {
+      if (!ph || !ph.parentNode) { clearPh(); return; }
+      // Índice de inserción: filas visibles (sin el origen) antes del placeholder.
+      let idx = 0;
+      for (let n = tbody.firstElementChild; n && n !== ph; n = n.nextElementSibling) {
+        if (n.classList && n.classList.contains('meses-row') && !n.classList.contains('dnd-origin')) idx += 1;
+      }
+      const ids = [...tbody.querySelectorAll('tr.meses-row:not(.dnd-origin)')].map((r) => r.dataset.id);
+      clearPh();
+      const { posts } = ctx.store.getState();
+      const byId = new Map((posts || []).map((p) => [String(p.id), p]));
+      const list = ids.map((id) => byId.get(String(id))).filter(Boolean);
+      const moved = byId.get(String(c.data.id));
+      if (!moved) return;
+      const updates = buildInsertUpdates(list, idx, moved, null);
+      if (!updates.length) return;
+      const wasManual = getSort().key === 'manual';
+      if (!wasManual) setSort('manual', 'asc');
+      const ok = await ctx.store.reorder(updates);
+      if (ok && !wasManual) {
+        ctx.toast('Orden manual activado: las filas quedan como las acomodes.', { type: 'info' });
+      }
+      scheduleRender();
+    },
+    onCancel: clearPh,
+  }));
+}
+
 function buildTable(rows, noteLabels) {
   // Encabezados con filtro INTEGRADO (estilo Excel): clic en la columna abre
   // el picker de esa columna; si hay filtro activo se pinta con la marca.
@@ -746,10 +805,12 @@ function buildTable(rows, noteLabels) {
     el('th', { text: 'Inspo', scope: 'col' }),
     el('th', { text: 'Video final', scope: 'col' }),
   ];
+  const tbody = el('tbody', {}, rows.map((p) => buildRow(p, noteLabels)));
   const table = el('table', { class: 'meses-table' }, [
     el('thead', {}, [el('tr', {}, headCells)]),
-    el('tbody', {}, rows.map((p) => buildRow(p, noteLabels))),
+    tbody,
   ]);
+  wireRowDnd(tbody);
   return el('div', { class: 'meses-tablewrap' }, [table]);
 }
 
@@ -1427,6 +1488,7 @@ export default {
 
   unmount() {
     closeCaptionDrawer();
+    if (dndDispose) { try { dndDispose(); } catch { /* noop */ } dndDispose = null; }
     for (const u of unsubs) { try { u(); } catch { /* noop */ } }
     unsubs = [];
     if (mq && mqHandler) {

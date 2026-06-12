@@ -10,18 +10,18 @@
 //   el set optimista + pref lastClient + ?cliente= replace + client:changed.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202606121328';
-import { openSheet } from './sheet.js?v=202606121328';
-import { toast } from './toast.js?v=202606121328';
-import * as store from './store.js?v=202606121328';
-import { icon } from './icons.js?v=202606121328';
+import { api, el } from '../api.js?v=202606121357';
+import { openSheet } from './sheet.js?v=202606121357';
+import { toast } from './toast.js?v=202606121357';
+import * as store from './store.js?v=202606121357';
+import { icon } from './icons.js?v=202606121357';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
 
-function clientRow(c, activeId, onPick) {
+function clientRow(c, activeId, onPick, onEdit) {
   const pending = c.counts && c.counts.pending > 0 ? c.counts.pending : 0;
-  return el('button', {
+  const row = el('button', {
     class: 'cs-row' + (c.id === activeId ? ' is-active' : ''),
     type: 'button',
     onclick: () => onPick(c.id),
@@ -33,6 +33,16 @@ function clientRow(c, activeId, onPick) {
     ]),
     pending ? el('span', { class: 'cs-row__badge', text: String(pending), title: `${pending} por aprobar` }) : null,
     c.id === activeId ? el('span', { class: 'cs-row__check' }, [icon('check', 16)]) : null,
+  ]);
+  if (!onEdit) return row;
+  // Staff: lápiz para editar la marca (nombre, color, IG, logo) sin salir.
+  return el('div', { class: 'cs-rowwrap' }, [
+    row,
+    el('button', {
+      class: 'cs-row__edit', type: 'button',
+      'aria-label': `Editar ${c.name}`, title: `Editar ${c.name}`,
+      onclick: (e) => { e.stopPropagation(); onEdit(c); },
+    }, [icon('edit', 15)]),
   ]);
 }
 
@@ -70,7 +80,8 @@ export function openClientSwitcher({ anchor = null, selectClient }) {
         }
 
         const matches = visibles.filter((c) => !f || String(c.name).toLowerCase().includes(f));
-        for (const c of matches) list.appendChild(clientRow(c, activeClientId, pick));
+        const onEdit = isStaff ? (c) => { close({ source: 'edit' }); openEditClient(c, { selectClient }); } : null;
+        for (const c of matches) list.appendChild(clientRow(c, activeClientId, pick, onEdit));
         if (!matches.length) {
           list.appendChild(el('div', { class: 'cs-empty', text: f ? 'Ningún cliente coincide.' : 'Aún no hay clientes.' }));
         }
@@ -150,6 +161,98 @@ export function openNewClient({ selectClient } = {}) {
           el('div', { class: 'cs-color-row' }, [colorIn, presets]),
         ]),
         el('div', { class: 'sheet__footer' }, [
+          el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
+          saveBtn,
+        ]),
+      );
+      setTimeout(() => nameIn.focus(), 50);
+    },
+  });
+}
+
+// ── Editar marca (nombre, Instagram, color, logo) ────────────────────────────
+export function openEditClient(client, { selectClient } = {}) {
+  openSheet({
+    title: `Editar ${client.name}`,
+    mode: 'form',
+    build(body, close) {
+      const nameIn = el('input', { class: 'input', type: 'text', value: client.name || '', maxlength: '80' });
+      const igIn = el('input', {
+        class: 'input', type: 'text', placeholder: '@cuenta (opcional)', maxlength: '60',
+        value: client.instagram_handle ? '@' + String(client.instagram_handle).replace(/^@/, '') : '',
+      });
+      const colorIn = el('input', {
+        class: 'cs-color', type: 'color', 'aria-label': 'Color de marca',
+        value: HEX_RE.test(String(client.brand_color || '')) ? client.brand_color : PRESET_COLORS[0],
+      });
+      const presets = el('div', { class: 'cs-presets' }, PRESET_COLORS.map((c) =>
+        el('button', {
+          class: 'cs-preset', type: 'button', 'aria-label': `Color ${c}`,
+          style: { background: c },
+          onclick: () => { colorIn.value = c; },
+        })
+      ));
+      const logoIn = el('input', {
+        class: 'input', type: 'url', placeholder: 'https://… (logo, opcional)', maxlength: '500',
+        value: client.logo_url || '',
+      });
+
+      const saveBtn = el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: 'Guardar cambios' });
+      saveBtn.addEventListener('click', async () => {
+        const name = nameIn.value.trim();
+        if (!name) { toast('El nombre no puede quedar vacío.', { type: 'error' }); nameIn.focus(); return; }
+        const logo = logoIn.value.trim();
+        if (logo && !/^https?:\/\//i.test(logo)) { toast('El logo debe ser un link http(s).', { type: 'error' }); logoIn.focus(); return; }
+        saveBtn.disabled = true;
+        try {
+          await api.patch(`/clients/${client.id}`, {
+            name,
+            brand_color: colorIn.value,
+            instagram_handle: igIn.value.trim().replace(/^@/, '') || null,
+            logo_url: logo || null,
+          });
+          await store.refreshClientCounts();
+          toast(`Marca actualizada: ${name}.`, { type: 'success' });
+          close({ source: 'saved' });
+        } catch (e) {
+          toast(e.message || 'No se pudo guardar.', { type: 'error' });
+          saveBtn.disabled = false;
+        }
+      });
+
+      const archiveBtn = el('button', {
+        class: 'btn btn-danger cs-archive', type: 'button', text: 'Archivar marca',
+        title: 'La marca deja de aparecer; sus contenidos no se borran',
+        onclick: async () => {
+          if (!archiveBtn.dataset.armed) {
+            archiveBtn.dataset.armed = '1';
+            archiveBtn.textContent = '¿Segura? Toca otra vez';
+            setTimeout(() => { archiveBtn.dataset.armed = ''; archiveBtn.textContent = 'Archivar marca'; }, 3000);
+            return;
+          }
+          try {
+            await api.patch(`/clients/${client.id}`, { archived: 1 });
+            await store.refreshClientCounts();
+            toast(`${client.name} archivada.`, { type: 'success' });
+            close({ source: 'archived' });
+            const left = (store.getState().clients || []).filter((c) => !c.archived);
+            if (selectClient && left.length) selectClient(left[0].id);
+          } catch (e) {
+            toast(e.message || 'No se pudo archivar.', { type: 'error' });
+          }
+        },
+      });
+
+      body.append(
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Nombre' }), nameIn]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Instagram' }), igIn]),
+        el('div', { class: 'field' }, [
+          el('label', { class: 'label', text: 'Color de marca' }),
+          el('div', { class: 'cs-color-row' }, [colorIn, presets]),
+        ]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Logo (para el reporte)' }), logoIn]),
+        el('div', { class: 'sheet__footer' }, [
+          archiveBtn,
           el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
           saveBtn,
         ]),
