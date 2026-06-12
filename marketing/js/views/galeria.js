@@ -11,8 +11,8 @@
 // Datos SOLO del store global (cero fetch propio), igual que meses.js.
 // ============================================================================
 
-import { el, clear, STATUSES, statusLabel, contentTypeLabel, fmtDate } from '../api.js?v=202606112051';
-import { icon } from '../shell/icons.js?v=202606112051';
+import { el, clear, STATUSES, statusLabel, contentTypeLabel, fmtDate } from '../api.js?v=202606112340';
+import { icon } from '../shell/icons.js?v=202606112340';
 
 let ctx = null;
 let rootEl = null;
