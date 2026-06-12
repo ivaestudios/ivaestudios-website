@@ -893,3 +893,7 @@
 /* Full screen para el calendario: el shell topa #view a 1240px; aqui lo
    liberamos SOLO cuando esta montada la vista de meses (sin afectar las demas). */
 #view:has(.meses-root) { max-width: none; }
+
+/* Toggle de avisos automáticos por marca */
+.meses-remtoggle.is-off { color: var(--text-mute); }
+.meses-remtoggle.is-off .meses-remtoggle__txt { text-decoration: line-through; text-decoration-thickness: 1px; }

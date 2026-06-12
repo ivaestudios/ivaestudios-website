@@ -589,13 +589,13 @@ async function handlePatchClient(request, env, session, clientId) {
 
   let bodyObj;
   try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
-  const allowed = ['name', 'brand_color', 'logo_url', 'instagram_handle', 'timezone', 'notes', 'archived', 'contact_email'];
+  const allowed = ['name', 'brand_color', 'logo_url', 'instagram_handle', 'timezone', 'notes', 'archived', 'contact_email', 'reminders_enabled'];
   const sets = [];
   const vals = [];
   for (const f of allowed) {
     if (bodyObj && Object.prototype.hasOwnProperty.call(bodyObj, f)) {
       sets.push(`${f} = ?`);
-      vals.push(f === 'archived' ? (bodyObj[f] ? 1 : 0) : bodyObj[f]);
+      vals.push(f === 'archived' || f === 'reminders_enabled' ? (bodyObj[f] ? 1 : 0) : bodyObj[f]);
     }
   }
   // note_labels is a JSON column → validate + stringify separately.
@@ -1016,6 +1016,7 @@ async function lazySweep(env, opts = {}) {
     const res = await env.DB.prepare(
       `SELECT * FROM mkt_posts
         WHERE publish_date = ? AND status NOT IN ('programado','publicado')
+          AND client_id IN (SELECT id FROM mkt_clients WHERE COALESCE(reminders_enabled, 1) = 1)
         LIMIT 200`
     ).bind(target).all();
     let fired = 0;
@@ -1038,6 +1039,7 @@ async function lazySweep(env, opts = {}) {
     const res = await env.DB.prepare(
       `SELECT * FROM mkt_posts
         WHERE publish_date IS NOT NULL AND publish_date < ? AND status != 'publicado'
+          AND client_id IN (SELECT id FROM mkt_clients WHERE COALESCE(reminders_enabled, 1) = 1)
         LIMIT 200`
     ).bind(today).all();
     const rows = res.results || [];
@@ -1068,6 +1070,7 @@ async function lazySweep(env, opts = {}) {
       `SELECT * FROM mkt_posts
         WHERE publish_date = ? AND approval_state != 'approved'
           AND status != 'publicado' AND client_visible = 1
+          AND client_id IN (SELECT id FROM mkt_clients WHERE COALESCE(reminders_enabled, 1) = 1)
         LIMIT 200`
     ).bind(today).all();
     let fired = 0;

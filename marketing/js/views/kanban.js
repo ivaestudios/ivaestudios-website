@@ -23,15 +23,15 @@ import {
   STATUSES, STATUS_ORDER,
   CONTENT_TYPES, CONTENT_TYPE_ORDER,
   fmtDate,
-} from '../api.js?v=202606121319';
-import { icon } from '../shell/icons.js?v=202606121319';
-import { createCard, DEFAULT_CARD_FIELDS, CARD_FIELD_LABELS } from '../kanban/card.js?v=202606121319';
-import { createBattery } from '../kanban/battery.js?v=202606121319';
-import { createColumnComposer, openQuickAddSheet } from '../kanban/quick-add.js?v=202606121319';
+} from '../api.js?v=202606121328';
+import { icon } from '../shell/icons.js?v=202606121328';
+import { createCard, DEFAULT_CARD_FIELDS, CARD_FIELD_LABELS } from '../kanban/card.js?v=202606121328';
+import { createBattery } from '../kanban/battery.js?v=202606121328';
+import { createColumnComposer, openQuickAddSheet } from '../kanban/quick-add.js?v=202606121328';
 import {
   openMoveSheet, buildInsertUpdates, snapshotFor, sortColumn, columnKeyOf,
   OTHERS_KEY, OTHERS_LABEL, OTHERS_COLOR, STEP,
-} from '../kanban/move-sheet.js?v=202606121319';
+} from '../kanban/move-sheet.js?v=202606121328';
 
 const FILTER_KEYS = ['estado', 'tipo', 'persona', 'desde', 'hasta', 'q'];
 

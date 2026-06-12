@@ -26,8 +26,8 @@ import {
   el, clear,
   STATUSES, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606121319';
-import { icon } from '../shell/icons.js?v=202606121319';
+} from '../api.js?v=202606121328';
+import { icon } from '../shell/icons.js?v=202606121328';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -932,6 +932,36 @@ async function openAddMonth() {
 
 
 
+// Interruptor de avisos automáticos por marca (recordatorios, atrasados,
+// sin-aprobar). Persiste en mkt_clients.reminders_enabled vía PATCH.
+async function toggleReminders(btn) {
+  const { activeClientId, clients } = ctx.store.getState();
+  if (!activeClientId || activeClientId === 'todos') return;
+  const brand = (clients || []).find((c) => c.id === activeClientId);
+  if (!brand) return;
+  const next = brand.reminders_enabled === 0 ? 1 : 0;
+  btn.disabled = true;
+  try {
+    const r = await fetch(`/api/marketing/clients/${activeClientId}`, {
+      method: 'PATCH', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reminders_enabled: next }),
+    });
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'No se pudo guardar.');
+    ctx.store.set({ clients: clients.map((c) => (c.id === activeClientId ? { ...c, reminders_enabled: next } : c)) });
+    const span = btn.querySelector('.meses-remtoggle__txt');
+    if (span) span.textContent = `Avisos automáticos: ${next ? 'Activados' : 'Desactivados'}`;
+    btn.classList.toggle('is-off', !next);
+    ctx.toast(next
+      ? `Avisos automáticos activados para ${brand.name}.`
+      : `Avisos automáticos desactivados para ${brand.name}.`, { type: 'success' });
+  } catch (e) {
+    ctx.toast(e.message || 'No se pudo guardar.', { type: 'error' });
+  } finally {
+    btn.disabled = false;
+  }
+}
+
 // ── Secciones ────────────────────────────────────────────────────────────────
 
 function toggleSection(secEl, key) {
@@ -1320,6 +1350,14 @@ function render() {
       class: 'meses-addmonth', type: 'button',
       onclick: () => openAddMonth(),
     }, [icon('plus', 16), el('span', { text: 'Agregar mes' })]));
+    // Avisos automáticos por marca (solo admin/equipo).
+    const brandRow = (ctx.store.getState().clients || []).find((c) => c.id === activeClientId);
+    const remOn = !brandRow || brandRow.reminders_enabled !== 0;
+    sectionsEl.appendChild(el('button', {
+      class: 'meses-addmonth meses-remtoggle' + (remOn ? '' : ' is-off'), type: 'button',
+      title: 'Recordatorios de publicación, atrasados y sin-aprobar de esta marca',
+      onclick: (e) => toggleReminders(e.currentTarget),
+    }, [icon('bell', 16), el('span', { class: 'meses-remtoggle__txt', text: `Avisos automáticos: ${remOn ? 'Activados' : 'Desactivados'}` })]));
   }
   // Reporte mensual imprimible con el branding de la marca (admin y cliente).
   if (!isTodos && activeClientId && activeMonth && activeMonth !== SIN_MES) {
