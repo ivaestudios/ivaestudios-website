@@ -26,8 +26,8 @@ import {
   el, clear,
   STATUSES, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606121308';
-import { icon } from '../shell/icons.js?v=202606121308';
+} from '../api.js?v=202606121319';
+import { icon } from '../shell/icons.js?v=202606121319';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -377,52 +377,6 @@ function openCaptionDrawer(post) {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); save(); }
   });
 
-  // ── Barra de IA (solo staff: consume créditos de la agencia) ──
-  // Generar/Mejorar/Traducir reemplazan el texto del textarea (NO guardan:
-  // Vianey revisa y da Guardar). Hashtags se anexan al final.
-  let aiBar = null;
-  if (!document.body.classList.contains('is-client')) {
-    const aiStatus = el('span', { class: 'meses-ai__status', text: '' });
-    const runAi = async (action, btn) => {
-      const bar = aiBar;
-      try {
-        bar.querySelectorAll('button').forEach((b) => { b.disabled = true; });
-        btn.classList.add('is-busy');
-        aiStatus.textContent = 'Pensando…';
-        const r = await fetch(`/api/marketing/posts/${post.id}/ai`, {
-          method: 'POST', credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action, text: action === 'improve' || action === 'translate' ? ta.value : '' }),
-        });
-        const data = await r.json().catch(() => ({}));
-        if (!r.ok) throw new Error(data.error || 'Error de IA');
-        if (action === 'hashtags') {
-          ta.value = (ta.value ? ta.value.replace(/\s+$/, '') + '\n\n' : '') + data.text;
-        } else {
-          ta.value = data.text;
-        }
-        aiStatus.textContent = data.source === 'plantilla' ? 'Plantilla local (sin API key)' : 'Listo ✨ Revisa y Guarda';
-        ta.focus();
-      } catch (e) {
-        aiStatus.textContent = e.message || 'Error de IA';
-      } finally {
-        bar.querySelectorAll('button').forEach((b) => { b.disabled = false; });
-        btn.classList.remove('is-busy');
-      }
-    };
-    const aiBtn = (label, action, title) => el('button', {
-      class: 'meses-ai__btn', type: 'button', title,
-      onclick: (e) => runAi(action, e.currentTarget),
-    }, [el('span', { text: label })]);
-    aiBar = el('div', { class: 'meses-ai' }, [
-      aiBtn('✨ Generar', 'caption', 'Escribir un caption nuevo con IA'),
-      aiBtn('Mejorar', 'improve', 'Mejorar el caption actual'),
-      aiBtn('EN ↔ ES', 'translate', 'Traducir el caption'),
-      aiBtn('# Hashtags', 'hashtags', 'Sugerir hashtags'),
-      aiStatus,
-    ]);
-  }
-
   drawerEl = el('div', { class: 'meses-drawer__wrap', role: 'dialog', 'aria-modal': 'true', 'aria-label': `Caption de ${post.title || 'contenido'}` }, [
     el('div', { class: 'meses-drawer__overlay', onclick: () => closeCaptionDrawer() }),
     el('aside', { class: 'meses-drawer' }, [
@@ -436,7 +390,6 @@ function openCaptionDrawer(post) {
           onclick: () => closeCaptionDrawer(),
         }, [icon('close', 18)]),
       ]),
-      ...(aiBar ? [aiBar] : []),
       ta,
       el('footer', { class: 'meses-drawer__foot' }, [
         el('span', { class: 'meses-drawer__hint', text: 'Cmd+Enter guarda · Esc cierra' }),
@@ -974,254 +927,10 @@ async function openAddMonth() {
   render();
 }
 
-// Duplicar el mes activo completo a otro mes (copia filas con captions/notas;
-// el estado vuelve a "Idea"). Backend: POST /posts/duplicate-month.
-async function openDuplicateMonth() {
-  const { activeClientId } = ctx.store.getState();
-  if (!activeClientId || activeClientId === 'todos' || !activeMonth || activeMonth === SIN_MES) return;
-  const from = activeMonth;
-  const [fy, fm] = from.split('-').map(Number);
-  const options = [];
-  for (let i = 1; i <= 12; i++) {
-    const d = new Date(fy, (fm - 1) + i, 1);
-    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    options.push({ value: ym, label: capitalize(monthLabel(ym)), current: false });
-  }
-  const to = await ctx.sheet.pickFrom({ title: `Duplicar ${capitalize(monthLabel(from))} a…`, options });
-  if (!to) return;
-  try {
-    const r = await fetch('/api/marketing/posts/duplicate-month', {
-      method: 'POST', credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ client_id: activeClientId, from, to }),
-    });
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(data.error || 'No se pudo duplicar el mes.');
-    ctx.toast(`${data.created} contenidos copiados a ${capitalize(monthLabel(to))}.`, { type: 'success' });
-    activeMonth = to;
-    await ctx.store.loadPosts(activeClientId);
-  } catch (e) {
-    ctx.toast(e.message || 'No se pudo duplicar el mes.', { type: 'error' });
-  }
-}
 
-// Generar con IA los captions de TODO el mes activo (solo los que están
-// vacíos), uno por uno con progreso visible. Estilo "columna IA" de Monday.
-function openBulkCaptions() {
-  const { activeClientId, posts } = ctx.store.getState();
-  if (!activeClientId || activeClientId === 'todos' || !activeMonth || activeMonth === SIN_MES) return;
-  const pending = (posts || []).filter((p) =>
-    String(p.publish_date || '').startsWith(activeMonth) && !String(p.caption || '').trim());
-  if (!pending.length) {
-    ctx.toast('Todos los contenidos de este mes ya tienen caption. ✨', { type: 'info' });
-    return;
-  }
-  let cancelled = false;
-  ctx.sheet.openSheet({
-    title: '✨ Captions del mes con IA',
-    mode: 'form',
-    onClose: () => { cancelled = true; },
-    build(body, close) {
-      const prog = el('p', { class: 'meses-confirm__txt', text: '' });
-      const goBtn = el('button', {
-        class: 'btn btn-primary sheet-cta', type: 'button',
-        text: `✨ Generar ${pending.length} caption${pending.length === 1 ? '' : 's'}`,
-      });
-      const cancelBtn = el('button', {
-        class: 'btn', type: 'button', text: 'Cancelar',
-        onclick: () => { cancelled = true; close({ source: 'cancel' }); },
-      });
-      goBtn.onclick = async () => {
-        goBtn.disabled = true;
-        goBtn.textContent = 'Generando…';
-        let ok = 0; let fail = 0;
-        for (let i = 0; i < pending.length; i++) {
-          if (cancelled) break;
-          const p = pending[i];
-          prog.textContent = `${i + 1}/${pending.length} — ${p.title || 'Sin título'}…`;
-          try {
-            const r = await fetch(`/api/marketing/posts/${p.id}/ai`, {
-              method: 'POST', credentials: 'include',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ action: 'caption' }),
-            });
-            const data = await r.json().catch(() => ({}));
-            if (!r.ok || !data.text) throw new Error(data.error || 'sin texto');
-            await ctx.store.patchPost(p.id, { caption: data.text });
-            ok += 1;
-          } catch {
-            fail += 1;
-          }
-        }
-        close({ source: 'done' });
-        ctx.toast(
-          fail ? `${ok} captions generados, ${fail} fallaron.` : `${ok} captions generados. Revísalos y edítalos a tu gusto. ✨`,
-          { type: fail ? 'info' : 'success' }
-        );
-      };
-      body.append(
-        el('p', {
-          class: 'meses-confirm__txt',
-          text: `La IA escribirá un caption para los ${pending.length} contenidos sin caption de ${capitalize(monthLabel(activeMonth))}, uno por uno. Después tú los revisas y editas.`,
-        }),
-        prog,
-        el('div', { class: 'sheet__footer' }, [cancelBtn, goBtn]),
-      );
-    },
-  });
-}
 
-// Guardar el mes activo como plantilla reutilizable (estilo Monday templates).
-function openSaveTemplate() {
-  const { activeClientId, clients } = ctx.store.getState();
-  if (!activeClientId || activeClientId === 'todos' || !activeMonth || activeMonth === SIN_MES) return;
-  const brand = (clients || []).find((c) => c.id === activeClientId);
-  ctx.sheet.openSheet({
-    title: 'Guardar mes como plantilla',
-    mode: 'form',
-    build(body, close) {
-      const input = el('input', {
-        class: 'input', placeholder: 'Nombre de la plantilla',
-        value: `Mes ${(brand && brand.name) || ''}`.trim(),
-      });
-      body.append(
-        el('p', { class: 'meses-confirm__txt', text: `Se guardará ${capitalize(monthLabel(activeMonth))} (títulos, captions, notas y días del mes) para sembrar meses nuevos de un click.` }),
-        input,
-        el('div', { class: 'sheet__footer' }, [
-          el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
-          el('button', {
-            class: 'btn btn-primary sheet-cta', type: 'button', text: 'Guardar plantilla',
-            onclick: async () => {
-              const name = input.value.trim();
-              if (!name) { input.focus(); return; }
-              const r = await fetch('/api/marketing/templates', {
-                method: 'POST', credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, client_id: activeClientId, from: activeMonth }),
-              });
-              const d = await r.json().catch(() => ({}));
-              close({ source: 'save' });
-              if (r.ok) ctx.toast(`Plantilla "${name}" guardada (${d.count} contenidos).`, { type: 'success' });
-              else ctx.toast(d.error || 'No se pudo guardar.', { type: 'error' });
-            },
-          }),
-        ]),
-      );
-      setTimeout(() => input.select(), 80);
-    },
-  });
-}
 
-// Crear un mes nuevo desde una plantilla guardada.
-async function openApplyTemplate() {
-  const { activeClientId } = ctx.store.getState();
-  if (!activeClientId || activeClientId === 'todos') return;
-  const r = await fetch('/api/marketing/templates', { credentials: 'include' });
-  const d = await r.json().catch(() => ({}));
-  if (!r.ok) { ctx.toast(d.error || 'No se pudieron cargar las plantillas.', { type: 'error' }); return; }
-  const tpls = d.templates || [];
-  if (!tpls.length) { ctx.toast('Aún no hay plantillas. Guarda un mes como plantilla primero.', { type: 'info' }); return; }
 
-  const tplId = await ctx.sheet.pickFrom({
-    title: 'Crear mes desde plantilla',
-    options: tpls.map((t) => ({ value: t.id, label: `${t.name} (${t.count})`, current: false })),
-  });
-  if (!tplId) return;
-
-  const now = new Date();
-  const options = [];
-  for (let i = 0; i <= 12; i++) {
-    const dt = new Date(now.getFullYear(), now.getMonth() + i, 1);
-    const ym = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`;
-    options.push({ value: ym, label: capitalize(monthLabel(ym)), current: false });
-  }
-  const to = await ctx.sheet.pickFrom({ title: 'Sembrar en…', options });
-  if (!to) return;
-
-  try {
-    const res = await fetch(`/api/marketing/templates/${tplId}/apply`, {
-      method: 'POST', credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ client_id: activeClientId, to }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || 'No se pudo aplicar la plantilla.');
-    ctx.toast(`${data.created} contenidos creados en ${capitalize(monthLabel(to))}.`, { type: 'success' });
-    activeMonth = to;
-    await ctx.store.loadPosts(activeClientId);
-  } catch (e) {
-    ctx.toast(e.message || 'No se pudo aplicar la plantilla.', { type: 'error' });
-  }
-}
-
-// Link mágico del cliente: entra a su panel SIN contraseña. Rotable/revocable.
-function openShareLink() {
-  const { activeClientId, clients } = ctx.store.getState();
-  if (!activeClientId || activeClientId === 'todos') return;
-  const brand = (clients || []).find((c) => c.id === activeClientId);
-  const base = `/api/marketing/clients/${activeClientId}/share-link`;
-  const urlOf = (t) => `${location.origin}/api/marketing/share/${t}`;
-
-  ctx.sheet.openSheet({
-    title: `🔗 Link de ${(brand && brand.name) || 'cliente'}`,
-    mode: 'form',
-    build(body, close) {
-      const input = el('input', { class: 'input meses-sharelink__input', readonly: '', value: 'Cargando…' });
-      const copyBtn = el('button', {
-        class: 'btn btn-primary sheet-cta', type: 'button', text: 'Copiar link',
-        onclick: async () => {
-          try {
-            await navigator.clipboard.writeText(input.value);
-            ctx.toast('Link copiado. Mándaselo por WhatsApp. 📲', { type: 'success' });
-          } catch {
-            input.select();
-            document.execCommand('copy');
-            ctx.toast('Link copiado.', { type: 'success' });
-          }
-        },
-      });
-      const rotateBtn = el('button', {
-        class: 'btn', type: 'button', text: 'Generar nuevo',
-        title: 'Crea un link nuevo; el anterior deja de funcionar',
-        onclick: async () => {
-          rotateBtn.disabled = true;
-          const r = await fetch(base, { method: 'POST', credentials: 'include' });
-          const d = await r.json().catch(() => ({}));
-          rotateBtn.disabled = false;
-          if (r.ok && d.token) { input.value = urlOf(d.token); ctx.toast('Link nuevo generado. El anterior ya no sirve.', { type: 'success' }); }
-          else ctx.toast(d.error || 'No se pudo generar.', { type: 'error' });
-        },
-      });
-      const revokeBtn = el('button', {
-        class: 'btn btn-danger', type: 'button', text: 'Revocar',
-        title: 'Desactiva el link; el cliente vuelve a necesitar contraseña',
-        onclick: async () => {
-          const r = await fetch(base, { method: 'DELETE', credentials: 'include' });
-          if (r.ok) { close({ source: 'revoke' }); ctx.toast('Link revocado.', { type: 'success' }); }
-        },
-      });
-      body.append(
-        el('p', {
-          class: 'meses-confirm__txt',
-          text: 'Con este link tu cliente entra directo a su calendario, sin usuario ni contraseña. Cualquiera con el link puede entrar: compártelo solo con tu cliente.',
-        }),
-        input,
-        el('div', { class: 'sheet__footer' }, [revokeBtn, rotateBtn, copyBtn]),
-      );
-      // Cargar el token actual; si no existe, crear uno al vuelo.
-      (async () => {
-        let r = await fetch(base, { credentials: 'include' });
-        let d = await r.json().catch(() => ({}));
-        if (r.ok && !d.token) {
-          r = await fetch(base, { method: 'POST', credentials: 'include' });
-          d = await r.json().catch(() => ({}));
-        }
-        if (r.ok && d.token) input.value = urlOf(d.token);
-        else { input.value = ''; ctx.toast(d.error || 'No se pudo cargar el link.', { type: 'error' }); }
-      })();
-    },
-  });
-}
 
 // ── Secciones ────────────────────────────────────────────────────────────────
 
@@ -1611,48 +1320,14 @@ function render() {
       class: 'meses-addmonth', type: 'button',
       onclick: () => openAddMonth(),
     }, [icon('plus', 16), el('span', { text: 'Agregar mes' })]));
-    // Duplicar el mes activo a otro mes (plantillas de mes, estilo Monday).
-    if (activeMonth && activeMonth !== SIN_MES && (byMonth.get(activeMonth) || []).length) {
-      sectionsEl.appendChild(el('button', {
-        class: 'meses-addmonth meses-dupmonth', type: 'button',
-        onclick: () => openDuplicateMonth(),
-      }, [icon('copy', 16), el('span', { text: `Duplicar ${capitalize(monthLabel(activeMonth))} a…` })]));
-      // IA en lote: captions para todo el mes (estilo columna IA de Monday).
-      sectionsEl.appendChild(el('button', {
-        class: 'meses-addmonth meses-bulkai', type: 'button',
-        onclick: () => openBulkCaptions(),
-      }, [icon('spark', 16), el('span', { text: 'Captions del mes con IA' })]));
-      // Plantillas de mes: guardar este mes / sembrar otro.
-      sectionsEl.appendChild(el('button', {
-        class: 'meses-addmonth meses-savetpl', type: 'button',
-        onclick: () => openSaveTemplate(),
-      }, [icon('archive', 16), el('span', { text: 'Guardar mes como plantilla' })]));
-    }
-    sectionsEl.appendChild(el('button', {
-      class: 'meses-addmonth meses-applytpl', type: 'button',
-      onclick: () => openApplyTemplate(),
-    }, [icon('inbox', 16), el('span', { text: 'Crear mes desde plantilla' })]));
-    // Link mágico: el cliente entra sin contraseña.
-    sectionsEl.appendChild(el('button', {
-      class: 'meses-addmonth meses-sharelink', type: 'button',
-      onclick: () => openShareLink(),
-    }, [icon('link', 16), el('span', { text: 'Link del cliente (sin contraseña)' })]));
   }
-  // Exportar a Google/Apple Calendar (.ics) — admin Y cliente.
-  if (!isTodos && activeClientId) {
+  // Reporte mensual imprimible con el branding de la marca (admin y cliente).
+  if (!isTodos && activeClientId && activeMonth && activeMonth !== SIN_MES) {
     sectionsEl.appendChild(el('a', {
-      class: 'meses-icslink',
-      href: `/api/marketing/calendar.ics?client_id=${encodeURIComponent(activeClientId)}`,
-      download: '',
-    }, [icon('calendar', 15), el('span', { text: 'Exportar a mi calendario (.ics)' })]));
-    // Reporte mensual imprimible con el branding de la marca.
-    if (activeMonth && activeMonth !== SIN_MES) {
-      sectionsEl.appendChild(el('a', {
-        class: 'meses-icslink meses-replink',
-        href: `/api/marketing/report?client_id=${encodeURIComponent(activeClientId)}&month=${encodeURIComponent(activeMonth)}`,
-        target: '_blank', rel: 'noopener',
-      }, [icon('activity', 15), el('span', { text: `Reporte de ${capitalize(monthLabel(activeMonth))}` })]));
-    }
+      class: 'meses-icslink meses-replink',
+      href: `/api/marketing/report?client_id=${encodeURIComponent(activeClientId)}&month=${encodeURIComponent(activeMonth)}`,
+      target: '_blank', rel: 'noopener',
+    }, [icon('activity', 15), el('span', { text: `Reporte de ${capitalize(monthLabel(activeMonth))}` })]));
   }
 
   // Barra lateral de meses (desktop): salta y expande la seccion del mes.

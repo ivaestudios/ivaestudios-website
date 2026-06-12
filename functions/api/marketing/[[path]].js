@@ -42,10 +42,7 @@
 // 404 ("No disponible") and everything legacy keeps working.
 
 import { handleDashboard } from './_dashboard.js';
-import {
-  handleAiAssist, handleCalendarIcs, handleDuplicateMonth,
-  handleTemplates, handleMonthlyReport, sendClientReviewEmail,
-} from './_enterprise.js';
+import { handleMonthlyReport } from './_enterprise.js';
 
 // ============================================================================
 // CRYPTO / UTILITY HELPERS  (copied VERBATIM from the gallery function)
@@ -449,90 +446,6 @@ async function handleLogin(request, env) {
     200,
     { 'Set-Cookie': sessionCookie(sessionId, expiry) }
   );
-}
-
-// ── Link mágico de cliente (estilo Monday share links) ──────────────────────
-// El staff genera un token por marca; el cliente abre
-// /api/marketing/share/<token> desde WhatsApp y entra SIN contraseña como el
-// usuario cliente de su marca. Token rotable (rotar = los links viejos mueren).
-
-function isMissingColumnError(e) {
-  return /no such column/i.test((e && e.message) || '');
-}
-
-async function handleShareEntry(request, env, token) {
-  const back = (msg) => Response.redirect(new URL(`/marketing/?link=${msg}`, request.url).toString(), 302);
-  if (!/^[a-f0-9]{64}$/.test(String(token || ''))) return back('invalido');
-
-  let client;
-  try {
-    client = await env.DB.prepare(
-      'SELECT id, name, archived FROM mkt_clients WHERE share_token = ?'
-    ).bind(token).first();
-  } catch (e) {
-    if (isMissingColumnError(e)) return back('migracion');
-    throw e;
-  }
-  if (!client || client.archived) return back('invalido');
-
-  const user = await env.DB.prepare(
-    "SELECT * FROM mkt_users WHERE role = 'client' AND client_id = ? AND active = 1 ORDER BY created_at LIMIT 1"
-  ).bind(client.id).first();
-  if (!user) return back('sin-usuario');
-
-  const sessionId = randomId();
-  const expiry = env.SESSION_EXPIRY_SECONDS || '604800';
-  await env.DB.prepare(
-    'INSERT INTO mkt_sessions (id, user_id, expires_at) VALUES (?, ?, datetime("now", "+" || ? || " seconds"))'
-  ).bind(sessionId, user.id, expiry).run();
-  await env.DB.prepare("UPDATE mkt_users SET last_login = datetime('now') WHERE id = ?").bind(user.id).run();
-  await logActivity(env, {
-    client_id: client.id,
-    session: { user_id: user.id, name: user.name },
-    action: 'auth.share_link',
-    detail: `Entró con link mágico (${client.name})`,
-  });
-
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: new URL('/marketing/app#/meses', request.url).toString(),
-      'Set-Cookie': sessionCookie(sessionId, expiry),
-      'Cache-Control': 'no-store',
-    },
-  });
-}
-
-async function handleShareLink(request, env, session, clientId, method) {
-  const client = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(clientId).first();
-  if (!client) return json({ error: 'Cliente no encontrado' }, 404);
-
-  try {
-    if (method === 'GET') {
-      const row = await env.DB.prepare('SELECT share_token FROM mkt_clients WHERE id = ?').bind(clientId).first();
-      return json({ token: (row && row.share_token) || null });
-    }
-    if (method === 'POST') {
-      // Rotar siempre: generar invalida el link anterior.
-      const token = randomId() + randomId();
-      await env.DB.prepare(
-        "UPDATE mkt_clients SET share_token = ?, updated_at = datetime('now') WHERE id = ?"
-      ).bind(token, clientId).run();
-      await logActivity(env, { client_id: clientId, session, action: 'client.share_link_rotate', detail: 'Generó link mágico' });
-      return json({ token });
-    }
-    if (method === 'DELETE') {
-      await env.DB.prepare(
-        "UPDATE mkt_clients SET share_token = NULL, updated_at = datetime('now') WHERE id = ?"
-      ).bind(clientId).run();
-      await logActivity(env, { client_id: clientId, session, action: 'client.share_link_revoke', detail: 'Revocó link mágico' });
-      return json({ ok: true });
-    }
-  } catch (e) {
-    if (isMissingColumnError(e)) return json({ error: 'Migracion 006 pendiente' }, 409);
-    throw e;
-  }
-  return json({ error: 'Method not allowed' }, 405);
 }
 
 async function handleLogout(request, env, session) {
@@ -1061,8 +974,6 @@ async function hookPatchPost(env, session, before, after, bodyObj) {
       body: `${after.title} pasó a Revisión y espera al cliente`,
       link, post_id: after.id, client_id: after.client_id, actor_name: session.name
     });
-    // Aviso por correo al cliente (no-op sin RESEND_API_KEY; nunca truena).
-    try { await sendClientReviewEmail(env, after); } catch { /* noop */ }
   }
 }
 
@@ -2663,10 +2574,6 @@ async function route(request, env) {
   // ── Public auth endpoints (no session required) ──
   if (path === '/auth/login' && method === 'POST') return handleLogin(request, env);
   if (path === '/auth/register' && method === 'POST') return handleRegister(request, env);
-  // Link mágico del cliente: entra sin contraseña con el token de su marca.
-  if (parts[0] === 'share' && parts.length === 2 && method === 'GET') {
-    return handleShareEntry(request, env, parts[1]);
-  }
 
   // ── CRON (no session; Bearer MKT_CRON_SECRET) — BEFORE the session gate ──
   if (path === '/cron' && method === 'POST') return handleCron(request, env);
@@ -2702,11 +2609,6 @@ async function route(request, env) {
       if (method === 'DELETE') return handleArchiveClient(env, session, clientId);
       return json({ error: 'Method not allowed' }, 405);
     }
-    // /clients/:id/share-link — link mágico (solo staff): GET ver, POST rotar, DELETE revocar.
-    if (parts.length === 3 && parts[2] === 'share-link') {
-      if (!isStaff) return json({ error: 'Forbidden' }, 403);
-      return handleShareLink(request, env, session, parts[1], method);
-    }
   }
 
   // ── USERS (admin/team only) ──
@@ -2741,11 +2643,6 @@ async function route(request, env) {
       if (!isStaff) return json({ error: 'Forbidden' }, 403);
       return handleBulkDelete(request, env, session);
     }
-    // Duplicar mes completo (plantillas de mes, estilo Monday). Solo staff.
-    if (parts.length === 2 && parts[1] === 'duplicate-month' && method === 'POST') {
-      if (!isStaff) return json({ error: 'Forbidden' }, 403);
-      return handleDuplicateMonth(request, env, session);
-    }
     if (parts.length === 1) {
       if (method === 'GET') return handleListPosts(request, env, session, url);
       // Crear: staff o cliente (el handler fuerza el client_id del cliente).
@@ -2771,10 +2668,6 @@ async function route(request, env) {
       if (sub === 'duplicate' && method === 'POST') {
         if (!isStaff) return json({ error: 'Forbidden' }, 403);
         return guardTables(() => handleDuplicatePost(request, env, session, postId));
-      }
-      // IA de contenido (captions/hashtags/ideas). Solo staff: consume créditos.
-      if (sub === 'ai' && method === 'POST') {
-        return handleAiAssist(request, env, session, postId);
       }
       // Video final: subida directa a R2 (staff o cliente dueño de la marca).
       if (sub === 'video') {
@@ -2827,19 +2720,9 @@ async function route(request, env) {
   }
 
   // ── EXPORTAR CALENDARIO .ics (staff o cliente; el cliente va forzado a SU marca) ──
-  // ── TEMPLATES (plantillas de mes; solo staff) ──
-  if (parts[0] === 'templates') {
-    if (!isStaff) return json({ error: 'Forbidden' }, 403);
-    return handleTemplates(request, env, session, parts, method);
-  }
-
   // Reporte mensual del cliente (HTML imprimible; cliente forzado a su marca).
   if (path === '/report' && method === 'GET') {
     return handleMonthlyReport(request, env, session, url);
-  }
-
-  if (path === '/calendar.ics' && method === 'GET') {
-    return handleCalendarIcs(request, env, session, url);
   }
 
   // ── SEARCH (staff) ──

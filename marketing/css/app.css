@@ -1348,10 +1348,3 @@ textarea.gedit { resize: vertical; min-height: 70px; line-height: 1.45; }
 @media (max-width: 767px) {
   input, select, textarea { font-size: 16px !important; }
 }
-
-/* ── Tour de novedades (sheet una-vez para staff) ── */
-.news-list { display: flex; flex-direction: column; gap: 14px; padding: 4px 0 10px; }
-.news-item { display: flex; gap: 12px; align-items: flex-start; }
-.news-item__emoji { font-size: 20px; flex: none; line-height: 1.3; }
-.news-item strong { font-size: 14.5px; color: var(--text); }
-.news-item__d { margin: 2px 0 0; font-size: 13px; color: var(--text-dim); line-height: 1.45; }
