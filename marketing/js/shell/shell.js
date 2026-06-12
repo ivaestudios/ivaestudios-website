@@ -19,20 +19,20 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202606112340';
-import * as store from './store.js?v=202606112340';
-import * as prefs from './prefs.js?v=202606112340';
-import * as router from './router.js?v=202606112340';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202606112340';
-import { toast } from './toast.js?v=202606112340';
-import { icon } from './icons.js?v=202606112340';
-import * as iconsMod from './icons.js?v=202606112340';
-import { createTopbar } from './topbar.js?v=202606112340';
-import { createBottomNav } from './bottomnav.js?v=202606112340';
-import { createSearch } from './search.js?v=202606112340';
-import { createNotifications } from './notifications.js?v=202606112340';
-import * as pickers from '../ui/pickers.js?v=202606112340';
-import * as dnd from '../ui/dnd.js?v=202606112340';
+import { api, el } from '../api.js?v=202606121308';
+import * as store from './store.js?v=202606121308';
+import * as prefs from './prefs.js?v=202606121308';
+import * as router from './router.js?v=202606121308';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202606121308';
+import { toast } from './toast.js?v=202606121308';
+import { icon } from './icons.js?v=202606121308';
+import * as iconsMod from './icons.js?v=202606121308';
+import { createTopbar } from './topbar.js?v=202606121308';
+import { createBottomNav } from './bottomnav.js?v=202606121308';
+import { createSearch } from './search.js?v=202606121308';
+import { createNotifications } from './notifications.js?v=202606121308';
+import * as pickers from '../ui/pickers.js?v=202606121308';
+import * as dnd from '../ui/dnd.js?v=202606121308';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -375,6 +375,57 @@ export async function boot() {
   }
   const appEl = document.getElementById('app');
   if (appEl) appEl.hidden = false;
+
+  // 7) Tour de novedades (staff, una sola vez por versión): las features
+  // enterprise viven en drawers/acciones y sin esto nadie las descubre.
+  maybeShowNews(me);
+}
+
+const NEWS_VERSION = 'mkt_news_202606';
+
+function maybeShowNews(me) {
+  if (me.role === 'client') return;
+  let seen = null;
+  try { seen = localStorage.getItem(NEWS_VERSION); } catch { /* noop */ }
+  if (seen) return;
+  try { localStorage.setItem(NEWS_VERSION, '1'); } catch { /* noop */ }
+
+  const items = [
+    ['✨', 'IA para captions', 'Abre cualquier caption en Cuadrícula: arriba están Generar, Mejorar, EN↔ES y Hashtags.'],
+    ['⚡', 'Captions del mes con IA', 'Al final de la tabla: un click y la IA escribe todos los captions que falten del mes.'],
+    ['🔗', 'Link del cliente sin contraseña', 'Genera un link, mándalo por WhatsApp y tu cliente entra directo a aprobar. Rotable y revocable.'],
+    ['🖼️', 'Vista Galería', 'Pestaña nueva arriba: el mes como feed visual estilo Instagram. Tus clientes también la ven.'],
+    ['📦', 'Plantillas de mes', 'Guarda un mes como plantilla y siembra meses nuevos de un click (al final de la tabla).'],
+    ['📊', 'Reporte mensual', 'Página imprimible con el logo y color de cada marca, lista para enviar (al final de la tabla).'],
+    ['⧉', 'Duplicar mes + 📅 Exportar .ics', 'Copia un mes completo a otro; agrega las fechas al calendario del teléfono.'],
+    ['📬', 'Avisos automáticos', 'Recordatorios de publicación ya activos; correos al cliente al mandar a revisión (se enciende con la API key de Resend).'],
+  ];
+
+  openSheet({
+    title: '✨ Tu app ahora es enterprise',
+    mode: 'form',
+    build(body, close) {
+      const list = el('div', { class: 'news-list' });
+      for (const [emoji, t, d] of items) {
+        list.appendChild(el('div', { class: 'news-item' }, [
+          el('span', { class: 'news-item__emoji', text: emoji }),
+          el('div', {}, [
+            el('strong', { text: t }),
+            el('p', { class: 'news-item__d', text: d }),
+          ]),
+        ]));
+      }
+      body.append(
+        list,
+        el('div', { class: 'sheet__footer' }, [
+          el('button', {
+            class: 'btn btn-primary sheet-cta', type: 'button', text: 'Ir a verlas',
+            onclick: () => { close({ source: 'go' }); router.navigate('meses', {}); },
+          }),
+        ]),
+      );
+    },
+  });
 }
 
 // Re-exports utiles para los paquetes de vistas.
