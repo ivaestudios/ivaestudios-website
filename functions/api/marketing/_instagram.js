@@ -8,7 +8,11 @@
 
 const AUTH = 'https://www.instagram.com/oauth/authorize';
 const TOKEN = 'https://api.instagram.com/oauth/access_token';
-const GRAPH = 'https://graph.instagram.com/v21.0';
+const BASE = 'https://graph.instagram.com';
+const GRAPH = `${BASE}/v23.0`;
+// Scopes del flujo Instagram Login. manage_insights habilita followers/alcance;
+// requiere Advanced Access (App Review) para cuentas que no administra la app.
+const IG_SCOPE = 'instagram_business_basic,instagram_business_manage_insights';
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
@@ -47,7 +51,7 @@ export async function handleIgLogin(request, env, session, url) {
     redirect_uri: redirectUri(request),
     state: nonce,
     response_type: 'code',
-    scope: 'instagram_business_basic',
+    scope: IG_SCOPE,
   });
   return Response.redirect(`${AUTH}?${p}`, 302);
 }
@@ -79,7 +83,7 @@ export async function handleIgCallback(request, env, url) {
     }
 
     // 2) token corto → token largo (60 días)
-    const longRes = await fetch(`${GRAPH.replace('/v21.0', '')}/access_token?grant_type=ig_exchange_token&client_secret=${encodeURIComponent(env.META_APP_SECRET)}&access_token=${encodeURIComponent(t1.access_token)}`);
+    const longRes = await fetch(`${BASE}/access_token?grant_type=ig_exchange_token&client_secret=${encodeURIComponent(env.META_APP_SECRET)}&access_token=${encodeURIComponent(t1.access_token)}`);
     const long = await longRes.json();
     const token = long.access_token || t1.access_token;
 
