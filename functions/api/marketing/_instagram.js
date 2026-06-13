@@ -170,10 +170,61 @@ export async function fetchIgMetrics(env, clientId, month) {
 }
 
 // GET /ig/metrics?client_id&month — staff o el cliente de su propia marca.
+// Prioridad: API conectada con datos → si no, captura manual del mes.
 export async function handleIgMetrics(request, env, session, url) {
   let clientId = url.searchParams.get('client_id') || '';
   if (session.role === 'client') clientId = session.client_id;
   if (!clientId) return json({ error: 'client_id requerido' }, 400);
-  const out = await fetchIgMetrics(env, clientId, url.searchParams.get('month') || '');
+  const month = url.searchParams.get('month') || '';
+  const out = await fetchIgMetrics(env, clientId, month);
+  if (out && out.connected && out.data && !out.error) return json(out);
+  // Fallback: números capturados a mano para ese mes.
+  const man = await getManualMetrics(env, clientId, month);
+  if (man) return json({ connected: true, source: 'manual', manual: man, month });
   return json(out);
+}
+
+// ── Captura manual de resultados (bridge mientras Meta aprueba App Review) ──
+// Lee los números de un mes; null si no hay.
+export async function getManualMetrics(env, clientId, month) {
+  if (!/^\d{4}-\d{2}$/.test(String(month || ''))) return null;
+  try {
+    const r = await env.DB.prepare(
+      'SELECT followers, reach, interactions, posts FROM mkt_ig_manual WHERE client_id = ? AND month = ?'
+    ).bind(clientId, month).first();
+    if (!r) return null;
+    if (r.followers == null && r.reach == null && r.interactions == null && r.posts == null) return null;
+    return r;
+  } catch { return null; }
+}
+
+// GET/POST /ig/manual?client_id&month (staff). POST guarda los 4 números.
+export async function handleIgManual(request, env, session, url) {
+  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  const method = request.method;
+  let clientId = url.searchParams.get('client_id') || '';
+  let month = url.searchParams.get('month') || '';
+
+  if (method === 'GET') {
+    if (!clientId || !/^\d{4}-\d{2}$/.test(month)) return json({ error: 'client_id y month requeridos' }, 400);
+    const r = await getManualMetrics(env, clientId, month);
+    return json({ ok: true, manual: r || null });
+  }
+  if (method === 'POST') {
+    let b; try { b = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+    clientId = b.client_id || clientId;
+    month = b.month || month;
+    if (!clientId || !/^\d{4}-\d{2}$/.test(String(month))) return json({ error: 'client_id y month (AAAA-MM) requeridos' }, 400);
+    const num = (v) => (v === '' || v == null ? null : (Number.isFinite(Number(v)) ? Math.max(0, Math.round(Number(v))) : null));
+    await env.DB.prepare(
+      `INSERT INTO mkt_ig_manual (client_id, month, followers, reach, interactions, posts, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+       ON CONFLICT(client_id, month) DO UPDATE SET
+         followers=excluded.followers, reach=excluded.reach,
+         interactions=excluded.interactions, posts=excluded.posts,
+         updated_at=datetime('now')`
+    ).bind(clientId, month, num(b.followers), num(b.reach), num(b.interactions), num(b.posts)).run();
+    return json({ ok: true });
+  }
+  return json({ error: 'Method not allowed' }, 405);
 }

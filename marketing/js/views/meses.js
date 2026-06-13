@@ -26,9 +26,9 @@ import {
   el, clear,
   STATUSES, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606130300';
-import { icon } from '../shell/icons.js?v=202606130300';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202606130300';
+} from '../api.js?v=202606130448';
+import { icon } from '../shell/icons.js?v=202606130448';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202606130448';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -993,6 +993,65 @@ async function openAddMonth() {
 
 
 
+// Captura manual de resultados de Instagram del mes activo (bridge mientras
+// Meta aprueba el acceso automático). Aparecen en el reporte mensual.
+function openIgManual() {
+  const { activeClientId, clients } = ctx.store.getState();
+  if (!activeClientId || activeClientId === 'todos' || !activeMonth || activeMonth === SIN_MES) return;
+  const brand = (clients || []).find((c) => c.id === activeClientId);
+  const mesLbl = capitalize(monthLabel(activeMonth));
+  ctx.sheet.openSheet({
+    title: `Resultados de IG · ${mesLbl}`,
+    mode: 'form',
+    build(body, close) {
+      const field = (label, key, ph) => {
+        const input = el('input', { class: 'input', type: 'number', min: '0', inputmode: 'numeric', placeholder: ph, dataset: { k: key } });
+        return { row: el('div', { class: 'field' }, [el('label', { class: 'label', text: label }), input]), input };
+      };
+      const f1 = field('Seguidores', 'followers', 'ej. 4100');
+      const f2 = field('Alcance del mes', 'reach', 'ej. 35000');
+      const f3 = field('Interacciones (likes + comentarios)', 'interactions', 'ej. 1200');
+      const f4 = field('Publicaciones del mes', 'posts', 'ej. 12');
+      const inputs = [f1, f2, f3, f4];
+      const hint = el('p', {
+        class: 'meses-confirm__txt',
+        text: `Abre Meta Business Suite → ${(brand && brand.name) || 'la marca'} → Estadísticas, copia los números de ${mesLbl} y pégalos aquí. Saldrán en el reporte mensual con tu logo.`,
+      });
+      const saveBtn = el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: 'Guardar resultados' });
+      saveBtn.addEventListener('click', async () => {
+        saveBtn.disabled = true;
+        const payload = { client_id: activeClientId, month: activeMonth };
+        for (const { input } of inputs) payload[input.dataset.k] = input.value.trim() === '' ? null : Number(input.value);
+        try {
+          const r = await fetch('/api/marketing/ig/manual', {
+            method: 'POST', credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'No se pudo guardar.');
+          close({ source: 'saved' });
+          ctx.toast(`Resultados de IG de ${mesLbl} guardados. Ya salen en el reporte. ✨`, { type: 'success' });
+        } catch (e) {
+          ctx.toast(e.message || 'No se pudo guardar.', { type: 'error' });
+          saveBtn.disabled = false;
+        }
+      });
+      body.append(hint, f1.row, f2.row, f3.row, f4.row, el('div', { class: 'sheet__footer' }, [
+        el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
+        saveBtn,
+      ]));
+      // Precargar lo que ya esté guardado.
+      (async () => {
+        try {
+          const d = await fetch(`/api/marketing/ig/manual?client_id=${activeClientId}&month=${activeMonth}`, { credentials: 'include' }).then((r) => r.json());
+          if (d && d.manual) for (const { input } of inputs) { const v = d.manual[input.dataset.k]; if (v != null) input.value = v; }
+        } catch { /* noop */ }
+      })();
+      setTimeout(() => f1.input.focus(), 60);
+    },
+  });
+}
+
 // Interruptor de avisos automáticos por marca (recordatorios, atrasados,
 // sin-aprobar). Persiste en mkt_clients.reminders_enabled vía PATCH.
 async function toggleReminders(btn) {
@@ -1427,6 +1486,13 @@ function render() {
       href: `/api/marketing/report?client_id=${encodeURIComponent(activeClientId)}&month=${encodeURIComponent(activeMonth)}`,
       target: '_blank', rel: 'noopener',
     }, [icon('activity', 15), el('span', { text: `Reporte de ${capitalize(monthLabel(activeMonth))}` })]));
+    // Captura manual de resultados de Instagram para el mes (solo staff).
+    if (!isClientRole) {
+      sectionsEl.appendChild(el('button', {
+        class: 'meses-addmonth meses-igmanual', type: 'button',
+        onclick: () => openIgManual(),
+      }, [icon('camera', 16), el('span', { text: `Resultados de Instagram de ${capitalize(monthLabel(activeMonth))}` })]));
+    }
   }
 
   // Barra lateral de meses (desktop): salta y expande la seccion del mes.

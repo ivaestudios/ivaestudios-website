@@ -23,7 +23,7 @@ function esc(s) {
   ));
 }
 
-export async function handleMonthlyReport(request, env, session, url, igFetcher = null) {
+export async function handleMonthlyReport(request, env, session, url, igFetcher = null, manualFetcher = null) {
   let clientId = url.searchParams.get('client_id') || '';
   if (session.role === 'client') clientId = session.client_id;
   const month = String(url.searchParams.get('month') || '');
@@ -63,25 +63,41 @@ export async function handleMonthlyReport(request, env, session, url, igFetcher 
       ${p.caption ? `<p class="post__cap">${esc(String(p.caption).slice(0, 400))}${String(p.caption).length > 400 ? '…' : ''}</p>` : ''}
     </article>`).join('\n');
 
-  // Resultados de Instagram (solo si la marca está conectada; nunca truena).
+  // Resultados de Instagram. Prioridad: API conectada con datos; si no, la
+  // captura manual del mes. Nunca truena el reporte.
   let igHtml = '';
-  if (igFetcher) {
-    try {
+  const fmtN = (n) => (n == null ? '—' : Number(n).toLocaleString('es-MX'));
+  try {
+    let used = false;
+    if (igFetcher) {
       const ig = await igFetcher(env, clientId, month);
       if (ig && ig.connected && ig.data && !ig.error) {
         const mm = (ig.data.months || {})[month] || { posts: 0, likes: 0, comments: 0 };
-        const fmtN = (n) => (n == null ? '—' : Number(n).toLocaleString('es-MX'));
         igHtml = `
-  <h2 class="igh">Resultados en Instagram · @${esc(ig.username || '')}</h2>
+  <h2 class="igh">Resultados en Instagram${ig.username ? ' · @' + esc(ig.username) : ''}</h2>
   <div class="stats">
     <span class="chip chip--hero">${fmtN(ig.data.followers)} seguidores</span>
     <span class="chip">${fmtN(ig.data.reach_28d)} alcance (28 días)</span>
     <span class="chip">${fmtN(mm.likes + mm.comments)} interacciones del mes</span>
     <span class="chip">${fmtN(mm.posts)} publicados en IG</span>
   </div>`;
+        used = true;
       }
-    } catch { /* el reporte sale aunque IG falle */ }
-  }
+    }
+    if (!used && manualFetcher) {
+      const man = await manualFetcher(env, clientId, month);
+      if (man) {
+        igHtml = `
+  <h2 class="igh">Resultados en Instagram</h2>
+  <div class="stats">
+    <span class="chip chip--hero">${fmtN(man.followers)} seguidores</span>
+    <span class="chip">${fmtN(man.reach)} alcance del mes</span>
+    <span class="chip">${fmtN(man.interactions)} interacciones</span>
+    <span class="chip">${fmtN(man.posts)} publicaciones</span>
+  </div>`;
+      }
+    }
+  } catch { /* el reporte sale aunque IG falle */ }
 
   const html = `<!doctype html>
 <html lang="es"><head><meta charset="utf-8">
