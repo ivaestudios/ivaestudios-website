@@ -47,7 +47,7 @@ export async function handleIgLogin(request, env, session, url) {
     redirect_uri: redirectUri(request),
     state: nonce,
     response_type: 'code',
-    scope: 'instagram_business_basic,instagram_business_manage_insights',
+    scope: 'instagram_business_basic',
   });
   return Response.redirect(`${AUTH}?${p}`, 302);
 }
@@ -131,10 +131,12 @@ export async function fetchIgMetrics(env, clientId, month) {
 
   const tok = encodeURIComponent(client.ig_access_token);
   const id = client.ig_user_id;
-  const [prof, reach, media] = await Promise.all([
-    fetch(`${GRAPH}/${id}?fields=followers_count,media_count,username&access_token=${tok}`).then((r) => r.json()),
-    fetch(`${GRAPH}/${id}/insights?metric=reach&period=days_28&access_token=${tok}`).then((r) => r.json()),
-    fetch(`${GRAPH}/${id}/media?fields=like_count,comments_count,timestamp,media_type&limit=100&access_token=${tok}`).then((r) => r.json()),
+  // Solo endpoints permitidos sin App Review (scope instagram_business_basic):
+  // /me (perfil) y /me/media (lista de posts con likes/comments).
+  // /insights/reach requiere instagram_business_manage_insights → App Review.
+  const [prof, media] = await Promise.all([
+    fetch(`${GRAPH}/me?fields=id,username,account_type,media_count,followers_count&access_token=${tok}`).then((r) => r.json()),
+    fetch(`${GRAPH}/me/media?fields=like_count,comments_count,timestamp,media_type&limit=100&access_token=${tok}`).then((r) => r.json()),
   ]);
   if (prof.error) return { connected: true, username: client.ig_username, error: prof.error.message };
 
@@ -147,10 +149,14 @@ export async function fetchIgMetrics(env, clientId, month) {
     months[k].likes += m.like_count || 0;
     months[k].comments += m.comments_count || 0;
   }
+  // Si el username de la BD está vacío (fallo del callback), lo guardamos aquí.
+  if (prof.username && !client.ig_username) {
+    await env.DB.prepare("UPDATE mkt_clients SET ig_username = ? WHERE id = ?").bind(prof.username, clientId).run().catch(() => {});
+  }
   const data = {
     followers: prof.followers_count,
     media_count: prof.media_count,
-    reach_28d: (((reach.data || [])[0] || {}).values || []).slice(-1)[0]?.value ?? null,
+    reach_28d: null, // requiere App Review
     months,
   };
   await env.DB.prepare(
