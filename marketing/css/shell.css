@@ -730,3 +730,18 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
 .cs-igrow { display: flex; align-items: center; gap: 10px; }
 .cs-igok { color: var(--text-dim); font-size: 13.5px; }
 .cs-igconnect { width: 100%; justify-content: center; }
+
+/* Métricas en vivo de Instagram dentro del editor de marca */
+.cs-igmetrics {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+  margin-top: 10px; padding: 12px;
+  background: var(--surface-2); border-radius: 12px;
+  font-size: 12.5px; color: var(--text-mute);
+}
+.cs-igstat {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 8px 10px;
+  background: var(--surface); border-radius: 8px;
+}
+.cs-igstat__n { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+.cs-igstat__l { font-size: 11.5px; color: var(--text-mute); }

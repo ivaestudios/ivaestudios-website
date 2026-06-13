@@ -10,11 +10,11 @@
 //   el set optimista + pref lastClient + ?cliente= replace + client:changed.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202606121616';
-import { openSheet } from './sheet.js?v=202606121616';
-import { toast } from './toast.js?v=202606121616';
-import * as store from './store.js?v=202606121616';
-import { icon } from './icons.js?v=202606121616';
+import { api, el } from '../api.js?v=202606130300';
+import { openSheet } from './sheet.js?v=202606130300';
+import { toast } from './toast.js?v=202606130300';
+import * as store from './store.js?v=202606130300';
+import { icon } from './icons.js?v=202606130300';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -259,34 +259,67 @@ export function openEditClient(client, { selectClient } = {}) {
         ]),
         el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Logo (para el reporte)' }), logoIn]),
         el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Correo del cliente' }), mailIn]),
-        el('div', { class: 'field' }, [
-          el('label', { class: 'label', text: 'Instagram (métricas para el reporte)' }),
-          client.ig_username
-            ? el('div', { class: 'cs-igrow' }, [
-                el('span', { class: 'cs-igok', text: `✅ @${client.ig_username} conectado` }),
-                el('button', {
-                  class: 'btn', type: 'button', text: 'Desconectar',
-                  onclick: async (e) => {
-                    e.currentTarget.disabled = true;
-                    const r = await fetch('/api/marketing/ig/disconnect', {
-                      method: 'POST', credentials: 'include',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ client_id: client.id }),
-                    });
-                    if (r.ok) { await store.refreshClientCounts(); toast('Instagram desconectado.', { type: 'success' }); close({ source: 'ig' }); }
+        (() => {
+          const igField = el('div', { class: 'field' }, [
+            el('label', { class: 'label', text: 'Instagram (métricas para el reporte)' }),
+            client.ig_username
+              ? el('div', { class: 'cs-igrow' }, [
+                  el('span', { class: 'cs-igok', text: `✅ @${client.ig_username} conectado` }),
+                  el('button', {
+                    class: 'btn', type: 'button', text: 'Desconectar',
+                    onclick: async (e) => {
+                      e.currentTarget.disabled = true;
+                      const r = await fetch('/api/marketing/ig/disconnect', {
+                        method: 'POST', credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ client_id: client.id }),
+                      });
+                      if (r.ok) { await store.refreshClientCounts(); toast('Instagram desconectado.', { type: 'success' }); close({ source: 'ig' }); }
+                    },
+                  }),
+                ])
+              : el('button', {
+                  class: 'btn cs-igconnect', type: 'button',
+                  onclick: async () => {
+                    const r = await fetch(`/api/marketing/ig/login?client_id=${client.id}`, { credentials: 'include', redirect: 'manual' });
+                    if (r.status === 503) { toast('Falta configurar la app de Meta (te paso la guía).', { type: 'error' }); return; }
+                    window.location.href = `/api/marketing/ig/login?client_id=${client.id}`;
                   },
-                }),
-              ])
-            : el('button', {
-                class: 'btn cs-igconnect', type: 'button',
-                onclick: async () => {
-                  // pre-chequeo: si falta la app de Meta, avisar en vez de navegar a un error
-                  const r = await fetch(`/api/marketing/ig/login?client_id=${client.id}`, { credentials: 'include', redirect: 'manual' });
-                  if (r.status === 503) { toast('Falta configurar la app de Meta (te paso la guía).', { type: 'error' }); return; }
-                  window.location.href = `/api/marketing/ig/login?client_id=${client.id}`;
-                },
-              }, [icon('camera', 16), el('span', { text: 'Conectar Instagram' })]),
-        ]),
+                }, [icon('camera', 16), el('span', { text: 'Conectar Instagram' })]),
+          ]);
+          // Si está conectado: cargar métricas en vivo bajo el estado
+          if (client.ig_username) {
+            const metricsBox = el('div', { class: 'cs-igmetrics', text: 'Cargando métricas…' });
+            igField.appendChild(metricsBox);
+            (async () => {
+              try {
+                const month = new Date().toISOString().slice(0, 7);
+                const r = await fetch(`/api/marketing/ig/metrics?client_id=${client.id}&month=${month}`, { credentials: 'include' });
+                const d = await r.json();
+                while (metricsBox.firstChild) metricsBox.removeChild(metricsBox.firstChild);
+                if (!d || !d.connected || !d.data || d.error) {
+                  metricsBox.textContent = d && d.error ? `⚠️ ${d.error}` : 'Aún no hay métricas.';
+                  return;
+                }
+                const mm = (d.data.months || {})[month] || { posts: 0, likes: 0, comments: 0 };
+                const fmt = (n) => (n == null ? '—' : Number(n).toLocaleString('es-MX'));
+                const stat = (n, l) => el('div', { class: 'cs-igstat' }, [
+                  el('div', { class: 'cs-igstat__n', text: fmt(n) }),
+                  el('div', { class: 'cs-igstat__l', text: l }),
+                ]);
+                metricsBox.append(
+                  stat(d.data.followers, 'Seguidores'),
+                  stat(d.data.reach_28d, 'Alcance (28d)'),
+                  stat(mm.likes + mm.comments, 'Interacciones del mes'),
+                  stat(mm.posts, 'Posts publicados'),
+                );
+              } catch (e) {
+                metricsBox.textContent = 'No se pudieron cargar las métricas.';
+              }
+            })();
+          }
+          return igField;
+        })(),
         el('div', { class: 'sheet__footer' }, [
           archiveBtn,
           el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),

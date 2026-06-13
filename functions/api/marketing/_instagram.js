@@ -1,22 +1,20 @@
 // ============================================================================
-// IVAE Marketing — Instagram Graph API (métricas por marca para reportes).
-// Flujo: staff abre /ig/login?client_id=… → OAuth de Meta → /ig/callback
-// intercambia el code por token largo, enumera las páginas con cuenta IG
-// Business y asigna (directo si hay 1; selector si hay varias).
-// Métricas: /ig/metrics?client_id&month con caché de 6h en mkt_ig_metrics.
-// Requiere env.META_APP_ID + env.META_APP_SECRET (CF Pages). Sin ellos, los
-// endpoints responden un aviso amable y la UI muestra qué falta.
-// Nota: el callback llega SIN cookie (SameSite=Strict + redirect cross-site);
-// se autentica con el nonce de un solo uso guardado en mkt_kv.
+// IVAE Marketing — Instagram Graph API con Instagram Login (flujo 2024+).
+// Flujo: staff abre /ig/login?client_id=… → instagram.com/oauth/authorize →
+// /ig/callback intercambia code → token corto → token largo (60 días) →
+// guarda en mkt_clients.ig_*. Métricas: /ig/metrics?client_id&month con
+// caché 6h en mkt_ig_metrics. Sin META_APP_ID/SECRET responde aviso amable.
 // ============================================================================
 
-const G = 'https://graph.facebook.com/v21.0';
+const AUTH = 'https://www.instagram.com/oauth/authorize';
+const TOKEN = 'https://api.instagram.com/oauth/access_token';
+const GRAPH = 'https://graph.instagram.com/v21.0';
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 }
 function html(body, status = 200) {
-  return new Response(`<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Instagram · IVAE Marketing</title><style>body{font:15px/1.6 -apple-system,sans-serif;background:#0d0d14;color:#eee;display:grid;place-items:center;min-height:100vh;margin:0;padding:20px}main{max-width:430px;background:#16161f;border:1px solid #2a2a38;border-radius:16px;padding:26px}h1{font-size:18px;margin:0 0 10px}p{color:#aaa}a,button.row{display:flex;align-items:center;gap:10px;width:100%;background:#1e1e2a;border:1px solid #33334a;border-radius:12px;color:#fff;padding:13px 14px;margin-top:10px;font:inherit;cursor:pointer;text-decoration:none;text-align:left}small{color:#888}</style><main>${body}</main>`,
+  return new Response(`<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Instagram · IVAE Marketing</title><style>body{font:15px/1.6 -apple-system,sans-serif;background:#0d0d14;color:#eee;display:grid;place-items:center;min-height:100vh;margin:0;padding:20px}main{max-width:430px;background:#16161f;border:1px solid #2a2a38;border-radius:16px;padding:26px}h1{font-size:18px;margin:0 0 10px}p{color:#aaa}a{display:inline-flex;align-items:center;gap:10px;background:#1e1e2a;border:1px solid #33334a;border-radius:12px;color:#fff;padding:13px 14px;margin-top:10px;text-decoration:none}small{color:#888}</style><main>${body}</main>`,
     { status, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
 }
 function rnd() {
@@ -32,7 +30,7 @@ async function kvTake(env, k) {
 }
 const redirectUri = (request) => new URL('/api/marketing/ig/callback', request.url).toString();
 
-// GET /ig/login?client_id=… (staff)
+// GET /ig/login?client_id=… (staff) → redirige a Instagram OAuth
 export async function handleIgLogin(request, env, session, url) {
   if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
   if (!env.META_APP_ID || !env.META_APP_SECRET) {
@@ -49,12 +47,12 @@ export async function handleIgLogin(request, env, session, url) {
     redirect_uri: redirectUri(request),
     state: nonce,
     response_type: 'code',
-    scope: 'instagram_basic,instagram_manage_insights,pages_show_list,pages_read_engagement,business_management',
+    scope: 'instagram_business_basic,instagram_business_manage_insights',
   });
-  return Response.redirect(`https://www.facebook.com/v21.0/dialog/oauth?${p}`, 302);
+  return Response.redirect(`${AUTH}?${p}`, 302);
 }
 
-// GET /ig/callback?code&state — sin sesión (ver nota arriba); valida el nonce.
+// GET /ig/callback?code&state — sin sesión; valida nonce de un solo uso.
 export async function handleIgCallback(request, env, url) {
   const back = '/marketing/app#/meses';
   const code = url.searchParams.get('code');
@@ -66,57 +64,47 @@ export async function handleIgCallback(request, env, url) {
   if (Date.now() - st.t > 10 * 60 * 1000) return html(`<h1>El intento caducó</h1><p>Hazlo de nuevo desde la app.</p><a href="${back}">Volver</a>`, 400);
 
   try {
-    // code → token corto → token largo (60 días)
-    const q1 = new URLSearchParams({ client_id: env.META_APP_ID, client_secret: env.META_APP_SECRET, redirect_uri: redirectUri(request), code });
-    const t1 = await (await fetch(`${G}/oauth/access_token?${q1}`)).json();
-    if (!t1.access_token) throw new Error(t1.error?.message || 'sin token');
-    const q2 = new URLSearchParams({ grant_type: 'fb_exchange_token', client_id: env.META_APP_ID, client_secret: env.META_APP_SECRET, fb_exchange_token: t1.access_token });
-    const t2 = await (await fetch(`${G}/oauth/access_token?${q2}`)).json();
-    const userTok = t2.access_token || t1.access_token;
-
-    // páginas administradas con cuenta de Instagram Business ligada
-    const pages = await (await fetch(`${G}/me/accounts?fields=name,access_token,instagram_business_account{id,username}&limit=100&access_token=${encodeURIComponent(userTok)}`)).json();
-    const cands = (pages.data || [])
-      .filter((p) => p.instagram_business_account)
-      .map((p) => ({ ig: p.instagram_business_account.id, user: p.instagram_business_account.username, page: p.name, tok: p.access_token }));
-
-    if (!cands.length) {
-      return html(`<h1>No encontré cuentas conectables</h1><p>La cuenta de Instagram debe ser <b>Business o Creator</b> y estar <b>ligada a una página de Facebook</b> que tú administres. Revisa eso en Meta Business Suite y reintenta.</p><a href="${back}">Volver a la app</a>`);
+    // 1) code → token corto + user_id
+    const form = new URLSearchParams({
+      client_id: env.META_APP_ID,
+      client_secret: env.META_APP_SECRET,
+      grant_type: 'authorization_code',
+      redirect_uri: redirectUri(request),
+      code,
+    });
+    const t1res = await fetch(TOKEN, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: form });
+    const t1 = await t1res.json();
+    if (!t1.access_token || !t1.user_id) {
+      throw new Error(t1.error_message || t1.error?.message || 'sin token');
     }
 
-    const assign = async (cand) => {
-      await env.DB.prepare(
-        "UPDATE mkt_clients SET ig_user_id = ?, ig_username = ?, ig_access_token = ?, updated_at = datetime('now') WHERE id = ?"
-      ).bind(cand.ig, cand.user, cand.tok, st.c).run();
-      await env.DB.prepare('DELETE FROM mkt_ig_metrics WHERE client_id = ?').bind(st.c).run().catch?.(() => {});
-      return html(`<h1>✅ @${cand.user} conectado</h1><p>Las métricas ya van a salir en el reporte mensual de esta marca.</p><a href="${back}">Volver a la app</a>`);
-    };
+    // 2) token corto → token largo (60 días)
+    const longRes = await fetch(`${GRAPH.replace('/v21.0', '')}/access_token?grant_type=ig_exchange_token&client_secret=${encodeURIComponent(env.META_APP_SECRET)}&access_token=${encodeURIComponent(t1.access_token)}`);
+    const long = await longRes.json();
+    const token = long.access_token || t1.access_token;
 
-    if (cands.length === 1) return assign(cands[0]);
+    // 3) pedir username para mostrar al usuario
+    let username = '';
+    try {
+      const me = await (await fetch(`${GRAPH}/me?fields=username&access_token=${encodeURIComponent(token)}`)).json();
+      username = me.username || '';
+    } catch { /* opcional */ }
 
-    // varias cuentas: selector de un solo uso
-    const nonce2 = rnd();
-    await kvSet(env, `ig_pick_${nonce2}`, JSON.stringify({ c: st.c, t: Date.now(), cands }));
-    const rows = cands.map((c, i) =>
-      `<form method="post" action="/api/marketing/ig/assign"><input type="hidden" name="n" value="${nonce2}"><input type="hidden" name="i" value="${i}"><button class="row" type="submit"><b>@${c.user}</b><small>· página ${c.page}</small></button></form>`).join('');
-    return html(`<h1>¿Cuál Instagram es de esta marca?</h1>${rows}`);
+    await env.DB.prepare(
+      "UPDATE mkt_clients SET ig_user_id = ?, ig_username = ?, ig_access_token = ?, updated_at = datetime('now') WHERE id = ?"
+    ).bind(String(t1.user_id), username, token, st.c).run();
+    await env.DB.prepare('DELETE FROM mkt_ig_metrics WHERE client_id = ?').bind(st.c).run().catch(() => {});
+
+    return html(`<h1>✅ ${username ? '@' + username : 'Instagram'} conectado</h1><p>Las métricas ya van a salir en el reporte mensual de esta marca.</p><a href="${back}">Volver a la app</a>`);
   } catch (e) {
-    return html(`<h1>Meta devolvió un error</h1><p>${String(e.message || e).slice(0, 200)}</p><a href="${back}">Volver a la app</a>`, 502);
+    return html(`<h1>Meta devolvió un error</h1><p>${String(e.message || e).slice(0, 250)}</p><a href="${back}">Volver a la app</a>`, 502);
   }
 }
 
-// POST /ig/assign (form del selector; nonce de un solo uso)
-export async function handleIgAssign(request, env) {
-  const form = await request.formData().catch(() => null);
-  const raw = form ? await kvTake(env, `ig_pick_${form.get('n')}`) : null;
-  if (!raw) return html('<h1>Link caducado</h1><p>Reintenta desde la app.</p>', 400);
-  const st = JSON.parse(raw);
-  const cand = st.cands[Number(form.get('i'))];
-  if (!cand || Date.now() - st.t > 10 * 60 * 1000) return html('<h1>Opción inválida o caducada</h1>', 400);
-  await env.DB.prepare(
-    "UPDATE mkt_clients SET ig_user_id = ?, ig_username = ?, ig_access_token = ?, updated_at = datetime('now') WHERE id = ?"
-  ).bind(cand.ig, cand.user, cand.tok, st.c).run();
-  return html(`<h1>✅ @${cand.user} conectado</h1><p>Listo: sus métricas salen en el reporte.</p><a href="/marketing/app#/meses">Volver a la app</a>`);
+// Compat: la ruta del router viejo (/ig/assign) no se usa en el flujo nuevo
+// porque el callback ya tiene un único user_id. Devuelvo 410 amable.
+export async function handleIgAssign() {
+  return html('<h1>Este paso ya no es necesario</h1><p>Vuelve a la app.</p><a href="/marketing/app#/meses">Volver</a>', 410);
 }
 
 // POST /ig/disconnect {client_id} (staff)
@@ -130,7 +118,7 @@ export async function handleIgDisconnect(request, env, session) {
   return json({ ok: true });
 }
 
-// Métricas con caché 6h. Devuelve {connected, username?, data?}.
+// Métricas con caché 6h.
 export async function fetchIgMetrics(env, clientId, month) {
   const client = await env.DB.prepare('SELECT ig_user_id, ig_username, ig_access_token FROM mkt_clients WHERE id = ?').bind(clientId).first();
   if (!client || !client.ig_user_id || !client.ig_access_token) return { connected: false };
@@ -144,13 +132,12 @@ export async function fetchIgMetrics(env, clientId, month) {
   const tok = encodeURIComponent(client.ig_access_token);
   const id = client.ig_user_id;
   const [prof, reach, media] = await Promise.all([
-    fetch(`${G}/${id}?fields=followers_count,media_count,username&access_token=${tok}`).then((r) => r.json()),
-    fetch(`${G}/${id}/insights?metric=reach&period=days_28&access_token=${tok}`).then((r) => r.json()),
-    fetch(`${G}/${id}/media?fields=like_count,comments_count,timestamp,media_type&limit=100&access_token=${tok}`).then((r) => r.json()),
+    fetch(`${GRAPH}/${id}?fields=followers_count,media_count,username&access_token=${tok}`).then((r) => r.json()),
+    fetch(`${GRAPH}/${id}/insights?metric=reach&period=days_28&access_token=${tok}`).then((r) => r.json()),
+    fetch(`${GRAPH}/${id}/media?fields=like_count,comments_count,timestamp,media_type&limit=100&access_token=${tok}`).then((r) => r.json()),
   ]);
   if (prof.error) return { connected: true, username: client.ig_username, error: prof.error.message };
 
-  // agrupar interacciones por mes (YYYY-MM)
   const months = {};
   for (const m of media.data || []) {
     const k = String(m.timestamp || '').slice(0, 7);
