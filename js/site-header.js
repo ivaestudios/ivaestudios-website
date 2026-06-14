@@ -10,6 +10,25 @@
   // Reciprocal map for the language switcher
   var enFromEs = {
     '/es': '/',
+    '/es/fotografo-familiar-destino-mexico': '/destination-family-photographer-mexico',
+    '/es/fotografo-parejas-destino-mexico': '/destination-couples-photographer-mexico',
+    '/es/fotografo-bodas-playa-del-carmen': '/playa-del-carmen-wedding-photographer',
+    '/es/fotografo-familiar-playa-del-carmen': '/playa-del-carmen-family-photographer',
+    '/es/fotografo-parejas-playa-del-carmen': '/playa-del-carmen-couples-photographer',
+    '/es/fotografo-bodas-tulum': '/tulum-wedding-photographer',
+    '/es/fotografo-parejas-tulum': '/tulum-couples-photographer',
+    '/es/fotografo-bodas-san-miguel-de-allende': '/san-miguel-de-allende-wedding-photographer',
+    '/es/fotografo-parejas-san-miguel-de-allende': '/san-miguel-de-allende-couples-photographer',
+    '/es/fotografo-bodas-valle-de-bravo': '/valle-de-bravo-wedding-photographer',
+    '/es/fotografo-bodas-puerto-vallarta': '/puerto-vallarta-wedding-photographer',
+    '/es/fotografo-familiar-puerto-vallarta': '/puerto-vallarta-family-photographer',
+    '/es/fotografo-parejas-puerto-vallarta': '/puerto-vallarta-couples-photographer',
+    '/es/fotografo-bodas-oaxaca': '/oaxaca-wedding-photographer',
+    '/es/fotografo-bodas-merida': '/merida-wedding-photographer',
+    '/es/fotografo-familiar-merida': '/merida-family-photographer',
+    '/es/fotografo-bodas-ciudad-de-mexico': '/mexico-city-wedding-photographer',
+    '/es/fotografo-familiar-ciudad-de-mexico': '/mexico-city-family-photographer',
+    '/es/fotografo-bodas-guadalajara': '/guadalajara-wedding-photographer',
     '/es/acerca-de': '/about',
     '/es/fotos-familiares-lujo-cancun': '/luxury-family-photos-cancun',
     '/es/fotografia-parejas-mexico': '/couples-photography-mexico',
@@ -65,6 +84,25 @@
     weddings: 'Weddings', family: 'Family', couples: 'Couples', editorial: 'Editorial', marketing: 'Marketing'
   };
 
+  // Destination pages (EN + ES) for the mobile nav drawer
+  var destItems = [
+    { en: '/destination-family-photographer-mexico', es: '/es/fotografo-familiar-destino-mexico', enL: 'Across Mexico \u00b7 Families', esL: 'Todo M\u00e9xico \u00b7 Familias' },
+    { en: '/destination-couples-photographer-mexico', es: '/es/fotografo-parejas-destino-mexico', enL: 'Across Mexico \u00b7 Couples', esL: 'Todo M\u00e9xico \u00b7 Parejas' },
+    { en: '/playa-del-carmen-wedding-photographer', es: '/es/fotografo-bodas-playa-del-carmen', enL: 'Playa del Carmen', esL: 'Playa del Carmen' },
+    { en: '/tulum-wedding-photographer', es: '/es/fotografo-bodas-tulum', enL: 'Tulum', esL: 'Tulum' },
+    { en: '/san-miguel-de-allende-wedding-photographer', es: '/es/fotografo-bodas-san-miguel-de-allende', enL: 'San Miguel de Allende', esL: 'San Miguel de Allende' },
+    { en: '/valle-de-bravo-wedding-photographer', es: '/es/fotografo-bodas-valle-de-bravo', enL: 'Valle de Bravo', esL: 'Valle de Bravo' },
+    { en: '/puerto-vallarta-wedding-photographer', es: '/es/fotografo-bodas-puerto-vallarta', enL: 'Puerto Vallarta', esL: 'Puerto Vallarta' },
+    { en: '/oaxaca-wedding-photographer', es: '/es/fotografo-bodas-oaxaca', enL: 'Oaxaca', esL: 'Oaxaca' },
+    { en: '/merida-wedding-photographer', es: '/es/fotografo-bodas-merida', enL: 'M\u00e9rida', esL: 'M\u00e9rida' },
+    { en: '/mexico-city-wedding-photographer', es: '/es/fotografo-bodas-ciudad-de-mexico', enL: 'Mexico City', esL: 'Ciudad de M\u00e9xico' },
+    { en: '/guadalajara-wedding-photographer', es: '/es/fotografo-bodas-guadalajara', enL: 'Guadalajara', esL: 'Guadalajara' }
+  ];
+  var destLabel = isES ? 'Destinos' : 'Destinations';
+  var destLinks = destItems.map(function (d) {
+    return '<a href="' + (isES ? d.es : d.en) + '" class="m-nav-sublink">' + (isES ? d.esL : d.enL) + '</a>';
+  }).join('');
+
   var headerHTML = ''
     + '<header class="site-header" id="siteHeader" role="banner" data-injected="true">'
     +   '<a href="' + homeHref + '" class="h-logo">IVAE <em>Studios</em></a>'
@@ -102,6 +140,10 @@
     +       '<a href="' + couplesHref + '" class="m-nav-sublink">' + serviceLabels.couples + '</a>'
     +       '<a href="' + editorialHref + '" class="m-nav-sublink">' + serviceLabels.editorial + '</a>'
     +       '<a href="' + marketingHref + '" class="m-nav-sublink m-nav-sublink--accent">' + serviceLabels.marketing + ' <span class="m-nav-pill">NEW</span></a>'
+    +     '</div>'
+    +     '<div class="m-nav-section">'
+    +       '<div class="m-nav-section-label">' + destLabel + '</div>'
+    +       destLinks
     +     '</div>'
     +     '<a href="' + blogHref + '" class="m-nav-link">' + labels.blog + '</a>'
     +     '<div class="m-nav-lang">'
