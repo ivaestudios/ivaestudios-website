@@ -21,9 +21,9 @@
 // Eventos store: 'automations:changed' {clientId}.
 // ============================================================================
 
-import { api } from '../api.js?v=202606142216';
-import { toast } from '../shell/toast.js?v=202606142216';
-import * as store from '../shell/store.js?v=202606142216';
+import { api } from '../api.js?v=202606142244';
+import { toast } from '../shell/toast.js?v=202606142244';
+import * as store from '../shell/store.js?v=202606142244';
 
 const TTL = 60000;
 const ERR_SAVE = 'No se pudo guardar, intenta de nuevo.';

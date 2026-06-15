@@ -26,9 +26,9 @@ import {
   el, clear,
   STATUSES, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606142216';
-import { icon } from '../shell/icons.js?v=202606142216';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202606142216';
+} from '../api.js?v=202606142244';
+import { icon } from '../shell/icons.js?v=202606142244';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202606142244';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -903,72 +903,28 @@ function buildMobileItem(post) {
 // ── Composer "+ Nueva linea" ─────────────────────────────────────────────────
 
 function buildComposer(key, monthRows) {
-  const open = composer && composer.key === key;
-  if (!open) {
-    return el('button', {
-      class: 'meses-newline', type: 'button',
-      onclick: () => { composer = { key, value: '', wantFocus: true }; render(); },
-    }, [icon('plus', 16), el('span', { text: 'Nueva línea' })]);
-  }
-
-  const input = el('input', {
-    class: 'meses-newline__input', type: 'text',
-    placeholder: 'Escribe el nombre y presiona Enter para llenar el resto',
-    'aria-label': 'Nueva tarea',
-  });
-  input.value = composer.value || '';
-  input.addEventListener('input', () => { if (composer) composer.value = input.value; });
-
-  // Crea la fila y abre el editor completo para llenar todo (estado, fecha,
-  // plataforma, tipo, caption, notas…) punto por punto.
-  const createAndOpen = async () => {
-    const title = input.value.trim();
-    if (!title) { input.focus(); return; }
+  // "+ Nueva línea": crea la fila al instante y abre el editor COMPLETO para
+  // llenar todos los campos (estado, fecha, plataforma, tipo, caption, guion,
+  // notas, inspo, video) punto por punto — no solo el nombre.
+  const btn = el('button', {
+    class: 'meses-newline', type: 'button',
+  }, [icon('plus', 16), el('span', { text: 'Nueva línea' })]);
+  btn.addEventListener('click', async () => {
     const { activeClientId } = ctx.store.getState();
     if (!activeClientId || activeClientId === 'todos') return;
-    composer = null;
-    composerInput = null;
+    btn.disabled = true;
     const data = {
       client_id: activeClientId,
-      title,
+      title: 'Nuevo contenido',
       status: 'idea',
       position: nextPosition(monthRows),
     };
     if (key !== SIN_MES) data.publish_date = `${key}-01`;
     const post = await ctx.store.createPost(data);
+    btn.disabled = false;
     if (post && post.id) ctx.openEditor(post.id);
-    else render();
-  };
-
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      e.stopPropagation();
-      composer = null;
-      composerInput = null;
-      render();
-      return;
-    }
-    if (e.key !== 'Enter') return;
-    e.preventDefault();
-    createAndOpen();
   });
-
-  const goBtn = el('button', {
-    class: 'btn btn-primary meses-newline__go', type: 'button',
-    onclick: () => createAndOpen(),
-  }, [el('span', { text: 'Agregar y llenar' })]);
-
-  const closeBtn = el('button', {
-    class: 'meses-newline__close', type: 'button', 'aria-label': 'Cerrar nueva línea',
-    onclick: () => { composer = null; composerInput = null; render(); },
-  }, [icon('close', 16)]);
-
-  composerInput = input;
-  return el('div', { class: 'meses-newline-open' }, [
-    input,
-    goBtn,
-    closeBtn,
-  ]);
+  return btn;
 }
 
 // ── Agregar mes ──────────────────────────────────────────────────────────────
