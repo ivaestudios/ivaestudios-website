@@ -26,9 +26,9 @@ import {
   el, clear,
   STATUSES, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606142244';
-import { icon } from '../shell/icons.js?v=202606142244';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202606142244';
+} from '../api.js?v=202606142255';
+import { icon } from '../shell/icons.js?v=202606142255';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202606142255';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -903,9 +903,9 @@ function buildMobileItem(post) {
 // ── Composer "+ Nueva linea" ─────────────────────────────────────────────────
 
 function buildComposer(key, monthRows) {
-  // "+ Nueva línea": crea la fila al instante y abre el editor COMPLETO para
-  // llenar todos los campos (estado, fecha, plataforma, tipo, caption, guion,
-  // notas, inspo, video) punto por punto — no solo el nombre.
+  // "+ Nueva línea": agrega una fila NUEVA EN BLANCO en la tabla (con todas sus
+  // celdas vacías) y deja el título listo para escribir. Se llena celda por
+  // celda ahí mismo, sin abrir otra pantalla.
   const btn = el('button', {
     class: 'meses-newline', type: 'button',
   }, [icon('plus', 16), el('span', { text: 'Nueva línea' })]);
@@ -915,14 +915,21 @@ function buildComposer(key, monthRows) {
     btn.disabled = true;
     const data = {
       client_id: activeClientId,
-      title: 'Nuevo contenido',
+      title: '',
       status: 'idea',
       position: nextPosition(monthRows),
     };
     if (key !== SIN_MES) data.publish_date = `${key}-01`;
     const post = await ctx.store.createPost(data);
     btn.disabled = false;
-    if (post && post.id) ctx.openEditor(post.id);
+    // La fila nueva aparece sola (el store emite -> re-render). Solo hago scroll
+    // hacia ella para dejarla a la vista, lista para llenar celda por celda.
+    if (post && post.id) {
+      setTimeout(() => {
+        const row = sectionsEl && sectionsEl.querySelector(`tr.meses-row[data-id="${post.id}"]`);
+        if (row) row.scrollIntoView({ block: 'nearest' });
+      }, 200);
+    }
   });
   return btn;
 }
