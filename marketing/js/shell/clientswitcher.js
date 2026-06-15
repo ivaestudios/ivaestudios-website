@@ -10,11 +10,11 @@
 //   el set optimista + pref lastClient + ?cliente= replace + client:changed.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202606130448';
-import { openSheet } from './sheet.js?v=202606130448';
-import { toast } from './toast.js?v=202606130448';
-import * as store from './store.js?v=202606130448';
-import { icon } from './icons.js?v=202606130448';
+import { api, el } from '../api.js?v=202606142203';
+import { openSheet } from './sheet.js?v=202606142203';
+import { toast } from './toast.js?v=202606142203';
+import * as store from './store.js?v=202606142203';
+import { icon } from './icons.js?v=202606142203';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -201,6 +201,29 @@ export function openEditClient(client, { selectClient } = {}) {
         value: client.contact_email || '',
       });
 
+      // ── Columnas de notas (personas) ──
+      // Cada nombre es una columna "Notas <persona>" en el calendario.
+      const noteList = el('div', { class: 'cs-notelist' });
+      const addNoteRow = (val = '') => {
+        const input = el('input', { class: 'input cs-noteinput', type: 'text', placeholder: 'Nombre de la persona', maxlength: '40', value: val });
+        const row = el('div', { class: 'cs-noterow' }, [
+          input,
+          el('button', {
+            class: 'cs-noterm', type: 'button', 'aria-label': 'Quitar', title: 'Quitar',
+            onclick: () => row.remove(),
+          }, [icon('close', 16)]),
+        ]);
+        noteList.appendChild(row);
+        return input;
+      };
+      const startLabels = Array.isArray(client.note_labels) && client.note_labels.length
+        ? client.note_labels : [''];
+      for (const l of startLabels) addNoteRow(l);
+      const addNoteBtn = el('button', {
+        class: 'btn cs-noteadd', type: 'button',
+        onclick: () => { addNoteRow(''); },
+      }, [icon('plus', 15), el('span', { text: 'Agregar persona' })]);
+
       const saveBtn = el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: 'Guardar cambios' });
       saveBtn.addEventListener('click', async () => {
         const name = nameIn.value.trim();
@@ -209,6 +232,8 @@ export function openEditClient(client, { selectClient } = {}) {
         if (logo && !/^https?:\/\//i.test(logo)) { toast('El logo debe ser un link http(s).', { type: 'error' }); logoIn.focus(); return; }
         const mail = mailIn.value.trim();
         if (mail && !mail.includes('@')) { toast('Ese correo no se ve válido.', { type: 'error' }); mailIn.focus(); return; }
+        const labels = [...noteList.querySelectorAll('.cs-noteinput')]
+          .map((i) => i.value.trim()).filter(Boolean);
         saveBtn.disabled = true;
         try {
           await api.patch(`/clients/${client.id}`, {
@@ -217,6 +242,7 @@ export function openEditClient(client, { selectClient } = {}) {
             instagram_handle: igIn.value.trim().replace(/^@/, '') || null,
             logo_url: logo || null,
             contact_email: mail || null,
+            note_labels: labels,
           });
           await store.refreshClientCounts();
           toast(`Marca actualizada: ${name}.`, { type: 'success' });
@@ -259,6 +285,12 @@ export function openEditClient(client, { selectClient } = {}) {
         ]),
         el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Logo (para el reporte)' }), logoIn]),
         el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Correo del cliente' }), mailIn]),
+        el('div', { class: 'field' }, [
+          el('label', { class: 'label', text: 'Columnas de notas (personas)' }),
+          el('p', { class: 'cs-notehint', text: 'Cada nombre es una columna "Notas …" en el calendario de esta marca.' }),
+          noteList,
+          addNoteBtn,
+        ]),
         (() => {
           const igField = el('div', { class: 'field' }, [
             el('label', { class: 'label', text: 'Instagram (métricas para el reporte)' }),

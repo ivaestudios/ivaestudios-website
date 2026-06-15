@@ -745,3 +745,17 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
 }
 .cs-igstat__n { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
 .cs-igstat__l { font-size: 11.5px; color: var(--text-mute); }
+
+/* Editor de columnas de notas (personas) en el editor de marca */
+.cs-notehint { margin: 0 0 8px; font-size: 12.5px; color: var(--text-mute); line-height: 1.4; }
+.cs-notelist { display: flex; flex-direction: column; gap: 8px; }
+.cs-noterow { display: flex; align-items: center; gap: 8px; }
+.cs-noterow .cs-noteinput { flex: 1; min-width: 0; }
+.cs-noterm {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; min-width: 40px; height: 40px;
+  background: none; border: 1px solid var(--border); border-radius: var(--r-sm);
+  color: var(--text-mute); cursor: pointer;
+}
+.cs-noterm:hover { color: var(--danger, #ef4444); border-color: var(--danger, #ef4444); }
+.cs-noteadd { margin-top: 8px; width: 100%; justify-content: center; }
