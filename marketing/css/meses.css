@@ -34,12 +34,12 @@
   appearance: none;
   border: 1px solid var(--border);
   background: transparent;
-  color: var(--text-2);
+  color: var(--text-dim);
   font: inherit;
   font-size: 12.5px;
   line-height: 1;
   padding: 8px 12px;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   cursor: pointer;
   min-height: 34px;
 }
@@ -71,13 +71,13 @@
   display: inline-flex; align-items: center; gap: 7px; flex: none;
   padding: 8px 13px; min-height: 40px;
   background: var(--surface-2); border: 1px solid var(--border);
-  border-radius: 999px; color: var(--text-2);
+  border-radius: var(--r-pill); color: var(--text-dim);
   font: inherit; font-size: var(--fs-2); font-weight: 600;
   white-space: nowrap; cursor: pointer;
 }
 .meses-monthpill:hover { background: var(--surface-3); }
 .meses-monthpill.is-active { background: var(--client-accent, var(--brand)); border-color: transparent; color: #fff; }
-.meses-monthpill__n { font-size: var(--fs-1); background: var(--surface-3); color: var(--text-mute); border-radius: 999px; padding: 1px 8px; }
+.meses-monthpill__n { font-size: var(--fs-1); background: var(--surface-3); color: var(--text-mute); border-radius: var(--r-pill); padding: 1px 8px; }
 .meses-monthpill.is-active .meses-monthpill__n { background: rgba(255, 255, 255, .22); color: #fff; }
 @media (min-width: 1024px) { .meses-monthbar { display: none; } }
 
@@ -182,7 +182,7 @@
 /* ── Acciones bajo la tabla: reporte mensual ── */
 .meses-icslink {
   display: inline-flex; align-items: center; gap: 7px;
-  margin-top: 12px; padding: 8px 10px;
+  margin: 12px 0 0 2px; padding: 8px 10px;
   color: var(--text-mute); font-size: var(--fs-2); text-decoration: none;
   border-radius: var(--r-sm);
 }
@@ -360,7 +360,7 @@
   gap: 8px;
   align-self: flex-start;
   min-height: var(--tap, 44px);
-  margin: 12px 6px 0;
+  margin: 12px 2px 0;
   padding: 8px 16px;
   border-radius: var(--r-pill);
   border: 1px dashed var(--border-strong);
@@ -412,7 +412,7 @@
 
 .meses-skel {
   height: 14px;
-  border-radius: 7px;
+  border-radius: var(--r-sm);
   margin: 12px 0;
   background: linear-gradient(90deg, var(--surface-2) 25%, var(--border) 50%, var(--surface-2) 75%);
   background-size: 200% 100%;
@@ -502,10 +502,10 @@
     gap: 6px;
     width: 100%;
     min-height: 36px;
-    padding: 2px 7px;
+    padding: 2px 6px;
     background: none;
     border: 0;
-    border-radius: 7px;
+    border-radius: var(--r-sm);
     color: var(--text);
     font: inherit;
     text-align: left;
@@ -524,7 +524,7 @@
     min-width: 26px;
     height: 22px;
     padding: 0 7px;
-    border-radius: 6px;
+    border-radius: var(--r-sm);
     font-size: 12px;
     font-weight: 700;
     background: color-mix(in srgb, var(--chipc, var(--text-mute)) 20%, transparent);
@@ -570,10 +570,10 @@
     min-height: 36px;
     display: flex;
     align-items: center;
-    padding: 2px 7px;
+    padding: 2px 6px;
     background: none;
     border: 0;
-    border-radius: 7px;
+    border-radius: var(--r-sm);
     color: var(--text);
     font: inherit;
     font-weight: 600;
@@ -596,7 +596,7 @@
     flex: none;
     background: none;
     border: 0;
-    border-radius: 7px;
+    border-radius: var(--r-sm);
     color: var(--text-mute);
     cursor: pointer;
   }
@@ -613,7 +613,7 @@
     flex: none;
     background: none;
     border: 0;
-    border-radius: 7px;
+    border-radius: var(--r-sm);
     color: var(--text-mute);
     cursor: pointer;
   }
@@ -670,7 +670,7 @@
     align-items: center;
     gap: 2px;
     min-height: 36px;
-    padding: 0 5px;
+    padding: 0;
   }
   .meses-url__a {
     display: inline-flex;
@@ -679,7 +679,7 @@
     min-height: 28px;
     max-width: 140px;
     padding: 2px 6px;
-    border-radius: 7px;
+    border-radius: var(--r-sm);
     color: var(--info);
     font-size: var(--fs-1);
     text-decoration: none;
@@ -701,7 +701,7 @@
     flex: none;
     background: none;
     border: 0;
-    border-radius: 7px;
+    border-radius: var(--r-sm);
     color: var(--text-mute);
     cursor: pointer;
   }
@@ -713,7 +713,7 @@
 @media (max-width: 767px) {
   .meses-root { padding: 8px 8px 40px; }
   .meses-col--grab { width: 42px; min-width: 42px; max-width: 42px; }
-  .meses-col--task { left: 42px; min-width: 148px; max-width: 168px; }
+  .meses-col--task { left: 42px; min-width: 176px; max-width: 200px; }
   .meses-td--text { min-width: 170px; max-width: 210px; }
   .meses-table { min-width: 760px; }
   .meses-table th { font-size: 10px; }
@@ -742,7 +742,7 @@
 
 /* ── Columna Fecha publicación (la de su Notion) ── */
 .meses-td--date { white-space: nowrap; }
-.meses-date { color: var(--text-1, #e8e6f0); font-size: 13px; }
+.meses-date { color: var(--text-1, #e8e6f0); font-size: 13px; padding: 0 6px; }
 
 /* ── Panel lateral de caption (side peek estilo Notion) ─────────────────────── */
 
@@ -810,7 +810,7 @@
   cursor: pointer;
   padding: 8px;
   margin: -6px -8px 0 0;
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   min-width: 44px;
   min-height: 44px;
 }
@@ -856,7 +856,7 @@
   display: inline-flex; align-items: center; gap: 4px;
   background: none; border: 0; padding: 2px 4px; margin: -2px -4px;
   font: inherit; color: inherit; letter-spacing: inherit; text-transform: inherit;
-  cursor: pointer; border-radius: 6px; white-space: nowrap;
+  cursor: pointer; border-radius: var(--r-sm); white-space: nowrap;
 }
 .meses-th__filter:hover { color: var(--text-1, #fff); background: var(--bg-2, rgba(255,255,255,.05)); }
 .meses-th__filter.is-active { color: var(--brand, #a855f7); }
@@ -884,17 +884,17 @@
 .meses-side__item {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   width: 100%; padding: 8px 10px; min-height: 38px;
-  background: none; border: 0; border-radius: 8px; color: var(--text-2);
+  background: none; border: 0; border-radius: var(--r-sm); color: var(--text-dim);
   font: inherit; cursor: pointer; text-align: left;
 }
 .meses-side__item:hover { background: var(--surface-3); color: var(--text-1, #fff); }
 .meses-side__item.is-active { background: var(--surface-3); color: var(--text-1, #fff); font-weight: 700; box-shadow: inset 2px 0 0 var(--client-accent, var(--brand)); }
 .meses-side__lbl { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.meses-side__n { font-size: 12px; color: var(--text-mute); background: var(--surface-2); border-radius: 999px; padding: 1px 8px; flex: none; }
+.meses-side__n { font-size: 12px; color: var(--text-mute); background: var(--surface-2); border-radius: var(--r-pill); padding: 1px 8px; flex: none; }
 .meses-side__add {
   display: flex; align-items: center; gap: 6px; width: 100%; margin-top: 6px;
   padding: 8px 10px; background: none; border: 1px dashed var(--border-strong);
-  border-radius: 8px; color: var(--text-mute); font: inherit; cursor: pointer;
+  border-radius: var(--r-sm); color: var(--text-mute); font: inherit; cursor: pointer;
 }
 .meses-side__add:hover { color: var(--text-1, #fff); border-color: var(--brand); }
 
@@ -925,7 +925,7 @@ tr.meses-row--ph td {
 
 /* ── Barra ÚNICA de progreso del mes (debajo de la tabla, para TODO) ── */
 .meses-prog {
-  margin: 14px 2px 4px; padding: 12px 14px;
+  margin: 12px 2px 4px; padding: 12px 14px;
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--r); max-width: 520px;
 }
@@ -936,10 +936,10 @@ tr.meses-row--ph td {
 .meses-prog__label { font-size: var(--fs-2); font-weight: 700; color: var(--text); }
 .meses-prog__pct { font-size: var(--fs-1); color: var(--text-mute); font-weight: 600; }
 .meses-prog__track {
-  height: 10px; border-radius: 999px; overflow: hidden;
+  height: 10px; border-radius: var(--r-pill); overflow: hidden;
   background: color-mix(in srgb, var(--text-mute) 20%, transparent);
 }
 .meses-prog__fill {
-  display: block; height: 100%; border-radius: 999px;
+  display: block; height: 100%; border-radius: var(--r-pill);
   transition: width .4s ease, background .4s ease;
 }

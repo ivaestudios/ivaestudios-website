@@ -26,9 +26,9 @@ import {
   el, clear,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606142339';
-import { icon } from '../shell/icons.js?v=202606142339';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202606142339';
+} from '../api.js?v=202606150006';
+import { icon } from '../shell/icons.js?v=202606150006';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202606150006';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1122,6 +1122,10 @@ function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTod
     // SIEMPRE la tabla (tambien en movil, donde se desliza a la derecha con
     // Grab+Tarea fijas, como Notion). Vianey: el cliente debe ver FILAS.
     bodyKids.push(buildTable(rows, noteLabels));
+    // Barra unica de progreso del mes: pegada bajo la tabla para que se lea
+    // como su resumen, antes del boton "Nueva linea".
+    const progress = buildMonthProgress(rows);
+    if (progress) bodyKids.push(progress);
   } else {
     bodyKids.push(el('div', { class: 'meses-empty', text: 'Sin contenidos este mes.' }));
   }
@@ -1459,10 +1463,6 @@ function render() {
     isTodos,
     single: true,
   }));
-
-  // Barra única de progreso del mes (debajo de la tabla, para TODO el contenido).
-  const progress = buildMonthProgress(activeRows);
-  if (progress) sectionsEl.appendChild(progress);
 
   const isClientRole = document.body.classList.contains('is-client');
   if (!isTodos && !isClientRole) {

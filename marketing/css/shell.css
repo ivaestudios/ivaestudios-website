@@ -655,7 +655,7 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
   .tb-tab.is-active { color: var(--text); }
   .tb-tab.is-active::after {
     content: '';
-    position: absolute; left: 10px; right: 10px; bottom: 4px; height: 3px;
+    position: absolute; left: 12px; right: 12px; bottom: 4px; height: 3px;
     border-radius: var(--r-pill);
     background: var(--grad);
   }
@@ -668,6 +668,11 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
   .subhead-seg { display: none; }
   #subhead { justify-content: flex-end; }
   body.has-subhead #viewScroll { padding-top: calc(var(--topbar-h2) + var(--subhead-h)); }
+  /* En desktop el segmented vive en el topbar; si la vista no aporta controles
+     al slot (p. ej. Calendario), el subhead queda vacio -> colapsarlo para no
+     dejar una banda muerta de 48px bajo las pestanas. */
+  #subhead:not(:has(.subhead-slot > *)) { display: none; }
+  body.has-subhead:not(:has(.subhead-slot > *)) #viewScroll { padding-top: var(--topbar-h2); }
 
   /* FAB con etiqueta (esquina inferior derecha, sin nav que lo empuje) */
   .fab {
@@ -753,7 +758,7 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
 .cs-noterow .cs-noteinput { flex: 1; min-width: 0; }
 .cs-noterm {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 40px; min-width: 40px; height: 40px;
+  width: 44px; min-width: 44px; height: 44px;
   background: none; border: 1px solid var(--border); border-radius: var(--r-sm);
   color: var(--text-mute); cursor: pointer;
 }
@@ -764,3 +769,5 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
 .acct-user__actions { display: flex; gap: 6px; flex: none; }
 .acct-pwrow { display: flex; gap: 8px; align-items: center; }
 .acct-pwrow .input { flex: 1; min-width: 0; }
+.acct-pwrow .btn { min-height: 44px; }
+.cred-row .btn { min-height: 40px; }
