@@ -10,8 +10,10 @@ const AUTH = 'https://www.instagram.com/oauth/authorize';
 const TOKEN = 'https://api.instagram.com/oauth/access_token';
 const BASE = 'https://graph.instagram.com';
 const GRAPH = `${BASE}/v23.0`;
-// Scopes del flujo Instagram Login. manage_insights habilita followers/alcance;
-// requiere Advanced Access (App Review) para cuentas que no administra la app.
+// Scopes del flujo Instagram Login. manage_insights habilita followers/alcance.
+// Bajo Standard Access (modo desarrollo) funciona para cuentas con un ROL de
+// tester aceptado en la app; App Review solo hace falta para cuentas de
+// terceros SIN rol (público). No es necesario para el set fijo de clientes.
 const IG_SCOPE = 'instagram_business_basic,instagram_business_manage_insights';
 
 function json(data, status = 200) {
@@ -135,14 +137,27 @@ export async function fetchIgMetrics(env, clientId, month) {
 
   const tok = encodeURIComponent(client.ig_access_token);
   const id = client.ig_user_id;
-  // Solo endpoints permitidos sin App Review (scope instagram_business_basic):
-  // /me (perfil) y /me/media (lista de posts con likes/comments).
-  // /insights/reach requiere instagram_business_manage_insights → App Review.
+  // Bajo Standard Access (modo desarrollo, cuenta con rol de tester aceptado):
+  // /me (perfil), /me/media (posts con likes/comments) y /{id}/insights (alcance).
   const [prof, media] = await Promise.all([
     fetch(`${GRAPH}/me?fields=id,username,account_type,media_count,followers_count&access_token=${tok}`).then((r) => r.json()),
     fetch(`${GRAPH}/me/media?fields=like_count,comments_count,timestamp,media_type&limit=100&access_token=${tok}`).then((r) => r.json()),
   ]);
   if (prof.error) return { connected: true, username: client.ig_username, error: prof.error.message };
+
+  // Alcance de los últimos 28 días (best-effort). Métrica vigente 2025+: 'reach'
+  // con metric_type=total_value (la antigua 'impressions' fue retirada el
+  // 21-abr-2025). Si la cuenta no es profesional o aún no aceptó el rol de
+  // tester, la API devuelve error → dejamos reach en null SIN romper el reporte.
+  let reach28 = null;
+  try {
+    const ins = await fetch(`${GRAPH}/${id}/insights?metric=reach&period=days_28&metric_type=total_value&access_token=${tok}`).then((r) => r.json());
+    const row = ins && ins.data && ins.data[0];
+    if (row) {
+      reach28 = (row.total_value && row.total_value.value != null) ? row.total_value.value
+        : (row.values && row.values[0] && row.values[0].value != null ? row.values[0].value : null);
+    }
+  } catch { /* sin alcance: el reporte sigue con followers + interacciones */ }
 
   const months = {};
   for (const m of media.data || []) {
@@ -160,7 +175,7 @@ export async function fetchIgMetrics(env, clientId, month) {
   const data = {
     followers: prof.followers_count,
     media_count: prof.media_count,
-    reach_28d: null, // requiere App Review
+    reach_28d: reach28,
     months,
   };
   await env.DB.prepare(
