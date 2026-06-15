@@ -923,16 +923,23 @@ tr.meses-row--ph td {
   background: var(--client-accent, var(--brand)); opacity: .8; border-radius: 3px;
 }
 
-/* ── Barra de progreso del estado (idea → publicado) ── */
-.meses-statwrap {
-  display: inline-flex; flex-direction: column; gap: 5px;
-  align-items: stretch; min-width: 96px; max-width: 140px;
+/* ── Barra ÚNICA de progreso del mes (debajo de la tabla, para TODO) ── */
+.meses-prog {
+  margin: 14px 2px 4px; padding: 12px 14px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); max-width: 520px;
 }
-.meses-statbar {
-  height: 4px; border-radius: 999px; overflow: hidden;
-  background: color-mix(in srgb, var(--text-mute) 22%, transparent);
+.meses-prog__head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 10px; margin-bottom: 8px;
 }
-.meses-statbar__fill {
+.meses-prog__label { font-size: var(--fs-2); font-weight: 700; color: var(--text); }
+.meses-prog__pct { font-size: var(--fs-1); color: var(--text-mute); font-weight: 600; }
+.meses-prog__track {
+  height: 10px; border-radius: 999px; overflow: hidden;
+  background: color-mix(in srgb, var(--text-mute) 20%, transparent);
+}
+.meses-prog__fill {
   display: block; height: 100%; border-radius: 999px;
-  transition: width var(--t-fast, .2s), background var(--t-fast, .2s);
+  transition: width .4s ease, background .4s ease;
 }
