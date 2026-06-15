@@ -759,3 +759,8 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
 }
 .cs-noterm:hover { color: var(--danger, #ef4444); border-color: var(--danger, #ef4444); }
 .cs-noteadd { margin-top: 8px; width: 100%; justify-content: center; }
+
+/* Editar acceso de cliente: fila de contraseña + acciones */
+.acct-user__actions { display: flex; gap: 6px; flex: none; }
+.acct-pwrow { display: flex; gap: 8px; align-items: center; }
+.acct-pwrow .input { flex: 1; min-width: 0; }

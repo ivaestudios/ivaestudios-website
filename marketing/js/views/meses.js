@@ -26,9 +26,9 @@ import {
   el, clear,
   STATUSES, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606142255';
-import { icon } from '../shell/icons.js?v=202606142255';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202606142255';
+} from '../api.js?v=202606142318';
+import { icon } from '../shell/icons.js?v=202606142318';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202606142318';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.

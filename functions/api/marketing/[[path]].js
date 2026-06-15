@@ -713,11 +713,34 @@ async function handlePatchUser(request, env, session, userId) {
 
   let bodyObj;
   try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+  const has = (k) => bodyObj && Object.prototype.hasOwnProperty.call(bodyObj, k);
+
+  // Cambiar usuario (email) o contraseña son primitivas de takeover: un 'team'
+  // solo puede hacerlo sobre logins de CLIENTE; sobre admin/team requiere admin.
+  if ((has('email') || has('password')) && existing.role !== 'client' && session.role !== 'admin') {
+    return json({ error: 'Forbidden' }, 403);
+  }
+
   const sets = [];
   const vals = [];
-  if (bodyObj && Object.prototype.hasOwnProperty.call(bodyObj, 'name')) { sets.push('name = ?'); vals.push(bodyObj.name); }
-  if (bodyObj && Object.prototype.hasOwnProperty.call(bodyObj, 'active')) { sets.push('active = ?'); vals.push(bodyObj.active ? 1 : 0); }
-  if (bodyObj && Object.prototype.hasOwnProperty.call(bodyObj, 'role')) {
+  if (has('name')) { sets.push('name = ?'); vals.push(bodyObj.name); }
+  if (has('active')) { sets.push('active = ?'); vals.push(bodyObj.active ? 1 : 0); }
+  // Usuario (email): no vacío y único (insensible a mayúsculas), excluyendo al propio.
+  if (has('email')) {
+    const email = String(bodyObj.email || '').trim();
+    if (!email) return json({ error: 'El usuario no puede quedar vacío' }, 400);
+    const dup = await env.DB.prepare('SELECT id FROM mkt_users WHERE email = ? COLLATE NOCASE AND id != ?').bind(email, userId).first();
+    if (dup) return json({ error: 'Ese usuario ya está en uso' }, 409);
+    sets.push('email = ?'); vals.push(email);
+  }
+  // Contraseña: mínimo 6, se guarda hasheada y deja de forzar el cambio inicial.
+  if (has('password')) {
+    const pw = String(bodyObj.password || '');
+    if (pw.length < 6) return json({ error: 'La contraseña debe tener al menos 6 caracteres' }, 400);
+    sets.push('password = ?'); vals.push(await hashPassword(pw));
+    sets.push('must_reset = ?'); vals.push(0);
+  }
+  if (has('role')) {
     const r = bodyObj.role;
     if (r !== 'team' && r !== 'client' && r !== 'admin') return json({ error: 'Invalid role' }, 400);
     // Only an admin may grant/keep the admin role.

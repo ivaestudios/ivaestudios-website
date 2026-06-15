@@ -10,12 +10,12 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202606142255';
-import * as store from './store.js?v=202606142255';
-import { openSheet } from './sheet.js?v=202606142255';
-import { toast } from './toast.js?v=202606142255';
-import { icon } from './icons.js?v=202606142255';
-import { openClientSwitcher } from './clientswitcher.js?v=202606142255';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202606142318';
+import * as store from './store.js?v=202606142318';
+import { openSheet } from './sheet.js?v=202606142318';
+import { toast } from './toast.js?v=202606142318';
+import { icon } from './icons.js?v=202606142318';
+import { openClientSwitcher } from './clientswitcher.js?v=202606142318';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -241,7 +241,9 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
                 el('div', { class: 'acct-user__sub', text: login ? login.email : 'Sin acceso aún' }),
               ]),
               login
-                ? el('button', { class: 'btn btn-sm', type: 'button', text: 'Restablecer', onclick: () => resetClientPw(login, c) })
+                ? el('div', { class: 'acct-user__actions' }, [
+                    el('button', { class: 'btn btn-sm', type: 'button', text: 'Editar', onclick: () => openEditClientLogin(login, c) }),
+                  ])
                 : el('button', { class: 'btn btn-primary btn-sm', type: 'button', text: 'Crear acceso', onclick: () => openCreateClientLogin(c) }),
             ]));
           }
@@ -283,6 +285,59 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
           ]),
         );
         setTimeout(() => nameIn.focus(), 50);
+      },
+    });
+  }
+
+  // Editar el acceso del cliente: cambiar usuario y/o contraseña a tu gusto.
+  function openEditClientLogin(login, brand) {
+    openSheet({
+      title: `Acceso de ${brand.name}`,
+      mode: 'form',
+      build(body, close) {
+        const userIn = el('input', { class: 'input', type: 'text', value: login.email || '', maxlength: '120', 'aria-label': 'Usuario' });
+        const pwIn = el('input', { class: 'input', type: 'text', placeholder: 'Déjala en blanco para no cambiarla', maxlength: '120', 'aria-label': 'Nueva contraseña' });
+        const genBtn = el('button', {
+          class: 'btn btn-sm', type: 'button', text: 'Generar',
+          title: 'Generar una contraseña al azar',
+          onclick: () => { pwIn.value = 'ivae-' + Math.random().toString(36).slice(2, 7); },
+        });
+        const saveBtn = el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: 'Guardar acceso' });
+        saveBtn.addEventListener('click', async () => {
+          const user = userIn.value.trim();
+          const pw = pwIn.value.trim();
+          if (!user) { toast('El usuario no puede quedar vacío.', { type: 'error' }); userIn.focus(); return; }
+          if (pw && pw.length < 6) { toast('La contraseña debe tener al menos 6 caracteres.', { type: 'error' }); pwIn.focus(); return; }
+          const payload = {};
+          if (user !== login.email) payload.email = user;
+          if (pw) payload.password = pw;
+          if (!Object.keys(payload).length) { close({ source: 'nochange' }); return; }
+          saveBtn.disabled = true;
+          try {
+            await api.patch(`/users/${login.id}`, payload);
+            store.invalidateUsers();
+            close({ source: 'saved' });
+            toast('Acceso actualizado.', { type: 'success' });
+            // Si cambió algo, ofrece copiar los datos nuevos para enviar.
+            showClientCredentials({ brand, email: user, password: pw || '(la misma de antes)' });
+          } catch (e) {
+            toast(e.message || 'No se pudo guardar el acceso.', { type: 'error' });
+            saveBtn.disabled = false;
+          }
+        });
+        body.append(
+          el('p', { class: 'acct-intro', text: 'Cambia el usuario y/o la contraseña con los que tu cliente entra a su portal.' }),
+          el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Usuario' }), userIn]),
+          el('div', { class: 'field' }, [
+            el('label', { class: 'label', text: 'Contraseña nueva' }),
+            el('div', { class: 'acct-pwrow' }, [pwIn, genBtn]),
+          ]),
+          el('div', { class: 'sheet__footer' }, [
+            el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
+            saveBtn,
+          ]),
+        );
+        setTimeout(() => userIn.focus(), 50);
       },
     });
   }
