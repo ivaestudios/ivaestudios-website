@@ -124,42 +124,92 @@ export async function handleIgDisconnect(request, env, session) {
   return json({ ok: true });
 }
 
-// Métricas con caché 6h.
+// ── Helpers de insights (todo bajo Standard Access, sin App Review) ──────────
+async function igJson(url) {
+  try { return await fetch(url).then((r) => r.json()); } catch { return null; }
+}
+// Lee el valor de una métrica per-media (soporta total_value y values[]).
+function metricVal(item) {
+  if (!item) return null;
+  if (item.total_value && item.total_value.value != null) return item.total_value.value;
+  if (item.values && item.values[0] && item.values[0].value != null) return item.values[0].value;
+  return null;
+}
+// Insights de UN post/reel. El set se adapta al tipo (pedir una métrica no
+// soportada rompe TODA la llamada), con reintento mínimo si algo falla.
+async function fetchPostInsights(mediaId, isReel, tok) {
+  const base = 'views,reach,saved,shares,total_interactions';
+  const sets = [isReel ? base + ',ig_reels_avg_watch_time' : base, 'views,reach'];
+  for (const metric of sets) {
+    const r = await igJson(`${GRAPH}/${mediaId}/insights?metric=${metric}&access_token=${tok}`);
+    if (r && r.data && !r.error) {
+      const out = {};
+      for (const it of r.data) out[it.name] = metricVal(it);
+      return out;
+    }
+  }
+  return {};
+}
+// Demografía de audiencia a nivel CUENTA por un breakdown (gender|age|city).
+// Requiere ≥100 seguidores; si no, la API no devuelve datos → null.
+async function fetchDemographic(igUserId, breakdown, tok) {
+  const r = await igJson(`${GRAPH}/${igUserId}/insights?metric=follower_demographics&period=lifetime&timeframe=this_month&breakdown=${breakdown}&metric_type=total_value&access_token=${tok}`);
+  const bd = r && r.data && r.data[0] && r.data[0].total_value && r.data[0].total_value.breakdowns;
+  const results = bd && bd[0] && bd[0].results;
+  if (!Array.isArray(results)) return null;
+  const out = results.map((x) => ({ key: (x.dimension_values || [])[0], value: x.value }))
+    .filter((x) => x.key != null && x.value != null);
+  return out.length ? out : null;
+}
+
+// Métricas con caché 6h (por cliente + mes pedido).
 export async function fetchIgMetrics(env, clientId, month) {
   const client = await env.DB.prepare('SELECT ig_user_id, ig_username, ig_access_token FROM mkt_clients WHERE id = ?').bind(clientId).first();
   if (!client || !client.ig_user_id || !client.ig_access_token) return { connected: false };
 
   const cached = await env.DB.prepare('SELECT data, fetched_at FROM mkt_ig_metrics WHERE client_id = ?').bind(clientId).first().catch(() => null);
-  if (cached && Date.now() - new Date(cached.fetched_at.replace(' ', 'T') + 'Z').getTime() < 6 * 3600 * 1000) {
+  if (cached) {
+    const fresh = Date.now() - new Date(cached.fetched_at.replace(' ', 'T') + 'Z').getTime() < 6 * 3600 * 1000;
     const d = JSON.parse(cached.data);
-    return { connected: true, username: client.ig_username, data: { ...d, months: d.months || {} }, month };
+    if (fresh && d._month === month) {
+      return { connected: true, username: client.ig_username, data: { ...d, months: d.months || {} }, month };
+    }
   }
 
   const tok = encodeURIComponent(client.ig_access_token);
   const id = client.ig_user_id;
   // Bajo Standard Access (modo desarrollo, cuenta con rol de tester aceptado):
-  // /me (perfil), /me/media (posts con likes/comments) y /{id}/insights (alcance).
+  // /me (perfil), /me/media (posts) y /{id}/insights (alcance + demografía).
   const [prof, media] = await Promise.all([
     fetch(`${GRAPH}/me?fields=id,username,account_type,media_count,followers_count&access_token=${tok}`).then((r) => r.json()),
-    fetch(`${GRAPH}/me/media?fields=like_count,comments_count,timestamp,media_type&limit=100&access_token=${tok}`).then((r) => r.json()),
+    fetch(`${GRAPH}/me/media?fields=id,caption,media_type,media_product_type,permalink,media_url,thumbnail_url,like_count,comments_count,timestamp&limit=100&access_token=${tok}`).then((r) => r.json()),
   ]);
   if (prof.error) return { connected: true, username: client.ig_username, error: prof.error.message };
 
   // Alcance de los últimos 28 días (best-effort). Métrica vigente 2025+: 'reach'
-  // con metric_type=total_value (la antigua 'impressions' fue retirada el
-  // 21-abr-2025). Si la cuenta no es profesional o aún no aceptó el rol de
-  // tester, la API devuelve error → dejamos reach en null SIN romper el reporte.
+  // con metric_type=total_value (la antigua 'impressions' fue retirada 21-abr-2025).
   let reach28 = null;
   try {
-    const ins = await fetch(`${GRAPH}/${id}/insights?metric=reach&period=days_28&metric_type=total_value&access_token=${tok}`).then((r) => r.json());
+    const ins = await igJson(`${GRAPH}/${id}/insights?metric=reach&period=days_28&metric_type=total_value&access_token=${tok}`);
     const row = ins && ins.data && ins.data[0];
-    if (row) {
-      reach28 = (row.total_value && row.total_value.value != null) ? row.total_value.value
-        : (row.values && row.values[0] && row.values[0].value != null ? row.values[0].value : null);
-    }
+    if (row) reach28 = metricVal(row);
   } catch { /* sin alcance: el reporte sigue con followers + interacciones */ }
 
+  // Demografía de la audiencia (nivel cuenta): género, edad y ciudades top.
+  // Best-effort: si la cuenta tiene <100 seguidores o no califica, queda null.
+  let audience = null;
+  try {
+    const [gender, age, city] = await Promise.all([
+      fetchDemographic(id, 'gender', tok),
+      fetchDemographic(id, 'age', tok),
+      fetchDemographic(id, 'city', tok),
+    ]);
+    if (gender || age || city) audience = { gender, age, city };
+  } catch { /* sin demografía */ }
+
+  // Posts del mes pedido, con métricas POR VIDEO (best-effort por post).
   const months = {};
+  const posts = [];
   for (const m of media.data || []) {
     const k = String(m.timestamp || '').slice(0, 7);
     if (!k) continue;
@@ -167,7 +217,29 @@ export async function fetchIgMetrics(env, clientId, month) {
     months[k].posts += 1;
     months[k].likes += m.like_count || 0;
     months[k].comments += m.comments_count || 0;
+    if (k === month && posts.length < 40) {
+      const isReel = (m.media_product_type === 'REELS') || (m.media_type === 'VIDEO');
+      const pi = await fetchPostInsights(m.id, isReel, tok);
+      posts.push({
+        id: m.id,
+        caption: (m.caption || '').replace(/\s+/g, ' ').trim().slice(0, 90),
+        type: m.media_product_type || m.media_type || 'POST',
+        permalink: m.permalink || null,
+        thumb: m.thumbnail_url || m.media_url || null,
+        timestamp: m.timestamp,
+        likes: m.like_count || 0,
+        comments: m.comments_count || 0,
+        views: pi.views ?? null,
+        reach: pi.reach ?? null,
+        saved: pi.saved ?? null,
+        shares: pi.shares ?? null,
+        interactions: pi.total_interactions ?? null,
+        avg_watch: pi.ig_reels_avg_watch_time ?? null,
+      });
+    }
   }
+  posts.sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)));
+
   // Si el username de la BD está vacío (fallo del callback), lo guardamos aquí.
   if (prof.username && !client.ig_username) {
     await env.DB.prepare("UPDATE mkt_clients SET ig_username = ? WHERE id = ?").bind(prof.username, clientId).run().catch(() => {});
@@ -177,6 +249,9 @@ export async function fetchIgMetrics(env, clientId, month) {
     media_count: prof.media_count,
     reach_28d: reach28,
     months,
+    audience,
+    posts,
+    _month: month,
   };
   await env.DB.prepare(
     "INSERT OR REPLACE INTO mkt_ig_metrics (client_id, data, fetched_at) VALUES (?, ?, datetime('now'))"

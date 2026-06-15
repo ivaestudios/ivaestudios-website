@@ -67,6 +67,46 @@ export async function handleMonthlyReport(request, env, session, url, igFetcher 
   // captura manual del mes. Nunca truena el reporte.
   let igHtml = '';
   const fmtN = (n) => (n == null ? '—' : Number(n).toLocaleString('es-MX'));
+  const monthWord = label.split(' ')[0];
+  // Demografía de audiencia (nivel cuenta): barras de género, edad y ciudades.
+  const demoLabel = (k) => ({ M: 'Hombres', F: 'Mujeres', U: 'Sin dato' }[k] || k);
+  const demoBars = (list, { sortByValue = true, top = 0 } = {}) => {
+    if (!Array.isArray(list) || !list.length) return '';
+    let rows = [...list];
+    if (sortByValue) rows.sort((a, b) => (b.value || 0) - (a.value || 0));
+    else rows.sort((a, b) => String(a.key).localeCompare(String(b.key)));
+    if (top) rows = rows.slice(0, top);
+    const total = list.reduce((s, x) => s + (x.value || 0), 0) || 1;
+    return rows.map((x) => {
+      const p = Math.round((x.value || 0) / total * 100);
+      return `<div class="aud__row"><span class="aud__k">${esc(demoLabel(x.key))}</span><div class="aud__bar"><i style="width:${p}%"></i></div><span class="aud__v">${p}%</span></div>`;
+    }).join('');
+  };
+  const audienceHtml = (aud) => {
+    if (!aud || (!aud.gender && !aud.age && !aud.city)) return '';
+    let out = '<h2 class="igh">Tu audiencia</h2>';
+    if (aud.gender) out += `<div class="aud">${demoBars(aud.gender)}</div>`;
+    if (aud.age) out += `<h3 class="aud__h">Edad</h3><div class="aud">${demoBars(aud.age, { sortByValue: false })}</div>`;
+    if (aud.city) out += `<h3 class="aud__h">Ciudades top</h3><div class="aud">${demoBars(aud.city, { top: 5 })}</div>`;
+    return out;
+  };
+  // Rendimiento por video: cada post del mes con sus métricas.
+  const typeLabel = (t) => ({ REELS: 'Reel', VIDEO: 'Video', CAROUSEL_ALBUM: 'Carrusel', IMAGE: 'Foto', FEED: 'Post' }[t] || 'Post');
+  const fmtSec = (s) => (s == null ? null : (s >= 60 ? `${Math.floor(s / 60)}m ${Math.round(s % 60)}s` : `${Math.round(s)}s`));
+  const postsHtml = (posts) => {
+    if (!Array.isArray(posts) || !posts.length) return '';
+    const vm = (lbl, val) => (val == null ? '' : `<span class="vm"><b>${fmtN(val)}</b> ${lbl}</span>`);
+    const rows = posts.map((p) => {
+      const day = String(p.timestamp || '').slice(8, 10);
+      const watch = fmtSec(p.avg_watch);
+      return `<article class="vid">
+      <div class="vid__head"><span class="vid__type">${esc(typeLabel(p.type))}</span><span class="vid__date">${day ? esc(day + ' ' + monthWord) : ''}</span>${p.permalink ? `<a class="vid__link" href="${esc(p.permalink)}" target="_blank" rel="noopener">ver ↗</a>` : ''}</div>
+      ${p.caption ? `<p class="vid__cap">${esc(p.caption)}</p>` : ''}
+      <div class="vid__metrics">${vm('vistas', p.views)}${vm('alcance', p.reach)}${vm('me gusta', p.likes)}${vm('comentarios', p.comments)}${vm('guardados', p.saved)}${vm('compartidos', p.shares)}${watch ? `<span class="vm"><b>${watch}</b> visto prom.</span>` : ''}</div>
+    </article>`;
+    }).join('\n');
+    return `<h2 class="igh">Rendimiento por video (${posts.length})</h2><div class="vids">${rows}</div>`;
+  };
   try {
     let used = false;
     if (igFetcher) {
@@ -80,7 +120,9 @@ export async function handleMonthlyReport(request, env, session, url, igFetcher 
     <span class="chip">${fmtN(ig.data.reach_28d)} alcance (28 días)</span>
     <span class="chip">${fmtN(mm.likes + mm.comments)} interacciones del mes</span>
     <span class="chip">${fmtN(mm.posts)} publicados en IG</span>
-  </div>`;
+  </div>
+  ${audienceHtml(ig.data.audience)}
+  ${postsHtml(ig.data.posts)}`;
         used = true;
       }
     }
@@ -126,6 +168,22 @@ export async function handleMonthlyReport(request, env, session, url, igFetcher 
   .post__status[data-s="publicado"], .post__status[data-s="aprobado"] { background: #e5f7ec; color: #177245; }
   h3 { font-size: 16px; margin-bottom: 4px; }
   .post__cap { color: #555; font-size: 13.5px; white-space: pre-wrap; }
+  .aud { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+  .aud__h { font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; color: #888; margin: 6px 0 8px; }
+  .aud__row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .aud__k { flex: 0 0 92px; color: #444; font-weight: 600; }
+  .aud__bar { flex: 1; height: 9px; background: #ececf3; border-radius: 999px; overflow: hidden; }
+  .aud__bar i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+  .aud__v { flex: 0 0 38px; text-align: right; font-weight: 700; color: #333; }
+  .vids { display: flex; flex-direction: column; gap: 10px; margin-bottom: 26px; }
+  .vid { background: #fff; border: 1px solid #e7e7f0; border-radius: 14px; padding: 13px 16px; break-inside: avoid; }
+  .vid__head { display: flex; align-items: center; gap: 10px; font-size: 12px; margin-bottom: 5px; }
+  .vid__type { background: var(--accent); color: #fff; border-radius: 999px; padding: 2px 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; font-size: 11px; }
+  .vid__date { color: #888; font-weight: 700; text-transform: uppercase; }
+  .vid__link { margin-left: auto; color: var(--accent); font-weight: 600; text-decoration: none; }
+  .vid__cap { color: #555; font-size: 13px; margin-bottom: 8px; }
+  .vid__metrics { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+  .vm { font-size: 12.5px; color: #666; } .vm b { color: #1a1a24; font-weight: 700; }
   footer { margin-top: 30px; text-align: center; color: #999; font-size: 12.5px; }
   .printbtn { position: fixed; right: 18px; bottom: 18px; background: var(--accent); color: #fff; border: 0; border-radius: 999px; padding: 12px 20px; font: inherit; font-weight: 700; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
   @media print { .printbtn { display: none; } body { background: #fff; } .post { border-color: #ddd; } }
