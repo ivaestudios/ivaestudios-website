@@ -1113,6 +1113,15 @@ async function lazySweep(env, opts = {}) {
     ran.push({ recipe_key: 'alerta_sin_aprobar', fired });
   }
 
+  // (e) Auto-publicar: lo PROGRAMADO cuyo día de publicación ya llegó pasa
+  // SOLO a PUBLICADO (lo único que se mueve automáticamente; el resto del
+  // pipeline lo mueve el equipo a mano).
+  const autoPub = await env.DB.prepare(
+    "UPDATE mkt_posts SET status = 'publicado', updated_at = datetime('now') " +
+    "WHERE status = 'programado' AND publish_date IS NOT NULL AND publish_date <= ?"
+  ).bind(today).run();
+  ran.push({ recipe_key: 'auto_publicar', moved: (autoPub && autoPub.meta && autoPub.meta.changes) || 0 });
+
   // (d) Pruning: old notifications (>120d), old runs (>30d), expired sessions.
   const pn = await env.DB.prepare(
     "DELETE FROM mkt_notifications WHERE created_at < datetime('now', '-120 days')"

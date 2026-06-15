@@ -922,3 +922,17 @@ tr.meses-row--ph td {
   height: 6px; padding: 0; border: 0;
   background: var(--client-accent, var(--brand)); opacity: .8; border-radius: 3px;
 }
+
+/* ── Barra de progreso del estado (idea → publicado) ── */
+.meses-statwrap {
+  display: inline-flex; flex-direction: column; gap: 5px;
+  align-items: stretch; min-width: 96px; max-width: 140px;
+}
+.meses-statbar {
+  height: 4px; border-radius: 999px; overflow: hidden;
+  background: color-mix(in srgb, var(--text-mute) 22%, transparent);
+}
+.meses-statbar__fill {
+  display: block; height: 100%; border-radius: 999px;
+  transition: width var(--t-fast, .2s), background var(--t-fast, .2s);
+}

@@ -26,9 +26,9 @@ import {
   el, clear,
   STATUSES, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606142318';
-import { icon } from '../shell/icons.js?v=202606142318';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202606142318';
+} from '../api.js?v=202606142324';
+import { icon } from '../shell/icons.js?v=202606142324';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202606142324';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -551,12 +551,25 @@ function grabChipNode(g) {
 
 function statusPillNode(status) {
   const def = STATUSES[status];
+  const color = (def && def.color) || 'var(--text-mute)';
+  const order = def ? def.order : 0;
+  // Barra de progreso del pipeline: idea(0) → … → publicado(7). Se llena y
+  // toma el color del estado actual.
+  const pct = Math.round(((order + 1) / 8) * 100);
+  const bar = el('span', { class: 'meses-statbar', 'aria-hidden': 'true' }, [
+    el('span', { class: 'meses-statbar__fill' }),
+  ]);
+  bar.firstChild.style.width = pct + '%';
+  bar.firstChild.style.background = color;
+
   const pill = el('span', { class: 'meses-pill' }, [
     el('span', { class: 'meses-pill__dot', 'aria-hidden': 'true' }),
     el('span', { text: statusLabel(status) || 'Sin estado' }),
   ]);
-  pill.style.setProperty('--chipc', (def && def.color) || 'var(--text-mute)');
-  return pill;
+  pill.style.setProperty('--chipc', color);
+
+  const wrap = el('span', { class: 'meses-statwrap' }, [pill, bar]);
+  return wrap;
 }
 
 function typePillNode(type) {
