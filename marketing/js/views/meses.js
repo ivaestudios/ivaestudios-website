@@ -26,9 +26,9 @@ import {
   el, clear,
   STATUSES, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606142203';
-import { icon } from '../shell/icons.js?v=202606142203';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202606142203';
+} from '../api.js?v=202606142216';
+import { icon } from '../shell/icons.js?v=202606142216';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202606142216';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -913,12 +913,34 @@ function buildComposer(key, monthRows) {
 
   const input = el('input', {
     class: 'meses-newline__input', type: 'text',
-    placeholder: 'Escribe la tarea y presiona Enter',
+    placeholder: 'Escribe el nombre y presiona Enter para llenar el resto',
     'aria-label': 'Nueva tarea',
   });
   input.value = composer.value || '';
   input.addEventListener('input', () => { if (composer) composer.value = input.value; });
-  input.addEventListener('keydown', async (e) => {
+
+  // Crea la fila y abre el editor completo para llenar todo (estado, fecha,
+  // plataforma, tipo, caption, notas…) punto por punto.
+  const createAndOpen = async () => {
+    const title = input.value.trim();
+    if (!title) { input.focus(); return; }
+    const { activeClientId } = ctx.store.getState();
+    if (!activeClientId || activeClientId === 'todos') return;
+    composer = null;
+    composerInput = null;
+    const data = {
+      client_id: activeClientId,
+      title,
+      status: 'idea',
+      position: nextPosition(monthRows),
+    };
+    if (key !== SIN_MES) data.publish_date = `${key}-01`;
+    const post = await ctx.store.createPost(data);
+    if (post && post.id) ctx.openEditor(post.id);
+    else render();
+  };
+
+  input.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       e.stopPropagation();
       composer = null;
@@ -928,25 +950,13 @@ function buildComposer(key, monthRows) {
     }
     if (e.key !== 'Enter') return;
     e.preventDefault();
-    const title = input.value.trim();
-    if (!title) return;
-    const { activeClientId } = ctx.store.getState();
-    if (!activeClientId || activeClientId === 'todos') return;
-
-    if (composer) { composer.value = ''; composer.wantFocus = true; }
-    input.value = '';
-
-    const data = {
-      client_id: activeClientId,
-      title,
-      status: 'idea',
-      position: nextPosition(monthRows),
-    };
-    if (key !== SIN_MES) data.publish_date = `${key}-01`;
-    const post = await ctx.store.createPost(data);
-    if (post) ctx.toast('Agregado.', { type: 'success' });
-    // El store emite posts -> re-render; el foco se restaura en render().
+    createAndOpen();
   });
+
+  const goBtn = el('button', {
+    class: 'btn btn-primary meses-newline__go', type: 'button',
+    onclick: () => createAndOpen(),
+  }, [el('span', { text: 'Agregar y llenar' })]);
 
   const closeBtn = el('button', {
     class: 'meses-newline__close', type: 'button', 'aria-label': 'Cerrar nueva línea',
@@ -956,7 +966,7 @@ function buildComposer(key, monthRows) {
   composerInput = input;
   return el('div', { class: 'meses-newline-open' }, [
     input,
-    el('span', { class: 'meses-newline__hint', text: 'Enter agrega' }),
+    goBtn,
     closeBtn,
   ]);
 }

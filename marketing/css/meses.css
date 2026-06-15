@@ -328,6 +328,14 @@
   flex: none;
 }
 
+.meses-newline__go {
+  flex: none;
+  min-height: 40px;
+  white-space: nowrap;
+  padding: 0 14px;
+}
+@media (max-width: 767px) { .meses-newline__go { padding: 0 12px; font-size: var(--fs-2); } }
+
 .meses-newline__close {
   display: inline-flex;
   align-items: center;
