@@ -3253,6 +3253,36 @@
     color: rgba(250,248,245,.5);
     margin-top: 12px;
   }
+  .ivm-act-foot__contact {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-top: 4px;
+  }
+  .ivm-act-foot__contact a {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--ivm-cream);
+    transition: color 0.3s var(--ivm-ease);
+  }
+  .ivm-act-foot__contact a:active { color: var(--ivm-gold); }
+  .ivm-act-foot__costas {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin-top: 2px;
+  }
+  .ivm-act-foot__costas a {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: rgba(250,248,245,.5);
+    transition: color 0.3s var(--ivm-ease);
+  }
+  .ivm-act-foot__costas a:active { color: var(--ivm-gold); }
 
   /* ════════════════════════════════════════════════════════════════
      REDUCED MOTION
