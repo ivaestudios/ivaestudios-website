@@ -46,7 +46,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/metricas.css?v=202606170123';
+  link.href = '/marketing/css/metricas.css?v=202606171316';
   document.head.appendChild(link);
 }
 
@@ -118,7 +118,10 @@ function demoBars(list, { sortByValue = true, top = 0, mapKey = (k) => k } = {})
 function buildAudience(aud) {
   if (!aud || (!aud.gender && !aud.age && !aud.city)) return null;
   const gLabel = (k) => ({ M: 'Hombres', F: 'Mujeres', U: 'Sin dato' }[k] || k);
-  const kids = [el('h3', { class: 'mt-h', text: 'Tu audiencia' })];
+  const kids = [
+    el('h3', { class: 'mt-h', text: 'Tu audiencia' }),
+    el('p', { class: 'mt-hint', text: 'Foto actual de tus seguidores (no cambia con el periodo).' }),
+  ];
   if (aud.gender) kids.push(el('div', { class: 'mt-aud' }, demoBars(aud.gender, { mapKey: gLabel })));
   if (aud.age) { kids.push(el('div', { class: 'mt-aud__sub', text: 'Edad' })); kids.push(el('div', { class: 'mt-aud' }, demoBars(aud.age, { sortByValue: false }))); }
   if (aud.city) { kids.push(el('div', { class: 'mt-aud__sub', text: 'Ciudades top' })); kids.push(el('div', { class: 'mt-aud' }, demoBars(aud.city, { top: 5 }))); }
@@ -264,6 +267,9 @@ function render() {
     kpi(fmtN(t.posts), 'Publicaciones'),
   ]);
   rootEl.appendChild(kpis);
+  if (d.pending) {
+    rootEl.appendChild(el('p', { class: 'mt-hint mt-hint--pending', text: `Afinando métricas de ${d.pending} publicación${d.pending === 1 ? '' : 'es'} del periodo — vuelve a abrir en un momento para verlas completas.` }));
+  }
 
   const aud = buildAudience(d.audience);
   if (aud) rootEl.appendChild(aud);

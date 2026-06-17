@@ -162,6 +162,18 @@ async function fetchDemographic(igUserId, breakdown, tok) {
   return out.length ? out : null;
 }
 
+// Caché persistente de insights por post (mkt_kv 'igi:<mediaId>'). Cada post se
+// pide a la API UNA vez y se reusa; así los periodos largos acumulan métricas
+// reales sin re-pegar a la API ni saturar el límite de subrequests. Los posts
+// viejos (>30 días) casi no cambian → caché 45 días; los recientes → 12 h.
+async function igInsSet(env, mediaId, pi, stable) {
+  const exp = Date.now() + (stable ? 45 * 86400000 : 12 * 3600000);
+  try {
+    await env.DB.prepare('INSERT OR REPLACE INTO mkt_kv (key, value) VALUES (?, ?)')
+      .bind('igi:' + mediaId, JSON.stringify({ pi, exp })).run();
+  } catch { /* noop: la métrica sigue saliendo, solo no se cachea */ }
+}
+
 // Métricas con caché 6h (por cliente + mes pedido).
 export async function fetchIgMetrics(env, clientId, month) {
   const client = await env.DB.prepare('SELECT ig_user_id, ig_username, ig_access_token FROM mkt_clients WHERE id = ?').bind(clientId).first();
@@ -304,19 +316,42 @@ export async function fetchIgMetricsRange(env, clientId, from, to) {
   }
   rangePosts.sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)));
 
+  if (rangePosts.length > 365) rangePosts.length = 365;  // tope de seguridad (~1 año)
+
   const totals = { posts: rangePosts.length, views: 0, reach: 0, likes: 0, comments: 0, saved: 0, shares: 0, interactions: 0 };
   for (const m of rangePosts) { totals.likes += m.like_count || 0; totals.comments += m.comments_count || 0; }
 
-  // Insights por post para hasta CAP posts (en lotes paralelos). El resto del
-  // rango cuenta en likes/comments pero sin desglose de vistas/alcance.
-  const CAP = 40;
-  const head = rangePosts.slice(0, CAP);
-  const posts = [];
-  for (let i = 0; i < head.length; i += 6) {
-    const batch = head.slice(i, i + 6);
+  // Lee de un jalón todos los insights ya cacheados (1 query). Los que falten se
+  // piden a la API hasta un budget (seguro en subrequests) y se cachean; en las
+  // próximas cargas / el cron diario se va llenando → un periodo largo acumula
+  // datos reales y 6 meses ≠ 1 año.
+  const cacheMap = new Map();
+  if (rangePosts.length) {
+    const keys = rangePosts.map((m) => 'igi:' + m.id);
+    const ph = keys.map(() => '?').join(',');
+    const rows = await env.DB.prepare(`SELECT key, value FROM mkt_kv WHERE key IN (${ph})`).bind(...keys).all().catch(() => null);
+    for (const r of ((rows && rows.results) || [])) {
+      try { const o = JSON.parse(r.value); if (o && o.pi && o.exp > Date.now()) cacheMap.set(r.key.slice(4), o.pi); } catch { /* noop */ }
+    }
+  }
+
+  const budget = { n: 40 };  // máx fetches NUEVOS por request (los cacheados no gastan budget)
+  const all = [];
+  for (let i = 0; i < rangePosts.length; i += 8) {
+    const batch = rangePosts.slice(i, i + 8);
     const got = await Promise.all(batch.map(async (m) => {
-      const isReel = (m.media_product_type === 'REELS') || (m.media_type === 'VIDEO');
-      const pi = await fetchPostInsights(m.id, isReel, tok);
+      let pi = cacheMap.get(m.id);
+      if (!pi && budget.n > 0) {
+        budget.n -= 1;
+        const isReel = (m.media_product_type === 'REELS') || (m.media_type === 'VIDEO');
+        const fetched = await fetchPostInsights(m.id, isReel, tok);
+        if (fetched && (fetched.reach != null || fetched.views != null)) {
+          pi = fetched;
+          const ageDays = (Date.now() - Date.parse(String(m.timestamp || '').replace(' ', 'T'))) / 86400000;
+          await igInsSet(env, m.id, fetched, ageDays > 30);
+        }
+      }
+      pi = pi || {};
       return {
         id: m.id,
         caption: (m.caption || '').replace(/\s+/g, ' ').trim().slice(0, 90),
@@ -335,16 +370,16 @@ export async function fetchIgMetricsRange(env, clientId, from, to) {
       };
     }));
     for (const p of got) {
-      posts.push(p);
-      totals.views += p.views || 0; totals.reach += p.reach || 0; totals.saved += p.saved || 0; totals.shares += p.shares || 0;
+      all.push(p);
+      if (p.views != null) totals.views += p.views;
+      if (p.reach != null) totals.reach += p.reach;
+      if (p.saved != null) totals.saved += p.saved;
+      if (p.shares != null) totals.shares += p.shares;
       totals.interactions += (p.interactions != null ? p.interactions : (p.likes + p.comments));
     }
   }
-  // Posts del rango más allá del CAP: suman interacciones por likes+comments.
-  for (let i = CAP; i < rangePosts.length; i++) {
-    const m = rangePosts[i];
-    totals.interactions += (m.like_count || 0) + (m.comments_count || 0);
-  }
+  const pending = all.filter((p) => p.views == null && p.reach == null).length;
+  const posts = all.slice(0, 60);  // lista a mostrar (las KPIs ya suman TODO el periodo)
 
   return {
     connected: true,
@@ -356,7 +391,8 @@ export async function fetchIgMetricsRange(env, clientId, from, to) {
       audience,
       posts,
       totals,
-      truncated: rangePosts.length > CAP ? rangePosts.length - CAP : 0,
+      truncated: rangePosts.length > posts.length ? rangePosts.length - posts.length : 0,
+      pending,
     },
     from, to,
   };
