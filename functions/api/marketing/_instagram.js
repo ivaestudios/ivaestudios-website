@@ -437,6 +437,34 @@ export async function refreshAgingIgTokens(env) {
   return refreshed;
 }
 
+// Salud de las conexiones de IG: prueba el token de cada marca conectada (un
+// /me barato). Si una se cayó (el cliente cambió su contraseña o quitó la app),
+// la devuelve para avisar — una sola vez por caída (dedupe en mkt_kv
+// 'igdown:<clientId>'); al recuperarse, limpia el flag para poder volver a
+// avisar si se cae otra vez.
+export async function checkIgConnections(env) {
+  let clients = [];
+  try {
+    const r = await env.DB.prepare(
+      "SELECT id, name, ig_access_token FROM mkt_clients WHERE ig_access_token IS NOT NULL AND ig_user_id IS NOT NULL LIMIT 20"
+    ).all();
+    clients = (r && r.results) || [];
+  } catch { return []; }
+  const down = [];
+  for (const c of clients) {
+    const me = await igJson(`${GRAPH}/me?fields=id&access_token=${encodeURIComponent(c.ig_access_token)}`);
+    const ok = !!(me && me.id && !me.error);
+    const flag = 'igdown:' + c.id;
+    if (ok) {
+      await env.DB.prepare('DELETE FROM mkt_kv WHERE key = ?').bind(flag).run().catch(() => {});
+    } else {
+      const already = await env.DB.prepare('SELECT 1 FROM mkt_kv WHERE key = ?').bind(flag).first().catch(() => null);
+      if (!already) { await kvSet(env, flag, new Date().toISOString()); down.push({ id: c.id, name: c.name }); }
+    }
+  }
+  return down;
+}
+
 // GET /ig/metrics?client_id&month — staff o el cliente de su propia marca.
 // Prioridad: API conectada con datos → si no, captura manual del mes.
 export async function handleIgMetrics(request, env, session, url) {

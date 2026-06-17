@@ -46,7 +46,7 @@ import { handleMonthlyReport } from './_enterprise.js';
 import {
   handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
   handleIgMetrics, handleIgMetricsRange, fetchIgMetrics, fetchIgMetricsRange,
-  handleIgManual, getManualMetrics, refreshAgingIgTokens,
+  handleIgManual, getManualMetrics, refreshAgingIgTokens, checkIgConnections,
 } from './_instagram.js';
 
 // ============================================================================
@@ -1128,6 +1128,26 @@ async function lazySweep(env, opts = {}) {
   let igRefreshed = 0;
   try { igRefreshed = await refreshAgingIgTokens(env); } catch { /* noop */ }
   if (igRefreshed) ran.push({ recipe_key: 'ig_token_refresh', refreshed: igRefreshed });
+
+  // (c3) Salud de las conexiones de Instagram: si una se cayó (el cliente cambió
+  // su contraseña o quitó la app), avisa al staff UNA vez para reconectar (1 clic).
+  try {
+    const down = await checkIgConnections(env);
+    if (down.length) {
+      const staffRows = await env.DB.prepare("SELECT id FROM mkt_users WHERE active = 1 AND role IN ('admin','team')").all();
+      const ids = ((staffRows && staffRows.results) || []).map((u) => u.id);
+      let alerted = 0;
+      for (const c of down) {
+        const ok = await notify(env, {
+          user_ids: ids, type: 'recordatorio',
+          body: `Reconecta el Instagram de ${c.name}: la conexión se cerró. Entra a Métricas → Conectar Instagram (1 clic).`,
+          link: '#/metricas?cliente=' + c.id, client_id: c.id,
+        });
+        if (ok) alerted += 1;
+      }
+      ran.push({ recipe_key: 'ig_connection_down', alerted });
+    }
+  } catch (e) { /* noop: la salud de IG no rompe el barrido */ }
 
   // (d) Pruning: old notifications (>120d), old runs (>30d), expired sessions.
   const pn = await env.DB.prepare(
