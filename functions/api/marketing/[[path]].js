@@ -45,7 +45,8 @@ import { handleDashboard } from './_dashboard.js';
 import { handleMonthlyReport } from './_enterprise.js';
 import {
   handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
-  handleIgMetrics, fetchIgMetrics, handleIgManual, getManualMetrics,
+  handleIgMetrics, handleIgMetricsRange, fetchIgMetrics, fetchIgMetricsRange,
+  handleIgManual, getManualMetrics,
 } from './_instagram.js';
 
 // ============================================================================
@@ -2768,6 +2769,7 @@ async function route(request, env) {
   if (parts[0] === 'ig') {
     if (path === '/ig/login' && method === 'GET') return handleIgLogin(request, env, session, url);
     if (path === '/ig/metrics' && method === 'GET') return handleIgMetrics(request, env, session, url);
+    if (path === '/ig/metrics-range' && method === 'GET') return handleIgMetricsRange(request, env, session, url);
     if (path === '/ig/manual' && (method === 'GET' || method === 'POST')) return handleIgManual(request, env, session, url);
     if (path === '/ig/disconnect' && method === 'POST') return handleIgDisconnect(request, env, session);
     return json({ error: 'Not found' }, 404);
@@ -2775,7 +2777,7 @@ async function route(request, env) {
 
   // Reporte mensual del cliente (HTML imprimible; cliente forzado a su marca).
   if (path === '/report' && method === 'GET') {
-    return handleMonthlyReport(request, env, session, url, fetchIgMetrics, getManualMetrics);
+    return handleMonthlyReport(request, env, session, url, fetchIgMetrics, getManualMetrics, fetchIgMetricsRange);
   }
 
   // ── SEARCH (staff) ──

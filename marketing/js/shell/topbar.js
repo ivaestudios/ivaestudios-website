@@ -10,12 +10,12 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202606150006';
-import * as store from './store.js?v=202606150006';
-import { openSheet } from './sheet.js?v=202606150006';
-import { toast } from './toast.js?v=202606150006';
-import { icon } from './icons.js?v=202606150006';
-import { openClientSwitcher } from './clientswitcher.js?v=202606150006';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202606170123';
+import * as store from './store.js?v=202606170123';
+import { openSheet } from './sheet.js?v=202606170123';
+import { toast } from './toast.js?v=202606170123';
+import { icon } from './icons.js?v=202606170123';
+import { openClientSwitcher } from './clientswitcher.js?v=202606170123';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -27,6 +27,7 @@ const DESKTOP_TABS = [
   { id: 'inicio', label: 'Inicio' },
   { id: 'meses', label: 'Calendario' },
   { id: 'calendario', label: 'Cuadrícula' },
+  { id: 'metricas', label: 'Métricas' },
 ];
 
 export function createTopbar({ root, router, selectClient, openSearch, openNotifications }) {

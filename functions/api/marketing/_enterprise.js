@@ -23,23 +23,35 @@ function esc(s) {
   ));
 }
 
-export async function handleMonthlyReport(request, env, session, url, igFetcher = null, manualFetcher = null) {
+function rangeLabel(from, to) {
+  const d = (s) => { const [y, mo, da] = String(s).split('-').map(Number); return { y, mo, da }; };
+  const a = d(from); const b = d(to);
+  const mn = (mo) => REP_MONTHS[(mo || 1) - 1];
+  if (a.y === b.y && a.mo === b.mo) return `${a.da}–${b.da} ${mn(a.mo)} ${a.y}`;
+  if (a.y === b.y) return `${a.da} ${mn(a.mo)} – ${b.da} ${mn(b.mo)} ${a.y}`;
+  return `${a.da} ${mn(a.mo)} ${a.y} – ${b.da} ${mn(b.mo)} ${b.y}`;
+}
+
+export async function handleMonthlyReport(request, env, session, url, igFetcher = null, manualFetcher = null, igRangeFetcher = null) {
   let clientId = url.searchParams.get('client_id') || '';
   if (session.role === 'client') clientId = session.client_id;
   const month = String(url.searchParams.get('month') || '');
-  if (!clientId || !/^\d{4}-\d{2}$/.test(month)) {
-    return new Response('client_id y month (AAAA-MM) requeridos', { status: 400 });
+  const from = String(url.searchParams.get('from') || '');
+  const to = String(url.searchParams.get('to') || '');
+  const rangeMode = /^\d{4}-\d{2}-\d{2}$/.test(from) && /^\d{4}-\d{2}-\d{2}$/.test(to);
+  if (!clientId || (!rangeMode && !/^\d{4}-\d{2}$/.test(month))) {
+    return new Response('client_id y (month AAAA-MM o from+to AAAA-MM-DD) requeridos', { status: 400 });
   }
   const client = await env.DB.prepare('SELECT * FROM mkt_clients WHERE id = ?').bind(clientId).first();
   if (!client) return new Response('Cliente no encontrado', { status: 404 });
 
-  const res = await env.DB.prepare(
-    'SELECT * FROM mkt_posts WHERE client_id = ? AND publish_date LIKE ? ORDER BY publish_date, position'
-  ).bind(clientId, `${month}-%`).all();
+  const res = rangeMode
+    ? await env.DB.prepare('SELECT * FROM mkt_posts WHERE client_id = ? AND publish_date BETWEEN ? AND ? ORDER BY publish_date, position').bind(clientId, from, to).all()
+    : await env.DB.prepare('SELECT * FROM mkt_posts WHERE client_id = ? AND publish_date LIKE ? ORDER BY publish_date, position').bind(clientId, `${month}-%`).all();
   const posts = res.results || [];
 
-  const [y, m] = month.split('-').map(Number);
-  const label = `${REP_MONTHS[(m || 1) - 1]} ${y}`;
+  const [y, m] = (rangeMode ? from.slice(0, 7) : month).split('-').map(Number);
+  const label = rangeMode ? rangeLabel(from, to) : `${REP_MONTHS[(m || 1) - 1]} ${y}`;
   const accent = /^#[0-9a-fA-F]{3,8}$/.test(client.brand_color || '') ? client.brand_color : '#7c3aed';
   const byType = {};
   let publicados = 0;
@@ -55,7 +67,7 @@ export async function handleMonthlyReport(request, env, session, url, igFetcher 
   const rows = posts.map((p) => `
     <article class="post">
       <div class="post__head">
-        <span class="post__date">${esc(String(p.publish_date).slice(8, 10))} ${esc(REP_MONTHS[(m || 1) - 1]).slice(0, 3)}</span>
+        <span class="post__date">${esc(String(p.publish_date).slice(8, 10))} ${esc(REP_MONTHS[(Number(String(p.publish_date).slice(5, 7)) || 1) - 1] || '').slice(0, 3)}</span>
         <span class="post__type">${esc(p.content_type || 'post')}</span>
         <span class="post__status" data-s="${esc(p.status)}">${esc(REP_STATUS[p.status] || p.status || '')}</span>
       </div>
@@ -98,9 +110,10 @@ export async function handleMonthlyReport(request, env, session, url, igFetcher 
     const vm = (lbl, val) => (val == null ? '' : `<span class="vm"><b>${fmtN(val)}</b> ${lbl}</span>`);
     const rows = posts.map((p) => {
       const day = String(p.timestamp || '').slice(8, 10);
+      const moAbbr = (REP_MONTHS[(Number(String(p.timestamp || '').slice(5, 7)) || 1) - 1] || '').slice(0, 3);
       const watch = fmtSec(p.avg_watch);
       return `<article class="vid">
-      <div class="vid__head"><span class="vid__type">${esc(typeLabel(p.type))}</span><span class="vid__date">${day ? esc(day + ' ' + monthWord) : ''}</span>${p.permalink ? `<a class="vid__link" href="${esc(p.permalink)}" target="_blank" rel="noopener">ver ↗</a>` : ''}</div>
+      <div class="vid__head"><span class="vid__type">${esc(typeLabel(p.type))}</span><span class="vid__date">${day ? esc(day + ' ' + moAbbr) : ''}</span>${p.permalink ? `<a class="vid__link" href="${esc(p.permalink)}" target="_blank" rel="noopener">ver ↗</a>` : ''}</div>
       ${p.caption ? `<p class="vid__cap">${esc(p.caption)}</p>` : ''}
       <div class="vid__metrics">${vm('vistas', p.views)}${vm('alcance', p.reach)}${vm('me gusta', p.likes)}${vm('comentarios', p.comments)}${vm('guardados', p.saved)}${vm('compartidos', p.shares)}${watch ? `<span class="vm"><b>${watch}</b> visto prom.</span>` : ''}</div>
     </article>`;
@@ -109,24 +122,29 @@ export async function handleMonthlyReport(request, env, session, url, igFetcher 
   };
   try {
     let used = false;
-    if (igFetcher) {
-      const ig = await igFetcher(env, clientId, month);
+    const fetcher = rangeMode ? igRangeFetcher : igFetcher;
+    if (fetcher) {
+      const ig = rangeMode ? await fetcher(env, clientId, from, to) : await fetcher(env, clientId, month);
       if (ig && ig.connected && ig.data && !ig.error) {
+        const t = ig.data.totals;
         const mm = (ig.data.months || {})[month] || { posts: 0, likes: 0, comments: 0 };
+        const igPosts = t ? t.posts : mm.posts;
+        const igInter = t ? t.interactions : (mm.likes + mm.comments);
         igHtml = `
   <h2 class="igh">Resultados en Instagram${ig.username ? ' · @' + esc(ig.username) : ''}</h2>
   <div class="stats">
     <span class="chip chip--hero">${fmtN(ig.data.followers)} seguidores</span>
+    ${t && t.views ? `<span class="chip">${fmtN(t.views)} vistas</span>` : ''}
     <span class="chip">${fmtN(ig.data.reach_28d)} alcance (28 días)</span>
-    <span class="chip">${fmtN(mm.likes + mm.comments)} interacciones del mes</span>
-    <span class="chip">${fmtN(mm.posts)} publicados en IG</span>
+    <span class="chip">${fmtN(igInter)} interacciones${rangeMode ? ' del periodo' : ' del mes'}</span>
+    <span class="chip">${fmtN(igPosts)} publicados en IG</span>
   </div>
   ${audienceHtml(ig.data.audience)}
   ${postsHtml(ig.data.posts)}`;
         used = true;
       }
     }
-    if (!used && manualFetcher) {
+    if (!used && manualFetcher && !rangeMode) {
       const man = await manualFetcher(env, clientId, month);
       if (man) {
         igHtml = `

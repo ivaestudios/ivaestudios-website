@@ -260,6 +260,122 @@ export async function fetchIgMetrics(env, clientId, month) {
   return { connected: true, username: client.ig_username, data, month };
 }
 
+// Métricas por RANGO de fechas [from, to] (AAAA-MM-DD). Para el panel de
+// métricas con periodos (semana/mes/3-6 meses/año/personalizado). Agrega los
+// posts del rango + audiencia (snapshot) + alcance de cuenta. Sin caché (siempre
+// fresco; los insights por post se piden en lotes para ir rápido).
+export async function fetchIgMetricsRange(env, clientId, from, to) {
+  const client = await env.DB.prepare('SELECT ig_user_id, ig_username, ig_access_token FROM mkt_clients WHERE id = ?').bind(clientId).first();
+  if (!client || !client.ig_user_id || !client.ig_access_token) return { connected: false };
+
+  const tok = encodeURIComponent(client.ig_access_token);
+  const id = client.ig_user_id;
+
+  const prof = await igJson(`${GRAPH}/me?fields=id,username,account_type,media_count,followers_count&access_token=${tok}`);
+  if (!prof || prof.error) return { connected: true, username: client.ig_username, error: (prof && prof.error && prof.error.message) || 'No se pudo leer Instagram' };
+
+  // Alcance de la cuenta (últimos 28 días) + demografía actual — snapshots.
+  let reach28 = null;
+  try { const ins = await igJson(`${GRAPH}/${id}/insights?metric=reach&period=days_28&metric_type=total_value&access_token=${tok}`); const row = ins && ins.data && ins.data[0]; if (row) reach28 = metricVal(row); } catch { /* noop */ }
+  let audience = null;
+  try {
+    const [gender, age, city] = await Promise.all([
+      fetchDemographic(id, 'gender', tok), fetchDemographic(id, 'age', tok), fetchDemographic(id, 'city', tok),
+    ]);
+    if (gender || age || city) audience = { gender, age, city };
+  } catch { /* noop */ }
+
+  // Recolecta los posts dentro del rango paginando /me/media (viene de nuevo a
+  // viejo → cortamos al pasar el inicio del rango).
+  const inRange = (ts) => { const d = String(ts || '').slice(0, 10); return d >= from && d <= to; };
+  const rangePosts = [];
+  let nextUrl = `${GRAPH}/me/media?fields=id,caption,media_type,media_product_type,permalink,thumbnail_url,media_url,like_count,comments_count,timestamp&limit=50&access_token=${tok}`;
+  let pages = 0; let stop = false;
+  while (nextUrl && pages < 15 && !stop) {
+    const page = await igJson(nextUrl);
+    if (!page || page.error || !Array.isArray(page.data)) break;
+    for (const m of page.data) {
+      const d = String(m.timestamp || '').slice(0, 10);
+      if (d && d < from) { stop = true; break; }
+      if (inRange(m.timestamp)) rangePosts.push(m);
+    }
+    pages += 1;
+    nextUrl = (page.paging && page.paging.next) ? page.paging.next : null;
+  }
+  rangePosts.sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)));
+
+  const totals = { posts: rangePosts.length, views: 0, reach: 0, likes: 0, comments: 0, saved: 0, shares: 0, interactions: 0 };
+  for (const m of rangePosts) { totals.likes += m.like_count || 0; totals.comments += m.comments_count || 0; }
+
+  // Insights por post para hasta CAP posts (en lotes paralelos). El resto del
+  // rango cuenta en likes/comments pero sin desglose de vistas/alcance.
+  const CAP = 40;
+  const head = rangePosts.slice(0, CAP);
+  const posts = [];
+  for (let i = 0; i < head.length; i += 6) {
+    const batch = head.slice(i, i + 6);
+    const got = await Promise.all(batch.map(async (m) => {
+      const isReel = (m.media_product_type === 'REELS') || (m.media_type === 'VIDEO');
+      const pi = await fetchPostInsights(m.id, isReel, tok);
+      return {
+        id: m.id,
+        caption: (m.caption || '').replace(/\s+/g, ' ').trim().slice(0, 90),
+        type: m.media_product_type || m.media_type || 'POST',
+        permalink: m.permalink || null,
+        thumb: m.thumbnail_url || m.media_url || null,
+        timestamp: m.timestamp,
+        likes: m.like_count || 0,
+        comments: m.comments_count || 0,
+        views: pi.views ?? null,
+        reach: pi.reach ?? null,
+        saved: pi.saved ?? null,
+        shares: pi.shares ?? null,
+        interactions: pi.total_interactions ?? null,
+        avg_watch: pi.ig_reels_avg_watch_time != null ? pi.ig_reels_avg_watch_time / 1000 : null,
+      };
+    }));
+    for (const p of got) {
+      posts.push(p);
+      totals.views += p.views || 0; totals.reach += p.reach || 0; totals.saved += p.saved || 0; totals.shares += p.shares || 0;
+      totals.interactions += (p.interactions != null ? p.interactions : (p.likes + p.comments));
+    }
+  }
+  // Posts del rango más allá del CAP: suman interacciones por likes+comments.
+  for (let i = CAP; i < rangePosts.length; i++) {
+    const m = rangePosts[i];
+    totals.interactions += (m.like_count || 0) + (m.comments_count || 0);
+  }
+
+  return {
+    connected: true,
+    username: client.ig_username || prof.username || '',
+    data: {
+      followers: prof.followers_count,
+      media_count: prof.media_count,
+      reach_28d: reach28,
+      audience,
+      posts,
+      totals,
+      truncated: rangePosts.length > CAP ? rangePosts.length - CAP : 0,
+    },
+    from, to,
+  };
+}
+
+// GET /ig/metrics-range?client_id&from&to (AAAA-MM-DD) — staff o cliente propio.
+export async function handleIgMetricsRange(request, env, session, url) {
+  let clientId = url.searchParams.get('client_id') || '';
+  if (session.role === 'client') clientId = session.client_id;
+  if (!clientId) return json({ error: 'client_id requerido' }, 400);
+  const from = url.searchParams.get('from') || '';
+  const to = url.searchParams.get('to') || '';
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(to)) {
+    return json({ error: 'from y to (AAAA-MM-DD) requeridos' }, 400);
+  }
+  const out = await fetchIgMetricsRange(env, clientId, from, to);
+  return json(out);
+}
+
 // GET /ig/metrics?client_id&month — staff o el cliente de su propia marca.
 // Prioridad: API conectada con datos → si no, captura manual del mes.
 export async function handleIgMetrics(request, env, session, url) {

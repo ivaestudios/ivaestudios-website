@@ -9,7 +9,7 @@
 // incluidos). En exito se ofrece Deshacer via toast.
 // ============================================================================
 
-import { parseYMD, dayShort, todayYMD } from './data.js?v=202606150006';
+import { parseYMD, dayShort, todayYMD } from './data.js?v=202606170123';
 
 export const DROP_SELECTOR = '[data-cal-drop]';
 
