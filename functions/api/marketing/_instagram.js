@@ -234,7 +234,8 @@ export async function fetchIgMetrics(env, clientId, month) {
         saved: pi.saved ?? null,
         shares: pi.shares ?? null,
         interactions: pi.total_interactions ?? null,
-        avg_watch: pi.ig_reels_avg_watch_time ?? null,
+        // ig_reels_avg_watch_time viene en MILISEGUNDos → lo paso a segundos.
+        avg_watch: pi.ig_reels_avg_watch_time != null ? pi.ig_reels_avg_watch_time / 1000 : null,
       });
     }
   }
