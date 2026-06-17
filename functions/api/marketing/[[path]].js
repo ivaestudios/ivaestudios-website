@@ -46,7 +46,7 @@ import { handleMonthlyReport } from './_enterprise.js';
 import {
   handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
   handleIgMetrics, handleIgMetricsRange, fetchIgMetrics, fetchIgMetricsRange,
-  handleIgManual, getManualMetrics,
+  handleIgManual, getManualMetrics, refreshAgingIgTokens,
 } from './_instagram.js';
 
 // ============================================================================
@@ -1122,6 +1122,12 @@ async function lazySweep(env, opts = {}) {
     "WHERE status = 'programado' AND publish_date IS NOT NULL AND publish_date <= ?"
   ).bind(today).run();
   ran.push({ recipe_key: 'auto_publicar', moved: (autoPub && autoPub.meta && autoPub.meta.changes) || 0 });
+
+  // (c2) Auto-renovar tokens de Instagram que ya envejecen (>25 días): extiende
+  // otros 60 días para que las métricas no se caigan ni haya que reconectar.
+  let igRefreshed = 0;
+  try { igRefreshed = await refreshAgingIgTokens(env); } catch { /* noop */ }
+  if (igRefreshed) ran.push({ recipe_key: 'ig_token_refresh', refreshed: igRefreshed });
 
   // (d) Pruning: old notifications (>120d), old runs (>30d), expired sessions.
   const pn = await env.DB.prepare(

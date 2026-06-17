@@ -376,6 +376,31 @@ export async function handleIgMetricsRange(request, env, session, url) {
   return json(out);
 }
 
+// Auto-renovación: los tokens largos de IG se pueden refrescar para extender
+// otros 60 días. Refresca los que llevan >25 días sin tocarse (así, con que
+// alguien use la app ~1 vez al mes, el token nunca caduca y no hay que
+// reconectar a mano). Best-effort: no rompe nada si Meta falla.
+export async function refreshAgingIgTokens(env) {
+  let list = [];
+  try {
+    const rows = await env.DB.prepare(
+      "SELECT id, ig_access_token FROM mkt_clients WHERE ig_access_token IS NOT NULL AND ig_user_id IS NOT NULL AND (updated_at IS NULL OR updated_at < datetime('now','-25 days')) LIMIT 50"
+    ).all();
+    list = (rows && rows.results) || [];
+  } catch { return 0; }
+  let refreshed = 0;
+  for (const c of list) {
+    try {
+      const r = await igJson(`${BASE}/refresh_access_token?grant_type=ig_refresh_token&access_token=${encodeURIComponent(c.ig_access_token)}`);
+      if (r && r.access_token && !r.error) {
+        await env.DB.prepare("UPDATE mkt_clients SET ig_access_token = ?, updated_at = datetime('now') WHERE id = ?").bind(r.access_token, c.id).run();
+        refreshed += 1;
+      }
+    } catch { /* noop: el token sigue válido hasta su expiración */ }
+  }
+  return refreshed;
+}
+
 // GET /ig/metrics?client_id&month — staff o el cliente de su propia marca.
 // Prioridad: API conectada con datos → si no, captura manual del mes.
 export async function handleIgMetrics(request, env, session, url) {
