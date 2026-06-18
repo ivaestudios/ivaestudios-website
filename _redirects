@@ -97,6 +97,37 @@
 /post-luxury-photographer-style-editorial-vs-documentary /luxury-editorial 301
 
 # ═══════════════════════════════════════════
+# Renamed blog posts: old /post-* slugs → /blog/* (301)
+# These 12 were moved from post-*.html (root) into blog/*.html. Google still
+# had the old /post-* URLs (reported as "404 not found" in Search Console).
+# A 301 clears the 404 and transfers link equity to the live /blog/* pages.
+# ═══════════════════════════════════════════
+/post-best-cancun-wedding-venues-2026 /blog/best-cancun-wedding-venues-2026 301
+/post-best-cancun-wedding-venues-2026.html /blog/best-cancun-wedding-venues-2026 301
+/post-best-proposal-spots-cancun-riviera-maya /blog/best-proposal-spots-cancun-riviera-maya 301
+/post-best-proposal-spots-cancun-riviera-maya.html /blog/best-proposal-spots-cancun-riviera-maya 301
+/post-best-time-of-day-family-beach-photos-cancun /blog/best-time-of-day-family-beach-photos-cancun 301
+/post-best-time-of-day-family-beach-photos-cancun.html /blog/best-time-of-day-family-beach-photos-cancun 301
+/post-black-and-white-vs-color-wedding-photography /blog/black-and-white-vs-color-wedding-photography 301
+/post-black-and-white-vs-color-wedding-photography.html /blog/black-and-white-vs-color-wedding-photography 301
+/post-elopement-photographer-tulum-cancun /blog/elopement-photographer-tulum-cancun 301
+/post-elopement-photographer-tulum-cancun.html /blog/elopement-photographer-tulum-cancun 301
+/post-honeymoon-photoshoot-planning-guide /blog/honeymoon-photoshoot-planning-guide 301
+/post-honeymoon-photoshoot-planning-guide.html /blog/honeymoon-photoshoot-planning-guide 301
+/post-how-many-hours-wedding-photography-coverage /blog/how-many-hours-wedding-photography-coverage 301
+/post-how-many-hours-wedding-photography-coverage.html /blog/how-many-hours-wedding-photography-coverage 301
+/post-how-to-plan-a-destination-celebration-cancun /blog/how-to-plan-a-destination-celebration-cancun 301
+/post-how-to-plan-a-destination-celebration-cancun.html /blog/how-to-plan-a-destination-celebration-cancun 301
+/post-luxury-event-photography-what-to-expect /blog/luxury-event-photography-what-to-expect 301
+/post-luxury-event-photography-what-to-expect.html /blog/luxury-event-photography-what-to-expect 301
+/post-sunset-wedding-photography-best-times-cancun /blog/sunset-wedding-photography-best-times-cancun 301
+/post-sunset-wedding-photography-best-times-cancun.html /blog/sunset-wedding-photography-best-times-cancun 301
+/post-welcome-dinner-rehearsal-wedding-photography /blog/welcome-dinner-rehearsal-wedding-photography 301
+/post-welcome-dinner-rehearsal-wedding-photography.html /blog/welcome-dinner-rehearsal-wedding-photography 301
+/post-what-to-wear-family-photoshoot-mexico /blog/what-to-wear-family-photoshoot-mexico 301
+/post-what-to-wear-family-photoshoot-mexico.html /blog/what-to-wear-family-photoshoot-mexico 301
+
+# ═══════════════════════════════════════════
 # CLEAN URLs — Blog Posts (Batch 1)
 # ═══════════════════════════════════════════
 /blog/destination-wedding-photographer-riviera-maya /post-destination-wedding 200
