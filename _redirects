@@ -96,6 +96,10 @@
 /post-luxury-photographer-style-editorial-vs-documentary.html /luxury-editorial 301
 /post-luxury-photographer-style-editorial-vs-documentary /luxury-editorial 301
 
+# Old short /engagement URL (Bing had it as a dead link / 404) → live engagement page
+/engagement /engagement-photographer-cancun 301
+/engagement.html /engagement-photographer-cancun 301
+
 # ═══════════════════════════════════════════
 # Renamed blog posts: old /post-* slugs → /blog/* (301)
 # These 12 were moved from post-*.html (root) into blog/*.html. Google still
