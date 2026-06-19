@@ -57,3 +57,50 @@ body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
    Eran rgba(11,11,18,…) hardcodeados; los igualamos al fondo nuevo. */
 #topbar { background: rgba(10, 10, 14, .86) !important; }
 .dash-head { background: rgba(10, 10, 14, .92) !important; }
+
+/* ============================================================================
+   FIDELIDAD AL DISEÑO "Sistema IVA" — Inicio. Solo estilo (no toca lógica).
+   ============================================================================ */
+
+/* BUG FIX: la cabecera sticky (toggle + mes) tapaba ~40px de las tarjetas KPI,
+   ocultando los NÚMEROS (por eso se veían vacías). La dejamos en flujo normal
+   para que las tarjetas y sus números queden visibles, como el mockup. */
+.dash-head { position: static !important; margin-top: 0 !important; }
+
+/* Tarjetas KPI estilo mockup: ETIQUETA mayúsculas arriba + puntito de estado
+   arriba-derecha, NÚMERO grande blanco debajo, subtítulo abajo. */
+.dash-counter {
+  align-items: stretch !important;
+  gap: 0 !important;
+  padding: 18px 20px !important;
+  min-height: 100px !important;
+  border-radius: 14px !important;
+  position: relative;
+}
+.dash-counter__label {
+  order: -1 !important;
+  text-transform: uppercase; letter-spacing: .06em;
+  font-size: 11px !important; font-weight: 600 !important;
+  color: #6E6E7C !important; padding-right: 18px;
+}
+.dash-counter__value {
+  order: 0 !important;
+  font-size: 30px !important; line-height: 1 !important; margin-top: 12px;
+  color: #F2F2F6 !important; font-variant-numeric: tabular-nums;
+}
+.dash-counter.is-warn  .dash-counter__value,
+.dash-counter.is-danger .dash-counter__value,
+.dash-counter.is-ok    .dash-counter__value { color: #F2F2F6 !important; }
+.dash-counter__sub { order: 1 !important; margin-top: 5px; font-size: 12.5px !important; }
+.dash-counter.is-ok .dash-counter__sub { color: #3FB984 !important; }
+.dash-counter.is-danger { border-color: var(--border) !important; }
+.dash-counter::after {
+  content: ''; position: absolute; top: 20px; right: 20px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.dash-counter.is-warn::after  { background: #E0A43F; box-shadow: 0 0 0 4px rgba(224,164,63,.13); }
+.dash-counter.is-danger::after{ background: #E0A43F; box-shadow: 0 0 0 4px rgba(224,164,63,.13); }
+.dash-counter.is-ok::after    { background: #3FB984; box-shadow: 0 0 0 4px rgba(63,185,132,.13); }
+.dash-counter:not(.is-warn):not(.is-danger):not(.is-ok)::after { background: #34343E; box-shadow: none; }
