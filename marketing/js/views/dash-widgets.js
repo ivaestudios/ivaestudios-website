@@ -19,9 +19,9 @@ import {
   STATUSES, STATUS_ORDER,
   CONTENT_TYPES, PLATFORMS,
   statusBadge, approvalBadge,
-} from '../api.js?v=202606171316';
-import { icon } from '../shell/icons.js?v=202606171316';
-import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202606171316';
+} from '../api.js?v=202606191722';
+import { icon } from '../shell/icons.js?v=202606191722';
+import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202606191722';
 
 // Bucket para status que ya no existen en el enum (NUNCA invisibles).
 export const OTROS_KEY = '__otros';
@@ -139,11 +139,12 @@ export function countersGrid({ counters = {}, onJump }) {
   return el('div', { class: 'dash-counters' }, [
     counterCard({
       key: 'aprobar', value: pending, label: 'Por aprobar',
+      sub: pending > 0 ? 'requieren tu revisión' : 'nada por revisar',
       tone: pending > 0 ? 'warn' : '', onTap: onJump,
     }),
     counterCard({
       key: 'semana', value: week, label: 'Esta semana',
-      tone: '', onTap: onJump,
+      sub: 'programados', tone: '', onTap: onJump,
     }),
     counterCard({
       key: 'atrasados', value: overdue, label: 'Atrasados',

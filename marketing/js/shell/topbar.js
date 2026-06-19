@@ -10,12 +10,12 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202606171316';
-import * as store from './store.js?v=202606171316';
-import { openSheet } from './sheet.js?v=202606171316';
-import { toast } from './toast.js?v=202606171316';
-import { icon } from './icons.js?v=202606171316';
-import { openClientSwitcher } from './clientswitcher.js?v=202606171316';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202606191722';
+import * as store from './store.js?v=202606191722';
+import { openSheet } from './sheet.js?v=202606191722';
+import { toast } from './toast.js?v=202606191722';
+import { icon } from './icons.js?v=202606191722';
+import { openClientSwitcher } from './clientswitcher.js?v=202606191722';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -86,7 +86,14 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
     onclick: () => openAccountSheet(),
   });
 
+  // Logo de marca "iv ESTUDIOS" (diseño Sistema IVA). Aditivo: no cambia el
+  // resto del topbar. En el cliente no se muestra (su portal es de su marca).
+  const brand = isClient ? null : el('div', { class: 'tb-brand', 'aria-hidden': 'true' }, [
+    el('span', { class: 'tb-brand__mark', text: 'iv' }),
+    el('span', { class: 'tb-brand__word', text: 'Estudios' }),
+  ]);
   const bar = el('div', { class: 'tb-inner' }, [
+    ...(brand ? [brand] : []),
     clientBtn,
     tabsWrap,
     el('div', { class: 'tb-spacer' }),
