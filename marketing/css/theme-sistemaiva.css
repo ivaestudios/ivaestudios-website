@@ -1,0 +1,59 @@
+/* ============================================================================
+   IVAE Marketing — Tema "Sistema IVA" (rediseño 2026, Claude Design).
+   Capa de SOLO ESTILO, cargada DESPUÉS de app.css/tokens2.css/shell.css y de
+   los CSS de vista, para ganar la cascada de :root. NO toca markup ni lógica:
+   re-tinta toda la app cambiando los tokens + la tipografía a Outfit.
+   Rollback limpio: quitar el <link> de este archivo en app.html.
+   Paleta origen: Sistema IVA.dc.html (fondo #0A0A0E, cards #121218, acento
+   magenta→violeta #E24DA0→#9D5BE0, fuente Outfit).
+   ============================================================================ */
+
+:root {
+  /* Tipografía: Outfit como primaria (Inter de respaldo si no carga) */
+  --font: "Outfit", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  /* Superficies (near-black + cards) */
+  --bg:            #0A0A0E;
+  --surface:       #121218;
+  --surface-2:     #16161D;
+  --surface-3:     rgba(255, 255, 255, .03); /* hover/translucent tint */
+  --border:        #1E1E26;
+  --border-strong: #2C2C38;
+
+  /* Texto */
+  --text:      #ECECF1;
+  --text-dim:  #9A9AA8;
+  --text-mute: #62626F;
+
+  /* Acento de marca: magenta → violeta (sustituye violeta/fuchsia/pink) */
+  --violet:       #9D5BE0;
+  --fuchsia:      #E24DA0;
+  --pink:         #E24DA0;
+  --brand:        #E24DA0;
+  --brand-strong: #9D5BE0;
+  --grad:      linear-gradient(135deg, #E24DA0 0%, #9D5BE0 100%);
+  --grad-soft: linear-gradient(135deg, rgba(226, 77, 160, .18) 0%, rgba(157, 91, 224, .16) 100%);
+
+  /* Glows/anillos re-teñidos al magenta */
+  --sh-glow:       0 6px 22px -4px rgba(226, 77, 160, .42), 0 2px 8px -2px rgba(157, 91, 224, .30);
+  --sh-glow-hover: 0 10px 30px -4px rgba(226, 77, 160, .52), 0 3px 12px -2px rgba(157, 91, 224, .38);
+  --ring:          0 0 0 2px var(--bg), 0 0 0 4px var(--brand), 0 0 0 7px rgba(226, 77, 160, .28);
+
+  /* El acento por-cliente sigue funcionando (shell.js lo escribe en body.style);
+     su fallback ahora es el magenta nuevo. */
+  --client-accent:      #E24DA0;
+  --client-accent-soft: color-mix(in srgb, var(--client-accent) 18%, transparent);
+  --client-accent-line: color-mix(in srgb, var(--client-accent) 35%, transparent);
+}
+
+/* Suavizado de fuente acorde al diseño */
+body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+/* Barras de scroll al tono del diseño (#26262F) */
+::-webkit-scrollbar-thumb { background: #26262F; }
+::-webkit-scrollbar-thumb:hover { background: #34343F; }
+
+/* Chrome translúcido (topbar/nav/cabeceras sticky) al near-black nuevo.
+   Eran rgba(11,11,18,…) hardcodeados; los igualamos al fondo nuevo. */
+#topbar { background: rgba(10, 10, 14, .86) !important; }
+.dash-head { background: rgba(10, 10, 14, .92) !important; }
