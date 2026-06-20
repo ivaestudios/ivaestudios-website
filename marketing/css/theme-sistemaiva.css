@@ -200,7 +200,94 @@ body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
   .dash-donutcard   { order: 5 !important; }
   .dash-overduecard { grid-column: 1 / -1 !important; order: 6 !important; }
   .dash-weekcard    { grid-column: 1 / -1 !important; order: 7 !important; }
-  /* las tarjetas cortas reparten su contenido en el alto estirado */
-  .dash-streak    { justify-content: space-between !important; }
-  .dash-donutcard { justify-content: center !important; }
+  /* las cards ahora tienen contenido rico (mini-stats / barras) que llena el
+     alto; el cuerpo crece para ocupar la card estirada. */
+  .dash-streak, .dash-donutcard { justify-content: flex-start !important; }
+  .dash-streak__body, .dash-donutcard__body { flex: 1 1 auto !important; }
 }
+
+/* ============================================================================
+   OBRA MAESTRA ENTERPRISE — Pulido GLOBAL (toca toda la app de un golpe).
+   Cards con profundidad (sheen + sombra en 2 capas + hover), micro-elevacion,
+   cifras tabulares, y componentes reutilizables (.delta, .empty-rich).
+   ============================================================================ */
+
+/* Cards premium: dejan de fundirse con el fondo (profundidad tipo Notion/Linear). */
+.dash-card, .dash-counter, .kb-card, .mt-kpi, .mt-vid, .meses-stat, .wl-person, .mw-stat {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, .022), transparent 46%) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 10px 26px -16px rgba(0, 0, 0, .66) !important;
+  transition: border-color .14s ease, transform .14s ease, box-shadow .14s ease !important;
+}
+.dash-card:hover, .dash-counter:hover, .kb-card:hover, .mt-kpi:hover, .mt-vid:hover,
+.meses-stat:hover, .wl-person:hover { border-color: var(--border-strong) !important; }
+/* Micro-elevacion en superficies clicables. */
+.dash-counter:hover, .kb-card:hover, .mt-kpi:hover, .mt-vid:hover, .meses-stat:hover { transform: translateY(-2px); }
+@media (prefers-reduced-motion: reduce) {
+  .dash-card, .dash-counter, .kb-card, .mt-kpi, .mt-vid { transition: none !important; }
+  .dash-counter:hover, .kb-card:hover, .mt-kpi:hover, .mt-vid:hover, .meses-stat:hover { transform: none; }
+}
+/* Hairline de acento arriba de las cards estrella del Inicio. */
+.dash-pipeline, .dash-donutcard { position: relative; }
+.dash-pipeline::before, .dash-donutcard::before {
+  content: ''; position: absolute; inset: 0 0 auto 0; height: 2px;
+  border-radius: 14px 14px 0 0; background: var(--grad); opacity: .5;
+}
+
+/* Cifras tabulares: ninguna cifra "baila" al re-render (pulido tipo Stripe). */
+.dash-counter__value, .dash-pipe__count, .dash-mini__v, .dash-plat__val b, .dash-plat__total,
+.kb-col__count, .tb-badge, .bn-badge, .mt-kpi__val, .meses-stat__v {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Pildora de delta/tendencia (▲ verde / ▼ rojo / = gris) — reutilizable. */
+.delta {
+  font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px;
+  display: inline-flex; gap: 3px; align-items: center; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.delta.is-up   { color: #3FB984; background: rgba(63, 185, 132, .12); }
+.delta.is-down { color: #E0654F; background: rgba(224, 101, 79, .12); }
+.delta.is-flat { color: var(--text-mute); background: var(--surface-3); }
+
+/* Estado vacio premium reutilizable. */
+.empty-rich { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 44px 20px; }
+.empty-rich__ico {
+  display: grid; place-items: center; width: 54px; height: 54px; border-radius: 15px;
+  background: var(--grad-soft); color: var(--brand);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--brand) 22%, transparent), 0 14px 44px -18px rgba(226, 77, 160, .5);
+}
+.empty-rich__t { font-weight: 800; letter-spacing: -.01em; color: var(--text); font-size: 16px; }
+.empty-rich__s { font-size: 13px; color: var(--text-mute); max-width: 34ch; line-height: 1.5; }
+
+/* ── Racha enriquecida: num+sparkline | mini-stats (llena el hueco) ── */
+.dash-streak__body {
+  display: grid !important; grid-template-columns: 1fr .92fr; gap: 18px;
+  align-items: stretch; width: 100%; padding: 0; background: none; border: 0; text-align: left; cursor: pointer;
+}
+.dash-streak__left { display: flex; flex-direction: column; gap: 16px; justify-content: flex-start; min-width: 0; }
+.dash-streak__stats { display: flex; flex-direction: column; justify-content: center; gap: 15px; border-left: 1px solid var(--border); padding-left: 18px; }
+.dash-mini { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 3px 10px; }
+.dash-mini__k { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-mute); }
+.dash-mini__v { font-size: 16px; font-weight: 700; color: var(--text); }
+.dash-mini__bar { grid-column: 1 / -1; height: 5px; border-radius: 99px; background: rgba(255, 255, 255, .07); overflow: hidden; margin-top: 4px; }
+.dash-mini__bar i { display: block; height: 100%; background: var(--grad); border-radius: 99px; }
+/* En movil angosto, las mini-stats van debajo. */
+@media (max-width: 560px) {
+  .dash-streak__body { grid-template-columns: 1fr; }
+  .dash-streak__stats { border-left: 0; padding-left: 0; border-top: 1px solid var(--border); padding-top: 14px; }
+}
+
+/* ── Plataformas: dona + total grande + barras horizontales (llena el hueco) ── */
+.dash-plat__main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 16px; justify-content: center; }
+.dash-plat__hero { display: flex; flex-direction: column; gap: 1px; }
+.dash-plat__total { font-size: 30px; font-weight: 800; color: var(--text); line-height: 1; }
+.dash-plat__cap { font-size: 12.5px; color: var(--text-mute); }
+.dash-plat__bars { display: flex; flex-direction: column; gap: 13px; }
+.dash-plat__row { display: grid; grid-template-columns: 92px 1fr auto; align-items: center; gap: 12px; background: none; border: 0; padding: 3px 0; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; }
+.dash-plat__name { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--text); white-space: nowrap; }
+.dash-plat__dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.dash-plat__track { height: 8px; border-radius: 99px; background: rgba(255, 255, 255, .06); overflow: hidden; }
+.dash-plat__track i { display: block; height: 100%; border-radius: 99px; min-width: 2px; }
+.dash-plat__val { display: inline-flex; align-items: baseline; gap: 6px; min-width: 56px; justify-content: flex-end; }
+.dash-plat__val b { font-size: 14px; font-weight: 700; color: var(--text); }
+.dash-plat__val small { font-size: 11px; color: var(--text-mute); }

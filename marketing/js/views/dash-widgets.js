@@ -19,9 +19,9 @@ import {
   STATUSES, STATUS_ORDER,
   CONTENT_TYPES, PLATFORMS,
   statusBadge, approvalBadge,
-} from '../api.js?v=202606200230';
-import { icon } from '../shell/icons.js?v=202606200230';
-import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202606200230';
+} from '../api.js?v=202606200300';
+import { icon } from '../shell/icons.js?v=202606200300';
+import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202606200300';
 
 // Bucket para status que ya no existen en el enum (NUNCA invisibles).
 export const OTROS_KEY = '__otros';
@@ -460,16 +460,35 @@ export function donutCard({ platforms = [], monthLabel = '', onPlatformTap }) {
   }, [ring, num, lbl]);
 
   const pct = (n) => Math.round((n / total) * 100);
-  const legend = el('div', { class: 'dash-legend' }, platforms.map((p) =>
+  const top = platforms.reduce((m, p) => (p.count > (m ? m.count : -1) ? p : m), null);
+
+  const hero = el('div', { class: 'dash-plat__hero' }, [
+    el('b', { class: 'dash-plat__total', text: String(total) }),
+    el('span', {
+      class: 'dash-plat__cap',
+      text: top && top.count > 0 ? `publicaciones · ${top.platform} lidera` : 'publicaciones del mes',
+    }),
+  ]);
+
+  // Barras horizontales por plataforma: densas, llenan el alto de la card.
+  const bars = el('div', { class: 'dash-plat__bars' }, platforms.map((p) =>
     el('button', {
-      class: 'dash-legend__row',
+      class: 'dash-plat__row',
       type: 'button',
+      'aria-label': `${p.platform}: ${p.count} (${pct(p.count)}%)`,
       onclick: () => { if (onPlatformTap) onPlatformTap(p.platform); },
     }, [
-      el('span', { class: 'dash-legend__dot', style: { background: p.color } }),
-      el('span', { class: 'dash-legend__label', text: p.platform }),
-      el('span', { class: 'dash-legend__count', text: String(p.count) }),
-      el('span', { class: 'dash-legend__pct', text: `${pct(p.count)}%` }),
+      el('span', { class: 'dash-plat__name' }, [
+        el('span', { class: 'dash-plat__dot', style: { background: p.color } }),
+        el('span', { text: p.platform }),
+      ]),
+      el('span', { class: 'dash-plat__track' }, [
+        el('i', { style: { width: `${pct(p.count)}%`, background: p.color } }),
+      ]),
+      el('span', { class: 'dash-plat__val' }, [
+        el('b', { text: String(p.count) }),
+        el('small', { text: `${pct(p.count)}%` }),
+      ]),
     ])
   ));
 
@@ -477,7 +496,10 @@ export function donutCard({ platforms = [], monthLabel = '', onPlatformTap }) {
     title: 'Plataformas',
     className: 'dash-donutcard',
     headRight: monthLabel ? el('span', { class: 'dash-card__meta', text: monthLabel }) : null,
-    children: el('div', { class: 'dash-donutcard__body' }, [svg, legend]),
+    children: el('div', { class: 'dash-donutcard__body' }, [
+      svg,
+      el('div', { class: 'dash-plat__main' }, [hero, bars]),
+    ]),
   });
 }
 
@@ -485,7 +507,17 @@ export function donutCard({ platforms = [], monthLabel = '', onPlatformTap }) {
 
 /** streakCard({streak, days:[{date,count}], onDetails()}) */
 export function streakCard({ streak = 0, days = [], onDetails }) {
-  const maxC = Math.max(1, ...days.map((d) => Number(d.count) || 0));
+  const counts = days.map((d) => Number(d.count) || 0);
+  const maxC = Math.max(1, ...counts);
+  const total14 = counts.reduce((a, c) => a + c, 0);
+  // Mejor racha historica: la corrida mas larga de dias consecutivos con actividad.
+  let best = 0, run = 0;
+  for (const c of counts) { if (c > 0) { run += 1; if (run > best) best = run; } else run = 0; }
+  // Meta semanal: dias con actividad en los ultimos 7.
+  const weekDone = counts.slice(-7).filter((c) => c > 0).length;
+  const weekGoal = 5;
+  const weekPct = Math.min(100, Math.round((weekDone / weekGoal) * 100));
+
   const spark = el('span', { class: 'dash-spark', 'aria-hidden': 'true' }, days.map((d, i) => {
     const c = Number(d.count) || 0;
     const h = c > 0 ? Math.max(18, Math.round((c / maxC) * 100)) : 8;
@@ -502,6 +534,12 @@ export function streakCard({ streak = 0, days = [], onDetails }) {
     streak === 1 ? 'Llevan 1 dia de actividad. Mañana se vuelve racha.' :
     'Aun sin racha. Crear o editar contenido la enciende.';
 
+  const mini = (k, v, extra) => el('div', { class: 'dash-mini' }, [
+    el('span', { class: 'dash-mini__k', text: k }),
+    el('span', { class: 'dash-mini__v', text: String(v) }),
+    extra || null,
+  ]);
+
   return el('section', { class: 'dash-card dash-streak' }, [
     el('div', { class: 'dash-card__head' }, [
       el('h3', { class: 'dash-card__title', text: 'Racha' }),
@@ -509,14 +547,22 @@ export function streakCard({ streak = 0, days = [], onDetails }) {
     el('button', {
       class: 'dash-streak__body',
       type: 'button',
-      'aria-label': `Racha de actividad: ${plural(streak, 'dia', 'dias')}. Ver detalle de los ultimos 14 dias`,
+      'aria-label': `Racha de actividad: ${plural(streak, 'dia', 'dias')}. Meta semanal ${weekDone} de ${weekGoal}. Ver detalle de los ultimos 14 dias`,
       onclick: () => { if (onDetails) onDetails(); },
     }, [
-      el('span', { class: 'dash-streak__num' }, [
-        el('b', { text: String(streak) }),
-        el('span', { text: streak === 1 ? 'dia' : 'dias' }),
+      el('div', { class: 'dash-streak__left' }, [
+        el('span', { class: 'dash-streak__num' }, [
+          el('b', { text: String(streak) }),
+          el('span', { text: streak === 1 ? 'dia' : 'dias' }),
+        ]),
+        spark,
       ]),
-      spark,
+      el('div', { class: 'dash-streak__stats' }, [
+        mini('Meta semanal', `${weekDone}/${weekGoal}`,
+          el('span', { class: 'dash-mini__bar' }, [el('i', { style: { width: `${weekPct}%` } })])),
+        mini('Mejor racha', plural(best, 'dia', 'dias')),
+        mini('Acciones 14d', total14),
+      ]),
     ]),
     el('p', { class: 'dash-streak__copy', text: copy }),
   ]);
