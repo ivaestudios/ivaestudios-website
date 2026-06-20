@@ -154,3 +154,26 @@ body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
   font-size: 14px; font-weight: 700; color: var(--text);
   text-align: right; font-variant-numeric: tabular-nums;
 }
+
+/* ============================================================================
+   Layout ENTERPRISE full-width (el diseño Sistema IVA llena la pantalla).
+   ANTES: #view y .tb-inner topaban a 1240px centrado -> en pantallas anchas
+   (p. ej. 1710px) dejaban ~470px de negro a los lados = "espacios en blanco".
+   AHORA: el contenido, la barra superior y el subhead llenan el ancho con
+   margenes comodos y ALINEADOS entre si. Cap alto (1920) solo para monitores
+   gigantes. Solo layout; no toca markup ni lógica.
+   ============================================================================ */
+#view {
+  max-width: 1920px !important;
+  padding-left: clamp(20px, 4vw, 72px) !important;
+  padding-right: clamp(20px, 4vw, 72px) !important;
+}
+.tb-inner {
+  max-width: 1920px !important;
+  padding-left: clamp(20px, 4vw, 72px) !important;
+  padding-right: clamp(20px, 4vw, 72px) !important;
+}
+#subhead {
+  padding-left: clamp(20px, 4vw, 72px) !important;
+  padding-right: clamp(20px, 4vw, 72px) !important;
+}
