@@ -177,3 +177,30 @@ body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
   padding-left: clamp(20px, 4vw, 72px) !important;
   padding-right: clamp(20px, 4vw, 72px) !important;
 }
+
+/* ============================================================================
+   Dashboard SIN HUECOS: filas limpias de 2 columnas (Pipeline | Racha,
+   Por aprobar | Plataformas) donde las tarjetas se ESTIRAN para llenar (no
+   dejan negro abajo), y Proximos/Atrasados a todo lo ancho. ANTES era una
+   rejilla de 12 columnas con spans disparejos (8/4/6/5/7) que, con alturas
+   distintas, dejaba huecos negros abajo de Racha y a la derecha de Plataformas.
+   ============================================================================ */
+@media (min-width: 900px) {
+  .dash-body {
+    grid-template-columns: 1.5fr 1fr !important;
+    grid-auto-flow: row !important;
+    align-items: stretch !important;
+  }
+  .dash-body > * { grid-column: auto !important; align-self: stretch !important; }
+  .dash-counters { grid-column: 1 / -1 !important; }
+  .dash-clients, .dash-skel { grid-column: 1 / -1 !important; }
+  .dash-pipeline    { order: 2 !important; }
+  .dash-streak      { order: 3 !important; }
+  .dash-approvals   { order: 4 !important; }
+  .dash-donutcard   { order: 5 !important; }
+  .dash-overduecard { grid-column: 1 / -1 !important; order: 6 !important; }
+  .dash-weekcard    { grid-column: 1 / -1 !important; order: 7 !important; }
+  /* las tarjetas cortas reparten su contenido en el alto estirado */
+  .dash-streak    { justify-content: space-between !important; }
+  .dash-donutcard { justify-content: center !important; }
+}
