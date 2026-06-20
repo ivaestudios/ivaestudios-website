@@ -26,9 +26,9 @@ import {
   el, clear,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202606200300';
-import { icon } from '../shell/icons.js?v=202606200300';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202606200300';
+} from '../api.js?v=202606200400';
+import { icon } from '../shell/icons.js?v=202606200400';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202606200400';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -559,26 +559,51 @@ function statusPillNode(status) {
   return pill;
 }
 
-// Barra ÚNICA de progreso del mes: se llena con el avance de TODO el contenido
-// (promedio del pipeline idea→publicado) y toma el color de la etapa promedio.
+// Barra SEGMENTADA de progreso del mes: un segmento por etapa del pipeline
+// (ancho proporcional al conteo, color de la etapa) para leer de un vistazo
+// cuanto hay en cada fase. El % destacado es el de publicados.
 function buildMonthProgress(rows) {
   const list = (rows || []).filter((p) => STATUSES[p.status]);
   if (!list.length) return null;
-  const avgOrder = list.reduce((s, p) => s + (STATUSES[p.status].order || 0), 0) / list.length;
-  const pct = Math.round((avgOrder / 7) * 100);
-  const stageKey = STATUS_ORDER[Math.round(avgOrder)] || 'idea';
-  const color = (STATUSES[stageKey] || {}).color || 'var(--brand)';
-  const publicados = list.filter((p) => p.status === 'publicado').length;
+  const total = list.length;
+  const counts = {};
+  for (const p of list) counts[p.status] = (counts[p.status] || 0) + 1;
+  const publicados = counts.publicado || 0;
+  const pct = Math.round((publicados / total) * 100);
 
-  const fill = el('span', { class: 'meses-prog__fill' });
-  fill.style.width = pct + '%';
-  fill.style.background = color;
+  const segs = STATUS_ORDER.filter((s) => counts[s]).map((s) => {
+    const seg = el('span', { class: 'meses-prog__seg', title: `${statusLabel(s)}: ${counts[s]}` });
+    seg.style.flexGrow = String(counts[s]);
+    seg.style.background = (STATUSES[s] || {}).color || 'var(--brand)';
+    return seg;
+  });
+
   return el('div', { class: 'meses-prog' }, [
     el('div', { class: 'meses-prog__head' }, [
       el('span', { class: 'meses-prog__label', text: 'Progreso del mes' }),
-      el('span', { class: 'meses-prog__pct', text: `${pct}% · ${publicados}/${list.length} publicados` }),
+      el('span', { class: 'meses-prog__pct', text: `${pct}% · ${publicados}/${total} publicados` }),
     ]),
-    el('div', { class: 'meses-prog__track' }, [fill]),
+    el('div', { class: 'meses-prog__track meses-prog__track--seg' }, segs),
+  ]);
+}
+
+// Franja de stats del mes activo: piezas, % publicado y atrasados.
+function buildMonthStats(rows) {
+  const list = rows || [];
+  if (!list.length) return null;
+  const total = list.length;
+  const pub = list.filter((p) => p.status === 'publicado').length;
+  const d = new Date();
+  const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const atrasados = list.filter((p) => p.publish_date && p.publish_date < todayStr && p.status !== 'publicado').length;
+  const stat = (k, v, cls) => el('div', { class: 'meses-stat' + (cls ? ` ${cls}` : '') }, [
+    el('span', { class: 'meses-stat__v', text: String(v) }),
+    el('span', { class: 'meses-stat__k', text: k }),
+  ]);
+  return el('div', { class: 'meses-stats' }, [
+    stat('Piezas', total),
+    stat('Publicado', `${Math.round((pub / total) * 100)}%`),
+    stat('Atrasados', atrasados, atrasados ? 'is-danger' : 'is-ok'),
   ]);
 }
 
@@ -1127,18 +1152,25 @@ function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTod
     const progress = buildMonthProgress(rows);
     if (progress) bodyKids.push(progress);
   } else {
-    bodyKids.push(el('div', { class: 'meses-empty', text: 'Sin contenidos este mes.' }));
+    bodyKids.push(el('div', { class: 'meses-empty empty-rich' }, [
+      el('div', { class: 'empty-rich__ico' }, [icon('calendar', 26)]),
+      el('h3', { class: 'empty-rich__t', text: 'Mes despejado' }),
+      el('p', { class: 'empty-rich__s', text: 'Aun no hay contenidos en este mes. Agrega la primera linea abajo para arrancar.' }),
+    ]));
   }
   if (!isTodos) bodyKids.push(buildComposer(key, rows));
 
   const showCollapsed = !single && collapsed;
   const body = el('div', { class: 'meses-sec__body', id: bodyId, hidden: showCollapsed }, bodyKids);
 
+  // Franja de stats del mes (solo en modo "mes activo", con contenido).
+  const statsStrip = (single && rows.length) ? buildMonthStats(rows) : null;
+
   const sec = el('section', {
     class: 'meses-sec' + (showCollapsed ? ' is-collapsed' : ''),
     dataset: { mes: key },
     'aria-label': `${label}, ${rows.length} ${rows.length === 1 ? 'fila' : 'filas'}`,
-  }, [heading, body]);
+  }, [heading, statsStrip, body]);
 
   if (head) head.addEventListener('click', () => toggleSection(sec, key));
   return sec;

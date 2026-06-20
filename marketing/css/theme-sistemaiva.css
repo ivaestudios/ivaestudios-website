@@ -291,3 +291,31 @@ body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 .dash-plat__val { display: inline-flex; align-items: baseline; gap: 6px; min-width: 56px; justify-content: flex-end; }
 .dash-plat__val b { font-size: 14px; font-weight: 700; color: var(--text); }
 .dash-plat__val small { font-size: 11px; color: var(--text-mute); }
+
+/* ── Metricas: cards con profundidad + pasos del estado vacio ── */
+.mt-card {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, .022), transparent 46%) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 10px 26px -16px rgba(0, 0, 0, .66) !important;
+}
+.mt-steps { list-style: none; margin: 8px 0 6px; padding: 0; display: flex; flex-direction: column; gap: 11px; text-align: left; max-width: 380px; }
+.mt-step { display: flex; align-items: center; gap: 13px; font-size: 13px; color: var(--text-dim); line-height: 1.4; }
+.mt-step__n {
+  flex: none; width: 25px; height: 25px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 12px; font-weight: 700; color: var(--brand); background: var(--grad-soft);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--brand) 20%, transparent);
+}
+/* La barra de audiencia con el gradiente de marca para verse premium. */
+.mt-aud__bar i { background: var(--grad) !important; }
+
+/* ── Calendario tabla: franja de stats + barra de progreso segmentada ── */
+.meses-stats { display: flex; gap: 12px; margin: 2px 0 16px; flex-wrap: wrap; }
+.meses-stat {
+  display: flex; flex-direction: column; gap: 3px; padding: 11px 18px;
+  border: 1px solid var(--border); border-radius: 12px; background: var(--surface); min-width: 104px;
+}
+.meses-stat__v { font-size: 21px; font-weight: 800; color: var(--text); line-height: 1; }
+.meses-stat__k { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-mute); }
+.meses-stat.is-danger .meses-stat__v { color: #E0654F; }
+.meses-stat.is-ok .meses-stat__v { color: #3FB984; }
+.meses-prog__track--seg { display: flex !important; gap: 2px; height: 8px; background: none !important; }
+.meses-prog__track--seg .meses-prog__seg { height: 100%; border-radius: 3px; min-width: 4px; }

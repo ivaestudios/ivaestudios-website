@@ -46,7 +46,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/metricas.css?v=202606200300';
+  link.href = '/marketing/css/metricas.css?v=202606200400';
   document.head.appendChild(link);
 }
 
@@ -158,11 +158,17 @@ function buildVideos(posts, truncated) {
   return el('section', { class: 'mt-card' }, [head, el('div', { class: 'mt-vids' }, rows)]);
 }
 
-function buildEmpty(title, body, action) {
-  return el('div', { class: 'mt-empty' }, [
-    el('div', { class: 'mt-empty__ico' }, [icon('gauge', 30)]),
-    el('h3', { text: title }),
-    el('p', { text: body }),
+function buildEmpty(title, body, action, steps) {
+  return el('div', { class: 'mt-empty empty-rich' }, [
+    el('div', { class: 'empty-rich__ico' }, [icon('gauge', 26)]),
+    el('h3', { class: 'empty-rich__t', text: title }),
+    el('p', { class: 'empty-rich__s', text: body }),
+    Array.isArray(steps) && steps.length
+      ? el('ol', { class: 'mt-steps' }, steps.map((s, i) => el('li', { class: 'mt-step' }, [
+          el('span', { class: 'mt-step__n', text: String(i + 1) }),
+          el('span', { class: 'mt-step__t', text: s }),
+        ])))
+      : null,
     action || null,
   ]);
 }
@@ -245,8 +251,13 @@ function render() {
   if (res.connected === false) {
     rootEl.appendChild(buildEmpty(
       'Instagram no conectado',
-      'Esta marca todavía no tiene Instagram conectado. Conéctalo desde el editor de la marca (el lápiz junto al nombre).',
-      el('button', { class: 'btn btn-primary', type: 'button', text: 'Abrir marcas', onclick: () => { const b = document.querySelector('.tb-client'); if (b) b.click(); } }),
+      'Conecta el Instagram de esta marca para ver seguidores, alcance, interacciones y el rendimiento de cada publicación, todo aquí.',
+      el('button', { class: 'btn btn-primary', type: 'button', text: 'Conectar Instagram', onclick: () => { const b = document.querySelector('.tb-client'); if (b) b.click(); } }),
+      [
+        'Abre el editor de la marca (el lápiz junto a su nombre arriba)',
+        'Pega el token de Instagram en la ficha de la marca',
+        'Vuelve aquí: el reporte se llena solo',
+      ],
     ));
     return;
   }
