@@ -103,7 +103,7 @@ body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 .dash-counter.is-warn::after  { background: #E0A43F; box-shadow: 0 0 0 4px rgba(224,164,63,.13); }
 .dash-counter.is-danger::after{ background: #E0A43F; box-shadow: 0 0 0 4px rgba(224,164,63,.13); }
 .dash-counter.is-ok::after    { background: #3FB984; box-shadow: 0 0 0 4px rgba(63,185,132,.13); }
-.dash-counter:not(.is-warn):not(.is-danger):not(.is-ok)::after { background: #34343E; box-shadow: none; }
+.dash-counter:not(.is-warn):not(.is-danger):not(.is-ok):not(.is-brand)::after { background: #34343E; box-shadow: none; }
 
 /* Logo de marca "iv ESTUDIOS" en el topbar (diseño Sistema IVA). */
 .tb-brand { display: inline-flex; align-items: center; gap: 9px; flex: none; margin-right: 6px; }
@@ -119,3 +119,38 @@ body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 }
 /* En móvil angosto se oculta la palabra para ahorrar espacio (queda el cuadro). */
 @media (max-width: 560px) { .tb-brand__word { display: none; } .tb-brand { margin-right: 2px; } }
+
+/* Punto rosa para "Esta semana" (tone brand), como el diseño Sistema IVA. */
+.dash-counter.is-brand::after { background: var(--brand); box-shadow: 0 0 0 4px rgba(226, 77, 160, .13); }
+
+/* ============================================================================
+   Pipeline estilo Sistema IVA: las 5 etapas SIEMPRE visibles, cada una con su
+   mini-barra de progreso + conteo (reemplaza la leyenda colapsada con el link
+   "Ver todos los estados"). Solo estilo; el markup lo arma dash-widgets.js.
+   ============================================================================ */
+.dash-pipeline .dash-pipe { display: flex; flex-direction: column; gap: 2px; margin-top: 14px; }
+.dash-pipe__row {
+  display: grid;
+  grid-template-columns: 11px 94px 1fr 28px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 9px 6px;
+  background: none; border: 0; cursor: pointer; text-align: left;
+  border-radius: 9px;
+  transition: background .12s ease;
+}
+.dash-pipe__row:hover { background: rgba(255, 255, 255, .035); }
+.dash-pipe__row.is-zero { opacity: .45; }
+.dash-pipe__dot { width: 9px; height: 9px; border-radius: 50%; }
+.dash-pipe__row.is-zero .dash-pipe__dot { background: #3A3A44 !important; }
+.dash-pipe__label { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; }
+.dash-pipe__track {
+  height: 8px; border-radius: 99px;
+  background: rgba(255, 255, 255, .06); overflow: hidden;
+}
+.dash-pipe__fill { display: block; height: 100%; border-radius: 99px; min-width: 0; }
+.dash-pipe__count {
+  font-size: 14px; font-weight: 700; color: var(--text);
+  text-align: right; font-variant-numeric: tabular-nums;
+}

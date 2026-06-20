@@ -14,8 +14,8 @@
 //   buildInsertUpdates(fullList, insertIdx, post, newStatus)
 // ============================================================================
 
-import { el, STATUSES, STATUS_ORDER } from '../api.js?v=202606191722';
-import { icon } from '../shell/icons.js?v=202606191722';
+import { el, STATUSES, STATUS_ORDER } from '../api.js?v=202606200110';
+import { icon } from '../shell/icons.js?v=202606200110';
 
 export const STEP = 1000;
 export const OTHERS_KEY = '__otros__';

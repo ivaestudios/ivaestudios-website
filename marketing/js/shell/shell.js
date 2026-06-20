@@ -19,20 +19,20 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202606191722';
-import * as store from './store.js?v=202606191722';
-import * as prefs from './prefs.js?v=202606191722';
-import * as router from './router.js?v=202606191722';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202606191722';
-import { toast } from './toast.js?v=202606191722';
-import { icon } from './icons.js?v=202606191722';
-import * as iconsMod from './icons.js?v=202606191722';
-import { createTopbar } from './topbar.js?v=202606191722';
-import { createBottomNav } from './bottomnav.js?v=202606191722';
-import { createSearch } from './search.js?v=202606191722';
-import { createNotifications } from './notifications.js?v=202606191722';
-import * as pickers from '../ui/pickers.js?v=202606191722';
-import * as dnd from '../ui/dnd.js?v=202606191722';
+import { api, el } from '../api.js?v=202606200110';
+import * as store from './store.js?v=202606200110';
+import * as prefs from './prefs.js?v=202606200110';
+import * as router from './router.js?v=202606200110';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202606200110';
+import { toast } from './toast.js?v=202606200110';
+import { icon } from './icons.js?v=202606200110';
+import * as iconsMod from './icons.js?v=202606200110';
+import { createTopbar } from './topbar.js?v=202606200110';
+import { createBottomNav } from './bottomnav.js?v=202606200110';
+import { createSearch } from './search.js?v=202606200110';
+import { createNotifications } from './notifications.js?v=202606200110';
+import * as pickers from '../ui/pickers.js?v=202606200110';
+import * as dnd from '../ui/dnd.js?v=202606200110';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;

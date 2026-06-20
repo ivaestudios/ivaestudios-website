@@ -19,9 +19,9 @@ import {
   STATUSES, STATUS_ORDER,
   CONTENT_TYPES, PLATFORMS,
   statusBadge, approvalBadge,
-} from '../api.js?v=202606191722';
-import { icon } from '../shell/icons.js?v=202606191722';
-import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202606191722';
+} from '../api.js?v=202606200110';
+import { icon } from '../shell/icons.js?v=202606200110';
+import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202606200110';
 
 // Bucket para status que ya no existen en el enum (NUNCA invisibles).
 export const OTROS_KEY = '__otros';
@@ -87,9 +87,10 @@ function svgEl(tag, attrs = {}, children = []) {
  * match case-insensitive contra PLATFORMS; el resto se agrupa como 'Otra'.
  * Ordenado por count desc.
  */
-export function normalizePlatforms(rows) {
+export function normalizePlatforms(rows, { base = [] } = {}) {
   const canon = new Map(PLATFORMS.map((p) => [p.toLowerCase(), p]));
   const acc = new Map();
+  for (const b of base) acc.set(b, 0); // siembra plataformas base (siempre visibles, como el diseño)
   for (const r of rows || []) {
     const raw = String((r && r.platform) || '').trim();
     const key = canon.get(raw.toLowerCase()) || 'Otra';
@@ -101,7 +102,7 @@ export function normalizePlatforms(rows) {
       count,
       color: PLATFORM_COLORS[platform] || PLATFORM_COLORS.Otra,
     }))
-    .filter((x) => x.count > 0)
+    .filter((x) => x.count > 0 || base.includes(x.platform))
     .sort((a, b) => b.count - a.count);
 }
 
@@ -129,7 +130,7 @@ function counterCard({ key, value, label, sub, tone, withCheck, onTap }) {
  * countersGrid({counters:{pending,week,overdue,monthTotal,noDate}, onJump(key)})
  * keys de drill-down: 'aprobar' | 'semana' | 'atrasados' | 'mes'.
  */
-export function countersGrid({ counters = {}, onJump }) {
+export function countersGrid({ counters = {}, weekRange = '', typeBreakdown = '', onJump }) {
   const pending = Number(counters.pending) || 0;
   const week = Number(counters.week) || 0;
   const overdue = Number(counters.overdue) || 0;
@@ -144,50 +145,53 @@ export function countersGrid({ counters = {}, onJump }) {
     }),
     counterCard({
       key: 'semana', value: week, label: 'Esta semana',
-      sub: 'programados', tone: '', onTap: onJump,
+      sub: weekRange ? `programados · ${weekRange}` : 'programados',
+      tone: 'brand', onTap: onJump,
     }),
     counterCard({
       key: 'atrasados', value: overdue, label: 'Atrasados',
       tone: overdue > 0 ? 'danger' : 'ok',
-      withCheck: overdue === 0,
       sub: overdue === 0 ? 'Al dia' : '',
       onTap: onJump,
     }),
     counterCard({
       key: 'mes', value: monthTotal, label: 'Posts del mes',
-      sub: noDate > 0 ? `y ${plural(noDate, 'idea sin fecha', 'ideas sin fecha')}` : '',
+      sub: typeBreakdown
+        || (noDate > 0 ? `y ${plural(noDate, 'idea sin fecha', 'ideas sin fecha')}` : ''),
       onTap: onJump,
     }),
   ]);
 }
 
-// ── 2) Pipeline battery (barra apilada + leyenda SIEMPRE visible) ───────────
+// ── 2) Pipeline (5 etapas del diseño + barra de progreso por fila) ──────────
+
+// El modelo interno tiene 8 estados; el cliente ve 5 etapas (las 4 de
+// produccion se agrupan en "Borrador"), igual que el diseño Sistema IVA.
+const PIPELINE_BUCKETS = [
+  { key: 'borrador',   label: 'Borrador',   color: STATUSES.edicion.color,    members: ['idea', 'guion', 'grabacion', 'edicion'] },
+  { key: 'revision',   label: 'Revisión',   color: STATUSES.revision.color,   members: ['revision'] },
+  { key: 'aprobado',   label: 'Aprobado',   color: STATUSES.aprobado.color,   members: ['aprobado'] },
+  { key: 'programado', label: 'Programado', color: STATUSES.programado.color, members: ['programado'] },
+  { key: 'publicado',  label: 'Publicado',  color: STATUSES.publicado.color,  members: ['publicado'] },
+];
 
 function pipelineData(pipeline) {
   const counts = new Map();
-  let otros = 0;
   for (const r of pipeline || []) {
     const k = String((r && r.status) || '');
-    const n = Number(r && r.count) || 0;
-    if (STATUSES[k]) counts.set(k, (counts.get(k) || 0) + n);
-    else otros += n;
+    counts.set(k, (counts.get(k) || 0) + (Number(r && r.count) || 0));
   }
-  const segments = [];
-  for (const s of STATUS_ORDER) {
-    const n = counts.get(s);
-    if (n) segments.push({ key: s, label: STATUSES[s].label, color: STATUSES[s].color, count: n });
-  }
-  if (otros > 0) segments.push({ key: OTROS_KEY, label: 'Otros', color: OTROS_COLOR, count: otros });
-  const total = segments.reduce((a, x) => a + x.count, 0);
-  const zeros = STATUS_ORDER
-    .filter((s) => !counts.get(s))
-    .map((s) => ({ key: s, label: STATUSES[s].label, color: STATUSES[s].color, count: 0 }));
-  return { segments, total, zeros };
+  const rows = PIPELINE_BUCKETS.map((b) => ({
+    key: b.key, label: b.label, color: b.color,
+    count: b.members.reduce((a, s) => a + (counts.get(s) || 0), 0),
+  }));
+  const total = rows.reduce((a, x) => a + x.count, 0);
+  return { rows, total };
 }
 
 /** pipelineCard({pipeline:[{status,count}], onStatusTap(key)}) */
 export function pipelineCard({ pipeline, onStatusTap }) {
-  const { segments, total, zeros } = pipelineData(pipeline);
+  const { rows, total } = pipelineData(pipeline);
 
   if (!total) {
     return card({
@@ -197,51 +201,44 @@ export function pipelineCard({ pipeline, onStatusTap }) {
     });
   }
 
-  const pct = (n) => Math.round((n / total) * 100);
+  const tap = (key) => { if (onStatusTap) onStatusTap(key); };
 
-  // Barra: cada segmento es un boton de 44px de alto; el color visible es un
-  // relleno interno de 14px (target amplio sin engordar la barra).
-  const bar = el('div', { class: 'dash-battery', 'aria-label': `Pipeline, ${total} contenidos` }, segments.map((s) =>
+  // Barra apilada superior (solo segmentos con contenido).
+  const segs = rows.filter((s) => s.count > 0);
+  const bar = el('div', { class: 'dash-battery', 'aria-label': `Pipeline, ${total} contenidos` }, segs.map((s) =>
     el('button', {
       class: 'dash-battery__seg',
       type: 'button',
       style: { flexGrow: String(s.count) },
-      'aria-label': `${s.label}: ${s.count} (${pct(s.count)}%)`,
-      onclick: () => { if (onStatusTap) onStatusTap(s.key); },
+      'aria-label': `${s.label}: ${s.count}`,
+      onclick: () => tap(s.key),
     }, [el('span', { class: 'dash-battery__fill', style: { background: s.color } })])
   ));
 
-  const legendRow = (s) => el('button', {
-    class: 'dash-legend__row' + (s.count === 0 ? ' is-zero' : ''),
-    type: 'button',
-    onclick: () => { if (onStatusTap) onStatusTap(s.key); },
-  }, [
-    el('span', { class: 'dash-legend__dot', style: { background: s.color } }),
-    el('span', { class: 'dash-legend__label', text: s.label }),
-    el('span', { class: 'dash-legend__count', text: String(s.count) }),
-    el('span', { class: 'dash-legend__pct', text: `${pct(s.count)}%` }),
-  ]);
-
-  const legend = el('div', { class: 'dash-legend' }, segments.map(legendRow));
-
-  let moreBtn = null;
-  if (zeros.length) {
-    moreBtn = el('button', {
-      class: 'dash-link',
+  // Leyenda: SIEMPRE las 5 etapas, cada una con su mini-barra de progreso +
+  // conteo (sin "Ver todos", como el diseño Sistema IVA).
+  const pipe = el('div', { class: 'dash-pipe' }, rows.map((s) => {
+    const w = total ? Math.round((s.count / total) * 100) : 0;
+    return el('button', {
+      class: 'dash-pipe__row' + (s.count === 0 ? ' is-zero' : ''),
       type: 'button',
-      text: 'Ver todos los estados',
-      onclick: () => {
-        for (const z of zeros) legend.appendChild(legendRow(z));
-        moreBtn.remove();
-      },
-    });
-  }
+      'aria-label': `${s.label}: ${s.count}`,
+      onclick: () => tap(s.key),
+    }, [
+      el('span', { class: 'dash-pipe__dot', style: { background: s.color } }),
+      el('span', { class: 'dash-pipe__label', text: s.label }),
+      el('span', { class: 'dash-pipe__track' }, [
+        el('span', { class: 'dash-pipe__fill', style: { width: `${w}%`, background: s.color } }),
+      ]),
+      el('span', { class: 'dash-pipe__count', text: String(s.count) }),
+    ]);
+  }));
 
   return card({
     title: 'Pipeline',
     className: 'dash-pipeline',
     headRight: el('span', { class: 'dash-card__meta', text: `${total} en total` }),
-    children: [bar, legend, moreBtn],
+    children: [bar, pipe],
   });
 }
 

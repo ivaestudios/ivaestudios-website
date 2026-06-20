@@ -25,13 +25,13 @@
 // Contrato de vista: export default { id, mount(el, ctx), unmount(), onParams() }.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202606191722';
-import { icon } from '../shell/icons.js?v=202606191722';
+import { api, el, clear } from '../api.js?v=202606200110';
+import { icon } from '../shell/icons.js?v=202606200110';
 import {
   todayISO, addDaysISO, addMonths, parseISO, toISO,
   fmtMonthYear, fmtShort, fmtLong,
-} from '../lib/dates.js?v=202606191722';
-import * as W from './dash-widgets.js?v=202606191722';
+} from '../lib/dates.js?v=202606200110';
+import * as W from './dash-widgets.js?v=202606200110';
 
 const TTL_MS = 60000;
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
@@ -196,10 +196,50 @@ function jumpCounter(key) {
 }
 
 function jumpStatus(key) {
-  if (!key || key === W.OTROS_KEY) {
+  // 'borrador' es un bucket de varios estados (idea/guion/grabacion/edicion):
+  // abre el tablero completo en vez de filtrar por un estado inexistente.
+  if (!key || key === W.OTROS_KEY || key === 'borrador') {
     goJump('tablero');
   } else {
     goJump('tablero', { estado: key });
+  }
+}
+
+// ── Subtítulos de las tarjetas KPI (rango de la semana + desglose por tipo) ──
+
+const MESES_CORTOS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+
+/** "1-7 jul" (o "28 jun-4 jul" si cruza de mes) para el subtítulo de Esta semana. */
+function weekRangeLabel(today) {
+  const a = parseISO(today);
+  const b = parseISO(addDaysISO(today, 6));
+  if (!a || !b) return '';
+  if (a.getMonth() === b.getMonth()) {
+    return `${a.getDate()}-${b.getDate()} ${MESES_CORTOS[b.getMonth()]}`;
+  }
+  return `${a.getDate()} ${MESES_CORTOS[a.getMonth()]}-${b.getDate()} ${MESES_CORTOS[b.getMonth()]}`;
+}
+
+/** "12 reels · 5 carruseles": desglose por tipo del mes en curso (desde el store). */
+function typeBreakdownLabel() {
+  try {
+    const st = ctx.store.getState();
+    const scopeCliente = effectiveScope() === 'cliente'
+      && st.activeClientId && st.activeClientId !== 'todos';
+    const reels = [];
+    const carr = [];
+    for (const p of st.posts || []) {
+      if (scopeCliente && p.client_id !== st.activeClientId) continue;
+      if (String(p.publish_date || '').slice(0, 7) !== dmonth) continue;
+      if (p.content_type === 'reel') reels.push(p);
+      else if (p.content_type === 'carrusel') carr.push(p);
+    }
+    const parts = [];
+    if (reels.length) parts.push(`${reels.length} ${reels.length === 1 ? 'reel' : 'reels'}`);
+    if (carr.length) parts.push(`${carr.length} ${carr.length === 1 ? 'carrusel' : 'carruseles'}`);
+    return parts.join(' · ');
+  } catch {
+    return '';
   }
 }
 
@@ -528,8 +568,14 @@ function renderBody() {
     return;
   }
 
-  // 1) Contadores 2x2 (siempre).
-  bodyEl.appendChild(W.countersGrid({ counters, onJump: jumpCounter }));
+  // 1) Contadores 2x2 (siempre). Subtítulos como el diseño: rango de la semana
+  //    en "Esta semana" y desglose reels/carruseles en "Posts del mes".
+  bodyEl.appendChild(W.countersGrid({
+    counters,
+    weekRange: weekRangeLabel(today),
+    typeBreakdown: typeBreakdownLabel(),
+    onJump: jumpCounter,
+  }));
 
   if (global) {
     // Agencia: cards por cliente (el server ya las ordena por urgencia).
@@ -569,9 +615,10 @@ function renderBody() {
     }
   }
 
-  // Donut + racha (en ambos alcances).
+  // Donut + racha (en ambos alcances). Plataformas base SIEMPRE visibles
+  // (Instagram/TikTok/Facebook), aunque vayan en 0, como el diseño.
   bodyEl.appendChild(W.donutCard({
-    platforms: W.normalizePlatforms(data.platforms || []),
+    platforms: W.normalizePlatforms(data.platforms || [], { base: ['Instagram', 'TikTok', 'Facebook'] }),
     monthLabel: fmtMonthYear(`${dmonth}-01`),
     onPlatformTap: jumpPlatform,
   }));
