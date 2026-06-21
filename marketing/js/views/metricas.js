@@ -23,12 +23,12 @@ let loading = false;
 let lastRes = null;
 let lastKey = '';        // clientId|from|to del último fetch (evita refetch igual)
 
+// Solo Semana y Mes: son los periodos donde Instagram entrega datos completos
+// y confiables. Periodos largos (3/6/12 meses) y personalizado se quitaron
+// porque Instagram no da estadisticas tan atras (datos parciales/vacios).
 const PERIODS = [
   { id: '7d', label: 'Semana', days: 7 },
   { id: '30d', label: 'Mes', days: 30 },
-  { id: '90d', label: '3 meses', days: 90 },
-  { id: '180d', label: '6 meses', days: 180 },
-  { id: '365d', label: '1 año', days: 365 },
 ];
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 
@@ -46,7 +46,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/metricas.css?v=202606200500';
+  link.href = '/marketing/css/metricas.css?v=202606200600';
   document.head.appendChild(link);
 }
 
@@ -179,34 +179,10 @@ function buildPeriodBar() {
   for (const p of PERIODS) {
     bar.appendChild(el('button', {
       class: 'mt-chip' + (period === p.id ? ' is-active' : ''), type: 'button', text: p.label,
-      onclick: () => { period = p.id; customOpen = false; load(); },
+      onclick: () => { period = p.id; load(); },
     }));
   }
-  const calBtn = el('button', {
-    class: 'mt-chip mt-chip--cal' + (period === 'custom' ? ' is-active' : ''), type: 'button',
-    'aria-label': 'Periodo personalizado', title: 'Elegir fechas',
-    onclick: () => { customOpen = !customOpen; render(); },
-  }, [icon('calendar', 16)]);
-  bar.appendChild(calBtn);
-
-  if (!customOpen) return bar;
-
-  const fromIn = el('input', { class: 'input mt-date', type: 'date', value: customFrom || daysAgoISO(30), max: todayISO() });
-  const toIn = el('input', { class: 'input mt-date', type: 'date', value: customTo || todayISO(), max: todayISO() });
-  const panel = el('div', { class: 'mt-custom' }, [
-    el('div', { class: 'mt-custom__row' }, [
-      el('label', {}, [el('span', { text: 'Desde' }), fromIn]),
-      el('label', {}, [el('span', { text: 'Hasta' }), toIn]),
-    ]),
-    el('button', {
-      class: 'btn btn-primary mt-apply', type: 'button', text: 'Aplicar',
-      onclick: () => {
-        if (!fromIn.value || !toIn.value) return;
-        customFrom = fromIn.value; customTo = toIn.value; period = 'custom'; customOpen = false; load();
-      },
-    }),
-  ]);
-  return el('div', {}, [bar, panel]);
+  return bar;
 }
 
 function render() {
