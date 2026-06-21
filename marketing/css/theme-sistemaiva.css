@@ -319,3 +319,21 @@ body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 .meses-stat.is-ok .meses-stat__v { color: #3FB984; }
 .meses-prog__track--seg { display: flex !important; gap: 2px; height: 8px; background: none !important; }
 .meses-prog__track--seg .meses-prog__seg { height: 100%; border-radius: 3px; min-width: 4px; }
+
+/* La pildora de delta vive junto al numero del KPI. */
+.dash-counter__value { display: inline-flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
+
+/* ── Editor: panel mas hondo + cabecera con brillo + tab activo mas marcado ── */
+.edpanel { box-shadow: -28px 0 70px -28px rgba(0, 0, 0, .72) !important; }
+.edhead { background-image: linear-gradient(180deg, rgba(255, 255, 255, .025), transparent 70%); }
+.edtabs__tab.is-active { border-bottom-width: 2px; }
+.edblock { background-image: linear-gradient(180deg, rgba(255, 255, 255, .016), transparent 52%); }
+
+/* ── Cuadricula: celdas con hover, HOY con halo magenta, pills con realce ── */
+.cal-mcell { transition: background .12s ease; }
+.cal-mcell:hover { background: rgba(255, 255, 255, .016); }
+.cal-mcell.is-today { box-shadow: inset 0 0 0 1.5px var(--brand), 0 0 34px -12px rgba(226, 77, 160, .45) !important; }
+.cal-pill { transition: transform .1s ease; }
+.cal-pill:hover { transform: translateX(2px); }
+.cal-card { transition: border-color .14s ease, transform .14s ease; }
+.cal-card:hover { transform: translateY(-1px); border-color: var(--border-strong); }

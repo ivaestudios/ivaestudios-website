@@ -25,13 +25,13 @@
 // Contrato de vista: export default { id, mount(el, ctx), unmount(), onParams() }.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202606200400';
-import { icon } from '../shell/icons.js?v=202606200400';
+import { api, el, clear } from '../api.js?v=202606200500';
+import { icon } from '../shell/icons.js?v=202606200500';
 import {
   todayISO, addDaysISO, addMonths, parseISO, toISO,
   fmtMonthYear, fmtShort, fmtLong,
-} from '../lib/dates.js?v=202606200400';
-import * as W from './dash-widgets.js?v=202606200400';
+} from '../lib/dates.js?v=202606200500';
+import * as W from './dash-widgets.js?v=202606200500';
 
 const TTL_MS = 60000;
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
@@ -240,6 +240,30 @@ function typeBreakdownLabel() {
     return parts.join(' · ');
   } catch {
     return '';
+  }
+}
+
+/** Tendencia de "Posts del mes": mes en curso vs mes anterior (desde el store).
+ *  Devuelve {dir,pct} o null si no hay base previa (no inventar el dato). */
+function monthDelta() {
+  try {
+    const st = ctx.store.getState();
+    const scopeCliente = effectiveScope() === 'cliente'
+      && st.activeClientId && st.activeClientId !== 'todos';
+    const prevMonth = shiftMonthStr(dmonth, -1);
+    let cur = 0;
+    let prev = 0;
+    for (const p of st.posts || []) {
+      if (scopeCliente && p.client_id !== st.activeClientId) continue;
+      const m = String(p.publish_date || '').slice(0, 7);
+      if (m === dmonth) cur += 1;
+      else if (m === prevMonth) prev += 1;
+    }
+    if (prev === 0) return null;
+    const pct = Math.round(((cur - prev) / prev) * 100);
+    return { dir: pct > 0 ? 'up' : pct < 0 ? 'down' : 'flat', pct };
+  } catch {
+    return null;
   }
 }
 
@@ -574,6 +598,7 @@ function renderBody() {
     counters,
     weekRange: weekRangeLabel(today),
     typeBreakdown: typeBreakdownLabel(),
+    monthDelta: monthDelta(),
     onJump: jumpCounter,
   }));
 

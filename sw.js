@@ -41,7 +41,7 @@
 // (always revalidate at the edge; deploys propagate on next load). /api/ and
 // /gallery/ keep the plain bypass.
 
-const CACHE_VERSION = 'ivae-v19-2026-06-20-masterpiece2';
+const CACHE_VERSION = 'ivae-v20-2026-06-20-masterpiece3';
 const STATIC_CACHE = `ivae-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `ivae-runtime-${CACHE_VERSION}`;
 

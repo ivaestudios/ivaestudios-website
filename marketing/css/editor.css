@@ -389,7 +389,7 @@ body.editor-open #viewScroll { overflow: hidden; }
   overflow: hidden;
 }
 .ed-ta::placeholder { color: var(--text-mute); }
-.ed-ta:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(139, 92, 246, .22); }
+.ed-ta:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 26%, transparent); }
 .ed-input { min-height: 48px; }
 .edcopy-row { display: flex; gap: var(--s-3); flex-wrap: wrap; }
 .edcopy-row .btn { min-height: var(--tap); }

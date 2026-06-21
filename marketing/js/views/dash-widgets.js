@@ -19,9 +19,9 @@ import {
   STATUSES, STATUS_ORDER,
   CONTENT_TYPES, PLATFORMS,
   statusBadge, approvalBadge,
-} from '../api.js?v=202606200400';
-import { icon } from '../shell/icons.js?v=202606200400';
-import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202606200400';
+} from '../api.js?v=202606200500';
+import { icon } from '../shell/icons.js?v=202606200500';
+import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202606200500';
 
 // Bucket para status que ya no existen en el enum (NUNCA invisibles).
 export const OTROS_KEY = '__otros';
@@ -108,10 +108,17 @@ export function normalizePlatforms(rows, { base = [] } = {}) {
 
 // ── 1) Contadores 2x2 (drill-down universal) ─────────────────────────────────
 
-function counterCard({ key, value, label, sub, tone, withCheck, onTap }) {
+/** Pildora de tendencia: deltaPill({dir:'up'|'down'|'flat', pct}). Reutilizable. */
+export function deltaPill({ dir = 'flat', pct = 0 } = {}) {
+  const sym = dir === 'up' ? '▲' : dir === 'down' ? '▼' : '=';
+  return el('span', { class: `delta is-${dir}`, text: `${sym} ${Math.abs(Math.round(pct))}%` });
+}
+
+function counterCard({ key, value, label, sub, tone, withCheck, delta, onTap }) {
   const valueWrap = el('span', { class: 'dash-counter__value' }, [
     withCheck ? icon('check', 22) : null,
     el('b', { text: String(value) }),
+    delta ? deltaPill(delta) : null,
   ]);
   return el('button', {
     class: 'dash-counter' + (tone ? ` is-${tone}` : ''),
@@ -130,7 +137,7 @@ function counterCard({ key, value, label, sub, tone, withCheck, onTap }) {
  * countersGrid({counters:{pending,week,overdue,monthTotal,noDate}, onJump(key)})
  * keys de drill-down: 'aprobar' | 'semana' | 'atrasados' | 'mes'.
  */
-export function countersGrid({ counters = {}, weekRange = '', typeBreakdown = '', onJump }) {
+export function countersGrid({ counters = {}, weekRange = '', typeBreakdown = '', monthDelta = null, onJump }) {
   const pending = Number(counters.pending) || 0;
   const week = Number(counters.week) || 0;
   const overdue = Number(counters.overdue) || 0;
@@ -158,6 +165,7 @@ export function countersGrid({ counters = {}, weekRange = '', typeBreakdown = ''
       key: 'mes', value: monthTotal, label: 'Posts del mes',
       sub: typeBreakdown
         || (noDate > 0 ? `y ${plural(noDate, 'idea sin fecha', 'ideas sin fecha')}` : ''),
+      delta: monthDelta,
       onTap: onJump,
     }),
   ]);
