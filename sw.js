@@ -41,7 +41,7 @@
 // (always revalidate at the edge; deploys propagate on next load). /api/ and
 // /gallery/ keep the plain bypass.
 
-const CACHE_VERSION = 'ivae-v21-2026-06-20-metricas-semana-mes';
+const CACHE_VERSION = 'ivae-v22-2026-06-20-conectar-directo';
 const STATIC_CACHE = `ivae-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `ivae-runtime-${CACHE_VERSION}`;
 

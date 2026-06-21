@@ -46,7 +46,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/metricas.css?v=202606200600';
+  link.href = '/marketing/css/metricas.css?v=202606200700';
   document.head.appendChild(link);
 }
 
@@ -228,11 +228,17 @@ function render() {
     rootEl.appendChild(buildEmpty(
       'Instagram no conectado',
       'Conecta el Instagram de esta marca para ver seguidores, alcance, interacciones y el rendimiento de cada publicación, todo aquí.',
-      el('button', { class: 'btn btn-primary', type: 'button', text: 'Conectar Instagram', onclick: () => { const b = document.querySelector('.tb-client'); if (b) b.click(); } }),
+      el('button', {
+        class: 'btn btn-primary', type: 'button', text: 'Conectar Instagram',
+        onclick: () => {
+          const b = activeBrand();
+          if (b) window.location.href = `/api/marketing/ig/login?client_id=${encodeURIComponent(b.id)}`;
+        },
+      }),
       [
-        'Abre el editor de la marca (el lápiz junto a su nombre arriba)',
-        'Pega el token de Instagram en la ficha de la marca',
-        'Vuelve aquí: el reporte se llena solo',
+        'Toca "Conectar Instagram" aquí abajo',
+        'Inicia sesión y autoriza el acceso en Instagram',
+        'Listo: el reporte se llena solo',
       ],
     ));
     return;
