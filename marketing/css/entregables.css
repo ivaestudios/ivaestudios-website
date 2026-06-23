@@ -37,9 +37,21 @@
 }
 .dlv-drop .ico { color: var(--brand, #E24DA0); }
 .dlv-drop:hover, .dlv-drop.is-over { border-color: var(--brand, #E24DA0); background: color-mix(in srgb, var(--brand, #E24DA0) 7%, transparent); }
-.dlv-drop.is-busy { opacity: .6; pointer-events: none; }
+.dlv-drop.is-busy { pointer-events: none; cursor: default; border-style: solid; border-color: var(--brand, #E24DA0); }
 .dlv-drop__t { font-size: var(--fs-3, 15px); font-weight: 600; color: var(--text, #ECECF1); }
 .dlv-drop__s { font-size: var(--fs-1, 12px); color: var(--text-mute, #62626F); }
+
+/* Barra de progreso de subida (reel grande, por partes) */
+.dlv-prog {
+  width: 100%; max-width: 420px; height: 8px; margin-top: 4px;
+  background: var(--surface-3, #1a1a22); border-radius: 999px; overflow: hidden;
+}
+.dlv-prog__fill {
+  height: 100%; width: 0%;
+  background: var(--grad, linear-gradient(135deg, #E24DA0, #9D5BE0));
+  border-radius: 999px; transition: width .25s ease;
+}
+.dlv-prog__label { font-variant-numeric: tabular-nums; }
 
 /* Agregar carrusel por link */
 .dlv-carrusel-add { display: flex; flex-wrap: wrap; gap: 8px; }

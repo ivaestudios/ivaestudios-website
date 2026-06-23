@@ -2751,6 +2751,68 @@ async function handleDeleteDeliverable(request, env, session, id) {
   return json({ ok: true });
 }
 
+// ── SUBIDA POR PARTES (multipart R2) — reels grandes (>100MB) + progreso ─────
+// El cliente trocea el archivo (~50MB/parte, bajo el limite de 100MB/request del
+// Worker) y sube cada parte; R2 las ensambla. Sin limite practico de tamano,
+// calidad original. Reusa el binding R2 del proyecto.
+async function handleDlvMultipartStart(request, env, session, id) {
+  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento de video no disponible' }, 503);
+  const { error } = await dlvForAccess(env, session, id);
+  if (error) return error;
+  let b; try { b = await request.json(); } catch { return json({ error: 'JSON invalido' }, 400); }
+  const mime = String(b.mime || '').toLowerCase();
+  const ext = MKT_VIDEO_MIMES[mime];
+  if (!ext) return json({ error: 'Formato no soportado. Usa MP4, MOV o WebM.' }, 415);
+  for (const e of MKT_VIDEO_EXTS) { if (e !== ext) { try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.${e}`); } catch {} } }
+  const key = `marketing/deliverable/${id}.${ext}`;
+  const mpu = await env.R2_BUCKET.createMultipartUpload(key, {
+    httpMetadata: { contentType: mime, cacheControl: 'private, max-age=3600' },
+  });
+  return json({ uploadId: mpu.uploadId, ext, key });
+}
+
+async function handleDlvMultipartPart(request, env, session, id) {
+  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
+  const url = new URL(request.url);
+  const uploadId = url.searchParams.get('uploadId');
+  const ext = url.searchParams.get('ext');
+  const partNumber = parseInt(url.searchParams.get('part'), 10);
+  if (!uploadId || !MKT_VIDEO_EXTS.includes(ext) || !(partNumber >= 1)) {
+    return json({ error: 'Faltan uploadId/ext/part validos.' }, 400);
+  }
+  const key = `marketing/deliverable/${id}.${ext}`;
+  const mpu = env.R2_BUCKET.resumeMultipartUpload(key, uploadId);
+  const body = await request.arrayBuffer();
+  const part = await mpu.uploadPart(partNumber, body);
+  return json({ partNumber: part.partNumber, etag: part.etag });
+}
+
+async function handleDlvMultipartComplete(request, env, session, id) {
+  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
+  const { error } = await dlvForAccess(env, session, id);
+  if (error) return error;
+  let b; try { b = await request.json(); } catch { return json({ error: 'JSON invalido' }, 400); }
+  const uploadId = b.uploadId;
+  const ext = b.ext;
+  const parts = Array.isArray(b.parts) ? b.parts : null;
+  if (!uploadId || !MKT_VIDEO_EXTS.includes(ext) || !parts || !parts.length) {
+    return json({ error: 'Faltan datos de la subida (uploadId/ext/parts).' }, 400);
+  }
+  const key = `marketing/deliverable/${id}.${ext}`;
+  const mpu = env.R2_BUCKET.resumeMultipartUpload(key, uploadId);
+  try {
+    await mpu.complete(parts.map((p) => ({ partNumber: Number(p.partNumber), etag: p.etag })));
+  } catch (e) {
+    return json({ error: 'No se pudo ensamblar el video: ' + (e.message || 'error') }, 500);
+  }
+  await env.DB.prepare("UPDATE mkt_deliverables SET video_ext = ?, updated_at = datetime('now') WHERE id = ?").bind(ext, id).run();
+  const updated = await env.DB.prepare('SELECT * FROM mkt_deliverables WHERE id = ?').bind(id).first();
+  return json(shapeDeliverable(updated, new URL(request.url).origin), 200);
+}
+
 // Main router. `path` is the URL pathname AFTER the /api/marketing prefix has
 // been stripped (e.g. '/auth/login', '/posts/abc/approve').
 // Route discipline: LITERAL routes always sit before :id matchers (post ids
@@ -2921,6 +2983,14 @@ async function route(request, env) {
         const id = parts[1];
         if (method === 'POST') return handleUploadDeliverableVideo(request, env, session, id);
         if (method === 'GET') return handleServeDeliverableVideo(request, env, session, id);
+        return json({ error: 'Method not allowed' }, 405);
+      }
+      // Subida por partes (videos grandes): /deliverables/:id/video/multipart/{start|part|complete}
+      if (parts.length === 5 && parts[2] === 'video' && parts[3] === 'multipart') {
+        const id = parts[1];
+        if (parts[4] === 'start' && method === 'POST') return handleDlvMultipartStart(request, env, session, id);
+        if (parts[4] === 'part' && method === 'PUT') return handleDlvMultipartPart(request, env, session, id);
+        if (parts[4] === 'complete' && method === 'POST') return handleDlvMultipartComplete(request, env, session, id);
         return json({ error: 'Method not allowed' }, 405);
       }
       return json({ error: 'Not found' }, 404);

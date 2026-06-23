@@ -6,11 +6,12 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606232200';
-import { icon } from '../shell/icons.js?v=202606232200';
+import { api, el, clear, toast } from '../api.js?v=202606232300';
+import { icon } from '../shell/icons.js?v=202606232300';
 
 const VIEW_ID = 'entregables';
-const MAX_VIDEO_MB = 100;
+const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
+const CHUNK_BYTES = 50 * 1024 * 1024;  // ~50MB por parte (bajo el limite de 100MB/request del Worker)
 const MES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
 let ctx = null;
@@ -21,6 +22,8 @@ let loading = false;
 let busy = false;
 let addMonth = '';          // 'YYYY-MM' al que se agregan nuevos entregables
 let lastClientId = null;
+let uploadPct = 0;          // progreso de subida (0-100)
+let progressEls = null;     // refs vivos de la barra (se actualizan sin re-render)
 
 function isClient() { return ((ctx.store.getState().me || {}).role === 'client'); }
 function pad2(n) { return String(n).padStart(2, '0'); }
@@ -39,7 +42,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606232200';
+  link.href = '/marketing/css/entregables.css?v=202606232300';
   document.head.appendChild(link);
 }
 
@@ -59,37 +62,77 @@ async function load() {
 }
 
 // ── Acciones (staff) ─────────────────────────────────────────────────────────
+// Actualiza la barra de progreso en vivo (sin re-render, para no perder fluidez).
+function updateProgressUI() {
+  if (!progressEls) return;
+  progressEls.fill.style.width = uploadPct + '%';
+  progressEls.label.textContent = uploadPct >= 100 ? 'Procesando…' : `Subiendo… ${uploadPct}%`;
+}
+
+// Sube UNA parte con XMLHttpRequest (fetch no expone progreso de subida).
+function xhrPutPart(id, uploadId, ext, partNumber, blob, onProgress) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const qs = `uploadId=${encodeURIComponent(uploadId)}&ext=${encodeURIComponent(ext)}&part=${partNumber}`;
+    xhr.open('PUT', `/api/marketing/deliverables/${id}/video/multipart/part?${qs}`);
+    xhr.withCredentials = true;
+    xhr.upload.onprogress = (e) => { if (e.lengthComputable && onProgress) onProgress(e.loaded); };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try { resolve(JSON.parse(xhr.responseText)); } catch { reject(new Error('Respuesta inválida del servidor.')); }
+      } else {
+        let m = 'Error al subir una parte del video.';
+        try { m = JSON.parse(xhr.responseText).error || m; } catch { /* noop */ }
+        reject(new Error(m));
+      }
+    };
+    xhr.onerror = () => reject(new Error('Se cortó la conexión durante la subida.'));
+    xhr.send(blob);
+  });
+}
+
 async function uploadReel(file) {
   const client = activeClient();
   if (!client || busy) return;
   if (!file.type || !file.type.startsWith('video/')) { toast('Ese archivo no es un video.', 'error'); return; }
-  if (file.size > MAX_VIDEO_MB * 1024 * 1024) {
-    toast(`El video pesa ${(file.size / 1024 / 1024).toFixed(0)} MB. El máximo es ${MAX_VIDEO_MB} MB (sin recomprimir). Para 4K muy pesado avísame.`, 'error', 7000);
-    return;
-  }
-  busy = true; render();
+  if (file.size > MAX_VIDEO_MB * 1024 * 1024) { toast('El video es enorme (más de 3 GB). Compártelo por link mejor.', 'error', 6000); return; }
+  busy = true; uploadPct = 0; render();
+  let created = null;
   try {
-    const created = await api.post('/deliverables', {
+    created = await api.post('/deliverables', {
       client_id: client.id, month: addMonth || currentMonth(), type: 'reel',
       title: file.name.replace(/\.[^.]+$/, '').slice(0, 120),
     });
-    const fd = new FormData();
-    fd.append('video', file, file.name);
-    const res = await fetch(`/api/marketing/deliverables/${created.id}/video`, {
-      method: 'POST', credentials: 'same-origin', body: fd,
-    });
-    if (!res.ok) {
-      let msg = 'No se pudo subir el video.';
-      try { const j = await res.json(); if (j && j.error) msg = j.error; } catch { /* noop */ }
-      try { await api.del(`/deliverables/${created.id}`); } catch { /* limpia el registro huerfano */ }
-      throw new Error(msg);
+    // 1) iniciar subida multipart
+    const start = await api.post(`/deliverables/${created.id}/video/multipart/start`, { mime: file.type });
+    const { uploadId, ext } = start;
+    // 2) subir por partes (~50MB) con progreso acumulado
+    const total = file.size;
+    const numParts = Math.max(1, Math.ceil(total / CHUNK_BYTES));
+    const doneParts = [];
+    let baseBytes = 0;
+    for (let i = 0; i < numParts; i++) {
+      const from = i * CHUNK_BYTES;
+      const blob = file.slice(from, Math.min(from + CHUNK_BYTES, total));
+      const r = await xhrPutPart(created.id, uploadId, ext, i + 1, blob, (loaded) => {
+        uploadPct = Math.min(99, Math.round(((baseBytes + loaded) / total) * 100));
+        updateProgressUI();
+      });
+      baseBytes += blob.size;
+      uploadPct = Math.min(99, Math.round((baseBytes / total) * 100));
+      updateProgressUI();
+      doneParts.push({ partNumber: i + 1, etag: r.etag });
     }
+    // 3) ensamblar en R2
+    await api.post(`/deliverables/${created.id}/video/multipart/complete`, { uploadId, ext, parts: doneParts });
+    uploadPct = 100; updateProgressUI();
     toast('Reel subido ✓', 'success');
     await load();
   } catch (e) {
+    if (created) { try { await api.del(`/deliverables/${created.id}`); } catch { /* limpia el registro huerfano */ } }
     toast(e.message || 'No se pudo subir el reel', 'error');
   } finally {
-    busy = false; render();
+    busy = false; uploadPct = 0; progressEls = null; render();
   }
 }
 
@@ -142,16 +185,31 @@ function buildAddBar() {
     type: 'file', accept: 'video/*', class: 'dlv-fileinput', hidden: true,
     onchange: (e) => { const f = e.target.files && e.target.files[0]; if (f) uploadReel(f); e.target.value = ''; },
   });
+  let dropKids;
+  if (busy) {
+    // Barra de progreso (refs vivos -> updateProgressUI los actualiza sin re-render).
+    const fill = el('div', { class: 'dlv-prog__fill' });
+    fill.style.width = uploadPct + '%';
+    const label = el('span', { class: 'dlv-drop__t dlv-prog__label', text: uploadPct >= 100 ? 'Procesando…' : `Subiendo… ${uploadPct}%` });
+    progressEls = { fill, label };
+    dropKids = [
+      icon('camera', 26),
+      label,
+      el('div', { class: 'dlv-prog' }, [fill]),
+      el('span', { class: 'dlv-drop__s', text: 'No cierres esta pantalla mientras sube el video.' }),
+    ];
+  } else {
+    dropKids = [
+      icon('camera', 26),
+      el('span', { class: 'dlv-drop__t', text: 'Arrastra un reel aquí o toca para elegir' }),
+      el('span', { class: 'dlv-drop__s', text: 'Video MP4/MOV/WebM · calidad original · videos grandes OK (se suben por partes)' }),
+      fileInput,
+    ];
+  }
   const drop = el('button', {
-    class: 'dlv-drop', type: 'button',
-    onclick: () => fileInput.click(),
-  }, [
-    icon('camera', 26),
-    el('span', { class: 'dlv-drop__t', text: busy ? 'Subiendo…' : 'Arrastra un reel aquí o toca para elegir' }),
-    el('span', { class: 'dlv-drop__s', text: `Video MP4/MOV/WebM · calidad original · máx ${MAX_VIDEO_MB} MB` }),
-    fileInput,
-  ]);
-  if (busy) drop.classList.add('is-busy');
+    class: 'dlv-drop' + (busy ? ' is-busy' : ''), type: 'button',
+    onclick: busy ? null : () => fileInput.click(),
+  }, dropKids);
   drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('is-over'); });
   drop.addEventListener('dragleave', () => drop.classList.remove('is-over'));
   drop.addEventListener('drop', (e) => {
