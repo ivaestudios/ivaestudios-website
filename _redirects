@@ -493,3 +493,5 @@
 /tulum-cenote /cenote-photographer-tulum 301
 /blog/post-wedding-cancun /blog/wedding-photographer-cancun 301
 /glossary /brand 301
+
+# (sentinel: keep a trailing line so Cloudflare always parses the final redirect rule above)
