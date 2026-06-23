@@ -2621,6 +2621,136 @@ async function handleDeleteVideo(env, session, postId) {
   return json(shapePost(updated), 200);
 }
 
+// ── ENTREGABLES (contenido final para el cliente) ────────────────────────────
+// Tabla mkt_deliverables. Reel: video en R2 marketing/deliverable/<id>.<ext>
+// (calidad original, mismo patron que el video de post). Carrusel: link externo.
+// Staff sube/gestiona; el cliente DUENO de la marca ve y descarga (solo lectura).
+const MKT_DLV_TYPES = new Set(['reel', 'carrusel']);
+
+function shapeDeliverable(d, origin) {
+  return {
+    id: d.id, client_id: d.client_id, month: d.month, type: d.type,
+    title: d.title || null, link: d.link || null,
+    video_url: d.video_ext ? `${origin}/api/marketing/deliverables/${d.id}/video` : null,
+    created_at: d.created_at,
+  };
+}
+
+async function dlvForAccess(env, session, id) {
+  const d = await env.DB.prepare('SELECT * FROM mkt_deliverables WHERE id = ?').bind(id).first();
+  if (!d) return { error: json({ error: 'Entregable no encontrado' }, 404) };
+  if (session.role === 'client' && d.client_id !== session.client_id) {
+    return { error: json({ error: 'Forbidden' }, 403) };
+  }
+  return { d };
+}
+
+async function handleListDeliverables(env, session, url) {
+  let clientId = url.searchParams.get('client_id');
+  if (session.role === 'client') clientId = session.client_id; // forzado a su marca
+  if (!clientId) return json({ deliverables: [] });
+  const month = url.searchParams.get('month');
+  const origin = url.origin;
+  const stmt = month
+    ? env.DB.prepare('SELECT * FROM mkt_deliverables WHERE client_id = ? AND month = ? ORDER BY sort_order, created_at').bind(clientId, month)
+    : env.DB.prepare('SELECT * FROM mkt_deliverables WHERE client_id = ? ORDER BY month DESC, sort_order, created_at').bind(clientId);
+  const rows = (await stmt.all()).results || [];
+  return json({ deliverables: rows.map((r) => shapeDeliverable(r, origin)) });
+}
+
+async function handleCreateDeliverable(request, env, session, url) {
+  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  let b; try { b = await request.json(); } catch { return json({ error: 'JSON invalido' }, 400); }
+  const clientId = b.client_id;
+  const month = String(b.month || '').slice(0, 7);
+  const type = b.type;
+  if (!clientId || !/^\d{4}-\d{2}$/.test(month) || !MKT_DLV_TYPES.has(type)) {
+    return json({ error: 'Faltan datos: client_id, month (YYYY-MM) y type (reel|carrusel).' }, 400);
+  }
+  const id = randomId();
+  const title = b.title ? String(b.title).slice(0, 200) : null;
+  const link = (type === 'carrusel' && b.link) ? String(b.link).slice(0, 1000) : null;
+  await env.DB.prepare('INSERT INTO mkt_deliverables (id, client_id, month, type, title, link) VALUES (?, ?, ?, ?, ?, ?)')
+    .bind(id, clientId, month, type, title, link).run();
+  const d = await env.DB.prepare('SELECT * FROM mkt_deliverables WHERE id = ?').bind(id).first();
+  return json(shapeDeliverable(d, url.origin), 201);
+}
+
+async function handleUploadDeliverableVideo(request, env, session, id) {
+  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento de video no disponible' }, 503);
+  const { error } = await dlvForAccess(env, session, id);
+  if (error) return error;
+  const ct = request.headers.get('Content-Type') || '';
+  let file = null;
+  if (ct.includes('multipart/form-data')) { const form = await request.formData(); file = form.get('video') || form.get('file'); }
+  if (!file || typeof file === 'string' || typeof file.arrayBuffer !== 'function') {
+    return json({ error: 'Adjunta el archivo en el campo "video".' }, 400);
+  }
+  const mime = String(file.type || '').toLowerCase();
+  const ext = MKT_VIDEO_MIMES[mime];
+  if (!ext) return json({ error: 'Formato no soportado. Usa MP4, MOV o WebM.' }, 415);
+  if (file.size && file.size > MKT_MAX_VIDEO_BYTES) return json({ error: 'El video supera 100 MB. Comprimelo o pega un enlace.' }, 413);
+  for (const e of MKT_VIDEO_EXTS) { if (e !== ext) { try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.${e}`); } catch {} } }
+  await env.R2_BUCKET.put(`marketing/deliverable/${id}.${ext}`, file.stream(), {
+    httpMetadata: { contentType: mime, cacheControl: 'private, max-age=3600' },
+  });
+  await env.DB.prepare("UPDATE mkt_deliverables SET video_ext = ?, updated_at = datetime('now') WHERE id = ?").bind(ext, id).run();
+  const updated = await env.DB.prepare('SELECT * FROM mkt_deliverables WHERE id = ?').bind(id).first();
+  return json(shapeDeliverable(updated, new URL(request.url).origin), 200);
+}
+
+async function handleServeDeliverableVideo(request, env, session, id) {
+  if (!env.R2_BUCKET) return new Response('Almacenamiento no disponible', { status: 503 });
+  const { d, error } = await dlvForAccess(env, session, id);
+  if (error) return new Response('Forbidden', { status: 403 });
+  const rangeOpt = request.headers.get('Range') ? { range: request.headers } : undefined;
+  let obj = null;
+  for (const e of MKT_VIDEO_EXTS) { obj = await env.R2_BUCKET.get(`marketing/deliverable/${id}.${e}`, rangeOpt); if (obj) break; }
+  if (!obj) return new Response('Sin video', { status: 404 });
+  const headers = new Headers();
+  obj.writeHttpMetadata(headers);
+  headers.set('Cache-Control', 'private, max-age=3600');
+  headers.set('Accept-Ranges', 'bytes');
+  const wantsDownload = new URL(request.url).searchParams.get('download');
+  if (wantsDownload) {
+    const safe = String(d.title || 'reel').replace(/[^\w.-]+/g, '_').slice(0, 60) || 'reel';
+    headers.set('Content-Disposition', `attachment; filename="${safe}.${d.video_ext || 'mp4'}"`);
+  } else {
+    headers.set('Content-Disposition', 'inline');
+  }
+  if (obj.range && Object.prototype.hasOwnProperty.call(obj.range, 'offset')) {
+    const offset = obj.range.offset || 0;
+    const len = (obj.range.length != null) ? obj.range.length : (obj.size - offset);
+    headers.set('Content-Range', `bytes ${offset}-${offset + len - 1}/${obj.size}`);
+    headers.set('Content-Length', String(len));
+    return new Response(obj.body, { status: 206, headers });
+  }
+  headers.set('Content-Length', String(obj.size));
+  return new Response(obj.body, { status: 200, headers });
+}
+
+async function handlePatchDeliverable(request, env, session, id) {
+  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  const { d, error } = await dlvForAccess(env, session, id);
+  if (error) return error;
+  let b; try { b = await request.json(); } catch { return json({ error: 'JSON invalido' }, 400); }
+  const title = b.title !== undefined ? (b.title ? String(b.title).slice(0, 200) : null) : d.title;
+  const link = b.link !== undefined ? (b.link ? String(b.link).slice(0, 1000) : null) : d.link;
+  await env.DB.prepare("UPDATE mkt_deliverables SET title = ?, link = ?, updated_at = datetime('now') WHERE id = ?").bind(title, link, id).run();
+  const u = await env.DB.prepare('SELECT * FROM mkt_deliverables WHERE id = ?').bind(id).first();
+  return json(shapeDeliverable(u, new URL(request.url).origin));
+}
+
+async function handleDeleteDeliverable(request, env, session, id) {
+  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  const { error } = await dlvForAccess(env, session, id);
+  if (error) return error;
+  for (const e of MKT_VIDEO_EXTS) { try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.${e}`); } catch {} }
+  await env.DB.prepare('DELETE FROM mkt_deliverables WHERE id = ?').bind(id).run();
+  return json({ ok: true });
+}
+
 // Main router. `path` is the URL pathname AFTER the /api/marketing prefix has
 // been stripped (e.g. '/auth/login', '/posts/abc/approve').
 // Route discipline: LITERAL routes always sit before :id matchers (post ids
@@ -2771,6 +2901,30 @@ async function route(request, env) {
         return json({ error: 'Not found' }, 404);
       });
     }
+  }
+
+  // ── ENTREGABLES (staff sube/gestiona; cliente de la marca ve y descarga) ──
+  if (parts[0] === 'deliverables') {
+    return guardTables(async () => {
+      if (parts.length === 1) {
+        if (method === 'GET') return handleListDeliverables(env, session, url);
+        if (method === 'POST') return handleCreateDeliverable(request, env, session, url);
+        return json({ error: 'Method not allowed' }, 405);
+      }
+      if (parts.length === 2) {
+        const id = parts[1];
+        if (method === 'PATCH') return handlePatchDeliverable(request, env, session, id);
+        if (method === 'DELETE') return handleDeleteDeliverable(request, env, session, id);
+        return json({ error: 'Method not allowed' }, 405);
+      }
+      if (parts.length === 3 && parts[2] === 'video') {
+        const id = parts[1];
+        if (method === 'POST') return handleUploadDeliverableVideo(request, env, session, id);
+        if (method === 'GET') return handleServeDeliverableVideo(request, env, session, id);
+        return json({ error: 'Method not allowed' }, 405);
+      }
+      return json({ error: 'Not found' }, 404);
+    });
   }
 
   // ── NOTIFICATIONS (any role; always scoped to the session user) ──
