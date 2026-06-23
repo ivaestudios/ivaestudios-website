@@ -112,6 +112,20 @@
 .dlv-dl:hover { border-color: var(--brand, #E24DA0); color: #fff; }
 .dlv-dl .ico { color: var(--brand, #E24DA0); }
 
+/* Botón "armado" (iOS): el video ya bajó y falta un 2º toque para guardarlo en el teléfono.
+   Resaltado + pulso para que sea obvio que hay que tocarlo otra vez. */
+.dlv-dl--ready {
+  background: var(--grad, linear-gradient(135deg, #E24DA0, #9D5BE0));
+  border-color: transparent; color: #fff; font-weight: 700;
+  animation: dlvReadyPulse 1.5s ease-in-out infinite;
+}
+.dlv-dl--ready .ico { color: #fff; }
+@keyframes dlvReadyPulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--brand, #E24DA0) 60%, transparent); }
+  60%      { box-shadow: 0 0 0 7px color-mix(in srgb, var(--brand, #E24DA0) 0%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { .dlv-dl--ready { animation: none; } }
+
 .dlv-del {
   display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; flex: none;
   background: none; border: 1px solid transparent; border-radius: var(--r-sm, 10px);

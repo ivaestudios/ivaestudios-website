@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606240200';
-import { icon } from '../shell/icons.js?v=202606240200';
+import { api, el, clear, toast } from '../api.js?v=202606240300';
+import { icon } from '../shell/icons.js?v=202606240300';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -43,7 +43,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606240200';
+  link.href = '/marketing/css/entregables.css?v=202606240300';
   document.head.appendChild(link);
 }
 
@@ -273,14 +273,20 @@ function fileFromBlob(it, blob) {
 // Escritorio (sin la API): descarga directa por enlace.
 async function saveVideo(it, btn) {
   if (!(navigator.canShare && navigator.share)) { linkDownload(it); return; }
-  const label = btn ? btn.querySelector('span') : null;
+  const label = btn ? btn.querySelector('span:not(.ico)') : null; // la etiqueta, NO el <span class="ico">
   const setLabel = (t) => { if (label) label.textContent = t; };
+  const resetBtn = () => { if (btn) btn.classList.remove('dlv-dl--ready'); setLabel('Descargar'); };
 
   // 2º toque (archivo ya en memoria): compartir SINCRONO -> activación fresca, no falla.
   const cached = fileCache.get(it.id);
   if (cached) {
-    try { await navigator.share({ files: [cached], title: it.title || 'Reel' }); fileCache.delete(it.id); }
-    catch (e) { if (!(e && e.name === 'AbortError')) linkDownload(it); }
+    try { await navigator.share({ files: [cached], title: it.title || 'Reel' }); fileCache.delete(it.id); resetBtn(); }
+    catch (e) {
+      if (e && e.name === 'AbortError') return; // canceló el menú: deja el botón armado
+      // Falló el menú: CONSERVAMOS el archivo (no lo re-bajamos) y dejamos el botón
+      // armado para reintentar con un toque (en iOS un <a download> no guardaría nada).
+      toast('No se abrió el menú para guardar. Toca el botón otra vez.', 'error', 5000);
+    }
     return;
   }
 
@@ -294,17 +300,19 @@ async function saveVideo(it, btn) {
       await navigator.share({ files: [file], title: it.title || 'Reel' });
     } catch (e) {
       if (e && e.name === 'AbortError') return; // canceló el menú
-      // Activación perdida (video grande): cachear + pedir un toque más (instantáneo).
+      // iOS: la descarga consumió el permiso del toque. Dejamos el archivo LISTO y
+      // ARMAMOS un 2º toque muy claro (botón resaltado) -> ahí sí abre "Guardar en el teléfono".
       fileCache.set(it.id, file);
-      setLabel('Guardar ✓');
-      toast('Tu video ya está listo. Toca "Guardar" otra vez para mandarlo a tu teléfono.', 'info', 7000);
+      if (btn) btn.classList.add('dlv-dl--ready');
+      setLabel('Toca para guardar');
+      toast('Tu video ya está listo ✓ — toca otra vez el botón resaltado para guardarlo en tu teléfono.', 'info', 8000);
       return;
     }
   } catch (e) {
     linkDownload(it);
   } finally {
     if (btn) btn.disabled = false;
-    if (label && /Preparando/.test(label.textContent)) setLabel('Descargar');
+    if (label && /Preparando/.test(label.textContent)) resetBtn();
   }
 }
 
