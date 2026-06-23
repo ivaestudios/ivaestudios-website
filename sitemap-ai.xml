@@ -460,4 +460,74 @@
     <loc>https://ivaestudios.com/es/planear-boda-destino-lujo-cancun-riviera-maya</loc>
     <priority>0.8</priority>
   </url>
+  <!-- IVAE Marketing — Mexico City (CDMX) vertical (EN) -->
+  <url>
+    <loc>https://ivaestudios.com/social-media-management-mexico-city</loc>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- IVAE Marketing — Luxury hotels vertical (ES) -->
+  <url>
+    <loc>https://ivaestudios.com/es/redes-sociales-hoteles-lujo-mexico</loc>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- IVAE Marketing — Restaurants vertical (ES) -->
+  <url>
+    <loc>https://ivaestudios.com/es/redes-sociales-restaurantes-cancun</loc>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- IVAE Marketing — Spa & wellness vertical (ES) -->
+  <url>
+    <loc>https://ivaestudios.com/es/redes-sociales-spa-wellness-mexico</loc>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- IVAE Marketing — Dental clinic vertical (ES) -->
+  <url>
+    <loc>https://ivaestudios.com/es/redes-sociales-clinica-dental-mexico</loc>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- IVAE Marketing — Instagram Cancun (ES) -->
+  <url>
+    <loc>https://ivaestudios.com/es/manejo-instagram-cancun</loc>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- IVAE Marketing — TikTok hotels (ES) -->
+  <url>
+    <loc>https://ivaestudios.com/es/agencia-tiktok-hoteles-mexico</loc>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- IVAE Marketing blog — Dental clinic social media Mexico -->
+  <url>
+    <loc>https://ivaestudios.com/blog/dental-clinic-social-media-mexico</loc>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- IVAE Marketing blog — Restaurant social media Mexico 2026 -->
+  <url>
+    <loc>https://ivaestudios.com/blog/restaurant-social-media-mexico-2026</loc>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- IVAE Marketing blog — Spa & wellness social media Mexico -->
+  <url>
+    <loc>https://ivaestudios.com/blog/spa-wellness-social-media-mexico</loc>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
