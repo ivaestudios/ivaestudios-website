@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606232100';
-import { icon } from '../shell/icons.js?v=202606232100';
+import { api, el, clear, toast } from '../api.js?v=202606232200';
+import { icon } from '../shell/icons.js?v=202606232200';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 100;
@@ -39,7 +39,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606232100';
+  link.href = '/marketing/css/entregables.css?v=202606232200';
   document.head.appendChild(link);
 }
 
