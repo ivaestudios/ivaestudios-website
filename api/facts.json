@@ -139,6 +139,14 @@
     "Los Cabos",
     "Cabo San Lucas",
     "San José del Cabo",
+    "Mérida",
+    "Ciudad de México (CDMX)",
+    "Oaxaca",
+    "Guadalajara",
+    "San Miguel de Allende",
+    "Valle de Bravo",
+    "Puerto Vallarta",
+    "Sayulita",
     "Worldwide (travels for destination weddings, family and couples sessions)"
   ],
   "languages": [
@@ -455,5 +463,12 @@
     "wikidata": "DRAFT - submission pending",
     "wikidata_draft_path": "/seo/playbooks/wikidata-ivae-marketing.md"
   },
-  "last_updated": "2026-06-05"
+  "last_updated": "2026-06-22",
+  "aggregate_rating": {
+    "rating_value": "5.0",
+    "review_count": 47,
+    "best_rating": "5",
+    "worst_rating": "1",
+    "source": "Google Business Profile"
+  }
 }
