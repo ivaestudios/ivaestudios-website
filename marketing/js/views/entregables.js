@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606240100';
-import { icon } from '../shell/icons.js?v=202606240100';
+import { api, el, clear, toast } from '../api.js?v=202606240200';
+import { icon } from '../shell/icons.js?v=202606240200';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -24,6 +24,7 @@ let addMonth = '';          // 'YYYY-MM' al que se agregan nuevos entregables
 let lastClientId = null;
 let uploadPct = 0;          // progreso de subida (0-100)
 let progressEls = null;     // refs vivos de la barra (se actualizan sin re-render)
+let queueInfo = null;       // { index, total } al subir varios reels en fila
 
 function isClient() { return ((ctx.store.getState().me || {}).role === 'client'); }
 function pad2(n) { return String(n).padStart(2, '0'); }
@@ -42,7 +43,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606240100';
+  link.href = '/marketing/css/entregables.css?v=202606240200';
   document.head.appendChild(link);
 }
 
@@ -66,7 +67,8 @@ async function load() {
 function updateProgressUI() {
   if (!progressEls) return;
   progressEls.fill.style.width = uploadPct + '%';
-  progressEls.label.textContent = uploadPct >= 100 ? 'Procesando…' : `Subiendo… ${uploadPct}%`;
+  const q = (queueInfo && queueInfo.total > 1) ? `(${queueInfo.index}/${queueInfo.total}) ` : '';
+  progressEls.label.textContent = uploadPct >= 100 ? `${q}Procesando…` : `${q}Subiendo… ${uploadPct}%`;
 }
 
 // Sube UNA parte con XMLHttpRequest (fetch no expone progreso de subida).
@@ -119,12 +121,34 @@ function generatePoster(file) {
   });
 }
 
-async function uploadReel(file) {
+// Sube VARIOS reels en fila (uno tras otro). El progreso es de una sola pista y
+// la subida por partes es pesada, así que encolamos en vez de paralelizar (eso
+// saturaría la conexión). Acepta el FileList del input múltiple o del arrastre.
+async function uploadReels(fileList) {
+  if (busy) { toast('Espera a que termine la subida actual.', 'info'); return; }
+  const all = [...(fileList || [])];
+  const vids = all.filter((f) => f.type && f.type.startsWith('video/'));
+  const skipped = all.length - vids.length;
+  if (!vids.length) { toast('Ninguno de esos archivos es un video.', 'error'); return; }
+  let failed = 0;
+  for (let i = 0; i < vids.length; i++) {
+    const ok = await uploadReel(vids[i], { index: i + 1, total: vids.length });
+    if (!ok) failed++;
+  }
+  queueInfo = null;
+  if (vids.length > 1) await load(); // una sola recarga al final (evita parpadeo por archivo)
+  const notes = [];
+  if (skipped > 0) notes.push(`${skipped} no ${skipped > 1 ? 'eran' : 'era'} video`);
+  if (failed > 0) notes.push(`${failed} no se ${failed > 1 ? 'pudieron' : 'pudo'} subir`);
+  if (notes.length) toast(notes.join(' · '), failed ? 'error' : 'info', 5000);
+}
+
+async function uploadReel(file, qinfo) {
   const client = activeClient();
-  if (!client || busy) return;
-  if (!file.type || !file.type.startsWith('video/')) { toast('Ese archivo no es un video.', 'error'); return; }
-  if (file.size > MAX_VIDEO_MB * 1024 * 1024) { toast('El video es enorme (más de 3 GB). Compártelo por link mejor.', 'error', 6000); return; }
-  busy = true; uploadPct = 0; render();
+  if (!client || busy) return false;
+  if (!file.type || !file.type.startsWith('video/')) { toast(`"${file.name}" no es un video.`, 'error'); return false; }
+  if (file.size > MAX_VIDEO_MB * 1024 * 1024) { toast(`"${file.name}" es enorme (más de 3 GB). Compártelo por link mejor.`, 'error', 6000); return false; }
+  busy = true; uploadPct = 0; queueInfo = qinfo || null; render();
   let created = null;
   try {
     created = await api.post('/deliverables', {
@@ -162,11 +186,13 @@ async function uploadReel(file) {
         await fetch(`/api/marketing/deliverables/${created.id}/poster`, { method: 'POST', credentials: 'same-origin', body: pf });
       }
     } catch { /* sin poster: la tarjeta usa el primer cuadro del video */ }
-    toast('Reel subido ✓', 'success');
-    await load();
+    toast((queueInfo && queueInfo.total > 1) ? `Subido ${queueInfo.index}/${queueInfo.total} ✓` : 'Reel subido ✓', 'success');
+    if (!qinfo || qinfo.total <= 1) await load(); // en lote, uploadReels recarga 1 sola vez al final
+    return true;
   } catch (e) {
     if (created) { try { await api.del(`/deliverables/${created.id}`); } catch { /* limpia el registro huerfano */ } }
     toast(e.message || 'No se pudo subir el reel', 'error');
+    return false;
   } finally {
     busy = false; uploadPct = 0; progressEls = null; render();
   }
@@ -292,15 +318,16 @@ function buildAddBar() {
 
   // Drop zone para reels
   const fileInput = el('input', {
-    type: 'file', accept: 'video/*', class: 'dlv-fileinput', hidden: true,
-    onchange: (e) => { const f = e.target.files && e.target.files[0]; if (f) uploadReel(f); e.target.value = ''; },
+    type: 'file', accept: 'video/*', multiple: true, class: 'dlv-fileinput', hidden: true,
+    onchange: (e) => { uploadReels(e.target.files); e.target.value = ''; },
   });
   let dropKids;
   if (busy) {
     // Barra de progreso (refs vivos -> updateProgressUI los actualiza sin re-render).
     const fill = el('div', { class: 'dlv-prog__fill' });
     fill.style.width = uploadPct + '%';
-    const label = el('span', { class: 'dlv-drop__t dlv-prog__label', text: uploadPct >= 100 ? 'Procesando…' : `Subiendo… ${uploadPct}%` });
+    const q = (queueInfo && queueInfo.total > 1) ? `(${queueInfo.index}/${queueInfo.total}) ` : '';
+    const label = el('span', { class: 'dlv-drop__t dlv-prog__label', text: uploadPct >= 100 ? `${q}Procesando…` : `${q}Subiendo… ${uploadPct}%` });
     progressEls = { fill, label };
     dropKids = [
       icon('camera', 26),
@@ -324,8 +351,7 @@ function buildAddBar() {
   drop.addEventListener('dragleave', () => drop.classList.remove('is-over'));
   drop.addEventListener('drop', (e) => {
     e.preventDefault(); drop.classList.remove('is-over');
-    const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-    if (f) uploadReel(f);
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) uploadReels(e.dataTransfer.files);
   });
 
   // Agregar carrusel por link
