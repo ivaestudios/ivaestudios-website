@@ -12,9 +12,9 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, copyText } from '../api.js?v=202606200700';
-import { icon } from '../shell/icons.js?v=202606200700';
-import { makeTextarea } from './fields.js?v=202606200700';
+import { el, copyText } from '../api.js?v=202606222230';
+import { icon } from '../shell/icons.js?v=202606222230';
+import { makeTextarea } from './fields.js?v=202606222230';
 
 const IG_VISIBLE_CUT = 125;
 const CAPTION_MAX = 2200;
