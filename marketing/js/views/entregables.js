@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606232400';
-import { icon } from '../shell/icons.js?v=202606232400';
+import { api, el, clear, toast } from '../api.js?v=202606232500';
+import { icon } from '../shell/icons.js?v=202606232500';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -42,7 +42,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606232400';
+  link.href = '/marketing/css/entregables.css?v=202606232500';
   document.head.appendChild(link);
 }
 
@@ -176,37 +176,73 @@ async function removeItem(it) {
 // (navigator.share con archivo) -> el usuario toca "Guardar video" (iOS Fotos)
 // o "Guardar en Archivos". En ESCRITORIO descarga directa por enlace.
 const TYPE_EXT = { 'video/mp4': 'mp4', 'video/quicktime': 'mov', 'video/webm': 'webm', 'video/x-m4v': 'm4v', 'video/mpeg': 'mpeg', 'video/3gpp': '3gp' };
+const fileCache = new Map(); // it.id -> File ya en memoria (para 2º toque instantáneo en iOS Safari)
+
 function linkDownload(it) {
   const a = document.createElement('a');
   a.href = it.video_url + '?download=1';
   a.download = String(it.title || 'reel');
   document.body.appendChild(a); a.click(); a.remove();
 }
+
+// Descarga el video como Blob con progreso (XHR; fetch no expone progreso de bajada).
+function fetchVideoBlob(it, onProgress) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', it.video_url);
+    xhr.withCredentials = true;
+    xhr.responseType = 'blob';
+    xhr.onprogress = (e) => { if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100)); };
+    xhr.onload = () => { (xhr.status >= 200 && xhr.status < 300) ? resolve(xhr.response) : reject(new Error('No se pudo descargar el video.')); };
+    xhr.onerror = () => reject(new Error('Se cortó la conexión al descargar.'));
+    xhr.send();
+  });
+}
+function fileFromBlob(it, blob) {
+  const ext = TYPE_EXT[String(blob.type || '').toLowerCase()] || 'mp4';
+  const fname = (String(it.title || 'reel').replace(/[^\w.-]+/g, '_').slice(0, 60) || 'reel') + '.' + ext;
+  return new File([blob], fname, { type: blob.type || 'video/mp4' });
+}
+
+// Guardar al teléfono. iPhone Safari (iOS16+)/Android: menú nativo de Compartir
+// (navigator.share con archivo -> "Guardar video" en Fotos / "Guardar en Archivos").
+// iOS exige que share() salga JUSTO tras el toque; si el video es grande, la descarga
+// consume ese permiso -> cacheamos el archivo y el 2º toque lo comparte al instante.
+// Escritorio (sin la API): descarga directa por enlace.
 async function saveVideo(it, btn) {
-  // Soporte de compartir ARCHIVOS = móvil (iOS 16+/Android). Escritorio normalmente no.
   if (!(navigator.canShare && navigator.share)) { linkDownload(it); return; }
   const label = btn ? btn.querySelector('span') : null;
-  const prev = label ? label.textContent : '';
+  const setLabel = (t) => { if (label) label.textContent = t; };
+
+  // 2º toque (archivo ya en memoria): compartir SINCRONO -> activación fresca, no falla.
+  const cached = fileCache.get(it.id);
+  if (cached) {
+    try { await navigator.share({ files: [cached], title: it.title || 'Reel' }); fileCache.delete(it.id); }
+    catch (e) { if (!(e && e.name === 'AbortError')) linkDownload(it); }
+    return;
+  }
+
   try {
     if (btn) btn.disabled = true;
-    if (label) label.textContent = 'Preparando…';
-    const res = await fetch(it.video_url, { credentials: 'same-origin' });
-    if (!res.ok) throw new Error('fetch');
-    const blob = await res.blob();
-    const ext = TYPE_EXT[String(blob.type || '').toLowerCase()] || 'mp4';
-    const fname = (String(it.title || 'reel').replace(/[^\w.-]+/g, '_').slice(0, 60) || 'reel') + '.' + ext;
-    const file = new File([blob], fname, { type: blob.type || 'video/mp4' });
-    if (navigator.canShare({ files: [file] })) {
+    setLabel('Preparando… 0%');
+    const blob = await fetchVideoBlob(it, (pct) => setLabel(`Preparando… ${pct}%`));
+    const file = fileFromBlob(it, blob);
+    if (!navigator.canShare({ files: [file] })) { linkDownload(it); return; }
+    try {
       await navigator.share({ files: [file], title: it.title || 'Reel' });
-      return; // el usuario eligió Guardar en Fotos/Archivos
+    } catch (e) {
+      if (e && e.name === 'AbortError') return; // canceló el menú
+      // Activación perdida (video grande): cachear + pedir un toque más (instantáneo).
+      fileCache.set(it.id, file);
+      setLabel('Guardar ✓');
+      toast('Tu video ya está listo. Toca "Guardar" otra vez para mandarlo a tu teléfono.', 'info', 7000);
+      return;
     }
-    linkDownload(it); // soporta share pero no archivos
   } catch (e) {
-    if (e && (e.name === 'AbortError')) return; // canceló el menú de compartir
-    linkDownload(it); // cualquier fallo -> descarga normal
+    linkDownload(it);
   } finally {
     if (btn) btn.disabled = false;
-    if (label) label.textContent = prev || 'Descargar';
+    if (label && /Preparando/.test(label.textContent)) setLabel('Descargar');
   }
 }
 
