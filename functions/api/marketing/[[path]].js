@@ -2632,6 +2632,7 @@ function shapeDeliverable(d, origin) {
     id: d.id, client_id: d.client_id, month: d.month, type: d.type,
     title: d.title || null, link: d.link || null,
     video_url: d.video_ext ? `${origin}/api/marketing/deliverables/${d.id}/video` : null,
+    poster_url: d.video_ext ? `${origin}/api/marketing/deliverables/${d.id}/poster` : null,
     created_at: d.created_at,
   };
 }
@@ -2747,8 +2748,38 @@ async function handleDeleteDeliverable(request, env, session, id) {
   const { error } = await dlvForAccess(env, session, id);
   if (error) return error;
   for (const e of MKT_VIDEO_EXTS) { try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.${e}`); } catch {} }
+  try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.poster.jpg`); } catch {}
   await env.DB.prepare('DELETE FROM mkt_deliverables WHERE id = ?').bind(id).run();
   return json({ ok: true });
+}
+
+// Miniatura (poster) del reel: imagen JPEG generada en el cliente al subir.
+async function handleUploadDeliverablePoster(request, env, session, id) {
+  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
+  const { error } = await dlvForAccess(env, session, id);
+  if (error) return error;
+  const ct = request.headers.get('Content-Type') || '';
+  let file = null;
+  if (ct.includes('multipart/form-data')) { const form = await request.formData(); file = form.get('poster') || form.get('file'); }
+  if (!file || typeof file.stream !== 'function') return json({ error: 'Adjunta la imagen en el campo "poster".' }, 400);
+  await env.R2_BUCKET.put(`marketing/deliverable/${id}.poster.jpg`, file.stream(), {
+    httpMetadata: { contentType: 'image/jpeg', cacheControl: 'private, max-age=86400' },
+  });
+  return json({ ok: true });
+}
+
+async function handleServeDeliverablePoster(request, env, session, id) {
+  if (!env.R2_BUCKET) return new Response('Almacenamiento no disponible', { status: 503 });
+  const { error } = await dlvForAccess(env, session, id);
+  if (error) return new Response('Forbidden', { status: 403 });
+  const obj = await env.R2_BUCKET.get(`marketing/deliverable/${id}.poster.jpg`);
+  if (!obj) return new Response('Sin poster', { status: 404 });
+  const headers = new Headers();
+  obj.writeHttpMetadata(headers);
+  headers.set('Cache-Control', 'private, max-age=86400');
+  headers.set('Content-Length', String(obj.size));
+  return new Response(obj.body, { status: 200, headers });
 }
 
 // ── SUBIDA POR PARTES (multipart R2) — reels grandes (>100MB) + progreso ─────
@@ -2983,6 +3014,12 @@ async function route(request, env) {
         const id = parts[1];
         if (method === 'POST') return handleUploadDeliverableVideo(request, env, session, id);
         if (method === 'GET') return handleServeDeliverableVideo(request, env, session, id);
+        return json({ error: 'Method not allowed' }, 405);
+      }
+      if (parts.length === 3 && parts[2] === 'poster') {
+        const id = parts[1];
+        if (method === 'POST') return handleUploadDeliverablePoster(request, env, session, id);
+        if (method === 'GET') return handleServeDeliverablePoster(request, env, session, id);
         return json({ error: 'Method not allowed' }, 405);
       }
       // Subida por partes (videos grandes): /deliverables/:id/video/multipart/{start|part|complete}

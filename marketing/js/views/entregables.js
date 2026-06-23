@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606232500';
-import { icon } from '../shell/icons.js?v=202606232500';
+import { api, el, clear, toast } from '../api.js?v=202606240100';
+import { icon } from '../shell/icons.js?v=202606240100';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -42,7 +42,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606232500';
+  link.href = '/marketing/css/entregables.css?v=202606240100';
   document.head.appendChild(link);
 }
 
@@ -91,6 +91,34 @@ function xhrPutPart(id, uploadId, ext, partNumber, blob, onProgress) {
   });
 }
 
+// Captura un cuadro del video (en el cliente) como miniatura JPEG. Best-effort:
+// si falla (p.ej. iOS al subir), devuelve null y la tarjeta usa el 1er cuadro.
+function generatePoster(file) {
+  return new Promise((resolve) => {
+    let done = false; let url;
+    const finish = (v) => { if (done) return; done = true; try { URL.revokeObjectURL(url); } catch { /* noop */ } resolve(v); };
+    try {
+      const v = document.createElement('video');
+      url = URL.createObjectURL(file);
+      v.muted = true; v.playsInline = true; v.preload = 'metadata'; v.src = url;
+      v.onloadeddata = () => { const t = Math.min(0.6, (v.duration || 1) / 3); try { v.currentTime = (isFinite(t) && t > 0) ? t : 0; } catch { finish(null); } };
+      v.onseeked = () => {
+        try {
+          const w = v.videoWidth, h = v.videoHeight;
+          if (!w || !h) return finish(null);
+          const scale = Math.min(1, 720 / Math.max(w, h));
+          const cw = Math.round(w * scale), ch = Math.round(h * scale);
+          const c = document.createElement('canvas'); c.width = cw; c.height = ch;
+          c.getContext('2d').drawImage(v, 0, 0, cw, ch);
+          c.toBlob((b) => finish(b), 'image/jpeg', 0.72);
+        } catch { finish(null); }
+      };
+      v.onerror = () => finish(null);
+      setTimeout(() => finish(null), 8000); // timeout de seguridad
+    } catch { finish(null); }
+  });
+}
+
 async function uploadReel(file) {
   const client = activeClient();
   if (!client || busy) return;
@@ -126,6 +154,14 @@ async function uploadReel(file) {
     // 3) ensamblar en R2
     await api.post(`/deliverables/${created.id}/video/multipart/complete`, { uploadId, ext, parts: doneParts });
     uploadPct = 100; updateProgressUI();
+    // 4) miniatura (best-effort): capturar un cuadro y subirlo como poster
+    try {
+      const posterBlob = await generatePoster(file);
+      if (posterBlob) {
+        const pf = new FormData(); pf.append('poster', posterBlob, 'poster.jpg');
+        await fetch(`/api/marketing/deliverables/${created.id}/poster`, { method: 'POST', credentials: 'same-origin', body: pf });
+      }
+    } catch { /* sin poster: la tarjeta usa el primer cuadro del video */ }
     toast('Reel subido ✓', 'success');
     await load();
   } catch (e) {
@@ -315,7 +351,8 @@ function buildItem(it, staff) {
     const card = el('div', { class: 'dlv-card dlv-card--reel' });
     if (it.video_url) {
       card.appendChild(el('video', {
-        class: 'dlv-video', src: it.video_url, controls: true, playsinline: true, preload: 'metadata',
+        class: 'dlv-video', src: it.video_url + '#t=0.1', poster: it.poster_url || null,
+        controls: true, playsinline: true, preload: 'metadata',
       }));
     } else {
       card.appendChild(el('div', { class: 'dlv-video dlv-video--pending', text: 'Procesando…' }));
