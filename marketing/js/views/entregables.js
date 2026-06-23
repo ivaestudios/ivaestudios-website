@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606232300';
-import { icon } from '../shell/icons.js?v=202606232300';
+import { api, el, clear, toast } from '../api.js?v=202606232400';
+import { icon } from '../shell/icons.js?v=202606232400';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -42,7 +42,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606232300';
+  link.href = '/marketing/css/entregables.css?v=202606232400';
   document.head.appendChild(link);
 }
 
@@ -172,6 +172,44 @@ async function removeItem(it) {
   }
 }
 
+// Descargar/guardar un reel. En MÓVIL usa el menú nativo de Compartir
+// (navigator.share con archivo) -> el usuario toca "Guardar video" (iOS Fotos)
+// o "Guardar en Archivos". En ESCRITORIO descarga directa por enlace.
+const TYPE_EXT = { 'video/mp4': 'mp4', 'video/quicktime': 'mov', 'video/webm': 'webm', 'video/x-m4v': 'm4v', 'video/mpeg': 'mpeg', 'video/3gpp': '3gp' };
+function linkDownload(it) {
+  const a = document.createElement('a');
+  a.href = it.video_url + '?download=1';
+  a.download = String(it.title || 'reel');
+  document.body.appendChild(a); a.click(); a.remove();
+}
+async function saveVideo(it, btn) {
+  // Soporte de compartir ARCHIVOS = móvil (iOS 16+/Android). Escritorio normalmente no.
+  if (!(navigator.canShare && navigator.share)) { linkDownload(it); return; }
+  const label = btn ? btn.querySelector('span') : null;
+  const prev = label ? label.textContent : '';
+  try {
+    if (btn) btn.disabled = true;
+    if (label) label.textContent = 'Preparando…';
+    const res = await fetch(it.video_url, { credentials: 'same-origin' });
+    if (!res.ok) throw new Error('fetch');
+    const blob = await res.blob();
+    const ext = TYPE_EXT[String(blob.type || '').toLowerCase()] || 'mp4';
+    const fname = (String(it.title || 'reel').replace(/[^\w.-]+/g, '_').slice(0, 60) || 'reel') + '.' + ext;
+    const file = new File([blob], fname, { type: blob.type || 'video/mp4' });
+    if (navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: it.title || 'Reel' });
+      return; // el usuario eligió Guardar en Fotos/Archivos
+    }
+    linkDownload(it); // soporta share pero no archivos
+  } catch (e) {
+    if (e && (e.name === 'AbortError')) return; // canceló el menú de compartir
+    linkDownload(it); // cualquier fallo -> descarga normal
+  } finally {
+    if (btn) btn.disabled = false;
+    if (label) label.textContent = prev || 'Descargar';
+  }
+}
+
 // ── Render ───────────────────────────────────────────────────────────────────
 function buildAddBar() {
   if (!addMonth) addMonth = currentMonth();
@@ -249,9 +287,9 @@ function buildItem(it, staff) {
     const foot = el('div', { class: 'dlv-card__foot' }, [
       el('span', { class: 'dlv-card__title', text: it.title || 'Reel' }),
       el('div', { class: 'dlv-card__actions' }, [
-        it.video_url ? el('a', {
-          class: 'dlv-dl', href: it.video_url + '?download=1', download: '',
-          'aria-label': 'Descargar reel',
+        it.video_url ? el('button', {
+          class: 'dlv-dl', type: 'button', 'aria-label': 'Descargar reel',
+          onclick: (e) => saveVideo(it, e.currentTarget),
         }, [icon('down', 16), el('span', { text: 'Descargar' })]) : null,
         staff ? el('button', { class: 'dlv-del', type: 'button', 'aria-label': 'Eliminar', onclick: () => removeItem(it) }, [icon('trash', 16)]) : null,
       ]),
