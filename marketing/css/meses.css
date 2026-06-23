@@ -20,11 +20,10 @@
 .meses-filters {
   display: flex;
   align-items: center;
-  flex-wrap: nowrap;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 8px 6px;
   padding: 2px 2px 12px;
   color: var(--text-mute);
-  overflow-x: auto;
   scrollbar-width: none;
 }
 .meses-filters::-webkit-scrollbar { display: none; }
