@@ -271,6 +271,37 @@
   color: var(--text-mute);
 }
 
+/* Acciones rapidas por tarjeta (movil): Guion / Notas / Checklist. Abren el
+   editor directo en su pestaña. Fila de botones iguales, target tactil >=38px. */
+.meses-item__actions {
+  display: flex;
+  gap: 8px;
+  margin: 6px 6px 2px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.meses-act {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-dim);
+  font: inherit;
+  font-size: var(--fs-1);
+  font-weight: 600;
+  cursor: pointer;
+}
+.meses-act .ico { color: var(--text-mute); flex: none; }
+.meses-act:active { background: var(--surface-3); }
+.meses-act:focus-visible { outline: none; box-shadow: var(--ring); }
+
 /* ── Composer "+ Nueva linea" (flujo Notion) ────────────────────────────────── */
 
 .meses-newline {

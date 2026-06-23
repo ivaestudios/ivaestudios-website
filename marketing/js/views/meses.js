@@ -945,7 +945,29 @@ function buildMobileItem(post) {
   }
 
   card.appendChild(chips);
+
+  // Acciones rapidas: abren el editor DIRECTO en la pestaña (sin entrar y
+  // buscar). Es lo que mas se usa por pieza: el guion, las notas y el checklist.
+  card.appendChild(el('div', { class: 'meses-item__actions' }, [
+    el('button', {
+      class: 'meses-act', type: 'button', 'aria-label': 'Abrir guion',
+      onclick: () => ctx.openEditor(post.id, { tab: 'guion' }),
+    }, [icon('edit', 15), el('span', { text: 'Guion' })]),
+    el('button', {
+      class: 'meses-act', type: 'button', 'aria-label': 'Abrir notas del equipo',
+      onclick: () => ctx.openEditor(post.id, { tab: 'contenido' }),
+    }, [icon('copy', 15), el('span', { text: 'Notas' })]),
+    el('button', {
+      class: 'meses-act', type: 'button', 'aria-label': 'Abrir checklist',
+      onclick: () => ctx.openEditor(post.id, { tab: 'checklist' }),
+    }, [icon('check', 15), el('span', { text: 'Checklist' })]),
+  ]));
   return card;
+}
+
+// Lista movil: una tarjeta por pieza dentro del contenedor `.meses-list`.
+function buildMobileList(rows) {
+  return el('div', { class: 'meses-list' }, rows.map((p) => buildMobileItem(p)));
 }
 
 // ── Composer "+ Nueva linea" ─────────────────────────────────────────────────
@@ -1144,9 +1166,10 @@ function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTod
 
   const bodyKids = [];
   if (rows.length) {
-    // SIEMPRE la tabla (tambien en movil, donde se desliza a la derecha con
-    // Grab+Tarea fijas, como Notion). Vianey: el cliente debe ver FILAS.
-    bodyKids.push(buildTable(rows, noteLabels));
+    // Desktop/tablet (>=768px): tabla completa. Movil (<768px): una tarjeta por
+    // pieza con la misma info en chips (sin scroll horizontal). Sigue siendo
+    // "una fila por pieza" — solo reflowada para que quepa en el telefono.
+    bodyKids.push(desktop ? buildTable(rows, noteLabels) : buildMobileList(rows));
     // Barra unica de progreso del mes: pegada bajo la tabla para que se lea
     // como su resumen, antes del boton "Nueva linea".
     const progress = buildMonthProgress(rows);
