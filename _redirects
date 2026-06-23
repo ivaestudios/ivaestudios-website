@@ -485,3 +485,11 @@
 /es/redes-sociales-dental /es/redes-sociales-clinica-dental-mexico 301
 /es/instagram-cancun /es/manejo-instagram-cancun 301
 /es/tiktok-hoteles /es/agencia-tiktok-hoteles-mexico 301
+
+# GSC 404 cleanup (2026-06-22): old/wrong URLs Google was crawling -> correct live pages
+/es/los-cabos /es/fotografo-los-cabos 301
+/es/fotografo-bodas-mayakoba /es/fotografo-riviera-maya 301
+/es/fotografo-cenote-tulum /es/fotografo-bodas-tulum 301
+/tulum-cenote /cenote-photographer-tulum 301
+/blog/post-wedding-cancun /blog/wedding-photographer-cancun 301
+/glossary /brand 301
