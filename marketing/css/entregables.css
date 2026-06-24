@@ -184,18 +184,19 @@
 .dlv-comment__del:hover { color: #f87171; }
 .dlv-comment__body { margin: 0; font-size: var(--fs-2, 13px); color: var(--text-dim, #9A9AA8); line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
 
-.dlv-comment-form { display: flex; gap: 8px; align-items: flex-end; }
+/* Textarea de ancho completo ARRIBA y botón Enviar de ancho completo ABAJO. */
+.dlv-comment-form { display: flex; flex-direction: column; gap: 8px; }
 .dlv-comment-input {
-  flex: 1; min-width: 0; resize: none;
+  width: 100%; resize: none;
   background: var(--surface-2, #0E0E13); color: var(--text, #ECECF1);
   border: 1px solid var(--border, #1E1E26); border-radius: var(--r-sm, 10px);
-  padding: 9px 11px; font: inherit; font-size: 16px; line-height: 1.4; min-height: 40px; max-height: 160px;
+  padding: 10px 12px; font: inherit; font-size: 16px; line-height: 1.45; min-height: 64px; max-height: 200px;
 }
 .dlv-comment-input:focus { outline: none; border-color: var(--brand, #E24DA0); box-shadow: var(--ring); }
 .dlv-comment-send {
-  flex: none; align-self: stretch;
+  width: 100%;
   background: var(--grad, linear-gradient(135deg, #E24DA0, #9D5BE0)); color: #fff;
-  border: 0; border-radius: var(--r-sm, 10px); padding: 0 14px; min-height: 40px;
+  border: 0; border-radius: var(--r-sm, 10px); padding: 11px 14px; min-height: 44px;
   font: inherit; font-size: var(--fs-2, 14px); font-weight: 700; cursor: pointer;
 }
 .dlv-comment-send:disabled { opacity: .55; cursor: not-allowed; }

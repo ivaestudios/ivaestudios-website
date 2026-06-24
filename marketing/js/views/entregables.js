@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606240900';
-import { icon } from '../shell/icons.js?v=202606240900';
+import { api, el, clear, toast } from '../api.js?v=202606241000';
+import { icon } from '../shell/icons.js?v=202606241000';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -44,7 +44,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606240900';
+  link.href = '/marketing/css/entregables.css?v=202606241000';
   document.head.appendChild(link);
 }
 
@@ -501,7 +501,7 @@ function buildComments(it, staff) {
 
   const input = el('textarea', {
     class: 'dlv-comment-input', rows: 1, maxlength: 4000, placeholder: 'Escribe un cambio o comentario…',
-    oninput: (e) => { e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px'; },
+    oninput: (e) => { e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px'; },
   });
   const send = el('button', { class: 'dlv-comment-send', type: 'button', text: 'Enviar' });
   const submit = async () => {
