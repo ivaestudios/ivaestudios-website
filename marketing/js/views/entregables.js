@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606241100';
-import { icon } from '../shell/icons.js?v=202606241100';
+import { api, el, clear, toast } from '../api.js?v=202606241200';
+import { icon } from '../shell/icons.js?v=202606241200';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -44,7 +44,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606241100';
+  link.href = '/marketing/css/entregables.css?v=202606241200';
   document.head.appendChild(link);
 }
 
@@ -477,15 +477,10 @@ async function deleteComment(it, c, node) {
 }
 
 function commentEl(it, c, staff) {
-  const isClient = c.author_role === 'client';
-  const node = el('div', { class: 'dlv-comment' + (isClient ? ' dlv-comment--client' : '') }, [
-    el('div', { class: 'dlv-comment__top' }, [
-      el('span', { class: 'dlv-comment__who', text: c.author_name || 'Anónimo' }),
-      el('span', { class: 'dlv-comment__role' + (isClient ? ' is-client' : ''), text: isClient ? 'Cliente' : 'Equipo' }),
-      el('span', { class: 'dlv-comment__when', text: relTime(c.created_at) }),
-      staff ? el('button', { class: 'dlv-comment__del', type: 'button', 'aria-label': 'Eliminar comentario', text: '×' }) : null,
-    ]),
+  // Solo el texto del comentario. Para staff, una × discreta para borrarlo.
+  const node = el('div', { class: 'dlv-comment' }, [
     el('p', { class: 'dlv-comment__body', text: c.body }),
+    staff ? el('button', { class: 'dlv-comment__del', type: 'button', 'aria-label': 'Eliminar comentario' }, [icon('trash', 15)]) : null,
   ]);
   if (staff) { const d = node.querySelector('.dlv-comment__del'); if (d) d.addEventListener('click', () => deleteComment(it, c, node)); }
   return node;
