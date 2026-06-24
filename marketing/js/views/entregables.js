@@ -6,12 +6,13 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606240600';
-import { icon } from '../shell/icons.js?v=202606240600';
+import { api, el, clear, toast } from '../api.js?v=202606240700';
+import { icon } from '../shell/icons.js?v=202606240700';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
 const CHUNK_BYTES = 50 * 1024 * 1024;  // ~50MB por parte (bajo el limite de 100MB/request del Worker)
+const UP_LANES = 3;                    // partes subiendo a la vez (paraleliza la subida)
 const MES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
 let ctx = null;
@@ -43,7 +44,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606240600';
+  link.href = '/marketing/css/entregables.css?v=202606240700';
   document.head.appendChild(link);
 }
 
@@ -175,23 +176,33 @@ async function uploadReel(file, qinfo) {
     // 1) iniciar subida multipart
     const start = await api.post(`/deliverables/${created.id}/video/multipart/start`, { mime: file.type });
     const { uploadId, ext } = start;
-    // 2) subir por partes (~50MB) con progreso acumulado
+    // 2) subir las partes (~50MB) EN PARALELO (hasta UP_LANES a la vez). En serie la
+    //    conexión se estanca un round-trip entre parte y parte; en paralelo se mantiene
+    //    llena -> sube notablemente más rápido. R2 ensambla por partNumber sin importar el orden.
     const total = file.size;
     const numParts = Math.max(1, Math.ceil(total / CHUNK_BYTES));
-    const doneParts = [];
-    let baseBytes = 0;
-    for (let i = 0; i < numParts; i++) {
-      const from = i * CHUNK_BYTES;
-      const blob = file.slice(from, Math.min(from + CHUNK_BYTES, total));
-      const r = await xhrPutPart(created.id, uploadId, ext, i + 1, blob, (loaded) => {
-        uploadPct = Math.min(99, Math.round(((baseBytes + loaded) / total) * 100));
-        updateProgressUI();
-      });
-      baseBytes += blob.size;
-      uploadPct = Math.min(99, Math.round((baseBytes / total) * 100));
+    const doneParts = new Array(numParts);
+    const partLoaded = new Array(numParts).fill(0);
+    const bumpUp = () => {
+      const sum = partLoaded.reduce((a, b) => a + b, 0);
+      uploadPct = Math.min(99, Math.round((sum / total) * 100));
       updateProgressUI();
-      doneParts.push({ partNumber: i + 1, etag: r.etag });
-    }
+    };
+    let nextPart = 0; let upAborted = false;
+    const upWorker = async () => {
+      while (!upAborted) {
+        const i = nextPart++;
+        if (i >= numParts) return;
+        const from = i * CHUNK_BYTES;
+        const blob = file.slice(from, Math.min(from + CHUNK_BYTES, total));
+        let r;
+        try { r = await xhrPutPart(created.id, uploadId, ext, i + 1, blob, (n) => { partLoaded[i] = n; bumpUp(); }); }
+        catch (e) { upAborted = true; throw e; }
+        partLoaded[i] = blob.size; bumpUp();
+        doneParts[i] = { partNumber: i + 1, etag: r.etag };
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(UP_LANES, numParts) }, upWorker));
     // 3) ensamblar en R2
     await api.post(`/deliverables/${created.id}/video/multipart/complete`, { uploadId, ext, parts: doneParts });
     uploadPct = 100; updateProgressUI();
@@ -264,18 +275,63 @@ function linkDownload(it) {
   document.body.appendChild(a); a.click(); a.remove();
 }
 
-// Descarga el video como Blob con progreso (XHR; fetch no expone progreso de bajada).
-function fetchVideoBlob(it, onProgress) {
+// Descarga UN tramo (Range) como ArrayBuffer.
+const DL_LANES = 3;                 // tramos bajando a la vez
+const DL_CHUNK = 8 * 1024 * 1024;   // 8MB por tramo
+function fetchRange(url, start, end, onLoaded) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', it.video_url);
+    xhr.open('GET', url);
     xhr.withCredentials = true;
-    xhr.responseType = 'blob';
-    xhr.onprogress = (e) => { if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100)); };
-    xhr.onload = () => { (xhr.status >= 200 && xhr.status < 300) ? resolve(xhr.response) : reject(new Error('No se pudo descargar el video.')); };
+    xhr.responseType = 'arraybuffer';
+    xhr.setRequestHeader('Range', `bytes=${start}-${end}`);
+    xhr.onprogress = (e) => { if (onLoaded) onLoaded(e.loaded); };
+    xhr.onload = () => {
+      if (xhr.status === 206 || xhr.status === 200) resolve({ buf: xhr.response, status: xhr.status, xhr });
+      else reject(new Error('No se pudo descargar el video.'));
+    };
     xhr.onerror = () => reject(new Error('Se cortó la conexión al descargar.'));
     xhr.send();
   });
+}
+
+// Descarga el video como Blob con progreso. Baja en VARIOS TRAMOS en paralelo y los
+// rearma -> más rápido que una sola descarga (que se estanca). Si el servidor no
+// soporta rangos (200) o el archivo es chico, cae a una sola descarga. onProgress(pct).
+async function fetchVideoBlob(it, onProgress) {
+  const url = it.video_url;
+  // 1) primer tramo: trae el inicio y revela tamaño total + soporte de rangos.
+  const first = await fetchRange(url, 0, DL_CHUNK - 1);
+  const ctype = first.xhr.getResponseHeader('Content-Type') || 'video/mp4';
+  const cr = first.xhr.getResponseHeader('Content-Range') || '';
+  const m = cr.match(/\/(\d+)\s*$/);
+  const total = (first.status === 206 && m) ? Number(m[1]) : 0;
+  if (first.status !== 206 || !total || total <= first.buf.byteLength) {
+    if (onProgress) onProgress(100);
+    return new Blob([first.buf], { type: ctype }); // sin rangos o archivo chico: ya está todo
+  }
+  // 2) bajar el resto en paralelo (hasta DL_LANES tramos a la vez) y rearmar en orden.
+  const numChunks = Math.ceil(total / DL_CHUNK);
+  const buffers = new Array(numChunks); buffers[0] = first.buf;
+  const loaded = new Array(numChunks).fill(0); loaded[0] = first.buf.byteLength;
+  const bump = () => { if (onProgress) onProgress(Math.min(99, Math.round((loaded.reduce((a, b) => a + b, 0) / total) * 100))); };
+  bump();
+  let next = 1; let aborted = false;
+  const worker = async () => {
+    while (!aborted) {
+      const i = next++;
+      if (i >= numChunks) return;
+      const start = i * DL_CHUNK;
+      const end = Math.min(start + DL_CHUNK, total) - 1;
+      let res;
+      try { res = await fetchRange(url, start, end, (n) => { loaded[i] = n; bump(); }); }
+      catch (e) { aborted = true; throw e; }
+      buffers[i] = res.buf; loaded[i] = (end - start + 1); bump();
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(DL_LANES, numChunks - 1) }, worker));
+  if (onProgress) onProgress(100);
+  return new Blob(buffers, { type: ctype });
 }
 function fileFromBlob(it, blob) {
   const ext = TYPE_EXT[String(blob.type || '').toLowerCase()] || 'mp4';

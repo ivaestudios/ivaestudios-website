@@ -15,19 +15,19 @@
 // URL, espejados por el shell en store.filters.
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202606240600';
+import { el, clear } from '../api.js?v=202606240700';
 import {
   fmtYMD, parseYMD, addDays, addMonths, startOfMonth, startOfWeek,
   monthTitle, weekTitle, parseFilters, countActiveFilters, applyFilters,
   groupByDay, backlogPosts, workingAnchor,
-} from './data.js?v=202606240600';
-import * as calState from './state.js?v=202606240600';
-import { renderMonth } from './month.js?v=202606240600';
-import { renderWeek } from './week.js?v=202606240600';
-import { renderAgenda } from './agenda.js?v=202606240600';
-import { renderBacklog } from './backlog.js?v=202606240600';
-import { buildControls } from './filters.js?v=202606240600';
-import { openQuickCreate } from './quickcreate.js?v=202606240600';
+} from './data.js?v=202606240700';
+import * as calState from './state.js?v=202606240700';
+import { renderMonth } from './month.js?v=202606240700';
+import { renderWeek } from './week.js?v=202606240700';
+import { renderAgenda } from './agenda.js?v=202606240700';
+import { renderBacklog } from './backlog.js?v=202606240700';
+import { buildControls } from './filters.js?v=202606240700';
+import { openQuickCreate } from './quickcreate.js?v=202606240700';
 
 const MQ_DESKTOP = '(min-width: 768px)';
 
