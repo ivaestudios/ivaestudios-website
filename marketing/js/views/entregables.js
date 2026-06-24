@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606241300';
-import { icon } from '../shell/icons.js?v=202606241300';
+import { api, el, clear, toast } from '../api.js?v=202606241400';
+import { icon } from '../shell/icons.js?v=202606241400';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -44,7 +44,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606241300';
+  link.href = '/marketing/css/entregables.css?v=202606241400';
   document.head.appendChild(link);
 }
 
@@ -543,8 +543,9 @@ function buildItem(it, staff) {
         staff ? el('button', { class: 'dlv-del', type: 'button', 'aria-label': 'Eliminar', onclick: () => removeItem(it) }, [icon('trash', 16)]) : null,
       ]),
     ]);
-    card.appendChild(foot);
-    card.appendChild(buildComments(it, staff));
+    // foot + comentarios en un lado: en móvil van debajo del video; en escritorio
+    // (CSS ≥768px) este lado se coloca AL COSTADO del video para leer el comentario.
+    card.appendChild(el('div', { class: 'dlv-card__side' }, [foot, buildComments(it, staff)]));
     return card;
   }
   // carrusel

@@ -89,6 +89,18 @@
   background: var(--surface, #121218); border: 1px solid var(--border, #1E1E26);
   border-radius: var(--r, 14px); overflow: hidden; display: flex; flex-direction: column;
 }
+/* Pie + comentarios: en móvil van apilados debajo del video. */
+.dlv-card__side { display: flex; flex-direction: column; min-width: 0; }
+
+/* ESCRITORIO (≥768px): el comentario va AL LADO del reel, no debajo, para leerlo
+   completo (en la cuadrícula angosta se veía diminuto). Tarjetas anchas. */
+@media (min-width: 768px) {
+  .dlv-grid { grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)); }
+  .dlv-card--reel { flex-direction: row; align-items: flex-start; }
+  .dlv-card--reel > .dlv-video,
+  .dlv-card--reel > .dlv-video--pending { width: 210px; flex: none; max-height: none; }
+  .dlv-card--reel > .dlv-card__side { flex: 1; min-width: 0; }
+}
 
 /* Reel */
 .dlv-video {

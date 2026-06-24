@@ -16,8 +16,8 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, api, statusLabel, fmtDateTime, avatar } from '../api.js?v=202606241300';
-import { icon } from '../shell/icons.js?v=202606241300';
+import { el, api, statusLabel, fmtDateTime, avatar } from '../api.js?v=202606241400';
+import { icon } from '../shell/icons.js?v=202606241400';
 
 const PAGE = 40;
 
