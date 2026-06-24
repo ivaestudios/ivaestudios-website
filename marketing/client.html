@@ -4,65 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow">
-  <meta name="theme-color" content="#0b0b12">
-  <title>Tu contenido · IVAE Marketing</title>
-  <meta name="description" content="Tu calendario de contenido y aprobaciones con IVAE Marketing.">
-
-  <!-- Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-
-  <!-- CSS: tokens v1 + componentes (app.css), tokens v2, shell (sheets y toasts
-       que el portal reusa por import) y la hoja propia del portal al final. -->
-  <link rel="stylesheet" href="/marketing/css/app.css?v=202606171316">
-  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202606171316">
-  <link rel="stylesheet" href="/marketing/css/shell.css?v=202606171316">
-  <link rel="stylesheet" href="/marketing/css/meses.css?v=202606171316">
-  <link rel="stylesheet" href="/marketing/css/portal.css?v=202606171316">
-
+  <meta name="theme-color" content="#0A0A0E">
+  <title>IVAE Marketing</title>
+  <!-- VISTA RETIRADA. El "portal cliente" anterior (js/portal/*) ya NO se usa: el
+       cliente entra al MISMO app que el equipo (/marketing/app), con su vista
+       limitada a su marca. Esta página solo redirige para que cualquier bookmark
+       o link viejo a /marketing/client(.html) caiga en la app real. -->
+  <meta http-equiv="refresh" content="0; url=/marketing/app">
+  <link rel="canonical" href="/marketing/app">
+  <script>
+    // replace() => no queda en el historial (el botón "atrás" no regresa al portal viejo).
+    location.replace('/marketing/app');
+  </script>
   <style>
-    /* El atributo hidden SIEMPRE gana, incluso sobre reglas display de autor
-       (.pboot y #inbox/#agenda se togglean con hidden desde portal/main.js). */
-    [hidden] { display: none !important; }
+    html, body { margin: 0; height: 100%; background: #0A0A0E; color: #9A9AA8;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    .wrap { height: 100%; display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 24px; }
+    a { color: #E24DA0; text-decoration: none; font-weight: 600; }
   </style>
 </head>
 <body>
-  <!-- Splash: portal/main.js lo oculta al hidratar o lo reusa para bootFailed. -->
-  <div id="boot" class="pboot" role="status" aria-live="polite">
-    <span class="spinner spinner--lg" aria-hidden="true"></span>
-    <span class="muted">Cargando tu contenido</span>
+  <div class="wrap">
+    <p>Llevándote a tu panel… Si no avanza, <a href="/marketing/app">toca aquí</a>.</p>
   </div>
-
-  <!-- Portal v2 (app aislada del shell de equipo). main.js llena cada ancla:
-       #pheader (header), #progress (badge del mes), #tabs (segmented),
-       #inbox (Por aprobar) y #agenda (Calendario). -->
-  <div id="app" class="portal" hidden>
-    <header id="pheader" class="portal__header"></header>
-    <main class="portal__main">
-      <div id="progress" class="pprogress-slot"></div>
-      <div id="tabs" class="ptabs"></div>
-      <section id="inbox" role="tabpanel" aria-labelledby="ptabInbox" hidden></section>
-      <section id="agenda" role="tabpanel" aria-labelledby="ptabAgenda" hidden></section>
-    </main>
-    <footer class="portal__foot">Hecho con 💜 por IVAE Marketing</footer>
-  </div>
-
-  <!-- Detalle full-screen como ruta #post=<id> (hermano de #app: recibe su
-       propio --accent desde applyAccent). -->
-  <div id="detail" class="pdetail" role="dialog" aria-modal="true" aria-label="Detalle del contenido" hidden></div>
-
-  <!-- Capas globales del shell reusadas por el portal (sheet.js y toast.js). -->
-  <div id="sheetHost"></div>
-  <div id="toastHost" class="toast-host" role="status" aria-live="polite"></div>
-
-  <noscript>
-    <p style="padding:24px;text-align:center">Necesitas JavaScript activado para ver tu contenido.</p>
-  </noscript>
-
-  <!-- Unico script del portal v2.
-       ROLLBACK INSTANTANEO: re-apuntar esta linea a /marketing/js/client.js?v=3
-       y restaurar el esqueleto legacy; js/client.js sigue intacto en el repo. -->
-  <script type="module" src="/marketing/js/portal/main.js?v=202606171316"></script>
 </body>
 </html>
