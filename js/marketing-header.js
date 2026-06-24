@@ -44,17 +44,18 @@
 
   var labels = isES ? {
     verticals: 'Verticales', blog: 'Diario', studio: 'IVAE Studios',
-    cta: 'Iniciar Brief', menuOpen: 'Abrir navegación', menuClose: 'Cerrar navegación',
+    cta: 'Iniciar Brief', login: 'Iniciar sesión', menuOpen: 'Abrir navegación', menuClose: 'Cerrar navegación',
     langGroup: 'Idioma', tagline: 'Redes sociales para hospitalidad de lujo'
   } : {
     verticals: 'Verticals', blog: 'Journal', studio: 'IVAE Studios',
-    cta: 'Begin Brief', menuOpen: 'Open navigation', menuClose: 'Close navigation',
+    cta: 'Begin Brief', login: 'Sign in', menuOpen: 'Open navigation', menuClose: 'Close navigation',
     langGroup: 'Language', tagline: 'Social media for luxury hospitality'
   };
 
   var blogHref = '/marketing-blog';
   var studioHref = isES ? '/es/' : '/';
   var intakeHref = '/marketing-intake';
+  var loginHref = '/marketing/'; // login del app de clientes (ivaestudios.com/marketing)
 
   // Industry verticals (EN + ES) for the nav + mobile drawer.
   var verticals = isES ? [
@@ -99,6 +100,9 @@
     + '.imkt-hd-cta{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.06em;color:#0a0a0f !important;background:linear-gradient(135deg,#a78bfa,#ec4899);padding:11px 20px;border-radius:100px;transition:box-shadow .2s,transform .2s;white-space:nowrap}'
     + '.imkt-hd-cta:hover{box-shadow:0 6px 20px rgba(167,139,250,.4);transform:translateY(-1px);color:#0a0a0f !important}'
     + '.imkt-hd-cta svg{width:15px;height:15px}'
+    + '.imkt-hd-login{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;letter-spacing:.04em;color:rgba(240,238,233,.82);border:1px solid rgba(167,139,250,.34);padding:10px 17px;border-radius:100px;transition:border-color .2s,color .2s,background .2s;white-space:nowrap}'
+    + '.imkt-hd-login:hover{border-color:rgba(167,139,250,.7);color:#f0eee9;background:rgba(167,139,250,.08)}'
+    + '.imkt-hd-login svg{width:13px;height:13px}'
     + '.imkt-hd-burger{display:none;flex-direction:column;justify-content:center;gap:5px;width:44px;height:44px;padding:0;background:transparent;border:1px solid rgba(167,139,250,.25);border-radius:10px;cursor:pointer}'
     + '.imkt-hd-burger span{display:block;width:18px;height:1.6px;background:#c4b5fd;margin:0 auto;border-radius:2px;transition:transform .25s,opacity .25s}'
     + '.imkt-hd-burger[aria-expanded="true"] span:nth-child(1){transform:translateY(6.6px) rotate(45deg)}'
@@ -117,14 +121,17 @@
     + '.imkt-mnav-lang{display:flex;align-items:center;gap:10px;font-family:"Space Mono",monospace;font-size:13px;font-weight:700;letter-spacing:.15em;margin:20px 0 18px;color:rgba(240,238,233,.4)}'
     + '.imkt-mnav-lang a{color:rgba(240,238,233,.6)}'
     + '.imkt-mnav-lang a.is-active{color:#c4b5fd}'
-    + '.imkt-mnav-cta{display:block;text-align:center;font-size:14px;font-weight:700;letter-spacing:.05em;color:#0a0a0f !important;background:linear-gradient(135deg,#a78bfa,#ec4899);padding:15px 24px;border-radius:100px;margin-top:auto}'
+    + '.imkt-mnav-login{display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;font-size:14px;font-weight:700;letter-spacing:.04em;color:#c4b5fd !important;border:1px solid rgba(167,139,250,.4);padding:14px 24px;border-radius:100px;margin-top:auto;margin-bottom:10px}'
+    + '.imkt-mnav-login svg{width:16px;height:16px}'
+    + '.imkt-mnav-cta{display:block;text-align:center;font-size:14px;font-weight:700;letter-spacing:.05em;color:#0a0a0f !important;background:linear-gradient(135deg,#a78bfa,#ec4899);padding:15px 24px;border-radius:100px;margin-top:0}'
     + '.imkt-mnav-scrim{position:fixed;inset:0;z-index:9050;background:rgba(5,5,8,.6);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}'
     + '.imkt-mnav-scrim.is-open{opacity:1;visibility:visible}'
-    + '@media (max-width:860px){.imkt-hd-nav{display:none}.imkt-hd-cta{display:none}.imkt-hd-lang{display:none}.imkt-hd-burger{display:flex}}'
+    + '@media (max-width:860px){.imkt-hd-nav{display:none}.imkt-hd-cta{display:none}.imkt-hd-lang{display:none}.imkt-hd-login{display:none}.imkt-hd-burger{display:flex}}'
     + '@media (min-width:861px){.imkt-mnav,.imkt-mnav-scrim{display:none}}'
     + '@media (prefers-reduced-motion:reduce){.imkt-mnav{transition:none}.imkt-mnav-scrim{transition:none}.imkt-hd-burger span{transition:none}}';
 
   var arrow = '<svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>';
+  var lockIcon = '<svg fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path stroke-linecap="round" d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
 
   var navItems = ''
     + '<a href="' + homeHref + '"' + (path === homeHref.replace(/\/$/, '') ? ' class="is-active"' : '') + '>' + labels.verticals + '</a>'
@@ -141,6 +148,7 @@
     +       '<span class="sep" aria-hidden="true">|</span>'
     +       '<a href="' + esHref + '" data-lang-switch="es" hreflang="es" lang="es"' + esActive + '>ES</a>'
     +     '</div>'
+    +     '<a href="' + loginHref + '" class="imkt-hd-login">' + lockIcon + labels.login + '</a>'
     +     '<a href="' + intakeHref + '" class="imkt-hd-cta">' + labels.cta + arrow + '</a>'
     +     '<button class="imkt-hd-burger" id="imktBurger" type="button" aria-expanded="false" aria-controls="imktMnav" aria-label="' + labels.menuOpen + '"><span></span><span></span><span></span></button>'
     +   '</div>'
@@ -157,6 +165,7 @@
     +     '<span aria-hidden="true">·</span>'
     +     '<a href="' + esHref + '" data-lang-switch="es" hreflang="es"' + esActive + '>ES</a>'
     +   '</div>'
+    +   '<a href="' + loginHref + '" class="imkt-mnav-login">' + lockIcon + labels.login + '</a>'
     +   '<a href="' + intakeHref + '" class="imkt-mnav-cta">' + labels.cta + '</a>'
     + '</nav>'
     + '<div class="imkt-mnav-scrim" id="imktMnavScrim" aria-hidden="true"></div>';
