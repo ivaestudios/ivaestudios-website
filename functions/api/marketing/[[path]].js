@@ -2695,7 +2695,7 @@ async function handleAddDeliverableComment(request, env, session, id) {
   const { d, error } = await dlvForAccess(env, session, id);
   if (error) return error;
   let b; try { b = await request.json(); } catch { return json({ error: 'JSON invalido' }, 400); }
-  const body = b && b.body ? String(b.body).trim() : '';
+  const body = (b && typeof b.body === 'string') ? b.body.trim() : '';
   if (!body) return json({ error: 'Escribe un comentario.' }, 400);
   if (body.length > 4000) return json({ error: 'El comentario es muy largo.' }, 400);
   const cid = randomId();
@@ -2812,6 +2812,7 @@ async function handleDeleteDeliverable(request, env, session, id) {
   if (error) return error;
   for (const e of MKT_VIDEO_EXTS) { try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.${e}`); } catch {} }
   try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.poster.jpg`); } catch {}
+  try { await env.DB.prepare('DELETE FROM mkt_deliverable_comments WHERE deliverable_id = ?').bind(id).run(); } catch { /* tabla puede no existir aún */ }
   await env.DB.prepare('DELETE FROM mkt_deliverables WHERE id = ?').bind(id).run();
   return json({ ok: true });
 }
