@@ -104,10 +104,12 @@
   .dlv-carrusel__main { width: 210px; flex: none; align-self: flex-start; }
   .dlv-card__side { flex: 1; min-width: 0; }
 
-  /* Los comentarios ocupan el alto disponible y el botón "Enviar" queda ABAJO,
+  /* Los comentarios ocupan el alto disponible; el CUADRO de escribir se estira
+     para llenar todo el espacio (sin huecos en blanco) y "Enviar" queda abajo,
      a la misma altura que el final del video. */
   .dlv-card__side .dlv-comments { flex: 1; }
-  .dlv-card__side .dlv-comment-form { margin-top: auto; }
+  .dlv-card__side .dlv-comment-form { flex: 1; }
+  .dlv-card__side .dlv-comment-input { flex: 1; max-height: none; }
 }
 
 /* Reel */

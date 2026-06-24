@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606241500';
-import { icon } from '../shell/icons.js?v=202606241500';
+import { api, el, clear, toast } from '../api.js?v=202606241600';
+import { icon } from '../shell/icons.js?v=202606241600';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -44,7 +44,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606241500';
+  link.href = '/marketing/css/entregables.css?v=202606241600';
   document.head.appendChild(link);
 }
 
@@ -495,7 +495,11 @@ function buildComments(it, staff) {
 
   const input = el('textarea', {
     class: 'dlv-comment-input', rows: 1, maxlength: 4000, placeholder: 'Escribe un cambio o comentario…',
-    oninput: (e) => { e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 320) + 'px'; },
+    oninput: (e) => {
+      // En escritorio el textarea LLENA el alto (flex); no fijamos altura inline.
+      if (window.matchMedia && window.matchMedia('(min-width: 768px)').matches) return;
+      e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 320) + 'px';
+    },
   });
   const send = el('button', { class: 'dlv-comment-send', type: 'button', text: 'Enviar' });
   const submit = async () => {
