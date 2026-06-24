@@ -96,10 +96,18 @@
    completo (en la cuadrícula angosta se veía diminuto). Tarjetas anchas. */
 @media (min-width: 768px) {
   .dlv-grid { grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)); }
-  .dlv-card--reel { flex-direction: row; align-items: flex-start; }
+
+  /* Reel y carrusel en FILA: preview a la izquierda, comentarios a la derecha. */
+  .dlv-card--reel, .dlv-card--carrusel { flex-direction: row; align-items: stretch; }
   .dlv-card--reel > .dlv-video,
-  .dlv-card--reel > .dlv-video--pending { width: 210px; flex: none; max-height: none; }
-  .dlv-card--reel > .dlv-card__side { flex: 1; min-width: 0; }
+  .dlv-card--reel > .dlv-video--pending { width: 210px; flex: none; max-height: none; align-self: flex-start; }
+  .dlv-carrusel__main { width: 210px; flex: none; align-self: flex-start; }
+  .dlv-card__side { flex: 1; min-width: 0; }
+
+  /* Los comentarios ocupan el alto disponible y el botón "Enviar" queda ABAJO,
+     a la misma altura que el final del video. */
+  .dlv-card__side .dlv-comments { flex: 1; }
+  .dlv-card__side .dlv-comment-form { margin-top: auto; }
 }
 
 /* Reel */
@@ -145,8 +153,11 @@
 }
 .dlv-del:hover { background: rgba(239, 68, 68, .14); color: #f87171; }
 
-/* Carrusel */
-.dlv-card--carrusel { padding: 18px 14px; align-items: center; text-align: center; gap: 12px; min-height: 200px; justify-content: center; }
+/* Carrusel: el preview (icono + título + botón) centra su propio contenido. */
+.dlv-carrusel__main {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 12px; padding: 18px 14px; min-height: 200px;
+}
 .dlv-carrusel__ico {
   display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px;
   border-radius: 18px; background: color-mix(in srgb, var(--brand, #E24DA0) 14%, transparent);

@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606241400';
-import { icon } from '../shell/icons.js?v=202606241400';
+import { api, el, clear, toast } from '../api.js?v=202606241500';
+import { icon } from '../shell/icons.js?v=202606241500';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -44,7 +44,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606241400';
+  link.href = '/marketing/css/entregables.css?v=202606241500';
   document.head.appendChild(link);
 }
 
@@ -548,8 +548,8 @@ function buildItem(it, staff) {
     card.appendChild(el('div', { class: 'dlv-card__side' }, [foot, buildComments(it, staff)]));
     return card;
   }
-  // carrusel
-  const card = el('div', { class: 'dlv-card dlv-card--carrusel' }, [
+  // carrusel: preview (izquierda en escritorio) + comentarios al lado (.dlv-card__side)
+  const main = el('div', { class: 'dlv-carrusel__main' }, [
     el('div', { class: 'dlv-carrusel__ico' }, [icon('grip', 30)]),
     el('span', { class: 'dlv-card__title', text: it.title || 'Carrusel' }),
     el('div', { class: 'dlv-card__actions' }, [
@@ -559,8 +559,10 @@ function buildItem(it, staff) {
       staff ? el('button', { class: 'dlv-del', type: 'button', 'aria-label': 'Eliminar', onclick: () => removeItem(it) }, [icon('trash', 16)]) : null,
     ]),
   ]);
-  card.appendChild(buildComments(it, staff));
-  return card;
+  return el('div', { class: 'dlv-card dlv-card--carrusel' }, [
+    main,
+    el('div', { class: 'dlv-card__side' }, [buildComments(it, staff)]),
+  ]);
 }
 
 function render() {
