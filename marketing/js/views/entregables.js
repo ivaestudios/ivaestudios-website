@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606240400';
-import { icon } from '../shell/icons.js?v=202606240400';
+import { api, el, clear, toast } from '../api.js?v=202606240500';
+import { icon } from '../shell/icons.js?v=202606240500';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -43,7 +43,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606240400';
+  link.href = '/marketing/css/entregables.css?v=202606240500';
   document.head.appendChild(link);
 }
 
@@ -121,26 +121,43 @@ function generatePoster(file) {
   });
 }
 
-// Sube VARIOS reels en fila (uno tras otro). El progreso es de una sola pista y
-// la subida por partes es pesada, así que encolamos en vez de paralelizar (eso
-// saturaría la conexión). Acepta el FileList del input múltiple o del arrastre.
-async function uploadReels(fileList) {
-  if (busy) { toast('Espera a que termine la subida actual.', 'info'); return; }
+// COLA de subida. Todo lo que arrastres o elijas se ENCOLA y se sube uno tras otro
+// (encolar, no paralelizar, evita saturar la conexión). Si sueltas/eliges MÁS mientras
+// otra subida sigue en curso, se AGREGAN a la fila en vez de ignorarse — así funciona
+// igual si arrastras varios de golpe o de uno en uno.
+let uploadQueue = [];   // Files pendientes de subir
+let draining = false;   // hay un drenado de la cola en curso
+
+function enqueueReels(fileList) {
   const all = [...(fileList || [])];
   const vids = all.filter((f) => f.type && f.type.startsWith('video/'));
   const skipped = all.length - vids.length;
   if (!vids.length) { toast('Ninguno de esos archivos es un video.', 'error'); return; }
-  let failed = 0;
-  for (let i = 0; i < vids.length; i++) {
-    const ok = await uploadReel(vids[i], { index: i + 1, total: vids.length });
-    if (!ok) failed++;
+  uploadQueue.push(...vids);
+  if (skipped > 0) toast(`${skipped} no ${skipped > 1 ? 'eran' : 'era'} video y se ${skipped > 1 ? 'omitieron' : 'omitió'}.`, 'info', 4000);
+  if (draining) { toast(`+${vids.length} en la fila`, 'info', 2500); return; } // ya hay subida en curso: solo encola
+  drainQueue();
+}
+
+async function drainQueue() {
+  if (draining) return;
+  draining = true;
+  let processed = 0; let failed = 0;
+  try {
+    while (uploadQueue.length) {
+      const file = uploadQueue.shift();
+      processed += 1;
+      let ok = false;
+      // try/catch propio: un throw NUNCA debe abandonar el resto de la fila.
+      try { ok = await uploadReel(file, { index: processed, total: processed + uploadQueue.length }); }
+      catch { ok = false; }
+      if (!ok) failed += 1;
+    }
+  } finally {
+    draining = false; queueInfo = null;
+    if (processed > 1) { try { await load(); } catch { /* recarga best-effort */ } }
+    if (failed > 0) toast(`${failed > 1 ? `${failed} reels no se pudieron` : '1 reel no se pudo'} subir.`, 'error', 5000);
   }
-  queueInfo = null;
-  if (vids.length > 1) await load(); // una sola recarga al final (evita parpadeo por archivo)
-  const notes = [];
-  if (skipped > 0) notes.push(`${skipped} no ${skipped > 1 ? 'eran' : 'era'} video`);
-  if (failed > 0) notes.push(`${failed} no se ${failed > 1 ? 'pudieron' : 'pudo'} subir`);
-  if (notes.length) toast(notes.join(' · '), failed ? 'error' : 'info', 5000);
 }
 
 async function uploadReel(file, qinfo) {
@@ -187,7 +204,7 @@ async function uploadReel(file, qinfo) {
       }
     } catch { /* sin poster: la tarjeta usa el primer cuadro del video */ }
     toast((queueInfo && queueInfo.total > 1) ? `Subido ${queueInfo.index}/${queueInfo.total} ✓` : 'Reel subido ✓', 'success');
-    if (!qinfo || qinfo.total <= 1) await load(); // en lote, uploadReels recarga 1 sola vez al final
+    if (!qinfo || qinfo.total <= 1) await load(); // en lote, drainQueue recarga 1 sola vez al final
     return true;
   } catch (e) {
     if (created) { try { await api.del(`/deliverables/${created.id}`); } catch { /* limpia el registro huerfano */ } }
@@ -327,7 +344,7 @@ function buildAddBar() {
   // Drop zone para reels
   const fileInput = el('input', {
     type: 'file', accept: 'video/*', multiple: true, class: 'dlv-fileinput', hidden: true,
-    onchange: (e) => { uploadReels(e.target.files); e.target.value = ''; },
+    onchange: (e) => { enqueueReels(e.target.files); e.target.value = ''; },
   });
   let dropKids;
   if (busy) {
@@ -359,7 +376,7 @@ function buildAddBar() {
   drop.addEventListener('dragleave', () => drop.classList.remove('is-over'));
   drop.addEventListener('drop', (e) => {
     e.preventDefault(); drop.classList.remove('is-over');
-    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) uploadReels(e.dataTransfer.files);
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) enqueueReels(e.dataTransfer.files);
   });
 
   // Agregar carrusel por link
