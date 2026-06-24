@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606241000';
-import { icon } from '../shell/icons.js?v=202606241000';
+import { api, el, clear, toast } from '../api.js?v=202606241100';
+import { icon } from '../shell/icons.js?v=202606241100';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -44,7 +44,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606241000';
+  link.href = '/marketing/css/entregables.css?v=202606241100';
   document.head.appendChild(link);
 }
 
@@ -496,8 +496,7 @@ function commentEl(it, c, staff) {
 function buildComments(it, staff) {
   const list = el('div', { class: 'dlv-comments__list' });
   const cs = it.comments || [];
-  if (!cs.length) list.appendChild(el('p', { class: 'dlv-comments__empty', text: 'Aún no hay comentarios. Escribe aquí los cambios que quieras pedir.' }));
-  else cs.forEach((c) => list.appendChild(commentEl(it, c, staff)));
+  cs.forEach((c) => list.appendChild(commentEl(it, c, staff)));
 
   const input = el('textarea', {
     class: 'dlv-comment-input', rows: 1, maxlength: 4000, placeholder: 'Escribe un cambio o comentario…',
@@ -511,7 +510,6 @@ function buildComments(it, staff) {
     try {
       const c = await api.post(`/deliverables/${it.id}/comments`, { body });
       it.comments = (it.comments || []).concat(c);
-      const empty = list.querySelector('.dlv-comments__empty'); if (empty) empty.remove();
       const node = commentEl(it, c, staff);
       list.appendChild(node);
       input.value = ''; input.style.height = 'auto';
@@ -524,7 +522,6 @@ function buildComments(it, staff) {
   input.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); submit(); } });
 
   return el('div', { class: 'dlv-comments' }, [
-    el('div', { class: 'dlv-comments__head', text: 'Comentarios y cambios' }),
     list,
     el('div', { class: 'dlv-comment-form' }, [input, send]),
   ]);
