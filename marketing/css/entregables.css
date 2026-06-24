@@ -194,7 +194,7 @@
   width: 100%; resize: none;
   background: var(--surface-2, #0E0E13); color: var(--text, #ECECF1);
   border: 1px solid var(--border, #1E1E26); border-radius: var(--r-sm, 10px);
-  padding: 10px 12px; font: inherit; font-size: 16px; line-height: 1.45; min-height: 64px; max-height: 200px;
+  padding: 12px 14px; font: inherit; font-size: 16px; line-height: 1.5; min-height: 120px; max-height: 320px;
 }
 .dlv-comment-input:focus { outline: none; border-color: var(--brand, #E24DA0); box-shadow: var(--ring); }
 .dlv-comment-send {
