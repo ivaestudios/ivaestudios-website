@@ -4345,6 +4345,16 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
     $$('[data-count-to],[data-count-to-decimal]').forEach(el => triggerCountUp(el));
   }
 
+  /* On first paint, fire count-ups already inside the viewport (hero stats) so
+     they never sit at 0 before the visitor scrolls. Sets both observer guards. */
+  requestAnimationFrame(function(){
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    $$('[data-count-to],[data-count-to-decimal]').forEach(function(el){
+      var r = el.getBoundingClientRect();
+      if(r.top < vh && r.bottom > 0){ el.dataset.counted = '1'; triggerCountUp(el); }
+    });
+  });
+
   // Reel frames in-view (animation #24)
   const reelInView = ('IntersectionObserver' in window) ? new IntersectionObserver((entries)=>{
     entries.forEach(e => {
