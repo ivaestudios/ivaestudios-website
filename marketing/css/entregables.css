@@ -101,7 +101,7 @@
   .dlv-card--reel, .dlv-card--carrusel { flex-direction: row; align-items: stretch; }
   .dlv-card--reel > .dlv-video,
   .dlv-card--reel > .dlv-video--pending { width: 210px; flex: none; max-height: none; align-self: flex-start; }
-  .dlv-carrusel__main { width: 210px; flex: none; align-self: flex-start; }
+  .dlv-carrusel__main { width: 210px; flex: none; align-self: stretch; }
   .dlv-card__side { flex: 1; min-width: 0; }
 
   /* Los comentarios ocupan el alto disponible; el CUADRO de escribir se estira

@@ -14,8 +14,8 @@
 // en el store; aqui solo toast de exito).
 // ============================================================================
 
-import { el, STATUSES, STATUS_ORDER, fmtDate } from '../api.js?v=202606241600';
-import { icon } from '../shell/icons.js?v=202606241600';
+import { el, STATUSES, STATUS_ORDER, fmtDate } from '../api.js?v=202606241700';
+import { icon } from '../shell/icons.js?v=202606241700';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
