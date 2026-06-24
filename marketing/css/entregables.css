@@ -150,6 +150,56 @@
 }
 .dlv-carrusel-btn .ico { color: #fff; }
 
+/* ── Comentarios / cambios (bajo cada entregable) ── */
+.dlv-comments {
+  align-self: stretch; width: 100%; text-align: left;
+  border-top: 1px solid var(--border, #1E1E26);
+  padding: 12px; display: flex; flex-direction: column; gap: 10px;
+}
+.dlv-comments__head {
+  font-size: var(--fs-1, 12px); font-weight: 700; letter-spacing: .03em;
+  text-transform: uppercase; color: var(--text-mute, #62626F);
+}
+.dlv-comments__list { display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; }
+.dlv-comments__empty { margin: 0; font-size: var(--fs-2, 13px); color: var(--text-mute, #62626F); line-height: 1.45; }
+
+.dlv-comment {
+  background: var(--surface-2, #0E0E13); border: 1px solid var(--border, #1E1E26);
+  border-radius: var(--r-sm, 10px); padding: 8px 10px;
+}
+.dlv-comment--client { border-color: color-mix(in srgb, var(--brand, #E24DA0) 40%, var(--border, #1E1E26)); }
+.dlv-comment__top { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+.dlv-comment__who { font-size: var(--fs-2, 13px); font-weight: 700; color: var(--text, #ECECF1); }
+.dlv-comment__role {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  padding: 1px 6px; border-radius: var(--r-pill, 999px);
+  background: var(--surface-3, #1a1a22); color: var(--text-mute, #62626F);
+}
+.dlv-comment__role.is-client { background: color-mix(in srgb, var(--brand, #E24DA0) 18%, transparent); color: var(--brand, #E24DA0); }
+.dlv-comment__when { font-size: var(--fs-1, 11px); color: var(--text-mute, #62626F); }
+.dlv-comment__del {
+  margin-left: auto; background: none; border: 0; color: var(--text-mute, #62626F);
+  font-size: 18px; line-height: 1; cursor: pointer; padding: 0 4px; border-radius: 6px;
+}
+.dlv-comment__del:hover { color: #f87171; }
+.dlv-comment__body { margin: 0; font-size: var(--fs-2, 13px); color: var(--text-dim, #9A9AA8); line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+
+.dlv-comment-form { display: flex; gap: 8px; align-items: flex-end; }
+.dlv-comment-input {
+  flex: 1; min-width: 0; resize: none;
+  background: var(--surface-2, #0E0E13); color: var(--text, #ECECF1);
+  border: 1px solid var(--border, #1E1E26); border-radius: var(--r-sm, 10px);
+  padding: 9px 11px; font: inherit; font-size: 16px; line-height: 1.4; min-height: 40px; max-height: 160px;
+}
+.dlv-comment-input:focus { outline: none; border-color: var(--brand, #E24DA0); box-shadow: var(--ring); }
+.dlv-comment-send {
+  flex: none; align-self: stretch;
+  background: var(--grad, linear-gradient(135deg, #E24DA0, #9D5BE0)); color: #fff;
+  border: 0; border-radius: var(--r-sm, 10px); padding: 0 14px; min-height: 40px;
+  font: inherit; font-size: var(--fs-2, 14px); font-weight: 700; cursor: pointer;
+}
+.dlv-comment-send:disabled { opacity: .55; cursor: not-allowed; }
+
 /* Estados vacíos / carga */
 .dlv-empty, .dlv-loading {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;

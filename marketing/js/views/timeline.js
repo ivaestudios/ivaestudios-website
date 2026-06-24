@@ -26,14 +26,14 @@ import {
   el, clear,
   STATUSES, STATUS_ORDER,
   chip, statusBadge, avatar,
-} from '../api.js?v=202606240800';
-import { icon } from '../shell/icons.js?v=202606240800';
+} from '../api.js?v=202606240900';
+import { icon } from '../shell/icons.js?v=202606240900';
 import {
   toISO, parseISO, todayISO, addDays, addDaysISO, addMonths,
   diffDays, startOfWeek, monthRangeISO, listDays,
   fmtShort, fmtMonthYear,
   MESES, MESES_CORTOS, DIAS_INICIAL, DIAS_CORTOS,
-} from '../lib/dates.js?v=202606240800';
+} from '../lib/dates.js?v=202606240900';
 
 const DESKTOP_MQ = '(min-width: 720px)';
 const FINE_MQ = '(pointer: fine)';

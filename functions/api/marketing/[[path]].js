@@ -2627,14 +2627,19 @@ async function handleDeleteVideo(env, session, postId) {
 // Staff sube/gestiona; el cliente DUENO de la marca ve y descarga (solo lectura).
 const MKT_DLV_TYPES = new Set(['reel', 'carrusel']);
 
-function shapeDeliverable(d, origin) {
+function shapeDeliverable(d, origin, comments = []) {
   return {
     id: d.id, client_id: d.client_id, month: d.month, type: d.type,
     title: d.title || null, link: d.link || null,
     video_url: d.video_ext ? `${origin}/api/marketing/deliverables/${d.id}/video` : null,
     poster_url: d.video_ext ? `${origin}/api/marketing/deliverables/${d.id}/poster` : null,
     created_at: d.created_at,
+    comments,
   };
+}
+
+function shapeDlvComment(c) {
+  return { id: c.id, author_name: c.author_name || 'Anónimo', author_role: c.author_role || 'team', body: c.body, created_at: c.created_at };
 }
 
 async function dlvForAccess(env, session, id) {
@@ -2656,7 +2661,65 @@ async function handleListDeliverables(env, session, url) {
     ? env.DB.prepare('SELECT * FROM mkt_deliverables WHERE client_id = ? AND month = ? ORDER BY sort_order, created_at').bind(clientId, month)
     : env.DB.prepare('SELECT * FROM mkt_deliverables WHERE client_id = ? ORDER BY month DESC, sort_order, created_at').bind(clientId);
   const rows = (await stmt.all()).results || [];
-  return json({ deliverables: rows.map((r) => shapeDeliverable(r, origin)) });
+  // Adjuntar comentarios (1 sola query, agrupados por entregable). Best-effort:
+  // si la tabla aún no existe (migración no aplicada), la lista sigue funcionando.
+  const byDlv = new Map();
+  if (rows.length) {
+    try {
+      const ids = rows.map((r) => r.id);
+      const ph = ids.map(() => '?').join(',');
+      const cres = await env.DB.prepare(
+        `SELECT id, deliverable_id, author_name, author_role, body, created_at FROM mkt_deliverable_comments WHERE deliverable_id IN (${ph}) ORDER BY created_at ASC`
+      ).bind(...ids).all();
+      for (const c of (cres.results || [])) {
+        if (!byDlv.has(c.deliverable_id)) byDlv.set(c.deliverable_id, []);
+        byDlv.get(c.deliverable_id).push(shapeDlvComment(c));
+      }
+    } catch (e) { if (!isMissingTableError(e)) console.error('[mkt dlv comments]', e && e.message); }
+  }
+  return json({ deliverables: rows.map((r) => shapeDeliverable(r, origin, byDlv.get(r.id) || [])) });
+}
+
+async function handleListDeliverableComments(env, session, id) {
+  const { error } = await dlvForAccess(env, session, id);
+  if (error) return error;
+  const res = await env.DB.prepare(
+    'SELECT id, deliverable_id, author_name, author_role, body, created_at FROM mkt_deliverable_comments WHERE deliverable_id = ? ORDER BY created_at ASC'
+  ).bind(id).all();
+  return json({ comments: (res.results || []).map(shapeDlvComment) });
+}
+
+// Crear comentario. Lo puede hacer el EQUIPO o el CLIENTE dueño de la marca
+// (a diferencia de subir/editar, que es solo staff): así el cliente pide cambios.
+async function handleAddDeliverableComment(request, env, session, id) {
+  const { d, error } = await dlvForAccess(env, session, id);
+  if (error) return error;
+  let b; try { b = await request.json(); } catch { return json({ error: 'JSON invalido' }, 400); }
+  const body = b && b.body ? String(b.body).trim() : '';
+  if (!body) return json({ error: 'Escribe un comentario.' }, 400);
+  if (body.length > 4000) return json({ error: 'El comentario es muy largo.' }, 400);
+  const cid = randomId();
+  await env.DB.prepare(
+    'INSERT INTO mkt_deliverable_comments (id, deliverable_id, user_id, author_name, author_role, body) VALUES (?, ?, ?, ?, ?, ?)'
+  ).bind(cid, id, session.user_id || null, session.name || null, session.role || null, body).run();
+  try { await logActivity(env, { client_id: d.client_id, session, action: 'deliverable.comment' }); } catch { /* best-effort */ }
+  const c = await env.DB.prepare(
+    'SELECT id, deliverable_id, author_name, author_role, body, created_at FROM mkt_deliverable_comments WHERE id = ?'
+  ).bind(cid).first();
+  return json(shapeDlvComment(c), 201);
+}
+
+// Borrar comentario: el EQUIPO (cualquier) o el AUTOR del comentario.
+async function handleDeleteDeliverableComment(request, env, session, id, commentId) {
+  const { error } = await dlvForAccess(env, session, id);
+  if (error) return error;
+  const c = await env.DB.prepare('SELECT * FROM mkt_deliverable_comments WHERE id = ? AND deliverable_id = ?').bind(commentId, id).first();
+  if (!c) return json({ error: 'Comentario no encontrado' }, 404);
+  const isStaff = session.role !== 'client';
+  const isAuthor = c.user_id && c.user_id === session.user_id;
+  if (!isStaff && !isAuthor) return json({ error: 'Forbidden' }, 403);
+  await env.DB.prepare('DELETE FROM mkt_deliverable_comments WHERE id = ?').bind(commentId).run();
+  return json({ ok: true });
 }
 
 async function handleCreateDeliverable(request, env, session, url) {
@@ -3020,6 +3083,18 @@ async function route(request, env) {
         const id = parts[1];
         if (method === 'POST') return handleUploadDeliverablePoster(request, env, session, id);
         if (method === 'GET') return handleServeDeliverablePoster(request, env, session, id);
+        return json({ error: 'Method not allowed' }, 405);
+      }
+      // Comentarios/cambios del cliente: /deliverables/:id/comments
+      if (parts.length === 3 && parts[2] === 'comments') {
+        const id = parts[1];
+        if (method === 'GET') return handleListDeliverableComments(env, session, id);
+        if (method === 'POST') return handleAddDeliverableComment(request, env, session, id);
+        return json({ error: 'Method not allowed' }, 405);
+      }
+      if (parts.length === 4 && parts[2] === 'comments') {
+        const id = parts[1];
+        if (method === 'DELETE') return handleDeleteDeliverableComment(request, env, session, id, parts[3]);
         return json({ error: 'Method not allowed' }, 405);
       }
       // Subida por partes (videos grandes): /deliverables/:id/video/multipart/{start|part|complete}

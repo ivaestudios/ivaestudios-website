@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606240800';
-import { icon } from '../shell/icons.js?v=202606240800';
+import { api, el, clear, toast } from '../api.js?v=202606240900';
+import { icon } from '../shell/icons.js?v=202606240900';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -44,7 +44,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606240800';
+  link.href = '/marketing/css/entregables.css?v=202606240900';
   document.head.appendChild(link);
 }
 
@@ -453,6 +453,83 @@ function buildAddBar() {
   ]);
 }
 
+// Tiempo relativo en español. created_at viene en UTC ('YYYY-MM-DD HH:MM:SS').
+function relTime(iso) {
+  if (!iso) return '';
+  const s = String(iso);
+  const t = Date.parse(s.replace(' ', 'T') + (/[zZ]|[+-]\d\d:?\d\d$/.test(s) ? '' : 'Z'));
+  if (isNaN(t)) return '';
+  const sec = Math.floor((Date.now() - t) / 1000);
+  if (sec < 60) return 'ahora';
+  if (sec < 3600) return `hace ${Math.floor(sec / 60)} min`;
+  if (sec < 86400) return `hace ${Math.floor(sec / 3600)} h`;
+  if (sec < 7 * 86400) return `hace ${Math.floor(sec / 86400)} d`;
+  return new Date(t).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+}
+
+async function deleteComment(it, c, node) {
+  if (!window.confirm('¿Eliminar este comentario?')) return;
+  try {
+    await api.del(`/deliverables/${it.id}/comments/${c.id}`);
+    node.remove();
+    it.comments = (it.comments || []).filter((x) => x.id !== c.id);
+  } catch (e) { toast(e.message || 'No se pudo eliminar', 'error'); }
+}
+
+function commentEl(it, c, staff) {
+  const isClient = c.author_role === 'client';
+  const node = el('div', { class: 'dlv-comment' + (isClient ? ' dlv-comment--client' : '') }, [
+    el('div', { class: 'dlv-comment__top' }, [
+      el('span', { class: 'dlv-comment__who', text: c.author_name || 'Anónimo' }),
+      el('span', { class: 'dlv-comment__role' + (isClient ? ' is-client' : ''), text: isClient ? 'Cliente' : 'Equipo' }),
+      el('span', { class: 'dlv-comment__when', text: relTime(c.created_at) }),
+      staff ? el('button', { class: 'dlv-comment__del', type: 'button', 'aria-label': 'Eliminar comentario', text: '×' }) : null,
+    ]),
+    el('p', { class: 'dlv-comment__body', text: c.body }),
+  ]);
+  if (staff) { const d = node.querySelector('.dlv-comment__del'); if (d) d.addEventListener('click', () => deleteComment(it, c, node)); }
+  return node;
+}
+
+// Sección de comentarios bajo cada entregable: el CLIENTE escribe los cambios que
+// pide y el EQUIPO puede responder. Ambos pueden comentar.
+function buildComments(it, staff) {
+  const list = el('div', { class: 'dlv-comments__list' });
+  const cs = it.comments || [];
+  if (!cs.length) list.appendChild(el('p', { class: 'dlv-comments__empty', text: 'Aún no hay comentarios. Escribe aquí los cambios que quieras pedir.' }));
+  else cs.forEach((c) => list.appendChild(commentEl(it, c, staff)));
+
+  const input = el('textarea', {
+    class: 'dlv-comment-input', rows: 1, maxlength: 4000, placeholder: 'Escribe un cambio o comentario…',
+    oninput: (e) => { e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px'; },
+  });
+  const send = el('button', { class: 'dlv-comment-send', type: 'button', text: 'Enviar' });
+  const submit = async () => {
+    const body = (input.value || '').trim();
+    if (!body || send.disabled) return;
+    send.disabled = true;
+    try {
+      const c = await api.post(`/deliverables/${it.id}/comments`, { body });
+      it.comments = (it.comments || []).concat(c);
+      const empty = list.querySelector('.dlv-comments__empty'); if (empty) empty.remove();
+      const node = commentEl(it, c, staff);
+      list.appendChild(node);
+      input.value = ''; input.style.height = 'auto';
+      node.scrollIntoView({ block: 'nearest' });
+    } catch (e) { toast(e.message || 'No se pudo enviar', 'error'); }
+    finally { send.disabled = false; }
+  };
+  send.addEventListener('click', submit);
+  // Cmd/Ctrl+Enter envía (Enter solo hace salto de línea).
+  input.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); submit(); } });
+
+  return el('div', { class: 'dlv-comments' }, [
+    el('div', { class: 'dlv-comments__head', text: 'Comentarios y cambios' }),
+    list,
+    el('div', { class: 'dlv-comment-form' }, [input, send]),
+  ]);
+}
+
 function buildItem(it, staff) {
   if (it.type === 'reel') {
     const card = el('div', { class: 'dlv-card dlv-card--reel' });
@@ -475,6 +552,7 @@ function buildItem(it, staff) {
       ]),
     ]);
     card.appendChild(foot);
+    card.appendChild(buildComments(it, staff));
     return card;
   }
   // carrusel
@@ -488,6 +566,7 @@ function buildItem(it, staff) {
       staff ? el('button', { class: 'dlv-del', type: 'button', 'aria-label': 'Eliminar', onclick: () => removeItem(it) }, [icon('trash', 16)]) : null,
     ]),
   ]);
+  card.appendChild(buildComments(it, staff));
   return card;
 }
 
