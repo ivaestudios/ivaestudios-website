@@ -15,19 +15,19 @@
 // URL, espejados por el shell en store.filters.
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202606240500';
+import { el, clear } from '../api.js?v=202606240600';
 import {
   fmtYMD, parseYMD, addDays, addMonths, startOfMonth, startOfWeek,
   monthTitle, weekTitle, parseFilters, countActiveFilters, applyFilters,
-  groupByDay, backlogPosts,
-} from './data.js?v=202606240500';
-import * as calState from './state.js?v=202606240500';
-import { renderMonth } from './month.js?v=202606240500';
-import { renderWeek } from './week.js?v=202606240500';
-import { renderAgenda } from './agenda.js?v=202606240500';
-import { renderBacklog } from './backlog.js?v=202606240500';
-import { buildControls } from './filters.js?v=202606240500';
-import { openQuickCreate } from './quickcreate.js?v=202606240500';
+  groupByDay, backlogPosts, workingAnchor,
+} from './data.js?v=202606240600';
+import * as calState from './state.js?v=202606240600';
+import { renderMonth } from './month.js?v=202606240600';
+import { renderWeek } from './week.js?v=202606240600';
+import { renderAgenda } from './agenda.js?v=202606240600';
+import { renderBacklog } from './backlog.js?v=202606240600';
+import { buildControls } from './filters.js?v=202606240600';
+import { openQuickCreate } from './quickcreate.js?v=202606240600';
 
 const MQ_DESKTOP = '(min-width: 768px)';
 
@@ -45,6 +45,11 @@ let unsubs = [];        // suscripciones store/estado local
 let dndDisposers = [];  // dispose() de cada draggable del render actual
 let raf = 0;
 let mounted = false;
+
+// Auto-aterrizaje en el "mes de trabajo": se aterriza una vez por cliente.
+// Guarda el cliente ya aterrizado (sentinela != a cualquier id real al inicio).
+const NO_CLIENT = Symbol('none');
+let landedClientId = NO_CLIENT;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -68,10 +73,11 @@ function scheduleRender() {
   raf = requestAnimationFrame(render);
 }
 
-/** Acepta saltos del dashboard (mkt.jump) o ?fecha= en la URL. */
+/** Acepta saltos del dashboard (mkt.jump) o ?fecha= en la URL. Devuelve true si aplicó. */
 function applyDateHints(params) {
   const hint = (params && (params.fecha || params.dia)) || null;
-  if (hint && parseYMD(hint)) calState.selectDay(hint);
+  if (hint && parseYMD(hint)) { calState.selectDay(hint); return true; }
+  return false;
 }
 
 // ── Render ───────────────────────────────────────────────────────────────────
@@ -79,6 +85,22 @@ function applyDateHints(params) {
 function render() {
   if (!mounted || !mainEl) return;
   const st = ctx.store.getState();
+
+  // Auto-aterrizaje: al abrir (y al cambiar de cliente) posiciona el calendario
+  // en el MES CON CONTENIDO del cliente (post más próximo, o el más reciente),
+  // no en el mes actual si ahí no hay nada. Una sola vez por cliente; la
+  // navegación manual y el botón "Hoy" no se vuelven a tocar.
+  // Marca al cliente como aterrizado en cuanto la carga TERMINA (aunque NO tenga
+  // posts): así, crear el 1er post después no reposiciona la vista a mitad de sesión.
+  if (st.activeClientId !== landedClientId && !st.loading) {
+    landedClientId = st.activeClientId;
+    const anchor = workingAnchor(st.posts);
+    if (anchor) {
+      const d = parseYMD(anchor);
+      calState.patch({ cursor: startOfMonth(d), selectedDay: anchor });
+    }
+  }
+
   const cal = calState.get();
   const mode = effectiveMode();
 
@@ -189,11 +211,17 @@ const view = {
     calState.initFromPrefs();
 
     // Drill-down del dashboard (sessionStorage mkt.jump, se consume una vez).
+    let explicitDate = false;
     const jump = ctx.prefs.takeJump ? ctx.prefs.takeJump() : null;
     if (jump && (jump.fecha || jump.date) && parseYMD(jump.fecha || jump.date)) {
       calState.selectDay(jump.fecha || jump.date);
+      explicitDate = true;
     }
-    applyDateHints(ctx.params);
+    if (applyDateHints(ctx.params)) explicitDate = true;
+
+    // Si vino fecha explícita (drill-down / ?fecha=), respétala y NO auto-aterrices
+    // para este cliente; si no, deja que el 1er render aterrice en el mes con contenido.
+    landedClientId = explicitDate ? ctx.store.getState().activeClientId : NO_CLIENT;
 
     buildScaffold();
 

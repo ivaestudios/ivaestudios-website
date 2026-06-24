@@ -7,7 +7,7 @@
 // - Sin estado propio: funciones puras + builders pequenos sin side effects.
 // ============================================================================
 
-import { el, statusBadge, chip, STATUSES, CONTENT_TYPES } from '../api.js?v=202606240500';
+import { el, statusBadge, chip, STATUSES, CONTENT_TYPES } from '../api.js?v=202606240600';
 
 // ── Fechas ───────────────────────────────────────────────────────────────────
 
@@ -185,6 +185,25 @@ export function groupByDay(posts) {
 /** Posts sin fecha (backlog), ordenados por position. */
 export function backlogPosts(posts) {
   return (posts || []).filter((p) => !p.publish_date).slice().sort(byPosition);
+}
+
+/**
+ * "Ancla de trabajo": el dia 'YYYY-MM-DD' donde esta el contenido del cliente.
+ * Es el post programado mas PROXIMO de hoy en adelante; si no hay futuros, el
+ * mas reciente; null si no hay posts con fecha. Sirve para abrir el calendario
+ * en el MES CON CONTENIDO (no siempre el mes actual). Comparacion lexicografica
+ * de 'YYYY-MM-DD' == cronologica.
+ */
+export function workingAnchor(posts) {
+  const today = todayYMD();
+  let upcoming = null; let latest = null;
+  for (const p of posts || []) {
+    const day = p.publish_date ? String(p.publish_date).slice(0, 10) : '';
+    if (!day) continue;
+    if (!latest || day > latest) latest = day;
+    if (day >= today && (!upcoming || day < upcoming)) upcoming = day;
+  }
+  return upcoming || latest || null;
 }
 
 // ── Info de catalogo con fallback seguro ─────────────────────────────────────
