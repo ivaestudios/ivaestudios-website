@@ -400,6 +400,23 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .input-wrap .input { padding-left: 42px; }
 
+/* Ojo para mostrar/ocultar contraseña (a la derecha del campo). */
+.input-wrap .input--pass { padding-right: 44px; }
+.input-wrap .pass-eye {
+  position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; padding: 0; margin: 0; border: 0; background: none;
+  color: var(--text-mute); cursor: pointer; border-radius: 8px;
+}
+.input-wrap .pass-eye:hover { color: var(--text); }
+.input-wrap .pass-eye svg { width: 18px; height: 18px; }
+.input-wrap .pass-eye:focus-visible { outline: 2px solid var(--brand, #a855f7); outline-offset: 1px; }
+/* Qué ícono se ve (por aria-pressed). NO usar [hidden]: `img,svg{display:block}`
+   es regla de AUTOR y le gana al [hidden] del navegador. */
+.input-wrap .pass-eye .pass-eye__hide { display: none; }
+.input-wrap .pass-eye[aria-pressed="true"] .pass-eye__show { display: none; }
+.input-wrap .pass-eye[aria-pressed="true"] .pass-eye__hide { display: block; }
+
 /* Search field */
 .search { max-width: 320px; }
 

@@ -13,10 +13,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap">
-  <link rel="stylesheet" href="/marketing/css/app.css?v=202606240700">
-  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202606240700">
+  <link rel="stylesheet" href="/marketing/css/app.css?v=202606240800">
+  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202606240800">
   <!-- Tema "Sistema IVA" 2026 (ultimo para ganar :root; solo estilo). -->
-  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202606240700">
+  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202606240800">
 
   <style>
     /* Toques v2 (solo estetica, el flujo de auth no cambia): targets tactiles
@@ -58,13 +58,13 @@
 
       <form id="loginForm" novalidate autocomplete="on">
         <div class="field">
-          <label class="label" for="email">Correo electrónico</label>
+          <label class="label" for="email">Usuario o correo</label>
           <div class="input-wrap">
             <span class="ico" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
             </span>
-            <input class="input" id="email" name="email" type="email" inputmode="email"
-                   autocomplete="email" placeholder="tucorreo@ejemplo.com" required>
+            <input class="input" id="email" name="email" type="text"
+                   autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Tu usuario o correo" required>
           </div>
         </div>
 
@@ -74,8 +74,12 @@
             <span class="ico" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
             </span>
-            <input class="input" id="password" name="password" type="password"
+            <input class="input input--pass" id="password" name="password" type="password"
                    autocomplete="current-password" placeholder="Tu contraseña" required>
+            <button type="button" class="pass-eye" id="togglePass" aria-label="Mostrar contraseña" aria-pressed="false">
+              <svg class="pass-eye__show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="pass-eye__hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m3 3 18 18"/><path d="M10.6 10.6a3 3 0 0 0 4.2 4.2"/><path d="M9.4 5.2A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17.3 17.3 0 0 1-2.9 3.8"/><path d="M6.3 6.3A17 17 0 0 0 2 12s3.5 7 10 7a10 10 0 0 0 3-.45"/></svg>
+            </button>
           </div>
         </div>
 
@@ -279,6 +283,18 @@
 
     // Clear the inline error as soon as the user edits a field.
     [emailEl, passEl].forEach((f) => f.addEventListener('input', clearError));
+
+    // Ojo para mostrar/ocultar la contraseña.
+    const togglePass = document.getElementById('togglePass');
+    if (togglePass) {
+      togglePass.addEventListener('click', () => {
+        const reveal = passEl.type === 'password';
+        passEl.type = reveal ? 'text' : 'password';
+        togglePass.setAttribute('aria-pressed', String(reveal)); // el CSS intercambia el ícono
+        togglePass.setAttribute('aria-label', reveal ? 'Ocultar contraseña' : 'Mostrar contraseña');
+        passEl.focus();
+      });
+    }
 
     // ── First-admin bootstrap (only succeeds once, for the authorized owner email) ──
     const toggleSetup = document.getElementById('toggleSetup');
