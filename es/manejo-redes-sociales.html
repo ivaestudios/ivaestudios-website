@@ -741,7 +741,7 @@ a { color: inherit; text-decoration: none; }
 .timeline::before {
   content: '';
   position: absolute;
-  left: 24px;
+  left: 33px;
   top: 0;
   bottom: 0;
   width: 2px;
@@ -1335,7 +1335,7 @@ body::after {
    7. TIMELINE — SCROLL-DRIVEN LINE DRAW
    ══════════════════════════════════════════ */
 .timeline::before {
-  background: linear-gradient(180deg, #a78bfa, #ec4899, #ef4444, transparent);
+  background: linear-gradient(180deg, #a78bfa, #c084fc, #ec4899, #ef4444);
   height: var(--timeline-progress, 0%);
   bottom: auto;
 }
@@ -1866,6 +1866,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   .bento-card { padding: 24px 16px; }
   .faq-question { padding: 16px 12px; }
   .timeline-dot { width: 36px; height: 36px; min-width: 36px; }
+  .timeline::before { left: 17px; }
 }
 
 /* Reduce animations on mobile */
@@ -2760,7 +2761,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
       steps.forEach(s => {
         if (s.getBoundingClientRect().top < vh * 0.85) s.classList.add('step-visible');
         const dot = s.querySelector('.timeline-dot');
-        if (dot && (dot.getBoundingClientRect().top - r.top + dot.offsetHeight / 2) <= filled) s.classList.add('is-connected');
+        if (dot && (dot.getBoundingClientRect().top - r.top) <= filled) s.classList.add('is-connected');
       });
       requestAnimationFrame(dt);
     })();
