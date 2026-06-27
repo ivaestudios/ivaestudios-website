@@ -1861,6 +1861,18 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
     .lw-mob-details-card{flex:none;max-width:none;scroll-snap-align:none}
     .lw-mob-details-card figure{aspect-ratio:4/5;margin:0}
     .lw-mob-details-cap{font-size:12px;line-height:1.45;padding-top:10px}
+    /* Same bug: the trip-planner (.lw-mob-planner) is also a .lw-mob-* section in
+       the desktop layer with mobile-only styles, so on desktop it rendered as a
+       flush-left, unstyled native <select>. Give it a centered desktop card. */
+    .lw-mob-planner{display:block;max-width:620px;margin:clamp(40px,5vw,72px) auto clamp(80px,8vw,120px);padding:40px 44px;background:linear-gradient(180deg,rgba(201,165,78,.06),rgba(201,165,78,.02));border:1px solid rgba(201,165,78,.28);border-radius:6px;position:relative;overflow:hidden;text-align:left}
+    .lw-mob-planner::before{content:"";position:absolute;left:0;top:0;width:3px;height:100%;background:linear-gradient(180deg,#c9a54e 0%,rgba(201,165,78,.3) 100%)}
+    .lw-mob-planner-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:#c9a54e;margin-bottom:12px}
+    .lw-mob-planner-h{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:30px;line-height:1.15;color:#faf8f5;margin:0 0 10px}
+    .lw-mob-planner-h em{font-style:italic;color:#c9a54e}
+    .lw-mob-planner-body{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:16px;line-height:1.55;color:rgba(250,248,245,.7);margin:0 0 20px}
+    .lw-mob-planner-select{display:block;width:100%;font-family:'Cormorant Garamond',Georgia,serif;font-size:16px;color:#faf8f5;background:rgba(255,255,255,.04);border:1px solid rgba(201,165,78,.32);border-radius:3px;padding:15px 14px;min-height:52px;appearance:none;-webkit-appearance:none;cursor:pointer;background-image:linear-gradient(45deg,transparent 50%,#c9a54e 50%),linear-gradient(135deg,#c9a54e 50%,transparent 50%);background-position:calc(100% - 20px) 24px,calc(100% - 14px) 24px;background-size:6px 6px,6px 6px;background-repeat:no-repeat}
+    .lw-mob-planner-result{margin-top:16px;padding:14px 16px;background:rgba(201,165,78,.08);border-left:2px solid #c9a54e;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:16px;line-height:1.55;color:#faf8f5;display:none}
+    .lw-mob-planner-result[data-shown="1"]{display:block}
   }
   </style>
 </head>
@@ -3118,7 +3130,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
 <!-- ═══════ MOBILE-ONLY TRIP-PLANNER WIDGET (Pattern 8) ═══════ -->
 <section class="lw-mob-planner" data-chapter="9b" aria-label="Trip planner widget">
   <span class="lw-mob-planner-eyebrow">Planning your trip?</span>
-  <h2 class="lw-mob-planner-h">Tap to see ideal months by <em>resort</em></h2>
+  <h2 class="lw-mob-planner-h">See ideal months by <em>resort</em></h2>
   <p class="lw-mob-planner-body">Each coastline has its hour. Pick the resort closest to your stay. We will recommend the months that hold the light.</p>
   <select class="lw-mob-planner-select" id="lwMobPlanner" aria-label="Choose resort area">
     <option value="">Choose your resort area&hellip;</option>
