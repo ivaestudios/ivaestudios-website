@@ -585,6 +585,19 @@ html.dark .ivm-desktop-only .btn--gold,
 html.dark .ivm-desktop-only a[class*="btn"][class*="gold"],
 html.dark .ivm-desktop-only button[class*="gold"] { color: #0a0f17 !important; }
 
+/* CRITICAL FIX: the --ink-1 re-point above (to lighten light-authored city
+   body copy) collides with home/about elements that use var(--ink-1) as a real
+   DARK BACKGROUND. The sticky-stage manifesto's final wash (.manifesto.wash-3)
+   and the inquiry submit button (.inq-cta) both went cream-on-cream (their
+   light text vanished on a now-cream fill — the "invisible manifesto" bug).
+   Re-assert their true dark backgrounds with explicit hex (immune to the var
+   hijack); higher specificity than the inline .manifesto.wash-* rules. */
+html.dark .ivm-desktop-only .manifesto,
+html.dark .ivm-desktop-only .manifesto.wash-1 { background: #0c1219; }
+html.dark .ivm-desktop-only .manifesto.wash-2 { background: #131c2a; }
+html.dark .ivm-desktop-only .manifesto.wash-3 { background: #1a2230; }
+html.dark .ivm-desktop-only .inq-cta { background: #1a2230; }
+
 /* Blog-post comparison tables are transparent (dark post body) with cells
    authored as dark ink, so they rendered dark-on-dark (100+ invisible cells
    on the cost-breakdown posts). Light those cells. NOTE: .cost-table is a
