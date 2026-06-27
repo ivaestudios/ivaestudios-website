@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606241700';
-import { icon } from '../shell/icons.js?v=202606241700';
+import { api, el, clear, toast } from '../api.js?v=202606262017';
+import { icon } from '../shell/icons.js?v=202606262017';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -44,7 +44,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606241700';
+  link.href = '/marketing/css/entregables.css?v=202606262017';
   document.head.appendChild(link);
 }
 
@@ -229,8 +229,11 @@ async function uploadReel(file, qinfo) {
 async function addCarrusel(link, title) {
   const client = activeClient();
   if (!client || busy) return;
-  const url = String(link || '').trim();
-  if (!/^https?:\/\//i.test(url)) { toast('Pega un link válido (que empiece con http).', 'error'); return; }
+  let url = String(link || '').trim();
+  if (!url) { toast('Pega el link del carrusel.', 'error'); return; }
+  // Si pegan el link sin protocolo (instagram.com/..., www…), le ponemos https:// solo.
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url.replace(/^\/+/, '');
+  if (!/^https?:\/\/[^\s.]+\.[^\s]{2,}/i.test(url)) { toast('Pega un link válido (ej. instagram.com/...).', 'error'); return; }
   busy = true; render();
   try {
     await api.post('/deliverables', {
@@ -436,7 +439,7 @@ function buildAddBar() {
   });
 
   // Agregar carrusel por link
-  const linkInput = el('input', { class: 'dlv-input', type: 'url', placeholder: 'Link del carrusel (Drive, Dropbox, Instagram…)' });
+  const linkInput = el('input', { class: 'dlv-input', type: 'text', inputmode: 'url', placeholder: 'Link del carrusel (Drive, Dropbox, Instagram…)' });
   const titleInput = el('input', { class: 'dlv-input dlv-input--title', type: 'text', placeholder: 'Título (opcional)', maxlength: 200 });
   const addBtn = el('button', {
     class: 'dlv-addbtn', type: 'button', disabled: busy,
