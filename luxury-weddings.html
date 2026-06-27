@@ -1844,6 +1844,25 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
 <link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260615a">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"ImageObject","@id":"https://ivaestudios.com/luxury-weddings#hero-image","contentUrl":"https://assets.ivaestudios.com/destination-wedding-mexico-og.jpg","url":"https://assets.ivaestudios.com/destination-wedding-mexico-og.jpg","name":"Destination Wedding Photography Mexico, IVAE Studios","description":"Editorial destination wedding photography in Cancún, Riviera Maya and Los Cabos. Bilingual studio, golden hour only, over 500 sessions delivered.","creator":{"@id":"https://ivaestudios.com/#vianey-diaz"},"copyrightHolder":{"@id":"https://ivaestudios.com/#organization"},"creditText":"IVAE Studios","copyrightNotice":"© IVAE Studios. All rights reserved.","license":"https://ivaestudios.com/about","acquireLicensePage":"https://ivaestudios.com/contact","representativeOfPage":true,"inLanguage":"en"}</script>
   <link rel="stylesheet" href="/styles/wa-fab.css?v=20260531a">
+  <style>
+  /* DESKTOP FIX: the "In the Details" gallery (.lw-mob-details) lives inside the
+     desktop layer (.ivm-desktop-only) but its ONLY styles are in
+     @media(max-width:900px) — so above 900px the 6 detail cards had no layout and
+     stacked vertically full-width (~6000px of empty space + alt text where the
+     lazy images never came into a sane viewport). These 6 detail frames exist
+     only here, so don't hide them — lay them out as a desktop filmstrip
+     ("the frames between the frames"). */
+  @media (min-width:901px){
+    .lw-mob-details{display:block;padding:clamp(80px,7vw,120px) 0;background:#0a0f17}
+    .lw-mob-details-head{max-width:1280px;margin:0 auto 44px;padding:0 48px;text-align:center}
+    .lw-mob-details-eyebrow{font-size:11px;letter-spacing:.34em;margin-bottom:14px}
+    .lw-mob-details-h{font-size:clamp(30px,3.2vw,44px);line-height:1.1}
+    .lw-mob-details-rail{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;overflow:visible;max-width:1280px;margin:0 auto;padding:0 48px;scroll-snap-type:none}
+    .lw-mob-details-card{flex:none;max-width:none;scroll-snap-align:none}
+    .lw-mob-details-card figure{aspect-ratio:4/5;margin:0}
+    .lw-mob-details-cap{font-size:12px;line-height:1.45;padding-top:10px}
+  }
+  </style>
 </head>
 <body class="ivm-page">
 
