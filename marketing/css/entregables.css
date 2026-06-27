@@ -54,13 +54,17 @@
 .dlv-prog__label { font-variant-numeric: tabular-nums; }
 
 /* Agregar carrusel por link */
-.dlv-carrusel-add { display: flex; flex-wrap: wrap; gap: 8px; }
+.dlv-carrusel-add { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; }
+.dlv-field { display: flex; flex-direction: column; gap: 4px; flex: 1 1 200px; min-width: 0; }
+.dlv-field--title { flex: 1 1 140px; }
+.dlv-field__lbl { color: var(--text-dim, #9A9AA8); font-size: var(--fs-1, 12px); font-weight: 600; }
 .dlv-input {
-  flex: 1 1 200px; min-width: 0;
+  flex: 1 1 200px; min-width: 0; width: 100%;
   background: var(--surface-2, #0E0E13); color: var(--text, #ECECF1);
   border: 1px solid var(--border, #1E1E26); border-radius: var(--r-sm, 10px);
   padding: 10px 12px; font: inherit; font-size: var(--fs-2, 14px); min-height: 42px;
 }
+.dlv-field .dlv-input { flex: none; }
 .dlv-input--title { flex: 1 1 140px; }
 .dlv-input:focus { outline: none; border-color: var(--brand, #E24DA0); box-shadow: var(--ring); }
 .dlv-addbtn {

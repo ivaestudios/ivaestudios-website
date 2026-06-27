@@ -10,12 +10,12 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202606262025';
-import * as store from './store.js?v=202606262025';
-import { openSheet } from './sheet.js?v=202606262025';
-import { toast } from './toast.js?v=202606262025';
-import { icon } from './icons.js?v=202606262025';
-import { openClientSwitcher } from './clientswitcher.js?v=202606262025';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202606270239';
+import * as store from './store.js?v=202606270239';
+import { openSheet } from './sheet.js?v=202606270239';
+import { toast } from './toast.js?v=202606270239';
+import { icon } from './icons.js?v=202606270239';
+import { openClientSwitcher } from './clientswitcher.js?v=202606270239';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');

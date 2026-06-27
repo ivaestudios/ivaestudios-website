@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606262025';
-import { icon } from '../shell/icons.js?v=202606262025';
+import { api, el, clear, toast } from '../api.js?v=202606270239';
+import { icon } from '../shell/icons.js?v=202606270239';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -44,7 +44,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606262025';
+  link.href = '/marketing/css/entregables.css?v=202606270239';
   document.head.appendChild(link);
 }
 
@@ -231,9 +231,25 @@ async function addCarrusel(link, title) {
   if (!client || busy) return;
   let url = String(link || '').trim();
   if (!url) { toast('Pega el link del carrusel.', 'error'); return; }
-  // Aceptamos el link tal cual; si no trae protocolo, le anteponemos https://. Sin
-  // validación de formato estricta (cualquier link pegado se acepta).
-  if (!/^https?:\/\//i.test(url)) url = 'https://' + url.replace(/^\s+|^\/+/g, '');
+  // Un link real SIEMPRE lleva un punto en el dominio (canva.link, instagram.com,
+  // drive.google.com…). Si NO trae protocolo NI punto, casi seguro es el título
+  // escrito en la casilla equivocada (ej. "CARRUSELES") -> avisamos claro en vez de
+  // guardar un enlace roto como "https://CARRUSELES".
+  const hasProto = /^https?:\/\//i.test(url);
+  if (!hasProto && !/[^\s]\.[^\s]/.test(url)) {
+    toast('Eso no parece un link. Aquí va el ENLACE (ej. canva.link/…); el nombre va en la casilla "Título".', 'error', 7000);
+    return;
+  }
+  if (!hasProto) url = 'https://' + url.replace(/^\/+/, '');
+  // Validación final con el parser de URL: el dominio debe tener un punto, o no se guarda.
+  try {
+    const u = new URL(url);
+    if (!u.hostname.includes('.')) throw 0;
+    url = u.href;
+  } catch {
+    toast('Ese enlace no es válido. Revisa que sea un link completo (ej. https://canva.link/…).', 'error', 7000);
+    return;
+  }
   busy = true; render();
   try {
     await api.post('/deliverables', {
@@ -438,9 +454,10 @@ function buildAddBar() {
     if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) enqueueReels(e.dataTransfer.files);
   });
 
-  // Agregar carrusel por link
-  const linkInput = el('input', { class: 'dlv-input', type: 'text', inputmode: 'url', placeholder: 'Link del carrusel (Drive, Dropbox, Instagram…)' });
-  const titleInput = el('input', { class: 'dlv-input dlv-input--title', type: 'text', placeholder: 'Título (opcional)', maxlength: 200 });
+  // Agregar carrusel por link. Cada casilla con su etiqueta visible para que no se
+  // confunda el ENLACE (lo que abre el carrusel) con el TÍTULO (solo un nombre).
+  const linkInput = el('input', { class: 'dlv-input', type: 'text', inputmode: 'url', placeholder: 'Pega el enlace: canva.link/…, drive…, instagram.com/…' });
+  const titleInput = el('input', { class: 'dlv-input dlv-input--title', type: 'text', placeholder: 'Nombre para el cliente', maxlength: 200 });
   const addBtn = el('button', {
     class: 'dlv-addbtn', type: 'button', disabled: busy,
     onclick: () => { addCarrusel(linkInput.value, titleInput.value); linkInput.value = ''; titleInput.value = ''; },
@@ -452,7 +469,17 @@ function buildAddBar() {
       monthInput,
     ]),
     drop,
-    el('div', { class: 'dlv-carrusel-add' }, [linkInput, titleInput, addBtn]),
+    el('div', { class: 'dlv-carrusel-add' }, [
+      el('div', { class: 'dlv-field' }, [
+        el('label', { class: 'dlv-field__lbl', text: 'Link del carrusel' }),
+        linkInput,
+      ]),
+      el('div', { class: 'dlv-field dlv-field--title' }, [
+        el('label', { class: 'dlv-field__lbl', text: 'Título (opcional)' }),
+        titleInput,
+      ]),
+      addBtn,
+    ]),
   ]);
 }
 

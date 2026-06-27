@@ -24,7 +24,7 @@
 // hidden): la dueña edita, bloquea el telefono y todo queda guardado.
 // ============================================================================
 
-import { api } from '../api.js?v=202606262025';
+import { api } from '../api.js?v=202606270239';
 
 const API_BASE = '/api/marketing';
 const DEBOUNCE_MS = 800;

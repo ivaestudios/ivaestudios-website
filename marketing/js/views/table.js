@@ -18,21 +18,21 @@
 // Contrato de vista: export default { mount(el, ctx), onParams(), unmount() }.
 // ============================================================================
 
-import { el, clear, api, fmtDate, avatar } from '../api.js?v=202606262025';
-import { icon } from '../shell/icons.js?v=202606262025';
-import { isPast } from '../lib/dates.js?v=202606262025';
-import * as viewsSvc from '../services/views.js?v=202606262025';
+import { el, clear, api, fmtDate, avatar } from '../api.js?v=202606270239';
+import { icon } from '../shell/icons.js?v=202606270239';
+import { isPast } from '../lib/dates.js?v=202606270239';
+import * as viewsSvc from '../services/views.js?v=202606270239';
 import {
   buildColumns, visibleColumns,
   MOBILE_SORT_OPTIONS, CARD_FIELDS, DEFAULT_CARD_FIELDS, MAX_CARD_FIELDS,
   PRIORITIES, PRIORITY_ORDER, safeUrl,
   STATUSES, CONTENT_TYPES, GRABACION_LEVELS,
-} from '../table/columns.js?v=202606262025';
-import * as grp from '../table/groups.js?v=202606262025';
-import { createSelection } from '../table/selection.js?v=202606262025';
+} from '../table/columns.js?v=202606270239';
+import * as grp from '../table/groups.js?v=202606270239';
+import { createSelection } from '../table/selection.js?v=202606270239';
 import {
   createQuickAddRow, createQuickAddButton, openQuickAddSheet, resetChain,
-} from '../table/quickadd.js?v=202606262025';
+} from '../table/quickadd.js?v=202606270239';
 
 const FILTER_KEYS = ['estado', 'tipo', 'persona', 'desde', 'hasta', 'q'];
 const ERR_SAVE = 'No se pudo guardar, intenta de nuevo.';
@@ -290,9 +290,12 @@ function editUrl(def, post) {
       });
       input.value = def.current(post) || '';
       const save = async () => {
-        const raw = input.value.trim();
+        let raw = input.value.trim();
+        // Acepta links sin protocolo (ej. canva.link/…): le anteponemos https:// si
+        // trae un dominio con punto. safeUrl sigue siendo el guardia estricto final.
+        if (raw && !/^https?:\/\//i.test(raw) && /[^\s]\.[^\s]/.test(raw)) raw = 'https://' + raw.replace(/^\/+/, '');
         if (raw && !safeUrl(raw)) {
-          ctx.toast('Pega un enlace valido (http o https).', { type: 'error' });
+          ctx.toast('Pega un enlace válido (ej. instagram.com/… o https://…).', { type: 'error' });
           input.focus();
           return;
         }
