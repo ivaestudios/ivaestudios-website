@@ -160,6 +160,18 @@ html.dark .site-footer {
   color: #faf8f5;
   border-color: rgba(196, 165, 78, 0.15);
 }
+/* Some sections use a semantic inline <footer> for a credit/attribution (e.g.
+   the weddings testimonial byline .lw-test-attr). The broad "footer" rule above
+   painted those as a dark panel box floating mid-section. They are inline
+   credits, not page footers — keep them transparent. */
+html.dark footer.lw-test-attr,
+html.dark .lw-test-attr,
+html.dark footer.lw-test-author,
+html.dark footer[class*="-attr"],
+html.dark footer[class*="-byline"],
+html.dark footer[class*="-credit"] {
+  background: transparent;
+}
 
 html.dark footer a,
 html.dark .footer a {
