@@ -580,6 +580,19 @@ html.dark .ivm-desktop-only {
   --ink2: #f5f2ec;
   --muted-l: rgba(249, 248, 245, 0.72);
   --muted-l2: rgba(249, 248, 245, 0.55);
+  /* The home desktop layout is light-authored on a cream "paper" palette that
+     the remap above only half-covered (it flipped --ink text but left the
+     cream BACKGROUND tokens and the dark "on-light" TEXT tokens untouched, so
+     the services cards, the inquiry form and the process-step copy rendered
+     light-on-cream / dark-on-dark = invisible). Invert the rest: cream surfaces
+     → dark panels, dark on-light text/lines → light. None are used as light
+     text, so this is safe. */
+  --paper: #131c2a;
+  --paper-2: #1a2230;
+  --cream-2: #1a2230;
+  --text-on-light: rgba(249, 248, 245, 0.92);
+  --text-on-light-readable: rgba(249, 248, 245, 0.78);
+  --line-on-light: rgba(249, 248, 245, 0.12);
 }
 html.dark .ivm-desktop-only .btn--gold,
 html.dark .ivm-desktop-only a[class*="btn"][class*="gold"],
