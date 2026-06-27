@@ -14,12 +14,12 @@
 //   aplicar) se ocultan campana y tab Avisos y el polling se detiene.
 // ============================================================================
 
-import { api, el, clear, timeAgo, initials } from '../api.js?v=202606262017';
-import * as store from './store.js?v=202606262017';
-import { pushLayer } from './router.js?v=202606262017';
-import { openSheet } from './sheet.js?v=202606262017';
-import { toast } from './toast.js?v=202606262017';
-import { icon } from './icons.js?v=202606262017';
+import { api, el, clear, timeAgo, initials } from '../api.js?v=202606262025';
+import * as store from './store.js?v=202606262025';
+import { pushLayer } from './router.js?v=202606262025';
+import { openSheet } from './sheet.js?v=202606262025';
+import { toast } from './toast.js?v=202606262025';
+import { icon } from './icons.js?v=202606262025';
 
 const POLL_MS = 60000;
 const FILTERS = [

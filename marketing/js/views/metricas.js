@@ -46,7 +46,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/metricas.css?v=202606262017';
+  link.href = '/marketing/css/metricas.css?v=202606262025';
   document.head.appendChild(link);
 }
 

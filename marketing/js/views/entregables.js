@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606262017';
-import { icon } from '../shell/icons.js?v=202606262017';
+import { api, el, clear, toast } from '../api.js?v=202606262025';
+import { icon } from '../shell/icons.js?v=202606262025';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -44,7 +44,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606262017';
+  link.href = '/marketing/css/entregables.css?v=202606262025';
   document.head.appendChild(link);
 }
 
@@ -231,9 +231,9 @@ async function addCarrusel(link, title) {
   if (!client || busy) return;
   let url = String(link || '').trim();
   if (!url) { toast('Pega el link del carrusel.', 'error'); return; }
-  // Si pegan el link sin protocolo (instagram.com/..., www…), le ponemos https:// solo.
-  if (!/^https?:\/\//i.test(url)) url = 'https://' + url.replace(/^\/+/, '');
-  if (!/^https?:\/\/[^\s.]+\.[^\s]{2,}/i.test(url)) { toast('Pega un link válido (ej. instagram.com/...).', 'error'); return; }
+  // Aceptamos el link tal cual; si no trae protocolo, le anteponemos https://. Sin
+  // validación de formato estricta (cualquier link pegado se acepta).
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url.replace(/^\s+|^\/+/g, '');
   busy = true; render();
   try {
     await api.post('/deliverables', {
