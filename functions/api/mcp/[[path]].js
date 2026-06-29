@@ -335,7 +335,7 @@ async function rpc(msg, env, scope) {
         protocolVersion,
         capabilities: { tools: { listChanged: false } },
         serverInfo: { name: 'IVAE Marketing', version: '1.2.0' },
-        instructions: 'Conector del calendario de contenido de IVAE Marketing. Flujo típico: usa list_posts para ver los posts del mes (cada uno trae su ID y si le FALTA caption); usa update_post para rellenar el copy/caption o el guion (hook/body/cta), cambiar la fecha o el estado de un post existente; usa create_post para piezas nuevas. El guion se separa en hook, body (cuerpo), cta, caption (copy final) y hashtags.' + extra,
+        instructions: 'Conector del calendario de contenido de IVAE Marketing. Flujo típico: usa list_posts para ver los posts del mes (cada uno trae su ID y si le FALTA caption); usa update_post para rellenar el copy/caption o el guion (hook/body/cta), cambiar la fecha o el estado de un post existente; usa create_post para piezas nuevas. El guion se separa en hook, body (cuerpo), cta, caption (copy final) y hashtags. Para planear/AGREGAR el mes siguiente, simplemente crea los posts con la fecha de ese mes (parámetro month=AAAA-MM o publish_date=AAAA-MM-DD): el mes aparece solo en el calendario, no hace falta "agregar mes" por separado.' + extra,
       });
     }
     case 'ping':
