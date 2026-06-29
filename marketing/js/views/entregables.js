@@ -6,14 +6,35 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202606270239';
-import { icon } from '../shell/icons.js?v=202606270239';
+import { api, el, clear, toast } from '../api.js?v=202606291422';
+import { icon } from '../shell/icons.js?v=202606291422';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
 const CHUNK_BYTES = 50 * 1024 * 1024;  // ~50MB por parte (bajo el limite de 100MB/request del Worker)
 const UP_LANES = 3;                    // partes subiendo a la vez (paraleliza la subida)
 const MES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+// Reconoce videos por MIME O por extensión: muchos .mov/.mkv/.hevc llegan con
+// file.type VACÍO (iPhone, cámaras, archivos copiados) y NO deben descartarse
+// — esa era la causa de "subí 9 y solo entraron 7".
+const VIDEO_EXTS = ['mp4', 'm4v', 'mov', 'qt', 'webm', 'mkv', 'avi', '3gp', '3g2', 'mpg', 'mpeg', 'ogv', 'wmv', 'flv', 'ts', 'mts', 'm2ts', 'hevc'];
+const EXT_MIME = {
+  mp4: 'video/mp4', m4v: 'video/x-m4v', mov: 'video/quicktime', qt: 'video/quicktime',
+  webm: 'video/webm', mkv: 'video/x-matroska', avi: 'video/x-msvideo', '3gp': 'video/3gpp',
+  '3g2': 'video/3gpp2', mpg: 'video/mpeg', mpeg: 'video/mpeg', ogv: 'video/ogg',
+  wmv: 'video/x-ms-wmv', flv: 'video/x-flv', ts: 'video/mp2t', mts: 'video/mp2t',
+  m2ts: 'video/mp2t', hevc: 'video/mp4',
+};
+function fileExt(name) { const m = /\.([^.]+)$/.exec(String(name || '')); return m ? m[1].toLowerCase() : ''; }
+function isVideoFile(f) {
+  if (f && typeof f.type === 'string' && f.type.startsWith('video/')) return true;
+  return VIDEO_EXTS.includes(fileExt(f && f.name));
+}
+function guessMime(f) {
+  if (f && typeof f.type === 'string' && f.type.startsWith('video/')) return f.type;
+  return EXT_MIME[fileExt(f && f.name)] || 'video/mp4';
+}
 
 let ctx = null;
 let rootEl = null;
@@ -44,7 +65,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202606270239';
+  link.href = '/marketing/css/entregables.css?v=202606291422';
   document.head.appendChild(link);
 }
 
@@ -94,6 +115,20 @@ function xhrPutPart(id, uploadId, ext, partNumber, blob, onProgress) {
   });
 }
 
+// Sube UNA parte con reintentos (cubre cortes/blips de red sin perder el archivo).
+// Hasta 4 intentos con espera creciente (0.8s, 1.6s, 2.4s) antes de rendirse.
+async function putPartWithRetry(id, uploadId, ext, partNumber, blob, onProgress, attempts = 4) {
+  let lastErr;
+  for (let a = 0; a < attempts; a++) {
+    try { return await xhrPutPart(id, uploadId, ext, partNumber, blob, onProgress); }
+    catch (e) {
+      lastErr = e;
+      if (a < attempts - 1) await new Promise((res) => setTimeout(res, 800 * (a + 1)));
+    }
+  }
+  throw lastErr;
+}
+
 // Captura un cuadro del video (en el cliente) como miniatura JPEG. Best-effort:
 // si falla (p.ej. iOS al subir), devuelve null y la tarjeta usa el 1er cuadro.
 function generatePoster(file) {
@@ -131,7 +166,7 @@ let draining = false;   // hay un drenado de la cola en curso
 
 function enqueueReels(fileList) {
   const all = [...(fileList || [])];
-  const vids = all.filter((f) => f.type && f.type.startsWith('video/'));
+  const vids = all.filter(isVideoFile);
   const skipped = all.length - vids.length;
   if (!vids.length) { toast('Ninguno de esos archivos es un video.', 'error'); return; }
   uploadQueue.push(...vids);
@@ -143,28 +178,34 @@ function enqueueReels(fileList) {
 async function drainQueue() {
   if (draining) return;
   draining = true;
-  let processed = 0; let failed = 0;
+  let processed = 0; const failedNames = [];
   try {
     while (uploadQueue.length) {
       const file = uploadQueue.shift();
       processed += 1;
-      let ok = false;
+      const qinfo = { index: processed, total: processed + uploadQueue.length };
       // try/catch propio: un throw NUNCA debe abandonar el resto de la fila.
-      try { ok = await uploadReel(file, { index: processed, total: processed + uploadQueue.length }); }
-      catch { ok = false; }
-      if (!ok) failed += 1;
+      let ok = false;
+      try { ok = await uploadReel(file, qinfo); } catch { ok = false; }
+      // Reintento automático del archivo completo (cubre fallos transitorios). uploadReel
+      // borra el registro huérfano al fallar, así que el reintento arranca limpio (sin duplicar).
+      if (!ok) { try { ok = await uploadReel(file, qinfo); } catch { ok = false; } }
+      if (!ok) failedNames.push(file.name);
     }
   } finally {
     draining = false; queueInfo = null;
     if (processed > 1) { try { await load(); } catch { /* recarga best-effort */ } }
-    if (failed > 0) toast(`${failed > 1 ? `${failed} reels no se pudieron` : '1 reel no se pudo'} subir.`, 'error', 5000);
+    if (failedNames.length) {
+      const n = failedNames.length;
+      toast(`${n === 1 ? '1 reel no se subió' : `${n} reels no se subieron`}: ${failedNames.join(', ')}. Vuelve a soltarlos para reintentar.`, 'error', 9000);
+    }
   }
 }
 
 async function uploadReel(file, qinfo) {
   const client = activeClient();
   if (!client || busy) return false;
-  if (!file.type || !file.type.startsWith('video/')) { toast(`"${file.name}" no es un video.`, 'error'); return false; }
+  if (!isVideoFile(file)) { toast(`"${file.name}" no es un video.`, 'error'); return false; }
   if (file.size > MAX_VIDEO_MB * 1024 * 1024) { toast(`"${file.name}" es enorme (más de 3 GB). Compártelo por link mejor.`, 'error', 6000); return false; }
   busy = true; uploadPct = 0; queueInfo = qinfo || null; render();
   let created = null;
@@ -174,7 +215,7 @@ async function uploadReel(file, qinfo) {
       title: file.name.replace(/\.[^.]+$/, '').slice(0, 120),
     });
     // 1) iniciar subida multipart
-    const start = await api.post(`/deliverables/${created.id}/video/multipart/start`, { mime: file.type });
+    const start = await api.post(`/deliverables/${created.id}/video/multipart/start`, { mime: guessMime(file) });
     const { uploadId, ext } = start;
     // 2) subir las partes (~50MB) EN PARALELO (hasta UP_LANES a la vez). En serie la
     //    conexión se estanca un round-trip entre parte y parte; en paralelo se mantiene
@@ -196,7 +237,7 @@ async function uploadReel(file, qinfo) {
         const from = i * CHUNK_BYTES;
         const blob = file.slice(from, Math.min(from + CHUNK_BYTES, total));
         let r;
-        try { r = await xhrPutPart(created.id, uploadId, ext, i + 1, blob, (n) => { partLoaded[i] = n; bumpUp(); }); }
+        try { r = await putPartWithRetry(created.id, uploadId, ext, i + 1, blob, (n) => { partLoaded[i] = n; bumpUp(); }); }
         catch (e) { upAborted = true; throw e; }
         partLoaded[i] = blob.size; bumpUp();
         doneParts[i] = { partNumber: i + 1, etag: r.etag };
