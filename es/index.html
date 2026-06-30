@@ -1763,8 +1763,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 }
 .atlas-card.show{opacity:1;transform:translateY(0) scale(1)}
 .atlas-card-img{
-  width:100%;aspect-ratio:4/5;
-  overflow:hidden;
+  display:none; /* hover preview shows venue text only — no photo popup */
 }
 .atlas-card-img img{
   width:100%;height:100%;object-fit:cover;
