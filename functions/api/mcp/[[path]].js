@@ -363,22 +363,58 @@ async function rpc(msg, env, scope) {
   }
 }
 
+// ── Auth OAuth (Bearer) ──────────────────────────────────────────────────────
+// claude.ai obtiene un access token vía OAuth (ver functions/api/mcp-oauth/*) y
+// lo manda como "Authorization: Bearer ...". Token global -> alcance de todas las
+// marcas (la marca se indica por llamada / por las instrucciones del proyecto).
+async function validBearer(env, authHeader) {
+  if (!authHeader || !/^Bearer\s+/i.test(authHeader)) return false;
+  const tok = authHeader.replace(/^Bearer\s+/i, '').trim();
+  if (!tok) return false;
+  try {
+    const row = await env.DB.prepare('SELECT expires_at FROM mkt_mcp_oauth WHERE kind = ? AND id = ?').bind('token', tok).first();
+    if (!row) return false;
+    if (row.expires_at && new Date(row.expires_at).getTime() < Date.now()) return false;
+    return true;
+  } catch { return false; }
+}
+function unauthorized(origin) {
+  return new Response(JSON.stringify(rpcErr(null, -32001, 'Unauthorized')), {
+    status: 401,
+    headers: {
+      'Content-Type': 'application/json',
+      'WWW-Authenticate': `Bearer resource_metadata="${origin}/.well-known/oauth-protected-resource"`,
+      'Access-Control-Allow-Origin': '*',
+    },
+  });
+}
+
 // ── Entrada HTTP (Cloudflare Pages Function, catch-all /api/mcp/*) ────────────
 export async function onRequest(context) {
   const { request, env, params } = context;
+  const origin = new URL(request.url).origin;
 
-  if (request.method === 'OPTIONS') return new Response(null, { status: 204 });
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type,Authorization' } });
+  }
+
+  // Auth: (1) Bearer OAuth -> global; (2) token-en-ruta (capability URL) -> por marca.
+  let scope = null;
+  if (await validBearer(env, request.headers.get('Authorization'))) {
+    scope = { clientId: null };
+  } else {
+    const token = Array.isArray(params.path) ? params.path[0] : params.path;
+    const key = token ? await getKey(env, token) : null;
+    if (key) scope = { clientId: key.client_id || null };
+  }
+  if (!scope) return unauthorized(origin); // 401 + WWW-Authenticate dispara el OAuth de claude.ai
+
   if (request.method === 'GET') return new Response('Method Not Allowed', { status: 405 });
   if (request.method === 'DELETE') return new Response(null, { status: 204 });
   if (request.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });
 
   const clen = Number(request.headers.get('content-length') || 0);
   if (clen && clen > MAX_BODY_BYTES) return jsonRes(rpcErr(null, -32600, 'Payload demasiado grande'), 413);
-
-  const token = Array.isArray(params.path) ? params.path[0] : params.path;
-  const key = await getKey(env, token);
-  if (!key) return jsonRes(rpcErr(null, -32001, 'Unauthorized'), 401);
-  const scope = { clientId: key.client_id || null };
 
   let payload;
   try { payload = await request.json(); }
