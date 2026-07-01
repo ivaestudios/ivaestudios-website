@@ -2306,7 +2306,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
         Begin Inquiry
         <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
       </a>
-      <a class="lw-btn lw-btn-outline" href="#work" data-magnet>
+      <a class="lw-btn lw-btn-outline" href="#director" data-magnet>
         See the Frames
         <svg fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
       </a>
@@ -2402,14 +2402,26 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
 
 
 <!-- ═══════ EDITORIAL PAUSE ═══════ -->
-
+<section class="lw-pause" data-chapter="3" data-theme-color="#0a0f17" aria-label="A note from the studio">
+  <picture class="lw-pause-img"><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-14.jpg" width="2559" height="3840" alt="Bride in editorial pose at Cancún Hotel Zone resort, captured in soft natural light" loading="lazy" decoding="async"/></picture>
+  <span class="lw-pause-veil" aria-hidden="true"></span>
+  <p class="lw-pause-line">A wedding is a day. <em>The photographs are the rest of your life.</em></p>
+  <style>
+    .lw-pause{position:relative;height:88vh;min-height:560px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#0a0f17}
+    .lw-pause-img{position:absolute;inset:0;z-index:0;display:block}
+    .lw-pause-img img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.9) contrast(1.04)}
+    .lw-pause-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,15,23,.35),rgba(10,15,23,.65));z-index:1}
+    .lw-pause-line{position:relative;z-index:2;font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(32px,4.8vw,64px);line-height:1.2;color:#faf8f5;text-align:center;max-width:24ch;padding:0 24px;letter-spacing:-.008em}
+    .lw-pause-line em{font-style:italic;color:#c9a54e}
+    @media (max-width:600px){.lw-pause{height:78vh;min-height:480px}}
+  </style>
+</section>
 
 <!-- ═══════ THE APPROACH (cream tonal break, the only light section) ═══════ -->
 <section class="lw-approach" data-chapter="4" data-theme-color="#faf8f5" id="director" aria-labelledby="approach-h">
   <div class="lw-approach-inner">
     <figure class="lw-approach-portrait">
-      <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-14.jpg" alt="An IVAE Studios bride in editorial light on the Cancún coast, directed by Vianey Díaz" loading="lazy" width="2559" height="3840" decoding="async"/>
-      <span class="lw-approach-seal" role="img" aria-label="V·D — Vianey Díaz, Director, IVAE Studios"><span class="lw-monogram-letter">V</span><span class="lw-monogram-dot" aria-hidden="true">·</span><span class="lw-monogram-letter">D</span></span>
+      <div class="lw-approach-monogram" role="img" aria-label="V·D monogram for Vianey Díaz, Director, IVAE Studios"><span class="lw-monogram-letter">V</span><span class="lw-monogram-dot" aria-hidden="true">·</span><span class="lw-monogram-letter">D</span></div>
       <figcaption class="lw-approach-cap"><span>N<sup>o</sup></span> Vianey Díaz · in studio · Cancún</figcaption>
     </figure>
     <div class="lw-approach-text">
@@ -2430,9 +2442,6 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
     .lw-approach-inner{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:minmax(0,42fr) minmax(0,58fr);gap:clamp(48px,6vw,96px);align-items:center}
     .lw-approach-portrait{margin:0;aspect-ratio:4/5;overflow:hidden;background:#0a0f17;position:relative;box-shadow:0 40px 100px -32px rgba(10,15,23,.25)}
     .lw-approach-portrait img{width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;filter:saturate(.95) contrast(1.02)}
-.lw-approach-seal{position:absolute;left:18px;bottom:18px;z-index:2;display:inline-flex;align-items:baseline;gap:1px;padding:9px 13px;background:rgba(10,15,23,.46);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);border:1px solid rgba(201,165,78,.55);color:#c9a54e;font-family:'Cormorant Garamond',Georgia,serif;line-height:1}
-.lw-approach-seal .lw-monogram-letter{font-size:19px;font-weight:400;letter-spacing:.06em}
-.lw-approach-seal .lw-monogram-dot{font-size:15px;color:rgba(201,165,78,.75);margin:0 2px}
     .lw-approach-cap{position:absolute;left:0;right:0;bottom:-40px;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:rgba(10,15,23,.5);display:flex;align-items:baseline;gap:10px;padding:14px 0 0;border-top:1px solid rgba(10,15,23,.12)}
     .lw-approach-cap span{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;letter-spacing:0;text-transform:none;color:#c9a54e}
     .lw-approach-cap span sup{font-size:.6em;margin-left:1px}
@@ -2448,7 +2457,7 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
 </section>
 
 <!-- ═══════ THE BODY OF WORK, 5 plates as art exhibitions ═══════ -->
-<section class="lw-work" id="work" data-chapter="5" data-theme-color="#0a0f17" data-mobile-reel="1" aria-labelledby="work-h">
+<section class="lw-work" data-chapter="5" data-theme-color="#0a0f17" data-mobile-reel="1" aria-labelledby="work-h">
   <header class="lw-work-head">
     <span class="lw-work-eyebrow">Recent Work</span>
     <h2 id="work-h" class="lw-work-h section-title">Four weddings, <em>four rooms.</em></h2>
@@ -2506,36 +2515,6 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
     .lw-plate-body{font-family:'Cormorant Garamond',serif;font-weight:400;font-style:italic;font-size:clamp(16px,1.2vw,19px);line-height:1.55;color:rgba(250,248,245,.75);margin:0;letter-spacing:.003em;max-width:48ch}
     @media (prefers-reduced-motion:reduce){.lw-plate:hover .lw-plate-frame img{transform:none}}
   </style>
-</section>
-
-<!-- Detail coda (moved under The Body of Work) -->
-<section class="lw-mob-details" aria-label="Wedding detail photographs" data-chapter="7b" data-theme-color="#0a0f17">
-  <div class="lw-mob-details-rail" role="list">
-    <article class="lw-mob-details-card" role="listitem">
-      <figure><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-10.jpg" alt="Detail of bridal hands holding bouquet" loading="lazy" width="800" height="1000" decoding="async"/></figure>
-      <p class="lw-mob-details-cap">The bouquet, set down.</p>
-    </article>
-    <article class="lw-mob-details-card" role="listitem">
-      <figure><img src="/images/wedding-decor-cancun-ivae-studios.jpg" alt="Wedding reception table setting and floral details" loading="lazy" width="800" height="1000" decoding="async"/></figure>
-      <p class="lw-mob-details-cap">A table, before the guests.</p>
-    </article>
-    <article class="lw-mob-details-card" role="listitem">
-      <figure><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-9.jpg" alt="Detail of bride's dress and veil at golden hour" loading="lazy" width="800" height="1000" decoding="async"/></figure>
-      <p class="lw-mob-details-cap">The veil in the last light.</p>
-    </article>
-    <article class="lw-mob-details-card" role="listitem">
-      <figure><img src="/images/wedding-decor-playa-mujeres-ivae-studios.jpg" alt="Wedding ceremony floral arch details" loading="lazy" width="800" height="1000" decoding="async"/></figure>
-      <p class="lw-mob-details-cap">The arch, the ocean behind.</p>
-    </article>
-    <article class="lw-mob-details-card" role="listitem">
-      <figure><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-11.jpg" alt="Bride's shoes and ring detail" loading="lazy" width="800" height="1000" decoding="async"/></figure>
-      <p class="lw-mob-details-cap">The shoes, the rings, the morning.</p>
-    </article>
-    <article class="lw-mob-details-card" role="listitem">
-      <figure><img src="/images/wedding-reception-cancun-ivae-studios.jpg" alt="Reception detail of place setting and candlelight" loading="lazy" width="800" height="1000" decoding="async"/></figure>
-      <p class="lw-mob-details-cap">Candle, plate, place card.</p>
-    </article>
-  </div>
 </section>
 
 <!-- ═══════ STUDIO NOTE (single, large) ═══════ -->
@@ -2751,14 +2730,131 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
 </section>
 
 <!-- ═══════ MOBILE-ONLY DETAILS GALLERY (Pattern 2) ═══════ -->
-
+<section class="lw-mob-details" aria-label="Wedding detail photographs" data-chapter="7b" data-theme-color="#0a0f17">
+  <header class="lw-mob-details-head">
+    <span class="lw-mob-details-eyebrow">In the Details</span>
+    <h2 class="lw-mob-details-h">The frames <em>between the frames.</em></h2>
+  </header>
+  <div class="lw-mob-details-rail" role="list">
+    <article class="lw-mob-details-card" role="listitem">
+      <figure><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-10.jpg" alt="Detail of bridal hands holding bouquet" loading="lazy" width="800" height="1000" decoding="async"/></figure>
+      <p class="lw-mob-details-cap">The bouquet, set down.</p>
+    </article>
+    <article class="lw-mob-details-card" role="listitem">
+      <figure><img src="/images/wedding-decor-cancun-ivae-studios.jpg" alt="Wedding reception table setting and floral details" loading="lazy" width="800" height="1000" decoding="async"/></figure>
+      <p class="lw-mob-details-cap">A table, before the guests.</p>
+    </article>
+    <article class="lw-mob-details-card" role="listitem">
+      <figure><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-9.jpg" alt="Detail of bride's dress and veil at golden hour" loading="lazy" width="800" height="1000" decoding="async"/></figure>
+      <p class="lw-mob-details-cap">The veil in the last light.</p>
+    </article>
+    <article class="lw-mob-details-card" role="listitem">
+      <figure><img src="/images/wedding-decor-playa-mujeres-ivae-studios.jpg" alt="Wedding ceremony floral arch details" loading="lazy" width="800" height="1000" decoding="async"/></figure>
+      <p class="lw-mob-details-cap">The arch, the ocean behind.</p>
+    </article>
+    <article class="lw-mob-details-card" role="listitem">
+      <figure><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-11.jpg" alt="Bride's shoes and ring detail" loading="lazy" width="800" height="1000" decoding="async"/></figure>
+      <p class="lw-mob-details-cap">The shoes, the rings, the morning.</p>
+    </article>
+    <article class="lw-mob-details-card" role="listitem">
+      <figure><img src="/images/wedding-reception-cancun-ivae-studios.jpg" alt="Reception detail of place setting and candlelight" loading="lazy" width="800" height="1000" decoding="async"/></figure>
+      <p class="lw-mob-details-cap">Candle, plate, place card.</p>
+    </article>
+  </div>
+</section>
 
 <!-- ═══════ Cities where the studio works ═══════ -->
-
-
+<style>
+.cities-where-we-work{background:var(--ink-3,#0a0f17);color:var(--cream-1,#faf8f5);padding:96px 32px;border-top:1px solid rgba(201,165,78,0.18);border-bottom:1px solid rgba(201,165,78,0.18)}
+.cities-where-we-work .cities-inner{max-width:1180px;margin:0 auto}
+.cities-where-we-work .cities-eyebrow{display:inline-flex;align-items:center;gap:14px;font-family:'Syne',sans-serif;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.28em;color:var(--gold,#c9a54e);margin:0 0 24px}
+.cities-where-we-work .cities-eyebrow::before{content:'';width:40px;height:1px;background:var(--gold,#c9a54e)}
+.cities-where-we-work h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(32px,4vw,52px);font-weight:300;line-height:1.08;letter-spacing:-0.01em;margin:0 0 18px;color:var(--cream-1,#faf8f5)}
+.cities-where-we-work h2 em{font-style:italic;color:var(--gold,#c9a54e)}
+.cities-where-we-work .cities-lead{font-family:'Syne',sans-serif;font-size:16px;line-height:1.7;color:rgba(250,248,245,0.75);margin:0 0 56px;max-width:640px}
+.cities-where-we-work .cities-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.cities-where-we-work .city-card{display:block;text-decoration:none;padding:36px 32px;border:1px solid rgba(201,165,78,0.28);background:rgba(201,165,78,0.025);transition:background 0.3s,border-color 0.3s,transform 0.3s}
+.cities-where-we-work .city-card:hover{background:rgba(201,165,78,0.07);border-color:var(--gold,#c9a54e);transform:translateY(-2px)}
+.cities-where-we-work .city-card h3{font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;font-weight:300;letter-spacing:-0.005em;margin:0 0 14px;color:var(--cream-1,#faf8f5)}
+.cities-where-we-work .city-card:hover h3{color:var(--gold,#c9a54e)}
+.cities-where-we-work .city-card p{font-family:'Syne',sans-serif;font-size:13.5px;line-height:1.65;color:rgba(250,248,245,0.7);margin:0}
+@media (max-width:880px){
+  .cities-where-we-work{padding:72px 20px}
+  .cities-where-we-work .cities-grid{grid-template-columns:1fr;gap:14px}
+  .cities-where-we-work .city-card{padding:28px 24px}
+  .cities-where-we-work .city-card h3{font-size:26px}
+  .cities-where-we-work h2{font-size:clamp(28px,7vw,40px)}
+  .cities-where-we-work .cities-lead{margin-bottom:36px}
+}
+</style>
+<section class="cities-where-we-work" aria-label="Service areas">
+  <div class="cities-inner">
+    <p class="cities-eyebrow">Where the studio works</p>
+    <h2>Three coastlines, <em>one studio.</em></h2>
+    <p class="cities-lead">From the Caribbean to the Pacific, the editorial discipline travels with the studio.</p>
+    <div class="cities-grid">
+      <a href="/cancun" class="city-card">
+        <h3>Cancún</h3>
+        <p>Hotel Zone, Playa Mujeres, Costa Mujeres, Isla Mujeres</p>
+      </a>
+      <a href="/riviera-maya" class="city-card">
+        <h3>Riviera Maya</h3>
+        <p>Mayakoba, Playa del Carmen, Tulum, Akumal, Puerto Aventuras</p>
+      </a>
+      <a href="/los-cabos" class="city-card">
+        <h3>Los Cabos</h3>
+        <p>Cabo San Lucas, San José del Cabo, Pedregal, Palmilla</p>
+      </a>
+    </div>
+  </div>
+</section>
 
 <!-- ═══════ More cities across Mexico — internal-link silo to de-orphan city/locale landing pages ═══════ -->
-
+<section class="cities-where-we-work" aria-label="Wedding photography destinations across Mexico">
+  <div class="cities-inner">
+    <p class="cities-eyebrow">Across Mexico</p>
+    <h2>Every city we <em>photograph in.</em></h2>
+    <p class="cities-lead">Beyond our three home coastlines, the studio travels for weddings to the colonial cities, haciendas, and highland towns of Mexico. Each destination has its own dedicated coverage page.</p>
+    <div class="cities-grid">
+      <a href="/merida-wedding-photographer" class="city-card">
+        <h3>Mérida</h3>
+        <p>Henequén haciendas of Yucatán, Centro Histórico, Paseo de Montejo and peninsula cenotes.</p>
+      </a>
+      <a href="/oaxaca-wedding-photographer" class="city-card">
+        <h3>Oaxaca</h3>
+        <p>Santo Domingo atrium, the colonial centro, restored haciendas, Monte Albán and traditional calendas.</p>
+      </a>
+      <a href="/mexico-city-wedding-photographer" class="city-card">
+        <h3>Mexico City</h3>
+        <p>Historic-centre palaces, San Ángel and Coyoacán, rooftop ceremonies and ex-haciendas around CDMX.</p>
+      </a>
+      <a href="/guadalajara-wedding-photographer" class="city-card">
+        <h3>Guadalajara</h3>
+        <p>Tequila-country haciendas, the cathedral and centro, and the cobbled charm of Tlaquepaque.</p>
+      </a>
+      <a href="/san-miguel-de-allende-wedding-photographer" class="city-card">
+        <h3>San Miguel de Allende</h3>
+        <p>La Parroquia, rooftop terraces and walled-garden venues in this colonial highland town.</p>
+      </a>
+      <a href="/valle-de-bravo-wedding-photographer" class="city-card">
+        <h3>Valle de Bravo</h3>
+        <p>Lakeside ceremonies, pine-forest estates and the cobblestone pueblo mágico near Mexico City.</p>
+      </a>
+      <a href="/puerto-vallarta-wedding-photographer" class="city-card">
+        <h3>Puerto Vallarta</h3>
+        <p>Banderas Bay resorts, the Malecón and El Centro, and the jungle coastline toward Punta Mita.</p>
+      </a>
+      <a href="/playa-del-carmen-wedding-photographer" class="city-card">
+        <h3>Playa del Carmen</h3>
+        <p>Beach-club ceremonies, Quinta Avenida and the Riviera Maya resorts between Cancún and Tulum.</p>
+      </a>
+      <a href="/tulum-wedding-photographer" class="city-card">
+        <h3>Tulum</h3>
+        <p>Jungle and cenote ceremonies, beachfront eco-venues and the boho-luxe coastline of the Riviera Maya.</p>
+      </a>
+    </div>
+  </div>
+</section>
 
 <!-- ═══════ WORLDWIDE, by private commission ═══════ -->
 <style>
@@ -2797,96 +2893,41 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
 @media (max-width:560px){
   .lw-world .lw-world-grid{grid-template-columns:1fr;gap:14px}
 }
-.lw-world-bg{position:absolute;inset:0;z-index:0}
-.lw-world-bg img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.9) contrast(1.04) brightness(.82)}
-.lw-world-veil{position:absolute;inset:0;z-index:1;background:linear-gradient(108deg,rgba(10,15,23,.93) 0%,rgba(10,15,23,.8) 44%,rgba(10,15,23,.42) 100%)}
-.lw-world .lw-world-lead{max-width:54ch}
-@media (max-width:880px){.lw-world-veil{background:linear-gradient(180deg,rgba(10,15,23,.7),rgba(10,15,23,.9))}}
 </style>
 <section class="lw-world" aria-labelledby="world-h">
-  <div class="lw-world-bg" aria-hidden="true"><img src="/images/couple-akumal-ivae-studios.jpg" alt="" loading="lazy" width="3840" height="2560" decoding="async"/></div>
-  <span class="lw-world-veil" aria-hidden="true"></span>
   <div class="lw-world-inner">
     <p class="lw-world-eyebrow lw-rv">Worldwide. By private commission.</p>
     <h2 id="world-h" class="lw-rv d1">Based in the Riviera Maya. <em>Available wherever you marry.</em></h2>
-    <p class="lw-world-lead lw-rv d2">From Canc&uacute;n and the Riviera Maya we travel for celebrations across Mexico and beyond &mdash; welcoming couples from New York, Miami, Toronto, Los Angeles, Mexico City and Europe. Coverage is by private commission, so one studio carries your day from the first inquiry to the final archive.</p>
+    <p class="lw-world-lead lw-rv d2">IVAE Studios photographs and films destination weddings from a base in Cancún and the Riviera Maya, and we travel for celebrations beyond Mexico. Tell us where you are getting married and we build the journey around it.</p>
+    <p class="lw-world-body lw-rv d2">We welcome discerning couples traveling from New York, Miami, Toronto, Los Angeles, Mexico City, and Europe to marry in Mexico's luxury resorts, and we are available worldwide to the same families for the weddings that follow. Coverage is offered by private commission so that one studio carries your day from the first inquiry to the final archive.</p>
+    <p class="lw-world-markets lw-rv d2">Welcoming couples from <strong>New York</strong>, <strong>Miami</strong>, <strong>Toronto</strong>, <strong>Los Angeles</strong>, <strong>Mexico City</strong>, and across <strong>Europe</strong>.</p>
+
+    <div class="lw-world-grid">
+      <article class="lw-world-card lw-rv d1">
+        <span class="lw-world-num">No. 01</span>
+        <h3>Discretion, <em>by default</em></h3>
+        <p>A private studio, named guest lists, and a presence that protects the privacy of your family and your guests.</p>
+      </article>
+      <article class="lw-world-card lw-rv d2">
+        <span class="lw-world-num">No. 02</span>
+        <h3>A calm <em>editorial presence</em></h3>
+        <p>At large, multi-day celebrations the studio stays unhurried. We read the room and step in only where the light asks for us.</p>
+      </article>
+      <article class="lw-world-card lw-rv d3">
+        <span class="lw-world-num">No. 03</span>
+        <h3>Photo and film, <em>one team</em></h3>
+        <p>When film is added it shares a single creative direction with the photography, so the day is told in one voice.</p>
+      </article>
+      <article class="lw-world-card lw-rv d4">
+        <span class="lw-world-num">No. 04</span>
+        <h3>Full destination <em>coverage</em></h3>
+        <p>Welcome dinners, the ceremony, the celebration, and the morning after, planned around the destination and its light.</p>
+      </article>
+    </div>
+
+    <p class="lw-world-note lw-rv d4">A specialty within the studio is the <a href="/jewish-destination-wedding-photographer-mexico">Jewish destination wedding</a>, photographed with the customs and the timeline understood in advance. To discuss a wedding in Mexico or abroad, <a href="#inquiry">begin a conversation</a> with the Director.</p>
   </div>
 </section>
-
-<!-- ═══════ WHERE WE PHOTOGRAPH — consolidated directory (was: 2 city grids + Specialized + Beyond + The Film + planner; all 25 link destinations preserved) ═══════ -->
-<style>
-.lw-dir{background:var(--ink-3,#0a0f17);color:var(--cream-1,#faf8f5);padding:clamp(80px,9vw,140px) clamp(20px,5vw,56px);border-top:1px solid rgba(201,165,78,.18)}
-.lw-dir-inner{max-width:1180px;margin:0 auto}
-.lw-dir-eyebrow{display:inline-flex;align-items:center;gap:14px;font-family:'Syne',sans-serif;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.3em;color:var(--gold,#c9a54e);margin:0 0 22px}
-.lw-dir-eyebrow::before{content:'';width:40px;height:1px;background:var(--gold,#c9a54e)}
-.lw-dir h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(32px,4.4vw,56px);font-weight:300;line-height:1.06;letter-spacing:-.012em;margin:0 0 14px;color:var(--cream-1,#faf8f5);max-width:20ch}
-.lw-dir h2 em{font-style:italic;color:var(--gold,#c9a54e)}
-.lw-dir-lead{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:clamp(17px,1.4vw,21px);line-height:1.6;color:rgba(250,248,245,.7);margin:0 0 64px;max-width:58ch}
-.lw-dir-group{margin:0 0 50px}
-.lw-dir-label{font-family:'Syne',sans-serif;font-size:10.5px;font-weight:500;text-transform:uppercase;letter-spacing:.26em;color:rgba(250,248,245,.5);margin:0 0 20px;padding-bottom:14px;border-bottom:1px solid rgba(201,165,78,.16)}
-.lw-dir-list{display:grid;gap:4px 44px;list-style:none;margin:0;padding:0}
-.lw-dir-list.cols-3{grid-template-columns:repeat(3,1fr)}
-.lw-dir-list.cols-2{grid-template-columns:repeat(2,1fr)}
-.lw-dir-list a{display:inline-flex;flex-direction:column;gap:3px;font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(20px,1.7vw,26px);font-weight:300;color:var(--cream-1,#faf8f5);text-decoration:none;padding:11px 0;border-bottom:1px solid transparent;transition:color .3s,border-color .3s;width:fit-content}
-.lw-dir-list a:hover,.lw-dir-list a:focus-visible{color:var(--gold,#c9a54e);border-bottom-color:rgba(201,165,78,.4)}
-.lw-dir-sub{font-family:'Syne',sans-serif;font-size:11px;color:rgba(250,248,245,.45);letter-spacing:.03em;line-height:1.3}
-.lw-dir-film{margin:6px 0 0;padding-top:40px;border-top:1px solid rgba(201,165,78,.16);font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(18px,1.5vw,23px);font-style:italic;color:rgba(250,248,245,.8)}
-.lw-dir-film a{color:var(--gold,#c9a54e);text-decoration:none;border-bottom:1px solid rgba(201,165,78,.45);padding-bottom:1px}
-@media (max-width:880px){.lw-dir{padding:64px 20px}.lw-dir-list.cols-3,.lw-dir-list.cols-2{grid-template-columns:1fr;gap:0}.lw-dir-lead{margin-bottom:44px}}
-</style>
-<section class="lw-dir" aria-labelledby="dir-h">
-  <div class="lw-dir-inner">
-    <p class="lw-dir-eyebrow">Where we photograph</p>
-    <h2 id="dir-h">Three home coastlines, <em>across Mexico, and wherever you marry.</em></h2>
-    <p class="lw-dir-lead">A dedicated coverage page and editorial portfolio for every destination, venue, and celebration.</p>
-    <div class="lw-dir-group">
-      <p class="lw-dir-label">Home coastlines</p>
-      <ul class="lw-dir-list cols-3">
-        <li><a href="/cancun">Canc&uacute;n<span class="lw-dir-sub">Hotel Zone &middot; Playa Mujeres &middot; Isla Mujeres</span></a></li>
-        <li><a href="/riviera-maya">Riviera Maya<span class="lw-dir-sub">Mayakoba &middot; Playa del Carmen &middot; Tulum</span></a></li>
-        <li><a href="/los-cabos">Los Cabos<span class="lw-dir-sub">San Lucas &middot; San Jos&eacute; &middot; Pedregal</span></a></li>
-      </ul>
-    </div>
-    <div class="lw-dir-group">
-      <p class="lw-dir-label">Cities across Mexico</p>
-      <ul class="lw-dir-list cols-3">
-        <li><a href="/merida-wedding-photographer">M&eacute;rida</a></li>
-        <li><a href="/oaxaca-wedding-photographer">Oaxaca</a></li>
-        <li><a href="/mexico-city-wedding-photographer">Mexico City</a></li>
-        <li><a href="/guadalajara-wedding-photographer">Guadalajara</a></li>
-        <li><a href="/san-miguel-de-allende-wedding-photographer">San Miguel de Allende</a></li>
-        <li><a href="/valle-de-bravo-wedding-photographer">Valle de Bravo</a></li>
-        <li><a href="/puerto-vallarta-wedding-photographer">Puerto Vallarta</a></li>
-        <li><a href="/playa-del-carmen-wedding-photographer">Playa del Carmen</a></li>
-        <li><a href="/tulum-wedding-photographer">Tulum</a></li>
-      </ul>
-    </div>
-    <div class="lw-dir-group">
-      <p class="lw-dir-label">By venue &amp; type</p>
-      <ul class="lw-dir-list cols-3">
-        <li><a href="/venues">Weddings by venue</a></li>
-        <li><a href="/mayakoba-wedding-photographer">Mayakoba weddings</a></li>
-        <li><a href="/cenote-photographer-tulum">Cenote &middot; Tulum</a></li>
-        <li><a href="/cancun-photographer">Canc&uacute;n photographer</a></li>
-        <li><a href="/riviera-maya-photographer">Riviera Maya photographer</a></li>
-        <li><a href="/cabo-photographer">Los Cabos photographer</a></li>
-        <li><a href="/blog/jewish-wedding-photographer-mexico">Jewish weddings &middot; guide</a></li>
-      </ul>
-    </div>
-    <div class="lw-dir-group">
-      <p class="lw-dir-label">Beyond the ceremony</p>
-      <ul class="lw-dir-list cols-2">
-        <li><a href="/cancun-elopement-photographer">Elopements</a></li>
-        <li><a href="/luxury-event-photographer-cancun">Events &amp; celebrations</a></li>
-        <li><a href="/welcome-party-rehearsal-dinner-photographer-cancun">Welcome party &amp; rehearsal dinner</a></li>
-        <li><a href="/vow-renewal-photographer-mexico">Vow renewals</a></li>
-        <li><a href="/jewish-destination-wedding-photographer-mexico">Jewish destination weddings</a></li>
-      </ul>
-    </div>
-    <p class="lw-dir-film">Add the moving image &mdash; <a href="/cancun-wedding-videographer">wedding films &rarr;</a></p>
-  </div>
-</section>
-
 
 <!-- ═══════ FAQ (5 questions, accordion, below the close) ═══════ -->
 <section class="lw-section faq" data-chapter="8" data-theme-color="#0a0f17" id="faq" aria-labelledby="faq-h">
@@ -3049,16 +3090,59 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
 </section>
 
 <!-- Wedding film pillar, prominent cross-link to the videography service -->
-
+<section class="sc" style="padding:72px 64px;text-align:center;background:#0a0f17;color:var(--cream-1,#faf8f5)">
+  <span class="sc-tag" style="color:var(--gold,#c9a54e)">The Film</span>
+  <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(28px,3.8vw,44px);font-weight:300;margin-bottom:16px;color:var(--cream-1,#faf8f5)">Add the <em style="font-style:italic;color:var(--gold,#c9a54e)">moving image</em> to your day</h2>
+  <p style="font-size:15px;line-height:1.85;color:rgba(250,248,245,0.78);max-width:620px;margin:0 auto 32px">Photographs hold the day still. A film lets you hear the vows again. Our <strong>Cancún wedding videographer</strong> works beside the photo team in one quiet register, delivering a cinematic highlight film cut to the rhythm of your celebration.</p>
+  <a href="/cancun-wedding-videographer" style="display:inline-block;padding:18px 40px;background:var(--gold,#c9a54e);color:#0a0f17;text-decoration:none;font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase">Explore Wedding Films →</a>
+</section>
 
 <!-- Related venue landing pages, internal link silo for SEO consolidation -->
-
+<section class="sc sc--sand" style="padding:60px 64px;text-align:center">
+  <span class="sc-tag">Specialized Coverage</span>
+  <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(26px,3.5vw,40px);font-weight:300;margin-bottom:14px">Venue and location specialists</h2>
+  <p style="font-size:14.5px;line-height:1.85;color:var(--muted-l);max-width:680px;margin:0 auto 36px">For couples planning around a specific venue or experience, the studio maintains dedicated coverage notes and editorial portfolios per location. Browse the full <a href="/venues" style="color:var(--ink);text-decoration:underline">weddings by venue</a> hub for resort-by-resort guides.</p>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:900px;margin:0 auto">
+    <a href="/venues" style="display:block;padding:18px 26px;border:1px solid var(--border);text-decoration:none;color:var(--ink);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.06em">Weddings by Venue →</a>
+    <a href="/mayakoba-wedding-photographer" style="display:block;padding:18px 26px;border:1px solid var(--border);text-decoration:none;color:var(--ink);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.06em">Mayakoba Wedding Photographer →</a>
+    <a href="/cenote-photographer-tulum" style="display:block;padding:18px 26px;border:1px solid var(--border);text-decoration:none;color:var(--ink);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.06em">Cenote Photographer Tulum →</a>
+    <a href="/cabo-photographer" style="display:block;padding:18px 26px;border:1px solid var(--border);text-decoration:none;color:var(--ink);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.06em">Los Cabos Wedding Photographer →</a>
+    <a href="/cancun-photographer" style="display:block;padding:18px 26px;border:1px solid var(--border);text-decoration:none;color:var(--ink);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.06em">Cancún Photographer →</a>
+    <a href="/riviera-maya-photographer" style="display:block;padding:18px 26px;border:1px solid var(--border);text-decoration:none;color:var(--ink);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.06em">Riviera Maya Photographer →</a>
+    <a href="/blog/jewish-wedding-photographer-mexico" style="display:block;padding:18px 26px;border:1px solid var(--border);text-decoration:none;color:var(--ink);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.06em">Jewish Wedding Photographer →</a>
+  </div>
+</section>
 
 <!-- Related celebration coverage / internal link silo to de-orphan event service pages -->
-
+<section class="sc sc--sand" style="padding:60px 64px;text-align:center">
+  <span class="sc-tag">Beyond the Ceremony</span>
+  <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(26px,3.5vw,40px);font-weight:300;margin-bottom:14px">The celebrations around the wedding</h2>
+  <p class="lw-rv" style="font-size:14.5px;line-height:1.85;color:var(--muted-l);max-width:680px;margin:0 auto 36px">A wedding is rarely a single day, and it does not have to be a large one. For an intimate two person elopement, the welcome party, the rehearsal dinner, a private celebration, or a vow renewal years on, the studio brings the same editorial eye to every gathering. For couples planning a chuppah on the sand, we also offer dedicated <a href="/jewish-destination-wedding-photographer-mexico" style="color:var(--ink);text-decoration:underline">Jewish destination wedding photography</a> across Cancún, Riviera Maya, and Los Cabos.</p>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:900px;margin:0 auto">
+    <a href="/cancun-elopement-photographer" style="display:block;padding:18px 26px;border:1px solid var(--border);text-decoration:none;color:var(--ink);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.06em">Cancún Elopement Photographer →</a>
+    <a href="/luxury-event-photographer-cancun" style="display:block;padding:18px 26px;border:1px solid var(--border);text-decoration:none;color:var(--ink);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.06em">Event &amp; Celebration Photography →</a>
+    <a href="/welcome-party-rehearsal-dinner-photographer-cancun" style="display:block;padding:18px 26px;border:1px solid var(--border);text-decoration:none;color:var(--ink);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.06em">Welcome Party &amp; Rehearsal Dinner →</a>
+    <a href="/vow-renewal-photographer-mexico" style="display:block;padding:18px 26px;border:1px solid var(--border);text-decoration:none;color:var(--ink);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.06em">Vow Renewal Photography →</a>
+    <a href="/jewish-destination-wedding-photographer-mexico" style="display:block;padding:18px 26px;border:1px solid var(--border);text-decoration:none;color:var(--ink);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.06em">Jewish Destination Weddings →</a>
+  </div>
+</section>
 
 <!-- ═══════ MOBILE-ONLY TRIP-PLANNER WIDGET (Pattern 8) ═══════ -->
-
+<section class="lw-mob-planner" data-chapter="9b" aria-label="Trip planner widget">
+  <span class="lw-mob-planner-eyebrow">Planning your trip?</span>
+  <h2 class="lw-mob-planner-h">See ideal months by <em>resort</em></h2>
+  <p class="lw-mob-planner-body">Each coastline has its hour. Pick the resort closest to your stay. We will recommend the months that hold the light.</p>
+  <select class="lw-mob-planner-select" id="lwMobPlanner" aria-label="Choose resort area">
+    <option value="">Choose your resort area&hellip;</option>
+    <option value="cancun-hz">Cancún Hotel Zone (Nizuc, JW Marriott, Ritz, Kempinski)</option>
+    <option value="playa-mujeres">Playa Mujeres / Costa Mujeres (Excellence, SLS)</option>
+    <option value="mayakoba">Mayakoba (Rosewood, Fairmont, Andaz, Banyan)</option>
+    <option value="tulum">Tulum (Nomade, Be, Azulik, Habitas)</option>
+    <option value="los-cabos">Los Cabos (One&amp;Only, Las Ventanas, Esperanza)</option>
+    <option value="costa-palmas">Costa Palmas (Four Seasons, Amanvari)</option>
+  </select>
+  <div class="lw-mob-planner-result" id="lwMobPlannerResult" aria-live="polite"></div>
+</section>
 </div><!-- /.ivm-desktop-only -->
 </main>
 
