@@ -14,6 +14,14 @@
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
 
+# Language signal for the Spanish mirror. Google consolidated the /es/ pages
+# into their EN counterparts (legacy of the pre-localization clones, sticky
+# canonical choice); the explicit Content-Language header is one more
+# crawl-time signal that /es/* is a distinct Spanish document set. Scoped to
+# /es/* only — NO /* catch-all, because Pages MERGES headers across rules.
+/es/*
+  Content-Language: es
+
 # Service worker script must never be cached, so version bumps (and the
 # cache-invalidation they trigger) reach every device on the next visit
 # instead of being delayed up to 4h by the default JS cache.
