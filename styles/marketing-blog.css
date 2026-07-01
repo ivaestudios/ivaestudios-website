@@ -1,0 +1,28 @@
+/* ============================================================================
+   IVAE MARKETING — override de marca para los posts de blog de marketing.
+   Se carga DESPUÉS de blog.css (que trae la tipografía serif Cormorant + acentos
+   dorados de IVAE Studios / fotografía) para que estos posts se vean 100%
+   IVAE Marketing: tipografía Outfit sans-serif + acentos morado/rosa.
+   No toca los posts de fotografía (solo se enlaza en los posts de marketing).
+   ============================================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
+/* Encabezados y lead: de serif dorado -> Outfit sans-serif, marca marketing */
+.post-hero h1{font-family:'Outfit',sans-serif;font-weight:800;letter-spacing:-0.02em}
+.post-lead{font-family:'Outfit',sans-serif;font-weight:400;font-size:19px;line-height:1.7;opacity:1}
+.post-article h2{font-family:'Outfit',sans-serif;font-weight:700;letter-spacing:-0.01em;line-height:1.25}
+.post-article h3{font-family:'Outfit',sans-serif;font-weight:600}
+.post-article h2 em,.post-hero h1 em,.post-cta h2 em{font-style:normal;color:#a78bfa}
+.faq-section h2,.post-cta h2{font-family:'Outfit',sans-serif;font-weight:800}
+.internal-links h3,.related h3{font-family:'Outfit',sans-serif;font-weight:700}
+.rel-title{font-family:'Outfit',sans-serif}
+
+/* Acentos: dorado -> morado/rosa de IVAE Marketing */
+.post-tag-hero{color:#a78bfa}
+.toc-title{color:#a78bfa}
+.toc-list li a::before{color:#a78bfa}
+.toc-list li a:hover{color:#a78bfa}
+.breadcrumbs a:hover{color:#a78bfa}
+.il-tag{color:#a78bfa}
+.post-back:hover{color:#ec4899}
+/* barra de acento del pullquote/callout ya usa morado en el <style> del post */
