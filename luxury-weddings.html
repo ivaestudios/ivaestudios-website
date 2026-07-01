@@ -2457,64 +2457,193 @@ body.is-mobile-anim-ready .lw-approach-portrait::after{
 </section>
 
 <!-- ═══════ THE BODY OF WORK, 5 plates as art exhibitions ═══════ -->
-<section class="lw-work" data-chapter="5" data-theme-color="#0a0f17" data-mobile-reel="1" aria-labelledby="work-h">
-  <header class="lw-work-head">
-    <span class="lw-work-eyebrow">Recent Work</span>
-    <h2 id="work-h" class="lw-work-h section-title">Four weddings, <em>four rooms.</em></h2>
-  </header>
-
-  <div class="lw-plate-reel" data-plates-reel>
-  <article class="lw-plate">
-    <figure class="lw-plate-frame"><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="A bride photographed at golden hour in the Cancún Hotel Zone" loading="lazy" width="2400" height="1600" decoding="async"/></figure>
-    <div class="lw-plate-caption">
-      <span class="lw-plate-loc">Cancún Hotel Zone <span class="lw-plate-sep">·</span> Hotel Esencia <span class="lw-plate-sep">·</span> March 2026</span>
-      <p class="lw-plate-body">Sixty guests, three languages, one east-facing cove. The breeze came in just hard enough to lift the veil and not enough to lift the sand. Ceremony at five. The light held.</p>
-    </div>
-  </article>
-
-  <article class="lw-plate">
-    <figure class="lw-plate-frame"><img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="A bride on a Cancún beach" loading="lazy" width="2400" height="1600" decoding="async"/></figure>
-    <div class="lw-plate-caption">
-      <span class="lw-plate-loc">Cancún <span class="lw-plate-sep">·</span> Playa Delfines <span class="lw-plate-sep">·</span> January 2026</span>
-      <p class="lw-plate-body">A first look the morning of, before anyone else had touched the dress. The bride asked for sand still cool from the night. We walked north for an hour and found the cove empty.</p>
-    </div>
-  </article>
-
-  <article class="lw-plate">
-    <figure class="lw-plate-frame"><img src="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" alt="A wedding portrait in Cabo San Lucas" loading="lazy" width="2400" height="1600" decoding="async"/></figure>
-    <div class="lw-plate-caption">
-      <span class="lw-plate-loc">Cabo San Lucas <span class="lw-plate-sep">·</span> Waldorf Astoria Pedregal <span class="lw-plate-sep">·</span> November 2025</span>
-      <p class="lw-plate-body">The Pacific does not announce itself. It arrives. We waited for the sun to drop behind the rocks and shot the procession through the gap as the light turned the sandstone into gold leaf.</p>
-    </div>
-  </article>
-
-  <article class="lw-plate">
-    <figure class="lw-plate-frame"><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-15.jpg" alt="A bride at blue hour after the ceremony" loading="lazy" width="2400" height="1600" decoding="async"/></figure>
-    <div class="lw-plate-caption">
-      <span class="lw-plate-loc">Cancún <span class="lw-plate-sep">·</span> Hotel Zone Terrace <span class="lw-plate-sep">·</span> December 2025</span>
-      <p class="lw-plate-body">The last block, after the toasts. Lanterns coming on along the terrace. The bride had taken off her shoes an hour earlier. This is the frame she writes us about a year later.</p>
-    </div>
-  </article>
-  </div>
-  <div class="lw-work-dots" data-plates-dots aria-hidden="true"></div>
-
+<section class="ivc" data-chapter="5" data-theme-color="#0a0f17" aria-labelledby="ivc-title">
   <style>
-    .lw-work{padding:clamp(80px,10vw,160px) 0 clamp(60px,8vw,120px);background:#0a0f17}
-    .lw-work-head{max-width:1280px;margin:0 auto clamp(64px,8vw,120px);padding:0 clamp(20px,5vw,56px)}
-    .lw-work-eyebrow{display:block;font-family:'Syne',sans-serif;font-size:10px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:#c9a54e;margin-bottom:18px}
-    .lw-work-h{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(40px,5.4vw,76px);line-height:1.02;letter-spacing:-.02em;color:#faf8f5;margin:0;max-width:18ch}
-    .lw-work-h em{font-style:italic;color:#c9a54e}
-    .lw-plate{display:block;max-width:1280px;margin:0 auto;padding:0 clamp(20px,5vw,56px) clamp(72px,9vw,140px)}
-    .lw-plate:last-of-type{padding-bottom:0}
-    .lw-plate-frame{margin:0;overflow:hidden;background:#0a0f17;aspect-ratio:3/2}
-    .lw-plate-frame img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92) contrast(1.02);transition:transform 1.4s cubic-bezier(.22,.61,.36,1)}
-    .lw-plate:hover .lw-plate-frame img{transform:scale(1.02)}
-    .lw-plate-caption{display:grid;grid-template-columns:1fr;gap:18px;padding:24px 0 0;border-top:1px solid rgba(201,165,78,.18);margin-top:24px;max-width:560px}
-    .lw-plate-loc{font-family:'Syne',sans-serif;font-size:10.5px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:rgba(250,248,245,.55)}
-    .lw-plate-sep{color:#c9a54e;margin:0 4px}
-    .lw-plate-body{font-family:'Cormorant Garamond',serif;font-weight:400;font-style:italic;font-size:clamp(16px,1.2vw,19px);line-height:1.55;color:rgba(250,248,245,.75);margin:0;letter-spacing:.003em;max-width:48ch}
-    @media (prefers-reduced-motion:reduce){.lw-plate:hover .lw-plate-frame img{transform:none}}
+    .ivc{
+      --ink:#0c1219; --ink-deep:#0a0f17; --cream:#faf8f5;
+      --cream-soft:rgba(250,248,245,.7); --cream-faint:rgba(250,248,245,.4);
+      --gold:#c9a54e; --gold-line:rgba(201,165,78,.5); --hair:rgba(250,248,245,.12);
+      background:var(--ink-deep); color:var(--cream);
+      padding:clamp(3.5rem,6vw,6rem) 0 clamp(3rem,5vw,5rem);
+      position:relative; overflow:hidden; -webkit-font-smoothing:antialiased;
+    }
+    .ivc *{box-sizing:border-box;}
+    .ivc__glow{position:absolute;inset:0;pointer-events:none;z-index:0;
+      background:radial-gradient(60% 40% at 80% 4%,rgba(201,165,78,.08),transparent 70%),
+                 radial-gradient(55% 40% at 12% 98%,rgba(201,165,78,.05),transparent 72%);}
+    .ivc__head{position:relative;z-index:1;max-width:640px;margin:0 auto clamp(2rem,3.5vw,3rem);text-align:center;padding:0 1.5rem;}
+    .ivc__eyebrow{font-family:'Syne',sans-serif;font-weight:600;font-size:.7rem;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin:0 0 1.1rem;display:inline-flex;align-items:center;gap:.85rem;}
+    .ivc__eyebrow::before,.ivc__eyebrow::after{content:"";width:26px;height:1px;background:var(--gold-line);}
+    .ivc__title{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;line-height:1.05;font-size:clamp(2.1rem,5.5vw,3.7rem);margin:0 0 .9rem;}
+    .ivc__title em{font-style:italic;color:var(--gold);}
+    .ivc__sub{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(1rem,2.2vw,1.18rem);font-weight:300;color:var(--cream-soft);line-height:1.6;margin:0 auto;max-width:42ch;}
+
+    /* ---- Carousel ---- */
+    .ivc__stage{position:relative;z-index:1;}
+    .ivc__track{
+      display:flex; gap:clamp(.7rem,1.6vw,1.4rem);
+      overflow-x:auto; scroll-snap-type:x mandatory;
+      scroll-behavior:smooth; -webkit-overflow-scrolling:touch;
+      padding:0 max(calc((100vw - min(1180px,92vw)) / 2), 4vw);
+      scrollbar-width:none;
+    }
+    .ivc__track::-webkit-scrollbar{display:none;}
+    .ivc__slide{
+      scroll-snap-align:center; flex:0 0 auto;
+      width:min(1180px,92vw); max-width:100%;
+      position:relative;
+    }
+    .ivc__frame{
+      position:relative; width:100%;
+      height:min(72vh,760px); min-height:380px;
+      background:#070b11; border:1px solid var(--hair);
+      border-radius:3px; overflow:hidden; display:flex;
+      align-items:center; justify-content:center;
+    }
+    .ivc__frame img{
+      max-width:100%; max-height:100%; width:auto; height:auto;
+      object-fit:contain; display:block;
+      filter:saturate(.97);
+    }
+    .ivc__frame::after{content:"";position:absolute;inset:0;pointer-events:none;
+      box-shadow:inset 0 0 0 1px rgba(201,165,78,.14),
+                 inset 0 -120px 90px -70px rgba(7,11,17,.9);}
+    .ivc__cap{
+      position:absolute;left:0;right:0;bottom:0;z-index:2;
+      padding:clamp(1rem,2vw,1.7rem) clamp(1.2rem,2.4vw,2rem);
+      display:flex;align-items:baseline;gap:.9rem;flex-wrap:wrap;
+      pointer-events:none;
+    }
+    .ivc__cap-venue{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:clamp(1.05rem,1.8vw,1.4rem);color:var(--cream);}
+    .ivc__cap-meta{font-family:'Syne',sans-serif;font-weight:500;font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);}
+
+    /* arrows */
+    .ivc__nav{position:absolute;top:50%;transform:translateY(-50%);z-index:5;
+      width:clamp(44px,4vw,58px);height:clamp(44px,4vw,58px);border-radius:50%;
+      background:rgba(10,15,23,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+      border:1px solid var(--gold-line);color:var(--gold);cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      transition:background .3s,transform .3s,opacity .3s;}
+    .ivc__nav:hover{background:rgba(201,165,78,.16);}
+    .ivc__nav:active{transform:translateY(-50%) scale(.94);}
+    .ivc__nav:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+    .ivc__nav svg{width:42%;height:42%;}
+    .ivc__nav--prev{left:clamp(1rem,4vw,3.5rem);}
+    .ivc__nav--next{right:clamp(1rem,4vw,3.5rem);}
+    .ivc__nav[disabled]{opacity:.28;cursor:default;pointer-events:none;}
+    @media (hover:none){.ivc__nav{display:none;}}
+
+    /* footer: counter + progress + dots */
+    .ivc__foot{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:1.1rem;margin-top:clamp(1.8rem,3vw,2.6rem);padding:0 1.5rem;}
+    .ivc__counter{font-family:'Syne',sans-serif;font-weight:600;font-size:.72rem;letter-spacing:.28em;color:var(--cream-faint);}
+    .ivc__counter b{color:var(--gold);font-weight:600;}
+    .ivc__progress{width:min(240px,60vw);height:1px;background:var(--hair);position:relative;overflow:hidden;}
+    .ivc__progress span{position:absolute;left:0;top:0;height:100%;background:var(--gold);width:8%;transition:left .45s cubic-bezier(.22,.61,.36,1),width .45s cubic-bezier(.22,.61,.36,1);}
+    .ivc__dots{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;max-width:420px;}
+    .ivc__dot{width:7px;height:7px;border-radius:50%;background:var(--hair);border:0;padding:0;cursor:pointer;transition:background .3s,transform .3s;}
+    .ivc__dot[aria-current="true"]{background:var(--gold);transform:scale(1.3);}
+    .ivc__dot:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+    .ivc__hint{font-family:'Syne',sans-serif;font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;color:var(--cream-faint);margin-top:.2rem;}
+
+    @media (prefers-reduced-motion:reduce){
+      .ivc__track{scroll-behavior:auto;} .ivc__progress span{transition:none;}
+    }
+    @media (max-width:640px){
+      .ivc__frame{height:56vh;min-height:320px;}
+      .ivc__hint{display:none;}
+    }
   </style>
+  <div class="ivc__glow" aria-hidden="true"></div>
+
+  <div class="ivc__head">
+    <p class="ivc__eyebrow">Recent Work</p>
+    <h2 id="ivc-title" class="ivc__title">Real weddings, <em>one light</em>.</h2>
+    <p class="ivc__sub">From the first look to the last dance — a moving archive across Cancún, the Riviera Maya and Los Cabos.</p>
+  </div>
+
+  <div class="ivc__stage">
+    <button class="ivc__nav ivc__nav--prev" type="button" aria-label="Previous photo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="ivc__track" id="ivcTrack" role="group" aria-label="Wedding photographs" tabindex="0">
+      <div class="ivc__slide"><div class="ivc__frame"><img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="Bride at golden hour in the Cancún Hotel Zone" loading="lazy" decoding="async"><span class="ivc__cap"><span class="ivc__cap-venue">Cancún Hotel Zone</span><span class="ivc__cap-meta">Hotel Esencia · 2026</span></span></div></div>
+      <div class="ivc__slide"><div class="ivc__frame"><img src="/images/couple-cancun-beach-ivae-studios-2.jpg" alt="Couple on a Cancún beach at sunset" loading="lazy" decoding="async"><span class="ivc__cap"><span class="ivc__cap-venue">Cancún Beach</span><span class="ivc__cap-meta">Playa Delfines · 2025</span></span></div></div>
+      <div class="ivc__slide"><div class="ivc__frame"><img src="/images/couple-akumal-ivae-studios.jpg" alt="Couple on the Akumal shore" loading="lazy" decoding="async"><span class="ivc__cap"><span class="ivc__cap-venue">Akumal</span><span class="ivc__cap-meta">Riviera Maya · 2025</span></span></div></div>
+      <div class="ivc__slide"><div class="ivc__frame"><img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Couple at golden hour in Mayakoba" loading="lazy" decoding="async"><span class="ivc__cap"><span class="ivc__cap-venue">Mayakoba</span><span class="ivc__cap-meta">Banyan Tree · 2026</span></span></div></div>
+      <div class="ivc__slide"><div class="ivc__frame"><img src="/images/couple-playa-mujeres-ivae-studios-2.jpg" alt="Couple at Playa Mujeres" loading="lazy" decoding="async"><span class="ivc__cap"><span class="ivc__cap-venue">Playa Mujeres</span><span class="ivc__cap-meta">Beloved Resort · 2025</span></span></div></div>
+      <div class="ivc__slide"><div class="ivc__frame"><img src="/images/couple-isla-mujeres-ivae-studios.jpg" alt="Couple on Isla Mujeres" loading="lazy" decoding="async"><span class="ivc__cap"><span class="ivc__cap-venue">Isla Mujeres</span><span class="ivc__cap-meta">Zoëtry · 2025</span></span></div></div>
+      <div class="ivc__slide"><div class="ivc__frame"><img src="/images/couple-cancun-hotel-zone-ivae-studios-11.jpg" alt="Couple in the Cancún Hotel Zone" loading="lazy" decoding="async"><span class="ivc__cap"><span class="ivc__cap-venue">Cancún Hotel Zone</span><span class="ivc__cap-meta">Nizuc · 2025</span></span></div></div>
+      <div class="ivc__slide"><div class="ivc__frame"><img src="/images/couple-los-cabos-ivae-studios.jpg" alt="Couple in Los Cabos" loading="lazy" decoding="async"><span class="ivc__cap"><span class="ivc__cap-venue">Los Cabos</span><span class="ivc__cap-meta">Esperanza · 2026</span></span></div></div>
+      <div class="ivc__slide"><div class="ivc__frame"><img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="Bride on a Cancún beach" loading="lazy" decoding="async"><span class="ivc__cap"><span class="ivc__cap-venue">Cancún Beach</span><span class="ivc__cap-meta">Le Blanc · 2025</span></span></div></div>
+      <div class="ivc__slide"><div class="ivc__frame"><img src="/images/couple-cancun-ivae-studios-4.jpg" alt="Couple in Cancún" loading="lazy" decoding="async"><span class="ivc__cap"><span class="ivc__cap-venue">Cancún</span><span class="ivc__cap-meta">Hotel Zone · 2025</span></span></div></div>
+    </div>
+    <button class="ivc__nav ivc__nav--next" type="button" aria-label="Next photo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+  <div class="ivc__foot">
+    <p class="ivc__counter"><b id="ivcCur">01</b> / <span id="ivcTot">09</span></p>
+    <div class="ivc__progress" aria-hidden="true"><span id="ivcBar"></span></div>
+    <div class="ivc__dots" id="ivcDots" role="tablist" aria-label="Choose photo"></div>
+    <p class="ivc__hint">Drag · scroll · or use arrow keys</p>
+  </div>
+
+  <script>
+  (function(){
+    var root=document.currentScript.closest('.ivc'); if(!root) root=document.querySelector('.ivc');
+    var track=root.querySelector('#ivcTrack');
+    var slides=Array.prototype.slice.call(track.querySelectorAll('.ivc__slide'));
+    var prev=root.querySelector('.ivc__nav--prev'), next=root.querySelector('.ivc__nav--next');
+    var cur=root.querySelector('#ivcCur'), bar=root.querySelector('#ivcBar'), dotsWrap=root.querySelector('#ivcDots');
+    root.querySelector('#ivcTot').textContent=String(slides.length).padStart(2,'0');
+    var idx=0;
+    // dots
+    slides.forEach(function(s,i){
+      var d=document.createElement('button'); d.className='ivc__dot'; d.type='button';
+      d.setAttribute('role','tab'); d.setAttribute('aria-label','Photo '+(i+1));
+      d.addEventListener('click',function(){go(i);}); dotsWrap.appendChild(d);
+    });
+    var dots=Array.prototype.slice.call(dotsWrap.children);
+    function pad(n){return String(n+1).padStart(2,'0');}
+    function render(){
+      cur.textContent=pad(idx);
+      var pct=slides.length>1?idx/(slides.length-1):0;
+      bar.style.width='calc(8% + '+(pct*92)+'% - '+(pct*8)+'%)';
+      bar.style.left='0';
+      dots.forEach(function(d,i){d.setAttribute('aria-current',i===idx?'true':'false');});
+      prev.disabled=idx<=0; next.disabled=idx>=slides.length-1;
+    }
+    function go(i){
+      idx=Math.max(0,Math.min(slides.length-1,i));
+      slides[idx].scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+      render();
+    }
+    prev.addEventListener('click',function(){go(idx-1);});
+    next.addEventListener('click',function(){go(idx+1);});
+    // sync idx from scroll position (closest slide to center)
+    var raf;
+    track.addEventListener('scroll',function(){
+      if(raf) cancelAnimationFrame(raf);
+      raf=requestAnimationFrame(function(){
+        var c=track.getBoundingClientRect().left+track.clientWidth/2, best=0, bd=1e9;
+        slides.forEach(function(s,i){var r=s.getBoundingClientRect();var d=Math.abs((r.left+r.width/2)-c);if(d<bd){bd=d;best=i;}});
+        if(best!==idx){idx=best;render();}
+      });
+    },{passive:true});
+    // keyboard
+    track.addEventListener('keydown',function(e){
+      if(e.key==='ArrowRight'){e.preventDefault();go(idx+1);}
+      if(e.key==='ArrowLeft'){e.preventDefault();go(idx-1);}
+    });
+    // pointer drag (desktop)
+    var down=false,sx=0,sl=0;
+    track.addEventListener('pointerdown',function(e){if(e.pointerType==='mouse'){down=true;sx=e.clientX;sl=track.scrollLeft;track.style.cursor='grabbing';}});
+    window.addEventListener('pointermove',function(e){if(down){track.scrollLeft=sl-(e.clientX-sx);}});
+    window.addEventListener('pointerup',function(){if(down){down=false;track.style.cursor='';go(idx);}});
+    render();
+  })();
+  </script>
 </section>
 
 <!-- ═══════ STUDIO NOTE (single, large) ═══════ -->
