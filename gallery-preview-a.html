@@ -1,11 +1,11 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>PREVIEW A · The Wall of Light — Muro editorial | IVAE Studios</title>
+<title>PREVIEW A (sin recorte) | IVAE Studios</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Syne:wght@500;600;700&display=swap" rel="stylesheet">
 <style>html,body{margin:0;background:#0a0f17;color:#faf8f5;font-family:'Cormorant Garamond',Georgia,serif}
 .pv-bar{position:sticky;top:0;z-index:99;background:#0a0f17;border-bottom:1px solid rgba(201,165,78,.25);padding:10px 20px;font-family:'Syne',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#c9a54e;text-align:center}</style></head><body>
-<div class="pv-bar">Preview — A · The Wall of Light — Muro editorial · galería de bodas (no publicado)</div>
+<div class="pv-bar">Preview A — muro editorial · SIN recorte de rostros (no publicado)</div>
 <section class="ivw" aria-labelledby="ivw-title">
   <style>
     .ivw{
@@ -80,14 +80,12 @@
 
     /* ---- Masonry wall ---- */
     .ivw__wall{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      grid-auto-rows:14px;
-      grid-auto-flow:dense;
-      gap:clamp(.55rem,1.3vw,1rem);
+      column-count:4;
+      column-gap:clamp(.55rem,1.3vw,1rem);
     }
     .ivw__cell{
-      grid-row-end:span var(--span,26);
+      break-inside:avoid; -webkit-column-break-inside:avoid;
+      margin-bottom:clamp(.55rem,1.3vw,1rem);
       position:relative;
       opacity:0; transform:translateY(26px) scale(.985);
       transition:opacity .8s cubic-bezier(.22,.61,.36,1),
@@ -104,7 +102,7 @@
     .ivw__cell--big{--span:44;}
 
     .ivw__frame{
-      position:relative; width:100%; height:100%;
+      position:relative; width:100%; height:auto;
       border:0; padding:0; margin:0; cursor:pointer;
       background:var(--ink); overflow:hidden; display:block;
       border-radius:2px;
@@ -113,7 +111,7 @@
                  box-shadow .55s ease;
     }
     .ivw__frame img{
-      width:100%; height:100%; object-fit:cover; display:block;
+      width:100%; height:auto; display:block;
       filter:saturate(.94) brightness(.94);
       transition:transform 1.1s cubic-bezier(.22,.61,.36,1),
                  filter .55s ease;
@@ -245,10 +243,10 @@
 
     /* ---- Responsive ---- */
     @media (max-width:1000px){
-      .ivw__wall{grid-template-columns:repeat(3,1fr);}
+      .ivw__wall{column-count:3;}
     }
     @media (max-width:620px){
-      .ivw__wall{grid-template-columns:repeat(2,1fr); grid-auto-rows:11px;}
+      .ivw__wall{column-count:2;}
       .ivw__cell--wide{--span:20;}
       .ivw__cell--std{--span:26;}
       .ivw__cell--tall{--span:34;}
