@@ -1,0 +1,458 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>PREVIEW A · The Wall of Light — Muro editorial | IVAE Studios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Syne:wght@500;600;700&display=swap" rel="stylesheet">
+<style>html,body{margin:0;background:#0a0f17;color:#faf8f5;font-family:'Cormorant Garamond',Georgia,serif}
+.pv-bar{position:sticky;top:0;z-index:99;background:#0a0f17;border-bottom:1px solid rgba(201,165,78,.25);padding:10px 20px;font-family:'Syne',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#c9a54e;text-align:center}</style></head><body>
+<div class="pv-bar">Preview — A · The Wall of Light — Muro editorial · galería de bodas (no publicado)</div>
+<section class="ivw" aria-labelledby="ivw-title">
+  <style>
+    .ivw{
+      --ink:#0c1219; --ink-deep:#0a0f17; --cream:#faf8f5;
+      --cream-soft:rgba(250,248,245,.7); --cream-faint:rgba(250,248,245,.42);
+      --gold:#c9a54e; --gold-line:rgba(201,165,78,.55);
+      --hair:rgba(250,248,245,.1);
+      background:var(--ink-deep);
+      color:var(--cream);
+      padding:clamp(3.5rem,7vw,7rem) clamp(1rem,4vw,3.5rem) clamp(4rem,8vw,8rem);
+      position:relative; overflow:hidden;
+      -webkit-font-smoothing:antialiased;
+    }
+    .ivw *{box-sizing:border-box;}
+    .ivw__glow{
+      position:absolute; inset:0; pointer-events:none; z-index:0;
+      background:
+        radial-gradient(60% 45% at 82% 8%, rgba(201,165,78,.09), transparent 70%),
+        radial-gradient(55% 40% at 10% 96%, rgba(201,165,78,.05), transparent 72%);
+    }
+    .ivw__inner{position:relative; z-index:1; max-width:1400px; margin:0 auto;}
+
+    /* ---- Header ---- */
+    .ivw__head{
+      max-width:640px; margin:0 auto clamp(2.2rem,4vw,3.4rem);
+      text-align:center;
+    }
+    .ivw__eyebrow{
+      font-family:'Syne',sans-serif; font-weight:600;
+      font-size:.7rem; letter-spacing:.34em; text-transform:uppercase;
+      color:var(--gold); margin:0 0 1.1rem;
+      display:inline-flex; align-items:center; gap:.85rem;
+    }
+    .ivw__eyebrow::before,.ivw__eyebrow::after{
+      content:""; width:26px; height:1px; background:var(--gold-line);
+    }
+    .ivw__title{
+      font-family:'Cormorant Garamond',Georgia,serif;
+      font-weight:300; line-height:1.04;
+      font-size:clamp(2.15rem,6vw,3.9rem);
+      margin:0 0 1rem; letter-spacing:.01em;
+    }
+    .ivw__title em{font-style:italic; color:var(--gold);}
+    .ivw__sub{
+      font-family:'Cormorant Garamond',Georgia,serif;
+      font-size:clamp(1rem,2.4vw,1.2rem); font-weight:300;
+      color:var(--cream-soft); line-height:1.6; margin:0 auto; max-width:44ch;
+    }
+
+    /* ---- Filter rail ---- */
+    .ivw__filters{
+      display:flex; flex-wrap:wrap; justify-content:center;
+      gap:.5rem clamp(.4rem,1.4vw,1rem);
+      margin:clamp(1.8rem,3.5vw,2.6rem) auto clamp(2rem,4vw,3rem);
+      max-width:720px;
+    }
+    .ivw__chip{
+      appearance:none; background:transparent; cursor:pointer;
+      border:1px solid var(--hair); border-radius:999px;
+      color:var(--cream-soft);
+      font-family:'Syne',sans-serif; font-weight:500;
+      font-size:.66rem; letter-spacing:.16em; text-transform:uppercase;
+      padding:.62rem 1.1rem; line-height:1;
+      transition:color .3s ease, border-color .3s ease, background .3s ease;
+    }
+    .ivw__chip:hover{color:var(--cream); border-color:var(--gold-line);}
+    .ivw__chip[aria-pressed="true"]{
+      color:var(--ink); background:var(--gold);
+      border-color:var(--gold);
+    }
+    .ivw__chip:focus-visible{outline:2px solid var(--gold); outline-offset:3px;}
+
+    /* ---- Masonry wall ---- */
+    .ivw__wall{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      grid-auto-rows:14px;
+      grid-auto-flow:dense;
+      gap:clamp(.55rem,1.3vw,1rem);
+    }
+    .ivw__cell{
+      grid-row-end:span var(--span,26);
+      position:relative;
+      opacity:0; transform:translateY(26px) scale(.985);
+      transition:opacity .8s cubic-bezier(.22,.61,.36,1),
+                 transform .8s cubic-bezier(.22,.61,.36,1);
+      transition-delay:var(--d,0ms);
+    }
+    .ivw__cell.is-in{opacity:1; transform:none;}
+    .ivw__cell.is-hidden{display:none;}
+
+    /* span variants */
+    .ivw__cell--tall{--span:40;}
+    .ivw__cell--std{--span:30;}
+    .ivw__cell--wide{--span:22;}
+    .ivw__cell--big{--span:44;}
+
+    .ivw__frame{
+      position:relative; width:100%; height:100%;
+      border:0; padding:0; margin:0; cursor:pointer;
+      background:var(--ink); overflow:hidden; display:block;
+      border-radius:2px;
+      box-shadow:0 1px 0 rgba(0,0,0,.4);
+      transition:transform .55s cubic-bezier(.22,.61,.36,1),
+                 box-shadow .55s ease;
+    }
+    .ivw__frame img{
+      width:100%; height:100%; object-fit:cover; display:block;
+      filter:saturate(.94) brightness(.94);
+      transition:transform 1.1s cubic-bezier(.22,.61,.36,1),
+                 filter .55s ease;
+    }
+    /* gold hairline frame drawn as inset ring */
+    .ivw__frame::after{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      border:1px solid transparent; border-radius:2px;
+      transition:border-color .5s ease, inset .5s ease;
+    }
+    .ivw__frame::before{
+      content:""; position:absolute; inset:0; z-index:2; pointer-events:none;
+      background:linear-gradient(to top, rgba(8,12,18,.82) 0%, rgba(8,12,18,.28) 32%, transparent 58%);
+      opacity:0; transition:opacity .5s ease;
+    }
+    /* caption */
+    .ivw__cap{
+      position:absolute; left:0; right:0; bottom:0; z-index:3;
+      padding:clamp(.7rem,1.4vw,1.05rem);
+      text-align:left; pointer-events:none;
+      opacity:0; transform:translateY(8px);
+      transition:opacity .5s ease .05s, transform .5s ease .05s;
+    }
+    .ivw__cap-venue{
+      display:block;
+      font-family:'Cormorant Garamond',Georgia,serif;
+      font-style:italic; font-weight:400; color:var(--cream);
+      font-size:clamp(1rem,1.6vw,1.22rem); line-height:1.15;
+    }
+    .ivw__cap-meta{
+      display:block; margin-top:.32rem;
+      font-family:'Syne',sans-serif; font-weight:500;
+      font-size:.6rem; letter-spacing:.22em; text-transform:uppercase;
+      color:var(--gold);
+    }
+
+    /* hover / focus states (pointer devices) */
+    @media (hover:hover){
+      .ivw__frame:hover,.ivw__frame:focus-visible{
+        transform:translateY(-6px);
+        box-shadow:0 22px 44px -20px rgba(0,0,0,.85);
+      }
+      .ivw__frame:hover img,.ivw__frame:focus-visible img{
+        transform:scale(1.06); filter:saturate(1) brightness(1);
+      }
+      .ivw__frame:hover::after,.ivw__frame:focus-visible::after{
+        border-color:var(--gold-line); inset:6px; border-radius:1px;
+      }
+      .ivw__frame:hover::before,.ivw__frame:focus-visible::before,
+      .ivw__frame:hover .ivw__cap,.ivw__frame:focus-visible .ivw__cap{opacity:1;}
+      .ivw__frame:hover .ivw__cap,.ivw__frame:focus-visible .ivw__cap{transform:none;}
+    }
+    /* touch: show a permanent whisper of the caption on captioned cells */
+    @media (hover:none){
+      .ivw__frame[data-cap="1"]::before{opacity:1;}
+      .ivw__frame[data-cap="1"] .ivw__cap{opacity:1; transform:none;}
+    }
+    .ivw__frame:focus-visible{outline:2px solid var(--gold); outline-offset:4px;}
+
+    /* ---- Footer note / CTA ---- */
+    .ivw__foot{
+      text-align:center; margin-top:clamp(2.4rem,5vw,3.6rem);
+    }
+    .ivw__count{
+      font-family:'Syne',sans-serif; font-weight:500;
+      font-size:.64rem; letter-spacing:.24em; text-transform:uppercase;
+      color:var(--cream-faint); margin:0 0 1.3rem;
+    }
+    .ivw__cta{
+      display:inline-flex; align-items:center; gap:.7rem;
+      font-family:'Syne',sans-serif; font-weight:600;
+      font-size:.72rem; letter-spacing:.2em; text-transform:uppercase;
+      color:var(--cream); text-decoration:none;
+      padding:.95rem 2rem; border:1px solid var(--gold-line); border-radius:999px;
+      transition:background .4s ease, color .4s ease, border-color .4s ease;
+    }
+    .ivw__cta:hover{background:var(--gold); color:var(--ink); border-color:var(--gold);}
+    .ivw__cta:focus-visible{outline:2px solid var(--gold); outline-offset:3px;}
+    .ivw__cta span{transition:transform .4s ease;}
+    .ivw__cta:hover span{transform:translateX(4px);}
+
+    /* ---- Lightbox ---- */
+    .ivw__lb{
+      position:fixed; inset:0; z-index:9999;
+      background:rgba(6,9,14,.94);
+      backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+      display:flex; align-items:center; justify-content:center;
+      padding:clamp(1rem,4vw,3rem);
+      opacity:0; visibility:hidden;
+      transition:opacity .4s ease, visibility .4s ease;
+    }
+    .ivw__lb.is-open{opacity:1; visibility:visible;}
+    .ivw__lb-fig{
+      margin:0; max-width:min(1100px,94vw); max-height:100%;
+      display:flex; flex-direction:column; align-items:center;
+      transform:scale(.97); transition:transform .45s cubic-bezier(.22,.61,.36,1);
+    }
+    .ivw__lb.is-open .ivw__lb-fig{transform:none;}
+    .ivw__lb-img{
+      max-width:100%; max-height:80vh; object-fit:contain;
+      border-radius:3px; box-shadow:0 30px 80px -30px rgba(0,0,0,.9);
+    }
+    .ivw__lb-cap{
+      margin-top:1.1rem; text-align:center;
+      font-family:'Cormorant Garamond',Georgia,serif;
+      font-style:italic; font-size:clamp(1.1rem,2.4vw,1.5rem); color:var(--cream);
+    }
+    .ivw__lb-cap small{
+      display:block; margin-top:.5rem;
+      font-family:'Syne',sans-serif; font-style:normal; font-weight:500;
+      font-size:.64rem; letter-spacing:.24em; text-transform:uppercase; color:var(--gold);
+    }
+    .ivw__lb-btn{
+      position:absolute; top:50%; transform:translateY(-50%);
+      background:rgba(250,248,245,.06); border:1px solid var(--hair);
+      color:var(--cream); cursor:pointer;
+      width:48px; height:48px; border-radius:50%;
+      font-size:1.3rem; line-height:1; display:flex; align-items:center; justify-content:center;
+      transition:background .3s ease, border-color .3s ease;
+    }
+    .ivw__lb-btn:hover{background:rgba(201,165,78,.18); border-color:var(--gold-line);}
+    .ivw__lb-btn:focus-visible{outline:2px solid var(--gold); outline-offset:3px;}
+    .ivw__lb-prev{left:clamp(.4rem,2vw,2rem);}
+    .ivw__lb-next{right:clamp(.4rem,2vw,2rem);}
+    .ivw__lb-close{
+      position:absolute; top:clamp(1rem,3vw,1.8rem); right:clamp(1rem,3vw,1.8rem);
+      transform:none; width:44px; height:44px; font-size:1.1rem;
+    }
+
+    /* ---- Responsive ---- */
+    @media (max-width:1000px){
+      .ivw__wall{grid-template-columns:repeat(3,1fr);}
+    }
+    @media (max-width:620px){
+      .ivw__wall{grid-template-columns:repeat(2,1fr); grid-auto-rows:11px;}
+      .ivw__cell--wide{--span:20;}
+      .ivw__cell--std{--span:26;}
+      .ivw__cell--tall{--span:34;}
+      .ivw__cell--big{--span:34;}
+      .ivw__lb-btn{width:42px; height:42px;}
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      .ivw *,.ivw *::before,.ivw *::after{
+        transition-duration:.01ms !important; animation-duration:.01ms !important;
+      }
+      .ivw__cell{opacity:1; transform:none;}
+    }
+  </style>
+
+  <div class="ivw__glow" aria-hidden="true"></div>
+
+  <div class="ivw__inner">
+    <header class="ivw__head">
+      <p class="ivw__eyebrow">Selected Weddings</p>
+      <h2 class="ivw__title" id="ivw-title">A wall of <em>light</em>, coast to coast</h2>
+      <p class="ivw__sub">From Cancún's turquoise shoreline to the cliffs of Los Cabos — a curated mosaic of the days we've been trusted to keep.</p>
+    </header>
+
+    <div class="ivw__filters" role="group" aria-label="Filter gallery by destination">
+      <button class="ivw__chip" data-filter="all" aria-pressed="true">All Work</button>
+      <button class="ivw__chip" data-filter="cancun" aria-pressed="false">Cancún</button>
+      <button class="ivw__chip" data-filter="riviera" aria-pressed="false">Riviera Maya</button>
+      <button class="ivw__chip" data-filter="islands" aria-pressed="false">Islands</button>
+      <button class="ivw__chip" data-filter="cabos" aria-pressed="false">Los Cabos</button>
+    </div>
+
+    <div class="ivw__wall" id="ivw-wall"><!-- cells injected by JS --></div>
+
+    <div class="ivw__foot">
+      <p class="ivw__count" id="ivw-count">Fifteen of one hundred forty-five frames</p>
+      <a class="ivw__cta" href="#contacto">View the full collection <span aria-hidden="true">&rarr;</span></a>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="ivw__lb" id="ivw-lb" role="dialog" aria-modal="true" aria-label="Photo viewer" hidden>
+    <button class="ivw__lb-btn ivw__lb-close" id="ivw-lb-close" aria-label="Close viewer">&times;</button>
+    <button class="ivw__lb-btn ivw__lb-prev" id="ivw-lb-prev" aria-label="Previous photo">&#8249;</button>
+    <button class="ivw__lb-btn ivw__lb-next" id="ivw-lb-next" aria-label="Next photo">&#8250;</button>
+    <figure class="ivw__lb-fig">
+      <img class="ivw__lb-img" id="ivw-lb-img" src="" alt="">
+      <figcaption class="ivw__lb-cap" id="ivw-lb-cap"></figcaption>
+    </figure>
+  </div>
+
+  <script>
+  (function(){
+    var PHOTOS = [
+      {src:'/images/couple-cancun-beach-ivae-studios-2.jpg', size:'big',  cat:'cancun',  venue:'Playa del Carmen shore', meta:'Cancún · June', alt:'Couple embracing on a Cancún beach at golden hour'},
+      {src:'/images/couple-mayakoba-ivae-studios.jpg',        size:'tall', cat:'riviera', venue:'Rosewood Mayakoba',       meta:'Riviera Maya · April', alt:'Bride and groom among Mayakoba lagoons'},
+      {src:'/images/couple-isla-mujeres-ivae-studios.jpg',    size:'std',  cat:'islands', venue:'Isla Mujeres',           meta:'Islands · March', alt:'Couple on Isla Mujeres with the sea behind them'},
+      {src:'/images/couple-cancun-hotel-zone-ivae-studios-10.jpg', size:'wide', cat:'cancun', venue:'', meta:'', alt:'Couple in the Cancún hotel zone at dusk'},
+      {src:'/images/couple-los-cabos-ivae-studios.jpg',       size:'tall', cat:'cabos',   venue:'Los Cabos cliffs',       meta:'Los Cabos · November', alt:'Couple against the rocky coastline of Los Cabos'},
+      {src:'/images/couple-cancun-ivae-studios-3.jpg',        size:'std',  cat:'cancun',  venue:'', meta:'', alt:'Wedding couple in Cancún'},
+      {src:'/images/couple-playa-mujeres-ivae-studios-2.jpg', size:'std',  cat:'cancun',  venue:'Playa Mujeres',          meta:'Cancún · May', alt:'Couple walking at Playa Mujeres'},
+      {src:'/images/couple-akumal-ivae-studios.jpg',          size:'tall', cat:'riviera', venue:'Akumal Bay',             meta:'Riviera Maya · February', alt:'Couple by the calm waters of Akumal'},
+      {src:'/images/couple-cancun-hotel-zone-ivae-studios-11.jpg', size:'wide', cat:'cancun', venue:'', meta:'', alt:'Couple in the Cancún hotel zone'},
+      {src:'/images/couple-cancun-beach-ivae-studios-4.jpg',  size:'std',  cat:'cancun',  venue:'', meta:'', alt:'Couple on a Cancún beach'},
+      {src:'/images/couple-isla-mujeres-ivae-studios-2.jpg',  size:'tall', cat:'islands', venue:'Isla Mujeres',           meta:'Islands · July', alt:'Couple on Isla Mujeres at sunset'},
+      {src:'/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg', size:'std', cat:'cabos', venue:'Cabo San Lucas', meta:'Los Cabos · December', alt:'Bride portrait in Cabo San Lucas'},
+      {src:'/images/couple-cancun-hotel-zone-ivae-studios-12.jpg', size:'wide', cat:'cancun', venue:'', meta:'', alt:'Couple in the Cancún hotel zone'},
+      {src:'/images/couple-playa-mujeres-ivae-studios-3.jpg', size:'std',  cat:'cancun',  venue:'', meta:'', alt:'Couple at Playa Mujeres'},
+      {src:'/images/wedding-bride-cancun-beach-ivae-studios-3.jpg', size:'tall', cat:'cancun', venue:'Cancún beach', meta:'Cancún · August', alt:'Bride portrait on a Cancún beach'}
+    ];
+
+    var wall = document.getElementById('ivw-wall');
+    if(!wall) return;
+    var cells = [];
+
+    PHOTOS.forEach(function(p, i){
+      var cell = document.createElement('div');
+      cell.className = 'ivw__cell ivw__cell--' + p.size;
+      cell.setAttribute('data-cat', p.cat);
+      cell.style.setProperty('--d', (i % 4) * 70 + 'ms');
+
+      var btn = document.createElement('button');
+      btn.className = 'ivw__frame';
+      btn.type = 'button';
+      btn.setAttribute('data-index', i);
+      if(p.venue) btn.setAttribute('data-cap','1');
+      btn.setAttribute('aria-label', 'Open photo: ' + (p.venue || 'IVAE Studios wedding') );
+
+      var img = document.createElement('img');
+      img.src = p.src; img.alt = p.alt; img.loading = 'lazy'; img.decoding = 'async';
+      btn.appendChild(img);
+
+      if(p.venue){
+        var cap = document.createElement('figcaption');
+        cap.className = 'ivw__cap';
+        cap.innerHTML = '<span class="ivw__cap-venue">' + p.venue + '</span>' +
+                        (p.meta ? '<span class="ivw__cap-meta">' + p.meta + '</span>' : '');
+        btn.appendChild(cap);
+      }
+
+      cell.appendChild(btn);
+      wall.appendChild(cell);
+      cells.push(cell);
+    });
+
+    /* ---- Stagger-in on scroll ---- */
+    var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    if(reduce || !('IntersectionObserver' in window)){
+      cells.forEach(function(c){ c.classList.add('is-in'); });
+    } else {
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if(e.isIntersecting){ e.target.classList.add('is-in'); io.unobserve(e.target); }
+        });
+      }, {threshold:.12, rootMargin:'0px 0px -8% 0px'});
+      cells.forEach(function(c){ io.observe(c); });
+    }
+
+    /* ---- Filter ---- */
+    var chips = wall.parentNode.querySelectorAll('.ivw__chip');
+    var countEl = document.getElementById('ivw-count');
+    var WORDS = {1:'one',2:'two',3:'three',4:'four',5:'five',6:'six',7:'seven',8:'eight',9:'nine',10:'ten',11:'eleven',12:'twelve',13:'thirteen',14:'fourteen',15:'fifteen'};
+    function toWord(n){ return WORDS[n] ? (WORDS[n].charAt(0).toUpperCase()+WORDS[n].slice(1)) : n; }
+
+    Array.prototype.forEach.call(chips, function(chip){
+      chip.addEventListener('click', function(){
+        var f = chip.getAttribute('data-filter');
+        Array.prototype.forEach.call(chips, function(c){ c.setAttribute('aria-pressed', c===chip ? 'true':'false'); });
+        var shown = 0;
+        cells.forEach(function(cell){
+          var match = (f==='all') || (cell.getAttribute('data-cat')===f);
+          cell.classList.toggle('is-hidden', !match);
+          if(match) shown++;
+        });
+        countEl.textContent = f==='all'
+          ? 'Fifteen of one hundred forty-five frames'
+          : toWord(shown) + (shown===1 ? ' frame in this destination' : ' frames in this destination');
+      });
+    });
+
+    /* ---- Lightbox ---- */
+    var lb = document.getElementById('ivw-lb');
+    var lbImg = document.getElementById('ivw-lb-img');
+    var lbCap = document.getElementById('ivw-lb-cap');
+    var cur = 0, lastFocus = null;
+
+    function visibleIndexes(){
+      var arr = [];
+      cells.forEach(function(cell, i){ if(!cell.classList.contains('is-hidden')) arr.push(i); });
+      return arr;
+    }
+    function render(i){
+      var p = PHOTOS[i];
+      lbImg.src = p.src; lbImg.alt = p.alt;
+      lbCap.innerHTML = p.venue
+        ? p.venue + (p.meta ? '<small>' + p.meta + '</small>' : '')
+        : '<small>IVAE Studios</small>';
+      cur = i;
+    }
+    function open(i){
+      lastFocus = document.activeElement;
+      lb.hidden = false;
+      requestAnimationFrame(function(){ lb.classList.add('is-open'); });
+      render(i);
+      document.getElementById('ivw-lb-close').focus();
+      document.addEventListener('keydown', onKey);
+    }
+    function close(){
+      lb.classList.remove('is-open');
+      document.removeEventListener('keydown', onKey);
+      setTimeout(function(){ lb.hidden = true; lbImg.src=''; }, 400);
+      if(lastFocus) lastFocus.focus();
+    }
+    function step(dir){
+      var vis = visibleIndexes();
+      if(!vis.length) return;
+      var pos = vis.indexOf(cur);
+      if(pos===-1) pos = 0;
+      pos = (pos + dir + vis.length) % vis.length;
+      render(vis[pos]);
+    }
+    function onKey(e){
+      if(e.key==='Escape') close();
+      else if(e.key==='ArrowRight') step(1);
+      else if(e.key==='ArrowLeft') step(-1);
+      else if(e.key==='Tab'){
+        // simple focus trap
+        var f = lb.querySelectorAll('button');
+        var first=f[0], last=f[f.length-1];
+        if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+        else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+      }
+    }
+
+    wall.addEventListener('click', function(e){
+      var btn = e.target.closest('.ivw__frame');
+      if(!btn) return;
+      open(parseInt(btn.getAttribute('data-index'), 10));
+    });
+    document.getElementById('ivw-lb-close').addEventListener('click', close);
+    document.getElementById('ivw-lb-prev').addEventListener('click', function(){ step(-1); });
+    document.getElementById('ivw-lb-next').addEventListener('click', function(){ step(1); });
+    lb.addEventListener('click', function(e){ if(e.target===lb) close(); });
+  })();
+  </script>
+</section>
+</body></html>

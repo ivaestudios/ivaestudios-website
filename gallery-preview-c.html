@@ -1,0 +1,447 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>PREVIEW C · Atelier Mosaic — Mosaico + Lightbox | IVAE Studios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Syne:wght@500;600;700&display=swap" rel="stylesheet">
+<style>html,body{margin:0;background:#0a0f17;color:#faf8f5;font-family:'Cormorant Garamond',Georgia,serif}
+.pv-bar{position:sticky;top:0;z-index:99;background:#0a0f17;border-bottom:1px solid rgba(201,165,78,.25);padding:10px 20px;font-family:'Syne',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#c9a54e;text-align:center}</style></head><body>
+<div class="pv-bar">Preview — C · Atelier Mosaic — Mosaico + Lightbox · galería de bodas (no publicado)</div>
+<section class="iw-gal" aria-labelledby="iw-gal-title">
+  <style>
+    .iw-gal{
+      --iw-ink:#0c1219; --iw-ink-deep:#0a0f17; --iw-cream:#faf8f5;
+      --iw-muted:rgba(250,248,245,.62); --iw-faint:rgba(250,248,245,.14);
+      --iw-gold:#c9a54e; --iw-gold-soft:rgba(201,165,78,.5);
+      position:relative; background:var(--iw-ink);
+      color:var(--iw-cream); padding:72px 20px 88px;
+      font-family:'Syne',sans-serif; overflow:hidden;
+    }
+    .iw-gal *{box-sizing:border-box;}
+    .iw-gal::before{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background:
+        radial-gradient(120% 60% at 82% -8%, rgba(201,165,78,.10), transparent 60%),
+        radial-gradient(90% 50% at 8% 110%, rgba(201,165,78,.05), transparent 60%);
+    }
+    .iw-gal__wrap{position:relative; max-width:1240px; margin:0 auto;}
+
+    /* Header */
+    .iw-gal__head{
+      display:flex; flex-wrap:wrap; align-items:flex-end;
+      justify-content:space-between; gap:26px; margin-bottom:34px;
+    }
+    .iw-gal__eyebrow{
+      display:inline-flex; align-items:center; gap:11px;
+      font-size:11px; letter-spacing:.34em; text-transform:uppercase;
+      color:var(--iw-gold); margin:0 0 18px; font-weight:600;
+    }
+    .iw-gal__eyebrow::before{
+      content:""; width:34px; height:1px; background:var(--iw-gold-soft);
+    }
+    .iw-gal__title{
+      font-family:'Cormorant Garamond',Georgia,serif;
+      font-weight:300; line-height:1.02; letter-spacing:.005em;
+      font-size:clamp(2.4rem,6.2vw,4.5rem); margin:0; color:var(--iw-cream);
+    }
+    .iw-gal__title em{font-style:italic; color:var(--iw-gold);}
+    .iw-gal__lede{
+      font-family:'Cormorant Garamond',Georgia,serif;
+      font-size:clamp(1.02rem,2.4vw,1.35rem); font-weight:300;
+      line-height:1.55; color:var(--iw-muted); max-width:34ch;
+      margin:0; padding-bottom:6px;
+    }
+
+    /* Filter chips */
+    .iw-gal__filters{
+      display:flex; flex-wrap:wrap; gap:9px; margin:0 0 30px;
+      -webkit-overflow-scrolling:touch;
+    }
+    .iw-gal__chip{
+      appearance:none; border:1px solid var(--iw-faint);
+      background:transparent; color:var(--iw-muted);
+      font-family:'Syne',sans-serif; font-size:10.5px; font-weight:600;
+      letter-spacing:.2em; text-transform:uppercase;
+      padding:9px 17px; border-radius:100px; cursor:pointer;
+      transition:color .35s ease, border-color .35s ease, background .35s ease;
+    }
+    .iw-gal__chip:hover{color:var(--iw-cream); border-color:var(--iw-gold-soft);}
+    .iw-gal__chip[aria-pressed="true"]{
+      color:var(--iw-ink); background:var(--iw-gold);
+      border-color:var(--iw-gold);
+    }
+    .iw-gal__chip:focus-visible{outline:2px solid var(--iw-gold); outline-offset:3px;}
+
+    /* Mosaic (bento) */
+    .iw-gal__grid{
+      display:grid; gap:12px;
+      grid-template-columns:repeat(4,1fr);
+      grid-auto-rows:150px; grid-auto-flow:dense;
+    }
+    .iw-gal__cell{
+      position:relative; margin:0; padding:0; overflow:hidden;
+      border-radius:3px; background:var(--iw-ink-deep);
+      border:1px solid var(--iw-faint); cursor:pointer;
+      isolation:isolate; transition:transform .5s cubic-bezier(.2,.7,.2,1), border-color .5s ease;
+      grid-column:span 1; grid-row:span 2;
+    }
+    /* size variants */
+    .iw-gal__cell--hero{grid-column:span 2; grid-row:span 4;}
+    .iw-gal__cell--tall{grid-row:span 3;}
+    .iw-gal__cell--wide{grid-column:span 2; grid-row:span 2;}
+    .iw-gal__cell--big{grid-column:span 2; grid-row:span 3;}
+
+    .iw-gal__cell img{
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; display:block;
+      filter:saturate(.92) contrast(1.02) brightness(.94);
+      transition:transform .9s cubic-bezier(.2,.7,.2,1), filter .6s ease;
+      will-change:transform;
+    }
+    .iw-gal__cell::after{
+      content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+      background:linear-gradient(to top, rgba(10,15,23,.78) 0%, rgba(10,15,23,.12) 42%, transparent 72%);
+      opacity:.72; transition:opacity .5s ease;
+    }
+    .iw-gal__cell:hover{transform:translateY(-4px); border-color:var(--iw-gold-soft); z-index:3;}
+    .iw-gal__cell:hover img{transform:scale(1.07); filter:saturate(1.02) contrast(1.03) brightness(1);}
+    .iw-gal__cell:hover::after{opacity:.92;}
+    .iw-gal__cell:focus-visible{outline:2px solid var(--iw-gold); outline-offset:3px; z-index:3;}
+
+    .iw-gal__cap{
+      position:absolute; left:0; right:0; bottom:0; z-index:2;
+      padding:14px 15px; transform:translateY(9px); opacity:0;
+      transition:transform .5s cubic-bezier(.2,.7,.2,1), opacity .5s ease;
+    }
+    .iw-gal__cell:hover .iw-gal__cap,
+    .iw-gal__cell:focus-visible .iw-gal__cap,
+    .iw-gal__cell--hero .iw-gal__cap{transform:none; opacity:1;}
+    .iw-gal__cap b{
+      display:block; font-family:'Cormorant Garamond',Georgia,serif;
+      font-weight:400; font-style:italic; font-size:1.18rem; line-height:1.1;
+      color:var(--iw-cream);
+    }
+    .iw-gal__cap span{
+      display:block; margin-top:5px; font-size:9.5px; font-weight:600;
+      letter-spacing:.22em; text-transform:uppercase; color:var(--iw-gold);
+    }
+    .iw-gal__zoom{
+      position:absolute; top:11px; right:11px; z-index:2;
+      width:30px; height:30px; border-radius:50%;
+      border:1px solid var(--iw-faint); background:rgba(10,15,23,.42);
+      backdrop-filter:blur(4px); display:grid; place-items:center;
+      opacity:0; transform:scale(.85); transition:opacity .4s ease, transform .4s ease;
+    }
+    .iw-gal__zoom svg{width:13px; height:13px; stroke:var(--iw-cream); fill:none; stroke-width:1.6;}
+    .iw-gal__cell:hover .iw-gal__zoom,
+    .iw-gal__cell:focus-visible .iw-gal__zoom{opacity:1; transform:none;}
+
+    .iw-gal__cell.is-hidden{display:none;}
+
+    /* Footer note */
+    .iw-gal__foot{
+      display:flex; align-items:center; gap:14px; margin-top:34px;
+      font-size:10.5px; letter-spacing:.2em; text-transform:uppercase;
+      color:var(--iw-muted); font-weight:600;
+    }
+    .iw-gal__foot::before{content:""; flex:0 0 40px; height:1px; background:var(--iw-faint);}
+    .iw-gal__foot em{font-family:'Cormorant Garamond',serif; font-style:italic; text-transform:none; letter-spacing:0; color:var(--iw-gold); font-size:1rem;}
+
+    /* Lightbox */
+    .iw-lb{
+      position:fixed; inset:0; z-index:9999; display:none;
+      align-items:center; justify-content:center;
+      background:rgba(6,9,14,.92); backdrop-filter:blur(8px);
+      padding:24px;
+    }
+    .iw-lb.is-open{display:flex;}
+    .iw-lb__stage{
+      position:relative; max-width:min(1120px,94vw); max-height:88vh;
+      display:flex; flex-direction:column; align-items:center;
+      animation:iw-pop .45s cubic-bezier(.2,.7,.2,1);
+    }
+    @keyframes iw-pop{from{opacity:0; transform:scale(.97);} to{opacity:1; transform:none;}}
+    .iw-lb__img{
+      max-width:100%; max-height:78vh; object-fit:contain; display:block;
+      border:1px solid var(--iw-faint); border-radius:3px;
+      box-shadow:0 30px 80px rgba(0,0,0,.55);
+    }
+    .iw-lb__meta{
+      margin-top:16px; text-align:center;
+    }
+    .iw-lb__meta b{
+      font-family:'Cormorant Garamond',Georgia,serif; font-weight:300;
+      font-style:italic; font-size:1.5rem; color:var(--iw-cream); display:block;
+    }
+    .iw-lb__meta span{
+      display:block; margin-top:7px; font-size:10px; font-weight:600;
+      letter-spacing:.26em; text-transform:uppercase; color:var(--iw-gold);
+    }
+    .iw-lb__count{
+      position:absolute; top:-40px; left:0; font-size:11px; font-weight:600;
+      letter-spacing:.24em; color:var(--iw-muted);
+    }
+    .iw-lb__count b{color:var(--iw-cream);}
+    .iw-lb__btn{
+      position:absolute; top:50%; transform:translateY(-50%);
+      width:52px; height:52px; border-radius:50%;
+      border:1px solid var(--iw-faint); background:rgba(12,18,25,.6);
+      color:var(--iw-cream); cursor:pointer; display:grid; place-items:center;
+      transition:background .3s ease, border-color .3s ease, transform .3s ease;
+      z-index:2;
+    }
+    .iw-lb__btn:hover{background:var(--iw-gold); color:var(--iw-ink); border-color:var(--iw-gold);}
+    .iw-lb__btn svg{width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:1.5;}
+    .iw-lb__prev{left:-8px;}
+    .iw-lb__next{right:-8px;}
+    .iw-lb__close{
+      position:fixed; top:20px; right:22px; width:44px; height:44px; border-radius:50%;
+      border:1px solid var(--iw-faint); background:rgba(12,18,25,.6);
+      color:var(--iw-cream); cursor:pointer; display:grid; place-items:center;
+      transition:background .3s ease, transform .3s ease;
+    }
+    .iw-lb__close:hover{background:var(--iw-gold); color:var(--iw-ink); transform:rotate(90deg);}
+    .iw-lb__close svg{width:18px; height:18px; stroke:currentColor; stroke-width:1.6;}
+    .iw-lb__btn:focus-visible,.iw-lb__close:focus-visible{outline:2px solid var(--iw-gold); outline-offset:3px;}
+
+    /* Tablet */
+    @media(max-width:900px){
+      .iw-gal__grid{grid-template-columns:repeat(3,1fr); grid-auto-rows:130px;}
+      .iw-gal__cell--hero{grid-column:span 2; grid-row:span 3;}
+      .iw-gal__cell--big{grid-column:span 2; grid-row:span 2;}
+      .iw-gal__cell--wide{grid-column:span 2; grid-row:span 2;}
+      .iw-gal__cell--tall{grid-column:span 1; grid-row:span 2;}
+    }
+    /* Mobile — 99% of traffic */
+    @media(max-width:560px){
+      .iw-gal{padding:52px 14px 62px;}
+      .iw-gal__head{margin-bottom:26px;}
+      .iw-gal__grid{grid-template-columns:repeat(2,1fr); grid-auto-rows:118px; gap:9px;}
+      .iw-gal__cell{grid-column:span 1; grid-row:span 2;}
+      .iw-gal__cell--hero{grid-column:span 2; grid-row:span 3;}
+      .iw-gal__cell--big,
+      .iw-gal__cell--wide{grid-column:span 2; grid-row:span 2;}
+      .iw-gal__cell--tall{grid-column:span 1; grid-row:span 2;}
+      .iw-gal__cap{transform:none; opacity:1;}
+      .iw-gal__cell::after{opacity:.85;}
+      .iw-lb__prev{left:2px;} .iw-lb__next{right:2px;}
+      .iw-lb__btn{width:44px; height:44px;}
+      .iw-gal__filters{flex-wrap:nowrap; overflow-x:auto; padding-bottom:4px;}
+      .iw-gal__chip{flex:0 0 auto;}
+    }
+    @media(prefers-reduced-motion:reduce){
+      .iw-gal *{transition:none !important; animation:none !important;}
+      .iw-gal__cell:hover{transform:none;}
+      .iw-gal__cell:hover img{transform:none;}
+    }
+  </style>
+
+  <div class="iw-gal__wrap">
+    <div class="iw-gal__head">
+      <div>
+        <p class="iw-gal__eyebrow">Recent work · Riviera Maya</p>
+        <h2 class="iw-gal__title" id="iw-gal-title">Held in the<br><em>same golden light</em></h2>
+      </div>
+      <p class="iw-gal__lede">A moving portrait of the day — vows, first light, and the small details between. Tap any frame to step inside.</p>
+    </div>
+
+    <div class="iw-gal__filters" role="group" aria-label="Filter gallery by moment">
+      <button class="iw-gal__chip" data-filter="all" aria-pressed="true">All</button>
+      <button class="iw-gal__chip" data-filter="couples" aria-pressed="false">Couples</button>
+      <button class="iw-gal__chip" data-filter="ceremony" aria-pressed="false">Portraits</button>
+      <button class="iw-gal__chip" data-filter="details" aria-pressed="false">The Bride</button>
+    </div>
+
+    <div class="iw-gal__grid" id="iwGrid">
+      <!-- HERO -->
+      <button class="iw-gal__cell iw-gal__cell--hero" data-cat="couples" data-full="/images/couple-playa-mujeres-ivae-studios-2.jpg" data-title="Ana &amp; Diego" data-meta="Playa Mujeres · March">
+        <img src="/images/couple-playa-mujeres-ivae-studios-2.jpg" alt="Bride and groom embracing on the beach at Playa Mujeres at golden hour" loading="lazy">
+        <span class="iw-gal__zoom" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg></span>
+        <span class="iw-gal__cap"><b>Ana &amp; Diego</b><span>Playa Mujeres · March</span></span>
+      </button>
+
+      <button class="iw-gal__cell iw-gal__cell--tall" data-cat="details" data-full="/images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" data-title="The First Look" data-meta="Cancún Hotel Zone · April">
+        <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="Bride in her gown before the ceremony in the Cancún hotel zone" loading="lazy">
+        <span class="iw-gal__zoom" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg></span>
+        <span class="iw-gal__cap"><b>The First Look</b><span>Cancún · April</span></span>
+      </button>
+
+      <button class="iw-gal__cell" data-cat="ceremony" data-full="/images/couple-cancun-beach-ivae-studios-2.jpg" data-title="On the Shore" data-meta="Cancún · February">
+        <img src="/images/couple-cancun-beach-ivae-studios-2.jpg" alt="Couple portrait on Cancún beach" loading="lazy">
+        <span class="iw-gal__zoom" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg></span>
+        <span class="iw-gal__cap"><b>On the Shore</b><span>Cancún · February</span></span>
+      </button>
+
+      <button class="iw-gal__cell" data-cat="couples" data-full="/images/couple-akumal-ivae-studios.jpg" data-title="Akumal Cove" data-meta="Akumal · May">
+        <img src="/images/couple-akumal-ivae-studios.jpg" alt="Couple walking along the cove in Akumal" loading="lazy">
+        <span class="iw-gal__zoom" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg></span>
+        <span class="iw-gal__cap"><b>Akumal Cove</b><span>Akumal · May</span></span>
+      </button>
+
+      <button class="iw-gal__cell iw-gal__cell--wide" data-cat="couples" data-full="/images/couple-mayakoba-ivae-studios.jpg" data-title="Sofía &amp; Marco" data-meta="Mayakoba · January">
+        <img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Couple at the Mayakoba resort waterways" loading="lazy">
+        <span class="iw-gal__zoom" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg></span>
+        <span class="iw-gal__cap"><b>Sofía &amp; Marco</b><span>Mayakoba · January</span></span>
+      </button>
+
+      <button class="iw-gal__cell" data-cat="details" data-full="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" data-title="Veil &amp; Light" data-meta="Cancún · April">
+        <img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="Bride portrait with veil on the beach" loading="lazy">
+        <span class="iw-gal__zoom" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg></span>
+        <span class="iw-gal__cap"><b>Veil &amp; Light</b><span>Cancún · April</span></span>
+      </button>
+
+      <button class="iw-gal__cell iw-gal__cell--tall" data-cat="ceremony" data-full="/images/couple-isla-mujeres-ivae-studios.jpg" data-title="Isla Mujeres" data-meta="Isla Mujeres · June">
+        <img src="/images/couple-isla-mujeres-ivae-studios.jpg" alt="Couple on Isla Mujeres at sunset" loading="lazy">
+        <span class="iw-gal__zoom" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg></span>
+        <span class="iw-gal__cap"><b>Isla Mujeres</b><span>Isla Mujeres · June</span></span>
+      </button>
+
+      <button class="iw-gal__cell" data-cat="couples" data-full="/images/couple-cancun-hotel-zone-ivae-studios-10.jpg" data-title="Golden Hour" data-meta="Cancún Hotel Zone · March">
+        <img src="/images/couple-cancun-hotel-zone-ivae-studios-10.jpg" alt="Couple embracing in the Cancún hotel zone at golden hour" loading="lazy">
+        <span class="iw-gal__zoom" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg></span>
+        <span class="iw-gal__cap"><b>Golden Hour</b><span>Cancún · March</span></span>
+      </button>
+
+      <button class="iw-gal__cell iw-gal__cell--big" data-cat="couples" data-full="/images/couple-los-cabos-ivae-studios.jpg" data-title="Camila &amp; Tomás" data-meta="Los Cabos · November">
+        <img src="/images/couple-los-cabos-ivae-studios.jpg" alt="Couple against the cliffs of Los Cabos" loading="lazy">
+        <span class="iw-gal__zoom" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg></span>
+        <span class="iw-gal__cap"><b>Camila &amp; Tomás</b><span>Los Cabos · November</span></span>
+      </button>
+
+      <button class="iw-gal__cell" data-cat="ceremony" data-full="/images/couple-cancun-beach-ivae-studios-4.jpg" data-title="Barefoot Vows" data-meta="Cancún · February">
+        <img src="/images/couple-cancun-beach-ivae-studios-4.jpg" alt="Couple exchanging vows barefoot on the beach" loading="lazy">
+        <span class="iw-gal__zoom" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg></span>
+        <span class="iw-gal__cap"><b>Barefoot Vows</b><span>Cancún · February</span></span>
+      </button>
+
+      <button class="iw-gal__cell" data-cat="couples" data-full="/images/couple-isla-mujeres-ivae-studios-2.jpg" data-title="Turquoise" data-meta="Isla Mujeres · June">
+        <img src="/images/couple-isla-mujeres-ivae-studios-2.jpg" alt="Couple by the turquoise water of Isla Mujeres" loading="lazy">
+        <span class="iw-gal__zoom" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg></span>
+        <span class="iw-gal__cap"><b>Turquoise</b><span>Isla Mujeres · June</span></span>
+      </button>
+
+      <button class="iw-gal__cell" data-cat="details" data-full="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" data-title="Getting Ready" data-meta="Cabo San Lucas · November">
+        <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" alt="Bride getting ready in Cabo San Lucas" loading="lazy">
+        <span class="iw-gal__zoom" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg></span>
+        <span class="iw-gal__cap"><b>Getting Ready</b><span>Cabo · November</span></span>
+      </button>
+
+      <button class="iw-gal__cell iw-gal__cell--wide" data-cat="couples" data-full="/images/couple-cancun-hotel-zone-ivae-studios-11.jpg" data-title="Valentina &amp; Emilio" data-meta="Cancún Hotel Zone · March">
+        <img src="/images/couple-cancun-hotel-zone-ivae-studios-11.jpg" alt="Couple portrait in the Cancún hotel zone" loading="lazy">
+        <span class="iw-gal__zoom" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg></span>
+        <span class="iw-gal__cap"><b>Valentina &amp; Emilio</b><span>Cancún · March</span></span>
+      </button>
+
+      <button class="iw-gal__cell" data-cat="ceremony" data-full="/images/couple-cancun-ivae-studios-2.jpg" data-title="Quiet Moment" data-meta="Cancún · February">
+        <img src="/images/couple-cancun-ivae-studios-2.jpg" alt="Couple sharing a quiet moment in Cancún" loading="lazy">
+        <span class="iw-gal__zoom" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg></span>
+        <span class="iw-gal__cap"><b>Quiet Moment</b><span>Cancún · February</span></span>
+      </button>
+    </div>
+
+    <p class="iw-gal__foot">Selected weddings, 2024–2025 &nbsp;—&nbsp; <em>145 more in the full archive</em></p>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="iw-lb" id="iwLb" role="dialog" aria-modal="true" aria-label="Photo viewer">
+    <button class="iw-lb__close" id="iwLbClose" aria-label="Close viewer">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <button class="iw-lb__btn iw-lb__prev" id="iwLbPrev" aria-label="Previous photo">
+      <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="iw-lb__stage">
+      <span class="iw-lb__count" id="iwLbCount"><b>1</b> / 14</span>
+      <img class="iw-lb__img" id="iwLbImg" src="" alt="">
+      <div class="iw-lb__meta">
+        <b id="iwLbTitle"></b>
+        <span id="iwLbMeta"></span>
+      </div>
+    </div>
+    <button class="iw-lb__btn iw-lb__next" id="iwLbNext" aria-label="Next photo">
+      <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+
+  <script>
+  (function(){
+    function init(){
+      var root = document.querySelector('.iw-gal');
+      if(!root || root.dataset.iwInit) return;
+      root.dataset.iwInit = '1';
+
+      var grid = root.querySelector('#iwGrid');
+      var cells = Array.prototype.slice.call(grid.querySelectorAll('.iw-gal__cell'));
+      var chips = Array.prototype.slice.call(root.querySelectorAll('.iw-gal__chip'));
+
+      // ---- Filter ----
+      chips.forEach(function(chip){
+        chip.addEventListener('click', function(){
+          var f = chip.dataset.filter;
+          chips.forEach(function(c){ c.setAttribute('aria-pressed', c === chip ? 'true':'false'); });
+          cells.forEach(function(cell){
+            var show = (f === 'all' || cell.dataset.cat === f);
+            cell.classList.toggle('is-hidden', !show);
+          });
+        });
+      });
+
+      // ---- Lightbox ----
+      var lb = root.querySelector('#iwLb');
+      var lbImg = root.querySelector('#iwLbImg');
+      var lbTitle = root.querySelector('#iwLbTitle');
+      var lbMeta = root.querySelector('#iwLbMeta');
+      var lbCount = root.querySelector('#iwLbCount');
+      var lbClose = root.querySelector('#iwLbClose');
+      var lbPrev = root.querySelector('#iwLbPrev');
+      var lbNext = root.querySelector('#iwLbNext');
+      var cur = 0, lastFocus = null;
+
+      function visibleCells(){
+        return cells.filter(function(c){ return !c.classList.contains('is-hidden'); });
+      }
+      function show(i){
+        var list = visibleCells();
+        if(!list.length) return;
+        cur = (i + list.length) % list.length;
+        var cell = list[cur];
+        lbImg.src = cell.dataset.full;
+        lbImg.alt = cell.querySelector('img').alt;
+        lbTitle.textContent = cell.dataset.title;
+        lbMeta.textContent = cell.dataset.meta;
+        lbCount.innerHTML = '<b>' + (cur+1) + '</b> / ' + list.length;
+      }
+      function open(cell){
+        lastFocus = cell;
+        var list = visibleCells();
+        show(list.indexOf(cell));
+        lb.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+        lbClose.focus();
+      }
+      function close(){
+        lb.classList.remove('is-open');
+        document.body.style.overflow = '';
+        if(lastFocus) lastFocus.focus();
+      }
+
+      cells.forEach(function(cell){
+        cell.addEventListener('click', function(){ open(cell); });
+      });
+      lbClose.addEventListener('click', close);
+      lbPrev.addEventListener('click', function(){ show(cur - 1); });
+      lbNext.addEventListener('click', function(){ show(cur + 1); });
+      lb.addEventListener('click', function(e){ if(e.target === lb) close(); });
+
+      document.addEventListener('keydown', function(e){
+        if(!lb.classList.contains('is-open')) return;
+        if(e.key === 'Escape') close();
+        else if(e.key === 'ArrowLeft') show(cur - 1);
+        else if(e.key === 'ArrowRight') show(cur + 1);
+      });
+    }
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+  })();
+  </script>
+</section>
+</body></html>

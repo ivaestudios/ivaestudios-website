@@ -1,0 +1,404 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>PREVIEW B · The Reel — Carrete cinematográfico | IVAE Studios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Syne:wght@500;600;700&display=swap" rel="stylesheet">
+<style>html,body{margin:0;background:#0a0f17;color:#faf8f5;font-family:'Cormorant Garamond',Georgia,serif}
+.pv-bar{position:sticky;top:0;z-index:99;background:#0a0f17;border-bottom:1px solid rgba(201,165,78,.25);padding:10px 20px;font-family:'Syne',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#c9a54e;text-align:center}</style></head><body>
+<div class="pv-bar">Preview — B · The Reel — Carrete cinematográfico · galería de bodas (no publicado)</div>
+<section class="ivr" aria-label="IVAE Studios recent wedding work">
+  <style>
+    .ivr{
+      --ink:#0c1219; --ink-deep:#0a0f17; --cream:#faf8f5;
+      --cream-soft:rgba(250,248,245,.7); --cream-faint:rgba(250,248,245,.42);
+      --gold:#c9a54e; --line:rgba(250,248,245,.14);
+      background:var(--ink); color:var(--cream);
+      padding:clamp(56px,8vw,110px) 0 clamp(48px,6vw,88px);
+      position:relative; overflow:hidden;
+      -webkit-font-smoothing:antialiased;
+    }
+    .ivr *{box-sizing:border-box;}
+    .ivr__inner{max-width:1440px; margin:0 auto;}
+
+    .ivr__head{
+      padding:0 clamp(20px,5vw,72px);
+      display:flex; align-items:flex-end; justify-content:space-between;
+      gap:24px; flex-wrap:wrap; margin-bottom:clamp(30px,4vw,52px);
+    }
+    .ivr__eyebrow{
+      font-family:'Syne',sans-serif; text-transform:uppercase;
+      letter-spacing:.34em; font-size:11px; font-weight:600;
+      color:var(--gold); margin:0 0 18px;
+      display:flex; align-items:center; gap:14px;
+    }
+    .ivr__eyebrow::before{ content:""; width:34px; height:1px; background:var(--gold); opacity:.6; }
+    .ivr__title{
+      font-family:'Cormorant Garamond',Georgia,serif;
+      font-weight:300; line-height:1.02; margin:0;
+      font-size:clamp(34px,5.4vw,66px); letter-spacing:-.01em; max-width:14ch;
+    }
+    .ivr__title em{font-style:italic; color:var(--gold);}
+    .ivr__lead{
+      font-family:'Cormorant Garamond',Georgia,serif;
+      font-weight:300; font-style:italic;
+      color:var(--cream-soft); font-size:clamp(16px,1.5vw,21px);
+      line-height:1.5; max-width:32ch; margin:0;
+    }
+
+    .ivr__meta{
+      display:flex; align-items:center; gap:clamp(16px,3vw,40px);
+      padding:0 clamp(20px,5vw,72px); margin-bottom:clamp(18px,2.5vw,26px);
+    }
+    .ivr__count{
+      font-family:'Syne',sans-serif; font-weight:600;
+      letter-spacing:.12em; font-size:13px; white-space:nowrap;
+      color:var(--cream); display:flex; align-items:baseline; gap:2px;
+    }
+    .ivr__count b{color:var(--gold); font-weight:600; font-variant-numeric:tabular-nums; min-width:2.1ch; display:inline-block; text-align:right;}
+    .ivr__count span{color:var(--cream-faint);}
+    .ivr__count i{font-style:normal; color:var(--cream-soft); font-variant-numeric:tabular-nums;}
+    .ivr__rail{ flex:1; height:1px; background:var(--line); position:relative; border-radius:2px; }
+    .ivr__rail-fill{
+      position:absolute; inset:0 auto 0 0; width:8%;
+      background:var(--gold); border-radius:2px;
+      transition:width .35s cubic-bezier(.22,.61,.36,1);
+      box-shadow:0 0 10px rgba(201,165,78,.5);
+    }
+    .ivr__hint{
+      font-family:'Syne',sans-serif; text-transform:uppercase;
+      letter-spacing:.24em; font-size:10px; font-weight:600;
+      color:var(--cream-faint); white-space:nowrap;
+      display:flex; align-items:center; gap:8px;
+    }
+    .ivr__hint svg{width:26px; height:8px; overflow:visible;}
+    .ivr__hint svg path{stroke:var(--gold); stroke-width:1.4; fill:none; opacity:.85;}
+    @media(max-width:640px){ .ivr__hint{display:none;} }
+
+    .ivr__track{
+      display:flex; gap:clamp(14px,1.6vw,26px);
+      overflow-x:auto; overflow-y:hidden;
+      scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch;
+      padding:6px clamp(20px,5vw,72px) 8px;
+      scrollbar-width:none; cursor:grab;
+    }
+    .ivr__track::-webkit-scrollbar{display:none;}
+    .ivr__track.is-drag{cursor:grabbing; scroll-snap-type:none;}
+    .ivr__track.is-drag .ivr__frame{transition:none;}
+
+    .ivr__frame{
+      position:relative; flex:0 0 auto;
+      width:min(76vw,880px); height:clamp(360px,58vh,580px);
+      scroll-snap-align:center; border-radius:4px; overflow:hidden;
+      background:var(--ink-deep);
+      border:0; padding:0; margin:0; display:block; text-align:left;
+      color:inherit; font:inherit; cursor:pointer;
+      transition:transform .5s cubic-bezier(.22,.61,.36,1);
+    }
+    .ivr__frame--tall{ width:min(52vw,440px); }
+    @media(max-width:760px){
+      .ivr__frame{ width:82vw; height:64vh; }
+      .ivr__frame--tall{ width:70vw; }
+    }
+    .ivr__frame img{
+      width:100%; height:100%; object-fit:cover; display:block;
+      transform:scale(1.06);
+      transition:transform 1.1s cubic-bezier(.22,.61,.36,1), filter .6s ease;
+      filter:saturate(.94) contrast(1.02);
+    }
+    .ivr__frame:hover img,.ivr__frame:focus-visible img{ transform:scale(1.12); }
+    .ivr__frame::after{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background:
+        linear-gradient(to top, rgba(8,12,18,.82) 0%, rgba(8,12,18,.32) 30%, rgba(8,12,18,0) 55%),
+        radial-gradient(120% 90% at 50% 30%, rgba(0,0,0,0) 55%, rgba(6,9,14,.5) 100%);
+    }
+    .ivr__frame:focus-visible{ outline:2px solid var(--gold); outline-offset:3px; }
+
+    .ivr__cap{
+      position:absolute; left:0; right:0; bottom:0; z-index:2;
+      padding:clamp(18px,3vw,32px) clamp(20px,3vw,34px);
+      transform:translateY(8px); opacity:0;
+      transition:transform .6s cubic-bezier(.22,.61,.36,1), opacity .6s ease;
+    }
+    .ivr__frame:hover .ivr__cap,
+    .ivr__frame:focus-visible .ivr__cap,
+    .ivr__frame.is-active .ivr__cap{ transform:none; opacity:1; }
+    .ivr__cap-venue{
+      font-family:'Cormorant Garamond',Georgia,serif; font-weight:300;
+      font-size:clamp(20px,2.4vw,30px); line-height:1.08; margin:0 0 6px; letter-spacing:.005em;
+    }
+    .ivr__cap-venue em{font-style:italic; color:var(--gold);}
+    .ivr__cap-meta{
+      font-family:'Syne',sans-serif; text-transform:uppercase;
+      letter-spacing:.24em; font-size:10.5px; font-weight:600;
+      color:var(--cream-soft); margin:0;
+      display:flex; align-items:center; gap:10px;
+    }
+    .ivr__cap-meta .dot{width:3px;height:3px;border-radius:50%;background:var(--gold);}
+    .ivr__num{
+      position:absolute; top:clamp(14px,2vw,22px); left:clamp(16px,2vw,24px); z-index:2;
+      font-family:'Syne',sans-serif; font-weight:600; letter-spacing:.14em;
+      font-size:11px; color:var(--cream); mix-blend-mode:difference; opacity:.9;
+    }
+
+    .ivr__frame--cta{
+      width:min(50vw,420px);
+      display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
+      gap:20px; padding:clamp(28px,4vw,48px);
+      background:linear-gradient(150deg,#0e1620,#0a0f17);
+      border:1px solid var(--line); cursor:default;
+    }
+    @media(max-width:760px){ .ivr__frame--cta{ width:82vw; } }
+    .ivr__frame--cta::after{display:none;}
+    .ivr__frame--cta:hover{transform:none;}
+    .ivr__cta-eye{
+      font-family:'Syne',sans-serif; text-transform:uppercase; letter-spacing:.3em;
+      font-size:10px; font-weight:600; color:var(--gold); margin:0;
+    }
+    .ivr__cta-h{
+      font-family:'Cormorant Garamond',Georgia,serif; font-weight:300;
+      font-size:clamp(26px,3.4vw,38px); line-height:1.08; margin:0;
+    }
+    .ivr__cta-h em{font-style:italic; color:var(--gold);}
+    .ivr__cta-link{
+      margin-top:6px; align-self:stretch;
+      font-family:'Syne',sans-serif; text-transform:uppercase; letter-spacing:.2em;
+      font-size:11px; font-weight:600; color:var(--cream);
+      text-decoration:none; padding:15px 22px; border:1px solid var(--gold);
+      border-radius:2px; text-align:center;
+      transition:background .35s ease, color .35s ease;
+    }
+    .ivr__cta-link:hover,.ivr__cta-link:focus-visible{ background:var(--gold); color:var(--ink); outline:none; }
+
+    .ivr__lb{
+      position:fixed; inset:0; z-index:9999; display:none;
+      background:rgba(6,9,14,.94); backdrop-filter:blur(6px);
+      align-items:center; justify-content:center;
+      opacity:0; transition:opacity .4s ease;
+    }
+    .ivr__lb.is-open{display:flex; opacity:1;}
+    .ivr__lb-img{
+      max-width:92vw; max-height:82vh; object-fit:contain;
+      border-radius:3px; box-shadow:0 30px 80px rgba(0,0,0,.6);
+    }
+    .ivr__lb-cap{
+      position:absolute; bottom:clamp(20px,4vh,44px); left:0; right:0; text-align:center;
+      font-family:'Syne',sans-serif; text-transform:uppercase; letter-spacing:.22em;
+      font-size:11px; font-weight:600; color:var(--cream-soft);
+    }
+    .ivr__lb-cap b{color:var(--gold); font-weight:600;}
+    .ivr__lb-btn{
+      position:absolute; top:50%; transform:translateY(-50%);
+      background:rgba(250,248,245,.06); border:1px solid var(--line);
+      color:var(--cream); width:52px; height:52px; border-radius:50%;
+      font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+      transition:background .3s ease, border-color .3s ease;
+    }
+    .ivr__lb-btn:hover{background:rgba(201,165,78,.16); border-color:var(--gold);}
+    .ivr__lb-prev{left:clamp(12px,3vw,40px);} .ivr__lb-next{right:clamp(12px,3vw,40px);}
+    .ivr__lb-close{
+      position:absolute; top:clamp(16px,3vh,30px); right:clamp(16px,3vw,34px);
+      background:none; border:0; color:var(--cream); font-size:26px; cursor:pointer;
+      width:44px;height:44px; line-height:1; opacity:.8;
+    }
+    .ivr__lb-close:hover{opacity:1; color:var(--gold);}
+    @media(max-width:640px){ .ivr__lb-btn{width:42px;height:42px;} }
+
+    @media (prefers-reduced-motion: reduce){
+      .ivr *{transition:none !important; animation:none !important;}
+      .ivr__frame img{transform:none;}
+      .ivr__cap{opacity:1; transform:none;}
+    }
+  </style>
+
+  <div class="ivr__inner">
+    <header class="ivr__head">
+      <div>
+        <p class="ivr__eyebrow">Recent Work · Selected Weddings</p>
+        <h2 class="ivr__title">A reel of <em>real</em> days,<br>along one coast of light.</h2>
+      </div>
+      <p class="ivr__lead">Drag through the frames — Cancún sand, Los Cabos cliffs, an island afternoon. Each one shot on location, kept as it happened.</p>
+    </header>
+
+    <div class="ivr__meta">
+      <div class="ivr__count"><b data-count>01</b><span>&nbsp;/&nbsp;</span><i data-total>12</i></div>
+      <div class="ivr__rail"><div class="ivr__rail-fill" data-fill></div></div>
+      <div class="ivr__hint">Drag / Swipe
+        <svg viewBox="0 0 26 8"><path d="M0 4h22M18 1l4 3-4 3"/></svg>
+      </div>
+    </div>
+
+    <div class="ivr__track" data-track tabindex="0" role="list" aria-label="Wedding photograph reel — scroll horizontally">
+      <button class="ivr__frame is-active" role="listitem" data-shot data-full="/images/couple-cancun-beach-ivae-studios-2.jpg" data-venue="Cancún Beachfront" data-place="March">
+        <span class="ivr__num">01</span>
+        <img src="/images/couple-cancun-beach-ivae-studios-2.jpg" alt="Bride and groom embracing barefoot on a Cancún beach at golden hour" loading="lazy">
+        <div class="ivr__cap"><p class="ivr__cap-venue">The tide, <em>unhurried</em></p><p class="ivr__cap-meta"><span class="dot"></span>Cancún Beachfront · March</p></div>
+      </button>
+      <button class="ivr__frame ivr__frame--tall" role="listitem" data-shot data-full="/images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" data-venue="Hotel Zone, Cancún" data-place="June">
+        <span class="ivr__num">02</span>
+        <img src="/images/wedding-bride-cancun-hotel-zone-ivae-studios-3.jpg" alt="Portrait of a bride in the Cancún hotel zone, veil catching the breeze" loading="lazy">
+        <div class="ivr__cap"><p class="ivr__cap-venue">Before the <em>vows</em></p><p class="ivr__cap-meta"><span class="dot"></span>Hotel Zone · June</p></div>
+      </button>
+      <button class="ivr__frame" role="listitem" data-shot data-full="/images/couple-mayakoba-ivae-studios.jpg" data-venue="Mayakoba, Riviera Maya" data-place="February">
+        <span class="ivr__num">03</span>
+        <img src="/images/couple-mayakoba-ivae-studios.jpg" alt="Couple walking the mangrove waterways of Mayakoba, Riviera Maya" loading="lazy">
+        <div class="ivr__cap"><p class="ivr__cap-venue">Lagoon <em>light</em></p><p class="ivr__cap-meta"><span class="dot"></span>Mayakoba · February</p></div>
+      </button>
+      <button class="ivr__frame" role="listitem" data-shot data-full="/images/couple-isla-mujeres-ivae-studios.jpg" data-venue="Isla Mujeres" data-place="April">
+        <span class="ivr__num">04</span>
+        <img src="/images/couple-isla-mujeres-ivae-studios.jpg" alt="Newlyweds on the turquoise shore of Isla Mujeres" loading="lazy">
+        <div class="ivr__cap"><p class="ivr__cap-venue">An island <em>afternoon</em></p><p class="ivr__cap-meta"><span class="dot"></span>Isla Mujeres · April</p></div>
+      </button>
+      <button class="ivr__frame ivr__frame--tall" role="listitem" data-shot data-full="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" data-venue="Cabo San Lucas" data-place="October">
+        <span class="ivr__num">05</span>
+        <img src="/images/wedding-bride-cabo-san-lucas-ivae-studios.jpg" alt="Bride portrait against the Cabo San Lucas cliffs" loading="lazy">
+        <div class="ivr__cap"><p class="ivr__cap-venue">Cliffside <em>quiet</em></p><p class="ivr__cap-meta"><span class="dot"></span>Cabo San Lucas · October</p></div>
+      </button>
+      <button class="ivr__frame" role="listitem" data-shot data-full="/images/couple-los-cabos-ivae-studios.jpg" data-venue="Los Cabos" data-place="October">
+        <span class="ivr__num">06</span>
+        <img src="/images/couple-los-cabos-ivae-studios.jpg" alt="Couple against the dramatic Los Cabos coastline at dusk" loading="lazy">
+        <div class="ivr__cap"><p class="ivr__cap-venue">Where two seas <em>meet</em></p><p class="ivr__cap-meta"><span class="dot"></span>Los Cabos · October</p></div>
+      </button>
+      <button class="ivr__frame" role="listitem" data-shot data-full="/images/couple-akumal-ivae-studios.jpg" data-venue="Akumal, Riviera Maya" data-place="May">
+        <span class="ivr__num">07</span>
+        <img src="/images/couple-akumal-ivae-studios.jpg" alt="Couple on the calm bay at Akumal, Riviera Maya" loading="lazy">
+        <div class="ivr__cap"><p class="ivr__cap-venue">Warm <em>water</em>, warmer light</p><p class="ivr__cap-meta"><span class="dot"></span>Akumal · May</p></div>
+      </button>
+      <button class="ivr__frame ivr__frame--tall" role="listitem" data-shot data-full="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" data-venue="Cancún Beach" data-place="July">
+        <span class="ivr__num">08</span>
+        <img src="/images/wedding-bride-cancun-beach-ivae-studios-3.jpg" alt="Bride walking the Cancún beach, dress trailing in the sand" loading="lazy">
+        <div class="ivr__cap"><p class="ivr__cap-venue">The first <em>steps</em></p><p class="ivr__cap-meta"><span class="dot"></span>Cancún · July</p></div>
+      </button>
+      <button class="ivr__frame" role="listitem" data-shot data-full="/images/couple-playa-mujeres-ivae-studios-2.jpg" data-venue="Playa Mujeres, Cancún" data-place="September">
+        <span class="ivr__num">09</span>
+        <img src="/images/couple-playa-mujeres-ivae-studios-2.jpg" alt="Couple sharing a moment at Playa Mujeres resort" loading="lazy">
+        <div class="ivr__cap"><p class="ivr__cap-venue">Resort <em>evening</em></p><p class="ivr__cap-meta"><span class="dot"></span>Playa Mujeres · September</p></div>
+      </button>
+      <button class="ivr__frame" role="listitem" data-shot data-full="/images/couple-cancun-hotel-zone-ivae-studios-10.jpg" data-venue="Hotel Zone, Cancún" data-place="August">
+        <span class="ivr__num">10</span>
+        <img src="/images/couple-cancun-hotel-zone-ivae-studios-10.jpg" alt="Couple portrait in the Cancún hotel zone at blue hour" loading="lazy">
+        <div class="ivr__cap"><p class="ivr__cap-venue">Blue <em>hour</em></p><p class="ivr__cap-meta"><span class="dot"></span>Hotel Zone · August</p></div>
+      </button>
+      <button class="ivr__frame ivr__frame--tall" role="listitem" data-shot data-full="/images/couple-cancun-ivae-studios-4.jpg" data-venue="Cancún" data-place="November">
+        <span class="ivr__num">11</span>
+        <img src="/images/couple-cancun-ivae-studios-4.jpg" alt="Couple silhouetted against a Cancún sunset" loading="lazy">
+        <div class="ivr__cap"><p class="ivr__cap-venue">Held against the <em>sun</em></p><p class="ivr__cap-meta"><span class="dot"></span>Cancún · November</p></div>
+      </button>
+      <button class="ivr__frame" role="listitem" data-shot data-full="/images/couple-isla-mujeres-ivae-studios-2.jpg" data-venue="Isla Mujeres" data-place="December">
+        <span class="ivr__num">12</span>
+        <img src="/images/couple-isla-mujeres-ivae-studios-2.jpg" alt="Newlyweds close together on Isla Mujeres at the end of the day" loading="lazy">
+        <div class="ivr__cap"><p class="ivr__cap-venue">The last <em>frame</em></p><p class="ivr__cap-meta"><span class="dot"></span>Isla Mujeres · December</p></div>
+      </button>
+      <div class="ivr__frame ivr__frame--cta" role="listitem">
+        <p class="ivr__cta-eye">The full reel</p>
+        <p class="ivr__cta-h">This is a <em>fraction</em> of the day. See a complete story.</p>
+        <a class="ivr__cta-link" href="#contact">Book a Consultation</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="ivr__lb" data-lb role="dialog" aria-modal="true" aria-label="Photograph viewer">
+    <button class="ivr__lb-close" data-lb-close aria-label="Close viewer">&times;</button>
+    <button class="ivr__lb-btn ivr__lb-prev" data-lb-prev aria-label="Previous photograph">&#8249;</button>
+    <img class="ivr__lb-img" data-lb-img src="" alt="">
+    <button class="ivr__lb-btn ivr__lb-next" data-lb-next aria-label="Next photograph">&#8250;</button>
+    <p class="ivr__lb-cap" data-lb-cap></p>
+  </div>
+
+  <script>
+  (function(){
+    function init(){
+      var root=document.querySelector('.ivr'); if(!root)return;
+      var track=root.querySelector('[data-track]');
+      var frames=Array.prototype.slice.call(track.querySelectorAll('.ivr__frame'));
+      var shots=frames.filter(function(f){return f.hasAttribute('data-shot');});
+      var countEl=root.querySelector('[data-count]');
+      var fillEl=root.querySelector('[data-fill]');
+      root.querySelector('[data-total]').textContent=String(shots.length).padStart(2,'0');
+
+      var raf;
+      function update(){
+        var mid=track.scrollLeft+track.clientWidth/2;
+        var best=0,bestD=Infinity;
+        frames.forEach(function(f,i){
+          var c=f.offsetLeft+f.offsetWidth/2;
+          var d=Math.abs(c-mid);
+          if(d<bestD){bestD=d;best=i;}
+          f.classList.remove('is-active');
+        });
+        frames[best].classList.add('is-active');
+        var sIdx=shots.indexOf(frames[best]);
+        var idx=sIdx===-1?shots.length:sIdx+1;
+        countEl.textContent=String(idx).padStart(2,'0');
+        var max=track.scrollWidth-track.clientWidth;
+        var pct=max>0?(track.scrollLeft/max):0;
+        fillEl.style.width=(8+pct*92)+'%';
+      }
+      track.addEventListener('scroll',function(){
+        if(raf)cancelAnimationFrame(raf);
+        raf=requestAnimationFrame(update);
+      },{passive:true});
+      window.addEventListener('resize',update);
+      update();
+
+      var down=false,startX=0,startS=0,moved=0;
+      track.addEventListener('pointerdown',function(e){
+        if(e.pointerType==='touch')return;
+        down=true;moved=0;startX=e.clientX;startS=track.scrollLeft;
+        track.classList.add('is-drag');
+      });
+      window.addEventListener('pointermove',function(e){
+        if(!down)return;
+        var dx=e.clientX-startX; moved=Math.max(moved,Math.abs(dx));
+        track.scrollLeft=startS-dx;
+      });
+      window.addEventListener('pointerup',function(){
+        if(!down)return; down=false; track.classList.remove('is-drag');
+      });
+      track.addEventListener('click',function(e){
+        if(moved>6){e.preventDefault();e.stopPropagation();}
+      },true);
+
+      track.addEventListener('keydown',function(e){
+        if(e.key==='ArrowRight'||e.key==='ArrowLeft'){
+          e.preventDefault();
+          var w=shots[0]?shots[0].offsetWidth+24:400;
+          track.scrollBy({left:e.key==='ArrowRight'?w:-w,behavior:'smooth'});
+        }
+      });
+
+      var lb=root.querySelector('[data-lb]');
+      var lbImg=root.querySelector('[data-lb-img]');
+      var lbCap=root.querySelector('[data-lb-cap]');
+      var cur=0;
+      function openLB(i){
+        cur=(i+shots.length)%shots.length;
+        var s=shots[cur];
+        lbImg.src=s.getAttribute('data-full');
+        lbImg.alt=s.querySelector('img').alt;
+        lbCap.innerHTML='<b>'+String(cur+1).padStart(2,'0')+'</b> &nbsp;·&nbsp; '+s.getAttribute('data-venue')+' &nbsp;·&nbsp; '+s.getAttribute('data-place');
+        lb.classList.add('is-open');
+        root.querySelector('[data-lb-close]').focus();
+        document.addEventListener('keydown',lbKeys);
+      }
+      function closeLB(){lb.classList.remove('is-open');document.removeEventListener('keydown',lbKeys);}
+      function lbKeys(e){
+        if(e.key==='Escape')closeLB();
+        else if(e.key==='ArrowRight')openLB(cur+1);
+        else if(e.key==='ArrowLeft')openLB(cur-1);
+      }
+      shots.forEach(function(s,i){
+        s.addEventListener('click',function(){ if(moved>6)return; openLB(i); });
+      });
+      root.querySelector('[data-lb-close]').addEventListener('click',closeLB);
+      root.querySelector('[data-lb-next]').addEventListener('click',function(){openLB(cur+1);});
+      root.querySelector('[data-lb-prev]').addEventListener('click',function(){openLB(cur-1);});
+      lb.addEventListener('click',function(e){if(e.target===lb)closeLB();});
+    }
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+    else init();
+  })();
+  </script>
+</section>
+</body></html>
