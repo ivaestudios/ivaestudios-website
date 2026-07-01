@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- IVAE Studios — AI-priority sitemap for LLM crawlers
      Subset of sitemap.xml with editorial/citation value for AI Q&A.
-     Last updated: 2026-06-04 -->
+     Last updated: 2026-07-01 (added June-2026 geo-expansion city pages + new dedicated money pages) -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Studio homepage — core identity -->
   <url>
@@ -530,4 +530,71 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+  <!-- ═══ NEW dedicated money pages (July 2026) ═══ -->
+  <url>
+    <loc>https://ivaestudios.com/cancun-wedding-photographer</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ivaestudios.com/riviera-maya-wedding-photographer</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ivaestudios.com/es/fotos-embarazo-cancun</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <!-- ═══ June-2026 geo expansion — weddings by city (EN + ES pairs) ═══ -->
+  <url><loc>https://ivaestudios.com/tulum-wedding-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-bodas-tulum</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/playa-del-carmen-wedding-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-bodas-playa-del-carmen</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/puerto-vallarta-wedding-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-bodas-puerto-vallarta</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/san-miguel-de-allende-wedding-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-bodas-san-miguel-de-allende</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/valle-de-bravo-wedding-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-bodas-valle-de-bravo</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/merida-wedding-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-bodas-merida</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/oaxaca-wedding-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-bodas-oaxaca</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/guadalajara-wedding-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-bodas-guadalajara</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/mexico-city-wedding-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-bodas-ciudad-de-mexico</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <!-- ═══ June-2026 geo expansion — families by city (EN + ES pairs) ═══ -->
+  <url><loc>https://ivaestudios.com/los-cabos-family-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-familiar-los-cabos</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/merida-family-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-familiar-merida</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/mexico-city-family-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-familiar-ciudad-de-mexico</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/playa-del-carmen-family-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-familiar-playa-del-carmen</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/puerto-vallarta-family-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-familiar-puerto-vallarta</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <!-- ═══ June-2026 geo expansion — couples by city (EN + ES pairs) ═══ -->
+  <url><loc>https://ivaestudios.com/playa-del-carmen-couples-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-parejas-playa-del-carmen</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/puerto-vallarta-couples-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-parejas-puerto-vallarta</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/san-miguel-de-allende-couples-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-parejas-san-miguel-de-allende</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/tulum-couples-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-parejas-tulum</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <!-- ═══ June-2026 geo expansion — elopement + engagement + Mexico-wide (EN + ES pairs) ═══ -->
+  <url><loc>https://ivaestudios.com/cancun-elopement-photographer</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-fuga-boda-cancun</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/engagement-photographer-cancun</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-compromiso-cancun</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/destination-family-photographer-mexico</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-familiar-destino-mexico</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/destination-couples-photographer-mexico</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ivaestudios.com/es/fotografo-parejas-destino-mexico</loc><lastmod>2026-06-14</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>

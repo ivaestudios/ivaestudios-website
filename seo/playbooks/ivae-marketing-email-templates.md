@@ -159,8 +159,9 @@ Best,
 Vianey Díaz
 Director, IVAE Marketing (sub-brand of IVAE Studios)
 ivaestudios.com/social-media-management
-Wikidata: Q139689736
 ```
+
+*(Nota: se quitó la línea "Wikidata: Q139689736" de la firma — ese Q-ID era falso, 404. PENDIENTE: crear entidad Wikidata de Vianey Díaz antes de volver a citarla.)*
 
 ---
 

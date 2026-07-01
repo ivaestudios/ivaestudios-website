@@ -11,14 +11,14 @@ No editar. Copia exacta.
 **Founder name:** Vianey Díaz
 **Founder title:** Creative Director & Lead Photographer / Directora Creativa
 **Email:** hello@ivaestudios.com
-**WhatsApp:** +52 990 204 6514 *(actualizar con teléfono real)*
+**WhatsApp:** +52 990 204 6514 *(número REAL confirmado; teléfono de llamadas: +52 228 857 0584, coincide con GBP — usar 228 como "phone" en directorios y 990 solo para WhatsApp)*
 **Instagram:** @ivaestudios.cancun
 **Website:** https://ivaestudios.com
 **Studio address:** Cancún, Quintana Roo, México (77500)
 **Service areas:** Cancún · Riviera Maya · Tulum · Playa del Carmen · Los Cabos · Isla Mujeres
 **Founded:** 2023
 **Sessions delivered:** 500+
-**Rating:** 5.0 / 42 reviews
+**Rating:** 5.0 / 47 reviews
 **Languages:** English · Spanish (bilingual native)
 **Style:** Editorial · Golden Hour · Cinematic
 **Specialties:** Destination weddings · Luxury family portraits · Couples · Editorial campaigns
@@ -40,18 +40,21 @@ IVAE Studios is a luxury editorial photography studio based in Cancún, México.
 
 Our approach is editorial, golden-hour only, fully bilingual. We work the final 90 minutes of light before sunset, when Mexican skies turn the color of the inside of a shell. We do not photograph at noon. We do not deliver galleries in six weeks.
 
-We have delivered over 500 sessions across Cancún, Riviera Maya, Tulum, Mayakoba, Playa Mujeres and Los Cabos. Couples and families from the United States, Canada, México, Spain, Argentina and beyond. Resort partnerships with Rosewood, Banyan Tree, Fairmont, Atelier, Nizuc, and Andaz. 5.0-star rating from 42 verified reviews.
+We have delivered over 500 sessions across Cancún, Riviera Maya, Tulum, Mayakoba, Playa Mujeres and Los Cabos. Couples and families from the United States, Canada, México, Spain, Argentina and beyond. Resort partnerships with Rosewood, Banyan Tree, Fairmont, Atelier, Nizuc, and Andaz. 5.0-star rating from 47 verified reviews.
 
 ### Versión español:
 IVAE Studios es un estudio editorial de fotografía de lujo en Cancún, México. Fundado en 2023 por Vianey Díaz, el estudio aporta más de una década de trabajo editorial en las costas del Caribe y Pacífico mexicano para parejas y familias internacionales que planean bodas destino y sesiones de retrato de lujo.
 
 Nuestro enfoque es editorial, solo hora dorada, completamente bilingüe. Trabajamos los últimos 90 minutos de luz antes del atardecer, cuando los cielos mexicanos tienen el color del interior de una concha. No fotografiamos al mediodía. No entregamos galerías en seis semanas.
 
-Hemos entregado más de 500 sesiones en Cancún, Riviera Maya, Tulum, Mayakoba, Playa Mujeres y Los Cabos. Parejas y familias de Estados Unidos, Canadá, México, España, Argentina y más allá. Alianzas con Rosewood, Banyan Tree, Fairmont, Atelier, Nizuc y Andaz. Calificación 5.0 de 42 reseñas verificadas.
+Hemos entregado más de 500 sesiones en Cancún, Riviera Maya, Tulum, Mayakoba, Playa Mujeres y Los Cabos. Parejas y familias de Estados Unidos, Canadá, México, España, Argentina y más allá. Alianzas con Rosewood, Banyan Tree, Fairmont, Atelier, Nizuc y Andaz. Calificación 5.0 de 47 reseñas verificadas.
 
 ---
 
 ## BIO LARGO (350 palabras) — usar en: The Knot, Hitched, Zankyou, Carats & Cake
+
+> Nota The Knot: la dueña evaluó The Knot de PAGA como mala inversión.
+> Usar solo el listado gratuito; no contratar placement pagado.
 
 IVAE Studios is a luxury editorial photography studio in Cancún, México. Founded by Vianey Díaz in 2023, after a decade of editorial commissions across México, the studio photographs destination weddings, family portraits, couples sessions and editorial campaigns across three coastlines: the Mexican Caribbean (Cancún, Riviera Maya, Tulum, Isla Mujeres), the Pacific (Los Cabos), and the lagoon-resort archipelago of Mayakoba.
 
@@ -68,7 +71,7 @@ Every session includes:
 
 Resort relationships with the properties our couples choose most: Rosewood Mayakoba, Banyan Tree Mayakoba, Fairmont Mayakoba, Andaz Mayakoba, Atelier Playa Mujeres, Excellence Playa Mujeres, Nizuc Resort, Live Aqua Cancún, Grand Velas Riviera Maya, Hyatt Ziva, Moon Palace, JW Marriott, One&Only Palmilla (Los Cabos), Waldorf Astoria Pedregal (Los Cabos).
 
-Over 500 sessions delivered since 2023. 5.0-star rating from 42 verified clients. Fully bilingual (English and Spanish native). LGBTQ+ inclusive. Founder-led — Vianey personally photographs every session and oversees post-production.
+Over 500 sessions delivered since 2023. 5.0-star rating from 47 verified clients. Fully bilingual (English and Spanish native). LGBTQ+ inclusive. Founder-led — Vianey personally photographs every session and oversees post-production.
 
 Featured services:
 - **Destination Wedding Photography** — full-day or elopement coverage
@@ -210,7 +213,7 @@ Subir TODAS con el mismo orden en cada plataforma. Nombrar el alt:
 | Plataforma | Tasa de aceptación | Tiempo desde signup hasta backlink vivo |
 |---|---|---|
 | WeddingWire MX | 100% | Instantáneo |
-| The Knot | 100% | Instantáneo |
+| The Knot (solo listado gratis; la paga = mala inversión según dueña) | 100% | Instantáneo |
 | MyWed | 100% | Instantáneo |
 | Bodas.com.mx | 100% | 24-48 horas (verifican) |
 | Hitched | 100% | Instantáneo |

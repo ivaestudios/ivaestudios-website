@@ -263,7 +263,7 @@
 /couples-photoshoot-cancun /couples-photography-mexico 301
 /manejo-de-redes-sociales-cancun /es/manejo-redes-sociales 301
 # Old wedding URL → current pillar page (recovers 22 imp/mo per GSC)
-/destination-wedding-cancun /luxury-weddings 301
+/destination-wedding-cancun /destination-wedding-photographer-mexico 301
 /cancun-family-photographer /luxury-family-photos-cancun 301
 /cancun-couples-photographer /couples-photography-mexico 301
 /photographer-cancun /cancun-photographer 301
@@ -283,7 +283,6 @@
 /blog/beach-wedding-photographer-cancun /blog/wedding-photographer-cancun 301
 /beach-wedding-photographer-cancun /cancun-photographer 301
 /cabo-wedding-photographer /cabo-photographer 301
-/riviera-maya-wedding-photographer /riviera-maya-photographer 301
 
 # ═══════════════════════════════════════════
 # Fix broken internal links — April 2026 audit (EN)
@@ -317,8 +316,8 @@
 /es/cancun-photographer /es/fotografo-cancun 301
 # /venues now serves the "Weddings by Venue" hub page (venues.html). The old
 # redirect to /venues/banyan-tree-mayakoba is retired so the hub is reachable.
-/portfolio /luxury-weddings 301
-/portfolio/* /luxury-weddings 301
+/portfolio /destination-wedding-photographer-mexico 301
+/portfolio/* /destination-wedding-photographer-mexico 301
 
 # ═══════════════════════════════════════════
 # Fix broken internal links — April 2026 audit (ES — EN slug used in ES path)
@@ -370,8 +369,8 @@
 /es/contacto /es/ 301
 /es/locaciones/ /es/ 301
 /locations/ / 301
-/portfolio/wedding-tulum /luxury-weddings 301
-/portfolio/wedding-decor-cancun /luxury-weddings 301
+/portfolio/wedding-tulum /destination-wedding-photographer-mexico 301
+/portfolio/wedding-decor-cancun /destination-wedding-photographer-mexico 301
 /portfolio/family-cancun-pier /luxury-family-photos 301
 
 # ═══════════════════════════════════════════

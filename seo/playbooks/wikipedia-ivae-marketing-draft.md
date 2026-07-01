@@ -94,8 +94,9 @@ The studio team operates bilingually in Spanish and English, serving both local 
 
 * [https://ivaestudios.com/social-media-management Official IVAE Marketing website (English)]
 * [https://ivaestudios.com/es/manejo-redes-sociales Official IVAE Marketing website (Spanish)]
-* [https://www.wikidata.org/wiki/Q139689577 Parent: IVAE Studios on Wikidata]
 ```
+
+*(PENDIENTE: crear entidad Wikidata de IVAE Studios antes de añadir el enlace "Parent: IVAE Studios on Wikidata" — el Q-ID Q139689577 citado antes era falso, 404 verificado 2026-07-01.)*
 
 ### Categories
 

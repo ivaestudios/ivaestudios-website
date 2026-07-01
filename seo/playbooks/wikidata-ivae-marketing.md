@@ -1,6 +1,6 @@
 # Wikidata Submission Draft. IVAE Marketing (sub-entity of IVAE Studios)
 
-> **Goal:** Register IVAE Marketing as a distinct Wikidata item that is structurally linked to the existing IVAE Studios entity (Q139689577) via `parent organization` (P749) and `has part(s)` (P527). This gives Google's Knowledge Graph, ChatGPT search, Perplexity, and other LLM-powered discovery surfaces a clean machine-readable record of the social media management sub-brand.
+> **Goal:** Register IVAE Marketing as a distinct Wikidata item that is structurally linked to the IVAE Studios entity via `parent organization` (P749) and `has part(s)` (P527). (PENDIENTE: crear primero la entidad Wikidata de IVAE Studios — el Q-ID Q139689577 citado antes era falso, 404 verificado 2026-07-01.) This gives Google's Knowledge Graph, ChatGPT search, Perplexity, and other LLM-powered discovery surfaces a clean machine-readable record of the social media management sub-brand.
 
 > **Owner note (Vianey):** "marketing e ivaestudios son diferentes." IVAE Marketing is a sibling brand that happens to share infrastructure with IVAE Studios. Treat it as its own entity.
 
@@ -51,28 +51,28 @@ Both descriptions are under 70 characters and follow Wikidata convention (lowerc
 
 | Property | ID | Value | Notes |
 |---|---|---|---|
-| instance of | P31 | social media marketing agency (Q105756498) | Or fallback to digital marketing agency (Q1640628) |
+| instance of | P31 | marketing agency (Q9592701) | Verificado 2026-07-01. (Los Q-IDs citados antes, Q105756498 y Q1640628, eran otras entidades) |
 | instance of (secondary) | P31 | business (Q4830453) | Generic backup if P31 above is too narrow |
-| parent organization | P749 | IVAE Studios (Q139689577) | Key relationship link |
+| parent organization | P749 | IVAE Studios (PENDIENTE: crear entidad Wikidata; el Q-ID citado antes era falso, 404) | Key relationship link |
 | country | P17 | Mexico (Q96) | |
-| headquarters location | P159 | Cancún (Q8806) | |
-| located in the administrative territorial entity | P131 | Quintana Roo (Q80108) | |
+| headquarters location | P159 | Cancún (Q8969) | Verificado 2026-07-01 (el Q8806 citado antes era Getafe CF) |
+| located in the administrative territorial entity | P131 | Quintana Roo (Q80245) | Verificado 2026-07-01 (el Q80108 citado antes era otra entidad) |
 | inception | P571 | 2024-01-01 | Year marketing arm formally launched (placeholder, owner to confirm) |
 | official website | P856 | https://ivaestudios.com/social-media-management | EN master URL |
 | official name | P1448 | IVAE Marketing (en), IVAE Marketing (es) | |
-| industry | P452 | social media marketing (Q1124173), digital marketing (Q1640628), hospitality industry (Q1361261) | Multi-value |
+| industry | P452 | social media marketing (Q267114), digital marketing (Q1323528), hospitality industry (Q1495452) | Multi-value. Q-IDs verificados 2026-07-01 (los citados antes eran otras entidades) |
 | product or material produced | P1056 | editorial photography, social media content, content marketing strategy, monthly performance reports | Free-text or linked items |
 | genre / specialty | P136 | luxury hospitality marketing | Free text |
 | language of work or name | P407 | English (Q1860), Spanish (Q1321) | |
-| founder | P112 | Vianey Díaz (Q139689736) | Inherits founder of parent org |
-| chief executive officer | P169 | Vianey Díaz (Q139689736) | Director / Creative Director |
+| founder | P112 | Vianey Díaz (PENDIENTE: crear entidad Wikidata; el Q-ID citado antes era falso, 404) | Inherits founder of parent org |
+| chief executive officer | P169 | Vianey Díaz (PENDIENTE: crear entidad Wikidata) | Director / Creative Director |
 | Instagram username | P2003 | ivae.marketing | Sub-brand handle |
 | logo image | P154 | (upload to Wikimedia Commons first, then link) | See sitelinks below |
-| describes a project that uses | P1535 | Instagram (Q209330), TikTok (Q63862603), Facebook (Q355) | Platform list |
+| describes a project that uses | P1535 | Instagram (Q209330), TikTok (Q48938223), Facebook (Q355) | Platform list. TikTok Q-ID verificado 2026-07-01 (el Q63862603 citado antes era otra entidad) |
 
 ---
 
-## 5. Modifications to IVAE Studios (Q139689577)
+## 5. Modifications to IVAE Studios (PENDIENTE: crear entidad Wikidata del estudio primero)
 
 Add the following statement on the parent item:
 
@@ -94,7 +94,7 @@ Wikidata items with no sources are flagged as low quality. Each statement above 
 1. **Official website citation**
    - Reference URL (P854): https://ivaestudios.com/social-media-management
    - Title (P1476): "Social Media Management for Luxury Hospitality | IVAE Studios"
-   - Publisher (P123): IVAE Studios (Q139689577)
+   - Publisher (P123): IVAE Studios (PENDIENTE: crear entidad Wikidata)
    - Date retrieved (P813): (date of submission)
 
 2. **Spanish master page citation**
@@ -144,7 +144,7 @@ Additional external identifiers to attach once available:
 
 Inside the Description field on Wikidata, do NOT confuse with:
 - **IVAE Studio** (singular, no S) at ivaestudio.com. Unrelated European agency.
-- **IVAE Studios** (parent) Q139689577. The photography studio. IVAE Marketing is a sub-organization of it, not the same as it.
+- **IVAE Studios** (parent). The photography studio. IVAE Marketing is a sub-organization of it, not the same as it. (PENDIENTE: crear entidad Wikidata del estudio.)
 
 Add a `nature of statement` (P5102) qualifier where needed:
 - On P749 parent organization → IVAE Studios: qualifier "subject of statement: marketing sub-brand"
@@ -171,7 +171,7 @@ Once IVAE Marketing has a Q-ID (e.g., Q14XXXXXX):
 3. Fill in label / description / aliases as listed in sections 1-3 above
 4. After item creation, add statements one by one with sources as listed in sections 4-6
 5. Add sitelinks from section 7
-6. Edit parent item Q139689577 to add P527 reference to the new sub-item
+6. Edit the parent IVAE Studios item (PENDIENTE: crear entidad Wikidata del estudio primero) to add P527 reference to the new sub-item
 7. Save and note the new Q-ID
 8. Run the post-submission checklist in section 9
 

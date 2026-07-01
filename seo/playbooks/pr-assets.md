@@ -26,8 +26,10 @@ spam risk). Status field is meant to be edited inline as pitches progress.
 - **Asset:** Data-backed report on what 2026 destination weddings actually
   cost in Cancún / Riviera Maya / Los Cabos (venue, photo, planner, travel,
   tax). Sourced from real client invoices (anonymised).
-- **Target publications:** The Knot (planning vertical), Brides.com (real
-  weddings + planning), Martha Stewart Weddings.
+- **Target publications:** The Knot (planning vertical; nota: la dueña evaluó
+  The Knot de PAGA como mala inversión — solo pitch editorial gratuito, no
+  comprar placement), Brides.com (real weddings + planning), Martha Stewart
+  Weddings.
 - **Pitch angle:** "First-of-its-kind transparent pricing report for 2026
   Mexico destination weddings — with median cost by venue tier."
 - **Outreach contact pattern:** wedding-features editor; co-pitch with one

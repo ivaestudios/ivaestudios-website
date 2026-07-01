@@ -25,6 +25,8 @@ editorial, no aprobación, solo llenar el formulario y subir 8-15 fotos.
 - **Tiempo:** 30 min
 - **Backlink:** Sí, perfil público con link
 - **Bonus:** Tráfico de couples estadounidenses planeando Mexico destination
+- **Nota de la dueña:** The Knot de PAGA fue evaluado como MALA inversión.
+  Solo crear el listado gratuito; no contratar placement pagado.
 
 ### 3. MyWed — `mywed.com`
 - **DA:** 71
@@ -213,7 +215,7 @@ piden fotógrafos).
 
 ### Semana 1 (Tier A, los rápidos):
 - Día 1: WeddingWire MX + Bodas.com.mx + MyWed (2 horas)
-- Día 2: The Knot + Hitched + Zankyou (1.5 horas)
+- Día 2: The Knot (solo listado gratis) + Hitched + Zankyou (1.5 horas)
 - Día 3: Wezoree + Carats&Cake + Brides submit (1.5 horas)
 - Día 4-7: Junebug application (ellos revisan portfolio)
 

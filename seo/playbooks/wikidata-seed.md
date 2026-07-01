@@ -12,9 +12,9 @@
 
 | Property | Value |
 |---|---|
-| `P31` instance of | `Q3257138` photography studio |
+| `P31` instance of | `Q672070` photographic studio (verificado 2026-07-01; el Q3257138 citado antes era otra entidad) |
 | `P17` country | `Q96` Mexico |
-| `P159` headquarters location | `Q8806` Cancún |
+| `P159` headquarters location | `Q8969` Cancún (verificado 2026-07-01; el Q8806 citado antes era Getafe CF) |
 | `P856` official website | `https://ivaestudios.com` |
 | `P112` founded by | Vianey Díaz (create as separate item if not exists, instance_of `Q5` human) |
 | `P571` inception | (date studio started — owner provides) |

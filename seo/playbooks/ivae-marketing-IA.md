@@ -98,7 +98,7 @@ Every IVAE Marketing page must have:
 4. `WebPage` + `Speakable` (h1, h2, hero-sub)
 5. `BreadcrumbList`
 6. `FAQPage` (4-6 questions specific to that page)
-7. `AggregateRating` — TODO: Vianey needs to provide SMM-specific rating count (currently 5.0/42 is photography)
+7. `AggregateRating` — TODO: Vianey needs to provide SMM-specific rating count (currently 5.0/47 is photography)
 8. `ImageObject` (representative hero)
 9. `WebSite` (inherited)
 
@@ -152,6 +152,6 @@ These are placeholder until Vianey provides:
 4. **Quantified growth metrics** — actual follower/engagement gains delivered
 5. **Team bios** — who else besides Vianey works on accounts
 6. **Portfolio Instagram handles** — 5-8 accounts where examples live
-7. **SMM-specific reviews count** (not 5.0/42 photography stat)
+7. **SMM-specific reviews count** (not 5.0/47 photography stat)
 
 Without these, pages can rank for search but conversion will be low.

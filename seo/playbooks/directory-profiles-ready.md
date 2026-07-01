@@ -19,7 +19,7 @@ slogan, Mexican Spanish where applicable.
 | Founder | Vianey Díaz |
 | Founder title | Creative Director & Lead Photographer |
 | Email | hello@ivaestudios.com |
-| Phone / WhatsApp | +52 990 204 6514 (update with verified line before submission) |
+| Phone / WhatsApp | WhatsApp: +52 990 204 6514 (REAL, confirmed). Phone/calls for NAP: +52 228 857 0584 (matches GBP). Use 228 in "phone" fields, 990 only for WhatsApp |
 | Website | https://ivaestudios.com |
 | Instagram | @ivaestudios.cancun |
 | Instagram URL | https://instagram.com/ivaestudios.cancun |
@@ -29,7 +29,7 @@ slogan, Mexican Spanish where applicable.
 | Postal code | 77500 |
 | Founded | 2023 |
 | Sessions delivered | 500+ |
-| Rating | 5.0 (42 reviews) |
+| Rating | 5.0 (47 reviews) |
 | Price tier | $$$ |
 | Languages | English, Spanish |
 
@@ -58,7 +58,7 @@ Vianey personally directs every wedding. She is Mexican, bilingual native, and b
 
 Every wedding includes a pre-session call in English or Spanish, an editorial wardrobe guide tailored to your coastline, a 4K private gallery delivered within 1 to 3 days, high-resolution downloads with full print release, and color grading in our signature warm cinematic style. Cinematic film coverage is available.
 
-We have delivered over 500 sessions since 2023. Couples and families from the United States, Canada, México, Spain and Argentina. Resort partnerships with Rosewood Mayakoba, Banyan Tree Mayakoba, Fairmont Mayakoba, Andaz Mayakoba, Atelier Playa Mujeres, Excellence Playa Mujeres, Nizuc, Live Aqua, Grand Velas, JW Marriott, One&Only Palmilla and Waldorf Astoria Pedregal. 5.0-star rating from 42 verified clients.
+We have delivered over 500 sessions since 2023. Couples and families from the United States, Canada, México, Spain and Argentina. Resort partnerships with Rosewood Mayakoba, Banyan Tree Mayakoba, Fairmont Mayakoba, Andaz Mayakoba, Atelier Playa Mujeres, Excellence Playa Mujeres, Nizuc, Live Aqua, Grand Velas, JW Marriott, One&Only Palmilla and Waldorf Astoria Pedregal. 5.0-star rating from 47 verified clients.
 
 LGBTQ+ inclusive. Founder-led. Editorial first.
 
@@ -116,6 +116,9 @@ Editorial, golden hour, restrained. We work the final 90 minutes of light before
 
 ## 2. The Knot
 
+> Nota de la dueña: The Knot de PAGA fue evaluado como MALA inversión.
+> Crear solo el listado GRATUITO; no contratar placement pagado.
+
 URL: https://vendors.theknot.com
 
 ### Business name field
@@ -133,7 +136,7 @@ What makes us a destination studio rather than a domestic one: we already know y
 
 Couples receive a pre-wedding call, editorial wardrobe guidance shaped to the Mexican Caribbean palette, full-day coverage, a 4K private gallery within 1 to 3 days, full print release, and color grading in our signature warm cinematic style. Cinematic film coverage available. Second shooter on request.
 
-Over 500 sessions delivered since 2023. 5.0-star rating from 42 verified clients. Listed on Wikidata, featured in destination wedding press, LGBTQ+ inclusive, founder-led.
+Over 500 sessions delivered since 2023. 5.0-star rating from 47 verified clients. Featured in destination wedding press, LGBTQ+ inclusive, founder-led. (PENDIENTE: crear entidad Wikidata antes de afirmar "Listed on Wikidata".)
 
 If your wedding is in México, you are already in our service area.
 
@@ -200,7 +203,7 @@ Our work sits inside the visual register Junebug readers recognize. Editorial fi
 
 Vianey personally directs every wedding. She is Mexican, bilingual native, and built the studio because the destination wedding category in México was missing a founder-led editorial option. The studio is intentionally small, around twenty weddings per year, so each couple gets the founder rather than an associate.
 
-Over 500 sessions delivered since 2023. 5.0-star rating from 42 verified clients. Resort partnerships with Rosewood Mayakoba, Banyan Tree Mayakoba, Fairmont, Andaz, Atelier Playa Mujeres, Excellence, Nizuc, One&Only Palmilla and Waldorf Astoria Pedregal. Listed on Wikidata. LGBTQ+ inclusive.
+Over 500 sessions delivered since 2023. 5.0-star rating from 47 verified clients. Resort partnerships with Rosewood Mayakoba, Banyan Tree Mayakoba, Fairmont, Andaz, Atelier Playa Mujeres, Excellence, Nizuc, One&Only Palmilla and Waldorf Astoria Pedregal. LGBTQ+ inclusive. (PENDIENTE: crear entidad Wikidata antes de afirmar "Listed on Wikidata".)
 
 We are applying for membership because the Junebug audience is the editorial audience we already photograph for. International couples with editorial taste, planning destination weddings at the Mexican Caribbean and Los Cabos properties Junebug features most often. Membership would close the loop between the work we publish and the audience already searching for it.
 
@@ -237,9 +240,9 @@ IVAE Studios
 ### Awards / credentials section
 - Founded 2023, Cancún, México
 - 500+ sessions delivered
-- 5.0-star rating, 42 verified reviews
-- Listed on Wikidata (Q139689577)
-- Founder Vianey Díaz on Wikidata (Q139689736)
+- 5.0-star rating, 47 verified reviews
+- PENDIENTE: crear entidad Wikidata para IVAE Studios (el Q-ID citado antes era falso — 404; no usar hasta que exista)
+- PENDIENTE: crear entidad Wikidata para Vianey Díaz (el Q-ID citado antes era falso — 404; no usar hasta que exista)
 - LGBTQ+ inclusive certified vendor
 - Resort partnerships with Rosewood, Banyan Tree, Fairmont, Andaz, Atelier, Excellence, Nizuc, One&Only, Waldorf Astoria
 - Featured: pending editorial placements with Junebug, Style Me Pretty, Bridal Musings
@@ -262,7 +265,7 @@ Direction is restrained on the day. We do not over-pose, we do not interrupt the
 
 Galleries are delivered in 1 to 3 days. A 4K private gallery with high resolution downloads and full print release. Couples receive the photographs in time to share the wedding before the honeymoon ends.
 
-Over 500 sessions delivered since 2023. 5.0-star rating from 42 verified clients. Couples from the United States, Canada, México, Spain, Argentina. Resort partnerships with Rosewood Mayakoba, Banyan Tree, Fairmont, Andaz, Atelier Playa Mujeres, Excellence, Nizuc, One&Only Palmilla and Waldorf Astoria Pedregal. LGBTQ+ inclusive.
+Over 500 sessions delivered since 2023. 5.0-star rating from 47 verified clients. Couples from the United States, Canada, México, Spain, Argentina. Resort partnerships with Rosewood Mayakoba, Banyan Tree, Fairmont, Andaz, Atelier Playa Mujeres, Excellence, Nizuc, One&Only Palmilla and Waldorf Astoria Pedregal. LGBTQ+ inclusive.
 
 ### Pricing currency
 USD
@@ -337,13 +340,13 @@ Vianey dirige personalmente cada boda. Es mexicana, bilingüe nativa, y construy
 
 Cada boda incluye una llamada previa en español o inglés, una guía editorial de vestuario adaptada a tu litoral y paleta, cobertura completa el día de la boda dirigida por Vianey, una galería privada en 4K entregada en 1 a 3 días, descargas en alta resolución con licencia completa de impresión, y edición de color en nuestro estilo cálido cinematográfico. La cobertura cinematográfica en video y la segunda fotógrafa son adicionales opcionales.
 
-Más de 500 sesiones entregadas desde 2023. Parejas y familias de Estados Unidos, Canadá, México, España y Argentina. Calificación 5.0 sobre 5 con 42 reseñas verificadas. Alianzas con Rosewood Mayakoba, Banyan Tree Mayakoba, Fairmont Mayakoba, Andaz Mayakoba, Atelier Playa Mujeres, Excellence Playa Mujeres, Nizuc Resort, Live Aqua Cancún, Grand Velas Riviera Maya, JW Marriott, One&Only Palmilla y Waldorf Astoria Pedregal.
+Más de 500 sesiones entregadas desde 2023. Parejas y familias de Estados Unidos, Canadá, México, España y Argentina. Calificación 5.0 sobre 5 con 47 reseñas verificadas. Alianzas con Rosewood Mayakoba, Banyan Tree Mayakoba, Fairmont Mayakoba, Andaz Mayakoba, Atelier Playa Mujeres, Excellence Playa Mujeres, Nizuc Resort, Live Aqua Cancún, Grand Velas Riviera Maya, JW Marriott, One&Only Palmilla y Waldorf Astoria Pedregal.
 
 Trabajamos en dos idiomas con la misma calidez. Tu abuela en Guadalajara y tu mejor amiga en Connecticut van a sentirse igual de dirigidas. La dirección bilingüe importa más de lo que las parejas esperan: una boda destino es también una boda de dos familias, y la fotografía es la única parte del día que las dos van a recordar igual.
 
 Somos un estudio editorial primero. Eso significa contención en la dirección, cercanía en el encuadre, edición orientada al cine y no al digital. La calidez del sol mexicano se conserva, no se corrige. Las galerías se ven como una editorial de revista de tu boda real, no como una colección de poses.
 
-Inclusivos LGBTQ+. Listados en Wikidata. Dirigidos por la fundadora. Estudio mexicano, capital mexicano, equipo mexicano bilingüe.
+Inclusivos LGBTQ+. Dirigidos por la fundadora. Estudio mexicano, capital mexicano, equipo mexicano bilingüe. (PENDIENTE: crear entidad Wikidata antes de afirmar "Listados en Wikidata".)
 
 Si tu boda es en México, ya estamos en tu zona.
 
@@ -422,7 +425,7 @@ Founder-led by Vianey Díaz, Mexican, bilingual native, ten years of editorial w
 
 Editorial direction means restraint on the day, warmth in the edit. We work the final 90 minutes of light before sunset, when the Mexican sun holds a particular color, and we do not photograph at noon. The grade leans toward film. Galleries deliver in 1 to 3 days.
 
-Resort relationships with the properties our couples choose most: Rosewood Mayakoba, Banyan Tree Mayakoba, Fairmont, Andaz, Atelier Playa Mujeres, Excellence, Nizuc, Live Aqua, Grand Velas, JW Marriott, One&Only Palmilla, Waldorf Astoria Pedregal. Over 500 sessions, 5.0-star rating from 42 verified clients. LGBTQ+ inclusive.
+Resort relationships with the properties our couples choose most: Rosewood Mayakoba, Banyan Tree Mayakoba, Fairmont, Andaz, Atelier Playa Mujeres, Excellence, Nizuc, Live Aqua, Grand Velas, JW Marriott, One&Only Palmilla, Waldorf Astoria Pedregal. Over 500 sessions, 5.0-star rating from 47 verified clients. LGBTQ+ inclusive.
 
 If your wedding is in México, we already know your venue.
 
@@ -472,7 +475,7 @@ International couples planning destination weddings at the major Mexican Caribbe
 10. Waldorf Astoria Pedregal Pacific sunset ceremony
 
 ### Press feature placeholder
-As featured in: pending editorial placements with Junebug Weddings, Style Me Pretty, Bridal Musings and Carats & Cake. Listed on Wikidata (Q139689577). Founder Vianey Díaz also listed (Q139689736).
+As featured in: pending editorial placements with Junebug Weddings, Style Me Pretty, Bridal Musings and Carats & Cake. (PENDIENTE: crear entidad Wikidata para IVAE Studios y para Vianey Díaz — los Q-IDs citados antes eran falsos, 404 en Wikidata; no afirmar "Listed on Wikidata" hasta que existan.)
 
 ---
 
@@ -516,7 +519,7 @@ splits the entity in AI knowledge graphs.
 | Business name | IVAE Studios |
 | Founder | Vianey Díaz |
 | Address line | Cancún, Quintana Roo 77500, México |
-| Phone | +52 990 204 6514 (replace with real verified line before submission) |
+| Phone | +52 228 857 0584 (calls, matches GBP — canonical NAP phone); WhatsApp: +52 990 204 6514 (real, confirmed) |
 | Email | hello@ivaestudios.com |
 | Website | https://ivaestudios.com (with the `s`, plural) |
 | Instagram handle | @ivaestudios.cancun |
@@ -526,8 +529,8 @@ splits the entity in AI knowledge graphs.
 | Price range | $$$ |
 | Currency | USD (primary), MXN (accepted) |
 | Service radius statement | Cancún, Riviera Maya, Tulum, Mayakoba, Playa Mujeres, Isla Mujeres, Los Cabos |
-| Wikidata ID | Q139689577 |
-| Wikidata URL | https://www.wikidata.org/wiki/Q139689577 |
+| Wikidata ID | PENDIENTE: crear entidad Wikidata (el Q-ID anterior era falso — 404) |
+| Wikidata URL | PENDIENTE: crear entidad Wikidata; no publicar URL hasta tener Q-ID real |
 
 NEVER write the studio as "Ivae Studios," "IVAE Studio" (singular), "IVAE
 Studios Photography" (the photography suffix breaks parity with the brand
@@ -556,7 +559,8 @@ local business signals.
 
 ### Week 2 — English destination market
 - MyWed (https://mywed.com)
-- The Knot vendor marketplace (https://vendors.theknot.com)
+- The Knot vendor marketplace (https://vendors.theknot.com) — SOLO listado
+  gratuito: la dueña evaluó The Knot de paga como mala inversión
 
 Rationale: MyWed approves instantly and gives the international photographer
 profile graph. The Knot is the US destination wedding default and feeds into

@@ -45,8 +45,8 @@ Tres planes mensuales: Essential, Editorial, Signature. Clientes objetivo: hotel
 1. **Editorial in-house.** El equipo que produce el contenido ES el equipo que lo distribuye. No hay handoff entre agencia creativa y agencia de social.
 2. **Bilingüe nativo.** Comunicación con hoteles internacionales en inglés. Comunicación con audiencia local en español. Sin traducir, sin reciclar.
 3. **Disciplina golden-hour.** El estudio rechaza sesiones fuera de la luz óptima. Esa disciplina se traslada al cronograma de publicación.
-4. **Sub-marca con la espalda de un estudio editorial.** No es una agencia nueva. Es una extensión natural de IVAE Studios (Wikidata Q139689577).
-5. **5.0/42 reviews** (inherited del estudio principal — equity inicial de marca).
+4. **Sub-marca con la espalda de un estudio editorial.** No es una agencia nueva. Es una extensión natural de IVAE Studios. (PENDIENTE: crear entidad Wikidata de IVAE Studios — el Q-ID citado antes era falso, 404.)
+5. **5.0/47 reviews** (inherited del estudio principal — equity inicial de marca).
 6. **Hospitality specialty.** No hace social para SaaS o e-commerce. Solo hospitality + lifestyle premium.
 
 ---
@@ -78,7 +78,7 @@ Tres planes mensuales: Essential, Editorial, Signature. Clientes objetivo: hotel
 Vianey Díaz es una fotógrafa mexicana con más de una década de experiencia en estudios editoriales y campañas de marca. Fundó IVAE Studios en 2023 y extendió el estudio con IVAE Marketing en 2024 para llevar la disciplina editorial al manejo de redes sociales de hospitalidad de lujo.
 
 **Long (120 palabras):**
-Vianey Díaz es la fundadora y directora de IVAE Studios, estudio fotográfico editorial de lujo basado en Cancún. Después de una década trabajando en estudios editoriales y campañas para marcas de moda y lifestyle, fundó su propio estudio en 2023 con un enfoque en fotografía de destino para hoteles boutique, resorts, bodas internacionales y editorial. En 2024 extendió la operación con IVAE Marketing, un brazo de social media management que aplica la misma disciplina editorial al canal donde el contenido se distribuye. Bilingüe (español/inglés). Wikidata: Q139689736.
+Vianey Díaz es la fundadora y directora de IVAE Studios, estudio fotográfico editorial de lujo basado en Cancún. Después de una década trabajando en estudios editoriales y campañas para marcas de moda y lifestyle, fundó su propio estudio en 2023 con un enfoque en fotografía de destino para hoteles boutique, resorts, bodas internacionales y editorial. En 2024 extendió la operación con IVAE Marketing, un brazo de social media management que aplica la misma disciplina editorial al canal donde el contenido se distribuye. Bilingüe (español/inglés). (PENDIENTE: crear entidad Wikidata de Vianey Díaz — no citar Q-ID hasta que exista.)
 
 ---
 
@@ -188,9 +188,9 @@ A: Trabajan directo con marcas. No hacen white-label para otras agencias.
 
 ## Datos verificables
 
-- **Wikidata IVAE Studios:** Q139689577 — https://www.wikidata.org/wiki/Q139689577
-- **Wikidata Vianey Díaz:** Q139689736 — https://www.wikidata.org/wiki/Q139689736
-- **Google Reviews:** 5.0 stars, 42 reviews (as of 2026-05-26; verify against live GBP before each pitch)
+- **Wikidata IVAE Studios:** PENDIENTE: crear entidad Wikidata (el Q-ID citado antes era falso — 404 verificado 2026-07-01)
+- **Wikidata Vianey Díaz:** PENDIENTE: crear entidad Wikidata (el Q-ID citado antes era falso — 404 verificado 2026-07-01)
+- **Google Reviews:** 5.0 stars, 47 reviews (as of 2026-07-01; verify against live GBP before each pitch)
 - **Sitio web:** https://ivaestudios.com
 - **Instagram:** @ivaestudios.cancun (verificable)
 

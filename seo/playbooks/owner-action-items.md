@@ -48,12 +48,13 @@ Couples & Honeymoons, Family Sessions, Editorial & Brand) in the
 
 ---
 
-## 2. Phone +52 990 204 6514 (invalid area code)
+## 2. Phone +52 990 204 6514 — RESOLVED (2026-06-05): number is REAL
 
-Area code `990` does not exist in Mexico. The placeholder appears in
-77 schema instances site-wide plus every WhatsApp CTA. Must be
-replaced with the real Google Business Profile phone before any
-schema/rich-snippet work can be considered shipped.
+Confirmed by Vianey: `+52 990 204 6514` is the studio's real WhatsApp
+line (used in every wa.me CTA + ContactPoint), and `+52 228 857 0584`
+is the real CALLS number that matches the Google Business Profile
+(schema `telephone`). Both numbers are real — do NOT treat either as
+a fake/invalid placeholder, and never swap or unify them.
 
 ---
 
@@ -122,5 +123,5 @@ are needed. Submission checklist in:
   so `Offer.price` + `priceValidUntil` can ship.
 - Single canonical street address + lat/lng for `Organization` schema
   (currently Cancún coords with no street, while GBP pin may be Riviera Maya).
-- `AggregateRating` 5.0 / 42 reviews — verify against the live GBP and
-  refresh in one pass once the real review count is known.
+- `AggregateRating` — RESOLVED: the live GBP shows **5.0 / 47 reviews**
+  (verified 2026-07-01); site-wide schema already updated to 47.

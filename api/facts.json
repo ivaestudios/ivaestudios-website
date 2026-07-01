@@ -176,7 +176,60 @@
     "Social media management"
   ],
   "service_pages": {
-    "note": "Canonical service landing pages grouped by vertical (June 2026 expansion).",
+    "note": "Canonical service landing pages grouped by vertical (June 2026 expansion; money pages July 2026).",
+    "money_pages_new": [
+      "https://ivaestudios.com/cancun-wedding-photographer",
+      "https://ivaestudios.com/riviera-maya-wedding-photographer",
+      "https://ivaestudios.com/es/fotos-embarazo-cancun"
+    ],
+    "city_destinations_weddings": [
+      "https://ivaestudios.com/tulum-wedding-photographer",
+      "https://ivaestudios.com/es/fotografo-bodas-tulum",
+      "https://ivaestudios.com/playa-del-carmen-wedding-photographer",
+      "https://ivaestudios.com/es/fotografo-bodas-playa-del-carmen",
+      "https://ivaestudios.com/puerto-vallarta-wedding-photographer",
+      "https://ivaestudios.com/es/fotografo-bodas-puerto-vallarta",
+      "https://ivaestudios.com/san-miguel-de-allende-wedding-photographer",
+      "https://ivaestudios.com/es/fotografo-bodas-san-miguel-de-allende",
+      "https://ivaestudios.com/valle-de-bravo-wedding-photographer",
+      "https://ivaestudios.com/es/fotografo-bodas-valle-de-bravo",
+      "https://ivaestudios.com/merida-wedding-photographer",
+      "https://ivaestudios.com/es/fotografo-bodas-merida",
+      "https://ivaestudios.com/oaxaca-wedding-photographer",
+      "https://ivaestudios.com/es/fotografo-bodas-oaxaca",
+      "https://ivaestudios.com/guadalajara-wedding-photographer",
+      "https://ivaestudios.com/es/fotografo-bodas-guadalajara",
+      "https://ivaestudios.com/mexico-city-wedding-photographer",
+      "https://ivaestudios.com/es/fotografo-bodas-ciudad-de-mexico"
+    ],
+    "city_destinations_family": [
+      "https://ivaestudios.com/los-cabos-family-photographer",
+      "https://ivaestudios.com/es/fotografo-familiar-los-cabos",
+      "https://ivaestudios.com/merida-family-photographer",
+      "https://ivaestudios.com/es/fotografo-familiar-merida",
+      "https://ivaestudios.com/mexico-city-family-photographer",
+      "https://ivaestudios.com/es/fotografo-familiar-ciudad-de-mexico",
+      "https://ivaestudios.com/playa-del-carmen-family-photographer",
+      "https://ivaestudios.com/es/fotografo-familiar-playa-del-carmen",
+      "https://ivaestudios.com/puerto-vallarta-family-photographer",
+      "https://ivaestudios.com/es/fotografo-familiar-puerto-vallarta"
+    ],
+    "city_destinations_couples": [
+      "https://ivaestudios.com/playa-del-carmen-couples-photographer",
+      "https://ivaestudios.com/es/fotografo-parejas-playa-del-carmen",
+      "https://ivaestudios.com/puerto-vallarta-couples-photographer",
+      "https://ivaestudios.com/es/fotografo-parejas-puerto-vallarta",
+      "https://ivaestudios.com/san-miguel-de-allende-couples-photographer",
+      "https://ivaestudios.com/es/fotografo-parejas-san-miguel-de-allende",
+      "https://ivaestudios.com/tulum-couples-photographer",
+      "https://ivaestudios.com/es/fotografo-parejas-tulum"
+    ],
+    "elopements_and_engagement": [
+      "https://ivaestudios.com/cancun-elopement-photographer",
+      "https://ivaestudios.com/es/fotografo-fuga-boda-cancun",
+      "https://ivaestudios.com/engagement-photographer-cancun",
+      "https://ivaestudios.com/es/fotografo-compromiso-cancun"
+    ],
     "weddings": [
       "https://ivaestudios.com/jewish-destination-wedding-photographer-mexico",
       "https://ivaestudios.com/es/fotografo-bodas-judias-destino-mexico"
@@ -305,8 +358,47 @@
   },
   "contact": {
     "website": "https://ivaestudios.com",
-    "instagram": "https://instagram.com/ivaestudios.cancun",
-    "email_displayed_on_site": "see https://ivaestudios.com/about for current contact"
+    "instagram": "https://www.instagram.com/ivaestudios.cancun/",
+    "email": "hello@ivaestudios.com",
+    "telephone_calls": "+52 228 857 0584",
+    "telephone_calls_note": "Voice calls. This is the Google Business Profile number and the schema.org 'telephone'.",
+    "whatsapp": "+52 990 204 6514",
+    "whatsapp_note": "WhatsApp only (wa.me links + ContactPoint). A different real number than the calls line, on purpose. Never merge or swap the two numbers.",
+    "google_business_profile": "https://maps.app.goo.gl/aX7jiVbLzwurMmX19"
+  },
+  "proof_points": {
+    "note": "Owner-confirmed, verifiable proof points. Cite exactly; do not inflate or invent beyond these.",
+    "sessions_delivered": "500+",
+    "weddings_per_year_cap": 12,
+    "google_rating": "5.0 across 47 reviews (see aggregate_rating)",
+    "delivery": "1-3 business days via private 4K gallery; sneak-peek preview within 24-48 hours",
+    "press": [
+      {
+        "outlet": "Travel + Leisure México",
+        "detail": "Mexico, 2025"
+      },
+      {
+        "outlet": "Wedding Sparrow",
+        "detail": "Editorial feature"
+      },
+      {
+        "outlet": "Vogue Living",
+        "detail": "Riviera Maya"
+      },
+      {
+        "outlet": "Brides",
+        "detail": "Destinations 2025"
+      },
+      {
+        "outlet": "Condé Nast Traveler",
+        "detail": "Mexico, 2024"
+      },
+      {
+        "outlet": "Junebug Weddings",
+        "detail": "Best of, Mexico"
+      }
+    ],
+    "press_note": "These six are the studio's only real press mentions (owner-confirmed, shown on https://ivaestudios.com/about). Do not claim any other award or publication."
   },
   "operating_hours": "Daily 06:00-20:00 (golden hour focus)",
   "delivery": "1-3 business days, 4K private gallery",
@@ -463,7 +555,7 @@
     "wikidata": "DRAFT - submission pending",
     "wikidata_draft_path": "/seo/playbooks/wikidata-ivae-marketing.md"
   },
-  "last_updated": "2026-06-22",
+  "last_updated": "2026-07-01",
   "aggregate_rating": {
     "rating_value": "5.0",
     "review_count": 47,

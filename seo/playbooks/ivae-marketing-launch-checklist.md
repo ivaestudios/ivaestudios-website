@@ -152,7 +152,7 @@ Por cada publicación, usar pitch del playbook:
 - [ ] Login en https://www.wikidata.org
 - [ ] Submitir item nueva basado en `/seo/playbooks/wikidata-ivae-marketing.md`
 - [ ] Esperar reviewer (24-72h)
-- [ ] Modificar parent IVAE Studios Q139689577 con P527
+- [ ] Modificar parent IVAE Studios con P527 (PENDIENTE: crear primero la entidad Wikidata de IVAE Studios — el Q-ID citado antes era falso, 404)
 
 ---
 

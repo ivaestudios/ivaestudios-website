@@ -49,10 +49,10 @@ with hundreds of weddings and mature backlink profiles. That gap is **authority
 | Factor | Top competitors | IVAE today | Owner action |
 |---|---|---|---|
 | Domain age / backlinks | 14-20 yrs, mature link profile | ~3 yrs | Time + link building |
-| Review volume (Google/Yelp/WeddingWire) | dozens-hundreds, verified | placeholder 5.0/42 | Gather + verify real reviews |
-| Directory listings | The Knot, WeddingWire, Flytographer, Yelp, Airbnb | none | Create profiles |
+| Review volume (Google/Yelp/WeddingWire) | dozens-hundreds, verified | 5.0/47 real Google reviews (GBP-verified) | Keep growing review count toward 50+ |
+| Directory listings | The Knot, WeddingWire, Flytographer, Yelp, Airbnb | none | Create profiles (The Knot: free listing only — owner evaluated the paid tier as a bad investment) |
 | Awards / press | One Eyeland, WPJA, features | none listed | Submit to award bodies |
-| Google Business Profile | verified, consistent NAP | pin mismatch + fake phone | Fix phone + canonical address |
+| Google Business Profile | verified, consistent NAP | pin mismatch (phones are real: 228 = calls/GBP, 990 = WhatsApp) | Fix canonical address |
 
 ## What is ALREADY done on-site (the foundation — complete)
 
@@ -66,7 +66,8 @@ with hundreds of weddings and mature backlink profiles. That gap is **authority
 ## Prioritized action plan to crack the generic SERP (off-page — owner)
 
 1. **Fix the Google Business Profile (highest local-SEO impact).**
-   - Replace the fake phone (+52 990… — lada 990 doesn't exist) with the real one.
+   - Phones are RESOLVED (2026-06-05): +52 228 857 0584 = calls (matches GBP) and
+     +52 990 204 6514 = WhatsApp. Both are real and confirmed — do not replace either.
    - Resolve the NAP mismatch: the website schema says Cancún (21.1619, -86.8515,
      CP 77500) but the GBP pin is at Riviera Maya (20.4785722, -87.0756298). Pick
      ONE canonical address and move the GBP pin (or tell us to update the site).
@@ -74,6 +75,8 @@ with hundreds of weddings and mature backlink profiles. That gap is **authority
 2. **Get listed on the aggregators that own the generic SERP**: Flytographer,
    The Knot, WeddingWire, Yelp, Airbnb experiences, Zankyou, Bodas.com.mx. These
    listings often outrank individual sites for the bare term, and they link back.
+   (Note: the owner evaluated The Knot's PAID placement as a bad investment —
+   pursue the free listing only.)
 3. **Earn backlinks**: real-wedding features on Junebug, Green Wedding Shoes,
    Mexico-wedding blogs, venue "preferred vendor" pages (Rosewood, Nizuc, etc.).
 4. **Pursue awards/credentials** (One Eyeland, WPJA, ISPWP, Fearless) — these are

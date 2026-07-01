@@ -192,7 +192,7 @@ estén listos. Si alguno falla, retrasa el envío 24-48 horas y arréglalo.
 - [ ] **Landing en ES funciona** — https://ivaestudios.com/es/redes-sociales-clinica-dental-mexico carga, tiene WhatsApp CTA, sección in-house vs agencia, proyección 90 días. (Verificado 2026-05-26)
 - [ ] **Blog post listo** — https://ivaestudios.com/post-dental-clinic-social-media-mexico (3,300 palabras, LFPDPPP, before-and-after rules, paid benchmarks). Adjuntable como link en el email si pide profundidad.
 - [ ] **Marketing intake form vivo** — https://ivaestudios.com/marketing-intake responde en EN/ES y entrega notificación a info@ivaestudios.com
-- [ ] **WhatsApp del estudio responde** — +52 990 204 6514 conectado y monitoreado en horario de oficina. (Atención: este número usa código 990 que es inválido en México — confirmar con CLAUDE.md → reemplazar con código real antes de enviar pitch).
+- [ ] **WhatsApp del estudio responde** — +52 990 204 6514 conectado y monitoreado en horario de oficina. (Confirmado 2026-06-05: este número es el WhatsApp REAL del estudio; el número de llamadas es +52 228 857 0584, que coincide con GBP. No reemplazar ninguno.)
 
 ## Hooks específicos para Smile Now (usar uno por mensaje)
 

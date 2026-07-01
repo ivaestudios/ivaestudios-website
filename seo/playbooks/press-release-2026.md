@@ -23,7 +23,7 @@ Cada backlink = autoridad. Total: 8-12 backlinks de blogs/newsfeeds.
 
 CANCÚN, México — May 2026 — **IVAE Studios**, the luxury editorial photography studio founded by photographer **Vianey Díaz** in 2023, today announced expanded availability for 2026-2027 destination wedding, family portrait and editorial commissions across México's three signature coastlines: the Mexican Caribbean (Cancún, Riviera Maya, Tulum), the lagoon-resort archipelago of Mayakoba, and the Pacific coast at Los Cabos.
 
-The studio, which has delivered over 500 sessions for international clients since founding three years ago, maintains a 5.0-star rating across 42 verified client reviews. IVAE Studios specializes in editorial-quality photography for destination weddings, multi-generational family resort sessions, and brand campaigns for hospitality clients.
+The studio, which has delivered over 500 sessions for international clients since founding three years ago, maintains a 5.0-star rating across 47 verified client reviews. IVAE Studios specializes in editorial-quality photography for destination weddings, multi-generational family resort sessions, and brand campaigns for hospitality clients.
 
 "International couples planning destination weddings in Mexico arrive expecting the photography to match the calibre of the resort, the cuisine, the venue," said **Vianey Díaz**, Founder and Creative Director of IVAE Studios. "Most resort photography services do not. They photograph at noon under harsh light and deliver galleries in six weeks. We photograph in the final ninety minutes of daylight, when Mexican skies turn warm and the light becomes honest, and we deliver in one to three days."
 
@@ -36,7 +36,7 @@ IVAE Studios (ivaestudios.com) is a luxury editorial photography studio based in
 **Media contact:**
 Vianey Díaz, Creative Director
 hello@ivaestudios.com
-+52 990 204 6514 *(actualizar)*
++52 990 204 6514 *(WhatsApp — real, confirmed; calls: +52 228 857 0584, matches GBP)*
 
 ###
 
@@ -52,7 +52,7 @@ hello@ivaestudios.com
 
 CANCÚN, México — Mayo 2026 — **IVAE Studios**, el estudio editorial de fotografía de lujo fundado por la fotógrafa **Vianey Díaz** en 2023, anunció hoy la apertura de su calendario 2026-2027 para bodas destino, retratos familiares y comisiones editoriales en las tres costas emblemáticas de México: el Caribe Mexicano (Cancún, Riviera Maya, Tulum), el archipiélago lagunar de Mayakoba, y la costa del Pacífico en Los Cabos.
 
-El estudio, que ha entregado más de 500 sesiones para clientes internacionales desde su fundación hace tres años, mantiene una calificación de 5.0 estrellas en 42 reseñas verificadas. IVAE Studios se especializa en fotografía de calidad editorial para bodas destino, sesiones familiares multi-generacionales en resorts, y campañas de marca para clientes de hospitalidad.
+El estudio, que ha entregado más de 500 sesiones para clientes internacionales desde su fundación hace tres años, mantiene una calificación de 5.0 estrellas en 47 reseñas verificadas. IVAE Studios se especializa en fotografía de calidad editorial para bodas destino, sesiones familiares multi-generacionales en resorts, y campañas de marca para clientes de hospitalidad.
 
 "Las parejas internacionales que planean bodas destino en México llegan esperando que la fotografía esté a la altura del resort, la gastronomía, el venue", dijo **Vianey Díaz**, Fundadora y Directora Creativa de IVAE Studios. "La mayoría de los servicios de fotografía de resort no lo está. Fotografían al mediodía bajo luz dura y entregan galerías en seis semanas. Nosotros fotografiamos en los últimos noventa minutos de luz del día, cuando los cielos mexicanos se vuelven cálidos y la luz se vuelve honesta, y entregamos en uno a tres días."
 
@@ -65,7 +65,7 @@ IVAE Studios (ivaestudios.com) es un estudio editorial de fotografía de lujo co
 **Contacto medios:**
 Vianey Díaz, Directora Creativa
 hello@ivaestudios.com
-+52 990 204 6514 *(actualizar)*
++52 990 204 6514 *(WhatsApp — real, confirmado; llamadas: +52 228 857 0584, coincide con GBP)*
 
 ###
 
@@ -109,7 +109,7 @@ respuesta: ~40% si se pitchea bien.
 Razones por las que un editor diría "sí" a publicarte:
 - 3 años de operación = "milestone-worthy"
 - 500+ sesiones = "track record"
-- 5.0/42 reviews = "social proof"
+- 5.0/47 reviews = "social proof"
 - Expansión a Cabo = "news angle"
 - Bilingual = "differentiator"
 - Mexican founder, no expat = "story angle"

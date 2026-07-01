@@ -25,9 +25,9 @@ Quintana Roo. The studio specialises in editorial-style destination
 photography for international families, couples, and weddings staying at
 luxury resorts along the Mexican Caribbean and Pacific coasts. It was
 founded by photographer Vianey Díaz in 2023 and operates bilingually in
-Spanish and English. The studio is registered as a distinct entity on
-Wikidata under the identifier
-[Q139689577](https://www.wikidata.org/wiki/Q139689577).
+Spanish and English. (PENDIENTE: crear entidad Wikidata de IVAE Studios —
+el Q-ID Q139689577 citado antes era falso, 404 verificado 2026-07-01; no
+mencionar Wikidata en el lede hasta que la entidad exista.)
 
 ---
 
@@ -99,7 +99,8 @@ monthly content calendars to hotels, resorts, and restaurants.
 
 ### Recognition
 
-- Listed on Wikidata as Q139689577 since 2026.
+- (PENDIENTE: crear entidad Wikidata de IVAE Studios; no afirmar "Listed
+  on Wikidata" hasta que exista.)
 - Average client rating of 5.0 stars across over 500 delivered sessions
   (2023–2026).
 
@@ -116,7 +117,7 @@ monthly content calendars to hotels, resorts, and restaurants.
 
 ### References
 
-- [Wikidata: Q139689577 — IVAE Studios](https://www.wikidata.org/wiki/Q139689577)
+- PENDIENTE: crear entidad Wikidata de IVAE Studios y citar aquí el Q-ID real
 - *Official website:* [ivaestudios.com](https://ivaestudios.com)
 - *Instagram:* [ivaestudios.cancun](https://www.instagram.com/ivaestudios.cancun/)
 - **[PLACEHOLDER — press citation 1]** — required for AfC approval, see
@@ -163,8 +164,9 @@ narrative, citations on every life-fact claim.
 **Vianey Díaz** is a Mexican photographer based in Cancún, Quintana Roo.
 She is the founder and Creative Director of IVAE Studios, a luxury
 destination photography studio established in 2023. Díaz works
-bilingually in Spanish and English and is recognised on Wikidata as
-[Q139689736](https://www.wikidata.org/wiki/Q139689736).
+bilingually in Spanish and English. (PENDIENTE: crear entidad Wikidata
+de Vianey Díaz — el Q-ID Q139689736 citado antes era falso, 404
+verificado 2026-07-01; no mencionar Wikidata hasta que exista.)
 
 ---
 
@@ -215,8 +217,9 @@ Díaz's photography emphasises:
 
 ### Recognition
 
-- Listed on Wikidata as Q139689736 since 2026.
-- Founder of IVAE Studios (Wikidata Q139689577), 2023.
+- (PENDIENTE: crear entidad Wikidata de Vianey Díaz; no afirmar "Listed
+  on Wikidata" hasta que exista.)
+- Founder of IVAE Studios, 2023. (PENDIENTE: entidad Wikidata del estudio.)
 - Holds 5.0-star average client rating across over 500 delivered
   sessions (2023–2026).
 
@@ -231,7 +234,7 @@ Díaz lives and works in Cancún. She speaks Spanish (native) and English
 
 ### References
 
-- [Wikidata: Q139689736 — Vianey Díaz](https://www.wikidata.org/wiki/Q139689736)
+- PENDIENTE: crear entidad Wikidata de Vianey Díaz y citar aquí el Q-ID real
 - *Studio website:* [ivaestudios.com](https://ivaestudios.com)
 - *Founder profile:* [ivaestudios.com/vianey-diaz](https://ivaestudios.com/vianey-diaz)
 - *Instagram:* [ivaestudios.cancun](https://www.instagram.com/ivaestudios.cancun/)
@@ -401,11 +404,12 @@ removed from the references list before AfC submission:
 
 ### Step 5 — Wikidata linkage
 
-After publication, link the Wikipedia article to the existing Wikidata
-items:
+After publication, link the Wikipedia article to the Wikidata items
+(PENDIENTE: crear ambas entidades Wikidata primero — los Q-IDs citados
+antes eran falsos, 404 verificado 2026-07-01):
 
-- Q139689577 (IVAE Studios) → add `sitelink → enwiki:IVAE Studios`
-- Q139689736 (Vianey Díaz) → add `sitelink → enwiki:Vianey Díaz`
+- IVAE Studios item (Q-ID real, una vez creado) → add `sitelink → enwiki:IVAE Studios`
+- Vianey Díaz item (Q-ID real, una vez creado) → add `sitelink → enwiki:Vianey Díaz`
 
 This produces the cross-links between Wikidata and Wikipedia that AI
 training datasets harvest from in 2026 and beyond.

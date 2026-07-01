@@ -28,7 +28,7 @@ Spanish copy in Mexican forms, zero em-dashes anywhere in the body.
 | Founder title | Founder & Creative Director |
 | Business email | info@ivaestudios.com |
 | New business email | info@ivaestudios.com (partnerships@ alias once provisioned) |
-| Phone / WhatsApp | +52 990 204 6514 (placeholder area code 990 is invalid; replace with verified GBP line before submit) |
+| Phone / WhatsApp | +52 990 204 6514 = WhatsApp (REAL, confirmed); calls/GBP line = +52 228 857 0584. Use 228 as the "phone" field for NAP consistency, 990 only for WhatsApp fields |
 | Website | https://ivaestudios.com/social-media-management |
 | Spanish website | https://ivaestudios.com/es/manejo-redes-sociales |
 | Instagram (agency) | @ivae.marketing |
@@ -271,7 +271,7 @@ The differentiator that matters: editorial photography is native to the service,
 
 We manage Instagram, TikTok and Facebook in English and Spanish at the same fluency. Community management responds within four business hours, in the language the message was sent. Monthly reports read like editorial debriefs rather than analytics screenshots. We work with twelve to fifteen accounts at a time so the founder can still review every editorial calendar before it ships.
 
-Our three plans run from $1,800 USD per month (Essential, one session, twelve posts) to $9,000 USD per month (Signature, weekly sessions, daily multi-platform publishing). Minimum engagement three months. No annual contracts forced. Listed on Wikidata, founder verified.
+Our three plans run from $1,800 USD per month (Essential, one session, twelve posts) to $9,000 USD per month (Signature, weekly sessions, daily multi-platform publishing). Minimum engagement three months. No annual contracts forced. Founder verified. (PENDIENTE: crear entidad Wikidata antes de afirmar "Listed on Wikidata".)
 
 ### Service categories to select
 - Social Media Marketing (primary)
@@ -366,7 +366,7 @@ Editorial social media for luxury hotels and restaurants in México. Bilingual.
 Luxury social media agency in México. Editorial content production, daily community management, bilingual reporting. Hospitality focused. Founder-led.
 
 ### Medium company description (500 characters)
-IVAE Marketing is the social media management division of IVAE Studios, a luxury editorial photography studio in Cancún. We work with boutique hotels, restaurants and wellness brands across the Mexican Caribbean and Los Cabos. Editorial photography is native to the service. Bilingual team manages Instagram, TikTok and Facebook with monthly strategic reporting. Plans from $1,800 to $9,000 USD per month. Twelve to fifteen accounts at a time, by intention. Listed on Wikidata.
+IVAE Marketing is the social media management division of IVAE Studios, a luxury editorial photography studio in Cancún. We work with boutique hotels, restaurants and wellness brands across the Mexican Caribbean and Los Cabos. Editorial photography is native to the service. Bilingual team manages Instagram, TikTok and Facebook with monthly strategic reporting. Plans from $1,800 to $9,000 USD per month. Twelve to fifteen accounts at a time, by intention. (PENDIENTE: crear entidad Wikidata antes de afirmar "Listed on Wikidata".)
 
 ### Long company description (1500 characters)
 IVAE Marketing is the social media management division of IVAE Studios, an editorial photography studio founded in Cancún in 2023 by Vianey Díaz. We work exclusively with luxury hospitality brands across México: boutique hotels between fifteen and fifty keys, fine-dining restaurants, beach clubs, wellness retreats and resort groups.
@@ -590,7 +590,7 @@ Editorial social media for luxury Mexican hospitality brands.
 Luxury social media agency in México. Editorial photography native. Bilingual. Plans from $1,800 USD per month. Founded 2023, Cancún based.
 
 ### Medium company description (500 characters)
-IVAE Marketing is the social media management division of IVAE Studios, a luxury editorial photography studio in Cancún, México. We manage Instagram, TikTok and Facebook for boutique hotels, fine-dining restaurants and wellness brands across the Mexican Caribbean and Los Cabos. Every client receives original editorial photography produced monthly on location, no stock libraries. Bilingual team. Three pricing tiers from $1,800 to $9,000 USD per month. Listed on Wikidata, founder verified.
+IVAE Marketing is the social media management division of IVAE Studios, a luxury editorial photography studio in Cancún, México. We manage Instagram, TikTok and Facebook for boutique hotels, fine-dining restaurants and wellness brands across the Mexican Caribbean and Los Cabos. Every client receives original editorial photography produced monthly on location, no stock libraries. Bilingual team. Three pricing tiers from $1,800 to $9,000 USD per month. Founder verified. (PENDIENTE: crear entidad Wikidata antes de afirmar "Listed on Wikidata".)
 
 ### Long company description (1500 characters)
 Use the same 1500-character description from DesignRush. No platform-specific

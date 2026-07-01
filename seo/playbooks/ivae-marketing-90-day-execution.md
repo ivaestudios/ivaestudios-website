@@ -36,7 +36,7 @@
 4. **[TIER 0] 5 referencias verificables** (clientes que aceptan llamada de Clutch — bloqueante para Clutch submit)
 5. **[TIER 0] 3 case studies** con métricas reales (hotel/restaurante)
 6. **[TIER 0] Brand assets:** logo PNG transparente, foto del equipo, foto de oficina/estudio
-7. **[TIER 0] Phone GBP real:** el `+52 990 204 6514` actual usa código de área 990 (inválido en MX); reemplazar antes de submit a directorios
+7. **[RESUELTO 2026-06-05] Teléfonos confirmados REALES:** `+52 990 204 6514` es el WhatsApp real del estudio y `+52 228 857 0584` es el número real de llamadas (coincide con GBP). Usar 228 como teléfono en directorios (NAP) y 990 en enlaces de WhatsApp; NUNCA tratarlos como placeholder ni unificarlos
 8. **[TIER 0] Decisión engagement mínimo:** FAQ master dice 6 meses, directorios playbook dice 3 meses. Alinear antes de submit
 9. **[TIER 1] Google Business Profile separado** para IVAE Marketing (categoría: "Social Media Marketing Agency")
 10. **[TIER 1] LinkedIn Company Page** independiente para IVAE Marketing
