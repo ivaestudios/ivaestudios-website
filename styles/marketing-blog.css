@@ -1,28 +1,72 @@
 /* ============================================================================
-   IVAE MARKETING — override de marca para los posts de blog de marketing.
-   Se carga DESPUÉS de blog.css (que trae la tipografía serif Cormorant + acentos
-   dorados de IVAE Studios / fotografía) para que estos posts se vean 100%
-   IVAE Marketing: tipografía Outfit sans-serif + acentos morado/rosa.
-   No toca los posts de fotografía (solo se enlaza en los posts de marketing).
+   IVAE MARKETING — override COMPLETO de marca para los posts de blog de
+   marketing. Se carga DESPUÉS de blog.css (marca IVAE Studios: serif Cormorant
+   + acentos dorados) y neutraliza TODO el dorado/serif para que estos posts se
+   vean 100% IVAE Marketing: Outfit sans-serif + acentos morado (#a78bfa) /
+   rosa (#ec4899). Solo se enlaza en los posts de marketing; los de fotografía
+   no lo cargan y conservan su identidad.
    ============================================================================ */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
 
-/* Encabezados y lead: de serif dorado -> Outfit sans-serif, marca marketing */
+:root{
+  --mkt-purple:#a78bfa;
+  --mkt-purple-deep:#7c5cd6;
+  --mkt-pink:#ec4899;
+  --mkt-purple-line:rgba(124,92,214,0.38);
+  --mkt-purple-bg:rgba(167,139,250,0.08);
+}
+
+/* ── Tipografía: TODO a Outfit (nada de Cormorant serif ni Syne) ── */
+body,.post-article,.post-article p,.post-article li,.toc-list li a{font-family:'Outfit',sans-serif}
 .post-hero h1{font-family:'Outfit',sans-serif;font-weight:800;letter-spacing:-0.02em}
 .post-lead{font-family:'Outfit',sans-serif;font-weight:400;font-size:19px;line-height:1.7;opacity:1}
 .post-article h2{font-family:'Outfit',sans-serif;font-weight:700;letter-spacing:-0.01em;line-height:1.25}
 .post-article h3{font-family:'Outfit',sans-serif;font-weight:600}
-.post-article h2 em,.post-hero h1 em,.post-cta h2 em{font-style:normal;color:#a78bfa}
 .faq-section h2,.post-cta h2{font-family:'Outfit',sans-serif;font-weight:800}
-.internal-links h3,.related h3{font-family:'Outfit',sans-serif;font-weight:700}
-.rel-title{font-family:'Outfit',sans-serif}
+.internal-links h3,.related h3,.rel-title{font-family:'Outfit',sans-serif;font-weight:700}
+.pricing-card h4{font-family:'Outfit',sans-serif;font-weight:700}
 
-/* Acentos: dorado -> morado/rosa de IVAE Marketing */
-.post-tag-hero{color:#a78bfa}
-.toc-title{color:#a78bfa}
-.toc-list li a::before{color:#a78bfa}
-.toc-list li a:hover{color:#a78bfa}
-.breadcrumbs a:hover{color:#a78bfa}
-.il-tag{color:#a78bfa}
-.post-back:hover{color:#ec4899}
-/* barra de acento del pullquote/callout ya usa morado en el <style> del post */
+/* ── Cursivas de acento: dorado -> morado ── */
+.post-article h2 em,.post-hero h1 em,.post-cta h2 em,.related h3 em{font-style:normal;color:var(--mkt-purple-deep)}
+.post-cta h2 em{color:var(--mkt-purple)}
+
+/* ── Enlaces y bullets del cuerpo: dorado -> morado ── */
+.post-article a{color:var(--mkt-purple-deep);text-decoration-color:var(--mkt-purple-line)}
+.post-article a:hover{color:var(--mkt-pink)}
+.post-article ul li::before{background:var(--mkt-purple-deep)}
+.post-article ol li::before{color:var(--mkt-purple-deep)}
+.post-divider{background:linear-gradient(90deg,var(--mkt-purple),var(--mkt-pink))}
+
+/* ── Hero / TOC / migas ── */
+.post-tag-hero{color:var(--mkt-purple)}
+.post-back:hover{color:var(--mkt-pink)}
+.toc-title{color:var(--mkt-purple-deep)}
+.toc-list li a::before{color:var(--mkt-purple-deep)}
+.toc-list li a:hover{color:var(--mkt-purple-deep)}
+.breadcrumbs a:hover{color:var(--mkt-purple-deep)}
+
+/* ── FAQ / tablas / tarjetas de precios ── */
+.faq-q::after{color:var(--mkt-purple-deep)}
+.comparison-table thead th{color:var(--mkt-purple-deep)}
+.pricing-card:hover,.pricing-card.featured{border-color:var(--mkt-purple)}
+.pricing-card.featured::before{background:var(--mkt-purple);color:#fff}
+.pricing-card .price{color:var(--mkt-purple-deep)}
+.pricing-card ul li::before{background:var(--mkt-purple-deep)}
+.pricing-btn{color:var(--mkt-purple-deep);border-color:var(--mkt-purple-line)}
+.pricing-btn:hover{background:var(--mkt-purple-bg);border-color:var(--mkt-purple)}
+
+/* ── Autor / enlaces internos / relacionados ── */
+.author-info .author-title{color:var(--mkt-purple-deep)}
+.internal-links h3{color:var(--mkt-purple-deep)}
+.il-link:hover{border-color:var(--mkt-purple);background:var(--mkt-purple-bg)}
+.il-link .il-tag{color:var(--mkt-purple-deep)}
+.rel-tag{color:var(--mkt-purple-deep)}
+
+/* ── CTA final: botones dorados -> morado/rosa marca marketing ── */
+.btn-cta{color:#fff;background:linear-gradient(135deg,var(--mkt-purple),var(--mkt-pink));border:1px solid transparent;border-radius:10px;font-weight:700}
+.btn-cta:hover{background:linear-gradient(135deg,var(--mkt-purple-deep),var(--mkt-pink));border-color:transparent;opacity:.94}
+.btn-cta[style*="background:transparent"]{background:transparent !important;color:var(--mkt-purple) !important;border:1px solid rgba(167,139,250,0.4) !important}
+
+/* ── Accesibilidad: focus dorado -> morado ── */
+*:focus-visible{outline:2px solid var(--mkt-purple) !important;outline-offset:2px}
+.skip-link{background:var(--mkt-purple);color:#0a0a0f}
