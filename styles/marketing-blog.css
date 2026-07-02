@@ -103,3 +103,19 @@ html.dark .btn-cta[style*="background:transparent"]{background:transparent !impo
 html.dark .post-divider{background:linear-gradient(90deg,var(--mkt-purple),var(--mkt-pink)) !important}
 html.dark .faq-q::after,html.dark .rel-tag,html.dark .author-info .author-title{color:var(--mkt-purple) !important}
 html.dark *:focus-visible{outline-color:var(--mkt-purple) !important}
+
+/* ── HEADER de marketing: html.dark a también lo pintaba dorado ── */
+html.dark .imkt-hd-logo{color:#f0eee9 !important}
+html.dark .imkt-hd-logo b,html.dark .imkt-hd-logo span:not(.g){color:#f0eee9 !important}
+html.dark .imkt-hd-nav a{color:rgba(240,238,233,.72) !important}
+html.dark .imkt-hd-nav a:hover{color:#f0eee9 !important}
+html.dark .imkt-hd-nav a.is-active{color:#c4b5fd !important}
+html.dark .imkt-hd-nav a.studio{color:rgba(240,238,233,.5) !important}
+html.dark .imkt-hd-nav a.studio:hover{color:#c4b5fd !important}
+html.dark .imkt-hd-lang a{color:rgba(240,238,233,.5) !important}
+html.dark .imkt-hd-lang a.is-active{color:#c4b5fd !important}
+html.dark .imkt-hd-login{color:rgba(240,238,233,.8) !important}
+html.dark .imkt-hd-cta,html.dark .imkt-hd-cta *{color:#fff !important}
+html.dark .imkt-hd svg{color:inherit !important}
+html.dark .imkt-hd-burger,html.dark .imkt-hd-burger *{color:#f0eee9 !important}
+html.dark .imkt-mnav a{color:rgba(240,238,233,.8) !important}
