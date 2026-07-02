@@ -74,3 +74,32 @@ body,.post-article,.post-article p,.post-article li,.toc-list li a{font-family:'
 /* ── Meta bar del hero (autor/fecha): el dark-mode global pinta los <a> dorados ── */
 .post-meta-bar a{color:var(--mkt-purple) !important;text-decoration-color:var(--mkt-purple-line)}
 .post-meta-bar a:hover{color:var(--mkt-pink) !important}
+
+/* ============================================================================
+   MODO OSCURO: dark-mode.css (marca Studios) pinta TODOS los <a> dorados
+   (#c9a54e) con `html.dark a`. En los posts de marketing lo neutralizamos
+   COMPLETO con !important (dark-mode.css puede cargar después de este archivo).
+   ============================================================================ */
+html.dark .post-article a{color:var(--mkt-purple) !important}
+html.dark .post-article a:hover{color:var(--mkt-pink) !important}
+html.dark .toc-list li a{color:rgba(240,238,233,0.78) !important}
+html.dark .toc-list li a:hover{color:var(--mkt-purple) !important}
+html.dark .toc-list li a::before{color:var(--mkt-purple) !important}
+html.dark .toc-title{color:var(--mkt-purple) !important}
+html.dark .breadcrumbs a{color:rgba(240,238,233,0.55) !important}
+html.dark .breadcrumbs a:hover{color:var(--mkt-purple) !important}
+html.dark .post-back{color:rgba(240,238,233,0.7) !important}
+html.dark .post-back:hover{color:var(--mkt-pink) !important}
+html.dark .post-tag-hero{color:var(--mkt-purple) !important}
+html.dark .post-meta-bar a{color:var(--mkt-purple) !important}
+html.dark .il-link .il-tag{color:var(--mkt-purple) !important}
+html.dark .internal-links a,html.dark .il-link{color:inherit !important}
+html.dark .il-link .il-title{color:rgba(240,238,233,0.92) !important}
+html.dark .internal-links h3{color:var(--mkt-purple) !important}
+html.dark .post-article h2 em{color:var(--mkt-purple) !important}
+html.dark .post-cta h2 em{color:var(--mkt-purple) !important}
+html.dark .btn-cta{color:#fff !important;background:linear-gradient(135deg,var(--mkt-purple),var(--mkt-pink)) !important;border-color:transparent !important}
+html.dark .btn-cta[style*="background:transparent"]{background:transparent !important;color:var(--mkt-purple) !important;border:1px solid rgba(167,139,250,0.4) !important}
+html.dark .post-divider{background:linear-gradient(90deg,var(--mkt-purple),var(--mkt-pink)) !important}
+html.dark .faq-q::after,html.dark .rel-tag,html.dark .author-info .author-title{color:var(--mkt-purple) !important}
+html.dark *:focus-visible{outline-color:var(--mkt-purple) !important}
