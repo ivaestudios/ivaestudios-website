@@ -70,3 +70,7 @@ body,.post-article,.post-article p,.post-article li,.toc-list li a{font-family:'
 /* ── Accesibilidad: focus dorado -> morado ── */
 *:focus-visible{outline:2px solid var(--mkt-purple) !important;outline-offset:2px}
 .skip-link{background:var(--mkt-purple);color:#0a0a0f}
+
+/* ── Meta bar del hero (autor/fecha): el dark-mode global pinta los <a> dorados ── */
+.post-meta-bar a{color:var(--mkt-purple) !important;text-decoration-color:var(--mkt-purple-line)}
+.post-meta-bar a:hover{color:var(--mkt-pink) !important}
