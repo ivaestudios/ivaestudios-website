@@ -8,8 +8,8 @@
 // TODO PASA EN EL NAVEGADOR (canvas): la imagen nunca se sube a un servidor,
 // por eso funciona igual de rápido en el cel que en la compu y no gasta datos.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607031805';
-import { icon } from '../shell/icons.js?v=202607031805';
+import { el, clear, toast } from '../api.js?v=202607031845';
+import { icon } from '../shell/icons.js?v=202607031845';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -35,18 +35,22 @@ function baseName(name) {
 
 // Detección de la cuadrícula: prueba filas 1-4 × columnas 1-12 y se queda con
 // la combinación cuyos slides queden más cerca de 4:5 (1080×1350), 1:1 o 9:16.
-// Entre empates gana la de MENOS slides (una tira de 5 cuadrados es 1×5, no 2×10).
+// En empates gana el formato 4:5 (una tira de 5400×1350 son 5 slides de IG,
+// no 4 cuadrados) y luego la opción con MENOS slides (5 cuadrados = 1×5, no 2×10).
 function detectGrid(w, h) {
-  const TARGETS = [4 / 5, 1, 9 / 16];
+  const TARGETS = [4 / 5, 1, 9 / 16]; // en orden de prioridad
   let best = null;
   for (let r = 1; r <= MAX_ROWS; r++) {
     for (let c = 1; c <= MAX_COLS; c++) {
       const ratio = (w / c) / (h / r);
-      for (const t of TARGETS) {
-        const err = Math.abs(ratio - t) / t;
+      for (let ti = 0; ti < TARGETS.length; ti++) {
+        const err = Math.abs(ratio - TARGETS[ti]) / TARGETS[ti];
         if (err > 0.04) continue;
-        const cand = { r, c, err, n: r * c };
-        if (!best || cand.err < best.err - 1e-6 || (Math.abs(cand.err - best.err) < 1e-6 && cand.n < best.n)) best = cand;
+        const cand = { r, c, err, ti, n: r * c };
+        const wins = !best
+          || (cand.err < best.err - 0.01)
+          || (Math.abs(cand.err - best.err) <= 0.01 && (cand.ti < best.ti || (cand.ti === best.ti && cand.n < best.n)));
+        if (wins) best = cand;
       }
     }
   }
@@ -337,6 +341,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202607031805';
+  link.href = '/marketing/css/carrusel.css?v=202607031845';
   document.head.appendChild(link);
 }
