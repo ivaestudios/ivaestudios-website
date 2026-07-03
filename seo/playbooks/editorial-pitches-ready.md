@@ -46,7 +46,7 @@ Thank you for the consideration.
 Best,
 Vianey Díaz
 Founder & Creative Director, IVAE Studios
-hello@ivaestudios.com · ivaestudios.com
+info@ivaestudios.com · ivaestudios.com
 @ivaestudios.cancun
 
 ---
@@ -122,7 +122,7 @@ Thank you for considering the submission.
 Best,
 Vianey Díaz
 Founder & Creative Director, IVAE Studios
-hello@ivaestudios.com · ivaestudios.com
+info@ivaestudios.com · ivaestudios.com
 @ivaestudios.cancun
 
 ---
@@ -195,7 +195,7 @@ Thank you for the consideration. I am a long-time reader and have been quietly h
 Best,
 Vianey Díaz
 Founder & Creative Director, IVAE Studios
-hello@ivaestudios.com · ivaestudios.com
+info@ivaestudios.com · ivaestudios.com
 @ivaestudios.cancun
 
 ---
@@ -268,7 +268,7 @@ Gallery and vendor profile materials are linked below. Happy to revise to your h
 Best,
 Vianey Díaz
 Founder & Creative Director, IVAE Studios
-hello@ivaestudios.com · ivaestudios.com
+info@ivaestudios.com · ivaestudios.com
 @ivaestudios.cancun
 
 ---
@@ -343,7 +343,7 @@ Adjunto el portafolio, biografía y links a las tres galerías. Quedo a sus órd
 Un saludo respetuoso,
 Vianey Díaz
 Fundadora y Directora Creativa, IVAE Studios
-hello@ivaestudios.com · ivaestudios.com
+info@ivaestudios.com · ivaestudios.com
 @ivaestudios.cancun
 
 ---
@@ -431,7 +431,7 @@ Do not send pitch one until every box below is checked. Editors triage on the fi
 
 ### Email infrastructure
 
-- [ ] hello@ivaestudios.com inbox monitored daily by Vianey or assistant
+- [ ] info@ivaestudios.com inbox monitored daily by Vianey or assistant
 - [ ] Auto-reply turned off during pitch weeks (auto-replies look unprofessional to editors)
 - [ ] Calendar window blocked for editorial response calls (next 30 days)
 

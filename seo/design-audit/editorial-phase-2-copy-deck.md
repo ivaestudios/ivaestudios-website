@@ -685,7 +685,7 @@ The press band is rendered as a horizontal logo wall, edge-to-edge, with logos s
 ### 13.1 Inquiry CTAs (two, side-by-side)
 
 **Primary CTA (locked):** Begin Brief
-**Element:** `<a class="le-btn le-btn-primary" href="mailto:hello@ivaestudios.com?subject=Editorial Commission Brief">`
+**Element:** `<a class="le-btn le-btn-primary" href="mailto:info@ivaestudios.com?subject=Editorial Commission Brief">`
 **Note:** Per Phase 1 §13 risk #4, the email destination (`hello@` vs `info@`) is owner-confirm before Phase 4 ship. Phase 4 must reconcile against current page CTA destinations.
 
 **Secondary CTA (locked):** WhatsApp the Studio
@@ -731,7 +731,7 @@ The press band is rendered as a horizontal logo wall, edge-to-edge, with logos s
 - Journal
 
 **Column 2 — Contact:**
-- hello@ivaestudios.com
+- info@ivaestudios.com
 - WhatsApp [pending real number]
 - Cancun · Riviera Maya · Los Cabos
 - Same-business-day response

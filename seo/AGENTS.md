@@ -730,7 +730,7 @@ Next autonomous run: **every Monday 9:08 AM local** (cron `7 9 * * 1`).
 ## Contact (last user-confirmed details)
 
 - Phone: +52 990 204 6514 (verify before use — has been flagged as impossible area code)
-- Email: hello@ivaestudios.com
+- Email: info@ivaestudios.com
 - Instagram: @ivaestudios.cancun
 - GBP / Google Maps: https://maps.app.goo.gl/aX7jiVbLzwurMmX19
 

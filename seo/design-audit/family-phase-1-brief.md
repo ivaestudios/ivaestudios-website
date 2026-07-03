@@ -569,7 +569,7 @@ The current page carries dense schema and meta. **Every item below must be prese
 
 **WhatsApp deep link** `https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session` — preserve verbatim. Header CTA, hero CTA, and CTA section all use this.
 
-**Email contact** `info@ivaestudios.com` (CTA) and `hello@ivaestudios.com` (schema) — preserve both as they appear; Phase 4 may consolidate but must preserve schema email verbatim.
+**Email contact** `info@ivaestudios.com` (CTA) and `info@ivaestudios.com` (schema) — preserve both as they appear; Phase 4 may consolidate but must preserve schema email verbatim.
 
 **Image alt text** — current alt strings are SEO-tuned and well-written. Phase 4 may rewrite for editorial polish, but every alt must (a) describe the image, (b) include "by IVAE Studios" suffix, (c) use English alt for EN page and Spanish alt for ES page, (d) never be empty for content images.
 

@@ -105,7 +105,7 @@ Tested logical document order: skip link → header logo → header nav (Light, 
 
 ### 2.4.4 / 2.4.6 — Link purpose & headings
 - Every link has self-explanatory text or aria-label.
-- The mailto CTA "Seal the Letter" was clarified with `aria-label="Seal the letter — opens an email to hello@ivaestudios.com"` (only fix applied during this audit).
+- The mailto CTA "Seal the Letter" was clarified with `aria-label="Seal the letter — opens an email to info@ivaestudios.com"` (only fix applied during this audit).
 - Headings describe their section content.
 
 ### 2.4.7 — Focus visible

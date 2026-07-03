@@ -37,7 +37,7 @@ Press (real, owner-confirmed, shown on /about): Travel + Leisure México (2025),
 Weddings per year: capped at 12 (deliberate editorial-quality cap)
 Phone (calls): +52 228 857 0584 (this is the Google Business Profile number)
 WhatsApp: +52 990 204 6514 (separate real number, WhatsApp only — never merge or swap the two)
-Email: hello@ivaestudios.com
+Email: info@ivaestudios.com
 
 ## Identity (IVAE Marketing — sub-brand)
 Name: IVAE Marketing
@@ -302,7 +302,7 @@ ivaestudio.com (no S) = unrelated European agency, no affiliation.
 Website: https://ivaestudios.com
 Phone (calls): +52 228 857 0584 (Google Business Profile number)
 WhatsApp: +52 990 204 6514 (WhatsApp only — a different real number, on purpose)
-Email: hello@ivaestudios.com
+Email: info@ivaestudios.com
 Google Business Profile: https://maps.app.goo.gl/aX7jiVbLzwurMmX19 (5.0, 47 reviews)
 Studio Instagram: https://www.instagram.com/ivaestudios.cancun/
 Brand entity page: https://ivaestudios.com/brand

@@ -35,7 +35,7 @@ IVAE Studios (ivaestudios.com) is a luxury editorial photography studio based in
 
 **Media contact:**
 Vianey Díaz, Creative Director
-hello@ivaestudios.com
+info@ivaestudios.com
 +52 990 204 6514 *(WhatsApp — real, confirmed; calls: +52 228 857 0584, matches GBP)*
 
 ###
@@ -64,7 +64,7 @@ IVAE Studios (ivaestudios.com) es un estudio editorial de fotografía de lujo co
 
 **Contacto medios:**
 Vianey Díaz, Directora Creativa
-hello@ivaestudios.com
+info@ivaestudios.com
 +52 990 204 6514 *(WhatsApp — real, confirmado; llamadas: +52 228 857 0584, coincide con GBP)*
 
 ###

@@ -116,7 +116,7 @@
 **Trade-off:** Densities are seeded numbers, not real bookings. Wave 5 should wire to actual booking JSON.
 
 #### D3 — Booking simulator (3-step)
-**What:** Three steps wrapped in a single `<form role="tablist">` — Step 01 *A Coast* (Cancún / Riviera / Cabos), Step 02 *A Session* (Couples / Family / Wedding with from-pricing), Step 03 *A Window* (Peak / Shoulder / Green). Each step has 3 `aria-pressed` option buttons. A live summary appears once all three are chosen. Final CTA: **"Seal the Letter"** (mailto:hello@ivaestudios.com).
+**What:** Three steps wrapped in a single `<form role="tablist">` — Step 01 *A Coast* (Cancún / Riviera / Cabos), Step 02 *A Session* (Couples / Family / Wedding with from-pricing), Step 03 *A Window* (Peak / Shoulder / Green). Each step has 3 `aria-pressed` option buttons. A live summary appears once all three are chosen. Final CTA: **"Seal the Letter"** (mailto:info@ivaestudios.com).
 
 **Why for IVAE:** v3's only conversion path was the inquiry form at the very end of the page. v4 has the simulator in ACT V — a structured, pleasant, on-brand mini-funnel that pre-qualifies the visitor. The CTA "Seal the Letter" preserves the v3 letter metaphor.
 

@@ -251,7 +251,7 @@
     // back to the studio's canonical consultation email when no #inquiry
     // anchor exists on the page; keep the smooth-scroll on pages that have it.
     if (!document.getElementById('inquiry')) {
-      var ctaFallback = 'mailto:hello@ivaestudios.com';
+      var ctaFallback = 'mailto:info@ivaestudios.com';
       document.querySelectorAll('#siteHeader .h-cta, #mNav .m-nav-cta').forEach(function (a) {
         a.setAttribute('href', ctaFallback);
       });

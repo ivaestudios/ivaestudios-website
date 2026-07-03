@@ -319,7 +319,7 @@ async function handleForgotPassword(request, env) {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'IVAE Studios <gallery@ivaestudios.com>',
+          from: 'IVAE Studios <info@ivaestudios.com>',
           to: [user.email],
           subject: 'Reset your IVAE Studios gallery password',
           html
@@ -843,7 +843,7 @@ async function handleSendInviteEmail(request, env, session, galleryId, userId) {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: 'IVAE Studios <gallery@ivaestudios.com>',
+      from: 'IVAE Studios <info@ivaestudios.com>',
       to: [user.email],
       subject: `Your gallery is ready: ${gallery.title}`,
       html,
@@ -1044,7 +1044,7 @@ function buildProofReceiptEmail({ galleryTitle, photoCount, submittedAt, viewerU
     try { return new Date(submittedAt).toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' }); }
     catch { return ''; }
   })();
-  const replyTo = String(photographerEmail || 'hola@ivaestudios.com');
+  const replyTo = String(photographerEmail || 'info@ivaestudios.com');
   return `<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <meta name="color-scheme" content="light only"/>
@@ -1095,7 +1095,7 @@ function buildProofReviewEmail({ status, galleryTitle, galleryUrl, photoCount, n
   const safeTitle = String(galleryTitle || 'your gallery').replace(/</g, '&lt;');
   const safeNote = note ? String(note).replace(/</g, '&lt;').replace(/\n/g, '<br>') : '';
   const count = Number(photoCount) || 0;
-  const replyTo = String(photographerEmail || 'hola@ivaestudios.com');
+  const replyTo = String(photographerEmail || 'info@ivaestudios.com');
   const isApproved = status === 'approved';
 
   const headline = isApproved ? 'Your selections are <em style="font-style:italic;">approved</em>'
@@ -1164,7 +1164,7 @@ function buildExpiryWarningEmail({ clientName, galleryTitle, daysLeft, expireDat
   const safeName = clientName ? String(clientName).split(' ')[0].replace(/</g, '&lt;') : '';
   const days = Math.max(0, Number(daysLeft) || 0);
   const dayLabel = days === 0 ? 'today' : (days === 1 ? 'tomorrow' : `in ${days} days`);
-  const replyTo = String(photographerEmail || 'hola@ivaestudios.com');
+  const replyTo = String(photographerEmail || 'info@ivaestudios.com');
   const formattedDate = (() => {
     try { return new Date(expireDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }); }
     catch { return expireDate || ''; }
@@ -1453,13 +1453,13 @@ async function handleSubmitProof(request, env, session, galleryId, ctx) {
           photoCount: photoIds.length,
           submittedAt,
           viewerUrl,
-          photographerEmail: env.ADMIN_EMAIL || env.STUDIO_EMAIL || 'hola@ivaestudios.com',
+          photographerEmail: env.ADMIN_EMAIL || env.STUDIO_EMAIL || 'info@ivaestudios.com',
         });
         const r = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            from: 'Vianey at IVAE Studios <hola@ivaestudios.com>',
+            from: 'Vianey at IVAE Studios <info@ivaestudios.com>',
             to: [email],
             subject: `Your selections from ${gallery.title} — IVAE Studios`,
             html,
@@ -1476,7 +1476,7 @@ async function handleSubmitProof(request, env, session, galleryId, ctx) {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            from: 'IVAE Gallery <gallery@ivaestudios.com>',
+            from: 'IVAE Gallery <info@ivaestudios.com>',
             to: studioTo,
             subject: `${gallery.title} — Client submitted ${photoIds.length} selections`,
             html: `<p>${(name || email).replace(/</g, '&lt;')} just submitted <strong>${photoIds.length}</strong> selections in <strong>${gallery.title.replace(/</g, '&lt;')}</strong>.</p>${safeNote}<p><a href="https://ivaestudios.com/gallery/admin/gallery-edit.html?id=${galleryId}">Review in admin</a></p>`
@@ -1555,7 +1555,7 @@ async function handleReviewProof(request, env, session, proofId, ctx) {
       let photoCount = 0;
       try { photoCount = (JSON.parse(proof.photo_ids || '[]') || []).length; } catch {}
       const galleryUrl = `https://ivaestudios.com/gallery/gallery?id=${proof.gallery_id}`;
-      const photographerEmail = env.STUDIO_EMAIL || env.ADMIN_EMAIL || 'hola@ivaestudios.com';
+      const photographerEmail = env.STUDIO_EMAIL || env.ADMIN_EMAIL || 'info@ivaestudios.com';
       const html = buildProofReviewEmail({
         status: reviewStatus,
         galleryTitle: proof.gallery_title,
@@ -1572,7 +1572,7 @@ async function handleReviewProof(request, env, session, proofId, ctx) {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            from: 'Vianey at IVAE Studios <hola@ivaestudios.com>',
+            from: 'Vianey at IVAE Studios <info@ivaestudios.com>',
             reply_to: photographerEmail,
             to: [proof.email],
             subject,
@@ -2631,7 +2631,7 @@ async function buildEmailVars(env, gallery, user, accessPassword) {
     gallery_url: galleryUrl,
     studio_name: (settings && settings.studio_name) || 'IVAE Studios',
     tagline: (settings && settings.tagline) || '',
-    contact_email: (settings && settings.contact_email) || 'gallery@ivaestudios.com',
+    contact_email: (settings && settings.contact_email) || 'info@ivaestudios.com',
     instagram_handle: (settings && settings.instagram_handle) || 'ivaestudios',
     expire_date: expireDate,
     days_until_expire: String(daysUntilExpire),
@@ -2643,7 +2643,7 @@ async function buildEmailVars(env, gallery, user, accessPassword) {
 async function sendEmailViaResend(env, { from, to, subject, html, replyTo }) {
   if (!env.RESEND_API_KEY) throw new Error('RESEND_API_KEY not configured');
   const payload = {
-    from: from || 'IVAE Studios <gallery@ivaestudios.com>',
+    from: from || 'IVAE Studios <info@ivaestudios.com>',
     to: Array.isArray(to) ? to : [to],
     subject: subject,
     html: html
@@ -2732,7 +2732,7 @@ async function handleTestEmailTemplate(request, env, session, id) {
     gallery_url: 'https://ivaestudios.com/gallery/',
     studio_name: (settings && settings.studio_name) || 'IVAE Studios',
     tagline: (settings && settings.tagline) || 'Resort photography in Cancún',
-    contact_email: (settings && settings.contact_email) || 'gallery@ivaestudios.com',
+    contact_email: (settings && settings.contact_email) || 'info@ivaestudios.com',
     instagram_handle: (settings && settings.instagram_handle) || 'ivaestudios',
     expire_date: 'May 15, 2026',
     days_until_expire: '21',
@@ -3626,7 +3626,7 @@ async function handleExpiryWarn(env) {
          AND date(g.expire_date) >= date('now')
     `).all();
 
-    const photographerEmail = env.STUDIO_EMAIL || env.ADMIN_EMAIL || 'hola@ivaestudios.com';
+    const photographerEmail = env.STUDIO_EMAIL || env.ADMIN_EMAIL || 'info@ivaestudios.com';
 
     for (const g of (rows.results || [])) {
       const days = Math.max(0, Math.ceil((new Date(g.expire_date) - new Date()) / 86400000));
@@ -3669,7 +3669,7 @@ async function handleExpiryWarn(env) {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              from: 'Vianey at IVAE Studios <hola@ivaestudios.com>',
+              from: 'Vianey at IVAE Studios <info@ivaestudios.com>',
               reply_to: photographerEmail,
               to: [client.email],
               subject,
@@ -3689,7 +3689,7 @@ async function handleExpiryWarn(env) {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              from: 'IVAE Gallery <gallery@ivaestudios.com>',
+              from: 'IVAE Gallery <info@ivaestudios.com>',
               to: env.ADMIN_EMAIL,
               subject: `${g.title} expires in ${days} day${days === 1 ? '' : 's'}`,
               html: `<p><strong>${g.title}</strong> will expire on <strong>${g.expire_date}</strong> (${days} day${days === 1 ? '' : 's'} from now). ${clients.length} client${clients.length === 1 ? ' was' : 's were'} notified.</p><p><a href="https://ivaestudios.com/gallery/admin/gallery-edit.html?id=${g.id}">Open in admin</a></p>`

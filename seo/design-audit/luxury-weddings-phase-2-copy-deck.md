@@ -338,7 +338,7 @@ The five FAQ questions below are the priority for Phase 3 visible-on-load render
 > Share your date, your venue, and a sentence about the day you imagine. We will respond the same business day, in English or Spanish, with one or two questions and a calendar link. The first reply will come from Vianey. If you would rather speak first, the WhatsApp button below is the fastest way to reach the studio.
 
 **CTAs below (locked):**
-- Primary: **Email the Studio** → `mailto:hello@ivaestudios.com` (Phase 1 §11 risk #8: confirm `hello@` vs `info@` with owner before build)
+- Primary: **Email the Studio** → `mailto:info@ivaestudios.com` (Phase 1 §11 risk #8: confirm `hello@` vs `info@` with owner before build)
 - Secondary: **WhatsApp** → `https://wa.me/529902046514` (Phase 1 §11 risk #8: phone number is on hold per `CLAUDE.md`; Phase 4 must NOT publish until owner confirms real number)
 
 **Meta strip below CTAs (locked):**

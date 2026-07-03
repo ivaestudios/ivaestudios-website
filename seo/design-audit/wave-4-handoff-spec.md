@@ -186,7 +186,7 @@ All motion gated behind `prefers-reduced-motion: reduce` — animations and tran
   - Loader: `aria-hidden="true"` (decorative).
   - Hero canvas: `aria-hidden="true"`.
   - Particle field & moving grain: not announced.
-  - "Seal the Letter": `aria-label="Seal the letter — opens an email to hello@ivaestudios.com"`.
+  - "Seal the Letter": `aria-label="Seal the letter — opens an email to info@ivaestudios.com"`.
 - **Reduced motion**: comprehensive — particle field skipped at init, parallax bound only when not PRM, cursor effects skipped, animations zeroed via `transition:none!important`.
 
 ---

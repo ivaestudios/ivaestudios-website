@@ -94,7 +94,7 @@
 
 **Audit result:** **0 critical, 0 major, 5 minor** issues — see `/seo/design-audit/wave-4-accessibility-report.md`.
 
-**One fix applied during this pass:** Added `aria-label="Seal the letter — opens an email to hello@ivaestudios.com"` to the Step-3 mailto CTA. Other minor advisories deferred to Wave 5.
+**One fix applied during this pass:** Added `aria-label="Seal the letter — opens an email to info@ivaestudios.com"` to the Step-3 mailto CTA. Other minor advisories deferred to Wave 5.
 
 ---
 

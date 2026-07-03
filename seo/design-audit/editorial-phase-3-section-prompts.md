@@ -1698,7 +1698,7 @@ Voices (pull-quote with 320-600px ornament — LARGEST on site) + 6 testimonials
   <h2 id="le-inquiry-heading" class="le-inquiry-h2">Begin a brief.</h2>
   <p class="le-inquiry-intro">Share the brand, the brief, the dates, and a sentence about the campaign you imagine. The studio will respond the same business day, in English or in Spanish, with two questions, a draft call sheet, and a calendar link. The first reply is from Vianey. Briefs that arrive on Friday afternoon are read Monday morning. The studio takes a finite number of editorial commissions per quarter to keep the work calm.</p>
   <div class="le-inquiry-ctas">
-    <a class="le-btn le-btn-primary" href="mailto:hello@ivaestudios.com?subject=Editorial Commission Brief">Begin Brief</a>
+    <a class="le-btn le-btn-primary" href="mailto:info@ivaestudios.com?subject=Editorial Commission Brief">Begin Brief</a>
     <a class="le-btn le-btn-ghost" href="https://wa.me/529902046514">WhatsApp the Studio</a>
   </div>
   <div class="le-inquiry-meta" role="group" aria-label="Studio response details">
@@ -1728,7 +1728,7 @@ Voices (pull-quote with 320-600px ornament — LARGEST on site) + 6 testimonials
     <div class="le-footer-col">
       <h3 class="le-footer-col-heading">Contact</h3>
       <ul>
-        <li><a href="mailto:hello@ivaestudios.com">hello@ivaestudios.com</a></li>
+        <li><a href="mailto:info@ivaestudios.com">info@ivaestudios.com</a></li>
         <li>WhatsApp pending</li>
         <li>Cancun &middot; Riviera Maya &middot; Los Cabos</li>
         <li>Same-business-day response</li>

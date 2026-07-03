@@ -10,7 +10,7 @@ No editar. Copia exacta.
 **Studio name:** IVAE Studios
 **Founder name:** Vianey Díaz
 **Founder title:** Creative Director & Lead Photographer / Directora Creativa
-**Email:** hello@ivaestudios.com
+**Email:** info@ivaestudios.com
 **WhatsApp:** +52 990 204 6514 *(número REAL confirmado; teléfono de llamadas: +52 228 857 0584, coincide con GBP — usar 228 como "phone" en directorios y 990 solo para WhatsApp)*
 **Instagram:** @ivaestudios.cancun
 **Website:** https://ivaestudios.com
@@ -179,7 +179,7 @@ Vianey Díaz
 Directora Creativa & Fotógrafa Principal
 IVAE Studios — Editorial Destination Photography
 Cancún · Riviera Maya · Los Cabos
-hello@ivaestudios.com · ivaestudios.com
+info@ivaestudios.com · ivaestudios.com
 @ivaestudios.cancun
 
 ---

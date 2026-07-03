@@ -921,7 +921,7 @@ document.querySelectorAll('.lf-reel-track').forEach((track) => {
   <h2 class="lf-inquiry-h2" id="inquiry-heading">Tell Us About the Family.</h2>
   <p class="lf-inquiry-body">Share the dates, the resort, the ages of the kids, and a sentence about the milestone if there is one. The studio responds the same business day, in English or Spanish, with one or two questions and a calendar link. The first reply will come from the Director. If the family would rather speak first, the WhatsApp button below is the fastest way to reach the studio.</p>
   <div class="lf-inquiry-ctas">
-    <a class="btn btn-primary" href="mailto:hello@ivaestudios.com?subject=Family%20session%20inquiry" data-magnet>Begin Inquiry</a>
+    <a class="btn btn-primary" href="mailto:info@ivaestudios.com?subject=Family%20session%20inquiry" data-magnet>Begin Inquiry</a>
     <a class="btn btn-ghost" href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20family%20photo%20session.%20Please%20send%20a%20calendar%20invite." target="_blank" rel="noopener">Send a Calendar Invite</a>
   </div>
   <dl class="lf-inquiry-meta" role="group" aria-label="Studio response details">
@@ -949,7 +949,7 @@ document.querySelectorAll('.lf-reel-track').forEach((track) => {
     <a href="/couples-photography-mexico">Couples</a>
     <a href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Instagram</a>
   </nav>
-  <p class="lf-footer-contact">Cancún · Riviera Maya · Los Cabos  ·  hello@ivaestudios.com  ·  English / Español</p>
+  <p class="lf-footer-contact">Cancún · Riviera Maya · Los Cabos  ·  info@ivaestudios.com  ·  English / Español</p>
   <p class="lf-footer-copy">&copy; 2026 IVAE Studios  ·  Luxury Resort Photographer  ·  Cancún, Mexico</p>
 </footer>
 ```
@@ -1012,7 +1012,7 @@ document.querySelectorAll('.lf-faq-toggle').forEach((btn) => {
 - Meta strip: `Response Time / Same business day`, `Languages / English / Spanish`, `Hours / 06:00 – 20:00 GMT-5`
 - Footer mark: `IVAE Studios`
 - Footer tag: `Luxury Resort Photography. Editorial. Bilingual. Golden hour, only.`
-- Footer contact: `Cancún · Riviera Maya · Los Cabos · hello@ivaestudios.com · English / Español`
+- Footer contact: `Cancún · Riviera Maya · Los Cabos · info@ivaestudios.com · English / Español`
 - Footer copy: `© 2026 IVAE Studios · Luxury Resort Photographer · Cancún, Mexico`
 
 **A11y rules satisfied:**

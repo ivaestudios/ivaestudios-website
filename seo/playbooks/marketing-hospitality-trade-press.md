@@ -80,7 +80,7 @@ revisions included.
 Best,
 Vianey Díaz
 IVAE Marketing, Cancún
-hello@ivaestudios.com
+info@ivaestudios.com
 
 ### Follow-up cadence (3-touch sequence)
 
@@ -352,7 +352,7 @@ Thank you for the consideration.
 Best,
 Vianey Díaz
 Founder, IVAE Marketing
-hello@ivaestudios.com
+info@ivaestudios.com
 
 ### Follow-up cadence (3-touch sequence)
 
@@ -1152,7 +1152,7 @@ Central). Open to your interview format and length.
 
 Best,
 Vianey Díaz, IVAE Studios and IVAE Marketing
-hello@ivaestudios.com
+info@ivaestudios.com
 
 ### Follow-up cadence
 Podcast pitches respond on different cadences than written submissions.
@@ -1205,7 +1205,7 @@ useful. Available for any of your reporters in Cancún or Playa del Carmen.
 
 Best,
 Vianey Díaz, IVAE Studios and IVAE Marketing
-hello@ivaestudios.com
+info@ivaestudios.com
 
 ### Follow-up cadence
 Local press responds quickly when interested. Touch 2 at day 5, touch 3 at day 14.
@@ -1326,7 +1326,7 @@ media agency" queries on Google or ChatGPT.
    date, response, status, follow-up date, published URL. Without the
    spreadsheet, follow-ups slip.
 
-8. **Send the pitch from the founder's address (hello@ivaestudios.com), not
+8. **Send the pitch from the founder's address (info@ivaestudios.com), not
    a generic press@ address**. Founder pitches respond at a materially higher
    rate than agency-PR-team pitches.
 

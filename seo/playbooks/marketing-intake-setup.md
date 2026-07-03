@@ -48,7 +48,7 @@ Add 4 variables:
 | `RESEND_API_KEY` | Secret (encrypted) | `re_...` from Step 1 |
 | `TURNSTILE_SECRET_KEY` | Secret (encrypted) | from Step 2 |
 | `INTAKE_TO_EMAIL` | Plaintext | `info@ivaestudios.com` |
-| `INTAKE_FROM_EMAIL` | Plaintext | `intake@ivaestudios.com` |
+| `INTAKE_FROM_EMAIL` | Plaintext | `info@ivaestudios.com` |
 
 Click "Save and deploy". Pages will redeploy with the secrets injected.
 
@@ -96,7 +96,7 @@ For Smile Now Dental Clinic specifically, the WhatsApp message could be:
 When Smile Now (or any prospect) submits the form, you will receive an email at `info@ivaestudios.com` that looks like:
 
 ```
-From: IVAE Marketing Intake <intake@ivaestudios.com>
+From: IVAE Marketing Intake <info@ivaestudios.com>
 Reply-To: dra.penuela@smilenowdental.com   ← so replying goes straight to them
 Subject: IVAE Marketing — Strategy Brief from Smile Now Dental Clinic
 

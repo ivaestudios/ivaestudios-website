@@ -249,7 +249,7 @@ vs. 8 cold pitches editoriales = 0-1 backlink en 90 días.
 ## Qué necesita Vianey
 
 Solo:
-- Email (ya tiene `hello@ivaestudios.com`)
+- Email (ya tiene `info@ivaestudios.com`)
 - Bio de 150 palabras (ya escrita en about.html)
 - 15 fotos hero (ya están en `/images/`)
 - Teléfono real (sigue siendo Tier 0 pendiente)

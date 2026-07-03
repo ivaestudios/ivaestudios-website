@@ -159,7 +159,7 @@ Format: `City` / `Year`. Tulum 2026, Mayakoba 2025, Cancún 2025, Los Cabos 2024
 **Inquiry CTA**
 - Section h2: `Write to Vianey.` (italic on "Vianey").
 - Lede: "Tell me about your trip the way you would tell a friend." First person from Vianey.
-- Primary button: `Write to Vianey` → `mailto:hello@ivaestudios.com`
+- Primary button: `Write to Vianey` → `mailto:info@ivaestudios.com`
 - Secondary: `WhatsApp the studio` → existing wa.me/529902046514
 - Closing line: "A letter, never a form. *V.*"
 

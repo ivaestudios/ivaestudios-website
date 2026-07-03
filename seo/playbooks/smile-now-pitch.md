@@ -127,7 +127,7 @@ Vianey Díaz
 Directora Creativa & Fotógrafa Principal
 IVAE Studios — Editorial Studio
 Cancún · Riviera Maya · Los Cabos
-hello@ivaestudios.com · ivaestudios.com
+info@ivaestudios.com · ivaestudios.com
 @ivaestudios.cancun
 ```
 

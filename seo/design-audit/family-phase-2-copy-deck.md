@@ -398,7 +398,7 @@ The questions below are the priority for visible-on-load rendering. The legacy `
 > Share the dates, the resort, the ages of the kids, and a sentence about the milestone if there is one. The studio responds the same business day, in English or Spanish, with one or two questions and a calendar link. The first reply will come from the Director. If the family would rather speak first, the WhatsApp button below is the fastest way to reach the studio.
 
 ### 10.2 CTAs (locked)
-- **Primary:** **Begin Inquiry** → `mailto:hello@ivaestudios.com?subject=Family%20session%20inquiry` (Phase 1 §11 risk: confirm `hello@` vs `info@` with owner before build)
+- **Primary:** **Begin Inquiry** → `mailto:info@ivaestudios.com?subject=Family%20session%20inquiry` (Phase 1 §11 risk: confirm `hello@` vs `info@` with owner before build)
 - **Secondary (calendar invite):** **Send a Calendar Invite** → label for the WhatsApp deep-link `https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20family%20photo%20session.%20Please%20send%20a%20calendar%20invite.` (Phase 1 §11 risk: phone is on hold per `CLAUDE.md`; Phase 4 must NOT publish until owner confirms real number)
 
 ### 10.3 Meta strip below CTAs (locked)
@@ -437,7 +437,7 @@ The questions below are the priority for visible-on-load rendering. The legacy `
 - Instagram `https://instagram.com/ivaestudios.cancun` (target=_blank rel=noopener)
 
 ### 11.4 Footer contact line (locked)
-> Cancún · Riviera Maya · Los Cabos  ·  hello@ivaestudios.com  ·  English / Español
+> Cancún · Riviera Maya · Los Cabos  ·  info@ivaestudios.com  ·  English / Español
 
 ### 11.5 Copyright (locked)
 > © 2026 IVAE Studios  ·  Luxury Resort Photographer  ·  Cancún, Mexico

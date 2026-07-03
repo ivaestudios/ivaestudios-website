@@ -357,7 +357,7 @@ export async function onRequestPost(context) {
   }
 
   const toEmail = env.INTAKE_TO_EMAIL || 'info@ivaestudios.com';
-  const fromEmail = env.INTAKE_FROM_EMAIL || 'intake@ivaestudios.com';
+  const fromEmail = env.INTAKE_FROM_EMAIL || 'info@ivaestudios.com';
 
   // 1) Send full brief to IVAE Marketing team (with retry on transient errors).
   const teamSend = await resendSendWithRetry(env, {
