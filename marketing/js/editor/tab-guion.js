@@ -12,9 +12,9 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, copyText } from '../api.js?v=202606291422';
-import { icon } from '../shell/icons.js?v=202606291422';
-import { makeTextarea } from './fields.js?v=202606291422';
+import { el, copyText } from '../api.js?v=202607030136';
+import { icon } from '../shell/icons.js?v=202607030136';
+import { makeTextarea } from './fields.js?v=202607030136';
 
 const IG_VISIBLE_CUT = 125;
 const CAPTION_MAX = 2200;
@@ -30,6 +30,21 @@ export function mount(host, ed) {
   const post = ed.getPost();
   const root = el('div', { class: 'edtab edtab-guion' });
 
+  // Botoncito de copiar por sección (como el de Claude): copia el valor ACTUAL
+  // del campo al portapapeles. Vive en la cabecera de cada bloque.
+  function copyBtn(field, label) {
+    return el('button', {
+      class: 'edcopy-mini', type: 'button', title: `Copiar ${label}`,
+      'aria-label': `Copiar ${label}`,
+      onclick: async () => {
+        const v = String(ed.getPost()[field] || '').trim();
+        if (!v) { ctx.toast(`No hay ${label} que copiar.`, { type: 'info' }); return; }
+        const ok = await copyText(v);
+        ctx.toast(ok ? `${label} copiado.` : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
+      },
+    }, [icon('copy', 14)]);
+  }
+
   function block({ title, hint, field, value, placeholder, maxLength = 4000 }) {
     const ta = makeTextarea({
       value,
@@ -42,6 +57,7 @@ export function mount(host, ed) {
       el('div', { class: 'edblock__head' }, [
         el('span', { class: 'edblock__title', text: title }),
         hint ? el('span', { class: 'edblock__hint', text: hint }) : null,
+        copyBtn(field, title),
       ]),
       ta,
     ]);
@@ -94,6 +110,7 @@ export function mount(host, ed) {
       el('span', { class: 'edblock__title', text: 'Caption' }),
       el('span', { class: 'edblock__hint', text: `Corte visible en IG: ~${IG_VISIBLE_CUT}` }),
       capCounter,
+      copyBtn('caption', 'Caption'),
     ]),
     capTa,
   ]));
@@ -124,6 +141,7 @@ export function mount(host, ed) {
     el('div', { class: 'edblock__head' }, [
       el('span', { class: 'edblock__title', text: 'Hashtags' }),
       tagCounter,
+      copyBtn('hashtags', 'Hashtags'),
     ]),
     tagTa,
   ]));

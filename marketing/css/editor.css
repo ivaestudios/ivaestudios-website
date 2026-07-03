@@ -375,6 +375,17 @@ body.editor-open #viewScroll { overflow: hidden; }
 .edcount { font-size: var(--fs-1); font-weight: 700; color: var(--text-mute); margin-left: auto; }
 .edcount.is-cut { color: var(--warn); }
 .edcount.is-over { color: #fca5a5; }
+/* Botoncito de copiar por sección (cabecera de cada bloque del Guion) */
+.edcopy-mini {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 30px; margin-left: 6px; flex: 0 0 auto;
+  background: var(--surface-2, #14141b); color: var(--text-dim, #9A9AA8);
+  border: 1px solid var(--border, #1E1E26); border-radius: 8px; cursor: pointer;
+  transition: color .15s, border-color .15s, background .15s;
+  align-self: center;
+}
+.edcopy-mini:hover, .edcopy-mini:active { color: var(--text, #ECECF1); border-color: var(--brand, #E24DA0); }
+.edblock__head:has(.edcopy-mini) { align-items: center; }
 .ed-ta {
   width: 100%;
   min-height: 48px;
