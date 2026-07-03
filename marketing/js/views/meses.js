@@ -26,9 +26,9 @@ import {
   el, clear,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607031422';
-import { icon } from '../shell/icons.js?v=202607031422';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607031422';
+} from '../api.js?v=202607031428';
+import { icon } from '../shell/icons.js?v=202607031428';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607031428';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -384,18 +384,41 @@ function openCaptionDrawer(post) {
     ctx.toast(ok ? `${label} copiado.` : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
   }
 
+  // Autosize: cada caja crece hasta su contenido (máx 320px) — nada de texto
+  // rebanado a media línea.
+  const fit = (ta) => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight + 2, 320) + 'px'; };
+
+  const counters = {};
+  function updateCount(field) {
+    const elc = counters[field]; if (!elc) return;
+    const v = String(tas[field].value || '');
+    if (field === 'hashtags') {
+      const n = (v.match(/#[^\s#]+/g) || []).length;
+      elc.textContent = `${n}/30`;
+      elc.classList.toggle('is-over', n > 30);
+    } else {
+      elc.textContent = `${v.length}/2200`;
+      elc.classList.toggle('is-over', v.length >= 2200);
+    }
+  }
+
   const body = el('div', { class: 'meses-drawer__body' }, SECTIONS.map((s) => {
     const ta = el('textarea', {
       class: 'meses-drawer__ta meses-drawer__ta--sec',
       placeholder: s.field === 'caption' ? 'Escribe el caption completo aquí...' : `Escribe el ${s.label.toLowerCase()} aquí...`,
       maxLength: 4000,
+      rows: 1,
     });
     ta.value = post[s.field] || '';
+    ta.addEventListener('input', () => { fit(ta); updateCount(s.field); });
     tas[s.field] = ta;
+    const withCount = s.field === 'caption' || s.field === 'hashtags';
+    if (withCount) counters[s.field] = el('span', { class: 'mdsec__count' });
     return el('section', { class: 'mdsec' }, [
       el('div', { class: 'mdsec__head' }, [
         el('span', { class: 'mdsec__lbl', text: s.label }),
         s.hint ? el('span', { class: 'mdsec__hint', text: s.hint }) : null,
+        withCount ? counters[s.field] : null,
         el('button', {
           class: 'mdsec__copy', type: 'button', title: `Copiar ${s.label}`,
           'aria-label': `Copiar ${s.label}`,
@@ -451,6 +474,8 @@ function openCaptionDrawer(post) {
   // transicion de entrada nunca corria (el panel quedaba invisible).
   void drawerEl.offsetWidth;
   drawerEl.classList.add('is-open');
+  // Ajustar cada caja a su contenido y pintar contadores.
+  for (const f of Object.keys(tas)) { fit(tas[f]); updateCount(f); }
   // Abrir desde el COMIENZO: scroll arriba, sin abrir teclado en móvil.
   body.scrollTop = 0;
   drawerEl.querySelector('.meses-drawer__close')?.focus();
