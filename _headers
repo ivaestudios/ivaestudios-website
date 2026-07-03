@@ -144,6 +144,18 @@
   Content-Type: text/plain; charset=utf-8
 
 # ═══════════════════════════════════════════
+# MARKETING APP (mounted at /marketing/)
+# El cortador de carruseles corta imágenes en el navegador (canvas) y muestra
+# los slides como object URLs: img-src y media-src necesitan blob:.
+# ═══════════════════════════════════════════
+
+/marketing/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://www.google-analytics.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# ═══════════════════════════════════════════
 # GALLERY SUB-APP (mounted at /gallery/, API at /api/gallery/)
 # Override the strict main-site CSP — the gallery app needs to talk to
 # Cloudflare R2 (presigned PUTs), the local IVAE Uploader daemon
