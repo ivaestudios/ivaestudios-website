@@ -77,6 +77,16 @@ const TOOLS = [
     },
   },
   {
+    name: 'get_post',
+    description: 'Lee UN post COMPLETO por su ID (el ID lo da list_posts): guion completo (hook, body/cuerpo, cta), caption (copy final), hashtags, fecha, tipo, estado y plataforma. Úsalo SIEMPRE antes de update_post cuando necesites revisar, mejorar, traducir o corregir lo que ya está escrito.',
+    inputSchema: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['post_id'],
+      properties: { post_id: { type: 'string', description: 'ID del post (lo da list_posts).' } },
+    },
+  },
+  {
     name: 'create_post',
     description: 'Crea un post/guion NUEVO en el calendario. El guion se separa en hook, body (cuerpo), cta, caption (copy final) y hashtags. La fecha (publish_date o month) lo ubica en el mes. Si el conector está fijado a una marca, NO hace falta indicar brand.',
     inputSchema: {
@@ -155,10 +165,26 @@ async function resolveBrandArg(env, brand) {
   const rows = (res && res.results) || [];
   return rows.length === 1 ? rows[0] : null;
 }
-// Si la clave está fijada (scope.clientId) usa ESA marca e ignora el argumento.
+// Si la clave está fijada (scope.clientId) usa ESA marca. Si además pidieron
+// explícitamente OTRA marca, no escribas en silencio donde no era: devuelve el
+// conflicto para que el handler responda con un error claro.
 async function brandFor(env, scope, brandArg) {
-  if (scope && scope.clientId) return brandById(env, scope.clientId);
+  if (scope && scope.clientId) {
+    const pinned = await brandById(env, scope.clientId);
+    const arg = String(brandArg || '').trim();
+    if (pinned && arg) {
+      const wanted = await resolveBrandArg(env, brandArg);
+      if (wanted && wanted.id !== pinned.id) return { __conflict: true, pinned, wanted };
+    }
+    return pinned;
+  }
   return resolveBrandArg(env, brandArg);
+}
+function brandConflictErr(brand) {
+  return toolErr(
+    `Este conector está FIJADO a la marca "${brand.pinned.name}" y no puede leer ni escribir en "${brand.wanted.name}". ` +
+    `Para trabajar ${brand.wanted.name} usa su conector propio o el conector global del equipo (funciona con todas las marcas en cualquier chat).`
+  );
 }
 
 // ── Handlers de cada herramienta ─────────────────────────────────────────────
@@ -180,6 +206,7 @@ async function listBrands(env, scope) {
 
 async function listPosts(env, scope, args) {
   const brand = await brandFor(env, scope, args.brand);
+  if (brand && brand.__conflict) return brandConflictErr(brand);
   if (!brand) {
     return toolErr(scope && scope.clientId
       ? 'La marca de este conector ya no existe.'
@@ -205,6 +232,7 @@ async function listPosts(env, scope, args) {
 
 async function createPost(env, scope, args) {
   const brand = await brandFor(env, scope, args.brand);
+  if (brand && brand.__conflict) return brandConflictErr(brand);
   if (!brand) {
     return toolErr(scope && scope.clientId
       ? 'La marca de este conector ya no existe.'
@@ -248,6 +276,36 @@ async function createPost(env, scope, args) {
     `• Título: ${title}\n• Tipo: ${content_type}\n• Estado: ${status}\n` +
     `• Fecha: ${publish_date || 'sin fecha'} (mes: ${mes})\n• ID: ${id}`
   );
+}
+
+async function getPost(env, scope, args) {
+  const postId = String(args.post_id || '').trim();
+  if (!postId) return toolErr('Falta post_id. Usa list_posts para ver los IDs de los posts.');
+  let sql = 'SELECT p.*, c.name AS brand_name FROM mkt_posts p JOIN mkt_clients c ON c.id = p.client_id WHERE p.id = ?1';
+  const binds = [postId];
+  if (scope && scope.clientId) { sql += ' AND p.client_id = ?2'; binds.push(scope.clientId); }
+  const p = await env.DB.prepare(sql).bind(...binds).first();
+  if (!p) {
+    return toolErr(scope && scope.clientId
+      ? 'Ese post no existe en la marca de este conector (o el ID es incorrecto).'
+      : 'No encontré un post con ese ID. Usa list_posts para ver los IDs.');
+  }
+  const S = (v) => ((v == null || String(v).trim() === '') ? '(vacío)' : String(v));
+  return toolText([
+    `Post de ${p.brand_name} — ID ${p.id}`,
+    `• Título: ${S(p.title)}`,
+    `• Fecha: ${p.publish_date || 'sin fecha'} · Tipo: ${p.content_type} · Estado: ${p.status} · Plataforma: ${p.platform || 'Instagram'}${p.grabacion ? ` · Grabación: ${p.grabacion}` : ''}`,
+    '',
+    `HOOK:\n${S(p.hook)}`,
+    '',
+    `BODY (cuerpo):\n${S(p.body)}`,
+    '',
+    `CTA:\n${S(p.cta)}`,
+    '',
+    `CAPTION (copy final):\n${S(p.caption)}`,
+    '',
+    `HASHTAGS:\n${S(p.hashtags)}`,
+  ].join('\n'));
 }
 
 async function updatePost(env, scope, args) {
@@ -334,8 +392,8 @@ async function rpc(msg, env, scope) {
       return rpcOk(id, {
         protocolVersion,
         capabilities: { tools: { listChanged: false } },
-        serverInfo: { name: 'IVAE Marketing', version: '1.2.0' },
-        instructions: 'Conector del calendario de contenido de IVAE Marketing. Flujo típico: usa list_posts para ver los posts del mes (cada uno trae su ID y si le FALTA caption); usa update_post para rellenar el copy/caption o el guion (hook/body/cta), cambiar la fecha o el estado de un post existente; usa create_post para piezas nuevas. El guion se separa en hook, body (cuerpo), cta, caption (copy final) y hashtags. Para planear/AGREGAR el mes siguiente, simplemente crea los posts con la fecha de ese mes (parámetro month=AAAA-MM o publish_date=AAAA-MM-DD): el mes aparece solo en el calendario, no hace falta "agregar mes" por separado.' + extra,
+        serverInfo: { name: 'IVAE Marketing', version: '1.3.0' },
+        instructions: 'Conector del calendario de contenido de IVAE Marketing. Flujo típico: usa list_posts para ver los posts del mes (cada uno trae su ID y si le FALTA caption); usa get_post con ese ID para LEER el guion/caption completo de un post antes de revisarlo o mejorarlo; usa update_post para rellenar/cambiar el copy/caption o el guion (hook/body/cta), la fecha o el estado de un post existente; usa create_post para piezas nuevas. El guion se separa en hook, body (cuerpo), cta, caption (copy final) y hashtags. Para planear/AGREGAR el mes siguiente, simplemente crea los posts con la fecha de ese mes (parámetro month=AAAA-MM o publish_date=AAAA-MM-DD): el mes aparece solo en el calendario, no hace falta "agregar mes" por separado.' + extra,
       });
     }
     case 'ping':
@@ -349,6 +407,7 @@ async function rpc(msg, env, scope) {
         let r;
         if (name === 'list_brands') r = await listBrands(env, scope);
         else if (name === 'list_posts') r = await listPosts(env, scope, args);
+        else if (name === 'get_post') r = await getPost(env, scope, args);
         else if (name === 'create_post') r = await createPost(env, scope, args);
         else if (name === 'update_post') r = await updatePost(env, scope, args);
         else return rpcErr(id, -32602, `Herramienta desconocida: ${name}`);
