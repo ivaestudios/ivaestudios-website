@@ -1,0 +1,83 @@
+/* ============================================================================
+   IVAE Marketing — Vista "Carrusel" (cortador de carruseles).
+   Móvil primero: el flujo completo (subir → ajustar → descargar) en una mano.
+   ============================================================================ */
+
+.car-root { max-width: 900px; margin: 0 auto; padding: 16px 16px 48px; display: flex; flex-direction: column; gap: 14px; }
+
+.car-head { padding: 4px 2px 0; }
+.car-title { font-size: 20px; font-weight: 700; margin: 0 0 4px; }
+.car-sub { margin: 0; font-size: 13.5px; color: var(--text-mute); line-height: 1.5; max-width: 62ch; }
+
+/* ── Zona de carga ─────────────────────────────────────────────────────────── */
+.car-drop {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  min-height: 130px; padding: 18px;
+  border: 1.5px dashed rgba(255, 255, 255, .18); border-radius: 14px;
+  background: rgba(255, 255, 255, .02);
+  color: var(--text); cursor: pointer; text-align: left;
+  transition: border-color .15s, background .15s;
+}
+.car-drop:hover, .car-drop.is-over { border-color: var(--brand, #E24DA0); background: rgba(226, 77, 160, .06); }
+.car-drop--mini { min-height: 0; padding: 10px 14px; justify-content: flex-start; }
+.car-drop__txt { display: flex; flex-direction: column; gap: 2px; }
+.car-drop__txt strong { font-size: 14.5px; }
+.car-drop__txt span { font-size: 12.5px; color: var(--text-mute); }
+.car-file { display: none; }
+
+/* ── Preview con cuadrícula ───────────────────────────────────────────────── */
+.car-preview {
+  position: relative; border-radius: 12px; overflow: hidden;
+  border: 1px solid var(--border); background: #000;
+}
+.car-preview img { display: block; width: 100%; height: auto; }
+.car-line { position: absolute; background: var(--brand, #E24DA0); opacity: .85; pointer-events: none; }
+.car-line--v { top: 0; bottom: 0; width: 2px; transform: translateX(-1px); }
+.car-line--h { left: 0; right: 0; height: 2px; transform: translateY(-1px); }
+
+/* ── Controles ─────────────────────────────────────────────────────────────── */
+.car-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+.car-step { display: flex; align-items: center; gap: 10px; }
+.car-step__lbl { font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--text-mute); }
+.car-step__ctrl { display: inline-flex; align-items: center; gap: 2px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.car-step__btn {
+  min-width: 38px; min-height: 36px; border: 0; background: transparent; color: var(--text);
+  font-size: 17px; font-weight: 600; cursor: pointer;
+}
+.car-step__btn:hover { background: rgba(255, 255, 255, .06); }
+.car-step__val { min-width: 28px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.car-step__btn--seg { font-size: 12.5px; padding: 0 12px; }
+.car-step__btn--seg.is-active { background: var(--brand, #E24DA0); color: #fff; }
+.car-info { font-size: 12.5px; color: var(--text-mute); font-variant-numeric: tabular-nums; }
+
+.car-cutting { padding: 18px 4px; color: var(--text-mute); font-size: 14px; }
+
+/* ── Descargas ─────────────────────────────────────────────────────────────── */
+.car-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.car-zip { display: inline-flex; align-items: center; gap: 8px; }
+.car-hint { font-size: 12px; color: var(--text-mute); }
+
+.car-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.car-slide {
+  margin: 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+  background: rgba(255, 255, 255, .02);
+}
+.car-slide img { display: block; width: 100%; height: auto; }
+.car-slide__bar { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 8px 10px; }
+.car-slide__num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 999px;
+  background: rgba(255, 255, 255, .08); font-size: 12px; font-weight: 700;
+}
+.car-slide__dl {
+  display: inline-flex; align-items: center; gap: 5px;
+  border: 1px solid var(--border); border-radius: 9px; background: transparent;
+  color: var(--text); font-size: 12.5px; padding: 6px 10px; cursor: pointer; min-height: 34px;
+}
+.car-slide__dl:hover { border-color: var(--brand, #E24DA0); }
+
+@media (max-width: 480px) {
+  .car-root { padding: 12px 12px 90px; }
+  .car-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .car-zip { flex: 1 1 100%; justify-content: center; min-height: 46px; }
+}

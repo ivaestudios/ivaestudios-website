@@ -19,20 +19,20 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202607031720';
-import * as store from './store.js?v=202607031720';
-import * as prefs from './prefs.js?v=202607031720';
-import * as router from './router.js?v=202607031720';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607031720';
-import { toast } from './toast.js?v=202607031720';
-import { icon } from './icons.js?v=202607031720';
-import * as iconsMod from './icons.js?v=202607031720';
-import { createTopbar } from './topbar.js?v=202607031720';
-import { createBottomNav } from './bottomnav.js?v=202607031720';
-import { createSearch } from './search.js?v=202607031720';
-import { createNotifications } from './notifications.js?v=202607031720';
-import * as pickers from '../ui/pickers.js?v=202607031720';
-import * as dnd from '../ui/dnd.js?v=202607031720';
+import { api, el } from '../api.js?v=202607031805';
+import * as store from './store.js?v=202607031805';
+import * as prefs from './prefs.js?v=202607031805';
+import * as router from './router.js?v=202607031805';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607031805';
+import { toast } from './toast.js?v=202607031805';
+import { icon } from './icons.js?v=202607031805';
+import * as iconsMod from './icons.js?v=202607031805';
+import { createTopbar } from './topbar.js?v=202607031805';
+import { createBottomNav } from './bottomnav.js?v=202607031805';
+import { createSearch } from './search.js?v=202607031805';
+import { createNotifications } from './notifications.js?v=202607031805';
+import * as pickers from '../ui/pickers.js?v=202607031805';
+import * as dnd from '../ui/dnd.js?v=202607031805';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -44,6 +44,7 @@ const CONTENT_LABELS = {
   meses: 'Calendario',
   calendario: 'Cuadrícula',
   entregables: 'Entregables',
+  carrusel: 'Carrusel',
   tablero: 'Tablero',
   tabla: 'Tabla',
   timeline: 'Timeline',
@@ -139,10 +140,12 @@ function updateSubhead() {
   subheadEl.hidden = !show;
   document.body.classList.toggle('has-subhead', show);
   if (isContent) {
+    const client = isClientRole();
     for (const b of subheadSeg.querySelectorAll('button')) {
       const is = b.dataset.view === view;
       b.classList.toggle('is-active', is);
       b.setAttribute('aria-selected', is ? 'true' : 'false');
+      if (b.dataset.view === 'carrusel') b.hidden = client; // herramienta de staff
     }
   }
 }
@@ -152,7 +155,7 @@ function buildSubhead(root) {
   // Vianey pidio quitar Tablero/Tabla/Timeline/Carga de su admin: tanto admin
   // como cliente solo ven las dos vistas de calendario (Calendario = meses,
   // Cuadricula = calendario).
-  const VISIBLE_CONTENT_VIEWS = ['meses', 'calendario', 'entregables'];
+  const VISIBLE_CONTENT_VIEWS = ['meses', 'calendario', 'entregables', 'carrusel'];
   const segViews = CONTENT_VIEWS.filter((v) => VISIBLE_CONTENT_VIEWS.includes(v));
   for (const v of segViews) {
     const label = CONTENT_LABELS[v] || v;
