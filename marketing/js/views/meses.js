@@ -26,9 +26,9 @@ import {
   el, clear,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607031415';
-import { icon } from '../shell/icons.js?v=202607031415';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607031415';
+} from '../api.js?v=202607031422';
+import { icon } from '../shell/icons.js?v=202607031422';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607031422';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -362,29 +362,71 @@ function onDrawerKeydown(e) {
 function openCaptionDrawer(post) {
   closeCaptionDrawer();
 
-  const ta = el('textarea', {
-    class: 'meses-drawer__ta',
-    placeholder: 'Escribe el caption completo aquí...',
-    maxLength: 4000,
-  });
-  ta.value = post.caption || '';
+  // El guion COMPLETO por secciones (misma visualización que el móvil), en el
+  // panel lateral derecho de siempre. Cada sección con su botón de copiar.
+  const SECTIONS = [
+    { field: 'hook', label: 'HOOK', hint: 'Las primeras palabras venden' },
+    { field: 'body', label: 'BODY', hint: 'Desarrollo de la idea' },
+    { field: 'cta', label: 'CTA', hint: 'Cierre con acción clara' },
+    { field: 'caption', label: 'CAPTION', hint: 'Listo para pegar en IG' },
+    { field: 'hashtags', label: 'HASHTAGS', hint: '' },
+  ];
+  const tas = {};
+
+  async function copyField(field, label) {
+    const v = String(tas[field] ? tas[field].value : '').trim();
+    if (!v) { ctx.toast(`No hay ${label} que copiar.`, { type: 'info' }); return; }
+    let ok = false;
+    try { await navigator.clipboard.writeText(v); ok = true; } catch { /* fallback abajo */ }
+    if (!ok) {
+      try { tas[field].select(); ok = document.execCommand('copy'); } catch { /* noop */ }
+    }
+    ctx.toast(ok ? `${label} copiado.` : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
+  }
+
+  const body = el('div', { class: 'meses-drawer__body' }, SECTIONS.map((s) => {
+    const ta = el('textarea', {
+      class: 'meses-drawer__ta meses-drawer__ta--sec',
+      placeholder: s.field === 'caption' ? 'Escribe el caption completo aquí...' : `Escribe el ${s.label.toLowerCase()} aquí...`,
+      maxLength: 4000,
+    });
+    ta.value = post[s.field] || '';
+    tas[s.field] = ta;
+    return el('section', { class: 'mdsec' }, [
+      el('div', { class: 'mdsec__head' }, [
+        el('span', { class: 'mdsec__lbl', text: s.label }),
+        s.hint ? el('span', { class: 'mdsec__hint', text: s.hint }) : null,
+        el('button', {
+          class: 'mdsec__copy', type: 'button', title: `Copiar ${s.label}`,
+          'aria-label': `Copiar ${s.label}`,
+          onclick: () => copyField(s.field, s.label),
+        }, [icon('copy', 14)]),
+      ]),
+      ta,
+    ]);
+  }));
 
   const save = () => {
-    const v = ta.value;
+    const patch = {}; const before = {};
+    for (const s of SECTIONS) {
+      const v = (tas[s.field].value || '').trim() || null;
+      const old = (post[s.field] || '').trim() || null;
+      if (v !== old) { patch[s.field] = v; before[s.field] = post[s.field] || null; }
+    }
     closeCaptionDrawer();
-    if ((v || '').trim() !== (post.caption || '').trim()) saveCaption(post, v);
+    if (Object.keys(patch).length) patchWithUndo(post, patch, before, 'Guion guardado.');
   };
 
-  ta.addEventListener('keydown', (e) => {
+  body.addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); save(); }
   });
 
-  drawerEl = el('div', { class: 'meses-drawer__wrap', role: 'dialog', 'aria-modal': 'true', 'aria-label': `Caption de ${post.title || 'contenido'}` }, [
+  drawerEl = el('div', { class: 'meses-drawer__wrap', role: 'dialog', 'aria-modal': 'true', 'aria-label': `Guion de ${post.title || 'contenido'}` }, [
     el('div', { class: 'meses-drawer__overlay', onclick: () => closeCaptionDrawer() }),
     el('aside', { class: 'meses-drawer' }, [
       el('header', { class: 'meses-drawer__head' }, [
         el('div', { class: 'meses-drawer__titles' }, [
-          el('span', { class: 'meses-drawer__kicker', text: 'Caption' }),
+          el('span', { class: 'meses-drawer__kicker', text: 'Guion' }),
           el('h3', { class: 'meses-drawer__title', text: post.title || 'Sin título' }),
         ]),
         el('button', {
@@ -392,7 +434,7 @@ function openCaptionDrawer(post) {
           onclick: () => closeCaptionDrawer(),
         }, [icon('close', 18)]),
       ]),
-      ta,
+      body,
       el('footer', { class: 'meses-drawer__foot' }, [
         el('span', { class: 'meses-drawer__hint', text: 'Cmd+Enter guarda · Esc cierra' }),
         el('div', { class: 'meses-drawer__actions' }, [
@@ -409,11 +451,8 @@ function openCaptionDrawer(post) {
   // transicion de entrada nunca corria (el panel quedaba invisible).
   void drawerEl.offsetWidth;
   drawerEl.classList.add('is-open');
-  // Abrir desde el COMIENZO y en modo lectura: el caption se ve completo desde
-  // arriba (antes el cursor al final lo dejaba scrolleado hasta abajo) y no se
-  // abre el teclado en móvil. Un toque en el texto lo vuelve editable (es un
-  // textarea). El foco va al botón cerrar para mantener el diálogo accesible.
-  ta.scrollTop = 0;
+  // Abrir desde el COMIENZO: scroll arriba, sin abrir teclado en móvil.
+  body.scrollTop = 0;
   drawerEl.querySelector('.meses-drawer__close')?.focus();
 }
 
@@ -732,13 +771,12 @@ function buildRow(post, noteLabels) {
     ),
   ]);
 
-  // Captions: clic abre el EDITOR en la pestaña Guion (la misma visualización
-  // por secciones que la versión móvil: HOOK/BODY/CTA/Caption/Hashtags con su
-  // botón de copiar), en lugar del panel plano de solo-caption.
+  // Captions: panel lateral DERECHO (side peek) con el guion completo por
+  // secciones (HOOK/BODY/CTA/Caption/Hashtags + copiar), como en el móvil.
   const tdCaption = el('td', { class: 'meses-td meses-td--text' });
   tdCaption.appendChild(cellButton(
     textCellNode(post.caption, 'Agregar caption'),
-    () => ctx.openEditor(post.id, { tab: 'guion' }),
+    () => openCaptionDrawer(post),
     'Abrir guion completo',
   ));
 

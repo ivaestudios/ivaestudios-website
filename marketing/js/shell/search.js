@@ -15,11 +15,11 @@
 // - Cierre: Esc, Cancelar, backdrop o boton atras (capa history).
 // ============================================================================
 
-import { api, el, clear, statusBadge, chip, fmtDate } from '../api.js?v=202607031415';
-import * as store from './store.js?v=202607031415';
-import * as prefs from './prefs.js?v=202607031415';
-import { pushLayer } from './router.js?v=202607031415';
-import { icon } from './icons.js?v=202607031415';
+import { api, el, clear, statusBadge, chip, fmtDate } from '../api.js?v=202607031422';
+import * as store from './store.js?v=202607031422';
+import * as prefs from './prefs.js?v=202607031422';
+import { pushLayer } from './router.js?v=202607031422';
+import { icon } from './icons.js?v=202607031422';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
