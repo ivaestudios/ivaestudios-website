@@ -26,9 +26,10 @@ import {
   el, clear, copyText,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607031845';
-import { icon } from '../shell/icons.js?v=202607031845';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607031845';
+} from '../api.js?v=202607031925';
+import { icon } from '../shell/icons.js?v=202607031925';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607031925';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText } from '../editor/slides.js?v=202607031925';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -364,14 +365,27 @@ function openCaptionDrawer(post) {
 
   // El guion COMPLETO por secciones (misma visualización que el móvil), en el
   // panel lateral derecho de siempre. Cada sección con su botón de copiar.
-  const SECTIONS = [
-    { field: 'hook', label: 'HOOK', hint: 'Las primeras palabras venden' },
-    { field: 'body', label: 'BODY', hint: 'Desarrollo de la idea' },
-    { field: 'cta', label: 'CTA', hint: 'Cierre con acción clara' },
-    { field: 'caption', label: 'CAPTION', hint: 'Listo para pegar en IG' },
-    { field: 'hashtags', label: 'HASHTAGS', hint: '' },
-  ];
+  // Carrusel: el guion se edita POR SLIDES (Slide 1 · HOOK … Slide N · CTA);
+  // caption y hashtags siguen siendo secciones normales. Otros tipos: HOOK/BODY/CTA.
+  const isCarrusel = post.content_type === 'carrusel';
+  const SECTIONS = isCarrusel
+    ? [
+      { field: 'caption', label: 'CAPTION', hint: 'Listo para pegar en IG' },
+      { field: 'hashtags', label: 'HASHTAGS', hint: '' },
+    ]
+    : [
+      { field: 'hook', label: 'HOOK', hint: 'Las primeras palabras venden' },
+      { field: 'body', label: 'BODY', hint: 'Desarrollo de la idea' },
+      { field: 'cta', label: 'CTA', hint: 'Cierre con acción clara' },
+      { field: 'caption', label: 'CAPTION', hint: 'Listo para pegar en IG' },
+      { field: 'hashtags', label: 'HASHTAGS', hint: '' },
+    ];
   const tas = {};
+  let slides = null;
+  if (isCarrusel) {
+    slides = slidesFromPost(post);
+    if (slides.length < 2) slides = [slides[0] || '', ''];
+  }
 
   async function copyField(field, label) {
     const v = String(tas[field] ? tas[field].value : '').trim();
@@ -400,6 +414,9 @@ function openCaptionDrawer(post) {
     return copyPlain(parts.join('\n\n'), 'Caption + hashtags copiados.', 'No hay caption que copiar.');
   }
   function copyScriptAll() {
+    if (isCarrusel && slides) {
+      return copyPlain(slidesToText(slides), 'Guion copiado.', 'No hay guion que copiar.');
+    }
     const lines = [];
     for (const [f, lbl] of [['hook', 'HOOK'], ['body', 'BODY'], ['cta', 'CTA']]) {
       const v = String(tas[f] ? tas[f].value : '').trim();
@@ -424,6 +441,48 @@ function openCaptionDrawer(post) {
       elc.textContent = `${v.length}/2200`;
       elc.classList.toggle('is-over', v.length >= 2200);
     }
+  }
+
+  // Host de slides (solo carrusel): se reconstruye al agregar/quitar slides.
+  const slidesHost = isCarrusel ? el('div', { class: 'meses-drawer__slides' }) : null;
+  function renderSlides() {
+    if (!slidesHost) return;
+    while (slidesHost.firstChild) slidesHost.removeChild(slidesHost.firstChild);
+    slides.forEach((text, i) => {
+      const ta = el('textarea', {
+        class: 'meses-drawer__ta meses-drawer__ta--sec',
+        placeholder: slidePlaceholder(i, slides.length),
+        maxLength: 4000,
+        rows: 1,
+      });
+      ta.value = text || '';
+      ta.addEventListener('input', () => { slides[i] = ta.value; fit(ta); });
+      const hint = slideHint(i, slides.length);
+      slidesHost.appendChild(el('section', { class: 'mdsec' }, [
+        el('div', { class: 'mdsec__head' }, [
+          el('span', { class: 'mdsec__lbl', text: slideLabel(i, slides.length) }),
+          hint ? el('span', { class: 'mdsec__hint', text: hint }) : null,
+          (i > 0 && i < slides.length - 1) ? el('button', {
+            class: 'mdsec__copy', type: 'button', title: 'Quitar este slide',
+            'aria-label': `Quitar slide ${i + 1}`,
+            onclick: () => { slides.splice(i, 1); renderSlides(); },
+          }, [icon('trash', 14)]) : null,
+          el('button', {
+            class: 'mdsec__copy', type: 'button', title: 'Copiar este slide',
+            'aria-label': `Copiar slide ${i + 1}`,
+            onclick: () => copyPlain(slides[i], 'Slide copiado.', 'Este slide está vacío.'),
+          }, [icon('copy', 14)]),
+        ]),
+        ta,
+      ]));
+      fit(ta);
+    });
+    slidesHost.appendChild(el('div', { class: 'mdsec mdsec--add' }, [
+      el('button', {
+        class: 'btn meses-drawer__addslide', type: 'button',
+        onclick: () => { slides.splice(slides.length - 1, 0, ''); renderSlides(); },
+      }, [icon('plus', 15), ' Agregar slide']),
+    ]));
   }
 
   const body = el('div', { class: 'meses-drawer__body' }, SECTIONS.map((s) => {
@@ -453,12 +512,22 @@ function openCaptionDrawer(post) {
     ]);
   }));
 
+  if (slidesHost) { renderSlides(); body.insertBefore(slidesHost, body.firstChild); }
+
   const save = () => {
     const patch = {}; const before = {};
     for (const s of SECTIONS) {
       const v = (tas[s.field].value || '').trim() || null;
       const old = (post[s.field] || '').trim() || null;
       if (v !== old) { patch[s.field] = v; before[s.field] = post[s.field] || null; }
+    }
+    if (isCarrusel && slides) {
+      const f = fieldsFromSlides(slides);
+      for (const k of ['hook', 'body', 'cta']) {
+        const v = f[k] || null;
+        const old = (post[k] || '').trim() || null;
+        if (v !== old) { patch[k] = v; before[k] = post[k] || null; }
+      }
     }
     closeCaptionDrawer();
     if (Object.keys(patch).length) patchWithUndo(post, patch, before, 'Guion guardado.');

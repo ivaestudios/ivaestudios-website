@@ -1023,3 +1023,8 @@ tr.meses-row--ph td {
   display: block; height: 100%; border-radius: var(--r-pill);
   transition: width .4s ease, background .4s ease;
 }
+
+/* ── Guion de carrusel por slides (drawer) ─────────────────────────────────── */
+.mdsec--add { padding-top: 10px; padding-bottom: 8px; }
+.meses-drawer__addslide { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; padding: 8px 14px; border-style: dashed; }
+.meses-drawer__addslide:hover { border-color: var(--brand, #E24DA0); color: var(--text); }

@@ -689,3 +689,9 @@ body.editor-open #viewScroll { overflow: hidden; }
   .edskel__row { animation: none; }
   .edsave__spinner { animation-duration: 1.4s; }
 }
+
+/* ── Guion de carrusel por slides (tab Guion) ──────────────────────────────── */
+.edslides { display: flex; flex-direction: column; gap: var(--s-4); }
+.edslide-add { display: inline-flex; align-items: center; gap: 7px; align-self: flex-start; border-style: dashed; min-height: var(--tap); }
+.edslide-add:hover { border-color: var(--brand, #E24DA0); }
+.edslide-del:hover { color: #fca5a5; border-color: #fca5a5; }

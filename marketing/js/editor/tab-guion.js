@@ -12,9 +12,10 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, copyText } from '../api.js?v=202607031845';
-import { icon } from '../shell/icons.js?v=202607031845';
-import { makeTextarea } from './fields.js?v=202607031845';
+import { el, copyText } from '../api.js?v=202607031925';
+import { icon } from '../shell/icons.js?v=202607031925';
+import { makeTextarea } from './fields.js?v=202607031925';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText } from './slides.js?v=202607031925';
 
 const IG_VISIBLE_CUT = 125;
 const CAPTION_MAX = 2200;
@@ -63,28 +64,86 @@ export function mount(host, ed) {
     ]);
   }
 
-  // ── HOOK / BODY / CTA ──────────────────────────────────────────────────────
-  root.appendChild(block({
-    title: 'HOOK',
-    hint: 'Las primeras palabras venden',
-    field: 'hook',
-    value: post.hook || '',
-    placeholder: 'El gancho que detiene el scroll',
-  }));
-  root.appendChild(block({
-    title: 'BODY',
-    hint: 'Desarrollo de la idea',
-    field: 'body',
-    value: post.body || '',
-    placeholder: 'El cuerpo del guion, una idea por bloque',
-  }));
-  root.appendChild(block({
-    title: 'CTA',
-    hint: 'Cierre con accion clara',
-    field: 'cta',
-    value: post.cta || '',
-    placeholder: 'Que quieres que haga la persona al terminar',
-  }));
+  // ── Guion ──────────────────────────────────────────────────────────────────
+  // Carrusel: se edita POR SLIDES (Slide 1 · HOOK … Slide N · CTA, + agregar).
+  // Reel/foto/etc.: los bloques HOOK/BODY/CTA de siempre.
+  const isCarrusel = post.content_type === 'carrusel';
+  let slides = null;
+  if (isCarrusel) {
+    slides = slidesFromPost(post);
+    if (slides.length < 2) slides = [slides[0] || '', ''];
+    const slidesWrap = el('div', { class: 'edslides' });
+    const syncFields = () => {
+      const f = fieldsFromSlides(slides);
+      ed.setField('hook', f.hook);
+      ed.setField('body', f.body);
+      ed.setField('cta', f.cta);
+    };
+    const copySlideBtn = (i) => el('button', {
+      class: 'edcopy-mini', type: 'button', title: 'Copiar este slide',
+      'aria-label': `Copiar slide ${i + 1}`,
+      onclick: async () => {
+        const v = String(slides[i] || '').trim();
+        if (!v) { ctx.toast('Este slide está vacío.', { type: 'info' }); return; }
+        const ok = await copyText(v);
+        ctx.toast(ok ? 'Slide copiado.' : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
+      },
+    }, [icon('copy', 14)]);
+    const renderSlides = () => {
+      while (slidesWrap.firstChild) slidesWrap.removeChild(slidesWrap.firstChild);
+      slides.forEach((text, i) => {
+        const ta = makeTextarea({
+          value: text,
+          placeholder: slidePlaceholder(i, slides.length),
+          maxLength: 4000,
+          onInput: (v) => { slides[i] = v; syncFields(); },
+          onBlur: () => ed.flush(),
+        });
+        const hint = slideHint(i, slides.length);
+        slidesWrap.appendChild(el('div', { class: 'edblock' }, [
+          el('div', { class: 'edblock__head' }, [
+            el('span', { class: 'edblock__title', text: slideLabel(i, slides.length) }),
+            hint ? el('span', { class: 'edblock__hint', text: hint }) : null,
+            (i > 0 && i < slides.length - 1) ? el('button', {
+              class: 'edcopy-mini edslide-del', type: 'button', title: 'Quitar este slide',
+              'aria-label': `Quitar slide ${i + 1}`,
+              onclick: () => { slides.splice(i, 1); syncFields(); ed.flush(); renderSlides(); },
+            }, [icon('trash', 14)]) : null,
+            copySlideBtn(i),
+          ]),
+          ta,
+        ]));
+      });
+      slidesWrap.appendChild(el('button', {
+        class: 'btn edslide-add', type: 'button',
+        onclick: () => { slides.splice(slides.length - 1, 0, ''); syncFields(); renderSlides(); },
+      }, [icon('plus', 16), ' Agregar slide']));
+    };
+    renderSlides();
+    root.appendChild(slidesWrap);
+  } else {
+    root.appendChild(block({
+      title: 'HOOK',
+      hint: 'Las primeras palabras venden',
+      field: 'hook',
+      value: post.hook || '',
+      placeholder: 'El gancho que detiene el scroll',
+    }));
+    root.appendChild(block({
+      title: 'BODY',
+      hint: 'Desarrollo de la idea',
+      field: 'body',
+      value: post.body || '',
+      placeholder: 'El cuerpo del guion, una idea por bloque',
+    }));
+    root.appendChild(block({
+      title: 'CTA',
+      hint: 'Cierre con accion clara',
+      field: 'cta',
+      value: post.cta || '',
+      placeholder: 'Que quieres que haga la persona al terminar',
+    }));
+  }
 
   // ── Caption con contador en vivo ───────────────────────────────────────────
   const capCounter = el('span', { class: 'edcount' });
@@ -162,12 +221,18 @@ export function mount(host, ed) {
   }
   async function copyScript() {
     const p = ed.getPost();
-    const lines = [];
-    if (String(p.hook || '').trim()) lines.push(`HOOK:\n${String(p.hook).trim()}`);
-    if (String(p.body || '').trim()) lines.push(`BODY:\n${String(p.body).trim()}`);
-    if (String(p.cta || '').trim()) lines.push(`CTA:\n${String(p.cta).trim()}`);
-    if (!lines.length) { ctx.toast('No hay guion que copiar.', { type: 'info' }); return; }
-    const ok = await copyText(lines.join('\n\n'));
+    let text = '';
+    if (isCarrusel && slides) {
+      text = slidesToText(slides);
+    } else {
+      const lines = [];
+      if (String(p.hook || '').trim()) lines.push(`HOOK:\n${String(p.hook).trim()}`);
+      if (String(p.body || '').trim()) lines.push(`BODY:\n${String(p.body).trim()}`);
+      if (String(p.cta || '').trim()) lines.push(`CTA:\n${String(p.cta).trim()}`);
+      text = lines.join('\n\n');
+    }
+    if (!text) { ctx.toast('No hay guion que copiar.', { type: 'info' }); return; }
+    const ok = await copyText(text);
     ctx.toast(ok ? 'Guion copiado.' : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
   }
 
