@@ -116,7 +116,7 @@ def render_report(snapshot: dict[str, Any]) -> str:
             out.append("Thank you for your work,")
             out.append("Vianey Díaz")
             out.append("Creative Director, IVAE Studios")
-            out.append("https://ivaestudios.com | hello@ivaestudios.com")
+            out.append("https://ivaestudios.com | info@ivaestudios.com")
             out.append("```")
             out.append("")
 

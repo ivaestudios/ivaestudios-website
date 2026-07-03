@@ -5,7 +5,7 @@
   OP3 fix 'Escibenos' typo
   OP4 remove the orphan unused .pending-badge CSS rule (2 press pages)
   OP5 add og:locale to luxury-family-photos.html
-  OP6 standardize blog-post body contact email info@ -> hello@ (canonical)
+  OP6 standardize blog-post body contact email -> info@ (ONLY real mailbox; hello@ BOUNCES, client-reported 2026-07-01)
   OP7 ES venues: dead /es/contacto -> mailto; /es/locaciones/ breadcrumb -> /es/
   OP8 descriptive alt text on blog hero images (was generic)
   OP9 fetchpriority="high" on the eager LCP hero <img> in blog posts
@@ -68,14 +68,14 @@ def add_og_locale(s):
     return s
 edit('luxury-family-photos.html', add_og_locale)
 
-# OP6 — standardize blog-post body contact email to hello@
+# OP6 — standardize blog-post body contact email to info@ (hello@ bounces)
 for p in glob.glob('post-*.html') + glob.glob('es/blog/*.html'):
-    edit(p, lambda s: s.replace('mailto:info@ivaestudios.com', 'mailto:hello@ivaestudios.com')
-                       .replace('info@ivaestudios.com', 'hello@ivaestudios.com'))
+    edit(p, lambda s: s.replace('mailto:hello@ivaestudios.com', 'mailto:info@ivaestudios.com')
+)
 
 # OP7 — ES venue dead links
 for p in glob.glob('es/locaciones/*/index.html'):
-    edit(p, lambda s: s.replace('href="/es/contacto"', 'href="mailto:hello@ivaestudios.com"')
+    edit(p, lambda s: s.replace('href="/es/contacto"', 'href="mailto:info@ivaestudios.com"')
                        .replace('href="/es/locaciones/"', 'href="/es/"'))
 
 # OP8 + OP9 — descriptive hero alt + fetchpriority on blog posts

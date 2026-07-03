@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS studio_settings (
   -- Identity
   studio_name              TEXT NOT NULL DEFAULT 'IVAE Studios',
   tagline                  TEXT DEFAULT 'Luxury Resort Photography · Cancún',
-  contact_email            TEXT DEFAULT 'gallery@ivaestudios.com',
+  contact_email            TEXT DEFAULT 'info@ivaestudios.com',
   contact_phone            TEXT DEFAULT '',
   website_url              TEXT DEFAULT 'https://ivaestudios.com',
   -- Brand defaults (also seeds new galleries)
