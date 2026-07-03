@@ -26,9 +26,9 @@ import {
   el, clear, copyText,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607031520';
-import { icon } from '../shell/icons.js?v=202607031520';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607031520';
+} from '../api.js?v=202607031610';
+import { icon } from '../shell/icons.js?v=202607031610';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607031610';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -384,12 +384,28 @@ function openCaptionDrawer(post) {
     ctx.toast(ok ? `${label} copiado.` : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
   }
 
-  // "Copiar todo" como en el móvil: caption + hashtags juntos, listos para IG.
-  async function copyCaptionAll() {
+  // Los mismos 3 botones de copiar que el tab Guion del editor (móvil):
+  // caption solo, caption + hashtags (listo para IG) y guion completo.
+  async function copyPlain(text, okMsg, emptyMsg) {
+    const v = String(text || '').trim();
+    if (!v) { ctx.toast(emptyMsg, { type: 'info' }); return; }
+    const ok = await copyText(v);
+    ctx.toast(ok ? okMsg : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
+  }
+  function copyCaptionOnly() {
+    return copyPlain(tas.caption.value, 'Caption copiado.', 'No hay caption que copiar.');
+  }
+  function copyCaptionAll() {
     const parts = ['caption', 'hashtags'].map((f) => String(tas[f] ? tas[f].value : '').trim()).filter(Boolean);
-    if (!parts.length) { ctx.toast('No hay caption que copiar.', { type: 'info' }); return; }
-    const ok = await copyText(parts.join('\n\n'));
-    ctx.toast(ok ? 'Caption + hashtags copiados.' : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
+    return copyPlain(parts.join('\n\n'), 'Caption + hashtags copiados.', 'No hay caption que copiar.');
+  }
+  function copyScriptAll() {
+    const lines = [];
+    for (const [f, lbl] of [['hook', 'HOOK'], ['body', 'BODY'], ['cta', 'CTA']]) {
+      const v = String(tas[f] ? tas[f].value : '').trim();
+      if (v) lines.push(`${lbl}:\n${v}`);
+    }
+    return copyPlain(lines.join('\n\n'), 'Guion copiado.', 'No hay guion que copiar.');
   }
 
   // Autosize: cada caja crece hasta su contenido (máx 320px) — nada de texto
@@ -466,15 +482,16 @@ function openCaptionDrawer(post) {
         }, [icon('close', 18)]),
       ]),
       body,
+      el('div', { class: 'meses-drawer__copyrow' }, [
+        el('button', { class: 'btn meses-drawer__copybtn', type: 'button', title: 'Copia solo el caption', onclick: copyCaptionOnly }, [icon('copy', 14), 'Copiar caption']),
+        el('button', { class: 'btn meses-drawer__copybtn', type: 'button', title: 'Caption + hashtags juntos, listos para pegar en IG', onclick: copyCaptionAll }, [icon('copy', 14), 'Copiar caption + hashtags']),
+        el('button', { class: 'btn meses-drawer__copybtn', type: 'button', title: 'HOOK, BODY y CTA etiquetados', onclick: copyScriptAll }, [icon('copy', 14), 'Copiar guion completo']),
+      ]),
       el('footer', { class: 'meses-drawer__foot' }, [
-        el('button', {
-          class: 'btn meses-drawer__copyall', type: 'button',
-          title: 'Copia caption + hashtags juntos, listos para pegar en IG',
-          onclick: copyCaptionAll,
-        }, [icon('copy', 15), 'Copiar caption + hashtags']),
+        el('span', { class: 'meses-drawer__hint', text: 'Cmd+Enter guarda · Esc cierra' }),
         el('div', { class: 'meses-drawer__actions' }, [
           el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => closeCaptionDrawer() }),
-          el('button', { class: 'btn btn-primary', type: 'button', text: 'Guardar', title: 'Cmd+Enter guarda · Esc cierra', onclick: save }),
+          el('button', { class: 'btn btn-primary', type: 'button', text: 'Guardar', onclick: save }),
         ]),
       ]),
     ]),

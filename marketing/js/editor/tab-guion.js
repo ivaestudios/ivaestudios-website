@@ -12,9 +12,9 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, copyText } from '../api.js?v=202607031520';
-import { icon } from '../shell/icons.js?v=202607031520';
-import { makeTextarea } from './fields.js?v=202607031520';
+import { el, copyText } from '../api.js?v=202607031610';
+import { icon } from '../shell/icons.js?v=202607031610';
+import { makeTextarea } from './fields.js?v=202607031610';
 
 const IG_VISIBLE_CUT = 125;
 const CAPTION_MAX = 2200;
@@ -146,13 +146,19 @@ export function mount(host, ed) {
     tagTa,
   ]));
 
-  // ── Copiar ─────────────────────────────────────────────────────────────────
+  // ── Copiar (mismos 3 botones que el panel de guion de escritorio) ──────────
   async function copyCaption() {
+    const v = String(ed.getPost().caption || '').trim();
+    if (!v) { ctx.toast('No hay caption que copiar.', { type: 'info' }); return; }
+    const ok = await copyText(v);
+    ctx.toast(ok ? 'Caption copiado.' : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
+  }
+  async function copyCaptionTags() {
     const p = ed.getPost();
     const parts = [p.caption, p.hashtags].map((s) => String(s || '').trim()).filter(Boolean);
     if (!parts.length) { ctx.toast('No hay caption que copiar.', { type: 'info' }); return; }
     const ok = await copyText(parts.join('\n\n'));
-    ctx.toast(ok ? 'Caption copiado.' : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
+    ctx.toast(ok ? 'Caption + hashtags copiados.' : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
   }
   async function copyScript() {
     const p = ed.getPost();
@@ -167,6 +173,7 @@ export function mount(host, ed) {
 
   root.appendChild(el('div', { class: 'edcopy-row' }, [
     el('button', { class: 'btn', type: 'button', onclick: copyCaption }, [icon('copy', 16), 'Copiar caption']),
+    el('button', { class: 'btn', type: 'button', onclick: copyCaptionTags }, [icon('copy', 16), 'Copiar caption + hashtags']),
     el('button', { class: 'btn', type: 'button', onclick: copyScript }, [icon('copy', 16), 'Copiar guion completo']),
   ]));
 

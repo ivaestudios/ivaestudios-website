@@ -909,15 +909,22 @@
 .meses-drawer__hint { font-size: 12px; color: var(--text-mute); }
 .meses-drawer__actions { display: flex; gap: 8px; }
 
-/* Copiar caption + hashtags en un clic (mismo combo que el botón del móvil). */
-.meses-drawer__copyall { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
-.meses-drawer__copyall:hover { border-color: var(--brand, #E24DA0); color: var(--text); }
-.meses-drawer__copyall svg { flex: none; }
+/* Fila de copiado: los mismos 3 botones que el tab Guion del editor móvil. */
+.meses-drawer__copyrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 20px 0;
+  border-top: 1px solid var(--border);
+}
+.meses-drawer__copybtn { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; padding: 7px 12px; white-space: nowrap; }
+.meses-drawer__copybtn:hover { border-color: var(--brand, #E24DA0); color: var(--text); }
+.meses-drawer__copybtn svg { flex: none; }
 
 @media (max-width: 767px) {
   .meses-drawer { width: 100vw; }
   .meses-drawer__hint { display: none; }
-  .meses-drawer__copyall { font-size: 12px; padding-left: 10px; padding-right: 10px; }
+  .meses-drawer__copybtn { flex: 1 1 auto; justify-content: center; min-height: 40px; }
   /* iPhone: el pie del drawer no debe quedar bajo el home bar. */
   .meses-drawer__foot { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
   /* El caption se lee mejor con un poco mas de aire en pantalla chica. */
