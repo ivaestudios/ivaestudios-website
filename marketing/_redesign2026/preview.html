@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sistema IVA · Rediseño 2026 (vista previa)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:#0A0A0E;color:#ECECF1;font-family:'Outfit',system-ui,sans-serif;-webkit-font-smoothing:antialiased;--accent:#E24DA0;--accent2:#9D5BE0;--rowpad:14px;}
+::selection{background:var(--accent);color:#fff;}
+::-webkit-scrollbar{height:9px;width:9px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:#26262F;border-radius:9px;}
+::-webkit-scrollbar-thumb:hover{background:#34343F;}
+button{font-family:inherit;}
+.screen{display:none;}
+.screen.active{display:block;}
+.tab .ul{display:none;}
+.tab.active .ul{display:block;}
+.scope-btn{padding:8px 18px;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:#8A8A98;}
+.scope-btn.active{font-weight:600;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
+.chip{cursor:pointer;}
+</style>
+</head>
+<body>
+
+<nav style="position:sticky;top:0;z-index:50;display:flex;align-items:center;height:60px;padding:0 24px;background:rgba(10,10,14,0.86);backdrop-filter:blur(16px);border-bottom:1px solid #18181F;">
+  <div style="display:flex;align-items:center;gap:18px;">
+    <div style="display:flex;align-items:center;gap:9px;">
+      <div style="width:27px;height:27px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;letter-spacing:-0.04em;">iv</div>
+      <span style="font-size:11.5px;font-weight:600;letter-spacing:.18em;color:#7A7A88;text-transform:uppercase;">Estudios</span>
+    </div>
+    <div style="width:1px;height:24px;background:#22222B;"></div>
+    <button style="display:flex;align-items:center;gap:9px;background:#141419;border:1px solid #24242E;border-radius:10px;padding:6px 11px 6px 7px;cursor:pointer;">
+      <span style="width:22px;height:22px;border-radius:6px;background:#262630;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#E6E6EC;">R</span>
+      <span style="font-size:13.5px;font-weight:600;color:#ECECF1;">Regeneris Therapy</span>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#62626F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="margin-left:1px;"><path d="M6 9l6 6 6-6"></path></svg>
+    </button>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:30px;margin-left:36px;">
+    <button class="tab active" data-screen="inicio" style="position:relative;background:none;border:none;color:#B6B6C2;font-size:14px;font-weight:500;padding:20px 1px;cursor:pointer;letter-spacing:-0.01em;">Inicio<span class="ul" style="position:absolute;left:-2px;right:-2px;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;"></span></button>
+    <button class="tab" data-screen="calendario" style="position:relative;background:none;border:none;color:#B6B6C2;font-size:14px;font-weight:500;padding:20px 1px;cursor:pointer;letter-spacing:-0.01em;">Calendario<span class="ul" style="position:absolute;left:-2px;right:-2px;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;"></span></button>
+    <button class="tab" data-screen="cuadricula" style="position:relative;background:none;border:none;color:#B6B6C2;font-size:14px;font-weight:500;padding:20px 1px;cursor:pointer;letter-spacing:-0.01em;">Cuadrícula<span class="ul" style="position:absolute;left:-2px;right:-2px;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;"></span></button>
+    <button class="tab" data-screen="metricas" style="position:relative;background:none;border:none;color:#B6B6C2;font-size:14px;font-weight:500;padding:20px 1px;cursor:pointer;letter-spacing:-0.01em;">Métricas<span class="ul" style="position:absolute;left:-2px;right:-2px;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;"></span></button>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:13px;margin-left:auto;">
+    <div style="display:flex;align-items:center;gap:7px;">
+      <span style="font-size:11px;color:#55555F;text-transform:uppercase;letter-spacing:.08em;">Color</span>
+      <span class="acc-dot" data-acc="Magenta" title="Magenta" style="width:18px;height:18px;border-radius:50%;cursor:pointer;background:linear-gradient(135deg,#E24DA0,#9D5BE0);box-shadow:0 0 0 2px #0A0A0E,0 0 0 3px #4A4A55;"></span>
+      <span class="acc-dot" data-acc="Violeta" title="Violeta" style="width:18px;height:18px;border-radius:50%;cursor:pointer;background:linear-gradient(135deg,#8B5CF6,#6366F1);"></span>
+      <span class="acc-dot" data-acc="Azul" title="Azul" style="width:18px;height:18px;border-radius:50%;cursor:pointer;background:linear-gradient(135deg,#3B82F6,#2563EB);"></span>
+      <span class="acc-dot" data-acc="Esmeralda" title="Esmeralda" style="width:18px;height:18px;border-radius:50%;cursor:pointer;background:linear-gradient(135deg,#10B981,#0EA5A5);"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px;background:#141419;border:1px solid #24242E;border-radius:10px;padding:8px 12px;width:218px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#55555F" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line></svg>
+      <input placeholder="Buscar contenido o clientes" style="background:none;border:none;outline:none;color:#ECECF1;font-family:inherit;font-size:13px;width:100%;" />
+    </div>
+    <button style="position:relative;width:38px;height:38px;border-radius:10px;background:#141419;border:1px solid #24242E;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9A9AA8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+      <span style="position:absolute;top:6px;right:7px;min-width:15px;height:15px;padding:0 4px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;">5</span>
+    </button>
+    <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;">V</div>
+  </div>
+</nav>
+
+<div style="max-width:1480px;margin:0 auto;padding:28px 24px 64px;">
+
+<!-- ===================== INICIO ===================== -->
+<div class="screen active" id="screen-inicio">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:14px;">
+    <div style="display:flex;background:#121218;border:1px solid #1E1E26;border-radius:12px;padding:4px;gap:4px;">
+      <button class="scope-btn active" data-scope="cliente">Regeneris Therapy</button>
+      <button class="scope-btn" data-scope="agencia">Agencia</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button style="width:34px;height:34px;border-radius:9px;background:#121218;border:1px solid #1E1E26;color:#9A9AA8;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"></path><path d="M21 4v5h-5"></path></svg>
+      </button>
+      <button style="width:34px;height:34px;border-radius:9px;background:#121218;border:1px solid #1E1E26;color:#9A9AA8;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;">‹</button>
+      <span style="font-size:15px;font-weight:600;color:#ECECF1;padding:0 8px;min-width:96px;text-align:center;">Julio 2026</span>
+      <button style="width:34px;height:34px;border-radius:9px;background:#121218;border:1px solid #1E1E26;color:#9A9AA8;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;">›</button>
+      <button style="padding:0 16px;height:34px;border-radius:9px;background:#121218;border:1px solid #1E1E26;color:#C4C4CE;cursor:pointer;font-size:13px;font-weight:500;">Este mes</button>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px;">
+    <div style="background:#121218;border:1px solid #1E1E26;border-radius:14px;padding:18px 20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#6E6E7C;">Por aprobar</span><span style="width:8px;height:8px;border-radius:50%;background:#E0A43F;box-shadow:0 0 0 4px rgba(224,164,63,.13);"></span></div>
+      <div style="font-size:30px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:#F2F2F6;margin-top:12px;">17</div>
+      <div style="font-size:12.5px;color:#62626F;margin-top:5px;">requieren tu revisión</div>
+    </div>
+    <div style="background:#121218;border:1px solid #1E1E26;border-radius:14px;padding:18px 20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#6E6E7C;">Esta semana</span><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 14%,transparent);"></span></div>
+      <div style="font-size:30px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:#F2F2F6;margin-top:12px;">6</div>
+      <div style="font-size:12.5px;color:#62626F;margin-top:5px;">programados · 1–7 jul</div>
+    </div>
+    <div style="background:#121218;border:1px solid #1E1E26;border-radius:14px;padding:18px 20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#6E6E7C;">Atrasados</span><span style="width:8px;height:8px;border-radius:50%;background:#3FB984;box-shadow:0 0 0 4px rgba(63,185,132,.13);"></span></div>
+      <div style="font-size:30px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:#F2F2F6;margin-top:12px;">0</div>
+      <div style="font-size:12.5px;color:#3FB984;margin-top:5px;font-weight:500;">Al día</div>
+    </div>
+    <div style="background:#121218;border:1px solid #1E1E26;border-radius:14px;padding:18px 20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#6E6E7C;">Posts del mes</span></div>
+      <div style="font-size:30px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:#F2F2F6;margin-top:12px;">17</div>
+      <div style="font-size:12.5px;color:#62626F;margin-top:5px;">12 reels · 5 carruseles</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.55fr 1fr;gap:16px;margin-bottom:16px;">
+    <div style="background:#121218;border:1px solid #1E1E26;border-radius:14px;padding:20px 22px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:15px;font-weight:600;color:#ECECF1;">Pipeline</span><span style="font-size:12px;color:#9A9AA8;background:#1A1A22;border:1px solid #24242E;padding:3px 10px;border-radius:20px;">17 en total</span></div>
+      <div style="display:flex;height:10px;border-radius:6px;background:#1A1A22;overflow:hidden;margin:16px 0 20px;"><div style="width:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));"></div></div>
+      <div id="pipeline-rows"></div>
+    </div>
+    <div style="background:#121218;border:1px solid #1E1E26;border-radius:14px;padding:20px 22px;">
+      <span style="font-size:15px;font-weight:600;color:#ECECF1;">Racha</span>
+      <div style="display:flex;align-items:flex-end;gap:12px;margin-top:14px;"><span style="font-size:46px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;color:#F2F2F6;">0</span><span style="font-size:13px;color:#62626F;padding-bottom:8px;">días seguidos</span></div>
+      <div style="display:flex;align-items:flex-end;gap:5px;height:56px;margin:18px 0 12px;" id="racha-bars"></div>
+      <div style="font-size:12.5px;color:#62626F;line-height:1.45;">Aún sin racha. Crea o edita contenido para encenderla.</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.55fr 1fr;gap:16px;">
+    <div style="background:#121218;border:1px solid #1E1E26;border-radius:14px;padding:20px 22px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;"><span style="font-size:15px;font-weight:600;color:#ECECF1;">Por aprobar</span><span style="font-size:12px;color:#9A9AA8;background:#1A1A22;border:1px solid #24242E;padding:3px 10px;border-radius:20px;">17</span></div>
+      <div id="aprobar-rows"></div>
+      <div style="padding-top:14px;border-top:1px solid #18181E;margin-top:2px;"><span style="font-size:13px;font-weight:600;color:var(--accent);cursor:pointer;">Ver los 17 pendientes →</span></div>
+    </div>
+    <div style="background:#121218;border:1px solid #1E1E26;border-radius:14px;padding:20px 22px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:15px;font-weight:600;color:#ECECF1;">Plataformas</span><span style="font-size:12px;color:#62626F;">Julio 2026</span></div>
+      <div style="display:flex;align-items:center;gap:22px;margin-top:20px;">
+        <div style="position:relative;width:126px;height:126px;flex:none;">
+          <div style="width:100%;height:100%;border-radius:50%;background:conic-gradient(var(--accent) 0deg 360deg);"></div>
+          <div style="position:absolute;inset:15px;border-radius:50%;background:#121218;display:flex;flex-direction:column;align-items:center;justify-content:center;"><span style="font-size:27px;font-weight:700;font-variant-numeric:tabular-nums;color:#F2F2F6;line-height:1;">17</span><span style="font-size:11px;color:#62626F;margin-top:2px;">del mes</span></div>
+        </div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;"><span style="width:16px;height:16px;border-radius:5px;background:linear-gradient(135deg,#F58529,#DD2A7B,#8134AF);flex:none;"></span><span style="flex:1;font-size:13.5px;color:#E6E6EC;">Instagram</span><span style="font-weight:600;font-size:13.5px;color:#F2F2F6;font-variant-numeric:tabular-nums;">17</span><span style="width:46px;text-align:right;color:#62626F;font-size:13px;">100%</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;opacity:.5;"><span style="width:16px;height:16px;border-radius:5px;background:#26262F;flex:none;"></span><span style="flex:1;font-size:13.5px;color:#9A9AA8;">TikTok</span><span style="font-weight:600;font-size:13.5px;color:#9A9AA8;font-variant-numeric:tabular-nums;">0</span><span style="width:46px;text-align:right;color:#62626F;font-size:13px;">0%</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;opacity:.5;"><span style="width:16px;height:16px;border-radius:5px;background:#26262F;flex:none;"></span><span style="flex:1;font-size:13.5px;color:#9A9AA8;">Facebook</span><span style="font-weight:600;font-size:13.5px;color:#9A9AA8;font-variant-numeric:tabular-nums;">0</span><span style="width:46px;text-align:right;color:#62626F;font-size:13px;">0%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CALENDARIO ===================== -->
+<div class="screen" id="screen-calendario">
+  <div style="display:flex;gap:24px;align-items:flex-start;">
+    <aside style="width:212px;flex:none;">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#6E6E7C;margin-bottom:12px;padding-left:4px;">Meses</div>
+      <div style="background:#121218;border:1px solid #2C2C38;border-radius:12px;padding:15px 16px;position:relative;overflow:hidden;">
+        <span style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--accent),var(--accent2));"></span>
+        <div style="font-size:14.5px;font-weight:600;color:#fff;">Julio 2026</div><div style="font-size:12px;color:#62626F;margin-top:3px;">17 contenidos</div>
+      </div>
+      <div style="background:transparent;border-radius:12px;padding:15px 16px;margin-top:4px;cursor:pointer;"><div style="font-size:14.5px;font-weight:500;color:#8A8A98;">Junio 2026</div><div style="font-size:12px;color:#4E4E58;margin-top:3px;">14 contenidos</div></div>
+      <button style="width:100%;margin-top:6px;background:transparent;border:1px dashed #2C2C38;border-radius:12px;padding:13px;color:#8A8A98;font-size:13px;font-weight:500;cursor:pointer;">+ Agregar mes</button>
+    </aside>
+    <div style="flex:1;min-width:0;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;"><h2 style="margin:0;font-size:21px;font-weight:700;letter-spacing:-0.01em;color:#F2F2F6;">Julio 2026</h2><span style="font-size:12px;color:#9A9AA8;background:#1A1A22;border:1px solid #24242E;padding:3px 10px;border-radius:20px;font-variant-numeric:tabular-nums;">17</span></div>
+      <div style="background:#0E0E13;border:1px solid #1E1E26;border-radius:14px;overflow:hidden;">
+        <div style="overflow-x:auto;"><div style="min-width:1200px;">
+          <div style="display:grid;grid-template-columns:56px minmax(190px,1.5fr) 122px 100px 128px 116px minmax(230px,1.7fr) 138px 158px;background:#0B0B10;border-bottom:1px solid #1E1E26;">
+            <div class="th">Grab.</div><div class="th">Tarea</div><div class="th">Estado</div><div class="th">Fecha</div><div class="th">Plataforma</div><div class="th">Tipo</div><div class="th">Captions</div><div class="th">Notas Jairo</div><div class="th">Notas Natalia</div>
+          </div>
+          <div id="reels-rows"></div>
+        </div></div>
+      </div>
+      <div style="background:#121218;border:1px solid #1E1E26;border-radius:14px;padding:16px 20px;margin-top:16px;display:flex;align-items:center;gap:18px;"><span style="font-size:13.5px;font-weight:600;color:#ECECF1;white-space:nowrap;">Progreso del mes</span><div style="flex:1;height:8px;background:#1A1A22;border-radius:5px;overflow:hidden;"><div style="height:100%;width:57%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:5px;"></div></div><span style="font-size:13px;color:#9A9AA8;font-variant-numeric:tabular-nums;white-space:nowrap;">57% · 0/17 publicados</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CUADRÍCULA ===================== -->
+<div class="screen" id="screen-cuadricula">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:14px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button style="width:34px;height:34px;border-radius:9px;background:#121218;border:1px solid #1E1E26;color:#9A9AA8;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;">‹</button>
+      <button style="padding:0 16px;height:34px;border-radius:9px;background:#121218;border:1px solid #1E1E26;color:#C4C4CE;cursor:pointer;font-size:13px;font-weight:500;">Hoy</button>
+      <button style="width:34px;height:34px;border-radius:9px;background:#121218;border:1px solid #1E1E26;color:#9A9AA8;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;">›</button>
+      <h2 style="margin:0 0 0 8px;font-size:21px;font-weight:700;letter-spacing:-0.01em;color:#F2F2F6;">Junio 2026</h2>
+    </div>
+    <div style="display:flex;background:#121218;border:1px solid #1E1E26;border-radius:10px;padding:4px;gap:4px;">
+      <button class="cal-btn active" data-cal="Mes" style="padding:7px 18px;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;">Mes</button>
+      <button class="cal-btn" data-cal="Semana" style="padding:7px 18px;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid #26262F;background:transparent;color:#9A9AA8;">Semana</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:2px;">
+    <div class="dow">Lun</div><div class="dow">Mar</div><div class="dow">Mié</div><div class="dow">Jue</div><div class="dow">Vie</div><div class="dow">Sáb</div><div class="dow">Dom</div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid #16161C;border-left:1px solid #16161C;overflow:hidden;" id="dias-grid"></div>
+</div>
+
+<!-- ===================== MÉTRICAS ===================== -->
+<div class="screen" id="screen-metricas">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
+    <div><h2 style="margin:0;font-size:23px;font-weight:700;letter-spacing:-0.01em;color:#F2F2F6;">Métricas de Instagram</h2><div style="font-size:13px;color:#62626F;margin-top:6px;">Regeneris Therapy · Mensual · 21 may – 19 jun 2026</div></div>
+    <button style="display:flex;align-items:center;gap:8px;background:#121218;border:1px solid #2C2C38;border-radius:10px;padding:10px 16px;color:#ECECF1;font-size:13px;font-weight:500;cursor:pointer;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="M7 10l5 5 5-5"></path><path d="M12 15V3"></path></svg>Descargar reporte (PDF)
+    </button>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:22px;flex-wrap:wrap;" id="periods"></div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:18px;">
+    <div style="background:#121218;border:1px solid color-mix(in srgb,var(--accent) 32%,#1E1E26);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;"><span style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--accent),var(--accent2));"></span><div style="font-size:28px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:#F2F2F6;">4,142</div><div style="font-size:12.5px;font-weight:500;color:#C4C4CE;margin-top:8px;">Seguidores</div><div style="font-size:11.5px;color:#62626F;margin-top:3px;">+493 de alcance · 28 días</div></div>
+    <div style="background:#121218;border:1px solid #1E1E26;border-radius:14px;padding:18px 20px;"><div style="font-size:28px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:#F2F2F6;">11,114</div><div style="font-size:12.5px;font-weight:500;color:#C4C4CE;margin-top:8px;">Vistas del periodo</div><div style="font-size:11.5px;color:#62626F;margin-top:3px;">impresiones totales</div></div>
+    <div style="background:#121218;border:1px solid #1E1E26;border-radius:14px;padding:18px 20px;"><div style="font-size:28px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:#F2F2F6;">6,456</div><div style="font-size:12.5px;font-weight:500;color:#C4C4CE;margin-top:8px;">Alcance</div><div style="font-size:11.5px;color:#62626F;margin-top:3px;">cuentas alcanzadas</div></div>
+    <div style="background:#121218;border:1px solid #1E1E26;border-radius:14px;padding:18px 20px;"><div style="font-size:28px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:#F2F2F6;">326</div><div style="font-size:12.5px;font-weight:500;color:#C4C4CE;margin-top:8px;">Interacciones</div><div style="font-size:11.5px;color:#62626F;margin-top:3px;">likes · comentarios · saves</div></div>
+    <div style="background:#121218;border:1px solid #1E1E26;border-radius:14px;padding:18px 20px;"><div style="font-size:28px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:#F2F2F6;">16</div><div style="font-size:12.5px;font-weight:500;color:#C4C4CE;margin-top:8px;">Publicaciones</div><div style="font-size:11.5px;color:#62626F;margin-top:3px;">en el periodo</div></div>
+  </div>
+  <div style="background:#121218;border:1px solid #1E1E26;border-radius:14px;padding:24px;">
+    <div style="font-size:16px;font-weight:600;color:#ECECF1;">Tu audiencia</div>
+    <div style="font-size:13px;color:#62626F;margin-top:4px;margin-bottom:22px;">Foto actual de tus seguidores · no cambia con el periodo.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;">
+      <div>
+        <div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#62626F;margin-bottom:8px;">Género</div>
+        <div id="generos"></div>
+        <div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#62626F;margin:22px 0 8px;">Edad</div>
+        <div id="edades"></div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#62626F;margin-bottom:8px;">Ciudades top</div>
+        <div id="ciudades"></div>
+        <div style="margin-top:24px;padding:16px;border-radius:12px;background:#0E0E13;border:1px solid #1A1A22;"><div style="font-size:13px;color:#9A9AA8;line-height:1.5;">El <span style="color:var(--accent);font-weight:600;">71%</span> de tu audiencia está en Cancún. El contenido local y de longevidad rinde mejor con este público.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<style>
+.th{padding:13px 16px;font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#5E5E6A;}
+.dow{padding:8px 12px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#5E5E6A;}
+.pl-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid #18181E;}
+.reel-row{display:grid;grid-template-columns:56px minmax(190px,1.5fr) 122px 100px 128px 116px minmax(230px,1.7fr) 138px 158px;border-bottom:1px solid #16161C;align-items:center;}
+.reel-row:hover{background:#15151B;}
+.tdc{padding:var(--rowpad) 16px;}
+.bar-row{display:flex;align-items:center;gap:14px;padding:7px 0;}
+</style>
+
+<script>
+var DATA = {
+  pipeline: [
+    {l:'Borrador', dot:'#34343E', w:'0%', barbg:'#34343E', n:'0', nc:'#5E5E6A', lc:'#8A8A98', lw:500},
+    {l:'Revisión', dot:'var(--accent)', w:'100%', barbg:'linear-gradient(90deg,var(--accent),var(--accent2))', n:'17', nc:'#F2F2F6', lc:'#E6E6EC', lw:500},
+    {l:'Aprobado', dot:'#34343E', w:'0%', barbg:'#34343E', n:'0', nc:'#5E5E6A', lc:'#8A8A98', lw:400},
+    {l:'Programado', dot:'#34343E', w:'0%', barbg:'#34343E', n:'0', nc:'#5E5E6A', lc:'#8A8A98', lw:400},
+    {l:'Publicado', dot:'#34343E', w:'0%', barbg:'#34343E', n:'0', nc:'#5E5E6A', lc:'#8A8A98', lw:400}
+  ],
+  racha:[8,34,44,8,8,18,8,8,8,26,8,8],
+  rachaOp:[1,.55,.7,1,1,.4,1,1,1,.5,1,1],
+  aprobar:[
+    {t:'Reel 1 / Pauta Pain', d:'1 jul · Instagram'},
+    {t:'Reel 2 · Clinic', d:'1 jul · Instagram'},
+    {t:'Reel 3 / Pauta Longevidad', d:'2 jul · Instagram'},
+    {t:'Reel 4 / Pauta Péptidos Nacional', d:'4 jul · Instagram'},
+    {t:'Reel 5 · Suero B&W', d:'7 jul · Instagram'}
+  ],
+  reels:[
+    {grab:'3',tarea:'Reel 1 / Pauta Pain',fecha:'1 jul',tipo:'Reel',caption:'HOOK · If every step reminds you of the pain…',jairo:'Nat o Isa',natalia:'Aprobado · modificado'},
+    {grab:'3',tarea:'Reel 2 · Clinic',fecha:'1 jul',tipo:'Reel',caption:'Título: escribe el título aquí…',jairo:'Agregar nota',natalia:'Aprobado'},
+    {grab:'3',tarea:'Reel 3 / Pauta Longevidad',fecha:'2 jul',tipo:'Reel',caption:'HOOK · Coming to Cancún for my…',jairo:'Nat o Isa',natalia:'Agregar nota'},
+    {grab:'2',tarea:'Reel 4 / Pauta Péptidos Nacional',fecha:'4 jul',tipo:'Reel',caption:'GANCHO · Seguro has escuchado…',jairo:'Misa',natalia:'Aprobado, agrego guión'},
+    {grab:'1',tarea:'Reel 5 · Suero B&W',fecha:'7 jul',tipo:'Reel',caption:'Título: escribe el título aquí…',jairo:'Agregar nota',natalia:'Agregar nota'},
+    {grab:'2',tarea:'Reel 6 / Pauta BCP 157 + TB 500',fecha:'9 jul',tipo:'Reel',caption:'GANCHO · Si tu lesión lleva sem…',jairo:'Misa',natalia:'Agregar nota'},
+    {grab:'1',tarea:'Reel 7 · Educativo Marian',fecha:'11 jul',tipo:'Reel',caption:'Cuatro cosas que dejaría de hacer…',jairo:'Agregar nota',natalia:'Adaptado'},
+    {grab:'2',tarea:'Reel 8 / Pauta NAD+',fecha:'14 jul',tipo:'Reel',caption:'GANCHO · ¿Te pasa que a las 3…',jairo:'Misael',natalia:'Modificado'},
+    {grab:'3',tarea:'Reel 9 · Servicios',fecha:'16 jul',tipo:'Reel',caption:'Título: escribe el título aquí…',jairo:'Agregar nota',natalia:'Modificado'},
+    {grab:'2',tarea:'Reel 10 / Pauta péptido GLP-1',fecha:'18 jul',tipo:'Reel',caption:'GANCHO · La inyección para baj…',jairo:'Marian',natalia:'Guión modificado'},
+    {grab:'1',tarea:'Reel 11 · Perfect Match',fecha:'21 jul',tipo:'Reel',caption:'El combo perfecto: GLP-1 + Bueno…',jairo:'Agregar nota',natalia:'Hacer este, pero cor…'},
+    {grab:'3',tarea:'Reel 12 · Trend',fecha:'23 jul',tipo:'Reel',caption:'Título: escribe el título aquí…',jairo:'Agregar nota',natalia:'Modificado'},
+    {grab:'2',tarea:'¿Cómo cuido mi péptido?',fecha:'25 jul',tipo:'Carrusel',caption:'SLIDE 1 · ¿Cómo cuidar tu péptido…',jairo:'Agregar nota',natalia:'Agregar nota'},
+    {grab:'2',tarea:'¿Qué péptido es para mí?',fecha:'28 jul',tipo:'Carrusel',caption:'“¿Qué péptido es para mí?” · SLIDE…',jairo:'Agregar nota',natalia:'Agregar nota'},
+    {grab:'2',tarea:'La peor parte de bajar…',fecha:'29 jul',tipo:'Carrusel',caption:'SLIDE 1 · La peor parte de bajar de…',jairo:'Agregar nota',natalia:'Agregar nota'},
+    {grab:'2',tarea:'Thinking about stem cell ther…',fecha:'30 jul',tipo:'Carrusel',caption:'SLIDE 1 · Thinking about stem cell t…',jairo:'Agregar nota',natalia:'Agregar nota'},
+    {grab:'2',tarea:'Before you travel…',fecha:'31 jul',tipo:'Carrusel',caption:'SLIDE 1 · Before you travel to Can…',jairo:'Agregar nota',natalia:'Agregar nota'}
+  ],
+  generos:[{l:'Mujeres',w:'69%',p:'69%'},{l:'Hombres',w:'22%',p:'22%'},{l:'Sin dato',w:'10%',p:'10%'}],
+  edades:[{l:'13–17',w:'1%',p:'0%'},{l:'18–24',w:'3%',p:'2%'},{l:'25–34',w:'24%',p:'24%'},{l:'35–44',w:'38%',p:'38%'},{l:'45–54',w:'25%',p:'25%'},{l:'55–64',w:'9%',p:'9%'},{l:'65+',w:'2%',p:'2%'}],
+  ciudades:[{l:'Cancún, Q. Roo',w:'71%',p:'71%'},{l:'Playa del Carmen',w:'6%',p:'5%'},{l:'Ciudad de México',w:'6%',p:'5%'},{l:'Mérida, Yuc.',w:'5%',p:'4%'},{l:'Otras',w:'15%',p:'15%'}],
+  jul:{'1':[{t:'Reel 1 / Pauta Pain'},{t:'Reel 2 · Clinic'}],'2':[{t:'Reel 3 / Longevidad'}],'4':[{t:'Reel 4 / Péptidos'}]}
+};
+var PALETTE={Magenta:['#E24DA0','#9D5BE0'],Violeta:['#8B5CF6','#6366F1'],Azul:['#3B82F6','#2563EB'],Esmeralda:['#10B981','#0EA5A5']};
+function $(s,r){return (r||document).querySelector(s);}
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// Pipeline rows
+$('#pipeline-rows').innerHTML = DATA.pipeline.map(function(p){
+  return '<div class="pl-row"><span style="width:9px;height:9px;border-radius:50%;background:'+p.dot+';flex:none;"></span>'+
+  '<span style="flex:1;font-size:13.5px;color:'+p.lc+';font-weight:'+p.lw+';">'+p.l+'</span>'+
+  '<div style="width:130px;height:6px;background:#1A1A22;border-radius:4px;overflow:hidden;"><div style="height:100%;width:'+p.w+';background:'+p.barbg+';"></div></div>'+
+  '<span style="width:36px;text-align:right;font-weight:600;font-size:13.5px;color:'+p.nc+';font-variant-numeric:tabular-nums;">'+p.n+'</span></div>';
+}).join('');
+
+// Racha bars
+$('#racha-bars').innerHTML = DATA.racha.map(function(h,i){
+  var op=DATA.rachaOp[i];
+  if(h<=8) return '<div style="flex:1;height:8px;background:#1A1A22;border-radius:3px;"></div>';
+  return '<div style="flex:1;height:'+h+'px;background:linear-gradient(var(--accent2),var(--accent));border-radius:3px;opacity:'+op+';"></div>';
+}).join('');
+
+// Aprobar rows
+$('#aprobar-rows').innerHTML = DATA.aprobar.map(function(a){
+  return '<div style="display:flex;align-items:center;gap:14px;padding:13px 0;border-top:1px solid #18181E;">'+
+  '<span style="width:3px;height:32px;border-radius:3px;background:linear-gradient(var(--accent),var(--accent2));flex:none;"></span>'+
+  '<div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:500;color:#E6E6EC;">'+esc(a.t)+'</div><div style="font-size:12px;color:#62626F;margin-top:2px;">'+esc(a.d)+'</div></div>'+
+  '<span style="display:inline-flex;align-items:center;gap:6px;background:color-mix(in srgb,#E0A43F 12%,transparent);border:1px solid color-mix(in srgb,#E0A43F 28%,transparent);color:#E8B860;font-size:12px;font-weight:500;padding:4px 11px;border-radius:20px;"><span style="width:6px;height:6px;border-radius:50%;background:#E0A43F;"></span>Pendiente</span></div>';
+}).join('');
+
+// Reels table
+$('#reels-rows').innerHTML = DATA.reels.map(function(r){
+  var dot = r.tipo==='Carrusel'?'var(--accent2)':'var(--accent)';
+  return '<div class="reel-row">'+
+  '<div class="tdc"><span style="width:24px;height:24px;border-radius:50%;background:#1E1E28;color:#B8B8C4;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums;">'+r.grab+'</span></div>'+
+  '<div class="tdc" style="min-width:0;"><div style="font-size:13.5px;font-weight:500;color:#E6E6EC;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(r.tarea)+'</div></div>'+
+  '<div class="tdc"><span style="display:inline-flex;align-items:center;gap:6px;background:color-mix(in srgb,#E0A43F 12%,transparent);border:1px solid color-mix(in srgb,#E0A43F 28%,transparent);color:#E8B860;font-size:12px;font-weight:500;padding:4px 10px;border-radius:20px;"><span style="width:6px;height:6px;border-radius:50%;background:#E0A43F;"></span>Revisión</span></div>'+
+  '<div class="tdc" style="font-size:13px;color:#9A9AA8;font-variant-numeric:tabular-nums;">'+esc(r.fecha)+'</div>'+
+  '<div class="tdc"><span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;color:#C4C4CE;"><span style="width:18px;height:18px;border-radius:5px;background:linear-gradient(135deg,#F58529,#DD2A7B,#8134AF);flex:none;"></span>Instagram</span></div>'+
+  '<div class="tdc"><span style="display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#C4C4CE;"><span style="width:6px;height:6px;border-radius:50%;background:'+dot+';"></span>'+esc(r.tipo)+'</span></div>'+
+  '<div class="tdc" style="min-width:0;"><div style="font-size:13px;color:#8A8A98;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(r.caption)+'</div></div>'+
+  '<div class="tdc" style="min-width:0;"><div style="font-size:13px;color:#5E5E6A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(r.jairo)+'</div></div>'+
+  '<div class="tdc" style="min-width:0;"><div style="font-size:13px;color:#5E5E6A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(r.natalia)+'</div></div>'+
+  '</div>';
+}).join('');
+
+// Cuadrícula días (Junio: 30 días, hoy=19; + arrastre julio 1-5 muted)
+(function(){
+  var html='';
+  for(var d=1;d<=30;d++){
+    var today=(d===19);
+    var num = today
+      ? '<span style="display:inline-flex;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:12.5px;font-weight:700;align-items:center;justify-content:center;font-variant-numeric:tabular-nums;">'+d+'</span>'
+      : '<span style="display:inline-block;font-size:13px;font-weight:500;color:#9A9AA8;padding:4px 3px;font-variant-numeric:tabular-nums;">'+d+'</span>';
+    html+='<div style="position:relative;min-height:108px;padding:8px;border-right:1px solid #16161C;border-bottom:1px solid #16161C;display:flex;flex-direction:column;gap:5px;background:#0D0D12;"><div>'+num+'</div></div>';
+  }
+  ['1','2','3','4','5'].forEach(function(k){
+    var evs=(DATA.jul[k]||[]).map(function(ev){
+      return '<div style="display:flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--accent) 13%,transparent);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:7px;padding:4px 7px;overflow:hidden;"><span style="font-size:8px;font-weight:700;letter-spacing:.06em;color:var(--accent);text-transform:uppercase;flex:none;">Rev</span><span style="font-size:11px;color:#E6E6EC;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(ev.t)+'</span></div>';
+    }).join('');
+    html+='<div style="position:relative;min-height:108px;padding:8px;border-right:1px solid #16161C;border-bottom:1px solid #16161C;display:flex;flex-direction:column;gap:5px;background:#0D0D12;"><div><span style="display:inline-block;font-size:13px;font-weight:500;color:#46464F;padding:4px 3px;font-variant-numeric:tabular-nums;">'+k+'</span></div>'+evs+'</div>';
+  });
+  $('#dias-grid').innerHTML=html;
+})();
+
+// Audiencia bars
+function barRows(arr,labelW){
+  return arr.map(function(g){
+    return '<div class="bar-row"><div style="width:'+labelW+'px;font-size:13px;color:#B8B8C4;flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(g.l)+'</div><div style="flex:1;height:8px;background:#1A1A22;border-radius:6px;overflow:hidden;"><div style="height:100%;width:'+g.w+';background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:6px;"></div></div><div style="width:44px;text-align:right;font-size:13px;font-weight:600;color:#ECECF1;font-variant-numeric:tabular-nums;">'+g.p+'</div></div>';
+  }).join('');
+}
+$('#generos').innerHTML=barRows(DATA.generos,96);
+$('#edades').innerHTML=barRows(DATA.edades,60);
+$('#ciudades').innerHTML=barRows(DATA.ciudades,140);
+
+// Períodos (Métricas)
+var period='Mes';
+function renderPeriods(){
+  $('#periods').innerHTML=['Semana','Mes','3 meses','6 meses','1 año'].map(function(k){
+    var on=(k===period);
+    var st='padding:8px 16px;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;'+(on?'background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:1px solid transparent;':'background:transparent;color:#9A9AA8;border:1px solid #26262F;');
+    return '<button class="pchip" data-p="'+k+'" style="'+st+'">'+k+'</button>';
+  }).join('');
+  Array.prototype.forEach.call(document.querySelectorAll('.pchip'),function(b){b.onclick=function(){period=b.dataset.p;renderPeriods();};});
+}
+renderPeriods();
+
+// Tabs
+Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){
+  t.onclick=function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
+    t.classList.add('active');
+    document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+    $('#screen-'+t.dataset.screen).classList.add('active');
+    window.scrollTo(0,0);
+  };
+});
+// Deep-link por hash (#calendario, #cuadricula, #metricas) para capturas
+(function(){var h=(location.hash||'').replace('#','');if(h){var t=document.querySelector('.tab[data-screen="'+h+'"]');if(t)t.click();}})();
+// Scope toggle
+Array.prototype.forEach.call(document.querySelectorAll('.scope-btn'),function(b){
+  b.onclick=function(){document.querySelectorAll('.scope-btn').forEach(function(x){x.classList.remove('active');});b.classList.add('active');};
+});
+// Cal toggle
+Array.prototype.forEach.call(document.querySelectorAll('.cal-btn'),function(b){
+  b.onclick=function(){
+    document.querySelectorAll('.cal-btn').forEach(function(x){x.classList.remove('active');x.style.background='transparent';x.style.color='#9A9AA8';x.style.border='1px solid #26262F';});
+    b.classList.add('active');b.style.background='linear-gradient(135deg,var(--accent),var(--accent2))';b.style.color='#fff';b.style.border='1px solid transparent';
+  };
+});
+// Accent palette
+Array.prototype.forEach.call(document.querySelectorAll('.acc-dot'),function(d){
+  d.onclick=function(){
+    var p=PALETTE[d.dataset.acc];
+    document.body.style.setProperty('--accent',p[0]);
+    document.body.style.setProperty('--accent2',p[1]);
+    document.querySelectorAll('.acc-dot').forEach(function(x){x.style.boxShadow='none';});
+    d.style.boxShadow='0 0 0 2px #0A0A0E,0 0 0 3px #4A4A55';
+  };
+});
+</script>
+</body>
+</html>

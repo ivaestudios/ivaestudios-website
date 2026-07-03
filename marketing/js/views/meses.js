@@ -23,12 +23,12 @@
 // ============================================================================
 
 import {
-  el, clear,
+  el, clear, copyText,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607031428';
-import { icon } from '../shell/icons.js?v=202607031428';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607031428';
+} from '../api.js?v=202607031520';
+import { icon } from '../shell/icons.js?v=202607031520';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607031520';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -384,6 +384,14 @@ function openCaptionDrawer(post) {
     ctx.toast(ok ? `${label} copiado.` : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
   }
 
+  // "Copiar todo" como en el móvil: caption + hashtags juntos, listos para IG.
+  async function copyCaptionAll() {
+    const parts = ['caption', 'hashtags'].map((f) => String(tas[f] ? tas[f].value : '').trim()).filter(Boolean);
+    if (!parts.length) { ctx.toast('No hay caption que copiar.', { type: 'info' }); return; }
+    const ok = await copyText(parts.join('\n\n'));
+    ctx.toast(ok ? 'Caption + hashtags copiados.' : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
+  }
+
   // Autosize: cada caja crece hasta su contenido (máx 320px) — nada de texto
   // rebanado a media línea.
   const fit = (ta) => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight + 2, 320) + 'px'; };
@@ -459,10 +467,14 @@ function openCaptionDrawer(post) {
       ]),
       body,
       el('footer', { class: 'meses-drawer__foot' }, [
-        el('span', { class: 'meses-drawer__hint', text: 'Cmd+Enter guarda · Esc cierra' }),
+        el('button', {
+          class: 'btn meses-drawer__copyall', type: 'button',
+          title: 'Copia caption + hashtags juntos, listos para pegar en IG',
+          onclick: copyCaptionAll,
+        }, [icon('copy', 15), 'Copiar caption + hashtags']),
         el('div', { class: 'meses-drawer__actions' }, [
           el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => closeCaptionDrawer() }),
-          el('button', { class: 'btn btn-primary', type: 'button', text: 'Guardar', onclick: save }),
+          el('button', { class: 'btn btn-primary', type: 'button', text: 'Guardar', title: 'Cmd+Enter guarda · Esc cierra', onclick: save }),
         ]),
       ]),
     ]),
