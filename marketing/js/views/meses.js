@@ -409,8 +409,12 @@ function openCaptionDrawer(post) {
   // transicion de entrada nunca corria (el panel quedaba invisible).
   void drawerEl.offsetWidth;
   drawerEl.classList.add('is-open');
-  ta.focus();
-  ta.setSelectionRange(ta.value.length, ta.value.length);
+  // Abrir desde el COMIENZO y en modo lectura: el caption se ve completo desde
+  // arriba (antes el cursor al final lo dejaba scrolleado hasta abajo) y no se
+  // abre el teclado en móvil. Un toque en el texto lo vuelve editable (es un
+  // textarea). El foco va al botón cerrar para mantener el diálogo accesible.
+  ta.scrollTop = 0;
+  drawerEl.querySelector('.meses-drawer__close')?.focus();
 }
 
 // ── Enlaces (Inspo / Video final) ────────────────────────────────────────────

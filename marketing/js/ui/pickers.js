@@ -226,7 +226,9 @@ export function textExpand({ title = 'Editar texto', value = '', placeholder = '
             save,
           ]),
         );
-        setTimeout(() => { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }, 60);
+        // Abrir desde el COMIENZO (no el final), para que captions largos no
+        // aparezcan scrolleados hasta abajo. Editable de inmediato (un clic).
+        setTimeout(() => { ta.focus(); ta.setSelectionRange(0, 0); ta.scrollTop = 0; }, 60);
       },
     });
   });
