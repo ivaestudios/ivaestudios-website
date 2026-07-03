@@ -26,9 +26,9 @@ import {
   el, clear, copyText,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607031610';
-import { icon } from '../shell/icons.js?v=202607031610';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607031610';
+} from '../api.js?v=202607031720';
+import { icon } from '../shell/icons.js?v=202607031720';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607031720';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1311,13 +1311,23 @@ function filtersKey() {
   return `meses.filtros.${activeClientId || 'global'}`;
 }
 
+// La elección de la SESIÓN vive en memoria y manda sobre localStorage: si el
+// navegador bloquea el storage (Safari privado, cuota llena), prefs.set falla
+// EN SILENCIO y sin esta capa el usuario elige "reciente primero" y la vista
+// se queda en el default — el bug de "elijo un orden y no pasa nada".
+const filterSession = new Map(); // filtersKey() -> objeto de filtros
+const sortSession = new Map();   // sortPrefKey() -> { key, dir }
+
 function getFilters() {
-  const f = ctx.prefs.get(filtersKey(), null);
+  const k = filtersKey();
+  if (filterSession.has(k)) return filterSession.get(k);
+  const f = ctx.prefs.get(k, null);
   return (f && typeof f === 'object' && !Array.isArray(f)) ? f : {};
 }
 
 function setFilters(f) {
   const any = Object.values(f).some(Boolean);
+  filterSession.set(filtersKey(), any ? f : {});
   ctx.prefs.set(filtersKey(), any ? f : undefined); // undefined = borrar la pref
 }
 
@@ -1335,12 +1345,16 @@ function sortPrefKey() {
 }
 
 function getSort() {
-  const s = ctx.prefs.get(sortPrefKey(), null);
+  const k = sortPrefKey();
+  if (sortSession.has(k)) return sortSession.get(k);
+  const s = ctx.prefs.get(k, null);
   return (s && s.key) ? { key: s.key, dir: s.dir === 'desc' ? 'desc' : 'asc' } : { key: 'date', dir: 'asc' };
 }
 
 function setSort(key, dir) {
-  ctx.prefs.set(sortPrefKey(), { key, dir: dir === 'desc' ? 'desc' : 'asc' });
+  const v = { key, dir: dir === 'desc' ? 'desc' : 'asc' };
+  sortSession.set(sortPrefKey(), v);
+  ctx.prefs.set(sortPrefKey(), v);
 }
 
 // Menu de columna estilo Excel: ordenar (segun la columna) + filtrar (si aplica).
@@ -1350,8 +1364,8 @@ async function openColMenu({ skey, sortType, label, filterDim }, anchor) {
   const options = [];
   if (skey) {
     if (sortType === 'date') {
-      options.push({ value: 'sort:asc',  label: 'Ordenar: más antiguo primero', current: s.key === skey && s.dir === 'asc' });
-      options.push({ value: 'sort:desc', label: 'Ordenar: más reciente primero', current: s.key === skey && s.dir === 'desc' });
+      options.push({ value: 'sort:asc',  label: 'Ordenar: más antiguo primero (día 1 → 31)', current: s.key === skey && s.dir === 'asc' });
+      options.push({ value: 'sort:desc', label: 'Ordenar: más reciente primero (día 31 → 1)', current: s.key === skey && s.dir === 'desc' });
     } else if (sortType === 'num') {
       options.push({ value: 'sort:asc',  label: 'Ordenar: 1 → 5', current: s.key === skey && s.dir === 'asc' });
       options.push({ value: 'sort:desc', label: 'Ordenar: 5 → 1', current: s.key === skey && s.dir === 'desc' });
@@ -1395,8 +1409,8 @@ async function onFilterChip(dimDef, allPosts, anchor) {
 }
 
 const SORT_MENU = [
-  { value: 'date:asc',     label: 'Fecha: antiguo primero' },
-  { value: 'date:desc',    label: 'Fecha: reciente primero' },
+  { value: 'date:asc',     label: 'Fecha: antiguo primero (día 1 → 31)' },
+  { value: 'date:desc',    label: 'Fecha: reciente primero (día 31 → 1)' },
   { value: 'task:asc',     label: 'Tarea: A → Z' },
   { value: 'task:desc',    label: 'Tarea: Z → A' },
   { value: 'status:asc',   label: 'Estado: A → Z' },
