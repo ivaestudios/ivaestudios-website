@@ -1114,12 +1114,14 @@ async function lazySweep(env, opts = {}) {
     ran.push({ recipe_key: 'alerta_sin_aprobar', fired });
   }
 
-  // (e) Auto-publicar: lo PROGRAMADO cuyo día de publicación ya llegó pasa
-  // SOLO a PUBLICADO (lo único que se mueve automáticamente; el resto del
-  // pipeline lo mueve el equipo a mano).
+  // (e) Auto-publicar: TODO post cuya fecha de publicación ya llegó pasa a
+  // PUBLICADO, esté en el estado que esté (idea, guion, revisión…) y en TODOS
+  // los calendarios. Regla de Israel (2026-07-03): "si ya es 18 tiene que
+  // cambiar a publicado sí o sí" — el equipo no siempre entra a moverlo a
+  // mano y el progreso del mes debe avanzar solo.
   const autoPub = await env.DB.prepare(
     "UPDATE mkt_posts SET status = 'publicado', updated_at = datetime('now') " +
-    "WHERE status = 'programado' AND publish_date IS NOT NULL AND publish_date <= ?"
+    "WHERE status != 'publicado' AND publish_date IS NOT NULL AND publish_date <= ?"
   ).bind(today).run();
   ran.push({ recipe_key: 'auto_publicar', moved: (autoPub && autoPub.meta && autoPub.meta.changes) || 0 });
 
