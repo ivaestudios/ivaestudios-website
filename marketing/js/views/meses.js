@@ -26,9 +26,9 @@ import {
   el, clear,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607030136';
-import { icon } from '../shell/icons.js?v=202607030136';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607030136';
+} from '../api.js?v=202607031415';
+import { icon } from '../shell/icons.js?v=202607031415';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607031415';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -732,12 +732,14 @@ function buildRow(post, noteLabels) {
     ),
   ]);
 
-  // Captions: panel lateral (los captions largos no caben en la celda).
+  // Captions: clic abre el EDITOR en la pestaña Guion (la misma visualización
+  // por secciones que la versión móvil: HOOK/BODY/CTA/Caption/Hashtags con su
+  // botón de copiar), en lugar del panel plano de solo-caption.
   const tdCaption = el('td', { class: 'meses-td meses-td--text' });
   tdCaption.appendChild(cellButton(
     textCellNode(post.caption, 'Agregar caption'),
-    () => openCaptionDrawer(post),
-    'Abrir caption completo',
+    () => ctx.openEditor(post.id, { tab: 'guion' }),
+    'Abrir guion completo',
   ));
 
   // Orden EXACTO de su Notion: Grab | Tarea | Estado | Fecha | Plataforma | Tipo | Captions

@@ -10,8 +10,8 @@ import {
   el,
   STATUS_ORDER,
   CONTENT_TYPES, CONTENT_TYPE_ORDER,
-} from '../api.js?v=202607030136';
-import { parseYMD, dayLong, statusInfo, safeColor } from './data.js?v=202607030136';
+} from '../api.js?v=202607031415';
+import { parseYMD, dayLong, statusInfo, safeColor } from './data.js?v=202607031415';
 
 /**
  * Abre el quick-create. `date` = 'YYYY-MM-DD' o '' (backlog).
