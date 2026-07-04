@@ -62,19 +62,24 @@ export function slidesToText(slides) {
 // En carrusel se guarda un alt por slide con el mismo formato "Slide N — texto"
 // (separados por línea en blanco); en foto/reel es texto simple.
 
-/** Lista de alts alineada al número de slides (huecos = ''). */
+/** Lista de alts con al menos `count` lugares; si hay MÁS alts guardados que
+ *  slides (carruseles con más imágenes que guion), se conservan todos. */
 export function altsFromText(text, count) {
   const s = String(text || '').trim();
-  const arr = new Array(Math.max(1, count || 1)).fill('');
-  if (!s) return arr;
-  const re = /(?:^|\n)\s*slide\s*(\d+)\s*[—:–.\-]?\s*([^]*?)(?=\n\s*slide\s*\d+\s*[—:–.\-]?|$)/gi;
-  let m; let found = false;
-  while ((m = re.exec(s))) {
-    found = true;
-    const i = parseInt(m[1], 10) - 1;
-    if (i >= 0 && i < arr.length) arr[i] = m[2].trim();
+  const parsed = [];
+  if (s) {
+    const re = /(?:^|\n)\s*slide\s*(\d+)\s*[—:–.\-]?\s*([^]*?)(?=\n\s*slide\s*\d+\s*[—:–.\-]?|$)/gi;
+    let m; let found = false;
+    while ((m = re.exec(s))) {
+      found = true;
+      const i = parseInt(m[1], 10) - 1;
+      if (i >= 0 && i < 60) parsed[i] = m[2].trim();
+    }
+    if (!found) parsed[0] = s;
   }
-  if (!found) arr[0] = s;
+  const size = Math.max(1, count || 1, parsed.length);
+  const arr = new Array(size).fill('');
+  for (let i = 0; i < parsed.length; i++) if (parsed[i]) arr[i] = parsed[i];
   return arr;
 }
 

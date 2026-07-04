@@ -26,10 +26,10 @@ import {
   el, clear, copyText,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607032040';
-import { icon } from '../shell/icons.js?v=202607032040';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607032040';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607032040';
+} from '../api.js?v=202607032115';
+import { icon } from '../shell/icons.js?v=202607032115';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607032115';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607032115';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -510,6 +510,11 @@ function openCaptionDrawer(post) {
         el('div', { class: 'mdsec__head' }, [
           el('span', { class: 'mdsec__lbl', text: `SEO ALT · SLIDE ${i + 1}` }),
           i === 0 ? el('span', { class: 'mdsec__hint', text: 'Texto alternativo (IG)' }) : null,
+          i > 0 ? el('button', {
+            class: 'mdsec__copy', type: 'button', title: 'Quitar este SEO alt',
+            'aria-label': `Quitar SEO alt del slide ${i + 1}`,
+            onclick: () => { alts.splice(i, 1); renderAlts(); },
+          }, [icon('trash', 14)]) : null,
           el('button', {
             class: 'mdsec__copy', type: 'button', title: `Copiar SEO alt del slide ${i + 1}`,
             'aria-label': `Copiar SEO alt del slide ${i + 1}`,
@@ -520,6 +525,12 @@ function openCaptionDrawer(post) {
       ]));
       fit(ta);
     });
+    altsHost.appendChild(el('div', { class: 'mdsec mdsec--add' }, [
+      el('button', {
+        class: 'btn meses-drawer__addslide', type: 'button',
+        onclick: () => { alts.push(''); renderAlts(); },
+      }, [icon('plus', 15), ' Agregar SEO alt']),
+    ]));
   }
 
   const body = el('div', { class: 'meses-drawer__body' }, SECTIONS.map((s) => {

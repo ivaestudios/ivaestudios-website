@@ -12,10 +12,10 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, copyText } from '../api.js?v=202607032040';
-import { icon } from '../shell/icons.js?v=202607032040';
-import { makeTextarea } from './fields.js?v=202607032040';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202607032040';
+import { el, copyText } from '../api.js?v=202607032115';
+import { icon } from '../shell/icons.js?v=202607032115';
+import { makeTextarea } from './fields.js?v=202607032115';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202607032115';
 
 const IG_VISIBLE_CUT = 125;
 const CAPTION_MAX = 2200;
@@ -91,6 +91,15 @@ export function mount(host, ed) {
           el('div', { class: 'edblock__head' }, [
             el('span', { class: 'edblock__title', text: `SEO ALT · SLIDE ${i + 1}` }),
             i === 0 ? el('span', { class: 'edblock__hint', text: 'Texto alternativo (IG)' }) : null,
+            i > 0 ? el('button', {
+              class: 'edcopy-mini edslide-del', type: 'button', title: 'Quitar este SEO alt',
+              'aria-label': `Quitar SEO alt del slide ${i + 1}`,
+              onclick: () => {
+                alts.splice(i, 1);
+                ed.setField('alt_text', altsToText(alts)); ed.flush();
+                renderAlts();
+              },
+            }, [icon('trash', 14)]) : null,
             el('button', {
               class: 'edcopy-mini', type: 'button', title: `Copiar SEO alt del slide ${i + 1}`,
               'aria-label': `Copiar SEO alt del slide ${i + 1}`,
@@ -105,6 +114,10 @@ export function mount(host, ed) {
           ta,
         ]));
       });
+      altsWrap.appendChild(el('button', {
+        class: 'btn edslide-add', type: 'button',
+        onclick: () => { alts.push(''); ed.setField('alt_text', altsToText(alts)); renderAlts(); },
+      }, [icon('plus', 16), ' Agregar SEO alt']));
     };
     const slidesWrap = el('div', { class: 'edslides' });
     const syncFields = () => {
