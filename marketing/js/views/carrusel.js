@@ -11,8 +11,8 @@
 // TODO PASA EN EL NAVEGADOR (canvas + MediaRecorder): nada se sube a un
 // servidor, por eso funciona igual en el cel que en la compu y no gasta datos.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607041710';
-import { icon } from '../shell/icons.js?v=202607041710';
+import { el, clear, toast } from '../api.js?v=202607041920';
+import { icon } from '../shell/icons.js?v=202607041920';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -337,17 +337,19 @@ async function analyzeDurations() {
   render();
 }
 
-// Reproduce el video 0→(fin o pausa) llamando onFrame en cada cuadro. onFrame
-// puede pausar el video para terminar antes (recorte por duración de slide).
+// Reproduce el video 0→(fin o pausa) llamando onFrame(meta) en cada cuadro.
+// meta.mediaTime = tiempo REAL del cuadro en la línea del video (no del reloj):
+// clave para que el corte con WebCodecs salga a velocidad correcta en cualquier
+// compu. onFrame puede pausar el video para terminar antes (recorte por slide).
 function playThrough(v, onFrame, token) {
   return new Promise((resolve) => {
     let done = false;
     const finish = () => { if (done) return; done = true; try { v.pause(); } catch { /* noop */ } resolve(); };
     const useRVFC = 'requestVideoFrameCallback' in v;
     let iv = null;
-    const step = () => {
+    const step = (now, metadata) => {
       if (token !== vtoken) { finish(); return; }
-      onFrame();
+      onFrame(metadata);
       // onFrame puede haber pausado (recorte): terminar en cuanto pare o acabe.
       if (v.ended || v.paused) { finish(); return; }
       if (useRVFC) v.requestVideoFrameCallback(step);
@@ -358,17 +360,107 @@ function playThrough(v, onFrame, token) {
       if (useRVFC) v.requestVideoFrameCallback(step);
       else iv = setInterval(() => {
         if (token !== vtoken || v.ended || v.paused) { clearInterval(iv); finish(); return; }
-        onFrame();
+        onFrame({ mediaTime: v.currentTime });
       }, 1000 / 30);
     }).catch(() => { if (iv) clearInterval(iv); finish(); });
   });
 }
 
-// Pasada 2: graba UN slide a la vez (no los 5 juntos). Así cada grabación hace
-// mucho menos trabajo por cuadro y el video fuente se reproduce a velocidad
-// normal incluso en compus lentas → el video sale a la velocidad correcta, sin
-// cámara lenta. Cuesta un poco más de tiempo (secuencial) pero es fiable.
+// Router del corte: WebCodecs (independiente de la compu) si está disponible;
+// si no, o si falla, cae al respaldo con MediaRecorder.
 async function cutVideoSlides() {
+  const canWC = typeof window.VideoEncoder !== 'undefined' && typeof window.VideoFrame !== 'undefined';
+  if (canWC) {
+    try { await cutVideoWebCodecs(); return; }
+    catch (e) { console.error('[carrusel] WebCodecs falló, uso respaldo:', e && e.message); vtoken += 1; }
+  }
+  await cutVideoMediaRecorder();
+}
+
+// MÉTODO PRINCIPAL — WebCodecs: a cada cuadro le pone su TIEMPO REAL del video
+// (no el del reloj de pared). Aunque la compu vaya lenta y capture menos cuadros,
+// el video sale con la DURACIÓN CORRECTA (nunca en cámara lenta). Salida MP4.
+async function cutVideoWebCodecs() {
+  const v = vvideo; if (!v || !vdurations.length) return;
+  const token = ++vtoken;
+  vphase = 'cortando'; vprogress = 0; freeVideoSlides(); render();
+
+  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607041920');
+  const cols2 = vcols, rows2 = vrows, n = cols2 * rows2;
+  const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
+  const sw2 = sw - (sw % 2), sh2 = sh - (sh % 2); // H.264 exige dimensiones pares
+
+  // Elige un códec H.264 soportado para ese tamaño (High/Main 4.0/5.1, o Baseline).
+  let codec = null;
+  for (const cc of ['avc1.640028', 'avc1.4d0028', 'avc1.640033', 'avc1.4d0033', 'avc1.42e01e']) {
+    try {
+      const s = await window.VideoEncoder.isConfigSupported({ codec: cc, width: sw2, height: sh2, bitrate: 10_000_000 });
+      if (s && s.supported) { codec = cc; break; }
+    } catch { /* noop */ }
+  }
+  if (!codec) throw new Error('sin códec H.264 soportado');
+
+  const out = new Array(n);
+  for (let idx = 0; idx < n; idx++) {
+    if (token !== vtoken) return;
+    const c = idx % cols2, r = Math.floor(idx / cols2);
+    const dur = Math.max(0.3, vdurations[idx]);
+    const cv = document.createElement('canvas'); cv.width = sw2; cv.height = sh2;
+    const cx = cv.getContext('2d');
+    const muxer = new Muxer({
+      target: new ArrayBufferTarget(),
+      video: { codec: 'avc', width: sw2, height: sh2 },
+      fastStart: 'in-memory',
+    });
+    let encErr = null;
+    const encoder = new window.VideoEncoder({
+      output: (chunk, meta) => { try { muxer.addVideoChunk(chunk, meta); } catch (e) { encErr = e; } },
+      error: (e) => { encErr = e; },
+    });
+    encoder.configure({ codec, width: sw2, height: sh2, bitrate: 10_000_000, framerate: 30, avc: { format: 'avc' } });
+
+    let first = true, lastTs = -1, t0 = null, frames = 0;
+    await playThrough(v, (meta) => {
+      const mt = (meta && typeof meta.mediaTime === 'number') ? meta.mediaTime : v.currentTime;
+      if (mt > dur + 0.05) { try { v.pause(); } catch { /* noop */ } return; }
+      if (t0 === null) t0 = mt;
+      let ts = Math.round((mt - t0) * 1e6);
+      if (ts <= lastTs) ts = lastTs + 1;
+      lastTs = ts;
+      cx.drawImage(v, c * sw, r * sh, sw, sh, 0, 0, sw2, sh2);
+      try {
+        const vf = new window.VideoFrame(cv, { timestamp: ts });
+        encoder.encode(vf, { keyFrame: first });
+        vf.close();
+        first = false; frames += 1;
+      } catch (e) { encErr = e; try { v.pause(); } catch { /* noop */ } }
+      vprogress = (idx + Math.min(1, mt / dur)) / n;
+      updateVProgress();
+    }, token);
+
+    if (encErr) { try { encoder.close(); } catch { /* noop */ } throw encErr; }
+    if (!frames) throw new Error('no se capturó ningún cuadro');
+    await encoder.flush();
+    encoder.close();
+    muxer.finalize();
+    out[idx] = new Blob([muxer.target.buffer], { type: 'video/mp4' });
+  }
+  if (token !== vtoken) return;
+
+  freeVideoSlides();
+  vslides = out.map((b, idx) => ({
+    blob: b, url: URL.createObjectURL(b),
+    name: `${vname}-${String(idx + 1).padStart(2, '0')}.mp4`,
+    duration: vdurations[idx], ext: 'mp4',
+  }));
+  vphase = 'listo'; vprogress = 0;
+  render();
+}
+
+// RESPALDO — MediaRecorder: graba UN slide a la vez. Fiable pero grava en tiempo
+// real, así que depende algo de la potencia de la compu (por eso WebCodecs va
+// primero). Se usa solo si el navegador no soporta WebCodecs.
+async function cutVideoMediaRecorder() {
   const v = vvideo; if (!v || !vdurations.length) return;
   const token = ++vtoken;
   vphase = 'cortando'; vprogress = 0; freeVideoSlides(); render();
@@ -675,6 +767,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202607041710';
+  link.href = '/marketing/css/carrusel.css?v=202607041920';
   document.head.appendChild(link);
 }

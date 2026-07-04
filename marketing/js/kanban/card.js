@@ -18,8 +18,8 @@ import {
   el,
   CONTENT_TYPES, APPROVALS, PRIORITIES,
   fmtDate, parseDate, avatar,
-} from '../api.js?v=202607041710';
-import { icon } from '../shell/icons.js?v=202607041710';
+} from '../api.js?v=202607041920';
+import { icon } from '../shell/icons.js?v=202607041920';
 
 export const DEFAULT_CARD_FIELDS = {
   fecha: true,
