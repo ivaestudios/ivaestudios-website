@@ -8,11 +8,12 @@
 //    detecta cada slide, mide su duración real (recorta la cola congelada) y
 //    entrega cada slide como video vertical en alta resolución.
 //
-// TODO PASA EN EL NAVEGADOR (canvas + MediaRecorder): nada se sube a un
-// servidor, por eso funciona igual en el cel que en la compu y no gasta datos.
+// TODO PASA EN EL NAVEGADOR (WebCodecs para video, con respaldo MediaRecorder):
+// nada se sube a un servidor, funciona igual en el cel que en la compu y no
+// gasta datos. El video sale a velocidad correcta en cualquier máquina y con audio.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607041920';
-import { icon } from '../shell/icons.js?v=202607041920';
+import { el, clear, toast } from '../api.js?v=202607042110';
+import { icon } from '../shell/icons.js?v=202607042110';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -33,6 +34,7 @@ let cutting = 0;           // token para descartar cortes viejos si cambian los 
 
 // ── Estado modo VIDEO ────────────────────────────────────────────────────────
 let vvideo = null;         // HTMLVideoElement con la tira de video
+let vfile = null;          // File original (para decodificar el audio)
 let vurl = '';
 let vname = 'carrusel';
 let vcols = 5;
@@ -279,7 +281,7 @@ function acceptVideoFile(file) {
   v.onloadedmetadata = () => {
     if (vurl) { try { URL.revokeObjectURL(vurl); } catch { /* noop */ } }
     freeVideoSlides();
-    vvideo = v; vurl = url; vname = baseName(file.name);
+    vvideo = v; vurl = url; vfile = file; vname = baseName(file.name);
     vdur = v.duration && isFinite(v.duration) ? v.duration : 0;
     const g = detectGrid(v.videoWidth, v.videoHeight);
     vcols = g.cols; vrows = g.rows;
@@ -377,15 +379,57 @@ async function cutVideoSlides() {
   await cutVideoMediaRecorder();
 }
 
+// Decodifica el audio de la tira UNA vez (rápido, no en tiempo real). Devuelve
+// un AudioBuffer, o null si el video no tiene audio o el navegador no puede.
+async function decodeAudioSafe(file) {
+  if (!file || typeof window.AudioEncoder === 'undefined' || typeof window.AudioData === 'undefined') return null;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return null;
+  let ctx = null;
+  try {
+    const buf = await file.arrayBuffer();
+    ctx = new AC();
+    const audio = await ctx.decodeAudioData(buf.slice(0));
+    return (audio && audio.length > 0) ? audio : null;
+  } catch { return null; }
+  finally { if (ctx) { try { ctx.close(); } catch { /* noop */ } } }
+}
+
+// Codifica en AAC el tramo [0, dur] del audio y lo mete al muxer del slide.
+async function encodeAudioForSlide(audioBuf, dur, muxer) {
+  const sr = audioBuf.sampleRate, ch = Math.max(1, audioBuf.numberOfChannels);
+  const total = Math.min(audioBuf.length, Math.floor(dur * sr));
+  if (total <= 0) return;
+  const chans = [];
+  for (let c = 0; c < ch; c++) chans.push(audioBuf.getChannelData(c));
+  let aerr = null;
+  const aenc = new window.AudioEncoder({
+    output: (chunk, meta) => { try { muxer.addAudioChunk(chunk, meta); } catch (e) { aerr = e; } },
+    error: (e) => { aerr = e; },
+  });
+  aenc.configure({ codec: 'mp4a.40.2', sampleRate: sr, numberOfChannels: ch, bitrate: 128_000 });
+  const BLK = 4096;
+  for (let off = 0; off < total; off += BLK) {
+    const nf = Math.min(BLK, total - off);
+    const data = new Float32Array(nf * ch); // planar: [ch0…, ch1…]
+    for (let c = 0; c < ch; c++) data.set(chans[c].subarray(off, off + nf), c * nf);
+    const ad = new window.AudioData({ format: 'f32-planar', sampleRate: sr, numberOfFrames: nf, numberOfChannels: ch, timestamp: Math.round(off / sr * 1e6), data });
+    aenc.encode(ad); ad.close();
+  }
+  await aenc.flush(); aenc.close();
+  if (aerr) throw aerr;
+}
+
 // MÉTODO PRINCIPAL — WebCodecs: a cada cuadro le pone su TIEMPO REAL del video
 // (no el del reloj de pared). Aunque la compu vaya lenta y capture menos cuadros,
-// el video sale con la DURACIÓN CORRECTA (nunca en cámara lenta). Salida MP4.
+// el video sale con la DURACIÓN CORRECTA (nunca en cámara lenta). Conserva el
+// audio de la tira (recortado por slide). Salida MP4.
 async function cutVideoWebCodecs() {
   const v = vvideo; if (!v || !vdurations.length) return;
   const token = ++vtoken;
   vphase = 'cortando'; vprogress = 0; freeVideoSlides(); render();
 
-  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607041920');
+  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607042110');
   const cols2 = vcols, rows2 = vrows, n = cols2 * rows2;
   const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
   const sw2 = sw - (sw % 2), sh2 = sh - (sh % 2); // H.264 exige dimensiones pares
@@ -400,6 +444,10 @@ async function cutVideoWebCodecs() {
   }
   if (!codec) throw new Error('sin códec H.264 soportado');
 
+  // Audio de la tira (una sola decodificación para todos los slides).
+  const audioBuf = await decodeAudioSafe(vfile);
+  const hasAudio = !!audioBuf;
+
   const out = new Array(n);
   for (let idx = 0; idx < n; idx++) {
     if (token !== vtoken) return;
@@ -407,11 +455,13 @@ async function cutVideoWebCodecs() {
     const dur = Math.max(0.3, vdurations[idx]);
     const cv = document.createElement('canvas'); cv.width = sw2; cv.height = sh2;
     const cx = cv.getContext('2d');
-    const muxer = new Muxer({
+    const muxerCfg = {
       target: new ArrayBufferTarget(),
       video: { codec: 'avc', width: sw2, height: sh2 },
       fastStart: 'in-memory',
-    });
+    };
+    if (hasAudio) muxerCfg.audio = { codec: 'aac', numberOfChannels: audioBuf.numberOfChannels, sampleRate: audioBuf.sampleRate };
+    const muxer = new Muxer(muxerCfg);
     let encErr = null;
     const encoder = new window.VideoEncoder({
       output: (chunk, meta) => { try { muxer.addVideoChunk(chunk, meta); } catch (e) { encErr = e; } },
@@ -442,6 +492,8 @@ async function cutVideoWebCodecs() {
     if (!frames) throw new Error('no se capturó ningún cuadro');
     await encoder.flush();
     encoder.close();
+    // Audio del slide (best-effort: si falla, el slide queda sin audio, no rompe).
+    if (hasAudio) { try { await encodeAudioForSlide(audioBuf, dur, muxer); } catch (e) { console.error('[carrusel] audio slide', e && e.message); } }
     muxer.finalize();
     out[idx] = new Blob([muxer.target.buffer], { type: 'video/mp4' });
   }
@@ -711,7 +763,7 @@ function renderVideo() {
       el('button', { class: 'btn btn-primary car-zip', type: 'button', onclick: cutVideoSlides }, [
         icon('gantt', 16), ` Cortar en ${vcols * vrows} videos`,
       ]),
-      el('span', { class: 'car-hint', text: 'Cada slide se recorta a su duración real. Por ahora los videos salen sin audio.' }),
+      el('span', { class: 'car-hint', text: 'Cada slide se recorta a su duración real y conserva el audio de la tira. Salen en MP4, alta calidad.' }),
     ]));
     rootEl.appendChild(el('div', { class: 'car-durs' }, vdurations.map((d, i) => el('span', { class: 'car-dur' }, [
       el('span', { class: 'car-dur__n', text: String(i + 1) }),
@@ -757,7 +809,7 @@ export default {
     if (imgUrl) { try { URL.revokeObjectURL(imgUrl); } catch { /* noop */ } }
     if (vurl) { try { URL.revokeObjectURL(vurl); } catch { /* noop */ } }
     if (vvideo) { try { vvideo.pause(); } catch { /* noop */ } }
-    img = null; imgUrl = ''; vvideo = null; vurl = ''; rootEl = null;
+    img = null; imgUrl = ''; vvideo = null; vfile = null; vurl = ''; rootEl = null;
   },
 };
 
@@ -767,6 +819,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202607041920';
+  link.href = '/marketing/css/carrusel.css?v=202607042110';
   document.head.appendChild(link);
 }
