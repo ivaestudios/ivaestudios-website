@@ -8,8 +8,8 @@
 // TODO PASA EN EL NAVEGADOR (canvas): la imagen nunca se sube a un servidor,
 // por eso funciona igual de rápido en el cel que en la compu y no gasta datos.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607031925';
-import { icon } from '../shell/icons.js?v=202607031925';
+import { el, clear, toast } from '../api.js?v=202607031955';
+import { icon } from '../shell/icons.js?v=202607031955';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -341,6 +341,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202607031925';
+  link.href = '/marketing/css/carrusel.css?v=202607031955';
   document.head.appendChild(link);
 }

@@ -26,10 +26,10 @@ import {
   el, clear, copyText,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607031925';
-import { icon } from '../shell/icons.js?v=202607031925';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607031925';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText } from '../editor/slides.js?v=202607031925';
+} from '../api.js?v=202607031955';
+import { icon } from '../shell/icons.js?v=202607031955';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607031955';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText } from '../editor/slides.js?v=202607031955';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -574,6 +574,9 @@ function openCaptionDrawer(post) {
   drawerEl.classList.add('is-open');
   // Ajustar cada caja a su contenido y pintar contadores.
   for (const f of Object.keys(tas)) { fit(tas[f]); updateCount(f); }
+  // Los textareas de slides se crearon antes de montar el drawer (scrollHeight
+  // era 0): re-ajustarlos ya visibles para que no salgan recortados.
+  if (slidesHost) for (const sta of slidesHost.querySelectorAll('textarea')) fit(sta);
   // Abrir desde el COMIENZO: scroll arriba, sin abrir teclado en móvil.
   body.scrollTop = 0;
   drawerEl.querySelector('.meses-drawer__close')?.focus();
