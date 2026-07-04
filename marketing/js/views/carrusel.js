@@ -12,8 +12,8 @@
 // nada se sube a un servidor, funciona igual en el cel que en la compu y no
 // gasta datos. El video sale a velocidad correcta en cualquier máquina y con audio.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607042110';
-import { icon } from '../shell/icons.js?v=202607042110';
+import { el, clear, toast } from '../api.js?v=202607042230';
+import { icon } from '../shell/icons.js?v=202607042230';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -29,6 +29,7 @@ let imgName = 'carrusel';  // base para nombrar los slides
 let cols = 5;
 let rows = 1;
 let fmt = 'jpg';           // 'jpg' | 'png'
+let zoom = 100;            // % de zoom del encuadre (100 = sin zoom)
 let slides = [];           // [{ blob, url, name }]
 let cutting = 0;           // token para descartar cortes viejos si cambian los controles
 
@@ -39,6 +40,7 @@ let vurl = '';
 let vname = 'carrusel';
 let vcols = 5;
 let vrows = 1;
+let vzoom = 100;           // % de zoom del encuadre para el corte de video
 let vdur = 0;              // duración total de la tira (seg)
 let vdurations = [];       // duración real detectada por slide (seg)
 let vslides = [];          // [{ blob, url, name, duration, ext }]
@@ -186,7 +188,8 @@ async function cutSlides() {
         const canvas = document.createElement('canvas');
         canvas.width = sw; canvas.height = sh;
         const g = canvas.getContext('2d');
-        g.drawImage(img, c * sw, r * sh, sw, sh, 0, 0, sw, sh);
+        const z = zoomSrc(c * sw, r * sh, sw, sh, zoom);
+        g.drawImage(img, z.sx, z.sy, z.sw, z.sh, 0, 0, sw, sh);
         const blob = await canvasToBlob(canvas, type, 0.95);
         if (token !== cutting) return;
         const nn = String(n).padStart(2, '0');
@@ -429,7 +432,7 @@ async function cutVideoWebCodecs() {
   const token = ++vtoken;
   vphase = 'cortando'; vprogress = 0; freeVideoSlides(); render();
 
-  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607042110');
+  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607042230');
   const cols2 = vcols, rows2 = vrows, n = cols2 * rows2;
   const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
   const sw2 = sw - (sw % 2), sh2 = sh - (sh % 2); // H.264 exige dimensiones pares
@@ -477,7 +480,8 @@ async function cutVideoWebCodecs() {
       let ts = Math.round((mt - t0) * 1e6);
       if (ts <= lastTs) ts = lastTs + 1;
       lastTs = ts;
-      cx.drawImage(v, c * sw, r * sh, sw, sh, 0, 0, sw2, sh2);
+      const z = zoomSrc(c * sw, r * sh, sw, sh, vzoom);
+      cx.drawImage(v, z.sx, z.sy, z.sw, z.sh, 0, 0, sw2, sh2);
       try {
         const vf = new window.VideoFrame(cv, { timestamp: ts });
         encoder.encode(vf, { keyFrame: first });
@@ -545,7 +549,8 @@ async function cutVideoMediaRecorder() {
     await playThrough(v, () => {
       const t = v.currentTime;
       if (t <= dur + 0.05) {
-        cx.drawImage(v, c * sw, r * sh, sw, sh, 0, 0, sw, sh);
+        const z = zoomSrc(c * sw, r * sh, sw, sh, vzoom);
+        cx.drawImage(v, z.sx, z.sy, z.sw, z.sh, 0, 0, sw, sh);
       } else if (!stopped) {
         stopped = true;
         try { rec.stop(); } catch { /* noop */ }
@@ -602,16 +607,25 @@ function modeToggle() {
   ]);
 }
 
-function stepper(label, get, set, min, max, onChange) {
-  const val = el('span', { class: 'car-step__val', text: String(get()) });
+function stepper(label, get, set, min, max, onChange, step = 1, fmtVal = (x) => String(x)) {
+  const val = el('span', { class: 'car-step__val', text: fmtVal(get()) });
   const mk = (txt, d) => el('button', {
     class: 'car-step__btn', type: 'button', 'aria-label': `${txt} ${label}`,
-    onclick: () => { const v = Math.min(max, Math.max(min, get() + d)); if (v !== get()) { set(v); val.textContent = String(v); onChange(); } },
+    onclick: () => { const v = Math.min(max, Math.max(min, get() + d)); if (v !== get()) { set(v); val.textContent = fmtVal(v); onChange(); } },
   }, [txt]);
   return el('div', { class: 'car-step' }, [
     el('span', { class: 'car-step__lbl', text: label }),
-    el('div', { class: 'car-step__ctrl' }, [mk('−', -1), val, mk('+', 1)]),
+    el('div', { class: 'car-step__ctrl' }, [mk('−', -step), val, mk('+', step)]),
   ]);
+}
+
+// Región fuente para aplicar ZOOM: recorta un margen centrado de la celda del
+// slide y lo escala a tamaño completo → hace desaparecer la "línea" del slide
+// de al lado cuando la tira no venía perfectamente encuadrada. z en % (100=sin).
+function zoomSrc(baseX, baseY, w, h, zPct) {
+  const z = Math.max(1, (zPct || 100) / 100);
+  const zw = w / z, zh = h / z;
+  return { sx: baseX + (w - zw) / 2, sy: baseY + (h - zh) / 2, sw: zw, sh: zh };
 }
 
 function gridLinesFor(c, r) {
@@ -682,9 +696,11 @@ function renderImg() {
   rootEl.appendChild(el('div', { class: 'car-controls' }, [
     stepper('Columnas', () => cols, (v) => { cols = v; }, 1, MAX_COLS, cutSlides),
     stepper('Filas', () => rows, (v) => { rows = v; }, 1, MAX_ROWS, cutSlides),
+    stepper('Zoom', () => zoom, (v) => { zoom = v; }, 100, 140, cutSlides, 2, (x) => `${x}%`),
     fmtSeg,
     el('span', { class: 'car-info', text: `${cols * rows} slides de ${sw}×${sh}px` }),
   ]));
+  if (zoom > 100) rootEl.appendChild(el('div', { class: 'car-hint', text: 'El zoom recorta un poco la orilla para tapar la línea del slide de al lado.' }));
 
   if (!slides.length) { rootEl.appendChild(el('div', { class: 'car-cutting', text: 'Cortando…' })); return; }
   rootEl.appendChild(el('div', { class: 'car-actions' }, [
@@ -744,8 +760,10 @@ function renderVideo() {
   rootEl.appendChild(el('div', { class: 'car-controls' }, [
     stepper('Columnas', () => vcols, (v) => { vcols = v; }, 1, MAX_COLS, analyzeDurations),
     stepper('Filas', () => vrows, (v) => { vrows = v; }, 1, MAX_ROWS, analyzeDurations),
+    stepper('Zoom', () => vzoom, (v) => { vzoom = v; }, 100, 140, () => render(), 2, (x) => `${x}%`),
     el('span', { class: 'car-info', text: `${vcols * vrows} slides de ${sw}×${sh}px` }),
   ]));
+  if (vzoom > 100) rootEl.appendChild(el('div', { class: 'car-hint', text: `Zoom ${vzoom}%: recorta un poco la orilla para tapar la línea del slide de al lado. Se aplica al cortar.` }));
 
   // Barra de progreso (analizando / cortando).
   if (busy) {
@@ -819,6 +837,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202607042110';
+  link.href = '/marketing/css/carrusel.css?v=202607042230';
   document.head.appendChild(link);
 }

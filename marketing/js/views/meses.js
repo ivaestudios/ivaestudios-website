@@ -26,10 +26,10 @@ import {
   el, clear, copyText,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607042110';
-import { icon } from '../shell/icons.js?v=202607042110';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607042110';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607042110';
+} from '../api.js?v=202607042230';
+import { icon } from '../shell/icons.js?v=202607042230';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607042230';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607042230';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
