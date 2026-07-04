@@ -41,7 +41,7 @@ const MAX_FIELD = 8000;             // chars por campo de texto del guion
 const MIN_TOKEN_LEN = 32;
 
 // Campos de texto editables (guion + copy) — se recortan a MAX_FIELD.
-const TEXT_FIELDS = ['title', 'hook', 'body', 'cta', 'caption', 'hashtags'];
+const TEXT_FIELDS = ['title', 'hook', 'body', 'cta', 'caption', 'hashtags', 'alt_text'];
 
 // ── Definición de las herramientas que ve Claude ─────────────────────────────
 const POST_FIELDS_SCHEMA = {
@@ -54,6 +54,7 @@ const POST_FIELDS_SCHEMA = {
   cta: { type: 'string', description: 'CTA / llamado a la acción.' },
   caption: { type: 'string', description: 'COPY / caption final para publicar.' },
   hashtags: { type: 'string', description: 'Hashtags.' },
+  alt_text: { type: 'string', description: 'Texto alternativo (SEO alt) de la imagen. En carruseles, un alt por slide como "Slide 1 — texto" separados por línea en blanco.' },
   platform: { type: 'string', enum: PLATFORMS, description: 'Plataforma (default Instagram).' },
   grabacion: { type: 'integer', description: 'Prioridad de grabación 1-5 (1 = más urgente).' },
 };
@@ -263,7 +264,7 @@ async function createPost(env, scope, args) {
   const vals = [id, brand.id, title, content_type, status, platform];
   if (publish_date) { cols.push('publish_date'); vals.push(publish_date); }
   if (grabacion != null) { cols.push('grabacion'); vals.push(grabacion); }
-  for (const f of ['caption', 'hook', 'body', 'cta', 'hashtags']) {
+  for (const f of ['caption', 'hook', 'body', 'cta', 'hashtags', 'alt_text']) {
     if (args[f] != null && String(args[f]) !== '') { cols.push(f); vals.push(clip(args[f])); }
   }
   const placeholders = cols.map(() => '?').join(', ');
@@ -305,6 +306,8 @@ async function getPost(env, scope, args) {
     `CAPTION (copy final):\n${S(p.caption)}`,
     '',
     `HASHTAGS:\n${S(p.hashtags)}`,
+    '',
+    `SEO ALT:\n${S(p.alt_text)}`,
   ].join('\n'));
 }
 
@@ -351,7 +354,7 @@ async function updatePost(env, scope, args) {
     if (!(g >= 1 && g <= 5)) return toolErr('grabacion debe ser un número 1-5.');
     sets.push('grabacion = ?'); vals.push(g); changed.push('grabación');
   }
-  for (const f of ['caption', 'hook', 'body', 'cta', 'hashtags']) {
+  for (const f of ['caption', 'hook', 'body', 'cta', 'hashtags', 'alt_text']) {
     if (args[f] != null) { sets.push(`${f} = ?`); vals.push(String(args[f]) === '' ? null : clip(args[f])); changed.push(f === 'caption' ? 'copy/caption' : f); }
   }
 

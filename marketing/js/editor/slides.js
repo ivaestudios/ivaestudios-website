@@ -57,3 +57,29 @@ export function slidesToText(slides) {
     .map((x) => `SLIDE ${x.i + 1}:\n${x.s}`)
     .join('\n\n');
 }
+
+// ── SEO ALT (texto alternativo) ──────────────────────────────────────────────
+// En carrusel se guarda un alt por slide con el mismo formato "Slide N — texto"
+// (separados por línea en blanco); en foto/reel es texto simple.
+
+/** Lista de alts alineada al número de slides (huecos = ''). */
+export function altsFromText(text, count) {
+  const s = String(text || '').trim();
+  const arr = new Array(Math.max(1, count || 1)).fill('');
+  if (!s) return arr;
+  const re = /(?:^|\n)\s*slide\s*(\d+)\s*[—:–.\-]?\s*([^]*?)(?=\n\s*slide\s*\d+\s*[—:–.\-]?|$)/gi;
+  let m; let found = false;
+  while ((m = re.exec(s))) {
+    found = true;
+    const i = parseInt(m[1], 10) - 1;
+    if (i >= 0 && i < arr.length) arr[i] = m[2].trim();
+  }
+  if (!found) arr[0] = s;
+  return arr;
+}
+
+export function altsToText(alts) {
+  const arr = (alts || []).map((a) => String(a || '').trim());
+  if (arr.length <= 1) return arr[0] || '';
+  return arr.map((a, i) => (a ? `Slide ${i + 1} — ${a}` : '')).filter(Boolean).join('\n\n');
+}

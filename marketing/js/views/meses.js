@@ -26,10 +26,10 @@ import {
   el, clear, copyText,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607031955';
-import { icon } from '../shell/icons.js?v=202607031955';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607031955';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText } from '../editor/slides.js?v=202607031955';
+} from '../api.js?v=202607032040';
+import { icon } from '../shell/icons.js?v=202607032040';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607032040';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607032040';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -379,12 +379,15 @@ function openCaptionDrawer(post) {
       { field: 'cta', label: 'CTA', hint: 'Cierre con acción clara' },
       { field: 'caption', label: 'CAPTION', hint: 'Listo para pegar en IG' },
       { field: 'hashtags', label: 'HASHTAGS', hint: '' },
+      { field: 'alt_text', label: 'SEO ALT', hint: 'Texto alternativo de la imagen (IG)' },
     ];
   const tas = {};
   let slides = null;
+  let alts = null; // SEO alt por slide (solo carrusel)
   if (isCarrusel) {
     slides = slidesFromPost(post);
     if (slides.length < 2) slides = [slides[0] || '', ''];
+    alts = altsFromText(post.alt_text, slides.length);
   }
 
   async function copyField(field, label) {
@@ -465,7 +468,7 @@ function openCaptionDrawer(post) {
           (i > 0 && i < slides.length - 1) ? el('button', {
             class: 'mdsec__copy', type: 'button', title: 'Quitar este slide',
             'aria-label': `Quitar slide ${i + 1}`,
-            onclick: () => { slides.splice(i, 1); renderSlides(); },
+            onclick: () => { slides.splice(i, 1); alts.splice(i, 1); renderSlides(); renderAlts(); },
           }, [icon('trash', 14)]) : null,
           el('button', {
             class: 'mdsec__copy', type: 'button', title: 'Copiar este slide',
@@ -480,9 +483,43 @@ function openCaptionDrawer(post) {
     slidesHost.appendChild(el('div', { class: 'mdsec mdsec--add' }, [
       el('button', {
         class: 'btn meses-drawer__addslide', type: 'button',
-        onclick: () => { slides.splice(slides.length - 1, 0, ''); renderSlides(); },
+        onclick: () => {
+          slides.splice(slides.length - 1, 0, '');
+          alts.splice(alts.length - 1, 0, '');
+          renderSlides(); renderAlts();
+        },
       }, [icon('plus', 15), ' Agregar slide']),
     ]));
+  }
+
+  // SEO ALT por slide (carrusel): al final del panel, uno por slide con copiar.
+  const altsHost = isCarrusel ? el('div', { class: 'meses-drawer__alts' }) : null;
+  function renderAlts() {
+    if (!altsHost) return;
+    while (altsHost.firstChild) altsHost.removeChild(altsHost.firstChild);
+    alts.forEach((text, i) => {
+      const ta = el('textarea', {
+        class: 'meses-drawer__ta meses-drawer__ta--sec',
+        placeholder: `Describe la imagen del slide ${i + 1} (SEO/accesibilidad)`,
+        maxLength: 1000,
+        rows: 1,
+      });
+      ta.value = text || '';
+      ta.addEventListener('input', () => { alts[i] = ta.value; fit(ta); });
+      altsHost.appendChild(el('section', { class: 'mdsec' }, [
+        el('div', { class: 'mdsec__head' }, [
+          el('span', { class: 'mdsec__lbl', text: `SEO ALT · SLIDE ${i + 1}` }),
+          i === 0 ? el('span', { class: 'mdsec__hint', text: 'Texto alternativo (IG)' }) : null,
+          el('button', {
+            class: 'mdsec__copy', type: 'button', title: `Copiar SEO alt del slide ${i + 1}`,
+            'aria-label': `Copiar SEO alt del slide ${i + 1}`,
+            onclick: () => copyPlain(alts[i], 'SEO alt copiado.', 'Este alt está vacío.'),
+          }, [icon('copy', 14)]),
+        ]),
+        ta,
+      ]));
+      fit(ta);
+    });
   }
 
   const body = el('div', { class: 'meses-drawer__body' }, SECTIONS.map((s) => {
@@ -513,6 +550,7 @@ function openCaptionDrawer(post) {
   }));
 
   if (slidesHost) { renderSlides(); body.insertBefore(slidesHost, body.firstChild); }
+  if (altsHost) { renderAlts(); body.appendChild(altsHost); }
 
   const save = () => {
     const patch = {}; const before = {};
@@ -528,6 +566,9 @@ function openCaptionDrawer(post) {
         const old = (post[k] || '').trim() || null;
         if (v !== old) { patch[k] = v; before[k] = post[k] || null; }
       }
+      const av = altsToText(alts) || null;
+      const aOld = (post.alt_text || '').trim() || null;
+      if (av !== aOld) { patch.alt_text = av; before.alt_text = post.alt_text || null; }
     }
     closeCaptionDrawer();
     if (Object.keys(patch).length) patchWithUndo(post, patch, before, 'Guion guardado.');
@@ -577,6 +618,7 @@ function openCaptionDrawer(post) {
   // Los textareas de slides se crearon antes de montar el drawer (scrollHeight
   // era 0): re-ajustarlos ya visibles para que no salgan recortados.
   if (slidesHost) for (const sta of slidesHost.querySelectorAll('textarea')) fit(sta);
+  if (altsHost) for (const sta of altsHost.querySelectorAll('textarea')) fit(sta);
   // Abrir desde el COMIENZO: scroll arriba, sin abrir teclado en móvil.
   body.scrollTop = 0;
   drawerEl.querySelector('.meses-drawer__close')?.focus();

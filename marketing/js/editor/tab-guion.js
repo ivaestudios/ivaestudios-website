@@ -12,10 +12,10 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, copyText } from '../api.js?v=202607031955';
-import { icon } from '../shell/icons.js?v=202607031955';
-import { makeTextarea } from './fields.js?v=202607031955';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText } from './slides.js?v=202607031955';
+import { el, copyText } from '../api.js?v=202607032040';
+import { icon } from '../shell/icons.js?v=202607032040';
+import { makeTextarea } from './fields.js?v=202607032040';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202607032040';
 
 const IG_VISIBLE_CUT = 125;
 const CAPTION_MAX = 2200;
@@ -69,9 +69,43 @@ export function mount(host, ed) {
   // Reel/foto/etc.: los bloques HOOK/BODY/CTA de siempre.
   const isCarrusel = post.content_type === 'carrusel';
   let slides = null;
+  let alts = null;
+  let altsWrap = null;
+  let renderAlts = () => {};
   if (isCarrusel) {
     slides = slidesFromPost(post);
     if (slides.length < 2) slides = [slides[0] || '', ''];
+    alts = altsFromText(post.alt_text, slides.length);
+    altsWrap = el('div', { class: 'edslides edalts' });
+    renderAlts = () => {
+      while (altsWrap.firstChild) altsWrap.removeChild(altsWrap.firstChild);
+      alts.forEach((text, i) => {
+        const ta = makeTextarea({
+          value: text,
+          placeholder: `Describe la imagen del slide ${i + 1} (SEO/accesibilidad)`,
+          maxLength: 1000,
+          onInput: (v) => { alts[i] = v; ed.setField('alt_text', altsToText(alts)); },
+          onBlur: () => ed.flush(),
+        });
+        altsWrap.appendChild(el('div', { class: 'edblock' }, [
+          el('div', { class: 'edblock__head' }, [
+            el('span', { class: 'edblock__title', text: `SEO ALT · SLIDE ${i + 1}` }),
+            i === 0 ? el('span', { class: 'edblock__hint', text: 'Texto alternativo (IG)' }) : null,
+            el('button', {
+              class: 'edcopy-mini', type: 'button', title: `Copiar SEO alt del slide ${i + 1}`,
+              'aria-label': `Copiar SEO alt del slide ${i + 1}`,
+              onclick: async () => {
+                const v = String(alts[i] || '').trim();
+                if (!v) { ctx.toast('Este alt está vacío.', { type: 'info' }); return; }
+                const ok = await copyText(v);
+                ctx.toast(ok ? 'SEO alt copiado.' : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
+              },
+            }, [icon('copy', 14)]),
+          ]),
+          ta,
+        ]));
+      });
+    };
     const slidesWrap = el('div', { class: 'edslides' });
     const syncFields = () => {
       const f = fieldsFromSlides(slides);
@@ -107,7 +141,11 @@ export function mount(host, ed) {
             (i > 0 && i < slides.length - 1) ? el('button', {
               class: 'edcopy-mini edslide-del', type: 'button', title: 'Quitar este slide',
               'aria-label': `Quitar slide ${i + 1}`,
-              onclick: () => { slides.splice(i, 1); syncFields(); ed.flush(); renderSlides(); },
+              onclick: () => {
+                slides.splice(i, 1); alts.splice(i, 1);
+                syncFields(); ed.setField('alt_text', altsToText(alts)); ed.flush();
+                renderSlides(); renderAlts();
+              },
             }, [icon('trash', 14)]) : null,
             copySlideBtn(i),
           ]),
@@ -116,7 +154,11 @@ export function mount(host, ed) {
       });
       slidesWrap.appendChild(el('button', {
         class: 'btn edslide-add', type: 'button',
-        onclick: () => { slides.splice(slides.length - 1, 0, ''); syncFields(); renderSlides(); },
+        onclick: () => {
+          slides.splice(slides.length - 1, 0, '');
+          alts.splice(alts.length - 1, 0, '');
+          syncFields(); renderSlides(); renderAlts();
+        },
       }, [icon('plus', 16), ' Agregar slide']));
     };
     renderSlides();
@@ -204,6 +246,21 @@ export function mount(host, ed) {
     ]),
     tagTa,
   ]));
+
+  // ── SEO ALT (texto alternativo) — abajo de hashtags ───────────────────────
+  if (isCarrusel) {
+    renderAlts();
+    root.appendChild(altsWrap);
+  } else {
+    root.appendChild(block({
+      title: 'SEO ALT',
+      hint: 'Texto alternativo de la imagen (IG)',
+      field: 'alt_text',
+      value: post.alt_text || '',
+      placeholder: 'Describe la imagen para SEO/accesibilidad',
+      maxLength: 1000,
+    }));
+  }
 
   // ── Copiar (mismos 3 botones que el panel de guion de escritorio) ──────────
   async function copyCaption() {

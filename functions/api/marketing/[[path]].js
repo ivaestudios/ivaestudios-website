@@ -223,7 +223,7 @@ async function logActivity(env, { client_id, post_id, session, action, detail })
 const POST_EDITABLE_FIELDS = [
   'title', 'content_type', 'grabacion', 'publish_date', 'assignee', 'platform',
   'status', 'caption', 'inspo_url', 'video_url', 'hook', 'body', 'cta',
-  'hashtags', 'notes_team', 'client_visible', 'priority'
+  'hashtags', 'alt_text', 'notes_team', 'client_visible', 'priority'
 ];
 
 // Fields returned in a post object (per spec). `notes_people` is a JSON column
@@ -231,7 +231,7 @@ const POST_EDITABLE_FIELDS = [
 const POST_RETURN_FIELDS = [
   'id', 'client_id', 'title', 'content_type', 'grabacion', 'publish_date',
   'assignee', 'platform', 'status', 'caption', 'inspo_url', 'video_url',
-  'hook', 'body', 'cta', 'hashtags', 'notes_team', 'client_visible',
+  'hook', 'body', 'cta', 'hashtags', 'alt_text', 'notes_team', 'client_visible',
   'approval_state', 'position', 'created_at', 'updated_at'
 ];
 
@@ -356,7 +356,7 @@ async function guardTables(fn) {
 // effort_points / checklist NEVER travel to the client portal.
 const CLIENT_VISIBLE_FIELDS = [
   'id', 'client_id', 'title', 'content_type', 'publish_date', 'platform',
-  'caption', 'hook', 'body', 'cta', 'hashtags', 'video_url', 'client_visible',
+  'caption', 'hook', 'body', 'cta', 'hashtags', 'alt_text', 'video_url', 'client_visible',
   'approval_state', 'position', 'created_at', 'updated_at'
 ];
 function publicPost(post) {
@@ -1856,7 +1856,7 @@ async function handleDuplicatePost(request, env, session, postId) {
   const vals = [newId, source.client_id, session.user_id, `${source.title} (copia)`, 'idea', 'pending', null, position];
 
   const copyCols = ['content_type', 'grabacion', 'assignee', 'platform', 'caption',
-    'inspo_url', 'video_url', 'hashtags', 'notes_team', 'client_visible', 'notes_people'];
+    'inspo_url', 'video_url', 'hashtags', 'alt_text', 'notes_team', 'client_visible', 'notes_people'];
   for (const f of copyCols) {
     if (source[f] !== undefined) { cols.push(f); vals.push(source[f]); }
   }
