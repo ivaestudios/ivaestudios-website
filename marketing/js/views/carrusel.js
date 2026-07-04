@@ -12,8 +12,8 @@
 // nada se sube a un servidor, funciona igual en el cel que en la compu y no
 // gasta datos. El video sale a velocidad correcta en cualquier máquina y con audio.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607042230';
-import { icon } from '../shell/icons.js?v=202607042230';
+import { el, clear, toast } from '../api.js?v=202607042255';
+import { icon } from '../shell/icons.js?v=202607042255';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -29,7 +29,6 @@ let imgName = 'carrusel';  // base para nombrar los slides
 let cols = 5;
 let rows = 1;
 let fmt = 'jpg';           // 'jpg' | 'png'
-let zoom = 100;            // % de zoom del encuadre (100 = sin zoom)
 let slides = [];           // [{ blob, url, name }]
 let cutting = 0;           // token para descartar cortes viejos si cambian los controles
 
@@ -188,8 +187,7 @@ async function cutSlides() {
         const canvas = document.createElement('canvas');
         canvas.width = sw; canvas.height = sh;
         const g = canvas.getContext('2d');
-        const z = zoomSrc(c * sw, r * sh, sw, sh, zoom);
-        g.drawImage(img, z.sx, z.sy, z.sw, z.sh, 0, 0, sw, sh);
+        g.drawImage(img, c * sw, r * sh, sw, sh, 0, 0, sw, sh);
         const blob = await canvasToBlob(canvas, type, 0.95);
         if (token !== cutting) return;
         const nn = String(n).padStart(2, '0');
@@ -432,7 +430,7 @@ async function cutVideoWebCodecs() {
   const token = ++vtoken;
   vphase = 'cortando'; vprogress = 0; freeVideoSlides(); render();
 
-  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607042230');
+  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607042255');
   const cols2 = vcols, rows2 = vrows, n = cols2 * rows2;
   const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
   const sw2 = sw - (sw % 2), sh2 = sh - (sh % 2); // H.264 exige dimensiones pares
@@ -696,11 +694,9 @@ function renderImg() {
   rootEl.appendChild(el('div', { class: 'car-controls' }, [
     stepper('Columnas', () => cols, (v) => { cols = v; }, 1, MAX_COLS, cutSlides),
     stepper('Filas', () => rows, (v) => { rows = v; }, 1, MAX_ROWS, cutSlides),
-    stepper('Zoom', () => zoom, (v) => { zoom = v; }, 100, 140, cutSlides, 2, (x) => `${x}%`),
     fmtSeg,
     el('span', { class: 'car-info', text: `${cols * rows} slides de ${sw}×${sh}px` }),
   ]));
-  if (zoom > 100) rootEl.appendChild(el('div', { class: 'car-hint', text: 'El zoom recorta un poco la orilla para tapar la línea del slide de al lado.' }));
 
   if (!slides.length) { rootEl.appendChild(el('div', { class: 'car-cutting', text: 'Cortando…' })); return; }
   rootEl.appendChild(el('div', { class: 'car-actions' }, [
@@ -837,6 +833,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202607042230';
+  link.href = '/marketing/css/carrusel.css?v=202607042255';
   document.head.appendChild(link);
 }
