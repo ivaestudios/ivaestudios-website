@@ -439,11 +439,17 @@
   }
   .cal-mgrid {
     display: grid; grid-template-columns: repeat(7, 1fr);
+    /* Filas de alto FIJO -> cuadricula pareja (no cambian de tamano segun el
+       contenido de cada dia). Alcanza para el numero + 3 pills + "+N mas". */
+    grid-auto-rows: 148px;
     gap: 1px;
   }
   .cal-mcell {
     display: flex; flex-direction: column; gap: 4px;
-    min-height: 116px;
+    /* min-width:0 evita que un titulo largo (nowrap) ensanche su columna y
+       descuadre todo el grid; overflow:hidden recorta lo que sobre del dia. */
+    min-width: 0;
+    overflow: hidden;
     padding: 6px;
     background: var(--surface);
     cursor: pointer;
@@ -472,7 +478,7 @@
   }
   .cal-mcell:hover .cal-mcell__add, .cal-mcell__add:focus-visible { opacity: 1; }
   .cal-mcell__add:hover { background: var(--surface-3); color: var(--text); }
-  .cal-mcell__pills { display: flex; flex-direction: column; gap: 3px; min-height: 0; }
+  .cal-mcell__pills { display: flex; flex-direction: column; gap: 3px; min-height: 0; overflow: hidden; }
 
   .cal-pill {
     display: flex; align-items: center; gap: 5px;
@@ -632,7 +638,8 @@
    >= 1024px: mas aire en las celdas del mes.
    ════════════════════════════════════════════════════════════════════════════ */
 @media (min-width: 1024px) {
-  .cal-mcell { min-height: 132px; padding: 8px; }
+  .cal-mgrid { grid-auto-rows: 156px; }
+  .cal-mcell { padding: 8px; }
   .cal-pill { min-height: 26px; }
   .cal-aside { flex-basis: 300px; }
 }
