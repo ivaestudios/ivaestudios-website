@@ -6,9 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202607051330';
-import { icon } from '../shell/icons.js?v=202607051330';
-import { canConvertVideo, fileNeedsMetaFix, convertToMetaMp4 } from '../lib/videoconv.js?v=202607051330';
+import { api, el, clear, toast } from '../api.js?v=202607051530';
+import { icon } from '../shell/icons.js?v=202607051530';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -48,7 +47,6 @@ let lastClientId = null;
 let uploadPct = 0;          // progreso de subida (0-100)
 let progressEls = null;     // refs vivos de la barra (se actualizan sin re-render)
 let queueInfo = null;       // { index, total } al subir varios reels en fila
-let stage = 'upload';       // 'upload' | 'convert' — cambia la etiqueta de la barra
 
 function isClient() { return ((ctx.store.getState().me || {}).role === 'client'); }
 function pad2(n) { return String(n).padStart(2, '0'); }
@@ -67,7 +65,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202607051330';
+  link.href = '/marketing/css/entregables.css?v=202607051530';
   document.head.appendChild(link);
 }
 
@@ -92,10 +90,7 @@ function updateProgressUI() {
   if (!progressEls) return;
   progressEls.fill.style.width = uploadPct + '%';
   const q = (queueInfo && queueInfo.total > 1) ? `(${queueInfo.index}/${queueInfo.total}) ` : '';
-  let t;
-  if (stage === 'convert') t = uploadPct >= 100 ? `${q}Finalizando MP4…` : `${q}Convirtiendo a MP4… ${uploadPct}%`;
-  else t = uploadPct >= 100 ? `${q}Procesando…` : `${q}Subiendo… ${uploadPct}%`;
-  progressEls.label.textContent = t;
+  progressEls.label.textContent = uploadPct >= 100 ? `${q}Procesando…` : `${q}Subiendo… ${uploadPct}%`;
 }
 
 // Sube UNA parte con XMLHttpRequest (fetch no expone progreso de subida).
@@ -244,37 +239,19 @@ async function uploadReel(file, qinfo) {
   if (!client || busy) return false;
   if (!isVideoFile(file)) { toast(`"${file.name}" no es un video.`, 'error'); return false; }
   if (file.size > MAX_VIDEO_MB * 1024 * 1024) { toast(`"${file.name}" es enorme (más de 3 GB). Compártelo por link mejor.`, 'error', 6000); return false; }
-  busy = true; uploadPct = 0; stage = 'upload'; queueInfo = qinfo || null; render();
+  busy = true; uploadPct = 0; queueInfo = qinfo || null; render();
   let created = null;
-  let src = file; // lo que realmente se sube (puede ser el MP4 convertido)
   try {
-    // 0) Si es HEVC/H.265 (iPhone en "alta eficiencia"), Meta Ads lo RECHAZA. Lo
-    //    convertimos a H.264 MP4 (≤1080p) aquí mismo antes de subir. Si no se puede,
-    //    subimos el original (nunca bloqueamos la entrega).
-    if (canConvertVideo()) {
-      let needs = false;
-      try { needs = await fileNeedsMetaFix(file); } catch { needs = false; }
-      if (needs) {
-        stage = 'convert'; uploadPct = 0; updateProgressUI();
-        try {
-          src = await convertToMetaMp4(file, (pct) => { uploadPct = pct; updateProgressUI(); });
-        } catch (e) {
-          src = file;
-          toast('No se pudo convertir a MP4 automáticamente; se sube el original. Si Meta lo rechaza, usa el botón "Optimizar para Meta".', 'error', 8000);
-        }
-        stage = 'upload'; uploadPct = 0; updateProgressUI();
-      }
-    }
     created = await api.post('/deliverables', {
       client_id: client.id, month: addMonth || currentMonth(), type: 'reel',
-      title: file.name.replace(/\.[^.]+$/, '').slice(0, 120), // título del archivo ORIGINAL
+      title: file.name.replace(/\.[^.]+$/, '').slice(0, 120),
     });
     // Subir por partes (~50MB) en paralelo -> mantiene la conexión llena.
-    await multipartUpload(created.id, src, (p) => { uploadPct = p; updateProgressUI(); });
+    await multipartUpload(created.id, file, (p) => { uploadPct = p; updateProgressUI(); });
     uploadPct = 100; updateProgressUI();
-    // Miniatura (best-effort): capturar un cuadro. Ya en MP4 H.264 el <video> sí lo lee.
+    // Miniatura (best-effort): capturar un cuadro del video.
     try {
-      const posterBlob = await generatePoster(src);
+      const posterBlob = await generatePoster(file);
       if (posterBlob) {
         const pf = new FormData(); pf.append('poster', posterBlob, 'poster.jpg');
         await fetch(`/api/marketing/deliverables/${created.id}/poster`, { method: 'POST', credentials: 'same-origin', body: pf });
@@ -288,41 +265,7 @@ async function uploadReel(file, qinfo) {
     toast(e.message || 'No se pudo subir el reel', 'error');
     return false;
   } finally {
-    busy = false; uploadPct = 0; stage = 'upload'; progressEls = null; render();
-  }
-}
-
-// "Optimizar para Meta" (staff): baja un reel existente, y si es HEVC lo convierte a
-// H.264 MP4 (≤1080p) y lo re-sube reemplazando el archivo. Si ya es H.264, no hace nada.
-async function metaFixExisting(it, btn) {
-  if (busy) return;
-  const label = btn ? btn.querySelector('span:not(.ico)') : null;
-  const orig = label ? label.textContent : '';
-  const set = (t) => { if (label) label.textContent = t; };
-  if (!canConvertVideo()) { toast('Para convertir usa Chrome o Safari actualizado en una compu.', 'error', 6000); return; }
-  try {
-    if (btn) btn.disabled = true;
-    set('Bajando… 0%');
-    const blob = await fetchVideoBlob(it, (p) => set(`Bajando… ${p}%`));
-    const probe = new File([blob], (it.title || 'reel'), { type: blob.type || 'video/mp4' });
-    let needs = false; try { needs = await fileNeedsMetaFix(probe); } catch { needs = false; }
-    if (!needs) {
-      set('Ya sirve para Meta ✓');
-      toast('Este reel ya está en H.264 — sí funciona para anuncios de Meta.', 'info', 6000);
-      setTimeout(() => set(orig), 2600);
-      return;
-    }
-    set('Convirtiendo… 0%');
-    const mp4 = await convertToMetaMp4(probe, (p) => set(`Convirtiendo… ${p}%`));
-    set('Subiendo… 0%');
-    await multipartUpload(it.id, mp4, (p) => set(`Subiendo… ${p}%`));
-    toast('Reel convertido a MP4 para Meta ✓', 'success');
-    await load();
-  } catch (e) {
-    toast(e.message || 'No se pudo convertir el reel', 'error', 7000);
-    set(orig);
-  } finally {
-    if (btn) btn.disabled = false;
+    busy = false; uploadPct = 0; progressEls = null; render();
   }
 }
 
@@ -474,46 +417,15 @@ function isMobileSave() {
   return !!(uaMobile || iPadOnMac || (coarseOnly && touch));
 }
 
-// Guarda un Blob al equipo (carpeta Descargas) con <a download> + URL de objeto.
-function blobDownload(blob, name) {
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = name;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => { try { URL.revokeObjectURL(a.href); } catch { /* noop */ } }, 60000);
-}
-
-// ESCRITORIO: descarga directa a la compu, con progreso. Baja el video en tramos
-// (fetchVideoBlob) y lo guarda en Descargas. Si algo falla, cae al enlace directo.
-async function saveVideoDesktop(it, btn) {
-  const label = btn ? btn.querySelector('span:not(.ico)') : null;
-  const setLabel = (t) => { if (label) label.textContent = t; };
-  const reset = () => setLabel('Descargar');
-  try {
-    if (btn) btn.disabled = true;
-    setLabel('Descargando… 0%');
-    const blob = await fetchVideoBlob(it, (pct) => setLabel(`Descargando… ${pct}%`));
-    const file = fileFromBlob(it, blob);
-    blobDownload(blob, file.name);
-    setLabel('Guardado ✓');
-    setTimeout(reset, 2500);
-  } catch (e) {
-    linkDownload(it); // respaldo: enlace directo con ?download=1
-    reset();
-  } finally {
-    if (btn) btn.disabled = false;
-  }
-}
-
 // Guardar al teléfono. iPhone Safari (iOS16+)/Android: menú nativo de Compartir
 // (navigator.share con archivo -> "Guardar video" en Fotos / "Guardar en Archivos").
 // iOS exige que share() salga JUSTO tras el toque; si el video es grande, la descarga
 // consume ese permiso -> cacheamos el archivo y el 2º toque lo comparte al instante.
 // Escritorio (sin la API): descarga directa por enlace.
 async function saveVideo(it, btn) {
-  // Escritorio (Mac/PC): descarga directa al equipo con progreso — nada de menú de
-  // Compartir. Solo en móvil (iPhone/iPad/Android) usamos el menú nativo para guardar.
-  if (!isMobileSave()) { await saveVideoDesktop(it, btn); return; }
+  // Escritorio (Mac/PC): descarga directa al equipo con el gestor del navegador (muestra
+  // su propio progreso). Solo en móvil (iPhone/iPad/Android) usamos el menú de Compartir.
+  if (!isMobileSave()) { linkDownload(it); return; }
   if (!(navigator.canShare && navigator.share)) { linkDownload(it); return; }
   const label = btn ? btn.querySelector('span:not(.ico)') : null; // la etiqueta, NO el <span class="ico">
   const setLabel = (t) => { if (label) label.textContent = t; };
@@ -724,11 +636,6 @@ function buildItem(it, staff) {
           class: 'dlv-dl', type: 'button', 'aria-label': 'Descargar reel',
           onclick: (e) => saveVideo(it, e.currentTarget),
         }, [icon('down', 16), el('span', { text: 'Descargar' })]) : null,
-        (staff && it.video_url) ? el('button', {
-          class: 'dlv-meta', type: 'button',
-          title: 'Convertir a H.264 MP4 (para anuncios de Meta). Si ya es MP4 no cambia nada.',
-          onclick: (e) => metaFixExisting(it, e.currentTarget),
-        }, [icon('zap', 15), el('span', { text: 'Optimizar para Meta' })]) : null,
         staff ? el('button', { class: 'dlv-del', type: 'button', 'aria-label': 'Eliminar', onclick: () => removeItem(it) }, [icon('trash', 16)]) : null,
       ]),
     ]);
