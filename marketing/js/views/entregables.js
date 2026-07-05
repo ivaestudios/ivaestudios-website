@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202607050020';
-import { icon } from '../shell/icons.js?v=202607050020';
+import { api, el, clear, toast } from '../api.js?v=202607050115';
+import { icon } from '../shell/icons.js?v=202607050115';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -65,7 +65,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202607050020';
+  link.href = '/marketing/css/entregables.css?v=202607050115';
   document.head.appendChild(link);
 }
 
@@ -399,12 +399,62 @@ function fileFromBlob(it, blob) {
   return new File([blob], fname, { type: blob.type || 'video/mp4' });
 }
 
+// ¿Es un teléfono/tablet donde "Compartir → Guardar video/Guardar en Archivos" es el
+// flujo natural (iPhone/iPad/Android)? En ESCRITORIO (Mac/PC) el menú de Compartir NO
+// sirve para bajar a la compu (solo ofrece AirDrop, Mail, Mensajes…), así que ahí
+// descargamos el archivo DIRECTO al equipo.
+function isMobileSave() {
+  const ua = navigator.userAgent || '';
+  const uaMobile = /iPhone|iPod|Android/i.test(ua)
+    || (navigator.userAgentData && navigator.userAgentData.mobile === true);
+  const touch = (navigator.maxTouchPoints || 0) > 1;
+  const iPadOnMac = /Macintosh/.test(ua) && touch; // iPadOS se hace pasar por Mac
+  const coarseOnly = !!(window.matchMedia
+    && window.matchMedia('(pointer: coarse)').matches
+    && !window.matchMedia('(pointer: fine)').matches);
+  return !!(uaMobile || iPadOnMac || (coarseOnly && touch));
+}
+
+// Guarda un Blob al equipo (carpeta Descargas) con <a download> + URL de objeto.
+function blobDownload(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => { try { URL.revokeObjectURL(a.href); } catch { /* noop */ } }, 60000);
+}
+
+// ESCRITORIO: descarga directa a la compu, con progreso. Baja el video en tramos
+// (fetchVideoBlob) y lo guarda en Descargas. Si algo falla, cae al enlace directo.
+async function saveVideoDesktop(it, btn) {
+  const label = btn ? btn.querySelector('span:not(.ico)') : null;
+  const setLabel = (t) => { if (label) label.textContent = t; };
+  const reset = () => setLabel('Descargar');
+  try {
+    if (btn) btn.disabled = true;
+    setLabel('Descargando… 0%');
+    const blob = await fetchVideoBlob(it, (pct) => setLabel(`Descargando… ${pct}%`));
+    const file = fileFromBlob(it, blob);
+    blobDownload(blob, file.name);
+    setLabel('Guardado ✓');
+    setTimeout(reset, 2500);
+  } catch (e) {
+    linkDownload(it); // respaldo: enlace directo con ?download=1
+    reset();
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
 // Guardar al teléfono. iPhone Safari (iOS16+)/Android: menú nativo de Compartir
 // (navigator.share con archivo -> "Guardar video" en Fotos / "Guardar en Archivos").
 // iOS exige que share() salga JUSTO tras el toque; si el video es grande, la descarga
 // consume ese permiso -> cacheamos el archivo y el 2º toque lo comparte al instante.
 // Escritorio (sin la API): descarga directa por enlace.
 async function saveVideo(it, btn) {
+  // Escritorio (Mac/PC): descarga directa al equipo con progreso — nada de menú de
+  // Compartir. Solo en móvil (iPhone/iPad/Android) usamos el menú nativo para guardar.
+  if (!isMobileSave()) { await saveVideoDesktop(it, btn); return; }
   if (!(navigator.canShare && navigator.share)) { linkDownload(it); return; }
   const label = btn ? btn.querySelector('span:not(.ico)') : null; // la etiqueta, NO el <span class="ico">
   const setLabel = (t) => { if (label) label.textContent = t; };
