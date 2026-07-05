@@ -6,8 +6,9 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202607050115';
-import { icon } from '../shell/icons.js?v=202607050115';
+import { api, el, clear, toast } from '../api.js?v=202607051200';
+import { icon } from '../shell/icons.js?v=202607051200';
+import { canConvertVideo, fileNeedsMetaFix, convertToMetaMp4 } from '../lib/videoconv.js?v=202607051200';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -47,6 +48,7 @@ let lastClientId = null;
 let uploadPct = 0;          // progreso de subida (0-100)
 let progressEls = null;     // refs vivos de la barra (se actualizan sin re-render)
 let queueInfo = null;       // { index, total } al subir varios reels en fila
+let stage = 'upload';       // 'upload' | 'convert' — cambia la etiqueta de la barra
 
 function isClient() { return ((ctx.store.getState().me || {}).role === 'client'); }
 function pad2(n) { return String(n).padStart(2, '0'); }
@@ -65,7 +67,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202607050115';
+  link.href = '/marketing/css/entregables.css?v=202607051200';
   document.head.appendChild(link);
 }
 
@@ -90,7 +92,10 @@ function updateProgressUI() {
   if (!progressEls) return;
   progressEls.fill.style.width = uploadPct + '%';
   const q = (queueInfo && queueInfo.total > 1) ? `(${queueInfo.index}/${queueInfo.total}) ` : '';
-  progressEls.label.textContent = uploadPct >= 100 ? `${q}Procesando…` : `${q}Subiendo… ${uploadPct}%`;
+  let t;
+  if (stage === 'convert') t = uploadPct >= 100 ? `${q}Finalizando MP4…` : `${q}Convirtiendo a MP4… ${uploadPct}%`;
+  else t = uploadPct >= 100 ? `${q}Procesando…` : `${q}Subiendo… ${uploadPct}%`;
+  progressEls.label.textContent = t;
 }
 
 // Sube UNA parte con XMLHttpRequest (fetch no expone progreso de subida).
@@ -202,54 +207,74 @@ async function drainQueue() {
   }
 }
 
+// Sube un video (File/Blob) a un deliverable EXISTENTE por partes en paralelo.
+// Reutilizado por la subida normal y por "Optimizar para Meta". onProgress(pct 0-100).
+async function multipartUpload(deliverableId, src, onProgress) {
+  const start = await api.post(`/deliverables/${deliverableId}/video/multipart/start`, { mime: guessMime(src) });
+  const { uploadId, ext } = start;
+  const total = src.size;
+  const numParts = Math.max(1, Math.ceil(total / CHUNK_BYTES));
+  const doneParts = new Array(numParts);
+  const partLoaded = new Array(numParts).fill(0);
+  const bump = () => {
+    const sum = partLoaded.reduce((a, b) => a + b, 0);
+    if (onProgress) onProgress(Math.min(99, Math.round((sum / total) * 100)));
+  };
+  let nextPart = 0; let aborted = false;
+  const worker = async () => {
+    while (!aborted) {
+      const i = nextPart++;
+      if (i >= numParts) return;
+      const from = i * CHUNK_BYTES;
+      const blob = src.slice(from, Math.min(from + CHUNK_BYTES, total));
+      let r;
+      try { r = await putPartWithRetry(deliverableId, uploadId, ext, i + 1, blob, (n) => { partLoaded[i] = n; bump(); }); }
+      catch (e) { aborted = true; throw e; }
+      partLoaded[i] = blob.size; bump();
+      doneParts[i] = { partNumber: i + 1, etag: r.etag };
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(UP_LANES, numParts) }, worker));
+  await api.post(`/deliverables/${deliverableId}/video/multipart/complete`, { uploadId, ext, parts: doneParts });
+  if (onProgress) onProgress(100);
+}
+
 async function uploadReel(file, qinfo) {
   const client = activeClient();
   if (!client || busy) return false;
   if (!isVideoFile(file)) { toast(`"${file.name}" no es un video.`, 'error'); return false; }
   if (file.size > MAX_VIDEO_MB * 1024 * 1024) { toast(`"${file.name}" es enorme (más de 3 GB). Compártelo por link mejor.`, 'error', 6000); return false; }
-  busy = true; uploadPct = 0; queueInfo = qinfo || null; render();
+  busy = true; uploadPct = 0; stage = 'upload'; queueInfo = qinfo || null; render();
   let created = null;
+  let src = file; // lo que realmente se sube (puede ser el MP4 convertido)
   try {
+    // 0) Si es HEVC/H.265 (iPhone en "alta eficiencia"), Meta Ads lo RECHAZA. Lo
+    //    convertimos a H.264 MP4 (≤1080p) aquí mismo antes de subir. Si no se puede,
+    //    subimos el original (nunca bloqueamos la entrega).
+    if (canConvertVideo()) {
+      let needs = false;
+      try { needs = await fileNeedsMetaFix(file); } catch { needs = false; }
+      if (needs) {
+        stage = 'convert'; uploadPct = 0; updateProgressUI();
+        try {
+          src = await convertToMetaMp4(file, (pct) => { uploadPct = pct; updateProgressUI(); });
+        } catch (e) {
+          src = file;
+          toast('No se pudo convertir a MP4 automáticamente; se sube el original. Si Meta lo rechaza, usa el botón "Optimizar para Meta".', 'error', 8000);
+        }
+        stage = 'upload'; uploadPct = 0; updateProgressUI();
+      }
+    }
     created = await api.post('/deliverables', {
       client_id: client.id, month: addMonth || currentMonth(), type: 'reel',
-      title: file.name.replace(/\.[^.]+$/, '').slice(0, 120),
+      title: file.name.replace(/\.[^.]+$/, '').slice(0, 120), // título del archivo ORIGINAL
     });
-    // 1) iniciar subida multipart
-    const start = await api.post(`/deliverables/${created.id}/video/multipart/start`, { mime: guessMime(file) });
-    const { uploadId, ext } = start;
-    // 2) subir las partes (~50MB) EN PARALELO (hasta UP_LANES a la vez). En serie la
-    //    conexión se estanca un round-trip entre parte y parte; en paralelo se mantiene
-    //    llena -> sube notablemente más rápido. R2 ensambla por partNumber sin importar el orden.
-    const total = file.size;
-    const numParts = Math.max(1, Math.ceil(total / CHUNK_BYTES));
-    const doneParts = new Array(numParts);
-    const partLoaded = new Array(numParts).fill(0);
-    const bumpUp = () => {
-      const sum = partLoaded.reduce((a, b) => a + b, 0);
-      uploadPct = Math.min(99, Math.round((sum / total) * 100));
-      updateProgressUI();
-    };
-    let nextPart = 0; let upAborted = false;
-    const upWorker = async () => {
-      while (!upAborted) {
-        const i = nextPart++;
-        if (i >= numParts) return;
-        const from = i * CHUNK_BYTES;
-        const blob = file.slice(from, Math.min(from + CHUNK_BYTES, total));
-        let r;
-        try { r = await putPartWithRetry(created.id, uploadId, ext, i + 1, blob, (n) => { partLoaded[i] = n; bumpUp(); }); }
-        catch (e) { upAborted = true; throw e; }
-        partLoaded[i] = blob.size; bumpUp();
-        doneParts[i] = { partNumber: i + 1, etag: r.etag };
-      }
-    };
-    await Promise.all(Array.from({ length: Math.min(UP_LANES, numParts) }, upWorker));
-    // 3) ensamblar en R2
-    await api.post(`/deliverables/${created.id}/video/multipart/complete`, { uploadId, ext, parts: doneParts });
+    // Subir por partes (~50MB) en paralelo -> mantiene la conexión llena.
+    await multipartUpload(created.id, src, (p) => { uploadPct = p; updateProgressUI(); });
     uploadPct = 100; updateProgressUI();
-    // 4) miniatura (best-effort): capturar un cuadro y subirlo como poster
+    // Miniatura (best-effort): capturar un cuadro. Ya en MP4 H.264 el <video> sí lo lee.
     try {
-      const posterBlob = await generatePoster(file);
+      const posterBlob = await generatePoster(src);
       if (posterBlob) {
         const pf = new FormData(); pf.append('poster', posterBlob, 'poster.jpg');
         await fetch(`/api/marketing/deliverables/${created.id}/poster`, { method: 'POST', credentials: 'same-origin', body: pf });
@@ -263,7 +288,41 @@ async function uploadReel(file, qinfo) {
     toast(e.message || 'No se pudo subir el reel', 'error');
     return false;
   } finally {
-    busy = false; uploadPct = 0; progressEls = null; render();
+    busy = false; uploadPct = 0; stage = 'upload'; progressEls = null; render();
+  }
+}
+
+// "Optimizar para Meta" (staff): baja un reel existente, y si es HEVC lo convierte a
+// H.264 MP4 (≤1080p) y lo re-sube reemplazando el archivo. Si ya es H.264, no hace nada.
+async function metaFixExisting(it, btn) {
+  if (busy) return;
+  const label = btn ? btn.querySelector('span:not(.ico)') : null;
+  const orig = label ? label.textContent : '';
+  const set = (t) => { if (label) label.textContent = t; };
+  if (!canConvertVideo()) { toast('Para convertir usa Chrome o Safari actualizado en una compu.', 'error', 6000); return; }
+  try {
+    if (btn) btn.disabled = true;
+    set('Bajando… 0%');
+    const blob = await fetchVideoBlob(it, (p) => set(`Bajando… ${p}%`));
+    const probe = new File([blob], (it.title || 'reel'), { type: blob.type || 'video/mp4' });
+    let needs = false; try { needs = await fileNeedsMetaFix(probe); } catch { needs = false; }
+    if (!needs) {
+      set('Ya sirve para Meta ✓');
+      toast('Este reel ya está en H.264 — sí funciona para anuncios de Meta.', 'info', 6000);
+      setTimeout(() => set(orig), 2600);
+      return;
+    }
+    set('Convirtiendo… 0%');
+    const mp4 = await convertToMetaMp4(probe, (p) => set(`Convirtiendo… ${p}%`));
+    set('Subiendo… 0%');
+    await multipartUpload(it.id, mp4, (p) => set(`Subiendo… ${p}%`));
+    toast('Reel convertido a MP4 para Meta ✓', 'success');
+    await load();
+  } catch (e) {
+    toast(e.message || 'No se pudo convertir el reel', 'error', 7000);
+    set(orig);
+  } finally {
+    if (btn) btn.disabled = false;
   }
 }
 
@@ -665,6 +724,11 @@ function buildItem(it, staff) {
           class: 'dlv-dl', type: 'button', 'aria-label': 'Descargar reel',
           onclick: (e) => saveVideo(it, e.currentTarget),
         }, [icon('down', 16), el('span', { text: 'Descargar' })]) : null,
+        (staff && it.video_url) ? el('button', {
+          class: 'dlv-meta', type: 'button',
+          title: 'Convertir a H.264 MP4 (para anuncios de Meta). Si ya es MP4 no cambia nada.',
+          onclick: (e) => metaFixExisting(it, e.currentTarget),
+        }, [icon('zap', 15), el('span', { text: 'Optimizar para Meta' })]) : null,
         staff ? el('button', { class: 'dlv-del', type: 'button', 'aria-label': 'Eliminar', onclick: () => removeItem(it) }, [icon('trash', 16)]) : null,
       ]),
     ]);

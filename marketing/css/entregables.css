@@ -152,6 +152,17 @@
 }
 @media (prefers-reduced-motion: reduce) { .dlv-dl--ready { animation: none; } }
 
+/* "Optimizar para Meta" (staff): convierte HEVC/.mov a H.264 MP4 para anuncios. */
+.dlv-meta {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--surface-2, #0E0E13); border: 1px solid var(--border, #1E1E26); border-radius: var(--r-sm, 10px);
+  color: var(--text-mute, #A6A6B3); font-size: var(--fs-1, 12px); font-weight: 600;
+  padding: 7px 11px; min-height: 36px; cursor: pointer; white-space: nowrap;
+}
+.dlv-meta:hover { border-color: var(--brand, #E24DA0); color: #fff; }
+.dlv-meta:disabled { opacity: .7; cursor: default; }
+.dlv-meta .ico { color: #f0b429; }
+
 .dlv-del {
   display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; flex: none;
   background: none; border: 1px solid transparent; border-radius: var(--r-sm, 10px);
