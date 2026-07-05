@@ -13,8 +13,8 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, api, timeAgo, avatar } from '../api.js?v=202607060030';
-import { icon } from '../shell/icons.js?v=202607060030';
+import { el, api, timeAgo, avatar } from '../api.js?v=202607061200';
+import { icon } from '../shell/icons.js?v=202607061200';
 
 let tmpSeq = 0;
 

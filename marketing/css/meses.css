@@ -878,13 +878,17 @@
 .mdsec__count.is-over { color: #fca5a5; }
 .mdsec__copy {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 32px; height: 28px; margin-left: auto; flex: 0 0 auto;
+  width: 32px; height: 28px; margin-left: 6px; flex: 0 0 auto;
   background: transparent; color: var(--text-dim, #9A9AA8);
   border: 1px solid var(--border, #1E1E26); border-radius: 8px; cursor: pointer;
   transition: color .15s, border-color .15s, background .15s;
 }
 .mdsec__head:has(.mdsec__count) .mdsec__copy { margin-left: 8px; }
 .mdsec__count { margin-left: auto; }
+/* Solo el PRIMER botón de acción empuja a la derecha; los demás (p. ej. copiar tras
+   eliminar) van pegados. Así quedan agrupados en la MISMA posición en todos los
+   slides, en vez de partirse (uno al centro, otro a la derecha). */
+.mdsec__head:not(:has(.mdsec__count)) .mdsec__copy:first-of-type { margin-left: auto; }
 .mdsec__copy:hover, .mdsec__copy:active { color: var(--text-1, #fff); border-color: var(--brand, #E24DA0); background: rgba(226,77,160,.08); }
 .meses-drawer__ta--sec {
   flex: none; min-height: 48px; max-height: 320px; overflow-y: auto; resize: none;

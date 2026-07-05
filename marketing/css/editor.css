@@ -386,6 +386,10 @@ body.editor-open #viewScroll { overflow: hidden; }
 }
 .edcopy-mini:hover, .edcopy-mini:active { color: var(--text, #ECECF1); border-color: var(--brand, #E24DA0); }
 .edblock__head:has(.edcopy-mini) { align-items: center; }
+/* Los botones de acción (copiar/eliminar) SIEMPRE a la derecha, aunque el slide
+   no tenga etiqueta/hint — así quedan en la MISMA posición en todos los slides.
+   (En bloques con contador de caracteres el contador ya los alinea.) */
+.edblock__head:not(:has(.edcount)) .edcopy-mini:first-of-type { margin-left: auto; }
 .ed-ta {
   width: 100%;
   min-height: 48px;
