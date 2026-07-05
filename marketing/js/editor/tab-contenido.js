@@ -19,12 +19,12 @@ import {
   el,
   statusBadge, approvalBadge, chip,
   fmtDate, avatar,
-} from '../api.js?v=202607051530';
-import { pickFrom } from '../shell/sheet.js?v=202607051530';
-import * as store from '../shell/store.js?v=202607051530';
-import * as checklistService from '../services/checklist.js?v=202607051530';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202607051530';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202607051530';
+} from '../api.js?v=202607052030';
+import { pickFrom } from '../shell/sheet.js?v=202607052030';
+import * as store from '../shell/store.js?v=202607052030';
+import * as checklistService from '../services/checklist.js?v=202607052030';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202607052030';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202607052030';
 
 export function mount(host, ed) {
   const { ctx } = ed;

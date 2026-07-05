@@ -12,8 +12,8 @@
 // nada se sube a un servidor, funciona igual en el cel que en la compu y no
 // gasta datos. El video sale a velocidad correcta en cualquier máquina y con audio.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607051530';
-import { icon } from '../shell/icons.js?v=202607051530';
+import { el, clear, toast } from '../api.js?v=202607052030';
+import { icon } from '../shell/icons.js?v=202607052030';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -433,6 +433,29 @@ async function encodeAudioForSlide(audioBuf, dur, muxer) {
   if (aerr) throw aerr;
 }
 
+// Codifica `dur` segundos de SILENCIO en AAC. Se usa cuando la tira es muda, para
+// que TODO slide salga con pista de audio: un MP4 sin audio es justo lo que hacía
+// que WhatsApp no lo pudiera descargar/compartir (los videos normales siempre
+// llevan audio). Con silencio, el video sale "normal" y se comparte sin error.
+async function encodeSilentAudio(dur, muxer, sr, ch) {
+  const total = Math.max(1, Math.floor(dur * sr));
+  let aerr = null;
+  const aenc = new window.AudioEncoder({
+    output: (chunk, meta) => { try { muxer.addAudioChunk(chunk, meta); } catch (e) { aerr = e; } },
+    error: (e) => { aerr = e; },
+  });
+  aenc.configure({ codec: 'mp4a.40.2', sampleRate: sr, numberOfChannels: ch, bitrate: 96_000 });
+  const BLK = 4096;
+  for (let off = 0; off < total; off += BLK) {
+    const nf = Math.min(BLK, total - off);
+    const data = new Float32Array(nf * ch); // ceros = silencio (planar)
+    const ad = new window.AudioData({ format: 'f32-planar', sampleRate: sr, numberOfFrames: nf, numberOfChannels: ch, timestamp: Math.round(off / sr * 1e6), data });
+    aenc.encode(ad); ad.close();
+  }
+  await aenc.flush(); aenc.close();
+  if (aerr) throw aerr;
+}
+
 // MÉTODO PRINCIPAL — WebCodecs: a cada cuadro le pone su TIEMPO REAL del video
 // (no el del reloj de pared). Aunque la compu vaya lenta y capture menos cuadros,
 // el video sale con la DURACIÓN CORRECTA (nunca en cámara lenta). Conserva el
@@ -442,7 +465,7 @@ async function cutVideoWebCodecs() {
   const token = ++vtoken;
   vphase = 'cortando'; vprogress = 0; freeVideoSlides(); render();
 
-  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607051530');
+  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607052030');
   const cols2 = vcols, rows2 = vrows, n = cols2 * rows2;
   const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
   const sw2 = sw - (sw % 2), sh2 = sh - (sh % 2); // H.264 exige dimensiones pares
@@ -463,6 +486,11 @@ async function cutVideoWebCodecs() {
   // Audio de la tira (una sola decodificación para todos los slides).
   const audioBuf = await decodeAudioSafe(vfile);
   const hasAudio = !!audioBuf;
+  // TODA salida lleva pista de audio (silenciosa si la tira es muda). Un MP4 sin
+  // audio es lo que impedía descargar/compartir en WhatsApp.
+  const canAudio = typeof window.AudioEncoder !== 'undefined' && typeof window.AudioData !== 'undefined';
+  const aSr = hasAudio ? audioBuf.sampleRate : 44100;
+  const aCh = hasAudio ? Math.max(1, audioBuf.numberOfChannels) : 2;
 
   const out = new Array(n);
   for (let idx = 0; idx < n; idx++) {
@@ -476,7 +504,7 @@ async function cutVideoWebCodecs() {
       video: { codec: 'avc', width: sw2, height: sh2 },
       fastStart: 'in-memory',
     };
-    if (hasAudio) muxerCfg.audio = { codec: 'aac', numberOfChannels: audioBuf.numberOfChannels, sampleRate: audioBuf.sampleRate };
+    if (canAudio) muxerCfg.audio = { codec: 'aac', numberOfChannels: aCh, sampleRate: aSr };
     const muxer = new Muxer(muxerCfg);
     let encErr = null;
     const encoder = new window.VideoEncoder({
@@ -518,8 +546,13 @@ async function cutVideoWebCodecs() {
     if (!frames) throw new Error('no se capturó ningún cuadro');
     await encoder.flush();
     encoder.close();
-    // Audio del slide (best-effort: si falla, el slide queda sin audio, no rompe).
-    if (hasAudio) { try { await encodeAudioForSlide(audioBuf, dur, muxer); } catch (e) { console.error('[carrusel] audio slide', e && e.message); } }
+    // Audio del slide: el real de la tira, o SILENCIO si es muda (siempre hay pista).
+    if (canAudio) {
+      try {
+        if (hasAudio) await encodeAudioForSlide(audioBuf, dur, muxer);
+        else await encodeSilentAudio(dur, muxer, aSr, aCh);
+      } catch (e) { console.error('[carrusel] audio slide', e && e.message); }
+    }
     muxer.finalize();
     out[idx] = new Blob([muxer.target.buffer], { type: 'video/mp4' });
   }
@@ -556,6 +589,21 @@ async function cutVideoMediaRecorder() {
     const cv = document.createElement('canvas'); cv.width = sw; cv.height = sh;
     const cx = cv.getContext('2d');
     const stream = (cv.captureStream || cv.mozCaptureStream).call(cv, 30);
+    // Pista de audio SILENCIOSA en el stream: así la grabación siempre lleva audio
+    // (un video sin audio no se puede descargar/compartir en WhatsApp).
+    let silentCtx = null;
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) {
+        silentCtx = new AC();
+        const dest = silentCtx.createMediaStreamDestination();
+        const osc = silentCtx.createOscillator();
+        const gain = silentCtx.createGain(); gain.gain.value = 0;
+        osc.connect(gain); gain.connect(dest); osc.start();
+        const at = dest.stream.getAudioTracks()[0];
+        if (at) stream.addTrack(at);
+      }
+    } catch { silentCtx = null; }
     const opts = { videoBitsPerSecond: 10_000_000 };
     if (mime) opts.mimeType = mime;
     let rec;
@@ -583,6 +631,7 @@ async function cutVideoMediaRecorder() {
     }, token);
     if (started && !stopped) { try { rec.stop(); } catch { /* noop */ } }
     out[idx] = started ? await done : new Blob([], { type: mime || 'video/webm' });
+    try { if (silentCtx) await silentCtx.close(); } catch { /* noop */ }
   }
   if (token !== vtoken) return;
 
@@ -857,6 +906,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202607051530';
+  link.href = '/marketing/css/carrusel.css?v=202607052030';
   document.head.appendChild(link);
 }
