@@ -133,13 +133,20 @@ export async function convertToMetaMp4(file, onProgress) {
   if (!vtrack || !samples.length) throw new Error('No se pudo extraer el video.');
   report(5);
 
-  // ── 2) Dimensiones destino: reducir a ≤1080×1920 (Meta recomienda 1080p), pares ──
-  const W = (vtrack.video && vtrack.video.width) || vtrack.track_width;
-  const H = (vtrack.video && vtrack.video.height) || vtrack.track_height;
-  const scale = Math.min(1, 1920 / Math.max(W, H), 1080 / Math.min(W, H));
-  const TW = (Math.round(W * scale)) & ~1;
-  const TH = (Math.round(H * scale)) & ~1;
+  // ── 2) Dimensiones: se CONSERVA la resolución original (solo cambiamos el códec
+  //    HEVC→H.264, que es lo único que Meta necesita). Reescalar cada cuadro 4K es
+  //    lentísimo en el navegador; encodar directo es mucho más rápido y no pierde
+  //    calidad. Solo si excede 4K (raro) se reduce para no romper el codificador. ──
+  const W0 = (vtrack.video && vtrack.video.width) || vtrack.track_width;
+  const H0 = (vtrack.video && vtrack.video.height) || vtrack.track_height;
+  const capScale = Math.min(1, 3840 / Math.max(W0, H0)); // techo a 4K
+  const TW = (Math.round(W0 * capScale)) & ~1;
+  const TH = (Math.round(H0 * capScale)) & ~1;
+  const scaled = (TW !== W0 || TH !== H0);
   const tscale = vtrack.timescale || 90000;
+  // Bitrate según resolución (px): 4K≈18M, 1080p≈10M, menor≈6M.
+  const px = TW * TH;
+  const bitrate = px >= 3_500_000 ? 18_000_000 : (px >= 1_800_000 ? 10_000_000 : 6_000_000);
 
   // ── 3) Audio (best-effort): decodifica el original a PCM; se re-encoda al final ──
   let audioBuf = null;
@@ -150,36 +157,41 @@ export async function convertToMetaMp4(file, onProgress) {
     try { actx.close(); } catch { /* noop */ }
   } catch { audioBuf = null; }
 
-  // ── 4) Muxer + códec de salida (Main 4.0 → Baseline 4.0; los que Meta acepta) ──
+  // ── 4) Muxer + códec de salida. Se prueba Main con el nivel que soporte el tamaño
+  //    (1080p→4.0, 4K→5.1/5.2), luego High/Baseline. Todos los que Meta acepta. ──
   const muxerCfg = { target: new ArrayBufferTarget(), video: { codec: 'avc', width: TW, height: TH }, fastStart: 'in-memory' };
   if (audioBuf) muxerCfg.audio = { codec: 'aac', numberOfChannels: Math.min(2, audioBuf.numberOfChannels), sampleRate: audioBuf.sampleRate };
   const muxer = new Muxer(muxerCfg);
 
-  let vcodec = 'avc1.4d0028';
-  for (const cc of ['avc1.4d0028', 'avc1.42e028', 'avc1.640028']) {
-    try { const s = await window.VideoEncoder.isConfigSupported({ codec: cc, width: TW, height: TH, bitrate: 9_000_000 }); if (s && s.supported) { vcodec = cc; break; } } catch { /* noop */ }
+  let vcodec = null;
+  for (const cc of ['avc1.4d0028', 'avc1.4d0033', 'avc1.4d0034', 'avc1.640028', 'avc1.640033', 'avc1.640034', 'avc1.42e028', 'avc1.42e033']) {
+    try { const s = await window.VideoEncoder.isConfigSupported({ codec: cc, width: TW, height: TH, bitrate }); if (s && s.supported) { vcodec = cc; break; } } catch { /* noop */ }
   }
+  if (!vcodec) throw new Error('No hay códec H.264 para ese tamaño de video.');
 
   let encErr = null;
   const encoder = new window.VideoEncoder({
     output: (chunk, meta) => { try { muxer.addVideoChunk(chunk, meta); } catch (e) { encErr = e; } },
     error: (e) => { encErr = e; },
   });
-  encoder.configure({ codec: vcodec, width: TW, height: TH, bitrate: 9_000_000, framerate: 30, latencyMode: 'realtime', avc: { format: 'avc' } });
+  encoder.configure({ codec: vcodec, width: TW, height: TH, bitrate, framerate: 30, hardwareAcceleration: 'prefer-hardware', latencyMode: 'realtime', avc: { format: 'avc' } });
 
-  const canvas = new OffscreenCanvas(TW, TH);
-  const cx = canvas.getContext('2d', { alpha: false });
+  // Canvas solo si hay que reducir (>4K); si no, el cuadro va DIRECTO al encoder.
+  const canvas = scaled ? new OffscreenCanvas(TW, TH) : null;
+  const cx = canvas ? canvas.getContext('2d', { alpha: false }) : null;
 
-  // ── 5) Decodifica (HEVC/H.264) → dibuja reescalado → encoda H.264 ──
+  // ── 5) Decodifica (HEVC/H.264) → encoda H.264 directo (mismo tamaño) ──
   let decErr = null, t0 = null, encoded = 0;
   const total = vtrack.nb_samples || samples.length;
   const decoder = new window.VideoDecoder({
     output: (frame) => {
       try {
         if (t0 === null) t0 = frame.timestamp;
-        cx.drawImage(frame, 0, 0, TW, TH);
         const ts = Math.max(0, frame.timestamp - t0);
-        const vf = new window.VideoFrame(canvas, { timestamp: ts, duration: frame.duration || 33333 });
+        const dur = frame.duration || 33333;
+        let vf;
+        if (canvas) { cx.drawImage(frame, 0, 0, TW, TH); vf = new window.VideoFrame(canvas, { timestamp: ts, duration: dur }); }
+        else { vf = new window.VideoFrame(frame, { timestamp: ts, duration: dur }); }
         encoder.encode(vf, { keyFrame: encoded % 30 === 0 }); // IDR al inicio y cada ~1s
         vf.close();
         frame.close();
@@ -189,12 +201,14 @@ export async function convertToMetaMp4(file, onProgress) {
     },
     error: (e) => { decErr = e; },
   });
-  decoder.configure({ codec: vtrack.codec, description: vdesc, codedWidth: W, codedHeight: H });
+  decoder.configure({ codec: vtrack.codec, description: vdesc, codedWidth: W0, codedHeight: H0, hardwareAcceleration: 'prefer-hardware' });
 
   for (const s of samples) {
     if (decErr || encErr) break;
-    // backpressure: no saturar la cola del decodificador (memoria acotada)
-    while (decoder.decodeQueueSize > 20) { await new Promise((r) => setTimeout(r, 4)); }
+    // backpressure en AMBOS lados: el decodificador (HW) va más rápido que el
+    // codificador 4K, así que limitamos por la cola del encoder para no acumular
+    // cientos de cuadros en memoria.
+    while (decoder.decodeQueueSize > 8 || encoder.encodeQueueSize > 8) { await new Promise((r) => setTimeout(r, 4)); }
     decoder.decode(new window.EncodedVideoChunk({
       type: s.is_sync ? 'key' : 'delta',
       timestamp: Math.round((s.cts / tscale) * 1e6),
