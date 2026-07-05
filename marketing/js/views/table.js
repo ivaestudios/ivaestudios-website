@@ -18,21 +18,21 @@
 // Contrato de vista: export default { mount(el, ctx), onParams(), unmount() }.
 // ============================================================================
 
-import { el, clear, api, fmtDate, avatar } from '../api.js?v=202607042255';
-import { icon } from '../shell/icons.js?v=202607042255';
-import { isPast } from '../lib/dates.js?v=202607042255';
-import * as viewsSvc from '../services/views.js?v=202607042255';
+import { el, clear, api, fmtDate, avatar } from '../api.js?v=202607042330';
+import { icon } from '../shell/icons.js?v=202607042330';
+import { isPast } from '../lib/dates.js?v=202607042330';
+import * as viewsSvc from '../services/views.js?v=202607042330';
 import {
   buildColumns, visibleColumns,
   MOBILE_SORT_OPTIONS, CARD_FIELDS, DEFAULT_CARD_FIELDS, MAX_CARD_FIELDS,
   PRIORITIES, PRIORITY_ORDER, safeUrl,
   STATUSES, CONTENT_TYPES, GRABACION_LEVELS,
-} from '../table/columns.js?v=202607042255';
-import * as grp from '../table/groups.js?v=202607042255';
-import { createSelection } from '../table/selection.js?v=202607042255';
+} from '../table/columns.js?v=202607042330';
+import * as grp from '../table/groups.js?v=202607042330';
+import { createSelection } from '../table/selection.js?v=202607042330';
 import {
   createQuickAddRow, createQuickAddButton, openQuickAddSheet, resetChain,
-} from '../table/quickadd.js?v=202607042255';
+} from '../table/quickadd.js?v=202607042330';
 
 const FILTER_KEYS = ['estado', 'tipo', 'persona', 'desde', 'hasta', 'q'];
 const ERR_SAVE = 'No se pudo guardar, intenta de nuevo.';

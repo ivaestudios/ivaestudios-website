@@ -12,8 +12,8 @@
 // nada se sube a un servidor, funciona igual en el cel que en la compu y no
 // gasta datos. El video sale a velocidad correcta en cualquier máquina y con audio.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607042255';
-import { icon } from '../shell/icons.js?v=202607042255';
+import { el, clear, toast } from '../api.js?v=202607042330';
+import { icon } from '../shell/icons.js?v=202607042330';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -358,14 +358,26 @@ function playThrough(v, onFrame, token) {
       if (useRVFC) v.requestVideoFrameCallback(step);
     };
     v.onended = finish;
-    try { v.currentTime = 0; } catch { /* noop */ }
-    v.play().then(() => {
-      if (useRVFC) v.requestVideoFrameCallback(step);
-      else iv = setInterval(() => {
-        if (token !== vtoken || v.ended || v.paused) { clearInterval(iv); finish(); return; }
-        onFrame({ mediaTime: v.currentTime });
-      }, 1000 / 30);
-    }).catch(() => { if (iv) clearInterval(iv); finish(); });
+    const begin = () => {
+      if (token !== vtoken) { finish(); return; }
+      v.play().then(() => {
+        if (token !== vtoken) { finish(); return; }
+        if (useRVFC) v.requestVideoFrameCallback(step);
+        else iv = setInterval(() => {
+          if (token !== vtoken || v.ended || v.paused) { clearInterval(iv); finish(); return; }
+          onFrame({ mediaTime: v.currentTime });
+        }, 1000 / 30);
+      }).catch(() => { if (iv) clearInterval(iv); finish(); });
+    };
+    // Regresa al inicio y ESPERA a que el cuadro esté decodificado antes de
+    // grabar: si arrancamos durante el reposicionamiento, el primer cuadro sale
+    // NEGRO. Con esto el primer cuadro grabado ya es contenido real.
+    if (v.currentTime <= 0.02 && v.readyState >= 2) { begin(); return; }
+    let seeked = false;
+    const onSeeked = () => { if (seeked) return; seeked = true; v.removeEventListener('seeked', onSeeked); begin(); };
+    v.addEventListener('seeked', onSeeked);
+    try { v.currentTime = 0; } catch { onSeeked(); }
+    setTimeout(onSeeked, 700); // salvavidas si 'seeked' no dispara
   });
 }
 
@@ -430,7 +442,7 @@ async function cutVideoWebCodecs() {
   const token = ++vtoken;
   vphase = 'cortando'; vprogress = 0; freeVideoSlides(); render();
 
-  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607042255');
+  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607042330');
   const cols2 = vcols, rows2 = vrows, n = cols2 * rows2;
   const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
   const sw2 = sw - (sw % 2), sh2 = sh - (sh % 2); // H.264 exige dimensiones pares
@@ -468,7 +480,7 @@ async function cutVideoWebCodecs() {
       output: (chunk, meta) => { try { muxer.addVideoChunk(chunk, meta); } catch (e) { encErr = e; } },
       error: (e) => { encErr = e; },
     });
-    encoder.configure({ codec, width: sw2, height: sh2, bitrate: 10_000_000, framerate: 30, avc: { format: 'avc' } });
+    encoder.configure({ codec, width: sw2, height: sh2, bitrate: 10_000_000, framerate: 30, latencyMode: 'realtime', avc: { format: 'avc' } });
 
     let first = true, lastTs = -1, t0 = null, frames = 0;
     await playThrough(v, (meta) => {
@@ -541,14 +553,14 @@ async function cutVideoMediaRecorder() {
     rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
     const done = new Promise((res) => { rec.onstop = () => res(new Blob(chunks, { type: mime || 'video/webm' })); });
 
-    let stopped = false;
-    try { v.currentTime = 0; } catch { /* noop */ }
-    try { rec.start(); } catch { /* noop */ }
+    let stopped = false, started = false;
     await playThrough(v, () => {
       const t = v.currentTime;
       if (t <= dur + 0.05) {
         const z = zoomSrc(c * sw, r * sh, sw, sh, vzoom);
         cx.drawImage(v, z.sx, z.sy, z.sw, z.sh, 0, 0, sw, sh);
+        // Arranca la grabación con el PRIMER cuadro ya dibujado (evita negro).
+        if (!started) { started = true; try { rec.start(); } catch { /* noop */ } }
       } else if (!stopped) {
         stopped = true;
         try { rec.stop(); } catch { /* noop */ }
@@ -557,8 +569,8 @@ async function cutVideoMediaRecorder() {
       vprogress = (idx + (dur ? Math.min(1, t / dur) : 1)) / n;
       updateVProgress();
     }, token);
-    if (!stopped) { try { rec.stop(); } catch { /* noop */ } }
-    out[idx] = await done;
+    if (started && !stopped) { try { rec.stop(); } catch { /* noop */ } }
+    out[idx] = started ? await done : new Blob([], { type: mime || 'video/webm' });
   }
   if (token !== vtoken) return;
 
@@ -833,6 +845,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202607042255';
+  link.href = '/marketing/css/carrusel.css?v=202607042330';
   document.head.appendChild(link);
 }
