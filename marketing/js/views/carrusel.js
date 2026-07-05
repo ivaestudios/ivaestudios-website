@@ -12,8 +12,8 @@
 // nada se sube a un servidor, funciona igual en el cel que en la compu y no
 // gasta datos. El video sale a velocidad correcta en cualquier máquina y con audio.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607052030';
-import { icon } from '../shell/icons.js?v=202607052030';
+import { el, clear, toast } from '../api.js?v=202607052230';
+import { icon } from '../shell/icons.js?v=202607052230';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -465,7 +465,7 @@ async function cutVideoWebCodecs() {
   const token = ++vtoken;
   vphase = 'cortando'; vprogress = 0; freeVideoSlides(); render();
 
-  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607052030');
+  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607052230');
   const cols2 = vcols, rows2 = vrows, n = cols2 * rows2;
   const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
   const sw2 = sw - (sw % 2), sh2 = sh - (sh % 2); // H.264 exige dimensiones pares
@@ -795,6 +795,15 @@ function renderVideo() {
     rootEl.appendChild(el('div', { class: 'car-cutting', text: 'Tu navegador no permite cortar video. Ábrelo en Chrome o en Safari actualizado.' }));
     return;
   }
+  // Sin WebCodecs (Safari) el corte cae a MediaRecorder → MP4 FRAGMENTADO y SIN AUDIO
+  // que WhatsApp no puede descargar. Avisamos claro que corten en Chrome.
+  const noWebCodecs = typeof window.VideoEncoder === 'undefined' || typeof window.VideoFrame === 'undefined';
+  if (noWebCodecs) {
+    rootEl.appendChild(el('div', { class: 'car-warn' }, [
+      el('strong', { text: '⚠️ Abre esta página en Chrome para cortar los videos.' }),
+      el('span', { text: ' En este navegador (Safari) los cortes salen en un formato sin audio que WhatsApp no puede descargar. En Chrome salen normales y se comparten sin problema.' }),
+    ]));
+  }
   const busy = vphase === 'analizando' || vphase === 'cortando';
   const input = el('input', {
     class: 'car-file', type: 'file', accept: 'video/mp4,video/quicktime,video/webm',
@@ -906,6 +915,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202607052030';
+  link.href = '/marketing/css/carrusel.css?v=202607052230';
   document.head.appendChild(link);
 }
