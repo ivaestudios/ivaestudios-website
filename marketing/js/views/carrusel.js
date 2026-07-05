@@ -12,8 +12,8 @@
 // nada se sube a un servidor, funciona igual en el cel que en la compu y no
 // gasta datos. El video sale a velocidad correcta en cualquier máquina y con audio.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607042330';
-import { icon } from '../shell/icons.js?v=202607042330';
+import { el, clear, toast } from '../api.js?v=202607050020';
+import { icon } from '../shell/icons.js?v=202607050020';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -442,14 +442,17 @@ async function cutVideoWebCodecs() {
   const token = ++vtoken;
   vphase = 'cortando'; vprogress = 0; freeVideoSlides(); render();
 
-  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607042330');
+  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607050020');
   const cols2 = vcols, rows2 = vrows, n = cols2 * rows2;
   const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
   const sw2 = sw - (sw % 2), sh2 = sh - (sh % 2); // H.264 exige dimensiones pares
 
-  // Elige un códec H.264 soportado para ese tamaño (High/Main 4.0/5.1, o Baseline).
+  // Elige el códec H.264 MÁS COMPATIBLE que soporte el tamaño. Prioridad:
+  // Main 4.0 → Baseline 4.0 → Main 5.1 → Baseline 5.1 → (último recurso) High.
+  // WhatsApp / iOS / Android reproducen y comparten Main y Baseline sin problema;
+  // el perfil High daba error al compartir en algunos teléfonos.
   let codec = null;
-  for (const cc of ['avc1.640028', 'avc1.4d0028', 'avc1.640033', 'avc1.4d0033', 'avc1.42e01e']) {
+  for (const cc of ['avc1.4d0028', 'avc1.42e028', 'avc1.4d0033', 'avc1.42e033', 'avc1.640028', 'avc1.42e01e']) {
     try {
       const s = await window.VideoEncoder.isConfigSupported({ codec: cc, width: sw2, height: sh2, bitrate: 10_000_000 });
       if (s && s.supported) { codec = cc; break; }
@@ -482,21 +485,30 @@ async function cutVideoWebCodecs() {
     });
     encoder.configure({ codec, width: sw2, height: sh2, bitrate: 10_000_000, framerate: 30, latencyMode: 'realtime', avc: { format: 'avc' } });
 
-    let first = true, lastTs = -1, t0 = null, frames = 0;
+    // Línea de tiempo a 30fps CONSTANTE (CFR): cada cuadro se ancla a la rejilla
+    // de 1/30s según su tiempo REAL en el video. Así conserva la velocidad correcta
+    // en cualquier compu Y produce un frame-rate estable con duración de cuadro bien
+    // definida — que es justo lo que WhatsApp/iOS necesitan para reproducir y
+    // compartir sin error (los tiempos variables generaban cuadros irregulares).
+    const FPS = 30, FDUR = Math.round(1e6 / FPS);
+    let lastIdx = -1, t0 = null, frames = 0;
     await playThrough(v, (meta) => {
       const mt = (meta && typeof meta.mediaTime === 'number') ? meta.mediaTime : v.currentTime;
       if (mt > dur + 0.05) { try { v.pause(); } catch { /* noop */ } return; }
       if (t0 === null) t0 = mt;
-      let ts = Math.round((mt - t0) * 1e6);
-      if (ts <= lastTs) ts = lastTs + 1;
-      lastTs = ts;
+      const fidx = Math.round((mt - t0) * FPS);
+      if (fidx <= lastIdx) { // fuente a >30fps: descarta el cuadro sobrante (mantiene la velocidad)
+        vprogress = (idx + Math.min(1, mt / dur)) / n; updateVProgress(); return;
+      }
+      lastIdx = fidx;
+      const ts = fidx * FDUR;
       const z = zoomSrc(c * sw, r * sh, sw, sh, vzoom);
       cx.drawImage(v, z.sx, z.sy, z.sw, z.sh, 0, 0, sw2, sh2);
       try {
-        const vf = new window.VideoFrame(cv, { timestamp: ts });
-        encoder.encode(vf, { keyFrame: first });
+        const vf = new window.VideoFrame(cv, { timestamp: ts, duration: FDUR });
+        encoder.encode(vf, { keyFrame: frames % 30 === 0 }); // IDR al inicio y cada ~1s
         vf.close();
-        first = false; frames += 1;
+        frames += 1;
       } catch (e) { encErr = e; try { v.pause(); } catch { /* noop */ } }
       vprogress = (idx + Math.min(1, mt / dur)) / n;
       updateVProgress();
@@ -845,6 +857,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202607042330';
+  link.href = '/marketing/css/carrusel.css?v=202607050020';
   document.head.appendChild(link);
 }
