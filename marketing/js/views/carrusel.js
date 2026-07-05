@@ -12,8 +12,8 @@
 // nada se sube a un servidor, funciona igual en el cel que en la compu y no
 // gasta datos. El video sale a velocidad correcta en cualquier máquina y con audio.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607052230';
-import { icon } from '../shell/icons.js?v=202607052230';
+import { el, clear, toast } from '../api.js?v=202607060030';
+import { icon } from '../shell/icons.js?v=202607060030';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -387,7 +387,14 @@ async function cutVideoSlides() {
   const canWC = typeof window.VideoEncoder !== 'undefined' && typeof window.VideoFrame !== 'undefined';
   if (canWC) {
     try { await cutVideoWebCodecs(); return; }
-    catch (e) { console.error('[carrusel] WebCodecs falló, uso respaldo:', e && e.message); vtoken += 1; }
+    catch (e) {
+      console.error('[carrusel] WebCodecs falló, uso respaldo:', e);
+      // Que NO se rinda en silencio: si el motor bueno falla (p. ej. en Safari),
+      // avisamos el porqué — así el video de respaldo, que WhatsApp no descarga
+      // bien, no toma al usuario por sorpresa.
+      toast('El motor principal falló, usé el de respaldo (esos videos pueden no descargarse en WhatsApp). Detalle: ' + ((e && e.message) || 'desconocido'), 'error', 10000);
+      vtoken += 1;
+    }
   }
   await cutVideoMediaRecorder();
 }
@@ -465,7 +472,7 @@ async function cutVideoWebCodecs() {
   const token = ++vtoken;
   vphase = 'cortando'; vprogress = 0; freeVideoSlides(); render();
 
-  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607052230');
+  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607060030');
   const cols2 = vcols, rows2 = vrows, n = cols2 * rows2;
   const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
   const sw2 = sw - (sw % 2), sh2 = sh - (sh % 2); // H.264 exige dimensiones pares
@@ -915,6 +922,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202607052230';
+  link.href = '/marketing/css/carrusel.css?v=202607060030';
   document.head.appendChild(link);
 }
