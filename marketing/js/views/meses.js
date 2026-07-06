@@ -26,10 +26,10 @@ import {
   el, clear, copyText,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607061400';
-import { icon } from '../shell/icons.js?v=202607061400';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607061400';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607061400';
+} from '../api.js?v=202607061600';
+import { icon } from '../shell/icons.js?v=202607061600';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607061600';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607061600';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -348,9 +348,12 @@ function saveNote(post, person, value) {
 // los re-renders de la tabla).
 
 let drawerEl = null;
+let drawerFlush = null; // guarda lo pendiente ANTES de cerrar (autosave)
 
 function closeCaptionDrawer() {
   if (!drawerEl) return;
+  try { if (drawerFlush) drawerFlush(); } catch { /* noop */ }
+  drawerFlush = null;
   try { drawerEl.remove(); } catch { /* noop */ }
   drawerEl = null;
   document.removeEventListener('keydown', onDrawerKeydown, true);
@@ -459,7 +462,8 @@ function openCaptionDrawer(post) {
         rows: 1,
       });
       ta.value = text || '';
-      ta.addEventListener('input', () => { slides[i] = ta.value; fit(ta); });
+      ta.addEventListener('input', () => { slides[i] = ta.value; fit(ta); scheduleSave(); });
+      ta.addEventListener('blur', () => flushSave());
       const hint = slideHint(i, slides.length);
       slidesHost.appendChild(el('section', { class: 'mdsec' }, [
         el('div', { class: 'mdsec__head' }, [
@@ -468,7 +472,7 @@ function openCaptionDrawer(post) {
           (i > 0 && i < slides.length - 1) ? el('button', {
             class: 'mdsec__copy', type: 'button', title: 'Quitar este slide',
             'aria-label': `Quitar slide ${i + 1}`,
-            onclick: () => { slides.splice(i, 1); alts.splice(i, 1); renderSlides(); renderAlts(); },
+            onclick: () => { slides.splice(i, 1); alts.splice(i, 1); renderSlides(); renderAlts(); scheduleSave(); },
           }, [icon('trash', 14)]) : null,
           el('button', {
             class: 'mdsec__copy', type: 'button', title: 'Copiar este slide',
@@ -486,7 +490,7 @@ function openCaptionDrawer(post) {
         onclick: () => {
           slides.splice(slides.length - 1, 0, '');
           alts.splice(alts.length - 1, 0, '');
-          renderSlides(); renderAlts();
+          renderSlides(); renderAlts(); scheduleSave();
         },
       }, [icon('plus', 15), ' Agregar slide']),
     ]));
@@ -505,7 +509,8 @@ function openCaptionDrawer(post) {
         rows: 1,
       });
       ta.value = text || '';
-      ta.addEventListener('input', () => { alts[i] = ta.value; fit(ta); });
+      ta.addEventListener('input', () => { alts[i] = ta.value; fit(ta); scheduleSave(); });
+      ta.addEventListener('blur', () => flushSave());
       altsHost.appendChild(el('section', { class: 'mdsec' }, [
         el('div', { class: 'mdsec__head' }, [
           el('span', { class: 'mdsec__lbl', text: `SEO ALT · SLIDE ${i + 1}` }),
@@ -513,7 +518,7 @@ function openCaptionDrawer(post) {
           i > 0 ? el('button', {
             class: 'mdsec__copy', type: 'button', title: 'Quitar este SEO alt',
             'aria-label': `Quitar SEO alt del slide ${i + 1}`,
-            onclick: () => { alts.splice(i, 1); renderAlts(); },
+            onclick: () => { alts.splice(i, 1); renderAlts(); scheduleSave(); },
           }, [icon('trash', 14)]) : null,
           el('button', {
             class: 'mdsec__copy', type: 'button', title: `Copiar SEO alt del slide ${i + 1}`,
@@ -528,7 +533,7 @@ function openCaptionDrawer(post) {
     altsHost.appendChild(el('div', { class: 'mdsec mdsec--add' }, [
       el('button', {
         class: 'btn meses-drawer__addslide', type: 'button',
-        onclick: () => { alts.push(''); renderAlts(); },
+        onclick: () => { alts.push(''); renderAlts(); scheduleSave(); },
       }, [icon('plus', 15), ' Agregar SEO alt']),
     ]));
   }
@@ -541,7 +546,8 @@ function openCaptionDrawer(post) {
       rows: 1,
     });
     ta.value = post[s.field] || '';
-    ta.addEventListener('input', () => { fit(ta); updateCount(s.field); });
+    ta.addEventListener('input', () => { fit(ta); updateCount(s.field); scheduleSave(); });
+    ta.addEventListener('blur', () => flushSave());
     tas[s.field] = ta;
     const withCount = s.field === 'caption' || s.field === 'hashtags';
     if (withCount) counters[s.field] = el('span', { class: 'mdsec__count' });
@@ -563,30 +569,52 @@ function openCaptionDrawer(post) {
   if (slidesHost) { renderSlides(); body.insertBefore(slidesHost, body.firstChild); }
   if (altsHost) { renderAlts(); body.appendChild(altsHost); }
 
-  const save = () => {
-    const patch = {}; const before = {};
-    for (const s of SECTIONS) {
-      const v = (tas[s.field].value || '').trim() || null;
-      const old = (post[s.field] || '').trim() || null;
-      if (v !== old) { patch[s.field] = v; before[s.field] = post[s.field] || null; }
-    }
+  // ── AUTOSAVE: se guarda solo (sin botón "Guardar"). Debounce 800ms al escribir
+  //    + al salir del campo + al cerrar. Indicador "Guardando…/Guardado ✓". ──
+  const indicatorEl = el('span', { class: 'meses-drawer__save meses-drawer__save--saved', text: 'Guardado ✓' });
+  const currentValues = () => {
+    const out = {};
+    for (const s of SECTIONS) out[s.field] = (tas[s.field].value || '').trim() || null;
     if (isCarrusel && slides) {
       const f = fieldsFromSlides(slides);
-      for (const k of ['hook', 'body', 'cta']) {
-        const v = f[k] || null;
-        const old = (post[k] || '').trim() || null;
-        if (v !== old) { patch[k] = v; before[k] = post[k] || null; }
-      }
-      const av = altsToText(alts) || null;
-      const aOld = (post.alt_text || '').trim() || null;
-      if (av !== aOld) { patch.alt_text = av; before.alt_text = post.alt_text || null; }
+      out.hook = f.hook || null; out.body = f.body || null; out.cta = f.cta || null;
+      out.alt_text = altsToText(alts) || null;
     }
-    closeCaptionDrawer();
-    if (Object.keys(patch).length) patchWithUndo(post, patch, before, 'Guion guardado.');
+    return out;
   };
+  const savedSnap = currentValues(); // lo ya guardado (base para calcular el delta)
+  let saveTimer = null, saving = false, queued = false;
+  const paint = (state) => {
+    indicatorEl.className = 'meses-drawer__save meses-drawer__save--' + state;
+    indicatorEl.textContent = (state === 'saving' || state === 'dirty') ? 'Guardando…'
+      : state === 'error' ? '⚠ No se guardó' : 'Guardado ✓';
+  };
+  async function doSave() {
+    if (saving) { queued = true; return; }
+    const cur = currentValues(); const patch = {};
+    for (const k of Object.keys(cur)) if (cur[k] !== savedSnap[k]) patch[k] = cur[k];
+    if (!Object.keys(patch).length) { paint('saved'); return; }
+    saving = true; paint('saving');
+    let ok = false;
+    try { ok = !!(await ctx.store.patchPost(post.id, patch)); } catch { ok = false; }
+    if (ok) { Object.assign(savedSnap, cur); paint('saved'); } else { paint('error'); }
+    saving = false;
+    if (queued) { queued = false; doSave(); }
+  }
+  const scheduleSave = () => {
+    paint('dirty');
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => { saveTimer = null; doSave(); }, 800);
+  };
+  const flushSave = () => {
+    if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+    doSave();
+  };
+  drawerFlush = flushSave;
 
+  // Cmd/Ctrl+Enter = guardar y cerrar (el cierre hace flush).
   body.addEventListener('keydown', (e) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); save(); }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); closeCaptionDrawer(); }
   });
 
   drawerEl = el('div', { class: 'meses-drawer__wrap', role: 'dialog', 'aria-modal': 'true', 'aria-label': `Guion de ${post.title || 'contenido'}` }, [
@@ -609,10 +637,9 @@ function openCaptionDrawer(post) {
         el('button', { class: 'btn meses-drawer__copybtn', type: 'button', title: 'HOOK, BODY y CTA etiquetados', onclick: copyScriptAll }, [icon('copy', 14), 'Copiar guion completo']),
       ]),
       el('footer', { class: 'meses-drawer__foot' }, [
-        el('span', { class: 'meses-drawer__hint', text: 'Cmd+Enter guarda · Esc cierra' }),
+        indicatorEl,
         el('div', { class: 'meses-drawer__actions' }, [
-          el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => closeCaptionDrawer() }),
-          el('button', { class: 'btn btn-primary', type: 'button', text: 'Guardar', onclick: save }),
+          el('button', { class: 'btn btn-primary', type: 'button', text: 'Listo', onclick: () => closeCaptionDrawer() }),
         ]),
       ]),
     ]),
