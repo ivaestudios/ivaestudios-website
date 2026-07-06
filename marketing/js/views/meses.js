@@ -26,10 +26,10 @@ import {
   el, clear, copyText,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607061600';
-import { icon } from '../shell/icons.js?v=202607061600';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607061600';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607061600';
+} from '../api.js?v=202607061801';
+import { icon } from '../shell/icons.js?v=202607061801';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607061801';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607061801';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1499,14 +1499,15 @@ function sortPrefKey() {
 function getSort() {
   const k = sortPrefKey();
   if (sortSession.has(k)) return sortSession.get(k);
-  const s = ctx.prefs.get(k, null);
-  return (s && s.key) ? { key: s.key, dir: s.dir === 'desc' ? 'desc' : 'asc' } : { key: 'date', dir: 'asc' };
+  // Por defecto SIEMPRE por fecha de publicacion (dia 1 -> 31). El orden que
+  // elijas (o el arrastre manual) dura mientras estas en la vista; al recargar
+  // el calendario vuelve a abrir ordenado por fecha.
+  return { key: 'date', dir: 'asc' };
 }
 
 function setSort(key, dir) {
   const v = { key, dir: dir === 'desc' ? 'desc' : 'asc' };
-  sortSession.set(sortPrefKey(), v);
-  ctx.prefs.set(sortPrefKey(), v);
+  sortSession.set(sortPrefKey(), v);  // solo en esta sesion; el default al abrir es fecha
 }
 
 // Menu de columna estilo Excel: ordenar (segun la columna) + filtrar (si aplica).
