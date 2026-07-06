@@ -3,7 +3,7 @@
 //
 // Permite que Claude chat (un proyecto por marca) GESTIONE el calendario de
 // contenido de cada marca: LEER, CREAR y EDITAR posts/guiones (copy, captions,
-// hook/cuerpo/CTA, hashtags, fecha de publicación, tipo y estado).
+// hook/cuerpo/CTA, hashtags, links de inspiración y video, fecha de publicación, tipo y estado).
 //
 // Transporte: "Streamable HTTP" sin estado (lo que pide claude.ai hoy).
 //   - POST  -> mensajes JSON-RPC 2.0 (initialize / tools/list / tools/call...).
@@ -43,6 +43,20 @@ const MIN_TOKEN_LEN = 32;
 // Campos de texto editables (guion + copy) — se recortan a MAX_FIELD.
 const TEXT_FIELDS = ['title', 'hook', 'body', 'cta', 'caption', 'hashtags', 'alt_text'];
 
+// Normaliza un campo URL (inspo/video). Tolera links sin protocolo (les pone https://).
+// { skip:true } = no enviado (no tocar) · { value:null } = vaciar · { value } = URL válida · { err:true } = inválida.
+function normUrl(v) {
+  if (v == null) return { skip: true };
+  let raw = String(v).trim();
+  if (raw === '') return { value: null };
+  if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw;
+  try {
+    const u = new URL(raw);
+    if (u.protocol === 'http:' || u.protocol === 'https:') return { value: u.href };
+  } catch { /* inválida */ }
+  return { err: true };
+}
+
 // ── Definición de las herramientas que ve Claude ─────────────────────────────
 const POST_FIELDS_SCHEMA = {
   title: { type: 'string', description: 'Título corto del contenido.' },
@@ -55,6 +69,8 @@ const POST_FIELDS_SCHEMA = {
   caption: { type: 'string', description: 'COPY / caption final para publicar.' },
   hashtags: { type: 'string', description: 'Hashtags.' },
   alt_text: { type: 'string', description: 'Texto alternativo (SEO alt) de la imagen. En carruseles, un alt por slide como "Slide 1 — texto" separados por línea en blanco.' },
+  inspo_url: { type: 'string', description: 'Link de INSPIRACIÓN/referencia (columna "Inspo"): URL del reel o tendencia en que se basa el contenido. Cadena vacía para quitarlo.' },
+  video_url: { type: 'string', description: 'Link del VIDEO / asset final (columna "Video final"): URL del video. Cadena vacía para quitarlo.' },
   platform: { type: 'string', enum: PLATFORMS, description: 'Plataforma (default Instagram).' },
   grabacion: { type: 'integer', description: 'Prioridad de grabación 1-5 (1 = más urgente).' },
 };
@@ -89,7 +105,7 @@ const TOOLS = [
   },
   {
     name: 'create_post',
-    description: 'Crea un post/guion NUEVO en el calendario. El guion se separa en hook, body (cuerpo), cta, caption (copy final) y hashtags. La fecha (publish_date o month) lo ubica en el mes. Si el conector está fijado a una marca, NO hace falta indicar brand.',
+    description: 'Crea un post/guion NUEVO en el calendario. El guion se separa en hook, body (cuerpo), cta, caption (copy final) y hashtags. También puedes poner el link de inspiración/referencia (inspo_url) y el link del video/asset final (video_url). La fecha (publish_date o month) lo ubica en el mes. Si el conector está fijado a una marca, NO hace falta indicar brand.',
     inputSchema: {
       type: 'object',
       additionalProperties: false,
@@ -98,7 +114,7 @@ const TOOLS = [
   },
   {
     name: 'update_post',
-    description: 'EDITA un post que YA existe (por su ID, que obtienes con list_posts): rellenar/cambiar el caption (copy), el guion (hook/body/cta), hashtags, la fecha de publicación, el tipo o el estado. Solo cambia los campos que envíes; los demás quedan igual. Ideal para "rellenar los captions que faltan" o "cambiar la fecha de este post".',
+    description: 'EDITA un post que YA existe (por su ID, que obtienes con list_posts): rellenar/cambiar el caption (copy), el guion (hook/body/cta), hashtags, el link de inspiración (inspo_url), el link del video/asset (video_url), la fecha de publicación, el tipo o el estado. Solo cambia los campos que envíes; los demás quedan igual. Ideal para "rellenar los captions que faltan", "ponle el link de inspiración a estos posts" o "cambiar la fecha de este post".',
     inputSchema: {
       type: 'object',
       additionalProperties: false,
@@ -267,6 +283,12 @@ async function createPost(env, scope, args) {
   for (const f of ['caption', 'hook', 'body', 'cta', 'hashtags', 'alt_text']) {
     if (args[f] != null && String(args[f]) !== '') { cols.push(f); vals.push(clip(args[f])); }
   }
+  for (const f of ['inspo_url', 'video_url']) {
+    if (args[f] == null || String(args[f]).trim() === '') continue;
+    const u = normUrl(args[f]);
+    if (u.err) return toolErr(`${f} debe ser una URL válida (ej. https://...).`);
+    cols.push(f); vals.push(u.value);
+  }
   const placeholders = cols.map(() => '?').join(', ');
   await env.DB.prepare(`INSERT INTO mkt_posts (${cols.join(', ')}) VALUES (${placeholders})`).bind(...vals).run();
   logActivity(env, brand.id, id, 'post.create', title.slice(0, 140));
@@ -308,6 +330,10 @@ async function getPost(env, scope, args) {
     `HASHTAGS:\n${S(p.hashtags)}`,
     '',
     `SEO ALT:\n${S(p.alt_text)}`,
+    '',
+    `INSPO (link de referencia):\n${S(p.inspo_url)}`,
+    '',
+    `VIDEO (link del asset final):\n${S(p.video_url)}`,
   ].join('\n'));
 }
 
@@ -357,8 +383,14 @@ async function updatePost(env, scope, args) {
   for (const f of ['caption', 'hook', 'body', 'cta', 'hashtags', 'alt_text']) {
     if (args[f] != null) { sets.push(`${f} = ?`); vals.push(String(args[f]) === '' ? null : clip(args[f])); changed.push(f === 'caption' ? 'copy/caption' : f); }
   }
+  for (const f of ['inspo_url', 'video_url']) {
+    if (args[f] == null) continue;
+    const u = normUrl(args[f]);
+    if (u.err) return toolErr(`${f} debe ser una URL válida (ej. https://...), o vacío para quitarlo.`);
+    sets.push(`${f} = ?`); vals.push(u.value); changed.push(f === 'inspo_url' ? 'inspo (referencia)' : 'video (asset)');
+  }
 
-  if (!sets.length) return toolErr('No diste ningún campo para actualizar (caption, hook, body, cta, hashtags, publish_date, status, tipo…).');
+  if (!sets.length) return toolErr('No diste ningún campo para actualizar (caption, hook, body, cta, hashtags, inspo_url, video_url, publish_date, status, tipo…).');
   sets.push("updated_at = datetime('now')");
   vals.push(postId);
   await env.DB.prepare(`UPDATE mkt_posts SET ${sets.join(', ')} WHERE id = ?`).bind(...vals).run();
@@ -395,7 +427,7 @@ async function rpc(msg, env, scope) {
       return rpcOk(id, {
         protocolVersion,
         capabilities: { tools: { listChanged: false } },
-        serverInfo: { name: 'IVAE Marketing', version: '1.3.0' },
+        serverInfo: { name: 'IVAE Marketing', version: '1.4.0' },
         instructions: 'Conector del calendario de contenido de IVAE Marketing. Flujo típico: usa list_posts para ver los posts del mes (cada uno trae su ID y si le FALTA caption); usa get_post con ese ID para LEER el guion/caption completo de un post antes de revisarlo o mejorarlo; usa update_post para rellenar/cambiar el copy/caption o el guion (hook/body/cta), la fecha o el estado de un post existente; usa create_post para piezas nuevas. El guion se separa en hook, body (cuerpo), cta, caption (copy final) y hashtags. Para planear/AGREGAR el mes siguiente, simplemente crea los posts con la fecha de ese mes (parámetro month=AAAA-MM o publish_date=AAAA-MM-DD): el mes aparece solo en el calendario, no hace falta "agregar mes" por separado.' + extra,
       });
     }
