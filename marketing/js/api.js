@@ -184,6 +184,7 @@ export function initials(name = '') {
 // content_type: key → { label, color }
 export const CONTENT_TYPES = {
   reel:         { label: 'Reel',                  color: '#64748b' },
+  post:         { label: 'Post',                  color: '#0d9488' },
   tiktok:       { label: 'TikTok',                color: '#a16207' },
   informativo:  { label: 'Informativo',           color: '#2563eb' },
   carrusel:     { label: 'Carrusel',              color: '#7c3aed' },
@@ -193,7 +194,7 @@ export const CONTENT_TYPES = {
   historia:     { label: 'Historia',              color: '#0ea5e9' },
   foto:         { label: 'Foto',                  color: '#475569' },
 };
-export const CONTENT_TYPE_ORDER = ['reel','tiktok','informativo','carrusel','experiencia','pauta','tratamientos','historia','foto'];
+export const CONTENT_TYPE_ORDER = ['reel','post','tiktok','informativo','carrusel','experiencia','pauta','tratamientos','historia','foto'];
 
 // status: key → { order, label, color }  (pipeline order)
 export const STATUSES = {

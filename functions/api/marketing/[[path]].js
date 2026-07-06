@@ -240,7 +240,7 @@ const POST_RETURN_FIELDS = [
 // `overdue` is server-managed: NEVER editable over HTTP.
 const POST_V2_FIELDS = ['priority', 'assignee_user_id', 'overdue', 'work_start', 'effort_points'];
 
-const CONTENT_TYPES = ['reel', 'tiktok', 'informativo', 'carrusel', 'experiencia', 'pauta', 'tratamientos', 'historia', 'foto'];
+const CONTENT_TYPES = ['reel', 'post', 'tiktok', 'informativo', 'carrusel', 'experiencia', 'pauta', 'tratamientos', 'historia', 'foto'];
 const STATUSES = ['idea', 'guion', 'grabacion', 'edicion', 'revision', 'aprobado', 'programado', 'publicado'];
 const PLATFORMS = ['Instagram', 'TikTok', 'Facebook', 'YouTube', 'LinkedIn'];
 const PRIORITIES = ['baja', 'media', 'alta', 'urgente'];
