@@ -1,18 +1,8 @@
-# ─────────────────────────────────────────────────────────────────────
-# SECURITY: hide internal/dev files from public serving (they are in the
-# Pages deploy dir but must not be reachable). Return the 404 page so they
-# read as non-existent. Placed FIRST so they are always honored (Cloudflare
-# only applies the earliest ~N rules; first-match wins). Added 2026-07-03
-# after finding /CLAUDE.md (gmail, CF account_id, GBP coords), seo/, scripts/,
-# gallery/schema.sql, .github/ all returning 200.
-/CLAUDE.md            /404.html  404
-/netlify.toml         /404.html  404
-/seo/*                /404.html  404
-/scripts/*            /404.html  404
-/.github/*            /404.html  404
-/gallery/README.md    /404.html  404
-/gallery/schema.sql   /404.html  404
-/gallery/migrations/* /404.html  404
+# NOTE: to hide internal dev files (/CLAUDE.md, /seo/*, etc.) _redirects does
+# NOT work — Cloudflare Pages serves an EXISTING static file directly and never
+# consults _redirects for it. Indexing is blocked via X-Robots-Tag in _headers;
+# a full access-block needs a Functions _middleware (routes all traffic through
+# a Worker) — deferred to avoid risk to the live gallery/marketing APIs.
 
 # Gallery share-token URLs `/gallery/g/{token}` are handled by the
 # Pages Function at functions/gallery/g/[token].js — kept out of _redirects

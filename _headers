@@ -14,6 +14,28 @@
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
 
+# SECURITY: keep internal/dev files OUT of search engines. They are in the
+# Pages deploy dir and served with 200 (Cloudflare Pages serves existing files
+# directly; _redirects can't 404 them). X-Robots-Tag DOES apply to served
+# assets, so at minimum these never get indexed / surfaced in Google or by AI
+# crawlers. (Full access-block would need a Functions _middleware.) 2026-07-03.
+/CLAUDE.md
+  X-Robots-Tag: noindex, nofollow
+/netlify.toml
+  X-Robots-Tag: noindex, nofollow
+/seo/*
+  X-Robots-Tag: noindex, nofollow
+/scripts/*
+  X-Robots-Tag: noindex, nofollow
+/.github/*
+  X-Robots-Tag: noindex, nofollow
+/gallery/README.md
+  X-Robots-Tag: noindex, nofollow
+/gallery/schema.sql
+  X-Robots-Tag: noindex, nofollow
+/gallery/migrations/*
+  X-Robots-Tag: noindex, nofollow
+
 # Language signal for the Spanish mirror. Google consolidated the /es/ pages
 # into their EN counterparts (legacy of the pre-localization clones, sticky
 # canonical choice); the explicit Content-Language header is one more
