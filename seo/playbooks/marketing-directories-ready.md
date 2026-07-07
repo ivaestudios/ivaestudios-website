@@ -28,7 +28,7 @@ Spanish copy in Mexican forms, zero em-dashes anywhere in the body.
 | Founder title | Founder & Creative Director |
 | Business email | info@ivaestudios.com |
 | New business email | info@ivaestudios.com (partnerships@ alias once provisioned) |
-| Phone / WhatsApp | +52 990 204 6514 = WhatsApp (REAL, confirmed); calls/GBP line = +52 228 857 0584. Use 228 as the "phone" field for NAP consistency, 990 only for WhatsApp fields |
+| Phone / WhatsApp | +52 998 758 2363 = WhatsApp (REAL, confirmed); calls/GBP line = +52 998 758 2363. Use 228 as the "phone" field for NAP consistency, 990 only for WhatsApp fields |
 | Website | https://ivaestudios.com/social-media-management |
 | Spanish website | https://ivaestudios.com/es/manejo-redes-sociales |
 | Instagram (agency) | @ivae.marketing |

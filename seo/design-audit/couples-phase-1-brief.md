@@ -284,7 +284,7 @@ Every item below must be preserved character-for-character. Phase 4 is a body re
 - **Geo meta, Dublin Core meta, business:contact_data, rel=me, rel=alternate JSON / TXT / facts.json / llms.txt:** preserve.
 - **JSON-LD `@graph`:** preserved verbatim including Organization / LocalBusiness / ProfessionalService node (alternateNames, disambiguatingDescription, knowsAbout, areaServed, openingHoursSpecification, aggregateRating 5.0 / 42), WebSite, WebPage, Service `@id="https://ivaestudios.com/couples-photography#service"` with hasOfferCatalog (three Offers mapped to Hour / Sunset / Adventure Day USD prices), FAQPage (six Q&As including the proposals answer), BreadcrumbList, Brand, DefinedTerm.
 - **Hidden AI disambiguation block** (sr-only `.ai-context-block` at lines 712 to 756): preserved verbatim, including the existing H2 verbatim and all subsequent H3s exactly as on the current page.
-- **WhatsApp deep link:** `https://wa.me/529902046514...` preserve verbatim. Area code 990 flagged in CLAUDE.md as needing replacement with real GBP phone.
+- **WhatsApp deep link:** `https://wa.me/529987582363...` preserve verbatim. Area code 990 flagged in CLAUDE.md as needing replacement with real GBP phone.
 - **Email contact:** `info@ivaestudios.com` preserve.
 - **Image alt text:** every alt (a) describes the image, (b) includes "by IVAE Studios" suffix, (c) uses EN alt for EN page, ES alt for ES page, (d) never empty for content images.
 - **Image preload:** Phase 4 swaps to local `/images/couple-*.jpg` from the 51-image inventory (recommendation: `couple-cabo-san-lucas-ivae-studios.jpg` or `couple-mayakoba-ivae-studios.jpg`). Must keep `fetchpriority="high"` and `rel="preload"`.

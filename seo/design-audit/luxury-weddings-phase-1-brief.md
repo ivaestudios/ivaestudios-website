@@ -794,7 +794,7 @@ Before Phase 4 build proceeds, Vianey should confirm:
 
 7. **Real Vianey direct quote for manifesto?** The rushed preview attributes a quote to Vianey: *"Luxury is not louder. It is quieter, slower, more deliberate."* This is fine as a *paraphrase of her studio philosophy* but the owner should confirm the exact quote (or provide her own in 25-40 words) for the manifesto attribution.
 
-8. **CTA recipient (WhatsApp + email)?** Current page uses `wa.me/529902046514` — but `CLAUDE.md` notes the phone is a Mexican-impossible area code (990). Phase 4 should NOT change the URL until Vianey provides the real WhatsApp number. Same for `info@ivaestudios.com` vs `info@ivaestudios.com` — the JSON-LD says `hello@`, the current page CTA goes to `info@`. Inconsistent. Confirm.
+8. **CTA recipient (WhatsApp + email)?** Current page uses `wa.me/529987582363` — but `CLAUDE.md` notes the phone is a Mexican-impossible area code (990). Phase 4 should NOT change the URL until Vianey provides the real WhatsApp number. Same for `info@ivaestudios.com` vs `info@ivaestudios.com` — the JSON-LD says `hello@`, the current page CTA goes to `info@`. Inconsistent. Confirm.
 
 9. **Animation budget?** Phase 4 plans 12-16 animations. The owner should confirm the 44-animation rushed preview is too far in the wrong direction. A 10-animation Direction A or 14-animation Direction B is the contract.
 

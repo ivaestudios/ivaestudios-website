@@ -158,7 +158,7 @@ provides. Empirically verified.
 ### Pending after this session
 
 **Tier 0 (needs real data from Vianey):**
-- Real GBP phone (`+52 990 204 6514` is invalid area code)
+- Real GBP phone (`+52 998 758 2363` is invalid area code)
 - Real GBP coordinates (Cancún vs Riviera Maya pin)
 - Real aggregate rating + review count (currently 5.0 / 42 placeholder)
 - Real session pricing (currently $650-$3,500 placeholder)
@@ -282,7 +282,7 @@ sitemaps, AI manifests:
 
 These are the hard blockers no agent can resolve without human input or
 external account access:
-1. Phone `+52 990 204 6514` (invalid area code, 77 schema instances)
+1. Phone `+52 998 758 2363` (invalid area code, 77 schema instances)
 2. GBP coordinates / single canonical address
 3. **Cloudflare Turnstile sitekey** in `marketing-intake.html` (currently
    the placeholder `0x4AAAAAAA_PLACEHOLDER_REPLACE_IN_DASHBOARD`) +
@@ -729,7 +729,7 @@ Next autonomous run: **every Monday 9:08 AM local** (cron `7 9 * * 1`).
 
 ## Contact (last user-confirmed details)
 
-- Phone: +52 990 204 6514 (verify before use — has been flagged as impossible area code)
+- Phone: +52 998 758 2363 (verify before use — has been flagged as impossible area code)
 - Email: info@ivaestudios.com
 - Instagram: @ivaestudios.cancun
 - GBP / Google Maps: https://maps.app.goo.gl/aX7jiVbLzwurMmX19

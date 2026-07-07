@@ -587,7 +587,7 @@ function buildClientConfirmationHtml(f, firstName) {
                 ¿Algo urgente?
               </p>
               <p style="font-family:'Outfit',sans-serif;font-size:15px;line-height:1.6;color:#f0eee9;margin:0;">
-                Escríbenos directamente a <a href="mailto:info@ivaestudios.com" style="color:#c4b5fd;text-decoration:none;font-weight:500;border-bottom:1px solid rgba(167,139,250,0.4);">info@ivaestudios.com</a> o por <a href="https://wa.me/529902046514" style="color:#c4b5fd;text-decoration:none;font-weight:500;border-bottom:1px solid rgba(167,139,250,0.4);">WhatsApp</a>.
+                Escríbenos directamente a <a href="mailto:info@ivaestudios.com" style="color:#c4b5fd;text-decoration:none;font-weight:500;border-bottom:1px solid rgba(167,139,250,0.4);">info@ivaestudios.com</a> o por <a href="https://wa.me/529987582363" style="color:#c4b5fd;text-decoration:none;font-weight:500;border-bottom:1px solid rgba(167,139,250,0.4);">WhatsApp</a>.
               </p>
             </td>
           </tr>
@@ -661,7 +661,7 @@ DÍA 14
 
 ¿Algo urgente?
   Email:    info@ivaestudios.com
-  WhatsApp: https://wa.me/529902046514
+  WhatsApp: https://wa.me/529987582363
 
 Un abrazo,
 Equipo de IVAE Marketing

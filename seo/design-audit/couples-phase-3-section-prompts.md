@@ -1054,8 +1054,8 @@ track?.addEventListener('pointercancel', () => { isDown = false; });
 
     <div class="lc-inquiry-ctas" role="group" aria-label="Inquiry actions">
       <a class="lc-btn lc-btn--primary" href="mailto:info@ivaestudios.com?subject=Couples%20Inquiry" data-magnet="true">Begin Inquiry</a>
-      <a class="lc-btn lc-btn--ghost lc-btn--proposal" href="https://wa.me/529902046514?text=Proposal%20availability%20inquiry" data-magnet="true">Check Proposal Availability</a>
-      <a class="lc-btn lc-btn--text" href="https://wa.me/529902046514">WhatsApp the Studio</a>
+      <a class="lc-btn lc-btn--ghost lc-btn--proposal" href="https://wa.me/529987582363?text=Proposal%20availability%20inquiry" data-magnet="true">Check Proposal Availability</a>
+      <a class="lc-btn lc-btn--text" href="https://wa.me/529987582363">WhatsApp the Studio</a>
     </div>
 
     <dl class="lc-inquiry-meta" role="group" aria-label="Studio response details">

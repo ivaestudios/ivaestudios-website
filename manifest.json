@@ -18,7 +18,7 @@
   ],
   "shortcuts": [
     {"name": "Begin Inquiry", "short_name": "Inquiry", "description": "Start a session inquiry", "url": "/?utm_source=pwa#inquiry", "icons": [{"src": "/icon-192.png", "sizes": "192x192"}]},
-    {"name": "WhatsApp", "short_name": "WhatsApp", "description": "Message the studio on WhatsApp", "url": "https://wa.me/529902046514?text=Hola%20IVAE", "icons": [{"src": "/icon-192.png", "sizes": "192x192"}]},
+    {"name": "WhatsApp", "short_name": "WhatsApp", "description": "Message the studio on WhatsApp", "url": "https://wa.me/529987582363?text=Hola%20IVAE", "icons": [{"src": "/icon-192.png", "sizes": "192x192"}]},
     {"name": "Journal", "short_name": "Journal", "description": "Read the editorial journal", "url": "/blog", "icons": [{"src": "/icon-192.png", "sizes": "192x192"}]}
   ],
   "screenshots": [],

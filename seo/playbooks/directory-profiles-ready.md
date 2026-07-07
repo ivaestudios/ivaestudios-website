@@ -19,7 +19,7 @@ slogan, Mexican Spanish where applicable.
 | Founder | Vianey Díaz |
 | Founder title | Creative Director & Lead Photographer |
 | Email | info@ivaestudios.com |
-| Phone / WhatsApp | WhatsApp: +52 990 204 6514 (REAL, confirmed). Phone/calls for NAP: +52 228 857 0584 (matches GBP). Use 228 in "phone" fields, 990 only for WhatsApp |
+| Phone / WhatsApp | WhatsApp: +52 998 758 2363 (REAL, confirmed). Phone/calls for NAP: +52 998 758 2363 (matches GBP). Use 228 in "phone" fields, 990 only for WhatsApp |
 | Website | https://ivaestudios.com |
 | Instagram | @ivaestudios.cancun |
 | Instagram URL | https://instagram.com/ivaestudios.cancun |
@@ -519,7 +519,7 @@ splits the entity in AI knowledge graphs.
 | Business name | IVAE Studios |
 | Founder | Vianey Díaz |
 | Address line | Cancún, Quintana Roo 77500, México |
-| Phone | +52 228 857 0584 (calls, matches GBP — canonical NAP phone); WhatsApp: +52 990 204 6514 (real, confirmed) |
+| Phone | +52 998 758 2363 (calls, matches GBP — canonical NAP phone); WhatsApp: +52 998 758 2363 (real, confirmed) |
 | Email | info@ivaestudios.com |
 | Website | https://ivaestudios.com (with the `s`, plural) |
 | Instagram handle | @ivaestudios.cancun |

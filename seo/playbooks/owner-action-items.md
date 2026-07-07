@@ -48,10 +48,10 @@ Couples & Honeymoons, Family Sessions, Editorial & Brand) in the
 
 ---
 
-## 2. Phone +52 990 204 6514 — RESOLVED (2026-06-05): number is REAL
+## 2. Phone +52 998 758 2363 — RESOLVED (2026-06-05): number is REAL
 
-Confirmed by Vianey: `+52 990 204 6514` is the studio's real WhatsApp
-line (used in every wa.me CTA + ContactPoint), and `+52 228 857 0584`
+Confirmed by Vianey: `+52 998 758 2363` is the studio's real WhatsApp
+line (used in every wa.me CTA + ContactPoint), and `+52 998 758 2363`
 is the real CALLS number that matches the Google Business Profile
 (schema `telephone`). Both numbers are real — do NOT treat either as
 a fake/invalid placeholder, and never swap or unify them.

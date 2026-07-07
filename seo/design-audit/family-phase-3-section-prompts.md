@@ -922,7 +922,7 @@ document.querySelectorAll('.lf-reel-track').forEach((track) => {
   <p class="lf-inquiry-body">Share the dates, the resort, the ages of the kids, and a sentence about the milestone if there is one. The studio responds the same business day, in English or Spanish, with one or two questions and a calendar link. The first reply will come from the Director. If the family would rather speak first, the WhatsApp button below is the fastest way to reach the studio.</p>
   <div class="lf-inquiry-ctas">
     <a class="btn btn-primary" href="mailto:info@ivaestudios.com?subject=Family%20session%20inquiry" data-magnet>Begin Inquiry</a>
-    <a class="btn btn-ghost" href="https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20family%20photo%20session.%20Please%20send%20a%20calendar%20invite." target="_blank" rel="noopener">Send a Calendar Invite</a>
+    <a class="btn btn-ghost" href="https://wa.me/529987582363?text=Hello%2C%20I%27d%20like%20to%20book%20a%20family%20photo%20session.%20Please%20send%20a%20calendar%20invite." target="_blank" rel="noopener">Send a Calendar Invite</a>
   </div>
   <dl class="lf-inquiry-meta" role="group" aria-label="Studio response details">
     <div><dt>Response Time</dt><dd>Same business day</dd></div>
