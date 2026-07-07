@@ -10,12 +10,12 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607061801';
-import * as store from './store.js?v=202607061801';
-import { openSheet } from './sheet.js?v=202607061801';
-import { toast } from './toast.js?v=202607061801';
-import { icon } from './icons.js?v=202607061801';
-import { openClientSwitcher } from './clientswitcher.js?v=202607061801';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607070047';
+import * as store from './store.js?v=202607070047';
+import { openSheet } from './sheet.js?v=202607070047';
+import { toast } from './toast.js?v=202607070047';
+import { icon } from './icons.js?v=202607070047';
+import { openClientSwitcher } from './clientswitcher.js?v=202607070047';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -51,8 +51,12 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
 
   const tabsWrap = el('nav', { class: 'tb-tabs', 'aria-label': 'Vistas' });
   const tabBtns = new Map();
-  // El cliente solo ve las dos vistas de calendario.
-  const visibleTabs = isClient ? DESKTOP_TABS.filter((t) => t.id === 'meses' || t.id === 'calendario' || t.id === 'entregables') : DESKTOP_TABS;
+  // El cliente solo ve las vistas de calendario (+ Métricas si es IVAE STUDIOS).
+  const IVAE_STUDIOS_CLIENT_ID = '6ae5dd2381faa430d9e6966470b29602';
+  const isIvaeStudiosClient = isClient && ((store.getState().me || {}).client_id === IVAE_STUDIOS_CLIENT_ID);
+  const visibleTabs = isClient
+    ? DESKTOP_TABS.filter((t) => t.id === 'meses' || t.id === 'calendario' || t.id === 'entregables' || (t.id === 'metricas' && isIvaeStudiosClient))
+    : DESKTOP_TABS;
   for (const t of visibleTabs) {
     const b = el('button', {
       class: 'tb-tab', type: 'button', text: t.label,

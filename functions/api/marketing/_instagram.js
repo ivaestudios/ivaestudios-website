@@ -38,11 +38,17 @@ const redirectUri = (request) => new URL('/api/marketing/ig/callback', request.u
 
 // GET /ig/login?client_id=… (staff) → redirige a Instagram OAuth
 export async function handleIgLogin(request, env, session, url) {
-  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  // Métricas/conexión de IG habilitada en la versión CLIENTE solo para IVAE
+  // STUDIOS (su propia marca). Los demás clientes siguen bloqueados.
+  const IVAE_STUDIOS_CLIENT_ID = '6ae5dd2381faa430d9e6966470b29602';
+  if (session.role === 'client' && session.client_id !== IVAE_STUDIOS_CLIENT_ID) {
+    return json({ error: 'Forbidden' }, 403);
+  }
   if (!env.META_APP_ID || !env.META_APP_SECRET) {
     return json({ error: 'Falta configurar la app de Meta (META_APP_ID y META_APP_SECRET en Cloudflare Pages).' }, 503);
   }
-  const clientId = url.searchParams.get('client_id') || '';
+  // El cliente solo puede conectar SU propia marca (no puede pasar otro client_id).
+  const clientId = session.role === 'client' ? session.client_id : (url.searchParams.get('client_id') || '');
   const client = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(clientId).first();
   if (!client) return json({ error: 'Cliente no encontrado' }, 404);
 

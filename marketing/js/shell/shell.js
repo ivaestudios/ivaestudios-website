@@ -19,27 +19,32 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202607061801';
-import * as store from './store.js?v=202607061801';
-import * as prefs from './prefs.js?v=202607061801';
-import * as router from './router.js?v=202607061801';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607061801';
-import { toast } from './toast.js?v=202607061801';
-import { icon } from './icons.js?v=202607061801';
-import * as iconsMod from './icons.js?v=202607061801';
-import { createTopbar } from './topbar.js?v=202607061801';
-import { createBottomNav } from './bottomnav.js?v=202607061801';
-import { createSearch } from './search.js?v=202607061801';
-import { createNotifications } from './notifications.js?v=202607061801';
-import * as pickers from '../ui/pickers.js?v=202607061801';
-import * as dnd from '../ui/dnd.js?v=202607061801';
+import { api, el } from '../api.js?v=202607070047';
+import * as store from './store.js?v=202607070047';
+import * as prefs from './prefs.js?v=202607070047';
+import * as router from './router.js?v=202607070047';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607070047';
+import { toast } from './toast.js?v=202607070047';
+import { icon } from './icons.js?v=202607070047';
+import * as iconsMod from './icons.js?v=202607070047';
+import { createTopbar } from './topbar.js?v=202607070047';
+import { createBottomNav } from './bottomnav.js?v=202607070047';
+import { createSearch } from './search.js?v=202607070047';
+import { createNotifications } from './notifications.js?v=202607070047';
+import * as pickers from '../ui/pickers.js?v=202607070047';
+import * as dnd from '../ui/dnd.js?v=202607070047';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
 // El cliente solo ve las vistas de calendario (Calendario = meses,
 // Cuadrícula = calendario). Nada de Inicio/Tablero/Tabla/Timeline/Carga.
 const CLIENT_VIEWS = ['meses', 'calendario', 'entregables'];
+// Métricas se habilita en la versión CLIENTE solo para IVAE STUDIOS (su propia
+// marca) para su reporte de Instagram; el resto de clientes no la ve.
+const IVAE_STUDIOS_CLIENT_ID = '6ae5dd2381faa430d9e6966470b29602';
 const isClientRole = () => ((store.getState().me || {}).role === 'client');
+const clientCanView = (view) => CLIENT_VIEWS.includes(view)
+  || (view === 'metricas' && ((store.getState().me || {}).client_id === IVAE_STUDIOS_CLIENT_ID));
 const CONTENT_LABELS = {
   meses: 'Calendario',
   calendario: 'Cuadrícula',
@@ -331,7 +336,7 @@ export async function boot() {
     onBeforeMount(view, params, { paramsOnly }) {
       // El cliente solo entra a las vistas de calendario (+ editor de post via
       // deep-link). Cualquier otra vista lo regresa a su Calendario.
-      if (isClientRole() && !CLIENT_VIEWS.includes(view) && view !== 'post') {
+      if (isClientRole() && !clientCanView(view) && view !== 'post') {
         router.navigate('meses', params.cliente ? { cliente: params.cliente } : {});
         return;
       }
