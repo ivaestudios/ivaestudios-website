@@ -53,6 +53,19 @@ Herramientas que expone (5):
    completa (`https://ivaestudios.com/api/mcp/<token>`) → Conectar. No pide OAuth.
 3. Probar en un chat nuevo: "dime qué posts de Meli en julio no tienen caption".
 
+## Si Claude NO ve una tool o un campo nuevo (refrescar el schema)
+
+claude.ai **cachea la lista de herramientas** cuando el conector se conecta y NO
+la vuelve a bajar con un "refresh" dentro del chat ni al abrir un chat nuevo. Si
+agregas/cambias una tool o un campo (y el server ya lo expone — verifícalo con el
+curl de abajo), hay que forzar que claude.ai reinicie la conexión:
+
+- **Fix seguro:** claude.ai → Ajustes → Conectores → quitar "IVAE Marketing" y
+  volver a agregarlo con la misma capability URL. Al reconectar re-baja tools/list
+  y ya ve los campos nuevos.
+- Ojo: `serverInfo.version` sí cambia en `initialize` (curl lo confirma), pero por
+  sí solo NO hace que claude.ai refresque; necesita la reconexión.
+
 ## Prueba de salud rápida (curl)
 
 ```bash
@@ -60,7 +73,7 @@ TOKEN=<token de mkt_mcp_keys>
 curl -s -X POST "https://ivaestudios.com/api/mcp/$TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
-# Debe devolver las 5 herramientas. initialize debe reportar version 1.3.0.
+# Debe devolver las 5 herramientas. initialize debe reportar version 1.4.0.
 ```
 
 ## Historial
@@ -73,3 +86,7 @@ curl -s -X POST "https://ivaestudios.com/api/mcp/$TOKEN" \
   cuando una clave fijada pide otra marca. Se eliminó el conector duplicado muerto
   en claude.ai (causa de "no me deja trabajar"). Probado end-to-end (Meli):
   listar, leer, crear, editar, por capability URL y por OAuth Bearer.
+- 2026-07-06: v1.4.0 — create_post/update_post ahora aceptan `inspo_url` (columna
+  "Inspo") y `video_url` ("Video final"); get_post los muestra. Verificado con
+  tools/list en vivo. RECORDATORIO: reconectar el conector en claude.ai para que
+  vea los campos nuevos (cachea tools/list).
