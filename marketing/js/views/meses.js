@@ -26,10 +26,10 @@ import {
   el, clear, copyText,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607070047';
-import { icon } from '../shell/icons.js?v=202607070047';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607070047';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607070047';
+} from '../api.js?v=202607071200';
+import { icon } from '../shell/icons.js?v=202607071200';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607071200';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607071200';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1194,10 +1194,23 @@ function buildMobileItem(post) {
     }, [el('span', { class: 'meses-item__captext', text: cap })]));
   }
 
+  // Link de Inspo (referencia): si la pieza tiene uno, un chip resaltado que
+  // abre el link en pestaña nueva — se ve de un vistazo si hay referencia.
+  const inspoUrl = safeUrl(post.inspo_url);
+  if (inspoUrl) {
+    chips.insertBefore(
+      el('a', {
+        class: 'meses-chip meses-chip--inspo', href: inspoUrl,
+        target: '_blank', rel: 'noopener noreferrer',
+        'aria-label': `Ver inspiración (${shortUrl(inspoUrl)})`, title: inspoUrl,
+      }, [icon('link', 13), el('span', { text: 'Inspo' })]),
+      chips.children[1] || null, // justo después de la fecha
+    );
+  }
   card.appendChild(chips);
 
   // Acciones rapidas: abren el editor DIRECTO en la pestaña (sin entrar y
-  // buscar). Es lo que mas se usa por pieza: el guion, las notas y el checklist.
+  // buscar). Es lo que mas se usa por pieza: el guion y las notas.
   card.appendChild(el('div', { class: 'meses-item__actions' }, [
     el('button', {
       class: 'meses-act', type: 'button', 'aria-label': 'Abrir guion',
@@ -1207,10 +1220,6 @@ function buildMobileItem(post) {
       class: 'meses-act', type: 'button', 'aria-label': 'Abrir notas del equipo',
       onclick: () => ctx.openEditor(post.id, { tab: 'contenido' }),
     }, [icon('copy', 15), el('span', { text: 'Notas' })]),
-    el('button', {
-      class: 'meses-act', type: 'button', 'aria-label': 'Abrir checklist',
-      onclick: () => ctx.openEditor(post.id, { tab: 'checklist' }),
-    }, [icon('check', 15), el('span', { text: 'Checklist' })]),
   ]));
   return card;
 }

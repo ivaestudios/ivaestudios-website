@@ -269,9 +269,19 @@
   border: 1px dashed var(--border-strong);
   color: var(--text-mute);
 }
+/* Chip de Inspo: es un LINK (abre la referencia en pestaña nueva), resaltado
+   con el acento de marca para distinguirlo de los chips de metadatos. */
+.meses-chip--inspo {
+  background: color-mix(in srgb, var(--brand, #c084fc) 15%, transparent);
+  border-color: color-mix(in srgb, var(--brand, #c084fc) 35%, transparent);
+  color: var(--brand, #c084fc);
+  text-decoration: none;
+}
+.meses-chip--inspo .ico { color: var(--brand, #c084fc); }
+.meses-chip--inspo:active { background: color-mix(in srgb, var(--brand, #c084fc) 26%, transparent); }
 
-/* Acciones rapidas por tarjeta (movil): Guion / Notas / Checklist. Abren el
-   editor directo en su pestaña. Fila de botones iguales, target tactil >=38px. */
+/* Acciones rapidas por tarjeta (movil): Guion / Notas. Abren el editor directo
+   en su pestaña. Fila de botones iguales, target tactil >=38px. */
 .meses-item__actions {
   display: flex;
   gap: 8px;

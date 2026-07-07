@@ -11,10 +11,10 @@
 // - FAB: setFab({label, onTap}) | null. Gradiente 56px sobre la nav.
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202607070047';
-import * as store from './store.js?v=202607070047';
-import * as prefs from './prefs.js?v=202607070047';
-import { icon } from './icons.js?v=202607070047';
+import { el, clear } from '../api.js?v=202607071200';
+import * as store from './store.js?v=202607071200';
+import * as prefs from './prefs.js?v=202607071200';
+import { icon } from './icons.js?v=202607071200';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
