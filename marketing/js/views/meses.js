@@ -26,10 +26,10 @@ import {
   el, clear, copyText,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607071209';
-import { icon } from '../shell/icons.js?v=202607071209';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607071209';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607071209';
+} from '../api.js?v=202607071310';
+import { icon } from '../shell/icons.js?v=202607071310';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607071310';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607071310';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1592,29 +1592,123 @@ async function onSortChip(anchor) {
   render();
 }
 
+// Etiqueta corta del criterio de orden actual (se muestra en el boton Ordenar).
+function sortShortLabel(s) {
+  const map = {
+    'date:desc': 'Reciente',
+    'date:asc': 'Antiguo',
+    'task:asc': 'Tarea A→Z',
+    'task:desc': 'Tarea Z→A',
+    'status:asc': 'Estado',
+    'platform:asc': 'Plataforma',
+    'type:asc': 'Tipo',
+    'grab:asc': 'Grabación',
+  };
+  return map[`${s.key}:${s.dir}`] || 'Reciente';
+}
+
+// Barra movil: 2 controles solidos (Ordenar con su criterio actual + Filtros
+// con un badge de cuantos hay activos) y un boton Limpiar solo si aplica. Todos
+// los filtros viven en UN solo panel (openFilterSheet), no en chips sueltos.
 function buildFilterBar(allPosts) {
   const f = getFilters();
-  const anyActive = Object.values(f).some(Boolean);
-  const bar = el('div', { class: 'meses-filters', role: 'toolbar', 'aria-label': 'Ordenar y filtrar' }, [icon('filter', 14)]);
+  const activeCount = Object.values(f).filter(Boolean).length;
+  const s = getSort();
+  const bar = el('div', { class: 'meses-toolbar', role: 'toolbar', 'aria-label': 'Ordenar y filtrar' });
+
   bar.appendChild(el('button', {
-    class: 'meses-filter', type: 'button', 'aria-haspopup': 'dialog',
+    class: 'meses-tool', type: 'button', 'aria-haspopup': 'dialog',
     onclick: (e) => onSortChip(e.currentTarget),
-  }, [el('span', { text: 'Ordenar' })]));
-  for (const d of FILTER_DIMS) {
-    const active = !!f[d.dim];
-    bar.appendChild(el('button', {
-      class: 'meses-filter' + (active ? ' is-active' : ''),
-      type: 'button', 'aria-haspopup': 'dialog',
-      onclick: (e) => onFilterChip(d, allPosts, e.currentTarget),
-    }, [el('span', { text: active ? `${d.label}: ${d.labelOf(f[d.dim])}` : d.label })]));
-  }
-  if (anyActive) {
-    bar.appendChild(el('button', {
-      class: 'meses-filter meses-filter--clear', type: 'button', text: 'Limpiar',
-      onclick: () => { setFilters({}); render(); },
-    }));
-  }
+  }, [
+    icon('sort', 16),
+    el('span', { class: 'meses-tool__lbl', text: 'Ordenar' }),
+    el('span', { class: 'meses-tool__val', text: sortShortLabel(s) }),
+  ]));
+
+  bar.appendChild(el('button', {
+    class: 'meses-tool meses-tool--filters' + (activeCount ? ' is-active' : ''),
+    type: 'button', 'aria-haspopup': 'dialog',
+    onclick: () => openFilterSheet(allPosts),
+  }, [
+    icon('sliders', 16),
+    el('span', { class: 'meses-tool__lbl', text: 'Filtros' }),
+    activeCount ? el('span', { class: 'meses-tool__badge', text: String(activeCount) }) : null,
+  ]));
+
+  // Limpiar NO va en la barra (se desbordaria en pantallas angostas): vive
+  // dentro del panel de filtros. El badge comunica que hay filtros activos.
   return bar;
+}
+
+// Panel unico de filtros (bottom sheet): una seccion por dimension con chips
+// seleccionables (single-select) + conteo por valor, y footer con Limpiar y
+// "Ver N piezas" (conteo en vivo). Se trabaja sobre un borrador; solo al
+// pulsar Aplicar se commitea y re-renderiza la lista.
+function openFilterSheet(allPosts) {
+  const draft = { ...getFilters() };
+
+  // Valores disponibles por dimension (con conteo); se omiten las vacias.
+  const groups = FILTER_DIMS.map((d) => {
+    const seen = new Map();
+    for (const p of allPosts) { const v = d.getVal(p); if (v) seen.set(v, (seen.get(v) || 0) + 1); }
+    const values = [...seen.entries()].sort((a, b) => String(a[0]).localeCompare(String(b[0])));
+    return { d, values };
+  }).filter((g) => g.values.length);
+
+  ctx.sheet.openSheet({
+    title: 'Filtros',
+    mode: 'menu',
+    build(body, close) {
+      const paint = () => {
+        clear(body);
+        const wrap = el('div', { class: 'mfilt' });
+        if (!groups.length) {
+          wrap.appendChild(el('div', { class: 'mfilt__empty', text: 'No hay filtros disponibles todavía.' }));
+        }
+        for (const { d, values } of groups) {
+          const cur = draft[d.dim] || '';
+          const chips = el('div', { class: 'mfilt__chips' });
+          chips.appendChild(el('button', {
+            class: 'mfilt-chip' + (!cur ? ' is-on' : ''), type: 'button',
+            'aria-pressed': !cur ? 'true' : 'false',
+            onclick: () => { draft[d.dim] = ''; paint(); },
+          }, [!cur ? icon('check', 14) : null, el('span', { text: 'Todos' })]));
+          for (const [v, n] of values) {
+            const on = cur === v;
+            chips.appendChild(el('button', {
+              class: 'mfilt-chip' + (on ? ' is-on' : ''), type: 'button',
+              'aria-pressed': on ? 'true' : 'false',
+              onclick: () => { draft[d.dim] = on ? '' : v; paint(); },
+            }, [
+              on ? icon('check', 14) : null,
+              el('span', { text: d.labelOf(v) }),
+              el('span', { class: 'mfilt-chip__n', text: String(n) }),
+            ]));
+          }
+          wrap.appendChild(el('div', { class: 'mfilt__group' }, [
+            el('div', { class: 'mfilt__glabel', text: d.label }),
+            chips,
+          ]));
+        }
+        body.appendChild(wrap);
+
+        const anyDraft = Object.values(draft).some(Boolean);
+        const count = allPosts.filter((p) => FILTER_DIMS.every(({ dim, getVal }) => !draft[dim] || getVal(p) === draft[dim])).length;
+        const clearBtn = el('button', {
+          class: 'btn', type: 'button', text: 'Limpiar',
+          onclick: () => { for (const k of Object.keys(draft)) draft[k] = ''; paint(); },
+        });
+        clearBtn.disabled = !anyDraft;
+        const applyBtn = el('button', {
+          class: 'btn btn-primary sheet-cta', type: 'button',
+          text: `Ver ${count} ${count === 1 ? 'pieza' : 'piezas'}`,
+          onclick: () => { setFilters(draft); render(); close({ source: 'apply' }); },
+        });
+        body.appendChild(el('div', { class: 'sheet__footer' }, [clearBtn, applyBtn]));
+      };
+      paint();
+    },
+  });
 }
 
 // ── Barra lateral de meses (desktop) ─────────────────────────────────────────
@@ -1767,15 +1861,17 @@ function render() {
 
   // La navegacion por mes vive en la barra lateral (desktop) / barra de meses
   // (movil). El area principal muestra SOLO el mes activo, sin secciones
-  // colapsables apiladas. Por defecto cae en el mes actual si tiene contenido,
-  // o en el primer mes con contenido (asi no abre en un mes vacio).
+  // colapsables apiladas. Por defecto cae en el mes MAS RECIENTE (el ultimo
+  // calendario creado), no en el mes actual del sistema.
   const selectableKeys = [...ordered];
   if (sinMes.length) selectableKeys.push(SIN_MES);
-  const withPosts = ordered.filter((ym) => (byMonth.get(ym) || []).length > 0);
   if (!activeMonth || !selectableKeys.includes(activeMonth)) {
-    activeMonth = withPosts.includes(currentYM())
-      ? currentYM()
-      : (withPosts[0] || (ordered.includes(currentYM()) ? currentYM() : (selectableKeys[0] || currentYM())));
+    // Por defecto cae en el MES MÁS RECIENTE (el último "calendario" creado), no
+    // en el mes actual del sistema. `ordered` ya trae los meses con contenido y
+    // los agregados a mano, en orden ascendente, así que el último es el más nuevo.
+    activeMonth = ordered.length
+      ? ordered[ordered.length - 1]
+      : (selectableKeys[0] || currentYM());
   }
 
   // Selector de meses para movil/tablet (la barra lateral solo existe >=1024px).

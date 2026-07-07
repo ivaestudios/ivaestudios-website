@@ -7,7 +7,7 @@
 // - Sin estado propio: funciones puras + builders pequenos sin side effects.
 // ============================================================================
 
-import { el, statusBadge, chip, STATUSES, CONTENT_TYPES } from '../api.js?v=202607071209';
+import { el, statusBadge, chip, STATUSES, CONTENT_TYPES } from '../api.js?v=202607071310';
 
 // ── Fechas ───────────────────────────────────────────────────────────────────
 
@@ -188,22 +188,22 @@ export function backlogPosts(posts) {
 }
 
 /**
- * "Ancla de trabajo": el dia 'YYYY-MM-DD' donde esta el contenido del cliente.
- * Es el post programado mas PROXIMO de hoy en adelante; si no hay futuros, el
- * mas reciente; null si no hay posts con fecha. Sirve para abrir el calendario
- * en el MES CON CONTENIDO (no siempre el mes actual). Comparacion lexicografica
- * de 'YYYY-MM-DD' == cronologica.
+ * "Ancla de trabajo": el dia 'YYYY-MM-DD' del post MAS RECIENTE del cliente
+ * (null si no hay posts con fecha). Sirve para abrir el calendario en el MES
+ * MAS NUEVO con contenido (el ultimo "calendario"), alineado con la vista
+ * Calendario (meses). Comparacion lexicografica de 'YYYY-MM-DD' == cronologica.
  */
 export function workingAnchor(posts) {
-  const today = todayYMD();
-  let upcoming = null; let latest = null;
+  // Aterriza en el MES MAS RECIENTE con contenido (el ultimo "calendario"),
+  // alineado con el default de la vista Calendario (meses). Antes prefereia el
+  // proximo post futuro, lo que caia en el mes vigente y no en el mas nuevo.
+  let latest = null;
   for (const p of posts || []) {
     const day = p.publish_date ? String(p.publish_date).slice(0, 10) : '';
     if (!day) continue;
     if (!latest || day > latest) latest = day;
-    if (day >= today && (!upcoming || day < upcoming)) upcoming = day;
   }
-  return upcoming || latest || null;
+  return latest || null;
 }
 
 // ── Info de catalogo con fallback seguro ─────────────────────────────────────
