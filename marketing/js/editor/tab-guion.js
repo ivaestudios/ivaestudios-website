@@ -12,10 +12,10 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, copyText } from '../api.js?v=202607080019';
-import { icon } from '../shell/icons.js?v=202607080019';
-import { makeTextarea } from './fields.js?v=202607080019';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202607080019';
+import { el, copyText } from '../api.js?v=202607081853';
+import { icon } from '../shell/icons.js?v=202607081853';
+import { makeTextarea } from './fields.js?v=202607081853';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202607081853';
 
 const IG_VISIBLE_CUT = 125;
 const CAPTION_MAX = 2200;
@@ -136,6 +136,16 @@ export function mount(host, ed) {
         ctx.toast(ok ? 'Slide copiado.' : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
       },
     }, [icon('copy', 14)]);
+    // Reordenar arrastrando (drag & drop con mouse): solo los slides de EN
+    // MEDIO se mueven — la Portada siempre abre y el Cierre siempre cierra.
+    let dragIdx = null;
+    const isMiddle = (i) => i > 0 && i < slides.length - 1;
+    const moveSlide = (from, to) => {
+      const [s] = slides.splice(from, 1); slides.splice(to, 0, s);
+      const [a] = alts.splice(from, 1); alts.splice(to, 0, a);
+      syncFields(); ed.setField('alt_text', altsToText(alts)); ed.flush();
+      renderSlides(); renderAlts();
+    };
     const renderSlides = () => {
       while (slidesWrap.firstChild) slidesWrap.removeChild(slidesWrap.firstChild);
       slides.forEach((text, i) => {
@@ -147,8 +157,12 @@ export function mount(host, ed) {
           onBlur: () => ed.flush(),
         });
         const hint = slideHint(i, slides.length);
-        slidesWrap.appendChild(el('div', { class: 'edblock' }, [
+        const grip = isMiddle(i) ? el('span', {
+          class: 'edslide-grip', title: 'Arrastra para reordenar', 'aria-hidden': 'true',
+        }, [icon('grip', 14)]) : null;
+        const blockEl = el('div', { class: 'edblock' }, [
           el('div', { class: 'edblock__head' }, [
+            grip,
             el('span', { class: 'edblock__title', text: slideLabel(i, slides.length) }),
             hint ? el('span', { class: 'edblock__hint', text: hint }) : null,
             (i > 0 && i < slides.length - 1) ? el('button', {
@@ -163,7 +177,37 @@ export function mount(host, ed) {
             copySlideBtn(i),
           ]),
           ta,
-        ]));
+        ]);
+        if (grip) {
+          // El bloque solo se vuelve arrastrable al presionar la agarradera:
+          // así el textarea sigue seleccionable con normalidad.
+          grip.addEventListener('pointerdown', () => { blockEl.draggable = true; });
+          blockEl.addEventListener('dragstart', (e) => {
+            dragIdx = i;
+            blockEl.classList.add('is-dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            try { e.dataTransfer.setData('text/plain', String(i)); } catch { /* noop */ }
+          });
+          blockEl.addEventListener('dragend', () => {
+            blockEl.draggable = false;
+            blockEl.classList.remove('is-dragging');
+            for (const n of slidesWrap.querySelectorAll('.is-dropover')) n.classList.remove('is-dropover');
+            dragIdx = null;
+          });
+          blockEl.addEventListener('dragover', (e) => {
+            if (dragIdx === null || dragIdx === i || !isMiddle(i)) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            blockEl.classList.add('is-dropover');
+          });
+          blockEl.addEventListener('dragleave', () => blockEl.classList.remove('is-dropover'));
+          blockEl.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (dragIdx === null || dragIdx === i || !isMiddle(i)) return;
+            moveSlide(dragIdx, i);
+          });
+        }
+        slidesWrap.appendChild(blockEl);
       });
       slidesWrap.appendChild(el('button', {
         class: 'btn edslide-add', type: 'button',

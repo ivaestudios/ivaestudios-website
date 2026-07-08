@@ -17,8 +17,8 @@ import {
   APPROVALS, PLATFORMS, GRABACION_LEVELS,
   PRIORITIES, PRIORITY_ORDER,
   ymd, parseDate, avatar,
-} from '../api.js?v=202607080019';
-import { openSheet, pickFrom } from '../shell/sheet.js?v=202607080019';
+} from '../api.js?v=202607081853';
+import { openSheet, pickFrom } from '../shell/sheet.js?v=202607081853';
 
 // ── Pickers de enum ──────────────────────────────────────────────────────────
 
