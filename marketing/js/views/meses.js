@@ -26,10 +26,10 @@ import {
   el, clear, copyText,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607071310';
-import { icon } from '../shell/icons.js?v=202607071310';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607071310';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607071310';
+} from '../api.js?v=202607080019';
+import { icon } from '../shell/icons.js?v=202607080019';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607080019';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607080019';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1124,7 +1124,7 @@ function mobileChip({ text, color, ghost, aria, onTap }) {
   return b;
 }
 
-function buildMobileItem(post) {
+function buildMobileItem(post, noteLabels) {
   const grab = Number(post.grabacion);
   const typeDef = CONTENT_TYPES[post.content_type];
   const statusDef = STATUSES[post.status];
@@ -1209,6 +1209,27 @@ function buildMobileItem(post) {
   }
   card.appendChild(chips);
 
+  // Notas por persona (Jairo, contacto del cliente...): se muestran DIRECTO en
+  // la tarjeta para que el cliente las lea sin abrir la pieza. Solo las que
+  // tienen texto (las vacias no ensucian). Tocar = abrir el editor para
+  // leer/responder. Es SOLO lectura del dato existente: no escribe ni mueve nada.
+  const np = notesOf(post);
+  const noteEls = (noteLabels || [])
+    .map((person) => {
+      const txt = String((np && np[person]) || '').trim();
+      if (!txt) return null;
+      return el('button', {
+        class: 'meses-note', type: 'button',
+        'aria-label': `Nota de ${person}, abrir para editar`,
+        onclick: () => ctx.openEditor(post.id, { tab: 'contenido' }),
+      }, [
+        el('span', { class: 'meses-note__who', text: person }),
+        el('span', { class: 'meses-note__txt', text: txt }),
+      ]);
+    })
+    .filter(Boolean);
+  if (noteEls.length) card.appendChild(el('div', { class: 'meses-notes' }, noteEls));
+
   // Acciones rapidas: abren el editor DIRECTO en la pestaña (sin entrar y
   // buscar). Es lo que mas se usa por pieza: el guion y las notas.
   card.appendChild(el('div', { class: 'meses-item__actions' }, [
@@ -1225,8 +1246,8 @@ function buildMobileItem(post) {
 }
 
 // Lista movil: una tarjeta por pieza dentro del contenedor `.meses-list`.
-function buildMobileList(rows) {
-  return el('div', { class: 'meses-list' }, rows.map((p) => buildMobileItem(p)));
+function buildMobileList(rows, noteLabels) {
+  return el('div', { class: 'meses-list' }, rows.map((p) => buildMobileItem(p, noteLabels)));
 }
 
 // ── Composer "+ Nueva linea" ─────────────────────────────────────────────────
@@ -1428,7 +1449,7 @@ function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTod
     // Desktop/tablet (>=768px): tabla completa. Movil (<768px): una tarjeta por
     // pieza con la misma info en chips (sin scroll horizontal). Sigue siendo
     // "una fila por pieza" — solo reflowada para que quepa en el telefono.
-    bodyKids.push(desktop ? buildTable(rows, noteLabels) : buildMobileList(rows));
+    bodyKids.push(desktop ? buildTable(rows, noteLabels) : buildMobileList(rows, noteLabels));
     // Barra unica de progreso del mes: pegada bajo la tabla para que se lea
     // como su resumen, antes del boton "Nueva linea".
     const progress = buildMonthProgress(rows);

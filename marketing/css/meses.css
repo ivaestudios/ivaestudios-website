@@ -367,6 +367,43 @@
 .meses-act:active { background: var(--surface-3); }
 .meses-act:focus-visible { outline: none; box-shadow: var(--ring); }
 
+/* ── Notas por persona en la tarjeta (el cliente las lee sin abrir la pieza) ── */
+.meses-notes { display: flex; flex-direction: column; gap: 6px; margin: 6px 6px 0; }
+.meses-note {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid color-mix(in srgb, var(--brand) 55%, transparent);
+  border-radius: var(--r-sm);
+  padding: 8px 11px;
+  font: inherit;
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast);
+}
+.meses-note:hover { border-color: var(--border-strong); background: var(--surface-3); }
+.meses-note:active { background: var(--surface-3); }
+.meses-note:focus-visible { outline: none; box-shadow: var(--ring); }
+.meses-note__who {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  color: var(--brand);
+  margin-bottom: 2px;
+}
+.meses-note__txt {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
 /* ── Composer "+ Nueva linea" (flujo Notion) ────────────────────────────────── */
 
 .meses-newline {
