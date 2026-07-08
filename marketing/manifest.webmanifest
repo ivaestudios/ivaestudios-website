@@ -1,0 +1,20 @@
+{
+  "name": "IVAE Marketing",
+  "short_name": "IVAE Mkt",
+  "description": "Gestión de redes sociales de IVAE: calendario de contenido, guiones, entregables y métricas en un solo lugar.",
+  "id": "/marketing/app",
+  "start_url": "/marketing/app",
+  "scope": "/marketing/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0A0A0E",
+  "theme_color": "#0A0A0E",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": ["business", "productivity"],
+  "icons": [
+    { "src": "/marketing/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/marketing/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/marketing/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
