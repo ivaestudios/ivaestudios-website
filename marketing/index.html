@@ -115,11 +115,52 @@
         <button class="btn btn-primary" id="resetBtn" type="submit">Guardar y entrar</button>
       </form>
 
+      <!-- Registro público: crea marca (workspace) + cuenta + sesión (POST /auth/signup). -->
+      <form id="signupForm" novalidate hidden autocomplete="on">
+        <div class="field">
+          <label class="label" for="sgName">Tu nombre</label>
+          <div class="input-wrap"><input class="input" id="sgName" type="text" autocomplete="name" placeholder="Ana Pérez" required></div>
+        </div>
+        <div class="field">
+          <label class="label" for="sgBrand">Tu marca o negocio</label>
+          <div class="input-wrap"><input class="input" id="sgBrand" type="text" autocomplete="organization" placeholder="Café Aurora" required></div>
+        </div>
+        <div class="field">
+          <label class="label" for="sgEmail">Correo</label>
+          <div class="input-wrap"><input class="input" id="sgEmail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com" required></div>
+        </div>
+        <div class="field">
+          <label class="label" for="sgPass">Crea una contraseña</label>
+          <div class="input-wrap"><input class="input" id="sgPass" type="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres" minlength="8" required></div>
+        </div>
+        <button class="btn btn-primary" id="sgBtn" type="submit">Crear mi cuenta</button>
+      </form>
+
+      <!-- Olvidé mi contraseña: manda el enlace de reset por correo (POST /auth/forgot). -->
+      <form id="forgotForm" novalidate hidden>
+        <p class="auth-card__sub" style="margin-bottom:var(--s-4)">
+          Escribe tu correo y te mandamos un enlace para crear una contraseña nueva.
+        </p>
+        <div class="field">
+          <label class="label" for="fgEmail">Correo</label>
+          <div class="input-wrap"><input class="input" id="fgEmail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com" required></div>
+        </div>
+        <button class="btn btn-primary" id="fgBtn" type="submit">Enviarme el enlace</button>
+      </form>
+
       <p class="auth-foot" id="authFoot">
-        Acceso privado de clientes y equipo IVAE Marketing.
+        <button type="button" id="toSignup"
+          style="background:none;border:0;color:var(--brand);cursor:pointer;font:inherit;font-weight:700;text-decoration:underline;padding:6px">
+          ¿Nueva marca? Crea tu cuenta gratis
+        </button>
+        <br>
+        <button type="button" id="toForgot"
+          style="background:none;border:0;color:var(--text-dim);cursor:pointer;font:inherit;text-decoration:underline;margin-top:4px;padding:6px">
+          Olvidé mi contraseña
+        </button>
         <br>
         <button type="button" id="toggleSetup"
-          style="background:none;border:0;color:var(--brand);cursor:pointer;font:inherit;text-decoration:underline;margin-top:10px;padding:6px">
+          style="background:none;border:0;color:var(--text-mute);cursor:pointer;font:inherit;text-decoration:underline;margin-top:8px;padding:6px;font-size:12px">
           Configuración inicial (primera vez)
         </button>
       </p>
@@ -224,19 +265,32 @@
       newPassEl.focus();
     }
 
+    // El mismo formulario sirve para (a) cambio forzado tras login temporal y
+    // (b) reset por token del correo (?reset=TOKEN de /auth/forgot).
+    let pendingResetToken = null;
+
     resetForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       clearError();
-      if (!pendingReset) return;
+      if (!pendingReset && !pendingResetToken) return;
       const next = newPassEl.value;
-      if (next.length < 6) { showError('La nueva contraseña debe tener al menos 6 caracteres.'); return; }
+      const minLen = pendingResetToken ? 8 : 6;
+      if (next.length < minLen) { showError('La nueva contraseña debe tener al menos ' + minLen + ' caracteres.'); return; }
       if (next !== newPass2El.value) { showError('Las contraseñas no coinciden.'); return; }
       resetBtn.dataset.loading = 'true';
       resetBtn.setAttribute('aria-busy', 'true');
       try {
-        await api.post('/auth/change-password', { current: pendingReset.current, next });
-        toast('Contraseña actualizada.', 'success', 1500);
-        goToApp(pendingReset.user);
+        if (pendingResetToken) {
+          await api.post('/auth/reset-with-token', { token: pendingResetToken, password: next });
+          pendingResetToken = null;
+          history.replaceState(null, '', location.pathname); // limpia ?reset= de la URL
+          toast('Contraseña actualizada. Inicia sesión.', 'success', 2500);
+          showView('login');
+        } else {
+          await api.post('/auth/change-password', { current: pendingReset.current, next });
+          toast('Contraseña actualizada.', 'success', 1500);
+          goToApp(pendingReset.user);
+        }
       } catch (err) {
         showError(err.message || 'No se pudo cambiar la contraseña. Inténtalo de nuevo.');
       } finally {
@@ -325,6 +379,101 @@
         delete b.dataset.loading; b.removeAttribute('aria-busy');
       }
     });
+
+    // ── Registro público + olvidé mi contraseña (vistas de la misma card) ─────
+    const signupForm = document.getElementById('signupForm');
+    const forgotForm = document.getElementById('forgotForm');
+    const toSignup   = document.getElementById('toSignup');
+    const toForgot   = document.getElementById('toForgot');
+    const titleEl    = document.getElementById('authTitle');
+    const subEl      = document.querySelector('.auth-card__sub');
+
+    function showView(view) {
+      clearError();
+      form.hidden = view !== 'login';
+      signupForm.hidden = view !== 'signup';
+      forgotForm.hidden = view !== 'forgot';
+      resetForm.hidden = view !== 'resetToken';
+      setupForm.hidden = true;
+      toForgot.hidden = view !== 'login';
+      toggleSetup.hidden = view !== 'login';
+      if (view === 'signup') {
+        titleEl.textContent = 'Crea tu cuenta';
+        subEl.textContent = 'Tu marca, tu calendario de contenido. Gratis en 30 segundos.';
+        toSignup.textContent = '¿Ya tienes cuenta? Inicia sesión';
+        document.getElementById('sgName').focus();
+      } else if (view === 'forgot') {
+        titleEl.textContent = 'Recuperar acceso';
+        subEl.textContent = '';
+        toSignup.textContent = '← Volver a iniciar sesión';
+      } else if (view === 'resetToken') {
+        titleEl.textContent = 'Crea tu nueva contraseña';
+        subEl.textContent = 'Elige una contraseña nueva de al menos 8 caracteres.';
+        toSignup.textContent = '← Volver a iniciar sesión';
+        newPassEl.focus();
+      } else {
+        titleEl.textContent = 'Iniciar sesión';
+        subEl.textContent = 'Calendario de contenido y aprobaciones.';
+        toSignup.textContent = '¿Nueva marca? Crea tu cuenta gratis';
+        emailEl.focus();
+      }
+    }
+    toSignup.addEventListener('click', () => {
+      showView(form.hidden ? 'login' : 'signup');
+    });
+    toForgot.addEventListener('click', () => showView('forgot'));
+
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearError();
+      const name = document.getElementById('sgName').value.trim();
+      const brand = document.getElementById('sgBrand').value.trim();
+      const email = document.getElementById('sgEmail').value.trim();
+      const password = document.getElementById('sgPass').value;
+      if (!name || !brand || !email || !password) { showError('Completa todos los campos.'); return; }
+      if (password.length < 8) { showError('La contraseña debe tener al menos 8 caracteres.'); return; }
+      const b = document.getElementById('sgBtn');
+      b.dataset.loading = 'true'; b.setAttribute('aria-busy', 'true');
+      try {
+        const user = await api.post('/auth/signup', { name, brand, email, password });
+        toast('¡Bienvenido, ' + name.split(' ')[0] + '! Tu espacio está listo.', 'success', 2000);
+        goToApp(user);
+      } catch (err) {
+        showError(err.status === 409
+          ? 'Ese correo ya tiene una cuenta. Inicia sesión.'
+          : (err.message || 'No pudimos crear tu cuenta. Inténtalo de nuevo.'));
+      } finally {
+        delete b.dataset.loading; b.removeAttribute('aria-busy');
+      }
+    });
+
+    forgotForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearError();
+      const email = document.getElementById('fgEmail').value.trim();
+      if (!email) { showError('Escribe tu correo.'); return; }
+      const b = document.getElementById('fgBtn');
+      b.dataset.loading = 'true'; b.setAttribute('aria-busy', 'true');
+      try {
+        await api.post('/auth/forgot', { email });
+        toast('Si ese correo tiene cuenta, te mandamos el enlace. Revisa tu bandeja.', 'success', 4000);
+        showView('login');
+      } catch (err) {
+        showError(err.message || 'No se pudo enviar. Inténtalo de nuevo.');
+      } finally {
+        delete b.dataset.loading; b.removeAttribute('aria-busy');
+      }
+    });
+
+    // ?reset=TOKEN (enlace del correo de /auth/forgot) → formulario de nueva
+    // contraseña. ?signup=1 (CTA del sitio) → abre directo en crear cuenta.
+    const params = new URLSearchParams(location.search);
+    if (params.get('reset')) {
+      pendingResetToken = params.get('reset');
+      showView('resetToken');
+    } else if (params.get('signup')) {
+      showView('signup');
+    }
   </script>
 </body>
 </html>
