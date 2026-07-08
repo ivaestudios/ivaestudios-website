@@ -431,6 +431,12 @@ async function handleLogin(request, env) {
   const { email, password } = bodyObj || {};
   if (!email || !password) return json({ error: 'Email and password required' }, 400);
 
+  // Anti fuerza-bruta: 10 intentos por IP+email cada 10 minutos (ventana fija).
+  const rlKey = `login:${clientIp(request)}:${String(email).toLowerCase().slice(0, 80)}`;
+  if (!(await authRateLimit(env, rlKey, 10, 600))) {
+    return json({ error: 'Demasiados intentos. Espera unos minutos e intenta de nuevo.' }, 429);
+  }
+
   const user = await env.DB.prepare('SELECT * FROM mkt_users WHERE email = ? COLLATE NOCASE').bind(email).first();
   if (!user) return json({ error: 'Credenciales incorrectas.' }, 401);
   if (!user.active) return json({ error: 'Esta cuenta está desactivada.' }, 403);
@@ -460,14 +466,22 @@ async function handleLogout(request, env, session) {
   return json({ ok: true }, 200, { 'Set-Cookie': sessionCookie('', 0) });
 }
 
-async function handleMe(session) {
+async function handleMe(session, env) {
   if (!session) return json({ error: 'Not authenticated' }, 401);
+  // email_verified viene de la migración 016; consulta tolerante para no
+  // romper /auth/me si aún no se aplicó (default: verificado).
+  let emailVerified = true;
+  try {
+    const r = await env.DB.prepare('SELECT email_verified FROM mkt_users WHERE id = ?').bind(session.user_id).first();
+    if (r && r.email_verified === 0) emailVerified = false;
+  } catch { /* pre-migración */ }
   return json({
     id: session.user_id,
     email: session.email,
     name: session.name,
     role: session.role,
-    client_id: session.client_id
+    client_id: session.client_id,
+    email_verified: emailVerified
   });
 }
 
@@ -488,6 +502,200 @@ async function handleChangePassword(request, env, session) {
   await env.DB.prepare("UPDATE mkt_users SET password = ?, must_reset = 0, updated_at = datetime('now') WHERE id = ?")
     .bind(hash, user.id).run();
   await logActivity(env, { session, action: 'user.change_password', detail: session.email });
+  return json({ ok: true });
+}
+
+// ============================================================================
+// REGISTRO PÚBLICO (self-signup) + verificación de email + reset por token.
+// Cada registro crea SU PROPIO workspace: 1 mkt_clients (la marca) + 1
+// mkt_users role='client' apuntando a ella + sesión (auto-login). El modelo
+// multi-tenant existente hace el resto (el client gestiona su calendario).
+// ============================================================================
+
+// Rate limit de ventana fija sobre mkt_rate_limits. Best-effort: si la tabla
+// no existe aún (pre-migración 016) NO bloquea el tráfico.
+async function authRateLimit(env, key, max, windowSecs) {
+  try {
+    const row = await env.DB.prepare('SELECT count, window_start FROM mkt_rate_limits WHERE key = ?').bind(key).first();
+    const now = Date.now();
+    if (row) {
+      const started = Date.parse(row.window_start + 'Z') || 0;
+      if (now - started < windowSecs * 1000) {
+        if (row.count >= max) return false; // excedido
+        await env.DB.prepare('UPDATE mkt_rate_limits SET count = count + 1 WHERE key = ?').bind(key).run();
+        return true;
+      }
+    }
+    await env.DB.prepare(
+      "INSERT INTO mkt_rate_limits (key, count, window_start) VALUES (?, 1, datetime('now')) " +
+      "ON CONFLICT(key) DO UPDATE SET count = 1, window_start = datetime('now')"
+    ).bind(key).run();
+    return true;
+  } catch { return true; }
+}
+
+function clientIp(request) {
+  return request.headers.get('CF-Connecting-IP') || 'unknown';
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+// Envío de correo vía Resend (mismo patrón que marketing-intake.js). Best-effort:
+// devuelve true/false y JAMÁS tira — sin RESEND_API_KEY el flujo sigue (el
+// banner de "verifica tu correo" simplemente persiste hasta que se configure.)
+async function sendAuthEmail(env, { to, subject, html, text }) {
+  if (!env.RESEND_API_KEY) return false;
+  const from = env.INTAKE_FROM_EMAIL || 'IVAE Marketing <info@ivaestudios.com>';
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const r = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from, to: [to], subject, html, text }),
+      });
+      if (r.ok) return true;
+      if (r.status < 500) return false; // 4xx: no reintentar
+    } catch { /* red: reintenta una vez */ }
+    await new Promise((res) => setTimeout(res, 800));
+  }
+  return false;
+}
+
+function authEmailHtml(title, bodyHtml, ctaLabel, ctaUrl) {
+  return `<!doctype html><body style="margin:0;background:#0A0A0E;color:#ECECF1;font-family:Arial,Helvetica,sans-serif;padding:32px 16px">
+  <div style="max-width:480px;margin:0 auto;background:#121218;border:1px solid #1E1E26;border-radius:16px;padding:28px">
+    <div style="font-size:13px;font-weight:bold;letter-spacing:.12em;color:#E24DA0;margin-bottom:14px">IVAE MARKETING</div>
+    <h1 style="font-size:20px;margin:0 0 12px;color:#fff">${title}</h1>
+    <div style="font-size:14px;line-height:1.6;color:#9A9AA8">${bodyHtml}</div>
+    ${ctaUrl ? `<a href="${ctaUrl}" style="display:inline-block;margin-top:20px;background:linear-gradient(135deg,#E24DA0,#9D5BE0);color:#fff;text-decoration:none;font-weight:bold;font-size:14px;padding:12px 22px;border-radius:12px">${ctaLabel}</a>
+    <div style="font-size:12px;color:#62626F;margin-top:16px;word-break:break-all">Si el botón no funciona, copia este enlace:<br>${ctaUrl}</div>` : ''}
+  </div></body>`;
+}
+
+// POST /auth/signup — registro público: crea marca + usuario + sesión.
+async function handleSignup(request, env) {
+  const ip = clientIp(request);
+  if (!(await authRateLimit(env, `signup:ip:${ip}`, 5, 3600))) {
+    return json({ error: 'Demasiados registros desde esta conexión. Intenta más tarde.' }, 429);
+  }
+  let bodyObj;
+  try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+  const name = String((bodyObj || {}).name || '').trim();
+  const brand = String((bodyObj || {}).brand || '').trim();
+  const email = String((bodyObj || {}).email || '').trim().toLowerCase();
+  const password = String((bodyObj || {}).password || '');
+  if (!name || !brand || !email || !password) return json({ error: 'Nombre, marca, email y contraseña son obligatorios.' }, 400);
+  if (!EMAIL_RE.test(email)) return json({ error: 'Ese email no parece válido.' }, 400);
+  if (password.length < 8) return json({ error: 'La contraseña debe tener al menos 8 caracteres.' }, 400);
+  if (name.length > 80 || brand.length > 80) return json({ error: 'Nombre o marca demasiado largos.' }, 400);
+
+  const dup = await env.DB.prepare('SELECT id FROM mkt_users WHERE email = ? COLLATE NOCASE').bind(email).first();
+  if (dup) return json({ error: 'Ese email ya tiene una cuenta. Inicia sesión.' }, 409);
+
+  // Workspace propio: la marca del usuario (defaults del schema) + su login.
+  const clientId = randomId();
+  const slug = await uniqueSlug(env, brand);
+  const userId = randomId();
+  const hash = await hashPassword(password);
+  const verifyToken = randomId();
+  const sessionId = randomId();
+  const expiry = env.SESSION_EXPIRY_SECONDS || '604800';
+  await env.DB.batch([
+    env.DB.prepare(
+      'INSERT INTO mkt_clients (id, name, slug, note_labels) VALUES (?, ?, ?, ?)'
+    ).bind(clientId, brand, slug, JSON.stringify([])),
+    env.DB.prepare(
+      "INSERT INTO mkt_users (id, email, password, name, role, client_id, active, must_reset, email_verified, verify_token) VALUES (?, ?, ?, ?, 'client', ?, 1, 0, 0, ?)"
+    ).bind(userId, email, hash, name, clientId, verifyToken),
+    env.DB.prepare(
+      'INSERT INTO mkt_sessions (id, user_id, expires_at) VALUES (?, ?, datetime("now", "+" || ? || " seconds"))'
+    ).bind(sessionId, userId, expiry),
+    env.DB.prepare("UPDATE mkt_users SET last_login = datetime('now') WHERE id = ?").bind(userId),
+  ]);
+
+  const verifyUrl = `https://ivaestudios.com/api/marketing/auth/verify?token=${verifyToken}`;
+  await sendAuthEmail(env, {
+    to: email,
+    subject: 'Confirma tu correo — IVAE Marketing',
+    html: authEmailHtml(
+      `Hola ${name}, confirma tu correo`,
+      `Tu espacio de trabajo <strong style="color:#fff">${brand}</strong> ya está listo. Confirma tu correo para asegurar tu cuenta.`,
+      'Confirmar mi correo', verifyUrl
+    ),
+    text: `Hola ${name}. Tu espacio "${brand}" ya está listo. Confirma tu correo: ${verifyUrl}`,
+  });
+
+  await logActivity(env, { client_id: clientId, session: { user_id: userId, name }, action: 'user.signup', detail: email });
+  return json(
+    { id: userId, email, name, role: 'client', client_id: clientId, email_verified: false },
+    201,
+    { 'Set-Cookie': sessionCookie(sessionId, expiry) }
+  );
+}
+
+// GET /auth/verify?token=... — confirma el correo y regresa a la app.
+async function handleVerifyEmail(env, url) {
+  const token = String(url.searchParams.get('token') || '');
+  const appUrl = 'https://ivaestudios.com/marketing/app';
+  if (token.length < 16) return Response.redirect(`${appUrl}?verified=0`, 302);
+  const user = await env.DB.prepare('SELECT id FROM mkt_users WHERE verify_token = ?').bind(token).first();
+  if (!user) return Response.redirect(`${appUrl}?verified=0`, 302);
+  await env.DB.prepare(
+    "UPDATE mkt_users SET email_verified = 1, verify_token = NULL, updated_at = datetime('now') WHERE id = ?"
+  ).bind(user.id).run();
+  return Response.redirect(`${appUrl}?verified=1`, 302);
+}
+
+// POST /auth/forgot — pide reset por email. SIEMPRE responde ok (no enumera).
+async function handleForgotPassword(request, env) {
+  const ip = clientIp(request);
+  if (!(await authRateLimit(env, `forgot:ip:${ip}`, 5, 3600))) return json({ ok: true });
+  let bodyObj;
+  try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+  const email = String((bodyObj || {}).email || '').trim().toLowerCase();
+  if (!EMAIL_RE.test(email)) return json({ ok: true });
+  const user = await env.DB.prepare('SELECT id, name FROM mkt_users WHERE email = ? COLLATE NOCASE AND active = 1').bind(email).first();
+  if (user) {
+    const token = randomId();
+    await env.DB.prepare(
+      "UPDATE mkt_users SET reset_token = ?, reset_expires = datetime('now', '+1 hour') WHERE id = ?"
+    ).bind(token, user.id).run();
+    const resetUrl = `https://ivaestudios.com/marketing/?reset=${token}`;
+    await sendAuthEmail(env, {
+      to: email,
+      subject: 'Restablece tu contraseña — IVAE Marketing',
+      html: authEmailHtml(
+        'Restablecer contraseña',
+        'Recibimos una solicitud para restablecer tu contraseña. El enlace vence en 1 hora. Si no fuiste tú, ignora este correo.',
+        'Crear nueva contraseña', resetUrl
+      ),
+      text: `Restablece tu contraseña (vence en 1 hora): ${resetUrl}`,
+    });
+  }
+  return json({ ok: true });
+}
+
+// POST /auth/reset-with-token — fija la nueva contraseña y cierra TODAS las
+// sesiones del usuario (seguridad: un token de email manda sobre sesiones vivas).
+async function handleResetWithToken(request, env) {
+  let bodyObj;
+  try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+  const token = String((bodyObj || {}).token || '');
+  const password = String((bodyObj || {}).password || '');
+  if (token.length < 16) return json({ error: 'Enlace inválido o vencido. Pide uno nuevo.' }, 400);
+  if (password.length < 8) return json({ error: 'La contraseña debe tener al menos 8 caracteres.' }, 400);
+  const user = await env.DB.prepare(
+    "SELECT id, email FROM mkt_users WHERE reset_token = ? AND reset_expires > datetime('now')"
+  ).bind(token).first();
+  if (!user) return json({ error: 'Enlace inválido o vencido. Pide uno nuevo.' }, 400);
+  const hash = await hashPassword(password);
+  await env.DB.batch([
+    env.DB.prepare(
+      "UPDATE mkt_users SET password = ?, must_reset = 0, reset_token = NULL, reset_expires = NULL, email_verified = 1, updated_at = datetime('now') WHERE id = ?"
+    ).bind(hash, user.id),
+    env.DB.prepare('DELETE FROM mkt_sessions WHERE user_id = ?').bind(user.id),
+  ]);
+  await logActivity(env, { session: { user_id: user.id, name: user.email }, action: 'user.reset_with_token', detail: user.email });
   return json({ ok: true });
 }
 
@@ -2929,6 +3137,11 @@ async function route(request, env) {
   // ── Public auth endpoints (no session required) ──
   if (path === '/auth/login' && method === 'POST') return handleLogin(request, env);
   if (path === '/auth/register' && method === 'POST') return handleRegister(request, env);
+  // Registro público (self-signup) + verificación + reset por token (migración 016).
+  if (path === '/auth/signup' && method === 'POST') return handleSignup(request, env);
+  if (path === '/auth/verify' && method === 'GET') return handleVerifyEmail(env, url);
+  if (path === '/auth/forgot' && method === 'POST') return handleForgotPassword(request, env);
+  if (path === '/auth/reset-with-token' && method === 'POST') return handleResetWithToken(request, env);
 
   // Instagram OAuth: el callback llega sin cookie (SameSite=Strict) y se
   // valida con nonce de un solo uso; el assign del selector igual.
@@ -2942,7 +3155,7 @@ async function route(request, env) {
   const session = await getSession(request, env);
 
   if (path === '/auth/logout' && method === 'POST') return handleLogout(request, env, session);
-  if (path === '/auth/me' && method === 'GET') return handleMe(session);
+  if (path === '/auth/me' && method === 'GET') return handleMe(session, env);
 
   if (!session) return json({ error: 'Not authenticated' }, 401);
 
