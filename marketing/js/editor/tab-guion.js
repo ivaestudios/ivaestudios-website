@@ -12,10 +12,10 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, copyText } from '../api.js?v=202607081920';
-import { icon } from '../shell/icons.js?v=202607081920';
-import { makeTextarea } from './fields.js?v=202607081920';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202607081920';
+import { el, copyText } from '../api.js?v=202607081927';
+import { icon } from '../shell/icons.js?v=202607081927';
+import { makeTextarea } from './fields.js?v=202607081927';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202607081927';
 
 const IG_VISIBLE_CUT = 125;
 const CAPTION_MAX = 2200;
@@ -163,7 +163,6 @@ export function mount(host, ed) {
         }, [icon('grip', 16)]) : null;
         const blockEl = el('div', { class: 'edblock' }, [
           el('div', { class: 'edblock__head' }, [
-            grip,
             el('span', { class: 'edblock__title', text: slideLabel(i, slides.length) }),
             hint ? el('span', { class: 'edblock__hint', text: hint }) : null,
             (i > 0 && i < slides.length - 1) ? el('button', {
@@ -176,6 +175,7 @@ export function mount(host, ed) {
               },
             }, [icon('trash', 14)]) : null,
             copySlideBtn(i),
+            grip, // agarradera al costado DERECHO (después de borrar/copiar)
           ]),
           ta,
         ]);
