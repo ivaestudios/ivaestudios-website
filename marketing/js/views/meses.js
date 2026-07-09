@@ -26,10 +26,10 @@ import {
   el, clear, copyText,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607081927';
-import { icon } from '../shell/icons.js?v=202607081927';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607081927';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607081927';
+} from '../api.js?v=202607081933';
+import { icon } from '../shell/icons.js?v=202607081933';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607081933';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607081933';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -454,6 +454,15 @@ function openCaptionDrawer(post) {
   function renderSlides() {
     if (!slidesHost) return;
     while (slidesHost.firstChild) slidesHost.removeChild(slidesHost.firstChild);
+    // Reordenar arrastrando (pointer events, igual que el editor): solo los
+    // slides de EN MEDIO — la Portada abre y el Cierre cierra, fijos.
+    const blockRefs = [];
+    const isMiddle = (idx) => idx > 0 && idx < slides.length - 1;
+    const moveSlide = (from, to) => {
+      const [s] = slides.splice(from, 1); slides.splice(to, 0, s);
+      const [a] = alts.splice(from, 1); alts.splice(to, 0, a);
+      renderSlides(); renderAlts(); scheduleSave();
+    };
     slides.forEach((text, i) => {
       const ta = el('textarea', {
         class: 'meses-drawer__ta meses-drawer__ta--sec',
@@ -465,7 +474,10 @@ function openCaptionDrawer(post) {
       ta.addEventListener('input', () => { slides[i] = ta.value; fit(ta); scheduleSave(); });
       ta.addEventListener('blur', () => flushSave());
       const hint = slideHint(i, slides.length);
-      slidesHost.appendChild(el('section', { class: 'mdsec' }, [
+      const grip = isMiddle(i) ? el('span', {
+        class: 'edslide-grip', title: 'Arrastra para reordenar', 'aria-hidden': 'true',
+      }, [icon('grip', 16)]) : null;
+      const secEl = el('section', { class: 'mdsec' }, [
         el('div', { class: 'mdsec__head' }, [
           el('span', { class: 'mdsec__lbl', text: slideLabel(i, slides.length) }),
           hint ? el('span', { class: 'mdsec__hint', text: hint }) : null,
@@ -479,9 +491,46 @@ function openCaptionDrawer(post) {
             'aria-label': `Copiar slide ${i + 1}`,
             onclick: () => copyPlain(slides[i], 'Slide copiado.', 'Este slide está vacío.'),
           }, [icon('copy', 14)]),
+          grip, // agarradera al costado derecho
         ]),
         ta,
-      ]));
+      ]);
+      if (grip) {
+        grip.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          const startY = e.clientY;
+          let target = null;
+          let moved = false;
+          document.body.style.userSelect = 'none';
+          const onMove = (ev) => {
+            const dy = ev.clientY - startY;
+            if (!moved && Math.abs(dy) > 4) { moved = true; secEl.classList.add('is-dragging'); }
+            if (!moved) return;
+            secEl.style.transform = `translateY(${dy}px)`;
+            target = null;
+            for (const ref of blockRefs) {
+              if (ref.el === secEl || !isMiddle(ref.i)) { ref.el.classList.remove('is-dropover'); continue; }
+              const r = ref.el.getBoundingClientRect();
+              const over = ev.clientY >= r.top && ev.clientY <= r.bottom;
+              ref.el.classList.toggle('is-dropover', over);
+              if (over) target = ref.i;
+            }
+          };
+          const onUp = () => {
+            document.removeEventListener('pointermove', onMove);
+            document.removeEventListener('pointerup', onUp);
+            document.body.style.userSelect = '';
+            secEl.classList.remove('is-dragging');
+            secEl.style.transform = '';
+            for (const ref of blockRefs) ref.el.classList.remove('is-dropover');
+            if (moved && target !== null && target !== i) moveSlide(i, target);
+          };
+          document.addEventListener('pointermove', onMove);
+          document.addEventListener('pointerup', onUp);
+        });
+      }
+      blockRefs.push({ el: secEl, i });
+      slidesHost.appendChild(secEl);
       fit(ta);
     });
     slidesHost.appendChild(el('div', { class: 'mdsec mdsec--add' }, [
