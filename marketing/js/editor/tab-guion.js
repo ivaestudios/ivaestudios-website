@@ -12,10 +12,10 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, copyText } from '../api.js?v=202607081914';
-import { icon } from '../shell/icons.js?v=202607081914';
-import { makeTextarea } from './fields.js?v=202607081914';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202607081914';
+import { el, copyText } from '../api.js?v=202607081920';
+import { icon } from '../shell/icons.js?v=202607081920';
+import { makeTextarea } from './fields.js?v=202607081920';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202607081920';
 
 const IG_VISIBLE_CUT = 125;
 const CAPTION_MAX = 2200;
@@ -148,6 +148,7 @@ export function mount(host, ed) {
     };
     const renderSlides = () => {
       while (slidesWrap.firstChild) slidesWrap.removeChild(slidesWrap.firstChild);
+      const blockRefs = [];
       slides.forEach((text, i) => {
         const ta = makeTextarea({
           value: text,
@@ -179,34 +180,43 @@ export function mount(host, ed) {
           ta,
         ]);
         if (grip) {
-          // El bloque solo se vuelve arrastrable al presionar la agarradera:
-          // así el textarea sigue seleccionable con normalidad.
-          grip.addEventListener('pointerdown', () => { blockEl.draggable = true; });
-          blockEl.addEventListener('dragstart', (e) => {
-            dragIdx = i;
-            blockEl.classList.add('is-dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            try { e.dataTransfer.setData('text/plain', String(i)); } catch { /* noop */ }
-          });
-          blockEl.addEventListener('dragend', () => {
-            blockEl.draggable = false;
-            blockEl.classList.remove('is-dragging');
-            for (const n of slidesWrap.querySelectorAll('.is-dropover')) n.classList.remove('is-dropover');
-            dragIdx = null;
-          });
-          blockEl.addEventListener('dragover', (e) => {
-            if (dragIdx === null || dragIdx === i || !isMiddle(i)) return;
+          // Arrastre por POINTER EVENTS (no drag nativo HTML5, que falla en
+          // Safari/Mac): al presionar la ⠿ el bloque sigue al cursor; el slide
+          // bajo el cursor se marca; al soltar encima, se intercambia el orden.
+          grip.addEventListener('pointerdown', (e) => {
             e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            blockEl.classList.add('is-dropover');
-          });
-          blockEl.addEventListener('dragleave', () => blockEl.classList.remove('is-dropover'));
-          blockEl.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (dragIdx === null || dragIdx === i || !isMiddle(i)) return;
-            moveSlide(dragIdx, i);
+            const startY = e.clientY;
+            let target = null;
+            let moved = false;
+            document.body.style.userSelect = 'none';
+            const onMove = (ev) => {
+              const dy = ev.clientY - startY;
+              if (!moved && Math.abs(dy) > 4) { moved = true; blockEl.classList.add('is-dragging'); }
+              if (!moved) return;
+              blockEl.style.transform = `translateY(${dy}px)`;
+              target = null;
+              for (const ref of blockRefs) {
+                if (ref.el === blockEl || !isMiddle(ref.i)) { ref.el.classList.remove('is-dropover'); continue; }
+                const r = ref.el.getBoundingClientRect();
+                const over = ev.clientY >= r.top && ev.clientY <= r.bottom;
+                ref.el.classList.toggle('is-dropover', over);
+                if (over) target = ref.i;
+              }
+            };
+            const onUp = () => {
+              document.removeEventListener('pointermove', onMove);
+              document.removeEventListener('pointerup', onUp);
+              document.body.style.userSelect = '';
+              blockEl.classList.remove('is-dragging');
+              blockEl.style.transform = '';
+              for (const ref of blockRefs) ref.el.classList.remove('is-dropover');
+              if (moved && target !== null && target !== i) moveSlide(i, target);
+            };
+            document.addEventListener('pointermove', onMove);
+            document.addEventListener('pointerup', onUp);
           });
         }
+        blockRefs.push({ el: blockEl, i });
         slidesWrap.appendChild(blockEl);
       });
       slidesWrap.appendChild(el('button', {
