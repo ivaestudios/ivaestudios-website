@@ -700,18 +700,23 @@ body.editor-open #viewScroll { overflow: hidden; }
 .edslide-add:hover { border-color: var(--brand, #E24DA0); }
 .edslide-del:hover { color: #fca5a5; border-color: #fca5a5; }
 
-/* Reordenar slides arrastrando: agarradera + estados visuales. */
+/* Reordenar slides arrastrando: agarradera + estados visuales. Se ve como
+   BOTÓN (borde + fondo) para que sea descubrible, no unos puntitos tenues. */
 .edslide-grip {
   display: inline-grid;
   place-items: center;
-  padding: 3px 5px;
-  margin-right: 2px;
-  border-radius: 7px;
-  color: var(--text-mute);
+  min-width: 28px;
+  min-height: 24px;
+  padding: 3px 6px;
+  margin-right: 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text-dim);
   cursor: grab;
   touch-action: none;
 }
-.edslide-grip:hover { color: var(--text); background: var(--surface-2); }
+.edslide-grip:hover { color: var(--text); border-color: var(--brand, #E24DA0); background: var(--surface-3); }
 .edslide-grip:active { cursor: grabbing; }
 .edblock.is-dragging { opacity: .45; }
 .edblock.is-dropover {

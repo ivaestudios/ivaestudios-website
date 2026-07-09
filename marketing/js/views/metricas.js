@@ -5,8 +5,8 @@
 // Datos: GET /ig/metrics-range?client_id&from&to. Solo staff (los clientes ven
 // otras pestañas). Por marca: si la marca no tiene IG conectado, lo dice.
 // ============================================================================
-import { api, el, clear } from '../api.js?v=202607081853';
-import { icon } from '../shell/icons.js?v=202607081853';
+import { api, el, clear } from '../api.js?v=202607081914';
+import { icon } from '../shell/icons.js?v=202607081914';
 
 const VIEW_ID = 'metricas';
 
@@ -46,7 +46,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/metricas.css?v=202607081853';
+  link.href = '/marketing/css/metricas.css?v=202607081914';
   document.head.appendChild(link);
 }
 
