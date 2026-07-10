@@ -1067,7 +1067,9 @@ async function handleResetUserPassword(env, session, userId) {
 //   - Daily dedupe via mkt_automation_runs.run_key = '<recipe>:<post>:<date>'
 //     with INSERT OR IGNORE: only notify when the insert actually landed.
 //   - Fan-out: assignee_user_id + active admins, excluding the actor, deduped.
-//     Users with role client receive NO notifications in v1.
+//   - v2: los usuarios role=client SÍ reciben avisos propios (pedido de
+//     aprobación, comentario visible del equipo, entregable nuevo) vía
+//     clientUserIds(); las recetas/automatizaciones siguen siendo del equipo.
 //   - Bodies arrive RESOLVED (es-MX, no em-dashes): history never changes if
 //     a post is renamed later.
 
@@ -1135,7 +1137,7 @@ async function notify(env, { user_ids, type, body, link, post_id, comment_id, cl
 }
 
 // Fan-out targets for a post event: active admins + the typed assignee,
-// excluding the actor. Clients never receive notifications in v1.
+// excluding the actor. (Los avisos AL cliente van aparte, vía clientUserIds.)
 async function staffFanout(env, post, excludeUserId) {
   const res = await env.DB.prepare(
     "SELECT id FROM mkt_users WHERE role = 'admin' AND active = 1"
@@ -1143,6 +1145,17 @@ async function staffFanout(env, post, excludeUserId) {
   const ids = (res.results || []).map((r) => r.id);
   if (post && post.assignee_user_id) ids.push(post.assignee_user_id);
   return [...new Set(ids)].filter((id) => id && id !== excludeUserId);
+}
+
+// Cuentas de cliente (role='client', activas) de una marca, excluyendo al
+// actor. v2: el cliente SÍ recibe avisos de lo suyo (aprobaciones pendientes,
+// comentarios visibles del equipo y entregables nuevos).
+async function clientUserIds(env, clientId, excludeUserId) {
+  if (!clientId) return [];
+  const res = await env.DB.prepare(
+    "SELECT id FROM mkt_users WHERE role = 'client' AND active = 1 AND client_id = ?"
+  ).bind(clientId).all();
+  return (res.results || []).map((r) => r.id).filter((id) => id && id !== excludeUserId);
 }
 
 // Staff users (admin|team, active) who already commented on a post.
@@ -1224,7 +1237,21 @@ async function hookAddComment(env, session, post, commentRow) {
     });
   }
 
-  // ── Comment fan-out (gated by the aviso_comentario recipe) ──
+  // ── Aviso AL CLIENTE (siempre activo, no es receta): el equipo publicó un
+  // comentario VISIBLE en un post suyo. Los internos ("Solo equipo") jamás. ──
+  if (session.role !== 'client' && !commentRow.internal) {
+    const clients = await clientUserIds(env, post.client_id, session.user_id);
+    if (clients.length) {
+      await notify(env, {
+        user_ids: clients, type: 'comentario',
+        body: `${session.name} comentó en ${post.title}: ${truncateText(bodyText, 140)}`,
+        link, post_id: post.id, comment_id: commentRow.id,
+        client_id: post.client_id, actor_name: session.name
+      });
+    }
+  }
+
+  // ── Comment fan-out al EQUIPO (gated by the aviso_comentario recipe) ──
   if (!recipeOn(autos, 'aviso_comentario')) return;
   let recipients;
   if (session.role === 'client') {
@@ -1232,7 +1259,8 @@ async function hookAddComment(env, session, post, commentRow) {
     recipients = await staffFanout(env, post, session.user_id);
     recipients = recipients.concat(await threadParticipants(env, post.id));
   } else {
-    // Staff commented → staff thread participants + assignee (NEVER clients).
+    // Staff commented → staff thread participants + assignee (el aviso al
+    // cliente ya salió arriba; este fan-out sigue siendo solo del equipo).
     recipients = await threadParticipants(env, post.id);
     if (post.assignee_user_id) recipients.push(post.assignee_user_id);
   }
@@ -1261,6 +1289,23 @@ async function hookPatchPost(env, session, before, after, bodyObj) {
       await notify(env, {
         user_ids: [next], type: 'asignacion',
         body: `${session.name} te asignó ${after.title}`,
+        link, post_id: after.id, client_id: after.client_id, actor_name: session.name
+      });
+    }
+  }
+
+  // Aviso AL CLIENTE (siempre activo, no es receta): pedido de aprobación.
+  // Un post suyo pendiente de aprobar acaba de hacerse visible en su portal
+  // (approval_state es del servidor: los posts nacen 'pending' y el equipo
+  // pide la aprobación encendiendo client_visible).
+  if (session.role !== 'client'
+      && after.client_visible === 1 && before.client_visible !== 1
+      && after.approval_state === 'pending') {
+    const clients = await clientUserIds(env, after.client_id, session.user_id);
+    if (clients.length) {
+      await notify(env, {
+        user_ids: clients, type: 'aprobacion_pendiente',
+        body: `${session.name} te pide aprobar ${after.title || 'un contenido'}`,
         link, post_id: after.id, client_id: after.client_id, actor_name: session.name
       });
     }
@@ -1631,6 +1676,23 @@ async function handleCreatePost(request, env, session) {
 
   const created = await env.DB.prepare('SELECT * FROM mkt_posts WHERE id = ?').bind(id).first();
   await logActivity(env, { client_id: clientId, post_id: id, session, action: 'post.create', detail: created.title });
+
+  // Aviso AL CLIENTE: el post nace visible en su portal y pendiente de
+  // aprobar → cuenta como pedido de aprobación. Best-effort, nunca rompe
+  // la respuesta (mismo patrón que los hooks V2).
+  try {
+    if (session.role !== 'client' && created.client_visible === 1 && created.approval_state === 'pending') {
+      const clients = await clientUserIds(env, clientId, session.user_id);
+      if (clients.length) {
+        await notify(env, {
+          user_ids: clients, type: 'aprobacion_pendiente',
+          body: `${session.name} te pide aprobar ${created.title || 'un contenido'}`,
+          link: '#/post/' + id, post_id: id, client_id: clientId, actor_name: session.name
+        });
+      }
+    }
+  } catch (e) { if (!isMissingTableError(e)) console.error('[mkt notifyClientCreate]', e && e.message); }
+
   return json(shapePost(created), 201);
 }
 
@@ -2998,6 +3060,23 @@ async function handleAddDeliverableComment(request, env, session, id) {
     'INSERT INTO mkt_deliverable_comments (id, deliverable_id, user_id, author_name, author_role, body) VALUES (?, ?, ?, ?, ?, ?)'
   ).bind(cid, id, session.user_id || null, session.name || null, session.role || null, body).run();
   try { await logActivity(env, { client_id: d.client_id, session, action: 'deliverable.comment' }); } catch { /* best-effort */ }
+
+  // Si comenta el CLIENTE → avisar al equipo (admins activos, mismo fan-out
+  // que en posts vía staffFanout; los entregables no tienen asignado).
+  try {
+    if (session.role === 'client') {
+      const recipients = await staffFanout(env, null, session.user_id);
+      if (recipients.length) {
+        await notify(env, {
+          user_ids: recipients, type: 'comentario',
+          body: `${session.name || 'El cliente'} comentó el entregable ${d.title || d.month}: ${truncateText(body, 140)}`,
+          link: '#/entregables', comment_id: cid,
+          client_id: d.client_id, actor_name: session.name
+        });
+      }
+    }
+  } catch (e) { if (!isMissingTableError(e)) console.error('[mkt notifyDlvComment]', e && e.message); }
+
   const c = await env.DB.prepare(
     'SELECT id, deliverable_id, author_name, author_role, body, created_at FROM mkt_deliverable_comments WHERE id = ?'
   ).bind(cid).first();
@@ -3032,6 +3111,20 @@ async function handleCreateDeliverable(request, env, session, url) {
   await env.DB.prepare('INSERT INTO mkt_deliverables (id, client_id, month, type, title, link) VALUES (?, ?, ?, ?, ?, ?)')
     .bind(id, clientId, month, type, title, link).run();
   const d = await env.DB.prepare('SELECT * FROM mkt_deliverables WHERE id = ?').bind(id).first();
+
+  // Aviso AL CLIENTE: hay un entregable nuevo de su marca. Best-effort,
+  // nunca rompe la respuesta (mismo patrón que los hooks V2).
+  try {
+    const clients = await clientUserIds(env, clientId, session.user_id);
+    if (clients.length) {
+      await notify(env, {
+        user_ids: clients, type: 'entregable',
+        body: `${session.name} agregó un ${type} nuevo${title ? ': ' + title : ''} (${month})`,
+        link: '#/entregables', client_id: clientId, actor_name: session.name
+      });
+    }
+  } catch (e) { if (!isMissingTableError(e)) console.error('[mkt notifyDeliverable]', e && e.message); }
+
   return json(shapeDeliverable(d, url.origin), 201);
 }
 

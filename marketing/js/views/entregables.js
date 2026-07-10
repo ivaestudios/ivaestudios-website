@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202607092340';
-import { icon } from '../shell/icons.js?v=202607092340';
+import { api, el, clear, toast } from '../api.js?v=202607100006';
+import { icon } from '../shell/icons.js?v=202607100006';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -47,11 +47,16 @@ let lastClientId = null;
 let uploadPct = 0;          // progreso de subida (0-100)
 let progressEls = null;     // refs vivos de la barra (se actualizan sin re-render)
 let queueInfo = null;       // { index, total } al subir varios reels en fila
+let activeMonthNav = '';    // 'YYYY-MM' del mes visible (navegación por píldoras)
+let dlAllBusy = false;      // "Descargar todos" en curso (evita dobles arranques)
+const dlAllCache = new Map(); // mes -> File[] ya bajados (móvil: el 2º toque comparte al instante)
 
 function isClient() { return ((ctx.store.getState().me || {}).role === 'client'); }
 function pad2(n) { return String(n).padStart(2, '0'); }
 function currentMonth() { const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`; }
 function monthLabel(ym) { const [y, m] = String(ym).split('-').map(Number); return `${(MES[(m || 1) - 1] || '').toUpperCase()} ${y}`; }
+// "Julio 2026" (para las píldoras de la barra de meses; el encabezado usa MAYÚSCULAS).
+function monthTitle(ym) { const [y, m] = String(ym).split('-').map(Number); const n = MES[(m || 1) - 1] || ''; return `${n.charAt(0).toUpperCase()}${n.slice(1)} ${y}`; }
 
 function activeClient() {
   const { activeClientId, clients } = ctx.store.getState();
@@ -65,12 +70,13 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202607092340';
+  link.href = '/marketing/css/entregables.css?v=202607100006';
   document.head.appendChild(link);
 }
 
 async function load() {
   const client = activeClient();
+  dlAllCache.clear(); // los archivos armados de "Descargar todos" caducan al recargar la lista
   if (!client) { items = []; render(); return; }
   loading = true; render();
   try {
@@ -241,9 +247,10 @@ async function uploadReel(file, qinfo) {
   if (file.size > MAX_VIDEO_MB * 1024 * 1024) { toast(`"${file.name}" es enorme (más de 3 GB). Compártelo por link mejor.`, 'error', 6000); return false; }
   busy = true; uploadPct = 0; queueInfo = qinfo || null; render();
   let created = null;
+  const month = addMonth || currentMonth();
   try {
     created = await api.post('/deliverables', {
-      client_id: client.id, month: addMonth || currentMonth(), type: 'reel',
+      client_id: client.id, month, type: 'reel',
       title: file.name.replace(/\.[^.]+$/, '').slice(0, 120),
     });
     // Subir por partes (~50MB) en paralelo -> mantiene la conexión llena.
@@ -258,6 +265,7 @@ async function uploadReel(file, qinfo) {
       }
     } catch { /* sin poster: la tarjeta usa el primer cuadro del video */ }
     toast((queueInfo && queueInfo.total > 1) ? `Subido ${queueInfo.index}/${queueInfo.total} ✓` : 'Reel subido ✓', 'success');
+    activeMonthNav = month; // al subir, la vista te lleva al mes donde quedó el reel
     if (!qinfo || qinfo.total <= 1) await load(); // en lote, drainQueue recarga 1 sola vez al final
     return true;
   } catch (e) {
@@ -296,12 +304,14 @@ async function addCarrusel(link, title) {
     return false;
   }
   busy = true; render();
+  const month = addMonth || currentMonth();
   try {
     await api.post('/deliverables', {
-      client_id: client.id, month: addMonth || currentMonth(), type: 'carrusel',
+      client_id: client.id, month, type: 'carrusel',
       link: url, title: (title || '').trim().slice(0, 200) || null,
     });
     toast('Carrusel agregado ✓', 'success');
+    activeMonthNav = month; // al agregar, la vista te lleva a ese mes
     await load();
     return true;
   } catch (e) {
@@ -474,6 +484,84 @@ async function saveVideo(it, btn) {
   }
 }
 
+// Guarda un File ya descargado con el gestor del navegador (escritorio y
+// fallback móvil): enlace a un blob local -> directo a Descargas.
+function blobDownload(file) {
+  const url = URL.createObjectURL(file);
+  const a = document.createElement('a');
+  a.href = url; a.download = file.name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => { try { URL.revokeObjectURL(url); } catch { /* noop */ } }, 60000);
+}
+
+// "Descargar todos" los reels del mes activo: encadena fetchVideoBlob uno por
+// uno (secuencial, no satura la conexión) con progreso simple en el botón
+// (2/7 · 45%). En escritorio cada archivo se guarda en Descargas al terminar;
+// en móvil se arma el mismo 2º toque que el botón individual (iOS exige que
+// share() salga JUSTO tras un toque) y el menú de Compartir guarda TODOS juntos.
+async function downloadAllReels(month, reels, btn) {
+  const label = btn.querySelector('span:not(.ico)');
+  const setLabel = (t) => { if (label) label.textContent = t; };
+  const mobile = isMobileSave() && !!(navigator.canShare && navigator.share);
+
+  // MÓVIL, 2º toque: los archivos ya están en memoria -> compartir SÍNCRONO.
+  const armed = dlAllCache.get(month);
+  if (mobile && armed && armed.length) {
+    try {
+      await navigator.share({ files: armed, title: 'Reels' });
+      dlAllCache.delete(month);
+      btn.classList.remove('dlv-dl--ready');
+      setLabel('Descargar todos');
+    } catch (e) {
+      if (e && e.name === 'AbortError') return; // canceló el menú: sigue armado
+      toast('No se abrió el menú para guardar. Toca el botón otra vez.', 'error', 5000);
+    }
+    return;
+  }
+
+  if (dlAllBusy) return;
+  dlAllBusy = true; btn.disabled = true;
+  const failed = []; const files = [];
+  try {
+    for (let i = 0; i < reels.length; i++) {
+      const it = reels[i];
+      const pos = `${i + 1}/${reels.length}`;
+      setLabel(`Descargando ${pos}…`);
+      try {
+        const blob = await fetchVideoBlob(it, (pct) => setLabel(`Descargando ${pos} · ${pct}%`));
+        const file = fileFromBlob(it, blob);
+        if (mobile) files.push(file); // en móvil se juntan para UN solo menú de Compartir
+        else { blobDownload(file); await new Promise((r) => setTimeout(r, 350)); }
+      } catch { failed.push(it.title || 'Reel'); }
+    }
+  } finally {
+    dlAllBusy = false; btn.disabled = false;
+  }
+
+  if (mobile && files.length) {
+    let shareable = false;
+    try { shareable = navigator.canShare({ files }); } catch { shareable = false; }
+    if (shareable) {
+      dlAllCache.set(month, files);
+      btn.classList.add('dlv-dl--ready');
+      setLabel('Toca para guardar todos');
+      toast('Tus videos ya están listos ✓ — toca otra vez el botón resaltado para guardarlos.', 'info', 8000);
+    } else {
+      // Este teléfono no comparte varios archivos a la vez: guardar uno por uno.
+      for (const f of files) blobDownload(f);
+      setLabel('Descargar todos');
+    }
+  } else {
+    setLabel('Descargar todos');
+  }
+
+  if (failed.length) {
+    toast(`${failed.length === 1 ? '1 reel no se descargó' : `${failed.length} reels no se descargaron`}: ${failed.join(', ')}. Intenta de nuevo.`, 'error', 9000);
+  } else if (!mobile) {
+    toast(`${reels.length} reels descargados ✓`, 'success');
+  }
+}
+
 // ── Render ───────────────────────────────────────────────────────────────────
 function buildAddBar() {
   if (!addMonth) addMonth = currentMonth();
@@ -578,9 +666,20 @@ async function deleteComment(it, c, node) {
 }
 
 function commentEl(it, c, staff) {
-  // Solo el texto del comentario. Para staff, una × discreta para borrarlo.
-  const node = el('div', { class: 'dlv-comment' }, [
-    el('p', { class: 'dlv-comment__body', text: c.body }),
+  // Encabezado (quién y cuándo: "Nombre · hace 2h") + texto. Los comentarios del
+  // CLIENTE se distinguen con borde y etiqueta de color. Para staff, × para borrar.
+  const fromClient = c.author_role === 'client';
+  const when = relTime(c.created_at);
+  const top = el('div', { class: 'dlv-comment__top' }, [
+    el('span', { class: 'dlv-comment__who', text: c.author_name || (fromClient ? 'Cliente' : 'Equipo IVAE') }),
+    c.author_role ? el('span', { class: 'dlv-comment__role' + (fromClient ? ' is-client' : ''), text: fromClient ? 'Cliente' : 'Equipo' }) : null,
+    when ? el('span', { class: 'dlv-comment__when', text: when }) : null,
+  ]);
+  const node = el('div', { class: 'dlv-comment' + (fromClient ? ' dlv-comment--client' : '') }, [
+    el('div', { class: 'dlv-comment__main' }, [
+      top,
+      el('p', { class: 'dlv-comment__body', text: c.body }),
+    ]),
     staff ? el('button', { class: 'dlv-comment__del', type: 'button', 'aria-label': 'Eliminar comentario' }, [icon('trash', 15)]) : null,
   ]);
   if (staff) { const d = node.querySelector('.dlv-comment__del'); if (d) d.addEventListener('click', () => deleteComment(it, c, node)); }
@@ -706,25 +805,59 @@ function render() {
     return;
   }
 
-  // Agrupar por mes (desc).
+  // Agrupar por mes (desc) y NAVEGAR por píldoras: el área muestra SOLO el mes
+  // activo (nada de apilar todos los meses). Default = el más reciente con contenido.
   const byMonth = new Map();
   for (const it of items) { if (!byMonth.has(it.month)) byMonth.set(it.month, []); byMonth.get(it.month).push(it); }
   const months = [...byMonth.keys()].sort().reverse();
+  if (!months.includes(activeMonthNav)) activeMonthNav = months[0];
+  if (months.length > 1) rootEl.appendChild(buildMonthBar(months, byMonth));
+
+  const m = activeMonthNav;
+  // Ordenar SIEMPRE por nombre, con orden numérico natural (2 < 11 < 12),
+  // sin importar cuándo se subió cada uno (re-subir el 11 no lo manda al final).
+  const list = byMonth.get(m).sort(
+    (a, b) => String(a.title || '').localeCompare(String(b.title || ''), 'es', { numeric: true, sensitivity: 'base' }),
+  );
+  const reels = list.filter((it) => it.type === 'reel' && it.video_url);
+  const sec = el('section', { class: 'dlv-month-sec' }, [
+    el('h2', { class: 'dlv-month-h' }, [
+      el('span', { class: 'dlv-month-h__t', text: monthLabel(m) }),
+      el('span', { class: 'dlv-month-h__n', text: String(list.length) }),
+      reels.length >= 2 ? buildDownloadAllBtn(m, reels) : null,
+    ]),
+    el('div', { class: 'dlv-grid' }, list.map((it) => buildItem(it, staff))),
+  ]);
+  rootEl.appendChild(sec);
+}
+
+// Barra de píldoras de meses (mismo patrón que la monthbar de "Meses"): nombre
+// del mes + conteo; la activa resaltada. Tocar una cambia el mes visible.
+function buildMonthBar(months, byMonth) {
+  const bar = el('div', { class: 'dlv-monthbar', role: 'tablist', 'aria-label': 'Meses' });
   for (const m of months) {
-    // Ordenar SIEMPRE por nombre, con orden numérico natural (2 < 11 < 12),
-    // sin importar cuándo se subió cada uno (re-subir el 11 no lo manda al final).
-    const list = byMonth.get(m).sort(
-      (a, b) => String(a.title || '').localeCompare(String(b.title || ''), 'es', { numeric: true, sensitivity: 'base' }),
-    );
-    const sec = el('section', { class: 'dlv-month-sec' }, [
-      el('h2', { class: 'dlv-month-h' }, [
-        el('span', { class: 'dlv-month-h__t', text: monthLabel(m) }),
-        el('span', { class: 'dlv-month-h__n', text: String(list.length) }),
-      ]),
-      el('div', { class: 'dlv-grid' }, list.map((it) => buildItem(it, staff))),
-    ]);
-    rootEl.appendChild(sec);
+    const active = m === activeMonthNav;
+    bar.appendChild(el('button', {
+      class: 'dlv-monthpill' + (active ? ' is-active' : ''),
+      type: 'button', role: 'tab', 'aria-selected': active ? 'true' : 'false',
+      onclick: () => { if (activeMonthNav !== m) { activeMonthNav = m; render(); } },
+    }, [
+      el('span', { class: 'dlv-monthpill__lbl', text: monthTitle(m) }),
+      el('span', { class: 'dlv-monthpill__n', text: String((byMonth.get(m) || []).length) }),
+    ]));
   }
+  return bar;
+}
+
+// Botón "Descargar todos" del mes activo (solo con 2+ reels ya procesados).
+function buildDownloadAllBtn(month, reels) {
+  const armed = dlAllCache.has(month); // móvil: archivos listos, falta el 2º toque
+  const btn = el('button', {
+    class: 'dlv-dl dlv-dlall' + (armed ? ' dlv-dl--ready' : ''), type: 'button',
+    'aria-label': 'Descargar todos los reels del mes', disabled: dlAllBusy || null,
+    onclick: (e) => downloadAllReels(month, reels, e.currentTarget),
+  }, [icon('down', 15), el('span', { text: armed ? 'Toca para guardar todos' : 'Descargar todos' })]);
+  return btn;
 }
 
 export default {
@@ -738,7 +871,7 @@ export default {
     lastClientId = (ctx.store.getState().activeClientId) || null;
     unsubs.push(ctx.store.subscribe(['clients', 'activeClientId'], () => {
       const now = ctx.store.getState().activeClientId || null;
-      if (now !== lastClientId) { lastClientId = now; load(); } else { render(); }
+      if (now !== lastClientId) { lastClientId = now; activeMonthNav = ''; load(); } else { render(); }
     }));
     render();
     load();
@@ -748,5 +881,6 @@ export default {
     for (const u of unsubs) { try { u(); } catch { /* noop */ } }
     unsubs = [];
     rootEl = null; ctx = null; items = []; loading = false; busy = false;
+    activeMonthNav = ''; dlAllBusy = false; dlAllCache.clear();
   },
 };

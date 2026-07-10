@@ -1140,3 +1140,100 @@ tr.meses-row--ph td {
 .mdsec--add { padding-top: 10px; padding-bottom: 8px; }
 .meses-drawer__addslide { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; padding: 8px 14px; border-style: dashed; }
 .meses-drawer__addslide:hover { border-color: var(--brand, #E24DA0); color: var(--text); }
+
+/* ── Aprobación visible ────────────────────────────────────────────────────── */
+
+/* Puntito de aprobación junto al badge de Estado (tabla desktop). Color por
+   estado: ámbar=pendiente, verde=aprobado, rosa=cambios (viene en --chipc). */
+.meses-statuscell { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+.meses-apprdot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--chipc, var(--text-mute));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--chipc, var(--text-mute)) 22%, transparent);
+}
+
+/* Chip de aprobación en la tarjeta móvil (solo lectura, no abre picker). */
+.meses-chip--appr { cursor: default; }
+.meses-chip--appr::after { content: none; }
+.meses-chip--appr .meses-chip__dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--chipc, var(--text-mute));
+}
+
+/* Stat "Sin aprobar" de la franja del mes (ámbar cuando hay pendientes). */
+.meses-stat.is-warn .meses-stat__v { color: #f59e0b; }
+
+/* Banner del cliente: "Tienes N piezas por revisar" (arriba del calendario). */
+.meses-revisar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: var(--tap, 44px);
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  background: color-mix(in srgb, #f59e0b 13%, var(--surface-2));
+  border: 1px solid color-mix(in srgb, #f59e0b 45%, transparent);
+  border-radius: var(--r, 12px);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast);
+}
+.meses-revisar .ico { color: #f59e0b; flex: none; }
+.meses-revisar__txt { flex: 1; min-width: 0; }
+.meses-revisar:hover { border-color: #f59e0b; }
+.meses-revisar:active { transform: translateY(1px); }
+.meses-revisar:focus-visible { outline: none; box-shadow: var(--ring); }
+
+/* Botones Aprobar / Pedir cambios en la tarjeta móvil (solo cliente, solo
+   piezas pendientes). Targets táctiles >=44px, verde=aprobar rosa=cambios. */
+.meses-approve {
+  display: flex;
+  gap: 8px;
+  margin: 8px 6px 2px;
+}
+.meses-approve__btn {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: var(--tap, 44px);
+  padding: 0 10px;
+  border-radius: var(--r-sm);
+  font: inherit;
+  font-size: var(--fs-1);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast);
+}
+.meses-approve__btn:disabled { opacity: .6; cursor: default; }
+.meses-approve__btn:focus-visible { outline: none; box-shadow: var(--ring); }
+.meses-approve__btn--ok {
+  background: color-mix(in srgb, #22c55e 16%, transparent);
+  border: 1px solid color-mix(in srgb, #22c55e 45%, transparent);
+  color: #4ade80;
+}
+.meses-approve__btn--ok .ico { color: #4ade80; }
+.meses-approve__btn--ok:active { background: color-mix(in srgb, #22c55e 26%, transparent); }
+.meses-approve__btn--chg {
+  background: color-mix(in srgb, #ec4899 13%, transparent);
+  border: 1px solid color-mix(in srgb, #ec4899 40%, transparent);
+  color: #f472b6;
+}
+.meses-approve__btn--chg .ico { color: #f472b6; }
+.meses-approve__btn--chg:active { background: color-mix(in srgb, #ec4899 22%, transparent); }
+
+/* Textarea del sheet "Pedir cambios". */
+.meses-chgta { min-height: 96px; resize: vertical; }

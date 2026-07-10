@@ -62,11 +62,13 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     Promise.all([
-      // Delete EVERY cache from previous versions
+      // Delete EVERY cache from previous versions — EXCEPT the marketing
+      // app's own caches ('mkt-*'): /marketing/ has its dedicated SW
+      // (marketing/sw.js) that manages and cleans those by itself.
       caches.keys().then((keys) =>
         Promise.all(
           keys
-            .filter((k) => !k.endsWith(CACHE_VERSION))
+            .filter((k) => !k.endsWith(CACHE_VERSION) && !k.startsWith('mkt-'))
             .map((k) => caches.delete(k))
         )
       ),

@@ -23,13 +23,13 @@
 // ============================================================================
 
 import {
-  el, clear, copyText,
-  STATUSES, STATUS_ORDER, CONTENT_TYPES,
-  statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607092340';
-import { icon } from '../shell/icons.js?v=202607092340';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607092340';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607092340';
+  el, clear, copyText, api,
+  STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
+  statusLabel, contentTypeLabel, approvalLabel, fmtDate,
+} from '../api.js?v=202607100006';
+import { icon } from '../shell/icons.js?v=202607100006';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607100006';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607100006';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -134,6 +134,113 @@ function notesOf(post) {
   return (post && post.notes_people && typeof post.notes_people === 'object')
     ? post.notes_people
     : {};
+}
+
+// ── Aprobación del cliente (approval_state) ──────────────────────────────────
+
+// Sin approval_state guardado = pendiente (mismo default que tabla y editor).
+function approvalOf(post) { return (post && post.approval_state) || 'pending'; }
+
+function isClientRole() { return document.body.classList.contains('is-client'); }
+
+// Puntito de aprobación junto al badge de Estado (desktop): el color dice si
+// la pieza está pendiente/aprobada/con cambios; el detalle va en el title.
+function approvalDotNode(post) {
+  const state = approvalOf(post);
+  const def = APPROVALS[state] || APPROVALS.pending;
+  const dot = el('span', {
+    class: 'meses-apprdot', 'aria-hidden': 'true',
+    title: `Aprobación: ${approvalLabel(state)}`,
+  });
+  dot.style.setProperty('--chipc', def.color);
+  return dot;
+}
+
+// Decisión del cliente: POST /approve o /request-changes (mismos endpoints que
+// tabla/editor). Optimista + rollback + toast. Devuelve true si se guardó.
+async function sendApprovalDecision(post, decision, comment) {
+  const rollback = ctx.store.optimistic((s) => ({
+    posts: (s.posts || []).map((p) => (p.id === post.id ? { ...p, approval_state: decision } : p)),
+  }));
+  try {
+    await trackMutation((async () => {
+      const path = decision === 'approved' ? 'approve' : 'request-changes';
+      const res = await api.post(`/posts/${encodeURIComponent(post.id)}/${path}`, comment ? { comment } : {});
+      if (res && res.post && res.post.id) ctx.store.upsertPost(res.post);
+      ctx.store.emit('posts:changed');
+      ctx.store.emit('mutated');
+      ctx.store.refreshClientCounts();
+    })());
+    ctx.toast(decision === 'approved'
+      ? '¡Pieza aprobada! El equipo ya lo sabe. ✨'
+      : 'Cambios pedidos. El equipo lo verá enseguida.', { type: 'success' });
+    return true;
+  } catch (e) {
+    rollback();
+    ctx.toast((e && e.message) || 'No se pudo guardar, intenta de nuevo.', { type: 'error' });
+    return false;
+  }
+}
+
+// "Pedir cambios" desde la tarjeta (cliente): sheet con comentario. El
+// comentario se pide siempre (igual que en el editor: un "cambios" sin decir
+// cuáles no le sirve al equipo y el backend arma el hilo con él).
+function openPedirCambios(post) {
+  ctx.sheet.openSheet({
+    title: 'Pedir cambios',
+    mode: 'form',
+    build(body, close) {
+      const ta = el('textarea', {
+        class: 'input meses-chgta', rows: '4', maxlength: '2000',
+        placeholder: '¿Qué quieres cambiar de esta pieza?',
+        'aria-label': 'Comentario de cambios',
+      });
+      const help = el('div', { class: 'help', text: 'Tu comentario le llega directo al equipo.' });
+      const sendBtn = el('button', {
+        class: 'btn btn-primary sheet-cta', type: 'button', text: 'Enviar',
+        onclick: async () => {
+          const comment = ta.value.trim();
+          if (!comment) {
+            help.textContent = 'Cuéntanos qué cambiar (es lo que verá el equipo).';
+            help.classList.add('meses-urlhelp--error');
+            ta.focus();
+            return;
+          }
+          sendBtn.disabled = true;
+          const ok = await sendApprovalDecision(post, 'changes', comment);
+          sendBtn.disabled = false;
+          if (ok) close({ source: 'save' });
+        },
+      });
+      body.append(
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Comentario' }), ta]),
+        help,
+        el('div', { class: 'sheet__footer' }, [
+          el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
+          sendBtn,
+        ]),
+      );
+      setTimeout(() => { try { ta.focus(); } catch { /* noop */ } }, 60);
+    },
+  });
+}
+
+// ── Guardrail de caption (regla cero-errores) ────────────────────────────────
+// El caption es el copy FINAL de IG: el guion (HOOK/BODY/CTA/SLIDES) y los
+// hashtags viven en SUS campos. Si el caption trae líneas-etiqueta de guion o
+// hashtags reales (#Palabra, no #1), se avisa UNA vez por pieza y por sesión —
+// sin bloquear jamás el guardado.
+const RE_CAPTION_ETIQUETA = /^\s*(HOOK|CUERPO|BODY|CTA|COPY|HASHTAGS?|GANCHO|SLIDE\s*\d+)\s*:?\s*$/im;
+const RE_CAPTION_HASHTAG = /#\p{L}/u;
+const captionAvisados = new Set(); // ids de posts ya avisados en esta sesión
+
+function avisarCaptionSucio(postId, caption) {
+  const txt = String(caption || '');
+  if (!txt) return;
+  if (!RE_CAPTION_ETIQUETA.test(txt) && !RE_CAPTION_HASHTAG.test(txt)) return;
+  if (captionAvisados.has(postId)) return;
+  captionAvisados.add(postId);
+  ctx.toast('El caption trae guion/hashtags dentro — van en su campo.', { type: 'info', ms: 5200 });
 }
 
 /** URL valida http(s) o null (regla de seguridad: hrefs solo via new URL). */
@@ -664,6 +771,9 @@ function openCaptionDrawer(post) {
     const cur = currentValues(); const patch = {};
     for (const k of Object.keys(cur)) if (cur[k] !== savedSnap[k]) patch[k] = cur[k];
     if (!Object.keys(patch).length) { paint('saved'); return; }
+    // Guardrail cero-errores: avisa si el caption trae guion/hashtags dentro
+    // (una vez por pieza; NUNCA bloquea el guardado).
+    if (Object.prototype.hasOwnProperty.call(patch, 'caption')) avisarCaptionSucio(post.id, patch.caption);
     saving = true; paint('saving');
     let ok = false;
     try {
@@ -921,6 +1031,9 @@ function buildMonthStats(rows) {
   const d = new Date();
   const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const atrasados = list.filter((p) => p.publish_date && p.publish_date < todayStr && p.status !== 'publicado').length;
+  // Sin aprobar = pendiente O con cambios pedidos (todo lo que aún no tiene
+  // el visto bueno del cliente).
+  const sinAprobar = list.filter((p) => approvalOf(p) !== 'approved').length;
   const stat = (k, v, cls) => el('div', { class: 'meses-stat' + (cls ? ` ${cls}` : '') }, [
     el('span', { class: 'meses-stat__v', text: String(v) }),
     el('span', { class: 'meses-stat__k', text: k }),
@@ -929,6 +1042,7 @@ function buildMonthStats(rows) {
     stat('Piezas', total),
     stat('Publicado', `${Math.round((pub / total) * 100)}%`),
     stat('Atrasados', atrasados, atrasados ? 'is-danger' : 'is-ok'),
+    stat('Sin aprobar', sinAprobar, sinAprobar ? 'is-warn' : 'is-ok'),
   ]);
 }
 
@@ -1037,9 +1151,14 @@ function buildRow(post, noteLabels) {
     cellButton(typePillNode(post.content_type), (a) => onPickType(post, a),
       post.content_type ? `Tipo ${contentTypeLabel(post.content_type)}, cambiar` : 'Asignar tipo'),
   ]);
+  // Estado + puntito de aprobación (pendiente/aprobado/cambios) en la misma
+  // celda: la aprobación del cliente se ve sin abrir el editor.
   const tdStatus = el('td', { class: 'meses-td' }, [
-    cellButton(statusPillNode(post.status), (a) => onPickStatus(post, a),
-      `Estado ${statusLabel(post.status) || 'sin estado'}, cambiar`),
+    cellButton(
+      el('span', { class: 'meses-statuscell' }, [statusPillNode(post.status), approvalDotNode(post)]),
+      (a) => onPickStatus(post, a),
+      `Estado ${statusLabel(post.status) || 'sin estado'}, aprobación ${approvalLabel(approvalOf(post)).toLowerCase()}, cambiar`,
+    ),
   ]);
 
   // Fecha publicacion (columna real de su Notion; editar puede mover de mes)
@@ -1283,6 +1402,20 @@ function buildMobileItem(post, noteLabels) {
       chips.children[1] || null, // justo después de la fecha
     );
   }
+
+  // Chip de aprobación (solo lectura): cliente y dueña ven de un vistazo si la
+  // pieza está pendiente, aprobada o con cambios pedidos.
+  const apprState = approvalOf(post);
+  const apprDef = APPROVALS[apprState] || APPROVALS.pending;
+  const apprChip = el('span', {
+    class: 'meses-chip meses-chip--appr',
+    'aria-label': `Aprobación: ${approvalLabel(apprState)}`,
+  }, [
+    el('span', { class: 'meses-chip__dot', 'aria-hidden': 'true' }),
+    el('span', { text: approvalLabel(apprState) }),
+  ]);
+  apprChip.style.setProperty('--chipc', apprDef.color);
+  chips.appendChild(apprChip);
   card.appendChild(chips);
 
   // Notas por persona (Jairo, contacto del cliente...): se muestran DIRECTO en
@@ -1318,6 +1451,28 @@ function buildMobileItem(post, noteLabels) {
       onclick: () => ctx.openEditor(post.id, { tab: 'contenido' }),
     }, [icon('copy', 15), el('span', { text: 'Notas' })]),
   ]));
+
+  // El CLIENTE decide desde la tarjeta (solo si sigue pendiente): Aprobar de
+  // un toque, o Pedir cambios con comentario. Optimista + toast.
+  if (isClientRole() && apprState === 'pending') {
+    const okBtn = el('button', {
+      class: 'meses-approve__btn meses-approve__btn--ok', type: 'button',
+      'aria-label': `Aprobar "${post.title || 'Sin título'}"`,
+      onclick: async () => {
+        okBtn.disabled = true;
+        await sendApprovalDecision(post, 'approved', null);
+        okBtn.disabled = false;
+      },
+    }, [icon('check', 15), el('span', { text: 'Aprobar' })]);
+    card.appendChild(el('div', { class: 'meses-approve' }, [
+      okBtn,
+      el('button', {
+        class: 'meses-approve__btn meses-approve__btn--chg', type: 'button',
+        'aria-label': `Pedir cambios en "${post.title || 'Sin título'}"`,
+        onclick: () => openPedirCambios(post),
+      }, [icon('edit', 15), el('span', { text: 'Pedir cambios' })]),
+    ]));
+  }
   return card;
 }
 
@@ -1392,6 +1547,82 @@ async function openAddMonth() {
   }
   activeMonth = v; // el mes nuevo queda activo (la navegacion es por mes)
   render();
+}
+
+// ── Copiar mes (staff): duplica las piezas de un mes origen al mes ACTIVO ────
+// Por cada post del origen: POST /posts/:id/duplicate (el server copia guion y
+// checklist) y luego PATCH publish_date al MISMO día del mes destino (topado
+// al último día: 31 de enero → 28/29 de febrero).
+
+let copiandoMes = false;
+
+async function openCopyMonth() {
+  if (copiandoMes) return;
+  const { activeClientId, posts } = ctx.store.getState();
+  if (!activeClientId || activeClientId === 'todos') return;
+  if (!activeMonth || activeMonth === SIN_MES) {
+    ctx.toast('Elige primero un mes destino con fecha.', { type: 'info' });
+    return;
+  }
+
+  // Meses origen: los que tienen contenido (SIN filtros), menos el destino.
+  const byM = new Map();
+  for (const p of posts || []) {
+    const k = monthKeyOf(p);
+    if (!k || k === activeMonth) continue;
+    if (!byM.has(k)) byM.set(k, []);
+    byM.get(k).push(p);
+  }
+  const keys = [...byM.keys()].sort().reverse(); // el más reciente primero
+  if (!keys.length) {
+    ctx.toast('No hay otro mes con contenido para copiar.', { type: 'info' });
+    return;
+  }
+
+  const destLbl = capitalize(monthLabel(activeMonth));
+  const src = await ctx.sheet.pickFrom({
+    title: `Copiar a ${destLbl} desde…`,
+    options: keys.map((ym) => ({
+      value: ym,
+      label: capitalize(monthLabel(ym)),
+      sub: `${byM.get(ym).length} ${byM.get(ym).length === 1 ? 'pieza' : 'piezas'}`,
+    })),
+  });
+  if (!src) return;
+
+  const rows = byM.get(src) || [];
+  const [dy, dm] = activeMonth.split('-').map(Number);
+  const lastDay = new Date(dy, dm, 0).getDate();
+  copiandoMes = true;
+  ctx.toast(`Copiando ${rows.length} ${rows.length === 1 ? 'pieza' : 'piezas'} de ${capitalize(monthLabel(src))} a ${destLbl}…`, { type: 'info' });
+
+  let ok = 0;
+  let fail = 0;
+  await trackMutation((async () => {
+    for (const p of rows) {
+      try {
+        const res = await api.post(`/posts/${encodeURIComponent(p.id)}/duplicate`, {
+          include_checklist: 1, include_script: 1,
+        });
+        const nuevo = (res && res.post) || res;
+        if (!nuevo || !nuevo.id) { fail += 1; continue; }
+        const day = Math.min(Number(String(p.publish_date || '').slice(8, 10)) || 1, lastDay);
+        // patchPost inserta el duplicado en memoria al resolver (la copia va
+        // apareciendo en el mes destino conforme avanza) y toastea si falla.
+        const saved = await ctx.store.patchPost(nuevo.id, {
+          publish_date: `${activeMonth}-${String(day).padStart(2, '0')}`,
+        });
+        if (saved) ok += 1; else fail += 1;
+      } catch { fail += 1; }
+    }
+  })());
+  copiandoMes = false;
+
+  // Estado fresco del servidor al final (posiciones, títulos, contadores).
+  await ctx.store.loadPosts();
+  ctx.store.refreshClientCounts();
+  if (fail) ctx.toast(`Se copiaron ${ok} de ${rows.length} piezas; ${fail} fallaron. Inténtalo de nuevo para las que faltan.`, { type: 'error' });
+  else ctx.toast(`Listo: ${ok} ${ok === 1 ? 'pieza copiada' : 'piezas copiadas'} a ${destLbl}. ✨`, { type: 'success' });
 }
 
 
@@ -1575,6 +1806,9 @@ const FILTER_DIMS = [
   { dim: 'type',     label: 'Tipo',       getVal: (p) => p.content_type || '', labelOf: (v) => contentTypeLabel(v) || v },
   { dim: 'platform', label: 'Plataforma', getVal: (p) => p.platform || '',     labelOf: (v) => v },
   { dim: 'grab',     label: 'Grabación',  getVal: (p) => (p.grabacion == null || p.grabacion === '' ? '' : String(p.grabacion)), labelOf: (v) => `Nivel ${v}` },
+  // Aprobación del cliente: sirve al cliente (banner "por revisar") y a la
+  // dueña en su panel de filtros. Sin valor guardado cuenta como pendiente.
+  { dim: 'approval', label: 'Aprobación', getVal: (p) => approvalOf(p), labelOf: (v) => approvalLabel(v) || v },
 ];
 
 function filtersKey() {
@@ -1958,6 +2192,31 @@ function render() {
 
   clear(sectionsEl);
 
+  // Banner del CLIENTE arriba del calendario: "Tienes N piezas por revisar"
+  // (todas las pendientes de su aprobación, de cualquier mes). Tocar filtra
+  // por Aprobación=Pendiente y salta al mes más reciente con piezas por ver.
+  if (isClientRole()) {
+    const porRevisar = allPosts.filter((p) => approvalOf(p) === 'pending');
+    if (porRevisar.length) {
+      sectionsEl.appendChild(el('button', {
+        class: 'meses-revisar', type: 'button',
+        onclick: () => {
+          setFilters({ ...getFilters(), approval: 'pending' });
+          const meses = porRevisar.map(monthKeyOf).filter(Boolean).sort();
+          if (meses.length) activeMonth = meses[meses.length - 1];
+          render();
+        },
+      }, [
+        icon('bell', 18),
+        el('span', {
+          class: 'meses-revisar__txt',
+          text: `Tienes ${porRevisar.length} ${porRevisar.length === 1 ? 'pieza' : 'piezas'} por revisar`,
+        }),
+        icon('right', 16),
+      ]));
+    }
+  }
+
   // En desktop los filtros viven en los encabezados de la tabla (estilo Excel).
   // La barra de chips solo se usa en movil (la lista no tiene encabezados).
   if (!desktop) sectionsEl.appendChild(buildFilterBar(allPosts));
@@ -1999,12 +2258,21 @@ function render() {
     single: true,
   }));
 
-  const isClientRole = document.body.classList.contains('is-client');
-  if (!isTodos && !isClientRole) {
+  const esCliente = isClientRole(); // (helper de módulo; sin shadowing local)
+  if (!isTodos && !esCliente) {
     sectionsEl.appendChild(el('button', {
       class: 'meses-addmonth', type: 'button',
       onclick: () => openAddMonth(),
     }, [icon('plus', 16), el('span', { text: 'Agregar mes' })]));
+    // Copiar mes anterior: duplica las piezas de otro mes en el mes activo
+    // (solo staff, y solo con un mes destino con fecha).
+    if (activeMonth && activeMonth !== SIN_MES) {
+      sectionsEl.appendChild(el('button', {
+        class: 'meses-addmonth meses-copymonth', type: 'button',
+        title: `Duplica todas las piezas de otro mes en ${capitalize(monthLabel(activeMonth))}`,
+        onclick: () => openCopyMonth(),
+      }, [icon('copy', 16), el('span', { text: 'Copiar mes anterior…' })]));
+    }
     // Avisos automáticos por marca (solo admin/equipo).
     const brandRow = (ctx.store.getState().clients || []).find((c) => c.id === activeClientId);
     const remOn = !brandRow || brandRow.reminders_enabled !== 0;
@@ -2022,7 +2290,7 @@ function render() {
       target: '_blank', rel: 'noopener',
     }, [icon('activity', 15), el('span', { text: `Reporte de ${capitalize(monthLabel(activeMonth))}` })]));
     // Captura manual de resultados de Instagram para el mes (solo staff).
-    if (!isClientRole) {
+    if (!esCliente) {
       sectionsEl.appendChild(el('button', {
         class: 'meses-addmonth meses-igmanual', type: 'button',
         onclick: () => openIgManual(),

@@ -75,6 +75,29 @@
 }
 .dlv-addbtn:disabled { opacity: .5; cursor: not-allowed; }
 
+/* ── Barra de meses (píldoras): se navega por mes, el área muestra SOLO el
+   mes activo. Mismo patrón que la monthbar de "Meses". ── */
+.dlv-monthbar {
+  display: flex; gap: 8px; overflow-x: auto;
+  padding: 2px 2px 14px; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.dlv-monthbar::-webkit-scrollbar { display: none; }
+.dlv-monthpill {
+  display: inline-flex; align-items: center; gap: 7px; flex: none;
+  padding: 8px 13px; min-height: 40px;
+  background: var(--surface-2, #0E0E13); border: 1px solid var(--border, #1E1E26);
+  border-radius: var(--r-pill, 999px); color: var(--text-dim, #9A9AA8);
+  font: inherit; font-size: var(--fs-2, 14px); font-weight: 600;
+  white-space: nowrap; cursor: pointer;
+}
+.dlv-monthpill:hover { background: var(--surface-3, #1a1a22); }
+.dlv-monthpill.is-active { background: var(--brand, #E24DA0); border-color: transparent; color: #fff; }
+.dlv-monthpill__n {
+  font-size: var(--fs-1, 12px); background: var(--surface-3, #1a1a22); color: var(--text-mute, #62626F);
+  border-radius: var(--r-pill, 999px); padding: 1px 8px;
+}
+.dlv-monthpill.is-active .dlv-monthpill__n { background: rgba(255, 255, 255, .22); color: #fff; }
+
 /* ── Secciones por mes ── */
 .dlv-month-sec { margin: 0 0 26px; }
 .dlv-month-h { display: flex; align-items: center; gap: 10px; margin: 0 2px 12px; }
@@ -137,6 +160,10 @@
 }
 .dlv-dl:hover { border-color: var(--brand, #E24DA0); color: #fff; }
 .dlv-dl .ico { color: var(--brand, #E24DA0); }
+.dlv-dl:disabled { opacity: .6; cursor: default; }
+
+/* "Descargar todos" (en el encabezado del mes, a la derecha del conteo). */
+.dlv-dlall { margin-left: auto; font-variant-numeric: tabular-nums; }
 
 /* Botón "armado" (iOS): el video ya bajó y falta un 2º toque para guardarlo en el teléfono.
    Resaltado + pulso para que sea obvio que hay que tocarlo otra vez. */
@@ -198,7 +225,8 @@
   border-radius: var(--r-sm, 10px); padding: 10px 12px;
 }
 .dlv-comment--client { border-color: color-mix(in srgb, var(--brand, #E24DA0) 40%, var(--border, #1E1E26)); }
-.dlv-comment__top { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+.dlv-comment__main { flex: 1; min-width: 0; }
+.dlv-comment__top { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; flex-wrap: wrap; }
 .dlv-comment__who { font-size: var(--fs-2, 13px); font-weight: 700; color: var(--text, #ECECF1); }
 .dlv-comment__role {
   font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
