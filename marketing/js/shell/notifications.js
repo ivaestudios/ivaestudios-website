@@ -14,12 +14,12 @@
 //   aplicar) se ocultan campana y tab Avisos y el polling se detiene.
 // ============================================================================
 
-import { api, el, clear, timeAgo, initials } from '../api.js?v=202607081933';
-import * as store from './store.js?v=202607081933';
-import { pushLayer } from './router.js?v=202607081933';
-import { openSheet } from './sheet.js?v=202607081933';
-import { toast } from './toast.js?v=202607081933';
-import { icon } from './icons.js?v=202607081933';
+import { api, el, clear, timeAgo, initials } from '../api.js?v=202607092047';
+import * as store from './store.js?v=202607092047';
+import { pushLayer } from './router.js?v=202607092047';
+import { openSheet } from './sheet.js?v=202607092047';
+import { toast } from './toast.js?v=202607092047';
+import { icon } from './icons.js?v=202607092047';
 
 const POLL_MS = 60000;
 const FILTERS = [
@@ -41,14 +41,18 @@ export function createNotifications({ router, onUnavailable }) {
   let justRead = new Set(); // ids leidos con el panel abierto (tab No leidas)
 
   // ── Polling de no leidas ───────────────────────────────────────────────────
+  let miss404 = 0; // 404s consecutivos: uno suelto puede ser un blip de deploy
   async function refreshUnread() {
     if (!available) return;
     try {
       const res = await api.get('/notifications/unread-count');
       const n = (res && (res.unread ?? res.count)) || 0;
+      miss404 = 0;
       store.set({ unreadCount: Number(n) || 0 });
     } catch (e) {
-      if (e && e.status === 404) markUnavailable();
+      // Solo 3 404s CONSECUTIVOS apagan la campana (= migración de verdad
+      // ausente); antes UN 404 puntual la mataba el resto de la sesión.
+      if (e && e.status === 404) { miss404 += 1; if (miss404 >= 3) markUnavailable(); }
       // Otros errores (red, 500): se reintenta en el siguiente ciclo.
     }
   }

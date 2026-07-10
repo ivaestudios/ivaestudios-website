@@ -19,20 +19,20 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202607081933';
-import * as store from './store.js?v=202607081933';
-import * as prefs from './prefs.js?v=202607081933';
-import * as router from './router.js?v=202607081933';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607081933';
-import { toast } from './toast.js?v=202607081933';
-import { icon } from './icons.js?v=202607081933';
-import * as iconsMod from './icons.js?v=202607081933';
-import { createTopbar } from './topbar.js?v=202607081933';
-import { createBottomNav } from './bottomnav.js?v=202607081933';
-import { createSearch } from './search.js?v=202607081933';
-import { createNotifications } from './notifications.js?v=202607081933';
-import * as pickers from '../ui/pickers.js?v=202607081933';
-import * as dnd from '../ui/dnd.js?v=202607081933';
+import { api, el } from '../api.js?v=202607092047';
+import * as store from './store.js?v=202607092047';
+import * as prefs from './prefs.js?v=202607092047';
+import * as router from './router.js?v=202607092047';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607092047';
+import { toast } from './toast.js?v=202607092047';
+import { icon } from './icons.js?v=202607092047';
+import * as iconsMod from './icons.js?v=202607092047';
+import { createTopbar } from './topbar.js?v=202607092047';
+import { createBottomNav } from './bottomnav.js?v=202607092047';
+import { createSearch } from './search.js?v=202607092047';
+import { createNotifications } from './notifications.js?v=202607092047';
+import * as pickers from '../ui/pickers.js?v=202607092047';
+import * as dnd from '../ui/dnd.js?v=202607092047';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -189,13 +189,55 @@ function installAuthInterceptor() {
         if (err && err.status === 401 && store.getState().booted && !redirected) {
           redirected = true;
           prefs.set('returnTo', location.hash || '');
-          toast('Tu sesión expiró. Vuelve a iniciar sesión.', { type: 'info' });
-          setTimeout(() => location.replace('/marketing/'), 900);
+          // Si hay trabajo a medias (editor o sheet abiertos), NO descargar la
+          // app a los 900ms: se perdería el texto sin guardar. Aviso persistente
+          // con acción; la dueña decide cuándo ir al login.
+          const editing = document.body.classList.contains('editor-open') || document.querySelector('.sheet');
+          if (editing) {
+            toast('Tu sesión expiró. Copia tu texto pendiente y vuelve a entrar.', {
+              type: 'error', ms: 60000,
+              action: { label: 'Ir al login', onAction: () => location.replace('/marketing/') },
+            });
+          } else {
+            toast('Tu sesión expiró. Vuelve a iniciar sesión.', { type: 'info' });
+            setTimeout(() => location.replace('/marketing/'), 900);
+          }
         }
         throw err;
       }
     };
   }
+}
+
+// Detector de versión nueva: la SPA congela sus módulos con ?v=stamp al cargar,
+// así que tras cada deploy las pestañas abiertas corren código viejo (fuente #1
+// de "botones que no hacen nada"). Cada 5 min (y al volver a la pestaña) se
+// compara el stamp propio contra el app.html fresco del servidor; si cambió,
+// aviso persistente con botón Actualizar. Nunca recarga sola: podría haber
+// texto sin guardar.
+function installVersionWatch() {
+  const cur = ((document.querySelector('script[src*="main.js?v="]') || {}).src || '').match(/v=([\w.-]+)/)?.[1];
+  if (!cur) return;
+  let notified = false;
+  const check = async () => {
+    if (notified || document.visibilityState !== 'visible') return;
+    try {
+      const r = await fetch('/marketing/app.html', { cache: 'no-store', credentials: 'same-origin' });
+      if (!r.ok) return;
+      const server = (await r.text()).match(/main\.js\?v=([\w.-]+)/)?.[1];
+      if (server && server !== cur) {
+        notified = true;
+        toast('Hay una versión nueva de la app.', {
+          type: 'info', ms: 600000,
+          action: { label: 'Actualizar', onAction: () => location.reload() },
+        });
+      }
+    } catch { /* sin red: se reintenta en el siguiente ciclo */ }
+  };
+  setInterval(check, 5 * 60 * 1000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') check();
+  });
 }
 
 function installOnlineOffline() {
@@ -325,6 +367,7 @@ export async function boot() {
   applyAccent(activeClientId);
   installAuthInterceptor();
   installOnlineOffline();
+  installVersionWatch();
   notifications.start();
 
   // 5) Router.

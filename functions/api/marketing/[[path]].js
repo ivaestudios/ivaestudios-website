@@ -1596,9 +1596,13 @@ async function handleGetPost(request, env, session, postId) {
     'SELECT id, post_id, actor_name, decision, comment, created_at FROM mkt_approvals WHERE post_id = ? ORDER BY created_at ASC'
   ).bind(postId).all();
 
+  // Los comentarios INTERNOS ("Solo equipo") jamás viajan a un login de cliente.
+  let comments = commentsRes.results || [];
+  if (session.role === 'client') comments = comments.filter((c) => !c.internal);
+
   const payload = {
     post: shapePost(post),
-    comments: commentsRes.results || [],
+    comments,
     approvals: approvalsRes.results || []
   };
   // Checklist del post (Pre-004 / tabla ausente → lista vacia).

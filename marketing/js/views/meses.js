@@ -26,10 +26,10 @@ import {
   el, clear, copyText,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607081933';
-import { icon } from '../shell/icons.js?v=202607081933';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607081933';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607081933';
+} from '../api.js?v=202607092047';
+import { icon } from '../shell/icons.js?v=202607092047';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607092047';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607092047';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1312,6 +1312,13 @@ function buildComposer(key, monthRows) {
     const { activeClientId } = ctx.store.getState();
     if (!activeClientId || activeClientId === 'todos') return;
     btn.disabled = true;
+    // La fila nueva nace con status 'idea' y sin tipo/plataforma: con un filtro
+    // activo quedaría INVISIBLE y parecería que el botón no hizo nada (y los
+    // reintentos crean filas fantasma). Se limpian los filtros antes de crear.
+    if (Object.values(getFilters()).some(Boolean)) {
+      setFilters({});
+      ctx.toast('Quitamos los filtros para que veas tu fila nueva.', { type: 'info' });
+    }
     const data = {
       client_id: activeClientId,
       title: '',

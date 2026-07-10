@@ -22,7 +22,7 @@
 //   'view:applied'.
 // ============================================================================
 
-import { api, toast } from '../api.js?v=202607081933';
+import { api, toast } from '../api.js?v=202607092047';
 
 const ERR_SAVE = 'No se pudo guardar, intenta de nuevo.';
 
@@ -135,7 +135,13 @@ export async function refreshClientCounts() {
  * Carga los posts del cliente activo (o de todos con scope=all + fallback
  * multi-fetch si el backend nuevo aun no esta desplegado).
  */
+// Token de generación: si hay dos cargas en vuelo (cambio rápido de marca en
+// red lenta), solo la ÚLTIMA escribe state.posts — la respuesta tardía del
+// cliente anterior se descarta (evita "se cruzaron los calendarios").
+let loadGen = 0;
+
 export async function loadPosts(clientId = state.activeClientId) {
+  const gen = ++loadGen;
   set({ loading: true });
   try {
     let posts;
@@ -157,9 +163,11 @@ export async function loadPosts(clientId = state.activeClientId) {
     } else {
       posts = [];
     }
+    if (gen !== loadGen) return posts; // respuesta obsoleta: otro cliente ya cargó
     set({ posts, loading: false });
     return posts;
   } catch (e) {
+    if (gen !== loadGen) return null;
     set({ loading: false });
     toast(e.message || 'No se pudieron cargar los contenidos.', 'error');
     return null;
@@ -268,8 +276,11 @@ export async function loadUsers() {
   try {
     const users = await api.get('/users');
     set({ users: Array.isArray(users) ? users : [] });
+    return state.users;
   } catch {
-    set({ users: [] });
+    // NO cachear el fallo: users queda null y el siguiente loadUsers reintenta.
+    // (Antes se guardaba [] y toda la sesión veía "Sin usuarios" tras un blip.)
+    set({ users: null });
+    return [];
   }
-  return state.users;
 }
