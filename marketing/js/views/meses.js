@@ -26,10 +26,10 @@ import {
   el, clear, copyText, api,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202607100014';
-import { icon } from '../shell/icons.js?v=202607100014';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607100014';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607100014';
+} from '../api.js?v=202607100036';
+import { icon } from '../shell/icons.js?v=202607100036';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607100036';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607100036';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1695,6 +1695,95 @@ function openIgManual() {
   });
 }
 
+// ── Brief de la marca (solo staff) ───────────────────────────────────────────
+// Lo que la marca contestó en su onboarding, en un sheet de solo lectura.
+// Cache simple en memoria por client_id: el brief casi nunca cambia y así el
+// segundo toque abre al instante (se limpia al desmontar la vista).
+const briefCache = new Map();
+
+// Convierte cualquier respuesta a texto legible (listas → comas, vacío → em dash).
+function briefAnswerText(v) {
+  if (v == null || v === '') return '—';
+  if (Array.isArray(v)) return v.length ? v.map(briefAnswerText).join(', ') : '—';
+  if (typeof v === 'object') {
+    return Object.entries(v).map(([k, x]) => `${k}: ${briefAnswerText(x)}`).join(' · ') || '—';
+  }
+  return String(v);
+}
+
+// Pinta el brief bonito: título de sección (estilo mfilt__glabel) y por item
+// la pregunta chiquita + la respuesta legible. Tolerante a varias formas del
+// JSON: arreglo de secciones, {secciones:[...]}, u objeto plano pregunta→respuesta.
+function renderBrief(brief) {
+  const root = el('div', { class: 'mbrief' });
+  const addItem = (q, a) => root.appendChild(el('div', { class: 'mbrief__item' }, [
+    q ? el('div', { class: 'mbrief__q', text: String(q) }) : null,
+    el('div', { class: 'mbrief__a', text: briefAnswerText(a) }),
+  ]));
+  const addSecTitle = (t) => root.appendChild(el('div', { class: 'mfilt__glabel mbrief__sec', text: String(t) }));
+
+  const secs = Array.isArray(brief) ? brief
+    : (brief && (Array.isArray(brief.secciones) ? brief.secciones
+      : (Array.isArray(brief.sections) ? brief.sections : null)));
+  if (secs) {
+    for (const s of secs) {
+      if (!s || typeof s !== 'object') continue;
+      const title = s.titulo || s.title || s.seccion || s.section || s.nombre || '';
+      if (title) addSecTitle(title);
+      const items = Array.isArray(s.items) ? s.items : (Array.isArray(s.preguntas) ? s.preguntas : []);
+      for (const it of items) {
+        if (!it || typeof it !== 'object') continue;
+        const q = it.pregunta || it.question || it.q || it.label || '';
+        const a = 'respuesta' in it ? it.respuesta : ('answer' in it ? it.answer : it.a);
+        addItem(q, a);
+      }
+    }
+  } else if (brief && typeof brief === 'object') {
+    // Objeto plano: cada llave es la pregunta; un sub-objeto es una sección.
+    for (const [q, a] of Object.entries(brief)) {
+      if (a && typeof a === 'object' && !Array.isArray(a)) {
+        addSecTitle(q);
+        for (const [q2, a2] of Object.entries(a)) addItem(q2, a2);
+      } else {
+        addItem(q, a);
+      }
+    }
+  }
+  if (!root.childNodes.length) {
+    root.appendChild(el('p', { class: 'meses-confirm__txt', text: 'El brief está vacío.' }));
+  }
+  return root;
+}
+
+// Abre el brief de la marca activa. 404 = la marca aún no lo llena (toast
+// suave, sin sheet); cualquier otro error = toast de error.
+async function openBrief() {
+  const { activeClientId, clients } = ctx.store.getState();
+  if (!activeClientId || activeClientId === 'todos') return;
+  const brand = (clients || []).find((c) => c.id === activeClientId);
+  let brief = briefCache.get(activeClientId);
+  if (brief === undefined) {
+    try {
+      brief = await api.get(`/clients/${activeClientId}/brief`);
+    } catch (e) {
+      if (!ctx) return; // la vista se desmontó mientras cargaba
+      if (e && e.status === 404) ctx.toast('Esta marca aún no llena su brief', { type: 'info' });
+      else ctx.toast((e && e.message) || 'No se pudo cargar el brief.', { type: 'error' });
+      return;
+    }
+    if (!ctx) return;
+    if (brief == null) { ctx.toast('Esta marca aún no llena su brief', { type: 'info' }); return; }
+    briefCache.set(activeClientId, brief);
+  }
+  ctx.sheet.openSheet({
+    title: `Brief de ${(brand && brand.name) || 'la marca'}`,
+    mode: 'menu',
+    build(body) {
+      body.appendChild(renderBrief(brief));
+    },
+  });
+}
+
 // Interruptor de avisos automáticos por marca (recordatorios, atrasados,
 // sin-aprobar). Persiste en mkt_clients.reminders_enabled vía PATCH.
 async function toggleReminders(btn) {
@@ -2302,6 +2391,14 @@ function render() {
       href: `/api/marketing/report?client_id=${encodeURIComponent(activeClientId)}&month=${encodeURIComponent(activeMonth)}`,
       target: '_blank', rel: 'noopener',
     }, [icon('activity', 15), el('span', { text: `Reporte de ${capitalize(monthLabel(activeMonth))}` })]));
+    // Brief de la marca: lo que contestó en su onboarding (SOLO staff).
+    if (!esCliente) {
+      sectionsEl.appendChild(el('button', {
+        class: 'meses-icslink mbrief-open', type: 'button',
+        title: 'Lo que la marca contestó en su brief de onboarding',
+        onclick: () => openBrief(),
+      }, [icon('briefcase', 15), el('span', { text: 'Brief de la marca' })]));
+    }
     // Captura manual de resultados de Instagram para el mes (solo staff).
     if (!esCliente) {
       sectionsEl.appendChild(el('button', {
@@ -2391,6 +2488,7 @@ export default {
     composer = null;
     composerInput = null;
     visibleKeys = new Set();
+    briefCache.clear();
     activeMonth = null;
     sectionsEl = null;
     sideEl = null;

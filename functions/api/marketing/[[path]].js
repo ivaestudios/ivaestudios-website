@@ -937,6 +937,28 @@ async function handleArchiveClient(env, session, clientId) {
   return json({ ok: true, archived: 1 });
 }
 
+// GET /clients/:id/brief — el brief de onboarding que llenó la marca (JSON en
+// mkt_clients.brief). SOLO staff: es material interno del equipo. Tolerante a
+// la migración pendiente (estilo isMissingTableError, pero la columna nueva
+// dispara "no such column") → 404 limpio en vez de 500.
+async function handleGetClientBrief(env, clientId) {
+  let row;
+  try {
+    row = await env.DB.prepare('SELECT brief FROM mkt_clients WHERE id = ?').bind(clientId).first();
+  } catch (e) {
+    if (isMissingTableError(e) || /no such column/i.test((e && e.message) || '')) {
+      return json({ error: 'Esta marca aún no llena su brief' }, 404);
+    }
+    throw e;
+  }
+  if (!row) return json({ error: 'Client not found' }, 404);
+  if (row.brief == null || row.brief === '') return json({ error: 'Esta marca aún no llena su brief' }, 404);
+  let brief = null;
+  try { brief = JSON.parse(row.brief); } catch { /* brief corrupto → 404 abajo */ }
+  if (brief == null) return json({ error: 'Esta marca aún no llena su brief' }, 404);
+  return json(brief);
+}
+
 // ============================================================================
 // USERS (team + client logins) — admin/team only
 // ============================================================================
@@ -3459,6 +3481,12 @@ async function route(request, env) {
       const clientId = parts[1];
       if (method === 'PATCH') return handlePatchClient(request, env, session, clientId);
       if (method === 'DELETE') return handleArchiveClient(env, session, clientId);
+      return json({ error: 'Method not allowed' }, 405);
+    }
+    // /clients/:id/brief — brief de onboarding (SOLO staff; 403 a clientes).
+    if (parts.length === 3 && parts[2] === 'brief') {
+      if (!isStaff) return json({ error: 'Forbidden' }, 403);
+      if (method === 'GET') return handleGetClientBrief(env, parts[1]);
       return json({ error: 'Method not allowed' }, 405);
     }
   }

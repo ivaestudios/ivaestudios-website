@@ -248,6 +248,15 @@
   .meses-icslink { min-height: 44px; padding: 10px 12px; }
 }
 
+/* ── Brief de la marca (boton del pie + sheet de solo lectura, solo staff) ── */
+.mbrief-open { background: none; border: 0; cursor: pointer; font-family: inherit; }
+.mbrief { display: flex; flex-direction: column; gap: 12px; padding: 2px 0 8px; }
+.mbrief__sec { margin-top: 10px; }
+.mbrief__sec:first-child { margin-top: 0; }
+.mbrief__item { display: flex; flex-direction: column; gap: 3px; }
+.mbrief__q { font-size: 12px; color: var(--text-mute); line-height: 1.4; }
+.mbrief__a { font-size: 14.5px; color: var(--text); line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+
 .meses-item__main {
   display: flex;
   align-items: center;
