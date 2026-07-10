@@ -56,7 +56,7 @@
   bar.setAttribute('aria-label','Quick contact');
   bar.innerHTML = ''
     + '<a class="primary" href="#inquiry"><span>Begin Inquiry</span></a>'
-    + '<a class="secondary" href="https://wa.me/529987582363" target="_blank" rel="noopener">'
+    + '<a class="secondary" href="https://wa.me/529902046514" target="_blank" rel="noopener">'
     +   '<svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12a8.25 8.25 0 1 1 3.62 6.84L3 20l1.22-4.27A8.21 8.21 0 0 1 3.75 12Z"/></svg>'
     +   '<span>WhatsApp</span>'
     + '</a>';

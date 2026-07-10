@@ -204,6 +204,6 @@ All from `/styles/tokens.css`. No hardcoded hex except SVG gradient stops (which
 1. **Hero video:** swap `.ch-photo` `<div>` for `<video poster="images/wedding-bride-tulum-ivae-studios.jpg" autoplay muted loop playsinline>` once Vianey provides a 6–8 s clip. Recommended: 1920×1080, H.264 + WebM, ≤2 MB.
 2. **Real testimonials:** Replace the three names (Samantha Whitfield / Marco Benedetti / Priya Raghavan / Elena V.) with real-client reviews — see CLAUDE.md handoff Tier 2/3.
 3. **Real session pricing:** The light-study stats are factual, but the journal/case-study reference to "$48,000 destination wedding" is editorial — confirm with Vianey before promoting v3 to production.
-4. **GBP phone:** "+52 998 758 2363" carried over verbatim — see CLAUDE.md Tier 0. Replace with real GBP phone in `index.html` first, then propagate here.
+4. **GBP phone:** "+52 990 204 6514" carried over verbatim — see CLAUDE.md Tier 0. Replace with real GBP phone in `index.html` first, then propagate here.
 5. **Atlas pin coordinates:** stylised, not geographically accurate. If Vianey wants a real map, swap the SVG path data for a simplified TopoJSON of MX-ROO + MX-BCS.
 6. **Set `<meta name="robots" content="noindex, nofollow"/>`** is already in place — must remain until v3 is promoted to `/index.html`.

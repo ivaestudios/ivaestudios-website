@@ -339,7 +339,7 @@ The five FAQ questions below are the priority for Phase 3 visible-on-load render
 
 **CTAs below (locked):**
 - Primary: **Email the Studio** → `mailto:info@ivaestudios.com` (Phase 1 §11 risk #8: confirm `hello@` vs `info@` with owner before build)
-- Secondary: **WhatsApp** → `https://wa.me/529987582363` (Phase 1 §11 risk #8: phone number is on hold per `CLAUDE.md`; Phase 4 must NOT publish until owner confirms real number)
+- Secondary: **WhatsApp** → `https://wa.me/529902046514` (Phase 1 §11 risk #8: phone number is on hold per `CLAUDE.md`; Phase 4 must NOT publish until owner confirms real number)
 
 **Meta strip below CTAs (locked):**
 
@@ -380,7 +380,7 @@ For phase clarity, the following remain owner-decisions per Phase 1 §11 and are
 
 1. Real testimonial names (Sarah & Michael, Jessica & David are placeholders; Phase 4 must verify or substitute before publication).
 2. Email destination (`hello@` vs `info@`) — the JSON-LD says `hello@`; current page CTA goes to `info@`. Phase 4 must reconcile.
-3. WhatsApp number — current `+529987582363` is impossible per `CLAUDE.md`; do NOT publish until owner provides real number.
+3. WhatsApp number — current `+529902046514` is impossible per `CLAUDE.md`; do NOT publish until owner provides real number.
 4. Spanish translation — every locked block above carries a `<!-- ES: TBD -->` marker. Phase 5 or a Phase 6 will produce the Spanish mirror.
 5. Pricing reconciliation — two scales currently exist in schema ($1,800 / $2,800 / $3,500+ AND $3,500-$12,000). This deck commits to the $1,800 / $2,800 / $3,500+ scale per Phase 1 §11 risk #5 recommendation. Owner must confirm before Phase 4 ships.
 

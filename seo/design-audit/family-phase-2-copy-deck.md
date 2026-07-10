@@ -399,7 +399,7 @@ The questions below are the priority for visible-on-load rendering. The legacy `
 
 ### 10.2 CTAs (locked)
 - **Primary:** **Begin Inquiry** → `mailto:info@ivaestudios.com?subject=Family%20session%20inquiry` (Phase 1 §11 risk: confirm `hello@` vs `info@` with owner before build)
-- **Secondary (calendar invite):** **Send a Calendar Invite** → label for the WhatsApp deep-link `https://wa.me/529987582363?text=Hello%2C%20I%27d%20like%20to%20book%20a%20family%20photo%20session.%20Please%20send%20a%20calendar%20invite.` (Phase 1 §11 risk: phone is on hold per `CLAUDE.md`; Phase 4 must NOT publish until owner confirms real number)
+- **Secondary (calendar invite):** **Send a Calendar Invite** → label for the WhatsApp deep-link `https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20family%20photo%20session.%20Please%20send%20a%20calendar%20invite.` (Phase 1 §11 risk: phone is on hold per `CLAUDE.md`; Phase 4 must NOT publish until owner confirms real number)
 
 ### 10.3 Meta strip below CTAs (locked)
 | Field | Value |
@@ -471,7 +471,7 @@ Per Phase 1 §12, the following remain owner-decisions and are NOT locked here:
 
 1. Real testimonial names. The six testimonials in §8 carry placeholder names (The Hartwell, The Nakamura, Sarah & Michael, The Patel, The Beauchamp, Familia López). Phase 4 must verify or substitute before publication.
 2. Email destination (`hello@` vs `info@`). The JSON-LD says `hello@`; current page CTA goes to `info@`. Phase 4 must reconcile.
-3. WhatsApp number. Current `+529987582363` is impossible per `CLAUDE.md`; do NOT publish until owner provides real number.
+3. WhatsApp number. Current `+529902046514` is impossible per `CLAUDE.md`; do NOT publish until owner provides real number.
 4. Pricing valid through. Owner to confirm `priceValidUntil` per Tier 2/3 follow-up; default proposal is 2026-12-31.
 5. Spanish translation. Every locked block carries an implicit `<!-- ES: TBD -->` marker. Phase 5 or Phase 6 produces the Spanish mirror at `/es/fotos-familiares-lujo-cancun`.
 6. Drop cap location. Phase 3 agent decides: drop cap on the manifesto opener (the C of "Children"), OR on the cinemascope feature opener (the T of "The reunion"). Voice rule #5: one drop cap per page.

@@ -567,7 +567,7 @@ The current page carries dense schema and meta. **Every item below must be prese
 
 **Header, breadcrumbs `<nav aria-label="Breadcrumb">`, lang-switcher links, footer** — Phase 4 may restyle but must preserve every `<a href>` target, every `hreflang`, every `data-lang-switch`, every `rel="noopener"` on external links.
 
-**WhatsApp deep link** `https://wa.me/529987582363?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session` — preserve verbatim. Header CTA, hero CTA, and CTA section all use this.
+**WhatsApp deep link** `https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session` — preserve verbatim. Header CTA, hero CTA, and CTA section all use this.
 
 **Email contact** `info@ivaestudios.com` (CTA) and `info@ivaestudios.com` (schema) — preserve both as they appear; Phase 4 may consolidate but must preserve schema email verbatim.
 

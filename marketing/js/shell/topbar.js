@@ -189,7 +189,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
           // Ayuda: abre el WhatsApp de IVAE en una pestaña nueva.
           accountRow('send', 'Ayuda', () => {
             close();
-            window.open('https://wa.me/5219987582363', '_blank', 'noopener');
+            window.open('https://wa.me/5219902046514', '_blank', 'noopener');
           }),
           // Eliminar cuenta: SOLO el cliente (requisito Apple 5.1.1 — toda app
           // con registro debe dejar borrar la cuenta desde la propia app).

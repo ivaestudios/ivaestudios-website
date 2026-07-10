@@ -689,8 +689,8 @@ The press band is rendered as a horizontal logo wall, edge-to-edge, with logos s
 **Note:** Per Phase 1 §13 risk #4, the email destination (`hello@` vs `info@`) is owner-confirm before Phase 4 ship. Phase 4 must reconcile against current page CTA destinations.
 
 **Secondary CTA (locked):** WhatsApp the Studio
-**Element:** `<a class="le-btn le-btn-ghost" href="https://wa.me/529987582363">`
-**Note:** Per Phase 1 §13 risk #4 + repo CLAUDE.md, the phone number `+52 998 758 2363` uses an impossible Mexican area code (990). Phase 4 MUST NOT publish until Vianey confirms the real number. Until then, the WhatsApp CTA either points to a placeholder `tel:` URL or is replaced with a generic mailto.
+**Element:** `<a class="le-btn le-btn-ghost" href="https://wa.me/529902046514">`
+**Note:** Per Phase 1 §13 risk #4 + repo CLAUDE.md, the phone number `+52 990 204 6514` uses an impossible Mexican area code (990). Phase 4 MUST NOT publish until Vianey confirms the real number. Until then, the WhatsApp CTA either points to a placeholder `tel:` URL or is replaced with a generic mailto.
 
 **ES primary:** Iniciar Brief
 **ES secondary:** WhatsApp al Estudio
@@ -782,7 +782,7 @@ For phase clarity, the following remain owner-decisions per Phase 1 §13 and are
 2. **Real "Featured In" logos.** Phase 1 §13 risk #6 — the press band ships with "Coming soon" placeholders until Vianey provides real publication / brand client tearsheets. Real logos must not be used without permission.
 3. **Real case study (Casa Ranfla is a placeholder).** Phase 1 §13 risk #2 — the brand name and the case study body copy ship as placeholder until a real editorial commission is cleared for publication. Phase 4 should swap before launch where possible; if not, the placeholder ships with a small note in the alt text or below the figure.
 4. **Email destination (`hello@` vs `info@`).** Phase 1 §13 risk #4 — Phase 4 must reconcile against current site CTA destinations.
-5. **WhatsApp number.** Phase 1 §13 risk #4 + repo CLAUDE.md — current `+52 998 758 2363` is impossible. Phase 4 MUST NOT publish until owner confirms real number.
+5. **WhatsApp number.** Phase 1 §13 risk #4 + repo CLAUDE.md — current `+52 990 204 6514` is impossible. Phase 4 MUST NOT publish until owner confirms real number.
 6. **Spanish translations beyond what is locked above.** Every locked block carries an ES counterpart. Phase 5 verification will confirm the ES mirror file `/es/editorial-de-lujo.html` matches one-to-one.
 7. **Direction selection.** Phase 1 §10 — three visual directions (A Magazine Spread, B Cinemascope Reel, C Editorial Republic Minimal) remain owner-choice. Phase 3 prompts will produce one canonical build (Direction B with selective borrowings from A and C per the recommendation).
 

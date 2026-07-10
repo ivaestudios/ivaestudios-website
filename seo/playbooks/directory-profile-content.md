@@ -11,7 +11,7 @@ No editar. Copia exacta.
 **Founder name:** Vianey Díaz
 **Founder title:** Creative Director & Lead Photographer / Directora Creativa
 **Email:** info@ivaestudios.com
-**WhatsApp:** +52 998 758 2363 *(número REAL confirmado; teléfono de llamadas: +52 998 758 2363, coincide con GBP — usar 228 como "phone" en directorios y 990 solo para WhatsApp)*
+**WhatsApp:** +52 990 204 6514 *(número REAL confirmado; teléfono de llamadas: +52 228 857 0584, coincide con GBP — usar 228 como "phone" en directorios y 990 solo para WhatsApp)*
 **Instagram:** @ivaestudios.cancun
 **Website:** https://ivaestudios.com
 **Studio address:** Cancún, Quintana Roo, México (77500)

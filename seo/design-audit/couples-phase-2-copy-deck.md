@@ -462,9 +462,9 @@ Each card: short testimonial, attribution, persona tag (visually hidden, kept fo
 
 **Primary CTA (locked):** Begin Inquiry → `mailto:info@ivaestudios.com?subject=Couples%20Inquiry`
 
-**Secondary CTA (locked, urgency-aware for proposals):** Check Proposal Availability → `https://wa.me/529987582363?text=Proposal%20availability%20inquiry`
+**Secondary CTA (locked, urgency-aware for proposals):** Check Proposal Availability → `https://wa.me/529902046514?text=Proposal%20availability%20inquiry`
 
-**Tertiary CTA (locked, conversational fallback):** WhatsApp the Studio → `https://wa.me/529987582363`
+**Tertiary CTA (locked, conversational fallback):** WhatsApp the Studio → `https://wa.me/529902046514`
 
 **Meta strip below CTAs (locked, three cells):**
 
@@ -477,7 +477,7 @@ Each card: short testimonial, attribution, persona tag (visually hidden, kept fo
 **Markup notes:**
 - Three CTAs are stacked vertically on mobile, side-by-side on desktop with the primary CTA centered and the secondary/tertiary CTAs flanking. The "Check Proposal Availability" button uses a slightly different visual treatment (gold underline only, no border, no background) so it reads as a related but secondary path; this respects the proposal persona's short lead time without making the page feel transactional for honeymoon and anniversary readers.
 - Email destination per Phase 1 §10.6 reconciliation: `info@ivaestudios.com` matches the current canonical contact in the existing JSON-LD. Phase 4 may swap to `hello@` if the owner confirms.
-- WhatsApp number `+529987582363` is on hold per CLAUDE.md (impossible Mexican area code 990); Phase 4 must NOT publish until the owner provides the real number.
+- WhatsApp number `+529902046514` is on hold per CLAUDE.md (impossible Mexican area code 990); Phase 4 must NOT publish until the owner provides the real number.
 - Meta strip uses a vertical hairline between cells (CSS border, not a character).
 - "06:00 – 20:00" uses an EN-DASH (–), not an em-dash. The em-dash is forbidden across the page; the en-dash is permitted only in numeric ranges.
 - Section background is full-bleed dark image at brightness 0.20, saturation 0.50.
@@ -527,7 +527,7 @@ For phase clarity, the following remain owner-decisions per Phase 1 §13 and are
 3. Proposal countdown JSON data (next 8-12 open proposal Saturdays; Phase 4 must source from booking calendar or confirm static fallback).
 4. Same-sex couples imagery selection from the 51-image inventory (Phase 4 must flag at least one frame for cinemascope and one for the reel).
 5. Email destination (`info@` vs `hello@`) reconciliation — current JSON-LD uses `info@`; this deck commits to `info@` pending owner confirmation.
-6. WhatsApp number — current `+529987582363` is impossible per CLAUDE.md; do NOT publish until owner provides real number.
+6. WhatsApp number — current `+529902046514` is impossible per CLAUDE.md; do NOT publish until owner provides real number.
 7. Spanish translation — every locked block above carries a `<!-- ES: TBD -->` marker. Phase 5 or Phase 6 will produce the Spanish mirror.
 
 ---

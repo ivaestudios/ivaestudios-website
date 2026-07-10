@@ -66,8 +66,8 @@ with hundreds of weddings and mature backlink profiles. That gap is **authority
 ## Prioritized action plan to crack the generic SERP (off-page — owner)
 
 1. **Fix the Google Business Profile (highest local-SEO impact).**
-   - Phones are RESOLVED (2026-06-05): +52 998 758 2363 = calls (matches GBP) and
-     +52 998 758 2363 = WhatsApp. Both are real and confirmed — do not replace either.
+   - Phones are RESOLVED (2026-06-05): +52 228 857 0584 = calls (matches GBP) and
+     +52 990 204 6514 = WhatsApp. Both are real and confirmed — do not replace either.
    - Resolve the NAP mismatch: the website schema says Cancún (21.1619, -86.8515,
      CP 77500) but the GBP pin is at Riviera Maya (20.4785722, -87.0756298). Pick
      ONE canonical address and move the GBP pin (or tell us to update the site).

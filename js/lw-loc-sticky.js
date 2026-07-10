@@ -13,7 +13,7 @@
     en: {
       primary: 'Book Session',
       secondary: 'WhatsApp',
-      primaryHref: 'https://wa.me/529987582363?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session',
+      primaryHref: 'https://wa.me/529902046514?text=Hello%2C%20I%27d%20like%20to%20book%20a%20photo%20session',
       secondaryHref: 'mailto:info@ivaestudios.com',
       ariaPrimary: 'Book a session on WhatsApp (opens in new tab)',
       ariaSecondary: 'Email IVAE Studios'
@@ -21,7 +21,7 @@
     es: {
       primary: 'Reservar',
       secondary: 'WhatsApp',
-      primaryHref: 'https://wa.me/529987582363?text=Hola%2C%20me%20interesa%20reservar%20una%20sesi%C3%B3n',
+      primaryHref: 'https://wa.me/529902046514?text=Hola%2C%20me%20interesa%20reservar%20una%20sesi%C3%B3n',
       secondaryHref: 'mailto:info@ivaestudios.com',
       ariaPrimary: 'Reservar por WhatsApp (se abre en pestaña nueva)',
       ariaSecondary: 'Enviar correo a IVAE Studios'
