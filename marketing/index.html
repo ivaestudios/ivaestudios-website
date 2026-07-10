@@ -10,11 +10,11 @@
 
   <!-- Inter (respaldo) + Outfit (tema Sistema IVA 2026), auto-hospedadas:
        woff2 variables locales en /marketing/fonts/ (antes Google Fonts). -->
-  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202607100006">
-  <link rel="stylesheet" href="/marketing/css/app.css?v=202607100006">
-  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202607100006">
+  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202607100014">
+  <link rel="stylesheet" href="/marketing/css/app.css?v=202607100014">
+  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202607100014">
   <!-- Tema "Sistema IVA" 2026 (ultimo para ganar :root; solo estilo). -->
-  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202607100006">
+  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202607100014">
 
   <style>
     /* Toques v2 (solo estetica, el flujo de auth no cambia): targets tactiles
@@ -129,9 +129,21 @@
         </div>
         <div class="field">
           <label class="label" for="sgPass">Crea una contraseña</label>
-          <div class="input-wrap"><input class="input" id="sgPass" type="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres" minlength="8" required></div>
+          <div class="input-wrap">
+            <input class="input input--pass" id="sgPass" type="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres" minlength="8" required>
+            <button type="button" class="pass-eye" id="sgTogglePass" aria-label="Mostrar contraseña" aria-pressed="false">
+              <svg class="pass-eye__show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="pass-eye__hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m3 3 18 18"/><path d="M10.6 10.6a3 3 0 0 0 4.2 4.2"/><path d="M9.4 5.2A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17.3 17.3 0 0 1-2.9 3.8"/><path d="M6.3 6.3A17 17 0 0 0 2 12s3.5 7 10 7a10 10 0 0 0 3-.45"/></svg>
+            </button>
+          </div>
         </div>
         <button class="btn btn-primary" id="sgBtn" type="submit">Crear mi cuenta</button>
+        <!-- Aviso legal del registro (requisito de tiendas + transparencia). -->
+        <p style="margin-top:var(--s-3);font-size:12px;line-height:1.5;color:var(--text-dim);text-align:center">
+          Al crear tu cuenta aceptas nuestro
+          <a href="/privacy-policy.html" target="_blank" rel="noopener"
+             style="color:var(--text-dim);text-decoration:underline">Aviso de Privacidad</a>.
+        </p>
       </form>
 
       <!-- Olvidé mi contraseña: manda el enlace de reset por correo (POST /auth/forgot). -->
@@ -345,6 +357,19 @@
         togglePass.setAttribute('aria-pressed', String(reveal)); // el CSS intercambia el ícono
         togglePass.setAttribute('aria-label', reveal ? 'Ocultar contraseña' : 'Mostrar contraseña');
         passEl.focus();
+      });
+    }
+
+    // Ojo del registro (mismo patrón que el del login).
+    const sgTogglePass = document.getElementById('sgTogglePass');
+    const sgPassEl = document.getElementById('sgPass');
+    if (sgTogglePass && sgPassEl) {
+      sgTogglePass.addEventListener('click', () => {
+        const reveal = sgPassEl.type === 'password';
+        sgPassEl.type = reveal ? 'text' : 'password';
+        sgTogglePass.setAttribute('aria-pressed', String(reveal)); // el CSS intercambia el ícono
+        sgTogglePass.setAttribute('aria-label', reveal ? 'Ocultar contraseña' : 'Mostrar contraseña');
+        sgPassEl.focus();
       });
     }
 

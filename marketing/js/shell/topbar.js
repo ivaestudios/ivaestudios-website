@@ -10,12 +10,12 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607100006';
-import * as store from './store.js?v=202607100006';
-import { openSheet } from './sheet.js?v=202607100006';
-import { toast } from './toast.js?v=202607100006';
-import { icon } from './icons.js?v=202607100006';
-import { openClientSwitcher } from './clientswitcher.js?v=202607100006';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607100014';
+import * as store from './store.js?v=202607100014';
+import { openSheet, pickFrom } from './sheet.js?v=202607100014';
+import { toast } from './toast.js?v=202607100014';
+import { icon } from './icons.js?v=202607100014';
+import { openClientSwitcher } from './clientswitcher.js?v=202607100014';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -175,7 +175,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
             avatar(me ? me.name : ''),
             el('div', { class: 'acct-head__main' }, [
               el('div', { class: 'acct-head__name', text: me ? me.name : '' }),
-              el('div', { class: 'acct-head__sub', text: me ? `${me.email} · ${me.role === 'admin' ? 'Administradora' : 'Equipo'}` : '' }),
+              el('div', { class: 'acct-head__sub', text: me ? `${me.email} · ${me.role === 'admin' ? 'Administradora' : (me.role === 'client' ? 'Cliente' : 'Equipo')}` : '' }),
             ]),
           ]),
           // Herramientas de agencia: SOLO staff (el cliente no las ve).
@@ -186,6 +186,16 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
           ] : []),
           accountRow('bell', 'Ajustes de avisos', () => { close(); openNotifications(bellBtn, { tab: 'all' }); }),
           accountRow('key', 'Cambiar contraseña', () => { close(); openChangePassword(); }),
+          // Ayuda: abre el WhatsApp de IVAE en una pestaña nueva.
+          accountRow('send', 'Ayuda', () => {
+            close();
+            window.open('https://wa.me/5219987582363', '_blank', 'noopener');
+          }),
+          // Eliminar cuenta: SOLO el cliente (requisito Apple 5.1.1 — toda app
+          // con registro debe dejar borrar la cuenta desde la propia app).
+          ...(me && me.role === 'client' ? [
+            accountRow('trash', 'Eliminar mi cuenta', () => { close(); confirmDeleteAccount(); }, true),
+          ] : []),
           accountRow('logout', 'Salir', async () => {
             close();
             try { await api.post('/auth/logout'); } catch { /* la cookie muere igual */ }
@@ -425,6 +435,34 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
         });
       },
     });
+  }
+
+  // ── Eliminar mi cuenta (solo cliente; Apple 5.1.1) ────────────────────────
+  // Confirmación fuerte en DOS pasos antes de borrar de verdad. Cancelar en
+  // cualquiera de los dos (o cerrar el sheet) no toca nada.
+  async function confirmDeleteAccount() {
+    const primero = await pickFrom({
+      title: '¿Seguro? Se borra tu marca y contenido',
+      options: [
+        { value: 'no', label: 'No, conservar mi cuenta' },
+        { value: 'si', label: 'Sí, quiero eliminarla' },
+      ],
+    });
+    if (primero !== 'si') return;
+    const segundo = await pickFrom({
+      title: 'Esta acción no se puede deshacer',
+      options: [
+        { value: 'no', label: 'Cancelar' },
+        { value: 'si', label: 'Sí, eliminar definitivamente' },
+      ],
+    });
+    if (segundo !== 'si') return;
+    try {
+      await api.del('/auth/account');
+      location.replace('/marketing/');
+    } catch (e) {
+      toast(e.message || 'No se pudo eliminar la cuenta. Escríbenos por WhatsApp.', { type: 'error' });
+    }
   }
 
   // ── Cambiar contraseña ─────────────────────────────────────────────────────

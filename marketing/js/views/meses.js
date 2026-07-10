@@ -26,10 +26,10 @@ import {
   el, clear, copyText, api,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202607100006';
-import { icon } from '../shell/icons.js?v=202607100006';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607100006';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607100006';
+} from '../api.js?v=202607100014';
+import { icon } from '../shell/icons.js?v=202607100014';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607100014';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607100014';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1774,6 +1774,14 @@ function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTod
     // como su resumen, antes del boton "Nueva linea".
     const progress = buildMonthProgress(rows);
     if (progress) bodyKids.push(progress);
+  } else if (isClientRole() && !(allPostsForFilters || []).length) {
+    // Calendario 100% VACIO de un cliente (self-signup): bienvenida en vez del
+    // copy de staff. Una sola tarjeta, arriba del composer.
+    bodyKids.push(el('div', { class: 'meses-empty empty-rich empty-rich--welcome' }, [
+      el('div', { class: 'empty-rich__ico' }, [icon('calendar', 26)]),
+      el('h3', { class: 'empty-rich__t', text: '¡Bienvenido a tu calendario de contenido! 🎉' }),
+      el('p', { class: 'empty-rich__s', text: 'Crea tu primera pieza con + Nueva línea: ponle título, fecha y escribe tu guion. Tu calendario, tus reglas.' }),
+    ]));
   } else {
     bodyKids.push(el('div', { class: 'meses-empty empty-rich' }, [
       el('div', { class: 'empty-rich__ico' }, [icon('calendar', 26)]),
@@ -2107,9 +2115,10 @@ function buildSideNav(ordered, byMonth, sinMes, isTodos) {
       el('span', { class: 'meses-side__n', text: String(it.n) }),
     ]));
   }
-  // "Agregar mes" es solo para el equipo: el cliente ve los meses cuando hay
-  // contenido, no crea meses vacios.
-  if (!isTodos && !document.body.classList.contains('is-client')) {
+  // "Agregar mes" para TODOS los roles: el cliente dueño de su calendario
+  // (self-signup) tambien lo necesita para planear el mes siguiente. Los
+  // endpoints ya lo permiten; esto es solo UI.
+  if (!isTodos) {
     sideEl.appendChild(el('button', {
       class: 'meses-side__add', type: 'button',
       onclick: () => openAddMonth(),
@@ -2259,11 +2268,15 @@ function render() {
   }));
 
   const esCliente = isClientRole(); // (helper de módulo; sin shadowing local)
-  if (!isTodos && !esCliente) {
+  // "Agregar mes" para TODOS los roles (cliente incluido): el dueño de su
+  // calendario lo necesita para planear el mes siguiente.
+  if (!isTodos) {
     sectionsEl.appendChild(el('button', {
       class: 'meses-addmonth', type: 'button',
       onclick: () => openAddMonth(),
     }, [icon('plus', 16), el('span', { text: 'Agregar mes' })]));
+  }
+  if (!isTodos && !esCliente) {
     // Copiar mes anterior: duplica las piezas de otro mes en el mes activo
     // (solo staff, y solo con un mes destino con fecha).
     if (activeMonth && activeMonth !== SIN_MES) {

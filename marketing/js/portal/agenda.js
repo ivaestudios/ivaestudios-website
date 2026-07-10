@@ -11,9 +11,9 @@
 // - El cliente NUNCA ve el status interno del pipeline, solo approval_state.
 // ============================================================================
 
-import { el, clear, ymd, parseDate, fmtDate, chip, approvalBadge, contentTypeLabel, CONTENT_TYPES } from '../api.js?v=202607100006';
-import * as store from './store.js?v=202607100006';
-import { ICONS } from './igcard.js?v=202607100006';
+import { el, clear, ymd, parseDate, fmtDate, chip, approvalBadge, contentTypeLabel, CONTENT_TYPES } from '../api.js?v=202607100014';
+import * as store from './store.js?v=202607100014';
+import { ICONS } from './igcard.js?v=202607100014';
 
 const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 

@@ -505,6 +505,45 @@ async function handleChangePassword(request, env, session) {
   return json({ ok: true });
 }
 
+// DELETE /auth/account — el cliente borra SU cuenta y TODO lo de su marca:
+// posts (+comentarios), entregables (+comentarios), métricas manuales de IG,
+// sesiones y usuarios de la marca, y la marca misma. Solo role='client'
+// (las cuentas de staff se gestionan vía /users). Best-effort por tabla:
+// las tablas de migraciones aún no aplicadas se saltan (isMissingTableError).
+async function handleDeleteAccount(env, session) {
+  if (session.role !== 'client' || !session.client_id) {
+    return json({ error: 'Solo las cuentas de cliente pueden auto-borrarse' }, 403);
+  }
+  const cid = session.client_id;
+
+  // Log ANTES de borrar (después ya no existen ni el actor ni la marca).
+  await logActivity(env, { client_id: cid, session, action: 'user.delete_account', detail: session.email });
+
+  // DELETEs en orden hijo→padre. Un solo batch atómico en el caso normal;
+  // si falta alguna tabla opcional, reintenta uno por uno saltándola.
+  const stmts = [
+    env.DB.prepare('DELETE FROM mkt_comments WHERE post_id IN (SELECT id FROM mkt_posts WHERE client_id = ?)').bind(cid),
+    env.DB.prepare('DELETE FROM mkt_deliverable_comments WHERE deliverable_id IN (SELECT id FROM mkt_deliverables WHERE client_id = ?)').bind(cid),
+    env.DB.prepare('DELETE FROM mkt_deliverables WHERE client_id = ?').bind(cid),
+    env.DB.prepare('DELETE FROM mkt_ig_manual WHERE client_id = ?').bind(cid),
+    env.DB.prepare('DELETE FROM mkt_posts WHERE client_id = ?').bind(cid),
+    env.DB.prepare('DELETE FROM mkt_sessions WHERE user_id IN (SELECT id FROM mkt_users WHERE client_id = ?)').bind(cid),
+    env.DB.prepare('DELETE FROM mkt_users WHERE client_id = ?').bind(cid),
+    env.DB.prepare('DELETE FROM mkt_clients WHERE id = ?').bind(cid)
+  ];
+  try {
+    await env.DB.batch(stmts);
+  } catch (e) {
+    if (!isMissingTableError(e)) throw e;
+    for (const stmt of stmts) {
+      try { await stmt.run(); }
+      catch (e2) { if (!isMissingTableError(e2)) throw e2; }
+    }
+  }
+  // Cookie limpia: la sesión ya no existe en la BD.
+  return json({ ok: true }, 200, { 'Set-Cookie': sessionCookie('', 0) });
+}
+
 // ============================================================================
 // REGISTRO PÚBLICO (self-signup) + verificación de email + reset por token.
 // Cada registro crea SU PROPIO workspace: 1 mkt_clients (la marca) + 1
@@ -2844,10 +2883,58 @@ async function handleCron(request, env) {
   if (auth !== `Bearer ${env.MKT_CRON_SECRET}`) return json({ error: 'No autorizado' }, 401);
   try {
     const result = await lazySweep(env, { force: true });
+
+    // Respaldo diario a R2 (best-effort; el cron funciona sin bucket).
+    // Un JSON por día: backups/mkt-YYYY-MM-DD.json (se sobreescribe si el
+    // cron corre dos veces el mismo día — idempotente).
+    let backup = false;
+    if (env.R2_BUCKET) {
+      try {
+        const dump = { generated_at: new Date().toISOString() };
+        for (const t of ['mkt_posts', 'mkt_clients', 'mkt_users', 'mkt_deliverables']) {
+          try {
+            const res = await env.DB.prepare(`SELECT * FROM ${t}`).all();
+            dump[t] = (res.results || []).map((row) => {
+              if (t !== 'mkt_users') return row;
+              // NUNCA respaldar hashes ni tokens de recuperación.
+              const { password, verify_token, reset_token, ...rest } = row;
+              return rest;
+            });
+          } catch (e) { if (!isMissingTableError(e)) throw e; }
+        }
+        const day = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+        await env.R2_BUCKET.put(`backups/mkt-${day}.json`, JSON.stringify(dump), {
+          httpMetadata: { contentType: 'application/json' }
+        });
+        backup = true;
+      } catch (e) { console.error('[mkt cron backup]', e && e.message); }
+    }
+
+    // Aviso a admins si mkt_error_log (migración 017) registró errores en las
+    // últimas 24 h. Best-effort: sin la tabla no pasa nada.
+    try {
+      const row = await env.DB.prepare(
+        "SELECT COUNT(*) AS n FROM mkt_error_log WHERE created_at >= datetime('now', '-1 day')"
+      ).first();
+      const n = row ? Number(row.n) || 0 : 0;
+      if (n > 0) {
+        const admins = await env.DB.prepare(
+          "SELECT id FROM mkt_users WHERE role = 'admin' AND active = 1"
+        ).all();
+        await notify(env, {
+          user_ids: (admins.results || []).map((r) => r.id),
+          type: 'system',
+          body: `La app registró ${n} ${n === 1 ? 'error' : 'errores'} ayer`,
+          link: '#/'
+        });
+      }
+    } catch (e) { if (!isMissingTableError(e)) console.error('[mkt cron errores]', e && e.message); }
+
     return json({
       ok: true,
       ran: (result && result.ran) || [],
-      pruned: (result && result.pruned) || { notifications: 0, runs: 0, sessions: 0 }
+      pruned: (result && result.pruned) || { notifications: 0, runs: 0, sessions: 0 },
+      backup
     });
   } catch (e) {
     if (isMissingTableError(e)) return json({ error: 'Migracion 004 pendiente' }, 409);
@@ -3328,6 +3415,16 @@ async function route(request, env) {
   if (path === '/ig/callback' && method === 'GET') return handleIgCallback(request, env, url);
   if (path === '/ig/assign' && method === 'POST') return handleIgAssign(request, env);
 
+  // ── HEALTH (público; para monitores externos: ¿responde la app y la BD?) ──
+  if (path === '/health' && method === 'GET') {
+    try {
+      await env.DB.prepare('SELECT 1').first();
+      return json({ ok: true, db: true });
+    } catch {
+      return json({ ok: false, db: false }, 503);
+    }
+  }
+
   // ── CRON (no session; Bearer MKT_CRON_SECRET) — BEFORE the session gate ──
   if (path === '/cron' && method === 'POST') return handleCron(request, env);
 
@@ -3340,6 +3437,8 @@ async function route(request, env) {
   if (!session) return json({ error: 'Not authenticated' }, 401);
 
   if (path === '/auth/change-password' && method === 'POST') return handleChangePassword(request, env, session);
+  // Auto-borrado de cuenta de cliente (borra la marca completa; role='client').
+  if (path === '/auth/account' && method === 'DELETE') return handleDeleteAccount(env, session);
 
   const isStaff = session.role === 'admin' || session.role === 'team';
 
@@ -3612,6 +3711,24 @@ export async function onRequest(context) {
     const rewrittenReq = new Request(rewrittenUrl, request);
     return await route(rewrittenReq, env);
   } catch (e) {
+    // Registro best-effort en mkt_error_log (migración 017). Silencioso:
+    // el log NUNCA debe romper (ni cambiar) la respuesta 500.
+    try {
+      let userId = null;
+      try {
+        const s = await getSession(request, env);
+        userId = s ? s.user_id : null;
+      } catch { /* sin sesión legible — se registra sin user_id */ }
+      await env.DB.prepare(
+        'INSERT INTO mkt_error_log (id, route, method, message, user_id) VALUES (?, ?, ?, ?, ?)'
+      ).bind(
+        randomId(),
+        new URL(request.url).pathname,
+        request.method,
+        String((e && e.message) || e || 'unknown').slice(0, 500),
+        userId
+      ).run();
+    } catch { /* tabla ausente o BD caída — se ignora */ }
     return json({ error: 'Internal error: ' + (e && e.message ? e.message : 'unknown') }, 500);
   }
 }
