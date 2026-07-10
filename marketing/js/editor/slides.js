@@ -8,12 +8,29 @@
 // formato que ya usan los guiones existentes, así los viejos se abren bien).
 // ============================================================================
 
-/** Slides intermedios a partir del body ("Slide N — texto" o texto corrido). */
+/** Slides intermedios a partir del body ("Slide N — texto" o texto corrido).
+ *  Los intermedios VACIOS ("Slide 3 — ") se CONSERVAN: filtrarlos hacia
+ *  desaparecer un slide recien agregado al recargar y desalineaba los SEO
+ *  alts (van por posicion). Solo se descarta el tramo vacio de antes del
+ *  primer marcador. */
 export function middleSlides(body) {
   const s = String(body || '').trim();
   if (!s) return [];
-  const parts = s.split(/(?:^|\n)\s*slide\s*\d+\s*[—:–.\-]?\s*/i).map((t) => t.trim()).filter(Boolean);
-  return parts.length ? parts : [s];
+  // Parseo con lookahead (como altsFromText) pero el espacio DESPUES del
+  // marcador es solo horizontal ([^\S\n]*): un \s* greedy se tragaba los
+  // saltos de linea del slide vacio y pegaba el marcador siguiente al texto.
+  const re = /(?:^|\n)\s*slide\s*\d+[^\S\n]*[—:–.\-]?[^\S\n]*([^]*?)(?=\n\s*slide\s*\d+\s*[—:–.\-]?|$)/gi;
+  const out = [];
+  let m; let first = -1;
+  while ((m = re.exec(s)) && out.length < 60) {
+    if (first < 0) first = m.index;
+    out.push(m[1].trim());
+  }
+  if (!out.length) return [s];
+  // Texto suelto antes del primer marcador (bodies legacy): se conserva.
+  const pre = s.slice(0, first).trim();
+  if (pre) out.unshift(pre);
+  return out;
 }
 
 /** [slide1, …intermedios…, slideN] desde los campos del post. */
@@ -21,12 +38,14 @@ export function slidesFromPost(p) {
   return [String((p && p.hook) || '').trim(), ...middleSlides(p && p.body), String((p && p.cta) || '').trim()];
 }
 
-/** Campos hook/body/cta desde la lista de slides (los intermedios vacíos se caen). */
+/** Campos hook/body/cta desde la lista de slides. Los intermedios vacíos
+ *  TAMBIEN se serializan ("Slide N — ") para no perder el slide al recargar
+ *  ni cruzar los SEO alts. */
 export function fieldsFromSlides(slides) {
   const arr = (slides || []).map((s) => String(s || '').trim());
   const hook = arr[0] || '';
   const cta = arr.length > 1 ? arr[arr.length - 1] : '';
-  const mid = arr.slice(1, Math.max(1, arr.length - 1)).filter(Boolean);
+  const mid = arr.slice(1, Math.max(1, arr.length - 1));
   const body = mid.map((t, i) => `Slide ${i + 2} — ${t}`).join('\n\n');
   return { hook, body, cta };
 }

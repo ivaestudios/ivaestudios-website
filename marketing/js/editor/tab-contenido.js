@@ -3,13 +3,13 @@
 //
 // Filas etiqueta-valor de 48px tap-to-edit (patron Monday movil):
 //   Estado / Aprobacion / Fecha / Plataforma / Tipo / Grabacion / Hecho por /
-//   Visible para el cliente / Inspiracion URL / Video URL / Notas del equipo
+//   Pedir aprobacion al cliente / Inspiracion URL / Video URL / Notas del equipo
 //   + una fila por persona segun note_labels del cliente (merge inmutable de
 //   notes_people, mismo patron del backend).
 //
 // Cada commit de picker = guardado INSTANTANEO de UN campo (optimista via el
 // motor de autosave del editor). Avisos contextuales:
-//   - apagar visibilidad con aprobacion pendiente -> confirmacion
+//   - pausar la aprobacion con revision pendiente -> confirmacion
 //   - cambiar tipo con checklist vacia -> toast accionable "Aplicar checklist"
 //
 // mount(host, ed) -> dispose()
@@ -19,12 +19,12 @@ import {
   el,
   statusBadge, approvalBadge, chip,
   fmtDate, avatar,
-} from '../api.js?v=202607092047';
-import { pickFrom } from '../shell/sheet.js?v=202607092047';
-import * as store from '../shell/store.js?v=202607092047';
-import * as checklistService from '../services/checklist.js?v=202607092047';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202607092047';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202607092047';
+} from '../api.js?v=202607092340';
+import { pickFrom } from '../shell/sheet.js?v=202607092340';
+import * as store from '../shell/store.js?v=202607092340';
+import * as checklistService from '../services/checklist.js?v=202607092340';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202607092340';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202607092340';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -173,17 +173,22 @@ export function mount(host, ed) {
     },
   });
 
-  // ── Visible para el cliente ────────────────────────────────────────────────
+  // ── Revision del cliente ──────────────────────────────────────────────────
+  // OJO (auditoria 2026-07): el backend ya NO oculta posts del portal por
+  // client_visible (el cliente ve TODO lo de su marca en list/get). El campo
+  // solo gatea los avisos de revision al cliente y el conteo de pendientes
+  // por aprobar, asi que el copy promete exactamente eso y no un ocultamiento
+  // que no existe.
   const rVisible = rowSwitch({
-    label: 'Visible para el cliente',
-    sub: 'Aparece en su portal para aprobar',
+    label: 'Pedir aprobacion al cliente',
+    sub: 'Le avisa y lo cuenta como pendiente por aprobar',
     get: () => !!post().client_visible,
     onToggle: async (next) => {
       if (!next && post().approval_state === 'pending') {
         const sure = await pickFrom({
-          title: 'El cliente dejara de verlo',
+          title: 'Dejara de contar como pendiente',
           options: [
-            { value: 'si', label: 'Ocultar del portal', sub: 'La aprobacion pendiente quedara en pausa' },
+            { value: 'si', label: 'Pausar la aprobacion', sub: 'El cliente seguira viendo el post en su portal' },
             { value: 'no', label: 'Cancelar', current: true },
           ],
         });

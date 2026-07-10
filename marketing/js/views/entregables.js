@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202607092047';
-import { icon } from '../shell/icons.js?v=202607092047';
+import { api, el, clear, toast } from '../api.js?v=202607092340';
+import { icon } from '../shell/icons.js?v=202607092340';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -65,7 +65,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202607092047';
+  link.href = '/marketing/css/entregables.css?v=202607092340';
   document.head.appendChild(link);
 }
 
@@ -269,11 +269,13 @@ async function uploadReel(file, qinfo) {
   }
 }
 
+// Devuelve true SOLO si el carrusel quedó guardado: el botón limpia las
+// casillas únicamente en ese caso (si falla, lo tecleado se conserva).
 async function addCarrusel(link, title) {
   const client = activeClient();
-  if (!client || busy) return;
+  if (!client || busy) return false;
   let url = String(link || '').trim();
-  if (!url) { toast('Pega el link del carrusel.', 'error'); return; }
+  if (!url) { toast('Pega el link del carrusel.', 'error'); return false; }
   // Un link real SIEMPRE lleva un punto en el dominio (canva.link, instagram.com,
   // drive.google.com…). Si NO trae protocolo NI punto, casi seguro es el título
   // escrito en la casilla equivocada (ej. "CARRUSELES") -> avisamos claro en vez de
@@ -281,7 +283,7 @@ async function addCarrusel(link, title) {
   const hasProto = /^https?:\/\//i.test(url);
   if (!hasProto && !/[^\s]\.[^\s]/.test(url)) {
     toast('Eso no parece un link. Aquí va el ENLACE (ej. canva.link/…); el nombre va en la casilla "Título".', 'error', 7000);
-    return;
+    return false;
   }
   if (!hasProto) url = 'https://' + url.replace(/^\/+/, '');
   // Validación final con el parser de URL: el dominio debe tener un punto, o no se guarda.
@@ -291,7 +293,7 @@ async function addCarrusel(link, title) {
     url = u.href;
   } catch {
     toast('Ese enlace no es válido. Revisa que sea un link completo (ej. https://canva.link/…).', 'error', 7000);
-    return;
+    return false;
   }
   busy = true; render();
   try {
@@ -301,8 +303,10 @@ async function addCarrusel(link, title) {
     });
     toast('Carrusel agregado ✓', 'success');
     await load();
+    return true;
   } catch (e) {
     toast(e.message || 'No se pudo agregar el carrusel', 'error');
+    return false;
   } finally {
     busy = false; render();
   }
@@ -522,7 +526,12 @@ function buildAddBar() {
   const titleInput = el('input', { class: 'dlv-input dlv-input--title', type: 'text', placeholder: 'Nombre para el cliente', maxlength: 200 });
   const addBtn = el('button', {
     class: 'dlv-addbtn', type: 'button', disabled: busy,
-    onclick: () => { addCarrusel(linkInput.value, titleInput.value); linkInput.value = ''; titleInput.value = ''; },
+    onclick: async () => {
+      // Limpia las casillas SOLO si se agregó de verdad: si la validación o el
+      // POST fallan, el link/título se quedan para corregir sin volver a pegar.
+      const ok = await addCarrusel(linkInput.value, titleInput.value);
+      if (ok) { linkInput.value = ''; titleInput.value = ''; }
+    },
   }, [icon('plus', 16), el('span', { text: 'Agregar carrusel' })]);
 
   return el('div', { class: 'dlv-addbar' }, [

@@ -23,19 +23,19 @@
 // Contrato de vista: export default { id, mount(el, ctx), onParams, unmount }.
 // ============================================================================
 
-import { el, api, statusBadge, approvalBadge, fmtDate } from '../api.js?v=202607092047';
-import { icon } from '../shell/icons.js?v=202607092047';
-import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202607092047';
-import * as store from '../shell/store.js?v=202607092047';
-import * as cl from '../services/checklist.js?v=202607092047';
-import { createAutosave } from './autosave.js?v=202607092047';
-import { textExpand } from '../ui/pickers.js?v=202607092047';
-import { openActionsMenu } from './actions.js?v=202607092047';
-import { mount as mountContenido } from './tab-contenido.js?v=202607092047';
-import { mount as mountGuion } from './tab-guion.js?v=202607092047';
-import { mount as mountChecklist } from './tab-checklist.js?v=202607092047';
-import { mount as mountConversacion } from './tab-conversacion.js?v=202607092047';
-import { mount as mountActividad } from './tab-actividad.js?v=202607092047';
+import { el, api, statusBadge, approvalBadge, fmtDate } from '../api.js?v=202607092340';
+import { icon } from '../shell/icons.js?v=202607092340';
+import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202607092340';
+import * as store from '../shell/store.js?v=202607092340';
+import * as cl from '../services/checklist.js?v=202607092340';
+import { createAutosave } from './autosave.js?v=202607092340';
+import { textExpand } from '../ui/pickers.js?v=202607092340';
+import { openActionsMenu } from './actions.js?v=202607092340';
+import { mount as mountContenido } from './tab-contenido.js?v=202607092340';
+import { mount as mountGuion } from './tab-guion.js?v=202607092340';
+import { mount as mountChecklist } from './tab-checklist.js?v=202607092340';
+import { mount as mountConversacion } from './tab-conversacion.js?v=202607092340';
+import { mount as mountActividad } from './tab-actividad.js?v=202607092340';
 
 const TABS = [
   { key: 'contenido', label: 'Contenido', mount: mountContenido },
@@ -596,12 +596,22 @@ export default {
     load(params.id);
   },
 
-  onParams(p) {
+  async onParams(p) {
     const next = { ...(p || {}) };
     const prevId = params.id;
     params = next;
     if (next.id && next.id !== prevId) {
-      autosave?.flush();
+      // Cambio de post: primero se ASIENTA el guardado del anterior y se
+      // descarta lo que no se pudo guardar. getId() es vivo: si el flush
+      // siguiera volando despues de load(), el pase encolado PATCHearia los
+      // dirty del post viejo sobre el nuevo (y getPost los pintaria en su UI).
+      const as = autosave;
+      if (as) {
+        try { await as.flush(); } catch { /* los dirty se descartan abajo */ }
+        as.clearDirty();
+      }
+      // Si durante el await se navego otra vez o se desmonto, no cargar.
+      if (!rootEl || params.id !== next.id) return;
       load(next.id);
       return;
     }

@@ -12,11 +12,11 @@
 //   Sin undo (el delete es hard en el backend): el copy lo deja claro.
 // ============================================================================
 
-import { el, api, copyText } from '../api.js?v=202607092047';
-import { icon } from '../shell/icons.js?v=202607092047';
-import { openSheet } from '../shell/sheet.js?v=202607092047';
-import * as store from '../shell/store.js?v=202607092047';
-import * as cl from '../services/checklist.js?v=202607092047';
+import { el, api, copyText } from '../api.js?v=202607092340';
+import { icon } from '../shell/icons.js?v=202607092340';
+import { openSheet } from '../shell/sheet.js?v=202607092340';
+import * as store from '../shell/store.js?v=202607092340';
+import * as cl from '../services/checklist.js?v=202607092340';
 
 function isMissingEndpoint(e) {
   const s = e && e.status;
@@ -203,10 +203,12 @@ export function openDeleteConfirm(ed) {
           // Cierra el sheet ANTES de navegar (su capa de history se consume
           // primero y el goBack del editor no choca con ella).
           close({ source: 'confirm' });
-          // El post va a morir: descarta los dirty para no PATCHear un 404.
-          ed.discardChanges();
           const ok = await store.removePost(ed.postId); // optimista + rollback + toast
           if (ok) {
+            // El post ya murio: descarta los dirty para no PATCHear un 404.
+            // (Solo tras el ok: si el DELETE falla y el post revive, los
+            // cambios sin guardar se conservan en vez de perderse en silencio.)
+            ed.discardChanges();
             ed.ctx.toast('Contenido eliminado.', { type: 'success' });
             ed.forceClose(); // idempotente: el evento post:deleted ya pudo cerrar
           }

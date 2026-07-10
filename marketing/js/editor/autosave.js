@@ -24,7 +24,7 @@
 // hidden): la dueña edita, bloquea el telefono y todo queda guardado.
 // ============================================================================
 
-import { api } from '../api.js?v=202607092047';
+import { api } from '../api.js?v=202607092340';
 
 const API_BASE = '/api/marketing';
 const DEBOUNCE_MS = 800;
@@ -95,17 +95,37 @@ export function createAutosave({ getId, getSnapshot, onState, onSaved, onConflic
     if (!id) return false;
 
     if (keepalive) {
-      // Camino pagehide: fetch keepalive, sin esperar respuesta. Los dirty se
-      // conservan: si la pagina sobrevive, el siguiente flush re-envia (es
-      // idempotente) y reconciliara con el server.
+      // Camino pagehide: fetch keepalive, no bloquea el cierre. Si la pagina
+      // SOBREVIVE (bloquear el telefono / cambiar de app), la respuesta SI se
+      // procesa como un flush normal: este PATCH sube updated_at en el server,
+      // y sin reconciliar snapshot ni limpiar dirty el siguiente flush mandaria
+      // un expected_updated_at obsoleto y el propio guardado dispararia un 409
+      // falso ("Alguien mas edito este contenido").
       try {
         const fields = [...dirty.keys()];
+        const sentEpochs = new Map(fields.map((f) => [f, epochs.get(f)]));
+        const body = buildBody(fields);
         fetch(`${API_BASE}/posts/${encodeURIComponent(id)}`, {
           method: 'PATCH',
           credentials: 'same-origin',
           keepalive: true,
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify(buildBody(fields)),
+          body: JSON.stringify(body),
+        }).then(async (r) => {
+          if (disposed || !r.ok || getId?.() !== id) return;
+          let post = null;
+          try {
+            const data = await r.json();
+            post = (data && data.post) || data;
+          } catch { /* server sin payload */ }
+          // Limpia SOLO los campos que no se re-teclearon durante el vuelo.
+          const sentValues = {};
+          for (const f of fields) {
+            sentValues[f] = body[f];
+            if (epochs.get(f) === sentEpochs.get(f)) { dirty.delete(f); epochs.delete(f); }
+          }
+          try { onSaved?.(post && post.id ? post : null, fields, sentValues); } catch (e) { console.error('[autosave] onSaved', e); }
+          if (!dirty.size) setState('saved');
         }).catch(() => { /* best-effort */ });
       } catch { /* best-effort */ }
       return true;
@@ -149,7 +169,11 @@ export function createAutosave({ getId, getSnapshot, onState, onSaved, onConflic
           try { onConflict?.((e.data && e.data.post) || null); } catch (err) { console.error('[autosave] onConflict', err); }
           return false;
         }
-        const offline = navigator.onLine === false || !e || e.status === undefined;
+        // 'offline' SOLO si el navegador lo confirma: un timeout o un fallo
+        // puntual de red (errores sin .status de api.js) con conexion se marca
+        // 'error' para que Reintentar quede visible (en 'offline' nada
+        // reintenta hasta un evento 'online' que nunca llegaria).
+        const offline = navigator.onLine === false;
         setState(offline ? 'offline' : 'error');
         return false;
       } finally {

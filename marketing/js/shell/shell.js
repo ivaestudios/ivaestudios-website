@@ -19,20 +19,20 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202607092047';
-import * as store from './store.js?v=202607092047';
-import * as prefs from './prefs.js?v=202607092047';
-import * as router from './router.js?v=202607092047';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607092047';
-import { toast } from './toast.js?v=202607092047';
-import { icon } from './icons.js?v=202607092047';
-import * as iconsMod from './icons.js?v=202607092047';
-import { createTopbar } from './topbar.js?v=202607092047';
-import { createBottomNav } from './bottomnav.js?v=202607092047';
-import { createSearch } from './search.js?v=202607092047';
-import { createNotifications } from './notifications.js?v=202607092047';
-import * as pickers from '../ui/pickers.js?v=202607092047';
-import * as dnd from '../ui/dnd.js?v=202607092047';
+import { api, el } from '../api.js?v=202607092340';
+import * as store from './store.js?v=202607092340';
+import * as prefs from './prefs.js?v=202607092340';
+import * as router from './router.js?v=202607092340';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607092340';
+import { toast } from './toast.js?v=202607092340';
+import { icon } from './icons.js?v=202607092340';
+import * as iconsMod from './icons.js?v=202607092340';
+import { createTopbar } from './topbar.js?v=202607092340';
+import { createBottomNav } from './bottomnav.js?v=202607092340';
+import { createSearch } from './search.js?v=202607092340';
+import { createNotifications } from './notifications.js?v=202607092340';
+import * as pickers from '../ui/pickers.js?v=202607092340';
+import * as dnd from '../ui/dnd.js?v=202607092340';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -49,6 +49,7 @@ const CONTENT_LABELS = {
   meses: 'Calendario',
   calendario: 'Cuadrícula',
   entregables: 'Entregables',
+  metricas: 'Métricas',
   carrusel: 'Carrusel',
   tablero: 'Tablero',
   tabla: 'Tabla',
@@ -138,7 +139,11 @@ function paramsToFilters(params) {
 function updateSubhead() {
   if (!subheadEl) return;
   const { view } = store.getState();
-  const isContent = CONTENT_VIEWS.includes(view);
+  // Métricas no es vista de contenido, pero el cliente con Métricas habilitada
+  // (IVAE STUDIOS) la navega desde este mismo seg en móvil: el seg se queda
+  // visible ahí para poder regresar a Calendario/Cuadrícula.
+  const isContent = CONTENT_VIEWS.includes(view)
+    || (view === 'metricas' && isClientRole() && clientCanView('metricas'));
   subheadSeg.hidden = !isContent;
   const hasSlot = subheadSlot.children.length > 0;
   const show = isContent || hasSlot;
@@ -162,6 +167,10 @@ function buildSubhead(root) {
   // Cuadricula = calendario).
   const VISIBLE_CONTENT_VIEWS = ['meses', 'calendario', 'entregables', 'carrusel'];
   const segViews = CONTENT_VIEWS.filter((v) => VISIBLE_CONTENT_VIEWS.includes(v));
+  // En móvil las tabs del topbar no existen (<1024px, shell.css): para el
+  // cliente con Métricas habilitada (IVAE STUDIOS) este seg es su única
+  // entrada a esa vista, así que se agrega como botón extra.
+  if (isClientRole() && clientCanView('metricas')) segViews.push('metricas');
   for (const v of segViews) {
     const label = CONTENT_LABELS[v] || v;
     subheadSeg.appendChild(el('button', {
@@ -238,6 +247,53 @@ function installVersionWatch() {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') check();
   });
+}
+
+// Banner de verificación de correo (clientes auto-registrados): franja delgada
+// bajo el topbar, SOLO si /auth/me trae email_verified === false explícito
+// (los usuarios de agencia no traen el campo y no ven nada). El botón reenvía
+// el correo vía POST /auth/resend-verify.
+function installVerifyBanner(me) {
+  if (!me || me.email_verified !== false) return;
+  const btn = el('button', {
+    class: 'verify-bar__btn', type: 'button', text: 'Reenviar correo',
+    onclick: async () => {
+      btn.disabled = true;
+      try {
+        await api.post('/auth/resend-verify');
+        toast('Te reenviamos el correo de verificación. Revisa tu bandeja (y spam).', { type: 'success' });
+      } catch (e) {
+        toast(e.message || 'No se pudo reenviar el correo. Intenta de nuevo.', { type: 'error' });
+        btn.disabled = false;
+      }
+    },
+  });
+  const bar = el('div', { class: 'verify-bar' }, [
+    el('span', { class: 'verify-bar__txt', text: 'Confirma tu correo para proteger tu cuenta.' }),
+    btn,
+  ]);
+  const topbarRoot = document.getElementById('topbar');
+  if (topbarRoot) topbarRoot.insertAdjacentElement('afterend', bar);
+  // body.has-verifybar desplaza #subhead y #viewScroll (shell.css), igual que
+  // la barra offline: el banner no tapa nada.
+  document.body.classList.add('has-verifybar');
+}
+
+// El link del correo de verificación redirige a /marketing/app?verified=1|0.
+// Antes nadie leía el param y un fallo se tragaba en silencio: ahora hay toast
+// de éxito/fracaso y el param se limpia para no repetirlo al recargar.
+function consumeVerifiedParam() {
+  const qs = new URLSearchParams(location.search);
+  if (!qs.has('verified')) return;
+  const ok = qs.get('verified') === '1';
+  if (ok) {
+    toast('Correo verificado. ¡Listo!', { type: 'success' });
+  } else {
+    toast('El enlace de verificación no sirvió (inválido o caducado). Usa "Reenviar correo" para recibir uno nuevo.', { type: 'error', ms: 10000 });
+  }
+  qs.delete('verified');
+  const rest = qs.toString();
+  history.replaceState(null, '', location.pathname + (rest ? `?${rest}` : '') + location.hash);
 }
 
 function installOnlineOffline() {
@@ -368,6 +424,8 @@ export async function boot() {
   installAuthInterceptor();
   installOnlineOffline();
   installVersionWatch();
+  installVerifyBanner(me);
+  consumeVerifiedParam();
   notifications.start();
 
   // 5) Router.

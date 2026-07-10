@@ -26,10 +26,10 @@ import {
   el, clear, copyText,
   STATUSES, STATUS_ORDER, CONTENT_TYPES,
   statusLabel, contentTypeLabel, fmtDate,
-} from '../api.js?v=202607092047';
-import { icon } from '../shell/icons.js?v=202607092047';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607092047';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607092047';
+} from '../api.js?v=202607092340';
+import { icon } from '../shell/icons.js?v=202607092340';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607092340';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607092340';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -201,12 +201,34 @@ function scheduleRender() {
 
 // ── Mutaciones (el store es optimista + rollback + toast de error) ───────────
 
+// Mutaciones de ESTA vista en vuelo: el store emite posts:changed al RESOLVER
+// la red, no al momento del click. Mientras haya una en vuelo, ese evento NO
+// debe cerrar sheets (la usuaria pudo abrir otro picker/form y estar
+// escribiendo; ver el handler de posts:changed en mount()).
+let mutacionesEnVuelo = 0;
+async function trackMutation(promise) {
+  mutacionesEnVuelo += 1;
+  try { return await promise; } finally { mutacionesEnVuelo -= 1; }
+}
+
+// Si un PATCH resuelve DESPUÉS de cambiar de marca (p. ej. autosave del drawer
+// pendiente al cambiar de cliente), replacePost del store mete el post como
+// fila nueva en la lista de la marca activa. El texto ya quedó guardado en el
+// servidor: aquí solo se saca la fila intrusa de la lista en memoria.
+function descartarSiEsDeOtraMarca(saved) {
+  if (!ctx || !saved || !saved.id || !saved.client_id) return;
+  const { activeClientId, posts } = ctx.store.getState();
+  if (!activeClientId || activeClientId === 'todos' || saved.client_id === activeClientId) return;
+  ctx.store.set({ posts: (posts || []).filter((p) => p.id !== saved.id) });
+}
+
 async function patchWithUndo(post, fields, prevFields, msg) {
-  const res = await ctx.store.patchPost(post.id, fields);
+  const res = await trackMutation(ctx.store.patchPost(post.id, fields));
   if (res) {
+    descartarSiEsDeOtraMarca(res);
     ctx.toast(msg, {
       type: 'success',
-      action: { label: 'Deshacer', onAction: () => { ctx.store.patchPost(post.id, prevFields); } },
+      action: { label: 'Deshacer', onAction: () => { trackMutation(ctx.store.patchPost(post.id, prevFields)); } },
     });
   }
 }
@@ -226,7 +248,7 @@ function confirmDeleteRow(post) {
             class: 'btn btn-danger sheet-cta', type: 'button', text: 'Eliminar',
             onclick: async () => {
               close({ source: 'confirm' });
-              const ok = await ctx.store.removePost(post.id);
+              const ok = await trackMutation(ctx.store.removePost(post.id));
               if (ok) ctx.toast('Fila eliminada.', { type: 'success' });
             },
           }),
@@ -565,9 +587,11 @@ function openCaptionDrawer(post) {
           el('span', { class: 'mdsec__lbl', text: `SEO ALT · SLIDE ${i + 1}` }),
           i === 0 ? el('span', { class: 'mdsec__hint', text: 'Texto alternativo (IG)' }) : null,
           i > 0 ? el('button', {
-            class: 'mdsec__copy', type: 'button', title: 'Quitar este SEO alt',
-            'aria-label': `Quitar SEO alt del slide ${i + 1}`,
-            onclick: () => { alts.splice(i, 1); renderAlts(); scheduleSave(); },
+            class: 'mdsec__copy', type: 'button', title: 'Borrar este SEO alt',
+            'aria-label': `Borrar SEO alt del slide ${i + 1}`,
+            // Solo se VACÍA el texto (nada de splice): alts debe seguir 1:1
+            // con los slides o reordenar/quitar slides corre los alts de lugar.
+            onclick: () => { alts[i] = ''; renderAlts(); scheduleSave(); },
           }, [icon('trash', 14)]) : null,
           el('button', {
             class: 'mdsec__copy', type: 'button', title: `Copiar SEO alt del slide ${i + 1}`,
@@ -579,12 +603,9 @@ function openCaptionDrawer(post) {
       ]));
       fit(ta);
     });
-    altsHost.appendChild(el('div', { class: 'mdsec mdsec--add' }, [
-      el('button', {
-        class: 'btn meses-drawer__addslide', type: 'button',
-        onclick: () => { alts.push(''); renderAlts(); scheduleSave(); },
-      }, [icon('plus', 15), ' Agregar SEO alt']),
-    ]));
+    // Sin botón "Agregar SEO alt": los alts nacen y mueren JUNTO con su slide
+    // (agregar/quitar/mover slide ya espeja el arreglo). Un push suelto aquí
+    // desfasaba alts.length de slides.length y corría los textos de slide.
   }
 
   const body = el('div', { class: 'meses-drawer__body' }, SECTIONS.map((s) => {
@@ -645,7 +666,13 @@ function openCaptionDrawer(post) {
     if (!Object.keys(patch).length) { paint('saved'); return; }
     saving = true; paint('saving');
     let ok = false;
-    try { ok = !!(await ctx.store.patchPost(post.id, patch)); } catch { ok = false; }
+    try {
+      const saved = await trackMutation(ctx.store.patchPost(post.id, patch));
+      ok = !!saved;
+      // Flush tardío tras cambiar de marca: no dejar la fila de la marca
+      // anterior inyectada en el calendario de la marca nueva.
+      if (saved) descartarSiEsDeOtraMarca(saved);
+    } catch { ok = false; }
     if (ok) { Object.assign(savedSnap, cur); paint('saved'); } else { paint('error'); }
     saving = false;
     if (queued) { queued = false; doSave(); }
@@ -1107,7 +1134,7 @@ function wireRowDnd(tbody) {
       if (!updates.length) return;
       const wasManual = getSort().key === 'manual';
       if (!wasManual) setSort('manual', 'asc');
-      const ok = await ctx.store.reorder(updates);
+      const ok = await trackMutation(ctx.store.reorder(updates));
       if (ok && !wasManual) {
         ctx.toast('Orden manual activado: las filas quedan como las acomodes.', { type: 'info' });
       }
@@ -1326,7 +1353,7 @@ function buildComposer(key, monthRows) {
       position: nextPosition(monthRows),
     };
     if (key !== SIN_MES) data.publish_date = `${key}-01`;
-    const post = await ctx.store.createPost(data);
+    const post = await trackMutation(ctx.store.createPost(data));
     btn.disabled = false;
     // La fila nueva aparece sola (el store emite -> re-render). Solo hago scroll
     // hacia ella para dejarla a la vista, lista para llenar celda por celda.
@@ -1419,11 +1446,17 @@ function openIgManual() {
         el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
         saveBtn,
       ]));
-      // Precargar lo que ya esté guardado.
+      // La usuaria puede empezar a teclear antes de que llegue la precarga:
+      // se marca cada campo tocado para que el fetch tardío no lo pise.
+      for (const { input } of inputs) input.addEventListener('input', () => { input.dataset.dirty = '1'; });
+      // Precargar lo que ya esté guardado (SOLO en campos vírgenes y vacíos).
       (async () => {
         try {
           const d = await fetch(`/api/marketing/ig/manual?client_id=${activeClientId}&month=${activeMonth}`, { credentials: 'include' }).then((r) => r.json());
-          if (d && d.manual) for (const { input } of inputs) { const v = d.manual[input.dataset.k]; if (v != null) input.value = v; }
+          if (d && d.manual) for (const { input } of inputs) {
+            const v = d.manual[input.dataset.k];
+            if (v != null && !input.dataset.dirty && input.value.trim() === '') input.value = v;
+          }
         } catch { /* noop */ }
       })();
       setTimeout(() => f1.input.focus(), 60);
@@ -2038,7 +2071,13 @@ export default {
       ctx.store.subscribe(['posts', 'loading', 'activeClientId', 'clients'], scheduleRender),
       // Regla anti popovers huerfanos: antes de procesar posts:changed se
       // cierran sheets/pickers abiertos (su anchor pudo dejar de existir).
-      ctx.store.on('posts:changed', () => { try { ctx.sheet.closeAll(); } catch { /* noop */ } }),
+      // OJO: si el evento viene de una mutación de ESTA vista que resolvió
+      // tarde (red lenta), NO se cierra nada — la usuaria pudo abrir otro
+      // sheet en ese lapso y estar escribiendo (closeAll tiraría lo tecleado).
+      ctx.store.on('posts:changed', () => {
+        if (mutacionesEnVuelo > 0) return;
+        try { ctx.sheet.closeAll(); } catch { /* noop */ }
+      }),
       ctx.store.on('client:changed', () => { composer = null; composerInput = null; activeMonth = null; closeCaptionDrawer(); }),
     );
 

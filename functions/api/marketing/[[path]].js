@@ -646,6 +646,46 @@ async function handleVerifyEmail(env, url) {
   return Response.redirect(`${appUrl}?verified=1`, 302);
 }
 
+// POST /auth/resend-verify — reenvía el correo de verificación (sesión requerida).
+// Si el correo del signup se perdió (spam / Resend caído) el usuario quedaba
+// email_verified=0 para siempre; esto regenera el verify_token y lo reenvía.
+// Rate limit: 3 reenvíos por hora por usuario.
+async function handleResendVerify(request, env) {
+  const session = await getSession(request, env);
+  if (!session) return json({ error: 'Not authenticated' }, 401);
+  if (!(await authRateLimit(env, `resendverify:user:${session.user_id}`, 3, 3600))) {
+    return json({ error: 'Demasiados reenvíos. Intenta en una hora.' }, 429);
+  }
+  const user = await env.DB.prepare(
+    'SELECT id, email, name, email_verified FROM mkt_users WHERE id = ?'
+  ).bind(session.user_id).first();
+  if (!user) return json({ error: 'Not authenticated' }, 401);
+  if (user.email_verified) return json({ ok: true, verified: true });
+
+  // Token nuevo (invalida el enlace viejo) + reenvío.
+  const verifyToken = randomId();
+  await env.DB.prepare(
+    "UPDATE mkt_users SET verify_token = ?, updated_at = datetime('now') WHERE id = ?"
+  ).bind(verifyToken, user.id).run();
+  const verifyUrl = `https://ivaestudios.com/api/marketing/auth/verify?token=${verifyToken}`;
+  const sent = await sendAuthEmail(env, {
+    to: user.email,
+    subject: 'Confirma tu correo — IVAE Marketing',
+    html: authEmailHtml(
+      `Hola ${user.name}, confirma tu correo`,
+      'Aquí tienes un nuevo enlace para confirmar tu correo y asegurar tu cuenta.',
+      'Confirmar mi correo', verifyUrl
+    ),
+    text: `Hola ${user.name}. Confirma tu correo: ${verifyUrl}`,
+  });
+  // Aquí SÍ se avisa el fallo (hay sesión: no aplica anti-enumeración).
+  if (!sent) {
+    console.error('[mkt resend-verify] fallo al enviar el correo de verificación');
+    return json({ error: 'No pudimos enviar el correo. Intenta más tarde.' }, 503);
+  }
+  return json({ ok: true, sent: true });
+}
+
 // POST /auth/forgot — pide reset por email. SIEMPRE responde ok (no enumera).
 async function handleForgotPassword(request, env) {
   const ip = clientIp(request);
@@ -654,6 +694,12 @@ async function handleForgotPassword(request, env) {
   try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
   const email = String((bodyObj || {}).email || '').trim().toLowerCase();
   if (!EMAIL_RE.test(email)) return json({ ok: true });
+  // Sin RESEND_API_KEY el correo no puede salir para NADIE: misma respuesta
+  // exista o no la cuenta (anti-enumeración intacta), pero con sent:false y log.
+  if (!env.RESEND_API_KEY) {
+    console.error('[mkt forgot] RESEND_API_KEY no configurada: no se puede enviar el correo de reset');
+    return json({ ok: true, sent: false });
+  }
   const user = await env.DB.prepare('SELECT id, name FROM mkt_users WHERE email = ? COLLATE NOCASE AND active = 1').bind(email).first();
   if (user) {
     const token = randomId();
@@ -661,7 +707,7 @@ async function handleForgotPassword(request, env) {
       "UPDATE mkt_users SET reset_token = ?, reset_expires = datetime('now', '+1 hour') WHERE id = ?"
     ).bind(token, user.id).run();
     const resetUrl = `https://ivaestudios.com/marketing/?reset=${token}`;
-    await sendAuthEmail(env, {
+    const sent = await sendAuthEmail(env, {
       to: email,
       subject: 'Restablece tu contraseña — IVAE Marketing',
       html: authEmailHtml(
@@ -671,6 +717,12 @@ async function handleForgotPassword(request, env) {
       ),
       text: `Restablece tu contraseña (vence en 1 hora): ${resetUrl}`,
     });
+    // Fallo del proveedor (Resend caído / 4xx): avisar en vez de fingir éxito.
+    // No revela si el email existe: el proveedor falla igual para todos.
+    if (!sent) {
+      console.error('[mkt forgot] fallo al enviar el correo de reset');
+      return json({ error: 'No pudimos enviar el correo. Intenta más tarde.' }, 503);
+    }
   }
   return json({ ok: true });
 }
@@ -832,6 +884,16 @@ async function handleArchiveClient(env, session, clientId) {
   const existing = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(clientId).first();
   if (!existing) return json({ error: 'Client not found' }, 404);
   await env.DB.prepare("UPDATE mkt_clients SET archived = 1, updated_at = datetime('now') WHERE id = ?").bind(clientId).run();
+  // Cortar el acceso de la marca archivada: cierra las sesiones vivas de sus
+  // logins de cliente y los desactiva (sin esto el login seguía 100% funcional).
+  await env.DB.batch([
+    env.DB.prepare(
+      "DELETE FROM mkt_sessions WHERE user_id IN (SELECT id FROM mkt_users WHERE client_id = ? AND role = 'client')"
+    ).bind(clientId),
+    env.DB.prepare(
+      "UPDATE mkt_users SET active = 0, updated_at = datetime('now') WHERE client_id = ? AND role = 'client'"
+    ).bind(clientId),
+  ]);
   await logActivity(env, { client_id: clientId, session, action: 'client.archive' });
   return json({ ok: true, archived: 1 });
 }
@@ -864,6 +926,10 @@ async function handleCreateUser(request, env, session) {
   try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
   const { name, email, role, client_id, password } = bodyObj || {};
   if (!name || !email || !role) return json({ error: 'Name, email and role required' }, 400);
+  // Trim del usuario (email): un espacio accidental lo volvía imposible de
+  // loguear y burlaba el chequeo de duplicados (igual que patch/signup).
+  const em = String(email).trim();
+  if (!em) return json({ error: 'Name, email and role required' }, 400);
   if (role !== 'team' && role !== 'client') return json({ error: "role must be 'team' or 'client'" }, 400);
   if (role === 'client') {
     if (!client_id) return json({ error: 'client_id required for a client login' }, 400);
@@ -871,7 +937,7 @@ async function handleCreateUser(request, env, session) {
     if (!c) return json({ error: 'client_id does not exist' }, 400);
   }
 
-  const dup = await env.DB.prepare('SELECT id FROM mkt_users WHERE email = ? COLLATE NOCASE').bind(email).first();
+  const dup = await env.DB.prepare('SELECT id FROM mkt_users WHERE email = ? COLLATE NOCASE').bind(em).first();
   if (dup) return json({ error: 'Email already registered' }, 409);
 
   // If no password supplied, generate a temp one and force a reset on first login.
@@ -890,7 +956,7 @@ async function handleCreateUser(request, env, session) {
   const hash = await hashPassword(pw);
   await env.DB.prepare(
     'INSERT INTO mkt_users (id, email, password, name, role, client_id, active, must_reset) VALUES (?, ?, ?, ?, ?, ?, 1, ?)'
-  ).bind(id, email, hash, name, role, role === 'client' ? client_id : null, mustReset).run();
+  ).bind(id, em, hash, name, role, role === 'client' ? client_id : null, mustReset).run();
 
   await logActivity(env, {
     client_id: role === 'client' ? client_id : null,
@@ -1437,6 +1503,9 @@ async function handleListPosts(request, env, session, url) {
   const res = await env.DB.prepare(sql).bind(...vals).all();
   const rows = res.results || [];
   const out = rows.map(shapePost);
+  // Las "Notas del equipo" (notes_team) son internas: JAMÁS viajan a un login
+  // de cliente (notes_people sí: esas notas son para que el cliente las vea).
+  if (isClient) for (const p of out) delete p.notes_team;
 
   // V2: ?include=checklist → checklist_done / checklist_total per post via ONE
   // GROUP BY (no N+1). Missing table (pre-004) = no counts.
@@ -1600,8 +1669,13 @@ async function handleGetPost(request, env, session, postId) {
   let comments = commentsRes.results || [];
   if (session.role === 'client') comments = comments.filter((c) => !c.internal);
 
+  // Igual que en el listado: las "Notas del equipo" (notes_team) no viajan al
+  // cliente (notes_people sí: esas notas son para que el cliente las vea).
+  const shaped = shapePost(post);
+  if (session.role === 'client') delete shaped.notes_team;
+
   const payload = {
-    post: shapePost(post),
+    post: shaped,
     comments,
     approvals: approvalsRes.results || []
   };
@@ -2070,7 +2144,14 @@ async function handleDuplicatePost(request, env, session, postId) {
   const copyCols = ['content_type', 'grabacion', 'assignee', 'platform', 'caption',
     'inspo_url', 'video_url', 'hashtags', 'alt_text', 'notes_team', 'client_visible', 'notes_people'];
   for (const f of copyCols) {
-    if (source[f] !== undefined) { cols.push(f); vals.push(source[f]); }
+    if (source[f] !== undefined) {
+      let v = source[f];
+      // video_url de video SUBIDO apunta al stream del post ORIGINAL
+      // (/posts/<idOriginal>/video): copiarlo tal cual deja el video de la
+      // copia muerto si se borra el original → mejor NULL (se resube).
+      if (f === 'video_url' && typeof v === 'string' && v.includes(`/posts/${postId}/video`)) v = null;
+      cols.push(f); vals.push(v);
+    }
   }
   const scriptCols = ['hook', 'body', 'cta'];
   for (const f of scriptCols) {
@@ -3144,6 +3225,8 @@ async function route(request, env) {
   // Registro público (self-signup) + verificación + reset por token (migración 016).
   if (path === '/auth/signup' && method === 'POST') return handleSignup(request, env);
   if (path === '/auth/verify' && method === 'GET') return handleVerifyEmail(env, url);
+  // Reenvío del correo de verificación (valida su propia sesión adentro).
+  if (path === '/auth/resend-verify' && method === 'POST') return handleResendVerify(request, env);
   if (path === '/auth/forgot' && method === 'POST') return handleForgotPassword(request, env);
   if (path === '/auth/reset-with-token' && method === 'POST') return handleResetWithToken(request, env);
 

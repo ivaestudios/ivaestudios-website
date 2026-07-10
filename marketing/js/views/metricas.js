@@ -5,8 +5,8 @@
 // Datos: GET /ig/metrics-range?client_id&from&to. Solo staff (los clientes ven
 // otras pestañas). Por marca: si la marca no tiene IG conectado, lo dice.
 // ============================================================================
-import { api, el, clear } from '../api.js?v=202607092047';
-import { icon } from '../shell/icons.js?v=202607092047';
+import { api, el, clear } from '../api.js?v=202607092340';
+import { icon } from '../shell/icons.js?v=202607092340';
 
 const VIEW_ID = 'metricas';
 
@@ -46,7 +46,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/metricas.css?v=202607092047';
+  link.href = '/marketing/css/metricas.css?v=202607092340';
   document.head.appendChild(link);
 }
 
@@ -81,10 +81,13 @@ async function load(force = false) {
   loading = true; render();
   try {
     const res = await api.get(`/ig/metrics-range?client_id=${encodeURIComponent(brand.id)}&from=${from}&to=${to}`);
-    if (!mounted) return;
+    // Respuesta tardía: si lastKey ya cambió (se tocó otro periodo/marca
+    // durante el fetch), este resultado es de una petición vieja y no debe
+    // pisar el caché ni la vista.
+    if (!mounted || key !== lastKey) return;
     loading = false; lastRes = res; render();
   } catch (e) {
-    if (!mounted) return;
+    if (!mounted || key !== lastKey) return;
     loading = false; lastRes = { error: e.message || 'Error al cargar' }; render();
   }
 }

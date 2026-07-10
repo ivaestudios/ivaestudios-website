@@ -136,6 +136,50 @@ body.is-offline.has-subhead #viewScroll {
   padding-top: calc(var(--topbar-h2) + var(--subhead-h) + var(--offline-h, 28px));
 }
 
+/* ── Banner "confirma tu correo" (shell.js, email_verified === false) ──────── */
+.verify-bar {
+  position: fixed; top: var(--topbar-h2); left: 0; right: 0;
+  z-index: 29;
+  display: flex; align-items: center; justify-content: center; gap: var(--s-3);
+  height: var(--verify-h, 36px);
+  padding: 0 var(--s-4);
+  background: color-mix(in srgb, var(--warn) 16%, var(--surface));
+  color: var(--text);
+  font-size: var(--fs-1); font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+.verify-bar__txt {
+  min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.verify-bar__btn {
+  flex: none;
+  min-height: 26px; padding: 0 10px;
+  border: 1px solid var(--border); border-radius: var(--r-sm);
+  background: var(--surface); color: var(--text);
+  font-size: var(--fs-1); font-weight: 700; cursor: pointer;
+}
+.verify-bar__btn:disabled { opacity: .5; cursor: default; }
+
+/* Con el banner visible (body.has-verifybar, shell.js) el subhead y el
+   contenido bajan exactamente su alto, igual que con la barra offline. */
+body.has-verifybar #subhead { top: calc(var(--topbar-h2) + var(--verify-h, 36px)); }
+body.has-verifybar #viewScroll { padding-top: calc(var(--topbar-h2) + var(--verify-h, 36px)); }
+body.has-verifybar.has-subhead #viewScroll {
+  padding-top: calc(var(--topbar-h2) + var(--subhead-h) + var(--verify-h, 36px));
+}
+/* Si además está la barra offline, se apilan (offline arriba, verify abajo). */
+body.is-offline .verify-bar { top: calc(var(--topbar-h2) + var(--offline-h, 28px)); }
+body.is-offline.has-verifybar #subhead {
+  top: calc(var(--topbar-h2) + var(--offline-h, 28px) + var(--verify-h, 36px));
+}
+body.is-offline.has-verifybar #viewScroll {
+  padding-top: calc(var(--topbar-h2) + var(--offline-h, 28px) + var(--verify-h, 36px));
+}
+body.is-offline.has-verifybar.has-subhead #viewScroll {
+  padding-top: calc(var(--topbar-h2) + var(--offline-h, 28px) + var(--subhead-h) + var(--verify-h, 36px));
+}
+
 /* ── Sub-header de vistas de contenido (segmented + slot) ──────────────────── */
 #subhead {
   position: fixed; top: var(--topbar-h2); left: 0; right: 0;
