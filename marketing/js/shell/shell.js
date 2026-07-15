@@ -19,20 +19,20 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202607100036';
-import * as store from './store.js?v=202607100036';
-import * as prefs from './prefs.js?v=202607100036';
-import * as router from './router.js?v=202607100036';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607100036';
-import { toast } from './toast.js?v=202607100036';
-import { icon } from './icons.js?v=202607100036';
-import * as iconsMod from './icons.js?v=202607100036';
-import { createTopbar } from './topbar.js?v=202607100036';
-import { createBottomNav } from './bottomnav.js?v=202607100036';
-import { createSearch } from './search.js?v=202607100036';
-import { createNotifications } from './notifications.js?v=202607100036';
-import * as pickers from '../ui/pickers.js?v=202607100036';
-import * as dnd from '../ui/dnd.js?v=202607100036';
+import { api, el } from '../api.js?v=202607151603';
+import * as store from './store.js?v=202607151603';
+import * as prefs from './prefs.js?v=202607151603';
+import * as router from './router.js?v=202607151603';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607151603';
+import { toast } from './toast.js?v=202607151603';
+import { icon } from './icons.js?v=202607151603';
+import * as iconsMod from './icons.js?v=202607151603';
+import { createTopbar } from './topbar.js?v=202607151603';
+import { createBottomNav } from './bottomnav.js?v=202607151603';
+import { createSearch } from './search.js?v=202607151603';
+import { createNotifications } from './notifications.js?v=202607151603';
+import * as pickers from '../ui/pickers.js?v=202607151603';
+import * as dnd from '../ui/dnd.js?v=202607151603';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -51,6 +51,7 @@ const CONTENT_LABELS = {
   entregables: 'Entregables',
   metricas: 'Métricas',
   carrusel: 'Carrusel',
+  descargar: 'Descargar',
   tablero: 'Tablero',
   tabla: 'Tabla',
   timeline: 'Timeline',
@@ -156,6 +157,7 @@ function updateSubhead() {
       b.classList.toggle('is-active', is);
       b.setAttribute('aria-selected', is ? 'true' : 'false');
       if (b.dataset.view === 'carrusel') b.hidden = client; // herramienta de staff
+      if (b.dataset.view === 'descargar') b.hidden = client; // herramienta de staff
     }
   }
 }
@@ -165,7 +167,7 @@ function buildSubhead(root) {
   // Vianey pidio quitar Tablero/Tabla/Timeline/Carga de su admin: tanto admin
   // como cliente solo ven las dos vistas de calendario (Calendario = meses,
   // Cuadricula = calendario).
-  const VISIBLE_CONTENT_VIEWS = ['meses', 'calendario', 'entregables', 'carrusel'];
+  const VISIBLE_CONTENT_VIEWS = ['meses', 'calendario', 'entregables', 'carrusel', 'descargar'];
   const segViews = CONTENT_VIEWS.filter((v) => VISIBLE_CONTENT_VIEWS.includes(v));
   // En móvil las tabs del topbar no existen (<1024px, shell.css): para el
   // cliente con Métricas habilitada (IVAE STUDIOS) este seg es su única

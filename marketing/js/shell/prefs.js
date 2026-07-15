@@ -87,7 +87,7 @@ export function migrate() {
  * Vistas de contenido por cliente (lista CANONICA: la consumen el seg del
  * subhead en shell.js, el tab Contenido del bottom-nav y este whitelist).
  */
-export const CONTENT_VIEWS = ['meses', 'calendario', 'entregables', 'carrusel', 'tablero', 'tabla', 'timeline', 'carga'];
+export const CONTENT_VIEWS = ['meses', 'calendario', 'entregables', 'carrusel', 'descargar', 'tablero', 'tabla', 'timeline', 'carga'];
 
 /** Ultima vista de contenido usada para un cliente (whitelist CONTENT_VIEWS). */
 export function lastContentView(clientId) {

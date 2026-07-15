@@ -43,6 +43,7 @@
 
 import { handleDashboard } from './_dashboard.js';
 import { handleMonthlyReport } from './_enterprise.js';
+import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName } from './_downloader.js';
 import {
   handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
   handleIgMetrics, handleIgMetricsRange, fetchIgMetrics, fetchIgMetricsRange,
@@ -3719,7 +3720,67 @@ async function route(request, env) {
     return handleActivity(request, env, session, url);
   }
 
+  // ── DESCARGAR (solo staff): descargador de videos IG/TikTok/Pinterest ──
+  if (parts[0] === 'descargar') {
+    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    if (parts.length === 1 && method === 'POST') return handleResolveDownload(request, env);
+    if (parts.length === 2 && parts[1] === 'file' && method === 'GET') return handleDownloadFile(request, env);
+    return json({ error: 'Method not allowed' }, 405);
+  }
+
   return json({ error: 'Not found' }, 404);
+}
+
+// ── DESCARGAR handlers ───────────────────────────────────────────────────────
+// Resuelve un link a metadata (para la tarjeta de vista previa). NO descarga.
+async function handleResolveDownload(request, env) {
+  let b; try { b = await request.json(); } catch { return json({ error: 'JSON invalido' }, 400); }
+  const src = String((b && b.url) || '').trim();
+  if (!detectPlatform(src)) return json({ error: 'Pega un link de Instagram, TikTok o Pinterest.' }, 400);
+  try {
+    const info = await resolveVideo(src, env);
+    return json({
+      ok: true,
+      platform: info.platform,
+      title: info.title,
+      thumbnail: info.thumbnail,
+      width: info.width,
+      height: info.height,
+      durationSec: info.durationSec,
+      ext: info.ext,
+      filename: suggestName(info),
+    });
+  } catch (e) {
+    return json({ error: (e && e.message) || 'No se pudo extraer el video.' }, 502);
+  }
+}
+
+// Re-resuelve al vuelo (las URLs del CDN expiran) y TRANSMITE los bytes al
+// navegador como descarga. Anti-SSRF: solo baja de hosts de CDN whitelisteados.
+async function handleDownloadFile(request, env) {
+  const src = new URL(request.url).searchParams.get('u') || '';
+  if (!detectPlatform(src)) return new Response('Link no soportado', { status: 400 });
+  let info;
+  try { info = await resolveVideo(src, env); } catch (e) {
+    return new Response('No se pudo extraer: ' + ((e && e.message) || ''), { status: 502 });
+  }
+  if (!info || !info.mediaUrl || !isAllowedMediaHost(info.mediaUrl)) {
+    return new Response('Origen del video no permitido', { status: 403 });
+  }
+  const upstream = await fetch(info.mediaUrl, {
+    headers: info.mediaHeaders || {},
+    cf: { cacheTtl: 0 },
+  }).catch(() => null);
+  if (!upstream || !upstream.ok || !upstream.body) {
+    return new Response('El CDN rechazó la descarga (link expirado). Reintenta.', { status: 502 });
+  }
+  const headers = new Headers();
+  headers.set('Content-Type', upstream.headers.get('content-type') || 'video/mp4');
+  const len = upstream.headers.get('content-length');
+  if (len) headers.set('Content-Length', len);
+  headers.set('Content-Disposition', `attachment; filename="${suggestName(info)}"`);
+  headers.set('Cache-Control', 'private, no-store');
+  return new Response(upstream.body, { status: 200, headers });
 }
 
 // ── Pages Functions entry point ──
