@@ -370,20 +370,31 @@ function pickRendition(rends) {
 async function resolveInstagram(url, env) {
   const code = await igShortcode(url);
   if (!code) throw new Error('No pude leer el código del reel/post de Instagram.');
-  // Cobalt PRIMERO: Instagram bloquea las llamadas directas del Worker (IP de
-  // datacenter), pero cobalt hace el fetch desde sus servidores. Devuelve TODO
-  // el contenido (video, foto o carrusel). Directo (solo video) = respaldo.
-  const cb = await viaCobalt(url, 'instagram', env).catch(() => null);
-  if (cb && cb.items && cb.items.length) return cb;
   const appId = (env && env.IG_APP_ID) || IG_APP_ID;
   const docId = (env && env.IG_DOC_ID) || IG_DOC_ID;
+  const sid = (env && env.IG_SESSIONID) || null; // sesión de IG (secreto): saca gated/privado
   const mediaId = igShortcodeToMediaId(code);
-  let info = mediaId ? await igViaMediaInfo(mediaId, appId).catch(() => null) : null;
-  if (!info || !info.mediaUrl) info = await igViaGraphQL(code, appId, docId).catch(() => null);
-  if (!info || !info.mediaUrl) {
-    throw new Error('Instagram no devolvió el video. Puede ser una cuenta privada, una publicación de fotos, o un contenido con edad restringida. Los reels públicos suelen funcionar; reintenta en un momento.');
+  const direct = async () => {
+    let info = mediaId ? await igViaMediaInfo(mediaId, appId, sid).catch(() => null) : null;
+    if (!info || !info.mediaUrl) info = await igViaGraphQL(code, appId, docId, sid).catch(() => null);
+    return (info && info.mediaUrl) ? info : null;
+  };
+  // Con sesión: directo PRIMERO — Instagram ya SÍ entrega el video de reels con
+  // login (los "gated") a una cuenta que pueda verlos. Es lo que hace ssstik por
+  // detrás (su propia sesión + CAPTCHA), pero aquí con TU sesión.
+  if (sid) {
+    const withSession = await direct();
+    if (withSession) return withSession;
   }
-  return info;
+  // Cobalt (público, sin sesión) — funciona desde las IPs de Cloudflare.
+  const cb = await viaCobalt(url, 'instagram', env).catch(() => null);
+  if (cb && cb.items && cb.items.length) return cb;
+  // Directo sin sesión como último respaldo.
+  const info = await direct();
+  if (info) return info;
+  throw new Error(sid
+    ? 'Instagram no devolvió el video ni con la sesión. Puede que la sesión haya caducado, o que la cuenta no siga/no pueda ver ese contenido.'
+    : 'Este reel requiere iniciar sesión en Instagram (está protegido). Configura la sesión de IG (IG_SESSIONID) para bajar este tipo de contenido.');
 }
 
 async function igShortcode(url) {
@@ -410,14 +421,14 @@ function igShortcodeToMediaId(shortcode) {
   return id.toString();
 }
 
-async function igViaMediaInfo(mediaId, appId) {
-  const r = await xfetch(`https://i.instagram.com/api/v1/media/${mediaId}/info/`, {
-    headers: {
-      'User-Agent': 'Instagram 269.0.0.18.75 Android',
-      'x-ig-app-id': appId,
-      'Accept': 'application/json',
-    },
-  });
+async function igViaMediaInfo(mediaId, appId, sid) {
+  const headers = {
+    'User-Agent': 'Instagram 269.0.0.18.75 Android',
+    'x-ig-app-id': appId,
+    'Accept': 'application/json',
+  };
+  if (sid) headers['Cookie'] = `sessionid=${sid}`;
+  const r = await xfetch(`https://i.instagram.com/api/v1/media/${mediaId}/info/`, { headers });
   if (!r.ok) return null;
   const j = await r.json().catch(() => null);
   return igPickBest(j && j.items && j.items[0]);
@@ -431,7 +442,7 @@ async function igPrimeCsrf() {
   } catch { return null; }
 }
 
-async function igViaGraphQL(shortcode, appId, docId) {
+async function igViaGraphQL(shortcode, appId, docId, sid) {
   const csrf = await igPrimeCsrf();
   const body = new URLSearchParams({
     doc_id: docId,
@@ -440,6 +451,7 @@ async function igViaGraphQL(shortcode, appId, docId) {
       __relay_internal__pv__PolarisAIGMMediaWebLabelEnabledrelayprovider: false,
     }),
   });
+  const cookie = [csrf ? `csrftoken=${csrf}` : '', sid ? `sessionid=${sid}` : ''].filter(Boolean).join('; ');
   const r = await xfetch('https://www.instagram.com/graphql/query', {
     method: 'POST',
     headers: {
@@ -449,7 +461,7 @@ async function igViaGraphQL(shortcode, appId, docId) {
       'X-ASBD-ID': '129477',
       'X-IG-WWW-Claim': '0',
       'Sec-Fetch-Site': 'same-origin',
-      'Cookie': csrf ? `csrftoken=${csrf}` : '',
+      'Cookie': cookie,
       'User-Agent': DESKTOP_UA,
     },
     body,
