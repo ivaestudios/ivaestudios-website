@@ -25,12 +25,17 @@ const IG_APP_ID = '936619743392459';
 const IG_DOC_ID = '27128499623469141'; // PolarisPostRootQuery (mediados 2026; ROTA — override por env IG_DOC_ID)
 
 // Hosts a los que el proxy tiene permitido ir a bajar bytes (defensa anti-SSRF).
-const MEDIA_HOST_RE = /(^|\.)(tiktokcdn\.com|tiktokcdn-us\.com|tiktokv\.com|tiktok\.com|byteoversea\.com|akamaized\.net|pinimg\.com|cdninstagram\.com|fbcdn\.net|tikwm\.com|eepy\.today|otomir23\.me)$/i;
+const MEDIA_HOST_RE = /(^|\.)(tiktokcdn\.com|tiktokcdn-us\.com|tiktokv\.com|tiktok\.com|byteoversea\.com|akamaized\.net|pinimg\.com|cdninstagram\.com|fbcdn\.net|tikwm\.com|eepy\.today|otomir23\.me|liubquanti\.click)$/i;
 
 // Instancias públicas de cobalt (resolver universal: hacen el fetch desde SUS
 // servidores, así que funcionan desde las IPs de datacenter de Cloudflare que
 // Instagram bloquea). Se prueban en orden; override/extensión por env COBALT_URL.
 const COBALT_INSTANCES = ['https://co.eepy.today/', 'https://co.otomir23.me/'];
+// Instancias de cobalt con SESIÓN de IG propia (sin CAPTCHA): sí devuelven el MP4
+// de reels "gated" (con login). Se prueban AL FINAL, solo si las de arriba no
+// dieron video (p.ej. un reel gated donde solo dan la portada). Son un relay
+// gratuito y algo inestable → override/extensión por env COBALT_SESSION_URL.
+const COBALT_SESSION_INSTANCES = ['https://api.cobalt.liubquanti.click/'];
 
 export function detectPlatform(raw) {
   const u = String(raw || '').toLowerCase();
@@ -75,46 +80,64 @@ function cobaltItem(url, filename, ptype) {
   return { url, type, ext };
 }
 
-// Resolver universal cobalt: recibe un link de IG/TikTok/Pinterest y devuelve
-// TODO su contenido (video, imagen o carrusel) — cobalt lo baja desde su propio
-// servidor (funciona desde las IPs de Cloudflare). Reintenta por instancia.
-// Devuelve { platform, items:[{url,type,ext}], mediaUrl, ... } | null.
-async function viaCobalt(url, platform, env) {
-  const instances = [];
-  if (env && env.COBALT_URL) instances.push(env.COBALT_URL);
-  for (const i of COBALT_INSTANCES) instances.push(i);
-  for (const inst of instances) {
-    let j = null;
-    try {
-      const r = await xfetch(inst, {
-        method: 'POST',
-        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, downloadMode: 'auto', videoQuality: 'max' }),
-      }, 12000);
-      j = await r.json();
-    } catch { continue; }
-    if (!j) continue;
-    const items = [];
-    if ((j.status === 'redirect' || j.status === 'tunnel') && j.url) {
-      items.push(cobaltItem(j.url, j.filename));
-    } else if (j.status === 'picker' && Array.isArray(j.picker)) {
-      for (const p of j.picker) if (p && p.url) items.push(cobaltItem(p.url, p.filename, p.type));
-    }
-    if (!items.length) continue;
-    const first = items[0];
-    return {
-      platform,
-      title: platform,
-      thumbnail: null,
-      width: null, height: null, durationSec: null,
-      type: first.type, ext: first.ext,
-      mediaUrl: first.url,
-      items,
-      watermark: false,
-      mediaHeaders: mediaHeadersFor(platform),
-    };
+// Una llamada a UNA instancia de cobalt → { items:[{url,type,ext}] } | null.
+async function cobaltCall(inst, url, platform) {
+  let j = null;
+  try {
+    const r = await xfetch(inst, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, downloadMode: 'auto', videoQuality: 'max' }),
+    }, 9000);
+    j = await r.json();
+  } catch { return null; }
+  if (!j) return null;
+  const items = [];
+  if ((j.status === 'redirect' || j.status === 'tunnel') && j.url) {
+    items.push(cobaltItem(j.url, j.filename));
+  } else if (j.status === 'picker' && Array.isArray(j.picker)) {
+    for (const p of j.picker) if (p && p.url) items.push(cobaltItem(p.url, p.filename, p.type));
   }
-  return null;
+  if (!items.length) return null;
+  const first = items[0];
+  return {
+    platform, title: platform, thumbnail: null,
+    width: null, height: null, durationSec: null,
+    type: first.type, ext: first.ext, mediaUrl: first.url, items,
+    watermark: false, mediaHeaders: mediaHeadersFor(platform),
+  };
+}
+
+// Resolver universal cobalt: prueba varias instancias. PREFIERE un resultado con
+// VIDEO sobre uno de solo-imagen: en un reel "gated" las instancias logged-out
+// devuelven solo la PORTADA (imagen), pero la instancia con sesión propia
+// (COBALT_SESSION_INSTANCES, sin CAPTCHA) sí devuelve el MP4 — así el video gana
+// aunque una instancia rápida ya haya dado la portada. Devuelve el objeto | null.
+async function viaCobalt(url, platform, env) {
+  let imageOnly = null;
+  const tryInst = async (inst) => {
+    const res = await cobaltCall(inst, url, platform);
+    if (!res) return null;
+    if (res.items.some((it) => it.type === 'video')) return res; // lo mejor: trae video
+    if (!imageOnly) imageOnly = res; // solo portada/imagen: recordar por si nada trae video
+    return null;
+  };
+  // 1) Instancias rápidas (públicas), un intento c/u — cubre reels públicos veloz.
+  const fast = [];
+  if (env && env.COBALT_URL) fast.push(env.COBALT_URL);
+  for (const i of COBALT_INSTANCES) fast.push(i);
+  for (const inst of fast) { const v = await tryInst(inst); if (v) return v; }
+  // 2) Instancias con sesión (para reels gated) — inestables → hasta 3 intentos c/u.
+  const sess = [];
+  if (env && env.COBALT_SESSION_URL) sess.push(env.COBALT_SESSION_URL);
+  for (const i of COBALT_SESSION_INSTANCES) sess.push(i);
+  for (const inst of sess) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const v = await tryInst(inst);
+      if (v) return v;
+    }
+  }
+  return imageOnly;
 }
 
 // Nombre de archivo sugerido (seguro para Content-Disposition).
