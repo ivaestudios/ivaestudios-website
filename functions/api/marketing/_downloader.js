@@ -40,6 +40,21 @@ export function isAllowedMediaHost(u) {
   try { return MEDIA_HOST_RE.test(new URL(u).hostname); } catch { return false; }
 }
 
+// fetch con timeout duro: una petición externa colgada (p.ej. el muro anti-bot
+// de tiktok.com desde la IP de Cloudflare) tumbaría la Function con un 502; el
+// AbortSignal la corta y la deja caer a un error manejado / respaldo.
+function xfetch(url, opts = {}, ms = 12000) {
+  return fetch(url, { ...opts, signal: AbortSignal.timeout(ms) });
+}
+
+// Headers para BAJAR el MP4 del CDN, derivados de la plataforma (el endpoint de
+// descarga los reconstruye sin re-resolver, así que no dependen del resolve).
+export function mediaHeadersFor(platform) {
+  if (platform === 'tiktok') return { 'User-Agent': DESKTOP_UA, 'Referer': 'https://www.tiktok.com/' };
+  if (platform === 'pinterest') return { 'User-Agent': DESKTOP_UA, 'Referer': 'https://www.pinterest.com/' };
+  return { 'User-Agent': DESKTOP_UA };
+}
+
 // Nombre de archivo sugerido (seguro para Content-Disposition).
 export function suggestName(info) {
   const base = String(info.title || info.platform || 'video')
@@ -86,7 +101,7 @@ async function tiktokId(url) {
   let u = url;
   if (/vm\.tiktok|vt\.tiktok|tiktok\.com\/t\//i.test(u)) {
     for (let i = 0; i < 3; i++) {
-      const r = await fetch(u, { redirect: 'manual', headers: { 'User-Agent': DESKTOP_UA } });
+      const r = await xfetch(u, { redirect: 'manual', headers: { 'User-Agent': DESKTOP_UA } });
       const loc = r.headers.get('location');
       if (!loc) break;
       u = loc.startsWith('http') ? loc : new URL(loc, u).toString();
@@ -99,7 +114,7 @@ async function tiktokId(url) {
 }
 
 async function tiktokViaHtml(id) {
-  const r = await fetch(`https://www.tiktok.com/@i/video/${id}`, {
+  const r = await xfetch(`https://www.tiktok.com/@i/video/${id}`, {
     headers: { 'User-Agent': DESKTOP_UA, 'Accept-Language': 'en-US,en;q=0.9' },
   });
   const html = await r.text();
@@ -139,7 +154,7 @@ async function tiktokViaHtml(id) {
 }
 
 async function tiktokViaTikwm(url) {
-  const r = await fetch('https://www.tikwm.com/api/', {
+  const r = await xfetch('https://www.tikwm.com/api/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': DESKTOP_UA },
     body: `url=${encodeURIComponent(url)}&hd=1`,
@@ -198,7 +213,7 @@ async function pinId(url) {
   if (direct) return direct[1];
   const code = (url.match(/pin\.it\/([^/?#]+)/) || [])[1];
   if (!code) return null;
-  const r = await fetch(`https://api.pinterest.com/url_shortener/${code}/redirect/`, {
+  const r = await xfetch(`https://api.pinterest.com/url_shortener/${code}/redirect/`, {
     headers: { 'User-Agent': DESKTOP_UA }, redirect: 'manual',
   });
   const loc = r.headers.get('location') || '';
@@ -208,7 +223,7 @@ async function pinId(url) {
 async function pinResource(id) {
   const data = JSON.stringify({ options: { field_set_key: 'unauth_react_main_pin', id } });
   const qs = new URLSearchParams({ data, source_url: `/pin/${id}/` });
-  const r = await fetch(`https://www.pinterest.com/resource/PinResource/get/?${qs}`, {
+  const r = await xfetch(`https://www.pinterest.com/resource/PinResource/get/?${qs}`, {
     headers: {
       'User-Agent': DESKTOP_UA,
       'Accept': 'application/json, text/javascript, */*, q=0.01',
@@ -223,7 +238,7 @@ async function pinResource(id) {
 }
 
 async function pinFromHtml(id) {
-  const r = await fetch(`https://www.pinterest.com/pin/${id}/`, { headers: { 'User-Agent': DESKTOP_UA } });
+  const r = await xfetch(`https://www.pinterest.com/pin/${id}/`, { headers: { 'User-Agent': DESKTOP_UA } });
   const html = await r.text();
   const blob = (html.match(/<script id="__PWS_INITIAL_PROPS__"[^>]*>([\s\S]*?)<\/script>/) || [])[1]
             || (html.match(/<script id="__PWS_DATA__"[^>]*>([\s\S]*?)<\/script>/) || [])[1];
@@ -289,7 +304,7 @@ async function igShortcode(url) {
   if (direct) return direct[1];
   // Share links (/share/...) redirigen al reel/post real.
   if (/instagram\.com\/(?:share|reel\/share)/i.test(u)) {
-    const r = await fetch(u, { redirect: 'manual', headers: { 'User-Agent': DESKTOP_UA } });
+    const r = await xfetch(u, { redirect: 'manual', headers: { 'User-Agent': DESKTOP_UA } });
     const loc = r.headers.get('location') || '';
     return (loc.match(/\/(?:reel|reels|p|tv)\/([A-Za-z0-9_-]+)/) || [])[1] || null;
   }
@@ -308,7 +323,7 @@ function igShortcodeToMediaId(shortcode) {
 }
 
 async function igViaMediaInfo(mediaId, appId) {
-  const r = await fetch(`https://i.instagram.com/api/v1/media/${mediaId}/info/`, {
+  const r = await xfetch(`https://i.instagram.com/api/v1/media/${mediaId}/info/`, {
     headers: {
       'User-Agent': 'Instagram 269.0.0.18.75 Android',
       'x-ig-app-id': appId,
@@ -322,7 +337,7 @@ async function igViaMediaInfo(mediaId, appId) {
 
 async function igPrimeCsrf() {
   try {
-    const r = await fetch('https://www.instagram.com/', { headers: { 'User-Agent': DESKTOP_UA } });
+    const r = await xfetch('https://www.instagram.com/', { headers: { 'User-Agent': DESKTOP_UA } });
     const sc = (r.headers.get('set-cookie') || '').match(/csrftoken=([^;]+)/);
     return sc ? sc[1] : null;
   } catch { return null; }
@@ -337,7 +352,7 @@ async function igViaGraphQL(shortcode, appId, docId) {
       __relay_internal__pv__PolarisAIGMMediaWebLabelEnabledrelayprovider: false,
     }),
   });
-  const r = await fetch('https://www.instagram.com/graphql/query', {
+  const r = await xfetch('https://www.instagram.com/graphql/query', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',

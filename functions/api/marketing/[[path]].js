@@ -43,7 +43,7 @@
 
 import { handleDashboard } from './_dashboard.js';
 import { handleMonthlyReport } from './_enterprise.js';
-import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName } from './_downloader.js';
+import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHeadersFor } from './_downloader.js';
 import {
   handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
   handleIgMetrics, handleIgMetricsRange, fetchIgMetrics, fetchIgMetricsRange,
@@ -3749,36 +3749,46 @@ async function handleResolveDownload(request, env) {
       durationSec: info.durationSec,
       ext: info.ext,
       filename: suggestName(info),
+      mediaUrl: info.mediaUrl, // el front lo pasa a /file para NO re-resolver
     });
   } catch (e) {
     return json({ error: (e && e.message) || 'No se pudo extraer el video.' }, 502);
   }
 }
 
-// Re-resuelve al vuelo (las URLs del CDN expiran) y TRANSMITE los bytes al
-// navegador como descarga. Anti-SSRF: solo baja de hosts de CDN whitelisteados.
+// TRANSMITE los bytes del video al navegador como descarga. Recibe la mediaUrl ya
+// resuelta (m) desde el paso de resolve para NO re-resolver (evita el doble hit a
+// tikwm + el cuelgue del scrape en la IP de CF que causaba 502). Fallback: si no
+// viene m (front viejo), re-resuelve desde u. Anti-SSRF: solo hosts de CDN.
 async function handleDownloadFile(request, env) {
-  const src = new URL(request.url).searchParams.get('u') || '';
-  if (!detectPlatform(src)) return new Response('Link no soportado', { status: 400 });
-  let info;
-  try { info = await resolveVideo(src, env); } catch (e) {
-    return new Response('No se pudo extraer: ' + ((e && e.message) || ''), { status: 502 });
+  const q = new URL(request.url).searchParams;
+  let mediaUrl = q.get('m') || '';
+  let platform = q.get('p') || '';
+  let filename = q.get('n') || 'video.mp4';
+  if (!mediaUrl) {
+    const src = q.get('u') || '';
+    if (!detectPlatform(src)) return new Response('Link no soportado', { status: 400 });
+    try {
+      const info = await resolveVideo(src, env);
+      mediaUrl = info.mediaUrl; platform = info.platform; filename = suggestName(info);
+    } catch (e) {
+      return new Response('No se pudo extraer: ' + ((e && e.message) || ''), { status: 502 });
+    }
   }
-  if (!info || !info.mediaUrl || !isAllowedMediaHost(info.mediaUrl)) {
+  if (!mediaUrl || !isAllowedMediaHost(mediaUrl)) {
     return new Response('Origen del video no permitido', { status: 403 });
   }
-  const upstream = await fetch(info.mediaUrl, {
-    headers: info.mediaHeaders || {},
-    cf: { cacheTtl: 0 },
-  }).catch(() => null);
+  let upstream = null;
+  try { upstream = await fetch(mediaUrl, { headers: mediaHeadersFor(platform) }); } catch { upstream = null; }
   if (!upstream || !upstream.ok || !upstream.body) {
-    return new Response('El CDN rechazó la descarga (link expirado). Reintenta.', { status: 502 });
+    return new Response('El CDN rechazó la descarga (el link pudo expirar). Vuelve a buscar el video.', { status: 502 });
   }
+  const safe = String(filename).replace(/[\r\n"]+/g, '').replace(/[^\w.\-]+/g, '_').slice(0, 80) || 'video.mp4';
   const headers = new Headers();
   headers.set('Content-Type', upstream.headers.get('content-type') || 'video/mp4');
   const len = upstream.headers.get('content-length');
   if (len) headers.set('Content-Length', len);
-  headers.set('Content-Disposition', `attachment; filename="${suggestName(info)}"`);
+  headers.set('Content-Disposition', `attachment; filename="${safe}"`);
   headers.set('Cache-Control', 'private, no-store');
   return new Response(upstream.body, { status: 200, headers });
 }

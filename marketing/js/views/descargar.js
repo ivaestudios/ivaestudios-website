@@ -9,8 +9,8 @@
 //        → GET /descargar/file?u=... (stream con Content-Disposition: attachment).
 // Nada se guarda: las URLs del CDN expiran, así que se re-resuelve al descargar.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202607151603';
-import { icon } from '../shell/icons.js?v=202607151603';
+import { api, el, clear, toast } from '../api.js?v=202607152032';
+import { icon } from '../shell/icons.js?v=202607152032';
 
 const VIEW_ID = 'descargar';
 
@@ -59,11 +59,18 @@ async function resolve(url) {
 async function download(link, meta, btn) {
   if (btn) { btn.disabled = true; btn.classList.add('is-loading'); }
   try {
-    const res = await fetch(`/api/marketing/descargar/file?u=${encodeURIComponent(link)}`, { credentials: 'same-origin' });
+    // Pasamos la mediaUrl YA resuelta (m) para que el server NO re-resuelva;
+    // si el server es viejo o falta, cae al link original (u).
+    const q = (meta && meta.mediaUrl)
+      ? `m=${encodeURIComponent(meta.mediaUrl)}&p=${encodeURIComponent(meta.platform || '')}&n=${encodeURIComponent(meta.filename || 'video.mp4')}`
+      : `u=${encodeURIComponent(link)}`;
+    const res = await fetch(`/api/marketing/descargar/file?${q}`, { credentials: 'same-origin' });
     if (!res.ok) {
-      let msg = 'No se pudo descargar. Reintenta.';
-      try { const j = await res.clone().json(); if (j && j.error) msg = j.error; }
-      catch { try { const t = await res.text(); if (t) msg = t; } catch { /* noop */ } }
+      // NO volcar HTML de error (p.ej. la página 502 de Cloudflare): mensaje limpio.
+      let msg = `No se pudo descargar (error ${res.status}). Vuelve a intentar.`;
+      const ct = res.headers.get('content-type') || '';
+      if (ct.includes('json')) { try { const j = await res.json(); if (j && j.error) msg = j.error; } catch { /* noop */ } }
+      else { try { const t = await res.text(); if (t && t.length < 200 && !/</.test(t)) msg = t; } catch { /* noop */ } }
       throw new Error(msg);
     }
     const blob = await res.blob();
@@ -209,7 +216,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/descargar.css?v=202607151603';
+  link.href = '/marketing/css/descargar.css?v=202607152032';
   document.head.appendChild(link);
 }
 
