@@ -19,20 +19,20 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202607152114';
-import * as store from './store.js?v=202607152114';
-import * as prefs from './prefs.js?v=202607152114';
-import * as router from './router.js?v=202607152114';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607152114';
-import { toast } from './toast.js?v=202607152114';
-import { icon } from './icons.js?v=202607152114';
-import * as iconsMod from './icons.js?v=202607152114';
-import { createTopbar } from './topbar.js?v=202607152114';
-import { createBottomNav } from './bottomnav.js?v=202607152114';
-import { createSearch } from './search.js?v=202607152114';
-import { createNotifications } from './notifications.js?v=202607152114';
-import * as pickers from '../ui/pickers.js?v=202607152114';
-import * as dnd from '../ui/dnd.js?v=202607152114';
+import { api, el } from '../api.js?v=202607152317';
+import * as store from './store.js?v=202607152317';
+import * as prefs from './prefs.js?v=202607152317';
+import * as router from './router.js?v=202607152317';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607152317';
+import { toast } from './toast.js?v=202607152317';
+import { icon } from './icons.js?v=202607152317';
+import * as iconsMod from './icons.js?v=202607152317';
+import { createTopbar } from './topbar.js?v=202607152317';
+import { createBottomNav } from './bottomnav.js?v=202607152317';
+import { createSearch } from './search.js?v=202607152317';
+import { createNotifications } from './notifications.js?v=202607152317';
+import * as pickers from '../ui/pickers.js?v=202607152317';
+import * as dnd from '../ui/dnd.js?v=202607152317';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -336,7 +336,11 @@ function ctxFactory(view, params) {
 export async function boot() {
   const bootEl = document.getElementById('boot');
 
-  // 1) Auth gate.
+  // 1) Auth gate. Se DISPARA /clients en paralelo con /auth/me (no depende de él;
+  // la sesión la valida el backend) → ahorra una vuelta de red en cada arranque.
+  const clientsP = api.get('/clients')
+    .then((c) => (Array.isArray(c) ? c : []))
+    .catch((e) => ({ __err: e }));
   let me;
   try {
     me = await api.get('/auth/me');
@@ -354,16 +358,13 @@ export async function boot() {
   prefs.migrate();
   store.set({ me }, { silent: true });
 
-  // 2) Carga paralela: clients (critica) + unread (best-effort via notifications).
-  let clients = [];
-  try {
-    clients = await api.get('/clients');
-    if (!Array.isArray(clients)) clients = [];
-  } catch (e) {
+  // 2) Clientes (crítica) — ya venía cargando en paralelo desde arriba.
+  const clients = await clientsP;
+  if (clients && clients.__err) {
     // Sin clients no hay app: muestra error en el splash con reintento.
     if (bootEl) {
       const msg = bootEl.querySelector('.muted');
-      if (msg) msg.textContent = e.message || 'No se pudo cargar. Revisa tu conexión.';
+      if (msg) msg.textContent = clients.__err.message || 'No se pudo cargar. Revisa tu conexión.';
       bootEl.appendChild(el('button', {
         class: 'btn btn-primary', type: 'button', text: 'Reintentar',
         style: { marginTop: '14px' },

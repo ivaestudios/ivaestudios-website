@@ -9,8 +9,8 @@
 //        → GET /descargar/file?u=... (stream con Content-Disposition: attachment).
 // Nada se guarda: las URLs del CDN expiran, así que se re-resuelve al descargar.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202607152114';
-import { icon } from '../shell/icons.js?v=202607152114';
+import { api, el, clear, toast } from '../api.js?v=202607152317';
+import { icon } from '../shell/icons.js?v=202607152317';
 
 const VIEW_ID = 'descargar';
 
@@ -44,6 +44,7 @@ async function resolve(url) {
   if (!/^https?:\/\//.test(link)) { toast('Pega un link completo (empieza con https://).', 'error'); return; }
   if (!detect(link)) { toast('Solo Instagram, TikTok y Pinterest por ahora.', 'error'); return; }
   if (busy) return;
+  if (inputEl) inputEl.blur(); // cierra el teclado en móvil para ver la tarjeta
   setBusy(true);
   renderLoading(link);
   try {
@@ -56,36 +57,18 @@ async function resolve(url) {
   }
 }
 
-async function download(item, platform, btn, link) {
-  if (btn) { btn.disabled = true; btn.classList.add('is-loading'); }
-  try {
-    // Pasamos la URL YA resuelta (m) para que el server NO re-resuelva;
-    // si faltara, cae al link original (u).
-    const q = (item && item.url)
-      ? `m=${encodeURIComponent(item.url)}&p=${encodeURIComponent(platform || '')}&n=${encodeURIComponent(item.filename || 'media')}`
-      : `u=${encodeURIComponent(link || '')}`;
-    const res = await fetch(`/api/marketing/descargar/file?${q}`, { credentials: 'same-origin' });
-    if (!res.ok) {
-      // NO volcar HTML de error (p.ej. la página 502 de Cloudflare): mensaje limpio.
-      let msg = `No se pudo descargar (error ${res.status}). Vuelve a intentar.`;
-      const ct = res.headers.get('content-type') || '';
-      if (ct.includes('json')) { try { const j = await res.json(); if (j && j.error) msg = j.error; } catch { /* noop */ } }
-      else { try { const t = await res.text(); if (t && t.length < 200 && !/</.test(t)) msg = t; } catch { /* noop */ } }
-      throw new Error(msg);
-    }
-    const blob = await res.blob();
-    const name = (item && item.filename) || 'media';
-    const href = URL.createObjectURL(blob);
-    const a = el('a', { href, download: name });
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => { try { URL.revokeObjectURL(href); } catch { /* noop */ } a.remove(); }, 1500);
-    toast('Descarga lista ✓', 'success');
-  } catch (e) {
-    toast(e && e.message ? e.message : 'No se pudo descargar.', 'error', 6000);
-  } finally {
-    if (btn) { btn.disabled = false; btn.classList.remove('is-loading'); }
-  }
+// Descarga NATIVA: navega directo al endpoint que ya transmite el archivo con
+// Content-Disposition: attachment. Funciona en iOS Safari (donde fetch+blob NO
+// guarda bien) y no carga el video en RAM (clave para videos grandes en celular).
+// Se dispara SÍNCRONO dentro del tap (requisito de iOS para permitir la descarga).
+function download(item, platform, link) {
+  const q = (item && item.url)
+    ? `m=${encodeURIComponent(item.url)}&p=${encodeURIComponent(platform || '')}&n=${encodeURIComponent(item.filename || 'media')}`
+    : `u=${encodeURIComponent(link || '')}`;
+  const a = el('a', { href: `/api/marketing/descargar/file?${q}`, download: (item && item.filename) || 'media', rel: 'noopener' });
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { try { a.remove(); } catch { /* noop */ } }, 1000);
 }
 
 async function pasteFromClipboard() {
@@ -111,7 +94,7 @@ function render() {
       icon('link', 18),
       inputEl = el('input', {
         class: 'dl-input', type: 'url', inputmode: 'url', autocomplete: 'off',
-        autocapitalize: 'off', spellcheck: 'false',
+        autocapitalize: 'off', spellcheck: 'false', enterkeyhint: 'go',
         placeholder: 'Pega el link de Instagram, TikTok o Pinterest',
         onpaste: (e) => {
           const t = (e.clipboardData || window.clipboardData);
@@ -191,15 +174,15 @@ function renderCard(link, meta) {
         icon(it.type === 'image' ? 'camera' : 'download', 15),
         ` ${it.type === 'image' ? 'Foto' : 'Video'} ${i + 1}`,
       ]);
-      b.addEventListener('click', () => download(it, meta.platform, b, link));
+      b.addEventListener('click', () => { toast('Descargando…', 'success', 1800); download(it, meta.platform, link); });
       return b;
     }));
     const allBtn = el('button', { class: 'btn btn-primary dl-download', type: 'button' },
-      [icon('download', 18), el('span', { text: ` Descargar todo (${items.length})` }), el('span', { class: 'spinner spinner--btn' })]);
-    allBtn.addEventListener('click', async () => {
-      allBtn.disabled = true; allBtn.classList.add('is-loading');
-      for (const it of items) { await download(it, meta.platform, null, link); }
-      allBtn.disabled = false; allBtn.classList.remove('is-loading');
+      [icon('download', 18), el('span', { text: ` Descargar todo (${items.length})` })]);
+    allBtn.addEventListener('click', () => {
+      toast(`Descargando ${items.length} archivos…`, 'info', 3000);
+      // Espaciados: iOS descarta descargas muy seguidas. La 1ª va inmediata (tap).
+      items.forEach((it, i) => { if (i === 0) download(it, meta.platform, link); else setTimeout(() => download(it, meta.platform, link), i * 900); });
     });
     resultEl.appendChild(el('div', { class: 'dl-card dl-card--multi' }, [
       el('div', { class: 'dl-multi-head' }, [
@@ -227,8 +210,8 @@ function renderCard(link, meta) {
 
   const dlBtn = el('button', {
     class: 'btn btn-primary dl-download', type: 'button',
-  }, [icon('download', 18), el('span', { text: isImg ? ' Descargar imagen' : ' Descargar MP4' }), el('span', { class: 'spinner spinner--btn' })]);
-  dlBtn.addEventListener('click', () => download(it, meta.platform, dlBtn, link));
+  }, [icon('download', 18), el('span', { text: isImg ? ' Descargar imagen' : ' Descargar MP4' })]);
+  dlBtn.addEventListener('click', () => { toast('Descargando…', 'success', 1800); download(it, meta.platform, link); });
 
   resultEl.appendChild(el('div', { class: 'dl-card' }, [
     thumb,
@@ -251,7 +234,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/descargar.css?v=202607152114';
+  link.href = '/marketing/css/descargar.css?v=202607152317';
   document.head.appendChild(link);
 }
 

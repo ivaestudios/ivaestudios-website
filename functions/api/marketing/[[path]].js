@@ -847,10 +847,19 @@ async function handleListClients(env, session) {
     if (!c) return json([]);
     return json([shapeClient(c, await clientCounts(env, c.id))]);
   }
+  // Conteos de TODAS las marcas en UNA query agrupada (antes: 1 + 2×N queries en
+  // serie, una por cliente, en la ruta crítica del arranque).
   const res = await env.DB.prepare('SELECT * FROM mkt_clients ORDER BY archived ASC, name COLLATE NOCASE ASC').all();
   const rows = res.results || [];
-  const out = [];
-  for (const c of rows) out.push(shapeClient(c, await clientCounts(env, c.id)));
+  const countsRes = await env.DB.prepare(
+    `SELECT client_id,
+       COUNT(*) AS posts,
+       SUM(CASE WHEN approval_state IN ('pending','changes') AND client_visible = 1 THEN 1 ELSE 0 END) AS pending
+     FROM mkt_posts GROUP BY client_id`
+  ).all();
+  const cmap = new Map();
+  for (const r of (countsRes.results || [])) cmap.set(r.client_id, { posts: r.posts || 0, pending: r.pending || 0 });
+  const out = rows.map((c) => shapeClient(c, cmap.get(c.id) || { posts: 0, pending: 0 }));
   return json(out);
 }
 
@@ -3267,11 +3276,14 @@ async function handleServeDeliverableVideo(request, env, session, id) {
   const { d, error } = await dlvForAccess(env, session, id);
   if (error) return new Response('Forbidden', { status: 403 });
   const rangeOpt = request.headers.get('Range') ? { range: request.headers } : undefined;
-  let obj = null;
-  for (const e of MKT_VIDEO_EXTS) { obj = await env.R2_BUCKET.get(`marketing/deliverable/${id}.${e}`, rangeOpt); if (obj) break; }
+  // Ir DIRECTO a la extensión conocida (d.video_ext): así cada Range request (móvil
+  // hace muchos al reproducir/buscar) no prueba las 6 extensiones en serie contra R2.
+  let obj = d.video_ext ? await env.R2_BUCKET.get(`marketing/deliverable/${id}.${d.video_ext}`, rangeOpt) : null;
+  if (!obj) { for (const e of MKT_VIDEO_EXTS) { obj = await env.R2_BUCKET.get(`marketing/deliverable/${id}.${e}`, rangeOpt); if (obj) break; } }
   if (!obj) return new Response('Sin video', { status: 404 });
   const headers = new Headers();
   obj.writeHttpMetadata(headers);
+  headers.set('ETag', obj.httpEtag); // revalidación 304 en visitas repetidas
   headers.set('Cache-Control', 'private, max-age=3600');
   headers.set('Accept-Ranges', 'bytes');
   const wantsDownload = new URL(request.url).searchParams.get('download');

@@ -50,7 +50,7 @@
   border: 0;
   outline: 0;
   color: var(--text);
-  font-size: var(--fs-3);
+  font-size: 16px; /* >=16px: evita el auto-zoom de iOS Safari al enfocar */
   padding: 12px 2px;
 }
 .dl-input::placeholder { color: var(--text-mute); }
@@ -58,7 +58,7 @@
 .dl-clear {
   flex: 0 0 auto;
   display: grid; place-items: center;
-  width: 30px; height: 30px;
+  width: 40px; height: 40px; /* tap target cómodo en móvil */
   border: 0; border-radius: var(--r-pill);
   background: var(--surface-2);
   color: var(--text-dim);
@@ -179,7 +179,7 @@
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 8px;
 }
-.dl-item { min-height: 42px; justify-content: flex-start; font-size: var(--fs-2); }
+.dl-item { min-height: var(--tap); justify-content: flex-start; font-size: var(--fs-2); }
 
 .dl-download {
   margin-top: auto;

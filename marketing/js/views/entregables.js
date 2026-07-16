@@ -6,8 +6,8 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202607152114';
-import { icon } from '../shell/icons.js?v=202607152114';
+import { api, el, clear, toast } from '../api.js?v=202607152317';
+import { icon } from '../shell/icons.js?v=202607152317';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
@@ -51,6 +51,39 @@ let activeMonthNav = '';    // 'YYYY-MM' del mes visible (navegación por píldo
 let dlAllBusy = false;      // "Descargar todos" en curso (evita dobles arranques)
 const dlAllCache = new Map(); // mes -> File[] ya bajados (móvil: el 2º toque comparte al instante)
 
+// ── Carga perezosa de videos (velocidad en móvil) ───────────────────────────
+// Antes: CADA reel del mes creaba un <video preload="metadata"> que disparaba
+// descargas de metadatos EN PARALELO (decenas de MB compitiendo) → los primeros
+// videos tardaban. Ahora nacen con preload="none" (0 bytes de video) + póster;
+// solo se "activan" (cargan metadatos / primer frame) al acercarse al viewport.
+// El archivo COMPLETO se transmite intacto al reproducir — no se pierde calidad.
+let vidObserver = null;
+function activateVideo(v) {
+  if (!v || v.dataset.activated) return;
+  v.dataset.activated = '1';
+  // Si el usuario ya lo abrió/reproduce, NO tocar (load() lo reiniciaría).
+  if (v.readyState >= 1 || !v.paused || v.currentTime > 0) return;
+  v.preload = 'metadata';
+  // Sin póster: pedir el primer frame como vista previa (#t=0.1).
+  if (!v.getAttribute('poster') && v.src && !/#t=/.test(v.src)) {
+    try { v.src = `${v.src}#t=0.1`; } catch { /* noop */ } }
+  try { v.load(); } catch { /* noop */ }
+}
+function observeVideo(v) {
+  if (!('IntersectionObserver' in window)) { activateVideo(v); return; }
+  if (!vidObserver) {
+    vidObserver = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) { activateVideo(e.target); vidObserver.unobserve(e.target); }
+      }
+    }, { rootMargin: '200% 0px' });
+  }
+  vidObserver.observe(v);
+}
+function resetVideoObserver() {
+  if (vidObserver) { try { vidObserver.disconnect(); } catch { /* noop */ } vidObserver = null; }
+}
+
 function isClient() { return ((ctx.store.getState().me || {}).role === 'client'); }
 function pad2(n) { return String(n).padStart(2, '0'); }
 function currentMonth() { const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`; }
@@ -70,7 +103,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202607152114';
+  link.href = '/marketing/css/entregables.css?v=202607152317';
   document.head.appendChild(link);
 }
 
@@ -730,10 +763,12 @@ function buildItem(it, staff) {
   if (it.type === 'reel') {
     const card = el('div', { class: 'dlv-card dlv-card--reel' });
     if (it.video_url) {
-      card.appendChild(el('video', {
-        class: 'dlv-video', src: it.video_url + '#t=0.1', poster: it.poster_url || null,
-        controls: true, playsinline: true, preload: 'metadata',
-      }));
+      const v = el('video', {
+        class: 'dlv-video', src: it.video_url, poster: it.poster_url || null,
+        controls: true, playsinline: true, preload: 'none',
+      });
+      observeVideo(v); // carga metadatos/frame solo al acercarse (rápido en móvil)
+      card.appendChild(v);
     } else {
       card.appendChild(el('div', { class: 'dlv-video dlv-video--pending', text: 'Procesando…' }));
     }
@@ -820,6 +855,7 @@ function render() {
     (a, b) => String(a.title || '').localeCompare(String(b.title || ''), 'es', { numeric: true, sensitivity: 'base' }),
   );
   const reels = list.filter((it) => it.type === 'reel' && it.video_url);
+  resetVideoObserver(); // limpia observaciones del mes anterior antes de re-observar
   const sec = el('section', { class: 'dlv-month-sec' }, [
     el('h2', { class: 'dlv-month-h' }, [
       el('span', { class: 'dlv-month-h__t', text: monthLabel(m) }),
@@ -880,6 +916,7 @@ export default {
   unmount() {
     for (const u of unsubs) { try { u(); } catch { /* noop */ } }
     unsubs = [];
+    resetVideoObserver();
     rootEl = null; ctx = null; items = []; loading = false; busy = false;
     activeMonthNav = ''; dlAllBusy = false; dlAllCache.clear();
   },
