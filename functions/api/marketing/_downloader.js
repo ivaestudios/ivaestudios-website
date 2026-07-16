@@ -25,7 +25,12 @@ const IG_APP_ID = '936619743392459';
 const IG_DOC_ID = '27128499623469141'; // PolarisPostRootQuery (mediados 2026; ROTA — override por env IG_DOC_ID)
 
 // Hosts a los que el proxy tiene permitido ir a bajar bytes (defensa anti-SSRF).
-const MEDIA_HOST_RE = /(^|\.)(tiktokcdn\.com|tiktokcdn-us\.com|tiktokv\.com|tiktok\.com|byteoversea\.com|akamaized\.net|pinimg\.com|cdninstagram\.com|fbcdn\.net|tikwm\.com)$/i;
+const MEDIA_HOST_RE = /(^|\.)(tiktokcdn\.com|tiktokcdn-us\.com|tiktokv\.com|tiktok\.com|byteoversea\.com|akamaized\.net|pinimg\.com|cdninstagram\.com|fbcdn\.net|tikwm\.com|eepy\.today|otomir23\.me)$/i;
+
+// Instancias públicas de cobalt (resolver universal: hacen el fetch desde SUS
+// servidores, así que funcionan desde las IPs de datacenter de Cloudflare que
+// Instagram bloquea). Se prueban en orden; override/extensión por env COBALT_URL.
+const COBALT_INSTANCES = ['https://co.eepy.today/', 'https://co.otomir23.me/'];
 
 export function detectPlatform(raw) {
   const u = String(raw || '').toLowerCase();
@@ -55,6 +60,48 @@ export function mediaHeadersFor(platform) {
   return { 'User-Agent': DESKTOP_UA };
 }
 
+// Resolver universal cobalt: recibe un link de IG/TikTok/Pinterest y devuelve el
+// MP4 (cobalt lo baja desde su propio servidor). Reintenta por instancia.
+// Devuelve { mediaUrl, ... } | { isImage:true } (post de fotos) | null.
+async function viaCobalt(url, platform, env) {
+  const instances = [];
+  if (env && env.COBALT_URL) instances.push(env.COBALT_URL);
+  for (const i of COBALT_INSTANCES) instances.push(i);
+  for (const inst of instances) {
+    let j = null;
+    try {
+      const r = await xfetch(inst, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, downloadMode: 'auto', videoQuality: 'max' }),
+      }, 20000);
+      j = await r.json();
+    } catch { continue; }
+    if (!j) continue;
+    let mediaUrl = null; let fname = '';
+    if ((j.status === 'redirect' || j.status === 'tunnel') && j.url) { mediaUrl = j.url; fname = j.filename || ''; }
+    else if (j.status === 'picker' && Array.isArray(j.picker)) {
+      const vid = j.picker.find((p) => p && p.type === 'video') || j.picker[0];
+      if (vid && vid.url) { mediaUrl = vid.url; fname = vid.filename || ''; }
+    }
+    if (!mediaUrl) continue;
+    const imgRe = /\.(jpe?g|png|webp|heic|gif)(\?|$)/i;
+    if (imgRe.test(fname) || (imgRe.test(mediaUrl) && !/\.mp4/i.test(mediaUrl))) return { isImage: true };
+    const base = String(fname).replace(/\.[^.]+$/, '') || `${platform}-video`;
+    return {
+      platform,
+      title: base,
+      thumbnail: null,
+      width: null, height: null, durationSec: null,
+      mediaUrl,
+      ext: 'mp4',
+      watermark: false,
+      mediaHeaders: mediaHeadersFor(platform),
+    };
+  }
+  return null;
+}
+
 // Nombre de archivo sugerido (seguro para Content-Disposition).
 export function suggestName(info) {
   const base = String(info.title || info.platform || 'video')
@@ -75,24 +122,34 @@ export async function resolveVideo(url, env) {
   throw new Error('Pega un link de Instagram, TikTok o Pinterest.');
 }
 
+// Sube las dimensiones a un resultado sin ellas (p.ej. de cobalt) enriqueciendo
+// desde otra fuente si está disponible; nunca falla.
+function enrichDims(info, from) {
+  if (info && from && from.width && !info.width) { info.width = from.width; info.height = from.height; }
+  if (info && from && from.thumbnail && !info.thumbnail) info.thumbnail = from.thumbnail;
+  return info;
+}
+
 // ── TikTok ───────────────────────────────────────────────────────────────────
 // Se prioriza tikwm: devuelve el CDN MÓVIL (v16m) que NO está protegido por
 // Referer/hotlink → sí se puede re-descargar desde el servidor. El playAddr del
 // HTML usa el web-CDN (v16-webapp-prime) que 403ea al re-descargar, y en las IPs
 // de datacenter de Cloudflare el HTML suele recibir el muro anti-bot; por eso es
 // solo respaldo. Se enriquecen las dimensiones desde el HTML cuando se pueda.
-async function resolveTikTok(url) {
+async function resolveTikTok(url, env) {
   let info = await tiktokViaTikwm(url).catch(() => null);
+  if (info && info.mediaUrl && !info.width) {
+    const id = await tiktokId(url);
+    const html = id ? await tiktokViaHtml(id).catch(() => null) : null;
+    enrichDims(info, html);
+  }
+  if (!info || !info.mediaUrl) info = await viaCobalt(url, 'tiktok', env).catch(() => null);
   if (!info || !info.mediaUrl) {
     const id = await tiktokId(url);
     info = id ? await tiktokViaHtml(id).catch(() => null) : null;
-  } else if (!info.width) {
-    const id = await tiktokId(url);
-    const html = id ? await tiktokViaHtml(id).catch(() => null) : null;
-    if (html && html.width) { info.width = html.width; info.height = html.height; }
   }
   if (!info || !info.mediaUrl) {
-    throw new Error('TikTok no devolvió el video. Puede ser privado, bloqueado por región, o el servidor recibió el muro anti-bot. Prueba con el link completo del video.');
+    throw new Error('TikTok no devolvió el video. Puede ser una publicación de fotos, privado o bloqueado por región. Prueba con el link completo del video.');
   }
   return info;
 }
@@ -182,30 +239,30 @@ async function tiktokViaTikwm(url) {
 }
 
 // ── Pinterest ──────────────────────────────────────────────────────────────
-async function resolvePinterest(url) {
+async function resolvePinterest(url, env) {
   const id = await pinId(url);
-  if (!id) throw new Error('No pude leer el ID del pin.');
-  let data = await pinResource(id).catch(() => null);
-  if (!data) data = await pinFromHtml(id).catch(() => null);
-  if (!data) throw new Error('Pinterest no devolvió datos del pin (privado o eliminado).');
-  const best = pickRendition(collectPinRenditions(data));
-  if (!best) {
-    if (data.embed && data.embed.src) throw new Error('Este pin es un video incrustado de otra plataforma (YouTube/Vimeo).');
-    throw new Error('Este pin no tiene video.');
+  let data = id ? await pinResource(id).catch(() => null) : null;
+  if (!data && id) data = await pinFromHtml(id).catch(() => null);
+  const best = data ? pickRendition(collectPinRenditions(data)) : null;
+  if (best && !String(best.url).endsWith('.m3u8')) {
+    return {
+      platform: 'pinterest',
+      title: (data.title || data.grid_title || 'pinterest').slice(0, 120),
+      thumbnail: best.thumbnail || null,
+      width: best.width || null,
+      height: best.height || null,
+      durationSec: best.duration ? Math.round(best.duration / 1000) : null,
+      mediaUrl: best.url,
+      ext: 'mp4',
+      watermark: false,
+      mediaHeaders: { 'User-Agent': DESKTOP_UA, 'Referer': 'https://www.pinterest.com/' },
+    };
   }
-  if (String(best.url).endsWith('.m3u8')) throw new Error('Este pin solo tiene streaming (HLS); aún no lo soportamos.');
-  return {
-    platform: 'pinterest',
-    title: (data.title || data.grid_title || 'pinterest').slice(0, 120),
-    thumbnail: best.thumbnail || null,
-    width: best.width || null,
-    height: best.height || null,
-    durationSec: best.duration ? Math.round(best.duration / 1000) : null,
-    mediaUrl: best.url,
-    ext: 'mp4',
-    watermark: false,
-    mediaHeaders: { 'User-Agent': DESKTOP_UA, 'Referer': 'https://www.pinterest.com/' },
-  };
+  // Respaldo cobalt (IPs limpias).
+  const cb = await viaCobalt(url, 'pinterest', env).catch(() => null);
+  if (cb && cb.mediaUrl) return cb;
+  if (data && data.embed && data.embed.src) throw new Error('Este pin es un video incrustado de otra plataforma (YouTube/Vimeo).');
+  throw new Error('Este pin no tiene video (o es una imagen).');
 }
 
 async function pinId(url) {
@@ -287,13 +344,18 @@ function pickRendition(rends) {
 async function resolveInstagram(url, env) {
   const code = await igShortcode(url);
   if (!code) throw new Error('No pude leer el código del reel/post de Instagram.');
+  // Cobalt PRIMERO: Instagram bloquea las llamadas directas del Worker (IP de
+  // datacenter), pero cobalt hace el fetch desde sus servidores. Directo = respaldo.
+  const cb = await viaCobalt(url, 'instagram', env).catch(() => null);
+  if (cb && cb.isImage) throw new Error('Este enlace es una publicación de FOTOS de Instagram, no un video.');
+  if (cb && cb.mediaUrl) return cb;
   const appId = (env && env.IG_APP_ID) || IG_APP_ID;
   const docId = (env && env.IG_DOC_ID) || IG_DOC_ID;
   const mediaId = igShortcodeToMediaId(code);
   let info = mediaId ? await igViaMediaInfo(mediaId, appId).catch(() => null) : null;
   if (!info || !info.mediaUrl) info = await igViaGraphQL(code, appId, docId).catch(() => null);
   if (!info || !info.mediaUrl) {
-    throw new Error('Instagram no devolvió el video. Puede ser una cuenta privada/con edad restringida, o bloqueó al servidor (IP de datacenter). Los links públicos suelen funcionar; reintenta en un momento.');
+    throw new Error('Instagram no devolvió el video. Puede ser una cuenta privada, una publicación de fotos, o un contenido con edad restringida. Los reels públicos suelen funcionar; reintenta en un momento.');
   }
   return info;
 }
