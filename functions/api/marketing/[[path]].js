@@ -3752,7 +3752,9 @@ async function handleResolveDownload(request, env) {
       mediaUrl: info.mediaUrl, // el front lo pasa a /file para NO re-resolver
     });
   } catch (e) {
-    return json({ error: (e && e.message) || 'No se pudo extraer el video.' }, 502);
+    // OJO: 422 y NO 5xx — Cloudflare reemplaza las respuestas 502/504 de la
+    // Function con su propia página de error y se pierde este mensaje JSON.
+    return json({ error: (e && e.message) || 'No se pudo extraer el video.' }, 422);
   }
 }
 
@@ -3772,16 +3774,16 @@ async function handleDownloadFile(request, env) {
       const info = await resolveVideo(src, env);
       mediaUrl = info.mediaUrl; platform = info.platform; filename = suggestName(info);
     } catch (e) {
-      return new Response('No se pudo extraer: ' + ((e && e.message) || ''), { status: 502 });
+      return json({ error: 'No se pudo extraer: ' + ((e && e.message) || '') }, 422);
     }
   }
   if (!mediaUrl || !isAllowedMediaHost(mediaUrl)) {
-    return new Response('Origen del video no permitido', { status: 403 });
+    return json({ error: 'Origen del video no permitido' }, 422);
   }
   let upstream = null;
   try { upstream = await fetch(mediaUrl, { headers: mediaHeadersFor(platform) }); } catch { upstream = null; }
   if (!upstream || !upstream.ok || !upstream.body) {
-    return new Response('El CDN rechazó la descarga (el link pudo expirar). Vuelve a buscar el video.', { status: 502 });
+    return json({ error: 'El CDN rechazó la descarga (el link pudo expirar). Vuelve a buscar el video.' }, 422);
   }
   const safe = String(filename).replace(/[\r\n"]+/g, '').replace(/[^\w.\-]+/g, '_').slice(0, 80) || 'video.mp4';
   const headers = new Headers();
