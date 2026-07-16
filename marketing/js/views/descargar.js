@@ -9,8 +9,8 @@
 //        → GET /descargar/file?u=... (stream con Content-Disposition: attachment).
 // Nada se guarda: las URLs del CDN expiran, así que se re-resuelve al descargar.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202607152032';
-import { icon } from '../shell/icons.js?v=202607152032';
+import { api, el, clear, toast } from '../api.js?v=202607152114';
+import { icon } from '../shell/icons.js?v=202607152114';
 
 const VIEW_ID = 'descargar';
 
@@ -56,14 +56,14 @@ async function resolve(url) {
   }
 }
 
-async function download(link, meta, btn) {
+async function download(item, platform, btn, link) {
   if (btn) { btn.disabled = true; btn.classList.add('is-loading'); }
   try {
-    // Pasamos la mediaUrl YA resuelta (m) para que el server NO re-resuelva;
-    // si el server es viejo o falta, cae al link original (u).
-    const q = (meta && meta.mediaUrl)
-      ? `m=${encodeURIComponent(meta.mediaUrl)}&p=${encodeURIComponent(meta.platform || '')}&n=${encodeURIComponent(meta.filename || 'video.mp4')}`
-      : `u=${encodeURIComponent(link)}`;
+    // Pasamos la URL YA resuelta (m) para que el server NO re-resuelva;
+    // si faltara, cae al link original (u).
+    const q = (item && item.url)
+      ? `m=${encodeURIComponent(item.url)}&p=${encodeURIComponent(platform || '')}&n=${encodeURIComponent(item.filename || 'media')}`
+      : `u=${encodeURIComponent(link || '')}`;
     const res = await fetch(`/api/marketing/descargar/file?${q}`, { credentials: 'same-origin' });
     if (!res.ok) {
       // NO volcar HTML de error (p.ej. la página 502 de Cloudflare): mensaje limpio.
@@ -74,7 +74,7 @@ async function download(link, meta, btn) {
       throw new Error(msg);
     }
     const blob = await res.blob();
-    const name = (meta && meta.filename) || 'video.mp4';
+    const name = (item && item.filename) || 'media';
     const href = URL.createObjectURL(blob);
     const a = el('a', { href, download: name });
     document.body.appendChild(a);
@@ -137,8 +137,8 @@ function render() {
 
   rootEl.append(
     el('div', { class: 'dl-head' }, [
-      el('h1', { class: 'dl-title', text: 'Descargar videos' }),
-      el('p', { class: 'dl-sub', text: 'Instagram · TikTok · Pinterest — sin marca de agua, en la máxima calidad. Solo pega el link.' }),
+      el('h1', { class: 'dl-title', text: 'Descargar contenido' }),
+      el('p', { class: 'dl-sub', text: 'Instagram · TikTok · Pinterest — videos, fotos y carruseles, sin marca de agua y en la máxima calidad. Solo pega el link.' }),
     ]),
     form,
     chips,
@@ -151,7 +151,7 @@ function renderHint() {
   clear(resultEl);
   resultEl.appendChild(el('div', { class: 'dl-hint' }, [
     icon('download', 30),
-    el('p', { text: 'Pega un link arriba y descarga el video limpio, sin marca de agua.' }),
+    el('p', { text: 'Pega un link arriba y descarga el video, la foto o el carrusel — limpio, sin marca de agua.' }),
     el('p', { class: 'muted small', text: 'Descarga contenido tuyo o de tus clientes; tú decides qué re-subir.' }),
   ]));
 }
@@ -180,28 +180,63 @@ function renderError(msg) {
 function renderCard(link, meta) {
   clear(resultEl);
   const plat = PLATFORMS[meta.platform] || { label: meta.platform || '', cls: '' };
+  const items = (meta.items && meta.items.length)
+    ? meta.items
+    : [{ url: meta.mediaUrl, type: meta.type || 'video', ext: meta.ext || 'mp4', filename: meta.filename || 'media' }];
+
+  // Carrusel: varios elementos → botón por elemento + "Descargar todo".
+  if (items.length > 1) {
+    const grid = el('div', { class: 'dl-grid' }, items.map((it, i) => {
+      const b = el('button', { class: 'btn dl-item', type: 'button' }, [
+        icon(it.type === 'image' ? 'camera' : 'download', 15),
+        ` ${it.type === 'image' ? 'Foto' : 'Video'} ${i + 1}`,
+      ]);
+      b.addEventListener('click', () => download(it, meta.platform, b, link));
+      return b;
+    }));
+    const allBtn = el('button', { class: 'btn btn-primary dl-download', type: 'button' },
+      [icon('download', 18), el('span', { text: ` Descargar todo (${items.length})` }), el('span', { class: 'spinner spinner--btn' })]);
+    allBtn.addEventListener('click', async () => {
+      allBtn.disabled = true; allBtn.classList.add('is-loading');
+      for (const it of items) { await download(it, meta.platform, null, link); }
+      allBtn.disabled = false; allBtn.classList.remove('is-loading');
+    });
+    resultEl.appendChild(el('div', { class: 'dl-card dl-card--multi' }, [
+      el('div', { class: 'dl-multi-head' }, [
+        el('span', { class: `dl-chip dl-chip--${plat.cls} dl-chip--sm`, text: plat.label }),
+        el('p', { class: 'dl-cap', text: `Carrusel · ${items.length} elementos` }),
+      ]),
+      grid,
+      allBtn,
+    ]));
+    return;
+  }
+
+  // Único elemento (video o imagen).
+  const it = items[0];
+  const isImg = it.type === 'image';
   const dims = (meta.width && meta.height) ? `${meta.width}×${meta.height}` : null;
   const dur = meta.durationSec ? `${Math.floor(meta.durationSec / 60)}:${String(Math.round(meta.durationSec % 60)).padStart(2, '0')}` : null;
 
   const thumb = meta.thumbnail
     ? el('div', { class: 'dl-thumb' }, [
         el('img', { src: meta.thumbnail, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer', onerror: (e) => { e.target.closest('.dl-thumb').classList.add('is-empty'); } }),
-        el('span', { class: 'dl-play' }, [icon('down', 20)]),
+        el('span', { class: 'dl-play' }, [icon(isImg ? 'camera' : 'down', 20)]),
       ])
     : el('div', { class: 'dl-thumb is-empty' }, [icon('camera', 26)]);
 
   const dlBtn = el('button', {
     class: 'btn btn-primary dl-download', type: 'button',
-  }, [icon('download', 18), el('span', { text: ' Descargar MP4' }), el('span', { class: 'spinner spinner--btn' })]);
-  dlBtn.addEventListener('click', () => download(link, meta, dlBtn));
+  }, [icon('download', 18), el('span', { text: isImg ? ' Descargar imagen' : ' Descargar MP4' }), el('span', { class: 'spinner spinner--btn' })]);
+  dlBtn.addEventListener('click', () => download(it, meta.platform, dlBtn, link));
 
   resultEl.appendChild(el('div', { class: 'dl-card' }, [
     thumb,
     el('div', { class: 'dl-meta' }, [
       el('span', { class: `dl-chip dl-chip--${plat.cls} dl-chip--sm`, text: plat.label }),
-      el('p', { class: 'dl-cap', text: meta.title || 'Video' }),
+      el('p', { class: 'dl-cap', text: meta.title || (isImg ? 'Imagen' : 'Video') }),
       el('div', { class: 'dl-facts' }, [
-        el('span', { class: 'dl-ok', text: '✓ Sin marca de agua' }),
+        isImg ? el('span', { class: 'dl-ok', text: '✓ Imagen original' }) : el('span', { class: 'dl-ok', text: '✓ Sin marca de agua' }),
         dims ? el('span', { text: dims }) : null,
         dur ? el('span', { text: dur }) : null,
       ]),
@@ -216,7 +251,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/descargar.css?v=202607152032';
+  link.href = '/marketing/css/descargar.css?v=202607152114';
   document.head.appendChild(link);
 }
 

@@ -170,6 +170,17 @@
 }
 .dl-ok { color: var(--ok); font-weight: 700; }
 
+/* Carrusel (varios elementos) */
+.dl-card--multi { flex-direction: column; align-items: stretch; gap: 12px; }
+.dl-multi-head { display: flex; align-items: center; gap: 8px; }
+.dl-multi-head .dl-cap { margin: 0; color: var(--text-dim); font-size: var(--fs-2); }
+.dl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+.dl-item { min-height: 42px; justify-content: flex-start; font-size: var(--fs-2); }
+
 .dl-download {
   margin-top: auto;
   align-self: flex-start;

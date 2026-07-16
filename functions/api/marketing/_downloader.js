@@ -60,9 +60,25 @@ export function mediaHeadersFor(platform) {
   return { 'User-Agent': DESKTOP_UA };
 }
 
-// Resolver universal cobalt: recibe un link de IG/TikTok/Pinterest y devuelve el
-// MP4 (cobalt lo baja desde su propio servidor). Reintenta por instancia.
-// Devuelve { mediaUrl, ... } | { isImage:true } (post de fotos) | null.
+// Clasifica un item de cobalt (video | image) + su extensión.
+function cobaltItem(url, filename, ptype) {
+  const f = String(filename || '');
+  let ext = (f.match(/\.([a-z0-9]{2,4})(\?|$)/i) || [])[1]
+         || (String(url).match(/\.([a-z0-9]{2,4})(\?|$)/i) || [])[1] || '';
+  let type = ptype === 'photo' ? 'image' : ptype === 'video' ? 'video' : null;
+  if (!type) {
+    if (/^(mp4|mov|webm|m4v)$/i.test(ext) || /\.mp4/i.test(url)) type = 'video';
+    else if (/^(jpe?g|png|webp|heic|gif)$/i.test(ext)) type = 'image';
+    else type = 'video';
+  }
+  if (!ext) ext = type === 'image' ? 'jpg' : 'mp4';
+  return { url, type, ext };
+}
+
+// Resolver universal cobalt: recibe un link de IG/TikTok/Pinterest y devuelve
+// TODO su contenido (video, imagen o carrusel) — cobalt lo baja desde su propio
+// servidor (funciona desde las IPs de Cloudflare). Reintenta por instancia.
+// Devuelve { platform, items:[{url,type,ext}], mediaUrl, ... } | null.
 async function viaCobalt(url, platform, env) {
   const instances = [];
   if (env && env.COBALT_URL) instances.push(env.COBALT_URL);
@@ -74,27 +90,26 @@ async function viaCobalt(url, platform, env) {
         method: 'POST',
         headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
         body: JSON.stringify({ url, downloadMode: 'auto', videoQuality: 'max' }),
-      }, 20000);
+      }, 12000);
       j = await r.json();
     } catch { continue; }
     if (!j) continue;
-    let mediaUrl = null; let fname = '';
-    if ((j.status === 'redirect' || j.status === 'tunnel') && j.url) { mediaUrl = j.url; fname = j.filename || ''; }
-    else if (j.status === 'picker' && Array.isArray(j.picker)) {
-      const vid = j.picker.find((p) => p && p.type === 'video') || j.picker[0];
-      if (vid && vid.url) { mediaUrl = vid.url; fname = vid.filename || ''; }
+    const items = [];
+    if ((j.status === 'redirect' || j.status === 'tunnel') && j.url) {
+      items.push(cobaltItem(j.url, j.filename));
+    } else if (j.status === 'picker' && Array.isArray(j.picker)) {
+      for (const p of j.picker) if (p && p.url) items.push(cobaltItem(p.url, p.filename, p.type));
     }
-    if (!mediaUrl) continue;
-    const imgRe = /\.(jpe?g|png|webp|heic|gif)(\?|$)/i;
-    if (imgRe.test(fname) || (imgRe.test(mediaUrl) && !/\.mp4/i.test(mediaUrl))) return { isImage: true };
-    const base = String(fname).replace(/\.[^.]+$/, '') || `${platform}-video`;
+    if (!items.length) continue;
+    const first = items[0];
     return {
       platform,
-      title: base,
+      title: platform,
       thumbnail: null,
       width: null, height: null, durationSec: null,
-      mediaUrl,
-      ext: 'mp4',
+      type: first.type, ext: first.ext,
+      mediaUrl: first.url,
+      items,
       watermark: false,
       mediaHeaders: mediaHeadersFor(platform),
     };
@@ -116,10 +131,21 @@ export function suggestName(info) {
 //    watermark:false, mediaHeaders }
 export async function resolveVideo(url, env) {
   const platform = detectPlatform(url);
-  if (platform === 'tiktok') return resolveTikTok(url, env);
-  if (platform === 'pinterest') return resolvePinterest(url, env);
-  if (platform === 'instagram') return resolveInstagram(url, env);
-  throw new Error('Pega un link de Instagram, TikTok o Pinterest.');
+  let info;
+  if (platform === 'tiktok') info = await resolveTikTok(url, env);
+  else if (platform === 'pinterest') info = await resolvePinterest(url, env);
+  else if (platform === 'instagram') info = await resolveInstagram(url, env);
+  else throw new Error('Pega un link de Instagram, TikTok o Pinterest.');
+  // Normaliza a items[] (soporta imagen/carrusel) manteniendo mediaUrl (1er item).
+  if (info) {
+    if (!info.items || !info.items.length) {
+      info.items = [{ url: info.mediaUrl, type: info.type || 'video', ext: info.ext || 'mp4' }];
+    }
+    info.mediaUrl = info.mediaUrl || (info.items[0] && info.items[0].url);
+    info.type = info.type || (info.items[0] && info.items[0].type) || 'video';
+    info.ext = info.ext || (info.items[0] && info.items[0].ext) || 'mp4';
+  }
+  return info;
 }
 
 // Sube las dimensiones a un resultado sin ellas (p.ej. de cobalt) enriqueciendo
@@ -345,10 +371,10 @@ async function resolveInstagram(url, env) {
   const code = await igShortcode(url);
   if (!code) throw new Error('No pude leer el código del reel/post de Instagram.');
   // Cobalt PRIMERO: Instagram bloquea las llamadas directas del Worker (IP de
-  // datacenter), pero cobalt hace el fetch desde sus servidores. Directo = respaldo.
+  // datacenter), pero cobalt hace el fetch desde sus servidores. Devuelve TODO
+  // el contenido (video, foto o carrusel). Directo (solo video) = respaldo.
   const cb = await viaCobalt(url, 'instagram', env).catch(() => null);
-  if (cb && cb.isImage) throw new Error('Este enlace es una publicación de FOTOS de Instagram, no un video.');
-  if (cb && cb.mediaUrl) return cb;
+  if (cb && cb.items && cb.items.length) return cb;
   const appId = (env && env.IG_APP_ID) || IG_APP_ID;
   const docId = (env && env.IG_DOC_ID) || IG_DOC_ID;
   const mediaId = igShortcodeToMediaId(code);

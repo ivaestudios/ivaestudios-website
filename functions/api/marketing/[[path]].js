@@ -3739,6 +3739,14 @@ async function handleResolveDownload(request, env) {
   if (!detectPlatform(src)) return json({ error: 'Pega un link de Instagram, TikTok o Pinterest.' }, 400);
   try {
     const info = await resolveVideo(src, env);
+    const list = info.items && info.items.length ? info.items : [{ url: info.mediaUrl, type: info.type || 'video', ext: info.ext || 'mp4' }];
+    const base = String(info.title || info.platform || 'media').replace(/[\r\n]+/g, ' ').replace(/[^\wÀ-ſ .-]+/g, '').trim().replace(/\s+/g, '_').slice(0, 50) || info.platform;
+    const items = list.map((it, i) => ({
+      url: it.url,
+      type: it.type || 'video',
+      ext: it.ext || (it.type === 'image' ? 'jpg' : 'mp4'),
+      filename: `${info.platform}-${base}${list.length > 1 ? '-' + (i + 1) : ''}.${it.ext || (it.type === 'image' ? 'jpg' : 'mp4')}`,
+    }));
     return json({
       ok: true,
       platform: info.platform,
@@ -3747,9 +3755,11 @@ async function handleResolveDownload(request, env) {
       width: info.width,
       height: info.height,
       durationSec: info.durationSec,
-      ext: info.ext,
-      filename: suggestName(info),
+      type: items[0].type,
+      ext: items[0].ext,
+      filename: items[0].filename,
       mediaUrl: info.mediaUrl, // el front lo pasa a /file para NO re-resolver
+      items, // video/imagen/carrusel
     });
   } catch (e) {
     // OJO: 422 y NO 5xx — Cloudflare reemplaza las respuestas 502/504 de la
