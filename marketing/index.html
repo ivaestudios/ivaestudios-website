@@ -10,11 +10,11 @@
 
   <!-- Inter (respaldo) + Outfit (tema Sistema IVA 2026), auto-hospedadas:
        woff2 variables locales en /marketing/fonts/ (antes Google Fonts). -->
-  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202607152317">
-  <link rel="stylesheet" href="/marketing/css/app.css?v=202607152317">
-  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202607152317">
+  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202607170114">
+  <link rel="stylesheet" href="/marketing/css/app.css?v=202607170114">
+  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202607170114">
   <!-- Tema "Sistema IVA" 2026 (ultimo para ganar :root; solo estilo). -->
-  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202607152317">
+  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202607170114">
 
   <style>
     /* Toques v2 (solo estetica, el flujo de auth no cambia): targets tactiles
@@ -411,6 +411,24 @@
     const titleEl    = document.getElementById('authTitle');
     const subEl      = document.querySelector('.auth-card__sub');
 
+    // Modo INGLÉS para el App Review de Meta: abre con ?lang=en y el login sale en
+    // inglés y PERSISTE (localStorage) para que la app (Métricas) también salga en
+    // inglés. ?lang=es lo apaga. No afecta el uso normal en español.
+    const demoEN = (() => { try {
+      const s = location.search;
+      if (/[?&]lang=en\b/.test(s)) { localStorage.setItem('mkt_lang', 'en'); return true; }
+      if (/[?&]lang=es\b/.test(s)) { localStorage.removeItem('mkt_lang'); return false; }
+      return localStorage.getItem('mkt_lang') === 'en';
+    } catch { return false; } })();
+    if (demoEN) { try {
+      const setT = (sel, t) => { const e = document.querySelector(sel); if (e) e.textContent = t; };
+      setT('label[for="email"]', 'Username or email');
+      setT('label[for="password"]', 'Password');
+      const em = document.getElementById('email'); if (em) em.placeholder = 'Your username or email';
+      const pw = document.getElementById('password'); if (pw) pw.placeholder = 'Your password';
+      const sb = document.getElementById('submitBtn'); if (sb) sb.textContent = 'Sign in';
+    } catch { /* noop */ } }
+
     function showView(view) {
       clearError();
       form.hidden = view !== 'login';
@@ -435,9 +453,9 @@
         toSignup.textContent = '← Volver a iniciar sesión';
         newPassEl.focus();
       } else {
-        titleEl.textContent = 'Iniciar sesión';
-        subEl.textContent = 'Calendario de contenido y aprobaciones.';
-        toSignup.textContent = '¿Nueva marca? Crea tu cuenta gratis';
+        titleEl.textContent = demoEN ? 'Sign in' : 'Iniciar sesión';
+        subEl.textContent = demoEN ? 'Content calendar and approvals.' : 'Calendario de contenido y aprobaciones.';
+        toSignup.textContent = demoEN ? 'New brand? Create your free account' : '¿Nueva marca? Crea tu cuenta gratis';
         emailEl.focus();
       }
     }

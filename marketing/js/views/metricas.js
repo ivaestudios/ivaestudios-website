@@ -5,8 +5,8 @@
 // Datos: GET /ig/metrics-range?client_id&from&to. Solo staff (los clientes ven
 // otras pestañas). Por marca: si la marca no tiene IG conectado, lo dice.
 // ============================================================================
-import { api, el, clear } from '../api.js?v=202607152317';
-import { icon } from '../shell/icons.js?v=202607152317';
+import { api, el, clear } from '../api.js?v=202607170114';
+import { icon } from '../shell/icons.js?v=202607170114';
 
 const VIEW_ID = 'metricas';
 
@@ -32,6 +32,50 @@ const PERIODS = [
 ];
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 
+// ── Modo INGLÉS para el App Review de Meta ──────────────────────────────────
+// Abre la app con ?lang=en y las pantallas que ve el revisor (Métricas + el
+// flujo Conectar Instagram) salen en inglés. Persiste durante la grabación,
+// incluso tras el redirect de OAuth (localStorage). ?lang=es lo apaga.
+// NO afecta la app normal en español.
+const demoEN = (() => {
+  try {
+    const s = location.search + location.hash;
+    if (/[?&]lang=en\b/.test(s)) { localStorage.setItem('mkt_lang', 'en'); return true; }
+    if (/[?&]lang=es\b/.test(s)) { localStorage.removeItem('mkt_lang'); return false; }
+    return localStorage.getItem('mkt_lang') === 'en';
+  } catch { return false; }
+})();
+const EN = {
+  'Métricas de Instagram': 'Instagram Metrics',
+  'Elige una marca': 'Choose a brand',
+  'Selecciona una marca arriba para ver sus métricas de Instagram.': 'Select a brand above to see its Instagram metrics.',
+  'Descargar reporte (PDF)': 'Download report (PDF)',
+  'Instagram no conectado': 'Instagram not connected',
+  'Conecta el Instagram de esta marca para ver seguidores, alcance, interacciones y el rendimiento de cada publicación, todo aquí.': "Connect this brand's Instagram to see followers, reach, interactions and each post's performance — all here.",
+  'Conectar Instagram': 'Connect Instagram',
+  'Toca "Conectar Instagram" aquí abajo': 'Tap "Connect Instagram" below',
+  'Inicia sesión y autoriza el acceso en Instagram': 'Log in and grant access on Instagram',
+  'Listo: el reporte se llena solo': 'Done — the report fills in automatically',
+  'Seguidores': 'Followers',
+  'Vistas del periodo': 'Views (this period)',
+  'Alcance de publicaciones': 'Post reach',
+  'Interacciones': 'Interactions',
+  'Publicaciones': 'Posts',
+  'Cargando métricas…': 'Loading metrics…',
+  'Reintentar': 'Retry',
+  'No se pudieron cargar': 'Could not load',
+  'Sin datos': 'No data',
+  'Semana': 'Week', 'Mes': 'Month',
+  'vistas': 'views', 'alcance': 'reach', 'me gusta': 'likes',
+  'comentarios': 'comments', 'guardados': 'saved', 'compartidos': 'shares',
+  'Tu audiencia': 'Your audience',
+  'Foto actual de tus seguidores (no cambia con el periodo).': "Current snapshot of your followers (doesn't change with the period).",
+  'Edad': 'Age', 'Ciudades top': 'Top cities',
+  'Hombres': 'Men', 'Mujeres': 'Women', 'Sin dato': 'Unknown',
+  'Carrusel': 'Carousel', 'Foto': 'Photo',
+};
+const T = (es) => (demoEN ? (EN[es] || es) : es);
+
 const fmtN = (n) => (n == null ? '—' : Number(n).toLocaleString('es-MX'));
 const pad = (n) => String(n).padStart(2, '0');
 const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -46,7 +90,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/metricas.css?v=202607152317';
+  link.href = '/marketing/css/metricas.css?v=202607170114';
   document.head.appendChild(link);
 }
 
@@ -61,7 +105,7 @@ function periodText() {
   const { from, to } = currentRange();
   if (period === 'custom') return `${prettyDate(from)} – ${prettyDate(to)}`;
   const p = PERIODS.find((x) => x.id === period) || PERIODS[1];
-  return `${p.label} · ${prettyDate(from)} – ${prettyDate(to)}`;
+  return `${T(p.label)} · ${prettyDate(from)} – ${prettyDate(to)}`;
 }
 function activeBrand() {
   const { activeClientId, clients } = ctx.store.getState();
@@ -120,18 +164,18 @@ function demoBars(list, { sortByValue = true, top = 0, mapKey = (k) => k } = {})
 
 function buildAudience(aud) {
   if (!aud || (!aud.gender && !aud.age && !aud.city)) return null;
-  const gLabel = (k) => ({ M: 'Hombres', F: 'Mujeres', U: 'Sin dato' }[k] || k);
+  const gLabel = (k) => ({ M: T('Hombres'), F: T('Mujeres'), U: T('Sin dato') }[k] || k);
   const kids = [
-    el('h3', { class: 'mt-h', text: 'Tu audiencia' }),
-    el('p', { class: 'mt-hint', text: 'Foto actual de tus seguidores (no cambia con el periodo).' }),
+    el('h3', { class: 'mt-h', text: T('Tu audiencia') }),
+    el('p', { class: 'mt-hint', text: T('Foto actual de tus seguidores (no cambia con el periodo).') }),
   ];
   if (aud.gender) kids.push(el('div', { class: 'mt-aud' }, demoBars(aud.gender, { mapKey: gLabel })));
-  if (aud.age) { kids.push(el('div', { class: 'mt-aud__sub', text: 'Edad' })); kids.push(el('div', { class: 'mt-aud' }, demoBars(aud.age, { sortByValue: false }))); }
-  if (aud.city) { kids.push(el('div', { class: 'mt-aud__sub', text: 'Ciudades top' })); kids.push(el('div', { class: 'mt-aud' }, demoBars(aud.city, { top: 5 }))); }
+  if (aud.age) { kids.push(el('div', { class: 'mt-aud__sub', text: T('Edad') })); kids.push(el('div', { class: 'mt-aud' }, demoBars(aud.age, { sortByValue: false }))); }
+  if (aud.city) { kids.push(el('div', { class: 'mt-aud__sub', text: T('Ciudades top') })); kids.push(el('div', { class: 'mt-aud' }, demoBars(aud.city, { top: 5 }))); }
   return el('section', { class: 'mt-card' }, kids);
 }
 
-function typeLabel(t) { return ({ REELS: 'Reel', VIDEO: 'Video', CAROUSEL_ALBUM: 'Carrusel', IMAGE: 'Foto', FEED: 'Post' }[t] || 'Post'); }
+function typeLabel(t) { return ({ REELS: 'Reel', VIDEO: 'Video', CAROUSEL_ALBUM: T('Carrusel'), IMAGE: T('Foto'), FEED: 'Post' }[t] || 'Post'); }
 
 function buildVideos(posts, truncated) {
   if (!Array.isArray(posts) || !posts.length) return null;
@@ -144,19 +188,19 @@ function buildVideos(posts, truncated) {
       el('div', { class: 'mt-vid__head' }, [
         el('span', { class: 'mt-vid__type', text: typeLabel(p.type) }),
         el('span', { class: 'mt-vid__date', text: day ? `${day} ${mo}` : '' }),
-        p.permalink ? el('a', { class: 'mt-vid__link', href: p.permalink, target: '_blank', rel: 'noopener', text: 'ver ↗' }) : null,
+        p.permalink ? el('a', { class: 'mt-vid__link', href: p.permalink, target: '_blank', rel: 'noopener', text: demoEN ? 'view ↗' : 'ver ↗' }) : null,
       ]),
       p.caption ? el('p', { class: 'mt-vid__cap', text: p.caption }) : null,
       el('div', { class: 'mt-vid__metrics' }, [
-        vm('vistas', p.views), vm('alcance', p.reach), vm('me gusta', p.likes),
-        vm('comentarios', p.comments), vm('guardados', p.saved), vm('compartidos', p.shares),
-        watch ? el('span', { class: 'mt-vm' }, [el('b', { text: watch }), ' visto prom.']) : null,
+        vm(T('vistas'), p.views), vm(T('alcance'), p.reach), vm(T('me gusta'), p.likes),
+        vm(T('comentarios'), p.comments), vm(T('guardados'), p.saved), vm(T('compartidos'), p.shares),
+        watch ? el('span', { class: 'mt-vm' }, [el('b', { text: watch }), demoEN ? ' avg. watched' : ' visto prom.']) : null,
       ]),
     ]);
   });
   const head = el('div', { class: 'mt-vids__head' }, [
-    el('h3', { class: 'mt-h', text: `Rendimiento por video (${posts.length})` }),
-    truncated ? el('span', { class: 'mt-note', text: `+${truncated} más en el periodo` }) : null,
+    el('h3', { class: 'mt-h', text: demoEN ? `Per-post performance (${posts.length})` : `Rendimiento por video (${posts.length})` }),
+    truncated ? el('span', { class: 'mt-note', text: demoEN ? `+${truncated} more this period` : `+${truncated} más en el periodo` }) : null,
   ]);
   return el('section', { class: 'mt-card' }, [head, el('div', { class: 'mt-vids' }, rows)]);
 }
@@ -181,7 +225,7 @@ function buildPeriodBar() {
   const bar = el('div', { class: 'mt-periods' });
   for (const p of PERIODS) {
     bar.appendChild(el('button', {
-      class: 'mt-chip' + (period === p.id ? ' is-active' : ''), type: 'button', text: p.label,
+      class: 'mt-chip' + (period === p.id ? ' is-active' : ''), type: 'button', text: T(p.label),
       onclick: () => { period = p.id; load(); },
     }));
   }
@@ -198,25 +242,25 @@ function render() {
   const dl = brand ? el('a', {
     class: 'btn mt-download', target: '_blank', rel: 'noopener',
     href: (() => { const { from, to } = currentRange(); return `/api/marketing/report?client_id=${encodeURIComponent(brand.id)}&from=${from}&to=${to}`; })(),
-  }, [icon('activity', 16), el('span', { text: 'Descargar reporte (PDF)' })]) : null;
+  }, [icon('activity', 16), el('span', { text: T('Descargar reporte (PDF)') })]) : null;
 
   rootEl.appendChild(el('header', { class: 'mt-head' }, [
     el('div', { class: 'mt-head__l' }, [
-      el('h1', { class: 'mt-title', text: 'Métricas de Instagram' }),
-      el('div', { class: 'mt-sub', text: brand ? `${brand.name} · ${periodText()}` : 'Elige una marca' }),
+      el('h1', { class: 'mt-title', text: T('Métricas de Instagram') }),
+      el('div', { class: 'mt-sub', text: brand ? `${brand.name} · ${periodText()}` : T('Elige una marca') }),
     ]),
     dl,
   ]));
 
   if (!brand) {
-    rootEl.appendChild(buildEmpty('Elige una marca', 'Selecciona una marca arriba para ver sus métricas de Instagram.'));
+    rootEl.appendChild(buildEmpty(T('Elige una marca'), T('Selecciona una marca arriba para ver sus métricas de Instagram.')));
     return;
   }
 
   rootEl.appendChild(buildPeriodBar());
 
   if (loading) {
-    rootEl.appendChild(el('div', { class: 'mt-loading' }, [el('div', { class: 'mt-spin' }), el('span', { text: 'Cargando métricas…' })]));
+    rootEl.appendChild(el('div', { class: 'mt-loading' }, [el('div', { class: 'mt-spin' }), el('span', { text: T('Cargando métricas…') })]));
     return;
   }
 
@@ -224,30 +268,30 @@ function render() {
   if (!res) { return; }
 
   if (res.error) {
-    rootEl.appendChild(buildEmpty('No se pudieron cargar', res.error, el('button', { class: 'btn', type: 'button', text: 'Reintentar', onclick: () => load(true) })));
+    rootEl.appendChild(buildEmpty(T('No se pudieron cargar'), res.error, el('button', { class: 'btn', type: 'button', text: T('Reintentar'), onclick: () => load(true) })));
     return;
   }
   if (res.connected === false) {
     rootEl.appendChild(buildEmpty(
-      'Instagram no conectado',
-      'Conecta el Instagram de esta marca para ver seguidores, alcance, interacciones y el rendimiento de cada publicación, todo aquí.',
+      T('Instagram no conectado'),
+      T('Conecta el Instagram de esta marca para ver seguidores, alcance, interacciones y el rendimiento de cada publicación, todo aquí.'),
       el('button', {
-        class: 'btn btn-primary', type: 'button', text: 'Conectar Instagram',
+        class: 'btn btn-primary', type: 'button', text: T('Conectar Instagram'),
         onclick: () => {
           const b = activeBrand();
           if (b) window.location.href = `/api/marketing/ig/login?client_id=${encodeURIComponent(b.id)}`;
         },
       }),
       [
-        'Toca "Conectar Instagram" aquí abajo',
-        'Inicia sesión y autoriza el acceso en Instagram',
-        'Listo: el reporte se llena solo',
+        T('Toca "Conectar Instagram" aquí abajo'),
+        T('Inicia sesión y autoriza el acceso en Instagram'),
+        T('Listo: el reporte se llena solo'),
       ],
     ));
     return;
   }
   if (res.error || (res.connected && res.error)) {
-    rootEl.appendChild(buildEmpty('Instagram', res.error || 'Sin datos', null));
+    rootEl.appendChild(buildEmpty('Instagram', res.error || T('Sin datos'), null));
     return;
   }
 
@@ -256,11 +300,11 @@ function render() {
 
   // KPIs.
   const kpis = el('div', { class: 'mt-kpis' }, [
-    kpi(fmtN(d.followers), 'Seguidores', { hero: true, sub: d.reach_28d != null ? `${fmtN(d.reach_28d)} de alcance (últimos 28 días)` : '' }),
-    kpi(fmtN(t.views), 'Vistas del periodo'),
-    kpi(fmtN(t.reach), 'Alcance de publicaciones'),
-    kpi(fmtN(t.interactions), 'Interacciones'),
-    kpi(fmtN(t.posts), 'Publicaciones'),
+    kpi(fmtN(d.followers), T('Seguidores'), { hero: true, sub: d.reach_28d != null ? (demoEN ? `${fmtN(d.reach_28d)} reach (last 28 days)` : `${fmtN(d.reach_28d)} de alcance (últimos 28 días)`) : '' }),
+    kpi(fmtN(t.views), T('Vistas del periodo')),
+    kpi(fmtN(t.reach), T('Alcance de publicaciones')),
+    kpi(fmtN(t.interactions), T('Interacciones')),
+    kpi(fmtN(t.posts), T('Publicaciones')),
   ]);
   rootEl.appendChild(kpis);
   if (d.pending) {
