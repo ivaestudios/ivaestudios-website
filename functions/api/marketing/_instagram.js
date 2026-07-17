@@ -60,6 +60,10 @@ export async function handleIgLogin(request, env, session, url) {
     state: nonce,
     response_type: 'code',
     scope: IG_SCOPE,
+    // Fuerza la pantalla de login de Instagram en cada conexión: (1) garantiza
+    // que el flujo de consentimiento salga en cámara para el App Review de Meta,
+    // (2) evita conectar por error la cuenta que ya está abierta en el navegador.
+    force_reauth: 'true',
   });
   return Response.redirect(`${AUTH}?${p}`, 302);
 }
