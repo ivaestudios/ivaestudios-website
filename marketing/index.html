@@ -422,11 +422,17 @@
     } catch { return false; } })();
     if (demoEN) { try {
       const setT = (sel, t) => { const e = document.querySelector(sel); if (e) e.textContent = t; };
+      setT('#authTitle', 'Sign in');
+      setT('.auth-card__sub', 'Content calendar and approvals.');
       setT('label[for="email"]', 'Username or email');
       setT('label[for="password"]', 'Password');
+      setT('#toSignup', 'New brand? Create your free account');
+      setT('#toForgot', 'Forgot my password');
+      setT('#toggleSetup', 'Initial setup (first time)');
       const em = document.getElementById('email'); if (em) em.placeholder = 'Your username or email';
       const pw = document.getElementById('password'); if (pw) pw.placeholder = 'Your password';
       const sb = document.getElementById('submitBtn'); if (sb) sb.textContent = 'Sign in';
+      document.title = 'Sign in · IVAE Marketing';
     } catch { /* noop */ } }
 
     function showView(view) {
