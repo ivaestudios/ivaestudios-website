@@ -7,8 +7,11 @@
 // non-2xx so callers can `try { ... } catch (e) { toast(e.message,'error') }`.
 // ============================================================================
 
+import { isEN } from './shell/i18n.js?v=202607181835';
+
 const BASE = '/api/marketing';
 const TIMEOUT = 30000; // 30s
+const DLOC = isEN ? 'en-US' : 'es-MX'; // locale de fechas según idioma
 
 async function request(path, { method = 'GET', body, headers } = {}) {
   const controller = new AbortController();
@@ -153,21 +156,28 @@ export function ymd(date) {
 }
 export function fmtDate(ymdStr, opts = { day: 'numeric', month: 'short' }) {
   const d = parseDate(ymdStr);
-  return d ? d.toLocaleDateString('es-MX', opts) : '';
+  return d ? d.toLocaleDateString(DLOC, opts) : '';
 }
 export function fmtDateTime(iso) {
   if (!iso) return '';
   // server stores UTC 'YYYY-MM-DD HH:MM:SS'; normalize to ISO
   const d = new Date(String(iso).replace(' ', 'T') + (String(iso).includes('Z') ? '' : 'Z'));
   if (isNaN(d)) return String(iso);
-  return d.toLocaleString('es-MX', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  return d.toLocaleString(DLOC, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
-// "hace 5 min" relative time, Spanish.
+// Relative time ("hace 5 min" / "5 min ago").
 export function timeAgo(iso) {
   if (!iso) return '';
   const d = new Date(String(iso).replace(' ', 'T') + (String(iso).includes('Z') ? '' : 'Z'));
   if (isNaN(d)) return '';
   const s = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (isEN) {
+    if (s < 60) return 'just now';
+    const m = Math.floor(s / 60); if (m < 60) return `${m} min ago`;
+    const h = Math.floor(m / 60); if (h < 24) return `${h} h ago`;
+    const dd = Math.floor(h / 24); if (dd < 7) return `${dd} d ago`;
+    return fmtDateTime(iso);
+  }
   if (s < 60) return 'hace un momento';
   const m = Math.floor(s / 60); if (m < 60) return `hace ${m} min`;
   const h = Math.floor(m / 60); if (h < 24) return `hace ${h} h`;
@@ -183,37 +193,37 @@ export function initials(name = '') {
 // ── ENUM maps (single source of truth; mirror migrations + spec) ─────────────
 // content_type: key → { label, color }
 export const CONTENT_TYPES = {
-  reel:         { label: 'Reel',                  color: '#64748b' },
-  post:         { label: 'Post',                  color: '#0d9488' },
-  tiktok:       { label: 'TikTok',                color: '#a16207' },
-  informativo:  { label: 'Informativo',           color: '#2563eb' },
-  carrusel:     { label: 'Carrusel',              color: '#7c3aed' },
-  experiencia:  { label: 'Experiencia/Testimonio',color: '#16a34a' },
-  pauta:        { label: 'Pauta',                 color: '#ca8a04' },
-  tratamientos: { label: 'Tratamientos',          color: '#dc2626' },
-  historia:     { label: 'Historia',              color: '#0ea5e9' },
-  foto:         { label: 'Foto',                  color: '#475569' },
+  reel:         { label: 'Reel',                  en: 'Reel',                   color: '#64748b' },
+  post:         { label: 'Post',                  en: 'Post',                   color: '#0d9488' },
+  tiktok:       { label: 'TikTok',                en: 'TikTok',                 color: '#a16207' },
+  informativo:  { label: 'Informativo',           en: 'Informational',          color: '#2563eb' },
+  carrusel:     { label: 'Carrusel',              en: 'Carousel',               color: '#7c3aed' },
+  experiencia:  { label: 'Experiencia/Testimonio',en: 'Experience/Testimonial', color: '#16a34a' },
+  pauta:        { label: 'Pauta',                 en: 'Paid ad',                color: '#ca8a04' },
+  tratamientos: { label: 'Tratamientos',          en: 'Treatments',             color: '#dc2626' },
+  historia:     { label: 'Historia',              en: 'Story',                  color: '#0ea5e9' },
+  foto:         { label: 'Foto',                  en: 'Photo',                  color: '#475569' },
 };
 export const CONTENT_TYPE_ORDER = ['reel','post','tiktok','informativo','carrusel','experiencia','pauta','tratamientos','historia','foto'];
 
 // status: key → { order, label, color }  (pipeline order)
 export const STATUSES = {
-  idea:       { order: 0, label: 'Idea',       color: '#64748b' },
-  guion:      { order: 1, label: 'Guion',      color: '#3b82f6' },
-  grabacion:  { order: 2, label: 'Grabación',  color: '#f59e0b' },
-  edicion:    { order: 3, label: 'Edición',    color: '#8b5cf6' },
-  revision:   { order: 4, label: 'Revisión',   color: '#ec4899' },
-  aprobado:   { order: 5, label: 'Aprobado',   color: '#22c55e' },
-  programado: { order: 6, label: 'Programado', color: '#06b6d4' },
-  publicado:  { order: 7, label: 'Publicado',  color: '#10b981' },
+  idea:       { order: 0, label: 'Idea',       en: 'Idea',      color: '#64748b' },
+  guion:      { order: 1, label: 'Guion',      en: 'Script',    color: '#3b82f6' },
+  grabacion:  { order: 2, label: 'Grabación',  en: 'Recording', color: '#f59e0b' },
+  edicion:    { order: 3, label: 'Edición',    en: 'Editing',   color: '#8b5cf6' },
+  revision:   { order: 4, label: 'Revisión',   en: 'Review',    color: '#ec4899' },
+  aprobado:   { order: 5, label: 'Aprobado',   en: 'Approved',  color: '#22c55e' },
+  programado: { order: 6, label: 'Programado', en: 'Scheduled', color: '#06b6d4' },
+  publicado:  { order: 7, label: 'Publicado',  en: 'Published', color: '#10b981' },
 };
 export const STATUS_ORDER = ['idea','guion','grabacion','edicion','revision','aprobado','programado','publicado'];
 
 // approval_state: key → { label, color }
 export const APPROVALS = {
-  pending:  { label: 'Pendiente',         color: '#f59e0b' },
-  approved: { label: 'Aprobado',          color: '#22c55e' },
-  changes:  { label: 'Cambios pedidos',   color: '#ec4899' },
+  pending:  { label: 'Pendiente',         en: 'Pending',            color: '#f59e0b' },
+  approved: { label: 'Aprobado',          en: 'Approved',           color: '#22c55e' },
+  changes:  { label: 'Cambios pedidos',   en: 'Changes requested',  color: '#ec4899' },
 };
 
 // platforms (free-ish, but offer these)
@@ -223,9 +233,10 @@ export const PLATFORMS = ['Instagram', 'TikTok', 'Facebook', 'YouTube', 'LinkedI
 export const GRABACION_LEVELS = [1, 2, 3, 4, 5];
 
 // Small label lookups (safe fallbacks for unknown keys).
-export const contentTypeLabel = (k) => (CONTENT_TYPES[k] && CONTENT_TYPES[k].label) || k || '';
-export const statusLabel      = (k) => (STATUSES[k] && STATUSES[k].label) || k || '';
-export const approvalLabel    = (k) => (APPROVALS[k] && APPROVALS[k].label) || k || '';
+const pickLbl = (o) => (o ? ((isEN && o.en) ? o.en : o.label) : '');
+export const contentTypeLabel = (k) => pickLbl(CONTENT_TYPES[k]) || k || '';
+export const statusLabel      = (k) => pickLbl(STATUSES[k]) || k || '';
+export const approvalLabel    = (k) => pickLbl(APPROVALS[k]) || k || '';
 
 // ── Reusable badge/chip builders (so all screens render identically) ─────────
 export function chip(contentType) {

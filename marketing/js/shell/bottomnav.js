@@ -11,10 +11,11 @@
 // - FAB: setFab({label, onTap}) | null. Gradiente 56px sobre la nav.
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202607181752';
-import * as store from './store.js?v=202607181752';
-import * as prefs from './prefs.js?v=202607181752';
-import { icon } from './icons.js?v=202607181752';
+import { el, clear } from '../api.js?v=202607181835';
+import * as store from './store.js?v=202607181835';
+import * as prefs from './prefs.js?v=202607181835';
+import { icon } from './icons.js?v=202607181835';
+import { T } from './i18n.js?v=202607181835';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -49,11 +50,11 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
   }
 
   const tabInicio = makeTab({
-    id: 'inicio', label: 'Inicio', ic: 'home',
+    id: 'inicio', label: T('Inicio', 'Home'), ic: 'home',
     onTap: () => goOrTop('inicio'),
   });
   const tabContenido = makeTab({
-    id: 'contenido', label: 'Contenido', ic: 'calendar',
+    id: 'contenido', label: T('Contenido', 'Content'), ic: 'calendar',
     onTap: () => {
       const { view, activeClientId } = store.getState();
       if (CONTENT_VIEWS.includes(view)) { goOrTop(view); return; }
@@ -61,11 +62,11 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
     },
   });
   const tabTrabajo = makeTab({
-    id: 'mi-trabajo', label: 'Mi trabajo', ic: 'briefcase',
+    id: 'mi-trabajo', label: T('Mi trabajo', 'My work'), ic: 'briefcase',
     onTap: () => goOrTop('mi-trabajo'),
   });
   const tabAvisos = makeTab({
-    id: 'avisos', label: 'Avisos', ic: 'bell',
+    id: 'avisos', label: T('Avisos', 'Alerts'), ic: 'bell',
     onTap: () => openNotifications(tabAvisos),
   });
 

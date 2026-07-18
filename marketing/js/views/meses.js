@@ -26,10 +26,11 @@ import {
   el, clear, copyText, api,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202607181752';
-import { icon } from '../shell/icons.js?v=202607181752';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607181752';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607181752';
+} from '../api.js?v=202607181835';
+import { icon } from '../shell/icons.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607181835';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607181835';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -45,6 +46,11 @@ const MONTHS_ES = [
   'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
   'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
 ];
+const MONTHS_EN = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+const MONTHS = T(MONTHS_ES, MONTHS_EN);
 
 const SIN_MES = 'sin';
 
@@ -83,7 +89,7 @@ function monthKeyOf(post) {
 /** "febrero 2026" (el uppercase lo pone el CSS del encabezado). */
 function monthLabel(ym) {
   const [y, m] = String(ym).split('-').map(Number);
-  const name = MONTHS_ES[(m || 1) - 1] || '';
+  const name = MONTHS[(m || 1) - 1] || '';
   return `${name} ${y || ''}`.trim();
 }
 
@@ -348,7 +354,7 @@ function confirmDeleteRow(post) {
     mode: 'form',
     build(body, close) {
       body.append(
-        el('p', { class: 'meses-confirm__txt', text: `Se eliminará "${post.title || 'Sin título'}". Esta acción no se puede deshacer.` }),
+        el('p', { class: 'meses-confirm__txt', text: `Se eliminará "${post.title || T('Sin título', 'Untitled')}". Esta acción no se puede deshacer.` }),
         el('div', { class: 'sheet__footer' }, [
           el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
           el('button', {
@@ -808,8 +814,8 @@ function openCaptionDrawer(post) {
     el('aside', { class: 'meses-drawer' }, [
       el('header', { class: 'meses-drawer__head' }, [
         el('div', { class: 'meses-drawer__titles' }, [
-          el('span', { class: 'meses-drawer__kicker', text: 'Guion' }),
-          el('h3', { class: 'meses-drawer__title', text: post.title || 'Sin título' }),
+          el('span', { class: 'meses-drawer__kicker', text: T('Guion', 'Script') }),
+          el('h3', { class: 'meses-drawer__title', text: post.title || T('Sin título', 'Untitled') }),
         ]),
         el('button', {
           class: 'meses-drawer__close', type: 'button', 'aria-label': 'Cerrar',
@@ -1039,10 +1045,10 @@ function buildMonthStats(rows) {
     el('span', { class: 'meses-stat__k', text: k }),
   ]);
   return el('div', { class: 'meses-stats' }, [
-    stat('Piezas', total),
-    stat('Publicado', `${Math.round((pub / total) * 100)}%`),
-    stat('Atrasados', atrasados, atrasados ? 'is-danger' : 'is-ok'),
-    stat('Sin aprobar', sinAprobar, sinAprobar ? 'is-warn' : 'is-ok'),
+    stat(T('Piezas', 'Pieces'), total),
+    stat(T('Publicado', 'Published'), `${Math.round((pub / total) * 100)}%`),
+    stat(T('Atrasados', 'Overdue'), atrasados, atrasados ? 'is-danger' : 'is-ok'),
+    stat(T('Sin aprobar', 'Unapproved'), sinAprobar, sinAprobar ? 'is-warn' : 'is-ok'),
   ]);
 }
 
@@ -1125,7 +1131,7 @@ function buildRow(post, noteLabels) {
       multiline: false,
       onSave: (v) => saveTitle(post, v),
     }),
-  }, [el('span', { class: 'meses-task__label', text: post.title || 'Sin título' })]);
+  }, [el('span', { class: 'meses-task__label', text: post.title || T('Sin título', 'Untitled') })]);
   const openBtn = el('button', {
     class: 'meses-task__open', type: 'button', 'aria-label': 'Abrir en el editor',
     title: 'Abrir',
@@ -1166,9 +1172,9 @@ function buildRow(post, noteLabels) {
     cellButton(
       post.publish_date
         ? el('span', { class: 'meses-date', text: fmtDate(post.publish_date, { day: 'numeric', month: 'long' }) })
-        : el('span', { class: 'meses-empty', text: 'Fecha' }),
+        : el('span', { class: 'meses-empty', text: T('Fecha', 'Date') }),
       (a) => onPickDate(post, a),
-      post.publish_date ? `Fecha ${fmtDate(post.publish_date, { day: 'numeric', month: 'long' })}, cambiar` : 'Asignar fecha',
+      post.publish_date ? `${T('Fecha', 'Date')} ${fmtDate(post.publish_date, { day: 'numeric', month: 'long' })}` : T('Asignar fecha', 'Set date'),
     ),
   ]);
 
@@ -1290,16 +1296,16 @@ function buildTable(rows, noteLabels) {
     ]);
   };
   const headCells = [
-    colHeader({ skey: 'grab', sortType: 'num', label: 'Grab.', filterDim: 'grab', extra: { class: 'meses-col--grab' } }),
-    colHeader({ skey: 'task', sortType: 'text', label: 'Tarea', filterDim: null, extra: { class: 'meses-col--task' } }),
-    colHeader({ skey: 'status', sortType: 'text', label: 'Estado', filterDim: 'status' }),
-    colHeader({ skey: 'date', sortType: 'date', label: 'Fecha publicación', filterDim: null }),
-    colHeader({ skey: 'platform', sortType: 'text', label: 'Plataforma', filterDim: 'platform' }),
-    colHeader({ skey: 'type', sortType: 'text', label: 'Tipo', filterDim: 'type' }),
-    el('th', { text: 'Guiones', scope: 'col' }),
-    ...noteLabels.map((p) => el('th', { text: `Notas ${p}`, scope: 'col' })),
-    el('th', { text: 'Inspo', scope: 'col' }),
-    el('th', { text: 'Video final', scope: 'col' }),
+    colHeader({ skey: 'grab', sortType: 'num', label: T('Grab.', 'Rec.'), filterDim: 'grab', extra: { class: 'meses-col--grab' } }),
+    colHeader({ skey: 'task', sortType: 'text', label: T('Tarea', 'Task'), filterDim: null, extra: { class: 'meses-col--task' } }),
+    colHeader({ skey: 'status', sortType: 'text', label: T('Estado', 'Status'), filterDim: 'status' }),
+    colHeader({ skey: 'date', sortType: 'date', label: T('Fecha publicación', 'Publish date'), filterDim: null }),
+    colHeader({ skey: 'platform', sortType: 'text', label: T('Plataforma', 'Platform'), filterDim: 'platform' }),
+    colHeader({ skey: 'type', sortType: 'text', label: T('Tipo', 'Type'), filterDim: 'type' }),
+    el('th', { text: T('Guiones', 'Scripts'), scope: 'col' }),
+    ...noteLabels.map((p) => el('th', { text: `${T('Notas', 'Notes')} ${p}`, scope: 'col' })),
+    el('th', { text: T('Inspo', 'Inspo'), scope: 'col' }),
+    el('th', { text: T('Video final', 'Final video'), scope: 'col' }),
   ];
   const tbody = el('tbody', {}, rows.map((p) => buildRow(p, noteLabels)));
   const table = el('table', { class: 'meses-table' }, [
@@ -1331,36 +1337,36 @@ function buildMobileItem(post, noteLabels) {
   // publica), luego tipo y estado, y al final plataforma/grabación.
   const chips = el('div', { class: 'meses-item__chips' }, [
     mobileChip({
-      text: post.publish_date ? fmtDate(post.publish_date) : 'Fecha',
+      text: post.publish_date ? fmtDate(post.publish_date) : T('Fecha', 'Date'),
       ghost: !post.publish_date,
-      aria: post.publish_date ? `Fecha ${fmtDate(post.publish_date, { day: 'numeric', month: 'long' })}, cambiar` : 'Asignar fecha',
+      aria: post.publish_date ? `${T('Fecha', 'Date')} ${fmtDate(post.publish_date, { day: 'numeric', month: 'long' })}` : T('Asignar fecha', 'Set date'),
       onTap: (a) => onPickDate(post, a),
     }),
     mobileChip({
-      text: post.content_type ? contentTypeLabel(post.content_type) : 'Tipo',
+      text: post.content_type ? contentTypeLabel(post.content_type) : T('Tipo', 'Type'),
       color: post.content_type ? ((typeDef && typeDef.color) || null) : null,
       ghost: !post.content_type,
-      aria: post.content_type ? `Tipo ${contentTypeLabel(post.content_type)}, cambiar` : 'Asignar tipo',
+      aria: post.content_type ? `${T('Tipo', 'Type')} ${contentTypeLabel(post.content_type)}` : T('Asignar tipo', 'Set type'),
       onTap: (a) => onPickType(post, a),
     }),
     mobileChip({
-      text: statusLabel(post.status) || 'Estado',
+      text: statusLabel(post.status) || T('Estado', 'Status'),
       color: (statusDef && statusDef.color) || null,
       ghost: !STATUSES[post.status],
-      aria: `Estado ${statusLabel(post.status) || 'sin estado'}, cambiar`,
+      aria: `${T('Estado', 'Status')} ${statusLabel(post.status) || T('sin estado', 'no status')}`,
       onTap: (a) => onPickStatus(post, a),
     }),
     mobileChip({
-      text: post.platform || 'Plataforma',
+      text: post.platform || T('Plataforma', 'Platform'),
       ghost: !post.platform,
-      aria: post.platform ? `Plataforma ${post.platform}, cambiar` : 'Asignar plataforma',
+      aria: post.platform ? `${T('Plataforma', 'Platform')} ${post.platform}` : T('Asignar plataforma', 'Set platform'),
       onTap: (a) => onPickPlatform(post, a),
     }),
     mobileChip({
-      text: grab && GRAB_COLORS[grab] ? `G${grab}` : 'Grab.',
+      text: grab && GRAB_COLORS[grab] ? `G${grab}` : T('Grab.', 'Rec.'),
       color: grab ? GRAB_COLORS[grab] : null,
       ghost: !grab,
-      aria: grab ? `Grabación nivel ${grab}, cambiar` : 'Asignar grabación',
+      aria: grab ? `${T('Grabación nivel', 'Recording level')} ${grab}` : T('Asignar grabación', 'Set recording'),
       onTap: (a) => onPickGrabacion(post, a),
     }),
   ]);
@@ -1371,7 +1377,7 @@ function buildMobileItem(post, noteLabels) {
         class: 'meses-item__main', type: 'button',
         onclick: () => ctx.openEditor(post.id),
       }, [
-        el('span', { class: 'meses-item__title', text: post.title || 'Sin título' }),
+        el('span', { class: 'meses-item__title', text: post.title || T('Sin título', 'Untitled') }),
         icon('right', 16),
       ]),
       el('button', {
@@ -1447,13 +1453,13 @@ function buildMobileItem(post, noteLabels) {
   // buscar). Es lo que mas se usa por pieza: el guion y las notas.
   card.appendChild(el('div', { class: 'meses-item__actions' }, [
     el('button', {
-      class: 'meses-act', type: 'button', 'aria-label': 'Abrir guion',
+      class: 'meses-act', type: 'button', 'aria-label': T('Abrir guion', 'Open script'),
       onclick: () => ctx.openEditor(post.id, { tab: 'guion' }),
-    }, [icon('edit', 15), el('span', { text: 'Guion' })]),
+    }, [icon('edit', 15), el('span', { text: T('Guion', 'Script') })]),
     el('button', {
-      class: 'meses-act', type: 'button', 'aria-label': 'Abrir notas del equipo',
+      class: 'meses-act', type: 'button', 'aria-label': T('Abrir notas del equipo', 'Open team notes'),
       onclick: () => ctx.openEditor(post.id, { tab: 'contenido' }),
-    }, [icon('copy', 15), el('span', { text: 'Notas' })]),
+    }, [icon('copy', 15), el('span', { text: T('Notas', 'Notes') })]),
   ]));
 
   // El CLIENTE decide desde la tarjeta (solo si sigue pendiente): Aprobar de
@@ -1461,20 +1467,20 @@ function buildMobileItem(post, noteLabels) {
   if (isClientRole() && apprState === 'pending') {
     const okBtn = el('button', {
       class: 'meses-approve__btn meses-approve__btn--ok', type: 'button',
-      'aria-label': `Aprobar "${post.title || 'Sin título'}"`,
+      'aria-label': `Aprobar "${post.title || T('Sin título', 'Untitled')}"`,
       onclick: async () => {
         okBtn.disabled = true;
         await sendApprovalDecision(post, 'approved', null);
         okBtn.disabled = false;
       },
-    }, [icon('check', 15), el('span', { text: 'Aprobar' })]);
+    }, [icon('check', 15), el('span', { text: T('Aprobar', 'Approve') })]);
     card.appendChild(el('div', { class: 'meses-approve' }, [
       okBtn,
       el('button', {
         class: 'meses-approve__btn meses-approve__btn--chg', type: 'button',
-        'aria-label': `Pedir cambios en "${post.title || 'Sin título'}"`,
+        'aria-label': `${T('Pedir cambios en', 'Request changes on')} "${post.title || T('Sin título', 'Untitled')}"`,
         onclick: () => openPedirCambios(post),
-      }, [icon('edit', 15), el('span', { text: 'Pedir cambios' })]),
+      }, [icon('edit', 15), el('span', { text: T('Pedir cambios', 'Request changes') })]),
     ]));
   }
   return card;
@@ -1493,7 +1499,7 @@ function buildComposer(key, monthRows) {
   // celda ahí mismo, sin abrir otra pantalla.
   const btn = el('button', {
     class: 'meses-newline', type: 'button',
-  }, [icon('plus', 16), el('span', { text: 'Nueva línea' })]);
+  }, [icon('plus', 16), el('span', { text: T('Nueva línea', 'New row') })]);
   btn.addEventListener('click', async () => {
     const { activeClientId } = ctx.store.getState();
     if (!activeClientId || activeClientId === 'todos') return;
@@ -1832,7 +1838,7 @@ function toggleSection(secEl, key) {
 }
 
 function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTodos, single = false }) {
-  const label = key === SIN_MES ? 'Sin mes' : monthLabel(key);
+  const label = key === SIN_MES ? T('Sin mes', 'No date') : monthLabel(key);
   const bodyId = `meses-body-${key.replace(/[^a-z0-9-]/gi, '')}`;
 
   let heading;
@@ -1872,14 +1878,14 @@ function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTod
     // copy de staff. Una sola tarjeta, arriba del composer.
     bodyKids.push(el('div', { class: 'meses-empty empty-rich empty-rich--welcome' }, [
       el('div', { class: 'empty-rich__ico' }, [icon('calendar', 26)]),
-      el('h3', { class: 'empty-rich__t', text: '¡Bienvenido a tu calendario de contenido! 🎉' }),
-      el('p', { class: 'empty-rich__s', text: 'Crea tu primera pieza con + Nueva línea: ponle título, fecha y escribe tu guion. Tu calendario, tus reglas.' }),
+      el('h3', { class: 'empty-rich__t', text: T('¡Bienvenido a tu calendario de contenido! 🎉', 'Welcome to your content calendar! 🎉') }),
+      el('p', { class: 'empty-rich__s', text: T('Crea tu primera pieza con + Nueva línea: ponle título, fecha y escribe tu guion. Tu calendario, tus reglas.', 'Create your first piece with + New row: give it a title, a date and write your script. Your calendar, your rules.') }),
     ]));
   } else {
     bodyKids.push(el('div', { class: 'meses-empty empty-rich' }, [
       el('div', { class: 'empty-rich__ico' }, [icon('calendar', 26)]),
-      el('h3', { class: 'empty-rich__t', text: 'Mes despejado' }),
-      el('p', { class: 'empty-rich__s', text: 'Aun no hay contenidos en este mes. Agrega la primera linea abajo para arrancar.' }),
+      el('h3', { class: 'empty-rich__t', text: T('Mes despejado', 'Clear month') }),
+      el('p', { class: 'empty-rich__s', text: T('Aun no hay contenidos en este mes. Agrega la primera linea abajo para arrancar.', 'No content in this month yet. Add the first row below to get started.') }),
     ]));
   }
   if (!isTodos) bodyKids.push(buildComposer(key, rows));
@@ -1903,13 +1909,13 @@ function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTod
 // ── Filtros (persistidos por cliente, estilo Notion) ─────────────────────────
 
 const FILTER_DIMS = [
-  { dim: 'status',   label: 'Estado',     getVal: (p) => p.status || '',       labelOf: (v) => statusLabel(v) || v },
-  { dim: 'type',     label: 'Tipo',       getVal: (p) => p.content_type || '', labelOf: (v) => contentTypeLabel(v) || v },
-  { dim: 'platform', label: 'Plataforma', getVal: (p) => p.platform || '',     labelOf: (v) => v },
-  { dim: 'grab',     label: 'Grabación',  getVal: (p) => (p.grabacion == null || p.grabacion === '' ? '' : String(p.grabacion)), labelOf: (v) => `Nivel ${v}` },
+  { dim: 'status',   label: T('Estado', 'Status'),     getVal: (p) => p.status || '',       labelOf: (v) => statusLabel(v) || v },
+  { dim: 'type',     label: T('Tipo', 'Type'),         getVal: (p) => p.content_type || '', labelOf: (v) => contentTypeLabel(v) || v },
+  { dim: 'platform', label: T('Plataforma', 'Platform'), getVal: (p) => p.platform || '',     labelOf: (v) => v },
+  { dim: 'grab',     label: T('Grabación', 'Recording'),  getVal: (p) => (p.grabacion == null || p.grabacion === '' ? '' : String(p.grabacion)), labelOf: (v) => `${T('Nivel', 'Level')} ${v}` },
   // Aprobación del cliente: sirve al cliente (banner "por revisar") y a la
   // dueña en su panel de filtros. Sin valor guardado cuenta como pendiente.
-  { dim: 'approval', label: 'Aprobación', getVal: (p) => approvalOf(p), labelOf: (v) => approvalLabel(v) || v },
+  { dim: 'approval', label: T('Aprobación', 'Approval'), getVal: (p) => approvalOf(p), labelOf: (v) => approvalLabel(v) || v },
 ];
 
 function filtersKey() {
@@ -2175,7 +2181,7 @@ function selectMonth(key) {
 function buildMonthBar(keys, byMonth, sinMes) {
   const bar = el('div', { class: 'meses-monthbar', role: 'tablist', 'aria-label': 'Meses' });
   for (const k of keys) {
-    const label = k === SIN_MES ? 'Sin mes' : capitalize(monthLabel(k));
+    const label = k === SIN_MES ? T('Sin mes', 'No date') : capitalize(monthLabel(k));
     const n = k === SIN_MES ? sinMes.length : (byMonth.get(k) || []).length;
     const active = k === activeMonth;
     bar.appendChild(el('button', {
@@ -2215,7 +2221,7 @@ function buildSideNav(ordered, byMonth, sinMes, isTodos) {
     sideEl.appendChild(el('button', {
       class: 'meses-side__add', type: 'button',
       onclick: () => openAddMonth(),
-    }, [icon('plus', 14), el('span', { text: 'Agregar mes' })]));
+    }, [icon('plus', 14), el('span', { text: T('Agregar mes', 'Add month') })]));
   }
 }
 
@@ -2367,7 +2373,7 @@ function render() {
     sectionsEl.appendChild(el('button', {
       class: 'meses-addmonth', type: 'button',
       onclick: () => openAddMonth(),
-    }, [icon('plus', 16), el('span', { text: 'Agregar mes' })]));
+    }, [icon('plus', 16), el('span', { text: T('Agregar mes', 'Add month') })]));
   }
   if (!isTodos && !esCliente) {
     // Copiar mes anterior: duplica las piezas de otro mes en el mes activo
@@ -2375,18 +2381,18 @@ function render() {
     if (activeMonth && activeMonth !== SIN_MES) {
       sectionsEl.appendChild(el('button', {
         class: 'meses-addmonth meses-copymonth', type: 'button',
-        title: `Duplica todas las piezas de otro mes en ${capitalize(monthLabel(activeMonth))}`,
+        title: `${T('Duplica todas las piezas de otro mes en', 'Duplicate all pieces from another month into')} ${capitalize(monthLabel(activeMonth))}`,
         onclick: () => openCopyMonth(),
-      }, [icon('copy', 16), el('span', { text: 'Copiar mes anterior…' })]));
+      }, [icon('copy', 16), el('span', { text: T('Copiar mes anterior…', 'Copy previous month…') })]));
     }
     // Avisos automáticos por marca (solo admin/equipo).
     const brandRow = (ctx.store.getState().clients || []).find((c) => c.id === activeClientId);
     const remOn = !brandRow || brandRow.reminders_enabled !== 0;
     sectionsEl.appendChild(el('button', {
       class: 'meses-addmonth meses-remtoggle' + (remOn ? '' : ' is-off'), type: 'button',
-      title: 'Recordatorios de publicación, atrasados y sin-aprobar de esta marca',
+      title: T('Recordatorios de publicación, atrasados y sin-aprobar de esta marca', 'Publish, overdue and unapproved reminders for this brand'),
       onclick: (e) => toggleReminders(e.currentTarget),
-    }, [icon('bell', 16), el('span', { class: 'meses-remtoggle__txt', text: `Avisos automáticos: ${remOn ? 'Activados' : 'Desactivados'}` })]));
+    }, [icon('bell', 16), el('span', { class: 'meses-remtoggle__txt', text: `${T('Avisos automáticos:', 'Automatic alerts:')} ${remOn ? T('Activados', 'On') : T('Desactivados', 'Off')}` })]));
   }
   // Reporte mensual imprimible con el branding de la marca (admin y cliente).
   if (!isTodos && activeClientId && activeMonth && activeMonth !== SIN_MES) {
@@ -2394,21 +2400,21 @@ function render() {
       class: 'meses-icslink meses-replink',
       href: `/api/marketing/report?client_id=${encodeURIComponent(activeClientId)}&month=${encodeURIComponent(activeMonth)}`,
       target: '_blank', rel: 'noopener',
-    }, [icon('activity', 15), el('span', { text: `Reporte de ${capitalize(monthLabel(activeMonth))}` })]));
+    }, [icon('activity', 15), el('span', { text: `${T('Reporte de', 'Report for')} ${capitalize(monthLabel(activeMonth))}` })]));
     // Brief de la marca: lo que contestó en su onboarding (SOLO staff).
     if (!esCliente) {
       sectionsEl.appendChild(el('button', {
         class: 'meses-icslink mbrief-open', type: 'button',
-        title: 'Lo que la marca contestó en su brief de onboarding',
+        title: T('Lo que la marca contestó en su brief de onboarding', 'What the brand answered in its onboarding brief'),
         onclick: () => openBrief(),
-      }, [icon('briefcase', 15), el('span', { text: 'Brief de la marca' })]));
+      }, [icon('briefcase', 15), el('span', { text: T('Brief de la marca', 'Brand brief') })]));
     }
     // Captura manual de resultados de Instagram para el mes (solo staff).
     if (!esCliente) {
       sectionsEl.appendChild(el('button', {
         class: 'meses-addmonth meses-igmanual', type: 'button',
         onclick: () => openIgManual(),
-      }, [icon('camera', 16), el('span', { text: `Resultados de Instagram de ${capitalize(monthLabel(activeMonth))}` })]));
+      }, [icon('camera', 16), el('span', { text: `${T('Resultados de Instagram de', 'Instagram results for')} ${capitalize(monthLabel(activeMonth))}` })]));
     }
   }
 

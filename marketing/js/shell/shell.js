@@ -19,20 +19,21 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202607181752';
-import * as store from './store.js?v=202607181752';
-import * as prefs from './prefs.js?v=202607181752';
-import * as router from './router.js?v=202607181752';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607181752';
-import { toast } from './toast.js?v=202607181752';
-import { icon } from './icons.js?v=202607181752';
-import * as iconsMod from './icons.js?v=202607181752';
-import { createTopbar } from './topbar.js?v=202607181752';
-import { createBottomNav } from './bottomnav.js?v=202607181752';
-import { createSearch } from './search.js?v=202607181752';
-import { createNotifications } from './notifications.js?v=202607181752';
-import * as pickers from '../ui/pickers.js?v=202607181752';
-import * as dnd from '../ui/dnd.js?v=202607181752';
+import { api, el } from '../api.js?v=202607181835';
+import * as store from './store.js?v=202607181835';
+import * as prefs from './prefs.js?v=202607181835';
+import * as router from './router.js?v=202607181835';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607181835';
+import { toast } from './toast.js?v=202607181835';
+import { icon } from './icons.js?v=202607181835';
+import * as iconsMod from './icons.js?v=202607181835';
+import { createTopbar } from './topbar.js?v=202607181835';
+import { createBottomNav } from './bottomnav.js?v=202607181835';
+import { createSearch } from './search.js?v=202607181835';
+import { createNotifications } from './notifications.js?v=202607181835';
+import { T } from './i18n.js?v=202607181835';
+import * as pickers from '../ui/pickers.js?v=202607181835';
+import * as dnd from '../ui/dnd.js?v=202607181835';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -46,16 +47,16 @@ const isClientRole = () => ((store.getState().me || {}).role === 'client');
 const clientCanView = (view) => CLIENT_VIEWS.includes(view)
   || (view === 'metricas' && ((store.getState().me || {}).client_id === IVAE_STUDIOS_CLIENT_ID));
 const CONTENT_LABELS = {
-  meses: 'Calendario',
-  calendario: 'Cuadrícula',
-  entregables: 'Entregables',
-  metricas: 'Métricas',
-  carrusel: 'Carrusel',
-  descargar: 'Descargar',
-  tablero: 'Tablero',
-  tabla: 'Tabla',
+  meses: T('Calendario', 'Calendar'),
+  calendario: T('Cuadrícula', 'Grid'),
+  entregables: T('Entregables', 'Deliverables'),
+  metricas: T('Métricas', 'Metrics'),
+  carrusel: T('Carrusel', 'Carousel'),
+  descargar: T('Descargar', 'Download'),
+  tablero: T('Tablero', 'Board'),
+  tabla: T('Tabla', 'Table'),
   timeline: 'Timeline',
-  carga: 'Carga',
+  carga: T('Carga', 'Workload'),
 };
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 

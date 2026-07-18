@@ -10,12 +10,13 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607181752';
-import * as store from './store.js?v=202607181752';
-import { openSheet, pickFrom } from './sheet.js?v=202607181752';
-import { toast } from './toast.js?v=202607181752';
-import { icon } from './icons.js?v=202607181752';
-import { openClientSwitcher } from './clientswitcher.js?v=202607181752';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607181835';
+import * as store from './store.js?v=202607181835';
+import { openSheet, pickFrom } from './sheet.js?v=202607181835';
+import { toast } from './toast.js?v=202607181835';
+import { icon } from './icons.js?v=202607181835';
+import { openClientSwitcher } from './clientswitcher.js?v=202607181835';
+import { T, isEN, setLang } from './i18n.js?v=202607181835';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -24,13 +25,13 @@ const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
 // se quitaron del admin por pedido suyo (sus vistas siguen en el repo, solo no
 // se muestran como pestanas).
 const DESKTOP_TABS = [
-  { id: 'inicio', label: 'Inicio' },
-  { id: 'meses', label: 'Calendario' },
-  { id: 'calendario', label: 'Cuadrícula' },
-  { id: 'entregables', label: 'Entregables' },
-  { id: 'carrusel', label: 'Carrusel' },
-  { id: 'descargar', label: 'Descargar' },
-  { id: 'metricas', label: 'Métricas' },
+  { id: 'inicio', label: T('Inicio', 'Home') },
+  { id: 'meses', label: T('Calendario', 'Calendar') },
+  { id: 'calendario', label: T('Cuadrícula', 'Grid') },
+  { id: 'entregables', label: T('Entregables', 'Deliverables') },
+  { id: 'carrusel', label: T('Carrusel', 'Carousel') },
+  { id: 'descargar', label: T('Descargar', 'Download') },
+  { id: 'metricas', label: T('Métricas', 'Metrics') },
 ];
 
 export function createTopbar({ root, router, selectClient, openSearch, openNotifications }) {
@@ -164,10 +165,23 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
     }, [icon(ic, 20), el('span', { class: 'acct-row__label', text: label }), icon('right', 16)]);
   }
 
+  // Selector de idioma ES/EN (dos pastillas). Cambia TODO el sistema y recarga.
+  function langRow() {
+    const mk = (code, label) => el('button', {
+      class: 'lang-pill' + ((isEN ? 'en' : 'es') === code ? ' is-active' : ''),
+      type: 'button', 'aria-pressed': String((isEN ? 'en' : 'es') === code),
+      onclick: () => { if ((isEN ? 'en' : 'es') !== code) setLang(code); },
+    }, [el('span', { text: label })]);
+    return el('div', { class: 'acct-lang' }, [
+      el('span', { class: 'acct-lang__label' }, [icon('globe', 18), el('span', { text: T('Idioma', 'Language') })]),
+      el('div', { class: 'acct-lang__pills' }, [mk('es', 'ES'), mk('en', 'EN')]),
+    ]);
+  }
+
   function openAccountSheet() {
     const { me } = store.getState();
     openSheet({
-      title: 'Tu cuenta',
+      title: T('Tu cuenta', 'Your account'),
       mode: 'menu',
       anchor: avatarBtn,
       build(body, close) {
@@ -176,28 +190,29 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
             avatar(me ? me.name : ''),
             el('div', { class: 'acct-head__main' }, [
               el('div', { class: 'acct-head__name', text: me ? me.name : '' }),
-              el('div', { class: 'acct-head__sub', text: me ? `${me.email} · ${me.role === 'admin' ? 'Administradora' : (me.role === 'client' ? 'Cliente' : 'Equipo')}` : '' }),
+              el('div', { class: 'acct-head__sub', text: me ? `${me.email} · ${me.role === 'admin' ? T('Administradora', 'Admin') : (me.role === 'client' ? T('Cliente', 'Client') : T('Equipo', 'Team'))}` : '' }),
             ]),
           ]),
+          langRow(),
           // Herramientas de agencia: SOLO staff (el cliente no las ve).
           ...(me && me.role !== 'client' ? [
-            accountRow('users', 'Equipo', () => { close(); openTeamSheet(); }),
-            accountRow('link', 'Accesos de cliente', () => { close(); openClientAccessSheet(); }),
-            accountRow('activity', 'Actividad', () => { close(); openActivitySheet(); }),
+            accountRow('users', T('Equipo', 'Team'), () => { close(); openTeamSheet(); }),
+            accountRow('link', T('Accesos de cliente', 'Client access'), () => { close(); openClientAccessSheet(); }),
+            accountRow('activity', T('Actividad', 'Activity'), () => { close(); openActivitySheet(); }),
           ] : []),
-          accountRow('bell', 'Ajustes de avisos', () => { close(); openNotifications(bellBtn, { tab: 'all' }); }),
-          accountRow('key', 'Cambiar contraseña', () => { close(); openChangePassword(); }),
+          accountRow('bell', T('Ajustes de avisos', 'Notification settings'), () => { close(); openNotifications(bellBtn, { tab: 'all' }); }),
+          accountRow('key', T('Cambiar contraseña', 'Change password'), () => { close(); openChangePassword(); }),
           // Ayuda: abre el WhatsApp de IVAE en una pestaña nueva.
-          accountRow('send', 'Ayuda', () => {
+          accountRow('send', T('Ayuda', 'Help'), () => {
             close();
             window.open('https://wa.me/5219902046514', '_blank', 'noopener');
           }),
           // Eliminar cuenta: SOLO el cliente (requisito Apple 5.1.1 — toda app
           // con registro debe dejar borrar la cuenta desde la propia app).
           ...(me && me.role === 'client' ? [
-            accountRow('trash', 'Eliminar mi cuenta', () => { close(); confirmDeleteAccount(); }, true),
+            accountRow('trash', T('Eliminar mi cuenta', 'Delete my account'), () => { close(); confirmDeleteAccount(); }, true),
           ] : []),
-          accountRow('logout', 'Salir', async () => {
+          accountRow('logout', T('Salir', 'Sign out'), async () => {
             close();
             try { await api.post('/auth/logout'); } catch { /* la cookie muere igual */ }
             location.replace('/marketing/');
