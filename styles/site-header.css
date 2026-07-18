@@ -819,3 +819,49 @@ body .m-nav .m-nav-cta {
   min-height: 0 !important;
 }
 body .m-nav .m-nav-cta::before { content: none !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   WHITE-AT-TOP HEADER (2026-07-16)
+   La barra comienza BLANCA con el logo azul marino y, al hacer
+   scroll (.scrolled), transiciona al azul marino con logo crema.
+   ═══════════════════════════════════════════════════════════════ */
+.site-header:not(.scrolled){
+  background:rgba(255,255,255,.96) !important;
+  border-bottom:1px solid rgba(20,27,38,.10) !important;
+}
+.site-header:not(.scrolled) .h-nav a,
+.site-header:not(.scrolled) .header-nav a,
+.site-header:not(.scrolled) .lang-switch a,
+.site-header:not(.scrolled) .h-lang a{ color:#141b26 !important; }
+.site-header:not(.scrolled) .h-nav a.is-active{ color:#8a6d1f !important; }
+.site-header:not(.scrolled) .h-cta,
+.site-header:not(.scrolled) .header-cta{
+  color:#141b26 !important;
+  border-color:rgba(20,27,38,.45) !important;
+}
+.site-header:not(.scrolled) .h-burger span{ background:#141b26 !important; }
+
+/* Logo dual: navy arriba (barra blanca) ⇄ crema al scrollear */
+.site-header .h-logo,
+.site-header .header-logo{
+  position:relative !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  overflow:visible !important;
+}
+.site-header .h-logo img,
+.site-header .header-logo img{
+  height:30px !important;
+  width:auto !important;
+  display:block !important;
+  transition:opacity .45s ease !important;
+}
+.site-header .lg-cream{
+  position:absolute !important;
+  left:0 !important; top:50% !important;
+  transform:translateY(-50%) !important;
+  opacity:0 !important;
+}
+.site-header:not(.scrolled) .lg-navy{ opacity:1 !important; }
+.site-header.scrolled .lg-navy{ opacity:0 !important; }
+.site-header.scrolled .lg-cream{ opacity:1 !important; }
