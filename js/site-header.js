@@ -58,11 +58,15 @@
 
   var labels = isES ? {
     home: 'Inicio', about: 'Acerca', services: 'Servicios', blog: 'Diario',
+    gallery: 'Galería',
     cta: 'Comenzar Consulta', menuOpen: 'Abrir navegación', langGroup: 'Idioma'
   } : {
     home: 'Home', about: 'About', services: 'Services', blog: 'Journal',
+    gallery: 'Gallery',
     cta: 'Begin Inquiry', menuOpen: 'Open navigation', langGroup: 'Language'
   };
+  // Client gallery portal (gallery.ivaestudios.com) — same link both languages.
+  var galleryHref = 'https://gallery.ivaestudios.com/';
 
   var homeHref = isES ? '/es/' : '/';
   var aboutHref = isES ? '/es/acerca-de' : '/about';
@@ -112,6 +116,7 @@
     +       '<li><a href="' + aboutHref + '">' + labels.about + '</a></li>'
     +       '<li><a href="#services">' + labels.services + '</a></li>'
     +       '<li><a href="' + blogHref + '">' + labels.blog + '</a></li>'
+    +       '<li><a href="' + galleryHref + '">' + labels.gallery + '</a></li>'
     +     '</ul>'
     +   '</nav>'
     +   '<div class="lang-switch" role="group" aria-label="' + labels.langGroup + '">'
@@ -146,6 +151,7 @@
     +       destLinks
     +     '</div>'
     +     '<a href="' + blogHref + '" class="m-nav-link">' + labels.blog + '</a>'
+    +     '<a href="' + galleryHref + '" class="m-nav-link">' + labels.gallery + '</a>'
     +     '<div class="m-nav-lang">'
     +       '<a href="' + enHref + '" data-lang-switch="en" hreflang="en"' + enActive + '>EN</a>'
     +       '<span aria-hidden="true">·</span>'
