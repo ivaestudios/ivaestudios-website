@@ -23,19 +23,19 @@
 // Contrato de vista: export default { id, mount(el, ctx), onParams, unmount }.
 // ============================================================================
 
-import { el, api, statusBadge, approvalBadge, fmtDate } from '../api.js?v=202607180125';
-import { icon } from '../shell/icons.js?v=202607180125';
-import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202607180125';
-import * as store from '../shell/store.js?v=202607180125';
-import * as cl from '../services/checklist.js?v=202607180125';
-import { createAutosave } from './autosave.js?v=202607180125';
-import { textExpand } from '../ui/pickers.js?v=202607180125';
-import { openActionsMenu } from './actions.js?v=202607180125';
-import { mount as mountContenido } from './tab-contenido.js?v=202607180125';
-import { mount as mountGuion } from './tab-guion.js?v=202607180125';
-import { mount as mountChecklist } from './tab-checklist.js?v=202607180125';
-import { mount as mountConversacion } from './tab-conversacion.js?v=202607180125';
-import { mount as mountActividad } from './tab-actividad.js?v=202607180125';
+import { el, api, statusBadge, approvalBadge, fmtDate } from '../api.js?v=202607181752';
+import { icon } from '../shell/icons.js?v=202607181752';
+import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202607181752';
+import * as store from '../shell/store.js?v=202607181752';
+import * as cl from '../services/checklist.js?v=202607181752';
+import { createAutosave } from './autosave.js?v=202607181752';
+import { textExpand } from '../ui/pickers.js?v=202607181752';
+import { openActionsMenu } from './actions.js?v=202607181752';
+import { mount as mountContenido } from './tab-contenido.js?v=202607181752';
+import { mount as mountGuion } from './tab-guion.js?v=202607181752';
+import { mount as mountChecklist } from './tab-checklist.js?v=202607181752';
+import { mount as mountConversacion } from './tab-conversacion.js?v=202607181752';
+import { mount as mountActividad } from './tab-actividad.js?v=202607181752';
 
 const TABS = [
   { key: 'contenido', label: 'Contenido', mount: mountContenido },

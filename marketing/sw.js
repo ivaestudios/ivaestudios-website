@@ -47,7 +47,7 @@ self.addEventListener('install', (event) => {
     await Promise.all(HTML_PAGES.map(async (page) => {
       try {
         const res = await fetch(page, { cache: 'no-store', credentials: 'same-origin' });
-        if (res && res.ok) await cache.put(page, res);
+        if (res && res.ok) await cache.put(page, await stripRedirect(res));
       } catch { /* sin red durante install: network-first la poblará después */ }
     }));
     await self.skipWaiting();
@@ -69,6 +69,17 @@ self.addEventListener('activate', (event) => {
 
 // ── Estrategias ──────────────────────────────────────────────────────────────
 
+// Una respuesta REDIRIGIDA (res.redirected, p.ej. /marketing/app.html → 308 →
+// /marketing/app) NO puede servirse a una navegación desde un SW: Safari lanza
+// "Response served by service worker has redirections" y Chrome falla con
+// ERR_FAILED. La reconstruimos como una respuesta limpia (mismo body, sin la
+// marca de redirect) antes de cachearla o devolverla.
+async function stripRedirect(res) {
+  if (!res || !res.redirected) return res;
+  const body = await res.arrayBuffer();
+  return new Response(body, { status: res.status, statusText: res.statusText, headers: res.headers });
+}
+
 // HTML: red primero (siempre fresco, no-store para brincar el TTL de zona),
 // con timeout; si la red falla o tarda, sirve la copia cacheada (offline).
 async function networkFirstHtml(req, url) {
@@ -85,8 +96,9 @@ async function networkFirstHtml(req, url) {
       signal: ctrl.signal,
     });
     clearTimeout(timer);
-    if (res && res.ok) cache.put(url.pathname, res.clone()).catch(() => {});
-    return res;
+    const out = await stripRedirect(res); // sin la marca de redirect (Safari/Chrome la rechazan en navegaciones)
+    if (out && out.ok) cache.put(url.pathname, out.clone()).catch(() => {});
+    return out;
   } catch (err) {
     clearTimeout(timer);
     const hit = await cache.match(url.pathname);
