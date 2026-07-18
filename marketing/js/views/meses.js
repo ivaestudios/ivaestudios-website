@@ -26,10 +26,10 @@ import {
   el, clear, copyText, api,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202607170114';
-import { icon } from '../shell/icons.js?v=202607170114';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607170114';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607170114';
+} from '../api.js?v=202607180120';
+import { icon } from '../shell/icons.js?v=202607180120';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607180120';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607180120';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1176,7 +1176,7 @@ function buildRow(post, noteLabels) {
   // secciones (HOOK/BODY/CTA/Caption/Hashtags + copiar), como en el móvil.
   const tdCaption = el('td', { class: 'meses-td meses-td--text' });
   tdCaption.appendChild(cellButton(
-    textCellNode(post.caption, 'Agregar caption'),
+    textCellNode(post.caption, 'Agregar guion'),
     () => openCaptionDrawer(post),
     'Abrir guion completo',
   ));
@@ -1293,7 +1293,7 @@ function buildTable(rows, noteLabels) {
     colHeader({ skey: 'date', sortType: 'date', label: 'Fecha publicación', filterDim: null }),
     colHeader({ skey: 'platform', sortType: 'text', label: 'Plataforma', filterDim: 'platform' }),
     colHeader({ skey: 'type', sortType: 'text', label: 'Tipo', filterDim: 'type' }),
-    el('th', { text: 'Captions', scope: 'col' }),
+    el('th', { text: 'Guiones', scope: 'col' }),
     ...noteLabels.map((p) => el('th', { text: `Notas ${p}`, scope: 'col' })),
     el('th', { text: 'Inspo', scope: 'col' }),
     el('th', { text: 'Video final', scope: 'col' }),
@@ -1384,7 +1384,7 @@ function buildMobileItem(post, noteLabels) {
   const cap = String(post.caption || '').trim();
   if (cap) {
     card.appendChild(el('button', {
-      class: 'meses-item__cap', type: 'button', 'aria-label': 'Ver caption completo',
+      class: 'meses-item__cap', type: 'button', 'aria-label': 'Ver guion completo',
       onclick: () => openCaptionDrawer(post),
     }, [el('span', { class: 'meses-item__captext', text: cap })]));
   }
