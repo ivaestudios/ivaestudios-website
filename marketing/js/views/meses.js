@@ -26,10 +26,10 @@ import {
   el, clear, copyText, api,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202607180120';
-import { icon } from '../shell/icons.js?v=202607180120';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607180120';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607180120';
+} from '../api.js?v=202607180125';
+import { icon } from '../shell/icons.js?v=202607180125';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607180125';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607180125';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1175,8 +1175,11 @@ function buildRow(post, noteLabels) {
   // Captions: panel lateral DERECHO (side peek) con el guion completo por
   // secciones (HOOK/BODY/CTA/Caption/Hashtags + copiar), como en el móvil.
   const tdCaption = el('td', { class: 'meses-td meses-td--text' });
+  // Preview del GUION: empieza por el HOOK (arranque del guion). Si no hay hook,
+  // cae al body y por último al caption.
+  const guionPreview = post.hook || post.body || post.caption;
   tdCaption.appendChild(cellButton(
-    textCellNode(post.caption, 'Agregar guion'),
+    textCellNode(guionPreview, 'Agregar guion'),
     () => openCaptionDrawer(post),
     'Abrir guion completo',
   ));
@@ -1381,7 +1384,8 @@ function buildMobileItem(post, noteLabels) {
 
   // Preview del caption (el CONTENIDO real): es lo que el cliente quiere leer.
   // Toca para abrir el caption completo en panel.
-  const cap = String(post.caption || '').trim();
+  // Preview del GUION: empieza por el HOOK (no el caption). Fallback: body, caption.
+  const cap = String(post.hook || post.body || post.caption || '').trim();
   if (cap) {
     card.appendChild(el('button', {
       class: 'meses-item__cap', type: 'button', 'aria-label': 'Ver guion completo',

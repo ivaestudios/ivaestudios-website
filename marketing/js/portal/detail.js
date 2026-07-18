@@ -13,13 +13,13 @@
 // caja verde de gracias si approved (sin des-aprobar).
 // ============================================================================
 
-import { el, clear, copyText, fmtDate } from '../api.js?v=202607180120';
-import { toast } from '../shell/toast.js?v=202607180120';
-import { closeAll as closeAllSheets } from '../shell/sheet.js?v=202607180120';
-import * as store from './store.js?v=202607180120';
-import { igCard, ICONS } from './igcard.js?v=202607180120';
-import { renderThread, openThreadSheet } from './thread.js?v=202607180120';
-import { openChangesSheet } from './inbox.js?v=202607180120';
+import { el, clear, copyText, fmtDate } from '../api.js?v=202607180125';
+import { toast } from '../shell/toast.js?v=202607180125';
+import { closeAll as closeAllSheets } from '../shell/sheet.js?v=202607180125';
+import * as store from './store.js?v=202607180125';
+import { igCard, ICONS } from './igcard.js?v=202607180125';
+import { renderThread, openThreadSheet } from './thread.js?v=202607180125';
+import { openChangesSheet } from './inbox.js?v=202607180125';
 
 let hostEl = null;          // #detail
 let requestClose = null;    // main.js decide como salir de la ruta
