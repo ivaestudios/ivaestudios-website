@@ -109,7 +109,7 @@
 
   var headerHTML = ''
     + '<header class="site-header" id="siteHeader" role="banner" data-injected="true">'
-    +   '<a href="' + homeHref + '" class="h-logo">IVAE <em>Studios</em></a>'
+    +   '<a href="' + homeHref + '" class="h-logo" aria-label="IVAE Studios"><img class="lg-navy" src="/images/logo-ivae-h-navy.png" alt="IVAE Studios" decoding="async"/><img class="lg-cream" src="/images/logo-ivae-h-cream.png" alt="" aria-hidden="true" decoding="async"/></a>'
     +   '<nav aria-label="Primary">'
     +     '<ul class="h-nav">'
     +       '<li><a href="' + homeHref + '">' + labels.home + '</a></li>'
