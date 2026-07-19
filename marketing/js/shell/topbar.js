@@ -10,13 +10,13 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607182156';
-import * as store from './store.js?v=202607182156';
-import { openSheet, pickFrom } from './sheet.js?v=202607182156';
-import { toast } from './toast.js?v=202607182156';
-import { icon } from './icons.js?v=202607182156';
-import { openClientSwitcher } from './clientswitcher.js?v=202607182156';
-import { T, isEN, setLang } from './i18n.js?v=202607182156';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607182355';
+import * as store from './store.js?v=202607182355';
+import { openSheet, pickFrom } from './sheet.js?v=202607182355';
+import { toast } from './toast.js?v=202607182355';
+import { icon } from './icons.js?v=202607182355';
+import { openClientSwitcher } from './clientswitcher.js?v=202607182355';
+import { T, isEN, setLang } from './i18n.js?v=202607182355';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -94,6 +94,21 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
     onclick: () => openAccountSheet(),
   });
 
+  // Toggle de idioma VISIBLE en la esquina (además del que está en el menú de
+  // cuenta): pastillas ES|EN. Cambia TODO el sistema y recarga.
+  const langToggle = el('div', { class: 'tb-lang', role: 'group', 'aria-label': T('Idioma', 'Language') }, [
+    el('button', {
+      class: 'tb-lang__btn' + (isEN ? '' : ' is-active'), type: 'button',
+      'aria-pressed': String(!isEN), title: 'Español', text: 'ES',
+      onclick: () => { if (isEN) setLang('es'); },
+    }),
+    el('button', {
+      class: 'tb-lang__btn' + (isEN ? ' is-active' : ''), type: 'button',
+      'aria-pressed': String(isEN), title: 'English', text: 'EN',
+      onclick: () => { if (!isEN) setLang('en'); },
+    }),
+  ]);
+
   // Logo de marca "iv ESTUDIOS" (diseño Sistema IVA). Aditivo: no cambia el
   // resto del topbar. En el cliente no se muestra (su portal es de su marca).
   const brand = isClient ? null : el('div', { class: 'tb-brand', 'aria-hidden': 'true' }, [
@@ -107,6 +122,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
     el('div', { class: 'tb-spacer' }),
     // La busqueda (contenido o clientes) es de agencia: no para el cliente.
     ...(isClient ? [] : [deskSearch, searchBtn]),
+    langToggle,
     bellBtn,
     avatarBtn,
   ]);

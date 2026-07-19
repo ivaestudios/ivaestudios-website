@@ -7,13 +7,13 @@
 // - Navegacion: chevrons + swipe horizontal (umbral 48px).
 // ============================================================================
 
-import { el } from '../api.js?v=202607182156';
-import { T } from '../shell/i18n.js?v=202607182156';
+import { el } from '../api.js?v=202607182355';
+import { T } from '../shell/i18n.js?v=202607182355';
 import {
   fmtYMD, addMonths, startOfMonth, monthMatrix,
   sameMonth, monthTitle, dayLong, todayYMD, statusInfo, DOW_MIN,
-} from './data.js?v=202607182156';
-import { markDropTarget } from './dnd.js?v=202607182156';
+} from './data.js?v=202607182355';
+import { markDropTarget } from './dnd.js?v=202607182355';
 
 /**
  * Renderiza el mini-mes dentro de `wrap` (lo vacia primero).

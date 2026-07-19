@@ -7,8 +7,8 @@
 // - Sin estado propio: funciones puras + builders pequenos sin side effects.
 // ============================================================================
 
-import { el, statusBadge, chip, STATUSES, CONTENT_TYPES } from '../api.js?v=202607182156';
-import { T } from '../shell/i18n.js?v=202607182156';
+import { el, statusBadge, chip, STATUSES, CONTENT_TYPES } from '../api.js?v=202607182355';
+import { T } from '../shell/i18n.js?v=202607182355';
 
 // ── Fechas ───────────────────────────────────────────────────────────────────
 

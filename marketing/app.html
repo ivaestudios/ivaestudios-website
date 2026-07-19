@@ -20,40 +20,40 @@
   <!-- Inter (respaldo) + Outfit (tema Sistema IVA 2026), auto-hospedadas:
        woff2 variables locales en /marketing/fonts/ (antes Google Fonts; se
        quita el round-trip DNS+TLS al CDN externo de fuentes en cada carga). -->
-  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202607182156">
+  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202607182355">
 
   <!-- Modulepreload de la cadena crítica de JS: el navegador baja en paralelo
        (y compila) los módulos del arranque en vez de descubrirlos import a
        import en cascada. Mismo stamp que el resto: el sed los bumpea parejo. -->
-  <link rel="modulepreload" href="/marketing/js/main.js?v=202607182156">
-  <link rel="modulepreload" href="/marketing/js/api.js?v=202607182156">
-  <link rel="modulepreload" href="/marketing/js/shell/shell.js?v=202607182156">
-  <link rel="modulepreload" href="/marketing/js/shell/store.js?v=202607182156">
-  <link rel="modulepreload" href="/marketing/js/shell/router.js?v=202607182156">
-  <link rel="modulepreload" href="/marketing/js/shell/topbar.js?v=202607182156">
-  <link rel="modulepreload" href="/marketing/js/shell/sheet.js?v=202607182156">
-  <link rel="modulepreload" href="/marketing/js/shell/toast.js?v=202607182156">
-  <link rel="modulepreload" href="/marketing/js/shell/icons.js?v=202607182156">
-  <link rel="modulepreload" href="/marketing/js/shell/prefs.js?v=202607182156">
-  <link rel="modulepreload" href="/marketing/js/shell/bottomnav.js?v=202607182156">
-  <link rel="modulepreload" href="/marketing/js/shell/notifications.js?v=202607182156">
-  <link rel="modulepreload" href="/marketing/js/shell/search.js?v=202607182156">
-  <link rel="modulepreload" href="/marketing/js/shell/clientswitcher.js?v=202607182156">
-  <link rel="modulepreload" href="/marketing/js/ui/pickers.js?v=202607182156">
-  <link rel="modulepreload" href="/marketing/js/ui/dnd.js?v=202607182156">
-  <link rel="modulepreload" href="/marketing/js/views/meses.js?v=202607182156">
+  <link rel="modulepreload" href="/marketing/js/main.js?v=202607182355">
+  <link rel="modulepreload" href="/marketing/js/api.js?v=202607182355">
+  <link rel="modulepreload" href="/marketing/js/shell/shell.js?v=202607182355">
+  <link rel="modulepreload" href="/marketing/js/shell/store.js?v=202607182355">
+  <link rel="modulepreload" href="/marketing/js/shell/router.js?v=202607182355">
+  <link rel="modulepreload" href="/marketing/js/shell/topbar.js?v=202607182355">
+  <link rel="modulepreload" href="/marketing/js/shell/sheet.js?v=202607182355">
+  <link rel="modulepreload" href="/marketing/js/shell/toast.js?v=202607182355">
+  <link rel="modulepreload" href="/marketing/js/shell/icons.js?v=202607182355">
+  <link rel="modulepreload" href="/marketing/js/shell/prefs.js?v=202607182355">
+  <link rel="modulepreload" href="/marketing/js/shell/bottomnav.js?v=202607182355">
+  <link rel="modulepreload" href="/marketing/js/shell/notifications.js?v=202607182355">
+  <link rel="modulepreload" href="/marketing/js/shell/search.js?v=202607182355">
+  <link rel="modulepreload" href="/marketing/js/shell/clientswitcher.js?v=202607182355">
+  <link rel="modulepreload" href="/marketing/js/ui/pickers.js?v=202607182355">
+  <link rel="modulepreload" href="/marketing/js/ui/dnd.js?v=202607182355">
+  <link rel="modulepreload" href="/marketing/js/views/meses.js?v=202607182355">
 
   <!-- CSS base: tokens v1 + componentes (app.css), tokens v2 aditivos y shell v2 -->
-  <link rel="stylesheet" href="/marketing/css/app.css?v=202607182156">
-  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202607182156">
-  <link rel="stylesheet" href="/marketing/css/shell.css?v=202607182156">
+  <link rel="stylesheet" href="/marketing/css/app.css?v=202607182355">
+  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202607182355">
+  <link rel="stylesheet" href="/marketing/css/shell.css?v=202607182355">
 
   <!-- CSS de vistas. Los modulos JS se cargan lazy via import(), pero su CSS se
        sirve estatico desde aqui para evitar FOUC al navegar (solo mywork.css se
        auto-inyecta desde su modulo; este link estatico la dedupe igualmente). -->
-  <link rel="stylesheet" href="/marketing/css/dashboard.css?v=202607182156">
-  <link rel="stylesheet" href="/marketing/css/meses.css?v=202607182156">
-  <link rel="stylesheet" href="/marketing/css/calendar.css?v=202607182156">
+  <link rel="stylesheet" href="/marketing/css/dashboard.css?v=202607182355">
+  <link rel="stylesheet" href="/marketing/css/meses.css?v=202607182355">
+  <link rel="stylesheet" href="/marketing/css/calendar.css?v=202607182355">
 
   <!-- SW del sitio (v13+): sirve /marketing/ con cache no-store para que cada
        deploy llegue al instante (el TTL de 4h de la zona pisa el max-age=0). -->
@@ -62,16 +62,16 @@
       navigator.serviceWorker.register('/sw.js').catch(function () {});
     }
   </script>
-  <link rel="stylesheet" href="/marketing/css/kanban.css?v=202607182156">
-  <link rel="stylesheet" href="/marketing/css/table.css?v=202607182156">
-  <link rel="stylesheet" href="/marketing/css/timeline.css?v=202607182156">
-  <link rel="stylesheet" href="/marketing/css/mywork.css?v=202607182156">
-  <link rel="stylesheet" href="/marketing/css/editor.css?v=202607182156">
+  <link rel="stylesheet" href="/marketing/css/kanban.css?v=202607182355">
+  <link rel="stylesheet" href="/marketing/css/table.css?v=202607182355">
+  <link rel="stylesheet" href="/marketing/css/timeline.css?v=202607182355">
+  <link rel="stylesheet" href="/marketing/css/mywork.css?v=202607182355">
+  <link rel="stylesheet" href="/marketing/css/editor.css?v=202607182355">
 
   <!-- Tema "Sistema IVA" 2026 (rediseno Claude Design). ULTIMO link de estilo
        para ganar la cascada de :root. Solo estilo (tokens + Outfit); no toca
        markup ni logica. Rollback limpio = quitar esta linea. -->
-  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202607182156">
+  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202607182355">
 
   <style>
     /* El atributo hidden SIEMPRE gana, incluso sobre reglas display de autor
@@ -122,6 +122,6 @@
   <!-- Unico script de la app v2 (composition root).
        ROLLBACK INSTANTANEO: re-apuntar esta linea a /marketing/js/app.js?v=3
        y restaurar el esqueleto legacy; js/app.js sigue intacto en el repo. -->
-  <script type="module" src="/marketing/js/main.js?v=202607182156"></script>
+  <script type="module" src="/marketing/js/main.js?v=202607182355"></script>
 </body>
 </html>
