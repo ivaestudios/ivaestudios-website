@@ -14,6 +14,7 @@
 // ============================================================================
 
 import { el } from '../api.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
 import { openSheet } from '../shell/sheet.js?v=202607181835';
 import { textExpand } from '../ui/pickers.js?v=202607181835';
@@ -88,7 +89,7 @@ export function rowButton({ label, render, onTap, danger = false }) {
 }
 
 /** Valor vacio estandar para las filas ("Agregar..."). */
-export function emptyValue(text = 'Agregar') {
+export function emptyValue(text = T('Agregar', 'Add')) {
   return el('span', { class: 'edrow__empty', text });
 }
 
@@ -136,7 +137,7 @@ export function rowSwitch({ label, sub = '', get, onToggle }) {
 export function rowUrl({ label, get, onSave }) {
   const valueEl = el('span', { class: 'edrow__value' });
   const openBtn = el('a', {
-    class: 'edrow__open', text: 'Abrir',
+    class: 'edrow__open', text: T('Abrir', 'Open'),
     target: '_blank', rel: 'noopener noreferrer',
     onclick: (e) => e.stopPropagation(),
   });
@@ -159,11 +160,11 @@ export function rowUrl({ label, get, onSave }) {
       openBtn.href = v;
       openBtn.hidden = false;
     } else if (v) {
-      valueEl.appendChild(el('span', { class: 'edrow__empty', text: 'Enlace no valido' }));
+      valueEl.appendChild(el('span', { class: 'edrow__empty', text: T('Enlace no valido', 'Invalid link') }));
       openBtn.hidden = true;
       openBtn.removeAttribute('href');
     } else {
-      valueEl.appendChild(emptyValue('Agregar enlace'));
+      valueEl.appendChild(emptyValue(T('Agregar enlace', 'Add link')));
       openBtn.hidden = true;
       openBtn.removeAttribute('href');
     }
@@ -184,7 +185,7 @@ export function rowUrl({ label, get, onSave }) {
         const save = () => {
           const v = input.value.trim();
           if (v && !isSafeHttpUrl(v)) {
-            err.textContent = 'Solo se aceptan enlaces http o https.';
+            err.textContent = T('Solo se aceptan enlaces http o https.', 'Only http or https links are accepted.');
             input.setAttribute('aria-invalid', 'true');
             return;
           }
@@ -194,10 +195,10 @@ export function rowUrl({ label, get, onSave }) {
         };
         input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); save(); } });
         body.append(
-          el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Enlace' }), input, err]),
+          el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Enlace', 'Link') }), input, err]),
           el('div', { class: 'sheet__footer' }, [
-            el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
-            el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: 'Guardar', onclick: save }),
+            el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
+            el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: T('Guardar', 'Save'), onclick: save }),
           ]),
         );
         setTimeout(() => input.focus(), 60);
@@ -238,7 +239,7 @@ export function rowTextExpand({ label, get, onSave, placeholder = '', maxLength 
     const v = String(get() || '').trim();
     while (valueEl.firstChild) valueEl.removeChild(valueEl.firstChild);
     if (v) valueEl.appendChild(el('span', { class: 'edrow__preview', text: v }));
-    else valueEl.appendChild(emptyValue('Agregar'));
+    else valueEl.appendChild(emptyValue(T('Agregar', 'Add')));
   }
   refresh();
   return { el: row, refresh };

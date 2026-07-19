@@ -19,6 +19,7 @@
 // ============================================================================
 
 import { el, clear, api, fmtDate, avatar } from '../api.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
 import { isPast } from '../lib/dates.js?v=202607181835';
 import * as viewsSvc from '../services/views.js?v=202607181835';
@@ -35,7 +36,7 @@ import {
 } from '../table/quickadd.js?v=202607181835';
 
 const FILTER_KEYS = ['estado', 'tipo', 'persona', 'desde', 'hasta', 'q'];
-const ERR_SAVE = 'No se pudo guardar, intenta de nuevo.';
+const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', 'Could not save, try again.');
 
 let ctx = null;
 let rootEl = null;
@@ -192,7 +193,7 @@ function nextPositionFor(group) {
 
 async function patchAndToast(postId, fields) {
   const res = await ctx.store.patchPost(postId, fields);
-  if (res) ctx.toast('Guardado.', { type: 'success', ms: 1200 });
+  if (res) ctx.toast(T('Guardado.', 'Saved.'), { type: 'success', ms: 1200 });
   return !!res;
 }
 
@@ -210,15 +211,15 @@ async function setApproval(post, value) {
   let comment = null;
   if (value === 'changes') {
     const txt = await ctx.pickers.textExpand({
-      title: 'Pedir cambios',
-      placeholder: 'Que hay que cambiar...',
-      hint: 'El comentario es obligatorio y lo vera tambien el cliente.',
+      title: T('Pedir cambios', 'Request changes'),
+      placeholder: T('Que hay que cambiar...', 'What needs to change...'),
+      hint: T('El comentario es obligatorio y lo vera tambien el cliente.', 'The comment is required and the client will also see it.'),
       maxLength: 2000,
     });
     if (txt === null) return;
     comment = String(txt).trim();
     if (!comment) {
-      ctx.toast('Escribe un comentario para pedir cambios.', { type: 'error' });
+      ctx.toast(T('Escribe un comentario para pedir cambios.', 'Write a comment to request changes.'), { type: 'error' });
       return;
     }
   }
@@ -235,7 +236,7 @@ async function setApproval(post, value) {
     ctx.store.emit('posts:changed');
     ctx.store.emit('mutated');
     ctx.store.refreshClientCounts();
-    ctx.toast('Guardado.', { type: 'success', ms: 1200 });
+    ctx.toast(T('Guardado.', 'Saved.'), { type: 'success', ms: 1200 });
   } catch (e) {
     rollback();
     ctx.toast((e && e.message) || ERR_SAVE, { type: 'error' });
@@ -263,12 +264,12 @@ async function editTitle(post) {
   let draft = post.title || '';
   for (;;) {
     const v = await ctx.pickers.textExpand({
-      title: 'Titulo', value: draft, maxLength: 200,
+      title: T('Titulo', 'Title'), value: draft, maxLength: 200,
     });
     if (v === null) return;
     const title = String(v).trim();
     if (!title) {
-      ctx.toast('El titulo no puede quedar vacio.', { type: 'error' });
+      ctx.toast(T('El titulo no puede quedar vacio.', 'The title cannot be empty.'), { type: 'error' });
       draft = v;
       continue;
     }
@@ -286,7 +287,7 @@ function editUrl(def, post) {
       const input = el('input', {
         class: 'input', type: 'url', inputmode: 'url',
         placeholder: 'https://...',
-        'aria-label': `Enlace de ${def.label}`,
+        'aria-label': `${T('Enlace de', 'Link for')} ${def.label}`,
       });
       input.value = def.current(post) || '';
       const save = async () => {
@@ -295,7 +296,7 @@ function editUrl(def, post) {
         // trae un dominio con punto. safeUrl sigue siendo el guardia estricto final.
         if (raw && !/^https?:\/\//i.test(raw) && /[^\s]\.[^\s]/.test(raw)) raw = 'https://' + raw.replace(/^\/+/, '');
         if (raw && !safeUrl(raw)) {
-          ctx.toast('Pega un enlace válido (ej. instagram.com/… o https://…).', { type: 'error' });
+          ctx.toast(T('Pega un enlace válido (ej. instagram.com/… o https://…).', 'Paste a valid link (e.g. instagram.com/… or https://…).'), { type: 'error' });
           input.focus();
           return;
         }
@@ -306,10 +307,10 @@ function editUrl(def, post) {
         if (e.key === 'Enter') { e.preventDefault(); save(); }
       });
       body.append(
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Enlace' }), input]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Enlace', 'Link') }), input]),
         el('div', { class: 'sheet__footer' }, [
-          el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
-          el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: 'Guardar', onclick: save }),
+          el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
+          el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: T('Guardar', 'Save'), onclick: save }),
         ]),
       );
       setTimeout(() => { try { input.focus(); } catch { /* noop */ } }, 60);
@@ -352,15 +353,15 @@ async function commitCell(def, post, anchor) {
     }
     case 'grabacion': {
       const v = await ctx.sheet.pickFrom({
-        title: 'Prioridad de grabacion',
+        title: T('Prioridad de grabacion', 'Recording priority'),
         anchor,
         options: [
           ...GRABACION_LEVELS.map((n) => ({
             value: String(n),
-            label: `Nivel ${n}${n === 1 ? ' (mas urgente)' : n === 5 ? ' (menos urgente)' : ''}`,
+            label: `${T('Nivel', 'Level')} ${n}${n === 1 ? T(' (mas urgente)', ' (most urgent)') : n === 5 ? T(' (menos urgente)', ' (least urgent)') : ''}`,
             current: Number(post.grabacion) === n,
           })),
-          { value: '', label: 'Sin nivel', current: post.grabacion == null || post.grabacion === '' },
+          { value: '', label: T('Sin nivel', 'No level'), current: post.grabacion == null || post.grabacion === '' },
         ],
       });
       if (v === null) return;
@@ -369,7 +370,7 @@ async function commitCell(def, post, anchor) {
     }
     case 'priority': {
       const v = await ctx.sheet.pickFrom({
-        title: 'Prioridad',
+        title: T('Prioridad', 'Priority'),
         anchor,
         options: PRIORITY_ORDER.map((k) => ({
           value: k,
@@ -401,17 +402,17 @@ async function commitCell(def, post, anchor) {
 // ── Toolbar ──────────────────────────────────────────────────────────────────
 
 function paintToolbar() {
-  if (groupChipTxt) groupChipTxt.textContent = `Agrupar: ${grp.groupModeLabel(getGroupBy())}`;
+  if (groupChipTxt) groupChipTxt.textContent = `${T('Agrupar', 'Group by')}: ${grp.groupModeLabel(getGroupBy())}`;
   if (sortChipTxt) {
     const s = getSort();
     const opt = s && MOBILE_SORT_OPTIONS.find((o) => o.key === s.key);
-    sortChipTxt.textContent = `Orden: ${opt ? opt.label : (s ? s.key : 'Posicion')}`;
+    sortChipTxt.textContent = `${T('Orden', 'Sort')}: ${opt ? opt.label : (s ? s.key : T('Posicion', 'Position'))}`;
   }
 }
 
 function openGroupBySheet(anchor) {
   ctx.sheet.pickFrom({
-    title: 'Agrupar por',
+    title: T('Agrupar por', 'Group by'),
     anchor,
     options: grp.GROUP_MODES.map((m) => ({
       value: m.value, label: m.label, current: getGroupBy() === m.value,
@@ -426,7 +427,7 @@ function openGroupBySheet(anchor) {
 
 function openSortSheet(anchor) {
   ctx.sheet.openSheet({
-    title: 'Ordenar',
+    title: T('Ordenar', 'Sort'),
     mode: 'menu',
     anchor,
     build(body, close) {
@@ -450,7 +451,7 @@ function openSortSheet(anchor) {
       list.appendChild(el('button', {
         class: 'pick-row pick-row--clear' + (!cur ? ' is-current' : ''), type: 'button',
         onclick: () => { setSort(null); close({ source: 'pick' }); paintToolbar(); scheduleRender(); },
-      }, [el('span', { class: 'pick-row__main' }, [el('span', { class: 'pick-row__label', text: 'Sin orden (posicion)' })])]));
+      }, [el('span', { class: 'pick-row__main' }, [el('span', { class: 'pick-row__label', text: T('Sin orden (posicion)', 'No sort (position)') })])]));
       body.appendChild(list);
     },
   });
@@ -459,7 +460,7 @@ function openSortSheet(anchor) {
 function openColumnsSheet(anchor) {
   const allCols = buildColumns(activeClient());
   ctx.sheet.openSheet({
-    title: 'Columnas visibles',
+    title: T('Columnas visibles', 'Visible columns'),
     mode: 'menu',
     anchor,
     build(body) {
@@ -487,11 +488,11 @@ function openColumnsSheet(anchor) {
 
 function openCardFieldsSheet(anchor) {
   ctx.sheet.openSheet({
-    title: 'Campos de la tarjeta',
+    title: T('Campos de la tarjeta', 'Card fields'),
     mode: 'menu',
     anchor,
     build(body) {
-      body.appendChild(el('p', { class: 'etable-menu__hint', text: `Elige hasta ${MAX_CARD_FIELDS} campos.` }));
+      body.appendChild(el('p', { class: 'etable-menu__hint', text: `${T('Elige hasta', 'Pick up to')} ${MAX_CARD_FIELDS} ${T('campos.', 'fields.')}` }));
       const current = new Set(getCardFields());
       const list = el('div', { class: 'etable-menu' });
       for (const f of CARD_FIELDS) {
@@ -504,7 +505,7 @@ function openCardFieldsSheet(anchor) {
               current.delete(f.key);
             } else {
               if (current.size >= MAX_CARD_FIELDS) {
-                ctx.toast(`Maximo ${MAX_CARD_FIELDS} campos en la tarjeta.`, { type: 'info' });
+                ctx.toast(`${T('Maximo', 'Maximum')} ${MAX_CARD_FIELDS} ${T('campos en la tarjeta.', 'fields on the card.')}`, { type: 'info' });
                 return;
               }
               current.add(f.key);
@@ -523,7 +524,7 @@ function openCardFieldsSheet(anchor) {
 
 function openOverflowMenu(anchor) {
   ctx.sheet.openSheet({
-    title: 'Opciones de la tabla',
+    title: T('Opciones de la tabla', 'Table options'),
     mode: 'menu',
     anchor,
     build(body, close) {
@@ -539,21 +540,21 @@ function openOverflowMenu(anchor) {
       });
 
       const items = [
-        row('down', 'Expandir todo', () => { persistCollapsed(new Set(), mode); scheduleRender(); }),
-        row('up', 'Colapsar todo', () => {
+        row('down', T('Expandir todo', 'Expand all'), () => { persistCollapsed(new Set(), mode); scheduleRender(); }),
+        row('up', T('Colapsar todo', 'Collapse all'), () => {
           persistCollapsed(new Set(groupsList.map((g) => g.key)), mode);
           scheduleRender();
         }),
       ];
       if (!isDesktop()) {
-        items.push(row('check', 'Seleccionar contenidos', () => selection.enterSelectMode()));
+        items.push(row('check', T('Seleccionar contenidos', 'Select items'), () => selection.enterSelectMode()));
       }
-      items.push(row('spark', 'Guardar vista actual', () => openSaveViewSheet()));
+      items.push(row('spark', T('Guardar vista actual', 'Save current view'), () => openSaveViewSheet()));
       if (viewsSvc.cached(clientKey()).length) {
-        items.push(row('settings', 'Administrar vistas', () => openManageViewsSheet()));
+        items.push(row('settings', T('Administrar vistas', 'Manage views'), () => openManageViewsSheet()));
       }
       if (filterCount() > 0) {
-        items.push(row('filter', 'Quitar filtros', () => clearAllFilters()));
+        items.push(row('filter', T('Quitar filtros', 'Clear filters'), () => clearAllFilters()));
       }
       body.appendChild(el('div', { class: 'etable-menu' }, items));
     },
@@ -575,18 +576,18 @@ function buildToolbar() {
 
   const colsChip = el('button', {
     class: 'etable-chip etable-chip--d', type: 'button', 'aria-haspopup': 'dialog',
-    'aria-label': 'Columnas visibles',
+    'aria-label': T('Columnas visibles', 'Visible columns'),
     onclick: (e) => openColumnsSheet(e.currentTarget),
-  }, [icon('settings', 15), el('span', { class: 'etable-chip__txt', text: 'Columnas' })]);
+  }, [icon('settings', 15), el('span', { class: 'etable-chip__txt', text: T('Columnas', 'Columns') })]);
 
   const fieldsChip = el('button', {
     class: 'etable-chip etable-chip--m', type: 'button', 'aria-haspopup': 'dialog',
     onclick: (e) => openCardFieldsSheet(e.currentTarget),
-  }, [icon('eye', 15), el('span', { class: 'etable-chip__txt', text: 'Campos' })]);
+  }, [icon('eye', 15), el('span', { class: 'etable-chip__txt', text: T('Campos', 'Fields') })]);
 
   const dotsBtn = el('button', {
     class: 'etable-chip etable-chip--icon', type: 'button',
-    'aria-label': 'Mas opciones', 'aria-haspopup': 'dialog',
+    'aria-label': T('Mas opciones', 'More options'), 'aria-haspopup': 'dialog',
     onclick: (e) => openOverflowMenu(e.currentTarget),
   }, [icon('dots', 18)]);
 
@@ -604,31 +605,31 @@ function buildToolbar() {
 
 function openSaveViewSheet() {
   ctx.sheet.openSheet({
-    title: 'Guardar vista actual',
+    title: T('Guardar vista actual', 'Save current view'),
     mode: 'form',
     build(body, close) {
       const input = el('input', {
         class: 'input', type: 'text', maxlength: '60',
-        placeholder: 'Nombre de la vista',
-        'aria-label': 'Nombre de la vista',
+        placeholder: T('Nombre de la vista', 'View name'),
+        'aria-label': T('Nombre de la vista', 'View name'),
       });
       const save = async () => {
         const name = input.value.trim();
-        if (!name) { ctx.toast('Ponle nombre a la vista.', { type: 'error' }); input.focus(); return; }
+        if (!name) { ctx.toast(T('Ponle nombre a la vista.', 'Give the view a name.'), { type: 'error' }); input.focus(); return; }
         close({ source: 'save' });
         const created = await viewsSvc.captureCurrent(name);
         if (created) {
-          ctx.toast('Vista guardada.', { type: 'success' });
+          ctx.toast(T('Vista guardada.', 'View saved.'), { type: 'success' });
           paintViews();
         }
       };
       input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); save(); } });
       body.append(
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Nombre' }), input]),
-        el('p', { class: 'etable-menu__hint', text: 'Guarda la combinacion actual de vista y filtros para volver con un tap.' }),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Nombre', 'Name') }), input]),
+        el('p', { class: 'etable-menu__hint', text: T('Guarda la combinacion actual de vista y filtros para volver con un tap.', 'Saves the current combination of view and filters so you can come back with one tap.') }),
         el('div', { class: 'sheet__footer' }, [
-          el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
-          el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: 'Guardar', onclick: save }),
+          el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
+          el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: T('Guardar', 'Save'), onclick: save }),
         ]),
       );
       setTimeout(() => { try { input.focus(); } catch { /* noop */ } }, 60);
@@ -638,7 +639,7 @@ function openSaveViewSheet() {
 
 function openManageViewsSheet() {
   ctx.sheet.openSheet({
-    title: 'Vistas guardadas',
+    title: T('Vistas guardadas', 'Saved views'),
     mode: 'menu',
     build(body, close) {
       const list = el('div', { class: 'etable-menu' });
@@ -646,17 +647,17 @@ function openManageViewsSheet() {
         const views = await viewsSvc.list(clientKey(), { force: true });
         clear(list);
         if (!views.length) {
-          list.appendChild(el('p', { class: 'etable-menu__hint', text: 'No hay vistas guardadas.' }));
+          list.appendChild(el('p', { class: 'etable-menu__hint', text: T('No hay vistas guardadas.', 'No saved views.') }));
           return;
         }
         for (const v of views) {
           const delBtn = el('button', {
             class: 'etable-menu-row__del', type: 'button',
-            'aria-label': `Eliminar vista ${v.name}`,
+            'aria-label': `${T('Eliminar vista', 'Delete view')} ${v.name}`,
             onclick: async (e) => {
               e.stopPropagation();
               const ok = await viewsSvc.remove(v.id);
-              if (ok) { ctx.toast('Vista eliminada.', { type: 'success' }); paintViews(); paint(); }
+              if (ok) { ctx.toast(T('Vista eliminada.', 'View deleted.'), { type: 'success' }); paintViews(); paint(); }
             },
           }, [icon('trash', 16)]);
           list.appendChild(el('div', { class: 'etable-menu-row etable-menu-row--static' }, [
@@ -694,7 +695,7 @@ async function paintViews() {
   viewsRowEl.appendChild(el('button', {
     class: 'etable-vchip etable-vchip--add', type: 'button',
     onclick: () => openSaveViewSheet(),
-  }, [icon('plus', 14), el('span', { text: 'Guardar' })]));
+  }, [icon('plus', 14), el('span', { text: T('Guardar', 'Save') })]));
 }
 
 // ── Seleccion: repintado ligero (sin re-render del cuerpo) ───────────────────
@@ -873,10 +874,10 @@ function renderEmpty() {
   clear(bodyHost);
   bodyHost.appendChild(el('div', { class: 'empty etable-empty' }, [
     el('div', { class: 'empty__icon' }, [icon('table', 28)]),
-    el('h3', { text: 'Todavia no hay contenidos' }),
-    el('p', { text: 'Crea el primero para empezar a planear.' }),
+    el('h3', { text: T('Todavia no hay contenidos', 'No content yet') }),
+    el('p', { text: T('Crea el primero para empezar a planear.', 'Create the first one to start planning.') }),
     el('button', {
-      class: 'btn btn-primary', type: 'button', text: 'Nuevo contenido',
+      class: 'btn btn-primary', type: 'button', text: T('Nuevo contenido', 'New content'),
       onclick: () => openQuickAddSheet({ ctx, group: null, mode: getGroupBy(), getNextPosition: nextPositionFor }),
     }),
   ]));
@@ -886,10 +887,10 @@ function renderNoMatch() {
   clear(bodyHost);
   bodyHost.appendChild(el('div', { class: 'empty etable-empty' }, [
     el('div', { class: 'empty__icon' }, [icon('search', 28)]),
-    el('h3', { text: 'Nada coincide' }),
-    el('p', { text: 'Ningun contenido coincide con la busqueda o los filtros activos.' }),
+    el('h3', { text: T('Nada coincide', 'No matches') }),
+    el('p', { text: T('Ningun contenido coincide con la busqueda o los filtros activos.', 'No content matches the search or the active filters.') }),
     el('button', {
-      class: 'btn', type: 'button', text: 'Quitar filtros',
+      class: 'btn', type: 'button', text: T('Quitar filtros', 'Clear filters'),
       onclick: () => clearAllFilters(),
     }),
   ]));
@@ -899,7 +900,7 @@ function buildGroupHeaderContent(group, collapsed, ids) {
   const check = el('input', {
     type: 'checkbox',
     'data-gcheck': group.key,
-    'aria-label': `Seleccionar todo el grupo ${group.label}`,
+    'aria-label': `${T('Seleccionar todo el grupo', 'Select the whole group')} ${group.label}`,
   });
   check.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -934,11 +935,11 @@ function renderDesktop(groupsList, collapsedSet) {
   const colSpan = 2 + visCols.length;
 
   const scroll = el('div', { class: 'etable-scroll' });
-  const table = el('table', { class: 'etable__table', role: 'grid', 'aria-label': 'Tabla de contenidos' });
+  const table = el('table', { class: 'etable__table', role: 'grid', 'aria-label': T('Tabla de contenidos', 'Content table') });
 
   // THEAD
   const headRow = el('tr', {}, [
-    el('th', { class: 'etable__th etable__th--check', scope: 'col', 'aria-label': 'Seleccion' }),
+    el('th', { class: 'etable__th etable__th--check', scope: 'col', 'aria-label': T('Seleccion', 'Selection') }),
   ]);
   const mkSortTh = (key, label, extraClass = '', width = null) => {
     const active = sort && sort.key === key;
@@ -951,7 +952,7 @@ function renderDesktop(groupsList, collapsedSet) {
     th.appendChild(el('button', {
       class: 'etable__sortbtn' + (active ? ' is-active' : ''),
       type: 'button',
-      title: `Ordenar por ${label}`,
+      title: `${T('Ordenar por', 'Sort by')} ${label}`,
       onclick: () => {
         let next;
         if (!active) next = { key, dir: 'asc' };
@@ -967,7 +968,7 @@ function renderDesktop(groupsList, collapsedSet) {
     ]));
     return th;
   };
-  headRow.appendChild(mkSortTh('titulo', 'Contenido', 'etable__th--title'));
+  headRow.appendChild(mkSortTh('titulo', T('Contenido', 'Content'), 'etable__th--title'));
   for (const col of visCols) headRow.appendChild(mkSortTh(col.key, col.label, '', col.w));
   table.appendChild(el('thead', { class: 'etable__thead' }, [headRow]));
 
@@ -1006,7 +1007,7 @@ function renderDesktop(groupsList, collapsedSet) {
     gheadIn.setAttribute('role', 'button');
     gheadIn.setAttribute('tabindex', '0');
     gheadIn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-    gheadIn.setAttribute('aria-label', `${group.label}, ${sorted.length} contenidos. ${collapsed ? 'Expandir' : 'Colapsar'}`);
+    gheadIn.setAttribute('aria-label', `${group.label}, ${sorted.length} ${T('contenidos', 'items')}. ${collapsed ? T('Expandir', 'Expand') : T('Colapsar', 'Collapse')}`);
     gheadIn.addEventListener('keydown', (e) => {
       if ((e.key === 'Enter' || e.key === ' ') && !e.target.closest('.etable-gcheck')) {
         e.preventDefault();
@@ -1023,7 +1024,7 @@ function renderDesktop(groupsList, collapsedSet) {
           'data-id': post.id,
         }), group.color);
         // Checkbox
-        const box = el('input', { type: 'checkbox', 'aria-label': `Seleccionar ${post.title || 'contenido'}` });
+        const box = el('input', { type: 'checkbox', 'aria-label': `${T('Seleccionar', 'Select')} ${post.title || T('contenido', 'content')}` });
         box.checked = selection.isSelected(post.id);
         tr.appendChild(el('td', { class: 'etable__td etable__td--check' }, [
           el('label', { class: 'etable-check' }, [box]),
@@ -1033,8 +1034,8 @@ function renderDesktop(groupsList, collapsedSet) {
         const rowCells = [];
         const titleBtn = el('button', {
           class: 'etable-title__txt', type: 'button',
-          title: 'Editar titulo',
-        }, [el('span', { text: post.title || 'Sin titulo' })]);
+          title: T('Editar titulo', 'Edit title'),
+        }, [el('span', { text: post.title || T('Sin titulo', 'Untitled') })]);
         rowCells.push(titleBtn);
         const cl = showClient ? clientsById.get(post.client_id) : null;
         tr.appendChild(el('td', { class: 'etable__td etable__td--title' }, [
@@ -1045,8 +1046,8 @@ function renderDesktop(groupsList, collapsedSet) {
             ]),
             el('button', {
               class: 'etable-title__open', type: 'button',
-              title: 'Abrir contenido', 'aria-label': `Abrir ${post.title || 'contenido'}`,
-            }, [icon('edit', 14), el('span', { text: 'Abrir' })]),
+              title: T('Abrir contenido', 'Open content'), 'aria-label': `${T('Abrir', 'Open')} ${post.title || T('contenido', 'content')}`,
+            }, [icon('edit', 14), el('span', { text: T('Abrir', 'Open') })]),
           ]),
         ]));
 
@@ -1058,7 +1059,7 @@ function renderDesktop(groupsList, collapsedSet) {
             'data-col': col.key,
             'data-id': post.id,
             ...(isUrl ? { role: 'button' } : { type: 'button' }),
-            'aria-label': `${col.label} de ${post.title || 'contenido'}`,
+            'aria-label': `${col.label} ${T('de', 'of')} ${post.title || T('contenido', 'content')}`,
           }, [col.render(post)]);
           rowCells.push(cellBtn);
           tr.appendChild(el('td', { class: `etable__td etable__td--${col.type}` }, [cellBtn]));
@@ -1104,27 +1105,27 @@ function buildCardChip(post, fieldKey) {
       return el('button', {
         class: 'etable-st etable-card__chipbtn',
         'data-chip': 'estado', 'data-status': known ? post.status : 'otro',
-        type: 'button', 'aria-label': 'Cambiar estado',
+        type: 'button', 'aria-label': T('Cambiar estado', 'Change status'),
       }, [
         el('span', { class: 'etable-st__dot', 'aria-hidden': 'true' }),
-        el('span', { class: 'etable-st__txt', text: (STATUSES[post.status] && STATUSES[post.status].label) || post.status || 'Sin estado' }),
+        el('span', { class: 'etable-st__txt', text: (STATUSES[post.status] && STATUSES[post.status].label) || post.status || T('Sin estado', 'No status') }),
       ]);
     }
     case 'fecha': {
       const overdue = post.publish_date && isPast(post.publish_date) && post.status !== 'publicado';
       return el('button', {
         class: 'etable-card__date' + (overdue ? ' is-overdue' : ''),
-        'data-chip': 'fecha', type: 'button', 'aria-label': 'Cambiar fecha',
-        title: overdue ? 'Vencido' : null,
+        'data-chip': 'fecha', type: 'button', 'aria-label': T('Cambiar fecha', 'Change date'),
+        title: overdue ? T('Vencido', 'Overdue') : null,
       }, [
         overdue ? icon('warning', 13) : icon('calendar', 13),
-        el('span', { text: post.publish_date ? fmtDate(post.publish_date) : 'Sin fecha' }),
+        el('span', { text: post.publish_date ? fmtDate(post.publish_date) : T('Sin fecha', 'No date') }),
       ]);
     }
     case 'aprobacion': {
       return el('span', { class: 'etable-appr', 'data-approval': post.approval_state || 'pending' }, [
         el('span', { class: 'etable-appr__dot', 'aria-hidden': 'true' }),
-        el('span', { text: (post.approval_state === 'approved' && 'Aprobado') || (post.approval_state === 'changes' && 'Cambios') || 'Pendiente' }),
+        el('span', { text: (post.approval_state === 'approved' && T('Aprobado', 'Approved')) || (post.approval_state === 'changes' && T('Cambios', 'Changes')) || T('Pendiente', 'Pending') }),
       ]);
     }
     case 'plataforma':
@@ -1176,7 +1177,7 @@ function renderMobile(groupsList, collapsedSet) {
       tabindex: '0',
       'data-group': group.key,
       'aria-expanded': collapsed ? 'false' : 'true',
-      'aria-label': `${group.label}, ${sorted.length} contenidos. ${collapsed ? 'Expandir' : 'Colapsar'}`,
+      'aria-label': `${group.label}, ${sorted.length} ${T('contenidos', 'items')}. ${collapsed ? T('Expandir', 'Expand') : T('Colapsar', 'Collapse')}`,
       onclick: (e) => {
         if (e.target.closest('.etable-gcheck')) return;
         toggleCollapse(group.key);
@@ -1195,7 +1196,7 @@ function renderMobile(groupsList, collapsedSet) {
       grp.buildBattery(group.posts),
     ]), group.color);
 
-    const section = el('section', { class: 'etable-g', 'aria-label': `${group.label}, ${sorted.length} contenidos` }, [head]);
+    const section = el('section', { class: 'etable-g', 'aria-label': `${group.label}, ${sorted.length} ${T('contenidos', 'items')}` }, [head]);
 
     if (!collapsed) {
       const cards = el('div', { class: 'etable-cards' });
@@ -1212,10 +1213,10 @@ function renderMobile(groupsList, collapsedSet) {
           'data-id': post.id,
           tabindex: '0',
           role: 'button',
-          'aria-label': post.title || 'Contenido',
+          'aria-label': post.title || T('Contenido', 'Content'),
           'aria-pressed': selection.isSelected(post.id) ? 'true' : 'false',
         }), group.color);
-        const box = el('input', { type: 'checkbox', 'aria-label': `Seleccionar ${post.title || 'contenido'}` });
+        const box = el('input', { type: 'checkbox', 'aria-label': `${T('Seleccionar', 'Select')} ${post.title || T('contenido', 'content')}` });
         box.checked = selection.isSelected(post.id);
         box.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -1226,7 +1227,7 @@ function renderMobile(groupsList, collapsedSet) {
           onclick: (e) => e.stopPropagation(),
         }, [box]));
         card.appendChild(el('div', { class: 'etable-card__main' }, [
-          el('div', { class: 'etable-card__title', text: post.title || 'Sin titulo' }),
+          el('div', { class: 'etable-card__title', text: post.title || T('Sin titulo', 'Untitled') }),
           cl ? el('div', { class: 'etable-card__client', text: cl.name }) : null,
           el('div', { class: 'etable-card__chips' }, chips),
         ]));
@@ -1262,7 +1263,7 @@ function render() {
     return;
   }
   if (!posts || !posts.length) {
-    countEl.textContent = '0 contenidos';
+    countEl.textContent = T('0 contenidos', '0 items');
     noticeEl.hidden = true;
     renderedGroups = [];
     visibleOrder = [];
@@ -1271,15 +1272,15 @@ function render() {
   }
 
   const filtered = posts.filter(matchFilters);
-  countEl.textContent = `${filtered.length} ${filtered.length === 1 ? 'contenido' : 'contenidos'}`;
+  countEl.textContent = `${filtered.length} ${filtered.length === 1 ? T('contenido', 'item') : T('contenidos', 'items')}`;
 
   const nFilters = filterCount();
   noticeEl.hidden = !(nFilters > 0 && filtered.length < posts.length);
   if (!noticeEl.hidden) {
     clear(noticeEl).append(
-      el('span', { text: `Filtros activos: ${nFilters}.` }),
+      el('span', { text: `${T('Filtros activos', 'Active filters')}: ${nFilters}.` }),
       el('button', {
-        class: 'etable-notice__clear', type: 'button', text: 'Quitar filtros',
+        class: 'etable-notice__clear', type: 'button', text: T('Quitar filtros', 'Clear filters'),
         onclick: () => clearAllFilters(),
       }),
     );
@@ -1323,7 +1324,7 @@ export default {
 
     noticeEl = el('div', { class: 'etable-notice', hidden: true });
     bodyHost = el('div', { class: 'etable-body' });
-    viewsRowEl = el('div', { class: 'etable-views', hidden: true, role: 'tablist', 'aria-label': 'Vistas guardadas' });
+    viewsRowEl = el('div', { class: 'etable-views', hidden: true, role: 'tablist', 'aria-label': T('Vistas guardadas', 'Saved views') });
 
     selection = createSelection({
       ctx,
@@ -1353,7 +1354,7 @@ export default {
 
     // FAB: alta rapida generica (sheet encadenable).
     ctx.setFab({
-      label: 'Nuevo',
+      label: T('Nuevo', 'New'),
       onTap: () => openQuickAddSheet({
         ctx, group: null, mode: getGroupBy(), getNextPosition: nextPositionFor,
       }),

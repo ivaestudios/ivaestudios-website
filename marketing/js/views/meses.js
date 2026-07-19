@@ -156,7 +156,7 @@ function approvalDotNode(post) {
   const def = APPROVALS[state] || APPROVALS.pending;
   const dot = el('span', {
     class: 'meses-apprdot', 'aria-hidden': 'true',
-    title: `Aprobación: ${approvalLabel(state)}`,
+    title: `${T('Aprobación:', 'Approval:')} ${approvalLabel(state)}`,
   });
   dot.style.setProperty('--chipc', def.color);
   return dot;
@@ -178,12 +178,12 @@ async function sendApprovalDecision(post, decision, comment) {
       ctx.store.refreshClientCounts();
     })());
     ctx.toast(decision === 'approved'
-      ? '¡Pieza aprobada! El equipo ya lo sabe. ✨'
-      : 'Cambios pedidos. El equipo lo verá enseguida.', { type: 'success' });
+      ? T('¡Pieza aprobada! El equipo ya lo sabe. ✨', 'Piece approved! The team already knows. ✨')
+      : T('Cambios pedidos. El equipo lo verá enseguida.', 'Changes requested. The team will see it right away.'), { type: 'success' });
     return true;
   } catch (e) {
     rollback();
-    ctx.toast((e && e.message) || 'No se pudo guardar, intenta de nuevo.', { type: 'error' });
+    ctx.toast((e && e.message) || T('No se pudo guardar, intenta de nuevo.', 'Could not save, try again.'), { type: 'error' });
     return false;
   }
 }
@@ -193,21 +193,21 @@ async function sendApprovalDecision(post, decision, comment) {
 // cuáles no le sirve al equipo y el backend arma el hilo con él).
 function openPedirCambios(post) {
   ctx.sheet.openSheet({
-    title: 'Pedir cambios',
+    title: T('Pedir cambios', 'Request changes'),
     mode: 'form',
     build(body, close) {
       const ta = el('textarea', {
         class: 'input meses-chgta', rows: '4', maxlength: '2000',
-        placeholder: '¿Qué quieres cambiar de esta pieza?',
-        'aria-label': 'Comentario de cambios',
+        placeholder: T('¿Qué quieres cambiar de esta pieza?', 'What would you like to change in this piece?'),
+        'aria-label': T('Comentario de cambios', 'Change request comment'),
       });
-      const help = el('div', { class: 'help', text: 'Tu comentario le llega directo al equipo.' });
+      const help = el('div', { class: 'help', text: T('Tu comentario le llega directo al equipo.', 'Your comment goes straight to the team.') });
       const sendBtn = el('button', {
-        class: 'btn btn-primary sheet-cta', type: 'button', text: 'Enviar',
+        class: 'btn btn-primary sheet-cta', type: 'button', text: T('Enviar', 'Send'),
         onclick: async () => {
           const comment = ta.value.trim();
           if (!comment) {
-            help.textContent = 'Cuéntanos qué cambiar (es lo que verá el equipo).';
+            help.textContent = T('Cuéntanos qué cambiar (es lo que verá el equipo).', 'Tell us what to change (it is what the team will see).');
             help.classList.add('meses-urlhelp--error');
             ta.focus();
             return;
@@ -219,7 +219,7 @@ function openPedirCambios(post) {
         },
       });
       body.append(
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Comentario' }), ta]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Comentario', 'Comment') }), ta]),
         help,
         el('div', { class: 'sheet__footer' }, [
           el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
@@ -246,7 +246,7 @@ function avisarCaptionSucio(postId, caption) {
   if (!RE_CAPTION_ETIQUETA.test(txt) && !RE_CAPTION_HASHTAG.test(txt)) return;
   if (captionAvisados.has(postId)) return;
   captionAvisados.add(postId);
-  ctx.toast('El caption trae guion/hashtags dentro — van en su campo.', { type: 'info', ms: 5200 });
+  ctx.toast(T('El caption trae guion/hashtags dentro — van en su campo.', 'The caption has script/hashtags inside — they go in their own field.'), { type: 'info', ms: 5200 });
 }
 
 /** URL valida http(s) o null (regla de seguridad: hrefs solo via new URL). */
@@ -264,7 +264,7 @@ function shortUrl(url) {
   try {
     const h = new URL(url).hostname.replace(/^www\./, '');
     return h.length > 18 ? `${h.slice(0, 17)}…` : h;
-  } catch { return 'enlace'; }
+  } catch { return T('enlace', 'link'); }
 }
 
 // ── Prefs (colapso por mes + meses vacios agregados a mano) ──────────────────

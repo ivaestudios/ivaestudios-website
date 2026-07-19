@@ -21,6 +21,7 @@ import {
   statusBadge, approvalBadge,
 } from '../api.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202607181835';
 
 // Bucket para status que ya no existen en el enum (NUNCA invisibles).
@@ -124,7 +125,7 @@ function counterCard({ key, value, label, sub, tone, withCheck, delta, onTap }) 
     class: 'dash-counter' + (tone ? ` is-${tone}` : ''),
     type: 'button',
     dataset: { counter: key },
-    'aria-label': `${label}: ${value}${sub ? `, ${sub}` : ''}. Ver detalle`,
+    'aria-label': `${label}: ${value}${sub ? `, ${sub}` : ''}. ${T('Ver detalle', 'View details')}`,
     onclick: () => { if (onTap) onTap(key); },
   }, [
     valueWrap,
@@ -146,25 +147,25 @@ export function countersGrid({ counters = {}, weekRange = '', typeBreakdown = ''
 
   return el('div', { class: 'dash-counters' }, [
     counterCard({
-      key: 'aprobar', value: pending, label: 'Por aprobar',
-      sub: pending > 0 ? 'requieren tu revisión' : 'nada por revisar',
+      key: 'aprobar', value: pending, label: T('Por aprobar', 'To approve'),
+      sub: pending > 0 ? T('requieren tu revisión', 'need your review') : T('nada por revisar', 'nothing to review'),
       tone: pending > 0 ? 'warn' : '', onTap: onJump,
     }),
     counterCard({
-      key: 'semana', value: week, label: 'Esta semana',
-      sub: weekRange ? `programados · ${weekRange}` : 'programados',
+      key: 'semana', value: week, label: T('Esta semana', 'This week'),
+      sub: weekRange ? `${T('programados', 'scheduled')} · ${weekRange}` : T('programados', 'scheduled'),
       tone: 'brand', onTap: onJump,
     }),
     counterCard({
-      key: 'atrasados', value: overdue, label: 'Atrasados',
+      key: 'atrasados', value: overdue, label: T('Atrasados', 'Overdue'),
       tone: overdue > 0 ? 'danger' : 'ok',
-      sub: overdue === 0 ? 'Al dia' : '',
+      sub: overdue === 0 ? T('Al dia', 'Up to date') : '',
       onTap: onJump,
     }),
     counterCard({
-      key: 'mes', value: monthTotal, label: 'Posts del mes',
+      key: 'mes', value: monthTotal, label: T('Posts del mes', 'Posts this month'),
       sub: typeBreakdown
-        || (noDate > 0 ? `y ${plural(noDate, 'idea sin fecha', 'ideas sin fecha')}` : ''),
+        || (noDate > 0 ? `${T('y', 'plus')} ${plural(noDate, T('idea sin fecha', 'idea without a date'), T('ideas sin fecha', 'ideas without a date'))}` : ''),
       delta: monthDelta,
       onTap: onJump,
     }),
@@ -176,11 +177,11 @@ export function countersGrid({ counters = {}, weekRange = '', typeBreakdown = ''
 // El modelo interno tiene 8 estados; el cliente ve 5 etapas (las 4 de
 // produccion se agrupan en "Borrador"), igual que el diseño Sistema IVA.
 const PIPELINE_BUCKETS = [
-  { key: 'borrador',   label: 'Borrador',   color: STATUSES.edicion.color,    members: ['idea', 'guion', 'grabacion', 'edicion'] },
-  { key: 'revision',   label: 'Revisión',   color: STATUSES.revision.color,   members: ['revision'] },
-  { key: 'aprobado',   label: 'Aprobado',   color: STATUSES.aprobado.color,   members: ['aprobado'] },
-  { key: 'programado', label: 'Programado', color: STATUSES.programado.color, members: ['programado'] },
-  { key: 'publicado',  label: 'Publicado',  color: STATUSES.publicado.color,  members: ['publicado'] },
+  { key: 'borrador',   label: T('Borrador', 'Draft'),        color: STATUSES.edicion.color,    members: ['idea', 'guion', 'grabacion', 'edicion'] },
+  { key: 'revision',   label: T('Revisión', 'Review'),       color: STATUSES.revision.color,   members: ['revision'] },
+  { key: 'aprobado',   label: T('Aprobado', 'Approved'),     color: STATUSES.aprobado.color,   members: ['aprobado'] },
+  { key: 'programado', label: T('Programado', 'Scheduled'),  color: STATUSES.programado.color, members: ['programado'] },
+  { key: 'publicado',  label: T('Publicado', 'Published'),   color: STATUSES.publicado.color,  members: ['publicado'] },
 ];
 
 function pipelineData(pipeline) {
@@ -205,7 +206,7 @@ export function pipelineCard({ pipeline, onStatusTap }) {
     return card({
       title: 'Pipeline',
       className: 'dash-pipeline',
-      children: el('p', { class: 'dash-card__empty', text: 'Sin contenidos en el pipeline.' }),
+      children: el('p', { class: 'dash-card__empty', text: T('Sin contenidos en el pipeline.', 'No content in the pipeline.') }),
     });
   }
 
@@ -213,7 +214,7 @@ export function pipelineCard({ pipeline, onStatusTap }) {
 
   // Barra apilada superior (solo segmentos con contenido).
   const segs = rows.filter((s) => s.count > 0);
-  const bar = el('div', { class: 'dash-battery', 'aria-label': `Pipeline, ${total} contenidos` }, segs.map((s) =>
+  const bar = el('div', { class: 'dash-battery', 'aria-label': `Pipeline, ${total} ${T('contenidos', 'items')}` }, segs.map((s) =>
     el('button', {
       class: 'dash-battery__seg',
       type: 'button',
@@ -245,7 +246,7 @@ export function pipelineCard({ pipeline, onStatusTap }) {
   return card({
     title: 'Pipeline',
     className: 'dash-pipeline',
-    headRight: el('span', { class: 'dash-card__meta', text: `${total} en total` }),
+    headRight: el('span', { class: 'dash-card__meta', text: `${total} ${T('en total', 'total')}` }),
     children: [bar, pipe],
   });
 }
@@ -265,7 +266,7 @@ function postRow({ item, accent, sub = null, right = null, warn = false, onOpen,
   }, [
     el('span', { class: 'dash-row__bar', style: { background: accent || 'var(--border-strong)' } }),
     el('span', { class: 'dash-row__main' }, [
-      el('span', { class: 'dash-row__title', text: item.title || 'Sin titulo' }),
+      el('span', { class: 'dash-row__title', text: item.title || T('Sin titulo', 'Untitled') }),
       sub,
     ]),
     right,
@@ -280,13 +281,13 @@ function postRow({ item, accent, sub = null, right = null, warn = false, onOpen,
 export function approvalsCard({ count = 0, items = [], onOpen, onSeeAll }) {
   const children = [];
   if (!items.length) {
-    children.push(el('p', { class: 'dash-card__empty', text: 'Nada espera aprobacion del cliente.' }));
+    children.push(el('p', { class: 'dash-card__empty', text: T('Nada espera aprobacion del cliente.', 'Nothing awaiting client approval.') }));
   } else {
     children.push(el('div', { class: 'dash-list' }, items.map((it) => postRow({
       item: it,
       accent: typeColor(it.content_type),
       sub: el('span', { class: 'dash-row__sub' }, [
-        el('span', { class: 'dash-row__date', text: it.publish_date ? fmtShort(it.publish_date) : 'Sin fecha' }),
+        el('span', { class: 'dash-row__date', text: it.publish_date ? fmtShort(it.publish_date) : T('Sin fecha', 'No date') }),
       ]),
       right: approvalBadge(it.approval_state || 'pending'),
       onOpen,
@@ -294,13 +295,13 @@ export function approvalsCard({ count = 0, items = [], onOpen, onSeeAll }) {
     if (count > items.length) {
       children.push(el('button', {
         class: 'dash-link', type: 'button',
-        text: `Ver los ${count} pendientes`,
+        text: `${T('Ver los', 'View all')} ${count} ${T('pendientes', 'pending')}`,
         onclick: () => { if (onSeeAll) onSeeAll(); },
       }));
     }
   }
   return card({
-    title: 'Por aprobar',
+    title: T('Por aprobar', 'To approve'),
     className: 'dash-approvals',
     headRight: count > 0 ? metaBadge(count) : null,
     children,
@@ -322,9 +323,9 @@ export function weekCard({ count = 0, items = [], today = '', onOpen, onSeeAll, 
 
   if (!items.length) {
     children.push(el('div', { class: 'dash-card__cta' }, [
-      el('p', { class: 'dash-card__empty', text: 'Semana libre de publicaciones.' }),
+      el('p', { class: 'dash-card__empty', text: T('Semana libre de publicaciones.', 'No posts scheduled this week.') }),
       onCreate ? el('button', {
-        class: 'btn btn-primary btn-sm', type: 'button', text: 'Nuevo contenido',
+        class: 'btn btn-primary btn-sm', type: 'button', text: T('Nuevo contenido', 'New content'),
         onclick: () => onCreate(),
       }) : null,
     ]));
@@ -340,7 +341,7 @@ export function weekCard({ count = 0, items = [], today = '', onOpen, onSeeAll, 
       const isHoy = d === today;
       wrap.appendChild(el('div', { class: 'dash-day' + (isHoy ? ' is-today' : '') }, [
         el('span', { class: 'dash-day__label', text: dayLabel(d) }),
-        isHoy ? el('span', { class: 'dash-day__tag', text: 'Hoy' }) : null,
+        isHoy ? el('span', { class: 'dash-day__tag', text: T('Hoy', 'Today') }) : null,
       ]));
       for (const it of list) {
         const dist = diffDays(today, d);
@@ -351,7 +352,7 @@ export function weekCard({ count = 0, items = [], today = '', onOpen, onSeeAll, 
           sub: el('span', { class: 'dash-row__sub' }, [
             statusBadge(it.status),
             it.platform ? el('span', { class: 'dash-row__tag', text: it.platform }) : null,
-            warn ? el('span', { class: 'dash-row__alert', text: 'Sin aprobar' }) : null,
+            warn ? el('span', { class: 'dash-row__alert', text: T('Sin aprobar', 'Not approved') }) : null,
           ]),
           warn,
           onOpen,
@@ -361,14 +362,14 @@ export function weekCard({ count = 0, items = [], today = '', onOpen, onSeeAll, 
     children.push(wrap);
     if (count > items.length) {
       children.push(el('button', {
-        class: 'dash-link', type: 'button', text: 'Ver toda la semana',
+        class: 'dash-link', type: 'button', text: T('Ver toda la semana', 'View the whole week'),
         onclick: () => { if (onSeeAll) onSeeAll(); },
       }));
     }
   }
 
   return card({
-    title: 'Proximos 7 dias',
+    title: T('Proximos 7 dias', 'Next 7 days'),
     className: 'dash-weekcard',
     headRight: count > 0 ? metaBadge(count) : null,
     children,
@@ -387,28 +388,28 @@ export function overdueCard({ count = 0, items = [], today = '', onOpen, onResch
         item: it,
         accent: typeColor(it.content_type),
         sub: el('span', { class: 'dash-row__sub' }, [
-          el('span', { class: 'dash-overdue__badge', text: plural(late, 'dia', 'dias') }),
+          el('span', { class: 'dash-overdue__badge', text: plural(late, T('dia', 'day'), T('dias', 'days')) }),
           el('span', { class: 'dash-row__date', text: it.publish_date ? fmtShort(it.publish_date) : '' }),
         ]),
         onOpen,
         trailing: el('button', {
           class: 'dash-resched',
           type: 'button',
-          'aria-label': `Reprogramar ${it.title || 'contenido'}`,
+          'aria-label': `${T('Reprogramar', 'Reschedule')} ${it.title || T('contenido', 'content')}`,
           onclick: (e) => { e.stopPropagation(); if (onReschedule) onReschedule(it); },
-        }, [icon('calendar', 16), el('span', { text: 'Reprogramar' })]),
+        }, [icon('calendar', 16), el('span', { text: T('Reprogramar', 'Reschedule') })]),
       });
     })),
   ];
   if (count > items.length) {
     children.push(el('button', {
       class: 'dash-link', type: 'button',
-      text: `Ver los ${count} atrasados`,
+      text: `${T('Ver los', 'View all')} ${count} ${T('atrasados', 'overdue')}`,
       onclick: () => { if (onSeeAll) onSeeAll(); },
     }));
   }
   return card({
-    title: 'Atrasados',
+    title: T('Atrasados', 'Overdue'),
     className: 'dash-overduecard',
     headRight: metaBadge(count),
     children,
@@ -426,11 +427,11 @@ export function donutCard({ platforms = [], monthLabel = '', onPlatformTap }) {
 
   if (!total) {
     return card({
-      title: 'Plataformas',
+      title: T('Plataformas', 'Platforms'),
       className: 'dash-donutcard',
       children: el('p', {
         class: 'dash-card__empty',
-        text: monthLabel ? `Sin publicaciones con fecha en ${monthLabel}.` : 'Sin publicaciones con fecha este mes.',
+        text: monthLabel ? `${T('Sin publicaciones con fecha en', 'No dated posts in')} ${monthLabel}.` : T('Sin publicaciones con fecha este mes.', 'No dated posts this month.'),
       }),
     });
   }
@@ -459,12 +460,12 @@ export function donutCard({ platforms = [], monthLabel = '', onPlatformTap }) {
   const num = svgEl('text', { x: 80, y: 78, 'text-anchor': 'middle', class: 'dash-donut__num' });
   num.appendChild(document.createTextNode(String(total)));
   const lbl = svgEl('text', { x: 80, y: 98, 'text-anchor': 'middle', class: 'dash-donut__lbl' });
-  lbl.appendChild(document.createTextNode('del mes'));
+  lbl.appendChild(document.createTextNode(T('del mes', 'this month')));
 
   const svg = svgEl('svg', {
     viewBox: '0 0 160 160', width: 160, height: 160,
     class: 'dash-donut', role: 'img',
-    'aria-label': `Distribucion por plataforma: ${platforms.map((p) => `${p.platform} ${p.count}`).join(', ')}`,
+    'aria-label': `${T('Distribucion por plataforma', 'Breakdown by platform')}: ${platforms.map((p) => `${p.platform} ${p.count}`).join(', ')}`,
   }, [ring, num, lbl]);
 
   const pct = (n) => Math.round((n / total) * 100);
@@ -474,7 +475,7 @@ export function donutCard({ platforms = [], monthLabel = '', onPlatformTap }) {
     el('b', { class: 'dash-plat__total', text: String(total) }),
     el('span', {
       class: 'dash-plat__cap',
-      text: top && top.count > 0 ? `publicaciones · ${top.platform} lidera` : 'publicaciones del mes',
+      text: top && top.count > 0 ? `${T('publicaciones', 'posts')} · ${top.platform} ${T('lidera', 'leads')}` : T('publicaciones del mes', 'posts this month'),
     }),
   ]);
 
@@ -501,7 +502,7 @@ export function donutCard({ platforms = [], monthLabel = '', onPlatformTap }) {
   ));
 
   return card({
-    title: 'Plataformas',
+    title: T('Plataformas', 'Platforms'),
     className: 'dash-donutcard',
     headRight: monthLabel ? el('span', { class: 'dash-card__meta', text: monthLabel }) : null,
     children: el('div', { class: 'dash-donutcard__body' }, [
@@ -538,9 +539,9 @@ export function streakCard({ streak = 0, days = [], onDetails }) {
   }));
 
   const copy =
-    streak >= 2 ? `Llevan ${streak} dias seguidos creando contenido.` :
-    streak === 1 ? 'Llevan 1 dia de actividad. Mañana se vuelve racha.' :
-    'Aun sin racha. Crear o editar contenido la enciende.';
+    streak >= 2 ? T(`Llevan ${streak} dias seguidos creando contenido.`, `${streak} days in a row creating content.`) :
+    streak === 1 ? T('Llevan 1 dia de actividad. Mañana se vuelve racha.', '1 day of activity. Tomorrow it becomes a streak.') :
+    T('Aun sin racha. Crear o editar contenido la enciende.', 'No streak yet. Creating or editing content starts one.');
 
   const mini = (k, v, extra) => el('div', { class: 'dash-mini' }, [
     el('span', { class: 'dash-mini__k', text: k }),
@@ -550,26 +551,26 @@ export function streakCard({ streak = 0, days = [], onDetails }) {
 
   return el('section', { class: 'dash-card dash-streak' }, [
     el('div', { class: 'dash-card__head' }, [
-      el('h3', { class: 'dash-card__title', text: 'Racha' }),
+      el('h3', { class: 'dash-card__title', text: T('Racha', 'Streak') }),
     ]),
     el('button', {
       class: 'dash-streak__body',
       type: 'button',
-      'aria-label': `Racha de actividad: ${plural(streak, 'dia', 'dias')}. Meta semanal ${weekDone} de ${weekGoal}. Ver detalle de los ultimos 14 dias`,
+      'aria-label': `${T('Racha de actividad', 'Activity streak')}: ${plural(streak, T('dia', 'day'), T('dias', 'days'))}. ${T('Meta semanal', 'Weekly goal')} ${weekDone} ${T('de', 'of')} ${weekGoal}. ${T('Ver detalle de los ultimos 14 dias', 'View details for the last 14 days')}`,
       onclick: () => { if (onDetails) onDetails(); },
     }, [
       el('div', { class: 'dash-streak__left' }, [
         el('span', { class: 'dash-streak__num' }, [
           el('b', { text: String(streak) }),
-          el('span', { text: streak === 1 ? 'dia' : 'dias' }),
+          el('span', { text: streak === 1 ? T('dia', 'day') : T('dias', 'days') }),
         ]),
         spark,
       ]),
       el('div', { class: 'dash-streak__stats' }, [
-        mini('Meta semanal', `${weekDone}/${weekGoal}`,
+        mini(T('Meta semanal', 'Weekly goal'), `${weekDone}/${weekGoal}`,
           el('span', { class: 'dash-mini__bar' }, [el('i', { style: { width: `${weekPct}%` } })])),
-        mini('Mejor racha', plural(best, 'dia', 'dias')),
-        mini('Acciones 14d', total14),
+        mini(T('Mejor racha', 'Best streak'), plural(best, T('dia', 'day'), T('dias', 'days'))),
+        mini(T('Acciones 14d', 'Actions 14d'), total14),
       ]),
     ]),
     el('p', { class: 'dash-streak__copy', text: copy }),
@@ -582,9 +583,9 @@ export function streakCard({ streak = 0, days = [], onDetails }) {
 export function clientsSection({ clients = [], onOpen }) {
   if (!clients.length) {
     return card({
-      title: 'Clientes',
+      title: T('Clientes', 'Clients'),
       className: 'dash-clients',
-      children: el('p', { class: 'dash-card__empty', text: 'Sin clientes activos.' }),
+      children: el('p', { class: 'dash-card__empty', text: T('Sin clientes activos.', 'No active clients.') }),
     });
   }
 
@@ -598,27 +599,27 @@ export function clientsSection({ clients = [], onOpen }) {
     return el('button', {
       class: 'dash-client' + (overdue > 0 ? ' is-urgent' : ''),
       type: 'button',
-      'aria-label': `${c.name || 'Cliente'}: ${plural(overdue, 'atrasado', 'atrasados')}, ${pending} por aprobar. Abrir su resumen`,
+      'aria-label': `${c.name || T('Cliente', 'Client')}: ${plural(overdue, T('atrasado', 'overdue'), T('atrasados', 'overdue'))}, ${pending} ${T('por aprobar', 'to approve')}. ${T('Abrir su resumen', 'Open their summary')}`,
       onclick: () => { if (onOpen) onOpen(c); },
     }, [
       el('span', { class: 'dash-client__dot', style: { background: safeColor(c.brand_color) } }),
       el('span', { class: 'dash-client__main' }, [
-        el('span', { class: 'dash-client__name', text: c.name || 'Cliente' }),
+        el('span', { class: 'dash-client__name', text: c.name || T('Cliente', 'Client') }),
         el('span', {
           class: 'dash-client__meta',
-          text: `${plural(posts, 'contenido', 'contenidos')} · ${week} esta semana`,
+          text: `${plural(posts, T('contenido', 'piece'), T('contenidos', 'pieces'))} · ${week} ${T('esta semana', 'this week')}`,
         }),
         el('span', { class: 'dash-client__badges' }, [
-          overdue > 0 ? el('span', { class: 'dash-pill is-danger', text: plural(overdue, 'atrasado', 'atrasados') }) : null,
-          pending > 0 ? el('span', { class: 'dash-pill is-warn', text: `${pending} por aprobar` }) : null,
-          (overdue === 0 && pending === 0) ? el('span', { class: 'dash-pill is-ok', text: 'Al dia' }) : null,
+          overdue > 0 ? el('span', { class: 'dash-pill is-danger', text: plural(overdue, T('atrasado', 'overdue'), T('atrasados', 'overdue')) }) : null,
+          pending > 0 ? el('span', { class: 'dash-pill is-warn', text: `${pending} ${T('por aprobar', 'to approve')}` }) : null,
+          (overdue === 0 && pending === 0) ? el('span', { class: 'dash-pill is-ok', text: T('Al dia', 'Up to date') }) : null,
         ]),
       ]),
       icon('right', 18),
     ]);
   }));
 
-  return card({ title: 'Clientes', className: 'dash-clients', children: grid });
+  return card({ title: T('Clientes', 'Clients'), className: 'dash-clients', children: grid });
 }
 
 // ── Estados transversales ────────────────────────────────────────────────────
@@ -635,10 +636,10 @@ export function dashSkeleton() {
 export function errorCard({ message, onRetry }) {
   return el('div', { class: 'dash-error' }, [
     el('div', { class: 'dash-error__icon' }, [icon('warning', 26)]),
-    el('h3', { text: 'No se pudo cargar el resumen' }),
-    el('p', { class: 'dash-error__msg', text: message || 'Revisa tu conexion e intenta de nuevo.' }),
+    el('h3', { text: T('No se pudo cargar el resumen', "Couldn't load the summary") }),
+    el('p', { class: 'dash-error__msg', text: message || T('Revisa tu conexion e intenta de nuevo.', 'Check your connection and try again.') }),
     el('button', {
-      class: 'btn btn-primary', type: 'button', text: 'Reintentar',
+      class: 'btn btn-primary', type: 'button', text: T('Reintentar', 'Retry'),
       onclick: () => { if (onRetry) onRetry(); },
     }),
   ]);
@@ -648,10 +649,10 @@ export function errorCard({ message, onRetry }) {
 export function emptyMonth({ onCreate }) {
   return el('div', { class: 'empty dash-empty' }, [
     el('div', { class: 'empty__icon' }, [icon('spark', 28)]),
-    el('h3', { text: 'Todavia no hay contenidos' }),
-    el('p', { text: 'Crea el primero y este resumen se llena solo.' }),
+    el('h3', { text: T('Todavia no hay contenidos', 'No content yet') }),
+    el('p', { text: T('Crea el primero y este resumen se llena solo.', 'Create the first one and this summary fills itself in.') }),
     onCreate ? el('button', {
-      class: 'btn btn-primary', type: 'button', text: 'Nuevo contenido',
+      class: 'btn btn-primary', type: 'button', text: T('Nuevo contenido', 'New content'),
       onclick: () => onCreate(),
     }) : null,
   ]);

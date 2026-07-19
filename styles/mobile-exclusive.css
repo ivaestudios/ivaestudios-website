@@ -185,10 +185,10 @@
   .ivm-act-hero__veil {
     position: absolute; inset: 0;
     background: linear-gradient(180deg,
-      rgba(10,15,23,.20) 0%,
-      rgba(10,15,23,.05) 35%,
-      rgba(10,15,23,.45) 78%,
-      rgba(10,15,23,.92) 100%);
+      rgba(10,15,23,.08) 0%,
+      rgba(10,15,23,.02) 35%,
+      rgba(10,15,23,.26) 78%,
+      rgba(10,15,23,.78) 100%);
     pointer-events: none;
   }
 

@@ -16,6 +16,7 @@
 // ============================================================================
 
 import { el, fmtDate } from '../api.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
 import * as bulk from '../services/bulk.js?v=202607181835';
 
@@ -44,16 +45,16 @@ export function createSelection({ ctx, getVisibleIds }) {
 
   const barEl = el('div', {
     class: 'etable-bulkbar', hidden: true,
-    role: 'toolbar', 'aria-label': 'Acciones sobre la seleccion',
+    role: 'toolbar', 'aria-label': T('Acciones sobre la seleccion', 'Actions on the selection'),
   }, [
     countEl,
-    mkAction('refresh', 'Estado', () => actEstado()),
-    mkAction('calendar', 'Fecha', () => actFecha()),
-    mkAction('user', 'Persona', () => actPersona()),
-    mkAction('trash', 'Eliminar', () => actEliminar(), true),
+    mkAction('refresh', T('Estado', 'Status'), () => actEstado()),
+    mkAction('calendar', T('Fecha', 'Date'), () => actFecha()),
+    mkAction('user', T('Persona', 'Person'), () => actPersona()),
+    mkAction('trash', T('Eliminar', 'Delete'), () => actEliminar(), true),
     el('button', {
       class: 'etable-bulkbar__btn etable-bulkbar__btn--close',
-      type: 'button', 'aria-label': 'Limpiar seleccion',
+      type: 'button', 'aria-label': T('Limpiar seleccion', 'Clear selection'),
       onclick: () => api.clear(),
     }, [icon('close', 18)]),
   ]);
@@ -61,7 +62,7 @@ export function createSelection({ ctx, getVisibleIds }) {
   function paintBar() {
     const n = bulk.count();
     barEl.hidden = n === 0;
-    countEl.textContent = n ? `${n} ${plural(n, 'seleccionado', 'seleccionados')}` : '';
+    countEl.textContent = n ? `${n} ${plural(n, T('seleccionado', 'selected'), T('seleccionados', 'selected'))}` : '';
   }
 
   // ── Acciones masivas (services/bulk: optimista + rollback total + toast) ───
@@ -71,24 +72,24 @@ export function createSelection({ ctx, getVisibleIds }) {
     if (!res || !res.ok) return; // bulk ya mostro el toast de error
     ctx.toast(msg, {
       type: 'success',
-      action: res.undo ? { label: 'Deshacer', onAction: () => { res.undo(); } } : null,
+      action: res.undo ? { label: T('Deshacer', 'Undo'), onAction: () => { res.undo(); } } : null,
     });
   }
 
   async function actEstado() {
     const list = ids();
     if (!list.length) return;
-    const v = await ctx.pickers.pickStatus({ title: `Estado para ${list.length}` });
+    const v = await ctx.pickers.pickStatus({ title: `${T('Estado para', 'Status for')} ${list.length}` });
     if (v == null) return;
     const res = await bulk.bulkSetStatus(list, v);
-    toastBulk(res, `${res.count} ${plural(res.count, 'contenido actualizado', 'contenidos actualizados')}.`);
+    toastBulk(res, `${res.count} ${plural(res.count, T('contenido actualizado', 'item updated'), T('contenidos actualizados', 'items updated'))}.`);
   }
 
   function actFecha() {
     const list = ids();
     if (!list.length) return;
     ctx.sheet.openSheet({
-      title: `Fecha para ${list.length}`,
+      title: `${T('Fecha para', 'Date for')} ${list.length}`,
       mode: 'menu',
       build(body, close) {
         const row = (ic, label, onTap) => el('button', {
@@ -96,15 +97,15 @@ export function createSelection({ ctx, getVisibleIds }) {
           onclick: () => { close({ source: 'pick' }); onTap(); },
         }, [icon(ic, 20), el('span', { class: 'etable-menu-row__label', text: label }), icon('right', 16)]);
         body.appendChild(el('div', { class: 'etable-menu' }, [
-          row('calendar', 'Mover a una fecha', async () => {
-            const v = await ctx.pickers.pickDate({ title: 'Nueva fecha', allowClear: true });
+          row('calendar', T('Mover a una fecha', 'Move to a date'), async () => {
+            const v = await ctx.pickers.pickDate({ title: T('Nueva fecha', 'New date'), allowClear: true });
             if (v === null) return;
             const res = await bulk.bulkUpdate(list, { publish_date: v || null });
             toastBulk(res, v
-              ? `${res.count} movidos al ${fmtDate(v)}.`
-              : `Fecha quitada a ${res.count}.`);
+              ? `${res.count} ${T('movidos al', 'moved to')} ${fmtDate(v)}.`
+              : `${T('Fecha quitada a', 'Date removed from')} ${res.count}.`);
           }),
-          row('clock', 'Mover N dias', () => openShiftSheet(list)),
+          row('clock', T('Mover N dias', 'Move N days'), () => openShiftSheet(list)),
         ]));
       },
     });
@@ -112,7 +113,7 @@ export function createSelection({ ctx, getVisibleIds }) {
 
   function openShiftSheet(list) {
     ctx.sheet.openSheet({
-      title: 'Mover N dias',
+      title: T('Mover N dias', 'Move N days'),
       mode: 'form',
       build(body, close) {
         let days = 1;
@@ -121,10 +122,10 @@ export function createSelection({ ctx, getVisibleIds }) {
         const paint = () => {
           num.textContent = days > 0 ? `+${days}` : String(days);
           hint.textContent = days === 0
-            ? 'Elige cuantos dias mover.'
+            ? T('Elige cuantos dias mover.', 'Choose how many days to move.')
             : days > 0
-              ? `Las fechas se moveran ${days} ${plural(days, 'dia', 'dias')} hacia adelante.`
-              : `Las fechas se moveran ${Math.abs(days)} ${plural(Math.abs(days), 'dia', 'dias')} hacia atras.`;
+              ? `${T('Las fechas se moveran', 'Dates will move')} ${days} ${plural(days, T('dia', 'day'), T('dias', 'days'))} ${T('hacia adelante.', 'forward.')}`
+              : `${T('Las fechas se moveran', 'Dates will move')} ${Math.abs(days)} ${plural(Math.abs(days), T('dia', 'day'), T('dias', 'days'))} ${T('hacia atras.', 'backward.')}`;
         };
         const stepBtn = (label, delta, aria) => el('button', {
           class: 'etable-step__btn', type: 'button', text: label, 'aria-label': aria,
@@ -133,23 +134,23 @@ export function createSelection({ ctx, getVisibleIds }) {
         paint();
         body.append(
           el('div', { class: 'etable-step' }, [
-            stepBtn('-7', -7, 'Restar 7 dias'),
-            stepBtn('-1', -1, 'Restar 1 dia'),
+            stepBtn('-7', -7, T('Restar 7 dias', 'Subtract 7 days')),
+            stepBtn('-1', -1, T('Restar 1 dia', 'Subtract 1 day')),
             num,
-            stepBtn('+1', +1, 'Sumar 1 dia'),
-            stepBtn('+7', +7, 'Sumar 7 dias'),
+            stepBtn('+1', +1, T('Sumar 1 dia', 'Add 1 day')),
+            stepBtn('+7', +7, T('Sumar 7 dias', 'Add 7 days')),
           ]),
           hint,
           el('div', { class: 'sheet__footer' }, [
-            el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
+            el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
             el('button', {
-              class: 'btn btn-primary sheet-cta', type: 'button', text: 'Mover fechas',
+              class: 'btn btn-primary sheet-cta', type: 'button', text: T('Mover fechas', 'Move dates'),
               onclick: async () => {
                 if (!days) return;
                 close({ source: 'save' });
                 const res = await bulk.bulkShiftDates(list, days);
                 if (res.ok) {
-                  ctx.toast(`${res.count} ${plural(res.count, 'fecha movida', 'fechas movidas')}.`, { type: 'success' });
+                  ctx.toast(`${res.count} ${plural(res.count, T('fecha movida', 'date moved'), T('fechas movidas', 'dates moved'))}.`, { type: 'success' });
                 }
               },
             }),
@@ -163,15 +164,15 @@ export function createSelection({ ctx, getVisibleIds }) {
     const list = ids();
     if (!list.length) return;
     const users = await ctx.store.loadUsers();
-    const v = await ctx.pickers.pickPerson({ users, title: `Responsable para ${list.length}` });
+    const v = await ctx.pickers.pickPerson({ users, title: `${T('Responsable para', 'Assignee for')} ${list.length}` });
     if (v === null) return;
     const res = await bulk.bulkUpdate(list, {
       assignee: v.name || null,
       assignee_user_id: v.user_id || null,
     });
     toastBulk(res, v.name
-      ? `${res.count} asignados a ${v.name}.`
-      : `Responsable quitado a ${res.count}.`);
+      ? `${res.count} ${T('asignados a', 'assigned to')} ${v.name}.`
+      : `${T('Responsable quitado a', 'Assignee removed from')} ${res.count}.`);
   }
 
   function actEliminar() {
@@ -179,23 +180,23 @@ export function createSelection({ ctx, getVisibleIds }) {
     if (!list.length) return;
     const n = list.length;
     ctx.sheet.openSheet({
-      title: `Eliminar ${n} ${plural(n, 'contenido', 'contenidos')}`,
+      title: `${T('Eliminar', 'Delete')} ${n} ${plural(n, T('contenido', 'item'), T('contenidos', 'items'))}`,
       mode: 'form',
       build(body, close) {
         body.append(
           el('p', {
             class: 'etable-confirm__txt',
-            text: `¿Eliminar ${n} ${plural(n, 'contenido', 'contenidos')}? Esta accion no se puede deshacer.`,
+            text: `${T('¿Eliminar', 'Delete')} ${n} ${plural(n, T('contenido', 'item'), T('contenidos', 'items'))}${T('? Esta accion no se puede deshacer.', '? This action cannot be undone.')}`,
           }),
           el('div', { class: 'sheet__footer' }, [
-            el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
+            el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
             el('button', {
-              class: 'btn btn-danger sheet-cta', type: 'button', text: 'Eliminar',
+              class: 'btn btn-danger sheet-cta', type: 'button', text: T('Eliminar', 'Delete'),
               onclick: async () => {
                 close({ source: 'confirm' });
                 const res = await bulk.bulkDelete(list);
                 if (res.ok) {
-                  ctx.toast(`${res.count} ${plural(res.count, 'contenido eliminado', 'contenidos eliminados')}.`, { type: 'success' });
+                  ctx.toast(`${res.count} ${plural(res.count, T('contenido eliminado', 'item deleted'), T('contenidos eliminados', 'items deleted'))}.`, { type: 'success' });
                 }
               },
             }),

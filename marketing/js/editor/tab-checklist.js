@@ -25,6 +25,7 @@ import { openSheet } from '../shell/sheet.js?v=202607181835';
 import * as store from '../shell/store.js?v=202607181835';
 import * as cl from '../services/checklist.js?v=202607181835';
 import { checklistFor, applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -73,11 +74,11 @@ export function mount(host, ed) {
   // ── Add-row sticky ─────────────────────────────────────────────────────────
   const addInput = el('input', {
     class: 'input ed-input edcheck__addinput', type: 'text',
-    placeholder: 'Agregar paso...', maxlength: '200',
-    'aria-label': 'Agregar paso a la checklist',
+    placeholder: T('Agregar paso...', 'Add step...'), maxlength: '200',
+    'aria-label': T('Agregar paso a la checklist', 'Add a step to the checklist'),
   });
   const addBtn = el('button', {
-    class: 'btn btn-primary edcheck__addbtn', type: 'button', 'aria-label': 'Agregar',
+    class: 'btn btn-primary edcheck__addbtn', type: 'button', 'aria-label': T('Agregar', 'Add'),
     onclick: () => submitAdd(),
   }, [icon('plus', 18)]);
   const addRow = el('div', { class: 'edcheck__add' }, [addInput, addBtn]);
@@ -95,7 +96,7 @@ export function mount(host, ed) {
 
   const emptyEl = el('div', { class: 'edcheck__empty', hidden: true });
   const unavailableEl = el('div', { class: 'edcheck__empty' }, [
-    el('p', { class: 'muted', text: 'La checklist se activa cuando se aplique la actualizacion del servidor.' }),
+    el('p', { class: 'muted', text: T('La checklist se activa cuando se aplique la actualizacion del servidor.', 'The checklist activates once the server update is applied.') }),
   ]);
 
   root.append(headEl, emptyEl, listEl, addRow);
@@ -108,8 +109,8 @@ export function mount(host, ed) {
     barFill.style.width = `${pct}%`;
     barEl.setAttribute('aria-valuenow', String(pct));
     progText.textContent = total
-      ? `${done} de ${total} completados`
-      : 'Sin pasos todavia';
+      ? T(`${done} de ${total} completados`, `${done} of ${total} completed`)
+      : T('Sin pasos todavia', 'No steps yet');
     barEl.hidden = !total;
     ed.setTabBadge('checklist', total ? `${done}/${total}` : '');
 
@@ -132,10 +133,10 @@ export function mount(host, ed) {
     const cur = STATUSES[p.status];
     const rev = STATUSES.revision;
     if (!cur || !rev || cur.order >= rev.order) return;
-    ctx.toast('Checklist completa.', {
+    ctx.toast(T('Checklist completa.', 'Checklist complete.'), {
       type: 'success',
       action: {
-        label: 'Mover a Revision',
+        label: T('Mover a Revision', 'Move to Review'),
         onAction: () => { ed.setField('status', 'revision', { immediate: true }); ed.refreshHeader(); },
       },
     });
@@ -148,7 +149,7 @@ export function mount(host, ed) {
     const checkbox = el('button', {
       class: 'edcheck__box', type: 'button', role: 'checkbox',
       'aria-checked': it.done ? 'true' : 'false',
-      'aria-label': it.done ? `Desmarcar: ${it.text}` : `Marcar: ${it.text}`,
+      'aria-label': it.done ? T(`Desmarcar: ${it.text}`, `Uncheck: ${it.text}`) : T(`Marcar: ${it.text}`, `Check: ${it.text}`),
       onclick: () => toggle(it),
     }, [el('span', { class: 'edcheck__square' }, [it.done ? icon('check', 14) : null])]);
 
@@ -156,7 +157,7 @@ export function mount(host, ed) {
     if (isEditing) {
       const input = el('input', {
         class: 'input ed-input edcheck__edit', type: 'text', maxlength: '200',
-        'aria-label': 'Editar paso',
+        'aria-label': T('Editar paso', 'Edit step'),
       });
       input.value = it.text;
       let committed = false; // Enter dispara blur al re-render: un solo commit
@@ -183,7 +184,7 @@ export function mount(host, ed) {
       mainEl = el('button', {
         class: 'edcheck__main edcheck__main--btn', type: 'button',
         onclick: () => { editingId = it.id; render(); },
-        'aria-label': `Editar: ${it.text}`,
+        'aria-label': T(`Editar: ${it.text}`, `Edit: ${it.text}`),
       }, [
         el('span', { class: 'edcheck__label' + (it.done ? ' is-done' : ''), text: it.text }),
         metaText ? el('span', { class: 'edcheck__meta', text: metaText }) : null,
@@ -191,7 +192,7 @@ export function mount(host, ed) {
     }
 
     const menuBtn = el('button', {
-      class: 'edcheck__menu', type: 'button', 'aria-label': `Opciones de: ${it.text}`,
+      class: 'edcheck__menu', type: 'button', 'aria-label': T(`Opciones de: ${it.text}`, `Options for: ${it.text}`),
       onclick: (e) => { e.stopPropagation(); openItemMenu(it, idx, menuBtn); },
     }, [icon('dots', 18)]);
 
@@ -235,7 +236,7 @@ export function mount(host, ed) {
     const type = ed.getPost().content_type;
     const steps = checklistFor(type);
     emptyEl.append(
-      el('p', { class: 'muted', text: 'Divide este contenido en pasos para no perder nada.' }),
+      el('p', { class: 'muted', text: T('Divide este contenido en pasos para no perder nada.', 'Break this content into steps so nothing gets missed.') }),
       el('button', {
         class: 'btn btn-primary', type: 'button',
         onclick: async (e) => {
@@ -243,10 +244,10 @@ export function mount(host, ed) {
           btn.disabled = true;
           const n = await applyChecklistTemplate(ed.postId, type);
           btn.disabled = false;
-          if (n) ctx.toast(`${n} pasos agregados.`, { type: 'success' });
+          if (n) ctx.toast(T(`${n} pasos agregados.`, `${n} steps added.`), { type: 'success' });
         },
-      }, [icon('spark', 16), `Usar plantilla de ${contentTypeLabel(type)}`]),
-      el('p', { class: 'help', text: `Incluye: ${steps.slice(0, 4).join(', ')}...` }),
+      }, [icon('spark', 16), T(`Usar plantilla de ${contentTypeLabel(type)}`, `Use ${contentTypeLabel(type)} template`)]),
+      el('p', { class: 'help', text: T(`Incluye: ${steps.slice(0, 4).join(', ')}...`, `Includes: ${steps.slice(0, 4).join(', ')}...`) }),
     );
   }
 
@@ -270,9 +271,9 @@ export function mount(host, ed) {
         }, [icon(iconName, 18), el('span', { class: 'pick-row__main' }, [el('span', { class: 'pick-row__label', text: label })])]);
 
         const list = el('div', { class: 'pick-list' });
-        if (idx > 0) list.appendChild(mk('Subir', 'up', () => move(idx, idx - 1)));
-        if (idx < items.length - 1) list.appendChild(mk('Bajar', 'down', () => move(idx, idx + 1)));
-        list.appendChild(mk('Eliminar', 'trash', () => cl.remove(ed.postId, it.id), true));
+        if (idx > 0) list.appendChild(mk(T('Subir', 'Move up'), 'up', () => move(idx, idx - 1)));
+        if (idx < items.length - 1) list.appendChild(mk(T('Bajar', 'Move down'), 'down', () => move(idx, idx + 1)));
+        list.appendChild(mk(T('Eliminar', 'Delete'), 'trash', () => cl.remove(ed.postId, it.id), true));
         body.appendChild(list);
       },
     });

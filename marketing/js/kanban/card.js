@@ -20,6 +20,7 @@ import {
   fmtDate, parseDate, avatar,
 } from '../api.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 export const DEFAULT_CARD_FIELDS = {
   fecha: true,
@@ -31,12 +32,12 @@ export const DEFAULT_CARD_FIELDS = {
 };
 
 export const CARD_FIELD_LABELS = {
-  fecha: 'Fecha de publicacion',
-  tipo: 'Tipo de contenido',
-  plataforma: 'Plataforma',
-  persona: 'Responsable',
-  aprobacion: 'Aprobacion del cliente',
-  prioridad: 'Prioridad',
+  fecha: T('Fecha de publicacion', 'Publish date'),
+  tipo: T('Tipo de contenido', 'Content type'),
+  plataforma: T('Plataforma', 'Platform'),
+  persona: T('Responsable', 'Assignee'),
+  aprobacion: T('Aprobacion del cliente', 'Client approval'),
+  prioridad: T('Prioridad', 'Priority'),
 };
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
@@ -105,7 +106,7 @@ export function createCard({ post, color, fields = DEFAULT_CARD_FIELDS, client =
         (!post.publish_date ? ' is-empty' : ''),
     }, [
       icon('calendar', 13),
-      el('span', { text: post.publish_date ? fmtDate(post.publish_date) : 'Sin fecha' }),
+      el('span', { text: post.publish_date ? fmtDate(post.publish_date) : T('Sin fecha', 'No date') }),
     ]));
   }
   const pr = (f.prioridad && post.priority && PRIORITIES && PRIORITIES[post.priority])
@@ -114,8 +115,8 @@ export function createCard({ post, color, fields = DEFAULT_CARD_FIELDS, client =
     foot.push(el('span', {
       class: 'kb-card__prio',
       style: { background: pr.color || 'var(--text-mute)' },
-      title: `Prioridad: ${pr.label}`,
-      'aria-label': `Prioridad: ${pr.label}`,
+      title: `${T('Prioridad', 'Priority')}: ${pr.label}`,
+      'aria-label': `${T('Prioridad', 'Priority')}: ${pr.label}`,
     }));
   }
   foot.push(el('span', { class: 'kb-card__spacer' }));
@@ -128,11 +129,11 @@ export function createCard({ post, color, fields = DEFAULT_CARD_FIELDS, client =
   const main = el('button', {
     class: 'kb-card__open',
     type: 'button',
-    'aria-label': `Abrir ${post.title || 'contenido sin titulo'}`,
+    'aria-label': `${T('Abrir', 'Open')} ${post.title || T('contenido sin titulo', 'untitled content')}`,
     onclick: () => { try { onOpen?.(post); } catch (e) { console.error('[kanban] card onOpen', e); } },
   }, [
     clientRow,
-    el('span', { class: 'kb-card__title', text: post.title || 'Sin titulo' }),
+    el('span', { class: 'kb-card__title', text: post.title || T('Sin titulo', 'Untitled') }),
     chips.length ? el('span', { class: 'kb-card__chips' }, chips) : null,
     foot.length > 1 ? el('span', { class: 'kb-card__foot' }, foot) : null,
   ]);
@@ -140,7 +141,7 @@ export function createCard({ post, color, fields = DEFAULT_CARD_FIELDS, client =
   const menuBtn = el('button', {
     class: 'kb-card__menu',
     type: 'button',
-    'aria-label': `Opciones de ${post.title || 'contenido'}`,
+    'aria-label': `${T('Opciones de', 'Options for')} ${post.title || T('contenido', 'content')}`,
     'aria-haspopup': 'dialog',
     onclick: (e) => {
       e.stopPropagation();

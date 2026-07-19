@@ -16,24 +16,25 @@
 // ============================================================================
 
 import { el, STATUSES, STATUS_ORDER, statusLabel } from '../api.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import { fmtMonthYear, todayISO } from '../lib/dates.js?v=202607181835';
 import { sortValueOf } from './columns.js?v=202607181835';
 
 export const SIN_FECHA_KEY = 'sin-fecha';
 export const OTHERS_KEY = 'otros';
-export const OTHERS_LABEL = 'Otros';
+export const OTHERS_LABEL = T('Otros', 'Others');
 export const NONE_KEY = 'todos';
 export const POSITION_STEP = 1000;
 
 export const GROUP_MODES = [
-  { value: 'month', label: 'Mes' },
-  { value: 'status', label: 'Estado' },
-  { value: 'none', label: 'Sin grupos' },
+  { value: 'month', label: T('Mes', 'Month') },
+  { value: 'status', label: T('Estado', 'Status') },
+  { value: 'none', label: T('Sin grupos', 'No groups') },
 ];
 
 export function groupModeLabel(mode) {
   const m = GROUP_MODES.find((x) => x.value === mode);
-  return m ? m.label : 'Mes';
+  return m ? m.label : T('Mes', 'Month');
 }
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
@@ -55,7 +56,7 @@ export function statusKeyOf(post) {
 }
 
 export function monthLabel(key) {
-  if (key === SIN_FECHA_KEY) return 'Sin fecha';
+  if (key === SIN_FECHA_KEY) return T('Sin fecha', 'No date');
   return fmtMonthYear(`${key}-01`) || key;
 }
 
@@ -75,7 +76,7 @@ export function groupPosts(posts, mode, { brandColor } = {}) {
   const accent = safeColor(brandColor, 'var(--client-accent)');
 
   if (mode === 'none') {
-    return [{ key: NONE_KEY, label: 'Todos los contenidos', color: accent, posts: list }];
+    return [{ key: NONE_KEY, label: T('Todos los contenidos', 'All content'), color: accent, posts: list }];
   }
 
   if (mode === 'status') {
@@ -111,7 +112,7 @@ export function groupPosts(posts, mode, { brandColor } = {}) {
   }));
   const undated = map.get(SIN_FECHA_KEY);
   if (undated && undated.length) {
-    out.push({ key: SIN_FECHA_KEY, label: 'Sin fecha', color: 'var(--text-mute)', posts: undated });
+    out.push({ key: SIN_FECHA_KEY, label: T('Sin fecha', 'No date'), color: 'var(--text-mute)', posts: undated });
   }
   return out;
 }
@@ -173,7 +174,7 @@ export function buildBattery(posts) {
   const total = data.reduce((s, d) => s + d.count, 0);
   const title = data.length
     ? data.map((d) => `${d.label}: ${d.count}`).join(' · ')
-    : 'Sin contenidos';
+    : T('Sin contenidos', 'No content');
   const bar = el('div', { class: 'etable-batt', role: 'img', 'aria-label': title, title });
   if (!total) {
     bar.appendChild(el('span', { class: 'etable-batt__seg etable-batt__seg--empty', style: { flexGrow: '1' } }));

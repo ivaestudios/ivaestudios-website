@@ -16,6 +16,7 @@
 
 import { el, STATUSES, STATUS_ORDER, fmtDate } from '../api.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -28,10 +29,10 @@ async function resolveClientId(ctx) {
     .filter((c) => !c.archived)
     .map((c) => ({ value: c.id, label: c.name, color: safeColor(c.brand_color) }));
   if (!options.length) {
-    ctx.toast('No hay clientes activos para crear contenido.', { type: 'error' });
+    ctx.toast(T('No hay clientes activos para crear contenido.', 'No active clients to create content for.'), { type: 'error' });
     return null;
   }
-  return ctx.sheet.pickFrom({ title: 'Para que cliente', options });
+  return ctx.sheet.pickFrom({ title: T('Para que cliente', 'For which client'), options });
 }
 
 async function doCreate(ctx, { title, status, clientId, publishDate, position }) {
@@ -43,7 +44,7 @@ async function doCreate(ctx, { title, status, clientId, publishDate, position })
   };
   if (publishDate) data.publish_date = publishDate;
   const post = await ctx.store.createPost(data);
-  if (post) ctx.toast('Contenido creado.', { type: 'success' });
+  if (post) ctx.toast(T('Contenido creado.', 'Content created.'), { type: 'success' });
   return post;
 }
 
@@ -54,21 +55,21 @@ export function createColumnComposer({ ctx, getStatus, getClientId, getNextPosit
   const input = el('input', {
     class: 'input kb-composer__input',
     type: 'text',
-    placeholder: 'Titulo del contenido',
+    placeholder: T('Titulo del contenido', 'Content title'),
     maxlength: '140',
     autocomplete: 'off',
-    'aria-label': 'Titulo del nuevo contenido',
+    'aria-label': T('Titulo del nuevo contenido', 'Title of the new content'),
   });
 
   const form = el('div', { class: 'kb-composer__form', hidden: true }, [
     input,
     el('div', { class: 'kb-composer__actions' }, [
       el('button', {
-        class: 'btn btn-primary kb-composer__save', type: 'button', text: 'Agregar',
+        class: 'btn btn-primary kb-composer__save', type: 'button', text: T('Agregar', 'Add'),
         onclick: () => submit(),
       }),
       el('button', {
-        class: 'btn kb-composer__cancel', type: 'button', 'aria-label': 'Cancelar',
+        class: 'btn kb-composer__cancel', type: 'button', 'aria-label': T('Cancelar', 'Cancel'),
         onclick: () => closeForm(),
       }, [icon('close', 16)]),
     ]),
@@ -77,7 +78,7 @@ export function createColumnComposer({ ctx, getStatus, getClientId, getNextPosit
   const openBtn = el('button', {
     class: 'kb-composer__open', type: 'button',
     onclick: () => openForm(),
-  }, [icon('plus', 18), el('span', { text: 'Agregar' })]);
+  }, [icon('plus', 18), el('span', { text: T('Agregar', 'Add') })]);
 
   const root = el('div', { class: 'kb-composer' }, [openBtn, form]);
 
@@ -138,14 +139,14 @@ export function openQuickAddSheet({ ctx, status = null, getNextPosition, onCreat
   if (!needsClient) chosenClient = st.activeClientId;
 
   ctx.sheet.openSheet({
-    title: 'Nuevo contenido',
+    title: T('Nuevo contenido', 'New content'),
     mode: 'form',
     build(body, close) {
       const input = el('input', {
         class: 'input', type: 'text',
-        placeholder: 'Titulo del contenido',
+        placeholder: T('Titulo del contenido', 'Content title'),
         maxlength: '140', autocomplete: 'off',
-        'aria-label': 'Titulo del nuevo contenido',
+        'aria-label': T('Titulo del nuevo contenido', 'Title of the new content'),
       });
 
       // Fila de estado.
@@ -154,7 +155,7 @@ export function openQuickAddSheet({ ctx, status = null, getNextPosition, onCreat
       const paintStatus = () => {
         const s = chosenStatus && STATUSES[chosenStatus];
         statusDot.style.background = (s && s.color) || 'var(--text-mute)';
-        statusValue.textContent = (s && s.label) || 'Elegir estado';
+        statusValue.textContent = (s && s.label) || T('Elegir estado', 'Choose a status');
       };
       paintStatus();
       const statusRow = el('button', {
@@ -163,23 +164,23 @@ export function openQuickAddSheet({ ctx, status = null, getNextPosition, onCreat
           const v = await ctx.pickers.pickStatus({ current: chosenStatus, anchor: statusRow });
           if (v != null) { chosenStatus = v; paintStatus(); }
         },
-      }, [statusDot, el('span', { class: 'kb-qa-row__label', text: 'Estado' }), statusValue, icon('right', 16)]);
+      }, [statusDot, el('span', { class: 'kb-qa-row__label', text: T('Estado', 'Status') }), statusValue, icon('right', 16)]);
 
       // Fila de fecha (opcional).
-      const dateValue = el('span', { class: 'kb-qa-row__value', text: 'Sin fecha' });
+      const dateValue = el('span', { class: 'kb-qa-row__value', text: T('Sin fecha', 'No date') });
       const dateRow = el('button', {
         class: 'kb-qa-row', type: 'button',
         onclick: async () => {
           const v = await ctx.pickers.pickDate({ current: chosenDate || null, anchor: dateRow });
           if (v === null) return;
           chosenDate = v;
-          dateValue.textContent = v ? fmtDate(v) : 'Sin fecha';
+          dateValue.textContent = v ? fmtDate(v) : T('Sin fecha', 'No date');
         },
-      }, [icon('calendar', 18), el('span', { class: 'kb-qa-row__label', text: 'Fecha' }), dateValue, icon('right', 16)]);
+      }, [icon('calendar', 18), el('span', { class: 'kb-qa-row__label', text: T('Fecha', 'Date') }), dateValue, icon('right', 16)]);
 
       // Fila de cliente (solo en "Todos los clientes").
       let clientRow = null;
-      const clientValue = el('span', { class: 'kb-qa-row__value', text: 'Elegir cliente' });
+      const clientValue = el('span', { class: 'kb-qa-row__value', text: T('Elegir cliente', 'Choose a client') });
       if (needsClient) {
         clientRow = el('button', {
           class: 'kb-qa-row', type: 'button',
@@ -188,20 +189,20 @@ export function openQuickAddSheet({ ctx, status = null, getNextPosition, onCreat
             if (v) {
               chosenClient = v;
               const c = (ctx.store.getState().clients || []).find((x) => x.id === v);
-              clientValue.textContent = (c && c.name) || 'Cliente';
+              clientValue.textContent = (c && c.name) || T('Cliente', 'Client');
             }
           },
-        }, [icon('users', 18), el('span', { class: 'kb-qa-row__label', text: 'Cliente' }), clientValue, icon('right', 16)]);
+        }, [icon('users', 18), el('span', { class: 'kb-qa-row__label', text: T('Cliente', 'Client') }), clientValue, icon('right', 16)]);
       }
 
       const saveBtn = el('button', {
-        class: 'btn btn-primary sheet-cta', type: 'button', text: 'Crear contenido',
+        class: 'btn btn-primary sheet-cta', type: 'button', text: T('Crear contenido', 'Create content'),
       });
       saveBtn.addEventListener('click', async () => {
         const title = input.value.trim();
-        if (!title) { ctx.toast('Escribe un titulo para el contenido.', { type: 'error' }); input.focus(); return; }
-        if (!chosenStatus) { ctx.toast('Elige un estado.', { type: 'error' }); return; }
-        if (needsClient && !chosenClient) { ctx.toast('Elige un cliente.', { type: 'error' }); return; }
+        if (!title) { ctx.toast(T('Escribe un titulo para el contenido.', 'Write a title for the content.'), { type: 'error' }); input.focus(); return; }
+        if (!chosenStatus) { ctx.toast(T('Elige un estado.', 'Choose a status.'), { type: 'error' }); return; }
+        if (needsClient && !chosenClient) { ctx.toast(T('Elige un cliente.', 'Choose a client.'), { type: 'error' }); return; }
         saveBtn.disabled = true;
         const post = await doCreate(ctx, {
           title,
@@ -219,10 +220,10 @@ export function openQuickAddSheet({ ctx, status = null, getNextPosition, onCreat
       });
 
       body.append(
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Titulo' }), input]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Titulo', 'Title') }), input]),
         el('div', { class: 'kb-qa-rows' }, [statusRow, dateRow, clientRow]),
         el('div', { class: 'sheet__footer' }, [
-          el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
+          el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
           saveBtn,
         ]),
       );

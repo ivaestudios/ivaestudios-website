@@ -18,6 +18,7 @@
 // ============================================================================
 
 import { el, fmtDate, CONTENT_TYPES, contentTypeLabel } from '../api.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
 import { defaultsForGroup } from './groups.js?v=202607181835';
 
@@ -41,10 +42,10 @@ async function resolveClientId(ctx) {
       color: HEX_RE.test(String(c.brand_color || '')) ? c.brand_color : 'var(--brand)',
     }));
   if (!options.length) {
-    ctx.toast('No hay clientes activos para crear contenido.', { type: 'error' });
+    ctx.toast(T('No hay clientes activos para crear contenido.', 'No active clients to create content for.'), { type: 'error' });
     return null;
   }
-  return ctx.sheet.pickFrom({ title: 'Para que cliente', options });
+  return ctx.sheet.pickFrom({ title: T('Para que cliente', 'For which client'), options });
 }
 
 async function doCreate(ctx, { title, defaults, contentType, position }) {
@@ -60,7 +61,7 @@ async function doCreate(ctx, { title, defaults, contentType, position }) {
   };
   // store.createPost ya hace toast de error y emite posts:changed.
   const post = await ctx.store.createPost(data);
-  if (post) ctx.toast('Contenido creado.', { type: 'success', ms: 1500 });
+  if (post) ctx.toast(T('Contenido creado.', 'Content created.'), { type: 'success', ms: 1500 });
   return post;
 }
 
@@ -76,21 +77,21 @@ export function createQuickAddRow({ ctx, group, mode, colSpan, getNextPosition }
   const input = el('input', {
     class: 'input etable-qa__input',
     type: 'text',
-    placeholder: 'Titulo del contenido',
+    placeholder: T('Titulo del contenido', 'Content title'),
     maxlength: '140',
     autocomplete: 'off',
-    'aria-label': `Titulo del nuevo contenido en ${group.label}`,
+    'aria-label': `${T('Titulo del nuevo contenido en', 'Title of the new content in')} ${group.label}`,
   });
 
   const form = el('div', { class: 'etable-qa__form', hidden: true }, [
     input,
-    el('span', { class: 'etable-qa__hint', text: 'Enter crea · Esc cancela' }),
+    el('span', { class: 'etable-qa__hint', text: T('Enter crea · Esc cancela', 'Enter creates · Esc cancels') }),
   ]);
 
   const openBtn = el('button', {
     class: 'etable-qa__open', type: 'button',
     onclick: () => open(),
-  }, [icon('plus', 16), el('span', { text: 'Agregar contenido' })]);
+  }, [icon('plus', 16), el('span', { text: T('Agregar contenido', 'Add content') })]);
 
   function open() {
     chainState.groupKey = group.key;
@@ -159,7 +160,7 @@ export function createQuickAddButton({ ctx, group, mode, getNextPosition }) {
   return el('button', {
     class: 'etable-qa__mbtn', type: 'button',
     onclick: () => openQuickAddSheet({ ctx, group, mode, getNextPosition }),
-  }, [icon('plus', 18), el('span', { text: 'Agregar' })]);
+  }, [icon('plus', 18), el('span', { text: T('Agregar', 'Add') })]);
 }
 
 /**
@@ -173,26 +174,26 @@ export function openQuickAddSheet({ ctx, group = null, mode = 'month', getNextPo
   const chosenStatus = defaults.status || 'idea';
 
   ctx.sheet.openSheet({
-    title: group ? `Nuevo en ${group.label}` : 'Nuevo contenido',
+    title: group ? `${T('Nuevo en', 'New in')} ${group.label}` : T('Nuevo contenido', 'New content'),
     mode: 'form',
     build(body, close) {
       const input = el('input', {
         class: 'input', type: 'text',
-        placeholder: 'Titulo del contenido',
+        placeholder: T('Titulo del contenido', 'Content title'),
         maxlength: '140', autocomplete: 'off',
-        'aria-label': 'Titulo del nuevo contenido',
+        'aria-label': T('Titulo del nuevo contenido', 'Title of the new content'),
       });
 
       // Chips de defaults editables.
-      const dateChipTxt = el('span', { text: chosenDate ? fmtDate(chosenDate) : 'Sin fecha' });
+      const dateChipTxt = el('span', { text: chosenDate ? fmtDate(chosenDate) : T('Sin fecha', 'No date') });
       const dateChip = el('button', {
         class: 'etable-qa__chip', type: 'button',
-        'aria-label': 'Cambiar fecha',
+        'aria-label': T('Cambiar fecha', 'Change date'),
         onclick: async () => {
           const v = await ctx.pickers.pickDate({ current: chosenDate || null, anchor: dateChip });
           if (v === null) return;
           chosenDate = v;
-          dateChipTxt.textContent = v ? fmtDate(v) : 'Sin fecha';
+          dateChipTxt.textContent = v ? fmtDate(v) : T('Sin fecha', 'No date');
         },
       }, [icon('calendar', 15), dateChipTxt]);
 
@@ -203,7 +204,7 @@ export function openQuickAddSheet({ ctx, group = null, mode = 'month', getNextPo
       });
       const typeChip = el('button', {
         class: 'etable-qa__chip', type: 'button',
-        'aria-label': 'Cambiar tipo de contenido',
+        'aria-label': T('Cambiar tipo de contenido', 'Change content type'),
         onclick: async () => {
           const v = await ctx.pickers.pickType({ current: chosenType, anchor: typeChip });
           if (v == null) return;
@@ -214,12 +215,12 @@ export function openQuickAddSheet({ ctx, group = null, mode = 'month', getNextPo
       }, [typeDot, typeChipTxt]);
 
       const saveBtn = el('button', {
-        class: 'btn btn-primary sheet-cta', type: 'button', text: 'Crear',
+        class: 'btn btn-primary sheet-cta', type: 'button', text: T('Crear', 'Create'),
       });
       saveBtn.addEventListener('click', async () => {
         const title = input.value.trim();
         if (!title) {
-          ctx.toast('Escribe un titulo para el contenido.', { type: 'error' });
+          ctx.toast(T('Escribe un titulo para el contenido.', 'Write a title for the content.'), { type: 'error' });
           input.focus();
           return;
         }
@@ -243,10 +244,10 @@ export function openQuickAddSheet({ ctx, group = null, mode = 'month', getNextPo
       });
 
       body.append(
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Titulo' }), input]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Titulo', 'Title') }), input]),
         el('div', { class: 'etable-qa__chips' }, [dateChip, typeChip]),
         el('div', { class: 'sheet__footer etable-qa__footer' }, [
-          el('button', { class: 'btn', type: 'button', text: 'Listo', onclick: () => close({ source: 'done' }) }),
+          el('button', { class: 'btn', type: 'button', text: T('Listo', 'Done'), onclick: () => close({ source: 'done' }) }),
           saveBtn,
         ]),
       );

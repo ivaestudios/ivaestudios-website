@@ -33,9 +33,10 @@ import { toast } from '../shell/toast.js?v=202607181835';
 import * as store from '../shell/store.js?v=202607181835';
 import * as prefs from '../shell/prefs.js?v=202607181835';
 import { navigate, current } from '../shell/router.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 const TTL = 60000;
-const ERR_SAVE = 'No se pudo guardar, intenta de nuevo.';
+const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', "Couldn't save, try again.");
 
 /** Claves de filtro validas (espejo de los params de ruta del router). */
 export const FILTER_KEYS = ['q', 'estado', 'tipo', 'persona', 'desde', 'hasta'];
@@ -82,7 +83,7 @@ export function normalizeView(v) {
   return {
     id: v.id,
     client_id: v.client_id ?? null,
-    name: String(v.name || 'Vista sin nombre'),
+    name: String(v.name || T('Vista sin nombre', 'Untitled view')),
     base: BASES.includes(base) ? base : 'tabla',
     filters: cleanFilters(filters),
     position: Number(v.position) || 0,
@@ -158,7 +159,7 @@ export function cached(clientId = store.getState().activeClientId) {
 export async function create({ clientId = store.getState().activeClientId, name, base, filters } = {}) {
   const clientKey = keyOf(clientId);
   const nm = String(name || '').trim();
-  if (!nm) { toast('Ponle nombre a la vista.', { type: 'error' }); return null; }
+  if (!nm) { toast(T('Ponle nombre a la vista.', 'Give the view a name.'), { type: 'error' }); return null; }
 
   const existing = cache.get(clientKey);
   const position = (((existing && existing.views.length) || 0) + 1) * 1000;
@@ -253,7 +254,7 @@ export async function update(id, patch) {
     cache.set(clientKey, { at: Date.now(), views: prev });
     emitChanged(clientKey);
     // 404 aqui = la vista ya no existe en el server, no migracion faltante.
-    if (is404(e)) toast('Esa vista ya no existe.', { type: 'error' });
+    if (is404(e)) toast(T('Esa vista ya no existe.', 'That view no longer exists.'), { type: 'error' });
     else toast((e && e.message) || ERR_SAVE, { type: 'error' });
     return false;
   }
@@ -285,7 +286,7 @@ export async function remove(id) {
     }
     cache.set(clientKey, { at: Date.now(), views: prev });
     emitChanged(clientKey);
-    toast((e && e.message) || 'No se pudo eliminar.', { type: 'error' });
+    toast((e && e.message) || T('No se pudo eliminar.', "Couldn't delete."), { type: 'error' });
     return false;
   }
 }

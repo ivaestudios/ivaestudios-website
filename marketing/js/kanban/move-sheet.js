@@ -16,10 +16,11 @@
 
 import { el, STATUSES, STATUS_ORDER } from '../api.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 export const STEP = 1000;
 export const OTHERS_KEY = '__otros__';
-export const OTHERS_LABEL = 'Otros';
+export const OTHERS_LABEL = T('Otros', 'Others');
 export const OTHERS_COLOR = 'var(--text-mute)';
 
 /** Columna a la que pertenece un post: status conocido o bucket Otros. */
@@ -139,7 +140,7 @@ export function openMoveSheet({ ctx, post, getColumns, getFullColumn, onMoved })
   const fromKey = columnKeyOf(post);
 
   ctx.sheet.openSheet({
-    title: 'Mover a',
+    title: T('Mover a', 'Move to'),
     mode: 'picker',
     build(body, close) {
       const list = el('div', { class: 'pick-list', role: 'listbox' });
@@ -147,7 +148,7 @@ export function openMoveSheet({ ctx, post, getColumns, getFullColumn, onMoved })
       const columns = getColumns().filter((c) => c.key !== OTHERS_KEY);
       // Reorden dentro de Otros: unica forma de "mover" sin status valido.
       if (fromKey === OTHERS_KEY) {
-        columns.unshift({ key: OTHERS_KEY, label: `${OTHERS_LABEL} (sin cambiar estado)`, color: OTHERS_COLOR, count: null });
+        columns.unshift({ key: OTHERS_KEY, label: `${OTHERS_LABEL} ${T('(sin cambiar estado)', '(without changing status)')}`, color: OTHERS_COLOR, count: null });
       }
 
       for (const col of columns) {
@@ -161,7 +162,7 @@ export function openMoveSheet({ ctx, post, getColumns, getFullColumn, onMoved })
           el('span', { class: 'pick-row__dot', style: { background: col.color || 'var(--text-mute)' } }),
           el('span', { class: 'pick-row__main' }, [
             el('span', { class: 'pick-row__label', text: col.label }),
-            col.count != null ? el('span', { class: 'pick-row__sub', text: col.count === 1 ? '1 tarjeta' : `${col.count} tarjetas` }) : null,
+            col.count != null ? el('span', { class: 'pick-row__sub', text: col.count === 1 ? T('1 tarjeta', '1 card') : `${col.count} ${T('tarjetas', 'cards')}` }) : null,
           ]),
           isCurrent ? el('span', { class: 'pick-row__check', text: '✓' }) : null,
         ]));
@@ -171,7 +172,7 @@ export function openMoveSheet({ ctx, post, getColumns, getFullColumn, onMoved })
       function pickPlace(col) {
         // Paso 2: posicion dentro de la columna (sheet apilado, max 2 capas).
         ctx.sheet.openSheet({
-          title: `Mover a ${col.key === OTHERS_KEY ? OTHERS_LABEL : col.label}`,
+          title: `${T('Mover a', 'Move to')} ${col.key === OTHERS_KEY ? OTHERS_LABEL : col.label}`,
           mode: 'picker',
           build(body2, close2) {
             const choose = (where) => {
@@ -182,11 +183,11 @@ export function openMoveSheet({ ctx, post, getColumns, getFullColumn, onMoved })
             body2.appendChild(el('div', { class: 'pick-list' }, [
               el('button', { class: 'pick-row', type: 'button', onclick: () => choose('start') }, [
                 icon('up', 18),
-                el('span', { class: 'pick-row__main' }, [el('span', { class: 'pick-row__label', text: 'Al inicio' })]),
+                el('span', { class: 'pick-row__main' }, [el('span', { class: 'pick-row__label', text: T('Al inicio', 'At the top') })]),
               ]),
               el('button', { class: 'pick-row', type: 'button', onclick: () => choose('end') }, [
                 icon('down', 18),
-                el('span', { class: 'pick-row__main' }, [el('span', { class: 'pick-row__label', text: 'Al final' })]),
+                el('span', { class: 'pick-row__main' }, [el('span', { class: 'pick-row__label', text: T('Al final', 'At the bottom') })]),
               ]),
             ]));
           },

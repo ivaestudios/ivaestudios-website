@@ -28,6 +28,7 @@ import {
   chip, statusBadge, avatar,
 } from '../api.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import {
   toISO, parseISO, todayISO, addDays, addDaysISO, addMonths,
   diffDays, startOfWeek, monthRangeISO, listDays,
@@ -124,7 +125,7 @@ function groupedInRange(posts, from, to) {
     if (!groups.has(key)) {
       groups.set(key, {
         key,
-        name: key === SIN_ASIGNAR ? 'Sin asignar' : String(p.assignee).trim(),
+        name: key === SIN_ASIGNAR ? T('Sin asignar', 'Unassigned') : String(p.assignee).trim(),
         items: [],
         statusCounts: {},
       });
@@ -196,12 +197,12 @@ function patchDates(id, fields) {
 async function quickCreate(dayIso, assigneeName) {
   const { activeClientId } = ctx.store.getState();
   if (!activeClientId || activeClientId === 'todos') {
-    ctx.toast('Elige un cliente para crear contenido.', { type: 'info' });
+    ctx.toast(T('Elige un cliente para crear contenido.', 'Choose a client to create content.'), { type: 'info' });
     return;
   }
   const data = {
     client_id: activeClientId,
-    title: 'Nuevo contenido',
+    title: T('Nuevo contenido', 'New content'),
     content_type: 'reel',
     status: 'idea',
     publish_date: dayIso || todayISO(),
@@ -215,7 +216,7 @@ async function quickCreate(dayIso, assigneeName) {
 
 function openLegend() {
   ctx.sheet.openSheet({
-    title: 'Leyenda de estados',
+    title: T('Leyenda de estados', 'Status legend'),
     mode: 'menu',
     build(body) {
       const list = el('div', { class: 'pick-list' });
@@ -229,7 +230,7 @@ function openLegend() {
       }
       body.append(
         list,
-        el('p', { class: 'help tl-legend-note', text: 'Cada barra va del inicio de trabajo a la fecha de publicacion. Sin inicio de trabajo, la barra dura 1 dia.' }),
+        el('p', { class: 'help tl-legend-note', text: T('Cada barra va del inicio de trabajo a la fecha de publicacion. Sin inicio de trabajo, la barra dura 1 dia.', 'Each bar runs from the work start to the publish date. Without a work start, the bar lasts 1 day.') }),
       );
     },
   });
@@ -239,11 +240,11 @@ function openLegend() {
 function openUndatedSheet() {
   const items = undatedPosts();
   ctx.sheet.openSheet({
-    title: `Sin fecha (${items.length})`,
+    title: `${T('Sin fecha', 'No date')} (${items.length})`,
     mode: 'menu',
     build(body) {
       if (!items.length) {
-        body.appendChild(el('p', { class: 'help', text: 'Todo el contenido tiene fecha de publicacion.' }));
+        body.appendChild(el('p', { class: 'help', text: T('Todo el contenido tiene fecha de publicacion.', 'All content has a publish date.') }));
         return;
       }
       const list = el('div', { class: 'tl-ulist' });
@@ -251,22 +252,22 @@ function openUndatedSheet() {
       for (const p of items) {
         const row = el('div', { class: 'tl-uitem' });
         const dateWrap = el('div', { class: 'tl-uitem__date', hidden: true });
-        const input = el('input', { class: 'input', type: 'date', 'aria-label': `Fecha para ${p.title || 'contenido'}` });
+        const input = el('input', { class: 'input', type: 'date', 'aria-label': `${T('Fecha para', 'Date for')} ${p.title || T('contenido', 'content')}` });
         input.addEventListener('change', async () => {
           if (!input.value) return;
           const res = await patchDates(p.id, { publish_date: input.value });
           if (res) {
-            ctx.toast(`Programado para el ${fmtShort(input.value)}.`, { type: 'success' });
+            ctx.toast(`${T('Programado para el', 'Scheduled for')} ${fmtShort(input.value)}.`, { type: 'success' });
             row.remove();
             if (!list.children.length) {
-              list.replaceWith(el('p', { class: 'help', text: 'Todo el contenido tiene fecha de publicacion.' }));
+              list.replaceWith(el('p', { class: 'help', text: T('Todo el contenido tiene fecha de publicacion.', 'All content has a publish date.') }));
             }
           }
         });
         dateWrap.appendChild(input);
         row.append(
           el('div', { class: 'tl-uitem__main' }, [
-            el('div', { class: 'tl-uitem__title', text: p.title || 'Sin titulo' }),
+            el('div', { class: 'tl-uitem__title', text: p.title || T('Sin titulo', 'Untitled') }),
             el('div', { class: 'tl-uitem__meta' }, [
               chip(p.content_type),
               statusBadge(p.status),
@@ -274,7 +275,7 @@ function openUndatedSheet() {
             ]),
           ]),
           el('button', {
-            class: 'btn btn-sm', type: 'button', text: 'Programar',
+            class: 'btn btn-sm', type: 'button', text: T('Programar', 'Schedule'),
             onclick: () => {
               dateWrap.hidden = !dateWrap.hidden;
               if (!dateWrap.hidden) { try { input.focus(); } catch { /* noop */ } }
@@ -300,11 +301,11 @@ function openQuickEdit(postId) {
   const cur = () => postById(postId) || initial;
 
   ctx.sheet.openSheet({
-    title: initial.title || 'Contenido',
+    title: initial.title || T('Contenido', 'Content'),
     mode: 'form',
     build(body, close) {
       // Publicacion
-      const pubInput = el('input', { class: 'input', type: 'date', 'aria-label': 'Fecha de publicacion' });
+      const pubInput = el('input', { class: 'input', type: 'date', 'aria-label': T('Fecha de publicacion', 'Publish date') });
       if (cur().publish_date) pubInput.value = String(cur().publish_date).slice(0, 10);
       pubInput.addEventListener('change', () => {
         const v = pubInput.value || null;
@@ -316,14 +317,14 @@ function openQuickEdit(postId) {
       });
 
       // Inicio de trabajo
-      const wsInput = el('input', { class: 'input', type: 'date', 'aria-label': 'Inicio de trabajo' });
+      const wsInput = el('input', { class: 'input', type: 'date', 'aria-label': T('Inicio de trabajo', 'Work start') });
       if (cur().work_start) wsInput.value = String(cur().work_start).slice(0, 10);
       wsInput.addEventListener('change', () => {
         const v = wsInput.value || null;
         const pub = pubInput.value || null;
         if (v && pub && diffDays(v, pub) !== null && diffDays(v, pub) < 0) {
           wsInput.value = pub;
-          ctx.toast('El inicio no puede ser despues de la publicacion.', { type: 'info' });
+          ctx.toast(T('El inicio no puede ser despues de la publicacion.', 'The start cannot be after the publish date.'), { type: 'info' });
           patchDates(postId, { work_start: pub });
           return;
         }
@@ -331,7 +332,7 @@ function openQuickEdit(postId) {
       });
 
       // Estado: 8 filas de 44px, un tap aplica y guarda
-      const states = el('div', { class: 'tl-qstates', role: 'group', 'aria-label': 'Estado' });
+      const states = el('div', { class: 'tl-qstates', role: 'group', 'aria-label': T('Estado', 'Status') });
       const paintStates = () => {
         const st = cur().status;
         for (const b of states.querySelectorAll('.tl-qstate')) {
@@ -359,7 +360,7 @@ function openQuickEdit(postId) {
       // Responsable
       const personValue = el('span', {
         class: 'tl-qperson__value',
-        text: String(cur().assignee || '').trim() || 'Sin responsable',
+        text: String(cur().assignee || '').trim() || T('Sin responsable', 'No assignee'),
       });
       const personBtn = el('button', {
         class: 'tl-qperson', type: 'button', 'aria-haspopup': 'dialog',
@@ -372,26 +373,26 @@ function openQuickEdit(postId) {
           if (r === null) return;
           const fields = { assignee: r.name || null, assignee_user_id: r.user_id || null };
           const res = await ctx.store.patchPost(postId, fields);
-          if (res) personValue.textContent = r.name || 'Sin responsable';
+          if (res) personValue.textContent = r.name || T('Sin responsable', 'No assignee');
         },
       }, [
         icon('user', 18),
-        el('span', { class: 'tl-qperson__label', text: 'Responsable' }),
+        el('span', { class: 'tl-qperson__label', text: T('Responsable', 'Assignee') }),
         personValue,
         icon('right', 16),
       ]);
 
       body.append(
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Publicacion' }), pubInput]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Publicacion', 'Publish date') }), pubInput]),
         el('div', { class: 'field' }, [
-          el('label', { class: 'label', text: 'Inicio de trabajo' }),
+          el('label', { class: 'label', text: T('Inicio de trabajo', 'Work start') }),
           wsInput,
-          el('span', { class: 'help', text: 'Dejalo vacio si el trabajo es del mismo dia.' }),
+          el('span', { class: 'help', text: T('Dejalo vacio si el trabajo es del mismo dia.', 'Leave it empty if the work happens the same day.') }),
         ]),
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Estado' }), states]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Estado', 'Status') }), states]),
         personBtn,
         el('button', {
-          class: 'btn btn-primary tl-qopen', type: 'button', text: 'Abrir editor completo',
+          class: 'btn btn-primary tl-qopen', type: 'button', text: T('Abrir editor completo', 'Open full editor'),
           onclick: () => { close({ source: 'open-editor' }); ctx.openEditor(postId); },
         }),
       );
@@ -403,25 +404,25 @@ function openQuickEdit(postId) {
 
 function buildToolbar() {
   segSemana = el('button', {
-    type: 'button', role: 'tab', text: 'Semana',
+    type: 'button', role: 'tab', text: T('Semana', 'Week'),
     onclick: () => { if (scale !== 'semana') { scale = 'semana'; ctx.prefs.set('tlScale', scale); scheduleRender(); } },
   });
   segMes = el('button', {
-    type: 'button', role: 'tab', text: 'Mes',
+    type: 'button', role: 'tab', text: T('Mes', 'Month'),
     onclick: () => { if (scale !== 'mes') { scale = 'mes'; ctx.prefs.set('tlScale', scale); scheduleRender(); } },
   });
-  const seg = el('div', { class: 'seg tl-seg', role: 'tablist', 'aria-label': 'Escala del timeline' }, [segSemana, segMes]);
+  const seg = el('div', { class: 'seg tl-seg', role: 'tablist', 'aria-label': T('Escala del timeline', 'Timeline scale') }, [segSemana, segMes]);
 
   const prevBtn = el('button', {
-    class: 'tl-ctl', type: 'button', 'aria-label': 'Rango anterior',
+    class: 'tl-ctl', type: 'button', 'aria-label': T('Rango anterior', 'Previous range'),
     onclick: () => { shiftRange(-1); },
   }, [icon('left', 18)]);
   const nextBtn = el('button', {
-    class: 'tl-ctl', type: 'button', 'aria-label': 'Rango siguiente',
+    class: 'tl-ctl', type: 'button', 'aria-label': T('Rango siguiente', 'Next range'),
     onclick: () => { shiftRange(1); },
   }, [icon('right', 18)]);
   const todayBtn = el('button', {
-    class: 'btn btn-sm tl-today-btn', type: 'button', text: 'Hoy',
+    class: 'btn btn-sm tl-today-btn', type: 'button', text: T('Hoy', 'Today'),
     onclick: () => { refISO = todayISO(); scheduleRender(); },
   });
 
@@ -437,7 +438,7 @@ function buildToolbar() {
 
   const legendBtn = el('button', {
     class: 'tl-ctl tl-ctl--legend', type: 'button', text: '?',
-    'aria-label': 'Leyenda de estados', 'aria-haspopup': 'dialog',
+    'aria-label': T('Leyenda de estados', 'Status legend'), 'aria-haspopup': 'dialog',
     onclick: () => openLegend(),
   });
 
@@ -473,7 +474,7 @@ function updateToolbar() {
 
   const n = undatedPosts().length;
   undatedChip.hidden = n === 0;
-  undatedChip.textContent = `Sin fecha (${n})`;
+  undatedChip.textContent = `${T('Sin fecha', 'No date')} (${n})`;
   undatedChip.setAttribute('aria-expanded', isDesktop() && showAside ? 'true' : 'false');
 }
 
@@ -519,7 +520,7 @@ function buildGroupHead(g, collapsed, asButton = true) {
   return el('button', {
     class: 'tl-ghead', type: 'button',
     'aria-expanded': collapsed ? 'false' : 'true',
-    'aria-label': `${g.name}, ${g.items.length} contenidos, ${collapsed ? 'expandir' : 'colapsar'}`,
+    'aria-label': `${g.name}, ${g.items.length} ${T('contenidos', 'items')}, ${collapsed ? T('expandir', 'expand') : T('colapsar', 'collapse')}`,
     onclick: () => { setCollapsed(g.key, !collapsed); scheduleRender(); },
   }, kids);
 }
@@ -531,7 +532,7 @@ function buildBar(item, a, b, days, group) {
   const clipR = item.end > days[days.length - 1];
   const showAll = ctx.store.getState().activeClientId === 'todos';
   const tip = (showAll && p.client_id ? `${clientName(p.client_id)} · ` : '') +
-    (p.title || 'Sin titulo') + ` · ${STATUSES[p.status] ? STATUSES[p.status].label : p.status}`;
+    (p.title || T('Sin titulo', 'Untitled')) + ` · ${STATUSES[p.status] ? STATUSES[p.status].label : p.status}`;
 
   const bar = el('div', {
     class: 'tl-bar' +
@@ -548,7 +549,7 @@ function buildBar(item, a, b, days, group) {
   bar.style.gridRow = String(item.track + 1);
 
   const showLabel = scale === 'semana' || len >= 3;
-  if (showLabel) bar.appendChild(el('span', { class: 'tl-bar__label', text: p.title || 'Sin titulo' }));
+  if (showLabel) bar.appendChild(el('span', { class: 'tl-bar__label', text: p.title || T('Sin titulo', 'Untitled') }));
 
   if (canDrag()) {
     // Sin handles en bordes recortados por el rango: el dato real vive fuera.
@@ -689,12 +690,12 @@ function renderDesktop(groups, days, from, to) {
   const today = todayISO();
   const collapsedSet = new Set(getCollapsed());
   const cols = `var(--tl-side) repeat(${N}, minmax(var(--tl-day-w), 1fr))`;
-  const scroll = el('div', { class: 'tl-scroll', role: 'grid', 'aria-label': 'Linea de tiempo por responsable' });
+  const scroll = el('div', { class: 'tl-scroll', role: 'grid', 'aria-label': T('Linea de tiempo por responsable', 'Timeline by assignee') });
 
   // Cabecera de dias (sticky top dentro del scroll).
   const head = el('div', { class: 'tl-grid tl-grid--head', role: 'row' });
   head.style.gridTemplateColumns = cols;
-  head.appendChild(el('div', { class: 'tl-corner', text: 'Responsable' }));
+  head.appendChild(el('div', { class: 'tl-corner', text: T('Responsable', 'Assignee') }));
   days.forEach((iso, i) => {
     const d = parseISO(iso);
     const dow = (d.getDay() + 6) % 7;
@@ -712,9 +713,9 @@ function renderDesktop(groups, days, from, to) {
 
   if (!groups.length) {
     const note = el('div', { class: 'tl-empty-range' }, [
-      el('span', { text: 'Sin contenidos en este rango.' }),
+      el('span', { text: T('Sin contenidos en este rango.', 'No content in this range.') }),
       el('button', {
-        class: 'btn btn-sm', type: 'button', text: 'Ir a hoy',
+        class: 'btn btn-sm', type: 'button', text: T('Ir a hoy', 'Go to today'),
         onclick: () => { refISO = todayISO(); scheduleRender(); },
       }),
     ]);
@@ -783,17 +784,17 @@ function renderDesktop(groups, days, from, to) {
 /** Panel lateral desktop "Sin fecha": cards arrastrables + Programar. */
 function renderAside() {
   const items = undatedPosts();
-  const aside = el('aside', { class: 'tl-aside', 'aria-label': 'Contenido sin fecha' });
+  const aside = el('aside', { class: 'tl-aside', 'aria-label': T('Contenido sin fecha', 'Content without a date') });
   aside.appendChild(el('div', { class: 'tl-aside__head' }, [
-    el('h3', { text: `Sin fecha (${items.length})` }),
+    el('h3', { text: `${T('Sin fecha', 'No date')} (${items.length})` }),
     el('button', {
-      class: 'tl-ctl', type: 'button', 'aria-label': 'Cerrar panel',
+      class: 'tl-ctl', type: 'button', 'aria-label': T('Cerrar panel', 'Close panel'),
       onclick: () => { showAside = false; scheduleRender(); },
     }, [icon('close', 16)]),
   ]));
 
   if (!items.length) {
-    aside.appendChild(el('p', { class: 'help', text: 'Todo el contenido tiene fecha. Arrastra una card a la rejilla cuando exista.' }));
+    aside.appendChild(el('p', { class: 'help', text: T('Todo el contenido tiene fecha. Arrastra una card a la rejilla cuando exista.', 'All content has a date. Drag a card onto the grid when one exists.') }));
     return aside;
   }
 
@@ -803,15 +804,15 @@ function renderAside() {
 
   for (const p of items) {
     const card = el('div', { class: 'tl-ucard', dataset: { id: String(p.id) } }, [
-      el('div', { class: 'tl-ucard__title', text: p.title || 'Sin titulo' }),
+      el('div', { class: 'tl-ucard__title', text: p.title || T('Sin titulo', 'Untitled') }),
       el('div', { class: 'tl-ucard__meta' }, [chip(p.content_type), statusBadge(p.status)]),
       el('button', {
-        class: 'btn btn-sm', type: 'button', text: 'Programar',
+        class: 'btn btn-sm', type: 'button', text: T('Programar', 'Schedule'),
         onclick: async (e) => {
           const v = await ctx.pickers.pickDate({ current: null, anchor: e.currentTarget, allowClear: false });
           if (v) {
             const res = await patchDates(p.id, { publish_date: v });
-            if (res) ctx.toast(`Programado para el ${fmtShort(v)}.`, { type: 'success' });
+            if (res) ctx.toast(`${T('Programado para el', 'Scheduled for')} ${fmtShort(v)}.`, { type: 'success' });
           }
         },
       }),
@@ -847,7 +848,7 @@ function renderAside() {
             if (sample) fields.assignee = String(sample.assignee).trim();
           }
           patchDates(p.id, fields).then((res) => {
-            if (res) ctx.toast(`Programado para el ${fmtShort(day)}.`, { type: 'success' });
+            if (res) ctx.toast(`${T('Programado para el', 'Scheduled for')} ${fmtShort(day)}.`, { type: 'success' });
           });
         },
         onCancel() { clearOver(); dragActive = false; flushPendingRender(); },
@@ -880,9 +881,9 @@ function renderMobileWeek(groups, days, from, to) {
 
   if (!groups.length) {
     bodyEl.appendChild(el('div', { class: 'tl-empty-range' }, [
-      el('span', { text: 'Sin contenidos en esta semana.' }),
+      el('span', { text: T('Sin contenidos en esta semana.', 'No content this week.') }),
       el('button', {
-        class: 'btn btn-sm', type: 'button', text: 'Ir a hoy',
+        class: 'btn btn-sm', type: 'button', text: T('Ir a hoy', 'Go to today'),
         onclick: () => { refISO = todayISO(); scheduleRender(); },
       }),
     ]));
@@ -914,11 +915,11 @@ function renderMobileWeek(groups, days, from, to) {
 
         list.appendChild(el('button', {
           class: 'tl-mrow', type: 'button',
-          'aria-label': `${p.title || 'Sin titulo'}, ${STATUSES[p.status] ? STATUSES[p.status].label : p.status}. Editar`,
+          'aria-label': `${p.title || T('Sin titulo', 'Untitled')}, ${STATUSES[p.status] ? STATUSES[p.status].label : p.status}. ${T('Editar', 'Edit')}`,
           onclick: () => openQuickEdit(p.id),
         }, [
           el('span', { class: 'tl-mrow__top' }, [
-            el('span', { class: 'tl-mrow__title', text: p.title || 'Sin titulo' }),
+            el('span', { class: 'tl-mrow__title', text: p.title || T('Sin titulo', 'Untitled') }),
             statusBadge(p.status),
           ]),
           track,
@@ -939,9 +940,9 @@ function renderMobileMonth(groups, from, to) {
 
   if (!items.length) {
     bodyEl.appendChild(el('div', { class: 'tl-empty-range' }, [
-      el('span', { text: 'Sin contenidos en este mes.' }),
+      el('span', { text: T('Sin contenidos en este mes.', 'No content this month.') }),
       el('button', {
-        class: 'btn btn-sm', type: 'button', text: 'Ir a hoy',
+        class: 'btn btn-sm', type: 'button', text: T('Ir a hoy', 'Go to today'),
         onclick: () => { refISO = todayISO(); scheduleRender(); },
       }),
     ]));
@@ -959,8 +960,10 @@ function renderMobileMonth(groups, from, to) {
       const a = parseISO(wFrom);
       const b = parseISO(wTo);
       const title = a.getMonth() === b.getMonth()
-        ? `Semana del ${a.getDate()} al ${b.getDate()} de ${MESES[b.getMonth()]}`
-        : `Semana del ${a.getDate()} de ${MESES[a.getMonth()]} al ${b.getDate()} de ${MESES[b.getMonth()]}`;
+        ? T(`Semana del ${a.getDate()} al ${b.getDate()} de ${MESES[b.getMonth()]}`,
+            `Week of ${MESES[b.getMonth()]} ${a.getDate()}-${b.getDate()}`)
+        : T(`Semana del ${a.getDate()} de ${MESES[a.getMonth()]} al ${b.getDate()} de ${MESES[b.getMonth()]}`,
+            `Week of ${MESES[a.getMonth()]} ${a.getDate()} - ${MESES[b.getMonth()]} ${b.getDate()}`);
       const sec = el('section', { class: 'tl-wsec' });
       sec.appendChild(el('h3', { class: 'tl-wsec__title', text: title }));
       for (const it of inWeek) {
@@ -975,10 +978,10 @@ function renderMobileMonth(groups, from, to) {
         }, [
           el('span', { class: 'tl-mitem__dot', dataset: { status: p.status || '' }, 'aria-hidden': 'true' }),
           el('span', { class: 'tl-mitem__main' }, [
-            el('span', { class: 'tl-mitem__title', text: p.title || 'Sin titulo' }),
+            el('span', { class: 'tl-mitem__title', text: p.title || T('Sin titulo', 'Untitled') }),
             el('span', { class: 'tl-mitem__meta' }, [
               el('span', { text: `${DIAS_CORTOS[dow]} ${d.getDate()}` }),
-              dur > 1 ? el('span', { text: ` · ${dur} dias` }) : null,
+              dur > 1 ? el('span', { text: ` · ${dur} ${T('dias', 'days')}` }) : null,
               who ? el('span', { text: ` · ${who}` }) : null,
             ]),
           ]),
@@ -1017,10 +1020,10 @@ function render() {
   if (!posts || !posts.length) {
     bodyEl.appendChild(el('div', { class: 'empty' }, [
       el('div', { class: 'empty__icon' }, [icon('gantt', 30)]),
-      el('h3', { text: 'Todavia no hay contenidos' }),
-      el('p', { text: 'Crea el primero y miralo en la linea de tiempo.' }),
+      el('h3', { text: T('Todavia no hay contenidos', 'No content yet') }),
+      el('p', { text: T('Crea el primero y miralo en la linea de tiempo.', 'Create the first one and see it on the timeline.') }),
       el('button', {
-        class: 'btn btn-primary', type: 'button', text: 'Nuevo contenido',
+        class: 'btn btn-primary', type: 'button', text: T('Nuevo contenido', 'New content'),
         onclick: () => quickCreate(todayISO(), null),
       }),
     ]));
@@ -1074,7 +1077,7 @@ export default {
     host.appendChild(rootEl);
 
     ctx.setFab({
-      label: 'Nuevo',
+      label: T('Nuevo', 'New'),
       onTap: () => quickCreate(todayISO(), null),
     });
 

@@ -25,6 +25,7 @@ import {
   fmtDate,
 } from '../api.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import { createCard, DEFAULT_CARD_FIELDS, CARD_FIELD_LABELS } from '../kanban/card.js?v=202607181835';
 import { createBattery } from '../kanban/battery.js?v=202607181835';
 import { createColumnComposer, openQuickAddSheet } from '../kanban/quick-add.js?v=202607181835';
@@ -150,16 +151,16 @@ async function applyMove(updates, destLabel) {
   const ok = await ctx.store.reorder(updates);
   if (!ok) return; // el store ya hizo rollback + toast de error
   const canUndo = snap.length && snap.every((s) => s.position != null);
-  ctx.toast(destLabel ? `Movido a ${destLabel}.` : 'Tarjeta reordenada.', {
+  ctx.toast(destLabel ? `${T('Movido a', 'Moved to')} ${destLabel}.` : T('Tarjeta reordenada.', 'Card reordered.'), {
     type: 'success',
-    action: canUndo ? { label: 'Deshacer', onAction: () => { ctx.store.reorder(snap); } } : null,
+    action: canUndo ? { label: T('Deshacer', 'Undo'), onAction: () => { ctx.store.reorder(snap); } } : null,
   });
 }
 
 function openCardMenu(post) {
   const colKey = columnKeyOf(post);
   ctx.sheet.openSheet({
-    title: post.title || 'Contenido',
+    title: post.title || T('Contenido', 'Content'),
     mode: 'menu',
     build(body, close) {
       const row = (ic, label, onTap, danger = false) => el('button', {
@@ -169,33 +170,33 @@ function openCardMenu(post) {
       }, [icon(ic, 20), el('span', { class: 'kb-menu-row__label', text: label }), icon('right', 16)]);
 
       body.appendChild(el('div', { class: 'kb-menu' }, [
-        row('edit', 'Abrir contenido', () => ctx.openEditor(post.id)),
-        row('board', 'Mover a', () => openMoveFor(post)),
-        row('refresh', 'Cambiar estado', async () => {
+        row('edit', T('Abrir contenido', 'Open content'), () => ctx.openEditor(post.id)),
+        row('board', T('Mover a', 'Move to'), () => openMoveFor(post)),
+        row('refresh', T('Cambiar estado', 'Change status'), async () => {
           const v = await ctx.pickers.pickStatus({ current: post.status });
           if (v == null || v === post.status) return;
           const prev = post.status;
           const res = await ctx.store.patchPost(post.id, { status: v });
           if (res) {
-            ctx.toast(`Estado: ${(STATUSES[v] && STATUSES[v].label) || v}.`, {
+            ctx.toast(`${T('Estado', 'Status')}: ${(STATUSES[v] && STATUSES[v].label) || v}.`, {
               type: 'success',
-              action: { label: 'Deshacer', onAction: () => { ctx.store.patchPost(post.id, { status: prev }); } },
+              action: { label: T('Deshacer', 'Undo'), onAction: () => { ctx.store.patchPost(post.id, { status: prev }); } },
             });
           }
         }),
-        row('calendar', 'Cambiar fecha', async () => {
+        row('calendar', T('Cambiar fecha', 'Change date'), async () => {
           const v = await ctx.pickers.pickDate({ current: post.publish_date || null });
           if (v === null) return;
           const prev = post.publish_date || null;
           const res = await ctx.store.patchPost(post.id, { publish_date: v || null });
           if (res) {
-            ctx.toast(v ? `Fecha: ${fmtDate(v)}.` : 'Fecha quitada.', {
+            ctx.toast(v ? `${T('Fecha', 'Date')}: ${fmtDate(v)}.` : T('Fecha quitada.', 'Date removed.'), {
               type: 'success',
-              action: { label: 'Deshacer', onAction: () => { ctx.store.patchPost(post.id, { publish_date: prev }); } },
+              action: { label: T('Deshacer', 'Undo'), onAction: () => { ctx.store.patchPost(post.id, { publish_date: prev }); } },
             });
           }
         }),
-        row('trash', 'Eliminar', () => confirmDelete(post), true),
+        row('trash', T('Eliminar', 'Delete'), () => confirmDelete(post), true),
       ]));
     },
   });
@@ -203,19 +204,19 @@ function openCardMenu(post) {
 
 function confirmDelete(post) {
   ctx.sheet.openSheet({
-    title: 'Eliminar contenido',
+    title: T('Eliminar contenido', 'Delete content'),
     mode: 'form',
     build(body, close) {
       body.append(
-        el('p', { class: 'kb-confirm__txt', text: `Se eliminara "${post.title || 'Sin titulo'}". Esta accion no se puede deshacer.` }),
+        el('p', { class: 'kb-confirm__txt', text: T(`Se eliminara "${post.title || 'Sin titulo'}". Esta accion no se puede deshacer.`, `"${post.title || 'Untitled'}" will be deleted. This action cannot be undone.`) }),
         el('div', { class: 'sheet__footer' }, [
-          el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
+          el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
           el('button', {
-            class: 'btn btn-danger sheet-cta', type: 'button', text: 'Eliminar',
+            class: 'btn btn-danger sheet-cta', type: 'button', text: T('Eliminar', 'Delete'),
             onclick: async () => {
               close({ source: 'confirm' });
               const ok = await ctx.store.removePost(post.id);
-              if (ok) ctx.toast('Contenido eliminado.', { type: 'success' });
+              if (ok) ctx.toast(T('Contenido eliminado.', 'Content deleted.'), { type: 'success' });
             },
           }),
         ]),
@@ -309,7 +310,7 @@ function onDragDrop(c) {
   clearDropUI();
   if (!info) return;
   if (info.denied) {
-    ctx.toast('Otros agrupa estados desconocidos. Elige una columna con estado.', { type: 'info' });
+    ctx.toast(T('Otros agrupa estados desconocidos. Elige una columna con estado.', 'Others groups unknown statuses. Choose a column with a status.'), { type: 'info' });
     return;
   }
 
@@ -364,7 +365,7 @@ function navigateFilters(patch) {
 
 function openFilterSheet() {
   ctx.sheet.openSheet({
-    title: 'Filtros',
+    title: T('Filtros', 'Filters'),
     mode: 'menu',
     build(body, close) {
       const rows = el('div', { class: 'kb-menu' });
@@ -381,13 +382,13 @@ function openFilterSheet() {
       const f = () => activeFilters();
 
       rows.append(
-        mkRow('refresh', 'Estado',
-          () => (f().estado && STATUSES[f().estado] && STATUSES[f().estado].label) || (f().estado || 'Todos'),
+        mkRow('refresh', T('Estado', 'Status'),
+          () => (f().estado && STATUSES[f().estado] && STATUSES[f().estado].label) || (f().estado || T('Todos', 'All')),
           async () => {
             const v = await ctx.sheet.pickFrom({
-              title: 'Estado',
+              title: T('Estado', 'Status'),
               options: [
-                { value: '', label: 'Todos los estados', current: !f().estado },
+                { value: '', label: T('Todos los estados', 'All statuses'), current: !f().estado },
                 ...STATUS_ORDER.map((s) => ({
                   value: s, label: STATUSES[s].label, color: STATUSES[s].color, current: f().estado === s,
                 })),
@@ -395,13 +396,13 @@ function openFilterSheet() {
             });
             if (v !== null) navigateFilters({ estado: v });
           }),
-        mkRow('copy', 'Tipo',
-          () => (f().tipo && CONTENT_TYPES[f().tipo] && CONTENT_TYPES[f().tipo].label) || (f().tipo || 'Todos'),
+        mkRow('copy', T('Tipo', 'Type'),
+          () => (f().tipo && CONTENT_TYPES[f().tipo] && CONTENT_TYPES[f().tipo].label) || (f().tipo || T('Todos', 'All')),
           async () => {
             const v = await ctx.sheet.pickFrom({
-              title: 'Tipo de contenido',
+              title: T('Tipo de contenido', 'Content type'),
               options: [
-                { value: '', label: 'Todos los tipos', current: !f().tipo },
+                { value: '', label: T('Todos los tipos', 'All types'), current: !f().tipo },
                 ...CONTENT_TYPE_ORDER.map((t) => ({
                   value: t, label: CONTENT_TYPES[t].label, color: CONTENT_TYPES[t].color, current: f().tipo === t,
                 })),
@@ -409,17 +410,17 @@ function openFilterSheet() {
             });
             if (v !== null) navigateFilters({ tipo: v });
           }),
-        mkRow('user', 'Responsable',
-          () => f().persona || 'Todas',
+        mkRow('user', T('Responsable', 'Assignee'),
+          () => f().persona || T('Todas', 'All'),
           async () => {
             const users = await ctx.store.loadUsers();
             const names = new Set();
             for (const u of users || []) { if (u.role !== 'client' && u.name) names.add(u.name); }
             for (const p of ctx.store.getState().posts || []) { if (p.assignee) names.add(p.assignee); }
             const v = await ctx.sheet.pickFrom({
-              title: 'Responsable',
+              title: T('Responsable', 'Assignee'),
               options: [
-                { value: '', label: 'Todas las personas', current: !f().persona },
+                { value: '', label: T('Todas las personas', 'All people'), current: !f().persona },
                 ...[...names].sort((a, b) => a.localeCompare(b)).map((n) => ({
                   value: n, label: n, current: f().persona === n,
                 })),
@@ -427,22 +428,22 @@ function openFilterSheet() {
             });
             if (v !== null) navigateFilters({ persona: v });
           }),
-        mkRow('calendar', 'Desde',
-          () => (f().desde ? fmtDate(f().desde) : 'Siempre'),
+        mkRow('calendar', T('Desde', 'From'),
+          () => (f().desde ? fmtDate(f().desde) : T('Siempre', 'Any time')),
           async () => {
-            const v = await ctx.pickers.pickDate({ current: f().desde || null, title: 'Desde' });
+            const v = await ctx.pickers.pickDate({ current: f().desde || null, title: T('Desde', 'From') });
             if (v !== null) navigateFilters({ desde: v });
           }),
-        mkRow('calendar', 'Hasta',
-          () => (f().hasta ? fmtDate(f().hasta) : 'Siempre'),
+        mkRow('calendar', T('Hasta', 'To'),
+          () => (f().hasta ? fmtDate(f().hasta) : T('Siempre', 'Any time')),
           async () => {
-            const v = await ctx.pickers.pickDate({ current: f().hasta || null, title: 'Hasta' });
+            const v = await ctx.pickers.pickDate({ current: f().hasta || null, title: T('Hasta', 'To') });
             if (v !== null) navigateFilters({ hasta: v });
           }),
       );
 
       const clearBtn = el('button', {
-        class: 'btn kb-filter-clear', type: 'button', text: 'Quitar todos los filtros',
+        class: 'btn kb-filter-clear', type: 'button', text: T('Quitar todos los filtros', 'Clear all filters'),
         onclick: () => {
           navigateFilters({ estado: '', tipo: '', persona: '', desde: '', hasta: '', q: '' });
           close({ source: 'clear' });
@@ -458,10 +459,10 @@ function openFilterSheet() {
 
 function openOptionsSheet() {
   ctx.sheet.openSheet({
-    title: 'Opciones del tablero',
+    title: T('Opciones del tablero', 'Board options'),
     mode: 'menu',
     build(body, close) {
-      body.appendChild(el('div', { class: 'kb-menu__sectitle', text: 'Campos de la tarjeta' }));
+      body.appendChild(el('div', { class: 'kb-menu__sectitle', text: T('Campos de la tarjeta', 'Card fields') }));
       const fields = getCardFields();
       const list = el('div', { class: 'kb-menu' });
       for (const key of Object.keys(DEFAULT_CARD_FIELDS)) {
@@ -482,7 +483,7 @@ function openOptionsSheet() {
       body.appendChild(list);
 
       body.appendChild(el('button', {
-        class: 'btn kb-filter-clear', type: 'button', text: 'Expandir todas las columnas',
+        class: 'btn kb-filter-clear', type: 'button', text: T('Expandir todas las columnas', 'Expand all columns'),
         onclick: () => {
           const all = ctx.prefs.get('boardCols', {}) || {};
           all[clientKey()] = [];
@@ -515,11 +516,11 @@ function renderColumn(def, visiblePosts, fields, clientsById, collapsed) {
     return el('section', {
       class: 'kb-col is-collapsed',
       dataset: { col: def.key },
-      'aria-label': `${def.label}, ${visiblePosts.length} tarjetas, colapsada`,
+      'aria-label': `${def.label}, ${visiblePosts.length} ${T('tarjetas', 'cards')}, ${T('colapsada', 'collapsed')}`,
     }, [
       el('button', {
         class: 'kb-col__expand', type: 'button',
-        'aria-label': `Expandir ${def.label}`,
+        'aria-label': `${T('Expandir', 'Expand')} ${def.label}`,
         onclick: () => { setCollapsed(def.key, false); scheduleRender(); },
       }, [
         el('span', { class: 'kb-col__dot', style: { background: def.color } }),
@@ -531,7 +532,7 @@ function renderColumn(def, visiblePosts, fields, clientsById, collapsed) {
 
   const listEl = el('div', { class: 'kb-col__list' });
   if (!visiblePosts.length) {
-    listEl.appendChild(el('div', { class: 'kb-col__empty', text: isOthers ? 'Sin contenidos.' : 'Suelta una tarjeta aqui.' }));
+    listEl.appendChild(el('div', { class: 'kb-col__empty', text: isOthers ? T('Sin contenidos.', 'No content.') : T('Suelta una tarjeta aqui.', 'Drop a card here.') }));
   } else {
     for (const p of visiblePosts) {
       const cl = showClient ? clientsById.get(p.client_id) : null;
@@ -553,7 +554,7 @@ function renderColumn(def, visiblePosts, fields, clientsById, collapsed) {
       el('span', { class: 'kb-col__count', text: String(visiblePosts.length) }),
       el('button', {
         class: 'kb-col__collapse', type: 'button',
-        'aria-label': `Colapsar ${def.label}`,
+        'aria-label': `${T('Colapsar', 'Collapse')} ${def.label}`,
         onclick: () => { setCollapsed(def.key, true); scheduleRender(); },
       }, [icon('left', 16)]),
     ]),
@@ -569,13 +570,13 @@ function renderColumn(def, visiblePosts, fields, clientsById, collapsed) {
       onCreated: () => { /* el store emite posts -> re-render */ },
     }));
   } else {
-    kids.push(el('div', { class: 'kb-col__note', text: 'Estados que ya no existen. Mueve estas tarjetas a una columna.' }));
+    kids.push(el('div', { class: 'kb-col__note', text: T('Estados que ya no existen. Mueve estas tarjetas a una columna.', 'Statuses that no longer exist. Move these cards to a column.') }));
   }
 
   return el('section', {
     class: 'kb-col' + (isOthers ? ' kb-col--others' : ''),
     dataset: { col: def.key },
-    'aria-label': `${def.label}, ${visiblePosts.length} tarjetas`,
+    'aria-label': `${def.label}, ${visiblePosts.length} ${T('tarjetas', 'cards')}`,
   }, kids);
 }
 
@@ -605,10 +606,10 @@ function render() {
     clear(boardEl);
     boardEl.appendChild(el('div', { class: 'kb-empty' }, [
       el('div', { class: 'kb-empty__icon' }, [icon('board', 30)]),
-      el('h3', { text: 'Todavia no hay contenidos' }),
-      el('p', { text: 'Crea el primero y empieza a mover el tablero.' }),
+      el('h3', { text: T('Todavia no hay contenidos', 'No content yet') }),
+      el('p', { text: T('Crea el primero y empieza a mover el tablero.', 'Create the first one and get the board moving.') }),
       el('button', {
-        class: 'btn btn-primary', type: 'button', text: 'Nuevo contenido',
+        class: 'btn btn-primary', type: 'button', text: T('Nuevo contenido', 'New content'),
         onclick: () => openQuickAddSheet({ ctx, getNextPosition: nextPositionFor }),
       }),
     ]));
@@ -632,9 +633,9 @@ function render() {
   const nFilters = filterCount();
   if (nFilters > 0 && !filtered.length) {
     clear(noticeEl).append(
-      el('span', { text: 'Nada coincide con los filtros.' }),
+      el('span', { text: T('Nada coincide con los filtros.', 'Nothing matches the filters.') }),
       el('button', {
-        class: 'kb-notice__clear', type: 'button', text: 'Quitar filtros',
+        class: 'kb-notice__clear', type: 'button', text: T('Quitar filtros', 'Clear filters'),
         onclick: () => navigateFilters({ estado: '', tipo: '', persona: '', desde: '', hasta: '', q: '' }),
       }),
     );
@@ -686,14 +687,14 @@ function openBatterySummary() {
   const defs = columnDefs(posts);
   const total = filtered.length || 1;
   ctx.sheet.pickFrom({
-    title: 'Resumen por estado',
+    title: T('Resumen por estado', 'Summary by status'),
     options: defs.map((d) => {
       const n = (grouped.get(d.key) || []).length;
       return {
         value: d.key,
         label: d.label,
         color: d.color,
-        sub: `${n} ${n === 1 ? 'tarjeta' : 'tarjetas'} · ${Math.round((n / total) * 100)}%`,
+        sub: `${n} ${n === 1 ? T('tarjeta', 'card') : T('tarjetas', 'cards')} · ${Math.round((n / total) * 100)}%`,
       };
     }),
   }).then((key) => { if (key) scrollToColumn(key); });
@@ -708,13 +709,13 @@ export default {
     ctx = c;
     battery = createBattery({ onOpen: openBatterySummary });
     noticeEl = el('div', { class: 'kb-notice', hidden: true });
-    boardEl = el('div', { class: 'kb-board', role: 'list', 'aria-label': 'Tablero por estado' });
+    boardEl = el('div', { class: 'kb-board', role: 'list', 'aria-label': T('Tablero por estado', 'Board by status') });
     rootEl = el('div', { class: 'kb-root' }, [battery.el, noticeEl, boardEl]);
     host.appendChild(rootEl);
 
     // FAB global: nuevo contenido (primera columna por defecto).
     ctx.setFab({
-      label: 'Nuevo',
+      label: T('Nuevo', 'New'),
       onTap: () => openQuickAddSheet({
         ctx,
         status: STATUS_ORDER[0],
@@ -726,11 +727,11 @@ export default {
     // Controles de vista en el subhead: filtros + opciones.
     filterBadge = el('span', { class: 'kb-ctl__badge', hidden: true });
     const filterBtn = el('button', {
-      class: 'kb-ctl', type: 'button', 'aria-label': 'Filtros', 'aria-haspopup': 'dialog',
+      class: 'kb-ctl', type: 'button', 'aria-label': T('Filtros', 'Filters'), 'aria-haspopup': 'dialog',
       onclick: () => openFilterSheet(),
     }, [icon('filter', 18), filterBadge]);
     const optsBtn = el('button', {
-      class: 'kb-ctl', type: 'button', 'aria-label': 'Opciones del tablero', 'aria-haspopup': 'dialog',
+      class: 'kb-ctl', type: 'button', 'aria-label': T('Opciones del tablero', 'Board options'), 'aria-haspopup': 'dialog',
       onclick: () => openOptionsSheet(),
     }, [icon('settings', 18)]);
     ctx.setViewControls([filterBtn, optsBtn]);

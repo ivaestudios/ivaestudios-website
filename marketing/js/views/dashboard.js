@@ -27,6 +27,7 @@
 
 import { api, el, clear } from '../api.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import {
   todayISO, addDaysISO, addMonths, parseISO, toISO,
   fmtMonthYear, fmtShort, fmtLong,
@@ -148,7 +149,7 @@ async function load({ force = false, silent = false } = {}) {
     if (my !== seq || !rootEl) return;
     dataState.loading = false;
     if (!(silent && dataState.data)) {
-      dataState.error = (e && e.message) || 'No se pudo cargar el resumen.';
+      dataState.error = (e && e.message) || T('No se pudo cargar el resumen.', "Couldn't load the summary.");
       dataState.data = null;
       renderBody();
     }
@@ -207,7 +208,10 @@ function jumpStatus(key) {
 
 // ── Subtítulos de las tarjetas KPI (rango de la semana + desglose por tipo) ──
 
-const MESES_CORTOS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const MESES_CORTOS = T(
+  ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
+  ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+);
 
 /** "1-7 jul" (o "28 jun-4 jul" si cruza de mes) para el subtítulo de Esta semana. */
 function weekRangeLabel(today) {
@@ -236,7 +240,7 @@ function typeBreakdownLabel() {
     }
     const parts = [];
     if (reels.length) parts.push(`${reels.length} ${reels.length === 1 ? 'reel' : 'reels'}`);
-    if (carr.length) parts.push(`${carr.length} ${carr.length === 1 ? 'carrusel' : 'carruseles'}`);
+    if (carr.length) parts.push(`${carr.length} ${carr.length === 1 ? T('carrusel', 'carousel') : T('carruseles', 'carousels')}`);
     return parts.join(' · ');
   } catch {
     return '';
@@ -285,7 +289,7 @@ function openPost(item) {
 async function reschedule(item) {
   const v = await ctx.pickers.pickDate({
     current: item.publish_date || null,
-    title: 'Reprogramar publicacion',
+    title: T('Reprogramar publicacion', 'Reschedule post'),
     allowClear: false,
   });
   if (v == null || v === '') return;
@@ -321,10 +325,10 @@ async function reschedule(item) {
     return;
   }
 
-  ctx.toast(`Reprogramado al ${fmtShort(v)}.`, {
+  ctx.toast(`${T('Reprogramado al', 'Rescheduled to')} ${fmtShort(v)}.`, {
     type: 'success',
     action: {
-      label: 'Deshacer',
+      label: T('Deshacer', 'Undo'),
       onAction: () => {
         ctx.store.patchPost(item.id, { publish_date: prevDate });
         scheduleSilentReload();
@@ -346,10 +350,10 @@ async function resolveClientId() {
       color: HEX_RE.test(String(c.brand_color || '')) ? c.brand_color : 'var(--brand)',
     }));
   if (!options.length) {
-    ctx.toast('No hay clientes activos para crear contenido.', { type: 'error' });
+    ctx.toast(T('No hay clientes activos para crear contenido.', 'No active clients to create content for.'), { type: 'error' });
     return null;
   }
-  return ctx.sheet.pickFrom({ title: 'Para que cliente', options });
+  return ctx.sheet.pickFrom({ title: T('Para que cliente', 'For which client'), options });
 }
 
 /** Position sparse al final de la columna Idea de ese cliente. */
@@ -371,20 +375,20 @@ async function openQuickCreate() {
   const cid = await resolveClientId();
   if (!cid || !ctx) return;
   ctx.sheet.openSheet({
-    title: 'Nuevo contenido',
+    title: T('Nuevo contenido', 'New content'),
     mode: 'form',
     build(body, close) {
       const input = el('input', {
         class: 'input', type: 'text', maxlength: '140',
-        placeholder: 'Titulo del contenido',
-        'aria-label': 'Titulo del contenido',
+        placeholder: T('Titulo del contenido', 'Content title'),
+        'aria-label': T('Titulo del contenido', 'Content title'),
         autocomplete: 'off',
       });
       const dateInput = el('input', { class: 'input pk-date', type: 'date' });
       let busy = false;
 
       const createBtn = el('button', {
-        class: 'btn btn-primary sheet-cta', type: 'button', text: 'Crear',
+        class: 'btn btn-primary sheet-cta', type: 'button', text: T('Crear', 'Create'),
         onclick: () => submit(),
       });
 
@@ -401,7 +405,7 @@ async function openQuickCreate() {
         createBtn.removeAttribute('data-loading');
         if (post) {
           close({ source: 'save' });
-          ctx.toast('Contenido creado.', { type: 'success' });
+          ctx.toast(T('Contenido creado.', 'Content created.'), { type: 'success' });
           scheduleSilentReload();
         }
       }
@@ -409,13 +413,13 @@ async function openQuickCreate() {
       input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
 
       body.append(
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Titulo' }), input]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Titulo', 'Title') }), input]),
         el('div', { class: 'field' }, [
-          el('label', { class: 'label', text: 'Fecha de publicacion (opcional)' }),
+          el('label', { class: 'label', text: T('Fecha de publicacion (opcional)', 'Publish date (optional)') }),
           dateInput,
         ]),
         el('div', { class: 'sheet__footer' }, [
-          el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
+          el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
           createBtn,
         ]),
       );
@@ -428,11 +432,11 @@ async function openQuickCreate() {
 function openStreakSheet() {
   const days = [...(((dataState.data || {}).activity || {}).days || [])].reverse();
   ctx.sheet.openSheet({
-    title: 'Actividad de los ultimos 14 dias',
+    title: T('Actividad de los ultimos 14 dias', 'Activity in the last 14 days'),
     mode: 'menu',
     build(body) {
       if (!days.length) {
-        body.appendChild(el('p', { class: 'dash-sheet__empty', text: 'Sin datos de actividad todavia.' }));
+        body.appendChild(el('p', { class: 'dash-sheet__empty', text: T('Sin datos de actividad todavia.', 'No activity data yet.') }));
         return;
       }
       const list = el('div', { class: 'dash-actlist' });
@@ -443,7 +447,7 @@ function openStreakSheet() {
           el('span', { class: 'dash-actrow__day', text: fmtLong(d.date) }),
           el('span', {
             class: 'dash-actrow__count',
-            text: c > 0 ? `${c} ${c === 1 ? 'accion' : 'acciones'}` : 'Sin actividad',
+            text: c > 0 ? `${c} ${c === 1 ? T('accion', 'action') : T('acciones', 'actions')}` : T('Sin actividad', 'No activity'),
           }),
         ]));
       }
@@ -483,27 +487,27 @@ function shiftMonth(delta) {
 
 function buildHead() {
   scopeClienteBtn = el('button', {
-    type: 'button', role: 'tab', text: 'Cliente',
+    type: 'button', role: 'tab', text: T('Cliente', 'Client'),
     onclick: () => setScope('cliente'),
   });
   scopeAgenciaBtn = el('button', {
-    type: 'button', role: 'tab', text: 'Agencia',
+    type: 'button', role: 'tab', text: T('Agencia', 'Agency'),
     onclick: () => setScope('agencia'),
   });
   scopeSeg = el('div', {
-    class: 'seg dash-scope', role: 'tablist', 'aria-label': 'Alcance del resumen',
+    class: 'seg dash-scope', role: 'tablist', 'aria-label': T('Alcance del resumen', 'Summary scope'),
   }, [scopeClienteBtn, scopeAgenciaBtn]);
 
   scopeNoteEl = el('span', { class: 'dash-scopenote', hidden: true });
 
   refreshBtn = el('button', {
-    class: 'dash-iconbtn', type: 'button', 'aria-label': 'Actualizar resumen',
+    class: 'dash-iconbtn', type: 'button', 'aria-label': T('Actualizar resumen', 'Refresh summary'),
     onclick: () => load({ force: true }),
   }, [icon('refresh', 20)]);
 
   monthLabelEl = el('h2', { class: 'dash-month__label', 'aria-live': 'polite' });
   todayBtn = el('button', {
-    class: 'btn btn-sm dash-today', type: 'button', text: 'Este mes', hidden: true,
+    class: 'btn btn-sm dash-today', type: 'button', text: T('Este mes', 'This month'), hidden: true,
     onclick: () => { dmonth = currentMonth(); updateHead(); load(); },
   });
 
@@ -516,12 +520,12 @@ function buildHead() {
     ]),
     el('div', { class: 'dash-head__row dash-head__row--month' }, [
       el('button', {
-        class: 'dash-iconbtn', type: 'button', 'aria-label': 'Mes anterior',
+        class: 'dash-iconbtn', type: 'button', 'aria-label': T('Mes anterior', 'Previous month'),
         onclick: () => shiftMonth(-1),
       }, [icon('left', 20)]),
       monthLabelEl,
       el('button', {
-        class: 'dash-iconbtn', type: 'button', 'aria-label': 'Mes siguiente',
+        class: 'dash-iconbtn', type: 'button', 'aria-label': T('Mes siguiente', 'Next month'),
         onclick: () => shiftMonth(1),
       }, [icon('right', 20)]),
       todayBtn,
@@ -539,9 +543,9 @@ function updateHead() {
 
   scopeSeg.hidden = !showToggle;
   scopeNoteEl.hidden = showToggle;
-  scopeNoteEl.textContent = isTodos ? 'Todos los clientes' : (cur ? cur.name : 'Resumen');
+  scopeNoteEl.textContent = isTodos ? T('Todos los clientes', 'All clients') : (cur ? cur.name : T('Resumen', 'Summary'));
 
-  scopeClienteBtn.textContent = cur ? cur.name : 'Cliente';
+  scopeClienteBtn.textContent = cur ? cur.name : T('Cliente', 'Client');
   const scope = effectiveScope();
   scopeClienteBtn.classList.toggle('is-active', scope === 'cliente');
   scopeClienteBtn.setAttribute('aria-selected', scope === 'cliente' ? 'true' : 'false');
@@ -669,7 +673,7 @@ export default {
     rootEl = el('div', { class: 'dash-root' }, [headEl, bodyEl]);
     host.appendChild(rootEl);
 
-    ctx.setFab({ label: 'Nuevo', onTap: () => openQuickCreate() });
+    ctx.setFab({ label: T('Nuevo', 'New'), onTap: () => openQuickCreate() });
 
     // Cualquier mutacion propia invalida el cache; un posts:changed re-fetcha
     // en background (debounced) para que los numeros nunca queden viejos.

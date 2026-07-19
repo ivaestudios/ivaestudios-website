@@ -8,6 +8,7 @@
 // ============================================================================
 
 import { el } from '../api.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import {
   fmtYMD, parseYMD, addDays, dayLong, todayYMD, buildPostCard,
 } from './data.js?v=202607181835';
@@ -36,7 +37,7 @@ export function renderAgenda(mainEl, ctx, { byDay, backlog, clientsById, isTodos
     onclick: () => calState.setMiniOpen(!calState.get().miniOpen),
   }, [
     ctx.icons(st.miniOpen ? 'up' : 'down', 16),
-    el('span', { text: st.miniOpen ? 'Ocultar mes' : 'Ver mes' }),
+    el('span', { text: st.miniOpen ? T('Ocultar mes', 'Hide month') : T('Ver mes', 'Show month') }),
   ]);
 
   const miniWrap = el('div', { class: 'ag-mini' });
@@ -59,14 +60,14 @@ export function renderAgenda(mainEl, ctx, { byDay, backlog, clientsById, isTodos
 
   const prevBtn = el('button', {
     class: 'ag-strip__nav', type: 'button',
-    'aria-label': 'Dia anterior',
+    'aria-label': T('Dia anterior', 'Previous day'),
     onclick: () => calState.selectDay(prevDay),
   }, [ctx.icons('left', 20)]);
   markDropTarget(prevBtn, prevDay);
 
   const nextBtn = el('button', {
     class: 'ag-strip__nav', type: 'button',
-    'aria-label': 'Dia siguiente',
+    'aria-label': T('Dia siguiente', 'Next day'),
     onclick: () => calState.selectDay(nextDay),
   }, [ctx.icons('right', 20)]);
   markDropTarget(nextBtn, nextDay);
@@ -76,9 +77,9 @@ export function renderAgenda(mainEl, ctx, { byDay, backlog, clientsById, isTodos
     el('div', { class: 'ag-strip__mid' }, [
       el('span', { class: 'ag-strip__day', text: dayLong(selectedDate) }),
       isToday
-        ? el('span', { class: 'ag-strip__todaytag', text: 'Hoy' })
+        ? el('span', { class: 'ag-strip__todaytag', text: T('Hoy', 'Today') })
         : el('button', {
-          class: 'ag-strip__today', type: 'button', text: 'Ir a hoy',
+          class: 'ag-strip__today', type: 'button', text: T('Ir a hoy', 'Go to today'),
           onclick: () => calState.goToday(),
         }),
     ]),
@@ -92,9 +93,9 @@ export function renderAgenda(mainEl, ctx, { byDay, backlog, clientsById, isTodos
   if (!posts.length) {
     list.appendChild(el('div', { class: 'ag-empty' }, [
       ctx.icons('calendar', 26),
-      el('p', { text: 'Nada programado este dia.' }),
+      el('p', { text: T('Nada programado este dia.', 'Nothing scheduled for this day.') }),
       el('button', {
-        class: 'btn btn-primary', type: 'button', text: 'Crear contenido',
+        class: 'btn btn-primary', type: 'button', text: T('Crear contenido', 'Create content'),
         onclick: () => openQuickCreate(ctx, { date: selected }),
       }),
     ]));
@@ -118,7 +119,7 @@ export function renderAgenda(mainEl, ctx, { byDay, backlog, clientsById, isTodos
     onclick: () => calState.setBacklogOpen(!calState.get().backlogOpen),
   }, [
     ctx.icons('inbox', 18),
-    el('span', { class: 'ag-bk__title', text: 'Sin fecha' }),
+    el('span', { class: 'ag-bk__title', text: T('Sin fecha', 'No date') }),
     backlog.length ? el('span', { class: 'ag-bk__count', text: String(backlog.length) }) : null,
     ctx.icons(bkOpen ? 'up' : 'down', 16),
   ]);
@@ -128,9 +129,9 @@ export function renderAgenda(mainEl, ctx, { byDay, backlog, clientsById, isTodos
   markDropTarget(bkBody, '');
   if (bkOpen) {
     if (!backlog.length) {
-      bkBody.appendChild(el('p', { class: 'ag-bk__empty', text: 'No hay contenidos sin fecha. Arrastra uno aqui para quitarle la fecha.' }));
+      bkBody.appendChild(el('p', { class: 'ag-bk__empty', text: T('No hay contenidos sin fecha. Arrastra uno aqui para quitarle la fecha.', 'No unscheduled content. Drag an item here to remove its date.') }));
     } else {
-      bkBody.appendChild(el('p', { class: 'ag-bk__hint', text: 'Manten presionada una tarjeta y suelta sobre un dia del mes para programarla.' }));
+      bkBody.appendChild(el('p', { class: 'ag-bk__hint', text: T('Manten presionada una tarjeta y suelta sobre un dia del mes para programarla.', 'Press and hold a card, then drop it on a day of the month to schedule it.') }));
       for (const p of backlog) {
         const card = buildPostCard(ctx, p, {
           client: clientOf(p),
@@ -144,7 +145,7 @@ export function renderAgenda(mainEl, ctx, { byDay, backlog, clientsById, isTodos
     bkBody.hidden = true;
   }
 
-  const bk = el('section', { class: 'ag-bk', 'aria-label': 'Contenidos sin fecha' }, [bkHead, bkBody]);
+  const bk = el('section', { class: 'ag-bk', 'aria-label': T('Contenidos sin fecha', 'Unscheduled content') }, [bkHead, bkBody]);
 
   mainEl.append(miniToggle, miniWrap, strip, list, bk);
 }

@@ -9,6 +9,7 @@
 // incluidos). En exito se ofrece Deshacer via toast.
 // ============================================================================
 
+import { T } from '../shell/i18n.js?v=202607181835';
 import { parseYMD, dayShort, todayYMD } from './data.js?v=202607181835';
 
 export const DROP_SELECTOR = '[data-cal-drop]';
@@ -49,14 +50,14 @@ export async function reschedule(ctx, postId, newDay, prevDay) {
 
   const d = next ? parseYMD(next) : null;
   let msg;
-  if (!next) msg = 'Enviado a Sin fecha.';
-  else if (next === todayYMD()) msg = 'Programado para hoy.';
-  else msg = `Movido al ${dayShort(d)}.`;
+  if (!next) msg = T('Enviado a Sin fecha.', 'Sent to No date.');
+  else if (next === todayYMD()) msg = T('Programado para hoy.', 'Scheduled for today.');
+  else msg = `${T('Movido al', 'Moved to')} ${dayShort(d)}.`;
 
   ctx.toast(msg, {
     type: 'success',
     action: {
-      label: 'Deshacer',
+      label: T('Deshacer', 'Undo'),
       onAction: () => { ctx.store.patchPost(postId, { publish_date: prev }); },
     },
   });
@@ -137,36 +138,36 @@ export function openCardMenu(ctx, post, { anchor = null } = {}) {
   };
 
   ctx.sheet.openSheet({
-    title: post.title || 'Contenido',
+    title: post.title || T('Contenido', 'Content'),
     mode: 'menu',
     anchor,
     build(body, close) {
       body.append(
-        row('edit', 'Abrir contenido', () => {
+        row('edit', T('Abrir contenido', 'Open content'), () => {
           close({ source: 'open' });
           ctx.openEditor(post.id);
         }),
-        row('calendar', hasDate ? 'Mover a otra fecha' : 'Programar fecha', async () => {
+        row('calendar', hasDate ? T('Mover a otra fecha', 'Move to another date') : T('Programar fecha', 'Schedule date'), async () => {
           close({ source: 'date' });
           const picked = await ctx.pickers.pickDate({
             current: prevDay || null,
-            title: 'Mover a',
+            title: T('Mover a', 'Move to'),
             allowClear: hasDate,
           });
           if (picked === null) return;       // cancelado
           reschedule(ctx, post.id, picked, prevDay);
         }),
-        row('check', 'Cambiar estado', async () => {
+        row('check', T('Cambiar estado', 'Change status'), async () => {
           close({ source: 'status' });
           const s = await ctx.pickers.pickStatus({ current: post.status });
           if (s === null || s === post.status) return;
           ctx.store.patchPost(post.id, { status: s });
         }),
-        hasDate ? row('inbox', 'Quitar fecha (backlog)', () => {
+        hasDate ? row('inbox', T('Quitar fecha (backlog)', 'Remove date (backlog)'), () => {
           close({ source: 'unschedule' });
           reschedule(ctx, post.id, '', prevDay);
         }) : null,
-        row('trash', 'Eliminar', () => {
+        row('trash', T('Eliminar', 'Delete'), () => {
           close({ source: 'delete' });
           confirmDelete(ctx, post);
         }, true),
@@ -178,28 +179,31 @@ export function openCardMenu(ctx, post, { anchor = null } = {}) {
 /** Confirmacion explicita antes de borrar (no hay undo de delete). */
 export function confirmDelete(ctx, post) {
   ctx.sheet.openSheet({
-    title: 'Eliminar contenido',
+    title: T('Eliminar contenido', 'Delete content'),
     mode: 'form',
     build(body, close) {
       const p = document.createElement('p');
       p.className = 'cal-confirm__txt';
-      p.textContent = `Se eliminara "${post.title || 'Sin titulo'}" de forma permanente. Esta accion no se puede deshacer.`;
+      p.textContent = T(
+        `Se eliminara "${post.title || 'Sin titulo'}" de forma permanente. Esta accion no se puede deshacer.`,
+        `"${post.title || 'Untitled'}" will be permanently deleted. This action cannot be undone.`,
+      );
 
       const cancel = document.createElement('button');
       cancel.type = 'button';
       cancel.className = 'btn';
-      cancel.textContent = 'Cancelar';
+      cancel.textContent = T('Cancelar', 'Cancel');
       cancel.addEventListener('click', () => close({ source: 'cancel' }));
 
       const del = document.createElement('button');
       del.type = 'button';
       del.className = 'btn btn-danger sheet-cta';
-      del.textContent = 'Eliminar';
+      del.textContent = T('Eliminar', 'Delete');
       del.addEventListener('click', async () => {
         del.disabled = true;
         const ok = await ctx.store.removePost(post.id);
         if (ok) {
-          ctx.toast('Contenido eliminado.', { type: 'success' });
+          ctx.toast(T('Contenido eliminado.', 'Content deleted.'), { type: 'success' });
           close({ source: 'deleted' });
         } else {
           del.disabled = false; // removePost ya mostro el toast de error

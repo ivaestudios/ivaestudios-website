@@ -27,6 +27,7 @@
 
 import { api, el, clear, timeAgo } from '../api.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 // CSS del paquete (vive en css/mywork.css junto a la vista Mi trabajo).
 // Lazy y con guard: si app.html ya lo linkea, no duplica.
@@ -40,73 +41,73 @@ function ensurePackageCss() {
   document.head.appendChild(link);
 }
 
-const ERR_SAVE = 'No se pudo guardar, intenta de nuevo.';
+const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', "Couldn't save, try again.");
 
 // Catalogo (orden curado; keys identicas al backend).
 const RECIPES = [
   {
     key: 'aprobado_mueve_estado',
     ic: 'check',
-    when: 'el cliente aprueba',
-    then: 'mover el post a Aprobado y avisar al equipo',
-    desc: 'El pipeline avanza solo en todas las vistas y el equipo se entera al momento.',
+    when: T('el cliente aprueba', 'the client approves'),
+    then: T('mover el post a Aprobado y avisar al equipo', 'move the post to Approved and notify the team'),
+    desc: T('El pipeline avanza solo en todas las vistas y el equipo se entera al momento.', 'The pipeline moves forward on its own in every view and the team knows right away.'),
   },
   {
     key: 'aviso_cambios',
     ic: 'edit',
-    when: 'el cliente pide cambios',
-    then: 'avisar al asignado y a los admins con su comentario',
-    desc: 'El aviso incluye el comentario del cliente para actuar sin abrir el portal.',
+    when: T('el cliente pide cambios', 'the client requests changes'),
+    then: T('avisar al asignado y a los admins con su comentario', 'notify the assignee and admins with their comment'),
+    desc: T('El aviso incluye el comentario del cliente para actuar sin abrir el portal.', "The alert includes the client's comment so you can act without opening the portal."),
   },
   {
     key: 'aviso_comentario',
     ic: 'send',
-    when: 'el cliente comenta',
-    then: 'avisar al equipo',
-    desc: 'Ningun comentario del cliente se queda sin leer.',
+    when: T('el cliente comenta', 'the client comments'),
+    then: T('avisar al equipo', 'notify the team'),
+    desc: T('Ningun comentario del cliente se queda sin leer.', 'No client comment goes unread.'),
   },
   {
     key: 'aviso_asignacion',
     ic: 'user',
-    when: 'te asignan un post',
-    then: 'recibir un aviso',
-    desc: 'Solo dispara cuando cambia el responsable. Nunca al autoasignarte.',
+    when: T('te asignan un post', 'a post is assigned to you'),
+    then: T('recibir un aviso', 'get an alert'),
+    desc: T('Solo dispara cuando cambia el responsable. Nunca al autoasignarte.', 'Only fires when the assignee changes. Never when you self-assign.'),
   },
   {
     key: 'recordatorio_publicacion',
     ic: 'clock',
-    when: 'falta poco para publicar',
-    then: 'avisar si el post no esta Programado ni Publicado',
-    desc: 'Un recordatorio por post por dia, al asignado y a los admins.',
+    when: T('falta poco para publicar', 'publish time is near'),
+    then: T('avisar si el post no esta Programado ni Publicado', 'alert if the post is not Scheduled or Published'),
+    desc: T('Un recordatorio por post por dia, al asignado y a los admins.', 'One reminder per post per day, to the assignee and admins.'),
     config: {
       field: 'days_before',
-      label: 'Avisar con',
+      label: T('Avisar con', 'Alert with'),
       options: [
-        { value: 1, label: '1 dia de anticipacion' },
-        { value: 2, label: '2 dias de anticipacion' },
+        { value: 1, label: T('1 dia de anticipacion', '1 day in advance') },
+        { value: 2, label: T('2 dias de anticipacion', '2 days in advance') },
       ],
     },
   },
   {
     key: 'marcar_atrasado',
     ic: 'warning',
-    when: 'la fecha paso y el post sigue en Programado',
-    then: 'marcarlo Atrasado y avisar',
-    desc: 'El post se pinta con la etiqueta roja Atrasado y avisa una vez al dia.',
+    when: T('la fecha paso y el post sigue en Programado', 'the date passed and the post is still Scheduled'),
+    then: T('marcarlo Atrasado y avisar', 'mark it Overdue and notify'),
+    desc: T('El post se pinta con la etiqueta roja Atrasado y avisa una vez al dia.', 'The post gets the red Overdue label and alerts once a day.'),
   },
   {
     key: 'aviso_revision_cliente',
     ic: 'eye',
-    when: 'un post entra a Revision',
-    then: 'avisar que espera la decision del cliente',
-    desc: 'Para dar seguimiento cuando algo lleva dias esperando al cliente.',
+    when: T('un post entra a Revision', 'a post enters Review'),
+    then: T('avisar que espera la decision del cliente', "alert that it awaits the client's decision"),
+    desc: T('Para dar seguimiento cuando algo lleva dias esperando al cliente.', 'To follow up when something has been waiting on the client for days.'),
   },
   {
     key: 'alerta_sin_aprobar',
     ic: 'bell',
-    when: 'llega la fecha sin aprobacion del cliente',
-    then: 'alertar al equipo',
-    desc: 'Ultima linea de defensa antes de publicar sin visto bueno.',
+    when: T('llega la fecha sin aprobacion del cliente', 'the date arrives without client approval'),
+    then: T('alertar al equipo', 'alert the team'),
+    desc: T('Ultima linea de defensa antes de publicar sin visto bueno.', 'Last line of defense before publishing without sign-off.'),
   },
 ];
 
@@ -150,7 +151,7 @@ async function load() {
       phase = 'unavailable';
     } else {
       phase = 'error';
-      errMsg = (e && e.message) || 'No se pudo cargar.';
+      errMsg = (e && e.message) || T('No se pudo cargar.', "Couldn't load.");
     }
   }
   render();
@@ -194,17 +195,17 @@ async function patchRecipe(key, body, okMsg) {
 
 function toggleRecipe(key) {
   const on = !stateOf(key).enabled;
-  patchRecipe(key, { enabled: on }, on ? 'Receta activada.' : 'Receta desactivada.');
+  patchRecipe(key, { enabled: on }, on ? T('Receta activada.', 'Recipe turned on.') : T('Receta desactivada.', 'Recipe turned off.'));
 }
 
 function setDaysBefore(key, n) {
-  patchRecipe(key, { config: { days_before: n } }, 'Guardado.');
+  patchRecipe(key, { config: { days_before: n } }, T('Guardado.', 'Saved.'));
 }
 
 // ── Render ───────────────────────────────────────────────────────────────────
 
 function metaText(st) {
-  return st.updated_at ? `Editada ${timeAgo(st.updated_at)}` : '';
+  return st.updated_at ? `${T('Editada', 'Edited')} ${timeAgo(st.updated_at)}` : '';
 }
 
 function patchCard(key) {
@@ -229,14 +230,14 @@ function renderCard(def) {
     class: 'au-switch' + (st.enabled ? ' is-on' : ''),
     type: 'button', role: 'switch',
     'aria-checked': st.enabled ? 'true' : 'false',
-    'aria-label': `Receta: cuando ${def.when}, ${def.then}`,
+    'aria-label': `${T('Receta: cuando', 'Recipe: when')} ${def.when}, ${def.then}`,
     onclick: () => toggleRecipe(def.key),
   }, [
     el('span', { class: 'au-switch__track' }, [el('span', { class: 'au-switch__thumb' })]),
   ]);
 
   const sentence = el('p', { class: 'au-card__sentence' }, [
-    'Cuando ',
+    T('Cuando ', 'When '),
     el('span', { class: 'au-chip au-chip--when', text: def.when }),
     ', ',
     el('span', { class: 'au-chip au-chip--then', text: def.then }),
@@ -256,7 +257,7 @@ function renderCard(def) {
   if (def.config) {
     select = el('select', {
       class: 'au-select',
-      'aria-label': 'Dias de anticipacion',
+      'aria-label': T('Dias de anticipacion', 'Days in advance'),
       onchange: () => setDaysBefore(def.key, Number(select.value) === 2 ? 2 : 1),
     }, def.config.options.map((o) =>
       el('option', { value: String(o.value), text: o.label })
@@ -286,8 +287,8 @@ function renderHead() {
     el('div', { class: 'au-head__row' }, [
       el('span', { class: 'au-head__icon' }, [icon('zap', 22)]),
       el('div', {}, [
-        el('h2', { class: 'au-head__title', text: 'Automatizaciones' }),
-        el('p', { class: 'au-head__sub', text: '8 recetas fijas que trabajan solas: cuando pasa X, hacen Y.' }),
+        el('h2', { class: 'au-head__title', text: T('Automatizaciones', 'Automations') }),
+        el('p', { class: 'au-head__sub', text: T('8 recetas fijas que trabajan solas: cuando pasa X, hacen Y.', '8 fixed recipes that work on their own: when X happens, they do Y.') }),
       ]),
     ]),
   ]);
@@ -314,9 +315,9 @@ function render() {
   if (phase === 'unavailable') {
     rootEl.appendChild(el('div', { class: 'au-empty' }, [
       el('div', { class: 'au-empty__icon' }, [icon('zap', 26)]),
-      el('h3', { text: 'Aun no disponible' }),
-      el('p', { class: 'muted', text: 'Las automatizaciones estaran disponibles cuando se aplique la migracion de base de datos. El resto de la app funciona normal.' }),
-      el('button', { class: 'btn', type: 'button', text: 'Reintentar', onclick: () => load() }),
+      el('h3', { text: T('Aun no disponible', 'Not available yet') }),
+      el('p', { class: 'muted', text: T('Las automatizaciones estaran disponibles cuando se aplique la migracion de base de datos. El resto de la app funciona normal.', 'Automations will be available once the database migration is applied. The rest of the app works normally.') }),
+      el('button', { class: 'btn', type: 'button', text: T('Reintentar', 'Retry'), onclick: () => load() }),
     ]));
     return;
   }
@@ -324,9 +325,9 @@ function render() {
   if (phase === 'error') {
     rootEl.appendChild(el('div', { class: 'au-empty' }, [
       el('div', { class: 'au-empty__icon au-empty__icon--err' }, [icon('warning', 26)]),
-      el('h3', { text: 'No se pudieron cargar las recetas' }),
-      el('p', { class: 'muted', text: errMsg || 'Revisa tu conexion e intenta de nuevo.' }),
-      el('button', { class: 'btn btn-primary', type: 'button', text: 'Reintentar', onclick: () => load() }),
+      el('h3', { text: T('No se pudieron cargar las recetas', "Couldn't load the recipes") }),
+      el('p', { class: 'muted', text: errMsg || T('Revisa tu conexion e intenta de nuevo.', 'Check your connection and try again.') }),
+      el('button', { class: 'btn btn-primary', type: 'button', text: T('Reintentar', 'Retry'), onclick: () => load() }),
     ]));
     return;
   }
@@ -337,7 +338,7 @@ function render() {
 
   rootEl.appendChild(el('p', {
     class: 'au-foot',
-    text: 'Las recetas corren solas cuando alguien guarda un cambio. Los avisos por fecha se revisan al abrir la app.',
+    text: T('Las recetas corren solas cuando alguien guarda un cambio. Los avisos por fecha se revisan al abrir la app.', 'Recipes run on their own when someone saves a change. Date-based alerts are checked when the app opens.'),
   }));
 }
 

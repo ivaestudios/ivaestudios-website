@@ -24,6 +24,7 @@
 
 import { el, clear } from '../api.js?v=202607181835';
 import { pushLayer } from './router.js?v=202607181835';
+import { T } from './i18n.js?v=202607181835';
 
 const stack = []; // instancias abiertas (max 2)
 
@@ -76,7 +77,7 @@ export function openSheet({ title = '', build, mode = 'menu', onClose, anchor = 
   const titleEl = title ? el('h2', { class: 'sheet__title', id: `sheetTitle${Date.now()}`, text: title }) : null;
   if (titleEl) panel.setAttribute('aria-labelledby', titleEl.id);
   const closeBtn = el('button', {
-    class: 'sheet__close', type: 'button', 'aria-label': 'Cerrar',
+    class: 'sheet__close', type: 'button', 'aria-label': T('Cerrar', 'Close'),
     onclick: () => instance.close({ source: 'x' }),
   });
   closeBtn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';

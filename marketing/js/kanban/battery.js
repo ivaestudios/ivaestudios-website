@@ -12,6 +12,7 @@
 // ============================================================================
 
 import { el, clear } from '../api.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 export function createBattery({ onOpen } = {}) {
   const bar = el('div', { class: 'kb-battery__bar', 'aria-hidden': 'true' });
@@ -21,7 +22,7 @@ export function createBattery({ onOpen } = {}) {
   const root = el('button', {
     class: 'kb-battery',
     type: 'button',
-    'aria-label': 'Resumen por estado',
+    'aria-label': T('Resumen por estado', 'Summary by status'),
     onclick: () => { try { onOpen?.(); } catch (e) { console.error('[kanban] battery onOpen', e); } },
   }, [
     el('span', { class: 'kb-battery__meta' }, [totalEl, topEl]),
@@ -54,7 +55,7 @@ export function createBattery({ onOpen } = {}) {
       }));
     }
 
-    totalEl.textContent = total === 1 ? '1 contenido' : `${total} contenidos`;
+    totalEl.textContent = total === 1 ? T('1 contenido', '1 item') : `${total} ${T('contenidos', 'items')}`;
 
     // El estado con mas tarjetas, como pista rapida.
     const top = visible.reduce((a, b) => (b.count > a.count ? b : a), visible[0]);
@@ -62,7 +63,7 @@ export function createBattery({ onOpen } = {}) {
 
     root.setAttribute(
       'aria-label',
-      'Resumen por estado: ' + visible.map((s) => `${s.label} ${s.count}`).join(', ')
+      T('Resumen por estado', 'Summary by status') + ': ' + visible.map((s) => `${s.label} ${s.count}`).join(', ')
     );
   }
 

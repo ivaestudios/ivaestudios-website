@@ -23,8 +23,9 @@
 // ============================================================================
 
 import { api, toast } from '../api.js?v=202607181835';
+import { T } from './i18n.js?v=202607181835';
 
-const ERR_SAVE = 'No se pudo guardar, intenta de nuevo.';
+const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', 'Could not save, try again.');
 
 const state = {
   me: null,                 // {id,email,name,role,client_id}
@@ -169,7 +170,7 @@ export async function loadPosts(clientId = state.activeClientId) {
   } catch (e) {
     if (gen !== loadGen) return null;
     set({ loading: false });
-    toast(e.message || 'No se pudieron cargar los contenidos.', 'error');
+    toast(e.message || T('No se pudieron cargar los contenidos.', 'Could not load the content.'), 'error');
     return null;
   }
 }
@@ -233,7 +234,7 @@ export async function removePost(id) {
     return true;
   } catch (e) {
     rollback();
-    toast(e.message || 'No se pudo eliminar.', 'error');
+    toast(e.message || T('No se pudo eliminar.', 'Could not delete.'), 'error');
     return false;
   }
 }

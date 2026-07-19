@@ -24,16 +24,17 @@ import {
   avatar, statusLabel, contentTypeLabel, approvalLabel,
 } from '../api.js?v=202607181835';
 import * as apiMod from '../api.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
 import { isPast } from '../lib/dates.js?v=202607181835';
 
 // Prioridad: usa los mapas de api.js si el shell-core ya los agrego; si no,
 // cae a este espejo local (mismas keys que la migracion 005).
 export const PRIORITIES = apiMod.PRIORITIES || {
-  baja:    { label: 'Baja',    color: '#64748b' },
-  media:   { label: 'Media',   color: '#3b82f6' },
-  alta:    { label: 'Alta',    color: '#f59e0b' },
-  urgente: { label: 'Urgente', color: '#ef4444' },
+  baja:    { label: T('Baja', 'Low'),       color: '#64748b' },
+  media:   { label: T('Media', 'Medium'),   color: '#3b82f6' },
+  alta:    { label: T('Alta', 'High'),      color: '#f59e0b' },
+  urgente: { label: T('Urgente', 'Urgent'), color: '#ef4444' },
 };
 export const PRIORITY_ORDER = apiMod.PRIORITY_ORDER || ['baja', 'media', 'alta', 'urgente'];
 
@@ -86,16 +87,16 @@ function renderStatus(post) {
     'data-status': known ? s : 'otro',
   }, [
     el('span', { class: 'etable-st__dot', 'aria-hidden': 'true' }),
-    el('span', { class: 'etable-st__txt', text: statusLabel(s) || 'Sin estado' }),
+    el('span', { class: 'etable-st__txt', text: statusLabel(s) || T('Sin estado', 'No status') }),
   ]);
 }
 
 function renderDate(post) {
-  if (!post.publish_date) return muted('Sin fecha');
+  if (!post.publish_date) return muted(T('Sin fecha', 'No date'));
   const overdue = isPast(post.publish_date) && post.status !== 'publicado';
   const node = el('span', {
     class: 'etable-date' + (overdue ? ' is-overdue' : ''),
-    title: overdue ? 'Vencido: la fecha ya paso y no esta publicado' : null,
+    title: overdue ? T('Vencido: la fecha ya paso y no esta publicado', 'Overdue: the date has passed and it is not published') : null,
   }, [
     overdue ? icon('warning', 14) : null,
     el('span', { text: fmtDate(post.publish_date) }),
@@ -105,7 +106,7 @@ function renderDate(post) {
 
 function renderPerson(post) {
   const name = String(post.assignee || '').trim();
-  if (!name) return muted('Sin asignar');
+  if (!name) return muted(T('Sin asignar', 'Unassigned'));
   return el('span', { class: 'etable-person' }, [
     avatar(name, true),
     el('span', { class: 'etable-trunc', text: name }),
@@ -117,19 +118,19 @@ function renderApproval(post) {
   const known = !!APPROVALS[k];
   return el('span', { class: 'etable-appr', 'data-approval': known ? k : 'pending' }, [
     el('span', { class: 'etable-appr__dot', 'aria-hidden': 'true' }),
-    el('span', { text: approvalLabel(k) || 'Pendiente' }),
+    el('span', { text: approvalLabel(k) || T('Pendiente', 'Pending') }),
   ]);
 }
 
 function renderPlatform(post) {
   const p = String(post.platform || '').trim();
-  if (!p) return muted('Sin plataforma');
+  if (!p) return muted(T('Sin plataforma', 'No platform'));
   return el('span', { class: 'etable-trunc', text: p });
 }
 
 function renderType(post) {
   const t = post.content_type;
-  if (!t) return muted('Sin tipo');
+  if (!t) return muted(T('Sin tipo', 'No type'));
   const def = CONTENT_TYPES[t];
   return el('span', { class: 'etable-ct' }, [
     el('span', {
@@ -142,7 +143,7 @@ function renderType(post) {
 
 function renderGrabacion(post) {
   const g = post.grabacion;
-  if (g == null || g === '') return muted('Sin nivel');
+  if (g == null || g === '') return muted(T('Sin nivel', 'No level'));
   return el('span', { class: 'etable-grab', 'data-g': String(g), text: `G${g}` });
 }
 
@@ -161,7 +162,7 @@ function renderPriority(post) {
 function renderUrl(field, label) {
   return (post) => {
     const url = safeUrl(post[field]);
-    if (!url) return muted('Agregar enlace');
+    if (!url) return muted(T('Agregar enlace', 'Add link'));
     const a = el('a', {
       class: 'etable-link',
       href: url, target: '_blank', rel: 'noopener noreferrer',
@@ -182,7 +183,7 @@ function renderUrl(field, label) {
 export function buildColumns(client) {
   const cols = [
     {
-      key: 'grabacion', label: 'Grabacion', w: 96, defaultVisible: true,
+      key: 'grabacion', label: T('Grabacion', 'Recording'), w: 96, defaultVisible: true,
       type: 'grabacion', sortable: true,
       sortValue: (p) => (p.grabacion == null || p.grabacion === '' ? 99 : Number(p.grabacion)),
       render: renderGrabacion,
@@ -190,7 +191,7 @@ export function buildColumns(client) {
       patch: (v) => ({ grabacion: v === '' || v == null ? null : Number(v) }),
     },
     {
-      key: 'estado', label: 'Estado', w: 132, defaultVisible: true,
+      key: 'estado', label: T('Estado', 'Status'), w: 132, defaultVisible: true,
       type: 'status', sortable: true,
       sortValue: (p) => {
         const i = STATUS_ORDER.indexOf(p.status);
@@ -201,7 +202,7 @@ export function buildColumns(client) {
       patch: (v) => ({ status: v }),
     },
     {
-      key: 'plataforma', label: 'Plataforma', w: 110, defaultVisible: true,
+      key: 'plataforma', label: T('Plataforma', 'Platform'), w: 110, defaultVisible: true,
       type: 'platform', sortable: true,
       sortValue: (p) => low(p.platform) || '~',
       render: renderPlatform,
@@ -209,7 +210,7 @@ export function buildColumns(client) {
       patch: (v) => ({ platform: v || null }),
     },
     {
-      key: 'tipo', label: 'Tipo', w: 130, defaultVisible: true,
+      key: 'tipo', label: T('Tipo', 'Type'), w: 130, defaultVisible: true,
       type: 'type', sortable: true,
       sortValue: (p) => {
         const i = CONTENT_TYPE_ORDER.indexOf(p.content_type);
@@ -220,7 +221,7 @@ export function buildColumns(client) {
       patch: (v) => ({ content_type: v }),
     },
     {
-      key: 'fecha', label: 'Fecha', w: 116, defaultVisible: true,
+      key: 'fecha', label: T('Fecha', 'Date'), w: 116, defaultVisible: true,
       type: 'date', sortable: true,
       sortValue: (p) => p.publish_date || '9999-99-99',
       render: renderDate,
@@ -228,7 +229,7 @@ export function buildColumns(client) {
       patch: (v) => ({ publish_date: v || null }),
     },
     {
-      key: 'persona', label: 'Persona', w: 150, defaultVisible: true,
+      key: 'persona', label: T('Persona', 'Person'), w: 150, defaultVisible: true,
       type: 'person', sortable: true,
       sortValue: (p) => low(p.assignee) || '~',
       render: renderPerson,
@@ -237,7 +238,7 @@ export function buildColumns(client) {
       patch: (v) => ({ assignee: (v && v.name) || null, assignee_user_id: (v && v.user_id) || null }),
     },
     {
-      key: 'aprobacion', label: 'Aprobacion', w: 150, defaultVisible: true,
+      key: 'aprobacion', label: T('Aprobacion', 'Approval'), w: 150, defaultVisible: true,
       type: 'approval', sortable: true,
       sortValue: (p) => {
         const i = APPROVAL_ORDER.indexOf(p.approval_state);
@@ -248,7 +249,7 @@ export function buildColumns(client) {
       patch: null, // la aplica table.js via /approve y /request-changes
     },
     {
-      key: 'prioridad', label: 'Prioridad', w: 110, defaultVisible: false,
+      key: 'prioridad', label: T('Prioridad', 'Priority'), w: 110, defaultVisible: false,
       type: 'priority', sortable: true,
       sortValue: (p) => {
         const i = PRIORITY_ORDER.indexOf(p.priority || 'media');
@@ -262,7 +263,7 @@ export function buildColumns(client) {
       key: 'caption', label: 'Caption', w: 220, defaultVisible: true,
       type: 'text', sortable: true, maxLength: 4000, multiline: true,
       sortValue: (p) => low(p.caption) || '~',
-      render: (p) => truncText(p.caption, 'Agregar caption'),
+      render: (p) => truncText(p.caption, T('Agregar caption', 'Add caption')),
       current: (p) => p.caption || '',
       patch: (v) => ({ caption: String(v || '').trim() || null }),
     },
@@ -274,10 +275,10 @@ export function buildColumns(client) {
     const name = String(person || '').trim();
     if (!name) continue;
     cols.push({
-      key: noteColKey(name), label: `Notas ${name}`, w: 200, defaultVisible: true,
+      key: noteColKey(name), label: `${T('Notas', 'Notes')} ${name}`, w: 200, defaultVisible: true,
       type: 'text', sortable: true, maxLength: 2000, multiline: true,
       sortValue: (p) => low(notesOf(p)[name]) || '~',
-      render: (p) => truncText(notesOf(p)[name], 'Agregar nota'),
+      render: (p) => truncText(notesOf(p)[name], T('Agregar nota', 'Add note')),
       current: (p) => notesOf(p)[name] || '',
       patch: (v, post) => {
         // Merge inmutable: el backend guarda el objeto completo.
@@ -335,21 +336,21 @@ export function sortValueOf(key, post, allCols) {
 
 /** Opciones del sheet "Orden" movil (radio). */
 export const MOBILE_SORT_OPTIONS = [
-  { key: 'fecha', label: 'Fecha' },
-  { key: 'estado', label: 'Estado' },
-  { key: 'titulo', label: 'Titulo' },
-  { key: 'grabacion', label: 'Grabacion' },
-  { key: 'posicion', label: 'Posicion' },
+  { key: 'fecha', label: T('Fecha', 'Date') },
+  { key: 'estado', label: T('Estado', 'Status') },
+  { key: 'titulo', label: T('Titulo', 'Title') },
+  { key: 'grabacion', label: T('Grabacion', 'Recording') },
+  { key: 'posicion', label: T('Posicion', 'Position') },
 ];
 
 /** Campos elegibles como chips de la tarjeta movil (max 3). */
 export const CARD_FIELDS = [
-  { key: 'estado', label: 'Estado' },
-  { key: 'fecha', label: 'Fecha' },
-  { key: 'aprobacion', label: 'Aprobacion' },
-  { key: 'plataforma', label: 'Plataforma' },
-  { key: 'tipo', label: 'Tipo' },
-  { key: 'grabacion', label: 'Grabacion' },
+  { key: 'estado', label: T('Estado', 'Status') },
+  { key: 'fecha', label: T('Fecha', 'Date') },
+  { key: 'aprobacion', label: T('Aprobacion', 'Approval') },
+  { key: 'plataforma', label: T('Plataforma', 'Platform') },
+  { key: 'tipo', label: T('Tipo', 'Type') },
+  { key: 'grabacion', label: T('Grabacion', 'Recording') },
 ];
 export const DEFAULT_CARD_FIELDS = ['estado', 'fecha', 'aprobacion'];
 export const MAX_CARD_FIELDS = 3;

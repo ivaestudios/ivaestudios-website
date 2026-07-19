@@ -11,6 +11,7 @@ import {
   STATUS_ORDER,
   CONTENT_TYPES, CONTENT_TYPE_ORDER,
 } from '../api.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import { parseYMD, dayLong, statusInfo, safeColor } from './data.js?v=202607181835';
 
 /**
@@ -31,14 +32,14 @@ export function openQuickCreate(ctx, { date = '', clientId = null } = {}) {
   };
 
   ctx.sheet.openSheet({
-    title: 'Nuevo contenido',
+    title: T('Nuevo contenido', 'New content'),
     mode: 'form',
     build(body, close) {
       // ── Titulo ─────────────────────────────────────────────────────────────
       const titleIn = el('input', {
         class: 'input', type: 'text', maxlength: '160',
-        placeholder: 'Titulo del contenido',
-        'aria-label': 'Titulo del contenido',
+        placeholder: T('Titulo del contenido', 'Content title'),
+        'aria-label': T('Titulo del contenido', 'Content title'),
       });
       titleIn.addEventListener('input', () => { model.title = titleIn.value; });
 
@@ -47,7 +48,7 @@ export function openQuickCreate(ctx, { date = '', clientId = null } = {}) {
       if (isTodos) {
         const label = () => {
           const c = clients.find((x) => x.id === model.client_id);
-          return c ? c.name : 'Elige un cliente';
+          return c ? c.name : T('Elige un cliente', 'Choose a client');
         };
         clientBtn = el('button', { class: 'qc-rowbtn', type: 'button' }, [
           ctx.icons('users', 18),
@@ -56,7 +57,7 @@ export function openQuickCreate(ctx, { date = '', clientId = null } = {}) {
         ]);
         clientBtn.addEventListener('click', async () => {
           const picked = await ctx.sheet.pickFrom({
-            title: 'Cliente',
+            title: T('Cliente', 'Client'),
             anchor: clientBtn,
             options: clients.map((c) => ({
               value: c.id, label: c.name,
@@ -71,7 +72,7 @@ export function openQuickCreate(ctx, { date = '', clientId = null } = {}) {
       }
 
       // ── Tipo de contenido (chips) ──────────────────────────────────────────
-      const typeWrap = el('div', { class: 'qc-chips', role: 'group', 'aria-label': 'Tipo de contenido' });
+      const typeWrap = el('div', { class: 'qc-chips', role: 'group', 'aria-label': T('Tipo de contenido', 'Content type') });
       const typeBtns = new Map();
       for (const t of CONTENT_TYPE_ORDER || []) {
         const info = (CONTENT_TYPES && CONTENT_TYPES[t]) || { label: t };
@@ -94,7 +95,7 @@ export function openQuickCreate(ctx, { date = '', clientId = null } = {}) {
 
       // ── Fecha ──────────────────────────────────────────────────────────────
       const dateLabel = () => {
-        if (!model.publish_date) return 'Sin fecha (backlog)';
+        if (!model.publish_date) return T('Sin fecha (backlog)', 'No date (backlog)');
         const d = parseYMD(model.publish_date);
         return d ? dayLong(d) : model.publish_date;
       };
@@ -106,7 +107,7 @@ export function openQuickCreate(ctx, { date = '', clientId = null } = {}) {
       dateBtn.addEventListener('click', async () => {
         const picked = await ctx.pickers.pickDate({
           current: model.publish_date || null,
-          title: 'Fecha de publicacion',
+          title: T('Fecha de publicacion', 'Publish date'),
           allowClear: true,
         });
         if (picked === null) return;
@@ -133,27 +134,27 @@ export function openQuickCreate(ctx, { date = '', clientId = null } = {}) {
       // ── Plataforma (opcional) ──────────────────────────────────────────────
       const platBtn = el('button', { class: 'qc-rowbtn', type: 'button' }, [
         ctx.icons('send', 18),
-        el('span', { class: 'qc-rowbtn__txt', text: 'Plataforma (opcional)' }),
+        el('span', { class: 'qc-rowbtn__txt', text: T('Plataforma (opcional)', 'Platform (optional)') }),
         ctx.icons('down', 14),
       ]);
       platBtn.addEventListener('click', async () => {
         const picked = await ctx.pickers.pickPlatform({ current: model.platform || null, anchor: platBtn });
         if (picked === null) return;
         model.platform = picked; // '' = sin plataforma
-        platBtn.querySelector('.qc-rowbtn__txt').textContent = picked || 'Plataforma (opcional)';
+        platBtn.querySelector('.qc-rowbtn__txt').textContent = picked || T('Plataforma (opcional)', 'Platform (optional)');
       });
 
       // ── Crear ──────────────────────────────────────────────────────────────
-      const createBtn = el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: 'Crear contenido' });
+      const createBtn = el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: T('Crear contenido', 'Create content') });
       createBtn.addEventListener('click', async () => {
         const title = (model.title || '').trim();
         if (!title) {
-          ctx.toast('Escribe un titulo para el contenido.', { type: 'error' });
+          ctx.toast(T('Escribe un titulo para el contenido.', 'Write a title for the content.'), { type: 'error' });
           titleIn.focus();
           return;
         }
         if (!model.client_id) {
-          ctx.toast('Elige el cliente del contenido.', { type: 'error' });
+          ctx.toast(T('Elige el cliente del contenido.', 'Choose a client for the content.'), { type: 'error' });
           return;
         }
         createBtn.disabled = true;
@@ -169,25 +170,25 @@ export function openQuickCreate(ctx, { date = '', clientId = null } = {}) {
         if (!post) { createBtn.disabled = false; return; } // createPost ya aviso
         close({ source: 'created' });
         const when = payload.publish_date
-          ? `para el ${dayLong(parseYMD(payload.publish_date) || new Date())}`
-          : 'sin fecha (backlog)';
-        ctx.toast(`Contenido creado ${when}.`, {
+          ? `${T('para el', 'for')} ${dayLong(parseYMD(payload.publish_date) || new Date())}`
+          : T('sin fecha (backlog)', 'without a date (backlog)');
+        ctx.toast(`${T('Contenido creado', 'Content created')} ${when}.`, {
           type: 'success',
-          action: { label: 'Abrir', onAction: () => ctx.openEditor(post.id) },
+          action: { label: T('Abrir', 'Open'), onAction: () => ctx.openEditor(post.id) },
         });
       });
 
       body.append(
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Titulo' }), titleIn]),
-        clientBtn ? el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Cliente' }), clientBtn]) : null,
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Tipo de contenido' }), typeWrap]),
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Fecha' }), dateBtn]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Titulo', 'Title') }), titleIn]),
+        clientBtn ? el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Cliente', 'Client') }), clientBtn]) : null,
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Tipo de contenido', 'Content type') }), typeWrap]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Fecha', 'Date') }), dateBtn]),
         el('div', { class: 'field qc-half' }, [
-          el('div', { class: 'qc-halfcol' }, [el('label', { class: 'label', text: 'Estado' }), statusBtn]),
-          el('div', { class: 'qc-halfcol' }, [el('label', { class: 'label', text: 'Plataforma' }), platBtn]),
+          el('div', { class: 'qc-halfcol' }, [el('label', { class: 'label', text: T('Estado', 'Status') }), statusBtn]),
+          el('div', { class: 'qc-halfcol' }, [el('label', { class: 'label', text: T('Plataforma', 'Platform') }), platBtn]),
         ]),
         el('div', { class: 'sheet__footer' }, [
-          el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
+          el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
           createBtn,
         ]),
       );

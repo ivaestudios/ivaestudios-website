@@ -24,6 +24,7 @@
 
 import { api, el, clear, STATUSES, statusBadge } from '../api.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import { todayISO, diffDays, relativeDay, fmtShort } from '../lib/dates.js?v=202607181835';
 
 // CSS del paquete (compartido con la vista Automatizaciones). Lazy y con
@@ -39,7 +40,7 @@ function ensurePackageCss() {
 }
 
 const VIEW_ID = 'mi-trabajo';
-const ERR_SAVE = 'No se pudo guardar, intenta de nuevo.';
+const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', "Couldn't save, try again.");
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
 const STALE_MS = 30000;          // recarga al montar si los datos son mas viejos
@@ -47,17 +48,17 @@ const QUIET_RELOAD_MS = 2500;    // debounce del refetch tras 'mutated'
 
 // api.js (v1) no exporta PRIORITIES: mapa local solo para pintar la etiqueta.
 const PRIORITY_TAGS = {
-  alta: { label: 'Alta', color: '#f59e0b' },
-  urgente: { label: 'Urgente', color: '#ef4444' },
+  alta: { label: T('Alta', 'High'), color: '#f59e0b' },
+  urgente: { label: T('Urgente', 'Urgent'), color: '#ef4444' },
 };
 
 const SECTION_DEFS = [
-  { key: 'vencidos', label: 'Atrasados', short: 'Atrasados', ic: 'warning', tone: 'danger' },
-  { key: 'hoy', label: 'Hoy', short: 'Hoy', ic: 'clock', tone: 'accent' },
-  { key: 'semana', label: 'Proximos 7 dias', short: 'Semana', ic: 'calendar' },
-  { key: 'despues', label: 'Mas adelante', short: null, ic: 'right' },
-  { key: 'sinfecha', label: 'Sin fecha', short: 'Sin fecha', ic: 'inbox' },
-  { key: 'listos', label: 'Publicados', short: null, ic: 'check', done: true },
+  { key: 'vencidos', label: T('Atrasados', 'Overdue'), short: T('Atrasados', 'Overdue'), ic: 'warning', tone: 'danger' },
+  { key: 'hoy', label: T('Hoy', 'Today'), short: T('Hoy', 'Today'), ic: 'clock', tone: 'accent' },
+  { key: 'semana', label: T('Proximos 7 dias', 'Next 7 days'), short: T('Semana', 'Week'), ic: 'calendar' },
+  { key: 'despues', label: T('Mas adelante', 'Later'), short: null, ic: 'right' },
+  { key: 'sinfecha', label: T('Sin fecha', 'No date'), short: T('Sin fecha', 'No date'), ic: 'inbox' },
+  { key: 'listos', label: T('Publicados', 'Published'), short: null, ic: 'check', done: true },
 ];
 const SUMMARY_KEYS = ['vencidos', 'hoy', 'semana', 'sinfecha'];
 
@@ -123,7 +124,7 @@ function reload({ quiet = false } = {}) {
       loadErr = e;
       // Refresh manual con datos viejos en pantalla: avisa que fallo.
       if (!quiet && Array.isArray(myPosts) && ctx) {
-        ctx.toast((e && e.message) || 'No se pudo refrescar.', { type: 'error' });
+        ctx.toast((e && e.message) || T('No se pudo refrescar.', "Couldn't refresh."), { type: 'error' });
       }
     } finally {
       inflight = null;
@@ -241,7 +242,7 @@ async function mutatePost(post, fields, okMsg, undoFields = null) {
     if (okMsg && toastFn) {
       toastFn(okMsg, {
         type: 'success',
-        action: undoFields ? { label: 'Deshacer', onAction: () => { mutatePost(post, undoFields, null); } } : null,
+        action: undoFields ? { label: T('Deshacer', 'Undo'), onAction: () => { mutatePost(post, undoFields, null); } } : null,
       });
     }
     return true;
@@ -259,7 +260,7 @@ async function mutatePost(post, fields, okMsg, undoFields = null) {
 function openCardMenu(post, anchor) {
   const c = ctx;
   c.sheet.openSheet({
-    title: post.title || 'Contenido',
+    title: post.title || T('Contenido', 'Content'),
     mode: 'menu',
     anchor,
     build(body, close) {
@@ -269,15 +270,15 @@ function openCardMenu(post, anchor) {
       }, [icon(ic, 20), el('span', { class: 'mw-act__label', text: label })]);
 
       body.append(
-        row('edit', 'Abrir', () => c.openEditor(post.id)),
-        row('board', 'Cambiar estado', async () => {
+        row('edit', T('Abrir', 'Open'), () => c.openEditor(post.id)),
+        row('board', T('Cambiar estado', 'Change status'), async () => {
           const v = await c.pickers.pickStatus({ current: post.status });
           if (v && v !== post.status) {
             const label = (STATUSES[v] && STATUSES[v].label) || v;
-            mutatePost(post, { status: v }, `Estado: ${label}.`, { status: post.status });
+            mutatePost(post, { status: v }, `${T('Estado', 'Status')}: ${label}.`, { status: post.status });
           }
         }),
-        row('calendar', 'Cambiar fecha', async () => {
+        row('calendar', T('Cambiar fecha', 'Change date'), async () => {
           const v = await c.pickers.pickDate({ current: post.publish_date || null });
           if (v === null || v === undefined) return;
           const next = v === '' ? null : v;
@@ -286,14 +287,14 @@ function openCardMenu(post, anchor) {
             mutatePost(
               post,
               { publish_date: next },
-              next ? `Fecha: ${fmtShort(next)}.` : 'Fecha quitada.',
+              next ? `${T('Fecha', 'Date')}: ${fmtShort(next)}.` : T('Fecha quitada.', 'Date removed.'),
               { publish_date: cur },
             );
           }
         }),
         post.status !== 'publicado'
-          ? row('check', 'Marcar Publicado', () => {
-              mutatePost(post, { status: 'publicado' }, 'Marcado como Publicado.', { status: post.status });
+          ? row('check', T('Marcar Publicado', 'Mark Published'), () => {
+              mutatePost(post, { status: 'publicado' }, T('Marcado como Publicado.', 'Marked as Published.'), { status: post.status });
             })
           : null,
       );
@@ -304,7 +305,7 @@ function openCardMenu(post, anchor) {
 function openOptionsSheet(anchor) {
   const c = ctx;
   c.sheet.openSheet({
-    title: 'Opciones',
+    title: T('Opciones', 'Options'),
     mode: 'menu',
     anchor,
     build(body, close) {
@@ -323,13 +324,13 @@ function openOptionsSheet(anchor) {
           },
         }, [
           icon('check', 20),
-          el('span', { class: 'mw-act__label', text: 'Mostrar publicados' }),
+          el('span', { class: 'mw-act__label', text: T('Mostrar publicados', 'Show published') }),
           sw,
         ]),
         el('button', {
           class: 'mw-act', type: 'button',
           onclick: () => { close({ source: 'pick' }); c.router.navigate('automatizaciones', {}); },
-        }, [icon('zap', 20), el('span', { class: 'mw-act__label', text: 'Automatizaciones' })]),
+        }, [icon('zap', 20), el('span', { class: 'mw-act__label', text: T('Automatizaciones', 'Automations') })]),
       );
     },
   });
@@ -353,7 +354,7 @@ function clientOf(id) {
 
 function dateChip(p, sectionKey) {
   const d = p.publish_date ? String(p.publish_date).slice(0, 10) : '';
-  if (!d) return el('span', { class: 'mw-date mw-date--none', text: 'Sin fecha' });
+  if (!d) return el('span', { class: 'mw-date mw-date--none', text: T('Sin fecha', 'No date') });
   const late = sectionKey === 'vencidos';
   return el('span', { class: 'mw-date' + (late ? ' is-late' : '') }, [
     icon(late ? 'warning' : 'calendar', 13),
@@ -374,7 +375,7 @@ function renderCard(p, sectionKey) {
   meta.appendChild(statusBadge(p.status));
   meta.appendChild(dateChip(p, sectionKey));
   if (Number(p.overdue) === 1 && p.status !== 'publicado') {
-    meta.appendChild(el('span', { class: 'mw-pill mw-pill--late', text: 'Atrasado' }));
+    meta.appendChild(el('span', { class: 'mw-pill mw-pill--late', text: T('Atrasado', 'Overdue') }));
   }
   const prio = PRIORITY_TAGS[p.priority];
   if (prio) {
@@ -385,7 +386,7 @@ function renderCard(p, sectionKey) {
 
   const menuBtn = el('button', {
     class: 'mw-card__menu', type: 'button',
-    'aria-label': `Acciones de ${p.title || 'contenido'}`, 'aria-haspopup': 'dialog',
+    'aria-label': `${T('Acciones de', 'Actions for')} ${p.title || T('contenido', 'content')}`, 'aria-haspopup': 'dialog',
     onclick: (e) => { e.stopPropagation(); openCardMenu(p, menuBtn); },
   }, [icon('dots', 20)]);
 
@@ -394,7 +395,7 @@ function renderCard(p, sectionKey) {
       class: 'mw-card__main', type: 'button',
       onclick: () => ctx.openEditor(p.id),
     }, [
-      el('span', { class: 'mw-card__title', text: p.title || 'Sin titulo' }),
+      el('span', { class: 'mw-card__title', text: p.title || T('Sin titulo', 'Untitled') }),
       meta,
     ]),
     menuBtn,
@@ -431,7 +432,7 @@ function renderSection(def, posts, collapsedSet) {
 }
 
 function renderSummary(groups) {
-  const wrap = el('div', { class: 'mw-summary', role: 'group', 'aria-label': 'Resumen de mi trabajo' });
+  const wrap = el('div', { class: 'mw-summary', role: 'group', 'aria-label': T('Resumen de mi trabajo', 'My work summary') });
   for (const key of SUMMARY_KEYS) {
     const def = SECTION_DEFS.find((s) => s.key === key);
     const n = (groups.get(key) || []).length;
@@ -480,9 +481,9 @@ function render() {
     rootEl.appendChild(renderHead(null));
     rootEl.appendChild(el('div', { class: 'mw-empty' }, [
       el('div', { class: 'mw-empty__icon mw-empty__icon--err' }, [icon('warning', 26)]),
-      el('h3', { text: 'No se pudo cargar tu trabajo' }),
-      el('p', { class: 'muted', text: (loadErr && loadErr.message) || 'Revisa tu conexion e intenta de nuevo.' }),
-      el('button', { class: 'btn btn-primary', type: 'button', text: 'Reintentar', onclick: () => reload() }),
+      el('h3', { text: T('No se pudo cargar tu trabajo', "Couldn't load your work") }),
+      el('p', { class: 'muted', text: (loadErr && loadErr.message) || T('Revisa tu conexion e intenta de nuevo.', 'Check your connection and try again.') }),
+      el('button', { class: 'btn btn-primary', type: 'button', text: T('Reintentar', 'Retry'), onclick: () => reload() }),
     ]));
     return;
   }
@@ -499,8 +500,8 @@ function render() {
   if (!list.length) {
     rootEl.appendChild(el('div', { class: 'mw-empty' }, [
       el('div', { class: 'mw-empty__icon' }, [icon('briefcase', 26)]),
-      el('h3', { text: 'Nada asignado a ti todavia' }),
-      el('p', { class: 'muted', text: 'Cuando te asignen contenidos de cualquier cliente van a aparecer aqui.' }),
+      el('h3', { text: T('Nada asignado a ti todavia', 'Nothing assigned to you yet') }),
+      el('p', { class: 'muted', text: T('Cuando te asignen contenidos de cualquier cliente van a aparecer aqui.', 'When content from any client gets assigned to you, it will show up here.') }),
     ]));
     return;
   }
@@ -511,10 +512,10 @@ function render() {
   if (pending === 0 && !showDone()) {
     rootEl.appendChild(el('div', { class: 'mw-empty' }, [
       el('div', { class: 'mw-empty__icon mw-empty__icon--ok' }, [icon('check', 26)]),
-      el('h3', { text: 'Estas al dia' }),
-      el('p', { class: 'muted', text: 'Sin pendientes asignados a ti. Buen trabajo.' }),
+      el('h3', { text: T('Estas al dia', 'You are all caught up') }),
+      el('p', { class: 'muted', text: T('Sin pendientes asignados a ti. Buen trabajo.', 'No pending items assigned to you. Nice work.') }),
       done.length ? el('button', {
-        class: 'btn', type: 'button', text: `Ver publicados (${done.length})`,
+        class: 'btn', type: 'button', text: `${T('Ver publicados', 'View published')} (${done.length})`,
         onclick: () => { ctx.prefs.set('myworkShowDone', true); scheduleRender(); },
       }) : null,
     ]));
@@ -531,14 +532,14 @@ function render() {
 }
 
 function renderHead(info) {
-  let sub = 'Tus contenidos en todos los clientes.';
+  let sub = T('Tus contenidos en todos los clientes.', 'Your content across all clients.');
   if (info && Array.isArray(info.list) && info.list.length) {
     const clientsN = new Set(info.list.filter((p) => p.status !== 'publicado').map((p) => p.client_id)).size;
-    sub = `${info.pending} ${info.pending === 1 ? 'pendiente' : 'pendientes'}` +
-      (clientsN > 0 ? ` en ${clientsN} ${clientsN === 1 ? 'cliente' : 'clientes'}` : '');
+    sub = `${info.pending} ${info.pending === 1 ? T('pendiente', 'pending') : T('pendientes', 'pending')}` +
+      (clientsN > 0 ? ` ${T('en', 'across')} ${clientsN} ${clientsN === 1 ? T('cliente', 'client') : T('clientes', 'clients')}` : '');
   }
   return el('header', { class: 'mw-head' }, [
-    el('h2', { class: 'mw-head__title', text: 'Mi trabajo' }),
+    el('h2', { class: 'mw-head__title', text: T('Mi trabajo', 'My work') }),
     el('p', { class: 'mw-head__sub', text: sub }),
   ]);
 }
@@ -559,11 +560,11 @@ export default {
 
     // Controles del subhead: refrescar + opciones.
     const refreshBtn = el('button', {
-      class: 'mw-ctl', type: 'button', 'aria-label': 'Refrescar',
+      class: 'mw-ctl', type: 'button', 'aria-label': T('Refrescar', 'Refresh'),
       onclick: () => reload(),
     }, [icon('refresh', 18)]);
     const optsBtn = el('button', {
-      class: 'mw-ctl', type: 'button', 'aria-label': 'Opciones', 'aria-haspopup': 'dialog',
+      class: 'mw-ctl', type: 'button', 'aria-label': T('Opciones', 'Options'), 'aria-haspopup': 'dialog',
       onclick: () => openOptionsSheet(optsBtn),
     }, [icon('settings', 18)]);
     ctx.setViewControls([refreshBtn, optsBtn]);

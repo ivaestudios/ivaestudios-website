@@ -8,12 +8,13 @@
 // ============================================================================
 import { api, el, clear, toast } from '../api.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 const VIEW_ID = 'entregables';
 const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
 const CHUNK_BYTES = 50 * 1024 * 1024;  // ~50MB por parte (bajo el limite de 100MB/request del Worker)
 const UP_LANES = 3;                    // partes subiendo a la vez (paraleliza la subida)
-const MES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
 
 // Reconoce videos por MIME O por extensión: muchos .mov/.mkv/.hevc llegan con
 // file.type VACÍO (iPhone, cámaras, archivos copiados) y NO deben descartarse
@@ -94,7 +95,7 @@ function monthTitle(ym) { const [y, m] = String(ym).split('-').map(Number); cons
 function activeClient() {
   const { activeClientId, clients } = ctx.store.getState();
   if (!activeClientId || activeClientId === 'todos') return null;
-  return (clients || []).find((c) => c.id === activeClientId) || { id: activeClientId, name: 'Marca' };
+  return (clients || []).find((c) => c.id === activeClientId) || { id: activeClientId, name: T('Marca', 'Brand') };
 }
 
 function ensureCss() {
@@ -117,7 +118,7 @@ async function load() {
     items = (res && res.deliverables) || [];
   } catch (e) {
     items = [];
-    toast(e.message || 'No se pudieron cargar los entregables', 'error');
+    toast(e.message || T('No se pudieron cargar los entregables', 'Could not load the deliverables'), 'error');
   }
   loading = false;
   render();
@@ -129,7 +130,7 @@ function updateProgressUI() {
   if (!progressEls) return;
   progressEls.fill.style.width = uploadPct + '%';
   const q = (queueInfo && queueInfo.total > 1) ? `(${queueInfo.index}/${queueInfo.total}) ` : '';
-  progressEls.label.textContent = uploadPct >= 100 ? `${q}Procesando…` : `${q}Subiendo… ${uploadPct}%`;
+  progressEls.label.textContent = uploadPct >= 100 ? `${q}${T('Procesando…', 'Processing…')}` : `${q}${T('Subiendo…', 'Uploading…')} ${uploadPct}%`;
 }
 
 // Sube UNA parte con XMLHttpRequest (fetch no expone progreso de subida).
@@ -142,14 +143,14 @@ function xhrPutPart(id, uploadId, ext, partNumber, blob, onProgress) {
     xhr.upload.onprogress = (e) => { if (e.lengthComputable && onProgress) onProgress(e.loaded); };
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
-        try { resolve(JSON.parse(xhr.responseText)); } catch { reject(new Error('Respuesta inválida del servidor.')); }
+        try { resolve(JSON.parse(xhr.responseText)); } catch { reject(new Error(T('Respuesta inválida del servidor.', 'Invalid server response.'))); }
       } else {
-        let m = 'Error al subir una parte del video.';
+        let m = T('Error al subir una parte del video.', 'Error uploading a part of the video.');
         try { m = JSON.parse(xhr.responseText).error || m; } catch { /* noop */ }
         reject(new Error(m));
       }
     };
-    xhr.onerror = () => reject(new Error('Se cortó la conexión durante la subida.'));
+    xhr.onerror = () => reject(new Error(T('Se cortó la conexión durante la subida.', 'The connection dropped during the upload.')));
     xhr.send(blob);
   });
 }
@@ -207,10 +208,10 @@ function enqueueReels(fileList) {
   const all = [...(fileList || [])];
   const vids = all.filter(isVideoFile);
   const skipped = all.length - vids.length;
-  if (!vids.length) { toast('Ninguno de esos archivos es un video.', 'error'); return; }
+  if (!vids.length) { toast(T('Ninguno de esos archivos es un video.', 'None of those files is a video.'), 'error'); return; }
   uploadQueue.push(...vids);
-  if (skipped > 0) toast(`${skipped} no ${skipped > 1 ? 'eran' : 'era'} video y se ${skipped > 1 ? 'omitieron' : 'omitió'}.`, 'info', 4000);
-  if (draining) { toast(`+${vids.length} en la fila`, 'info', 2500); return; } // ya hay subida en curso: solo encola
+  if (skipped > 0) toast(T(`${skipped} no ${skipped > 1 ? 'eran' : 'era'} video y se ${skipped > 1 ? 'omitieron' : 'omitió'}.`, `${skipped} ${skipped > 1 ? 'were not videos and were skipped' : 'was not a video and was skipped'}.`), 'info', 4000);
+  if (draining) { toast(`+${vids.length} ${T('en la fila', 'in the queue')}`, 'info', 2500); return; } // ya hay subida en curso: solo encola
   drainQueue();
 }
 
@@ -236,7 +237,7 @@ async function drainQueue() {
     if (processed > 1) { try { await load(); } catch { /* recarga best-effort */ } }
     if (failedNames.length) {
       const n = failedNames.length;
-      toast(`${n === 1 ? '1 reel no se subió' : `${n} reels no se subieron`}: ${failedNames.join(', ')}. Vuelve a soltarlos para reintentar.`, 'error', 9000);
+      toast(T(`${n === 1 ? '1 reel no se subió' : `${n} reels no se subieron`}: ${failedNames.join(', ')}. Vuelve a soltarlos para reintentar.`, `${n === 1 ? '1 reel failed to upload' : `${n} reels failed to upload`}: ${failedNames.join(', ')}. Drop them again to retry.`), 'error', 9000);
     }
   }
 }
@@ -276,8 +277,8 @@ async function multipartUpload(deliverableId, src, onProgress) {
 async function uploadReel(file, qinfo) {
   const client = activeClient();
   if (!client || busy) return false;
-  if (!isVideoFile(file)) { toast(`"${file.name}" no es un video.`, 'error'); return false; }
-  if (file.size > MAX_VIDEO_MB * 1024 * 1024) { toast(`"${file.name}" es enorme (más de 3 GB). Compártelo por link mejor.`, 'error', 6000); return false; }
+  if (!isVideoFile(file)) { toast(T(`"${file.name}" no es un video.`, `"${file.name}" is not a video.`), 'error'); return false; }
+  if (file.size > MAX_VIDEO_MB * 1024 * 1024) { toast(T(`"${file.name}" es enorme (más de 3 GB). Compártelo por link mejor.`, `"${file.name}" is huge (over 3 GB). Better share it by link.`), 'error', 6000); return false; }
   busy = true; uploadPct = 0; queueInfo = qinfo || null; render();
   let created = null;
   const month = addMonth || currentMonth();
@@ -297,13 +298,13 @@ async function uploadReel(file, qinfo) {
         await fetch(`/api/marketing/deliverables/${created.id}/poster`, { method: 'POST', credentials: 'same-origin', body: pf });
       }
     } catch { /* sin poster: la tarjeta usa el primer cuadro del video */ }
-    toast((queueInfo && queueInfo.total > 1) ? `Subido ${queueInfo.index}/${queueInfo.total} ✓` : 'Reel subido ✓', 'success');
+    toast((queueInfo && queueInfo.total > 1) ? `${T('Subido', 'Uploaded')} ${queueInfo.index}/${queueInfo.total} ✓` : T('Reel subido ✓', 'Reel uploaded ✓'), 'success');
     activeMonthNav = month; // al subir, la vista te lleva al mes donde quedó el reel
     if (!qinfo || qinfo.total <= 1) await load(); // en lote, drainQueue recarga 1 sola vez al final
     return true;
   } catch (e) {
     if (created) { try { await api.del(`/deliverables/${created.id}`); } catch { /* limpia el registro huerfano */ } }
-    toast(e.message || 'No se pudo subir el reel', 'error');
+    toast(e.message || T('No se pudo subir el reel', 'Could not upload the reel'), 'error');
     return false;
   } finally {
     busy = false; uploadPct = 0; progressEls = null; render();
@@ -316,14 +317,14 @@ async function addCarrusel(link, title) {
   const client = activeClient();
   if (!client || busy) return false;
   let url = String(link || '').trim();
-  if (!url) { toast('Pega el link del carrusel.', 'error'); return false; }
+  if (!url) { toast(T('Pega el link del carrusel.', 'Paste the carousel link.'), 'error'); return false; }
   // Un link real SIEMPRE lleva un punto en el dominio (canva.link, instagram.com,
   // drive.google.com…). Si NO trae protocolo NI punto, casi seguro es el título
   // escrito en la casilla equivocada (ej. "CARRUSELES") -> avisamos claro en vez de
   // guardar un enlace roto como "https://CARRUSELES".
   const hasProto = /^https?:\/\//i.test(url);
   if (!hasProto && !/[^\s]\.[^\s]/.test(url)) {
-    toast('Eso no parece un link. Aquí va el ENLACE (ej. canva.link/…); el nombre va en la casilla "Título".', 'error', 7000);
+    toast(T('Eso no parece un link. Aquí va el ENLACE (ej. canva.link/…); el nombre va en la casilla "Título".', 'That doesn\'t look like a link. The LINK goes here (e.g. canva.link/…); the name goes in the "Title" box.'), 'error', 7000);
     return false;
   }
   if (!hasProto) url = 'https://' + url.replace(/^\/+/, '');
@@ -333,7 +334,7 @@ async function addCarrusel(link, title) {
     if (!u.hostname.includes('.')) throw 0;
     url = u.href;
   } catch {
-    toast('Ese enlace no es válido. Revisa que sea un link completo (ej. https://canva.link/…).', 'error', 7000);
+    toast(T('Ese enlace no es válido. Revisa que sea un link completo (ej. https://canva.link/…).', 'That link is not valid. Make sure it\'s a full link (e.g. https://canva.link/…).'), 'error', 7000);
     return false;
   }
   busy = true; render();
@@ -343,12 +344,12 @@ async function addCarrusel(link, title) {
       client_id: client.id, month, type: 'carrusel',
       link: url, title: (title || '').trim().slice(0, 200) || null,
     });
-    toast('Carrusel agregado ✓', 'success');
+    toast(T('Carrusel agregado ✓', 'Carousel added ✓'), 'success');
     activeMonthNav = month; // al agregar, la vista te lleva a ese mes
     await load();
     return true;
   } catch (e) {
-    toast(e.message || 'No se pudo agregar el carrusel', 'error');
+    toast(e.message || T('No se pudo agregar el carrusel', 'Could not add the carousel'), 'error');
     return false;
   } finally {
     busy = false; render();
@@ -357,15 +358,15 @@ async function addCarrusel(link, title) {
 
 async function removeItem(it) {
   if (busy) return;
-  const what = it.type === 'reel' ? 'este reel' : 'este carrusel';
-  if (!window.confirm(`¿Eliminar ${what}? No se puede deshacer.`)) return;
+  const what = it.type === 'reel' ? T('este reel', 'this reel') : T('este carrusel', 'this carousel');
+  if (!window.confirm(T(`¿Eliminar ${what}? No se puede deshacer.`, `Delete ${what}? This cannot be undone.`))) return;
   busy = true; render();
   try {
     await api.del(`/deliverables/${it.id}`);
     items = items.filter((x) => x.id !== it.id);
-    toast('Eliminado', 'info');
+    toast(T('Eliminado', 'Deleted'), 'info');
   } catch (e) {
-    toast(e.message || 'No se pudo eliminar', 'error');
+    toast(e.message || T('No se pudo eliminar', 'Could not delete'), 'error');
   } finally {
     busy = false; render();
   }
@@ -397,9 +398,9 @@ function fetchRange(url, start, end, onLoaded) {
     xhr.onprogress = (e) => { if (onLoaded) onLoaded(e.loaded); };
     xhr.onload = () => {
       if (xhr.status === 206 || xhr.status === 200) resolve({ buf: xhr.response, status: xhr.status, xhr });
-      else reject(new Error('No se pudo descargar el video.'));
+      else reject(new Error(T('No se pudo descargar el video.', 'Could not download the video.')));
     };
-    xhr.onerror = () => reject(new Error('Se cortó la conexión al descargar.'));
+    xhr.onerror = () => reject(new Error(T('Se cortó la conexión al descargar.', 'The connection dropped while downloading.')));
     xhr.send();
   });
 }
@@ -476,7 +477,7 @@ async function saveVideo(it, btn) {
   if (!(navigator.canShare && navigator.share)) { linkDownload(it); return; }
   const label = btn ? btn.querySelector('span:not(.ico)') : null; // la etiqueta, NO el <span class="ico">
   const setLabel = (t) => { if (label) label.textContent = t; };
-  const resetBtn = () => { if (btn) btn.classList.remove('dlv-dl--ready'); setLabel('Descargar'); };
+  const resetBtn = () => { if (btn) btn.classList.remove('dlv-dl--ready'); setLabel(T('Descargar', 'Download')); };
 
   // 2º toque (archivo ya en memoria): compartir SINCRONO -> activación fresca, no falla.
   const cached = fileCache.get(it.id);
@@ -486,15 +487,15 @@ async function saveVideo(it, btn) {
       if (e && e.name === 'AbortError') return; // canceló el menú: deja el botón armado
       // Falló el menú: CONSERVAMOS el archivo (no lo re-bajamos) y dejamos el botón
       // armado para reintentar con un toque (en iOS un <a download> no guardaría nada).
-      toast('No se abrió el menú para guardar. Toca el botón otra vez.', 'error', 5000);
+      toast(T('No se abrió el menú para guardar. Toca el botón otra vez.', 'The save menu didn\'t open. Tap the button again.'), 'error', 5000);
     }
     return;
   }
 
   try {
     if (btn) btn.disabled = true;
-    setLabel('Preparando… 0%');
-    const blob = await fetchVideoBlob(it, (pct) => setLabel(`Preparando… ${pct}%`));
+    setLabel(`${T('Preparando…', 'Preparing…')} 0%`);
+    const blob = await fetchVideoBlob(it, (pct) => setLabel(`${T('Preparando…', 'Preparing…')} ${pct}%`));
     const file = fileFromBlob(it, blob);
     if (!navigator.canShare({ files: [file] })) { linkDownload(it); return; }
     try {
@@ -505,15 +506,15 @@ async function saveVideo(it, btn) {
       // ARMAMOS un 2º toque muy claro (botón resaltado) -> ahí sí abre "Guardar en el teléfono".
       fileCache.set(it.id, file);
       if (btn) btn.classList.add('dlv-dl--ready');
-      setLabel('Toca para guardar');
-      toast('Tu video ya está listo ✓ — toca otra vez el botón resaltado para guardarlo en tu teléfono.', 'info', 8000);
+      setLabel(T('Toca para guardar', 'Tap to save'));
+      toast(T('Tu video ya está listo ✓ — toca otra vez el botón resaltado para guardarlo en tu teléfono.', 'Your video is ready ✓ — tap the highlighted button again to save it to your phone.'), 'info', 8000);
       return;
     }
   } catch (e) {
     linkDownload(it);
   } finally {
     if (btn) btn.disabled = false;
-    if (label && /Preparando/.test(label.textContent)) resetBtn();
+    if (label && /Preparando|Preparing/.test(label.textContent)) resetBtn();
   }
 }
 
@@ -544,10 +545,10 @@ async function downloadAllReels(month, reels, btn) {
       await navigator.share({ files: armed, title: 'Reels' });
       dlAllCache.delete(month);
       btn.classList.remove('dlv-dl--ready');
-      setLabel('Descargar todos');
+      setLabel(T('Descargar todos', 'Download all'));
     } catch (e) {
       if (e && e.name === 'AbortError') return; // canceló el menú: sigue armado
-      toast('No se abrió el menú para guardar. Toca el botón otra vez.', 'error', 5000);
+      toast(T('No se abrió el menú para guardar. Toca el botón otra vez.', 'The save menu didn\'t open. Tap the button again.'), 'error', 5000);
     }
     return;
   }
@@ -559,9 +560,9 @@ async function downloadAllReels(month, reels, btn) {
     for (let i = 0; i < reels.length; i++) {
       const it = reels[i];
       const pos = `${i + 1}/${reels.length}`;
-      setLabel(`Descargando ${pos}…`);
+      setLabel(`${T('Descargando', 'Downloading')} ${pos}…`);
       try {
-        const blob = await fetchVideoBlob(it, (pct) => setLabel(`Descargando ${pos} · ${pct}%`));
+        const blob = await fetchVideoBlob(it, (pct) => setLabel(`${T('Descargando', 'Downloading')} ${pos} · ${pct}%`));
         const file = fileFromBlob(it, blob);
         if (mobile) files.push(file); // en móvil se juntan para UN solo menú de Compartir
         else { blobDownload(file); await new Promise((r) => setTimeout(r, 350)); }
@@ -577,21 +578,21 @@ async function downloadAllReels(month, reels, btn) {
     if (shareable) {
       dlAllCache.set(month, files);
       btn.classList.add('dlv-dl--ready');
-      setLabel('Toca para guardar todos');
-      toast('Tus videos ya están listos ✓ — toca otra vez el botón resaltado para guardarlos.', 'info', 8000);
+      setLabel(T('Toca para guardar todos', 'Tap to save all'));
+      toast(T('Tus videos ya están listos ✓ — toca otra vez el botón resaltado para guardarlos.', 'Your videos are ready ✓ — tap the highlighted button again to save them.'), 'info', 8000);
     } else {
       // Este teléfono no comparte varios archivos a la vez: guardar uno por uno.
       for (const f of files) blobDownload(f);
-      setLabel('Descargar todos');
+      setLabel(T('Descargar todos', 'Download all'));
     }
   } else {
-    setLabel('Descargar todos');
+    setLabel(T('Descargar todos', 'Download all'));
   }
 
   if (failed.length) {
-    toast(`${failed.length === 1 ? '1 reel no se descargó' : `${failed.length} reels no se descargaron`}: ${failed.join(', ')}. Intenta de nuevo.`, 'error', 9000);
+    toast(T(`${failed.length === 1 ? '1 reel no se descargó' : `${failed.length} reels no se descargaron`}: ${failed.join(', ')}. Intenta de nuevo.`, `${failed.length === 1 ? '1 reel failed to download' : `${failed.length} reels failed to download`}: ${failed.join(', ')}. Try again.`), 'error', 9000);
   } else if (!mobile) {
-    toast(`${reels.length} reels descargados ✓`, 'success');
+    toast(`${reels.length} ${T('reels descargados', 'reels downloaded')} ✓`, 'success');
   }
 }
 
@@ -599,7 +600,7 @@ async function downloadAllReels(month, reels, btn) {
 function buildAddBar() {
   if (!addMonth) addMonth = currentMonth();
   const monthInput = el('input', {
-    class: 'dlv-month', type: 'month', value: addMonth, 'aria-label': 'Mes de los entregables',
+    class: 'dlv-month', type: 'month', value: addMonth, 'aria-label': T('Mes de los entregables', 'Deliverables month'),
     onchange: (e) => { addMonth = e.target.value || currentMonth(); },
   });
 
@@ -614,19 +615,19 @@ function buildAddBar() {
     const fill = el('div', { class: 'dlv-prog__fill' });
     fill.style.width = uploadPct + '%';
     const q = (queueInfo && queueInfo.total > 1) ? `(${queueInfo.index}/${queueInfo.total}) ` : '';
-    const label = el('span', { class: 'dlv-drop__t dlv-prog__label', text: uploadPct >= 100 ? `${q}Procesando…` : `${q}Subiendo… ${uploadPct}%` });
+    const label = el('span', { class: 'dlv-drop__t dlv-prog__label', text: uploadPct >= 100 ? `${q}${T('Procesando…', 'Processing…')}` : `${q}${T('Subiendo…', 'Uploading…')} ${uploadPct}%` });
     progressEls = { fill, label };
     dropKids = [
       icon('camera', 26),
       label,
       el('div', { class: 'dlv-prog' }, [fill]),
-      el('span', { class: 'dlv-drop__s', text: 'No cierres esta pantalla mientras sube el video.' }),
+      el('span', { class: 'dlv-drop__s', text: T('No cierres esta pantalla mientras sube el video.', 'Don\'t close this screen while the video uploads.') }),
     ];
   } else {
     dropKids = [
       icon('camera', 26),
-      el('span', { class: 'dlv-drop__t', text: 'Arrastra un reel aquí o toca para elegir' }),
-      el('span', { class: 'dlv-drop__s', text: 'Video MP4/MOV/WebM · calidad original · videos grandes OK (se suben por partes)' }),
+      el('span', { class: 'dlv-drop__t', text: T('Arrastra un reel aquí o toca para elegir', 'Drag a reel here or tap to choose') }),
+      el('span', { class: 'dlv-drop__s', text: T('Video MP4/MOV/WebM · calidad original · videos grandes OK (se suben por partes)', 'MP4/MOV/WebM video · original quality · big videos OK (uploaded in parts)') }),
       fileInput,
     ];
   }
@@ -643,8 +644,8 @@ function buildAddBar() {
 
   // Agregar carrusel por link. Cada casilla con su etiqueta visible para que no se
   // confunda el ENLACE (lo que abre el carrusel) con el TÍTULO (solo un nombre).
-  const linkInput = el('input', { class: 'dlv-input', type: 'text', inputmode: 'url', placeholder: 'Pega el enlace: canva.link/…, drive…, instagram.com/…' });
-  const titleInput = el('input', { class: 'dlv-input dlv-input--title', type: 'text', placeholder: 'Nombre para el cliente', maxlength: 200 });
+  const linkInput = el('input', { class: 'dlv-input', type: 'text', inputmode: 'url', placeholder: T('Pega el enlace: canva.link/…, drive…, instagram.com/…', 'Paste the link: canva.link/…, drive…, instagram.com/…') });
+  const titleInput = el('input', { class: 'dlv-input dlv-input--title', type: 'text', placeholder: T('Nombre para el cliente', 'Name for the client'), maxlength: 200 });
   const addBtn = el('button', {
     class: 'dlv-addbtn', type: 'button', disabled: busy,
     onclick: async () => {
@@ -653,21 +654,21 @@ function buildAddBar() {
       const ok = await addCarrusel(linkInput.value, titleInput.value);
       if (ok) { linkInput.value = ''; titleInput.value = ''; }
     },
-  }, [icon('plus', 16), el('span', { text: 'Agregar carrusel' })]);
+  }, [icon('plus', 16), el('span', { text: T('Agregar carrusel', 'Add carousel') })]);
 
   return el('div', { class: 'dlv-addbar' }, [
     el('div', { class: 'dlv-addbar__row' }, [
-      el('label', { class: 'dlv-addbar__lbl', text: 'Subir al mes:' }),
+      el('label', { class: 'dlv-addbar__lbl', text: T('Subir al mes:', 'Upload to month:') }),
       monthInput,
     ]),
     drop,
     el('div', { class: 'dlv-carrusel-add' }, [
       el('div', { class: 'dlv-field' }, [
-        el('label', { class: 'dlv-field__lbl', text: 'Link del carrusel' }),
+        el('label', { class: 'dlv-field__lbl', text: T('Link del carrusel', 'Carousel link') }),
         linkInput,
       ]),
       el('div', { class: 'dlv-field dlv-field--title' }, [
-        el('label', { class: 'dlv-field__lbl', text: 'Título (opcional)' }),
+        el('label', { class: 'dlv-field__lbl', text: T('Título (opcional)', 'Title (optional)') }),
         titleInput,
       ]),
       addBtn,
@@ -682,20 +683,20 @@ function relTime(iso) {
   const t = Date.parse(s.replace(' ', 'T') + (/[zZ]|[+-]\d\d:?\d\d$/.test(s) ? '' : 'Z'));
   if (isNaN(t)) return '';
   const sec = Math.floor((Date.now() - t) / 1000);
-  if (sec < 60) return 'ahora';
-  if (sec < 3600) return `hace ${Math.floor(sec / 60)} min`;
-  if (sec < 86400) return `hace ${Math.floor(sec / 3600)} h`;
-  if (sec < 7 * 86400) return `hace ${Math.floor(sec / 86400)} d`;
-  return new Date(t).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+  if (sec < 60) return T('ahora', 'now');
+  if (sec < 3600) return T(`hace ${Math.floor(sec / 60)} min`, `${Math.floor(sec / 60)} min ago`);
+  if (sec < 86400) return T(`hace ${Math.floor(sec / 3600)} h`, `${Math.floor(sec / 3600)} h ago`);
+  if (sec < 7 * 86400) return T(`hace ${Math.floor(sec / 86400)} d`, `${Math.floor(sec / 86400)} d ago`);
+  return new Date(t).toLocaleDateString(T('es-MX', 'en-US'), { day: 'numeric', month: 'short' });
 }
 
 async function deleteComment(it, c, node) {
-  if (!window.confirm('¿Eliminar este comentario?')) return;
+  if (!window.confirm(T('¿Eliminar este comentario?', 'Delete this comment?'))) return;
   try {
     await api.del(`/deliverables/${it.id}/comments/${c.id}`);
     node.remove();
     it.comments = (it.comments || []).filter((x) => x.id !== c.id);
-  } catch (e) { toast(e.message || 'No se pudo eliminar', 'error'); }
+  } catch (e) { toast(e.message || T('No se pudo eliminar', 'Could not delete'), 'error'); }
 }
 
 function commentEl(it, c, staff) {
@@ -704,8 +705,8 @@ function commentEl(it, c, staff) {
   const fromClient = c.author_role === 'client';
   const when = relTime(c.created_at);
   const top = el('div', { class: 'dlv-comment__top' }, [
-    el('span', { class: 'dlv-comment__who', text: c.author_name || (fromClient ? 'Cliente' : 'Equipo IVAE') }),
-    c.author_role ? el('span', { class: 'dlv-comment__role' + (fromClient ? ' is-client' : ''), text: fromClient ? 'Cliente' : 'Equipo' }) : null,
+    el('span', { class: 'dlv-comment__who', text: c.author_name || (fromClient ? T('Cliente', 'Client') : T('Equipo IVAE', 'IVAE Team')) }),
+    c.author_role ? el('span', { class: 'dlv-comment__role' + (fromClient ? ' is-client' : ''), text: fromClient ? T('Cliente', 'Client') : T('Equipo', 'Team') }) : null,
     when ? el('span', { class: 'dlv-comment__when', text: when }) : null,
   ]);
   const node = el('div', { class: 'dlv-comment' + (fromClient ? ' dlv-comment--client' : '') }, [
@@ -713,7 +714,7 @@ function commentEl(it, c, staff) {
       top,
       el('p', { class: 'dlv-comment__body', text: c.body }),
     ]),
-    staff ? el('button', { class: 'dlv-comment__del', type: 'button', 'aria-label': 'Eliminar comentario' }, [icon('trash', 15)]) : null,
+    staff ? el('button', { class: 'dlv-comment__del', type: 'button', 'aria-label': T('Eliminar comentario', 'Delete comment') }, [icon('trash', 15)]) : null,
   ]);
   if (staff) { const d = node.querySelector('.dlv-comment__del'); if (d) d.addEventListener('click', () => deleteComment(it, c, node)); }
   return node;
@@ -727,14 +728,14 @@ function buildComments(it, staff) {
   cs.forEach((c) => list.appendChild(commentEl(it, c, staff)));
 
   const input = el('textarea', {
-    class: 'dlv-comment-input', rows: 1, maxlength: 4000, placeholder: 'Escribe un cambio o comentario…',
+    class: 'dlv-comment-input', rows: 1, maxlength: 4000, placeholder: T('Escribe un cambio o comentario…', 'Write a change or comment…'),
     oninput: (e) => {
       // En escritorio el textarea LLENA el alto (flex); no fijamos altura inline.
       if (window.matchMedia && window.matchMedia('(min-width: 768px)').matches) return;
       e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 320) + 'px';
     },
   });
-  const send = el('button', { class: 'dlv-comment-send', type: 'button', text: 'Enviar' });
+  const send = el('button', { class: 'dlv-comment-send', type: 'button', text: T('Enviar', 'Send') });
   const submit = async () => {
     const body = (input.value || '').trim();
     if (!body || send.disabled) return;
@@ -746,7 +747,7 @@ function buildComments(it, staff) {
       list.appendChild(node);
       input.value = ''; input.style.height = 'auto';
       node.scrollIntoView({ block: 'nearest' });
-    } catch (e) { toast(e.message || 'No se pudo enviar', 'error'); }
+    } catch (e) { toast(e.message || T('No se pudo enviar', 'Could not send'), 'error'); }
     finally { send.disabled = false; }
   };
   send.addEventListener('click', submit);
@@ -770,16 +771,16 @@ function buildItem(it, staff) {
       observeVideo(v); // carga metadatos/frame solo al acercarse (rápido en móvil)
       card.appendChild(v);
     } else {
-      card.appendChild(el('div', { class: 'dlv-video dlv-video--pending', text: 'Procesando…' }));
+      card.appendChild(el('div', { class: 'dlv-video dlv-video--pending', text: T('Procesando…', 'Processing…') }));
     }
     const foot = el('div', { class: 'dlv-card__foot' }, [
       el('span', { class: 'dlv-card__title', text: it.title || 'Reel' }),
       el('div', { class: 'dlv-card__actions' }, [
         it.video_url ? el('button', {
-          class: 'dlv-dl', type: 'button', 'aria-label': 'Descargar reel',
+          class: 'dlv-dl', type: 'button', 'aria-label': T('Descargar reel', 'Download reel'),
           onclick: (e) => saveVideo(it, e.currentTarget),
-        }, [icon('down', 16), el('span', { text: 'Descargar' })]) : null,
-        staff ? el('button', { class: 'dlv-del', type: 'button', 'aria-label': 'Eliminar', onclick: () => removeItem(it) }, [icon('trash', 16)]) : null,
+        }, [icon('down', 16), el('span', { text: T('Descargar', 'Download') })]) : null,
+        staff ? el('button', { class: 'dlv-del', type: 'button', 'aria-label': T('Eliminar', 'Delete'), onclick: () => removeItem(it) }, [icon('trash', 16)]) : null,
       ]),
     ]);
     // foot + comentarios en un lado: en móvil van debajo del video; en escritorio
@@ -790,12 +791,12 @@ function buildItem(it, staff) {
   // carrusel: preview (izquierda en escritorio) + comentarios al lado (.dlv-card__side)
   const main = el('div', { class: 'dlv-carrusel__main' }, [
     el('div', { class: 'dlv-carrusel__ico' }, [icon('grip', 30)]),
-    el('span', { class: 'dlv-card__title', text: it.title || 'Carrusel' }),
+    el('span', { class: 'dlv-card__title', text: it.title || T('Carrusel', 'Carousel') }),
     el('div', { class: 'dlv-card__actions' }, [
       el('a', {
         class: 'dlv-carrusel-btn', href: it.link, target: '_blank', rel: 'noopener noreferrer',
-      }, [icon('eye', 16), el('span', { text: 'Ver carrusel' })]),
-      staff ? el('button', { class: 'dlv-del', type: 'button', 'aria-label': 'Eliminar', onclick: () => removeItem(it) }, [icon('trash', 16)]) : null,
+      }, [icon('eye', 16), el('span', { text: T('Ver carrusel', 'View carousel') })]),
+      staff ? el('button', { class: 'dlv-del', type: 'button', 'aria-label': T('Eliminar', 'Delete'), onclick: () => removeItem(it) }, [icon('trash', 16)]) : null,
     ]),
   ]);
   return el('div', { class: 'dlv-card dlv-card--carrusel' }, [
@@ -813,29 +814,29 @@ function render() {
   if (!client) {
     rootEl.appendChild(el('div', { class: 'dlv-empty' }, [
       el('div', { class: 'dlv-empty__ico' }, [icon('briefcase', 26)]),
-      el('h3', { text: 'Elige una marca' }),
-      el('p', { text: 'Selecciona un cliente arriba para ver o subir sus entregables.' }),
+      el('h3', { text: T('Elige una marca', 'Choose a brand') }),
+      el('p', { text: T('Selecciona un cliente arriba para ver o subir sus entregables.', 'Select a client above to view or upload their deliverables.') }),
     ]));
     return;
   }
 
   rootEl.appendChild(el('div', { class: 'dlv-head' }, [
-    el('h1', { class: 'dlv-h1', text: 'Entregables' }),
-    el('p', { class: 'dlv-sub', text: staff ? 'Sube los reels finales y agrega los carruseles. El cliente los verá y podrá descargarlos.' : 'Aquí está tu contenido final, listo para ver y descargar.' }),
+    el('h1', { class: 'dlv-h1', text: T('Entregables', 'Deliverables') }),
+    el('p', { class: 'dlv-sub', text: staff ? T('Sube los reels finales y agrega los carruseles. El cliente los verá y podrá descargarlos.', 'Upload the final reels and add the carousels. The client will see them and can download them.') : T('Aquí está tu contenido final, listo para ver y descargar.', 'Here\'s your final content, ready to view and download.') }),
   ]));
 
   if (staff) rootEl.appendChild(buildAddBar());
 
   if (loading) {
-    rootEl.appendChild(el('div', { class: 'dlv-loading' }, [el('span', { class: 'spinner', 'aria-hidden': 'true' }), el('span', { class: 'muted', text: 'Cargando entregables…' })]));
+    rootEl.appendChild(el('div', { class: 'dlv-loading' }, [el('span', { class: 'spinner', 'aria-hidden': 'true' }), el('span', { class: 'muted', text: T('Cargando entregables…', 'Loading deliverables…') })]));
     return;
   }
 
   if (!items.length) {
     rootEl.appendChild(el('div', { class: 'dlv-empty' }, [
       el('div', { class: 'dlv-empty__ico' }, [icon('camera', 26)]),
-      el('h3', { text: staff ? 'Aún no hay entregables' : 'Todavía no hay contenido' }),
-      el('p', { text: staff ? 'Arrastra un reel o agrega un carrusel arriba para empezar.' : 'En cuanto el equipo suba tu contenido, aparecerá aquí.' }),
+      el('h3', { text: staff ? T('Aún no hay entregables', 'No deliverables yet') : T('Todavía no hay contenido', 'No content yet') }),
+      el('p', { text: staff ? T('Arrastra un reel o agrega un carrusel arriba para empezar.', 'Drag a reel or add a carousel above to get started.') : T('En cuanto el equipo suba tu contenido, aparecerá aquí.', 'As soon as the team uploads your content, it will show up here.') }),
     ]));
     return;
   }
@@ -870,7 +871,7 @@ function render() {
 // Barra de píldoras de meses (mismo patrón que la monthbar de "Meses"): nombre
 // del mes + conteo; la activa resaltada. Tocar una cambia el mes visible.
 function buildMonthBar(months, byMonth) {
-  const bar = el('div', { class: 'dlv-monthbar', role: 'tablist', 'aria-label': 'Meses' });
+  const bar = el('div', { class: 'dlv-monthbar', role: 'tablist', 'aria-label': T('Meses', 'Months') });
   for (const m of months) {
     const active = m === activeMonthNav;
     bar.appendChild(el('button', {
@@ -890,9 +891,9 @@ function buildDownloadAllBtn(month, reels) {
   const armed = dlAllCache.has(month); // móvil: archivos listos, falta el 2º toque
   const btn = el('button', {
     class: 'dlv-dl dlv-dlall' + (armed ? ' dlv-dl--ready' : ''), type: 'button',
-    'aria-label': 'Descargar todos los reels del mes', disabled: dlAllBusy || null,
+    'aria-label': T('Descargar todos los reels del mes', 'Download all reels for this month'), disabled: dlAllBusy || null,
     onclick: (e) => downloadAllReels(month, reels, e.currentTarget),
-  }, [icon('down', 15), el('span', { text: armed ? 'Toca para guardar todos' : 'Descargar todos' })]);
+  }, [icon('down', 15), el('span', { text: armed ? T('Toca para guardar todos', 'Tap to save all') : T('Descargar todos', 'Download all') })]);
   return btn;
 }
 

@@ -24,9 +24,10 @@
 import { api } from '../api.js?v=202607181835';
 import { toast } from '../shell/toast.js?v=202607181835';
 import * as store from '../shell/store.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 const TTL = 60000;
-const ERR_SAVE = 'No se pudo guardar, intenta de nuevo.';
+const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', "Couldn't save, try again.");
 
 let available = true;
 const cache = new Map(); // clientKey -> {at, rules:[...]}
@@ -44,22 +45,22 @@ function markUnavailable() {
 // needsValue: 'status' | 'days' | 'user' | 'text' | null
 
 export const TRIGGERS = [
-  { id: 'post_created', label: 'Se crea un contenido', needsValue: null },
-  { id: 'status_changed', label: 'El estado cambia a', needsValue: 'status' },
-  { id: 'publish_date_arrived', label: 'Llega la fecha de publicacion', needsValue: null },
-  { id: 'publish_date_in', label: 'Faltan N dias para publicar', needsValue: 'days' },
-  { id: 'client_approved', label: 'El cliente aprueba', needsValue: null },
-  { id: 'client_changes_requested', label: 'El cliente pide cambios', needsValue: null },
-  { id: 'comment_added', label: 'Alguien comenta', needsValue: null },
+  { id: 'post_created', label: T('Se crea un contenido', 'A content item is created'), needsValue: null },
+  { id: 'status_changed', label: T('El estado cambia a', 'The status changes to'), needsValue: 'status' },
+  { id: 'publish_date_arrived', label: T('Llega la fecha de publicacion', 'The publish date arrives'), needsValue: null },
+  { id: 'publish_date_in', label: T('Faltan N dias para publicar', 'N days left before publishing'), needsValue: 'days' },
+  { id: 'client_approved', label: T('El cliente aprueba', 'The client approves'), needsValue: null },
+  { id: 'client_changes_requested', label: T('El cliente pide cambios', 'The client requests changes'), needsValue: null },
+  { id: 'comment_added', label: T('Alguien comenta', 'Someone comments'), needsValue: null },
 ];
 
 export const ACTIONS = [
-  { id: 'set_status', label: 'Cambiar el estado a', needsValue: 'status' },
-  { id: 'assign_user', label: 'Asignar a', needsValue: 'user' },
-  { id: 'notify_user', label: 'Avisar a', needsValue: 'user' },
-  { id: 'notify_client', label: 'Avisar al cliente', needsValue: null },
-  { id: 'shift_date', label: 'Mover la fecha N dias', needsValue: 'days' },
-  { id: 'add_checklist', label: 'Agregar checklist', needsValue: 'text' },
+  { id: 'set_status', label: T('Cambiar el estado a', 'Change the status to'), needsValue: 'status' },
+  { id: 'assign_user', label: T('Asignar a', 'Assign to'), needsValue: 'user' },
+  { id: 'notify_user', label: T('Avisar a', 'Notify'), needsValue: 'user' },
+  { id: 'notify_client', label: T('Avisar al cliente', 'Notify the client'), needsValue: null },
+  { id: 'shift_date', label: T('Mover la fecha N dias', 'Move the date N days'), needsValue: 'days' },
+  { id: 'add_checklist', label: T('Agregar checklist', 'Add checklist'), needsValue: 'text' },
 ];
 
 export function triggerDef(type) { return TRIGGERS.find((t) => t.id === type) || null; }
@@ -166,7 +167,7 @@ export async function create(rule) {
   } catch (e) {
     if (is404(e)) {
       markUnavailable();
-      toast('Las automatizaciones estaran disponibles cuando se aplique la migracion.', { type: 'info' });
+      toast(T('Las automatizaciones estaran disponibles cuando se aplique la migracion.', 'Automations will be available once the migration is applied.'), { type: 'info' });
     } else {
       toast((e && e.message) || ERR_SAVE, { type: 'error' });
     }
@@ -219,7 +220,7 @@ export async function update(id, patch) {
     rollback();
     emitChanged(found ? found.rule.client_id : null);
     // 404 aqui = la regla ya no existe (la borro alguien mas), no migracion.
-    if (is404(e)) toast('Esa regla ya no existe.', { type: 'error' });
+    if (is404(e)) toast(T('Esa regla ya no existe.', 'That rule no longer exists.'), { type: 'error' });
     else toast((e && e.message) || ERR_SAVE, { type: 'error' });
     return false;
   }
@@ -246,7 +247,7 @@ export async function remove(id) {
     }
     rollback();
     emitChanged(found ? found.rule.client_id : null);
-    toast((e && e.message) || 'No se pudo eliminar.', { type: 'error' });
+    toast((e && e.message) || T('No se pudo eliminar.', "Couldn't delete."), { type: 'error' });
     return false;
   }
 }
@@ -283,20 +284,20 @@ function needsCheck(def, value) {
 /** {ok, error}: trigger valido + al menos una accion valida. */
 export function validateRule(rule) {
   if (!rule || !rule.trigger || !rule.trigger.type) {
-    return { ok: false, error: 'Elige cuando se dispara la regla.' };
+    return { ok: false, error: T('Elige cuando se dispara la regla.', 'Choose when the rule fires.') };
   }
   const t = triggerDef(rule.trigger.type);
-  if (!t) return { ok: false, error: 'Ese disparador no existe.' };
+  if (!t) return { ok: false, error: T('Ese disparador no existe.', "That trigger doesn't exist.") };
   if (!needsCheck(t, rule.trigger.value)) {
-    return { ok: false, error: 'Al disparador le falta su valor.' };
+    return { ok: false, error: T('Al disparador le falta su valor.', 'The trigger is missing its value.') };
   }
   const actions = Array.isArray(rule.actions) ? rule.actions : [];
-  if (!actions.length) return { ok: false, error: 'Agrega al menos una accion.' };
+  if (!actions.length) return { ok: false, error: T('Agrega al menos una accion.', 'Add at least one action.') };
   for (const a of actions) {
     const def = actionDef(a && a.type);
-    if (!def) return { ok: false, error: 'Una de las acciones no existe.' };
+    if (!def) return { ok: false, error: T('Una de las acciones no existe.', "One of the actions doesn't exist.") };
     if (!needsCheck(def, a.value)) {
-      return { ok: false, error: `A la accion "${def.label}" le falta su valor.` };
+      return { ok: false, error: `${T('A la accion', 'The action')} "${def.label}" ${T('le falta su valor.', 'is missing its value.')}` };
     }
   }
   return { ok: true, error: null };
@@ -307,45 +308,45 @@ function defaultStatusLabel(value) {
 }
 
 function defaultUserLabel(value) {
-  if (value === 'team' || value === 'equipo') return 'el equipo';
+  if (value === 'team' || value === 'equipo') return T('el equipo', 'the team');
   const users = store.getState().users;
   const u = Array.isArray(users) ? users.find((x) => String(x.id) === String(value)) : null;
-  return (u && (u.name || u.email)) || 'esa persona';
+  return (u && (u.name || u.email)) || T('esa persona', 'that person');
 }
 
 function triggerPhrase(trigger, { statusLabel }) {
   const v = trigger.value;
   switch (trigger.type) {
-    case 'post_created': return 'se crea un contenido';
+    case 'post_created': return T('se crea un contenido', 'a content item is created');
     case 'status_changed':
-      return v ? `el estado cambia a ${statusLabel(v)}` : 'el estado cambia';
-    case 'publish_date_arrived': return 'llega la fecha de publicacion';
+      return v ? `${T('el estado cambia a', 'the status changes to')} ${statusLabel(v)}` : T('el estado cambia', 'the status changes');
+    case 'publish_date_arrived': return T('llega la fecha de publicacion', 'the publish date arrives');
     case 'publish_date_in': {
       const n = Math.abs(Number(v) || 0);
-      return `faltan ${n} ${n === 1 ? 'dia' : 'dias'} para publicar`;
+      return T(`faltan ${n} ${n === 1 ? 'dia' : 'dias'} para publicar`, `${n} ${n === 1 ? 'day' : 'days'} are left before publishing`);
     }
-    case 'client_approved': return 'el cliente aprueba';
-    case 'client_changes_requested': return 'el cliente pide cambios';
-    case 'comment_added': return 'alguien comenta';
-    default: return 'pasa algo';
+    case 'client_approved': return T('el cliente aprueba', 'the client approves');
+    case 'client_changes_requested': return T('el cliente pide cambios', 'the client requests changes');
+    case 'comment_added': return T('alguien comenta', 'someone comments');
+    default: return T('pasa algo', 'something happens');
   }
 }
 
 function actionPhrase(action, { statusLabel, userLabel }) {
   const v = action.value;
   switch (action.type) {
-    case 'set_status': return `cambia el estado a ${statusLabel(v)}`;
-    case 'assign_user': return `asigna a ${userLabel(v)}`;
-    case 'notify_user': return `avisa a ${userLabel(v)}`;
-    case 'notify_client': return 'avisa al cliente';
+    case 'set_status': return `${T('cambia el estado a', 'set the status to')} ${statusLabel(v)}`;
+    case 'assign_user': return `${T('asigna a', 'assign to')} ${userLabel(v)}`;
+    case 'notify_user': return `${T('avisa a', 'notify')} ${userLabel(v)}`;
+    case 'notify_client': return T('avisa al cliente', 'notify the client');
     case 'shift_date': {
       const n = Number(v) || 0;
       const abs = Math.abs(n);
-      const dias = `${abs} ${abs === 1 ? 'dia' : 'dias'}`;
-      return n < 0 ? `adelanta la fecha ${dias}` : `recorre la fecha ${dias}`;
+      const dias = `${abs} ${abs === 1 ? T('dia', 'day') : T('dias', 'days')}`;
+      return n < 0 ? `${T('adelanta la fecha', 'move the date up')} ${dias}` : `${T('recorre la fecha', 'push the date back')} ${dias}`;
     }
-    case 'add_checklist': return `agrega la checklist "${v}"`;
-    default: return 'hace algo';
+    case 'add_checklist': return `${T('agrega la checklist', 'add the checklist')} "${v}"`;
+    default: return T('hace algo', 'do something');
   }
 }
 
@@ -365,7 +366,7 @@ export function describeRule(rule, opts = {}) {
   const acts = (r.actions || []).map((a) => actionPhrase(a, ctx));
   const actsTxt = acts.length <= 1
     ? (acts[0] || '')
-    : `${acts.slice(0, -1).join(', ')} y ${acts[acts.length - 1]}`;
-  const sentence = `Cuando ${t}, ${actsTxt}.`;
+    : `${acts.slice(0, -1).join(', ')} ${T('y', 'and')} ${acts[acts.length - 1]}`;
+  const sentence = `${T('Cuando', 'When')} ${t}, ${actsTxt}.`;
   return sentence.charAt(0).toUpperCase() + sentence.slice(1);
 }

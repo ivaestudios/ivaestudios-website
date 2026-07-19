@@ -25,6 +25,7 @@ import * as store from '../shell/store.js?v=202607181835';
 import * as checklistService from '../services/checklist.js?v=202607181835';
 import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202607181835';
 import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -42,7 +43,7 @@ export function mount(host, ed) {
 
   // ── Estado ─────────────────────────────────────────────────────────────────
   const rEstado = rowButton({
-    label: 'Estado',
+    label: T('Estado', 'Status'),
     render: (v) => v.appendChild(statusBadge(post().status)),
     onTap: async (anchor) => {
       const next = await ctx.pickers.pickStatus({ current: post().status, anchor });
@@ -54,18 +55,18 @@ export function mount(host, ed) {
 
   // ── Aprobacion (solo staff; fuerza la decision del cliente) ───────────────
   const rAprobacion = rowButton({
-    label: 'Aprobacion',
+    label: T('Aprobacion', 'Approval'),
     render: (v) => v.appendChild(approvalBadge(post().approval_state)),
     onTap: (anchor) => ed.openApprovalPicker(anchor).then(refreshAll),
   });
 
   // ── Fecha ──────────────────────────────────────────────────────────────────
   const rFecha = rowButton({
-    label: 'Fecha de publicacion',
+    label: T('Fecha de publicacion', 'Publish date'),
     render: (v) => {
       const d = post().publish_date;
       if (d) v.appendChild(el('span', { class: 'edrow__date', text: fmtDate(d, { weekday: 'short', day: 'numeric', month: 'short' }) }));
-      else v.appendChild(emptyValue('Sin fecha'));
+      else v.appendChild(emptyValue(T('Sin fecha', 'No date')));
     },
     onTap: async (anchor) => {
       const next = await ctx.pickers.pickDate({ current: post().publish_date, anchor });
@@ -77,11 +78,11 @@ export function mount(host, ed) {
 
   // ── Plataforma ─────────────────────────────────────────────────────────────
   const rPlataforma = rowButton({
-    label: 'Plataforma',
+    label: T('Plataforma', 'Platform'),
     render: (v) => {
       const p = post().platform;
       if (p) v.appendChild(el('span', { class: 'edrow__plain', text: p }));
-      else v.appendChild(emptyValue('Sin plataforma'));
+      else v.appendChild(emptyValue(T('Sin plataforma', 'No platform')));
     },
     onTap: async (anchor) => {
       const next = await ctx.pickers.pickPlatform({ current: post().platform, anchor });
@@ -93,7 +94,7 @@ export function mount(host, ed) {
 
   // ── Tipo (al cambiar, ofrece checklist del tipo si esta vacia) ────────────
   const rTipo = rowButton({
-    label: 'Tipo de contenido',
+    label: T('Tipo de contenido', 'Content type'),
     render: (v) => v.appendChild(chip(post().content_type)),
     onTap: async (anchor) => {
       const next = await ctx.pickers.pickType({ current: post().content_type, anchor });
@@ -108,13 +109,13 @@ export function mount(host, ed) {
     if (!checklistService.isAvailable()) return;
     const items = await checklistService.list(ed.postId);
     if (items.length) return;
-    ctx.toast(`Checklist de ${contentTypeLabel(type)} disponible.`, {
+    ctx.toast(T(`Checklist de ${contentTypeLabel(type)} disponible.`, `${contentTypeLabel(type)} checklist available.`), {
       type: 'info',
       action: {
-        label: 'Aplicar',
+        label: T('Aplicar', 'Apply'),
         onAction: () => {
           applyChecklistTemplate(ed.postId, type).then((n) => {
-            if (n) ctx.toast(`${n} pasos agregados a la checklist.`, { type: 'success' });
+            if (n) ctx.toast(T(`${n} pasos agregados a la checklist.`, `${n} steps added to the checklist.`), { type: 'success' });
           });
         },
       },
@@ -123,22 +124,22 @@ export function mount(host, ed) {
 
   // ── Grabacion ──────────────────────────────────────────────────────────────
   const rGrabacion = rowButton({
-    label: 'Grabacion',
+    label: T('Grabacion', 'Recording'),
     render: (v) => {
       const g = post().grabacion;
       if (g) v.appendChild(el('span', { class: 'edrow__plain', text: `G${g}` }));
-      else v.appendChild(emptyValue('Sin prioridad'));
+      else v.appendChild(emptyValue(T('Sin prioridad', 'No priority')));
     },
     onTap: async (anchor) => {
       const cur = post().grabacion;
       const next = await pickFrom({
-        title: 'Prioridad de grabacion',
+        title: T('Prioridad de grabacion', 'Recording priority'),
         anchor,
         options: [
-          { value: '', label: 'Sin prioridad', current: !cur },
+          { value: '', label: T('Sin prioridad', 'No priority'), current: !cur },
           ...[1, 2, 3, 4, 5].map((n) => ({
             value: n,
-            label: `G${n}${n === 1 ? ' (mas urgente)' : n === 5 ? ' (menos urgente)' : ''}`,
+            label: `G${n}${n === 1 ? T(' (mas urgente)', ' (most urgent)') : n === 5 ? T(' (menos urgente)', ' (least urgent)') : ''}`,
             current: Number(cur) === n,
           })),
         ],
@@ -151,14 +152,14 @@ export function mount(host, ed) {
 
   // ── Hecho por (staff + texto libre) ───────────────────────────────────────
   const rPersona = rowButton({
-    label: 'Hecho por',
+    label: T('Hecho por', 'Made by'),
     render: (v) => {
       const a = post().assignee;
       if (a) {
         v.appendChild(avatar(a, true));
         v.appendChild(el('span', { class: 'edrow__plain', text: a }));
       } else {
-        v.appendChild(emptyValue('Sin responsable'));
+        v.appendChild(emptyValue(T('Sin responsable', 'Unassigned')));
       }
     },
     onTap: async (anchor) => {
@@ -180,16 +181,16 @@ export function mount(host, ed) {
   // por aprobar, asi que el copy promete exactamente eso y no un ocultamiento
   // que no existe.
   const rVisible = rowSwitch({
-    label: 'Pedir aprobacion al cliente',
-    sub: 'Le avisa y lo cuenta como pendiente por aprobar',
+    label: T('Pedir aprobacion al cliente', 'Ask client for approval'),
+    sub: T('Le avisa y lo cuenta como pendiente por aprobar', 'Notifies them and counts it as pending approval'),
     get: () => !!post().client_visible,
     onToggle: async (next) => {
       if (!next && post().approval_state === 'pending') {
         const sure = await pickFrom({
-          title: 'Dejara de contar como pendiente',
+          title: T('Dejara de contar como pendiente', 'It will stop counting as pending'),
           options: [
-            { value: 'si', label: 'Pausar la aprobacion', sub: 'El cliente seguira viendo el post en su portal' },
-            { value: 'no', label: 'Cancelar', current: true },
+            { value: 'si', label: T('Pausar la aprobacion', 'Pause the approval'), sub: T('El cliente seguira viendo el post en su portal', 'The client will still see the post in their portal') },
+            { value: 'no', label: T('Cancelar', 'Cancel'), current: true },
           ],
         });
         if (sure !== 'si') return false;
@@ -201,7 +202,7 @@ export function mount(host, ed) {
 
   // ── URLs ───────────────────────────────────────────────────────────────────
   const rInspo = rowUrl({
-    label: 'Inspiracion',
+    label: T('Inspiracion', 'Inspiration'),
     get: () => post().inspo_url,
     onSave: (v) => ed.setField('inspo_url', v || null, { immediate: true }),
   });
@@ -213,17 +214,17 @@ export function mount(host, ed) {
 
   // ── Notas ──────────────────────────────────────────────────────────────────
   const rNotas = rowTextExpand({
-    label: 'Notas del equipo',
+    label: T('Notas del equipo', 'Team notes'),
     get: () => post().notes_team,
     onSave: (v) => ed.setField('notes_team', v, { immediate: true }),
-    placeholder: 'Notas internas del equipo (el cliente no las ve)',
+    placeholder: T('Notas internas del equipo (el cliente no las ve)', 'Internal team notes (the client does not see them)'),
   });
 
   // Filas dinamicas por persona segun note_labels del cliente activo.
   const client = ed.getClient();
   const noteLabels = (client && Array.isArray(client.note_labels)) ? client.note_labels : [];
   const personRows = noteLabels.map((person) => rowTextExpand({
-    label: `Notas ${person}`,
+    label: T(`Notas ${person}`, `Notes for ${person}`),
     get: () => {
       const np = post().notes_people;
       return (np && typeof np === 'object' && np[person]) || '';
@@ -234,7 +235,7 @@ export function mount(host, ed) {
       const merged = { ...base, [person]: v };
       ed.setField('notes_people', merged, { immediate: true });
     },
-    placeholder: `Pendientes o notas para ${person}`,
+    placeholder: T(`Pendientes o notas para ${person}`, `To-dos or notes for ${person}`),
   }));
 
   rows.push(
@@ -242,11 +243,11 @@ export function mount(host, ed) {
     rVisible, rInspo, rVideo, rNotas, ...personRows,
   );
 
-  addSection('Flujo', [rEstado.el, rAprobacion.el, rFecha.el]);
-  addSection('Formato', [rPlataforma.el, rTipo.el, rGrabacion.el, rPersona.el]);
-  addSection('Cliente', [rVisible.el]);
-  addSection('Enlaces', [rInspo.el, rVideo.el]);
-  addSection('Notas', [rNotas.el, ...personRows.map((r) => r.el)]);
+  addSection(T('Flujo', 'Flow'), [rEstado.el, rAprobacion.el, rFecha.el]);
+  addSection(T('Formato', 'Format'), [rPlataforma.el, rTipo.el, rGrabacion.el, rPersona.el]);
+  addSection(T('Cliente', 'Client'), [rVisible.el]);
+  addSection(T('Enlaces', 'Links'), [rInspo.el, rVideo.el]);
+  addSection(T('Notas', 'Notes'), [rNotas.el, ...personRows.map((r) => r.el)]);
 
   function refreshAll() {
     for (const r of rows) { try { r.refresh(); } catch { /* noop */ } }

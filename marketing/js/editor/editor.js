@@ -24,6 +24,7 @@
 // ============================================================================
 
 import { el, api, statusBadge, approvalBadge, fmtDate } from '../api.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
 import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202607181835';
 import * as store from '../shell/store.js?v=202607181835';
@@ -38,11 +39,11 @@ import { mount as mountConversacion } from './tab-conversacion.js?v=202607181835
 import { mount as mountActividad } from './tab-actividad.js?v=202607181835';
 
 const TABS = [
-  { key: 'contenido', label: 'Contenido', mount: mountContenido },
-  { key: 'guion', label: 'Guion', mount: mountGuion },
+  { key: 'contenido', label: T('Contenido', 'Content'), mount: mountContenido },
+  { key: 'guion', label: T('Guion', 'Script'), mount: mountGuion },
   { key: 'checklist', label: 'Checklist', mount: mountChecklist },
-  { key: 'conversacion', label: 'Conversacion', mount: mountConversacion },
-  { key: 'actividad', label: 'Actividad', mount: mountActividad },
+  { key: 'conversacion', label: T('Conversacion', 'Conversation'), mount: mountConversacion },
+  { key: 'actividad', label: T('Actividad', 'Activity'), mount: mountActividad },
 ];
 
 // Ultimo tab usado por post (memoria de la sesion, no persiste).
@@ -116,10 +117,10 @@ function paintSaveState(state) {
   if (!indicatorEl) return;
   indicatorEl.className = `edsave is-${state}`;
   retryBtn.hidden = state !== 'error';
-  if (state === 'saved') indicatorText.textContent = 'Guardado';
-  else if (state === 'dirty' || state === 'saving') indicatorText.textContent = 'Guardando...';
-  else if (state === 'offline') indicatorText.textContent = 'Sin conexion, se guardara al volver';
-  else if (state === 'error') indicatorText.textContent = 'No se guardo';
+  if (state === 'saved') indicatorText.textContent = T('Guardado', 'Saved');
+  else if (state === 'dirty' || state === 'saving') indicatorText.textContent = T('Guardando...', 'Saving...');
+  else if (state === 'offline') indicatorText.textContent = T('Sin conexion, se guardara al volver', 'Offline, will save when back online');
+  else if (state === 'error') indicatorText.textContent = T('No se guardo', 'Not saved');
 }
 
 // ── Header: titulo + chips de acceso rapido ──────────────────────────────────
@@ -135,7 +136,7 @@ function refreshHeader() {
 
   // Chip de estado: el 80% de los toques (abre el picker sin ir al tab).
   chipsEl.appendChild(el('button', {
-    class: 'edchip', type: 'button', 'aria-label': 'Cambiar estado',
+    class: 'edchip', type: 'button', 'aria-label': T('Cambiar estado', 'Change status'),
     onclick: async (e) => {
       const anchor = e.currentTarget;
       const next = await ctx.pickers.pickStatus({ current: ed.getPost().status, anchor });
@@ -145,12 +146,12 @@ function refreshHeader() {
   }, [statusBadge(p.status)]));
 
   chipsEl.appendChild(el('button', {
-    class: 'edchip', type: 'button', 'aria-label': 'Cambiar aprobacion',
+    class: 'edchip', type: 'button', 'aria-label': T('Cambiar aprobacion', 'Change approval'),
     onclick: (e) => openApprovalPicker(e.currentTarget),
   }, [approvalBadge(p.approval_state)]));
 
   chipsEl.appendChild(el('button', {
-    class: 'edchip edchip--date', type: 'button', 'aria-label': 'Cambiar fecha de publicacion',
+    class: 'edchip edchip--date', type: 'button', 'aria-label': T('Cambiar fecha de publicacion', 'Change publish date'),
     onclick: async (e) => {
       const anchor = e.currentTarget;
       const next = await ctx.pickers.pickDate({ current: ed.getPost().publish_date, anchor });
@@ -159,7 +160,7 @@ function refreshHeader() {
     },
   }, [
     icon('calendar', 14),
-    el('span', { text: p.publish_date ? fmtDate(p.publish_date) : 'Sin fecha' }),
+    el('span', { text: p.publish_date ? fmtDate(p.publish_date) : T('Sin fecha', 'No date') }),
   ]));
 }
 
@@ -173,11 +174,11 @@ function fitTitle() {
 async function openApprovalPicker(anchor) {
   const cur = ed.getPost().approval_state;
   const decision = await pickFrom({
-    title: 'Aprobacion',
+    title: T('Aprobacion', 'Approval'),
     anchor,
     options: [
-      { value: 'approved', label: 'Aprobado', color: '#22c55e', sub: 'Esto fuerza la decision del cliente', current: cur === 'approved' },
-      { value: 'changes', label: 'Cambios pedidos', color: '#ec4899', sub: 'Pide un comentario con los cambios', current: cur === 'changes' },
+      { value: 'approved', label: T('Aprobado', 'Approved'), color: '#22c55e', sub: T('Esto fuerza la decision del cliente', 'This overrides the client\'s decision'), current: cur === 'approved' },
+      { value: 'changes', label: T('Cambios pedidos', 'Changes requested'), color: '#ec4899', sub: T('Pide un comentario con los cambios', 'Asks for a comment with the changes'), current: cur === 'changes' },
     ],
   });
   if (!decision || decision === cur) return;
@@ -185,12 +186,12 @@ async function openApprovalPicker(anchor) {
   let comment = null;
   if (decision === 'changes') {
     comment = await textExpand({
-      title: '¿Qué cambios se piden?',
-      placeholder: 'Describe los cambios (obligatorio)',
+      title: T('¿Qué cambios se piden?', 'What changes are requested?'),
+      placeholder: T('Describe los cambios (obligatorio)', 'Describe the changes (required)'),
       maxLength: 2000,
     });
     if (comment === null || !comment.trim()) {
-      if (comment !== null) ctx.toast('Se necesita un comentario para pedir cambios.', { type: 'info' });
+      if (comment !== null) ctx.toast(T('Se necesita un comentario para pedir cambios.', 'A comment is required to request changes.'), { type: 'info' });
       return;
     }
   }
@@ -215,7 +216,7 @@ async function openApprovalPicker(anchor) {
   } catch (e) {
     if (snapshot) snapshot = { ...snapshot, approval_state: prev }; // rollback
     refreshHeader();
-    ctx.toast((e && e.message) || 'No se pudo guardar, intenta de nuevo.', { type: 'error' });
+    ctx.toast((e && e.message) || T('No se pudo guardar, intenta de nuevo.', 'Could not save, try again.'), { type: 'error' });
   }
 }
 
@@ -271,7 +272,7 @@ function switchTab(key, { fromParams = false } = {}) {
   } catch (e) {
     console.error('[editor] tab mount', key, e);
     bodyEl.appendChild(el('div', { class: 'edconv__empty' }, [
-      el('p', { class: 'muted', text: 'Este tab no se pudo cargar. Intenta de nuevo.' }),
+      el('p', { class: 'muted', text: T('Este tab no se pudo cargar. Intenta de nuevo.', 'This tab could not load. Try again.') }),
     ]));
   }
   bodyEl.scrollTop = tabScroll[key] || 0;
@@ -318,29 +319,29 @@ async function requestClose() {
 
 function openUnsavedSheet() {
   openSheet({
-    title: 'Hay cambios sin guardar',
+    title: T('Hay cambios sin guardar', 'There are unsaved changes'),
     mode: 'form',
     build(body, close) {
       const retry = el('button', {
-        class: 'btn btn-primary sheet-cta', type: 'button', text: 'Reintentar',
+        class: 'btn btn-primary sheet-cta', type: 'button', text: T('Reintentar', 'Retry'),
         onclick: async () => {
           retry.dataset.loading = 'true';
           const ok = await autosave.flush();
           retry.dataset.loading = 'false';
           if (ok) { close({ source: 'done' }); closing = true; goBack(); }
-          else ctx.toast('Sigue sin guardarse. Revisa tu conexion.', { type: 'error' });
+          else ctx.toast(T('Sigue sin guardarse. Revisa tu conexion.', 'Still not saving. Check your connection.'), { type: 'error' });
         },
       });
       body.append(
-        el('p', { class: 'ed-confirm__text', text: 'No se pudieron guardar los últimos cambios. ¿Qué quieres hacer?' }),
+        el('p', { class: 'ed-confirm__text', text: T('No se pudieron guardar los últimos cambios. ¿Qué quieres hacer?', 'The latest changes could not be saved. What do you want to do?') }),
         el('div', { class: 'sheet__footer sheet__footer--stack' }, [
           retry,
           el('button', {
-            class: 'btn btn-danger', type: 'button', text: 'Descartar cambios',
+            class: 'btn btn-danger', type: 'button', text: T('Descartar cambios', 'Discard changes'),
             onclick: () => { autosave.clearDirty(); close({ source: 'discard' }); closing = true; goBack(); },
           }),
           el('button', {
-            class: 'btn', type: 'button', text: 'Seguir editando',
+            class: 'btn', type: 'button', text: T('Seguir editando', 'Keep editing'),
             onclick: () => close({ source: 'stay' }),
           }),
         ]),
@@ -373,15 +374,15 @@ async function resolveConflict() {
     switchTab(activeTab, { fromParams: true });
     if (autosave.isDirty()) autosave.flush();
   } catch (e) {
-    ctx.toast((e && e.message) || 'No se pudo actualizar.', { type: 'error' });
+    ctx.toast((e && e.message) || T('No se pudo actualizar.', 'Could not refresh.'), { type: 'error' });
   }
 }
 
 // ── Construccion del chrome del editor ───────────────────────────────────────
 function buildChrome(host) {
-  indicatorText = el('span', { class: 'edsave__text', text: 'Guardado' });
+  indicatorText = el('span', { class: 'edsave__text', text: T('Guardado', 'Saved') });
   retryBtn = el('button', {
-    class: 'edsave__retry', type: 'button', text: 'Reintentar', hidden: true,
+    class: 'edsave__retry', type: 'button', text: T('Reintentar', 'Retry'), hidden: true,
     onclick: () => autosave?.retry(),
   });
   indicatorEl = el('span', { class: 'edsave is-saved', role: 'status', 'aria-live': 'polite' }, [
@@ -392,19 +393,19 @@ function buildChrome(host) {
   ]);
 
   const closeBtn = el('button', {
-    class: 'edicon', type: 'button', 'aria-label': 'Cerrar editor',
+    class: 'edicon', type: 'button', 'aria-label': T('Cerrar editor', 'Close editor'),
     onclick: () => requestClose(),
   }, [icon('close', 22)]);
 
   const menuBtn = el('button', {
-    class: 'edicon', type: 'button', 'aria-label': 'Mas acciones', 'aria-haspopup': 'menu',
+    class: 'edicon', type: 'button', 'aria-label': T('Mas acciones', 'More actions'), 'aria-haspopup': 'menu',
     onclick: (e) => openActionsMenu(ed, e.currentTarget),
   }, [icon('dots', 22)]);
 
   titleTa = el('textarea', {
     class: 'edtitle', rows: '1', maxlength: '200',
-    placeholder: 'Titulo del contenido',
-    'aria-label': 'Titulo del contenido',
+    placeholder: T('Titulo del contenido', 'Content title'),
+    'aria-label': T('Titulo del contenido', 'Content title'),
   });
   titleTa.addEventListener('input', () => { fitTitle(); ed.setField('title', titleTa.value); });
   titleTa.addEventListener('blur', () => autosave?.flush());
@@ -415,11 +416,11 @@ function buildChrome(host) {
   chipsEl = el('div', { class: 'edchips' });
 
   conflictEl = el('div', { class: 'edconflict', hidden: true }, [
-    el('span', { class: 'edconflict__text', text: 'Alguien más editó este contenido.' }),
-    el('button', { class: 'btn btn-sm', type: 'button', text: 'Actualizar', onclick: () => resolveConflict() }),
+    el('span', { class: 'edconflict__text', text: T('Alguien más editó este contenido.', 'Someone else edited this content.') }),
+    el('button', { class: 'btn btn-sm', type: 'button', text: T('Actualizar', 'Refresh'), onclick: () => resolveConflict() }),
   ]);
 
-  tabsEl = el('div', { class: 'edtabs', role: 'tablist', 'aria-label': 'Secciones del contenido' });
+  tabsEl = el('div', { class: 'edtabs', role: 'tablist', 'aria-label': T('Secciones del contenido', 'Content sections') });
   for (const t of TABS) {
     const badge = el('span', { class: 'edtabs__badge', hidden: true });
     tabBadges.set(t.key, badge);
@@ -441,7 +442,7 @@ function buildChrome(host) {
   bodyEl = el('div', { class: 'edbody' });
 
   panelEl = el('div', {
-    class: 'edpanel', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Editor de contenido',
+    class: 'edpanel', role: 'dialog', 'aria-modal': 'true', 'aria-label': T('Editor de contenido', 'Content editor'),
   }, [
     el('div', { class: 'edhead' }, [
       el('div', { class: 'edhead__row' }, [closeBtn, indicatorEl, menuBtn]),
@@ -490,7 +491,7 @@ async function load(id) {
   try {
     res = await api.get(`/posts/${encodeURIComponent(id)}`);
   } catch (e) {
-    ctx.toast((e && e.message) || 'No se pudo abrir el contenido.', { type: 'error' });
+    ctx.toast((e && e.message) || T('No se pudo abrir el contenido.', 'Could not open the content.'), { type: 'error' });
     closing = true;
     goBack();
     return;

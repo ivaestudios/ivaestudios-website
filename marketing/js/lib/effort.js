@@ -16,6 +16,7 @@
 import {
   addDays, listDays, parseISO, startOfWeek, toISO, todayISO, diffDays,
 } from './dates.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 /** Puntos por tipo de contenido (claves ya normalizadas, ver normalizeType). */
 export const DEFAULT_EFFORT = {
@@ -42,10 +43,10 @@ export const DEFAULT_WEEKLY_CAPACITY = 15;
 
 /** Niveles de utilizacion (orden ascendente) con etiqueta es-MX. */
 export const UTILIZATION_LEVELS = [
-  { id: 'baja', max: 0.6, label: 'Con espacio' },
-  { id: 'media', max: 0.85, label: 'Equilibrada' },
-  { id: 'alta', max: 1.0, label: 'Casi llena' },
-  { id: 'sobrecarga', max: Infinity, label: 'Sobrecargada' },
+  { id: 'baja', max: 0.6, label: T('Con espacio', 'Has room') },
+  { id: 'media', max: 0.85, label: T('Equilibrada', 'Balanced') },
+  { id: 'alta', max: 1.0, label: T('Casi llena', 'Almost full') },
+  { id: 'sobrecarga', max: Infinity, label: T('Sobrecargada', 'Overloaded') },
 ];
 
 /** minusculas + sin acentos + sin espacios extremos: 'Carrusel ' -> 'carrusel'. */

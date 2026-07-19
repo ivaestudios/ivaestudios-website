@@ -17,6 +17,7 @@
 import * as shell from './shell/shell.js?v=202607181835';
 import { el } from './api.js?v=202607181835';
 import { icon } from './shell/icons.js?v=202607181835';
+import { T } from './shell/i18n.js?v=202607181835';
 
 function resolveImpl(mod) {
   if (!mod) return null;
@@ -43,7 +44,7 @@ function lazyView({ id, label, icon: iconName, loader }) {
       // unmountActive borra el skeleton junto con el resto de children.
       const skel = el('div', { class: 'view-loading' }, [
         el('span', { class: 'spinner', 'aria-hidden': 'true' }),
-        el('span', { class: 'muted', text: `Cargando ${label.toLowerCase()}` }),
+        el('span', { class: 'muted', text: `${T('Cargando', 'Loading')} ${label.toLowerCase()}` }),
       ]);
       host.appendChild(skel);
       let alive = false;
@@ -68,10 +69,10 @@ function lazyView({ id, label, icon: iconName, loader }) {
         if (!alive) return; // el router ya desmonto esta vista: no pintar nada
         host.appendChild(el('div', { class: 'empty view-missing' }, [
           el('div', { class: 'empty__icon' }, [icon('clock', 28)]),
-          el('h3', { text: 'Esta vista aún no está lista' }),
-          el('p', { text: 'El módulo se está construyendo o no se pudo descargar. Intenta de nuevo en un momento.' }),
+          el('h3', { text: T('Esta vista aún no está lista', 'This view is not ready yet') }),
+          el('p', { text: T('El módulo se está construyendo o no se pudo descargar. Intenta de nuevo en un momento.', 'The module is being built or could not be downloaded. Try again in a moment.') }),
           el('button', {
-            class: 'btn btn-primary', type: 'button', text: 'Reintentar',
+            class: 'btn btn-primary', type: 'button', text: T('Reintentar', 'Retry'),
             onclick: () => location.reload(),
           }),
         ]));
@@ -90,28 +91,28 @@ function lazyView({ id, label, icon: iconName, loader }) {
 }
 
 // ── Registro de vistas (ids en espanol = rutas hash) ─────────────────────────
-lazyView({ id: 'inicio', label: 'Inicio', icon: 'home', loader: () => import('./views/dashboard.js?v=202607181835') });
+lazyView({ id: 'inicio', label: T('Inicio', 'Home'), icon: 'home', loader: () => import('./views/dashboard.js?v=202607181835') });
 // Meses: la pantalla principal por marca (flujo Notion de la duena: secciones
 // por mes desplegables + tabla con sus columnas + nueva linea inline).
-lazyView({ id: 'meses', label: 'Calendario', icon: 'calendar', loader: () => import('./views/meses.js?v=202607181835') });
-lazyView({ id: 'calendario', label: 'Cuadrícula', icon: 'grip', loader: () => import('./calendar/index.js?v=202607181835') });
-lazyView({ id: 'tablero', label: 'Tablero', icon: 'board', loader: () => import('./views/kanban.js?v=202607181835') });
-lazyView({ id: 'tabla', label: 'Tabla', icon: 'table', loader: () => import('./views/table.js?v=202607181835') });
+lazyView({ id: 'meses', label: T('Calendario', 'Calendar'), icon: 'calendar', loader: () => import('./views/meses.js?v=202607181835') });
+lazyView({ id: 'calendario', label: T('Cuadrícula', 'Grid'), icon: 'grip', loader: () => import('./calendar/index.js?v=202607181835') });
+lazyView({ id: 'tablero', label: T('Tablero', 'Board'), icon: 'board', loader: () => import('./views/kanban.js?v=202607181835') });
+lazyView({ id: 'tabla', label: T('Tabla', 'Table'), icon: 'table', loader: () => import('./views/table.js?v=202607181835') });
 lazyView({ id: 'timeline', label: 'Timeline', icon: 'gantt', loader: () => import('./views/timeline.js?v=202607181835') });
-lazyView({ id: 'carga', label: 'Carga', icon: 'gauge', loader: () => import('./views/workload.js?v=202607181835') });
-lazyView({ id: 'mi-trabajo', label: 'Mi trabajo', icon: 'briefcase', loader: () => import('./views/mywork.js?v=202607181835') });
-lazyView({ id: 'automatizaciones', label: 'Automatizaciones', icon: 'zap', loader: () => import('./views/automations.js?v=202607181835') });
+lazyView({ id: 'carga', label: T('Carga', 'Workload'), icon: 'gauge', loader: () => import('./views/workload.js?v=202607181835') });
+lazyView({ id: 'mi-trabajo', label: T('Mi trabajo', 'My work'), icon: 'briefcase', loader: () => import('./views/mywork.js?v=202607181835') });
+lazyView({ id: 'automatizaciones', label: T('Automatizaciones', 'Automations'), icon: 'zap', loader: () => import('./views/automations.js?v=202607181835') });
 // Métricas: panel de Instagram por periodo (semana/mes/3-6 meses/año/custom).
-lazyView({ id: 'metricas', label: 'Métricas', icon: 'gauge', loader: () => import('./views/metricas.js?v=202607181835') });
+lazyView({ id: 'metricas', label: T('Métricas', 'Metrics'), icon: 'gauge', loader: () => import('./views/metricas.js?v=202607181835') });
 // Entregables: contenido final (reels + carruseles) que el cliente ve y descarga.
-lazyView({ id: 'entregables', label: 'Entregables', icon: 'archive', loader: () => import('./views/entregables.js?v=202607181835') });
+lazyView({ id: 'entregables', label: T('Entregables', 'Deliverables'), icon: 'archive', loader: () => import('./views/entregables.js?v=202607181835') });
 // Carrusel: cortador de tiras de carrusel en slides descargables (solo staff).
-lazyView({ id: 'carrusel', label: 'Carrusel', icon: 'scissors', loader: () => import('./views/carrusel.js?v=202607181835') });
+lazyView({ id: 'carrusel', label: T('Carrusel', 'Carousel'), icon: 'scissors', loader: () => import('./views/carrusel.js?v=202607181835') });
 // Descargar: baja videos de IG/TikTok/Pinterest sin marca de agua (solo staff).
-lazyView({ id: 'descargar', label: 'Descargar', icon: 'download', loader: () => import('./views/descargar.js?v=202607181835') });
+lazyView({ id: 'descargar', label: T('Descargar', 'Download'), icon: 'download', loader: () => import('./views/descargar.js?v=202607181835') });
 
 // Detalle de post (#/post/:id): el deep-link que usan busqueda y avisos.
-lazyView({ id: 'post', label: 'Contenido', icon: 'edit', loader: () => import('./editor/editor.js?v=202607181835') });
+lazyView({ id: 'post', label: T('Contenido', 'Content'), icon: 'edit', loader: () => import('./editor/editor.js?v=202607181835') });
 
 // ── Arranque ─────────────────────────────────────────────────────────────────
 shell.boot();

@@ -20,6 +20,7 @@ import * as store from './store.js?v=202607181835';
 import * as prefs from './prefs.js?v=202607181835';
 import { pushLayer } from './router.js?v=202607181835';
 import { icon } from './icons.js?v=202607181835';
+import { T } from './i18n.js?v=202607181835';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -49,19 +50,19 @@ export function createSearch({ router, selectClient }) {
 
     const input = el('input', {
       class: 'gs-input', type: 'search',
-      placeholder: 'Buscar contenido o clientes',
-      'aria-label': 'Buscar contenido o clientes',
+      placeholder: T('Buscar contenido o clientes', 'Search content or clients'),
+      'aria-label': T('Buscar contenido o clientes', 'Search content or clients'),
       autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false',
     });
     const cancelBtn = el('button', {
-      class: 'gs-cancel', type: 'button', text: 'Cancelar',
+      class: 'gs-cancel', type: 'button', text: T('Cancelar', 'Cancel'),
       onclick: () => close({ source: 'cancel' }),
     });
     const results = el('div', { class: 'gs-results' });
 
     overlay = el('div', {
       class: 'gs-overlay' + (desktop ? ' gs-overlay--desktop' : ''),
-      role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Búsqueda',
+      role: 'dialog', 'aria-modal': 'true', 'aria-label': T('Búsqueda', 'Search'),
     }, [
       el('div', { class: 'gs-bar' }, [icon('search', 20), input, cancelBtn]),
       results,
@@ -92,10 +93,10 @@ export function createSearch({ router, selectClient }) {
     clear(results);
     const recents = prefs.get('recentSearches', []);
     if (!recents.length) {
-      results.appendChild(el('div', { class: 'gs-hint', text: 'Busca por título, caption o nombre de cliente.' }));
+      results.appendChild(el('div', { class: 'gs-hint', text: T('Busca por título, caption o nombre de cliente.', 'Search by title, caption, or client name.') }));
       return;
     }
-    results.appendChild(el('div', { class: 'gs-sectitle', text: 'Búsquedas recientes' }));
+    results.appendChild(el('div', { class: 'gs-sectitle', text: T('Búsquedas recientes', 'Recent searches') }));
     for (const q of recents) {
       results.appendChild(el('div', { class: 'gs-recent' }, [
         el('button', {
@@ -103,7 +104,7 @@ export function createSearch({ router, selectClient }) {
           onclick: () => { input.value = q; run(q, results, input); },
         }),
         el('button', {
-          class: 'gs-recent__x', type: 'button', 'aria-label': `Borrar ${q}`,
+          class: 'gs-recent__x', type: 'button', 'aria-label': `${T('Borrar', 'Delete')} ${q}`,
           onclick: (e) => { e.stopPropagation(); prefs.removeRecentSearch(q); renderRecents(results, input); },
         }, [icon('close', 14)]),
       ]));
@@ -124,7 +125,7 @@ export function createSearch({ router, selectClient }) {
     }, [
       dotColor ? el('span', { class: 'gs-row__dot', style: { background: safeColor(dotColor) } }) : null,
       el('span', { class: 'gs-row__main' }, [
-        el('span', { class: 'gs-row__title', text: p.title || 'Sin título' }),
+        el('span', { class: 'gs-row__title', text: p.title || T('Sin título', 'Untitled') }),
         el('span', { class: 'gs-row__meta' }, [
           clientName ? el('span', { class: 'gs-row__client', text: clientName }) : null,
           p.content_type ? chip(p.content_type) : null,
@@ -167,7 +168,7 @@ export function createSearch({ router, selectClient }) {
     ).slice(0, 12);
 
     if (local.length) {
-      results.appendChild(el('div', { class: 'gs-sectitle', text: activeClient ? `En ${activeClient.name}` : 'En este cliente' }));
+      results.appendChild(el('div', { class: 'gs-sectitle', text: activeClient ? `${T('En', 'In')} ${activeClient.name}` : T('En este cliente', 'In this client') }));
       for (const p of local) results.appendChild(postRow(p, null, activeClient && activeClient.brand_color));
     }
 
@@ -175,7 +176,7 @@ export function createSearch({ router, selectClient }) {
     const isStaff = me && me.role !== 'client';
     let server = null;
     if (isStaff && query.length >= 2) {
-      const loading = el('div', { class: 'gs-hint', text: 'Buscando en todos los clientes' });
+      const loading = el('div', { class: 'gs-hint', text: T('Buscando en todos los clientes', 'Searching all clients') });
       results.appendChild(loading);
       try {
         server = await api.get(`/search?q=${encodeURIComponent(query)}`);
@@ -188,7 +189,7 @@ export function createSearch({ router, selectClient }) {
       const byId = new Map(clients.map((c) => [c.id, c]));
       const others = (server.posts || []).filter((p) => p.client_id !== activeClientId);
       if (others.length) {
-        results.appendChild(el('div', { class: 'gs-sectitle', text: 'Otros clientes' }));
+        results.appendChild(el('div', { class: 'gs-sectitle', text: T('Otros clientes', 'Other clients') }));
         for (const p of others.slice(0, 12)) {
           const c = byId.get(p.client_id);
           results.appendChild(postRow(p, p.client_name || (c && c.name) || '', c && c.brand_color));
@@ -196,7 +197,7 @@ export function createSearch({ router, selectClient }) {
       }
       const foundClients = server.clients || [];
       if (foundClients.length) {
-        results.appendChild(el('div', { class: 'gs-sectitle', text: 'Clientes' }));
+        results.appendChild(el('div', { class: 'gs-sectitle', text: T('Clientes', 'Clients') }));
         for (const c of foundClients.slice(0, 8)) results.appendChild(clientRow(c));
       }
     }
@@ -204,7 +205,7 @@ export function createSearch({ router, selectClient }) {
     if (!results.children.length) {
       results.appendChild(el('div', { class: 'gs-empty' }, [
         icon('search', 26),
-        el('p', { text: 'No encontramos nada con esa palabra.' }),
+        el('p', { text: T('No encontramos nada con esa palabra.', 'No results for that search.') }),
       ]));
     }
     prefs.pushRecentSearch(query);

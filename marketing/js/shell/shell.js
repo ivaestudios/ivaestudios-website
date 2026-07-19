@@ -164,7 +164,7 @@ function updateSubhead() {
 }
 
 function buildSubhead(root) {
-  subheadSeg = el('div', { class: 'seg subhead-seg', role: 'tablist', 'aria-label': 'Vista de contenido' });
+  subheadSeg = el('div', { class: 'seg subhead-seg', role: 'tablist', 'aria-label': T('Vista de contenido', 'Content view') });
   // Vianey pidio quitar Tablero/Tabla/Timeline/Carga de su admin: tanto admin
   // como cliente solo ven las dos vistas de calendario (Calendario = meses,
   // Cuadricula = calendario).
@@ -206,12 +206,12 @@ function installAuthInterceptor() {
           // con acción; la dueña decide cuándo ir al login.
           const editing = document.body.classList.contains('editor-open') || document.querySelector('.sheet');
           if (editing) {
-            toast('Tu sesión expiró. Copia tu texto pendiente y vuelve a entrar.', {
+            toast(T('Tu sesión expiró. Copia tu texto pendiente y vuelve a entrar.', 'Your session expired. Copy your unsaved text and sign in again.'), {
               type: 'error', ms: 60000,
-              action: { label: 'Ir al login', onAction: () => location.replace('/marketing/') },
+              action: { label: T('Ir al login', 'Go to login'), onAction: () => location.replace('/marketing/') },
             });
           } else {
-            toast('Tu sesión expiró. Vuelve a iniciar sesión.', { type: 'info' });
+            toast(T('Tu sesión expiró. Vuelve a iniciar sesión.', 'Your session expired. Please sign in again.'), { type: 'info' });
             setTimeout(() => location.replace('/marketing/'), 900);
           }
         }
@@ -239,9 +239,9 @@ function installVersionWatch() {
       const server = (await r.text()).match(/main\.js\?v=([\w.-]+)/)?.[1];
       if (server && server !== cur) {
         notified = true;
-        toast('Hay una versión nueva de la app.', {
+        toast(T('Hay una versión nueva de la app.', 'A new version of the app is available.'), {
           type: 'info', ms: 600000,
-          action: { label: 'Actualizar', onAction: () => location.reload() },
+          action: { label: T('Actualizar', 'Update'), onAction: () => location.reload() },
         });
       }
     } catch { /* sin red: se reintenta en el siguiente ciclo */ }
@@ -259,20 +259,20 @@ function installVersionWatch() {
 function installVerifyBanner(me) {
   if (!me || me.email_verified !== false) return;
   const btn = el('button', {
-    class: 'verify-bar__btn', type: 'button', text: 'Reenviar correo',
+    class: 'verify-bar__btn', type: 'button', text: T('Reenviar correo', 'Resend email'),
     onclick: async () => {
       btn.disabled = true;
       try {
         await api.post('/auth/resend-verify');
-        toast('Te reenviamos el correo de verificación. Revisa tu bandeja (y spam).', { type: 'success' });
+        toast(T('Te reenviamos el correo de verificación. Revisa tu bandeja (y spam).', 'We resent the verification email. Check your inbox (and spam).'), { type: 'success' });
       } catch (e) {
-        toast(e.message || 'No se pudo reenviar el correo. Intenta de nuevo.', { type: 'error' });
+        toast(e.message || T('No se pudo reenviar el correo. Intenta de nuevo.', 'Could not resend the email. Try again.'), { type: 'error' });
         btn.disabled = false;
       }
     },
   });
   const bar = el('div', { class: 'verify-bar' }, [
-    el('span', { class: 'verify-bar__txt', text: 'Confirma tu correo para proteger tu cuenta.' }),
+    el('span', { class: 'verify-bar__txt', text: T('Confirma tu correo para proteger tu cuenta.', 'Confirm your email to protect your account.') }),
     btn,
   ]);
   const topbarRoot = document.getElementById('topbar');
@@ -290,9 +290,9 @@ function consumeVerifiedParam() {
   if (!qs.has('verified')) return;
   const ok = qs.get('verified') === '1';
   if (ok) {
-    toast('Correo verificado. ¡Listo!', { type: 'success' });
+    toast(T('Correo verificado. ¡Listo!', 'Email verified. All set!'), { type: 'success' });
   } else {
-    toast('El enlace de verificación no sirvió (inválido o caducado). Usa "Reenviar correo" para recibir uno nuevo.', { type: 'error', ms: 10000 });
+    toast(T('El enlace de verificación no sirvió (inválido o caducado). Usa "Reenviar correo" para recibir uno nuevo.', 'The verification link did not work (invalid or expired). Use "Resend email" to get a new one.'), { type: 'error', ms: 10000 });
   }
   qs.delete('verified');
   const rest = qs.toString();
@@ -365,9 +365,9 @@ export async function boot() {
     // Sin clients no hay app: muestra error en el splash con reintento.
     if (bootEl) {
       const msg = bootEl.querySelector('.muted');
-      if (msg) msg.textContent = clients.__err.message || 'No se pudo cargar. Revisa tu conexión.';
+      if (msg) msg.textContent = clients.__err.message || T('No se pudo cargar. Revisa tu conexión.', 'Could not load. Check your connection.');
       bootEl.appendChild(el('button', {
-        class: 'btn btn-primary', type: 'button', text: 'Reintentar',
+        class: 'btn btn-primary', type: 'button', text: T('Reintentar', 'Retry'),
         style: { marginTop: '14px' },
         onclick: () => location.reload(),
       }));
@@ -421,7 +421,7 @@ export async function boot() {
     openNotifications: (anchor, opts) => notifications.openPanel(anchor, opts),
   });
 
-  offlineBar = el('div', { class: 'offline-bar', hidden: true, text: 'Sin conexión' });
+  offlineBar = el('div', { class: 'offline-bar', hidden: true, text: T('Sin conexión', 'Offline') });
   topbarRoot.insertAdjacentElement('afterend', offlineBar);
 
   applyAccent(activeClientId);
@@ -437,7 +437,7 @@ export async function boot() {
     host: viewHost,
     ctxFactory,
     fallback: 'tablero',
-    onUnknownView: () => toast('Esa vista no existe. Te llevamos al tablero.', { type: 'info' }),
+    onUnknownView: () => toast(T('Esa vista no existe. Te llevamos al tablero.', "That view doesn't exist. Taking you to the board."), { type: 'info' }),
     onBeforeMount(view, params, { paramsOnly }) {
       // El cliente solo entra a las vistas de calendario (+ editor de post via
       // deep-link). Cualquier otra vista lo regresa a su Calendario.

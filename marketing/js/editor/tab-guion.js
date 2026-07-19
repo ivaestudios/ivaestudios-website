@@ -16,6 +16,7 @@ import { el, copyText } from '../api.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
 import { makeTextarea } from './fields.js?v=202607181835';
 import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 const IG_VISIBLE_CUT = 125;
 const CAPTION_MAX = 2200;
@@ -35,13 +36,13 @@ export function mount(host, ed) {
   // del campo al portapapeles. Vive en la cabecera de cada bloque.
   function copyBtn(field, label) {
     return el('button', {
-      class: 'edcopy-mini', type: 'button', title: `Copiar ${label}`,
-      'aria-label': `Copiar ${label}`,
+      class: 'edcopy-mini', type: 'button', title: `${T('Copiar', 'Copy')} ${label}`,
+      'aria-label': `${T('Copiar', 'Copy')} ${label}`,
       onclick: async () => {
         const v = String(ed.getPost()[field] || '').trim();
-        if (!v) { ctx.toast(`No hay ${label} que copiar.`, { type: 'info' }); return; }
+        if (!v) { ctx.toast(T(`No hay ${label} que copiar.`, `No ${label} to copy.`), { type: 'info' }); return; }
         const ok = await copyText(v);
-        ctx.toast(ok ? `${label} copiado.` : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
+        ctx.toast(ok ? T(`${label} copiado.`, `${label} copied.`) : T('No se pudo copiar.', 'Could not copy.'), { type: ok ? 'success' : 'error' });
       },
     }, [icon('copy', 14)]);
   }
@@ -82,7 +83,7 @@ export function mount(host, ed) {
       alts.forEach((text, i) => {
         const ta = makeTextarea({
           value: text,
-          placeholder: `Describe la imagen del slide ${i + 1} (SEO/accesibilidad)`,
+          placeholder: T(`Describe la imagen del slide ${i + 1} (SEO/accesibilidad)`, `Describe the image on slide ${i + 1} (SEO/accessibility)`),
           maxLength: 1000,
           onInput: (v) => { alts[i] = v; ed.setField('alt_text', altsToText(alts)); },
           onBlur: () => ed.flush(),
@@ -90,10 +91,10 @@ export function mount(host, ed) {
         altsWrap.appendChild(el('div', { class: 'edblock' }, [
           el('div', { class: 'edblock__head' }, [
             el('span', { class: 'edblock__title', text: `SEO ALT · SLIDE ${i + 1}` }),
-            i === 0 ? el('span', { class: 'edblock__hint', text: 'Texto alternativo (IG)' }) : null,
+            i === 0 ? el('span', { class: 'edblock__hint', text: T('Texto alternativo (IG)', 'Alt text (IG)') }) : null,
             i > 0 ? el('button', {
-              class: 'edcopy-mini edslide-del', type: 'button', title: 'Quitar este SEO alt',
-              'aria-label': `Quitar SEO alt del slide ${i + 1}`,
+              class: 'edcopy-mini edslide-del', type: 'button', title: T('Quitar este SEO alt', 'Remove this SEO alt'),
+              'aria-label': T(`Quitar SEO alt del slide ${i + 1}`, `Remove SEO alt for slide ${i + 1}`),
               onclick: () => {
                 alts.splice(i, 1);
                 ed.setField('alt_text', altsToText(alts)); ed.flush();
@@ -101,13 +102,13 @@ export function mount(host, ed) {
               },
             }, [icon('trash', 14)]) : null,
             el('button', {
-              class: 'edcopy-mini', type: 'button', title: `Copiar SEO alt del slide ${i + 1}`,
-              'aria-label': `Copiar SEO alt del slide ${i + 1}`,
+              class: 'edcopy-mini', type: 'button', title: T(`Copiar SEO alt del slide ${i + 1}`, `Copy SEO alt for slide ${i + 1}`),
+              'aria-label': T(`Copiar SEO alt del slide ${i + 1}`, `Copy SEO alt for slide ${i + 1}`),
               onclick: async () => {
                 const v = String(alts[i] || '').trim();
-                if (!v) { ctx.toast('Este alt está vacío.', { type: 'info' }); return; }
+                if (!v) { ctx.toast(T('Este alt está vacío.', 'This alt is empty.'), { type: 'info' }); return; }
                 const ok = await copyText(v);
-                ctx.toast(ok ? 'SEO alt copiado.' : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
+                ctx.toast(ok ? T('SEO alt copiado.', 'SEO alt copied.') : T('No se pudo copiar.', 'Could not copy.'), { type: ok ? 'success' : 'error' });
               },
             }, [icon('copy', 14)]),
           ]),
@@ -117,7 +118,7 @@ export function mount(host, ed) {
       altsWrap.appendChild(el('button', {
         class: 'btn edslide-add', type: 'button',
         onclick: () => { alts.push(''); ed.setField('alt_text', altsToText(alts)); renderAlts(); },
-      }, [icon('plus', 16), ' Agregar SEO alt']));
+      }, [icon('plus', 16), T(' Agregar SEO alt', ' Add SEO alt')]));
     };
     const slidesWrap = el('div', { class: 'edslides' });
     const syncFields = () => {
@@ -127,13 +128,13 @@ export function mount(host, ed) {
       ed.setField('cta', f.cta);
     };
     const copySlideBtn = (i) => el('button', {
-      class: 'edcopy-mini', type: 'button', title: 'Copiar este slide',
-      'aria-label': `Copiar slide ${i + 1}`,
+      class: 'edcopy-mini', type: 'button', title: T('Copiar este slide', 'Copy this slide'),
+      'aria-label': T(`Copiar slide ${i + 1}`, `Copy slide ${i + 1}`),
       onclick: async () => {
         const v = String(slides[i] || '').trim();
-        if (!v) { ctx.toast('Este slide está vacío.', { type: 'info' }); return; }
+        if (!v) { ctx.toast(T('Este slide está vacío.', 'This slide is empty.'), { type: 'info' }); return; }
         const ok = await copyText(v);
-        ctx.toast(ok ? 'Slide copiado.' : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
+        ctx.toast(ok ? T('Slide copiado.', 'Slide copied.') : T('No se pudo copiar.', 'Could not copy.'), { type: ok ? 'success' : 'error' });
       },
     }, [icon('copy', 14)]);
     // Reordenar arrastrando (drag & drop con mouse): solo los slides de EN
@@ -159,15 +160,15 @@ export function mount(host, ed) {
         });
         const hint = slideHint(i, slides.length);
         const grip = isMiddle(i) ? el('span', {
-          class: 'edslide-grip', title: 'Arrastra para reordenar', 'aria-hidden': 'true',
+          class: 'edslide-grip', title: T('Arrastra para reordenar', 'Drag to reorder'), 'aria-hidden': 'true',
         }, [icon('grip', 16)]) : null;
         const blockEl = el('div', { class: 'edblock' }, [
           el('div', { class: 'edblock__head' }, [
             el('span', { class: 'edblock__title', text: slideLabel(i, slides.length) }),
             hint ? el('span', { class: 'edblock__hint', text: hint }) : null,
             (i > 0 && i < slides.length - 1) ? el('button', {
-              class: 'edcopy-mini edslide-del', type: 'button', title: 'Quitar este slide',
-              'aria-label': `Quitar slide ${i + 1}`,
+              class: 'edcopy-mini edslide-del', type: 'button', title: T('Quitar este slide', 'Remove this slide'),
+              'aria-label': T(`Quitar slide ${i + 1}`, `Remove slide ${i + 1}`),
               onclick: () => {
                 slides.splice(i, 1); alts.splice(i, 1);
                 syncFields(); ed.setField('alt_text', altsToText(alts)); ed.flush();
@@ -226,31 +227,31 @@ export function mount(host, ed) {
           alts.splice(alts.length - 1, 0, '');
           syncFields(); renderSlides(); renderAlts();
         },
-      }, [icon('plus', 16), ' Agregar slide']));
+      }, [icon('plus', 16), T(' Agregar slide', ' Add slide')]));
     };
     renderSlides();
     root.appendChild(slidesWrap);
   } else {
     root.appendChild(block({
       title: 'HOOK',
-      hint: 'Las primeras palabras venden',
+      hint: T('Las primeras palabras venden', 'The first words sell'),
       field: 'hook',
       value: post.hook || '',
-      placeholder: 'El gancho que detiene el scroll',
+      placeholder: T('El gancho que detiene el scroll', 'The hook that stops the scroll'),
     }));
     root.appendChild(block({
       title: 'BODY',
-      hint: 'Desarrollo de la idea',
+      hint: T('Desarrollo de la idea', 'Develop the idea'),
       field: 'body',
       value: post.body || '',
-      placeholder: 'El cuerpo del guion, una idea por bloque',
+      placeholder: T('El cuerpo del guion, una idea por bloque', 'The body of the script, one idea per block'),
     }));
     root.appendChild(block({
       title: 'CTA',
-      hint: 'Cierre con accion clara',
+      hint: T('Cierre con accion clara', 'Close with a clear action'),
       field: 'cta',
       value: post.cta || '',
-      placeholder: 'Que quieres que haga la persona al terminar',
+      placeholder: T('Que quieres que haga la persona al terminar', 'What you want the person to do at the end'),
     }));
   }
 
@@ -258,7 +259,7 @@ export function mount(host, ed) {
   const capCounter = el('span', { class: 'edcount' });
   const capTa = makeTextarea({
     value: post.caption || '',
-    placeholder: 'Caption del post',
+    placeholder: T('Caption del post', 'Post caption'),
     maxLength: CAPTION_MAX,
     onInput: (v) => { ed.setField('caption', v); updateCapCounter(v); },
     onBlur: () => ed.flush(),
@@ -269,14 +270,14 @@ export function mount(host, ed) {
     capCounter.classList.toggle('is-over', len >= CAPTION_MAX);
     capCounter.classList.toggle('is-cut', len > IG_VISIBLE_CUT && len < CAPTION_MAX);
     capCounter.title = len > IG_VISIBLE_CUT
-      ? `Instagram corta la vista previa cerca de los ${IG_VISIBLE_CUT} caracteres`
+      ? T(`Instagram corta la vista previa cerca de los ${IG_VISIBLE_CUT} caracteres`, `Instagram cuts the preview off at about ${IG_VISIBLE_CUT} characters`)
       : '';
   }
   updateCapCounter(post.caption || '');
   root.appendChild(el('div', { class: 'edblock' }, [
     el('div', { class: 'edblock__head' }, [
       el('span', { class: 'edblock__title', text: 'Caption' }),
-      el('span', { class: 'edblock__hint', text: `Corte visible en IG: ~${IG_VISIBLE_CUT}` }),
+      el('span', { class: 'edblock__hint', text: T(`Corte visible en IG: ~${IG_VISIBLE_CUT}`, `Visible cut on IG: ~${IG_VISIBLE_CUT}`) }),
       capCounter,
       copyBtn('caption', 'Caption'),
     ]),
@@ -287,7 +288,7 @@ export function mount(host, ed) {
   const tagCounter = el('span', { class: 'edcount' });
   const tagTa = makeTextarea({
     value: post.hashtags || '',
-    placeholder: '#hashtags separados por espacio',
+    placeholder: T('#hashtags separados por espacio', '#hashtags separated by spaces'),
     maxLength: 2000,
     onInput: (v) => { ed.setField('hashtags', v); updateTagCounter(v); },
     onBlur: () => ed.flush(),
@@ -300,7 +301,7 @@ export function mount(host, ed) {
     tagCounter.classList.toggle('is-over', over);
     if (over && !warnedTags) {
       warnedTags = true;
-      ctx.toast(`Instagram permite maximo ${HASHTAG_MAX} hashtags.`, { type: 'info' });
+      ctx.toast(T(`Instagram permite maximo ${HASHTAG_MAX} hashtags.`, `Instagram allows a maximum of ${HASHTAG_MAX} hashtags.`), { type: 'info' });
     }
     if (!over) warnedTags = false;
   }
@@ -321,10 +322,10 @@ export function mount(host, ed) {
   } else {
     root.appendChild(block({
       title: 'SEO ALT',
-      hint: 'Texto alternativo de la imagen (IG)',
+      hint: T('Texto alternativo de la imagen (IG)', 'Alt text for the image (IG)'),
       field: 'alt_text',
       value: post.alt_text || '',
-      placeholder: 'Describe la imagen para SEO/accesibilidad',
+      placeholder: T('Describe la imagen para SEO/accesibilidad', 'Describe the image for SEO/accessibility'),
       maxLength: 1000,
     }));
   }
@@ -332,16 +333,16 @@ export function mount(host, ed) {
   // ── Copiar (mismos 3 botones que el panel de guion de escritorio) ──────────
   async function copyCaption() {
     const v = String(ed.getPost().caption || '').trim();
-    if (!v) { ctx.toast('No hay caption que copiar.', { type: 'info' }); return; }
+    if (!v) { ctx.toast(T('No hay caption que copiar.', 'No caption to copy.'), { type: 'info' }); return; }
     const ok = await copyText(v);
-    ctx.toast(ok ? 'Caption copiado.' : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
+    ctx.toast(ok ? T('Caption copiado.', 'Caption copied.') : T('No se pudo copiar.', 'Could not copy.'), { type: ok ? 'success' : 'error' });
   }
   async function copyCaptionTags() {
     const p = ed.getPost();
     const parts = [p.caption, p.hashtags].map((s) => String(s || '').trim()).filter(Boolean);
-    if (!parts.length) { ctx.toast('No hay caption que copiar.', { type: 'info' }); return; }
+    if (!parts.length) { ctx.toast(T('No hay caption que copiar.', 'No caption to copy.'), { type: 'info' }); return; }
     const ok = await copyText(parts.join('\n\n'));
-    ctx.toast(ok ? 'Caption + hashtags copiados.' : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
+    ctx.toast(ok ? T('Caption + hashtags copiados.', 'Caption + hashtags copied.') : T('No se pudo copiar.', 'Could not copy.'), { type: ok ? 'success' : 'error' });
   }
   async function copyScript() {
     const p = ed.getPost();
@@ -355,15 +356,15 @@ export function mount(host, ed) {
       if (String(p.cta || '').trim()) lines.push(`CTA:\n${String(p.cta).trim()}`);
       text = lines.join('\n\n');
     }
-    if (!text) { ctx.toast('No hay guion que copiar.', { type: 'info' }); return; }
+    if (!text) { ctx.toast(T('No hay guion que copiar.', 'No script to copy.'), { type: 'info' }); return; }
     const ok = await copyText(text);
-    ctx.toast(ok ? 'Guion copiado.' : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
+    ctx.toast(ok ? T('Guion copiado.', 'Script copied.') : T('No se pudo copiar.', 'Could not copy.'), { type: ok ? 'success' : 'error' });
   }
 
   root.appendChild(el('div', { class: 'edcopy-row' }, [
-    el('button', { class: 'btn', type: 'button', onclick: copyCaption }, [icon('copy', 16), 'Copiar caption']),
-    el('button', { class: 'btn', type: 'button', onclick: copyCaptionTags }, [icon('copy', 16), 'Copiar caption + hashtags']),
-    el('button', { class: 'btn', type: 'button', onclick: copyScript }, [icon('copy', 16), 'Copiar guion completo']),
+    el('button', { class: 'btn', type: 'button', onclick: copyCaption }, [icon('copy', 16), T('Copiar caption', 'Copy caption')]),
+    el('button', { class: 'btn', type: 'button', onclick: copyCaptionTags }, [icon('copy', 16), T('Copiar caption + hashtags', 'Copy caption + hashtags')]),
+    el('button', { class: 'btn', type: 'button', onclick: copyScript }, [icon('copy', 16), T('Copiar guion completo', 'Copy full script')]),
   ]));
 
   host.appendChild(root);

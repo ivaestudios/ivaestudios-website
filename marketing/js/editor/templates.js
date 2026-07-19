@@ -17,6 +17,7 @@
 // ============================================================================
 
 import { el, api, CONTENT_TYPES, contentTypeLabel } from '../api.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
 import { openSheet } from '../shell/sheet.js?v=202607181835';
 import * as store from '../shell/store.js?v=202607181835';
@@ -120,7 +121,7 @@ export const TEMPLATES = {
   reel: {
     key: 'reel',
     label: 'Reel',
-    sub: 'Guion HOOK-BODY-CTA + checklist de 8 pasos + Instagram',
+    sub: T('Guion HOOK-BODY-CTA + checklist de 8 pasos + Instagram', 'HOOK-BODY-CTA script + 8-step checklist + Instagram'),
     defaults: { content_type: 'reel', platform: 'Instagram' },
     script: {
       hook: 'Las primeras palabras venden: empieza con el beneficio o el dato que detiene el scroll.',
@@ -131,7 +132,7 @@ export const TEMPLATES = {
   tiktok: {
     key: 'tiktok',
     label: 'TikTok',
-    sub: 'Guion con gancho rapido + checklist de 7 pasos + TikTok',
+    sub: T('Guion con gancho rapido + checklist de 7 pasos + TikTok', 'Quick-hook script + 7-step checklist + TikTok'),
     defaults: { content_type: 'tiktok', platform: 'TikTok' },
     script: {
       hook: 'Gancho en el primer segundo: pregunta, dato o situacion inesperada.',
@@ -141,8 +142,8 @@ export const TEMPLATES = {
   },
   carrusel: {
     key: 'carrusel',
-    label: 'Carrusel',
-    sub: 'Estructura por laminas + checklist de 7 pasos + Instagram',
+    label: T('Carrusel', 'Carousel'),
+    sub: T('Estructura por laminas + checklist de 7 pasos + Instagram', 'Slide-by-slide structure + 7-step checklist + Instagram'),
     defaults: { content_type: 'carrusel', platform: 'Instagram' },
     script: {
       hook: 'Lamina 1: titulo que promete algo concreto (la portada decide el swipe).',
@@ -152,8 +153,8 @@ export const TEMPLATES = {
   },
   historia: {
     key: 'historia',
-    label: 'Historia',
-    sub: 'Idea + interaccion + checklist de 5 pasos + Instagram',
+    label: T('Historia', 'Story'),
+    sub: T('Idea + interaccion + checklist de 5 pasos + Instagram', 'Idea + interaction + 5-step checklist + Instagram'),
     defaults: { content_type: 'historia', platform: 'Instagram' },
     script: {
       hook: 'Primer frame: que se entienda en 1 segundo de que va.',
@@ -163,8 +164,8 @@ export const TEMPLATES = {
   },
   foto: {
     key: 'foto',
-    label: 'Foto',
-    sub: 'Caption lista + checklist de 5 pasos + Instagram',
+    label: T('Foto', 'Photo'),
+    sub: T('Caption lista + checklist de 5 pasos + Instagram', 'Ready caption + 5-step checklist + Instagram'),
     defaults: { content_type: 'foto', platform: 'Instagram' },
     script: {
       hook: 'Primera linea del caption: el gancho (es lo unico visible sin tocar "mas").',
@@ -174,8 +175,8 @@ export const TEMPLATES = {
   },
   pauta: {
     key: 'pauta',
-    label: 'Pauta',
-    sub: 'Copy de anuncio + checklist de 6 pasos',
+    label: T('Pauta', 'Ad'),
+    sub: T('Copy de anuncio + checklist de 6 pasos', 'Ad copy + 6-step checklist'),
     defaults: { content_type: 'pauta', platform: 'Instagram' },
     script: {
       hook: 'Promesa principal del anuncio en una linea.',
@@ -224,13 +225,13 @@ export async function applyChecklistTemplate(postId, contentType) {
 export function openNewContentSheet({ ctx, status = 'idea', publishDate = null, onCreated } = {}) {
   const { activeClientId, clients } = ctx.store.getState();
   if (!activeClientId || activeClientId === 'todos') {
-    ctx.toast('Elige un cliente para crear contenido.', { type: 'info' });
+    ctx.toast(T('Elige un cliente para crear contenido.', 'Pick a client to create content.'), { type: 'info' });
     return;
   }
   const client = (clients || []).find((c) => c.id === activeClientId);
 
   openSheet({
-    title: 'Nuevo contenido',
+    title: T('Nuevo contenido', 'New content'),
     mode: 'menu',
     build(body, close) {
       let busy = false;
@@ -269,8 +270,8 @@ export function openNewContentSheet({ ctx, status = 'idea', publishDate = null, 
         onclick: () => create(null),
       }, [
         el('span', { class: 'pick-row__main' }, [
-          el('span', { class: 'pick-row__label', text: 'Vacio' }),
-          el('span', { class: 'pick-row__sub', text: 'Sin guion ni checklist, todo desde cero' }),
+          el('span', { class: 'pick-row__label', text: T('Vacio', 'Blank') }),
+          el('span', { class: 'pick-row__sub', text: T('Sin guion ni checklist, todo desde cero', 'No script or checklist, all from scratch') }),
         ]),
         icon('plus', 18),
       ]));
@@ -294,7 +295,7 @@ export function openNewContentSheet({ ctx, status = 'idea', publishDate = null, 
       if (client && client.name) {
         body.appendChild(el('div', {
           class: 'help ed-tpl-help',
-          text: `Se creara para ${client.name}. La fecha se asigna despues.`,
+          text: `${T('Se creara para', 'It will be created for')} ${client.name}. ${T('La fecha se asigna despues.', 'The date is assigned later.')}`,
         }));
       }
     },

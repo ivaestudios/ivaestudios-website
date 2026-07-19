@@ -14,6 +14,7 @@
 // ============================================================================
 import { el, clear, toast } from '../api.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -196,7 +197,7 @@ async function cutSlides() {
     }
   } catch (e) {
     console.error('[carrusel] corte', e);
-    toast('No se pudo cortar la imagen. Prueba con un PNG o JPG.', { type: 'error' });
+    toast(T('No se pudo cortar la imagen. Prueba con un PNG o JPG.', 'Could not cut the image. Try a PNG or JPG.'), { type: 'error' });
     return;
   }
   if (token !== cutting) { for (const s of out) URL.revokeObjectURL(s.url); return; }
@@ -209,17 +210,17 @@ async function downloadZip() {
   try {
     const zip = await buildZip(slides);
     download(zip, `${imgName}-slides.zip`);
-    toast(`ZIP con ${slides.length} slides descargado.`, { type: 'success' });
+    toast(T(`ZIP con ${slides.length} slides descargado.`, `ZIP with ${slides.length} slides downloaded.`), { type: 'success' });
   } catch (e) {
     console.error('[carrusel] zip', e);
-    toast('No se pudo armar el ZIP. Descarga los slides uno por uno.', { type: 'error' });
+    toast(T('No se pudo armar el ZIP. Descarga los slides uno por uno.', 'Could not build the ZIP. Download the slides one by one.'), { type: 'error' });
   }
 }
 
 function acceptFile(file) {
   if (!file) return;
   if (!/^image\/(png|jpe?g|webp)$/i.test(file.type) && !/\.(png|jpe?g|webp)$/i.test(file.name || '')) {
-    toast('Formato no soportado. Exporta el carrusel como PNG o JPG.', { type: 'error' });
+    toast(T('Formato no soportado. Exporta el carrusel como PNG o JPG.', 'Unsupported format. Export the carousel as PNG or JPG.'), { type: 'error' });
     return;
   }
   const url = URL.createObjectURL(file);
@@ -236,7 +237,7 @@ function acceptFile(file) {
   };
   image.onerror = () => {
     URL.revokeObjectURL(url);
-    toast('No se pudo leer la imagen. Exporta el carrusel como PNG o JPG.', { type: 'error' });
+    toast(T('No se pudo leer la imagen. Exporta el carrusel como PNG o JPG.', 'Could not read the image. Export the carousel as PNG or JPG.'), { type: 'error' });
   };
   image.src = url;
 }
@@ -269,11 +270,11 @@ const fmtDur = (s) => `${(Math.round(s * 10) / 10).toFixed(1)}s`;
 function acceptVideoFile(file) {
   if (!file) return;
   if (!/^video\//i.test(file.type) && !/\.(mp4|mov|webm|m4v|3gp)$/i.test(file.name || '')) {
-    toast('Sube un video (MP4 o MOV) de la tira del carrusel.', { type: 'error' });
+    toast(T('Sube un video (MP4 o MOV) de la tira del carrusel.', 'Upload a video (MP4 or MOV) of the carousel strip.'), { type: 'error' });
     return;
   }
   if (!videoSupported()) {
-    toast('Tu navegador no permite cortar video. Prueba en Chrome o Safari actualizado.', { type: 'error' });
+    toast(T('Tu navegador no permite cortar video. Prueba en Chrome o Safari actualizado.', 'Your browser can\'t cut video. Try an up-to-date Chrome or Safari.'), { type: 'error' });
     return;
   }
   const url = URL.createObjectURL(file);
@@ -289,7 +290,7 @@ function acceptVideoFile(file) {
     vdurations = []; vphase = 'idle';
     analyzeDurations();
   };
-  v.onerror = () => { URL.revokeObjectURL(url); toast('No se pudo leer el video. Prueba con un MP4.', { type: 'error' }); };
+  v.onerror = () => { URL.revokeObjectURL(url); toast(T('No se pudo leer el video. Prueba con un MP4.', 'Could not read the video. Try an MP4.'), { type: 'error' }); };
 }
 
 // Pasada 1: reproduce la tira una vez (muted) y mide la duración REAL de cada
@@ -392,7 +393,7 @@ async function cutVideoSlides() {
       // Que NO se rinda en silencio: si el motor bueno falla (p. ej. en Safari),
       // avisamos el porqué — así el video de respaldo, que WhatsApp no descarga
       // bien, no toma al usuario por sorpresa.
-      toast('El motor principal falló, usé el de respaldo (esos videos pueden no descargarse en WhatsApp). Detalle: ' + ((e && e.message) || 'desconocido'), 'error', 10000);
+      toast(T('El motor principal falló, usé el de respaldo (esos videos pueden no descargarse en WhatsApp). Detalle: ', 'The main engine failed, so the fallback was used (those videos may not download in WhatsApp). Detail: ') + ((e && e.message) || T('desconocido', 'unknown')), 'error', 10000);
       vtoken += 1;
     }
   }
@@ -488,7 +489,7 @@ async function cutVideoWebCodecs() {
       if (s && s.supported) { codec = cc; break; }
     } catch { /* noop */ }
   }
-  if (!codec) throw new Error('sin códec H.264 soportado');
+  if (!codec) throw new Error(T('sin códec H.264 soportado', 'no supported H.264 codec'));
 
   // Audio de la tira (una sola decodificación para todos los slides).
   const audioBuf = await decodeAudioSafe(vfile);
@@ -550,7 +551,7 @@ async function cutVideoWebCodecs() {
     }, token);
 
     if (encErr) { try { encoder.close(); } catch { /* noop */ } throw encErr; }
-    if (!frames) throw new Error('no se capturó ningún cuadro');
+    if (!frames) throw new Error(T('no se capturó ningún cuadro', 'no frames were captured'));
     await encoder.flush();
     encoder.close();
     // Audio del slide: el real de la tira, o SILENCIO si es muda (siempre hay pista).
@@ -657,10 +658,10 @@ async function downloadVideoZip() {
   try {
     const zip = await buildZip(vslides);
     download(zip, `${vname}-videos.zip`);
-    toast(`ZIP con ${vslides.length} videos descargado.`, { type: 'success' });
+    toast(T(`ZIP con ${vslides.length} videos descargado.`, `ZIP with ${vslides.length} videos downloaded.`), { type: 'success' });
   } catch (e) {
     console.error('[carrusel] zip video', e);
-    toast('No se pudo armar el ZIP. Descarga los videos uno por uno.', { type: 'error' });
+    toast(T('No se pudo armar el ZIP. Descarga los videos uno por uno.', 'Could not build the ZIP. Download the videos one by one.'), { type: 'error' });
   }
 }
 
@@ -677,7 +678,7 @@ function modeToggle() {
     el('button', {
       class: 'car-modeseg__btn' + (mode === 'img' ? ' is-active' : ''), type: 'button', role: 'tab',
       onclick: () => { if (mode !== 'img') { mode = 'img'; render(); } },
-    }, [icon('camera', 15), ' Imágenes']),
+    }, [icon('camera', 15), ' ' + T('Imágenes', 'Images')]),
     el('button', {
       class: 'car-modeseg__btn' + (mode === 'video' ? ' is-active' : ''), type: 'button', role: 'tab',
       onclick: () => { if (mode !== 'video') { mode = 'video'; render(); } },
@@ -719,12 +720,12 @@ function render() {
   clear(rootEl);
 
   rootEl.appendChild(el('header', { class: 'car-head' }, [
-    el('h2', { class: 'car-title', text: 'Cortador de carruseles' }),
+    el('h2', { class: 'car-title', text: T('Cortador de carruseles', 'Carousel cutter') }),
     el('p', {
       class: 'car-sub',
       text: mode === 'img'
-        ? 'Sube la tira del carrusel (los slides pegados en fila) y descárgalos ya cortados, listos para publicar. Todo pasa en tu dispositivo: no se sube a ningún lado.'
-        : 'Sube la tira de VIDEO (los clips cortos pegados en fila) y córtala en videos verticales, uno por slide, con su duración real. Todo pasa en tu dispositivo: no se sube a ningún lado.',
+        ? T('Sube la tira del carrusel (los slides pegados en fila) y descárgalos ya cortados, listos para publicar. Todo pasa en tu dispositivo: no se sube a ningún lado.', 'Upload the carousel strip (the slides joined in a row) and download them already cut, ready to publish. Everything happens on your device: nothing gets uploaded anywhere.')
+        : T('Sube la tira de VIDEO (los clips cortos pegados en fila) y córtala en videos verticales, uno por slide, con su duración real. Todo pasa en tu dispositivo: no se sube a ningún lado.', 'Upload the VIDEO strip (the short clips joined in a row) and cut it into vertical videos, one per slide, with their real duration. Everything happens on your device: nothing gets uploaded anywhere.'),
     }),
   ]));
   rootEl.appendChild(modeToggle());
@@ -749,8 +750,8 @@ function renderImg() {
   }, [
     icon('camera', img ? 18 : 26),
     el('div', { class: 'car-drop__txt' }, [
-      el('strong', { text: img ? 'Subir otra imagen' : 'Toca para subir la tira del carrusel' }),
-      img ? null : el('span', { text: 'PNG o JPG · por ejemplo 5 slides en fila (también acepta 2 filas de 5)' }),
+      el('strong', { text: img ? T('Subir otra imagen', 'Upload another image') : T('Toca para subir la tira del carrusel', 'Tap to upload the carousel strip') }),
+      img ? null : el('span', { text: T('PNG o JPG · por ejemplo 5 slides en fila (también acepta 2 filas de 5)', 'PNG or JPG · for example 5 slides in a row (2 rows of 5 also works)') }),
     ]),
     input,
   ]);
@@ -758,48 +759,48 @@ function renderImg() {
   if (!img) return;
 
   rootEl.appendChild(el('div', { class: 'car-preview' }, [
-    el('img', { src: imgUrl, alt: 'Tira del carrusel' }),
+    el('img', { src: imgUrl, alt: T('Tira del carrusel', 'Carousel strip') }),
     ...gridLinesFor(cols, rows),
   ]));
 
   const sw = Math.floor(img.naturalWidth / cols);
   const sh = Math.floor(img.naturalHeight / rows);
   const fmtSeg = el('div', { class: 'car-step' }, [
-    el('span', { class: 'car-step__lbl', text: 'Formato' }),
+    el('span', { class: 'car-step__lbl', text: T('Formato', 'Format') }),
     el('div', { class: 'car-step__ctrl car-step__ctrl--seg' }, ['jpg', 'png'].map((f) => el('button', {
       class: 'car-step__btn car-step__btn--seg' + (fmt === f ? ' is-active' : ''), type: 'button', text: f.toUpperCase(),
       onclick: () => { if (fmt !== f) { fmt = f; cutSlides(); } },
     }))),
   ]);
   rootEl.appendChild(el('div', { class: 'car-controls' }, [
-    stepper('Columnas', () => cols, (v) => { cols = v; }, 1, MAX_COLS, cutSlides),
-    stepper('Filas', () => rows, (v) => { rows = v; }, 1, MAX_ROWS, cutSlides),
+    stepper(T('Columnas', 'Columns'), () => cols, (v) => { cols = v; }, 1, MAX_COLS, cutSlides),
+    stepper(T('Filas', 'Rows'), () => rows, (v) => { rows = v; }, 1, MAX_ROWS, cutSlides),
     fmtSeg,
-    el('span', { class: 'car-info', text: `${cols * rows} slides de ${sw}×${sh}px` }),
+    el('span', { class: 'car-info', text: `${cols * rows} ${T('slides de', 'slides of')} ${sw}×${sh}px` }),
   ]));
 
-  if (!slides.length) { rootEl.appendChild(el('div', { class: 'car-cutting', text: 'Cortando…' })); return; }
+  if (!slides.length) { rootEl.appendChild(el('div', { class: 'car-cutting', text: T('Cortando…', 'Cutting…') })); return; }
   rootEl.appendChild(el('div', { class: 'car-actions' }, [
     el('button', { class: 'btn btn-primary car-zip', type: 'button', onclick: downloadZip }, [
-      icon('archive', 16), ` Descargar todos (ZIP · ${slides.length})`,
+      icon('archive', 16), ` ${T('Descargar todos', 'Download all')} (ZIP · ${slides.length})`,
     ]),
-    el('span', { class: 'car-hint', text: 'O descarga uno por uno abajo. En iPhone se guardan en Archivos/Descargas.' }),
+    el('span', { class: 'car-hint', text: T('O descarga uno por uno abajo. En iPhone se guardan en Archivos/Descargas.', 'Or download them one by one below. On iPhone they save to Files/Downloads.') }),
   ]));
   rootEl.appendChild(el('div', { class: 'car-grid' }, slides.map((s, i) => el('figure', { class: 'car-slide' }, [
     el('img', { src: s.url, alt: `Slide ${i + 1}`, loading: 'lazy' }),
     el('figcaption', { class: 'car-slide__bar' }, [
       el('span', { class: 'car-slide__num', text: String(i + 1) }),
       el('button', {
-        class: 'car-slide__dl', type: 'button', title: `Descargar slide ${i + 1}`,
+        class: 'car-slide__dl', type: 'button', title: `${T('Descargar slide', 'Download slide')} ${i + 1}`,
         onclick: () => download(s.blob, s.name),
-      }, [icon('down', 15), ' Descargar']),
+      }, [icon('down', 15), ' ' + T('Descargar', 'Download')]),
     ]),
   ]))));
 }
 
 function renderVideo() {
   if (!videoSupported()) {
-    rootEl.appendChild(el('div', { class: 'car-cutting', text: 'Tu navegador no permite cortar video. Ábrelo en Chrome o en Safari actualizado.' }));
+    rootEl.appendChild(el('div', { class: 'car-cutting', text: T('Tu navegador no permite cortar video. Ábrelo en Chrome o en Safari actualizado.', 'Your browser can\'t cut video. Open this in an up-to-date Chrome or Safari.') }));
     return;
   }
   // Sin WebCodecs (Safari) el corte cae a MediaRecorder → MP4 FRAGMENTADO y SIN AUDIO
@@ -807,8 +808,8 @@ function renderVideo() {
   const noWebCodecs = typeof window.VideoEncoder === 'undefined' || typeof window.VideoFrame === 'undefined';
   if (noWebCodecs) {
     rootEl.appendChild(el('div', { class: 'car-warn' }, [
-      el('strong', { text: '⚠️ Abre esta página en Chrome para cortar los videos.' }),
-      el('span', { text: ' En este navegador (Safari) los cortes salen en un formato sin audio que WhatsApp no puede descargar. En Chrome salen normales y se comparten sin problema.' }),
+      el('strong', { text: T('⚠️ Abre esta página en Chrome para cortar los videos.', '⚠️ Open this page in Chrome to cut the videos.') }),
+      el('span', { text: T(' En este navegador (Safari) los cortes salen en un formato sin audio que WhatsApp no puede descargar. En Chrome salen normales y se comparten sin problema.', ' In this browser (Safari) the cuts come out in an audio-less format that WhatsApp can\'t download. In Chrome they come out normal and share without issues.') }),
     ]));
   }
   const busy = vphase === 'analizando' || vphase === 'cortando';
@@ -827,8 +828,8 @@ function renderVideo() {
   }, [
     icon('gantt', vvideo ? 18 : 26),
     el('div', { class: 'car-drop__txt' }, [
-      el('strong', { text: vvideo ? 'Subir otro video' : 'Toca para subir la tira de video' }),
-      vvideo ? null : el('span', { text: 'MP4 o MOV · los clips cortos pegados en fila (por ejemplo 5)' }),
+      el('strong', { text: vvideo ? T('Subir otro video', 'Upload another video') : T('Toca para subir la tira de video', 'Tap to upload the video strip') }),
+      vvideo ? null : el('span', { text: T('MP4 o MOV · los clips cortos pegados en fila (por ejemplo 5)', 'MP4 or MOV · the short clips joined in a row (for example 5)') }),
     ]),
     input,
   ]);
@@ -843,18 +844,18 @@ function renderVideo() {
 
   const sw = Math.floor(vvideo.videoWidth / vcols), sh = Math.floor(vvideo.videoHeight / vrows);
   rootEl.appendChild(el('div', { class: 'car-controls' }, [
-    stepper('Columnas', () => vcols, (v) => { vcols = v; }, 1, MAX_COLS, analyzeDurations),
-    stepper('Filas', () => vrows, (v) => { vrows = v; }, 1, MAX_ROWS, analyzeDurations),
+    stepper(T('Columnas', 'Columns'), () => vcols, (v) => { vcols = v; }, 1, MAX_COLS, analyzeDurations),
+    stepper(T('Filas', 'Rows'), () => vrows, (v) => { vrows = v; }, 1, MAX_ROWS, analyzeDurations),
     stepper('Zoom', () => vzoom, (v) => { vzoom = v; }, 100, 140, () => render(), 2, (x) => `${x}%`),
-    el('span', { class: 'car-info', text: `${vcols * vrows} slides de ${sw}×${sh}px` }),
+    el('span', { class: 'car-info', text: `${vcols * vrows} ${T('slides de', 'slides of')} ${sw}×${sh}px` }),
   ]));
-  if (vzoom > 100) rootEl.appendChild(el('div', { class: 'car-hint', text: `Zoom ${vzoom}%: recorta un poco la orilla para tapar la línea del slide de al lado. Se aplica al cortar.` }));
+  if (vzoom > 100) rootEl.appendChild(el('div', { class: 'car-hint', text: T(`Zoom ${vzoom}%: recorta un poco la orilla para tapar la línea del slide de al lado. Se aplica al cortar.`, `Zoom ${vzoom}%: trims the edge a bit to hide the line from the next slide. Applied when cutting.`) }));
 
   // Barra de progreso (analizando / cortando).
   if (busy) {
     vProgressEl = el('span', { class: 'car-prog__bar', style: `width:${Math.round(vprogress * 100)}%` });
     rootEl.appendChild(el('div', { class: 'car-prog' }, [
-      el('span', { class: 'car-prog__lbl', text: vphase === 'analizando' ? 'Midiendo cada slide…' : 'Cortando los videos…' }),
+      el('span', { class: 'car-prog__lbl', text: vphase === 'analizando' ? T('Midiendo cada slide…', 'Measuring each slide…') : T('Cortando los videos…', 'Cutting the videos…') }),
       el('span', { class: 'car-prog__track' }, [vProgressEl]),
     ]));
     return;
@@ -864,9 +865,9 @@ function renderVideo() {
   if (vdurations.length && !vslides.length) {
     rootEl.appendChild(el('div', { class: 'car-actions' }, [
       el('button', { class: 'btn btn-primary car-zip', type: 'button', onclick: cutVideoSlides }, [
-        icon('gantt', 16), ` Cortar en ${vcols * vrows} videos`,
+        icon('gantt', 16), ` ${T('Cortar en', 'Cut into')} ${vcols * vrows} videos`,
       ]),
-      el('span', { class: 'car-hint', text: 'Cada slide se recorta a su duración real y conserva el audio de la tira. Salen en MP4, alta calidad.' }),
+      el('span', { class: 'car-hint', text: T('Cada slide se recorta a su duración real y conserva el audio de la tira. Salen en MP4, alta calidad.', 'Each slide is trimmed to its real duration and keeps the strip\'s audio. They come out as high-quality MP4.') }),
     ]));
     rootEl.appendChild(el('div', { class: 'car-durs' }, vdurations.map((d, i) => el('span', { class: 'car-dur' }, [
       el('span', { class: 'car-dur__n', text: String(i + 1) }),
@@ -879,18 +880,18 @@ function renderVideo() {
   if (vslides.length) {
     rootEl.appendChild(el('div', { class: 'car-actions' }, [
       el('button', { class: 'btn btn-primary car-zip', type: 'button', onclick: downloadVideoZip }, [
-        icon('archive', 16), ` Descargar todos (ZIP · ${vslides.length})`,
+        icon('archive', 16), ` ${T('Descargar todos', 'Download all')} (ZIP · ${vslides.length})`,
       ]),
-      el('button', { class: 'btn', type: 'button', onclick: cutVideoSlides }, [icon('refresh', 15), ' Volver a cortar']),
+      el('button', { class: 'btn', type: 'button', onclick: cutVideoSlides }, [icon('refresh', 15), ' ' + T('Volver a cortar', 'Cut again')]),
     ]));
     rootEl.appendChild(el('div', { class: 'car-grid' }, vslides.map((s, i) => el('figure', { class: 'car-slide' }, [
       el('video', { src: s.url, class: 'car-slide__vid', muted: true, loop: true, playsinline: true, controls: true, preload: 'metadata' }),
       el('figcaption', { class: 'car-slide__bar' }, [
         el('span', { class: 'car-slide__num', text: `${i + 1} · ${fmtDur(s.duration)}` }),
         el('button', {
-          class: 'car-slide__dl', type: 'button', title: `Descargar video ${i + 1}`,
+          class: 'car-slide__dl', type: 'button', title: `${T('Descargar video', 'Download video')} ${i + 1}`,
           onclick: () => download(s.blob, s.name),
-        }, [icon('down', 15), ' Descargar']),
+        }, [icon('down', 15), ' ' + T('Descargar', 'Download')]),
       ]),
     ]))));
   }

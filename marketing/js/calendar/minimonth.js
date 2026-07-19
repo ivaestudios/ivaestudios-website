@@ -8,6 +8,7 @@
 // ============================================================================
 
 import { el } from '../api.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import {
   fmtYMD, addMonths, startOfMonth, monthMatrix,
   sameMonth, monthTitle, dayLong, todayYMD, statusInfo, DOW_MIN,
@@ -29,12 +30,12 @@ export function renderMiniMonth(wrap, ctx, { cursor, selectedDay, byDay, onPick,
   // ── Header: ‹ Mes Año › ────────────────────────────────────────────────────
   const head = el('div', { class: 'mini__head' }, [
     el('button', {
-      class: 'mini__nav', type: 'button', 'aria-label': 'Mes anterior',
+      class: 'mini__nav', type: 'button', 'aria-label': T('Mes anterior', 'Previous month'),
       onclick: () => onMonth(addMonths(monthStart, -1)),
     }, [ctx.icons('left', 18)]),
     el('span', { class: 'mini__title', text: monthTitle(monthStart), 'aria-live': 'polite' }),
     el('button', {
-      class: 'mini__nav', type: 'button', 'aria-label': 'Mes siguiente',
+      class: 'mini__nav', type: 'button', 'aria-label': T('Mes siguiente', 'Next month'),
       onclick: () => onMonth(addMonths(monthStart, 1)),
     }, [ctx.icons('right', 18)]),
   ]);
@@ -65,7 +66,7 @@ export function renderMiniMonth(wrap, ctx, { cursor, selectedDay, byDay, onPick,
           + (day === today ? ' is-today' : '')
           + (day === selectedDay ? ' is-selected' : ''),
         type: 'button',
-        'aria-label': `${dayLong(d)}${posts.length ? `, ${posts.length} contenido${posts.length === 1 ? '' : 's'}` : ''}`,
+        'aria-label': `${dayLong(d)}${posts.length ? `, ${posts.length} ${posts.length === 1 ? T('contenido', 'item') : T('contenidos', 'items')}` : ''}`,
         'aria-pressed': day === selectedDay ? 'true' : 'false',
         onclick: () => onPick(day),
       }, [

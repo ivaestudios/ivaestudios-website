@@ -11,6 +11,7 @@
 // ============================================================================
 import { api, el, clear, toast } from '../api.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 const VIEW_ID = 'descargar';
 
@@ -41,8 +42,8 @@ function setBusy(on) {
 async function resolve(url) {
   const link = String(url || '').trim();
   if (!link) return;
-  if (!/^https?:\/\//.test(link)) { toast('Pega un link completo (empieza con https://).', 'error'); return; }
-  if (!detect(link)) { toast('Solo Instagram, TikTok y Pinterest por ahora.', 'error'); return; }
+  if (!/^https?:\/\//.test(link)) { toast(T('Pega un link completo (empieza con https://).', 'Paste a full link (it starts with https://).'), 'error'); return; }
+  if (!detect(link)) { toast(T('Solo Instagram, TikTok y Pinterest por ahora.', 'Only Instagram, TikTok and Pinterest for now.'), 'error'); return; }
   if (busy) return;
   if (inputEl) inputEl.blur(); // cierra el teclado en móvil para ver la tarjeta
   setBusy(true);
@@ -51,7 +52,7 @@ async function resolve(url) {
     const meta = await api.post('/descargar', { url: link });
     renderCard(link, meta);
   } catch (e) {
-    renderError(e && e.message ? e.message : 'No se pudo obtener el video.');
+    renderError(e && e.message ? e.message : T('No se pudo obtener el video.', 'Could not fetch the video.'));
   } finally {
     setBusy(false);
   }
@@ -75,9 +76,9 @@ async function pasteFromClipboard() {
   try {
     const txt = await navigator.clipboard.readText();
     if (txt) { inputEl.value = txt.trim(); resolve(txt); }
-    else toast('El portapapeles está vacío.', 'info');
+    else toast(T('El portapapeles está vacío.', 'The clipboard is empty.'), 'info');
   } catch {
-    toast('No pude leer el portapapeles. Pega el link a mano.', 'info');
+    toast(T('No pude leer el portapapeles. Pega el link a mano.', 'Couldn\'t read the clipboard. Paste the link by hand.'), 'info');
     inputEl.focus();
   }
 }
@@ -95,7 +96,7 @@ function render() {
       inputEl = el('input', {
         class: 'dl-input', type: 'url', inputmode: 'url', autocomplete: 'off',
         autocapitalize: 'off', spellcheck: 'false', enterkeyhint: 'go',
-        placeholder: 'Pega el link de Instagram, TikTok o Pinterest',
+        placeholder: T('Pega el link de Instagram, TikTok o Pinterest', 'Paste the Instagram, TikTok or Pinterest link'),
         onpaste: (e) => {
           const t = (e.clipboardData || window.clipboardData);
           const v = t && t.getData ? t.getData('text') : '';
@@ -103,13 +104,13 @@ function render() {
         },
       }),
       el('button', {
-        class: 'dl-clear', type: 'button', 'aria-label': 'Limpiar',
+        class: 'dl-clear', type: 'button', 'aria-label': T('Limpiar', 'Clear'),
         onclick: () => { inputEl.value = ''; inputEl.focus(); clear(resultEl); renderHint(); },
       }, [icon('close', 16)]),
     ]),
     el('div', { class: 'dl-actions' }, [
-      el('button', { class: 'btn dl-paste', type: 'button', onclick: pasteFromClipboard }, [icon('copy', 16), ' Pegar']),
-      el('button', { class: 'btn btn-primary dl-go', type: 'submit' }, [icon('download', 18), ' Descargar']),
+      el('button', { class: 'btn dl-paste', type: 'button', onclick: pasteFromClipboard }, [icon('copy', 16), ' ' + T('Pegar', 'Paste')]),
+      el('button', { class: 'btn btn-primary dl-go', type: 'submit' }, [icon('download', 18), ' ' + T('Descargar', 'Download')]),
     ]),
   ]);
 
@@ -120,8 +121,8 @@ function render() {
 
   rootEl.append(
     el('div', { class: 'dl-head' }, [
-      el('h1', { class: 'dl-title', text: 'Descargar contenido' }),
-      el('p', { class: 'dl-sub', text: 'Instagram · TikTok · Pinterest — videos, fotos y carruseles, sin marca de agua y en la máxima calidad. Solo pega el link.' }),
+      el('h1', { class: 'dl-title', text: T('Descargar contenido', 'Download content') }),
+      el('p', { class: 'dl-sub', text: T('Instagram · TikTok · Pinterest — videos, fotos y carruseles, sin marca de agua y en la máxima calidad. Solo pega el link.', 'Instagram · TikTok · Pinterest — videos, photos and carousels, watermark-free and in the highest quality. Just paste the link.') }),
     ]),
     form,
     chips,
@@ -134,8 +135,8 @@ function renderHint() {
   clear(resultEl);
   resultEl.appendChild(el('div', { class: 'dl-hint' }, [
     icon('download', 30),
-    el('p', { text: 'Pega un link arriba y descarga el video, la foto o el carrusel — limpio, sin marca de agua.' }),
-    el('p', { class: 'muted small', text: 'Descarga contenido tuyo o de tus clientes; tú decides qué re-subir.' }),
+    el('p', { text: T('Pega un link arriba y descarga el video, la foto o el carrusel — limpio, sin marca de agua.', 'Paste a link above and download the video, photo or carousel — clean, no watermark.') }),
+    el('p', { class: 'muted small', text: T('Descarga contenido tuyo o de tus clientes; tú decides qué re-subir.', 'Download your own or your clients\' content; you decide what to re-upload.') }),
   ]));
 }
 
@@ -144,7 +145,7 @@ function renderLoading(link) {
   const p = detect(link);
   resultEl.appendChild(el('div', { class: 'dl-card dl-card--loading' }, [
     el('span', { class: 'spinner' }),
-    el('span', { text: `Buscando el video en ${p ? PLATFORMS[p].label : 'la plataforma'}…` }),
+    el('span', { text: `${T('Buscando el video en', 'Looking for the video on')} ${p ? PLATFORMS[p].label : T('la plataforma', 'the platform')}…` }),
   ]));
 }
 
@@ -154,7 +155,7 @@ function renderError(msg) {
     el('div', { class: 'dl-err-ico' }, [icon('warning', 22)]),
     el('p', { class: 'dl-err-msg', text: msg }),
     el('button', {
-      class: 'btn', type: 'button', text: 'Reintentar',
+      class: 'btn', type: 'button', text: T('Reintentar', 'Retry'),
       onclick: () => resolve(inputEl.value),
     }),
   ]));
@@ -172,22 +173,22 @@ function renderCard(link, meta) {
     const grid = el('div', { class: 'dl-grid' }, items.map((it, i) => {
       const b = el('button', { class: 'btn dl-item', type: 'button' }, [
         icon(it.type === 'image' ? 'camera' : 'download', 15),
-        ` ${it.type === 'image' ? 'Foto' : 'Video'} ${i + 1}`,
+        ` ${it.type === 'image' ? T('Foto', 'Photo') : 'Video'} ${i + 1}`,
       ]);
-      b.addEventListener('click', () => { toast('Descargando…', 'success', 1800); download(it, meta.platform, link); });
+      b.addEventListener('click', () => { toast(T('Descargando…', 'Downloading…'), 'success', 1800); download(it, meta.platform, link); });
       return b;
     }));
     const allBtn = el('button', { class: 'btn btn-primary dl-download', type: 'button' },
-      [icon('download', 18), el('span', { text: ` Descargar todo (${items.length})` })]);
+      [icon('download', 18), el('span', { text: ` ${T('Descargar todo', 'Download all')} (${items.length})` })]);
     allBtn.addEventListener('click', () => {
-      toast(`Descargando ${items.length} archivos…`, 'info', 3000);
+      toast(T(`Descargando ${items.length} archivos…`, `Downloading ${items.length} files…`), 'info', 3000);
       // Espaciados: iOS descarta descargas muy seguidas. La 1ª va inmediata (tap).
       items.forEach((it, i) => { if (i === 0) download(it, meta.platform, link); else setTimeout(() => download(it, meta.platform, link), i * 900); });
     });
     resultEl.appendChild(el('div', { class: 'dl-card dl-card--multi' }, [
       el('div', { class: 'dl-multi-head' }, [
         el('span', { class: `dl-chip dl-chip--${plat.cls} dl-chip--sm`, text: plat.label }),
-        el('p', { class: 'dl-cap', text: `Carrusel · ${items.length} elementos` }),
+        el('p', { class: 'dl-cap', text: T(`Carrusel · ${items.length} elementos`, `Carousel · ${items.length} items`) }),
       ]),
       grid,
       allBtn,
@@ -210,16 +211,16 @@ function renderCard(link, meta) {
 
   const dlBtn = el('button', {
     class: 'btn btn-primary dl-download', type: 'button',
-  }, [icon('download', 18), el('span', { text: isImg ? ' Descargar imagen' : ' Descargar MP4' })]);
-  dlBtn.addEventListener('click', () => { toast('Descargando…', 'success', 1800); download(it, meta.platform, link); });
+  }, [icon('download', 18), el('span', { text: isImg ? T(' Descargar imagen', ' Download image') : T(' Descargar MP4', ' Download MP4') })]);
+  dlBtn.addEventListener('click', () => { toast(T('Descargando…', 'Downloading…'), 'success', 1800); download(it, meta.platform, link); });
 
   resultEl.appendChild(el('div', { class: 'dl-card' }, [
     thumb,
     el('div', { class: 'dl-meta' }, [
       el('span', { class: `dl-chip dl-chip--${plat.cls} dl-chip--sm`, text: plat.label }),
-      el('p', { class: 'dl-cap', text: meta.title || (isImg ? 'Imagen' : 'Video') }),
+      el('p', { class: 'dl-cap', text: meta.title || (isImg ? T('Imagen', 'Image') : 'Video') }),
       el('div', { class: 'dl-facts' }, [
-        isImg ? el('span', { class: 'dl-ok', text: '✓ Imagen original' }) : el('span', { class: 'dl-ok', text: '✓ Sin marca de agua' }),
+        isImg ? el('span', { class: 'dl-ok', text: T('✓ Imagen original', '✓ Original image') }) : el('span', { class: 'dl-ok', text: T('✓ Sin marca de agua', '✓ No watermark') }),
         dims ? el('span', { text: dims }) : null,
         dur ? el('span', { text: dur }) : null,
       ]),

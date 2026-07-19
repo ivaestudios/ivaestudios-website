@@ -37,10 +37,11 @@ import {
   fmtShort, MESES_CORTOS,
 } from '../lib/dates.js?v=202607181835';
 import { effortOf, DEFAULT_EFFORT } from '../lib/effort.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 const WEEKS_VISIBLE = 4;
 const SIN_KEY = '__sin_asignar__';
-const ERR_SAVE = 'No se pudo guardar, intenta de nuevo.';
+const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', "Couldn't save, try again.");
 
 // Tipos IVAE que el mapa generico de lib/effort.js no trae (espejo del spec:
 // reel 3, tiktok 3, carrusel 2, pauta 2, experiencia 2, tratamientos 2,
@@ -151,7 +152,7 @@ function aggregate(weeks) {
     if (!byPerson.has(key)) {
       byPerson.set(key, {
         key,
-        name: key === SIN_KEY ? 'Sin asignar' : String(p.assignee).trim(),
+        name: key === SIN_KEY ? T('Sin asignar', 'Unassigned') : String(p.assignee).trim(),
         total: 0,
         count: 0,
         weeks: new Map(),
@@ -237,7 +238,7 @@ async function fetchData({ silent = false } = {}) {
   } catch (e) {
     if (seq !== fetchSeq) return;
     loading = false;
-    errorMsg = (e && e.message) || 'No se pudo cargar la carga de trabajo.';
+    errorMsg = (e && e.message) || T('No se pudo cargar la carga de trabajo.', "Couldn't load the workload.");
     if (!silent) ctx.toast(errorMsg, { type: 'error' });
   }
   scheduleRender();
@@ -318,10 +319,10 @@ async function patchLocal(postId, fields, { undoable = true } = {}) {
     }
 
     if (c) {
-      c.toast('Guardado.', {
+      c.toast(T('Guardado.', 'Saved.'), {
         type: 'success',
         action: undoable ? {
-          label: 'Deshacer',
+          label: T('Deshacer', 'Undo'),
           onAction: () => { patchLocal(postId, prevFields, { undoable: false }); },
         } : null,
       });
@@ -341,7 +342,7 @@ async function patchLocal(postId, fields, { undoable = true } = {}) {
 async function actionMoveDate(post) {
   const v = await ctx.pickers.pickDate({
     current: post.publish_date ? String(post.publish_date).slice(0, 10) : null,
-    title: 'Mover fecha',
+    title: T('Mover fecha', 'Move date'),
     allowClear: false,
   });
   if (v === null || v === '' || v === post.publish_date) return;
@@ -353,7 +354,7 @@ async function actionReassign(post) {
   const r = await ctx.pickers.pickPerson({
     current: String(post.assignee || '').trim(),
     users: users || [],
-    title: 'Reasignar',
+    title: T('Reasignar', 'Reassign'),
   });
   if (r === null) return;
   patchLocal(post.id, { assignee: r.name || null, assignee_user_id: r.user_id || null });
@@ -372,15 +373,15 @@ function actionOpen(post) {
 function openUndatedSheet() {
   const items = data.undated || [];
   ctx.sheet.openSheet({
-    title: `Sin fecha (${items.length})`,
+    title: `${T('Sin fecha', 'No date')} (${items.length})`,
     mode: 'menu',
     build(body) {
       body.appendChild(el('p', {
         class: 'help wl-undated-note',
-        text: 'Estos contenidos no tienen fecha de publicacion, asi que no se reparten en ninguna semana.',
+        text: T('Estos contenidos no tienen fecha de publicacion, asi que no se reparten en ninguna semana.', "These items have no publish date, so they don't count toward any week."),
       }));
       if (!items.length) {
-        body.appendChild(el('p', { class: 'help', text: 'Todo el contenido tiene fecha.' }));
+        body.appendChild(el('p', { class: 'help', text: T('Todo el contenido tiene fecha.', 'All content has a date.') }));
         return;
       }
       const list = el('div', { class: 'wl-ulist' });
@@ -390,7 +391,7 @@ function openUndatedSheet() {
           onclick: () => actionOpen(p),
         }, [
           el('span', { class: 'wl-uitem__main' }, [
-            el('span', { class: 'wl-uitem__title', text: p.title || 'Sin titulo' }),
+            el('span', { class: 'wl-uitem__title', text: p.title || T('Sin titulo', 'Untitled') }),
             el('span', { class: 'wl-uitem__meta' }, [
               p.client_name ? el('span', { class: 'wl-uitem__client', text: p.client_name }) : null,
               chip(p.content_type),
@@ -408,16 +409,16 @@ function openUndatedSheet() {
 function openCapacitiesSheet() {
   const persons = knownPersons();
   ctx.sheet.openSheet({
-    title: 'Capacidades semanales',
+    title: T('Capacidades semanales', 'Weekly capacities'),
     mode: 'form',
     build(body, close) {
       body.appendChild(el('p', {
         class: 'help wl-cap-help',
-        text: '1 punto = pieza simple. Reel 3, carrusel 2, historia 1. Sugerido: 10 puntos por semana.',
+        text: T('1 punto = pieza simple. Reel 3, carrusel 2, historia 1. Sugerido: 10 puntos por semana.', '1 point = simple piece. Reel 3, carousel 2, story 1. Suggested: 10 points per week.'),
       }));
 
       if (!persons.length) {
-        body.appendChild(el('p', { class: 'help', text: 'Aun no hay responsables detectados. Asigna contenidos primero.' }));
+        body.appendChild(el('p', { class: 'help', text: T('Aun no hay responsables detectados. Asigna contenidos primero.', 'No assignees detected yet. Assign content first.') }));
         return;
       }
 
@@ -429,7 +430,7 @@ function openCapacitiesSheet() {
           class: 'input wl-cap-input', type: 'number',
           inputmode: 'numeric', min: '0', max: '100', step: '1',
           placeholder: '10',
-          'aria-label': `Puntos por semana de ${person.name}`,
+          'aria-label': T(`Puntos por semana de ${person.name}`, `Weekly points for ${person.name}`),
         });
         if (cap !== null) input.value = String(cap);
         inputs.set(person.name, { input, before: cap });
@@ -437,13 +438,13 @@ function openCapacitiesSheet() {
           avatar(person.name, true),
           el('span', { class: 'wl-cap-row__name', text: person.name }),
           input,
-          el('span', { class: 'wl-cap-row__unit', text: 'pts/sem' }),
+          el('span', { class: 'wl-cap-row__unit', text: T('pts/sem', 'pts/wk') }),
         ]));
       }
       body.appendChild(list);
 
       const saveBtn = el('button', {
-        class: 'btn btn-primary sheet-cta', type: 'button', text: 'Guardar',
+        class: 'btn btn-primary sheet-cta', type: 'button', text: T('Guardar', 'Save'),
         onclick: async () => {
           const changes = [];
           for (const [name, { input, before } ] of inputs) {
@@ -451,7 +452,7 @@ function openCapacitiesSheet() {
             if (raw === '') continue;
             const n = Math.round(Number(raw));
             if (!Number.isFinite(n) || n < 0 || n > 100) {
-              ctx.toast(`Capacidad de ${name}: usa un numero entre 0 y 100.`, { type: 'error' });
+              ctx.toast(T(`Capacidad de ${name}: usa un numero entre 0 y 100.`, `Capacity for ${name}: use a number between 0 and 100.`), { type: 'error' });
               try { input.focus(); } catch { /* noop */ }
               return;
             }
@@ -467,7 +468,7 @@ function openCapacitiesSheet() {
             const byKey = new Map((data.capacities || []).map((c) => [String(c.assignee || '').trim().toLowerCase(), c]));
             for (const c of changes) byKey.set(c.assignee.trim().toLowerCase(), c);
             data.capacities = [...byKey.values()];
-            ctx.toast('Capacidades guardadas.', { type: 'success' });
+            ctx.toast(T('Capacidades guardadas.', 'Capacities saved.'), { type: 'success' });
             close({ source: 'save' });
             scheduleRender();
             scheduleRefetch();
@@ -479,7 +480,7 @@ function openCapacitiesSheet() {
         },
       });
       body.appendChild(el('div', { class: 'sheet__footer' }, [
-        el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
+        el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
         saveBtn,
       ]));
     },
@@ -497,15 +498,15 @@ function shiftWeeks(dir) {
 
 function buildToolbar() {
   const prevBtn = el('button', {
-    class: 'wl-ctl', type: 'button', 'aria-label': '4 semanas anteriores',
+    class: 'wl-ctl', type: 'button', 'aria-label': T('4 semanas anteriores', 'Previous 4 weeks'),
     onclick: () => shiftWeeks(-1),
   }, [icon('left', 18)]);
   const nextBtn = el('button', {
-    class: 'wl-ctl', type: 'button', 'aria-label': '4 semanas siguientes',
+    class: 'wl-ctl', type: 'button', 'aria-label': T('4 semanas siguientes', 'Next 4 weeks'),
     onclick: () => shiftWeeks(1),
   }, [icon('right', 18)]);
   const nowBtn = el('button', {
-    class: 'btn btn-sm', type: 'button', text: 'Esta semana',
+    class: 'btn btn-sm', type: 'button', text: T('Esta semana', 'This week'),
     onclick: () => {
       const r = defaultRange();
       data.from = r.from;
@@ -523,18 +524,18 @@ function buildToolbar() {
   });
 
   const capBtn = el('button', {
-    class: 'wl-ctl', type: 'button', 'aria-label': 'Capacidades', 'aria-haspopup': 'dialog',
+    class: 'wl-ctl', type: 'button', 'aria-label': T('Capacidades', 'Capacities'), 'aria-haspopup': 'dialog',
     onclick: () => openCapacitiesSheet(),
   }, [icon('settings', 18)]);
 
-  clientSelect = el('select', { class: 'select wl-client', 'aria-label': 'Filtrar por cliente' });
+  clientSelect = el('select', { class: 'select wl-client', 'aria-label': T('Filtrar por cliente', 'Filter by client') });
   clientSelect.addEventListener('change', () => {
     clientFilter = clientSelect.value;
     expanded = '';
     scheduleRender();
   });
 
-  chipsEl = el('div', { class: 'wl-chips', role: 'group', 'aria-label': 'Filtrar por persona' });
+  chipsEl = el('div', { class: 'wl-chips', role: 'group', 'aria-label': T('Filtrar por persona', 'Filter by person') });
 
   return el('div', { class: 'wl-toolbar' }, [
     el('div', { class: 'wl-toolbar__row' }, [
@@ -549,16 +550,16 @@ function buildToolbar() {
 }
 
 function updateToolbar() {
-  rangeLabelEl.textContent = `${fmtShort(data.from)} al ${fmtShort(data.to)}`;
+  rangeLabelEl.textContent = `${fmtShort(data.from)} ${T('al', 'to')} ${fmtShort(data.to)}`;
 
   const n = (data.undated || []).length;
   undatedChip.hidden = n === 0;
-  undatedChip.textContent = `Sin fecha (${n})`;
+  undatedChip.textContent = `${T('Sin fecha', 'No date')} (${n})`;
 
   // Select de clientes (rebuild barato, conserva el valor).
   const clients = (ctx.store.getState().clients || []).filter((c) => !c.archived);
   clear(clientSelect);
-  clientSelect.appendChild(el('option', { value: '', text: 'Todos los clientes' }));
+  clientSelect.appendChild(el('option', { value: '', text: T('Todos los clientes', 'All clients') }));
   for (const c of clients) clientSelect.appendChild(el('option', { value: c.id, text: c.name }));
   clientSelect.value = clientFilter && clients.some((c) => c.id === clientFilter) ? clientFilter : '';
   if (clientSelect.value !== clientFilter) clientFilter = clientSelect.value;
@@ -569,7 +570,7 @@ function updateToolbar() {
   if (persons.length > 1) {
     const allChip = el('button', {
       class: 'wl-pchip' + (personFilter.size === 0 ? ' is-active' : ''),
-      type: 'button', text: 'Todas',
+      type: 'button', text: T('Todas', 'All'),
       'aria-pressed': personFilter.size === 0 ? 'true' : 'false',
       onclick: () => { personFilter.clear(); scheduleRender(); },
     });
@@ -602,17 +603,17 @@ function buildWeekRow(person, week, bucket, index) {
 
   const valueTxt = cap ? `${pts}/${cap} pts` : `${pts} pts`;
   const stateTxt =
-    level === 'over' ? 'Sobrecarga' :
-    level === 'warn' ? 'Casi llena' :
-    level === 'ok' ? 'Con espacio' :
-    (person.key === SIN_KEY ? '' : 'Define su capacidad');
+    level === 'over' ? T('Sobrecarga', 'Overloaded') :
+    level === 'warn' ? T('Casi llena', 'Almost full') :
+    level === 'ok' ? T('Con espacio', 'Has room') :
+    (person.key === SIN_KEY ? '' : T('Define su capacidad', 'Set their capacity'));
 
   const row = el('button', {
     class: 'wl-week' + (isOpen ? ' is-open' : ''),
     type: 'button',
     dataset: { level },
     'aria-expanded': isOpen ? 'true' : 'false',
-    'aria-label': `${person.name}, semana ${week.label}: ${valueTxt}${stateTxt ? `, ${stateTxt}` : ''}. ${count} contenidos`,
+    'aria-label': `${person.name}, ${T('semana', 'week')} ${week.label}: ${valueTxt}${stateTxt ? `, ${stateTxt}` : ''}. ${count} ${T('contenidos', 'items')}`,
     onclick: () => {
       expanded = isOpen ? '' : `${person.key}|${week.key}`;
       scheduleRender();
@@ -636,7 +637,7 @@ function buildExpand(person, week, bucket) {
     .sort((a, b) => String(a.publish_date).localeCompare(String(b.publish_date)));
 
   if (!posts.length) {
-    panel.appendChild(el('p', { class: 'help', text: 'Sin contenidos esa semana.' }));
+    panel.appendChild(el('p', { class: 'help', text: T('Sin contenidos esa semana.', 'No content that week.') }));
     return panel;
   }
 
@@ -652,16 +653,16 @@ function buildExpand(person, week, bucket) {
           p.client_name ? el('span', { class: 'wl-post__client', text: p.client_name }) : null,
           el('span', { class: 'wl-post__pts', text: `${pointsOf(p)} pts` }),
         ]),
-        el('div', { class: 'wl-post__title', text: p.title || 'Sin titulo' }),
+        el('div', { class: 'wl-post__title', text: p.title || T('Sin titulo', 'Untitled') }),
         el('div', { class: 'wl-post__meta' }, [
           statusBadge(p.status),
           el('span', { class: 'wl-post__date', text: fmtShort(p.publish_date) }),
         ]),
       ]),
       el('div', { class: 'wl-post__actions' }, [
-        el('button', { class: 'wl-act', type: 'button', onclick: () => actionMoveDate(p) }, [icon('calendar', 16), 'Mover fecha']),
-        el('button', { class: 'wl-act', type: 'button', onclick: () => actionReassign(p) }, [icon('user', 16), 'Reasignar']),
-        el('button', { class: 'wl-act', type: 'button', onclick: () => actionOpen(p) }, [icon('edit', 16), 'Abrir']),
+        el('button', { class: 'wl-act', type: 'button', onclick: () => actionMoveDate(p) }, [icon('calendar', 16), T('Mover fecha', 'Move date')]),
+        el('button', { class: 'wl-act', type: 'button', onclick: () => actionReassign(p) }, [icon('user', 16), T('Reasignar', 'Reassign')]),
+        el('button', { class: 'wl-act', type: 'button', onclick: () => actionOpen(p) }, [icon('edit', 16), T('Abrir', 'Open')]),
       ]),
     ]));
   }
@@ -673,12 +674,12 @@ function buildPerson(person, weeks) {
     avatar(person.key === SIN_KEY ? '?' : person.name, true),
     el('span', { class: 'wl-person__name', text: person.name }),
     el('span', { class: 'wl-person__total', text: `${person.total} pts` }),
-    person.anyOver ? el('span', { class: 'wl-badge', text: 'Sobrecarga' }) : null,
+    person.anyOver ? el('span', { class: 'wl-badge', text: T('Sobrecarga', 'Overloaded') }) : null,
   ]);
 
   const card = el('section', {
     class: 'wl-person' + (person.anyOver ? ' is-over' : ''),
-    'aria-label': `${person.name}, ${person.total} puntos en el periodo`,
+    'aria-label': `${person.name}, ${person.total} ${T('puntos en el periodo', 'points in the period')}`,
   });
   card.appendChild(head);
 
@@ -707,10 +708,10 @@ function render() {
   if (errorMsg) {
     bodyEl.appendChild(el('div', { class: 'empty' }, [
       el('div', { class: 'empty__icon' }, [icon('warning', 30)]),
-      el('h3', { text: 'No se pudo cargar' }),
+      el('h3', { text: T('No se pudo cargar', "Couldn't load") }),
       el('p', { text: errorMsg }),
       el('button', {
-        class: 'btn btn-primary', type: 'button', text: 'Reintentar',
+        class: 'btn btn-primary', type: 'button', text: T('Reintentar', 'Retry'),
         onclick: () => fetchData(),
       }),
     ]));
@@ -723,10 +724,10 @@ function render() {
   if (!rows.length) {
     bodyEl.appendChild(el('div', { class: 'empty' }, [
       el('div', { class: 'empty__icon' }, [icon('gauge', 30)]),
-      el('h3', { text: 'Sin contenidos en estas semanas.' }),
-      el('p', { text: 'Mueve el rango o programa contenido con fecha de publicacion.' }),
+      el('h3', { text: T('Sin contenidos en estas semanas.', 'No content in these weeks.') }),
+      el('p', { text: T('Mueve el rango o programa contenido con fecha de publicacion.', 'Shift the range or schedule content with a publish date.') }),
       el('button', {
-        class: 'btn btn-primary', type: 'button', text: 'Esta semana',
+        class: 'btn btn-primary', type: 'button', text: T('Esta semana', 'This week'),
         onclick: () => {
           const r = defaultRange();
           data.from = r.from;
@@ -740,7 +741,7 @@ function render() {
 
   // Cabecera de semanas (solo visible en el layout tabla de desktop).
   const headRow = el('div', { class: 'wl-headrow', 'aria-hidden': 'true' });
-  headRow.appendChild(el('span', { class: 'wl-headrow__person', text: 'Persona' }));
+  headRow.appendChild(el('span', { class: 'wl-headrow__person', text: T('Persona', 'Person') }));
   weeks.forEach((w, i) => {
     const cell = el('span', { class: 'wl-headrow__week', text: w.label });
     cell.style.gridColumn = String(i + 2);
@@ -752,7 +753,7 @@ function render() {
 
   bodyEl.appendChild(el('p', {
     class: 'help wl-rule-note',
-    text: 'Regla de reparto: los puntos de cada contenido cuentan completos en la semana de su fecha de publicacion.',
+    text: T('Regla de reparto: los puntos de cada contenido cuentan completos en la semana de su fecha de publicacion.', "Distribution rule: each item's points count fully in the week of its publish date."),
   }));
 }
 

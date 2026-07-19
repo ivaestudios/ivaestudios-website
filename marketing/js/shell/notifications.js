@@ -20,13 +20,14 @@ import { pushLayer } from './router.js?v=202607181835';
 import { openSheet } from './sheet.js?v=202607181835';
 import { toast } from './toast.js?v=202607181835';
 import { icon } from './icons.js?v=202607181835';
+import { T } from './i18n.js?v=202607181835';
 
 const POLL_MS = 60000;
 const FILTERS = [
-  { id: 'all', label: 'Todas' },
-  { id: 'unread', label: 'No leídas' },
-  { id: 'mentions', label: 'Menciones' },
-  { id: 'assigned', label: 'Asignadas' },
+  { id: 'all', label: T('Todas', 'All') },
+  { id: 'unread', label: T('No leídas', 'Unread') },
+  { id: 'mentions', label: T('Menciones', 'Mentions') },
+  { id: 'assigned', label: T('Asignadas', 'Assigned') },
 ];
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
@@ -93,7 +94,7 @@ export function createNotifications({ router, onUnavailable }) {
   }
 
   function openPanel(anchor = null, { tab } = {}) {
-    if (!available) { toast('Los avisos estarán disponibles cuando se aplique la migración 004.', { type: 'info' }); return; }
+    if (!available) { toast(T('Los avisos estarán disponibles cuando se aplique la migración 004.', 'Alerts will be available once migration 004 is applied.'), { type: 'info' }); return; }
     if (overlay) { closePanel({ source: 'retap' }); return; }
     activeFilter = tab && FILTERS.some((f) => f.id === tab) ? tab : 'all';
 
@@ -102,20 +103,20 @@ export function createNotifications({ router, onUnavailable }) {
     const tabsEl = el('div', { class: 'nf-tabs seg', role: 'tablist' });
 
     const markAllBtn = el('button', {
-      class: 'nf-markall', type: 'button', text: 'Marcar todas como leídas',
+      class: 'nf-markall', type: 'button', text: T('Marcar todas como leídas', 'Mark all as read'),
       onclick: () => markAll(),
     });
 
     overlay = el('div', {
       class: 'nf-overlay' + (desktop ? ' nf-overlay--desktop' : ''),
-      role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Avisos',
+      role: 'dialog', 'aria-modal': 'true', 'aria-label': T('Avisos', 'Alerts'),
     }, [
       el('div', { class: 'nf-panel' }, [
         el('div', { class: 'nf-head' }, [
-          el('h2', { class: 'nf-title', text: 'Avisos' }),
+          el('h2', { class: 'nf-title', text: T('Avisos', 'Alerts') }),
           markAllBtn,
           el('button', {
-            class: 'nf-close', type: 'button', 'aria-label': 'Cerrar',
+            class: 'nf-close', type: 'button', 'aria-label': T('Cerrar', 'Close'),
             onclick: () => closePanel({ source: 'x' }),
           }, [icon('close', 18)]),
         ]),
@@ -148,7 +149,7 @@ export function createNotifications({ router, onUnavailable }) {
 
     async function load() {
       clear(listEl);
-      listEl.appendChild(el('div', { class: 'muted nf-loading', text: 'Cargando avisos' }));
+      listEl.appendChild(el('div', { class: 'muted nf-loading', text: T('Cargando avisos', 'Loading alerts') }));
       try {
         const res = await api.get(`/notifications?filter=${activeFilter}&limit=50`);
         items = Array.isArray(res) ? res : (res && res.notifications) || [];
@@ -161,7 +162,7 @@ export function createNotifications({ router, onUnavailable }) {
           closePanel({ source: 'unavailable' });
           return;
         }
-        listEl.appendChild(el('div', { class: 'muted', text: e.message || 'No se pudieron cargar los avisos.' }));
+        listEl.appendChild(el('div', { class: 'muted', text: e.message || T('No se pudieron cargar los avisos.', 'Could not load alerts.') }));
       }
     }
 
@@ -173,7 +174,7 @@ export function createNotifications({ router, onUnavailable }) {
       if (!visible.length) {
         listEl.appendChild(el('div', { class: 'nf-empty' }, [
           icon('check', 28),
-          el('p', { text: 'Estás al día.' }),
+          el('p', { text: T('Estás al día.', "You're all caught up.") }),
         ]));
         return;
       }
@@ -198,9 +199,9 @@ export function createNotifications({ router, onUnavailable }) {
             el('span', { class: 'nf-row__time', text: timeAgo(n.created_at) }),
           ]),
         ]),
-        unread && !justRead.has(n.id) ? el('span', { class: 'nf-row__dot', 'aria-label': 'Sin leer' }) : null,
+        unread && !justRead.has(n.id) ? el('span', { class: 'nf-row__dot', 'aria-label': T('Sin leer', 'Unread') }) : null,
         el('button', {
-          class: 'nf-row__more', type: 'button', 'aria-label': 'Más opciones',
+          class: 'nf-row__more', type: 'button', 'aria-label': T('Más opciones', 'More options'),
           onclick: (e) => { e.stopPropagation(); rowMenu(n); },
         }, [icon('dots', 18)]),
       ]);
@@ -210,18 +211,18 @@ export function createNotifications({ router, onUnavailable }) {
     function rowMenu(n) {
       const unread = !n.read_at;
       openSheet({
-        title: 'Aviso',
+        title: T('Aviso', 'Alert'),
         mode: 'menu',
         build(body, close) {
           body.append(
             el('button', {
               class: 'acct-row', type: 'button',
               onclick: () => { close(); setRead([n.id], unread); },
-            }, [icon(unread ? 'check' : 'refresh', 20), el('span', { class: 'acct-row__label', text: unread ? 'Marcar como leída' : 'Marcar como no leída' })]),
+            }, [icon(unread ? 'check' : 'refresh', 20), el('span', { class: 'acct-row__label', text: unread ? T('Marcar como leída', 'Mark as read') : T('Marcar como no leída', 'Mark as unread') })]),
             el('button', {
               class: 'acct-row acct-row--danger', type: 'button',
               onclick: () => { close(); removeItems([n.id]); },
-            }, [icon('trash', 20), el('span', { class: 'acct-row__label', text: 'Eliminar' })]),
+            }, [icon('trash', 20), el('span', { class: 'acct-row__label', text: T('Eliminar', 'Delete') })]),
           );
         },
       });
@@ -256,7 +257,7 @@ export function createNotifications({ router, onUnavailable }) {
         ids.forEach((id) => justRead.delete(id));
         store.set({ unreadCount: prevUnread });
         renderList();
-        toast(e.message || 'No se pudo actualizar el aviso.', { type: 'error' });
+        toast(e.message || T('No se pudo actualizar el aviso.', 'Could not update the alert.'), { type: 'error' });
       }
     }
 
@@ -277,7 +278,7 @@ export function createNotifications({ router, onUnavailable }) {
         unreadIds.forEach((id) => justRead.delete(id));
         store.set({ unreadCount: prevUnread });
         renderList();
-        toast(e.message || 'No se pudo marcar todo como leído.', { type: 'error' });
+        toast(e.message || T('No se pudo marcar todo como leído.', 'Could not mark all as read.'), { type: 'error' });
       }
     }
 
@@ -294,7 +295,7 @@ export function createNotifications({ router, onUnavailable }) {
         items = prevItems;
         store.set({ unreadCount: prevUnread });
         renderList();
-        toast(e.message || 'No se pudo eliminar el aviso.', { type: 'error' });
+        toast(e.message || T('No se pudo eliminar el aviso.', 'Could not delete the alert.'), { type: 'error' });
       }
     }
 

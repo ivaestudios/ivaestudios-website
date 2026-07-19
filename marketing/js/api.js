@@ -7,7 +7,7 @@
 // non-2xx so callers can `try { ... } catch (e) { toast(e.message,'error') }`.
 // ============================================================================
 
-import { isEN } from './shell/i18n.js?v=202607181835';
+import { isEN, T } from './shell/i18n.js?v=202607181835';
 
 const BASE = '/api/marketing';
 const TIMEOUT = 30000; // 30s
@@ -33,9 +33,9 @@ async function request(path, { method = 'GET', body, headers } = {}) {
   } catch (err) {
     clearTimeout(timer);
     if (err && err.name === 'AbortError') {
-      throw new Error('La solicitud tardó demasiado. Inténtalo de nuevo.');
+      throw new Error(T('La solicitud tardó demasiado. Inténtalo de nuevo.', 'The request took too long. Try again.'));
     }
-    throw new Error('Error de conexión. Revisa tu internet.');
+    throw new Error(T('Error de conexión. Revisa tu internet.', 'Connection error. Check your internet.'));
   }
   clearTimeout(timer);
 
@@ -47,12 +47,12 @@ async function request(path, { method = 'GET', body, headers } = {}) {
 
   if (!res.ok) {
     const fallback =
-      res.status === 401 ? 'Tu sesión expiró. Vuelve a iniciar sesión.' :
-      res.status === 403 ? 'No tienes permiso para esta acción.' :
-      res.status === 404 ? 'No se encontró el recurso.' :
-      res.status === 409 ? 'Ya existe un registro con esos datos.' :
-      res.status >= 500 ? 'Error del servidor. Inténtalo de nuevo.' :
-      'Algo salió mal. Inténtalo de nuevo.';
+      res.status === 401 ? T('Tu sesión expiró. Vuelve a iniciar sesión.', 'Your session expired. Please sign in again.') :
+      res.status === 403 ? T('No tienes permiso para esta acción.', "You don't have permission for this action.") :
+      res.status === 404 ? T('No se encontró el recurso.', 'Resource not found.') :
+      res.status === 409 ? T('Ya existe un registro con esos datos.', 'A record with that data already exists.') :
+      res.status >= 500 ? T('Error del servidor. Inténtalo de nuevo.', 'Server error. Try again.') :
+      T('Algo salió mal. Inténtalo de nuevo.', 'Something went wrong. Try again.');
     const err = new Error((data && data.error) ? data.error : fallback);
     err.status = res.status;
     err.data = data;
@@ -269,13 +269,13 @@ export function avatar(name, sm = false) {
 
 // priority: key → { label, color }  (migracion 005; enum JS, sin CHECK SQL)
 export const PRIORITIES = {
-  baja:    { label: 'Baja',    color: '#64748b' },
-  media:   { label: 'Media',   color: '#3b82f6' },
-  alta:    { label: 'Alta',    color: '#f59e0b' },
-  urgente: { label: 'Urgente', color: '#ef4444' },
+  baja:    { label: 'Baja',    en: 'Low',    color: '#64748b' },
+  media:   { label: 'Media',   en: 'Medium', color: '#3b82f6' },
+  alta:    { label: 'Alta',    en: 'High',   color: '#f59e0b' },
+  urgente: { label: 'Urgente', en: 'Urgent', color: '#ef4444' },
 };
 export const PRIORITY_ORDER = ['baja', 'media', 'alta', 'urgente'];
-export const priorityLabel = (k) => (PRIORITIES[k] && PRIORITIES[k].label) || k || '';
+export const priorityLabel = (k) => pickLbl(PRIORITIES[k]) || k || '';
 
 export function priorityBadge(priority) {
   return el('span', { class: 'priority-badge', 'data-priority': priority }, [
@@ -287,15 +287,15 @@ export function priorityBadge(priority) {
 // Tipos de aviso (mkt_notifications.type) → etiqueta es-MX.
 // El body llega YA resuelto del server; esto es solo para filtros/encabezados.
 export const NOTIF_TYPE_LABELS = {
-  aprobacion:    'Aprobación',
-  cambios:       'Cambios pedidos', // mismo termino que APPROVALS.changes y el boton "Pedir cambios"
-  comentario:    'Comentario',
-  mencion:       'Mención',
-  asignacion:    'Asignación',
-  recordatorio:  'Recordatorio',
-  atrasado:      'Atrasado',
-  revision:      'Revisión del cliente',
-  sin_aprobar:   'Sin aprobar',
-  sistema:       'Aviso',
+  aprobacion:    T('Aprobación', 'Approval'),
+  cambios:       T('Cambios pedidos', 'Changes requested'), // mismo termino que APPROVALS.changes y el boton "Pedir cambios"
+  comentario:    T('Comentario', 'Comment'),
+  mencion:       T('Mención', 'Mention'),
+  asignacion:    T('Asignación', 'Assignment'),
+  recordatorio:  T('Recordatorio', 'Reminder'),
+  atrasado:      T('Atrasado', 'Overdue'),
+  revision:      T('Revisión del cliente', 'Client review'),
+  sin_aprobar:   T('Sin aprobar', 'Not approved'),
+  sistema:       T('Aviso', 'Alert'),
 };
-export const notifTypeLabel = (k) => NOTIF_TYPE_LABELS[k] || 'Aviso';
+export const notifTypeLabel = (k) => NOTIF_TYPE_LABELS[k] || T('Aviso', 'Alert');

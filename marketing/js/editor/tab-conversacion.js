@@ -15,6 +15,7 @@
 
 import { el, api, timeAgo, avatar } from '../api.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 let tmpSeq = 0;
 
@@ -25,10 +26,10 @@ export function mount(host, ed) {
   let sending = false;
 
   const client = ed.getClient();
-  const clientName = (client && client.name) || 'el cliente';
+  const clientName = (client && client.name) || T('el cliente', 'the client');
 
   const root = el('div', { class: 'edtab edtab-conv' });
-  const threadEl = el('div', { class: 'edconv__thread', role: 'log', 'aria-label': 'Conversacion' });
+  const threadEl = el('div', { class: 'edconv__thread', role: 'log', 'aria-label': T('Conversacion', 'Conversation') });
 
   // ── Hilo ───────────────────────────────────────────────────────────────────
   function commentNode(c) {
@@ -41,11 +42,11 @@ export function mount(host, ed) {
       avatar(c.author_name || '?', true),
       el('div', { class: 'edconv__bubble' }, [
         el('div', { class: 'edconv__meta' }, [
-          el('span', { class: 'edconv__author', text: c.author_name || 'Alguien' }),
+          el('span', { class: 'edconv__author', text: c.author_name || T('Alguien', 'Someone') }),
           isInternal
-            ? el('span', { class: 'edconv__tag edconv__tag--internal', text: 'Interno' })
-            : el('span', { class: 'edconv__tag edconv__tag--public' }, [icon('eye', 12), `Visible para ${clientName}`]),
-          el('span', { class: 'edconv__time', text: c._pending ? 'enviando...' : timeAgo(c.created_at) }),
+            ? el('span', { class: 'edconv__tag edconv__tag--internal', text: T('Interno', 'Internal') })
+            : el('span', { class: 'edconv__tag edconv__tag--public' }, [icon('eye', 12), T(`Visible para ${clientName}`, `Visible to ${clientName}`)]),
+          el('span', { class: 'edconv__time', text: c._pending ? T('enviando...', 'sending...') : timeAgo(c.created_at) }),
         ]),
         el('div', { class: 'edconv__body', text: c.body || '' }),
       ]),
@@ -58,7 +59,7 @@ export function mount(host, ed) {
     ed.setTabBadge('conversacion', comments.length ? String(comments.length) : '');
     if (!comments.length) {
       threadEl.appendChild(el('div', { class: 'edconv__empty' }, [
-        el('p', { class: 'muted', text: 'Sin comentarios todavia. Escribe el primero.' }),
+        el('p', { class: 'muted', text: T('Sin comentarios todavia. Escribe el primero.', 'No comments yet. Write the first one.') }),
       ]));
       return;
     }
@@ -80,8 +81,8 @@ export function mount(host, ed) {
   // ── Composer ───────────────────────────────────────────────────────────────
   const ta = el('textarea', {
     class: 'ed-ta edconv__input', rows: '1',
-    placeholder: 'Escribe un comentario...',
-    'aria-label': 'Nuevo comentario',
+    placeholder: T('Escribe un comentario...', 'Write a comment...'),
+    'aria-label': T('Nuevo comentario', 'New comment'),
   });
   const fitTa = () => { ta.style.height = 'auto'; ta.style.height = `${Math.min(Math.max(ta.scrollHeight, 24), 140)}px`; };
   ta.addEventListener('input', fitTa);
@@ -99,19 +100,19 @@ export function mount(host, ed) {
     if (internal) {
       toggleBtn.classList.add('is-internal');
       toggleBtn.classList.remove('is-public');
-      toggleBtn.append(icon('users', 14), el('span', { text: 'Solo equipo' }));
-      toggleBtn.setAttribute('aria-label', 'Visibilidad: solo equipo. Tocar para hacerlo visible al cliente.');
+      toggleBtn.append(icon('users', 14), el('span', { text: T('Solo equipo', 'Team only') }));
+      toggleBtn.setAttribute('aria-label', T('Visibilidad: solo equipo. Tocar para hacerlo visible al cliente.', 'Visibility: team only. Tap to make it visible to the client.'));
     } else {
       toggleBtn.classList.remove('is-internal');
       toggleBtn.classList.add('is-public');
-      toggleBtn.append(icon('eye', 14), el('span', { text: `Visible para ${clientName}` }));
-      toggleBtn.setAttribute('aria-label', `Visibilidad: visible para ${clientName}. Tocar para hacerlo interno.`);
+      toggleBtn.append(icon('eye', 14), el('span', { text: T(`Visible para ${clientName}`, `Visible to ${clientName}`) }));
+      toggleBtn.setAttribute('aria-label', T(`Visibilidad: visible para ${clientName}. Tocar para hacerlo interno.`, `Visibility: visible to ${clientName}. Tap to make it internal.`));
     }
   }
   refreshToggle();
 
   const sendBtn = el('button', {
-    class: 'btn btn-primary edconv__send', type: 'button', 'aria-label': 'Comentar',
+    class: 'btn btn-primary edconv__send', type: 'button', 'aria-label': T('Comentar', 'Comment'),
     onclick: () => send(),
   }, [icon('send', 18)]);
 
@@ -129,7 +130,7 @@ export function mount(host, ed) {
     const tmp = {
       id: `tmp-${++tmpSeq}`,
       post_id: ed.postId,
-      author_name: me.name || me.email || 'Yo',
+      author_name: me.name || me.email || T('Yo', 'Me'),
       author_role: me.role || 'team',
       body,
       internal: internal ? 1 : 0,
@@ -161,7 +162,7 @@ export function mount(host, ed) {
       renderThread();
       ta.value = body;
       fitTa();
-      ctx.toast((e && e.message) || 'No se pudo comentar, intenta de nuevo.', { type: 'error' });
+      ctx.toast((e && e.message) || T('No se pudo comentar, intenta de nuevo.', 'Could not comment, try again.'), { type: 'error' });
     } finally {
       sending = false;
     }

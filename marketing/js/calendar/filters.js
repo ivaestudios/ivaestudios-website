@@ -13,6 +13,7 @@ import {
   STATUSES, STATUS_ORDER,
   CONTENT_TYPES, CONTENT_TYPE_ORDER,
 } from '../api.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import * as calState from './state.js?v=202607181835';
 import { parseFilters } from './data.js?v=202607181835';
 
@@ -24,11 +25,11 @@ import { parseFilters } from './data.js?v=202607181835';
 export function buildControls(ctx) {
   // Segmented Mes / Semana (solo visible >=768px via CSS).
   const segBtns = new Map();
-  const seg = el('div', { class: 'cal-modeseg', role: 'tablist', 'aria-label': 'Modo del calendario' });
+  const seg = el('div', { class: 'cal-modeseg', role: 'tablist', 'aria-label': T('Modo del calendario', 'Calendar mode') });
   for (const m of ['mes', 'semana']) {
     const b = el('button', {
       type: 'button', role: 'tab', class: 'cal-modeseg__btn',
-      text: m === 'mes' ? 'Mes' : 'Semana',
+      text: m === 'mes' ? T('Mes', 'Month') : T('Semana', 'Week'),
       onclick: () => calState.setMode(m),
     });
     segBtns.set(m, b);
@@ -38,7 +39,7 @@ export function buildControls(ctx) {
   // Boton de filtros con badge de activos.
   const filterBadge = el('span', { class: 'cal-ctlbtn__badge', hidden: true });
   const filterBtn = el('button', {
-    class: 'cal-ctlbtn', type: 'button', 'aria-label': 'Filtros',
+    class: 'cal-ctlbtn', type: 'button', 'aria-label': T('Filtros', 'Filters'),
     onclick: () => openFiltersSheet(ctx, { anchor: filterBtn }),
   }, [ctx.icons('filter', 20), filterBadge]);
 
@@ -46,7 +47,7 @@ export function buildControls(ctx) {
   const backlogBadge = el('span', { class: 'cal-ctlbtn__badge', hidden: true });
   const backlogBtn = el('button', {
     class: 'cal-ctlbtn cal-ctlbtn--backlog', type: 'button',
-    'aria-label': 'Mostrar u ocultar el backlog sin fecha',
+    'aria-label': T('Mostrar u ocultar el backlog sin fecha', 'Show or hide the unscheduled backlog'),
     onclick: () => calState.setBacklogOpen(!calState.get().backlogOpen),
   }, [ctx.icons('inbox', 20), backlogBadge]);
 
@@ -99,12 +100,12 @@ export function openFiltersSheet(ctx, { anchor = null } = {}) {
   };
 
   ctx.sheet.openSheet({
-    title: 'Filtros',
+    title: T('Filtros', 'Filters'),
     mode: 'form',
     anchor,
     build(body, close) {
       // Estado (multi).
-      const estadoWrap = el('div', { class: 'cal-fchips', role: 'group', 'aria-label': 'Filtrar por estado' });
+      const estadoWrap = el('div', { class: 'cal-fchips', role: 'group', 'aria-label': T('Filtrar por estado', 'Filter by status') });
       for (const s of STATUS_ORDER || []) {
         const info = (STATUSES && STATUSES[s]) || { label: s };
         estadoWrap.appendChild(chipBtn(info.label || s, info.color || null, draft.estado.has(s), (on) => {
@@ -113,7 +114,7 @@ export function openFiltersSheet(ctx, { anchor = null } = {}) {
       }
 
       // Tipo (multi).
-      const tipoWrap = el('div', { class: 'cal-fchips', role: 'group', 'aria-label': 'Filtrar por tipo' });
+      const tipoWrap = el('div', { class: 'cal-fchips', role: 'group', 'aria-label': T('Filtrar por tipo', 'Filter by type') });
       for (const t of CONTENT_TYPE_ORDER || []) {
         const info = (CONTENT_TYPES && CONTENT_TYPES[t]) || { label: t };
         tipoWrap.appendChild(chipBtn(info.label || t, info.color || null, draft.tipo.has(t), (on) => {
@@ -122,7 +123,7 @@ export function openFiltersSheet(ctx, { anchor = null } = {}) {
       }
 
       // Persona (single, via pickPerson).
-      const personaTxt = el('span', { class: 'qc-rowbtn__txt', text: draft.persona || 'Cualquier persona' });
+      const personaTxt = el('span', { class: 'qc-rowbtn__txt', text: draft.persona || T('Cualquier persona', 'Anyone') });
       const personaBtn = el('button', { class: 'qc-rowbtn', type: 'button' }, [
         ctx.icons('user', 18), personaTxt, ctx.icons('down', 14),
       ]);
@@ -132,34 +133,34 @@ export function openFiltersSheet(ctx, { anchor = null } = {}) {
           current: draft.persona,
           users: users || [],
           anchor: personaBtn,
-          title: 'Filtrar por responsable',
+          title: T('Filtrar por responsable', 'Filter by assignee'),
         });
         if (picked === null) return;
         draft.persona = picked.name || '';
-        personaTxt.textContent = draft.persona || 'Cualquier persona';
+        personaTxt.textContent = draft.persona || T('Cualquier persona', 'Anyone');
       });
 
       // Rango de fechas.
-      const desdeIn = el('input', { class: 'input cal-fdate', type: 'date', 'aria-label': 'Desde' });
+      const desdeIn = el('input', { class: 'input cal-fdate', type: 'date', 'aria-label': T('Desde', 'From') });
       if (draft.desde) desdeIn.value = draft.desde;
       desdeIn.addEventListener('change', () => { draft.desde = desdeIn.value || ''; });
-      const hastaIn = el('input', { class: 'input cal-fdate', type: 'date', 'aria-label': 'Hasta' });
+      const hastaIn = el('input', { class: 'input cal-fdate', type: 'date', 'aria-label': T('Hasta', 'To') });
       if (draft.hasta) hastaIn.value = draft.hasta;
       hastaIn.addEventListener('change', () => { draft.hasta = hastaIn.value || ''; });
 
       // Footer: limpiar / aplicar.
       const clearBtn = el('button', {
-        class: 'btn', type: 'button', text: 'Limpiar',
+        class: 'btn', type: 'button', text: T('Limpiar', 'Clear'),
         onclick: () => {
           close({ source: 'clear' });
           applyToUrl(ctx, { estado: [], tipo: [], persona: '', desde: '', hasta: '' });
         },
       });
       const applyBtn = el('button', {
-        class: 'btn btn-primary sheet-cta', type: 'button', text: 'Aplicar',
+        class: 'btn btn-primary sheet-cta', type: 'button', text: T('Aplicar', 'Apply'),
         onclick: () => {
           if (draft.desde && draft.hasta && draft.hasta < draft.desde) {
-            ctx.toast('El rango de fechas esta invertido: revisa Desde y Hasta.', { type: 'error' });
+            ctx.toast(T('El rango de fechas esta invertido: revisa Desde y Hasta.', 'The date range is reversed: check From and To.'), { type: 'error' });
             return;
           }
           close({ source: 'apply' });
@@ -174,14 +175,14 @@ export function openFiltersSheet(ctx, { anchor = null } = {}) {
       });
 
       body.append(
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Estado' }), estadoWrap]),
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Tipo de contenido' }), tipoWrap]),
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Responsable' }), personaBtn]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Estado', 'Status') }), estadoWrap]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Tipo de contenido', 'Content type') }), tipoWrap]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Responsable', 'Assignee') }), personaBtn]),
         el('div', { class: 'field' }, [
-          el('label', { class: 'label', text: 'Rango de fechas' }),
+          el('label', { class: 'label', text: T('Rango de fechas', 'Date range') }),
           el('div', { class: 'cal-fdates' }, [
             desdeIn,
-            el('span', { class: 'cal-fdates__sep', text: 'a' }),
+            el('span', { class: 'cal-fdates__sep', text: T('a', 'to') }),
             hastaIn,
           ]),
         ]),

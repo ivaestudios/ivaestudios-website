@@ -565,24 +565,24 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
   width:112%;height:112%;max-width:none;
   object-fit:cover;object-position:center 30%;
   display:block;
-  filter:brightness(.72) saturate(.88) contrast(1.03);
+  filter:brightness(.97) saturate(1) contrast(1.02);
   transform:translateZ(-200px) scale(1.08);
   transition:filter 1.4s var(--ease);
   will-change:transform;
 }
 @media (max-width:768px){
-  .ch-photo{filter:brightness(.78) saturate(.92) contrast(1.02);object-position:center 30%}
+  .ch-photo{filter:brightness(.98) saturate(1) contrast(1.01);object-position:center 30%}
 }
 .ch-photo-scrim{
   position:absolute;inset:-6%;
   pointer-events:none;
   z-index:1;
   background:
-    linear-gradient(180deg,rgba(10,15,23,.12) 0%,transparent 25%,transparent 55%,rgba(10,15,23,.78) 100%);
+    linear-gradient(180deg,rgba(10,15,23,.05) 0%,transparent 22%,transparent 60%,rgba(10,15,23,.45) 100%);
 }
 @media (max-width:768px){
   .ch-photo-scrim{
-    background:linear-gradient(180deg,rgba(10,15,23,.05) 0%,transparent 30%,transparent 55%,rgba(10,15,23,.82) 100%);
+    background:linear-gradient(180deg,rgba(10,15,23,.03) 0%,transparent 30%,transparent 58%,rgba(10,15,23,.55) 100%);
   }
 }
 /* Mid layer for parallax (animation #8) */
@@ -599,8 +599,8 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
   position:absolute;inset:0;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='1'/%3E%3C/svg%3E");
   background-size:160px 160px;
-  opacity:.06;
-  mix-blend-mode:overlay;
+  opacity:0;
+  mix-blend-mode:overlay;display:none;
   pointer-events:none;
 }
 
@@ -844,7 +844,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
     flex:0 0 60svh !important;
   }
   .ch-photo{
-    filter:brightness(0.94) saturate(1) contrast(1.02) !important;
+    filter:brightness(1) saturate(1) contrast(1.01) !important;
     transform:none !important;
     will-change:auto !important;
     object-position:center 30% !important;
@@ -2837,7 +2837,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 <!-- LCP hero preload, matches <picture> element srcset to avoid duplicate downloads -->
 <link rel="preload" as="image" imagesrcset="/images/portrait-jungle-cancun-ivae-studios-v2-960.jpg 960w, /images/portrait-jungle-cancun-ivae-studios-v2-1600.jpg 1600w, /images/portrait-jungle-cancun-ivae-studios-v2-2400.jpg 2400w, /images/portrait-jungle-cancun-ivae-studios-v2-3840.jpg 3840w, /images/portrait-jungle-cancun-ivae-studios-v2-5120.jpg 5120w" imagesizes="100vw" fetchpriority="high">
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260531a">
-<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260627a">
+<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260716b">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"ImageObject","@id":"https://ivaestudios.com/#hero-image","contentUrl":"https://assets.ivaestudios.com/ivae-og.jpg","url":"https://assets.ivaestudios.com/ivae-og.jpg","name":"IVAE Studios, Luxury Resort Photography in Cancún, Riviera Maya, Los Cabos","description":"Editorial luxury photography for destination weddings, families, and couples across Mexico's Caribbean and Pacific coasts. Bilingual studio, golden hour only.","creator":{"@id":"https://ivaestudios.com/#vianey-diaz"},"copyrightHolder":{"@id":"https://ivaestudios.com/#organization"},"creditText":"IVAE Studios","copyrightNotice":"© IVAE Studios. All rights reserved.","license":"https://ivaestudios.com/about","acquireLicensePage":"https://ivaestudios.com/contact","representativeOfPage":true,"inLanguage":"en"}</script>
 </head>
 <body class="has-bottom-tabs ivm-page">

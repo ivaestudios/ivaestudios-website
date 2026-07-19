@@ -7,6 +7,7 @@
 // ============================================================================
 
 import { el } from '../api.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import {
   fmtYMD, addDays, startOfWeek, todayYMD, DOW_SHORT, buildPostCard,
 } from './data.js?v=202607181835';
@@ -24,7 +25,7 @@ export function renderWeek(mainEl, ctx, { cursor, byDay, clientsById, isTodos, d
   const today = todayYMD();
   const clientOf = (p) => (isTodos ? clientsById.get(p.client_id) || null : null);
 
-  const grid = el('div', { class: 'cal-week', role: 'grid', 'aria-label': 'Semana' });
+  const grid = el('div', { class: 'cal-week', role: 'grid', 'aria-label': T('Semana', 'Week') });
 
   for (let i = 0; i < 7; i++) {
     const d = addDays(start, i);
@@ -49,15 +50,15 @@ export function renderWeek(mainEl, ctx, { cursor, byDay, clientsById, isTodos, d
 
     const addBtn = el('button', {
       class: 'cal-wcol__add', type: 'button',
-      'aria-label': `Crear contenido el ${day}`,
+      'aria-label': `${T('Crear contenido el', 'Create content on')} ${day}`,
       onclick: (e) => { e.stopPropagation(); openQuickCreate(ctx, { date: day }); },
-    }, [ctx.icons('plus', 16), el('span', { text: 'Crear' })]);
+    }, [ctx.icons('plus', 16), el('span', { text: T('Crear', 'Create') })]);
     body.appendChild(addBtn);
 
     const col = el('div', {
       class: 'cal-wcol' + (isToday ? ' is-today' : ''),
       role: 'gridcell',
-      'aria-label': `${DOW_SHORT[i]} ${d.getDate()}, ${posts.length} contenido${posts.length === 1 ? '' : 's'}`,
+      'aria-label': `${DOW_SHORT[i]} ${d.getDate()}, ${posts.length} ${posts.length === 1 ? T('contenido', 'item') : T('contenidos', 'items')}`,
     }, [head, body]);
     markDropTarget(col, day);
 

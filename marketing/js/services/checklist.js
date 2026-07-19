@@ -32,11 +32,12 @@
 import { api } from '../api.js?v=202607181835';
 import { toast } from '../shell/toast.js?v=202607181835';
 import * as store from '../shell/store.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 const ITEMS_TTL = 30000;
 const COUNTS_TTL = 60000;
 const POS_STEP = 1000;
-const ERR_SAVE = 'No se pudo guardar, intenta de nuevo.';
+const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', "Couldn't save, try again.");
 
 let available = true;
 
@@ -171,7 +172,7 @@ export async function setDone(postId, itemId, done) {
     adjustCounts(postId, done ? -1 : +1, 0);
     emitChanged(postId);
     if (is404(e)) {
-      toast('Ese pendiente ya no existe.', { type: 'error' });
+      toast(T('Ese pendiente ya no existe.', 'That to-do no longer exists.'), { type: 'error' });
       list(postId, { force: true });
     } else {
       toast((e && e.message) || ERR_SAVE, { type: 'error' });
@@ -195,7 +196,7 @@ export async function rename(postId, itemId, text) {
     cacheSet(postId, prev);
     emitChanged(postId);
     if (is404(e)) {
-      toast('Ese pendiente ya no existe.', { type: 'error' });
+      toast(T('Ese pendiente ya no existe.', 'That to-do no longer exists.'), { type: 'error' });
       list(postId, { force: true });
     } else {
       toast((e && e.message) || ERR_SAVE, { type: 'error' });
@@ -226,7 +227,7 @@ export async function remove(postId, itemId) {
     cacheSet(postId, prev);
     adjustCounts(postId, target.done ? +1 : 0, +1);
     emitChanged(postId);
-    toast((e && e.message) || 'No se pudo eliminar.', { type: 'error' });
+    toast((e && e.message) || T('No se pudo eliminar.', "Couldn't delete."), { type: 'error' });
     return false;
   }
 }

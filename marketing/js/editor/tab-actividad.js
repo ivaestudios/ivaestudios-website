@@ -18,24 +18,25 @@
 
 import { el, api, statusLabel, fmtDateTime, avatar } from '../api.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 const PAGE = 40;
 
 // Verbos del feed en es-MX (espejo de logActivity del backend).
 const ACTION_LABELS = {
-  'post.create': 'creo el contenido',
-  'post.update': 'edito el contenido',
-  'status.change': 'movio el estado',
-  'post.comment': 'comento',
-  'post.approve': 'aprobo',
-  'post.request_changes': 'pidio cambios',
-  'post.delete': 'elimino el contenido',
-  'post.duplicate': 'duplico el contenido',
-  'post.reorder': 'reordeno contenidos',
-  'post.bulk_update': 'edito en lote',
-  'checklist.add': 'agrego un paso a la checklist',
-  'checklist.done': 'completo un paso de la checklist',
-  'checklist.delete': 'elimino un paso de la checklist',
+  'post.create': T('creo el contenido', 'created the content'),
+  'post.update': T('edito el contenido', 'edited the content'),
+  'status.change': T('movio el estado', 'moved the status'),
+  'post.comment': T('comento', 'commented'),
+  'post.approve': T('aprobo', 'approved'),
+  'post.request_changes': T('pidio cambios', 'requested changes'),
+  'post.delete': T('elimino el contenido', 'deleted the content'),
+  'post.duplicate': T('duplico el contenido', 'duplicated the content'),
+  'post.reorder': T('reordeno contenidos', 'reordered content'),
+  'post.bulk_update': T('edito en lote', 'bulk-edited'),
+  'checklist.add': T('agrego un paso a la checklist', 'added a checklist step'),
+  'checklist.done': T('completo un paso de la checklist', 'completed a checklist step'),
+  'checklist.delete': T('elimino un paso de la checklist', 'deleted a checklist step'),
 };
 
 function toDate(iso) {
@@ -46,19 +47,19 @@ function toDate(iso) {
 
 function dayKey(iso) {
   const d = toDate(iso);
-  if (!d) return 'Sin fecha';
-  return d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+  if (!d) return T('Sin fecha', 'No date');
+  return d.toLocaleDateString(T('es-MX', 'en-US'), { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
 function timeOf(iso) {
   const d = toDate(iso);
-  return d ? d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : '';
+  return d ? d.toLocaleTimeString(T('es-MX', 'en-US'), { hour: '2-digit', minute: '2-digit' }) : '';
 }
 
 /** "guion→grabacion" -> "Guion -> Grabacion" con labels bonitos. */
 function statusChangeText(detail) {
   const parts = String(detail || '').split('→').map((s) => s.trim());
-  if (parts.length === 2) return `${statusLabel(parts[0])} a ${statusLabel(parts[1])}`;
+  if (parts.length === 2) return `${statusLabel(parts[0])} ${T('a', 'to')} ${statusLabel(parts[1])}`;
   return String(detail || '');
 }
 
@@ -74,11 +75,11 @@ export function mount(host, ed) {
   const root = el('div', { class: 'edtab edtab-actividad' });
 
   // ── Chips de filtro ────────────────────────────────────────────────────────
-  const chipsEl = el('div', { class: 'edact__chips', role: 'tablist', 'aria-label': 'Filtro de actividad' });
+  const chipsEl = el('div', { class: 'edact__chips', role: 'tablist', 'aria-label': T('Filtro de actividad', 'Activity filter') });
   const CHIPS = [
-    { key: 'todo', label: 'Todo' },
-    { key: 'decisiones', label: 'Decisiones' },
-    { key: 'estados', label: 'Cambios de estado' },
+    { key: 'todo', label: T('Todo', 'All') },
+    { key: 'decisiones', label: T('Decisiones', 'Decisions') },
+    { key: 'estados', label: T('Cambios de estado', 'Status changes') },
   ];
   for (const c of CHIPS) {
     chipsEl.appendChild(el('button', {
@@ -90,7 +91,7 @@ export function mount(host, ed) {
 
   const listEl = el('div', { class: 'edact__list' });
   const moreBtn = el('button', {
-    class: 'btn edact__more', type: 'button', text: 'Cargar mas', hidden: true,
+    class: 'btn edact__more', type: 'button', text: T('Cargar mas', 'Load more'), hidden: true,
     onclick: () => { limit += PAGE; load(); },
   });
 
@@ -103,7 +104,7 @@ export function mount(host, ed) {
       out.push({
         kind: 'approval',
         id: `ap-${a.id}`,
-        actor: a.actor_name || 'Cliente',
+        actor: a.actor_name || T('Cliente', 'Client'),
         decision: a.decision,
         comment: a.comment,
         created_at: a.created_at,
@@ -115,7 +116,7 @@ export function mount(host, ed) {
       out.push({
         kind: 'activity',
         id: `ac-${a.id}`,
-        actor: a.actor_name || 'Alguien',
+        actor: a.actor_name || T('Alguien', 'Someone'),
         action: a.action,
         detail: a.detail,
         created_at: a.created_at,
@@ -134,7 +135,7 @@ export function mount(host, ed) {
       const ok = e.decision === 'approved';
       line = el('span', { class: 'edact__line' }, [
         el('b', { text: e.actor }),
-        ` ${ok ? 'aprobo este contenido' : 'pidio cambios'}`,
+        ` ${ok ? T('aprobo este contenido', 'approved this content') : T('pidio cambios', 'requested changes')}`,
       ]);
       if (e.comment) {
         detailNode = el('blockquote', { class: 'edact__quote', text: e.comment });
@@ -184,7 +185,7 @@ export function mount(host, ed) {
     if (loading && !loaded) {
       listEl.appendChild(el('div', { class: 'edact__loading' }, [
         el('span', { class: 'spinner', 'aria-hidden': 'true' }),
-        el('span', { class: 'muted', text: 'Cargando actividad' }),
+        el('span', { class: 'muted', text: T('Cargando actividad', 'Loading activity') }),
       ]));
       return;
     }
@@ -192,7 +193,7 @@ export function mount(host, ed) {
     const entries = mergedEntries();
     if (!entries.length) {
       listEl.appendChild(el('div', { class: 'edconv__empty' }, [
-        el('p', { class: 'muted', text: filter === 'todo' ? 'Sin actividad todavia.' : 'Nada con este filtro.' }),
+        el('p', { class: 'muted', text: filter === 'todo' ? T('Sin actividad todavia.', 'No activity yet.') : T('Nada con este filtro.', 'Nothing with this filter.') }),
       ]));
       moreBtn.hidden = !hasMore;
       return;

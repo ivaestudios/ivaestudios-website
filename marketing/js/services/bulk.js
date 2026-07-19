@@ -34,10 +34,11 @@ import { api } from '../api.js?v=202607181835';
 import { toast } from '../shell/toast.js?v=202607181835';
 import * as store from '../shell/store.js?v=202607181835';
 import { addDaysISO } from '../lib/dates.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 const BULK_UPDATE_ENDPOINT = '/posts/bulk-update';
 const BULK_DELETE_ENDPOINT = '/posts/bulk-delete';
-const ERR_SAVE = 'No se pudo guardar, intenta de nuevo.';
+const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', "Couldn't save, try again.");
 
 /**
  * El backend viejo no tiene /posts/bulk-*: 404/405/501 activan el fallback.
@@ -163,7 +164,7 @@ async function pushUpdates(updates) {
     if (firstError && !okPosts.length) throw firstError;
     if (firstError) {
       // Exito parcial: avisa pero no revierte lo que si entro.
-      toast('Algunos contenidos no se pudieron actualizar.', { type: 'error' });
+      toast(T('Algunos contenidos no se pudieron actualizar.', "Some items couldn't be updated."), { type: 'error' });
     }
     return okPosts;
   }
@@ -232,7 +233,7 @@ async function applySnapshot(snapshot) {
     return true;
   } catch (e) {
     rollback();
-    toast((e && e.message) || 'No se pudo deshacer.', { type: 'error' });
+    toast((e && e.message) || T('No se pudo deshacer.', "Couldn't undo."), { type: 'error' });
     return false;
   }
 }
@@ -270,7 +271,7 @@ export async function bulkShiftDates(ids, days) {
     if (moved) updates.push({ id: p.id, publish_date: moved });
   }
   if (!updates.length) {
-    toast('Esos contenidos no tienen fecha que mover.', { type: 'info' });
+    toast(T('Esos contenidos no tienen fecha que mover.', 'Those items have no date to move.'), { type: 'info' });
     return { ok: false, count: 0 };
   }
   const ok = await store.reorder(updates);
@@ -301,7 +302,7 @@ export async function bulkDelete(ids) {
       );
       const failed = results.filter((r) => r.status === 'rejected');
       if (failed.length === results.length) throw failed[0].reason;
-      if (failed.length) toast('Algunos contenidos no se pudieron eliminar.', { type: 'error' });
+      if (failed.length) toast(T('Algunos contenidos no se pudieron eliminar.', "Some items couldn't be deleted."), { type: 'error' });
     }
     deselect(list);
     for (const id of list) store.emit('post:deleted', { id });
@@ -309,7 +310,7 @@ export async function bulkDelete(ids) {
     return { ok: true, count: list.length };
   } catch (e) {
     rollback();
-    toast((e && e.message) || 'No se pudo eliminar.', { type: 'error' });
+    toast((e && e.message) || T('No se pudo eliminar.', "Couldn't delete."), { type: 'error' });
     return { ok: false, count: 0 };
   }
 }
@@ -347,7 +348,7 @@ export async function bulkDuplicate(ids) {
         }
       }
       if (firstError && !created.length) throw firstError;
-      if (firstError) toast('Algunos contenidos no se pudieron duplicar.', { type: 'error' });
+      if (firstError) toast(T('Algunos contenidos no se pudieron duplicar.', "Some items couldn't be duplicated."), { type: 'error' });
     } catch (e) {
       if (!isMissingEndpoint(e)) throw e;
       // Fallback v1: POST /posts con una copia por cada post en memoria.
@@ -360,7 +361,7 @@ export async function bulkDuplicate(ids) {
         for (const k of DUP_FIELDS) {
           if (src[k] !== undefined && src[k] !== null) body[k] = src[k];
         }
-        body.title = `${src.title || 'Sin titulo'} (copia)`;
+        body.title = `${src.title || T('Sin titulo', 'Untitled')} ${T('(copia)', '(copy)')}`;
         return api.post('/posts', body);
       }));
       created = [];
@@ -374,7 +375,7 @@ export async function bulkDuplicate(ids) {
         }
       }
       if (firstError && !created.length) throw firstError;
-      if (firstError) toast('Algunos contenidos no se pudieron duplicar.', { type: 'error' });
+      if (firstError) toast(T('Algunos contenidos no se pudieron duplicar.', "Some items couldn't be duplicated."), { type: 'error' });
     }
     for (const p of created) {
       store.upsertPost(p);
@@ -383,7 +384,7 @@ export async function bulkDuplicate(ids) {
     emitChanged();
     return { ok: true, created };
   } catch (e) {
-    toast((e && e.message) || 'No se pudo duplicar.', { type: 'error' });
+    toast((e && e.message) || T('No se pudo duplicar.', "Couldn't duplicate."), { type: 'error' });
     return { ok: false, created: [] };
   }
 }

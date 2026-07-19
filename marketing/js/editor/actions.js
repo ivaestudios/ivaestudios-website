@@ -13,6 +13,7 @@
 // ============================================================================
 
 import { el, api, copyText } from '../api.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import { icon } from '../shell/icons.js?v=202607181835';
 import { openSheet } from '../shell/sheet.js?v=202607181835';
 import * as store from '../shell/store.js?v=202607181835';
@@ -31,7 +32,7 @@ const SCRIPT_FIELDS = ['hook', 'body', 'cta', 'caption', 'hashtags'];
 // ── Menu principal ───────────────────────────────────────────────────────────
 export function openActionsMenu(ed, anchor) {
   openSheet({
-    title: 'Acciones',
+    title: T('Acciones', 'Actions'),
     mode: 'menu',
     anchor,
     build(body, close) {
@@ -44,9 +45,9 @@ export function openActionsMenu(ed, anchor) {
       ]);
 
       body.appendChild(el('div', { class: 'pick-list' }, [
-        mk('Duplicar', 'copy', () => openDuplicateSheet(ed)),
-        mk('Copiar enlace', 'link', () => copyDeepLink(ed)),
-        mk('Eliminar', 'trash', () => openDeleteConfirm(ed), true),
+        mk(T('Duplicar', 'Duplicate'), 'copy', () => openDuplicateSheet(ed)),
+        mk(T('Copiar enlace', 'Copy link'), 'link', () => copyDeepLink(ed)),
+        mk(T('Eliminar', 'Delete'), 'trash', () => openDeleteConfirm(ed), true),
       ]));
     },
   });
@@ -60,7 +61,7 @@ export async function copyDeepLink(ed) {
     : '';
   const link = `${location.origin}${location.pathname}#/post/${encodeURIComponent(ed.postId)}${qs}`;
   const ok = await copyText(link);
-  ed.ctx.toast(ok ? 'Enlace copiado.' : 'No se pudo copiar el enlace.', { type: ok ? 'success' : 'error' });
+  ed.ctx.toast(ok ? T('Enlace copiado.', 'Link copied.') : T('No se pudo copiar el enlace.', 'Could not copy the link.'), { type: ok ? 'success' : 'error' });
 }
 
 // ── Duplicar ─────────────────────────────────────────────────────────────────
@@ -68,7 +69,7 @@ export function openDuplicateSheet(ed) {
   const post = ed.getPost();
 
   openSheet({
-    title: 'Duplicar contenido',
+    title: T('Duplicar contenido', 'Duplicate content'),
     mode: 'form',
     build(body, close) {
       let withChecklist = cl.isAvailable();
@@ -97,12 +98,12 @@ export function openDuplicateSheet(ed) {
       }
 
       const rows = [
-        switchRow('Incluir checklist', 'Los pasos se copian sin completar', () => withChecklist, (v) => { withChecklist = v; }),
-        switchRow('Incluir guion y caption', 'HOOK, BODY, CTA, caption y hashtags', () => withScript, (v) => { withScript = v; }),
+        switchRow(T('Incluir checklist', 'Include checklist'), T('Los pasos se copian sin completar', 'Steps are copied unchecked'), () => withChecklist, (v) => { withChecklist = v; }),
+        switchRow(T('Incluir guion y caption', 'Include script and caption'), T('HOOK, BODY, CTA, caption y hashtags', 'HOOK, BODY, CTA, caption and hashtags'), () => withScript, (v) => { withScript = v; }),
       ];
 
       const dupBtn = el('button', {
-        class: 'btn btn-primary sheet-cta', type: 'button', text: 'Duplicar',
+        class: 'btn btn-primary sheet-cta', type: 'button', text: T('Duplicar', 'Duplicate'),
         onclick: async () => {
           if (busy) return;
           busy = true;
@@ -112,9 +113,9 @@ export function openDuplicateSheet(ed) {
           busy = false;
           if (created) {
             close({ source: 'done' });
-            ed.ctx.toast('Contenido duplicado.', {
+            ed.ctx.toast(T('Contenido duplicado.', 'Content duplicated.'), {
               type: 'success',
-              action: { label: 'Abrir', onAction: () => ed.ctx.openEditor(created.id, { tab: 'contenido' }) },
+              action: { label: T('Abrir', 'Open'), onAction: () => ed.ctx.openEditor(created.id, { tab: 'contenido' }) },
             });
           }
         },
@@ -122,9 +123,9 @@ export function openDuplicateSheet(ed) {
 
       body.append(
         el('div', { class: 'edsection__rows' }, rows),
-        el('p', { class: 'help', text: 'El duplicado nace en Idea, sin fecha y con aprobacion pendiente. No copia comentarios ni aprobaciones.' }),
+        el('p', { class: 'help', text: T('El duplicado nace en Idea, sin fecha y con aprobacion pendiente. No copia comentarios ni aprobaciones.', 'The duplicate starts in Idea, with no date and pending approval. Comments and approvals are not copied.') }),
         el('div', { class: 'sheet__footer' }, [
-          el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
+          el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
           dupBtn,
         ]),
       );
@@ -153,7 +154,7 @@ async function duplicatePost(ed, { withChecklist, withScript }) {
     }
   } catch (e) {
     if (!isMissingEndpoint(e)) {
-      ed.ctx.toast((e && e.message) || 'No se pudo duplicar.', { type: 'error' });
+      ed.ctx.toast((e && e.message) || T('No se pudo duplicar.', 'Could not duplicate.'), { type: 'error' });
       return null;
     }
     // 2) Fallback backend viejo: copia client-side.
@@ -161,7 +162,7 @@ async function duplicatePost(ed, { withChecklist, withScript }) {
 
   const data = {
     client_id: src.client_id,
-    title: `${src.title || 'Sin titulo'} (copia)`,
+    title: `${src.title || T('Sin titulo', 'Untitled')} ${T('(copia)', '(copy)')}`,
     status: 'idea',
   };
   for (const f of COPY_FIELDS) {
@@ -194,11 +195,11 @@ async function duplicatePost(ed, { withChecklist, withScript }) {
 export function openDeleteConfirm(ed) {
   const post = ed.getPost();
   openSheet({
-    title: 'Eliminar contenido',
+    title: T('Eliminar contenido', 'Delete content'),
     mode: 'form',
     build(body, close) {
       const delBtn = el('button', {
-        class: 'btn btn-danger sheet-cta', type: 'button', text: 'Eliminar definitivamente',
+        class: 'btn btn-danger sheet-cta', type: 'button', text: T('Eliminar definitivamente', 'Delete permanently'),
         onclick: async () => {
           // Cierra el sheet ANTES de navegar (su capa de history se consume
           // primero y el goBack del editor no choca con ella).
@@ -209,20 +210,20 @@ export function openDeleteConfirm(ed) {
             // (Solo tras el ok: si el DELETE falla y el post revive, los
             // cambios sin guardar se conservan en vez de perderse en silencio.)
             ed.discardChanges();
-            ed.ctx.toast('Contenido eliminado.', { type: 'success' });
+            ed.ctx.toast(T('Contenido eliminado.', 'Content deleted.'), { type: 'success' });
             ed.forceClose(); // idempotente: el evento post:deleted ya pudo cerrar
           }
         },
       });
       body.append(
         el('p', { class: 'ed-confirm__text' }, [
-          'Se eliminara ',
-          el('b', { text: post.title || 'este contenido' }),
-          ' con sus comentarios, checklist y aprobaciones.',
+          T('Se eliminara ', 'This will delete '),
+          el('b', { text: post.title || T('este contenido', 'this content') }),
+          T(' con sus comentarios, checklist y aprobaciones.', ' along with its comments, checklist and approvals.'),
         ]),
-        el('p', { class: 'help', text: 'Esta accion no se puede deshacer.' }),
+        el('p', { class: 'help', text: T('Esta accion no se puede deshacer.', 'This action cannot be undone.') }),
         el('div', { class: 'sheet__footer' }, [
-          el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
+          el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
           delBtn,
         ]),
       );

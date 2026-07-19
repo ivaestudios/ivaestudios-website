@@ -10,6 +10,7 @@
 // ============================================================================
 
 import { el } from '../api.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import { buildPostCard } from './data.js?v=202607181835';
 import { cardDraggable, openCardMenu, reschedule, markDropTarget } from './dnd.js?v=202607181835';
 import { openQuickCreate } from './quickcreate.js?v=202607181835';
@@ -26,10 +27,10 @@ export function renderBacklog(asideEl, ctx, { posts, clientsById, isTodos, dispo
 
   const head = el('div', { class: 'bk-head' }, [
     ctx.icons('inbox', 18),
-    el('h2', { class: 'bk-title', text: 'Sin fecha' }),
+    el('h2', { class: 'bk-title', text: T('Sin fecha', 'No date') }),
     posts.length ? el('span', { class: 'bk-count', text: String(posts.length) }) : null,
     el('button', {
-      class: 'bk-close', type: 'button', 'aria-label': 'Cerrar backlog',
+      class: 'bk-close', type: 'button', 'aria-label': T('Cerrar backlog', 'Close backlog'),
       onclick: () => calState.setBacklogOpen(false),
     }, [ctx.icons('close', 16)]),
   ]);
@@ -37,18 +38,18 @@ export function renderBacklog(asideEl, ctx, { posts, clientsById, isTodos, dispo
   // El cuerpo es drop target: soltar una tarjeta aqui le quita la fecha.
   const body = el('div', {
     class: 'bk-body',
-    'aria-label': 'Backlog sin fecha, suelta aqui para quitar la fecha',
+    'aria-label': T('Backlog sin fecha, suelta aqui para quitar la fecha', 'Unscheduled backlog, drop here to remove the date'),
   });
   markDropTarget(body, '');
 
   if (!posts.length) {
     body.appendChild(el('div', { class: 'bk-empty' }, [
       ctx.icons('inbox', 24),
-      el('p', { text: 'No hay contenidos sin fecha.' }),
-      el('p', { class: 'bk-empty__hint', text: 'Arrastra una tarjeta del calendario hasta aqui para quitarle la fecha.' }),
+      el('p', { text: T('No hay contenidos sin fecha.', 'No unscheduled content.') }),
+      el('p', { class: 'bk-empty__hint', text: T('Arrastra una tarjeta del calendario hasta aqui para quitarle la fecha.', 'Drag a card from the calendar here to remove its date.') }),
     ]));
   } else {
-    body.appendChild(el('p', { class: 'bk-hint', text: 'Arrastra una tarjeta a un dia del calendario para programarla.' }));
+    body.appendChild(el('p', { class: 'bk-hint', text: T('Arrastra una tarjeta a un dia del calendario para programarla.', 'Drag a card onto a calendar day to schedule it.') }));
     for (const p of posts) {
       const card = buildPostCard(ctx, p, {
         client: clientOf(p),
@@ -58,16 +59,16 @@ export function renderBacklog(asideEl, ctx, { posts, clientsById, isTodos, dispo
       // Fallback visible sin drag: Programar via pickDate.
       const schedule = el('button', {
         class: 'bk-schedule', type: 'button',
-        'aria-label': `Programar ${p.title || 'contenido'}`,
+        'aria-label': `${T('Programar', 'Schedule')} ${p.title || T('contenido', 'content')}`,
         onclick: async (e) => {
           e.stopPropagation();
           const picked = await ctx.pickers.pickDate({
-            current: null, title: 'Programar para', allowClear: false, anchor: schedule,
+            current: null, title: T('Programar para', 'Schedule for'), allowClear: false, anchor: schedule,
           });
           if (picked === null || picked === '') return;
           reschedule(ctx, p.id, picked, '');
         },
-      }, [ctx.icons('calendar', 16), el('span', { text: 'Programar' })]);
+      }, [ctx.icons('calendar', 16), el('span', { text: T('Programar', 'Schedule') })]);
       card.appendChild(schedule);
 
       body.appendChild(card);
@@ -79,7 +80,7 @@ export function renderBacklog(asideEl, ctx, { posts, clientsById, isTodos, dispo
     el('button', {
       class: 'btn bk-new', type: 'button',
       onclick: () => openQuickCreate(ctx, { date: '' }),
-    }, [ctx.icons('plus', 16), 'Nuevo sin fecha']),
+    }, [ctx.icons('plus', 16), T('Nuevo sin fecha', 'New without date')]),
   ]);
 
   asideEl.append(head, body, foot);

@@ -8,6 +8,7 @@
 // ============================================================================
 
 import { el, statusBadge, chip, STATUSES, CONTENT_TYPES } from '../api.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 
 // ── Fechas ───────────────────────────────────────────────────────────────────
 
@@ -73,12 +74,12 @@ export function monthMatrix(cursor) {
 
 // ── Formato es-MX ────────────────────────────────────────────────────────────
 
-export const DOW_SHORT = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
-export const DOW_MIN = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+export const DOW_SHORT = T(['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'], ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
+export const DOW_MIN = T(['L', 'M', 'M', 'J', 'V', 'S', 'D'], ['M', 'T', 'W', 'T', 'F', 'S', 'S']);
 
-const FMT_MONTH = new Intl.DateTimeFormat('es-MX', { month: 'long' });
-const FMT_MONTH_S = new Intl.DateTimeFormat('es-MX', { month: 'short' });
-const FMT_WD = new Intl.DateTimeFormat('es-MX', { weekday: 'long' });
+const FMT_MONTH = new Intl.DateTimeFormat(T('es-MX', 'en-US'), { month: 'long' });
+const FMT_MONTH_S = new Intl.DateTimeFormat(T('es-MX', 'en-US'), { month: 'short' });
+const FMT_WD = new Intl.DateTimeFormat(T('es-MX', 'en-US'), { weekday: 'long' });
 
 export function cap(s) {
   const t = String(s || '');
@@ -92,23 +93,30 @@ export function monthTitle(d) {
 
 /** 'Miercoles 10 de junio' (con acentos del locale). */
 export function dayLong(d) {
-  return `${cap(FMT_WD.format(d))} ${d.getDate()} de ${FMT_MONTH.format(d)}`;
+  return T(
+    `${cap(FMT_WD.format(d))} ${d.getDate()} de ${FMT_MONTH.format(d)}`,
+    `${cap(FMT_WD.format(d))}, ${cap(FMT_MONTH.format(d))} ${d.getDate()}`,
+  );
 }
 
 /** '10 jun' */
 export function dayShort(d) {
-  return `${d.getDate()} ${FMT_MONTH_S.format(d).replace('.', '')}`;
+  const m = FMT_MONTH_S.format(d).replace('.', '');
+  return T(`${d.getDate()} ${m}`, `${m} ${d.getDate()}`);
 }
 
 /** Rango de semana: '9 al 15 de junio 2026' o '29 jun al 5 jul 2026'. */
 export function weekTitle(start) {
   const end = addDays(start, 6);
   if (sameMonth(start, end)) {
-    return `${start.getDate()} al ${end.getDate()} de ${FMT_MONTH.format(start)} ${end.getFullYear()}`;
+    return T(
+      `${start.getDate()} al ${end.getDate()} de ${FMT_MONTH.format(start)} ${end.getFullYear()}`,
+      `${cap(FMT_MONTH.format(start))} ${start.getDate()}-${end.getDate()}, ${end.getFullYear()}`,
+    );
   }
   const a = `${start.getDate()} ${FMT_MONTH_S.format(start).replace('.', '')}`;
   const b = `${end.getDate()} ${FMT_MONTH_S.format(end).replace('.', '')}`;
-  return `${a} al ${b} ${end.getFullYear()}`;
+  return T(`${a} al ${b} ${end.getFullYear()}`, `${a} to ${b}, ${end.getFullYear()}`);
 }
 
 // ── Filtros (espejo de la URL: estado, tipo, persona, desde, hasta, q) ──────
@@ -211,13 +219,13 @@ export function workingAnchor(posts) {
 export function statusInfo(s) {
   const i = STATUSES && STATUSES[s];
   if (i) return { label: i.label || String(s), color: i.color || '#8b5cf6' };
-  return { label: s ? String(s) : 'Sin estado', color: '#6b7280' };
+  return { label: s ? String(s) : T('Sin estado', 'No status'), color: '#6b7280' };
 }
 
 export function typeInfo(t) {
   const i = CONTENT_TYPES && CONTENT_TYPES[t];
   if (i) return { label: i.label || String(t), color: i.color || '#8b5cf6' };
-  return { label: t ? String(t) : 'Sin tipo', color: '#6b7280' };
+  return { label: t ? String(t) : T('Sin tipo', 'No type'), color: '#6b7280' };
 }
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
@@ -248,7 +256,7 @@ export function buildPostCard(ctx, post, { client = null, showDate = false, onMo
   });
 
   const meta = el('span', { class: 'cal-card__meta' }, [
-    post.status ? statusBadge(post.status) : el('span', { class: 'cal-card__nostatus', text: 'Sin estado' }),
+    post.status ? statusBadge(post.status) : el('span', { class: 'cal-card__nostatus', text: T('Sin estado', 'No status') }),
     post.content_type ? chip(post.content_type) : null,
     post.platform ? el('span', { class: 'cal-card__plat', text: post.platform }) : null,
     post.assignee ? el('span', { class: 'cal-card__who', text: post.assignee }) : null,
@@ -259,12 +267,12 @@ export function buildPostCard(ctx, post, { client = null, showDate = false, onMo
 
   const main = el('button', {
     class: 'cal-card__main', type: 'button',
-    'aria-label': `Abrir ${post.title || 'contenido'}`,
+    'aria-label': `${T('Abrir', 'Open')} ${post.title || T('contenido', 'content')}`,
     onclick: () => ctx.openEditor(post.id),
   }, [
     el('span', { class: 'cal-card__title' }, [
       client ? clientDotEl(client) : null,
-      el('span', { class: 'cal-card__titletxt', text: post.title || 'Sin titulo' }),
+      el('span', { class: 'cal-card__titletxt', text: post.title || T('Sin titulo', 'Untitled') }),
     ]),
     meta,
   ]);
@@ -272,7 +280,7 @@ export function buildPostCard(ctx, post, { client = null, showDate = false, onMo
   card.appendChild(main);
   if (onMore) {
     const more = el('button', {
-      class: 'cal-card__more', type: 'button', 'aria-label': 'Opciones del contenido',
+      class: 'cal-card__more', type: 'button', 'aria-label': T('Opciones del contenido', 'Content options'),
       onclick: (e) => { e.stopPropagation(); onMore(more); },
     }, [ctx.icons('dots', 18)]);
     card.appendChild(more);

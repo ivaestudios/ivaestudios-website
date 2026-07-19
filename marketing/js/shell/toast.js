@@ -14,6 +14,7 @@
 // ============================================================================
 
 import { el } from '../api.js?v=202607181835';
+import { T } from './i18n.js?v=202607181835';
 
 const MAX_VISIBLE = 2;
 const queue = [];
@@ -86,12 +87,12 @@ function renderNext() {
   if (job.action && typeof job.action.onAction === 'function') {
     kids.push(el('button', {
       class: 'toast__action', type: 'button',
-      text: job.action.label || 'Deshacer',
+      text: job.action.label || T('Deshacer', 'Undo'),
       onclick: (e) => {
         e.stopPropagation();
         try { job.action.onAction(); } catch (err) { console.error('[toast] action', err); }
         clearTimeout(timer);
-        msgEl.textContent = 'Deshecho';
+        msgEl.textContent = T('Deshecho', 'Undone');
         t.querySelector('.toast__action')?.remove();
         timer = setTimeout(finish, 1500);
       },

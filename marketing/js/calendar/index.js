@@ -16,6 +16,7 @@
 // ============================================================================
 
 import { el, clear } from '../api.js?v=202607181835';
+import { T } from '../shell/i18n.js?v=202607181835';
 import {
   fmtYMD, parseYMD, addDays, addMonths, startOfMonth, startOfWeek,
   monthTitle, weekTitle, parseFilters, countActiveFilters, applyFilters,
@@ -129,7 +130,7 @@ function render() {
   if (st.loading && !(st.posts || []).length) {
     clear(mainEl).appendChild(el('div', { class: 'view-loading' }, [
       el('span', { class: 'spinner', 'aria-hidden': 'true' }),
-      el('span', { class: 'muted', text: 'Cargando calendario' }),
+      el('span', { class: 'muted', text: T('Cargando calendario', 'Loading calendar') }),
     ]));
     asideEl.hidden = true;
     return;
@@ -175,15 +176,15 @@ function buildScaffold() {
   toolbarEl = el('div', { class: 'cal-toolbar' }, [
     el('div', { class: 'cal-toolbar__nav' }, [
       el('button', {
-        class: 'cal-navbtn', type: 'button', 'aria-label': 'Anterior',
+        class: 'cal-navbtn', type: 'button', 'aria-label': T('Anterior', 'Previous'),
         onclick: () => navStep(-1),
       }, [ctx.icons('left', 18)]),
       el('button', {
-        class: 'cal-navbtn cal-navbtn--today', type: 'button', text: 'Hoy',
+        class: 'cal-navbtn cal-navbtn--today', type: 'button', text: T('Hoy', 'Today'),
         onclick: () => calState.goToday(),
       }),
       el('button', {
-        class: 'cal-navbtn', type: 'button', 'aria-label': 'Siguiente',
+        class: 'cal-navbtn', type: 'button', 'aria-label': T('Siguiente', 'Next'),
         onclick: () => navStep(1),
       }, [ctx.icons('right', 18)]),
     ]),
@@ -191,7 +192,7 @@ function buildScaffold() {
   ]);
 
   mainEl = el('div', { class: 'cal-main' });
-  asideEl = el('aside', { class: 'cal-aside', hidden: true, 'aria-label': 'Backlog sin fecha' });
+  asideEl = el('aside', { class: 'cal-aside', hidden: true, 'aria-label': T('Backlog sin fecha', 'Unscheduled backlog') });
 
   rootEl = el('section', { class: 'cal' }, [
     toolbarEl,
@@ -231,7 +232,7 @@ const view = {
 
     // FAB: nuevo contenido (prefill: dia seleccionado en agenda, hoy en resto).
     ctx.setFab({
-      label: 'Nuevo contenido',
+      label: T('Nuevo contenido', 'New content'),
       onTap: () => {
         const date = effectiveMode() === 'agenda' ? calState.get().selectedDay : fmtYMD(new Date());
         openQuickCreate(ctx, { date });
