@@ -60,11 +60,11 @@ export async function handleIgLogin(request, env, session, url) {
     state: nonce,
     response_type: 'code',
     scope: IG_SCOPE,
-    // Fuerza la pantalla de login de Instagram en cada conexión: (1) garantiza
-    // que el flujo de consentimiento salga en cámara para el App Review de Meta,
-    // (2) evita conectar por error la cuenta que ya está abierta en el navegador.
-    force_reauth: 'true',
   });
+  // NOTA: se quitó force_reauth=true (2026-07-19). Se había agregado para el App
+  // Review, pero hacía que Instagram rebotara al feed sin volver al callback
+  // ("no vuelve al sistema"). El flujo de junio funcionaba SIN él. La pantalla de
+  // consentimiento igual sale en la 1ª conexión tras revocar el permiso en IG.
   return Response.redirect(`${AUTH}?${p}`, 302);
 }
 
