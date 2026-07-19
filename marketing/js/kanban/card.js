@@ -17,10 +17,11 @@
 import {
   el,
   CONTENT_TYPES, APPROVALS, PRIORITIES,
+  contentTypeLabel, approvalLabel,
   fmtDate, parseDate, avatar,
-} from '../api.js?v=202607181835';
-import { icon } from '../shell/icons.js?v=202607181835';
-import { T } from '../shell/i18n.js?v=202607181835';
+} from '../api.js?v=202607182156';
+import { icon } from '../shell/icons.js?v=202607182156';
+import { T, isEN } from '../shell/i18n.js?v=202607182156';
 
 export const DEFAULT_CARD_FIELDS = {
   fecha: true,
@@ -76,7 +77,7 @@ export function createCard({ post, color, fields = DEFAULT_CARD_FIELDS, client =
     const t = CONTENT_TYPES && CONTENT_TYPES[post.content_type];
     const typeChip = el('span', {
       class: 'kb-chip',
-      text: (t && t.label) || post.content_type,
+      text: contentTypeLabel(post.content_type),
     });
     if (t && t.color) {
       typeChip.style.color = t.color;
@@ -91,7 +92,7 @@ export function createCard({ post, color, fields = DEFAULT_CARD_FIELDS, client =
   if (ap) {
     chips.push(el('span', { class: 'kb-chip kb-chip--ap' }, [
       el('span', { class: 'kb-chip__dot', style: { background: ap.color || 'var(--text-mute)' } }),
-      el('span', { text: ap.label || ap.key }),
+      el('span', { text: approvalLabel(ap.key) }),
     ]));
   }
 
@@ -115,8 +116,8 @@ export function createCard({ post, color, fields = DEFAULT_CARD_FIELDS, client =
     foot.push(el('span', {
       class: 'kb-card__prio',
       style: { background: pr.color || 'var(--text-mute)' },
-      title: `${T('Prioridad', 'Priority')}: ${pr.label}`,
-      'aria-label': `${T('Prioridad', 'Priority')}: ${pr.label}`,
+      title: `${T('Prioridad', 'Priority')}: ${(isEN && pr.en) || pr.label}`,
+      'aria-label': `${T('Prioridad', 'Priority')}: ${(isEN && pr.en) || pr.label}`,
     }));
   }
   foot.push(el('span', { class: 'kb-card__spacer' }));

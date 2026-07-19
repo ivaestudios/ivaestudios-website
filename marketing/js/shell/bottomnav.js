@@ -11,11 +11,11 @@
 // - FAB: setFab({label, onTap}) | null. Gradiente 56px sobre la nav.
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202607181835';
-import * as store from './store.js?v=202607181835';
-import * as prefs from './prefs.js?v=202607181835';
-import { icon } from './icons.js?v=202607181835';
-import { T } from './i18n.js?v=202607181835';
+import { el, clear } from '../api.js?v=202607182156';
+import * as store from './store.js?v=202607182156';
+import * as prefs from './prefs.js?v=202607182156';
+import { icon } from './icons.js?v=202607182156';
+import { T } from './i18n.js?v=202607182156';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -115,9 +115,9 @@ export function createBottomNav({ root, fabHost, scrollEl, router, openNotificat
     fabBtn = null;
     if (!cfg || typeof cfg.onTap !== 'function') return;
     fabBtn = el('button', {
-      class: 'fab', type: 'button', 'aria-label': cfg.label || 'Nuevo',
+      class: 'fab', type: 'button', 'aria-label': cfg.label || T('Nuevo', 'New'),
       onclick: cfg.onTap,
-    }, [icon('plus', 24), el('span', { class: 'fab__label', text: cfg.label || 'Nuevo' })]);
+    }, [icon('plus', 24), el('span', { class: 'fab__label', text: cfg.label || T('Nuevo', 'New') })]);
     fabHost.appendChild(fabBtn);
   }
 

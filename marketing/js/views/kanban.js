@@ -20,19 +20,19 @@
 
 import {
   el, clear,
-  STATUSES, STATUS_ORDER,
-  CONTENT_TYPES, CONTENT_TYPE_ORDER,
+  STATUSES, STATUS_ORDER, statusLabel,
+  CONTENT_TYPES, CONTENT_TYPE_ORDER, contentTypeLabel,
   fmtDate,
-} from '../api.js?v=202607181835';
-import { icon } from '../shell/icons.js?v=202607181835';
-import { T } from '../shell/i18n.js?v=202607181835';
-import { createCard, DEFAULT_CARD_FIELDS, CARD_FIELD_LABELS } from '../kanban/card.js?v=202607181835';
-import { createBattery } from '../kanban/battery.js?v=202607181835';
-import { createColumnComposer, openQuickAddSheet } from '../kanban/quick-add.js?v=202607181835';
+} from '../api.js?v=202607182156';
+import { icon } from '../shell/icons.js?v=202607182156';
+import { T } from '../shell/i18n.js?v=202607182156';
+import { createCard, DEFAULT_CARD_FIELDS, CARD_FIELD_LABELS } from '../kanban/card.js?v=202607182156';
+import { createBattery } from '../kanban/battery.js?v=202607182156';
+import { createColumnComposer, openQuickAddSheet } from '../kanban/quick-add.js?v=202607182156';
 import {
   openMoveSheet, buildInsertUpdates, snapshotFor, sortColumn, columnKeyOf,
   OTHERS_KEY, OTHERS_LABEL, OTHERS_COLOR, STEP,
-} from '../kanban/move-sheet.js?v=202607181835';
+} from '../kanban/move-sheet.js?v=202607182156';
 
 const FILTER_KEYS = ['estado', 'tipo', 'persona', 'desde', 'hasta', 'q'];
 
@@ -76,7 +76,7 @@ function getCardFields() {
 function columnDefs(posts) {
   const defs = STATUS_ORDER.map((s) => ({
     key: s,
-    label: (STATUSES[s] && STATUSES[s].label) || s,
+    label: statusLabel(s),
     color: (STATUSES[s] && STATUSES[s].color) || 'var(--text-mute)',
   }));
   if ((posts || []).some((p) => columnKeyOf(p) === OTHERS_KEY)) {
@@ -178,7 +178,7 @@ function openCardMenu(post) {
           const prev = post.status;
           const res = await ctx.store.patchPost(post.id, { status: v });
           if (res) {
-            ctx.toast(`${T('Estado', 'Status')}: ${(STATUSES[v] && STATUSES[v].label) || v}.`, {
+            ctx.toast(`${T('Estado', 'Status')}: ${statusLabel(v)}.`, {
               type: 'success',
               action: { label: T('Deshacer', 'Undo'), onAction: () => { ctx.store.patchPost(post.id, { status: prev }); } },
             });
@@ -383,28 +383,28 @@ function openFilterSheet() {
 
       rows.append(
         mkRow('refresh', T('Estado', 'Status'),
-          () => (f().estado && STATUSES[f().estado] && STATUSES[f().estado].label) || (f().estado || T('Todos', 'All')),
+          () => (f().estado && STATUSES[f().estado] && statusLabel(f().estado)) || (f().estado || T('Todos', 'All')),
           async () => {
             const v = await ctx.sheet.pickFrom({
               title: T('Estado', 'Status'),
               options: [
                 { value: '', label: T('Todos los estados', 'All statuses'), current: !f().estado },
                 ...STATUS_ORDER.map((s) => ({
-                  value: s, label: STATUSES[s].label, color: STATUSES[s].color, current: f().estado === s,
+                  value: s, label: statusLabel(s), color: STATUSES[s].color, current: f().estado === s,
                 })),
               ],
             });
             if (v !== null) navigateFilters({ estado: v });
           }),
         mkRow('copy', T('Tipo', 'Type'),
-          () => (f().tipo && CONTENT_TYPES[f().tipo] && CONTENT_TYPES[f().tipo].label) || (f().tipo || T('Todos', 'All')),
+          () => (f().tipo && CONTENT_TYPES[f().tipo] && contentTypeLabel(f().tipo)) || (f().tipo || T('Todos', 'All')),
           async () => {
             const v = await ctx.sheet.pickFrom({
               title: T('Tipo de contenido', 'Content type'),
               options: [
                 { value: '', label: T('Todos los tipos', 'All types'), current: !f().tipo },
                 ...CONTENT_TYPE_ORDER.map((t) => ({
-                  value: t, label: CONTENT_TYPES[t].label, color: CONTENT_TYPES[t].color, current: f().tipo === t,
+                  value: t, label: contentTypeLabel(t), color: CONTENT_TYPES[t].color, current: f().tipo === t,
                 })),
               ],
             });

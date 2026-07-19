@@ -15,10 +15,10 @@
 // Modulo sin estado propio: recibe prefs/posts del orquestador (table.js).
 // ============================================================================
 
-import { el, STATUSES, STATUS_ORDER, statusLabel } from '../api.js?v=202607181835';
-import { T } from '../shell/i18n.js?v=202607181835';
-import { fmtMonthYear, todayISO } from '../lib/dates.js?v=202607181835';
-import { sortValueOf } from './columns.js?v=202607181835';
+import { el, STATUSES, STATUS_ORDER, statusLabel } from '../api.js?v=202607182156';
+import { T } from '../shell/i18n.js?v=202607182156';
+import { fmtMonthYear, todayISO } from '../lib/dates.js?v=202607182156';
+import { sortValueOf } from './columns.js?v=202607182156';
 
 export const SIN_FECHA_KEY = 'sin-fecha';
 export const OTHERS_KEY = 'otros';
@@ -90,7 +90,7 @@ export function groupPosts(posts, mode, { brandColor } = {}) {
     for (const s of STATUS_ORDER) {
       const bucket = map.get(s);
       if (!bucket || !bucket.length) continue;
-      out.push({ key: s, label: STATUSES[s].label, color: STATUSES[s].color, posts: bucket });
+      out.push({ key: s, label: statusLabel(s), color: STATUSES[s].color, posts: bucket });
     }
     const others = map.get(OTHERS_KEY);
     if (others && others.length) {
@@ -158,7 +158,7 @@ export function batteryData(posts) {
   const out = [];
   for (const s of STATUS_ORDER) {
     const n = counts.get(s);
-    if (n) out.push({ key: s, label: STATUSES[s].label, color: STATUSES[s].color, count: n });
+    if (n) out.push({ key: s, label: statusLabel(s), color: STATUSES[s].color, count: n });
   }
   const others = counts.get(OTHERS_KEY);
   if (others) out.push({ key: OTHERS_KEY, label: OTHERS_LABEL, color: 'var(--text-mute)', count: others });

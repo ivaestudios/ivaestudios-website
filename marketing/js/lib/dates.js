@@ -13,22 +13,32 @@
 //   el calendario, que usa Intl es-MX) y van sin em-dashes.
 // ============================================================================
 
-export const MESES = [
+import { T } from '../shell/i18n.js?v=202607182156';
+
+export const MESES = T([
   'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
   'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
-];
+], [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+]);
 
-export const MESES_CORTOS = [
+export const MESES_CORTOS = T([
   'ene', 'feb', 'mar', 'abr', 'may', 'jun',
   'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
-];
+], [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+]);
 
 // Indice 0 = lunes (la semana de la app inicia en lunes).
-export const DIAS = [
+export const DIAS = T([
   'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo',
-];
-export const DIAS_CORTOS = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
-export const DIAS_INICIAL = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+], [
+  'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
+]);
+export const DIAS_CORTOS = T(['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'], ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
+export const DIAS_INICIAL = T(['L', 'M', 'M', 'J', 'V', 'S', 'D'], ['M', 'T', 'W', 'T', 'F', 'S', 'S']);
 
 const ISO_RE = /^(\d{4})-(\d{2})-(\d{2})/;
 const MS_DAY = 86400000;
@@ -252,7 +262,7 @@ export function fmtLong(iso) {
   const d = parseISO(iso);
   if (!d) return '';
   const dia = DIAS[(d.getDay() + 6) % 7];
-  const out = `${dia} ${d.getDate()} de ${MESES[d.getMonth()]}`;
+  const out = `${dia} ${d.getDate()}${T(' de ', ' ')}${MESES[d.getMonth()]}`;
   return out.charAt(0).toUpperCase() + out.slice(1);
 }
 
@@ -270,7 +280,7 @@ export function fmtRange(desdeIso, hastaIso) {
   const a = fmtShort(desdeIso);
   const b = fmtShort(hastaIso);
   if (!a || !b) return a || b || '';
-  return `${a} al ${b}`;
+  return `${a}${T(' al ', ' to ')}${b}`;
 }
 
 /**
@@ -281,9 +291,9 @@ export function relativeDay(iso) {
   const d = parseISO(iso);
   if (!d) return '';
   const diff = diffDays(todayISO(), toISO(d));
-  if (diff === 0) return 'Hoy';
-  if (diff === 1) return 'Mañana';
-  if (diff === -1) return 'Ayer';
+  if (diff === 0) return T('Hoy', 'Today');
+  if (diff === 1) return T('Mañana', 'Tomorrow');
+  if (diff === -1) return T('Ayer', 'Yesterday');
   if (diff > 1 && diff <= 6) {
     const dia = DIAS[(d.getDay() + 6) % 7];
     return dia.charAt(0).toUpperCase() + dia.slice(1);

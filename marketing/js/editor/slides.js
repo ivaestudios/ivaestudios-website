@@ -8,6 +8,8 @@
 // formato que ya usan los guiones existentes, así los viejos se abren bien).
 // ============================================================================
 
+import { T } from '../shell/i18n.js?v=202607182156';
+
 /** Slides intermedios a partir del body ("Slide N — texto" o texto corrido).
  *  Los intermedios VACIOS ("Slide 3 — ") se CONSERVAN: filtrarlos hacia
  *  desaparecer un slide recien agregado al recargar y desalineaba los SEO
@@ -57,15 +59,15 @@ export function slideLabel(i, total) {
 }
 
 export function slideHint(i, total) {
-  if (i === 0) return 'La portada que detiene el scroll';
-  if (i === total - 1) return 'Cierre con acción clara';
+  if (i === 0) return T('La portada que detiene el scroll', 'The cover that stops the scroll');
+  if (i === total - 1) return T('Cierre con acción clara', 'A close with a clear action');
   return '';
 }
 
 export function slidePlaceholder(i, total) {
-  if (i === 0) return 'El texto de la portada';
-  if (i === total - 1) return 'El cierre con llamado a la acción';
-  return `Texto del slide ${i + 1}`;
+  if (i === 0) return T('El texto de la portada', 'The cover text');
+  if (i === total - 1) return T('El cierre con llamado a la acción', 'The closing call to action');
+  return `${T('Texto del slide', 'Text for slide')} ${i + 1}`;
 }
 
 /** Guion completo listo para copiar ("SLIDE 1:\n…"). */

@@ -24,17 +24,17 @@
 
 import {
   el, clear,
-  STATUSES, STATUS_ORDER,
+  STATUSES, STATUS_ORDER, statusLabel,
   chip, statusBadge, avatar,
-} from '../api.js?v=202607181835';
-import { icon } from '../shell/icons.js?v=202607181835';
-import { T } from '../shell/i18n.js?v=202607181835';
+} from '../api.js?v=202607182156';
+import { icon } from '../shell/icons.js?v=202607182156';
+import { T } from '../shell/i18n.js?v=202607182156';
 import {
   toISO, parseISO, todayISO, addDays, addDaysISO, addMonths,
   diffDays, startOfWeek, monthRangeISO, listDays,
   fmtShort, fmtMonthYear,
   MESES, MESES_CORTOS, DIAS_INICIAL, DIAS_CORTOS,
-} from '../lib/dates.js?v=202607181835';
+} from '../lib/dates.js?v=202607182156';
 
 const DESKTOP_MQ = '(min-width: 720px)';
 const FINE_MQ = '(pointer: fine)';
@@ -224,7 +224,7 @@ function openLegend() {
         list.appendChild(el('div', { class: 'pick-row tl-legend-row' }, [
           el('span', { class: 'pick-row__dot', style: { background: STATUSES[s].color } }),
           el('span', { class: 'pick-row__main' }, [
-            el('span', { class: 'pick-row__label', text: STATUSES[s].label }),
+            el('span', { class: 'pick-row__label', text: statusLabel(s) }),
           ]),
         ]));
       }
@@ -351,7 +351,7 @@ function openQuickEdit(postId) {
           },
         }, [
           el('span', { class: 'tl-qstate__dot' }),
-          el('span', { class: 'tl-qstate__label', text: STATUSES[s].label }),
+          el('span', { class: 'tl-qstate__label', text: statusLabel(s) }),
           el('span', { class: 'tl-qstate__check', text: '✓' }),
         ]));
       }
@@ -532,7 +532,7 @@ function buildBar(item, a, b, days, group) {
   const clipR = item.end > days[days.length - 1];
   const showAll = ctx.store.getState().activeClientId === 'todos';
   const tip = (showAll && p.client_id ? `${clientName(p.client_id)} · ` : '') +
-    (p.title || T('Sin titulo', 'Untitled')) + ` · ${STATUSES[p.status] ? STATUSES[p.status].label : p.status}`;
+    (p.title || T('Sin titulo', 'Untitled')) + ` · ${statusLabel(p.status)}`;
 
   const bar = el('div', {
     class: 'tl-bar' +
@@ -915,7 +915,7 @@ function renderMobileWeek(groups, days, from, to) {
 
         list.appendChild(el('button', {
           class: 'tl-mrow', type: 'button',
-          'aria-label': `${p.title || T('Sin titulo', 'Untitled')}, ${STATUSES[p.status] ? STATUSES[p.status].label : p.status}. ${T('Editar', 'Edit')}`,
+          'aria-label': `${p.title || T('Sin titulo', 'Untitled')}, ${statusLabel(p.status)}. ${T('Editar', 'Edit')}`,
           onclick: () => openQuickEdit(p.id),
         }, [
           el('span', { class: 'tl-mrow__top' }, [

@@ -22,10 +22,10 @@
 // Contrato de vista: export default { mount(el, ctx), unmount(), onParams() }.
 // ============================================================================
 
-import { api, el, clear, STATUSES, statusBadge } from '../api.js?v=202607181835';
-import { icon } from '../shell/icons.js?v=202607181835';
-import { T } from '../shell/i18n.js?v=202607181835';
-import { todayISO, diffDays, relativeDay, fmtShort } from '../lib/dates.js?v=202607181835';
+import { api, el, clear, STATUSES, statusLabel, statusBadge } from '../api.js?v=202607182156';
+import { icon } from '../shell/icons.js?v=202607182156';
+import { T } from '../shell/i18n.js?v=202607182156';
+import { todayISO, diffDays, relativeDay, fmtShort } from '../lib/dates.js?v=202607182156';
 
 // CSS del paquete (compartido con la vista Automatizaciones). Lazy y con
 // guard: si app.html ya lo linkea (o la otra vista ya lo inyecto), no duplica.
@@ -274,7 +274,7 @@ function openCardMenu(post, anchor) {
         row('board', T('Cambiar estado', 'Change status'), async () => {
           const v = await c.pickers.pickStatus({ current: post.status });
           if (v && v !== post.status) {
-            const label = (STATUSES[v] && STATUSES[v].label) || v;
+            const label = statusLabel(v);
             mutatePost(post, { status: v }, `${T('Estado', 'Status')}: ${label}.`, { status: post.status });
           }
         }),

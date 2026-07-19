@@ -26,11 +26,11 @@ import {
   el, clear, copyText, api,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202607181835';
-import { icon } from '../shell/icons.js?v=202607181835';
-import { T } from '../shell/i18n.js?v=202607181835';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607181835';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607181835';
+} from '../api.js?v=202607182156';
+import { icon } from '../shell/icons.js?v=202607182156';
+import { T } from '../shell/i18n.js?v=202607182156';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607182156';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607182156';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -222,7 +222,7 @@ function openPedirCambios(post) {
         el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Comentario', 'Comment') }), ta]),
         help,
         el('div', { class: 'sheet__footer' }, [
-          el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
+          el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
           sendBtn,
         ]),
       );
@@ -341,7 +341,7 @@ async function patchWithUndo(post, fields, prevFields, msg) {
     descartarSiEsDeOtraMarca(res);
     ctx.toast(msg, {
       type: 'success',
-      action: { label: 'Deshacer', onAction: () => { trackMutation(ctx.store.patchPost(post.id, prevFields)); } },
+      action: { label: T('Deshacer', 'Undo'), onAction: () => { trackMutation(ctx.store.patchPost(post.id, prevFields)); } },
     });
   }
 }
@@ -350,19 +350,19 @@ async function patchWithUndo(post, fields, prevFields, msg) {
 // fila al instante y hace rollback si la red falla.
 function confirmDeleteRow(post) {
   ctx.sheet.openSheet({
-    title: 'Eliminar fila',
+    title: T('Eliminar fila', 'Delete row'),
     mode: 'form',
     build(body, close) {
       body.append(
-        el('p', { class: 'meses-confirm__txt', text: `Se eliminará "${post.title || T('Sin título', 'Untitled')}". Esta acción no se puede deshacer.` }),
+        el('p', { class: 'meses-confirm__txt', text: `${T('Se eliminará', 'This will delete')} "${post.title || T('Sin título', 'Untitled')}". ${T('Esta acción no se puede deshacer.', 'This action cannot be undone.')}` }),
         el('div', { class: 'sheet__footer' }, [
-          el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
+          el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
           el('button', {
-            class: 'btn btn-danger sheet-cta', type: 'button', text: 'Eliminar',
+            class: 'btn btn-danger sheet-cta', type: 'button', text: T('Eliminar', 'Delete'),
             onclick: async () => {
               close({ source: 'confirm' });
               const ok = await trackMutation(ctx.store.removePost(post.id));
-              if (ok) ctx.toast('Fila eliminada.', { type: 'success' });
+              if (ok) ctx.toast(T('Fila eliminada.', 'Row deleted.'), { type: 'success' });
             },
           }),
         ]),
@@ -377,20 +377,20 @@ async function onPickGrabacion(post, anchor) {
   patchWithUndo(post,
     { grabacion: Number(v) },
     { grabacion: post.grabacion == null || post.grabacion === '' ? null : Number(post.grabacion) },
-    `Grabación: nivel ${v}.`);
+    `${T('Grabación: nivel', 'Recording: level')} ${v}.`);
 }
 
 async function onPickStatus(post, anchor) {
   const v = await ctx.pickers.pickStatus({ current: post.status, anchor });
   if (v == null || v === post.status) return;
-  patchWithUndo(post, { status: v }, { status: post.status }, `Estado: ${statusLabel(v) || v}.`);
+  patchWithUndo(post, { status: v }, { status: post.status }, `${T('Estado:', 'Status:')} ${statusLabel(v) || v}.`);
 }
 
 async function onPickType(post, anchor) {
   const v = await ctx.pickers.pickType({ current: post.content_type, anchor });
   if (v == null || v === post.content_type) return;
   patchWithUndo(post, { content_type: v }, { content_type: post.content_type },
-    `Tipo: ${contentTypeLabel(v) || v}.`);
+    `${T('Tipo:', 'Type:')} ${contentTypeLabel(v) || v}.`);
 }
 
 async function onPickPlatform(post, anchor) {
@@ -398,7 +398,7 @@ async function onPickPlatform(post, anchor) {
   const v = await ctx.pickers.pickPlatform({ current: cur, anchor });
   if (v == null || v === cur) return;
   patchWithUndo(post, { platform: v || null }, { platform: cur || null },
-    v ? `Plataforma: ${v}.` : 'Plataforma quitada.');
+    v ? `${T('Plataforma:', 'Platform:')} ${v}.` : T('Plataforma quitada.', 'Platform removed.'));
 }
 
 async function onPickDate(post, anchor) {
@@ -407,7 +407,7 @@ async function onPickDate(post, anchor) {
   if (v == null || v === cur || (v === '' && !cur)) return;
   // '' = quitar fecha (la fila pasa a la seccion "Sin mes"); 'YYYY-MM-DD' = mover.
   patchWithUndo(post, { publish_date: v || null }, { publish_date: cur },
-    v ? `Fecha: ${fmtDate(v, { day: 'numeric', month: 'long' })}.` : 'Fecha quitada.');
+    v ? `${T('Fecha:', 'Date:')} ${fmtDate(v, { day: 'numeric', month: 'long' })}.` : T('Fecha quitada.', 'Date removed.'));
 }
 
 // ── Edicion inline de texto (titulo, captions, notas por persona) ────────────
@@ -459,12 +459,12 @@ function openInlineEdit({ cell, current, label, maxLength = 2000, multiline = fa
 function saveTitle(post, value) {
   const title = String(value || '').trim();
   if (!title) { render(); return; }
-  patchWithUndo(post, { title }, { title: post.title }, 'Título actualizado.');
+  patchWithUndo(post, { title }, { title: post.title }, T('Título actualizado.', 'Title updated.'));
 }
 
 function saveCaption(post, value) {
   const caption = String(value || '').trim() || null;
-  patchWithUndo(post, { caption }, { caption: post.caption || null }, 'Caption guardado.');
+  patchWithUndo(post, { caption }, { caption: post.caption || null }, T('Caption guardado.', 'Caption saved.'));
 }
 
 function saveNote(post, person, value) {
@@ -474,7 +474,7 @@ function saveNote(post, person, value) {
   const txt = String(value || '').trim();
   if (txt) merged[person] = txt;
   else delete merged[person];
-  patchWithUndo(post, { notes_people: merged }, { notes_people: prev }, `Nota de ${person} guardada.`);
+  patchWithUndo(post, { notes_people: merged }, { notes_people: prev }, T(`Nota de ${person} guardada.`, `Note for ${person} saved.`));
 }
 
 // ── Panel lateral de caption (estilo side peek de Notion) ────────────────────
@@ -508,16 +508,16 @@ function openCaptionDrawer(post) {
   const isCarrusel = post.content_type === 'carrusel';
   const SECTIONS = isCarrusel
     ? [
-      { field: 'caption', label: 'CAPTION', hint: 'Listo para pegar en IG' },
+      { field: 'caption', label: 'CAPTION', hint: T('Listo para pegar en IG', 'Ready to paste into IG') },
       { field: 'hashtags', label: 'HASHTAGS', hint: '' },
     ]
     : [
-      { field: 'hook', label: 'HOOK', hint: 'Las primeras palabras venden' },
-      { field: 'body', label: 'BODY', hint: 'Desarrollo de la idea' },
-      { field: 'cta', label: 'CTA', hint: 'Cierre con acción clara' },
-      { field: 'caption', label: 'CAPTION', hint: 'Listo para pegar en IG' },
+      { field: 'hook', label: 'HOOK', hint: T('Las primeras palabras venden', 'The first words sell') },
+      { field: 'body', label: 'BODY', hint: T('Desarrollo de la idea', 'Develop the idea') },
+      { field: 'cta', label: 'CTA', hint: T('Cierre con acción clara', 'Close with a clear action') },
+      { field: 'caption', label: 'CAPTION', hint: T('Listo para pegar en IG', 'Ready to paste into IG') },
       { field: 'hashtags', label: 'HASHTAGS', hint: '' },
-      { field: 'alt_text', label: 'SEO ALT', hint: 'Texto alternativo de la imagen (IG)' },
+      { field: 'alt_text', label: 'SEO ALT', hint: T('Texto alternativo de la imagen (IG)', 'Alt text for the image (IG)') },
     ];
   const tas = {};
   let slides = null;
@@ -530,13 +530,13 @@ function openCaptionDrawer(post) {
 
   async function copyField(field, label) {
     const v = String(tas[field] ? tas[field].value : '').trim();
-    if (!v) { ctx.toast(`No hay ${label} que copiar.`, { type: 'info' }); return; }
+    if (!v) { ctx.toast(T(`No hay ${label} que copiar.`, `No ${label} to copy.`), { type: 'info' }); return; }
     let ok = false;
     try { await navigator.clipboard.writeText(v); ok = true; } catch { /* fallback abajo */ }
     if (!ok) {
       try { tas[field].select(); ok = document.execCommand('copy'); } catch { /* noop */ }
     }
-    ctx.toast(ok ? `${label} copiado.` : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
+    ctx.toast(ok ? T(`${label} copiado.`, `${label} copied.`) : T('No se pudo copiar.', 'Could not copy.'), { type: ok ? 'success' : 'error' });
   }
 
   // Los mismos 3 botones de copiar que el tab Guion del editor (móvil):
@@ -545,25 +545,25 @@ function openCaptionDrawer(post) {
     const v = String(text || '').trim();
     if (!v) { ctx.toast(emptyMsg, { type: 'info' }); return; }
     const ok = await copyText(v);
-    ctx.toast(ok ? okMsg : 'No se pudo copiar.', { type: ok ? 'success' : 'error' });
+    ctx.toast(ok ? okMsg : T('No se pudo copiar.', 'Could not copy.'), { type: ok ? 'success' : 'error' });
   }
   function copyCaptionOnly() {
-    return copyPlain(tas.caption.value, 'Caption copiado.', 'No hay caption que copiar.');
+    return copyPlain(tas.caption.value, T('Caption copiado.', 'Caption copied.'), T('No hay caption que copiar.', 'No caption to copy.'));
   }
   function copyCaptionAll() {
     const parts = ['caption', 'hashtags'].map((f) => String(tas[f] ? tas[f].value : '').trim()).filter(Boolean);
-    return copyPlain(parts.join('\n\n'), 'Caption + hashtags copiados.', 'No hay caption que copiar.');
+    return copyPlain(parts.join('\n\n'), T('Caption + hashtags copiados.', 'Caption + hashtags copied.'), T('No hay caption que copiar.', 'No caption to copy.'));
   }
   function copyScriptAll() {
     if (isCarrusel && slides) {
-      return copyPlain(slidesToText(slides), 'Guion copiado.', 'No hay guion que copiar.');
+      return copyPlain(slidesToText(slides), T('Guion copiado.', 'Script copied.'), T('No hay guion que copiar.', 'No script to copy.'));
     }
     const lines = [];
     for (const [f, lbl] of [['hook', 'HOOK'], ['body', 'BODY'], ['cta', 'CTA']]) {
       const v = String(tas[f] ? tas[f].value : '').trim();
       if (v) lines.push(`${lbl}:\n${v}`);
     }
-    return copyPlain(lines.join('\n\n'), 'Guion copiado.', 'No hay guion que copiar.');
+    return copyPlain(lines.join('\n\n'), T('Guion copiado.', 'Script copied.'), T('No hay guion que copiar.', 'No script to copy.'));
   }
 
   // Autosize: cada caja crece hasta su contenido (máx 320px) — nada de texto
@@ -610,21 +610,21 @@ function openCaptionDrawer(post) {
       ta.addEventListener('blur', () => flushSave());
       const hint = slideHint(i, slides.length);
       const grip = isMiddle(i) ? el('span', {
-        class: 'edslide-grip', title: 'Arrastra para reordenar', 'aria-hidden': 'true',
+        class: 'edslide-grip', title: T('Arrastra para reordenar', 'Drag to reorder'), 'aria-hidden': 'true',
       }, [icon('grip', 16)]) : null;
       const secEl = el('section', { class: 'mdsec' }, [
         el('div', { class: 'mdsec__head' }, [
           el('span', { class: 'mdsec__lbl', text: slideLabel(i, slides.length) }),
           hint ? el('span', { class: 'mdsec__hint', text: hint }) : null,
           (i > 0 && i < slides.length - 1) ? el('button', {
-            class: 'mdsec__copy', type: 'button', title: 'Quitar este slide',
-            'aria-label': `Quitar slide ${i + 1}`,
+            class: 'mdsec__copy', type: 'button', title: T('Quitar este slide', 'Remove this slide'),
+            'aria-label': `${T('Quitar slide', 'Remove slide')} ${i + 1}`,
             onclick: () => { slides.splice(i, 1); alts.splice(i, 1); renderSlides(); renderAlts(); scheduleSave(); },
           }, [icon('trash', 14)]) : null,
           el('button', {
-            class: 'mdsec__copy', type: 'button', title: 'Copiar este slide',
-            'aria-label': `Copiar slide ${i + 1}`,
-            onclick: () => copyPlain(slides[i], 'Slide copiado.', 'Este slide está vacío.'),
+            class: 'mdsec__copy', type: 'button', title: T('Copiar este slide', 'Copy this slide'),
+            'aria-label': `${T('Copiar slide', 'Copy slide')} ${i + 1}`,
+            onclick: () => copyPlain(slides[i], T('Slide copiado.', 'Slide copied.'), T('Este slide está vacío.', 'This slide is empty.')),
           }, [icon('copy', 14)]),
           grip, // agarradera al costado derecho
         ]),
@@ -676,7 +676,7 @@ function openCaptionDrawer(post) {
           alts.splice(alts.length - 1, 0, '');
           renderSlides(); renderAlts(); scheduleSave();
         },
-      }, [icon('plus', 15), ' Agregar slide']),
+      }, [icon('plus', 15), ' ' + T('Agregar slide', 'Add slide')]),
     ]));
   }
 
@@ -688,7 +688,7 @@ function openCaptionDrawer(post) {
     alts.forEach((text, i) => {
       const ta = el('textarea', {
         class: 'meses-drawer__ta meses-drawer__ta--sec',
-        placeholder: `Describe la imagen del slide ${i + 1} (SEO/accesibilidad)`,
+        placeholder: T(`Describe la imagen del slide ${i + 1} (SEO/accesibilidad)`, `Describe the image in slide ${i + 1} (SEO/accessibility)`),
         maxLength: 1000,
         rows: 1,
       });
@@ -698,18 +698,18 @@ function openCaptionDrawer(post) {
       altsHost.appendChild(el('section', { class: 'mdsec' }, [
         el('div', { class: 'mdsec__head' }, [
           el('span', { class: 'mdsec__lbl', text: `SEO ALT · SLIDE ${i + 1}` }),
-          i === 0 ? el('span', { class: 'mdsec__hint', text: 'Texto alternativo (IG)' }) : null,
+          i === 0 ? el('span', { class: 'mdsec__hint', text: T('Texto alternativo (IG)', 'Alt text (IG)') }) : null,
           i > 0 ? el('button', {
-            class: 'mdsec__copy', type: 'button', title: 'Borrar este SEO alt',
-            'aria-label': `Borrar SEO alt del slide ${i + 1}`,
+            class: 'mdsec__copy', type: 'button', title: T('Borrar este SEO alt', 'Clear this SEO alt'),
+            'aria-label': `${T('Borrar SEO alt del slide', 'Clear SEO alt for slide')} ${i + 1}`,
             // Solo se VACÍA el texto (nada de splice): alts debe seguir 1:1
             // con los slides o reordenar/quitar slides corre los alts de lugar.
             onclick: () => { alts[i] = ''; renderAlts(); scheduleSave(); },
           }, [icon('trash', 14)]) : null,
           el('button', {
-            class: 'mdsec__copy', type: 'button', title: `Copiar SEO alt del slide ${i + 1}`,
-            'aria-label': `Copiar SEO alt del slide ${i + 1}`,
-            onclick: () => copyPlain(alts[i], 'SEO alt copiado.', 'Este alt está vacío.'),
+            class: 'mdsec__copy', type: 'button', title: `${T('Copiar SEO alt del slide', 'Copy SEO alt for slide')} ${i + 1}`,
+            'aria-label': `${T('Copiar SEO alt del slide', 'Copy SEO alt for slide')} ${i + 1}`,
+            onclick: () => copyPlain(alts[i], T('SEO alt copiado.', 'SEO alt copied.'), T('Este alt está vacío.', 'This alt is empty.')),
           }, [icon('copy', 14)]),
         ]),
         ta,
@@ -724,7 +724,7 @@ function openCaptionDrawer(post) {
   const body = el('div', { class: 'meses-drawer__body' }, SECTIONS.map((s) => {
     const ta = el('textarea', {
       class: 'meses-drawer__ta meses-drawer__ta--sec',
-      placeholder: s.field === 'caption' ? 'Escribe el caption completo aquí...' : `Escribe el ${s.label.toLowerCase()} aquí...`,
+      placeholder: s.field === 'caption' ? T('Escribe el caption completo aquí...', 'Write the full caption here...') : T(`Escribe el ${s.label.toLowerCase()} aquí...`, `Write the ${s.label.toLowerCase()} here...`),
       maxLength: 4000,
       rows: 1,
     });
@@ -740,8 +740,8 @@ function openCaptionDrawer(post) {
         s.hint ? el('span', { class: 'mdsec__hint', text: s.hint }) : null,
         withCount ? counters[s.field] : null,
         el('button', {
-          class: 'mdsec__copy', type: 'button', title: `Copiar ${s.label}`,
-          'aria-label': `Copiar ${s.label}`,
+          class: 'mdsec__copy', type: 'button', title: `${T('Copiar', 'Copy')} ${s.label}`,
+          'aria-label': `${T('Copiar', 'Copy')} ${s.label}`,
           onclick: () => copyField(s.field, s.label),
         }, [icon('copy', 14)]),
       ]),
@@ -754,7 +754,7 @@ function openCaptionDrawer(post) {
 
   // ── AUTOSAVE: se guarda solo (sin botón "Guardar"). Debounce 800ms al escribir
   //    + al salir del campo + al cerrar. Indicador "Guardando…/Guardado ✓". ──
-  const indicatorEl = el('span', { class: 'meses-drawer__save meses-drawer__save--saved', text: 'Guardado ✓' });
+  const indicatorEl = el('span', { class: 'meses-drawer__save meses-drawer__save--saved', text: T('Guardado ✓', 'Saved ✓') });
   const currentValues = () => {
     const out = {};
     for (const s of SECTIONS) out[s.field] = (tas[s.field].value || '').trim() || null;
@@ -769,8 +769,8 @@ function openCaptionDrawer(post) {
   let saveTimer = null, saving = false, queued = false;
   const paint = (state) => {
     indicatorEl.className = 'meses-drawer__save meses-drawer__save--' + state;
-    indicatorEl.textContent = (state === 'saving' || state === 'dirty') ? 'Guardando…'
-      : state === 'error' ? '⚠ No se guardó' : 'Guardado ✓';
+    indicatorEl.textContent = (state === 'saving' || state === 'dirty') ? T('Guardando…', 'Saving…')
+      : state === 'error' ? T('⚠ No se guardó', '⚠ Not saved') : T('Guardado ✓', 'Saved ✓');
   };
   async function doSave() {
     if (saving) { queued = true; return; }
@@ -809,7 +809,7 @@ function openCaptionDrawer(post) {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); closeCaptionDrawer(); }
   });
 
-  drawerEl = el('div', { class: 'meses-drawer__wrap', role: 'dialog', 'aria-modal': 'true', 'aria-label': `Guion de ${post.title || 'contenido'}` }, [
+  drawerEl = el('div', { class: 'meses-drawer__wrap', role: 'dialog', 'aria-modal': 'true', 'aria-label': `${T('Guion de', 'Script for')} ${post.title || T('contenido', 'content')}` }, [
     el('div', { class: 'meses-drawer__overlay', onclick: () => closeCaptionDrawer() }),
     el('aside', { class: 'meses-drawer' }, [
       el('header', { class: 'meses-drawer__head' }, [
@@ -818,20 +818,20 @@ function openCaptionDrawer(post) {
           el('h3', { class: 'meses-drawer__title', text: post.title || T('Sin título', 'Untitled') }),
         ]),
         el('button', {
-          class: 'meses-drawer__close', type: 'button', 'aria-label': 'Cerrar',
+          class: 'meses-drawer__close', type: 'button', 'aria-label': T('Cerrar', 'Close'),
           onclick: () => closeCaptionDrawer(),
         }, [icon('close', 18)]),
       ]),
       body,
       el('div', { class: 'meses-drawer__copyrow' }, [
-        el('button', { class: 'btn meses-drawer__copybtn', type: 'button', title: 'Copia solo el caption', onclick: copyCaptionOnly }, [icon('copy', 14), 'Copiar caption']),
-        el('button', { class: 'btn meses-drawer__copybtn', type: 'button', title: 'Caption + hashtags juntos, listos para pegar en IG', onclick: copyCaptionAll }, [icon('copy', 14), 'Copiar caption + hashtags']),
-        el('button', { class: 'btn meses-drawer__copybtn', type: 'button', title: 'HOOK, BODY y CTA etiquetados', onclick: copyScriptAll }, [icon('copy', 14), 'Copiar guion completo']),
+        el('button', { class: 'btn meses-drawer__copybtn', type: 'button', title: T('Copia solo el caption', 'Copy only the caption'), onclick: copyCaptionOnly }, [icon('copy', 14), T('Copiar caption', 'Copy caption')]),
+        el('button', { class: 'btn meses-drawer__copybtn', type: 'button', title: T('Caption + hashtags juntos, listos para pegar en IG', 'Caption + hashtags together, ready to paste into IG'), onclick: copyCaptionAll }, [icon('copy', 14), T('Copiar caption + hashtags', 'Copy caption + hashtags')]),
+        el('button', { class: 'btn meses-drawer__copybtn', type: 'button', title: T('HOOK, BODY y CTA etiquetados', 'HOOK, BODY and CTA labeled'), onclick: copyScriptAll }, [icon('copy', 14), T('Copiar guion completo', 'Copy full script')]),
       ]),
       el('footer', { class: 'meses-drawer__foot' }, [
         indicatorEl,
         el('div', { class: 'meses-drawer__actions' }, [
-          el('button', { class: 'btn btn-primary', type: 'button', text: 'Listo', onclick: () => closeCaptionDrawer() }),
+          el('button', { class: 'btn btn-primary', type: 'button', text: T('Listo', 'Done'), onclick: () => closeCaptionDrawer() }),
         ]),
       ]),
     ]),
@@ -858,7 +858,7 @@ function openCaptionDrawer(post) {
 
 function openUrlSheet(post, field, title, { allowUpload = false } = {}) {
   const current = safeUrl(post[field]) || '';
-  const msgSaved = 'Enlace guardado.';
+  const msgSaved = T('Enlace guardado.', 'Link saved.');
   // ¿El valor actual es un video subido a R2 (no un enlace externo)?
   const isUploaded = allowUpload && /\/posts\/[a-z0-9]+\/video(?:\?|$)/i.test(current);
 
@@ -872,7 +872,7 @@ function openUrlSheet(post, field, title, { allowUpload = false } = {}) {
       });
       // Si lo actual es un video subido, el campo de enlace arranca vacío.
       input.value = isUploaded ? '' : current;
-      const help = el('div', { class: 'help meses-urlhelp', text: 'Pega un enlace que empiece con http:// o https://' });
+      const help = el('div', { class: 'help meses-urlhelp', text: T('Pega un enlace que empiece con http:// o https://', 'Paste a link starting with http:// or https://') });
 
       // Quitar el valor actual (enlace externo o video subido en R2).
       const removeNow = async () => {
@@ -880,11 +880,11 @@ function openUrlSheet(post, field, title, { allowUpload = false } = {}) {
         if (isUploaded) {
           try {
             const r = await fetch(`/api/marketing/posts/${post.id}/video`, { method: 'DELETE', credentials: 'include' });
-            if (r.ok) { ctx.store.upsertPost(await r.json()); ctx.toast('Video quitado.', { type: 'success' }); return; }
+            if (r.ok) { ctx.store.upsertPost(await r.json()); ctx.toast(T('Video quitado.', 'Video removed.'), { type: 'success' }); return; }
           } catch { /* cae al patch */ }
-          patchWithUndo(post, { video_url: null }, { video_url: current }, 'Video quitado.');
+          patchWithUndo(post, { video_url: null }, { video_url: current }, T('Video quitado.', 'Video removed.'));
         } else {
-          patchWithUndo(post, { [field]: null }, { [field]: current }, 'Enlace quitado.');
+          patchWithUndo(post, { [field]: null }, { [field]: current }, T('Enlace quitado.', 'Link removed.'));
         }
       };
 
@@ -896,7 +896,7 @@ function openUrlSheet(post, field, title, { allowUpload = false } = {}) {
         }
         const url = safeUrl(raw);
         if (!url) {
-          help.textContent = 'Ese enlace no es válido. Debe empezar con http:// o https://';
+          help.textContent = T('Ese enlace no es válido. Debe empezar con http:// o https://', 'That link is not valid. It must start with http:// or https://');
           help.classList.add('meses-urlhelp--error');
           input.focus();
           return;
@@ -910,8 +910,8 @@ function openUrlSheet(post, field, title, { allowUpload = false } = {}) {
       });
 
       const footer = el('div', { class: 'sheet__footer' }, [
-        el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
-        el('button', { class: 'btn btn-primary', type: 'button', text: 'Guardar', onclick: save }),
+        el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
+        el('button', { class: 'btn btn-primary', type: 'button', text: T('Guardar', 'Save'), onclick: save }),
       ]);
 
       // ── Subir archivo (solo Video final): sube directo a R2 con progreso ──
@@ -920,15 +920,15 @@ function openUrlSheet(post, field, title, { allowUpload = false } = {}) {
           type: 'file', accept: 'video/mp4,video/quicktime,video/webm,video/*',
           style: { display: 'none' },
         });
-        const upHint = el('div', { class: 'help meses-uphint', text: 'MP4, MOV o WebM · hasta 100 MB' });
+        const upHint = el('div', { class: 'help meses-uphint', text: T('MP4, MOV o WebM · hasta 100 MB', 'MP4, MOV or WebM · up to 100 MB') });
         const upBtn = el('button', { class: 'btn meses-upbtn', type: 'button', onclick: () => fileInput.click() },
-          [icon('plus', 16), el('span', { text: isUploaded ? 'Reemplazar video' : 'Subir video' })]);
+          [icon('plus', 16), el('span', { text: isUploaded ? T('Reemplazar video', 'Replace video') : T('Subir video', 'Upload video') })]);
 
         fileInput.addEventListener('change', () => {
           const f = fileInput.files && fileInput.files[0];
           if (!f) return;
           if (f.size > 100 * 1024 * 1024) {
-            upHint.textContent = 'El video supera 100 MB. Comprímelo o pega un enlace.';
+            upHint.textContent = T('El video supera 100 MB. Comprímelo o pega un enlace.', 'The video is over 100 MB. Compress it or paste a link.');
             upHint.classList.add('meses-urlhelp--error');
             return;
           }
@@ -939,38 +939,38 @@ function openUrlSheet(post, field, title, { allowUpload = false } = {}) {
           xhr.open('POST', `/api/marketing/posts/${post.id}/video`);
           xhr.withCredentials = true;
           xhr.upload.onprogress = (e) => {
-            if (e.lengthComputable) upHint.textContent = `Subiendo… ${Math.round((e.loaded / e.total) * 100)}%`;
+            if (e.lengthComputable) upHint.textContent = `${T('Subiendo…', 'Uploading…')} ${Math.round((e.loaded / e.total) * 100)}%`;
           };
           xhr.onload = () => {
             upBtn.disabled = false;
             if (xhr.status >= 200 && xhr.status < 300) {
               try { ctx.store.upsertPost(JSON.parse(xhr.responseText)); } catch { /* noop */ }
               close({ source: 'save' });
-              ctx.toast('Video subido.', { type: 'success' });
+              ctx.toast(T('Video subido.', 'Video uploaded.'), { type: 'success' });
             } else {
-              let m = 'No se pudo subir el video.';
+              let m = T('No se pudo subir el video.', 'Could not upload the video.');
               try { m = JSON.parse(xhr.responseText).error || m; } catch { /* noop */ }
               upHint.textContent = m; upHint.classList.add('meses-urlhelp--error');
             }
           };
-          xhr.onerror = () => { upBtn.disabled = false; upHint.textContent = 'Error de red al subir.'; upHint.classList.add('meses-urlhelp--error'); };
+          xhr.onerror = () => { upBtn.disabled = false; upHint.textContent = T('Error de red al subir.', 'Network error while uploading.'); upHint.classList.add('meses-urlhelp--error'); };
           xhr.send(fd);
         });
 
         body.append(
-          el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Subir archivo' }), upBtn, fileInput, upHint]),
-          el('div', { class: 'meses-or', text: 'o pega un enlace' }),
+          el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Subir archivo', 'Upload file') }), upBtn, fileInput, upHint]),
+          el('div', { class: 'meses-or', text: T('o pega un enlace', 'or paste a link') }),
         );
       }
 
       body.append(
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: 'Enlace' }), input]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Enlace', 'Link') }), input]),
         help,
       );
       if (current) {
         body.appendChild(el('button', {
           class: 'meses-urlremove', type: 'button',
-          text: isUploaded ? 'Quitar video' : 'Quitar enlace',
+          text: isUploaded ? T('Quitar video', 'Remove video') : T('Quitar enlace', 'Remove link'),
           onclick: removeNow,
         }));
       }
@@ -994,7 +994,7 @@ function statusPillNode(status) {
   const def = STATUSES[status];
   const pill = el('span', { class: 'meses-pill' }, [
     el('span', { class: 'meses-pill__dot', 'aria-hidden': 'true' }),
-    el('span', { text: statusLabel(status) || 'Sin estado' }),
+    el('span', { text: statusLabel(status) || T('Sin estado', 'No status') }),
   ]);
   pill.style.setProperty('--chipc', (def && def.color) || 'var(--text-mute)');
   return pill;
@@ -1021,8 +1021,8 @@ function buildMonthProgress(rows) {
 
   return el('div', { class: 'meses-prog' }, [
     el('div', { class: 'meses-prog__head' }, [
-      el('span', { class: 'meses-prog__label', text: 'Progreso del mes' }),
-      el('span', { class: 'meses-prog__pct', text: `${pct}% · ${publicados}/${total} publicados` }),
+      el('span', { class: 'meses-prog__label', text: T('Progreso del mes', 'Month progress') }),
+      el('span', { class: 'meses-prog__pct', text: `${pct}% · ${publicados}/${total} ${T('publicados', 'published')}` }),
     ]),
     el('div', { class: 'meses-prog__track meses-prog__track--seg' }, segs),
   ]);
@@ -1091,7 +1091,7 @@ function buildUrlCell(post, field, label) {
     td.appendChild(cellButton(
       el('span', { class: 'meses-muted', text: '+' }),
       () => openUrlSheet(post, field, label, { allowUpload: field === 'video_url' }),
-      `Agregar ${label}`,
+      `${T('Agregar', 'Add')} ${label}`,
     ));
     return td;
   }
@@ -1099,7 +1099,7 @@ function buildUrlCell(post, field, label) {
     class: 'meses-url__a', href: url, target: '_blank', rel: 'noopener noreferrer', title: url,
   }, [icon('link', 13), el('span', { text: shortUrl(url) })]);
   const editBtn = el('button', {
-    class: 'meses-url__edit', type: 'button', 'aria-label': `Cambiar ${label}`,
+    class: 'meses-url__edit', type: 'button', 'aria-label': `${T('Cambiar', 'Change')} ${label}`,
     onclick: () => openUrlSheet(post, field, label, { allowUpload: field === 'video_url' }),
   }, [icon('edit', 13)]);
   td.appendChild(el('span', { class: 'meses-url' }, [link, editBtn]));
@@ -1114,7 +1114,7 @@ function buildRow(post, noteLabels) {
     cellButton(
       grabChipNode(post.grabacion),
       (anchor) => onPickGrabacion(post, anchor),
-      post.grabacion ? `Grabación nivel ${post.grabacion}, cambiar` : 'Asignar grabación',
+      post.grabacion ? T(`Grabación nivel ${post.grabacion}, cambiar`, `Recording level ${post.grabacion}, change`) : T('Asignar grabación', 'Set recording'),
     ),
   ]);
 
@@ -1126,36 +1126,36 @@ function buildRow(post, noteLabels) {
     onclick: () => openInlineEdit({
       cell: tdTask,
       current: post.title || '',
-      label: 'Tarea',
+      label: T('Tarea', 'Task'),
       maxLength: 300,
       multiline: false,
       onSave: (v) => saveTitle(post, v),
     }),
   }, [el('span', { class: 'meses-task__label', text: post.title || T('Sin título', 'Untitled') })]);
   const openBtn = el('button', {
-    class: 'meses-task__open', type: 'button', 'aria-label': 'Abrir en el editor',
-    title: 'Abrir',
+    class: 'meses-task__open', type: 'button', 'aria-label': T('Abrir en el editor', 'Open in editor'),
+    title: T('Abrir', 'Open'),
     onclick: () => ctx.openEditor(post.id),
   }, [icon('edit', 14)]);
   const deleteBtn = el('button', {
-    class: 'meses-task__del', type: 'button', 'aria-label': 'Eliminar fila',
-    title: 'Eliminar fila',
+    class: 'meses-task__del', type: 'button', 'aria-label': T('Eliminar fila', 'Delete row'),
+    title: T('Eliminar fila', 'Delete row'),
     onclick: () => confirmDeleteRow(post),
   }, [icon('trash', 14)]);
   const dragBtn = el('button', {
     class: 'meses-task__drag', type: 'button',
-    'aria-label': 'Arrastrar para reordenar', title: 'Arrastrar para reordenar',
+    'aria-label': T('Arrastrar para reordenar', 'Drag to reorder'), title: T('Arrastrar para reordenar', 'Drag to reorder'),
   }, [icon('grip', 14)]);
   tdTask.appendChild(el('span', { class: 'meses-task' }, [dragBtn, titleBtn, openBtn, deleteBtn]));
 
   // Plataforma / Tipo / Estado (pickers compartidos)
   const tdPlat = el('td', { class: 'meses-td' }, [
     cellButton(platformNode(post.platform), (a) => onPickPlatform(post, a),
-      post.platform ? `Plataforma ${post.platform}, cambiar` : 'Asignar plataforma'),
+      post.platform ? T(`Plataforma ${post.platform}, cambiar`, `Platform ${post.platform}, change`) : T('Asignar plataforma', 'Set platform')),
   ]);
   const tdType = el('td', { class: 'meses-td' }, [
     cellButton(typePillNode(post.content_type), (a) => onPickType(post, a),
-      post.content_type ? `Tipo ${contentTypeLabel(post.content_type)}, cambiar` : 'Asignar tipo'),
+      post.content_type ? T(`Tipo ${contentTypeLabel(post.content_type)}, cambiar`, `Type ${contentTypeLabel(post.content_type)}, change`) : T('Asignar tipo', 'Set type')),
   ]);
   // Estado + puntito de aprobación (pendiente/aprobado/cambios) en la misma
   // celda: la aprobación del cliente se ve sin abrir el editor.
@@ -1163,7 +1163,7 @@ function buildRow(post, noteLabels) {
     cellButton(
       el('span', { class: 'meses-statuscell' }, [statusPillNode(post.status), approvalDotNode(post)]),
       (a) => onPickStatus(post, a),
-      `Estado ${statusLabel(post.status) || 'sin estado'}, aprobación ${approvalLabel(approvalOf(post)).toLowerCase()}, cambiar`,
+      `${T('Estado', 'Status')} ${statusLabel(post.status) || T('sin estado', 'no status')}, ${T('aprobación', 'approval')} ${approvalLabel(approvalOf(post)).toLowerCase()}, ${T('cambiar', 'change')}`,
     ),
   ]);
 
@@ -1185,9 +1185,9 @@ function buildRow(post, noteLabels) {
   // cae al body y por último al caption.
   const guionPreview = post.hook || post.body || post.caption;
   tdCaption.appendChild(cellButton(
-    textCellNode(guionPreview, 'Agregar guion'),
+    textCellNode(guionPreview, T('Agregar guion', 'Add script')),
     () => openCaptionDrawer(post),
-    'Abrir guion completo',
+    T('Abrir guion completo', 'Open full script'),
   ));
 
   // Orden EXACTO de su Notion: Grab | Tarea | Estado | Fecha | Plataforma | Tipo | Captions
@@ -1198,23 +1198,23 @@ function buildRow(post, noteLabels) {
   for (const person of noteLabels) {
     const td = el('td', { class: 'meses-td meses-td--text' });
     td.appendChild(cellButton(
-      textCellNode(notes[person], 'Agregar nota'),
+      textCellNode(notes[person], T('Agregar nota', 'Add note')),
       () => openInlineEdit({
         cell: td,
         current: notes[person] || '',
-        label: `Notas ${person}`,
+        label: `${T('Notas', 'Notes')} ${person}`,
         maxLength: 2000,
         multiline: true,
         onSave: (v) => saveNote(post, person, v),
       }),
-      `Editar notas de ${person}`,
+      `${T('Editar notas de', 'Edit notes for')} ${person}`,
     ));
     tr.appendChild(td);
   }
 
   tr.append(
     buildUrlCell(post, 'inspo_url', 'Inspo'),
-    buildUrlCell(post, 'video_url', 'Video final'),
+    buildUrlCell(post, 'video_url', T('Video final', 'Final video')),
   );
   return tr;
 }
@@ -1264,7 +1264,7 @@ function wireRowDnd(tbody) {
       if (!wasManual) setSort('manual', 'asc');
       const ok = await trackMutation(ctx.store.reorder(updates));
       if (ok && !wasManual) {
-        ctx.toast('Orden manual activado: las filas quedan como las acomodes.', { type: 'info' });
+        ctx.toast(T('Orden manual activado: las filas quedan como las acomodes.', 'Manual order on: rows stay where you arrange them.'), { type: 'info' });
       }
       scheduleRender();
     },
@@ -1287,7 +1287,7 @@ function buildTable(rows, noteLabels) {
     return el('th', { scope: 'col', ...extra }, [
       el('button', {
         class: 'meses-th__filter' + (filtered ? ' is-active' : '') + (sorted ? ' is-sorted' : ''),
-        type: 'button', 'aria-haspopup': 'dialog', title: 'Ordenar y filtrar',
+        type: 'button', 'aria-haspopup': 'dialog', title: T('Ordenar y filtrar', 'Sort and filter'),
         onclick: (e) => openColMenu({ skey, sortType, label, filterDim }, e.currentTarget),
       }, [
         el('span', { text: txt }),
@@ -1381,8 +1381,8 @@ function buildMobileItem(post, noteLabels) {
         icon('right', 16),
       ]),
       el('button', {
-        class: 'meses-item__del', type: 'button', 'aria-label': 'Eliminar fila',
-        title: 'Eliminar fila',
+        class: 'meses-item__del', type: 'button', 'aria-label': T('Eliminar fila', 'Delete row'),
+        title: T('Eliminar fila', 'Delete row'),
         onclick: () => confirmDeleteRow(post),
       }, [icon('trash', 18)]),
     ]),
@@ -1394,7 +1394,7 @@ function buildMobileItem(post, noteLabels) {
   const cap = String(post.hook || post.body || post.caption || '').trim();
   if (cap) {
     card.appendChild(el('button', {
-      class: 'meses-item__cap', type: 'button', 'aria-label': 'Ver guion completo',
+      class: 'meses-item__cap', type: 'button', 'aria-label': T('Ver guion completo', 'View full script'),
       onclick: () => openCaptionDrawer(post),
     }, [el('span', { class: 'meses-item__captext', text: cap })]));
   }
@@ -1407,7 +1407,7 @@ function buildMobileItem(post, noteLabels) {
       el('a', {
         class: 'meses-chip meses-chip--inspo', href: inspoUrl,
         target: '_blank', rel: 'noopener noreferrer',
-        'aria-label': `Ver inspiración (${shortUrl(inspoUrl)})`, title: inspoUrl,
+        'aria-label': `${T('Ver inspiración', 'View inspiration')} (${shortUrl(inspoUrl)})`, title: inspoUrl,
       }, [icon('link', 13), el('span', { text: 'Inspo' })]),
       chips.children[1] || null, // justo después de la fecha
     );
@@ -1419,7 +1419,7 @@ function buildMobileItem(post, noteLabels) {
   const apprDef = APPROVALS[apprState] || APPROVALS.pending;
   const apprChip = el('span', {
     class: 'meses-chip meses-chip--appr',
-    'aria-label': `Aprobación: ${approvalLabel(apprState)}`,
+    'aria-label': `${T('Aprobación:', 'Approval:')} ${approvalLabel(apprState)}`,
   }, [
     el('span', { class: 'meses-chip__dot', 'aria-hidden': 'true' }),
     el('span', { text: approvalLabel(apprState) }),
@@ -1439,7 +1439,7 @@ function buildMobileItem(post, noteLabels) {
       if (!txt) return null;
       return el('button', {
         class: 'meses-note', type: 'button',
-        'aria-label': `Nota de ${person}, abrir para editar`,
+        'aria-label': T(`Nota de ${person}, abrir para editar`, `Note from ${person}, open to edit`),
         onclick: () => ctx.openEditor(post.id, { tab: 'contenido' }),
       }, [
         el('span', { class: 'meses-note__who', text: person }),
@@ -1467,7 +1467,7 @@ function buildMobileItem(post, noteLabels) {
   if (isClientRole() && apprState === 'pending') {
     const okBtn = el('button', {
       class: 'meses-approve__btn meses-approve__btn--ok', type: 'button',
-      'aria-label': `Aprobar "${post.title || T('Sin título', 'Untitled')}"`,
+      'aria-label': `${T('Aprobar', 'Approve')} "${post.title || T('Sin título', 'Untitled')}"`,
       onclick: async () => {
         okBtn.disabled = true;
         await sendApprovalDecision(post, 'approved', null);
@@ -1509,7 +1509,7 @@ function buildComposer(key, monthRows) {
     // reintentos crean filas fantasma). Se limpian los filtros antes de crear.
     if (Object.values(getFilters()).some(Boolean)) {
       setFilters({});
-      ctx.toast('Quitamos los filtros para que veas tu fila nueva.', { type: 'info' });
+      ctx.toast(T('Quitamos los filtros para que veas tu fila nueva.', 'We cleared the filters so you can see your new row.'), { type: 'info' });
     }
     const data = {
       client_id: activeClientId,
@@ -1544,10 +1544,10 @@ async function openAddMonth() {
     options.push({ value: ym, label: capitalize(monthLabel(ym)), current: false });
   }
   if (!options.length) {
-    ctx.toast('Esos meses ya están en la lista.', { type: 'info' });
+    ctx.toast(T('Esos meses ya están en la lista.', 'Those months are already in the list.'), { type: 'info' });
     return;
   }
-  const v = await ctx.sheet.pickFrom({ title: 'Agregar mes', options });
+  const v = await ctx.sheet.pickFrom({ title: T('Agregar mes', 'Add month'), options });
   if (!v) return;
 
   const list = getExtraMonths();
@@ -1571,7 +1571,7 @@ async function openCopyMonth() {
   const { activeClientId, posts } = ctx.store.getState();
   if (!activeClientId || activeClientId === 'todos') return;
   if (!activeMonth || activeMonth === SIN_MES) {
-    ctx.toast('Elige primero un mes destino con fecha.', { type: 'info' });
+    ctx.toast(T('Elige primero un mes destino con fecha.', 'First pick a target month with a date.'), { type: 'info' });
     return;
   }
 
@@ -1585,17 +1585,17 @@ async function openCopyMonth() {
   }
   const keys = [...byM.keys()].sort().reverse(); // el más reciente primero
   if (!keys.length) {
-    ctx.toast('No hay otro mes con contenido para copiar.', { type: 'info' });
+    ctx.toast(T('No hay otro mes con contenido para copiar.', 'No other month has content to copy.'), { type: 'info' });
     return;
   }
 
   const destLbl = capitalize(monthLabel(activeMonth));
   const src = await ctx.sheet.pickFrom({
-    title: `Copiar a ${destLbl} desde…`,
+    title: `${T('Copiar a', 'Copy to')} ${destLbl} ${T('desde…', 'from…')}`,
     options: keys.map((ym) => ({
       value: ym,
       label: capitalize(monthLabel(ym)),
-      sub: `${byM.get(ym).length} ${byM.get(ym).length === 1 ? 'pieza' : 'piezas'}`,
+      sub: `${byM.get(ym).length} ${byM.get(ym).length === 1 ? T('pieza', 'piece') : T('piezas', 'pieces')}`,
     })),
   });
   if (!src) return;
@@ -1604,7 +1604,7 @@ async function openCopyMonth() {
   const [dy, dm] = activeMonth.split('-').map(Number);
   const lastDay = new Date(dy, dm, 0).getDate();
   copiandoMes = true;
-  ctx.toast(`Copiando ${rows.length} ${rows.length === 1 ? 'pieza' : 'piezas'} de ${capitalize(monthLabel(src))} a ${destLbl}…`, { type: 'info' });
+  ctx.toast(`${T('Copiando', 'Copying')} ${rows.length} ${rows.length === 1 ? T('pieza', 'piece') : T('piezas', 'pieces')} ${T('de', 'from')} ${capitalize(monthLabel(src))} ${T('a', 'to')} ${destLbl}…`, { type: 'info' });
 
   let ok = 0;
   let fail = 0;
@@ -1631,8 +1631,8 @@ async function openCopyMonth() {
   // Estado fresco del servidor al final (posiciones, títulos, contadores).
   await ctx.store.loadPosts();
   ctx.store.refreshClientCounts();
-  if (fail) ctx.toast(`Se copiaron ${ok} de ${rows.length} piezas; ${fail} fallaron. Inténtalo de nuevo para las que faltan.`, { type: 'error' });
-  else ctx.toast(`Listo: ${ok} ${ok === 1 ? 'pieza copiada' : 'piezas copiadas'} a ${destLbl}. ✨`, { type: 'success' });
+  if (fail) ctx.toast(`${T('Se copiaron', 'Copied')} ${ok} ${T('de', 'of')} ${rows.length} ${T('piezas;', 'pieces;')} ${fail} ${T('fallaron. Inténtalo de nuevo para las que faltan.', 'failed. Try again for the missing ones.')}`, { type: 'error' });
+  else ctx.toast(`${T('Listo:', 'Done:')} ${ok} ${ok === 1 ? T('pieza copiada', 'piece copied') : T('piezas copiadas', 'pieces copied')} ${T('a', 'to')} ${destLbl}. ✨`, { type: 'success' });
 }
 
 
@@ -1648,23 +1648,23 @@ function openIgManual() {
   const brand = (clients || []).find((c) => c.id === activeClientId);
   const mesLbl = capitalize(monthLabel(activeMonth));
   ctx.sheet.openSheet({
-    title: `Resultados de IG · ${mesLbl}`,
+    title: `${T('Resultados de IG', 'IG results')} · ${mesLbl}`,
     mode: 'form',
     build(body, close) {
       const field = (label, key, ph) => {
         const input = el('input', { class: 'input', type: 'number', min: '0', inputmode: 'numeric', placeholder: ph, dataset: { k: key } });
         return { row: el('div', { class: 'field' }, [el('label', { class: 'label', text: label }), input]), input };
       };
-      const f1 = field('Seguidores', 'followers', 'ej. 4100');
-      const f2 = field('Alcance del mes', 'reach', 'ej. 35000');
-      const f3 = field('Interacciones (likes + comentarios)', 'interactions', 'ej. 1200');
-      const f4 = field('Publicaciones del mes', 'posts', 'ej. 12');
+      const f1 = field(T('Seguidores', 'Followers'), 'followers', T('ej. 4100', 'e.g. 4100'));
+      const f2 = field(T('Alcance del mes', 'Month reach'), 'reach', T('ej. 35000', 'e.g. 35000'));
+      const f3 = field(T('Interacciones (likes + comentarios)', 'Interactions (likes + comments)'), 'interactions', T('ej. 1200', 'e.g. 1200'));
+      const f4 = field(T('Publicaciones del mes', 'Posts this month'), 'posts', T('ej. 12', 'e.g. 12'));
       const inputs = [f1, f2, f3, f4];
       const hint = el('p', {
         class: 'meses-confirm__txt',
-        text: `Abre Meta Business Suite → ${(brand && brand.name) || 'la marca'} → Estadísticas, copia los números de ${mesLbl} y pégalos aquí. Saldrán en el reporte mensual con tu logo.`,
+        text: `${T('Abre Meta Business Suite →', 'Open Meta Business Suite →')} ${(brand && brand.name) || T('la marca', 'the brand')} ${T('→ Estadísticas, copia los números de', '→ Insights, copy the numbers for')} ${mesLbl} ${T('y pégalos aquí. Saldrán en el reporte mensual con tu logo.', 'and paste them here. They will show in the monthly report with your logo.')}`,
       });
-      const saveBtn = el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: 'Guardar resultados' });
+      const saveBtn = el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: T('Guardar resultados', 'Save results') });
       saveBtn.addEventListener('click', async () => {
         saveBtn.disabled = true;
         const payload = { client_id: activeClientId, month: activeMonth };
@@ -1675,16 +1675,16 @@ function openIgManual() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
           });
-          if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'No se pudo guardar.');
+          if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || T('No se pudo guardar.', 'Could not save.'));
           close({ source: 'saved' });
-          ctx.toast(`Resultados de IG de ${mesLbl} guardados. Ya salen en el reporte. ✨`, { type: 'success' });
+          ctx.toast(`${T('Resultados de IG de', 'IG results for')} ${mesLbl} ${T('guardados. Ya salen en el reporte. ✨', 'saved. They already show in the report. ✨')}`, { type: 'success' });
         } catch (e) {
-          ctx.toast(e.message || 'No se pudo guardar.', { type: 'error' });
+          ctx.toast(e.message || T('No se pudo guardar.', 'Could not save.'), { type: 'error' });
           saveBtn.disabled = false;
         }
       });
       body.append(hint, f1.row, f2.row, f3.row, f4.row, el('div', { class: 'sheet__footer' }, [
-        el('button', { class: 'btn', type: 'button', text: 'Cancelar', onclick: () => close({ source: 'cancel' }) }),
+        el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
         saveBtn,
       ]));
       // La usuaria puede empezar a teclear antes de que llegue la precarga:
@@ -1760,7 +1760,7 @@ function renderBrief(brief) {
     }
   }
   if (!root.childNodes.length) {
-    root.appendChild(el('p', { class: 'meses-confirm__txt', text: 'El brief está vacío.' }));
+    root.appendChild(el('p', { class: 'meses-confirm__txt', text: T('El brief está vacío.', 'The brief is empty.') }));
   }
   return root;
 }
@@ -1777,16 +1777,16 @@ async function openBrief() {
       brief = await api.get(`/clients/${activeClientId}/brief`);
     } catch (e) {
       if (!ctx) return; // la vista se desmontó mientras cargaba
-      if (e && e.status === 404) ctx.toast('Esta marca aún no llena su brief', { type: 'info' });
-      else ctx.toast((e && e.message) || 'No se pudo cargar el brief.', { type: 'error' });
+      if (e && e.status === 404) ctx.toast(T('Esta marca aún no llena su brief', 'This brand has not filled out its brief yet'), { type: 'info' });
+      else ctx.toast((e && e.message) || T('No se pudo cargar el brief.', 'Could not load the brief.'), { type: 'error' });
       return;
     }
     if (!ctx) return;
-    if (brief == null) { ctx.toast('Esta marca aún no llena su brief', { type: 'info' }); return; }
+    if (brief == null) { ctx.toast(T('Esta marca aún no llena su brief', 'This brand has not filled out its brief yet'), { type: 'info' }); return; }
     briefCache.set(activeClientId, brief);
   }
   ctx.sheet.openSheet({
-    title: `Brief de ${(brand && brand.name) || 'la marca'}`,
+    title: `${T('Brief de', 'Brief for')} ${(brand && brand.name) || T('la marca', 'the brand')}`,
     mode: 'menu',
     build(body) {
       body.appendChild(renderBrief(brief));
@@ -1809,16 +1809,16 @@ async function toggleReminders(btn) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ reminders_enabled: next }),
     });
-    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'No se pudo guardar.');
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || T('No se pudo guardar.', 'Could not save.'));
     ctx.store.set({ clients: clients.map((c) => (c.id === activeClientId ? { ...c, reminders_enabled: next } : c)) });
     const span = btn.querySelector('.meses-remtoggle__txt');
-    if (span) span.textContent = `Avisos automáticos: ${next ? 'Activados' : 'Desactivados'}`;
+    if (span) span.textContent = `${T('Avisos automáticos:', 'Automatic alerts:')} ${next ? T('Activados', 'On') : T('Desactivados', 'Off')}`;
     btn.classList.toggle('is-off', !next);
     ctx.toast(next
-      ? `Avisos automáticos activados para ${brand.name}.`
-      : `Avisos automáticos desactivados para ${brand.name}.`, { type: 'success' });
+      ? `${T('Avisos automáticos activados para', 'Automatic alerts turned on for')} ${brand.name}.`
+      : `${T('Avisos automáticos desactivados para', 'Automatic alerts turned off for')} ${brand.name}.`, { type: 'success' });
   } catch (e) {
-    ctx.toast(e.message || 'No se pudo guardar.', { type: 'error' });
+    ctx.toast(e.message || T('No se pudo guardar.', 'Could not save.'), { type: 'error' });
   } finally {
     btn.disabled = false;
   }
@@ -1899,7 +1899,7 @@ function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTod
   const sec = el('section', {
     class: 'meses-sec' + (showCollapsed ? ' is-collapsed' : ''),
     dataset: { mes: key },
-    'aria-label': `${label}, ${rows.length} ${rows.length === 1 ? 'fila' : 'filas'}`,
+    'aria-label': `${label}, ${rows.length} ${rows.length === 1 ? T('fila', 'row') : T('filas', 'rows')}`,
   }, [heading, statsStrip, body]);
 
   if (head) head.addEventListener('click', () => toggleSection(sec, key));
@@ -1977,21 +1977,21 @@ async function openColMenu({ skey, sortType, label, filterDim }, anchor) {
   const options = [];
   if (skey) {
     if (sortType === 'date') {
-      options.push({ value: 'sort:asc',  label: 'Ordenar: más antiguo primero (día 1 → 31)', current: s.key === skey && s.dir === 'asc' });
-      options.push({ value: 'sort:desc', label: 'Ordenar: más reciente primero (día 31 → 1)', current: s.key === skey && s.dir === 'desc' });
+      options.push({ value: 'sort:asc',  label: T('Ordenar: más antiguo primero (día 1 → 31)', 'Sort: oldest first (day 1 → 31)'), current: s.key === skey && s.dir === 'asc' });
+      options.push({ value: 'sort:desc', label: T('Ordenar: más reciente primero (día 31 → 1)', 'Sort: newest first (day 31 → 1)'), current: s.key === skey && s.dir === 'desc' });
     } else if (sortType === 'num') {
-      options.push({ value: 'sort:asc',  label: 'Ordenar: 1 → 5', current: s.key === skey && s.dir === 'asc' });
-      options.push({ value: 'sort:desc', label: 'Ordenar: 5 → 1', current: s.key === skey && s.dir === 'desc' });
+      options.push({ value: 'sort:asc',  label: T('Ordenar: 1 → 5', 'Sort: 1 → 5'), current: s.key === skey && s.dir === 'asc' });
+      options.push({ value: 'sort:desc', label: T('Ordenar: 5 → 1', 'Sort: 5 → 1'), current: s.key === skey && s.dir === 'desc' });
     } else {
-      options.push({ value: 'sort:asc',  label: 'Ordenar: A → Z', current: s.key === skey && s.dir === 'asc' });
-      options.push({ value: 'sort:desc', label: 'Ordenar: Z → A', current: s.key === skey && s.dir === 'desc' });
+      options.push({ value: 'sort:asc',  label: T('Ordenar: A → Z', 'Sort: A → Z'), current: s.key === skey && s.dir === 'asc' });
+      options.push({ value: 'sort:desc', label: T('Ordenar: Z → A', 'Sort: Z → A'), current: s.key === skey && s.dir === 'desc' });
     }
   }
   if (filterDim) {
     const dimDef = FILTER_DIMS.find((x) => x.dim === filterDim);
     const seen = new Map();
     for (const p of allPostsForFilters) { const v = dimDef.getVal(p); if (v) seen.set(v, (seen.get(v) || 0) + 1); }
-    options.push({ value: 'all', label: 'Mostrar todos', current: !f[filterDim] });
+    options.push({ value: 'all', label: T('Mostrar todos', 'Show all'), current: !f[filterDim] });
     for (const [v, n] of [...seen.entries()].sort((a, b) => String(a[0]).localeCompare(String(b[0])))) {
       options.push({ value: 'f:' + v, label: `${dimDef.labelOf(v)} (${n})`, current: f[filterDim] === v });
     }
@@ -2011,32 +2011,32 @@ async function onFilterChip(dimDef, allPosts, anchor) {
     const v = dimDef.getVal(p);
     if (v) seen.set(v, (seen.get(v) || 0) + 1);
   }
-  const options = [{ value: 'all', label: 'Todos', current: !f[dimDef.dim] }];
+  const options = [{ value: 'all', label: T('Todos', 'All'), current: !f[dimDef.dim] }];
   for (const [v, n] of [...seen.entries()].sort((a, b) => String(a[0]).localeCompare(String(b[0])))) {
     options.push({ value: v, label: `${dimDef.labelOf(v)} (${n})`, current: f[dimDef.dim] === v });
   }
-  const v = await ctx.sheet.pickFrom({ title: `Filtrar por ${dimDef.label.toLowerCase()}`, options, anchor });
+  const v = await ctx.sheet.pickFrom({ title: `${T('Filtrar por', 'Filter by')} ${dimDef.label.toLowerCase()}`, options, anchor });
   if (!v) return;
   setFilters({ ...f, [dimDef.dim]: v === 'all' ? '' : v });
   render();
 }
 
 const SORT_MENU = [
-  { value: 'date:asc',     label: 'Fecha: antiguo primero (día 1 → 31)' },
-  { value: 'date:desc',    label: 'Fecha: reciente primero (día 31 → 1)' },
-  { value: 'task:asc',     label: 'Tarea: A → Z' },
-  { value: 'task:desc',    label: 'Tarea: Z → A' },
-  { value: 'status:asc',   label: 'Estado: A → Z' },
-  { value: 'platform:asc', label: 'Plataforma: A → Z' },
-  { value: 'type:asc',     label: 'Tipo: A → Z' },
-  { value: 'grab:asc',     label: 'Grabación: 1 → 5' },
+  { value: 'date:asc',     label: T('Fecha: antiguo primero (día 1 → 31)', 'Date: oldest first (day 1 → 31)') },
+  { value: 'date:desc',    label: T('Fecha: reciente primero (día 31 → 1)', 'Date: newest first (day 31 → 1)') },
+  { value: 'task:asc',     label: T('Tarea: A → Z', 'Task: A → Z') },
+  { value: 'task:desc',    label: T('Tarea: Z → A', 'Task: Z → A') },
+  { value: 'status:asc',   label: T('Estado: A → Z', 'Status: A → Z') },
+  { value: 'platform:asc', label: T('Plataforma: A → Z', 'Platform: A → Z') },
+  { value: 'type:asc',     label: T('Tipo: A → Z', 'Type: A → Z') },
+  { value: 'grab:asc',     label: T('Grabación: 1 → 5', 'Recording: 1 → 5') },
 ];
 
 async function onSortChip(anchor) {
   const s = getSort();
   const cur = `${s.key}:${s.dir}`;
   const options = SORT_MENU.map((o) => ({ ...o, current: o.value === cur }));
-  const v = await ctx.sheet.pickFrom({ title: 'Ordenar', options, anchor });
+  const v = await ctx.sheet.pickFrom({ title: T('Ordenar', 'Sort'), options, anchor });
   if (!v) return;
   const [key, dir] = v.split(':');
   setSort(key, dir);
@@ -2046,16 +2046,16 @@ async function onSortChip(anchor) {
 // Etiqueta corta del criterio de orden actual (se muestra en el boton Ordenar).
 function sortShortLabel(s) {
   const map = {
-    'date:desc': 'Reciente',
-    'date:asc': 'Antiguo',
-    'task:asc': 'Tarea A→Z',
-    'task:desc': 'Tarea Z→A',
-    'status:asc': 'Estado',
-    'platform:asc': 'Plataforma',
-    'type:asc': 'Tipo',
-    'grab:asc': 'Grabación',
+    'date:desc': T('Reciente', 'Newest'),
+    'date:asc': T('Antiguo', 'Oldest'),
+    'task:asc': T('Tarea A→Z', 'Task A→Z'),
+    'task:desc': T('Tarea Z→A', 'Task Z→A'),
+    'status:asc': T('Estado', 'Status'),
+    'platform:asc': T('Plataforma', 'Platform'),
+    'type:asc': T('Tipo', 'Type'),
+    'grab:asc': T('Grabación', 'Recording'),
   };
-  return map[`${s.key}:${s.dir}`] || 'Reciente';
+  return map[`${s.key}:${s.dir}`] || T('Reciente', 'Newest');
 }
 
 // Barra movil: 2 controles solidos (Ordenar con su criterio actual + Filtros
@@ -2065,14 +2065,14 @@ function buildFilterBar(allPosts) {
   const f = getFilters();
   const activeCount = Object.values(f).filter(Boolean).length;
   const s = getSort();
-  const bar = el('div', { class: 'meses-toolbar', role: 'toolbar', 'aria-label': 'Ordenar y filtrar' });
+  const bar = el('div', { class: 'meses-toolbar', role: 'toolbar', 'aria-label': T('Ordenar y filtrar', 'Sort and filter') });
 
   bar.appendChild(el('button', {
     class: 'meses-tool', type: 'button', 'aria-haspopup': 'dialog',
     onclick: (e) => onSortChip(e.currentTarget),
   }, [
     icon('sort', 16),
-    el('span', { class: 'meses-tool__lbl', text: 'Ordenar' }),
+    el('span', { class: 'meses-tool__lbl', text: T('Ordenar', 'Sort') }),
     el('span', { class: 'meses-tool__val', text: sortShortLabel(s) }),
   ]));
 
@@ -2082,7 +2082,7 @@ function buildFilterBar(allPosts) {
     onclick: () => openFilterSheet(allPosts),
   }, [
     icon('sliders', 16),
-    el('span', { class: 'meses-tool__lbl', text: 'Filtros' }),
+    el('span', { class: 'meses-tool__lbl', text: T('Filtros', 'Filters') }),
     activeCount ? el('span', { class: 'meses-tool__badge', text: String(activeCount) }) : null,
   ]));
 
@@ -2107,14 +2107,14 @@ function openFilterSheet(allPosts) {
   }).filter((g) => g.values.length);
 
   ctx.sheet.openSheet({
-    title: 'Filtros',
+    title: T('Filtros', 'Filters'),
     mode: 'menu',
     build(body, close) {
       const paint = () => {
         clear(body);
         const wrap = el('div', { class: 'mfilt' });
         if (!groups.length) {
-          wrap.appendChild(el('div', { class: 'mfilt__empty', text: 'No hay filtros disponibles todavía.' }));
+          wrap.appendChild(el('div', { class: 'mfilt__empty', text: T('No hay filtros disponibles todavía.', 'No filters available yet.') }));
         }
         for (const { d, values } of groups) {
           const cur = draft[d.dim] || '';
@@ -2123,7 +2123,7 @@ function openFilterSheet(allPosts) {
             class: 'mfilt-chip' + (!cur ? ' is-on' : ''), type: 'button',
             'aria-pressed': !cur ? 'true' : 'false',
             onclick: () => { draft[d.dim] = ''; paint(); },
-          }, [!cur ? icon('check', 14) : null, el('span', { text: 'Todos' })]));
+          }, [!cur ? icon('check', 14) : null, el('span', { text: T('Todos', 'All') })]));
           for (const [v, n] of values) {
             const on = cur === v;
             chips.appendChild(el('button', {
@@ -2146,13 +2146,13 @@ function openFilterSheet(allPosts) {
         const anyDraft = Object.values(draft).some(Boolean);
         const count = allPosts.filter((p) => FILTER_DIMS.every(({ dim, getVal }) => !draft[dim] || getVal(p) === draft[dim])).length;
         const clearBtn = el('button', {
-          class: 'btn', type: 'button', text: 'Limpiar',
+          class: 'btn', type: 'button', text: T('Limpiar', 'Clear'),
           onclick: () => { for (const k of Object.keys(draft)) draft[k] = ''; paint(); },
         });
         clearBtn.disabled = !anyDraft;
         const applyBtn = el('button', {
           class: 'btn btn-primary sheet-cta', type: 'button',
-          text: `Ver ${count} ${count === 1 ? 'pieza' : 'piezas'}`,
+          text: `${T('Ver', 'View')} ${count} ${count === 1 ? T('pieza', 'piece') : T('piezas', 'pieces')}`,
           onclick: () => { setFilters(draft); render(); close({ source: 'apply' }); },
         });
         body.appendChild(el('div', { class: 'sheet__footer' }, [clearBtn, applyBtn]));
@@ -2179,7 +2179,7 @@ function selectMonth(key) {
 // Barra de meses horizontal para movil/tablet (la barra lateral solo existe
 // >=1024px). Mismas opciones que la lateral, en chips.
 function buildMonthBar(keys, byMonth, sinMes) {
-  const bar = el('div', { class: 'meses-monthbar', role: 'tablist', 'aria-label': 'Meses' });
+  const bar = el('div', { class: 'meses-monthbar', role: 'tablist', 'aria-label': T('Meses', 'Months') });
   for (const k of keys) {
     const label = k === SIN_MES ? T('Sin mes', 'No date') : capitalize(monthLabel(k));
     const n = k === SIN_MES ? sinMes.length : (byMonth.get(k) || []).length;
@@ -2200,8 +2200,8 @@ function buildSideNav(ordered, byMonth, sinMes, isTodos) {
   if (!sideEl) return;
   clear(sideEl);
   const items = ordered.map((ym) => ({ key: ym, label: capitalize(monthLabel(ym)), n: (byMonth.get(ym) || []).length }));
-  if (sinMes.length) items.push({ key: SIN_MES, label: 'Sin mes', n: sinMes.length });
-  sideEl.appendChild(el('div', { class: 'meses-side__title', text: 'Meses' }));
+  if (sinMes.length) items.push({ key: SIN_MES, label: T('Sin mes', 'No date'), n: sinMes.length });
+  sideEl.appendChild(el('div', { class: 'meses-side__title', text: T('Meses', 'Months') }));
   for (const it of items) {
     const active = it.key === activeMonth;
     sideEl.appendChild(el('button', {
@@ -2318,7 +2318,7 @@ function render() {
         icon('bell', 18),
         el('span', {
           class: 'meses-revisar__txt',
-          text: `Tienes ${porRevisar.length} ${porRevisar.length === 1 ? 'pieza' : 'piezas'} por revisar`,
+          text: `${T('Tienes', 'You have')} ${porRevisar.length} ${porRevisar.length === 1 ? T('pieza', 'piece') : T('piezas', 'pieces')} ${T('por revisar', 'to review')}`,
         }),
         icon('right', 16),
       ]));
@@ -2332,7 +2332,7 @@ function render() {
   if (isTodos) {
     sectionsEl.appendChild(el('div', {
       class: 'meses-todos-note',
-      text: 'Estás viendo todas las marcas. Elige una marca para agregar filas y meses.',
+      text: T('Estás viendo todas las marcas. Elige una marca para agregar filas y meses.', 'You are viewing all brands. Pick a brand to add rows and months.'),
     }));
   }
 
@@ -2448,7 +2448,7 @@ export default {
   mount(host, c) {
     ctx = c;
     sectionsEl = el('div', { class: 'meses-sections' });
-    sideEl = el('nav', { class: 'meses-side', 'aria-label': 'Meses' });
+    sideEl = el('nav', { class: 'meses-side', 'aria-label': T('Meses', 'Months') });
     rootEl = el('div', { class: 'meses-root' }, [
       sideEl,
       el('div', { class: 'meses-main' }, [sectionsEl]),

@@ -14,9 +14,9 @@
 // en el store; aqui solo toast de exito).
 // ============================================================================
 
-import { el, STATUSES, STATUS_ORDER, fmtDate } from '../api.js?v=202607181835';
-import { icon } from '../shell/icons.js?v=202607181835';
-import { T } from '../shell/i18n.js?v=202607181835';
+import { el, STATUSES, STATUS_ORDER, statusLabel, fmtDate } from '../api.js?v=202607182156';
+import { icon } from '../shell/icons.js?v=202607182156';
+import { T } from '../shell/i18n.js?v=202607182156';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -155,7 +155,7 @@ export function openQuickAddSheet({ ctx, status = null, getNextPosition, onCreat
       const paintStatus = () => {
         const s = chosenStatus && STATUSES[chosenStatus];
         statusDot.style.background = (s && s.color) || 'var(--text-mute)';
-        statusValue.textContent = (s && s.label) || T('Elegir estado', 'Choose a status');
+        statusValue.textContent = (s && statusLabel(chosenStatus)) || T('Elegir estado', 'Choose a status');
       };
       paintStatus();
       const statusRow = el('button', {
