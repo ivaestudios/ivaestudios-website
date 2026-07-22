@@ -9,15 +9,16 @@ calendario de contenido de la app de marketing. Código en
 `functions/api/mcp/[[path]].js` (Cloudflare Pages Function, se despliega solo con
 cada push a `main`). Versión actual: **1.3.0**.
 
-Herramientas que expone (5):
+Herramientas que expone (6):
 
 | Herramienta | Qué hace |
 |---|---|
 | `list_brands` | Lista las marcas disponibles |
-| `list_posts` | Posts del calendario por marca/mes (da el ID de cada post) |
-| `get_post` | Lee UN post completo: hook, body, cta, caption, hashtags, fecha, estado |
+| `list_posts` | Posts del calendario por marca/mes (da el ID de cada post; también muestra `inspo` si el post tiene link de inspiración) |
+| `get_post` | Lee UN post completo: hook, body, cta, caption, hashtags, fecha, estado, inspo_url, video_url |
 | `create_post` | Crea un post/guion nuevo |
 | `update_post` | Edita un post existente por ID (solo los campos que envíes) |
+| `download_media` | Descarga y LEE un reel/video de IG·TikTok·Pinterest con el descargador (usa `resolveVideo` de `../marketing/_downloader.js`). Devuelve caption + link de descarga + la PORTADA como imagen (para que Claude lea de qué va el reel de inspo y escriba el guion). Reintenta hasta 3× para preferir el resultado rico (GraphQL con caption/portada) sobre el de cobalt. Solo lectura. |
 
 ## Cómo está conectado (NO cambiar)
 
@@ -90,3 +91,10 @@ curl -s -X POST "https://ivaestudios.com/api/mcp/$TOKEN" \
   "Inspo") y `video_url` ("Video final"); get_post los muestra. Verificado con
   tools/list en vivo. RECORDATORIO: reconectar el conector en claude.ai para que
   vea los campos nuevos (cachea tools/list).
+- 2026-07-19: v1.5.0 — nueva tool `download_media` (descarga + LEE un reel de
+  IG/TikTok/Pinterest: caption + link + PORTADA como imagen; reintenta 3× para la
+  versión rica de GraphQL) e `inspo_url` visible también en `list_posts`. Import
+  de `resolveVideo` desde `../marketing/_downloader.js`. Verificado en vivo
+  (tools/list = 6, initialize v1.5.0, download_media devuelve caption real +
+  portada). RECORDATORIO: reconectar el conector en claude.ai para ver la tool
+  nueva (cachea tools/list).
