@@ -7,13 +7,17 @@
 // - Navegacion: chevrons + swipe horizontal (umbral 48px).
 // ============================================================================
 
-import { el } from '../api.js?v=202607182355';
-import { T } from '../shell/i18n.js?v=202607182355';
+import { el } from '../api.js?v=202607220055';
+import { T } from '../shell/i18n.js?v=202607220055';
 import {
   fmtYMD, addMonths, startOfMonth, monthMatrix,
   sameMonth, monthTitle, dayLong, todayYMD, statusInfo, DOW_MIN,
-} from './data.js?v=202607182355';
-import { markDropTarget } from './dnd.js?v=202607182355';
+} from './data.js?v=202607220055';
+import { markDropTarget } from './dnd.js?v=202607220055';
+
+// Titulos visibles por dia en el mini-mes (estilo iPhone). El resto se resume
+// en un "+N"; el dia completo se ve al tocarlo (agenda de abajo).
+const MINI_MAX = 2;
 
 /**
  * Renderiza el mini-mes dentro de `wrap` (lo vacia primero).
@@ -52,12 +56,19 @@ export function renderMiniMonth(wrap, ctx, { cursor, selectedDay, byDay, onPick,
       const posts = byDay.get(day) || [];
       const isOut = !sameMonth(d, monthStart);
 
-      const dots = el('span', { class: 'mini__dots', 'aria-hidden': 'true' });
-      for (const p of posts.slice(0, 3)) {
-        dots.appendChild(el('span', {
-          class: 'mini__dot',
-          style: { background: statusInfo(p.status).color },
+      // iPhone-style: en vez de solo puntos, cada dia muestra el TITULO del
+      // contenido (hasta MINI_MAX) con acento de color por status, para leer de
+      // un vistazo que reel va cada dia. "+N" resume el resto.
+      const evs = el('span', { class: 'mini__evs', 'aria-hidden': 'true' });
+      for (const p of posts.slice(0, MINI_MAX)) {
+        evs.appendChild(el('span', {
+          class: 'mini__ev',
+          style: { '--ev-color': statusInfo(p.status).color },
+          text: p.title || T('Sin titulo', 'Untitled'),
         }));
+      }
+      if (posts.length > MINI_MAX) {
+        evs.appendChild(el('span', { class: 'mini__evmore', text: `+${posts.length - MINI_MAX}` }));
       }
 
       const cell = el('button', {
@@ -71,7 +82,7 @@ export function renderMiniMonth(wrap, ctx, { cursor, selectedDay, byDay, onPick,
         onclick: () => onPick(day),
       }, [
         el('span', { class: 'mini__num', text: String(d.getDate()) }),
-        dots,
+        evs,
       ]);
       markDropTarget(cell, day);
       grid.appendChild(cell);

@@ -19,13 +19,13 @@ import {
   el,
   statusBadge, approvalBadge, chip,
   fmtDate, avatar,
-} from '../api.js?v=202607182355';
-import { pickFrom } from '../shell/sheet.js?v=202607182355';
-import * as store from '../shell/store.js?v=202607182355';
-import * as checklistService from '../services/checklist.js?v=202607182355';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202607182355';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202607182355';
-import { T } from '../shell/i18n.js?v=202607182355';
+} from '../api.js?v=202607220055';
+import { pickFrom } from '../shell/sheet.js?v=202607220055';
+import * as store from '../shell/store.js?v=202607220055';
+import * as checklistService from '../services/checklist.js?v=202607220055';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202607220055';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202607220055';
+import { T } from '../shell/i18n.js?v=202607220055';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -139,7 +139,7 @@ export function mount(host, ed) {
           { value: '', label: T('Sin prioridad', 'No priority'), current: !cur },
           ...[1, 2, 3, 4, 5].map((n) => ({
             value: n,
-            label: `G${n}${n === 1 ? T(' (mas urgente)', ' (most urgent)') : n === 5 ? T(' (menos urgente)', ' (least urgent)') : ''}`,
+            label: `G${n}`,
             current: Number(cur) === n,
           })),
         ],

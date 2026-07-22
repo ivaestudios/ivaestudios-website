@@ -114,13 +114,16 @@
 }
 .mini__day {
   position: relative;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  display: flex; flex-direction: column; align-items: stretch;
   gap: 3px;
-  min-height: var(--tap);
+  min-width: 0;               /* deja que las 7 columnas 1fr no crezcan con el titulo */
+  min-height: 58px;
+  padding: 4px 3px;
   border: 0; border-radius: 10px;
   background: none; color: var(--text);
   font: inherit;
   cursor: pointer;
+  overflow: hidden;
   transition: background var(--t-fast), box-shadow var(--t-fast);
 }
 .mini__day:hover { background: var(--surface-2); }
@@ -132,11 +135,28 @@
 .mini__day.is-selected { box-shadow: inset 0 0 0 2px var(--brand); background: var(--client-accent-soft); }
 .mini__num {
   display: grid; place-items: center;
-  width: 24px; height: 24px;
+  width: 22px; height: 22px; margin: 0 auto 1px;
   font-size: var(--fs-1); font-weight: 700;
 }
-.mini__dots { display: flex; gap: 2px; min-height: 5px; }
-.mini__dot { width: 5px; height: 5px; border-radius: 50%; }
+
+/* Eventos del dia estilo iPhone: barra fina con el titulo del contenido. */
+.mini__evs { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mini__ev {
+  min-width: 0;
+  padding: 1px 3px 1px 4px;
+  border-left: 3px solid var(--ev-color, var(--brand));
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--ev-color, var(--brand)) 16%, transparent);
+  color: var(--text);
+  font-size: 9px; font-weight: 700; line-height: 1.3;
+  text-align: left;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.mini__evmore {
+  padding: 0 2px;
+  font-size: 9px; font-weight: 800;
+  color: var(--text-mute); text-align: left;
+}
 
 /* ── Tira del dia (agenda) ─────────────────────────────────────────────────── */
 .ag-strip {

@@ -18,22 +18,22 @@
 // Contrato de vista: export default { mount(el, ctx), onParams(), unmount() }.
 // ============================================================================
 
-import { el, clear, api, fmtDate, avatar } from '../api.js?v=202607182355';
-import { T } from '../shell/i18n.js?v=202607182355';
-import { icon } from '../shell/icons.js?v=202607182355';
-import { isPast } from '../lib/dates.js?v=202607182355';
-import * as viewsSvc from '../services/views.js?v=202607182355';
+import { el, clear, api, fmtDate, avatar } from '../api.js?v=202607220055';
+import { T } from '../shell/i18n.js?v=202607220055';
+import { icon } from '../shell/icons.js?v=202607220055';
+import { isPast } from '../lib/dates.js?v=202607220055';
+import * as viewsSvc from '../services/views.js?v=202607220055';
 import {
   buildColumns, visibleColumns,
   MOBILE_SORT_OPTIONS, CARD_FIELDS, DEFAULT_CARD_FIELDS, MAX_CARD_FIELDS,
   PRIORITIES, PRIORITY_ORDER, safeUrl,
   STATUSES, CONTENT_TYPES, GRABACION_LEVELS,
-} from '../table/columns.js?v=202607182355';
-import * as grp from '../table/groups.js?v=202607182355';
-import { createSelection } from '../table/selection.js?v=202607182355';
+} from '../table/columns.js?v=202607220055';
+import * as grp from '../table/groups.js?v=202607220055';
+import { createSelection } from '../table/selection.js?v=202607220055';
 import {
   createQuickAddRow, createQuickAddButton, openQuickAddSheet, resetChain,
-} from '../table/quickadd.js?v=202607182355';
+} from '../table/quickadd.js?v=202607220055';
 
 const FILTER_KEYS = ['estado', 'tipo', 'persona', 'desde', 'hasta', 'q'];
 const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', 'Could not save, try again.');
@@ -358,7 +358,7 @@ async function commitCell(def, post, anchor) {
         options: [
           ...GRABACION_LEVELS.map((n) => ({
             value: String(n),
-            label: `${T('Nivel', 'Level')} ${n}${n === 1 ? T(' (mas urgente)', ' (most urgent)') : n === 5 ? T(' (menos urgente)', ' (least urgent)') : ''}`,
+            label: `${T('Nivel', 'Level')} ${n}`,
             current: Number(post.grabacion) === n,
           })),
           { value: '', label: T('Sin nivel', 'No level'), current: post.grabacion == null || post.grabacion === '' },

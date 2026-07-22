@@ -18,9 +18,9 @@ import {
   PRIORITIES, PRIORITY_ORDER,
   statusLabel, contentTypeLabel, approvalLabel, priorityLabel,
   ymd, parseDate, avatar,
-} from '../api.js?v=202607182355';
-import { openSheet, pickFrom } from '../shell/sheet.js?v=202607182355';
-import { T } from '../shell/i18n.js?v=202607182355';
+} from '../api.js?v=202607220055';
+import { openSheet, pickFrom } from '../shell/sheet.js?v=202607220055';
+import { T } from '../shell/i18n.js?v=202607220055';
 
 // ── Pickers de enum ──────────────────────────────────────────────────────────
 
@@ -61,7 +61,7 @@ export function pickGrabacion({ current, anchor, title = T('Prioridad de grabaci
   return pickFrom({
     title, anchor,
     options: GRABACION_LEVELS.map((n) => ({
-      value: n, label: `${T('Nivel', 'Level')} ${n}${n === 1 ? T(' (más urgente)', ' (most urgent)') : n === 5 ? T(' (menos urgente)', ' (least urgent)') : ''}`,
+      value: n, label: `${T('Nivel', 'Level')} ${n}`,
       current: Number(current) === n,
     })),
   });
