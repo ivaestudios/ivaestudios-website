@@ -402,19 +402,18 @@ async function resolveInstagram(url, env) {
     if (!info || !info.mediaUrl) info = await igViaGraphQL(code, appId, docId, sid).catch(() => null);
     return (info && info.mediaUrl) ? info : null;
   };
-  // Con sesión: directo PRIMERO — Instagram ya SÍ entrega el video de reels con
-  // login (los "gated") a una cuenta que pueda verlos. Es lo que hace ssstik por
-  // detrás (su propia sesión + CAPTCHA), pero aquí con TU sesión.
-  if (sid) {
-    const withSession = await direct();
-    if (withSession) return withSession;
-  }
-  // Cobalt (público, sin sesión) — funciona desde las IPs de Cloudflare.
-  const cb = await viaCobalt(url, 'instagram', env).catch(() => null);
-  if (cb && cb.items && cb.items.length) return cb;
-  // Directo sin sesión como último respaldo.
+  // DIRECTO PRIMERO (media-info + GraphQL). CLAVE PARA EL AUDIO: el GraphQL
+  // público de IG devuelve video_versions = MP4 PROGRESIVO con AUDIO muxeado,
+  // incluso SIN sesión (reels públicos). Cobalt, en cambio, suele resolver a un
+  // stream DASH de SOLO VIDEO (sin audio) para muchos reels → si cobalt corriera
+  // primero, la descarga saldría MUDA. Por eso el directo va primero y cobalt
+  // queda de respaldo. Con sesión (sid) el directo además saca los reels gated.
   const info = await direct();
   if (info) return info;
+  // Cobalt como respaldo (funciona desde las IPs de Cloudflare, pero OJO: puede
+  // venir sin audio si IG solo le da el stream DASH de video).
+  const cb = await viaCobalt(url, 'instagram', env).catch(() => null);
+  if (cb && cb.items && cb.items.length) return cb;
   throw new Error(sid
     ? 'Instagram no devolvió el video ni con la sesión. Puede que la sesión haya caducado, o que la cuenta no siga/no pueda ver ese contenido.'
     : 'Este reel requiere iniciar sesión en Instagram (está protegido). Configura la sesión de IG (IG_SESSIONID) para bajar este tipo de contenido.');
