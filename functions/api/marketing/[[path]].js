@@ -1795,12 +1795,42 @@ async function handleGetPost(request, env, session, postId) {
   ).bind(postId).all();
 
   const approvalsRes = await env.DB.prepare(
-    'SELECT id, post_id, actor_name, decision, comment, created_at FROM mkt_approvals WHERE post_id = ? ORDER BY created_at ASC'
+    'SELECT a.id, a.post_id, a.actor_name, a.decision, a.comment, a.created_at, u.role AS actor_role '
+    + 'FROM mkt_approvals a LEFT JOIN mkt_users u ON u.id = a.user_id '
+    + 'WHERE a.post_id = ? ORDER BY a.created_at ASC'
   ).bind(postId).all();
 
   // Los comentarios INTERNOS ("Solo equipo") jamás viajan a un login de cliente.
   let comments = commentsRes.results || [];
   if (session.role === 'client') comments = comments.filter((c) => !c.internal);
+
+  // "Pedir cambios": la retroalimentación del cliente SIEMPRE se guarda en
+  // mkt_approvals y se DUPLICA en mkt_comments para el hilo. Pero si esa copia
+  // falta (data vieja anterior al doble-guardado, o un fallo silencioso del
+  // INSERT), el comentario del cliente quedaría SOLO en mkt_approvals =
+  // invisible en el hilo ("se perdió"). Aquí lo reinyectamos al hilo desde
+  // mkt_approvals cuando aún no está (dedupe por texto), para que NUNCA se
+  // pierda un comentario de cambios: lo ve el cliente y lo ve el equipo.
+  const approvals = approvalsRes.results || [];
+  const seenBodies = new Set(comments.map((c) => String(c.body || '').trim()));
+  for (const a of approvals) {
+    if (a.decision !== 'changes') continue;
+    const body = String(a.comment || '').trim();
+    if (!body || seenBodies.has(body)) continue;
+    seenBodies.add(body);
+    comments.push({
+      id: 'appr-' + a.id,
+      post_id: a.post_id,
+      user_id: null,
+      author_name: a.actor_name,
+      author_role: a.actor_role || 'client',
+      body,
+      internal: 0,
+      created_at: a.created_at,
+      from_approval: 1,
+    });
+  }
+  comments.sort((x, y) => String(x.created_at || '').localeCompare(String(y.created_at || '')));
 
   // Igual que en el listado: las "Notas del equipo" (notes_team) no viajan al
   // cliente (notes_people sí: esas notas son para que el cliente las vea).
@@ -1810,7 +1840,7 @@ async function handleGetPost(request, env, session, postId) {
   const payload = {
     post: shaped,
     comments,
-    approvals: approvalsRes.results || []
+    approvals
   };
   // Checklist del post (Pre-004 / tabla ausente → lista vacia).
   try { payload.checklist = await listChecklistItems(env, postId); }
