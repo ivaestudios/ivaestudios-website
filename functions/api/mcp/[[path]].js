@@ -24,6 +24,8 @@
 // NO toca nada existente: lee mkt_clients/mkt_posts e inserta/actualiza mkt_posts.
 // ============================================================================
 
+import { resolveVideo } from '../marketing/_downloader.js';
+
 const PROTOCOL_VERSION = '2025-06-18';
 const SUPPORTED_VERSIONS = ['2025-06-18', '2025-03-26', '2024-11-05'];
 
@@ -122,6 +124,18 @@ const TOOLS = [
       properties: { post_id: { type: 'string', description: 'ID del post a editar (lo da list_posts).' }, ...POST_FIELDS_SCHEMA },
     },
   },
+  {
+    name: 'download_media',
+    description: 'Descarga y LEE un video de Instagram, TikTok o Pinterest usando el descargador de la app (sin marca de agua). Dale la URL del reel/video — o el link de INSPIRACIÓN (inspo_url) de un post (lo obtienes con list_posts o get_post). Devuelve: el caption/título del reel, su duración, un LINK de descarga directo, y la PORTADA del video como imagen para que puedas LEER de qué trata. Úsalo para analizar un reel de referencia y escribir el guion (hook/body/cta) del post basado en él. Nota: para el contenido hablado completo revisa el caption; la imagen es la portada.',
+    inputSchema: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['url'],
+      properties: {
+        url: { type: 'string', description: 'URL del reel/video de Instagram, TikTok o Pinterest (o el inspo_url de un post).' },
+      },
+    },
+  },
 ];
 
 // ── Helpers JSON-RPC / MCP ───────────────────────────────────────────────────
@@ -129,6 +143,20 @@ function rpcOk(id, result) { return { jsonrpc: '2.0', id, result }; }
 function rpcErr(id, code, message) { return { jsonrpc: '2.0', id: id ?? null, error: { code, message } }; }
 function toolText(text) { return { content: [{ type: 'text', text }], isError: false }; }
 function toolErr(text) { return { content: [{ type: 'text', text }], isError: true }; }
+// Texto + una imagen (p.ej. la PORTADA de un video) para que Claude la LEA.
+function toolMedia(text, imageB64, mime) {
+  const content = [{ type: 'text', text }];
+  if (imageB64) content.push({ type: 'image', data: imageB64, mimeType: mime || 'image/jpeg' });
+  return { content, isError: false };
+}
+// base64 de un ArrayBuffer, por trozos (evita reventar el stack con buffers grandes).
+function abToBase64(buf) {
+  const bytes = new Uint8Array(buf);
+  let bin = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+  return btoa(bin);
+}
 function jsonRes(obj, status = 200) {
   return new Response(JSON.stringify(obj), { status, headers: { 'Content-Type': 'application/json' } });
 }
@@ -229,7 +257,7 @@ async function listPosts(env, scope, args) {
       ? 'La marca de este conector ya no existe.'
       : `No encontré la marca "${args.brand || ''}". Llama list_brands para ver los nombres exactos.`);
   }
-  let sql = 'SELECT id, title, content_type, status, publish_date, hook, caption FROM mkt_posts WHERE client_id = ?1';
+  let sql = 'SELECT id, title, content_type, status, publish_date, hook, caption, inspo_url FROM mkt_posts WHERE client_id = ?1';
   const binds = [brand.id];
   if (args.month) {
     if (!YM_RE.test(args.month)) return toolErr('El mes debe ser AAAA-MM (ej. 2026-07).');
@@ -242,7 +270,8 @@ async function listPosts(env, scope, args) {
   if (!rows.length) return toolText(`No hay posts en ${brand.name}${args.month ? ` para ${args.month}` : ''}.`);
   const lines = rows.map((r) => {
     const cap = (r.caption && String(r.caption).trim()) ? 'caption: ✓' : 'caption: FALTA';
-    return `• [id: ${r.id}] ${r.publish_date || 'sin fecha'} — [${r.content_type}/${r.status}] ${r.title} — ${cap}${r.hook ? ` — hook: ${String(r.hook).slice(0, 50)}` : ''}`;
+    const inspo = (r.inspo_url && String(r.inspo_url).trim()) ? ` — inspo: ${String(r.inspo_url).trim()}` : '';
+    return `• [id: ${r.id}] ${r.publish_date || 'sin fecha'} — [${r.content_type}/${r.status}] ${r.title} — ${cap}${r.hook ? ` — hook: ${String(r.hook).slice(0, 50)}` : ''}${inspo}`;
   });
   return toolText(`${rows.length} post(s) en ${brand.name}${args.month ? ` (${args.month})` : ''}. Usa el ID con update_post para editar:\n${lines.join('\n')}`);
 }
@@ -399,6 +428,44 @@ async function updatePost(env, scope, args) {
   return toolText(`Post actualizado ✓ (ID ${postId})\n• Campos cambiados: ${changed.join(', ')}`);
 }
 
+// download_media: resuelve un video (IG/TikTok/Pinterest) con el descargador y
+// devuelve caption + link de descarga + la PORTADA como imagen (para "leer" el
+// reel de inspiración). No toca la base de datos (solo lectura de la red).
+async function downloadMedia(env, args) {
+  const url = String((args && args.url) || '').trim();
+  if (!url) return toolErr('Dame la URL del reel/video (Instagram, TikTok o Pinterest), o el inspo_url de un post.');
+  if (!/^https?:\/\//i.test(url)) return toolErr('La URL debe empezar con http:// o https://');
+  let info;
+  try { info = await resolveVideo(url, env); }
+  catch (e) { return toolErr(`No pude bajar ese video: ${((e && e.message) || e)}`); }
+  if (!info || !info.mediaUrl) return toolErr('No pude obtener el video de esa URL (¿es un reel/post público de IG, TikTok o Pinterest?).');
+  const lines = [
+    `Plataforma: ${info.platform || '—'}`,
+    info.title ? `Caption/título:\n${String(info.title).slice(0, 2000)}` : null,
+    info.durationSec ? `Duración: ${info.durationSec}s` : null,
+    (info.width && info.height) ? `Dimensiones: ${info.width}×${info.height}` : null,
+    `Link de descarga directo (temporal, sin marca de agua):\n${info.mediaUrl}`,
+  ].filter(Boolean);
+  // Portada como imagen: muchos reels muestran el texto/tema en el primer frame.
+  let b64 = null, mime = 'image/jpeg';
+  if (info.thumbnail) {
+    try {
+      const r = await fetch(info.thumbnail, { headers: (info.mediaHeaders || {}) });
+      if (r.ok) {
+        const buf = await r.arrayBuffer();
+        if (buf.byteLength && buf.byteLength < 3 * 1024 * 1024) {
+          b64 = abToBase64(buf);
+          mime = r.headers.get('content-type') || 'image/jpeg';
+        }
+      }
+    } catch { /* sin portada, no pasa nada */ }
+  }
+  const note = b64
+    ? '\n\n(Abajo va la PORTADA del video para que la leas. Para el contenido hablado, apóyate en el caption.)'
+    : '\n\n(No hubo portada; usa el caption para entender el reel.)';
+  return toolMedia(lines.join('\n') + note, b64, mime);
+}
+
 // Registro de actividad (best-effort; nunca rompe la operación principal).
 function logActivity(env, clientId, postId, action, detail) {
   try {
@@ -427,7 +494,7 @@ async function rpc(msg, env, scope) {
       return rpcOk(id, {
         protocolVersion,
         capabilities: { tools: { listChanged: false } },
-        serverInfo: { name: 'IVAE Marketing', version: '1.4.0' },
+        serverInfo: { name: 'IVAE Marketing', version: '1.5.0' },
         instructions: 'Conector del calendario de contenido de IVAE Marketing. Flujo típico: usa list_posts para ver los posts del mes (cada uno trae su ID y si le FALTA caption); usa get_post con ese ID para LEER el guion/caption completo de un post antes de revisarlo o mejorarlo; usa update_post para rellenar/cambiar el copy/caption o el guion (hook/body/cta), la fecha o el estado de un post existente; usa create_post para piezas nuevas. El guion se separa en hook, body (cuerpo), cta, caption (copy final) y hashtags. Para planear/AGREGAR el mes siguiente, simplemente crea los posts con la fecha de ese mes (parámetro month=AAAA-MM o publish_date=AAAA-MM-DD): el mes aparece solo en el calendario, no hace falta "agregar mes" por separado.' + extra,
       });
     }
@@ -445,6 +512,7 @@ async function rpc(msg, env, scope) {
         else if (name === 'get_post') r = await getPost(env, scope, args);
         else if (name === 'create_post') r = await createPost(env, scope, args);
         else if (name === 'update_post') r = await updatePost(env, scope, args);
+        else if (name === 'download_media') r = await downloadMedia(env, args);
         else return rpcErr(id, -32602, `Herramienta desconocida: ${name}`);
         return rpcOk(id, r);
       } catch (e) {
