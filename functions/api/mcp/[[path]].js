@@ -435,10 +435,16 @@ async function downloadMedia(env, args) {
   const url = String((args && args.url) || '').trim();
   if (!url) return toolErr('Dame la URL del reel/video (Instagram, TikTok o Pinterest), o el inspo_url de un post.');
   if (!/^https?:\/\//i.test(url)) return toolErr('La URL debe empezar con http:// o https://');
-  let info;
-  try { info = await resolveVideo(url, env); }
-  catch (e) { return toolErr(`No pude bajar ese video: ${((e && e.message) || e)}`); }
-  if (!info || !info.mediaUrl) return toolErr('No pude obtener el video de esa URL (¿es un reel/post público de IG, TikTok o Pinterest?).');
+  // Reintenta para PREFERIR el resultado rico (con caption + portada, de la ruta
+  // GraphQL de IG); si sale la versión pobre (cobalt: sin portada) se reintenta.
+  let info = null, lastErr = null;
+  for (let i = 0; i < 3; i++) {
+    let cur = null;
+    try { cur = await resolveVideo(url, env); } catch (e) { lastErr = e; }
+    if (cur && cur.mediaUrl) { info = cur; if (cur.thumbnail) break; }
+    if (i < 2) await new Promise((r) => setTimeout(r, 300));
+  }
+  if (!info || !info.mediaUrl) return toolErr(`No pude obtener el video de esa URL${lastErr ? `: ${(lastErr.message || lastErr)}` : ' (¿es un reel/post público de IG, TikTok o Pinterest?)'}.`);
   const lines = [
     `Plataforma: ${info.platform || '—'}`,
     info.title ? `Caption/título:\n${String(info.title).slice(0, 2000)}` : null,
