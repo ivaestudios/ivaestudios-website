@@ -104,6 +104,10 @@ async function cobaltCall(inst, url, platform) {
     platform, title: platform, thumbnail: null,
     width: null, height: null, durationSec: null,
     type: first.type, ext: first.ext, mediaUrl: first.url, items,
+    // fromTunnel=true → cobalt MUXEA video+audio en su servidor (audio garantizado).
+    // Un 'redirect' es una URL cruda del CDN: en Instagram suele ser DASH de SOLO
+    // VIDEO (sin audio) → para IG solo confiamos en tunnels.
+    fromTunnel: (j.status === 'tunnel'),
     watermark: false, mediaHeaders: mediaHeadersFor(platform),
   };
 }
@@ -113,13 +117,17 @@ async function cobaltCall(inst, url, platform) {
 // devuelven solo la PORTADA (imagen), pero la instancia con sesión propia
 // (COBALT_SESSION_INSTANCES, sin CAPTCHA) sí devuelve el MP4 — así el video gana
 // aunque una instancia rápida ya haya dado la portada. Devuelve el objeto | null.
-async function viaCobalt(url, platform, env) {
+// `muxedOnly` (para Instagram): solo acepta resultados de VIDEO que vengan de un
+// TUNNEL (cobalt muxea → con audio); descarta los 'redirect' (DASH solo-video,
+// sin audio). Así IG nunca baja mudo por culpa de cobalt.
+async function viaCobalt(url, platform, env, muxedOnly = false) {
   let imageOnly = null;
   const tryInst = async (inst) => {
     const res = await cobaltCall(inst, url, platform);
     if (!res) return null;
-    if (res.items.some((it) => it.type === 'video')) return res; // lo mejor: trae video
-    if (!imageOnly) imageOnly = res; // solo portada/imagen: recordar por si nada trae video
+    const hasVideo = res.items.some((it) => it.type === 'video');
+    if (hasVideo && (!muxedOnly || res.fromTunnel)) return res; // video (y muxeado si se exige)
+    if (!imageOnly && res.items.some((it) => it.type === 'image')) imageOnly = res;
     return null;
   };
   // 1) Instancias rápidas (públicas), un intento c/u — cubre reels públicos veloz.
@@ -397,26 +405,31 @@ async function resolveInstagram(url, env) {
   const docId = (env && env.IG_DOC_ID) || IG_DOC_ID;
   const sid = (env && env.IG_SESSIONID) || null; // sesión de IG (secreto): saca gated/privado
   const mediaId = igShortcodeToMediaId(code);
+  // Sin sesión, media-info devuelve login_required (inútil) → sólo se usa CON
+  // sesión. El GraphQL público SÍ devuelve video_versions = MP4 progresivo con
+  // AUDIO muxeado para reels públicos.
   const direct = async () => {
-    let info = mediaId ? await igViaMediaInfo(mediaId, appId, sid).catch(() => null) : null;
+    let info = (sid && mediaId) ? await igViaMediaInfo(mediaId, appId, sid).catch(() => null) : null;
     if (!info || !info.mediaUrl) info = await igViaGraphQL(code, appId, docId, sid).catch(() => null);
     return (info && info.mediaUrl) ? info : null;
   };
-  // DIRECTO PRIMERO (media-info + GraphQL). CLAVE PARA EL AUDIO: el GraphQL
-  // público de IG devuelve video_versions = MP4 PROGRESIVO con AUDIO muxeado,
-  // incluso SIN sesión (reels públicos). Cobalt, en cambio, suele resolver a un
-  // stream DASH de SOLO VIDEO (sin audio) para muchos reels → si cobalt corriera
-  // primero, la descarga saldría MUDA. Por eso el directo va primero y cobalt
-  // queda de respaldo. Con sesión (sid) el directo además saca los reels gated.
-  const info = await direct();
-  if (info) return info;
-  // Cobalt como respaldo (funciona desde las IPs de Cloudflare, pero OJO: puede
-  // venir sin audio si IG solo le da el stream DASH de video).
-  const cb = await viaCobalt(url, 'instagram', env).catch(() => null);
+  // DIRECTO PRIMERO, CON REINTENTOS. El GraphQL trae el MP4 con AUDIO muxeado,
+  // pero desde las IPs de Cloudflare IG a veces lo frena un instante → se
+  // reintenta hasta 4 veces (backoff corto) para que casi NUNCA falle y el audio
+  // quede garantizado. Con sesión (sid) además saca los reels gated.
+  for (let i = 0; i < 4; i++) {
+    const info = await direct();
+    if (info) return info;
+    if (i < 3) await new Promise((r) => setTimeout(r, 350 + i * 250));
+  }
+  // Respaldo cobalt SOLO-MUXEADO: únicamente se acepta un TUNNEL de cobalt
+  // (video+audio); NUNCA su 'redirect' de IG (DASH solo-video, sin audio). Es
+  // preferible fallar y pedir reintentar que entregar un video MUDO.
+  const cb = await viaCobalt(url, 'instagram', env, true).catch(() => null);
   if (cb && cb.items && cb.items.length) return cb;
   throw new Error(sid
-    ? 'Instagram no devolvió el video ni con la sesión. Puede que la sesión haya caducado, o que la cuenta no siga/no pueda ver ese contenido.'
-    : 'Este reel requiere iniciar sesión en Instagram (está protegido). Configura la sesión de IG (IG_SESSIONID) para bajar este tipo de contenido.');
+    ? 'Instagram no soltó el video con audio en este momento (ni con la sesión). Espera unos segundos y dale Descargar de nuevo.'
+    : 'Instagram le puso freno un momento. Dale Descargar otra vez (casi siempre jala a la segunda, ya con audio). Si un reel privado sigue fallando, hay que configurar la sesión de IG.');
 }
 
 async function igShortcode(url) {
