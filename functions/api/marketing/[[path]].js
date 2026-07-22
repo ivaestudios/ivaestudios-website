@@ -1251,8 +1251,11 @@ async function hookApprovalDecision(env, session, post, decision, comment) {
   const recipients = await staffFanout(env, post, session.user_id);
 
   if (decision === 'approved') {
-    if (!recipeOn(autos, 'aprobado_mueve_estado')) return;
-    if (STATUS_ORDER[post.status] != null && STATUS_ORDER[post.status] < STATUS_ORDER['aprobado']) {
+    // El botón "Aprobado" del CLIENTE mueve el estado a 'aprobado' (solo hacia
+    // adelante) SIN depender de la receta; el equipo la sigue respetando. La
+    // NOTIFICACIÓN queda igual que antes (bajo la receta aprobado_mueve_estado).
+    if ((session.role === 'client' || recipeOn(autos, 'aprobado_mueve_estado'))
+        && STATUS_ORDER[post.status] != null && STATUS_ORDER[post.status] < STATUS_ORDER['aprobado']) {
       await env.DB.prepare(
         "UPDATE mkt_posts SET status = 'aprobado', updated_at = datetime('now') WHERE id = ?"
       ).bind(post.id).run();
@@ -1261,12 +1264,25 @@ async function hookApprovalDecision(env, session, post, decision, comment) {
         action: 'automation.run', detail: `aprobado_mueve_estado:${post.status}->aprobado`
       });
     }
+    if (!recipeOn(autos, 'aprobado_mueve_estado')) return;
     await notify(env, {
       user_ids: recipients, type: 'aprobacion',
       body: `${session.name} aprobó ${post.title}`,
       link, post_id: post.id, client_id: post.client_id, actor_name: session.name
     });
   } else {
+    // El botón "Modificar" del CLIENTE regresa la pieza a 'guion' para reproceso
+    // (sin depender de receta). El comentario ya vive en Comentarios + Notas +
+    // auditoría por los fixes previos. La notificación sigue bajo aviso_cambios.
+    if (session.role === 'client' && post.status !== 'guion') {
+      await env.DB.prepare(
+        "UPDATE mkt_posts SET status = 'guion', updated_at = datetime('now') WHERE id = ?"
+      ).bind(post.id).run();
+      await logActivity(env, {
+        client_id: post.client_id, post_id: post.id, session,
+        action: 'automation.run', detail: `cliente_modifica:${post.status}->guion`
+      });
+    }
     if (!recipeOn(autos, 'aviso_cambios')) return;
     const extra = comment && comment.trim() ? ': ' + truncateText(comment, 140) : '';
     await notify(env, {

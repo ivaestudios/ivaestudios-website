@@ -19,10 +19,10 @@ import {
   STATUSES, STATUS_ORDER,
   CONTENT_TYPES, PLATFORMS,
   statusBadge, approvalBadge,
-} from '../api.js?v=202607220205';
-import { icon } from '../shell/icons.js?v=202607220205';
-import { T } from '../shell/i18n.js?v=202607220205';
-import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202607220205';
+} from '../api.js?v=202607220325';
+import { icon } from '../shell/icons.js?v=202607220325';
+import { T } from '../shell/i18n.js?v=202607220325';
+import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202607220325';
 
 // Bucket para status que ya no existen en el enum (NUNCA invisibles).
 export const OTROS_KEY = '__otros';

@@ -26,11 +26,11 @@ import {
   el, clear, copyText, api,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202607220205';
-import { icon } from '../shell/icons.js?v=202607220205';
-import { T } from '../shell/i18n.js?v=202607220205';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607220205';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607220205';
+} from '../api.js?v=202607220325';
+import { icon } from '../shell/icons.js?v=202607220325';
+import { T } from '../shell/i18n.js?v=202607220325';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607220325';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607220325';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -229,6 +229,34 @@ function openPedirCambios(post) {
       );
       setTimeout(() => { try { ta.focus(); } catch { /* noop */ } }, 60);
     },
+  });
+}
+
+// Menú de la celda ESTADO para el CLIENTE (solo escritorio): en vez del selector
+// completo de estados, su decisión en DOS botones nada más —
+//   • Aprobado  -> aprueba (el estado pasa a "Aprobado").
+//   • Modificar -> pide cambios con comentario (el equipo lo regresa a "Guion").
+function openClientApproval(post, anchor) {
+  ctx.sheet.pickFrom({
+    title: T('¿Qué quieres hacer con esta pieza?', 'What do you want to do with this piece?'),
+    anchor,
+    options: [
+      {
+        value: 'approved',
+        label: T('Aprobado', 'Approved'),
+        color: (APPROVALS.approved || {}).color,
+        sub: T('Queda lista y el equipo se entera.', 'Marks it ready and the team is notified.'),
+      },
+      {
+        value: 'modificar',
+        label: T('Modificar', 'Request changes'),
+        color: (STATUSES.guion || {}).color,
+        sub: T('Pides cambios; el equipo lo regresa a Guion.', 'Request changes; the team moves it back to Script.'),
+      },
+    ],
+  }).then((v) => {
+    if (v === 'approved') sendApprovalDecision(post, 'approved');
+    else if (v === 'modificar') openPedirCambios(post);
   });
 }
 
@@ -1159,12 +1187,15 @@ function buildRow(post, noteLabels) {
       post.content_type ? T(`Tipo ${contentTypeLabel(post.content_type)}, cambiar`, `Type ${contentTypeLabel(post.content_type)}, change`) : T('Asignar tipo', 'Set type')),
   ]);
   // Estado + puntito de aprobación (pendiente/aprobado/cambios) en la misma
-  // celda: la aprobación del cliente se ve sin abrir el editor.
+  // celda. El CLIENTE (escritorio) NO ve el selector completo de estados: solo
+  // su decisión en dos botones (Aprobado / Modificar). El equipo sí lo ve.
   const tdStatus = el('td', { class: 'meses-td' }, [
     cellButton(
       el('span', { class: 'meses-statuscell' }, [statusPillNode(post.status), approvalDotNode(post)]),
-      (a) => onPickStatus(post, a),
-      `${T('Estado', 'Status')} ${statusLabel(post.status) || T('sin estado', 'no status')}, ${T('aprobación', 'approval')} ${approvalLabel(approvalOf(post)).toLowerCase()}, ${T('cambiar', 'change')}`,
+      isClientRole() ? (a) => openClientApproval(post, a) : (a) => onPickStatus(post, a),
+      isClientRole()
+        ? `${T('Aprobar o pedir cambios', 'Approve or request changes')}: ${statusLabel(post.status) || T('sin estado', 'no status')}, ${T('aprobación', 'approval')} ${approvalLabel(approvalOf(post)).toLowerCase()}`
+        : `${T('Estado', 'Status')} ${statusLabel(post.status) || T('sin estado', 'no status')}, ${T('aprobación', 'approval')} ${approvalLabel(approvalOf(post)).toLowerCase()}, ${T('cambiar', 'change')}`,
     ),
   ]);
 
