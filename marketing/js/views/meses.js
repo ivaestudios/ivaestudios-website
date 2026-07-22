@@ -26,11 +26,11 @@ import {
   el, clear, copyText, api,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202607220055';
-import { icon } from '../shell/icons.js?v=202607220055';
-import { T } from '../shell/i18n.js?v=202607220055';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607220055';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607220055';
+} from '../api.js?v=202607220117';
+import { icon } from '../shell/icons.js?v=202607220117';
+import { T } from '../shell/i18n.js?v=202607220117';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607220117';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607220117';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -68,6 +68,7 @@ let composer = null;        // { key:'YYYY-MM'|'sin', value:string, wantFocus:bo
 let composerInput = null;   // input vivo del composer (para restaurar foco)
 let visibleKeys = new Set();// meses visibles del ultimo render (para Agregar mes)
 let allPostsForFilters = []; // posts SIN filtrar del ultimo render (opciones de filtros)
+let monthPostsForFilters = []; // idem, pero acotado al MES ACTIVO: los conteos de los filtros reflejan SOLO el mes en pantalla, no todos los meses
 let sideEl = null;           // barra lateral de meses (desktop)
 let activeMonth = null;      // mes seleccionado: el area principal muestra SOLO este
                              // (la navegacion por mes es la barra lateral / barra de meses)
@@ -1990,7 +1991,8 @@ async function openColMenu({ skey, sortType, label, filterDim }, anchor) {
   if (filterDim) {
     const dimDef = FILTER_DIMS.find((x) => x.dim === filterDim);
     const seen = new Map();
-    for (const p of allPostsForFilters) { const v = dimDef.getVal(p); if (v) seen.set(v, (seen.get(v) || 0) + 1); }
+    // Conteos por opcion acotados al MES ACTIVO (no a todos los meses).
+    for (const p of monthPostsForFilters) { const v = dimDef.getVal(p); if (v) seen.set(v, (seen.get(v) || 0) + 1); }
     options.push({ value: 'all', label: T('Mostrar todos', 'Show all'), current: !f[filterDim] });
     for (const [v, n] of [...seen.entries()].sort((a, b) => String(a[0]).localeCompare(String(b[0])))) {
       options.push({ value: 'f:' + v, label: `${dimDef.labelOf(v)} (${n})`, current: f[filterDim] === v });
@@ -2287,6 +2289,24 @@ function render() {
   if (sinMes.length) allKeys.add(SIN_MES);
   if (composer && (!allKeys.has(composer.key) || isTodos)) composer = null;
 
+  // Mes activo: se resuelve ANTES de construir los filtros para poder acotar sus
+  // conteos al mes en pantalla (no a todos los meses). Por defecto cae en el MES
+  // MAS RECIENTE con contenido (el ultimo calendario creado), no en el mes actual
+  // del sistema. `ordered` viene ascendente, asi que el ultimo es el mas nuevo.
+  const selectableKeys = [...ordered];
+  if (sinMes.length) selectableKeys.push(SIN_MES);
+  if (!activeMonth || !selectableKeys.includes(activeMonth)) {
+    activeMonth = ordered.length
+      ? ordered[ordered.length - 1]
+      : (selectableKeys[0] || currentYM());
+  }
+  // Base de los conteos de filtros = posts del MES ACTIVO (sin aplicar los
+  // filtros de columna, para que se vean TODAS las opciones del mes). Asi el
+  // menu de filtros y el "Ver N piezas" reflejan solo el mes, no toda la vida.
+  monthPostsForFilters = activeMonth === SIN_MES
+    ? allPosts.filter((p) => !monthKeyOf(p))
+    : allPosts.filter((p) => monthKeyOf(p) === activeMonth);
+
   const collapseMap = getCollapseMap();
 
   // Conservar scroll horizontal por seccion y el foco del composer.
@@ -2327,7 +2347,8 @@ function render() {
 
   // En desktop los filtros viven en los encabezados de la tabla (estilo Excel).
   // La barra de chips solo se usa en movil (la lista no tiene encabezados).
-  if (!desktop) sectionsEl.appendChild(buildFilterBar(allPosts));
+  // Se alimenta con los posts del MES ACTIVO para que los conteos sean del mes.
+  if (!desktop) sectionsEl.appendChild(buildFilterBar(monthPostsForFilters));
 
   if (isTodos) {
     sectionsEl.appendChild(el('div', {
@@ -2337,20 +2358,8 @@ function render() {
   }
 
   // La navegacion por mes vive en la barra lateral (desktop) / barra de meses
-  // (movil). El area principal muestra SOLO el mes activo, sin secciones
-  // colapsables apiladas. Por defecto cae en el mes MAS RECIENTE (el ultimo
-  // calendario creado), no en el mes actual del sistema.
-  const selectableKeys = [...ordered];
-  if (sinMes.length) selectableKeys.push(SIN_MES);
-  if (!activeMonth || !selectableKeys.includes(activeMonth)) {
-    // Por defecto cae en el MES MÁS RECIENTE (el último "calendario" creado), no
-    // en el mes actual del sistema. `ordered` ya trae los meses con contenido y
-    // los agregados a mano, en orden ascendente, así que el último es el más nuevo.
-    activeMonth = ordered.length
-      ? ordered[ordered.length - 1]
-      : (selectableKeys[0] || currentYM());
-  }
-
+  // (movil). El area principal muestra SOLO el mes activo (activeMonth ya se
+  // resolvio arriba, antes de construir los filtros).
   // Selector de meses para movil/tablet (la barra lateral solo existe >=1024px).
   if (selectableKeys.length > 1) {
     sectionsEl.appendChild(buildMonthBar(selectableKeys, byMonth, sinMes));
