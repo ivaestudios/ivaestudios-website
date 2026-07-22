@@ -344,12 +344,18 @@ body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
    costaba ver donde acaba una y empieza otra. Refuerza los 3 bordes (conservando
    el borde de COLOR de estado a la izquierda), sube un pelin la superficie, agrega
    profundidad y mas aire entre tarjetas. Solo estilo; no toca markup ni logica. */
-.ag-list { gap: 12px; }
+.ag-list { gap: 16px; }
 .ag-list .cal-card {
-  border-top-color: var(--border-strong);
-  border-right-color: var(--border-strong);
-  border-bottom-color: var(--border-strong);
-  background-color: var(--surface-2);
-  background-image: linear-gradient(180deg, rgba(255, 255, 255, .03), transparent 48%);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, .04) inset, 0 12px 30px -14px rgba(0, 0, 0, .75);
+  /* Sobre el fondo casi negro un borde oscuro NO se ve, asi que la separacion
+     real viene de: superficie NOTABLEMENTE mas clara que el fondo + sombra +
+     mas aire. Valores hex propios (los tokens del tema son todos casi-negros).
+     El borde de COLOR de estado a la izquierda se conserva (solo se refuerzan
+     los otros 3 lados). */
+  border-top-color: #3d3d4b;
+  border-right-color: #3d3d4b;
+  border-bottom-color: #3d3d4b;
+  border-radius: 16px;
+  background-color: #20202c;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, .05), transparent 55%);
+  box-shadow: 0 3px 7px rgba(0, 0, 0, .5), 0 14px 32px -10px rgba(0, 0, 0, .8);
 }
