@@ -1982,6 +1982,32 @@ async function handleApprovalDecision(request, env, session, postId, decision) {
     } catch (e) { console.error('[mkt approval comment]', e && e.message); }
   }
 
+  // Cuando un CLIENTE pide cambios, anexa el texto a la columna "Notas <persona>"
+  // de la tabla del equipo, para que Vianey lo vea de un vistazo sin abrir el
+  // hilo de Comentarios. La persona = la etiqueta (note_labels) que coincide con
+  // el login del cliente (ej. login "Meli" -> nota "Meli"); si no coincide, la
+  // primera etiqueta. Se ANEXA (nunca sobrescribe) y no duplica. Best-effort: si
+  // algo falla, el comentario igual vive en Comentarios + auditoría.
+  if (decision === 'changes' && session.role === 'client' && comment && comment.trim()) {
+    try {
+      const clientRow = await env.DB.prepare('SELECT note_labels FROM mkt_clients WHERE id = ?').bind(post.client_id).first();
+      const labels = parseNoteLabels(clientRow && clientRow.note_labels);
+      if (labels.length) {
+        const login = (session.name || '').trim().toLowerCase();
+        const person = labels.find((l) => l.toLowerCase() === login) || labels[0];
+        const notes = parseNotesPeople(post.notes_people);
+        const prev = String(notes[person] || '').trim();
+        const dateStr = new Date().toISOString().slice(0, 10);
+        const line = `✏️ Pidió cambios (${dateStr}): ${comment.trim()}`;
+        if (!prev.includes(line)) {
+          notes[person] = prev ? `${prev}\n${line}` : line;
+          await env.DB.prepare("UPDATE mkt_posts SET notes_people = ?, updated_at = datetime('now') WHERE id = ?")
+            .bind(JSON.stringify(notes), postId).run();
+        }
+      }
+    } catch (e) { console.error('[mkt approval note]', e && e.message); }
+  }
+
   await logActivity(env, {
     client_id: post.client_id, post_id: postId, session,
     action: decision === 'approved' ? 'post.approve' : 'post.request_changes',
