@@ -36,10 +36,11 @@
   --border:        #E5E5EC;
   --border-strong: #CFCFDB;
 
-  /* Texto */
+  /* Texto (mute verificado con auditoría de contraste en vivo: 4.5+ sobre
+     blanco Y sobre --surface-2; #7C7C8A daba 4.1 y reprobaba AA) */
   --text:      #16161E;
   --text-dim:  #52525E;
-  --text-mute: #7C7C8A;
+  --text-mute: #6A6A78;
 
   /* Sombras suaves de tema claro */
   --sh-1: 0 1px 2px rgba(23, 20, 45, .08), 0 1px 1px rgba(23, 20, 45, .05);
@@ -72,6 +73,14 @@
   border-bottom: 1px solid rgba(23, 20, 45, .07);
 }
 :root[data-theme="light"] .dash-head { background: rgba(246, 246, 250, .92) !important; }
+
+/* Correcciones de la auditoría de contraste EN VIVO (2026-07-22):
+   - Link de inspo/URL en la tabla de meses: cyan --info daba 2.4:1 → cyan oscuro.
+   - Badge de avisos: blanco sobre --danger #ef4444 daba 3.8 → rojo más profundo.
+   - Chip de periodo activo en Métricas: 2.3:1 → texto de marca oscurecido. */
+:root[data-theme="light"] .meses-url__a { color: #0E7490; }
+:root[data-theme="light"] .tb-badge { background: #DC2626; }
+:root[data-theme="light"] .mt-chip.is-active { color: color-mix(in srgb, var(--brand) 72%, #000); }
 
 /* ── 2. CORRECCIONES POR ARCHIVO (se anexan abajo, en orden de carga) ──────── */
 

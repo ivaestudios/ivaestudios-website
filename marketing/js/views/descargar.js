@@ -9,9 +9,9 @@
 //        → GET /descargar/file?u=... (stream con Content-Disposition: attachment).
 // Nada se guarda: las URLs del CDN expiran, así que se re-resuelve al descargar.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202607221901';
-import { icon } from '../shell/icons.js?v=202607221901';
-import { T } from '../shell/i18n.js?v=202607221901';
+import { api, el, clear, toast } from '../api.js?v=202607221907';
+import { icon } from '../shell/icons.js?v=202607221907';
+import { T } from '../shell/i18n.js?v=202607221907';
 
 const VIEW_ID = 'descargar';
 
@@ -235,7 +235,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/descargar.css?v=202607221901';
+  link.href = '/marketing/css/descargar.css?v=202607221907';
   document.head.appendChild(link);
 }
 

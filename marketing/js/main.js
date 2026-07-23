@@ -14,10 +14,10 @@
 // completo sigue funcionando.
 // ============================================================================
 
-import * as shell from './shell/shell.js?v=202607221901';
-import { el } from './api.js?v=202607221901';
-import { icon } from './shell/icons.js?v=202607221901';
-import { T } from './shell/i18n.js?v=202607221901';
+import * as shell from './shell/shell.js?v=202607221907';
+import { el } from './api.js?v=202607221907';
+import { icon } from './shell/icons.js?v=202607221907';
+import { T } from './shell/i18n.js?v=202607221907';
 
 function resolveImpl(mod) {
   if (!mod) return null;
@@ -91,28 +91,28 @@ function lazyView({ id, label, icon: iconName, loader }) {
 }
 
 // ── Registro de vistas (ids en espanol = rutas hash) ─────────────────────────
-lazyView({ id: 'inicio', label: T('Inicio', 'Home'), icon: 'home', loader: () => import('./views/dashboard.js?v=202607221901') });
+lazyView({ id: 'inicio', label: T('Inicio', 'Home'), icon: 'home', loader: () => import('./views/dashboard.js?v=202607221907') });
 // Meses: la pantalla principal por marca (flujo Notion de la duena: secciones
 // por mes desplegables + tabla con sus columnas + nueva linea inline).
-lazyView({ id: 'meses', label: T('Calendario', 'Calendar'), icon: 'calendar', loader: () => import('./views/meses.js?v=202607221901') });
-lazyView({ id: 'calendario', label: T('Cuadrícula', 'Grid'), icon: 'grip', loader: () => import('./calendar/index.js?v=202607221901') });
-lazyView({ id: 'tablero', label: T('Tablero', 'Board'), icon: 'board', loader: () => import('./views/kanban.js?v=202607221901') });
-lazyView({ id: 'tabla', label: T('Tabla', 'Table'), icon: 'table', loader: () => import('./views/table.js?v=202607221901') });
-lazyView({ id: 'timeline', label: 'Timeline', icon: 'gantt', loader: () => import('./views/timeline.js?v=202607221901') });
-lazyView({ id: 'carga', label: T('Carga', 'Workload'), icon: 'gauge', loader: () => import('./views/workload.js?v=202607221901') });
-lazyView({ id: 'mi-trabajo', label: T('Mi trabajo', 'My work'), icon: 'briefcase', loader: () => import('./views/mywork.js?v=202607221901') });
-lazyView({ id: 'automatizaciones', label: T('Automatizaciones', 'Automations'), icon: 'zap', loader: () => import('./views/automations.js?v=202607221901') });
+lazyView({ id: 'meses', label: T('Calendario', 'Calendar'), icon: 'calendar', loader: () => import('./views/meses.js?v=202607221907') });
+lazyView({ id: 'calendario', label: T('Cuadrícula', 'Grid'), icon: 'grip', loader: () => import('./calendar/index.js?v=202607221907') });
+lazyView({ id: 'tablero', label: T('Tablero', 'Board'), icon: 'board', loader: () => import('./views/kanban.js?v=202607221907') });
+lazyView({ id: 'tabla', label: T('Tabla', 'Table'), icon: 'table', loader: () => import('./views/table.js?v=202607221907') });
+lazyView({ id: 'timeline', label: 'Timeline', icon: 'gantt', loader: () => import('./views/timeline.js?v=202607221907') });
+lazyView({ id: 'carga', label: T('Carga', 'Workload'), icon: 'gauge', loader: () => import('./views/workload.js?v=202607221907') });
+lazyView({ id: 'mi-trabajo', label: T('Mi trabajo', 'My work'), icon: 'briefcase', loader: () => import('./views/mywork.js?v=202607221907') });
+lazyView({ id: 'automatizaciones', label: T('Automatizaciones', 'Automations'), icon: 'zap', loader: () => import('./views/automations.js?v=202607221907') });
 // Métricas: panel de Instagram por periodo (semana/mes/3-6 meses/año/custom).
-lazyView({ id: 'metricas', label: T('Métricas', 'Metrics'), icon: 'gauge', loader: () => import('./views/metricas.js?v=202607221901') });
+lazyView({ id: 'metricas', label: T('Métricas', 'Metrics'), icon: 'gauge', loader: () => import('./views/metricas.js?v=202607221907') });
 // Entregables: contenido final (reels + carruseles) que el cliente ve y descarga.
-lazyView({ id: 'entregables', label: T('Entregables', 'Deliverables'), icon: 'archive', loader: () => import('./views/entregables.js?v=202607221901') });
+lazyView({ id: 'entregables', label: T('Entregables', 'Deliverables'), icon: 'archive', loader: () => import('./views/entregables.js?v=202607221907') });
 // Carrusel: cortador de tiras de carrusel en slides descargables (solo staff).
-lazyView({ id: 'carrusel', label: T('Carrusel', 'Carousel'), icon: 'scissors', loader: () => import('./views/carrusel.js?v=202607221901') });
+lazyView({ id: 'carrusel', label: T('Carrusel', 'Carousel'), icon: 'scissors', loader: () => import('./views/carrusel.js?v=202607221907') });
 // Descargar: baja videos de IG/TikTok/Pinterest sin marca de agua (solo staff).
-lazyView({ id: 'descargar', label: T('Descargar', 'Download'), icon: 'download', loader: () => import('./views/descargar.js?v=202607221901') });
+lazyView({ id: 'descargar', label: T('Descargar', 'Download'), icon: 'download', loader: () => import('./views/descargar.js?v=202607221907') });
 
 // Detalle de post (#/post/:id): el deep-link que usan busqueda y avisos.
-lazyView({ id: 'post', label: T('Contenido', 'Content'), icon: 'edit', loader: () => import('./editor/editor.js?v=202607221901') });
+lazyView({ id: 'post', label: T('Contenido', 'Content'), icon: 'edit', loader: () => import('./editor/editor.js?v=202607221907') });
 
 // ── Arranque ─────────────────────────────────────────────────────────────────
 shell.boot();
@@ -125,7 +125,7 @@ shell.boot();
 if ('serviceWorker' in navigator) {
   const registerSw = () => {
     navigator.serviceWorker
-      .register('/marketing/sw.js?v=202607221901', { scope: '/marketing/' })
+      .register('/marketing/sw.js?v=202607221907', { scope: '/marketing/' })
       .catch(() => { /* p.ej. modo privado sin SW: la app funciona igual */ });
   };
   if (document.readyState === 'complete') registerSw();
