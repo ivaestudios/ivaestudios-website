@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.ivaestudios.marketing",
+      "sha256_cert_fingerprints": [
+        "C6:BE:DA:77:C3:6C:7A:A9:A3:DE:46:27:06:F1:4C:96:9F:EB:CF:2F:E6:70:1E:82:B4:BE:1A:AA:4F:44:CC:74"
+      ]
+    }
+  }
+]
