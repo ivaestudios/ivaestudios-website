@@ -10,14 +10,14 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607221930';
-import * as store from './store.js?v=202607221930';
-import { openSheet, pickFrom } from './sheet.js?v=202607221930';
-import { toast } from './toast.js?v=202607221930';
-import { icon } from './icons.js?v=202607221930';
-import { openClientSwitcher } from './clientswitcher.js?v=202607221930';
-import { T, isEN, setLang } from './i18n.js?v=202607221930';
-import { getTheme, setTheme } from './theme.js?v=202607221930';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607221932';
+import * as store from './store.js?v=202607221932';
+import { openSheet, pickFrom } from './sheet.js?v=202607221932';
+import { toast } from './toast.js?v=202607221932';
+import { icon } from './icons.js?v=202607221932';
+import { openClientSwitcher } from './clientswitcher.js?v=202607221932';
+import { T, isEN, setLang } from './i18n.js?v=202607221932';
+import { getTheme, setTheme } from './theme.js?v=202607221932';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');

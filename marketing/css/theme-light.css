@@ -953,10 +953,10 @@
 /* 1. Fondo de la app: lavado sutil del magenta→violeta (vida sin ruido). */
 :root[data-theme="light"] body {
   background:
-    radial-gradient(52% 38% at 10% -2%, rgba(210, 68, 148, .06), transparent 62%),
-    radial-gradient(46% 34% at 96% -2%, rgba(144, 87, 219, .055), transparent 62%),
-    radial-gradient(70% 48% at 50% 112%, rgba(210, 68, 148, .04), transparent 65%),
-    #F4F4F9;
+    radial-gradient(52% 38% at 10% -2%, rgba(210, 68, 148, .09), transparent 62%),
+    radial-gradient(46% 34% at 96% -2%, rgba(144, 87, 219, .08), transparent 62%),
+    radial-gradient(70% 48% at 50% 112%, rgba(210, 68, 148, .055), transparent 65%),
+    #F3F3F8;
   background-attachment: fixed;
 }
 

@@ -12,11 +12,11 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, copyText } from '../api.js?v=202607221930';
-import { icon } from '../shell/icons.js?v=202607221930';
-import { makeTextarea } from './fields.js?v=202607221930';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202607221930';
-import { T } from '../shell/i18n.js?v=202607221930';
+import { el, copyText } from '../api.js?v=202607221932';
+import { icon } from '../shell/icons.js?v=202607221932';
+import { makeTextarea } from './fields.js?v=202607221932';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202607221932';
+import { T } from '../shell/i18n.js?v=202607221932';
 
 const IG_VISIBLE_CUT = 125;
 const CAPTION_MAX = 2200;
