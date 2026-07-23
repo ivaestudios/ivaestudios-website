@@ -177,7 +177,7 @@ async function getKey(env, token) {
   if (t.length < MIN_TOKEN_LEN) return null;
   try {
     return await env.DB.prepare(
-      'SELECT token, client_id FROM mkt_mcp_keys WHERE token = ? AND COALESCE(revoked, 0) = 0 LIMIT 1'
+      'SELECT token, client_id, COALESCE(readonly, 0) AS readonly FROM mkt_mcp_keys WHERE token = ? AND COALESCE(revoked, 0) = 0 LIMIT 1'
     ).bind(t).first();
   } catch {
     return null; // si la tabla no existe -> rechaza (fail closed)
@@ -506,11 +506,19 @@ async function rpc(msg, env, scope) {
     }
     case 'ping':
       return rpcOk(id, {});
-    case 'tools/list':
-      return rpcOk(id, { tools: TOOLS });
+    case 'tools/list': {
+      // Llave de solo lectura: solo las herramientas de consulta.
+      const READONLY_TOOLS = new Set(['list_brands', 'list_posts', 'get_post']);
+      const tools = (scope && scope.readonly) ? TOOLS.filter((t) => READONLY_TOOLS.has(t.name)) : TOOLS;
+      return rpcOk(id, { tools });
+    }
     case 'tools/call': {
       const name = params.name;
       const args = params.arguments || {};
+      // Guardia server-side del modo lectura (no basta con ocultar en tools/list).
+      if (scope && scope.readonly && !['list_brands', 'list_posts', 'get_post'].includes(name)) {
+        return rpcOk(id, toolErr('Esta clave es de SOLO LECTURA: puedes consultar el calendario (list_posts, get_post) pero no crear, editar ni descargar.'));
+      }
       try {
         let r;
         if (name === 'list_brands') r = await listBrands(env, scope);
@@ -573,7 +581,9 @@ export async function onRequest(context) {
   } else {
     const token = Array.isArray(params.path) ? params.path[0] : params.path;
     const key = token ? await getKey(env, token) : null;
-    if (key) scope = { clientId: key.client_id || null };
+    // readonly=1 -> llave de SOLO LECTURA (p.ej. para el cliente de una marca):
+    // solo expone list_brands/list_posts/get_post; nada de crear/editar/descargar.
+    if (key) scope = { clientId: key.client_id || null, readonly: !!key.readonly };
   }
   if (!scope) return unauthorized(origin); // 401 + WWW-Authenticate dispara el OAuth de claude.ai
 
