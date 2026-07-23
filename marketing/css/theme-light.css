@@ -1,0 +1,932 @@
+/* ============================================================================
+   IVAE Marketing — Tema CLARO "Sistema IVA Claro" (2026).
+   Capa de SOLO ESTILO, cargada AL FINAL del head (después de theme-sistemaiva).
+   Se activa con <html data-theme="light"> (localStorage 'mkt_theme', boot inline
+   en app.html/index.html + toggle en el menú de cuenta, js/shell/theme.js).
+
+   REGLAS DE LA CAPA:
+   - TODO selector va prefijado con :root[data-theme="light"] → gana por
+     ESPECIFICIDAD, no por orden (el CSS de vistas lazy —entregables, carrusel,
+     descargar, métricas— se inyecta DESPUÉS de esta hoja).
+   - Donde el original usa !important, aquí también.
+   - Identidad intacta: mismo magenta→violeta, mismos colores de status/tipo;
+     solo cambian superficies, textos, bordes, sombras y las fórmulas color-mix
+     de texto (hacia #000 en claro, no hacia #fff).
+   - Rollback limpio: quitar el <link> (el tema oscuro ni se entera).
+   ============================================================================ */
+
+/* ── 1. TOKENS (remapa :root de app.css + tokens2.css + theme-sistemaiva) ──── */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  /* Marca: mismo dúo magenta→violeta, ligeramente profundizado para AA en claro */
+  --violet:       #8A4FD3;
+  --fuchsia:      #C93E8C;
+  --pink:         #C93E8C;
+  --brand:        #C93E8C;
+  --brand-strong: #8A4FD3;
+  --grad:      linear-gradient(135deg, #D24494 0%, #9057DB 100%);
+  --grad-soft: linear-gradient(135deg, rgba(210, 68, 148, .10) 0%, rgba(144, 87, 219, .10) 100%);
+
+  /* Superficies claras */
+  --bg:        #F6F6FA;
+  --surface:   #FFFFFF;
+  --surface-2: #F1F1F6;
+  --surface-3: rgba(15, 15, 35, .045);
+  --border:        #E5E5EC;
+  --border-strong: #CFCFDB;
+
+  /* Texto */
+  --text:      #16161E;
+  --text-dim:  #52525E;
+  --text-mute: #7C7C8A;
+
+  /* Sombras suaves de tema claro */
+  --sh-1: 0 1px 2px rgba(23, 20, 45, .08), 0 1px 1px rgba(23, 20, 45, .05);
+  --sh-2: 0 6px 18px -4px rgba(23, 20, 45, .10), 0 2px 6px -2px rgba(23, 20, 45, .07);
+  --sh-3: 0 18px 48px -12px rgba(23, 20, 45, .16), 0 6px 16px -8px rgba(23, 20, 45, .10);
+  --sh-glow:       0 6px 22px -4px rgba(201, 62, 140, .22), 0 2px 8px -2px rgba(144, 87, 219, .16);
+  --sh-glow-hover: 0 10px 30px -4px rgba(201, 62, 140, .30), 0 3px 12px -2px rgba(144, 87, 219, .22);
+
+  /* Elevaciones v2 */
+  --e1: 0 1px 2px rgba(23, 20, 45, .07);
+  --e2: 0 4px 14px -4px rgba(23, 20, 45, .10), 0 2px 6px -2px rgba(23, 20, 45, .07);
+  --e3: 0 14px 40px -10px rgba(23, 20, 45, .14), 0 4px 12px -6px rgba(23, 20, 45, .09);
+  --e4: 0 24px 70px -16px rgba(23, 20, 45, .18), 0 8px 24px -10px rgba(23, 20, 45, .11);
+
+  /* Focus ring */
+  --ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--brand), 0 0 0 7px rgba(201, 62, 140, .22);
+
+  /* Acento por cliente: tintes más suaves sobre blanco */
+  --client-accent-soft: color-mix(in srgb, var(--client-accent) 12%, transparent);
+  --client-accent-line: color-mix(in srgb, var(--client-accent) 30%, transparent);
+}
+
+/* Barras de scroll claras (contrarresta las de theme-sistemaiva) */
+:root[data-theme="light"] ::-webkit-scrollbar-thumb { background: #C8C8D6; }
+:root[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #B2B2C4; }
+
+/* Chrome translúcido claro (theme-sistemaiva las fija con !important) */
+:root[data-theme="light"] #topbar {
+  background: rgba(255, 255, 255, .86) !important;
+  border-bottom: 1px solid rgba(23, 20, 45, .07);
+}
+:root[data-theme="light"] .dash-head { background: rgba(246, 246, 250, .92) !important; }
+
+/* ── 2. CORRECCIONES POR ARCHIVO (se anexan abajo, en orden de carga) ──────── */
+
+/* ═══════════ app.css ═══════════ */
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIGHT THEME OVERRIDES — css/app.css (core design system)
+   Wins by specificity: every selector prefixed with :root[data-theme="light"].
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Base chrome ── */
+:root[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #B2B2C4; background-clip: padding-box; }
+:root[data-theme="light"] ::selection { background: rgba(217,70,239,.28); color: #16161E; }
+
+/* ── Topbar sticky chrome (dark glass → light glass) ── */
+:root[data-theme="light"] .topbar { background: rgba(255,255,255,.86); }
+:root[data-theme="light"] .topbar__client .dot { box-shadow: 0 0 0 3px rgba(15,15,35,.06); }
+
+/* ── Buttons ── */
+:root[data-theme="light"] .btn-danger { color: #B91C1C; }
+:root[data-theme="light"] .btn-danger:hover { color: #991B1B; }
+/* Loading spinner: white → dark on plain/ghost/danger buttons; stays white on gradient */
+:root[data-theme="light"] .btn[data-loading="true"]::after { border-color: rgba(23,20,45,.22); border-top-color: #16161E; }
+:root[data-theme="light"] .btn-primary[data-loading="true"]::after { border-color: rgba(255,255,255,.4); border-top-color: #fff; }
+
+/* ── Forms ── */
+/* Select chevron: inline SVG had hardcoded stroke #a9a9bd → darkened for light bg */
+:root[data-theme="light"] .select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2352525E' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); }
+:root[data-theme="light"] .field__error { color: #B91C1C; }
+
+/* ── Chips / status badges: flip color-mix TEXT toward black, soften fills ── */
+:root[data-theme="light"] .chip {
+  color: color-mix(in srgb, var(--c, var(--text-dim)) 70%, #000);
+  background: color-mix(in srgb, var(--c, var(--text-mute)) 11%, transparent);
+  border-color: color-mix(in srgb, var(--c, var(--text-mute)) 30%, transparent);
+}
+:root[data-theme="light"] .status-badge {
+  color: color-mix(in srgb, var(--c, var(--text-dim)) 70%, #000);
+  background: color-mix(in srgb, var(--c, var(--text-mute)) 10%, transparent);
+  border-color: color-mix(in srgb, var(--c, var(--text-mute)) 30%, transparent);
+}
+/* Bright hues need a deeper mix than 70% to reach 4.5:1 on white */
+:root[data-theme="light"] .status-badge[data-status="grabacion"]  { color: color-mix(in srgb, var(--c) 55%, #000); }
+:root[data-theme="light"] .status-badge[data-status="aprobado"]   { color: color-mix(in srgb, var(--c) 58%, #000); }
+:root[data-theme="light"] .status-badge[data-status="publicado"],
+:root[data-theme="light"] .status-badge[data-status="programado"] { color: color-mix(in srgb, var(--c) 60%, #000); }
+:root[data-theme="light"] .chip[data-type="historia"]             { color: color-mix(in srgb, var(--c) 60%, #000); }
+
+/* ── Approval badges (pastel-300 text → dark; alpha tints work on white as-is) ── */
+:root[data-theme="light"] .approval-badge[data-approval="pending"]  { color: #8F6400; }
+:root[data-theme="light"] .approval-badge[data-approval="approved"] { color: #166534; }
+:root[data-theme="light"] .approval-badge[data-approval="changes"]  { color: #BE185D; }
+
+/* ── Priority badge: alta/urgente used raw token color as text ── */
+:root[data-theme="light"] .priority-badge[data-priority="alta"]    { color: color-mix(in srgb, var(--pri-alta) 58%, #000); }
+:root[data-theme="light"] .priority-badge[data-priority="urgente"] { color: color-mix(in srgb, var(--pri-urgente) 70%, #000); }
+
+/* ── Amber-as-text one-offs ── */
+:root[data-theme="light"] .board-card__grab      { color: color-mix(in srgb, var(--warn) 60%, #000); }
+:root[data-theme="light"] .comment__internal-tag { color: color-mix(in srgb, var(--warn) 60%, #000); }
+
+/* ── Calendar: out-of-month cells were hardcoded near-black ── */
+:root[data-theme="light"] .cal-day.is-other { background: #ECECF3; }
+:root[data-theme="light"] .cal-day.is-other:hover { background: #E4E4EE; }
+
+/* ── Modal backdrop ── */
+:root[data-theme="light"] .overlay { background: rgba(23,20,45,.35); }
+
+/* ── Skeleton shimmer: white sheen invisible on light → dark sheen ── */
+:root[data-theme="light"] .skeleton::after { background: linear-gradient(90deg, transparent, rgba(15,15,35,.05), transparent); }
+
+/* ── Auth screen ── */
+:root[data-theme="light"] .auth-wrap {
+  background:
+    radial-gradient(60% 50% at 18% 0%, rgba(124,58,237,.12), transparent 60%),
+    radial-gradient(55% 45% at 100% 100%, rgba(236,72,153,.10), transparent 60%),
+    radial-gradient(40% 40% at 80% 8%, rgba(217,70,239,.08), transparent 60%),
+    var(--bg);
+}
+/* White-alpha starfield dots read as noise on light → removed */
+:root[data-theme="light"] .auth-wrap::before { background-image: none; }
+:root[data-theme="light"] .auth-card { background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.96)); }
+
+/* ── Inline alerts (pastel-300 text → dark; alpha tint bgs stay) ── */
+:root[data-theme="light"] .alert--error   { color: #B91C1C; }
+:root[data-theme="light"] .alert--success { color: #166534; }
+:root[data-theme="light"] .alert--info    { color: #0E7490; }
+
+/* ── Accesos de cliente: var(--text-1) is undefined app-wide, #fff fallback rendered ── */
+:root[data-theme="light"] .cred-row__value { color: var(--text); }
+
+/* ── Mobile-only chrome ── */
+@media (max-width: 720px) {
+  :root[data-theme="light"] .sidebar-overlay { background: rgba(23,20,45,.35); }
+  :root[data-theme="light"] .view-controls {
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 4px 12px -8px rgba(23,20,45,.16);
+  }
+}
+
+/* ═══════════ shell.css ═══════════ */
+/* ══ shell.css — light overrides ══════════════════════════════════════════ */
+
+/* Topbar: dark translucent chrome -> white translucent. Hairline added via
+   box-shadow (not border-bottom) so the fixed 56px bar never grows 1px. */
+:root[data-theme="light"] #topbar {
+  background: rgba(255, 255, 255, .86);
+  box-shadow: 0 1px 0 rgba(23, 20, 45, .07);
+}
+
+/* Subhead sticky chrome */
+:root[data-theme="light"] #subhead {
+  background: rgba(255, 255, 255, .92);
+}
+
+/* Bottom nav chrome */
+:root[data-theme="light"] #bottomnav {
+  background: rgba(255, 255, 255, .92);
+}
+
+/* Sheet backdrop: near-black scrim -> soft navy scrim */
+:root[data-theme="light"] .sheet-backdrop {
+  background: rgba(23, 20, 45, .35);
+}
+
+/* Client-switcher dot halo: white-alpha ring assumed dark card */
+:root[data-theme="light"] .cs-row__dot {
+  box-shadow: 0 0 0 3px rgba(15, 15, 35, .06);
+}
+
+/* Active language pill: heavy black shadow -> soft navy */
+:root[data-theme="light"] .lang-pill.is-active {
+  box-shadow: 0 1px 4px rgba(23, 20, 45, .15);
+}
+
+@media (min-width: 768px) {
+  /* Global-search overlay becomes a centered panel over a scrim on tablet+ */
+  :root[data-theme="light"] .gs-overlay {
+    background: rgba(23, 20, 45, .35);
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Re-assert: on desktop the search overlay is an anchored popover with NO
+     scrim. The dark file's .gs-overlay--desktop{background:transparent}
+     (specificity 0,1,0) would lose to our prefixed 768px scrim override
+     (0,3,0), so it must be restored here at equal-or-higher specificity. */
+  :root[data-theme="light"] .gs-overlay--desktop {
+    background: transparent;
+  }
+}
+
+/* ═══════════ dashboard.css ═══════════ */
+/* ═══ css/dashboard.css — Sistema IVA Claro overrides ═══ */
+
+/* Sticky dashboard chrome: dark blur -> white blur (keeps its var(--border) hairline, remapped centrally) */
+:root[data-theme="light"] .dash-head {
+  background: rgba(255, 255, 255, .92);
+}
+
+/* Link hover: --fuchsia is not in the centrally remapped token list; darken for AA on white */
+:root[data-theme="light"] .dash-link:hover {
+  color: color-mix(in srgb, var(--fuchsia) 70%, #000);
+}
+
+/* Danger borders: red-alpha tuned for dark composite -> deeper red so the accent survives on white */
+:root[data-theme="light"] .dash-counter.is-danger {
+  border-color: rgba(220, 38, 38, .5);
+}
+:root[data-theme="light"] .dash-overduecard {
+  border-color: rgba(220, 38, 38, .45);
+}
+:root[data-theme="light"] .dash-client.is-urgent {
+  border-color: rgba(220, 38, 38, .5);
+}
+
+/* Battery hover: brightening washes status colors toward white on a light track -> darken instead */
+:root[data-theme="light"] .dash-battery__seg:hover .dash-battery__fill,
+:root[data-theme="light"] .dash-battery__seg:active .dash-battery__fill {
+  filter: brightness(.92);
+}
+
+/* Overdue badge: light-red text on red tint is invisible over white */
+:root[data-theme="light"] .dash-overdue__badge {
+  background: rgba(239, 68, 68, .12);
+  color: #B91C1C;
+}
+
+/* Client card: white-alpha sheen -> dark-alpha tint */
+:root[data-theme="light"] .dash-client {
+  background: rgba(15, 15, 35, .04);
+}
+
+/* Client accent dot: white ring -> dark ring (dot fill itself is JS-inline, see notes) */
+:root[data-theme="light"] .dash-client__dot {
+  box-shadow: 0 0 0 2px rgba(15, 15, 35, .08);
+}
+
+/* Status pills: pastel-on-dark text colors -> dark AA text; tint alphas 16/14% -> 11-12% */
+:root[data-theme="light"] .dash-pill.is-danger {
+  background: rgba(239, 68, 68, .12);
+  color: #B91C1C;
+}
+:root[data-theme="light"] .dash-pill.is-warn {
+  background: rgba(245, 158, 11, .12);
+  color: #8F6400;
+}
+:root[data-theme="light"] .dash-pill.is-ok {
+  background: rgba(34, 197, 94, .11);
+  color: #15803D;
+}
+
+/* ═══════════ meses.css ═══════════ */
+/* ==== LIGHT THEME OVERRIDES — css/meses.css ==== */
+
+/* Filtros: chip activo (el fondo pasa a tinte claro de marca -> texto oscuro) */
+:root[data-theme="light"] .mfilt-chip.is-on {
+  background: color-mix(in srgb, var(--brand) 12%, var(--surface-2));
+  color: var(--text);
+}
+:root[data-theme="light"] .mfilt-chip.is-on .ico { color: var(--brand); }
+:root[data-theme="light"] .mfilt-chip.is-on .mfilt-chip__n { color: rgba(22, 22, 30, .72); }
+
+/* Tarjeta movil (.meses-item): #20202c + sheen blanco + sombra negra -> tarjeta blanca */
+:root[data-theme="light"] .meses-item {
+  border-color: #DADAE4;
+  background-color: #FFFFFF;
+  background-image: none;
+  box-shadow: 0 2px 6px rgba(23, 20, 45, .08), 0 12px 28px -12px rgba(23, 20, 45, .16);
+}
+
+/* Botones de eliminar: rojo claro #f87171 no lee sobre blanco */
+:root[data-theme="light"] .meses-item__del:hover,
+:root[data-theme="light"] .meses-item__del:active {
+  background: rgba(239, 68, 68, .12);
+  color: #DC2626;
+}
+:root[data-theme="light"] .meses-task__del:hover {
+  background: rgba(239, 68, 68, .12);
+  color: #DC2626;
+}
+
+/* Chips (movil): texto = color crudo del chip -> mezclar 70% hacia negro; bajar alpha del fondo */
+:root[data-theme="light"] .meses-chip {
+  background: color-mix(in srgb, var(--chipc, var(--text-mute)) 11%, transparent);
+  color: color-mix(in srgb, var(--chipc, var(--text-dim)) 70%, #000);
+}
+/* Re-asercion de variantes: el prefijo de tema sube la especificidad de la base
+   por encima de --ghost / --inspo, hay que re-declararlas en el scope claro. */
+:root[data-theme="light"] .meses-chip--ghost {
+  background: transparent;
+  color: var(--text-mute);
+}
+:root[data-theme="light"] .meses-chip--inspo {
+  background: color-mix(in srgb, var(--brand, #C93E8C) 10%, transparent);
+  border-color: color-mix(in srgb, var(--brand, #C93E8C) 30%, transparent);
+  color: var(--brand, #C93E8C);
+}
+:root[data-theme="light"] .meses-chip--inspo:active {
+  background: color-mix(in srgb, var(--brand, #C93E8C) 16%, transparent);
+}
+
+/* Tabla: chip de grabacion + pills (mismo tratamiento que los chips) */
+:root[data-theme="light"] .meses-grabchip {
+  background: color-mix(in srgb, var(--chipc, var(--text-mute)) 14%, transparent);
+  color: color-mix(in srgb, var(--chipc, var(--text-dim)) 70%, #000);
+}
+:root[data-theme="light"] .meses-pill {
+  background: color-mix(in srgb, var(--chipc, var(--text-mute)) 10%, transparent);
+  color: color-mix(in srgb, var(--chipc, var(--text-dim)) 70%, #000);
+}
+:root[data-theme="light"] .meses-pill--plain {
+  background: var(--surface-2);
+  color: var(--text-dim);
+}
+
+/* Columna Fecha: usa token legacy --text-1 (no esta en el remap central) */
+:root[data-theme="light"] .meses-date { color: var(--text); }
+
+/* Drawer del guion (side peek) */
+:root[data-theme="light"] .meses-drawer__overlay { background: rgba(23, 20, 45, .35); }
+:root[data-theme="light"] .meses-drawer {
+  background: var(--surface, #FFFFFF);
+  box-shadow: -24px 0 60px rgba(23, 20, 45, .16);
+}
+:root[data-theme="light"] .meses-drawer__title { color: var(--text); }
+:root[data-theme="light"] .meses-drawer__close:hover {
+  background: rgba(15, 15, 35, .05);
+  color: var(--text);
+}
+:root[data-theme="light"] .meses-drawer__ta { color: var(--text); }
+:root[data-theme="light"] .mdsec + .mdsec { border-top-color: rgba(15, 15, 35, .08); }
+:root[data-theme="light"] .mdsec__lbl { color: var(--text); }
+:root[data-theme="light"] .mdsec__lbl::before {
+  background: linear-gradient(180deg, var(--brand, #D24494), #9057DB);
+}
+:root[data-theme="light"] .mdsec__count.is-over { color: #C74A35; }
+:root[data-theme="light"] .mdsec__copy:hover,
+:root[data-theme="light"] .mdsec__copy:active {
+  color: var(--text);
+  background: rgba(201, 62, 140, .08);
+}
+:root[data-theme="light"] .meses-drawer__ta--sec {
+  border-color: rgba(15, 15, 35, .10);
+  background: rgba(15, 15, 35, .03);
+}
+:root[data-theme="light"] .meses-drawer__ta--sec:hover { border-color: rgba(15, 15, 35, .18); }
+:root[data-theme="light"] .meses-drawer__ta--sec:focus {
+  border-color: var(--brand, #C93E8C);
+  background: #FFFFFF;
+}
+:root[data-theme="light"] .meses-drawer__ta--sec::placeholder { color: rgba(15, 15, 35, .40); }
+:root[data-theme="light"] .meses-drawer__save--saved { color: #17814F; }
+:root[data-theme="light"] .meses-drawer__save--error { color: #C74A35; }
+
+/* Filtro estilo Excel en el encabezado de la tabla */
+:root[data-theme="light"] .meses-th__filter:hover {
+  color: var(--text);
+  background: rgba(15, 15, 35, .05);
+}
+
+/* Barra lateral de meses (desktop): hovers con --text-1 legacy */
+:root[data-theme="light"] .meses-side__item:hover { color: var(--text); }
+:root[data-theme="light"] .meses-side__item.is-active { color: var(--text); }
+:root[data-theme="light"] .meses-side__add:hover { color: var(--text); }
+
+/* Ambar como texto/icono: #f59e0b no lee sobre claro */
+:root[data-theme="light"] .meses-stat.is-warn .meses-stat__v { color: #8F6400; }
+:root[data-theme="light"] .meses-revisar {
+  background: color-mix(in srgb, #f59e0b 10%, var(--surface-2));
+  border-color: color-mix(in srgb, #f59e0b 35%, transparent);
+}
+:root[data-theme="light"] .meses-revisar .ico { color: #8F6400; }
+:root[data-theme="light"] .meses-revisar:hover { border-color: #D97706; }
+
+/* Botones Aprobar / Pedir cambios (cliente movil) */
+:root[data-theme="light"] .meses-approve__btn--ok {
+  background: color-mix(in srgb, #22c55e 11%, transparent);
+  border-color: color-mix(in srgb, #22c55e 32%, transparent);
+  color: #17814F;
+}
+:root[data-theme="light"] .meses-approve__btn--ok .ico { color: #17814F; }
+:root[data-theme="light"] .meses-approve__btn--ok:active {
+  background: color-mix(in srgb, #22c55e 18%, transparent);
+}
+:root[data-theme="light"] .meses-approve__btn--chg {
+  background: color-mix(in srgb, #ec4899 10%, transparent);
+  border-color: color-mix(in srgb, #ec4899 30%, transparent);
+  color: #BE185D;
+}
+:root[data-theme="light"] .meses-approve__btn--chg .ico { color: #BE185D; }
+:root[data-theme="light"] .meses-approve__btn--chg:active {
+  background: color-mix(in srgb, #ec4899 15%, transparent);
+}
+
+/* ═══════════ calendar.css ═══════════ */
+/* ═══ calendar.css — light overrides (Vista Cuadricula) ═══ */
+
+/* Mini-mes: barritas de evento — tint más suave sobre blanco (16% → 12%) */
+:root[data-theme="light"] .mini__ev {
+  background: color-mix(in srgb, var(--ev-color, var(--brand)) 12%, transparent);
+}
+
+/* Punto de color en tarjetas (.cal-card): anillo blanco-alpha → oscuro-alpha */
+:root[data-theme="light"] .cal-cdot {
+  box-shadow: 0 0 0 2px rgba(15, 15, 35, .10);
+}
+
+@media (min-width: 768px) {
+  /* Pills del mes: tint 16% → 12% sobre surface-2 clara */
+  :root[data-theme="light"] .cal-pill {
+    background: color-mix(in srgb, var(--pill-color, var(--brand)) 12%, var(--surface-2));
+  }
+  /* Hover aclaraba (highlight de tema oscuro) → en claro se lava; oscurecer sutil */
+  :root[data-theme="light"] .cal-pill:hover {
+    filter: brightness(.96);
+  }
+  /* Etiqueta de estado: color crudo como TEXTO sobre fondo claro → oscurecer para AA
+     manteniendo el matiz del estado */
+  :root[data-theme="light"] .cal-pill__status {
+    color: color-mix(in srgb, var(--pill-color, var(--brand)) 70%, #000);
+  }
+}
+
+/* ═══════════ kanban.css ═══════════ */
+/* ── kanban.css light-theme overrides ─────────────────────────────────────────
+   NONE REQUIRED. css/kanban.css is 100% token-driven (surface/border/text/
+   e1-e2/ring/grad/danger/client-accent vars remapped by the master block).
+   The single color literal — `color:#fff` on .kb-ctl__badge (line 472) — sits
+   on background: var(--grad) (gradient fill) and stays white per spec rule 6/
+   conversion-table exception. kb-shimmer keyframes animate background-position
+   only over surface tokens, so they are theme-safe without a scoped keyframe. */
+
+/* ═══════════ table.css ═══════════ */
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIGHT THEME — css/table.css (Vista Tabla .etable-*)
+   Todo lo demás del archivo consume tokens (--bg/--surface/--border/--text/
+   --st-*/--ct-*/--client-accent/--e3/--ring) que el bloque maestro ya remapea:
+   thead sticky, celdas sticky (bg var(--bg)/var(--surface)), zebra/hover,
+   bulkbar, toolbar, battery track — sin override necesario.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Vencidos: #f87171 (rojo-400 para fondo oscuro) → rojo profundo AA sobre claro.
+   La variable alimenta también los border-color color-mix de
+   .etable-card__date.is-overdue y el icono de .etable-date.is-overdue. */
+:root[data-theme="light"] .etable {
+  --etbl-overdue: #C22836;
+}
+
+/* Chip de Estado: tinte y borde más suaves sobre blanco (texto = var(--text),
+   ya remapeado). Identidad --st-* intacta; solo baja el alpha. */
+:root[data-theme="light"] .etable-st {
+  border-color: color-mix(in srgb, var(--stc) 30%, transparent);
+  background: color-mix(in srgb, var(--stc) 12%, transparent);
+}
+
+/* Aprobación: dots rellenos con hex claros pensados para fondo oscuro;
+   se oscurece la luminancia para que el punto sea visible sobre blanco
+   (mismo matiz: ámbar/verde/rosa). El texto acompañante es var(--text-dim). */
+:root[data-theme="light"] .etable-appr { --apc: #B45309; }
+:root[data-theme="light"] .etable-appr[data-approval='approved'] { --apc: #16A34A; }
+:root[data-theme="light"] .etable-appr[data-approval='changes']  { --apc: #DB2777; }
+:root[data-theme="light"] .etable-appr[data-approval='pending']  { --apc: #B45309; }
+
+/* Badge de grabación G1/G2: #fbbf24 (ámbar claro) ilegible sobre claro →
+   ámbar oscuro (≥4.5:1 sobre --surface-2 clara #F1F1F6). */
+:root[data-theme="light"] .etable-grab[data-g='1'],
+:root[data-theme="light"] .etable-grab[data-g='2'] {
+  color: #8F6400;
+  border-color: color-mix(in srgb, #B45309 45%, transparent);
+}
+
+/* Barra de acciones masivas: botón peligro con rojos claros de tema oscuro. */
+:root[data-theme="light"] .etable-bulkbar__btn--danger { color: #C0273A; }
+:root[data-theme="light"] .etable-bulkbar__btn--danger:hover {
+  background: rgba(239, 68, 68, .10);
+  color: #A81D2B;
+}
+
+/* Menú de vistas guardadas: botón borrar (mismo patrón peligro). */
+:root[data-theme="light"] .etable-menu-row__del { color: #C0273A; }
+:root[data-theme="light"] .etable-menu-row__del:hover {
+  background: rgba(239, 68, 68, .10);
+}
+
+/* Skeleton: brillo blanco (sheen para superficie oscura) → barrido oscuro
+   sutil sobre tarjeta blanca. El @keyframes etable-shimmer solo anima
+   transform, así que basta con re-declarar el background del ::after. */
+:root[data-theme="light"] .etable-skel__head::after,
+:root[data-theme="light"] .etable-skel__row::after {
+  background: linear-gradient(100deg, transparent 30%, rgba(15, 15, 35, .05) 50%, transparent 70%);
+}
+
+/* ═══════════ timeline.css ═══════════ */
+/* ═══ timeline.css — light overrides (Sistema IVA Claro) ═══ */
+
+/* Warn chip "sin fecha" (toolbar Timeline): text was amber→#fff, flip to amber→#000.
+   58% mix (≈#8E5B06) needed — 70% amber lands ~4.3:1 on the amber-tinted bg. */
+:root[data-theme="light"] .tl-chip {
+  border-color: color-mix(in srgb, var(--warn) 35%, transparent);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  color: color-mix(in srgb, var(--warn) 58%, #000);
+}
+:root[data-theme="light"] .tl-chip:hover {
+  background: color-mix(in srgb, var(--warn) 18%, transparent);
+}
+
+/* Drop-target cell: real value comes from the remapped --client-accent-soft;
+   only the hardcoded fallback alpha is lightened for white ground. */
+:root[data-theme="light"] .tl-cell.is-drop {
+  background: var(--client-accent-soft, rgba(139, 92, 246, .14));
+}
+
+/* Bar resize-handle tick: was lightened toward #fff to read on dark bars;
+   flip toward #000 so it reads on the light pastel bar fill. */
+:root[data-theme="light"] .tl-bar__h::after {
+  background: color-mix(in srgb, var(--c, var(--text-mute)) 80%, #000);
+}
+
+/* Warn chip (toolbar Carga) — same treatment as .tl-chip */
+:root[data-theme="light"] .wl-chip-btn {
+  border-color: color-mix(in srgb, var(--warn) 35%, transparent);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  color: color-mix(in srgb, var(--warn) 58%, #000);
+}
+:root[data-theme="light"] .wl-chip-btn:hover {
+  background: color-mix(in srgb, var(--warn) 18%, transparent);
+}
+
+/* Active person chip: lighter hardcoded fallback (token remaps centrally) */
+:root[data-theme="light"] .wl-pchip.is-active {
+  background: var(--client-accent-soft, rgba(139, 92, 246, .14));
+}
+
+/* Overload badge: #fca5a5 (light salmon for dark bg) → dark danger text */
+:root[data-theme="light"] .wl-badge {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+  color: color-mix(in srgb, var(--danger) 70%, #000);
+}
+
+/* Week-state label: raw --ok/--warn/--danger used as TEXT — darken for AA.
+   62% mix: ok ≈4.9:1, warn ≈4.6:1 (hover bg), danger ≈7:1; 'none' level
+   resolves via --lvl → --text-mute and stays a legible dark gray. */
+:root[data-theme="light"] .wl-week__state {
+  color: color-mix(in srgb, var(--lvl, var(--text-mute)) 62%, #000);
+}
+
+/* ═══════════ mywork.css ═══════════ */
+/* ══════════════════════════════════════════════════════════════════════════
+   LIGHT THEME OVERRIDES — css/mywork.css (Mi trabajo .mw- + Automatizaciones .au-)
+   Only rules with hardcoded colors / dark-bg assumptions. Everything else in
+   this file consumes remapped tokens and needs no override.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Mi trabajo: stat cards ── */
+/* Danger stat: border alpha tuned for dark surface; soften for white card */
+:root[data-theme="light"] .mw-stat--danger {
+  border-color: color-mix(in srgb, var(--danger) 35%, transparent);
+}
+/* #f87171 (light red for dark bg) -> dark red, 5.0:1 on white */
+:root[data-theme="light"] .mw-stat--danger .mw-stat__num {
+  color: #C73E3E;
+}
+
+/* ── Secciones: danger section label + icon (#f87171) ── */
+:root[data-theme="light"] .mw-sec--danger .mw-sec__label,
+:root[data-theme="light"] .mw-sec--danger .mw-sec__head .ico {
+  color: #C73E3E;
+}
+
+/* Danger count badge: #fecaca text invisible on light; flip text dark, thin the tint */
+:root[data-theme="light"] .mw-count--danger {
+  color: color-mix(in srgb, var(--danger) 70%, #000);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+/* ── Meta pieces: late date (#f87171) ── */
+:root[data-theme="light"] .mw-date.is-late {
+  color: #C73E3E;
+}
+:root[data-theme="light"] .mw-date.is-late .ico {
+  color: #C73E3E;
+}
+
+/* Late pill: #fecaca text + 55%/18% danger mixes tuned for dark */
+:root[data-theme="light"] .mw-pill--late {
+  color: color-mix(in srgb, var(--danger) 70%, #000);
+  border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+  background: color-mix(in srgb, var(--danger) 11%, transparent);
+}
+
+/* ── Empty states: status icons on tinted discs ── */
+/* var(--ok) #22c55e fails 3:1 on a light tint; darken icon, thin the tint */
+:root[data-theme="light"] .mw-empty__icon--ok {
+  color: color-mix(in srgb, var(--ok) 70%, #000);
+  background: color-mix(in srgb, var(--ok) 11%, transparent);
+}
+:root[data-theme="light"] .mw-empty__icon--err,
+:root[data-theme="light"] .au-empty__icon--err {
+  color: #C73E3E;
+  background: color-mix(in srgb, var(--danger) 11%, transparent);
+}
+
+/* ── Automatizaciones: recipe chips (light pastel text on dark-tuned tints) ── */
+:root[data-theme="light"] .au-chip--when {
+  background: color-mix(in srgb, var(--pink) 11%, transparent);
+  color: color-mix(in srgb, var(--pink) 68%, #000);
+}
+:root[data-theme="light"] .au-chip--then {
+  background: color-mix(in srgb, var(--violet) 12%, transparent);
+  color: color-mix(in srgb, var(--violet) 68%, #000);
+}
+
+/* ═══════════ editor.css ═══════════ */
+/* == theme-light overrides: css/editor.css ================================= */
+
+/* Backdrop del editor (era rgba(8,5,18,.62), demasiado negro sobre tema claro) */
+:root[data-theme="light"] .edroot__backdrop { background: rgba(23, 20, 45, .35); }
+
+/* Indicador de guardado: estados offline/error (texto ambar y rojo claro) */
+:root[data-theme="light"] .edsave.is-offline { color: color-mix(in srgb, var(--warn) 62%, #000); }
+:root[data-theme="light"] .edsave.is-error { color: #C74A35; }
+:root[data-theme="light"] .edsave__retry {
+  border-color: rgba(199, 74, 53, .55);
+  color: #C74A35;
+}
+:root[data-theme="light"] .edsave__retry:hover { background: rgba(199, 74, 53, .10); }
+
+/* Banner de conflicto 409 (ambar sobre blanco) */
+:root[data-theme="light"] .edconflict {
+  border-color: rgba(197, 129, 9, .5);
+  background: rgba(245, 158, 11, .10);
+}
+:root[data-theme="light"] .edconflict__text { color: color-mix(in srgb, var(--warn) 62%, #000); }
+
+/* Contadores de caracteres del Guion */
+:root[data-theme="light"] .edcount.is-cut { color: color-mix(in srgb, var(--warn) 62%, #000); }
+:root[data-theme="light"] .edcount.is-over { color: #C74A35; }
+
+/* Fila danger de los menus del editor */
+:root[data-theme="light"] .pick-row--danger,
+:root[data-theme="light"] .pick-row--danger .ico { color: #C74A35; }
+
+/* Hilo de conversacion: burbuja/etiqueta/toggle de comentario INTERNO (ambar) */
+:root[data-theme="light"] .edconv__msg.is-internal .edconv__bubble {
+  background: rgba(245, 158, 11, .08);
+  border-color: rgba(197, 129, 9, .45);
+}
+:root[data-theme="light"] .edconv__tag--internal {
+  color: color-mix(in srgb, var(--warn) 62%, #000);
+  background: rgba(245, 158, 11, .12);
+}
+:root[data-theme="light"] .edconv__vis.is-internal {
+  color: color-mix(in srgb, var(--warn) 62%, #000);
+  background: rgba(245, 158, 11, .12);
+  border-color: rgba(197, 129, 9, .45);
+}
+
+/* Guion por slides: boton eliminar slide (rojo claro -> rojo oscuro) */
+:root[data-theme="light"] .edslide-del:hover { color: #C74A35; border-color: #C74A35; }
+
+/* ═══════════ sistemaiva.css ═══════════ */
+/* ============================================================================
+   LIGHT overrides for css/theme-sistemaiva.css (Sistema IVA Claro)
+   ============================================================================ */
+
+/* Brand alias tokens hardcoded in THIS file and not in the centrally-remapped
+   list (--violet/--fuchsia/--pink/--brand-strong/--grad-soft). */
+:root[data-theme="light"] {
+  --violet:       #8A4FD3;
+  --fuchsia:      #C93E8C;
+  --pink:         #C93E8C;
+  --brand-strong: #8A4FD3;
+  --grad-soft: linear-gradient(135deg, rgba(201, 62, 140, .12) 0%, rgba(138, 79, 211, .11) 100%);
+}
+
+/* Scrollbar (#26262F / #34343F) */
+:root[data-theme="light"] ::-webkit-scrollbar-thumb { background: #C8C8D6; }
+:root[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #B2B2C4; }
+
+/* Translucent chrome (was rgba(10,10,14,.86/.92) !important) */
+:root[data-theme="light"] #topbar {
+  background: rgba(255, 255, 255, .86) !important;
+  border-bottom: 1px solid rgba(23, 20, 45, .07);
+}
+:root[data-theme="light"] .dash-head { background: rgba(255, 255, 255, .92) !important; }
+
+/* KPI cards (Inicio fidelity block) */
+:root[data-theme="light"] .dash-counter__label { color: #52525E !important; }
+:root[data-theme="light"] .dash-counter__value { color: #16161E !important; }
+:root[data-theme="light"] .dash-counter.is-warn   .dash-counter__value,
+:root[data-theme="light"] .dash-counter.is-danger .dash-counter__value,
+:root[data-theme="light"] .dash-counter.is-ok     .dash-counter__value { color: #16161E !important; }
+:root[data-theme="light"] .dash-counter.is-ok .dash-counter__sub { color: #157F54 !important; }
+/* Status dots: hue kept, luminance dropped for visibility on white */
+:root[data-theme="light"] .dash-counter.is-warn::after   { background: #C9861F; box-shadow: 0 0 0 4px rgba(201, 134, 31, .15); }
+:root[data-theme="light"] .dash-counter.is-danger::after { background: #C9861F; box-shadow: 0 0 0 4px rgba(201, 134, 31, .15); }
+:root[data-theme="light"] .dash-counter.is-ok::after     { background: #1F8A5D; box-shadow: 0 0 0 4px rgba(31, 138, 93, .14); }
+:root[data-theme="light"] .dash-counter:not(.is-warn):not(.is-danger):not(.is-ok):not(.is-brand)::after { background: #C6C6D4; box-shadow: none; }
+:root[data-theme="light"] .dash-counter.is-brand::after { box-shadow: 0 0 0 4px rgba(201, 62, 140, .13); }
+
+/* Topbar brand word (#7A7A88 on dark). The .tb-brand__mark "iv" stays WHITE:
+   it sits on the brand gradient (exception rule). */
+:root[data-theme="light"] .tb-brand__word { color: #5C5C6A; }
+
+/* Pipeline rows: white-alpha hover/track + dark zero-dot */
+:root[data-theme="light"] .dash-pipe__row:hover { background: rgba(15, 15, 35, .04); }
+:root[data-theme="light"] .dash-pipe__row.is-zero .dash-pipe__dot { background: #C6C6D4 !important; }
+:root[data-theme="light"] .dash-pipe__track { background: rgba(15, 15, 35, .06); }
+
+/* Premium card pass: kill white-alpha sheen + inset sheen, soften black shadow */
+:root[data-theme="light"] .dash-card,
+:root[data-theme="light"] .dash-counter,
+:root[data-theme="light"] .kb-card,
+:root[data-theme="light"] .mt-kpi,
+:root[data-theme="light"] .mt-vid,
+:root[data-theme="light"] .meses-stat,
+:root[data-theme="light"] .wl-person,
+:root[data-theme="light"] .mw-stat {
+  background-image: none !important;
+  box-shadow: 0 1px 2px rgba(23, 20, 45, .05), 0 10px 26px -16px rgba(23, 20, 45, .16) !important;
+}
+
+/* Delta pill: green/red text darkened for AA on tinted chip bg */
+:root[data-theme="light"] .delta.is-up   { color: #157F54; background: rgba(31, 138, 93, .10); }
+:root[data-theme="light"] .delta.is-down { color: #B3402D; background: rgba(199, 74, 53, .10); }
+
+/* Empty-state icon: magenta glow softened for white, ring slightly stronger */
+:root[data-theme="light"] .empty-rich__ico {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--brand) 26%, transparent), 0 14px 44px -18px rgba(201, 62, 140, .25);
+}
+
+/* Racha mini-bar track (white-alpha .07) */
+:root[data-theme="light"] .dash-mini__bar { background: rgba(15, 15, 35, .08); }
+
+/* Plataformas bar track (white-alpha .06) */
+:root[data-theme="light"] .dash-plat__track { background: rgba(15, 15, 35, .06); }
+
+/* Metricas card: same sheen/shadow treatment (had !important) */
+:root[data-theme="light"] .mt-card {
+  background-image: none !important;
+  box-shadow: 0 1px 2px rgba(23, 20, 45, .05), 0 10px 26px -16px rgba(23, 20, 45, .16) !important;
+}
+
+/* Calendario tabla stats: status-colored numbers (21px/800 = large text) */
+:root[data-theme="light"] .meses-stat.is-danger .meses-stat__v { color: #C74A35; }
+:root[data-theme="light"] .meses-stat.is-ok .meses-stat__v { color: #1F8A5D; }
+
+/* Editor: heavy black panel shadow -> soft; header/block white sheens off */
+:root[data-theme="light"] .edpanel { box-shadow: -28px 0 70px -28px rgba(23, 20, 45, .18) !important; }
+:root[data-theme="light"] .edhead { background-image: none; }
+:root[data-theme="light"] .edblock { background-image: none; }
+
+/* Cuadricula: hover tint + HOY halo (ring stays brand via token) */
+:root[data-theme="light"] .cal-mcell:hover { background: rgba(15, 15, 35, .04); }
+:root[data-theme="light"] .cal-mcell.is-today { box-shadow: inset 0 0 0 1.5px var(--brand), 0 0 34px -12px rgba(201, 62, 140, .30) !important; }
+
+/* Agenda movil: raised #20202c card -> white card with soft shadow.
+   Left border keeps its status COLOR (only the other 3 sides recolored). */
+:root[data-theme="light"] .ag-list .cal-card {
+  border-top-color: #DADAE4;
+  border-right-color: #DADAE4;
+  border-bottom-color: #DADAE4;
+  background-color: #FFFFFF;
+  background-image: none;
+  box-shadow: 0 3px 7px rgba(23, 20, 45, .06), 0 14px 32px -10px rgba(23, 20, 45, .14);
+}
+
+/* ═══════════ smallviews.css ═══════════ */
+/* ═══════════════════════════════════════════════════════════════════════════
+   THEME-LIGHT overrides — lazy view sheets:
+   entregables.css / descargar.css / carrusel.css / metricas.css
+   (these sheets inject AFTER theme-light.css → every rule wins by specificity)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── entregables.css ─────────────────────────────────────────────────────── */
+
+/* "Procesando…" placeholder: JS renders it as class="dlv-video dlv-video--pending"
+   (js/views/entregables.js:774), so it inherits background:#000 from .dlv-video.
+   Real videos keep the black letterbox; the non-media placeholder goes light. */
+:root[data-theme="light"] .dlv-video--pending {
+  background: var(--surface-2, #F1F1F6);
+  color: var(--text-mute, #7C7C8A);
+}
+
+/* Download button hover turned text white on a light surface → invisible. */
+:root[data-theme="light"] .dlv-dl:hover { color: var(--text, #16161E); }
+/* …but the "ready" state sits on the brand gradient: keep white there
+   (needed because the rule above outranks the original .dlv-dl--ready). */
+:root[data-theme="light"] .dlv-dl--ready:hover { color: #fff; }
+
+/* Delete hovers: light-red #f87171 text fails on white; darken per red-text rule. */
+:root[data-theme="light"] .dlv-del:hover {
+  background: rgba(239, 68, 68, .10);
+  color: #C74A35;
+}
+:root[data-theme="light"] .dlv-comment__del:hover {
+  color: #C74A35;
+  border-color: rgba(199, 74, 53, .45);
+  background: rgba(239, 68, 68, .08);
+}
+
+/* Client role chip: 18% tint too heavy on white; brand-as-text ~3.8:1 on the
+   tint at 10px → mix toward black for AA. */
+:root[data-theme="light"] .dlv-comment__role.is-client {
+  background: color-mix(in srgb, var(--brand, #C93E8C) 12%, transparent);
+  color: color-mix(in srgb, var(--brand, #C93E8C) 75%, #000);
+}
+
+/* ── descargar.css ───────────────────────────────────────────────────────── */
+/* No overrides required: everything is tokenized except intentional colored
+   fills — platform chips (.dl-chip--ig gradient / --tt #111 / --pin #e60023,
+   white text = brand identity), the .dl-play scrim over the thumbnail image,
+   and the white .spinner--btn which only renders inside .btn-primary gradient
+   buttons (js/views/descargar.js:181,213). See notes. */
+
+/* ── carrusel.css ────────────────────────────────────────────────────────── */
+
+/* Drop zone: white-alpha dashed border + sheen assume dark bg. */
+:root[data-theme="light"] .car-drop {
+  border-color: rgba(15, 15, 35, .20);
+  background: rgba(15, 15, 35, .03);
+}
+/* Re-state the states: the base override above outranks the original
+   .car-drop:hover / .car-drop.is-busy (0-2-0 < 0-3-0). */
+:root[data-theme="light"] .car-drop:hover,
+:root[data-theme="light"] .car-drop.is-over {
+  border-color: var(--brand, #C93E8C);
+  background: rgba(201, 62, 140, .07); /* was hardcoded rgba(226,77,160,.06) */
+}
+:root[data-theme="light"] .car-drop.is-busy {
+  border-color: var(--brand, #C93E8C);
+}
+
+/* Stepper +/− hover sheen. */
+:root[data-theme="light"] .car-step__btn:hover { background: rgba(15, 15, 35, .06); }
+
+/* Slide cards: white-alpha fill → real white card on the light page bg. */
+:root[data-theme="light"] .car-slide { background: #FFFFFF; }
+:root[data-theme="light"] .car-slide__num { background: rgba(15, 15, 35, .08); }
+
+/* Video-cut progress track (white-alpha track). */
+:root[data-theme="light"] .car-prog__track { background: rgba(15, 15, 35, .08); }
+
+/* Duration pills. */
+:root[data-theme="light"] .car-dur { background: rgba(15, 15, 35, .03); }
+:root[data-theme="light"] .car-dur__n { background: rgba(15, 15, 35, .08); }
+
+/* Safari/WebCodecs warning: amber tint stays, border darkened so the box
+   doesn't float invisibly on white (no amber TEXT in this component). */
+:root[data-theme="light"] .car-warn {
+  background: rgba(240, 180, 41, .14);
+  border-color: rgba(178, 125, 15, .45);
+}
+
+/* ── metricas.css ────────────────────────────────────────────────────────── */
+
+/* Audience bar track uses var(--surface): darker than the card in dark theme,
+   but on light it becomes #FFF inside the #F1F1F6 card → invisible track.
+   Give it an explicit neutral track. */
+:root[data-theme="light"] .mt-aud__bar { background: rgba(15, 15, 35, .08); }
+
+/* ═══════════ contramedidas para colores puestos por JS ═══════════ */
+/* ============================================================
+   JS-APPLIED COLORS — light-theme countermeasures
+   (colors injected at runtime by js/*, overridden from CSS)
+   ============================================================ */
+
+/* views/dash-widgets.js:445 — donut background track circle is created with
+   the SVG presentation attribute stroke="rgba(255,255,255,.06)" (white-alpha,
+   invisible-to-wrong on white). CSS beats presentation attributes, and only
+   the FIRST circle in the group is the track — the platform segments keep
+   their attribute strokes (chromatic data colors). */
+:root[data-theme="light"] .dash-donut g > circle:first-child {
+  stroke: rgba(15, 15, 35, .07);
+}
+
+/* kanban/card.js:83-84 — the content-type chip gets inline
+   style.color = CONTENT_TYPES[t].color and border-color: currentColor.
+   Several type hues fail AA as TEXT on white (#0ea5e9 2.8:1, #ca8a04 2.9:1,
+   #16a34a 3.3:1, #0d9488 4.1:1). Inline style can only be beaten with
+   !important, which would erase the per-type hue — instead darken the
+   rendered hue with a filter (affects text + currentColor border; the chip
+   background is transparent so nothing else shifts). [style] matches ONLY
+   the type chip: it is the sole .kb-chip that receives inline styles.
+   brightness(.62) puts the worst hue (#0ea5e9) at ~6.3:1 on white. */
+:root[data-theme="light"] .kb-card .kb-chip[style] {
+  filter: brightness(.62) saturate(1.3);
+}
+
+/* views/mywork.js:383 — the priority pill gets inline
+   style.color/borderColor = PRIORITY_TAGS[p].color; both live values fail
+   as 11px text on white (#f59e0b 2.15:1, #ef4444 3.8:1). Same filter
+   countermeasure; .mw-pill--late carries no inline style so it is not
+   matched and keeps its own (CSS-layer) treatment. */
+:root[data-theme="light"] .mw-pill[style] {
+  filter: brightness(.62) saturate(1.3);
+}

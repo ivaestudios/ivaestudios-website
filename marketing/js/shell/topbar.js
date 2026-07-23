@@ -10,13 +10,14 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607220325';
-import * as store from './store.js?v=202607220325';
-import { openSheet, pickFrom } from './sheet.js?v=202607220325';
-import { toast } from './toast.js?v=202607220325';
-import { icon } from './icons.js?v=202607220325';
-import { openClientSwitcher } from './clientswitcher.js?v=202607220325';
-import { T, isEN, setLang } from './i18n.js?v=202607220325';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607221901';
+import * as store from './store.js?v=202607221901';
+import { openSheet, pickFrom } from './sheet.js?v=202607221901';
+import { toast } from './toast.js?v=202607221901';
+import { icon } from './icons.js?v=202607221901';
+import { openClientSwitcher } from './clientswitcher.js?v=202607221901';
+import { T, isEN, setLang } from './i18n.js?v=202607221901';
+import { getTheme, setTheme } from './theme.js?v=202607221901';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -194,6 +195,31 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
     ]);
   }
 
+  // Selector de tema Oscuro/Claro (dos pastillas). Cambia EN VIVO, sin recargar.
+  function themeRow() {
+    const cur = () => getTheme();
+    const mk = (code, label) => el('button', {
+      class: 'lang-pill' + (cur() === code ? ' is-active' : ''),
+      type: 'button', 'aria-pressed': String(cur() === code),
+      onclick: (e) => {
+        if (cur() === code) return;
+        setTheme(code);
+        // Refresca el estado activo de ambas pastillas sin cerrar el sheet.
+        const wrap = e.currentTarget.parentElement;
+        for (const b of wrap.querySelectorAll('.lang-pill')) {
+          const active = b.dataset.theme === code;
+          b.classList.toggle('is-active', active);
+          b.setAttribute('aria-pressed', String(active));
+        }
+      },
+      dataset: { theme: code },
+    }, [el('span', { text: label })]);
+    return el('div', { class: 'acct-lang' }, [
+      el('span', { class: 'acct-lang__label' }, [icon('moon', 18), el('span', { text: T('Tema', 'Theme') })]),
+      el('div', { class: 'acct-lang__pills' }, [mk('dark', T('Oscuro', 'Dark')), mk('light', T('Claro', 'Light'))]),
+    ]);
+  }
+
   function openAccountSheet() {
     const { me } = store.getState();
     openSheet({
@@ -210,6 +236,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
             ]),
           ]),
           langRow(),
+          themeRow(),
           // Herramientas de agencia: SOLO staff (el cliente no las ve).
           ...(me && me.role !== 'client' ? [
             accountRow('users', T('Equipo', 'Team'), () => { close(); openTeamSheet(); }),
