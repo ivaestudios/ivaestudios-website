@@ -80,7 +80,8 @@
    - Chip de periodo activo en Métricas: 2.3:1 → texto de marca oscurecido. */
 :root[data-theme="light"] .meses-url__a { color: #0E7490; }
 :root[data-theme="light"] .tb-badge { background: #DC2626; }
-:root[data-theme="light"] .mt-chip.is-active { color: color-mix(in srgb, var(--brand) 72%, #000); }
+/* NOTA: .mt-chip.is-active NO se toca — su fondo es el ACENTO del cliente
+   (azul en MELISA, etc.) con texto blanco; ese patrón queda igual en claro. */
 
 /* ── 2. CORRECCIONES POR ARCHIVO (se anexan abajo, en orden de carga) ──────── */
 
