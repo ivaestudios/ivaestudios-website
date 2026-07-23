@@ -940,3 +940,101 @@
 :root[data-theme="light"] .mw-pill[style] {
   filter: brightness(.62) saturate(1.3);
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   PULIDO "CON VIDA" (2026-07-22, Vianey: "se ve sin vida, muy seco").
+   El claro inicial era correcto pero plano: blanco sobre blanco, sin
+   profundidad ni presencia de marca. Este pase agrega: lavado suave del
+   gradiente en el fondo, tarjetas con sombra real, filo de gradiente en las
+   stats, tabla con encabezado definido y hover tintado, sidebar con acento
+   del cliente y botones fantasma con cuerpo. Solo tema claro.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* 1. Fondo de la app: lavado sutil del magenta→violeta (vida sin ruido). */
+:root[data-theme="light"] body {
+  background:
+    radial-gradient(52% 38% at 10% -2%, rgba(210, 68, 148, .06), transparent 62%),
+    radial-gradient(46% 34% at 96% -2%, rgba(144, 87, 219, .055), transparent 62%),
+    radial-gradient(70% 48% at 50% 112%, rgba(210, 68, 148, .04), transparent 65%),
+    #F4F4F9;
+  background-attachment: fixed;
+}
+
+/* 2. Contenedores con profundidad real sobre el fondo tintado. */
+:root[data-theme="light"] .meses-tablewrap,
+:root[data-theme="light"] .meses-list,
+:root[data-theme="light"] .meses-stat,
+:root[data-theme="light"] .dash-card,
+:root[data-theme="light"] .dash-counter,
+:root[data-theme="light"] .kb-card,
+:root[data-theme="light"] .mt-kpi,
+:root[data-theme="light"] .mt-card,
+:root[data-theme="light"] .mt-vid,
+:root[data-theme="light"] .wl-person,
+:root[data-theme="light"] .mw-stat {
+  border-color: #E3E3EC !important;
+  box-shadow: 0 1px 2px rgba(23, 20, 45, .05), 0 12px 32px -16px rgba(23, 20, 45, .13) !important;
+}
+
+/* 3. Stats del mes: filo de gradiente arriba (la firma visual de la marca). */
+:root[data-theme="light"] .meses-stat {
+  background-color: #fff !important;
+  background-image: var(--grad) !important;
+  background-size: 100% 3px !important;
+  background-repeat: no-repeat !important;
+  background-position: top left !important;
+  padding-top: 14px;
+}
+
+/* 4. Tabla: encabezado definido + hover tintado con el acento del cliente.
+   (Colores SÓLIDOS: las columnas fijas Grab/Tarea los necesitan opacos.) */
+:root[data-theme="light"] .meses-table th {
+  background: #FAFAFD;
+  border-bottom: 1px solid #E1E1EA;
+  color: #6A6A78;
+}
+:root[data-theme="light"] .meses-row:hover .meses-td {
+  background: color-mix(in srgb, var(--client-accent, var(--brand)) 5%, #fff);
+}
+
+/* 5. Sidebar MESES: el mes activo con presencia (tinte del acento). */
+:root[data-theme="light"] .meses-side__item:hover { background: #EFEFF5; color: var(--text); }
+:root[data-theme="light"] .meses-side__item.is-active {
+  background: color-mix(in srgb, var(--client-accent, var(--brand)) 10%, #fff);
+  color: var(--text);
+  box-shadow: inset 3px 0 0 var(--client-accent, var(--brand));
+}
+:root[data-theme="light"] .meses-side__item.is-active .meses-side__n {
+  background: #fff;
+  color: color-mix(in srgb, var(--client-accent, var(--brand)) 65%, #000);
+}
+
+/* 6. Conteo del mes junto al título: pastilla tintada de marca. */
+:root[data-theme="light"] .meses-sec__count {
+  background: color-mix(in srgb, var(--client-accent, var(--brand)) 12%, #fff);
+  color: color-mix(in srgb, var(--client-accent, var(--brand)) 62%, #000);
+}
+
+/* 7. Botones fantasma (Agregar mes, Copiar, Avisos, Nueva línea…): cuerpo. */
+:root[data-theme="light"] .meses-addmonth,
+:root[data-theme="light"] .meses-newline,
+:root[data-theme="light"] .meses-side__add,
+:root[data-theme="light"] .meses-icslink {
+  background: #fff;
+  border: 1px solid #E3E3EC;
+  border-radius: var(--r);
+  box-shadow: 0 1px 2px rgba(23, 20, 45, .05);
+  transition: border-color .14s ease, box-shadow .14s ease, transform .14s ease;
+}
+:root[data-theme="light"] .meses-addmonth:hover,
+:root[data-theme="light"] .meses-newline:hover,
+:root[data-theme="light"] .meses-side__add:hover,
+:root[data-theme="light"] .meses-icslink:hover {
+  background: #fff;
+  border-color: #CFCFDB;
+  box-shadow: 0 2px 6px rgba(23, 20, 45, .09);
+  transform: translateY(-1px);
+}
+
+/* 8. Barra de progreso del mes: pista con tinte, no gris muerto. */
+:root[data-theme="light"] .meses-prog__track { background: rgba(201, 62, 140, .08); }
