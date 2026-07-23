@@ -10,14 +10,14 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607221907';
-import * as store from './store.js?v=202607221907';
-import { openSheet, pickFrom } from './sheet.js?v=202607221907';
-import { toast } from './toast.js?v=202607221907';
-import { icon } from './icons.js?v=202607221907';
-import { openClientSwitcher } from './clientswitcher.js?v=202607221907';
-import { T, isEN, setLang } from './i18n.js?v=202607221907';
-import { getTheme, setTheme } from './theme.js?v=202607221907';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607221913';
+import * as store from './store.js?v=202607221913';
+import { openSheet, pickFrom } from './sheet.js?v=202607221913';
+import { toast } from './toast.js?v=202607221913';
+import { icon } from './icons.js?v=202607221913';
+import { openClientSwitcher } from './clientswitcher.js?v=202607221913';
+import { T, isEN, setLang } from './i18n.js?v=202607221913';
+import { getTheme, setTheme } from './theme.js?v=202607221913';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -110,6 +110,22 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
     }),
   ]);
 
+  // Botón VISIBLE de tema en la esquina (además del que está en el menú de
+  // cuenta): muestra el ícono del tema al que CAMBIA (sol en oscuro, luna en
+  // claro). Conmuta EN VIVO, sin recargar.
+  const themeBtn = el('button', {
+    class: 'tb-iconbtn tb-theme', type: 'button',
+    onclick: () => { setTheme(getTheme() === 'light' ? 'dark' : 'light'); patchThemeBtn(); },
+  });
+  function patchThemeBtn() {
+    const light = getTheme() === 'light';
+    clear(themeBtn).append(icon(light ? 'moon' : 'sun', 20));
+    const lbl = light ? T('Cambiar a tema oscuro', 'Switch to dark theme') : T('Cambiar a tema claro', 'Switch to light theme');
+    themeBtn.setAttribute('aria-label', lbl);
+    themeBtn.title = lbl;
+  }
+  patchThemeBtn();
+
   // Logo de marca "iv ESTUDIOS" (diseño Sistema IVA). Aditivo: no cambia el
   // resto del topbar. En el cliente no se muestra (su portal es de su marca).
   const brand = isClient ? null : el('div', { class: 'tb-brand', 'aria-hidden': 'true' }, [
@@ -124,6 +140,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
     // La busqueda (contenido o clientes) es de agencia: no para el cliente.
     ...(isClient ? [] : [deskSearch, searchBtn]),
     langToggle,
+    themeBtn,
     bellBtn,
     avatarBtn,
   ]);
@@ -204,6 +221,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
       onclick: (e) => {
         if (cur() === code) return;
         setTheme(code);
+        patchThemeBtn(); // el botón de la esquina refleja el tema nuevo
         // Refresca el estado activo de ambas pastillas sin cerrar el sheet.
         const wrap = e.currentTarget.parentElement;
         for (const b of wrap.querySelectorAll('.lang-pill')) {
