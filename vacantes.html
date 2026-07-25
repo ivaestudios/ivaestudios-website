@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Vacantes | Únete al equipo de IVAE Studios</title>
-<meta name="description" content="Trabaja con IVAE Studios, estudio de fotografía editorial de lujo en Cancún. Envíanos tus datos y tu CV: fotografía, video, edición y marketing."/>
+<title>Vacante de Marketing y Redes Sociales | IVAE Studios Cancún</title>
+<meta name="description" content="Vacante de marketing y redes sociales en IVAE Studios, estudio de fotografía editorial de lujo en Cancún. Envíanos tus datos y tu CV."/>
 <link rel="canonical" href="https://ivaestudios.com/vacantes"/>
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
@@ -54,6 +54,11 @@
   .file .t{font-size:14px;color:var(--cream-dim)}
   .file .t b{color:var(--gold);font-weight:600}
   .file .picked{color:var(--cream);font-weight:600;font-size:14px;word-break:break-all}
+  .vacante-fija{
+    background:rgba(201,165,78,.08);border:1px solid var(--gold-line);border-radius:8px;
+    color:var(--cream);font-size:16px;padding:13px 14px;font-weight:600;letter-spacing:.01em;
+  }
+  .vacante-fija::before{content:"● ";color:var(--gold);font-size:.7em;vertical-align:middle}
   .hint{font-size:12px;color:rgba(250,248,245,.62);margin-top:6px}
 
   .btn{
@@ -98,8 +103,8 @@
 <main>
   <section class="hero wrap">
     <p class="eyebrow">Vacantes · IVAE Studios</p>
-    <h1>Únete al <em>equipo.</em></h1>
-    <p>Fotografía, video, edición y marketing en Cancún y la Riviera Maya. Cuéntanos quién eres y déjanos tu CV, nosotros te buscamos.</p>
+    <h1>Vacante abierta: <em>Marketing.</em></h1>
+    <p>Buscamos a alguien de marketing y redes sociales para nuestro estudio en Cancún. Cuéntanos quién eres y déjanos tu CV, nosotros te contactamos.</p>
   </section>
 
   <section class="wrap" id="form">
@@ -121,15 +126,9 @@
             <input id="telefono" name="telefono" type="tel" autocomplete="tel" inputmode="tel" maxlength="40" placeholder="+52 ..."/>
           </div>
           <div>
-            <label for="puesto">Puesto de interés</label>
-            <select id="puesto" name="puesto">
-              <option value="" selected>Elige un puesto…</option>
-              <option value="Fotógrafo/a">Fotógrafo/a</option>
-              <option value="Videógrafo/a">Videógrafo/a</option>
-              <option value="Editor/a">Editor/a (foto o video)</option>
-              <option value="Marketing">Marketing / Redes</option>
-              <option value="Otro">Otro</option>
-            </select>
+            <label>Vacante</label>
+            <div class="vacante-fija">Marketing y Redes Sociales</div>
+            <input type="hidden" name="puesto" value="Marketing"/>
           </div>
         </div>
         <div>
