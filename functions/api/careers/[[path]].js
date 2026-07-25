@@ -9,11 +9,11 @@
  *
  * Bindings (proyecto Pages): env.DB (D1), env.R2_BUCKET (R2), env.RESEND_API_KEY.
  * La tabla y columnas se crean/migran solas — no requiere migración manual.
- * Auth admin: Authorization: Bearer <clave> → env.CAREERS_ADMIN_KEY o hash SHA-256 embebido.
+ * Auth admin: Authorization: Bearer <correo:contraseña> → env.CAREERS_ADMIN_KEY o hash SHA-256 embebido.
  * Anti-abuso: honeypot + rate limit por IP (3 postulaciones / 10 min) + magic bytes del CV.
  */
 
-const ADMIN_KEY_SHA256 = "396a5a265e187c38c9825452d59f907d5dd51b37f15487808ada97ab8a9da4da";
+const ADMIN_KEY_SHA256 = "ef45593e8fb2690f2364f47e393cbd16a9ea16680aedf68e6abca8ccfef8680d"; // sha256("correo:contraseña")
 
 const MAX_CV_BYTES = 8 * 1024 * 1024; // 8 MB
 const RATE_LIMIT = { max: 3, windowMs: 10 * 60 * 1000 };

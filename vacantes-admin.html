@@ -104,10 +104,12 @@
   <!-- LOGIN -->
   <div class="login" id="login">
     <h1>Vacantes</h1>
-    <p>Escribe la clave del panel para ver las postulaciones.</p>
-    <form id="loginForm"><input type="password" id="pw" placeholder="Clave" autocomplete="current-password"/>
+    <p>Entra con tu correo y contraseña para ver las postulaciones.</p>
+    <form id="loginForm">
+    <input type="email" id="user" placeholder="Correo" autocomplete="username" inputmode="email" style="margin-bottom:10px;width:100%;background:rgba(250,248,245,.05);border:1px solid var(--line);border-radius:8px;color:var(--cream);font-family:var(--sans);font-size:16px;padding:12px 14px;outline:none"/>
+    <input type="password" id="pw" placeholder="Contraseña" autocomplete="current-password"/>
     <div style="margin-top:14px"><button class="btn" id="loginBtn" type="submit" style="width:100%">Entrar</button></div></form>
-    <div class="err" id="loginErr">Clave incorrecta.</div>
+    <div class="err" id="loginErr">Correo o contraseña incorrectos.</div>
   </div>
 
   <!-- PANEL -->
@@ -235,8 +237,7 @@
     toast('CSV exportado ✓');
   }
 
-  document.getElementById('loginForm').addEventListener('submit', function(e){ e.preventDefault(); KEY = document.getElementById('pw').value.trim(); load(); });
-  document.getElementById('pw').addEventListener('keydown', function(e){ if(e.key==='Enter'){ KEY = e.target.value.trim(); load(); } });
+  document.getElementById('loginForm').addEventListener('submit', function(e){ e.preventDefault(); KEY = document.getElementById('user').value.trim().toLowerCase() + ':' + document.getElementById('pw').value; load(); });
   document.getElementById('refreshBtn').addEventListener('click', function(){ load(); toast('Actualizado ✓'); });
   document.getElementById('logoutBtn').addEventListener('click', function(){ sessionStorage.removeItem('careersKey'); location.reload(); });
   document.getElementById('csvBtn').addEventListener('click', exportCsv);
