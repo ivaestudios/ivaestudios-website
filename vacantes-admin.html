@@ -78,6 +78,7 @@
   select.estado.e-descartado{border-color:rgba(220,90,90,.5);color:var(--bad)}
   .empty{padding:70px 20px;text-align:center;color:var(--dim)}
   .empty .big{font-family:var(--serif);font-size:30px;color:var(--cream);margin-bottom:6px}
+  .rowactions{display:flex;gap:10px;align-items:center}
   .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--navy-2);border:1px solid var(--gold);
     color:var(--cream);border-radius:10px;padding:12px 22px;font-size:13px;display:none;z-index:50}
 
@@ -181,14 +182,14 @@
       return '<tr>'
         + '<td data-l="Fecha" style="white-space:nowrap">' + fmtDate(a.created_at) + '</td>'
         + '<td data-l="Candidato/a"><div class="nm">' + esc(a.nombre) + '</div></td>'
-        + '<td data-l="Puesto"><span class="pill">' + esc(a.puesto||'—') + '</span></td>'
+        + '<td data-l="Puesto"><span class="pill">' + esc(a.puesto||'Sin puesto') + '</span></td>'
         + '<td data-l="Estado"><select class="estado e-'+est+'" data-id="'+a.id+'">'
         +   ESTADOS.map(function(e){ return '<option value="'+e+'"'+(e===est?' selected':'')+'>'+e.charAt(0).toUpperCase()+e.slice(1)+'</option>'; }).join('')
         + '</select></td>'
         + '<td data-l="Contacto"><a href="mailto:' + esc(a.email) + '">' + esc(a.email) + '</a>'
         +   (a.telefono ? '<div class="sub">' + (wa ? '<a href="'+wa+'" target="_blank" rel="noopener">' : '') + esc(a.telefono) + (wa?'</a>':'') + '</div>' : '')
         + '</td>'
-        + '<td data-l="Mensaje"><div class="msgcell" role="button" tabindex="0">' + esc(a.mensaje||'—') + '</div></td>'
+        + '<td data-l="Mensaje"><div class="msgcell" role="button" tabindex="0">' + esc(a.mensaje||'') + '</div></td>'
         + '<td data-l="CV" style="white-space:nowrap"><div class="rowactions"><button class="btn ghost sm" data-cv="' + a.id + '">⬇ CV</button><span class="sub">' + fmtSize(a.cv_size) + '</span></div></td>'
         + '<td><button class="btn danger sm" data-del="' + a.id + '" data-nm="' + esc(a.nombre) + '" aria-label="Eliminar">✕</button></td>'
         + '</tr>';
@@ -215,7 +216,7 @@
           if (KEY) document.getElementById('loginErr').style.display='block';
           KEY='';
         } else if (panel.style.display === 'block') {
-          toast('No se pudo actualizar — revisa tu conexión y reintenta');
+          toast('No se pudo actualizar, revisa tu conexión y reintenta');
         } else {
           document.getElementById('loginErr').textContent = 'No se pudo conectar. Intenta de nuevo.';
           document.getElementById('loginErr').style.display = 'block';
@@ -251,17 +252,19 @@
     var cv = e.target.closest('[data-cv]');
     if (cv) {
       cv.disabled = true;
+      var win = window.open('about:blank', '_blank');
+      if (win) { try { win.document.write('<title>Abriendo CV…</title><body style="background:#0a0f17;color:#faf8f5;font-family:sans-serif;display:grid;place-items:center;height:100vh;margin:0">Abriendo CV…</body>'); } catch(err) {} }
       fetch('/api/careers/cv/' + cv.getAttribute('data-cv'), { headers:{ 'Authorization':'Bearer '+KEY } })
         .then(function(r){ if(!r.ok) throw 0;
-          var fn = 'cv.pdf'; var cd = r.headers.get('content-disposition')||''; var m = cd.match(/filename="([^"]+)"/); if (m) fn = m[1];
-          return r.blob().then(function(b){ return {b:b, fn:fn}; });
+          var type = r.headers.get('content-type') || 'application/pdf';
+          return r.blob().then(function(b){ return new Blob([b], {type:type}); });
         })
-        .then(function(x){
-          var u = URL.createObjectURL(x.b), a = document.createElement('a');
-          a.href = u; a.download = x.fn; document.body.appendChild(a); a.click(); a.remove();
-          setTimeout(function(){ URL.revokeObjectURL(u); }, 4000);
+        .then(function(b){
+          var u = URL.createObjectURL(b);
+          if (win) win.location = u; else window.open(u, '_blank');
+          setTimeout(function(){ URL.revokeObjectURL(u); }, 120000);
         })
-        .catch(function(){ toast('No se pudo descargar el CV'); })
+        .catch(function(){ if (win) win.close(); toast('No se pudo abrir el CV'); })
         .finally(function(){ cv.disabled = false; });
       return;
     }

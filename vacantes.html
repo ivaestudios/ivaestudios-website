@@ -99,7 +99,7 @@
   <section class="hero wrap">
     <p class="eyebrow">Vacantes · IVAE Studios</p>
     <h1>Únete al <em>equipo.</em></h1>
-    <p>Fotografía, video, edición y marketing en Cancún y la Riviera Maya. Cuéntanos quién eres y déjanos tu CV — nosotros te buscamos.</p>
+    <p>Fotografía, video, edición y marketing en Cancún y la Riviera Maya. Cuéntanos quién eres y déjanos tu CV, nosotros te buscamos.</p>
   </section>
 
   <section class="wrap" id="form">
@@ -147,7 +147,7 @@
         <div class="hp" aria-hidden="true">
           <label>Fax<input name="contacto_fax" tabindex="-1" autocomplete="off"/></label>
         </div>
-        <div class="msg err" id="errMsg" role="alert" aria-live="assertive"></div>
+        <div class="msg" id="errMsg" role="alert" aria-live="assertive"></div>
         <button class="btn" id="sendBtn" type="submit">Enviar postulación →</button>
         <p class="hint" style="text-align:center;margin-top:2px">Al enviar aceptas nuestro <a href="/privacy-policy" style="color:var(--gold)">aviso de privacidad</a>. Tus datos y tu CV solo se usan para este proceso de selección.</p>
       </form>
@@ -171,7 +171,7 @@
       <a href="/privacy-policy">Privacidad</a>
       <a href="/vacantes-admin" rel="nofollow" style="opacity:.55">Panel</a>
     </div>
-    <p>Cancún · Riviera Maya · Los Cabos — info@ivaestudios.com</p>
+    <p>Cancún · Riviera Maya · Los Cabos · info@ivaestudios.com</p>
   </div>
 </footer>
 
@@ -199,7 +199,7 @@
 
   form.addEventListener('submit', function(e){
     e.preventDefault();
-    err.style.display='none';
+    err.classList.remove('err'); err.style.display='none'; err.textContent='';
     var f = fileInput.files[0];
     if (!form.nombre.value.trim()) return fail('Escribe tu nombre.');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email.value.trim())) return fail('Revisa tu correo.');

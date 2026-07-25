@@ -93,9 +93,9 @@ async function notifyNewApplication(env, app) {
       <p style="letter-spacing:.2em;font-size:11px;color:#8a6d1f;font-family:Arial,sans-serif">IVAE STUDIOS · VACANTES</p>
       <h2 style="font-weight:400;margin:6px 0 18px">Nueva postulación: ${escHtml(app.nombre)}</h2>
       <table style="font-size:14px;line-height:1.9;font-family:Arial,sans-serif">
-        <tr><td style="color:#888;padding-right:14px">Puesto</td><td><b>${escHtml(app.puesto || "—")}</b></td></tr>
+        <tr><td style="color:#888;padding-right:14px">Puesto</td><td><b>${escHtml(app.puesto || "Sin puesto")}</b></td></tr>
         <tr><td style="color:#888;padding-right:14px">Correo</td><td>${escHtml(app.email)}</td></tr>
-        <tr><td style="color:#888;padding-right:14px">Teléfono</td><td>${escHtml(app.telefono || "—")}</td></tr>
+        <tr><td style="color:#888;padding-right:14px">Teléfono</td><td>${escHtml(app.telefono || "")}</td></tr>
         <tr><td style="color:#888;padding-right:14px">CV</td><td>${escHtml(app.cv_name || "")} (${Math.round((app.cv_size || 0) / 1024)} KB)</td></tr>
       </table>
       ${app.mensaje ? `<p style="font-size:14px;background:#f7f5f0;padding:14px;border-radius:8px;font-family:Arial,sans-serif">${escHtml(app.mensaje)}</p>` : ""}
@@ -109,7 +109,7 @@ async function notifyNewApplication(env, app) {
         from: "IVAE Studios <info@ivaestudios.com>",
         to: NOTIFY_TO,
         reply_to: app.email,
-        subject: `Vacantes · ${app.puesto || "Postulación"} — ${app.nombre}`,
+        subject: `Vacantes · ${app.puesto || "Postulación"} · ${app.nombre}`,
         html,
       }),
     });
@@ -220,7 +220,7 @@ export async function onRequest(context) {
       return new Response(obj.body, {
         headers: {
           "content-type": obj.httpMetadata?.contentType || "application/octet-stream",
-          "content-disposition": `attachment; filename="${(row.cv_name || "cv.pdf").replace(/["\\\r\n]/g, "")}"`,
+          "content-disposition": `inline; filename="${(row.cv_name || "cv.pdf").replace(/["\\\r\n]/g, "")}"`,
           "cache-control": "no-store",
           "x-content-type-options": "nosniff",
         },
