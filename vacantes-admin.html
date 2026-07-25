@@ -92,6 +92,7 @@
     td[data-l]::before{content:attr(data-l);display:block;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:3px}
     .msgcell{max-width:none}
     .rowactions{display:flex;gap:8px;align-items:center}
+    .tbl td.nomsg{display:none}
   }
 </style>
 </head>
@@ -189,7 +190,7 @@
         + '<td data-l="Contacto"><a href="mailto:' + esc(a.email) + '">' + esc(a.email) + '</a>'
         +   (a.telefono ? '<div class="sub">' + (wa ? '<a href="'+wa+'" target="_blank" rel="noopener">' : '') + esc(a.telefono) + (wa?'</a>':'') + '</div>' : '')
         + '</td>'
-        + '<td data-l="Mensaje"><div class="msgcell" role="button" tabindex="0">' + esc(a.mensaje||'') + '</div></td>'
+        + (a.mensaje ? '<td data-l="Mensaje"><div class="msgcell" role="button" tabindex="0">' + esc(a.mensaje) + '</div></td>' : '<td class="nomsg"></td>')
         + '<td data-l="CV" style="white-space:nowrap"><div class="rowactions"><button class="btn ghost sm" data-cv="' + a.id + '">Abrir CV</button><span class="sub">' + fmtSize(a.cv_size) + '</span></div></td>'
         + '<td><button class="btn danger sm" data-del="' + a.id + '" data-nm="' + esc(a.nombre) + '" aria-label="Eliminar">✕</button></td>'
         + '</tr>';
