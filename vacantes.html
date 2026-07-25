@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Vacantes | Únete al equipo de IVAE Studios</title>
+<meta name="description" content="Trabaja con IVAE Studios, estudio de fotografía editorial de lujo en Cancún. Envíanos tus datos y tu CV: fotografía, video, edición y marketing."/>
+<link rel="canonical" href="https://ivaestudios.com/vacantes"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap"/>
+<link rel="stylesheet" href="/styles/site-header.css?v=20260716w"/>
+<script src="/js/site-header.js?v=20260718b" defer></script>
+<style>
+  :root{
+    --navy:#0a0f17; --navy-2:#10182a; --cream:#faf8f5; --cream-dim:rgba(250,248,245,.72);
+    --gold:#c9a54e; --gold-line:rgba(201,165,78,.28); --line:rgba(250,248,245,.14);
+    --serif:'Cormorant Garamond',Georgia,serif; --sans:'Syne',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--navy);color:var(--cream);font-family:var(--sans);line-height:1.65;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 clamp(20px,4vw,48px)}
+
+  .hero{padding:calc(68px + clamp(56px,9vw,110px)) 0 clamp(40px,6vw,70px);text-align:center}
+  .eyebrow{font-size:11px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);margin:0 0 18px}
+  .eyebrow::before{content:"";display:block;width:44px;height:1px;background:var(--gold);margin:0 auto 16px}
+  h1{font-family:var(--serif);font-weight:400;font-size:clamp(40px,7vw,72px);line-height:1.02;letter-spacing:-.01em;margin:0 0 18px}
+  h1 em{font-style:italic;color:var(--gold)}
+  .hero p{max-width:52ch;margin:0 auto;color:var(--cream-dim);font-size:15px}
+
+  .card{background:var(--navy-2);border:1px solid var(--line);border-radius:14px;padding:clamp(24px,5vw,44px);max-width:720px;margin:0 auto clamp(60px,9vw,110px)}
+  form{display:grid;gap:18px}
+  .row2{display:grid;gap:18px}
+  @media(min-width:640px){.row2{grid-template-columns:1fr 1fr}}
+  label{display:block;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--cream-dim);margin-bottom:8px}
+  input,select,textarea{
+    width:100%;background:rgba(250,248,245,.05);border:1px solid var(--line);border-radius:8px;
+    color:var(--cream);font-family:var(--sans);font-size:15px;padding:13px 14px;outline:none;transition:border-color .25s;
+  }
+  input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+  select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c9a54e' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+  select option{background:var(--navy-2);color:var(--cream)}
+  textarea{min-height:110px;resize:vertical}
+  .hp{position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden}
+
+  .file{border:1.5px dashed var(--gold-line);border-radius:10px;padding:22px;text-align:center;cursor:pointer;transition:border-color .25s,background .25s}
+  .file:hover{border-color:var(--gold);background:rgba(201,165,78,.05)}
+  .file input{display:none}
+  .file .t{font-size:14px;color:var(--cream-dim)}
+  .file .t b{color:var(--gold);font-weight:600}
+  .file .picked{color:var(--cream);font-weight:600;font-size:14px;word-break:break-all}
+  .hint{font-size:12px;color:rgba(250,248,245,.45);margin-top:6px}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;
+    background:var(--gold);color:#141b26;border:1px solid var(--gold);border-radius:8px;
+    font-family:var(--sans);font-weight:600;font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+    padding:16px 26px;transition:filter .25s,transform .2s;
+  }
+  .btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn[disabled]{opacity:.6;cursor:wait;transform:none}
+  .msg{border-radius:8px;padding:14px 16px;font-size:14px;display:none}
+  .msg.err{display:block;background:rgba(200,60,60,.12);border:1px solid rgba(220,90,90,.4);color:#f2b8b8}
+  .ok-panel{display:none;text-align:center;padding:30px 10px}
+  .ok-panel h2{font-family:var(--serif);font-weight:400;font-size:clamp(30px,5vw,44px);margin:0 0 10px}
+  .ok-panel p{color:var(--cream-dim);max-width:44ch;margin:0 auto}
+  .ok-panel .check{font-size:44px;color:var(--gold);line-height:1;margin-bottom:14px}
+
+  footer{border-top:1px solid var(--line);padding:34px 0 44px;text-align:center}
+  footer img{height:26px;width:auto;opacity:.9}
+  footer .links{display:flex;flex-wrap:wrap;gap:8px 22px;justify-content:center;margin:16px 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+  footer .links a{color:var(--cream-dim);text-decoration:none}
+  footer .links a:hover{color:var(--gold)}
+  footer p{font-size:12px;color:rgba(250,248,245,.4);margin:6px 0 0}
+</style>
+</head>
+<body>
+
+<header class="site-header" id="siteHeader">
+  <a class="header-logo" href="/"><img class="lg-navy" src="/images/logo-ivae-h-navy.png" alt="IVAE Studios" decoding="async"/><img class="lg-cream" src="/images/logo-ivae-h-cream.png" alt="" aria-hidden="true" decoding="async"/></a>
+  <nav>
+    <ul class="header-nav">
+      <li><a href="/">Home</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="/#services">Services</a></li>
+      <li><a href="/blog">Blog</a></li>
+      <li><a href="https://gallery.ivaestudios.com/">Gallery</a></li>
+    </ul>
+  </nav>
+  <a class="header-cta" href="#form">Postúlate</a>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <p class="eyebrow">Vacantes · IVAE Studios</p>
+    <h1>Únete al <em>equipo.</em></h1>
+    <p>Fotografía, video, edición y marketing en Cancún y la Riviera Maya. Cuéntanos quién eres y déjanos tu CV — nosotros te buscamos.</p>
+  </section>
+
+  <section class="wrap" id="form">
+    <div class="card">
+      <form id="cvForm" novalidate>
+        <div class="row2">
+          <div>
+            <label for="nombre">Nombre completo *</label>
+            <input id="nombre" name="nombre" type="text" autocomplete="name" required maxlength="120" placeholder="Tu nombre"/>
+          </div>
+          <div>
+            <label for="email">Correo *</label>
+            <input id="email" name="email" type="email" autocomplete="email" required maxlength="160" placeholder="tucorreo@ejemplo.com"/>
+          </div>
+        </div>
+        <div class="row2">
+          <div>
+            <label for="telefono">Teléfono / WhatsApp</label>
+            <input id="telefono" name="telefono" type="tel" autocomplete="tel" maxlength="40" placeholder="+52 ..."/>
+          </div>
+          <div>
+            <label for="puesto">Puesto de interés</label>
+            <select id="puesto" name="puesto">
+              <option value="Fotógrafo/a">Fotógrafo/a</option>
+              <option value="Videógrafo/a">Videógrafo/a</option>
+              <option value="Editor/a">Editor/a (foto o video)</option>
+              <option value="Marketing">Marketing / Redes</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="mensaje">Cuéntanos de ti</label>
+          <textarea id="mensaje" name="mensaje" maxlength="2000" placeholder="Experiencia, portafolio, redes, disponibilidad..."></textarea>
+        </div>
+        <div>
+          <label>Tu CV *</label>
+          <label class="file" id="fileBox">
+            <input id="cv" name="cv" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
+            <span class="t" id="fileText">Arrastra tu CV aquí o <b>haz clic para elegirlo</b></span>
+          </label>
+          <div class="hint">PDF o Word · máximo 8 MB</div>
+        </div>
+        <div class="hp" aria-hidden="true">
+          <label>Website<input name="website" tabindex="-1" autocomplete="off"/></label>
+        </div>
+        <div class="msg err" id="errMsg" role="alert"></div>
+        <button class="btn" id="sendBtn" type="submit">Enviar postulación →</button>
+      </form>
+
+      <div class="ok-panel" id="okPanel">
+        <div class="check">✦</div>
+        <h2>¡Recibido!</h2>
+        <p>Gracias por postularte. Revisamos cada CV personalmente y te contactaremos si tu perfil hace match con el equipo.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <img src="/images/logo-ivae-h-cream.png" alt="IVAE Studios"/>
+    <div class="links">
+      <a href="/">Inicio</a>
+      <a href="/es/">Español</a>
+      <a href="/social-media-management">IVAE Marketing</a>
+      <a href="/privacy-policy">Privacidad</a>
+    </div>
+    <p>Cancún · Riviera Maya · Los Cabos — info@ivaestudios.com</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var form = document.getElementById('cvForm');
+  var fileInput = document.getElementById('cv');
+  var fileText = document.getElementById('fileText');
+  var fileBox = document.getElementById('fileBox');
+  var err = document.getElementById('errMsg');
+  var btn = document.getElementById('sendBtn');
+
+  fileInput.addEventListener('change', function(){
+    var f = fileInput.files[0];
+    fileText.innerHTML = f ? '<span class="picked">📄 ' + f.name.replace(/</g,'&lt;') + '</span>' : 'Arrastra tu CV aquí o <b>haz clic para elegirlo</b>';
+  });
+  ;['dragover','dragenter'].forEach(function(ev){ fileBox.addEventListener(ev, function(e){ e.preventDefault(); fileBox.style.borderColor='var(--gold)'; }); });
+  ;['dragleave','drop'].forEach(function(ev){ fileBox.addEventListener(ev, function(e){ e.preventDefault(); fileBox.style.borderColor=''; }); });
+  fileBox.addEventListener('drop', function(e){
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) { fileInput.files = e.dataTransfer.files; fileInput.dispatchEvent(new Event('change')); }
+  });
+
+  function fail(m){ err.textContent = m; err.classList.add('err'); err.style.display='block'; btn.disabled=false; btn.textContent='Enviar postulación →'; }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    err.style.display='none';
+    var f = fileInput.files[0];
+    if (!form.nombre.value.trim()) return fail('Escribe tu nombre.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email.value.trim())) return fail('Revisa tu correo.');
+    if (!f) return fail('Adjunta tu CV (PDF o Word).');
+    if (f.size > 8*1024*1024) return fail('El CV pesa más de 8 MB.');
+
+    btn.disabled = true; btn.textContent = 'Enviando…';
+    var fd = new FormData(form);
+    fetch('/api/careers', { method:'POST', body: fd })
+      .then(function(r){ return r.json().catch(function(){ return {ok:false}; }); })
+      .then(function(d){
+        if (d && d.ok) { form.style.display='none'; document.getElementById('okPanel').style.display='block'; }
+        else fail((d && d.error) || 'No se pudo enviar. Intenta de nuevo.');
+      })
+      .catch(function(){ fail('Sin conexión. Intenta de nuevo.'); });
+  });
+})();
+</script>
+</body>
+</html>
