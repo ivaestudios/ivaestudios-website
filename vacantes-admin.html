@@ -190,7 +190,7 @@
         +   (a.telefono ? '<div class="sub">' + (wa ? '<a href="'+wa+'" target="_blank" rel="noopener">' : '') + esc(a.telefono) + (wa?'</a>':'') + '</div>' : '')
         + '</td>'
         + '<td data-l="Mensaje"><div class="msgcell" role="button" tabindex="0">' + esc(a.mensaje||'') + '</div></td>'
-        + '<td data-l="CV" style="white-space:nowrap"><div class="rowactions"><button class="btn ghost sm" data-cv="' + a.id + '">⬇ CV</button><span class="sub">' + fmtSize(a.cv_size) + '</span></div></td>'
+        + '<td data-l="CV" style="white-space:nowrap"><div class="rowactions"><button class="btn ghost sm" data-cv="' + a.id + '">Abrir CV</button><span class="sub">' + fmtSize(a.cv_size) + '</span></div></td>'
         + '<td><button class="btn danger sm" data-del="' + a.id + '" data-nm="' + esc(a.nombre) + '" aria-label="Eliminar">✕</button></td>'
         + '</tr>';
     }).join('');
