@@ -38,7 +38,7 @@
   label{display:block;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--cream-dim);margin-bottom:8px}
   input,select,textarea{
     width:100%;background:rgba(250,248,245,.05);border:1px solid var(--line);border-radius:8px;
-    color:var(--cream);font-family:var(--sans);font-size:15px;padding:13px 14px;outline:none;transition:border-color .25s;
+    color:var(--cream);font-family:var(--sans);font-size:16px;padding:13px 14px;outline:none;transition:border-color .25s;
   }
   input:focus,select:focus,textarea:focus{border-color:var(--gold)}
   select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c9a54e' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
@@ -48,11 +48,13 @@
 
   .file{border:1.5px dashed var(--gold-line);border-radius:10px;padding:22px;text-align:center;cursor:pointer;transition:border-color .25s,background .25s}
   .file:hover{border-color:var(--gold);background:rgba(201,165,78,.05)}
-  .file input{display:none}
+  .file input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip-path:inset(50%)}
+  .file{position:relative}
+  .file:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,165,78,.3)}
   .file .t{font-size:14px;color:var(--cream-dim)}
   .file .t b{color:var(--gold);font-weight:600}
   .file .picked{color:var(--cream);font-weight:600;font-size:14px;word-break:break-all}
-  .hint{font-size:12px;color:rgba(250,248,245,.45);margin-top:6px}
+  .hint{font-size:12px;color:rgba(250,248,245,.62);margin-top:6px}
 
   .btn{
     display:inline-flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;
@@ -116,11 +118,12 @@
         <div class="row2">
           <div>
             <label for="telefono">Teléfono / WhatsApp</label>
-            <input id="telefono" name="telefono" type="tel" autocomplete="tel" maxlength="40" placeholder="+52 ..."/>
+            <input id="telefono" name="telefono" type="tel" autocomplete="tel" inputmode="tel" maxlength="40" placeholder="+52 ..."/>
           </div>
           <div>
             <label for="puesto">Puesto de interés</label>
             <select id="puesto" name="puesto">
+              <option value="" selected>Elige un puesto…</option>
               <option value="Fotógrafo/a">Fotógrafo/a</option>
               <option value="Videógrafo/a">Videógrafo/a</option>
               <option value="Editor/a">Editor/a (foto o video)</option>
@@ -136,19 +139,20 @@
         <div>
           <label>Tu CV *</label>
           <label class="file" id="fileBox">
-            <input id="cv" name="cv" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
-            <span class="t" id="fileText">Arrastra tu CV aquí o <b>haz clic para elegirlo</b></span>
+            <input id="cv" name="cv" type="file" aria-required="true" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
+            <span class="t" id="fileText">Sube tu CV: <b>toca aquí para elegir el archivo</b></span>
           </label>
           <div class="hint">PDF o Word · máximo 8 MB</div>
         </div>
         <div class="hp" aria-hidden="true">
-          <label>Website<input name="website" tabindex="-1" autocomplete="off"/></label>
+          <label>Fax<input name="contacto_fax" tabindex="-1" autocomplete="off"/></label>
         </div>
-        <div class="msg err" id="errMsg" role="alert"></div>
+        <div class="msg err" id="errMsg" role="alert" aria-live="assertive"></div>
         <button class="btn" id="sendBtn" type="submit">Enviar postulación →</button>
+        <p class="hint" style="text-align:center;margin-top:2px">Al enviar aceptas nuestro <a href="/privacy-policy" style="color:var(--gold)">aviso de privacidad</a>. Tus datos y tu CV solo se usan para este proceso de selección.</p>
       </form>
 
-      <div class="ok-panel" id="okPanel">
+      <div class="ok-panel" id="okPanel" role="status" tabindex="-1">
         <div class="check">✦</div>
         <h2>¡Recibido!</h2>
         <p>Gracias por postularte. Revisamos cada CV personalmente y te contactaremos si tu perfil hace match con el equipo.</p>
@@ -165,7 +169,7 @@
       <a href="/es/">Español</a>
       <a href="/social-media-management">IVAE Marketing</a>
       <a href="/privacy-policy">Privacidad</a>
-      <a href="/vacantes-admin" rel="nofollow" style="opacity:.45">Panel</a>
+      <a href="/vacantes-admin" rel="nofollow" style="opacity:.55">Panel</a>
     </div>
     <p>Cancún · Riviera Maya · Los Cabos — info@ivaestudios.com</p>
   </div>
@@ -182,6 +186,7 @@
 
   fileInput.addEventListener('change', function(){
     var f = fileInput.files[0];
+    if (f && !/\.(pdf|docx?)$/i.test(f.name)) { fail('El CV debe ser PDF o Word (.pdf, .doc, .docx).'); fileInput.value=''; f=null; }
     fileText.innerHTML = f ? '<span class="picked">📄 ' + f.name.replace(/</g,'&lt;') + '</span>' : 'Arrastra tu CV aquí o <b>haz clic para elegirlo</b>';
   });
   ;['dragover','dragenter'].forEach(function(ev){ fileBox.addEventListener(ev, function(e){ e.preventDefault(); fileBox.style.borderColor='var(--gold)'; }); });
@@ -201,15 +206,20 @@
     if (!f) return fail('Adjunta tu CV (PDF o Word).');
     if (f.size > 8*1024*1024) return fail('El CV pesa más de 8 MB.');
 
-    btn.disabled = true; btn.textContent = 'Enviando…';
+    btn.disabled = true; btn.textContent = 'Enviando…'; btn.setAttribute('aria-live','polite');
     var fd = new FormData(form);
-    fetch('/api/careers', { method:'POST', body: fd })
-      .then(function(r){ return r.json().catch(function(){ return {ok:false}; }); })
-      .then(function(d){
-        if (d && d.ok) { form.style.display='none'; document.getElementById('okPanel').style.display='block'; }
-        else fail((d && d.error) || 'No se pudo enviar. Intenta de nuevo.');
-      })
-      .catch(function(){ fail('Sin conexión. Intenta de nuevo.'); });
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/careers');
+    xhr.timeout = 120000;
+    xhr.upload.onprogress = function(ev){ if (ev.lengthComputable && ev.total > 300000) btn.textContent = 'Enviando… ' + Math.round(ev.loaded/ev.total*100) + '%'; };
+    xhr.onload = function(){
+      var d = {}; try { d = JSON.parse(xhr.responseText); } catch(e) {}
+      if (d && d.ok) { form.style.display='none'; var ok=document.getElementById('okPanel'); ok.style.display='block'; ok.focus(); }
+      else fail((d && d.error) || 'No se pudo enviar. Intenta de nuevo.');
+    };
+    xhr.ontimeout = function(){ fail('La subida tardó demasiado. Revisa tu conexión e intenta de nuevo.'); };
+    xhr.onerror = function(){ fail('Sin conexión. Intenta de nuevo.'); };
+    xhr.send(fd);
   });
 })();
 </script>
