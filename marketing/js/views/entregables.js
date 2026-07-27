@@ -6,14 +6,15 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202607271129';
-import { icon } from '../shell/icons.js?v=202607271129';
-import { T } from '../shell/i18n.js?v=202607271129';
+import { api, el, clear, toast } from '../api.js?v=202607271656';
+import { icon } from '../shell/icons.js?v=202607271656';
+import { T } from '../shell/i18n.js?v=202607271656';
+import { openSheet } from '../shell/sheet.js?v=202607271656';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202607271129';
+} from '../lib/video-upload.js?v=202607271656';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -29,6 +30,7 @@ let lastClientId = null;
 let uploadPct = 0;          // progreso de subida (0-100)
 let progressEls = null;     // refs vivos de la barra (se actualizan sin re-render)
 let queueInfo = null;       // { index, total } al subir varios reels en fila
+let swapId = null;          // id del entregable al que se le está CAMBIANDO el video
 let activeMonthNav = '';    // 'YYYY-MM' del mes visible (navegación por píldoras)
 let dlAllBusy = false;      // "Descargar todos" en curso (evita dobles arranques)
 // mes -> { file, index }: en móvil SÓLO se guarda UN reel a la vez en memoria
@@ -91,7 +93,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202607271129';
+  link.href = '/marketing/css/entregables.css?v=202607271656';
   document.head.appendChild(link);
 }
 
@@ -245,6 +247,140 @@ async function uploadReel(file, qinfo) {
   }
 }
 
+// ── CAMBIAR VIDEO (solo staff) ───────────────────────────────────────────────
+// El cliente pide un ajuste en los comentarios ("bajar el eco", "poner Dr.") y el
+// equipo re-edita el reel. Antes la única forma de subir la corrección era BORRAR
+// el entregable y crear otro — y al borrarlo se iban EN CASCADA los comentarios,
+// así que se perdía el hilo de lo que se había pedido.
+//
+// Aquí el video se reemplaza sobre el MISMO id: la fila de mkt_deliverables no se
+// toca (mismo título, mismo mes, mismo orden) y los comentarios, que cuelgan de
+// ese id, siguen intactos. Se usa la MISMA subida por partes que un reel nuevo
+// (lib/video-upload.js), que además NO borra el video anterior hasta que el nuevo
+// está completo y verificado en el servidor.
+//
+// Texto del comentario automático que se publica al terminar. Firma sola: el
+// backend lo guarda con el nombre y el rol de quien lo hizo.
+function swapCommentBody(note) {
+  const base = T(
+    '✅ Listo, ya subí la nueva versión de este reel con los cambios que pediste.',
+    '✅ All set — I just uploaded the new version of this reel with the changes you asked for.'
+  );
+  const extra = String(note || '').trim();
+  return extra ? `${base}\n\n${extra}` : base;
+}
+
+// Abre el selector de archivo del entregable `it` y arranca el reemplazo.
+function pickSwapFile(it) {
+  if (busy || draining) { toast(T('Espera a que termine la subida en curso.', 'Wait for the upload in progress to finish.'), 'info'); return; }
+  const input = el('input', {
+    type: 'file', accept: 'video/*', class: 'dlv-fileinput', hidden: true,
+    onchange: (e) => {
+      const f = (e.target.files || [])[0];
+      e.target.value = '';
+      try { input.remove(); } catch { /* noop */ }
+      if (f) swapVideo(it, f);
+    },
+  });
+  document.body.appendChild(input);
+  input.click();
+}
+
+// Hoja para la nota opcional del aviso. Devuelve el texto (puede ser ''), o
+// null si canceló/cerró — null aborta el reemplazo, '' publica solo el aviso
+// automático. Mismo componente que el resto de la app (tema, movil, foco).
+function askSwapNote() {
+  return new Promise((resolve) => {
+    let value = null; // null = cancelado mientras no se confirme
+    openSheet({
+      title: T('Cambiar el video', 'Replace the video'),
+      mode: 'form',
+      onClose: () => resolve(value),
+      build(body, close) {
+        const ta = el('textarea', {
+          class: 'input', rows: '3', maxlength: '300',
+          placeholder: T('Ej.: ya bajé el eco de la voz', 'E.g.: I lowered the echo on the voice'),
+          'aria-label': T('Nota para el cliente', 'Note for the client'),
+        });
+        body.append(
+          el('p', { class: 'help', style: 'margin-bottom:10px',
+            text: T('Se le avisa al cliente que subiste una versión nueva. Los comentarios que ya dejó NO se borran.',
+              'The client is notified that you uploaded a new version. The comments they already left are NOT deleted.') }),
+          ta,
+          el('div', { class: 'sheet-actions', style: 'display:flex;gap:8px;margin-top:14px' }, [
+            el('button', {
+              class: 'btn btn--primary', type: 'button', style: 'flex:1',
+              text: T('Cambiar video', 'Replace video'),
+              onclick: () => { value = ta.value.trim(); close({ source: 'ok' }); },
+            }),
+            el('button', {
+              class: 'btn', type: 'button',
+              text: T('Cancelar', 'Cancel'),
+              onclick: () => { value = null; close({ source: 'cancel' }); },
+            }),
+          ]),
+        );
+        setTimeout(() => { try { ta.focus(); } catch { /* noop */ } }, 60);
+      },
+    });
+  });
+}
+
+async function swapVideo(it, file) {
+  if (busy || draining) return;
+  // MISMA revisión previa que al subir un reel nuevo (formato imposible de
+  // reproducir + aviso de HEVC): se revisa ANTES de tocar el video que ya está.
+  const { ok, unplayable, hevc } = await screenVideoFiles([file]);
+  if (unplayable.length) { toast(msgUnplayable(unplayable), 'error', 9000); return; }
+  if (!ok.length) { toast(T(`"${file.name}" no es un video.`, `"${file.name}" is not a video.`), 'error'); return; }
+  if (file.size > MAX_VIDEO_MB * 1024 * 1024) {
+    toast(T(`"${file.name}" es enorme (más de 3 GB). Compártelo por link mejor.`, `"${file.name}" is huge (over 3 GB). Better share it by link.`), 'error', 6000);
+    return;
+  }
+  if (hevc.length && !window.confirm(msgHevc(hevc))) return;
+
+  // Nota OPCIONAL para el cliente, además del texto automático. Vacío = solo el
+  // automático; Cancelar/cerrar = no se cambia nada (escape a mitad de camino).
+  // Va en la hoja PROPIA de la app (misma de "Agregar mes"), no en window.prompt:
+  // el dialogo nativo se ve ajeno, en movil tapa media pantalla y no respeta el
+  // tema — y esta pantalla la ve el equipo desde el celular.
+  const note = await askSwapNote();
+  if (note === null) return; // canceló
+
+  swapId = it.id; busy = true; uploadPct = 0; queueInfo = null; render();
+  try {
+    // Mismo endpoint y mismo id -> los comentarios NO se tocan.
+    await multipartUpload(api, `/deliverables/${it.id}/video`, file, (p) => { uploadPct = p; updateProgressUI(); });
+    uploadPct = 100; updateProgressUI();
+    // Miniatura del video NUEVO (best-effort): si no, la tarjeta se quedaría con
+    // el póster del video viejo.
+    try {
+      const posterBlob = await generatePoster(file);
+      if (posterBlob) {
+        const pf = new FormData(); pf.append('poster', posterBlob, 'poster.jpg');
+        await fetch(`/api/marketing/deliverables/${it.id}/poster`, { method: 'POST', credentials: 'same-origin', body: pf });
+      }
+    } catch { /* sin poster: la tarjeta usa el primer cuadro del video */ }
+    // Comentario automático en el MISMO hilo, firmado por quien lo hizo, y aviso
+    // al cliente. Si esto falla, el video YA quedó cambiado: se avisa y punto.
+    try {
+      await api.post(`/deliverables/${it.id}/comments`, { body: swapCommentBody(note), notify_client: true });
+    } catch {
+      toast(T('El video se cambió ✓, pero no se pudo publicar el aviso. Escríbelo a mano en los comentarios.', 'The video was replaced ✓, but the message could not be posted. Write it by hand in the comments.'), 'error', 8000);
+    }
+    toast(T('Video cambiado ✓ — los comentarios siguen ahí.', 'Video replaced ✓ — the comments are still there.'), 'success', 5000);
+    await load();
+    return true;
+  } catch (e) {
+    // La subida se cortó: el servidor NO borra el video anterior hasta ensamblar
+    // y verificar el nuevo, así que lo que el cliente ve sigue siendo el de antes.
+    toast(e.message || T('No se pudo cambiar el video. El anterior sigue ahí.', 'Could not replace the video. The previous one is still there.'), 'error', 7000);
+    return false;
+  } finally {
+    swapId = null; busy = false; uploadPct = 0; progressEls = null; render();
+  }
+}
+
 // Devuelve true SOLO si el carrusel quedó guardado: el botón limpia las
 // casillas únicamente en ese caso (si falla, lo tecleado se conserva).
 async function addCarrusel(link, title) {
@@ -321,9 +457,17 @@ function cacheOneFile(id, file) {
   fileCache.set(id, file);
 }
 
+// video_url YA trae el sello anti-caché (`?v=<updated_at>`), así que "download"
+// tiene que ir con & cuando ya hay query — concatenar '?download=1' a secas
+// generaba "…?v=123?download=1" y el servidor no veía la descarga.
+function withParam(u, k, v) {
+  const s = String(u || '');
+  return s + (s.includes('?') ? '&' : '?') + k + '=' + v;
+}
+
 function linkDownload(it) {
   const a = document.createElement('a');
-  a.href = it.video_url + '?download=1';
+  a.href = withParam(it.video_url, 'download', '1');
   a.download = String(it.title || 'reel');
   document.body.appendChild(a); a.click(); a.remove();
 }
@@ -627,7 +771,15 @@ function buildAddBar() {
     onchange: (e) => { const fs = [...e.target.files]; e.target.value = ''; enqueueReels(fs); },
   });
   let dropKids;
-  if (busy) {
+  if (busy && swapId) {
+    // Se está CAMBIANDO el video de una tarjeta: el progreso se ve AHÍ (en la
+    // tarjeta), no aquí. Esta zona solo queda bloqueada para no encimar subidas.
+    dropKids = [
+      icon('refresh', 26),
+      el('span', { class: 'dlv-drop__t', text: T('Cambiando un video…', 'Replacing a video…') }),
+      el('span', { class: 'dlv-drop__s', text: T('El progreso se ve en la tarjeta del reel.', 'The progress is shown on the reel card.') }),
+    ];
+  } else if (busy) {
     // Barra de progreso (refs vivos -> updateProgressUI los actualiza sin re-render).
     const fill = el('div', { class: 'dlv-prog__fill' });
     fill.style.width = uploadPct + '%';
@@ -780,7 +932,19 @@ function buildComments(it, staff) {
 function buildItem(it, staff) {
   if (it.type === 'reel') {
     const card = el('div', { class: 'dlv-card dlv-card--reel' });
-    if (it.video_url) {
+    if (swapId === it.id) {
+      // Cambio de video EN CURSO: el progreso va aquí, sobre la tarjeta, para que
+      // se vea sin subir hasta la zona de arrastrar (en móvil queda lejísimos).
+      const fill = el('div', { class: 'dlv-prog__fill' });
+      fill.style.width = uploadPct + '%';
+      const label = el('span', { class: 'dlv-drop__t dlv-prog__label', text: uploadPct >= 100 ? T('Procesando…', 'Processing…') : `${T('Subiendo…', 'Uploading…')} ${uploadPct}%` });
+      progressEls = { fill, label };
+      card.appendChild(el('div', { class: 'dlv-video dlv-video--pending dlv-video--swapping' }, [
+        label,
+        el('div', { class: 'dlv-prog' }, [fill]),
+        el('span', { class: 'dlv-drop__s', text: T('No cierres esta pantalla. Los comentarios no se tocan.', 'Don\'t close this screen. The comments are untouched.') }),
+      ]));
+    } else if (it.video_url) {
       const v = el('video', {
         class: 'dlv-video', src: it.video_url, poster: it.poster_url || null,
         controls: true, playsinline: true, preload: 'none',
@@ -790,14 +954,25 @@ function buildItem(it, staff) {
     } else {
       card.appendChild(el('div', { class: 'dlv-video dlv-video--pending', text: T('Procesando…', 'Processing…') }));
     }
-    const foot = el('div', { class: 'dlv-card__foot' }, [
+    // "Cambiar video": SOLO staff y solo si ya hay video. Reemplaza el archivo
+    // conservando el entregable (y por tanto sus comentarios). El cliente nunca
+    // lo ve, y el backend además rechaza a role='client' en todas las rutas de
+    // subida — el botón oculto no es la única defensa.
+    const canSwap = staff && !!it.video_url;
+    const foot = el('div', { class: 'dlv-card__foot' + (staff ? ' is-staff' : '') }, [
       el('span', { class: 'dlv-card__title', text: it.title || 'Reel' }),
       el('div', { class: 'dlv-card__actions' }, [
         it.video_url ? el('button', {
           class: 'dlv-dl', type: 'button', 'aria-label': T('Descargar reel', 'Download reel'),
           onclick: (e) => saveVideo(it, e.currentTarget),
         }, [icon('down', 16), el('span', { text: T('Descargar', 'Download') })]) : null,
-        staff ? el('button', { class: 'dlv-del', type: 'button', 'aria-label': T('Eliminar', 'Delete'), onclick: () => removeItem(it) }, [icon('trash', 16)]) : null,
+        canSwap ? el('button', {
+          class: 'dlv-swap', type: 'button', disabled: busy || null,
+          'aria-label': T('Cambiar el video de este reel (los comentarios se quedan)', 'Replace this reel\'s video (the comments stay)'),
+          title: T('Sube la versión corregida sin perder los comentarios', 'Upload the fixed version without losing the comments'),
+          onclick: () => pickSwapFile(it),
+        }, [icon('refresh', 16), el('span', { text: T('Cambiar video', 'Replace video') })]) : null,
+        staff ? el('button', { class: 'dlv-del', type: 'button', 'aria-label': T('Eliminar', 'Delete'), disabled: busy || null, onclick: () => removeItem(it) }, [icon('trash', 16)]) : null,
       ]),
     ]);
     // foot + comentarios en un lado: en móvil van debajo del video; en escritorio
@@ -937,6 +1112,7 @@ export default {
     unsubs = [];
     resetVideoObserver();
     rootEl = null; ctx = null; items = []; loading = false; busy = false;
+    swapId = null; progressEls = null;
     activeMonthNav = ''; dlAllBusy = false; dlAllCache.clear();
   },
 };

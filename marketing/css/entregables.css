@@ -179,6 +179,36 @@
 }
 @media (prefers-reduced-motion: reduce) { .dlv-dl--ready { animation: none; } }
 
+/* "Cambiar video" (solo staff): sube la versión corregida al MISMO entregable,
+   así que los comentarios del cliente sobreviven. Mismo cuerpo que .dlv-dl pero
+   en tono secundario — la acción principal de la tarjeta sigue siendo Descargar. */
+.dlv-swap {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--surface-2, #0E0E13);
+  border: 1px dashed var(--border-strong, #2A2A36); border-radius: var(--r-sm, 10px);
+  color: var(--text-dim, #9A9AA8); font: inherit; font-size: var(--fs-1, 12px); font-weight: 600;
+  padding: 7px 11px; min-height: 36px; cursor: pointer; white-space: nowrap;
+}
+.dlv-swap .ico { color: var(--text-dim, #9A9AA8); }
+.dlv-swap:hover:not(:disabled) { border-color: var(--brand, #E24DA0); border-style: solid; color: var(--text, #ECECF1); }
+.dlv-swap:hover:not(:disabled) .ico { color: var(--brand, #E24DA0); }
+.dlv-swap:disabled { opacity: .45; cursor: not-allowed; }
+
+/* Progreso del cambio, DENTRO de la tarjeta (en móvil la zona de arrastrar queda
+   fuera de pantalla y no se veía nada). Hereda el centrado de --pending. */
+.dlv-video--swapping { flex-direction: column; gap: 8px; padding: 18px 14px; }
+
+/* Con 3 acciones (Descargar · Cambiar · Eliminar) el título se aplastaba: en el
+   pie del EQUIPO se deja envolver y en móvil (canónico) el título toma su
+   propia línea, con los botones completos debajo. El pie del cliente no cambia. */
+.dlv-card__foot.is-staff { flex-wrap: wrap; }
+/* Base de 160px: si los 3 botones no caben al lado, se van a la línea de abajo
+   en vez de dejar el título en "REEL 5 …". */
+.dlv-card__foot.is-staff .dlv-card__title { flex: 1 1 160px; }
+@media (max-width: 539px) {
+  .dlv-card__foot.is-staff .dlv-card__title { flex: 1 1 100%; }
+}
+
 .dlv-del {
   display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; flex: none;
   background: none; border: 1px solid transparent; border-radius: var(--r-sm, 10px);

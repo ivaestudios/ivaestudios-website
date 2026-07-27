@@ -3338,13 +3338,25 @@ async function handleDeleteVideo(env, session, postId) {
 // Staff sube/gestiona; el cliente DUENO de la marca ve y descarga (solo lectura).
 const MKT_DLV_TYPES = new Set(['reel', 'carrusel']);
 
+// Sello ANTI-CACHÉ derivado de updated_at. El video y el póster se sirven con
+// Cache-Control de 1 hora / 1 día, así que al CAMBIAR el video (mismo id, mismos
+// comentarios) el navegador seguiría mostrando el viejo. Cada vez que se toca la
+// fila (multipart/complete hace `updated_at = datetime('now')`) el sello cambia,
+// la URL cambia y el navegador está OBLIGADO a pedir el archivo nuevo.
+// OJO: el service worker de la app NO intercepta /api/ (marketing/sw.js), así
+// que aquí el `?v=` solo afecta a la caché HTTP del navegador.
+function dlvCacheStamp(d) {
+  return String(d.updated_at || d.created_at || '').replace(/\D+/g, '') || '0';
+}
+
 function shapeDeliverable(d, origin, comments = []) {
+  const v = dlvCacheStamp(d);
   return {
     id: d.id, client_id: d.client_id, month: d.month, type: d.type,
     title: d.title || null, link: d.link || null,
-    video_url: d.video_ext ? `${origin}/api/marketing/deliverables/${d.id}/video` : null,
-    poster_url: d.video_ext ? `${origin}/api/marketing/deliverables/${d.id}/poster` : null,
-    created_at: d.created_at,
+    video_url: d.video_ext ? `${origin}/api/marketing/deliverables/${d.id}/video?v=${v}` : null,
+    poster_url: d.video_ext ? `${origin}/api/marketing/deliverables/${d.id}/poster?v=${v}` : null,
+    created_at: d.created_at, updated_at: d.updated_at || null,
     comments,
   };
 }
@@ -3430,6 +3442,24 @@ async function handleAddDeliverableComment(request, env, session, id) {
       }
     }
   } catch (e) { if (!isMissingTableError(e)) console.error('[mkt notifyDlvComment]', e && e.message); }
+
+  // Al revés: el EQUIPO puede pedir que se avise AL CLIENTE (`notify_client`).
+  // Lo usa "Cambiar video": el cliente pidió un ajuste, se subió la versión nueva
+  // en el MISMO entregable (sus comentarios siguen ahí) y hay que enterarlo.
+  // Solo staff; para el cliente la bandera se ignora.
+  try {
+    if (session.role !== 'client' && b && b.notify_client) {
+      const clients = await clientUserIds(env, d.client_id, session.user_id);
+      if (clients.length) {
+        await notify(env, {
+          user_ids: clients, type: 'entregable',
+          body: `${session.name || 'El equipo'} actualizó ${d.title || 'un entregable'}: ${truncateText(body, 140)}`,
+          link: '#/entregables', comment_id: cid,
+          client_id: d.client_id, actor_name: session.name
+        });
+      }
+    }
+  } catch (e) { if (!isMissingTableError(e)) console.error('[mkt notifyDlvSwap]', e && e.message); }
 
   const c = await env.DB.prepare(
     'SELECT id, deliverable_id, author_name, author_role, body, created_at FROM mkt_deliverable_comments WHERE id = ?'
