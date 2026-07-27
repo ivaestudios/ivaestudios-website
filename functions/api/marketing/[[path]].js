@@ -42,6 +42,7 @@
 // 404 ("No disponible") and everything legacy keeps working.
 
 import { handleDashboard } from './_dashboard.js';
+import { handleStorage, refreshStorageUsage } from './_storage.js';
 import { handleMonthlyReport } from './_enterprise.js';
 import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHeadersFor } from './_downloader.js';
 import {
@@ -3014,6 +3015,12 @@ async function handleCron(request, env) {
       } catch (e) { console.error('[mkt cron backup]', e && e.message); }
     }
 
+    // Medicion del almacenamiento en R2 para la barra del panel de Agencia.
+    // Se hace AQUI (una vez al dia, sin nadie esperando) para que abrir Inicio
+    // lea siempre cache tibia y nunca pague el recorrido del bucket.
+    // Best-effort: si falla, el endpoint /storage lo recalcula bajo demanda.
+    const storage = await refreshStorageUsage(env);
+
     // Aviso a admins si mkt_error_log (migración 017) registró errores en las
     // últimas 24 h. Best-effort: sin la tabla no pasa nada.
     try {
@@ -3038,7 +3045,8 @@ async function handleCron(request, env) {
       ok: true,
       ran: (result && result.ran) || [],
       pruned: (result && result.pruned) || { notifications: 0, runs: 0, sessions: 0 },
-      backup
+      backup,
+      storage
     });
   } catch (e) {
     if (isMissingTableError(e)) return json({ error: 'Migracion 004 pendiente' }, 409);
@@ -4071,6 +4079,14 @@ async function route(request, env) {
   if (path === '/dashboard' && method === 'GET') {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);
     return handleDashboard(request, env, session, url);
+  }
+
+  // ── ALMACENAMIENTO EN R2 (SOLO equipo; barra del panel de Agencia) ──
+  // Nunca para role='client': el tamaño del bucket es informacion interna
+  // (incluye la galeria de fotos de OTROS clientes).
+  if (path === '/storage' && method === 'GET') {
+    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    return handleStorage(request, env, session, url);
   }
 
   // ── EXPORTAR CALENDARIO .ics (staff o cliente; el cliente va forzado a SU marca) ──

@@ -780,6 +780,17 @@
 /* Plataformas bar track (white-alpha .06) */
 :root[data-theme="light"] .dash-plat__track { background: rgba(15, 15, 35, .06); }
 
+/* Almacenamiento (dash-widgets.js storageCard): los canales de la barra apilada
+   y de cada fila estan autorados en blanco-alpha para el tema oscuro; en claro
+   se invierten a tinta-alpha para que el fondo del canal siga leyendose. */
+:root[data-theme="light"] .dash-sto__bar { background: rgba(15, 15, 35, .08); }
+:root[data-theme="light"] .dash-sto__track { background: rgba(15, 15, 35, .06); }
+:root[data-theme="light"] .dash-sto__seg.is-empty { background: rgba(15, 15, 35, .12); }
+/* Los textos NO se re-declaran aqui a proposito: dashboard.css ya los pinta con
+   var(--text) / var(--text-dim), y este mismo archivo remapea esos tokens al
+   #16161E / #52525E de tema claro. Los hardcodes con !important que habia eran
+   exactamente los mismos hex y solo se iban a desincronizar del token. */
+
 /* Metricas card: same sheen/shadow treatment (had !important) */
 :root[data-theme="light"] .mt-card {
   background-image: none !important;

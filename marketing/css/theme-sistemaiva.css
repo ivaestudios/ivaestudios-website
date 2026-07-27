@@ -194,6 +194,14 @@ body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
   .dash-body > * { grid-column: auto !important; align-self: stretch !important; }
   .dash-counters { grid-column: 1 / -1 !important; }
   .dash-clients, .dash-skel { grid-column: 1 / -1 !important; }
+  /* Almacenamiento: ancho completo justo debajo de Clientes. El
+     `grid-column: span 12` de dashboard.css es CSS muerto aqui (lo pisa el
+     `grid-column: auto !important` de arriba), y con order 5 empataba con
+     Plataformas y se colaba en la columna angosta: Racha quedaba estirada,
+     la barrita de cada fila se encogia a 78px y quedaba un hueco negro a la
+     derecha del donut. order 2 = mismo grupo que Clientes, y el DOM lo pone
+     despues. */
+  .dash-storage { grid-column: 1 / -1 !important; order: 2 !important; }
   .dash-pipeline    { order: 2 !important; }
   .dash-streak      { order: 3 !important; }
   .dash-approvals   { order: 4 !important; }

@@ -25,14 +25,14 @@
 // Contrato de vista: export default { id, mount(el, ctx), unmount(), onParams() }.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202607270920';
-import { icon } from '../shell/icons.js?v=202607270920';
-import { T } from '../shell/i18n.js?v=202607270920';
+import { api, el, clear } from '../api.js?v=202607271001';
+import { icon } from '../shell/icons.js?v=202607271001';
+import { T } from '../shell/i18n.js?v=202607271001';
 import {
   todayISO, addDaysISO, addMonths, parseISO, toISO,
   fmtMonthYear, fmtShort, fmtLong,
-} from '../lib/dates.js?v=202607270920';
-import * as W from './dash-widgets.js?v=202607270920';
+} from '../lib/dates.js?v=202607271001';
+import * as W from './dash-widgets.js?v=202607271001';
 
 const TTL_MS = 60000;
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
@@ -165,6 +165,90 @@ function scheduleSilentReload() {
     reloadTimer = 0;
     load({ force: true, silent: true });
   }, 700);
+}
+
+// ── Almacenamiento en R2 (SOLO alcance Agencia) ──────────────────────────────
+// Fetch APARTE del payload de /dashboard: recorrer el bucket es lento y no
+// tiene por que retrasar los contadores. El servidor guarda la medicion en
+// mkt_kv y la recalcula a lo mucho cada 26 h, asi que esto casi siempre es una
+// lectura de cache. Aqui se recuerda el ultimo resultado a nivel de modulo para
+// que volver a Inicio pinte la barra al instante.
+//
+// UNA sola peticion a la vez (storagePending) y UN solo reintento automatico
+// cada 5 min: renderBody() corre en cada visibilitychange y en cada
+// posts:changed, asi que sin estos dos frenos un endpoint caido disparaba un
+// recorrido del bucket cada vez que la dueña volvia a la pestaña.
+
+let storageState = { data: null, loading: false, error: '' };
+let storageCardEl = null;
+let storagePending = null;   // peticion en vuelo (se reusa, no se duplica)
+let storageFailedAt = 0;     // reloj del ultimo fallo, para el freno de 5 min
+const STORAGE_RETRY_MS = 5 * 60 * 1000;
+
+/** Reemplaza SOLO la card de almacenamiento (nunca re-pinta el resto). */
+function paintStorage() {
+  if (!storageCardEl || !storageCardEl.parentNode) return;
+  const next = buildStorageCard();
+  storageCardEl.replaceWith(next);
+  storageCardEl = next;
+}
+
+function buildStorageCard() {
+  return W.storageCard({
+    storage: storageState.data,
+    loading: storageState.loading,
+    error: storageState.error,
+    onRefresh: () => loadStorage({ force: true }),
+  });
+}
+
+function loadStorage({ force = false } = {}) {
+  // Ya hay una medicion en vuelo: se reusa. (Antes el candado era
+  // storageState.loading, que unmount() soltaba con el fetch todavia corriendo:
+  // Inicio -> Calendario -> Inicio disparaba un segundo recorrido del bucket.)
+  if (storagePending) return storagePending;
+  if (storageState.data && !force) return Promise.resolve();
+  // Si fallo, NO reintentar solo antes de 5 min. El boton siempre puede.
+  if (!force && storageState.error && Date.now() - storageFailedAt < STORAGE_RETRY_MS) {
+    return Promise.resolve();
+  }
+
+  storageState = { ...storageState, loading: true, error: '' };
+  paintStorage();
+
+  storagePending = (async () => {
+    try {
+      // force -> ?refresh=1; el servidor igual lo limita a una medicion real
+      // cada 10 min, para que picarle al boton no dispare recorridos del bucket.
+      const res = await api.get(`/storage${force ? '?refresh=1' : ''}`);
+      storageState = { data: res, loading: false, error: '' };
+      storageFailedAt = 0;
+      // El servidor devolvio la medicion anterior porque el piso de 10 min no
+      // se ha cumplido. Sin decirlo, el boton repinta lo mismo y parece roto.
+      if (force && res && res.throttled && ctx) {
+        const mins = Math.max(1, Math.ceil((Number(res.retry_in_ms) || 0) / 60000));
+        ctx.toast(
+          `${T('La medicion es reciente. Se puede volver a medir en', 'This measurement is recent. You can measure again in')} ${mins} min.`,
+          { type: 'info' },
+        );
+      }
+    } catch (e) {
+      storageFailedAt = Date.now();
+      storageState = {
+        ...storageState,
+        loading: false,
+        error: (e && e.message) || T('No se pudo medir el almacenamiento.', "Couldn't measure storage."),
+      };
+    } finally {
+      storagePending = null;
+    }
+    // paintStorage ya se protege sola: si la vista se desmonto, storageCardEl
+    // es null y esto no hace nada. El estado si queda guardado para el proximo
+    // montaje.
+    paintStorage();
+  })();
+
+  return storagePending;
 }
 
 // ── Drill-down universal ─────────────────────────────────────────────────────
@@ -612,6 +696,12 @@ function renderBody() {
       clients: data.clients || [],
       onOpen: openClientCard,
     }));
+    // Barra de almacenamiento: SOLO en el panel de Agencia (lo ve el equipo).
+    // El endpoint es staff-only; un cliente ni siquiera puede llegar a esta
+    // vista, pero el alcance global tampoco existe para su rol.
+    storageCardEl = buildStorageCard();
+    bodyEl.appendChild(storageCardEl);
+    loadStorage(); // no-op si ya hay medicion en memoria
   } else {
     // Cliente: pipeline + mini-listas.
     bodyEl.appendChild(W.pipelineCard({
@@ -702,6 +792,12 @@ export default {
 
   unmount() {
     seq += 1; // cancela cualquier fetch en vuelo (no pintara)
+    // La medicion en si (storageState) SI se conserva entre montajes: es cara
+    // y el servidor la cachea 26 h. Solo se suelta el NODO: la peticion en
+    // vuelo se deja correr y ella sola apaga `loading` al terminar. Marcarlo
+    // aqui soltaba el candado con el fetch vivo y el siguiente montaje disparaba
+    // un segundo recorrido del bucket.
+    storageCardEl = null;
     clearTimeout(reloadTimer);
     reloadTimer = 0;
     if (visHandler) {

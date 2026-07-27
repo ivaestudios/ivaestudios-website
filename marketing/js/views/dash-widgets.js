@@ -19,10 +19,10 @@ import {
   STATUSES, STATUS_ORDER,
   CONTENT_TYPES, PLATFORMS,
   statusBadge, approvalBadge,
-} from '../api.js?v=202607270920';
-import { icon } from '../shell/icons.js?v=202607270920';
-import { T } from '../shell/i18n.js?v=202607270920';
-import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202607270920';
+} from '../api.js?v=202607271001';
+import { icon } from '../shell/icons.js?v=202607271001';
+import { T } from '../shell/i18n.js?v=202607271001';
+import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202607271001';
 
 // Bucket para status que ya no existen en el enum (NUNCA invisibles).
 export const OTROS_KEY = '__otros';
@@ -620,6 +620,218 @@ export function clientsSection({ clients = [], onOpen }) {
   }));
 
   return card({ title: T('Clientes', 'Clients'), className: 'dash-clients', children: grid });
+}
+
+// ── 9) Almacenamiento en R2 (alcance Agencia, SOLO equipo) ──────────────────
+
+// Colores del desglose. Fijos a proposito (igual que STATUSES/PLATFORMS): son
+// rellenos de barra, se leen bien en tema oscuro y claro.
+const STO_COLORS = {
+  marketing: '#e24da0', // magenta de marca
+  gallery:   '#9d5be0', // violeta de marca
+  careers:   '#38bdf8', // azul (CV de vacantes: tercera app del bucket)
+  other:     '#64748b', // gris
+};
+
+/**
+ * Bytes a texto legible. OJO: base 1000, NO 1024 — Cloudflare factura y muestra
+ * R2 en GB decimales, asi que 1 GB = 1,000,000,000 bytes. Usar 1024 daria un
+ * numero mas chico que el del recibo.
+ */
+export function fmtBytes(n) {
+  const b = Number(n) || 0;
+  // Los cortes miran el valor YA redondeado: con `>= 1e6` a secas, 999,999,999 B
+  // caia en MB y se pintaba "1000 MB" en vez de "1.0 GB".
+  if (b >= 999.95e6) return `${(b / 1e9).toFixed(1)} GB`;
+  if (b >= 999.5e3) return `${Math.round(b / 1e6)} MB`;
+  if (b >= 999.5) return `${Math.round(b / 1e3)} KB`;
+  return `${b} B`;
+}
+
+/** "hace un momento" / "hace 3 h" / "hace 2 dias" a partir de un ISO. */
+function agoLabel(iso) {
+  const t = Date.parse(iso || '');
+  if (!Number.isFinite(t)) return '';
+  const min = Math.floor((Date.now() - t) / 60000);
+  if (min < 2) return T('medido hace un momento', 'measured just now');
+  if (min < 60) return `${T('medido hace', 'measured')} ${min} min${T('', ' ago')}`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `${T('medido hace', 'measured')} ${h} h${T('', ' ago')}`;
+  const d = Math.floor(h / 24);
+  return d === 1
+    ? T('medido ayer', 'measured yesterday')
+    : `${T('medido hace', 'measured')} ${d} ${T('dias', 'days ago')}`;
+}
+
+/**
+ * storageCard({ storage, loading, error, onRefresh })
+ *
+ * `storage` es el payload de GET /storage tal cual. NO se inventa ningun tope:
+ * R2 cobra por uso y no tiene limite duro, asi que la barra reparte el 100% del
+ * espacio usado entre marketing / galeria / otros (composicion, no medidor).
+ * La unica referencia real que se cita es la cuota gratis mensual de R2, que
+ * viaja en el propio payload (pricing.free_gb_per_month).
+ */
+export function storageCard({ storage = null, loading = false, error = '', onRefresh } = {}) {
+  const head = el('span', { class: 'dash-card__meta', text: T('Cloudflare R2', 'Cloudflare R2') });
+
+  if (loading && !storage) {
+    return card({
+      title: T('Almacenamiento', 'Storage'),
+      className: 'dash-storage',
+      headRight: head,
+      // aria-hidden como el resto de los esqueletos del panel: un div sin rol no
+      // anuncia su aria-label, asi que el label solo era ruido muerto.
+      children: el('div', { class: 'dash-sto__skel skeleton', 'aria-hidden': 'true' }),
+    });
+  }
+
+  if (!storage) {
+    return card({
+      title: T('Almacenamiento', 'Storage'),
+      className: 'dash-storage',
+      headRight: head,
+      children: [
+        el('p', {
+          class: 'dash-card__empty',
+          text: error || T('No se pudo medir el almacenamiento.', "Couldn't measure storage."),
+        }),
+        onRefresh ? el('button', {
+          class: 'dash-link', type: 'button', text: T('Volver a medir', 'Measure again'),
+          onclick: () => onRefresh(),
+        }) : null,
+      ],
+    });
+  }
+
+  const total = storage.total || { bytes: 0, objects: 0 };
+  const mkt = storage.marketing || { bytes: 0, objects: 0, videos: 0 };
+  const gal = storage.gallery || { bytes: 0, objects: 0 };
+  const car = storage.careers || { bytes: 0, objects: 0 };
+  const oth = storage.other || { bytes: 0, objects: 0 };
+  const price = storage.pricing || {};
+  const totalBytes = Number(total.bytes) || 0;
+  // partial = algun recorrido se corto. El server ya junta los dos pasos aqui.
+  const partial = !!total.partial || !!mkt.partial;
+
+  const rows = [
+    // La etiqueta nombra TODO lo que entra en el rubro: 'backups/' (el respaldo
+    // diario de la base) tambien cuenta como marketing y crece solo.
+    { key: 'marketing', label: T('Marketing (videos, entregables y respaldos)', 'Marketing (videos, deliverables and backups)'), bytes: Number(mkt.bytes) || 0 },
+    { key: 'gallery', label: T('Galeria de fotos', 'Photo gallery'), bytes: Number(gal.bytes) || 0 },
+    { key: 'careers', label: T('Vacantes (CV recibidos)', 'Careers (received CVs)'), bytes: Number(car.bytes) || 0 },
+    { key: 'other', label: T('Otros archivos', 'Other files'), bytes: Number(oth.bytes) || 0 },
+  ].filter((r) => r.bytes > 0);
+
+  // Con medicion parcial los porcentajes mentirian: las filas son un piso y el
+  // total otro, asi que no suman 100. En ese caso se pintan solo los GB.
+  const pct = (b) => (totalBytes > 0 ? Math.round((b / totalBytes) * 100) : 0);
+  const legend = rows.map((r) => `${r.label} ${fmtBytes(r.bytes)}`).join(', ');
+
+  // Barra apilada: reparte el total usado. Es un DIV (no navega a ningun lado),
+  // con la lectura completa en aria-label y la leyenda SIEMPRE visible debajo.
+  const bar = el('div', {
+    class: 'dash-sto__bar', role: 'img',
+    'aria-label': `${T('Almacenamiento en uso', 'Storage in use')}: ${fmtBytes(totalBytes)}. ${legend}`,
+  }, rows.length
+    ? rows.map((r) => el('span', {
+      class: 'dash-sto__seg',
+      style: { flexGrow: String(Math.max(1, r.bytes)), background: STO_COLORS[r.key] },
+    }))
+    : [el('span', { class: 'dash-sto__seg is-empty', style: { flexGrow: '1' } })]);
+
+  const list = el('div', { class: 'dash-sto__rows' }, rows.map((r) => el('div', { class: 'dash-sto__row' }, [
+    el('span', { class: 'dash-sto__dot', style: { background: STO_COLORS[r.key] } }),
+    el('span', { class: 'dash-sto__label', text: r.label }),
+    el('span', { class: 'dash-sto__track' }, [
+      el('i', { style: { width: `${Math.max(2, pct(r.bytes))}%`, background: STO_COLORS[r.key] } }),
+    ]),
+    el('span', { class: 'dash-sto__val' }, [
+      el('b', { text: fmtBytes(r.bytes) }),
+      // "<1%" en vez de "0%": un rubro que existe y pesa nunca vale cero.
+      partial ? null : el('small', { text: pct(r.bytes) < 1 ? '<1%' : `${pct(r.bytes)}%` }),
+    ]),
+  ])));
+
+  // Contexto util y verificable: cuantos videos hay y cuanto cuesta al mes.
+  // Con medicion parcial el server manda cost_usd = null y aqui NO se estima.
+  const facts = [];
+  const nVid = Number(mkt.videos) || 0;
+  if (nVid > 0) {
+    facts.push(`${plural(nVid, T('video', 'video'), T('videos', 'videos'))} ${T('de marketing', 'in marketing')} · ${fmtBytes(mkt.video_bytes)}`);
+  }
+  const freeGb = Number(price.free_gb_per_month) || 0;
+  const costUsd = price.cost_usd;
+  if (typeof costUsd === 'number') {
+    // La decision se toma por BYTES, nunca por el precio: redondeado a centavos,
+    // todo lo facturable por debajo de 0.334 GB daba $0 y el panel anunciaba
+    // "sin costo" con el bucket ya pasado de los 10 GB.
+    // Ojo con la palabra "gratis": la cuota es de TODA la cuenta y aqui solo se
+    // mide este bucket, por eso la frase no promete que la factura sea $0.
+    const fitsFree = freeGb > 0 && totalBytes <= freeGb * 1e9;
+    if (fitsFree) {
+      facts.push(T(
+        `cabe en los ${freeGb} GB gratis de la cuenta`,
+        `fits within the account's free ${freeGb} GB`,
+      ));
+    } else if (costUsd > 0 && costUsd < 0.01) {
+      // Menos de un centavo: decirlo asi es honesto; "$0.00" no lo seria.
+      facts.push(T('costo estimado menos de $0.01 USD al mes', 'estimated cost under $0.01 USD a month'));
+    } else {
+      // "si el tamaño no cambia": R2 factura el promedio GB-mes, no la foto de
+      // hoy. Subir y borrar un video en 3 dias no cuesta el mes completo.
+      facts.push(`${T('costo estimado', 'estimated cost')} $${costUsd.toFixed(2)} USD ${T('al mes si el tamaño no cambia', 'a month if the size stays the same')}`);
+    }
+  }
+
+  const children = [
+    el('div', { class: 'dash-sto__hero' }, [
+      el('b', { class: 'dash-sto__total', text: `${partial ? '+' : ''}${fmtBytes(totalBytes)}` }),
+      el('span', {
+        class: 'dash-sto__cap',
+        // "en la nube" sonaba a TODO lo que hay en Cloudflare; esto es UN bucket
+        // (la cuenta tiene otros que no se miden aqui).
+        text: partial
+          ? T('en el bucket de fotos y videos (medicion parcial: es al menos esto)', 'in the photo and video bucket (partial measurement: at least this much)')
+          : T('en uso en el bucket de fotos y videos', 'in use in the photo and video bucket'),
+      }),
+    ]),
+    bar,
+    list,
+  ];
+
+  if (facts.length) children.push(el('p', { class: 'dash-sto__facts', text: facts.join(' · ') }));
+
+  if (freeGb > 0 && Number(price.price_per_gb_usd) > 0) {
+    // Referencia REAL (no un tope inventado): R2 cobra por uso, con una cuota
+    // gratis mensual POR CUENTA. Se dice que la cuota es de la cuenta y que
+    // aqui solo se mide un bucket, para que "gratis" no se lea como "la factura
+    // es $0": la cuenta tiene otros buckets que tambien consumen esa cuota.
+    children.push(el('p', {
+      class: 'dash-sto__note',
+      text: T(
+        `R2 no tiene limite: los primeros ${freeGb} GB de cada mes son gratis en toda la cuenta (aqui solo se mide este bucket) y arriba de eso cuesta $${price.price_per_gb_usd} USD por GB al mes.`,
+        `R2 has no hard cap: the first ${freeGb} GB each month are free across the whole account (only this bucket is measured here); above that it costs $${price.price_per_gb_usd} USD per GB-month.`,
+      ),
+    }));
+  }
+
+  children.push(el('div', { class: 'dash-sto__foot' }, [
+    el('span', { class: 'dash-sto__when', text: agoLabel(storage.measured_at) + (storage.stale ? ` · ${T('dato guardado', 'saved value')}` : '') }),
+    onRefresh ? el('button', {
+      class: 'dash-link dash-sto__again', type: 'button',
+      text: loading ? T('Midiendo...', 'Measuring...') : T('Volver a medir', 'Measure again'),
+      disabled: loading || undefined,
+      onclick: () => onRefresh(),
+    }) : null,
+  ]));
+
+  return card({
+    title: T('Almacenamiento', 'Storage'),
+    className: 'dash-storage',
+    headRight: head,
+    children,
+  });
 }
 
 // ── Estados transversales ────────────────────────────────────────────────────
