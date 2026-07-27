@@ -28,15 +28,15 @@ import {
   el, clear, copyText, api,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202607270907';
-import { icon } from '../shell/icons.js?v=202607270907';
-import { T } from '../shell/i18n.js?v=202607270907';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607270907';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607270907';
+} from '../api.js?v=202607270920';
+import { icon } from '../shell/icons.js?v=202607270920';
+import { T } from '../shell/i18n.js?v=202607270920';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607270920';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607270920';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202607270907';
+} from '../lib/video-upload.js?v=202607270920';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1096,6 +1096,12 @@ function openUrlSheet(post, field, title, { allowUpload = false } = {}) {
             ctx.toast(T('Video subido.', 'Video uploaded.'), { type: 'success' });
           } catch (e) {
             fail((e && e.message) || T('No se pudo subir el video.', 'Could not upload the video.'));
+            // 422 = el video llegó incompleto y el servidor lo BORRÓ. Hay que
+            // refrescar el post: si no, la pantalla sigue diciendo "Reemplazar
+            // video" y la tarjeta del cliente enlaza a algo que ya da 404.
+            if (e && e.status === 422) {
+              try { ctx.store.upsertPost(await api.get(`/posts/${post.id}`)); } catch { /* noop */ }
+            }
           } finally {
             upBtn.disabled = false;
           }

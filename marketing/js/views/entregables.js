@@ -6,14 +6,14 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202607270907';
-import { icon } from '../shell/icons.js?v=202607270907';
-import { T } from '../shell/i18n.js?v=202607270907';
+import { api, el, clear, toast } from '../api.js?v=202607270920';
+import { icon } from '../shell/icons.js?v=202607270920';
+import { T } from '../shell/i18n.js?v=202607270920';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202607270907';
+} from '../lib/video-upload.js?v=202607270920';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -34,6 +34,10 @@ let dlAllBusy = false;      // "Descargar todos" en curso (evita dobles arranque
 // mes -> { file, index }: en móvil SÓLO se guarda UN reel a la vez en memoria
 // (el que está esperando el toque para guardarse). Nunca el mes entero.
 const dlAllCache = new Map();
+// mes -> [títulos] de los reels que fallaron en la tanda actual. Un reel que
+// falla YA NO tumba el lote: se sigue con el siguiente y al final se dice cuáles
+// faltaron (antes había que volver a empezar desde el 1).
+const dlAllFailed = new Map();
 
 // ── Carga perezosa de videos (velocidad en móvil) ───────────────────────────
 // Antes: CADA reel del mes creaba un <video preload="metadata"> que disparaba
@@ -87,7 +91,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202607270907';
+  link.href = '/marketing/css/entregables.css?v=202607270920';
   document.head.appendChild(link);
 }
 
@@ -312,6 +316,8 @@ const TYPE_EXT = { 'video/mp4': 'mp4', 'video/quicktime': 'mov', 'video/webm': '
 const fileCache = new Map();
 function cacheOneFile(id, file) {
   fileCache.clear();
+  dlAllCache.clear();   // "Descargar todos" guarda su propio archivo: si no se
+                        // suelta, quedarían DOS videos en la RAM del teléfono
   fileCache.set(id, file);
 }
 
@@ -323,11 +329,13 @@ function linkDownload(it) {
 }
 
 // Descarga UN tramo (Range) como ArrayBuffer.
-// En MÓVIL se bajan menos tramos y más chicos: cada tramo vive en memoria del
-// teléfono hasta que se arma el archivo, y 3×8MB en vuelo + el video entero era
-// lo que tumbaba Safari con reels grandes.
-const DL_LANES = isMobileSave() ? 2 : 3;                                  // tramos bajando a la vez
-const DL_CHUNK = (isMobileSave() ? 4 : 8) * 1024 * 1024;                  // por tramo
+// Lo que tumbaba Safari NO era el paralelismo sino el video entero acumulado en
+// RAM (y el mes completo en caché); eso ya se arregló convirtiendo cada tramo a
+// Blob en cuanto llega y bajando de uno en uno. Así que el móvil usa el MISMO
+// troceado que el escritorio: bajarlo a 4MB×2 sólo hacía la descarga ~2.7× más
+// lenta en el teléfono, que es justo donde el 99% de las clientas la usa.
+const DL_LANES = 3;                                                       // tramos bajando a la vez
+const DL_CHUNK = 8 * 1024 * 1024;                                         // por tramo
 function fetchRange(url, start, end, onLoaded) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -366,6 +374,7 @@ async function fetchVideoBlob(it, onProgress) {
   const numChunks = Math.ceil(total / DL_CHUNK);
   const buffers = new Array(numChunks); buffers[0] = new Blob([first.buf]);
   const loaded = new Array(numChunks).fill(0); loaded[0] = first.buf.byteLength;
+  first.buf = null; // libera el ArrayBuffer del 1er tramo (ya está en el Blob)
   const bump = () => { if (onProgress) onProgress(Math.min(99, Math.round((loaded.reduce((a, b) => a + b, 0) / total) * 100))); };
   bump();
   let next = 1; let aborted = false;
@@ -484,11 +493,6 @@ async function downloadAllReels(month, reels, btn) {
   const label = btn.querySelector('span:not(.ico)');
   const setLabel = (t) => { if (label) label.textContent = t; };
   const mobile = isMobileSave() && !!(navigator.canShare && navigator.share);
-  const reset = () => {
-    dlAllCache.delete(month);
-    btn.classList.remove('dlv-dl--ready');
-    setLabel(T('Descargar todos', 'Download all'));
-  };
 
   // ── MÓVIL: uno a la vez, con el 2º toque que exige iOS para guardar ──
   if (mobile) {
@@ -505,11 +509,7 @@ async function downloadAllReels(month, reels, btn) {
       // Guardado: se LIBERA el archivo y se sigue con el siguiente (si queda).
       const next = armed.index + 1;
       dlAllCache.delete(month);
-      if (next >= reels.length) {
-        reset();
-        toast(`${reels.length} ${T('reels guardados', 'reels saved')} ✓`, 'success');
-        return;
-      }
+      if (next >= reels.length) { finishMobileBatch(month, reels, btn, setLabel); return; }
       await mobilePrepare(month, reels, next, btn, setLabel);
       return;
     }
@@ -545,35 +545,70 @@ async function downloadAllReels(month, reels, btn) {
   }
 }
 
-// Móvil: baja UN reel (el número `index`) y deja el botón armado para el toque
-// que abre el menú nativo de guardar. Nunca hay más de un video en memoria.
+// Móvil: baja los reels DE UNO EN UNO desde `index`. Se detiene en cuanto uno
+// queda listo para guardarse (el toque que exige iOS); los que este teléfono no
+// puede compartir se mandan al gestor de descargas y SIGUE con el siguiente, y
+// un reel que falla tampoco corta la tanda. Nunca hay más de un video en memoria.
 async function mobilePrepare(month, reels, index, btn, setLabel) {
-  const it = reels[index];
-  if (!it) return;
-  const pos = `${index + 1}/${reels.length}`;
+  if (dlAllBusy) return;
   dlAllBusy = true; btn.disabled = true;
   btn.classList.remove('dlv-dl--ready');
   try {
-    setLabel(`${T('Preparando', 'Preparing')} ${pos}… 0%`);
-    const blob = await fetchVideoBlob(it, (pct) => setLabel(`${T('Preparando', 'Preparing')} ${pos} · ${pct}%`));
-    const file = fileFromBlob(it, blob);
-    let shareable = false;
-    try { shareable = navigator.canShare({ files: [file] }); } catch { shareable = false; }
-    if (!shareable) {
-      // Este teléfono no comparte archivos: cae al gestor de descargas.
-      blobDownload(file);
-      setLabel(T('Descargar todos', 'Download all'));
-      return;
+    let i = index;
+    while (i < reels.length) {
+      const it = reels[i];
+      const pos = `${i + 1}/${reels.length}`;
+      try {
+        setLabel(`${T('Preparando', 'Preparing')} ${pos}… 0%`);
+        const blob = await fetchVideoBlob(it, (pct) => setLabel(`${T('Preparando', 'Preparing')} ${pos} · ${pct}%`));
+        const file = fileFromBlob(it, blob);
+        let shareable = false;
+        try { shareable = navigator.canShare({ files: [file] }); } catch { shareable = false; }
+        if (!shareable) {
+          // Este teléfono no comparte archivos: cae al gestor de descargas y
+          // CONTINÚA con el resto (antes se quedaba en el primero y los demás
+          // no se bajaban nunca, sin avisar).
+          blobDownload(file);
+          await new Promise((r) => setTimeout(r, 350));
+          i++;
+          continue;
+        }
+        fileCache.clear();   // sólo UN video en memoria a la vez (ver cacheOneFile)
+        dlAllCache.set(month, { file, index: i });
+        btn.classList.add('dlv-dl--ready');
+        setLabel(`${T('Toca para guardar', 'Tap to save')} ${pos}`);
+        toast(T(`Reel ${pos} listo ✓ — toca el botón resaltado para guardarlo en tu teléfono.`, `Reel ${pos} ready ✓ — tap the highlighted button to save it to your phone.`), 'info', 7000);
+        return; // espera el toque; al guardarse sigue el siguiente
+      } catch {
+        // Falló ESTE reel: se anota y se sigue con el siguiente (antes el
+        // siguiente toque reempezaba en el 1 y volvía a bajar lo ya guardado).
+        const list = dlAllFailed.get(month) || [];
+        list.push(it.title || 'Reel');
+        dlAllFailed.set(month, list);
+        toast(T(`No se pudo descargar el reel ${pos}. Se sigue con el siguiente.`, `Could not download reel ${pos}. Continuing with the next one.`), 'error', 5000);
+        i++;
+      }
     }
-    dlAllCache.set(month, { file, index });
-    btn.classList.add('dlv-dl--ready');
-    setLabel(`${T('Toca para guardar', 'Tap to save')} ${pos}`);
-    toast(T(`Reel ${pos} listo ✓ — toca el botón resaltado para guardarlo en tu teléfono.`, `Reel ${pos} ready ✓ — tap the highlighted button to save it to your phone.`), 'info', 7000);
-  } catch {
-    setLabel(T('Descargar todos', 'Download all'));
-    toast(T(`No se pudo descargar el reel ${pos}. Intenta de nuevo.`, `Could not download reel ${pos}. Try again.`), 'error', 6000);
+    finishMobileBatch(month, reels, btn, setLabel);
   } finally {
     dlAllBusy = false; btn.disabled = false;
+  }
+}
+
+// Cierre de la tanda móvil: limpia el estado y dice qué quedó guardado y qué no.
+function finishMobileBatch(month, reels, btn, setLabel) {
+  const failed = dlAllFailed.get(month) || [];
+  dlAllCache.delete(month);
+  dlAllFailed.delete(month);
+  btn.classList.remove('dlv-dl--ready');
+  setLabel(T('Descargar todos', 'Download all'));
+  if (failed.length) {
+    toast(T(
+      `${failed.length === 1 ? '1 reel no se descargó' : `${failed.length} reels no se descargaron`}: ${failed.join(', ')}. Intenta de nuevo.`,
+      `${failed.length === 1 ? '1 reel failed to download' : `${failed.length} reels failed to download`}: ${failed.join(', ')}. Try again.`
+    ), 'error', 9000);
+  } else {
+    toast(`${reels.length} ${T('reels guardados', 'reels saved')} ✓`, 'success');
   }
 }
 

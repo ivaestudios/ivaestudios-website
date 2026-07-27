@@ -7,15 +7,18 @@
 // non-2xx so callers can `try { ... } catch (e) { toast(e.message,'error') }`.
 // ============================================================================
 
-import { isEN, T } from './shell/i18n.js?v=202607270907';
+import { isEN, T } from './shell/i18n.js?v=202607270920';
 
 const BASE = '/api/marketing';
 const TIMEOUT = 30000; // 30s
 const DLOC = isEN ? 'en-US' : 'es-MX'; // locale de fechas según idioma
 
-async function request(path, { method = 'GET', body, headers } = {}) {
+async function request(path, { method = 'GET', body, headers, timeout } = {}) {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT);
+  // `timeout` por llamada: ensamblar un video de varios GB (multipart/complete)
+  // tarda MUCHO mas de 30s y abortarlo hacia que se resubiera entero aunque el
+  // servidor lo hubiera terminado bien.
+  const timer = setTimeout(() => controller.abort(), timeout || TIMEOUT);
 
   let res;
   try {
@@ -62,8 +65,8 @@ async function request(path, { method = 'GET', body, headers } = {}) {
 }
 
 export const api = {
-  get(path)         { return request(path); },
-  post(path, body)  { return request(path, { method: 'POST',  body }); },
+  get(path, opts)   { return request(path, { ...(opts || {}) }); },
+  post(path, body, opts) { return request(path, { method: 'POST',  body, ...(opts || {}) }); },
   patch(path, body) { return request(path, { method: 'PATCH', body }); },
   put(path, body)   { return request(path, { method: 'PUT',   body }); },
   del(path)         { return request(path, { method: 'DELETE' }); },
