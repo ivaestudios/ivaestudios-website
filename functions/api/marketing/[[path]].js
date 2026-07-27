@@ -3073,6 +3073,108 @@ function corsPreflight(request) {
   return new Response(null, { status: 204, headers });
 }
 
+// ── RANGE (reproducir y descargar por tramos) ────────────────────────────────
+// Los reproductores NO piden el archivo completo: piden tramos. Los 3 formatos
+// que hay que soportar sí o sí son:
+//   'bytes=100-200'  tramo exacto
+//   'bytes=100-'     de ahí hasta el final (adelantar el video)
+//   'bytes=-64000'   SUFIJO: los ÚLTIMOS 64 KB — así lee Safari/Chrome el índice
+//                    (moov) de un MP4 antes de poder reproducir.
+// Antes se le pasaba la cabecera cruda a R2 y se leía obj.range: con el sufijo
+// R2 no devuelve 'offset', el código caía al camino de archivo completo y mandaba
+// Content-Length del ARCHIVO ENTERO con sólo unos KB de cuerpo -> el navegador se
+// quedaba esperando bytes que nunca llegaban (rueda girando / error al adelantar).
+// Ahora la cabecera se parsea aquí y se le pasa a R2 un rango explícito.
+
+// Parsea la cabecera Range. Devuelve:
+//   null                 -> no hay rango que aplicar (servir el archivo completo)
+//   { unsatisfiable }    -> rango imposible (416)
+//   { start, end?, r2 }  -> tramo; r2 es el R2Range que entiende el bucket
+//   { suffix, r2 }       -> sufijo (últimos N bytes)
+function mktParseRange(header) {
+  if (!header) return null;
+  // Un solo rango de bytes. Multi-rango ('bytes=0-9,20-29') o basura: por RFC 7233
+  // se IGNORA la cabecera y se manda el archivo completo (200), nunca un 206 falso.
+  const m = /^\s*bytes\s*=\s*(\d*)\s*-\s*(\d*)\s*$/i.exec(String(header));
+  if (!m) return null;
+  const startRaw = m[1];
+  const endRaw = m[2];
+  if (startRaw === '' && endRaw === '') return null;      // 'bytes=-' : sin sentido
+  if (startRaw === '') {                                   // sufijo 'bytes=-N'
+    const n = Number(endRaw);
+    if (!Number.isFinite(n) || n <= 0) return { unsatisfiable: true };
+    return { suffix: n, r2: { suffix: n } };
+  }
+  const start = Number(startRaw);
+  if (!Number.isFinite(start)) return null;
+  if (endRaw === '') return { start, r2: { offset: start } }; // 'bytes=N-'
+  const end = Number(endRaw);
+  if (!Number.isFinite(end) || end < start) return { unsatisfiable: true }; // invertido
+  return { start, end, r2: { offset: start, length: end - start + 1 } };
+}
+
+// Resuelve el rango contra el tamaño REAL del archivo. Devuelve { offset, length }
+// o null cuando el rango cae fuera del archivo (-> 416).
+function mktResolveRange(spec, size) {
+  if (!spec || spec.unsatisfiable) return null;
+  if (!Number.isFinite(size) || size <= 0) return null;
+  if (spec.suffix != null) {
+    const length = Math.min(spec.suffix, size);
+    return { offset: size - length, length };
+  }
+  if (spec.start >= size) return null;                    // arranca después del final
+  const endIncl = (spec.end == null) ? (size - 1) : Math.min(spec.end, size - 1);
+  return { offset: spec.start, length: endIncl - spec.start + 1 };
+}
+
+// Sirve un objeto de R2 con soporte real de Range. `getObj(rangeOpt)` lo provee
+// quien llama (cada ruta sabe dónde vive su archivo) y se invoca UNA sola vez en
+// el camino normal, para no encarecer los muchos Range del móvil.
+async function mktServeRanged(request, getObj, headers) {
+  const spec = mktParseRange(request.headers.get('Range'));
+  let obj = null;
+  let rangeFailed = false;
+  if (spec && !spec.unsatisfiable) {
+    try { obj = await getObj({ range: spec.r2 }); }
+    catch { rangeFailed = true; }                          // R2 rechazó el rango
+  }
+  if (!spec || spec.unsatisfiable || rangeFailed) obj = await getObj(undefined);
+  if (!obj) return null;                                   // 404 lo decide quien llama
+
+  const size = obj.size;
+  const resolved = spec ? mktResolveRange(spec, size) : null;
+  if (spec && !resolved) {
+    // 416: rango imposible. Se avisa el tamaño real para que el cliente reintente.
+    try { if (obj.body) await obj.body.cancel(); } catch { /* noop */ }
+    const h = new Headers(headers);
+    h.set('Content-Range', `bytes */${size}`);
+    h.delete('Content-Length');
+    return new Response(null, { status: 416, headers: h });
+  }
+  if (resolved && rangeFailed) {
+    // El rango SÍ es válido pero R2 no lo aceptó en esa forma: se reintenta con
+    // la forma explícita offset+length (la que siempre entiende). Si tampoco,
+    // se manda el archivo COMPLETO (200) — nunca un 206 que mienta en el tamaño.
+    try { if (obj.body) await obj.body.cancel(); } catch { /* noop */ }
+    let retry = null;
+    try { retry = await getObj({ range: { offset: resolved.offset, length: resolved.length } }); } catch { retry = null; }
+    if (retry) { obj = retry; }
+    else {
+      const full = await getObj(undefined);
+      if (!full) return null;
+      headers.set('Content-Length', String(full.size));
+      return new Response(full.body, { status: 200, headers });
+    }
+  }
+  if (resolved) {
+    headers.set('Content-Range', `bytes ${resolved.offset}-${resolved.offset + resolved.length - 1}/${size}`);
+    headers.set('Content-Length', String(resolved.length));
+    return new Response(obj.body, { status: 206, headers });
+  }
+  headers.set('Content-Length', String(size));
+  return new Response(obj.body, { status: 200, headers });
+}
+
 // ── VIDEO FINAL (subida directa a R2; 1 video por post) ──────────────────────
 // Acceso: staff o el cliente dueño de la marca del post. Se guarda en R2 como
 // marketing/video/<postId>.<ext>; video_url guarda la URL absoluta de servido,
@@ -3083,7 +3185,16 @@ const MKT_VIDEO_MIMES = {
   'video/x-m4v': 'm4v', 'video/mpeg': 'mpeg', 'video/3gpp': '3gp',
 };
 const MKT_VIDEO_EXTS = [...new Set(Object.values(MKT_VIDEO_MIMES))];
+// Mensaje ÚNICO de formato: el navegador avisa lo mismo ANTES de subir, así nadie
+// espera una subida entera para enterarse de que el archivo no servía.
+const MKT_FORMAT_MSG = 'Formato no soportado. Usa MP4 (H.264), MOV, WebM, M4V, MPEG o 3GP. Los .mkv/.avi/.wmv/.flv no los reproduce ningún navegador: expórtalo en MP4.';
+// Tope de la subida en UN solo request (multipart/form-data). Los videos grandes
+// NO pasan por aquí: van por partes (multipart de R2), sin tope práctico.
 const MKT_MAX_VIDEO_BYTES = 100 * 1024 * 1024; // ~100 MB (limite practico del Worker)
+// Tope por PARTE en la subida por partes. El navegador manda ~15MB; se deja holgura
+// para las subidas ya en curso con el troceado viejo de 50MB, pero nunca más de esto
+// (cada parte se lee entera a memoria del Worker).
+const MKT_MAX_PART_BYTES = 64 * 1024 * 1024;
 
 async function mktPostForVideo(env, session, postId) {
   const post = await env.DB.prepare('SELECT id, client_id FROM mkt_posts WHERE id = ?').bind(postId).first();
@@ -3110,7 +3221,7 @@ async function handleUploadVideo(request, env, session, postId) {
   }
   const mime = String(file.type || '').toLowerCase();
   const ext = MKT_VIDEO_MIMES[mime];
-  if (!ext) return json({ error: 'Formato no soportado. Usa MP4, MOV o WebM.' }, 415);
+  if (!ext) return json({ error: MKT_FORMAT_MSG }, 415);
   if (file.size && file.size > MKT_MAX_VIDEO_BYTES) {
     return json({ error: 'El video supera 100 MB. Comprímelo o pega un enlace.' }, 413);
   }
@@ -3135,28 +3246,43 @@ async function handleServeVideo(request, env, session, postId) {
   const { error } = await mktPostForVideo(env, session, postId);
   if (error) return new Response('Forbidden', { status: 403 });
 
-  const rangeOpt = request.headers.get('Range') ? { range: request.headers } : undefined;
-  let obj = null;
-  for (const e of MKT_VIDEO_EXTS) {
-    obj = await env.R2_BUCKET.get(`marketing/video/${postId}.${e}`, rangeOpt);
-    if (obj) break;
-  }
-  if (!obj) return new Response('Sin video', { status: 404 });
+  // La extensión no se guarda en mkt_posts, así que se prueban en orden; se
+  // recuerda la que existe para no repetir la búsqueda si hay que reintentar.
+  let foundExt = null;
+  const getObj = async (rangeOpt) => {
+    if (foundExt) return env.R2_BUCKET.get(`marketing/video/${postId}.${foundExt}`, rangeOpt);
+    for (const e of MKT_VIDEO_EXTS) {
+      const o = await env.R2_BUCKET.get(`marketing/video/${postId}.${e}`, rangeOpt);
+      if (o) { foundExt = e; return o; }
+    }
+    return null;
+  };
 
   const headers = new Headers();
-  obj.writeHttpMetadata(headers);
   headers.set('Cache-Control', 'private, max-age=3600');
   headers.set('Accept-Ranges', 'bytes');
   headers.set('Content-Disposition', 'inline');
-  if (obj.range && Object.prototype.hasOwnProperty.call(obj.range, 'offset')) {
-    const offset = obj.range.offset || 0;
-    const len = (obj.range.length != null) ? obj.range.length : (obj.size - offset);
-    headers.set('Content-Range', `bytes ${offset}-${offset + len - 1}/${obj.size}`);
-    headers.set('Content-Length', String(len));
-    return new Response(obj.body, { status: 206, headers });
-  }
-  headers.set('Content-Length', String(obj.size));
-  return new Response(obj.body, { status: 200, headers });
+  // El helper añade Content-Type/ETag del objeto y resuelve el Range (206/416/200).
+  const res = await mktServeRangedWithMeta(request, getObj, headers);
+  if (!res) return new Response('Sin video', { status: 404 });
+  return res;
+}
+
+// Igual que mktServeRanged pero copiando primero los metadatos HTTP del objeto
+// (Content-Type, ETag) SIN dejar que pisen las cabeceras ya puestas por la ruta.
+async function mktServeRangedWithMeta(request, getObj, headers) {
+  const wrapped = async (rangeOpt) => {
+    const o = await getObj(rangeOpt);
+    if (o) {
+      const meta = new Headers();
+      o.writeHttpMetadata(meta);
+      const ctype = meta.get('Content-Type');
+      if (ctype && !headers.has('Content-Type')) headers.set('Content-Type', ctype);
+      if (o.httpEtag && !headers.has('ETag')) headers.set('ETag', o.httpEtag); // revalidación 304
+    }
+    return o;
+  };
+  return mktServeRanged(request, wrapped, headers);
 }
 
 async function handleDeleteVideo(env, session, postId) {
@@ -3332,7 +3458,7 @@ async function handleUploadDeliverableVideo(request, env, session, id) {
   }
   const mime = String(file.type || '').toLowerCase();
   const ext = MKT_VIDEO_MIMES[mime];
-  if (!ext) return json({ error: 'Formato no soportado. Usa MP4, MOV o WebM.' }, 415);
+  if (!ext) return json({ error: MKT_FORMAT_MSG }, 415);
   if (file.size && file.size > MKT_MAX_VIDEO_BYTES) return json({ error: 'El video supera 100 MB. Comprimelo o pega un enlace.' }, 413);
   for (const e of MKT_VIDEO_EXTS) { if (e !== ext) { try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.${e}`); } catch {} } }
   await env.R2_BUCKET.put(`marketing/deliverable/${id}.${ext}`, file.stream(), {
@@ -3347,15 +3473,22 @@ async function handleServeDeliverableVideo(request, env, session, id) {
   if (!env.R2_BUCKET) return new Response('Almacenamiento no disponible', { status: 503 });
   const { d, error } = await dlvForAccess(env, session, id);
   if (error) return new Response('Forbidden', { status: 403 });
-  const rangeOpt = request.headers.get('Range') ? { range: request.headers } : undefined;
   // Ir DIRECTO a la extensión conocida (d.video_ext): así cada Range request (móvil
   // hace muchos al reproducir/buscar) no prueba las 6 extensiones en serie contra R2.
-  let obj = d.video_ext ? await env.R2_BUCKET.get(`marketing/deliverable/${id}.${d.video_ext}`, rangeOpt) : null;
-  if (!obj) { for (const e of MKT_VIDEO_EXTS) { obj = await env.R2_BUCKET.get(`marketing/deliverable/${id}.${e}`, rangeOpt); if (obj) break; } }
-  if (!obj) return new Response('Sin video', { status: 404 });
+  let foundExt = d.video_ext || null;
+  const getObj = async (rangeOpt) => {
+    if (foundExt) {
+      const o = await env.R2_BUCKET.get(`marketing/deliverable/${id}.${foundExt}`, rangeOpt);
+      if (o) return o;
+    }
+    for (const e of MKT_VIDEO_EXTS) {
+      const o = await env.R2_BUCKET.get(`marketing/deliverable/${id}.${e}`, rangeOpt);
+      if (o) { foundExt = e; return o; }
+    }
+    return null;
+  };
+
   const headers = new Headers();
-  obj.writeHttpMetadata(headers);
-  headers.set('ETag', obj.httpEtag); // revalidación 304 en visitas repetidas
   headers.set('Cache-Control', 'private, max-age=3600');
   headers.set('Accept-Ranges', 'bytes');
   const wantsDownload = new URL(request.url).searchParams.get('download');
@@ -3365,15 +3498,9 @@ async function handleServeDeliverableVideo(request, env, session, id) {
   } else {
     headers.set('Content-Disposition', 'inline');
   }
-  if (obj.range && Object.prototype.hasOwnProperty.call(obj.range, 'offset')) {
-    const offset = obj.range.offset || 0;
-    const len = (obj.range.length != null) ? obj.range.length : (obj.size - offset);
-    headers.set('Content-Range', `bytes ${offset}-${offset + len - 1}/${obj.size}`);
-    headers.set('Content-Length', String(len));
-    return new Response(obj.body, { status: 206, headers });
-  }
-  headers.set('Content-Length', String(obj.size));
-  return new Response(obj.body, { status: 200, headers });
+  const res = await mktServeRangedWithMeta(request, getObj, headers);
+  if (!res) return new Response('Sin video', { status: 404 });
+  return res;
 }
 
 async function handlePatchDeliverable(request, env, session, id) {
@@ -3428,30 +3555,33 @@ async function handleServeDeliverablePoster(request, env, session, id) {
   return new Response(obj.body, { status: 200, headers });
 }
 
-// ── SUBIDA POR PARTES (multipart R2) — reels grandes (>100MB) + progreso ─────
-// El cliente trocea el archivo (~50MB/parte, bajo el limite de 100MB/request del
-// Worker) y sube cada parte; R2 las ensambla. Sin limite practico de tamano,
-// calidad original. Reusa el binding R2 del proyecto.
-async function handleDlvMultipartStart(request, env, session, id) {
-  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
-  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento de video no disponible' }, 503);
-  const { error } = await dlvForAccess(env, session, id);
-  if (error) return error;
-  let b; try { b = await request.json(); } catch { return json({ error: 'JSON invalido' }, 400); }
+// ── SUBIDA POR PARTES (multipart R2) — videos grandes + progreso ────────────
+// El navegador trocea el archivo y sube cada parte; R2 las ensambla. Sin limite
+// practico de tamano y con la calidad ORIGINAL (bytes tal cual, sin recomprimir).
+// El mecanismo es UNO SOLO y lo usan las dos rutas de video (Entregables y el
+// "Video final" del calendario): solo cambia DONDE vive el archivo (keyPrefix) y
+// que fila se actualiza al terminar.
+
+// Arranca la subida: valida el formato y crea el multipart en R2.
+// Devuelve { res } cuando hay que responder ya (error) o { ext, key, uploadId }.
+async function mktMpuStart(request, env, keyPrefix) {
+  let b; try { b = await request.json(); } catch { return { res: json({ error: 'JSON invalido' }, 400) }; }
   const mime = String(b.mime || '').toLowerCase();
   const ext = MKT_VIDEO_MIMES[mime];
-  if (!ext) return json({ error: 'Formato no soportado. Usa MP4, MOV o WebM.' }, 415);
-  for (const e of MKT_VIDEO_EXTS) { if (e !== ext) { try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.${e}`); } catch {} } }
-  const key = `marketing/deliverable/${id}.${ext}`;
+  if (!ext) return { res: json({ error: MKT_FORMAT_MSG }, 415) };
+  // Limpia versiones previas con OTRA extension (cambio de formato).
+  for (const e of MKT_VIDEO_EXTS) { if (e !== ext) { try { await env.R2_BUCKET.delete(`${keyPrefix}.${e}`); } catch {} } }
+  const key = `${keyPrefix}.${ext}`;
   const mpu = await env.R2_BUCKET.createMultipartUpload(key, {
     httpMetadata: { contentType: mime, cacheControl: 'private, max-age=3600' },
   });
-  return json({ uploadId: mpu.uploadId, ext, key });
+  return { res: json({ uploadId: mpu.uploadId, ext, key }), ext, key, uploadId: mpu.uploadId };
 }
 
-async function handleDlvMultipartPart(request, env, session, id) {
-  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
-  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
+// Sube UNA parte. El cuerpo se lee completo a memoria (R2 necesita el tamano de
+// la parte), por eso el navegador manda partes CHICAS (~15MB): con partes de
+// 50MB y 3 subiendo a la vez, un 4K de 2GB podia reventar la memoria del Worker.
+async function mktMpuPart(request, env, keyPrefix) {
   const url = new URL(request.url);
   const uploadId = url.searchParams.get('uploadId');
   const ext = url.searchParams.get('ext');
@@ -3459,11 +3589,74 @@ async function handleDlvMultipartPart(request, env, session, id) {
   if (!uploadId || !MKT_VIDEO_EXTS.includes(ext) || !(partNumber >= 1)) {
     return json({ error: 'Faltan uploadId/ext/part validos.' }, 400);
   }
-  const key = `marketing/deliverable/${id}.${ext}`;
-  const mpu = env.R2_BUCKET.resumeMultipartUpload(key, uploadId);
+  const declared = Number(request.headers.get('Content-Length') || 0);
+  if (declared && declared > MKT_MAX_PART_BYTES) {
+    return json({ error: 'Esa parte es demasiado grande. Recarga la pagina y vuelve a subir el video.' }, 413);
+  }
+  const mpu = env.R2_BUCKET.resumeMultipartUpload(`${keyPrefix}.${ext}`, uploadId);
   const body = await request.arrayBuffer();
   const part = await mpu.uploadPart(partNumber, body);
-  return json({ partNumber: part.partNumber, etag: part.etag });
+  return json({ partNumber: part.partNumber, etag: part.etag, size: body.byteLength });
+}
+
+// Ensambla las partes y VERIFICA que el archivo quedo completo: si el navegador
+// declaro el tamano original (campo `size`) y lo ensamblado no cuadra, se BORRA
+// y se responde error — antes se daba por bueno un video cortado y nadie se
+// enteraba hasta que el cliente reclamaba.
+// Devuelve { ext } si todo bien, o { res } con la respuesta de error.
+async function mktMpuComplete(request, env, keyPrefix, body) {
+  const b = body;
+  const uploadId = b.uploadId;
+  const ext = b.ext;
+  const parts = Array.isArray(b.parts) ? b.parts : null;
+  if (!uploadId || !MKT_VIDEO_EXTS.includes(ext) || !parts || !parts.length) {
+    return { res: json({ error: 'Faltan datos de la subida (uploadId/ext/parts).' }, 400) };
+  }
+  // Ninguna parte puede faltar: los numeros deben ser 1..N sin huecos.
+  const nums = parts.map((p) => Number(p.partNumber)).sort((x, y) => x - y);
+  for (let i = 0; i < nums.length; i++) {
+    if (nums[i] !== i + 1) {
+      return { res: json({ error: 'Faltan partes del video (la subida quedo incompleta). Intenta de nuevo.' }, 400) };
+    }
+  }
+  const key = `${keyPrefix}.${ext}`;
+  const mpu = env.R2_BUCKET.resumeMultipartUpload(key, uploadId);
+  try {
+    await mpu.complete(parts.map((p) => ({ partNumber: Number(p.partNumber), etag: p.etag })));
+  } catch (e) {
+    return { res: json({ error: 'No se pudo ensamblar el video: ' + (e.message || 'error') }, 500) };
+  }
+  // Red de seguridad: el tamano ensamblado debe ser EXACTO al del archivo original.
+  const expected = Number(b.size || 0);
+  if (expected > 0) {
+    let real = null;
+    try { const h = await env.R2_BUCKET.head(key); real = h ? h.size : null; } catch { real = null; }
+    if (real != null && real !== expected) {
+      // Se borra lo ensamblado: es preferible "no hay video" a un video cortado
+      // que nadie nota hasta que el cliente reclama. `purged` avisa a quien llama
+      // para que limpie tambien la fila (video_ext / video_url).
+      try { await env.R2_BUCKET.delete(key); } catch {}
+      return { purged: true, res: json({
+        error: `El video llego incompleto (${real} de ${expected} bytes) y no se guardo. Vuelve a subirlo.`,
+      }, 422) };
+    }
+  }
+  return { ext };
+}
+
+async function handleDlvMultipartStart(request, env, session, id) {
+  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento de video no disponible' }, 503);
+  const { error } = await dlvForAccess(env, session, id);
+  if (error) return error;
+  const r = await mktMpuStart(request, env, `marketing/deliverable/${id}`);
+  return r.res;
+}
+
+async function handleDlvMultipartPart(request, env, session, id) {
+  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
+  return mktMpuPart(request, env, `marketing/deliverable/${id}`);
 }
 
 async function handleDlvMultipartComplete(request, env, session, id) {
@@ -3472,22 +3665,51 @@ async function handleDlvMultipartComplete(request, env, session, id) {
   const { error } = await dlvForAccess(env, session, id);
   if (error) return error;
   let b; try { b = await request.json(); } catch { return json({ error: 'JSON invalido' }, 400); }
-  const uploadId = b.uploadId;
-  const ext = b.ext;
-  const parts = Array.isArray(b.parts) ? b.parts : null;
-  if (!uploadId || !MKT_VIDEO_EXTS.includes(ext) || !parts || !parts.length) {
-    return json({ error: 'Faltan datos de la subida (uploadId/ext/parts).' }, 400);
+  const r = await mktMpuComplete(request, env, `marketing/deliverable/${id}`, b);
+  if (r.res) {
+    // Video incompleto: se borro el archivo, la fila no debe quedar apuntando a el.
+    if (r.purged) { try { await env.DB.prepare("UPDATE mkt_deliverables SET video_ext = NULL, updated_at = datetime('now') WHERE id = ?").bind(id).run(); } catch {} }
+    return r.res;
   }
-  const key = `marketing/deliverable/${id}.${ext}`;
-  const mpu = env.R2_BUCKET.resumeMultipartUpload(key, uploadId);
-  try {
-    await mpu.complete(parts.map((p) => ({ partNumber: Number(p.partNumber), etag: p.etag })));
-  } catch (e) {
-    return json({ error: 'No se pudo ensamblar el video: ' + (e.message || 'error') }, 500);
-  }
-  await env.DB.prepare("UPDATE mkt_deliverables SET video_ext = ?, updated_at = datetime('now') WHERE id = ?").bind(ext, id).run();
+  await env.DB.prepare("UPDATE mkt_deliverables SET video_ext = ?, updated_at = datetime('now') WHERE id = ?").bind(r.ext, id).run();
   const updated = await env.DB.prepare('SELECT * FROM mkt_deliverables WHERE id = ?').bind(id).first();
   return json(shapeDeliverable(updated, new URL(request.url).origin), 200);
+}
+
+// ── VIDEO FINAL del calendario POR PARTES ───────────────────────────────────
+// Mismas 3 llamadas que Entregables, mismo nucleo (mktMpu*), pero guardando en
+// marketing/video/<postId>.<ext> y dejando video_url en mkt_posts. Asi el "Video
+// final" ya NO obliga a comprimir a mano nada que pase de 100 MB.
+async function handlePostMultipartStart(request, env, session, postId) {
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento de video no disponible' }, 503);
+  const { error } = await mktPostForVideo(env, session, postId);
+  if (error) return error;
+  const r = await mktMpuStart(request, env, `marketing/video/${postId}`);
+  return r.res;
+}
+
+async function handlePostMultipartPart(request, env, session, postId) {
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
+  const { error } = await mktPostForVideo(env, session, postId);
+  if (error) return error;
+  return mktMpuPart(request, env, `marketing/video/${postId}`);
+}
+
+async function handlePostMultipartComplete(request, env, session, postId) {
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
+  const { error } = await mktPostForVideo(env, session, postId);
+  if (error) return error;
+  let b; try { b = await request.json(); } catch { return json({ error: 'JSON invalido' }, 400); }
+  const r = await mktMpuComplete(request, env, `marketing/video/${postId}`, b);
+  if (r.res) {
+    if (r.purged) { try { await env.DB.prepare("UPDATE mkt_posts SET video_url = NULL, updated_at = datetime('now') WHERE id = ?").bind(postId).run(); } catch {} }
+    return r.res;
+  }
+  const origin = new URL(request.url).origin;
+  const videoUrl = `${origin}/api/marketing/posts/${postId}/video`;
+  await env.DB.prepare("UPDATE mkt_posts SET video_url = ?, updated_at = datetime('now') WHERE id = ?").bind(videoUrl, postId).run();
+  const updated = await env.DB.prepare('SELECT * FROM mkt_posts WHERE id = ?').bind(postId).first();
+  return json(shapePost(updated), 200);
 }
 
 // Main router. `path` is the URL pathname AFTER the /api/marketing prefix has
@@ -3641,6 +3863,15 @@ async function route(request, env) {
         if (method === 'DELETE') return handleDeleteVideo(env, session, postId);
         return json({ error: 'Method not allowed' }, 405);
       }
+    }
+    // Video final POR PARTES (videos grandes, mismo mecanismo que Entregables):
+    // /posts/:id/video/multipart/{start|part|complete}
+    if (parts.length === 5 && parts[2] === 'video' && parts[3] === 'multipart') {
+      const postId = parts[1];
+      if (parts[4] === 'start' && method === 'POST') return handlePostMultipartStart(request, env, session, postId);
+      if (parts[4] === 'part' && method === 'PUT') return handlePostMultipartPart(request, env, session, postId);
+      if (parts[4] === 'complete' && method === 'POST') return handlePostMultipartComplete(request, env, session, postId);
+      return json({ error: 'Method not allowed' }, 405);
     }
     // ── CHECKLIST (staff only; nested under the post → ownership re-check) ──
     if (parts.length >= 3 && parts[2] === 'checklist') {

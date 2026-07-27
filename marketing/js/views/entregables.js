@@ -6,36 +6,17 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202607270830';
-import { icon } from '../shell/icons.js?v=202607270830';
-import { T } from '../shell/i18n.js?v=202607270830';
+import { api, el, clear, toast } from '../api.js?v=202607270907';
+import { icon } from '../shell/icons.js?v=202607270907';
+import { T } from '../shell/i18n.js?v=202607270907';
+// Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
+// vive en UN solo módulo compartido con la columna "Video final" del calendario.
+import {
+  MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
+} from '../lib/video-upload.js?v=202607270907';
 
 const VIEW_ID = 'entregables';
-const MAX_VIDEO_MB = 3000;             // tope de cordura (~3GB); el video se sube por partes
-const CHUNK_BYTES = 50 * 1024 * 1024;  // ~50MB por parte (bajo el limite de 100MB/request del Worker)
-const UP_LANES = 3;                    // partes subiendo a la vez (paraleliza la subida)
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
-
-// Reconoce videos por MIME O por extensión: muchos .mov/.mkv/.hevc llegan con
-// file.type VACÍO (iPhone, cámaras, archivos copiados) y NO deben descartarse
-// — esa era la causa de "subí 9 y solo entraron 7".
-const VIDEO_EXTS = ['mp4', 'm4v', 'mov', 'qt', 'webm', 'mkv', 'avi', '3gp', '3g2', 'mpg', 'mpeg', 'ogv', 'wmv', 'flv', 'ts', 'mts', 'm2ts', 'hevc'];
-const EXT_MIME = {
-  mp4: 'video/mp4', m4v: 'video/x-m4v', mov: 'video/quicktime', qt: 'video/quicktime',
-  webm: 'video/webm', mkv: 'video/x-matroska', avi: 'video/x-msvideo', '3gp': 'video/3gpp',
-  '3g2': 'video/3gpp2', mpg: 'video/mpeg', mpeg: 'video/mpeg', ogv: 'video/ogg',
-  wmv: 'video/x-ms-wmv', flv: 'video/x-flv', ts: 'video/mp2t', mts: 'video/mp2t',
-  m2ts: 'video/mp2t', hevc: 'video/mp4',
-};
-function fileExt(name) { const m = /\.([^.]+)$/.exec(String(name || '')); return m ? m[1].toLowerCase() : ''; }
-function isVideoFile(f) {
-  if (f && typeof f.type === 'string' && f.type.startsWith('video/')) return true;
-  return VIDEO_EXTS.includes(fileExt(f && f.name));
-}
-function guessMime(f) {
-  if (f && typeof f.type === 'string' && f.type.startsWith('video/')) return f.type;
-  return EXT_MIME[fileExt(f && f.name)] || 'video/mp4';
-}
 
 let ctx = null;
 let rootEl = null;
@@ -50,7 +31,9 @@ let progressEls = null;     // refs vivos de la barra (se actualizan sin re-rend
 let queueInfo = null;       // { index, total } al subir varios reels en fila
 let activeMonthNav = '';    // 'YYYY-MM' del mes visible (navegación por píldoras)
 let dlAllBusy = false;      // "Descargar todos" en curso (evita dobles arranques)
-const dlAllCache = new Map(); // mes -> File[] ya bajados (móvil: el 2º toque comparte al instante)
+// mes -> { file, index }: en móvil SÓLO se guarda UN reel a la vez en memoria
+// (el que está esperando el toque para guardarse). Nunca el mes entero.
+const dlAllCache = new Map();
 
 // ── Carga perezosa de videos (velocidad en móvil) ───────────────────────────
 // Antes: CADA reel del mes creaba un <video preload="metadata"> que disparaba
@@ -104,7 +87,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202607270830';
+  link.href = '/marketing/css/entregables.css?v=202607270907';
   document.head.appendChild(link);
 }
 
@@ -131,42 +114,6 @@ function updateProgressUI() {
   progressEls.fill.style.width = uploadPct + '%';
   const q = (queueInfo && queueInfo.total > 1) ? `(${queueInfo.index}/${queueInfo.total}) ` : '';
   progressEls.label.textContent = uploadPct >= 100 ? `${q}${T('Procesando…', 'Processing…')}` : `${q}${T('Subiendo…', 'Uploading…')} ${uploadPct}%`;
-}
-
-// Sube UNA parte con XMLHttpRequest (fetch no expone progreso de subida).
-function xhrPutPart(id, uploadId, ext, partNumber, blob, onProgress) {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    const qs = `uploadId=${encodeURIComponent(uploadId)}&ext=${encodeURIComponent(ext)}&part=${partNumber}`;
-    xhr.open('PUT', `/api/marketing/deliverables/${id}/video/multipart/part?${qs}`);
-    xhr.withCredentials = true;
-    xhr.upload.onprogress = (e) => { if (e.lengthComputable && onProgress) onProgress(e.loaded); };
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try { resolve(JSON.parse(xhr.responseText)); } catch { reject(new Error(T('Respuesta inválida del servidor.', 'Invalid server response.'))); }
-      } else {
-        let m = T('Error al subir una parte del video.', 'Error uploading a part of the video.');
-        try { m = JSON.parse(xhr.responseText).error || m; } catch { /* noop */ }
-        reject(new Error(m));
-      }
-    };
-    xhr.onerror = () => reject(new Error(T('Se cortó la conexión durante la subida.', 'The connection dropped during the upload.')));
-    xhr.send(blob);
-  });
-}
-
-// Sube UNA parte con reintentos (cubre cortes/blips de red sin perder el archivo).
-// Hasta 4 intentos con espera creciente (0.8s, 1.6s, 2.4s) antes de rendirse.
-async function putPartWithRetry(id, uploadId, ext, partNumber, blob, onProgress, attempts = 4) {
-  let lastErr;
-  for (let a = 0; a < attempts; a++) {
-    try { return await xhrPutPart(id, uploadId, ext, partNumber, blob, onProgress); }
-    catch (e) {
-      lastErr = e;
-      if (a < attempts - 1) await new Promise((res) => setTimeout(res, 800 * (a + 1)));
-    }
-  }
-  throw lastErr;
 }
 
 // Captura un cuadro del video (en el cliente) como miniatura JPEG. Best-effort:
@@ -204,13 +151,28 @@ function generatePoster(file) {
 let uploadQueue = [];   // Files pendientes de subir
 let draining = false;   // hay un drenado de la cola en curso
 
-function enqueueReels(fileList) {
+// Se revisa TODO antes de subir un solo byte: qué no es video, qué formato no
+// reproduce ningún navegador (el servidor lo rechazaría al final de la subida) y
+// qué viene en HEVC/H.265 (sube bien pero se ve negro en Android/Chrome).
+async function enqueueReels(fileList) {
   const all = [...(fileList || [])];
-  const vids = all.filter(isVideoFile);
-  const skipped = all.length - vids.length;
-  if (!vids.length) { toast(T('Ninguno de esos archivos es un video.', 'None of those files is a video.'), 'error'); return; }
-  uploadQueue.push(...vids);
+  const { ok, noVideo, unplayable, hevc } = await screenVideoFiles(all);
+
+  if (unplayable.length) toast(msgUnplayable(unplayable), 'error', 9000);
+  const skipped = noVideo.length;
   if (skipped > 0) toast(T(`${skipped} no ${skipped > 1 ? 'eran' : 'era'} video y se ${skipped > 1 ? 'omitieron' : 'omitió'}.`, `${skipped} ${skipped > 1 ? 'were not videos and were skipped' : 'was not a video and was skipped'}.`), 'info', 4000);
+  if (!ok.length) {
+    if (!unplayable.length) toast(T('Ninguno de esos archivos es un video.', 'None of those files is a video.'), 'error');
+    return;
+  }
+  // AVISO de HEVC: no bloquea, ella decide (Cancelar = no subir esos).
+  let vids = ok;
+  if (hevc.length && !window.confirm(msgHevc(hevc))) {
+    vids = ok.filter((f) => !hevc.includes(f));
+    if (!vids.length) return;
+  }
+
+  uploadQueue.push(...vids);
   if (draining) { toast(`+${vids.length} ${T('en la fila', 'in the queue')}`, 'info', 2500); return; } // ya hay subida en curso: solo encola
   drainQueue();
 }
@@ -242,38 +204,6 @@ async function drainQueue() {
   }
 }
 
-// Sube un video (File/Blob) a un deliverable EXISTENTE por partes en paralelo.
-// Reutilizado por la subida normal y por "Optimizar para Meta". onProgress(pct 0-100).
-async function multipartUpload(deliverableId, src, onProgress) {
-  const start = await api.post(`/deliverables/${deliverableId}/video/multipart/start`, { mime: guessMime(src) });
-  const { uploadId, ext } = start;
-  const total = src.size;
-  const numParts = Math.max(1, Math.ceil(total / CHUNK_BYTES));
-  const doneParts = new Array(numParts);
-  const partLoaded = new Array(numParts).fill(0);
-  const bump = () => {
-    const sum = partLoaded.reduce((a, b) => a + b, 0);
-    if (onProgress) onProgress(Math.min(99, Math.round((sum / total) * 100)));
-  };
-  let nextPart = 0; let aborted = false;
-  const worker = async () => {
-    while (!aborted) {
-      const i = nextPart++;
-      if (i >= numParts) return;
-      const from = i * CHUNK_BYTES;
-      const blob = src.slice(from, Math.min(from + CHUNK_BYTES, total));
-      let r;
-      try { r = await putPartWithRetry(deliverableId, uploadId, ext, i + 1, blob, (n) => { partLoaded[i] = n; bump(); }); }
-      catch (e) { aborted = true; throw e; }
-      partLoaded[i] = blob.size; bump();
-      doneParts[i] = { partNumber: i + 1, etag: r.etag };
-    }
-  };
-  await Promise.all(Array.from({ length: Math.min(UP_LANES, numParts) }, worker));
-  await api.post(`/deliverables/${deliverableId}/video/multipart/complete`, { uploadId, ext, parts: doneParts });
-  if (onProgress) onProgress(100);
-}
-
 async function uploadReel(file, qinfo) {
   const client = activeClient();
   if (!client || busy) return false;
@@ -287,8 +217,8 @@ async function uploadReel(file, qinfo) {
       client_id: client.id, month, type: 'reel',
       title: file.name.replace(/\.[^.]+$/, '').slice(0, 120),
     });
-    // Subir por partes (~50MB) en paralelo -> mantiene la conexión llena.
-    await multipartUpload(created.id, file, (p) => { uploadPct = p; updateProgressUI(); });
+    // Subir por partes en paralelo -> mantiene la conexión llena.
+    await multipartUpload(api, `/deliverables/${created.id}/video`, file, (p) => { uploadPct = p; updateProgressUI(); });
     uploadPct = 100; updateProgressUI();
     // Miniatura (best-effort): capturar un cuadro del video.
     try {
@@ -376,7 +306,14 @@ async function removeItem(it) {
 // (navigator.share con archivo) -> el usuario toca "Guardar video" (iOS Fotos)
 // o "Guardar en Archivos". En ESCRITORIO descarga directa por enlace.
 const TYPE_EXT = { 'video/mp4': 'mp4', 'video/quicktime': 'mov', 'video/webm': 'webm', 'video/x-m4v': 'm4v', 'video/mpeg': 'mpeg', 'video/3gpp': '3gp' };
-const fileCache = new Map(); // it.id -> File ya en memoria (para 2º toque instantáneo en iOS Safari)
+// it.id -> File ya en memoria (para 2º toque instantáneo en iOS Safari).
+// SÓLO UNO a la vez: si ella prepara otro reel, el anterior se suelta — en el
+// teléfono cada archivo retenido son decenas de MB y varios tumban Safari.
+const fileCache = new Map();
+function cacheOneFile(id, file) {
+  fileCache.clear();
+  fileCache.set(id, file);
+}
 
 function linkDownload(it) {
   const a = document.createElement('a');
@@ -386,8 +323,11 @@ function linkDownload(it) {
 }
 
 // Descarga UN tramo (Range) como ArrayBuffer.
-const DL_LANES = 3;                 // tramos bajando a la vez
-const DL_CHUNK = 8 * 1024 * 1024;   // 8MB por tramo
+// En MÓVIL se bajan menos tramos y más chicos: cada tramo vive en memoria del
+// teléfono hasta que se arma el archivo, y 3×8MB en vuelo + el video entero era
+// lo que tumbaba Safari con reels grandes.
+const DL_LANES = isMobileSave() ? 2 : 3;                                  // tramos bajando a la vez
+const DL_CHUNK = (isMobileSave() ? 4 : 8) * 1024 * 1024;                  // por tramo
 function fetchRange(url, start, end, onLoaded) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -421,8 +361,10 @@ async function fetchVideoBlob(it, onProgress) {
     return new Blob([first.buf], { type: ctype }); // sin rangos o archivo chico: ya está todo
   }
   // 2) bajar el resto en paralelo (hasta DL_LANES tramos a la vez) y rearmar en orden.
+  // Cada tramo se convierte a Blob EN CUANTO llega: así el navegador puede
+  // mandarlo a disco y no se acumulan decenas de MB de ArrayBuffer en RAM.
   const numChunks = Math.ceil(total / DL_CHUNK);
-  const buffers = new Array(numChunks); buffers[0] = first.buf;
+  const buffers = new Array(numChunks); buffers[0] = new Blob([first.buf]);
   const loaded = new Array(numChunks).fill(0); loaded[0] = first.buf.byteLength;
   const bump = () => { if (onProgress) onProgress(Math.min(99, Math.round((loaded.reduce((a, b) => a + b, 0) / total) * 100))); };
   bump();
@@ -436,7 +378,8 @@ async function fetchVideoBlob(it, onProgress) {
       let res;
       try { res = await fetchRange(url, start, end, (n) => { loaded[i] = n; bump(); }); }
       catch (e) { aborted = true; throw e; }
-      buffers[i] = res.buf; loaded[i] = (end - start + 1); bump();
+      buffers[i] = new Blob([res.buf]); res.buf = null; // libera el ArrayBuffer
+      loaded[i] = (end - start + 1); bump();
     }
   };
   await Promise.all(Array.from({ length: Math.min(DL_LANES, numChunks - 1) }, worker));
@@ -504,7 +447,7 @@ async function saveVideo(it, btn) {
       if (e && e.name === 'AbortError') return; // canceló el menú
       // iOS: la descarga consumió el permiso del toque. Dejamos el archivo LISTO y
       // ARMAMOS un 2º toque muy claro (botón resaltado) -> ahí sí abre "Guardar en el teléfono".
-      fileCache.set(it.id, file);
+      cacheOneFile(it.id, file);
       if (btn) btn.classList.add('dlv-dl--ready');
       setLabel(T('Toca para guardar', 'Tap to save'));
       toast(T('Tu video ya está listo ✓ — toca otra vez el botón resaltado para guardarlo en tu teléfono.', 'Your video is ready ✓ — tap the highlighted button again to save it to your phone.'), 'info', 8000);
@@ -528,34 +471,58 @@ function blobDownload(file) {
   setTimeout(() => { try { URL.revokeObjectURL(url); } catch { /* noop */ } }, 60000);
 }
 
-// "Descargar todos" los reels del mes activo: encadena fetchVideoBlob uno por
-// uno (secuencial, no satura la conexión) con progreso simple en el botón
-// (2/7 · 45%). En escritorio cada archivo se guarda en Descargas al terminar;
-// en móvil se arma el mismo 2º toque que el botón individual (iOS exige que
-// share() salga JUSTO tras un toque) y el menú de Compartir guarda TODOS juntos.
+// "Descargar todos" los reels del mes activo.
+//
+// ESCRITORIO: baja uno por uno y cada archivo se guarda en Descargas al terminar.
+//
+// MÓVIL (canónico: 99% de los clientes ven en celular): DE UNO EN UNO de verdad.
+// Antes se bajaban TODOS los reels del mes a la memoria del teléfono y recién
+// entonces se abría el menú de Compartir — 7 reels de 80MB = medio giga en un
+// iPhone y Safari se cerraba solo. Ahora sólo hay UN video en memoria a la vez:
+// se baja el 1, se arma el toque para guardarlo, se guarda, se libera y sigue el 2.
 async function downloadAllReels(month, reels, btn) {
   const label = btn.querySelector('span:not(.ico)');
   const setLabel = (t) => { if (label) label.textContent = t; };
   const mobile = isMobileSave() && !!(navigator.canShare && navigator.share);
+  const reset = () => {
+    dlAllCache.delete(month);
+    btn.classList.remove('dlv-dl--ready');
+    setLabel(T('Descargar todos', 'Download all'));
+  };
 
-  // MÓVIL, 2º toque: los archivos ya están en memoria -> compartir SÍNCRONO.
-  const armed = dlAllCache.get(month);
-  if (mobile && armed && armed.length) {
-    try {
-      await navigator.share({ files: armed, title: 'Reels' });
+  // ── MÓVIL: uno a la vez, con el 2º toque que exige iOS para guardar ──
+  if (mobile) {
+    const armed = dlAllCache.get(month);
+    // 2º toque: el archivo YA está en memoria -> compartir SÍNCRONO (activación fresca).
+    if (armed && armed.file) {
+      try {
+        await navigator.share({ files: [armed.file], title: armed.file.name || 'Reel' });
+      } catch (e) {
+        if (e && e.name === 'AbortError') return; // canceló el menú: sigue armado
+        toast(T('No se abrió el menú para guardar. Toca el botón otra vez.', 'The save menu didn\'t open. Tap the button again.'), 'error', 5000);
+        return;
+      }
+      // Guardado: se LIBERA el archivo y se sigue con el siguiente (si queda).
+      const next = armed.index + 1;
       dlAllCache.delete(month);
-      btn.classList.remove('dlv-dl--ready');
-      setLabel(T('Descargar todos', 'Download all'));
-    } catch (e) {
-      if (e && e.name === 'AbortError') return; // canceló el menú: sigue armado
-      toast(T('No se abrió el menú para guardar. Toca el botón otra vez.', 'The save menu didn\'t open. Tap the button again.'), 'error', 5000);
+      if (next >= reels.length) {
+        reset();
+        toast(`${reels.length} ${T('reels guardados', 'reels saved')} ✓`, 'success');
+        return;
+      }
+      await mobilePrepare(month, reels, next, btn, setLabel);
+      return;
     }
+    // 1er toque: preparar el primero.
+    if (dlAllBusy) return;
+    await mobilePrepare(month, reels, 0, btn, setLabel);
     return;
   }
 
+  // ── ESCRITORIO: secuencial, cada archivo directo a Descargas ──
   if (dlAllBusy) return;
   dlAllBusy = true; btn.disabled = true;
-  const failed = []; const files = [];
+  const failed = [];
   try {
     for (let i = 0; i < reels.length; i++) {
       const it = reels[i];
@@ -563,36 +530,50 @@ async function downloadAllReels(month, reels, btn) {
       setLabel(`${T('Descargando', 'Downloading')} ${pos}…`);
       try {
         const blob = await fetchVideoBlob(it, (pct) => setLabel(`${T('Descargando', 'Downloading')} ${pos} · ${pct}%`));
-        const file = fileFromBlob(it, blob);
-        if (mobile) files.push(file); // en móvil se juntan para UN solo menú de Compartir
-        else { blobDownload(file); await new Promise((r) => setTimeout(r, 350)); }
+        blobDownload(fileFromBlob(it, blob));
+        await new Promise((r) => setTimeout(r, 350));
       } catch { failed.push(it.title || 'Reel'); }
     }
   } finally {
     dlAllBusy = false; btn.disabled = false;
-  }
-
-  if (mobile && files.length) {
-    let shareable = false;
-    try { shareable = navigator.canShare({ files }); } catch { shareable = false; }
-    if (shareable) {
-      dlAllCache.set(month, files);
-      btn.classList.add('dlv-dl--ready');
-      setLabel(T('Toca para guardar todos', 'Tap to save all'));
-      toast(T('Tus videos ya están listos ✓ — toca otra vez el botón resaltado para guardarlos.', 'Your videos are ready ✓ — tap the highlighted button again to save them.'), 'info', 8000);
-    } else {
-      // Este teléfono no comparte varios archivos a la vez: guardar uno por uno.
-      for (const f of files) blobDownload(f);
-      setLabel(T('Descargar todos', 'Download all'));
-    }
-  } else {
     setLabel(T('Descargar todos', 'Download all'));
   }
-
   if (failed.length) {
     toast(T(`${failed.length === 1 ? '1 reel no se descargó' : `${failed.length} reels no se descargaron`}: ${failed.join(', ')}. Intenta de nuevo.`, `${failed.length === 1 ? '1 reel failed to download' : `${failed.length} reels failed to download`}: ${failed.join(', ')}. Try again.`), 'error', 9000);
-  } else if (!mobile) {
+  } else {
     toast(`${reels.length} ${T('reels descargados', 'reels downloaded')} ✓`, 'success');
+  }
+}
+
+// Móvil: baja UN reel (el número `index`) y deja el botón armado para el toque
+// que abre el menú nativo de guardar. Nunca hay más de un video en memoria.
+async function mobilePrepare(month, reels, index, btn, setLabel) {
+  const it = reels[index];
+  if (!it) return;
+  const pos = `${index + 1}/${reels.length}`;
+  dlAllBusy = true; btn.disabled = true;
+  btn.classList.remove('dlv-dl--ready');
+  try {
+    setLabel(`${T('Preparando', 'Preparing')} ${pos}… 0%`);
+    const blob = await fetchVideoBlob(it, (pct) => setLabel(`${T('Preparando', 'Preparing')} ${pos} · ${pct}%`));
+    const file = fileFromBlob(it, blob);
+    let shareable = false;
+    try { shareable = navigator.canShare({ files: [file] }); } catch { shareable = false; }
+    if (!shareable) {
+      // Este teléfono no comparte archivos: cae al gestor de descargas.
+      blobDownload(file);
+      setLabel(T('Descargar todos', 'Download all'));
+      return;
+    }
+    dlAllCache.set(month, { file, index });
+    btn.classList.add('dlv-dl--ready');
+    setLabel(`${T('Toca para guardar', 'Tap to save')} ${pos}`);
+    toast(T(`Reel ${pos} listo ✓ — toca el botón resaltado para guardarlo en tu teléfono.`, `Reel ${pos} ready ✓ — tap the highlighted button to save it to your phone.`), 'info', 7000);
+  } catch {
+    setLabel(T('Descargar todos', 'Download all'));
+    toast(T(`No se pudo descargar el reel ${pos}. Intenta de nuevo.`, `Could not download reel ${pos}. Try again.`), 'error', 6000);
+  } finally {
+    dlAllBusy = false; btn.disabled = false;
   }
 }
 
@@ -607,7 +588,8 @@ function buildAddBar() {
   // Drop zone para reels
   const fileInput = el('input', {
     type: 'file', accept: 'video/*', multiple: true, class: 'dlv-fileinput', hidden: true,
-    onchange: (e) => { enqueueReels(e.target.files); e.target.value = ''; },
+    // Se copia la lista ANTES de limpiar el input: la revisión previa es async.
+    onchange: (e) => { const fs = [...e.target.files]; e.target.value = ''; enqueueReels(fs); },
   });
   let dropKids;
   if (busy) {
@@ -888,12 +870,13 @@ function buildMonthBar(months, byMonth) {
 
 // Botón "Descargar todos" del mes activo (solo con 2+ reels ya procesados).
 function buildDownloadAllBtn(month, reels) {
-  const armed = dlAllCache.has(month); // móvil: archivos listos, falta el 2º toque
+  const armed = dlAllCache.get(month); // móvil: el reel de turno ya está listo, falta el toque
+  const pos = armed ? `${armed.index + 1}/${reels.length}` : '';
   const btn = el('button', {
     class: 'dlv-dl dlv-dlall' + (armed ? ' dlv-dl--ready' : ''), type: 'button',
     'aria-label': T('Descargar todos los reels del mes', 'Download all reels for this month'), disabled: dlAllBusy || null,
     onclick: (e) => downloadAllReels(month, reels, e.currentTarget),
-  }, [icon('down', 15), el('span', { text: armed ? T('Toca para guardar todos', 'Tap to save all') : T('Descargar todos', 'Download all') })]);
+  }, [icon('down', 15), el('span', { text: armed ? `${T('Toca para guardar', 'Tap to save')} ${pos}` : T('Descargar todos', 'Download all') })]);
   return btn;
 }
 

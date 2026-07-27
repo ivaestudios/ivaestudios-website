@@ -28,11 +28,15 @@ import {
   el, clear, copyText, api,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202607270830';
-import { icon } from '../shell/icons.js?v=202607270830';
-import { T } from '../shell/i18n.js?v=202607270830';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607270830';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607270830';
+} from '../api.js?v=202607270907';
+import { icon } from '../shell/icons.js?v=202607270907';
+import { T } from '../shell/i18n.js?v=202607270907';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607270907';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607270907';
+// Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
+import {
+  MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
+} from '../lib/video-upload.js?v=202607270907';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1058,41 +1062,43 @@ function openUrlSheet(post, field, title, { allowUpload = false } = {}) {
           type: 'file', accept: 'video/mp4,video/quicktime,video/webm,video/*',
           style: { display: 'none' },
         });
-        const upHint = el('div', { class: 'help meses-uphint', text: T('MP4, MOV o WebM · hasta 100 MB', 'MP4, MOV or WebM · up to 100 MB') });
+        const upHint = el('div', { class: 'help meses-uphint', text: T('MP4, MOV o WebM · calidad original · videos grandes OK (se suben por partes)', 'MP4, MOV or WebM · original quality · big videos OK (uploaded in parts)') });
         const upBtn = el('button', { class: 'btn meses-upbtn', type: 'button', onclick: () => fileInput.click() },
           [icon('plus', 16), el('span', { text: isUploaded ? T('Reemplazar video', 'Replace video') : T('Subir video', 'Upload video') })]);
 
-        fileInput.addEventListener('change', () => {
+        // Subida POR PARTES (la misma de Entregables): ya no hay tope de 100 MB
+        // ni hay que comprimir el video a mano. La calidad es la ORIGINAL.
+        fileInput.addEventListener('change', async () => {
           const f = fileInput.files && fileInput.files[0];
+          fileInput.value = '';
           if (!f) return;
-          if (f.size > 100 * 1024 * 1024) {
-            upHint.textContent = T('El video supera 100 MB. Comprímelo o pega un enlace.', 'The video is over 100 MB. Compress it or paste a link.');
-            upHint.classList.add('meses-urlhelp--error');
+          const fail = (m) => { upHint.textContent = m; upHint.classList.add('meses-urlhelp--error'); };
+
+          // Revisión ANTES de subir: formato que el navegador no reproduce y aviso de HEVC.
+          const { ok, noVideo, unplayable, hevc } = await screenVideoFiles([f]);
+          if (noVideo.length) { fail(T('Ese archivo no es un video.', 'That file is not a video.')); return; }
+          if (unplayable.length) { fail(msgUnplayable(unplayable)); return; }
+          if (f.size > MAX_VIDEO_MB * 1024 * 1024) {
+            fail(T('Ese video pasa de 3 GB. Mejor compártelo por enlace.', 'That video is over 3 GB. Better share it by link.'));
             return;
           }
+          if (hevc.length && !window.confirm(msgHevc(hevc))) return;
+
           upBtn.disabled = true;
           upHint.classList.remove('meses-urlhelp--error');
-          const fd = new FormData(); fd.append('video', f);
-          const xhr = new XMLHttpRequest();
-          xhr.open('POST', `/api/marketing/posts/${post.id}/video`);
-          xhr.withCredentials = true;
-          xhr.upload.onprogress = (e) => {
-            if (e.lengthComputable) upHint.textContent = `${T('Subiendo…', 'Uploading…')} ${Math.round((e.loaded / e.total) * 100)}%`;
-          };
-          xhr.onload = () => {
+          upHint.textContent = `${T('Subiendo…', 'Uploading…')} 0%`;
+          try {
+            const updated = await multipartUpload(api, `/posts/${post.id}/video`, ok[0], (p) => {
+              upHint.textContent = p >= 100 ? T('Procesando…', 'Processing…') : `${T('Subiendo…', 'Uploading…')} ${p}%`;
+            });
+            if (updated) ctx.store.upsertPost(updated);
+            close({ source: 'save' });
+            ctx.toast(T('Video subido.', 'Video uploaded.'), { type: 'success' });
+          } catch (e) {
+            fail((e && e.message) || T('No se pudo subir el video.', 'Could not upload the video.'));
+          } finally {
             upBtn.disabled = false;
-            if (xhr.status >= 200 && xhr.status < 300) {
-              try { ctx.store.upsertPost(JSON.parse(xhr.responseText)); } catch { /* noop */ }
-              close({ source: 'save' });
-              ctx.toast(T('Video subido.', 'Video uploaded.'), { type: 'success' });
-            } else {
-              let m = T('No se pudo subir el video.', 'Could not upload the video.');
-              try { m = JSON.parse(xhr.responseText).error || m; } catch { /* noop */ }
-              upHint.textContent = m; upHint.classList.add('meses-urlhelp--error');
-            }
-          };
-          xhr.onerror = () => { upBtn.disabled = false; upHint.textContent = T('Error de red al subir.', 'Network error while uploading.'); upHint.classList.add('meses-urlhelp--error'); };
-          xhr.send(fd);
+          }
         });
 
         body.append(
