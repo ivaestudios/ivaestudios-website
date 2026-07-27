@@ -28,11 +28,11 @@ import {
   el, clear, copyText, api,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202607270822';
-import { icon } from '../shell/icons.js?v=202607270822';
-import { T } from '../shell/i18n.js?v=202607270822';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607270822';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607270822';
+} from '../api.js?v=202607270830';
+import { icon } from '../shell/icons.js?v=202607270830';
+import { T } from '../shell/i18n.js?v=202607270830';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607270830';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607270830';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1249,7 +1249,12 @@ function buildRow(post, noteLabels) {
 
   // N.º de la pieza dentro de su mes y su tipo (sticky, derivado). Solo lectura:
   // no se edita porque no se guarda — sale del orden de las piezas.
-  const tdNum = el('td', { class: 'meses-td meses-col--num' }, [pieceNumNode(post)]);
+  // SOLO EQUIPO: es numeracion interna de produccion (pedido de Vianey), al
+  // cliente no le dice nada. Se omite la celda entera, no se oculta con CSS,
+  // para que el conteo de <td> siga cuadrando con el de <th>.
+  const tdNum = isClientRole()
+    ? null
+    : el('td', { class: 'meses-td meses-col--num' }, [pieceNumNode(post)]);
 
   // Grabacion (sticky)
   const tdGrab = el('td', { class: 'meses-td meses-col--grab' }, [
@@ -1337,7 +1342,9 @@ function buildRow(post, noteLabels) {
 
   // N.º + el orden EXACTO de su Notion:
   // N.º | Grab | Tarea | Estado | Fecha | Plataforma | Tipo | Captions
-  tr.append(tdNum, tdGrab, tdTask, tdStatus, tdDate, tdPlat, tdType, tdCaption);
+  // .filter(Boolean): al cliente tdNum viene null y append(null) insertaria el
+  // TEXTO "null" en la fila (append nativo, no el helper el()).
+  tr.append(...[tdNum, tdGrab, tdTask, tdStatus, tdDate, tdPlat, tdType, tdCaption].filter(Boolean));
 
   // Notas por persona (una columna por note_label del cliente)
   const notes = notesOf(post);
@@ -1446,7 +1453,8 @@ function buildTable(rows, noteLabels) {
     // orden cronologico dentro del mes y del tipo; ordenar por el mezclaria las
     // cuentas (Reel 1, Carrusel 1, Reel 2…) y no diria nada nuevo — el criterio
     // util es Fecha, que ya es ordenable.
-    el('th', {
+    // SOLO EQUIPO: al cliente no se le pinta ni el encabezado (ver tdNum).
+    isClientRole() ? null : el('th', {
       text: T('N.º', 'No.'), scope: 'col', class: 'meses-col--num',
       // El numero sigue SIEMPRE la fecha: si ordenas por otra columna o
       // arrastras las filas, la columna se vera salteada a proposito (el 7 es
@@ -1539,7 +1547,8 @@ function buildMobileItem(post, noteLabels) {
         // cuadrito chico y discreto delante del nombre. Si la pieza aun no tiene
         // tipo no hay numero que mostrar y simplemente no sale el cuadrito (el
         // chip "Tipo" de abajo ya avisa que falta).
-        pieceNumOf(post) ? pieceNumNode(post, 'meses-num--m') : null,
+        // SOLO EQUIPO, igual que la columna del escritorio.
+        (!isClientRole() && pieceNumOf(post)) ? pieceNumNode(post, 'meses-num--m') : null,
         el('span', { class: 'meses-item__title', text: post.title || T('Sin título', 'Untitled') }),
         icon('right', 16),
       ]),
