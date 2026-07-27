@@ -5,8 +5,10 @@
 // Replica fiel de su flujo en Notion: "una pagina por marca y mes". Dentro de
 // la marca activa se ven SECCIONES POR MES colapsables (FEBRERO 2026 + conteo)
 // y, en cada una, UNA tabla simple estilo Notion:
-//   Grabacion | Tarea | Plataforma | Tipo | Estado | Captions |
+//   N.º | Grabacion | Tarea | Plataforma | Tipo | Estado | Captions |
 //   Notas <persona segun client.note_labels> ... | Inspo | Video final
+// El N.º es DERIVADO (no vive en la base): numera cada pieza dentro de su mes
+// y su tipo (Reel 1..12, Carrusel 1..5) y reinicia cada mes.
 //
 // - Edicion inline en cada celda: enums via ctx.pickers (sheet/popover
 //   compartido), textos en la celda misma (blur o Enter guarda, Esc cancela),
@@ -26,11 +28,11 @@ import {
   el, clear, copyText, api,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202607221932';
-import { icon } from '../shell/icons.js?v=202607221932';
-import { T } from '../shell/i18n.js?v=202607221932';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607221932';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607221932';
+} from '../api.js?v=202607270813';
+import { icon } from '../shell/icons.js?v=202607270813';
+import { T } from '../shell/i18n.js?v=202607270813';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607270813';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607270813';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -120,11 +122,17 @@ function sortRows(rows) {
     if (typeof va === 'number' && typeof vb === 'number') c = va - vb;
     else c = va < vb ? -1 : va > vb ? 1 : 0;
     if (c !== 0) return c * mul;
-    // Desempate estable: posicion y luego id.
+    // Desempate estable: posicion, luego creacion, luego id. Va MULTIPLICADO
+    // por `mul` para que "desc" sea el reverso EXACTO de "asc": si no, dos
+    // piezas del mismo dia se quedan en orden ascendente dentro de una lista
+    // descendente y la columna N.º se lee salteada (7, 5, 6).
     const pa = Number(a.position) || 0;
     const pb = Number(b.position) || 0;
-    if (pa !== pb) return pa - pb;
-    return String(a.id).localeCompare(String(b.id));
+    if (pa !== pb) return (pa - pb) * mul;
+    const ca = String(a.created_at || '');
+    const cb = String(b.created_at || '');
+    if (ca !== cb) return (ca < cb ? -1 : 1) * mul;
+    return String(a.id).localeCompare(String(b.id)) * mul;
   });
 }
 
@@ -141,6 +149,77 @@ function notesOf(post) {
   return (post && post.notes_people && typeof post.notes_people === 'object')
     ? post.notes_people
     : {};
+}
+
+// ── N.º de pieza (columna "N.º"): DERIVADO, jamas guardado ───────────────────
+// Cada pieza lleva su numero DENTRO de su mes y de su tipo: los reels van
+// Reel 1..N y los carruseles Carrusel 1..N por su cuenta, y la numeracion
+// REINICIA cada mes (julio 1..12, agosto otra vez 1..12).
+//
+// No hay columna en la base de datos ni migracion: se calcula al vuelo desde
+// los posts del store. Por eso "si ya hay 12 y agregas una, se pone la 13" sale
+// gratis, y mover una pieza de fecha o cambiarle el tipo re-acomoda la cuenta
+// sola (un numero guardado se desincronizaria).
+//
+// El orden es SIEMPRE el cronologico de las consultas (publish_date, luego
+// position, luego id), NO el orden visual: ordenar la tabla Z→A o filtrar por
+// estado NO debe re-numerar nada — el 7 sigue siendo el 7 de esa pieza. Por lo
+// mismo se calcula sobre los posts SIN filtrar.
+let pieceNums = new Map(); // String(post.id) -> numero dentro de (mes, tipo)
+
+function computePieceNums(posts) {
+  const groups = new Map();
+  for (const p of posts || []) {
+    if (!p || !p.content_type) continue; // sin tipo no hay cuenta a la cual pertenecer
+    // La cuenta es POR MARCA: en "Todas las marcas" el store trae los posts de
+    // todos los clientes (scope=all) y sin client_id en la llave los reels de
+    // Regeneris, Dental Now, Meli y Divi caerian en el mismo grupo de julio
+    // (el "Reel 1" de una marca saldria como 14, 27...).
+    const k = `${p.client_id || ''}|${monthKeyOf(p) || SIN_MES}|${p.content_type}`;
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(p);
+  }
+  const nums = new Map();
+  for (const list of groups.values()) {
+    // Mismos criterios (y en el mismo orden) que sortRows: si se desincronizan,
+    // el numero deja de coincidir con el orden que se ve en pantalla.
+    list.sort((a, b) => {
+      const da = String(a.publish_date || '9999-99-99');
+      const db = String(b.publish_date || '9999-99-99');
+      if (da !== db) return da < db ? -1 : 1;
+      const pa = Number(a.position) || 0;
+      const pb = Number(b.position) || 0;
+      if (pa !== pb) return pa - pb;
+      const ca = String(a.created_at || '');
+      const cb = String(b.created_at || '');
+      if (ca !== cb) return ca < cb ? -1 : 1;
+      return String(a.id).localeCompare(String(b.id));
+    });
+    list.forEach((p, i) => nums.set(String(p.id), i + 1));
+  }
+  return nums;
+}
+
+function pieceNumOf(post) {
+  return (post && pieceNums.get(String(post.id))) || null;
+}
+
+/** "REEL 12" — el texto que se ve. Vianey lo pidio literal, no el numero solo. */
+function pieceNumTitle(post) {
+  const n = pieceNumOf(post);
+  if (!n) return T('Sin tipo asignado', 'No type assigned');
+  const t = contentTypeLabel(post.content_type) || T('Pieza', 'Piece');
+  return `${t.toUpperCase()} ${n}`;
+}
+
+/** Nodo del numero: "REEL 12" (o "—" si la pieza aun no tiene tipo). */
+function pieceNumNode(post, extraClass) {
+  const n = pieceNumOf(post);
+  return el('span', {
+    class: 'meses-num' + (n ? '' : ' meses-num--empty') + (extraClass ? ` ${extraClass}` : ''),
+    text: n ? pieceNumTitle(post) : '—',
+    title: pieceNumTitle(post),
+  });
 }
 
 // ── Aprobación del cliente (approval_state) ──────────────────────────────────
@@ -1138,6 +1217,10 @@ function buildUrlCell(post, field, label) {
 function buildRow(post, noteLabels) {
   const tr = el('tr', { class: 'meses-row', dataset: { id: String(post.id) } });
 
+  // N.º de la pieza dentro de su mes y su tipo (sticky, derivado). Solo lectura:
+  // no se edita porque no se guarda — sale del orden de las piezas.
+  const tdNum = el('td', { class: 'meses-td meses-col--num' }, [pieceNumNode(post)]);
+
   // Grabacion (sticky)
   const tdGrab = el('td', { class: 'meses-td meses-col--grab' }, [
     cellButton(
@@ -1222,8 +1305,9 @@ function buildRow(post, noteLabels) {
     T('Abrir guion completo', 'Open full script'),
   ));
 
-  // Orden EXACTO de su Notion: Grab | Tarea | Estado | Fecha | Plataforma | Tipo | Captions
-  tr.append(tdGrab, tdTask, tdStatus, tdDate, tdPlat, tdType, tdCaption);
+  // N.º + el orden EXACTO de su Notion:
+  // N.º | Grab | Tarea | Estado | Fecha | Plataforma | Tipo | Captions
+  tr.append(tdNum, tdGrab, tdTask, tdStatus, tdDate, tdPlat, tdType, tdCaption);
 
   // Notas por persona (una columna por note_label del cliente)
   const notes = notesOf(post);
@@ -1328,6 +1412,14 @@ function buildTable(rows, noteLabels) {
     ]);
   };
   const headCells = [
+    // N.º: encabezado simple, SIN ordenar ni filtrar. El numero es derivado del
+    // orden cronologico dentro del mes y del tipo; ordenar por el mezclaria las
+    // cuentas (Reel 1, Carrusel 1, Reel 2…) y no diria nada nuevo — el criterio
+    // util es Fecha, que ya es ordenable.
+    el('th', {
+      text: T('N.º', 'No.'), scope: 'col', class: 'meses-col--num',
+      title: T('Número de la pieza dentro de su mes y su tipo', 'Piece number within its month and type'),
+    }),
     colHeader({ skey: 'grab', sortType: 'num', label: T('Grab.', 'Rec.'), filterDim: 'grab', extra: { class: 'meses-col--grab' } }),
     colHeader({ skey: 'task', sortType: 'text', label: T('Tarea', 'Task'), filterDim: null, extra: { class: 'meses-col--task' } }),
     colHeader({ skey: 'status', sortType: 'text', label: T('Estado', 'Status'), filterDim: 'status' }),
@@ -1409,6 +1501,11 @@ function buildMobileItem(post, noteLabels) {
         class: 'meses-item__main', type: 'button',
         onclick: () => ctx.openEditor(post.id),
       }, [
+        // N.º de la pieza como prefijo del titulo (movil es lo canonico): un
+        // cuadrito chico y discreto delante del nombre. Si la pieza aun no tiene
+        // tipo no hay numero que mostrar y simplemente no sale el cuadrito (el
+        // chip "Tipo" de abajo ya avisa que falta).
+        pieceNumOf(post) ? pieceNumNode(post, 'meses-num--m') : null,
         el('span', { class: 'meses-item__title', text: post.title || T('Sin título', 'Untitled') }),
         icon('right', 16),
       ]),
@@ -2288,6 +2385,10 @@ function render() {
   // Filtros activos (por cliente) + agrupar por mes + bucket "Sin mes".
   const allPosts = posts || [];
   allPostsForFilters = allPosts;
+  // N.º de cada pieza (mes + tipo). Se recalcula en CADA render y sobre los
+  // posts SIN filtrar: crear, borrar, cambiar el tipo o la fecha re-acomoda la
+  // numeracion sola, y filtrar/ordenar la tabla no la mueve.
+  pieceNums = computePieceNums(allPosts);
   const visiblePosts = applyFilters(allPosts);
   const byMonth = new Map();
   const sinMes = [];
@@ -2538,6 +2639,7 @@ export default {
     composer = null;
     composerInput = null;
     visibleKeys = new Set();
+    pieceNums = new Map();
     briefCache.clear();
     activeMonth = null;
     sectionsEl = null;

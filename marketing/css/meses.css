@@ -598,7 +598,7 @@
 
   .meses-table {
     width: 100%;
-    min-width: 980px;
+    min-width: 1024px; /* 980 + la columna N.º (44px) */
     border-collapse: separate;
     border-spacing: 0;
     font-size: var(--fs-2);
@@ -628,10 +628,23 @@
   .meses-row:last-child .meses-td { border-bottom: 0; }
   .meses-row:hover .meses-td { background: var(--surface-2); }
 
-  /* Columnas fijas al hacer scroll horizontal: Grabacion + Tarea. */
-  .meses-col--grab {
+  /* Columnas fijas al hacer scroll horizontal: N.º + Grabacion + Tarea.
+     Los left se encadenan: 0 → 44 → 44+64=108. */
+  /* Ancho pensado para el texto mas largo: "CARRUSEL 12" (Vianey lo pidio
+     literal, no el numero solo). Si se agrega un tipo con nombre mas largo,
+     este ancho y los `left` encadenados de abajo hay que recorrerlos. */
+  .meses-col--num {
     position: sticky;
     left: 0;
+    z-index: 2;
+    width: 104px;
+    min-width: 104px;
+    max-width: 104px;
+    text-align: center;
+  }
+  .meses-col--grab {
+    position: sticky;
+    left: 104px;
     z-index: 2;
     width: 64px;
     min-width: 64px;
@@ -639,13 +652,14 @@
   }
   .meses-col--task {
     position: sticky;
-    left: 64px;
+    left: 168px;
     z-index: 2;
     min-width: 230px;
     max-width: 300px;
     border-right: 1px solid var(--border-strong);
   }
-  th.meses-col--grab, th.meses-col--task { z-index: 3; }
+  th.meses-col--num, th.meses-col--grab, th.meses-col--task { z-index: 3; }
+  th.meses-col--num { text-align: center; padding-left: 4px; padding-right: 4px; }
 
   /* Boton-celda: toda la celda es clickeable (edicion inline tipo Notion). */
   .meses-cellbtn {
@@ -682,6 +696,37 @@
     background: color-mix(in srgb, var(--chipc, var(--text-mute)) 20%, transparent);
     color: var(--chipc, var(--text-dim));
   }
+
+  /* N.º de la pieza (columna N.º en la tabla, prefijo del titulo en movil).
+     Es SOLO lectura: sale del orden de las piezas dentro de su mes y su tipo
+     (Reel 1..12, Carrusel 1..5) y reinicia cada mes. Colores por token para que
+     se lea igual en tema oscuro y en tema claro; el fondo es una mezcla con
+     --text-mute (no --surface-2) para que no se pierda con el hover de la fila. */
+  .meses-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 20px;
+    padding: 0 7px;
+    border-radius: var(--r-sm);
+    background: color-mix(in srgb, var(--text-mute) 18%, transparent);
+    color: var(--text-dim);
+    font-size: 11px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: .02em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  /* Sin tipo asignado: em dash discreto, sin cuadrito (no es un numero real). */
+  .meses-num--empty {
+    background: none;
+    color: var(--text-mute);
+    font-weight: 600;
+  }
+  /* Variante movil: prefijo del titulo en la tarjeta, sin encogerse nunca. */
+  .meses-num--m { flex: none; }
 
   /* Pills de estado / tipo / plataforma. */
   .meses-pill {
@@ -864,10 +909,12 @@
    quede espacio visible, y celdas un poco mas compactas. */
 @media (max-width: 767px) {
   .meses-root { padding: 8px 8px 40px; }
-  .meses-col--grab { width: 42px; min-width: 42px; max-width: 42px; }
-  .meses-col--task { left: 42px; min-width: 176px; max-width: 200px; }
+  /* Movil: mismo texto completo ("REEL 12"), un poco mas apretado. */
+  .meses-col--num { width: 88px; min-width: 88px; max-width: 88px; }
+  .meses-col--grab { left: 88px; width: 42px; min-width: 42px; max-width: 42px; }
+  .meses-col--task { left: 130px; min-width: 176px; max-width: 200px; }
   .meses-td--text { min-width: 170px; max-width: 210px; }
-  .meses-table { min-width: 760px; }
+  .meses-table { min-width: 792px; }
   .meses-table th { font-size: 10px; }
 }
 
