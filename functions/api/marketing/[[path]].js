@@ -3286,6 +3286,15 @@ async function handleServeVideo(request, env, session, postId) {
   return res;
 }
 
+// Un .mov de CapCut/iPhone trae H.264+AAC adentro — exactamente lo mismo que un
+// .mp4 — pero se guarda como 'video/quicktime', y con ESE tipo Chrome ni lo
+// intenta: `canPlayType('video/quicktime')` devuelve "" (= NO). Medido en
+// producción con un reel real de 4K: el <video> se quedaba colgado sin dar
+// error, y el mismo archivo anunciado como video/mp4 reproduce sin tocarlo.
+// Se re-etiqueta SOLO al servir; el archivo en R2 y la descarga no cambian
+// (la descarga manda Content-Disposition, ahí el tipo da igual).
+const MKT_PLAYABLE_CT = { 'video/quicktime': 'video/mp4', 'video/x-m4v': 'video/mp4' };
+
 // Igual que mktServeRanged pero copiando primero los metadatos HTTP del objeto
 // (Content-Type, ETag) SIN dejar que pisen las cabeceras ya puestas por la ruta.
 async function mktServeRangedWithMeta(request, getObj, headers) {
@@ -3295,7 +3304,9 @@ async function mktServeRangedWithMeta(request, getObj, headers) {
       const meta = new Headers();
       o.writeHttpMetadata(meta);
       const ctype = meta.get('Content-Type');
-      if (ctype && !headers.has('Content-Type')) headers.set('Content-Type', ctype);
+      if (ctype && !headers.has('Content-Type')) {
+        headers.set('Content-Type', MKT_PLAYABLE_CT[ctype.toLowerCase()] || ctype);
+      }
       if (o.httpEtag && !headers.has('ETag')) headers.set('ETag', o.httpEtag); // revalidación 304
     }
     return o;
