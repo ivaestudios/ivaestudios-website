@@ -429,7 +429,11 @@ async function resolveInstagram(url, env) {
   if (cb && cb.items && cb.items.length) return cb;
   throw new Error(sid
     ? 'Instagram no soltó el video con audio en este momento (ni con la sesión). Espera unos segundos y dale Descargar de nuevo.'
-    : 'Instagram le puso freno un momento. Dale Descargar otra vez (casi siempre jala a la segunda, ya con audio). Si un reel privado sigue fallando, hay que configurar la sesión de IG.');
+    // Sin sesión ya NO hay camino: desde 2026-07 Instagram cerró el GraphQL
+    // público (responde "execution error" con cualquier doc_id) y las instancias
+    // públicas de cobalt exigen JWT. Reintentar no sirve de nada, así que no se
+    // pide: se dice la verdad y qué hay que hacer una sola vez.
+    : 'Instagram ya no deja bajar videos sin una sesión conectada. Hay que configurar el secreto IG_SESSIONID en Cloudflare (se hace una vez). Mientras tanto, TikTok y Pinterest siguen funcionando normal.');
 }
 
 async function igShortcode(url) {
