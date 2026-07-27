@@ -19,22 +19,22 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202607271124';
-import * as store from './store.js?v=202607271124';
-import * as prefs from './prefs.js?v=202607271124';
-import * as router from './router.js?v=202607271124';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607271124';
-import { toast } from './toast.js?v=202607271124';
-import { icon } from './icons.js?v=202607271124';
-import * as iconsMod from './icons.js?v=202607271124';
-import { createTopbar } from './topbar.js?v=202607271124';
-import { createBottomNav } from './bottomnav.js?v=202607271124';
-import { createSearch } from './search.js?v=202607271124';
-import { createNotifications } from './notifications.js?v=202607271124';
-import { T } from './i18n.js?v=202607271124';
-import * as version from './version.js?v=202607271124';
-import * as pickers from '../ui/pickers.js?v=202607271124';
-import * as dnd from '../ui/dnd.js?v=202607271124';
+import { api, el } from '../api.js?v=202607271129';
+import * as store from './store.js?v=202607271129';
+import * as prefs from './prefs.js?v=202607271129';
+import * as router from './router.js?v=202607271129';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607271129';
+import { toast } from './toast.js?v=202607271129';
+import { icon } from './icons.js?v=202607271129';
+import * as iconsMod from './icons.js?v=202607271129';
+import { createTopbar } from './topbar.js?v=202607271129';
+import { createBottomNav } from './bottomnav.js?v=202607271129';
+import { createSearch } from './search.js?v=202607271129';
+import { createNotifications } from './notifications.js?v=202607271129';
+import { T } from './i18n.js?v=202607271129';
+import * as version from './version.js?v=202607271129';
+import * as pickers from '../ui/pickers.js?v=202607271129';
+import * as dnd from '../ui/dnd.js?v=202607271129';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -274,10 +274,20 @@ function installVersionWatch() {
     const btn = el('button', {
       class: 'update-bar__btn', type: 'button',
       text: T('Actualizar', 'Update'),
-      onclick: () => {
+      onclick: async () => {
         btn.disabled = true;
         btn.textContent = T('Actualizando…', 'Updating…');
-        version.applyUpdate();
+        // applyUpdate devuelve false si no hay servidor del otro lado: en ese
+        // caso NO tocó nada y el botón tiene que volver a estar disponible.
+        const ok = await version.applyUpdate().catch(() => false);
+        if (!ok) {
+          btn.disabled = false;
+          btn.textContent = T('Actualizar', 'Update');
+          toast(T(
+            'Sin conexión con el servidor. Inténtalo cuando vuelva la señal.',
+            'No connection to the server. Try again when your signal is back.',
+          ), 'warn');
+        }
       },
     });
     const closeBtn = el('button', {
@@ -289,16 +299,17 @@ function installVersionWatch() {
         hide();
       },
     }, [icon('close', 16)]);
-    return el('div', {
-      class: 'update-bar', role: 'status', 'aria-live': 'polite',
-    }, [txt, when, btn, closeBtn]);
+    // La franja nace VACÍA a propósito: una live region solo anuncia lo que
+    // cambia DESPUÉS de insertarla, así que si naciera con el texto dentro el
+    // lector de pantalla no diría nada. El contenido entra en render().
+    const host = el('div', { class: 'update-bar', role: 'status', 'aria-live': 'polite' });
+    return { host, parts: [txt, when, btn, closeBtn] };
   };
 
   const hide = () => {
     if (!bar) return;
     bar.remove();
     bar = null;
-    document.body.classList.remove('has-updatebar');
     syncBarsHeight();
   };
 
@@ -310,11 +321,16 @@ function installVersionWatch() {
     if (res.server === dismissed) return; // ya la cerró a mano: no insistir
     if (bar && bar.dataset.stamp === res.server) return; // ya está puesta
     hide();
-    bar = build(res.server);
+    const { host, parts } = build(res.server);
+    bar = host;
     bar.dataset.stamp = res.server;
     getBarsHost().appendChild(bar);
-    document.body.classList.add('has-updatebar');
-    syncBarsHeight();
+    syncBarsHeight(); // ya mide 40px (min-height): no hay salto al llenarla
+    requestAnimationFrame(() => {
+      if (bar !== host || !host.isConnected) return; // la cerraron mientras tanto
+      host.append(...parts);
+      syncBarsHeight();
+    });
   };
 
   version.onChange(render);
@@ -360,7 +376,6 @@ function installVerifyBanner(me) {
   // #viewScroll (shell.css), así que el banner no tapa nada aunque coincida
   // con la barra offline o con la franja de versión nueva.
   getBarsHost().appendChild(bar);
-  document.body.classList.add('has-verifybar');
   syncBarsHeight();
 }
 
@@ -574,6 +589,13 @@ export async function boot() {
   }
   const appEl = document.getElementById('app');
   if (appEl) appEl.hidden = false;
+  // #barsHost vive DENTRO de #app, así que todo lo que se midió durante el
+  // arranque (offline / verifica tu correo) midió 0: #app estaba hidden. Ahora
+  // que es visible hay que volver a publicar --bars-h, o la franja se quedaría
+  // encima del subhead tapando el selector de vistas. El ResizeObserver también
+  // lo haría, pero depende de que exista y de un frame de retraso: esto lo
+  // vuelve determinista.
+  requestAnimationFrame(syncBarsHeight);
 }
 
 // Re-exports utiles para los paquetes de vistas.

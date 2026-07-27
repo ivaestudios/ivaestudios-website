@@ -1146,8 +1146,8 @@
   .meses-side {
     display: flex; flex-direction: column; gap: 2px;
     width: 190px; flex: none;
-    position: sticky; top: calc(var(--topbar-h2, 56px) + 14px);
-    max-height: calc(100dvh - var(--topbar-h2, 56px) - 28px);
+    position: sticky; top: calc(var(--chrome-h, 56px) + 14px);
+    max-height: calc(100dvh - var(--chrome-h, 56px) - 28px);
     overflow-y: auto;
   }
 }

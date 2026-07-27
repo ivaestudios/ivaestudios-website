@@ -12,7 +12,7 @@
   gap: var(--s-2);
   margin: calc(-1 * var(--s-4));
   padding: var(--s-2) 0 0;
-  height: calc(100dvh - var(--topbar-h2) - var(--subhead-h)
+  height: calc(100dvh - var(--chrome-h) - var(--subhead-h)
           - var(--nav-h) - env(safe-area-inset-bottom, 0px) - 20px);
   min-height: 320px;
 }
@@ -538,7 +538,7 @@
    ════════════════════════════════════════════════════════════════════════════ */
 @media (min-width: 1024px) {
   .kb-root {
-    height: calc(100dvh - var(--topbar-h2) - var(--subhead-h) - 32px);
+    height: calc(100dvh - var(--chrome-h) - var(--subhead-h) - 32px);
   }
   .kb-col { width: 284px; }
   .kb-battery { max-width: 560px; }

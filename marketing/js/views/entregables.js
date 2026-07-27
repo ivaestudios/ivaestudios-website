@@ -6,14 +6,14 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202607271124';
-import { icon } from '../shell/icons.js?v=202607271124';
-import { T } from '../shell/i18n.js?v=202607271124';
+import { api, el, clear, toast } from '../api.js?v=202607271129';
+import { icon } from '../shell/icons.js?v=202607271129';
+import { T } from '../shell/i18n.js?v=202607271129';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202607271124';
+} from '../lib/video-upload.js?v=202607271129';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -91,7 +91,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202607271124';
+  link.href = '/marketing/css/entregables.css?v=202607271129';
   document.head.appendChild(link);
 }
 

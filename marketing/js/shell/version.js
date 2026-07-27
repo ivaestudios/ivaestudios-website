@@ -23,13 +23,28 @@
 //   · NUNCA recarga sola: puede haber texto sin guardar. Siempre la usuaria.
 //   · Servidor caído / respuesta sin sello → 'unknown' (jamás un falso "hay
 //     versión nueva", que erosionaría la confianza igual que el bug original).
+//   · Y al revés, que es PEOR: jamás un falso "Actualizada ✓". Ante la mínima
+//     duda de si la respuesta vino de verdad del servidor → 'unknown'.
 // ============================================================================
 
-import { T } from './i18n.js?v=202607271124';
+import { T } from './i18n.js?v=202607271129';
 
 const APP_HTML = '/marketing/app.html';
-const STAMP_IN_HTML = /main\.js\?v=([\w.-]+)/;
+// El sello se lee del <script type="module"> REAL, no del <link modulepreload>
+// que aparece antes en el HTML. Si algún día un bump tocara solo uno de los
+// dos, leer el preload daría 'new' permanente: franja de "hay versión nueva"
+// que reaparece después de cada actualización, para siempre. Anclarlo al
+// <script> (que es justo lo que lee readCurrentStamp) lo hace imposible.
+const STAMP_IN_HTML = /<script[^>]+src=["'][^"']*main\.js\?v=([\w.-]+)/;
 const CACHE_BUST_PARAM = '_v';
+// Marca de la sonda de versión. El SW de /marketing/ NO intercepta las URLs
+// que la llevan (ver sw.js): la comprobación TIENE que hablar con el servidor,
+// no con el Service Worker. Al ser única por llamada también brinca la caché
+// del navegador y la del edge de Cloudflare.
+const PROBE_PARAM = '__vprobe';
+// Si la respuesta dice haberse generado hace más de esto, no viene del servidor
+// de ahora sino de una caché: se trata como "no se pudo comprobar".
+const MAX_RESPONSE_AGE_MS = 5 * 60 * 1000;
 
 /** Sello del bundle que corre en ESTA pestaña (null si no se pudo leer). */
 export function readCurrentStamp() {
@@ -52,7 +67,10 @@ export function stampToDate(stamp) {
   const h = +m[4]; const mi = +m[5]; const s = +(m[6] || 0);
   if (mo < 1 || mo > 12 || d < 1 || d > 31 || h > 23 || mi > 59) return null;
   const dt = new Date(y, mo - 1, d, h, mi, s);
-  return Number.isNaN(dt.getTime()) ? null : dt;
+  if (Number.isNaN(dt.getTime())) return null;
+  // 20260231 desborda a marzo: si la fecha no vuelve igual, el sello no es real.
+  if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return null;
+  return dt;
 }
 
 const MONTHS_ES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
@@ -93,9 +111,32 @@ export function compareStamps(current, server) {
 
 // ── Consulta al servidor ─────────────────────────────────────────────────────
 /**
- * Lee el app.html fresco del servidor y devuelve su sello, o null si no se
- * pudo (red caída, 5xx, HTML sin sello). El SW de /marketing/ sirve los .html
- * network-first con cache:'no-store', así que esto ve lo realmente publicado.
+ * ¿Esta respuesta salió de una caché en vez del servidor?
+ *
+ * El Service Worker de /marketing/ sirve los .html network-first PERO con
+ * fallback a la copia cacheada: sin red (o con red lenta) devolvía un 200 OK
+ * con el app.html VIEJO, y la comprobación lo leía como "el servidor publica
+ * mi mismo sello" → "Actualizada ✓" en verde corriendo código viejo. Ese es el
+ * peor error posible aquí, así que va con cinturón y tirantes:
+ *   1) la sonda lleva PROBE_PARAM y el SW nuevo ya no la intercepta (sw.js),
+ *   2) esto, por si la pestaña sigue bajo un SW viejo que no conoce la marca.
+ *
+ * `date` = cuándo generó la respuesta el origen; `age` = segundos que lleva en
+ * cachés intermedias. date+age ≈ ahora en una respuesta viva (aunque venga del
+ * edge de Cloudflare), pero se queda congelado en una copia del Cache Storage.
+ */
+function looksCached(r) {
+  try {
+    const d = Date.parse(r.headers.get('date') || '');
+    if (Number.isNaN(d)) return false; // sin cabecera no se puede juzgar
+    const age = Number(r.headers.get('age')) || 0;
+    return (Date.now() - (d + age * 1000)) > MAX_RESPONSE_AGE_MS;
+  } catch { return false; }
+}
+
+/**
+ * Lee el app.html fresco DEL SERVIDOR y devuelve su sello, o null si no se
+ * pudo (sin red, 5xx, HTML sin sello, o respuesta que huele a caché).
  */
 export async function fetchServerStamp({ timeoutMs = 8000 } = {}) {
   let ctrl = null; let timer = null;
@@ -104,12 +145,13 @@ export async function fetchServerStamp({ timeoutMs = 8000 } = {}) {
       ctrl = new AbortController();
       timer = setTimeout(() => { try { ctrl.abort(); } catch { /* noop */ } }, timeoutMs);
     }
-    const r = await fetch(APP_HTML, {
+    const r = await fetch(`${APP_HTML}?${PROBE_PARAM}=${Date.now()}`, {
       cache: 'no-store',
       credentials: 'same-origin',
       signal: ctrl ? ctrl.signal : undefined,
     });
     if (!r || !r.ok) return null;
+    if (looksCached(r)) return null; // no es el servidor: mejor "no se pudo comprobar"
     const html = await r.text();
     const m = html.match(STAMP_IN_HTML);
     return m ? m[1] : null;
@@ -160,22 +202,47 @@ export async function check({ force = false, maxAgeMs = 20000 } = {}) {
 // location.reload() puede reusar la caché del navegador y la del Service
 // Worker (los assets ?v= son cache-first). Para que tras pulsar "Actualizar"
 // corra la versión nueva con certeza:
-//   1) se borran TODAS las cachés del Cache Storage de este origen,
+//   0) se COMPRUEBA que hay servidor del otro lado. Las cachés mkt-* son el
+//      único respaldo sin conexión: si se borran sin red, la recarga del paso 3
+//      no resuelve y la app queda en la pantalla de error del navegador (PWA
+//      muerta hasta que vuelva la señal). Primero mirar, luego romper.
+//   1) se borran las cachés de ESTA app (mkt-*). Las del sitio público
+//      (ivae-*) y las de la galería no se tocan: no son nuestras.
 //   2) se le pide al SW que se actualice (y al que esté en espera que tome el
-//      control),
+//      control). Best-effort CON TECHO DE TIEMPO: reg.update() no tiene
+//      timeout propio y con red mala deja el botón en "Actualizando…" para
+//      siempre. La recarga con ?_v= ya garantiza el HTML nuevo; el SW es un
+//      extra, no puede bloquear.
 //   3) se recarga a una URL con un parámetro anti-caché, conservando el #hash
 //      (la usuaria vuelve a la MISMA pantalla donde estaba).
+//
+// Devuelve false si NO se pudo actualizar (sin red / servidor sin responder),
+// sin haber tocado nada. En ese caso quien llama debe devolver el botón a su
+// estado normal y avisar. Si devuelve true, la navegación ya va en camino.
+const SW_STEP_TIMEOUT_MS = 2500;
+
 export async function applyUpdate() {
+  // 0) ¿Hay servidor? Si no, no se destruye el respaldo offline.
+  if (navigator.onLine === false) return false;
+  const server = await fetchServerStamp();
+  if (!server) return false;
+
+  // 1) Solo las cachés de esta app.
   try {
     if (typeof caches !== 'undefined' && caches.keys) {
       const names = await caches.keys();
-      await Promise.all(names.map((n) => caches.delete(n).catch(() => false)));
+      await Promise.all(
+        names.filter((n) => n.startsWith('mkt-'))
+             .map((n) => caches.delete(n).catch(() => false)),
+      );
     }
   } catch { /* Cache Storage bloqueado (modo privado): seguimos */ }
 
-  try {
-    const sw = navigator.serviceWorker;
-    if (sw && sw.getRegistrations) {
+  // 2) SW best-effort, nunca bloqueante.
+  const swStep = (async () => {
+    try {
+      const sw = navigator.serviceWorker;
+      if (!sw || !sw.getRegistrations) return;
       const regs = await sw.getRegistrations();
       await Promise.all(regs.map(async (reg) => {
         try { await reg.update(); } catch { /* noop */ }
@@ -185,9 +252,11 @@ export async function applyUpdate() {
         try { w?.postMessage({ type: 'skipWaiting' }); } catch { /* noop */ }
         try { w?.postMessage('skipWaiting'); } catch { /* noop */ }
       }));
-    }
-  } catch { /* sin SW: la recarga anti-caché basta */ }
+    } catch { /* sin SW: la recarga anti-caché basta */ }
+  })();
+  await Promise.race([swStep, new Promise((r) => setTimeout(r, SW_STEP_TIMEOUT_MS))]);
 
+  // 3) Recarga anti-caché.
   try {
     const u = new URL(location.href);
     u.searchParams.set(CACHE_BUST_PARAM, String(Date.now()));
@@ -195,6 +264,7 @@ export async function applyUpdate() {
   } catch {
     location.reload();
   }
+  return true;
 }
 
 /**

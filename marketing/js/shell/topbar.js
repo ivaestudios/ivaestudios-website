@@ -10,15 +10,15 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607271124';
-import * as store from './store.js?v=202607271124';
-import { openSheet, pickFrom } from './sheet.js?v=202607271124';
-import { toast } from './toast.js?v=202607271124';
-import { icon } from './icons.js?v=202607271124';
-import { openClientSwitcher } from './clientswitcher.js?v=202607271124';
-import { T, isEN, setLang } from './i18n.js?v=202607271124';
-import { getTheme, setTheme } from './theme.js?v=202607271124';
-import * as version from './version.js?v=202607271124';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607271129';
+import * as store from './store.js?v=202607271129';
+import { openSheet, pickFrom } from './sheet.js?v=202607271129';
+import { toast } from './toast.js?v=202607271129';
+import { icon } from './icons.js?v=202607271129';
+import { openClientSwitcher } from './clientswitcher.js?v=202607271129';
+import { T, isEN, setLang } from './i18n.js?v=202607271129';
+import { getTheme, setTheme } from './theme.js?v=202607271129';
+import * as version from './version.js?v=202607271129';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -248,15 +248,28 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
     const status = el('div', { class: 'acct-ver__status', role: 'status', 'aria-live': 'polite' });
     const actions = el('div', { class: 'acct-ver__actions' });
 
-    const updateBtn = () => el('button', {
-      class: 'btn btn-primary btn-sm', type: 'button',
-      text: T('Actualizar ahora', 'Update now'),
-      onclick: (e) => {
-        e.currentTarget.disabled = true;
-        e.currentTarget.textContent = T('Actualizando…', 'Updating…');
-        version.applyUpdate();
-      },
-    });
+    const updateBtn = () => {
+      // Se captura el nodo, no e.currentTarget: tras el primer await ya es null.
+      const b = el('button', {
+        class: 'btn btn-primary btn-sm', type: 'button',
+        text: T('Actualizar ahora', 'Update now'),
+        onclick: async () => {
+          b.disabled = true;
+          b.textContent = T('Actualizando…', 'Updating…');
+          // false = no había servidor del otro lado y no se tocó nada.
+          const ok = await version.applyUpdate().catch(() => false);
+          if (!ok) {
+            b.disabled = false;
+            b.textContent = T('Actualizar ahora', 'Update now');
+            toast(T(
+              'Sin conexión con el servidor. Inténtalo cuando vuelva la señal.',
+              'No connection to the server. Try again when your signal is back.',
+            ), 'warn');
+          }
+        },
+      });
+      return b;
+    };
 
     const paint = (res) => {
       clear(status); clear(actions);
@@ -277,11 +290,21 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
         actions.appendChild(updateBtn());
       } else {
         status.className = 'acct-ver__status is-unknown';
-        status.textContent = T('No se pudo comprobar. Revisa tu conexión.', 'Could not check. Check your connection.');
-        actions.appendChild(el('button', {
-          class: 'btn btn-sm', type: 'button', text: T('Reintentar', 'Retry'),
-          onclick: run,
-        }));
+        if (!version.CURRENT) {
+          // Aquí el servidor pudo haber contestado perfecto: el que no se sabe
+          // identificar es ESTE código. Pedirle revisar su conexión sería
+          // mentirle, y "Reintentar" no lo va a arreglar nunca.
+          status.textContent = T(
+            'No se pudo identificar esta versión.',
+            'Could not identify this version.',
+          );
+        } else {
+          status.textContent = T('No se pudo comprobar. Revisa tu conexión.', 'Could not check. Check your connection.');
+          actions.appendChild(el('button', {
+            class: 'btn btn-sm', type: 'button', text: T('Reintentar', 'Retry'),
+            onclick: run,
+          }));
+        }
       }
     };
 

@@ -16,9 +16,12 @@
 // Estrategias:
 //   · app.html / index.html (y navegaciones bajo /marketing/) → NETWORK-FIRST
 //     con cache:'no-store' (el TTL de 4h de la zona pisa el max-age=0; igual
-//     que el SW raíz v13) y timeout de 3s con fallback al cache (offline OK).
-//     app.html JAMÁS es cache-first: el detector de versión de shell.js
-//     (installVersionWatch) depende de leer el app.html fresco de la red.
+//     que el SW raíz v13) y timeout de 3s. El fallback al cache es SOLO para
+//     navegaciones (que la app abra sin red); un fetch que falla debe fallar.
+//   · Cualquier URL con ?__vprobe= (la sonda del detector de versión de
+//     js/shell/version.js) → NO se intercepta, jamás. Esa comprobación tiene
+//     que hablar con el servidor: si le sirviéramos el app.html cacheado, la
+//     app diría "Actualizada ✓" corriendo código viejo.
 //   · Assets same-origin bajo /marketing/ con ?v= (js/css/png/webmanifest…)
 //     y las fuentes locales /marketing/fonts/*.woff2 → CACHE-FIRST.
 //   · /api/* → NO se intercepta (directo a red).
@@ -101,8 +104,15 @@ async function networkFirstHtml(req, url) {
     return out;
   } catch (err) {
     clearTimeout(timer);
-    const hit = await cache.match(url.pathname);
-    if (hit) return hit;
+    // El fallback offline es SOLO para navegaciones reales (que la app abra sin
+    // red). Un fetch de la app que pide este HTML tiene que fallar honestamente:
+    // devolverle una copia vieja con 200 OK haría que el detector de versión
+    // leyera el sello de ANTES del deploy y dijera "Actualizada ✓" en verde
+    // mientras corre código viejo — el error más dañino que puede cometer.
+    if (req.mode === 'navigate') {
+      const hit = await cache.match(url.pathname);
+      if (hit) return hit;
+    }
     throw err;
   }
 }
@@ -128,7 +138,12 @@ self.addEventListener('fetch', (event) => {
   if (url.pathname.startsWith('/api/')) return;           // API: SIEMPRE directo a red
   if (!url.pathname.startsWith('/marketing/')) return;    // fuera de la app: no interceptar
 
-  // HTML de la app (navegaciones y fetches del version-watch): network-first.
+  // Sonda del detector de versión (js/shell/version.js): NUNCA se intercepta.
+  // Tiene que ver lo que hay en el servidor AHORA; si no hay red debe fallar,
+  // no recibir una copia cacheada que la haría decir "Actualizada ✓" en falso.
+  if (url.searchParams.has('__vprobe')) return;
+
+  // HTML de la app (navegaciones): network-first.
   if (req.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/marketing/') {
     event.respondWith(networkFirstHtml(req, url));
     return;

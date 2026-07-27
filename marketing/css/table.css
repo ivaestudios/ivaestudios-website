@@ -22,7 +22,7 @@
 /* ── Toolbar sticky (chips de control + contador) ──────────────────────────── */
 .etable-toolbar {
   position: sticky;
-  top: calc(var(--topbar-h2) + var(--subhead-h));
+  top: calc(var(--chrome-h) + var(--subhead-h));
   z-index: 6;
   display: flex;
   align-items: center;
@@ -220,7 +220,7 @@
 
 .etable-ghead--m {
   position: sticky;
-  top: calc(var(--topbar-h2) + var(--subhead-h) + var(--etbl-toolbar-h));
+  top: calc(var(--chrome-h) + var(--subhead-h) + var(--etbl-toolbar-h));
   z-index: 5;
   display: flex;
   align-items: center;
@@ -655,7 +655,7 @@ body:has(.etable-bulkbar:not([hidden])) .toast-host {
 
   /* La vista ocupa el alto util: el scroll vive en .etable-scroll. */
   .etable.is-desktop {
-    height: calc(100dvh - var(--topbar-h2) - var(--subhead-h)
+    height: calc(100dvh - var(--chrome-h) - var(--subhead-h)
             - var(--nav-h) - env(safe-area-inset-bottom, 0px) - 24px);
     min-height: 360px;
   }

@@ -7,6 +7,16 @@
 /* ── Layout base ───────────────────────────────────────────────────────────── */
 html, body { height: 100%; }
 
+/* Alto TOTAL del chrome fijo de arriba: topbar + las franjas de #barsHost
+   (offline / confirma tu correo / versión nueva). Las vistas que se pegan con
+   `position: sticky` o que calculan su alto con `100dvh - …` tienen que usar
+   ESTO, no --topbar-h2 a secas: si no, en cuanto sale una franja se pegan 40px
+   demasiado arriba (quedando debajo del subhead) o se pasan 40px de largo
+   (última fila cortada bajo la barra de navegación). Se declara en `body`
+   porque es ahí donde shell.js publica --bars-h; los hijos lo heredan ya
+   resuelto. Ver kanban/table/calendar/timeline/meses.css. */
+body { --chrome-h: calc(var(--topbar-h2) + var(--bars-h, 0px)); }
+
 #app { min-height: 100dvh; }
 
 #viewScroll {
@@ -203,23 +213,35 @@ body.has-subhead #viewScroll {
 /* La fecha de la version publicada es el detalle que da CERTEZA ("se publico a
    las 18:40"), pero a 390px no cabe junto al boton: aparece desde 560px. */
 .update-bar__when { display: none; color: var(--text-dim); font-weight: 600; }
+/* Los DOS unicos controles de la franja, y la X es la unica forma de quitar un
+   aviso persistente: tienen que cumplir var(--tap) = 44px. Se resuelve con un
+   ::after invisible que agranda el area de toque SIN engordar la franja (que en
+   el telefono ya roba alto a la vista). El tamano visible se queda compacto. */
 .update-bar__btn {
+  position: relative;
   flex: none;
-  min-height: 28px; padding: 0 12px;
+  min-height: 34px; padding: 0 12px;
   border: 1px solid color-mix(in srgb, var(--brand) 70%, var(--border));
   border-radius: var(--r-sm);
   background: var(--surface); color: var(--text);
   font-size: var(--fs-1); font-weight: 800; cursor: pointer;
   transition: background var(--t-fast);
 }
+.update-bar__btn::after {
+  content: ''; position: absolute; inset: -5px -2px; /* 34 + 10 = 44px de alto tocable */
+}
 .update-bar__btn:hover { background: var(--surface-2); }
 .update-bar__btn:disabled { opacity: .6; cursor: default; }
 .update-bar__x {
+  position: relative;
   flex: none;
   display: grid; place-items: center;
-  width: 28px; height: 28px;
+  width: 34px; height: 34px;
   border: 0; border-radius: var(--r-sm);
   background: none; color: var(--text-dim); cursor: pointer;
+}
+.update-bar__x::after {
+  content: ''; position: absolute; inset: -5px; /* 34 + 10 = 44x44 tocables */
 }
 .update-bar__x:hover { color: var(--text); background: var(--surface-2); }
 
@@ -525,7 +547,9 @@ body.has-subhead #viewScroll {
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .acct-ver__status { margin-top: 2px; font-size: var(--fs-1); font-weight: 600; }
-.acct-ver__status.is-checking { color: var(--text-mute); }
+/* --text-mute sobre el fondo del sheet da 3.1:1 (falla AA), y "Comprobando…"
+   es justo el estado que se ve CADA vez que abre el menú. --text-dim = 6.7:1. */
+.acct-ver__status.is-checking { color: var(--text-dim); }
 .acct-ver__status.is-ok { color: var(--ok); }
 .acct-ver__status.is-new { color: var(--warn); }
 .acct-ver__status.is-unknown { color: var(--text-dim); }
