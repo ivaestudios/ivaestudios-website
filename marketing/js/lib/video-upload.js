@@ -14,7 +14,7 @@
 // "Video final" del calendario). Antes cada uno tenía su propio camino y el del
 // calendario obligaba a comprimir a mano todo lo que pasara de 100 MB.
 // ============================================================================
-import { T } from '../shell/i18n.js?v=202607271656';
+import { T } from '../shell/i18n.js?v=202607271706';
 
 // Partes de ~15MB: el Worker lee CADA parte completa en memoria para dárselas a
 // R2, así que partes de 50MB × 3 en paralelo podían reventarle la memoria con un
@@ -281,6 +281,21 @@ export async function multipartUpload(api, base, src, onProgress) {
       let r;
       try { r = await putPartWithRetry(base, uploadId, ext, i + 1, blob, (n) => { partLoaded[i] = n; bump(); }); }
       catch (e) { aborted = true; throw e; }
+      // ⚠️ CRÍTICO: el servidor devuelve cuántos bytes GUARDÓ de verdad. Si no
+      // coinciden con los del trozo, el archivo llegó cortado (típico: el archivo
+      // cambió en disco a media subida — re-exportar de CapCut sobre el mismo
+      // nombre, o un archivo que aún se está sincronizando de iCloud/Drive).
+      // Aquí se corta ANTES de llamar a "complete": ensamblar escribe encima del
+      // video que el cliente ya tiene, así que un video cortado que llega a
+      // ensamblarse DESTRUYE el anterior. Cortando aquí, la subida se cancela y
+      // el video anterior no se toca ni un byte.
+      if (r && Number.isFinite(Number(r.size)) && Number(r.size) !== blob.size) {
+        aborted = true;
+        throw new Error(T(
+          'El archivo cambió mientras se subía y llegó cortado, así que se canceló. El video anterior sigue intacto — vuelve a intentarlo sin tocar el archivo.',
+          'The file changed while uploading and arrived truncated, so it was cancelled. The previous video is untouched — try again without touching the file.'
+        ));
+      }
       partLoaded[i] = blob.size; bump();
       doneParts[i] = { partNumber: i + 1, etag: r.etag };
     }

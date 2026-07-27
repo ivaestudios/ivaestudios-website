@@ -193,6 +193,10 @@
 .dlv-swap:hover:not(:disabled) { border-color: var(--brand, #E24DA0); border-style: solid; color: var(--text, #ECECF1); }
 .dlv-swap:hover:not(:disabled) .ico { color: var(--brand, #E24DA0); }
 .dlv-swap:disabled { opacity: .45; cursor: not-allowed; }
+/* Mismo botón cuando el reel se quedó SIN video ("Subir video"): ahí no es una
+   acción secundaria, es LA acción de la tarjeta, así que se resalta. */
+.dlv-swap--empty { border-style: solid; border-color: var(--brand, #E24DA0); color: var(--text, #ECECF1); }
+.dlv-swap--empty .ico { color: var(--brand, #E24DA0); }
 
 /* Progreso del cambio, DENTRO de la tarjeta (en móvil la zona de arrastrar queda
    fuera de pantalla y no se veía nada). Hereda el centrado de --pending. */
@@ -203,10 +207,12 @@
    propia línea, con los botones completos debajo. El pie del cliente no cambia. */
 .dlv-card__foot.is-staff { flex-wrap: wrap; }
 /* Base de 160px: si los 3 botones no caben al lado, se van a la línea de abajo
-   en vez de dejar el título en "REEL 5 …". */
-.dlv-card__foot.is-staff .dlv-card__title { flex: 1 1 160px; }
+   en vez de dejar el título en "REEL 5 …". El min-width es lo que garantiza el
+   salto: con min-width:0 heredado el título podía encogerse hasta la elipsis en
+   vez de forzar el renglón nuevo (en escritorio se veían "REEL 1…"). */
+.dlv-card__foot.is-staff .dlv-card__title { flex: 1 1 160px; min-width: 120px; }
 @media (max-width: 539px) {
-  .dlv-card__foot.is-staff .dlv-card__title { flex: 1 1 100%; }
+  .dlv-card__foot.is-staff .dlv-card__title { flex: 1 1 100%; min-width: 0; }
 }
 
 .dlv-del {

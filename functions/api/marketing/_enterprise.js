@@ -641,8 +641,8 @@ export async function handleMonthlyReport(request, env, session, url, igFetcher 
       ? env.DB.prepare(`SELECT COUNT(*) AS n FROM mkt_posts WHERE client_id = ? AND publish_date BETWEEN ? AND ?${visClause}`).bind(clientId, prevFrom, prevTo)
       : env.DB.prepare(`SELECT COUNT(*) AS n FROM mkt_posts WHERE client_id = ? AND publish_date LIKE ?${visClause}`).bind(clientId, `${prevMonth}-%`))),
     q(() => (rangeMode
-      ? env.DB.prepare('SELECT id, type, title, link, video_ext, month FROM mkt_deliverables WHERE client_id = ? AND month BETWEEN ? AND ? ORDER BY month, sort_order, created_at').bind(clientId, from.slice(0, 7), to.slice(0, 7))
-      : env.DB.prepare('SELECT id, type, title, link, video_ext, month FROM mkt_deliverables WHERE client_id = ? AND month = ? ORDER BY sort_order, created_at').bind(clientId, month))),
+      ? env.DB.prepare('SELECT id, type, title, link, video_ext, month, updated_at, created_at FROM mkt_deliverables WHERE client_id = ? AND month BETWEEN ? AND ? ORDER BY month, sort_order, created_at').bind(clientId, from.slice(0, 7), to.slice(0, 7))
+      : env.DB.prepare('SELECT id, type, title, link, video_ext, month, updated_at, created_at FROM mkt_deliverables WHERE client_id = ? AND month = ? ORDER BY sort_order, created_at').bind(clientId, month))),
     // Nota editorial opcional: hoy NO hay UI que la escriba; se llena por
     // escritura directa a D1 en mkt_kv (report_note:<cliente>[:<periodo>]).
     q(() => env.DB.prepare('SELECT key, value FROM mkt_kv WHERE key IN (?, ?)').bind(noteKey, `report_note:${clientId}`)),
@@ -1116,7 +1116,10 @@ export async function handleMonthlyReport(request, env, session, url, igFetcher 
     const items = deliverables.map((d) => {
       const isReel = d.type === 'reel';
       const href = isReel
-        ? (d.video_ext ? `${url.origin}/api/marketing/deliverables/${encodeURIComponent(d.id)}/video` : null)
+        // Mismo sello anti-cache que la app (?v=<updated_at>): sin el, quien abrio
+        // el reporte ANTES de que cambiaramos el video se seguia bajando el video
+        // VIEJO desde su cache HTTP (la URL era identica, Cache-Control 1 hora).
+        ? (d.video_ext ? `${url.origin}/api/marketing/deliverables/${encodeURIComponent(d.id)}/video?v=${String(d.updated_at || d.created_at || '').replace(/\D+/g, '') || '0'}` : null)
         : safeHref(d.link);
       const title = String(d.title || '').trim() || (isReel ? 'Reel sin título' : 'Carrusel sin título');
       return `<div class="deliv__i">

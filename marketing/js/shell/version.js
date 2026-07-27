@@ -27,7 +27,7 @@
 //     duda de si la respuesta vino de verdad del servidor → 'unknown'.
 // ============================================================================
 
-import { T } from './i18n.js?v=202607271656';
+import { T } from './i18n.js?v=202607271706';
 
 const APP_HTML = '/marketing/app.html';
 // El sello se lee del <script type="module"> REAL, no del <link modulepreload>

@@ -6,15 +6,15 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202607271656';
-import { icon } from '../shell/icons.js?v=202607271656';
-import { T } from '../shell/i18n.js?v=202607271656';
-import { openSheet } from '../shell/sheet.js?v=202607271656';
+import { api, el, clear, toast } from '../api.js?v=202607271706';
+import { icon } from '../shell/icons.js?v=202607271706';
+import { T } from '../shell/i18n.js?v=202607271706';
+import { openSheet } from '../shell/sheet.js?v=202607271706';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202607271656';
+} from '../lib/video-upload.js?v=202607271706';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -33,6 +33,7 @@ let queueInfo = null;       // { index, total } al subir varios reels en fila
 let swapId = null;          // id del entregable al que se le está CAMBIANDO el video
 let activeMonthNav = '';    // 'YYYY-MM' del mes visible (navegación por píldoras)
 let dlAllBusy = false;      // "Descargar todos" en curso (evita dobles arranques)
+let lastLoadAt = 0;         // cuándo se recargó la lista (para no recargar de más al volver)
 // mes -> { file, index }: en móvil SÓLO se guarda UN reel a la vez en memoria
 // (el que está esperando el toque para guardarse). Nunca el mes entero.
 const dlAllCache = new Map();
@@ -48,15 +49,33 @@ const dlAllFailed = new Map();
 // solo se "activan" (cargan metadatos / primer frame) al acercarse al viewport.
 // El archivo COMPLETO se transmite intacto al reproducir — no se pierde calidad.
 let vidObserver = null;
+// Pide el primer cuadro como vista previa (#t=0.1). Es lo que se usa cuando NO
+// hay miniatura propia: sin esto el reproductor se queda en negro.
+function firstFramePreview(v) {
+  if (v.src && !/#t=/.test(v.src)) { try { v.src = `${v.src}#t=0.1`; } catch { /* noop */ } }
+}
 function activateVideo(v) {
   if (!v || v.dataset.activated) return;
   v.dataset.activated = '1';
   // Si el usuario ya lo abrió/reproduce, NO tocar (load() lo reiniciaría).
   if (v.readyState >= 1 || !v.paused || v.currentTime > 0) return;
   v.preload = 'metadata';
-  // Sin póster: pedir el primer frame como vista previa (#t=0.1).
-  if (!v.getAttribute('poster') && v.src && !/#t=/.test(v.src)) {
-    try { v.src = `${v.src}#t=0.1`; } catch { /* noop */ } }
+  const poster = v.getAttribute('poster');
+  if (!poster) firstFramePreview(v);
+  else {
+    // El póster puede NO existir (404): el servidor borra el póster viejo al
+    // cambiar el video, y generarlo es best-effort (falla con HEVC y a veces en
+    // iOS). Un <video> con póster roto se queda EN BLANCO y no avisa de nada,
+    // así que se comprueba (mismo URL -> sale de la caché del navegador) y si no
+    // está se quita el atributo y se cae al primer cuadro del video.
+    const probe = new Image();
+    probe.onerror = () => {
+      try { v.removeAttribute('poster'); } catch { /* noop */ }
+      firstFramePreview(v);
+      try { v.load(); } catch { /* noop */ }
+    };
+    probe.src = poster;
+  }
   try { v.load(); } catch { /* noop */ }
 }
 function observeVideo(v) {
@@ -93,13 +112,19 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202607271656';
+  link.href = '/marketing/css/entregables.css?v=202607271706';
   document.head.appendChild(link);
 }
 
 async function load() {
   const client = activeClient();
   dlAllCache.clear(); // los archivos armados de "Descargar todos" caducan al recargar la lista
+  // ⚠️ fileCache está indexado por it.id, y con "Cambiar video" un MISMO id pasa a
+  // tener OTROS bytes. Si no se suelta aquí, el 2º toque de "Descargar" en el
+  // iPhone guardaría en el teléfono el reel VIEJO (el del eco) — y el sello ?v=
+  // no lo cubre, porque es un File que ya está en la memoria del navegador.
+  fileCache.clear();
+  lastLoadAt = Date.now();
   if (!client) { items = []; render(); return; }
   loading = true; render();
   try {
@@ -179,12 +204,16 @@ async function enqueueReels(fileList) {
   }
 
   uploadQueue.push(...vids);
-  if (draining) { toast(`+${vids.length} ${T('en la fila', 'in the queue')}`, 'info', 2500); return; } // ya hay subida en curso: solo encola
+  // `busy` sin `draining` = hay un CAMBIO de video en curso (puede durar minutos).
+  // Antes se arrancaba el drenado igual, uploadReel salía en seco por `busy` y los
+  // archivos se DESCARTABAN con un "N reels no se subieron" falso. Ahora esperan
+  // en la fila y swapVideo la drena al terminar.
+  if (draining || busy) { toast(`+${vids.length} ${T('en la fila', 'in the queue')}`, 'info', 2500); return; }
   drainQueue();
 }
 
 async function drainQueue() {
-  if (draining) return;
+  if (draining || busy) return;
   draining = true;
   let processed = 0; const failedNames = [];
   try {
@@ -261,29 +290,45 @@ async function uploadReel(file, qinfo) {
 //
 // Texto del comentario automático que se publica al terminar. Firma sola: el
 // backend lo guarda con el nombre y el rol de quien lo hizo.
-function swapCommentBody(note) {
-  const base = T(
-    '✅ Listo, ya subí la nueva versión de este reel con los cambios que pediste.',
-    '✅ All set — I just uploaded the new version of this reel with the changes you asked for.'
-  );
+// SIEMPRE en español, NO con T(): esto lo lee EL CLIENTE, no el equipo. Con T()
+// bastaba que el equipo tuviera la app en inglés para que al cliente de Regeneris
+// le llegara "All set — I just uploaded…". Misma regla que el aviso del backend
+// y que los mensajes de WhatsApp: lo que ve el cliente va en su idioma, no en el
+// de quien aprieta el botón.
+function swapCommentBody(note, hadVideo = true) {
+  // Si el reel NO tenía video (se está subiendo por primera vez a un entregable
+  // que ya existía) no se le puede decir al cliente "la nueva versión con los
+  // cambios que pediste": no había versión anterior.
+  const base = hadVideo
+    ? '✅ Listo, ya subí la nueva versión de este reel con los cambios que pediste.'
+    : '✅ Listo, ya subí el video de este reel.';
   const extra = String(note || '').trim();
   return extra ? `${base}\n\n${extra}` : base;
 }
 
 // Abre el selector de archivo del entregable `it` y arranca el reemplazo.
+// El <input> se limpia SIEMPRE: con 'change' si eligió archivo, con 'cancel' (y
+// un respaldo al volver el foco) si cerró el selector. Antes solo se quitaba en
+// 'change', así que cada cancelación dejaba un nodo pegado en el <body>.
 function pickSwapFile(it) {
   if (busy || draining) { toast(T('Espera a que termine la subida en curso.', 'Wait for the upload in progress to finish.'), 'info'); return; }
+  let gone = false;
+  const drop = () => { if (gone) return; gone = true; try { input.remove(); } catch { /* noop */ } };
   const input = el('input', {
     type: 'file', accept: 'video/*', class: 'dlv-fileinput', hidden: true,
     onchange: (e) => {
       const f = (e.target.files || [])[0];
       e.target.value = '';
-      try { input.remove(); } catch { /* noop */ }
+      drop();
       if (f) swapVideo(it, f);
     },
+    oncancel: drop,
   });
   document.body.appendChild(input);
   input.click();
+  // Respaldo para navegadores sin evento 'cancel' (Safari viejo): al volver el
+  // foco a la ventana el selector ya se cerró; si no hubo archivo, se limpia.
+  window.addEventListener('focus', () => { setTimeout(() => { if (!input.files || !input.files.length) drop(); }, 400); }, { once: true });
 }
 
 // Hoja para la nota opcional del aviso. Devuelve el texto (puede ser ''), o
@@ -328,6 +373,7 @@ function askSwapNote() {
 
 async function swapVideo(it, file) {
   if (busy || draining) return;
+  const hadVideo = !!it.video_url;   // false = el reel se quedó sin archivo y se está reponiendo
   // MISMA revisión previa que al subir un reel nuevo (formato imposible de
   // reproducir + aviso de HEVC): se revisa ANTES de tocar el video que ya está.
   const { ok, unplayable, hevc } = await screenVideoFiles([file]);
@@ -347,6 +393,14 @@ async function swapVideo(it, file) {
   const note = await askSwapNote();
   if (note === null) return; // canceló
 
+  // Se vuelve a revisar AQUÍ: entre la guarda de arriba y este punto hubo dos
+  // esperas largas (olfatear el HEVC de un archivo de 2 GB lee megas de disco, y
+  // la hoja de la nota la contesta una persona). En esa ventana `busy` seguía en
+  // false, así que soltar un reel en la zona de arrastrar arrancaba OTRA subida en
+  // paralelo: las dos compartían la barra de progreso y la primera en terminar
+  // dejaba a la otra congelada a media subida.
+  if (busy || draining) { toast(T('Espera a que termine la subida en curso.', 'Wait for the upload in progress to finish.'), 'info'); return; }
+
   swapId = it.id; busy = true; uploadPct = 0; queueInfo = null; render();
   try {
     // Mismo endpoint y mismo id -> los comentarios NO se tocan.
@@ -364,20 +418,29 @@ async function swapVideo(it, file) {
     // Comentario automático en el MISMO hilo, firmado por quien lo hizo, y aviso
     // al cliente. Si esto falla, el video YA quedó cambiado: se avisa y punto.
     try {
-      await api.post(`/deliverables/${it.id}/comments`, { body: swapCommentBody(note), notify_client: true });
+      await api.post(`/deliverables/${it.id}/comments`, { body: swapCommentBody(note, hadVideo), notify_client: true });
     } catch {
       toast(T('El video se cambió ✓, pero no se pudo publicar el aviso. Escríbelo a mano en los comentarios.', 'The video was replaced ✓, but the message could not be posted. Write it by hand in the comments.'), 'error', 8000);
     }
-    toast(T('Video cambiado ✓ — los comentarios siguen ahí.', 'Video replaced ✓ — the comments are still there.'), 'success', 5000);
-    await load();
+    toast(hadVideo
+      ? T('Video cambiado ✓ — los comentarios siguen ahí.', 'Video replaced ✓ — the comments are still there.')
+      : T('Video subido ✓ — los comentarios siguen ahí.', 'Video uploaded ✓ — the comments are still there.'), 'success', 5000);
+    // Si se salió de la pantalla a media subida, load() reventaría contra ctx=null
+    // y caeríamos al catch diciendo "no se pudo cambiar el video" cuando SÍ se
+    // cambió (y el aviso al cliente ya salió). El cambio ya está hecho: recargar
+    // la lista es solo cosmético.
+    if (rootEl && ctx) { try { await load(); } catch { /* la vista ya no está */ } }
     return true;
   } catch (e) {
-    // La subida se cortó: el servidor NO borra el video anterior hasta ensamblar
-    // y verificar el nuevo, así que lo que el cliente ve sigue siendo el de antes.
-    toast(e.message || T('No se pudo cambiar el video. El anterior sigue ahí.', 'Could not replace the video. The previous one is still there.'), 'error', 7000);
+    // Aquí el video anterior sigue intacto salvo que el servidor avise lo
+    // contrario: el mensaje del 422 ya dice cuál de los dos casos fue.
+    toast(e.message || T('No se pudo cambiar el video. El anterior sigue ahí.', 'Could not replace the video. The previous one is still there.'), 'error', 9000);
     return false;
   } finally {
     swapId = null; busy = false; uploadPct = 0; progressEls = null; render();
+    // Los reels que se soltaron en la zona de arrastrar MIENTRAS se cambiaba el
+    // video quedaron esperando en la fila (ya no se descartan): arrancarlos ahora.
+    if (uploadQueue.length && !draining) drainQueue();
   }
 }
 
@@ -952,13 +1015,25 @@ function buildItem(it, staff) {
       observeVideo(v); // carga metadatos/frame solo al acercarse (rápido en móvil)
       card.appendChild(v);
     } else {
-      card.appendChild(el('div', { class: 'dlv-video dlv-video--pending', text: T('Procesando…', 'Processing…') }));
+      // Al CLIENTE se le dice "Procesando…" (aún no hay nada que ver). Al EQUIPO
+      // se le dice la verdad: ese reel no tiene archivo y hay un botón para
+      // ponérselo sin borrar el entregable (ni sus comentarios).
+      card.appendChild(el('div', { class: 'dlv-video dlv-video--pending', text: staff
+        ? T('Sin video — usa "Subir video"', 'No video — use "Upload video"')
+        : T('Procesando…', 'Processing…') }));
     }
-    // "Cambiar video": SOLO staff y solo si ya hay video. Reemplaza el archivo
-    // conservando el entregable (y por tanto sus comentarios). El cliente nunca
-    // lo ve, y el backend además rechaza a role='client' en todas las rutas de
-    // subida — el botón oculto no es la única defensa.
-    const canSwap = staff && !!it.video_url;
+    // "Cambiar video": SOLO staff. Sube el archivo conservando el entregable (y por
+    // tanto sus comentarios). El cliente nunca lo ve, y el backend además rechaza a
+    // role='client' en todas las rutas de subida — el botón oculto no es la única
+    // defensa.
+    // OJO: se muestra TAMBIÉN cuando el reel se quedó sin video ("Procesando…" que
+    // ya no avanza: se cerró la pestaña a media subida, o la subida llegó cortada).
+    // Si solo apareciera con video, ese reel sería un callejón sin salida: la única
+    // forma de volver a ponerle archivo sería BORRARLO, y borrar se lleva en
+    // cascada los comentarios del cliente — justo lo que esta función existe para
+    // evitar. Con video dice "Cambiar video"; sin video, "Subir video".
+    const canSwap = staff;
+    const hasVideo = !!it.video_url;
     const foot = el('div', { class: 'dlv-card__foot' + (staff ? ' is-staff' : '') }, [
       el('span', { class: 'dlv-card__title', text: it.title || 'Reel' }),
       el('div', { class: 'dlv-card__actions' }, [
@@ -967,11 +1042,15 @@ function buildItem(it, staff) {
           onclick: (e) => saveVideo(it, e.currentTarget),
         }, [icon('down', 16), el('span', { text: T('Descargar', 'Download') })]) : null,
         canSwap ? el('button', {
-          class: 'dlv-swap', type: 'button', disabled: busy || null,
-          'aria-label': T('Cambiar el video de este reel (los comentarios se quedan)', 'Replace this reel\'s video (the comments stay)'),
-          title: T('Sube la versión corregida sin perder los comentarios', 'Upload the fixed version without losing the comments'),
+          class: 'dlv-swap' + (hasVideo ? '' : ' dlv-swap--empty'), type: 'button', disabled: busy || null,
+          'aria-label': hasVideo
+            ? T('Cambiar el video de este reel (los comentarios se quedan)', 'Replace this reel\'s video (the comments stay)')
+            : T('Subir el video de este reel (los comentarios se quedan)', 'Upload this reel\'s video (the comments stay)'),
+          title: hasVideo
+            ? T('Sube la versión corregida sin perder los comentarios', 'Upload the fixed version without losing the comments')
+            : T('Este reel no tiene video: súbelo sin borrar el entregable ni sus comentarios', 'This reel has no video: upload it without deleting the deliverable or its comments'),
           onclick: () => pickSwapFile(it),
-        }, [icon('refresh', 16), el('span', { text: T('Cambiar video', 'Replace video') })]) : null,
+        }, [icon('refresh', 16), el('span', { text: hasVideo ? T('Cambiar video', 'Replace video') : T('Subir video', 'Upload video') })]) : null,
         staff ? el('button', { class: 'dlv-del', type: 'button', 'aria-label': T('Eliminar', 'Delete'), disabled: busy || null, onclick: () => removeItem(it) }, [icon('trash', 16)]) : null,
       ]),
     ]);
@@ -1103,6 +1182,25 @@ export default {
       const now = ctx.store.getState().activeClientId || null;
       if (now !== lastClientId) { lastClientId = now; activeMonthNav = ''; load(); } else { render(); }
     }));
+    // Al VOLVER a la pantalla (cambiar de app, desbloquear el teléfono, tocar el
+    // aviso "ya subí la nueva versión" estando YA en Entregables) se recarga la
+    // lista. Sin esto, el cliente que dejó la app abierta se queda con el sello
+    // ?v= viejo — el anti-caché funciona, pero nadie le pide la URL nueva — y
+    // tiene que cerrar y reabrir la app para ver el video cambiado.
+    const refreshOnReturn = () => {
+      if (document.visibilityState !== 'visible') return;
+      if (!rootEl || !ctx || busy || draining || loading || dlAllBusy) return;
+      // NUNCA recargar con un archivo ARMADO esperando el 2º toque de "Guardar"
+      // en el iPhone: load() suelta esos File y el video se volvería a bajar
+      // entero. En iOS la hoja de Compartir hace perder y recuperar el foco.
+      if (fileCache.size || dlAllCache.size) return;
+      if (Date.now() - lastLoadAt < 15000) return;   // no recargar por cada parpadeo
+      load();
+    };
+    document.addEventListener('visibilitychange', refreshOnReturn);
+    window.addEventListener('focus', refreshOnReturn);
+    unsubs.push(() => document.removeEventListener('visibilitychange', refreshOnReturn));
+    unsubs.push(() => window.removeEventListener('focus', refreshOnReturn));
     render();
     load();
   },
@@ -1113,6 +1211,6 @@ export default {
     resetVideoObserver();
     rootEl = null; ctx = null; items = []; loading = false; busy = false;
     swapId = null; progressEls = null;
-    activeMonthNav = ''; dlAllBusy = false; dlAllCache.clear();
+    activeMonthNav = ''; dlAllBusy = false; dlAllCache.clear(); fileCache.clear();
   },
 };

@@ -3340,13 +3340,31 @@ const MKT_DLV_TYPES = new Set(['reel', 'carrusel']);
 
 // Sello ANTI-CACHÉ derivado de updated_at. El video y el póster se sirven con
 // Cache-Control de 1 hora / 1 día, así que al CAMBIAR el video (mismo id, mismos
-// comentarios) el navegador seguiría mostrando el viejo. Cada vez que se toca la
-// fila (multipart/complete hace `updated_at = datetime('now')`) el sello cambia,
+// comentarios) el navegador seguiría mostrando el viejo. Cada vez que se toca el
+// ARCHIVO (multipart/complete escribe `updated_at = MKT_NOW_MS`) el sello cambia,
 // la URL cambia y el navegador está OBLIGADO a pedir el archivo nuevo.
 // OJO: el service worker de la app NO intercepta /api/ (marketing/sw.js), así
 // que aquí el `?v=` solo afecta a la caché HTTP del navegador.
+// En mkt_deliverables `updated_at` significa EXACTAMENTE "la última vez que
+// cambió el archivo": renombrar el reel (PATCH) NO lo toca a propósito, si no
+// un simple cambio de título obligaría al cliente a re-descargar el video entero.
 function dlvCacheStamp(d) {
   return String(d.updated_at || d.created_at || '').replace(/\D+/g, '') || '0';
+}
+
+// datetime('now') tiene granularidad de 1 SEGUNDO: dos reemplazos dentro del
+// mismo segundo daban el MISMO sello y el navegador seguía con el video viejo
+// hasta 1 hora. Con milésimas eso no puede pasar (dlvCacheStamp quita el punto).
+const MKT_NOW_MS = "strftime('%Y-%m-%d %H:%M:%f','now')";
+
+// ¿Qué archivo de video EXISTE de verdad en R2 para este entregable? Se usa
+// después de purgar una subida incompleta: si el reemplazo venía con otra
+// extensión, el video ANTERIOR sigue ahí y la fila NO debe quedar en NULL.
+async function dlvSurvivingExt(env, id) {
+  for (const e of MKT_VIDEO_EXTS) {
+    try { const h = await env.R2_BUCKET.head(`marketing/deliverable/${id}.${e}`); if (h) return e; } catch { /* noop */ }
+  }
+  return null;
 }
 
 function shapeDeliverable(d, origin, comments = []) {
@@ -3527,11 +3545,15 @@ async function handleUploadDeliverableVideo(request, env, session, id) {
   const ext = MKT_VIDEO_MIMES[mime];
   if (!ext) return json({ error: MKT_FORMAT_MSG }, 415);
   if (file.size && file.size > MKT_MAX_VIDEO_BYTES) return json({ error: 'El video supera 100 MB. Comprimelo o pega un enlace.' }, 413);
-  for (const e of MKT_VIDEO_EXTS) { if (e !== ext) { try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.${e}`); } catch {} } }
   await env.R2_BUCKET.put(`marketing/deliverable/${id}.${ext}`, file.stream(), {
     httpMetadata: { contentType: mime, cacheControl: 'private, max-age=3600' },
   });
-  await env.DB.prepare("UPDATE mkt_deliverables SET video_ext = ?, updated_at = datetime('now') WHERE id = ?").bind(ext, id).run();
+  // Recien DESPUES de que el nuevo esta guardado se borran las otras extensiones
+  // (si se borra antes y el put falla, el entregable se queda sin video) y el
+  // poster viejo, que sigue siendo el cuadro del video ANTERIOR.
+  for (const e of MKT_VIDEO_EXTS) { if (e !== ext) { try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.${e}`); } catch {} } }
+  try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.poster.jpg`); } catch { /* noop */ }
+  await env.DB.prepare(`UPDATE mkt_deliverables SET video_ext = ?, updated_at = ${MKT_NOW_MS} WHERE id = ?`).bind(ext, id).run();
   const updated = await env.DB.prepare('SELECT * FROM mkt_deliverables WHERE id = ?').bind(id).first();
   return json(shapeDeliverable(updated, new URL(request.url).origin), 200);
 }
@@ -3577,7 +3599,11 @@ async function handlePatchDeliverable(request, env, session, id) {
   let b; try { b = await request.json(); } catch { return json({ error: 'JSON invalido' }, 400); }
   const title = b.title !== undefined ? (b.title ? String(b.title).slice(0, 200) : null) : d.title;
   const link = b.link !== undefined ? (b.link ? String(b.link).slice(0, 1000) : null) : d.link;
-  await env.DB.prepare("UPDATE mkt_deliverables SET title = ?, link = ?, updated_at = datetime('now') WHERE id = ?").bind(title, link, id).run();
+  // OJO: aqui NO se toca updated_at. En esta tabla updated_at es el sello
+  // anti-cache del ARCHIVO (dlvCacheStamp): si un simple renombrado lo moviera,
+  // cambiarian video_url y poster_url y el cliente tendria que re-descargar el
+  // reel COMPLETO en 4G solo porque le corregimos una letra al titulo.
+  await env.DB.prepare('UPDATE mkt_deliverables SET title = ?, link = ? WHERE id = ?').bind(title, link, id).run();
   const u = await env.DB.prepare('SELECT * FROM mkt_deliverables WHERE id = ?').bind(id).first();
   return json(shapeDeliverable(u, new URL(request.url).origin));
 }
@@ -3747,7 +3773,7 @@ async function mktMpuComplete(request, env, keyPrefix, body) {
       // que nadie nota hasta que el cliente reclama. `purged` avisa a quien llama
       // para que limpie tambien la fila (video_ext / video_url).
       try { await env.R2_BUCKET.delete(key); } catch {}
-      return { purged: true, res: json({
+      return { purged: true, purgedExt: ext, real, expected, res: json({
         error: `El video llego incompleto (${real} de ${expected} bytes) y no se guardo. Vuelve a subirlo.`,
       }, 422) };
     }
@@ -3787,16 +3813,42 @@ async function handleDlvMultipartAbort(request, env, session, id) {
 async function handleDlvMultipartComplete(request, env, session, id) {
   if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
   if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
-  const { error } = await dlvForAccess(env, session, id);
+  const { d, error } = await dlvForAccess(env, session, id);
   if (error) return error;
   let b; try { b = await request.json(); } catch { return json({ error: 'JSON invalido' }, 400); }
   const r = await mktMpuComplete(request, env, `marketing/deliverable/${id}`, b);
   if (r.res) {
-    // Video incompleto: se borro el archivo, la fila no debe quedar apuntando a el.
-    if (r.purged) { try { await env.DB.prepare("UPDATE mkt_deliverables SET video_ext = NULL, updated_at = datetime('now') WHERE id = ?").bind(id).run(); } catch {} }
-    return r.res;
+    if (!r.purged) return r.res;
+    // La subida llego incompleta y se borro lo ensamblado. AQUI NO se pone
+    // video_ext = NULL a ciegas: si el reemplazo traia OTRA extension, el video
+    // ANTERIOR sigue intacto en R2 y la fila tiene que seguir apuntando a el
+    // (poniendo NULL el reel se veia "Procesando..." para siempre aunque el
+    // archivo bueno estuviera ahi). Se pregunta a R2 que quedo de verdad.
+    let alive = null;
+    try {
+      alive = await dlvSurvivingExt(env, id);
+      // Solo se escribe si de verdad cambio: si el video anterior sigue siendo el
+      // mismo archivo, mover updated_at cambiaria el sello y el cliente se
+      // re-descargaria en 4G un video que no cambio ni un byte.
+      if (alive !== (d.video_ext || null)) {
+        await env.DB.prepare(`UPDATE mkt_deliverables SET video_ext = ?, updated_at = ${MKT_NOW_MS} WHERE id = ?`).bind(alive, id).run();
+      }
+    } catch (e) { console.error('[mkt dlv purge]', e && e.message); }
+    // Mensaje HONESTO: no es lo mismo "no se guardo, sigues teniendo el de antes"
+    // que "se perdio el anterior". Antes siempre se decia lo primero.
+    return json({
+      error: alive
+        ? `El video llegó incompleto (${r.real} de ${r.expected} bytes) y no se guardó. El video anterior sigue ahí: vuelve a intentarlo.`
+        : `El video llegó incompleto (${r.real} de ${r.expected} bytes) y no se guardó. Este reel se quedó SIN video: vuelve a subirlo con "Subir video" — los comentarios siguen ahí.`,
+      purged: true, kept_previous: !!alive,
+    }, 422);
   }
-  await env.DB.prepare("UPDATE mkt_deliverables SET video_ext = ?, updated_at = datetime('now') WHERE id = ?").bind(r.ext, id).run();
+  // El poster que hubiera es del video ANTERIOR: se borra aqui para que no quede
+  // una miniatura mintiendo sobre un video que ya cambio. El flujo normal sube el
+  // poster nuevo justo despues; si no se pudo generar (HEVC, iOS), la tarjeta cae
+  // al primer cuadro del video NUEVO en vez de mostrar el cuadro del viejo.
+  try { await env.R2_BUCKET.delete(`marketing/deliverable/${id}.poster.jpg`); } catch { /* noop */ }
+  await env.DB.prepare(`UPDATE mkt_deliverables SET video_ext = ?, updated_at = ${MKT_NOW_MS} WHERE id = ?`).bind(r.ext, id).run();
   const updated = await env.DB.prepare('SELECT * FROM mkt_deliverables WHERE id = ?').bind(id).first();
   return json(shapeDeliverable(updated, new URL(request.url).origin), 200);
 }
