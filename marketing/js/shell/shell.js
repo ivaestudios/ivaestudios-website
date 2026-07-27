@@ -12,29 +12,29 @@
 //
 // ctx entregado a cada vista en mount(el, ctx):
 //   { store, prefs, router:{navigate,current}, sheet:{openSheet,pickFrom,
-//     closeAll}, pickers, dnd, toast, setFab, setViewControls, setTabBadge,
+//     closeAll,confirmDiscard}, pickers, dnd, toast, setFab, setViewControls, setTabBadge,
 //     openEditor, selectClient, icons }
 //
 // Degradacion limpia: si /notifications devuelve 404 (migracion 004 sin
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202607271706';
-import * as store from './store.js?v=202607271706';
-import * as prefs from './prefs.js?v=202607271706';
-import * as router from './router.js?v=202607271706';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607271706';
-import { toast } from './toast.js?v=202607271706';
-import { icon } from './icons.js?v=202607271706';
-import * as iconsMod from './icons.js?v=202607271706';
-import { createTopbar } from './topbar.js?v=202607271706';
-import { createBottomNav } from './bottomnav.js?v=202607271706';
-import { createSearch } from './search.js?v=202607271706';
-import { createNotifications } from './notifications.js?v=202607271706';
-import { T } from './i18n.js?v=202607271706';
-import * as version from './version.js?v=202607271706';
-import * as pickers from '../ui/pickers.js?v=202607271706';
-import * as dnd from '../ui/dnd.js?v=202607271706';
+import { api, el, clear } from '../api.js?v=202607271831';
+import * as store from './store.js?v=202607271831';
+import * as prefs from './prefs.js?v=202607271831';
+import * as router from './router.js?v=202607271831';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202607271831';
+import { toast } from './toast.js?v=202607271831';
+import { icon } from './icons.js?v=202607271831';
+import * as iconsMod from './icons.js?v=202607271831';
+import { createTopbar } from './topbar.js?v=202607271831';
+import { createBottomNav } from './bottomnav.js?v=202607271831';
+import { createSearch } from './search.js?v=202607271831';
+import { createNotifications } from './notifications.js?v=202607271831';
+import { T } from './i18n.js?v=202607271831';
+import * as version from './version.js?v=202607271831';
+import * as pickers from '../ui/pickers.js?v=202607271831';
+import * as dnd from '../ui/dnd.js?v=202607271831';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -107,7 +107,13 @@ export function openEditor(id, { tab, commentId } = {}) {
 export function selectClient(id) {
   const st = store.getState();
   if (id === st.activeClientId) return;
-  store.set({ activeClientId: id, search: '' });
+  // Se VACÍA el contenido de la marca anterior en el mismo instante que cambia
+  // el nombre de arriba. Si no, y la carga de la marca nueva falla (bache de
+  // señal, servidor caído), quedaba en pantalla el calendario de Dental Now
+  // bajo el rótulo de Meli, con un toast de 4s como único aviso: se edita o se
+  // aprueba la pieza equivocada. Con posts=[] la vista pinta su tarjeta de
+  // "No se pudo cargar" y ofrece Reintentar.
+  store.set({ activeClientId: id, search: '', posts: [], postsError: null, loading: true });
   prefs.set('lastClient', id);
   applyAccent(id);
 
@@ -397,8 +403,17 @@ function consumeVerifiedParam() {
 }
 
 function installOnlineOffline() {
+  let wasOnline = navigator.onLine !== false;
   const update = () => {
     const online = navigator.onLine !== false;
+    // Al RECUPERAR la senal nadie recargaba los posts: la vista se quedaba con
+    // la tarjeta de error (o antes, con el vacio de "no hay contenido") hasta
+    // cerrar y reabrir la app. Ahora el shell reintenta la carga que fallo, y
+    // con ella se arreglan TODAS las vistas del store (calendario, cuadricula,
+    // tablero, tabla...). Las vistas con datos propios (Entregables) escuchan
+    // 'online' por su cuenta.
+    if (online && !wasOnline && store.getState().postsError) store.loadPosts();
+    wasOnline = online;
     store.set({ online });
     if (offlineBar) offlineBar.hidden = online;
     // La barra vive en #barsHost: al ocultarse/mostrarse cambia --bars-h y
@@ -411,13 +426,78 @@ function installOnlineOffline() {
   update();
 }
 
+// ── Pantalla de arranque fallido ─────────────────────────────────────────────
+// El arranque puede fallar por DOS motivos MUY distintos y antes los dos
+// terminaban en el login:
+//   · sesión vencida (401)  → sí hay que ir al login.
+//   · sin red / servidor caído (la petición ni siquiera llegó, o respondió
+//     5xx) → NO es culpa de la contraseña. Mandar al login hace que el cliente
+//     la escriba, vea "Error de conexión" y concluya que la app está rota.
+// api.js solo pone `err.status` cuando HUBO respuesta del servidor: sin status
+// = falla de red o timeout.
+const isNetworkError = (err) => !err || err.status === undefined;
+
+function showBootError(bootEl, err) {
+  if (!bootEl) return;
+  const offline = (navigator.onLine === false) || isNetworkError(err);
+  const title = offline
+    ? T('Sin conexión', 'Offline')
+    : T('No pudimos cargar', "We couldn't load");
+  // Nada de textos crudos del servidor aquí: el cliente no es técnico y un
+  // "boom"/"D1_ERROR" en la primera pantalla asusta más que ayuda. El detalle
+  // real va a la consola para nosotros.
+  const detail = offline
+    ? T('Revisa tu internet y vuelve a intentar. Tu sesión sigue abierta.',
+        'Check your internet and try again. Your session is still open.')
+    : T('El servidor no está respondiendo. Inténtalo en un momento; tu sesión sigue abierta.',
+        'The server is not responding. Try again in a moment; your session is still open.');
+  if (err) console.error('[shell] boot', err);
+
+  clear(bootEl); // fuera el spinner: seguir girando parece "aún cargando"
+  bootEl.appendChild(el('div', { class: 'boot-error' }, [
+    el('div', { class: 'boot-error__icon', 'aria-hidden': 'true' }, [icon(offline ? 'wifi-off' : 'warning', 30)]),
+    el('h2', { class: 'boot-error__title', text: title }),
+    // Sin la clase `muted`: --text-mute sobre el fondo oscuro da 3.29:1 y
+    // reprueba AA a 14px. El color lo pone .boot-error__msg (--text-dim,
+    // 7.12:1 en oscuro y 6.96:1 en claro). Y justo esta linea es la unica que
+    // explica que pasó y que tranquiliza ("tu sesión sigue abierta").
+    el('p', { class: 'boot-error__msg', text: detail }),
+    el('button', {
+      class: 'btn btn-primary', type: 'button', text: T('Reintentar', 'Retry'),
+      onclick: () => location.reload(),
+    }),
+    // Salida manual al login. En el TWA de Android NO hay barra de direcciones:
+    // si el servidor devolviera algo que no es 401 con una cookie invalida
+    // (error de Cloudflare, 502 durante un deploy, WAF), sin este enlace el
+    // usuario quedaba encerrado en esta pantalla para siempre.
+    el('button', {
+      class: 'btn btn-ghost boot-error__alt', type: 'button',
+      text: T('Iniciar sesión', 'Sign in'),
+      onclick: () => location.replace('/marketing/'),
+    }),
+  ]));
+
+  // Al volver la señal se reintenta solo: el cliente no tiene que hacer nada.
+  // Con debounce: en un elevador o con wifi malo la señal parpadea y cada
+  // rebote recargaba la pagina entera. Se espera a que la conexion se
+  // sostenga ~1.2s antes de recargar.
+  let onlineTimer = null;
+  window.addEventListener('online', () => {
+    clearTimeout(onlineTimer);
+    onlineTimer = setTimeout(() => {
+      if (navigator.onLine !== false) location.reload();
+    }, 1200);
+  });
+  window.addEventListener('offline', () => clearTimeout(onlineTimer));
+}
+
 // ── ctx por vista ────────────────────────────────────────────────────────────
 function ctxFactory(view, params) {
   return {
     store,
     prefs,
     router: { navigate: router.navigate, current: router.current },
-    sheet: { openSheet, pickFrom, closeAll },
+    sheet: { openSheet, pickFrom, closeAll, confirmDiscard },
     pickers,
     dnd,
     toast,
@@ -443,8 +523,13 @@ export async function boot() {
   let me;
   try {
     me = await api.get('/auth/me');
-  } catch {
-    location.replace('/marketing/');
+  } catch (err) {
+    // SOLO un 401 significa "tu sesión ya no vale" → login. Si no hubo red (o
+    // el servidor respondió 5xx) la sesión sigue viva: mandar al login hacía
+    // que el cliente escribiera su contraseña, viera "Error de conexión" y
+    // creyera que la app está descompuesta. Ahora: "Sin conexión — Reintentar".
+    if (err && err.status === 401) { location.replace('/marketing/'); return; }
+    showBootError(bootEl, err);
     return;
   }
   if (!me || !me.role) { location.replace('/marketing/'); return; }
@@ -460,16 +545,10 @@ export async function boot() {
   // 2) Clientes (crítica) — ya venía cargando en paralelo desde arriba.
   const clients = await clientsP;
   if (clients && clients.__err) {
-    // Sin clients no hay app: muestra error en el splash con reintento.
-    if (bootEl) {
-      const msg = bootEl.querySelector('.muted');
-      if (msg) msg.textContent = clients.__err.message || T('No se pudo cargar. Revisa tu conexión.', 'Could not load. Check your connection.');
-      bootEl.appendChild(el('button', {
-        class: 'btn btn-primary', type: 'button', text: T('Reintentar', 'Retry'),
-        style: { marginTop: '14px' },
-        onclick: () => location.reload(),
-      }));
-    }
+    // Sin clients no hay app: mismo estado de error que el auth gate (antes el
+    // spinner se quedaba girando bajo el mensaje, como si siguiera cargando).
+    if (clients.__err.status === 401) { location.replace('/marketing/'); return; }
+    showBootError(bootEl, clients.__err);
     return;
   }
   store.set({ clients }, { silent: true });

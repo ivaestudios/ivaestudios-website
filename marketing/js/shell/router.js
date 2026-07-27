@@ -11,6 +11,9 @@
 // - CAPAS DE HISTORY: cada sheet/overlay abierto hace pushLayer(close);
 //   popstate con capas pendientes cierra la capa superior y NO navega.
 //   Asi el boton atras del telefono siempre hace lo esperado.
+//   Y si el pop cae en una entrada fantasma (duplicado que deja release() al
+//   cerrar una capa con la X), se consume solo: un toque de atras siempre
+//   produce UN cambio visible, nunca "no pasa nada".
 // - Vista desconocida -> redirect silencioso a la vista fallback + toast info.
 //
 // El registro de vistas (registerView) vive aqui; shell.js lo re-exporta.
@@ -102,6 +105,11 @@ export function navigate(view, params = {}, { replace = false } = {}) {
 let layerSeq = 0;
 const layerStack = []; // [{id, close}]
 
+// href de la entrada de history en la que estamos parados. Sirve para detectar
+// "pops muertos" (ver onPopState).
+let lastHref = typeof location !== 'undefined' ? location.href : '';
+let ghostSkips = 0; // saltos automaticos encadenados (tope de seguridad)
+
 /**
  * Registra una capa cerrable con el boton atras. Devuelve release():
  * llamalo cuando la capa se cierre por OTRO medio (X, backdrop, seleccion)
@@ -111,12 +119,14 @@ const layerStack = []; // [{id, close}]
  * asincrono y se COME cualquier navegacion que ocurra justo despues de
  * cerrar (p.ej. el switcher de cliente: close() + selectClient() -> el back
  * revertia el hash nuevo y parecia que "no cambiaba de cliente"). En su
- * lugar se limpia el marcador de capa con replaceState: queda una entrada
- * duplicada de la misma ruta en el historial (inofensivo) y la navegacion
- * posterior ya no tiene carrera.
+ * lugar se limpia el marcador de capa con replaceState: la navegacion
+ * posterior ya no tiene carrera. Eso deja una entrada DUPLICADA de la misma
+ * ruta en el historial; de esa entrada fantasma se encarga onPopState (si no,
+ * el siguiente toque de atras "no hace nada").
  */
 export function pushLayer(close) {
   const id = ++layerSeq;
+  ghostSkips = 0; // hubo interaccion nueva: se reinicia el tope de saltos
   layerStack.push({ id, close });
   try { history.pushState({ ...(history.state || {}), mktLayer: id }, ''); } catch { /* noop */ }
   return function release() {
@@ -146,6 +156,21 @@ function onPopState() {
     // El hash no cambio (la capa se apilo sobre la misma ruta): no navegar.
     return;
   }
+  // POP MUERTO: cada capa cerrada por otro medio (X, backdrop, Listo) deja en
+  // el historial una entrada DUPLICADA de la misma ruta — release() no usa
+  // history.back() a proposito (se comeria la navegacion que venga despues).
+  // Al volver atras, esa entrada se consume sin cambiar nada y el usuario ve
+  // que "atras no hizo nada" y tiene que tocarlo dos veces. Aqui se detecta
+  // (no hay capas Y la URL no cambio) y se repite el atras solo: un toque =
+  // un cambio visible. Si ya no queda historial, history.back() no hace nada
+  // y el sistema saca de la app, que es justo lo esperado.
+  if (location.href === lastHref && ghostSkips < 10) {
+    ghostSkips++;
+    try { history.back(); } catch { /* noop */ }
+    return;
+  }
+  ghostSkips = 0;
+  lastHref = location.href;
   // Sin capas: deja que hashchange (si lo hubo) resuelva la ruta.
 }
 
@@ -165,6 +190,11 @@ function paramsEqual(a, b) {
 
 function apply(route) {
   let { view, params } = route;
+
+  // Referencia para detectar pops muertos: esta es la entrada de history real
+  // en la que queda la app (pushLayer/replaceState no cambian el href).
+  lastHref = location.href;
+  ghostSkips = 0;
 
   if (!view) { navigate(fallbackView, {}, { replace: true }); return; }
   const def = views.get(view);

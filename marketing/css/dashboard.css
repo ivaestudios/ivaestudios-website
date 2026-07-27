@@ -743,7 +743,13 @@
   color: var(--text-dim);
 }
 .dash-error__icon { color: var(--warn); }
-.dash-error__msg { color: var(--text-mute); font-size: var(--fs-2); max-width: 360px; }
+/* Mismo peso visual que .boot-error__title: el titulo va a --text (no hereda
+   el --text-dim del contenedor), el detalle a --text-dim. */
+.dash-error__title { margin: 0; color: var(--text); }
+/* --text-dim, NO --text-mute: sobre el fondo oscuro (tema por defecto) el mute
+   da 3.29:1 y reprueba AA a 14px. Este parrafo es el que le dice al cliente
+   "tu contenido sigue guardado": tiene que leerse. */
+.dash-error__msg { color: var(--text-dim); font-size: var(--fs-2); max-width: 360px; }
 
 .dash-empty { margin-top: var(--s-6); }
 

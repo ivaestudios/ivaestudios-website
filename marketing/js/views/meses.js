@@ -25,18 +25,23 @@
 // ============================================================================
 
 import {
-  el, clear, copyText, api,
+  el, clear, copyText, api, isClientRole,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202607271706';
-import { icon } from '../shell/icons.js?v=202607271706';
-import { T } from '../shell/i18n.js?v=202607271706';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607271706';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607271706';
+} from '../api.js?v=202607271831';
+import { icon } from '../shell/icons.js?v=202607271831';
+import { T } from '../shell/i18n.js?v=202607271831';
+// Capas de history del shell: el boton atras del telefono cierra la capa de
+// arriba (panel de guion) en vez de salir de la app.
+import { pushLayer } from '../shell/router.js?v=202607271831';
+// Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
+import { errorCard } from '../ui/states.js?v=202607271831';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607271831';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607271831';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202607271706';
+} from '../lib/video-upload.js?v=202607271831';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -261,7 +266,7 @@ function pieceNumNode(post, extraClass) {
 // Sin approval_state guardado = pendiente (mismo default que tabla y editor).
 function approvalOf(post) { return (post && post.approval_state) || 'pending'; }
 
-function isClientRole() { return document.body.classList.contains('is-client'); }
+// isClientRole() vive ahora en api.js (mismo criterio para editor y calendario).
 
 // Puntito de aprobación junto al badge de Estado (desktop): el color dice si
 // la pieza está pendiente/aprobada/con cambios; el detalle va en el title.
@@ -306,11 +311,23 @@ async function sendApprovalDecision(post, decision, comment) {
 // comentario se pide siempre (igual que en el editor: un "cambios" sin decir
 // cuáles no le sirve al equipo y el backend arma el hilo con él).
 function openPedirCambios(post) {
-  ctx.sheet.openSheet({
+  let ta = null;
+  let sheetRef = null;
+  sheetRef = ctx.sheet.openSheet({
     title: T('Pedir cambios', 'Request changes'),
     mode: 'form',
+    // Nunca tirar lo que el cliente ya escribio sin preguntar (el boton atras
+    // del telefono cae aqui igual que la X, el backdrop o Esc).
+    confirmClose() {
+      if (!ta || !ta.value.trim() || !sheetRef) return true;
+      ctx.sheet.confirmDiscard().then((yes) => {
+        if (yes) sheetRef.close({ force: true });
+        else if (ta) { try { ta.focus(); } catch { /* noop */ } }
+      });
+      return false;
+    },
     build(body, close) {
-      const ta = el('textarea', {
+      ta = el('textarea', {
         class: 'input meses-chgta', rows: '4', maxlength: '2000',
         placeholder: T('¿Qué quieres cambiar de esta pieza?', 'What would you like to change in this piece?'),
         'aria-label': T('Comentario de cambios', 'Change request comment'),
@@ -497,10 +514,13 @@ function confirmDeleteRow(post) {
     build(body, close) {
       body.append(
         el('p', { class: 'meses-confirm__txt', text: `${T('Se eliminará', 'This will delete')} "${post.title || T('Sin título', 'Untitled')}". ${T('Esta acción no se puede deshacer.', 'This action cannot be undone.')}` }),
+        // En un dialogo DESTRUCTIVO la salida segura es la grande: `sheet-cta`
+        // (flex:1) va en Cancelar, no en Eliminar. Antes Eliminar se comia todo
+        // el ancho sobrante y era ~3x mas grande que Cancelar en 390px.
         el('div', { class: 'sheet__footer' }, [
-          el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
+          el('button', { class: 'btn sheet-cta', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
           el('button', {
-            class: 'btn btn-danger sheet-cta', type: 'button', text: T('Eliminar', 'Delete'),
+            class: 'btn btn-danger', type: 'button', text: T('Eliminar', 'Delete'),
             onclick: async () => {
               close({ source: 'confirm' });
               const ok = await trackMutation(ctx.store.removePost(post.id));
@@ -626,11 +646,16 @@ function saveNote(post, person, value) {
 
 let drawerEl = null;
 let drawerFlush = null; // guarda lo pendiente ANTES de cerrar (autosave)
+let drawerRelease = null; // capa de history: el boton atras cierra el panel
 
-function closeCaptionDrawer() {
+function closeCaptionDrawer(info = {}) {
   if (!drawerEl) return;
   try { if (drawerFlush) drawerFlush(); } catch { /* noop */ }
   drawerFlush = null;
+  // Mismo contrato que sheet.js: si el cierre vino del boton atras, el
+  // history YA consumio la capa; en cualquier otro cierre hay que soltarla.
+  if (!info.fromHistory && drawerRelease) { try { drawerRelease(); } catch { /* noop */ } }
+  drawerRelease = null;
   try { drawerEl.remove(); } catch { /* noop */ }
   drawerEl = null;
   document.removeEventListener('keydown', onDrawerKeydown, true);
@@ -980,6 +1005,10 @@ function openCaptionDrawer(post) {
   ]);
 
   document.body.appendChild(drawerEl);
+  // Boton ATRAS del telefono: este panel es de pantalla completa en movil (no
+  // hay "afuera" que tocar), asi que sin capa de history el atras sacaba de la
+  // app. Misma capa que usan los sheets del shell (router.pushLayer).
+  drawerRelease = pushLayer((info) => closeCaptionDrawer({ ...info, source: 'back' }));
   document.addEventListener('keydown', onDrawerKeydown, true);
   // Reflow forzado en lugar de rAF: rAF se congela en pestanas tapadas y la
   // transicion de entrada nunca corria (el panel quedaba invisible).
@@ -1019,14 +1048,19 @@ function openUrlSheet(post, field, title, { allowUpload = false } = {}) {
       // Quitar el valor actual (enlace externo o video subido en R2).
       const removeNow = async () => {
         close({ source: 'save' });
-        if (isUploaded) {
+        // El cliente NO destruye los bytes en R2 (el backend tambien lo
+        // rechaza): para el, "quitar" solo desliga el video de la pieza
+        // (video_url = NULL) y el toast trae Deshacer. El equipo si borra
+        // el archivo de verdad.
+        if (isUploaded && !isClientRole()) {
           try {
             const r = await fetch(`/api/marketing/posts/${post.id}/video`, { method: 'DELETE', credentials: 'include' });
             if (r.ok) { ctx.store.upsertPost(await r.json()); ctx.toast(T('Video quitado.', 'Video removed.'), { type: 'success' }); return; }
           } catch { /* cae al patch */ }
           patchWithUndo(post, { video_url: null }, { video_url: current }, T('Video quitado.', 'Video removed.'));
         } else {
-          patchWithUndo(post, { [field]: null }, { [field]: current }, T('Enlace quitado.', 'Link removed.'));
+          patchWithUndo(post, { [field]: null }, { [field]: current },
+            isUploaded ? T('Video quitado.', 'Video removed.') : T('Enlace quitado.', 'Link removed.'));
         }
       };
 
@@ -1296,6 +1330,13 @@ function buildRow(post, noteLabels) {
     title: T('Abrir', 'Open'),
     onclick: () => ctx.openEditor(post.id),
   }, [icon('edit', 14)]);
+  // Borrar es SOLO del equipo: el cliente no destruye piezas de su calendario.
+  // El borrado es DURO (se lleva comentarios, checklist y aprobaciones) y no
+  // hay deshacer. El candado real vive en el backend (handleDeletePost devuelve
+  // 403 a role=client); esconder el boton evita ofrecerle una accion que
+  // siempre fallaria. MISMO criterio que calendar/dnd.js y editor/actions.js:
+  // si algun dia se abre, se abre en los TRES sitios y en el backend a la vez.
+  // El cliente conserva editar, aprobar, pedir cambios y borrar TODA su cuenta.
   const deleteBtn = el('button', {
     class: 'meses-task__del', type: 'button', 'aria-label': T('Eliminar fila', 'Delete row'),
     title: T('Eliminar fila', 'Delete row'),
@@ -1527,12 +1568,17 @@ function buildMobileItem(post, noteLabels) {
       aria: post.content_type ? `${T('Tipo', 'Type')} ${contentTypeLabel(post.content_type)}` : T('Asignar tipo', 'Set type'),
       onTap: (a) => onPickType(post, a),
     }),
+    // Estado: el CLIENTE no mueve el flujo de produccion del equipo (no puede
+    // marcar "Publicado" algo que nunca salio). Toca y obtiene SU decision:
+    // Aprobado / Modificar — igual que en escritorio (buildRow, tdStatus).
     mobileChip({
       text: statusLabel(post.status) || T('Estado', 'Status'),
       color: (statusDef && statusDef.color) || null,
       ghost: !STATUSES[post.status],
-      aria: `${T('Estado', 'Status')} ${statusLabel(post.status) || T('sin estado', 'no status')}`,
-      onTap: (a) => onPickStatus(post, a),
+      aria: isClientRole()
+        ? `${T('Aprobar o pedir cambios', 'Approve or request changes')}: ${statusLabel(post.status) || T('sin estado', 'no status')}`
+        : `${T('Estado', 'Status')} ${statusLabel(post.status) || T('sin estado', 'no status')}`,
+      onTap: isClientRole() ? (a) => openClientApproval(post, a) : (a) => onPickStatus(post, a),
     }),
     mobileChip({
       text: post.platform || T('Plataforma', 'Platform'),
@@ -1564,6 +1610,10 @@ function buildMobileItem(post, noteLabels) {
         el('span', { class: 'meses-item__title', text: post.title || T('Sin título', 'Untitled') }),
         icon('right', 16),
       ]),
+      // Bote de basura: TAMBIEN para el cliente (decision explicita de Vianey,
+      // ver handleDeletePost en el backend). Lo que protege es el dialogo de
+      // confirmDeleteRow(). Ojo: en movil queda cerca del boton de abrir la
+      // pieza — si algo hay que hacer aqui es SEPARARLOS, no esconderlo.
       el('button', {
         class: 'meses-item__del', type: 'button', 'aria-label': T('Eliminar fila', 'Delete row'),
         title: T('Eliminar fila', 'Delete row'),
@@ -2434,7 +2484,7 @@ function buildSideNav(ordered, byMonth, sinMes, isTodos) {
 function render() {
   if (!rootEl || !ctx) return;
   const st = ctx.store.getState();
-  const { posts, loading, activeClientId, clients } = st;
+  const { posts, loading, activeClientId, clients, postsError } = st;
   const isTodos = activeClientId === 'todos';
   const client = !isTodos ? (clients || []).find((c) => c.id === activeClientId) : null;
   const noteLabels = (client && Array.isArray(client.note_labels))
@@ -2453,6 +2503,28 @@ function render() {
         el('div', { class: 'meses-skel meses-skel--short' }),
       ]));
     }
+    return;
+  }
+
+  // FALLO la carga y no hay NADA que mostrar: tarjeta de error con Reintentar.
+  // Nunca el vacio de bienvenida — un problema de senal se leia como "mi
+  // agencia no subio nada". Si ya habia contenido en pantalla se conserva
+  // (el store avisa del fallo por toast) en vez de vaciar la vista.
+  if (postsError && !(posts || []).length) {
+    clear(sectionsEl);
+    clear(sideEl);
+    // Red vs servidor: decirle "revisa tu internet" a alguien cuyo internet
+    // esta bien lo manda a revisar el wifi 10 minutos por nada.
+    const esRed = st.postsErrorNet !== false || navigator.onLine === false;
+    sectionsEl.appendChild(errorCard({
+      title: T('No se pudo cargar tu calendario', "Couldn't load your calendar"),
+      message: esRed
+        ? T('Revisa tu conexión e intenta de nuevo. Tu contenido sigue guardado.',
+            'Check your connection and try again. Your content is still saved.')
+        : T('El servidor no está respondiendo. Inténtalo en un momento; tu contenido sigue guardado.',
+            'The server is not responding. Try again in a moment; your content is still saved.'),
+      onRetry: () => ctx.store.loadPosts(),
+    }));
     return;
   }
 
@@ -2671,7 +2743,7 @@ export default {
     host.appendChild(rootEl);
 
     unsubs.push(
-      ctx.store.subscribe(['posts', 'loading', 'activeClientId', 'clients'], scheduleRender),
+      ctx.store.subscribe(['posts', 'loading', 'activeClientId', 'clients', 'postsError'], scheduleRender),
       // Regla anti popovers huerfanos: antes de procesar posts:changed se
       // cierran sheets/pickers abiertos (su anchor pudo dejar de existir).
       // OJO: si el evento viene de una mutación de ESTA vista que resolvió

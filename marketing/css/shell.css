@@ -167,6 +167,31 @@ body.has-subhead #viewScroll {
 }
 .offline-bar[hidden] { display: none; }
 
+/* ── Arranque fallido (#boot) ──────────────────────────────────────────────────
+   shell.js pinta esto cuando /auth/me o /clients no responden por RED: NO es
+   sesión vencida, así que el usuario se queda aquí con "Reintentar" en vez de
+   acabar en el login escribiendo su contraseña de a gratis. Hereda el centrado
+   de #boot (flex column, centrado); los colores salen de los tokens, así que
+   funciona igual en tema oscuro y claro. */
+.boot-error {
+  display: flex; flex-direction: column; align-items: center;
+  gap: var(--s-3, 10px);
+  max-width: 320px; /* móvil 390px: nunca pega en los bordes */
+  text-align: center;
+}
+.boot-error__icon { color: var(--warn); line-height: 0; }
+.boot-error__title {
+  margin: 0;
+  font-size: var(--fs-5, 19px); font-weight: 800; color: var(--text);
+}
+/* --text-dim, NO --text-mute: sobre el fondo oscuro (#0A0A0E, que es el tema
+   por defecto) el mute da 3.29:1 y reprueba AA a 14px. El dim mide 7.12:1 en
+   oscuro y 6.96:1 en claro. */
+.boot-error__msg { margin: 0; font-size: var(--fs-2, 14px); line-height: 1.5; color: var(--text-dim); }
+.boot-error .btn { margin-top: var(--s-2, 6px); min-height: 44px; padding-inline: var(--s-6, 22px); }
+/* Salida al login: presente pero secundaria, pegada al Reintentar. */
+.boot-error__alt { margin-top: 0; font-weight: 600; }
+
 /* ── Banner "confirma tu correo" (shell.js, email_verified === false) ──────── */
 .verify-bar {
   display: flex; align-items: center; justify-content: center; gap: var(--s-3);

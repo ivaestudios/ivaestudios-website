@@ -10,9 +10,9 @@ import {
   el,
   STATUS_ORDER,
   CONTENT_TYPES, CONTENT_TYPE_ORDER,
-} from '../api.js?v=202607271706';
-import { T } from '../shell/i18n.js?v=202607271706';
-import { parseYMD, dayLong, statusInfo, safeColor } from './data.js?v=202607271706';
+} from '../api.js?v=202607271831';
+import { T } from '../shell/i18n.js?v=202607271831';
+import { parseYMD, dayLong, statusInfo, safeColor } from './data.js?v=202607271831';
 
 /**
  * Abre el quick-create. `date` = 'YYYY-MM-DD' o '' (backlog).
@@ -178,7 +178,10 @@ export function openQuickCreate(ctx, { date = '', clientId = null } = {}) {
         });
       });
 
-      body.append(
+      // .filter(Boolean): Node.append() es el nativo y pinta un `null` como el
+      // TEXTO "null". Sin cliente elegible (vista de una sola marca) salia esa
+      // palabra suelta arriba del formulario.
+      body.append(...[
         el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Titulo', 'Title') }), titleIn]),
         clientBtn ? el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Cliente', 'Client') }), clientBtn]) : null,
         el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Tipo de contenido', 'Content type') }), typeWrap]),
@@ -191,7 +194,7 @@ export function openQuickCreate(ctx, { date = '', clientId = null } = {}) {
           el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
           createBtn,
         ]),
-      );
+      ].filter(Boolean));
       setTimeout(() => titleIn.focus(), 60);
     },
   });

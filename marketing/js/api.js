@@ -7,7 +7,7 @@
 // non-2xx so callers can `try { ... } catch (e) { toast(e.message,'error') }`.
 // ============================================================================
 
-import { isEN, T } from './shell/i18n.js?v=202607271706';
+import { isEN, T } from './shell/i18n.js?v=202607271831';
 
 const BASE = '/api/marketing';
 const TIMEOUT = 30000; // 30s
@@ -71,6 +71,13 @@ export const api = {
   put(path, body)   { return request(path, { method: 'PUT',   body }); },
   del(path)         { return request(path, { method: 'DELETE' }); },
 };
+
+// ── Rol ─────────────────────────────────────────────────────────────────────
+// El shell pone `is-client` en <body> al arrancar (shell.js) segun me.role.
+// Vivia como helper local de views/meses.js; se sube aqui para que TODAS las
+// pantallas (editor, calendario, meses) usen EL MISMO criterio de rol y no se
+// dupliquen candados. Ojo: el front solo esconde; el backend es quien manda.
+export function isClientRole() { return document.body.classList.contains('is-client'); }
 
 // ── DOM builder ─────────────────────────────────────────────────────────────
 // el('div', {class:'card', onclick:fn, dataset:{id:'x'}}, [child, 'text', ...])

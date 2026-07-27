@@ -15,10 +15,10 @@
 // Todo lo efimero (ancla, modo) vive aqui en memoria, JAMAS en store/prefs.
 // ============================================================================
 
-import { el, fmtDate } from '../api.js?v=202607271706';
-import { T } from '../shell/i18n.js?v=202607271706';
-import { icon } from '../shell/icons.js?v=202607271706';
-import * as bulk from '../services/bulk.js?v=202607271706';
+import { el, fmtDate } from '../api.js?v=202607271831';
+import { T } from '../shell/i18n.js?v=202607271831';
+import { icon } from '../shell/icons.js?v=202607271831';
+import * as bulk from '../services/bulk.js?v=202607271831';
 
 const LONGPRESS_MS = 500;
 const MOVE_CANCEL_PX = 10;
@@ -188,10 +188,12 @@ export function createSelection({ ctx, getVisibleIds }) {
             class: 'etable-confirm__txt',
             text: `${T('¿Eliminar', 'Delete')} ${n} ${plural(n, T('contenido', 'item'), T('contenidos', 'items'))}${T('? Esta accion no se puede deshacer.', '? This action cannot be undone.')}`,
           }),
+          // `sheet-cta` (flex:1) va en Cancelar: la salida segura es la grande.
+          // Este es el borrado MASIVO — el de peores consecuencias de todos.
           el('div', { class: 'sheet__footer' }, [
-            el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
+            el('button', { class: 'btn sheet-cta', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
             el('button', {
-              class: 'btn btn-danger sheet-cta', type: 'button', text: T('Eliminar', 'Delete'),
+              class: 'btn btn-danger', type: 'button', text: T('Eliminar', 'Delete'),
               onclick: async () => {
                 close({ source: 'confirm' });
                 const res = await bulk.bulkDelete(list);

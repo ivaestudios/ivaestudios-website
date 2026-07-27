@@ -18,9 +18,9 @@ import {
   PRIORITIES, PRIORITY_ORDER,
   statusLabel, contentTypeLabel, approvalLabel, priorityLabel,
   ymd, parseDate, avatar,
-} from '../api.js?v=202607271706';
-import { openSheet, pickFrom } from '../shell/sheet.js?v=202607271706';
-import { T } from '../shell/i18n.js?v=202607271706';
+} from '../api.js?v=202607271831';
+import { openSheet, pickFrom, confirmDiscard } from '../shell/sheet.js?v=202607271831';
+import { T } from '../shell/i18n.js?v=202607271831';
 
 // ── Pickers de enum ──────────────────────────────────────────────────────────
 
@@ -207,12 +207,25 @@ export function textExpand({ title = T('Editar texto', 'Edit text'), value = '',
   return new Promise((resolve) => {
     let picked = null, done = false;
     const settle = (v) => { if (!done) { done = true; resolve(v); } };
+    const initial = value || '';
+    let ta = null;
+    let sheetRef = null;
 
-    openSheet({
+    sheetRef = openSheet({
       title, mode: 'form',
       onClose: () => settle(picked),
+      // No tirar lo escrito sin preguntar: el boton atras del telefono, Esc,
+      // el backdrop o la X caen todos aqui. Solo pregunta si hay cambios.
+      confirmClose() {
+        if (!ta || !sheetRef || ta.value === initial) return true;
+        confirmDiscard().then((yes) => {
+          if (yes) sheetRef.close({ force: true });
+          else if (ta) { try { ta.focus(); } catch { /* noop */ } }
+        });
+        return false;
+      },
       build(body, close) {
-        const ta = el('textarea', {
+        ta = el('textarea', {
           class: 'input pk-textarea', placeholder, maxlength: String(maxLength),
         });
         ta.value = value || '';
@@ -220,14 +233,18 @@ export function textExpand({ title = T('Editar texto', 'Edit text'), value = '',
           class: 'btn btn-primary sheet-cta', type: 'button', text: T('Guardar', 'Save'),
           onclick: () => { picked = ta.value; close({ source: 'save' }); },
         });
-        body.append(
+        // OJO: Node.append() es el nativo, NO el helper el(): un `null` en la
+        // lista se pinta como el TEXTO literal "null" debajo del textarea. Se
+        // filtra antes. (Pasaba en todos los llamadores sin `hint`: "Pedir
+        // cambios" del editor y todos los campos largos de editor/fields.js.)
+        body.append(...[
           ta,
           hint ? el('div', { class: 'help', text: hint }) : null,
           el('div', { class: 'sheet__footer' }, [
             el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
             save,
           ]),
-        );
+        ].filter(Boolean));
         // Abrir desde el COMIENZO (no el final), para que captions largos no
         // aparezcan scrolleados hasta abajo. Editable de inmediato (un clic).
         setTimeout(() => { ta.focus(); ta.setSelectionRange(0, 0); ta.scrollTop = 0; }, 60);

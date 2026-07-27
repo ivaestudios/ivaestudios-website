@@ -23,16 +23,16 @@ import {
   STATUSES, STATUS_ORDER, statusLabel,
   CONTENT_TYPES, CONTENT_TYPE_ORDER, contentTypeLabel,
   fmtDate,
-} from '../api.js?v=202607271706';
-import { icon } from '../shell/icons.js?v=202607271706';
-import { T } from '../shell/i18n.js?v=202607271706';
-import { createCard, DEFAULT_CARD_FIELDS, CARD_FIELD_LABELS } from '../kanban/card.js?v=202607271706';
-import { createBattery } from '../kanban/battery.js?v=202607271706';
-import { createColumnComposer, openQuickAddSheet } from '../kanban/quick-add.js?v=202607271706';
+} from '../api.js?v=202607271831';
+import { icon } from '../shell/icons.js?v=202607271831';
+import { T } from '../shell/i18n.js?v=202607271831';
+import { createCard, DEFAULT_CARD_FIELDS, CARD_FIELD_LABELS } from '../kanban/card.js?v=202607271831';
+import { createBattery } from '../kanban/battery.js?v=202607271831';
+import { createColumnComposer, openQuickAddSheet } from '../kanban/quick-add.js?v=202607271831';
 import {
   openMoveSheet, buildInsertUpdates, snapshotFor, sortColumn, columnKeyOf,
   OTHERS_KEY, OTHERS_LABEL, OTHERS_COLOR, STEP,
-} from '../kanban/move-sheet.js?v=202607271706';
+} from '../kanban/move-sheet.js?v=202607271831';
 
 const FILTER_KEYS = ['estado', 'tipo', 'persona', 'desde', 'hasta', 'q'];
 
@@ -209,10 +209,12 @@ function confirmDelete(post) {
     build(body, close) {
       body.append(
         el('p', { class: 'kb-confirm__txt', text: T(`Se eliminara "${post.title || 'Sin titulo'}". Esta accion no se puede deshacer.`, `"${post.title || 'Untitled'}" will be deleted. This action cannot be undone.`) }),
+        // `sheet-cta` (flex:1) va en Cancelar: la salida segura es la grande,
+        // el boton irreversible el chico. Mismo patron que meses/dnd/editor.
         el('div', { class: 'sheet__footer' }, [
-          el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
+          el('button', { class: 'btn sheet-cta', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
           el('button', {
-            class: 'btn btn-danger sheet-cta', type: 'button', text: T('Eliminar', 'Delete'),
+            class: 'btn btn-danger', type: 'button', text: T('Eliminar', 'Delete'),
             onclick: async () => {
               close({ source: 'confirm' });
               const ok = await ctx.store.removePost(post.id);

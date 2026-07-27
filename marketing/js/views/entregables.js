@@ -6,15 +6,17 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202607271706';
-import { icon } from '../shell/icons.js?v=202607271706';
-import { T } from '../shell/i18n.js?v=202607271706';
-import { openSheet } from '../shell/sheet.js?v=202607271706';
+import { api, el, clear, toast } from '../api.js?v=202607271831';
+import { icon } from '../shell/icons.js?v=202607271831';
+import { T } from '../shell/i18n.js?v=202607271831';
+import { openSheet } from '../shell/sheet.js?v=202607271831';
+// Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
+import { errorCard } from '../ui/states.js?v=202607271831';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202607271706';
+} from '../lib/video-upload.js?v=202607271831';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -24,6 +26,8 @@ let rootEl = null;
 let unsubs = [];
 let items = [];
 let loading = false;
+let loadErr = null;         // null | Error de la ÚLTIMA carga (para no confundir
+                            // un fallo de red con "todavía no hay contenido")
 let busy = false;
 let addMonth = '';          // 'YYYY-MM' al que se agregan nuevos entregables
 let lastClientId = null;
@@ -112,7 +116,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202607271706';
+  link.href = '/marketing/css/entregables.css?v=202607271831';
   document.head.appendChild(link);
 }
 
@@ -125,14 +129,19 @@ async function load() {
   // no lo cubre, porque es un File que ya está en la memoria del navegador.
   fileCache.clear();
   lastLoadAt = Date.now();
-  if (!client) { items = []; render(); return; }
+  if (!client) { items = []; loadErr = null; render(); return; }
   loading = true; render();
   try {
     const res = await api.get(`/deliverables?client_id=${encodeURIComponent(client.id)}`);
     items = (res && res.deliverables) || [];
+    loadErr = null;
   } catch (e) {
+    // items se VACÍA a propósito (son de UNA marca: dejar los viejos mostraría
+    // los entregables del cliente anterior al cambiar de marca). Lo que ya no
+    // se hace es pintar el vacío: con loadErr, render() saca la tarjeta de
+    // error con Reintentar. El toast sobraría encima de la tarjeta.
     items = [];
-    toast(e.message || T('No se pudieron cargar los entregables', 'Could not load the deliverables'), 'error');
+    loadErr = e;
   }
   loading = false;
   render();
@@ -1103,6 +1112,26 @@ function render() {
     return;
   }
 
+  // OJO: el error va ANTES del vacío. Si falló la carga NO se dice "todavía no
+  // hay contenido" (eso hacía que un bache de señal se leyera como "mi agencia
+  // no me subió nada"); se dice que no se pudo cargar y se ofrece Reintentar.
+  if (loadErr) {
+    // Red vs servidor: api.js solo pone err.status cuando HUBO respuesta.
+    // Sin esto, un 500 le decía "revisa tu internet" a alguien con internet
+    // perfecto y lo mandaba a pelearse con su wifi.
+    const esRed = loadErr.status === undefined || navigator.onLine === false;
+    rootEl.appendChild(errorCard({
+      title: T('No se pudo cargar tu contenido', "Couldn't load your content"),
+      message: esRed
+        ? T('Revisa tu conexión e intenta de nuevo. Tus entregables siguen ahí.',
+            'Check your connection and try again. Your deliverables are still there.')
+        : T('El servidor no está respondiendo. Inténtalo en un momento; tus entregables siguen ahí.',
+            'The server is not responding. Try again in a moment; your deliverables are still there.'),
+      onRetry: () => load(),
+    }));
+    return;
+  }
+
   if (!items.length) {
     rootEl.appendChild(el('div', { class: 'dlv-empty' }, [
       el('div', { class: 'dlv-empty__ico' }, [icon('camera', 26)]),
@@ -1194,13 +1223,25 @@ export default {
       // en el iPhone: load() suelta esos File y el video se volvería a bajar
       // entero. En iOS la hoja de Compartir hace perder y recuperar el foco.
       if (fileCache.size || dlAllCache.size) return;
-      if (Date.now() - lastLoadAt < 15000) return;   // no recargar por cada parpadeo
+      // Con la carga fallida la espera baja a 3 s: el que vuelve a la app tras
+      // recuperar señal quiere su contenido ya, no seguir viendo el error.
+      if (Date.now() - lastLoadAt < (loadErr ? 3000 : 15000)) return;
       load();
     };
     document.addEventListener('visibilitychange', refreshOnReturn);
     window.addEventListener('focus', refreshOnReturn);
     unsubs.push(() => document.removeEventListener('visibilitychange', refreshOnReturn));
     unsubs.push(() => window.removeEventListener('focus', refreshOnReturn));
+    // Volvió la señal: si la última carga falló se reintenta SOLA. Antes había
+    // que cerrar y reabrir la app para salir del estado vacío/erróneo.
+    const retryOnOnline = () => {
+      if (!rootEl || !ctx || !loadErr) return;
+      if (busy || draining || loading || dlAllBusy) return;
+      if (fileCache.size || dlAllCache.size) return;
+      load();
+    };
+    window.addEventListener('online', retryOnOnline);
+    unsubs.push(() => window.removeEventListener('online', retryOnOnline));
     render();
     load();
   },
@@ -1209,7 +1250,7 @@ export default {
     for (const u of unsubs) { try { u(); } catch { /* noop */ } }
     unsubs = [];
     resetVideoObserver();
-    rootEl = null; ctx = null; items = []; loading = false; busy = false;
+    rootEl = null; ctx = null; items = []; loading = false; loadErr = null; busy = false;
     swapId = null; progressEls = null;
     activeMonthNav = ''; dlAllBusy = false; dlAllCache.clear(); fileCache.clear();
   },

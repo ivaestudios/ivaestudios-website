@@ -6,7 +6,12 @@
 //
 // ESTADO:
 //   { me, clients, activeClientId, posts, users, view, params, filters,
-//     search, unreadCount, online, loading, booted }
+//     search, unreadCount, online, loading, postsError, booted }
+//
+// postsError: mensaje del ULTIMO loadPosts que fallo (null si la ultima carga
+//   salio bien). Existe para que las vistas distingan "fallo la red" de "no hay
+//   contenido": sin el, un blip de senal pintaba el vacio de bienvenida y el
+//   cliente creia que su agencia no habia subido nada.
 //
 // API:
 //   getState(); set(patch, {silent}); subscribe(keys[]|'*', fn) -> unsub
@@ -22,8 +27,8 @@
 //   'view:applied'.
 // ============================================================================
 
-import { api, toast } from '../api.js?v=202607271706';
-import { T } from './i18n.js?v=202607271706';
+import { api, toast } from '../api.js?v=202607271831';
+import { T } from './i18n.js?v=202607271831';
 
 const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', 'Could not save, try again.');
 
@@ -40,6 +45,12 @@ const state = {
   unreadCount: 0,
   online: true,
   loading: false,
+  postsError: null,         // null | string (mensaje del ultimo loadPosts fallido)
+  // ¿El fallo fue de RED o del SERVIDOR? api.js solo pone err.status cuando
+  // HUBO respuesta; sin status = red/timeout. Sirve para no decirle "revisa tu
+  // internet" a alguien cuyo internet esta perfecto y lo que fallo fue el
+  // servidor (revisa el wifi 10 minutos y no era eso).
+  postsErrorNet: false,
   booted: false,
 };
 
@@ -165,12 +176,20 @@ export async function loadPosts(clientId = state.activeClientId) {
       posts = [];
     }
     if (gen !== loadGen) return posts; // respuesta obsoleta: otro cliente ya cargó
-    set({ posts, loading: false });
+    set({ posts, loading: false, postsError: null, postsErrorNet: false });
     return posts;
   } catch (e) {
     if (gen !== loadGen) return null;
-    set({ loading: false });
-    toast(e.message || T('No se pudieron cargar los contenidos.', 'Could not load the content.'), 'error');
+    // postsError ANTES que loading: las vistas re-renderizan al ver loading=false
+    // y necesitan encontrar ya puesto el error (si no, pintan "no hay contenido").
+    const msg = e.message || T('No se pudieron cargar los contenidos.', 'Could not load the content.');
+    // Sin `status` = la peticion ni llego (red/timeout). Con status = el
+    // servidor contesto mal (5xx). Las vistas eligen el texto con esto.
+    const net = !e || e.status === undefined;
+    set({ postsError: msg, postsErrorNet: net, loading: false });
+    // Con datos en pantalla el toast basta; sin datos la vista pinta la tarjeta
+    // "Error + Reintentar" y un toast encima seria ruido duplicado.
+    if ((state.posts || []).length) toast(msg, 'error');
     return null;
   }
 }

@@ -9,8 +9,9 @@
 // incluidos). En exito se ofrece Deshacer via toast.
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202607271706';
-import { parseYMD, dayShort, todayYMD } from './data.js?v=202607271706';
+import { T } from '../shell/i18n.js?v=202607271831';
+import { isClientRole } from '../api.js?v=202607271831';
+import { parseYMD, dayShort, todayYMD } from './data.js?v=202607271831';
 
 export const DROP_SELECTOR = '[data-cal-drop]';
 
@@ -142,7 +143,9 @@ export function openCardMenu(ctx, post, { anchor = null } = {}) {
     mode: 'menu',
     anchor,
     build(body, close) {
-      body.append(
+      // OJO: `body` es un elemento real y su .append() nativo convierte un
+      // `null` en el TEXTO "null". Las filas condicionales se filtran antes.
+      const rows = [
         row('edit', T('Abrir contenido', 'Open content'), () => {
           close({ source: 'open' });
           ctx.openEditor(post.id);
@@ -167,11 +170,13 @@ export function openCardMenu(ctx, post, { anchor = null } = {}) {
           close({ source: 'unschedule' });
           reschedule(ctx, post.id, '', prevDay);
         }) : null,
+        // Eliminar: TAMBIEN el cliente (decision de Vianey; ver handleDeletePost).
         row('trash', T('Eliminar', 'Delete'), () => {
           close({ source: 'delete' });
           confirmDelete(ctx, post);
         }, true),
-      );
+      ].filter(Boolean);
+      body.append(...rows);
     },
   });
 }
@@ -191,13 +196,15 @@ export function confirmDelete(ctx, post) {
 
       const cancel = document.createElement('button');
       cancel.type = 'button';
-      cancel.className = 'btn';
+      // `sheet-cta` (flex:1) en Cancelar: en un dialogo destructivo la salida
+      // segura es la grande, no el boton rojo.
+      cancel.className = 'btn sheet-cta';
       cancel.textContent = T('Cancelar', 'Cancel');
       cancel.addEventListener('click', () => close({ source: 'cancel' }));
 
       const del = document.createElement('button');
       del.type = 'button';
-      del.className = 'btn btn-danger sheet-cta';
+      del.className = 'btn btn-danger';
       del.textContent = T('Eliminar', 'Delete');
       del.addEventListener('click', async () => {
         del.disabled = true;

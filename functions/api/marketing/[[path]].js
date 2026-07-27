@@ -10,7 +10,11 @@
 //                             all our tables are `mkt_*`, fully namespaced).
 //   ADMIN_EMAIL             → the one email allowed to bootstrap the admin
 //                             (vianeydm07@gmail.com).
-//   SESSION_EXPIRY_SECONDS  → session lifetime (default '604800' = 7 days).
+//   SESSION_IDLE_SECONDS    → ventana de INACTIVIDAD de la sesión (default
+//                             '7776000' = 90 días). Se renueva sola en cada uso
+//                             (sliding), con tope absoluto de 180 días desde
+//                             que se creó. Ver getSession/slideSession.
+//                             (La vieja SESSION_EXPIRY_SECONDS ya NO se lee.)
 //   MKT_CRON_SECRET         → bearer secret for POST /cron (optional backup of
 //                             the throttled lazySweep; the app works without it).
 //
@@ -156,20 +160,99 @@ function sessionCookie(token, maxAge) {
   return `mkt_session=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${maxAge}`;
 }
 
+// ── VIDA DE LA SESIÓN (renovación deslizante) ────────────────────────────────
+// El cliente entra 2-3 veces al mes; con 7 días fijos SIEMPRE encontraba la
+// sesión vencida y tenía que buscar la contraseña que le mandamos por WhatsApp.
+//   · Ventana de inactividad (idle): 90 días. Se REINICIA en cada uso, así que
+//     mientras entre al menos una vez cada 90 días nunca vuelve a teclear nada.
+//   · Tope absoluto: 180 días desde created_at. Una cookie robada NO vive para
+//     siempre — a los 6 meses caduca aunque se siga usando.
+//   · La renovación se escribe como máximo 1 vez al día por sesión
+//     (RENEW_THRESHOLD_SECONDS) para no meter un write de D1 en cada request.
+const SESSION_ABSOLUTE_MAX_SECONDS = 15552000; // 180 días — tope duro
+const SESSION_RENEW_THRESHOLD_SECONDS = 86400; // renovar sólo si envejeció ≥1 día
+
+// OJO: la perilla es SESSION_IDLE_SECONDS (nueva). La vieja
+// SESSION_EXPIRY_SECONDS quedó OBSOLETA y se IGNORA a propósito: en el
+// dashboard de Cloudflare Pages sigue puesta en 604800 (7 días) y si la
+// leyéramos, este arreglo no serviría de nada en producción.
+function sessionIdleSeconds(env) {
+  const n = parseInt(env.SESSION_IDLE_SECONDS || '7776000', 10); // 90 días
+  if (!Number.isFinite(n) || n <= 0) return 7776000;
+  return Math.min(n, SESSION_ABSOLUTE_MAX_SECONDS);
+}
+
+// 'YYYY-MM-DD HH:MM:SS' (UTC, formato de datetime() en SQLite) → epoch ms.
+function sqliteUtcMs(s) {
+  if (!s) return NaN;
+  return Date.parse(String(s).replace(' ', 'T') + 'Z');
+}
+
 // Read the mkt_session cookie, JOIN sessions+users, return the live session row
 // or null. Only returns if the session is unexpired AND the user is active=1.
-async function getSession(request, env) {
+//
+// `authCtx` (opcional) activa la RENOVACIÓN DESLIZANTE: si se pasa y la sesión
+// ya envejeció, extiende expires_at en la BD y deja en authCtx.setCookie la
+// cabecera Set-Cookie que onRequest adjunta a la respuesta (si no se refresca
+// también la cookie, el navegador la tira aunque la BD siga viva).
+async function getSession(request, env, authCtx) {
   const token = getCookie(request, 'mkt_session');
   if (!token) return null;
   const row = await env.DB.prepare(
-    `SELECT s.id AS session_id, s.user_id, u.email, u.name, u.role, u.client_id
+    `SELECT s.id AS session_id, s.user_id, s.expires_at AS session_expires_at,
+            s.created_at AS session_created_at,
+            u.email, u.name, u.role, u.client_id
        FROM mkt_sessions s
        JOIN mkt_users u ON s.user_id = u.id
       WHERE s.id = ?
         AND s.expires_at > datetime('now')
         AND u.active = 1`
   ).bind(token).first();
-  return row || null;
+  if (!row) return null;
+  if (authCtx) {
+    try { await slideSession(env, row, token, authCtx); } catch { /* nunca romper el request */ }
+  }
+  return row;
+}
+
+// Extiende la sesión al usarla. Best-effort: si algo falla, el request sigue.
+async function slideSession(env, row, token, authCtx) {
+  const idle = sessionIdleSeconds(env);
+  const now = Date.now();
+  const expMs = sqliteUtcMs(row.session_expires_at);
+  const createdMs = sqliteUtcMs(row.session_created_at);
+  if (!Number.isFinite(expMs)) return;
+
+  // Tope absoluto desde la creación. Si created_at es ilegible el MIN() del SQL
+  // daría NULL (viola NOT NULL) → excepción → no se renovaría nunca: mejor
+  // salir aquí, explícito.
+  if (!Number.isFinite(createdMs)) return;
+  const capRemaining = Math.min(
+    idle,
+    Math.floor((createdMs + SESSION_ABSOLUTE_MAX_SECONDS * 1000 - now) / 1000)
+  );
+  if (capRemaining <= 0) return; // ya tocó el tope: se deja morir, no se renueva
+
+  // ¿Vale la pena escribir? Se compara contra el valor que el UPDATE va a
+  // dejar de verdad (MIN(ahora+idle, creación+tope)), NO contra `idle` a secas.
+  // Comparar contra `idle` fallaba a partir del día 90: pasado ese punto manda
+  // el tope absoluto, expires_at ya no puede subir, pero `idle - remaining`
+  // se quedaba por encima del umbral para siempre → un UPDATE de D1 en CADA
+  // petición (incluido el streaming de video de Entregables). Así son ≤1
+  // escritura al día a cualquier edad, y CERO una vez tocado el tope.
+  const remaining = Math.floor((expMs - now) / 1000);
+  if (capRemaining - remaining < SESSION_RENEW_THRESHOLD_SECONDS) return;
+
+  await env.DB.prepare(
+    `UPDATE mkt_sessions
+        SET expires_at = MIN(
+              datetime('now', '+' || ? || ' seconds'),
+              datetime(created_at, '+' || ? || ' seconds')
+            )
+      WHERE id = ?`
+  ).bind(String(idle), String(SESSION_ABSOLUTE_MAX_SECONDS), token).run();
+
+  authCtx.setCookie = sessionCookie(token, capRemaining);
 }
 
 function slugify(name) {
@@ -411,7 +494,7 @@ async function handleRegister(request, env) {
 
   // Auto-login the first admin.
   const sessionId = randomId();
-  const expiry = env.SESSION_EXPIRY_SECONDS || '604800';
+  const expiry = sessionIdleSeconds(env);
   await env.DB.prepare(
     'INSERT INTO mkt_sessions (id, user_id, expires_at) VALUES (?, ?, datetime("now", "+" || ? || " seconds"))'
   ).bind(sessionId, id, expiry).run();
@@ -448,7 +531,7 @@ async function handleLogin(request, env) {
   if (!valid) return json({ error: 'Credenciales incorrectas.' }, 401);
 
   const sessionId = randomId();
-  const expiry = env.SESSION_EXPIRY_SECONDS || '604800';
+  const expiry = sessionIdleSeconds(env);
   await env.DB.prepare(
     'INSERT INTO mkt_sessions (id, user_id, expires_at) VALUES (?, ?, datetime("now", "+" || ? || " seconds"))'
   ).bind(sessionId, user.id, expiry).run();
@@ -503,6 +586,15 @@ async function handleChangePassword(request, env, session) {
   const hash = await hashPassword(next);
   await env.DB.prepare("UPDATE mkt_users SET password = ?, must_reset = 0, updated_at = datetime('now') WHERE id = ?")
     .bind(hash, user.id).run();
+  // Cambiar la contraseña EXPULSA a todas las demás sesiones (se conserva la
+  // actual, para no sacar de la app a quien acaba de cambiarla). Es la única
+  // forma que tiene una persona de cortar el acceso de un teléfono perdido o
+  // de una cookie robada: sin esto, la sesión ajena seguiría viva hasta 180
+  // días. Best-effort: si falla, la contraseña ya quedó cambiada igual.
+  try {
+    await env.DB.prepare('DELETE FROM mkt_sessions WHERE user_id = ? AND id != ?')
+      .bind(user.id, session.session_id).run();
+  } catch (e) { console.error('[mkt revoke sessions]', e && e.message); }
   await logActivity(env, { session, action: 'user.change_password', detail: session.email });
   return json({ ok: true });
 }
@@ -640,7 +732,7 @@ async function handleSignup(request, env) {
   const hash = await hashPassword(password);
   const verifyToken = randomId();
   const sessionId = randomId();
-  const expiry = env.SESSION_EXPIRY_SECONDS || '604800';
+  const expiry = sessionIdleSeconds(env);
   await env.DB.batch([
     env.DB.prepare(
       'INSERT INTO mkt_clients (id, name, slug, note_labels) VALUES (?, ?, ?, ?)'
@@ -1099,6 +1191,18 @@ async function handlePatchUser(request, env, session, userId) {
   vals.push(userId);
   await env.DB.prepare(`UPDATE mkt_users SET ${sets.join(', ')} WHERE id = ?`).bind(...vals).run();
 
+  // Cambiar la contraseña desde el panel TIRA las sesiones de esa cuenta: la
+  // credencial vieja deja de servir de verdad, no solo al teclearla. Se
+  // conserva la sesión de quien hizo el cambio por si se cambió a sí mismo.
+  // (Renombrar el usuario NO expulsa: la sesión va por token, no por correo.)
+  // Best-effort: el cambio ya quedó guardado pase lo que pase.
+  if (has('password')) {
+    try {
+      await env.DB.prepare('DELETE FROM mkt_sessions WHERE user_id = ? AND id != ?')
+        .bind(userId, session.session_id).run();
+    } catch (e) { console.error('[mkt revoke sessions]', e && e.message); }
+  }
+
   const updated = await env.DB.prepare(
     'SELECT id, email, name, role, client_id, active, last_login FROM mkt_users WHERE id = ?'
   ).bind(userId).first();
@@ -1120,6 +1224,13 @@ async function handleResetUserPassword(env, session, userId) {
   const hash = await hashPassword(pw);
   await env.DB.prepare("UPDATE mkt_users SET password = ?, must_reset = 1, updated_at = datetime('now') WHERE id = ?")
     .bind(hash, userId).run();
+  // Restablecer la contraseña TIRA todas las sesiones del usuario afectado.
+  // Es lo que Vianey usa cuando a un cliente le roban el teléfono o cuando hay
+  // que cortarle el acceso a alguien: si no, la sesión vieja seguiría entrando
+  // con la cookie hasta 180 días aunque la contraseña ya sea otra.
+  try {
+    await env.DB.prepare('DELETE FROM mkt_sessions WHERE user_id = ?').bind(userId).run();
+  } catch (e) { console.error('[mkt revoke sessions]', e && e.message); }
   await logActivity(env, { session, action: 'user.reset_password', detail: existing.email });
   return json({ password: pw });
 }
@@ -1951,9 +2062,19 @@ async function handlePatchPost(request, env, session, postId) {
 }
 
 async function handleDeletePost(env, session, postId) {
+  // El CLIENTE TAMBIEN puede borrar. Decision explicita de Vianey 2026-07-27:
+  // "ellos tambien tienen que poder editar y eliminar". Una auditoria propuso
+  // cerrarlo con 403 y se REVIRTIO a proposito — no lo vuelvas a cerrar sin
+  // preguntarle. Lo que protege del borrado accidental es el dialogo de
+  // confirmDeleteRow() (meses.js), donde la salida segura (Cancelar) es la
+  // grande; el aislamiento por marca de abajo es lo que SI es innegociable.
   const post = await env.DB.prepare('SELECT id, client_id, title FROM mkt_posts WHERE id = ?').bind(postId).first();
   if (!post) return json({ error: 'Post not found' }, 404);
-  // Aislamiento: el cliente solo borra posts de SU marca.
+  // Aislamiento por marca. Redundante mientras el 403 de arriba exista, pero NO
+  // se quita: si algun dia se decide reabrir el borrado al cliente, el
+  // aislamiento entre marcas NO puede depender de esa decision de producto
+  // (sin esta linea, quitar el 403 dejaria a un cliente borrar piezas de OTRA
+  // marca con una peticion cruda).
   if (session.role === 'client' && post.client_id !== session.client_id) {
     return json({ error: 'Forbidden' }, 403);
   }
@@ -3324,6 +3445,13 @@ async function mktServeRangedWithMeta(request, getObj, headers) {
 
 async function handleDeleteVideo(env, session, postId) {
   if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
+  // Los BYTES del video final son lo unico verdaderamente irrecuperable de una
+  // pieza (R2 no tiene papelera). Misma regla que handleDeletePost: borrar es
+  // del equipo. El cliente sigue pudiendo SUBIR y REEMPLAZAR su video, y el
+  // front le deja quitar el enlace (video_url = NULL) sin destruir el archivo.
+  if (session.role === 'client') {
+    return json({ error: 'Solo el equipo de IVAE puede eliminar contenido.' }, 403);
+  }
   const { error } = await mktPostForVideo(env, session, postId);
   if (error) return error;
   for (const e of MKT_VIDEO_EXTS) { try { await env.R2_BUCKET.delete(`marketing/video/${postId}.${e}`); } catch {} }
@@ -3909,7 +4037,7 @@ async function handlePostMultipartComplete(request, env, session, postId) {
 // been stripped (e.g. '/auth/login', '/posts/abc/approve').
 // Route discipline: LITERAL routes always sit before :id matchers (post ids
 // are 32-hex, so 'bulk-update' / 'reorder' / 'unread-count' can never collide).
-async function route(request, env) {
+async function route(request, env, authCtx) {
   const method = request.method;
   if (method === 'OPTIONS') return corsPreflight(request);
 
@@ -3950,8 +4078,8 @@ async function route(request, env) {
   // ── CRON (no session; Bearer MKT_CRON_SECRET) — BEFORE the session gate ──
   if (path === '/cron' && method === 'POST') return handleCron(request, env);
 
-  // Everything else needs a valid session.
-  const session = await getSession(request, env);
+  // Everything else needs a valid session (y de paso la renueva: deslizante).
+  const session = await getSession(request, env, authCtx);
 
   if (path === '/auth/logout' && method === 'POST') return handleLogout(request, env, session);
   if (path === '/auth/me' && method === 'GET') return handleMe(session, env);
@@ -4032,7 +4160,8 @@ async function route(request, env) {
     if (parts.length === 2) {
       const postId = parts[1];
       if (method === 'GET') return handleGetPost(request, env, session, postId);
-      // Editar / borrar: staff o cliente (el handler verifica la marca del post).
+      // Editar: staff o cliente (el handler verifica la marca del post).
+      // Borrar: SOLO staff (handleDeletePost rechaza role=client con 403).
       if (method === 'PATCH') return handlePatchPost(request, env, session, postId);
       if (method === 'DELETE') {
         return handleDeletePost(env, session, postId);
@@ -4341,7 +4470,21 @@ export async function onRequest(context) {
     }
     const rewrittenUrl = url.origin + stripped + url.search;
     const rewrittenReq = new Request(rewrittenUrl, request);
-    return await route(rewrittenReq, env);
+    // authCtx recoge la cookie renovada (sliding session) que produce getSession.
+    const authCtx = {};
+    const res = await route(rewrittenReq, env, authCtx);
+    if (authCtx.setCookie && res) {
+      try {
+        // Si la respuesta YA toca mkt_session (logout, cambio de contraseña,
+        // borrado de cuenta), esa gana: no le pegamos encima la renovación.
+        const already = res.headers.get('Set-Cookie') || '';
+        if (already.includes('mkt_session=')) return res;
+        const out = new Response(res.body, res);
+        out.headers.append('Set-Cookie', authCtx.setCookie);
+        return out;
+      } catch { return res; } // p.ej. respuestas inmutables — mejor sin renovar que romper
+    }
+    return res;
   } catch (e) {
     // Registro best-effort en mkt_error_log (migración 017). Silencioso:
     // el log NUNCA debe romper (ni cambiar) la respuesta 500.

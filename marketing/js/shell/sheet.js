@@ -3,7 +3,10 @@
 //
 // API CONGELADA (la consumen todos los paquetes):
 //   openSheet({title, build(bodyEl, close), mode:'menu'|'form'|'picker',
-//              onClose, anchor}) -> {close, el}
+//              onClose, confirmClose, anchor}) -> {close, el}
+//     confirmClose(info) -> false CANCELA el cierre (guardia "no tires lo que
+//     escribiste"); close({force:true}) lo salta.
+//   confirmDiscard({title,...}) -> Promise<boolean>  (pregunta reusable)
 //   pickFrom({title, options:[{value,label,color,icon,current,sub}], anchor})
 //     -> Promise<value | null>   (null = cancelado)
 //   closeAll()
@@ -22,11 +25,15 @@
 //   - Focus trap + devolucion de foco al disparador + Esc cierra la superior.
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202607271706';
-import { pushLayer } from './router.js?v=202607271706';
-import { T } from './i18n.js?v=202607271706';
+import { el, clear } from '../api.js?v=202607271831';
+import { pushLayer } from './router.js?v=202607271831';
+import { T } from './i18n.js?v=202607271831';
 
 const stack = []; // instancias abiertas (max 2)
+
+// Gestos del usuario que DESCARTAN el sheet (los unicos que puede interceptar
+// un guardia confirmClose). Todo lo demas es cierre programatico o guardado.
+const DISMISS_SOURCES = new Set(['back', 'esc', 'backdrop', 'drag', 'x', 'cancel']);
 
 const isDesktop = () => window.matchMedia('(min-width: 768px)').matches;
 
@@ -49,7 +56,7 @@ function focusables(root) {
   )].filter((n) => !n.disabled && n.offsetParent !== null);
 }
 
-export function openSheet({ title = '', build, mode = 'menu', onClose, anchor = null } = {}) {
+export function openSheet({ title = '', build, mode = 'menu', onClose, confirmClose = null, anchor = null } = {}) {
   // Maximo 2 capas: un tercero reemplaza al segundo.
   while (stack.length >= 2) stack[stack.length - 1].close({ replaced: true });
 
@@ -92,6 +99,30 @@ export function openSheet({ title = '', build, mode = 'menu', onClose, anchor = 
 
   function doClose(info = {}) {
     if (closed) return;
+
+    // Guardia opcional ANTES de descartar lo escrito. Devolver false CANCELA
+    // el cierre. Si el guardia quiere preguntar, abre su propio sheet de forma
+    // diferida (ver confirmDiscard) para que la capa de history quede en orden.
+    //
+    // SOLO aplica a gestos del usuario que descartan (lista explicita). Los
+    // cierres programaticos — closeAllLayers al cambiar de ruta, closeAll de
+    // posts:changed, el reemplazo de la 3a capa, close({force:true}) y el
+    // guardado — NUNCA se pueden bloquear: dejarian el sheet huerfano encima
+    // de otra vista y sin capa de history.
+    if (confirmClose && DISMISS_SOURCES.has(info.source)) {
+      let allow = true;
+      try { allow = confirmClose(info) !== false; } catch (e) { console.error('[sheet] confirmClose', e); allow = true; }
+      if (!allow) {
+        // El boton atras YA consumio la capa de history: se vuelve a apilar
+        // para que el siguiente atras siga cerrando ESTE sheet (y no salga de
+        // la app ni caiga en la vista de atras).
+        if (info.fromHistory) {
+          releaseLayer = pushLayer((i) => doClose({ ...i, source: 'back' }));
+        }
+        return;
+      }
+    }
+
     closed = true;
     const idx = stack.indexOf(instance);
     if (idx !== -1) stack.splice(idx, 1);
@@ -159,11 +190,15 @@ export function openSheet({ title = '', build, mode = 'menu', onClose, anchor = 
       panel.style.transition = '';
       const dy = Math.max(0, (e.clientY ?? lastY) - startY);
       const h = panel.getBoundingClientRect().height || 1;
-      if (dy > h * 0.3 || vel > 0.7) {
-        doClose({ source: 'drag' });
-      } else {
-        panel.style.transform = '';
-      }
+      // El transform del arrastre se limpia SIEMPRE, pase lo que pase con el
+      // cierre. Si se dejaba puesto y el guardia confirmClose vetaba el cierre
+      // ("¿Descartar lo escrito?" → "Seguir escribiendo"), la hoja se quedaba
+      // clavada abajo con el translateY del dedo: se veian 80px de titulo, el
+      // texto y el boton de enviar quedaban fuera de pantalla y el fondo seguia
+      // bloqueado, sin forma de subirla. De paso deja que la animacion de
+      // salida corra limpia cuando el cierre si procede.
+      panel.style.transform = '';
+      if (dy > h * 0.3 || vel > 0.7) doClose({ source: 'drag' });
     };
     handle.addEventListener('pointerup', endDrag);
     handle.addEventListener('pointercancel', endDrag);
@@ -273,6 +308,46 @@ export function pickFrom({ title = '', options = [], anchor = null } = {}) {
         body.appendChild(list);
       },
     });
+  });
+}
+
+/**
+ * Pregunta antes de TIRAR texto escrito (boton atras del telefono, Esc,
+ * backdrop, X, Cancelar). Resuelve true solo si el usuario decide descartar;
+ * cualquier otra salida (atras, backdrop, Esc) = seguir escribiendo, que es
+ * la respuesta segura.
+ *
+ * Reusa pickFrom: mismo sheet, mismo tema claro/oscuro, cero componentes
+ * nuevos. Se abre DIFERIDO un tick a proposito: cuando el que pregunta es el
+ * guardia confirmClose de otro sheet, primero tiene que reapilarse la capa de
+ * history de ese sheet y despues la de esta pregunta — si no, el boton atras
+ * cerraria el formulario y dejaria la pregunta huerfana.
+ */
+export function confirmDiscard({
+  title = T('¿Descartar lo que escribiste?', 'Discard what you wrote?'),
+  keepLabel = T('Seguir escribiendo', 'Keep writing'),
+  discardLabel = T('Descartar', 'Discard'),
+} = {}) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      pickFrom({
+        title,
+        options: [
+          {
+            value: 'keep',
+            label: keepLabel,
+            color: '#22c55e',
+            sub: T('Vuelves a tu texto tal como estaba.', 'Back to your text just as it was.'),
+          },
+          {
+            value: 'discard',
+            label: discardLabel,
+            color: '#f87171',
+            sub: T('Se pierde lo que escribiste.', 'What you wrote will be lost.'),
+          },
+        ],
+      }).then((v) => resolve(v === 'discard'));
+    }, 0);
   });
 }
 

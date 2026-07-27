@@ -12,12 +12,12 @@
 //   Sin undo (el delete es hard en el backend): el copy lo deja claro.
 // ============================================================================
 
-import { el, api, copyText } from '../api.js?v=202607271706';
-import { T } from '../shell/i18n.js?v=202607271706';
-import { icon } from '../shell/icons.js?v=202607271706';
-import { openSheet } from '../shell/sheet.js?v=202607271706';
-import * as store from '../shell/store.js?v=202607271706';
-import * as cl from '../services/checklist.js?v=202607271706';
+import { el, api, copyText, isClientRole } from '../api.js?v=202607271831';
+import { T } from '../shell/i18n.js?v=202607271831';
+import { icon } from '../shell/icons.js?v=202607271831';
+import { openSheet } from '../shell/sheet.js?v=202607271831';
+import * as store from '../shell/store.js?v=202607271831';
+import * as cl from '../services/checklist.js?v=202607271831';
 
 function isMissingEndpoint(e) {
   const s = e && e.status;
@@ -44,6 +44,11 @@ export function openActionsMenu(ed, anchor) {
         el('span', { class: 'pick-row__main' }, [el('span', { class: 'pick-row__label', text: label })]),
       ]);
 
+      // Eliminar es SOLO del equipo (el backend tambien lo rechaza para
+      // role=client): esta era la otra puerta de borrado que veia el cliente.
+      // Duplicar tambien: POST /posts/:id/duplicate es staff-only en el router,
+      // asi que al cliente le devolvia un 403 despues de abrirle la hoja de
+      // opciones. Un boton que siempre falla es peor que no tenerlo.
       body.appendChild(el('div', { class: 'pick-list' }, [
         mk(T('Duplicar', 'Duplicate'), 'copy', () => openDuplicateSheet(ed)),
         mk(T('Copiar enlace', 'Copy link'), 'link', () => copyDeepLink(ed)),
@@ -198,8 +203,14 @@ export function openDeleteConfirm(ed) {
     title: T('Eliminar contenido', 'Delete content'),
     mode: 'form',
     build(body, close) {
+      // `sheet-cta` (flex:1) va en Cancelar: la salida segura es la grande.
+      // La etiqueta es corta A PROPOSITO: `.btn` es white-space:nowrap, asi que
+      // "Eliminar definitivamente" fijaba un ancho minimo de ~193px y se comia
+      // el flex:1 de Cancelar — el boton irreversible acababa siendo el MAS
+      // ancho. El titulo ya dice "Eliminar contenido" y el cuerpo ya avisa que
+      // no se puede deshacer.
       const delBtn = el('button', {
-        class: 'btn btn-danger sheet-cta', type: 'button', text: T('Eliminar definitivamente', 'Delete permanently'),
+        class: 'btn btn-danger', type: 'button', text: T('Eliminar', 'Delete'),
         onclick: async () => {
           // Cierra el sheet ANTES de navegar (su capa de history se consume
           // primero y el goBack del editor no choca con ella).
@@ -223,7 +234,7 @@ export function openDeleteConfirm(ed) {
         ]),
         el('p', { class: 'help', text: T('Esta accion no se puede deshacer.', 'This action cannot be undone.') }),
         el('div', { class: 'sheet__footer' }, [
-          el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
+          el('button', { class: 'btn sheet-cta', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
           delBtn,
         ]),
       );

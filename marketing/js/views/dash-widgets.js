@@ -19,10 +19,10 @@ import {
   STATUSES, STATUS_ORDER,
   CONTENT_TYPES, PLATFORMS,
   statusBadge, approvalBadge,
-} from '../api.js?v=202607271706';
-import { icon } from '../shell/icons.js?v=202607271706';
-import { T } from '../shell/i18n.js?v=202607271706';
-import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202607271706';
+} from '../api.js?v=202607271831';
+import { icon } from '../shell/icons.js?v=202607271831';
+import { T } from '../shell/i18n.js?v=202607271831';
+import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202607271831';
 
 // Bucket para status que ya no existen en el enum (NUNCA invisibles).
 export const OTROS_KEY = '__otros';
@@ -844,18 +844,12 @@ export function dashSkeleton() {
   return el('div', { class: 'dash-skel', 'aria-hidden': 'true' }, [counters, block(), block(), block()]);
 }
 
-/** Card unica de error con reintento. */
-export function errorCard({ message, onRetry }) {
-  return el('div', { class: 'dash-error' }, [
-    el('div', { class: 'dash-error__icon' }, [icon('warning', 26)]),
-    el('h3', { text: T('No se pudo cargar el resumen', "Couldn't load the summary") }),
-    el('p', { class: 'dash-error__msg', text: message || T('Revisa tu conexion e intenta de nuevo.', 'Check your connection and try again.') }),
-    el('button', {
-      class: 'btn btn-primary', type: 'button', text: T('Reintentar', 'Retry'),
-      onclick: () => { if (onRetry) onRetry(); },
-    }),
-  ]);
-}
+/**
+ * Card unica de error con reintento.
+ * Vive en ui/states.js (la comparten Calendario y Entregables, que no cargan
+ * este modulo); se re-exporta aqui para no tocar a views/dashboard.js.
+ */
+export { errorCard } from '../ui/states.js?v=202607271831';
 
 /** Vacio total del cliente: ni un contenido creado. */
 export function emptyMonth({ onCreate }) {
