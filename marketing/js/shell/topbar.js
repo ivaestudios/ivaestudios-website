@@ -10,14 +10,15 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607270920';
-import * as store from './store.js?v=202607270920';
-import { openSheet, pickFrom } from './sheet.js?v=202607270920';
-import { toast } from './toast.js?v=202607270920';
-import { icon } from './icons.js?v=202607270920';
-import { openClientSwitcher } from './clientswitcher.js?v=202607270920';
-import { T, isEN, setLang } from './i18n.js?v=202607270920';
-import { getTheme, setTheme } from './theme.js?v=202607270920';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607271115';
+import * as store from './store.js?v=202607271115';
+import { openSheet, pickFrom } from './sheet.js?v=202607271115';
+import { toast } from './toast.js?v=202607271115';
+import { icon } from './icons.js?v=202607271115';
+import { openClientSwitcher } from './clientswitcher.js?v=202607271115';
+import { T, isEN, setLang } from './i18n.js?v=202607271115';
+import { getTheme, setTheme } from './theme.js?v=202607271115';
+import * as version from './version.js?v=202607271115';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -238,6 +239,64 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
     ]);
   }
 
+  // Indicador de versión: qué código tiene cargado ESTA pantalla ahora mismo,
+  // en fecha legible, y si coincide con lo publicado en el servidor. Consulta
+  // al ABRIR el menú (no cada 5 min), así siempre es una comprobación en vivo:
+  // es la respuesta a "¿cómo sé que de verdad se publicó?".
+  function versionRow() {
+    const line = el('div', { class: 'acct-ver__line', text: version.currentLabel() });
+    const status = el('div', { class: 'acct-ver__status', role: 'status', 'aria-live': 'polite' });
+    const actions = el('div', { class: 'acct-ver__actions' });
+
+    const updateBtn = () => el('button', {
+      class: 'btn btn-primary btn-sm', type: 'button',
+      text: T('Actualizar ahora', 'Update now'),
+      onclick: (e) => {
+        e.currentTarget.disabled = true;
+        e.currentTarget.textContent = T('Actualizando…', 'Updating…');
+        version.applyUpdate();
+      },
+    });
+
+    const paint = (res) => {
+      clear(status); clear(actions);
+      if (!res) {
+        status.className = 'acct-ver__status is-checking';
+        status.textContent = T('Comprobando con el servidor…', 'Checking with the server…');
+        return;
+      }
+      if (res.state === 'same') {
+        status.className = 'acct-ver__status is-ok';
+        status.textContent = T('Actualizada ✓', 'Up to date ✓');
+      } else if (res.state === 'new') {
+        status.className = 'acct-ver__status is-new';
+        status.textContent = T(
+          `Hay una versión más nueva (${version.formatStamp(res.server)})`,
+          `A newer version is available (${version.formatStamp(res.server)})`,
+        );
+        actions.appendChild(updateBtn());
+      } else {
+        status.className = 'acct-ver__status is-unknown';
+        status.textContent = T('No se pudo comprobar. Revisa tu conexión.', 'Could not check. Check your connection.');
+        actions.appendChild(el('button', {
+          class: 'btn btn-sm', type: 'button', text: T('Reintentar', 'Retry'),
+          onclick: run,
+        }));
+      }
+    };
+
+    function run() {
+      paint(null);
+      version.check({ force: true }).then(paint).catch(() => paint({ state: 'unknown' }));
+    }
+    run();
+
+    return el('div', { class: 'acct-ver' }, [
+      el('span', { class: 'acct-ver__ico' }, [icon('refresh', 18)]),
+      el('div', { class: 'acct-ver__main' }, [line, status, actions]),
+    ]);
+  }
+
   function openAccountSheet() {
     const { me } = store.getState();
     openSheet({
@@ -255,6 +314,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
           ]),
           langRow(),
           themeRow(),
+          versionRow(),
           // Herramientas de agencia: SOLO staff (el cliente no las ve).
           ...(me && me.role !== 'client' ? [
             accountRow('users', T('Equipo', 'Team'), () => { close(); openTeamSheet(); }),

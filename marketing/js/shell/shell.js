@@ -19,21 +19,22 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202607270920';
-import * as store from './store.js?v=202607270920';
-import * as prefs from './prefs.js?v=202607270920';
-import * as router from './router.js?v=202607270920';
-import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607270920';
-import { toast } from './toast.js?v=202607270920';
-import { icon } from './icons.js?v=202607270920';
-import * as iconsMod from './icons.js?v=202607270920';
-import { createTopbar } from './topbar.js?v=202607270920';
-import { createBottomNav } from './bottomnav.js?v=202607270920';
-import { createSearch } from './search.js?v=202607270920';
-import { createNotifications } from './notifications.js?v=202607270920';
-import { T } from './i18n.js?v=202607270920';
-import * as pickers from '../ui/pickers.js?v=202607270920';
-import * as dnd from '../ui/dnd.js?v=202607270920';
+import { api, el } from '../api.js?v=202607271115';
+import * as store from './store.js?v=202607271115';
+import * as prefs from './prefs.js?v=202607271115';
+import * as router from './router.js?v=202607271115';
+import { openSheet, pickFrom, closeAll } from './sheet.js?v=202607271115';
+import { toast } from './toast.js?v=202607271115';
+import { icon } from './icons.js?v=202607271115';
+import * as iconsMod from './icons.js?v=202607271115';
+import { createTopbar } from './topbar.js?v=202607271115';
+import { createBottomNav } from './bottomnav.js?v=202607271115';
+import { createSearch } from './search.js?v=202607271115';
+import { createNotifications } from './notifications.js?v=202607271115';
+import { T } from './i18n.js?v=202607271115';
+import * as version from './version.js?v=202607271115';
+import * as pickers from '../ui/pickers.js?v=202607271115';
+import * as dnd from '../ui/dnd.js?v=202607271115';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -68,6 +69,7 @@ let subheadEl = null;
 let subheadSeg = null;
 let subheadSlot = null;
 let offlineBar = null;
+let barsHost = null;
 let viewScrollEl = null;
 let redirected = false;
 
@@ -221,35 +223,114 @@ function installAuthInterceptor() {
   }
 }
 
-// Detector de versión nueva: la SPA congela sus módulos con ?v=stamp al cargar,
+// ── Franjas de aviso bajo el topbar (offline / verifica tu correo / versión) ──
+// Las tres viven dentro de #barsHost, un contenedor fijo bajo el topbar. Se
+// apilan solas (flujo normal) y su alto TOTAL se publica en --bars-h, que es
+// lo que desplaza #subhead y #viewScroll (shell.css). Antes cada barra era
+// `position: fixed` con su propio top y el CSS enumeraba las combinaciones a
+// mano: con tres barras eso ya no escalaba y una combinación olvidada tapaba
+// el seg de vistas.
+function getBarsHost() {
+  if (barsHost) return barsHost;
+  barsHost = document.getElementById('barsHost');
+  if (!barsHost) {
+    barsHost = el('div', { id: 'barsHost' });
+    const tb = document.getElementById('topbar');
+    if (tb) tb.insertAdjacentElement('afterend', barsHost);
+    else document.body.appendChild(barsHost);
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    try { new ResizeObserver(syncBarsHeight).observe(barsHost); } catch { /* noop */ }
+  }
+  window.addEventListener('resize', syncBarsHeight);
+  return barsHost;
+}
+
+function syncBarsHeight() {
+  const h = barsHost ? barsHost.offsetHeight : 0;
+  document.body.style.setProperty('--bars-h', `${h}px`);
+}
+
+// Detector de versión nueva: la SPA congela sus módulos con ?v=SELLO al cargar,
 // así que tras cada deploy las pestañas abiertas corren código viejo (fuente #1
-// de "botones que no hacen nada"). Cada 5 min (y al volver a la pestaña) se
-// compara el stamp propio contra el app.html fresco del servidor; si cambió,
-// aviso persistente con botón Actualizar. Nunca recarga sola: podría haber
-// texto sin guardar.
+// de "te dije que lo publiqué y no lo veo"). Se comprueba AL CARGAR, al volver
+// a la pestaña y cada 5 min; el aviso es una FRANJA PERSISTENTE (no un toast de
+// 10 min que se pierde si no estás mirando) que se queda hasta actualizar o
+// cerrarla a mano. Nunca recarga sola: podría haber texto sin guardar.
 function installVersionWatch() {
-  const cur = ((document.querySelector('script[src*="main.js?v="]') || {}).src || '').match(/v=([\w.-]+)/)?.[1];
-  if (!cur) return;
-  let notified = false;
-  const check = async () => {
-    if (notified || document.visibilityState !== 'visible') return;
-    try {
-      const r = await fetch('/marketing/app.html', { cache: 'no-store', credentials: 'same-origin' });
-      if (!r.ok) return;
-      const server = (await r.text()).match(/main\.js\?v=([\w.-]+)/)?.[1];
-      if (server && server !== cur) {
-        notified = true;
-        toast(T('Hay una versión nueva de la app.', 'A new version of the app is available.'), {
-          type: 'info', ms: 600000,
-          action: { label: T('Actualizar', 'Update'), onAction: () => location.reload() },
-        });
-      }
-    } catch { /* sin red: se reintenta en el siguiente ciclo */ }
+  if (!version.CURRENT) return; // sin sello propio no hay nada que comparar
+  let bar = null;
+  let dismissed = null; // sello del servidor que ya se descartó a mano
+
+  const build = (serverStamp) => {
+    const txt = el('span', {
+      class: 'update-bar__txt',
+      text: T('Hay una versión nueva de la app.', 'A new version is available.'),
+    });
+    const when = el('span', {
+      class: 'update-bar__when',
+      text: T(`Publicada ${version.formatStamp(serverStamp)}`, `Published ${version.formatStamp(serverStamp)}`),
+    });
+    const btn = el('button', {
+      class: 'update-bar__btn', type: 'button',
+      text: T('Actualizar', 'Update'),
+      onclick: () => {
+        btn.disabled = true;
+        btn.textContent = T('Actualizando…', 'Updating…');
+        version.applyUpdate();
+      },
+    });
+    const closeBtn = el('button', {
+      class: 'update-bar__x', type: 'button',
+      'aria-label': T('Cerrar este aviso', 'Dismiss this notice'),
+      title: T('Cerrar este aviso', 'Dismiss this notice'),
+      onclick: () => {
+        dismissed = serverStamp;
+        hide();
+      },
+    }, [icon('close', 16)]);
+    return el('div', {
+      class: 'update-bar', role: 'status', 'aria-live': 'polite',
+    }, [txt, when, btn, closeBtn]);
   };
+
+  const hide = () => {
+    if (!bar) return;
+    bar.remove();
+    bar = null;
+    document.body.classList.remove('has-updatebar');
+    syncBarsHeight();
+  };
+
+  const render = (res) => {
+    // 'unknown' (se cayó la red o el servidor) NO borra un aviso ya puesto: la
+    // versión nueva sigue existiendo aunque ahora no se pueda comprobar.
+    if (res.state === 'unknown') return;
+    if (res.state !== 'new' || !res.server) { hide(); return; }
+    if (res.server === dismissed) return; // ya la cerró a mano: no insistir
+    if (bar && bar.dataset.stamp === res.server) return; // ya está puesta
+    hide();
+    bar = build(res.server);
+    bar.dataset.stamp = res.server;
+    getBarsHost().appendChild(bar);
+    document.body.classList.add('has-updatebar');
+    syncBarsHeight();
+  };
+
+  version.onChange(render);
+
+  // maxAgeMs 30 s: volver a la pestaña sí re-comprueba, pero alt-tabbear diez
+  // veces seguidas no dispara diez peticiones.
+  const check = () => {
+    if (document.visibilityState !== 'visible') return;
+    version.check({ maxAgeMs: 30000 }).catch(() => {});
+  };
+  // 1) al cargar la app (tras el arranque, para no competir con las peticiones
+  //    críticas), 2) cada 5 min, 3) al recuperar el foco de la pestaña.
+  setTimeout(check, 2500);
   setInterval(check, 5 * 60 * 1000);
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') check();
-  });
+  document.addEventListener('visibilitychange', check);
+  window.addEventListener('focus', check);
 }
 
 // Banner de verificación de correo (clientes auto-registrados): franja delgada
@@ -275,11 +356,12 @@ function installVerifyBanner(me) {
     el('span', { class: 'verify-bar__txt', text: T('Confirma tu correo para proteger tu cuenta.', 'Confirm your email to protect your account.') }),
     btn,
   ]);
-  const topbarRoot = document.getElementById('topbar');
-  if (topbarRoot) topbarRoot.insertAdjacentElement('afterend', bar);
-  // body.has-verifybar desplaza #subhead y #viewScroll (shell.css), igual que
-  // la barra offline: el banner no tapa nada.
+  // Vive en #barsHost: su alto entra en --bars-h y desplaza #subhead y
+  // #viewScroll (shell.css), así que el banner no tapa nada aunque coincida
+  // con la barra offline o con la franja de versión nueva.
+  getBarsHost().appendChild(bar);
   document.body.classList.add('has-verifybar');
+  syncBarsHeight();
 }
 
 // El link del correo de verificación redirige a /marketing/app?verified=1|0.
@@ -304,9 +386,10 @@ function installOnlineOffline() {
     const online = navigator.onLine !== false;
     store.set({ online });
     if (offlineBar) offlineBar.hidden = online;
-    // body.is-offline desplaza #subhead y #viewScroll (shell.css): la barra
-    // no tapa el seg ni roba taps.
+    // La barra vive en #barsHost: al ocultarse/mostrarse cambia --bars-h y
+    // #subhead/#viewScroll se recolocan solos (shell.css). No roba taps.
     document.body.classList.toggle('is-offline', !online);
+    syncBarsHeight();
   };
   window.addEventListener('online', update);
   window.addEventListener('offline', update);
@@ -422,7 +505,7 @@ export async function boot() {
   });
 
   offlineBar = el('div', { class: 'offline-bar', hidden: true, text: T('Sin conexión', 'Offline') });
-  topbarRoot.insertAdjacentElement('afterend', offlineBar);
+  getBarsHost().appendChild(offlineBar);
 
   applyAccent(activeClientId);
   installAuthInterceptor();
@@ -430,6 +513,9 @@ export async function boot() {
   installVersionWatch();
   installVerifyBanner(me);
   consumeVerifiedParam();
+  // Limpia el ?_v= que deja el botón "Actualizar" (version.applyUpdate): la
+  // URL vuelve a quedar limpia para compartir o guardar en favoritos.
+  version.consumeCacheBustParam();
   notifications.start();
 
   // 5) Router.

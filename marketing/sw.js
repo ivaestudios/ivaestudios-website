@@ -142,3 +142,13 @@ self.addEventListener('fetch', (event) => {
 
   // Resto (assets sin stamp, p.ej. manifest/íconos): comportamiento normal.
 });
+
+// ── Mensajes de la app ───────────────────────────────────────────────────────
+// El botón "Actualizar" de la franja de versión nueva (js/shell/version.js)
+// pide al SW en espera que tome el control YA, en vez de esperar a que se
+// cierren todas las pestañas. Se aceptan las dos formas del mensaje (string y
+// objeto), igual que el SW raíz del sitio.
+self.addEventListener('message', (event) => {
+  const d = event.data;
+  if (d === 'skipWaiting' || (d && d.type === 'skipWaiting')) self.skipWaiting();
+});

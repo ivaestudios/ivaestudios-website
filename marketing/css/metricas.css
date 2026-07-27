@@ -1,107 +1,413 @@
 /* ============================================================================
-   Vista "Métricas" — panel de Instagram por periodo (mobile-first, enterprise).
-   Usa los tokens del shell + var(--client-accent) (color de la marca activa).
+   Vista "Métricas" — panel de Instagram por periodo.
+
+   REDISEÑO 2026-07-27. Hereda el lenguaje del reporte mensual descargable:
+   secciones numeradas, la frase antes de la gráfica, y NINGUNA cifra sin su
+   línea de lectura. Pero es PANTALLA: móvil canónico (390px), un solo héroe,
+   y las cifras que no cambian con el periodo viven aparte.
+
+   REGLAS DE COLOR (no negociables):
+   · Los tintes de barra salen de colores MEDIDOS en JS (metricas.js →
+     applyAccentTokens), no de color-mix a porcentaje fijo: mezclar hacia
+     --surface sin medir deja barras invisibles en oscuro y el acento como
+     texto reprueba AA con ámbar/lima/cian.
+   · NINGÚN relleno usa --client-accent crudo: van con --mt-fill / --mt-a55,
+     que se acercan en bucle hasta medir 3:1 contra la superficie del tema
+     (WCAG 1.4.11). Con acento lima en claro, el acento crudo medía 1.19:1 y
+     el filete de sección literalmente desaparecía. Si el acento de la marca
+     ya cumple 3:1, --mt-fill ES el acento, sin tocar un tono.
+   · NINGUNA barra lleva texto encima. El acento no carga tipografía aquí,
+     salvo --mt-ink, que se acerca en bucle hasta medir ≥4.6:1.
+   · --text-mute NO se usa en esta vista: sobre el fondo oscuro mide 3.29:1 y
+     aquí TODO texto chico es contenido que se lee (líneas de lectura, pies de
+     gráfica, notas de lo que quedó fuera). Todo va en --text-dim (6.4:1).
+   · Tokens JS: --mt-on-accent (tinta sobre el acento sólido), --mt-ink
+     (acento legible como TEXTO, 4.6:1), --mt-fill (relleno líder, 3:1),
+     --mt-a55 (relleno no líder, 3:1), --mt-a10 (tinte decorativo:
+     fondo de miniatura; NUNCA información).
+
+   OJO: los nombres .mt-kpi / .mt-card / .mt-vid del diseño viejo ya NO se usan.
+   theme-light.css les inyecta sombras con !important; el rediseño estrena
+   nombres (.mt-num, .mt-sec, .mt-post) para nacer limpio y las reglas viejas
+   quedan inertes.
    ============================================================================ */
-.mt-root { max-width: 1080px; margin: 0 auto; padding: 4px 2px 40px; }
 
-/* Encabezado */
-.mt-head { display: flex; align-items: flex-start; gap: 12px; margin: 4px 0 16px; flex-wrap: wrap; }
-.mt-head__l { flex: 1 1 auto; min-width: 0; }
-.mt-title { font-size: 20px; font-weight: 800; letter-spacing: -.01em; }
-.mt-sub { color: var(--text-dim); font-size: 13px; margin-top: 3px; }
-.mt-download { flex: none; min-height: 40px; }
+.mt-root {
+  max-width: 1080px; margin: 0 auto; padding: 4px 0 48px;
+  /* Respaldos por si el JS no alcanzó a escribir los tokens (primer pintado). */
+  --mt-on-accent: #fff;
+  --mt-ink: var(--client-accent, var(--brand));
+  --mt-fill: var(--client-accent, var(--brand));
+  --mt-a55: color-mix(in srgb, var(--client-accent, var(--brand)) 55%, transparent);
+  --mt-a10: color-mix(in srgb, var(--client-accent, var(--brand)) 10%, transparent);
+  --mt-track: rgba(255, 255, 255, .10);
+  --mt-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --mt-serif: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+}
+:root[data-theme="light"] .mt-root { --mt-track: rgba(15, 15, 35, .11); }
 
-/* Selector de periodo */
-.mt-periods { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+/* Todo lo numérico en tabular: sin esto "9,518" y "5,592" bailan en cada
+   re-render. La serif NUNCA toca un número (Georgia trae cifras de estilo
+   antiguo y descuadraría cualquier columna). */
+.mt-num__v, .mt-bar__v, .mt-big__v, .mt-acct__v, .mt-col__v, .mt-post__n b {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* ── Kicker mono: el ADN del reporte, la pieza que hace que la pantalla y el
+   PDF se lean como la misma marca ───────────────────────────────────────── */
+.mt-kicker {
+  font: 700 10.5px/1.2 var(--mt-mono);
+  letter-spacing: .16em; text-transform: uppercase; color: var(--text-dim);
+}
+
+/* ── Encabezado (compacto: antes comía 130px antes del primer dato) ──────── */
+.mt-head { margin: 2px 0 20px; }
+.mt-kicker--top { margin-bottom: 7px; }
+.mt-title { font-size: 22px; font-weight: 800; letter-spacing: -.015em; line-height: 1.15; }
+.mt-meta {
+  margin-top: 4px; font-size: 12.5px; color: var(--text-dim);
+  display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;
+}
+.mt-handle { font-weight: 600; color: var(--text-dim); }
+.mt-dotsep { color: var(--text-dim); }
+
+.mt-ctrl { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.mt-periods { display: inline-flex; gap: 6px; flex: 0 0 auto; }
 .mt-chip {
-  min-height: 38px; padding: 0 16px; border-radius: var(--r-pill);
+  min-height: var(--tap, 44px); padding: 0 16px; border-radius: var(--r-pill);
   background: var(--surface-2); border: 1px solid var(--border);
   color: var(--text-dim); font: inherit; font-size: 13.5px; font-weight: 600;
   cursor: pointer; white-space: nowrap; transition: background .15s, border-color .15s, color .15s;
 }
 .mt-chip:hover { color: var(--text); border-color: var(--border-strong); }
+/* El chip activo CALCULA su tinta: #fff sobre un acento ámbar medía 2.1:1.
+   --mt-on-accent lo resuelve con el mismo criterio del reporte. */
 .mt-chip.is-active {
-  color: #fff; border-color: transparent;
+  color: var(--mt-on-accent); border-color: transparent;
   background: var(--client-accent, var(--brand)); box-shadow: var(--sh-1);
 }
-.mt-chip--cal { display: inline-flex; align-items: center; justify-content: center; width: 42px; padding: 0; }
-.mt-chip--cal .ico { display: inline-flex; }
+.mt-download { flex: 0 0 auto; min-height: var(--tap, 44px); margin-left: auto; }
 
-/* Panel de fechas personalizado */
-.mt-custom {
-  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r);
-  padding: 14px; margin: -6px 0 16px; display: flex; flex-direction: column; gap: 12px;
-}
-.mt-custom__row { display: flex; gap: 12px; flex-wrap: wrap; }
-.mt-custom__row label { display: flex; flex-direction: column; gap: 5px; flex: 1 1 140px; font-size: 12.5px; color: var(--text-dim); font-weight: 600; }
-.mt-date { min-height: 44px; }
-.mt-apply { align-self: flex-start; min-height: 42px; }
+/* ── Documento: secciones numeradas que se renumeran solas ───────────────── */
+.mt-doc { counter-reset: mtsec; }
+.mt-sec { counter-increment: mtsec; padding-top: 32px; }
+.mt-sec:first-child { padding-top: 8px; }
+.mt-sec + .mt-sec { border-top: 1px solid var(--border); }
 
-/* KPIs */
-.mt-kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 18px; }
-.mt-kpi {
-  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r);
-  padding: 16px 16px 14px;
+.mt-sec__open { margin-bottom: 18px; }
+.mt-sec__open::before {
+  content: ""; display: block; width: 40px; height: 2px;
+  background: var(--mt-fill); margin-bottom: 12px;
 }
-.mt-kpi__val { font-size: 26px; font-weight: 800; letter-spacing: -.02em; line-height: 1.05; }
-.mt-kpi__lbl { color: var(--text-dim); font-size: 12.5px; font-weight: 600; margin-top: 4px; }
-.mt-kpi__sub { color: var(--text-mute); font-size: 11.5px; margin-top: 6px; }
-.mt-kpi--hero {
-  grid-column: 1 / -1;
+.mt-sec__n::before {
+  content: counter(mtsec, decimal-leading-zero);
+  font: 700 10.5px/1 var(--mt-mono); letter-spacing: .22em; color: var(--mt-ink);
+}
+.mt-sec__t { font-size: 18px; font-weight: 700; letter-spacing: -.01em; margin-top: 7px; }
+.mt-sec__dek { font-size: 13px; line-height: 1.5; color: var(--text-dim); margin-top: 5px; max-width: 62ch; }
+
+/* ── La frase. ÚNICO lugar donde entra la serif: una app llena de serif deja
+   de ser app. Todo lo demás sigue en Outfit ─────────────────────────────── */
+.mt-lead {
+  font-family: var(--mt-serif); font-weight: 400;
+  font-size: clamp(20px, 5.4vw, 27px); line-height: 1.35; letter-spacing: -.01em;
+  color: var(--text); max-width: 34ch; margin: 0 0 4px;
+}
+.mt-lead b { font-weight: 700; }
+.mt-lead--sm { font-size: clamp(18px, 4.8vw, 22px); max-width: 40ch; margin-bottom: 18px; }
+
+/* ── KPIs: 1 héroe + 2 ó 3. Filetes, no tarjetas: ahí muere el look de tablero ─ */
+.mt-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 14px; margin-top: 26px; }
+.mt-num { border-top: 1px solid var(--border); padding: 12px 0 4px; min-width: 0; }
+.mt-num--hero { grid-column: 1 / -1; border-top: 2px solid var(--mt-fill); }
+/* El héroe ocupa la fila 1 completa, así que con un número IMPAR de tarjetas
+   secundarias la última se quedaba sola a la izquierda, con su filete cortado
+   a media pantalla. Si el último hijo cae en posición par, ocupa la fila. */
+.mt-num:last-child:nth-child(even) { grid-column: 1 / -1; }
+.mt-num__k {
+  font: 700 10.5px/1.3 var(--mt-mono); letter-spacing: .12em;
+  text-transform: uppercase; color: var(--text-dim);
+}
+.mt-num__v {
+  font-size: 24px; font-weight: 800; letter-spacing: -.02em; line-height: 1;
+  color: var(--text); margin: 10px 0 7px; overflow-wrap: anywhere;
+}
+.mt-num--hero .mt-num__v { font-size: clamp(42px, 12.5vw, 60px); line-height: .92; margin: 12px 0 9px; }
+/* NINGUNA CIFRA VIAJA SOLA. kpi() en el JS ni siquiera renderiza sin esto. */
+.mt-num__read { font-size: 12.5px; line-height: 1.5; color: var(--text-dim); max-width: 34ch; }
+.mt-num__read b { color: var(--text); font-weight: 700; }
+
+/* ── "Tu cuenta hoy": las cifras que NO se mueven con el selector de periodo
+   salen de la fila de KPIs. Mezclarlas ahí era lo que aplanaba todo ─────── */
+.mt-acctwrap { margin-top: 30px; }
+.mt-acct {
+  margin-top: 10px; padding: 14px 16px;
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-sm, 10px);
+}
+.mt-acct__row { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+.mt-acct__i { display: inline-flex; align-items: baseline; gap: 7px; min-width: 0; }
+.mt-acct__v { font-size: 19px; font-weight: 800; letter-spacing: -.02em; color: var(--text); }
+.mt-acct__k { font-size: 12.5px; color: var(--text-dim); }
+.mt-micro { margin-top: 9px; font-size: 11.5px; line-height: 1.55; color: var(--text-dim); max-width: 62ch; }
+
+/* ── Paneles de gráfica ──────────────────────────────────────────────────── */
+.mt-aud { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.mt-panel {
+  margin: 0; padding: 16px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: var(--r-sm, 10px); min-width: 0;
+}
+.mt-panel .mt-kicker { margin-bottom: 14px; }
+.mt-chartcap { margin-top: 12px; font-size: 12px; line-height: 1.5; color: var(--text-dim); max-width: 56ch; }
+.mt-chartcap b { color: var(--text); font-weight: 700; }
+/* Lo que no cupo en la gráfica se DICE. Nunca se dibuja un 0. */
+.mt-fold { margin-top: 12px; font-size: 11.5px; line-height: 1.55; color: var(--text-dim); }
+.mt-plain { font-size: 14px; line-height: 1.55; color: var(--text-dim); }
+.mt-plain b { color: var(--text); font-weight: 700; }
+.mt-pend { color: var(--text-dim); font-weight: 600; }
+
+/* ── Barra a DOS renglones: la barra usa TODO el ancho.
+   Antes [96px etiqueta][barra][40px valor] tiraba 146px de un 390 ───────── */
+.mt-bars { display: flex; flex-direction: column; gap: 2px; }
+.mt-bar {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline; column-gap: 12px; row-gap: 7px; padding: 9px 0;
+}
+.mt-bar + .mt-bar { border-top: 1px solid var(--border); }
+/* Una fila = una línea. SIEMPRE. ("Playa del Carmen, Quintana Roo" ya llega
+   recortado en el JS con split(',')[0]; esto es la red de seguridad.) */
+.mt-bar__k {
+  font-size: 13px; font-weight: 600; color: var(--text-dim); min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mt-bar__v { font-size: 13px; font-weight: 700; color: var(--text); }
+.mt-bar__t {
+  grid-column: 1 / -1; position: relative; display: block; height: 8px;
+  background: var(--mt-track); border-radius: var(--r-pill); overflow: hidden;
+}
+/* Jerarquía por RANGO, no por gradiente: sólo el líder va a full. El filo al
+   100% (inset) es lo que salva a las barras no-líderes con acentos pálidos y
+   en tema claro — el truco `ostrk` del propio reporte. */
+.mt-bar__t i {
+  position: absolute; inset: 0 auto 0 0; display: block; height: 100%;
+  background: var(--mt-a55); box-shadow: inset 0 0 0 1px var(--mt-fill);
+  border-radius: var(--r-pill);
+}
+.mt-bar[data-rank="1"] .mt-bar__t i { background: var(--mt-fill); box-shadow: none; }
+@media (hover: hover) {
+  .mt-bar:hover .mt-bar__k { color: var(--text); }
+}
+
+/* ── Género: UNA barra partida. Sin texto adentro — la leyenda va debajo, así
+   no hay riesgo de blanco ilegible sobre un acento claro ────────────────── */
+.mt-split {
+  display: flex; height: 36px; border-radius: var(--r-sm, 10px); overflow: hidden;
+  background: var(--mt-track);
+}
+.mt-split i { display: block; min-width: 3px; height: 100%; }
+.mt-split i[data-i="0"] { background: var(--mt-fill); }
+.mt-split i[data-i="1"] { background: var(--mt-a55); box-shadow: inset 0 0 0 1px var(--mt-fill); }
+/* "Sin dato" NO es una categoría de la marca, es una ausencia: va con trama
+   neutra en --text-dim (6.4:1) en vez de un tinte del acento al 30%, que en
+   claro con ámbar/lima medía 1.19:1 y no se distinguía de la pista. */
+.mt-split i[data-i="9"], .mt-dot[data-i="9"] {
   background:
-    linear-gradient(135deg, color-mix(in srgb, var(--client-accent, var(--brand)) 22%, transparent), transparent),
+    repeating-linear-gradient(135deg, var(--text-dim) 0 1.5px, transparent 1.5px 5px),
     var(--surface-2);
-  border-color: color-mix(in srgb, var(--client-accent, var(--brand)) 40%, var(--border));
+  box-shadow: inset 0 0 0 1px var(--border-strong);
 }
-.mt-kpi--hero .mt-kpi__val { font-size: 34px; }
-
-/* Tarjeta genérica */
-.mt-card {
-  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r);
-  padding: 16px 18px; margin-bottom: 14px;
+.mt-legend {
+  display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px;
+  list-style: none; padding: 0; font-size: 12.5px; color: var(--text-dim);
 }
-.mt-h { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
-.mt-hint { font-size: 12px; color: var(--text-mute); margin: 0 0 12px; line-height: 1.4; }
-.mt-hint--pending { margin: -8px 2px 14px; color: var(--text-dim); }
+.mt-legend li { display: inline-flex; align-items: center; gap: 7px; }
+.mt-legend b { color: var(--text); font-weight: 700; }
+.mt-dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.mt-dot[data-i="0"] { background: var(--mt-fill); }
+.mt-dot[data-i="1"] { background: var(--mt-a55); box-shadow: inset 0 0 0 1px var(--mt-fill); }
 
-/* Audiencia (barras) */
-.mt-aud { display: flex; flex-direction: column; gap: 8px; }
-.mt-aud__sub { font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-mute); margin: 14px 0 8px; font-weight: 700; }
-.mt-aud__row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
-.mt-aud__k { flex: 0 0 96px; color: var(--text-dim); font-weight: 600; }
-.mt-aud__bar { flex: 1; height: 9px; background: var(--surface); border-radius: var(--r-pill); overflow: hidden; }
-.mt-aud__bar i { display: block; height: 100%; background: var(--client-accent, var(--brand)); border-radius: var(--r-pill); }
-.mt-aud__v { flex: 0 0 40px; text-align: right; font-weight: 700; color: var(--text); }
+/* ── Edad en columnas: es ordinal. Y en vertical un 2% cuesta una columna
+   angosta y CERO renglones (en horizontal costaba una fila entera) ──────── */
+.mt-cols {
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr);
+  gap: 6px; align-items: end; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-strong);
+}
+.mt-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 7px; min-width: 0; }
+.mt-col__v { font-size: 12px; font-weight: 700; color: var(--text-dim); }
+.mt-col[data-top="1"] .mt-col__v { color: var(--text); }
+.mt-col__b {
+  display: block; width: 100%; max-width: 64px; border-radius: 3px 3px 0 0;
+  background: var(--mt-a55); box-shadow: inset 0 0 0 1px var(--mt-fill);
+}
+.mt-col[data-top="1"] .mt-col__b { background: var(--mt-fill); box-shadow: none; }
+.mt-colks {
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr);
+  gap: 6px; margin-top: 8px;
+}
+/* La etiqueta va a DOS renglones ("13-" / "17"): con los 7 rangos que devuelve
+   Meta la columna mide 28-30px (a 320px y también en el escritorio de 3
+   paneles) y en una línea salían todas recortadas a "13-…". El rango sólo se
+   nombra aquí: recortarlo dejaba la gráfica sin significado. */
+.mt-col__k {
+  font: 600 10.5px/1.25 var(--mt-mono); color: var(--text-dim);
+  text-align: center; display: flex; flex-direction: column; align-items: center;
+  min-width: 0; overflow: hidden;
+}
+.mt-col__k > span { white-space: nowrap; }
 
-/* Rendimiento por video */
-.mt-vids__head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
-.mt-vids__head .mt-h { margin: 0; }
-.mt-note { color: var(--text-mute); font-size: 12px; }
-.mt-vids { display: flex; flex-direction: column; gap: 10px; }
-.mt-vid { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 13px 15px; }
-.mt-vid__head { display: flex; align-items: center; gap: 10px; font-size: 12px; margin-bottom: 6px; }
-.mt-vid__type { background: var(--client-accent, var(--brand)); color: #fff; border-radius: var(--r-pill); padding: 2px 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; font-size: 11px; }
-.mt-vid__date { color: var(--text-mute); font-weight: 700; text-transform: uppercase; }
-.mt-vid__link { margin-left: auto; color: var(--client-accent, var(--brand)); font-weight: 600; }
-.mt-vid__cap { color: var(--text-dim); font-size: 13px; margin-bottom: 8px; line-height: 1.4; }
-.mt-vid__metrics { display: flex; flex-wrap: wrap; gap: 6px 14px; }
-.mt-vm { font-size: 12.5px; color: var(--text-mute); } .mt-vm b { color: var(--text); font-weight: 700; }
+/* ── Lo mejor del periodo (podio) ────────────────────────────────────────── */
+.mt-best {
+  display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 14px;
+  padding: 16px; background: var(--surface-2);
+  border: 1px solid var(--border); border-top: 2px solid var(--mt-fill);
+  border-radius: var(--r-sm, 10px);
+}
+.mt-best__th { width: 88px; height: 88px; border-radius: var(--r-sm, 10px); }
+.mt-best__b { min-width: 0; }
+.mt-best__nums { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 12px; }
+.mt-big { display: flex; flex-direction: column; gap: 3px; }
+.mt-big__v { font-size: 24px; font-weight: 800; letter-spacing: -.02em; line-height: 1; color: var(--text); }
+.mt-big__k { font: 700 10px/1.2 var(--mt-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); }
+.mt-why {
+  margin-top: 12px; font-size: 13px; line-height: 1.55; color: var(--text-dim);
+  max-width: 44ch;
+}
+.mt-why b { color: var(--text); font-weight: 700; }
 
-/* Estados (vacío / cargando) */
+/* ── Publicación por publicación ─────────────────────────────────────────── */
+.mt-posts { display: flex; flex-direction: column; }
+.mt-post {
+  display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px;
+  padding: 14px 0; border-top: 1px solid var(--border);
+  /* 170px = lo que MIDEN las tarjetas reales. Con los 132px de antes cada
+     tarjeta fuera de pantalla mentía 29px y el scroll brincaba en Safari iOS. */
+  content-visibility: auto; contain-intrinsic-size: auto 170px;
+}
+.mt-post:first-child { border-top: 0; }
+.mt-post__th, .mt-best__th {
+  flex: none; object-fit: cover; background: var(--mt-a10);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+.mt-post__th { width: 56px; height: 56px; border-radius: var(--r-sm, 10px); }
+.mt-post__th.is-mono, .mt-best__th.is-mono {
+  display: grid; place-items: center; font-weight: 800; color: var(--mt-ink);
+  font-size: 20px; background: var(--mt-a10);
+}
+.mt-best__th.is-mono { font-size: 30px; }
+.mt-post__b { min-width: 0; }
+.mt-post__meta { display: flex; align-items: center; gap: 10px; font-size: 11.5px; }
+/* Chip de tipo en mono gris: un chip de color por publicación era ruido y una
+   superficie más donde el acento cargaba tipografía. */
+.mt-post__type { font: 700 10.5px/1 var(--mt-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--text-dim); }
+.mt-post__date { font: 600 10.5px/1 var(--mt-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--text-dim); }
+/* Objetivo táctil real de 44px SIN engordar el renglón: el alto extra se come
+   con margen negativo, así el área tocable crece y la fila sigue midiendo ~16px. */
+.mt-post__go {
+  margin-left: auto; margin-block: -14px; color: var(--mt-ink); font-weight: 600; font-size: 12.5px;
+  display: inline-flex; align-items: center; min-height: var(--tap, 44px);
+  /* padding-left 14 (no 10): el ancho pasa de 41px a 45px y el objetivo táctil
+     llega de verdad a 44×44, no sólo de alto. */
+  padding-left: 14px;
+}
+.mt-post__cap {
+  /* 14px, no 6px: el margen negativo de "ver ↗" cuelga exactamente 14px HACIA
+     ABAJO, y con 6px la caja de 44px del enlace tapaba el primer renglón del
+     copy — tocar la última palabra abría Instagram. Con 14px el objetivo
+     táctil conserva sus 44px completos y ya no pisa nada. El z-index es la red
+     de seguridad si alguien cambia estos números. */
+  margin-top: 14px; font-size: 13px; line-height: 1.45; color: var(--text-dim);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  position: relative; z-index: 1;
+}
+/* La lista se vuelve gráfica sin gastar un renglón. Sin dato ⇒ trama
+   "en proceso", JAMÁS un 0. */
+.mt-idx {
+  display: block; position: relative; height: 4px; margin: 10px 0 9px;
+  background: var(--mt-track); border-radius: var(--r-pill); overflow: hidden;
+}
+/* Mismo filo inset que el resto de los rellenos no líderes: era el ÚNICO
+   relleno de acento del archivo sin él, y con lima en claro medía 1.06:1. */
+.mt-idx i {
+  position: absolute; inset: 0 auto 0 0; display: block; height: 100%;
+  background: var(--mt-a55); box-shadow: inset 0 0 0 1px var(--mt-fill);
+  border-radius: var(--r-pill);
+}
+.mt-idx--wait {
+  background: repeating-linear-gradient(135deg, var(--border-strong) 0 4px, transparent 4px 9px);
+}
+.mt-post__n { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: var(--text-dim); }
+.mt-post__n b { color: var(--text); font-weight: 700; font-size: 14px; }
+.mt-post__x { margin-top: 6px; font-size: 11.5px; color: var(--text-dim); }
+
+/* ── Esqueleto con la FORMA del dato (no un spinner que hace brincar 600px) ─ */
+/* El brillo va HARDCODEADO: --surface-3 en oscuro es rgba(255,255,255,.03) y,
+   siendo el gradiente el único fondo del elemento, esa parada componía sobre
+   la página (#0A0A0E) a rgb(17,17,21) — MÁS OSCURO que la base. El destello
+   viajaba como una banda negra. */
+.mt-sk {
+  background: linear-gradient(90deg, var(--surface-2) 0 40%, #22222D 50%, var(--surface-2) 60%);
+  background-size: 250% 100%; animation: mt-sk 1.15s linear infinite;
+  border-radius: 6px;
+}
+@keyframes mt-sk { to { background-position: -150% 0; } }
+:root[data-theme="light"] .mt-sk {
+  background: linear-gradient(90deg, #ECECF3 0 40%, #F6F6FA 50%, #ECECF3 60%);
+  background-size: 250% 100%;
+}
+
+/* ── Estados vacíos (se conservan: funcionan) ────────────────────────────── */
 .mt-empty { text-align: center; padding: 44px 20px; color: var(--text-dim); }
-.mt-empty__ico { width: 56px; height: 56px; margin: 0 auto 14px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-mute); }
 .mt-empty h3 { font-size: 16px; color: var(--text); margin-bottom: 6px; }
 .mt-empty p { max-width: 420px; margin: 0 auto 16px; font-size: 13.5px; line-height: 1.5; }
-.mt-loading { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 56px 0; color: var(--text-dim); font-size: 14px; }
-.mt-spin { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--border); border-top-color: var(--client-accent, var(--brand)); animation: mt-spin .7s linear infinite; }
-@keyframes mt-spin { to { transform: rotate(360deg); } }
 
-/* Desktop: KPIs en 5 columnas, hero ancho */
-@media (min-width: 720px) {
-  .mt-kpis { grid-template-columns: repeat(4, 1fr); }
-  .mt-kpi--hero { grid-column: span 4; display: flex; flex-direction: column; }
+/* ── Tema claro: pistas y superficies (metricas.css carga DESPUÉS de
+   theme-light.css, así que estas reglas ganan) ─────────────────────────── */
+:root[data-theme="light"] .mt-acct,
+:root[data-theme="light"] .mt-panel,
+:root[data-theme="light"] .mt-best {
+  background: #fff; border-color: #E3E3EC;
+  box-shadow: 0 1px 2px rgba(23, 20, 45, .05), 0 12px 32px -18px rgba(23, 20, 45, .13);
 }
-@media (min-width: 960px) {
-  .mt-kpis { grid-template-columns: repeat(5, 1fr); grid-auto-flow: dense; }
-  .mt-kpi--hero { grid-column: span 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mt-sk { animation: none; }
+  .mt-chip { transition: none; }
+}
+
+/* ── Escritorio: sólo REPARTE, no rediseña ───────────────────────────────── */
+@media (min-width: 640px) {
+  .mt-title { font-size: 26px; }
+  .mt-sec__t { font-size: 21px; }
+  .mt-post { grid-template-columns: 72px minmax(0, 1fr); gap: 16px; }
+  .mt-post__th { width: 72px; height: 72px; }
+  .mt-best { grid-template-columns: 128px minmax(0, 1fr); gap: 20px; padding: 20px; }
+  .mt-best__th { width: 128px; height: 128px; }
+  .mt-big__v { font-size: 30px; }
+  /* La barra recupera sus tres columnas, nunca antes.
+     La columna de etiqueta es de ancho FIJO (clamp), no max-content: cada
+     .mt-bar es su propia rejilla, así que max-content se resolvía FILA POR
+     FILA y dos ciudades con el MISMO valor (211 y 211, ambas 6%) se dibujaban
+     a 33px y 34px arrancando en x distinta. Sin línea base común no hay
+     comparación posible. */
+  .mt-bar { grid-template-columns: clamp(76px, 26%, 128px) minmax(0, 1fr) 46px; align-items: center; row-gap: 0; }
+  .mt-bar__t { grid-column: auto; }
+  .mt-bar__v { text-align: right; order: 3; }
+}
+@media (min-width: 860px) {
+  .mt-root { padding-bottom: 64px; }
+  .mt-sec { padding-top: 44px; }
+  /* El héroe manda SIEMPRE. (El diseño viejo lo devolvía a span 1 en
+     min-width:960px: la jerarquía se apagaba justo en la compu.) */
+  /* --mt-n = número de tarjetas secundarias (lo escribe metricas.js): con
+     plantilla fija de 4 columnas, una fila de 3 tarjetas dejaba una celda
+     vacía a la derecha. */
+  .mt-kpis { grid-template-columns: 1.6fr repeat(var(--mt-n, 3), minmax(0, 1fr)); gap: 0; }
+  .mt-num { border-right: 1px solid var(--border); padding: 14px 22px 4px 0; }
+  .mt-num:last-child { border-right: 0; }
+  .mt-num--hero { grid-column: auto; padding-right: 28px; }
+  .mt-kpis .mt-num:last-child:nth-child(even) { grid-column: auto; }
+  .mt-aud { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+  .mt-posts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 28px; }
+  .mt-post:nth-child(2) { border-top: 0; }
 }

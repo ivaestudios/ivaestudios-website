@@ -28,15 +28,15 @@ import {
   el, clear, copyText, api,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202607270920';
-import { icon } from '../shell/icons.js?v=202607270920';
-import { T } from '../shell/i18n.js?v=202607270920';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607270920';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607270920';
+} from '../api.js?v=202607271115';
+import { icon } from '../shell/icons.js?v=202607271115';
+import { T } from '../shell/i18n.js?v=202607271115';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607271115';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607271115';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202607270920';
+} from '../lib/video-upload.js?v=202607271115';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.

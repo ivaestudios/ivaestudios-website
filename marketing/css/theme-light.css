@@ -1049,3 +1049,26 @@
 
 /* 8. Barra de progreso del mes: pista con tinte, no gris muerto. */
 :root[data-theme="light"] .meses-prog__track { background: rgba(201, 62, 140, .08); }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   VERSIÓN DE LA APP (franja "hay una versión nueva" + fila del menú de cuenta)
+   En claro, --ok (#22c55e) y --warn (#f59e0b) sobre blanco NO llegan a 4.5:1:
+   se oscurecen igual que el resto de estados de este tema.
+   ════════════════════════════════════════════════════════════════════════════ */
+:root[data-theme="light"] .acct-ver__status.is-ok { color: #17814F; }
+:root[data-theme="light"] .acct-ver__status.is-new { color: color-mix(in srgb, var(--warn) 58%, #000); }
+
+/* La franja: tinte de marca sobre blanco, texto tinta. El botón queda blanco
+   con borde de marca (texto --text sobre #fff = 15:1). */
+:root[data-theme="light"] .update-bar {
+  background: color-mix(in srgb, var(--brand) 12%, #fff);
+  border-bottom-color: color-mix(in srgb, var(--brand) 38%, #fff);
+}
+:root[data-theme="light"] .update-bar__when { color: var(--text-dim); }
+:root[data-theme="light"] .update-bar__btn {
+  background: #fff;
+  border-color: color-mix(in srgb, var(--brand) 55%, #fff);
+  box-shadow: 0 1px 2px rgba(23, 20, 45, .06);
+}
+:root[data-theme="light"] .update-bar__btn:hover { background: #FCF4F8; }
+:root[data-theme="light"] .update-bar__x:hover { background: rgba(201, 62, 140, .10); color: var(--text); }

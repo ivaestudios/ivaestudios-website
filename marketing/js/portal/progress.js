@@ -9,10 +9,10 @@
 // navegables.
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202607270920';
-import { openSheet } from '../shell/sheet.js?v=202607270920';
-import * as store from './store.js?v=202607270920';
-import { ICONS } from './igcard.js?v=202607270920';
+import { el, clear } from '../api.js?v=202607271115';
+import { openSheet } from '../shell/sheet.js?v=202607271115';
+import * as store from './store.js?v=202607271115';
+import { ICONS } from './igcard.js?v=202607271115';
 
 const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 

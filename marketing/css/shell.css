@@ -15,11 +15,14 @@ html, body { height: 100%; }
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
-  padding-top: var(--topbar-h2);
+  /* --bars-h = alto TOTAL de las franjas de #barsHost (offline + verifica tu
+     correo + versión nueva). Lo publica shell.js midiendo el contenedor, así
+     el contenido nunca queda tapado, haya 0, 1, 2 o 3 franjas. */
+  padding-top: calc(var(--topbar-h2) + var(--bars-h, 0px));
   padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 20px);
 }
 body.has-subhead #viewScroll {
-  padding-top: calc(var(--topbar-h2) + var(--subhead-h));
+  padding-top: calc(var(--topbar-h2) + var(--subhead-h) + var(--bars-h, 0px));
 }
 #view {
   padding: var(--s-4);
@@ -127,10 +130,21 @@ body.has-subhead #viewScroll {
 .tb-tabs { display: none; }
 .tb-search { display: none; }
 
-/* ── Barra offline ─────────────────────────────────────────────────────────── */
-.offline-bar {
+/* ── Franjas de aviso bajo el topbar (#barsHost) ───────────────────────────────
+   Un solo contenedor fijo bajo el topbar donde se APILAN, en flujo normal:
+     1) "Sin conexión"            .offline-bar
+     2) "Confirma tu correo"      .verify-bar
+     3) "Hay una versión nueva"   .update-bar
+   shell.js mide el contenedor y publica su alto total en --bars-h; #subhead y
+   #viewScroll se desplazan con esa variable. Antes cada franja era `fixed` con
+   su propio `top` y el CSS enumeraba las combinaciones a mano — con tres ya no
+   escalaba y una combinación olvidada tapaba el seg de vistas. */
+#barsHost {
   position: fixed; top: var(--topbar-h2); left: 0; right: 0;
   z-index: 29;
+}
+
+.offline-bar {
   display: flex; align-items: center; justify-content: center;
   height: var(--offline-h, 28px);
   padding: 0 var(--s-4);
@@ -143,18 +157,8 @@ body.has-subhead #viewScroll {
 }
 .offline-bar[hidden] { display: none; }
 
-/* Con la barra visible (body.is-offline, shell.js) el subhead y el contenido
-   bajan exactamente su alto: nada queda tapado en la franja del seg. */
-body.is-offline #subhead { top: calc(var(--topbar-h2) + var(--offline-h, 28px)); }
-body.is-offline #viewScroll { padding-top: calc(var(--topbar-h2) + var(--offline-h, 28px)); }
-body.is-offline.has-subhead #viewScroll {
-  padding-top: calc(var(--topbar-h2) + var(--subhead-h) + var(--offline-h, 28px));
-}
-
 /* ── Banner "confirma tu correo" (shell.js, email_verified === false) ──────── */
 .verify-bar {
-  position: fixed; top: var(--topbar-h2); left: 0; right: 0;
-  z-index: 29;
   display: flex; align-items: center; justify-content: center; gap: var(--s-3);
   height: var(--verify-h, 36px);
   padding: 0 var(--s-4);
@@ -176,28 +180,57 @@ body.is-offline.has-subhead #viewScroll {
 }
 .verify-bar__btn:disabled { opacity: .5; cursor: default; }
 
-/* Con el banner visible (body.has-verifybar, shell.js) el subhead y el
-   contenido bajan exactamente su alto, igual que con la barra offline. */
-body.has-verifybar #subhead { top: calc(var(--topbar-h2) + var(--verify-h, 36px)); }
-body.has-verifybar #viewScroll { padding-top: calc(var(--topbar-h2) + var(--verify-h, 36px)); }
-body.has-verifybar.has-subhead #viewScroll {
-  padding-top: calc(var(--topbar-h2) + var(--subhead-h) + var(--verify-h, 36px));
+/* ── Franja "hay una versión nueva" (shell.js, installVersionWatch) ──────────
+   Persistente a proposito: se queda hasta que la duena pulse Actualizar o la
+   cierre con la X. Sustituye al toast efimero de 10 min, que se perdia si no
+   estabas mirando la pantalla justo en ese momento. */
+.update-bar {
+  display: flex; align-items: center; justify-content: center;
+  gap: var(--s-2);
+  min-height: var(--update-h, 40px);
+  padding: 6px var(--s-3);
+  padding-left: max(var(--s-3), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--s-3), env(safe-area-inset-right, 0px));
+  background: color-mix(in srgb, var(--brand) 20%, var(--surface));
+  color: var(--text);
+  font-size: var(--fs-1); font-weight: 700;
+  border-bottom: 1px solid color-mix(in srgb, var(--brand) 45%, var(--border));
 }
-/* Si además está la barra offline, se apilan (offline arriba, verify abajo). */
-body.is-offline .verify-bar { top: calc(var(--topbar-h2) + var(--offline-h, 28px)); }
-body.is-offline.has-verifybar #subhead {
-  top: calc(var(--topbar-h2) + var(--offline-h, 28px) + var(--verify-h, 36px));
+.update-bar__txt {
+  min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-body.is-offline.has-verifybar #viewScroll {
-  padding-top: calc(var(--topbar-h2) + var(--offline-h, 28px) + var(--verify-h, 36px));
+/* La fecha de la version publicada es el detalle que da CERTEZA ("se publico a
+   las 18:40"), pero a 390px no cabe junto al boton: aparece desde 560px. */
+.update-bar__when { display: none; color: var(--text-dim); font-weight: 600; }
+.update-bar__btn {
+  flex: none;
+  min-height: 28px; padding: 0 12px;
+  border: 1px solid color-mix(in srgb, var(--brand) 70%, var(--border));
+  border-radius: var(--r-sm);
+  background: var(--surface); color: var(--text);
+  font-size: var(--fs-1); font-weight: 800; cursor: pointer;
+  transition: background var(--t-fast);
 }
-body.is-offline.has-verifybar.has-subhead #viewScroll {
-  padding-top: calc(var(--topbar-h2) + var(--offline-h, 28px) + var(--subhead-h) + var(--verify-h, 36px));
+.update-bar__btn:hover { background: var(--surface-2); }
+.update-bar__btn:disabled { opacity: .6; cursor: default; }
+.update-bar__x {
+  flex: none;
+  display: grid; place-items: center;
+  width: 28px; height: 28px;
+  border: 0; border-radius: var(--r-sm);
+  background: none; color: var(--text-dim); cursor: pointer;
+}
+.update-bar__x:hover { color: var(--text); background: var(--surface-2); }
+
+@media (min-width: 560px) {
+  .update-bar__when { display: inline; }
 }
 
 /* ── Sub-header de vistas de contenido (segmented + slot) ──────────────────── */
 #subhead {
-  position: fixed; top: var(--topbar-h2); left: 0; right: 0;
+  /* Baja lo que midan las franjas de #barsHost (offline / correo / versión). */
+  position: fixed; top: calc(var(--topbar-h2) + var(--bars-h, 0px)); left: 0; right: 0;
   z-index: var(--z-subhead);
   display: flex; align-items: center; gap: var(--s-3);
   height: var(--subhead-h);
@@ -475,6 +508,29 @@ body.is-offline.has-verifybar.has-subhead #viewScroll {
   background: var(--brand); color: #fff;
   box-shadow: 0 1px 4px rgba(0,0,0,.18);
 }
+/* ── Indicador de versión (menú de cuenta, topbar.js versionRow) ─────────────
+   Discreto pero comprobable: qué código corre AHORA en esta pantalla (fecha
+   legible) + si coincide con lo publicado en el servidor. Consulta al abrir. */
+.acct-ver {
+  display: flex; align-items: flex-start; gap: var(--s-3);
+  padding: 10px var(--s-3);
+  margin-top: 2px;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+}
+.acct-ver__ico { color: var(--text-mute); flex: none; margin-top: 1px; }
+.acct-ver__main { min-width: 0; flex: 1 1 auto; }
+.acct-ver__line {
+  font-size: var(--fs-2); font-weight: 700; color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.acct-ver__status { margin-top: 2px; font-size: var(--fs-1); font-weight: 600; }
+.acct-ver__status.is-checking { color: var(--text-mute); }
+.acct-ver__status.is-ok { color: var(--ok); }
+.acct-ver__status.is-new { color: var(--warn); }
+.acct-ver__status.is-unknown { color: var(--text-dim); }
+.acct-ver__actions:not(:empty) { margin-top: 8px; display: flex; gap: var(--s-2); }
+
 .acct-list { display: flex; flex-direction: column; gap: 2px; }
 .acct-loading { padding: var(--s-4); text-align: center; }
 .acct-user { display: flex; align-items: center; gap: var(--s-3); min-height: 56px; padding: 6px var(--s-2); border-bottom: 1px solid var(--border); }
@@ -753,12 +809,12 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
      de vista permanece si la vista lo usa. */
   .subhead-seg { display: none; }
   #subhead { justify-content: flex-end; }
-  body.has-subhead #viewScroll { padding-top: calc(var(--topbar-h2) + var(--subhead-h)); }
+  body.has-subhead #viewScroll { padding-top: calc(var(--topbar-h2) + var(--subhead-h) + var(--bars-h, 0px)); }
   /* En desktop el segmented vive en el topbar; si la vista no aporta controles
      al slot (p. ej. Calendario), el subhead queda vacio -> colapsarlo para no
      dejar una banda muerta de 48px bajo las pestanas. */
   #subhead:not(:has(.subhead-slot > *)) { display: none; }
-  body.has-subhead:not(:has(.subhead-slot > *)) #viewScroll { padding-top: var(--topbar-h2); }
+  body.has-subhead:not(:has(.subhead-slot > *)) #viewScroll { padding-top: calc(var(--topbar-h2) + var(--bars-h, 0px)); }
 
   /* FAB con etiqueta (esquina inferior derecha, sin nav que lo empuje) */
   .fab {
