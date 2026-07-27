@@ -12,8 +12,10 @@
 //                (IPs limpias) cuando el IP del Worker recibe muro anti-bot.
 //  · Pinterest → API interna PinResource: data.videos.video_list.V_720P es el
 //                MP4 fuente (1080x1920), servido limpio en v1.pinimg.com.
-//  · Instagram → shortcode → media_id → /api/v1/media/{id}/info/ (x-ig-app-id);
-//                video_versions[] ordenado por ancho = MP4 original del CDN.
+//  · Instagram → snapsave.app resuelve desde SUS servidores (Instagram bloquea
+//                las IPs de datacenter de Cloudflare); de su respuesta sale la
+//                URL CRUDA del CDN de IG. Respaldos: GraphQL público, cobalt y,
+//                al final, /api/v1/media/{id}/info/ con sesión (IG_SESSIONID).
 //
 // Anti-SSRF: el proxy SOLO baja bytes de hosts de CDN conocidos (MEDIA_HOST_RE);
 // la ruta es staff-only. Las URLs del CDN son firmadas y expiran: NUNCA se
@@ -392,12 +394,120 @@ function pickRendition(rends) {
   })[0];
 }
 
+// ── Instagram · snapsave (vía pública, SIN sesión) ───────────────────────────
+// snapsave.app es un descargador público cuyo BACKEND hace el fetch a Instagram
+// desde sus propias IPs (las de Cloudflare las bloquea IG), así que resuelve
+// reels públicos sin cookie ni sesión. Responde JS OFUSCADO con un "packer"
+// casero; adentro viene el botón de descarga a d.rapidcdn.app/v2?token=<JWT> y
+// el PAYLOAD de ese JWT lleva la URL CRUDA del CDN de Instagram.
+//
+// Se usa la URL CRUDA (scontent-*.cdninstagram.com), no el relay de rapidcdn:
+//  · ya está permitida por MEDIA_HOST_RE (no hay que abrir el anti-SSRF),
+//  · baja sin ningún header especial y sin pasar bytes por un tercero,
+//  · el MP4 es idéntico al original (H.264 + AAC muxeado, sin marca de agua).
+// La URL viene firmada y CADUCA en horas → jamás se guarda, se re-resuelve.
+
+// Desempaca la respuesta de snapsave SIN eval (Workers prohíbe eval/new Function).
+// Los parámetros del packer CAMBIAN en cada petición (verificado: 4 llamadas
+// seguidas dieron alfabetos y bases distintas), así que se leen del final del
+// script y nunca van fijos. Cola: ("<datos>",u,"<alfabeto n>",t,e,r))
+// Cada símbolo son dígitos en base `e` escritos con el alfabeto `n` y separados
+// por n[e]; su valor menos `t` es un BYTE UTF-8 del HTML original.
+function snapUnpack(js) {
+  const m = String(js || '').match(/\("([^"]*)",\s*\d+,\s*"([^"]*)",\s*(\d+),\s*(\d+),\s*\d+\)\)/);
+  if (!m) return null; // snapsave cambió de packer → que falle claro y caiga al respaldo
+  const h = m[1], n = m[2], t = +m[3], e = +m[4];
+  if (!h || !n || !(e > 1) || e >= n.length) return null;
+  const delim = n[e];
+  const bytes = [];
+  for (let i = 0; i < h.length; i++) {
+    let s = '';
+    while (i < h.length && h[i] !== delim) { s += h[i]; i++; }
+    let val = 0;
+    for (const ch of s) {
+      const d = n.indexOf(ch);
+      if (d < 0 || d >= e) return null;
+      val = val * e + d;
+    }
+    bytes.push((val - t) & 0xff);
+  }
+  try { return new TextDecoder('utf-8').decode(Uint8Array.from(bytes)); } catch { return null; }
+}
+
+// Abre el JWT de d.rapidcdn.app (solo el payload, no se valida firma: es de ellos)
+// y devuelve { url, filename } — la URL cruda del CDN de Instagram.
+function snapJwtPayload(link) {
+  const tok = String(link || '').match(/[?&]token=[A-Za-z0-9_-]+\.([A-Za-z0-9_-]+)\.[A-Za-z0-9_-]+/);
+  if (!tok) return null;
+  try {
+    let b64 = tok[1].replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4) b64 += '=';
+    const bin = atob(b64);
+    const j = JSON.parse(new TextDecoder('utf-8').decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))));
+    return (j && typeof j.url === 'string' && /^https:\/\//.test(j.url)) ? j : null;
+  } catch { return null; }
+}
+
+// Los 3 headers de navegador son OBLIGATORIOS: sin Origin/Referer/UA real,
+// snapsave está detrás del muro anti-bot de Cloudflare y responde 403.
+async function igViaSnapsave(pageUrl) {
+  const r = await xfetch('https://snapsave.app/action.php?lang=en', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Origin': 'https://snapsave.app',
+      'Referer': 'https://snapsave.app/',
+      'User-Agent': DESKTOP_UA,
+      'Accept': '*/*',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+    body: `url=${encodeURIComponent(pageUrl)}`,
+  }, 10000); // en vivo responde en <1s; 10s es de sobra y acota el peor caso
+  if (!r.ok) return null;
+  const decoded = snapUnpack(await r.text());
+  if (!decoded) return null;
+  // El HTML va escapado dentro del JS (\" y \/) → se normaliza antes de parsear.
+  const html = decoded.replace(/\\"/g, '"').replace(/\\\//g, '/');
+
+  const items = [];
+  const seen = new Set();
+  for (const m of html.matchAll(/href="([^"]*d\.rapidcdn\.app[^"]*)"/g)) {
+    const p = snapJwtPayload(m[1]);
+    if (!p || seen.has(p.url) || !isAllowedMediaHost(p.url)) continue;
+    seen.add(p.url);
+    items.push(cobaltItem(p.url, p.filename)); // mismo clasificador (url/type/ext)
+  }
+  if (!items.length) return null;
+
+  // Portada: <img src="d.rapidcdn.app/thumb?token=..."> → también trae la URL cruda.
+  let thumbnail = null;
+  const tm = html.match(/<img[^>]+src="([^"]*d\.rapidcdn\.app\/thumb[^"]*)"/);
+  const tp = tm ? snapJwtPayload(tm[1]) : null;
+  if (tp && isAllowedMediaHost(tp.url)) thumbnail = tp.url;
+
+  const first = items[0];
+  return {
+    platform: 'instagram',
+    title: 'instagram', // snapsave NO devuelve el caption (solo el medio)
+    thumbnail,
+    width: null, height: null, durationSec: null,
+    type: first.type, ext: first.ext, mediaUrl: first.url, items,
+    watermark: false,
+    mediaHeaders: mediaHeadersFor('instagram'),
+  };
+}
+
 // ── Instagram ────────────────────────────────────────────────────────────────
-// Instagram bloquea IPs de datacenter (como las de Cloudflare) agresivamente, así
-// que probamos DOS rutas directas: (1) media/{pk}/info (la más estable de forma),
-// (2) GraphQL PolarisPostRootQuery (doc_id 2026, con CSRF cebado del home). Al
-// volumen bajo de una agencia (su propio contenido) esto funciona para posts
-// públicos; el doc_id/app_id son sobrescribibles por env porque el doc_id ROTA.
+// Instagram bloquea IPs de datacenter (como las de Cloudflare) agresivamente y
+// desde 2026-07 el GraphQL público responde "execution error" con cualquier
+// doc_id. Por eso se prueban CUATRO estrategias en orden de fiabilidad medida:
+//   1) snapsave  — resuelve desde SUS IPs. Verificada en vivo 2026-07-27.
+//   2) GraphQL público — sigue aquí porque es la ÚNICA que trae caption/portada
+//      /dimensiones (el conector MCP las usa) y por si IG lo vuelve a abrir.
+//   3) cobalt SOLO-MUXEADO — relay universal, nunca su 'redirect' (sería mudo).
+//   4) sesión IG_SESSIONID — último recurso; es lo único que saca reels gated.
+// doc_id/app_id son sobrescribibles por env porque el doc_id ROTA.
 async function resolveInstagram(url, env) {
   const code = await igShortcode(url);
   if (!code) throw new Error('No pude leer el código del reel/post de Instagram.');
@@ -405,35 +515,45 @@ async function resolveInstagram(url, env) {
   const docId = (env && env.IG_DOC_ID) || IG_DOC_ID;
   const sid = (env && env.IG_SESSIONID) || null; // sesión de IG (secreto): saca gated/privado
   const mediaId = igShortcodeToMediaId(code);
-  // Sin sesión, media-info devuelve login_required (inútil) → sólo se usa CON
-  // sesión. El GraphQL público SÍ devuelve video_versions = MP4 progresivo con
-  // AUDIO muxeado para reels públicos.
-  const direct = async () => {
-    let info = (sid && mediaId) ? await igViaMediaInfo(mediaId, appId, sid).catch(() => null) : null;
-    if (!info || !info.mediaUrl) info = await igViaGraphQL(code, appId, docId, sid).catch(() => null);
-    return (info && info.mediaUrl) ? info : null;
-  };
-  // DIRECTO PRIMERO, CON REINTENTOS. El GraphQL trae el MP4 con AUDIO muxeado,
-  // pero desde las IPs de Cloudflare IG a veces lo frena un instante → se
-  // reintenta hasta 4 veces (backoff corto) para que casi NUNCA falle y el audio
-  // quede garantizado. Con sesión (sid) además saca los reels gated.
-  for (let i = 0; i < 4; i++) {
-    const info = await direct();
-    if (info) return info;
-    if (i < 3) await new Promise((r) => setTimeout(r, 350 + i * 250));
+  // URL canónica para los resolvedores de terceros: se conserva el tipo de link
+  // (reel vs p) porque un carrusel de fotos NO existe bajo /reel/.
+  const kind = /\/(?:reel|reels|tv)\//i.test(url) ? 'reel' : 'p';
+  const canon = `https://www.instagram.com/${kind}/${code}/`;
+
+  // 1) snapsave — 2 intentos: su muro anti-bot puede tirar un 403 aislado.
+  for (let i = 0; i < 2; i++) {
+    const s = await igViaSnapsave(canon).catch(() => null);
+    if (s && s.mediaUrl) return s;
+    if (i === 0) await new Promise((r) => setTimeout(r, 400));
   }
-  // Respaldo cobalt SOLO-MUXEADO: únicamente se acepta un TUNNEL de cobalt
+
+  // 2) GraphQL público (sin sesión). Trae el MP4 progresivo con AUDIO muxeado
+  // MÁS el caption/portada; si algún día revive, gana en calidad de metadatos.
+  // UN solo intento: hoy IG lo tiene cerrado (responde "execution error" con
+  // cualquier doc_id), así que reintentar sólo alarga la espera del usuario.
+  const g = await igViaGraphQL(code, appId, docId, null).catch(() => null);
+  if (g && g.mediaUrl) return g;
+
+  // 3) Respaldo cobalt SOLO-MUXEADO: únicamente se acepta un TUNNEL de cobalt
   // (video+audio); NUNCA su 'redirect' de IG (DASH solo-video, sin audio). Es
   // preferible fallar y pedir reintentar que entregar un video MUDO.
   const cb = await viaCobalt(url, 'instagram', env, true).catch(() => null);
   if (cb && cb.items && cb.items.length) return cb;
+
+  // 4) ÚLTIMO RECURSO — sesión propia de IG. Sin sesión, media-info devuelve
+  // login_required (inútil), así que sólo se intenta cuando el secreto existe.
+  if (sid) {
+    for (let i = 0; i < 2; i++) {
+      let info = mediaId ? await igViaMediaInfo(mediaId, appId, sid).catch(() => null) : null;
+      if (!info || !info.mediaUrl) info = await igViaGraphQL(code, appId, docId, sid).catch(() => null);
+      if (info && info.mediaUrl) return info;
+      if (i === 0) await new Promise((r) => setTimeout(r, 350));
+    }
+  }
+
   throw new Error(sid
-    ? 'Instagram no soltó el video con audio en este momento (ni con la sesión). Espera unos segundos y dale Descargar de nuevo.'
-    // Sin sesión ya NO hay camino: desde 2026-07 Instagram cerró el GraphQL
-    // público (responde "execution error" con cualquier doc_id) y las instancias
-    // públicas de cobalt exigen JWT. Reintentar no sirve de nada, así que no se
-    // pide: se dice la verdad y qué hay que hacer una sola vez.
-    : 'Instagram ya no deja bajar videos sin una sesión conectada. Hay que configurar el secreto IG_SESSIONID en Cloudflare (se hace una vez). Mientras tanto, TikTok y Pinterest siguen funcionando normal.');
+    ? 'Instagram no soltó el video en este momento (ni con la sesión). Espera unos segundos y dale Descargar de nuevo.'
+    : 'No pude bajar este video de Instagram ahora mismo. Vuelve a intentar en unos segundos; si sigue fallando puede ser un reel privado o restringido (ésos necesitan el secreto IG_SESSIONID en Cloudflare). TikTok y Pinterest siguen funcionando normal.');
 }
 
 async function igShortcode(url) {
