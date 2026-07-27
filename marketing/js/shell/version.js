@@ -25,7 +25,7 @@
 //     versión nueva", que erosionaría la confianza igual que el bug original).
 // ============================================================================
 
-import { T } from './i18n.js?v=202607271115';
+import { T } from './i18n.js?v=202607271124';
 
 const APP_HTML = '/marketing/app.html';
 const STAMP_IN_HTML = /main\.js\?v=([\w.-]+)/;
