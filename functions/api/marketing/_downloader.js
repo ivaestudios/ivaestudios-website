@@ -14,8 +14,11 @@
 //                MP4 fuente (1080x1920), servido limpio en v1.pinimg.com.
 //  · Instagram → snapsave.app resuelve desde SUS servidores (Instagram bloquea
 //                las IPs de datacenter de Cloudflare); de su respuesta sale la
-//                URL CRUDA del CDN de IG. Respaldos: GraphQL público, cobalt y,
-//                al final, /api/v1/media/{id}/info/ con sesión (IG_SESSIONID).
+//                URL CRUDA del CDN de IG. Respaldos: 4 descargadores públicos
+//                EN PARALELO (fastdl.to, motor /media ×3, vxinstagram), después
+//                GraphQL público, cobalt y, al final, /api/v1/media/{id}/info/
+//                con sesión (IG_SESSIONID). Todos entregan la URL cruda del CDN,
+//                así que el anti-SSRF NO tuvo que abrirse a ningún host nuevo.
 //
 // Anti-SSRF: el proxy SOLO baja bytes de hosts de CDN conocidos (MEDIA_HOST_RE);
 // la ruta es staff-only. Las URLs del CDN son firmadas y expiran: NUNCA se
@@ -434,18 +437,24 @@ function snapUnpack(js) {
   try { return new TextDecoder('utf-8').decode(Uint8Array.from(bytes)); } catch { return null; }
 }
 
-// Abre el JWT de d.rapidcdn.app (solo el payload, no se valida firma: es de ellos)
-// y devuelve { url, filename } — la URL cruda del CDN de Instagram.
-function snapJwtPayload(link) {
-  const tok = String(link || '').match(/[?&]token=[A-Za-z0-9_-]+\.([A-Za-z0-9_-]+)\.[A-Za-z0-9_-]+/);
-  if (!tok) return null;
+// Abre el PAYLOAD de un JWT (segmento 2) y devuelve { url, filename } si trae una
+// URL. No se valida la firma: el token es del proveedor, no nuestro — sólo nos
+// interesa el dato de adentro, y la URL se re-valida contra MEDIA_HOST_RE.
+function igJwtDecode(seg) {
   try {
-    let b64 = tok[1].replace(/-/g, '+').replace(/_/g, '/');
+    let b64 = String(seg || '').replace(/-/g, '+').replace(/_/g, '/');
     while (b64.length % 4) b64 += '=';
     const bin = atob(b64);
     const j = JSON.parse(new TextDecoder('utf-8').decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))));
     return (j && typeof j.url === 'string' && /^https:\/\//.test(j.url)) ? j : null;
   } catch { return null; }
+}
+
+// Abre el JWT de d.rapidcdn.app (solo el payload) → { url, filename }: la URL
+// cruda del CDN de Instagram.
+function snapJwtPayload(link) {
+  const tok = String(link || '').match(/[?&]token=[A-Za-z0-9_-]+\.([A-Za-z0-9_-]+)\.[A-Za-z0-9_-]+/);
+  return tok ? igJwtDecode(tok[1]) : null;
 }
 
 // Los 3 headers de navegador son OBLIGATORIOS: sin Origin/Referer/UA real,
@@ -498,15 +507,148 @@ async function igViaSnapsave(pageUrl) {
   };
 }
 
+// ── Instagram · respaldos públicos (4 proveedores, 1 solo decoder) ───────────
+// Verificados en vivo 2026-07-27 contra un reel público Y uno age-restricted:
+// los 4 devolvieron el MISMO MP4 byte a byte (2 497 065 B / 1 527 913 B, h264 +
+// AAC), o sea que ninguno recomprime: todos resuelven al original de Instagram.
+//
+// Los 4 comparten el MISMO formato de salida: en algún lado de su respuesta hay
+// un enlace `...?token=<JWT>` cuyo PAYLOAD lleva { url, filename }, y esa `url`
+// es la URL CRUDA de scontent-*.cdninstagram.com. Por eso:
+//  · NO hubo que tocar MEDIA_HOST_RE (cdninstagram.com ya estaba permitido) —
+//    nunca bajamos bytes del host del proveedor, sólo le pedimos que resuelva;
+//  · un solo decoder (igJwtItems) sirve para los 4.
+// Igual que en snapsave, la URL viene firmada y CADUCA en horas → no se guarda.
+function igJwtItems(text) {
+  const items = [];
+  const seen = new Set();
+  // El JWT es base64url, así que NO le afectan los escapes (\xNN de un motor,
+  // \" de otro): se puede sacar del cuerpo crudo sin desescapar nada.
+  for (const m of String(text || '').matchAll(/[?&]token=[A-Za-z0-9_-]+\.([A-Za-z0-9_-]{20,})\.[A-Za-z0-9_-]+/g)) {
+    const p = igJwtDecode(m[1]);
+    if (!p || seen.has(p.url) || !isAllowedMediaHost(p.url)) continue; // anti-SSRF
+    seen.add(p.url);
+    items.push(cobaltItem(p.url, p.filename)); // mismo clasificador (url/type/ext)
+  }
+  return items;
+}
+
+// Arma el objeto de respuesta a partir de los items de un respaldo. OJO: en estos
+// proveedores la MINIATURA (.jpg) suele venir ANTES que el video en el HTML, así
+// que no se puede tomar items[0] a ciegas — se separan videos de imágenes y la
+// primera imagen se aprovecha como portada.
+function igItemsToInfo(items) {
+  const vids = (items || []).filter((it) => it.type === 'video');
+  const imgs = (items || []).filter((it) => it.type === 'image');
+  const use = vids.length ? vids : imgs; // sin video = post de fotos (carrusel)
+  if (!use.length) return null;
+  const first = use[0];
+  return {
+    platform: 'instagram',
+    title: 'instagram', // ningún respaldo devuelve el caption
+    thumbnail: (vids.length && imgs.length) ? imgs[0].url : null,
+    width: null, height: null, durationSec: null,
+    type: first.type, ext: first.ext, mediaUrl: first.url, items: use,
+    watermark: false,
+    mediaHeaders: mediaHeadersFor('instagram'),
+  };
+}
+
+// Respaldo · fastdl.to — motor "ajaxSearch/snapcdn". El más rápido y limpio:
+// responde JSON de verdad ({status:"ok", data:"<html>"}), sin ofuscación.
+async function igViaFastdl(canon) {
+  const r = await xfetch('https://fastdl.to/api/ajaxSearch', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Origin': 'https://fastdl.to',
+      'Referer': 'https://fastdl.to/en',
+      'X-Requested-With': 'XMLHttpRequest',
+      'User-Agent': DESKTOP_UA,
+      'Accept': '*/*',
+    },
+    body: `q=${encodeURIComponent(canon)}&t=media&lang=en`,
+  }, 7000);
+  if (!r.ok) return null;
+  return igItemsToInfo(igJwtItems(await r.text()));
+}
+
+// Respaldo · motor "/media" (downloadgram.app / instasave.website /
+// downloadgram.org son TRES FRENTES DEL MISMO BACKEND: mismo contrato, mismo
+// decoder, sólo cambia host/Origin/Referer). Responde JS con los datos escapados
+// en \xNN — no hace falta desescaparlo porque el JWT es base64url puro.
+// Se mantienen los 3 dominios a propósito: comparten software pero tienen IP y
+// CUOTA DE RATE-LIMIT INDEPENDIENTES (tira 429 a la ~4ª petición en ráfaga y se
+// repone en segundos), así que uno cubre al otro cuando el 429 aparece.
+async function igViaMediaEngine(host, origin, canon) {
+  const r = await xfetch(`https://${host}/media`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Origin': origin,
+      'Referer': `${origin}/`,
+      'User-Agent': DESKTOP_UA,
+      'Accept': '*/*',
+    },
+    body: `url=${encodeURIComponent(canon)}`,
+  }, 7000);
+  if (!r.ok) return null; // un 429 aquí simplemente deja ganar a otro proveedor
+  return igItemsToInfo(igJwtItems(await r.text()));
+}
+
+// Respaldo · vxinstagram.com — el contrato más barato de todos: UN GET que
+// responde 302 y trae el JWT (de rapidcdn, el mismo de snapsave) en el header
+// Location; no se sigue la redirección, sólo se lee. Sirve SÓLO para reels:
+// /offload/<code>/0.mp4 entrega un único medio (el índice 0), así que en un
+// carrusel devolvería incompleto → se llama nada más cuando el link es un reel.
+async function igViaVxinstagram(code) {
+  const r = await xfetch(`https://vxinstagram.com/offload/${encodeURIComponent(code)}/0.mp4`, {
+    redirect: 'manual',
+    headers: { 'User-Agent': DESKTOP_UA },
+  }, 7000);
+  return igItemsToInfo(igJwtItems(r.headers.get('location') || ''));
+}
+
+// Corre TODOS los respaldos EN PARALELO y se queda con el primero que entregue
+// VIDEO. En serie serían ~5 × 7 s = 35 s de peor caso y la vista previa es
+// síncrona; en paralelo el peor caso es UN timeout (~7 s) y el caso normal es el
+// más rápido de los cinco (~0,4-0,9 s medidos). Como los 5 devuelven el MISMO
+// archivo, no se pierde calidad por dejar que gane el más veloz.
+// Un resultado de SÓLO IMAGEN (post de fotos) se guarda aparte y sólo se usa si
+// ninguno dio video — así un carrusel de fotos sigue funcionando.
+async function igViaRespaldos(canon, code, isReel) {
+  const provs = [
+    () => igViaFastdl(canon),
+    () => igViaMediaEngine('api.downloadgram.app', 'https://www.downloadgram.app', canon),
+    () => igViaMediaEngine('api.instasave.website', 'https://instasave.website', canon),
+    () => igViaMediaEngine('api.downloadgram.org', 'https://downloadgram.org', canon),
+  ];
+  if (isReel) provs.push(() => igViaVxinstagram(code));
+
+  let imageOnly = null;
+  const carrera = provs.map((fn) => (async () => {
+    const info = await fn().catch(() => null); // proveedor caído/lento = no rompe
+    if (!info || !info.mediaUrl) throw new Error('sin resultado');
+    if (info.type === 'video') return info;
+    if (!imageOnly) imageOnly = info;
+    throw new Error('solo imagen'); // no gana la carrera, pero queda de reserva
+  })());
+  // Promise.any = el primero que CUMPLE; sólo rechaza si fallan todos.
+  try { return await Promise.any(carrera); } catch { return imageOnly; }
+}
+
 // ── Instagram ────────────────────────────────────────────────────────────────
 // Instagram bloquea IPs de datacenter (como las de Cloudflare) agresivamente y
 // desde 2026-07 el GraphQL público responde "execution error" con cualquier
-// doc_id. Por eso se prueban CUATRO estrategias en orden de fiabilidad medida:
+// doc_id. Por eso se prueban CINCO estrategias en orden de fiabilidad medida:
 //   1) snapsave  — resuelve desde SUS IPs. Verificada en vivo 2026-07-27.
-//   2) GraphQL público — sigue aquí porque es la ÚNICA que trae caption/portada
+//   2) RESPALDOS PÚBLICOS en paralelo (fastdl.to + motor /media ×3 +
+//      vxinstagram): 4 operadores distintos, los 4 sacaron también el reel
+//      age-restricted en pruebas y todos entregan la URL CRUDA del CDN de IG.
+//   3) GraphQL público — sigue aquí porque es la ÚNICA que trae caption/portada
 //      /dimensiones (el conector MCP las usa) y por si IG lo vuelve a abrir.
-//   3) cobalt SOLO-MUXEADO — relay universal, nunca su 'redirect' (sería mudo).
-//   4) sesión IG_SESSIONID — último recurso; es lo único que saca reels gated.
+//   4) cobalt SOLO-MUXEADO — relay universal, nunca su 'redirect' (sería mudo).
+//   5) sesión IG_SESSIONID — último recurso; es lo único que saca reels gated.
 // doc_id/app_id son sobrescribibles por env porque el doc_id ROTA.
 async function resolveInstagram(url, env) {
   const code = await igShortcode(url);
@@ -527,20 +669,26 @@ async function resolveInstagram(url, env) {
     if (i === 0) await new Promise((r) => setTimeout(r, 400));
   }
 
-  // 2) GraphQL público (sin sesión). Trae el MP4 progresivo con AUDIO muxeado
+  // 2) RESPALDOS PÚBLICOS, todos a la vez. Van AQUÍ (antes de GraphQL/cobalt)
+  // porque están verificados en vivo y resuelven en menos de 1 s, mientras que
+  // GraphQL hoy está cerrado y cobalt es el eslabón más lento de la cadena.
+  const bk = await igViaRespaldos(canon, code, kind === 'reel').catch(() => null);
+  if (bk && bk.mediaUrl) return bk;
+
+  // 3) GraphQL público (sin sesión). Trae el MP4 progresivo con AUDIO muxeado
   // MÁS el caption/portada; si algún día revive, gana en calidad de metadatos.
   // UN solo intento: hoy IG lo tiene cerrado (responde "execution error" con
   // cualquier doc_id), así que reintentar sólo alarga la espera del usuario.
   const g = await igViaGraphQL(code, appId, docId, null).catch(() => null);
   if (g && g.mediaUrl) return g;
 
-  // 3) Respaldo cobalt SOLO-MUXEADO: únicamente se acepta un TUNNEL de cobalt
+  // 4) Respaldo cobalt SOLO-MUXEADO: únicamente se acepta un TUNNEL de cobalt
   // (video+audio); NUNCA su 'redirect' de IG (DASH solo-video, sin audio). Es
   // preferible fallar y pedir reintentar que entregar un video MUDO.
   const cb = await viaCobalt(url, 'instagram', env, true).catch(() => null);
   if (cb && cb.items && cb.items.length) return cb;
 
-  // 4) ÚLTIMO RECURSO — sesión propia de IG. Sin sesión, media-info devuelve
+  // 5) ÚLTIMO RECURSO — sesión propia de IG. Sin sesión, media-info devuelve
   // login_required (inútil), así que sólo se intenta cuando el secreto existe.
   if (sid) {
     for (let i = 0; i < 2; i++) {
