@@ -598,7 +598,7 @@
 
   .meses-table {
     width: 100%;
-    min-width: 1024px; /* 980 + la columna N.º (44px) */
+    min-width: 1092px; /* 980 + la columna N.º (112px) */
     border-collapse: separate;
     border-spacing: 0;
     font-size: var(--fs-2);
@@ -629,22 +629,28 @@
   .meses-row:hover .meses-td { background: var(--surface-2); }
 
   /* Columnas fijas al hacer scroll horizontal: N.º + Grabacion + Tarea.
-     Los left se encadenan: 0 → 44 → 44+64=108. */
-  /* Ancho pensado para el texto mas largo: "CARRUSEL 12" (Vianey lo pidio
-     literal, no el numero solo). Si se agrega un tipo con nombre mas largo,
-     este ancho y los `left` encadenados de abajo hay que recorrerlos. */
+     Los left se encadenan: 0 → 112 → 112+64=176. */
+  /* Ancho medido en navegador para el texto mas largo que puede salir:
+     "CARRUSEL 12" = 95px de pastilla + 8px de padding de la celda = 103px
+     (Vianey lo pidio literal, no el numero solo). Los tipos con nombre largo
+     se abrevian en JS (PIECE_SHORT: "Experiencia/Testimonio" → "EXP.") justo
+     para que quepan aqui; si se agrega un tipo nuevo con nombre largo, va su
+     abreviatura ahi — no se ensancha la columna, que arrastra los `left`.
+     `overflow: hidden` es el seguro: si algun dia un texto no cabe, se recorta
+     dentro de su columna en vez de derramarse encima de Grabacion. */
   .meses-col--num {
     position: sticky;
     left: 0;
     z-index: 2;
-    width: 104px;
-    min-width: 104px;
-    max-width: 104px;
+    width: 112px;
+    min-width: 112px;
+    max-width: 112px;
+    overflow: hidden;
     text-align: center;
   }
   .meses-col--grab {
     position: sticky;
-    left: 104px;
+    left: 112px;
     z-index: 2;
     width: 64px;
     min-width: 64px;
@@ -652,7 +658,7 @@
   }
   .meses-col--task {
     position: sticky;
-    left: 168px;
+    left: 176px;
     z-index: 2;
     min-width: 230px;
     max-width: 300px;
@@ -719,10 +725,13 @@
     line-height: 1;
     white-space: nowrap;
   }
-  /* Sin tipo asignado: em dash discreto, sin cuadrito (no es un numero real). */
+  /* Sin tipo asignado: em dash discreto, sin cuadrito (no es un numero real).
+     Va con --text-dim, NO con --text-mute: sobre el fondo oscuro --text-mute
+     da 3.15:1 y no pasa AA (4.5:1) — y es justo lo que ve toda fila recien
+     creada, que es cuando mas importa que se lea. */
   .meses-num--empty {
     background: none;
-    color: var(--text-mute);
+    color: var(--text-dim);
     font-weight: 600;
   }
   /* Variante movil: prefijo del titulo en la tarjeta, sin encogerse nunca. */
@@ -906,15 +915,19 @@
   .meses-url__edit:focus-visible { outline: none; box-shadow: var(--ring); opacity: 1; }
 
 /* Ajustes MOVIL de la tabla: columnas fijas mas angostas para que al deslizar
-   quede espacio visible, y celdas un poco mas compactas. */
+   quede espacio visible, y celdas un poco mas compactas.
+   OJO: abajo de 768px esta vista NO pinta tabla sino tarjetas (buildMobileList),
+   asi que estas reglas hoy no se ejecutan. Se mantienen coherentes por si la
+   tabla vuelve a bajar de 768px (y porque otra pantalla reusa estas clases). */
 @media (max-width: 767px) {
   .meses-root { padding: 8px 8px 40px; }
-  /* Movil: mismo texto completo ("REEL 12"), un poco mas apretado. */
-  .meses-col--num { width: 88px; min-width: 88px; max-width: 88px; }
-  .meses-col--grab { left: 88px; width: 42px; min-width: 42px; max-width: 42px; }
-  .meses-col--task { left: 130px; min-width: 176px; max-width: 200px; }
+  /* La columna N.º NO se angosta aqui: el texto es el mismo ("CARRUSEL 12"
+     mide 103px con padding) y a 88px se derramaba encima de Grabacion.
+     Se queda en los 112px de arriba y solo se recorre el resto de la cadena. */
+  .meses-col--grab { left: 112px; width: 42px; min-width: 42px; max-width: 42px; }
+  .meses-col--task { left: 154px; min-width: 176px; max-width: 200px; }
   .meses-td--text { min-width: 170px; max-width: 210px; }
-  .meses-table { min-width: 792px; }
+  .meses-table { min-width: 872px; } /* 760 + la columna N.º (112px) */
   .meses-table th { font-size: 10px; }
 }
 

@@ -28,11 +28,11 @@ import {
   el, clear, copyText, api,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202607270813';
-import { icon } from '../shell/icons.js?v=202607270813';
-import { T } from '../shell/i18n.js?v=202607270813';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607270813';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607270813';
+} from '../api.js?v=202607270822';
+import { icon } from '../shell/icons.js?v=202607270822';
+import { T } from '../shell/i18n.js?v=202607270822';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607270822';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607270822';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -204,21 +204,51 @@ function pieceNumOf(post) {
   return (post && pieceNums.get(String(post.id))) || null;
 }
 
+// Etiqueta CORTA del tipo para la celda. El nombre completo de dos tipos no
+// cabe en la columna ("Experiencia/Testimonio 12" mide ~150px contra los 112px
+// fijos de la columna y se derramaria encima de Grabacion), asi que cada tipo
+// tiene su version corta. El nombre completo sigue en el `title` y en el
+// aria-label. Si se agrega un tipo nuevo, la version corta cae al label normal.
+const PIECE_SHORT = {
+  reel:         () => T('REEL', 'REEL'),
+  post:         () => T('POST', 'POST'),
+  tiktok:       () => 'TIKTOK',
+  informativo:  () => T('INFO', 'INFO'),
+  carrusel:     () => T('CARRUSEL', 'CAROUSEL'),
+  experiencia:  () => T('EXP.', 'EXP.'),
+  pauta:        () => T('PAUTA', 'AD'),
+  tratamientos: () => T('TRAT.', 'TREAT.'),
+  historia:     () => T('HIST.', 'STORY'),
+  foto:         () => T('FOTO', 'PHOTO'),
+};
+
 /** "REEL 12" — el texto que se ve. Vianey lo pidio literal, no el numero solo. */
 function pieceNumTitle(post) {
   const n = pieceNumOf(post);
   if (!n) return T('Sin tipo asignado', 'No type assigned');
-  const t = contentTypeLabel(post.content_type) || T('Pieza', 'Piece');
-  return `${t.toUpperCase()} ${n}`;
+  const short = PIECE_SHORT[post.content_type];
+  const t = short ? short() : (contentTypeLabel(post.content_type) || T('Pieza', 'Piece')).toUpperCase();
+  return `${t} ${n}`;
+}
+
+/** "Reel 12" completo, para el `title` y el lector de pantalla. */
+function pieceNumFull(post) {
+  const n = pieceNumOf(post);
+  if (!n) return T('Sin tipo asignado', 'No type assigned');
+  return `${contentTypeLabel(post.content_type) || T('Pieza', 'Piece')} ${n}`;
 }
 
 /** Nodo del numero: "REEL 12" (o "—" si la pieza aun no tiene tipo). */
 function pieceNumNode(post, extraClass) {
   const n = pieceNumOf(post);
+  const full = pieceNumFull(post);
   return el('span', {
     class: 'meses-num' + (n ? '' : ' meses-num--empty') + (extraClass ? ` ${extraClass}` : ''),
     text: n ? pieceNumTitle(post) : '—',
-    title: pieceNumTitle(post),
+    title: full,
+    // El `title` NO es nombre accesible: sin esto el lector anuncia "REEL 12"
+    // deletreado o el em dash solo.
+    'aria-label': full,
   });
 }
 
@@ -1418,7 +1448,11 @@ function buildTable(rows, noteLabels) {
     // util es Fecha, que ya es ordenable.
     el('th', {
       text: T('N.º', 'No.'), scope: 'col', class: 'meses-col--num',
-      title: T('Número de la pieza dentro de su mes y su tipo', 'Piece number within its month and type'),
+      // El numero sigue SIEMPRE la fecha: si ordenas por otra columna o
+      // arrastras las filas, la columna se vera salteada a proposito (el 7 es
+      // el 7 de esa pieza, no el septimo renglon de la pantalla).
+      title: T('Número de la pieza dentro de su mes y su tipo (sigue el orden por fecha)',
+        'Piece number within its month and type (follows the date order)'),
     }),
     colHeader({ skey: 'grab', sortType: 'num', label: T('Grab.', 'Rec.'), filterDim: 'grab', extra: { class: 'meses-col--grab' } }),
     colHeader({ skey: 'task', sortType: 'text', label: T('Tarea', 'Task'), filterDim: null, extra: { class: 'meses-col--task' } }),
@@ -1640,13 +1674,32 @@ function buildComposer(key, monthRows) {
       setFilters({});
       ctx.toast(T('Quitamos los filtros para que veas tu fila nueva.', 'We cleared the filters so you can see your new row.'), { type: 'info' });
     }
+    // La fila nueva va AL FINAL del mes, no al principio. `monthRows` son las
+    // filas VISIBLES (recortadas si habia un filtro), asi que el final del mes
+    // se mide sobre el mes COMPLETO de esta marca.
+    const monthAll = (allPostsForFilters || []).filter((p) => (
+      p && p.client_id === activeClientId && (monthKeyOf(p) || SIN_MES) === key
+    ));
+    const monthEnd = monthAll.length ? monthAll : (monthRows || []);
     const data = {
       client_id: activeClientId,
       title: '',
       status: 'idea',
-      position: nextPosition(monthRows),
+      position: nextPosition(monthEnd),
     };
-    if (key !== SIN_MES) data.publish_date = `${key}-01`;
+    // Fecha = la ULTIMA usada en el mes (no el dia 01). Naciendo el dia 01 la
+    // pieza nueva es la mas temprana del mes: con 12 reels ya numerados 1..12,
+    // se numeraria 1 y correria a los otros doce a 2..13 — exactamente lo
+    // contrario de "ya hay 12, que se ponga la 13". Empatada en el ultimo dia,
+    // `position` (max+1000) la deja al final y se lleva el 13.
+    if (key !== SIN_MES) {
+      const last = monthEnd
+        .map((p) => String((p && p.publish_date) || ''))
+        .filter((d) => d.slice(0, 7) === key)
+        .sort()
+        .pop();
+      data.publish_date = last || `${key}-01`;
+    }
     const post = await trackMutation(ctx.store.createPost(data));
     btn.disabled = false;
     // La fila nueva aparece sola (el store emite -> re-render). Solo hago scroll
