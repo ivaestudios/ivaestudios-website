@@ -14,10 +14,10 @@
 //
 // TODO EN EL NAVEGADOR (canvas 1080×1350, 4:5): nada se sube a servidores.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607291846';
-import { icon } from '../shell/icons.js?v=202607291846';
-import { T } from '../shell/i18n.js?v=202607291846';
-import * as store from '../shell/store.js?v=202607291846';
+import { el, clear, toast } from '../api.js?v=202607291857';
+import { icon } from '../shell/icons.js?v=202607291857';
+import { T } from '../shell/i18n.js?v=202607291857';
+import * as store from '../shell/store.js?v=202607291857';
 
 const W = 1080;
 const H = 1350;
@@ -183,6 +183,8 @@ function wrapPlain(ctx, text, size, weight, maxWidth, maxLines) {
 function anchorY(pos) { return pos === 'top' ? 0.24 : pos === 'mid' ? 0.40 : 0.56; }
 
 function drawSlide(ctx, s, idx, total) {
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
   ctx.fillStyle = '#0B0B10'; ctx.fillRect(0, 0, W, H);
   if (s.bitmap) fitCover(ctx, s.bitmap);
 
@@ -258,6 +260,10 @@ async function ensureFonts() {
   } catch { /* respaldo del sistema */ }
 }
 
+// Se exporta a 1440×1800 (el tope real que Instagram conserva) dibujando el
+// MISMO layout de 1080×1350 escalado: más nitidez sin tocar el diseño.
+const SCALE = 4 / 3;
+
 async function regenerate(previewHost) {
   if (rendering) return;
   rendering = true;
@@ -267,8 +273,12 @@ async function regenerate(previewHost) {
     clear(previewHost);
     slides.forEach((s, i) => {
       const canvas = document.createElement('canvas');
-      canvas.width = W; canvas.height = H;
-      drawSlide(canvas.getContext('2d'), s, i, slides.length);
+      canvas.width = Math.round(W * SCALE); canvas.height = Math.round(H * SCALE);
+      const c2 = canvas.getContext('2d');
+      c2.imageSmoothingEnabled = true;
+      c2.imageSmoothingQuality = 'high';   // sin esto el navegador reduce en modo "rápido" y se come el detalle
+      c2.scale(SCALE, SCALE);
+      drawSlide(c2, s, i, slides.length);
       previews.push({ canvas });
       const cell = el('div', { class: 'carg-cell' }, [el('div', { class: 'carg-cell__num', text: String(i + 1) })]);
       canvas.className = 'carg-cell__canvas';
@@ -298,7 +308,19 @@ export function renderGen(root, helpers) {
       const files = [...(e.target.files || [])].slice(0, MAX_SLIDES - slides.length);
       for (const f of files) {
         try {
-          const bitmap = await createImageBitmap(f);
+          // Reducción de alta calidad al decodificar (~2600px máx): reduce el
+          // brinco de escala del dibujo final y evita el moiré/aliasing de
+          // fotos de 6000px aplastadas de golpe a 1080.
+          let bitmap;
+          try {
+            const probe = await createImageBitmap(f);
+            const maxDim = Math.max(probe.width, probe.height);
+            if (maxDim > 2600) {
+              const k = 2600 / maxDim;
+              bitmap = await createImageBitmap(f, { resizeWidth: Math.round(probe.width * k), resizeHeight: Math.round(probe.height * k), resizeQuality: 'high' });
+              try { probe.close(); } catch { /* noop */ }
+            } else { bitmap = probe; }
+          } catch { bitmap = await createImageBitmap(f); }
           slides.push({ file: f, bitmap, kicker: '', title: '', body: '', pos: slides.length === 0 ? 'mid' : 'top' });
         } catch {
           toast(T(`No pude leer "${f.name}" — usa JPG o PNG (HEIC no corre en este navegador).`, `Could not read "${f.name}" — use JPG or PNG.`), { type: 'error' });
@@ -314,7 +336,8 @@ export function renderGen(root, helpers) {
     const isLast = i === slides.length - 1 && slides.length > 1;
     const thumb = el('canvas', { class: 'carg-card__thumb' });
     const tctx = thumb.getContext('2d');
-    thumb.width = 108; thumb.height = 135;
+    thumb.width = 216; thumb.height = 270;
+    tctx.imageSmoothingEnabled = true; tctx.imageSmoothingQuality = 'high';
     const sc = Math.max(108 / s.bitmap.width, 135 / s.bitmap.height);
     tctx.drawImage(s.bitmap, (108 - s.bitmap.width * sc) / 2, (135 - s.bitmap.height * sc) / 2, s.bitmap.width * sc, s.bitmap.height * sc);
 
@@ -361,7 +384,7 @@ export function renderGen(root, helpers) {
     const ext = format === 'png' ? 'png' : 'jpg';
     const entries = [];
     for (let i = 0; i < previews.length; i++) {
-      const blob = await deps.canvasToBlob(previews[i].canvas, type, 0.95);
+      const blob = await deps.canvasToBlob(previews[i].canvas, type, 0.97);
       entries.push({ name: `${String(i + 1).padStart(2, '0')}-carrusel.${ext}`, blob });
     }
     if (entries.length === 1) { deps.download(entries[0].blob, entries[0].name); return; }
