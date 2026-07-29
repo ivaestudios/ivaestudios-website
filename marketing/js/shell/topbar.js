@@ -10,15 +10,15 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607291421';
-import * as store from './store.js?v=202607291421';
-import { openSheet, pickFrom } from './sheet.js?v=202607291421';
-import { toast } from './toast.js?v=202607291421';
-import { icon } from './icons.js?v=202607291421';
-import { openClientSwitcher } from './clientswitcher.js?v=202607291421';
-import { T, isEN, setLang } from './i18n.js?v=202607291421';
-import { getTheme, setTheme } from './theme.js?v=202607291421';
-import * as version from './version.js?v=202607291421';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607291553';
+import * as store from './store.js?v=202607291553';
+import { openSheet, pickFrom } from './sheet.js?v=202607291553';
+import { toast } from './toast.js?v=202607291553';
+import { icon } from './icons.js?v=202607291553';
+import { openClientSwitcher } from './clientswitcher.js?v=202607291553';
+import { T, isEN, setLang } from './i18n.js?v=202607291553';
+import { getTheme, setTheme } from './theme.js?v=202607291553';
+import * as version from './version.js?v=202607291553';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -60,6 +60,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
   const CLIENT_METRICS_IDS = [
     '6ae5dd2381faa430d9e6966470b29602', // IVAE STUDIOS
     'demo-regeneris',                    // REGENERIS THERAPY (pedido 2026-07-29)
+    '67322bb3c5f64991a9178b1d1784231a',  // DEMO (revisores de App Store / Play)
   ];
   const clientSeesMetrics = isClient && CLIENT_METRICS_IDS.includes((store.getState().me || {}).client_id);
   const visibleTabs = isClient
@@ -354,6 +355,13 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
           accountRow('send', T('Ayuda', 'Help'), () => {
             close();
             window.open('https://wa.me/5219902046514', '_blank', 'noopener');
+          }),
+          // Aviso de Privacidad accesible desde la app (regla 5.1.1(i) de
+          // Apple: el link debe estar "easily accessible", no solo en el
+          // registro). URL sin .html: la variante .html responde 308.
+          accountRow('link', T('Aviso de Privacidad', 'Privacy Policy'), () => {
+            close();
+            window.open('/privacy-policy', '_blank', 'noopener');
           }),
           // Eliminar cuenta: SOLO el cliente (requisito Apple 5.1.1 — toda app
           // con registro debe dejar borrar la cuenta desde la propia app).

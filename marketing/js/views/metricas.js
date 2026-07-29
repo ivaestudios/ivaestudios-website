@@ -14,9 +14,9 @@
 // API no devuelva (sin comparativas, sin flechas, sin sparklines: no hay
 // histórico de seguidores — ver el reporte final de esta tanda).
 // ============================================================================
-import { api, el, clear } from '../api.js?v=202607291421';
-import { icon } from '../shell/icons.js?v=202607291421';
-import { T, isEN } from '../shell/i18n.js?v=202607291421';
+import { api, el, clear, isClientRole } from '../api.js?v=202607291553';
+import { icon } from '../shell/icons.js?v=202607291553';
+import { T, isEN } from '../shell/i18n.js?v=202607291553';
 
 const VIEW_ID = 'metricas';
 
@@ -180,7 +180,7 @@ function ensureCss() {
   // app.html, así que ningún bump global toca este sello. Si editas
   // metricas.css, sube este número A MANO o el cambio no llega (el SW sirve
   // cache-first todo lo que trae ?v=).
-  link.href = '/marketing/css/metricas.css?v=202607291421';
+  link.href = '/marketing/css/metricas.css?v=202607291553';
   document.head.appendChild(link);
 }
 
@@ -804,15 +804,35 @@ function render() {
     return;
   }
   if (res.connected === false) {
+    // CLIENTE: sin botón de conectar. La conexión la hace la agencia y el
+    // backend se lo prohíbe con un 403; este botón navegaba directo a
+    // /ig/login y el JSON {"error":"Forbidden"} reemplazaba la app ENTERA a
+    // pantalla completa (auditoría App Review 2026-07-29, bloqueante).
+    if (isClientRole()) {
+      rootEl.appendChild(buildEmpty(
+        T('Instagram en conexión', 'Instagram being connected'),
+        T('Tu agencia está conectando el Instagram de tu marca. En cuanto esté listo, aquí verás seguidores, alcance, interacciones y el rendimiento de cada publicación.',
+          "Your agency is connecting your brand's Instagram. As soon as it's ready you'll see followers, reach, interactions and each post's performance here."),
+      ));
+      return;
+    }
     rootEl.appendChild(buildEmpty(
       T('Instagram no conectado', 'Instagram not connected'),
       T('Conecta el Instagram de esta marca para ver seguidores, alcance, interacciones y el rendimiento de cada publicación, todo aquí.',
         "Connect this brand's Instagram to see followers, reach, interactions and each post's performance — all here."),
       el('button', {
         class: 'btn btn-primary', type: 'button', text: T('Conectar Instagram', 'Connect Instagram'),
-        onclick: () => {
+        onclick: async () => {
           const b = activeBrand();
-          if (b) window.location.href = `/api/marketing/ig/login?client_id=${encodeURIComponent(b.id)}`;
+          if (!b) return;
+          // Precheck (mismo patrón que clientswitcher.js): jamás navegar a un
+          // error crudo — si el backend va a decir 403/503, se avisa bonito.
+          try {
+            const r = await fetch(`/api/marketing/ig/login?client_id=${encodeURIComponent(b.id)}`, { credentials: 'include', redirect: 'manual' });
+            if (r.status === 503) { ctx?.toast?.(T('Falta configurar la app de Meta (te paso la guía).', 'The Meta app still needs setup (ask me for the guide).'), { type: 'error' }); return; }
+            if (r.status === 403) { ctx?.toast?.(T('Esta cuenta no puede conectar Instagram. Hazlo desde tu acceso de agencia.', 'This account cannot connect Instagram. Use your agency access.'), { type: 'error' }); return; }
+          } catch { /* sin red: la navegación de abajo mostrará su propio error */ }
+          window.location.href = `/api/marketing/ig/login?client_id=${encodeURIComponent(b.id)}`;
         },
       }),
       [
