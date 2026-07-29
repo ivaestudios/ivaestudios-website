@@ -10,15 +10,15 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607291237';
-import * as store from './store.js?v=202607291237';
-import { openSheet, pickFrom } from './sheet.js?v=202607291237';
-import { toast } from './toast.js?v=202607291237';
-import { icon } from './icons.js?v=202607291237';
-import { openClientSwitcher } from './clientswitcher.js?v=202607291237';
-import { T, isEN, setLang } from './i18n.js?v=202607291237';
-import { getTheme, setTheme } from './theme.js?v=202607291237';
-import * as version from './version.js?v=202607291237';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607291240';
+import * as store from './store.js?v=202607291240';
+import { openSheet, pickFrom } from './sheet.js?v=202607291240';
+import { toast } from './toast.js?v=202607291240';
+import { icon } from './icons.js?v=202607291240';
+import { openClientSwitcher } from './clientswitcher.js?v=202607291240';
+import { T, isEN, setLang } from './i18n.js?v=202607291240';
+import { getTheme, setTheme } from './theme.js?v=202607291240';
+import * as version from './version.js?v=202607291240';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -528,9 +528,11 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
               } else {
                 pwShow.textContent = T('Todavía no guardada', 'Not saved yet');
                 pwHint.textContent = T(
-                  'Aparecerá sola la próxima vez que el cliente entre, o ahora mismo si le pones una contraseña nueva aquí abajo.',
-                  "It will appear on its own the next time the client signs in, or right now if you set a new password below.",
+                  'Aparecerá sola la próxima vez que el cliente entre. Si te la sabes, escríbela aquí y la guardo — no se la cambio ni lo saco de su sesión.',
+                  "It will appear on its own the next time the client signs in. If you know it, type it here and I'll save it — it does not change their password or sign them out.",
                 );
+                recallRow.hidden = false;
+                recallIn.focus();
               }
             } catch (e) {
               toast(e.message || T('No se pudo mostrar la contraseña.', 'Could not show the password.'), { type: 'error' });
@@ -538,6 +540,34 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
             revealBtn.disabled = false;
           },
         });
+
+        // Rescate: guardar la contraseña que el cliente YA usa. Se comprueba
+        // contra el hash en el servidor, así que si te equivocas no pasa nada.
+        const recallIn = el('input', { class: 'input', type: 'text', placeholder: T('La contraseña que ya usa', 'The password they already use'), maxlength: '120', 'aria-label': T('Contraseña actual del cliente', "Client's current password") });
+        const recallBtn = el('button', {
+          class: 'btn btn-sm', type: 'button', text: T('Guardar', 'Save'),
+          onclick: async () => {
+            const v = recallIn.value.trim();
+            if (!v) { recallIn.focus(); return; }
+            recallBtn.disabled = true;
+            try {
+              await api.post(`/users/${login.id}/remember-password`, { password: v });
+              revealed = v;
+              pwShow.textContent = v;
+              revealBtn.textContent = T('Ocultar', 'Hide');
+              copyBtn.hidden = false;
+              recallRow.hidden = true;
+              recallIn.value = '';
+              pwHint.textContent = T('Guardada. Ya no se te vuelve a perder.', 'Saved. You will not lose it again.');
+              store.invalidateUsers();
+            } catch (e) {
+              toast(e.message || T('No se pudo guardar.', 'Could not save.'), { type: 'error' });
+              recallIn.focus();
+            }
+            recallBtn.disabled = false;
+          },
+        });
+        const recallRow = el('div', { class: 'acct-pwrow', hidden: true, style: { marginTop: '8px' } }, [recallIn, recallBtn]);
 
         const pwIn = el('input', { class: 'input', type: 'text', placeholder: T('Déjala en blanco para no cambiarla', 'Leave blank to keep it unchanged'), maxlength: '120', 'aria-label': T('Nueva contraseña', 'New password') });
         const genBtn = el('button', {
@@ -592,6 +622,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
             el('label', { class: 'label', text: T('Contraseña actual', 'Current password') }),
             el('div', { class: 'acct-pwrow' }, [pwShow, revealBtn, copyBtn]),
             pwHint,
+            recallRow,
           ]),
           el('div', { class: 'field' }, [
             el('label', { class: 'label', text: T('Cambiar la contraseña', 'Change the password') }),

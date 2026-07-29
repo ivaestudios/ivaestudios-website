@@ -1237,6 +1237,36 @@ async function handleRevealPassword(env, session, userId) {
   return json({ password: plain, saved_at: row.password_enc_at });
 }
 
+// POST /users/:id/remember-password — guarda en la bóveda una contraseña que
+// YA es la del cliente, sin cambiarla ni cerrarle la sesión.
+//
+// Sirve para las cuentas de antes de la bóveda: Vianey se sabe la contraseña
+// pero el sistema solo tiene el hash. Antes, la única forma de que apareciera
+// en el panel era CAMBIARLA (y eso echa al cliente de su sesión). Aquí la
+// escribe, se comprueba contra el hash de siempre, y si coincide se guarda la
+// copia cifrada. Si no coincide no pasa nada: no cambia ninguna contraseña.
+async function handleRememberPassword(request, env, session, userId) {
+  if (!session || session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
+  // Aunque ya pide admin, se limita el ritmo: así no sirve para adivinar
+  // contraseñas a fuerza bruta si alguien se colara con una sesión de admin.
+  if (!(await authRateLimit(env, `rememberpw:${session.user_id}`, 30, 3600))) {
+    return json({ error: 'Demasiados intentos. Espera un rato.' }, 429);
+  }
+  let bodyObj;
+  try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+  const pw = String((bodyObj || {}).password || '');
+  if (!pw) return json({ error: 'Escribe la contraseña.' }, 400);
+  const row = await env.DB.prepare('SELECT id, email, password FROM mkt_users WHERE id = ?').bind(userId).first();
+  if (!row) return json({ error: 'User not found' }, 404);
+  const valid = row.password ? await verifyPassword(pw, row.password) : false;
+  if (!valid) return json({ error: 'Esa no es la contraseña actual de esta cuenta.' }, 400);
+  await rememberPassword(env, userId, pw);
+  const check = await env.DB.prepare('SELECT password_enc FROM mkt_users WHERE id = ?').bind(userId).first();
+  if (!check || !check.password_enc) return json({ error: 'No se pudo guardar en la bóveda. Intenta de nuevo.' }, 503);
+  await logActivity(env, { session, action: 'user.remember_password', detail: row.email });
+  return json({ ok: true });
+}
+
 async function handleCreateUser(request, env, session) {
   let bodyObj;
   try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
@@ -4324,6 +4354,10 @@ async function route(request, env, authCtx) {
     // Ver la contraseña guardada (solo admin; el handler revalida el rol).
     if (parts.length === 3 && parts[2] === 'password' && method === 'GET') {
       return handleRevealPassword(env, session, parts[1]);
+    }
+    // Guardar en la bóveda la contraseña que el cliente YA usa (no la cambia).
+    if (parts.length === 3 && parts[2] === 'remember-password' && method === 'POST') {
+      return handleRememberPassword(request, env, session, parts[1]);
     }
   }
 
