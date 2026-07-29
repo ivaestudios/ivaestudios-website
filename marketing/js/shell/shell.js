@@ -19,22 +19,22 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202607291553';
-import * as store from './store.js?v=202607291553';
-import * as prefs from './prefs.js?v=202607291553';
-import * as router from './router.js?v=202607291553';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202607291553';
-import { toast } from './toast.js?v=202607291553';
-import { icon } from './icons.js?v=202607291553';
-import * as iconsMod from './icons.js?v=202607291553';
-import { createTopbar } from './topbar.js?v=202607291553';
-import { createBottomNav } from './bottomnav.js?v=202607291553';
-import { createSearch } from './search.js?v=202607291553';
-import { createNotifications } from './notifications.js?v=202607291553';
-import { T } from './i18n.js?v=202607291553';
-import * as version from './version.js?v=202607291553';
-import * as pickers from '../ui/pickers.js?v=202607291553';
-import * as dnd from '../ui/dnd.js?v=202607291553';
+import { api, el, clear } from '../api.js?v=202607291753';
+import * as store from './store.js?v=202607291753';
+import * as prefs from './prefs.js?v=202607291753';
+import * as router from './router.js?v=202607291753';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202607291753';
+import { toast } from './toast.js?v=202607291753';
+import { icon } from './icons.js?v=202607291753';
+import * as iconsMod from './icons.js?v=202607291753';
+import { createTopbar } from './topbar.js?v=202607291753';
+import { createBottomNav } from './bottomnav.js?v=202607291753';
+import { createSearch } from './search.js?v=202607291753';
+import { createNotifications } from './notifications.js?v=202607291753';
+import { T } from './i18n.js?v=202607291753';
+import * as version from './version.js?v=202607291753';
+import * as pickers from '../ui/pickers.js?v=202607291753';
+import * as dnd from '../ui/dnd.js?v=202607291753';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -157,11 +157,11 @@ function paramsToFilters(params) {
 function updateSubhead() {
   if (!subheadEl) return;
   const { view } = store.getState();
-  // Métricas no es vista de contenido, pero el cliente con Métricas habilitada
-  // (IVAE STUDIOS) la navega desde este mismo seg en móvil: el seg se queda
-  // visible ahí para poder regresar a Calendario/Cuadrícula.
+  // Métricas no es vista de contenido, pero en móvil se navega desde este
+  // mismo seg (staff siempre; cliente si su marca está aprobada): el seg se
+  // queda visible ahí para poder regresar a Calendario/Cuadrícula.
   const isContent = CONTENT_VIEWS.includes(view)
-    || (view === 'metricas' && isClientRole() && clientCanView('metricas'));
+    || (view === 'metricas' && (isClientRole() ? clientCanView('metricas') : true));
   subheadSeg.hidden = !isContent;
   const hasSlot = subheadSlot.children.length > 0;
   const show = isContent || hasSlot;
@@ -186,10 +186,11 @@ function buildSubhead(root) {
   // Cuadricula = calendario).
   const VISIBLE_CONTENT_VIEWS = ['meses', 'calendario', 'entregables', 'carrusel', 'descargar'];
   const segViews = CONTENT_VIEWS.filter((v) => VISIBLE_CONTENT_VIEWS.includes(v));
-  // En móvil las tabs del topbar no existen (<1024px, shell.css): para el
-  // cliente con Métricas habilitada (IVAE STUDIOS) este seg es su única
-  // entrada a esa vista, así que se agrega como botón extra.
-  if (isClientRole() && clientCanView('metricas')) segViews.push('metricas');
+  // En móvil las tabs del topbar no existen (<1024px, shell.css): este seg es
+  // la ÚNICA entrada a Métricas. Para el cliente, solo si su marca está en la
+  // lista aprobada; para el STAFF, siempre — Vianey entró desde el cel y
+  // Métricas no aparecía por ningún lado (hueco reportado 2026-07-29).
+  if (isClientRole() ? clientCanView('metricas') : true) segViews.push('metricas');
   for (const v of segViews) {
     const label = CONTENT_LABELS[v] || v;
     subheadSeg.appendChild(el('button', {
