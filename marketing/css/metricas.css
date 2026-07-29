@@ -144,6 +144,14 @@
 /* La fila "Tu cuenta hoy" reusa las tarjetas KPI pero pegada a su kicker
    (el margen de 26px de .mt-kpis es para cuando la fila abre sección). */
 .mt-kpis--acct { margin-top: 2px; }
+/* Esta fila NO lleva héroe: la regla de "última tarjeta en posición par ocupa
+   toda la fila" está pensada para filas con héroe (donde las secundarias
+   empiezan en posición 2) y aquí dejaría un hueco junto a Seguidores en el
+   teléfono. Con las 2 tarjetas lado a lado no hay celda coja que arreglar. */
+.mt-kpis--acct .mt-num:last-child:nth-child(even) { grid-column: auto; }
+/* Y si Instagram solo entrega una de las dos cifras, esa única tarjeta toma
+   la fila completa en vez de quedarse a media pantalla con el filete cortado. */
+.mt-kpis--acct .mt-num:only-child { grid-column: 1 / -1; }
 .mt-acct {
   margin-top: 10px; padding: 14px 16px;
   background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-sm, 10px);
