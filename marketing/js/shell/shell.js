@@ -19,34 +19,41 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202607291345';
-import * as store from './store.js?v=202607291345';
-import * as prefs from './prefs.js?v=202607291345';
-import * as router from './router.js?v=202607291345';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202607291345';
-import { toast } from './toast.js?v=202607291345';
-import { icon } from './icons.js?v=202607291345';
-import * as iconsMod from './icons.js?v=202607291345';
-import { createTopbar } from './topbar.js?v=202607291345';
-import { createBottomNav } from './bottomnav.js?v=202607291345';
-import { createSearch } from './search.js?v=202607291345';
-import { createNotifications } from './notifications.js?v=202607291345';
-import { T } from './i18n.js?v=202607291345';
-import * as version from './version.js?v=202607291345';
-import * as pickers from '../ui/pickers.js?v=202607291345';
-import * as dnd from '../ui/dnd.js?v=202607291345';
+import { api, el, clear } from '../api.js?v=202607291355';
+import * as store from './store.js?v=202607291355';
+import * as prefs from './prefs.js?v=202607291355';
+import * as router from './router.js?v=202607291355';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202607291355';
+import { toast } from './toast.js?v=202607291355';
+import { icon } from './icons.js?v=202607291355';
+import * as iconsMod from './icons.js?v=202607291355';
+import { createTopbar } from './topbar.js?v=202607291355';
+import { createBottomNav } from './bottomnav.js?v=202607291355';
+import { createSearch } from './search.js?v=202607291355';
+import { createNotifications } from './notifications.js?v=202607291355';
+import { T } from './i18n.js?v=202607291355';
+import * as version from './version.js?v=202607291355';
+import * as pickers from '../ui/pickers.js?v=202607291355';
+import * as dnd from '../ui/dnd.js?v=202607291355';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
 // El cliente solo ve las vistas de calendario (Calendario = meses,
 // Cuadrícula = calendario). Nada de Inicio/Tablero/Tabla/Timeline/Carga.
 const CLIENT_VIEWS = ['meses', 'calendario', 'entregables'];
-// Métricas se habilita en la versión CLIENTE solo para IVAE STUDIOS (su propia
-// marca) para su reporte de Instagram; el resto de clientes no la ve.
-const IVAE_STUDIOS_CLIENT_ID = '6ae5dd2381faa430d9e6966470b29602';
+// Métricas (con su botón de Reporte PDF) se habilita en la versión CLIENTE
+// solo para las marcas que Vianey aprueba una por una. Hoy: IVAE STUDIOS (su
+// propia marca) y REGENERIS (lo pidió el 2026-07-29). El resto no la ve.
+// La MISMA lista vive duplicada en topbar.js (patrón existente): si agregas
+// una marca aquí, agrégala allá. El backend ya limita a cada cliente a SU
+// marca (/report y /ig/metrics-range fuerzan session.client_id).
+const CLIENT_METRICS_IDS = [
+  '6ae5dd2381faa430d9e6966470b29602', // IVAE STUDIOS
+  'demo-regeneris',                    // REGENERIS THERAPY
+];
 const isClientRole = () => ((store.getState().me || {}).role === 'client');
 const clientCanView = (view) => CLIENT_VIEWS.includes(view)
-  || (view === 'metricas' && ((store.getState().me || {}).client_id === IVAE_STUDIOS_CLIENT_ID));
+  || (view === 'metricas' && CLIENT_METRICS_IDS.includes((store.getState().me || {}).client_id));
 const CONTENT_LABELS = {
   meses: T('Calendario', 'Calendar'),
   calendario: T('Cuadrícula', 'Grid'),

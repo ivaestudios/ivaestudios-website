@@ -10,15 +10,15 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607291345';
-import * as store from './store.js?v=202607291345';
-import { openSheet, pickFrom } from './sheet.js?v=202607291345';
-import { toast } from './toast.js?v=202607291345';
-import { icon } from './icons.js?v=202607291345';
-import { openClientSwitcher } from './clientswitcher.js?v=202607291345';
-import { T, isEN, setLang } from './i18n.js?v=202607291345';
-import { getTheme, setTheme } from './theme.js?v=202607291345';
-import * as version from './version.js?v=202607291345';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607291355';
+import * as store from './store.js?v=202607291355';
+import { openSheet, pickFrom } from './sheet.js?v=202607291355';
+import { toast } from './toast.js?v=202607291355';
+import { icon } from './icons.js?v=202607291355';
+import { openClientSwitcher } from './clientswitcher.js?v=202607291355';
+import { T, isEN, setLang } from './i18n.js?v=202607291355';
+import { getTheme, setTheme } from './theme.js?v=202607291355';
+import * as version from './version.js?v=202607291355';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -55,11 +55,15 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
 
   const tabsWrap = el('nav', { class: 'tb-tabs', 'aria-label': T('Vistas', 'Views') });
   const tabBtns = new Map();
-  // El cliente solo ve las vistas de calendario (+ Métricas si es IVAE STUDIOS).
-  const IVAE_STUDIOS_CLIENT_ID = '6ae5dd2381faa430d9e6966470b29602';
-  const isIvaeStudiosClient = isClient && ((store.getState().me || {}).client_id === IVAE_STUDIOS_CLIENT_ID);
+  // El cliente solo ve las vistas de calendario (+ Métricas si su marca está
+  // en la lista aprobada). MISMA lista que shell.js — cámbialas juntas.
+  const CLIENT_METRICS_IDS = [
+    '6ae5dd2381faa430d9e6966470b29602', // IVAE STUDIOS
+    'demo-regeneris',                    // REGENERIS THERAPY (pedido 2026-07-29)
+  ];
+  const clientSeesMetrics = isClient && CLIENT_METRICS_IDS.includes((store.getState().me || {}).client_id);
   const visibleTabs = isClient
-    ? DESKTOP_TABS.filter((t) => t.id === 'meses' || t.id === 'calendario' || t.id === 'entregables' || (t.id === 'metricas' && isIvaeStudiosClient))
+    ? DESKTOP_TABS.filter((t) => t.id === 'meses' || t.id === 'calendario' || t.id === 'entregables' || (t.id === 'metricas' && clientSeesMetrics))
     : DESKTOP_TABS;
   for (const t of visibleTabs) {
     const b = el('button', {
