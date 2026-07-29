@@ -15,10 +15,10 @@
 // Modulo sin estado propio: recibe prefs/posts del orquestador (table.js).
 // ============================================================================
 
-import { el, STATUSES, STATUS_ORDER, statusLabel } from '../api.js?v=202607291355';
-import { T } from '../shell/i18n.js?v=202607291355';
-import { fmtMonthYear, todayISO } from '../lib/dates.js?v=202607291355';
-import { sortValueOf } from './columns.js?v=202607291355';
+import { el, STATUSES, STATUS_ORDER, statusLabel } from '../api.js?v=202607291421';
+import { T } from '../shell/i18n.js?v=202607291421';
+import { fmtMonthYear, todayISO } from '../lib/dates.js?v=202607291421';
+import { sortValueOf } from './columns.js?v=202607291421';
 
 export const SIN_FECHA_KEY = 'sin-fecha';
 export const OTHERS_KEY = 'otros';
