@@ -1,0 +1,153 @@
+{
+  "summary": "Panel de dirección de arte: cómo integrar foto/video en TODA la landing de IVAE Marketing, de forma profesional y cohesiva",
+  "agentCount": 4,
+  "logs": [],
+  "result": {
+    "concept": "Tratamos la landing como un REPORTAJE EDITORIAL hojeado en el celular donde la foto/video es el producto y el texto es el pie de foto: un único ritmo de \"doble página\" (full-bleed → split que alterna lado → respiro de texto → full-bleed) recorre toda la página, usando el sistema oscuro morado→rosa existente como tinta y los glow-dividers como corte entre artículos. La prueba visual empieza alto (collage en el hero + franja de trabajo justo bajo el fold) y se teje sección a sección en vez de amontonarse en dos galerías al final; se disuelven Work Gallery y Reels redistribuyendo sus 6+4 slots como acentos a lo largo del recorrido, se recupera el retrato de Vianey y se añade un pull-quote de reseña real, todo sobre placeholders elegantes ya existentes (.work-ph / .reel-play) con las rutas reales del repo para que el cliente solo suba archivos.",
+    "rhythm": "De arriba a abajo alterna golpe visual / respiro de texto en cadencia A-B: HERO portada (visual fuerte) → STATS franja-crédito (respiro, números) → CANCÚN split imagen-IZQUIERDA (1er maridaje) → SERVICES split imagen-DERECHA + bento (alterna lado) → PROCESS timeline con thumb por nodo (texto-dominante) → DÍPTICO/pull-quote full-bleed (clímax-respiro emocional) → WHY split imagen-IZQUIERDA (contraste demostrado) → PLANS texto/UI puro (valle deliberado antes de decidir) → INDUSTRIES mosaico de retratos verticales (multiplicidad de imagen justificada) → REELS un video protagonista a sangre que autoplay-in-view + miniaturas (clímax de movimiento) → THE STUDIO split con RETRATO de Vianey (firma humana) → FAQ texto puro estrecho (apéndice) → TRUSTED BY franja fina de logos (créditos) → CTA contraportada full-bleed (cierra el bucle del hero). Regla: nunca dos secciones de imagen pesada seguidas sin un respiro de texto entre ellas; en móvil todo split colapsa a imagen-arriba full-bleed + texto-abajo.",
+    "perSection": [
+      {
+        "section": "1. HERO",
+        "treatment": "Soltar el reel del mockup hacia 'portada editorial'. Conservar el <video> /videos/ivae-marketing-reel.mp4 (autoplay muted loop playsinline) pero ampliarlo y, en compu, sumarle a su lado 2 fotos verticales 4:5 en collage flotante con leve --forllax-y (reusar .hero-particles). Titular + badge .dot encima. Móvil (canónico): el .hero-visual ya hace order:-1, así que va reel arriba casi full-width, luego h1+CTAs, y debajo asomar una tira horizontal scroll-snap de 3 miniaturas 4:5 que invita al scroll (la prueba empieza antes del primer gesto). CORREGIR la línea stale '5.0 · 42 reviews' → '5.0 · 47 reviews'."
+      },
+      {
+        "section": "2. STATS",
+        "treatment": "Mantener las 4 .glass .stat-card con su data-count, pero fundirlas con el hero como franja-crédito (números flotando sobre el cierre de la portada, hairlines en vez de 4 cajas aisladas si se quiere más aire). Sin imagen propia: es el respiro entre dos golpes visuales. Conservar .rv escalonado."
+      },
+      {
+        "section": "3. 'We know the Cancún market'",
+        "treatment": "Hoy es texto centrado max-width:800px. Convertir en el PRIMER split 50/50, imagen a la IZQUIERDA (full-bleed por el borde izquierdo en compu), texto a la derecha conservando el copy y el link a IVAE Studios (SEO). Placeholder = .work-item/.work-ph 4:5 + caption 'Cancún · Riviera Maya'. Ruta /images/marketing/portfolio/work-01.jpg. Móvil: imagen full-bleed arriba, texto abajo."
+      },
+      {
+        "section": "4. WORK GALLERY (disolver)",
+        "treatment": "Eliminar la cuadrícula 3x2 como bloque autónomo (es justo el problema 'galería pegada'). Redistribuir sus 6 figuras conservando los nombres work-01..06: work-01→split Cancún, work-02/03→díptico/pull-quote, work-04→split Services, work-05/06→mosaico Industries. No cambian rutas → el cliente sube igual y no se rompe nada."
+      },
+      {
+        "section": "5. SERVICES 'What''s Included'",
+        "treatment": "Conservar el bento de íconos PERO anclarlo con un split 50/50 imagen a la DERECHA encima de la grilla (alterna lado vs sección 3): foto 'producción real' (set/cámara/talento) con caption 'In-house production'. Ruta /images/marketing/portfolio/work-04.jpg. El bento queda debajo en ancho de columna más estrecho con más aire."
+      },
+      {
+        "section": "6. PROCESS 'How we work'",
+        "treatment": "Conservar el timeline vertical con nodos que se encienden (muy editorial, buen valle de texto). Añadir a cada nodo un micro-thumb 4:5 opcional que ilustra la fase (brief/shooting/edición/publicación/reporte); si no hay foto, el nodo numerado queda intacto (placeholder = estado por defecto, cero rotura). Rutas /images/marketing/process/step-01..05.jpg. Móvil: thumb a la izquierda del nodo, texto a la derecha."
+      },
+      {
+        "section": "NUEVO: Díptico + pull-quote (entre 6 y 7)",
+        "treatment": "Spread full-bleed total (width:100vw, sin padding lateral): díptico de 2 verticales pegadas sin gap (work-02 + work-03) o una sola foto con una reseña 5.0 REAL (de las 47 de GBP) superpuesta grande en blanco-roto #f0eee9, atribución en Space Mono. Es el momento de respiro emocional + prueba social con rostro de marca. glow-divider arriba y abajo."
+      },
+      {
+        "section": "7. 'Why IVAE / The difference'",
+        "treatment": "Split 50/50 imagen a la IZQUIERDA (espejo de Services para zig-zag). La comparación nosotros-vs-agencia vive en el lado texto con líneas finas; el lado imagen muestra un feed/carrusel bien curado (resultado real). El contraste visual ES el argumento. Ruta /images/marketing/portfolio/work-05.jpg (o un slot dedicado)."
+      },
+      {
+        "section": "8. PLANS & PRICING",
+        "treatment": "Texto/UI puro DELIBERADO: valle visual antes de la decisión de compra. Conservar las 3 .glass sin imagen compitiendo. Único acento: glow-divider más marcado antes (señal de 'cambio de sección') + borde gradiente conic en el plan recomendado (ya existe en el sistema)."
+      },
+      {
+        "section": "9. INDUSTRIES",
+        "treatment": "Convertir las tarjetas-link en mosaico editorial de retratos verticales: cada industria = foto 4:5 con el nombre grande encima tipo cubierta de sección y overlay degradado para legibilidad+SEO. Placeholder .work-ph con su caption. Rutas /images/marketing/industries/hotels.jpg, restaurants.jpg, spa.jpg, dental.jpg, instagram.jpg, tiktok.jpg, cdmx.jpg. Móvil: carrusel horizontal scroll-snap (NO grid apretada), primero full-bleed."
+      },
+      {
+        "section": "10. REELS (reconcebir)",
+        "treatment": "Disolver el strip de 4 placeholders iguales. Dejar UN reel 9:16 protagonista a sangre que autoplay-in-view (IntersectionObserver, muted, playsinline, 1 video a la vez) + 2-3 miniaturas verticales al lado como 'más videos'. Es el clímax de movimiento, colocado DESPUÉS de Industries. Conservar reel-01..04 como posters; soportar reel-0N.mp4 con preload='none'. .reel-play sigue siendo el placeholder elegante."
+      },
+      {
+        "section": "11. THE STUDIO 'Led by Vianey'",
+        "treatment": "CRÍTICO (#founder hoy NO tiene foto): añadir RETRATO. Split 50/50 con retrato vertical 4:5 de Vianey a un lado (full-bleed por su borde) y a la derecha el texto de fundadora + quote destacada + botón 'Meet Vianey'. Placeholder = .work-ph con icono de PERSONA (no cámara) + caption 'Vianey Díaz · Founder & Creative Director'. Ruta /images/marketing/team/vianey-portrait.jpg (existe vianey-diaz.jpg en assets para reutilizar). Móvil: retrato arriba centrado con ring degradado sutil."
+      },
+      {
+        "section": "12. FAQ",
+        "treatment": "Texto puro a propósito (apéndice del reportaje). Conservar .faq-section/.faq-item; solo estrechar max-width para que respire. Sin imagen."
+      },
+      {
+        "section": "13. TRUSTED BY",
+        "treatment": "Franja fina de logos/@handles monocroma a baja opacidad (grayscale+opacity, color al hover), hairline arriba y abajo, como página de patrocinadores. Opcional: 2-3 testimonios con rostro (avatar circular = inicial en círculo degradado si no hay foto). Marquee lento opcional en móvil."
+      },
+      {
+        "section": "14. CTA final",
+        "treatment": "Contraportada: foto full-bleed total (la más fuerte del set) con degradado oscuro y el CTA grande centrado encima; reusa el radial-gradient existente de .cta-section sumándole la imagen detrás. Cierra el bucle visual del hero. Móvil: solo glow + poster estático (sin segundo decode de video). CTAs intactos."
+      }
+    ],
+    "changes": [
+      "1) Disolver Work Gallery y Reels como bloques al final y re-tejer sus slots (work-01..06, reel-01..04) a lo largo del recorrido CONSERVANDO los nombres de archivo y rutas reales del repo (/images/marketing/portfolio/ y /images/marketing/reels/) para no romper nada ni los READMEs.",
+      "2) Crear utilidades CSS reutilizables 'editorial-split' (grid 2-col que en <=768px colapsa a imagen-arriba full-bleed + texto-abajo, alternando lado con un modifier .is-reversed) y 'full-bleed' (margin negativo / width:100vw que rompe el padding de .section-pad). Base de todo el ritmo.",
+      "3) Rehacer la sección 3 'We know the Cancún market' de texto-centrado-800px a editorial-split con imagen a la izquierda (1er maridaje que instala el ritmo); conservar copy + link a IVAE Studios para SEO.",
+      "4) Añadir el RETRATO de Vianey en #founder como split (placeholder .work-ph con icono de persona, ruta /images/marketing/team/vianey-portrait.jpg, fallback al vianey-diaz.jpg de assets) — hueco más urgente para una marca de lujo con rostro.",
+      "5) Convertir REELS en un solo reel 9:16 protagonista con autoplay-in-view vía IntersectionObserver (muted, playsinline, 1 a la vez, preload='none') + 2-3 miniaturas, reubicado tras Industries como clímax de movimiento.",
+      "6) Convertir INDUSTRIES de tarjetas-texto a mosaico de retratos verticales 4:5 con nombre superpuesto; móvil = carrusel scroll-snap. Nuevas rutas /images/marketing/industries/*.jpg.",
+      "7) Anclar SERVICES con un split imagen-DERECHA sobre el bento (alterna lado vs sección 3) y estrechar el bento para darle aire.",
+      "8) Insertar el díptico/pull-quote full-bleed entre Process y Why con una reseña 5.0 REAL de GBP (no carrusel de tarjetitas).",
+      "9) Reforzar HERO: collage flotante de 2 fotos 4:5 en compu + tira de miniaturas que se asoma en móvil; y CORREGIR la línea stale '5.0 · 42 reviews' → '47'.",
+      "10) Convertir STATS en franja-crédito fundida con el hero (respiro), y PLANS+FAQ explícitamente como valles de texto sin imagen.",
+      "11) Añadir glow-dividers en cada corte de sección y, en TRUSTED BY, pasar logos a monocromo a baja opacidad con color al hover.",
+      "12) Cumplir performance/SEO en cada <img> nuevo: width/height (CLS) + loading=lazy (salvo hero) + decoding=async + alt descriptivo con geo-keywords; videos solo autoplay in-view; respetar prefers-reduced-motion y el reset --forllax-y:0 ya presente."
+    ],
+    "imageInventory": [
+      {
+        "slot": "/images/marketing/portfolio/work-01.jpg",
+        "ratio": "4:5",
+        "purpose": "Split Cancún (imagen izquierda): hotel/Hotel Zone editorial que abre el primer maridaje texto-imagen."
+      },
+      {
+        "slot": "/images/marketing/hero/hero-01.jpg + hero-02.jpg",
+        "ratio": "4:5",
+        "purpose": "Collage flotante junto al reel del hero en compu / tira de miniaturas que se asoma en móvil (la prueba empieza alto)."
+      },
+      {
+        "slot": "/images/marketing/portfolio/work-02.jpg + work-03.jpg",
+        "ratio": "4:5",
+        "purpose": "Díptico full-bleed entre Process y Why, soporte del pull-quote de reseña 5.0 real."
+      },
+      {
+        "slot": "/images/marketing/portfolio/work-04.jpg",
+        "ratio": "4:5",
+        "purpose": "Split Services (imagen derecha): producción real in-house (set/cámara/talento) anclando el bento."
+      },
+      {
+        "slot": "/images/marketing/portfolio/work-05.jpg",
+        "ratio": "4:5",
+        "purpose": "Split Why/The difference (imagen izquierda): feed/carrusel curado como resultado final, el contraste es el argumento."
+      },
+      {
+        "slot": "/images/marketing/process/step-01..05.jpg",
+        "ratio": "4:5",
+        "purpose": "Micro-thumb por nodo del timeline (brief, shooting, edición, publicación, reporte); opcional, el nodo numerado es el fallback."
+      },
+      {
+        "slot": "/images/marketing/industries/hotels.jpg, restaurants.jpg, spa.jpg, dental.jpg, instagram.jpg, tiktok.jpg, cdmx.jpg",
+        "ratio": "4:5",
+        "purpose": "Mosaico editorial de retratos verticales por industria, nombre superpuesto; carrusel scroll-snap en móvil."
+      },
+      {
+        "slot": "/images/marketing/reels/reel-01.jpg (.mp4)",
+        "ratio": "9:16",
+        "purpose": "Reel protagonista a sangre con autoplay-in-view; clímax de movimiento tras Industries."
+      },
+      {
+        "slot": "/images/marketing/reels/reel-02..04.jpg (.mp4)",
+        "ratio": "9:16",
+        "purpose": "Miniaturas 'más videos' junto al reel protagonista; posters como placeholder elegante (.reel-play)."
+      },
+      {
+        "slot": "/images/marketing/team/vianey-portrait.jpg",
+        "ratio": "4:5",
+        "purpose": "Retrato editorial de Vianey en The Studio (firma humana); fallback a assets.ivaestudios.com/vianey-diaz.jpg."
+      },
+      {
+        "slot": "/images/marketing/cta/cta-bg.jpg",
+        "ratio": "9:16 (móvil) / 16:9 (desktop)",
+        "purpose": "Foto full-bleed de fondo en el CTA contraportada con degradado oscuro; cierra el bucle visual del hero. En móvil solo poster estático."
+      }
+    ],
+    "risks": [
+      "Las rutas que propuso el panel (/editorial/, /bands/, /team/, /spread-NN, market.jpg) NO existen en el código: las reales son /images/marketing/portfolio/work-0N.jpg y /images/marketing/reels/reel-0N.jpg. Inventar carpetas nuevas obliga al cliente a crearlas y rompe los READMEs; mantener portfolio/ y reels/ y documentar solo las carpetas verdaderamente nuevas (hero/, process/, industries/, team/, cta/).",
+      "Full-bleed con width:100vw o margin negativo puede reintroducir scroll horizontal; el body ya tiene overflow-x:hidden y hay overflow-x:clip en wrappers, pero cada full-bleed debe testearse para no romper esa contención (riesgo de barra horizontal en móvil).",
+      "CLS/LCP: meter muchas imágenes verticales sin width/height fijo degrada el Core Web Vitals ya logrado; el hero NO debe quedar lazy. Riesgo de penalizar el SEO clase-mundial si no se respetan los atributos.",
+      "Múltiples videos (hero + reels + CTA) decodificando a la vez funden batería/datos en móvil (99% del tráfico): obligatorio 1 video activo a la vez vía IntersectionObserver y poster estático en CTA, o se siente lento justo donde más importa.",
+      "Riesgo 'placeholders vacíos se ven rotos' si no hay fotos al lanzar: hay que verificar que .work-ph/.reel-play escalados a full-bleed sigan viéndose intencionales y que el onerror='this.remove()' no deje huecos de layout colapsados; un estado vacío feo es peor que el texto actual.",
+      "Espejo ES (/es/manejo-redes-sociales.html): todo cambio estructural debe replicarse o el espejo queda desincronizado; duplica el esfuerzo y es fácil olvidarlo.",
+      "Esta es una página en PRODUCCIÓN con SEO/E-E-A-T fino (JSON-LD, jerarquía de encabezados, alt con geo-keywords): reordenar secciones puede alterar el orden de H2 y los anchors internos (#work, #reels, #industrias, #founder) usados por la nav/SEO; conservar los id y mantener un único H1.",
+      "Dato stale detectado: el hero dice '5.0 · 42 reviews' pero CLAUDE.md y el schema ya están en 47; aprovechar el rediseño para corregirlo o quedará inconsistente con la prueba social del pull-quote.",
+      "Las fotos del cliente son editoriales verticales (4:5, 9:16); usarlas en huecos pensados para horizontal obligaría a recortes feos. El plan asume vertical en todos los slots salvo el CTA de fondo, que necesita una variante horizontal/recorte controlado para desktop."
+    ]
+  }
+}

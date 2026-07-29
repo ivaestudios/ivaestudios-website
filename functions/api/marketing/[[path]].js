@@ -82,6 +82,98 @@ function randomId() {
   return [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// ── BÓVEDA DE CONTRASEÑAS DE CLIENTE ────────────────────────────────────────
+// Vianey necesita PODER VER la contraseña de cada cliente: se la dicta por
+// WhatsApp cuando la olvidan, y pidió que siga apareciendo aunque el cliente
+// la cambie por su cuenta. Un hash PBKDF2 no se puede deshacer, así que
+// ADEMÁS del hash (que sigue siendo lo único que valida el login) se guarda
+// una copia CIFRADA con AES-GCM en `password_enc`.
+//
+// La llave NO vive en D1: vive en R2, un servicio aparte con credenciales
+// aparte. Por eso un volcado de la base de datos —el escenario de fuga más
+// probable— no alcanza para leer ni una sola contraseña. Se genera sola la
+// primera vez que se usa, así que no hay nada que configurar a mano.
+// Alternativa: si algún día se define la variable de entorno MKT_PW_KEY, esa
+// gana sobre R2 (permite rotar la llave sin tocar el bucket).
+const PW_VAULT_R2_KEY = 'marketing/_vault/pw.key';
+let pwVaultKeyCache = null;
+
+async function pwVaultKey(env) {
+  if (pwVaultKeyCache) return pwVaultKeyCache;
+  let raw = null;
+  if (env.MKT_PW_KEY) {
+    raw = new TextEncoder().encode(String(env.MKT_PW_KEY));
+  } else if (env.R2_BUCKET) {
+    try {
+      let obj = await env.R2_BUCKET.get(PW_VAULT_R2_KEY);
+      if (!obj) {
+        // Primer uso: genera la llave. `onlyIf` evita que dos isolates
+        // simultáneos se pisen; pase lo que pase se RELEE, así que ambos
+        // terminan usando la que quedó escrita de verdad.
+        const fresh = crypto.getRandomValues(new Uint8Array(32));
+        try {
+          await env.R2_BUCKET.put(PW_VAULT_R2_KEY, fresh, { onlyIf: { etagDoesNotMatch: '*' } });
+        } catch { /* ya existía o el bucket no soporta condicional */ }
+        obj = await env.R2_BUCKET.get(PW_VAULT_R2_KEY);
+      }
+      if (obj) raw = new Uint8Array(await obj.arrayBuffer());
+    } catch (e) { console.error('[mkt pw vault]', e && e.message); }
+  }
+  if (!raw || !raw.length) return null;
+  const digest = await crypto.subtle.digest('SHA-256', raw);
+  pwVaultKeyCache = await crypto.subtle.importKey('raw', digest, { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']);
+  return pwVaultKeyCache;
+}
+
+function bytesToB64(bytes) {
+  let s = '';
+  for (const b of bytes) s += String.fromCharCode(b);
+  return btoa(s);
+}
+function b64ToBytes(str) {
+  const bin = atob(str);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+// Devuelve "<iv b64>.<ciphertext b64>" o null. JAMÁS tira: si la bóveda no
+// está disponible el login/alta sigue funcionando, solo que sin copia visible.
+async function pwEncrypt(env, plain) {
+  try {
+    if (!plain) return null;
+    const key = await pwVaultKey(env);
+    if (!key) return null;
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(String(plain)));
+    return `${bytesToB64(iv)}.${bytesToB64(new Uint8Array(ct))}`;
+  } catch { return null; }
+}
+
+async function pwDecrypt(env, blob) {
+  try {
+    if (!blob) return null;
+    const key = await pwVaultKey(env);
+    if (!key) return null;
+    const [ivB, ctB] = String(blob).split('.');
+    if (!ivB || !ctB) return null;
+    const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64ToBytes(ivB) }, key, b64ToBytes(ctB));
+    return new TextDecoder().decode(plain);
+  } catch { return null; }
+}
+
+// Guarda la copia cifrada. Best-effort en todos los caminos donde pasa una
+// contraseña en claro (alta, login, cambio propio, reset por correo, panel).
+async function rememberPassword(env, userId, plain) {
+  try {
+    const enc = await pwEncrypt(env, plain);
+    if (!enc) return;
+    await env.DB.prepare(
+      "UPDATE mkt_users SET password_enc = ?, password_enc_at = datetime('now') WHERE id = ?"
+    ).bind(enc, userId).run();
+  } catch (e) { console.error('[mkt remember pw]', e && e.message); }
+}
+
 function json(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data), {
     status, headers: { 'Content-Type': 'application/json', ...headers }
@@ -522,13 +614,33 @@ async function handleLogin(request, env) {
     return json({ error: 'Demasiados intentos. Espera unos minutos e intenta de nuevo.' }, 429);
   }
 
-  const user = await env.DB.prepare('SELECT * FROM mkt_users WHERE email = ? COLLATE NOCASE').bind(email).first();
+  // Entra con el CORREO o con el USUARIO de toda la vida. Las cuentas viejas
+  // (regeneristherapy, smilenow, MELISAFITNESS…) tienen su nombre de usuario
+  // en `username`, así que siguen entrando igual mientras `email` pasa a ser
+  // un correo de verdad — que es lo único que puede pedir un restablecimiento.
+  const ident = String(email).trim();
+  let user = null;
+  try {
+    user = await env.DB.prepare(
+      'SELECT * FROM mkt_users WHERE email = ?1 COLLATE NOCASE OR username = ?1 COLLATE NOCASE'
+    ).bind(ident).first();
+  } catch {
+    // Pre-migración 017 (sin columna username): búsqueda de siempre.
+    user = await env.DB.prepare('SELECT * FROM mkt_users WHERE email = ? COLLATE NOCASE').bind(ident).first();
+  }
   if (!user) return json({ error: 'Credenciales incorrectas.' }, 401);
   if (!user.active) return json({ error: 'Esta cuenta está desactivada.' }, 403);
   if (!user.password) return json({ error: 'Credenciales incorrectas.' }, 401);
 
   const valid = await verifyPassword(password, user.password);
   if (!valid) return json({ error: 'Credenciales incorrectas.' }, 401);
+
+  // Bóveda: si la copia visible falta o quedó desfasada (el cliente cambió su
+  // contraseña por su cuenta), se refresca aquí — es el único momento en que
+  // el servidor tiene la contraseña en claro sin que Vianey la haya tecleado.
+  if (!user.password_enc || (await pwDecrypt(env, user.password_enc)) !== password) {
+    await rememberPassword(env, user.id, password);
+  }
 
   const sessionId = randomId();
   const expiry = sessionIdleSeconds(env);
@@ -586,6 +698,7 @@ async function handleChangePassword(request, env, session) {
   const hash = await hashPassword(next);
   await env.DB.prepare("UPDATE mkt_users SET password = ?, must_reset = 0, updated_at = datetime('now') WHERE id = ?")
     .bind(hash, user.id).run();
+  await rememberPassword(env, user.id, next); // que el panel de accesos siga al día
   // Cambiar la contraseña EXPULSA a todas las demás sesiones (se conserva la
   // actual, para no sacar de la app a quien acaba de cambiarla). Es la única
   // forma que tiene una persona de cortar el acceso de un teléfono perdido o
@@ -745,6 +858,7 @@ async function handleSignup(request, env) {
     ).bind(sessionId, userId, expiry),
     env.DB.prepare("UPDATE mkt_users SET last_login = datetime('now') WHERE id = ?").bind(userId),
   ]);
+  await rememberPassword(env, userId, password);
 
   const verifyUrl = `https://ivaestudios.com/api/marketing/auth/verify?token=${verifyToken}`;
   await sendAuthEmail(env, {
@@ -880,6 +994,7 @@ async function handleResetWithToken(request, env) {
     ).bind(hash, user.id),
     env.DB.prepare('DELETE FROM mkt_sessions WHERE user_id = ?').bind(user.id),
   ]);
+  await rememberPassword(env, user.id, password); // el panel de accesos sigue al día
   await logActivity(env, { session: { user_id: user.id, name: user.email }, action: 'user.reset_with_token', detail: user.email });
   return json({ ok: true });
 }
@@ -1070,19 +1185,56 @@ function shapeUser(u) {
   return {
     id: u.id,
     email: u.email,
+    username: u.username || null,
     name: u.name,
     role: u.role,
     client_id: u.client_id,
     active: u.active,
-    last_login: u.last_login
+    last_login: u.last_login,
+    // La contraseña NUNCA viaja en la lista: solo si hay copia guardada y
+    // desde cuándo. El valor se pide aparte, uno por uno (GET /users/:id/password).
+    has_password_copy: u.password_enc ? true : false,
+    password_saved_at: u.password_enc_at || null,
   };
 }
 
+// Columnas que devuelve el CRUD de usuarios. `password_enc` viaja solo para
+// que shapeUser sepa si HAY copia — el texto cifrado no sale nunca de aquí.
+const USER_COLS = 'id, email, username, name, role, client_id, active, last_login, password_enc, password_enc_at';
+
 async function handleListUsers(env) {
-  const res = await env.DB.prepare(
-    'SELECT id, email, name, role, client_id, active, last_login FROM mkt_users ORDER BY role ASC, name COLLATE NOCASE ASC'
-  ).all();
+  let res;
+  try {
+    res = await env.DB.prepare(
+      `SELECT ${USER_COLS} FROM mkt_users ORDER BY role ASC, name COLLATE NOCASE ASC`
+    ).all();
+  } catch {
+    // Pre-migración 017: sin username ni bóveda.
+    res = await env.DB.prepare(
+      'SELECT id, email, name, role, client_id, active, last_login FROM mkt_users ORDER BY role ASC, name COLLATE NOCASE ASC'
+    ).all();
+  }
   return json((res.results || []).map(shapeUser));
+}
+
+// GET /users/:id/password — devuelve la contraseña guardada EN CLARO.
+// Solo admin (no 'team'): es la credencial completa de la cuenta. Cada lectura
+// queda en la bitácora de actividad, para que se pueda auditar quién la vio.
+async function handleRevealPassword(env, session, userId) {
+  if (!session || session.role !== 'admin') return json({ error: 'Forbidden' }, 403);
+  let row;
+  try {
+    row = await env.DB.prepare('SELECT id, email, name, password_enc, password_enc_at FROM mkt_users WHERE id = ?')
+      .bind(userId).first();
+  } catch {
+    return json({ password: null, reason: 'vault_missing' });
+  }
+  if (!row) return json({ error: 'User not found' }, 404);
+  if (!row.password_enc) return json({ password: null, reason: 'not_captured', saved_at: null });
+  const plain = await pwDecrypt(env, row.password_enc);
+  if (plain === null) return json({ password: null, reason: 'vault_unavailable', saved_at: row.password_enc_at });
+  await logActivity(env, { session, action: 'user.reveal_password', detail: row.email });
+  return json({ password: plain, saved_at: row.password_enc_at });
 }
 
 async function handleCreateUser(request, env, session) {
@@ -1121,6 +1273,7 @@ async function handleCreateUser(request, env, session) {
   await env.DB.prepare(
     'INSERT INTO mkt_users (id, email, password, name, role, client_id, active, must_reset) VALUES (?, ?, ?, ?, ?, ?, 1, ?)'
   ).bind(id, em, hash, name, role, role === 'client' ? client_id : null, mustReset).run();
+  await rememberPassword(env, id, pw);
 
   await logActivity(env, {
     client_id: role === 'client' ? client_id : null,
@@ -1130,7 +1283,7 @@ async function handleCreateUser(request, env, session) {
   });
 
   const created = await env.DB.prepare(
-    'SELECT id, email, name, role, client_id, active, last_login FROM mkt_users WHERE id = ?'
+    `SELECT ${USER_COLS} FROM mkt_users WHERE id = ?`
   ).bind(id).first();
 
   const out = shapeUser(created);
@@ -1154,23 +1307,54 @@ async function handlePatchUser(request, env, session, userId) {
   try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
   const has = (k) => bodyObj && Object.prototype.hasOwnProperty.call(bodyObj, k);
 
-  // Cambiar usuario (email) o contraseña son primitivas de takeover: un 'team'
+  // Cambiar correo, usuario o contraseña son primitivas de takeover: un 'team'
   // solo puede hacerlo sobre logins de CLIENTE; sobre admin/team requiere admin.
-  if ((has('email') || has('password')) && existing.role !== 'client' && session.role !== 'admin') {
+  if ((has('email') || has('username') || has('password')) && existing.role !== 'client' && session.role !== 'admin') {
     return json({ error: 'Forbidden' }, 403);
   }
+
+  // Un identificador de login (correo o usuario) no puede chocar con NINGÚN
+  // otro identificador de otra cuenta, porque el login busca en las dos
+  // columnas: si chocaran, dos cuentas responderían a la misma cadena.
+  const identTaken = async (value) => {
+    try {
+      const row = await env.DB.prepare(
+        'SELECT id FROM mkt_users WHERE (email = ?1 COLLATE NOCASE OR username = ?1 COLLATE NOCASE) AND id != ?2'
+      ).bind(value, userId).first();
+      return !!row;
+    } catch {
+      const row = await env.DB.prepare('SELECT id FROM mkt_users WHERE email = ? COLLATE NOCASE AND id != ?')
+        .bind(value, userId).first();
+      return !!row;
+    }
+  };
 
   const sets = [];
   const vals = [];
   if (has('name')) { sets.push('name = ?'); vals.push(bodyObj.name); }
   if (has('active')) { sets.push('active = ?'); vals.push(bodyObj.active ? 1 : 0); }
-  // Usuario (email): no vacío y único (insensible a mayúsculas), excluyendo al propio.
+  // Correo: no vacío y único. Para los CLIENTES exige un correo de verdad,
+  // porque es la única dirección a la que se puede mandar el restablecimiento.
   if (has('email')) {
     const email = String(bodyObj.email || '').trim();
-    if (!email) return json({ error: 'El usuario no puede quedar vacío' }, 400);
-    const dup = await env.DB.prepare('SELECT id FROM mkt_users WHERE email = ? COLLATE NOCASE AND id != ?').bind(email, userId).first();
-    if (dup) return json({ error: 'Ese usuario ya está en uso' }, 409);
+    if (!email) return json({ error: 'El correo no puede quedar vacío' }, 400);
+    if (existing.role === 'client' && !EMAIL_RE.test(email)) {
+      return json({ error: 'Escribe un correo válido (con @). Es el que recibirá el enlace para restablecer la contraseña.' }, 400);
+    }
+    if (await identTaken(email)) return json({ error: 'Ese correo ya está en uso' }, 409);
     sets.push('email = ?'); vals.push(email);
+  }
+  // Usuario: alias de login opcional (las cuentas viejas entran con él).
+  // Cadena vacía = borrarlo (queda solo el correo).
+  if (has('username')) {
+    const uname = String(bodyObj.username || '').trim();
+    if (uname) {
+      if (uname.includes('@')) return json({ error: 'El usuario no lleva @. Ese dato va en el campo de correo.' }, 400);
+      if (await identTaken(uname)) return json({ error: 'Ese usuario ya está en uso' }, 409);
+      sets.push('username = ?'); vals.push(uname);
+    } else {
+      sets.push('username = NULL');
+    }
   }
   // Contraseña: mínimo 6, se guarda hasheada y deja de forzar el cambio inicial.
   if (has('password')) {
@@ -1197,6 +1381,7 @@ async function handlePatchUser(request, env, session, userId) {
   // (Renombrar el usuario NO expulsa: la sesión va por token, no por correo.)
   // Best-effort: el cambio ya quedó guardado pase lo que pase.
   if (has('password')) {
+    await rememberPassword(env, userId, String(bodyObj.password || ''));
     try {
       await env.DB.prepare('DELETE FROM mkt_sessions WHERE user_id = ? AND id != ?')
         .bind(userId, session.session_id).run();
@@ -1204,7 +1389,7 @@ async function handlePatchUser(request, env, session, userId) {
   }
 
   const updated = await env.DB.prepare(
-    'SELECT id, email, name, role, client_id, active, last_login FROM mkt_users WHERE id = ?'
+    `SELECT ${USER_COLS} FROM mkt_users WHERE id = ?`
   ).bind(userId).first();
   await logActivity(env, { session, action: 'user.update', detail: `${existing.email}:${Object.keys(bodyObj || {}).join(',')}` });
   return json(shapeUser(updated));
@@ -1224,6 +1409,7 @@ async function handleResetUserPassword(env, session, userId) {
   const hash = await hashPassword(pw);
   await env.DB.prepare("UPDATE mkt_users SET password = ?, must_reset = 1, updated_at = datetime('now') WHERE id = ?")
     .bind(hash, userId).run();
+  await rememberPassword(env, userId, pw);
   // Restablecer la contraseña TIRA todas las sesiones del usuario afectado.
   // Es lo que Vianey usa cuando a un cliente le roban el teléfono o cuando hay
   // que cortarle el acceso a alguien: si no, la sesión vieja seguiría entrando
@@ -4134,6 +4320,10 @@ async function route(request, env, authCtx) {
     }
     if (parts.length === 3 && parts[2] === 'reset-password' && method === 'POST') {
       return handleResetUserPassword(env, session, parts[1]);
+    }
+    // Ver la contraseña guardada (solo admin; el handler revalida el rol).
+    if (parts.length === 3 && parts[2] === 'password' && method === 'GET') {
+      return handleRevealPassword(env, session, parts[1]);
     }
   }
 

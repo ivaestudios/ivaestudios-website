@@ -10,15 +10,15 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607271831';
-import * as store from './store.js?v=202607271831';
-import { openSheet, pickFrom } from './sheet.js?v=202607271831';
-import { toast } from './toast.js?v=202607271831';
-import { icon } from './icons.js?v=202607271831';
-import { openClientSwitcher } from './clientswitcher.js?v=202607271831';
-import { T, isEN, setLang } from './i18n.js?v=202607271831';
-import { getTheme, setTheme } from './theme.js?v=202607271831';
-import * as version from './version.js?v=202607271831';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607291237';
+import * as store from './store.js?v=202607291237';
+import { openSheet, pickFrom } from './sheet.js?v=202607291237';
+import { toast } from './toast.js?v=202607291237';
+import { icon } from './icons.js?v=202607291237';
+import { openClientSwitcher } from './clientswitcher.js?v=202607291237';
+import { T, isEN, setLang } from './i18n.js?v=202607291237';
+import { getTheme, setTheme } from './theme.js?v=202607291237';
+import * as version from './version.js?v=202607291237';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -405,7 +405,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
       title: T('Accesos de cliente', 'Client access'),
       mode: 'menu',
       build(body) {
-        body.appendChild(el('p', { class: 'acct-intro', text: T('Cada cliente entra a su portal y ve solo el calendario de su empresa. Aquí creas su acceso (su correo es el usuario y tú le pasas la contraseña).', "Each client signs in to their portal and sees only their company's calendar. Here you create their access (their email is the username and you share the password with them).") }));
+        body.appendChild(el('p', { class: 'acct-intro', text: T('Cada cliente entra a su portal y ve solo el calendario de su empresa. Aquí ves y cambias su usuario, su correo y su contraseña.', "Each client signs in to their portal and sees only their company's calendar. Here you view and change their username, email and password.") }));
         const list = el('div', { class: 'acct-list' });
         list.appendChild(el('div', { class: 'muted acct-loading', text: T('Cargando', 'Loading') }));
         body.appendChild(list);
@@ -418,15 +418,24 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
           }
           for (const c of clients) {
             const login = (users || []).find((u) => u.role === 'client' && u.client_id === c.id);
+            // Sin correo de verdad el cliente NO puede pedir "olvidé mi
+            // contraseña": se avisa aquí para que se note de un vistazo.
+            const hasEmail = !!(login && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(login.email || ''));
+            const sub = login
+              ? [login.username, hasEmail ? login.email : null].filter(Boolean).join(' · ') || login.email
+              : T('Sin acceso aún', 'No access yet');
             list.appendChild(el('div', { class: 'acct-user' }, [
               el('span', { class: 'acct-user__dot', style: { background: c.brand_color || 'var(--brand)' } }),
               el('div', { class: 'acct-user__main' }, [
                 el('div', { class: 'acct-user__name', text: c.name }),
-                el('div', { class: 'acct-user__sub', text: login ? login.email : T('Sin acceso aún', 'No access yet') }),
-              ]),
+                el('div', { class: 'acct-user__sub', text: sub }),
+                login && !hasEmail
+                  ? el('div', { class: 'acct-user__warn', text: T('Falta su correo — no puede restablecer su contraseña', 'Email missing — they cannot reset their password') })
+                  : null,
+              ].filter(Boolean)),
               login
                 ? el('div', { class: 'acct-user__actions' }, [
-                    el('button', { class: 'btn btn-sm', type: 'button', text: T('Editar', 'Edit'), onclick: () => openEditClientLogin(login, c) }),
+                    el('button', { class: 'btn btn-sm', type: 'button', text: T('Ver acceso', 'View access'), onclick: () => openEditClientLogin(login, c) }),
                   ])
                 : el('button', { class: 'btn btn-primary btn-sm', type: 'button', text: T('Crear acceso', 'Create access'), onclick: () => openCreateClientLogin(c) }),
             ]));
@@ -473,27 +482,82 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
     });
   }
 
-  // Editar el acceso del cliente: cambiar usuario y/o contraseña a tu gusto.
+  const EMAILISH = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+  // Ver el acceso del cliente: su usuario, su correo, y la contraseña guardada.
+  // La contraseña se guarda cifrada aparte del hash (bóveda con llave en R2),
+  // así que aquí SÍ se puede mostrar — Vianey la necesita para dictársela al
+  // cliente cuando la olvida, y se mantiene al día aunque el cliente la cambie.
   function openEditClientLogin(login, brand) {
     openSheet({
       title: `${T('Acceso de', 'Access for')} ${brand.name}`,
       mode: 'form',
       build(body, close) {
-        const userIn = el('input', { class: 'input', type: 'text', value: login.email || '', maxlength: '120', 'aria-label': T('Usuario', 'Username') });
+        // Las cuentas viejas guardaban el nombre de usuario en el campo de
+        // correo; se reparte cada dato en su casilla correcta.
+        const emailValue = EMAILISH.test(login.email || '') ? login.email : '';
+        const userValue = login.username || (EMAILISH.test(login.email || '') ? '' : (login.email || ''));
+
+        const userIn = el('input', { class: 'input', type: 'text', value: userValue, maxlength: '120', autocapitalize: 'off', spellcheck: 'false', 'aria-label': T('Usuario', 'Username') });
+        const emailIn = el('input', { class: 'input', type: 'email', value: emailValue, placeholder: 'correo@cliente.com', maxlength: '120', autocapitalize: 'off', spellcheck: 'false', 'aria-label': T('Correo', 'Email') });
+
+        // ── Contraseña actual (se revela bajo demanda) ──
+        const pwShow = el('div', { class: 'acct-pwshow', text: '••••••••' });
+        const pwHint = el('div', { class: 'acct-pwhint', text: '' });
+        let revealed = null;
+        const copyBtn = el('button', {
+          class: 'btn btn-sm', type: 'button', text: T('Copiar', 'Copy'), hidden: true,
+          onclick: async () => { await copyText(revealed); toast(T('Copiada.', 'Copied.'), { type: 'success' }); },
+        });
+        const revealBtn = el('button', {
+          class: 'btn btn-sm', type: 'button', text: T('Ver', 'Show'),
+          onclick: async () => {
+            if (revealed !== null) { // segundo clic: ocultar
+              revealed = null; pwShow.textContent = '••••••••';
+              revealBtn.textContent = T('Ver', 'Show'); copyBtn.hidden = true;
+              return;
+            }
+            revealBtn.disabled = true;
+            try {
+              const r = await api.get(`/users/${login.id}/password`);
+              if (r && r.password) {
+                revealed = r.password;
+                pwShow.textContent = r.password;
+                revealBtn.textContent = T('Ocultar', 'Hide');
+                copyBtn.hidden = false;
+              } else {
+                pwShow.textContent = T('Todavía no guardada', 'Not saved yet');
+                pwHint.textContent = T(
+                  'Aparecerá sola la próxima vez que el cliente entre, o ahora mismo si le pones una contraseña nueva aquí abajo.',
+                  "It will appear on its own the next time the client signs in, or right now if you set a new password below.",
+                );
+              }
+            } catch (e) {
+              toast(e.message || T('No se pudo mostrar la contraseña.', 'Could not show the password.'), { type: 'error' });
+            }
+            revealBtn.disabled = false;
+          },
+        });
+
         const pwIn = el('input', { class: 'input', type: 'text', placeholder: T('Déjala en blanco para no cambiarla', 'Leave blank to keep it unchanged'), maxlength: '120', 'aria-label': T('Nueva contraseña', 'New password') });
         const genBtn = el('button', {
           class: 'btn btn-sm', type: 'button', text: T('Generar', 'Generate'),
           title: T('Generar una contraseña al azar', 'Generate a random password'),
           onclick: () => { pwIn.value = 'ivae-' + Math.random().toString(36).slice(2, 7); },
         });
+
         const saveBtn = el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: T('Guardar acceso', 'Save access') });
         saveBtn.addEventListener('click', async () => {
           const user = userIn.value.trim();
+          const mail = emailIn.value.trim();
           const pw = pwIn.value.trim();
-          if (!user) { toast(T('El usuario no puede quedar vacío.', 'The username cannot be empty.'), { type: 'error' }); userIn.focus(); return; }
+          if (!user && !mail) { toast(T('Deja al menos un usuario o un correo para entrar.', 'Leave at least a username or an email to sign in.'), { type: 'error' }); userIn.focus(); return; }
+          if (mail && !EMAILISH.test(mail)) { toast(T('Ese correo no parece válido.', 'That email does not look valid.'), { type: 'error' }); emailIn.focus(); return; }
+          if (user.includes('@')) { toast(T('El usuario no lleva @. Ese dato va en el campo de correo.', 'The username has no @. That goes in the email field.'), { type: 'error' }); userIn.focus(); return; }
           if (pw && pw.length < 6) { toast(T('La contraseña debe tener al menos 6 caracteres.', 'The password must be at least 6 characters.'), { type: 'error' }); pwIn.focus(); return; }
           const payload = {};
-          if (user !== login.email) payload.email = user;
+          if (user !== userValue) payload.username = user;
+          if (mail && mail !== emailValue) payload.email = mail;
           if (pw) payload.password = pw;
           if (!Object.keys(payload).length) { close({ source: 'nochange' }); return; }
           saveBtn.disabled = true;
@@ -502,18 +566,35 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
             store.invalidateUsers();
             close({ source: 'saved' });
             toast(T('Acceso actualizado.', 'Access updated.'), { type: 'success' });
-            // Si cambió algo, ofrece copiar los datos nuevos para enviar.
-            showClientCredentials({ brand, email: user, password: pw || T('(la misma de antes)', '(same as before)') });
+            if (pw || payload.username || payload.email) {
+              showClientCredentials({ brand, email: user || mail, password: pw || revealed || T('(la misma de antes)', '(same as before)') });
+            }
           } catch (e) {
             toast(e.message || T('No se pudo guardar el acceso.', 'Could not save the access.'), { type: 'error' });
             saveBtn.disabled = false;
           }
         });
+
         body.append(
-          el('p', { class: 'acct-intro', text: T('Cambia el usuario y/o la contraseña con los que tu cliente entra a su portal.', 'Change the username and/or password your client uses to sign in to their portal.') }),
-          el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Usuario', 'Username') }), userIn]),
+          el('p', { class: 'acct-intro', text: T('Tu cliente puede entrar con su usuario o con su correo, lo que recuerde. El correo además le sirve para restablecer su contraseña solo.', 'Your client can sign in with their username or their email, whichever they remember. The email also lets them reset their password on their own.') }),
           el('div', { class: 'field' }, [
-            el('label', { class: 'label', text: T('Contraseña nueva', 'New password') }),
+            el('label', { class: 'label', text: T('Usuario', 'Username') }),
+            userIn,
+          ]),
+          el('div', { class: 'field' }, [
+            el('label', { class: 'label', text: T('Correo', 'Email') }),
+            emailIn,
+            el('div', { class: 'acct-pwhint', text: emailValue
+              ? T('A este correo le llega el enlace para restablecer.', 'The reset link goes to this address.')
+              : T('Sin correo no puede restablecer su contraseña solo. Ponlo aquí.', 'Without an email they cannot reset their password on their own. Add it here.') }),
+          ]),
+          el('div', { class: 'field' }, [
+            el('label', { class: 'label', text: T('Contraseña actual', 'Current password') }),
+            el('div', { class: 'acct-pwrow' }, [pwShow, revealBtn, copyBtn]),
+            pwHint,
+          ]),
+          el('div', { class: 'field' }, [
+            el('label', { class: 'label', text: T('Cambiar la contraseña', 'Change the password') }),
             el('div', { class: 'acct-pwrow' }, [pwIn, genBtn]),
           ]),
           el('div', { class: 'sheet__footer' }, [
@@ -521,7 +602,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
             saveBtn,
           ]),
         );
-        setTimeout(() => userIn.focus(), 50);
+        setTimeout(() => (emailValue ? userIn : emailIn).focus(), 50);
       },
     });
   }

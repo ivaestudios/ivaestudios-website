@@ -961,4 +961,19 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
 .acct-pwrow { display: flex; gap: 8px; align-items: center; }
 .acct-pwrow .input { flex: 1; min-width: 0; }
 .acct-pwrow .btn { min-height: 44px; }
+
+/* Contraseña guardada: se muestra en monoespaciada para que no se confunda
+   un 0 con una O al dictarla por telefono. */
+.acct-pwshow {
+  flex: 1; min-width: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 15px; letter-spacing: .04em; color: var(--text-1, #fff);
+  background: var(--surface-2, rgba(255, 255, 255, .04));
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 11px 12px; min-height: 44px; display: flex; align-items: center;
+  overflow-x: auto; white-space: nowrap; user-select: all;
+}
+.acct-pwhint { font-size: 12px; color: var(--text-mute); line-height: 1.45; margin-top: 6px; }
+/* Aviso de "le falta el correo": ambar, no rojo — no esta roto, falta un dato. */
+.acct-user__warn { font-size: 11.5px; color: var(--warn, #E8A33D); line-height: 1.4; margin-top: 2px; }
 .cred-row .btn { min-height: 40px; }
