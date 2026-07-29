@@ -8,7 +8,7 @@
 // formato que ya usan los guiones existentes, así los viejos se abren bien).
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202607291808';
+import { T } from '../shell/i18n.js?v=202607291846';
 
 /** Slides intermedios a partir del body ("Slide N — texto" o texto corrido).
  *  Los intermedios VACIOS ("Slide 3 — ") se CONSERVAN: filtrarlos hacia
