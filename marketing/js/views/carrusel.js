@@ -12,9 +12,10 @@
 // nada se sube a un servidor, funciona igual en el cel que en la compu y no
 // gasta datos. El video sale a velocidad correcta en cualquier máquina y con audio.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607291753';
-import { icon } from '../shell/icons.js?v=202607291753';
-import { T } from '../shell/i18n.js?v=202607291753';
+import { el, clear, toast } from '../api.js?v=202607291808';
+import { icon } from '../shell/icons.js?v=202607291808';
+import { T } from '../shell/i18n.js?v=202607291808';
+import { renderGen, resetGen } from './carrusel-gen.js?v=202607291808';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -473,7 +474,7 @@ async function cutVideoWebCodecs() {
   const token = ++vtoken;
   vphase = 'cortando'; vprogress = 0; freeVideoSlides(); render();
 
-  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607291753');
+  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607291808');
   const cols2 = vcols, rows2 = vrows, n = cols2 * rows2;
   const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
   const sw2 = sw - (sw % 2), sh2 = sh - (sh % 2); // H.264 exige dimensiones pares
@@ -683,6 +684,10 @@ function modeToggle() {
       class: 'car-modeseg__btn' + (mode === 'video' ? ' is-active' : ''), type: 'button', role: 'tab',
       onclick: () => { if (mode !== 'video') { mode = 'video'; render(); } },
     }, [icon('gantt', 15), ' Video']),
+    el('button', {
+      class: 'car-modeseg__btn' + (mode === 'gen' ? ' is-active' : ''), type: 'button', role: 'tab',
+      onclick: () => { if (mode !== 'gen') { mode = 'gen'; render(); } },
+    }, [icon('activity', 15), ' ' + T('Generar', 'Generate')]),
   ]);
 }
 
@@ -720,10 +725,12 @@ function render() {
   clear(rootEl);
 
   rootEl.appendChild(el('header', { class: 'car-head' }, [
-    el('h2', { class: 'car-title', text: T('Cortador de carruseles', 'Carousel cutter') }),
+    el('h2', { class: 'car-title', text: mode === 'gen' ? T('Generador de carruseles', 'Carousel generator') : T('Cortador de carruseles', 'Carousel cutter') }),
     el('p', {
       class: 'car-sub',
-      text: mode === 'img'
+      text: mode === 'gen'
+        ? T('Tus fotos + tu texto = carrusel profesional listo para Instagram. La foto a sangre completa, el texto mínimo y la marca siempre en su lugar.', 'Your photos + your text = a professional Instagram-ready carousel.')
+        : mode === 'img'
         ? T('Sube la tira del carrusel (los slides pegados en fila) y descárgalos ya cortados, listos para publicar. Todo pasa en tu dispositivo: no se sube a ningún lado.', 'Upload the carousel strip (the slides joined in a row) and download them already cut, ready to publish. Everything happens on your device: nothing gets uploaded anywhere.')
         : T('Sube la tira de VIDEO (los clips cortos pegados en fila) y córtala en videos verticales, uno por slide, con su duración real. Todo pasa en tu dispositivo: no se sube a ningún lado.', 'Upload the VIDEO strip (the short clips joined in a row) and cut it into vertical videos, one per slide, with their real duration. Everything happens on your device: nothing gets uploaded anywhere.'),
     }),
@@ -731,6 +738,7 @@ function render() {
   rootEl.appendChild(modeToggle());
 
   if (mode === 'img') renderImg();
+  else if (mode === 'gen') { const host = el('div'); rootEl.appendChild(host); renderGen(host, { canvasToBlob, buildZip, download }); }
   else renderVideo();
 }
 
@@ -910,6 +918,7 @@ export default {
     vtoken += 1;
     freeSlides();
     freeVideoSlides();
+    resetGen();
     if (imgUrl) { try { URL.revokeObjectURL(imgUrl); } catch { /* noop */ } }
     if (vurl) { try { URL.revokeObjectURL(vurl); } catch { /* noop */ } }
     if (vvideo) { try { vvideo.pause(); } catch { /* noop */ } }
@@ -923,6 +932,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202607291753';
+  link.href = '/marketing/css/carrusel.css?v=202607291808';
   document.head.appendChild(link);
 }

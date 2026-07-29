@@ -124,3 +124,27 @@
 }
 .car-warn strong { font-size: 14.5px; }
 .car-warn span { color: var(--text-mute); }
+
+/* ── Modo GENERAR (generador de carruseles profesionales) ──────────────────── */
+.carg-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 14px 0 6px; }
+.carg-in { flex: 1 1 220px; min-width: 0; }
+.carg-cards { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.carg-card { display: flex; gap: 12px; padding: 12px; background: var(--surface-2, rgba(255,255,255,.03)); border: 1px solid var(--border); border-radius: 14px; }
+.carg-card__thumb { width: 54px; height: 68px; border-radius: 8px; flex: none; object-fit: cover; }
+.carg-card__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.carg-card__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.carg-card__head b { font-size: 13px; color: var(--text-mute); }
+.carg-card__acts { display: flex; gap: 6px; }
+.carg-card__acts .btn { min-height: 34px; padding: 4px 10px; }
+.carg-card__del { color: var(--danger, #e5484d); }
+.carg-card__in { width: 100%; }
+.carg-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
+.carg-empty { margin-top: 16px; }
+.carg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 8px; }
+.carg-cell { position: relative; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+.carg-cell__canvas { width: 100%; height: auto; display: block; }
+.carg-cell__num {
+  position: absolute; top: 8px; left: 8px; width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(0,0,0,.55); color: #fff; font: 700 13px/26px var(--font, sans-serif); text-align: center;
+}
+@media (min-width: 860px) { .carg-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); } }
