@@ -14,9 +14,9 @@
 // API no devuelva (sin comparativas, sin flechas, sin sparklines: no hay
 // histórico de seguidores — ver el reporte final de esta tanda).
 // ============================================================================
-import { api, el, clear } from '../api.js?v=202607291240';
-import { icon } from '../shell/icons.js?v=202607291240';
-import { T, isEN } from '../shell/i18n.js?v=202607291240';
+import { api, el, clear } from '../api.js?v=202607291342';
+import { icon } from '../shell/icons.js?v=202607291342';
+import { T, isEN } from '../shell/i18n.js?v=202607291342';
 
 const VIEW_ID = 'metricas';
 
@@ -180,7 +180,7 @@ function ensureCss() {
   // app.html, así que ningún bump global toca este sello. Si editas
   // metricas.css, sube este número A MANO o el cambio no llega (el SW sirve
   // cache-first todo lo que trae ?v=).
-  link.href = '/marketing/css/metricas.css?v=202607291240';
+  link.href = '/marketing/css/metricas.css?v=202607291342';
   document.head.appendChild(link);
 }
 
@@ -936,25 +936,23 @@ function render() {
   }
 
   // "Tu cuenta hoy": los dos datos que NO se mueven con el selector de periodo
-  // salen de la fila de KPIs. Mezclarlos ahí era la causa real de que la
-  // pantalla se sintiera plana.
+  // van en su propia fila, separados de los KPIs del periodo. Antes vivían en
+  // una tira de 19px que se perdía; Vianey pidió VER los seguidores, así que
+  // ahora son tarjetas del mismo tamaño que las demás cifras (2026-07-29). La
+  // separación periodo-vs-hoy se mantiene: fila aparte, con su propio kicker,
+  // y cada cifra lleva su línea de lectura que dice "hoy, no el periodo".
   if (d.followers != null || d.reach_28d != null) {
-    const acct = el('div', { class: 'mt-acct' }, [
-      el('div', { class: 'mt-acct__row' }, [
-        d.followers != null ? el('span', { class: 'mt-acct__i' }, [
-          el('b', { class: 'mt-acct__v', text: nfBig(d.followers) }),
-          el('span', { class: 'mt-acct__k', text: T('seguidores', 'followers') }),
-        ]) : null,
-        d.reach_28d != null ? el('span', { class: 'mt-acct__i' }, [
-          el('b', { class: 'mt-acct__v', text: nfBig(d.reach_28d) }),
-          el('span', { class: 'mt-acct__k', text: T('de alcance · 28 días', 'reach · 28 days') }),
-        ]) : null,
-      ]),
-      el('p', { class: 'mt-micro', text: T(
-        'Foto de la cuenta ahora mismo, no del periodo que elegiste: el alcance de 28 días es una ventana móvil de Instagram, por eso no se suma con lo de arriba. Todavía no guardamos histórico de seguidores, por eso no hay comparativa.',
-        "A snapshot of the account right now, not of the period you picked: the 28-day reach is a rolling Instagram window, so it does not add up with the numbers above. We don't store follower history yet, so there is no comparison.",
-      ) }),
-    ]);
+    const acct = el('div', { class: 'mt-kpis mt-kpis--acct' }, [
+      d.followers != null ? kpi(T('Seguidores', 'Followers'), nfBig(d.followers), T(
+        'Foto de la cuenta <b>ahora mismo</b>, no del periodo que elegiste. Todavía no guardamos histórico, por eso no hay comparativa.',
+        "A snapshot of the account <b>right now</b>, not of the period you picked. We don't store follower history yet, so there is no comparison.",
+      )) : null,
+      d.reach_28d != null ? kpi(T('Alcance · 28 días', 'Reach · 28 days'), nfBig(d.reach_28d), T(
+        'Ventana móvil de Instagram con las cuentas alcanzadas en los últimos 28 días: no se suma con los números del periodo.',
+        "Instagram's rolling window of accounts reached in the last 28 days: it does not add up with the period numbers.",
+      )) : null,
+    ].filter(Boolean));
+    acct.style.setProperty('--mt-n', String(Math.max(acct.childElementCount - 1, 1)));
     sec1.appendChild(el('div', { class: 'mt-acctwrap' }, [
       el('div', { class: 'mt-kicker', text: T('Tu cuenta hoy', 'Your account today') }), acct,
     ]));

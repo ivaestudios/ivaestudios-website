@@ -141,6 +141,9 @@
 /* ── "Tu cuenta hoy": las cifras que NO se mueven con el selector de periodo
    salen de la fila de KPIs. Mezclarlas ahí era lo que aplanaba todo ─────── */
 .mt-acctwrap { margin-top: 30px; }
+/* La fila "Tu cuenta hoy" reusa las tarjetas KPI pero pegada a su kicker
+   (el margen de 26px de .mt-kpis es para cuando la fila abre sección). */
+.mt-kpis--acct { margin-top: 2px; }
 .mt-acct {
   margin-top: 10px; padding: 14px 16px;
   background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-sm, 10px);
