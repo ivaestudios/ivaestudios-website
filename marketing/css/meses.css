@@ -665,6 +665,10 @@
     border-right: 1px solid var(--border-strong);
   }
   th.meses-col--num, th.meses-col--grab, th.meses-col--task { z-index: 3; }
+  /* CLIENTE: sin columna Grabación (interna) la cadena sticky se recorre —
+     Tarea queda pegada al N.º. Sin esto quedaría un hueco de 64px por el que
+     se "cuelan" las columnas al deslizar (el bug que reportó Vianey). */
+  .meses-table--client .meses-col--task { left: 112px; }
   th.meses-col--num { text-align: center; padding-left: 4px; padding-right: 4px; }
 
   /* Boton-celda: toda la celda es clickeable (edicion inline tipo Notion). */
@@ -926,6 +930,7 @@
      Se queda en los 112px de arriba y solo se recorre el resto de la cadena. */
   .meses-col--grab { left: 112px; width: 42px; min-width: 42px; max-width: 42px; }
   .meses-col--task { left: 154px; min-width: 176px; max-width: 200px; }
+  .meses-table--client .meses-col--task { left: 112px; }
   .meses-td--text { min-width: 170px; max-width: 210px; }
   .meses-table { min-width: 872px; } /* 760 + la columna N.º (112px) */
   .meses-table th { font-size: 10px; }

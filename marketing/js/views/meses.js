@@ -28,20 +28,20 @@ import {
   el, clear, copyText, api, isClientRole,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202607300219';
-import { icon } from '../shell/icons.js?v=202607300219';
-import { T } from '../shell/i18n.js?v=202607300219';
+} from '../api.js?v=202607301706';
+import { icon } from '../shell/icons.js?v=202607301706';
+import { T } from '../shell/i18n.js?v=202607301706';
 // Capas de history del shell: el boton atras del telefono cierra la capa de
 // arriba (panel de guion) en vez de salir de la app.
-import { pushLayer } from '../shell/router.js?v=202607300219';
+import { pushLayer } from '../shell/router.js?v=202607301706';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202607300219';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607300219';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607300219';
+import { errorCard } from '../ui/states.js?v=202607301706';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607301706';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607301706';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202607300219';
+} from '../lib/video-upload.js?v=202607301706';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1295,15 +1295,14 @@ function buildRow(post, noteLabels) {
 
   // N.º de la pieza dentro de su mes y su tipo (sticky, derivado). Solo lectura:
   // no se edita porque no se guarda — sale del orden de las piezas.
-  // SOLO EQUIPO: es numeracion interna de produccion (pedido de Vianey), al
-  // cliente no le dice nada. Se omite la celda entera, no se oculta con CSS,
-  // para que el conteo de <td> siga cuadrando con el de <th>.
-  const tdNum = isClientRole()
-    ? null
-    : el('td', { class: 'meses-td meses-col--num' }, [pieceNumNode(post)]);
+  // TAMBIEN para el CLIENTE (pedido de Vianey 2026-07-30): "REEL 3" es como
+  // identifica su pieza contra los Entregables. Es un span estatico, no boton.
+  const tdNum = el('td', { class: 'meses-td meses-col--num' }, [pieceNumNode(post)]);
 
-  // Grabacion (sticky)
-  const tdGrab = el('td', { class: 'meses-td meses-col--grab' }, [
+  // Grabacion (sticky). SOLO EQUIPO: los niveles 1-5 son planeacion interna de
+  // sesiones de grabacion; al cliente no le dicen nada (pedido de Vianey
+  // 2026-07-30). Se omite la celda entera para que <td> cuadre con <th>.
+  const tdGrab = isClientRole() ? null : el('td', { class: 'meses-td meses-col--grab' }, [
     cellButton(
       grabChipNode(post.grabacion),
       (anchor) => onPickGrabacion(post, anchor),
@@ -1506,8 +1505,8 @@ function buildTable(rows, noteLabels) {
     // orden cronologico dentro del mes y del tipo; ordenar por el mezclaria las
     // cuentas (Reel 1, Carrusel 1, Reel 2…) y no diria nada nuevo — el criterio
     // util es Fecha, que ya es ordenable.
-    // SOLO EQUIPO: al cliente no se le pinta ni el encabezado (ver tdNum).
-    isClientRole() ? null : el('th', {
+    // Tambien para el cliente (ver tdNum).
+    el('th', {
       text: T('N.º', 'No.'), scope: 'col', class: 'meses-col--num',
       // El numero sigue SIEMPRE la fecha: si ordenas por otra columna o
       // arrastras las filas, la columna se vera salteada a proposito (el 7 es
@@ -1515,7 +1514,8 @@ function buildTable(rows, noteLabels) {
       title: T('Número de la pieza dentro de su mes y su tipo (sigue el orden por fecha)',
         'Piece number within its month and type (follows the date order)'),
     }),
-    colHeader({ skey: 'grab', sortType: 'num', label: T('Grab.', 'Rec.'), filterDim: 'grab', extra: { class: 'meses-col--grab' } }),
+    // Grab.: SOLO EQUIPO (ver tdGrab).
+    isClientRole() ? null : colHeader({ skey: 'grab', sortType: 'num', label: T('Grab.', 'Rec.'), filterDim: 'grab', extra: { class: 'meses-col--grab' } }),
     colHeader({ skey: 'task', sortType: 'text', label: T('Tarea', 'Task'), filterDim: null, extra: { class: 'meses-col--task' } }),
     colHeader({ skey: 'status', sortType: 'text', label: T('Estado', 'Status'), filterDim: 'status' }),
     colHeader({ skey: 'date', sortType: 'date', label: T('Fecha publicación', 'Publish date'), filterDim: null }),
@@ -1527,7 +1527,9 @@ function buildTable(rows, noteLabels) {
     el('th', { text: T('Video final', 'Final video'), scope: 'col' }),
   ];
   const tbody = el('tbody', {}, rows.map((p) => buildRow(p, noteLabels)));
-  const table = el('table', { class: 'meses-table' }, [
+  // Con la columna Grabacion omitida (cliente), el `left` de Tarea cambia:
+  // la clase extra deja que el CSS recalcule la cadena sticky sin huecos.
+  const table = el('table', { class: 'meses-table' + (isClientRole() ? ' meses-table--client' : '') }, [
     el('thead', {}, [el('tr', {}, headCells)]),
     tbody,
   ]);
@@ -1586,14 +1588,15 @@ function buildMobileItem(post, noteLabels) {
       aria: post.platform ? `${T('Plataforma', 'Platform')} ${post.platform}` : T('Asignar plataforma', 'Set platform'),
       onTap: (a) => onPickPlatform(post, a),
     }),
-    mobileChip({
+    // Grabacion: SOLO EQUIPO (planeacion interna, ver tdGrab del escritorio).
+    isClientRole() ? null : mobileChip({
       text: grab && GRAB_COLORS[grab] ? `G${grab}` : T('Grab.', 'Rec.'),
       color: grab ? GRAB_COLORS[grab] : null,
       ghost: !grab,
       aria: grab ? `${T('Grabación nivel', 'Recording level')} ${grab}` : T('Asignar grabación', 'Set recording'),
       onTap: (a) => onPickGrabacion(post, a),
     }),
-  ]);
+  ].filter(Boolean));
 
   const card = el('div', { class: 'meses-item' }, [
     el('div', { class: 'meses-item__top' }, [
@@ -1605,8 +1608,8 @@ function buildMobileItem(post, noteLabels) {
         // cuadrito chico y discreto delante del nombre. Si la pieza aun no tiene
         // tipo no hay numero que mostrar y simplemente no sale el cuadrito (el
         // chip "Tipo" de abajo ya avisa que falta).
-        // SOLO EQUIPO, igual que la columna del escritorio.
-        (!isClientRole() && pieceNumOf(post)) ? pieceNumNode(post, 'meses-num--m') : null,
+        // Tambien para el cliente, igual que la columna del escritorio.
+        pieceNumOf(post) ? pieceNumNode(post, 'meses-num--m') : null,
         el('span', { class: 'meses-item__title', text: post.title || T('Sin título', 'Untitled') }),
         icon('right', 16),
       ]),
@@ -2353,7 +2356,7 @@ function openFilterSheet(allPosts) {
   const draft = { ...getFilters() };
 
   // Valores disponibles por dimension (con conteo); se omiten las vacias.
-  const groups = FILTER_DIMS.map((d) => {
+  const groups = FILTER_DIMS.filter((d) => !(isClientRole() && d.dim === 'grab')).map((d) => {
     const seen = new Map();
     for (const p of allPosts) { const v = d.getVal(p); if (v) seen.set(v, (seen.get(v) || 0) + 1); }
     const values = [...seen.entries()].sort((a, b) => String(a[0]).localeCompare(String(b[0])));
