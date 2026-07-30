@@ -14,9 +14,9 @@
 // API no devuelva (sin comparativas, sin flechas, sin sparklines: no hay
 // histórico de seguidores — ver el reporte final de esta tanda).
 // ============================================================================
-import { api, el, clear, isClientRole } from '../api.js?v=202607292343';
-import { icon } from '../shell/icons.js?v=202607292343';
-import { T, isEN } from '../shell/i18n.js?v=202607292343';
+import { api, el, clear, isClientRole } from '../api.js?v=202607300050';
+import { icon } from '../shell/icons.js?v=202607300050';
+import { T, isEN } from '../shell/i18n.js?v=202607300050';
 
 const VIEW_ID = 'metricas';
 
@@ -39,6 +39,11 @@ let lastKey = '';        // clientId|from|to del último fetch (evita refetch ig
 const PERIODS = [
   { id: '7d', label: 'Semana', en: 'Week', days: 7 },
   { id: '30d', label: 'Mes', en: 'Month', days: 30 },
+  // 90 días: los insights POR PUBLICACIÓN sí existen para posts viejos (lo que
+  // Instagram no da hacia atrás son las series de la CUENTA). Una marca que
+  // publica poco veía "Mes" vacío y parecía que la app no traía nada — que es
+  // justo lo que el revisor de Meta interpretó como "no se obtiene en vivo".
+  { id: '90d', label: '3 meses', en: '3 months', days: 90 },
 ];
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 const MONTHS_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -180,7 +185,7 @@ function ensureCss() {
   // app.html, así que ningún bump global toca este sello. Si editas
   // metricas.css, sube este número A MANO o el cambio no llega (el SW sirve
   // cache-first todo lo que trae ?v=).
-  link.href = '/marketing/css/metricas.css?v=202607292343';
+  link.href = '/marketing/css/metricas.css?v=202607300050';
   document.head.appendChild(link);
 }
 
