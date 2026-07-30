@@ -239,14 +239,8 @@ export async function onRequest(context) {
           return json({ ok: false, error: "Recibimos varias postulaciones desde tu conexión. Espera unos minutos e intenta de nuevo." }, 429);
       }
 
-      // duplicado exacto reciente (mismo correo + MISMO CV en 10 min) = doble clic en Enviar.
-      // Un reenvío con otro CV es intencional y SÍ se guarda como fila nueva.
-      // Nunca devolver el id de la fila existente: una limpieza externa podría borrarla.
-      const dup = await env.DB.prepare(
-        `SELECT id FROM careers_applications WHERE email = ? AND cv_size = ? AND created_at > ? LIMIT 1`
-      ).bind(email, cv.size, new Date(Date.now() - RATE_LIMIT.windowMs).toISOString()).first();
-      if (dup) return json({ ok: true, dedup: true });
-
+      // Sin anti-duplicados por decisión de la dueña (2026-07-30): si envían dos veces,
+      // llegan dos. Cada envío válido SIEMPRE se guarda y dispara sus dos correos.
       const id = crypto.randomUUID();
       const cvKey = `careers/cv/${id}${kind.ext}`;
       const safeName = (cv.name || `cv${kind.ext}`).replace(/[^\w.\- ()áéíóúÁÉÍÓÚñÑ]/g, "_").slice(0, 120);
