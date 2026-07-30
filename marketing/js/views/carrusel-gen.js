@@ -13,10 +13,10 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607291928';
-import { icon } from '../shell/icons.js?v=202607291928';
-import { T } from '../shell/i18n.js?v=202607291928';
-import * as store from '../shell/store.js?v=202607291928';
+import { el, clear, toast } from '../api.js?v=202607291941';
+import { icon } from '../shell/icons.js?v=202607291941';
+import { T } from '../shell/i18n.js?v=202607291941';
+import * as store from '../shell/store.js?v=202607291941';
 
 const W = 1080;
 const H = 1350;
@@ -78,8 +78,9 @@ const DESIGN_CSS = `
 .hdr .h,.hdr .d{font-size:28px;font-weight:400;letter-spacing:.02em;color:rgba(255,255,255,.96)}
 .hdr .b{font-family:'Pinyon Script',cursive;font-size:54px;line-height:1;transform:translateY(6px);color:#fff}
 .pag{position:absolute;left:104px;bottom:96px;font-size:30px;font-weight:400;letter-spacing:.08em;color:rgba(255,255,255,.95);text-shadow:0 1px 12px rgba(0,0,0,.5)}
-.chev{position:absolute;right:100px;bottom:84px;width:62px;height:62px;border:2.5px solid rgba(255,255,255,.92);border-radius:50%;display:flex;align-items:center;justify-content:center}
-.chev svg{display:block}
+.chev{position:absolute;right:100px;bottom:84px;width:62px;height:62px;border:2.5px solid rgba(255,255,255,.92);border-radius:50%}
+.chev i{position:absolute;top:50%;left:50%;width:16px;height:16px;border-top:2.5px solid rgba(255,255,255,.92);border-right:2.5px solid rgba(255,255,255,.92);transform:translate(-62%,-50%) rotate(45deg)}
+.chev.down i{transform:translate(-50%,-64%) rotate(135deg)}
 .block{position:absolute;left:104px;right:104px;display:flex;flex-direction:column}
 .kicker{font-size:36px;font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.96);margin-bottom:26px;text-shadow:0 1px 12px rgba(0,0,0,.5)}
 .title{font-size:99px;font-weight:275;line-height:1.07;text-transform:uppercase;letter-spacing:.004em;text-shadow:0 2px 20px rgba(0,0,0,.4);text-wrap:balance}
@@ -96,8 +97,7 @@ const DESIGN_CSS = `
 .center{text-align:center;align-items:center}
 `;
 
-const CHEV_RIGHT = '<svg width="26" height="26" viewBox="0 0 26 26"><path d="M9 5 L18 13 L9 21" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const CHEV_DOWN = '<svg width="26" height="26" viewBox="0 0 26 26"><path d="M5 9 L13 18 L21 9" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
 
 function slideHTML(s, idx, total) {
   const isCover = idx === 0;
@@ -139,7 +139,7 @@ function slideHTML(s, idx, total) {
     </div>
     ${hasText ? `<div class="block" style="top:${blockTop}">${inner}</div>` : ''}
     <div class="pag">${String(idx + 1).padStart(2, '0')}\\${String(total).padStart(2, '0')}</div>
-    <div class="chev">${isLast ? CHEV_DOWN : CHEV_RIGHT}</div>
+    <div class="chev${isLast ? ' down' : ''}"><i></i></div>
   </div>`;
 }
 
