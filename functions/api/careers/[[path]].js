@@ -239,11 +239,13 @@ export async function onRequest(context) {
           return json({ ok: false, error: "Recibimos varias postulaciones desde tu conexión. Espera unos minutos e intenta de nuevo." }, 429);
       }
 
-      // duplicado exacto reciente (mismo correo en 10 min) → responde ok sin duplicar
+      // duplicado exacto reciente (mismo correo + MISMO CV en 10 min) = doble clic en Enviar.
+      // Un reenvío con otro CV es intencional y SÍ se guarda como fila nueva.
+      // Nunca devolver el id de la fila existente: una limpieza externa podría borrarla.
       const dup = await env.DB.prepare(
-        `SELECT id FROM careers_applications WHERE email = ? AND created_at > ? LIMIT 1`
-      ).bind(email, new Date(Date.now() - RATE_LIMIT.windowMs).toISOString()).first();
-      if (dup) return json({ ok: true, id: dup.id, dedup: true });
+        `SELECT id FROM careers_applications WHERE email = ? AND cv_size = ? AND created_at > ? LIMIT 1`
+      ).bind(email, cv.size, new Date(Date.now() - RATE_LIMIT.windowMs).toISOString()).first();
+      if (dup) return json({ ok: true, dedup: true });
 
       const id = crypto.randomUUID();
       const cvKey = `careers/cv/${id}${kind.ext}`;
