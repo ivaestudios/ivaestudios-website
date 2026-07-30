@@ -116,6 +116,50 @@ async function notifyNewApplication(env, app) {
   } catch (e) { /* la notificación nunca debe tumbar la postulación */ }
 }
 
+async function sendApplicantThankYou(env, app) {
+  if (!env.RESEND_API_KEY || !app.email) return;
+  const nombre = (app.nombre || "").split(" ")[0] || "Hola";
+  const html = `
+  <div style="background:#f6f4ef;padding:40px 16px;font-family:Arial,Helvetica,sans-serif">
+    <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e8e3d8">
+      <div style="background:#0a0f17;padding:34px 20px;text-align:center">
+        <img src="https://ivaestudios.com/images/logo-ivae-h-cream.png" alt="IVAE Studios" height="30" style="height:30px;width:auto"/>
+      </div>
+      <div style="padding:44px 40px 20px">
+        <div style="width:44px;height:2px;background:#c9a54e;margin:0 0 22px"></div>
+        <h1 style="font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:30px;line-height:1.25;color:#141b26;margin:0 0 18px">Gracias por postularte, ${escHtml(nombre)}.</h1>
+        <p style="font-size:15px;line-height:1.75;color:#4a5261;margin:0 0 14px">Recibimos tu postulación para la vacante de <b style="color:#141b26">${escHtml(app.puesto || "nuestro equipo")}</b> en IVAE Studios. Tu CV ya está en manos de nuestro equipo.</p>
+        <p style="font-size:15px;line-height:1.75;color:#4a5261;margin:0 0 14px">Revisamos cada solicitud personalmente. Si tu perfil avanza al siguiente paso, nos pondremos en contacto contigo por correo o WhatsApp.</p>
+        <p style="font-size:15px;line-height:1.75;color:#4a5261;margin:0">Mientras tanto, te invitamos a conocer nuestro trabajo en <a href="https://ivaestudios.com" style="color:#8a6d1f;text-decoration:none;font-weight:bold">ivaestudios.com</a> y en <a href="https://instagram.com/ivaestudios.cancun" style="color:#8a6d1f;text-decoration:none;font-weight:bold">Instagram</a>.</p>
+      </div>
+      <div style="padding:8px 40px 40px">
+        <table style="width:100%;background:#faf8f3;border:1px solid #eee8da;border-radius:10px;padding:0;border-collapse:separate;border-spacing:0">
+          <tr><td style="padding:16px 20px 6px;font-size:11px;letter-spacing:.18em;color:#a09880;font-weight:bold">TU POSTULACI&Oacute;N</td></tr>
+          <tr><td style="padding:0 20px 4px;font-size:14px;color:#141b26">Puesto: <b>${escHtml(app.puesto || "General")}</b></td></tr>
+          <tr><td style="padding:0 20px 16px;font-size:14px;color:#141b26">CV recibido: <b>${escHtml(app.cv_name || "")}</b> &#10003;</td></tr>
+        </table>
+        <p style="font-family:Georgia,serif;font-style:italic;font-size:16px;color:#141b26;margin:28px 0 4px">Vianey e Israel</p>
+        <p style="font-size:12px;letter-spacing:.16em;color:#a09880;margin:0">IVAE STUDIOS</p>
+      </div>
+      <div style="border-top:1px solid #eee8da;padding:18px 20px;text-align:center">
+        <p style="font-size:12px;color:#a09880;margin:0">Canc&uacute;n &middot; Riviera Maya &middot; Los Cabos &middot; <a href="https://ivaestudios.com" style="color:#a09880">ivaestudios.com</a></p>
+      </div>
+    </div>
+  </div>`;
+  try {
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { "content-type": "application/json", Authorization: `Bearer ${env.RESEND_API_KEY}` },
+      body: JSON.stringify({
+        from: "IVAE Studios <info@ivaestudios.com>",
+        to: [app.email],
+        subject: "Recibimos tu postulación · IVAE Studios",
+        html,
+      }),
+    });
+  } catch (e) { /* nunca tumbar la postulación por el correo */ }
+}
+
 export async function onRequest(context) {
   const { request, env, params, waitUntil } = context;
   const segs = Array.isArray(params.path) ? params.path : params.path ? [params.path] : [];
@@ -190,7 +234,8 @@ export async function onRequest(context) {
         throw e;
       }
 
-      const notif = notifyNewApplication(env, { nombre, email, telefono, puesto, mensaje, cv_name: safeName, cv_size: cv.size });
+      const app = { nombre, email, telefono, puesto, mensaje, cv_name: safeName, cv_size: cv.size };
+      const notif = Promise.allSettled([notifyNewApplication(env, app), sendApplicantThankYou(env, app)]);
       if (typeof waitUntil === "function") waitUntil(notif);
 
       return json({ ok: true, id });
