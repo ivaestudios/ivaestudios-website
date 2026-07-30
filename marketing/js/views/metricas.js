@@ -14,9 +14,9 @@
 // API no devuelva (sin comparativas, sin flechas, sin sparklines: no hay
 // histórico de seguidores — ver el reporte final de esta tanda).
 // ============================================================================
-import { api, el, clear, isClientRole } from '../api.js?v=202607300050';
-import { icon } from '../shell/icons.js?v=202607300050';
-import { T, isEN } from '../shell/i18n.js?v=202607300050';
+import { api, el, clear, isClientRole } from '../api.js?v=202607300121';
+import { icon } from '../shell/icons.js?v=202607300121';
+import { T, isEN } from '../shell/i18n.js?v=202607300121';
 
 const VIEW_ID = 'metricas';
 
@@ -185,7 +185,7 @@ function ensureCss() {
   // app.html, así que ningún bump global toca este sello. Si editas
   // metricas.css, sube este número A MANO o el cambio no llega (el SW sirve
   // cache-first todo lo que trae ?v=).
-  link.href = '/marketing/css/metricas.css?v=202607300050';
+  link.href = '/marketing/css/metricas.css?v=202607300121';
   document.head.appendChild(link);
 }
 
@@ -831,7 +831,13 @@ function render() {
     // backend se lo prohíbe con un 403; este botón navegaba directo a
     // /ig/login y el JSON {"error":"Forbidden"} reemplazaba la app ENTERA a
     // pantalla completa (auditoría App Review 2026-07-29, bloqueante).
-    if (isClientRole()) {
+    // El backend permite conectar al CLIENTE de IVAE STUDIOS (su propia marca);
+    // a los demás clientes les responde 403. La UI tiene que respetar la MISMA
+    // regla: esconderle el botón a IVAE STUDIOS impedía conectar su Instagram
+    // desde su propio portal (y grabar el flujo para el App Review de Meta).
+    const IVAE_STUDIOS_CLIENT_ID = '6ae5dd2381faa430d9e6966470b29602';
+    const meClientId = (ctx && ctx.store && (ctx.store.getState().me || {}).client_id) || null;
+    if (isClientRole() && meClientId !== IVAE_STUDIOS_CLIENT_ID) {
       rootEl.appendChild(buildEmpty(
         T('Instagram en conexión', 'Instagram being connected'),
         T('Tu agencia está conectando el Instagram de tu marca. En cuanto esté listo, aquí verás seguidores, alcance, interacciones y el rendimiento de cada publicación.',
