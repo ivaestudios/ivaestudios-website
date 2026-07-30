@@ -12,10 +12,10 @@
 // nada se sube a un servidor, funciona igual en el cel que en la compu y no
 // gasta datos. El video sale a velocidad correcta en cualquier máquina y con audio.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607291901';
-import { icon } from '../shell/icons.js?v=202607291901';
-import { T } from '../shell/i18n.js?v=202607291901';
-import { renderGen, resetGen } from './carrusel-gen.js?v=202607291901';
+import { el, clear, toast } from '../api.js?v=202607291913';
+import { icon } from '../shell/icons.js?v=202607291913';
+import { T } from '../shell/i18n.js?v=202607291913';
+import { renderGen, resetGen } from './carrusel-gen.js?v=202607291913';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -198,7 +198,7 @@ async function cutSlides() {
     }
   } catch (e) {
     console.error('[carrusel] corte', e);
-    toast(T('No se pudo cortar la imagen. Prueba con un PNG o JPG.', 'Could not cut the image. Try a PNG or JPG.'), { type: 'error' });
+    toast(T('No se pudo cortar la imagen. Prueba con un PNG o JPG.', 'Could not cut the image. Try a PNG or JPG.'), 'error');
     return;
   }
   if (token !== cutting) { for (const s of out) URL.revokeObjectURL(s.url); return; }
@@ -211,17 +211,17 @@ async function downloadZip() {
   try {
     const zip = await buildZip(slides);
     download(zip, `${imgName}-slides.zip`);
-    toast(T(`ZIP con ${slides.length} slides descargado.`, `ZIP with ${slides.length} slides downloaded.`), { type: 'success' });
+    toast(T(`ZIP con ${slides.length} slides descargado.`, `ZIP with ${slides.length} slides downloaded.`), 'success');
   } catch (e) {
     console.error('[carrusel] zip', e);
-    toast(T('No se pudo armar el ZIP. Descarga los slides uno por uno.', 'Could not build the ZIP. Download the slides one by one.'), { type: 'error' });
+    toast(T('No se pudo armar el ZIP. Descarga los slides uno por uno.', 'Could not build the ZIP. Download the slides one by one.'), 'error');
   }
 }
 
 function acceptFile(file) {
   if (!file) return;
   if (!/^image\/(png|jpe?g|webp)$/i.test(file.type) && !/\.(png|jpe?g|webp)$/i.test(file.name || '')) {
-    toast(T('Formato no soportado. Exporta el carrusel como PNG o JPG.', 'Unsupported format. Export the carousel as PNG or JPG.'), { type: 'error' });
+    toast(T('Formato no soportado. Exporta el carrusel como PNG o JPG.', 'Unsupported format. Export the carousel as PNG or JPG.'), 'error');
     return;
   }
   const url = URL.createObjectURL(file);
@@ -238,7 +238,7 @@ function acceptFile(file) {
   };
   image.onerror = () => {
     URL.revokeObjectURL(url);
-    toast(T('No se pudo leer la imagen. Exporta el carrusel como PNG o JPG.', 'Could not read the image. Export the carousel as PNG or JPG.'), { type: 'error' });
+    toast(T('No se pudo leer la imagen. Exporta el carrusel como PNG o JPG.', 'Could not read the image. Export the carousel as PNG or JPG.'), 'error');
   };
   image.src = url;
 }
@@ -271,11 +271,11 @@ const fmtDur = (s) => `${(Math.round(s * 10) / 10).toFixed(1)}s`;
 function acceptVideoFile(file) {
   if (!file) return;
   if (!/^video\//i.test(file.type) && !/\.(mp4|mov|webm|m4v|3gp)$/i.test(file.name || '')) {
-    toast(T('Sube un video (MP4 o MOV) de la tira del carrusel.', 'Upload a video (MP4 or MOV) of the carousel strip.'), { type: 'error' });
+    toast(T('Sube un video (MP4 o MOV) de la tira del carrusel.', 'Upload a video (MP4 or MOV) of the carousel strip.'), 'error');
     return;
   }
   if (!videoSupported()) {
-    toast(T('Tu navegador no permite cortar video. Prueba en Chrome o Safari actualizado.', 'Your browser can\'t cut video. Try an up-to-date Chrome or Safari.'), { type: 'error' });
+    toast(T('Tu navegador no permite cortar video. Prueba en Chrome o Safari actualizado.', 'Your browser can\'t cut video. Try an up-to-date Chrome or Safari.'), 'error');
     return;
   }
   const url = URL.createObjectURL(file);
@@ -291,7 +291,7 @@ function acceptVideoFile(file) {
     vdurations = []; vphase = 'idle';
     analyzeDurations();
   };
-  v.onerror = () => { URL.revokeObjectURL(url); toast(T('No se pudo leer el video. Prueba con un MP4.', 'Could not read the video. Try an MP4.'), { type: 'error' }); };
+  v.onerror = () => { URL.revokeObjectURL(url); toast(T('No se pudo leer el video. Prueba con un MP4.', 'Could not read the video. Try an MP4.'), 'error'); };
 }
 
 // Pasada 1: reproduce la tira una vez (muted) y mide la duración REAL de cada
@@ -474,7 +474,7 @@ async function cutVideoWebCodecs() {
   const token = ++vtoken;
   vphase = 'cortando'; vprogress = 0; freeVideoSlides(); render();
 
-  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607291901');
+  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202607291913');
   const cols2 = vcols, rows2 = vrows, n = cols2 * rows2;
   const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
   const sw2 = sw - (sw % 2), sh2 = sh - (sh % 2); // H.264 exige dimensiones pares
@@ -659,10 +659,10 @@ async function downloadVideoZip() {
   try {
     const zip = await buildZip(vslides);
     download(zip, `${vname}-videos.zip`);
-    toast(T(`ZIP con ${vslides.length} videos descargado.`, `ZIP with ${vslides.length} videos downloaded.`), { type: 'success' });
+    toast(T(`ZIP con ${vslides.length} videos descargado.`, `ZIP with ${vslides.length} videos downloaded.`), 'success');
   } catch (e) {
     console.error('[carrusel] zip video', e);
-    toast(T('No se pudo armar el ZIP. Descarga los videos uno por uno.', 'Could not build the ZIP. Download the videos one by one.'), { type: 'error' });
+    toast(T('No se pudo armar el ZIP. Descarga los videos uno por uno.', 'Could not build the ZIP. Download the videos one by one.'), 'error');
   }
 }
 
@@ -932,6 +932,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202607291901';
+  link.href = '/marketing/css/carrusel.css?v=202607291913';
   document.head.appendChild(link);
 }

@@ -148,3 +148,9 @@
   background: rgba(0,0,0,.55); color: #fff; font: 700 13px/26px var(--font, sans-serif); text-align: center;
 }
 @media (min-width: 860px) { .carg-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); } }
+
+/* Endurecido auditoría 2026-07-29 */
+.carg-cell__num--warn { background: rgba(232,163,61,.9); color: #1a1206; width: auto; padding: 0 8px; border-radius: 13px; }
+.car-hint { color: var(--text-dim); }
+.carg-card__head b { color: var(--text-dim); }
+.carg-card__acts .btn { min-height: 44px; min-width: 44px; }
