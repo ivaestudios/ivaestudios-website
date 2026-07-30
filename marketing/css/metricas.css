@@ -422,3 +422,8 @@
   .mt-posts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 28px; }
   .mt-post:nth-child(2) { border-top: 0; }
 }
+
+/* Sello de procedencia: prueba visible de que los números vienen EN VIVO de
+   la API de Instagram para ESA cuenta (requisito del revisor de Meta). */
+.mt-live { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 12.5px; color: var(--text-dim); }
+.mt-live__dot { width: 8px; height: 8px; border-radius: 50%; background: #35C759; box-shadow: 0 0 0 3px rgba(53,199,89,.18); flex: none; }

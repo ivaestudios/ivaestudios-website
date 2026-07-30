@@ -14,9 +14,9 @@
 // API no devuelva (sin comparativas, sin flechas, sin sparklines: no hay
 // histórico de seguidores — ver el reporte final de esta tanda).
 // ============================================================================
-import { api, el, clear, isClientRole } from '../api.js?v=202607291941';
-import { icon } from '../shell/icons.js?v=202607291941';
-import { T, isEN } from '../shell/i18n.js?v=202607291941';
+import { api, el, clear, isClientRole } from '../api.js?v=202607292000';
+import { icon } from '../shell/icons.js?v=202607292000';
+import { T, isEN } from '../shell/i18n.js?v=202607292000';
 
 const VIEW_ID = 'metricas';
 
@@ -180,7 +180,7 @@ function ensureCss() {
   // app.html, así que ningún bump global toca este sello. Si editas
   // metricas.css, sube este número A MANO o el cambio no llega (el SW sirve
   // cache-first todo lo que trae ?v=).
-  link.href = '/marketing/css/metricas.css?v=202607291941';
+  link.href = '/marketing/css/metricas.css?v=202607292000';
   document.head.appendChild(link);
 }
 
@@ -748,11 +748,29 @@ function buildHead(brand, res) {
   if (brand) {
     // El @usuario ya viene en la respuesta y la vista lo tiraba a la basura.
     const handle = res && res.username ? '@' + String(res.username).replace(/^@/, '') : '';
+    // Sello de PROCEDENCIA: @usuario + "en vivo desde la API de Instagram" con
+    // la hora de la consulta. El revisor de Meta rechazó el permiso de
+    // insights porque "las métricas no están ligadas a una cuenta específica
+    // y no parecen obtenerse en vivo" (App Review 2026-07-27): esta línea lo
+    // deja probado en pantalla, y de paso le da confianza al cliente.
+    const now = new Date();
+    const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     kids.push(el('div', { class: 'mt-meta' }, [
       handle ? el('span', { class: 'mt-handle', text: handle }) : null,
       handle ? el('span', { class: 'mt-dotsep', text: '·' }) : null,
       el('span', { text: rangeText() }),
     ]));
+    if (res && res.connected && handle) {
+      kids.push(el('div', { class: 'mt-live' }, [
+        el('span', { class: 'mt-live__dot', 'aria-hidden': 'true' }),
+        el('span', {
+          text: T(
+            `Datos en vivo de la API de Instagram para ${handle} · consultados hoy ${hhmm}`,
+            `Live data from the Instagram API for ${handle} · fetched today at ${hhmm}`,
+          ),
+        }),
+      ]));
+    }
   }
 
   const head = el('header', { class: 'mt-head' }, kids);
