@@ -14,9 +14,9 @@
 // API no devuelva (sin comparativas, sin flechas, sin sparklines: no hay
 // histórico de seguidores — ver el reporte final de esta tanda).
 // ============================================================================
-import { api, el, clear, isClientRole } from '../api.js?v=202607300121';
-import { icon } from '../shell/icons.js?v=202607300121';
-import { T, isEN } from '../shell/i18n.js?v=202607300121';
+import { api, el, clear, isClientRole } from '../api.js?v=202607300219';
+import { icon } from '../shell/icons.js?v=202607300219';
+import { T, isEN } from '../shell/i18n.js?v=202607300219';
 
 const VIEW_ID = 'metricas';
 
@@ -185,7 +185,7 @@ function ensureCss() {
   // app.html, así que ningún bump global toca este sello. Si editas
   // metricas.css, sube este número A MANO o el cambio no llega (el SW sirve
   // cache-first todo lo que trae ?v=).
-  link.href = '/marketing/css/metricas.css?v=202607300121';
+  link.href = '/marketing/css/metricas.css?v=202607300219';
   document.head.appendChild(link);
 }
 
@@ -835,9 +835,9 @@ function render() {
     // a los demás clientes les responde 403. La UI tiene que respetar la MISMA
     // regla: esconderle el botón a IVAE STUDIOS impedía conectar su Instagram
     // desde su propio portal (y grabar el flujo para el App Review de Meta).
-    const IVAE_STUDIOS_CLIENT_ID = '6ae5dd2381faa430d9e6966470b29602';
+    const CLIENT_CAN_CONNECT = ['6ae5dd2381faa430d9e6966470b29602', 'demo-regeneris'];
     const meClientId = (ctx && ctx.store && (ctx.store.getState().me || {}).client_id) || null;
-    if (isClientRole() && meClientId !== IVAE_STUDIOS_CLIENT_ID) {
+    if (isClientRole() && !CLIENT_CAN_CONNECT.includes(meClientId)) {
       rootEl.appendChild(buildEmpty(
         T('Instagram en conexión', 'Instagram being connected'),
         T('Tu agencia está conectando el Instagram de tu marca. En cuanto esté listo, aquí verás seguidores, alcance, interacciones y el rendimiento de cada publicación.',

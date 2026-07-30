@@ -38,10 +38,14 @@ const redirectUri = (request) => new URL('/api/marketing/ig/callback', request.u
 
 // GET /ig/login?client_id=… (staff) → redirige a Instagram OAuth
 export async function handleIgLogin(request, env, session, url) {
-  // Métricas/conexión de IG habilitada en la versión CLIENTE solo para IVAE
-  // STUDIOS (su propia marca). Los demás clientes siguen bloqueados.
-  const IVAE_STUDIOS_CLIENT_ID = '6ae5dd2381faa430d9e6966470b29602';
-  if (session.role === 'client' && session.client_id !== IVAE_STUDIOS_CLIENT_ID) {
+  // Conectar Instagram desde el portal del CLIENTE: habilitado marca por marca
+  // (Vianey lo aprueba). El resto de clientes sigue bloqueado: la conexión la
+  // hace la agencia. MISMA lista en marketing/js/views/metricas.js.
+  const CLIENT_CAN_CONNECT = [
+    '6ae5dd2381faa430d9e6966470b29602', // IVAE STUDIOS (marca propia)
+    'demo-regeneris',                    // REGENERIS THERAPY
+  ];
+  if (session.role === 'client' && !CLIENT_CAN_CONNECT.includes(session.client_id)) {
     return json({ error: 'Forbidden' }, 403);
   }
   if (!env.META_APP_ID || !env.META_APP_SECRET) {
