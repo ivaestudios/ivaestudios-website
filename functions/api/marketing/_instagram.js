@@ -110,6 +110,24 @@ export async function handleIgCallback(request, env, url) {
       username = me.username || '';
     } catch { /* opcional */ }
 
+    // GUARDA ANTI-CRUCE (2026-07-30): el callback guardaba CUALQUIER cuenta que
+    // autorizara, sin comprobar de quién es. Si en el navegador estaba abierta
+    // otra cuenta de Instagram, esa quedaba pegada a la marca equivocada —
+    // pasó de verdad: @ivae.studios terminó conectada a REGENERIS y su panel
+    // habría mostrado métricas ajenas. Ahora, si ese Instagram ya pertenece a
+    // OTRA marca, se rechaza y no se toca nada.
+    const clash = await env.DB.prepare(
+      'SELECT id, name FROM mkt_clients WHERE ig_user_id = ? AND id != ?'
+    ).bind(String(t1.user_id), st.c).first();
+    if (clash) {
+      return html(
+        `<h1>Esa cuenta ya es de otra marca</h1><p>La cuenta ${username ? '<b>@' + username + '</b>' : 'de Instagram'} ya está conectada a <b>${clash.name}</b>. ` +
+        'Cierra sesión en Instagram y entra con la cuenta correcta de esta marca, o desconéctala primero de la otra.</p>' +
+        `<a href="${back}">Volver a la app</a>`,
+        409,
+      );
+    }
+
     await env.DB.prepare(
       "UPDATE mkt_clients SET ig_user_id = ?, ig_username = ?, ig_access_token = ?, updated_at = datetime('now') WHERE id = ?"
     ).bind(String(t1.user_id), username, token, st.c).run();
