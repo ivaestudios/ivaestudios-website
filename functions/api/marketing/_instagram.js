@@ -116,8 +116,11 @@ export async function handleIgCallback(request, env, url) {
     // pasó de verdad: @ivae.studios terminó conectada a REGENERIS y su panel
     // habría mostrado métricas ajenas. Ahora, si ese Instagram ya pertenece a
     // OTRA marca, se rechaza y no se toca nada.
+    // La marca DEMO (67322…) comparte a propósito @ivae.studios con la marca
+    // real de IVAE: es nuestra propia cuenta, no un cruce. Se excluye del
+    // chequeo para que no bloquee reconexiones legítimas de IVAE STUDIOS.
     const clash = await env.DB.prepare(
-      'SELECT id, name FROM mkt_clients WHERE ig_user_id = ? AND id != ?'
+      "SELECT id, name FROM mkt_clients WHERE ig_user_id = ? AND id != ? AND id != '67322bb3c5f64991a9178b1d1784231a'"
     ).bind(String(t1.user_id), st.c).first();
     if (clash) {
       return html(
