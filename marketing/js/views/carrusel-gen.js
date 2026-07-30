@@ -14,10 +14,10 @@
 //
 // TODO EN EL NAVEGADOR (canvas 1080×1350, 4:5): nada se sube a servidores.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607291857';
-import { icon } from '../shell/icons.js?v=202607291857';
-import { T } from '../shell/i18n.js?v=202607291857';
-import * as store from '../shell/store.js?v=202607291857';
+import { el, clear, toast } from '../api.js?v=202607291901';
+import { icon } from '../shell/icons.js?v=202607291901';
+import { T } from '../shell/i18n.js?v=202607291901';
+import * as store from '../shell/store.js?v=202607291901';
 
 const W = 1080;
 const H = 1350;
@@ -308,15 +308,17 @@ export function renderGen(root, helpers) {
       const files = [...(e.target.files || [])].slice(0, MAX_SLIDES - slides.length);
       for (const f of files) {
         try {
-          // Reducción de alta calidad al decodificar (~2600px máx): reduce el
-          // brinco de escala del dibujo final y evita el moiré/aliasing de
-          // fotos de 6000px aplastadas de golpe a 1080.
+          // CERO pérdida útil: se calcula cuántos píxeles NECESITA el slide
+          // final (cover-fit a 1440×1800, considerando el recorte) y se
+          // decodifica con calidad alta a 1.35× ese tamaño — ni un píxel
+          // útil menos (fotos pesadas conservan todo su detalle aprovechable)
+          // y jamás se agranda (upscale) una foto chica.
           let bitmap;
           try {
             const probe = await createImageBitmap(f);
-            const maxDim = Math.max(probe.width, probe.height);
-            if (maxDim > 2600) {
-              const k = 2600 / maxDim;
+            const need = Math.max((W * SCALE) / probe.width, (H * SCALE) / probe.height);
+            const k = Math.min(1, need * 1.35);
+            if (k < 1) {
               bitmap = await createImageBitmap(f, { resizeWidth: Math.round(probe.width * k), resizeHeight: Math.round(probe.height * k), resizeQuality: 'high' });
               try { probe.close(); } catch { /* noop */ }
             } else { bitmap = probe; }
