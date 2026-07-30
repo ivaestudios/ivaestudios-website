@@ -3711,16 +3711,52 @@ async function dlvSurvivingExt(env, id) {
   return null;
 }
 
-function shapeDeliverable(d, origin, comments = []) {
+function shapeDeliverable(d, origin, comments = [], piece = null) {
   const v = dlvCacheStamp(d);
   return {
     id: d.id, client_id: d.client_id, month: d.month, type: d.type,
     title: d.title || null, link: d.link || null,
+    // Vínculo con la pieza del calendario: así el entregable SABE que es el
+    // "REEL 3" y se puede cotejar de un vistazo con lo aprobado.
+    post_id: d.post_id || null,
+    piece: piece || null,   // { num, type, title, date }
     video_url: d.video_ext ? `${origin}/api/marketing/deliverables/${d.id}/video?v=${v}` : null,
     poster_url: d.video_ext ? `${origin}/api/marketing/deliverables/${d.id}/poster?v=${v}` : null,
     created_at: d.created_at, updated_at: d.updated_at || null,
     comments,
   };
+}
+
+// Numera las piezas del calendario igual que la vista Calendario
+// (meses.js/computePieceNums): por marca + mes + tipo, ordenado por fecha,
+// posición, creación e id. Si estos criterios se desincronizan, el número
+// del entregable dejaría de coincidir con el que ve Vianey en el calendario.
+function pieceNumbersFor(posts) {
+  const groups = new Map();
+  for (const p of posts) {
+    if (!p || !p.content_type) continue;
+    const month = String(p.publish_date || '').slice(0, 7) || 'sin';
+    const k = `${p.client_id || ''}|${month}|${p.content_type}`;
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(p);
+  }
+  const nums = new Map();
+  for (const list of groups.values()) {
+    list.sort((a, b) => {
+      const da = String(a.publish_date || '9999-99-99');
+      const db = String(b.publish_date || '9999-99-99');
+      if (da !== db) return da < db ? -1 : 1;
+      const pa = Number(a.position) || 0;
+      const pb = Number(b.position) || 0;
+      if (pa !== pb) return pa - pb;
+      const ca = String(a.created_at || '');
+      const cb = String(b.created_at || '');
+      if (ca !== cb) return ca < cb ? -1 : 1;
+      return String(a.id).localeCompare(String(b.id));
+    });
+    list.forEach((p, i) => nums.set(String(p.id), i + 1));
+  }
+  return nums;
 }
 
 function shapeDlvComment(c) {
@@ -3762,7 +3798,35 @@ async function handleListDeliverables(env, session, url) {
       }
     } catch (e) { if (!isMissingTableError(e)) console.error('[mkt dlv comments]', e && e.message); }
   }
-  return json({ deliverables: rows.map((r) => shapeDeliverable(r, origin, byDlv.get(r.id) || [])) });
+  // Pieza del calendario vinculada: se numera con el MISMO criterio que la
+  // vista Calendario para que el entregable diga "REEL 3" igualito.
+  const pieceById = new Map();
+  const linked = rows.map((r) => r.post_id).filter(Boolean);
+  if (linked.length) {
+    try {
+      const ph = linked.map(() => '?').join(',');
+      const targets = (await env.DB.prepare(
+        `SELECT id, client_id, content_type, publish_date, position, created_at, title FROM mkt_posts WHERE id IN (${ph})`
+      ).bind(...linked).all()).results || [];
+      const months = [...new Set(targets.map((t) => String(t.publish_date || '').slice(0, 7)).filter(Boolean))];
+      if (months.length) {
+        const mph = months.map(() => '?').join(',');
+        const pool = (await env.DB.prepare(
+          `SELECT id, client_id, content_type, publish_date, position, created_at FROM mkt_posts WHERE client_id = ? AND substr(publish_date, 1, 7) IN (${mph})`
+        ).bind(clientId, ...months).all()).results || [];
+        const nums = pieceNumbersFor(pool);
+        for (const t of targets) {
+          pieceById.set(t.id, {
+            num: nums.get(String(t.id)) || null,
+            type: t.content_type || null,
+            title: t.title || null,
+            date: t.publish_date || null,
+          });
+        }
+      }
+    } catch (e) { console.error('[mkt dlv piece]', e && e.message); }
+  }
+  return json({ deliverables: rows.map((r) => shapeDeliverable(r, origin, byDlv.get(r.id) || [], r.post_id ? pieceById.get(r.post_id) : null)) });
 }
 
 async function handleListDeliverableComments(env, session, id) {
@@ -3854,8 +3918,9 @@ async function handleCreateDeliverable(request, env, session, url) {
   const id = randomId();
   const title = b.title ? String(b.title).slice(0, 200) : null;
   const link = (type === 'carrusel' && b.link) ? String(b.link).slice(0, 1000) : null;
-  await env.DB.prepare('INSERT INTO mkt_deliverables (id, client_id, month, type, title, link) VALUES (?, ?, ?, ?, ?, ?)')
-    .bind(id, clientId, month, type, title, link).run();
+  const postId = b.post_id ? String(b.post_id).slice(0, 64) : null;
+  await env.DB.prepare('INSERT INTO mkt_deliverables (id, client_id, month, type, title, link, post_id) VALUES (?, ?, ?, ?, ?, ?, ?)')
+    .bind(id, clientId, month, type, title, link, postId).run();
   const d = await env.DB.prepare('SELECT * FROM mkt_deliverables WHERE id = ?').bind(id).first();
 
   // Aviso AL CLIENTE: hay un entregable nuevo de su marca. Best-effort,
@@ -3947,7 +4012,9 @@ async function handlePatchDeliverable(request, env, session, id) {
   // anti-cache del ARCHIVO (dlvCacheStamp): si un simple renombrado lo moviera,
   // cambiarian video_url y poster_url y el cliente tendria que re-descargar el
   // reel COMPLETO en 4G solo porque le corregimos una letra al titulo.
-  await env.DB.prepare('UPDATE mkt_deliverables SET title = ?, link = ? WHERE id = ?').bind(title, link, id).run();
+  // post_id: vincular/desvincular con la pieza del calendario ('' = quitar).
+  const postId = b.post_id !== undefined ? (b.post_id ? String(b.post_id).slice(0, 64) : null) : d.post_id;
+  await env.DB.prepare('UPDATE mkt_deliverables SET title = ?, link = ?, post_id = ? WHERE id = ?').bind(title, link, postId, id).run();
   const u = await env.DB.prepare('SELECT * FROM mkt_deliverables WHERE id = ?').bind(id).first();
   return json(shapeDeliverable(u, new URL(request.url).origin));
 }

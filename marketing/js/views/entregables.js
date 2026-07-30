@@ -6,17 +6,17 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202607292000';
-import { icon } from '../shell/icons.js?v=202607292000';
-import { T } from '../shell/i18n.js?v=202607292000';
-import { openSheet } from '../shell/sheet.js?v=202607292000';
+import { api, el, clear, toast } from '../api.js?v=202607292343';
+import { icon } from '../shell/icons.js?v=202607292343';
+import { T } from '../shell/i18n.js?v=202607292343';
+import { openSheet } from '../shell/sheet.js?v=202607292343';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202607292000';
+import { errorCard } from '../ui/states.js?v=202607292343';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202607292000';
+} from '../lib/video-upload.js?v=202607292343';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -116,7 +116,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202607292000';
+  link.href = '/marketing/css/entregables.css?v=202607292343';
   document.head.appendChild(link);
 }
 
@@ -1001,6 +1001,91 @@ function buildComments(it, staff) {
   ]);
 }
 
+// Etiqueta de la pieza vinculada del CALENDARIO: "REEL 3". Vianey pidió la
+// numeración justo para esto — al subir el reel final saber a qué publicación
+// aprobada corresponde. Sin vínculo devuelve null (no se pinta nada).
+const PIECE_SHORT_DLV = {
+  reel: 'REEL', post: 'POST', tiktok: 'TIKTOK', informativo: 'INFO',
+  carrusel: 'CARRUSEL', experiencia: 'EXP.', pauta: 'PAUTA',
+  tratamientos: 'TRAT.', historia: 'HIST.', foto: 'FOTO',
+};
+function pieceBadge(it) {
+  const p = it && it.piece;
+  if (!p || !p.num) return null;
+  const short = PIECE_SHORT_DLV[p.type] || (p.type || 'PIEZA').toUpperCase();
+  return el('span', {
+    class: 'dlv-piece', title: p.title ? `${short} ${p.num} · ${p.title}` : `${short} ${p.num}`,
+    text: `${short} ${p.num}`,
+  });
+}
+
+// Vincular el entregable con su pieza del CALENDARIO. Lista los posts del mes
+// del entregable, numerados con el MISMO criterio que la vista Calendario, así
+// Vianey elige "REEL 3 · Promo del mes" y la etiqueta viaja con el archivo.
+async function linkPiece(it) {
+  const client = activeClient();
+  if (!client) return;
+  let posts = [];
+  try {
+    const res = await api.get(`/posts?client_id=${encodeURIComponent(client.id)}`);
+    posts = Array.isArray(res) ? res : (res && res.posts) || [];
+  } catch {
+    toast(T('No se pudo cargar el calendario.', 'Could not load the calendar.'), 'error');
+    return;
+  }
+  const mine = posts.filter((p) => String(p.publish_date || '').slice(0, 7) === it.month);
+  // Numeración por tipo, igual que en Calendario.
+  const byType = new Map();
+  for (const p of mine) {
+    if (!p.content_type) continue;
+    if (!byType.has(p.content_type)) byType.set(p.content_type, []);
+    byType.get(p.content_type).push(p);
+  }
+  const nums = new Map();
+  for (const list of byType.values()) {
+    list.sort((a, b) => String(a.publish_date || '').localeCompare(String(b.publish_date || ''))
+      || (Number(a.position) || 0) - (Number(b.position) || 0)
+      || String(a.created_at || '').localeCompare(String(b.created_at || ''))
+      || String(a.id).localeCompare(String(b.id)));
+    list.forEach((p, i) => nums.set(String(p.id), i + 1));
+  }
+  openSheet({
+    title: T('¿A qué pieza del calendario corresponde?', 'Which calendar piece is this?'),
+    mode: 'menu',
+    build(body, close) {
+      body.appendChild(el('p', { class: 'acct-intro', text: T(
+        'Elige la publicación aprobada que corresponde a este entregable. La etiqueta (REEL 3) aparecerá aquí y en el calendario.',
+        'Pick the approved post this deliverable belongs to.',
+      ) }));
+      if (!mine.length) {
+        body.appendChild(el('div', { class: 'muted', text: T('No hay publicaciones en este mes.', 'No posts this month.') }));
+        return;
+      }
+      const list = el('div', { class: 'acct-list' });
+      for (const p of mine) {
+        const n = nums.get(String(p.id));
+        const short = PIECE_SHORT_DLV[p.content_type] || (p.content_type || '').toUpperCase();
+        list.appendChild(el('button', {
+          class: 'dlv-piecerow' + (it.post_id === p.id ? ' is-active' : ''), type: 'button',
+          onclick: async () => {
+            close({ source: 'pick' });
+            try {
+              await api.patch(`/deliverables/${it.id}`, { post_id: it.post_id === p.id ? '' : p.id });
+              toast(it.post_id === p.id ? T('Vínculo quitado.', 'Unlinked.') : T('Vinculado.', 'Linked.'), 'success');
+              await load(true);
+            } catch (e) { toast(e.message || T('No se pudo vincular.', 'Could not link.'), 'error'); }
+          },
+        }, [
+          n ? el('span', { class: 'dlv-piece', text: `${short} ${n}` }) : null,
+          el('span', { class: 'dlv-piecerow__t', text: p.title || T('(sin título)', '(untitled)') }),
+          el('span', { class: 'dlv-piecerow__d', text: String(p.publish_date || '').slice(8, 10) + '/' + String(p.publish_date || '').slice(5, 7) }),
+        ].filter(Boolean)));
+      }
+      body.appendChild(list);
+    },
+  });
+}
+
 function buildItem(it, staff) {
   if (it.type === 'reel') {
     const card = el('div', { class: 'dlv-card dlv-card--reel' });
@@ -1043,9 +1128,19 @@ function buildItem(it, staff) {
     // evitar. Con video dice "Cambiar video"; sin video, "Subir video".
     const canSwap = staff;
     const hasVideo = !!it.video_url;
+    const badge = pieceBadge(it);
     const foot = el('div', { class: 'dlv-card__foot' + (staff ? ' is-staff' : '') }, [
-      el('span', { class: 'dlv-card__title', text: it.title || 'Reel' }),
+      el('span', { class: 'dlv-card__titlewrap' }, [
+        badge,
+        el('span', { class: 'dlv-card__title', text: it.title || 'Reel' }),
+      ]),
       el('div', { class: 'dlv-card__actions' }, [
+        staff ? el('button', {
+          class: 'dlv-link', type: 'button',
+          'aria-label': T('Vincular con la pieza del calendario', 'Link to calendar piece'),
+          title: T('Vincular con la pieza del calendario', 'Link to calendar piece'),
+          onclick: () => linkPiece(it),
+        }, [icon('link', 16), el('span', { text: it.piece && it.piece.num ? T('Cambiar', 'Change') : T('Vincular', 'Link') })]) : null,
         it.video_url ? el('button', {
           class: 'dlv-dl', type: 'button', 'aria-label': T('Descargar reel', 'Download reel'),
           onclick: (e) => saveVideo(it, e.currentTarget),
@@ -1071,7 +1166,10 @@ function buildItem(it, staff) {
   // carrusel: preview (izquierda en escritorio) + comentarios al lado (.dlv-card__side)
   const main = el('div', { class: 'dlv-carrusel__main' }, [
     el('div', { class: 'dlv-carrusel__ico' }, [icon('grip', 30)]),
-    el('span', { class: 'dlv-card__title', text: it.title || T('Carrusel', 'Carousel') }),
+    el('span', { class: 'dlv-card__titlewrap' }, [
+      pieceBadge(it),
+      el('span', { class: 'dlv-card__title', text: it.title || T('Carrusel', 'Carousel') }),
+    ]),
     el('div', { class: 'dlv-card__actions' }, [
       el('a', {
         class: 'dlv-carrusel-btn', href: it.link, target: '_blank', rel: 'noopener noreferrer',
