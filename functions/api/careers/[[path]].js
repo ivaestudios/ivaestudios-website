@@ -118,34 +118,67 @@ async function notifyNewApplication(env, app) {
 
 async function sendApplicantThankYou(env, app) {
   if (!env.RESEND_API_KEY || !app.email) return;
-  const nombre = (app.nombre || "").split(" ")[0] || "Hola";
-  const html = `
-  <div style="background:#f6f4ef;padding:40px 16px;font-family:Arial,Helvetica,sans-serif">
-    <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e8e3d8">
-      <div style="background:#0a0f17;padding:34px 20px;text-align:center">
-        <img src="https://ivaestudios.com/images/logo-ivae-h-cream.png" alt="IVAE Studios" height="30" style="height:30px;width:auto"/>
-      </div>
-      <div style="padding:44px 40px 20px">
-        <div style="width:44px;height:2px;background:#c9a54e;margin:0 0 22px"></div>
-        <h1 style="font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:30px;line-height:1.25;color:#141b26;margin:0 0 18px">Gracias por postularte, ${escHtml(nombre)}.</h1>
-        <p style="font-size:15px;line-height:1.75;color:#4a5261;margin:0 0 14px">Recibimos tu postulación para la vacante de <b style="color:#141b26">${escHtml(app.puesto || "nuestro equipo")}</b> en IVAE Studios. Tu CV ya está en manos de nuestro equipo.</p>
-        <p style="font-size:15px;line-height:1.75;color:#4a5261;margin:0 0 14px">Revisamos cada solicitud personalmente. Si tu perfil avanza al siguiente paso, nos pondremos en contacto contigo por correo o WhatsApp.</p>
-        <p style="font-size:15px;line-height:1.75;color:#4a5261;margin:0">Mientras tanto, te invitamos a conocer nuestro trabajo en <a href="https://ivaestudios.com" style="color:#8a6d1f;text-decoration:none;font-weight:bold">ivaestudios.com</a> y en <a href="https://instagram.com/ivaestudios.cancun" style="color:#8a6d1f;text-decoration:none;font-weight:bold">Instagram</a>.</p>
-      </div>
-      <div style="padding:8px 40px 40px">
-        <table style="width:100%;background:#faf8f3;border:1px solid #eee8da;border-radius:10px;padding:0;border-collapse:separate;border-spacing:0">
-          <tr><td style="padding:16px 20px 6px;font-size:11px;letter-spacing:.18em;color:#a09880;font-weight:bold">TU POSTULACI&Oacute;N</td></tr>
-          <tr><td style="padding:0 20px 4px;font-size:14px;color:#141b26">Puesto: <b>${escHtml(app.puesto || "General")}</b></td></tr>
-          <tr><td style="padding:0 20px 16px;font-size:14px;color:#141b26">CV recibido: <b>${escHtml(app.cv_name || "")}</b> &#10003;</td></tr>
-        </table>
-        <p style="font-family:Georgia,serif;font-style:italic;font-size:16px;color:#141b26;margin:28px 0 4px">Vianey e Israel</p>
-        <p style="font-size:12px;letter-spacing:.16em;color:#a09880;margin:0">IVAE STUDIOS</p>
-      </div>
-      <div style="border-top:1px solid #eee8da;padding:18px 20px;text-align:center">
-        <p style="font-size:12px;color:#a09880;margin:0">Canc&uacute;n &middot; Riviera Maya &middot; Los Cabos &middot; <a href="https://ivaestudios.com" style="color:#a09880">ivaestudios.com</a></p>
-      </div>
-    </div>
-  </div>`;
+  // Diseño navy autorado: si Gmail oscuro lo transforma, fondo y texto invierten JUNTOS (legible siempre).
+  // El logo lleva la placa navy horneada en el PNG: Gmail recolorea fondos pero nunca píxeles de imagen.
+  const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="x-apple-disable-message-reformatting"/>
+<style>
+  /* Outlook.com dark mode: re-forzar nuestros colores si intenta transformarlos */
+  [data-ogsb] .bgpage { background-color:#0a0f17 !important; }
+  [data-ogsb] .bgcard { background-color:#101724 !important; }
+  [data-ogsb] .bgbox  { background-color:#151d2b !important; }
+  [data-ogsc] .txmain { color:#faf8f5 !important; }
+  [data-ogsc] .txbody { color:#c2c9d4 !important; }
+  [data-ogsc] .txdim  { color:#8f97a6 !important; }
+  [data-ogsc] .txgold { color:#d6b25e !important; }
+</style>
+</head>
+<body style="margin:0;padding:0;background-color:#0a0f17" bgcolor="#0a0f17">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0a0f17" class="bgpage" style="background-color:#0a0f17">
+    <tr><td align="center" style="padding:36px 14px">
+
+      <table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" bgcolor="#101724" class="bgcard" style="width:100%;max-width:560px;background-color:#101724;border:1px solid #212c3d;border-radius:14px">
+        <tr><td align="center" style="padding:34px 24px 26px;border-bottom:1px solid #1c2534">
+          <img src="https://ivaestudios.com/images/logo-ivae-email-plate.png" alt="IVAE STUDIOS" width="214" height="56" style="height:56px;width:auto;display:block;border:0"/>
+        </td></tr>
+
+        <tr><td style="padding:38px 34px 6px">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+            <td width="44" height="2" bgcolor="#c9a54e" style="background-color:#c9a54e;font-size:0;line-height:0">&nbsp;</td>
+          </tr></table>
+          <h1 class="txmain" style="font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:28px;line-height:1.3;color:#faf8f5;margin:22px 0 16px">Gracias por postularte.</h1>
+          <p class="txbody" style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.75;color:#c2c9d4;margin:0 0 14px">Recibimos tu postulaci&oacute;n para la vacante de <b class="txmain" style="color:#faf8f5">${escHtml(app.puesto || "nuestro equipo")}</b> en IVAE Studios y tu CV lleg&oacute; correctamente.</p>
+          <p class="txbody" style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.75;color:#c2c9d4;margin:0 0 14px">Revisamos cada solicitud personalmente. Si tu perfil avanza al siguiente paso, nos pondremos en contacto contigo por correo o WhatsApp.</p>
+          <p class="txbody" style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.75;color:#c2c9d4;margin:0">Mientras tanto, puedes conocer nuestro trabajo en <a href="https://ivaestudios.com" class="txgold" style="color:#d6b25e;text-decoration:none;font-weight:bold">ivaestudios.com</a> y en <a href="https://instagram.com/ivaestudios.cancun" class="txgold" style="color:#d6b25e;text-decoration:none;font-weight:bold">Instagram</a>.</p>
+        </td></tr>
+
+        <tr><td style="padding:22px 34px 4px">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#151d2b" class="bgbox" style="width:100%;background-color:#151d2b;border:1px solid #232e40;border-radius:10px;border-collapse:separate;border-spacing:0">
+            <tr><td class="txdim" style="padding:16px 20px 6px;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:3px;color:#8f97a6;font-weight:bold">TU POSTULACI&Oacute;N</td></tr>
+            <tr><td class="txbody" style="padding:0 20px 4px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#c2c9d4">Puesto: <b class="txmain" style="color:#faf8f5">${escHtml(app.puesto || "General")}</b></td></tr>
+            <tr><td class="txbody" style="padding:0 20px 16px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#c2c9d4">CV recibido <span style="color:#d6b25e">&#10003;</span></td></tr>
+          </table>
+        </td></tr>
+
+        <tr><td style="padding:24px 34px 34px">
+          <p class="txbody" style="font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:16px;color:#c2c9d4;margin:0 0 6px">Con aprecio,</p>
+          <p class="txgold" style="font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:3px;color:#c9a54e;font-weight:bold;margin:0">IVAE STUDIOS</p>
+        </td></tr>
+
+        <tr><td align="center" style="border-top:1px solid #1c2534;padding:18px 20px">
+          <p class="txdim" style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#8f97a6;margin:0">Canc&uacute;n &middot; Riviera Maya &middot; Los Cabos &middot; <a href="https://ivaestudios.com" class="txdim" style="color:#8f97a6;text-decoration:underline">ivaestudios.com</a></p>
+        </td></tr>
+      </table>
+
+      <p class="txdim" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#8f97a6;margin:16px 0 0">Recibiste este correo porque enviaste una postulaci&oacute;n en <a href="https://ivaestudios.com/vacantes" class="txdim" style="color:#8f97a6;text-decoration:underline">ivaestudios.com/vacantes</a>.</p>
+    </td></tr>
+  </table>
+</body>
+</html>`;
   try {
     await fetch("https://api.resend.com/emails", {
       method: "POST",
