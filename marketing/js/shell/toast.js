@@ -13,8 +13,8 @@
 // api.js para que ambos se vean identicos durante la transicion.
 // ============================================================================
 
-import { el } from '../api.js?v=202607291913';
-import { T } from './i18n.js?v=202607291913';
+import { el } from '../api.js?v=202607291924';
+import { T } from './i18n.js?v=202607291924';
 
 const MAX_VISIBLE = 2;
 const queue = [];

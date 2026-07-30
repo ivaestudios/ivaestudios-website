@@ -16,10 +16,10 @@
 // cliente, y sombras que escalan con el export 1440×1800.
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607291913';
-import { icon } from '../shell/icons.js?v=202607291913';
-import { T } from '../shell/i18n.js?v=202607291913';
-import * as store from '../shell/store.js?v=202607291913';
+import { el, clear, toast } from '../api.js?v=202607291924';
+import { icon } from '../shell/icons.js?v=202607291924';
+import { T } from '../shell/i18n.js?v=202607291924';
+import * as store from '../shell/store.js?v=202607291924';
 
 const W = 1080;
 const H = 1350;
@@ -191,7 +191,7 @@ function frame(ctx, idx, total) {
   ctx.fillText(`${now.getDate()} ${MES} ${now.getFullYear()}`, W - MX + 22, 132);
   if (brandLabel.trim()) {
     ctx.textAlign = 'center';
-    ctx.font = 'italic 600 44px Georgia, "Times New Roman", serif';
+    ctx.font = '400 52px "Pinyon Script", Georgia, serif';
     ctx.fillText(brandLabel.trim(), W / 2, 136);
   }
   ctx.textAlign = 'left';
@@ -348,6 +348,7 @@ async function ensureFonts() {
   try {
     await Promise.all(['275 96px', '800 96px', '400 40px', '400 29px', '700 44px']
       .map((f) => document.fonts.load(`${f} Outfit`)));
+    await document.fonts.load('400 52px "Pinyon Script"');
   } catch { /* respaldo del sistema */ }
 }
 
