@@ -23,20 +23,20 @@
 // Contrato de vista: export default { id, mount(el, ctx), onParams, unmount }.
 // ============================================================================
 
-import { el, api, statusBadge, approvalBadge, fmtDate, isClientRole} from '../api.js?v=202607311809';
-import { T } from '../shell/i18n.js?v=202607311809';
-import { icon } from '../shell/icons.js?v=202607311809';
-import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202607311809';
-import * as store from '../shell/store.js?v=202607311809';
-import * as cl from '../services/checklist.js?v=202607311809';
-import { createAutosave } from './autosave.js?v=202607311809';
-import { textExpand } from '../ui/pickers.js?v=202607311809';
-import { openActionsMenu } from './actions.js?v=202607311809';
-import { mount as mountContenido } from './tab-contenido.js?v=202607311809';
-import { mount as mountGuion } from './tab-guion.js?v=202607311809';
-import { mount as mountChecklist } from './tab-checklist.js?v=202607311809';
-import { mount as mountConversacion } from './tab-conversacion.js?v=202607311809';
-import { mount as mountActividad } from './tab-actividad.js?v=202607311809';
+import { el, api, statusBadge, approvalBadge, fmtDate, isClientRole} from '../api.js?v=202607311821';
+import { T } from '../shell/i18n.js?v=202607311821';
+import { icon } from '../shell/icons.js?v=202607311821';
+import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202607311821';
+import * as store from '../shell/store.js?v=202607311821';
+import * as cl from '../services/checklist.js?v=202607311821';
+import { createAutosave } from './autosave.js?v=202607311821';
+import { textExpand } from '../ui/pickers.js?v=202607311821';
+import { openActionsMenu } from './actions.js?v=202607311821';
+import { mount as mountContenido } from './tab-contenido.js?v=202607311821';
+import { mount as mountGuion } from './tab-guion.js?v=202607311821';
+import { mount as mountChecklist } from './tab-checklist.js?v=202607311821';
+import { mount as mountConversacion } from './tab-conversacion.js?v=202607311821';
+import { mount as mountActividad } from './tab-actividad.js?v=202607311821';
 
 const TABS = [
   { key: 'contenido', label: T('Contenido', 'Content'), mount: mountContenido },
@@ -423,7 +423,11 @@ function buildChrome(host) {
   ]);
 
   tabsEl = el('div', { class: 'edtabs', role: 'tablist', 'aria-label': T('Secciones del contenido', 'Content sections') });
-  for (const t of TABS) {
+  // El tab Actividad es el log interno del equipo: al cliente el backend le
+  // responde 403 y la vista lo silenciaba mostrando "Sin actividad" — le mentía.
+  // Auditoría 2026-07-31: mejor no ofrecerlo.
+  const tabsVisibles = TABS.filter((t) => !(isClientRole() && t.key === 'actividad'));
+  for (const t of tabsVisibles) {
     const badge = el('span', { class: 'edtabs__badge', hidden: true });
     tabBadges.set(t.key, badge);
     tabsEl.appendChild(el('button', {
@@ -435,8 +439,8 @@ function buildChrome(host) {
   // Flechas izquierda/derecha entre tabs (tablist accesible).
   tabsEl.addEventListener('keydown', (e) => {
     if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-    const idx = TABS.findIndex((t) => t.key === activeTab);
-    const next = TABS[(idx + (e.key === 'ArrowRight' ? 1 : TABS.length - 1)) % TABS.length];
+    const idx = tabsVisibles.findIndex((t) => t.key === activeTab);
+    const next = tabsVisibles[(idx + (e.key === 'ArrowRight' ? 1 : tabsVisibles.length - 1)) % tabsVisibles.length];
     switchTab(next.key);
     tabsEl.querySelector(`button[data-tab="${next.key}"]`)?.focus();
   });

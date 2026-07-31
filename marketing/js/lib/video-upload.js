@@ -14,7 +14,7 @@
 // "Video final" del calendario). Antes cada uno tenía su propio camino y el del
 // calendario obligaba a comprimir a mano todo lo que pasara de 100 MB.
 // ============================================================================
-import { T } from '../shell/i18n.js?v=202607311809';
+import { T } from '../shell/i18n.js?v=202607311821';
 
 // Partes de ~15MB: el Worker lee CADA parte completa en memoria para dárselas a
 // R2, así que partes de 50MB × 3 en paralelo podían reventarle la memoria con un
@@ -228,30 +228,71 @@ function xhrPutPart(base, uploadId, ext, partNumber, blob, onProgress) {
     const qs = `uploadId=${encodeURIComponent(uploadId)}&ext=${encodeURIComponent(ext)}&part=${partNumber}`;
     xhr.open('PUT', `/api/marketing${base}/multipart/part?${qs}`);
     xhr.withCredentials = true;
-    xhr.upload.onprogress = (e) => { if (e.lengthComputable && onProgress) onProgress(e.loaded); };
+
+    // WATCHDOG (auditoría 2026-07-31): una conexión medio-muerta (elevador,
+    // túnel) dejaba la barra clavada en "Subiendo… 47%" PARA SIEMPRE, con la
+    // zona de arrastre bloqueada. Si pasan 45s sin un solo byte nuevo, se corta
+    // y el reintento normal se hace cargo.
+    let watchdog = null;
+    const armar = () => {
+      if (watchdog) clearTimeout(watchdog);
+      watchdog = setTimeout(() => {
+        try { xhr.abort(); } catch { /* noop */ }
+        const e = new Error(T('La subida se quedó sin avanzar.', 'The upload stalled.'));
+        e.stalled = true;
+        reject(e);
+      }, 45000);
+    };
+    const desarmar = () => { if (watchdog) { clearTimeout(watchdog); watchdog = null; } };
+    armar();
+
+    xhr.upload.onprogress = (e) => { armar(); if (e.lengthComputable && onProgress) onProgress(e.loaded); };
     xhr.onload = () => {
+      desarmar();
       if (xhr.status >= 200 && xhr.status < 300) {
         try { resolve(JSON.parse(xhr.responseText)); } catch { reject(new Error(T('Respuesta inválida del servidor.', 'Invalid server response.'))); }
       } else {
         let m = T('Error al subir una parte del video.', 'Error uploading a part of the video.');
         try { m = JSON.parse(xhr.responseText).error || m; } catch { /* noop */ }
-        reject(new Error(m));
+        const err = new Error(m);
+        err.status = xhr.status; // para NO reintentar 4xx (sesión caduca, etc.)
+        reject(err);
       }
     };
-    xhr.onerror = () => reject(new Error(T('Se cortó la conexión durante la subida.', 'The connection dropped during the upload.')));
+    xhr.onerror = () => { desarmar(); reject(new Error(T('Se cortó la conexión durante la subida.', 'The connection dropped during the upload.'))); };
     xhr.send(blob);
   });
 }
 
+// Espera a que el navegador vuelva a estar en línea (máx `ms`). Sin esto, los
+// reintentos se gastaban los 4 intentos en 5 segundos dentro de un túnel y se
+// abortaba la subida completa de un reel de cientos de MB.
+function esperarConexion(ms = 60000) {
+  if (navigator.onLine !== false) return Promise.resolve();
+  return new Promise((res) => {
+    const t = setTimeout(fin, ms);
+    function fin() { clearTimeout(t); window.removeEventListener('online', fin); res(); }
+    window.addEventListener('online', fin);
+  });
+}
+
 // Sube UNA parte con reintentos (cubre cortes/blips de red sin perder el archivo).
-// Hasta 4 intentos con espera creciente (0.8s, 1.6s, 2.4s) antes de rendirse.
-async function putPartWithRetry(base, uploadId, ext, partNumber, blob, onProgress, attempts = 4) {
+// Auditoría 2026-07-31: (a) 5 intentos con espera creciente hasta 24s (antes 4
+// en ~5s: un bache de 30-60s de señal mataba la subida entera); (b) espera a
+// recuperar conexión antes de cada reintento; (c) NO reintenta errores 4xx
+// (sesión caducada, archivo rechazado): reintentarlos 4 veces solo hacía perder
+// tiempo y mostraba el mensaje equivocado.
+async function putPartWithRetry(base, uploadId, ext, partNumber, blob, onProgress, attempts = 5) {
   let lastErr;
   for (let a = 0; a < attempts; a++) {
     try { return await xhrPutPart(base, uploadId, ext, partNumber, blob, onProgress); }
     catch (e) {
       lastErr = e;
-      if (a < attempts - 1) await new Promise((res) => setTimeout(res, 800 * (a + 1)));
+      if (e && e.status >= 400 && e.status < 500) throw e; // no tiene caso reintentar
+      if (a < attempts - 1) {
+        await esperarConexion();
+        await new Promise((res) => setTimeout(res, Math.min(24000, 1500 * Math.pow(2, a))));
+      }
     }
   }
   throw lastErr;

@@ -28,20 +28,20 @@ import {
   el, clear, copyText, api, isClientRole,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202607311809';
-import { icon } from '../shell/icons.js?v=202607311809';
-import { T } from '../shell/i18n.js?v=202607311809';
+} from '../api.js?v=202607311821';
+import { icon } from '../shell/icons.js?v=202607311821';
+import { T } from '../shell/i18n.js?v=202607311821';
 // Capas de history del shell: el boton atras del telefono cierra la capa de
 // arriba (panel de guion) en vez de salir de la app.
-import { pushLayer } from '../shell/router.js?v=202607311809';
+import { pushLayer } from '../shell/router.js?v=202607311821';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202607311809';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607311809';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607311809';
+import { errorCard } from '../ui/states.js?v=202607311821';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607311821';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607311821';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202607311809';
+} from '../lib/video-upload.js?v=202607311821';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -284,6 +284,7 @@ function approvalDotNode(post) {
 // Decisión del cliente: POST /approve o /request-changes (mismos endpoints que
 // tabla/editor). Optimista + rollback + toast. Devuelve true si se guardó.
 async function sendApprovalDecision(post, decision, comment) {
+  recienDecididos.add(post.id); // que NO se esfume bajo el dedo (ver applyFilters)
   const rollback = ctx.store.optimistic((s) => ({
     posts: (s.posts || []).map((p) => (p.id === post.id ? { ...p, approval_state: decision } : p)),
   }));
@@ -648,8 +649,32 @@ let drawerEl = null;
 let drawerFlush = null; // guarda lo pendiente ANTES de cerrar (autosave)
 let drawerRelease = null; // capa de history: el boton atras cierra el panel
 
-function closeCaptionDrawer(info = {}) {
+// Publicadas por openCaptionDrawer para que el cierre pueda proteger el texto.
+let drawerHasUnsaved = null;
+let drawerRetry = null;
+
+// `force` = ya se decidió descartar (o no había nada que perder).
+async function closeCaptionDrawer(info = {}) {
   if (!drawerEl) return;
+
+  // Si queda texto sin guardar, intenta guardarlo UNA vez y, si aun así falla,
+  // pregunta antes de cerrar en vez de tragarse el trabajo.
+  if (!info.force && typeof drawerHasUnsaved === 'function' && drawerHasUnsaved()) {
+    const guardado = drawerRetry ? await drawerRetry() : false;
+    if (!guardado) {
+      const v = await ctx.sheet.pickFrom({
+        title: T('No se pudo guardar tu guion', 'Your script could not be saved'),
+        options: [
+          { value: 'reintentar', label: T('Reintentar', 'Try again'), sub: T('Revisa tu conexión y vuelve a intentarlo', 'Check your connection and try again') },
+          { value: 'salir', label: T('Cerrar y perder lo escrito', 'Close and discard'), color: '#ef4444' },
+        ],
+      });
+      if (v === 'reintentar') { const ok2 = drawerRetry ? await drawerRetry() : false; if (!ok2) return; }
+      else if (v !== 'salir') return; // cerró la hoja = no cierres el panel
+    }
+  }
+  drawerHasUnsaved = null;
+  drawerRetry = null;
   try { if (drawerFlush) drawerFlush(); } catch { /* noop */ }
   drawerFlush = null;
   // Mismo contrato que sheet.js: si el cierre vino del boton atras, el
@@ -665,8 +690,10 @@ function onDrawerKeydown(e) {
   if (e.key === 'Escape') { e.stopPropagation(); closeCaptionDrawer(); }
 }
 
-function openCaptionDrawer(post) {
-  closeCaptionDrawer();
+async function openCaptionDrawer(post) {
+  // await: cerrar puede preguntar si hay guion sin guardar; sin esperar, el
+  // panel viejo se removía DESPUÉS de crear el nuevo y se perdía la referencia.
+  await closeCaptionDrawer();
 
   // El guion COMPLETO por secciones (misma visualización que el móvil), en el
   // panel lateral derecho de siempre. Cada sección con su botón de copiar.
@@ -934,6 +961,15 @@ function openCaptionDrawer(post) {
   };
   const savedSnap = currentValues(); // lo ya guardado (base para calcular el delta)
   let saveTimer = null, saving = false, queued = false;
+  // ¿Hay texto escrito que todavía NO está en el servidor? Antes, si el guardado
+  // fallaba (mala señal, 5xx) el panel se cerraba igual y el texto se perdía sin
+  // más aviso que un toast: horas de guion tiradas (auditoría 2026-07-31).
+  drawerHasUnsaved = () => {
+    if (saveTimer || saving) return true;
+    const cur = currentValues();
+    return Object.keys(cur).some((k) => cur[k] !== savedSnap[k]);
+  };
+  drawerRetry = async () => { if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; } await doSave(); return !drawerHasUnsaved(); };
   const paint = (state) => {
     indicatorEl.className = 'meses-drawer__save meses-drawer__save--' + state;
     indicatorEl.textContent = (state === 'saving' || state === 'dirty') ? T('Guardando…', 'Saving…')
@@ -2218,10 +2254,18 @@ function setFilters(f, { ephemeral = false } = {}) {
   else ctx.prefs.set(filtersKey(), undefined);
 }
 
+// Piezas que el usuario acaba de decidir (aprobar / pedir cambios) en ESTA
+// pantalla. Aunque dejen de cumplir el filtro activo, siguen visibles: ver que
+// tu pieza se marca "Aprobado" es la confirmación de que tu toque funcionó —
+// si desaparece de golpe se siente un error (pedido de Vianey 2026-07-31).
+// Se vacía al cambiar de mes o al volver a entrar a la vista.
+const recienDecididos = new Set();
+
 function applyFilters(posts) {
   const f = getFilters();
   if (!Object.values(f).some(Boolean)) return posts;
-  return posts.filter((p) => FILTER_DIMS.every(({ dim, getVal }) => !f[dim] || getVal(p) === f[dim]));
+  return posts.filter((p) => recienDecididos.has(p.id)
+    || FILTER_DIMS.every(({ dim, getVal }) => !f[dim] || getVal(p) === f[dim]));
 }
 
 // ── Orden (persistido por cliente) ───────────────────────────────────────────
@@ -2311,7 +2355,11 @@ const SORT_MENU = [
 async function onSortChip(anchor) {
   const s = getSort();
   const cur = `${s.key}:${s.dir}`;
-  const options = SORT_MENU.map((o) => ({ ...o, current: o.value === cur }));
+  // "Grabación" es planeación interna: no se le ofrece al cliente (misma regla
+  // que la columna y el chip — auditoría 2026-07-31).
+  const options = SORT_MENU
+    .filter((o) => !(isClientRole() && o.value.startsWith('grab:')))
+    .map((o) => ({ ...o, current: o.value === cur }));
   const v = await ctx.sheet.pickFrom({ title: T('Ordenar', 'Sort'), options, anchor });
   if (!v) return;
   const [key, dir] = v.split(':');
@@ -2445,6 +2493,7 @@ function openFilterSheet(allPosts) {
 function selectMonth(key) {
   if (activeMonth === key) return;
   activeMonth = key;
+  recienDecididos.clear(); // la gracia de "no desaparecer" es por pantalla
   render();
   if (rootEl) {
     const main = rootEl.querySelector('.meses-main');
@@ -2629,9 +2678,13 @@ function render() {
       sectionsEl.appendChild(el('button', {
         class: 'meses-revisar', type: 'button',
         onclick: () => {
-          setFilters({ ...getFilters(), approval: 'pending' }, { ephemeral: true });
+          // NO filtra: filtrar hacía que cada pieza aprobada desapareciera de
+          // la lista y el cliente creía que se le borraba el contenido. Solo
+          // salta al mes que tiene piezas por revisar; el punto de aprobación
+          // de cada fila ya dice cuáles faltan (pedido de Vianey 2026-07-31).
           const meses = porRevisar.map(monthKeyOf).filter(Boolean).sort();
           if (meses.length) activeMonth = meses[meses.length - 1];
+          recienDecididos.clear();
           render();
         },
       }, [
@@ -2775,7 +2828,7 @@ export default {
         if (mutacionesEnVuelo > 0) return;
         try { ctx.sheet.closeAll(); } catch { /* noop */ }
       }),
-      ctx.store.on('client:changed', () => { composer = null; composerInput = null; activeMonth = null; closeCaptionDrawer(); }),
+      ctx.store.on('client:changed', () => { composer = null; composerInput = null; activeMonth = null; closeCaptionDrawer({ force: true }); }),
     );
 
     mq = window.matchMedia('(min-width: 768px)');
@@ -2791,7 +2844,7 @@ export default {
   },
 
   unmount() {
-    closeCaptionDrawer();
+    closeCaptionDrawer({ force: true });
     if (dndDispose) { try { dndDispose(); } catch { /* noop */ } dndDispose = null; }
     for (const u of unsubs) { try { u(); } catch { /* noop */ } }
     unsubs = [];
@@ -2809,6 +2862,7 @@ export default {
     visibleKeys = new Set();
     pieceNums = new Map();
     briefCache.clear();
+    recienDecididos.clear();
     activeMonth = null;
     sectionsEl = null;
     sideEl = null;
