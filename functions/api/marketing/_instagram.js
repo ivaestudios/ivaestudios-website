@@ -459,7 +459,10 @@ export async function refreshAgingIgTokens(env) {
   let list = [];
   try {
     const rows = await env.DB.prepare(
-      "SELECT id, ig_access_token FROM mkt_clients WHERE ig_access_token IS NOT NULL AND ig_user_id IS NOT NULL AND (updated_at IS NULL OR updated_at < datetime('now','-25 days')) LIMIT 50"
+      // OJO: la fecha que manda es ig_token_refreshed_at (migración 021), NO
+      // updated_at: esa la toca cualquier edición de la marca y saboteaba el
+      // refresh (auditoría 2026-07-31). COALESCE para las filas viejas.
+      "SELECT id, ig_access_token FROM mkt_clients WHERE ig_access_token IS NOT NULL AND ig_user_id IS NOT NULL AND (COALESCE(ig_token_refreshed_at, updated_at) IS NULL OR COALESCE(ig_token_refreshed_at, updated_at) < datetime('now','-25 days')) LIMIT 50"
     ).all();
     list = (rows && rows.results) || [];
   } catch { return 0; }
@@ -468,7 +471,7 @@ export async function refreshAgingIgTokens(env) {
     try {
       const r = await igJson(`${BASE}/refresh_access_token?grant_type=ig_refresh_token&access_token=${encodeURIComponent(c.ig_access_token)}`);
       if (r && r.access_token && !r.error) {
-        await env.DB.prepare("UPDATE mkt_clients SET ig_access_token = ?, updated_at = datetime('now') WHERE id = ?").bind(r.access_token, c.id).run();
+        await env.DB.prepare("UPDATE mkt_clients SET ig_access_token = ?, ig_token_refreshed_at = datetime('now'), updated_at = datetime('now') WHERE id = ?").bind(r.access_token, c.id).run();
         refreshed += 1;
       }
     } catch { /* noop: el token sigue válido hasta su expiración */ }

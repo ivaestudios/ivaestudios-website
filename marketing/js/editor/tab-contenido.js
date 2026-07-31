@@ -18,14 +18,14 @@
 import {
   el,
   statusBadge, approvalBadge, chip,
-  fmtDate, avatar,
-} from '../api.js?v=202607311754';
-import { pickFrom } from '../shell/sheet.js?v=202607311754';
-import * as store from '../shell/store.js?v=202607311754';
-import * as checklistService from '../services/checklist.js?v=202607311754';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202607311754';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202607311754';
-import { T } from '../shell/i18n.js?v=202607311754';
+  fmtDate, avatar, isClientRole,
+} from '../api.js?v=202607311809';
+import { pickFrom } from '../shell/sheet.js?v=202607311809';
+import * as store from '../shell/store.js?v=202607311809';
+import * as checklistService from '../services/checklist.js?v=202607311809';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202607311809';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202607311809';
+import { T } from '../shell/i18n.js?v=202607311809';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -42,10 +42,13 @@ export function mount(host, ed) {
   }
 
   // ── Estado ─────────────────────────────────────────────────────────────────
+  // Al CLIENTE la fila Estado le abre SU decisión (Aprobado / Modificar),
+  // igual que en el calendario — nunca el flujo de producción del equipo.
   const rEstado = rowButton({
     label: T('Estado', 'Status'),
     render: (v) => v.appendChild(statusBadge(post().status)),
     onTap: async (anchor) => {
+      if (isClientRole()) { await ed.openApprovalPicker(anchor); refreshAll(); return; }
       const next = await ctx.pickers.pickStatus({ current: post().status, anchor });
       if (next === null || next === post().status) return;
       ed.setField('status', next, { immediate: true });
@@ -238,16 +241,26 @@ export function mount(host, ed) {
     placeholder: T(`Pendientes o notas para ${person}`, `To-dos or notes for ${person}`),
   }));
 
+  // ── Qué ve el CLIENTE ──────────────────────────────────────────────────────
+  // Auditoría 2026-07-31: este tab no tenía NINGÚN gate de rol, así que el
+  // cliente veía y podía tocar controles internos que las reglas de producto
+  // prohíben — marcar "Publicado", cambiar niveles de Grabación, sobreescribir
+  // a ciegas "Notas del equipo" (se le pintaban vacías), apagar "Pedir
+  // aprobación", y un selector de personal que para él siempre da 403.
+  // Al cliente le quedan: fecha, plataforma, tipo, enlaces y SU decisión de
+  // aprobación (los mismos 2 botones que ya tiene en el calendario).
+  const esCliente = isClientRole();
+
   rows.push(
-    rEstado, rAprobacion, rFecha, rPlataforma, rTipo, rGrabacion, rPersona,
-    rVisible, rInspo, rVideo, rNotas, ...personRows,
+    rEstado, rFecha, rPlataforma, rTipo, rInspo, rVideo,
+    ...(esCliente ? [] : [rAprobacion, rGrabacion, rPersona, rVisible, rNotas, ...personRows]),
   );
 
-  addSection(T('Flujo', 'Flow'), [rEstado.el, rAprobacion.el, rFecha.el]);
-  addSection(T('Formato', 'Format'), [rPlataforma.el, rTipo.el, rGrabacion.el, rPersona.el]);
-  addSection(T('Cliente', 'Client'), [rVisible.el]);
+  addSection(T('Flujo', 'Flow'), [rEstado.el, ...(esCliente ? [] : [rAprobacion.el]), rFecha.el]);
+  addSection(T('Formato', 'Format'), [rPlataforma.el, rTipo.el, ...(esCliente ? [] : [rGrabacion.el, rPersona.el])]);
+  if (!esCliente) addSection(T('Cliente', 'Client'), [rVisible.el]);
   addSection(T('Enlaces', 'Links'), [rInspo.el, rVideo.el]);
-  addSection(T('Notas', 'Notes'), [rNotas.el, ...personRows.map((r) => r.el)]);
+  if (!esCliente) addSection(T('Notas', 'Notes'), [rNotas.el, ...personRows.map((r) => r.el)]);
 
   function refreshAll() {
     for (const r of rows) { try { r.refresh(); } catch { /* noop */ } }

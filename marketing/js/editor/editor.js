@@ -23,20 +23,20 @@
 // Contrato de vista: export default { id, mount(el, ctx), onParams, unmount }.
 // ============================================================================
 
-import { el, api, statusBadge, approvalBadge, fmtDate } from '../api.js?v=202607311754';
-import { T } from '../shell/i18n.js?v=202607311754';
-import { icon } from '../shell/icons.js?v=202607311754';
-import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202607311754';
-import * as store from '../shell/store.js?v=202607311754';
-import * as cl from '../services/checklist.js?v=202607311754';
-import { createAutosave } from './autosave.js?v=202607311754';
-import { textExpand } from '../ui/pickers.js?v=202607311754';
-import { openActionsMenu } from './actions.js?v=202607311754';
-import { mount as mountContenido } from './tab-contenido.js?v=202607311754';
-import { mount as mountGuion } from './tab-guion.js?v=202607311754';
-import { mount as mountChecklist } from './tab-checklist.js?v=202607311754';
-import { mount as mountConversacion } from './tab-conversacion.js?v=202607311754';
-import { mount as mountActividad } from './tab-actividad.js?v=202607311754';
+import { el, api, statusBadge, approvalBadge, fmtDate, isClientRole} from '../api.js?v=202607311809';
+import { T } from '../shell/i18n.js?v=202607311809';
+import { icon } from '../shell/icons.js?v=202607311809';
+import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202607311809';
+import * as store from '../shell/store.js?v=202607311809';
+import * as cl from '../services/checklist.js?v=202607311809';
+import { createAutosave } from './autosave.js?v=202607311809';
+import { textExpand } from '../ui/pickers.js?v=202607311809';
+import { openActionsMenu } from './actions.js?v=202607311809';
+import { mount as mountContenido } from './tab-contenido.js?v=202607311809';
+import { mount as mountGuion } from './tab-guion.js?v=202607311809';
+import { mount as mountChecklist } from './tab-checklist.js?v=202607311809';
+import { mount as mountConversacion } from './tab-conversacion.js?v=202607311809';
+import { mount as mountActividad } from './tab-actividad.js?v=202607311809';
 
 const TABS = [
   { key: 'contenido', label: T('Contenido', 'Content'), mount: mountContenido },
@@ -173,12 +173,14 @@ function fitTitle() {
 // ── Aprobacion (fuerza la decision del cliente; endpoints dedicados) ────────
 async function openApprovalPicker(anchor) {
   const cur = ed.getPost().approval_state;
+  // El copy cambia por rol: para el CLIENTE es SU decisión (no "forzar" nada).
+  const esCliente = isClientRole();
   const decision = await pickFrom({
-    title: T('Aprobacion', 'Approval'),
+    title: esCliente ? T('¿Qué quieres hacer con esta pieza?', 'What do you want to do with this piece?') : T('Aprobacion', 'Approval'),
     anchor,
     options: [
-      { value: 'approved', label: T('Aprobado', 'Approved'), color: '#22c55e', sub: T('Esto fuerza la decision del cliente', 'This overrides the client\'s decision'), current: cur === 'approved' },
-      { value: 'changes', label: T('Cambios pedidos', 'Changes requested'), color: '#ec4899', sub: T('Pide un comentario con los cambios', 'Asks for a comment with the changes'), current: cur === 'changes' },
+      { value: 'approved', label: T('Aprobado', 'Approved'), color: '#22c55e', sub: esCliente ? T('Queda lista y el equipo se entera.', 'Marks it ready and the team is notified.') : T('Esto fuerza la decision del cliente', 'This overrides the client\'s decision'), current: cur === 'approved' },
+      { value: 'changes', label: esCliente ? T('Modificar', 'Request changes') : T('Cambios pedidos', 'Changes requested'), color: '#ec4899', sub: esCliente ? T('Pides cambios; el equipo lo regresa a Guion.', 'Request changes; the team moves it back to Script.') : T('Pide un comentario con los cambios', 'Asks for a comment with the changes'), current: cur === 'changes' },
     ],
   });
   if (!decision || decision === cur) return;

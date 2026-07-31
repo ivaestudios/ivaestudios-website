@@ -10,15 +10,15 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607311754';
-import * as store from './store.js?v=202607311754';
-import { openSheet, pickFrom } from './sheet.js?v=202607311754';
-import { toast } from './toast.js?v=202607311754';
-import { icon } from './icons.js?v=202607311754';
-import { openClientSwitcher } from './clientswitcher.js?v=202607311754';
-import { T, isEN, setLang } from './i18n.js?v=202607311754';
-import { getTheme, setTheme } from './theme.js?v=202607311754';
-import * as version from './version.js?v=202607311754';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202607311809';
+import * as store from './store.js?v=202607311809';
+import { openSheet, pickFrom } from './sheet.js?v=202607311809';
+import { toast } from './toast.js?v=202607311809';
+import { icon } from './icons.js?v=202607311809';
+import { openClientSwitcher } from './clientswitcher.js?v=202607311809';
+import { T, isEN, setLang } from './i18n.js?v=202607311809';
+import { getTheme, setTheme } from './theme.js?v=202607311809';
+import * as version from './version.js?v=202607311809';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -736,20 +736,39 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
       ],
     });
     if (primero !== 'si') return;
-    const segundo = await pickFrom({
-      title: T('Esta acción no se puede deshacer', 'This action cannot be undone'),
-      options: [
-        { value: 'no', label: T('Cancelar', 'Cancel') },
-        { value: 'si', label: T('Sí, eliminar definitivamente', 'Yes, delete permanently') },
-      ],
+    // Paso 2: la CONTRASEÑA es la confirmación (el backend la exige desde la
+    // auditoría 2026-07-31). Un "sí" de más no basta para arrasar la marca.
+    openSheet({
+      title: T('Confirma con tu contraseña', 'Confirm with your password'),
+      mode: 'form',
+      build(body, close) {
+        const pass = el('input', { class: 'input', type: 'password', autocomplete: 'current-password', placeholder: T('Tu contraseña', 'Your password') });
+        const btn = el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: T('Eliminar definitivamente', 'Delete permanently') });
+        btn.addEventListener('click', async () => {
+          if (!pass.value) {
+            toast(T('Escribe tu contraseña para confirmar.', 'Type your password to confirm.'), 'error');
+            return;
+          }
+          btn.disabled = true;
+          try {
+            await api.del('/auth/account', { current: pass.value });
+            location.replace('/marketing/');
+          } catch (e) {
+            toast(e.message || T('No se pudo eliminar la cuenta. Escríbenos por WhatsApp.', 'Could not delete the account. Message us on WhatsApp.'), 'error');
+            btn.disabled = false;
+          }
+        });
+        body.append(
+          el('p', { class: 'muted', text: T('Esta acción no se puede deshacer: se borran tu marca, tu calendario y tus entregables.', 'This cannot be undone: your brand, calendar and deliverables will be deleted.') }),
+          el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Contraseña', 'Password') }), pass]),
+          el('div', { class: 'sheet__footer' }, [
+            el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
+            btn,
+          ]),
+        );
+        setTimeout(() => pass.focus(), 50);
+      },
     });
-    if (segundo !== 'si') return;
-    try {
-      await api.del('/auth/account');
-      location.replace('/marketing/');
-    } catch (e) {
-      toast(e.message || T('No se pudo eliminar la cuenta. Escríbenos por WhatsApp.', 'Could not delete the account. Message us on WhatsApp.'), { type: 'error' });
-    }
   }
 
   // ── Cambiar contraseña ─────────────────────────────────────────────────────

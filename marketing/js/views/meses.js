@@ -28,20 +28,20 @@ import {
   el, clear, copyText, api, isClientRole,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202607311754';
-import { icon } from '../shell/icons.js?v=202607311754';
-import { T } from '../shell/i18n.js?v=202607311754';
+} from '../api.js?v=202607311809';
+import { icon } from '../shell/icons.js?v=202607311809';
+import { T } from '../shell/i18n.js?v=202607311809';
 // Capas de history del shell: el boton atras del telefono cierra la capa de
 // arriba (panel de guion) en vez de salir de la app.
-import { pushLayer } from '../shell/router.js?v=202607311754';
+import { pushLayer } from '../shell/router.js?v=202607311809';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202607311754';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607311754';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607311754';
+import { errorCard } from '../ui/states.js?v=202607311809';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202607311809';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202607311809';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202607311754';
+} from '../lib/video-upload.js?v=202607311809';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -2137,6 +2137,20 @@ function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTod
       el('h3', { class: 'empty-rich__t', text: T('¡Bienvenido a tu calendario de contenido! 🎉', 'Welcome to your content calendar! 🎉') }),
       el('p', { class: 'empty-rich__s', text: T('Crea tu primera pieza con + Nueva línea: ponle título, fecha y escribe tu guion. Tu calendario, tus reglas.', 'Create your first piece with + New row: give it a title, a date and write your script. Your calendar, your rules.') }),
     ]));
+  } else if (Object.values(getFilters()).some(Boolean)) {
+    // Vacío POR FILTRO, no por falta de contenido: decirlo y dar la salida.
+    // Antes se mostraba "Mes despejado" y el cliente creía que le habían
+    // borrado su calendario (auditoría 2026-07-31).
+    bodyKids.push(el('div', { class: 'meses-empty empty-rich' }, [
+      el('div', { class: 'empty-rich__ico' }, [icon('calendar', 26)]),
+      el('h3', { class: 'empty-rich__t', text: T('Nada que coincida con el filtro', 'Nothing matches the filter') }),
+      el('p', { class: 'empty-rich__s', text: T('Tu contenido sigue ahí: ahora mismo hay un filtro activo que lo esconde.', 'Your content is still there: a filter is hiding it right now.') }),
+      el('button', {
+        class: 'btn btn-primary', type: 'button',
+        text: T('Ver todo el contenido', 'Show all content'),
+        onclick: () => { setFilters({}); render(); },
+      }),
+    ]));
   } else {
     bodyKids.push(el('div', { class: 'meses-empty empty-rich' }, [
       el('div', { class: 'empty-rich__ico' }, [icon('calendar', 26)]),
@@ -2193,10 +2207,15 @@ function getFilters() {
   return (f && typeof f === 'object' && !Array.isArray(f)) ? f : {};
 }
 
-function setFilters(f) {
+// `ephemeral` = el filtro vive SOLO en esta sesión y NO se guarda en el
+// navegador. Lo usa el banner "piezas por revisar" del cliente: un filtro que
+// sobrevivía al cierre del navegador dejaba al cliente con el calendario
+// aparentemente vacío días después, sin saber por qué (auditoría 2026-07-31).
+function setFilters(f, { ephemeral = false } = {}) {
   const any = Object.values(f).some(Boolean);
   filterSession.set(filtersKey(), any ? f : {});
-  ctx.prefs.set(filtersKey(), any ? f : undefined); // undefined = borrar la pref
+  if (!ephemeral) ctx.prefs.set(filtersKey(), any ? f : undefined); // undefined = borrar la pref
+  else ctx.prefs.set(filtersKey(), undefined);
 }
 
 function applyFilters(posts) {
@@ -2610,7 +2629,7 @@ function render() {
       sectionsEl.appendChild(el('button', {
         class: 'meses-revisar', type: 'button',
         onclick: () => {
-          setFilters({ ...getFilters(), approval: 'pending' });
+          setFilters({ ...getFilters(), approval: 'pending' }, { ephemeral: true });
           const meses = porRevisar.map(monthKeyOf).filter(Boolean).sort();
           if (meses.length) activeMonth = meses[meses.length - 1];
           render();

@@ -403,6 +403,24 @@ const POST_EDITABLE_FIELDS = [
   'hashtags', 'alt_text', 'notes_team', 'client_visible', 'priority'
 ];
 
+// Lo que un rol CLIENTE puede escribir de un post: su contenido y el formato,
+// nunca el flujo interno del equipo. Auditoría 2026-07-31: antes el PATCH solo
+// verificaba que el post fuera de SU marca y luego aplicaba la lista completa —
+// con devtools un cliente podía vaciar `notes_team` (que ni siquiera puede
+// leer), poner status='publicado' saltándose sus 2 botones, cambiar niveles de
+// grabación, auto-asignar staff (disparando notificaciones) o esconder piezas
+// con client_visible=0. Su decisión de aprobación va por /approve y
+// /request-changes, que sí son suyos.
+const CLIENT_EDITABLE_FIELDS = [
+  'title', 'content_type', 'publish_date', 'platform', 'caption',
+  'inspo_url', 'video_url', 'hook', 'body', 'cta', 'hashtags', 'alt_text',
+];
+const CLIENT_FORBIDDEN_FIELDS = [
+  'status', 'grabacion', 'assignee', 'assignee_user_id', 'notes_team',
+  'notes_people', 'client_visible', 'priority', 'approval_state',
+  'work_start', 'effort_points', 'tags',
+];
+
 // Fields returned in a post object (per spec). `notes_people` is a JSON column
 // shaped separately (parsed to an object) in shapePost.
 const POST_RETURN_FIELDS = [
@@ -541,6 +559,22 @@ function publicPost(post) {
   const out = {};
   for (const f of CLIENT_VISIBLE_FIELDS) out[f] = post[f];
   return out;
+}
+
+// Campos de planeación INTERNA que nunca deben viajar a un login de cliente.
+// Auditoría 2026-07-31: shapePost los mandaba todos (solo se borraba
+// notes_team), así que con devtools un cliente veía los niveles de grabación,
+// quién del equipo tiene asignada su pieza, prioridades y estimaciones — justo
+// lo que la regla de producto esconde en la interfaz. Se REDACTA en vez de usar
+// el allowlist CLIENT_VISIBLE_FIELDS porque el portal sí necesita status,
+// inspo_url y notes_people para pintar su calendario.
+const POST_INTERNAL_FIELDS = [
+  'notes_team', 'grabacion', 'assignee', 'assignee_user_id',
+  'priority', 'work_start', 'effort_points', 'tags', 'overdue',
+];
+function redactForClient(shaped) {
+  for (const f of POST_INTERNAL_FIELDS) delete shaped[f];
+  return shaped;
 }
 
 // Shape a full post row into the returned object (team/admin keep everything).
@@ -717,10 +751,22 @@ async function handleChangePassword(request, env, session) {
 // sesiones y usuarios de la marca, y la marca misma. Solo role='client'
 // (las cuentas de staff se gestionan vía /users). Best-effort por tabla:
 // las tablas de migraciones aún no aplicadas se saltan (isMissingTableError).
-async function handleDeleteAccount(env, session) {
+async function handleDeleteAccount(request, env, session) {
   if (session.role !== 'client' || !session.client_id) {
     return json({ error: 'Solo las cuentas de cliente pueden auto-borrarse' }, 403);
   }
+
+  // RE-AUTENTICACIÓN (auditoría 2026-07-31): borrar es irreversible y arrasa
+  // meses de trabajo de la marca. Sin esto, una sesión robada (duran 180 días)
+  // o un teléfono prestado bastaban. Mismo patrón que handleChangePassword.
+  let bodyObj = null;
+  try { bodyObj = await request.json(); } catch { bodyObj = null; }
+  const current = bodyObj && bodyObj.current;
+  if (!current) return json({ error: 'Confirma tu contraseña para eliminar la cuenta.' }, 400);
+  const me = await env.DB.prepare('SELECT id, password FROM mkt_users WHERE id = ?').bind(session.user_id).first();
+  const ok = me && me.password ? await verifyPassword(String(current), me.password) : false;
+  if (!ok) return json({ error: 'La contraseña es incorrecta.' }, 401);
+
   const cid = session.client_id;
 
   // Log ANTES de borrar (después ya no existen ni el actor ni la marca).
@@ -1963,9 +2009,9 @@ async function handleListPosts(request, env, session, url) {
   const res = await env.DB.prepare(sql).bind(...vals).all();
   const rows = res.results || [];
   const out = rows.map(shapePost);
-  // Las "Notas del equipo" (notes_team) son internas: JAMÁS viajan a un login
-  // de cliente (notes_people sí: esas notas son para que el cliente las vea).
-  if (isClient) for (const p of out) delete p.notes_team;
+  // Campos internos (notas del equipo, grabación, asignado, prioridad…): JAMÁS
+  // viajan a un login de cliente. notes_people SÍ: esas notas son para él.
+  if (isClient) for (const p of out) redactForClient(p);
 
   // V2: ?include=checklist → checklist_done / checklist_total per post via ONE
   // GROUP BY (no N+1). Missing table (pre-004) = no counts.
@@ -2179,7 +2225,7 @@ async function handleGetPost(request, env, session, postId) {
   // Igual que en el listado: las "Notas del equipo" (notes_team) no viajan al
   // cliente (notes_people sí: esas notas son para que el cliente las vea).
   const shaped = shapePost(post);
-  if (session.role === 'client') delete shaped.notes_team;
+  if (session.role === 'client') redactForClient(shaped);
 
   const payload = {
     post: shaped,
@@ -2219,12 +2265,19 @@ async function handlePatchPost(request, env, session, postId) {
     return json({ error: 'Fecha invalida, usa AAAA-MM-DD' }, 400);
   }
 
+  // Rol CLIENTE: rechaza (no ignora en silencio) los campos internos.
+  if (session.role === 'client') {
+    const intruso = CLIENT_FORBIDDEN_FIELDS.find((f) => Object.prototype.hasOwnProperty.call(bodyObj, f));
+    if (intruso) return json({ error: `Campo no editable: ${intruso}` }, 403);
+  }
+  const editables = session.role === 'client' ? CLIENT_EDITABLE_FIELDS : POST_EDITABLE_FIELDS;
+
   const v2 = await buildV2PostColumns(env, bodyObj);
   if (v2.error) return v2.error;
 
   const sets = [];
   const vals = [];
-  for (const f of POST_EDITABLE_FIELDS) {
+  for (const f of editables) {
     if (Object.prototype.hasOwnProperty.call(bodyObj, f)) {
       let v = bodyObj[f];
       if (f === 'client_visible') v = v ? 1 : 0;
@@ -2237,7 +2290,9 @@ async function handlePatchPost(request, env, session, postId) {
   if (Object.prototype.hasOwnProperty.call(bodyObj, 'position')) {
     sets.push('position = ?'); vals.push(Number(bodyObj.position) || 0);
   }
-  // notes_people is INTERNAL (team/admin only, already gated above) + JSON column.
+  // notes_people es INTERNO: el gate real es CLIENT_FORBIDDEN_FIELDS de arriba
+  // (el comentario viejo decía "already gated above" y era FALSO — auditoría
+  // 2026-07-31).
   if (Object.prototype.hasOwnProperty.call(bodyObj, 'notes_people')) {
     const sane = sanitizeNotesPeople(bodyObj.notes_people);
     if (sane === null) return json({ error: 'notes_people must be an object of {person: text}' }, 400);
@@ -3337,10 +3392,21 @@ async function handleCron(request, env) {
           try {
             const res = await env.DB.prepare(`SELECT * FROM ${t}`).all();
             dump[t] = (res.results || []).map((row) => {
-              if (t !== 'mkt_users') return row;
-              // NUNCA respaldar hashes ni tokens de recuperación.
-              const { password, verify_token, reset_token, ...rest } = row;
-              return rest;
+              // NUNCA respaldar secretos. El respaldo vive en el MISMO bucket R2
+              // que la llave de la bóveda (marketing/_vault/pw.key): si se
+              // filtrara el bucket, guardar aquí `password_enc` entregaría
+              // llave + cifrado = todas las contraseñas en claro. Los
+              // ig_access_token son credenciales vivas de 60 días de CADA marca.
+              // Auditoría 2026-07-31.
+              if (t === 'mkt_users') {
+                const { password, password_enc, password_enc_at, verify_token, reset_token, ...rest } = row;
+                return rest;
+              }
+              if (t === 'mkt_clients') {
+                const { ig_access_token, ...rest } = row;
+                return { ...rest, ig_access_token: row.ig_access_token ? '[REDACTADO]' : null };
+              }
+              return row;
             });
           } catch (e) { if (!isMissingTableError(e)) throw e; }
         }
@@ -4371,7 +4437,7 @@ async function route(request, env, authCtx) {
 
   if (path === '/auth/change-password' && method === 'POST') return handleChangePassword(request, env, session);
   // Auto-borrado de cuenta de cliente (borra la marca completa; role='client').
-  if (path === '/auth/account' && method === 'DELETE') return handleDeleteAccount(env, session);
+  if (path === '/auth/account' && method === 'DELETE') return handleDeleteAccount(request, env, session);
 
   const isStaff = session.role === 'admin' || session.role === 'team';
 

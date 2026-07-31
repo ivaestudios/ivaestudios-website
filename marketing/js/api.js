@@ -7,7 +7,7 @@
 // non-2xx so callers can `try { ... } catch (e) { toast(e.message,'error') }`.
 // ============================================================================
 
-import { isEN, T } from './shell/i18n.js?v=202607311754';
+import { isEN, T } from './shell/i18n.js?v=202607311809';
 
 const BASE = '/api/marketing';
 const TIMEOUT = 30000; // 30s
@@ -69,7 +69,8 @@ export const api = {
   post(path, body, opts) { return request(path, { method: 'POST',  body, ...(opts || {}) }); },
   patch(path, body) { return request(path, { method: 'PATCH', body }); },
   put(path, body)   { return request(path, { method: 'PUT',   body }); },
-  del(path)         { return request(path, { method: 'DELETE' }); },
+  // body opcional: DELETE /auth/account exige la contraseña actual (re-auth).
+  del(path, body)   { return request(path, body === undefined ? { method: 'DELETE' } : { method: 'DELETE', body }); },
 };
 
 // ── Rol ─────────────────────────────────────────────────────────────────────

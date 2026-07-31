@@ -6,17 +6,17 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202607311754';
-import { icon } from '../shell/icons.js?v=202607311754';
-import { T } from '../shell/i18n.js?v=202607311754';
-import { openSheet } from '../shell/sheet.js?v=202607311754';
+import { api, el, clear, toast } from '../api.js?v=202607311809';
+import { icon } from '../shell/icons.js?v=202607311809';
+import { T } from '../shell/i18n.js?v=202607311809';
+import { openSheet } from '../shell/sheet.js?v=202607311809';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202607311754';
+import { errorCard } from '../ui/states.js?v=202607311809';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202607311754';
+} from '../lib/video-upload.js?v=202607311809';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -116,7 +116,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202607311754';
+  link.href = '/marketing/css/entregables.css?v=202607311809';
   document.head.appendChild(link);
 }
 
