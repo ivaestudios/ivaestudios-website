@@ -13,10 +13,10 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607301706';
-import { icon } from '../shell/icons.js?v=202607301706';
-import { T } from '../shell/i18n.js?v=202607301706';
-import * as store from '../shell/store.js?v=202607301706';
+import { el, clear, toast } from '../api.js?v=202607311754';
+import { icon } from '../shell/icons.js?v=202607311754';
+import { T } from '../shell/i18n.js?v=202607311754';
+import * as store from '../shell/store.js?v=202607311754';
 
 const W = 1080;
 const H = 1350;

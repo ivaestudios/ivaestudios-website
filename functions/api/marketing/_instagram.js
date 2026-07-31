@@ -370,10 +370,14 @@ export async function fetchIgMetricsRange(env, clientId, from, to) {
     }
   }
 
-  const budget = { n: 40 };  // máx fetches NUEVOS por request (los cacheados no gastan budget)
+  // 200 con Workers Paid (2026-07-31): el plan da ~1000 subrequests/request
+  // (antes ~50, por eso el 40). 200 cubre el año completo de una marca activa
+  // en UNA carga; el peor caso (200 fetches con reintento + 200 escrituras a
+  // D1 + paginado) queda en ~650 subrequests, con margen.
+  const budget = { n: 200 };  // máx fetches NUEVOS por request (los cacheados no gastan budget)
   const all = [];
-  for (let i = 0; i < rangePosts.length; i += 8) {
-    const batch = rangePosts.slice(i, i + 8);
+  for (let i = 0; i < rangePosts.length; i += 10) {
+    const batch = rangePosts.slice(i, i + 10);
     const got = await Promise.all(batch.map(async (m) => {
       let pi = cacheMap.get(m.id);
       if (!pi && budget.n > 0) {
