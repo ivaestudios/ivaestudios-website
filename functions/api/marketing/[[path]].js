@@ -415,6 +415,16 @@ const CLIENT_EDITABLE_FIELDS = [
   'title', 'content_type', 'publish_date', 'platform', 'caption',
   'inspo_url', 'video_url', 'hook', 'body', 'cta', 'hashtags', 'alt_text',
 ];
+// Un solo lugar decide qué puede escribir cada rol: PATCH, POST y reorder.
+function editablesPara(session) {
+  return session && session.role === 'client' ? CLIENT_EDITABLE_FIELDS : POST_EDITABLE_FIELDS;
+}
+// Devuelve el nombre del primer campo prohibido presente, o null.
+function campoProhibidoPara(session, bodyObj) {
+  if (!session || session.role !== 'client') return null;
+  return CLIENT_FORBIDDEN_FIELDS.find((f) => Object.prototype.hasOwnProperty.call(bodyObj || {}, f)) || null;
+}
+
 const CLIENT_FORBIDDEN_FIELDS = [
   'status', 'grabacion', 'assignee', 'assignee_user_id', 'notes_team',
   'notes_people', 'client_visible', 'priority', 'approval_state',
@@ -575,6 +585,13 @@ const POST_INTERNAL_FIELDS = [
 function redactForClient(shaped) {
   for (const f of POST_INTERNAL_FIELDS) delete shaped[f];
   return shaped;
+}
+// Forma de salida de UN post según quién pregunta. Usarlo SIEMPRE que se
+// devuelva un post: el PATCH y el POST devolvían shapePost() crudo y el portal
+// del cliente se guardaba los campos internos en su estado (ronda 2, 2026-07-31).
+function shapePostFor(session, post) {
+  const shaped = shapePost(post);
+  return (session && session.role === 'client') ? redactForClient(shaped) : shaped;
 }
 
 // Shape a full post row into the returned object (team/admin keep everything).
@@ -2092,6 +2109,12 @@ async function handleCreatePost(request, env, session) {
     return json({ error: 'Fecha invalida, usa AAAA-MM-DD' }, 400);
   }
 
+  // MISMO candado que el PATCH: crear era una puerta trasera para escribir
+  // campos internos (status='publicado', client_visible=0, notes_team,
+  // priority, assignee_user_id…). Auditoría ronda 2, 2026-07-31.
+  const intrusoCrear = campoProhibidoPara(session, bodyObj);
+  if (intrusoCrear) return json({ error: `Campo no editable: ${intrusoCrear}` }, 403);
+
   const v2 = await buildV2PostColumns(env, bodyObj);
   if (v2.error) return v2.error;
 
@@ -2100,7 +2123,7 @@ async function handleCreatePost(request, env, session) {
   const cols = ['id', 'client_id', 'created_by'];
   const placeholders = ['?', '?', '?'];
   const vals = [id, clientId, session.user_id];
-  for (const f of POST_EDITABLE_FIELDS) {
+  for (const f of editablesPara(session)) {
     if (Object.prototype.hasOwnProperty.call(bodyObj, f)) {
       cols.push(f);
       placeholders.push('?');
@@ -2138,11 +2161,18 @@ async function handleCreatePost(request, env, session) {
   const created = await env.DB.prepare('SELECT * FROM mkt_posts WHERE id = ?').bind(id).first();
   await logActivity(env, { client_id: clientId, post_id: id, session, action: 'post.create', detail: created.title });
 
-  // Aviso AL CLIENTE: el post nace visible en su portal y pendiente de
-  // aprobar → cuenta como pedido de aprobación. Best-effort, nunca rompe
-  // la respuesta (mismo patrón que los hooks V2).
+  // Aviso AL CLIENTE: el post nace visible en su portal y pendiente de aprobar.
+  // OJO (ronda 2, 2026-07-31): SOLO si nace CON CONTENIDO. Antes bastaba
+  // teclear un título en el calendario para dispararle al cliente un
+  // "te pide aprobar X" de una pieza vacía —y para inflar su contador de
+  // pendientes— desde los 6 puntos de creación rápida. La pieza sigue
+  // visible en su portal (y en el reporte mensual, que filtra por
+  // client_visible); lo que se calla es el aviso prematuro. Cuando el guion
+  // ya existe, el equipo pide la aprobación desde el editor y ahí sí avisa
+  // (hookPatchPost, "Aviso AL CLIENTE (siempre activo)").
+  const naceConContenido = !!(created.caption || created.hook || created.body || created.cta || created.video_url);
   try {
-    if (session.role !== 'client' && created.client_visible === 1 && created.approval_state === 'pending') {
+    if (session.role !== 'client' && created.client_visible === 1 && created.approval_state === 'pending' && naceConContenido) {
       const clients = await clientUserIds(env, clientId, session.user_id);
       if (clients.length) {
         await notify(env, {
@@ -2154,7 +2184,7 @@ async function handleCreatePost(request, env, session) {
     }
   } catch (e) { if (!isMissingTableError(e)) console.error('[mkt notifyClientCreate]', e && e.message); }
 
-  return json(shapePost(created), 201);
+  return json(shapePostFor(session, created), 201);
 }
 
 // Checklist items of a post, ordered, with done_by_name resolved.
@@ -2252,7 +2282,7 @@ async function handlePatchPost(request, env, session, postId) {
   // V2: optimistic concurrency (opt-in). If the caller sends the updated_at it
   // read, a mismatch answers 409 with the CURRENT post so the UI can merge.
   if (bodyObj && bodyObj.expected_updated_at && bodyObj.expected_updated_at !== post.updated_at) {
-    return json({ error: 'Conflicto: el contenido cambio mientras editabas.', post: shapePost(post) }, 409);
+    return json({ error: 'Conflicto: el contenido cambio mientras editabas.', post: shapePostFor(session, post) }, 409);
   }
 
   if (bodyObj.content_type != null && !CONTENT_TYPES.includes(bodyObj.content_type)) return json({ error: 'Invalid content_type' }, 400);
@@ -2266,11 +2296,9 @@ async function handlePatchPost(request, env, session, postId) {
   }
 
   // Rol CLIENTE: rechaza (no ignora en silencio) los campos internos.
-  if (session.role === 'client') {
-    const intruso = CLIENT_FORBIDDEN_FIELDS.find((f) => Object.prototype.hasOwnProperty.call(bodyObj, f));
-    if (intruso) return json({ error: `Campo no editable: ${intruso}` }, 403);
-  }
-  const editables = session.role === 'client' ? CLIENT_EDITABLE_FIELDS : POST_EDITABLE_FIELDS;
+  const intruso = campoProhibidoPara(session, bodyObj);
+  if (intruso) return json({ error: `Campo no editable: ${intruso}` }, 403);
+  const editables = editablesPara(session);
 
   const v2 = await buildV2PostColumns(env, bodyObj);
   if (v2.error) return v2.error;
@@ -2329,7 +2357,7 @@ async function handlePatchPost(request, env, session, postId) {
   try { await hookPatchPost(env, session, post, updated, bodyObj); }
   catch (e) { if (!isMissingTableError(e)) console.error('[mkt hookPatchPost]', e && e.message); }
 
-  return json(shapePost(updated));
+  return json(shapePostFor(session, updated));
 }
 
 async function handleDeletePost(env, session, postId) {
@@ -2483,9 +2511,16 @@ async function handleReorder(request, env, session) {
   }
 
   const statements = [];
+  const esCliente = session.role === 'client';
   for (const u of updates) {
     if (!u || !u.id) return json({ error: 'Each update needs an id' }, 400);
     if (u.status != null && !STATUSES.includes(u.status)) return json({ error: `Invalid status: ${u.status}` }, 400);
+    // El cliente SÍ puede arrastrar (reordenar/mover de día), pero no colar un
+    // cambio de estado ni una fecha inválida por esta ruta. Ronda 2 2026-07-31.
+    if (esCliente && u.status != null) return json({ error: 'Campo no editable: status' }, 403);
+    if (Object.prototype.hasOwnProperty.call(u, 'publish_date') && invalidPublishDate(u.publish_date)) {
+      return json({ error: 'Fecha invalida, usa AAAA-MM-DD' }, 400);
+    }
     const sets = ['position = ?'];
     const vals = [Number(u.position) || 0];
     if (u.status != null) { sets.push('status = ?'); vals.push(u.status); }
@@ -3853,11 +3888,16 @@ async function handleListDeliverables(env, session, url) {
   const byDlv = new Map();
   if (rows.length) {
     try {
-      const ids = rows.map((r) => r.id);
-      const ph = ids.map(() => '?').join(',');
+      // Subconsulta en vez de un placeholder por entregable: D1 topa en 100
+      // parámetros, así que al pasar ~100 entregables la query tronaba, el catch
+      // se la tragaba y la app respondía 200 con CERO comentarios para todos —
+      // el cliente veía "desaparecidas" sus peticiones (ronda 2, 2026-07-31).
       const cres = await env.DB.prepare(
-        `SELECT id, deliverable_id, author_name, author_role, body, created_at FROM mkt_deliverable_comments WHERE deliverable_id IN (${ph}) ORDER BY created_at ASC`
-      ).bind(...ids).all();
+        `SELECT c.id, c.deliverable_id, c.author_name, c.author_role, c.body, c.created_at
+           FROM mkt_deliverable_comments c
+          WHERE c.deliverable_id IN (SELECT id FROM mkt_deliverables WHERE client_id = ?${month ? ' AND month = ?' : ''})
+          ORDER BY c.created_at ASC`
+      ).bind(...(month ? [clientId, month] : [clientId])).all();
       for (const c of (cres.results || [])) {
         if (!byDlv.has(c.deliverable_id)) byDlv.set(c.deliverable_id, []);
         byDlv.get(c.deliverable_id).push(shapeDlvComment(c));
@@ -3935,12 +3975,14 @@ async function handleAddDeliverableComment(request, env, session, id) {
     }
   } catch (e) { if (!isMissingTableError(e)) console.error('[mkt notifyDlvComment]', e && e.message); }
 
-  // Al revés: el EQUIPO puede pedir que se avise AL CLIENTE (`notify_client`).
-  // Lo usa "Cambiar video": el cliente pidió un ajuste, se subió la versión nueva
-  // en el MISMO entregable (sus comentarios siguen ahí) y hay que enterarlo.
-  // Solo staff; para el cliente la bandera se ignora.
+  // Al revés: si responde el EQUIPO, avisar SIEMPRE al cliente. Antes solo se
+  // avisaba cuando venía la bandera `notify_client`, que únicamente manda el
+  // flujo "Cambiar video": el cliente pedía "quítenle la música", el equipo
+  // contestaba y él NO se enteraba de nada — se topaba con la respuesta solo si
+  // volvía a abrir Entregables por su cuenta (ronda 2, 2026-07-31). Mismo
+  // criterio que los comentarios de posts ("Aviso AL CLIENTE (siempre activo)").
   try {
-    if (session.role !== 'client' && b && b.notify_client) {
+    if (session.role !== 'client') {
       const clients = await clientUserIds(env, d.client_id, session.user_id);
       if (clients.length) {
         await notify(env, {

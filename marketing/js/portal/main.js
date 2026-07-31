@@ -21,15 +21,15 @@
 //      ultima carga tiene mas de 60s.
 // ============================================================================
 
-import { api, el, clear, initials } from '../api.js?v=202607311821';
-import { toast } from '../shell/toast.js?v=202607311821';
-import { closeAll as closeAllSheets, openCount as openSheetCount } from '../shell/sheet.js?v=202607311821';
-import * as store from './store.js?v=202607311821';
-import * as inbox from './inbox.js?v=202607311821';
-import * as progress from './progress.js?v=202607311821';
-import * as agenda from './agenda.js?v=202607311821';
-import * as detail from './detail.js?v=202607311821';
-import { ICONS } from './igcard.js?v=202607311821';
+import { api, el, clear, initials } from '../api.js?v=202607311855';
+import { toast } from '../shell/toast.js?v=202607311855';
+import { closeAll as closeAllSheets, openCount as openSheetCount } from '../shell/sheet.js?v=202607311855';
+import * as store from './store.js?v=202607311855';
+import * as inbox from './inbox.js?v=202607311855';
+import * as progress from './progress.js?v=202607311855';
+import * as agenda from './agenda.js?v=202607311855';
+import * as detail from './detail.js?v=202607311855';
+import { ICONS } from './igcard.js?v=202607311855';
 
 const bootEl = document.getElementById('boot');
 const appEl = document.getElementById('app');

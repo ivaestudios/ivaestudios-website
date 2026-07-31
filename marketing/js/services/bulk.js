@@ -30,11 +30,11 @@
 // con scope=all. El frontend funciona con ambos backends.
 // ============================================================================
 
-import { api } from '../api.js?v=202607311821';
-import { toast } from '../shell/toast.js?v=202607311821';
-import * as store from '../shell/store.js?v=202607311821';
-import { addDaysISO } from '../lib/dates.js?v=202607311821';
-import { T } from '../shell/i18n.js?v=202607311821';
+import { api } from '../api.js?v=202607311855';
+import { toast } from '../shell/toast.js?v=202607311855';
+import * as store from '../shell/store.js?v=202607311855';
+import { addDaysISO } from '../lib/dates.js?v=202607311855';
+import { T } from '../shell/i18n.js?v=202607311855';
 
 const BULK_UPDATE_ENDPOINT = '/posts/bulk-update';
 const BULK_DELETE_ENDPOINT = '/posts/bulk-delete';
@@ -268,7 +268,10 @@ export async function bulkShiftDates(ids, days) {
   for (const p of posts) {
     if (!idSet.has(p.id) || !p.publish_date) continue;
     const moved = addDaysISO(p.publish_date, n);
-    if (moved) updates.push({ id: p.id, publish_date: moved });
+    // Se manda la posición ACTUAL a propósito: la ruta de reordenar escribe
+    // `position = Number(u.position) || 0`, así que omitirla dejaba en 0 todo
+    // lo movido y borraba el orden manual del mes (ronda 2, 2026-07-31).
+    if (moved) updates.push({ id: p.id, publish_date: moved, position: Number(p.position) || 0 });
   }
   if (!updates.length) {
     toast(T('Esos contenidos no tienen fecha que mover.', 'Those items have no date to move.'), { type: 'info' });

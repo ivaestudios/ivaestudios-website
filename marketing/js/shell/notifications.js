@@ -14,13 +14,13 @@
 //   aplicar) se ocultan campana y tab Avisos y el polling se detiene.
 // ============================================================================
 
-import { api, el, clear, timeAgo, initials } from '../api.js?v=202607311821';
-import * as store from './store.js?v=202607311821';
-import { pushLayer } from './router.js?v=202607311821';
-import { openSheet } from './sheet.js?v=202607311821';
-import { toast } from './toast.js?v=202607311821';
-import { icon } from './icons.js?v=202607311821';
-import { T } from './i18n.js?v=202607311821';
+import { api, el, clear, timeAgo, initials } from '../api.js?v=202607311855';
+import * as store from './store.js?v=202607311855';
+import { pushLayer } from './router.js?v=202607311855';
+import { openSheet } from './sheet.js?v=202607311855';
+import { toast } from './toast.js?v=202607311855';
+import { icon } from './icons.js?v=202607311855';
+import { T } from './i18n.js?v=202607311855';
 
 const POLL_MS = 60000;
 const FILTERS = [
@@ -236,7 +236,26 @@ export function createNotifications({ router, onUnavailable }) {
         if (n.client_id) params.cliente = n.client_id;
         if (n.comment_id) params.comment = n.comment_id;
         router.navigate('post', params);
+        return;
       }
+      // Avisos SIN pieza (entregable nuevo, comentario en un entregable, "el
+      // equipo actualizó tu entregable", "reconecta tu Instagram"): el backend
+      // guarda a dónde ir en `link`, pero el frontend NUNCA lo leía — tocarlos
+      // solo los marcaba leídos y el panel ni se cerraba. El más valioso para el
+      // cliente ("tienes un entregable nuevo") era justo uno de los muertos
+      // (ronda 2, 2026-07-31).
+      const link = String(n.link || '').trim();
+      if (!link) return;
+      closePanel({ source: 'deeplink' });
+      // "#/entregables?x=1" → view "entregables" + params. Se usa el router
+      // (no location.hash): si ya estás en esa vista, cambiar el hash al mismo
+      // valor no dispara nada y el toque se sentiría muerto otra vez.
+      const limpio = link.replace(/^#\/?/, '');
+      const [view, qs] = limpio.split('?');
+      const params = {};
+      if (qs) for (const [k, v] of new URLSearchParams(qs)) params[k] = v;
+      if (n.client_id && !params.cliente) params.cliente = n.client_id;
+      if (view) router.navigate(view, params);
     }
 
     async function setRead(ids, read) {
