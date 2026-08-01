@@ -34,8 +34,9 @@ const ESQUEMA = {
   properties: {
     orden: {
       type: 'array',
-      description: 'Índices de las fotos recibidas, en el orden narrativo elegido. Solo las que entran al carrusel.',
+      description: 'Índices de las fotos recibidas, en el orden narrativo elegido. Solo las que entran al carrusel. Sin repetir.',
       items: { type: 'integer' },
+      uniqueItems: true,
     },
     descartadas: {
       type: 'array',
@@ -71,7 +72,7 @@ function sistema(marca, nSlides) {
   return `Eres el director de arte y copywriter de IVAE Estudios, una agencia de marketing en Cancún. Armas un carrusel de Instagram para ${marca || 'la marca'}.
 
 TU TRABAJO, EN ESTE ORDEN:
-1. CURAR: mira las fotos y quédate con las ${nSlides} mejores. Descarta repetidas, mal encuadradas, borrosas o que no aporten. Di el motivo de cada descarte.
+1. CURAR: mira las fotos y quédate con las MEJORES (máximo ${nSlides}). Está PERFECTO entregar menos slides si alguna foto no aporta: descarta repetidas, mal encuadradas, borrosas o que no sumen a la historia, y di el motivo de cada descarte.
 2. ORDENAR: arma una historia. Slide 1 engancha (portada), los de en medio desarrollan, el último cierra con la invitación.
 3. ESCRIBIR: el texto de cada slide y el caption completo.
 
@@ -101,7 +102,7 @@ function usuario(brief, fotos, nSlides) {
   }).join('\n');
   return `BRIEF: ${brief || '(sin brief: usa lo que veas en las fotos)'}
 
-Quiero ${nSlides} slides.
+Quiero HASTA ${nSlides} slides (menos está bien si alguna foto no aporta; mínimo 2).
 
 Lo que YA está resuelto por el sistema (no lo cambies, solo escribe sabiendo esto):
 ${fichas}
@@ -120,7 +121,9 @@ export async function pedirCarrusel(env, { brief, marca, nSlides, fotos }) {
     e.code = 'SIN_LLAVE';
     throw e;
   }
-  const n = Math.max(2, Math.min(10, Number(nSlides) || fotos.length));
+  // Tope honesto: jamás pedir más slides que fotos hay (con 1 foto el viejo
+  // Math.max(2,…) pedía "las 2 mejores" de una sola — el front ya exige 2).
+  const n = Math.min(fotos.length, Math.max(2, Math.min(10, Number(nSlides) || fotos.length)));
 
   const contenido = [];
   fotos.forEach((f, i) => {
@@ -168,7 +171,7 @@ export async function pedirCarrusel(env, { brief, marca, nSlides, fotos }) {
     }
     if (res.ok) {
       const uso = (data.content || []).find((b) => b.type === 'tool_use');
-      if (uso && uso.input) return sanear(uso.input, n);
+      if (uso && uso.input) return sanear(uso.input, n, fotos.length);
       ultimo = new Error('Claude no devolvió el carrusel en el formato esperado.');
       continue;
     }
@@ -189,7 +192,7 @@ export async function pedirCarrusel(env, { brief, marca, nSlides, fotos }) {
 // El esquema garantiza la FORMA, no la sensatez: aquí se recorta lo que se pasó
 // de largo y se descartan índices inventados, para que la UI nunca reciba algo
 // que rompa el diseño.
-function sanear(out, n) {
+function sanear(out, n, nFotos) {
   const corta = (s, max) => {
     const t = String(s || '').replace(/\s+/g, ' ').trim();
     if (t.length <= max) return t;
@@ -197,8 +200,11 @@ function sanear(out, n) {
     const esp = cortado.lastIndexOf(' ');
     return (esp > max * 0.6 ? cortado.slice(0, esp) : cortado).trim();
   };
-  const orden = (Array.isArray(out.orden) ? out.orden : [])
-    .map(Number).filter((i) => Number.isInteger(i) && i >= 0).slice(0, n);
+  // Deduplicado Y acotado a las fotos reales: un índice repetido creaba slides
+  // alias del mismo objeto en el front, y uno fuera de rango desalineaba los
+  // textos (auditoría adversaria — el esquema garantiza la forma, no el juicio).
+  const orden = [...new Set((Array.isArray(out.orden) ? out.orden : []).map(Number))]
+    .filter((i) => Number.isInteger(i) && i >= 0 && i < nFotos).slice(0, n);
   const slides = (Array.isArray(out.slides) ? out.slides : []).slice(0, orden.length).map((s) => ({
     rol: s.rol || 'desarrollo',
     kicker: corta(s.kicker, LIMITES.kicker).toUpperCase(),

@@ -819,11 +819,28 @@ async function handleDeleteAccount(request, env, session) {
 // carrusel escrito. Tope de payload para no reventar el Worker: 10 fotos de
 // ~200 KB en base64 ≈ 2.7 MB, muy por debajo del límite de request.
 async function handleCarruselGuion(request, env, session) {
+  // El tope se mide ANTES de parsear: un body gigante reventaba la memoria del
+  // Worker en request.json() y el chequeo de después llegaba tarde (auditoría).
+  const cl = Number(request.headers.get('content-length') || 0);
+  if (cl > 16_000_000) return json({ error: 'Las miniaturas pesan demasiado.' }, 413);
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
-  const fotos = Array.isArray(body.fotos) ? body.fotos.slice(0, 10) : [];
-  if (!fotos.length) return json({ error: 'Manda al menos una foto.' }, 400);
-  const pesado = fotos.reduce((a, f) => a + String(f.b64 || '').length, 0);
+  // Entrada saneada campo por campo: nada del cliente viaja entero al prompt.
+  const MIMES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+  const POS = new Set(['top', 'mid', 'bottom']);
+  const MODOS = new Set(['blanco', 'oscuro', 'banda']);
+  const fotos = (Array.isArray(body.fotos) ? body.fotos.slice(0, 10) : []).map((f) => ({
+    b64: typeof f.b64 === 'string' ? f.b64 : '',
+    mime: MIMES.has(f.mime) ? f.mime : 'image/jpeg',
+    plan: f.plan && typeof f.plan === 'object' ? {
+      pos: POS.has(f.plan.pos) ? f.plan.pos : 'mid',
+      modo: MODOS.has(f.plan.modo) ? f.plan.modo : 'blanco',
+      semaforo: f.plan.semaforo === 'ambar' ? 'ambar' : 'verde',
+      aviso: String(f.plan.aviso || '').slice(0, 140),
+    } : null,
+  })).filter((f) => f.b64);
+  if (fotos.length < 2) return json({ error: 'Sube al menos 2 fotos: la IA arma una historia, no un slide suelto.' }, 400);
+  const pesado = fotos.reduce((a, f) => a + f.b64.length, 0);
   if (pesado > 12_000_000) return json({ error: 'Las miniaturas pesan demasiado.' }, 413);
 
   const t0 = Date.now();

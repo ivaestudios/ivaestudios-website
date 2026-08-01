@@ -13,11 +13,11 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608011331';
-import { icon } from '../shell/icons.js?v=202608011331';
-import { T } from '../shell/i18n.js?v=202608011331';
-import * as store from '../shell/store.js?v=202608011331';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608011331';
+import { el, clear, toast, api } from '../api.js?v=202608011337';
+import { icon } from '../shell/icons.js?v=202608011337';
+import { T } from '../shell/i18n.js?v=202608011337';
+import * as store from '../shell/store.js?v=202608011337';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608011337';
 
 const W = 1080;
 const H = 1350;
@@ -37,6 +37,16 @@ let hashtagsIA = '';
 let descartes = [];         // [{i, motivo}] fotos que la IA dejó fuera
 let pensando = false;       // hay una llamada a la IA en curso
 let iaToken = 0;            // token PROPIO de la IA (ver escribirConIA)
+let redrawTimer = 0;        // timer del redibujo diferido — a nivel de módulo
+                            // para que un re-render CORTE el del render previo
+                            // (un timer huérfano pintaba en un host desmontado)
+
+// La respuesta de la IA llega 40-120 s después y se aplica POR ÍNDICE sobre
+// `slides`. Si el mazo cambió en la espera (quitar/mover/agregar fotos, salir
+// de la vista), esos índices apuntan a fotos equivocadas: se reordenaría mal,
+// se cerrarían bitmaps vivos y hasta se pintarían textos de OTRA marca tras
+// volver (auditoría adversaria). Toda mutación del mazo pasa por aquí.
+function invalidarIA() { iaToken += 1; }
 let genToken = 0;
 let previews = [];
 
@@ -44,6 +54,7 @@ let deps = null;
 let hostEl = null;
 
 export function resetGen() {
+  invalidarIA();   // una respuesta de IA en vuelo ya no aplica a la sesión nueva
   genToken += 1;
   for (const s of slides) { try { s.bitmap && s.bitmap.close && s.bitmap.close(); } catch { /* noop */ } }
   slides = []; previews = [];
@@ -69,7 +80,12 @@ function designFonts() {
     ]);
     return `@font-face{font-family:Outfit;font-style:normal;font-weight:100 900;src:url(data:font/woff2;base64,${outfit}) format('woff2')}` +
       `@font-face{font-family:'Pinyon Script';font-style:normal;font-weight:400;src:url(data:font/woff2;base64,${pinyon}) format('woff2')}`;
-  })();
+  })().catch((e) => {
+    // Si el fetch falla (parpadeo de red), NO dejar la promesa rechazada
+    // cacheada: el siguiente intento debe volver a pedir las fuentes.
+    fontCssPromise = null;
+    throw e;
+  });
   return fontCssPromise;
 }
 
@@ -315,8 +331,16 @@ async function miniatura(bmp) {
   return btoa(bin);
 }
 
+const IA_TARDE = () => toast(T(
+  'Las fotos cambiaron mientras la IA escribía; su propuesta ya no aplica. Vuelve a pedirla.',
+  'Photos changed while the AI was writing; ask again.'), 'info');
+
 async function escribirConIA() {
-  if (pensando || !slides.length) return;
+  if (pensando) return;
+  if (slides.length < 2) {
+    toast(T('Sube al menos 2 fotos: la IA arma una historia, no un slide suelto.', 'Add at least 2 photos.'), 'error');
+    return;
+  }
   pensando = true;
   renderGen(hostEl, deps);
   // Token PROPIO, no genToken: ese lo incrementa cada redibujo de la vista
@@ -334,17 +358,29 @@ async function escribirConIA() {
     const out = await api.post('/carousel/guion', {
       brief, marca: brandLabel, nSlides: slides.length, client_id: activeClientId, fotos,
     }, { timeout: 180000 });  // mirar 8 fotos y escribir tarda ~40-120 s
-    if (token !== iaToken) return;
+    if (token !== iaToken) { IA_TARDE(); return; }
 
     // Reordenar las fotos como las curó la IA (y soltar las descartadas).
-    const orden = (out.orden || []).filter((i) => slides[i]);
-    if (orden.length >= 2) {
-      const fuera = slides.filter((_, i) => !orden.includes(i));
-      slides = orden.map((i) => slides[i]);
-      for (const s of fuera) { try { s.bitmap && s.bitmap.close && s.bitmap.close(); } catch { /* noop */ } }
+    // Dedupe + cota también aquí: el servidor ya lo hace, pero un índice
+    // repetido crearía slides ALIAS del mismo objeto y cerrar uno tronaría el
+    // otro (cinturón y tirantes).
+    const nAntes = slides.length;
+    const orden = [...new Set((out.orden || []).map(Number))]
+      .filter((i) => Number.isInteger(i) && i >= 0 && i < nAntes);
+    if (!orden.length) {
+      toast(T('La IA no devolvió un orden válido; tus fotos quedan como están.', 'The AI returned no valid order.'), 'error');
+      return;
     }
-    (out.slides || []).forEach((t, i) => {
-      if (!slides[i]) return;
+    // Miniaturas de las descartadas ANTES de soltar los bitmaps: los números
+    // de envío ya no significan nada después del reorden — se enseña la FOTO.
+    descartes = (out.descartadas || [])
+      .map((d) => ({ motivo: String(d.motivo || ''), thumb: fotos[d.i] ? 'data:image/jpeg;base64,' + fotos[d.i].b64 : null }))
+      .filter((d) => d.motivo || d.thumb);
+    const fuera = slides.filter((_, i) => !orden.includes(i));
+    slides = orden.map((i) => slides[i]);
+    for (const s of fuera) { try { s.bitmap && s.bitmap.close && s.bitmap.close(); } catch { /* noop */ } }
+    // Los textos van slide a slide del mazo YA curado (mismo orden que `orden`).
+    (out.slides || []).slice(0, slides.length).forEach((t, i) => {
       slides[i].kicker = t.kicker || '';
       slides[i].title = t.title || '';
       slides[i].body = t.body || '';
@@ -352,7 +388,6 @@ async function escribirConIA() {
     });
     captionIA = out.caption || '';
     hashtagsIA = out.hashtags || '';
-    descartes = out.descartadas || [];
     // Las fotos cambiaron de orden: hay que volver a medir (y a cuidar el ritmo).
     analizarTodo();
     toast(T('Carrusel escrito. Revísalo y edita lo que quieras.', 'Carousel written. Review and edit.'), 'success');
@@ -400,9 +435,9 @@ async function regenerate(previewHost) {
 
 // ── UI ───────────────────────────────────────────────────────────────────────
 const POS_LABEL = { top: '↑', mid: '·', bottom: '↓' };
-const POS_NEXT = { top: 'mid', mid: 'bottom', bottom: 'top' };
 
 export function renderGen(root, helpers) {
+  clearTimeout(redrawTimer);   // el redibujo diferido del render anterior muere aquí
   deps = helpers;
   hostEl = root;
   const { clients, activeClientId } = store.getState();
@@ -413,13 +448,13 @@ export function renderGen(root, helpers) {
   }
 
   const previewHost = el('div', { class: 'carg-grid' });
-  let redrawTimer = 0;
   const redraw = () => regenerate(previewHost);
   const redrawSoon = () => { clearTimeout(redrawTimer); redrawTimer = setTimeout(redraw, 500); };
 
   const fileIn = el('input', {
     type: 'file', accept: 'image/*', multiple: true, hidden: true,
     onchange: async (e) => {
+      invalidarIA();
       const all = [...(e.target.files || [])];
       const files = all.slice(0, MAX_SLIDES - slides.length);
       if (all.length > files.length) {
@@ -484,13 +519,19 @@ export function renderGen(root, helpers) {
         el('div', { class: 'carg-card__head' }, [
           el('b', { text: isCover ? T('1 · Portada', '1 · Cover') : isLast ? `${i + 1} · ` + T('Cierre', 'Closing') : `${i + 1}` }),
           // Semáforo del fotómetro: verde = medido y aprobado; ámbar = revísalo.
-          s.plan ? el('span', {
-            class: 'carg-sem carg-sem--' + s.plan.semaforo,
-            title: s.plan.aviso || `${T('Contraste', 'Contrast')} ${s.plan.contraste}:1 · ${
+          s.plan ? (() => {
+            const detalle = s.plan.aviso || `${T('Contraste', 'Contrast')} ${s.plan.contraste}:1 · ${
               s.plan.modo === 'oscuro' ? T('texto oscuro', 'dark text') : s.plan.modo === 'banda' ? T('banda sólida', 'solid band') : T('texto blanco', 'white text')
-            }${s.plan.velo ? ` · ${T('velo', 'veil')} ${Math.round(s.plan.velo * 100)}%` : ` · ${T('sin velo', 'no veil')}`}`,
-            text: s.plan.semaforo === 'verde' ? '●' : '▲',
-          }) : null,
+            }${s.plan.velo ? ` · ${T('velo', 'veil')} ${Math.round(s.plan.velo * 100)}%` : ` · ${T('sin velo', 'no veil')}`}`;
+            // Botón, no span: en el teléfono no existen los tooltips — un tap
+            // enseña la lectura del fotómetro en un toast.
+            return el('button', {
+              class: 'carg-sem carg-sem--' + s.plan.semaforo, type: 'button',
+              title: detalle, 'aria-label': `${T('Lectura del fotómetro', 'Photometer reading')}: ${detalle}`,
+              text: s.plan.semaforo === 'verde' ? '●' : '▲',
+              onclick: () => toast(detalle, s.plan.semaforo === 'verde' ? 'success' : 'info'),
+            });
+          })() : null,
           el('div', { class: 'carg-card__acts' }, [
             el('button', {
               class: 'btn btn-sm' + (s.posManual ? ' is-manual' : ''), type: 'button',
@@ -498,11 +539,12 @@ export function renderGen(root, helpers) {
               'aria-label': T('Altura del texto', 'Text height'),
               text: POS_LABEL[s.pos] || '↑',
               onclick: (e) => {
-                // Ciclo: auto → top → mid → bottom → auto. El usuario SIEMPRE
-                // puede volver a dejarlo en manos del fotómetro.
-                if (!s.posManual) { s.posManual = POS_NEXT[s.pos] || 'mid'; }
+                // Ciclo FIJO: auto → top → mid → bottom → auto. Antes el
+                // arranque dependía de la posición automática y, si esta era
+                // 'mid', los manuales 'top' y 'mid' quedaban inalcanzables.
+                if (!s.posManual) { s.posManual = 'top'; }
                 else if (s.posManual === 'bottom') { s.posManual = null; s.pos = (s.plan && s.plan.pos) || 'mid'; }
-                else { s.posManual = POS_NEXT[s.posManual]; }
+                else { s.posManual = s.posManual === 'top' ? 'mid' : 'bottom'; }
                 if (s.posManual) s.pos = s.posManual;
                 e.target.textContent = POS_LABEL[s.pos];
                 e.target.classList.toggle('is-manual', !!s.posManual);
@@ -526,9 +568,10 @@ export function renderGen(root, helpers) {
                 renderGen(hostEl, deps);
               },
             }) : null,
-            i > 0 ? el('button', { class: 'btn btn-sm', type: 'button', 'aria-label': T('Mover antes', 'Move earlier'), text: '←', onclick: () => { [slides[i - 1], slides[i]] = [slides[i], slides[i - 1]]; renderGen(hostEl, deps); } }) : null,
-            i < slides.length - 1 ? el('button', { class: 'btn btn-sm', type: 'button', 'aria-label': T('Mover después', 'Move later'), text: '→', onclick: () => { [slides[i + 1], slides[i]] = [slides[i], slides[i + 1]]; renderGen(hostEl, deps); } }) : null,
+            i > 0 ? el('button', { class: 'btn btn-sm', type: 'button', 'aria-label': T('Mover antes', 'Move earlier'), text: '←', onclick: () => { invalidarIA(); [slides[i - 1], slides[i]] = [slides[i], slides[i - 1]]; renderGen(hostEl, deps); } }) : null,
+            i < slides.length - 1 ? el('button', { class: 'btn btn-sm', type: 'button', 'aria-label': T('Mover después', 'Move later'), text: '→', onclick: () => { invalidarIA(); [slides[i + 1], slides[i]] = [slides[i], slides[i + 1]]; renderGen(hostEl, deps); } }) : null,
             el('button', { class: 'btn btn-sm carg-card__del', type: 'button', 'aria-label': T('Quitar slide', 'Remove slide'), text: '✕', onclick: () => {
+              invalidarIA();
               const [gone] = slides.splice(i, 1);
               try { gone && gone.bitmap && gone.bitmap.close && gone.bitmap.close(); } catch { /* noop */ }
               renderGen(hostEl, deps);
@@ -624,7 +667,10 @@ export function renderGen(root, helpers) {
     // Qué fotos dejó fuera y por qué (transparencia: nunca borra en silencio).
     descartes.length ? el('div', { class: 'carg-descartes' }, [
       el('b', { text: T('Fotos que dejé fuera:', 'Photos left out:') }),
-      el('ul', {}, descartes.map((d) => el('li', { text: `${T('Foto', 'Photo')} ${Number(d.i) + 1}: ${d.motivo}` }))),
+      el('ul', {}, descartes.map((d) => el('li', { class: 'carg-descartes__it' }, [
+        d.thumb ? el('img', { class: 'carg-descartes__mini', src: d.thumb, alt: T('Foto descartada', 'Discarded photo') }) : null,
+        el('span', { text: d.motivo }),
+      ]))),
     ]) : null,
     slides.length ? el('div', { class: 'carg-cards' }, slideCards) : el('div', { class: 'car-empty carg-empty' }, [
       icon('camera', 28),
