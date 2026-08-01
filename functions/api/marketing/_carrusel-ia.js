@@ -239,7 +239,12 @@ function sanear(out, n, nFotos) {
     orden,
     descartadas,
     slides,
-    caption: String(out.caption || '').slice(0, 2200),
+    // Saltos de línea REALES: el modelo a veces escribe la secuencia \n literal
+    // (barra + ene) y así se pegaría en Instagram, con la barra a la vista.
+    caption: String(out.caption || '')
+      .replace(/\\r\\n|\\n|\\r/g, '\n')   // "\n" literal → salto real
+      .replace(/\n{3,}/g, '\n\n')             // nunca más de un renglón en blanco
+      .trim().slice(0, 2200),
     // Los hashtags se REARMAN: el modelo a veces escribe "#Quintana Roo" y un
     // hashtag con espacio se rompe en Instagram (queda "#Quintana" + basura).
     hashtags: String(out.hashtags || '').split('#').map((t) => t.trim().replace(/\s+/g, ''))
