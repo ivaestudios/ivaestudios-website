@@ -13,11 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608011437';
-import { icon } from '../shell/icons.js?v=202608011437';
-import { T } from '../shell/i18n.js?v=202608011437';
-import * as store from '../shell/store.js?v=202608011437';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608011437';
+import { el, clear, toast, api } from '../api.js?v=202608011519';
+import { icon } from '../shell/icons.js?v=202608011519';
+import { T } from '../shell/i18n.js?v=202608011519';
+import * as store from '../shell/store.js?v=202608011519';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608011519';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608011519';
 
 const W = 1080;
 const H = 1350;
@@ -31,6 +32,7 @@ let brandForClient = null;
 let handle = '';
 let ctaSupport = '';
 let fechaPublicacion = '';   // AAAA-MM-DD de la pieza (no la fecha de hoy)
+let plantillaId = PLANTILLA_POR_DEFECTO;   // qué diseño se está usando
 let brief = '';             // la línea que escribe Vianey: "promo de julio…"
 let captionIA = '';         // el copy de IG que devolvió la IA
 let hashtagsIA = '';
@@ -61,9 +63,43 @@ export function resetGen() {
   brandLabel = ''; handle = ''; ctaSupport = ''; fechaPublicacion = '';
   brandForClient = null;
   brief = ''; captionIA = ''; hashtagsIA = ''; descartes = []; pensando = false;
+  // plantillaId NO se resetea: el diseño es una preferencia de quien trabaja,
+  // no parte del carrusel que se acaba de cerrar.
 }
 
 // ── Fuentes embebidas para el SVG (foreignObject no ve URLs externas) ────────
+const ARCHIVOS_FUENTE = {
+  Outfit:          { file: 'outfit-latin-var.woff2', css: (b) => `@font-face{font-family:Outfit;font-style:normal;font-weight:100 900;src:url(data:font/woff2;base64,${b}) format('woff2')}` },
+  'Pinyon Script': { file: 'pinyon-script.woff2',    css: (b) => `@font-face{font-family:'Pinyon Script';font-style:normal;font-weight:400;src:url(data:font/woff2;base64,${b}) format('woff2')}` },
+  Cormorant:       { file: 'cormorant-roman.woff2',  css: (b) => `@font-face{font-family:Cormorant;font-style:normal;font-weight:300 700;src:url(data:font/woff2;base64,${b}) format('woff2')}` },
+  CormorantIt:     { file: 'cormorant-italic.woff2', css: (b) => `@font-face{font-family:Cormorant;font-style:italic;font-weight:300 700;src:url(data:font/woff2;base64,${b}) format('woff2')}` },
+};
+const fontCache = new Map();   // familia → promesa del @font-face embebido
+
+function fuenteEmbebida(fam) {
+  if (fontCache.has(fam)) return fontCache.get(fam);
+  const def = ARCHIVOS_FUENTE[fam];
+  if (!def) return Promise.resolve('');
+  const pr = (async () => {
+    const buf = await (await fetch('/marketing/fonts/' + def.file)).arrayBuffer();
+    const bytes = new Uint8Array(buf);
+    let bin = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return def.css(btoa(bin));
+  })().catch((e) => { fontCache.delete(fam); throw e; });   // nunca cachear un fallo
+  fontCache.set(fam, pr);
+  return pr;
+}
+
+// Las familias que pide la plantilla activa (la cursiva de Cormorant viaja
+// siempre con su redonda: es el acento del sistema).
+async function fuentesDe(plantilla) {
+  const fams = [...(plantilla.fuentes || ['Outfit'])];
+  if (fams.includes('Cormorant')) fams.push('CormorantIt');
+  const partes = await Promise.all(fams.map(fuenteEmbebida));
+  return partes.join('');
+}
+
 let fontCssPromise = null;
 function designFonts() {
   if (fontCssPromise) return fontCssPromise;
@@ -272,6 +308,7 @@ function slideHTML(s, idx, total) {
   let compactas = false;
   let topAjustado = topPct;
   let miniK = 1;   // último recurso: escala proporcional del bloque entero
+  let alto = 700;  // alto estimado del bloque (lo usa también la plantilla Nota)
   if (hasText) {
     // Pie REAL: la paginación arranca en y≈1218 y el chevron (a la derecha)
     // en y≈1204; el texto va centrado/izquierda, así que el piso honesto del
@@ -280,7 +317,7 @@ function slideHTML(s, idx, total) {
     const H = 1350, RESERVA = 140;   // piso del bloque y=1210; paginación y=1218
     const pz = { kicker, cleanLen: title ? cleanLen : 0, items, plainBody, support };
     const estima = (sm, comp) => altoBloque(pz, sm, comp);
-    let alto = estima(smTitle, compactas);
+    alto = estima(smTitle, compactas);
     const cabe = () => (H * topAjustado / 100) + alto * miniK <= H - RESERVA;
     if (!cabe() && !smTitle) { smTitle = true; alto = estima(smTitle, compactas); }
     if (!cabe() && items) { compactas = true; alto = estima(smTitle, compactas); }
@@ -315,6 +352,24 @@ function slideHTML(s, idx, total) {
         ? `<div class="scrim-block veil-claro" style="top:${scrimTop};bottom:0;--va:${veloA}"></div>`
         : `<div class="scrim-block" style="top:${scrimTop};bottom:0;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,${veloA}) 90px,rgba(12,12,16,${veloA}))"></div>`;
 
+  // ── El contexto que recibe la plantilla ─────────────────────────────────
+  // Todo lo pensado (fotómetro, guardarraíl, escala) queda resuelto aquí; la
+  // plantilla solo decide cómo se ve. Así una plantilla nueva no puede romper
+  // la legibilidad: hereda las decisiones, no las vuelve a tomar.
+  const P = plantillaPorId(plantillaId);
+  if (P.id !== 'editorial') {
+    return P.html({
+      idx, total, isCover, isLast,
+      kicker, title, body, support, items, plainBody,
+      hasText, smTitle, compactas, blockTop, miniCSS,
+      modo, velo: veloA, plan,
+      marca: brandLabel.trim(), handle: handle.trim(), fecha: fechaCorta(fechaPublicacion),
+      // La tarjeta de "Nota" se centra sola: no depende de dónde hubo hueco.
+      papelTop: Math.max(120, Math.round((1350 - (typeof alto === 'number' ? alto : 700) - 300) / 2)),
+      tinta: '#1D2A24',   // verde profundo de "Ficha"
+    });
+  }
+
   return `
   <div class="slide${claseModo}">
     ${modo === 'oscuro' ? '' : '<div class="scrim-top"></div>'}
@@ -333,11 +388,15 @@ function slideHTML(s, idx, total) {
 
 // Rasteriza la capa de diseño (HTML→SVG→imagen) a 2× para nitidez del export.
 async function designLayer(s, idx, total) {
-  const fonts = await designFonts();
+  const P = plantillaPorId(plantillaId);
+  // Cada plantilla trae SU hoja de estilos y SUS fuentes: no se embeben las
+  // cuatro familias siempre (cada una pesa ~40 KB dentro del SVG).
+  const fonts = P.id === 'editorial' ? await designFonts() : await fuentesDe(P);
+  const hoja = P.id === 'editorial' ? DESIGN_CSS : P.css({ tinta: '#1D2A24' });
   const html = slideHTML(s, idx, total);
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W * 2}" height="${H * 2}" viewBox="0 0 ${W} ${H}">` +
     `<defs><filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.35 0.35 0.35 0 0"/></filter></defs>` +
-    `<style>${fonts}${DESIGN_CSS}</style>` +
+    `<style>${fonts}${hoja}</style>` +
     `<foreignObject width="${W}" height="${H}"><div xmlns="http://www.w3.org/1999/xhtml">${html}</div></foreignObject>` +
     `<rect width="${W}" height="${H}" filter="url(#grain)" opacity="0.055"/></svg>`;
   const img = new Image();
@@ -352,8 +411,11 @@ async function designLayer(s, idx, total) {
 
 // ── Foto (canvas, calidad máxima) ────────────────────────────────────────────
 function fitCover(ctx, bmp) {
-  const s = Math.max(W / bmp.width, H / bmp.height);
-  ctx.drawImage(bmp, (W - bmp.width * s) / 2, (H - bmp.height * s) / 2, bmp.width * s, bmp.height * s);
+  // "Ficha" parte el lienzo: la foto ocupa el 56% de arriba y el panel sólido
+  // el resto. Dibujar la foto a sangre completa la dejaría tapada a la mitad.
+  const alto = plantillaPorId(plantillaId).id === 'ficha' ? H * 0.56 : H;
+  const s = Math.max(W / bmp.width, alto / bmp.height);
+  ctx.drawImage(bmp, (W - bmp.width * s) / 2, (alto - bmp.height * s) / 2, bmp.width * s, bmp.height * s);
 }
 
 // ── El fotómetro: la app mira las fotos antes de escribir una letra ─────────
@@ -721,6 +783,27 @@ export function renderGen(root, helpers) {
       'Plantilla editorial minimal: @firma + marca en cursiva + fecha arriba, paginación y chevron abajo, títulos en mayúsculas con **negritas** en lo clave, y pastillas ovaladas para listas (separa con /). Una foto por slide; el sistema arma el resto idéntico en todas.',
       'Minimal editorial template: handle + script brand + date on top, pagination and chevron below, caps titles with **bold** keywords, oval pills for lists (separate with /).',
     ) }),
+    // ── ELEGIR DISEÑO ────────────────────────────────────────────────────
+    // Lo que faltaba: un solo layout no alcanza. "Nota" y "Ficha" ni siquiera
+    // ponen el texto sobre la foto, así que funcionan con cualquier imagen.
+    el('div', { class: 'carg-plantillas' }, [
+      el('span', { class: 'carg-plantillas__lbl', text: T('Diseño', 'Design') }),
+      el('div', { class: 'carg-plantillas__chips' }, PLANTILLAS.map((pl) => el('button', {
+        class: 'carg-chip' + (pl.id === plantillaId ? ' is-on' : ''),
+        type: 'button', title: pl.descripcion,
+        'aria-pressed': pl.id === plantillaId ? 'true' : 'false',
+        onclick: () => {
+          if (plantillaId === pl.id) return;
+          plantillaId = pl.id;
+          analizarTodo();      // otro diseño = otra caja de texto que medir
+          renderGen(hostEl, deps);
+        },
+      }, [
+        el('b', { text: pl.nombre }),
+        el('i', { text: pl.descripcion }),
+      ]))),
+    ]),
+
     el('div', { class: 'carg-controls' }, [
       el('button', { class: 'btn btn-primary', type: 'button', onclick: () => {
         if (slides.length >= MAX_SLIDES) { toast(T(`Ya tienes las ${MAX_SLIDES} fotos del máximo.`, `Already at the ${MAX_SLIDES}-photo max.`), 'error'); return; }

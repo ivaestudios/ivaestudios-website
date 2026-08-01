@@ -238,3 +238,35 @@
 .carg-fecha { display: grid; gap: 3px; }
 .carg-fecha__lbl { font-size: 11px; color: var(--text-mute); letter-spacing: .02em; }
 .carg-fecha__in { min-width: 150px; }
+
+/* ── ELEGIR DISEÑO ────────────────────────────────────────────────────────
+   Chips con nombre + para-qué-sirve. Móvil primero: scroll horizontal con
+   snap, que en el teléfono es más natural que apilarlos. */
+.carg-plantillas { display: grid; gap: 8px; margin: 10px 0 12px; }
+.carg-plantillas__lbl {
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-mute);
+}
+.carg-plantillas__chips {
+  display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;
+  scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch;
+}
+.carg-plantillas__chips::-webkit-scrollbar { height: 0; }
+.carg-chip {
+  flex: 0 0 auto; scroll-snap-align: start; max-width: 220px;
+  display: grid; gap: 2px; text-align: left; cursor: pointer;
+  padding: 10px 14px; border-radius: 12px;
+  border: 1px solid var(--border); background: var(--surface-2);
+  color: var(--text-dim); transition: border-color .15s, background .15s;
+}
+.carg-chip b { font-size: 13.5px; font-weight: 600; color: var(--text); }
+.carg-chip i {
+  font-style: normal; font-size: 11.5px; line-height: 1.35; color: var(--text-mute);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.carg-chip:hover { border-color: color-mix(in srgb, var(--brand, #d946ef) 45%, var(--border)); }
+.carg-chip.is-on {
+  border-color: var(--brand, #d946ef);
+  background: color-mix(in srgb, var(--brand, #d946ef) 12%, transparent);
+}
+.carg-chip.is-on b { color: var(--brand, #d946ef); }
+.carg-chip:focus-visible { outline: 2px solid var(--brand, #d946ef); outline-offset: 2px; }
