@@ -28,20 +28,20 @@ import {
   el, clear, copyText, api, isClientRole,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202608011300';
-import { icon } from '../shell/icons.js?v=202608011300';
-import { T } from '../shell/i18n.js?v=202608011300';
+} from '../api.js?v=202608011315';
+import { icon } from '../shell/icons.js?v=202608011315';
+import { T } from '../shell/i18n.js?v=202608011315';
 // Capas de history del shell: el boton atras del telefono cierra la capa de
 // arriba (panel de guion) en vez de salir de la app.
-import { pushLayer } from '../shell/router.js?v=202608011300';
+import { pushLayer } from '../shell/router.js?v=202608011315';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608011300';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608011300';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608011300';
+import { errorCard } from '../ui/states.js?v=202608011315';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608011315';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608011315';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608011300';
+} from '../lib/video-upload.js?v=202608011315';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -2619,15 +2619,31 @@ function render() {
     }
   }
 
+  // LOS MESES SON UN REGISTRO (pedido de Vianey 2026-08-01): la lista de meses
+  // se arma con TODOS los posts, SIN filtros. Antes salia de los posts ya
+  // filtrados, asi que un filtro guardado (p. ej. por estado) hacia desaparecer
+  // meses COMPLETOS de la barra — julio, 100% "publicado", parecia borrado.
+  // Un filtro esconde filas DENTRO del mes; jamas quita un mes del registro.
+  const byMonthAll = new Map();
+  const sinMesAll = [];
+  for (const p of allPosts) {
+    const k = monthKeyOf(p);
+    if (k) {
+      if (!byMonthAll.has(k)) byMonthAll.set(k, []);
+      byMonthAll.get(k).push(p);
+    } else {
+      sinMesAll.push(p);
+    }
+  }
+
   // Meses vacios agregados a mano: se persisten hasta que tengan filas.
   const extraAll = getExtraMonths();
-  const extra = extraAll.filter((m) => !byMonth.has(m));
+  const extra = extraAll.filter((m) => !byMonthAll.has(m));
   if (!isTodos && extra.length !== extraAll.length) ctx.prefs.set(extraKey(), extra);
 
-  // Meses visibles: los que tienen contenido + los agregados a mano. El mes
-  // actual SOLO se fuerza si no hay nada mas (cliente recien creado), para no
-  // mostrar un mes vacio de relleno (p. ej. Junio 0 cuando el plan es Julio).
-  const keySet = new Set([...byMonth.keys(), ...extra]);
+  // Meses visibles: los que tienen contenido (REAL, sin filtros) + los
+  // agregados a mano. El mes actual SOLO se fuerza si no hay nada mas.
+  const keySet = new Set([...byMonthAll.keys(), ...extra]);
   if (keySet.size === 0) keySet.add(currentYM());
   const ordered = [...keySet].sort();
   visibleKeys = new Set(ordered);
@@ -2635,7 +2651,7 @@ function render() {
   // Si el composer apunta a una seccion que ya no existe (cambio de cliente,
   // mes vaciado), se descarta.
   const allKeys = new Set(ordered);
-  if (sinMes.length) allKeys.add(SIN_MES);
+  if (sinMesAll.length) allKeys.add(SIN_MES);
   if (composer && (!allKeys.has(composer.key) || isTodos)) composer = null;
 
   // Mes activo: se resuelve ANTES de construir los filtros para poder acotar sus
@@ -2643,7 +2659,7 @@ function render() {
   // MAS RECIENTE con contenido (el ultimo calendario creado), no en el mes actual
   // del sistema. `ordered` viene ascendente, asi que el ultimo es el mas nuevo.
   const selectableKeys = [...ordered];
-  if (sinMes.length) selectableKeys.push(SIN_MES);
+  if (sinMesAll.length) selectableKeys.push(SIN_MES);
   if (!activeMonth || !selectableKeys.includes(activeMonth)) {
     activeMonth = ordered.length
       ? ordered[ordered.length - 1]
@@ -2715,7 +2731,7 @@ function render() {
   // resolvio arriba, antes de construir los filtros).
   // Selector de meses para movil/tablet (la barra lateral solo existe >=1024px).
   if (selectableKeys.length > 1) {
-    sectionsEl.appendChild(buildMonthBar(selectableKeys, byMonth, sinMes));
+    sectionsEl.appendChild(buildMonthBar(selectableKeys, byMonthAll, sinMesAll));
   }
 
   const activeRows = activeMonth === SIN_MES ? sinMes : (byMonth.get(activeMonth) || []);
@@ -2781,7 +2797,7 @@ function render() {
   }
 
   // Barra lateral de meses (desktop): salta y expande la seccion del mes.
-  buildSideNav(ordered, byMonth, sinMes, isTodos);
+  buildSideNav(ordered, byMonthAll, sinMesAll, isTodos);
 
   // Restaurar scroll horizontal.
   for (const sec of sectionsEl.querySelectorAll('.meses-sec')) {
