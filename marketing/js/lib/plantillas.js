@@ -242,6 +242,7 @@ const nota = {
 .rubrica{position:absolute;left:0;right:0;bottom:74px;text-align:center;font-family:Outfit,sans-serif;
   font-size:22px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.92);
   text-shadow:0 1px 10px rgba(0,0,0,.55)}
+.rubrica.oscura{color:rgba(26,24,22,.85);text-shadow:0 1px 9px rgba(255,255,255,.55)}
 `,
   html: (c) => {
     let inner = `<div class="cinta"></div>`;
@@ -254,9 +255,9 @@ const nota = {
     // El papel se centra vertical: no depende de dónde el fotómetro vio hueco.
     return `<div class="slide">
       <div class="tono"></div>
-      <div class="marco arriba m-claro"><span>${esc(c.marca)}</span><span>${folio(c.idx, c.total)}</span></div>
+      <div class="marco arriba ${c.marcoArriba}"><span>${esc(c.marca)}</span><span>${folio(c.idx, c.total)}</span></div>
       <div class="papel" style="top:${c.papelTop}px">${inner}</div>
-      <div class="rubrica">${esc(c.handle)}</div>
+      <div class="rubrica ${c.marcoAbajo === 'm-oscuro' ? 'oscura' : ''}">${esc(c.handle)}</div>
     </div>`;
   },
 };
@@ -299,7 +300,7 @@ const ficha = {
     const bajada = c.plainBody || c.support;
     if (bajada) inner += `<div class="bajada">${conCursiva(bajada)}</div>`;
     return `<div class="slide">
-      <div class="marco arriba m-claro"><span>${esc(c.marca)}</span><span>${folio(c.idx, c.total)}</span></div>
+      <div class="marco arriba ${c.marcoArriba}"><span>${esc(c.marca)}</span><span>${folio(c.idx, c.total)}</span></div>
       <div class="panel">${inner}
         <div class="pieficha"><span>${c.fecha}</span><span>${esc(c.handle)}</span></div>
       </div>

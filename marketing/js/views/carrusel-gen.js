@@ -13,12 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608011528';
-import { icon } from '../shell/icons.js?v=202608011528';
-import { T } from '../shell/i18n.js?v=202608011528';
-import * as store from '../shell/store.js?v=202608011528';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608011528';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608011528';
+import { el, clear, toast, api } from '../api.js?v=202608011533';
+import { icon } from '../shell/icons.js?v=202608011533';
+import { T } from '../shell/i18n.js?v=202608011533';
+import * as store from '../shell/store.js?v=202608011533';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608011533';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608011533';
 
 const W = 1080;
 const H = 1350;
@@ -366,6 +366,10 @@ function slideHTML(s, idx, total) {
       marca: brandLabel.trim(), handle: handle.trim(), fecha: fechaCorta(fechaPublicacion),
       // La tarjeta de "Nota" se centra sola: no depende de dónde hubo hueco.
       papelTop: Math.max(120, Math.round((1350 - (typeof alto === 'number' ? alto : 700) - 300) / 2)),
+      // El marco vive sobre la FOTO: su color lo decide la medición de esa
+      // franja, no una constante (sobre un cielo claro el blanco se perdía).
+      marcoArriba: (plan && plan.modoHeader === 'oscuro') ? 'm-oscuro' : 'm-claro',
+      marcoAbajo: (plan && plan.modoPie === 'oscuro') ? 'm-oscuro' : 'm-claro',
       tinta: '#1D2A24',   // verde profundo de "Ficha"
     });
   }
