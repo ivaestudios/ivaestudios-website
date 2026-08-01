@@ -194,7 +194,10 @@ function elegirTratamiento(lFondo, lPeorClaro, detalle, lPeorOscuro) {
   for (let a = 0.08; a <= 0.5; a += 0.02) {
     // El velo claro SUBE la luminancia: el punto más oscuro es el que hay que
     // levantar hasta que el texto oscuro se despegue del fondo.
-    if (contraste(L_OSCURO, conVeloClaro(lOsc, a)) >= OBJETIVO && detalle < 22) {
+    // Y el detalle se juzga YA VELADO: el velo aplana la textura en proporción
+    // a su opacidad, así que exigirle al detalle desnudo mandaba a banda
+    // sólida fotos que un velo suave resolvía perfectas.
+    if (contraste(L_OSCURO, conVeloClaro(lOsc, a)) >= OBJETIVO && detalle * (1 - a) < 22) {
       return { modo: 'oscuro', velo: Number(a.toFixed(2)), contraste: contraste(L_OSCURO, conVeloClaro(lOsc, a)) };
     }
   }
@@ -246,6 +249,9 @@ function evaluarCaja(m, topPct, altoPct) {
   const lMedia = sumL / n;
   const detalle = sumB / n;
   const ruido = sumS / n;
+  // FRACCIÓN de la caja que parece rostro (0..1). Se acumulaba sin dividir:
+  // valía 126 en lugar de 0.35 y el umbral de 0.12 se cumplía siempre.
+  riesgoCara = riesgoCara / n;
 
   // ── PARTIDO EN DOS: el delator #1 de un diseño automático ──────────────────
   // Un bloque de texto a caballo entre el cielo y la arena (o entre la pared y

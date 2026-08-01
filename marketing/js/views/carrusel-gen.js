@@ -13,11 +13,11 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608011415';
-import { icon } from '../shell/icons.js?v=202608011415';
-import { T } from '../shell/i18n.js?v=202608011415';
-import * as store from '../shell/store.js?v=202608011415';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608011415';
+import { el, clear, toast, api } from '../api.js?v=202608011433';
+import { icon } from '../shell/icons.js?v=202608011433';
+import { T } from '../shell/i18n.js?v=202608011433';
+import * as store from '../shell/store.js?v=202608011433';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608011433';
 
 const W = 1080;
 const H = 1350;
