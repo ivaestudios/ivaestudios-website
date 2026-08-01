@@ -13,17 +13,20 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608011656';
-import { icon } from '../shell/icons.js?v=202608011656';
-import { T } from '../shell/i18n.js?v=202608011656';
-import * as store from '../shell/store.js?v=202608011656';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608011656';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608011656';
+import { el, clear, toast, api } from '../api.js?v=202608011704';
+import { icon } from '../shell/icons.js?v=202608011704';
+import { T } from '../shell/i18n.js?v=202608011704';
+import * as store from '../shell/store.js?v=202608011704';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608011704';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608011704';
 
 const W = 1080;
 const H = 1350;
 const MAX_SLIDES = 10;
-const SCALE = 4 / 3;            // export 1440×1800 (tope real de Instagram)
+const SCALE = 2;                // se rasteriza a 2160×2700 y el export baja a
+                                // 1080×1350 con remuestreo propio (ver
+                                // exportarSlide): así los filetes de la serif
+                                // no los destroza el reescalado de Instagram.
 
 // ── Estado ───────────────────────────────────────────────────────────────────
 let slides = [];        // [{ file, bitmap, kicker, title, body, pos }]
@@ -368,8 +371,10 @@ function slideHTML(s, idx, total) {
       papelTop: Math.max(120, Math.round((1350 - (typeof alto === 'number' ? alto : 700) - 300) / 2)),
       // El marco vive sobre la FOTO: su color lo decide la medición de esa
       // franja, no una constante (sobre un cielo claro el blanco se perdía).
-      marcoArriba: (plan && plan.modoHeader === 'oscuro') ? 'm-oscuro' : 'm-claro',
-      marcoAbajo: (plan && plan.modoPie === 'oscuro') ? 'm-oscuro' : 'm-claro',
+      // Velo propio de cada franja del marco: es el texto más chico y cae
+      // donde caiga. Un piso de .22 para que el marco siempre se asiente.
+      veloMarcoTop: Math.max(0.22, (plan && plan.header && plan.header.velo) || 0.34).toFixed(2),
+      veloMarcoBot: Math.max(0.22, (plan && plan.pie && plan.pie.velo) || 0.34).toFixed(2),
       tinta: '#1D2A24',   // verde profundo de "Ficha"
     });
   }
@@ -418,36 +423,36 @@ async function designLayer(s, idx, total) {
 // mural, que es lo que permite volver a exportar igual). Cada foto recibe una
 // celda dentro de la tira de ancho W×total, con un desfase vertical que rompe
 // la cuadrícula sin ensuciarla.
-function planMural(nFotos, total) {
+function planMural(bitmaps, total) {
   const anchoTira = W * total;
-  const celdas = [];
-  // Ritmo de tamaños: grande, chica, mediana… se repite y se ve compuesto.
+  const n = bitmaps.length;
+  // Ritmo de PESOS y alturas: da variedad sin recurrir al azar (el mismo mazo
+  // debe producir siempre el mismo mural para poder re-exportar igual).
   const RITMO = [
-    { w: 0.62, h: 0.46, y: 0.09 },
-    { w: 0.40, h: 0.30, y: 0.62 },
-    { w: 0.47, h: 0.55, y: 0.22 },
-    { w: 0.34, h: 0.26, y: 0.05 },
-    { w: 0.55, h: 0.40, y: 0.55 },
-    { w: 0.38, h: 0.48, y: 0.14 },
+    { alto: 0.50, y: 0.10 },
+    { alto: 0.33, y: 0.60 },
+    { alto: 0.58, y: 0.21 },
+    { alto: 0.29, y: 0.06 },
+    { alto: 0.44, y: 0.52 },
+    { alto: 0.52, y: 0.16 },
   ];
-  let x = W * 0.06;
-  for (let i = 0; i < nFotos; i++) {
+  return bitmaps.map((bmp, i) => {
     const r = RITMO[i % RITMO.length];
-    const w = W * r.w, h = H * r.h;
-    celdas.push({ x, y: H * r.y, w, h });
-    // El avance es menor que el ancho: las fotos se encabalgan un poco, que es
-    // lo que hace que el mural se lea como un collage y no como una fila.
-    x += w * 0.86;
-  }
-  // Reescalar para que el mural ocupe exactamente la tira (sin huecos al final).
-  const usado = x + W * 0.06;
-  const k = anchoTira / usado;
-  return celdas.map((c) => ({ ...c, x: c.x * k, w: c.w * k }));
+    const h = H * r.alto;
+    // El ANCHO sale de la proporción REAL de la foto: una vertical se queda
+    // vertical. Antes se reescalaba solo el ancho y todo salía panorámico.
+    const prop = bmp ? bmp.width / bmp.height : 1.5;
+    const w = Math.min(W * 0.92, h * prop);
+    // Centros repartidos parejo por toda la tira: así ningún slide queda vacío
+    // y las fotos anchas cruzan el borde solas (que es el efecto que se busca).
+    const cx = ((i + 0.5) / n) * anchoTira;
+    return { x: cx - w / 2, y: H * r.y, w, h };
+  });
 }
 
 // Dibuja el trozo del mural que le toca a ESTE slide.
 function pintarMural(ctx, idx, total) {
-  const plan = planMural(slides.length, total);
+  const plan = planMural(slides.map((s) => s.bitmap), total);
   const desplazamiento = idx * W;
   ctx.save();
   ctx.translate(-desplazamiento, 0);
@@ -595,6 +600,31 @@ async function escribirConIA() {
   } finally {
     pensando = false;
     renderGen(hostEl, deps);
+  }
+}
+
+// Baja un slide a 1080×1350 con remuestreo de calidad. Instagram reescala todo
+// lo que reciba con su propio filtro; hacerlo nosotros desde el doble de
+// resolución deja los bordes de la tipografía mucho más limpios.
+async function exportarSlide(canvas, type) {
+  const DEST_W = 1080, DEST_H = 1350;
+  try {
+    const bmp = await createImageBitmap(canvas, {
+      resizeWidth: DEST_W, resizeHeight: DEST_H, resizeQuality: 'high',
+    });
+    const cv = document.createElement('canvas');
+    cv.width = DEST_W; cv.height = DEST_H;
+    const c = cv.getContext('2d');
+    c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
+    c.drawImage(bmp, 0, 0);
+    try { bmp.close(); } catch { /* noop */ }
+    // 0.92: por encima el archivo se pasa de 1.5 MB y entonces Instagram
+    // aplica una recompresión más agresiva — sale peor que si lo damos ya justo.
+    const blob = await deps.canvasToBlob(cv, type, 0.92);
+    cv.width = cv.height = 0;    // liberar de una vez
+    return blob;
+  } catch {
+    return deps.canvasToBlob(canvas, type, 0.95);   // navegador sin resize
   }
 }
 
@@ -805,7 +835,7 @@ export function renderGen(root, helpers) {
       const ext = format === 'png' ? 'png' : 'jpg';
       const entries = [];
       for (let i = 0; i < list.length; i++) {
-        const blob = await deps.canvasToBlob(list[i].canvas, type, 0.97);
+        const blob = await exportarSlide(list[i].canvas, type);
         if (!blob) throw new Error('canvasToBlob null');
         entries.push({ name: `${String(i + 1).padStart(2, '0')}-carrusel.${ext}`, blob });
       }

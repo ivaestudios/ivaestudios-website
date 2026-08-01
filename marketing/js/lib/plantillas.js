@@ -62,14 +62,27 @@ const RESET = `
 
 // El marco editorial: la barra de arriba y la de abajo. Es el elemento que más
 // "profesionaliza" un carrusel y el que faltaba por completo.
+// Los velos de las franjas del marco. El texto de la marca/folio/fecha es el
+// más chico del diseño y cae donde caiga: sin esto desaparecía sobre un cielo.
+const VELOS_MARCO = `
+.velo-arriba{position:absolute;top:0;left:0;right:0;height:300px;
+  background:linear-gradient(rgba(8,8,10,var(--va-top,.34)),rgba(8,8,10,calc(var(--va-top,.34) * .55)) 45%,rgba(8,8,10,0))}
+.velo-abajo{position:absolute;bottom:0;left:0;right:0;height:340px;
+  background:linear-gradient(rgba(8,8,10,0),rgba(8,8,10,calc(var(--va-bot,.34) * .55)) 45%,rgba(8,8,10,var(--va-bot,.34)))}
+`;
+
 const MARCO = `
-.marco{position:absolute;left:88px;right:88px;display:flex;justify-content:space-between;
-  align-items:center;font-family:Outfit,sans-serif;font-size:21px;font-weight:400;
-  letter-spacing:.19em;text-transform:uppercase}
-.marco.arriba{top:74px}
-.marco.abajo{bottom:74px}
+/* Márgenes que respetan lo que Instagram YA ocupa: la cuadrícula del perfil
+   recorta a 3:4 (~34px por lado) y la franja inferior de la interfaz se come
+   ~160px. Y el folio va a la IZQUIERDA: arriba a la derecha vive la píldora
+   "1/5" nativa, competir con ella se ve amateur. */
+.marco{position:absolute;left:96px;right:96px;display:flex;justify-content:space-between;
+  align-items:center;font-family:Outfit,sans-serif;font-size:30px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase}
+.marco.arriba{top:78px;justify-content:flex-start;gap:22px}
+.marco.abajo{bottom:170px}
 .marco span{white-space:nowrap}
-.m-claro{color:rgba(255,255,255,.93);text-shadow:0 1px 10px rgba(0,0,0,.5)}
+.m-claro{color:rgba(255,255,255,.93);text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
 `;
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -88,23 +101,23 @@ const editorial = {
 .scrim-top{position:absolute;top:0;left:0;right:0;height:230px;background:linear-gradient(rgba(12,12,16,.34),rgba(12,12,16,0))}
 .scrim-block{position:absolute;left:0;right:0}
 .scrim-bottom{position:absolute;left:0;right:0;bottom:0;height:240px;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,.38))}
-.hdr{position:absolute;top:88px;left:104px;right:104px;display:flex;justify-content:space-between;align-items:baseline;text-shadow:0 1px 14px rgba(0,0,0,.45)}
-.hdr .h,.hdr .d{font-size:28px;font-weight:400;letter-spacing:.02em;color:rgba(255,255,255,.96)}
+.hdr{position:absolute;top:88px;left:104px;right:104px;display:flex;justify-content:space-between;align-items:baseline;text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
+.hdr .h,.hdr .d{font-size:34px;font-weight:400;letter-spacing:.02em;color:rgba(255,255,255,.96)}
 .hdr .b{font-family:'Pinyon Script',cursive;font-size:54px;line-height:1;transform:translateY(6px);color:#fff}
-.pag{position:absolute;left:104px;bottom:96px;font-size:30px;letter-spacing:.08em;color:rgba(255,255,255,.95);text-shadow:0 1px 12px rgba(0,0,0,.5)}
+.pag{position:absolute;left:104px;bottom:96px;font-size:30px;letter-spacing:.08em;color:rgba(255,255,255,.95);text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
 .chev{position:absolute;right:100px;bottom:84px;width:62px;height:62px;border:2.5px solid rgba(255,255,255,.92);border-radius:50%}
 .chev i{position:absolute;top:50%;left:50%;width:16px;height:16px;border-top:2.5px solid rgba(255,255,255,.92);border-right:2.5px solid rgba(255,255,255,.92);transform:translate(-62%,-50%) rotate(45deg)}
 .chev.down i{transform:translate(-50%,-64%) rotate(135deg)}
 .block{position:absolute;left:104px;right:104px;display:flex;flex-direction:column}
-.kicker{font-size:36px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.96);margin-bottom:26px;text-shadow:0 1px 12px rgba(0,0,0,.5)}
-.title{font-size:99px;font-weight:275;line-height:1.07;text-transform:uppercase;letter-spacing:.004em;text-shadow:0 2px 20px rgba(0,0,0,.4);text-wrap:balance}
+.kicker{font-size:36px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.96);margin-bottom:26px;text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
+.title{font-size:99px;font-weight:275;line-height:1.07;text-transform:uppercase;letter-spacing:.004em;text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5);text-wrap:balance}
 .title b{font-weight:800}
 .title.sm{font-size:82px}
-.support{font-size:42px;line-height:1.4;color:rgba(255,255,255,.95);margin-top:44px;max-width:82%;text-shadow:0 1px 12px rgba(0,0,0,.5)}
+.support{font-size:42px;line-height:1.4;color:rgba(255,255,255,.95);margin-top:44px;max-width:82%;text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
 .support b{font-weight:700}
 .pills{display:flex;flex-direction:column;align-items:center;gap:44px;margin-top:64px}
 .pills.compactas{gap:26px;margin-top:44px}
-.pill{border:1.6px solid rgba(255,255,255,.82);border-radius:50%;padding:34px 78px;font-size:39px;line-height:1.3;text-align:center;max-width:760px;color:rgba(255,255,255,.98);text-shadow:0 1px 12px rgba(0,0,0,.5)}
+.pill{border:1.6px solid rgba(255,255,255,.82);border-radius:50%;padding:34px 78px;font-size:39px;line-height:1.3;text-align:center;max-width:760px;color:rgba(255,255,255,.98);text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
 .pills.compactas .pill{padding:24px 56px;font-size:36px}
 .pill:nth-child(1){transform:rotate(-1.6deg) translateX(-26px)}
 .pill:nth-child(2){transform:rotate(1.3deg) translateX(22px)}
@@ -145,24 +158,29 @@ const revista = {
   sobreFoto: true,
   fuentes: ['Cormorant', 'Outfit'],
   acento: 'cursiva',
-  css: () => `${RESET}${MARCO}
+  css: () => `${RESET}${MARCO}${VELOS_MARCO}
 .slide{font-family:Cormorant,Georgia,serif}
 /* Oscurecimiento GENERAL, no solo una franja: es lo que da el look editorial
    "moody" que pidió la marca — sombra negra, letra blanca. */
 .tono{position:absolute;inset:0;background:linear-gradient(rgba(14,13,12,.46),rgba(14,13,12,.24) 40%,rgba(14,13,12,.52))}
 .bloque{position:absolute;left:120px;right:120px;text-align:center;display:flex;flex-direction:column;align-items:center}
-.eyebrow{font-family:Outfit,sans-serif;font-size:23px;letter-spacing:.24em;text-transform:uppercase;
-  color:rgba(255,255,255,.9);margin-bottom:30px;text-shadow:0 1px 10px rgba(0,0,0,.45)}
+.eyebrow{font-family:Outfit,sans-serif;font-size:34px;letter-spacing:.24em;text-transform:uppercase;
+  color:rgba(255,255,255,.9);margin-bottom:30px;text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
 .tit{font-size:104px;font-weight:400;line-height:1.02;letter-spacing:-.005em;text-wrap:balance;
-  text-shadow:0 2px 22px rgba(0,0,0,.34)}
+  text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
 .tit i{font-style:italic;font-weight:400}
 .tit.sm{font-size:86px}
-.bajada{font-family:Outfit,sans-serif;font-size:27px;font-weight:400;letter-spacing:.13em;
-  line-height:1.65;text-transform:uppercase;color:rgba(255,255,255,.93);margin-top:38px;max-width:74%;
-  text-shadow:0 1px 10px rgba(0,0,0,.5)}
+/* PORTADA: además del feed se ve en la cuadrícula del perfil (~130pt), donde
+   un píxel vale un tercio. Es donde el cliente decide si entra: crece. */
+.slide.portada-1 .tit{font-size:152px;line-height:.98}
+.slide.portada-1 .tit.sm{font-size:126px}
+.slide.portada-1 .eyebrow{font-size:38px}
+.bajada{font-family:Outfit,sans-serif;font-size:46px;font-weight:400;letter-spacing:.1em;
+  line-height:1.42;text-transform:uppercase;color:rgba(255,255,255,.93);margin-top:38px;max-width:74%;
+  text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
 .lista{margin-top:46px;display:flex;flex-direction:column;gap:26px;width:100%;max-width:720px}
-.li{font-size:42px;line-height:1.3;padding-bottom:22px;border-bottom:1px solid rgba(255,255,255,.34);
-  text-shadow:0 1px 12px rgba(0,0,0,.45)}
+.li{font-family:Outfit,sans-serif;font-size:48px;font-weight:400;line-height:1.34;padding-bottom:22px;border-bottom:1px solid rgba(255,255,255,.34);
+  text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
 .li:last-child{border-bottom:0}
 .flecha{position:absolute;left:50%;transform:translateX(-50%);bottom:168px;width:82px;height:82px;
   border:1.7px solid rgba(255,255,255,.85);border-radius:50%}
@@ -184,8 +202,10 @@ const revista = {
     if (c.items) inner += `<div class="lista">${c.items.map((i) => `<div class="li">${esc(i)}</div>`).join('')}</div>`;
     const bajada = c.plainBody || c.support;
     if (bajada) inner += `<div class="bajada">${esc(bajada.replace(/\*\*/g, ''))}</div>`;
-    return `<div class="slide${velado ? ' velado' : ''}">
+    return `<div class="slide${velado ? ' velado' : ''}${c.idx === 0 ? ' portada-1' : ''}">
       <div class="tono"></div>
+      <div class="velo-arriba" style="--va-top:${c.veloMarcoTop}"></div>
+      <div class="velo-abajo" style="--va-bot:${c.veloMarcoBot}"></div>
       <div class="marco arriba m-claro">
         <span>${esc(c.marca)}</span><span>${folio(c.idx, c.total)}</span>
       </div>
@@ -210,7 +230,7 @@ const nota = {
   sobreFoto: false,
   fuentes: ['Cormorant', 'Outfit'],
   acento: 'cursiva',
-  css: () => `${RESET}${MARCO}
+  css: () => `${RESET}${MARCO}${VELOS_MARCO}
 .slide{font-family:Cormorant,Georgia,serif}
 .tono{position:absolute;inset:0;background:linear-gradient(rgba(10,10,12,.42),rgba(10,10,12,.26) 42%,rgba(10,10,12,.46))}
 /* Tarjeta OSCURA translúcida: la foto se sigue viendo a través, pero el texto
@@ -222,17 +242,17 @@ const nota = {
   display:flex;flex-direction:column;align-items:center;text-align:center}
 .cinta{position:absolute;top:-1px;left:50%;transform:translateX(-50%);
   width:150px;height:3px;background:rgba(255,255,255,.55)}
-.num{font-family:Outfit,sans-serif;font-size:24px;letter-spacing:.26em;color:rgba(246,245,243,.58);margin-bottom:26px}
+.num{font-family:Outfit,sans-serif;font-size:32px;letter-spacing:.26em;color:rgba(246,245,243,.58);margin-bottom:26px}
 .tit{font-size:88px;font-weight:400;line-height:1.06;letter-spacing:-.004em;text-wrap:balance}
 .tit i{font-style:italic}
 .tit.sm{font-size:72px}
-.bajada{font-family:Outfit,sans-serif;font-size:28px;line-height:1.62;color:rgba(246,245,243,.8);margin-top:34px;max-width:88%}
+.bajada{font-family:Outfit,sans-serif;font-size:46px;line-height:1.42;color:rgba(246,245,243,.8);margin-top:34px;max-width:88%}
 .lista{margin-top:38px;display:flex;flex-direction:column;gap:20px;width:100%}
-.li{font-size:38px;line-height:1.34;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.2)}
+.li{font-family:Outfit,sans-serif;font-size:46px;font-weight:400;line-height:1.36;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.2)}
 .li:last-child{border-bottom:0;padding-bottom:0}
-.rubrica{position:absolute;left:0;right:0;bottom:74px;text-align:center;font-family:Outfit,sans-serif;
-  font-size:22px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.92);
-  text-shadow:0 1px 10px rgba(0,0,0,.55)}
+.rubrica{position:absolute;left:0;right:0;bottom:176px;text-align:center;font-family:Outfit,sans-serif;
+  font-size:32px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.92);
+  text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
 `,
   html: (c) => {
     let inner = `<div class="cinta"></div>`;
@@ -245,6 +265,8 @@ const nota = {
     // El papel se centra vertical: no depende de dónde el fotómetro vio hueco.
     return `<div class="slide">
       <div class="tono"></div>
+      <div class="velo-arriba" style="--va-top:${c.veloMarcoTop}"></div>
+      <div class="velo-abajo" style="--va-bot:${c.veloMarcoBot}"></div>
       <div class="marco arriba m-claro"><span>${esc(c.marca)}</span><span>${folio(c.idx, c.total)}</span></div>
       <div class="papel" style="top:${c.papelTop}px">${inner}</div>
       <div class="rubrica">${esc(c.handle)}</div>
@@ -264,23 +286,23 @@ const ficha = {
   sobreFoto: false,
   fuentes: ['Cormorant', 'Outfit'],
   acento: 'cursiva',
-  css: (c) => `${RESET}${MARCO}
+  css: (c) => `${RESET}${MARCO}${VELOS_MARCO}
 /* OJO: .slide NO lleva fondo. Esta capa se pinta ENCIMA de la foto del canvas;
    un color sólido aquí tapaba la foto entera y el slide salía liso. */
 .slide{font-family:Cormorant,Georgia,serif}
 .panel{position:absolute;left:0;right:0;bottom:0;height:44%;background:${c.tinta};color:#F3F0EA;
   padding:74px 104px 96px;display:flex;flex-direction:column}
-.eyebrow{font-family:Outfit,sans-serif;font-size:22px;letter-spacing:.24em;text-transform:uppercase;
+.eyebrow{font-family:Outfit,sans-serif;font-size:34px;letter-spacing:.24em;text-transform:uppercase;
   color:rgba(243,240,234,.62);padding-bottom:20px;margin-bottom:26px;border-bottom:1px solid rgba(243,240,234,.24)}
-.tit{font-size:76px;font-weight:400;line-height:1.06;letter-spacing:-.004em;text-wrap:balance}
+.tit{font-size:96px;font-weight:400;line-height:1.06;letter-spacing:-.004em;text-wrap:balance}
 .tit i{font-style:italic}
-.tit.sm{font-size:62px}
-.bajada{font-family:Outfit,sans-serif;font-size:26px;line-height:1.66;color:rgba(243,240,234,.8);margin-top:26px}
+.tit.sm{font-size:78px}
+.bajada{font-family:Outfit,sans-serif;font-size:46px;line-height:1.42;color:rgba(243,240,234,.8);margin-top:26px}
 .lista{margin-top:26px;display:flex;flex-direction:column;gap:14px}
-.li{font-family:Outfit,sans-serif;font-size:25px;line-height:1.5;color:rgba(243,240,234,.84);padding-left:30px;position:relative}
+.li{font-family:Outfit,sans-serif;font-size:46px;line-height:1.5;color:rgba(243,240,234,.84);padding-left:30px;position:relative}
 .li::before{content:'';position:absolute;left:0;top:15px;width:14px;height:1px;background:rgba(243,240,234,.6)}
 .pieficha{position:absolute;left:104px;right:104px;bottom:44px;display:flex;justify-content:space-between;
-  font-family:Outfit,sans-serif;font-size:20px;letter-spacing:.2em;text-transform:uppercase;color:rgba(243,240,234,.55)}
+  font-family:Outfit,sans-serif;font-size:30px;letter-spacing:.2em;text-transform:uppercase;color:rgba(243,240,234,.55)}
 `,
   html: (c) => {
     let inner = '';
@@ -312,22 +334,19 @@ const suave = {
   css: () => `${RESET}
 .slide{font-family:Outfit,sans-serif}
 .tono{position:absolute;inset:0;background:linear-gradient(rgba(12,11,10,0) 44%,rgba(12,11,10,.62))}
-.bloque{position:absolute;left:104px;right:104px;bottom:180px;text-align:center;
+.bloque{position:absolute;left:104px;right:104px;bottom:280px;text-align:center;
   display:flex;flex-direction:column;align-items:center}
 .tit{font-size:78px;font-weight:300;line-height:1.12;letter-spacing:-.012em;text-transform:lowercase;
-  text-shadow:0 2px 20px rgba(0,0,0,.42);text-wrap:balance}
+  text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5);text-wrap:balance}
 .tit i{font-family:Cormorant,Georgia,serif;font-style:italic;font-weight:400;font-size:1.06em}
 .tit.sm{font-size:64px}
-.detalle{font-size:24px;font-weight:400;letter-spacing:.19em;line-height:1.75;text-transform:uppercase;
-  color:rgba(255,255,255,.86);margin-top:30px;max-width:78%;text-shadow:0 1px 10px rgba(0,0,0,.55)}
+.detalle{font-size:34px;font-weight:400;letter-spacing:.19em;line-height:1.75;text-transform:uppercase;
+  color:rgba(255,255,255,.86);margin-top:30px;max-width:78%;text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
 .lista{margin-top:34px;display:flex;flex-direction:column;gap:16px}
-.li{font-size:26px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.9);
-  text-shadow:0 1px 10px rgba(0,0,0,.5)}
-.firma{position:absolute;left:0;right:0;bottom:88px;text-align:center;font-size:23px;
-  letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.9);text-shadow:0 1px 12px rgba(0,0,0,.55)}
-.puntos{position:absolute;left:0;right:0;bottom:52px;display:flex;justify-content:center;gap:11px}
-.pt{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.42)}
-.pt.on{background:rgba(255,255,255,.96)}
+.li{font-size:34px;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.9);
+  text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
+.firma{position:absolute;left:0;right:0;bottom:182px;text-align:center;font-size:32px;
+  letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.9);text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
 `,
   html: (c) => {
     let inner = '';
@@ -335,12 +354,10 @@ const suave = {
     if (c.items) inner += `<div class="lista">${c.items.map((i) => `<div class="li">${esc(i)}</div>`).join('')}</div>`;
     const det = [c.kicker, c.plainBody || c.support].filter(Boolean).join(' · ');
     if (det) inner += `<div class="detalle">${esc(det.replace(/\*\*/g, ''))}</div>`;
-    const puntos = Array.from({ length: c.total }, (_, i) => `<div class="pt${i === c.idx ? ' on' : ''}"></div>`).join('');
     return `<div class="slide">
       <div class="tono"></div>
       ${c.hasText ? `<div class="bloque">${inner}</div>` : ''}
       <div class="firma">${esc(c.marca || c.handle)}</div>
-      <div class="puntos">${puntos}</div>
     </div>`;
   },
 };
@@ -359,22 +376,22 @@ const mural = {
   sobreFoto: false,
   fuentes: ['Cormorant', 'Outfit'],
   acento: 'cursiva',
-  css: () => `${RESET}${MARCO}
+  css: () => `${RESET}${MARCO}${VELOS_MARCO}
 .slide{font-family:Cormorant,Georgia,serif}
 .viñeta{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(12,12,15,0) 45%,rgba(12,12,15,.5))}
 /* El titular solo en la PORTADA: en los demás el mural manda. */
 .portada{position:absolute;left:96px;right:96px;bottom:190px;text-align:left}
 .tit{font-size:82px;font-weight:400;line-height:1.05;letter-spacing:-.006em;
-  text-shadow:0 2px 26px rgba(0,0,0,.7);text-wrap:balance}
+  text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5);text-wrap:balance}
 .tit i{font-style:italic}
-.tit.sm{font-size:66px}
-.eyebrow{font-family:Outfit,sans-serif;font-size:22px;letter-spacing:.26em;text-transform:uppercase;
-  color:rgba(255,255,255,.82);margin-bottom:22px;text-shadow:0 1px 12px rgba(0,0,0,.7)}
-.bajada{font-family:Outfit,sans-serif;font-size:25px;line-height:1.6;color:rgba(255,255,255,.86);
-  margin-top:22px;max-width:74%;text-shadow:0 1px 12px rgba(0,0,0,.7)}
+.tit.sm{font-size:80px}
+.eyebrow{font-family:Outfit,sans-serif;font-size:34px;letter-spacing:.26em;text-transform:uppercase;
+  color:rgba(255,255,255,.82);margin-bottom:22px;text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
+.bajada{font-family:Outfit,sans-serif;font-size:46px;line-height:1.6;color:rgba(255,255,255,.86);
+  margin-top:22px;max-width:74%;text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
 /* Firma vertical en el canto: el detalle que delata el formato editorial. */
 .canto{position:absolute;right:34px;top:50%;transform:translateY(-50%) rotate(180deg);
-  writing-mode:vertical-rl;font-family:Outfit,sans-serif;font-size:19px;letter-spacing:.34em;
+  writing-mode:vertical-rl;font-family:Outfit,sans-serif;font-size:30px;letter-spacing:.34em;
   text-transform:uppercase;color:rgba(255,255,255,.6)}
 `,
   html: (c) => {
@@ -388,6 +405,8 @@ const mural = {
     }
     return `<div class="slide">
       <div class="viñeta"></div>
+      <div class="velo-arriba" style="--va-top:${c.veloMarcoTop}"></div>
+      <div class="velo-abajo" style="--va-bot:${c.veloMarcoBot}"></div>
       <div class="marco arriba m-claro"><span>${esc(c.marca)}</span><span>${folio(c.idx, c.total)}</span></div>
       ${inner ? `<div class="portada">${inner}</div>` : ''}
       <div class="canto">${esc(c.handle)}</div>

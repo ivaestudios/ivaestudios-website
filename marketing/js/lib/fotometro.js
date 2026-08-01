@@ -316,7 +316,7 @@ function tratarFranja(m, desdePct, hastaPct) {
       n++;
     }
   }
-  if (!n) return { modo: 'blanco', velo: 0 };
+  if (!n) return { modo: 'blanco', velo: 0, refuerzo: false };
   const media = sumL / n;
   const lPeor = peor * 0.7 + media * 0.3;
   const t = elegirTratamiento(media, lPeor, sumB / n, minL * 0.7 + media * 0.3);
@@ -329,7 +329,9 @@ function tratarFranja(m, desdePct, hastaPct) {
   }
   // El velo se devuelve (antes se tiraba): si la franja necesita velo para
   // leerse, el encabezado/pie deben pintarlo, no ignorarlo.
-  return { modo: t.modo, velo: t.velo, refuerzo: t.velo > 0.3 };
+  // El texto del marco es de 30-34px, o sea CHICO en el feed: se le exige el
+  // objetivo de texto normal (4.5), no el de titular.
+  return { modo: t.modo, velo: t.velo, refuerzo: t.velo > 0.25 };
 }
 
 // ── API pública ──────────────────────────────────────────────────────────────
