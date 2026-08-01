@@ -13,12 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608011611';
-import { icon } from '../shell/icons.js?v=202608011611';
-import { T } from '../shell/i18n.js?v=202608011611';
-import * as store from '../shell/store.js?v=202608011611';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608011611';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608011611';
+import { el, clear, toast, api } from '../api.js?v=202608011651';
+import { icon } from '../shell/icons.js?v=202608011651';
+import { T } from '../shell/i18n.js?v=202608011651';
+import * as store from '../shell/store.js?v=202608011651';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608011651';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608011651';
 
 const W = 1080;
 const H = 1350;
@@ -413,6 +413,62 @@ async function designLayer(s, idx, total) {
   return img;
 }
 
+// ── MURAL: la foto no se resuelve por slide, sino en un plano continuo ──────
+// Posiciones deterministas (nada de azar: el mismo mazo da siempre el mismo
+// mural, que es lo que permite volver a exportar igual). Cada foto recibe una
+// celda dentro de la tira de ancho W×total, con un desfase vertical que rompe
+// la cuadrícula sin ensuciarla.
+function planMural(nFotos, total) {
+  const anchoTira = W * total;
+  const celdas = [];
+  // Ritmo de tamaños: grande, chica, mediana… se repite y se ve compuesto.
+  const RITMO = [
+    { w: 0.62, h: 0.46, y: 0.09 },
+    { w: 0.40, h: 0.30, y: 0.62 },
+    { w: 0.47, h: 0.55, y: 0.22 },
+    { w: 0.34, h: 0.26, y: 0.05 },
+    { w: 0.55, h: 0.40, y: 0.55 },
+    { w: 0.38, h: 0.48, y: 0.14 },
+  ];
+  let x = W * 0.06;
+  for (let i = 0; i < nFotos; i++) {
+    const r = RITMO[i % RITMO.length];
+    const w = W * r.w, h = H * r.h;
+    celdas.push({ x, y: H * r.y, w, h });
+    // El avance es menor que el ancho: las fotos se encabalgan un poco, que es
+    // lo que hace que el mural se lea como un collage y no como una fila.
+    x += w * 0.86;
+  }
+  // Reescalar para que el mural ocupe exactamente la tira (sin huecos al final).
+  const usado = x + W * 0.06;
+  const k = anchoTira / usado;
+  return celdas.map((c) => ({ ...c, x: c.x * k, w: c.w * k }));
+}
+
+// Dibuja el trozo del mural que le toca a ESTE slide.
+function pintarMural(ctx, idx, total) {
+  const plan = planMural(slides.length, total);
+  const desplazamiento = idx * W;
+  ctx.save();
+  ctx.translate(-desplazamiento, 0);
+  slides.forEach((s, i) => {
+    const c = plan[i];
+    if (!c || !s.bitmap) return;
+    // Solo lo que cae en este slide (más un margen para los bordes).
+    if (c.x + c.w < desplazamiento - 40 || c.x > desplazamiento + W + 40) return;
+    const MARCO = 14;   // filo claro tipo instantánea, el detalle del formato
+    ctx.fillStyle = 'rgba(246,244,240,.92)';
+    ctx.fillRect(c.x - MARCO, c.y - MARCO, c.w + MARCO * 2, c.h + MARCO * 2);
+    ctx.save();
+    ctx.beginPath(); ctx.rect(c.x, c.y, c.w, c.h); ctx.clip();
+    const e = Math.max(c.w / s.bitmap.width, c.h / s.bitmap.height);
+    ctx.drawImage(s.bitmap, c.x + (c.w - s.bitmap.width * e) / 2, c.y + (c.h - s.bitmap.height * e) / 2,
+      s.bitmap.width * e, s.bitmap.height * e);
+    ctx.restore();
+  });
+  ctx.restore();
+}
+
 // ── Foto (canvas, calidad máxima) ────────────────────────────────────────────
 function fitCover(ctx, bmp) {
   // "Ficha" parte el lienzo: la foto ocupa el 56% de arriba y el panel sólido
@@ -561,7 +617,8 @@ async function regenerate(previewHost) {
       c2.imageSmoothingQuality = 'high';
       c2.scale(SCALE, SCALE);
       c2.fillStyle = '#0B0B10'; c2.fillRect(0, 0, W, H);
-      if (s.bitmap) fitCover(c2, s.bitmap);
+      if (plantillaPorId(plantillaId).id === 'mural') pintarMural(c2, i, slides.length);
+      else if (s.bitmap) fitCover(c2, s.bitmap);
       c2.drawImage(layers[i], 0, 0, W, H);
       previews.push({ canvas });
       const cell = el('div', { class: 'carg-cell' }, [el('div', { class: 'carg-cell__num', text: String(i + 1) })]);

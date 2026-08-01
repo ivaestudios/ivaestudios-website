@@ -341,7 +341,58 @@ const suave = {
   },
 };
 
-export const PLANTILLAS = [editorial, revista, nota, ficha, suave];
+// ════════════════════════════════════════════════════════════════════════════
+// 6. MURAL — collage CONTINUO. Aprendido de los carruseles "seamless" de
+//    fotógrafos de boda: las fotos viven en un plano del ancho de todo el
+//    carrusel, así que las del borde se completan al deslizar. El efecto es
+//    "álbum desplegado" y es imposible de lograr resolviendo slide por slide.
+//    Aquí el texto es mínimo a propósito: el trabajo es el protagonista.
+// ════════════════════════════════════════════════════════════════════════════
+const mural = {
+  id: 'mural',
+  nombre: 'Mural',
+  descripcion: 'Collage continuo: las fotos siguen de un slide al otro. Para mostrar una sesión.',
+  sobreFoto: false,
+  fuentes: ['Cormorant', 'Outfit'],
+  acento: 'cursiva',
+  css: () => `${RESET}${MARCO}
+.slide{font-family:Cormorant,Georgia,serif;background:#0C0C0F}
+.viñeta{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(12,12,15,0) 45%,rgba(12,12,15,.5))}
+/* El titular solo en la PORTADA: en los demás el mural manda. */
+.portada{position:absolute;left:96px;right:96px;bottom:190px;text-align:left}
+.tit{font-size:82px;font-weight:400;line-height:1.05;letter-spacing:-.006em;
+  text-shadow:0 2px 26px rgba(0,0,0,.7);text-wrap:balance}
+.tit i{font-style:italic}
+.tit.sm{font-size:66px}
+.eyebrow{font-family:Outfit,sans-serif;font-size:22px;letter-spacing:.26em;text-transform:uppercase;
+  color:rgba(255,255,255,.82);margin-bottom:22px;text-shadow:0 1px 12px rgba(0,0,0,.7)}
+.bajada{font-family:Outfit,sans-serif;font-size:25px;line-height:1.6;color:rgba(255,255,255,.86);
+  margin-top:22px;max-width:74%;text-shadow:0 1px 12px rgba(0,0,0,.7)}
+/* Firma vertical en el canto: el detalle que delata el formato editorial. */
+.canto{position:absolute;right:34px;top:50%;transform:translateY(-50%) rotate(180deg);
+  writing-mode:vertical-rl;font-family:Outfit,sans-serif;font-size:19px;letter-spacing:.34em;
+  text-transform:uppercase;color:rgba(255,255,255,.6)}
+`,
+  html: (c) => {
+    const esPortada = c.idx === 0;
+    let inner = '';
+    if (esPortada) {
+      if (c.kicker) inner += `<div class="eyebrow">${esc(c.kicker)}</div>`;
+      if (c.title) inner += `<div class="tit${c.smTitle ? ' sm' : ''}">${conCursiva(c.title)}</div>`;
+      const b = c.plainBody || c.support;
+      if (b) inner += `<div class="bajada">${esc(b.replace(/\*\*/g, ''))}</div>`;
+    }
+    return `<div class="slide">
+      <div class="viñeta"></div>
+      <div class="marco arriba m-claro"><span>${esc(c.marca)}</span><span>${folio(c.idx, c.total)}</span></div>
+      ${inner ? `<div class="portada">${inner}</div>` : ''}
+      <div class="canto">${esc(c.handle)}</div>
+      ${c.isLast ? `<div class="marco abajo m-claro"><span>${c.fecha}</span><span>${esc(c.support || '')}</span></div>` : ''}
+    </div>`;
+  },
+};
+
+export const PLANTILLAS = [editorial, revista, nota, ficha, suave, mural];
 export const PLANTILLA_POR_DEFECTO = 'revista';
 export function plantillaPorId(id) {
   return PLANTILLAS.find((p) => p.id === id) || PLANTILLAS.find((p) => p.id === PLANTILLA_POR_DEFECTO);
