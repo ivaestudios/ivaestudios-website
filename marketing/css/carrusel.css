@@ -164,3 +164,46 @@
 .car-hint { color: var(--text-dim); }
 .carg-card__head b { color: var(--text-dim); }
 .carg-card__acts .btn { min-height: 44px; min-width: 44px; }
+
+/* ── LA IA ESCRIBE (fase 2 del generador) ──────────────────────────────────
+   Una línea de brief + un botón. Móvil primero: en el teléfono todo va apilado
+   y el botón ocupa el ancho completo (es el gesto principal de la pantalla). */
+.carg-ia {
+  display: grid; gap: 8px; margin: 10px 0 4px;
+  padding: 12px; border-radius: 14px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--brand, #d946ef) 6%, transparent);
+}
+.carg-ia__brief { width: 100%; }
+.carg-ia__go { width: 100%; justify-content: center; }
+.carg-ia__go[disabled] { opacity: .75; cursor: progress; }
+.carg-ia__note { font-size: 12px; line-height: 1.45; color: var(--text-mute); }
+.carg-ia__spin {
+  width: 13px; height: 13px; display: inline-block; vertical-align: -1px;
+  border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%;
+  animation: carg-spin .7s linear infinite;
+}
+@keyframes carg-spin { to { transform: rotate(360deg); } }
+
+/* Transparencia: qué fotos dejó fuera la IA y por qué. Nunca borra en silencio. */
+.carg-descartes {
+  margin: 8px 0; padding: 10px 12px; border-radius: 12px;
+  border: 1px dashed var(--border); font-size: 12.5px; color: var(--text-mute);
+}
+.carg-descartes b { color: var(--text-dim); display: block; margin-bottom: 4px; }
+.carg-descartes ul { margin: 0; padding-left: 18px; }
+.carg-descartes li { margin: 2px 0; }
+
+/* El caption de Instagram, editable y con copiar de un toque. */
+.carg-caption { margin: 12px 0; display: grid; gap: 8px; }
+.carg-caption__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.carg-caption__ta { width: 100%; resize: vertical; line-height: 1.5; font-size: 14px; }
+.carg-caption__tags {
+  font-size: 13px; color: var(--brand, #d946ef); word-break: break-word; line-height: 1.5;
+}
+
+@media (min-width: 760px) {
+  .carg-ia { grid-template-columns: 1fr auto; align-items: center; }
+  .carg-ia__go { width: auto; }
+  .carg-ia__note { grid-column: 1 / -1; }
+}

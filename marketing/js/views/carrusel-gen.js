@@ -13,11 +13,11 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202608010231';
-import { icon } from '../shell/icons.js?v=202608010231';
-import { T } from '../shell/i18n.js?v=202608010231';
-import * as store from '../shell/store.js?v=202608010231';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608010231';
+import { el, clear, toast, api } from '../api.js?v=202608010245';
+import { icon } from '../shell/icons.js?v=202608010245';
+import { T } from '../shell/i18n.js?v=202608010245';
+import * as store from '../shell/store.js?v=202608010245';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608010245';
 
 const W = 1080;
 const H = 1350;
@@ -31,6 +31,12 @@ let brandForClient = null;
 let handle = '';
 let ctaSupport = '';
 let fechaPublicacion = '';   // AAAA-MM-DD de la pieza (no la fecha de hoy)
+let brief = '';             // la línea que escribe Vianey: "promo de julio…"
+let captionIA = '';         // el copy de IG que devolvió la IA
+let hashtagsIA = '';
+let descartes = [];         // [{i, motivo}] fotos que la IA dejó fuera
+let pensando = false;       // hay una llamada a la IA en curso
+let iaToken = 0;            // token PROPIO de la IA (ver escribirConIA)
 let genToken = 0;
 let previews = [];
 
@@ -42,6 +48,7 @@ export function resetGen() {
   for (const s of slides) { try { s.bitmap && s.bitmap.close && s.bitmap.close(); } catch { /* noop */ } }
   slides = []; previews = [];
   brandLabel = ''; brandForClient = null; handle = ''; ctaSupport = ''; fechaPublicacion = '';
+  brief = ''; captionIA = ''; hashtagsIA = ''; descartes = []; pensando = false;
 }
 
 // ── Fuentes embebidas para el SVG (foreignObject no ve URLs externas) ────────
@@ -246,6 +253,78 @@ function analizarTodo() {
   }
 }
 
+// ── LA IA ESCRIBE (fase 2) ───────────────────────────────────────────────────
+// Se le mandan MINIATURAS (512 px de lado largo, ~60 KB), nunca las fotos
+// originales: la calidad del export no depende de esto y así el envío es rápido
+// y barato. Junto con cada una viaja lo que el fotómetro YA midió, para que el
+// copy se escriba sabiendo cuánto espacio hay de verdad.
+async function miniatura(bmp) {
+  const lado = 512;
+  const k = Math.min(1, lado / Math.max(bmp.width, bmp.height));
+  const w = Math.max(1, Math.round(bmp.width * k)), h = Math.max(1, Math.round(bmp.height * k));
+  const cv = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(w, h)
+    : Object.assign(document.createElement('canvas'), { width: w, height: h });
+  const c = cv.getContext('2d');
+  c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
+  c.drawImage(bmp, 0, 0, w, h);
+  const blob = cv.convertToBlob ? await cv.convertToBlob({ type: 'image/jpeg', quality: 0.72 })
+    : await new Promise((r) => cv.toBlob(r, 'image/jpeg', 0.72));
+  const buf = new Uint8Array(await blob.arrayBuffer());
+  let bin = '';
+  for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+
+async function escribirConIA() {
+  if (pensando || !slides.length) return;
+  pensando = true;
+  renderGen(hostEl, deps);
+  // Token PROPIO, no genToken: ese lo incrementa cada redibujo de la vista
+  // previa, así que si la usuaria tecleaba algo mientras la IA pensaba, el
+  // resultado llegaba tarde y se descartaba en silencio tras 60 s de espera.
+  const token = ++iaToken;
+  try {
+    const fotos = await Promise.all(slides.map(async (s) => ({
+      b64: await miniatura(s.bitmap),
+      mime: 'image/jpeg',
+      plan: s.plan ? { pos: s.plan.pos, modo: s.plan.modo, semaforo: s.plan.semaforo, aviso: s.plan.aviso } : null,
+    })));
+    if (token !== iaToken) return;
+    const { activeClientId } = store.getState();
+    const out = await api.post('/carousel/guion', {
+      brief, marca: brandLabel, nSlides: slides.length, client_id: activeClientId, fotos,
+    }, { timeout: 180000 });  // mirar 8 fotos y escribir tarda ~40-120 s
+    if (token !== iaToken) return;
+
+    // Reordenar las fotos como las curó la IA (y soltar las descartadas).
+    const orden = (out.orden || []).filter((i) => slides[i]);
+    if (orden.length >= 2) {
+      const fuera = slides.filter((_, i) => !orden.includes(i));
+      slides = orden.map((i) => slides[i]);
+      for (const s of fuera) { try { s.bitmap && s.bitmap.close && s.bitmap.close(); } catch { /* noop */ } }
+    }
+    (out.slides || []).forEach((t, i) => {
+      if (!slides[i]) return;
+      slides[i].kicker = t.kicker || '';
+      slides[i].title = t.title || '';
+      slides[i].body = t.body || '';
+      slides[i].alt = t.alt || '';
+    });
+    captionIA = out.caption || '';
+    hashtagsIA = out.hashtags || '';
+    descartes = out.descartadas || [];
+    // Las fotos cambiaron de orden: hay que volver a medir (y a cuidar el ritmo).
+    analizarTodo();
+    toast(T('Carrusel escrito. Revísalo y edita lo que quieras.', 'Carousel written. Review and edit.'), 'success');
+  } catch (e) {
+    const msg = (e && e.message) || T('No se pudo escribir el carrusel.', 'Could not write the carousel.');
+    toast(msg, 'error');
+  } finally {
+    pensando = false;
+    renderGen(hostEl, deps);
+  }
+}
+
 // ── Render ───────────────────────────────────────────────────────────────────
 async function regenerate(previewHost) {
   const token = ++genToken;
@@ -390,6 +469,23 @@ export function renderGen(root, helpers) {
                 redraw();
               },
             }),
+            // OTRA OPCIÓN: recorre las composiciones que el fotómetro ya midió
+            // y validó para ESTA foto. No es aleatorio: son las alternativas
+            // legibles, ordenadas por calidad. Instantáneo, sin llamadas.
+            (s.plan && (s.plan.opciones || []).length > 1) ? el('button', {
+              class: 'btn btn-sm', type: 'button', title: T('Otra composición para esta foto', 'Another composition'),
+              'aria-label': T('Otra opción', 'Another option'), text: '⟳',
+              onclick: () => {
+                const ops = s.plan.opciones.filter((o) => o.contraste >= 3);
+                if (ops.length < 2) { toast(T('Esta foto solo admite una composición legible.', 'Only one legible composition here.'), 'info'); return; }
+                s.opIdx = ((s.opIdx || 0) + 1) % ops.length;
+                const o = ops[s.opIdx];
+                s.plan = { ...s.plan, pos: o.pos, modo: o.modo, velo: o.velo, contraste: Number(o.contraste.toFixed(1)) };
+                s.posManual = null;   // vuelve a mandar el fotómetro
+                s.pos = o.pos;
+                renderGen(hostEl, deps);
+              },
+            }) : null,
             i > 0 ? el('button', { class: 'btn btn-sm', type: 'button', 'aria-label': T('Mover antes', 'Move earlier'), text: '←', onclick: () => { [slides[i - 1], slides[i]] = [slides[i], slides[i - 1]]; renderGen(hostEl, deps); } }) : null,
             i < slides.length - 1 ? el('button', { class: 'btn btn-sm', type: 'button', 'aria-label': T('Mover después', 'Move later'), text: '→', onclick: () => { [slides[i + 1], slides[i]] = [slides[i], slides[i + 1]]; renderGen(hostEl, deps); } }) : null,
             el('button', { class: 'btn btn-sm carg-card__del', type: 'button', 'aria-label': T('Quitar slide', 'Remove slide'), text: '✕', onclick: () => {
@@ -418,9 +514,26 @@ export function renderGen(root, helpers) {
         entries.push({ name: `${String(i + 1).padStart(2, '0')}-carrusel.${ext}`, blob });
       }
       if (entries.length === 1) { deps.download(entries[0].blob, entries[0].name); return; }
+
+      // El ZIP lleva TODO lo del carrusel, no solo las imágenes: el caption
+      // listo para pegar, los hashtags y el texto alternativo de cada slide
+      // (accesibilidad + SEO). Así no hay que volver a la app a copiar nada.
+      const partes = [];
+      if (captionIA) partes.push('CAPTION PARA INSTAGRAM\n' + '='.repeat(40) + '\n' + captionIA);
+      if (hashtagsIA) partes.push('HASHTAGS\n' + '='.repeat(40) + '\n' + hashtagsIA);
+      const alts = slides.map((sl, i) => (sl.alt ? `${String(i + 1).padStart(2, '0')}: ${sl.alt}` : null)).filter(Boolean);
+      if (alts.length) partes.push('TEXTO ALTERNATIVO POR SLIDE (accesibilidad y SEO)\n' + '='.repeat(40) + '\n' + alts.join('\n'));
+      if (partes.length) {
+        entries.push({
+          name: 'caption-y-textos.txt',
+          blob: new Blob([partes.join('\n\n\n')], { type: 'text/plain;charset=utf-8' }),
+        });
+      }
+
       const zip = await deps.buildZip(entries);
-      deps.download(zip, 'carrusel-ivae.zip');
-      toast(T(`${entries.length} slides descargados.`, `${entries.length} slides downloaded.`), 'success');
+      const marcaSlug = (brandLabel || 'ivae').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'ivae';
+      deps.download(zip, `carrusel-${marcaSlug}.zip`);
+      toast(T(`${list.length} slides descargados${partes.length ? ' + caption y textos' : ''}.`, `${list.length} slides downloaded.`), 'success');
     } catch (e) {
       console.error('[carrusel-gen] export', e);
       toast(T('No se pudo exportar. Intenta de nuevo.', 'Export failed. Try again.'), 'error');
@@ -443,10 +556,54 @@ export function renderGen(root, helpers) {
       el('input', { class: 'input carg-in', type: 'text', value: handle, placeholder: T('@firma (izquierda)', '@handle (left)'), maxlength: '36', oninput: (e) => { handle = e.target.value; redrawSoon(); }, onchange: redraw }),
       el('input', { class: 'input carg-in', type: 'text', value: ctaSupport, placeholder: T('Apoyo del cierre (ej. Guarda este post ✦ mándanos DM)', 'Closing support'), maxlength: '90', oninput: (e) => { ctaSupport = e.target.value; redrawSoon(); }, onchange: redraw }),
     ]),
+
+    // ── LA IA ESCRIBE ────────────────────────────────────────────────────────
+    // Una línea de brief y un botón. La app ya midió las fotos; aquí la IA cura,
+    // ordena y escribe todo. Lo que devuelve es un BORRADOR: cada campo sigue
+    // siendo editable y la vista previa se actualiza al instante, como siempre.
+    slides.length ? el('div', { class: 'carg-ia' }, [
+      el('input', {
+        class: 'input carg-ia__brief', type: 'text', value: brief, maxlength: '200',
+        placeholder: T('¿De qué va el carrusel? Ej: promo de limpieza dental de julio', 'What is the carousel about?'),
+        oninput: (e) => { brief = e.target.value; },
+        onkeydown: (e) => { if (e.key === 'Enter') escribirConIA(); },
+      }),
+      el('button', {
+        class: 'btn btn-primary carg-ia__go', type: 'button', disabled: pensando || undefined,
+        onclick: escribirConIA,
+      }, pensando
+        ? [el('span', { class: 'carg-ia__spin' }), ' ' + T('Escribiendo…', 'Writing…')]
+        : [icon('sparkles', 15), ' ' + T('Escribir con IA', 'Write with AI')]),
+      el('span', { class: 'carg-ia__note', text: T(
+        'La IA elige las mejores fotos, las ordena como historia y escribe los textos y el caption. Todo editable.',
+        'The AI picks the best photos, orders them and writes the copy. All editable.') }),
+    ]) : null,
+
+    // Qué fotos dejó fuera y por qué (transparencia: nunca borra en silencio).
+    descartes.length ? el('div', { class: 'carg-descartes' }, [
+      el('b', { text: T('Fotos que dejé fuera:', 'Photos left out:') }),
+      el('ul', {}, descartes.map((d) => el('li', { text: `${T('Foto', 'Photo')} ${Number(d.i) + 1}: ${d.motivo}` }))),
+    ]) : null,
     slides.length ? el('div', { class: 'carg-cards' }, slideCards) : el('div', { class: 'car-empty carg-empty' }, [
       icon('camera', 28),
       el('p', { text: T('Sin fotos todavía. Elige hasta 10 — la primera es la portada y la última el cierre.', 'No photos yet. Pick up to 10.') }),
     ]),
+    // El caption de Instagram que escribió la IA, listo para copiar y pegar.
+    (captionIA || hashtagsIA) ? el('div', { class: 'carg-caption' }, [
+      el('div', { class: 'carg-caption__head' }, [
+        el('b', { text: T('Caption para Instagram', 'Instagram caption') }),
+        el('button', { class: 'btn btn-sm', type: 'button', onclick: async () => {
+          try { await navigator.clipboard.writeText((captionIA + (hashtagsIA ? '\n\n' + hashtagsIA : '')).trim()); toast(T('Copiado.', 'Copied.'), 'success'); }
+          catch { toast(T('No se pudo copiar.', 'Copy failed.'), 'error'); }
+        } }, [icon('copy', 13), ' ' + T('Copiar todo', 'Copy all')]),
+      ]),
+      el('textarea', {
+        class: 'input carg-caption__ta', rows: '7', value: captionIA,
+        oninput: (e) => { captionIA = e.target.value; },
+      }),
+      hashtagsIA ? el('div', { class: 'carg-caption__tags', text: hashtagsIA }) : null,
+    ]) : null,
+
     slides.length ? el('div', { class: 'carg-actions' }, [
       el('button', { class: 'btn btn-primary', type: 'button', onclick: () => regenerate(previewHost).then(() => toast(T('Vista previa lista.', 'Preview ready.'), 'success')) }, [icon('activity', 15), ' ' + T('Generar vista previa', 'Generate preview')]),
       el('button', { class: 'btn', type: 'button', onclick: () => dl('jpg') }, [icon('download', 15), ' ' + T('Descargar JPG', 'Download JPG')]),

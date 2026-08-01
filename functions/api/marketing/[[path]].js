@@ -49,6 +49,7 @@ import { handleDashboard } from './_dashboard.js';
 import { handleStorage, refreshStorageUsage } from './_storage.js';
 import { handleMonthlyReport } from './_enterprise.js';
 import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHeadersFor } from './_downloader.js';
+import { pedirCarrusel } from './_carrusel-ia.js';
 import {
   handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
   handleIgMetrics, handleIgMetricsRange, fetchIgMetrics, fetchIgMetricsRange,
@@ -812,6 +813,41 @@ async function handleDeleteAccount(request, env, session) {
   }
   // Cookie limpia: la sesión ya no existe en la BD.
   return json({ ok: true }, 200, { 'Set-Cookie': sessionCookie('', 0) });
+}
+
+// Carrusel con IA: recibe miniaturas + el plan del fotómetro y devuelve el
+// carrusel escrito. Tope de payload para no reventar el Worker: 10 fotos de
+// ~200 KB en base64 ≈ 2.7 MB, muy por debajo del límite de request.
+async function handleCarruselGuion(request, env, session) {
+  let body;
+  try { body = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+  const fotos = Array.isArray(body.fotos) ? body.fotos.slice(0, 10) : [];
+  if (!fotos.length) return json({ error: 'Manda al menos una foto.' }, 400);
+  const pesado = fotos.reduce((a, f) => a + String(f.b64 || '').length, 0);
+  if (pesado > 12_000_000) return json({ error: 'Las miniaturas pesan demasiado.' }, 413);
+
+  const t0 = Date.now();
+  try {
+    const out = await pedirCarrusel(env, {
+      brief: String(body.brief || '').slice(0, 800),
+      marca: String(body.marca || '').slice(0, 80),
+      nSlides: body.nSlides,
+      fotos,
+    });
+    try {
+      await logActivity(env, {
+        client_id: body.client_id || null, session, action: 'carousel.ai',
+        detail: `${out.slides.length} slides · ${Date.now() - t0}ms`,
+      });
+    } catch { /* best-effort */ }
+    return json(out);
+  } catch (e) {
+    const msg = (e && e.message) || 'No se pudo generar el guion.';
+    console.error('[mkt carrusel-ia]', msg);
+    // 503 en fallos de servicio (para que la UI ofrezca reintentar) y 502 en el
+    // resto; el mensaje viaja tal cual porque ya está escrito para la usuaria.
+    return json({ error: msg, code: e && e.code }, e && e.code === 'SIN_LLAVE' ? 503 : 502);
+  }
 }
 
 // ============================================================================
@@ -4482,6 +4518,14 @@ async function route(request, env, authCtx) {
   if (path === '/auth/account' && method === 'DELETE') return handleDeleteAccount(request, env, session);
 
   const isStaff = session.role === 'admin' || session.role === 'team';
+
+  // ── CARRUSEL CON IA (staff) ──
+  // El navegador manda MINIATURAS (no las fotos originales) + lo que ya midió
+  // el fotómetro; Claude cura, ordena y escribe. Ver _carrusel-ia.js.
+  if (path === '/carousel/guion' && method === 'POST') {
+    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    return handleCarruselGuion(request, env, session);
+  }
 
   // ── CLIENTS ──
   if (parts[0] === 'clients') {

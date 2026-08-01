@@ -28,6 +28,8 @@ const PATHS = {
   logout:    'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9',
   key:       'M21 2l-2 2m-7.6 7.6a5 5 0 1 1-7-7 5 5 0 0 1 7 7zM15 7l3 3M18 4l3 3',
   activity:  'M22 12h-4l-3 9L9 3l-3 9H2',
+  // Chispas: el gesto universal de "esto lo hizo la IA".
+  sparkles:  'M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9zM18.5 15l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9zM5 2.5l.6 1.4 1.4.6-1.4.6L5 6.5l-.6-1.4L3 4.5l1.4-.6z',
   filter:    'M22 4H2l8 9v6l4 2v-8z',
   briefcase: 'M3 8h18v12H3zM8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18',
   zap:       'M13 2 3 14h7l-1 8 11-13h-7z',
