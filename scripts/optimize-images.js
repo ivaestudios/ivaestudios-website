@@ -187,12 +187,14 @@ async function main() {
 
   // Find all .jpg/.jpeg/.png under /images, excluding anything already in /optimized.
   const pattern = `**/*.{${SOURCE_EXTENSIONS.join(',')}}`;
-  const matches = await glob(pattern, {
+  const matches = (await glob(pattern, {
     cwd: IMAGES_DIR,
     nocase: true,
     nodir: true,
     ignore: ['optimized/**'],
-  });
+    // legacy hand-made responsive copies (-480/-960/-1600) are variants, not
+    // sources — reprocessing them creates junk like foo-960-768.avif
+  })).filter((rel) => !/-(480|960|1600)\.(jpe?g|png)$/i.test(rel));
 
   if (matches.length === 0) {
     console.warn('[optimize-images] No source images found.');
