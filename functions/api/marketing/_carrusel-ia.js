@@ -148,10 +148,16 @@ export async function pedirCarrusel(env, { brief, marca, nSlides, fotos }) {
     tool_choice: { type: 'tool', name: 'entregar_carrusel' },
   };
 
-  // Reintentos: la red y los 429/529 son transitorios; los 4xx de verdad no.
+  // Reintentos con PRESUPUESTO: el front corta a los 180 s, así que gastar
+  // hasta ~365 s en reintentos era pagar generaciones que nadie iba a ver.
+  // Cada intento solo arranca si le queda tiempo real de terminar.
+  const t0 = Date.now();
+  const PRESUPUESTO = 165000;   // margen para que la respuesta alcance a salir
   let ultimo;
   for (let intento = 0; intento < 3; intento++) {
     if (intento) await new Promise((r) => setTimeout(r, intento === 1 ? 1200 : 3500));
+    const queda = PRESUPUESTO - (Date.now() - t0);
+    if (queda < 25000) break;   // no alcanza ni para el intento más rápido
     let res, data;
     try {
       res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -162,7 +168,7 @@ export async function pedirCarrusel(env, { brief, marca, nSlides, fotos }) {
           'content-type': 'application/json',
         },
         body: JSON.stringify(cuerpo),
-        signal: AbortSignal.timeout(120000), // 8 fotos + razonamiento tarda
+        signal: AbortSignal.timeout(Math.min(120000, queda)), // 8 fotos tardan
       });
       data = await res.json().catch(() => ({}));
     } catch (e) {
@@ -215,9 +221,23 @@ function sanear(out, n, nFotos) {
       : corta(s.body, LIMITES.body),
     alt: corta(s.alt, 120),
   }));
+  // Las descartadas se RECONCILIAN con `orden`: un índice inventado o una foto
+  // que sí entró al carrusel confundían la lista de "fotos que dejé fuera".
+  const dentro = new Set(orden);
+  const descartadas = (Array.isArray(out.descartadas) ? out.descartadas : [])
+    .map((d) => ({ i: Number(d && d.i), motivo: corta(d && d.motivo, 160) }))
+    .filter((d) => Number.isInteger(d.i) && d.i >= 0 && d.i < nFotos && !dentro.has(d.i))
+    .slice(0, 12);
+  // Y las que ni entraron ni se explicaron: se nombran igual, sin motivo
+  // inventado. Callarlas era lo único inaceptable.
+  for (let i = 0; i < nFotos && descartadas.length < 12; i++) {
+    if (!dentro.has(i) && !descartadas.some((d) => d.i === i)) {
+      descartadas.push({ i, motivo: 'No entró en la historia final.' });
+    }
+  }
   return {
     orden,
-    descartadas: (Array.isArray(out.descartadas) ? out.descartadas : []).slice(0, 12),
+    descartadas,
     slides,
     caption: String(out.caption || '').slice(0, 2200),
     // Los hashtags se REARMAN: el modelo a veces escribe "#Quintana Roo" y un

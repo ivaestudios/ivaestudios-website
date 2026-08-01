@@ -823,8 +823,14 @@ async function handleCarruselGuion(request, env, session) {
   // Worker en request.json() y el chequeo de después llegaba tarde (auditoría).
   const cl = Number(request.headers.get('content-length') || 0);
   if (cl > 16_000_000) return json({ error: 'Las miniaturas pesan demasiado.' }, 413);
+  // Content-Length se puede omitir (chunked), así que el peso REAL se mide
+  // leyendo el texto: es el único número que no se puede falsear.
   let body;
-  try { body = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+  let crudo;
+  try { crudo = await request.text(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+  if (crudo.length > 16_000_000) return json({ error: 'Las miniaturas pesan demasiado.' }, 413);
+  try { body = JSON.parse(crudo); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+  crudo = null;
   // Entrada saneada campo por campo: nada del cliente viaja entero al prompt.
   const MIMES = new Set(['image/jpeg', 'image/png', 'image/webp']);
   const POS = new Set(['top', 'mid', 'bottom']);

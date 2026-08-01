@@ -22,11 +22,11 @@ import {
   CONTENT_TYPES, CONTENT_TYPE_ORDER,
   APPROVALS, PLATFORMS, GRABACION_LEVELS,
   avatar, statusLabel, contentTypeLabel, approvalLabel,
-} from '../api.js?v=202608011337';
-import * as apiMod from '../api.js?v=202608011337';
-import { T, isEN } from '../shell/i18n.js?v=202608011337';
-import { icon } from '../shell/icons.js?v=202608011337';
-import { isPast } from '../lib/dates.js?v=202608011337';
+} from '../api.js?v=202608011415';
+import * as apiMod from '../api.js?v=202608011415';
+import { T, isEN } from '../shell/i18n.js?v=202608011415';
+import { icon } from '../shell/icons.js?v=202608011415';
+import { isPast } from '../lib/dates.js?v=202608011415';
 
 // Prioridad: usa los mapas de api.js si el shell-core ya los agrego; si no,
 // cae a este espejo local (mismas keys que la migracion 005).

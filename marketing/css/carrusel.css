@@ -208,8 +208,17 @@
   .carg-ia__note { grid-column: 1 / -1; }
 }
 
-/* Semáforo como botón: mismo tamaño de siempre, sin cromo de botón. */
-.carg-sem { background: none; border: 0; cursor: pointer; padding: 2px 4px; }
+/* Semáforo como botón: sin cromo, pero con área táctil de verdad. Se creó
+   PARA el tap en el teléfono y medía 15×19 px — imposible de atinar. El punto
+   se ve igual de discreto; lo que crece es la zona que responde al dedo. */
+.carg-sem {
+  background: none; border: 0; cursor: pointer;
+  min-width: 44px; min-height: 44px;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin: -12px 0;              /* no empuja la fila: crece hacia afuera */
+  font-size: 13px; line-height: 1;
+}
+.carg-sem:focus-visible { outline: 2px solid var(--brand, #d946ef); outline-offset: -8px; border-radius: 10px; }
 
 /* En tema claro los colores de siempre reprueban WCAG (ámbar 1.9:1, verde
    2.0:1 sobre superficie clara): tonos hondos solo cuando el tema es claro. */
@@ -223,3 +232,9 @@
   width: 44px; height: 55px; object-fit: cover; border-radius: 8px; flex: none;
   border: 1px solid var(--border);
 }
+
+/* Fecha del post: etiqueta chiquita encima del campo, para que se entienda que
+   es la fecha que se IMPRIME y no un filtro. */
+.carg-fecha { display: grid; gap: 3px; }
+.carg-fecha__lbl { font-size: 11px; color: var(--text-mute); letter-spacing: .02em; }
+.carg-fecha__in { min-width: 150px; }

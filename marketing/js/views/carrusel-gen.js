@@ -13,11 +13,11 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608011337';
-import { icon } from '../shell/icons.js?v=202608011337';
-import { T } from '../shell/i18n.js?v=202608011337';
-import * as store from '../shell/store.js?v=202608011337';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608011337';
+import { el, clear, toast, api } from '../api.js?v=202608011415';
+import { icon } from '../shell/icons.js?v=202608011415';
+import { T } from '../shell/i18n.js?v=202608011415';
+import * as store from '../shell/store.js?v=202608011415';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608011415';
 
 const W = 1080;
 const H = 1350;
@@ -58,7 +58,8 @@ export function resetGen() {
   genToken += 1;
   for (const s of slides) { try { s.bitmap && s.bitmap.close && s.bitmap.close(); } catch { /* noop */ } }
   slides = []; previews = [];
-  brandLabel = ''; brandForClient = null; handle = ''; ctaSupport = ''; fechaPublicacion = '';
+  brandLabel = ''; handle = ''; ctaSupport = ''; fechaPublicacion = '';
+  brandForClient = null;
   brief = ''; captionIA = ''; hashtagsIA = ''; descartes = []; pensando = false;
 }
 
@@ -97,7 +98,7 @@ const DESIGN_CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
 .slide{position:relative;width:1080px;height:1350px;font-family:Outfit,sans-serif;color:#fff;overflow:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 .scrim-top{position:absolute;top:0;left:0;right:0;height:230px;background:linear-gradient(rgba(12,12,16,.34),rgba(12,12,16,0))}
-.scrim-block{position:absolute;left:0;right:0;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,.42) 26%,rgba(12,12,16,.42))}
+.scrim-block{position:absolute;left:0;right:0;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,.42) 90px,rgba(12,12,16,.42))}
 .scrim-bottom{position:absolute;left:0;right:0;bottom:0;height:240px;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,.38))}
 .hdr{position:absolute;top:88px;left:104px;right:104px;display:flex;justify-content:space-between;align-items:baseline;text-shadow:0 1px 14px rgba(0,0,0,.45)}
 .hdr .h,.hdr .d{font-size:28px;font-weight:400;letter-spacing:.02em;color:rgba(255,255,255,.96)}
@@ -140,7 +141,10 @@ const DESIGN_CSS = `
 .slide.t-oscuro .pill{color:#18181E;border-color:rgba(24,24,30,.55)}
 /* Sobre claro la sombra oscura ensucia: se cambia por un halo claro sutil. */
 .slide.t-oscuro .title,.slide.t-oscuro .kicker,.slide.t-oscuro .support{text-shadow:0 1px 10px rgba(255,255,255,.55)}
-.veil-claro{background:linear-gradient(rgba(247,247,245,0),rgba(247,247,245,var(--va)) 26%,rgba(247,247,245,var(--va)))}
+/* La rampa termina en 90 px: el velo arranca 7% (94 px) ANTES del texto, así
+   que cuando el bloque empieza la opacidad ya es la que midió el fotómetro.
+   Con el 26% de antes, la primera línea recibía apenas un tercio del velo. */
+.veil-claro{background:linear-gradient(rgba(247,247,245,0),rgba(247,247,245,var(--va)) 90px,rgba(247,247,245,var(--va)))}
 
 /* Encabezado y pie con su PROPIO color: en una foto con pared blanca arriba y
    mesa negra abajo, el título va oscuro pero la paginación tiene que ir clara.
@@ -158,6 +162,14 @@ const DESIGN_CSS = `
 .pie-claro .chev{border-color:rgba(255,255,255,.92)}
 .pie-claro .chev i{border-top-color:rgba(255,255,255,.92);border-right-color:rgba(255,255,255,.92)}
 
+/* Refuerzo: cuando la franja necesitaba velo y no hay dónde ponerlo (el velo
+   es del bloque de texto, no del encabezado), se dobla la sombra. Es discreto
+   y salva la legibilidad sin manchar la foto con otro degradado. */
+.hdr-refuerzo .hdr{text-shadow:0 1px 3px rgba(0,0,0,.9),0 2px 18px rgba(0,0,0,.7)}
+.hdr-refuerzo.hdr-oscuro .hdr{text-shadow:0 1px 3px rgba(255,255,255,.95),0 2px 16px rgba(255,255,255,.8)}
+.pie-refuerzo .pag{text-shadow:0 1px 3px rgba(0,0,0,.9),0 2px 18px rgba(0,0,0,.7)}
+.pie-refuerzo.pie-oscuro .pag{text-shadow:0 1px 3px rgba(255,255,255,.95),0 2px 16px rgba(255,255,255,.8)}
+
 /* Banda sólida: el último recurso, resuelto con elegancia editorial. */
 .banda{position:absolute;left:0;right:0;background:#0C0C10}
 .banda.clara{background:#F7F7F5}
@@ -165,6 +177,45 @@ const DESIGN_CSS = `
 `;
 
 
+
+// ── ¿Cuánto alto ocupa el bloque de texto? ──────────────────────────────────
+// Estimación con las métricas REALES del DESIGN_CSS (fuentes, paddings, gaps).
+// Vive aquí arriba porque la usan DOS cosas: el guardarraíl de slideHTML (para
+// encoger si no cabe) y analizarTodo (para pedirle al fotómetro que mida la
+// caja del tamaño que el texto va a ocupar DE VERDAD, no una fija del 34%).
+function altoBloque({ kicker, cleanLen, items, plainBody, support }, sm, comp) {
+  const fsT = sm ? 82 : 99;
+  let h = 0;
+  if (kicker) h += 36 * 1.2 + 26;
+  if (cleanLen) h += Math.ceil(cleanLen / Math.max(1, Math.floor(872 / (fsT * 0.52)))) * fsT * 1.07 + 8;
+  if (items && items.length) {
+    const pad = comp ? 24 : 34, fsP = comp ? 36 : 39, gap = comp ? 26 : 44, mt = comp ? 44 : 64;
+    h += mt + items.reduce((a, it, i) => {
+      const lineas = Math.ceil(it.length / Math.max(1, Math.floor(604 / (fsP * 0.5))));
+      return a + pad * 2 + lineas * fsP * 1.3 + (i ? gap : 0);
+    }, 0);
+  }
+  for (const t of [plainBody, support]) {
+    if (t) h += 44 + Math.ceil(String(t).replace(/\*\*/g, '').length / 34) * 42 * 1.4;
+  }
+  return h;
+}
+
+// Las piezas de texto de un slide, tal como las arma slideHTML.
+function piezasDe(s, idx, total) {
+  const isCover = idx === 0, isLast = idx === total - 1;
+  const title = (s.title || '').trim();
+  const body = (s.body || '').trim();
+  const support = isLast ? ctaSupport.trim() : (isCover ? body : '');
+  const items = !isCover && body.includes('/')
+    ? body.split('/').map((x) => x.trim()).filter(Boolean).slice(0, 3) : null;
+  return {
+    kicker: (s.kicker || '').trim(),
+    title, body, support, items,
+    cleanLen: title.replace(/\*\*/g, '').length,
+    plainBody: !isCover && !items ? body : '',
+  };
+}
 
 function slideHTML(s, idx, total) {
   const isCover = idx === 0;
@@ -183,9 +234,20 @@ function slideHTML(s, idx, total) {
   const topPct = pos === 'top' ? 19 : pos === 'bottom' ? 46 : 30;
   const modo = (plan && plan.modo) || 'blanco';
   const veloA = plan ? plan.velo : 0.42;   // 0.42 era el valor FIJO de antes
+  // El pie SIEMPRE cae dentro de la banda (ésta llega a bottom:0), y el
+  // encabezado solo si el bloque subió tanto que la banda lo alcanza. Donde
+  // manda la banda (#0C0C10, casi negra) el texto va claro, sin importar lo
+  // que dijera la foto: medir la foto tapada era el defecto.
+  const bandaCubrePie = modo === 'banda';
+  const bandaCubreHdr = modo === 'banda' && (topAjustado - 7) * 13.5 < 148;  // header 88..148px
+  const modoHdr = bandaCubreHdr ? 'blanco' : (plan && plan.modoHeader) || 'blanco';
+  const modoPie = bandaCubrePie ? 'blanco' : (plan && plan.modoPie) || 'blanco';
   const claseModo = (modo === 'oscuro' ? ' t-oscuro' : modo === 'banda' ? ' t-banda' : '')
-    + (plan ? (plan.modoHeader === 'oscuro' ? ' hdr-oscuro' : ' hdr-claro') : '')
-    + (plan ? (plan.modoPie === 'oscuro' ? ' pie-oscuro' : ' pie-claro') : '');
+    + (modoHdr === 'oscuro' ? ' hdr-oscuro' : ' hdr-claro')
+    + (modoPie === 'oscuro' ? ' pie-oscuro' : ' pie-claro')
+    // Refuerzo de sombra cuando la franja pedía velo y no hay dónde ponerlo.
+    + (plan && plan.header && plan.header.refuerzo && !bandaCubreHdr ? ' hdr-refuerzo' : '')
+    + (plan && plan.pie && plan.pie.refuerzo && !bandaCubrePie ? ' pie-refuerzo' : '');
 
   // FECHA: la de PUBLICACIÓN de la pieza, no la del día en que se arma el
   // carrusel. Antes, preparar el martes el post del viernes imprimía "martes".
@@ -194,9 +256,11 @@ function slideHTML(s, idx, total) {
   const now = fechaISO ? new Date(fechaISO + 'T12:00:00') : new Date();
   const MES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'][now.getMonth()];
 
-  let inner = title || kicker || body ? 'x' : '';   // solo para saber si HAY texto
-
-  const hasText = !!inner;
+  // ¿HAY texto? Cuenta también el apoyo del cierre (ctaSupport): un cierre sin
+  // kicker/título pero con apoyo perdía su bloque y su velo (regresión cazada
+  // en la revisión 2). `inner` se arma DESPUÉS, con las clases del guardarraíl.
+  let inner = '';
+  const hasText = !!(kicker || title || body || support);
 
   // ── GUARDARRAÍL DE DESBORDE (cazado en la prueba visual E2E) ─────────────
   // Título de 3 líneas + 3 píldoras se salían del lienzo por abajo y el pie
@@ -207,30 +271,26 @@ function slideHTML(s, idx, total) {
   let smTitle = cleanLen > 46;
   let compactas = false;
   let topAjustado = topPct;
+  let miniK = 1;   // último recurso: escala proporcional del bloque entero
   if (hasText) {
-    const H = 1350, RESERVA = 205;   // pie: paginación 96 + chevron + aire
-    const estima = (sm, comp) => {
-      const fsT = sm ? 82 : 99;
-      let h = 0;
-      if (kicker) h += 36 * 1.2 + 26;
-      if (title) h += Math.ceil(cleanLen / Math.max(1, Math.floor(872 / (fsT * 0.52)))) * fsT * 1.07 + 8;
-      if (items) {
-        const pad = comp ? 24 : 34, fsP = comp ? 36 : 39, gap = comp ? 26 : 44, mt = comp ? 44 : 64;
-        h += mt + items.reduce((a, it, i) => {
-          const lineas = Math.ceil(it.length / Math.max(1, Math.floor(604 / (fsP * 0.5))));
-          return a + pad * 2 + lineas * fsP * 1.3 + (i ? gap : 0);
-        }, 0);
-      }
-      for (const t of [plainBody, support]) {
-        if (t) h += 44 + Math.ceil(t.replace(/\*\*/g, '').length / 34) * 42 * 1.4;
-      }
-      return h;
-    };
+    // Pie REAL: la paginación arranca en y≈1218 y el chevron (a la derecha)
+    // en y≈1204; el texto va centrado/izquierda, así que el piso honesto del
+    // bloque es y=1200 → reserva 150. Con 205 se compactaban slides que SÍ
+    // cabían (calibrado con casos reales en la ronda 2).
+    const H = 1350, RESERVA = 140;   // piso del bloque y=1210; paginación y=1218
+    const pz = { kicker, cleanLen: title ? cleanLen : 0, items, plainBody, support };
+    const estima = (sm, comp) => altoBloque(pz, sm, comp);
     let alto = estima(smTitle, compactas);
-    let cabe = () => (H * topAjustado / 100) + alto <= H - RESERVA;
+    const cabe = () => (H * topAjustado / 100) + alto * miniK <= H - RESERVA;
     if (!cabe() && !smTitle) { smTitle = true; alto = estima(smTitle, compactas); }
     if (!cabe() && items) { compactas = true; alto = estima(smTitle, compactas); }
     if (!cabe()) topAjustado = Math.max(12, Math.floor((H - RESERVA - alto) / H * 100));
+    if (!cabe()) {
+      // Aún no cabe (cierre con kicker+título+3 píldoras+apoyo, todo al tope):
+      // se escala el bloque completo, compensando el ancho para conservar los
+      // cortes de línea. Proporcional y parejo: se ve intencional, no roto.
+      miniK = Math.max(0.8, (H - RESERVA - H * topAjustado / 100) / alto);
+    }
   }
   // reconstruir el título/píldoras con las clases finales
   inner = '';
@@ -241,6 +301,9 @@ function slideHTML(s, idx, total) {
   if (support) inner += `<div class="support">${rich(support)}</div>`;
 
   const blockTop = `${topAjustado}%`;
+  const miniCSS = miniK < 1
+    ? `;transform:scale(${miniK.toFixed(3)});transform-origin:top left;width:${Math.round(872 / miniK)}px;left:104px;right:auto`
+    : '';
   const scrimTop = `${Math.max(0, topAjustado - 7)}%`;
 
   // El velo ya NO es fijo: `--va` lleva la opacidad que calculó el fotómetro.
@@ -250,7 +313,7 @@ function slideHTML(s, idx, total) {
       ? `<div class="banda" style="top:${scrimTop};bottom:0"></div>`
       : modo === 'oscuro'
         ? `<div class="scrim-block veil-claro" style="top:${scrimTop};bottom:0;--va:${veloA}"></div>`
-        : `<div class="scrim-block" style="top:${scrimTop};bottom:0;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,${veloA}) 26%,rgba(12,12,16,${veloA}))"></div>`;
+        : `<div class="scrim-block" style="top:${scrimTop};bottom:0;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,${veloA}) 90px,rgba(12,12,16,${veloA}))"></div>`;
 
   return `
   <div class="slide${claseModo}">
@@ -262,7 +325,7 @@ function slideHTML(s, idx, total) {
       <span class="b">${esc(brandLabel.trim())}</span>
       <span class="d">${now.getDate()} ${MES} ${now.getFullYear()}</span>
     </div>
-    ${hasText ? `<div class="block" style="top:${blockTop}">${inner}</div>` : ''}
+    ${hasText ? `<div class="block" style="top:${blockTop}${miniCSS}">${inner}</div>` : ''}
     <div class="pag">${String(idx + 1).padStart(2, '0')}\\${String(total).padStart(2, '0')}</div>
     <div class="chev${isLast ? ' down' : ''}"><i></i></div>
   </div>`;
@@ -298,7 +361,14 @@ function fitCover(ctx, bmp) {
 // manual: si el usuario tocó el botón de altura, ese slide queda como él dijo.
 function analizarTodo() {
   try {
-    const planes = analizarCarrusel(slides.map((s) => s.bitmap));
+    // Cada foto se mide con el alto que SU texto va a ocupar de verdad (mismo
+    // estimador que usa el render). Así la zona evaluada y la zona pintada son
+    // la misma, y el veredicto del semáforo vale para lo que se ve.
+    const altos = slides.map((s, i) => {
+      const alto = altoBloque(piezasDe(s, i, slides.length), false, false);
+      return Math.max(20, Math.min(70, Math.round((alto / 1350) * 100)));
+    });
+    const planes = analizarCarrusel(slides.map((s) => s.bitmap), { altosPct: altos });
     slides.forEach((s, i) => {
       s.plan = planes[i] || null;
       if (!s.posManual && s.plan) s.pos = s.plan.pos;
@@ -341,6 +411,12 @@ async function escribirConIA() {
     toast(T('Sube al menos 2 fotos: la IA arma una historia, no un slide suelto.', 'Add at least 2 photos.'), 'error');
     return;
   }
+  // Si ya hay texto escrito (por ti o por una pasada anterior), se pregunta:
+  // la IA reemplaza TODO y perder un copy ya pulido duele.
+  const hayTexto = captionIA.trim() || slides.some((s) => (s.kicker || s.title || s.body || '').trim());
+  if (hayTexto && !confirm(T(
+    'Esto reemplaza los textos y el caption que ya hay. ¿Continuar?',
+    'This replaces the current texts and caption. Continue?'))) return;
   pensando = true;
   renderGen(hostEl, deps);
   // Token PROPIO, no genToken: ese lo incrementa cada redibujo de la vista
@@ -443,13 +519,24 @@ export function renderGen(root, helpers) {
   const { clients, activeClientId } = store.getState();
   const brand = (clients || []).find((c) => c.id === activeClientId) || null;
   if (brand && brandForClient !== activeClientId) {
+    // CAMBIO DE MARCA: el trabajo anterior no se mezcla con la marca nueva.
+    // Antes solo cambiaba el rótulo y las fotos/caption viejos se quedaban.
+    if (brandForClient && slides.length) {
+      resetGen();
+      toast(T('Cambiaste de marca: el carrusel anterior se cerró.', 'Brand changed: previous carousel cleared.'), 'info');
+    }
     brandLabel = brand.name || '';
     brandForClient = activeClientId;
   }
 
   const previewHost = el('div', { class: 'carg-grid' });
   const redraw = () => regenerate(previewHost);
-  const redrawSoon = () => { clearTimeout(redrawTimer); redrawTimer = setTimeout(redraw, 500); };
+  const redrawSoon = () => {
+    clearTimeout(redrawTimer);
+    // Al parar de teclear se RE-MIDE: más texto = caja más alta = puede que
+    // otra zona de la foto sea la buena. Medir en cada tecla trabaría el móvil.
+    redrawTimer = setTimeout(() => { analizarTodo(); redraw(); }, 500);
+  };
 
   const fileIn = el('input', {
     type: 'file', accept: 'image/*', multiple: true, hidden: true,
@@ -586,6 +673,9 @@ export function renderGen(root, helpers) {
   const dl = async (format) => {
     if (!slides.length) return;
     try {
+      // Un redibujo diferido pendiente robaría el token a ESTE regenerate y el
+      // ZIP saldría con los slides anteriores (o vacío).
+      clearTimeout(redrawTimer);
       await regenerate(previewHost);
       const list = previews.slice();
       const type = format === 'png' ? 'image/png' : 'image/jpeg';
@@ -640,6 +730,17 @@ export function renderGen(root, helpers) {
       el('input', { class: 'input carg-in', type: 'text', value: brandLabel, placeholder: T('Marca (centro, en cursiva)', 'Brand (center, script)'), maxlength: '36', oninput: (e) => { brandLabel = e.target.value; redrawSoon(); }, onchange: redraw }),
       el('input', { class: 'input carg-in', type: 'text', value: handle, placeholder: T('@firma (izquierda)', '@handle (left)'), maxlength: '36', oninput: (e) => { handle = e.target.value; redrawSoon(); }, onchange: redraw }),
       el('input', { class: 'input carg-in', type: 'text', value: ctaSupport, placeholder: T('Apoyo del cierre (ej. Guarda este post ✦ mándanos DM)', 'Closing support'), maxlength: '90', oninput: (e) => { ctaSupport = e.target.value; redrawSoon(); }, onchange: redraw }),
+      // Fecha de PUBLICACIÓN (la que se imprime arriba). Vacía = hoy. Antes
+      // no había forma de ponerla: armar el martes el post del viernes
+      // imprimía "martes" en todos los slides.
+      el('label', { class: 'carg-fecha' }, [
+        el('span', { class: 'carg-fecha__lbl', text: T('Fecha del post', 'Post date') }),
+        el('input', {
+          class: 'input carg-in carg-fecha__in', type: 'date', value: fechaPublicacion,
+          title: T('La fecha que se imprime en los slides. Vacía = hoy.', 'Date printed on slides. Empty = today.'),
+          onchange: (e) => { fechaPublicacion = e.target.value || ''; redraw(); },
+        }),
+      ]),
     ]),
 
     // ── LA IA ESCRIBE ────────────────────────────────────────────────────────

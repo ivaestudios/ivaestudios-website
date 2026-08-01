@@ -168,26 +168,34 @@ const conVeloClaro = (l, a) => l * (1 - a) + L_VELO_CLARO * a;
  * @param {number} lPeor  luminancia del punto MÁS desfavorable de la zona
  * @param {number} detalle energía de bordes media de la zona
  */
-function elegirTratamiento(lFondo, lPeor, detalle) {
+function elegirTratamiento(lFondo, lPeorClaro, detalle, lPeorOscuro) {
+  // El PEOR punto no es el mismo para los dos colores de texto:
+  //   · texto BLANCO  → sufre con el punto más CLARO   (lPeorClaro)
+  //   · texto OSCURO  → sufre con el punto más OSCURO  (lPeorOscuro)
+  // Medir ambos contra el máximo (como se hacía) aprobaba texto negro sobre
+  // una zona negra con semáforo verde: su MEJOR caso, no el peor.
+  const lOsc = lPeorOscuro == null ? lPeorClaro : lPeorOscuro;
   // 1) ¿El blanco ya se lee tal cual? (fondo oscuro)
-  if (contraste(L_BLANCO, lPeor) >= OBJETIVO) {
-    return { modo: 'blanco', velo: 0, contraste: contraste(L_BLANCO, lPeor) };
+  if (contraste(L_BLANCO, lPeorClaro) >= OBJETIVO) {
+    return { modo: 'blanco', velo: 0, contraste: contraste(L_BLANCO, lPeorClaro) };
   }
   // 2) Blanco + el velo MÍNIMO que lo lleve al objetivo. Se busca de 0.06 a
   //    0.62: más de eso ya es una mancha gris que mata la foto.
   for (let a = 0.06; a <= 0.62; a += 0.02) {
-    if (contraste(L_BLANCO, conVelo(lPeor, a)) >= OBJETIVO) {
-      return { modo: 'blanco', velo: Number(a.toFixed(2)), contraste: contraste(L_BLANCO, conVelo(lPeor, a)) };
+    if (contraste(L_BLANCO, conVelo(lPeorClaro, a)) >= OBJETIVO) {
+      return { modo: 'blanco', velo: Number(a.toFixed(2)), contraste: contraste(L_BLANCO, conVelo(lPeorClaro, a)) };
     }
   }
   // 3) Fondo demasiado claro para el blanco. ¿Gana el texto oscuro?
   //    (Sin velo primero: sobre un cielo limpio el negro se lee precioso.)
-  if (contraste(L_OSCURO, lPeor) >= OBJETIVO && detalle < 14) {
-    return { modo: 'oscuro', velo: 0, contraste: contraste(L_OSCURO, lPeor) };
+  if (contraste(L_OSCURO, lOsc) >= OBJETIVO && detalle < 14) {
+    return { modo: 'oscuro', velo: 0, contraste: contraste(L_OSCURO, lOsc) };
   }
   for (let a = 0.08; a <= 0.5; a += 0.02) {
-    if (contraste(L_OSCURO, conVeloClaro(lPeor, a)) >= OBJETIVO && detalle < 22) {
-      return { modo: 'oscuro', velo: Number(a.toFixed(2)), contraste: contraste(L_OSCURO, conVeloClaro(lPeor, a)) };
+    // El velo claro SUBE la luminancia: el punto más oscuro es el que hay que
+    // levantar hasta que el texto oscuro se despegue del fondo.
+    if (contraste(L_OSCURO, conVeloClaro(lOsc, a)) >= OBJETIVO && detalle < 22) {
+      return { modo: 'oscuro', velo: Number(a.toFixed(2)), contraste: contraste(L_OSCURO, conVeloClaro(lOsc, a)) };
     }
   }
   // 4) Ni uno ni otro: banda sólida. Contraste garantizado por construcción.
@@ -211,7 +219,7 @@ function evaluarCaja(m, topPct, altoPct) {
   const y0 = Math.floor((topPct / 100) * rows);
   const y1 = Math.min(rows, Math.ceil(((topPct + altoPct) / 100) * rows));
 
-  let sumL = 0, sumL2 = 0, peorL = 0, sumB = 0, sumS = 0, riesgoCara = 0, n = 0;
+  let sumL = 0, sumL2 = 0, peorL = 0, minL = 1, sumB = 0, sumS = 0, riesgoCara = 0, n = 0;
   // Luminancia media por FILA: sirve para detectar el "corte" (horizonte, borde
   // de mesa, pared que termina) que parte la caja en dos mundos distintos.
   const filas = [];
@@ -225,6 +233,7 @@ function evaluarCaja(m, topPct, altoPct) {
       // "Peor" = el punto más CLARO si el texto va en blanco. Se guarda el
       // máximo porque un solo reflejo blanco basta para romper una palabra.
       if (lum[k] > peorL) peorL = lum[k];
+      if (lum[k] < minL) minL = lum[k];
       sumB += borde[k];
       sumS += sigma[k];
       // Piel CON detalle = probable rostro. Piel plana (pared beige, madera) no.
@@ -257,8 +266,10 @@ function evaluarCaja(m, topPct, altoPct) {
   // El "peor punto" se suaviza hacia la media: un píxel aislado no debe forzar
   // un velo brutal, pero tampoco se ignora (70% peor / 30% media).
   const lPeor = peorL * 0.7 + lMedia * 0.3;
+  // Su espejo para el texto oscuro: el punto más OSCURO, suavizado igual.
+  const lPeorOsc = minL * 0.7 + lMedia * 0.3;
 
-  const trat = elegirTratamiento(lMedia, lPeor, detalle);
+  const trat = elegirTratamiento(lMedia, lPeor, detalle, lPeorOsc);
 
   // Puntaje: menos velo es mejor (la foto respira), menos detalle es mejor
   // (el texto no pelea), y CERO tolerancia con las caras.
@@ -298,12 +309,13 @@ function tratarFranja(m, desdePct, hastaPct) {
   const x1 = Math.ceil(((1080 - MARGEN) / 1080) * cols);
   const y0 = Math.max(0, Math.floor((desdePct / 100) * rows));
   const y1 = Math.min(rows, Math.ceil((hastaPct / 100) * rows));
-  let sumL = 0, peor = 0, sumB = 0, n = 0;
+  let sumL = 0, peor = 0, minL = 1, sumB = 0, n = 0;
   for (let y = y0; y < y1; y++) {
     for (let x = x0; x < x1; x++) {
       const k = y * cols + x;
       sumL += lum[k];
       if (lum[k] > peor) peor = lum[k];
+      if (lum[k] < minL) minL = lum[k];
       sumB += borde[k];
       n++;
     }
@@ -311,14 +323,18 @@ function tratarFranja(m, desdePct, hastaPct) {
   if (!n) return { modo: 'blanco', velo: 0 };
   const media = sumL / n;
   const lPeor = peor * 0.7 + media * 0.3;
-  const t = elegirTratamiento(media, lPeor, sumB / n);
+  const t = elegirTratamiento(media, lPeor, sumB / n, minL * 0.7 + media * 0.3);
   // En franjas chicas la banda sólida se ve pesada: se prefiere el color que
   // más contraste dé, con el velo suave del degradado que ya existe.
   if (t.modo === 'banda') {
+    // Sin banda en franjas chicas (se ve pesada): el color que más contraste dé
+    // + una sombra REFORZADA, que es lo único que queda para salvarla.
     return contraste(L_OSCURO, media) >= contraste(L_BLANCO, media)
-      ? { modo: 'oscuro', velo: 0 } : { modo: 'blanco', velo: 0 };
+      ? { modo: 'oscuro', velo: 0, refuerzo: true } : { modo: 'blanco', velo: 0, refuerzo: true };
   }
-  return { modo: t.modo, velo: t.velo };
+  // El velo se devuelve (antes se tiraba): si la franja necesita velo para
+  // leerse, el encabezado/pie deben pintarlo, no ignorarlo.
+  return { modo: t.modo, velo: t.velo, refuerzo: t.velo > 0.3 };
 }
 
 // ── API pública ──────────────────────────────────────────────────────────────
@@ -349,21 +365,17 @@ export function analizarFoto(bmp, { altoPct = 34 } = {}) {
     return { pos: 'mid', modo: 'blanco', velo: 0.42, contraste: 0, semaforo: 'ambar', aviso: 'No se pudo analizar la foto.', opciones: [] };
   }
   const mejor = cajas[0];
-
-  // Semáforo: ámbar cuando el resultado necesita ojo humano.
-  let aviso = null;
-  if (mejor.contraste < MINIMO) aviso = 'El texto puede costar leerse: prueba otra foto o mueve el bloque.';
-  else if (mejor.riesgoCara > 0.12) aviso = 'Puede haber una persona donde va el texto: revísalo.';
-  else if (mejor.modo === 'banda') aviso = 'Fondo muy claro y con detalle: se usó banda sólida para que se lea.';
-  else if (mejor.partido > 0.22) aviso = 'El texto queda entre dos zonas muy distintas de la foto: revísalo.';
-  else if (mejor.detalle > 26) aviso = 'Zona con mucho detalle: el texto podría competir con la foto.';
+  const aviso = derivarAviso(mejor);
 
   return {
     pos: mejor.pos,
     modo: mejor.modo,
     velo: mejor.velo,
     // Encabezado y pie se tratan APARTE: viven en otra parte de la foto.
-    modoHeader: tratarFranja(m, 4, 13).modo,
+    // Encabezado y pie: modo, velo Y refuerzo de sombra (el velo se tiraba).
+    header: tratarFranja(m, 4, 13),
+    pie: tratarFranja(m, 85, 98),
+    modoHeader: tratarFranja(m, 4, 13).modo,   // compat
     modoPie: tratarFranja(m, 85, 98).modo,
     contraste: Number(mejor.contraste.toFixed(1)),
     semaforo: aviso ? 'ambar' : 'verde',
@@ -373,24 +385,50 @@ export function analizarFoto(bmp, { altoPct = 34 } = {}) {
 }
 
 /**
+ * El veredicto humano de una caja. Se deriva SIEMPRE de la caja que realmente
+ * se va a usar: si alguien sustituye la composición (rompe-rachas, botón ⟳)
+ * tiene que volver a llamar aquí, o el semáforo miente sobre otra zona.
+ */
+export function derivarAviso(caja) {
+  if (!caja) return 'No se pudo analizar la foto.';
+  if (caja.contraste < MINIMO) return 'El texto puede costar leerse: prueba otra foto o mueve el bloque.';
+  if (caja.riesgoCara > 0.12) return 'Puede haber una persona donde va el texto: revísalo.';
+  if (caja.modo === 'banda') return 'Fondo muy claro y con detalle: se usó banda sólida para que se lea.';
+  if (caja.partido > 0.22) return 'El texto queda entre dos zonas muy distintas de la foto: revísalo.';
+  if (caja.detalle > 26) return 'Zona con mucho detalle: el texto podría competir con la foto.';
+  return null;
+}
+
+/**
  * Analiza varias fotos y además cuida el RITMO del carrusel: si 3 o más slides
  * seguidos quedan con el bloque en la misma altura, se baja a la segunda mejor
  * opción de uno de ellos. Un carrusel donde todo está en el mismo lugar se ve
  * hecho por una máquina; la variación controlada se ve hecha por alguien.
  */
 export function analizarCarrusel(bitmaps, opts) {
-  const planes = bitmaps.map((b) => (b ? analizarFoto(b, opts) : null));
+  // `altosPct`: el alto REAL que ocupará el texto de cada slide (lo calcula el
+  // generador con las métricas del diseño). Sin él se cae al 34% de siempre.
+  const altos = (opts && opts.altosPct) || [];
+  const planes = bitmaps.map((b, i) => (b
+    ? analizarFoto(b, { ...(opts || {}), altoPct: altos[i] || (opts && opts.altoPct) || 34 })
+    : null));
   for (let i = 2; i < planes.length; i++) {
     const a = planes[i - 2], b = planes[i - 1], c = planes[i];
     if (!a || !b || !c) continue;
     if (a.pos === b.pos && b.pos === c.pos) {
       // Se cambia el de EN MEDIO (rompe la racha sin tocar portada ni cierre) y
       // solo si su alternativa sigue siendo legible.
-      const alt = (b.opciones || []).find((o) => o.pos !== b.pos && o.contraste >= MINIMO);
+      // La alternativa tiene que ser legible Y no caer sobre una cara: antes
+      // solo se miraba el contraste y podía mandar el texto sobre un rostro.
+      const alt = (b.opciones || []).find((o) => o.pos !== b.pos
+        && o.contraste >= MINIMO && o.riesgoCara <= 0.12);
       if (alt) {
+        const avisoAlt = derivarAviso(alt);
         planes[i - 1] = {
           ...b, pos: alt.pos, modo: alt.modo, velo: alt.velo,
           contraste: Number(alt.contraste.toFixed(1)),
+          // El veredicto se RE-DERIVA: era el de la caja vieja.
+          semaforo: avisoAlt ? 'ambar' : 'verde', aviso: avisoAlt,
         };
       }
     }
