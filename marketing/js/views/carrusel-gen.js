@@ -13,11 +13,11 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608011315';
-import { icon } from '../shell/icons.js?v=202608011315';
-import { T } from '../shell/i18n.js?v=202608011315';
-import * as store from '../shell/store.js?v=202608011315';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608011315';
+import { el, clear, toast, api } from '../api.js?v=202608011331';
+import { icon } from '../shell/icons.js?v=202608011331';
+import { T } from '../shell/i18n.js?v=202608011331';
+import * as store from '../shell/store.js?v=202608011331';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608011331';
 
 const W = 1080;
 const H = 1350;
@@ -98,7 +98,9 @@ const DESIGN_CSS = `
 .support{font-size:42px;font-weight:400;line-height:1.4;color:rgba(255,255,255,.95);margin-top:44px;max-width:82%;text-shadow:0 1px 12px rgba(0,0,0,.5)}
 .support b{font-weight:700}
 .pills{display:flex;flex-direction:column;align-items:center;gap:44px;margin-top:64px}
+.pills.compactas{gap:26px;margin-top:44px}
 .pill{border:1.6px solid rgba(255,255,255,.82);border-radius:50%;padding:34px 78px;font-size:39px;font-weight:400;line-height:1.3;text-align:center;max-width:760px;color:rgba(255,255,255,.98);text-shadow:0 1px 12px rgba(0,0,0,.5)}
+.pills.compactas .pill{padding:24px 56px;font-size:36px}
 .pill:nth-child(1){transform:rotate(-1.6deg) translateX(-26px)}
 .pill:nth-child(2){transform:rotate(1.3deg) translateX(22px)}
 .pill:nth-child(3){transform:rotate(-1.1deg) translateX(-16px)}
@@ -176,16 +178,54 @@ function slideHTML(s, idx, total) {
   const now = fechaISO ? new Date(fechaISO + 'T12:00:00') : new Date();
   const MES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'][now.getMonth()];
 
-  let inner = '';
+  let inner = title || kicker || body ? 'x' : '';   // solo para saber si HAY texto
+
+  const hasText = !!inner;
+
+  // ── GUARDARRAÍL DE DESBORDE (cazado en la prueba visual E2E) ─────────────
+  // Título de 3 líneas + 3 píldoras se salían del lienzo por abajo y el pie
+  // cortaba el texto. Se ESTIMA la altura del bloque con las métricas reales
+  // del CSS y, si no cabe, se ajusta EN ORDEN sin borrar contenido:
+  // 1) título chico (.sm) → 2) píldoras compactas → 3) subir el bloque.
+  const cleanLen = title.replace(/\*\*/g, '').length;
+  let smTitle = cleanLen > 46;
+  let compactas = false;
+  let topAjustado = topPct;
+  if (hasText) {
+    const H = 1350, RESERVA = 205;   // pie: paginación 96 + chevron + aire
+    const estima = (sm, comp) => {
+      const fsT = sm ? 82 : 99;
+      let h = 0;
+      if (kicker) h += 36 * 1.2 + 26;
+      if (title) h += Math.ceil(cleanLen / Math.max(1, Math.floor(872 / (fsT * 0.52)))) * fsT * 1.07 + 8;
+      if (items) {
+        const pad = comp ? 24 : 34, fsP = comp ? 36 : 39, gap = comp ? 26 : 44, mt = comp ? 44 : 64;
+        h += mt + items.reduce((a, it, i) => {
+          const lineas = Math.ceil(it.length / Math.max(1, Math.floor(604 / (fsP * 0.5))));
+          return a + pad * 2 + lineas * fsP * 1.3 + (i ? gap : 0);
+        }, 0);
+      }
+      for (const t of [plainBody, support]) {
+        if (t) h += 44 + Math.ceil(t.replace(/\*\*/g, '').length / 34) * 42 * 1.4;
+      }
+      return h;
+    };
+    let alto = estima(smTitle, compactas);
+    let cabe = () => (H * topAjustado / 100) + alto <= H - RESERVA;
+    if (!cabe() && !smTitle) { smTitle = true; alto = estima(smTitle, compactas); }
+    if (!cabe() && items) { compactas = true; alto = estima(smTitle, compactas); }
+    if (!cabe()) topAjustado = Math.max(12, Math.floor((H - RESERVA - alto) / H * 100));
+  }
+  // reconstruir el título/píldoras con las clases finales
+  inner = '';
   if (kicker) inner += `<div class="kicker">${esc(kicker)}</div>`;
-  if (title) inner += `<div class="title${title.replace(/\*\*/g, '').length > 46 ? ' sm' : ''}">${rich(title)}</div>`;
-  if (items) inner += `<div class="pills">${items.map((it) => `<div class="pill">${esc(it)}</div>`).join('')}</div>`;
+  if (title) inner += `<div class="title${smTitle ? ' sm' : ''}">${rich(title)}</div>`;
+  if (items) inner += `<div class="pills${compactas ? ' compactas' : ''}">${items.map((it) => `<div class="pill">${esc(it)}</div>`).join('')}</div>`;
   if (plainBody) inner += `<div class="support">${rich(plainBody)}</div>`;
   if (support) inner += `<div class="support">${rich(support)}</div>`;
 
-  const hasText = !!inner;
-  const blockTop = `${topPct}%`;
-  const scrimTop = `${Math.max(0, topPct - 7)}%`;
+  const blockTop = `${topAjustado}%`;
+  const scrimTop = `${Math.max(0, topAjustado - 7)}%`;
 
   // El velo ya NO es fijo: `--va` lleva la opacidad que calculó el fotómetro.
   // En modo banda se pinta un bloque sólido en lugar del degradado.
@@ -541,7 +581,9 @@ export function renderGen(root, helpers) {
   };
 
   clear(root);
-  root.append(
+  // append() nativo convierte null en el TEXTO "null" (el() sí filtra; esto
+  // no). Los ternarios de abajo devuelven null a propósito: hay que colarlos.
+  root.append(...[
     el('p', { class: 'car-hint', text: T(
       'Plantilla editorial minimal: @firma + marca en cursiva + fecha arriba, paginación y chevron abajo, títulos en mayúsculas con **negritas** en lo clave, y pastillas ovaladas para listas (separa con /). Una foto por slide; el sistema arma el resto idéntico en todas.',
       'Minimal editorial template: handle + script brand + date on top, pagination and chevron below, caps titles with **bold** keywords, oval pills for lists (separate with /).',
@@ -598,9 +640,9 @@ export function renderGen(root, helpers) {
         } }, [icon('copy', 13), ' ' + T('Copiar todo', 'Copy all')]),
       ]),
       el('textarea', {
-        class: 'input carg-caption__ta', rows: '7', value: captionIA,
+        class: 'input carg-caption__ta', rows: '7',
         oninput: (e) => { captionIA = e.target.value; },
-      }),
+      }, captionIA),
       hashtagsIA ? el('div', { class: 'carg-caption__tags', text: hashtagsIA }) : null,
     ]) : null,
 
@@ -610,7 +652,7 @@ export function renderGen(root, helpers) {
       el('button', { class: 'btn', type: 'button', onclick: () => dl('png') }, ['PNG']),
     ]) : null,
     previewHost,
-  );
+  ].filter(Boolean));
 
   if (slides.length) regenerate(previewHost);
 }
