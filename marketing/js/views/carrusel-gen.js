@@ -13,12 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608011708';
-import { icon } from '../shell/icons.js?v=202608011708';
-import { T } from '../shell/i18n.js?v=202608011708';
-import * as store from '../shell/store.js?v=202608011708';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608011708';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608011708';
+import { el, clear, toast, api } from '../api.js?v=202608011751';
+import { icon } from '../shell/icons.js?v=202608011751';
+import { T } from '../shell/i18n.js?v=202608011751';
+import * as store from '../shell/store.js?v=202608011751';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608011751';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608011751';
 
 const W = 1080;
 const H = 1350;
@@ -36,6 +36,11 @@ let handle = '';
 let ctaSupport = '';
 let fechaPublicacion = '';   // AAAA-MM-DD de la pieza (no la fecha de hoy)
 let plantillaId = PLANTILLA_POR_DEFECTO;   // qué diseño se está usando
+// Cómo se mira la vista previa: 'trabajo' (grande, para editar), 'feed' (390px,
+// el tamaño REAL en el teléfono) o 'perfil' (130px, la cuadrícula del perfil,
+// que es donde el cliente decide si entra). Ver a tamaño real es la única
+// prueba que vale: en la compu todo parece legible.
+let vistaTamano = 'trabajo';
 let brief = '';             // la línea que escribe Vianey: "promo de julio…"
 let captionIA = '';         // el copy de IG que devolvió la IA
 let hashtagsIA = '';
@@ -495,7 +500,14 @@ function analizarTodo() {
       const alto = altoBloque(piezasDe(s, i, slides.length), false, false);
       return Math.max(20, Math.min(70, Math.round((alto / 1350) * 100)));
     });
-    const planes = analizarCarrusel(slides.map((s) => s.bitmap), { altosPct: altos });
+    // Tamaño REAL del titular por slide: la portada va a 152px y los
+    // interiores a 104/86. De eso depende cuánta sombra hace falta.
+    const pxTitular = slides.map((s, i) => {
+      const largo = String(s.title || '').replace(/\*\*/g, '').length;
+      if (i === 0) return largo > 46 ? 126 : 152;
+      return largo > 46 ? 86 : 104;
+    });
+    const planes = analizarCarrusel(slides.map((s) => s.bitmap), { altosPct: altos, pxTitular });
     slides.forEach((s, i) => {
       s.plan = planes[i] || null;
       if (!s.posManual && s.plan) s.pos = s.plan.pos;
@@ -682,7 +694,7 @@ export function renderGen(root, helpers) {
     brandForClient = activeClientId;
   }
 
-  const previewHost = el('div', { class: 'carg-grid' });
+  const previewHost = el('div', { class: 'carg-grid carg-grid--' + vistaTamano });
   const redraw = () => regenerate(previewHost);
   const redrawSoon = () => {
     clearTimeout(redrawTimer);
@@ -965,6 +977,20 @@ export function renderGen(root, helpers) {
         oninput: (e) => { captionIA = e.target.value; },
       }, captionIA),
       hashtagsIA ? el('div', { class: 'carg-caption__tags', text: hashtagsIA }) : null,
+    ]) : null,
+
+    // ── ¿CÓMO SE VA A VER DE VERDAD? ────────────────────────────────────
+    slides.length ? el('div', { class: 'carg-vistas' }, [
+      el('span', { class: 'carg-vistas__lbl', text: T('Ver como', 'View as') }),
+      ...[
+        { id: 'trabajo', txt: T('Trabajo', 'Work'), ay: T('Grande, para editar', 'Large, for editing') },
+        { id: 'feed', txt: T('Feed', 'Feed'), ay: T('390 px — el tamaño real en el teléfono', '390px — real phone size') },
+        { id: 'perfil', txt: T('Perfil', 'Grid'), ay: T('130 px — la cuadrícula del perfil', '130px — profile grid') },
+      ].map((v) => el('button', {
+        class: 'carg-vista' + (vistaTamano === v.id ? ' is-on' : ''),
+        type: 'button', title: v.ay, 'aria-pressed': vistaTamano === v.id ? 'true' : 'false',
+        onclick: () => { vistaTamano = v.id; renderGen(hostEl, deps); },
+      }, v.txt)),
     ]) : null,
 
     slides.length ? el('div', { class: 'carg-actions' }, [

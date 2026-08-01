@@ -270,3 +270,32 @@
 }
 .carg-chip.is-on b { color: var(--brand, #d946ef); }
 .carg-chip:focus-visible { outline: 2px solid var(--brand, #d946ef); outline-offset: 2px; }
+
+/* ── VER COMO SE VA A VER DE VERDAD ───────────────────────────────────────
+   En la compu la vista previa se mira grande y todo parece legible; en el feed
+   el slide mide ~390px y en la cuadrícula del perfil ~130px. Estos tamaños son
+   los reales, no una aproximación: si no se lee aquí, no se lee. */
+.carg-vistas { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 12px 0 2px; }
+.carg-vistas__lbl {
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-mute);
+}
+.carg-vista {
+  padding: 6px 14px; border-radius: 999px; cursor: pointer; font-size: 12.5px;
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--text-dim);
+}
+.carg-vista.is-on {
+  border-color: var(--brand, #d946ef); color: var(--brand, #d946ef);
+  background: color-mix(in srgb, var(--brand, #d946ef) 12%, transparent);
+}
+.carg-vista:focus-visible { outline: 2px solid var(--brand, #d946ef); outline-offset: 2px; }
+
+/* Feed: 390px de ancho exactos, uno debajo de otro como se deslizan. */
+.carg-grid--feed { grid-template-columns: repeat(auto-fill, 390px); justify-content: center; }
+@media (min-width: 860px) { .carg-grid--feed { grid-template-columns: repeat(auto-fill, 390px); } }
+/* Perfil: 130px, la miniatura de la cuadrícula — y recortada a 3:4 como hace
+   Instagram, que es lo que de verdad se ve ahí. */
+.carg-grid--perfil { grid-template-columns: repeat(auto-fill, 130px); justify-content: center; gap: 3px; }
+@media (min-width: 860px) { .carg-grid--perfil { grid-template-columns: repeat(auto-fill, 130px); } }
+.carg-grid--perfil .carg-cell { border-radius: 0; border: 0; aspect-ratio: 3 / 4; }
+.carg-grid--perfil .carg-cell__canvas { height: 100%; object-fit: cover; }
+.carg-grid--perfil .carg-cell__num { display: none; }

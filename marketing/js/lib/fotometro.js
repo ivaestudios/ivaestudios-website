@@ -148,8 +148,19 @@ function medirCeldas(bmp) {
 // TODO es texto grande. Exigirle 7:1 (como hacía la primera versión) obligaba a
 // velos del 60% o a saltar a texto oscuro sobre un cielo azul donde el blanco
 // se ve precioso — o sea, arruinaba la foto por una regla que no aplicaba.
-const OBJETIVO = 4.5;   // AAA para texto grande: se lee impecable
+const OBJETIVO = 4.5;   // por defecto (texto medio); ver objetivoPara()
 const MINIMO = 3.0;     // AA para texto grande: piso absoluto, no se baja de aquí
+
+// El contraste que hay que exigir según lo GRANDE que sea la letra en el
+// lienzo de 1350 px de alto. WCAG considera "texto grande" 18pt ≈ 50px aquí.
+// Cobrarle 4.5 a un titular de 150px obligaba a una sombra que apagaba la foto
+// sin necesidad; y cobrarle 4.5 al marco de 30px se quedaba corto.
+export function objetivoPara(px) {
+  if (px >= 90) return 3.0;    // titular: se lee de lejos, casi sin sombra
+  if (px >= 50) return 3.6;    // subtítulo grande
+  if (px >= 34) return 4.5;    // cuerpo y listas
+  return 6.0;                  // marco, folio: lo más chico, lo más exigente
+}
 
 const L_BLANCO = 1.0;                 // luminancia relativa del blanco puro
 const L_OSCURO = lumRel(24, 24, 30);  // #18181E — negro suave de la marca
@@ -168,7 +179,8 @@ const conVeloClaro = (l, a) => l * (1 - a) + L_VELO_CLARO * a;
  * @param {number} lPeor  luminancia del punto MÁS desfavorable de la zona
  * @param {number} detalle energía de bordes media de la zona
  */
-function elegirTratamiento(lFondo, lPeorClaro, detalle, lPeorOscuro) {
+function elegirTratamiento(lFondo, lPeorClaro, detalle, lPeorOscuro, objetivo) {
+  const OBJ = objetivo || OBJETIVO;
   // DIRECCIÓN DE MARCA (Vianey, 2026-08-01): "no me gusta el fondo blanco,
   // prefiero sombra negra letra blanca". Así que el texto SIEMPRE es blanco;
   // lo único que se decide aquí es CUÁNTA sombra hace falta para que se lea.
@@ -178,7 +190,7 @@ function elegirTratamiento(lFondo, lPeorClaro, detalle, lPeorOscuro) {
   // El "peor punto" para el blanco es el más CLARO de la zona: un solo reflejo
   // basta para romper una palabra.
   // 1) ¿El blanco ya se lee tal cual? (fondo oscuro: la foto respira entera)
-  if (contraste(L_BLANCO, lPeorClaro) >= OBJETIVO) {
+  if (contraste(L_BLANCO, lPeorClaro) >= OBJ) {
     return { modo: 'blanco', velo: 0, contraste: contraste(L_BLANCO, lPeorClaro) };
   }
   // 2) Blanco + la sombra MÍNIMA que lo lleve al objetivo. El rango llega
@@ -186,7 +198,7 @@ function elegirTratamiento(lFondo, lPeorClaro, detalle, lPeorOscuro) {
   //    estilo, no un defecto — antes se cortaba en 0.62 y una playa a
   //    mediodía se iba a banda sólida.
   for (let a = 0.06; a <= 0.86; a += 0.02) {
-    if (contraste(L_BLANCO, conVelo(lPeorClaro, a)) >= OBJETIVO) {
+    if (contraste(L_BLANCO, conVelo(lPeorClaro, a)) >= OBJ) {
       return { modo: 'blanco', velo: Number(a.toFixed(2)), contraste: contraste(L_BLANCO, conVelo(lPeorClaro, a)) };
     }
   }
@@ -205,7 +217,7 @@ const ALTURAS = [
   { pos: 'bottom', topPct: 46 },
 ];
 
-function evaluarCaja(m, topPct, altoPct) {
+function evaluarCaja(m, topPct, altoPct, objetivo) {
   const { cols, rows, lum, sigma, borde, piel } = m;
   const x0 = Math.floor((MARGEN / 1080) * cols);
   const x1 = Math.ceil(((1080 - MARGEN) / 1080) * cols);
@@ -265,7 +277,7 @@ function evaluarCaja(m, topPct, altoPct) {
   // Su espejo para el texto oscuro: el punto más OSCURO, suavizado igual.
   const lPeorOsc = minL * 0.7 + lMedia * 0.3;
 
-  const trat = elegirTratamiento(lMedia, lPeor, detalle, lPeorOsc);
+  const trat = elegirTratamiento(lMedia, lPeor, detalle, lPeorOsc, objetivo);
 
   // Puntaje: menos velo es mejor (la foto respira), menos detalle es mejor
   // (el texto no pelea), y CERO tolerancia con las caras.
@@ -319,7 +331,8 @@ function tratarFranja(m, desdePct, hastaPct) {
   if (!n) return { modo: 'blanco', velo: 0, refuerzo: false };
   const media = sumL / n;
   const lPeor = peor * 0.7 + media * 0.3;
-  const t = elegirTratamiento(media, lPeor, sumB / n, minL * 0.7 + media * 0.3);
+  // El marco es el texto MÁS chico del diseño (30-34px): se le exige más.
+  const t = elegirTratamiento(media, lPeor, sumB / n, minL * 0.7 + media * 0.3, objetivoPara(32));
   // En franjas chicas la banda sólida se ve pesada: se prefiere el color que
   // más contraste dé, con el velo suave del degradado que ya existe.
   if (t.modo === 'banda') {
@@ -348,11 +361,13 @@ function tratarFranja(m, desdePct, hastaPct) {
  *   opciones: object[]              // las 3 alturas evaluadas (para "otra opción")
  * }}
  */
-export function analizarFoto(bmp, { altoPct = 34 } = {}) {
+export function analizarFoto(bmp, { altoPct = 34, pxTitular = 104 } = {}) {
+  // El bloque lo domina el titular: su tamaño fija el contraste a exigir.
+  const objTitular = objetivoPara(pxTitular);
   const m = medirCeldas(bmp);
   const cajas = ALTURAS
     .map((a) => {
-      const r = evaluarCaja(m, a.topPct, altoPct);
+      const r = evaluarCaja(m, a.topPct, altoPct, objTitular);
       return r ? { pos: a.pos, ...r } : null;
     })
     .filter(Boolean)
@@ -406,8 +421,13 @@ export function analizarCarrusel(bitmaps, opts) {
   // `altosPct`: el alto REAL que ocupará el texto de cada slide (lo calcula el
   // generador con las métricas del diseño). Sin él se cae al 34% de siempre.
   const altos = (opts && opts.altosPct) || [];
+  const pxT = (opts && opts.pxTitular) || [];
   const planes = bitmaps.map((b, i) => (b
-    ? analizarFoto(b, { ...(opts || {}), altoPct: altos[i] || (opts && opts.altoPct) || 34 })
+    ? analizarFoto(b, {
+        ...(opts || {}),
+        altoPct: altos[i] || (opts && opts.altoPct) || 34,
+        pxTitular: pxT[i] || (opts && opts.pxTitularDefault) || 104,
+      })
     : null));
   for (let i = 2; i < planes.length; i++) {
     const a = planes[i - 2], b = planes[i - 1], c = planes[i];
