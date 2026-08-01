@@ -175,7 +175,7 @@ const revista = {
 .slide.portada-1 .tit{font-size:152px;line-height:.98}
 .slide.portada-1 .tit.sm{font-size:126px}
 .slide.portada-1 .eyebrow{font-size:38px}
-.bajada{font-family:Outfit,sans-serif;font-size:46px;font-weight:400;letter-spacing:.1em;
+.bajada{font-family:Outfit,sans-serif;font-size:38px;font-weight:500;letter-spacing:.11em;
   line-height:1.42;text-transform:uppercase;color:rgba(255,255,255,.93);margin-top:38px;max-width:74%;
   text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
 .lista{margin-top:46px;display:flex;flex-direction:column;gap:26px;width:100%;max-width:720px}
