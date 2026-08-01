@@ -136,6 +136,16 @@
 .carg-card__head b { font-size: 13px; color: var(--text-mute); }
 .carg-card__acts { display: flex; gap: 6px; }
 .carg-card__acts .btn { min-height: 34px; padding: 4px 10px; }
+
+/* ── Semáforo del fotómetro ────────────────────────────────────────────────
+   Verde: la app midió la foto y garantiza que el texto se lee (contraste WCAG
+   7:1 sobre el punto más desfavorable de la zona). Ámbar: funciona pero pide
+   ojo humano (posible cara debajo, fondo muy cargado, o hizo falta banda). */
+.carg-sem { font-size: 11px; line-height: 1; margin-left: auto; margin-right: 6px; cursor: help; }
+.carg-sem--verde { color: #22c55e; }
+.carg-sem--ambar { color: #f59e0b; }
+/* El botón de altura en amarillo cuando el usuario tomó el control. */
+.carg-card__acts .btn.is-manual { border-color: var(--brand, #d946ef); color: var(--brand, #d946ef); }
 .carg-card__del { color: var(--danger, #e5484d); }
 .carg-card__in { width: 100%; }
 .carg-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }

@@ -13,10 +13,11 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202607311855';
-import { icon } from '../shell/icons.js?v=202607311855';
-import { T } from '../shell/i18n.js?v=202607311855';
-import * as store from '../shell/store.js?v=202607311855';
+import { el, clear, toast } from '../api.js?v=202608010231';
+import { icon } from '../shell/icons.js?v=202608010231';
+import { T } from '../shell/i18n.js?v=202608010231';
+import * as store from '../shell/store.js?v=202608010231';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608010231';
 
 const W = 1080;
 const H = 1350;
@@ -29,6 +30,7 @@ let brandLabel = '';
 let brandForClient = null;
 let handle = '';
 let ctaSupport = '';
+let fechaPublicacion = '';   // AAAA-MM-DD de la pieza (no la fecha de hoy)
 let genToken = 0;
 let previews = [];
 
@@ -39,7 +41,7 @@ export function resetGen() {
   genToken += 1;
   for (const s of slides) { try { s.bitmap && s.bitmap.close && s.bitmap.close(); } catch { /* noop */ } }
   slides = []; previews = [];
-  brandLabel = ''; brandForClient = null; handle = ''; ctaSupport = '';
+  brandLabel = ''; brandForClient = null; handle = ''; ctaSupport = ''; fechaPublicacion = '';
 }
 
 // ── Fuentes embebidas para el SVG (foreignObject no ve URLs externas) ────────
@@ -95,6 +97,46 @@ const DESIGN_CSS = `
 .pill:nth-child(3){transform:rotate(-1.1deg) translateX(-16px)}
 .right{text-align:right;align-items:flex-end}
 .center{text-align:center;align-items:center}
+
+/* ── TRATAMIENTOS DEL TEXTO (los elige el fotómetro, no el usuario) ────────
+   El velo dejó de ser fijo: su opacidad la calcula fotometro.js para CADA
+   foto y CADA zona, buscando el MÍNIMO que garantice contraste WCAG 7:1.
+   Fondo oscuro → casi sin velo (la foto respira). Fondo muy claro → el blanco
+   no gana ni con velo, así que se invierte a texto oscuro. Y si además hay
+   mucho detalle (comida sobre mantel blanco, azulejo), banda sólida: se ve
+   intencional, mientras que un velo gris se ve mal hecho. */
+/* OJO: este bloque toca SOLO el bloque de texto (kicker/título/apoyo/píldoras).
+   El encabezado y el pie tienen su propia medición y sus propias clases
+   (.hdr-* y .pie-*) porque viven en otra zona de la foto — si se listaran aquí
+   ganarían por especificidad y dejarían la paginación invisible sobre un fondo
+   oscuro, que fue exactamente el defecto que destapó la prueba visual. */
+.slide.t-oscuro .block{color:#18181E}
+.slide.t-oscuro .kicker,.slide.t-oscuro .support{color:rgba(24,24,30,.92)}
+.slide.t-oscuro .pill{color:#18181E;border-color:rgba(24,24,30,.55)}
+/* Sobre claro la sombra oscura ensucia: se cambia por un halo claro sutil. */
+.slide.t-oscuro .title,.slide.t-oscuro .kicker,.slide.t-oscuro .support{text-shadow:0 1px 10px rgba(255,255,255,.55)}
+.veil-claro{background:linear-gradient(rgba(247,247,245,0),rgba(247,247,245,var(--va)) 26%,rgba(247,247,245,var(--va)))}
+
+/* Encabezado y pie con su PROPIO color: en una foto con pared blanca arriba y
+   mesa negra abajo, el título va oscuro pero la paginación tiene que ir clara.
+   Medir una sola zona dejaba la paginación invisible. */
+.hdr-oscuro .hdr .h,.hdr-oscuro .hdr .d{color:rgba(24,24,30,.9)}
+.hdr-oscuro .hdr .b{color:#18181E}
+.hdr-oscuro .hdr{text-shadow:0 1px 10px rgba(255,255,255,.55)}
+.hdr-claro .hdr .h,.hdr-claro .hdr .d{color:rgba(255,255,255,.96)}
+.hdr-claro .hdr .b{color:#fff}
+.hdr-claro .hdr{text-shadow:0 1px 14px rgba(0,0,0,.45)}
+.pie-oscuro .pag{color:rgba(24,24,30,.92);text-shadow:0 1px 10px rgba(255,255,255,.5)}
+.pie-oscuro .chev{border-color:rgba(24,24,30,.7)}
+.pie-oscuro .chev i{border-top-color:rgba(24,24,30,.7);border-right-color:rgba(24,24,30,.7)}
+.pie-claro .pag{color:rgba(255,255,255,.95);text-shadow:0 1px 12px rgba(0,0,0,.5)}
+.pie-claro .chev{border-color:rgba(255,255,255,.92)}
+.pie-claro .chev i{border-top-color:rgba(255,255,255,.92);border-right-color:rgba(255,255,255,.92)}
+
+/* Banda sólida: el último recurso, resuelto con elegancia editorial. */
+.banda{position:absolute;left:0;right:0;background:#0C0C10}
+.banda.clara{background:#F7F7F5}
+.slide.t-banda .block{color:#fff}
 `;
 
 
@@ -109,11 +151,22 @@ function slideHTML(s, idx, total) {
   const items = !isCover && body.includes('/') ? body.split('/').map((x) => x.trim()).filter(Boolean).slice(0, 3) : null;
   const plainBody = !isCover && !items ? body : '';
 
-  // Posición del bloque (top/mid/bottom) — % medidos de las referencias.
-  const topPct = s.pos === 'top' ? 19 : s.pos === 'bottom' ? 46 : 30;
-  const alignCls = !isCover && !isLast && items ? '' : '';
+  // Posición y tratamiento: los decide el FOTÓMETRO salvo que el usuario haya
+  // tocado el botón de altura (entonces manda él y el sistema se calla).
+  const plan = s.plan || null;
+  const pos = s.posManual || (plan && plan.pos) || s.pos || 'mid';
+  const topPct = pos === 'top' ? 19 : pos === 'bottom' ? 46 : 30;
+  const modo = (plan && plan.modo) || 'blanco';
+  const veloA = plan ? plan.velo : 0.42;   // 0.42 era el valor FIJO de antes
+  const claseModo = (modo === 'oscuro' ? ' t-oscuro' : modo === 'banda' ? ' t-banda' : '')
+    + (plan ? (plan.modoHeader === 'oscuro' ? ' hdr-oscuro' : ' hdr-claro') : '')
+    + (plan ? (plan.modoPie === 'oscuro' ? ' pie-oscuro' : ' pie-claro') : '');
 
-  const now = new Date();
+  // FECHA: la de PUBLICACIÓN de la pieza, no la del día en que se arma el
+  // carrusel. Antes, preparar el martes el post del viernes imprimía "martes".
+  const fechaISO = (typeof fechaPublicacion === 'string' && /^\d{4}-\d{2}-\d{2}/.test(fechaPublicacion))
+    ? fechaPublicacion : null;
+  const now = fechaISO ? new Date(fechaISO + 'T12:00:00') : new Date();
   const MES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'][now.getMonth()];
 
   let inner = '';
@@ -127,11 +180,20 @@ function slideHTML(s, idx, total) {
   const blockTop = `${topPct}%`;
   const scrimTop = `${Math.max(0, topPct - 7)}%`;
 
+  // El velo ya NO es fijo: `--va` lleva la opacidad que calculó el fotómetro.
+  // En modo banda se pinta un bloque sólido en lugar del degradado.
+  const veloHTML = !hasText ? ''
+    : modo === 'banda'
+      ? `<div class="banda" style="top:${scrimTop};bottom:0"></div>`
+      : modo === 'oscuro'
+        ? `<div class="scrim-block veil-claro" style="top:${scrimTop};bottom:0;--va:${veloA}"></div>`
+        : `<div class="scrim-block" style="top:${scrimTop};bottom:0;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,${veloA}) 26%,rgba(12,12,16,${veloA}))"></div>`;
+
   return `
-  <div class="slide">
-    <div class="scrim-top"></div>
-    ${hasText ? `<div class="scrim-block" style="top:${scrimTop};bottom:0"></div>` : ''}
-    <div class="scrim-bottom"></div>
+  <div class="slide${claseModo}">
+    ${modo === 'oscuro' ? '' : '<div class="scrim-top"></div>'}
+    ${veloHTML}
+    ${modo === 'oscuro' ? '' : '<div class="scrim-bottom"></div>'}
     <div class="hdr">
       <span class="h">${esc(handle.trim())}</span>
       <span class="b">${esc(brandLabel.trim())}</span>
@@ -166,6 +228,22 @@ async function designLayer(s, idx, total) {
 function fitCover(ctx, bmp) {
   const s = Math.max(W / bmp.width, H / bmp.height);
   ctx.drawImage(bmp, (W - bmp.width * s) / 2, (H - bmp.height * s) / 2, bmp.width * s, bmp.height * s);
+}
+
+// ── El fotómetro: la app mira las fotos antes de escribir una letra ─────────
+// Determinista, ~10 ms por foto, sin red y sin costo. Respeta la decisión
+// manual: si el usuario tocó el botón de altura, ese slide queda como él dijo.
+function analizarTodo() {
+  try {
+    const planes = analizarCarrusel(slides.map((s) => s.bitmap));
+    slides.forEach((s, i) => {
+      s.plan = planes[i] || null;
+      if (!s.posManual && s.plan) s.pos = s.plan.pos;
+    });
+  } catch (e) {
+    console.error('[carrusel-gen] fotómetro', e);
+    for (const s of slides) s.plan = null;  // se cae con gracia al modo de antes
+  }
 }
 
 // ── Render ───────────────────────────────────────────────────────────────────
@@ -246,6 +324,7 @@ export function renderGen(root, helpers) {
         }
       }
       e.target.value = '';
+      analizarTodo();          // el fotómetro decide posición y tratamiento
       renderGen(hostEl, deps);
     },
   });
@@ -285,8 +364,32 @@ export function renderGen(root, helpers) {
       el('div', { class: 'carg-card__main' }, [
         el('div', { class: 'carg-card__head' }, [
           el('b', { text: isCover ? T('1 · Portada', '1 · Cover') : isLast ? `${i + 1} · ` + T('Cierre', 'Closing') : `${i + 1}` }),
+          // Semáforo del fotómetro: verde = medido y aprobado; ámbar = revísalo.
+          s.plan ? el('span', {
+            class: 'carg-sem carg-sem--' + s.plan.semaforo,
+            title: s.plan.aviso || `${T('Contraste', 'Contrast')} ${s.plan.contraste}:1 · ${
+              s.plan.modo === 'oscuro' ? T('texto oscuro', 'dark text') : s.plan.modo === 'banda' ? T('banda sólida', 'solid band') : T('texto blanco', 'white text')
+            }${s.plan.velo ? ` · ${T('velo', 'veil')} ${Math.round(s.plan.velo * 100)}%` : ` · ${T('sin velo', 'no veil')}`}`,
+            text: s.plan.semaforo === 'verde' ? '●' : '▲',
+          }) : null,
           el('div', { class: 'carg-card__acts' }, [
-            el('button', { class: 'btn btn-sm', type: 'button', title: T('Altura del texto', 'Text height'), 'aria-label': T('Altura del texto', 'Text height'), text: POS_LABEL[s.pos] || '↑', onclick: (e) => { s.pos = POS_NEXT[s.pos] || 'mid'; e.target.textContent = POS_LABEL[s.pos]; redraw(); } }),
+            el('button', {
+              class: 'btn btn-sm' + (s.posManual ? ' is-manual' : ''), type: 'button',
+              title: s.posManual ? T('Altura fijada por ti — toca 3 veces para volver a automático', 'Height set by you') : T('Altura automática (la eligió la app)', 'Automatic height'),
+              'aria-label': T('Altura del texto', 'Text height'),
+              text: POS_LABEL[s.pos] || '↑',
+              onclick: (e) => {
+                // Ciclo: auto → top → mid → bottom → auto. El usuario SIEMPRE
+                // puede volver a dejarlo en manos del fotómetro.
+                if (!s.posManual) { s.posManual = POS_NEXT[s.pos] || 'mid'; }
+                else if (s.posManual === 'bottom') { s.posManual = null; s.pos = (s.plan && s.plan.pos) || 'mid'; }
+                else { s.posManual = POS_NEXT[s.posManual]; }
+                if (s.posManual) s.pos = s.posManual;
+                e.target.textContent = POS_LABEL[s.pos];
+                e.target.classList.toggle('is-manual', !!s.posManual);
+                redraw();
+              },
+            }),
             i > 0 ? el('button', { class: 'btn btn-sm', type: 'button', 'aria-label': T('Mover antes', 'Move earlier'), text: '←', onclick: () => { [slides[i - 1], slides[i]] = [slides[i], slides[i - 1]]; renderGen(hostEl, deps); } }) : null,
             i < slides.length - 1 ? el('button', { class: 'btn btn-sm', type: 'button', 'aria-label': T('Mover después', 'Move later'), text: '→', onclick: () => { [slides[i + 1], slides[i]] = [slides[i], slides[i + 1]]; renderGen(hostEl, deps); } }) : null,
             el('button', { class: 'btn btn-sm carg-card__del', type: 'button', 'aria-label': T('Quitar slide', 'Remove slide'), text: '✕', onclick: () => {
