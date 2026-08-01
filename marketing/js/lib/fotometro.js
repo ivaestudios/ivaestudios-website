@@ -169,39 +169,29 @@ const conVeloClaro = (l, a) => l * (1 - a) + L_VELO_CLARO * a;
  * @param {number} detalle energía de bordes media de la zona
  */
 function elegirTratamiento(lFondo, lPeorClaro, detalle, lPeorOscuro) {
-  // El PEOR punto no es el mismo para los dos colores de texto:
-  //   · texto BLANCO  → sufre con el punto más CLARO   (lPeorClaro)
-  //   · texto OSCURO  → sufre con el punto más OSCURO  (lPeorOscuro)
-  // Medir ambos contra el máximo (como se hacía) aprobaba texto negro sobre
-  // una zona negra con semáforo verde: su MEJOR caso, no el peor.
-  const lOsc = lPeorOscuro == null ? lPeorClaro : lPeorOscuro;
-  // 1) ¿El blanco ya se lee tal cual? (fondo oscuro)
+  // DIRECCIÓN DE MARCA (Vianey, 2026-08-01): "no me gusta el fondo blanco,
+  // prefiero sombra negra letra blanca". Así que el texto SIEMPRE es blanco;
+  // lo único que se decide aquí es CUÁNTA sombra hace falta para que se lea.
+  // El texto oscuro sobre velo claro salió del sistema, y la banda de último
+  // recurso es negra, nunca clara.
+  //
+  // El "peor punto" para el blanco es el más CLARO de la zona: un solo reflejo
+  // basta para romper una palabra.
+  // 1) ¿El blanco ya se lee tal cual? (fondo oscuro: la foto respira entera)
   if (contraste(L_BLANCO, lPeorClaro) >= OBJETIVO) {
     return { modo: 'blanco', velo: 0, contraste: contraste(L_BLANCO, lPeorClaro) };
   }
-  // 2) Blanco + el velo MÍNIMO que lo lleve al objetivo. Se busca de 0.06 a
-  //    0.62: más de eso ya es una mancha gris que mata la foto.
-  for (let a = 0.06; a <= 0.62; a += 0.02) {
+  // 2) Blanco + la sombra MÍNIMA que lo lleve al objetivo. El rango llega
+  //    ahora a 0.86: en el look "moody" una foto muy oscurecida es parte del
+  //    estilo, no un defecto — antes se cortaba en 0.62 y una playa a
+  //    mediodía se iba a banda sólida.
+  for (let a = 0.06; a <= 0.86; a += 0.02) {
     if (contraste(L_BLANCO, conVelo(lPeorClaro, a)) >= OBJETIVO) {
       return { modo: 'blanco', velo: Number(a.toFixed(2)), contraste: contraste(L_BLANCO, conVelo(lPeorClaro, a)) };
     }
   }
-  // 3) Fondo demasiado claro para el blanco. ¿Gana el texto oscuro?
-  //    (Sin velo primero: sobre un cielo limpio el negro se lee precioso.)
-  if (contraste(L_OSCURO, lOsc) >= OBJETIVO && detalle < 14) {
-    return { modo: 'oscuro', velo: 0, contraste: contraste(L_OSCURO, lOsc) };
-  }
-  for (let a = 0.08; a <= 0.5; a += 0.02) {
-    // El velo claro SUBE la luminancia: el punto más oscuro es el que hay que
-    // levantar hasta que el texto oscuro se despegue del fondo.
-    // Y el detalle se juzga YA VELADO: el velo aplana la textura en proporción
-    // a su opacidad, así que exigirle al detalle desnudo mandaba a banda
-    // sólida fotos que un velo suave resolvía perfectas.
-    if (contraste(L_OSCURO, conVeloClaro(lOsc, a)) >= OBJETIVO && detalle * (1 - a) < 22) {
-      return { modo: 'oscuro', velo: Number(a.toFixed(2)), contraste: contraste(L_OSCURO, conVeloClaro(lOsc, a)) };
-    }
-  }
-  // 4) Ni uno ni otro: banda sólida. Contraste garantizado por construcción.
+  // 3) Ni con 86% de sombra: banda negra. Contraste garantizado y se ve
+  //    intencional, que es justo el lenguaje que pidió la marca.
   return { modo: 'banda', velo: 1, contraste: contraste(L_BLANCO, L_VELO) };
 }
 
@@ -333,10 +323,9 @@ function tratarFranja(m, desdePct, hastaPct) {
   // En franjas chicas la banda sólida se ve pesada: se prefiere el color que
   // más contraste dé, con el velo suave del degradado que ya existe.
   if (t.modo === 'banda') {
-    // Sin banda en franjas chicas (se ve pesada): el color que más contraste dé
-    // + una sombra REFORZADA, que es lo único que queda para salvarla.
-    return contraste(L_OSCURO, media) >= contraste(L_BLANCO, media)
-      ? { modo: 'oscuro', velo: 0, refuerzo: true } : { modo: 'blanco', velo: 0, refuerzo: true };
+    // En franjas chicas la banda se ve pesada: queda el blanco con la sombra
+    // REFORZADA. (Antes podía devolver texto oscuro; la marca lo descartó.)
+    return { modo: 'blanco', velo: 0, refuerzo: true };
   }
   // El velo se devuelve (antes se tiraba): si la franja necesita velo para
   // leerse, el encabezado/pie deben pintarlo, no ignorarlo.

@@ -13,12 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608011533';
-import { icon } from '../shell/icons.js?v=202608011533';
-import { T } from '../shell/i18n.js?v=202608011533';
-import * as store from '../shell/store.js?v=202608011533';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608011533';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608011533';
+import { el, clear, toast, api } from '../api.js?v=202608011611';
+import { icon } from '../shell/icons.js?v=202608011611';
+import { T } from '../shell/i18n.js?v=202608011611';
+import * as store from '../shell/store.js?v=202608011611';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608011611';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608011611';
 
 const W = 1080;
 const H = 1350;

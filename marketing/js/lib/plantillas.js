@@ -66,7 +66,6 @@ const MARCO = `
 .marco.abajo{bottom:74px}
 .marco span{white-space:nowrap}
 .m-claro{color:rgba(255,255,255,.93);text-shadow:0 1px 10px rgba(0,0,0,.5)}
-.m-oscuro{color:rgba(28,28,32,.8)}
 `;
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -106,21 +105,8 @@ const editorial = {
 .pill:nth-child(1){transform:rotate(-1.6deg) translateX(-26px)}
 .pill:nth-child(2){transform:rotate(1.3deg) translateX(22px)}
 .pill:nth-child(3){transform:rotate(-1.1deg) translateX(-16px)}
-.slide.t-oscuro .block{color:#18181E}
-.slide.t-oscuro .kicker,.slide.t-oscuro .support{color:rgba(24,24,30,.92)}
-.slide.t-oscuro .pill{color:#18181E;border-color:rgba(24,24,30,.55)}
-.slide.t-oscuro .title,.slide.t-oscuro .kicker,.slide.t-oscuro .support{text-shadow:0 1px 10px rgba(255,255,255,.55)}
-.veil-claro{background:linear-gradient(rgba(247,247,245,0),rgba(247,247,245,var(--va)) 90px,rgba(247,247,245,var(--va)))}
-.hdr-oscuro .hdr .h,.hdr-oscuro .hdr .d{color:rgba(24,24,30,.9)}
-.hdr-oscuro .hdr .b{color:#18181E}
-.hdr-oscuro .hdr{text-shadow:0 1px 10px rgba(255,255,255,.55)}
-.pie-oscuro .pag{color:rgba(24,24,30,.92);text-shadow:0 1px 10px rgba(255,255,255,.5)}
-.pie-oscuro .chev{border-color:rgba(24,24,30,.7)}
-.pie-oscuro .chev i{border-top-color:rgba(24,24,30,.7);border-right-color:rgba(24,24,30,.7)}
 .hdr-refuerzo .hdr{text-shadow:0 1px 3px rgba(0,0,0,.9),0 2px 18px rgba(0,0,0,.7)}
-.hdr-refuerzo.hdr-oscuro .hdr{text-shadow:0 1px 3px rgba(255,255,255,.95),0 2px 16px rgba(255,255,255,.8)}
 .pie-refuerzo .pag{text-shadow:0 1px 3px rgba(0,0,0,.9),0 2px 18px rgba(0,0,0,.7)}
-.pie-refuerzo.pie-oscuro .pag{text-shadow:0 1px 3px rgba(255,255,255,.95),0 2px 16px rgba(255,255,255,.8)}
 .banda{position:absolute;left:0;right:0;background:#0C0C10}
 .slide.t-banda .block{color:#fff}
 `,
@@ -157,8 +143,9 @@ const revista = {
   acento: 'cursiva',
   css: () => `${RESET}${MARCO}
 .slide{font-family:Cormorant,Georgia,serif}
-.tono{position:absolute;inset:0;background:linear-gradient(rgba(16,14,12,.30),rgba(16,14,12,.10) 38%,rgba(16,14,12,.34))}
-.tono.suave{background:linear-gradient(rgba(250,248,244,.34),rgba(250,248,244,.12) 38%,rgba(250,248,244,.30))}
+/* Oscurecimiento GENERAL, no solo una franja: es lo que da el look editorial
+   "moody" que pidió la marca — sombra negra, letra blanca. */
+.tono{position:absolute;inset:0;background:linear-gradient(rgba(14,13,12,.46),rgba(14,13,12,.24) 40%,rgba(14,13,12,.52))}
 .bloque{position:absolute;left:120px;right:120px;text-align:center;display:flex;flex-direction:column;align-items:center}
 .eyebrow{font-family:Outfit,sans-serif;font-size:23px;letter-spacing:.24em;text-transform:uppercase;
   color:rgba(255,255,255,.9);margin-bottom:30px;text-shadow:0 1px 10px rgba(0,0,0,.45)}
@@ -180,30 +167,27 @@ const revista = {
   border-top:1.7px solid rgba(255,255,255,.9);border-right:1.7px solid rgba(255,255,255,.9);
   transform:translate(1px,-50%) rotate(45deg)}
 .flecha.abajo{transform:translateX(-50%) rotate(90deg)}
-/* Variante clara: sobre fotos luminosas todo el sistema se invierte. */
-.claro .eyebrow,.claro .bajada{color:rgba(26,24,22,.86);text-shadow:0 1px 9px rgba(255,255,255,.5)}
-.claro .tit{color:#1A1816;text-shadow:0 1px 12px rgba(255,255,255,.55)}
-.claro .li{color:#1A1816;border-bottom-color:rgba(26,24,22,.3);text-shadow:0 1px 10px rgba(255,255,255,.5)}
-.claro .flecha{border-color:rgba(26,24,22,.7)}
-.claro .flecha i{background:rgba(26,24,22,.8)}
-.claro .flecha i::after{border-top-color:rgba(26,24,22,.8);border-right-color:rgba(26,24,22,.8)}
+/* Fotos MUY luminosas: se sube la sombra general en vez de invertir el texto
+   a negro. La letra SIEMPRE es blanca (dirección de marca). */
+.slide.velado .tono{background:linear-gradient(rgba(12,11,10,.66),rgba(12,11,10,.5) 40%,rgba(12,11,10,.7))}
 `,
   html: (c) => {
-    const claro = c.modo === 'oscuro';
+    // Zona muy clara → se OSCURECE más; nunca se invierte el texto a negro.
+    const velado = (c.velo || 0) > 0.45 || c.modo === 'banda';
     let inner = '';
     if (c.kicker) inner += `<div class="eyebrow">${esc(c.kicker)}</div>`;
     if (c.title) inner += `<div class="tit${c.smTitle ? ' sm' : ''}">${conCursiva(c.title)}</div>`;
     if (c.items) inner += `<div class="lista">${c.items.map((i) => `<div class="li">${esc(i)}</div>`).join('')}</div>`;
     const bajada = c.plainBody || c.support;
     if (bajada) inner += `<div class="bajada">${esc(bajada.replace(/\*\*/g, ''))}</div>`;
-    return `<div class="slide${claro ? ' claro' : ''}">
-      <div class="tono${claro ? ' suave' : ''}"></div>
-      <div class="marco arriba ${claro ? 'm-oscuro' : 'm-claro'}">
+    return `<div class="slide${velado ? ' velado' : ''}">
+      <div class="tono"></div>
+      <div class="marco arriba m-claro">
         <span>${esc(c.marca)}</span><span>${folio(c.idx, c.total)}</span>
       </div>
       ${c.hasText ? `<div class="bloque" style="top:${c.blockTop}${c.miniCSS}">${inner}</div>` : ''}
       <div class="flecha${c.isLast ? ' abajo' : ''}"><i></i></div>
-      <div class="marco abajo ${claro ? 'm-oscuro' : 'm-claro'}">
+      <div class="marco abajo m-claro">
         <span>${c.fecha}</span><span>${esc(c.handle)}</span>
       </div>
     </div>`;
@@ -218,31 +202,33 @@ const revista = {
 const nota = {
   id: 'nota',
   nombre: 'Nota',
-  descripcion: 'Tarjeta de papel sobre la foto. Se lee siempre, con cualquier imagen.',
+  descripcion: 'Tarjeta oscura sobre la foto. Se lee siempre, con cualquier imagen.',
   sobreFoto: false,
   fuentes: ['Cormorant', 'Outfit'],
   acento: 'cursiva',
   css: () => `${RESET}${MARCO}
 .slide{font-family:Cormorant,Georgia,serif}
-.tono{position:absolute;inset:0;background:linear-gradient(rgba(14,13,12,.20),rgba(14,13,12,.06) 42%,rgba(14,13,12,.26))}
-.papel{position:absolute;left:132px;right:132px;background:#FAF8F4;color:#1B1A18;
-  padding:88px 74px 78px;box-shadow:0 32px 70px rgba(0,0,0,.24),0 4px 12px rgba(0,0,0,.12);
+.tono{position:absolute;inset:0;background:linear-gradient(rgba(10,10,12,.42),rgba(10,10,12,.26) 42%,rgba(10,10,12,.46))}
+/* Tarjeta OSCURA translúcida: la foto se sigue viendo a través, pero el texto
+   blanco tiene su propio piso de contraste. Nada de papel blanco — la marca
+   pidió sombra negra con letra blanca. */
+.papel{position:absolute;left:126px;right:126px;background:rgba(13,13,15,.72);color:#F6F5F3;
+  padding:84px 70px 74px;border:1px solid rgba(255,255,255,.15);
+  box-shadow:0 30px 80px rgba(0,0,0,.45);
   display:flex;flex-direction:column;align-items:center;text-align:center}
-.cinta{position:absolute;top:-26px;left:50%;transform:translateX(-50%) rotate(-1.6deg);
-  width:188px;height:52px;background:rgba(228,222,210,.82);border-left:1px solid rgba(0,0,0,.05);
-  border-right:1px solid rgba(0,0,0,.05)}
-.num{font-family:Outfit,sans-serif;font-size:24px;letter-spacing:.26em;color:rgba(27,26,24,.5);margin-bottom:26px}
+.cinta{position:absolute;top:-1px;left:50%;transform:translateX(-50%);
+  width:150px;height:3px;background:rgba(255,255,255,.55)}
+.num{font-family:Outfit,sans-serif;font-size:24px;letter-spacing:.26em;color:rgba(246,245,243,.58);margin-bottom:26px}
 .tit{font-size:88px;font-weight:400;line-height:1.06;letter-spacing:-.004em;text-wrap:balance}
 .tit i{font-style:italic}
 .tit.sm{font-size:72px}
-.bajada{font-family:Outfit,sans-serif;font-size:28px;line-height:1.62;color:rgba(27,26,24,.74);margin-top:34px;max-width:88%}
+.bajada{font-family:Outfit,sans-serif;font-size:28px;line-height:1.62;color:rgba(246,245,243,.8);margin-top:34px;max-width:88%}
 .lista{margin-top:38px;display:flex;flex-direction:column;gap:20px;width:100%}
-.li{font-size:38px;line-height:1.34;padding-bottom:18px;border-bottom:1px solid rgba(27,26,24,.16)}
+.li{font-size:38px;line-height:1.34;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.2)}
 .li:last-child{border-bottom:0;padding-bottom:0}
 .rubrica{position:absolute;left:0;right:0;bottom:74px;text-align:center;font-family:Outfit,sans-serif;
   font-size:22px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.92);
   text-shadow:0 1px 10px rgba(0,0,0,.55)}
-.rubrica.oscura{color:rgba(26,24,22,.85);text-shadow:0 1px 9px rgba(255,255,255,.55)}
 `,
   html: (c) => {
     let inner = `<div class="cinta"></div>`;
@@ -255,9 +241,9 @@ const nota = {
     // El papel se centra vertical: no depende de dónde el fotómetro vio hueco.
     return `<div class="slide">
       <div class="tono"></div>
-      <div class="marco arriba ${c.marcoArriba}"><span>${esc(c.marca)}</span><span>${folio(c.idx, c.total)}</span></div>
+      <div class="marco arriba m-claro"><span>${esc(c.marca)}</span><span>${folio(c.idx, c.total)}</span></div>
       <div class="papel" style="top:${c.papelTop}px">${inner}</div>
-      <div class="rubrica ${c.marcoAbajo === 'm-oscuro' ? 'oscura' : ''}">${esc(c.handle)}</div>
+      <div class="rubrica">${esc(c.handle)}</div>
     </div>`;
   },
 };
@@ -300,7 +286,7 @@ const ficha = {
     const bajada = c.plainBody || c.support;
     if (bajada) inner += `<div class="bajada">${conCursiva(bajada)}</div>`;
     return `<div class="slide">
-      <div class="marco arriba ${c.marcoArriba}"><span>${esc(c.marca)}</span><span>${folio(c.idx, c.total)}</span></div>
+      <div class="marco arriba m-claro"><span>${esc(c.marca)}</span><span>${folio(c.idx, c.total)}</span></div>
       <div class="panel">${inner}
         <div class="pieficha"><span>${c.fecha}</span><span>${esc(c.handle)}</span></div>
       </div>
