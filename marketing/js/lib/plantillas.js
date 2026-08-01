@@ -49,6 +49,10 @@ export function fechaCorta(iso) {
 const folio = (i, n) => `P. ${String(i + 1).padStart(2, '0')}/${String(n).padStart(2, '0')}`;
 
 // ── Base común ──────────────────────────────────────────────────────────────
+// ⚠️ REGLA DURA DEL PIPELINE: esta capa se pinta ENCIMA de la foto que ya
+// dibujó el canvas. NINGUNA plantilla puede poner `background` en `.slide`:
+// taparía la foto entera y el slide saldría de color liso. Para oscurecer, se
+// usa una capa aparte (.tono, .viñeta) con rgba — nunca un color opaco.
 const RESET = `
 *{margin:0;padding:0;box-sizing:border-box}
 .slide{position:relative;width:1080px;height:1350px;overflow:hidden;color:#fff;
@@ -356,7 +360,7 @@ const mural = {
   fuentes: ['Cormorant', 'Outfit'],
   acento: 'cursiva',
   css: () => `${RESET}${MARCO}
-.slide{font-family:Cormorant,Georgia,serif;background:#0C0C0F}
+.slide{font-family:Cormorant,Georgia,serif}
 .viñeta{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(12,12,15,0) 45%,rgba(12,12,15,.5))}
 /* El titular solo en la PORTADA: en los demás el mural manda. */
 .portada{position:absolute;left:96px;right:96px;bottom:190px;text-align:left}
