@@ -214,7 +214,10 @@ function sanear(out, n) {
     descartadas: (Array.isArray(out.descartadas) ? out.descartadas : []).slice(0, 12),
     slides,
     caption: String(out.caption || '').slice(0, 2200),
-    hashtags: String(out.hashtags || '').slice(0, 400),
+    // Los hashtags se REARMAN: el modelo a veces escribe "#Quintana Roo" y un
+    // hashtag con espacio se rompe en Instagram (queda "#Quintana" + basura).
+    hashtags: String(out.hashtags || '').split('#').map((t) => t.trim().replace(/\s+/g, ''))
+      .filter(Boolean).slice(0, 15).map((t) => '#' + t).join(' ').slice(0, 400),
   };
 }
 
