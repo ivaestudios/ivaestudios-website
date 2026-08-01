@@ -274,8 +274,9 @@ const ficha = {
   fuentes: ['Cormorant', 'Outfit'],
   acento: 'cursiva',
   css: (c) => `${RESET}${MARCO}
-.slide{font-family:Cormorant,Georgia,serif;background:${c.tinta}}
-.foto{position:absolute;top:0;left:0;right:0;height:56%;bottom:auto}
+/* OJO: .slide NO lleva fondo. Esta capa se pinta ENCIMA de la foto del canvas;
+   un color sólido aquí tapaba la foto entera y el slide salía liso. */
+.slide{font-family:Cormorant,Georgia,serif}
 .panel{position:absolute;left:0;right:0;bottom:0;height:44%;background:${c.tinta};color:#F3F0EA;
   padding:74px 104px 96px;display:flex;flex-direction:column}
 .eyebrow{font-family:Outfit,sans-serif;font-size:22px;letter-spacing:.24em;text-transform:uppercase;
