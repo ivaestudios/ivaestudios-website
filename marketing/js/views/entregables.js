@@ -6,17 +6,17 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608031423';
-import { icon } from '../shell/icons.js?v=202608031423';
-import { T } from '../shell/i18n.js?v=202608031423';
-import { openSheet } from '../shell/sheet.js?v=202608031423';
+import { api, el, clear, toast } from '../api.js?v=202608031438';
+import { icon } from '../shell/icons.js?v=202608031438';
+import { T } from '../shell/i18n.js?v=202608031438';
+import { openSheet } from '../shell/sheet.js?v=202608031438';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608031423';
+import { errorCard } from '../ui/states.js?v=202608031438';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608031423';
+} from '../lib/video-upload.js?v=202608031438';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -152,7 +152,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608031423';
+  link.href = '/marketing/css/entregables.css?v=202608031438';
   document.head.appendChild(link);
 }
 
@@ -1138,9 +1138,18 @@ function buildItem(it, staff) {
         el('span', { class: 'dlv-drop__s', text: T('No cierres esta pantalla. Los comentarios no se tocan.', 'Don\'t close this screen. The comments are untouched.') }),
       ]));
     } else if (it.video_url) {
+      // Con las descargas apagadas hay que cerrar TAMBIÉN la puerta del
+      // reproductor: el menú ⋮ de Chrome trae su propio "Descargar" y dejaba
+      // sin efecto el interruptor. controlsList lo quita y se bloquea el menú
+      // del clic derecho. (No es infalible —para VER el video hay que
+      // servirlo— pero cierra el camino fácil, que es lo que se pidió.)
+      const sinDescarga = isClient() && !descargasActivas();
       const v = el('video', {
         class: 'dlv-video', src: it.video_url, poster: it.poster_url || null,
         controls: true, playsinline: true, preload: 'none',
+        controlsList: sinDescarga ? 'nodownload noplaybackrate' : null,
+        oncontextmenu: sinDescarga ? ((e) => e.preventDefault()) : null,
+        disablePictureInPicture: sinDescarga || null,
       });
       observeVideo(v); // carga metadatos/frame solo al acercarse (rápido en móvil)
       card.appendChild(v);
