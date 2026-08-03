@@ -6,17 +6,17 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608031438';
-import { icon } from '../shell/icons.js?v=202608031438';
-import { T } from '../shell/i18n.js?v=202608031438';
-import { openSheet } from '../shell/sheet.js?v=202608031438';
+import { api, el, clear, toast } from '../api.js?v=202608031457';
+import { icon } from '../shell/icons.js?v=202608031457';
+import { T } from '../shell/i18n.js?v=202608031457';
+import { openSheet } from '../shell/sheet.js?v=202608031457';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608031438';
+import { errorCard } from '../ui/states.js?v=202608031457';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608031438';
+} from '../lib/video-upload.js?v=202608031457';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -126,6 +126,9 @@ async function toggleDescargas(btn) {
       body: JSON.stringify({ downloads_enabled: next }),
     });
     if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || T('No se pudo guardar.', 'Could not save.'));
+    // Salir de la pantalla mientras viaja el PATCH deja ctx en null (unmount
+    // lo limpia): sin esta guardia truena en el try Y otra vez en el catch.
+    if (!ctx || !rootEl) return;
     ctx.store.set({ clients: clients.map((c) => (c.id === activeClientId ? { ...c, downloads_enabled: next } : c)) });
     ctx.toast(next
       ? `${T('El cliente ya puede descargar el contenido de', 'The client can now download content for')} ${brand.name}.`
@@ -133,7 +136,7 @@ async function toggleDescargas(btn) {
       { type: 'success' });
     render();   // repinta: los botones de descarga aparecen o se van
   } catch (e) {
-    ctx.toast(e.message || T('No se pudo guardar.', 'Could not save.'), { type: 'error' });
+    if (ctx) ctx.toast(e.message || T('No se pudo guardar.', 'Could not save.'), { type: 'error' });
     btn.disabled = false;
   }
 }
@@ -141,9 +144,22 @@ async function toggleDescargas(btn) {
 // ¿La marca activa permite que el cliente descargue? Ante la duda, SÍ: así una
 // marca vieja (sin el campo) nunca pierde algo que ya tenía.
 function descargasActivas() {
+  if (!ctx) return true;
   const { activeClientId, clients } = ctx.store.getState();
   const c = (clients || []).find((x) => x.id === activeClientId);
   return !c || c.downloads_enabled == null || !!c.downloads_enabled;
+}
+
+// `clients` se carga UNA vez al arrancar la app. Si Vianey apaga las descargas
+// mientras la clienta tiene la PWA abierta, esa pantalla se quedaba con el
+// permiso viejo por días. Al ENTRAR a Entregables se vuelve a pedir: es el
+// único momento en que ese dato importa.
+async function refrescarPermisos() {
+  try {
+    const cl = await api.get('/clients');
+    if (!ctx || !Array.isArray(cl)) return;
+    ctx.store.set({ clients: cl });
+  } catch { /* si falla, se queda con lo que había: nadie pierde la vista */ }
 }
 
 function ensureCss() {
@@ -152,12 +168,15 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608031438';
+  link.href = '/marketing/css/entregables.css?v=202608031457';
   document.head.appendChild(link);
 }
 
 async function load() {
   const client = activeClient();
+  // El permiso de descarga puede haber cambiado desde que se abrió la app.
+  // No se espera (no debe retrasar la lista); cuando llegue, repinta.
+  if (isClient()) refrescarPermisos().then(() => { if (rootEl) render(); });
   dlAllCache.clear(); // los archivos armados de "Descargar todos" caducan al recargar la lista
   // ⚠️ fileCache está indexado por it.id, y con "Cambiar video" un MISMO id pasa a
   // tener OTROS bytes. Si no se suelta aquí, el 2º toque de "Descargar" en el
@@ -609,9 +628,18 @@ function fetchRange(url, start, end, onLoaded) {
 // rearma -> más rápido que una sola descarga (que se estanca). Si el servidor no
 // soporta rangos (200) o el archivo es chico, cae a una sola descarga. onProgress(pct).
 async function fetchVideoBlob(it, onProgress) {
-  const url = it.video_url;
+  // download=1 SIEMPRE: este es el motor de descarga de verdad (móvil y
+  // "Descargar todos"). Sin el parámetro, el candado del servidor —que solo
+  // mira ese flag— nunca se activaba y el interruptor era decorativo en el
+  // teléfono. Marcar la intención aquí es lo que lo vuelve real.
+  const url = withParam(it.video_url, 'download', '1');
   // 1) primer tramo: trae el inicio y revela tamaño total + soporte de rangos.
   const first = await fetchRange(url, 0, DL_CHUNK - 1);
+  if (first.status === 403) {
+    const e = new Error(T('Las descargas están desactivadas para esta marca.', 'Downloads are turned off for this brand.'));
+    e.bloqueado = true;
+    throw e;
+  }
   const ctype = first.xhr.getResponseHeader('Content-Type') || 'video/mp4';
   const cr = first.xhr.getResponseHeader('Content-Range') || '';
   const m = cr.match(/\/(\d+)\s*$/);
@@ -715,7 +743,14 @@ async function saveVideo(it, btn) {
       return;
     }
   } catch (e) {
-    linkDownload(it);
+    // Si el servidor lo BLOQUEÓ, decirlo: caer a linkDownload solo repetiría
+    // el 403 y la clienta se quedaría sin entender por qué no pasa nada.
+    if (e && e.bloqueado) {
+      toast(e.message, 'info', 6000);
+      if (isClient()) refrescarPermisos().then(() => { if (rootEl) render(); });
+    } else {
+      linkDownload(it);
+    }
   } finally {
     if (btn) btn.disabled = false;
     if (label && /Preparando|Preparing/.test(label.textContent)) resetBtn();

@@ -1148,6 +1148,10 @@ function shapeClient(c, counts) {
     // Por defecto sí (COALESCE): ninguna marca cambia de comportamiento al
     // aparecer la columna.
     downloads_enabled: c.downloads_enabled == null ? 1 : (c.downloads_enabled ? 1 : 0),
+    // Bug preexistente: este campo NUNCA viajaba, así que el interruptor de
+    // "Avisos automáticos" siempre se pintaba en Activado aunque estuviera
+    // apagado en la base (el backend sí lo respetaba; mentía la pantalla).
+    reminders_enabled: c.reminders_enabled == null ? 1 : (c.reminders_enabled ? 1 : 0),
     counts: counts || { posts: 0, pending: 0 }
   };
 }
@@ -3771,8 +3775,15 @@ async function handleUploadVideo(request, env, session, postId) {
 
 async function handleServeVideo(request, env, session, postId) {
   if (!env.R2_BUCKET) return new Response('Almacenamiento no disponible', { status: 503 });
-  const { error } = await mktPostForVideo(env, session, postId);
+  const { post, error } = await mktPostForVideo(env, session, postId);
   if (error) return new Response('Forbidden', { status: 403 });
+  // MISMA puerta que Entregables: este endpoint sirve el video del calendario
+  // ("Video final"). Sin este candado el interruptor se esquivaba entrando por
+  // el calendario en vez de por Entregables.
+  if (new URL(request.url).searchParams.get('download')
+      && !(await descargaPermitida(env, session, (post && post.client_id) || session.client_id))) {
+    return new Response('Las descargas están desactivadas para esta marca.', { status: 403 });
+  }
 
   // La extensión no se guarda en mkt_posts, así que se prueban en orden; se
   // recuerda la que existe para no repetir la búsqueda si hay que reintentar.
@@ -3942,10 +3953,22 @@ async function dlvForAccess(env, session, id) {
 // propio material.
 async function descargaPermitida(env, session, clientId) {
   if (session.role !== 'client') return true;
-  const c = await env.DB.prepare('SELECT downloads_enabled FROM mkt_clients WHERE id = ?').bind(clientId).first();
-  // COALESCE: si la columna aún no existe o viene nula, se permite (era el
-  // comportamiento de siempre y nadie debe perder acceso por una migración).
+  if (!clientId) return true;
+  let c;
+  try {
+    c = await env.DB.prepare('SELECT downloads_enabled FROM mkt_clients WHERE id = ?').bind(clientId).first();
+  } catch (e) {
+    // La columna puede no existir en un entorno que aún no corrió la migración
+    // 022. El comentario prometía tolerarlo pero un "no such column" reventaba
+    // en 500. Ante la duda se PERMITE: nadie pierde acceso por una migración.
+    if (isMissingColumnError(e)) return true;
+    throw e;
+  }
   return !c || c.downloads_enabled == null || !!c.downloads_enabled;
+}
+
+function isMissingColumnError(e) {
+  return /no such column/i.test((e && e.message) || '');
 }
 
 async function handleListDeliverables(env, session, url) {

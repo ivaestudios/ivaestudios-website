@@ -1113,6 +1113,10 @@ export async function handleMonthlyReport(request, env, session, url, igFetcher 
 
   // ── 06 · Entregables del periodo ──────────────────────────────────────────
   if (deliverables.length) {
+    // El reporte prometía "Ver / Descargar" aunque la marca tuviera las
+    // descargas apagadas. El enlace abre el video para VER (va sin download=1,
+    // así que el candado no lo toca), pero el texto no debe prometer de más.
+    const puedeBajar = client.downloads_enabled == null || !!client.downloads_enabled;
     const items = deliverables.map((d) => {
       const isReel = d.type === 'reel';
       const href = isReel
@@ -1125,7 +1129,7 @@ export async function handleMonthlyReport(request, env, session, url, igFetcher 
       return `<div class="deliv__i">
         <span class="deliv__type">${isReel ? 'Reel' : 'Carrusel'}</span>
         <span class="deliv__t">${esc(title)}</span>
-        ${href ? `<a class="deliv__a" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${isReel ? 'Ver / Descargar' : 'Ver carrusel'} ↗</a>` : '<span class="pend">en proceso</span>'}
+        ${href ? `<a class="deliv__a" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${isReel ? (puedeBajar ? 'Ver / Descargar' : 'Ver') : 'Ver carrusel'} ↗</a>` : '<span class="pend">en proceso</span>'}
       </div>`;
     }).join('');
     const reels = deliverables.filter((d) => d.type === 'reel').length;
