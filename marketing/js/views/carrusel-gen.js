@@ -13,12 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608031511';
-import { icon } from '../shell/icons.js?v=202608031511';
-import { T } from '../shell/i18n.js?v=202608031511';
-import * as store from '../shell/store.js?v=202608031511';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608031511';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608031511';
+import { el, clear, toast, api } from '../api.js?v=202608031523';
+import { icon } from '../shell/icons.js?v=202608031523';
+import { T } from '../shell/i18n.js?v=202608031523';
+import * as store from '../shell/store.js?v=202608031523';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608031523';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608031523';
 
 const W = 1080;
 const H = 1350;
@@ -646,9 +646,9 @@ async function regenerate(previewHost) {
   if (!previewHost) return;
   try {
     await designFonts();
-    if (token !== genToken) return;
+    if (token !== genToken) return false;   // otro render mandó: éste ya no vale
     const layers = await Promise.all(slides.map((s, i) => designLayer(s, i, slides.length)));
-    if (token !== genToken) return;
+    if (token !== genToken) return false;
     previews = [];
     clear(previewHost);
     slides.forEach((s, i) => {
@@ -668,9 +668,11 @@ async function regenerate(previewHost) {
       cell.prepend(canvas);
       previewHost.appendChild(cell);
     });
+    return true;   // el render salió bien y `previews` está al día
   } catch (e) {
     console.error('[carrusel-gen] render', e);
     toast(T('No se pudo generar la vista previa. Intenta de nuevo.', 'Preview failed. Try again.'), 'error');
+    return false;  // quien llame NO debe usar `previews`: quedó del render anterior
   }
 }
 
@@ -841,8 +843,15 @@ export function renderGen(root, helpers) {
       // Un redibujo diferido pendiente robaría el token a ESTE regenerate y el
       // ZIP saldría con los slides anteriores (o vacío).
       clearTimeout(redrawTimer);
-      await regenerate(previewHost);
+      // Si el render falla, `previews` conserva los slides del render ANTERIOR:
+      // exportarlos daría un ZIP con contenido viejo y un toast de éxito.
+      const ok = await regenerate(previewHost);
+      if (!ok) return;   // regenerate ya avisó del error
       const list = previews.slice();
+      if (list.length !== slides.length) {
+        toast(T('La vista previa no está al día. Genérala otra vez antes de descargar.', 'Preview is out of date. Generate it again before downloading.'), 'error');
+        return;
+      }
       const type = format === 'png' ? 'image/png' : 'image/jpeg';
       const ext = format === 'png' ? 'png' : 'jpg';
       const entries = [];
@@ -994,7 +1003,7 @@ export function renderGen(root, helpers) {
     ]) : null,
 
     slides.length ? el('div', { class: 'carg-actions' }, [
-      el('button', { class: 'btn btn-primary', type: 'button', onclick: () => regenerate(previewHost).then(() => toast(T('Vista previa lista.', 'Preview ready.'), 'success')) }, [icon('activity', 15), ' ' + T('Generar vista previa', 'Generate preview')]),
+      el('button', { class: 'btn btn-primary', type: 'button', onclick: () => regenerate(previewHost).then((ok) => { if (ok) toast(T('Vista previa lista.', 'Preview ready.'), 'success'); }) }, [icon('activity', 15), ' ' + T('Generar vista previa', 'Generate preview')]),
       el('button', { class: 'btn', type: 'button', onclick: () => dl('jpg') }, [icon('download', 15), ' ' + T('Descargar JPG', 'Download JPG')]),
       el('button', { class: 'btn', type: 'button', onclick: () => dl('png') }, ['PNG']),
     ]) : null,

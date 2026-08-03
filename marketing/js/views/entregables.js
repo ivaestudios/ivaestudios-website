@@ -6,17 +6,17 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608031511';
-import { icon } from '../shell/icons.js?v=202608031511';
-import { T } from '../shell/i18n.js?v=202608031511';
-import { openSheet } from '../shell/sheet.js?v=202608031511';
+import { api, el, clear, toast } from '../api.js?v=202608031523';
+import { icon } from '../shell/icons.js?v=202608031523';
+import { T } from '../shell/i18n.js?v=202608031523';
+import { openSheet } from '../shell/sheet.js?v=202608031523';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608031511';
+import { errorCard } from '../ui/states.js?v=202608031523';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608031511';
+} from '../lib/video-upload.js?v=202608031523';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -168,7 +168,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608031511';
+  link.href = '/marketing/css/entregables.css?v=202608031523';
   document.head.appendChild(link);
 }
 
@@ -616,8 +616,16 @@ function fetchRange(url, start, end, onLoaded) {
     xhr.setRequestHeader('Range', `bytes=${start}-${end}`);
     xhr.onprogress = (e) => { if (onLoaded) onLoaded(e.loaded); };
     xhr.onload = () => {
-      if (xhr.status === 206 || xhr.status === 200) resolve({ buf: xhr.response, status: xhr.status, xhr });
-      else reject(new Error(T('No se pudo descargar el video.', 'Could not download the video.')));
+      if (xhr.status === 206 || xhr.status === 200) { resolve({ buf: xhr.response, status: xhr.status, xhr }); return; }
+      // El status TIENE que viajar en el error: si se pierde aquí, quien llama
+      // no puede distinguir "se cortó la red" de "esta marca no puede
+      // descargar", y el aviso al cliente se vuelve inalcanzable.
+      const err = new Error(xhr.status === 403
+        ? T('Las descargas están desactivadas para esta marca.', 'Downloads are turned off for this brand.')
+        : T('No se pudo descargar el video.', 'Could not download the video.'));
+      err.status = xhr.status;
+      if (xhr.status === 403) err.bloqueado = true;
+      reject(err);
     };
     xhr.onerror = () => reject(new Error(T('Se cortó la conexión al descargar.', 'The connection dropped while downloading.')));
     xhr.send();
@@ -634,12 +642,9 @@ async function fetchVideoBlob(it, onProgress) {
   // teléfono. Marcar la intención aquí es lo que lo vuelve real.
   const url = withParam(it.video_url, 'download', '1');
   // 1) primer tramo: trae el inicio y revela tamaño total + soporte de rangos.
+  // fetchRange ya marca el 403 como `bloqueado` y lo relanza: aquí solo se
+  // deja pasar (el catch de quien llama es el que muestra el aviso).
   const first = await fetchRange(url, 0, DL_CHUNK - 1);
-  if (first.status === 403) {
-    const e = new Error(T('Las descargas están desactivadas para esta marca.', 'Downloads are turned off for this brand.'));
-    e.bloqueado = true;
-    throw e;
-  }
   const ctype = first.xhr.getResponseHeader('Content-Type') || 'video/mp4';
   const cr = first.xhr.getResponseHeader('Content-Range') || '';
   const m = cr.match(/\/(\d+)\s*$/);
@@ -810,6 +815,7 @@ async function downloadAllReels(month, reels, btn) {
   if (dlAllBusy) return;
   dlAllBusy = true; btn.disabled = true;
   const failed = [];
+  let bloqueado = null;   // mensaje del interruptor, si el servidor lo cortó
   try {
     for (let i = 0; i < reels.length; i++) {
       const it = reels[i];
@@ -819,11 +825,22 @@ async function downloadAllReels(month, reels, btn) {
         const blob = await fetchVideoBlob(it, (pct) => setLabel(`${T('Descargando', 'Downloading')} ${pos} · ${pct}%`));
         blobDownload(fileFromBlob(it, blob));
         await new Promise((r) => setTimeout(r, 350));
-      } catch { failed.push(it.title || 'Reel'); }
+      } catch (e) {
+        // Si es el interruptor, no tiene caso seguir con los demás: se avisa
+        // una vez y se corta. Antes salía "3 reels no se descargaron… intenta
+        // de nuevo" y la clienta reintentaba para siempre sin saber por qué.
+        if (e && e.bloqueado) { bloqueado = e.message; break; }
+        failed.push(it.title || 'Reel');
+      }
     }
   } finally {
     dlAllBusy = false; btn.disabled = false;
     setLabel(T('Descargar todos', 'Download all'));
+  }
+  if (bloqueado) {
+    toast(bloqueado, 'info', 7000);
+    if (isClient()) refrescarPermisos().then(() => { if (rootEl) render(); });
+    return;
   }
   if (failed.length) {
     toast(T(`${failed.length === 1 ? '1 reel no se descargó' : `${failed.length} reels no se descargaron`}: ${failed.join(', ')}. Intenta de nuevo.`, `${failed.length === 1 ? '1 reel failed to download' : `${failed.length} reels failed to download`}: ${failed.join(', ')}. Try again.`), 'error', 9000);
@@ -866,7 +883,15 @@ async function mobilePrepare(month, reels, index, btn, setLabel) {
         setLabel(`${T('Toca para guardar', 'Tap to save')} ${pos}`);
         toast(T(`Reel ${pos} listo ✓ — toca el botón resaltado para guardarlo en tu teléfono.`, `Reel ${pos} ready ✓ — tap the highlighted button to save it to your phone.`), 'info', 7000);
         return; // espera el toque; al guardarse sigue el siguiente
-      } catch {
+      } catch (e) {
+        // El interruptor no es un fallo de este reel: es que la marca no
+        // descarga. Se avisa UNA vez y se corta el lote.
+        if (e && e.bloqueado) {
+          toast(e.message, 'info', 7000);
+          dlAllFailed.delete(month);
+          if (isClient()) refrescarPermisos().then(() => { if (rootEl) render(); });
+          return;
+        }
         // Falló ESTE reel: se anota y se sigue con el siguiente (antes el
         // siguiente toque reempezaba en el 1 y volvía a bajar lo ya guardado).
         const list = dlAllFailed.get(month) || [];

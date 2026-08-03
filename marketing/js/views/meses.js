@@ -28,20 +28,20 @@ import {
   el, clear, copyText, api, isClientRole,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202608031511';
-import { icon } from '../shell/icons.js?v=202608031511';
-import { T } from '../shell/i18n.js?v=202608031511';
+} from '../api.js?v=202608031523';
+import { icon } from '../shell/icons.js?v=202608031523';
+import { T } from '../shell/i18n.js?v=202608031523';
 // Capas de history del shell: el boton atras del telefono cierra la capa de
 // arriba (panel de guion) en vez de salir de la app.
-import { pushLayer } from '../shell/router.js?v=202608031511';
+import { pushLayer } from '../shell/router.js?v=202608031523';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608031511';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608031511';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608031511';
+import { errorCard } from '../ui/states.js?v=202608031523';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608031523';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608031523';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608031511';
+} from '../lib/video-upload.js?v=202608031523';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1304,8 +1304,22 @@ function textCellNode(value, placeholder) {
   return el('span', { class: 'meses-text', text: txt, title: txt });
 }
 
-function buildUrlCell(post, field, label) {
+// ¿La marca activa permite descargar? (mismo criterio que Entregables: ante
+// la duda, sí — una marca sin el campo nunca pierde algo que ya tenía).
+function descargasDeLaMarca() {
+  const { activeClientId, clients } = ctx.store.getState();
+  const c = (clients || []).find((x) => x.id === activeClientId);
+  return !c || c.downloads_enabled == null || !!c.downloads_enabled;
+}
+
+function buildUrlCell(post, field, label, opts) {
   const td = el('td', { class: 'meses-td meses-td--url' });
+  // Con las descargas apagadas el cliente no recibe el enlace directo al
+  // archivo: se le muestra que existe, pero lo ve en Entregables.
+  if (opts && opts.ocultarValor && post[field]) {
+    td.appendChild(el('span', { class: 'meses-muted', title: T('Míralo en Entregables', 'View it in Deliverables'), text: '—' }));
+    return td;
+  }
   const url = safeUrl(post[field]);
   if (!url) {
     td.appendChild(cellButton(
@@ -1455,7 +1469,11 @@ function buildRow(post, noteLabels) {
 
   tr.append(
     buildUrlCell(post, 'inspo_url', 'Inspo'),
-    buildUrlCell(post, 'video_url', T('Video final', 'Final video')),
+    // "Video final" abre el archivo crudo en otra pestaña, y ahí el
+    // reproductor del navegador ofrece descargarlo: con las descargas
+    // apagadas era la puerta de atrás del interruptor. El cliente lo ve en
+    // Entregables, que sí respeta el permiso.
+    buildUrlCell(post, 'video_url', T('Video final', 'Final video'), { ocultarValor: isClientRole() && !descargasDeLaMarca() }),
   );
   return tr;
 }
