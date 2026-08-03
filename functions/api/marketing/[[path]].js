@@ -3897,7 +3897,10 @@ function shapeDeliverable(d, origin, comments = [], piece = null) {
     post_id: d.post_id || null,
     piece: piece || null,   // { num, type, title, date }
     video_url: d.video_ext ? `${origin}/api/marketing/deliverables/${d.id}/video?v=${v}` : null,
-    poster_url: d.video_ext ? `${origin}/api/marketing/deliverables/${d.id}/poster?v=${v}` : null,
+    // Solo si REALMENTE hay miniatura: anunciarla siempre hacía que el
+    // navegador pidiera una imagen inexistente en la mitad de los videos (404
+    // por cada uno). Sin poster el navegador pinta el primer fotograma.
+    poster_url: (d.video_ext && d.poster_ok) ? `${origin}/api/marketing/deliverables/${d.id}/poster?v=${v}` : null,
     created_at: d.created_at, updated_at: d.updated_at || null,
     comments,
   };
@@ -4254,6 +4257,10 @@ async function handleUploadDeliverablePoster(request, env, session, id) {
   await env.R2_BUCKET.put(`marketing/deliverable/${id}.poster.jpg`, file.stream(), {
     httpMetadata: { contentType: 'image/jpeg', cacheControl: 'private, max-age=86400' },
   });
+  // Queda anotado: a partir de aquí el listado sí anuncia la miniatura.
+  try {
+    await env.DB.prepare(`UPDATE mkt_deliverables SET poster_ok = 1, updated_at = ${MKT_NOW_MS} WHERE id = ?`).bind(id).run();
+  } catch (e) { if (!isMissingColumnError(e)) throw e; }
   return json({ ok: true });
 }
 
