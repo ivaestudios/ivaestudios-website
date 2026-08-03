@@ -6,17 +6,17 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608011751';
-import { icon } from '../shell/icons.js?v=202608011751';
-import { T } from '../shell/i18n.js?v=202608011751';
-import { openSheet } from '../shell/sheet.js?v=202608011751';
+import { api, el, clear, toast } from '../api.js?v=202608031406';
+import { icon } from '../shell/icons.js?v=202608031406';
+import { T } from '../shell/i18n.js?v=202608031406';
+import { openSheet } from '../shell/sheet.js?v=202608031406';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608011751';
+import { errorCard } from '../ui/states.js?v=202608031406';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608011751';
+} from '../lib/video-upload.js?v=202608031406';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -110,13 +110,49 @@ function activeClient() {
   return (clients || []).find((c) => c.id === activeClientId) || { id: activeClientId, name: T('Marca', 'Brand') };
 }
 
+// Prender/apagar las descargas de ESTA marca. Solo staff llega aquí; el
+// servidor vuelve a comprobarlo en cada intento de descarga.
+async function toggleDescargas(btn) {
+  const { activeClientId, clients } = ctx.store.getState();
+  if (!activeClientId || activeClientId === 'todos') return;
+  const brand = (clients || []).find((c) => c.id === activeClientId);
+  if (!brand) return;
+  const next = descargasActivas() ? 0 : 1;
+  btn.disabled = true;
+  try {
+    const r = await fetch(`/api/marketing/clients/${activeClientId}`, {
+      method: 'PATCH', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ downloads_enabled: next }),
+    });
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || T('No se pudo guardar.', 'Could not save.'));
+    ctx.store.set({ clients: clients.map((c) => (c.id === activeClientId ? { ...c, downloads_enabled: next } : c)) });
+    ctx.toast(next
+      ? `${T('El cliente ya puede descargar el contenido de', 'The client can now download content for')} ${brand.name}.`
+      : `${T('Descargas desactivadas para', 'Downloads turned off for')} ${brand.name}. ${T('Solo podrá verlo.', 'They can only view it.')}`,
+      { type: 'success' });
+    render();   // repinta: los botones de descarga aparecen o se van
+  } catch (e) {
+    ctx.toast(e.message || T('No se pudo guardar.', 'Could not save.'), { type: 'error' });
+    btn.disabled = false;
+  }
+}
+
+// ¿La marca activa permite que el cliente descargue? Ante la duda, SÍ: así una
+// marca vieja (sin el campo) nunca pierde algo que ya tenía.
+function descargasActivas() {
+  const { activeClientId, clients } = ctx.store.getState();
+  const c = (clients || []).find((x) => x.id === activeClientId);
+  return !c || c.downloads_enabled == null || !!c.downloads_enabled;
+}
+
 function ensureCss() {
   const has = [...document.querySelectorAll('link[rel="stylesheet"]')]
     .some((l) => (l.getAttribute('href') || '').includes('/marketing/css/entregables.css'));
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608011751';
+  link.href = '/marketing/css/entregables.css?v=202608031406';
   document.head.appendChild(link);
 }
 
@@ -1141,7 +1177,7 @@ function buildItem(it, staff) {
           title: T('Vincular con la pieza del calendario', 'Link to calendar piece'),
           onclick: () => linkPiece(it),
         }, [icon('link', 16), el('span', { text: it.piece && it.piece.num ? T('Cambiar', 'Change') : T('Vincular', 'Link') })]) : null,
-        it.video_url ? el('button', {
+        (it.video_url && puedeDescargar) ? el('button', {
           class: 'dlv-dl', type: 'button', 'aria-label': T('Descargar reel', 'Download reel'),
           onclick: (e) => saveVideo(it, e.currentTarget),
         }, [icon('down', 16), el('span', { text: T('Descargar', 'Download') })]) : null,
@@ -1187,6 +1223,10 @@ function render() {
   if (!rootEl) return;
   clear(rootEl);
   const staff = !isClient();
+  // Descargas apagadas por marca (lo decide Vianey en Ajustes de la marca).
+  // Solo afecta al CLIENTE: el equipo siempre puede bajar su propio material.
+  // El botón se esconde por cortesía; el candado de verdad está en el servidor.
+  const puedeDescargar = staff || descargasActivas();
   const client = activeClient();
 
   if (!client) {
@@ -1198,9 +1238,28 @@ function render() {
     return;
   }
 
+  const dlOn = descargasActivas();
   rootEl.appendChild(el('div', { class: 'dlv-head' }, [
     el('h1', { class: 'dlv-h1', text: T('Entregables', 'Deliverables') }),
-    el('p', { class: 'dlv-sub', text: staff ? T('Sube los reels finales y agrega los carruseles. El cliente los verá y podrá descargarlos.', 'Upload the final reels and add the carousels. The client will see them and can download them.') : T('Aquí está tu contenido final, listo para ver y descargar.', 'Here\'s your final content, ready to view and download.') }),
+    // Interruptor de descargas de la marca (solo el equipo lo ve).
+    staff ? el('button', {
+      class: 'dlv-dltoggle' + (dlOn ? '' : ' is-off'), type: 'button',
+      title: dlOn
+        ? T('El cliente puede descargar los reels. Toca para desactivarlo.', 'The client can download reels. Tap to turn off.')
+        : T('El cliente solo puede VER los reels. Toca para permitir descargas.', 'The client can only VIEW reels. Tap to allow downloads.'),
+      'aria-pressed': dlOn ? 'true' : 'false',
+      onclick: (e) => toggleDescargas(e.currentTarget),
+    }, [
+      icon(dlOn ? 'down' : 'close', 15),
+      el('span', { text: `${T('Descargas del cliente:', 'Client downloads:')} ${dlOn ? T('Activadas', 'On') : T('Desactivadas', 'Off')}` }),
+    ]) : null,
+    el('p', { class: 'dlv-sub', text: staff
+      ? (descargasActivas()
+          ? T('Sube los reels finales y agrega los carruseles. El cliente los verá y podrá descargarlos.', 'Upload the final reels and add the carousels. The client will see them and can download them.')
+          : T('Sube los reels finales y agrega los carruseles. La descarga está DESACTIVADA para esta marca: el cliente solo puede verlos.', 'Upload the final reels and carousels. Downloads are OFF for this brand: the client can only view them.'))
+      : (puedeDescargar
+          ? T('Aquí está tu contenido final, listo para ver y descargar.', 'Here\'s your final content, ready to view and download.')
+          : T('Aquí está tu contenido final, listo para ver.', 'Here\'s your final content, ready to view.')) }),
   ]));
 
   if (staff) rootEl.appendChild(buildAddBar());
@@ -1259,7 +1318,7 @@ function render() {
     el('h2', { class: 'dlv-month-h' }, [
       el('span', { class: 'dlv-month-h__t', text: monthLabel(m) }),
       el('span', { class: 'dlv-month-h__n', text: String(list.length) }),
-      reels.length >= 2 ? buildDownloadAllBtn(m, reels) : null,
+      (reels.length >= 2 && (!isClient() || descargasActivas())) ? buildDownloadAllBtn(m, reels) : null,
     ]),
     el('div', { class: 'dlv-grid' }, list.map((it) => buildItem(it, staff))),
   ]);

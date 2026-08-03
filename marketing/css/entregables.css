@@ -328,3 +328,22 @@
 .dlv-piecerow.is-active { background: color-mix(in srgb, var(--client-accent, var(--brand)) 12%, transparent); }
 .dlv-piecerow__t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
 .dlv-piecerow__d { flex: none; font-size: 12px; color: var(--text-dim); }
+
+/* Interruptor de descargas del cliente (solo lo ve el equipo). Verde cuando
+   están permitidas, apagado cuando el cliente solo puede VER el contenido. */
+.dlv-dltoggle {
+  display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+  padding: 7px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 500;
+  border: 1px solid color-mix(in srgb, #22c55e 45%, var(--border));
+  background: color-mix(in srgb, #22c55e 12%, transparent);
+  color: #22c55e; margin-top: 8px;
+}
+.dlv-dltoggle.is-off {
+  border-color: color-mix(in srgb, #f59e0b 45%, var(--border));
+  background: color-mix(in srgb, #f59e0b 12%, transparent);
+  color: #f59e0b;
+}
+.dlv-dltoggle:disabled { opacity: .6; cursor: progress; }
+.dlv-dltoggle:focus-visible { outline: 2px solid var(--brand, #d946ef); outline-offset: 2px; }
+:root[data-theme="light"] .dlv-dltoggle { color: #15803d; }
+:root[data-theme="light"] .dlv-dltoggle.is-off { color: #92400e; }

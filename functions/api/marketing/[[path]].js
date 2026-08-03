@@ -1144,6 +1144,10 @@ function shapeClient(c, counts) {
     instagram_handle: c.instagram_handle,
     note_labels: parseNoteLabels(c.note_labels), // parsed array of person names
     archived: c.archived,
+    // ¿El cliente puede DESCARGAR sus entregables? Lo decide Vianey por marca.
+    // Por defecto sí (COALESCE): ninguna marca cambia de comportamiento al
+    // aparecer la columna.
+    downloads_enabled: c.downloads_enabled == null ? 1 : (c.downloads_enabled ? 1 : 0),
     counts: counts || { posts: 0, pending: 0 }
   };
 }
@@ -1160,6 +1164,7 @@ function shapeClientForPortal(c, counts) {
     brand_color: c.brand_color,
     logo_url: c.logo_url,
     instagram_handle: c.instagram_handle,
+    downloads_enabled: c.downloads_enabled == null ? 1 : (c.downloads_enabled ? 1 : 0),
     // Only 'pending' (already filtered by client_visible = 1). 'posts'
     // would reveal how many hidden contents exist.
     counts: { pending: counts ? counts.pending : 0 }
@@ -1233,13 +1238,13 @@ async function handlePatchClient(request, env, session, clientId) {
 
   let bodyObj;
   try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
-  const allowed = ['name', 'brand_color', 'logo_url', 'instagram_handle', 'timezone', 'notes', 'archived', 'contact_email', 'reminders_enabled'];
+  const allowed = ['name', 'brand_color', 'logo_url', 'instagram_handle', 'timezone', 'notes', 'archived', 'contact_email', 'reminders_enabled', 'downloads_enabled'];
   const sets = [];
   const vals = [];
   for (const f of allowed) {
     if (bodyObj && Object.prototype.hasOwnProperty.call(bodyObj, f)) {
       sets.push(`${f} = ?`);
-      vals.push(f === 'archived' || f === 'reminders_enabled' ? (bodyObj[f] ? 1 : 0) : bodyObj[f]);
+      vals.push(['archived', 'reminders_enabled', 'downloads_enabled'].includes(f) ? (bodyObj[f] ? 1 : 0) : bodyObj[f]);
     }
   }
   // note_labels is a JSON column → validate + stringify separately.
@@ -3932,6 +3937,17 @@ async function dlvForAccess(env, session, id) {
   return { d };
 }
 
+// ¿Esta marca deja que su cliente DESCARGUE los entregables? Vianey lo decide
+// por marca. Solo aplica al rol 'client': el equipo siempre puede bajar su
+// propio material.
+async function descargaPermitida(env, session, clientId) {
+  if (session.role !== 'client') return true;
+  const c = await env.DB.prepare('SELECT downloads_enabled FROM mkt_clients WHERE id = ?').bind(clientId).first();
+  // COALESCE: si la columna aún no existe o viene nula, se permite (era el
+  // comportamiento de siempre y nadie debe perder acceso por una migración).
+  return !c || c.downloads_enabled == null || !!c.downloads_enabled;
+}
+
 async function handleListDeliverables(env, session, url) {
   let clientId = url.searchParams.get('client_id');
   if (session.role === 'client') clientId = session.client_id; // forzado a su marca
@@ -4157,6 +4173,11 @@ async function handleServeDeliverableVideo(request, env, session, id) {
   headers.set('Cache-Control', 'private, max-age=3600');
   headers.set('Accept-Ranges', 'bytes');
   const wantsDownload = new URL(request.url).searchParams.get('download');
+  // El candado vive AQUÍ, no en el botón: la URL con ?download=1 se puede
+  // escribir a mano, así que esconder el botón no protegería nada.
+  if (wantsDownload && !(await descargaPermitida(env, session, d.client_id))) {
+    return new Response('Las descargas están desactivadas para esta marca.', { status: 403 });
+  }
   if (wantsDownload) {
     const safe = String(d.title || 'reel').replace(/[^\w.-]+/g, '_').slice(0, 60) || 'reel';
     headers.set('Content-Disposition', `attachment; filename="${safe}.${d.video_ext || 'mp4'}"`);
