@@ -12,10 +12,11 @@
 // nada se sube a un servidor, funciona igual en el cel que en la compu y no
 // gasta datos. El video sale a velocidad correcta en cualquier máquina y con audio.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202608040231';
-import { icon } from '../shell/icons.js?v=202608040231';
-import { T } from '../shell/i18n.js?v=202608040231';
-import { renderGen, resetGen } from './carrusel-gen.js?v=202608040231';
+import { el, clear, toast } from '../api.js?v=202608040301';
+import { icon } from '../shell/icons.js?v=202608040301';
+import { T } from '../shell/i18n.js?v=202608040301';
+import { renderGen, resetGen } from './carrusel-gen.js?v=202608040301';
+import * as prefs from '../shell/prefs.js?v=202608040301';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -31,6 +32,9 @@ let mode = 'img';          // 'img' | 'video'
 let tiras = [];            // [{ id, img, url, name, cols, rows, slides }]
 let tiraSeq = 0;
 let fmt = 'jpg';           // 'jpg' | 'png' (global: aplica a todas las tiras)
+// Como se acomoda el ZIP cuando hay varias tiras: una carpeta por carrusel, o
+// todo suelto en la raiz. Se recuerda entre sesiones (preferencia por usuario).
+let zipModo = 'carpetas';  // 'carpetas' | 'junto'
 let cutting = 0;           // token para descartar cortes viejos si cambian los controles
 
 // ── Estado modo VIDEO ────────────────────────────────────────────────────────
@@ -261,11 +265,19 @@ async function downloadZip() {
   const total = todosLosSlides();
   if (!total.length) return;
   const carpetas = carpetasUnicas();
-  // Con UNA sola tira el ZIP va plano (como siempre). Con varias, una carpeta
-  // por carrusel para no revolverlos al publicar.
-  const entries = tiras.length === 1
+  const varias = tiras.length > 1;
+  const entries = !varias
+    // Una sola tira: plano y con su nombre tal cual, como siempre.
     ? tiras[0].slides.map((s) => ({ blob: s.blob, name: s.name }))
-    : tiras.flatMap((t, i) => t.slides.map((s) => ({ blob: s.blob, name: `${carpetas[i]}/${s.name}` })));
+    : zipModo === 'carpetas'
+    ? tiras.flatMap((t, i) => t.slides.map((s) => ({ blob: s.blob, name: `${carpetas[i]}/${s.name}` })))
+    // Todo junto: los nombres tienen que quedar UNICOS o el ZIP se pisa a si
+    // mismo — dos tiras que se llamen igual producen el mismo "carrusel-01.jpg"
+    // y solo sobrevive uno. Por eso se numera con el nombre ya desambiguado.
+    : tiras.flatMap((t, i) => t.slides.map((s, j) => ({
+      blob: s.blob,
+      name: `${carpetas[i]}-${String(j + 1).padStart(2, '0')}.${s.name.split('.').pop()}`,
+    })));
   const bytes = entries.reduce((a, e) => a + e.blob.size, 0);
   // Este ZIP es de 32 bits (sin ZIP64): pasando 4 GB los offsets se desbordan y
   // sale un archivo corrupto SIN avisar. Mejor frenar antes.
@@ -553,7 +565,7 @@ async function cutVideoWebCodecs() {
   const token = ++vtoken;
   vphase = 'cortando'; vprogress = 0; freeVideoSlides(); render();
 
-  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202608040231');
+  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202608040301');
   const cols2 = vcols, rows2 = vrows, n = cols2 * rows2;
   const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
   const sw2 = sw - (sw % 2), sh2 = sh - (sh % 2); // H.264 exige dimensiones pares
@@ -855,8 +867,22 @@ function renderImg() {
       onclick: () => { if (fmt !== f) { fmt = f; cutTodas(); } },
     }))),
   ]);
+  // Como se acomoda el ZIP. Solo tiene sentido con 2+ tiras: con una sola no
+  // hay nada que separar y el selector solo estorbaria.
+  const zipSeg = tiras.length > 1 ? el('div', { class: 'car-step' }, [
+    el('span', { class: 'car-step__lbl', text: T('En el ZIP', 'In the ZIP') }),
+    el('div', { class: 'car-step__ctrl car-step__ctrl--seg' }, [
+      ['carpetas', T('En carpetas', 'In folders')],
+      ['junto', T('Todo junto', 'All together')],
+    ].map(([v, lbl]) => el('button', {
+      class: 'car-step__btn car-step__btn--seg' + (zipModo === v ? ' is-active' : ''), type: 'button', text: lbl,
+      onclick: () => { if (zipModo !== v) { zipModo = v; prefs.set('carZipModo', v); render(); } },
+    }))),
+  ]) : null;
+
   rootEl.appendChild(el('div', { class: 'car-controls car-controls--global' }, [
     fmtSeg,
+    zipSeg,
     el('span', { class: 'car-info', text: `${tiras.length} ${tiras.length === 1 ? T('tira', 'strip') : T('tiras', 'strips')} · ${total.length} slides` }),
   ]));
 
@@ -867,9 +893,11 @@ function renderImg() {
       ]),
       el('span', {
         class: 'car-hint',
-        text: tiras.length > 1
+        text: tiras.length === 1
+          ? T('O descarga uno por uno abajo. En iPhone se guardan en Archivos/Descargas.', 'Or download them one by one below. On iPhone they save to Files/Downloads.')
+          : zipModo === 'carpetas'
           ? T('Un solo ZIP con una carpeta por carrusel. En iPhone se guarda en Archivos/Descargas.', 'A single ZIP with one folder per carousel. On iPhone it saves to Files/Downloads.')
-          : T('O descarga uno por uno abajo. En iPhone se guardan en Archivos/Descargas.', 'Or download them one by one below. On iPhone they save to Files/Downloads.'),
+          : T('Un solo ZIP con todos los slides sueltos, sin carpetas. En iPhone se guarda en Archivos/Descargas.', 'A single ZIP with all slides loose, no folders. On iPhone it saves to Files/Downloads.'),
       }),
     ]));
   }
@@ -1018,6 +1046,7 @@ export default {
   id: VIEW_ID,
   mount(host) {
     ensureCss();
+    zipModo = prefs.get('carZipModo', 'carpetas') === 'junto' ? 'junto' : 'carpetas';
     rootEl = el('div', { class: 'car-root' });
     host.appendChild(rootEl);
     render();
@@ -1040,6 +1069,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202608040231';
+  link.href = '/marketing/css/carrusel.css?v=202608040301';
   document.head.appendChild(link);
 }
