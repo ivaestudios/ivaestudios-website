@@ -12,11 +12,11 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, copyText, clearClipboard } from '../api.js?v=202608040156';
-import { icon } from '../shell/icons.js?v=202608040156';
-import { makeTextarea } from './fields.js?v=202608040156';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202608040156';
-import { T } from '../shell/i18n.js?v=202608040156';
+import { el, copyText, clearClipboard } from '../api.js?v=202608040208';
+import { icon } from '../shell/icons.js?v=202608040208';
+import { makeTextarea } from './fields.js?v=202608040208';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202608040208';
+import { T } from '../shell/i18n.js?v=202608040208';
 
 // Copiar "nada" deja el portapapeles VACÍO: si se deja intacto, el siguiente
 // pegado suelta el caption de OTRA pieza y eso acaba publicado en el Instagram
@@ -117,7 +117,7 @@ export function mount(host, ed) {
               'aria-label': T(`Copiar SEO alt del slide ${i + 1}`, `Copy SEO alt for slide ${i + 1}`),
               onclick: async () => {
                 const v = String(alts[i] || '').trim();
-                if (!v) { ctx.toast(T('Este alt está vacío.', 'This alt is empty.'), { type: 'info' }); return; }
+                if (!v) { await avisarVacio(ctx, T('Este alt está vacío.', 'This alt is empty.')); return; }
                 const ok = await copyText(v);
                 ctx.toast(ok ? T('SEO alt copiado.', 'SEO alt copied.') : T('No se pudo copiar.', 'Could not copy.'), { type: ok ? 'success' : 'error' });
               },
@@ -143,7 +143,7 @@ export function mount(host, ed) {
       'aria-label': T(`Copiar slide ${i + 1}`, `Copy slide ${i + 1}`),
       onclick: async () => {
         const v = String(slides[i] || '').trim();
-        if (!v) { ctx.toast(T('Este slide está vacío.', 'This slide is empty.'), { type: 'info' }); return; }
+        if (!v) { await avisarVacio(ctx, T('Este slide está vacío.', 'This slide is empty.')); return; }
         const ok = await copyText(v);
         ctx.toast(ok ? T('Slide copiado.', 'Slide copied.') : T('No se pudo copiar.', 'Could not copy.'), { type: ok ? 'success' : 'error' });
       },
