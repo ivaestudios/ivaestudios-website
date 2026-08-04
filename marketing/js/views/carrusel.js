@@ -12,10 +12,10 @@
 // nada se sube a un servidor, funciona igual en el cel que en la compu y no
 // gasta datos. El video sale a velocidad correcta en cualquier máquina y con audio.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202608040216';
-import { icon } from '../shell/icons.js?v=202608040216';
-import { T } from '../shell/i18n.js?v=202608040216';
-import { renderGen, resetGen } from './carrusel-gen.js?v=202608040216';
+import { el, clear, toast } from '../api.js?v=202608040227';
+import { icon } from '../shell/icons.js?v=202608040227';
+import { T } from '../shell/i18n.js?v=202608040227';
+import { renderGen, resetGen } from './carrusel-gen.js?v=202608040227';
 
 const VIEW_ID = 'carrusel';
 const MAX_COLS = 12;
@@ -25,13 +25,12 @@ let rootEl = null;
 let mode = 'img';          // 'img' | 'video'
 
 // ── Estado modo IMAGEN ───────────────────────────────────────────────────────
-let img = null;            // HTMLImageElement con la tira cargada
-let imgUrl = '';           // object URL de la tira (para el preview)
-let imgName = 'carrusel';  // base para nombrar los slides
-let cols = 5;
-let rows = 1;
-let fmt = 'jpg';           // 'jpg' | 'png'
-let slides = [];           // [{ blob, url, name }]
+// VARIAS tiras a la vez: cada carrusel que subes es una "tira" con su propia
+// cuadricula (una puede ser de 5 y otra de 8) y sus propios slides. El ZIP final
+// las junta todas, cada una en su carpeta.
+let tiras = [];            // [{ id, img, url, name, cols, rows, slides }]
+let tiraSeq = 0;
+let fmt = 'jpg';           // 'jpg' | 'png' (global: aplica a todas las tiras)
 let cutting = 0;           // token para descartar cortes viejos si cambian los controles
 
 // ── Estado modo VIDEO ────────────────────────────────────────────────────────
@@ -86,9 +85,22 @@ function canvasToBlob(canvas, type, quality) {
   });
 }
 
+function freeSlidesDe(t) {
+  for (const s of t.slides) { try { URL.revokeObjectURL(s.url); } catch { /* noop */ } }
+  t.slides = [];
+}
+
 function freeSlides() {
-  for (const s of slides) { try { URL.revokeObjectURL(s.url); } catch { /* noop */ } }
-  slides = [];
+  for (const t of tiras) {
+    freeSlidesDe(t);
+    try { URL.revokeObjectURL(t.url); } catch { /* noop */ }
+  }
+  tiras = [];
+}
+
+// Todos los slides de todas las tiras, en orden.
+function todosLosSlides() {
+  return tiras.flatMap((t) => t.slides);
 }
 
 function freeVideoSlides() {
@@ -171,29 +183,37 @@ async function buildZip(entries) {
 
 // ── Corte de IMAGEN ──────────────────────────────────────────────────────────
 
-async function cutSlides() {
-  if (!img) return;
-  const token = ++cutting;
-  freeSlides();
+// Corta UNA tira.
+//
+// El token de cancelacion es POR TIRA, no global: si fuera global, subir una
+// tira nueva mientras otra esta cortando abortaria el corte de la primera y la
+// dejaria vacia para siempre. `cutting` queda como generacion global, solo para
+// invalidar todo de golpe al salir de la vista.
+async function cutTira(t) {
+  if (!t || !t.img) return;
+  const token = (t.cut = (t.cut || 0) + 1);
+  const gen = cutting;
+  const vivo = () => token === t.cut && gen === cutting;
+  freeSlidesDe(t);
   render();
-  const sw = Math.floor(img.naturalWidth / cols);
-  const sh = Math.floor(img.naturalHeight / rows);
+  const sw = Math.floor(t.img.naturalWidth / t.cols);
+  const sh = Math.floor(t.img.naturalHeight / t.rows);
   const type = fmt === 'png' ? 'image/png' : 'image/jpeg';
   const ext = fmt === 'png' ? 'png' : 'jpg';
   const out = [];
   try {
     let n = 0;
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
+    for (let r = 0; r < t.rows; r++) {
+      for (let c = 0; c < t.cols; c++) {
         n += 1;
         const canvas = document.createElement('canvas');
         canvas.width = sw; canvas.height = sh;
         const g = canvas.getContext('2d');
-        g.drawImage(img, c * sw, r * sh, sw, sh, 0, 0, sw, sh);
+        g.drawImage(t.img, c * sw, r * sh, sw, sh, 0, 0, sw, sh);
         const blob = await canvasToBlob(canvas, type, 0.95);
-        if (token !== cutting) return;
+        if (!vivo()) { for (const s of out) URL.revokeObjectURL(s.url); return; }
         const nn = String(n).padStart(2, '0');
-        out.push({ blob, url: URL.createObjectURL(blob), name: `${imgName}-${nn}.${ext}` });
+        out.push({ blob, url: URL.createObjectURL(blob), name: `${t.name}-${nn}.${ext}` });
       }
     }
   } catch (e) {
@@ -201,46 +221,105 @@ async function cutSlides() {
     toast(T('No se pudo cortar la imagen. Prueba con un PNG o JPG.', 'Could not cut the image. Try a PNG or JPG.'), 'error');
     return;
   }
-  if (token !== cutting) { for (const s of out) URL.revokeObjectURL(s.url); return; }
-  slides = out;
+  if (!vivo()) { for (const s of out) URL.revokeObjectURL(s.url); return; }
+  t.slides = out;
   render();
 }
 
+// Re-corta TODAS (cambio de formato: aplica a todas las tiras).
+async function cutTodas() {
+  const gen = cutting;
+  for (const t of tiras) {
+    if (gen !== cutting) return;  // salimos de la vista
+    await cutTira(t);
+  }
+}
+
+function quitarTira(id) {
+  const i = tiras.findIndex((t) => t.id === id);
+  if (i < 0) return;
+  const t = tiras[i];
+  t.cut = (t.cut || 0) + 1;  // aborta SOLO el corte de esta tira, no el de las otras
+  freeSlidesDe(t);
+  try { URL.revokeObjectURL(t.url); } catch { /* noop */ }
+  tiras.splice(i, 1);
+  render();
+}
+
+// Nombres de carpeta unicos: dos archivos "carrusel.jpg" no pueden pisarse
+// dentro del ZIP.
+function carpetasUnicas() {
+  const usados = new Map();
+  return tiras.map((t) => {
+    const n = (usados.get(t.name) || 0) + 1;
+    usados.set(t.name, n);
+    return n === 1 ? t.name : `${t.name}-${n}`;
+  });
+}
+
 async function downloadZip() {
-  if (!slides.length) return;
+  const total = todosLosSlides();
+  if (!total.length) return;
+  const carpetas = carpetasUnicas();
+  // Con UNA sola tira el ZIP va plano (como siempre). Con varias, una carpeta
+  // por carrusel para no revolverlos al publicar.
+  const entries = tiras.length === 1
+    ? tiras[0].slides.map((s) => ({ blob: s.blob, name: s.name }))
+    : tiras.flatMap((t, i) => t.slides.map((s) => ({ blob: s.blob, name: `${carpetas[i]}/${s.name}` })));
+  const bytes = entries.reduce((a, e) => a + e.blob.size, 0);
+  // Este ZIP es de 32 bits (sin ZIP64): pasando 4 GB los offsets se desbordan y
+  // sale un archivo corrupto SIN avisar. Mejor frenar antes.
+  if (bytes > 3.5 * 1024 * 1024 * 1024) {
+    toast(T('Son demasiadas tiras juntas para un solo ZIP. Quita algunas y descarga en dos tandas.',
+      'Too many strips for a single ZIP. Remove some and download in two batches.'), 'error');
+    return;
+  }
   try {
-    const zip = await buildZip(slides);
-    download(zip, `${imgName}-slides.zip`);
-    toast(T(`ZIP con ${slides.length} slides descargado.`, `ZIP with ${slides.length} slides downloaded.`), 'success');
+    const zip = await buildZip(entries);
+    const nombre = tiras.length === 1 ? `${tiras[0].name}-slides.zip` : `carruseles-${tiras.length}-tiras.zip`;
+    download(zip, nombre);
+    toast(T(`ZIP con ${entries.length} slides de ${tiras.length} ${tiras.length === 1 ? 'tira' : 'tiras'} descargado.`,
+      `ZIP with ${entries.length} slides from ${tiras.length} ${tiras.length === 1 ? 'strip' : 'strips'} downloaded.`), 'success');
   } catch (e) {
     console.error('[carrusel] zip', e);
     toast(T('No se pudo armar el ZIP. Descarga los slides uno por uno.', 'Could not build the ZIP. Download the slides one by one.'), 'error');
   }
 }
 
-function acceptFile(file) {
-  if (!file) return;
-  if (!/^image\/(png|jpe?g|webp)$/i.test(file.type) && !/\.(png|jpe?g|webp)$/i.test(file.name || '')) {
+// Carga UNA tira y la agrega al final (no reemplaza las que ya estan).
+function cargarTira(file) {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      const g = detectGrid(image.naturalWidth, image.naturalHeight);
+      resolve({ id: ++tiraSeq, img: image, url, name: baseName(file.name), cols: g.cols, rows: g.rows, slides: [], cut: 0 });
+    };
+    image.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+    image.src = url;
+  });
+}
+
+async function acceptFiles(fileList) {
+  const files = [...(fileList || [])];
+  if (!files.length) return;
+  const buenos = files.filter((f) => /^image\/(png|jpe?g|webp)$/i.test(f.type) || /\.(png|jpe?g|webp)$/i.test(f.name || ''));
+  if (!buenos.length) {
     toast(T('Formato no soportado. Exporta el carrusel como PNG o JPG.', 'Unsupported format. Export the carousel as PNG or JPG.'), 'error');
     return;
   }
-  const url = URL.createObjectURL(file);
-  const image = new Image();
-  image.onload = () => {
-    if (imgUrl) { try { URL.revokeObjectURL(imgUrl); } catch { /* noop */ } }
-    freeSlides();
-    img = image;
-    imgUrl = url;
-    imgName = baseName(file.name);
-    const g = detectGrid(image.naturalWidth, image.naturalHeight);
-    cols = g.cols; rows = g.rows;
-    cutSlides();
-  };
-  image.onerror = () => {
-    URL.revokeObjectURL(url);
+  if (buenos.length < files.length) {
+    toast(T(`${files.length - buenos.length} archivo(s) no son PNG/JPG y se omitieron.`,
+      `${files.length - buenos.length} file(s) aren't PNG/JPG and were skipped.`), 'error');
+  }
+  const nuevas = (await Promise.all(buenos.map(cargarTira))).filter(Boolean);
+  if (!nuevas.length) {
     toast(T('No se pudo leer la imagen. Exporta el carrusel como PNG o JPG.', 'Could not read the image. Export the carousel as PNG or JPG.'), 'error');
-  };
-  image.src = url;
+    return;
+  }
+  tiras.push(...nuevas);
+  render();
+  for (const t of nuevas) await cutTira(t);
 }
 
 // ── VIDEO ────────────────────────────────────────────────────────────────────
@@ -474,7 +553,7 @@ async function cutVideoWebCodecs() {
   const token = ++vtoken;
   vphase = 'cortando'; vprogress = 0; freeVideoSlides(); render();
 
-  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202608040216');
+  const { Muxer, ArrayBufferTarget } = await import('../vendor/mp4-muxer.mjs?v=202608040227');
   const cols2 = vcols, rows2 = vrows, n = cols2 * rows2;
   const sw = Math.floor(v.videoWidth / cols2), sh = Math.floor(v.videoHeight / rows2);
   const sw2 = sw - (sw % 2), sh2 = sh - (sh % 2); // H.264 exige dimensiones pares
@@ -743,67 +822,97 @@ function render() {
 }
 
 function renderImg() {
+  const hay = tiras.length > 0;
   const input = el('input', {
-    class: 'car-file', type: 'file', accept: 'image/png,image/jpeg,image/webp',
-    onchange: (e) => { acceptFile(e.target.files && e.target.files[0]); e.target.value = ''; },
+    class: 'car-file', type: 'file', accept: 'image/png,image/jpeg,image/webp', multiple: 'multiple',
+    onchange: (e) => { acceptFiles(e.target.files); e.target.value = ''; },
   });
   const drop = el('div', {
-    class: 'car-drop' + (img ? ' car-drop--mini' : ''),
+    class: 'car-drop' + (hay ? ' car-drop--mini' : ''),
     role: 'button', tabindex: '0',
     onclick: () => input.click(),
     onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); } },
     ondragover: (e) => { e.preventDefault(); drop.classList.add('is-over'); },
     ondragleave: () => drop.classList.remove('is-over'),
-    ondrop: (e) => { e.preventDefault(); drop.classList.remove('is-over'); acceptFile(e.dataTransfer.files && e.dataTransfer.files[0]); },
+    ondrop: (e) => { e.preventDefault(); drop.classList.remove('is-over'); acceptFiles(e.dataTransfer.files); },
   }, [
-    icon('camera', img ? 18 : 26),
+    icon('camera', hay ? 18 : 26),
     el('div', { class: 'car-drop__txt' }, [
-      el('strong', { text: img ? T('Subir otra imagen', 'Upload another image') : T('Toca para subir la tira del carrusel', 'Tap to upload the carousel strip') }),
-      img ? null : el('span', { text: T('PNG o JPG · por ejemplo 5 slides en fila (también acepta 2 filas de 5)', 'PNG or JPG · for example 5 slides in a row (2 rows of 5 also works)') }),
+      el('strong', { text: hay ? T('Agregar otra tira', 'Add another strip') : T('Toca para subir tus tiras de carrusel', 'Tap to upload your carousel strips') }),
+      hay ? null : el('span', { text: T('PNG o JPG · puedes elegir VARIAS a la vez y salen todas en un solo ZIP', 'PNG or JPG · you can pick SEVERAL at once and they all come out in a single ZIP') }),
     ]),
     input,
   ]);
   rootEl.appendChild(drop);
-  if (!img) return;
+  if (!hay) return;
 
-  rootEl.appendChild(el('div', { class: 'car-preview' }, [
-    el('img', { src: imgUrl, alt: T('Tira del carrusel', 'Carousel strip') }),
-    ...gridLinesFor(cols, rows),
-  ]));
-
-  const sw = Math.floor(img.naturalWidth / cols);
-  const sh = Math.floor(img.naturalHeight / rows);
+  // ── Barra global: formato + descargar TODO ───────────────────────────────
+  const total = todosLosSlides();
   const fmtSeg = el('div', { class: 'car-step' }, [
     el('span', { class: 'car-step__lbl', text: T('Formato', 'Format') }),
     el('div', { class: 'car-step__ctrl car-step__ctrl--seg' }, ['jpg', 'png'].map((f) => el('button', {
       class: 'car-step__btn car-step__btn--seg' + (fmt === f ? ' is-active' : ''), type: 'button', text: f.toUpperCase(),
-      onclick: () => { if (fmt !== f) { fmt = f; cutSlides(); } },
+      onclick: () => { if (fmt !== f) { fmt = f; cutTodas(); } },
     }))),
   ]);
-  rootEl.appendChild(el('div', { class: 'car-controls' }, [
-    stepper(T('Columnas', 'Columns'), () => cols, (v) => { cols = v; }, 1, MAX_COLS, cutSlides),
-    stepper(T('Filas', 'Rows'), () => rows, (v) => { rows = v; }, 1, MAX_ROWS, cutSlides),
+  rootEl.appendChild(el('div', { class: 'car-controls car-controls--global' }, [
     fmtSeg,
-    el('span', { class: 'car-info', text: `${cols * rows} ${T('slides de', 'slides of')} ${sw}×${sh}px` }),
+    el('span', { class: 'car-info', text: `${tiras.length} ${tiras.length === 1 ? T('tira', 'strip') : T('tiras', 'strips')} · ${total.length} slides` }),
   ]));
 
-  if (!slides.length) { rootEl.appendChild(el('div', { class: 'car-cutting', text: T('Cortando…', 'Cutting…') })); return; }
-  rootEl.appendChild(el('div', { class: 'car-actions' }, [
-    el('button', { class: 'btn btn-primary car-zip', type: 'button', onclick: downloadZip }, [
-      icon('archive', 16), ` ${T('Descargar todos', 'Download all')} (ZIP · ${slides.length})`,
-    ]),
-    el('span', { class: 'car-hint', text: T('O descarga uno por uno abajo. En iPhone se guardan en Archivos/Descargas.', 'Or download them one by one below. On iPhone they save to Files/Downloads.') }),
-  ]));
-  rootEl.appendChild(el('div', { class: 'car-grid' }, slides.map((s, i) => el('figure', { class: 'car-slide' }, [
-    el('img', { src: s.url, alt: `Slide ${i + 1}`, loading: 'lazy' }),
-    el('figcaption', { class: 'car-slide__bar' }, [
-      el('span', { class: 'car-slide__num', text: String(i + 1) }),
-      el('button', {
-        class: 'car-slide__dl', type: 'button', title: `${T('Descargar slide', 'Download slide')} ${i + 1}`,
-        onclick: () => download(s.blob, s.name),
-      }, [icon('down', 15), ' ' + T('Descargar', 'Download')]),
-    ]),
-  ]))));
+  if (total.length) {
+    rootEl.appendChild(el('div', { class: 'car-actions' }, [
+      el('button', { class: 'btn btn-primary car-zip', type: 'button', onclick: downloadZip }, [
+        icon('archive', 16), ` ${T('Descargar todo', 'Download all')} (ZIP · ${total.length})`,
+      ]),
+      el('span', {
+        class: 'car-hint',
+        text: tiras.length > 1
+          ? T('Un solo ZIP con una carpeta por carrusel. En iPhone se guarda en Archivos/Descargas.', 'A single ZIP with one folder per carousel. On iPhone it saves to Files/Downloads.')
+          : T('O descarga uno por uno abajo. En iPhone se guardan en Archivos/Descargas.', 'Or download them one by one below. On iPhone they save to Files/Downloads.'),
+      }),
+    ]));
+  }
+
+  // ── Una tarjeta por tira ─────────────────────────────────────────────────
+  for (const t of tiras) {
+    const sw = Math.floor(t.img.naturalWidth / t.cols);
+    const sh = Math.floor(t.img.naturalHeight / t.rows);
+    const card = el('section', { class: 'car-tira' }, [
+      el('div', { class: 'car-tira__head' }, [
+        el('strong', { class: 'car-tira__name', text: t.name }),
+        el('span', { class: 'car-info', text: `${t.cols * t.rows} ${T('slides de', 'slides of')} ${sw}×${sh}px` }),
+        el('button', {
+          class: 'car-tira__x', type: 'button',
+          'aria-label': `${T('Quitar', 'Remove')} ${t.name}`, title: T('Quitar esta tira', 'Remove this strip'),
+          onclick: () => quitarTira(t.id),
+        }, [icon('close', 14)]),
+      ]),
+      el('div', { class: 'car-preview' }, [
+        el('img', { src: t.url, alt: T('Tira del carrusel', 'Carousel strip') }),
+        ...gridLinesFor(t.cols, t.rows),
+      ]),
+      el('div', { class: 'car-controls' }, [
+        stepper(T('Columnas', 'Columns'), () => t.cols, (v) => { t.cols = v; }, 1, MAX_COLS, () => cutTira(t)),
+        stepper(T('Filas', 'Rows'), () => t.rows, (v) => { t.rows = v; }, 1, MAX_ROWS, () => cutTira(t)),
+      ]),
+    ]);
+    if (!t.slides.length) {
+      card.appendChild(el('div', { class: 'car-cutting', text: T('Cortando…', 'Cutting…') }));
+    } else {
+      card.appendChild(el('div', { class: 'car-grid' }, t.slides.map((s, i) => el('figure', { class: 'car-slide' }, [
+        el('img', { src: s.url, alt: `Slide ${i + 1}`, loading: 'lazy' }),
+        el('figcaption', { class: 'car-slide__bar' }, [
+          el('span', { class: 'car-slide__num', text: String(i + 1) }),
+          el('button', {
+            class: 'car-slide__dl', type: 'button', title: `${T('Descargar slide', 'Download slide')} ${i + 1}`,
+            onclick: () => download(s.blob, s.name),
+          }, [icon('down', 15), ' ' + T('Descargar', 'Download')]),
+        ]),
+      ]))));
+    }
+    rootEl.appendChild(card);
+  }
 }
 
 function renderVideo() {
@@ -919,10 +1028,9 @@ export default {
     freeSlides();
     freeVideoSlides();
     resetGen();
-    if (imgUrl) { try { URL.revokeObjectURL(imgUrl); } catch { /* noop */ } }
     if (vurl) { try { URL.revokeObjectURL(vurl); } catch { /* noop */ } }
     if (vvideo) { try { vvideo.pause(); } catch { /* noop */ } }
-    img = null; imgUrl = ''; vvideo = null; vfile = null; vurl = ''; rootEl = null;
+    vvideo = null; vfile = null; vurl = ''; rootEl = null;
   },
 };
 
@@ -932,6 +1040,6 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/carrusel.css?v=202608040216';
+  link.href = '/marketing/css/carrusel.css?v=202608040227';
   document.head.appendChild(link);
 }

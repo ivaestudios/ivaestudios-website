@@ -52,6 +52,35 @@
 
 .car-cutting { padding: 18px 4px; color: var(--text-mute); font-size: 14px; }
 
+/* ── Tarjeta por tira (varios carruseles a la vez) ──────────────────────────── */
+.car-tira {
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 14px; border: 1px solid var(--border); border-radius: 16px;
+  background: rgba(255, 255, 255, .02);
+}
+.car-tira__head { display: flex; align-items: center; gap: 10px; }
+.car-tira__name {
+  font-size: 14px; font-weight: 700; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+}
+.car-tira__head .car-info { margin-left: auto; flex: none; }
+.car-tira__x {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 999px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-mute); cursor: pointer;
+}
+.car-tira__x:hover { color: #fff; border-color: #E2564D; background: rgba(226, 86, 77, .12); }
+/* La barra global (formato + conteo) va pegada al boton de descargar todo. */
+.car-controls--global { justify-content: space-between; }
+
+@media (max-width: 520px) {
+  .car-tira { padding: 12px 10px; }
+  .car-tira__head { flex-wrap: wrap; }
+  .car-tira__head .car-info { margin-left: 0; width: 100%; order: 3; }
+  .car-tira__x { margin-left: auto; }
+}
+
 /* ── Descargas ─────────────────────────────────────────────────────────────── */
 .car-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
 .car-zip { display: inline-flex; align-items: center; gap: 8px; }
