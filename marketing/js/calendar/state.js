@@ -9,8 +9,8 @@
 // calFilters; calBacklog usa el mismo namespace del modulo prefs).
 // ============================================================================
 
-import * as prefs from '../shell/prefs.js?v=202608040132';
-import { fmtYMD, parseYMD, startOfMonth } from './data.js?v=202608040132';
+import * as prefs from '../shell/prefs.js?v=202608040156';
+import { fmtYMD, parseYMD, startOfMonth } from './data.js?v=202608040156';
 
 const st = {
   mode: 'mes',                        // 'mes' | 'semana' (en <768px siempre agenda)

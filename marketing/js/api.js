@@ -7,7 +7,7 @@
 // non-2xx so callers can `try { ... } catch (e) { toast(e.message,'error') }`.
 // ============================================================================
 
-import { isEN, T } from './shell/i18n.js?v=202608040132';
+import { isEN, T } from './shell/i18n.js?v=202608040156';
 
 const BASE = '/api/marketing';
 const TIMEOUT = 30000; // 30s
@@ -149,6 +149,29 @@ export async function copyText(text) {
     ta.value = text; document.body.appendChild(ta); ta.select();
     document.execCommand('copy'); ta.remove();
     return true;
+  } catch { return false; }
+}
+
+// Copiar "nada" tiene que dejar el portapapeles VACÍO, no intacto.
+//
+// Si se deja intacto, el siguiente pegado suelta lo que se copió ANTES — el
+// caption de OTRA pieza — y eso acaba publicado en el Instagram de un cliente.
+// Pasó de verdad (ADAGIO RH, 2026-08-04): la pieza no tenía caption, el botón
+// solo avisó, y al pegar salió el texto de otro reel. Avisar no basta: hay que
+// dejar el portapapeles sin nada que pegar.
+// Devuelve true si se logró vaciar.
+export async function clearClipboard() {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText('');
+      return true;
+    }
+  } catch { /* fall through */ }
+  try {
+    const ta = el('textarea', { style: { position: 'fixed', top: '-9999px', opacity: '0' } });
+    ta.value = ''; document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand('copy'); ta.remove();
+    return !!ok;
   } catch { return false; }
 }
 

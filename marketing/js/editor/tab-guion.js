@@ -12,11 +12,22 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, copyText } from '../api.js?v=202608040132';
-import { icon } from '../shell/icons.js?v=202608040132';
-import { makeTextarea } from './fields.js?v=202608040132';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202608040132';
-import { T } from '../shell/i18n.js?v=202608040132';
+import { el, copyText, clearClipboard } from '../api.js?v=202608040156';
+import { icon } from '../shell/icons.js?v=202608040156';
+import { makeTextarea } from './fields.js?v=202608040156';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202608040156';
+import { T } from '../shell/i18n.js?v=202608040156';
+
+// Copiar "nada" deja el portapapeles VACÍO: si se deja intacto, el siguiente
+// pegado suelta el caption de OTRA pieza y eso acaba publicado en el Instagram
+// de un cliente. Ver clearClipboard() en api.js para la historia completa.
+async function avisarVacio(ctx, mensaje) {
+  const limpio = await clearClipboard();
+  ctx.toast(limpio
+    ? `${mensaje} ${T('Se vació lo copiado para que no pegues otro texto por error.', 'Clipboard cleared so you do not paste the wrong text.')}`
+    : `${mensaje} ${T('⚠️ Revisa lo que pegas: puede quedar texto de otra pieza.', '⚠️ Check what you paste: text from another piece may remain.')}`,
+    { type: limpio ? 'info' : 'error', ms: 7000 });
+}
 
 const IG_VISIBLE_CUT = 125;
 const CAPTION_MAX = 2200;
@@ -40,7 +51,7 @@ export function mount(host, ed) {
       'aria-label': `${T('Copiar', 'Copy')} ${label}`,
       onclick: async () => {
         const v = String(ed.getPost()[field] || '').trim();
-        if (!v) { ctx.toast(T(`No hay ${label} que copiar.`, `No ${label} to copy.`), { type: 'info' }); return; }
+        if (!v) { await avisarVacio(ctx, T(`No hay ${label} que copiar.`, `No ${label} to copy.`)); return; }
         const ok = await copyText(v);
         ctx.toast(ok ? T(`${label} copiado.`, `${label} copied.`) : T('No se pudo copiar.', 'Could not copy.'), { type: ok ? 'success' : 'error' });
       },
@@ -333,14 +344,14 @@ export function mount(host, ed) {
   // ── Copiar (mismos 3 botones que el panel de guion de escritorio) ──────────
   async function copyCaption() {
     const v = String(ed.getPost().caption || '').trim();
-    if (!v) { ctx.toast(T('No hay caption que copiar.', 'No caption to copy.'), { type: 'info' }); return; }
+    if (!v) { await avisarVacio(ctx, T('No hay caption que copiar.', 'No caption to copy.')); return; }
     const ok = await copyText(v);
     ctx.toast(ok ? T('Caption copiado.', 'Caption copied.') : T('No se pudo copiar.', 'Could not copy.'), { type: ok ? 'success' : 'error' });
   }
   async function copyCaptionTags() {
     const p = ed.getPost();
     const parts = [p.caption, p.hashtags].map((s) => String(s || '').trim()).filter(Boolean);
-    if (!parts.length) { ctx.toast(T('No hay caption que copiar.', 'No caption to copy.'), { type: 'info' }); return; }
+    if (!parts.length) { await avisarVacio(ctx, T('No hay caption que copiar.', 'No caption to copy.')); return; }
     const ok = await copyText(parts.join('\n\n'));
     ctx.toast(ok ? T('Caption + hashtags copiados.', 'Caption + hashtags copied.') : T('No se pudo copiar.', 'Could not copy.'), { type: ok ? 'success' : 'error' });
   }
@@ -356,7 +367,7 @@ export function mount(host, ed) {
       if (String(p.cta || '').trim()) lines.push(`CTA:\n${String(p.cta).trim()}`);
       text = lines.join('\n\n');
     }
-    if (!text) { ctx.toast(T('No hay guion que copiar.', 'No script to copy.'), { type: 'info' }); return; }
+    if (!text) { await avisarVacio(ctx, T('No hay guion que copiar.', 'No script to copy.')); return; }
     const ok = await copyText(text);
     ctx.toast(ok ? T('Guion copiado.', 'Script copied.') : T('No se pudo copiar.', 'Could not copy.'), { type: ok ? 'success' : 'error' });
   }

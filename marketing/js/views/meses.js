@@ -25,23 +25,23 @@
 // ============================================================================
 
 import {
-  el, clear, copyText, api, isClientRole,
+  el, clear, copyText, clearClipboard, api, isClientRole, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202608040132';
-import { icon } from '../shell/icons.js?v=202608040132';
-import { T } from '../shell/i18n.js?v=202608040132';
+} from '../api.js?v=202608040156';
+import { icon } from '../shell/icons.js?v=202608040156';
+import { T } from '../shell/i18n.js?v=202608040156';
 // Capas de history del shell: el boton atras del telefono cierra la capa de
 // arriba (panel de guion) en vez de salir de la app.
-import { pushLayer } from '../shell/router.js?v=202608040132';
+import { pushLayer } from '../shell/router.js?v=202608040156';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608040132';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608040132';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608040132';
+import { errorCard } from '../ui/states.js?v=202608040156';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608040156';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608040156';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608040132';
+} from '../lib/video-upload.js?v=202608040156';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -690,6 +690,19 @@ function onDrawerKeydown(e) {
   if (e.key === 'Escape') { e.stopPropagation(); closeCaptionDrawer(); }
 }
 
+// Copiar "nada" tiene que dejar el portapapeles VACÍO, no intacto.
+// Si se deja intacto, el siguiente pegado suelta lo copiado del reel anterior
+// — y eso termina publicado en el Instagram de un cliente. Pasó de verdad
+// (2026-08-04, ADAGIO RH): la pieza no tenía caption y al pegar salió el de
+// otra. Es el tipo de error que no se puede permitir dos veces.
+async function vaciarPortapapeles(mensaje) {
+  const limpio = await clearClipboard();
+  ctx.toast(limpio
+    ? `${mensaje} ${T('Se vació lo copiado para que no pegues otro texto por error.', 'Clipboard cleared so you do not paste the wrong text.')}`
+    : `${mensaje} ${T('⚠️ Revisa lo que pegas: puede quedar texto de otra pieza.', '⚠️ Check what you paste: text from another piece may remain.')}`,
+    { type: limpio ? 'info' : 'error', ms: 7000 });
+}
+
 async function openCaptionDrawer(post) {
   // await: cerrar puede preguntar si hay guion sin guardar; sin esperar, el
   // panel viejo se removía DESPUÉS de crear el nuevo y se perdía la referencia.
@@ -724,7 +737,7 @@ async function openCaptionDrawer(post) {
 
   async function copyField(field, label) {
     const v = String(tas[field] ? tas[field].value : '').trim();
-    if (!v) { ctx.toast(T(`No hay ${label} que copiar.`, `No ${label} to copy.`), { type: 'info' }); return; }
+    if (!v) { await vaciarPortapapeles(T(`No hay ${label} que copiar.`, `No ${label} to copy.`)); return; }
     let ok = false;
     try { await navigator.clipboard.writeText(v); ok = true; } catch { /* fallback abajo */ }
     if (!ok) {
@@ -737,7 +750,7 @@ async function openCaptionDrawer(post) {
   // caption solo, caption + hashtags (listo para IG) y guion completo.
   async function copyPlain(text, okMsg, emptyMsg) {
     const v = String(text || '').trim();
-    if (!v) { ctx.toast(emptyMsg, { type: 'info' }); return; }
+    if (!v) { await vaciarPortapapeles(emptyMsg); return; }
     const ok = await copyText(v);
     ctx.toast(ok ? okMsg : T('No se pudo copiar.', 'Could not copy.'), { type: ok ? 'success' : 'error' });
   }
@@ -1395,7 +1408,23 @@ function buildRow(post, noteLabels) {
     class: 'meses-task__drag', type: 'button',
     'aria-label': T('Arrastrar para reordenar', 'Drag to reorder'), title: T('Arrastrar para reordenar', 'Drag to reorder'),
   }, [icon('grip', 14)]);
-  tdTask.appendChild(el('span', { class: 'meses-task' }, [dragBtn, titleBtn, openBtn, deleteBtn]));
+  // Aviso "le falta el caption": se ve en la fila, sin abrir la pieza. Solo
+  // para el equipo (el cliente no escribe captions) y solo en piezas que
+  // todavía no se publicaron — regañar por lo ya publicado no sirve de nada.
+  const faltaCap = !String(post.caption || '').trim();
+  const faltaTags = !String(post.hashtags || '').trim();
+  const yaPaso = String(post.publish_date || '') < ymd(new Date());
+  const avisoTexto = faltaCap && faltaTags ? T('Sin caption ni hashtags', 'No caption or hashtags')
+    : faltaCap ? T('Sin caption', 'No caption')
+    : faltaTags ? T('Sin hashtags', 'No hashtags') : null;
+  const avisoNode = (!isClientRole() && !yaPaso && avisoTexto)
+    ? el('button', {
+        class: 'meses-falta', type: 'button', title: `${avisoTexto} — ${T('toca para escribirlo', 'tap to write it')}`,
+        'aria-label': avisoTexto,
+        onclick: (e) => { e.stopPropagation(); openCaptionDrawer(post); },
+      }, [icon('close', 11), el('span', { text: avisoTexto })])
+    : null;
+  tdTask.appendChild(el('span', { class: 'meses-task' }, [dragBtn, titleBtn, avisoNode, openBtn, deleteBtn]));
 
   // Plataforma / Tipo / Estado (pickers compartidos)
   const tdPlat = el('td', { class: 'meses-td' }, [
