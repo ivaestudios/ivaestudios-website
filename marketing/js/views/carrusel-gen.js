@@ -13,12 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608041751';
-import { icon } from '../shell/icons.js?v=202608041751';
-import { T } from '../shell/i18n.js?v=202608041751';
-import * as store from '../shell/store.js?v=202608041751';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608041751';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608041751';
+import { el, clear, toast, api } from '../api.js?v=202608041755';
+import { icon } from '../shell/icons.js?v=202608041755';
+import { T } from '../shell/i18n.js?v=202608041755';
+import * as store from '../shell/store.js?v=202608041755';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608041755';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608041755';
 
 const W = 1080;
 const H = 1350;
@@ -227,11 +227,24 @@ const DESIGN_CSS = `
 // Vive aquí arriba porque la usan DOS cosas: el guardarraíl de slideHTML (para
 // encoger si no cabe) y analizarTodo (para pedirle al fotómetro que mida la
 // caja del tamaño que el texto va a ocupar DE VERDAD, no una fija del 34%).
-function altoBloque({ kicker, cleanLen, items, plainBody, support }, sm, comp) {
-  const fsT = sm ? 82 : 99;
+// Las medidas estaban cableadas a las de "Editorial" (titular 99px en un carril
+// de 872px). Panorámica usa un carril de 744px —porque el texto tiene que
+// alejarse de las costuras— y una portada de 134px, así que el MISMO texto
+// ocupa más líneas de las estimadas: el bloque crecía sin que el guardarraíl se
+// enterara y la última línea se metía debajo del pie. Cazado en la prueba
+// visual con fotos reales, no con un caso inventado.
+const MEDIDAS_PANO = { ancho: 744, tit: 92, titSm: 76, titCover: 134, titCoverSm: 112, kicker: 32, bajada: 40, charsBajada: 30 };
+
+function altoBloque({ kicker, cleanLen, items, plainBody, support }, sm, comp, esPortada) {
+  const pano = plantillaPorId(plantillaId).id === 'panorama';
+  const M = pano ? MEDIDAS_PANO : null;
+  const fsT = pano
+    ? (esPortada ? (sm ? M.titCoverSm : M.titCover) : (sm ? M.titSm : M.tit))
+    : (sm ? 82 : 99);
+  const ancho = pano ? M.ancho : 872;
   let h = 0;
-  if (kicker) h += 36 * 1.2 + 26;
-  if (cleanLen) h += Math.ceil(cleanLen / Math.max(1, Math.floor(872 / (fsT * 0.52)))) * fsT * 1.07 + 8;
+  if (kicker) h += (pano ? M.kicker : 36) * 1.2 + 26;
+  if (cleanLen) h += Math.ceil(cleanLen / Math.max(1, Math.floor(ancho / (fsT * 0.52)))) * fsT * 1.07 + 8;
   if (items && items.length) {
     const pad = comp ? 24 : 34, fsP = comp ? 36 : 39, gap = comp ? 26 : 44, mt = comp ? 44 : 64;
     h += mt + items.reduce((a, it, i) => {
@@ -240,7 +253,11 @@ function altoBloque({ kicker, cleanLen, items, plainBody, support }, sm, comp) {
     }, 0);
   }
   for (const t of [plainBody, support]) {
-    if (t) h += 44 + Math.ceil(String(t).replace(/\*\*/g, '').length / 34) * 42 * 1.4;
+    if (t) {
+      const fsB = pano ? M.bajada : 42;
+      const chars = pano ? M.charsBajada : 34;
+      h += (pano ? 32 : 44) + Math.ceil(String(t).replace(/\*\*/g, '').length / chars) * fsB * (pano ? 1.5 : 1.4);
+    }
   }
   return h;
 }
@@ -324,7 +341,7 @@ function slideHTML(s, idx, total) {
     // cabían (calibrado con casos reales en la ronda 2).
     const H = 1350, RESERVA = 140;   // piso del bloque y=1210; paginación y=1218
     const pz = { kicker, cleanLen: title ? cleanLen : 0, items, plainBody, support };
-    const estima = (sm, comp) => altoBloque(pz, sm, comp);
+    const estima = (sm, comp) => altoBloque(pz, sm, comp, isCover);
     alto = estima(smTitle, compactas);
     const cabe = () => (H * topAjustado / 100) + alto * miniK <= H - RESERVA;
     if (!cabe() && !smTitle) { smTitle = true; alto = estima(smTitle, compactas); }
@@ -589,7 +606,7 @@ function analizarTodo() {
     // estimador que usa el render). Así la zona evaluada y la zona pintada son
     // la misma, y el veredicto del semáforo vale para lo que se ve.
     const altos = slides.map((s, i) => {
-      const alto = altoBloque(piezasDe(s, i, slides.length), false, false);
+      const alto = altoBloque(piezasDe(s, i, slides.length), false, false, i === 0);
       return Math.max(20, Math.min(70, Math.round((alto / 1350) * 100)));
     });
     // Tamaño REAL del titular por slide: la portada va a 152px y los
