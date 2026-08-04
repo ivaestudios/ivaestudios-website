@@ -6,17 +6,17 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608031523';
-import { icon } from '../shell/icons.js?v=202608031523';
-import { T } from '../shell/i18n.js?v=202608031523';
-import { openSheet } from '../shell/sheet.js?v=202608031523';
+import { api, el, clear, toast } from '../api.js?v=202608031937';
+import { icon } from '../shell/icons.js?v=202608031937';
+import { T } from '../shell/i18n.js?v=202608031937';
+import { openSheet } from '../shell/sheet.js?v=202608031937';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608031523';
+import { errorCard } from '../ui/states.js?v=202608031937';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608031523';
+} from '../lib/video-upload.js?v=202608031937';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -168,7 +168,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608031523';
+  link.href = '/marketing/css/entregables.css?v=202608031937';
   document.head.appendChild(link);
 }
 
@@ -1331,6 +1331,11 @@ function render() {
           : T('Aquí está tu contenido final, listo para ver.', 'Here\'s your final content, ready to view.')) }),
   ]));
 
+  // Acceso rápido a "descargar todos" ARRIBA: el formulario de subida ocupa
+  // toda la primera pantalla y dejaba el botón del mes fuera de vista.
+  // (Se pinta después de cargar, cuando ya se sabe cuántos reels hay.)
+  const atajoDl = el('div', { class: 'dlv-atajo' });
+  rootEl.appendChild(atajoDl);
   if (staff) rootEl.appendChild(buildAddBar());
 
   if (loading) {
@@ -1382,6 +1387,11 @@ function render() {
     (a, b) => String(a.title || '').localeCompare(String(b.title || ''), 'es', { numeric: true, sensitivity: 'base' }),
   );
   const reels = list.filter((it) => it.type === 'reel' && it.video_url);
+  // El atajo de arriba: mismo botón, para no tener que bajar a buscarlo.
+  if (reels.length >= 2 && (!isClient() || descargasActivas())) {
+    clear(atajoDl);
+    atajoDl.appendChild(buildDownloadAllBtn(m, reels));
+  }
   resetVideoObserver(); // limpia observaciones del mes anterior antes de re-observar
   const sec = el('section', { class: 'dlv-month-sec' }, [
     el('h2', { class: 'dlv-month-h' }, [
@@ -1420,7 +1430,11 @@ function buildDownloadAllBtn(month, reels) {
     class: 'dlv-dl dlv-dlall' + (armed ? ' dlv-dl--ready' : ''), type: 'button',
     'aria-label': T('Descargar todos los reels del mes', 'Download all reels for this month'), disabled: dlAllBusy || null,
     onclick: (e) => downloadAllReels(month, reels, e.currentTarget),
-  }, [icon('down', 15), el('span', { text: armed ? `${T('Toca para guardar', 'Tap to save')} ${pos}` : T('Descargar todos', 'Download all') })]);
+  }, [icon('down', 15), el('span', { text: armed
+    ? `${T('Toca para guardar', 'Tap to save')} ${pos}`
+    // Decir CUÁNTOS: "Descargar todos" no dice si son 2 o 18, y el botón se
+    // confundía con el de un reel suelto.
+    : `${T('Descargar los', 'Download all')} ${reels.length} ${T('reels', 'reels')}` })]);
   return btn;
 }
 
