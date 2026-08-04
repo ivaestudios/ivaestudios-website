@@ -28,20 +28,20 @@ import {
   el, clear, copyText, api, isClientRole,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202608031937';
-import { icon } from '../shell/icons.js?v=202608031937';
-import { T } from '../shell/i18n.js?v=202608031937';
+} from '../api.js?v=202608040125';
+import { icon } from '../shell/icons.js?v=202608040125';
+import { T } from '../shell/i18n.js?v=202608040125';
 // Capas de history del shell: el boton atras del telefono cierra la capa de
 // arriba (panel de guion) en vez de salir de la app.
-import { pushLayer } from '../shell/router.js?v=202608031937';
+import { pushLayer } from '../shell/router.js?v=202608040125';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608031937';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608031937';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608031937';
+import { errorCard } from '../ui/states.js?v=202608040125';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608040125';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608040125';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608031937';
+} from '../lib/video-upload.js?v=202608040125';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -2314,8 +2314,8 @@ async function openColMenu({ skey, sortType, label, filterDim }, anchor) {
   const options = [];
   if (skey) {
     if (sortType === 'date') {
-      options.push({ value: 'sort:asc',  label: T('Ordenar: más antiguo primero (día 1 → 31)', 'Sort: oldest first (day 1 → 31)'), current: s.key === skey && s.dir === 'asc' });
-      options.push({ value: 'sort:desc', label: T('Ordenar: más reciente primero (día 31 → 1)', 'Sort: newest first (day 31 → 1)'), current: s.key === skey && s.dir === 'desc' });
+      options.push({ value: 'sort:asc',  label: T('Ordenar: del día 1 al 31', 'Sort: day 1 → 31'), current: s.key === skey && s.dir === 'asc' });
+      options.push({ value: 'sort:desc', label: T('Ordenar: del día 31 al 1', 'Sort: day 31 → 1'), current: s.key === skey && s.dir === 'desc' });
     } else if (sortType === 'num') {
       options.push({ value: 'sort:asc',  label: T('Ordenar: 1 → 5', 'Sort: 1 → 5'), current: s.key === skey && s.dir === 'asc' });
       options.push({ value: 'sort:desc', label: T('Ordenar: 5 → 1', 'Sort: 5 → 1'), current: s.key === skey && s.dir === 'desc' });
@@ -2360,8 +2360,8 @@ async function onFilterChip(dimDef, allPosts, anchor) {
 }
 
 const SORT_MENU = [
-  { value: 'date:asc',     label: T('Fecha: antiguo primero (día 1 → 31)', 'Date: oldest first (day 1 → 31)') },
-  { value: 'date:desc',    label: T('Fecha: reciente primero (día 31 → 1)', 'Date: newest first (day 31 → 1)') },
+  { value: 'date:asc',     label: T('Fecha: del día 1 al 31', 'Date: day 1 → 31') },
+  { value: 'date:desc',    label: T('Fecha: del día 31 al 1', 'Date: day 31 → 1') },
   { value: 'task:asc',     label: T('Tarea: A → Z', 'Task: A → Z') },
   { value: 'task:desc',    label: T('Tarea: Z → A', 'Task: Z → A') },
   { value: 'status:asc',   label: T('Estado: A → Z', 'Status: A → Z') },
