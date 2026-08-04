@@ -13,12 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608041755';
-import { icon } from '../shell/icons.js?v=202608041755';
-import { T } from '../shell/i18n.js?v=202608041755';
-import * as store from '../shell/store.js?v=202608041755';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608041755';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608041755';
+import { el, clear, toast, api } from '../api.js?v=202608041802';
+import { icon } from '../shell/icons.js?v=202608041802';
+import { T } from '../shell/i18n.js?v=202608041802';
+import * as store from '../shell/store.js?v=202608041802';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608041802';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608041802';
 
 const W = 1080;
 const H = 1350;
@@ -589,10 +589,26 @@ function recortePanorama(total) {
 }
 
 // ── Foto (canvas, calidad máxima) ────────────────────────────────────────────
+//
+// La capa de diseño se pinta ENCIMA de esto y no puede llevar fondo opaco (le
+// taparía la foto entera — la trampa que costó dos plantillas). Así que cuando
+// un diseño quiere fondo de color y la foto metida en un recuadro, lo declara
+// aquí: `fondo` lo pinta el canvas y `cajaFoto` dice dónde va la imagen.
 function fitCover(ctx, bmp) {
+  const pl = plantillaPorId(plantillaId);
+  if (pl.cajaFoto) {
+    const c = pl.cajaFoto;
+    ctx.save();
+    ctx.beginPath(); ctx.rect(c.x, c.y, c.w, c.h); ctx.clip();
+    const e = Math.max(c.w / bmp.width, c.h / bmp.height);
+    ctx.drawImage(bmp, c.x + (c.w - bmp.width * e) / 2, c.y + (c.h - bmp.height * e) / 2,
+      bmp.width * e, bmp.height * e);
+    ctx.restore();
+    return;
+  }
   // "Ficha" parte el lienzo: la foto ocupa el 56% de arriba y el panel sólido
   // el resto. Dibujar la foto a sangre completa la dejaría tapada a la mitad.
-  const alto = plantillaPorId(plantillaId).id === 'ficha' ? H * 0.56 : H;
+  const alto = pl.id === 'ficha' ? H * 0.56 : H;
   const s = Math.max(W / bmp.width, alto / bmp.height);
   ctx.drawImage(bmp, (W - bmp.width * s) / 2, (alto - bmp.height * s) / 2, bmp.width * s, bmp.height * s);
 }
@@ -771,7 +787,8 @@ async function regenerate(previewHost) {
       c2.imageSmoothingEnabled = true;
       c2.imageSmoothingQuality = 'high';
       c2.scale(SCALE, SCALE);
-      c2.fillStyle = '#0B0B10'; c2.fillRect(0, 0, W, H);
+      c2.fillStyle = plantillaPorId(plantillaId).fondo || '#0B0B10';
+      c2.fillRect(0, 0, W, H);
       const pid = plantillaPorId(plantillaId).id;
       if (pid === 'mural') pintarMural(c2, i, slides.length);
       else if (pid === 'panorama') pintarPanorama(c2, i, slides.length);

@@ -469,6 +469,18 @@ const panorama = {
    que esto es una sola pieza y no cinco. */
 .hilo{position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(255,255,255,.16)}
 .slide.con-texto .hilo{display:none}
+/* PIE CORRIDO — el detalle que separa un seamless de verdad de cinco slides
+   pegados. La micro-tipografía NO se repite igual en cada slide: es una sola
+   línea que atraviesa la tira entera y se corta en las costuras. Al deslizar,
+   la palabra que quedó partida se completa — y eso es lo que le dice al ojo
+   que esto es una pieza, no cinco. (Visto en las plantillas seamless de
+   fotógrafo: el pie corre y se corta; el marco repetido delata el montaje.) */
+.pie-corrido{position:absolute;bottom:170px;left:0;display:flex;align-items:center;
+  gap:70px;white-space:nowrap;font-family:Outfit,sans-serif;font-size:30px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.9);
+  text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
+.pie-corrido span{flex:none}
+.pie-corrido .sep{opacity:.5}
 /* La flecha SOLO en la portada: en los interiores estorbaría la continuidad. */
 .flecha{position:absolute;left:50%;transform:translateX(-50%);bottom:230px;width:74px;height:74px;
   border:1.6px solid rgba(255,255,255,.82);border-radius:50%}
@@ -494,12 +506,123 @@ const panorama = {
       <div class="marco arriba m-claro"><span>${esc(c.marca)}</span><span>${folio(c.idx, c.total)}</span></div>
       ${hay ? `<div class="bloque" style="top:${c.blockTop}${c.miniCSS}">${inner}</div>` : ''}
       ${c.idx === 0 ? '<div class="flecha"><i></i></div>' : ''}
-      <div class="marco abajo m-claro"><span>${c.fecha}</span><span>${esc(c.handle)}</span></div>
+      ${pieCorrido(c)}
     </div>`;
   },
 };
 
-export const PLANTILLAS = [editorial, revista, nota, ficha, suave, mural, panorama];
+// Arma la línea de micro-tipografía que atraviesa la tira completa. Cada slide
+// pinta la MISMA línea, solo desplazada: por eso al deslizar se completa lo que
+// quedó cortado, en vez de repetirse un pie idéntico cinco veces.
+function pieCorrido(c) {
+  const piezas = [c.marca, c.handle, c.fecha].map((x) => String(x || '').trim()).filter(Boolean);
+  if (!piezas.length) return '';
+  // Repeticiones de sobra para cubrir W×total: cada vuelta mide ~1000px y la
+  // tira más larga (10 slides) son 10800. Sobrar no cuesta — el slide recorta.
+  const vueltas = Math.max(4, c.total * 2 + 2);
+  let linea = '';
+  for (let v = 0; v < vueltas; v++) {
+    for (const p of piezas) linea += `<span>${esc(p)}</span><span class="sep">·</span>`;
+  }
+  return `<div class="pie-corrido" style="transform:translateX(-${c.idx * 1080}px)">${linea}</div>`;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// 8. PAPEL — la primera plantilla de FONDO CLARO, calcada de la referencia que
+//    eligió Vianey ("4 Types of Content for Business"): hoja color hueso, la
+//    foto metida en un recuadro con aire alrededor —no a sangre— y el titular
+//    debajo en serif de imprenta, mayúsculas, con la primera línea chica y el
+//    resto grande.
+//
+//    Por qué existe: el resto del catálogo es oscuro y vive de la foto. Las
+//    marcas que NO son de fotografía (dental, RH, café, consultoría) no tienen
+//    banco de imágenes para llenar cinco slides a sangre; este formato aguanta
+//    con una sola foto decente porque el aire hace la mitad del trabajo.
+//
+//    OJO: aquí el fondo y el recuadro los pinta el CANVAS (campos `fondo` y
+//    `cajaFoto`), no el CSS. Poner `background` en `.slide` taparía la foto —
+//    es la trampa que ya costó dos plantillas.
+// ════════════════════════════════════════════════════════════════════════════
+const PAPEL_TINTA = '#17150F';
+const papel = {
+  id: 'papel',
+  nombre: 'Papel',
+  descripcion: 'Hoja clara, foto enmarcada con aire y titular de imprenta. Para marcas sin muchas fotos.',
+  sobreFoto: false,
+  fuentes: ['Cormorant', 'Outfit'],
+  acento: 'cursiva',
+  fondo: '#F2EEE7',                                   // hueso cálido (lo pinta el canvas)
+  cajaFoto: { x: 96, y: 188, w: 888, h: 590 },        // el recuadro de la foto
+  css: () => `${RESET}
+.slide{font-family:Cormorant,Georgia,serif;color:${PAPEL_TINTA}}
+/* Filete finísimo sobre el borde del recuadro: separa la foto del papel sin
+   dibujar un marco pesado. */
+.cerco{position:absolute;left:96px;top:188px;width:888px;height:590px;
+  border:1px solid rgba(23,21,15,.14);pointer-events:none}
+.cab{position:absolute;top:92px;left:96px;right:96px;display:flex;
+  justify-content:space-between;align-items:baseline}
+.cab .marca{font-size:44px;font-weight:500;letter-spacing:-.005em}
+.cab .kick{font-family:Outfit,sans-serif;font-size:26px;font-weight:500;
+  letter-spacing:.22em;text-transform:uppercase;color:rgba(23,21,15,.5)}
+/* El titular: primera línea chica, el resto grande. Es lo que da el aire de
+   portada de libro. Cormorant nunca por debajo de 64px (su filete se muere). */
+.tit{position:absolute;left:104px;right:104px;top:840px;text-align:center}
+.tit .l1{font-family:Outfit,sans-serif;font-size:34px;font-weight:500;
+  letter-spacing:.2em;text-transform:uppercase;color:rgba(23,21,15,.62);margin-bottom:20px}
+.tit .l2{font-size:104px;font-weight:500;line-height:1.02;letter-spacing:.005em;
+  text-transform:uppercase;text-wrap:balance}
+.tit .l2 i{font-style:italic;text-transform:none;font-weight:400}
+.tit.sm .l2{font-size:82px}
+.bajada{position:absolute;left:150px;right:150px;top:1108px;text-align:center;
+  font-family:Outfit,sans-serif;font-size:34px;line-height:1.5;color:rgba(23,21,15,.66)}
+.lista{position:absolute;left:150px;right:150px;top:860px;display:flex;
+  flex-direction:column;gap:22px}
+.li{font-family:Outfit,sans-serif;font-size:42px;line-height:1.34;padding-bottom:18px;
+  border-bottom:1px solid rgba(23,21,15,.16)}
+.li:last-child{border-bottom:0}
+/* La firma va abajo del todo, por encima de los ~160px que ocupa la interfaz
+   de Instagram. El folio a la IZQUIERDA: arriba a la derecha vive su píldora
+   "1/5" y competir con ella se ve amateur. */
+.pie{position:absolute;left:96px;right:96px;bottom:178px;display:flex;
+  justify-content:space-between;align-items:center;font-family:Outfit,sans-serif;
+  font-size:26px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(23,21,15,.46)}
+.regla{position:absolute;left:96px;right:96px;bottom:232px;height:1px;background:rgba(23,21,15,.14)}
+`,
+  html: (c) => {
+    // El título se parte en dos voces: lo que va antes del primer salto lógico
+    // queda de antetítulo chico y el resto manda. Si no hay kicker, se usa la
+    // primera palabra fuerte como línea 1.
+    const limpio = String(c.title || '');
+    let l1 = esc(c.kicker || '');
+    let l2 = conCursiva(limpio);
+    if (!l1 && limpio.includes('|')) {
+      const [a, ...b] = limpio.split('|');
+      l1 = esc(a.trim());
+      l2 = conCursiva(b.join('|').trim());
+    }
+    const bajada = c.plainBody || c.support;
+    const hayLista = c.items && c.items.length;
+    return `<div class="slide">
+      <div class="cerco"></div>
+      <div class="cab">
+        <span class="marca">${esc(c.marca)}</span>
+        <span class="kick">${folio(c.idx, c.total)}</span>
+      </div>
+      ${hayLista
+        ? `<div class="lista">${c.items.map((i) => `<div class="li">${esc(i)}</div>`).join('')}</div>`
+        : (l1 || l2) ? `<div class="tit${c.smTitle ? ' sm' : ''}">
+            ${l1 ? `<div class="l1">${l1}</div>` : ''}
+            ${l2 ? `<div class="l2">${l2}</div>` : ''}
+          </div>` : ''}
+      ${bajada && !hayLista ? `<div class="bajada">${esc(String(bajada).replace(/\*\*/g, ''))}</div>` : ''}
+      <div class="regla"></div>
+      <div class="pie"><span>${esc(c.handle)}</span><span>${c.fecha}</span></div>
+    </div>`;
+  },
+};
+
+export const PLANTILLAS = [editorial, revista, nota, ficha, suave, mural, panorama, papel];
 export const PLANTILLA_POR_DEFECTO = 'revista';
 export function plantillaPorId(id) {
   return PLANTILLAS.find((p) => p.id === id) || PLANTILLAS.find((p) => p.id === PLANTILLA_POR_DEFECTO);
