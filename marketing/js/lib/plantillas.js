@@ -560,22 +560,24 @@ const papel = {
 .cerco{position:absolute;left:96px;top:188px;width:888px;height:590px;
   border:1px solid rgba(23,21,15,.14);pointer-events:none}
 .cab{position:absolute;top:92px;left:96px;right:96px;display:flex;
-  justify-content:space-between;align-items:baseline}
+  justify-content:flex-start;align-items:baseline}
 .cab .marca{font-size:44px;font-weight:500;letter-spacing:-.005em}
-.cab .kick{font-family:Outfit,sans-serif;font-size:26px;font-weight:500;
-  letter-spacing:.22em;text-transform:uppercase;color:rgba(23,21,15,.5)}
-/* El titular: primera línea chica, el resto grande. Es lo que da el aire de
-   portada de libro. Cormorant nunca por debajo de 64px (su filete se muere). */
-.tit{position:absolute;left:104px;right:104px;top:840px;text-align:center}
+/* EL BLOQUE DE TEXTO SE ANCLA ABAJO, no arriba. Anclado arriba crecía hacia el
+   pie y la bajada acababa encima de la fecha, con la regla cruzándola (visto en
+   la primera prueba). Anclado abajo crece hacia el aire que hay bajo la foto,
+   que es justo donde sobra sitio. */
+.texto{position:absolute;left:104px;right:104px;bottom:266px;text-align:center}
 .tit .l1{font-family:Outfit,sans-serif;font-size:34px;font-weight:500;
   letter-spacing:.2em;text-transform:uppercase;color:rgba(23,21,15,.62);margin-bottom:20px}
 .tit .l2{font-size:104px;font-weight:500;line-height:1.02;letter-spacing:.005em;
   text-transform:uppercase;text-wrap:balance}
 .tit .l2 i{font-style:italic;text-transform:none;font-weight:400}
 .tit.sm .l2{font-size:82px}
-.bajada{position:absolute;left:150px;right:150px;top:1108px;text-align:center;
-  font-family:Outfit,sans-serif;font-size:34px;line-height:1.5;color:rgba(23,21,15,.66)}
-.lista{position:absolute;left:150px;right:150px;top:860px;display:flex;
+/* 40px es el piso de Outfit en minúsculas: el feed se ve al 36% y por debajo de
+   eso quedan menos de 15px reales. A 34px se veía diminuta. */
+.bajada{margin-top:28px;font-family:Outfit,sans-serif;font-size:40px;line-height:1.45;
+  color:rgba(23,21,15,.66)}
+.lista{position:absolute;left:150px;right:150px;bottom:266px;display:flex;
   flex-direction:column;gap:22px}
 .li{font-family:Outfit,sans-serif;font-size:42px;line-height:1.34;padding-bottom:18px;
   border-bottom:1px solid rgba(23,21,15,.16)}
@@ -605,19 +607,21 @@ const papel = {
     const hayLista = c.items && c.items.length;
     return `<div class="slide">
       <div class="cerco"></div>
-      <div class="cab">
-        <span class="marca">${esc(c.marca)}</span>
-        <span class="kick">${folio(c.idx, c.total)}</span>
-      </div>
+      <div class="cab"><span class="marca">${esc(c.marca)}</span></div>
       ${hayLista
         ? `<div class="lista">${c.items.map((i) => `<div class="li">${esc(i)}</div>`).join('')}</div>`
-        : (l1 || l2) ? `<div class="tit${c.smTitle ? ' sm' : ''}">
-            ${l1 ? `<div class="l1">${l1}</div>` : ''}
-            ${l2 ? `<div class="l2">${l2}</div>` : ''}
+        : (l1 || l2 || bajada) ? `<div class="texto">
+            ${(l1 || l2) ? `<div class="tit${c.smTitle ? ' sm' : ''}">
+              ${l1 ? `<div class="l1">${l1}</div>` : ''}
+              ${l2 ? `<div class="l2">${l2}</div>` : ''}
+            </div>` : ''}
+            ${bajada ? `<div class="bajada">${esc(String(bajada).replace(/\*\*/g, ''))}</div>` : ''}
           </div>` : ''}
-      ${bajada && !hayLista ? `<div class="bajada">${esc(String(bajada).replace(/\*\*/g, ''))}</div>` : ''}
       <div class="regla"></div>
-      <div class="pie"><span>${esc(c.handle)}</span><span>${c.fecha}</span></div>
+      <div class="pie">
+        <span>${esc(c.handle) || folio(c.idx, c.total)}</span>
+        <span>${c.fecha}</span>
+      </div>
     </div>`;
   },
 };
