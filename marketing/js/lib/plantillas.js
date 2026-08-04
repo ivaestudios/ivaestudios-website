@@ -415,7 +415,91 @@ const mural = {
   },
 };
 
-export const PLANTILLAS = [editorial, revista, nota, ficha, suave, mural];
+// ════════════════════════════════════════════════════════════════════════════
+// 7. PANORÁMICA — el formato "seamless": UNA imagen continua repartida a lo
+//    largo de todos los slides. Al deslizar, la foto no cambia: SIGUE.
+//
+//    Es el formato con mejor rendimiento medido del carrusel (el doble de
+//    deslizamientos completos que uno de slides sueltos) y sigue siendo raro
+//    en Instagram porque hacerlo a mano en Canva es un dolor. Para un estudio
+//    de fotografía es el formato natural: la foto manda y el texto se aparta.
+//
+//    REGLA PROPIA DE ESTE FORMATO: el texto vive en un carril central, lejos
+//    de los bordes. Un titular pegado al borde se PARTE en la costura entre
+//    slides y se lee a la mitad. Por eso los márgenes aquí son mucho más
+//    anchos que en el resto de plantillas, y el titular es más contenido.
+// ════════════════════════════════════════════════════════════════════════════
+const panorama = {
+  id: 'panorama',
+  nombre: 'Panorámica',
+  descripcion: 'Una sola imagen que fluye por todos los slides. La que más hace deslizar.',
+  sobreFoto: true,
+  fuentes: ['Cormorant', 'Outfit'],
+  acento: 'cursiva',
+  css: () => `${RESET}${MARCO}${VELOS_MARCO}
+.slide{font-family:Cormorant,Georgia,serif}
+/* Oscurecimiento parejo en TODA la tira: si cada slide llevara su propio
+   degradado, al deslizar se verían escalones de luz justo en las costuras y se
+   rompería la ilusión de imagen única. Plano y constante. */
+.tono{position:absolute;inset:0;background:rgba(12,12,15,.34)}
+.slide.velado .tono{background:rgba(12,12,15,.52)}
+/* CARRIL CENTRAL: 168px de aire a cada lado. Es el margen que evita que una
+   palabra quede cortada por la costura del slide. */
+.bloque{position:absolute;left:168px;right:168px;text-align:center;
+  display:flex;flex-direction:column;align-items:center}
+.eyebrow{font-family:Outfit,sans-serif;font-size:32px;letter-spacing:.26em;text-transform:uppercase;
+  color:rgba(255,255,255,.88);margin-bottom:26px;text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
+.tit{font-size:92px;font-weight:400;line-height:1.04;letter-spacing:-.004em;text-wrap:balance;
+  text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
+.tit i{font-style:italic}
+.tit.sm{font-size:76px}
+/* La portada crece: se ve también en la cuadrícula del perfil (~130pt). */
+.slide.portada-1 .tit{font-size:134px;line-height:.99}
+.slide.portada-1 .tit.sm{font-size:112px}
+.bajada{font-family:Outfit,sans-serif;font-size:40px;font-weight:400;line-height:1.5;
+  color:rgba(255,255,255,.9);margin-top:32px;max-width:92%;
+  text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
+.lista{margin-top:40px;display:flex;flex-direction:column;gap:22px;width:100%}
+.li{font-family:Outfit,sans-serif;font-size:44px;line-height:1.34;padding-bottom:18px;
+  border-bottom:1px solid rgba(255,255,255,.3);
+  text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
+.li:last-child{border-bottom:0}
+/* Filete de continuidad: una línea finísima que cruza el slide de lado a lado
+   a la misma altura en todos. Al deslizar NO se corta — es la pista visual de
+   que esto es una sola pieza y no cinco. */
+.hilo{position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(255,255,255,.16)}
+.slide.con-texto .hilo{display:none}
+/* La flecha SOLO en la portada: en los interiores estorbaría la continuidad. */
+.flecha{position:absolute;left:50%;transform:translateX(-50%);bottom:230px;width:74px;height:74px;
+  border:1.6px solid rgba(255,255,255,.82);border-radius:50%}
+.flecha i{position:absolute;top:50%;left:50%;width:28px;height:1.6px;background:rgba(255,255,255,.88);transform:translate(-50%,-50%)}
+.flecha i::after{content:'';position:absolute;right:0;top:50%;width:11px;height:11px;
+  border-top:1.6px solid rgba(255,255,255,.88);border-right:1.6px solid rgba(255,255,255,.88);
+  transform:translate(1px,-50%) rotate(45deg)}
+`,
+  html: (c) => {
+    const velado = (c.velo || 0) > 0.45 || c.modo === 'banda';
+    let inner = '';
+    if (c.kicker) inner += `<div class="eyebrow">${esc(c.kicker)}</div>`;
+    if (c.title) inner += `<div class="tit${c.smTitle ? ' sm' : ''}">${conCursiva(c.title)}</div>`;
+    if (c.items) inner += `<div class="lista">${c.items.map((i) => `<div class="li">${esc(i)}</div>`).join('')}</div>`;
+    const bajada = c.plainBody || c.support;
+    if (bajada) inner += `<div class="bajada">${esc(bajada.replace(/\*\*/g, ''))}</div>`;
+    const hay = c.hasText && inner;
+    return `<div class="slide${velado ? ' velado' : ''}${c.idx === 0 ? ' portada-1' : ''}${hay ? ' con-texto' : ''}">
+      <div class="tono"></div>
+      <div class="hilo"></div>
+      <div class="velo-arriba" style="--va-top:${c.veloMarcoTop}"></div>
+      <div class="velo-abajo" style="--va-bot:${c.veloMarcoBot}"></div>
+      <div class="marco arriba m-claro"><span>${esc(c.marca)}</span><span>${folio(c.idx, c.total)}</span></div>
+      ${hay ? `<div class="bloque" style="top:${c.blockTop}${c.miniCSS}">${inner}</div>` : ''}
+      ${c.idx === 0 ? '<div class="flecha"><i></i></div>' : ''}
+      <div class="marco abajo m-claro"><span>${c.fecha}</span><span>${esc(c.handle)}</span></div>
+    </div>`;
+  },
+};
+
+export const PLANTILLAS = [editorial, revista, nota, ficha, suave, mural, panorama];
 export const PLANTILLA_POR_DEFECTO = 'revista';
 export function plantillaPorId(id) {
   return PLANTILLAS.find((p) => p.id === id) || PLANTILLAS.find((p) => p.id === PLANTILLA_POR_DEFECTO);

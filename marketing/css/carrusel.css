@@ -271,6 +271,19 @@
 /* ── ELEGIR DISEÑO ────────────────────────────────────────────────────────
    Chips con nombre + para-qué-sirve. Móvil primero: scroll horizontal con
    snap, que en el teléfono es más natural que apilarlos. */
+/* Aviso bajo el selector de diseño (recorte de la panorámica). */
+.carg-nota {
+  display: flex; align-items: flex-start; gap: 9px;
+  margin: 0 0 12px; padding: 11px 13px; border-radius: 11px;
+  font-size: 13px; line-height: 1.45;
+}
+.carg-nota--warn {
+  border: 1px solid rgba(226, 168, 77, .42);
+  background: rgba(226, 168, 77, .1);
+  color: #E8B15C;
+}
+.carg-nota svg { flex: none; margin-top: 2px; }
+
 .carg-plantillas { display: grid; gap: 8px; margin: 10px 0 12px; }
 .carg-plantillas__lbl {
   font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-mute);

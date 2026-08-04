@@ -13,12 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608040301';
-import { icon } from '../shell/icons.js?v=202608040301';
-import { T } from '../shell/i18n.js?v=202608040301';
-import * as store from '../shell/store.js?v=202608040301';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608040301';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608040301';
+import { el, clear, toast, api } from '../api.js?v=202608041747';
+import { icon } from '../shell/icons.js?v=202608041747';
+import { T } from '../shell/i18n.js?v=202608041747';
+import * as store from '../shell/store.js?v=202608041747';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608041747';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608041747';
 
 const W = 1080;
 const H = 1350;
@@ -479,6 +479,85 @@ function pintarMural(ctx, idx, total) {
   ctx.restore();
 }
 
+// ── PANORÁMICA: una sola imagen continua a lo largo de TODA la tira ─────────
+//
+// Con UNA foto se estira sobre los W×total y cada slide enseña su trozo: al
+// deslizar la foto no cambia, sigue. Con VARIAS se reparten pegadas a lo ancho,
+// pero con anchos DESIGUALES a propósito: si cada foto midiera justo un slide,
+// sus bordes caerían clavados en las costuras y se vería igual que un carrusel
+// normal. El ritmo desigual obliga a que las fotos crucen de un slide al
+// siguiente, que es exactamente lo que produce la sensación de continuidad.
+const RITMO_PANO = [1.26, 0.86, 1.14, 0.9, 1.2, 0.84, 1.08, 0.94, 1.16, 0.88];
+
+function planPanorama(n, total) {
+  const anchoTira = W * total;
+  if (n <= 1) return [{ x: 0, w: anchoTira }];
+  const pesos = Array.from({ length: n }, (_, i) => RITMO_PANO[i % RITMO_PANO.length]);
+  const suma = pesos.reduce((a, b) => a + b, 0);
+  let x = 0;
+  return pesos.map((p) => {
+    const w = (p / suma) * anchoTira;
+    const celda = { x, w };
+    x += w;
+    return celda;
+  });
+}
+
+function pintarPanorama(ctx, idx, total) {
+  const bmps = slides.map((s) => s.bitmap).filter(Boolean);
+  if (!bmps.length) return;
+  const plan = planPanorama(bmps.length, total);
+  const desp = idx * W;
+  ctx.save();
+  ctx.translate(-desp, 0);
+  bmps.forEach((bmp, i) => {
+    const c = plan[i];
+    if (!c) return;
+    if (c.x + c.w < desp - 4 || c.x > desp + W + 4) return;  // no toca este slide
+    ctx.save();
+    // Medio píxel de solape: sin esto se ve una hilacha clara entre foto y foto.
+    ctx.beginPath(); ctx.rect(c.x - 0.5, 0, c.w + 1, H); ctx.clip();
+    const e = Math.max(c.w / bmp.width, H / bmp.height);
+    ctx.drawImage(bmp, c.x + (c.w - bmp.width * e) / 2, (H - bmp.height * e) / 2,
+      bmp.width * e, bmp.height * e);
+    ctx.restore();
+  });
+  ctx.restore();
+}
+
+// En panorámica el slide i NO enseña `slides[i].bitmap`: enseña un TROZO de la
+// tira, que puede ser de otra foto o de dos a la vez. Si el fotómetro midiera
+// el bitmap suelto, calcularía el velo de una imagen que ni siquiera está en
+// pantalla. Aquí se rasteriza el trozo REAL y se le da a medir eso.
+function trozosPanorama(total) {
+  return Array.from({ length: total }, (_, i) => {
+    const c = document.createElement('canvas');
+    c.width = 270; c.height = 338;   // misma proporción 4:5; de sobra para medir
+    const g = c.getContext('2d', { willReadFrequently: true });
+    g.scale(c.width / W, c.height / H);
+    pintarPanorama(g, i, total);
+    return c;
+  });
+}
+
+// Cuánto de la foto sobrevive al estirarla sobre su celda. Una foto normal
+// (3:2) repartida en 5 slides pierde ~60% del alto: la cara que importaba se
+// queda fuera y no hay forma de saberlo mirando la miniatura. Por eso se avisa.
+function recortePanorama(total) {
+  const bmps = slides.map((s) => s.bitmap).filter(Boolean);
+  if (!bmps.length) return null;
+  const plan = planPanorama(bmps.length, total);
+  let peor = 1;
+  bmps.forEach((b, i) => {
+    const c = plan[i];
+    if (!c) return;
+    const e = Math.max(c.w / b.width, H / b.height);
+    const visible = Math.min(1, H / (b.height * e));   // fracción del alto que se ve
+    if (visible < peor) peor = visible;
+  });
+  return peor;
+}
+
 // ── Foto (canvas, calidad máxima) ────────────────────────────────────────────
 function fitCover(ctx, bmp) {
   // "Ficha" parte el lienzo: la foto ocupa el 56% de arriba y el panel sólido
@@ -507,7 +586,11 @@ function analizarTodo() {
       if (i === 0) return largo > 46 ? 126 : 152;
       return largo > 46 ? 86 : 104;
     });
-    const planes = analizarCarrusel(slides.map((s) => s.bitmap), { altosPct: altos, pxTitular });
+    // En panorámica se mide el TROZO que ve cada slide, no la foto suelta.
+    const fuentes = plantillaPorId(plantillaId).id === 'panorama'
+      ? trozosPanorama(slides.length)
+      : slides.map((s) => s.bitmap);
+    const planes = analizarCarrusel(fuentes, { altosPct: altos, pxTitular });
     slides.forEach((s, i) => {
       s.plan = planes[i] || null;
       if (!s.posManual && s.plan) s.pos = s.plan.pos;
@@ -659,7 +742,9 @@ async function regenerate(previewHost) {
       c2.imageSmoothingQuality = 'high';
       c2.scale(SCALE, SCALE);
       c2.fillStyle = '#0B0B10'; c2.fillRect(0, 0, W, H);
-      if (plantillaPorId(plantillaId).id === 'mural') pintarMural(c2, i, slides.length);
+      const pid = plantillaPorId(plantillaId).id;
+      if (pid === 'mural') pintarMural(c2, i, slides.length);
+      else if (pid === 'panorama') pintarPanorama(c2, i, slides.length);
       else if (s.bitmap) fitCover(c2, s.bitmap);
       c2.drawImage(layers[i], 0, 0, W, H);
       previews.push({ canvas });
@@ -678,6 +763,40 @@ async function regenerate(previewHost) {
 
 // ── UI ───────────────────────────────────────────────────────────────────────
 const POS_LABEL = { top: '↑', mid: '·', bottom: '↓' };
+
+// Aviso de recorte de la panorámica. Devuelve null cuando no aplica, así que
+// va SIEMPRE dentro de un el() (que filtra nulls) — nunca en un append nativo.
+function avisoPanorama() {
+  if (plantillaPorId(plantillaId).id !== 'panorama') return null;
+  const visible = recortePanorama(slides.length);
+  if (visible == null || visible >= 0.55) return null;
+  const perdido = Math.round((1 - visible) * 100);
+  // Cuántos slides aguantaría este material conservando ≥55% del alto.
+  const bmps = slides.map((s) => s.bitmap).filter(Boolean);
+  let cabe = 1;
+  for (let n = slides.length; n >= 2; n--) {
+    const plan = planPanorama(bmps.length, n);
+    const ok = bmps.every((b, i) => {
+      const c = plan[i]; if (!c) return true;
+      const e = Math.max(c.w / b.width, H / b.height);
+      return Math.min(1, H / (b.height * e)) >= 0.55;
+    });
+    if (ok) { cabe = n; break; }
+  }
+  return el('div', { class: 'carg-nota carg-nota--warn' }, [
+    icon('close', 14),
+    el('span', {
+      text: T(
+        `La panorámica está recortando el ${perdido}% del alto de tus fotos. `
+        + (cabe >= 2
+          ? `Con ${cabe} slides se vería completa, o agrega fotos más anchas.`
+          : 'Usa menos slides, agrega más fotos o elige una foto horizontal amplia.'),
+        `The panorama is cropping ${perdido}% of your photos' height. `
+        + (cabe >= 2 ? `${cabe} slides would fit, or add wider photos.` : 'Use fewer slides or add wider photos.'),
+      ),
+    }),
+  ]);
+}
 
 export function renderGen(root, helpers) {
   clearTimeout(redrawTimer);   // el redibujo diferido del render anterior muere aquí
@@ -915,6 +1034,11 @@ export function renderGen(root, helpers) {
         el('i', { text: pl.descripcion }),
       ]))),
     ]),
+    // La panorámica estira las fotos sobre una tira de W×nº-de-slides. Con
+    // pocas fotos y muchos slides eso recorta el alto sin piedad y la cara que
+    // importaba se queda fuera — y mirando las miniaturas no se nota. Se avisa
+    // con el número real y con cuántos slides SÍ aguanta ese material.
+    avisoPanorama(),
 
     el('div', { class: 'carg-controls' }, [
       el('button', { class: 'btn btn-primary', type: 'button', onclick: () => {
