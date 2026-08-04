@@ -13,12 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608041747';
-import { icon } from '../shell/icons.js?v=202608041747';
-import { T } from '../shell/i18n.js?v=202608041747';
-import * as store from '../shell/store.js?v=202608041747';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608041747';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608041747';
+import { el, clear, toast, api } from '../api.js?v=202608041751';
+import { icon } from '../shell/icons.js?v=202608041751';
+import { T } from '../shell/i18n.js?v=202608041751';
+import * as store from '../shell/store.js?v=202608041751';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608041751';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608041751';
 
 const W = 1080;
 const H = 1350;
@@ -487,20 +487,33 @@ function pintarMural(ctx, idx, total) {
 // sus bordes caerían clavados en las costuras y se vería igual que un carrusel
 // normal. El ritmo desigual obliga a que las fotos crucen de un slide al
 // siguiente, que es exactamente lo que produce la sensación de continuidad.
-const RITMO_PANO = [1.26, 0.86, 1.14, 0.9, 1.2, 0.84, 1.08, 0.94, 1.16, 0.88];
-
 function planPanorama(n, total) {
   const anchoTira = W * total;
   if (n <= 1) return [{ x: 0, w: anchoTira }];
-  const pesos = Array.from({ length: n }, (_, i) => RITMO_PANO[i % RITMO_PANO.length]);
-  const suma = pesos.reduce((a, b) => a + b, 0);
-  let x = 0;
-  return pesos.map((p) => {
-    const w = (p / suma) * anchoTira;
-    const celda = { x, w };
-    x += w;
-    return celda;
-  });
+  const paso = total / n;
+  // Se BUSCA el desfase que deja las uniones entre fotos lo más lejos posible
+  // de los bordes de slide. Sin esto, con 4 fotos en 4 slides cada foto cae
+  // justo en su slide y el resultado se ve idéntico a un carrusel normal —
+  // pasó en la primera prueba: las uniones quedaron en 1.21 / 2.04 / 3.13,
+  // pegadas a 1 / 2 / 3. Con la búsqueda quedan en 1.5 / 2.5 / 3.5, o sea a
+  // media cara de cada slide, que es lo que obliga a la foto a cruzar.
+  // Barrido determinista: el mismo mazo da siempre el mismo reparto.
+  let mejor = 0;
+  let mejorDist = -1;
+  for (let d = 0; d < 1; d += 0.02) {
+    let minDist = 9;
+    for (let k = 1; k < n; k++) {
+      const c = k * paso + d;
+      if (c <= 0.03 || c >= total - 0.03) { minDist = -1; break; }  // se saldría de la tira
+      minDist = Math.min(minDist, Math.abs(c - Math.round(c)));
+    }
+    if (minDist > mejorDist) { mejorDist = minDist; mejor = d; }
+  }
+  const cortes = [0, ...Array.from({ length: n - 1 }, (_, k) => (k + 1) * paso + mejor), total];
+  return Array.from({ length: n }, (_, i) => ({
+    x: cortes[i] * W,
+    w: (cortes[i + 1] - cortes[i]) * W,
+  }));
 }
 
 function pintarPanorama(ctx, idx, total) {

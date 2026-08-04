@@ -11,8 +11,8 @@
 //   segments: [{ key, label, color, count }]
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202608041747';
-import { T } from '../shell/i18n.js?v=202608041747';
+import { el, clear } from '../api.js?v=202608041751';
+import { T } from '../shell/i18n.js?v=202608041751';
 
 export function createBattery({ onOpen } = {}) {
   const bar = el('div', { class: 'kb-battery__bar', 'aria-hidden': 'true' });
