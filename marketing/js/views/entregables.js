@@ -6,17 +6,17 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608040125';
-import { icon } from '../shell/icons.js?v=202608040125';
-import { T } from '../shell/i18n.js?v=202608040125';
-import { openSheet } from '../shell/sheet.js?v=202608040125';
+import { api, el, clear, toast } from '../api.js?v=202608040132';
+import { icon } from '../shell/icons.js?v=202608040132';
+import { T } from '../shell/i18n.js?v=202608040132';
+import { openSheet } from '../shell/sheet.js?v=202608040132';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608040125';
+import { errorCard } from '../ui/states.js?v=202608040132';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608040125';
+} from '../lib/video-upload.js?v=202608040132';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -45,6 +45,9 @@ const dlAllCache = new Map();
 // falla YA NO tumba el lote: se sigue con el siguiente y al final se dice cuáles
 // faltaron (antes había que volver a empezar desde el 1).
 const dlAllFailed = new Map();
+// mes -> reels que quedaron para una segunda tanda, cuando el lote completo
+// pesaba demasiado para tenerlo entero en memoria.
+const dlAllPendientes = new Map();
 
 // ── Carga perezosa de videos (velocidad en móvil) ───────────────────────────
 // Antes: CADA reel del mes creaba un <video preload="metadata"> que disparaba
@@ -168,7 +171,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608040125';
+  link.href = '/marketing/css/entregables.css?v=202608040132';
   document.head.appendChild(link);
 }
 
@@ -178,6 +181,7 @@ async function load() {
   // No se espera (no debe retrasar la lista); cuando llegue, repinta.
   if (isClient()) refrescarPermisos().then(() => { if (rootEl) render(); });
   dlAllCache.clear(); // los archivos armados de "Descargar todos" caducan al recargar la lista
+  dlAllPendientes.clear();   // y la segunda tanda pendiente, si la había
   // ⚠️ fileCache está indexado por it.id, y con "Cambiar video" un MISMO id pasa a
   // tener OTROS bytes. Si no se suelta aquí, el 2º toque de "Descargar" en el
   // iPhone guardaría en el teléfono el reel VIEJO (el del eco) — y el sello ?v=
@@ -789,7 +793,32 @@ async function downloadAllReels(month, reels, btn) {
   // ── MÓVIL: uno a la vez, con el 2º toque que exige iOS para guardar ──
   if (mobile) {
     const armed = dlAllCache.get(month);
-    // 2º toque: el archivo YA está en memoria -> compartir SÍNCRONO (activación fresca).
+
+    // 2º toque, TODOS JUNTOS: el navegador exige un gesto para abrir el menú de
+    // compartir, pero acepta varios archivos en la MISMA llamada. Así los 5
+    // reels se guardan con un solo toque en vez de cinco.
+    if (armed && armed.files && armed.files.length) {
+      try {
+        await navigator.share({ files: armed.files, title: T('Reels del mes', 'Reels of the month') });
+      } catch (e) {
+        if (e && e.name === 'AbortError') return; // canceló el menú: siguen armados
+        toast(T('No se abrió el menú para guardar. Toca el botón otra vez.', 'The save menu didn\'t open. Tap the button again.'), 'error', 5000);
+        return;
+      }
+      dlAllCache.delete(month);
+      // ¿Quedó una segunda tanda porque el lote pesaba demasiado?
+      const resto = dlAllPendientes.get(month);
+      if (resto && resto.length) {
+        dlAllPendientes.delete(month);
+        toast(T(`Guardados ✓ — preparando los ${resto.length} que faltan.`, `Saved ✓ — preparing the remaining ${resto.length}.`), 'info', 5000);
+        await mobilePrepararTodos(month, resto, btn, setLabel);
+        return;
+      }
+      finishMobileBatch(month, reels, btn, setLabel);
+      return;
+    }
+
+    // 2º toque, UNO A UNO (teléfonos que no aceptan varios archivos juntos).
     if (armed && armed.file) {
       try {
         await navigator.share({ files: [armed.file], title: armed.file.name || 'Reel' });
@@ -805,9 +834,10 @@ async function downloadAllReels(month, reels, btn) {
       await mobilePrepare(month, reels, next, btn, setLabel);
       return;
     }
-    // 1er toque: preparar el primero.
+
+    // 1er toque: preparar TODO el mes de una vez.
     if (dlAllBusy) return;
-    await mobilePrepare(month, reels, 0, btn, setLabel);
+    await mobilePrepararTodos(month, reels, btn, setLabel);
     return;
   }
 
@@ -853,6 +883,69 @@ async function downloadAllReels(month, reels, btn) {
 // queda listo para guardarse (el toque que exige iOS); los que este teléfono no
 // puede compartir se mandan al gestor de descargas y SIGUE con el siguiente, y
 // un reel que falla tampoco corta la tanda. Nunca hay más de un video en memoria.
+// Cuánto se permite tener en memoria a la vez antes de partir en lotes: cinco
+// reels de 4K llenan un teléfono modesto y el navegador mata la pestaña.
+const TOPE_LOTE_BYTES = 380 * 1024 * 1024;
+
+// Baja TODOS los reels del mes y los deja listos para UN solo toque.
+async function mobilePrepararTodos(month, reels, btn, setLabel) {
+  if (dlAllBusy) return;
+  dlAllBusy = true; btn.disabled = true;
+  btn.classList.remove('dlv-dl--ready');
+  const listos = [];
+  const fallidos = [];
+  let pesados = 0;
+  try {
+    for (let i = 0; i < reels.length; i++) {
+      const it = reels[i];
+      const pos = `${i + 1}/${reels.length}`;
+      try {
+        setLabel(`${T('Preparando', 'Preparing')} ${pos}… 0%`);
+        const blob = await fetchVideoBlob(it, (pct) => setLabel(`${T('Preparando', 'Preparing')} ${pos} · ${pct}%`));
+        listos.push(fileFromBlob(it, blob));
+        pesados += blob.size || 0;
+        // Si el lote ya pesa demasiado, se guarda lo que hay y se sigue con el
+        // resto en una segunda tanda (mejor dos toques que una pestaña muerta).
+        if (pesados > TOPE_LOTE_BYTES && i < reels.length - 1) {
+          dlAllPendientes.set(month, reels.slice(i + 1));
+          break;
+        }
+      } catch (e) {
+        if (e && e.bloqueado) {
+          toast(e.message, 'info', 7000);
+          dlAllFailed.delete(month); dlAllPendientes.delete(month);
+          if (isClient()) refrescarPermisos().then(() => { if (rootEl) render(); });
+          return;
+        }
+        fallidos.push(it.title || 'Reel');
+      }
+    }
+    if (!listos.length) {
+      toast(T('No se pudo preparar ningún reel. Intenta de nuevo.', 'Could not prepare any reel. Try again.'), 'error', 6000);
+      return;
+    }
+    // ¿Este teléfono acepta varios archivos en un solo compartir?
+    let juntos = false;
+    try { juntos = navigator.canShare && navigator.canShare({ files: listos }); } catch { juntos = false; }
+    if (!juntos) {
+      // No los acepta juntos: se cae al camino de siempre (uno por uno), que
+      // funciona en todos lados. Nadie se queda sin sus videos.
+      dlAllCache.delete(month); dlAllPendientes.delete(month);
+      return mobilePrepare(month, reels, 0, btn, setLabel);
+    }
+    fileCache.clear();
+    dlAllCache.set(month, { files: listos, index: 0 });
+    btn.classList.add('dlv-dl--ready');
+    const n = listos.length;
+    setLabel(`${T('Toca para guardar los', 'Tap to save the')} ${n}`);
+    toast(T(`${n} reels listos ✓ — toca el botón resaltado y guárdalos todos de una vez.`,
+            `${n} reels ready ✓ — tap the highlighted button and save them all at once.`), 'info', 8000);
+    if (fallidos.length) dlAllFailed.set(month, fallidos);
+  } finally {
+    dlAllBusy = false; btn.disabled = false;
+  }
+}
+
 async function mobilePrepare(month, reels, index, btn, setLabel) {
   if (dlAllBusy) return;
   dlAllBusy = true; btn.disabled = true;
@@ -1431,7 +1524,9 @@ function buildDownloadAllBtn(month, reels) {
     'aria-label': T('Descargar todos los reels del mes', 'Download all reels for this month'), disabled: dlAllBusy || null,
     onclick: (e) => downloadAllReels(month, reels, e.currentTarget),
   }, [icon('down', 15), el('span', { text: armed
-    ? `${T('Toca para guardar', 'Tap to save')} ${pos}`
+    ? (armed.files && armed.files.length
+        ? `${T('Toca para guardar los', 'Tap to save the')} ${armed.files.length}`
+        : `${T('Toca para guardar', 'Tap to save')} ${pos}`)
     // Decir CUÁNTOS: "Descargar todos" no dice si son 2 o 18, y el botón se
     // confundía con el de un reel suelto.
     : `${T('Descargar los', 'Download all')} ${reels.length} ${T('reels', 'reels')}` })]);
