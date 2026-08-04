@@ -552,7 +552,10 @@ const papel = {
   fuentes: ['Cormorant', 'Outfit'],
   acento: 'cursiva',
   fondo: '#F2EEE7',                                   // hueso cálido (lo pinta el canvas)
-  cajaFoto: { x: 96, y: 188, w: 888, h: 590 },        // el recuadro de la foto
+  // El recuadro de la foto. Termina en y=706 y el bloque de texto (anclado
+  // abajo) arranca hacia y=744: ese colchón es a propósito — con 590px de alto
+  // el antetítulo acababa pegado al borde de la imagen, casi encima.
+  cajaFoto: { x: 96, y: 172, w: 888, h: 534 },
   css: () => `${RESET}
 .slide{font-family:Cormorant,Georgia,serif;color:${PAPEL_TINTA}}
 /* Filete finísimo sobre el borde del recuadro: separa la foto del papel sin
