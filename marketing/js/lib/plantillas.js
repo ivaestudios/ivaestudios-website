@@ -237,7 +237,7 @@ const nota = {
    blanco tiene su propio piso de contraste. Nada de papel blanco — la marca
    pidió sombra negra con letra blanca. */
 .papel{position:absolute;left:126px;right:126px;background:rgba(13,13,15,.72);color:#F6F5F3;
-  padding:84px 70px 74px;border:1px solid rgba(255,255,255,.15);
+  padding:84px 70px 74px;border:1px solid rgba(255,255,255,.30);
   box-shadow:0 30px 80px rgba(0,0,0,.45);
   display:flex;flex-direction:column;align-items:center;text-align:center}
 .cinta{position:absolute;top:-1px;left:50%;transform:translateX(-50%);
@@ -248,7 +248,7 @@ const nota = {
 .tit.sm{font-size:72px}
 .bajada{font-family:Outfit,sans-serif;font-size:46px;line-height:1.42;color:rgba(246,245,243,.8);margin-top:34px;max-width:88%}
 .lista{margin-top:38px;display:flex;flex-direction:column;gap:20px;width:100%}
-.li{font-family:Outfit,sans-serif;font-size:46px;font-weight:400;line-height:1.36;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.2)}
+.li{font-family:Outfit,sans-serif;font-size:46px;font-weight:400;line-height:1.36;padding-bottom:18px;border-bottom:2px solid rgba(255,255,255,.28)}
 .li:last-child{border-bottom:0;padding-bottom:0}
 .rubrica{position:absolute;left:0;right:0;bottom:176px;text-align:center;font-family:Outfit,sans-serif;
   font-size:32px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.92);
@@ -293,7 +293,7 @@ const ficha = {
 .panel{position:absolute;left:0;right:0;bottom:0;height:44%;background:${c.tinta};color:#F3F0EA;
   padding:74px 104px 96px;display:flex;flex-direction:column}
 .eyebrow{font-family:Outfit,sans-serif;font-size:34px;letter-spacing:.24em;text-transform:uppercase;
-  color:rgba(243,240,234,.62);padding-bottom:20px;margin-bottom:26px;border-bottom:1px solid rgba(243,240,234,.24)}
+  color:rgba(243,240,234,.62);padding-bottom:20px;margin-bottom:26px;border-bottom:2px solid rgba(243,240,234,.30)}
 .tit{font-size:96px;font-weight:400;line-height:1.06;letter-spacing:-.004em;text-wrap:balance}
 .tit i{font-style:italic}
 .tit.sm{font-size:78px}
@@ -338,7 +338,11 @@ const suave = {
   display:flex;flex-direction:column;align-items:center}
 .tit{font-size:78px;font-weight:300;line-height:1.12;letter-spacing:-.012em;text-transform:lowercase;
   text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5);text-wrap:balance}
-.tit i{font-family:Cormorant,Georgia,serif;font-style:italic;font-weight:400;font-size:1.06em}
+/* 1.231em, no 1.06. Cormorant tiene el ojo mucho más chico que Outfit (.386
+   contra .475): a 1.06em la palabra en CURSIVA —que es EL ACENTO— se leía un
+   14% más chica que el texto que venía a acentuar. El factor iguala la altura
+   de la x, que es lo que el ojo compara, no el font-size. */
+.tit i{font-family:Cormorant,Georgia,serif;font-style:italic;font-weight:400;font-size:1.231em}
 .tit.sm{font-size:64px}
 .detalle{font-size:34px;font-weight:400;letter-spacing:.19em;line-height:1.75;text-transform:uppercase;
   color:rgba(255,255,255,.86);margin-top:30px;max-width:78%;text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
@@ -461,13 +465,13 @@ const panorama = {
   text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
 .lista{margin-top:40px;display:flex;flex-direction:column;gap:22px;width:100%}
 .li{font-family:Outfit,sans-serif;font-size:44px;line-height:1.34;padding-bottom:18px;
-  border-bottom:1px solid rgba(255,255,255,.3);
+  border-bottom:2px solid rgba(255,255,255,.30);
   text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
 .li:last-child{border-bottom:0}
 /* Filete de continuidad: una línea finísima que cruza el slide de lado a lado
    a la misma altura en todos. Al deslizar NO se corta — es la pista visual de
    que esto es una sola pieza y no cinco. */
-.hilo{position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(255,255,255,.16)}
+.hilo{position:absolute;left:0;right:0;top:50%;height:2px;background:rgba(255,255,255,.26)}
 .slide.con-texto .hilo{display:none}
 /* PIE CORRIDO — el detalle que separa un seamless de verdad de cinco slides
    pegados. La micro-tipografía NO se repite igual en cada slide: es una sola
@@ -561,7 +565,7 @@ const papel = {
 /* Filete finísimo sobre el borde del recuadro: separa la foto del papel sin
    dibujar un marco pesado. */
 .cerco{position:absolute;left:96px;top:188px;width:888px;height:590px;
-  border:1px solid rgba(23,21,15,.14);pointer-events:none}
+  border:1px solid rgba(23,21,15,.32);pointer-events:none}
 .cab{position:absolute;top:92px;left:96px;right:96px;display:flex;
   justify-content:flex-start;align-items:baseline}
 .cab .marca{font-size:44px;font-weight:500;letter-spacing:-.005em}
@@ -583,7 +587,7 @@ const papel = {
 .lista{position:absolute;left:150px;right:150px;bottom:266px;display:flex;
   flex-direction:column;gap:22px}
 .li{font-family:Outfit,sans-serif;font-size:42px;line-height:1.34;padding-bottom:18px;
-  border-bottom:1px solid rgba(23,21,15,.16)}
+  border-bottom:2px solid rgba(23,21,15,.30)}
 .li:last-child{border-bottom:0}
 /* La firma va abajo del todo, por encima de los ~160px que ocupa la interfaz
    de Instagram. El folio a la IZQUIERDA: arriba a la derecha vive su píldora
@@ -592,7 +596,7 @@ const papel = {
   justify-content:space-between;align-items:center;font-family:Outfit,sans-serif;
   font-size:26px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;
   color:rgba(23,21,15,.46)}
-.regla{position:absolute;left:96px;right:96px;bottom:232px;height:1px;background:rgba(23,21,15,.14)}
+.regla{position:absolute;left:96px;right:96px;bottom:232px;height:2px;background:rgba(23,21,15,.30)}
 `,
   html: (c) => {
     // El título se parte en dos voces: lo que va antes del primer salto lógico

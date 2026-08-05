@@ -13,12 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608041814';
-import { icon } from '../shell/icons.js?v=202608041814';
-import { T } from '../shell/i18n.js?v=202608041814';
-import * as store from '../shell/store.js?v=202608041814';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608041814';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608041814';
+import { el, clear, toast, api } from '../api.js?v=202608041900';
+import { icon } from '../shell/icons.js?v=202608041900';
+import { T } from '../shell/i18n.js?v=202608041900';
+import * as store from '../shell/store.js?v=202608041900';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608041900';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608041900';
 
 const W = 1080;
 const H = 1350;
@@ -242,9 +242,16 @@ function altoBloque({ kicker, cleanLen, items, plainBody, support }, sm, comp, e
     ? (esPortada ? (sm ? M.titCoverSm : M.titCover) : (sm ? M.titSm : M.tit))
     : (sm ? 82 : 99);
   const ancho = pano ? M.ancho : 872;
+  // ANCHO MEDIO DE CARÁCTER, medido de los .woff2 reales (no el 0.52 mágico que
+  // había): el titular de Editorial es Outfit 275 en MAYÚSCULAS, cuya constante
+  // es .597 — con 0.52 el código creía que cabían 34 caracteres donde caben 29
+  // y el bloque crecía por debajo del guardarraíl. Panorámica usa Cormorant en
+  // caja normal (.423) y su carril es más estrecho, así que ahí el error se
+  // multiplicaba.
+  const anchoChar = pano ? 0.423 : 0.597;
   let h = 0;
   if (kicker) h += (pano ? M.kicker : 36) * 1.2 + 26;
-  if (cleanLen) h += Math.ceil(cleanLen / Math.max(1, Math.floor(ancho / (fsT * 0.52)))) * fsT * 1.07 + 8;
+  if (cleanLen) h += Math.ceil(cleanLen / Math.max(1, Math.floor(ancho / (fsT * anchoChar)))) * fsT * 1.07 + 8;
   if (items && items.length) {
     const pad = comp ? 24 : 34, fsP = comp ? 36 : 39, gap = comp ? 26 : 44, mt = comp ? 44 : 64;
     h += mt + items.reduce((a, it, i) => {
@@ -435,9 +442,37 @@ async function designLayer(s, idx, total) {
   await new Promise((resolve, reject) => {
     img.onload = resolve;
     img.onerror = () => reject(new Error('design layer failed'));
-    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(sanearXML(svg));
   });
   return img;
+}
+
+// Un SVG como data-URI se parsea con XML ESTRICTO, y XML solo conoce cinco
+// entidades: &amp; &lt; &gt; &quot; &apos;. Cualquier otra con nombre —&nbsp;,
+// &iacute;, &ldquo;— hace fallar el parseo y el slide COMPLETO no se dibuja.
+// Hoy esc() protege el texto del cliente, pero basta con que alguien ate una
+// viuda con &nbsp; en una plantilla, o que la IA devuelva &mdash;, para tumbar
+// la vista previa entera con un "intenta de nuevo" que no explica nada.
+// Aquí se traducen a su forma numérica, que XML sí entiende.
+const ENTIDADES = {
+  nbsp: 160, iexcl: 161, laquo: 171, raquo: 187, deg: 176, middot: 183,
+  aacute: 225, eacute: 233, iacute: 237, oacute: 243, uacute: 250,
+  Aacute: 193, Eacute: 201, Iacute: 205, Oacute: 211, Uacute: 218,
+  ntilde: 241, Ntilde: 209, uuml: 252, Uuml: 220,
+  ldquo: 8220, rdquo: 8221, lsquo: 8216, rsquo: 8217,
+  mdash: 8212, ndash: 8211, hellip: 8230, bull: 8226,
+  eacutes: 233, times: 215, oline: 8254, prime: 8242,
+};
+function sanearXML(s) {
+  return String(s).replace(/&([a-zA-Z][a-zA-Z0-9]*);/g, (todo, nombre) => {
+    if (nombre === 'amp' || nombre === 'lt' || nombre === 'gt' || nombre === 'quot' || nombre === 'apos') return todo;
+    const cp = ENTIDADES[nombre];
+    if (cp) return `&#${cp};`;
+    // Desconocida: se neutraliza el & para que el SVG SIGA dibujándose. Perder
+    // un carácter raro es infinitamente mejor que perder el slide entero.
+    console.warn('[carrusel] entidad XML no soportada, se escapa:', todo);
+    return `&amp;${nombre};`;
+  });
 }
 
 // ── MURAL: la foto no se resuelve por slide, sino en un plano continuo ──────
