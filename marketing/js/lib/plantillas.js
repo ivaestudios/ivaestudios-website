@@ -556,10 +556,11 @@ const papel = {
   fuentes: ['Cormorant', 'Outfit'],
   acento: 'cursiva',
   fondo: '#F2EEE7',                                   // hueso cálido (lo pinta el canvas)
-  // El recuadro de la foto. Termina en y=706 y el bloque de texto (anclado
-  // abajo) arranca hacia y=744: ese colchón es a propósito — con 590px de alto
-  // el antetítulo acababa pegado al borde de la imagen, casi encima.
-  cajaFoto: { x: 96, y: 172, w: 888, h: 534 },
+  // El recuadro de la foto. Termina en y=652 y el bloque de texto (anclado
+  // abajo) arranca hacia y=727: ~75px de colchón, que al 36% del feed son 27px
+  // reales. Con 534 el aire bajaba a 12px reales y —ya con el cerco visible—
+  // el antetítulo se leía como una etiqueta pegada al marco de la foto.
+  cajaFoto: { x: 96, y: 172, w: 888, h: 480 },
   css: () => `${RESET}
 .slide{font-family:Cormorant,Georgia,serif;color:${PAPEL_TINTA}}
 /* Filete finísimo sobre el borde del recuadro: separa la foto del papel sin
