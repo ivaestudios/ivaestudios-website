@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060155';
-import { icon } from '../shell/icons.js?v=202608060155';
-import { T } from '../shell/i18n.js?v=202608060155';
-import * as store from '../shell/store.js?v=202608060155';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060155';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060155';
-import { slidesFromPost } from '../editor/slides.js?v=202608060155';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060155';
+import { el, clear, toast, api } from '../api.js?v=202608060158';
+import { icon } from '../shell/icons.js?v=202608060158';
+import { T } from '../shell/i18n.js?v=202608060158';
+import * as store from '../shell/store.js?v=202608060158';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060158';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060158';
+import { slidesFromPost } from '../editor/slides.js?v=202608060158';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060158';
 
 const W = 1080;
 const H = 1350;
@@ -36,6 +36,7 @@ let brandLabel = '';
 let brandForClient = null;
 let piezaId = '';           // pieza del calendario cargada (mkt_posts.id)
 let textosPieza = null;     // textos de la pieza esperando a que lleguen fotos
+let offPosts = null;        // desuscripción de posts:changed (selector de pieza)
 let handle = '';
 let ctaSupport = '';
 let fechaPublicacion = '';   // AAAA-MM-DD de la pieza (no la fecha de hoy)
@@ -75,6 +76,7 @@ export function resetGen() {
   brandLabel = ''; handle = ''; ctaSupport = ''; fechaPublicacion = '';
   brandForClient = null;
   piezaId = ''; textosPieza = null;
+  if (offPosts) { offPosts(); offPosts = null; }
   brief = ''; captionIA = ''; hashtagsIA = ''; descartes = []; pensando = false;
   // plantillaId NO se resetea: el diseño es una preferencia de quien trabaja,
   // no parte del carrusel que se acaba de cerrar.
@@ -1373,10 +1375,19 @@ export function renderGen(root, helpers) {
       sub ? el('span', { class: 'carg-paso__s', text: sub }) : null,
     ]),
   ]);
-  // Paso 1: la pieza del calendario — los textos entran solos.
+  // Paso 1: la pieza del calendario — los textos entran solos. Los posts
+  // cargan ASÍNCRONOS tras cambiar de cliente: si aún no están, la vista se
+  // re-pinta sola cuando lleguen (suscripción de una sola vez).
+  if (offPosts) { offPosts(); offPosts = null; }
   const piezasCarrusel = (store.getState().posts || [])
     .filter((p) => /carrusel/i.test(p.content_type || '') || /carrusel/i.test(p.title || ''))
     .sort((a, b) => String(a.publish_date || '').localeCompare(String(b.publish_date || '')));
+  if (!piezasCarrusel.length) {
+    offPosts = store.on('posts:changed', () => {
+      if (offPosts) { offPosts(); offPosts = null; }
+      if (hostEl) renderGen(hostEl, deps);
+    });
+  }
   const selPieza = el('select', {
     class: 'input carg-pieza__sel',
     onchange: (e) => {
