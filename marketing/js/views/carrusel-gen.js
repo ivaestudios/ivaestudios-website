@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060318';
-import { icon } from '../shell/icons.js?v=202608060318';
-import { T } from '../shell/i18n.js?v=202608060318';
-import * as store from '../shell/store.js?v=202608060318';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060318';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060318';
-import { slidesFromPost } from '../editor/slides.js?v=202608060318';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060318';
+import { el, clear, toast, api } from '../api.js?v=202608060321';
+import { icon } from '../shell/icons.js?v=202608060321';
+import { T } from '../shell/i18n.js?v=202608060321';
+import * as store from '../shell/store.js?v=202608060321';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060321';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060321';
+import { slidesFromPost } from '../editor/slides.js?v=202608060321';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060321';
 
 const W = 1080;
 const H = 1350;
@@ -188,11 +188,11 @@ const sinEmoji = (t) => String(t || '')
   .replace(/\s{2,}/g, ' ').trim();
 // Un teléfono pegado (529982039659) se agrupa como se rotula en México.
 const telBonito = (t) => String(t || '').replace(/\b(\d{2})?(\d{3})(\d{3})(\d{4})\b/g,
-  (m, cc, a, b, c) => [cc, a, b, c].filter(Boolean).join(' '));
+  (m, cc, a, b, c) => (cc ? '+' : '') + [cc, a, b, c].filter(Boolean).join(' '));
 // Ningún renglón termina en conector: el conector baja CON su palabra
 // (espacio duro   — el carácter, JAMÁS la entidad &nbsp; que mata el
 // XML). Y la última línea de una bajada nunca es huérfana de una palabra.
-const CONECTORES = new Set(['y', 'e', 'o', 'u', 'en', 'un', 'una', 'de', 'del', 'al', 'para', 'con', 'por', 'sin', 'a', 'que', 'la', 'el', 'lo', 'los', 'las', 'le', 'les', 'te', 'me', 'nos', 'tu', 'su', 'mi', 'se', 'no', 'ni', 'más', 'es', 'son', 'ya']);
+const CONECTORES = new Set(['y', 'e', 'o', 'u', 'en', 'un', 'una', 'de', 'del', 'al', 'para', 'con', 'por', 'sin', 'a', 'que', 'la', 'el', 'lo', 'los', 'las', 'le', 'les', 'te', 'me', 'nos', 'tu', 'su', 'mi', 'se', 'no', 'ni', 'más', 'es', 'son', 'ya', 'pero', 'aunque', 'cuando', 'como', 'donde', 'mientras', 'porque', 'si']);
 function pegarConectores(t, viuda) {
   const palabras = String(t || '').split(/\s+/).filter(Boolean);
   if (palabras.length < 2) return String(t || '');
