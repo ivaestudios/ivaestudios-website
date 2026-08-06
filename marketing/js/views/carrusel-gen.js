@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060158';
-import { icon } from '../shell/icons.js?v=202608060158';
-import { T } from '../shell/i18n.js?v=202608060158';
-import * as store from '../shell/store.js?v=202608060158';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060158';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060158';
-import { slidesFromPost } from '../editor/slides.js?v=202608060158';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060158';
+import { el, clear, toast, api } from '../api.js?v=202608060205';
+import { icon } from '../shell/icons.js?v=202608060205';
+import { T } from '../shell/i18n.js?v=202608060205';
+import * as store from '../shell/store.js?v=202608060205';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060205';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060205';
+import { slidesFromPost } from '../editor/slides.js?v=202608060205';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060205';
 
 const W = 1080;
 const H = 1350;
@@ -816,14 +816,40 @@ function partirTextoPieza(t) {
   return { title: t.slice(0, corte > 20 ? corte : 56).trim(), body: t.slice(corte > 20 ? corte : 56).trim().slice(0, 200) };
 }
 
-// Reparte M textos en N slides: hook → 1, CTA → N, intermedios en orden.
+// Reparte M textos en N slides: hook → 1, CTA → SIEMPRE el último, intermedios
+// en orden. Y la regla de Vianey: NINGÚN slide sin texto — si hay más fotos que
+// textos, se parte el texto más largo en dos por oración (lo que haría un
+// diseñador), las veces que haga falta.
 function repartirTextos(textos, n) {
-  const out = Array.from({ length: n }, () => null);
-  if (!textos.length || !n) return out;
-  out[0] = textos[0];
-  if (textos.length > 1) out[n - 1] = textos[textos.length - 1];
-  const medios = textos.slice(1, -1);
-  for (let i = 0; i < medios.length && i < n - 2; i++) out[i + 1] = medios[i];
+  if (!textos.length || !n) return Array.from({ length: n }, () => null);
+  const cta = textos.length > 1 ? textos[textos.length - 1] : null;
+  const cuerpo = textos.slice(0, cta ? -1 : undefined).map((t) => ({ ...t }));
+  let guardia = 12;
+  while (cuerpo.length + (cta ? 1 : 0) < n && guardia--) {
+    // El candidato a partirse: el cuerpo más largo (mínimo 70 chars).
+    let idx = -1; let max = 70;
+    cuerpo.forEach((t, i) => { const L = (t.body || '').length; if (L > max) { max = L; idx = i; } });
+    if (idx < 0) break;   // ya no hay nada partible: quedarán huecos y se avisa
+    const t = cuerpo[idx];
+    const m = t.body.match(/^(.{20,}?[.!?…])\s+([^]*)$/);
+    let a; let b;
+    if (m) { a = m[1]; b = m[2]; }
+    else {
+      const mitad = Math.floor(t.body.length / 2);
+      const sp = t.body.indexOf(' ', mitad);
+      if (sp < 0) break;
+      a = t.body.slice(0, sp); b = t.body.slice(sp + 1);
+    }
+    t.body = a.trim();
+    cuerpo.splice(idx + 1, 0, partirTextoPieza(b.trim()));
+  }
+  const out = [];
+  for (let i = 0; i < n - (cta ? 1 : 0); i++) out.push(cuerpo[i] || null);
+  if (cta) out.push(cta);
+  const huecos = out.filter((x) => !x).length;
+  if (huecos) {
+    toast(T(`${huecos} slide(s) quedaron sin texto: escribe algo o quita fotos.`, `${huecos} slide(s) without text.`), 'info');
+  }
   return out;
 }
 
