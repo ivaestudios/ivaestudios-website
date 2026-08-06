@@ -13,12 +13,13 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060100';
-import { icon } from '../shell/icons.js?v=202608060100';
-import { T } from '../shell/i18n.js?v=202608060100';
-import * as store from '../shell/store.js?v=202608060100';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060100';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060100';
+import { el, clear, toast, api } from '../api.js?v=202608060122';
+import { icon } from '../shell/icons.js?v=202608060122';
+import { T } from '../shell/i18n.js?v=202608060122';
+import * as store from '../shell/store.js?v=202608060122';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060122';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060122';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060122';
 
 const W = 1080;
 const H = 1350;
@@ -334,7 +335,16 @@ function slideHTML(s, idx, total) {
   // tocado el botón de altura (entonces manda él y el sistema se calla).
   const plan = s.plan || null;
   const pos = s.posManual || (plan && plan.pos) || s.pos || 'mid';
-  const topPct = pos === 'top' ? 19 : pos === 'bottom' ? 50 : 30;
+  // Posición FINA: el fotómetro evalúa 8 alturas y elige la mejor que no pise
+  // un rostro detectado. Con posición manual (o de la IA directora) se toma la
+  // mejor caja DE ESE balde que tampoco pise cara.
+  let topPct = pos === 'top' ? 19 : pos === 'bottom' ? 50 : 33;
+  if (s.posManual && plan && plan.opciones) {
+    const cand = plan.opciones.find((o) => o.pos === pos && !o.vetoCara) || plan.opciones.find((o) => o.pos === pos);
+    if (cand) topPct = cand.topPct;
+  } else if (plan && typeof plan.topPct === 'number') {
+    topPct = plan.topPct;
+  }
   const modo = (plan && plan.modo) || 'blanco';
   const veloA = plan ? plan.velo : 0.42;   // 0.42 era el valor FIJO de antes
   // El pie SIEMPRE cae dentro de la banda (ésta llega a bottom:0), y el
@@ -748,7 +758,7 @@ function analizarTodo() {
     const fuentes = plantillaPorId(plantillaId).id === 'panorama'
       ? trozosPanorama(slides.length)
       : slides.map((s) => s.bitmap);
-    const planes = analizarCarrusel(fuentes, { altosPct: altos, pxTitular });
+    const planes = analizarCarrusel(fuentes, { altosPct: altos, pxTitular, carasPorFoto: plantillaPorId(plantillaId).id === 'panorama' ? [] : slides.map((x) => x.caras || []) });
     slides.forEach((s, i) => {
       s.plan = planes[i] || null;
       if (!s.posManual && s.plan) s.pos = s.plan.pos;
@@ -799,7 +809,7 @@ async function dirigirConIA() {
     const fotos = await Promise.all(slides.map(async (s) => ({
       b64: s.bitmap ? await miniatura(s.bitmap) : null,
       mime: 'image/jpeg',
-      plan: s.plan ? { pos: s.plan.pos, modo: s.plan.modo, semaforo: s.plan.semaforo, aviso: s.plan.aviso } : null,
+      plan: s.plan ? { pos: s.plan.pos, modo: s.plan.modo, semaforo: s.plan.semaforo, aviso: [s.plan.aviso, resumenCaras(s.caras)].filter(Boolean).join(' ') || null } : null,
     })));
     const textos = slides.map((s) => ({ kicker: s.kicker || '', title: s.title || '', body: s.body || '' }));
     if (token !== iaToken) return;
@@ -1069,6 +1079,12 @@ export function renderGen(root, helpers) {
       e.target.value = '';
       analizarTodo();          // el fotómetro decide posición y tratamiento
       renderGen(hostEl, deps);
+      // ROSTROS REALES: el detector corre en segundo plano y al terminar se
+      // re-mide todo — el texto no puede pisar una cara detectada (regla dura).
+      const pendientes = slides.filter((x) => x.bitmap && !x.caras);
+      Promise.all(pendientes.map(async (x) => { x.caras = await detectarCaras(x.bitmap); }))
+        .then(() => { if (pendientes.length) { analizarTodo(); renderGen(hostEl, deps); } })
+        .catch(() => { /* sin detector: la heurística de piel sigue */ });
     },
   });
 
@@ -1117,6 +1133,7 @@ export function renderGen(root, helpers) {
           s.file = f;
           s.posManual = null;
           s.plan = null;
+          s.caras = await detectarCaras(bitmap).catch(() => []);
           analizarTodo();
           renderGen(hostEl, deps);
           toast(T(`Foto del slide ${i + 1} cambiada — el diseño se reacomodó para ella.`, `Slide ${i + 1} photo swapped.`), 'success');

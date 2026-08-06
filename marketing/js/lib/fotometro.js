@@ -212,9 +212,14 @@ function elegirTratamiento(lFondo, lPeorClaro, detalle, lPeorOscuro, objetivo) {
 // generador (top/mid/bottom). No se inventan posiciones nuevas — la identidad
 // visual que aprobó Vianey es invariante del sistema.
 const ALTURAS = [
+  { pos: 'top', topPct: 12 },
   { pos: 'top', topPct: 19 },
-  { pos: 'mid', topPct: 30 },
+  { pos: 'top', topPct: 26 },
+  { pos: 'mid', topPct: 33 },
+  { pos: 'mid', topPct: 40 },
   { pos: 'bottom', topPct: 46 },
+  { pos: 'bottom', topPct: 52 },
+  { pos: 'bottom', topPct: 57 },
 ];
 
 function evaluarCaja(m, topPct, altoPct, objetivo) {
@@ -361,26 +366,49 @@ function tratarFranja(m, desdePct, hastaPct) {
  *   opciones: object[]              // las 3 alturas evaluadas (para "otra opción")
  * }}
  */
-export function analizarFoto(bmp, { altoPct = 34, pxTitular = 104 } = {}) {
+export function analizarFoto(bmp, { altoPct = 34, pxTitular = 104, caras = [] } = {}) {
   // El bloque lo domina el titular: su tamaño fija el contraste a exigir.
   const objTitular = objetivoPara(pxTitular);
   const m = medirCeldas(bmp);
+  // Fracción de ROSTRO REAL que taparía la caja de texto (caras = rects del
+  // detector, en coords del lienzo; margen de 26px alrededor de cada cara).
+  const tapaCara = (topPct) => {
+    if (!caras.length) return 0;
+    const bx0 = 104, bx1 = 976;
+    const by0 = topPct * 13.5, by1 = by0 + altoPct * 13.5;
+    let peor = 0;
+    for (const c of caras) {
+      const fx0 = c.x - 26, fx1 = c.x + c.w + 26;
+      const fy0 = c.y - 26, fy1 = c.y + c.h + 26;
+      const ix = Math.max(0, Math.min(bx1, fx1) - Math.max(bx0, fx0));
+      const iy = Math.max(0, Math.min(by1, fy1) - Math.max(by0, fy0));
+      const frac = (ix * iy) / Math.max(1, (fx1 - fx0) * (fy1 - fy0));
+      if (frac > peor) peor = frac;
+    }
+    return peor;
+  };
   const cajas = ALTURAS
     .map((a) => {
       const r = evaluarCaja(m, a.topPct, altoPct, objTitular);
-      return r ? { pos: a.pos, ...r } : null;
+      if (!r) return null;
+      const cara = tapaCara(a.topPct);
+      // VETO: pisar más del 6% de un rostro detectado descalifica la caja.
+      return { pos: a.pos, topPct: a.topPct, caraTapada: Number(cara.toFixed(2)), vetoCara: cara > 0.06, ...r };
     })
     .filter(Boolean)
-    .sort((a, b) => b.score - a.score);
+    .sort((a, b) => (a.vetoCara === b.vetoCara ? b.score - a.score : (a.vetoCara ? 1 : -1)));
 
   if (!cajas.length) {
-    return { pos: 'mid', modo: 'blanco', velo: 0.42, contraste: 0, semaforo: 'ambar', aviso: 'No se pudo analizar la foto.', opciones: [] };
+    return { pos: 'mid', topPct: 33, modo: 'blanco', velo: 0.42, contraste: 0, semaforo: 'ambar', aviso: 'No se pudo analizar la foto.', opciones: [] };
   }
   const mejor = cajas[0];
-  const aviso = derivarAviso(mejor);
+  const aviso = mejor.vetoCara
+    ? 'La cara ocupa casi toda la foto: el texto va en la zona que menos la tapa — revísalo.'
+    : derivarAviso(mejor);
 
   return {
     pos: mejor.pos,
+    topPct: mejor.topPct,
     modo: mejor.modo,
     velo: mejor.velo,
     // Encabezado y pie se tratan APARTE: viven en otra parte de la foto.
@@ -422,11 +450,13 @@ export function analizarCarrusel(bitmaps, opts) {
   // generador con las métricas del diseño). Sin él se cae al 34% de siempre.
   const altos = (opts && opts.altosPct) || [];
   const pxT = (opts && opts.pxTitular) || [];
+  const carasPorFoto = (opts && opts.carasPorFoto) || [];
   const planes = bitmaps.map((b, i) => (b
     ? analizarFoto(b, {
         ...(opts || {}),
         altoPct: altos[i] || (opts && opts.altoPct) || 34,
         pxTitular: pxT[i] || (opts && opts.pxTitularDefault) || 104,
+        caras: carasPorFoto[i] || [],
       })
     : null));
   for (let i = 2; i < planes.length; i++) {
@@ -438,7 +468,7 @@ export function analizarCarrusel(bitmaps, opts) {
       // La alternativa tiene que ser legible Y no caer sobre una cara: antes
       // solo se miraba el contraste y podía mandar el texto sobre un rostro.
       const alt = (b.opciones || []).find((o) => o.pos !== b.pos
-        && o.contraste >= MINIMO && o.riesgoCara <= 0.12);
+        && o.contraste >= MINIMO && o.riesgoCara <= 0.12 && !o.vetoCara);
       if (alt) {
         const avisoAlt = derivarAviso(alt);
         planes[i - 1] = {
