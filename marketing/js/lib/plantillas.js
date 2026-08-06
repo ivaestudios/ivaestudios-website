@@ -250,7 +250,7 @@ const nota = {
 .lista{margin-top:38px;display:flex;flex-direction:column;gap:20px;width:100%}
 .li{font-family:Outfit,sans-serif;font-size:46px;font-weight:400;line-height:1.36;padding-bottom:18px;border-bottom:2px solid rgba(255,255,255,.28)}
 .li:last-child{border-bottom:0;padding-bottom:0}
-.rubrica{position:absolute;left:0;right:0;bottom:176px;text-align:center;font-family:Outfit,sans-serif;
+.rubrica{position:absolute;left:0;right:0;bottom:120px;text-align:center;font-family:Outfit,sans-serif;
   font-size:32px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.92);
   text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
 `,
@@ -393,6 +393,10 @@ const mural = {
   color:rgba(255,255,255,.82);margin-bottom:22px;text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
 .bajada{font-family:Outfit,sans-serif;font-size:46px;line-height:1.6;color:rgba(255,255,255,.86);
   margin-top:22px;max-width:74%;text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
+/* El cierre puede caer sobre su foto: cojín local con pluma ancha (forma 3
+   de la ley de la sombra) para que el CTA se lea sobre cualquier claro. */
+.portada--cierre{background:radial-gradient(ellipse 92% 120% at 50% 62%,rgba(12,12,15,.66),rgba(12,12,15,.42) 55%,rgba(12,12,15,0) 82%);
+  padding:64px 72px;left:24px;right:24px}
 /* Firma vertical en el canto: el detalle que delata el formato editorial. */
 .canto{position:absolute;right:34px;top:50%;transform:translateY(-50%) rotate(180deg);
   writing-mode:vertical-rl;font-family:Outfit,sans-serif;font-size:30px;letter-spacing:.34em;
@@ -417,7 +421,7 @@ const mural = {
       <div class="velo-arriba" style="--va-top:${c.veloMarcoTop}"></div>
       <div class="velo-abajo" style="--va-bot:${c.veloMarcoBot}"></div>
       <div class="marco arriba m-claro"><span>${esc(c.marca)}</span><span>${folio(c.idx, c.total)}</span></div>
-      ${inner ? `<div class="portada">${inner}</div>` : ''}
+      ${inner ? `<div class="portada${esCierre ? ' portada--cierre' : ''}">${inner}</div>` : ''}
       <div class="canto">${esc(c.handle)}</div>
       ${c.isLast ? `<div class="marco abajo m-claro"><span>${c.fecha}</span><span>${esc(c.support || '')}</span></div>` : ''}
     </div>`;

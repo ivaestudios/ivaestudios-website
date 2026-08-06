@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608061141';
-import { icon } from '../shell/icons.js?v=202608061141';
-import { T } from '../shell/i18n.js?v=202608061141';
-import * as store from '../shell/store.js?v=202608061141';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608061141';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608061141';
-import { slidesFromPost } from '../editor/slides.js?v=202608061141';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608061141';
+import { el, clear, toast, api } from '../api.js?v=202608061148';
+import { icon } from '../shell/icons.js?v=202608061148';
+import { T } from '../shell/i18n.js?v=202608061148';
+import * as store from '../shell/store.js?v=202608061148';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608061148';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608061148';
+import { slidesFromPost } from '../editor/slides.js?v=202608061148';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608061148';
 
 const W = 1080;
 const H = 1350;
@@ -115,6 +115,14 @@ const ESTILOS_MARCA = [
 /* SMILE NOW — Raleway light + bold; wordmark espaciado; acento serif cursiva */
 .slide{font-family:Raleway,sans-serif}
 .title,.tit{font-family:Raleway,sans-serif;font-weight:300;letter-spacing:.03em;text-transform:uppercase}
+/* La escala TAMBIÉN es de la marca: las plantillas serif traen titulares de
+   88-152px pensados para Cormorant caja normal — en Raleway CAPS esa medida
+   desborda el lienzo ("PERO NO QUIERES" medía 1362px en Revista). Se fija la
+   escala del estimador (99/82) para que la medida y el render coincidan. */
+.tit{font-size:99px !important;line-height:1.06}
+.tit.sm{font-size:82px !important}
+.slide.portada-1 .tit{font-size:112px !important;line-height:1.02}
+.slide.portada-1 .tit.sm{font-size:96px !important}
 .title b{font-weight:800}
 .tit i,.title i{font-family:Cormorant,Georgia,serif;font-style:italic;font-weight:700;text-transform:none;font-size:1.16em;letter-spacing:.01em}
 .fin{font-family:Raleway,sans-serif;font-weight:300;letter-spacing:.34em}
@@ -669,8 +677,10 @@ function slideHTML(s, idx, total) {
       // franja, no una constante (sobre un cielo claro el blanco se perdía).
       // Velo propio de cada franja del marco: es el texto más chico y cae
       // donde caiga. Un piso de .22 para que el marco siempre se asiente.
-      veloMarcoTop: Math.max(0.22, (plan && plan.header && plan.header.velo) || 0.34).toFixed(2),
-      veloMarcoBot: Math.max(0.22, (plan && plan.pie && plan.pie.velo) || 0.34).toFixed(2),
+      // Pisos con refuerzo (mismos del Ciclo 10): sobre azulejo/cielo claro el
+      // piso .22 dejaba el marco casi invisible al 36% (ficha s4, jueces).
+      veloMarcoTop: Math.min(0.55, Math.max((plan && plan.header && plan.header.refuerzo) ? 0.4 : 0.24, (plan && plan.header && plan.header.velo) || 0.34)).toFixed(2),
+      veloMarcoBot: Math.min(0.58, Math.max((plan && plan.pie && plan.pie.refuerzo) ? 0.44 : 0.26, (plan && plan.pie && plan.pie.velo) || 0.34)).toFixed(2),
       tinta: '#1D2A24',   // verde profundo de "Ficha"
     });
   }
