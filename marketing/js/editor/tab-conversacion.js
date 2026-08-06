@@ -13,9 +13,9 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, api, timeAgo, avatar } from '../api.js?v=202608052300';
-import { icon } from '../shell/icons.js?v=202608052300';
-import { T } from '../shell/i18n.js?v=202608052300';
+import { el, api, timeAgo, avatar } from '../api.js?v=202608052334';
+import { icon } from '../shell/icons.js?v=202608052334';
+import { T } from '../shell/i18n.js?v=202608052334';
 
 let tmpSeq = 0;
 

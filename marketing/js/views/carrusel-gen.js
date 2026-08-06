@@ -13,12 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608052300';
-import { icon } from '../shell/icons.js?v=202608052300';
-import { T } from '../shell/i18n.js?v=202608052300';
-import * as store from '../shell/store.js?v=202608052300';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608052300';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608052300';
+import { el, clear, toast, api } from '../api.js?v=202608052334';
+import { icon } from '../shell/icons.js?v=202608052334';
+import { T } from '../shell/i18n.js?v=202608052334';
+import * as store from '../shell/store.js?v=202608052334';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608052334';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608052334';
 
 const W = 1080;
 const H = 1350;
@@ -81,7 +81,40 @@ const ARCHIVOS_FUENTE = {
   'Pinyon Script': { file: 'pinyon-script.woff2',    css: (b) => `@font-face{font-family:'Pinyon Script';font-style:normal;font-weight:400;src:url(data:font/woff2;base64,${b}) format('woff2')}` },
   Cormorant:       { file: 'cormorant-roman.woff2',  css: (b) => `@font-face{font-family:Cormorant;font-style:normal;font-weight:300 700;src:url(data:font/woff2;base64,${b}) format('woff2')}` },
   CormorantIt:     { file: 'cormorant-italic.woff2', css: (b) => `@font-face{font-family:Cormorant;font-style:italic;font-weight:300 700;src:url(data:font/woff2;base64,${b}) format('woff2')}` },
+  Raleway:         { file: 'raleway-latin-var.woff2', css: (b) => `@font-face{font-family:Raleway;font-style:normal;font-weight:100 900;src:url(data:font/woff2;base64,${b}) format('woff2')}` },
 };
+
+// ── ESTILO POR MARCA ─────────────────────────────────────────────────────────
+// Cada marca tiene su propia tipografía, y ESA manda sobre la de la plantilla.
+// La regla nació del Canva real de SMILE NOW (2026-08): sus carruseles son
+// Raleway Light en mayúsculas con Bold en lo clave, y el nombre del tratamiento
+// en Cormorant Garamond cursiva — nada de la Outfit/Pinyon de IVAE. El estilo
+// se detecta por el campo "Marca" y se inyecta DESPUÉS del CSS de la plantilla,
+// así que gana por cascada sin tocar las 9 plantillas.
+const ESTILOS_MARCA = [
+  {
+    match: /smile/i,
+    fuentes: ['Raleway', 'Cormorant', 'CormorantIt'],
+    css: `
+/* SMILE NOW — Raleway light + bold; wordmark espaciado; acento serif cursiva */
+.slide{font-family:Raleway,sans-serif}
+.title,.tit{font-family:Raleway,sans-serif;font-weight:300;letter-spacing:.03em;text-transform:uppercase}
+.title b{font-weight:800}
+.tit i{font-family:Cormorant,Georgia,serif;font-style:italic;font-weight:700;text-transform:none;font-size:1.16em}
+.kicker,.support,.bajada,.pag,.li,.pill,.eyebrow,.cuerpo,.detalle{font-family:Raleway,sans-serif}
+/* El wordmark: S M I L E  N O W espaciado, no caligrafía */
+.hdr .b{font-family:Raleway,sans-serif;font-weight:300;font-size:38px;letter-spacing:.42em;text-transform:uppercase;transform:none}
+.hdr .h,.hdr .d{font-family:Raleway,sans-serif;font-weight:500;font-size:24px;letter-spacing:.24em;text-transform:uppercase}
+.marco{font-family:Raleway,sans-serif}
+`,
+  },
+];
+
+function estiloMarca() {
+  const n = String(brandLabel || '').trim();
+  if (!n) return null;
+  return ESTILOS_MARCA.find((e) => e.match.test(n)) || null;
+}
 const fontCache = new Map();   // familia → promesa del @font-face embebido
 
 function fuenteEmbebida(fam) {
@@ -429,8 +462,15 @@ async function designLayer(s, idx, total) {
   const P = plantillaPorId(plantillaId);
   // Cada plantilla trae SU hoja de estilos y SUS fuentes: no se embeben las
   // cuatro familias siempre (cada una pesa ~40 KB dentro del SVG).
-  const fonts = P.id === 'editorial' ? await designFonts() : await fuentesDe(P);
-  const hoja = P.id === 'editorial' ? DESIGN_CSS : P.css({ tinta: '#1D2A24' });
+  // El estilo de la MARCA se suma al de la plantilla: sus fuentes se embeben
+  // también, y su CSS va AL FINAL para ganar por cascada.
+  const marca = estiloMarca();
+  let fonts = P.id === 'editorial' ? await designFonts() : await fuentesDe(P);
+  if (marca) {
+    const extra = await Promise.all(marca.fuentes.map(fuenteEmbebida));
+    fonts += extra.join('');
+  }
+  const hoja = (P.id === 'editorial' ? DESIGN_CSS : P.css({ tinta: '#1D2A24' })) + (marca ? marca.css : '');
   const html = slideHTML(s, idx, total);
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W * 2}" height="${H * 2}" viewBox="0 0 ${W} ${H}">` +
     `<defs><filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.35 0.35 0.35 0 0"/></filter></defs>` +
