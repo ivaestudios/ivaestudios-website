@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060231';
-import { icon } from '../shell/icons.js?v=202608060231';
-import { T } from '../shell/i18n.js?v=202608060231';
-import * as store from '../shell/store.js?v=202608060231';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060231';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060231';
-import { slidesFromPost } from '../editor/slides.js?v=202608060231';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060231';
+import { el, clear, toast, api } from '../api.js?v=202608060251';
+import { icon } from '../shell/icons.js?v=202608060251';
+import { T } from '../shell/i18n.js?v=202608060251';
+import * as store from '../shell/store.js?v=202608060251';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060251';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060251';
+import { slidesFromPost } from '../editor/slides.js?v=202608060251';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060251';
 
 const W = 1080;
 const H = 1350;
@@ -411,14 +411,25 @@ function slideHTML(s, idx, total) {
     // en y≈1204; el texto va centrado/izquierda, así que el piso honesto del
     // bloque es y=1200 → reserva 150. Con 205 se compactaban slides que SÍ
     // cabían (calibrado con casos reales en la ronda 2).
-    const H = 1350, RESERVA = 140;   // piso del bloque y=1210; paginación y=1218
+    const H = 1350;
+    // Piso HONESTO por plantilla: Editorial = folio y≈1218 → 140. Panorámica:
+    // el pie corrido arranca en y≈1144 (bottom:170) → 220; y su portada además
+    // lleva la flecha circular (y1046-1120) → 310. Calibrado mirando la tira.
+    const RESERVA = esPano ? (isCover ? 310 : 220) : 140;
     const pz = { kicker, cleanLen: title ? cleanLen : 0, titulo: title, items, plainBody, support };
     const estima = (sm, comp) => altoBloque(pz, sm, comp, isCover);
     alto = estima(smTitle, compactas);
     const cabe = () => (H * topAjustado / 100) + alto * miniK <= H - RESERVA;
     if (!cabe() && !smTitle) { smTitle = true; alto = estima(smTitle, compactas); }
     if (!cabe() && items) { compactas = true; alto = estima(smTitle, compactas); }
-    if (!cabe()) topAjustado = Math.max(12, Math.floor((H - RESERVA - alto) / H * 100));
+    if (!cabe()) {
+      // Subir sí, pero JAMÁS por encima de la altura más alta que el fotómetro
+      // marcó libre de rostro: antes el empuje ciego podía plantar el bloque
+      // sobre la cara que el veto había esquivado. Si ni así cabe, se encoge.
+      const libres = plan && plan.opciones ? plan.opciones.filter((o) => !o.vetoCara).map((o) => o.topPct) : [];
+      const techo = libres.length ? Math.min(...libres) : 12;
+      topAjustado = Math.max(techo, Math.floor((H - RESERVA - alto) / H * 100));
+    }
     if (!cabe()) {
       // Aún no cabe (cierre con kicker+título+3 píldoras+apoyo, todo al tope):
       // se escala el bloque completo, compensando el ancho para conservar los
@@ -753,21 +764,50 @@ function recortePanorama(total) {
 // taparía la foto entera — la trampa que costó dos plantillas). Así que cuando
 // un diseño quiere fondo de color y la foto metida en un recuadro, lo declara
 // aquí: `fondo` lo pinta el canvas y `cajaFoto` dice dónde va la imagen.
-function fitCover(ctx, bmp) {
+function fitCover(ctx, bmp, caras) {
   const pl = plantillaPorId(plantillaId);
+  // Rótulo y familia sinFoto son PAPEL: pintarles la foto debajo dejaba tinta
+  // oscura sobre imagen ocupada — ilegible y fuera de la ley del velo.
+  if (pl.sinFoto) return;
+  // La cara más grande manda el recorte de los RECUADROS (Papel decapitaba al
+  // niño: recorte apaisado centrado ciego sobre foto vertical). Solo aplica a
+  // cajas — el cover a sangre sigue centrado porque el fotómetro y las coords
+  // de caras asumen ese encuadre.
+  const cara = (() => {
+    if (!caras || !caras.length) return null;
+    const e0 = Math.max(W / bmp.width, H / bmp.height);
+    const dx0 = (W - bmp.width * e0) / 2; const dy0 = (H - bmp.height * e0) / 2;
+    const c = caras.reduce((a, b) => (b.w * b.h > a.w * a.h ? b : a));
+    return { x: (c.x + c.w / 2 - dx0) / e0, y: (c.y + c.h / 2 - dy0) / e0 };
+  })();
+  const encaja = (boxW, boxH, focoY) => {
+    const e = Math.max(boxW / bmp.width, boxH / bmp.height);
+    let offX = (boxW - bmp.width * e) / 2;
+    let offY = (boxH - bmp.height * e) / 2;
+    if (cara) {
+      if (bmp.width * e > boxW + 1) offX = Math.min(0, Math.max(boxW - bmp.width * e, boxW * 0.5 - cara.x * e));
+      if (bmp.height * e > boxH + 1) offY = Math.min(0, Math.max(boxH - bmp.height * e, boxH * focoY - cara.y * e));
+    }
+    return { e, offX, offY };
+  };
   if (pl.cajaFoto) {
     const c = pl.cajaFoto;
     ctx.save();
     ctx.beginPath(); ctx.rect(c.x, c.y, c.w, c.h); ctx.clip();
-    const e = Math.max(c.w / bmp.width, c.h / bmp.height);
-    ctx.drawImage(bmp, c.x + (c.w - bmp.width * e) / 2, c.y + (c.h - bmp.height * e) / 2,
-      bmp.width * e, bmp.height * e);
+    // La cara al 40% del alto del recuadro: aire arriba, nunca guillotina.
+    const f = encaja(c.w, c.h, 0.40);
+    ctx.drawImage(bmp, c.x + f.offX, c.y + f.offY, bmp.width * f.e, bmp.height * f.e);
     ctx.restore();
     return;
   }
   // "Ficha" parte el lienzo: la foto ocupa el 56% de arriba y el panel sólido
   // el resto. Dibujar la foto a sangre completa la dejaría tapada a la mitad.
   const alto = pl.id === 'ficha' ? H * 0.56 : H;
+  if (pl.id === 'ficha') {
+    const f = encaja(W, alto, 0.44);
+    ctx.drawImage(bmp, f.offX, f.offY, bmp.width * f.e, bmp.height * f.e);
+    return;
+  }
   const s = Math.max(W / bmp.width, alto / bmp.height);
   ctx.drawImage(bmp, (W - bmp.width * s) / 2, (alto - bmp.height * s) / 2, bmp.width * s, bmp.height * s);
 }
@@ -871,28 +911,38 @@ function repartirTextos(textos, n) {
   const cuerpo = textos.slice(0, cta ? -1 : undefined).map((t) => ({ ...t }));
   let guardia = 12;
   while (cuerpo.length + (cta ? 1 : 0) < n && guardia--) {
-    // El candidato a partirse: el cuerpo más largo (mínimo 70 chars).
-    let idx = -1; let max = 70;
-    cuerpo.forEach((t, i) => { const L = (t.body || '').length; if (L > max) { max = L; idx = i; } });
+    // El candidato a partirse: el cuerpo más largo que tenga DOS mitades
+    // dignas (≥12 chars cada una) — con frontera de oración aunque el total
+    // sea corto, o por la mitad si es un parrafón sin puntuar (≥70).
+    let idx = -1; let max = 0; let corte = null;
+    cuerpo.forEach((t, i) => {
+      const b0 = t.body || '';
+      if (b0.length <= max) return;
+      const m = b0.match(/^(.{12,}?[.!?…])\s+(.{12,})$/) || b0.match(/^(.{12,}?),\s+(.{12,})$/);
+      if (m) { max = b0.length; idx = i; corte = [m[1], m[2]]; return; }
+      if (b0.length > 70) {
+        const sp = b0.indexOf(' ', Math.floor(b0.length / 2));
+        if (sp > 0) { max = b0.length; idx = i; corte = [b0.slice(0, sp), b0.slice(sp + 1)]; }
+      }
+    });
     if (idx < 0) break;   // ya no hay nada partible: quedarán huecos y se avisa
-    const t = cuerpo[idx];
-    const m = t.body.match(/^(.{20,}?[.!?…])\s+([^]*)$/);
-    let a; let b;
-    if (m) { a = m[1]; b = m[2]; }
-    else {
-      const mitad = Math.floor(t.body.length / 2);
-      const sp = t.body.indexOf(' ', mitad);
-      if (sp < 0) break;
-      a = t.body.slice(0, sp); b = t.body.slice(sp + 1);
-    }
-    t.body = a.trim();
+    cuerpo[idx].body = corte[0].trim();
     // El fragmento abre un slide nuevo: arranca con mayúscula.
-    b = b.trim(); b = b.charAt(0).toUpperCase() + b.slice(1);
+    let b = corte[1].trim(); b = b.charAt(0).toUpperCase() + b.slice(1);
     cuerpo.splice(idx + 1, 0, partirTextoPieza(b));
   }
   const out = [];
   for (let i = 0; i < n - (cta ? 1 : 0); i++) out.push(cuerpo[i] || null);
   if (cta) out.push(cta);
+  // Sus textos del calendario JAMÁS se pierden en silencio: con más textos que
+  // fotos, los que no caben se anexan al cuerpo del último slide que sí entró.
+  const sobran = cuerpo.length - (n - (cta ? 1 : 0));
+  if (sobran > 0) {
+    const resto = cuerpo.slice(n - (cta ? 1 : 0)).map((t) => [t.title, t.body].filter(Boolean).join(' ')).join(' ');
+    const ultimo = out[n - (cta ? 2 : 1)] || out[n - 1];
+    if (ultimo) ultimo.body = [(ultimo.body || ''), resto].filter(Boolean).join(' ').slice(0, 200);
+    toast(T(`${sobran} texto(s) no caben en ${n} fotos: se sumaron al último slide. Sube más fotos para darles su propio slide.`, `${sobran} text(s) merged into the last slide — add photos to give them their own slide.`), 'info');
+  }
   const huecos = out.filter((x) => !x).length;
   if (huecos) {
     toast(T(`${huecos} slide(s) quedaron sin texto: escribe algo o quita fotos.`, `${huecos} slide(s) without text.`), 'info');
@@ -1099,7 +1149,7 @@ async function regenerate(previewHost) {
       const pid = plantillaPorId(plantillaId).id;
       if (pid === 'mural') pintarMural(c2, i, slides.length);
       else if (pid === 'panorama') pintarPanorama(c2, i, slides.length);
-      else if (s.bitmap) fitCover(c2, s.bitmap);
+      else if (s.bitmap) fitCover(c2, s.bitmap, s.caras);
       c2.drawImage(layers[i], 0, 0, W, H);
       previews.push({ canvas });
       const cell = el('div', { class: 'carg-cell' }, [el('div', { class: 'carg-cell__num', text: String(i + 1) })]);
