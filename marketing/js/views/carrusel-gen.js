@@ -13,12 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608052334';
-import { icon } from '../shell/icons.js?v=202608052334';
-import { T } from '../shell/i18n.js?v=202608052334';
-import * as store from '../shell/store.js?v=202608052334';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608052334';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608052334';
+import { el, clear, toast, api } from '../api.js?v=202608052339';
+import { icon } from '../shell/icons.js?v=202608052339';
+import { T } from '../shell/i18n.js?v=202608052339';
+import * as store from '../shell/store.js?v=202608052339';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608052339';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608052339';
 
 const W = 1080;
 const H = 1350;
@@ -103,7 +103,7 @@ const ESTILOS_MARCA = [
 .tit i{font-family:Cormorant,Georgia,serif;font-style:italic;font-weight:700;text-transform:none;font-size:1.16em}
 .kicker,.support,.bajada,.pag,.li,.pill,.eyebrow,.cuerpo,.detalle{font-family:Raleway,sans-serif}
 /* El wordmark: S M I L E  N O W espaciado, no caligrafía */
-.hdr .b{font-family:Raleway,sans-serif;font-weight:300;font-size:38px;letter-spacing:.42em;text-transform:uppercase;transform:none}
+.hdr .b{font-family:Raleway,sans-serif;font-weight:300;font-size:34px;letter-spacing:.42em;text-transform:uppercase;transform:none;white-space:nowrap}
 .hdr .h,.hdr .d{font-family:Raleway,sans-serif;font-weight:500;font-size:24px;letter-spacing:.24em;text-transform:uppercase}
 .marco{font-family:Raleway,sans-serif}
 `,
