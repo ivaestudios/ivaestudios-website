@@ -13,12 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060030';
-import { icon } from '../shell/icons.js?v=202608060030';
-import { T } from '../shell/i18n.js?v=202608060030';
-import * as store from '../shell/store.js?v=202608060030';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060030';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060030';
+import { el, clear, toast, api } from '../api.js?v=202608060042';
+import { icon } from '../shell/icons.js?v=202608060042';
+import { T } from '../shell/i18n.js?v=202608060042';
+import * as store from '../shell/store.js?v=202608060042';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060042';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060042';
 
 const W = 1080;
 const H = 1350;
@@ -179,7 +179,7 @@ const DESIGN_CSS = `
 .scrim-top{position:absolute;top:0;left:0;right:0;height:300px;background:linear-gradient(rgba(12,12,16,.30),rgba(12,12,16,.17) 42%,rgba(12,12,16,.06) 74%,rgba(12,12,16,0))}
 .scrim-block{position:absolute;left:0;right:0;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,.42) 90px,rgba(12,12,16,.42))}
 .scrim-bottom{position:absolute;left:0;right:0;bottom:0;height:320px;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,.08) 30%,rgba(12,12,16,.2) 62%,rgba(12,12,16,.34))}
-.hdr{position:absolute;top:88px;left:104px;right:104px;display:flex;justify-content:space-between;align-items:baseline;text-shadow:0 1px 14px rgba(0,0,0,.45)}
+.hdr{position:absolute;top:88px;left:104px;right:104px;display:grid;grid-template-columns:1fr auto 1fr;gap:56px;align-items:baseline;text-shadow:0 1px 14px rgba(0,0,0,.45)}.hdr .h{justify-self:start;text-wrap:balance}.hdr .d{justify-self:end;white-space:nowrap}
 .hdr .h,.hdr .d{font-size:28px;font-weight:400;letter-spacing:.02em;color:rgba(255,255,255,.96)}
 .hdr .b{font-family:'Pinyon Script',cursive;font-size:54px;line-height:1;transform:translateY(6px);color:#fff}
 .pag{position:absolute;left:104px;bottom:96px;font-size:30px;font-weight:400;letter-spacing:.08em;color:rgba(255,255,255,.95);text-shadow:0 1px 12px rgba(0,0,0,.5)}
@@ -334,7 +334,7 @@ function slideHTML(s, idx, total) {
   // tocado el botón de altura (entonces manda él y el sistema se calla).
   const plan = s.plan || null;
   const pos = s.posManual || (plan && plan.pos) || s.pos || 'mid';
-  const topPct = pos === 'top' ? 19 : pos === 'bottom' ? 46 : 30;
+  const topPct = pos === 'top' ? 19 : pos === 'bottom' ? 50 : 30;
   const modo = (plan && plan.modo) || 'blanco';
   const veloA = plan ? plan.velo : 0.42;   // 0.42 era el valor FIJO de antes
   // El pie SIEMPRE cae dentro de la banda (ésta llega a bottom:0), y el
@@ -402,7 +402,7 @@ function slideHTML(s, idx, total) {
   if (title) inner += `<div class="title${smTitle ? ' sm' : ''}">${rich(title)}</div>`;
   if (items) inner += `<div class="pills${compactas ? ' compactas' : ''}">${items.map((it) => `<div class="pill">${esc(it)}</div>`).join('')}</div>`;
   if (plainBody) inner += `<div class="support">${rich(plainBody)}</div>`;
-  if (support) inner += `<div class="support">${rich(support)}</div>`;
+  if (support) inner += `<div class="support">${isLast ? rich(support).replace(/ · /g, '<br>') : rich(support)}</div>`;
 
   const blockTop = `${topAjustado}%`;
   const miniCSS = miniK < 1
@@ -489,7 +489,7 @@ function slideHTML(s, idx, total) {
       <span class="d">${now.getDate()} ${MES} ${now.getFullYear()}</span>
     </div>
     ${hasText ? `<div class="block" style="top:${blockTop}${miniCSS}">${inner}</div>` : ''}
-    <div class="pag">${String(idx + 1).padStart(2, '0')}\\${String(total).padStart(2, '0')}</div>
+    <div class="pag">${String(idx + 1).padStart(2, '0')}/${String(total).padStart(2, '0')}</div>
     <div class="chev${isLast ? ' down' : ''}"><i></i></div>
   </div>`;
 }
