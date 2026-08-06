@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060321';
-import { icon } from '../shell/icons.js?v=202608060321';
-import { T } from '../shell/i18n.js?v=202608060321';
-import * as store from '../shell/store.js?v=202608060321';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060321';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060321';
-import { slidesFromPost } from '../editor/slides.js?v=202608060321';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060321';
+import { el, clear, toast, api } from '../api.js?v=202608060332';
+import { icon } from '../shell/icons.js?v=202608060332';
+import { T } from '../shell/i18n.js?v=202608060332';
+import * as store from '../shell/store.js?v=202608060332';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060332';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060332';
+import { slidesFromPost } from '../editor/slides.js?v=202608060332';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060332';
 
 const W = 1080;
 const H = 1350;
@@ -41,6 +41,7 @@ let handle = '';
 let ctaSupport = '';
 let fechaPublicacion = '';   // AAAA-MM-DD de la pieza (no la fecha de hoy)
 let plantillaId = PLANTILLA_POR_DEFECTO;   // qué diseño se está usando
+let cedulaMarca = '';   // cédula profesional de la marca activa (legal salud MX)
 // Cómo se mira la vista previa: 'trabajo' (grande, para editar), 'feed' (390px,
 // el tamaño REAL en el teléfono) o 'perfil' (130px, la cuadrícula del perfil,
 // que es donde el cliente decide si entra). Ver a tamaño real es la única
@@ -545,7 +546,12 @@ function slideHTML(s, idx, total) {
   const textoY = Math.round(topAjustado * 13.5);            // % → px sobre 1350
   const finBloque = Math.min(1350, textoY + alto + 60);
   let veloForma = '';
-  if (veloA >= 0.52) {
+  // Ajuste de jueces (R2): la manta COMPLETA ahogaba fotos de mediodía cuando
+  // el texto vivía en un borde. Con texto arriba/abajo la DIFUMINADA llega con
+  // fuerza completa al texto y deja respirar la otra mitad de la foto; la
+  // manta queda SOLO para texto en medio con velo brutal (ahí el degradado a
+  // media foto se vería a medio hacer, que es lo que la ley prohíbe).
+  if (veloA >= 0.52 && pos === 'mid' && textoY <= 620) {
     // COMPLETA (uniforme; se rebaja porque cubre todo y suma en cada píxel)
     veloForma = `<div style="position:absolute;inset:0;background:rgba(12,12,16,${Math.min(0.58, veloA * 0.82).toFixed(3)})"></div>`;
   } else if (pos === 'bottom' || pos === 'mid' && textoY > 620) {
@@ -558,6 +564,9 @@ function slideHTML(s, idx, total) {
     // DIFUMINADA desde ARRIBA (espejo)
     const rampa = Math.max(180, Math.min(520, 1350 - finBloque));
     veloForma = `<div style="position:absolute;left:0;right:0;top:0;height:${finBloque + rampa}px;background:linear-gradient(rgba(12,12,16,${veloA}),rgba(12,12,16,${veloA}) ${finBloque}px,rgba(12,12,16,${(veloA * 0.55).toFixed(3)}) ${finBloque + Math.round(rampa * 0.3)}px,rgba(12,12,16,${(veloA * 0.18).toFixed(3)}) ${finBloque + Math.round(rampa * 0.62)}px,rgba(12,12,16,0))"></div>`;
+  } else if (veloA >= 0.52) {
+    // Texto en medio y velo brutal sin caber en la difuminada: manta honesta.
+    veloForma = `<div style="position:absolute;inset:0;background:rgba(12,12,16,${Math.min(0.58, veloA * 0.82).toFixed(3)})"></div>`;
   } else {
     // LOCAL: cojín elíptico bajo la letra, pluma ancha, sin bordes.
     const cy = textoY + alto / 2;
@@ -614,7 +623,7 @@ function slideHTML(s, idx, total) {
     ${hasText ? `<div class="block" style="top:${blockTop}${miniCSS}">${inner}</div>` : ''}
     <div class="pag">${String(idx + 1).padStart(2, '0')}/${String(total).padStart(2, '0')}</div>
     ${isLast
-    ? `<div class="fin">${esc(brandLabel.trim())}${handle.trim() ? ` <span class="sep">·</span> ${esc(handle.trim())}` : ''}</div>`
+    ? `<div class="fin">${esc(brandLabel.trim())}${handle.trim() ? ` <span class="sep">·</span> ${esc(handle.trim())}` : ''}${cedulaMarca ? ` <span class="sep">·</span> Céd. Prof. ${esc(cedulaMarca)}` : ''}</div>`
     : '<div class="chev"><i></i></div>'}
   </div>`;
 }
@@ -1285,11 +1294,16 @@ export function renderGen(root, helpers) {
     brandLabel = brand.name || '';
     // Preset por marca: la firma del masthead no se vuelve a teclear jamás.
     const CONFIG_MARCA = [
-      { match: /smile/i, marca: 'Smile Now', handle: 'DENTAL & FACIAL CARE', plantilla: 'editorial' },
+      // `cedula`: requisito legal MX para publicidad de salud (cédula
+      // profesional visible en el anuncio). Se rellena cuando Vianey pase el
+      // número de cada marca — mientras esté vacía, la firma no la pinta.
+      { match: /smile/i, marca: 'Smile Now', handle: 'DENTAL & FACIAL CARE', plantilla: 'editorial', cedula: '' },
     ];
     const cfg = CONFIG_MARCA.find((c) => c.match.test(brandLabel));
+    cedulaMarca = '';
     if (cfg) {
       brandLabel = cfg.marca; handle = cfg.handle;
+      cedulaMarca = cfg.cedula || '';
       if (cfg.plantilla) plantillaId = cfg.plantilla;
     }
     brandForClient = activeClientId;
