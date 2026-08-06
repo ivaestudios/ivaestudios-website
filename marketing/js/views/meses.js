@@ -28,22 +28,22 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202608061612';
-import { icon } from '../shell/icons.js?v=202608061612';
-import { T } from '../shell/i18n.js?v=202608061612';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202608061612';
+} from '../api.js?v=202608061625';
+import { icon } from '../shell/icons.js?v=202608061625';
+import { T } from '../shell/i18n.js?v=202608061625';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202608061625';
 // Capas de history del shell: el boton atras del telefono cierra la capa de
 // arriba (panel de guion) en vez de salir de la app.
-import { pushLayer } from '../shell/router.js?v=202608061612';
-import { confirmar } from '../shell/sheet.js?v=202608061612';
+import { pushLayer } from '../shell/router.js?v=202608061625';
+import { confirmar } from '../shell/sheet.js?v=202608061625';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608061612';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608061612';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608061612';
+import { errorCard } from '../ui/states.js?v=202608061625';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608061625';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608061625';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608061612';
+} from '../lib/video-upload.js?v=202608061625';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -2307,7 +2307,6 @@ function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTod
     if (progress) bodyKids.push(progress);
     // HISTORIAL DE CAMBIOS del mes en pantalla: detallado (quién, qué cambió,
     // en qué pieza) y cada fila redirige AL LUGAR (la pieza, tab Actividad).
-    asegurarHistorial(clientKey());
     const hist = buildHistorialMes(rows);
     if (hist) bodyKids.push(hist);
   } else if (isClientRole() && !(allPostsForFilters || []).length) {
@@ -2703,6 +2702,10 @@ function buildSideNav(ordered, byMonth, sinMes, isTodos) {
 // ── Render principal ─────────────────────────────────────────────────────────
 
 function render() {
+  // El historial se pide en cada render (cache 60s): en frío, el primer
+  // armado corría antes de que el store hidratara el cliente y el feed
+  // quedaba vacío hasta cambiar de mes (cazado con Vianey en vivo).
+  asegurarHistorial(clientKey());
   if (!rootEl || !ctx) return;
   const st = ctx.store.getState();
   const { posts, loading, activeClientId, clients, postsError } = st;
