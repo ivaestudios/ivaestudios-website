@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060251';
-import { icon } from '../shell/icons.js?v=202608060251';
-import { T } from '../shell/i18n.js?v=202608060251';
-import * as store from '../shell/store.js?v=202608060251';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060251';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060251';
-import { slidesFromPost } from '../editor/slides.js?v=202608060251';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060251';
+import { el, clear, toast, api } from '../api.js?v=202608060256';
+import { icon } from '../shell/icons.js?v=202608060256';
+import { T } from '../shell/i18n.js?v=202608060256';
+import * as store from '../shell/store.js?v=202608060256';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060256';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060256';
+import { slidesFromPost } from '../editor/slides.js?v=202608060256';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060256';
 
 const W = 1080;
 const H = 1350;
@@ -107,7 +107,8 @@ const ESTILOS_MARCA = [
 .slide{font-family:Raleway,sans-serif}
 .title,.tit{font-family:Raleway,sans-serif;font-weight:300;letter-spacing:.03em;text-transform:uppercase}
 .title b{font-weight:800}
-.tit i{font-family:Cormorant,Georgia,serif;font-style:italic;font-weight:700;text-transform:none;font-size:1.16em}
+.tit i,.title i{font-family:Cormorant,Georgia,serif;font-style:italic;font-weight:700;text-transform:none;font-size:1.16em;letter-spacing:.01em}
+.fin{font-family:Raleway,sans-serif;font-weight:300;letter-spacing:.34em}
 .kicker,.support,.bajada,.pag,.li,.pill,.eyebrow,.cuerpo,.detalle{font-family:Raleway,sans-serif}
 /* El wordmark: S M I L E  N O W espaciado, no caligrafía */
 .hdr .b{font-family:Raleway,sans-serif;font-weight:300;font-size:34px;letter-spacing:.42em;text-transform:uppercase;transform:none;white-space:nowrap}
@@ -178,6 +179,58 @@ function designFonts() {
 const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const rich = (s) => esc(s).split('**').map((part, i) => (i % 2 ? `<b>${part}</b>` : part)).join('');
 
+// ── Oficio tipográfico (jueces 2026-08-06) ──────────────────────────────────
+// Todo esto es TRATAMIENTO de pantalla: los textos guardados no se tocan.
+// Los emojis pertenecen al caption, no al arte: horneados en el JPG no se
+// pueden quitar y ningún carrusel de agencia los lleva en el titular.
+const sinEmoji = (t) => String(t || '')
+  .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu, ' ')
+  .replace(/\s{2,}/g, ' ').trim();
+// Un teléfono pegado (529982039659) se agrupa como se rotula en México.
+const telBonito = (t) => String(t || '').replace(/\b(\d{2})?(\d{3})(\d{3})(\d{4})\b/g,
+  (m, cc, a, b, c) => [cc, a, b, c].filter(Boolean).join(' '));
+// Ningún renglón termina en conector: el conector baja CON su palabra
+// (espacio duro   — el carácter, JAMÁS la entidad &nbsp; que mata el
+// XML). Y la última línea de una bajada nunca es huérfana de una palabra.
+const CONECTORES = new Set(['y', 'e', 'o', 'u', 'en', 'un', 'una', 'de', 'del', 'al', 'para', 'con', 'por', 'sin', 'a', 'que', 'la', 'el', 'los', 'las', 'tu', 'su', 'mi', 'se', 'no', 'ni', 'más']);
+function pegarConectores(t, viuda) {
+  const palabras = String(t || '').split(/\s+/).filter(Boolean);
+  if (palabras.length < 2) return String(t || '');
+  let out = '';
+  for (let i = 0; i < palabras.length; i++) {
+    out += palabras[i];
+    if (i === palabras.length - 1) break;
+    const esCon = CONECTORES.has(palabras[i].toLowerCase().replace(/[¿¡]/g, ''));
+    const esViuda = viuda && i === palabras.length - 2;
+    out += (esCon || esViuda) ? '\u00A0' : ' ';
+  }
+  return out;
+}
+// Titular display: sin punto final (se conservan ? ! …), conectores pegados.
+const pulirTitulo = (t) => pegarConectores(sinEmoji(t).replace(/(?<![.!?…])\.\s*$/, ''), false);
+const pulirBajada = (t) => pegarConectores(telBonito(sinEmoji(t)), true);
+
+// El acento de la casa: la última palabra con peso del titular va en serif
+// cursiva (Cormorant) — la firma que separa una pieza de agencia de una
+// plantilla genérica. Solo si el texto no trae ya sus **negritas**.
+function tituloHTML(t) {
+  if (!t || t.includes('**')) return rich(t);
+  const palabras = t.split(/[\s\u00A0]+/).filter(Boolean);
+  if (palabras.length < 3) return rich(t);
+  for (let i = palabras.length - 1; i >= 0; i--) {
+    const cruda = palabras[i];
+    const limpia = cruda.replace(/[^\p{L}]/gu, '');
+    if (limpia.length >= 5 && !CONECTORES.has(limpia.toLowerCase()) && !/\d/.test(cruda)) {
+      const idx = t.lastIndexOf(cruda);
+      if (idx < 0) break;
+      const m = cruda.match(/^([\p{L}\p{M}]+)([^]*)$/u);
+      const nucleo = m ? m[1] : cruda; const cola = m ? m[2] : '';
+      return esc(t.slice(0, idx)) + `<i>${esc(nucleo)}</i>` + esc(cola + t.slice(idx + cruda.length));
+    }
+  }
+  return rich(t);
+}
+
 const DESIGN_CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
 .slide{position:relative;width:1080px;height:1350px;font-family:Outfit,sans-serif;color:#fff;overflow:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
@@ -193,6 +246,15 @@ const DESIGN_CSS = `
 .chev{position:absolute;right:100px;bottom:84px;width:62px;height:62px;border:2.5px solid rgba(255,255,255,.92);border-radius:50%}
 .chev i{position:absolute;top:50%;left:50%;width:16px;height:16px;border-top:2.5px solid rgba(255,255,255,.92);border-right:2.5px solid rgba(255,255,255,.92);transform:translate(-62%,-50%) rotate(45deg)}
 .chev.down i{transform:translate(-50%,-64%) rotate(135deg)}
+/* El acento de la casa: serif cursiva dentro del titular en caps. */
+.title i{font-family:Cormorant,Georgia,serif;font-style:italic;font-weight:600;
+  text-transform:none;letter-spacing:.01em;font-size:1.12em}
+/* La firma del cierre: sustituye al chevron-siguiente (era una flecha a la
+   nada). Vive sobre la línea del folio para no pisarlo. */
+.fin{position:absolute;left:104px;right:104px;bottom:168px;text-align:center;
+  font-size:27px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.9);
+  text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
+.fin .sep{opacity:.55}
 .block{position:absolute;left:104px;right:104px;display:flex;flex-direction:column}
 .kicker{font-size:36px;font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.96);margin-bottom:26px;text-shadow:0 1px 12px rgba(0,0,0,.5)}
 .title{font-size:99px;font-weight:275;line-height:1.07;text-transform:uppercase;letter-spacing:.004em;text-shadow:0 2px 20px rgba(0,0,0,.4);text-wrap:balance}
@@ -282,7 +344,9 @@ const MEDIDAS_PANO = { ancho: 744, tit: 92, titSm: 76, titCover: 134, titCoverSm
 // eran 2 renglones cuando el word-wrap real da 3 — y ese renglón fantasma
 // era exactamente lo que la bajada le pisaba al folio.
 function lineasQueOcupa(texto, porLinea) {
-  const palabras = String(texto || '').trim().split(/\s+/).filter(Boolean);
+  // [^\S\u00A0] = espacio en blanco EXCEPTO el duro: las palabras pegadas con
+  // \u00A0 (conectores, viudas) envuelven juntas también en la estimación.
+  const palabras = String(texto || '').trim().split(/[^\S\u00A0]+/).filter(Boolean);
   if (!palabras.length) return 0;
   let lineas = 1; let linea = '';
   for (const w of palabras) {
@@ -351,11 +415,12 @@ function piezasDe(s, idx, total) {
 function slideHTML(s, idx, total) {
   const isCover = idx === 0;
   const isLast = idx === total - 1;
-  const kicker = (s.kicker || '').trim();
-  const title = (s.title || '').trim();
-  const body = (s.body || '').trim();
-  const support = isLast ? ctaSupport.trim() : (isCover ? body : '');
-  const items = !isCover && body.includes('/') ? body.split('/').map((x) => x.trim()).filter(Boolean).slice(0, 3) : null;
+  const kicker = sinEmoji((s.kicker || '').trim());
+  const title = pulirTitulo((s.title || '').trim());
+  const bodyCrudo = (s.body || '').trim();
+  const items = !isCover && bodyCrudo.includes('/') ? bodyCrudo.split('/').map((x) => sinEmoji(x.trim())).filter(Boolean).slice(0, 3) : null;
+  const body = pulirBajada(bodyCrudo);
+  const support = isLast ? pulirBajada(ctaSupport.trim()) : (isCover ? body : '');
   const plainBody = !isCover && !items ? body : '';
 
   // Posición y tratamiento: los decide el FOTÓMETRO salvo que el usuario haya
@@ -415,7 +480,7 @@ function slideHTML(s, idx, total) {
     // Piso HONESTO por plantilla: Editorial = folio y≈1218 → 140. Panorámica:
     // el pie corrido arranca en y≈1144 (bottom:170) → 220; y su portada además
     // lleva la flecha circular (y1046-1120) → 310. Calibrado mirando la tira.
-    const RESERVA = esPano ? (isCover ? 310 : 220) : 140;
+    const RESERVA = esPano ? (isCover ? 310 : 220) : (isLast ? 250 : 140);
     const pz = { kicker, cleanLen: title ? cleanLen : 0, titulo: title, items, plainBody, support };
     const estima = (sm, comp) => altoBloque(pz, sm, comp, isCover);
     alto = estima(smTitle, compactas);
@@ -440,7 +505,7 @@ function slideHTML(s, idx, total) {
   // reconstruir el título/píldoras con las clases finales
   inner = '';
   if (kicker) inner += `<div class="kicker">${esc(kicker)}</div>`;
-  if (title) inner += `<div class="title${smTitle ? ' sm' : ''}">${rich(title)}</div>`;
+  if (title) inner += `<div class="title${smTitle ? ' sm' : ''}">${tituloHTML(title)}</div>`;
   if (items) inner += `<div class="pills${compactas ? ' compactas' : ''}">${items.map((it) => `<div class="pill">${esc(it)}</div>`).join('')}</div>`;
   if (plainBody) inner += `<div class="support">${rich(plainBody)}</div>`;
   if (support) inner += `<div class="support">${isLast ? rich(support).replace(/ · /g, '<br/>') : rich(support)}</div>`;
@@ -548,7 +613,9 @@ function slideHTML(s, idx, total) {
     </div>
     ${hasText ? `<div class="block" style="top:${blockTop}${miniCSS}">${inner}</div>` : ''}
     <div class="pag">${String(idx + 1).padStart(2, '0')}/${String(total).padStart(2, '0')}</div>
-    <div class="chev${isLast ? ' down' : ''}"><i></i></div>
+    ${isLast
+    ? `<div class="fin">${esc(brandLabel.trim())}${handle.trim() ? ` <span class="sep">·</span> ${esc(handle.trim())}` : ''}</div>`
+    : '<div class="chev"><i></i></div>'}
   </div>`;
 }
 
