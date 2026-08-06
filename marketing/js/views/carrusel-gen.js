@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060407';
-import { icon } from '../shell/icons.js?v=202608060407';
-import { T } from '../shell/i18n.js?v=202608060407';
-import * as store from '../shell/store.js?v=202608060407';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060407';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060407';
-import { slidesFromPost } from '../editor/slides.js?v=202608060407';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060407';
+import { el, clear, toast, api } from '../api.js?v=202608060412';
+import { icon } from '../shell/icons.js?v=202608060412';
+import { T } from '../shell/i18n.js?v=202608060412';
+import * as store from '../shell/store.js?v=202608060412';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060412';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060412';
+import { slidesFromPost } from '../editor/slides.js?v=202608060412';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060412';
 
 const W = 1080;
 const H = 1350;
@@ -367,7 +367,9 @@ const DESIGN_CSS = `
 // ocupa más líneas de las estimadas: el bloque crecía sin que el guardarraíl se
 // enterara y la última línea se metía debajo del pie. Cazado en la prueba
 // visual con fotos reales, no con un caso inventado.
-const MEDIDAS_PANO = { ancho: 744, tit: 92, titSm: 76, titCover: 134, titCoverSm: 112, kicker: 32, bajada: 40, charsBajada: 30 };
+// charsBajada 27 (era 30): con la fuente de MARCA (Raleway es más ancha que
+// la base) la bajada de 3 renglones se estimaba de 2 y pisaba el pie corrido.
+const MEDIDAS_PANO = { ancho: 744, tit: 92, titSm: 76, titCover: 134, titCoverSm: 112, kicker: 32, bajada: 40, charsBajada: 27 };
 
 // Renglones que ocupa un texto envuelto por palabras (greedy, como el
 // navegador): ceil(chars/porLinea) creía que "¿TU HIJO NECESITA ORTODONCIA"
