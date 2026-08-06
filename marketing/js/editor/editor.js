@@ -23,20 +23,20 @@
 // Contrato de vista: export default { id, mount(el, ctx), onParams, unmount }.
 // ============================================================================
 
-import { el, api, statusBadge, approvalBadge, fmtDate, fmtDateTime, isClientRole} from '../api.js?v=202608061559';
-import { T } from '../shell/i18n.js?v=202608061559';
-import { icon } from '../shell/icons.js?v=202608061559';
-import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202608061559';
-import * as store from '../shell/store.js?v=202608061559';
-import * as cl from '../services/checklist.js?v=202608061559';
-import { createAutosave } from './autosave.js?v=202608061559';
-import { textExpand } from '../ui/pickers.js?v=202608061559';
-import { openActionsMenu } from './actions.js?v=202608061559';
-import { mount as mountContenido } from './tab-contenido.js?v=202608061559';
-import { mount as mountGuion } from './tab-guion.js?v=202608061559';
-import { mount as mountChecklist } from './tab-checklist.js?v=202608061559';
-import { mount as mountConversacion } from './tab-conversacion.js?v=202608061559';
-import { mount as mountActividad } from './tab-actividad.js?v=202608061559';
+import { el, api, statusBadge, approvalBadge, fmtDate, fmtDateTime, isClientRole} from '../api.js?v=202608061612';
+import { T } from '../shell/i18n.js?v=202608061612';
+import { icon } from '../shell/icons.js?v=202608061612';
+import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202608061612';
+import * as store from '../shell/store.js?v=202608061612';
+import * as cl from '../services/checklist.js?v=202608061612';
+import { createAutosave } from './autosave.js?v=202608061612';
+import { textExpand } from '../ui/pickers.js?v=202608061612';
+import { openActionsMenu } from './actions.js?v=202608061612';
+import { mount as mountContenido } from './tab-contenido.js?v=202608061612';
+import { mount as mountGuion } from './tab-guion.js?v=202608061612';
+import { mount as mountChecklist } from './tab-checklist.js?v=202608061612';
+import { mount as mountConversacion } from './tab-conversacion.js?v=202608061612';
+import { mount as mountActividad } from './tab-actividad.js?v=202608061612';
 
 const TABS = [
   { key: 'contenido', label: T('Contenido', 'Content'), mount: mountContenido },
@@ -572,7 +572,11 @@ export default {
     ctx = c;
     params = { ...(c.params || {}) };
     closing = false;
-    activeTab = 'contenido';
+    // El deep-link puede pedir una pestaña (#/post/<id>?tab=actividad — lo usa
+    // el Historial del calendario). Antes el parámetro se escribía al navegar
+    // pero JAMÁS se leía al montar: el clic llegaba siempre a Contenido.
+    const tabPedida = String(params.tab || '');
+    activeTab = TABS.some((t) => t.key === tabPedida) ? tabPedida : 'contenido';
     tabBadges.clear();
 
     buildChrome(host);

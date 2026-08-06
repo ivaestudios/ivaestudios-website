@@ -25,9 +25,9 @@
 //   - Focus trap + devolucion de foco al disparador + Esc cierra la superior.
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202608061559';
-import { pushLayer } from './router.js?v=202608061559';
-import { T } from './i18n.js?v=202608061559';
+import { el, clear } from '../api.js?v=202608061612';
+import { pushLayer } from './router.js?v=202608061612';
+import { T } from './i18n.js?v=202608061612';
 
 const stack = []; // instancias abiertas (max 2)
 
@@ -276,6 +276,22 @@ export function openSheet({ title = '', build, mode = 'menu', onClose, confirmCl
  * null si se cancela (backdrop, atras, Esc o X).
  * options: [{value, label, color?, icon?(Node), current?, sub?}]
  */
+// Confirmación PROPIA de la app (jamás window.confirm: si Chrome tiene los
+// diálogos nativos bloqueados —"impedir más cuadros de diálogo"— confirm()
+// devuelve false EN SILENCIO y el botón parece muerto; le pasó a Vianey con
+// Eliminar en Entregables desde la compu, 2026-08-06).
+export async function confirmar({ title = '', accion = null, cancelar = null, anchor = null } = {}) {
+  const si = await pickFrom({
+    title,
+    anchor,
+    options: [
+      { value: 'si', label: accion || T('Sí, eliminar', 'Yes, delete'), color: '#ef4444' },
+      { value: 'no', label: cancelar || T('Cancelar', 'Cancel') },
+    ],
+  });
+  return si === 'si';
+}
+
 export function pickFrom({ title = '', options = [], anchor = null } = {}) {
   return new Promise((resolve) => {
     let picked = null, done = false;

@@ -6,17 +6,17 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608061559';
-import { icon } from '../shell/icons.js?v=202608061559';
-import { T } from '../shell/i18n.js?v=202608061559';
-import { openSheet } from '../shell/sheet.js?v=202608061559';
+import { api, el, clear, toast } from '../api.js?v=202608061612';
+import { icon } from '../shell/icons.js?v=202608061612';
+import { T } from '../shell/i18n.js?v=202608061612';
+import { openSheet, confirmar } from '../shell/sheet.js?v=202608061612';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608061559';
+import { errorCard } from '../ui/states.js?v=202608061612';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608061559';
+} from '../lib/video-upload.js?v=202608061612';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -171,7 +171,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608061559';
+  link.href = '/marketing/css/entregables.css?v=202608061612';
   document.head.appendChild(link);
 }
 
@@ -266,7 +266,7 @@ async function enqueueReels(fileList) {
   }
   // AVISO de HEVC: no bloquea, ella decide (Cancelar = no subir esos).
   let vids = ok;
-  if (hevc.length && !window.confirm(msgHevc(hevc))) {
+  if (hevc.length && !(await confirmar({ title: msgHevc(hevc), accion: T('Subir de todos modos', 'Upload anyway') }))) {
     vids = ok.filter((f) => !hevc.includes(f));
     if (!vids.length) return;
   }
@@ -451,7 +451,7 @@ async function swapVideo(it, file) {
     toast(T(`"${file.name}" es enorme (más de 3 GB). Compártelo por link mejor.`, `"${file.name}" is huge (over 3 GB). Better share it by link.`), 'error', 6000);
     return;
   }
-  if (hevc.length && !window.confirm(msgHevc(hevc))) return;
+  if (hevc.length && !(await confirmar({ title: msgHevc(hevc), accion: T('Subir de todos modos', 'Upload anyway') }))) return;
 
   // Nota OPCIONAL para el cliente, además del texto automático. Vacío = solo el
   // automático; Cancelar/cerrar = no se cambia nada (escape a mitad de camino).
@@ -560,7 +560,7 @@ async function addCarrusel(link, title) {
 async function removeItem(it) {
   if (busy) return;
   const what = it.type === 'reel' ? T('este reel', 'this reel') : T('este carrusel', 'this carousel');
-  if (!window.confirm(T(`¿Eliminar ${what}? No se puede deshacer.`, `Delete ${what}? This cannot be undone.`))) return;
+  if (!(await confirmar({ title: T(`¿Eliminar ${what}? No se puede deshacer.`, `Delete ${what}? This cannot be undone.`) }))) return;
   busy = true; render();
   try {
     await api.del(`/deliverables/${it.id}`);
@@ -1121,7 +1121,7 @@ function relTime(iso) {
 }
 
 async function deleteComment(it, c, node) {
-  if (!window.confirm(T('¿Eliminar este comentario?', 'Delete this comment?'))) return;
+  if (!(await confirmar({ title: T('¿Eliminar este comentario?', 'Delete this comment?') }))) return;
   try {
     await api.del(`/deliverables/${it.id}/comments/${c.id}`);
     node.remove();
