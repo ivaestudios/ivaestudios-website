@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060401';
-import { icon } from '../shell/icons.js?v=202608060401';
-import { T } from '../shell/i18n.js?v=202608060401';
-import * as store from '../shell/store.js?v=202608060401';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060401';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060401';
-import { slidesFromPost } from '../editor/slides.js?v=202608060401';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060401';
+import { el, clear, toast, api } from '../api.js?v=202608060407';
+import { icon } from '../shell/icons.js?v=202608060407';
+import { T } from '../shell/i18n.js?v=202608060407';
+import * as store from '../shell/store.js?v=202608060407';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060407';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060407';
+import { slidesFromPost } from '../editor/slides.js?v=202608060407';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060407';
 
 const W = 1080;
 const H = 1350;
@@ -215,17 +215,32 @@ const pulirBajada = (t) => pegarConectores(telBonito(sinEmoji(t)), true);
 // El acento de la casa: la última palabra con peso del titular va en serif
 // cursiva (Cormorant) — la firma que separa una pieza de agencia de una
 // plantilla genérica. Solo si el texto no trae ya sus **negritas**.
+// ¿Dónde vive la palabra preferida dentro del titular (palabra completa)?
+function hallarAcento(t, preferida) {
+  if (!t || !preferida) return null;
+  const rx = new RegExp('(^|[^\\p{L}])(' + preferida.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')(?=[^\\p{L}]|$)', 'iu');
+  const m = t.match(rx);
+  if (!m || m.index === undefined) return null;
+  return { ini: m.index + m[1].length, palabra: m[2] };
+}
+
+// El acento de la IA para las plantillas que hablan en **asteriscos**
+// (conCursiva/conNegrita): se marca la palabra y cada plantilla la pinta
+// con SU voz. Sin tocar el texto guardado.
+function marcarAcento(t, preferida) {
+  if (!t || t.includes('**')) return t;
+  const h = hallarAcento(t, preferida);
+  if (!h) return t;
+  return t.slice(0, h.ini) + '**' + h.palabra + '**' + t.slice(h.ini + h.palabra.length);
+}
+
 function tituloHTML(t, preferida) {
   if (!t || t.includes('**')) return rich(t);
   // La IA directora puede señalar LA palabra emocional; si vive en el titular
   // (palabra completa), ella lleva el acento. Si no, la heurística de siempre.
-  if (preferida) {
-    const rx = new RegExp('(^|[^\\p{L}])(' + preferida.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')(?=[^\\p{L}]|$)', 'iu');
-    const m = t.match(rx);
-    if (m && m.index !== undefined) {
-      const ini = m.index + m[1].length;
-      return esc(t.slice(0, ini)) + `<i>${esc(m[2])}</i>` + esc(t.slice(ini + m[2].length));
-    }
+  const h = hallarAcento(t, preferida);
+  if (h) {
+    return esc(t.slice(0, h.ini)) + `<i>${esc(h.palabra)}</i>` + esc(t.slice(h.ini + h.palabra.length));
   }
   const palabras = t.split(/[\s\u00A0]+/).filter(Boolean);
   if (palabras.length < 3) return rich(t);
@@ -608,7 +623,7 @@ function slideHTML(s, idx, total) {
   if (P.id !== 'editorial') {
     return P.html({
       idx, total, isCover, isLast,
-      kicker, title, body, support, items, plainBody,
+      kicker, title: marcarAcento(title, s.acentoIA), body, support, items, plainBody,
       hasText, smTitle, compactas, blockTop, miniCSS,
       modo, velo: veloA, plan,
       marca: brandLabel.trim(), handle: handle.trim(), fecha: fechaCorta(fechaPublicacion),
