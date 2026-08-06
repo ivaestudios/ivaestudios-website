@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060350';
-import { icon } from '../shell/icons.js?v=202608060350';
-import { T } from '../shell/i18n.js?v=202608060350';
-import * as store from '../shell/store.js?v=202608060350';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060350';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060350';
-import { slidesFromPost } from '../editor/slides.js?v=202608060350';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060350';
+import { el, clear, toast, api } from '../api.js?v=202608060355';
+import { icon } from '../shell/icons.js?v=202608060355';
+import { T } from '../shell/i18n.js?v=202608060355';
+import * as store from '../shell/store.js?v=202608060355';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060355';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060355';
+import { slidesFromPost } from '../editor/slides.js?v=202608060355';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060355';
 
 const W = 1080;
 const H = 1350;
@@ -110,6 +110,7 @@ const ESTILOS_MARCA = [
 .title b{font-weight:800}
 .tit i,.title i{font-family:Cormorant,Georgia,serif;font-style:italic;font-weight:700;text-transform:none;font-size:1.16em;letter-spacing:.01em}
 .fin{font-family:Raleway,sans-serif;font-weight:300;letter-spacing:.34em}
+.support--dato{font-family:Raleway,sans-serif;font-weight:700}
 .kicker,.support,.bajada,.pag,.li,.pill,.eyebrow,.cuerpo,.detalle{font-family:Raleway,sans-serif}
 /* El wordmark: S M I L E  N O W espaciado, no caligrafía */
 .hdr .b{font-family:Raleway,sans-serif;font-weight:300;font-size:34px;letter-spacing:.42em;text-transform:uppercase;transform:none;white-space:nowrap}
@@ -237,9 +238,9 @@ const DESIGN_CSS = `
 .slide{position:relative;width:1080px;height:1350px;font-family:Outfit,sans-serif;color:#fff;overflow:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 /* Rampas LARGAS con paradas intermedias: un degradado de dos paradas también
    deja un tono medio perceptible; con la curva 58/22 se funde sin escalón. */
-.scrim-top{position:absolute;top:0;left:0;right:0;height:300px;background:linear-gradient(rgba(12,12,16,.30),rgba(12,12,16,.17) 42%,rgba(12,12,16,.06) 74%,rgba(12,12,16,0))}
+.scrim-top{position:absolute;top:0;left:0;right:0;height:300px;--sv:.30;background:linear-gradient(rgba(12,12,16,var(--sv)),rgba(12,12,16,calc(var(--sv)*.56)) 42%,rgba(12,12,16,calc(var(--sv)*.2)) 74%,rgba(12,12,16,0))}
 .scrim-block{position:absolute;left:0;right:0;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,.42) 90px,rgba(12,12,16,.42))}
-.scrim-bottom{position:absolute;left:0;right:0;bottom:0;height:320px;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,.08) 30%,rgba(12,12,16,.2) 62%,rgba(12,12,16,.34))}
+.scrim-bottom{position:absolute;left:0;right:0;bottom:0;height:320px;--sv:.34;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,calc(var(--sv)*.24)) 30%,rgba(12,12,16,calc(var(--sv)*.59)) 62%,rgba(12,12,16,var(--sv)))}
 .hdr{position:absolute;top:88px;left:104px;right:104px;display:grid;grid-template-columns:1fr auto 1fr;gap:56px;align-items:baseline;text-shadow:0 1px 14px rgba(0,0,0,.45)}.hdr .h{justify-self:start;text-wrap:balance}.hdr .d{justify-self:end;white-space:nowrap}
 .hdr .h,.hdr .d{font-size:28px;font-weight:400;letter-spacing:.02em;color:rgba(255,255,255,.96)}
 .hdr .b{font-family:'Pinyon Script',cursive;font-size:54px;line-height:1;transform:translateY(6px);color:#fff}
@@ -247,6 +248,9 @@ const DESIGN_CSS = `
 .chev{position:absolute;right:100px;bottom:84px;width:62px;height:62px;border:2.5px solid rgba(255,255,255,.92);border-radius:50%}
 .chev i{position:absolute;top:50%;left:50%;width:16px;height:16px;border-top:2.5px solid rgba(255,255,255,.92);border-right:2.5px solid rgba(255,255,255,.92);transform:translate(-62%,-50%) rotate(45deg)}
 .chev.down i{transform:translate(-50%,-64%) rotate(135deg)}
+/* El DATO del cierre (teléfono): es LO accionable del CTA — presencia de
+   rótulo, no de bajada tímida. */
+.support--dato{font-weight:600;font-size:47px;letter-spacing:.06em;color:rgba(255,255,255,.97)}
 /* El acento de la casa: serif cursiva dentro del titular en caps. */
 .title i{font-family:Cormorant,Georgia,serif;font-style:italic;font-weight:600;
   text-transform:none;letter-spacing:.01em;font-size:1.12em}
@@ -514,7 +518,7 @@ function slideHTML(s, idx, total) {
   if (kicker) inner += `<div class="kicker">${esc(kicker)}</div>`;
   if (title) inner += `<div class="title${smTitle ? ' sm' : ''}">${tituloHTML(title)}</div>`;
   if (items) inner += `<div class="pills${compactas ? ' compactas' : ''}">${items.map((it) => `<div class="pill">${esc(it)}</div>`).join('')}</div>`;
-  if (plainBody) inner += `<div class="support">${rich(plainBody)}</div>`;
+  if (plainBody) inner += `<div class="support${isLast ? ' support--dato' : ''}">${rich(plainBody)}</div>`;
   if (support) inner += `<div class="support">${isLast ? rich(support).replace(/ · /g, '<br/>') : rich(support)}</div>`;
 
   const blockTop = `${topAjustado}%`;
@@ -614,8 +618,13 @@ function slideHTML(s, idx, total) {
   // difuminada ya cubre ese borde (o la manta completa cubre todo), pintarlos
   // encima crea justo el "medio velo" que la ley prohíbe.
   const completa = veloA >= 0.52 && modo !== 'banda' && modo !== 'oscuro';
-  const scrimArriba = modo === 'oscuro' || completa || pos === 'top' ? '' : '<div class="scrim-top"></div>';
-  const scrimAbajo = modo === 'oscuro' || completa || pos === 'bottom' || (pos === 'mid' && textoY > 620) ? '' : '<div class="scrim-bottom"></div>';
+  // Marco ADAPTATIVO (jueces R3): la fuerza del degradado de cabecera/pie es
+  // el velo que el fotómetro midió para ESA franja de ESTA foto — sobre cielo
+  // claro el masthead pedía más y la constante lo dejaba desaparecer al 36%.
+  const veloHdr = Math.min(0.5, Math.max(0.26, (plan && plan.header && plan.header.velo) || 0.3));
+  const veloPie = Math.min(0.52, Math.max(0.3, (plan && plan.pie && plan.pie.velo) || 0.34));
+  const scrimArriba = modo === 'oscuro' || completa || pos === 'top' ? '' : `<div class="scrim-top" style="--sv:${veloHdr.toFixed(2)}"></div>`;
+  const scrimAbajo = modo === 'oscuro' || completa || pos === 'bottom' || (pos === 'mid' && textoY > 620) ? '' : `<div class="scrim-bottom" style="--sv:${veloPie.toFixed(2)}"></div>`;
   return `
   <div class="slide${claseModo}">
     ${scrimArriba}
