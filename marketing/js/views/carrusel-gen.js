@@ -13,12 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060020';
-import { icon } from '../shell/icons.js?v=202608060020';
-import { T } from '../shell/i18n.js?v=202608060020';
-import * as store from '../shell/store.js?v=202608060020';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060020';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060020';
+import { el, clear, toast, api } from '../api.js?v=202608060030';
+import { icon } from '../shell/icons.js?v=202608060030';
+import { T } from '../shell/i18n.js?v=202608060030';
+import * as store from '../shell/store.js?v=202608060030';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060030';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060030';
 
 const W = 1080;
 const H = 1350;
@@ -408,34 +408,45 @@ function slideHTML(s, idx, total) {
   const miniCSS = miniK < 1
     ? `;transform:scale(${miniK.toFixed(3)});transform-origin:top left;width:${Math.round(872 / miniK)}px;left:104px;right:auto`
     : '';
-  // ── EL VELO COMO MANTA, NO COMO BANDA ────────────────────────────────────
-  // La rampa de 90px que había aquí era LA franja gris que cruzaba las caras:
-  // de transparente a opacidad completa en 90px hay un borde que el ojo ve
-  // clarísimo. El velo hecho a mano (el de Vianey en Canva) no tiene borde
-  // porque su transición ocupa MEDIA FOTO. Receta nueva:
-  //  · la rampa mide hasta 460px y termina 40px ANTES del texto (contraste
-  //    completo en la primera línea, como antes — eso no se negocia);
-  //  · paradas intermedias con curva suave (22%→48%→78%) para que ni siquiera
-  //    una rampa corta deje escalón perceptible;
-  //  · con velos fuertes (≥0.38) se suma una MANTA general apenas visible
-  //    sobre toda la foto: empareja la luz como en las tiras reales de SMILE
-  //    y permite que el velo local trabaje menos.
+  // ── LA LEY DE LA SOMBRA (Vianey, 2026-08-06) ─────────────────────────────
+  // Tres formas válidas y NADA intermedio:
+  //  · DIFUMINADA — anclada a un BORDE de la foto (arriba o abajo), llega al
+  //    texto con fuerza completa y muere hacia adentro sin que se note dónde
+  //    termina (rampa larguísima con curva). Jamás flota a media foto.
+  //  · COMPLETA — manta uniforme sobre TODA la foto, sin degradado.
+  //  · LOCAL — un cojín elíptico pegado al bloque de texto, con pluma ancha.
+  // Elección: texto abajo → difuminada desde abajo; texto arriba → desde
+  // arriba; texto en medio → local (un degradado a media foto siempre se ve a
+  // medio hacer). Y si la foto pide un velo muy fuerte por todos lados
+  // (veloA ≥ .52), mejor COMPLETA: pareja y honesta, como se hace a mano.
   const textoY = Math.round(topAjustado * 13.5);            // % → px sobre 1350
-  const rampa = Math.max(140, Math.min(460, textoY - 40));
-  const inicioPx = Math.max(0, textoY - 40 - rampa);
-  const grad = (v) => `linear-gradient(rgba(12,12,16,0),`
-    + `rgba(12,12,16,${(v * 0.22).toFixed(3)}) ${Math.round(rampa * 0.42)}px,`
-    + `rgba(12,12,16,${(v * 0.58).toFixed(3)}) ${Math.round(rampa * 0.72)}px,`
-    + `rgba(12,12,16,${v}) ${rampa}px,rgba(12,12,16,${v}))`;
-  const manta = veloA >= 0.38
-    ? `<div style="position:absolute;inset:0;background:rgba(12,12,16,${(veloA * 0.16).toFixed(3)})"></div>`
-    : '';
+  const finBloque = Math.min(1350, textoY + alto + 60);
+  let veloForma = '';
+  if (veloA >= 0.52) {
+    // COMPLETA (uniforme; se rebaja porque cubre todo y suma en cada píxel)
+    veloForma = `<div style="position:absolute;inset:0;background:rgba(12,12,16,${Math.min(0.58, veloA * 0.82).toFixed(3)})"></div>`;
+  } else if (pos === 'bottom' || pos === 'mid' && textoY > 620) {
+    // DIFUMINADA desde ABAJO: fuerza completa desde 40px antes del texto hasta
+    // el borde inferior; el desvanecido hacia arriba ocupa hasta 520px.
+    const rampa = Math.max(180, Math.min(520, textoY - 40));
+    const ini = Math.max(0, textoY - 40 - rampa);
+    veloForma = `<div style="position:absolute;left:0;right:0;top:${ini}px;bottom:0;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,${(veloA * 0.18).toFixed(3)}) ${Math.round(rampa * 0.38)}px,rgba(12,12,16,${(veloA * 0.55).toFixed(3)}) ${Math.round(rampa * 0.7)}px,rgba(12,12,16,${veloA}) ${rampa}px,rgba(12,12,16,${veloA}))"></div>`;
+  } else if (pos === 'top') {
+    // DIFUMINADA desde ARRIBA (espejo)
+    const rampa = Math.max(180, Math.min(520, 1350 - finBloque));
+    veloForma = `<div style="position:absolute;left:0;right:0;top:0;height:${finBloque + rampa}px;background:linear-gradient(rgba(12,12,16,${veloA}),rgba(12,12,16,${veloA}) ${finBloque}px,rgba(12,12,16,${(veloA * 0.55).toFixed(3)}) ${finBloque + Math.round(rampa * 0.3)}px,rgba(12,12,16,${(veloA * 0.18).toFixed(3)}) ${finBloque + Math.round(rampa * 0.62)}px,rgba(12,12,16,0))"></div>`;
+  } else {
+    // LOCAL: cojín elíptico bajo la letra, pluma ancha, sin bordes.
+    const cy = textoY + alto / 2;
+    const ry = Math.round(alto / 2 + 190);
+    veloForma = `<div style="position:absolute;left:-8%;right:-8%;top:${Math.max(0, cy - ry)}px;height:${ry * 2}px;background:radial-gradient(ellipse 78% 52% at 50% 50%,rgba(12,12,16,${Math.min(0.6, veloA * 1.05).toFixed(3)}),rgba(12,12,16,${(veloA * 0.5).toFixed(3)}) 46%,rgba(12,12,16,0) 74%)"></div>`;
+  }
   const veloHTML = !hasText ? ''
     : modo === 'banda'
       ? `<div class="banda" style="top:${Math.max(0, topAjustado - 7)}%;bottom:0"></div>`
       : modo === 'oscuro'
         ? `<div class="scrim-block veil-claro" style="top:${Math.max(0, topAjustado - 7)}%;bottom:0;--va:${veloA}"></div>`
-        : `${manta}<div class="scrim-block" style="top:${inicioPx}px;bottom:0;background:${grad(veloA)}"></div>`;
+        : veloForma;
 
   // ── El contexto que recibe la plantilla ─────────────────────────────────
   // Todo lo pensado (fotómetro, guardarraíl, escala) queda resuelto aquí; la
@@ -461,11 +472,17 @@ function slideHTML(s, idx, total) {
     });
   }
 
+  // Los velos fijos de cabecera/pie NO se apilan con las formas nuevas: si la
+  // difuminada ya cubre ese borde (o la manta completa cubre todo), pintarlos
+  // encima crea justo el "medio velo" que la ley prohíbe.
+  const completa = veloA >= 0.52 && modo !== 'banda' && modo !== 'oscuro';
+  const scrimArriba = modo === 'oscuro' || completa || pos === 'top' ? '' : '<div class="scrim-top"></div>';
+  const scrimAbajo = modo === 'oscuro' || completa || pos === 'bottom' || (pos === 'mid' && textoY > 620) ? '' : '<div class="scrim-bottom"></div>';
   return `
   <div class="slide${claseModo}">
-    ${modo === 'oscuro' ? '' : '<div class="scrim-top"></div>'}
+    ${scrimArriba}
     ${veloHTML}
-    ${modo === 'oscuro' ? '' : '<div class="scrim-bottom"></div>'}
+    ${scrimAbajo}
     <div class="hdr">
       <span class="h">${esc(handle.trim())}</span>
       <span class="b">${esc(brandLabel.trim())}</span>
