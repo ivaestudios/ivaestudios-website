@@ -59,37 +59,61 @@ async function detectar(bmp) {
   const fd = await cargarDetector();
   if (!fd) return [];
   // Se detecta sobre el RECORTE cover-fit 1080×1350 — lo que DE VERDAD se ve
-  // en el slide — no sobre la foto completa: en una apaisada de 2000px el
-  // downscale a 640 dejaba la cara de ~30px y el detector devolvía [] (cazado
-  // 2026-08-06: TODO el lote ninosB pasaba sin una sola cara detectada, y los
-  // vetos 'funcionaban' de pura suerte por luminancia).
-  const K = 0.75;   // 810×1012: cómodo para el wasm y sobra para caras chicas
+  // en el slide. Y con RESCATE DE INCLINACIÓN: BlazeFace pierde caras ladeadas
+  // (niña riéndose con la cabeza echada atrás = 0 detecciones); si la pasada
+  // frontal no ve nada, se reintenta con el lienzo girado ±25° y las cajas se
+  // des-rotan al encuadre. La pasada frontal exitosa NO paga las 2 extra.
+  const K = 0.75;
   const cw = Math.round(W * K);
   const ch = Math.round(H * K);
-  const cv = document.createElement('canvas');
-  cv.width = cw; cv.height = ch;
   const e = Math.max(cw / bmp.width, ch / bmp.height);
-  cv.getContext('2d').drawImage(bmp, (cw - bmp.width * e) / 2, (ch - bmp.height * e) / 2,
-    bmp.width * e, bmp.height * e);
-
-  const dets = await new Promise((resolve) => {
+  const enviar = (cv) => new Promise((resolve) => {
     let listo = false;
     const t = setTimeout(() => { if (!listo) { listo = true; resolve([]); } }, 9000);
     fd.onResults((r) => { if (!listo) { listo = true; clearTimeout(t); resolve(r.detections || []); } });
     fd.send({ image: cv }).catch(() => { if (!listo) { listo = true; clearTimeout(t); resolve([]); } });
   });
-
-  // El canvas de detección YA ES el encuadre del lienzo: las coordenadas
-  // normalizadas se proyectan directo a 1080×1350.
-  return dets.map((d) => {
-    const b = d.boundingBox;
-    return {
-      x: (b.xCenter - b.width / 2) * W,
-      y: (b.yCenter - b.height / 2) * H,
-      w: b.width * W,
-      h: b.height * H,
-    };
-  }).filter((c) => c.w > 26 && c.h > 26);
+  const todas = [];
+  for (const ang of [0, -25, 25]) {
+    const cv = document.createElement('canvas');
+    cv.width = cw; cv.height = ch;
+    const cx = cv.getContext('2d');
+    if (ang) {
+      cx.translate(cw / 2, ch / 2);
+      cx.rotate(ang * Math.PI / 180);
+      cx.translate(-cw / 2, -ch / 2);
+    }
+    cx.drawImage(bmp, (cw - bmp.width * e) / 2, (ch - bmp.height * e) / 2, bmp.width * e, bmp.height * e);
+    const dets = await enviar(cv);
+    for (const det of dets) {
+      const b = det.boundingBox;
+      let caja = { x: (b.xCenter - b.width / 2) * cw, y: (b.yCenter - b.height / 2) * ch, w: b.width * cw, h: b.height * ch };
+      if (ang) {
+        // Des-rotar las 4 esquinas alrededor del centro y tomar el envolvente.
+        const rad = -ang * Math.PI / 180; const px = cw / 2; const py = ch / 2;
+        const pts = [[caja.x, caja.y], [caja.x + caja.w, caja.y], [caja.x, caja.y + caja.h], [caja.x + caja.w, caja.y + caja.h]]
+          .map(([x, y]) => {
+            const dx = x - px; const dy = y - py;
+            return [px + dx * Math.cos(rad) - dy * Math.sin(rad), py + dx * Math.sin(rad) + dy * Math.cos(rad)];
+          });
+        const xs = pts.map((q) => q[0]); const ys = pts.map((q) => q[1]);
+        caja = { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
+      }
+      todas.push({ x: caja.x / K, y: caja.y / K, w: caja.w / K, h: caja.h / K });
+    }
+    if (ang === 0 && todas.length) break;
+  }
+  // Dedupe: la misma cara vista en 2 pasadas se queda con la caja más grande.
+  const unicas = [];
+  for (const c of todas.sort((a, b) => b.w * b.h - a.w * a.h)) {
+    const dup = unicas.some((u) => {
+      const ix = Math.max(0, Math.min(u.x + u.w, c.x + c.w) - Math.max(u.x, c.x));
+      const iy = Math.max(0, Math.min(u.y + u.h, c.y + c.h) - Math.max(u.y, c.y));
+      return ix * iy > 0.4 * Math.min(u.w * u.h, c.w * c.h);
+    });
+    if (!dup) unicas.push(c);
+  }
+  return unicas.filter((c) => c.w > 26 && c.h > 26);
 }
 
 /** Resumen humano de dónde están las caras (viaja a la IA directora). */

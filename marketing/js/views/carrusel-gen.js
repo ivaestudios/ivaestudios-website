@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060430';
-import { icon } from '../shell/icons.js?v=202608060430';
-import { T } from '../shell/i18n.js?v=202608060430';
-import * as store from '../shell/store.js?v=202608060430';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060430';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060430';
-import { slidesFromPost } from '../editor/slides.js?v=202608060430';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060430';
+import { el, clear, toast, api } from '../api.js?v=202608061105';
+import { icon } from '../shell/icons.js?v=202608061105';
+import { T } from '../shell/i18n.js?v=202608061105';
+import * as store from '../shell/store.js?v=202608061105';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608061105';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608061105';
+import { slidesFromPost } from '../editor/slides.js?v=202608061105';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608061105';
 
 const W = 1080;
 const H = 1350;
@@ -208,9 +208,13 @@ function pegarConectores(t, viuda) {
   }
   return out;
 }
+// Nombres compuestos con dígito (All-on-4, 2x1-plus) viajan ENTEROS: el
+// navegador parte en el guion normal; el guion irrompible \u2011 lo impide.
+const guionDuro = (t) => String(t || '').replace(/\b([A-Za-z0-9]+(?:-[A-Za-z0-9]+)+)\b/g,
+  (m) => (/\d/.test(m) ? m.replace(/-/g, '\u2011') : m));
 // Titular display: sin punto final (se conservan ? ! …), conectores pegados.
-const pulirTitulo = (t) => pegarConectores(sinEmoji(t).replace(/(?<![.!?…])\.\s*$/, ''), false);
-const pulirBajada = (t) => pegarConectores(telBonito(sinEmoji(t)), true);
+const pulirTitulo = (t) => pegarConectores(guionDuro(sinEmoji(t)).replace(/(?<![.!?…])\.\s*$/, ''), false);
+const pulirBajada = (t) => pegarConectores(guionDuro(telBonito(sinEmoji(t))), true);
 
 // El acento de la casa: la última palabra con peso del titular va en serif
 // cursiva (Cormorant) — la firma que separa una pieza de agencia de una
