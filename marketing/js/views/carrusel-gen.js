@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060416';
-import { icon } from '../shell/icons.js?v=202608060416';
-import { T } from '../shell/i18n.js?v=202608060416';
-import * as store from '../shell/store.js?v=202608060416';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060416';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060416';
-import { slidesFromPost } from '../editor/slides.js?v=202608060416';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060416';
+import { el, clear, toast, api } from '../api.js?v=202608060422';
+import { icon } from '../shell/icons.js?v=202608060422';
+import { T } from '../shell/i18n.js?v=202608060422';
+import * as store from '../shell/store.js?v=202608060422';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060422';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060422';
+import { slidesFromPost } from '../editor/slides.js?v=202608060422';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060422';
 
 const W = 1080;
 const H = 1350;
@@ -518,7 +518,7 @@ function slideHTML(s, idx, total) {
     // Piso HONESTO por plantilla: Editorial = folio y≈1218 → 140. Panorámica:
     // el pie corrido arranca en y≈1144 (bottom:170) → 220; y su portada además
     // lleva la flecha circular (y1046-1120) → 310. Calibrado mirando la tira.
-    const RESERVA = esPano ? (isCover ? 310 : 220) : (isLast ? 250 : 140);
+    const RESERVA = esPano ? (isCover ? 310 : 250) : (isLast ? 250 : 140);
     const pz = { kicker, cleanLen: title ? cleanLen : 0, titulo: title, items, plainBody, support };
     const estima = (sm, comp) => altoBloque(pz, sm, comp, isCover);
     alto = estima(smTitle, compactas);
