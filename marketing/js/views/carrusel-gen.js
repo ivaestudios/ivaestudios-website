@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060143';
-import { icon } from '../shell/icons.js?v=202608060143';
-import { T } from '../shell/i18n.js?v=202608060143';
-import * as store from '../shell/store.js?v=202608060143';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060143';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060143';
-import { slidesFromPost } from '../editor/slides.js?v=202608060143';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060143';
+import { el, clear, toast, api } from '../api.js?v=202608060155';
+import { icon } from '../shell/icons.js?v=202608060155';
+import { T } from '../shell/i18n.js?v=202608060155';
+import * as store from '../shell/store.js?v=202608060155';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060155';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060155';
+import { slidesFromPost } from '../editor/slides.js?v=202608060155';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060155';
 
 const W = 1080;
 const H = 1350;
@@ -806,10 +806,23 @@ const IA_TARDE = () => toast(T(
 function partirTextoPieza(t) {
   t = String(t || '').replace(/\s+/g, ' ').trim();
   if (!t) return { title: '', body: '' };
-  if (t.length <= 88) return { title: t, body: '' };
-  const m = t.match(/^(.{10,88}?[.!?…])\s+([^]*)$/);
-  if (m) return { title: m[1].trim(), body: m[2].trim().slice(0, 200) };
-  return { title: t.slice(0, 85).trim(), body: t.slice(85).trim().slice(0, 200) };
+  // 56 chars de tope en el título: en MAYÚSCULAS son 2-3 renglones, no 5.
+  if (t.length <= 56) return { title: t, body: '' };
+  const m = t.match(/^(.{10,56}?[.!?…,])\s+([^]*)$/);
+  if (m) return { title: m[1].replace(/[,]$/, '').trim(), body: m[2].trim().slice(0, 200) };
+  const corte = t.slice(0, 56).lastIndexOf(' ');
+  return { title: t.slice(0, corte > 20 ? corte : 56).trim(), body: t.slice(corte > 20 ? corte : 56).trim().slice(0, 200) };
+}
+
+// Reparte M textos en N slides: hook → 1, CTA → N, intermedios en orden.
+function repartirTextos(textos, n) {
+  const out = Array.from({ length: n }, () => null);
+  if (!textos.length || !n) return out;
+  out[0] = textos[0];
+  if (textos.length > 1) out[n - 1] = textos[textos.length - 1];
+  const medios = textos.slice(1, -1);
+  for (let i = 0; i < medios.length && i < n - 2; i++) out[i + 1] = medios[i];
+  return out;
 }
 
 function cargarPieza(post) {
@@ -818,9 +831,11 @@ function cargarPieza(post) {
   const textos = slidesFromPost(post).map(partirTextoPieza);
   if (post.publish_date) fechaPublicacion = String(post.publish_date).slice(0, 10);
   if (slides.length) {
-    // Ya hay fotos: los textos entran posicionalmente (y sobran o faltan sin drama).
+    // Reparto con CABEZA: el hook al slide 1, el CTA SIEMPRE al último, los
+    // intermedios en orden y los slides sobrantes quedan de respiro (sin texto).
+    const mapa = repartirTextos(textos, slides.length);
     slides.forEach((sl, i) => {
-      const t = textos[i] || textos[textos.length - 1] || { title: '', body: '' };
+      const t = mapa[i] || { title: '', body: '' };
       sl.kicker = ''; sl.title = t.title; sl.body = t.body;
     });
     textosPieza = null;
@@ -1078,10 +1093,13 @@ export function renderGen(root, helpers) {
     brandLabel = brand.name || '';
     // Preset por marca: la firma del masthead no se vuelve a teclear jamás.
     const CONFIG_MARCA = [
-      { match: /smile/i, marca: 'Smile Now', handle: 'DENTAL & FACIAL CARE' },
+      { match: /smile/i, marca: 'Smile Now', handle: 'DENTAL & FACIAL CARE', plantilla: 'editorial' },
     ];
     const cfg = CONFIG_MARCA.find((c) => c.match.test(brandLabel));
-    if (cfg) { brandLabel = cfg.marca; handle = cfg.handle; }
+    if (cfg) {
+      brandLabel = cfg.marca; handle = cfg.handle;
+      if (cfg.plantilla) plantillaId = cfg.plantilla;
+    }
     brandForClient = activeClientId;
   }
 
@@ -1115,13 +1133,22 @@ export function renderGen(root, helpers) {
               try { probe.close(); } catch { /* noop */ }
             } else { bitmap = probe; }
           } catch { bitmap = probe; }
-          const tPieza = textosPieza && textosPieza[slides.length];
-        slides.push({ file: f, bitmap, kicker: '', title: (tPieza && tPieza.title) || '', body: (tPieza && tPieza.body) || '', pos: slides.length === 0 ? 'mid' : 'top' });
+          slides.push({ file: f, bitmap, kicker: '', title: '', body: '', pos: slides.length === 0 ? 'mid' : 'top' });
         } catch {
           toast(T(`No pude leer "${f.name}" — usa JPG o PNG (HEIC no corre en este navegador).`, `Could not read "${f.name}" — use JPG or PNG.`), 'error');
         }
       }
       e.target.value = '';
+      // Textos de la pieza en espera: se reparten sobre el LOTE completo
+      // (hook → 1, CTA → último) ahora que ya se sabe cuántas fotos hay.
+      if (textosPieza && slides.length) {
+        const mapa = repartirTextos(textosPieza, slides.length);
+        slides.forEach((sl, i) => {
+          const t = mapa[i];
+          if (t && !sl.title && !sl.body) { sl.title = t.title; sl.body = t.body; }
+        });
+        textosPieza = null;
+      }
       analizarTodo();          // el fotómetro decide posición y tratamiento
       renderGen(hostEl, deps);
       // ROSTROS REALES: el detector corre en segundo plano y al terminar se

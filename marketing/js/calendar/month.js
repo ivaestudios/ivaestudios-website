@@ -7,14 +7,14 @@
 // arrastran entre celdas (motor ui/dnd.js).
 // ============================================================================
 
-import { el, statusBadge } from '../api.js?v=202608060143';
-import { T } from '../shell/i18n.js?v=202608060143';
+import { el, statusBadge } from '../api.js?v=202608060155';
+import { T } from '../shell/i18n.js?v=202608060155';
 import {
   fmtYMD, startOfMonth, monthMatrix, sameMonth, todayYMD,
   dayLong, statusInfo, clientDotEl, DOW_SHORT,
-} from './data.js?v=202608060143';
-import { cardDraggable, openCardMenu, reschedule, markDropTarget } from './dnd.js?v=202608060143';
-import { openQuickCreate } from './quickcreate.js?v=202608060143';
+} from './data.js?v=202608060155';
+import { cardDraggable, openCardMenu, reschedule, markDropTarget } from './dnd.js?v=202608060155';
+import { openQuickCreate } from './quickcreate.js?v=202608060155';
 
 const MAX_PILLS = 3;
 
