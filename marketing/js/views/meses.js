@@ -28,20 +28,20 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202608061148';
-import { icon } from '../shell/icons.js?v=202608061148';
-import { T } from '../shell/i18n.js?v=202608061148';
+} from '../api.js?v=202608061155';
+import { icon } from '../shell/icons.js?v=202608061155';
+import { T } from '../shell/i18n.js?v=202608061155';
 // Capas de history del shell: el boton atras del telefono cierra la capa de
 // arriba (panel de guion) en vez de salir de la app.
-import { pushLayer } from '../shell/router.js?v=202608061148';
+import { pushLayer } from '../shell/router.js?v=202608061155';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608061148';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608061148';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608061148';
+import { errorCard } from '../ui/states.js?v=202608061155';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608061155';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608061155';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608061148';
+} from '../lib/video-upload.js?v=202608061155';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.

@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608061148';
-import { icon } from '../shell/icons.js?v=202608061148';
-import { T } from '../shell/i18n.js?v=202608061148';
-import * as store from '../shell/store.js?v=202608061148';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608061148';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608061148';
-import { slidesFromPost } from '../editor/slides.js?v=202608061148';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608061148';
+import { el, clear, toast, api } from '../api.js?v=202608061155';
+import { icon } from '../shell/icons.js?v=202608061155';
+import { T } from '../shell/i18n.js?v=202608061155';
+import * as store from '../shell/store.js?v=202608061155';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608061155';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608061155';
+import { slidesFromPost } from '../editor/slides.js?v=202608061155';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608061155';
 
 const W = 1080;
 const H = 1350;
@@ -542,10 +542,12 @@ function slideHTML(s, idx, total) {
     // Piso HONESTO por plantilla: Editorial = folio y≈1218 → 140. Panorámica:
     // el pie corrido arranca en y≈1144 (bottom:170) → 220; y su portada además
     // lleva la flecha circular (y1046-1120) → 310. Calibrado mirando la tira.
-    // Secundarias: 190 (sus fuentes difieren de las métricas del estimador
-    // — Cormorant/Outfit propios — y el drift comía el margen del folio).
-    const RESERVA = esPano ? (isCover ? 310 : 250)
-      : (isLast ? 250 : (plantillaPorId(plantillaId).id === 'editorial' ? 140 : 190));
+    // Piso POR PLANTILLA, medido de sus tiras reales: el pie de Revista vive
+    // en y≈1135 (fecha+flecha+handle) y el panel de Ficha guarda su propio
+    // renglón de pie — el 190 genérico se quedaba corto en ambas.
+    const PISOS = { editorial: 140, revista: 260, ficha: 230, nota: 200, suave: 190, papel: 190, rotulo: 190, mural: 190 };
+    const base = PISOS[plantillaPorId(plantillaId).id] || 190;
+    const RESERVA = esPano ? (isCover ? 310 : 250) : (isLast ? Math.max(250, base) : base);
     const pz = { kicker, cleanLen: title ? cleanLen : 0, titulo: title, items, plainBody, support };
     const estima = (sm, comp) => altoBloque(pz, sm, comp, isCover);
     alto = estima(smTitle, compactas);
