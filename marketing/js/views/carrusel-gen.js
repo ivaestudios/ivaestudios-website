@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060205';
-import { icon } from '../shell/icons.js?v=202608060205';
-import { T } from '../shell/i18n.js?v=202608060205';
-import * as store from '../shell/store.js?v=202608060205';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060205';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060205';
-import { slidesFromPost } from '../editor/slides.js?v=202608060205';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060205';
+import { el, clear, toast, api } from '../api.js?v=202608060217';
+import { icon } from '../shell/icons.js?v=202608060217';
+import { T } from '../shell/i18n.js?v=202608060217';
+import * as store from '../shell/store.js?v=202608060217';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060217';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060217';
+import { slidesFromPost } from '../editor/slides.js?v=202608060217';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060217';
 
 const W = 1080;
 const H = 1350;
@@ -277,7 +277,23 @@ const DESIGN_CSS = `
 // visual con fotos reales, no con un caso inventado.
 const MEDIDAS_PANO = { ancho: 744, tit: 92, titSm: 76, titCover: 134, titCoverSm: 112, kicker: 32, bajada: 40, charsBajada: 30 };
 
-function altoBloque({ kicker, cleanLen, items, plainBody, support }, sm, comp, esPortada) {
+// Renglones que ocupa un texto envuelto por palabras (greedy, como el
+// navegador): ceil(chars/porLinea) creía que "¿TU HIJO NECESITA ORTODONCIA"
+// eran 2 renglones cuando el word-wrap real da 3 — y ese renglón fantasma
+// era exactamente lo que la bajada le pisaba al folio.
+function lineasQueOcupa(texto, porLinea) {
+  const palabras = String(texto || '').trim().split(/\s+/).filter(Boolean);
+  if (!palabras.length) return 0;
+  let lineas = 1; let linea = '';
+  for (const w of palabras) {
+    const junta = linea ? linea + ' ' + w : w;
+    if (junta.length <= porLinea || !linea) linea = junta;
+    else { lineas++; linea = w; }
+  }
+  return lineas;
+}
+
+function altoBloque({ kicker, cleanLen, titulo, title, items, plainBody, support }, sm, comp, esPortada) {
   const pano = plantillaPorId(plantillaId).id === 'panorama';
   const M = pano ? MEDIDAS_PANO : null;
   const fsT = pano
@@ -293,7 +309,12 @@ function altoBloque({ kicker, cleanLen, items, plainBody, support }, sm, comp, e
   const anchoChar = pano ? 0.423 : 0.597;
   let h = 0;
   if (kicker) h += (pano ? M.kicker : 36) * 1.2 + 26;
-  if (cleanLen) h += Math.ceil(cleanLen / Math.max(1, Math.floor(ancho / (fsT * anchoChar)))) * fsT * 1.07 + 8;
+  if (cleanLen) {
+    const porLinea = Math.max(1, Math.floor(ancho / (fsT * anchoChar)));
+    const tx = String(titulo || title || '').replace(/\*\*/g, '');
+    const lin = tx ? lineasQueOcupa(tx, porLinea) : Math.ceil(cleanLen / porLinea);
+    h += lin * fsT * 1.07 + 8;
+  }
   if (items && items.length) {
     const pad = comp ? 24 : 34, fsP = comp ? 36 : 39, gap = comp ? 26 : 44, mt = comp ? 44 : 64;
     h += mt + items.reduce((a, it, i) => {
@@ -305,7 +326,7 @@ function altoBloque({ kicker, cleanLen, items, plainBody, support }, sm, comp, e
     if (t) {
       const fsB = pano ? M.bajada : 42;
       const chars = pano ? M.charsBajada : 34;
-      h += (pano ? 32 : 44) + Math.ceil(String(t).replace(/\*\*/g, '').length / chars) * fsB * (pano ? 1.5 : 1.4);
+      h += (pano ? 32 : 44) + lineasQueOcupa(String(t).replace(/\*\*/g, ''), chars) * fsB * (pano ? 1.5 : 1.4);
     }
   }
   return h;
@@ -398,7 +419,7 @@ function slideHTML(s, idx, total) {
     // bloque es y=1200 → reserva 150. Con 205 se compactaban slides que SÍ
     // cabían (calibrado con casos reales en la ronda 2).
     const H = 1350, RESERVA = 140;   // piso del bloque y=1210; paginación y=1218
-    const pz = { kicker, cleanLen: title ? cleanLen : 0, items, plainBody, support };
+    const pz = { kicker, cleanLen: title ? cleanLen : 0, titulo: title, items, plainBody, support };
     const estima = (sm, comp) => altoBloque(pz, sm, comp, isCover);
     alto = estima(smTitle, compactas);
     const cabe = () => (H * topAjustado / 100) + alto * miniK <= H - RESERVA;
@@ -808,12 +829,21 @@ const IA_TARDE = () => toast(T(
 function partirTextoPieza(t) {
   t = String(t || '').replace(/\s+/g, ' ').trim();
   if (!t) return { title: '', body: '' };
+  // Un teléfono al final JAMÁS va en el titular gigante: baja a la bajada
+  // (el texto queda íntegro, solo cambia de jerarquía).
+  let tel = '';
+  const mTel = t.match(/^([^]*?[a-záéíóúüñ)!?.…:])\s+(\+?\d[\d\s().-]{6,})\s*$/i);
+  if (mTel) { t = mTel[1].trim(); tel = mTel[2].trim(); }
+  const listo = (title, body) => ({ title, body: [body, tel].filter(Boolean).join(' ').trim().slice(0, 200) });
   // 56 chars de tope en el título: en MAYÚSCULAS son 2-3 renglones, no 5.
-  if (t.length <= 56) return { title: t, body: '' };
-  const m = t.match(/^(.{10,56}?[.!?…,])\s+([^]*)$/);
-  if (m) return { title: m[1].replace(/[,]$/, '').trim(), body: m[2].trim().slice(0, 200) };
+  if (t.length <= 56) return listo(t, '');
+  // GREEDY: la oración completa MÁS LARGA que quepa. El regex perezoso de antes
+  // cortaba en la primera coma y dejaba "¿…ortodoncia" sin cerrar la pregunta.
+  let m = t.match(/^(.{10,55}[.!?…])\s+([^]*)$/);
+  if (!m) m = t.match(/^(.{10,55}[,;:])\s+([^]*)$/);
+  if (m) return listo(m[1].replace(/[,;:]$/, '').trim(), m[2].trim());
   const corte = t.slice(0, 56).lastIndexOf(' ');
-  return { title: t.slice(0, corte > 20 ? corte : 56).trim(), body: t.slice(corte > 20 ? corte : 56).trim().slice(0, 200) };
+  return listo(t.slice(0, corte > 20 ? corte : 56).trim(), t.slice(corte > 20 ? corte : 56).trim());
 }
 
 // Reparte M textos en N slides: hook → 1, CTA → SIEMPRE el último, intermedios
@@ -841,7 +871,9 @@ function repartirTextos(textos, n) {
       a = t.body.slice(0, sp); b = t.body.slice(sp + 1);
     }
     t.body = a.trim();
-    cuerpo.splice(idx + 1, 0, partirTextoPieza(b.trim()));
+    // El fragmento abre un slide nuevo: arranca con mayúscula.
+    b = b.trim(); b = b.charAt(0).toUpperCase() + b.slice(1);
+    cuerpo.splice(idx + 1, 0, partirTextoPieza(b));
   }
   const out = [];
   for (let i = 0; i < n - (cta ? 1 : 0); i++) out.push(cuerpo[i] || null);
