@@ -293,7 +293,7 @@ const ficha = {
 .panel{position:absolute;left:0;right:0;bottom:0;height:44%;background:${c.tinta};color:#F3F0EA;
   padding:74px 104px 96px;display:flex;flex-direction:column}
 .eyebrow{font-family:Outfit,sans-serif;font-size:34px;letter-spacing:.24em;text-transform:uppercase;
-  color:rgba(243,240,234,.62);padding-bottom:20px;margin-bottom:26px;border-bottom:2px solid rgba(243,240,234,.30)}
+  color:rgba(243,240,234,.62);padding-bottom:20px;margin-bottom:26px;border-bottom:2px solid rgba(243,240,234,.30);text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}
 .tit{font-size:96px;font-weight:400;line-height:1.06;letter-spacing:-.004em;text-wrap:balance}
 .tit i{font-style:italic}
 .tit.sm{font-size:78px}
@@ -399,12 +399,17 @@ const mural = {
   text-transform:uppercase;color:rgba(255,255,255,.6)}
 `,
   html: (c) => {
+    // Mural es COLLAGE: los interiores son foto pura (el mural manda) y el
+    // texto vive en los EXTREMOS — portada con el hook y cierre con el CTA
+    // (la regla de serie extremos=A). Antes el cierre salía mudo (sin CTA) y
+    // los textos de la pieza morían en silencio; ahora el cierre habla.
     const esPortada = c.idx === 0;
+    const esCierre = c.isLast && c.total > 1;
     let inner = '';
-    if (esPortada) {
+    if (esPortada || esCierre) {
       if (c.kicker) inner += `<div class="eyebrow">${esc(c.kicker)}</div>`;
       if (c.title) inner += `<div class="tit${c.smTitle ? ' sm' : ''}">${conCursiva(c.title)}</div>`;
-      const b = c.plainBody || c.support;
+      const b = c.plainBody || (esPortada ? c.support : '');
       if (b) inner += `<div class="bajada">${esc(b.replace(/\*\*/g, ''))}</div>`;
     }
     return `<div class="slide">

@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608061105';
-import { icon } from '../shell/icons.js?v=202608061105';
-import { T } from '../shell/i18n.js?v=202608061105';
-import * as store from '../shell/store.js?v=202608061105';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608061105';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608061105';
-import { slidesFromPost } from '../editor/slides.js?v=202608061105';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608061105';
+import { el, clear, toast, api } from '../api.js?v=202608061128';
+import { icon } from '../shell/icons.js?v=202608061128';
+import { T } from '../shell/i18n.js?v=202608061128';
+import * as store from '../shell/store.js?v=202608061128';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608061128';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608061128';
+import { slidesFromPost } from '../editor/slides.js?v=202608061128';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608061128';
 
 const W = 1080;
 const H = 1350;
@@ -69,9 +69,17 @@ let previews = [];
 let deps = null;
 let hostEl = null;
 
+// BLINDAJE REMOUNT: la pieza elegida sobrevive un unmount+mount de la vista
+// (el router puede remontar por una navegación tardía tras cambiar de cliente
+// y unmount() llama resetGen — se perdían los textos en espera). Solo se
+// guarda la REFERENCIA {cliente, pieza}: los textos se recargan del store al
+// volver a montar, y si el cliente activo ya es otro la referencia se tira.
+let reanudar = null;
+
 export function resetGen() {
   invalidarIA();   // una respuesta de IA en vuelo ya no aplica a la sesión nueva
   genToken += 1;
+  if (piezaId && brandForClient) reanudar = { clientId: brandForClient, piezaId };
   for (const s of slides) { try { s.bitmap && s.bitmap.close && s.bitmap.close(); } catch { /* noop */ } }
   slides = []; previews = [];
   brandLabel = ''; handle = ''; ctaSupport = ''; fechaPublicacion = '';
@@ -526,7 +534,10 @@ function slideHTML(s, idx, total) {
     // Piso HONESTO por plantilla: Editorial = folio y≈1218 → 140. Panorámica:
     // el pie corrido arranca en y≈1144 (bottom:170) → 220; y su portada además
     // lleva la flecha circular (y1046-1120) → 310. Calibrado mirando la tira.
-    const RESERVA = esPano ? (isCover ? 310 : 250) : (isLast ? 250 : 140);
+    // Secundarias: 190 (sus fuentes difieren de las métricas del estimador
+    // — Cormorant/Outfit propios — y el drift comía el margen del folio).
+    const RESERVA = esPano ? (isCover ? 310 : 250)
+      : (isLast ? 250 : (plantillaPorId(plantillaId).id === 'editorial' ? 140 : 190));
     const pz = { kicker, cleanLen: title ? cleanLen : 0, titulo: title, items, plainBody, support };
     const estima = (sm, comp) => altoBloque(pz, sm, comp, isCover);
     alto = estima(smTitle, compactas);
@@ -649,8 +660,11 @@ function slideHTML(s, idx, total) {
       hasText, smTitle, compactas, blockTop, miniCSS,
       modo, velo: veloA, plan,
       marca: brandLabel.trim(), handle: handle.trim(), fecha: fechaCorta(fechaPublicacion),
-      // La tarjeta de "Nota" se centra sola: no depende de dónde hubo hueco.
-      papelTop: Math.max(120, Math.round((1350 - (typeof alto === 'number' ? alto : 700) - 300) / 2)),
+      // La tarjeta de "Nota" sigue la altura FACE-AWARE del guardarraíl (con
+      // rostro arriba baja, con rostro abajo sube); sin plan, centrada.
+      papelTop: (plan && plan.opciones && plan.opciones.length)
+        ? Math.max(120, Math.min(Math.round(topAjustado * 13.5), 1350 - Math.round((typeof alto === 'number' ? alto : 700)) - 380))
+        : Math.max(120, Math.round((1350 - (typeof alto === 'number' ? alto : 700) - 300) / 2)),
       // El marco vive sobre la FOTO: su color lo decide la medición de esa
       // franja, no una constante (sobre un cielo claro el blanco se perdía).
       // Velo propio de cada franja del marco: es el texto más chico y cae
@@ -1092,8 +1106,8 @@ function repartirTextos(textos, n) {
   return out;
 }
 
-function cargarPieza(post) {
-  if (!post) { piezaId = ''; textosPieza = null; return; }
+function cargarPieza(post, { silencioso = false } = {}) {
+  if (!post) { piezaId = ''; textosPieza = null; reanudar = null; return; }
   piezaId = post.id;
   const textos = slidesFromPost(post).map(partirTextoPieza);
   if (post.publish_date) fechaPublicacion = String(post.publish_date).slice(0, 10);
@@ -1112,7 +1126,7 @@ function cargarPieza(post) {
     textosPieza = textos;
     renderGen(hostEl, deps);
   }
-  toast(T(`Pieza cargada: ${textos.length} textos del calendario.`, `Piece loaded: ${textos.length} texts.`), 'success');
+  if (!silencioso) toast(T(`Pieza cargada: ${textos.length} textos del calendario.`, `Piece loaded: ${textos.length} texts.`), 'success');
 }
 
 // DIRIGIR sin escribir: los textos de la usuaria quedan INTACTOS; la IA mira
@@ -1358,6 +1372,7 @@ export function renderGen(root, helpers) {
     // Antes solo cambiaba el rótulo y las fotos/caption viejos se quedaban.
     if (brandForClient && slides.length) {
       resetGen();
+      reanudar = null;   // cierre explícito por cambio de marca: no se reanuda
       toast(T('Cambiaste de marca: el carrusel anterior se cerró.', 'Brand changed: previous carousel cleared.'), 'info');
     }
     brandLabel = brand.name || '';
@@ -1376,6 +1391,24 @@ export function renderGen(root, helpers) {
       if (cfg.plantilla) plantillaId = cfg.plantilla;
     }
     brandForClient = activeClientId;
+  }
+
+  // BLINDAJE REMOUNT: si un remontaje del router pasó por resetGen con una
+  // pieza elegida, aquí se recarga sola desde el store (mismo cliente). Si los
+  // posts aún vienen en camino, la suscripción de abajo re-pinta y reintenta.
+  if (reanudar) {
+    if (reanudar.clientId !== activeClientId) {
+      reanudar = null;   // ya se trabaja otra marca: la referencia vieja se tira
+    } else if (piezaId) {
+      reanudar = null;   // ya hay pieza cargada: no hay nada que reanudar
+    } else {
+      const post = (store.getState().posts || []).find((p) => p.id === reanudar.piezaId);
+      if (post) {
+        reanudar = null;
+        cargarPieza(post, { silencioso: true });   // re-renderiza por dentro
+        return;
+      }
+    }
   }
 
   const previewHost = el('div', { class: 'carg-grid carg-grid--' + vistaTamano });
@@ -1650,16 +1683,29 @@ export function renderGen(root, helpers) {
   ]);
   // Paso 1: la pieza del calendario — los textos entran solos. Los posts
   // cargan ASÍNCRONOS tras cambiar de cliente: si aún no están, la vista se
-  // re-pinta sola cuando lleguen (suscripción de una sola vez).
+  // re-pinta sola cuando lleguen (suscripción de una sola vez). OJO: loadPosts
+  // NO emite 'posts:changed' (solo las mutaciones lo hacen) — hay que escuchar
+  // TAMBIÉN el cambio de la clave 'posts' del store, que es lo que dispara la
+  // carga asíncrona. Sin eso el selector se quedaba vacío para siempre con red
+  // lenta, y el blindaje de `reanudar` jamás reintentaba.
   if (offPosts) { offPosts(); offPosts = null; }
   const piezasCarrusel = (store.getState().posts || [])
     .filter((p) => /carrusel/i.test(p.content_type || '') || /carrusel/i.test(p.title || ''))
     .sort((a, b) => String(a.publish_date || '').localeCompare(String(b.publish_date || '')));
-  if (!piezasCarrusel.length) {
-    offPosts = store.on('posts:changed', () => {
+  if (!piezasCarrusel.length || reanudar) {
+    // El re-render va DIFERIDO (setTimeout 0): notify()/emit() del store están
+    // iterando su Set de suscriptores y un renderGen síncrono volvería a
+    // suscribir dentro de esa misma iteración (un Set visita lo agregado
+    // durante el recorrido) — bucle infinito si las piezas siguen vacías.
+    const repinta = () => {
       if (offPosts) { offPosts(); offPosts = null; }
-      if (hostEl) renderGen(hostEl, deps);
-    });
+      // isConnected: si la vista se desmontó entre el aviso y este timeout,
+      // repintar resubscribiría sobre un DOM muerto (suscripción zombi).
+      setTimeout(() => { if (hostEl && hostEl.isConnected) renderGen(hostEl, deps); }, 0);
+    };
+    const offBus = store.on('posts:changed', repinta);
+    const offKey = store.subscribe(['posts'], repinta);
+    offPosts = () => { offBus(); offKey(); };
   }
   const selPieza = el('select', {
     class: 'input carg-pieza__sel',
@@ -1697,6 +1743,11 @@ export function renderGen(root, helpers) {
         onclick: () => {
           if (plantillaId === pl.id) return;
           plantillaId = pl.id;
+          // Mural es collage: los interiores son foto pura. Si la pieza trae
+          // textos intermedios, se avisa — jamás desaparecen en silencio.
+          if (pl.id === 'mural' && slides.some((x, i) => i > 0 && i < slides.length - 1 && ((x.title || '').trim() || (x.body || '').trim()))) {
+            toast(T('Mural pinta texto solo en portada y cierre: los textos intermedios no se verán en este diseño.', 'Mural shows text only on cover and closing slides.'), 'info');
+          }
           analizarTodo();      // otro diseño = otra caja de texto que medir
           renderGen(hostEl, deps);
         },
