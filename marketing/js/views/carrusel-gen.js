@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060332';
-import { icon } from '../shell/icons.js?v=202608060332';
-import { T } from '../shell/i18n.js?v=202608060332';
-import * as store from '../shell/store.js?v=202608060332';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060332';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060332';
-import { slidesFromPost } from '../editor/slides.js?v=202608060332';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060332';
+import { el, clear, toast, api } from '../api.js?v=202608060340';
+import { icon } from '../shell/icons.js?v=202608060340';
+import { T } from '../shell/i18n.js?v=202608060340';
+import * as store from '../shell/store.js?v=202608060340';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060340';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060340';
+import { slidesFromPost } from '../editor/slides.js?v=202608060340';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060340';
 
 const W = 1080;
 const H = 1350;
@@ -433,7 +433,13 @@ function slideHTML(s, idx, total) {
   // mejor caja DE ESE balde que tampoco pise cara.
   let topPct = pos === 'top' ? 19 : pos === 'bottom' ? 50 : 33;
   if (s.posManual && plan && plan.opciones) {
-    const cand = plan.opciones.find((o) => o.pos === pos && !o.vetoCara) || plan.opciones.find((o) => o.pos === pos);
+    // LA LEY #1 LE GANA AL BALDE: si en el balde pedido (por la IA o el botón)
+    // TODAS las alturas pisan un rostro, el bloque se va a la mejor altura SIN
+    // rostro de cualquier balde — caer a la opción vetada plantaba el texto
+    // sobre la cara del niño (cazado en la ronda C6).
+    const cand = plan.opciones.find((o) => o.pos === pos && !o.vetoCara)
+      || plan.opciones.find((o) => !o.vetoCara)
+      || plan.opciones.find((o) => o.pos === pos);
     if (cand) topPct = cand.topPct;
   } else if (plan && typeof plan.topPct === 'number') {
     topPct = plan.topPct;
