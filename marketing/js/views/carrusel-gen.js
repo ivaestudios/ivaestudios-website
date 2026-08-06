@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060217';
-import { icon } from '../shell/icons.js?v=202608060217';
-import { T } from '../shell/i18n.js?v=202608060217';
-import * as store from '../shell/store.js?v=202608060217';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060217';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060217';
-import { slidesFromPost } from '../editor/slides.js?v=202608060217';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060217';
+import { el, clear, toast, api } from '../api.js?v=202608060224';
+import { icon } from '../shell/icons.js?v=202608060224';
+import { T } from '../shell/i18n.js?v=202608060224';
+import * as store from '../shell/store.js?v=202608060224';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060224';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060224';
+import { slidesFromPost } from '../editor/slides.js?v=202608060224';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060224';
 
 const W = 1080;
 const H = 1350;
@@ -408,7 +408,14 @@ function slideHTML(s, idx, total) {
   // del CSS y, si no cabe, se ajusta EN ORDEN sin borrar contenido:
   // 1) título chico (.sm) → 2) píldoras compactas → 3) subir el bloque.
   const cleanLen = title.replace(/\*\*/g, '').length;
-  let smTitle = cleanLen > 46;
+  // "BLANQUEAMIENTO," (15 chars) no cabe en la columna a 99px (14 chars/renglón):
+  // una palabra que no envuelve se sale por el borde — el palabrón manda a .sm.
+  const esPano = plantillaPorId(plantillaId).id === 'panorama';
+  const charsFull = esPano
+    ? Math.floor(MEDIDAS_PANO.ancho / ((isCover ? MEDIDAS_PANO.titCover : MEDIDAS_PANO.tit) * 0.423))
+    : Math.floor(872 / (99 * 0.597));
+  const palabron = title.replace(/\*\*/g, '').split(/\s+/).some((w) => w.length > charsFull);
+  let smTitle = cleanLen > 46 || palabron;
   let compactas = false;
   let topAjustado = topPct;
   let miniK = 1;   // último recurso: escala proporcional del bloque entero
@@ -834,7 +841,12 @@ function partirTextoPieza(t) {
   let tel = '';
   const mTel = t.match(/^([^]*?[a-záéíóúüñ)!?.…:])\s+(\+?\d[\d\s().-]{6,})\s*$/i);
   if (mTel) { t = mTel[1].trim(); tel = mTel[2].trim(); }
-  const listo = (title, body) => ({ title, body: [body, tel].filter(Boolean).join(' ').trim().slice(0, 200) });
+  // Un corte que deja una MIGAJA de bajada ("…que te / faltan.") no es diseño:
+  // si el resto es ínfimo y el total aún cabe en título chico, va entero.
+  const listo = (title, body) => {
+    if (body && body.length < 12 && (title.length + body.length) <= 76) { title = (title + ' ' + body).trim(); body = ''; }
+    return { title, body: [body, tel].filter(Boolean).join(' ').trim().slice(0, 200) };
+  };
   // 56 chars de tope en el título: en MAYÚSCULAS son 2-3 renglones, no 5.
   if (t.length <= 56) return listo(t, '');
   // GREEDY: la oración completa MÁS LARGA que quepa. El regex perezoso de antes
