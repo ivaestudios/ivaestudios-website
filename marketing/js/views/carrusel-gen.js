@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608061155';
-import { icon } from '../shell/icons.js?v=202608061155';
-import { T } from '../shell/i18n.js?v=202608061155';
-import * as store from '../shell/store.js?v=202608061155';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608061155';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608061155';
-import { slidesFromPost } from '../editor/slides.js?v=202608061155';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608061155';
+import { el, clear, toast, api } from '../api.js?v=202608061200';
+import { icon } from '../shell/icons.js?v=202608061200';
+import { T } from '../shell/i18n.js?v=202608061200';
+import * as store from '../shell/store.js?v=202608061200';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608061200';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608061200';
+import { slidesFromPost } from '../editor/slides.js?v=202608061200';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608061200';
 
 const W = 1080;
 const H = 1350;
@@ -546,8 +546,13 @@ function slideHTML(s, idx, total) {
     // en y≈1135 (fecha+flecha+handle) y el panel de Ficha guarda su propio
     // renglón de pie — el 190 genérico se quedaba corto en ambas.
     const PISOS = { editorial: 140, revista: 260, ficha: 230, nota: 200, suave: 190, papel: 190, rotulo: 190, mural: 190 };
-    const base = PISOS[plantillaPorId(plantillaId).id] || 190;
-    const RESERVA = esPano ? (isCover ? 310 : 250) : (isLast ? Math.max(250, base) : base);
+    // La PORTADA de Revista (titular 4 renglones + bajada serif) deriva ~60px
+    // más que el estimador: piso propio.
+    const PISOS_PORTADA = { revista: 330 };
+    const id2 = plantillaPorId(plantillaId).id;
+    const base = PISOS[id2] || 190;
+    const RESERVA = esPano ? (isCover ? 310 : 250)
+      : (isLast ? Math.max(250, base) : (isCover ? Math.max(base, PISOS_PORTADA[id2] || 0) : base));
     const pz = { kicker, cleanLen: title ? cleanLen : 0, titulo: title, items, plainBody, support };
     const estima = (sm, comp) => altoBloque(pz, sm, comp, isCover);
     alto = estima(smTitle, compactas);
