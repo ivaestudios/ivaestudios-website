@@ -13,13 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060122';
-import { icon } from '../shell/icons.js?v=202608060122';
-import { T } from '../shell/i18n.js?v=202608060122';
-import * as store from '../shell/store.js?v=202608060122';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060122';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060122';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060122';
+import { el, clear, toast, api } from '../api.js?v=202608060132';
+import { icon } from '../shell/icons.js?v=202608060132';
+import { T } from '../shell/i18n.js?v=202608060132';
+import * as store from '../shell/store.js?v=202608060132';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060132';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060132';
+import { slidesFromPost } from '../editor/slides.js?v=202608060132';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060132';
 
 const W = 1080;
 const H = 1350;
@@ -33,6 +34,8 @@ const SCALE = 2;                // se rasteriza a 2160×2700 y el export baja a
 let slides = [];        // [{ file, bitmap, kicker, title, body, pos }]
 let brandLabel = '';
 let brandForClient = null;
+let piezaId = '';           // pieza del calendario cargada (mkt_posts.id)
+let textosPieza = null;     // textos de la pieza esperando a que lleguen fotos
 let handle = '';
 let ctaSupport = '';
 let fechaPublicacion = '';   // AAAA-MM-DD de la pieza (no la fecha de hoy)
@@ -71,6 +74,7 @@ export function resetGen() {
   slides = []; previews = [];
   brandLabel = ''; handle = ''; ctaSupport = ''; fechaPublicacion = '';
   brandForClient = null;
+  piezaId = ''; textosPieza = null;
   brief = ''; captionIA = ''; hashtagsIA = ''; descartes = []; pensando = false;
   // plantillaId NO se resetea: el diseño es una preferencia de quien trabaja,
   // no parte del carrusel que se acaba de cerrar.
@@ -795,6 +799,40 @@ const IA_TARDE = () => toast(T(
   'Las fotos cambiaron mientras la IA escribía; su propuesta ya no aplica. Vuelve a pedirla.',
   'Photos changed while the AI was writing; ask again.'), 'info');
 
+// ── PASO 1 DEL ESTUDIO: la pieza del calendario ─────────────────────────────
+// Los textos YA viven en el calendario (hook / slides / cta). Copiarlos a mano
+// al generador era absurdo: se eligen de una lista y entran solos. Un texto
+// corto va al título; uno largo se parte en título (primera oración) + cuerpo.
+function partirTextoPieza(t) {
+  t = String(t || '').replace(/\s+/g, ' ').trim();
+  if (!t) return { title: '', body: '' };
+  if (t.length <= 88) return { title: t, body: '' };
+  const m = t.match(/^(.{10,88}?[.!?…])\s+([^]*)$/);
+  if (m) return { title: m[1].trim(), body: m[2].trim().slice(0, 200) };
+  return { title: t.slice(0, 85).trim(), body: t.slice(85).trim().slice(0, 200) };
+}
+
+function cargarPieza(post) {
+  if (!post) { piezaId = ''; textosPieza = null; return; }
+  piezaId = post.id;
+  const textos = slidesFromPost(post).map(partirTextoPieza);
+  if (post.publish_date) fechaPublicacion = String(post.publish_date).slice(0, 10);
+  if (slides.length) {
+    // Ya hay fotos: los textos entran posicionalmente (y sobran o faltan sin drama).
+    slides.forEach((sl, i) => {
+      const t = textos[i] || textos[textos.length - 1] || { title: '', body: '' };
+      sl.kicker = ''; sl.title = t.title; sl.body = t.body;
+    });
+    textosPieza = null;
+    invalidarIA(); analizarTodo(); renderGen(hostEl, deps);
+  } else {
+    // Aún sin fotos: quedan en espera y se aplican conforme lleguen.
+    textosPieza = textos;
+    renderGen(hostEl, deps);
+  }
+  toast(T(`Pieza cargada: ${textos.length} textos del calendario.`, `Piece loaded: ${textos.length} texts.`), 'success');
+}
+
 // DIRIGIR sin escribir: los textos de la usuaria quedan INTACTOS; la IA mira
 // cada foto y solo decide el diseño (posición del texto + avisos de dirección
 // tipo "esta foto contradice el mensaje"). Es el modo para el flujo real de
@@ -1038,6 +1076,12 @@ export function renderGen(root, helpers) {
       toast(T('Cambiaste de marca: el carrusel anterior se cerró.', 'Brand changed: previous carousel cleared.'), 'info');
     }
     brandLabel = brand.name || '';
+    // Preset por marca: la firma del masthead no se vuelve a teclear jamás.
+    const CONFIG_MARCA = [
+      { match: /smile/i, marca: 'Smile Now', handle: 'DENTAL & FACIAL CARE' },
+    ];
+    const cfg = CONFIG_MARCA.find((c) => c.match.test(brandLabel));
+    if (cfg) { brandLabel = cfg.marca; handle = cfg.handle; }
     brandForClient = activeClientId;
   }
 
@@ -1071,7 +1115,8 @@ export function renderGen(root, helpers) {
               try { probe.close(); } catch { /* noop */ }
             } else { bitmap = probe; }
           } catch { bitmap = probe; }
-          slides.push({ file: f, bitmap, kicker: '', title: '', body: '', pos: slides.length === 0 ? 'mid' : 'top' });
+          const tPieza = textosPieza && textosPieza[slides.length];
+        slides.push({ file: f, bitmap, kicker: '', title: (tPieza && tPieza.title) || '', body: (tPieza && tPieza.body) || '', pos: slides.length === 0 ? 'mid' : 'top' });
         } catch {
           toast(T(`No pude leer "${f.name}" — usa JPG o PNG (HEIC no corre en este navegador).`, `Could not read "${f.name}" — use JPG or PNG.`), 'error');
         }
@@ -1293,11 +1338,42 @@ export function renderGen(root, helpers) {
   clear(root);
   // append() nativo convierte null en el TEXTO "null" (el() sí filtra; esto
   // no). Los ternarios de abajo devuelven null a propósito: hay que colarlos.
+  // ── EL ESTUDIO: pasos numerados (estructura, no un montón de botones) ────
+  const paso = (n, titulo, sub) => el('div', { class: 'carg-paso' }, [
+    el('span', { class: 'carg-paso__n', text: n }),
+    el('div', {}, [
+      el('b', { class: 'carg-paso__t', text: titulo }),
+      sub ? el('span', { class: 'carg-paso__s', text: sub }) : null,
+    ]),
+  ]);
+  // Paso 1: la pieza del calendario — los textos entran solos.
+  const piezasCarrusel = (store.getState().posts || [])
+    .filter((p) => /carrusel/i.test(p.content_type || '') || /carrusel/i.test(p.title || ''))
+    .sort((a, b) => String(a.publish_date || '').localeCompare(String(b.publish_date || '')));
+  const selPieza = el('select', {
+    class: 'input carg-pieza__sel',
+    onchange: (e) => {
+      const post = piezasCarrusel.find((x) => x.id === e.target.value) || null;
+      cargarPieza(post);
+    },
+  }, [
+    el('option', { value: '', text: T('— Elegir pieza (o trabaja libre) —', '— Pick a piece (or free work) —') }),
+    ...piezasCarrusel.map((pz) => el('option', {
+      value: pz.id, selected: pz.id === piezaId ? 'selected' : undefined,
+      text: `${String(pz.publish_date || '').slice(5, 10)} · ${String(pz.title || 'Sin título').slice(0, 52)}`,
+    })),
+  ]);
+
   root.append(...[
-    el('p', { class: 'car-hint', text: T(
-      'Plantilla editorial minimal: @firma + marca en cursiva + fecha arriba, paginación y chevron abajo, títulos en mayúsculas con **negritas** en lo clave, y pastillas ovaladas para listas (separa con /). Una foto por slide; el sistema arma el resto idéntico en todas.',
-      'Minimal editorial template: handle + script brand + date on top, pagination and chevron below, caps titles with **bold** keywords, oval pills for lists (separate with /).',
-    ) }),
+    paso('1', T('Pieza del calendario', 'Calendar piece'),
+      T('Elige la pieza y sus textos, fecha y marca entran solos. También puedes trabajar libre.', 'Pick the piece; texts and date load themselves.')),
+    el('div', { class: 'carg-pieza' }, [
+      selPieza,
+      textosPieza ? el('span', { class: 'carg-pieza__pend', text: T(`${textosPieza.length} textos en espera: entrarán al subir las fotos.`, `${textosPieza.length} texts waiting for photos.`) }) : null,
+    ]),
+
+    paso('2', T('Diseño y fotos', 'Design & photos'),
+      T('El estilo de la marca se aplica solo. Sube fotos — o cambia una con el botón sobre su miniatura.', 'Brand style auto-applies.')),
     // ── ELEGIR DISEÑO ────────────────────────────────────────────────────
     // Lo que faltaba: un solo layout no alcanza. "Nota" y "Ficha" ni siquiera
     // ponen el texto sobre la foto, así que funcionan con cualquier imagen.
@@ -1357,6 +1433,8 @@ export function renderGen(root, helpers) {
       ]),
     ]),
 
+    paso('3', T('Dirección', 'Direction'),
+      T('Rostros detectados + fotómetro + IA directora. "Dirigir" respeta tus textos al 100%.', 'Faces + photometer + AI director.')),
     // ── LA IA ESCRIBE ────────────────────────────────────────────────────────
     // Una línea de brief y un botón. La app ya midió las fotos; aquí la IA cura,
     // ordena y escribe todo. Lo que devuelve es un BORRADOR: cada campo sigue
@@ -1418,7 +1496,8 @@ export function renderGen(root, helpers) {
     ]) : null,
 
     // ── ¿CÓMO SE VA A VER DE VERDAD? ────────────────────────────────────
-    slides.length ? el('div', { class: 'carg-vistas' }, [
+    slides.length ? paso('4', T('Entrega', 'Delivery'), T('Revísalo al tamaño real (Feed/Perfil) y descarga listo para publicar.', 'Check at real size and download.')),
+    el('div', { class: 'carg-vistas' }, [
       el('span', { class: 'carg-vistas__lbl', text: T('Ver como', 'View as') }),
       ...[
         { id: 'trabajo', txt: T('Trabajo', 'Work'), ay: T('Grande, para editar', 'Large, for editing') },
