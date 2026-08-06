@@ -72,7 +72,18 @@ const ESQUEMA = {
   required: ['orden', 'descartadas', 'slides', 'caption', 'hashtags'],
 };
 
-function sistema(marca, nSlides) {
+function sistema(marca, nSlides, soloDirigir) {
+  if (soloDirigir) {
+    return `Eres el DIRECTOR DE ARTE de IVAE Estudios, agencia de marketing en Cancún. Armas un carrusel de Instagram para ${marca || 'la marca'}.
+
+Los TEXTOS ya están escritos y APROBADOS por la dueña: cada foto trae el suyo. NO los cambies, NO los recortes, NO los "mejores". Devuélvelos EXACTAMENTE como te llegan (kicker, title con sus **asteriscos**, body). El orden de las fotos también está decidido: devuélvelo idéntico (0,1,2,…) y sin descartar ninguna.
+
+TU ÚNICO TRABAJO ES DIRIGIR, mirando cada foto de verdad:
+1. \`pos\` (top / mid / bottom) por slide: el bloque de texto JAMÁS sobre una cara, una boca, ojos, ni sobre el objeto clave de la foto (un producto, una manzana mordida, un alineador). Caras arriba → texto abajo. Busca la zona tranquila: pared, cielo, desenfoque, ropa lisa. La ficha de cada foto trae la sugerencia medida por el fotómetro: úsala de punto de partida y corrígela si tapa algo que importa.
+2. AVISOS de dirección: si una foto contradice el mensaje (p. ej. brackets metálicos en un anuncio de alineadores), está borrosa, repetida o va a pelear con el texto, dilo en \`descartadas\` usando su índice y el motivo — la dueña decide si la cambia. NO la quites del orden.
+3. El \`alt\` de accesibilidad sí lo escribes tú (describe la imagen).
+El caption y hashtags devuélvelos vacíos ("") — ya existen.`;
+  }
   return `Eres el director de arte y copywriter de IVAE Estudios, una agencia de marketing en Cancún. Armas un carrusel de Instagram para ${marca || 'la marca'}.
 
 TU TRABAJO, EN ESTE ORDEN:
@@ -98,7 +109,21 @@ LO QUE **NO** DEBES HACER:
 - No inventes datos, precios, tiempos ni servicios que no vengan en el brief.`;
 }
 
-function usuario(brief, fotos, nSlides) {
+function usuario(brief, fotos, nSlides, textos) {
+  if (textos && textos.length) {
+    const fichas = fotos.map((f, i) => {
+      const p = f.plan || {};
+      const t = textos[i] || {};
+      const zona = p.pos === 'top' ? 'arriba' : p.pos === 'bottom' ? 'abajo' : 'en medio';
+      return `Foto ${i} — sugerencia medida: texto ${zona}${p.semaforo === 'ambar' ? ' (OJO: ' + (p.aviso || 'zona delicada') + ')' : ''}.
+  Su texto aprobado → kicker: "${t.kicker || ''}" · title: "${t.title || ''}" · body: "${t.body || ''}"`;
+    }).join('\n');
+    return `Carrusel de ${nSlides} slides, textos YA aprobados (no los toques).
+
+${fichas}
+
+Mira cada foto y DIRIGE: pos por slide + avisos si alguna foto está mal elegida.`;
+  }
   const fichas = fotos.map((f, i) => {
     const p = f.plan || {};
     const zona = p.pos === 'top' ? 'arriba' : p.pos === 'bottom' ? 'abajo' : 'en medio';
@@ -120,7 +145,7 @@ Te mando las fotos en orden. Elige, ordena y escribe.`;
  * @param {object} env  bindings del Worker (necesita ANTHROPIC_API_KEY)
  * @param {object} args { brief, marca, nSlides, fotos: [{b64, mime, plan}] }
  */
-export async function pedirCarrusel(env, { brief, marca, nSlides, fotos }) {
+export async function pedirCarrusel(env, { brief, marca, nSlides, fotos, textos }) {
   if (!env.ANTHROPIC_API_KEY) {
     const e = new Error('Falta la llave de Claude (ANTHROPIC_API_KEY) en este proyecto.');
     e.code = 'SIN_LLAVE';
@@ -138,12 +163,12 @@ export async function pedirCarrusel(env, { brief, marca, nSlides, fotos }) {
       source: { type: 'base64', media_type: f.mime || 'image/jpeg', data: f.b64 },
     });
   });
-  contenido.push({ type: 'text', text: usuario(brief, fotos, n) });
+  contenido.push({ type: 'text', text: usuario(brief, fotos, n, textos) });
 
   const cuerpo = {
     model: MODELO,
     max_tokens: 4000,
-    system: sistema(marca, n),
+    system: sistema(marca, n, !!(textos && textos.length)),
     messages: [{ role: 'user', content: contenido }],
     tools: [{
       name: 'entregar_carrusel',

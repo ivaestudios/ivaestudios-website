@@ -13,12 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060047';
-import { icon } from '../shell/icons.js?v=202608060047';
-import { T } from '../shell/i18n.js?v=202608060047';
-import * as store from '../shell/store.js?v=202608060047';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060047';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060047';
+import { el, clear, toast, api } from '../api.js?v=202608060100';
+import { icon } from '../shell/icons.js?v=202608060100';
+import { T } from '../shell/i18n.js?v=202608060100';
+import * as store from '../shell/store.js?v=202608060100';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060100';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060100';
 
 const W = 1080;
 const H = 1350;
@@ -785,6 +785,54 @@ const IA_TARDE = () => toast(T(
   'Las fotos cambiaron mientras la IA escribía; su propuesta ya no aplica. Vuelve a pedirla.',
   'Photos changed while the AI was writing; ask again.'), 'info');
 
+// DIRIGIR sin escribir: los textos de la usuaria quedan INTACTOS; la IA mira
+// cada foto y solo decide el diseño (posición del texto + avisos de dirección
+// tipo "esta foto contradice el mensaje"). Es el modo para el flujo real de
+// Vianey: ella da fotos y textos, el sistema los hace ver de agencia.
+async function dirigirConIA() {
+  if (pensando) return;
+  if (slides.length < 2) { toast(T('Sube al menos 2 fotos para dirigir.', 'Add at least 2 photos.'), 'error'); return; }
+  pensando = true;
+  renderGen(hostEl, deps);
+  const token = ++iaToken;
+  try {
+    const fotos = await Promise.all(slides.map(async (s) => ({
+      b64: s.bitmap ? await miniatura(s.bitmap) : null,
+      mime: 'image/jpeg',
+      plan: s.plan ? { pos: s.plan.pos, modo: s.plan.modo, semaforo: s.plan.semaforo, aviso: s.plan.aviso } : null,
+    })));
+    const textos = slides.map((s) => ({ kicker: s.kicker || '', title: s.title || '', body: s.body || '' }));
+    if (token !== iaToken) return;
+    const { activeClientId } = store.getState();
+    const out = await api.post('/carousel/guion', {
+      brief, marca: brandLabel, nSlides: slides.length, client_id: activeClientId, fotos, textos,
+    }, { timeout: 180000 });
+    if (token !== iaToken) { IA_TARDE(); return; }
+    // SOLO se aplica la dirección: posición por slide. Ni orden, ni textos.
+    let movidos = 0;
+    (out.slides || []).slice(0, slides.length).forEach((t, i) => {
+      if ((t.pos === 'top' || t.pos === 'mid' || t.pos === 'bottom') && t.pos !== slides[i].pos) {
+        slides[i].pos = t.pos;
+        slides[i].posManual = t.pos;
+        movidos++;
+      }
+      if (t.alt && !slides[i].alt) slides[i].alt = t.alt;
+    });
+    // Los avisos de dirección se muestran, jamás se actúan en silencio.
+    const avisos = (out.descartadas || []).map((d) => `Foto ${Number(d.i) + 1}: ${d.motivo}`).filter(Boolean);
+    descartes = avisos.map((m) => ({ motivo: m, thumb: null }));
+    analizarTodo();
+    toast(avisos.length
+      ? T(`Diseño dirigido (${movidos} textos reacomodados). Ojo: ${avisos.length} aviso(s) de fotos abajo.`, `Directed (${movidos} moved). ${avisos.length} photo warning(s).`)
+      : T(`Diseño dirigido: ${movidos} textos reacomodados mirando tus fotos.`, `Directed: ${movidos} texts repositioned.`), 'success');
+  } catch (e) {
+    toast((e && e.message) || T('No se pudo dirigir el diseño.', 'Could not direct.'), 'error');
+  } finally {
+    pensando = false;
+    renderGen(hostEl, deps);
+  }
+}
+
 async function escribirConIA() {
   if (pensando) return;
   if (slides.length < 2) {
@@ -1042,6 +1090,41 @@ export function renderGen(root, helpers) {
       tctx.fillText(String(i + 1).padStart(2, '0'), 108, 140);
     }
 
+    // CAMBIAR FOTO sin tocar el diseño: la regla de Vianey — "si no me gusta,
+    // cambio la foto, no el diseño". Entra la foto nueva, los textos quedan
+    // intactos, y el sistema re-decide posición y velo PARA ESA foto (por eso
+    // se borra posManual: la decisión anterior era de la foto que se fue).
+    const fotoIn = el('input', {
+      type: 'file', accept: 'image/*', hidden: true,
+      onchange: async (e) => {
+        const f = e.target.files && e.target.files[0];
+        e.target.value = '';
+        if (!f) return;
+        try {
+          invalidarIA();
+          let bitmap;
+          const probe = await createImageBitmap(f);
+          try {
+            const need = Math.max((W * SCALE) / probe.width, (H * SCALE) / probe.height);
+            const k = Math.min(1, need * 1.35);
+            if (k < 1) {
+              bitmap = await createImageBitmap(f, { resizeWidth: Math.round(probe.width * k), resizeHeight: Math.round(probe.height * k), resizeQuality: 'high' });
+              try { probe.close(); } catch { /* noop */ }
+            } else { bitmap = probe; }
+          } catch { bitmap = probe; }
+          try { s.bitmap && s.bitmap.close && s.bitmap.close(); } catch { /* noop */ }
+          s.bitmap = bitmap;
+          s.file = f;
+          s.posManual = null;
+          s.plan = null;
+          analizarTodo();
+          renderGen(hostEl, deps);
+          toast(T(`Foto del slide ${i + 1} cambiada — el diseño se reacomodó para ella.`, `Slide ${i + 1} photo swapped.`), 'success');
+        } catch {
+          toast(T(`No pude leer "${f.name}" — usa JPG o PNG.`, `Could not read "${f.name}".`), 'error');
+        }
+      },
+    });
     const kickerIn = el('input', {
       class: 'input carg-card__in', type: 'text', value: s.kicker,
       placeholder: isCover ? T('Kicker (ej. ¿SIN ENERGÍA?)', 'Kicker') : T('Kicker (ej. MOOD — opcional)', 'Kicker (optional)'),
@@ -1063,7 +1146,15 @@ export function renderGen(root, helpers) {
       oninput: (e) => { s.body = e.target.value; redrawSoon(); }, onchange: redraw,
     });
     return el('div', { class: 'carg-card' }, [
-      thumb,
+      el('div', { class: 'carg-card__foto' }, [
+        thumb,
+        s.bitmap ? el('button', {
+          class: 'carg-card__swap', type: 'button',
+          title: T('Cambiar SOLO la foto: tus textos y el diseño se quedan; el sistema se reacomoda para la foto nueva.', 'Swap only the photo.'),
+          onclick: () => fotoIn.click(),
+        }, [icon('camera', 13), ' ' + T('Cambiar', 'Swap')]) : null,
+        fotoIn,
+      ]),
       el('div', { class: 'carg-card__main' }, [
         el('div', { class: 'carg-card__head' }, [
           el('b', { text: isCover ? T('1 · Portada', '1 · Cover') : isLast ? `${i + 1} · ` + T('Cierre', 'Closing') : `${i + 1}` }),
@@ -1266,9 +1357,19 @@ export function renderGen(root, helpers) {
       }, pensando
         ? [el('span', { class: 'carg-ia__spin' }), ' ' + T('Escribiendo…', 'Writing…')]
         : [icon('sparkles', 15), ' ' + T('Escribir con IA', 'Write with AI')]),
+      // El flujo de Vianey: ELLA escribe los textos y la IA solo DIRIGE el
+      // diseño (posición por foto + avisos como "esta foto trae brackets").
+      // No toca ni una letra suya.
+      el('button', {
+        class: 'btn carg-ia__go', type: 'button', disabled: pensando || undefined,
+        title: T('No cambia tus textos: la IA mira cada foto y acomoda el diseño (posición, avisos).', 'Does not change your texts: the AI directs the design only.'),
+        onclick: dirigirConIA,
+      }, pensando
+        ? [el('span', { class: 'carg-ia__spin' }), ' ' + T('Dirigiendo…', 'Directing…')]
+        : [icon('eye', 15), ' ' + T('Dirigir diseño (IA)', 'Direct design (AI)')]),
       el('span', { class: 'carg-ia__note', text: T(
-        'La IA elige las mejores fotos, las ordena como historia y escribe los textos y el caption. Todo editable.',
-        'The AI picks the best photos, orders them and writes the copy. All editable.') }),
+        '"Escribir": la IA cura, ordena y redacta todo. "Dirigir": tus textos quedan intactos y la IA solo acomoda el diseño mirando cada foto.',
+        '"Write": AI curates and writes. "Direct": your texts stay; AI only places them by looking at each photo.') }),
     ]) : null,
 
     // Qué fotos dejó fuera y por qué (transparencia: nunca borra en silencio).

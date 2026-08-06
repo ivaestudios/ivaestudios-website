@@ -851,11 +851,21 @@ async function handleCarruselGuion(request, env, session) {
 
   const t0 = Date.now();
   try {
+    // Modo DIRIGIR: los textos vienen aprobados por la dueña y la IA solo
+    // decide diseño (pos + avisos). Se sanean igual que todo lo demás.
+    const textos = Array.isArray(body.textos)
+      ? body.textos.slice(0, 10).map((t) => ({
+          kicker: String((t && t.kicker) || '').slice(0, 60),
+          title: String((t && t.title) || '').slice(0, 140),
+          body: String((t && t.body) || '').slice(0, 260),
+        }))
+      : null;
     const out = await pedirCarrusel(env, {
       brief: String(body.brief || '').slice(0, 800),
       marca: String(body.marca || '').slice(0, 80),
       nSlides: body.nSlides,
       fotos,
+      textos,
     });
     try {
       await logActivity(env, {

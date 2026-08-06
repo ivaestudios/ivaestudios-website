@@ -341,3 +341,14 @@
 .carg-grid--perfil .carg-cell { border-radius: 0; border: 0; aspect-ratio: 3 / 4; }
 .carg-grid--perfil .carg-cell__canvas { height: 100%; object-fit: cover; }
 .carg-grid--perfil .carg-cell__num { display: none; }
+
+/* Cambiar SOLO la foto de un slide (el diseño se queda). */
+.carg-card__foto { position: relative; flex: none; }
+.carg-card__swap {
+  position: absolute; left: 6px; bottom: 6px;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px; border-radius: 9px; border: 0; cursor: pointer;
+  background: rgba(10, 10, 14, .72); color: #fff;
+  font-size: 11.5px; font-weight: 600; backdrop-filter: blur(4px);
+}
+.carg-card__swap:hover { background: rgba(226, 77, 160, .85); }
