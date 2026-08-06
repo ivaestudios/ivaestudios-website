@@ -23,20 +23,20 @@
 // Contrato de vista: export default { id, mount(el, ctx), onParams, unmount }.
 // ============================================================================
 
-import { el, api, statusBadge, approvalBadge, fmtDate, isClientRole} from '../api.js?v=202608061201';
-import { T } from '../shell/i18n.js?v=202608061201';
-import { icon } from '../shell/icons.js?v=202608061201';
-import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202608061201';
-import * as store from '../shell/store.js?v=202608061201';
-import * as cl from '../services/checklist.js?v=202608061201';
-import { createAutosave } from './autosave.js?v=202608061201';
-import { textExpand } from '../ui/pickers.js?v=202608061201';
-import { openActionsMenu } from './actions.js?v=202608061201';
-import { mount as mountContenido } from './tab-contenido.js?v=202608061201';
-import { mount as mountGuion } from './tab-guion.js?v=202608061201';
-import { mount as mountChecklist } from './tab-checklist.js?v=202608061201';
-import { mount as mountConversacion } from './tab-conversacion.js?v=202608061201';
-import { mount as mountActividad } from './tab-actividad.js?v=202608061201';
+import { el, api, statusBadge, approvalBadge, fmtDate, fmtDateTime, isClientRole} from '../api.js?v=202608061530';
+import { T } from '../shell/i18n.js?v=202608061530';
+import { icon } from '../shell/icons.js?v=202608061530';
+import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202608061530';
+import * as store from '../shell/store.js?v=202608061530';
+import * as cl from '../services/checklist.js?v=202608061530';
+import { createAutosave } from './autosave.js?v=202608061530';
+import { textExpand } from '../ui/pickers.js?v=202608061530';
+import { openActionsMenu } from './actions.js?v=202608061530';
+import { mount as mountContenido } from './tab-contenido.js?v=202608061530';
+import { mount as mountGuion } from './tab-guion.js?v=202608061530';
+import { mount as mountChecklist } from './tab-checklist.js?v=202608061530';
+import { mount as mountConversacion } from './tab-conversacion.js?v=202608061530';
+import { mount as mountActividad } from './tab-actividad.js?v=202608061530';
 
 const TABS = [
   { key: 'contenido', label: T('Contenido', 'Content'), mount: mountContenido },
@@ -124,6 +124,24 @@ function paintSaveState(state) {
 }
 
 // ── Header: titulo + chips de acceso rapido ──────────────────────────────────
+// El evento más reciente del hilo (aprobaciones + comentarios visibles).
+function ultimaActividad() {
+  const evs = [];
+  for (const a of ed.getApprovals()) {
+    if (!a || !a.created_at) continue;
+    const verbo = a.decision === 'approved' ? T('aprobó', 'approved') : T('pidió cambios', 'requested changes');
+    evs.push({ t: a.created_at, quien: a.actor_name || T('Alguien', 'Someone'), verbo });
+  }
+  for (const c of ed.getComments()) {
+    if (!c || !c.created_at) continue;
+    evs.push({ t: c.created_at, quien: c.author_name || T('Alguien', 'Someone'), verbo: T('comentó', 'commented') });
+  }
+  if (!evs.length) return '';
+  evs.sort((x, y) => String(y.t).localeCompare(String(x.t)));
+  const e = evs[0];
+  return `${T('Última actividad:', 'Last activity:')} ${e.quien} ${e.verbo} · ${fmtDateTime(e.t)}`;
+}
+
 function refreshHeader() {
   if (!loaded) return;
   const p = ed.getPost();
@@ -149,6 +167,11 @@ function refreshHeader() {
     class: 'edchip', type: 'button', 'aria-label': T('Cambiar aprobacion', 'Change approval'),
     onclick: (e) => openApprovalPicker(e.currentTarget),
   }, [approvalBadge(p.approval_state)]));
+
+  // ÚLTIMA ACTIVIDAD: quién tocó la pieza por última vez y qué hizo — a un
+  // vistazo, sin abrir el tab (con varias revisoras por marca es oro).
+  const ua = ultimaActividad();
+  if (ua) chipsEl.appendChild(el('span', { class: 'ed-ultima', text: ua }));
 
   chipsEl.appendChild(el('button', {
     class: 'edchip edchip--date', type: 'button', 'aria-label': T('Cambiar fecha de publicacion', 'Change publish date'),
@@ -231,6 +254,7 @@ async function reloadThread() {
     approvals = Array.isArray(res.approvals) ? res.approvals : approvals;
     if (Array.isArray(res.checklist)) checklistSeed = res.checklist;
     setTabBadge('conversacion', comments.length ? String(comments.length) : '');
+    refreshHeader();   // la línea de "última actividad" vive del hilo recién cargado
   } catch { /* best-effort */ }
 }
 
@@ -423,10 +447,11 @@ function buildChrome(host) {
   ]);
 
   tabsEl = el('div', { class: 'edtabs', role: 'tablist', 'aria-label': T('Secciones del contenido', 'Content sections') });
-  // El tab Actividad es el log interno del equipo: al cliente el backend le
-  // responde 403 y la vista lo silenciaba mostrando "Sin actividad" — le mentía.
-  // Auditoría 2026-07-31: mejor no ofrecerlo.
-  const tabsVisibles = TABS.filter((t) => !(isClientRole() && t.key === 'actividad'));
+  // El tab Actividad TAMBIÉN es del cliente (pidió Vianey 2026-08-06: con
+  // varias revisoras por marca, cada una ve quién aprobó/pidió cambios/
+  // comentó y cuándo). El backend le sirve un feed BLINDADO: solo su marca,
+  // solo acciones que le conciernen, jamás comentarios internos.
+  const tabsVisibles = TABS;
   for (const t of tabsVisibles) {
     const badge = el('span', { class: 'edtabs__badge', hidden: true });
     tabBadges.set(t.key, badge);

@@ -3463,8 +3463,12 @@ async function handleUpsertCapacity(request, env, session) {
 // ACTIVITY — team/admin only  (V2: + ?post_id= for the editor's Activity tab)
 // ============================================================================
 
-async function handleActivity(request, env, session, url) {
-  const clientId = url.searchParams.get('client_id');
+async function handleActivity(request, env, session, url, isStaff) {
+  // CLIENTE: solo SU marca, solo acciones que le conciernen, y jamás la
+  // actividad de comentarios internos. La URL no puede ampliar el alcance.
+  const esCliente = !isStaff;
+  const clientId = esCliente ? session.client_id : url.searchParams.get('client_id');
+  if (esCliente && !clientId) return json([]);
   const postId = url.searchParams.get('post_id');
   let limit = parseInt(url.searchParams.get('limit') || '50', 10);
   if (!Number.isFinite(limit) || limit < 1) limit = 50;
@@ -3472,6 +3476,10 @@ async function handleActivity(request, env, session, url) {
 
   const where = [];
   const vals = [];
+  if (esCliente) {
+    where.push("action IN ('post.approve','post.request_changes','post.comment','status.change','post.create','post.update')");
+    where.push("NOT (action = 'post.comment' AND detail = 'internal')");
+  }
   if (clientId) { where.push('client_id = ?'); vals.push(clientId); }
   if (postId) { where.push('post_id = ?'); vals.push(postId); }
   const sql = `SELECT id, client_id, post_id, user_id, actor_name, action, detail, created_at
@@ -4891,10 +4899,11 @@ async function route(request, env, authCtx) {
     });
   }
 
-  // ── ACTIVITY (admin/team only) ──
+  // ── ACTIVITY (staff: todo; CLIENTE: su historial blindado — pidió Vianey
+  //    que con varios revisores por marca se vea quién hizo qué y cuándo) ──
   if (parts[0] === 'activity' && parts.length === 1 && method === 'GET') {
-    if (!isStaff) return json({ error: 'Forbidden' }, 403);
-    return handleActivity(request, env, session, url);
+    if (!isStaff && session.role !== 'client') return json({ error: 'Forbidden' }, 403);
+    return handleActivity(request, env, session, url, isStaff);
   }
 
   // ── DESCARGAR (solo staff): descargador de videos IG/TikTok/Pinterest ──
