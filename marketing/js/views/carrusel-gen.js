@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060424';
-import { icon } from '../shell/icons.js?v=202608060424';
-import { T } from '../shell/i18n.js?v=202608060424';
-import * as store from '../shell/store.js?v=202608060424';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060424';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060424';
-import { slidesFromPost } from '../editor/slides.js?v=202608060424';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060424';
+import { el, clear, toast, api } from '../api.js?v=202608060430';
+import { icon } from '../shell/icons.js?v=202608060430';
+import { T } from '../shell/i18n.js?v=202608060430';
+import * as store from '../shell/store.js?v=202608060430';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060430';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060430';
+import { slidesFromPost } from '../editor/slides.js?v=202608060430';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060430';
 
 const W = 1080;
 const H = 1350;
@@ -263,7 +263,11 @@ const DESIGN_CSS = `
 .slide{position:relative;width:1080px;height:1350px;font-family:Outfit,sans-serif;color:#fff;overflow:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 /* Rampas LARGAS con paradas intermedias: un degradado de dos paradas también
    deja un tono medio perceptible; con la curva 58/22 se funde sin escalón. */
-.scrim-top{position:absolute;top:0;left:0;right:0;height:300px;--sv:.30;background:linear-gradient(rgba(12,12,16,var(--sv)),rgba(12,12,16,calc(var(--sv)*.56)) 42%,rgba(12,12,16,calc(var(--sv)*.2)) 74%,rgba(12,12,16,0))}
+/* El masthead vive en y40-150: el velo SOSTIENE su fuerza por toda esa banda
+   y muere después con cola larga (difuminada legal). El falloff a 42% dejaba
+   la fecha en .28 efectivo sobre cielo claro — el fallo más repetido de la
+   noche (7+ hallazgos de jueces). */
+.scrim-top{position:absolute;top:0;left:0;right:0;height:320px;--sv:.30;background:linear-gradient(rgba(12,12,16,var(--sv)),rgba(12,12,16,var(--sv)) 150px,rgba(12,12,16,calc(var(--sv)*.55)) 205px,rgba(12,12,16,calc(var(--sv)*.2)) 262px,rgba(12,12,16,0))}
 .scrim-block{position:absolute;left:0;right:0;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,.42) 90px,rgba(12,12,16,.42))}
 .scrim-bottom{position:absolute;left:0;right:0;bottom:0;height:320px;--sv:.34;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,calc(var(--sv)*.24)) 30%,rgba(12,12,16,calc(var(--sv)*.59)) 62%,rgba(12,12,16,var(--sv)))}
 .hdr{position:absolute;top:88px;left:104px;right:104px;display:grid;grid-template-columns:1fr auto 1fr;gap:56px;align-items:baseline;text-shadow:0 1px 14px rgba(0,0,0,.45)}.hdr .h{justify-self:start;text-wrap:balance}.hdr .d{justify-self:end;white-space:nowrap}
