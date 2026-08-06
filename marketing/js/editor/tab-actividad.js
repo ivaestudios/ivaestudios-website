@@ -16,11 +16,31 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, api, statusLabel, fmtDateTime, avatar } from '../api.js?v=202608061530';
-import { icon } from '../shell/icons.js?v=202608061530';
-import { T } from '../shell/i18n.js?v=202608061530';
+import { el, api, statusLabel, fmtDateTime, avatar } from '../api.js?v=202608061533';
+import { icon } from '../shell/icons.js?v=202608061533';
+import { T } from '../shell/i18n.js?v=202608061533';
 
 const PAGE = 40;
+
+// Campos editables en idioma humano; lo que no está aquí es interno y se calla
+// (expected_updated_at, orderings…).
+const CAMPOS = {
+  title: T('título', 'title'),
+  body: T('guion', 'script'),
+  hook: T('hook', 'hook'),
+  cta: T('CTA', 'CTA'),
+  caption: T('caption', 'caption'),
+  hashtags: T('hashtags', 'hashtags'),
+  seo_alt: T('alt SEO', 'SEO alt'),
+  publish_date: T('fecha de publicación', 'publish date'),
+  publish_time: T('hora de publicación', 'publish time'),
+  status: T('estado', 'status'),
+  content_type: T('tipo de contenido', 'content type'),
+  assignee: T('responsable', 'assignee'),
+  pillar: T('pilar', 'pillar'),
+  notes: T('notas', 'notes'),
+  client_visible: T('visibilidad', 'visibility'),
+};
 
 // Verbos del feed en es-MX (espejo de logActivity del backend).
 const ACTION_LABELS = {
@@ -149,7 +169,10 @@ export function mount(host, ed) {
           el('span', { text: statusChangeText(e.detail) }),
         ]);
       } else if (e.action === 'post.update' && e.detail) {
-        detailNode = el('span', { class: 'edact__detail edact__detail--muted', text: String(e.detail).split(',').join(', ') });
+        // Los nombres crudos de campos (publish_date, expected_updated_at) no
+        // son idioma de clienta: se traducen y el ruido interno se calla.
+        const campos = String(e.detail).split(',').map((c) => CAMPOS[c.trim()] || null).filter(Boolean);
+        detailNode = campos.length ? el('span', { class: 'edact__detail edact__detail--muted', text: campos.join(', ') }) : null;
       } else if ((e.action || '').startsWith('checklist.') && e.detail) {
         detailNode = el('span', { class: 'edact__detail edact__detail--muted', text: String(e.detail) });
       }
