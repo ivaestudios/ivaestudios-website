@@ -212,9 +212,10 @@ function elegirTratamiento(lFondo, lPeorClaro, detalle, lPeorOscuro, objetivo) {
 // generador (top/mid/bottom). No se inventan posiciones nuevas — la identidad
 // visual que aprobó Vianey es invariante del sistema.
 const ALTURAS = [
-  { pos: 'top', topPct: 12 },
-  { pos: 'top', topPct: 19 },
-  { pos: 'top', topPct: 26 },
+  // Aire bajo el masthead (jueces P10): el ancla alta arranca en 25% (y≈338),
+  // ≥180px bajo la banda de marca — a 12% el bloque la asfixiaba.
+  { pos: 'top', topPct: 25 },
+  { pos: 'top', topPct: 29 },
   { pos: 'mid', topPct: 33 },
   { pos: 'mid', topPct: 40 },
   { pos: 'bottom', topPct: 46 },
@@ -378,8 +379,12 @@ export function analizarFoto(bmp, { altoPct = 34, pxTitular = 104, caras = [] } 
     const by0 = topPct * 13.5, by1 = by0 + altoPct * 13.5;
     let peor = 0;
     for (const c of caras) {
-      const fx0 = c.x - 26, fx1 = c.x + c.w + 26;
-      const fy0 = c.y - 26, fy1 = c.y + c.h + 26;
+      // La caja de MediaPipe corta en la barbilla y bajo el nacimiento del
+      // pelo: el margen es ANATÓMICO, no fijo — 35% del alto hacia abajo
+      // (mandíbula/boca), 22% hacia arriba (frente), 14% a los lados.
+      const mx = Math.max(26, c.w * 0.14);
+      const fx0 = c.x - mx, fx1 = c.x + c.w + mx;
+      const fy0 = c.y - Math.max(26, c.h * 0.22), fy1 = c.y + c.h + Math.max(26, c.h * 0.35);
       const ix = Math.max(0, Math.min(bx1, fx1) - Math.max(bx0, fx0));
       const iy = Math.max(0, Math.min(by1, fy1) - Math.max(by0, fy0));
       const frac = (ix * iy) / Math.max(1, (fx1 - fx0) * (fy1 - fy0));
@@ -402,9 +407,17 @@ export function analizarFoto(bmp, { altoPct = 34, pxTitular = 104, caras = [] } 
     return { pos: 'mid', topPct: 33, modo: 'blanco', velo: 0.42, contraste: 0, semaforo: 'ambar', aviso: 'No se pudo analizar la foto.', opciones: [] };
   }
   const mejor = cajas[0];
-  const aviso = mejor.vetoCara
-    ? 'La cara ocupa casi toda la foto: el texto va en la zona que menos la tapa — revísalo.'
-    : derivarAviso(mejor);
+  // P8 de los jueces: si hasta la mejor zona está OCUPADA (camisa de cuadros,
+  // follaje), el velo local se refuerza — la trama come el trazo fino aunque
+  // el contraste por luminancia "pase".
+  if (mejor.modo === 'blanco' && mejor.detalle > 16) mejor.velo = Math.max(mejor.velo, 0.34);
+  const bajoMasthead = caras.some((c) => c.y < 170);
+  const aviso = [
+    mejor.vetoCara
+      ? 'La cara ocupa casi toda la foto: el texto va en la zona que menos la tapa — revísalo.'
+      : derivarAviso(mejor),
+    bajoMasthead ? 'Hay una cara pegada al borde superior: la banda de marca puede rozarla — considera otra foto o más aire arriba.' : null,
+  ].filter(Boolean).join(' ') || null;
 
   return {
     pos: mejor.pos,

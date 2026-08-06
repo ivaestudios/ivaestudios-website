@@ -81,7 +81,11 @@ Los TEXTOS ya están escritos y APROBADOS por la dueña: cada foto trae el suyo.
 TU ÚNICO TRABAJO ES DIRIGIR, mirando cada foto de verdad:
 1. \`pos\` (top / mid / bottom) por slide: el bloque de texto JAMÁS sobre una cara, una boca, ojos, ni sobre el objeto clave de la foto (un producto, una manzana mordida, un alineador). Caras arriba → texto abajo. Busca la zona tranquila: pared, cielo, desenfoque, ropa lisa. La ficha de cada foto trae la sugerencia medida por el fotómetro: úsala de punto de partida y corrígela si tapa algo que importa.
 2. AVISOS de dirección: si una foto contradice el mensaje (p. ej. brackets metálicos en un anuncio de alineadores), está borrosa, repetida o va a pelear con el texto, dilo en \`descartadas\` usando su índice y el motivo — la dueña decide si la cambia. NO la quites del orden.
-3. El \`alt\` de accesibilidad sí lo escribes tú (describe la imagen).
+3. COHERENCIA que solo tú puedes ver (también va en \`descartadas\`, como aviso):
+   - CASTING foto↔servicio: la edad y el sujeto de la foto deben corresponder al tratamiento del texto (un niño ilustrando All-on-4 o coronas está MAL; una adulta cerrando una serie infantil, también).
+   - TITULAR↔BAJADA del mismo servicio: si el título dice Invisalign y la bajada habla de carillas, avísalo.
+   - GRAMÁTICA VISIBLE: concordancias raras que quedarán horneadas en la imagen ("coronas y más diseñado") — avísalo, sin corregir el texto.
+4. El \`alt\` de accesibilidad sí lo escribes tú (describe la imagen).
 El caption y hashtags devuélvelos vacíos ("") — ya existen.`;
   }
   return `Eres el director de arte y copywriter de IVAE Estudios, una agencia de marketing en Cancún. Armas un carrusel de Instagram para ${marca || 'la marca'}.

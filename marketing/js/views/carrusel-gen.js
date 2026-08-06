@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060256';
-import { icon } from '../shell/icons.js?v=202608060256';
-import { T } from '../shell/i18n.js?v=202608060256';
-import * as store from '../shell/store.js?v=202608060256';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060256';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060256';
-import { slidesFromPost } from '../editor/slides.js?v=202608060256';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060256';
+import { el, clear, toast, api } from '../api.js?v=202608060304';
+import { icon } from '../shell/icons.js?v=202608060304';
+import { T } from '../shell/i18n.js?v=202608060304';
+import * as store from '../shell/store.js?v=202608060304';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060304';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060304';
+import { slidesFromPost } from '../editor/slides.js?v=202608060304';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060304';
 
 const W = 1080;
 const H = 1350;
@@ -192,7 +192,7 @@ const telBonito = (t) => String(t || '').replace(/\b(\d{2})?(\d{3})(\d{3})(\d{4}
 // Ningún renglón termina en conector: el conector baja CON su palabra
 // (espacio duro   — el carácter, JAMÁS la entidad &nbsp; que mata el
 // XML). Y la última línea de una bajada nunca es huérfana de una palabra.
-const CONECTORES = new Set(['y', 'e', 'o', 'u', 'en', 'un', 'una', 'de', 'del', 'al', 'para', 'con', 'por', 'sin', 'a', 'que', 'la', 'el', 'los', 'las', 'tu', 'su', 'mi', 'se', 'no', 'ni', 'más']);
+const CONECTORES = new Set(['y', 'e', 'o', 'u', 'en', 'un', 'una', 'de', 'del', 'al', 'para', 'con', 'por', 'sin', 'a', 'que', 'la', 'el', 'lo', 'los', 'las', 'le', 'les', 'te', 'me', 'nos', 'tu', 'su', 'mi', 'se', 'no', 'ni', 'más', 'es', 'son', 'ya']);
 function pegarConectores(t, viuda) {
   const palabras = String(t || '').split(/\s+/).filter(Boolean);
   if (palabras.length < 2) return String(t || '');
