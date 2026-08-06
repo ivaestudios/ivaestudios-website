@@ -13,12 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608052339';
-import { icon } from '../shell/icons.js?v=202608052339';
-import { T } from '../shell/i18n.js?v=202608052339';
-import * as store from '../shell/store.js?v=202608052339';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608052339';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608052339';
+import { el, clear, toast, api } from '../api.js?v=202608060020';
+import { icon } from '../shell/icons.js?v=202608060020';
+import { T } from '../shell/i18n.js?v=202608060020';
+import * as store from '../shell/store.js?v=202608060020';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060020';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060020';
 
 const W = 1080;
 const H = 1350;
@@ -174,9 +174,11 @@ const rich = (s) => esc(s).split('**').map((part, i) => (i % 2 ? `<b>${part}</b>
 const DESIGN_CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
 .slide{position:relative;width:1080px;height:1350px;font-family:Outfit,sans-serif;color:#fff;overflow:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-.scrim-top{position:absolute;top:0;left:0;right:0;height:230px;background:linear-gradient(rgba(12,12,16,.34),rgba(12,12,16,0))}
+/* Rampas LARGAS con paradas intermedias: un degradado de dos paradas también
+   deja un tono medio perceptible; con la curva 58/22 se funde sin escalón. */
+.scrim-top{position:absolute;top:0;left:0;right:0;height:300px;background:linear-gradient(rgba(12,12,16,.30),rgba(12,12,16,.17) 42%,rgba(12,12,16,.06) 74%,rgba(12,12,16,0))}
 .scrim-block{position:absolute;left:0;right:0;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,.42) 90px,rgba(12,12,16,.42))}
-.scrim-bottom{position:absolute;left:0;right:0;bottom:0;height:240px;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,.38))}
+.scrim-bottom{position:absolute;left:0;right:0;bottom:0;height:320px;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,.08) 30%,rgba(12,12,16,.2) 62%,rgba(12,12,16,.34))}
 .hdr{position:absolute;top:88px;left:104px;right:104px;display:flex;justify-content:space-between;align-items:baseline;text-shadow:0 1px 14px rgba(0,0,0,.45)}
 .hdr .h,.hdr .d{font-size:28px;font-weight:400;letter-spacing:.02em;color:rgba(255,255,255,.96)}
 .hdr .b{font-family:'Pinyon Script',cursive;font-size:54px;line-height:1;transform:translateY(6px);color:#fff}
@@ -406,16 +408,34 @@ function slideHTML(s, idx, total) {
   const miniCSS = miniK < 1
     ? `;transform:scale(${miniK.toFixed(3)});transform-origin:top left;width:${Math.round(872 / miniK)}px;left:104px;right:auto`
     : '';
-  const scrimTop = `${Math.max(0, topAjustado - 7)}%`;
-
-  // El velo ya NO es fijo: `--va` lleva la opacidad que calculó el fotómetro.
-  // En modo banda se pinta un bloque sólido en lugar del degradado.
+  // ── EL VELO COMO MANTA, NO COMO BANDA ────────────────────────────────────
+  // La rampa de 90px que había aquí era LA franja gris que cruzaba las caras:
+  // de transparente a opacidad completa en 90px hay un borde que el ojo ve
+  // clarísimo. El velo hecho a mano (el de Vianey en Canva) no tiene borde
+  // porque su transición ocupa MEDIA FOTO. Receta nueva:
+  //  · la rampa mide hasta 460px y termina 40px ANTES del texto (contraste
+  //    completo en la primera línea, como antes — eso no se negocia);
+  //  · paradas intermedias con curva suave (22%→48%→78%) para que ni siquiera
+  //    una rampa corta deje escalón perceptible;
+  //  · con velos fuertes (≥0.38) se suma una MANTA general apenas visible
+  //    sobre toda la foto: empareja la luz como en las tiras reales de SMILE
+  //    y permite que el velo local trabaje menos.
+  const textoY = Math.round(topAjustado * 13.5);            // % → px sobre 1350
+  const rampa = Math.max(140, Math.min(460, textoY - 40));
+  const inicioPx = Math.max(0, textoY - 40 - rampa);
+  const grad = (v) => `linear-gradient(rgba(12,12,16,0),`
+    + `rgba(12,12,16,${(v * 0.22).toFixed(3)}) ${Math.round(rampa * 0.42)}px,`
+    + `rgba(12,12,16,${(v * 0.58).toFixed(3)}) ${Math.round(rampa * 0.72)}px,`
+    + `rgba(12,12,16,${v}) ${rampa}px,rgba(12,12,16,${v}))`;
+  const manta = veloA >= 0.38
+    ? `<div style="position:absolute;inset:0;background:rgba(12,12,16,${(veloA * 0.16).toFixed(3)})"></div>`
+    : '';
   const veloHTML = !hasText ? ''
     : modo === 'banda'
-      ? `<div class="banda" style="top:${scrimTop};bottom:0"></div>`
+      ? `<div class="banda" style="top:${Math.max(0, topAjustado - 7)}%;bottom:0"></div>`
       : modo === 'oscuro'
-        ? `<div class="scrim-block veil-claro" style="top:${scrimTop};bottom:0;--va:${veloA}"></div>`
-        : `<div class="scrim-block" style="top:${scrimTop};bottom:0;background:linear-gradient(rgba(12,12,16,0),rgba(12,12,16,${veloA}) 90px,rgba(12,12,16,${veloA}))"></div>`;
+        ? `<div class="scrim-block veil-claro" style="top:${Math.max(0, topAjustado - 7)}%;bottom:0;--va:${veloA}"></div>`
+        : `${manta}<div class="scrim-block" style="top:${inicioPx}px;bottom:0;background:${grad(veloA)}"></div>`;
 
   // ── El contexto que recibe la plantilla ─────────────────────────────────
   // Todo lo pensado (fotómetro, guardarraíl, escala) queda resuelto aquí; la
@@ -806,6 +826,13 @@ async function escribirConIA() {
       slides[i].title = t.title || '';
       slides[i].body = t.body || '';
       slides[i].alt = t.alt || '';
+      // La IA también DIRIGE: eligió dónde va el texto MIRANDO la foto (caras,
+      // zonas tranquilas). Se fija como decisión manual para que el fotómetro
+      // no la pise al re-medir; el botón de posición sigue mandando después.
+      if (t.pos === 'top' || t.pos === 'mid' || t.pos === 'bottom') {
+        slides[i].pos = t.pos;
+        slides[i].posManual = t.pos;
+      }
     });
     captionIA = out.caption || '';
     hashtagsIA = out.hashtags || '';

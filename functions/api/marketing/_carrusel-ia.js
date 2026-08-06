@@ -54,12 +54,16 @@ const ESQUEMA = {
         type: 'object',
         properties: {
           rol: { type: 'string', enum: ['portada', 'desarrollo', 'lista', 'dato', 'cierre'] },
+          pos: {
+            type: 'string', enum: ['top', 'mid', 'bottom'],
+            description: 'Dónde va el bloque de texto EN ESTA FOTO. Mira la imagen: elige la zona que NO tape caras, bocas, ojos ni el producto, y que tenga el fondo más tranquilo (pared, cielo, desenfoque, ropa lisa). La sugerencia medida viene en la ficha de la foto: respétala salvo que caiga sobre una cara.',
+          },
           kicker: { type: 'string', description: `Antetítulo en MAYÚSCULAS, máx ${LIMITES.kicker} caracteres. Puede ir vacío.` },
           title: { type: 'string', description: `Título grande, máx ${LIMITES.title} caracteres. Envuelve en **dobles asteriscos** las 1-3 palabras clave (salen en negrita).` },
           body: { type: 'string', description: `Texto de apoyo, máx ${LIMITES.body}. Para listas de 2-3 puntos, sepáralos con " / " (cada uno máx ${LIMITES.pill}).` },
           alt: { type: 'string', description: 'Texto alternativo del slide para accesibilidad y SEO. Describe la imagen, no el texto. Máx 120.' },
         },
-        required: ['rol', 'kicker', 'title', 'body', 'alt'],
+        required: ['rol', 'pos', 'kicker', 'title', 'body', 'alt'],
       },
     },
     caption: { type: 'string', description: 'El copy FINAL de Instagram, listo para pegar, con emojis y saltos de línea. Sin hashtags (van aparte).' },
@@ -73,8 +77,9 @@ function sistema(marca, nSlides) {
 
 TU TRABAJO, EN ESTE ORDEN:
 1. CURAR: mira las fotos y quédate con las MEJORES (máximo ${nSlides}). Está PERFECTO entregar menos slides si alguna foto no aporta: descarta repetidas, mal encuadradas, borrosas o que no sumen a la historia, y di el motivo de cada descarte.
-2. ORDENAR: arma una historia. Slide 1 engancha (portada), los de en medio desarrollan, el último cierra con la invitación.
-3. ESCRIBIR: el texto de cada slide y el caption completo.
+2. ORDENAR: arma una historia. Slide 1 engancha (portada), los de en medio desarrollan, el último cierra con la invitación. Regla de oro del reparto: cada texto en la foto que lo aguanta — los títulos largos van en las fotos con zonas lisas u oscuras; una foto muy clara y llena de detalle recibe el texto más corto.
+3. DIRIGIR: para cada slide elige \`pos\` (top / mid / bottom) MIRANDO la foto. El bloque de texto JAMÁS sobre una cara, una boca o el producto; búscale la zona tranquila (pared, cielo, desenfoque, ropa lisa, sombra natural). La ficha de cada foto trae la sugerencia medida por el fotómetro: úsala de punto de partida y corrígela si tapa algo que importa.
+4. ESCRIBIR: el texto de cada slide y el caption completo.
 
 REGLAS DE ESCRITURA (voz de IVAE — respétalas al pie de la letra):
 - Español de México, cercano y claro. Tuteo. Cero relleno corporativo.
@@ -89,7 +94,7 @@ REGLAS DURAS DE LONGITUD (si te pasas, el texto se desborda del diseño y hay qu
 - Cuenta los caracteres antes de responder. Es más importante que sea corto a que sea completo.
 
 LO QUE **NO** DEBES HACER:
-- No decidas dónde va el texto ni de qué color: eso ya está medido y resuelto.
+- No decidas el COLOR ni el tratamiento del texto: eso está medido (tú solo decides la posición).
 - No inventes datos, precios, tiempos ni servicios que no vengan en el brief.`;
 }
 
@@ -213,6 +218,9 @@ function sanear(out, n, nFotos) {
     .filter((i) => Number.isInteger(i) && i >= 0 && i < nFotos).slice(0, n);
   const slides = (Array.isArray(out.slides) ? out.slides : []).slice(0, orden.length).map((s) => ({
     rol: s.rol || 'desarrollo',
+    // La dirección de arte de la IA: dónde va el texto EN ESA foto (vio caras
+    // y zonas tranquilas que el fotómetro solo intuye por contraste).
+    pos: ['top', 'mid', 'bottom'].includes(s.pos) ? s.pos : null,
     kicker: corta(s.kicker, LIMITES.kicker).toUpperCase(),
     // El título conserva los ** de negrita; el conteo ignora los asteriscos.
     title: corta(s.title, LIMITES.title + 8),
