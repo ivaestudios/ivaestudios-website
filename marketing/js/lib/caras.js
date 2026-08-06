@@ -98,6 +98,13 @@ async function detectar(bmp) {
           });
         const xs = pts.map((q) => q[0]); const ys = pts.map((q) => q[1]);
         caja = { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
+        // El envolvente de un rect girado se INFLA por |cos|+|sin| (~1.33 a
+        // 25°): se deflacta hacia el centro para recuperar el tamaño real —
+        // sin esto, media foto quedaba "cara" y todo se volvía imposible.
+        const rad2 = Math.abs(ang) * Math.PI / 180;
+        const k = 1 / (Math.cos(rad2) + Math.sin(rad2));
+        const dcx = caja.x + caja.w / 2; const dcy = caja.y + caja.h / 2;
+        caja = { x: dcx - (caja.w * k) / 2, y: dcy - (caja.h * k) / 2, w: caja.w * k, h: caja.h * k };
       }
       todas.push({ x: caja.x / K, y: caja.y / K, w: caja.w / K, h: caja.h / K });
     }
