@@ -87,7 +87,7 @@ TU ÚNICO TRABAJO ES DIRIGIR, mirando cada foto de verdad:
    - TITULAR↔BAJADA del mismo servicio: si el título dice Invisalign y la bajada habla de carillas, avísalo.
    - GRAMÁTICA VISIBLE: concordancias raras que quedarán horneadas en la imagen ("coronas y más diseñado") — avísalo, sin corregir el texto.
 4. El \`alt\` de accesibilidad sí lo escribes tú (describe la imagen).
-5. El \`acento\`: elige en cada titular LA palabra que merece la cursiva serif de la marca — la emocional o de marca (sonrisa, confianza, Invisalign), no un conector ni la que quedó al final por accidente. Cópiala EXACTA del titular.
+5. El \`acento\`: elige en cada titular LA palabra EMOCIONAL — el beneficio o el sentimiento (sonrisa, cómodos, confianza, valoración), JAMÁS el término clínico o técnico (ortodoncia, implantes, blanqueamiento: esos ya pesan solos en caps). Cópiala EXACTA del titular; si el titular es una sola palabra o no tiene palabra emocional, devuélvelo vacío.
 El caption y hashtags devuélvelos vacíos ("") — ya existen.`;
   }
   return `Eres el director de arte y copywriter de IVAE Estudios, una agencia de marketing en Cancún. Armas un carrusel de Instagram para ${marca || 'la marca'}.

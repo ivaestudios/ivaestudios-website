@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060412';
-import { icon } from '../shell/icons.js?v=202608060412';
-import { T } from '../shell/i18n.js?v=202608060412';
-import * as store from '../shell/store.js?v=202608060412';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060412';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060412';
-import { slidesFromPost } from '../editor/slides.js?v=202608060412';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060412';
+import { el, clear, toast, api } from '../api.js?v=202608060416';
+import { icon } from '../shell/icons.js?v=202608060416';
+import { T } from '../shell/i18n.js?v=202608060416';
+import * as store from '../shell/store.js?v=202608060416';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060416';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060416';
+import { slidesFromPost } from '../editor/slides.js?v=202608060416';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060416';
 
 const W = 1080;
 const H = 1350;
@@ -648,8 +648,12 @@ function slideHTML(s, idx, total) {
   // Marco ADAPTATIVO (jueces R3): la fuerza del degradado de cabecera/pie es
   // el velo que el fotómetro midió para ESA franja de ESTA foto — sobre cielo
   // claro el masthead pedía más y la constante lo dejaba desaparecer al 36%.
-  const veloHdr = Math.min(0.5, Math.max(0.26, (plan && plan.header && plan.header.velo) || 0.3));
-  const veloPie = Math.min(0.52, Math.max(0.3, (plan && plan.pie && plan.pie.velo) || 0.34));
+  // Piso ALTO cuando la franja pidió refuerzo (foto high-key): el masthead y
+  // la fecha desaparecían al 36% sobre cielo/azulejo claro (jueces R4).
+  const hdrRef = plan && plan.header && plan.header.refuerzo;
+  const pieRef = plan && plan.pie && plan.pie.refuerzo;
+  const veloHdr = Math.min(0.58, Math.max(hdrRef ? 0.4 : 0.28, (plan && plan.header && plan.header.velo) || 0.3));
+  const veloPie = Math.min(0.6, Math.max(pieRef ? 0.44 : 0.32, (plan && plan.pie && plan.pie.velo) || 0.34));
   const scrimArriba = modo === 'oscuro' || completa || pos === 'top' ? '' : `<div class="scrim-top" style="--sv:${veloHdr.toFixed(2)}"></div>`;
   const scrimAbajo = modo === 'oscuro' || completa || pos === 'bottom' || (pos === 'mid' && textoY > 620) ? '' : `<div class="scrim-bottom" style="--sv:${veloPie.toFixed(2)}"></div>`;
   return `
