@@ -28,20 +28,21 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202608061533';
-import { icon } from '../shell/icons.js?v=202608061533';
-import { T } from '../shell/i18n.js?v=202608061533';
+} from '../api.js?v=202608061559';
+import { icon } from '../shell/icons.js?v=202608061559';
+import { T } from '../shell/i18n.js?v=202608061559';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202608061559';
 // Capas de history del shell: el boton atras del telefono cierra la capa de
 // arriba (panel de guion) en vez de salir de la app.
-import { pushLayer } from '../shell/router.js?v=202608061533';
+import { pushLayer } from '../shell/router.js?v=202608061559';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608061533';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608061533';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608061533';
+import { errorCard } from '../ui/states.js?v=202608061559';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608061559';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608061559';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608061533';
+} from '../lib/video-upload.js?v=202608061559';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -460,6 +461,48 @@ function getExtraMonths() {
 }
 
 // ── Render scheduling ────────────────────────────────────────────────────────
+
+// ── HISTORIAL DE CAMBIOS (pedido de Vianey 2026-08-06) ──────────────────────
+// Única excepción al "cero fetch propio" de esta vista: el feed de actividad
+// no vive en el store. Un solo GET por cliente (cache 60s), best-effort: si
+// falla, la tabla sale sin la columna llena y ya.
+let histFeed = [];            // eventos DESC del cliente activo
+let histUltimo = new Map();   // post_id -> último evento
+let histCliente = '';
+let histAt = 0;
+let histCargando = false;
+
+function asegurarHistorial(cid) {
+  if (!cid || cid === 'todos') return;
+  const fresco = histCliente === cid && (Date.now() - histAt) < 60000;
+  if (fresco || histCargando) return;
+  histCargando = true;
+  api.get(`/activity?client_id=${encodeURIComponent(cid)}&limit=200`)
+    .then((list) => {
+      histFeed = Array.isArray(list) ? list : [];
+      histUltimo = new Map();
+      for (const ev of histFeed) {
+        if (ev && ev.post_id && !histUltimo.has(ev.post_id)) histUltimo.set(ev.post_id, ev);
+      }
+      histCliente = cid; histAt = Date.now();
+      scheduleRender();
+    })
+    .catch(() => { /* sin historial no se rompe el calendario */ })
+    .finally(() => { histCargando = false; });
+}
+
+// "6 ago, 11:19 a.m." — corto, para celdas y filas del historial.
+function histFecha(iso) {
+  if (!iso) return '';
+  const d = new Date(String(iso).replace(' ', 'T') + (String(iso).includes('Z') ? '' : 'Z'));
+  if (isNaN(d)) return '';
+  return `${d.toLocaleDateString(T('es-MX', 'en-US'), { day: 'numeric', month: 'short' })}, ${d.toLocaleTimeString(T('es-MX', 'en-US'), { hour: 'numeric', minute: '2-digit' })}`;
+}
+
+function abrirHistorialDe(post) {
+  const cid = post.client_id || histCliente;
+  location.hash = `#/post/${encodeURIComponent(post.id)}?cliente=${encodeURIComponent(cid)}&tab=actividad`;
+}
 
 function scheduleRender() {
   if (!rootEl) return;
@@ -1504,7 +1547,55 @@ function buildRow(post, noteLabels) {
     // Entregables, que sí respeta el permiso.
     buildUrlCell(post, 'video_url', T('Video final', 'Final video'), { ocultarValor: isClientRole() && !descargasDeLaMarca() }),
   );
+
+  // HISTORIAL: el último cambio de esta pieza (quién y cuándo); clic = la
+  // pieza abierta directo en su pestaña Actividad con el detalle completo.
+  const ev = histUltimo.get(post.id);
+  const evTxt = ev ? `${ev.actor_name || T('Alguien', 'Someone')} ${ACTION_LABELS[ev.action] || ev.action}` : '—';
+  tr.appendChild(el('td', { class: 'meses-td meses-col--hist' }, [
+    el('button', {
+      class: 'meses-hist__btn', type: 'button',
+      title: ev ? `${evTxt} · ${histFecha(ev.created_at)} — ${T('ver historial completo', 'view full history')}` : T('Ver historial de la pieza', 'View piece history'),
+      onclick: () => abrirHistorialDe(post),
+    }, [
+      el('span', { class: 'meses-hist__quien', text: evTxt }),
+      ev ? el('span', { class: 'meses-hist__cuando', text: histFecha(ev.created_at) }) : null,
+    ]),
+  ]));
   return tr;
+}
+
+// ── Historial de cambios del mes (sección bajo la tabla) ────────────────────
+function buildHistorialMes(rows) {
+  if (!histFeed.length) return null;
+  const ids = new Set(rows.map((p) => String(p.id)));
+  const porId = new Map(rows.map((p) => [String(p.id), p]));
+  const eventos = histFeed.filter((ev) => ev.post_id && ids.has(String(ev.post_id))).slice(0, 25);
+  if (!eventos.length) return null;
+  return el('section', { class: 'meses-hist' }, [
+    el('h3', { class: 'meses-hist__h' }, [
+      icon('clock', 15),
+      el('span', { text: T('Historial de cambios', 'Change history') }),
+      el('span', { class: 'meses-sec__count', text: String(eventos.length) }),
+    ]),
+    el('ul', { class: 'meses-hist__lista' }, eventos.map((ev) => {
+      const post = porId.get(String(ev.post_id));
+      const detalle = detalleEvento(ev);
+      return el('li', { class: 'meses-hist__it' }, [
+        el('button', {
+          class: 'meses-hist__fila', type: 'button',
+          title: T('Abrir la pieza en su historial', 'Open the piece history'),
+          onclick: () => abrirHistorialDe(post || { id: ev.post_id, client_id: ev.client_id }),
+        }, [
+          el('span', { class: 'meses-hist__cuando', text: histFecha(ev.created_at) }),
+          el('span', { class: 'meses-hist__quien', text: ev.actor_name || T('Alguien', 'Someone') }),
+          el('span', { class: 'meses-hist__que', text: ACTION_LABELS[ev.action] || ev.action }),
+          el('span', { class: 'meses-hist__pieza', text: post ? (post.title || T('(sin título)', '(untitled)')) : T('(pieza eliminada)', '(deleted piece)') }),
+          detalle ? el('span', { class: 'meses-hist__det', text: detalle }) : null,
+        ]),
+      ]);
+    })),
+  ]);
 }
 
 // ── Drag & drop de filas (reordenar con el puño ⠿; persiste en position) ────
@@ -1608,6 +1699,7 @@ function buildTable(rows, noteLabels) {
     ...noteLabels.map((p) => el('th', { text: `${T('Notas', 'Notes')} ${p}`, scope: 'col' })),
     el('th', { text: T('Inspo', 'Inspo'), scope: 'col' }),
     el('th', { text: T('Video final', 'Final video'), scope: 'col' }),
+    el('th', { text: T('Historial', 'History'), scope: 'col', class: 'meses-col--hist' }),
   ];
   const tbody = el('tbody', {}, rows.map((p) => buildRow(p, noteLabels)));
   // Con la columna Grabacion omitida (cliente), el `left` de Tarea cambia:
@@ -2212,6 +2304,11 @@ function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTod
     // como su resumen, antes del boton "Nueva linea".
     const progress = buildMonthProgress(rows);
     if (progress) bodyKids.push(progress);
+    // HISTORIAL DE CAMBIOS del mes en pantalla: detallado (quién, qué cambió,
+    // en qué pieza) y cada fila redirige AL LUGAR (la pieza, tab Actividad).
+    asegurarHistorial(clientKey());
+    const hist = buildHistorialMes(rows);
+    if (hist) bodyKids.push(hist);
   } else if (isClientRole() && !(allPostsForFilters || []).length) {
     // Calendario 100% VACIO de un cliente (self-signup): bienvenida en vez del
     // copy de staff. Una sola tarjeta, arriba del composer.

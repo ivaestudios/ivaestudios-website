@@ -16,48 +16,13 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, api, statusLabel, fmtDateTime, avatar } from '../api.js?v=202608061533';
-import { icon } from '../shell/icons.js?v=202608061533';
-import { T } from '../shell/i18n.js?v=202608061533';
+import { el, api, statusLabel, fmtDateTime, avatar } from '../api.js?v=202608061559';
+import { icon } from '../shell/icons.js?v=202608061559';
+import { T } from '../shell/i18n.js?v=202608061559';
+import { ACTION_LABELS, CAMPOS, statusChangeText } from '../lib/actividad-fmt.js?v=202608061559';
 
 const PAGE = 40;
 
-// Campos editables en idioma humano; lo que no está aquí es interno y se calla
-// (expected_updated_at, orderings…).
-const CAMPOS = {
-  title: T('título', 'title'),
-  body: T('guion', 'script'),
-  hook: T('hook', 'hook'),
-  cta: T('CTA', 'CTA'),
-  caption: T('caption', 'caption'),
-  hashtags: T('hashtags', 'hashtags'),
-  seo_alt: T('alt SEO', 'SEO alt'),
-  publish_date: T('fecha de publicación', 'publish date'),
-  publish_time: T('hora de publicación', 'publish time'),
-  status: T('estado', 'status'),
-  content_type: T('tipo de contenido', 'content type'),
-  assignee: T('responsable', 'assignee'),
-  pillar: T('pilar', 'pillar'),
-  notes: T('notas', 'notes'),
-  client_visible: T('visibilidad', 'visibility'),
-};
-
-// Verbos del feed en es-MX (espejo de logActivity del backend).
-const ACTION_LABELS = {
-  'post.create': T('creo el contenido', 'created the content'),
-  'post.update': T('edito el contenido', 'edited the content'),
-  'status.change': T('movio el estado', 'moved the status'),
-  'post.comment': T('comento', 'commented'),
-  'post.approve': T('aprobo', 'approved'),
-  'post.request_changes': T('pidio cambios', 'requested changes'),
-  'post.delete': T('elimino el contenido', 'deleted the content'),
-  'post.duplicate': T('duplico el contenido', 'duplicated the content'),
-  'post.reorder': T('reordeno contenidos', 'reordered content'),
-  'post.bulk_update': T('edito en lote', 'bulk-edited'),
-  'checklist.add': T('agrego un paso a la checklist', 'added a checklist step'),
-  'checklist.done': T('completo un paso de la checklist', 'completed a checklist step'),
-  'checklist.delete': T('elimino un paso de la checklist', 'deleted a checklist step'),
-};
 
 function toDate(iso) {
   if (!iso) return null;
@@ -74,13 +39,6 @@ function dayKey(iso) {
 function timeOf(iso) {
   const d = toDate(iso);
   return d ? d.toLocaleTimeString(T('es-MX', 'en-US'), { hour: '2-digit', minute: '2-digit' }) : '';
-}
-
-/** "guion→grabacion" -> "Guion -> Grabacion" con labels bonitos. */
-function statusChangeText(detail) {
-  const parts = String(detail || '').split('→').map((s) => s.trim());
-  if (parts.length === 2) return `${statusLabel(parts[0])} ${T('a', 'to')} ${statusLabel(parts[1])}`;
-  return String(detail || '');
 }
 
 export function mount(host, ed) {
