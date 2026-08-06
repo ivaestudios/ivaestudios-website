@@ -634,7 +634,132 @@ const papel = {
   },
 };
 
-export const PLANTILLAS = [editorial, revista, nota, ficha, suave, mural, panorama, papel];
+// ════════════════════════════════════════════════════════════════════════════
+// 9. RÓTULO — CERO fotografías. La plantilla para las marcas sin banco de
+//    imágenes (dental, RH, terapia): no usa ni una foto en toda la tira, así
+//    que nunca hay una imagen de stock fea que justificar.
+//
+//    Sale del estudio de 88 plantillas reales (2026-08): once del corpus
+//    resuelven así y ninguna se ve pobre. Las reglas de serie, medidas al
+//    píxel de las referencias:
+//      · margen de contenido CLAVADO en x=140, medida máxima 800px
+//      · portada e interiores se distinguen por el NUMERAL FANTASMA (420px a
+//        contraste 1.1:1 — es textura, no información) que solo existe en los
+//        interiores, y el titular lo PISA
+//      · el riel inferior cambia de carga: píldora "DESLIZA →" en portada,
+//        contador + filete en interiores, firma en el cierre
+//      · el cierre repite las dos voces de la portada (bookend), centrado
+//      · acento en dosis mínimas; NUNCA un fondo de color
+//
+//    NOTA de marca: aquí hay letra oscura sobre papel — la regla "texto blanco
+//    sobre sombra negra" aplica cuando hay FOTO debajo que velar; sobre papel
+//    el contraste es 12.8:1, más del doble de lo que cualquier sombra logra.
+//    (Misma decisión que Vianey ya aprobó al elegir la referencia de Papel.)
+// ════════════════════════════════════════════════════════════════════════════
+const ROT = {
+  papel: '#F1EEE8', tinta: '#1A1714', cuerpo: '#2C2722',
+  gris: '#6A625A', fantasma: '#E4DFD6', filete: '#C9C1B6', acento: '#B4471F',
+};
+const rotulo = {
+  id: 'rotulo',
+  nombre: 'Rótulo',
+  descripcion: 'Sin fotos: papel, tipografía y un acento. Para marcas sin banco de imágenes.',
+  sobreFoto: false,
+  sinFoto: true,                      // el generador permite slides SIN imagen
+  fuentes: ['Cormorant', 'Outfit'],
+  acento: 'cursiva',
+  fondo: ROT.papel,                   // lo pinta el canvas
+  css: () => `${RESET}
+.slide{font-family:Cormorant,Georgia,serif;color:${ROT.tinta}}
+/* Grano de papel sin imagen de textura: tres radiales casi invisibles. */
+.grano{position:absolute;inset:0;pointer-events:none;background:
+  radial-gradient(circle at 20% 30%, rgba(0,0,0,.03), transparent 45%),
+  radial-gradient(circle at 78% 12%, rgba(0,0,0,.025), transparent 40%),
+  radial-gradient(circle at 55% 82%, rgba(0,0,0,.03), transparent 48%)}
+/* Riel superior: marca a la izquierda, etiqueta al acento a la derecha. */
+.riel-arriba{position:absolute;top:92px;left:140px;right:140px;display:flex;
+  justify-content:space-between;align-items:baseline;font-family:Outfit,sans-serif;
+  font-size:26px;font-weight:600;letter-spacing:.22em;text-transform:uppercase}
+.riel-arriba .etq{color:${ROT.acento}}
+/* Numeral fantasma: SOLO interiores. 420px a 1.1:1 — textura, no información. */
+.fantasma{position:absolute;top:250px;left:132px;font-weight:600;font-size:420px;
+  line-height:1;color:${ROT.fantasma};letter-spacing:-.02em}
+/* Titular de PORTADA: dos voces, 3 renglones máx, bloque y=392-707. */
+.tit-portada{position:absolute;left:140px;right:140px;top:392px;
+  font-size:112px;line-height:105px;font-weight:600;text-wrap:balance}
+.tit-portada i{font-style:italic;font-weight:500;color:${ROT.acento}}
+.tit-portada.sm{font-size:94px;line-height:90px}
+.bajada-portada{position:absolute;left:140px;right:140px;top:790px;
+  font-family:Outfit,sans-serif;font-size:30px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:${ROT.gris};line-height:1.35}
+/* Titular INTERIOR: una voz, pisa al numeral. */
+.tit-interior{position:absolute;left:140px;right:140px;top:286px;
+  font-size:88px;line-height:1.04;font-weight:600;text-wrap:balance}
+.tit-interior i{font-style:italic;color:${ROT.acento}}
+.tit-interior.sm{font-size:74px}
+.cuerpo{position:absolute;left:140px;top:540px;width:760px;
+  font-family:Outfit,sans-serif;font-size:40px;font-weight:400;line-height:57px;color:${ROT.cuerpo}}
+.lista{position:absolute;left:140px;top:540px;width:760px;display:flex;flex-direction:column;gap:34px}
+.li{font-family:Outfit,sans-serif;font-size:40px;line-height:1.4;color:${ROT.cuerpo};
+  padding-left:52px;position:relative}
+.li::before{content:'';position:absolute;left:0;top:12px;width:18px;height:18px;
+  border:2px solid ${ROT.acento}}
+/* Titular de CIERRE: dos voces como la portada, 96px y CENTRADO. */
+.tit-cierre{position:absolute;left:120px;right:120px;top:400px;text-align:center;
+  font-size:96px;line-height:1.05;font-weight:600;text-wrap:balance}
+.tit-cierre i{font-style:italic;font-weight:500;color:${ROT.acento}}
+.tit-cierre.sm{font-size:80px}
+.bajada-cierre{position:absolute;left:150px;right:150px;top:730px;text-align:center;
+  font-family:Outfit,sans-serif;font-size:40px;font-weight:500;line-height:1.5;color:${ROT.cuerpo}}
+/* Riel inferior (y≈1112-1188, por encima de la franja de interfaz). */
+.riel-abajo{position:absolute;left:140px;right:140px;top:1112px;height:76px;
+  display:flex;align-items:center;font-family:Outfit,sans-serif}
+.pildora{display:inline-flex;align-items:center;height:76px;padding:0 36px;
+  border:2px solid ${ROT.acento};border-radius:999px;
+  font-size:28px;font-weight:600;letter-spacing:.08em;color:${ROT.acento}}
+.contador{font-size:28px;font-weight:600;color:${ROT.gris};letter-spacing:.08em;flex:none}
+.filete-riel{height:2px;background:${ROT.filete};flex:1;margin-left:34px}
+.firma{font-size:30px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:${ROT.tinta};line-height:1.4}
+`,
+  html: (c) => {
+    const esPortada = c.idx === 0;
+    const esCierre = c.isLast && c.total > 1;
+    const nn = String(c.idx + 1).padStart(2, '0');
+    const etiqueta = esPortada ? c.fecha : esCierre ? esc(c.handle) : (esc(c.kicker) || esc(c.handle));
+
+    let centro = '';
+    if (esPortada) {
+      if (c.title) centro += `<div class="tit-portada${c.smTitle ? ' sm' : ''}">${conCursiva(c.title)}</div>`;
+      const b = c.plainBody || c.support;
+      if (b) centro += `<div class="bajada-portada">${esc(String(b).replace(/\*\*/g, ''))}</div>`;
+    } else if (esCierre) {
+      if (c.title) centro += `<div class="tit-cierre${c.smTitle ? ' sm' : ''}">${conCursiva(c.title)}</div>`;
+      const b = c.support || c.plainBody;
+      if (b) centro += `<div class="bajada-cierre">${esc(String(b).replace(/\*\*/g, ''))}</div>`;
+    } else {
+      centro += `<div class="fantasma">${nn}</div>`;
+      if (c.title) centro += `<div class="tit-interior${c.smTitle ? ' sm' : ''}">${conCursiva(c.title)}</div>`;
+      if (c.items) centro += `<div class="lista">${c.items.map((i) => `<div class="li">${esc(i)}</div>`).join('')}</div>`;
+      else if (c.plainBody) centro += `<div class="cuerpo">${esc(String(c.plainBody).replace(/\*\*/g, ''))}</div>`;
+    }
+
+    const riel = esPortada
+      ? `<div class="pildora">DESLIZA&#160;&#8594;</div>`
+      : esCierre
+      ? `<div class="firma">${esc(c.marca)}&#160;&#160;&#183;&#160;&#160;${esc(c.handle)}</div>`
+      : `<span class="contador">${nn}&#160;/&#160;${String(c.total).padStart(2, '0')}</span><span class="filete-riel"></span>`;
+
+    return `<div class="slide">
+      <div class="grano"></div>
+      <div class="riel-arriba"><span>${esc(c.marca)}</span><span class="etq">${etiqueta}</span></div>
+      ${centro}
+      <div class="riel-abajo">${riel}</div>
+    </div>`;
+  },
+};
+
+export const PLANTILLAS = [editorial, revista, nota, ficha, suave, mural, panorama, papel, rotulo];
 export const PLANTILLA_POR_DEFECTO = 'revista';
 export function plantillaPorId(id) {
   return PLANTILLAS.find((p) => p.id === id) || PLANTILLAS.find((p) => p.id === PLANTILLA_POR_DEFECTO);

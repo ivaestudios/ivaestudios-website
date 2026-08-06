@@ -13,12 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608041925';
-import { icon } from '../shell/icons.js?v=202608041925';
-import { T } from '../shell/i18n.js?v=202608041925';
-import * as store from '../shell/store.js?v=202608041925';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608041925';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608041925';
+import { el, clear, toast, api } from '../api.js?v=202608052300';
+import { icon } from '../shell/icons.js?v=202608052300';
+import { T } from '../shell/i18n.js?v=202608052300';
+import * as store from '../shell/store.js?v=202608052300';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608052300';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608052300';
 
 const W = 1080;
 const H = 1350;
@@ -728,7 +728,9 @@ async function escribirConIA() {
   const token = ++iaToken;
   try {
     const fotos = await Promise.all(slides.map(async (s) => ({
-      b64: await miniatura(s.bitmap),
+      // Rótulo tiene slides sin foto: a la IA le viaja null y escribe solo con
+      // el brief (miniatura(null) tronaría el envío completo).
+      b64: s.bitmap ? await miniatura(s.bitmap) : null,
       mime: 'image/jpeg',
       plan: s.plan ? { pos: s.plan.pos, modo: s.plan.modo, semaforo: s.plan.semaforo, aviso: s.plan.aviso } : null,
     })));
@@ -945,8 +947,16 @@ export function renderGen(root, helpers) {
     const tctx = thumb.getContext('2d');
     thumb.width = 216; thumb.height = 270;
     tctx.imageSmoothingEnabled = true; tctx.imageSmoothingQuality = 'high';
-    const sc = Math.max(216 / s.bitmap.width, 270 / s.bitmap.height);
-    tctx.drawImage(s.bitmap, (216 - s.bitmap.width * sc) / 2, (270 - s.bitmap.height * sc) / 2, s.bitmap.width * sc, s.bitmap.height * sc);
+    if (s.bitmap) {
+      const sc = Math.max(216 / s.bitmap.width, 270 / s.bitmap.height);
+      tctx.drawImage(s.bitmap, (216 - s.bitmap.width * sc) / 2, (270 - s.bitmap.height * sc) / 2, s.bitmap.width * sc, s.bitmap.height * sc);
+    } else {
+      // Slide sin foto (plantilla Rótulo): papel con el número, no un hueco negro.
+      tctx.fillStyle = '#F1EEE8'; tctx.fillRect(0, 0, 216, 270);
+      tctx.fillStyle = '#E4DFD6'; tctx.font = '600 130px Cormorant, Georgia, serif';
+      tctx.textAlign = 'center'; tctx.textBaseline = 'middle';
+      tctx.fillText(String(i + 1).padStart(2, '0'), 108, 140);
+    }
 
     const kickerIn = el('input', {
       class: 'input carg-card__in', type: 'text', value: s.kicker,
@@ -1128,6 +1138,17 @@ export function renderGen(root, helpers) {
         fileIn.click();
       } }, [icon('camera', 15), ' ' + T(slides.length ? 'Agregar fotos' : 'Elegir fotos', 'Add photos')]),
       fileIn,
+      // Rótulo no usa fotos: los slides se agregan vacíos y son pura tipografía.
+      // El botón solo aparece con esa plantilla activa para no confundir en las demás.
+      plantillaPorId(plantillaId).sinFoto ? el('button', {
+        class: 'btn', type: 'button',
+        onclick: () => {
+          if (slides.length >= MAX_SLIDES) { toast(T(`Máximo ${MAX_SLIDES} slides.`, `Max ${MAX_SLIDES} slides.`), 'error'); return; }
+          invalidarIA();
+          slides.push({ file: null, bitmap: null, kicker: '', title: '', body: '', pos: 'mid' });
+          renderGen(hostEl, deps);
+        },
+      }, [icon('plus', 15), ' ' + T('Agregar slide (sin foto)', 'Add slide (no photo)')]) : null,
       el('input', { class: 'input carg-in', type: 'text', value: brandLabel, placeholder: T('Marca (centro, en cursiva)', 'Brand (center, script)'), maxlength: '36', oninput: (e) => { brandLabel = e.target.value; redrawSoon(); }, onchange: redraw }),
       el('input', { class: 'input carg-in', type: 'text', value: handle, placeholder: T('@firma (izquierda)', '@handle (left)'), maxlength: '36', oninput: (e) => { handle = e.target.value; redrawSoon(); }, onchange: redraw }),
       el('input', { class: 'input carg-in', type: 'text', value: ctaSupport, placeholder: T('Apoyo del cierre (ej. Guarda este post ✦ mándanos DM)', 'Closing support'), maxlength: '90', oninput: (e) => { ctaSupport = e.target.value; redrawSoon(); }, onchange: redraw }),
