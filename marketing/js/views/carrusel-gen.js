@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060422';
-import { icon } from '../shell/icons.js?v=202608060422';
-import { T } from '../shell/i18n.js?v=202608060422';
-import * as store from '../shell/store.js?v=202608060422';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060422';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060422';
-import { slidesFromPost } from '../editor/slides.js?v=202608060422';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060422';
+import { el, clear, toast, api } from '../api.js?v=202608060424';
+import { icon } from '../shell/icons.js?v=202608060424';
+import { T } from '../shell/i18n.js?v=202608060424';
+import * as store from '../shell/store.js?v=202608060424';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060424';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060424';
+import { slidesFromPost } from '../editor/slides.js?v=202608060424';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060424';
 
 const W = 1080;
 const H = 1350;
@@ -548,6 +548,18 @@ function slideHTML(s, idx, total) {
   if (plainBody) inner += `<div class="support${isLast ? ' support--dato' : ''}">${rich(plainBody)}</div>`;
   if (support) inner += `<div class="support">${isLast ? rich(support).replace(/ · /g, '<br/>') : rich(support)}</div>`;
 
+  // Telemetría de layout para el candado E2E de la Ley #1 (texto vs rostro):
+  // expone la caja REAL del bloque y las caras del slide. Solo lectura.
+  if (typeof window !== 'undefined') {
+    (window.__cargLayout = window.__cargLayout || {})[idx] = {
+      topPx: Math.round(topAjustado * 13.5),
+      altoPx: Math.round(alto * miniK),
+      hasText,
+      caras: (s.caras || []).map((c) => ({ x: Math.round(c.x), y: Math.round(c.y), w: Math.round(c.w), h: Math.round(c.h) })),
+      vetadas: plan && plan.opciones ? plan.opciones.filter((o) => o.vetoCara).length : 0,
+      opciones: plan && plan.opciones ? plan.opciones.length : 0,
+    };
+  }
   const blockTop = `${topAjustado}%`;
 
   // El pie SIEMPRE cae dentro de la banda (ésta llega a bottom:0), y el
