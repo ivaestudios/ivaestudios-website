@@ -15,8 +15,8 @@
 
 import {
   addDays, listDays, parseISO, startOfWeek, toISO, todayISO, diffDays,
-} from './dates.js?v=202608061625';
-import { T } from '../shell/i18n.js?v=202608061625';
+} from './dates.js?v=202608061632';
+import { T } from '../shell/i18n.js?v=202608061632';
 
 /** Puntos por tipo de contenido (claves ya normalizadas, ver normalizeType). */
 export const DEFAULT_EFFORT = {

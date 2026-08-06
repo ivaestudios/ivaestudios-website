@@ -28,22 +28,22 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202608061625';
-import { icon } from '../shell/icons.js?v=202608061625';
-import { T } from '../shell/i18n.js?v=202608061625';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202608061625';
+} from '../api.js?v=202608061632';
+import { icon } from '../shell/icons.js?v=202608061632';
+import { T } from '../shell/i18n.js?v=202608061632';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202608061632';
 // Capas de history del shell: el boton atras del telefono cierra la capa de
 // arriba (panel de guion) en vez de salir de la app.
-import { pushLayer } from '../shell/router.js?v=202608061625';
-import { confirmar } from '../shell/sheet.js?v=202608061625';
+import { pushLayer } from '../shell/router.js?v=202608061632';
+import { confirmar } from '../shell/sheet.js?v=202608061632';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608061625';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608061625';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608061625';
+import { errorCard } from '../ui/states.js?v=202608061632';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608061632';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608061632';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608061625';
+} from '../lib/video-upload.js?v=202608061632';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -507,7 +507,18 @@ function abrirHistorialDe(post) {
 
 function scheduleRender() {
   if (!rootEl) return;
-  if (inlineEditing) { renderPending = true; return; }
+  if (inlineEditing) {
+    // AUTO-SANACIÓN: si un render externo se llevó el input inline antes del
+    // blur, finish() jamás corre y la bandera queda podrida — y BLOQUEABA
+    // todos los renders de la vista para siempre (cazado en vivo: el
+    // historial jamás pintaba en la pestaña de Vianey). Sin input en el DOM,
+    // la bandera miente: se limpia y la vida sigue.
+    if (!rootEl.querySelector('.meses-edit')) {
+      inlineEditing = false;
+    } else {
+      renderPending = true; return;
+    }
+  }
   if (renderQueued) return;
   renderQueued = true;
   requestAnimationFrame(() => {
