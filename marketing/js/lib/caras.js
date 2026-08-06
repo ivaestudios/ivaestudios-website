@@ -30,7 +30,7 @@ function cargarDetector() {
       try {
         const fd = new window.FaceDetection({ locateFile: (f) => RUTA + f });
         // 'full' ve caras chicas y lejanas (niños en plano abierto).
-        fd.setOptions({ model: 'full', minDetectionConfidence: 0.4 });
+        fd.setOptions({ model: 'full', minDetectionConfidence: 0.35 });
         resolve(fd);
       } catch (e) {
         console.warn('[caras] detector no inicializó:', e && e.message);
@@ -58,12 +58,19 @@ export function detectarCaras(bmp) {
 async function detectar(bmp) {
   const fd = await cargarDetector();
   if (!fd) return [];
-  const K = Math.min(1, 640 / Math.max(bmp.width, bmp.height));
-  const cw = Math.max(2, Math.round(bmp.width * K));
-  const ch = Math.max(2, Math.round(bmp.height * K));
+  // Se detecta sobre el RECORTE cover-fit 1080×1350 — lo que DE VERDAD se ve
+  // en el slide — no sobre la foto completa: en una apaisada de 2000px el
+  // downscale a 640 dejaba la cara de ~30px y el detector devolvía [] (cazado
+  // 2026-08-06: TODO el lote ninosB pasaba sin una sola cara detectada, y los
+  // vetos 'funcionaban' de pura suerte por luminancia).
+  const K = 0.75;   // 810×1012: cómodo para el wasm y sobra para caras chicas
+  const cw = Math.round(W * K);
+  const ch = Math.round(H * K);
   const cv = document.createElement('canvas');
   cv.width = cw; cv.height = ch;
-  cv.getContext('2d').drawImage(bmp, 0, 0, cw, ch);
+  const e = Math.max(cw / bmp.width, ch / bmp.height);
+  cv.getContext('2d').drawImage(bmp, (cw - bmp.width * e) / 2, (ch - bmp.height * e) / 2,
+    bmp.width * e, bmp.height * e);
 
   const dets = await new Promise((resolve) => {
     let listo = false;
@@ -72,17 +79,15 @@ async function detectar(bmp) {
     fd.send({ image: cv }).catch(() => { if (!listo) { listo = true; clearTimeout(t); resolve([]); } });
   });
 
-  // De coordenadas normalizadas de la FOTO → píxeles del LIENZO tras cover-fit.
-  const e = Math.max(W / bmp.width, H / bmp.height);
-  const dx = (W - bmp.width * e) / 2;
-  const dy = (H - bmp.height * e) / 2;
+  // El canvas de detección YA ES el encuadre del lienzo: las coordenadas
+  // normalizadas se proyectan directo a 1080×1350.
   return dets.map((d) => {
     const b = d.boundingBox;
     return {
-      x: (b.xCenter - b.width / 2) * bmp.width * e + dx,
-      y: (b.yCenter - b.height / 2) * bmp.height * e + dy,
-      w: b.width * bmp.width * e,
-      h: b.height * bmp.height * e,
+      x: (b.xCenter - b.width / 2) * W,
+      y: (b.yCenter - b.height / 2) * H,
+      w: b.width * W,
+      h: b.height * H,
     };
   }).filter((c) => c.w > 26 && c.h > 26);
 }
