@@ -17,10 +17,10 @@
 //   position = max del grupo + 1000 (sparse).
 // ============================================================================
 
-import { el, fmtDate, CONTENT_TYPES, contentTypeLabel } from '../api.js?v=202608060132';
-import { T } from '../shell/i18n.js?v=202608060132';
-import { icon } from '../shell/icons.js?v=202608060132';
-import { defaultsForGroup } from './groups.js?v=202608060132';
+import { el, fmtDate, CONTENT_TYPES, contentTypeLabel } from '../api.js?v=202608060143';
+import { T } from '../shell/i18n.js?v=202608060143';
+import { icon } from '../shell/icons.js?v=202608060143';
+import { defaultsForGroup } from './groups.js?v=202608060143';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 

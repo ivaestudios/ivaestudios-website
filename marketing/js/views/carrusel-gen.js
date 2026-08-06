@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060132';
-import { icon } from '../shell/icons.js?v=202608060132';
-import { T } from '../shell/i18n.js?v=202608060132';
-import * as store from '../shell/store.js?v=202608060132';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060132';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060132';
-import { slidesFromPost } from '../editor/slides.js?v=202608060132';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060132';
+import { el, clear, toast, api } from '../api.js?v=202608060143';
+import { icon } from '../shell/icons.js?v=202608060143';
+import { T } from '../shell/i18n.js?v=202608060143';
+import * as store from '../shell/store.js?v=202608060143';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060143';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060143';
+import { slidesFromPost } from '../editor/slides.js?v=202608060143';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060143';
 
 const W = 1080;
 const H = 1350;
@@ -1496,8 +1496,8 @@ export function renderGen(root, helpers) {
     ]) : null,
 
     // ── ¿CÓMO SE VA A VER DE VERDAD? ────────────────────────────────────
-    slides.length ? paso('4', T('Entrega', 'Delivery'), T('Revísalo al tamaño real (Feed/Perfil) y descarga listo para publicar.', 'Check at real size and download.')),
-    el('div', { class: 'carg-vistas' }, [
+    slides.length ? paso('4', T('Entrega', 'Delivery'), T('Revísalo al tamaño real (Feed/Perfil) y descarga listo para publicar.', 'Check at real size and download.')) : null,
+    slides.length ? el('div', { class: 'carg-vistas' }, [
       el('span', { class: 'carg-vistas__lbl', text: T('Ver como', 'View as') }),
       ...[
         { id: 'trabajo', txt: T('Trabajo', 'Work'), ay: T('Grande, para editar', 'Large, for editing') },
