@@ -211,7 +211,7 @@ export async function pedirCarrusel(env, { brief, marca, nSlides, fotos, textos 
     }
     if (res.ok) {
       const uso = (data.content || []).find((b) => b.type === 'tool_use');
-      if (uso && uso.input) return sanear(uso.input, n, fotos.length);
+      if (uso && uso.input) return sanear(uso.input, n, fotos.length, !!(textos && textos.length));
       ultimo = new Error('Claude no devolvió el carrusel en el formato esperado.');
       continue;
     }
@@ -232,7 +232,7 @@ export async function pedirCarrusel(env, { brief, marca, nSlides, fotos, textos 
 // El esquema garantiza la FORMA, no la sensatez: aquí se recorta lo que se pasó
 // de largo y se descartan índices inventados, para que la UI nunca reciba algo
 // que rompa el diseño.
-function sanear(out, n, nFotos) {
+function sanear(out, n, nFotos, soloDirigir) {
   const corta = (s, max) => {
     const t = String(s || '').replace(/\s+/g, ' ').trim();
     if (t.length <= max) return t;
@@ -260,10 +260,14 @@ function sanear(out, n, nFotos) {
   }));
   // Las descartadas se RECONCILIAN con `orden`: un índice inventado o una foto
   // que sí entró al carrusel confundían la lista de "fotos que dejé fuera".
+  // EXCEPTO en modo dirigir (textos aprobados): ahí TODA foto sigue en el
+  // orden por contrato, y las "descartadas" son AVISOS de dirección (casting,
+  // coherencia, gramática) — filtrarlas por estar dentro las mataba TODAS y
+  // la dueña nunca veía un solo aviso (cazado 2026-08-06).
   const dentro = new Set(orden);
   const descartadas = (Array.isArray(out.descartadas) ? out.descartadas : [])
     .map((d) => ({ i: Number(d && d.i), motivo: corta(d && d.motivo, 160) }))
-    .filter((d) => Number.isInteger(d.i) && d.i >= 0 && d.i < nFotos && !dentro.has(d.i))
+    .filter((d) => Number.isInteger(d.i) && d.i >= 0 && d.i < nFotos && (soloDirigir || !dentro.has(d.i)))
     .slice(0, 12);
   // Y las que ni entraron ni se explicaron: se nombran igual, sin motivo
   // inventado. Callarlas era lo único inaceptable.
