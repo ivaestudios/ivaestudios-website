@@ -62,6 +62,7 @@ const ESQUEMA = {
           title: { type: 'string', description: `Título grande, máx ${LIMITES.title} caracteres. Envuelve en **dobles asteriscos** las 1-3 palabras clave (salen en negrita).` },
           body: { type: 'string', description: `Texto de apoyo, máx ${LIMITES.body}. Para listas de 2-3 puntos, sepáralos con " / " (cada uno máx ${LIMITES.pill}).` },
           alt: { type: 'string', description: 'Texto alternativo del slide para accesibilidad y SEO. Describe la imagen, no el texto. Máx 120.' },
+          acento: { type: 'string', description: 'UNA palabra DEL TITULAR (copiada tal cual, sin cambiarla) que merece el acento en serif cursiva: la palabra EMOCIONAL o de marca (el beneficio, el tratamiento, el sentimiento), no un conector ni un número. Vacío si el titular no tiene una palabra digna.' },
         },
         required: ['rol', 'pos', 'kicker', 'title', 'body', 'alt'],
       },
@@ -86,6 +87,7 @@ TU ÚNICO TRABAJO ES DIRIGIR, mirando cada foto de verdad:
    - TITULAR↔BAJADA del mismo servicio: si el título dice Invisalign y la bajada habla de carillas, avísalo.
    - GRAMÁTICA VISIBLE: concordancias raras que quedarán horneadas en la imagen ("coronas y más diseñado") — avísalo, sin corregir el texto.
 4. El \`alt\` de accesibilidad sí lo escribes tú (describe la imagen).
+5. El \`acento\`: elige en cada titular LA palabra que merece la cursiva serif de la marca — la emocional o de marca (sonrisa, confianza, Invisalign), no un conector ni la que quedó al final por accidente. Cópiala EXACTA del titular.
 El caption y hashtags devuélvelos vacíos ("") — ya existen.`;
   }
   return `Eres el director de arte y copywriter de IVAE Estudios, una agencia de marketing en Cancún. Armas un carrusel de Instagram para ${marca || 'la marca'}.
@@ -257,6 +259,12 @@ function sanear(out, n, nFotos, soloDirigir) {
       ? String(s.body).split('/').map((x) => corta(x, LIMITES.pill)).filter(Boolean).slice(0, 3).join(' / ')
       : corta(s.body, LIMITES.body),
     alt: corta(s.alt, 120),
+    // El acento solo vale si es UNA palabra que de verdad vive en el titular.
+    acento: (() => {
+      const a = String(s.acento || '').trim();
+      if (!a || /\s/.test(a)) return '';
+      return String(s.title || '').toLowerCase().includes(a.toLowerCase()) ? a : '';
+    })(),
   }));
   // Las descartadas se RECONCILIAN con `orden`: un índice inventado o una foto
   // que sí entró al carrusel confundían la lista de "fotos que dejé fuera".

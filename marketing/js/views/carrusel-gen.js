@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060355';
-import { icon } from '../shell/icons.js?v=202608060355';
-import { T } from '../shell/i18n.js?v=202608060355';
-import * as store from '../shell/store.js?v=202608060355';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060355';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060355';
-import { slidesFromPost } from '../editor/slides.js?v=202608060355';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060355';
+import { el, clear, toast, api } from '../api.js?v=202608060401';
+import { icon } from '../shell/icons.js?v=202608060401';
+import { T } from '../shell/i18n.js?v=202608060401';
+import * as store from '../shell/store.js?v=202608060401';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060401';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060401';
+import { slidesFromPost } from '../editor/slides.js?v=202608060401';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060401';
 
 const W = 1080;
 const H = 1350;
@@ -215,8 +215,18 @@ const pulirBajada = (t) => pegarConectores(telBonito(sinEmoji(t)), true);
 // El acento de la casa: la última palabra con peso del titular va en serif
 // cursiva (Cormorant) — la firma que separa una pieza de agencia de una
 // plantilla genérica. Solo si el texto no trae ya sus **negritas**.
-function tituloHTML(t) {
+function tituloHTML(t, preferida) {
   if (!t || t.includes('**')) return rich(t);
+  // La IA directora puede señalar LA palabra emocional; si vive en el titular
+  // (palabra completa), ella lleva el acento. Si no, la heurística de siempre.
+  if (preferida) {
+    const rx = new RegExp('(^|[^\\p{L}])(' + preferida.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')(?=[^\\p{L}]|$)', 'iu');
+    const m = t.match(rx);
+    if (m && m.index !== undefined) {
+      const ini = m.index + m[1].length;
+      return esc(t.slice(0, ini)) + `<i>${esc(m[2])}</i>` + esc(t.slice(ini + m[2].length));
+    }
+  }
   const palabras = t.split(/[\s\u00A0]+/).filter(Boolean);
   if (palabras.length < 3) return rich(t);
   for (let i = palabras.length - 1; i >= 0; i--) {
@@ -516,7 +526,7 @@ function slideHTML(s, idx, total) {
   // reconstruir el título/píldoras con las clases finales
   inner = '';
   if (kicker) inner += `<div class="kicker">${esc(kicker)}</div>`;
-  if (title) inner += `<div class="title${smTitle ? ' sm' : ''}">${tituloHTML(title)}</div>`;
+  if (title) inner += `<div class="title${smTitle ? ' sm' : ''}">${tituloHTML(title, s.acentoIA)}</div>`;
   if (items) inner += `<div class="pills${compactas ? ' compactas' : ''}">${items.map((it) => `<div class="pill">${esc(it)}</div>`).join('')}</div>`;
   if (plainBody) inner += `<div class="support${isLast ? ' support--dato' : ''}">${rich(plainBody)}</div>`;
   if (support) inner += `<div class="support">${isLast ? rich(support).replace(/ · /g, '<br/>') : rich(support)}</div>`;
@@ -1096,6 +1106,9 @@ async function dirigirConIA() {
         movidos++;
       }
       if (t.alt && !slides[i].alt) slides[i].alt = t.alt;
+      // La palabra del acento serif la DIRIGE la IA (los textos siguen
+      // intactos: solo cambia cuál palabra lleva la cursiva de la marca).
+      slides[i].acentoIA = t.acento || '';
     });
     // Los avisos de dirección se muestran, jamás se actúan en silencio.
     const avisos = (out.descartadas || []).map((d) => `Foto ${Number(d.i) + 1}: ${d.motivo}`).filter(Boolean);
