@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060224';
-import { icon } from '../shell/icons.js?v=202608060224';
-import { T } from '../shell/i18n.js?v=202608060224';
-import * as store from '../shell/store.js?v=202608060224';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060224';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060224';
-import { slidesFromPost } from '../editor/slides.js?v=202608060224';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060224';
+import { el, clear, toast, api } from '../api.js?v=202608060231';
+import { icon } from '../shell/icons.js?v=202608060231';
+import { T } from '../shell/i18n.js?v=202608060231';
+import * as store from '../shell/store.js?v=202608060231';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060231';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608060231';
+import { slidesFromPost } from '../editor/slides.js?v=202608060231';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060231';
 
 const W = 1080;
 const H = 1350;
@@ -374,20 +374,6 @@ function slideHTML(s, idx, total) {
   }
   const modo = (plan && plan.modo) || 'blanco';
   const veloA = plan ? plan.velo : 0.42;   // 0.42 era el valor FIJO de antes
-  // El pie SIEMPRE cae dentro de la banda (ésta llega a bottom:0), y el
-  // encabezado solo si el bloque subió tanto que la banda lo alcanza. Donde
-  // manda la banda (#0C0C10, casi negra) el texto va claro, sin importar lo
-  // que dijera la foto: medir la foto tapada era el defecto.
-  const bandaCubrePie = modo === 'banda';
-  const bandaCubreHdr = modo === 'banda' && (topAjustado - 7) * 13.5 < 148;  // header 88..148px
-  const modoHdr = bandaCubreHdr ? 'blanco' : (plan && plan.modoHeader) || 'blanco';
-  const modoPie = bandaCubrePie ? 'blanco' : (plan && plan.modoPie) || 'blanco';
-  const claseModo = (modo === 'oscuro' ? ' t-oscuro' : modo === 'banda' ? ' t-banda' : '')
-    + (modoHdr === 'oscuro' ? ' hdr-oscuro' : ' hdr-claro')
-    + (modoPie === 'oscuro' ? ' pie-oscuro' : ' pie-claro')
-    // Refuerzo de sombra cuando la franja pedía velo y no hay dónde ponerlo.
-    + (plan && plan.header && plan.header.refuerzo && !bandaCubreHdr ? ' hdr-refuerzo' : '')
-    + (plan && plan.pie && plan.pie.refuerzo && !bandaCubrePie ? ' pie-refuerzo' : '');
 
   // FECHA: la de PUBLICACIÓN de la pieza, no la del día en que se arma el
   // carrusel. Antes, preparar el martes el post del viernes imprimía "martes".
@@ -449,6 +435,23 @@ function slideHTML(s, idx, total) {
   if (support) inner += `<div class="support">${isLast ? rich(support).replace(/ · /g, '<br/>') : rich(support)}</div>`;
 
   const blockTop = `${topAjustado}%`;
+
+  // El pie SIEMPRE cae dentro de la banda (ésta llega a bottom:0), y el
+  // encabezado solo si el bloque subió tanto que la banda lo alcanza. Donde
+  // manda la banda (#0C0C10, casi negra) el texto va claro, sin importar lo
+  // que dijera la foto: medir la foto tapada era el defecto. (Vive DESPUÉS del
+  // guardarraíl: usar topAjustado antes de declararlo era un ReferenceError
+  // latente que tronaba el primer slide en modo banda — lo cazó el lint.)
+  const bandaCubrePie = modo === 'banda';
+  const bandaCubreHdr = modo === 'banda' && (topAjustado - 7) * 13.5 < 148;  // header 88..148px
+  const modoHdr = bandaCubreHdr ? 'blanco' : (plan && plan.modoHeader) || 'blanco';
+  const modoPie = bandaCubrePie ? 'blanco' : (plan && plan.modoPie) || 'blanco';
+  const claseModo = (modo === 'oscuro' ? ' t-oscuro' : modo === 'banda' ? ' t-banda' : '')
+    + (modoHdr === 'oscuro' ? ' hdr-oscuro' : ' hdr-claro')
+    + (modoPie === 'oscuro' ? ' pie-oscuro' : ' pie-claro')
+    // Refuerzo de sombra cuando la franja pedía velo y no hay dónde ponerlo.
+    + (plan && plan.header && plan.header.refuerzo && !bandaCubreHdr ? ' hdr-refuerzo' : '')
+    + (plan && plan.pie && plan.pie.refuerzo && !bandaCubrePie ? ' pie-refuerzo' : '');
   const miniCSS = miniK < 1
     ? `;transform:scale(${miniK.toFixed(3)});transform-origin:top left;width:${Math.round(872 / miniK)}px;left:104px;right:auto`
     : '';
