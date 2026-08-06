@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608061131';
-import { icon } from '../shell/icons.js?v=202608061131';
-import { T } from '../shell/i18n.js?v=202608061131';
-import * as store from '../shell/store.js?v=202608061131';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608061131';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608061131';
-import { slidesFromPost } from '../editor/slides.js?v=202608061131';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608061131';
+import { el, clear, toast, api } from '../api.js?v=202608061141';
+import { icon } from '../shell/icons.js?v=202608061141';
+import { T } from '../shell/i18n.js?v=202608061141';
+import * as store from '../shell/store.js?v=202608061141';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608061141';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608061141';
+import { slidesFromPost } from '../editor/slides.js?v=202608061141';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608061141';
 
 const W = 1080;
 const H = 1350;
@@ -1752,7 +1752,9 @@ export function renderGen(root, helpers) {
           renderGen(hostEl, deps);
         },
       }, [
-        el('b', { text: pl.nombre }),
+        // Mural queda BETA hasta su sprint propio: el colage con pocas fotos
+        // sale ralo y el cierre puede pisar su foto (auditoría 2026-08-06).
+        el('b', { text: pl.nombre + (pl.id === 'mural' ? ' · beta' : '') }),
         el('i', { text: pl.descripcion }),
       ]))),
     ]),
