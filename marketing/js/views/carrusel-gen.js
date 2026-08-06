@@ -13,12 +13,12 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608060042';
-import { icon } from '../shell/icons.js?v=202608060042';
-import { T } from '../shell/i18n.js?v=202608060042';
-import * as store from '../shell/store.js?v=202608060042';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608060042';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060042';
+import { el, clear, toast, api } from '../api.js?v=202608060047';
+import { icon } from '../shell/icons.js?v=202608060047';
+import { T } from '../shell/i18n.js?v=202608060047';
+import * as store from '../shell/store.js?v=202608060047';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608060047';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608060047';
 
 const W = 1080;
 const H = 1350;
@@ -402,7 +402,7 @@ function slideHTML(s, idx, total) {
   if (title) inner += `<div class="title${smTitle ? ' sm' : ''}">${rich(title)}</div>`;
   if (items) inner += `<div class="pills${compactas ? ' compactas' : ''}">${items.map((it) => `<div class="pill">${esc(it)}</div>`).join('')}</div>`;
   if (plainBody) inner += `<div class="support">${rich(plainBody)}</div>`;
-  if (support) inner += `<div class="support">${isLast ? rich(support).replace(/ · /g, '<br>') : rich(support)}</div>`;
+  if (support) inner += `<div class="support">${isLast ? rich(support).replace(/ · /g, '<br/>') : rich(support)}</div>`;
 
   const blockTop = `${topAjustado}%`;
   const miniCSS = miniK < 1
