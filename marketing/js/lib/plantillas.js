@@ -290,7 +290,11 @@ const ficha = {
 /* OJO: .slide NO lleva fondo. Esta capa se pinta ENCIMA de la foto del canvas;
    un color sólido aquí tapaba la foto entera y el slide salía liso. */
 .slide{font-family:Cormorant,Georgia,serif}
-.panel{position:absolute;left:0;right:0;bottom:0;height:44%;background:${c.tinta};color:#F3F0EA;
+/* El panel CRECE con su contenido (min-height): con titular de 4 renglones +
+   bajada larga, la altura fija de 44% dejaba el texto cruzando el renglón del
+   pie (S4 de la re-auditoría). Crecer tapa un poco más de foto — mejor eso
+   que texto encimado. */
+.panel{position:absolute;left:0;right:0;bottom:0;min-height:44%;background:${c.tinta};color:#F3F0EA;
   padding:74px 104px 96px;display:flex;flex-direction:column}
 .eyebrow{font-family:Outfit,sans-serif;font-size:34px;letter-spacing:.24em;text-transform:uppercase;
   color:rgba(243,240,234,.62);padding-bottom:20px;margin-bottom:26px;border-bottom:2px solid rgba(243,240,234,.30);text-shadow:0 0 9px rgba(0,0,0,.85),0 2px 6px rgba(0,0,0,.5)}

@@ -12,10 +12,10 @@
 // ya filtra en SQL. Datos SIEMPRE via textContent.
 // ============================================================================
 
-import { el, clear, initials, timeAgo } from '../api.js?v=202608061200';
-import { toast } from '../shell/toast.js?v=202608061200';
-import { openSheet } from '../shell/sheet.js?v=202608061200';
-import * as store from './store.js?v=202608061200';
+import { el, clear, initials, timeAgo } from '../api.js?v=202608061201';
+import { toast } from '../shell/toast.js?v=202608061201';
+import { openSheet } from '../shell/sheet.js?v=202608061201';
+import * as store from './store.js?v=202608061201';
 
 function bubble(c) {
   const mine = !!c._mine || c.author_role === 'client';
