@@ -583,7 +583,9 @@ async function subirTira(id, file) {
   const blob = await new Promise((ok) => cv.toBlob(ok, 'image/jpeg', 0.9));
   const fd = new FormData();
   fd.append('poster', blob, 'tira.jpg');
-  await api.post(`/deliverables/${id}/poster`, fd);
+  // fetch crudo: api.post serializa TODO a JSON y destriparía la FormData.
+  const r = await fetch(`/api/marketing/deliverables/${id}/poster`, { method: 'POST', credentials: 'same-origin', body: fd });
+  if (!r.ok) throw new Error(T('La tira no se pudo subir', 'The strip could not be uploaded'));
   tiraCache.delete(id);
 }
 
