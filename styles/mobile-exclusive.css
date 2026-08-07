@@ -4018,13 +4018,10 @@
   padding: 0 0 22px;
 }
 
-/* Proof line under the desktop hero dek */
-.ch-sub__proof {
-  margin-top: 10px;
-  font-size: .82em;
-  letter-spacing: .02em;
-  opacity: .82;
-}
+/* .ch-sub__proof NO va aquí: TODO este archivo vive dentro del
+   @media (max-width: 899px) abierto arriba, y esa línea es del hero de
+   ESCRITORIO. Sus estilos ahora viven en el <style> de index.html y
+   es/index.html, junto a .ch-sub (bug 2026-08-07). */
 
 /* ═══ POST TL;DR — NOTA 2026-08-07: los POSTS cargan blog.css (ahí vive la
    copia CANONICA con el tema claro correcto); este bloque solo aplica si
@@ -4059,3 +4056,4 @@
 @media (min-width: 900px) {
   .post-article .post-tldr p { color: rgba(14, 22, 32, 0.85); }
 }
+} /* fin @media (max-width: 899px) */

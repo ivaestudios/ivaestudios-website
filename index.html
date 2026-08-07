@@ -549,6 +549,10 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
   min-height:100vh;
   display:grid;
   grid-template-rows:1fr auto;
+  /* El header flota sobre el hero (68px). Sin este colchón, en pantallas
+     de laptop (alturas ~800-900px) el primer renglón del titular quedaba
+     tapado por la barra. box-sizing:border-box => no cambia el alto total. */
+  padding-top:calc(76px + env(safe-area-inset-top,0px));
   background:var(--ink-4);
   overflow:hidden;
   perspective:1400px;
@@ -613,6 +617,21 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 }
 @keyframes floatEy{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 .ch-chapter-rule{width:32px;height:1px;background:var(--gold);opacity:.7;transform-origin:left;animation:flScale 1.6s var(--ease-out) 1s both}
+/* Pantallas de laptop (altura < 1000px): el bloque del hero llena el alto y
+   su primer renglón chocaba con el marcador "Capítulo 01" (absoluto a 96px).
+   Le damos más colchón arriba y lo recuperamos abajo, así nada se encima ni
+   se empuja la franja de estadísticas fuera de pantalla. */
+@media (max-height:1000px){
+  .cinematic-hero{padding-top:calc(126px + env(safe-area-inset-top,0px))}
+  .ch-content{padding-bottom:clamp(40px,4vw,56px)}
+}
+/* Pantallas aún más bajas (768-820px): no cabe el marcador decorativo sin
+   empujar la franja de datos fuera de vista, así que se oculta (ya es
+   aria-hidden) y basta el colchón del header. */
+@media (max-height:820px){
+  .cinematic-hero{padding-top:calc(76px + env(safe-area-inset-top,0px))}
+  .ch-chapter{display:none}
+}
 .ch-chapter-label{
   font-family:var(--font-sans);
   font-size:var(--fs-10);font-weight:500;
@@ -683,6 +702,20 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
   line-height:1.78;
   color:var(--text-on-dark-readable);
   letter-spacing:.005em;
+}
+/* Línea de credibilidad bajo la bajada del hero.
+   OJO: .ch-sub es un grid de 2 columnas (1px para el filete dorado ::before
+   + 1fr para el texto). Sin grid-column:2 este segundo <p> cae en la columna
+   de 1px y se dibuja como una tira vertical de una palabra por renglón, que
+   además infla el hero y esconde el titular tras el header (bug 2026-08-07).
+   Vivía en mobile-exclusive.css, que entero está dentro de
+   @media (max-width:899px), así que en escritorio nunca aplicaba. */
+.ch-sub__proof{
+  grid-column:2;
+  margin-top:10px;
+  font-size:.82em;
+  letter-spacing:.02em;
+  opacity:.82;
 }
 
 /* Magnetic CTAs */
@@ -2837,7 +2870,7 @@ body.cur-pulse .cur-dot{animation:curClickPulse .35s var(--ease-out)}
 <!-- LCP hero preload, matches <picture> element srcset to avoid duplicate downloads -->
 <link rel="preload" as="image" imagesrcset="/images/portrait-jungle-cancun-ivae-studios-v2-960.jpg 960w, /images/portrait-jungle-cancun-ivae-studios-v2-1600.jpg 1600w, /images/portrait-jungle-cancun-ivae-studios-v2-2400.jpg 2400w, /images/portrait-jungle-cancun-ivae-studios-v2-3840.jpg 3840w, /images/portrait-jungle-cancun-ivae-studios-v2-5120.jpg 5120w" imagesizes="100vw" fetchpriority="high">
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260531a">
-<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260807a">
+<link rel="stylesheet" href="/styles/mobile-exclusive.css?v=20260807b">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"ImageObject","@id":"https://ivaestudios.com/#hero-image","contentUrl":"https://assets.ivaestudios.com/ivae-og.jpg","url":"https://assets.ivaestudios.com/ivae-og.jpg","name":"IVAE Studios, Luxury Resort Photography in Cancún, Riviera Maya, Los Cabos","description":"Editorial luxury photography for destination weddings, families, and couples across Mexico's Caribbean and Pacific coasts. Bilingual studio, golden hour only.","creator":{"@id":"https://ivaestudios.com/#vianey-diaz"},"copyrightHolder":{"@id":"https://ivaestudios.com/#organization"},"creditText":"IVAE Studios","copyrightNotice":"© IVAE Studios. All rights reserved.","license":"https://ivaestudios.com/about","acquireLicensePage":"https://ivaestudios.com/contact","representativeOfPage":true,"inLanguage":"en"}</script>
 </head>
 <body class="has-bottom-tabs ivm-page">
