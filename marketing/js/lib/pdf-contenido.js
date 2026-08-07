@@ -14,14 +14,14 @@
 // Cierra con el mismo camino feliz «Aprobado» por WhatsApp.
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202608070959';
-import { slidesFromPost } from '../editor/slides.js?v=202608070959';
+import { T } from '../shell/i18n.js?v=202608071101';
+import { slidesFromPost } from '../editor/slides.js?v=202608071101';
 import {
   W, TINTA, HUMO, MX, CONT_W, PIE_TOP, NOTA,
   cargarFuentes, nuevaPagina, exportar, texto, anchoTexto, parrafo, regla,
   cab, pieDePagina, tituloSeccion, botonCanvas,
   paginaPortadaBase, paginaCierreAprobado, labelDeMes, armarYDescargar, MESES_ES,
-} from './pdf-lienzo.js?v=202608070959';
+} from './pdf-lienzo.js?v=202608071101';
 
 // Tipos de pieza que son VIDEO. Los CARRUSELES también entran (pedido
 // 2026-08-07 "los carruseles también"): sus textos van POR SLIDE con
@@ -118,13 +118,18 @@ export async function generarPdfContenido({ month, piezas, marca, handle, onPaso
   await cargarFuentes();
   const mesLabel = labelDeMes(month);
 
-  // Videos Y carruseles del mes, intercalados por fecha (el orden del
-  // calendario); cada familia lleva su propio contador.
+  // PRIMERO todos los VIDEOS y DESPUÉS todos los CARRUSELES (pedido de
+  // Vianey 2026-08-07: nada de intercalar por fecha); dentro de cada
+  // familia sí manda la fecha de publicación.
   const esVideo = (p) => TIPOS_VIDEO.includes(String(p.content_type || '').toLowerCase());
   const esCarrusel = (p) => String(p.content_type || '').toLowerCase() === 'carrusel';
   const plan = (piezas || [])
     .filter((p) => esVideo(p) || esCarrusel(p))
-    .sort((a, b) => String(a.publish_date || '9999').localeCompare(String(b.publish_date || '9999')));
+    .sort((a, b) => {
+      const familia = (esCarrusel(a) ? 1 : 0) - (esCarrusel(b) ? 1 : 0);
+      if (familia) return familia;
+      return String(a.publish_date || '9999').localeCompare(String(b.publish_date || '9999'));
+    });
   if (!plan.length) throw new Error(T('Este mes no tiene videos ni carruseles planeados.', 'This month has no planned videos or carousels.'));
   const nVideos = plan.filter(esVideo).length;
   const nCarruseles = plan.length - nVideos;
