@@ -1,295 +1,85 @@
 /* ═══════════════════════════════════════════════════════════════
    OUTFIT STUDIO · IVAE Studios
-   Probador de vestuario interactivo + Pregúntale a tu estilista.
-   Se monta en #osxProbador y #osxPreguntas (outfit-guide EN / ES).
-   100% cliente, sin APIs. i18n por <html lang>.
+   1) LOOKBOOK: eliges un color de outfit y ves FOTOS REALES de
+      clientas de IVAE usándolo en Cancún (datos en js/outfit-looks.js).
+   2) PREGÚNTALE A TU ESTILISTA: buscador de dudas de vestuario.
+   3) PROBADOR CON IA: sube tu foto y la IA te viste con ese look
+      (solo aparece si el backend tiene GEMINI_API_KEY).
+   i18n por <html lang>. Sin dependencias.
    ═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
-  var probadorMount = document.getElementById('osxProbador');
+  var lookMount = document.getElementById('osxProbador');
   var preguntasMount = document.getElementById('osxPreguntas');
-  if (!probadorMount && !preguntasMount) return;
+  if (!lookMount && !preguntasMount) return;
 
   var ES = (document.documentElement.lang || '').toLowerCase().indexOf('es') === 0 ||
            location.pathname.indexOf('/es/') === 0;
   var WA = 'https://wa.me/529902046514?text=';
+  var LOOKS = (window.IVAE_LOOKS || []).slice();
 
-  /* ── Escenas ── */
-  var SCENES = [
-    { id: 'golden',   img: '/images/probador-playa-golden.jpg',   es: 'Playa · Golden hour', en: 'Beach · Golden hour' },
-    { id: 'turquesa', img: '/images/probador-playa-turquesa.jpg', es: 'Playa · Mediodía',    en: 'Beach · Midday' },
-    { id: 'rosa',     img: '/images/probador-atardecer-rosa.jpg', es: 'Atardecer rosado',    en: 'Pink sunset' },
-    { id: 'selva',    img: '/images/probador-selva.jpg',          es: 'Selva tropical',      en: 'Tropical jungle' }
-  ];
-
-  /* ── Colores de vestuario ── */
+  /* ── Paleta del lookbook ── */
   var COLORS = [
-    { id: 'cream',     hex: '#EFE7D3', es: 'Crema',        en: 'Cream' },
-    { id: 'white',     hex: '#FAFAF6', es: 'Blanco',       en: 'White' },
-    { id: 'sand',      hex: '#CDBD9F', es: 'Arena',        en: 'Sand' },
-    { id: 'sage',      hex: '#A2B899', es: 'Salvia',       en: 'Sage' },
-    { id: 'dustyrose', hex: '#CFA0A0', es: 'Rosa palo',    en: 'Dusty rose' },
-    { id: 'terracotta',hex: '#C08054', es: 'Terracota',    en: 'Terracotta' },
-    { id: 'softblue',  hex: '#9FB6C9', es: 'Azul suave',   en: 'Soft blue' },
-    { id: 'navy',      hex: '#24344F', es: 'Azul marino',  en: 'Navy' },
-    { id: 'black',     hex: '#1D1D22', es: 'Negro',        en: 'Black' },
-    { id: 'coral',     hex: '#FF6F61', es: 'Coral brillante', en: 'Bright coral' }
+    { id: 'cream',    hex: '#EFE7D3', es: 'Crema',      en: 'Cream' },
+    { id: 'white',    hex: '#FAFAF6', es: 'Blanco',     en: 'White' },
+    { id: 'sand',     hex: '#CDBD9F', es: 'Arena',      en: 'Sand' },
+    { id: 'verde',    hex: '#9DAF8E', es: 'Verde',      en: 'Green' },
+    { id: 'rosa',     hex: '#CFA0A0', es: 'Rosa palo',  en: 'Dusty rose' },
+    { id: 'softblue', hex: '#9FB6C9', es: 'Azul suave', en: 'Soft blue' },
+    { id: 'navy',     hex: '#24344F', es: 'Marino',     en: 'Navy' },
+    { id: 'gris',     hex: '#B9BCC2', es: 'Gris',       en: 'Gray' },
+    { id: 'black',    hex: '#1D1D22', es: 'Negro',      en: 'Black' }
   ];
-  var SKINS = ['#F2D6BC', '#DDB08E', '#B5825E', '#7C543A'];
-  var HAIR = '#3E3128';
+  var GRUPOS = [
+    { id: 'pareja',     es: 'Pareja',     en: 'Couple' },
+    { id: 'boda',       es: 'Boda',       en: 'Wedding' },
+    { id: 'familia',    es: 'Familia',    en: 'Family' },
+    { id: 'individual', es: 'Individual', en: 'Solo' }
+  ];
 
   function colorById(id) { for (var i = 0; i < COLORS.length; i++) if (COLORS[i].id === id) return COLORS[i]; return COLORS[0]; }
-  function sceneById(id) { for (var i = 0; i < SCENES.length; i++) if (SCENES[i].id === id) return SCENES[i]; return SCENES[0]; }
-  function shade(hex, amt) { /* amt -1..1: negativo oscurece */
-    var n = parseInt(hex.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
-    function ch(v) { return Math.max(0, Math.min(255, Math.round(amt < 0 ? v * (1 + amt) : v + (255 - v) * amt))); }
-    return '#' + (1 << 24 | ch(r) << 16 | ch(g) << 8 | ch(b)).toString(16).slice(1);
-  }
-
-  /* ── Figuras (croquis SVG) ── */
-  var uid = 0;
-  function svgOpen(w) {
-    return '<svg viewBox="0 0 200 430" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"' + (w ? ' class="' + w + '"' : '') + '>';
-  }
-  function defs(c) {
-    uid++;
-    var g = 'osxg' + uid;
-    return { id: g, html: '<defs><linearGradient id="' + g + '" x1="0" y1="0" x2="1" y2="1">' +
-      '<stop offset="0" stop-color="' + shade(c, 0.10) + '"/><stop offset="1" stop-color="' + shade(c, -0.12) + '"/>' +
-      '</linearGradient></defs>' };
-  }
-  var RING = '<ellipse class="osx-ring" cx="100" cy="414" rx="58" ry="9" fill="none" stroke="#c4a35a" stroke-width="2.5"/>';
-  var SHADOW = '<ellipse cx="100" cy="413" rx="50" ry="8" fill="rgba(10,15,23,.30)"/>';
-
-  function figMujerMaxi(c, skin) {
-    var d = defs(c), c2 = shade(c, -0.24);
-    return svgOpen() + d.html + SHADOW + RING +
-      '<ellipse cx="100" cy="42" rx="18" ry="21" fill="' + HAIR + '"/>' +
-      '<circle cx="117" cy="59" r="8" fill="' + HAIR + '"/>' +
-      '<ellipse cx="99" cy="46" rx="13" ry="16" fill="' + skin + '"/>' +
-      '<rect x="95" y="58" width="10" height="15" rx="4" fill="' + skin + '"/>' +
-      '<path d="M80,80 Q100,68 120,80 L116,95 Q100,86 84,95 Z" fill="' + skin + '"/>' +
-      '<path d="M83,84 C73,110 71,142 80,166" stroke="' + skin + '" stroke-width="7.5" fill="none" stroke-linecap="round"/>' +
-      '<path d="M117,84 C127,110 129,142 120,166" stroke="' + skin + '" stroke-width="7.5" fill="none" stroke-linecap="round"/>' +
-      '<path d="M82,78 C79,104 81,124 88,142 C72,210 52,300 36,392 Q64,406 96,400 Q128,394 156,404 Q174,408 176,392 C162,296 148,206 112,142 C118,118 119,98 118,78 Q100,70 82,78 Z" fill="url(#' + d.id + ')"/>' +
-      '<path d="M86,140 Q100,150 114,140 L113,149 Q100,157 87,149 Z" fill="' + c2 + '" opacity=".55"/>' +
-      '<path d="M97,152 Q88,270 72,386" stroke="' + c2 + '" stroke-width="2" fill="none" opacity=".45"/>' +
-      '<path d="M112,154 Q122,268 140,386" stroke="' + c2 + '" stroke-width="2" fill="none" opacity=".45"/>' +
-      '</svg>';
-  }
-  function figMujerCorto(c, skin) {
-    var d = defs(c), c2 = shade(c, -0.24);
-    return svgOpen() + d.html + SHADOW + RING +
-      '<ellipse cx="100" cy="42" rx="18" ry="21" fill="' + HAIR + '"/>' +
-      '<path d="M83,36 Q75,62 81,92 Q86,104 89,88 Q85,64 88,46 Z" fill="' + HAIR + '"/>' +
-      '<ellipse cx="100" cy="46" rx="13" ry="16" fill="' + skin + '"/>' +
-      '<rect x="95" y="58" width="10" height="15" rx="4" fill="' + skin + '"/>' +
-      '<path d="M80,80 Q100,68 120,80 L116,95 Q100,86 84,95 Z" fill="' + skin + '"/>' +
-      '<path d="M83,84 C74,110 72,138 80,162" stroke="' + skin + '" stroke-width="7.5" fill="none" stroke-linecap="round"/>' +
-      '<path d="M117,84 C126,110 128,138 120,162" stroke="' + skin + '" stroke-width="7.5" fill="none" stroke-linecap="round"/>' +
-      '<path d="M82,78 C79,104 81,124 88,142 C80,182 70,222 63,254 Q100,270 137,254 C130,222 120,182 112,142 C118,118 119,98 118,78 Q100,70 82,78 Z" fill="url(#' + d.id + ')"/>' +
-      '<path d="M95,150 Q90,205 82,250" stroke="' + c2 + '" stroke-width="2" fill="none" opacity=".45"/>' +
-      '<path d="M89,260 C88,306 87,356 89,398" stroke="' + skin + '" stroke-width="7.5" fill="none" stroke-linecap="round"/>' +
-      '<path d="M111,260 C112,306 113,356 111,398" stroke="' + skin + '" stroke-width="7.5" fill="none" stroke-linecap="round"/>' +
-      '<ellipse cx="88" cy="404" rx="7" ry="3.6" fill="' + skin + '"/>' +
-      '<ellipse cx="112" cy="404" rx="7" ry="3.6" fill="' + skin + '"/>' +
-      '</svg>';
-  }
-  function figHombre(c, skin) {
-    var d = defs(c), c2 = shade(c, -0.26), pant = '#E9E1CF', pant2 = '#D5CAB0';
-    return svgOpen() + d.html + SHADOW + RING +
-      '<ellipse cx="100" cy="46" rx="15.5" ry="18" fill="' + skin + '"/>' +
-      '<path d="M83,42 Q83,23 100,23 Q117,23 117,42 L115,50 Q100,38 85,50 Z" fill="' + HAIR + '"/>' +
-      '<rect x="94" y="61" width="12" height="14" rx="4" fill="' + skin + '"/>' +
-      '<path d="M77,84 C72,126 73,172 81,225 L119,225 C127,172 128,126 123,84 Q112,75 100,77 Q88,75 77,84 Z" fill="url(#' + d.id + ')"/>' +
-      '<path d="M91,79 L100,96 L109,79" stroke="' + c2 + '" stroke-width="2.2" fill="none"/>' +
-      '<line x1="100" y1="96" x2="100" y2="221" stroke="' + c2 + '" stroke-width="1.6" opacity=".5"/>' +
-      '<path d="M77,86 C62,112 56,142 58,168 L73,172 C71,146 75,118 83,94 Z" fill="url(#' + d.id + ')"/>' +
-      '<path d="M123,86 C138,112 144,142 142,168 L127,172 C129,146 125,118 117,94 Z" fill="url(#' + d.id + ')"/>' +
-      '<path d="M67,170 L72,206" stroke="' + skin + '" stroke-width="7" fill="none" stroke-linecap="round"/>' +
-      '<path d="M133,170 L128,206" stroke="' + skin + '" stroke-width="7" fill="none" stroke-linecap="round"/>' +
-      '<path d="M80,223 L99,223 L96,318 L95,402 L84,402 L85,318 Z" fill="' + pant + '"/>' +
-      '<path d="M101,223 L120,223 L116,318 L116,402 L105,402 L104,318 Z" fill="' + pant + '"/>' +
-      '<path d="M89,232 L88,394" stroke="' + pant2 + '" stroke-width="1.6" opacity=".7"/>' +
-      '<path d="M111,232 L112,394" stroke="' + pant2 + '" stroke-width="1.6" opacity=".7"/>' +
-      '<ellipse cx="90" cy="407" rx="8.5" ry="4.2" fill="' + skin + '"/>' +
-      '<ellipse cx="110" cy="407" rx="8.5" ry="4.2" fill="' + skin + '"/>' +
-      '</svg>';
-  }
-  function figNina(c, skin) {
-    var d = defs(c), c2 = shade(c, -0.24);
-    return svgOpen() + d.html + SHADOW + RING +
-      '<ellipse cx="100" cy="60" rx="22" ry="24" fill="' + HAIR + '"/>' +
-      '<circle cx="76" cy="46" r="9" fill="' + HAIR + '"/>' +
-      '<circle cx="124" cy="46" r="9" fill="' + HAIR + '"/>' +
-      '<ellipse cx="100" cy="65" rx="16.5" ry="18.5" fill="' + skin + '"/>' +
-      '<rect x="95" y="82" width="10" height="12" rx="4" fill="' + skin + '"/>' +
-      '<path d="M84,100 Q100,90 116,100 L113,112 Q100,104 87,112 Z" fill="' + skin + '"/>' +
-      '<path d="M86,102 C78,124 76,148 82,168" stroke="' + skin + '" stroke-width="7" fill="none" stroke-linecap="round"/>' +
-      '<path d="M114,102 C122,124 124,148 118,168" stroke="' + skin + '" stroke-width="7" fill="none" stroke-linecap="round"/>' +
-      '<path d="M85,98 C83,120 83,138 88,156 C80,196 72,236 66,268 Q100,283 134,268 C128,236 120,196 112,156 C117,138 117,120 115,98 Q100,90 85,98 Z" fill="url(#' + d.id + ')"/>' +
-      '<path d="M94,164 Q90,215 84,262" stroke="' + c2 + '" stroke-width="2" fill="none" opacity=".45"/>' +
-      '<path d="M90,280 C89,320 88,362 90,398" stroke="' + skin + '" stroke-width="9" fill="none" stroke-linecap="round"/>' +
-      '<path d="M110,280 C111,320 112,362 110,398" stroke="' + skin + '" stroke-width="9" fill="none" stroke-linecap="round"/>' +
-      '<ellipse cx="89" cy="404" rx="7.5" ry="3.4" fill="' + skin + '"/>' +
-      '<ellipse cx="111" cy="404" rx="7.5" ry="3.4" fill="' + skin + '"/>' +
-      '</svg>';
-  }
-  function figNino(c, skin) {
-    var d = defs(c), c2 = shade(c, -0.26), pant = '#DCD2BA';
-    return svgOpen() + d.html + SHADOW + RING +
-      '<ellipse cx="100" cy="63" rx="17.5" ry="19.5" fill="' + skin + '"/>' +
-      '<path d="M81,56 Q81,36 100,36 Q119,36 119,56 L117,63 Q100,50 83,63 Z" fill="' + HAIR + '"/>' +
-      '<rect x="94" y="78" width="12" height="12" rx="4" fill="' + skin + '"/>' +
-      '<path d="M82,96 C78,124 79,152 84,178 L116,178 C121,152 122,124 118,96 Q100,88 82,96 Z" fill="url(#' + d.id + ')"/>' +
-      '<path d="M93,94 L100,106 L107,94" stroke="' + c2 + '" stroke-width="2" fill="none"/>' +
-      '<path d="M82,98 C72,110 68,122 70,134 L80,138 C79,126 82,112 88,102 Z" fill="url(#' + d.id + ')"/>' +
-      '<path d="M118,98 C128,110 132,122 130,134 L120,138 C121,126 118,112 112,102 Z" fill="url(#' + d.id + ')"/>' +
-      '<path d="M74,136 L71,158" stroke="' + skin + '" stroke-width="6.5" fill="none" stroke-linecap="round"/>' +
-      '<path d="M126,136 L129,158" stroke="' + skin + '" stroke-width="6.5" fill="none" stroke-linecap="round"/>' +
-      '<path d="M85,174 L115,174 L113,254 L103,254 L102,208 L98,208 L97,254 L87,254 Z" fill="' + pant + '"/>' +
-      '<path d="M91,256 C90,304 89,356 91,398" stroke="' + skin + '" stroke-width="9" fill="none" stroke-linecap="round"/>' +
-      '<path d="M109,256 C110,304 111,356 109,398" stroke="' + skin + '" stroke-width="9" fill="none" stroke-linecap="round"/>' +
-      '<ellipse cx="90" cy="404" rx="7.5" ry="3.4" fill="' + skin + '"/>' +
-      '<ellipse cx="110" cy="404" rx="7.5" ry="3.4" fill="' + skin + '"/>' +
-      '</svg>';
-  }
-
-  var FIGS = {
-    mujerMaxi:  { fn: figMujerMaxi,  kid: false, es: 'Ella · vestido largo', en: 'Her · maxi dress' },
-    mujerCorto: { fn: figMujerCorto, kid: false, es: 'Ella · vestido corto', en: 'Her · short dress' },
-    hombre:     { fn: figHombre,     kid: false, es: 'Él · camisa de lino',  en: 'Him · linen shirt' },
-    nina:       { fn: figNina,       kid: true,  es: 'Niña',                 en: 'Girl' },
-    nino:       { fn: figNino,       kid: true,  es: 'Niño',                 en: 'Boy' }
-  };
+  function cName(id) { var c = colorById(id); return ES ? c.es : c.en; }
+  function gName(id) { for (var i = 0; i < GRUPOS.length; i++) if (GRUPOS[i].id === id) return ES ? GRUPOS[i].es : GRUPOS[i].en; return ''; }
 
   /* ── Textos ── */
   var T = ES ? {
-    scene: 'Locación', crew: 'Tu grupo', add: 'Agregar persona', outfit: 'Color del outfit de',
-    skin: 'Tono de piel', badgeOk: 'Lista para la cámara', badgeMeh: 'Casi perfecto', badgeBad: 'Ajustemos algo',
-    verdict: 'Veredicto de tu estilista', cta: 'Enviar mi look a Vianey',
-    empty: 'Agrega a las personas de tu sesión para armar su look.',
-    waIntro: 'Hola Vianey, armé mi outfit en la guía de vestuario: ',
-    waAsk: ' ¿Qué opinas?',
+    colorLbl: 'Color del outfit', grupoLbl: 'Tipo de sesión', todos: 'Todas',
+    verdict: 'Por qué funciona', cta: 'Quiero este look',
+    prev: 'Anterior', next: 'Siguiente', reales: 'Fotos reales de sesiones IVAE',
+    vacio: 'Aún no tenemos una foto de esa combinación. Te mostramos lo mejor de ese color.',
+    waIntro: 'Hola Vianey, vi el lookbook de la guía de vestuario y me encantó este look: ',
     askPlaceholder: 'Escribe tu duda de vestuario',
+    askNoMatch: 'Esa pregunta merece respuesta de una estilista real. Escríbenos y Vianey te contesta personalmente.',
+    askWa: 'Preguntar por WhatsApp', askPop: 'Preguntas populares',
     tryTitle: 'Ahora pruébatelo con TU foto',
-    tryIntro: 'Sube una foto tuya y nuestra IA te viste con el look que armaste arriba, en la locación que elegiste.',
+    tryIntro: 'Sube una foto tuya y nuestra IA te viste con el color que elegiste arriba.',
     tryHint: 'Ideal: foto de cuerpo completo, de frente y con buena luz.',
-    tryLookLbl: 'Look elegido',
-    tryUpload: 'Subir mi foto',
-    tryChange: 'Cambiar foto',
-    tryGo: 'Vestirme con IA',
+    tryPrenda: 'Prenda', tryUpload: 'Subir mi foto', tryChange: 'Cambiar foto', tryGo: 'Vestirme con IA',
     tryWorking: 'La IA está creando tu look. Tarda entre 20 y 40 segundos, no cierres la página.',
     tryPrivacy: 'Tu foto se usa solo para generar la imagen y no se guarda.',
-    tryLimit: 'Hasta 4 pruebas al día.',
-    tryAgain: 'Probar otro look',
-    tryDownload: 'Descargar',
-    trySend: 'Enviar a Vianey',
-    tryWa: 'Hola Vianey, me probé un look con la IA de su página y me encantó: ',
-    askNoMatch: 'Esa pregunta merece respuesta de una estilista real. Escríbenos y Vianey te contesta personalmente.',
-    askWa: 'Preguntar por WhatsApp', askAll: 'Ver todas', askPop: 'Preguntas populares'
+    tryLimit: 'Hasta 4 pruebas al día.', tryAgain: 'Probar otro look',
+    tryDownload: 'Descargar', trySend: 'Enviar a Vianey',
+    tryWa: 'Hola Vianey, me probé un look con la IA de su página y me encantó: '
   } : {
-    scene: 'Location', crew: 'Your group', add: 'Add person', outfit: 'Outfit color for',
-    skin: 'Skin tone', badgeOk: 'Camera ready', badgeMeh: 'Almost perfect', badgeBad: 'Let us adjust',
-    verdict: 'Your stylist verdict', cta: 'Send my look to Vianey',
-    empty: 'Add the people in your session to style their look.',
-    waIntro: 'Hi Vianey, I styled my outfits in your style guide: ',
-    waAsk: ' What do you think?',
+    colorLbl: 'Outfit color', grupoLbl: 'Session type', todos: 'All',
+    verdict: 'Why it works', cta: 'I want this look',
+    prev: 'Previous', next: 'Next', reales: 'Real photos from IVAE sessions',
+    vacio: 'We do not have that exact combination yet. Here is the best of that color.',
+    waIntro: 'Hi Vianey, I saw the lookbook in your style guide and loved this look: ',
     askPlaceholder: 'Type your outfit question',
+    askNoMatch: 'That question deserves a real stylist answer. Message us and Vianey replies personally.',
+    askWa: 'Ask on WhatsApp', askPop: 'Popular questions',
     tryTitle: 'Now try it on with YOUR photo',
-    tryIntro: 'Upload a photo of yourself and our AI dresses you in the look you styled above, in the location you picked.',
+    tryIntro: 'Upload a photo of yourself and our AI dresses you in the color you picked above.',
     tryHint: 'Best: a full-body, front-facing, well-lit photo.',
-    tryLookLbl: 'Chosen look',
-    tryUpload: 'Upload my photo',
-    tryChange: 'Change photo',
-    tryGo: 'Dress me with AI',
+    tryPrenda: 'Garment', tryUpload: 'Upload my photo', tryChange: 'Change photo', tryGo: 'Dress me with AI',
     tryWorking: 'The AI is creating your look. It takes 20 to 40 seconds, keep the page open.',
     tryPrivacy: 'Your photo is used only to generate the image and is never stored.',
-    tryLimit: 'Up to 4 tries a day.',
-    tryAgain: 'Try another look',
-    tryDownload: 'Download',
-    trySend: 'Send to Vianey',
-    tryWa: 'Hi Vianey, I tried a look with the AI on your page and loved it: ',
-    askNoMatch: 'That question deserves a real stylist answer. Message us and Vianey replies personally.',
-    askWa: 'Ask on WhatsApp', askAll: 'See all', askPop: 'Popular questions'
+    tryLimit: 'Up to 4 tries a day.', tryAgain: 'Try another look',
+    tryDownload: 'Download', trySend: 'Send to Vianey',
+    tryWa: 'Hi Vianey, I tried a look with the AI on your page and loved it: '
   };
 
-  /* ── Estado ── */
-  var state = {
-    scene: 'golden',
-    sel: 0,
-    menuOpen: false,
-    people: [
-      { fig: 'mujerMaxi', color: 'cream', skin: 1 },
-      { fig: 'hombre', color: 'navy', skin: 2 }
-    ]
-  };
-
-  /* ── Veredicto ── */
-  function analyze() {
-    var notes = [], p = state.people, ids = p.map(function (x) { return x.color; }), sc = state.scene;
-    function has(id) { return ids.indexOf(id) !== -1; }
-    function name(id) { var c = colorById(id); return ES ? c.es : c.en; }
-    function add(level, es, en) { notes.push({ level: level, txt: ES ? es : en }); }
-
-    if (has('black')) add('bad',
-      'El negro absorbe la luz de la playa y se ve plano en foto. Cámbialo por azul marino: da la misma elegancia, con más vida.',
-      'Black absorbs beach light and looks flat on camera. Swap it for navy: same elegance, with more life.');
-    if (has('coral')) add('bad',
-      'Los colores brillantes reflejan su tinte en la piel. Prueba terracota: cálido, rico y sin reflejos.',
-      'Bright saturated colors cast tints on skin. Try terracotta: warm, rich, no color cast.');
-    if (p.length >= 2) {
-      var allSame = ids.every(function (i) { return i === ids[0]; });
-      if (allSame && (ids[0] === 'cream' || ids[0] === 'white')) add('ok',
-        'Todo en tonos claros es un clásico atemporal. Suma texturas distintas (lino, algodón, gasa) para que no se vea uniforme.',
-        'All light tones is a timeless classic. Mix textures (linen, cotton, chiffon) so it does not read as a uniform.');
-      else if (allSame) add('meh',
-        'Coordinen, no se uniformen: elijan un color ancla y varíen los demás con tonos vecinos.',
-        'Coordinate, do not match: keep one anchor color and vary the rest with neighbor tones.');
-    }
-    var PAIRS = [['cream','navy'],['cream','terracotta'],['sage','terracotta'],['dustyrose','sand'],['cream','sage'],['navy','sand'],['softblue','sand'],['cream','dustyrose'],['white','softblue']];
-    for (var i = 0; i < PAIRS.length; i++) {
-      if (has(PAIRS[i][0]) && has(PAIRS[i][1])) {
-        add('ok',
-          name(PAIRS[i][0]) + ' con ' + name(PAIRS[i][1]) + ' es una de nuestras combinaciones favoritas: contraste suave que se ve editorial.',
-          name(PAIRS[i][0]) + ' with ' + name(PAIRS[i][1]) + ' is one of our favorite pairings: soft contrast that reads editorial.');
-        break;
-      }
-    }
-    if (sc === 'golden' && (has('terracotta') || has('dustyrose') || has('cream') || has('sand'))) add('ok',
-      'Los tonos cálidos brillan en golden hour: la luz dorada los enciende de manera preciosa.',
-      'Warm tones glow at golden hour: the golden light lights them up beautifully.');
-    if (sc === 'turquesa' && has('white')) add('meh',
-      'El blanco puro deslumbra con sol de mediodía. El crema da la misma frescura sin quemar detalles.',
-      'Pure white can blow out under midday sun. Cream gives the same freshness without losing detail.');
-    if (sc === 'turquesa' && (has('navy') || has('softblue') || has('sand'))) add('ok',
-      'Azules y arenas dialogan con el mar turquesa: frescura caribeña sin esfuerzo.',
-      'Blues and sands talk to the turquoise sea: effortless Caribbean freshness.');
-    if (sc === 'rosa' && (has('dustyrose') || has('cream'))) add('ok',
-      'Rosa palo y crema se funden con el cielo del atardecer: el efecto es de ensueño.',
-      'Dusty rose and cream melt into the sunset sky: the effect is dreamy.');
-    if (sc === 'selva' && has('sage')) add('meh',
-      'El salvia se pierde entre el verde de la selva. Contrástalo con crema o rosa palo para destacar.',
-      'Sage blends into the jungle green. Contrast with cream or dusty rose to stand out.');
-    if (sc === 'selva' && (has('cream') || has('white') || has('dustyrose'))) add('ok',
-      'Los claros brillan contra el verde profundo de la selva: es el contraste que amamos fotografiar ahí.',
-      'Light tones pop against deep jungle green: exactly the contrast we love shooting there.');
-
-    if (!notes.length) add('ok',
-      'Combinación equilibrada. Telas ligeras (lino, algodón, gasa) y listo: la brisa hace el resto.',
-      'Balanced combination. Light fabrics (linen, cotton, chiffon) and you are set: the breeze does the rest.');
-
-    var order = { bad: 0, meh: 1, ok: 2 };
-    notes.sort(function (a, b) { return order[a.level] - order[b.level]; });
-    notes = notes.slice(0, 4);
-    var badge = 'ok';
-    for (var j = 0; j < notes.length; j++) { if (notes[j].level === 'bad') { badge = 'bad'; break; } if (notes[j].level === 'meh') badge = 'meh'; }
-    return { badge: badge, notes: notes };
-  }
-
-  var refocus = null;
-
-  /* ── Render del probador ── */
   var ICONS = {
     ok: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>',
     meh: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" d="M12 9v4m0 4h.01"/><circle cx="12" cy="12" r="9.2"/></svg>',
@@ -297,136 +87,175 @@
     wa: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.7-1.3 1.3-1.8 1.3-.5.1-1 .3-3.4-.7-2.9-1.2-4.7-4.1-4.9-4.3-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5s.8 1.9.8 2c.1.1.1.3 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.5.1.6-.1s.7-.8.9-1.1c.2-.3.4-.2.6-.1l2 .9c.2.1.4.2.5.3 0 .1 0 .7-.3 1.2Z"/></svg>'
   };
 
-  function stageFigures() {
-    var out = '';
-    for (var i = 0; i < state.people.length; i++) {
-      var per = state.people[i], f = FIGS[per.fig];
-      out += '<div class="osx-fig' + (f.kid ? ' osx-kid' : '') + (i === state.sel ? ' sel' : '') + '" data-i="' + i + '" role="button" tabindex="0" aria-label="' + (ES ? f.es : f.en) + '">' +
-        f.fn(colorById(per.color).hex, SKINS[per.skin]) + '</div>';
-    }
-    return out;
+  /* ── Consejo de estilista por color ── */
+  var NOTAS = {
+    cream: [['ok', 'El crema es el neutro más favorecedor bajo el sol del Caribe: ilumina la piel sin deslumbrar como el blanco puro.'],
+            ['ok', 'Combínalo con arena, verde o marino y tendrás una paleta que jamás falla.']],
+    white: [['ok', 'El blanco total es el clásico atemporal de la playa y se ve caro en cámara.'],
+            ['meh', 'A mediodía puede deslumbrar: prefiere marfil o crema si tu sesión es con sol alto, o pide golden hour.']],
+    sand:  [['ok', 'La arena aterriza el look sin pesar y dialoga con la playa de manera natural.'],
+            ['ok', 'Funciona precioso como color ancla cuando son varias personas.']],
+    verde: [['ok', 'El verde salvia u olivo se ve fresco y distinto, y en la selva o el jardín se ve editorial.'],
+            ['meh', 'Si la locación es puro verde, contrasta con crema o blanco para no camuflarte.']],
+    rosa:  [['ok', 'El rosa palo se funde con el cielo del atardecer: el efecto es de ensueño.'],
+            ['ok', 'Es el tono más romántico para parejas sin caer en lo dulce.']],
+    softblue: [['ok', 'El azul suave conversa con el mar turquesa: frescura caribeña sin esfuerzo.'],
+               ['ok', 'Es el favorito para familias porque le queda bien a todas las edades.']],
+    navy:  [['ok', 'El marino da profundidad y contraste sin la dureza del negro.'],
+            ['ok', 'Con crema o blanco forma una de nuestras combinaciones favoritas.']],
+    gris:  [['ok', 'El gris claro es un neutro tranquilo que deja brillar los rostros.'],
+            ['meh', 'Evita los grises muy oscuros o fríos: apagan la calidez de la hora dorada.']],
+    black: [['bad', 'El negro absorbe la luz de la playa y suele verse plano, sin textura.'],
+            ['meh', 'Si lo amas, funciona en el muelle, de noche o en satén con caída: mira las fotos, ahí sí luce.']]
+  };
+  var NOTAS_EN = {
+    cream: [['ok', 'Cream is the most flattering neutral under Caribbean sun: it lights up skin without the glare of pure white.'],
+            ['ok', 'Pair it with sand, green or navy and you have a palette that never fails.']],
+    white: [['ok', 'All white is the timeless beach classic and reads expensive on camera.'],
+            ['meh', 'It can blow out at midday: choose ivory or cream for high sun, or book golden hour.']],
+    sand:  [['ok', 'Sand grounds the look without weight and talks to the beach naturally.'],
+            ['ok', 'It works beautifully as the anchor color when several people are shooting.']],
+    verde: [['ok', 'Sage or olive looks fresh and different, and in the jungle or gardens it reads editorial.'],
+            ['meh', 'If the location is all green, contrast with cream or white so you do not blend in.']],
+    rosa:  [['ok', 'Dusty rose melts into the sunset sky: the effect is dreamy.'],
+            ['ok', 'It is the most romantic tone for couples without turning sweet.']],
+    softblue: [['ok', 'Soft blue talks to the turquoise sea: effortless Caribbean freshness.'],
+               ['ok', 'A family favorite because it flatters every age.']],
+    navy:  [['ok', 'Navy brings depth and contrast without the harshness of black.'],
+            ['ok', 'With cream or white it forms one of our favorite pairings.']],
+    gris:  [['ok', 'Light gray is a calm neutral that lets faces shine.'],
+            ['meh', 'Avoid very dark or cool grays: they mute the warmth of golden hour.']],
+    black: [['bad', 'Black absorbs beach light and usually photographs flat, with no texture.'],
+            ['meh', 'If you love it, it works on the pier, at night, or in flowing satin: see the photos, there it shines.']]
+  };
+
+  /* ── Estado ── */
+  var st = { color: 'cream', grupo: null, i: 0 };
+
+  function filtrar() {
+    var porColor = LOOKS.filter(function (l) { return l.c.indexOf(st.color) !== -1; });
+    if (!st.grupo) return { list: porColor, relajado: false };
+    var exacto = porColor.filter(function (l) { return l.g === st.grupo; });
+    if (exacto.length) return { list: exacto, relajado: false };
+    return { list: porColor, relajado: true };
   }
 
-  function renderProbador() {
-    if (!probadorMount) return;
-    var sc = sceneById(state.scene);
-    var selPer = state.people[state.sel];
-    var html = '<div class="osx-wrap"><div class="osx-grid"><div class="osx-left">' +
-      '<div class="osx-stage">' +
-      '<img class="osx-stage-bg" src="' + sc.img + '" alt="" loading="lazy" decoding="async"/>' +
-      '<div class="osx-stage-veil"></div>' +
-      '<span class="osx-stage-label">' + (ES ? sc.es : sc.en) + '</span>' +
-      (state.people.length ? '<div class="osx-people">' + stageFigures() + '</div>'
-        : '<div class="osx-stage-empty">' + T.empty + '</div>') +
-      '</div></div><div class="osx-right">' +
-      '<div class="osx-scenes" role="group" aria-label="' + T.scene + '">';
-    for (var i = 0; i < SCENES.length; i++) {
-      var s = SCENES[i];
-      html += '<button type="button" class="osx-scene' + (s.id === state.scene ? ' sel' : '') + '" data-scene="' + s.id + '" aria-pressed="' + (s.id === state.scene) + '">' +
-        '<img src="' + s.img.replace('.jpg', '-thumb.jpg') + '" alt="" decoding="async"/><span>' + (ES ? s.es : s.en) + '</span></button>';
-    }
-    html += '</div>';
+  function waLook(l) {
+    return WA + encodeURIComponent(T.waIntro + cName(st.color) +
+      (st.grupo ? ' · ' + gName(st.grupo) : '') + (l ? ' · ' + l.loc : '') + '.');
+  }
 
-    /* grupo */
-    html += '<div class="osx-panel"><p class="osx-panel-t">' + T.crew + '</p><div class="osx-crew">';
-    for (var j = 0; j < state.people.length; j++) {
-      var per = state.people[j], f2 = FIGS[per.fig];
-      html += '<span class="osx-chip' + (j === state.sel ? ' sel' : '') + '" data-i="' + j + '" role="button" tabindex="0" aria-pressed="' + (j === state.sel) + '">' +
-        '<span class="dot" style="background:' + colorById(per.color).hex + '"></span>' + (ES ? f2.es : f2.en) +
-        '<span class="x" data-del="' + j + '" role="button" tabindex="0" aria-label="' + (ES ? 'Quitar ' : 'Remove ') + (ES ? f2.es : f2.en) + '">&times;</span></span>';
-    }
-    if (state.people.length < 5)
-      html += '<button type="button" class="osx-add" id="osxAdd" aria-expanded="' + state.menuOpen + '" aria-controls="osxAddMenu">+ ' + T.add + '</button>';
-    html += '</div><div class="osx-addmenu' + (state.menuOpen ? ' open' : '') + '" id="osxAddMenu">';
-    for (var k in FIGS) html += '<button type="button" data-add="' + k + '">' + (ES ? FIGS[k].es : FIGS[k].en) + '</button>';
-    html += '</div></div>';
+  function precargar(list, i) {
+    [i + 1, i - 1].forEach(function (k) {
+      var l = list[(k + list.length) % list.length];
+      if (l) { var im = new Image(); im.src = l.src; }
+    });
+  }
 
-    /* colores + piel */
-    if (selPer) {
-      var fName = ES ? FIGS[selPer.fig].es : FIGS[selPer.fig].en;
-      html += '<div class="osx-panel"><p class="osx-panel-t">' + T.outfit + ' <b>' + fName + '</b> &middot; ' + (ES ? colorById(selPer.color).es : colorById(selPer.color).en) + '</p>' +
-        '<div class="osx-panelrow"><div class="osx-swcol"><div class="osx-swatches">';
-      for (var m = 0; m < COLORS.length; m++) {
-        var c = COLORS[m];
-        html += '<button type="button" class="osx-sw' + (c.id === selPer.color ? ' sel' : '') + '" data-color="' + c.id + '" aria-pressed="' + (c.id === selPer.color) + '" style="background:' + c.hex + '" aria-label="' + (ES ? c.es : c.en) + '" title="' + (ES ? c.es : c.en) + '"></button>';
-      }
-      html += '</div><p class="osx-panel-t" style="margin-top:16px">' + T.skin + '</p><div class="osx-swatches osx-skins">';
-      for (var n = 0; n < SKINS.length; n++)
-        html += '<button type="button" class="osx-sw' + (n === selPer.skin ? ' sel' : '') + '" data-skin="' + n + '" aria-pressed="' + (n === selPer.skin) + '" style="background:' + SKINS[n] + '" aria-label="' + T.skin + ' ' + (n + 1) + '"></button>';
-      html += '</div></div>' +
-        '<div class="osx-minifig" aria-hidden="true" style="background-image:url(' + sc.img.replace('.jpg', '-thumb.jpg') + ')">' +
-        FIGS[selPer.fig].fn(colorById(selPer.color).hex, SKINS[selPer.skin]) + '</div></div>';
-      html += '</div>';
-    }
+  function renderLookbook() {
+    if (!lookMount) return;
+    if (!LOOKS.length) { lookMount.innerHTML = ''; return; }
+    var r = filtrar(), list = r.list;
+    if (st.i >= list.length) st.i = 0;
+    var l = list[st.i] || list[0];
+    var notas = (ES ? NOTAS : NOTAS_EN)[st.color] || [];
 
-    /* veredicto */
-    if (state.people.length) {
-      var v = analyze();
-      var badgeTxt = v.badge === 'ok' ? T.badgeOk : v.badge === 'meh' ? T.badgeMeh : T.badgeBad;
-      html += '<div class="osx-verdict" aria-live="polite"><div class="osx-verdict-head">' +
-        '<span class="osx-verdict-badge ' + v.badge + '">' + badgeTxt + '</span>' +
-        '<span class="osx-verdict-title">' + T.verdict + '</span></div>';
-      for (var q = 0; q < v.notes.length; q++)
-        html += '<div class="osx-note ' + v.notes[q].level + '">' + ICONS[v.notes[q].level] + '<span>' + v.notes[q].txt + '</span></div>';
-      html += '<a class="osx-verdict-cta" target="_blank" rel="noopener" href="' + waLink() + '">' + ICONS.wa + ' ' + T.cta + '</a></div>';
-    } else {
-      html += '<div class="osx-verdict" aria-live="polite"><div class="osx-verdict-head">' +
-        '<span class="osx-verdict-title">' + T.verdict + '</span></div>' +
-        '<div class="osx-note meh">' + ICONS.meh + '<span>' + T.empty + '</span></div></div>';
-    }
+    var h = '<div class="osx-lb">' +
+      '<div class="osx-stage" id="osxStage">' +
+        '<div class="osx-stage-frame" style="aspect-ratio:' + l.w + '/' + l.h + '">' +
+          '<img id="osxPhoto" src="' + l.src + '" alt="' + (ES ? 'Look de sesión IVAE en ' : 'IVAE session look in ') + l.loc + '" ' +
+            (st.i === 0 ? 'fetchpriority="high"' : 'loading="lazy"') + ' decoding="async" width="' + l.w + '" height="' + l.h + '"/>' +
+          '<div class="osx-stage-veil"></div>' +
+          '<span class="osx-stage-label">' + l.loc + '</span>' +
+          '<div class="osx-stage-foot">' +
+            '<p class="osx-stage-note" id="osxNote">' + l.n + '</p>' +
+            '<div class="osx-nav">' +
+              '<button type="button" class="osx-arrow" data-dir="-1" aria-label="' + T.prev + '">' +
+                '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>' +
+              '<span class="osx-count" id="osxCount">' + (st.i + 1) + ' / ' + list.length + '</span>' +
+              '<button type="button" class="osx-arrow" data-dir="1" aria-label="' + T.next + '">' +
+                '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
 
-    html += '</div></div></div>';
-    probadorMount.innerHTML = html;
-    wireProbador();
+      '<p class="osx-panel-t osx-lb-lbl">' + T.colorLbl + ' · <b>' + cName(st.color) + '</b></p>' +
+      '<div class="osx-chips" role="group" aria-label="' + T.colorLbl + '">';
+    for (var i = 0; i < COLORS.length; i++) {
+      var c = COLORS[i];
+      var n = LOOKS.filter(function (x) { return x.c.indexOf(c.id) !== -1; }).length;
+      if (!n) continue;
+      h += '<button type="button" class="osx-chip-c' + (c.id === st.color ? ' sel' : '') + '" data-color="' + c.id + '" aria-pressed="' + (c.id === st.color) + '">' +
+        '<span class="sw" style="background:' + c.hex + '"></span>' + (ES ? c.es : c.en) + '</button>';
+    }
+    h += '</div>' +
+      '<div class="osx-tabs" role="group" aria-label="' + T.grupoLbl + '">' +
+        '<button type="button" class="osx-tab' + (!st.grupo ? ' sel' : '') + '" data-grupo="" aria-pressed="' + (!st.grupo) + '">' + T.todos + '</button>';
+    for (var j = 0; j < GRUPOS.length; j++) {
+      var g = GRUPOS[j];
+      var m = LOOKS.filter(function (x) { return x.g === g.id; }).length;
+      if (!m) continue;
+      h += '<button type="button" class="osx-tab' + (st.grupo === g.id ? ' sel' : '') + '" data-grupo="' + g.id + '" aria-pressed="' + (st.grupo === g.id) + '">' + (ES ? g.es : g.en) + '</button>';
+    }
+    h += '</div>';
+
+    if (r.relajado) h += '<p class="osx-try-note" style="text-align:center">' + T.vacio + '</p>';
+
+    h += '<div class="osx-verdict" aria-live="polite"><div class="osx-verdict-head">' +
+      '<span class="osx-verdict-badge ' + (notas[0] ? notas[0][0] : 'ok') + '">' + cName(st.color) + '</span>' +
+      '<span class="osx-verdict-title">' + T.verdict + '</span></div>';
+    for (var k = 0; k < notas.length; k++)
+      h += '<div class="osx-note ' + notas[k][0] + '">' + ICONS[notas[k][0]] + '<span>' + notas[k][1] + '</span></div>';
+    h += '<a class="osx-verdict-cta" id="osxLookCta" target="_blank" rel="noopener" href="' + waLook(l) + '">' + ICONS.wa + ' ' + T.cta + '</a></div>' +
+      '<p class="osx-lb-cred">' + T.reales + '</p></div>';
+
+    lookMount.innerHTML = h;
+    wireLookbook(list);
+    precargar(list, st.i);
     var lk = document.getElementById('osxTryLook');
     if (lk) lk.textContent = tryLookText();
-    if (refocus) {
-      var rf = probadorMount.querySelector(refocus);
-      if (rf) rf.focus();
-      refocus = null;
+  }
+
+  function mostrar(list, dir) {
+    st.i = (st.i + dir + list.length) % list.length;
+    var l = list[st.i];
+    var img = document.getElementById('osxPhoto');
+    var frame = img && img.parentElement;
+    if (!img) return renderLookbook();
+    img.style.opacity = '0';
+    setTimeout(function () {
+      frame.style.aspectRatio = l.w + '/' + l.h;
+      img.src = l.src; img.width = l.w; img.height = l.h;
+      img.style.opacity = '1';
+      document.getElementById('osxNote').textContent = l.n;
+      document.getElementById('osxCount').textContent = (st.i + 1) + ' / ' + list.length;
+      document.querySelector('.osx-stage-label').textContent = l.loc;
+      var cta = document.getElementById('osxLookCta');
+      if (cta) cta.href = waLook(l);
+      precargar(list, st.i);
+    }, 180);
+  }
+
+  function wireLookbook(list) {
+    lookMount.querySelectorAll('.osx-arrow').forEach(function (b) {
+      b.addEventListener('click', function () { mostrar(list, parseInt(b.getAttribute('data-dir'), 10)); });
+    });
+    lookMount.querySelectorAll('[data-color]').forEach(function (b) {
+      b.addEventListener('click', function () { st.color = b.getAttribute('data-color'); st.i = 0; renderLookbook(); });
+    });
+    lookMount.querySelectorAll('[data-grupo]').forEach(function (b) {
+      b.addEventListener('click', function () { st.grupo = b.getAttribute('data-grupo') || null; st.i = 0; renderLookbook(); });
+    });
+    var stage = document.getElementById('osxStage'), x0 = null;
+    if (stage) {
+      stage.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+      stage.addEventListener('touchend', function (e) {
+        if (x0 === null) return;
+        var dx = e.changedTouches[0].clientX - x0; x0 = null;
+        if (Math.abs(dx) > 45) mostrar(list, dx < 0 ? 1 : -1);
+      }, { passive: true });
     }
-  }
-
-  function waLink() {
-    var sc = sceneById(state.scene);
-    var parts = state.people.map(function (p) {
-      return (ES ? FIGS[p.fig].es : FIGS[p.fig].en) + ': ' + (ES ? colorById(p.color).es : colorById(p.color).en).toLowerCase();
-    });
-    return WA + encodeURIComponent(T.waIntro + (ES ? sc.es : sc.en) + ' · ' + parts.join(' · ') + '.' + T.waAsk);
-  }
-
-  function wireProbador() {
-    probadorMount.querySelectorAll('.osx-scene').forEach(function (b) {
-      b.addEventListener('click', function () { state.scene = b.getAttribute('data-scene'); refocus = '[data-scene="' + state.scene + '"]'; renderProbador(); });
-    });
-    probadorMount.querySelectorAll('.osx-fig,[data-i].osx-chip').forEach(function (el) {
-      el.addEventListener('click', function (e) {
-        if (e.target.hasAttribute && e.target.hasAttribute('data-del')) return;
-        state.sel = parseInt(el.getAttribute('data-i'), 10); renderProbador();
-      });
-    });
-    probadorMount.querySelectorAll('[data-del]').forEach(function (x) {
-      x.addEventListener('click', function (e) {
-        e.stopPropagation();
-        state.people.splice(parseInt(x.getAttribute('data-del'), 10), 1);
-        if (state.sel >= state.people.length) state.sel = Math.max(0, state.people.length - 1);
-        renderProbador();
-      });
-    });
-    var add = document.getElementById('osxAdd');
-    if (add) add.addEventListener('click', function () { state.menuOpen = !state.menuOpen; refocus = '#osxAdd'; renderProbador(); });
-    probadorMount.querySelectorAll('[data-add]').forEach(function (b) {
-      b.addEventListener('click', function () {
-        state.people.push({ fig: b.getAttribute('data-add'), color: 'cream', skin: 1 });
-        state.sel = state.people.length - 1; refocus = '[data-add="' + b.getAttribute('data-add') + '"]'; renderProbador();
-      });
-    });
-    probadorMount.querySelectorAll('[data-color]').forEach(function (b) {
-      b.addEventListener('click', function () { var c = b.getAttribute('data-color'); state.people[state.sel].color = c; refocus = '[data-color="' + c + '"]'; renderProbador(); });
-    });
-    probadorMount.querySelectorAll('[data-skin]').forEach(function (b) {
-      b.addEventListener('click', function () { var k = b.getAttribute('data-skin'); state.people[state.sel].skin = parseInt(k, 10); refocus = '[data-skin="' + k + '"]'; renderProbador(); });
-    });
   }
 
   /* ═══ PREGUNTAS ═══ */
@@ -434,9 +263,9 @@
     { c: 'colores', q: '¿Qué colores se ven mejor en la playa?', k: ['color', 'mejor', 'playa', 'paleta', 'combinar'], a: 'Los neutros cálidos son infalibles: crema, arena, salvia, rosa palo, terracota y azul marino. Todos armonizan con el mar turquesa y la luz dorada, y todos combinan entre sí.', pal: ['#EFE7D3', '#CDBD9F', '#A2B899', '#CFA0A0', '#C08054', '#24344F'] },
     { c: 'colores', q: '¿Puedo vestir de negro?', k: ['negro', 'oscuro'], a: 'Mejor no en la playa: el negro absorbe la luz y sale plano, sin textura. Si amas lo oscuro, el azul marino es tu aliado: da la misma elegancia y sí conserva vida en foto.' },
     { c: 'colores', q: '¿El blanco total funciona?', k: ['blanco', 'total', 'white'], a: 'Sí, es un clásico. Dos secretos: al mediodía prefiere crema o marfil (el blanco puro deslumbra al sol) y mezcla texturas (lino, algodón, gasa) para que no se vea uniforme.' },
-    { c: 'colores', q: '¿Qué color me favorece según mi tono de piel?', k: ['piel', 'tono', 'morena', 'clara', 'favorece'], a: 'Regla simple: pieles doradas y morenas brillan con blancos, cremas y terracotas (el contraste ilumina). Pieles claras se ven preciosas con salvia, azul suave y rosa palo. En el probador de arriba puedes verlo con tu tono.' },
+    { c: 'colores', q: '¿Qué color me favorece según mi tono de piel?', k: ['piel', 'tono', 'morena', 'clara', 'favorece'], a: 'Regla simple: pieles doradas y morenas brillan con blancos, cremas y terracotas (el contraste ilumina). Pieles claras se ven preciosas con salvia, azul suave y rosa palo. En el lookbook de arriba puedes ver cada color en piel real.' },
     { c: 'colores', q: '¿Los estampados están prohibidos?', k: ['estampado', 'flores', 'print', 'rayas'], a: 'Prohibidos no, pero con criterio: florales grandes y suaves en tonos de la paleta sí funcionan. Evita estampados pequeños y apretados (hacen ruido en cámara) y logos o letras grandes.' },
-    { c: 'pareja', q: '¿Cómo coordinamos en pareja sin ir iguales?', k: ['pareja', 'coordinar', 'igual', 'novio', 'esposo'], a: 'Elijan un color ancla y un acento: ella crema con él en marino, o ella rosa palo con él en arena. La regla es tonos que dialoguen, no que se repitan. Prueben su combinación en el probador de arriba.' },
+    { c: 'pareja', q: '¿Cómo coordinamos en pareja sin ir iguales?', k: ['pareja', 'coordinar', 'igual', 'novio', 'esposo'], a: 'Elijan un color ancla y un acento: ella crema con él en marino, o ella rosa palo con él en arena. La regla es tonos que dialoguen, no que se repitan. En el lookbook filtra por Pareja y verás decenas de ejemplos reales.' },
     { c: 'hombres', q: '¿Qué se pone él?', k: ['hombre', 'camisa', 'pantalon', 'caballero', 'senor'], a: 'El uniforme ganador: camisa de lino arremangada y con uno o dos botones abiertos (crema, arena, salvia o marino), con pantalón de lino claro. Descalzo en arena o con sandalias de piel. Sin relojes deportivos ni lentes en la cabeza.' },
     { c: 'hombres', q: '¿Camisa fajada o suelta?', k: ['fajada', 'suelta', 'meter', 'faja'], a: 'Suelta y ligeramente arremangada: relajada pero intencional. Fajada solo si el pantalón es de tiro alto y el look es más formal, por ejemplo para una boda.' },
     { c: 'ninos', q: '¿Cómo visto a los niños?', k: ['nino', 'nina', 'hijo', 'bebe', 'kids'], a: 'Comodidad primero: un niño cómodo es un niño que juega, y ahí salen las mejores fotos. Vestidos ligeros de algodón para ellas, camisa o playera lisa de lino para ellos, en los mismos tonos de la familia. Descalzos es perfecto.' },
@@ -459,10 +288,10 @@
     { c: 'colors', q: 'Which colors look best on the beach?', k: ['color', 'best', 'beach', 'palette', 'match'], a: 'Warm neutrals never fail: cream, sand, sage, dusty rose, terracotta and navy. They all harmonize with turquoise water and golden light, and they all pair with each other.', pal: ['#EFE7D3', '#CDBD9F', '#A2B899', '#CFA0A0', '#C08054', '#24344F'] },
     { c: 'colors', q: 'Can I wear black?', k: ['black', 'dark'], a: 'Better not on the beach: black absorbs light and photographs flat, with no texture. If you love dark tones, navy is your friend: same elegance, and it keeps life in camera.' },
     { c: 'colors', q: 'Does all white work?', k: ['white', 'all'], a: 'Yes, it is a classic. Two secrets: at midday choose cream or ivory (pure white glares in full sun) and mix textures (linen, cotton, chiffon) so it does not read as a uniform.' },
-    { c: 'colors', q: 'Which color suits my skin tone?', k: ['skin', 'tone', 'tan', 'fair', 'suits'], a: 'Simple rule: golden and deeper skin glows with whites, creams and terracottas (the contrast lights you up). Fair skin looks beautiful in sage, soft blue and dusty rose. Try it with your tone in the styler above.' },
+    { c: 'colors', q: 'Which color suits my skin tone?', k: ['skin', 'tone', 'tan', 'fair', 'suits'], a: 'Simple rule: golden and deeper skin glows with whites, creams and terracottas (the contrast lights you up). Fair skin looks beautiful in sage, soft blue and dusty rose. In the lookbook above you can see every color on real skin.' },
     { c: 'colors', q: 'Are prints forbidden?', k: ['print', 'floral', 'pattern', 'stripes'], a: 'Not forbidden, just curated: large soft florals in palette tones work. Avoid small busy patterns (they create visual noise) and big logos or lettering.' },
-    { c: 'couples', q: 'How do we coordinate as a couple without matching?', k: ['couple', 'coordinate', 'match', 'partner'], a: 'Pick one anchor color and one accent: her in cream with him in navy, or her in dusty rose with him in sand. The rule is tones that talk to each other, not repeat. Test your combo in the styler above.' },
-    { c: 'men', q: 'What should he wear?', k: ['men', 'shirt', 'pants', 'guy', 'husband'], a: 'The winning uniform: a linen shirt (cream, sand, sage or navy) with light linen pants, sleeves rolled, a button or two open. Barefoot on sand or leather sandals. No sport watches, no sunglasses on the head.' },
+    { c: 'couples', q: 'How do we coordinate as a couple without matching?', k: ['couple', 'coordinate', 'match', 'partner'], a: 'Pick one anchor color and one accent: her in cream with him in navy, or her in dusty rose with him in sand. The rule is tones that talk to each other, not repeat. Filter the lookbook by Couple for dozens of real examples.' },
+    { c: 'men', q: 'What should he wear?', k: ['men', 'shirt', 'pants', 'guy', 'husband'], a: 'The winning uniform: a linen shirt rolled at the sleeves with a button or two open (cream, sand, sage or navy), with light linen pants. Barefoot on sand or leather sandals. No sport watches, no sunglasses on the head.' },
     { c: 'men', q: 'Shirt tucked or untucked?', k: ['tucked', 'untucked', 'loose'], a: 'Untucked and lightly rolled: relaxed but intentional. Tucked only with high-waist trousers for a more formal look, for example a wedding.' },
     { c: 'kids', q: 'How do I dress the kids?', k: ['kids', 'children', 'baby', 'son', 'daughter'], a: 'Comfort first: a comfortable kid is a playing kid, and that is where the best frames live. Light cotton dresses for girls, a plain linen shirt or tee for boys, in the family palette. Barefoot is perfect.' },
     { c: 'kids', q: 'What if the baby has nothing in the palette?', k: ['baby', 'clothes', 'palette'], a: 'Plain white or cream always wins on babies and is easy to find. One tip: skip clothing with characters or lettering, on camera they steal all the attention.' },
@@ -509,7 +338,6 @@
     scored.sort(function (a, b) { return b.s - a.s; });
     return scored.slice(0, 3).map(function (x) { return x.qa; });
   }
-
   function ansCard(qa) {
     var h = '<div class="osx-ans"><h4>' + qa.q + '</h4><p>' + qa.a + '</p>';
     if (qa.pal) {
@@ -534,15 +362,11 @@
     var input = document.getElementById('osxAskInput');
     var answers = document.getElementById('osxAnswers');
     var activeCat = null;
-
     function showPopular() {
       var pop = [QA[0], QA[5], QA[6], QA[8]];
       answers.innerHTML = '<p class="osx-panel-t" style="text-align:center">' + T.askPop + '</p>' + pop.map(ansCard).join('');
     }
-    function showCat(cat) {
-      var list = QA.filter(function (q) { return q.c === cat; });
-      answers.innerHTML = list.map(ansCard).join('');
-    }
+    function showCat(cat) { answers.innerHTML = QA.filter(function (q) { return q.c === cat; }).map(ansCard).join(''); }
     function showSearch(q) {
       var res = searchQA(q);
       if (res.length) { answers.innerHTML = res.map(ansCard).join(''); return; }
@@ -553,9 +377,9 @@
     function syncCats() {
       preguntasMount.querySelectorAll('.osx-cat').forEach(function (b) {
         b.classList.toggle('sel', b.getAttribute('data-cat') === activeCat);
+        b.setAttribute('aria-pressed', b.getAttribute('data-cat') === activeCat);
       });
     }
-
     var deb;
     input.addEventListener('input', function () {
       clearTimeout(deb);
@@ -577,21 +401,20 @@
     showPopular();
   }
 
-  /* ═══ PROBADOR CON IA (se enciende solo si el backend tiene llave) ═══ */
-  var tryFile = null, tryBusy = false;
+  /* ═══ PROBADOR CON IA ═══ */
+  var tryFile = null, tryBusy = false, tryPrenda = 'mujerMaxi';
+  var PRENDAS = ES
+    ? [['mujerMaxi', 'Vestido largo'], ['mujerCorto', 'Vestido corto'], ['hombre', 'Camisa de lino']]
+    : [['mujerMaxi', 'Maxi dress'], ['mujerCorto', 'Short dress'], ['hombre', 'Linen shirt']];
+  var COLOR_IA = { cream: 'cream', white: 'white', sand: 'sand', verde: 'sage', rosa: 'dustyrose', softblue: 'softblue', navy: 'navy', gris: 'sand', black: 'black' };
+  var ESCENA_IA = { 'Playa': 'golden', 'Selva': 'selva', 'Muelle': 'turquesa', 'Atardecer': 'rosa', 'Resort': 'golden', 'Alberca': 'turquesa', 'Interior': 'golden', 'Cancún': 'golden', 'Ciudad': 'golden' };
 
   function tryLookText() {
-    var per = state.people[state.sel];
-    var sc = sceneById(state.scene);
-    if (!per) return ES ? sc.es : sc.en;
-    return (ES ? FIGS[per.fig].es : FIGS[per.fig].en) + ' · ' +
-      (ES ? colorById(per.color).es : colorById(per.color).en).toLowerCase() + ' · ' +
-      (ES ? sc.es : sc.en);
+    for (var i = 0; i < PRENDAS.length; i++) if (PRENDAS[i][0] === tryPrenda) return PRENDAS[i][1] + ' · ' + cName(st.color).toLowerCase();
+    return cName(st.color);
   }
-
   function resizePhoto(file, cb) {
-    var img = new Image();
-    var url = URL.createObjectURL(file);
+    var img = new Image(), url = URL.createObjectURL(file);
     img.onload = function () {
       var sf = Math.min(1, 1280 / Math.max(img.width, img.height));
       var c = document.createElement('canvas');
@@ -599,8 +422,7 @@
       c.height = Math.max(1, Math.round(img.height * sf));
       c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
       URL.revokeObjectURL(url);
-      if (c.toBlob) c.toBlob(function (b) { cb(b || file); }, 'image/jpeg', 0.86);
-      else cb(file);
+      if (c.toBlob) c.toBlob(function (b) { cb(b || file); }, 'image/jpeg', 0.86); else cb(file);
     };
     img.onerror = function () { URL.revokeObjectURL(url); cb(file); };
     img.src = url;
@@ -608,89 +430,80 @@
 
   function renderTryon() {
     var mount = document.getElementById('osxTryon');
-    if (!mount || !probadorMount) return;
-    fetch('/api/outfit/status').then(function (r) { return r.json(); }).then(function (st) {
-      if (!st || !st.ready) return;
-      mount.innerHTML =
-        '<div class="osx-try"><div class="osx-try-head">' +
+    if (!mount) return;
+    fetch('/api/outfit/status').then(function (r) { return r.json(); }).then(function (stt) {
+      if (!stt || !stt.ready) return;
+      var h = '<div class="osx-try"><div class="osx-try-head">' +
         '<h3>' + T.tryTitle + '</h3><p>' + T.tryIntro + '</p></div>' +
-        '<p class="osx-panel-t">' + T.tryLookLbl + ' · <span id="osxTryLook">' + tryLookText() + '</span></p>' +
-        '<div class="osx-try-row">' +
+        '<p class="osx-panel-t">' + T.tryPrenda + ' · <span id="osxTryLook">' + tryLookText() + '</span></p>' +
+        '<div class="osx-tabs">';
+      for (var i = 0; i < PRENDAS.length; i++)
+        h += '<button type="button" class="osx-tab' + (PRENDAS[i][0] === tryPrenda ? ' sel' : '') + '" data-prenda="' + PRENDAS[i][0] + '">' + PRENDAS[i][1] + '</button>';
+      h += '</div><div class="osx-try-row">' +
         '<label class="osx-try-upload" id="osxTryUpLbl" tabindex="0">' +
         '<input type="file" id="osxTryFile" accept="image/jpeg,image/png,image/webp" hidden/>' +
         '<span id="osxTryUpTxt">' + T.tryUpload + '</span></label>' +
         '<img id="osxTryThumb" class="osx-try-thumb" alt="" hidden/>' +
-        '<button type="button" class="osx-verdict-cta osx-try-go" id="osxTryGo" disabled>' + T.tryGo + '</button>' +
-        '</div>' +
+        '<button type="button" class="osx-verdict-cta osx-try-go" id="osxTryGo" disabled>' + T.tryGo + '</button></div>' +
         '<p class="osx-try-note">' + T.tryHint + ' ' + T.tryLimit + '</p>' +
         '<p class="osx-try-note" style="opacity:.75">' + T.tryPrivacy + '</p>' +
         '<div class="osx-try-status" id="osxTryStatus" hidden></div>' +
-        '<div class="osx-try-result" id="osxTryResult" hidden>' +
-        '<img id="osxTryImg" alt=""/>' +
+        '<div class="osx-try-result" id="osxTryResult" hidden><img id="osxTryImg" alt=""/>' +
         '<div class="osx-try-actions">' +
         '<a class="osx-verdict-cta" id="osxTryDl" download="mi-look-ivae.jpg">' + T.tryDownload + '</a>' +
         '<a class="osx-verdict-cta" id="osxTryWa" target="_blank" rel="noopener">' + ICONS.wa + ' ' + T.trySend + '</a>' +
         '<button type="button" class="osx-more" id="osxTryAgain">' + T.tryAgain + '</button>' +
         '</div></div></div>';
+      mount.innerHTML = h;
 
-      var fileIn = document.getElementById('osxTryFile');
-      var upLbl = document.getElementById('osxTryUpLbl');
-      var upTxt = document.getElementById('osxTryUpTxt');
-      var thumb = document.getElementById('osxTryThumb');
-      var go = document.getElementById('osxTryGo');
-      var status = document.getElementById('osxTryStatus');
-      var result = document.getElementById('osxTryResult');
+      var fileIn = document.getElementById('osxTryFile'), upLbl = document.getElementById('osxTryUpLbl'),
+          upTxt = document.getElementById('osxTryUpTxt'), thumb = document.getElementById('osxTryThumb'),
+          go = document.getElementById('osxTryGo'), status = document.getElementById('osxTryStatus'),
+          result = document.getElementById('osxTryResult');
 
+      mount.querySelectorAll('[data-prenda]').forEach(function (b) {
+        b.addEventListener('click', function () { tryPrenda = b.getAttribute('data-prenda'); renderTryon(); });
+      });
       upLbl.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileIn.click(); }
       });
       fileIn.addEventListener('change', function () {
         var f = fileIn.files && fileIn.files[0];
         if (!f) return;
-        tryFile = f;
-        upTxt.textContent = T.tryChange;
-        thumb.src = URL.createObjectURL(f);
-        thumb.hidden = false;
-        go.disabled = false;
-        result.hidden = true;
-        status.hidden = true;
+        tryFile = f; upTxt.textContent = T.tryChange;
+        thumb.src = URL.createObjectURL(f); thumb.hidden = false;
+        go.disabled = false; result.hidden = true; status.hidden = true;
       });
       go.addEventListener('click', function () {
         if (!tryFile || tryBusy) return;
-        tryBusy = true;
-        go.disabled = true;
-        result.hidden = true;
-        status.hidden = false;
-        status.className = 'osx-try-status';
+        tryBusy = true; go.disabled = true; result.hidden = true;
+        status.hidden = false; status.className = 'osx-try-status';
         status.innerHTML = '<span class="osx-spin"></span>' + T.tryWorking;
-        var per = state.people[state.sel] || { fig: 'mujerMaxi', color: 'cream' };
+        var r = filtrar(), l = r.list[st.i] || r.list[0];
         resizePhoto(tryFile, function (blob) {
           var fd = new FormData();
           fd.append('photo', blob, 'foto.jpg');
-          fd.append('fig', per.fig);
-          fd.append('color', per.color);
-          fd.append('scene', state.scene);
+          fd.append('fig', tryPrenda);
+          fd.append('color', COLOR_IA[st.color] || 'cream');
+          fd.append('scene', (l && ESCENA_IA[l.loc]) || 'golden');
           fetch('/api/outfit/tryon', { method: 'POST', body: fd })
-            .then(function (r) { return r.json(); })
+            .then(function (res) { return res.json(); })
             .then(function (d) {
-              tryBusy = false;
-              go.disabled = false;
+              tryBusy = false; go.disabled = false;
               if (!d || !d.ok) {
                 status.className = 'osx-try-status err';
                 status.textContent = (d && d.error) || 'Error. Intenta de nuevo.';
                 return;
               }
               status.hidden = true;
-              var img = document.getElementById('osxTryImg');
-              img.src = d.image;
+              document.getElementById('osxTryImg').src = d.image;
               document.getElementById('osxTryDl').href = d.image;
               document.getElementById('osxTryWa').href = WA + encodeURIComponent(T.tryWa + tryLookText() + '.');
               result.hidden = false;
               result.scrollIntoView({ behavior: 'smooth', block: 'center' });
             })
             .catch(function () {
-              tryBusy = false;
-              go.disabled = false;
+              tryBusy = false; go.disabled = false;
               status.className = 'osx-try-status err';
               status.textContent = ES ? 'Sin conexión. Intenta de nuevo.' : 'Connection lost. Try again.';
             });
@@ -703,14 +516,7 @@
     }).catch(function () {});
   }
 
-  if (probadorMount) probadorMount.addEventListener('keydown', function (e) {
-    var t = e.target;
-    if ((e.key === 'Enter' || e.key === ' ') && t && t.getAttribute && t.getAttribute('role') === 'button') {
-      e.preventDefault(); t.click();
-    }
-  });
-
-  if (document.readyState === 'loading')
-    document.addEventListener('DOMContentLoaded', function () { renderProbador(); renderPreguntas(); renderTryon(); });
-  else { renderProbador(); renderPreguntas(); renderTryon(); }
+  function arrancar() { renderLookbook(); renderPreguntas(); renderTryon(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', arrancar);
+  else arrancar();
 })();

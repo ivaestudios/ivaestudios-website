@@ -1,126 +1,100 @@
 /* ═══════════════════════════════════════════════════════════════
-   OUTFIT STUDIO — Probador de vestuario interactivo + Preguntas
+   OUTFIT STUDIO — Lookbook con fotos REALES + Preguntas + IA
    Usado SOLO por /outfit-guide y /es/guia-vestuario.
-   Namespace: .osx-  ·  Tokens de la página: Syne / Cormorant Garamond,
-   --ink #1a2433, --cream #f9f8f7, --sand #ede8df, --gold #c4a35a.
-   Mobile-first: 99% de clientes ven en teléfono.
+   Namespace .osx-  ·  Syne + Cormorant Garamond, oro #c4a35a.
+   El sitio FUERZA html.dark: este archivo se autora en oscuro.
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── Contenedor general ── */
-.osx-wrap{max-width:1100px;margin:0 auto}
+.osx-lb{max-width:1100px;margin:0 auto}
 
-/* NOTA: position:sticky NO funciona aquí (body{overflow-x:hidden} del sitio
-   lo rompe en Chrome); el feedback en móvil lo da el mini-preview del panel. */
+/* ── Escenario: la foto real ── */
+.osx-stage{position:relative}
+.osx-stage-frame{position:relative;width:100%;margin:0 auto;border-radius:16px;
+  overflow:hidden;background:#0d141f;box-shadow:0 34px 70px -34px rgba(0,0,0,.75);
+  border:1px solid rgba(249,248,247,.09);transition:aspect-ratio .35s ease;
+  /* En teléfono el marco manda: 4:5 recortado para que la persona se vea GRANDE.
+     La mayoría de las fotos son horizontales y sin esto quedan diminutas. */
+  aspect-ratio:4/5!important}
+.osx-stage-frame img{width:100%;height:100%;object-fit:cover;object-position:center 45%;
+  display:block;transition:opacity .3s ease;transform:scale(1.12);transform-origin:center 48%}
+.osx-stage-veil{position:absolute;inset:0;pointer-events:none;background:
+  linear-gradient(180deg,rgba(10,15,23,.34) 0%,rgba(10,15,23,0) 26%,rgba(10,15,23,0) 42%,rgba(10,15,23,.82) 100%)}
+.osx-stage-label{position:absolute;top:13px;left:14px;z-index:3;font-family:'Syne',sans-serif;
+  font-size:9.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#faf8f5;
+  background:rgba(13,20,31,.55);backdrop-filter:blur(6px);padding:7px 13px;border-radius:100px;
+  border:1px solid rgba(249,248,247,.18)}
+.osx-stage-foot{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:16px 16px 14px;
+  display:flex;flex-direction:column;gap:10px}
+.osx-stage-note{font-family:'Cormorant Garamond',Georgia,serif;font-size:19px;line-height:1.35;
+  font-style:italic;color:#faf8f5;margin:0;text-shadow:0 2px 14px rgba(0,0,0,.6);
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.osx-nav{display:flex;align-items:center;gap:12px;align-self:flex-end}
+.osx-arrow{width:42px;height:42px;border-radius:50%;border:1px solid rgba(249,248,247,.28);
+  background:rgba(13,20,31,.5);backdrop-filter:blur(6px);color:#faf8f5;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:background .25s,border-color .25s}
+.osx-arrow:hover{background:rgba(196,163,90,.85);border-color:#c4a35a;color:#141d28}
+.osx-count{font-family:'Syne',sans-serif;font-size:11px;font-weight:600;letter-spacing:.14em;
+  color:rgba(250,248,245,.9);min-width:52px;text-align:center;text-shadow:0 2px 10px rgba(0,0,0,.6)}
 
-/* ── Canvas del probador ── */
-.osx-stage{position:relative;border-radius:18px;overflow:hidden;background:#101724;
-  box-shadow:0 30px 70px -30px rgba(20,29,40,.45);aspect-ratio:4/3.9}
-@media(min-width:760px) and (max-width:899px){.osx-stage{aspect-ratio:16/9.4}}
-.osx-stage-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .5s}
-.osx-stage-veil{position:absolute;inset:0;background:
-  linear-gradient(180deg,rgba(10,15,23,.18) 0%,rgba(10,15,23,0) 30%,rgba(10,15,23,0) 55%,rgba(10,15,23,.42) 100%)}
-.osx-stage-label{position:absolute;top:14px;left:16px;z-index:3;font-size:9.5px;font-weight:600;
-  letter-spacing:.22em;text-transform:uppercase;color:rgba(249,248,247,.92);
-  background:rgba(16,23,36,.5);backdrop-filter:blur(6px);padding:7px 12px;border-radius:100px;
-  border:1px solid rgba(249,248,247,.16)}
-.osx-people{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;
-  gap:2%;padding:0 4% 5.5%;z-index:2}
-.osx-fig{height:78%;max-width:30%;flex:0 1 auto;cursor:pointer;-webkit-tap-highlight-color:transparent;
-  filter:drop-shadow(0 4px 8px rgba(10,15,23,.28));transition:transform .35s cubic-bezier(.16,1,.3,1)}
-.osx-fig.osx-kid{height:56%}
-.osx-fig.sel{transform:scale(1.035);transform-origin:bottom center}
-.osx-fig svg{height:100%;width:auto;display:block;overflow:visible}
-.osx-fig .osx-ring{opacity:0;transition:opacity .3s}
-.osx-fig.sel .osx-ring{opacity:1}
-.osx-stage-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  z-index:2;color:rgba(249,248,247,.85);font-size:13.5px;letter-spacing:.04em;text-align:center;padding:0 30px}
+/* ── Chips de color ── */
 
-/* ── Selector de escena ── */
-.osx-scenes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0 8px}
-.osx-scene{position:relative;border:none;border-radius:12px;overflow:hidden;cursor:pointer;
-  aspect-ratio:5/3.4;padding:0;background:#101724;outline-offset:2px}
-.osx-scene img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.9;transition:transform .4s}
-.osx-scene span{position:absolute;left:0;right:0;bottom:0;z-index:2;font-family:'Syne',sans-serif;
-  font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#f9f8f7;
-  padding:14px 6px 7px;background:linear-gradient(180deg,transparent,rgba(10,15,23,.72));text-align:center}
-.osx-scene::after{content:'';position:absolute;inset:0;border-radius:12px;border:2px solid transparent;transition:border-color .3s;z-index:3}
-.osx-scene.sel::after{border-color:#c4a35a}
-.osx-scene.sel img{transform:scale(1.06)}
+.osx-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.osx-chip-c{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(249,248,247,.16);
+  background:#151e2d;border-radius:100px;padding:9px 15px 9px 9px;cursor:pointer;
+  font-family:'Syne',sans-serif;font-size:11.5px;font-weight:600;color:rgba(249,248,247,.86);
+  transition:border-color .25s,box-shadow .25s,color .25s;min-height:42px}
+.osx-chip-c .sw{width:22px;height:22px;border-radius:50%;border:1px solid rgba(249,248,247,.3);flex:0 0 22px}
+.osx-chip-c.sel{border-color:#c4a35a;color:#f9f8f7;box-shadow:0 0 0 3px rgba(196,163,90,.2)}
+.osx-chip-c:hover{border-color:rgba(196,163,90,.6)}
 
-/* ── Fila de personas + agregar ── */
-.osx-crew{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 4px}
-.osx-chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border-l,rgba(26,36,51,.12));
-  background:#fff;border-radius:100px;padding:8px 12px 8px 9px;cursor:pointer;font-family:'Syne',sans-serif;
-  font-size:11.5px;font-weight:600;color:var(--ink,#1a2433);transition:border-color .25s,box-shadow .25s}
-.osx-chip .dot{width:16px;height:16px;border-radius:50%;border:1px solid rgba(26,36,51,.15)}
-.osx-chip.sel{border-color:#c4a35a;box-shadow:0 0 0 3px rgba(196,163,90,.18)}
-.osx-chip .x{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;
-  border-radius:50%;color:rgba(26,36,51,.45);font-size:13px;line-height:1;margin-left:2px}
-.osx-chip .x:hover{color:#a04545}
-.osx-add{display:inline-flex;align-items:center;gap:6px;border:1px dashed rgba(26,36,51,.3);background:transparent;
-  border-radius:100px;padding:9px 14px;cursor:pointer;font-family:'Syne',sans-serif;font-size:11.5px;
-  font-weight:600;color:rgba(26,36,51,.65);transition:all .25s}
-.osx-add:hover{border-color:#c4a35a;color:#a8894a}
-.osx-addmenu{display:none;flex-wrap:wrap;gap:8px;padding:12px;background:#fff;border:1px solid var(--border-l,rgba(26,36,51,.12));
-  border-radius:14px;margin:8px 0}
-.osx-addmenu.open{display:flex}
-.osx-addmenu button{border:1px solid rgba(26,36,51,.14);background:var(--sand,#ede8df);border-radius:100px;
-  padding:9px 14px;cursor:pointer;font-family:'Syne',sans-serif;font-size:11.5px;font-weight:600;color:var(--ink,#1a2433)}
-.osx-addmenu button:hover{border-color:#c4a35a}
+/* ── Pestañas de tipo de sesión ── */
+.osx-tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+.osx-tab{border:1px solid rgba(249,248,247,.2);background:transparent;border-radius:100px;
+  padding:10px 17px;cursor:pointer;font-family:'Syne',sans-serif;font-size:10.5px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:rgba(249,248,247,.68);transition:all .25s;min-height:40px}
+.osx-tab.sel,.osx-tab:hover{border-color:#c4a35a;color:#d9bc7a;background:rgba(196,163,90,.1)}
 
-/* ── Paneles de color / piel ── */
-.osx-panel{background:#fff;border:1px solid var(--border-l,rgba(26,36,51,.1));border-radius:16px;
-  padding:16px 16px 18px;margin-top:10px}
-.osx-panel-t{font-size:9.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
-  color:rgba(26,36,51,.68);margin:0 0 10px}
-.osx-panel-t b{color:#a8894a}
-.osx-swatches{display:flex;flex-wrap:wrap;gap:9px}
-.osx-sw{width:38px;height:38px;border-radius:50%;cursor:pointer;border:1px solid rgba(26,36,51,.14);
-  position:relative;outline-offset:3px;padding:0;transition:transform .2s}
-.osx-sw:active{transform:scale(.92)}
-.osx-sw::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:2px solid transparent;transition:border-color .25s}
-.osx-sw.sel::after{border-color:#c4a35a}
-.osx-sw small{position:absolute;top:44px;left:50%;transform:translateX(-50%);font-size:8px;letter-spacing:.06em;
-  color:rgba(26,36,51,.55);white-space:nowrap;font-weight:600;text-transform:uppercase;display:none}
-.osx-skins .osx-sw{width:34px;height:34px}
+.osx-lb-cred{text-align:center;font-family:'Syne',sans-serif;font-size:10px;font-weight:600;
+  letter-spacing:.18em;text-transform:uppercase;color:rgba(249,248,247,.42);margin:16px 0 0}
 
-/* ── Mini-preview en vivo dentro del panel de color ── */
-.osx-panelrow{display:flex;gap:14px;align-items:stretch}
-.osx-swcol{flex:1;min-width:0}
-.osx-minifig{flex:0 0 96px;border-radius:12px;overflow:hidden;position:relative;
-  background-size:cover;background-position:center;display:flex;align-items:flex-end;
-  justify-content:center;min-height:170px;border:1px solid rgba(249,248,247,.1)}
-.osx-minifig::after{content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(10,15,23,.12),rgba(10,15,23,.32))}
-.osx-minifig svg{position:relative;z-index:1;height:92%;width:auto}
-.osx-minifig .osx-ring{display:none}
-@media(max-width:359px){.osx-minifig{display:none}}
+/* ── Etiquetas de panel ── */
+.osx-panel-t{font-family:'Syne',sans-serif;font-size:9.5px;font-weight:600;letter-spacing:.2em;
+  text-transform:uppercase;color:rgba(249,248,247,.6);margin:0 0 10px}
+.osx-panel-t b{color:#d9bc7a}
+.osx-lb .osx-lb-lbl{margin:24px 0 10px;text-align:center}
 
 /* ── Veredicto ── */
-.osx-verdict{border-radius:16px;padding:18px 18px 16px;margin-top:12px;border:1px solid rgba(196,163,90,.35);
-  background:linear-gradient(160deg,#fdfcfa,#f6f1e6)}
-.osx-verdict-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.osx-verdict{border-radius:16px;padding:18px 18px 16px;margin-top:16px;
+  border:1px solid rgba(196,163,90,.32);background:linear-gradient(160deg,#161f2f,#1a2231)}
+.osx-verdict-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
 .osx-verdict-badge{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.16em;
   text-transform:uppercase;padding:7px 13px;border-radius:100px;white-space:nowrap}
-.osx-verdict-badge.ok{background:#2e4e3a;color:#eaf3ec}
-.osx-verdict-badge.meh{background:#8a6d1f;color:#fbf6e8}
-.osx-verdict-badge.bad{background:#7c3a3a;color:#f9ecec}
-.osx-verdict-title{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:400;font-style:italic;color:var(--ink,#1a2433)}
-.osx-note{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.6;color:rgba(26,36,51,.78);
-  padding:7px 0;font-family:'Syne',sans-serif}
+.osx-verdict-badge.ok{background:#274434;color:#d9ecdf}
+.osx-verdict-badge.meh{background:#59461a;color:#f3e7c5}
+.osx-verdict-badge.bad{background:#5b2c2c;color:#f2dcdc}
+.osx-verdict-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:21px;font-weight:400;
+  font-style:italic;color:#f9f8f7}
+.osx-note{display:flex;gap:10px;align-items:flex-start;font-family:'Syne',sans-serif;font-size:13.5px;
+  line-height:1.6;color:rgba(249,248,247,.8);padding:7px 0}
 .osx-note svg{flex:0 0 16px;margin-top:3px}
-.osx-note.ok svg{color:#2e4e3a}.osx-note.meh svg{color:#8a6d1f}.osx-note.bad svg{color:#a04545}
-.osx-verdict-cta{display:inline-flex;align-items:center;justify-content:center;text-align:center;gap:9px;margin-top:12px;background:var(--ink,#1a2433);
-  color:#f9f8f7;text-decoration:none;font-family:'Syne',sans-serif;font-size:11px;font-weight:600;
-  letter-spacing:.14em;text-transform:uppercase;padding:14px 22px;border-radius:100px;transition:background .3s}
-.osx-verdict-cta:hover{background:#0f1620}
+.osx-note.ok svg{color:#8fc7a2}.osx-note.meh svg{color:#d9b96a}.osx-note.bad svg{color:#e08f8f}
+.osx-verdict-cta{display:inline-flex;align-items:center;justify-content:center;text-align:center;gap:9px;
+  margin-top:12px;background:#c4a35a;color:#141d28;text-decoration:none;font-family:'Syne',sans-serif;
+  font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:15px 24px;
+  border-radius:100px;transition:background .3s;border:none;cursor:pointer;min-height:48px}
+.osx-verdict-cta:hover{background:#d4b46c}
 .osx-verdict-cta svg{width:15px;height:15px}
 
-/* ── Layout escritorio del probador ── */
-@media(min-width:900px){
-  .osx-grid{display:grid;grid-template-columns:1.55fr 1fr;gap:22px;align-items:start}
-  .osx-stage{aspect-ratio:auto;height:560px}
-  .osx-scenes{grid-template-columns:repeat(4,1fr)}
+@media(min-width:760px){
+  /* En pantallas grandes sí respetamos la proporción real de cada foto */
+  .osx-stage-frame{aspect-ratio:auto!important;max-height:620px}
+  .osx-stage-frame img{height:620px;object-position:center 40%;transform:none}
+  .osx-stage-note{font-size:23px;-webkit-line-clamp:3}
+  .osx-stage-foot{padding:22px 24px 20px}
+}
+@media(max-width:520px){
+  .osx-verdict-cta{display:flex;width:100%}
+  .osx-stage-note{font-size:17px}
 }
 
 /* ═══ PROBADOR CON IA ═══ */
