@@ -1,29 +1,18 @@
-# NOTE: to hide internal dev files (/CLAUDE.md, /seo/*, etc.) _redirects does
-# NOT work — Cloudflare Pages serves an EXISTING static file directly and never
-# consults _redirects for it. Indexing is blocked via X-Robots-Tag in _headers;
-# a full access-block needs a Functions _middleware (routes all traffic through
-# a Worker) — deferred to avoid risk to the live gallery/marketing APIs.
+# ═══════════════════════════════════════════════════════════════════════
+# CLOUDFLARE PAGES SOLO HONRA LAS PRIMERAS ~100 REGLAS DE ESTE ARCHIVO.
+# Medido en produccion 2026-08-07: la regla #107 funcionaba y la #108 daba 404.
+# Por eso el ORDEN es la prioridad: primero lo que tiene evidencia de trafico o
+# de enlace interno. Todo lo que quede despues del corte simplemente no existe.
+#
+# Ademas: si el ORIGEN de una regla existe como archivo, Pages sirve el archivo
+# y NUNCA aplica la regla. Esas reglas son basura que consume presupuesto.
+#
+# Los 57 posts legacy post-*.html se MOVIERON a blog/<slug>.html (2026-08-07)
+# para servirse solos sin gastar reglas. Sus URLs publicas /blog/<slug> no
+# cambiaron. Las URLs viejas /post-* se cubren con 16 reglas + 1 comodin.
+# ═══════════════════════════════════════════════════════════════════════
 
-# Gallery share-token URLs `/gallery/g/{token}` are handled by the
-# Pages Function at functions/gallery/g/[token].js — kept out of _redirects
-# because the `200` rewrite rule was being preempted by Cloudflare's
-# automatic .html-strip, which 308'd to /gallery/gallery and dropped the
-# share param. The Function gives us deterministic 302 behavior.
-
-# ═══════════════════════════════════════════
-# BRAND ENTITY PAGES (PR 1)
-# Canonical brand pages + typo / legacy alias recovery
-# ═══════════════════════════════════════════
-
-# Brand entity page (clean URL)
-
-# Spanish brand page
-
-# Common brand-typo recovery
-# ─────────────────────────────────────────────────────────────────────
-# GSC 404 cleanup (2026-08): 15 URLs que Google tenía indexadas y daban 404.
-# AL INICIO porque Cloudflare solo honra las primeras ~300 reglas (por eso
-# /glossary, que estaba en la línea 500, seguía en 404).
+# Tier A: 404s reales reportados por Google Search Console
 /glossary /brand 301
 /services/weddings /destination-wedding-photographer-mexico 301
 /services/couples /couples-photography-mexico 301
@@ -39,51 +28,84 @@
 /es/blog/fotografia-aniversario-cancun-mexico /es/blog/fotografia-aniversario-mexico 301
 /es/blog/fotografo-micro-bodas-cancun-tulum /es/fotografo-bodas-destino-mexico 301
 /es/blog/fotografia-recien-nacido-cancun-resorts /es/fotos-familiares-lujo-cancun 301
-
 /marca /es/marca 301
 /about-brand /brand 301
 /about-the-brand /brand 301
 /brand-page /brand 301
-
-# Brand discovery file (legacy URL alternates)
 /about/brand /brand 301
-/about/marca /es/marca 301
 
-# ═══════════════════════════════════════════
-# CLEAN URLs — Location Pages
-# Cloudflare Pages auto-strips .html, so rewrite to path without extension
-# ═══════════════════════════════════════════
+# Tier B: origenes enlazados desde el propio sitio (romperlos rompe la navegacion)
 /cancun-photographer /cancun 200
 /riviera-maya-photographer /riviera-maya 200
 /cabo-photographer /los-cabos 200
 /los-cabos-photographer /los-cabos 200
+/destination-wedding-photographer-mexico /luxury-weddings 200
+/luxury-family-photos-cancun /luxury-family-photos 200
+/couples-photography-mexico /couples-photography 200
+/blog/luxury-photographer-style-editorial-vs-documentary /luxury-editorial 301
+/blog/what-to-wear-beach-photos /blog/what-to-wear-beach-photos-mexico 301
+/blog/vow-renewal-photographer-mexico /blog/vow-renewal-mexico-photography 301
+/blog/babymoon-photography-cancun-riviera-maya /blog/babymoon-photography-cancun 301
+/wedding-photography /destination-wedding-photographer-mexico 301
+/proposal-photographer /blog/surprise-proposal-photography-cancun 301
+/family-photoshoot /luxury-family-photos-cancun 301
+/blog/wedding-cancun /blog/wedding-photographer-cancun 301
+/blog/all-inclusive-resort-photographer /blog/all-inclusive-resort-photographer-mexico 301
+/es/destination-wedding-photographer-mexico /es/fotografo-bodas-destino-mexico 301
+/es/blog/destination-wedding /es/blog/fotografo-boda-destino-riviera-maya 301
+/es/riviera-maya-photographer /es/fotografo-riviera-maya 301
+/portfolio/couple-cancun-beach /couples-photography-mexico 301
+/es/luxury-weddings /es/fotografo-bodas-destino-mexico 301
+/es/cancun-photographer /es/fotografo-cancun 301
+/es/blog/best-resorts-cancun-photography /es/blog/mejores-resorts-fotografia-cancun 301
+/es/blog/what-to-wear-beach-photos-mexico /es/blog/que-ponerte-fotos-playa-mexico 301
+/es/blog/couples-photographer-cancun /es/blog/fotografo-parejas-cancun 301
+/es/blog/wedding-photographer-cancun /es/blog/fotografo-boda-cancun 301
+/es/blog/maternity-photoshoot-cancun-riviera-maya /es/blog/sesion-maternidad-cancun-riviera-maya 301
+/es/blog/honeymoon-photographer-riviera-maya /es/blog/fotografo-luna-de-miel-riviera-maya 301
+/es/blog/engagement-session-cancun-riviera-maya /es/blog/sesion-compromiso-cancun-riviera-maya 301
+/es/blog/fotografo-renovacion-votos-mexico /es/blog/renovacion-votos-mexico-fotografia 301
+/es/blog/fotografo-bodas-destino-riviera-maya /es/blog/fotografo-boda-destino-riviera-maya 301
+/es/blog/fotografo-bodas-cancun /es/blog/fotografo-boda-cancun 301
+/es/blog/sesion-gender-reveal-cancun /es/blog/sesion-revelacion-genero-cancun 301
+/es/bodas-lujo /es/fotografo-bodas-destino-mexico 301
+/contact / 301
+/es/contacto /es/ 301
+/portfolio/wedding-tulum /destination-wedding-photographer-mexico 301
+/portfolio/wedding-decor-cancun /destination-wedding-photographer-mexico 301
+/portfolio/family-cancun-pier /luxury-family-photos 301
+/portfolio/family-cancun-beach /luxury-family-photos 301
+/portfolio/couple-riviera-maya /couples-photography 301
+/portfolio/couple-los-cabos /couples-photography 301
 
-# ═══════════════════════════════════════════
-# CLEAN URLs — Standalone Pages
-# ═══════════════════════════════════════════
-# NOTE: /social-media-management.html is served via Cloudflare auto-strip.
-# Do NOT redirect /social-media-management to the ES counterpart — that
-# made the EN master page unreachable and broke aliases like /marketing,
-# /ivae-marketing, /social-media which all 301 to /social-media-management.
-# /outfit-guide is served via Cloudflare auto-strip (no rewrite rule needed —
-# previous `/outfit-guide /outfit-guide 200` was a self-loop).
+# Tier C: URLs viejas /post-* (slug distinto al publico)
+/post-all-inclusive-resort-photographer /blog/all-inclusive-resort-photographer-mexico 301
+/post-cancun-vs-riviera-maya /blog/cancun-vs-riviera-maya-photos 301
+/post-choose-luxury-photographer /blog/how-to-choose-luxury-photographer-mexico 301
+/post-couples /blog/couples-photographer-cancun 301
+/post-destination-wedding /blog/destination-wedding-photographer-riviera-maya 301
+/post-engagement /blog/engagement-session-cancun-riviera-maya 301
+/post-family-vacation-photos /blog/family-vacation-photos-mexico 301
+/post-honeymoon /blog/honeymoon-photographer-riviera-maya 301
+/post-los-cabos-guide /blog/los-cabos-photographer-guide 301
+/post-luxury-photographer-style-editorial-vs-documentary /luxury-editorial 301
+/post-maternity /blog/maternity-photoshoot-cancun-riviera-maya 301
+/post-photo-locations-riviera-maya /blog/best-photo-locations-riviera-maya 301
+/post-surprise-proposal /blog/surprise-proposal-photography-cancun 301
+/post-vow-renewal-mexico /blog/vow-renewal-mexico-photography 301
+/post-wedding-cancun /blog/wedding-photographer-cancun 301
+/post-what-to-wear-beach-photos /blog/what-to-wear-beach-photos-mexico 301
 
-# ═══════════════════════════════════════════
-# CLEAN URLs — Legal & Compliance Pages
-# Cloudflare Pages auto-serves /privacy-policy.html when /privacy-policy
-# is requested (auto-strip .html). The previous 200 rewrites here caused
-# an infinite redirect loop because CF re-stripped .html on its own. No
-# rules needed — CF handles these natively.
-# ═══════════════════════════════════════════
+# Tier C2: comodin para el resto de /post-* (slug identico)
+/post-* /blog/:splat 301
 
-# Common alternate slugs → canonical legal pages
+# Tier D: alias historicos (los que caigan despues del corte quedan inactivos)
+/about/marca /es/marca 301
 /privacy /privacy-policy 301
 /privacidad /es/politica-de-privacidad 301
 /aviso-de-privacidad /es/politica-de-privacidad 301
 /accessibility /accessibility-statement 301
 /accesibilidad /es/declaracion-accesibilidad 301
-
-# Footer / legacy slug recovery (Wave F audit fixes)
 /terms /privacy-policy 301
 /cookies /privacy-policy 301
 /privacy.html /privacy-policy 301
@@ -95,200 +117,17 @@
 /es/privacidad.html /es/politica-de-privacidad 301
 /es/terminos.html /es/politica-de-privacidad 301
 /es/cookies.html /es/politica-de-privacidad 301
-# Vianey Díaz canonical author bio URL — points to dedicated founder story
-# (deepest E-E-A-T author signal). /about remains the studio page.
-# /vianey-diaz now serves as a real E-E-A-T author profile page (May 2026).
-# /es/vianey-diaz is now a real ES author profile page (May 2026).
-/es/vianey-diaz.html /es/vianey-diaz 301
 /family-photography.html /luxury-family-photos-cancun 301
 /family-photography /luxury-family-photos-cancun 301
 /es/fotografia-familiar.html /es/fotos-familiares-lujo-cancun 301
 /es/fotografia-familiar /es/fotos-familiares-lujo-cancun 301
 /es/editorial.html /es/editorial-de-lujo 301
 /es/editorial /es/editorial-de-lujo 301
-
-# ═══════════════════════════════════════════
-# CLEAN URLs — Service Pages
-# ═══════════════════════════════════════════
-/destination-wedding-photographer-mexico /luxury-weddings 200
-/luxury-family-photos-cancun /luxury-family-photos 200
-/couples-photography-mexico /couples-photography 200
-
-# Recover blog post traffic to new editorial service page
-# (Cloudflare auto-strips .html so /luxury-editorial serves luxury-editorial.html
-# automatically — no rewrite rule needed for the new editorial pages.)
-/blog/luxury-photographer-style-editorial-vs-documentary /luxury-editorial 301
-/es/blog/estilo-fotografo-lujo-editorial-vs-documental /es/editorial-de-lujo 301
-/post-luxury-photographer-style-editorial-vs-documentary.html /luxury-editorial 301
-/post-luxury-photographer-style-editorial-vs-documentary /luxury-editorial 301
-
-# Old short /engagement URL (Bing had it as a dead link / 404) → live engagement page
 /engagement /engagement-photographer-cancun 301
 /engagement.html /engagement-photographer-cancun 301
-
-# ═══════════════════════════════════════════
-# Renamed blog posts: old /post-* slugs → /blog/* (301)
-# These 12 were moved from post-*.html (root) into blog/*.html. Google still
-# had the old /post-* URLs (reported as "404 not found" in Search Console).
-# A 301 clears the 404 and transfers link equity to the live /blog/* pages.
-# ═══════════════════════════════════════════
-/post-best-cancun-wedding-venues-2026 /blog/best-cancun-wedding-venues-2026 301
-/post-best-cancun-wedding-venues-2026.html /blog/best-cancun-wedding-venues-2026 301
-/post-best-proposal-spots-cancun-riviera-maya /blog/best-proposal-spots-cancun-riviera-maya 301
-/post-best-proposal-spots-cancun-riviera-maya.html /blog/best-proposal-spots-cancun-riviera-maya 301
-/post-best-time-of-day-family-beach-photos-cancun /blog/best-time-of-day-family-beach-photos-cancun 301
-/post-best-time-of-day-family-beach-photos-cancun.html /blog/best-time-of-day-family-beach-photos-cancun 301
-/post-black-and-white-vs-color-wedding-photography /blog/black-and-white-vs-color-wedding-photography 301
-/post-black-and-white-vs-color-wedding-photography.html /blog/black-and-white-vs-color-wedding-photography 301
-/post-elopement-photographer-tulum-cancun /blog/elopement-photographer-tulum-cancun 301
-/post-elopement-photographer-tulum-cancun.html /blog/elopement-photographer-tulum-cancun 301
-/post-honeymoon-photoshoot-planning-guide /blog/honeymoon-photoshoot-planning-guide 301
-/post-honeymoon-photoshoot-planning-guide.html /blog/honeymoon-photoshoot-planning-guide 301
-/post-how-many-hours-wedding-photography-coverage /blog/how-many-hours-wedding-photography-coverage 301
-/post-how-many-hours-wedding-photography-coverage.html /blog/how-many-hours-wedding-photography-coverage 301
-/post-how-to-plan-a-destination-celebration-cancun /blog/how-to-plan-a-destination-celebration-cancun 301
-/post-how-to-plan-a-destination-celebration-cancun.html /blog/how-to-plan-a-destination-celebration-cancun 301
-/post-luxury-event-photography-what-to-expect /blog/luxury-event-photography-what-to-expect 301
-/post-luxury-event-photography-what-to-expect.html /blog/luxury-event-photography-what-to-expect 301
-/post-sunset-wedding-photography-best-times-cancun /blog/sunset-wedding-photography-best-times-cancun 301
-/post-sunset-wedding-photography-best-times-cancun.html /blog/sunset-wedding-photography-best-times-cancun 301
-/post-welcome-dinner-rehearsal-wedding-photography /blog/welcome-dinner-rehearsal-wedding-photography 301
-/post-welcome-dinner-rehearsal-wedding-photography.html /blog/welcome-dinner-rehearsal-wedding-photography 301
-/post-what-to-wear-family-photoshoot-mexico /blog/what-to-wear-family-photoshoot-mexico 301
-/post-what-to-wear-family-photoshoot-mexico.html /blog/what-to-wear-family-photoshoot-mexico 301
-
-# ═══════════════════════════════════════════
-# CLEAN URLs — Blog Posts (Batch 1)
-# ═══════════════════════════════════════════
-/blog/destination-wedding-photographer-riviera-maya /post-destination-wedding 200
-/blog/honeymoon-photographer-riviera-maya /post-honeymoon 200
-/blog/wedding-photographer-cancun /post-wedding-cancun 200
-/blog/couples-photographer-cancun /post-couples 200
-/blog/engagement-session-cancun-riviera-maya /post-engagement 200
-/blog/maternity-photoshoot-cancun-riviera-maya /post-maternity 200
-/blog/best-photo-locations-riviera-maya /post-photo-locations-riviera-maya 200
-/blog/family-vacation-photos-mexico /post-family-vacation-photos 200
-/blog/los-cabos-photographer-guide /post-los-cabos-guide 200
-/blog/how-to-choose-luxury-photographer-mexico /post-choose-luxury-photographer 200
-# /blog/luxury-photographer-style-editorial-vs-documentary 301→/luxury-editorial
-# is declared earlier (line ~93) — do NOT add a 200 rewrite here; first match wins.
-/blog/surprise-proposal-photography-cancun /post-surprise-proposal 200
-
-# ═══════════════════════════════════════════
-# CLEAN URLs — Blog Posts (Batch 2)
-# ═══════════════════════════════════════════
-/blog/what-to-wear-beach-photos-mexico /post-what-to-wear-beach-photos 200
-/blog/best-resorts-cancun-photography /post-best-resorts-cancun-photography 200
-/blog/cancun-vs-riviera-maya-photos /post-cancun-vs-riviera-maya 200
-/blog/destination-elopement-mexico /post-destination-elopement-mexico 200
-/blog/golden-hour-photography-mexico /post-golden-hour-photography-mexico 200
-/blog/vow-renewal-mexico-photography /post-vow-renewal-mexico 200
-/blog/babymoon-photography-cancun /post-babymoon-photography-cancun 200
-/blog/anniversary-photography-mexico /post-anniversary-photography-mexico 200
-/blog/all-inclusive-resort-photographer-mexico /post-all-inclusive-resort-photographer 200
-/blog/tulum-photography-guide /post-tulum-photography-guide 200
-
-# ═══════════════════════════════════════════
-# CLEAN URLs — Blog Posts (Batch 3)
-# ═══════════════════════════════════════════
-/blog/bachelorette-photoshoot-los-cabos /post-bachelorette-photoshoot-los-cabos 200
-/blog/birthday-photoshoot-cancun /post-birthday-photoshoot-cancun 200
-/blog/cenote-underwater-photoshoot-tulum /post-cenote-underwater-photoshoot-tulum 200
-
-# ═══════════════════════════════════════════
-# CLEAN URLs — Blog Posts (Batch 4)
-# ═══════════════════════════════════════════
-/blog/quinceanera-photoshoot-cancun /post-quinceanera-photoshoot-cancun 200
-/blog/luxury-yacht-photography-cancun /post-luxury-yacht-photography-cancun 200
-/blog/trash-the-dress-cancun /post-trash-the-dress-cancun 200
-/blog/gender-reveal-photoshoot-cancun /post-gender-reveal-photoshoot-cancun 200
-/blog/luxury-family-photoshoot-cost-cancun-2026 /post-luxury-family-photoshoot-cost-cancun-2026 200
-/blog/cancun-cenote-photoshoot-guide /post-cancun-cenote-photoshoot-guide 200
-
-# ═══════════════════════════════════════════
-# CLEAN URLs — Blog Posts (Batch 5)
-# ═══════════════════════════════════════════
-/blog/10-questions-wedding-photographer-before-booking /post-10-questions-wedding-photographer-before-booking 200
-/blog/mexico-destination-wedding-cost-breakdown-2026 /post-mexico-destination-wedding-cost-breakdown-2026 200
-/blog/inside-luxury-mayakoba-wedding-case-study /post-inside-luxury-mayakoba-wedding-case-study 200
-/post-inside-luxury-mayakoba-wedding-case-study.html /blog/inside-luxury-mayakoba-wedding-case-study 301
-/blog/mexico-based-vs-fly-in-photographer-pros-cons /post-mexico-based-vs-fly-in-photographer-pros-cons 200
-/post-mexico-based-vs-fly-in-photographer-pros-cons.html /blog/mexico-based-vs-fly-in-photographer-pros-cons 301
-/blog/same-sex-wedding-photographer-cancun-lgbtq-inclusive /post-same-sex-wedding-photographer-cancun-lgbtq-inclusive 200
-/post-same-sex-wedding-photographer-cancun-lgbtq-inclusive.html /blog/same-sex-wedding-photographer-cancun-lgbtq-inclusive 301
-/blog/wedding-day-photo-timeline-8-10-12-hours /post-wedding-day-photo-timeline-8-10-12-hours 200
-/post-wedding-day-photo-timeline-8-10-12-hours.html /blog/wedding-day-photo-timeline-8-10-12-hours 301
-/blog/sample-cancun-wedding-gallery-60-images /post-sample-cancun-wedding-gallery-60-images 200
-/post-sample-cancun-wedding-gallery-60-images.html /blog/sample-cancun-wedding-gallery-60-images 301
-/blog/resort-photographer-vs-outside-photographer-mexico /post-resort-photographer-vs-outside-photographer-mexico 200
-/post-resort-photographer-vs-outside-photographer-mexico.html /blog/resort-photographer-vs-outside-photographer-mexico 301
-
-# ═══════════════════════════════════════════
-# CLEAN URLs — Blog Posts (Press / E-E-A-T)
-# ═══════════════════════════════════════════
-/blog/ivae-studios-press-media-coverage /post-ivae-studios-press-media-coverage 200
-/post-ivae-studios-press-media-coverage.html /blog/ivae-studios-press-media-coverage 301
-/blog/vianey-diaz-luxury-photographer-journey /post-vianey-diaz-luxury-photographer-journey 200
-/post-vianey-diaz-luxury-photographer-journey.html /blog/vianey-diaz-luxury-photographer-journey 301
-
-# /blog and /about are handled automatically by Cloudflare Pages
-# (it serves blog.html and about.html without needing rules)
-
-# ═══════════════════════════════════════════
-# 301 REDIRECTS — Old .html URLs to clean URLs
-# ═══════════════════════════════════════════
-/cancun.html /cancun-photographer 301
-/riviera-maya.html /riviera-maya-photographer 301
-/los-cabos.html /cabo-photographer 301
-/luxury-weddings.html /destination-wedding-photographer-mexico 301
-/luxury-family-photos.html /luxury-family-photos-cancun 301
-/couples-photography.html /couples-photography-mexico 301
-/post-destination-wedding.html /blog/destination-wedding-photographer-riviera-maya 301
-/post-honeymoon.html /blog/honeymoon-photographer-riviera-maya 301
-/post-wedding-cancun.html /blog/wedding-photographer-cancun 301
-/post-couples.html /blog/couples-photographer-cancun 301
-/post-engagement.html /blog/engagement-session-cancun-riviera-maya 301
-/post-maternity.html /blog/maternity-photoshoot-cancun-riviera-maya 301
-/post-photo-locations-riviera-maya.html /blog/best-photo-locations-riviera-maya 301
-/post-family-vacation-photos.html /blog/family-vacation-photos-mexico 301
-/post-los-cabos-guide.html /blog/los-cabos-photographer-guide 301
-/post-choose-luxury-photographer.html /blog/how-to-choose-luxury-photographer-mexico 301
-# /post-luxury-photographer-style-editorial-vs-documentary.html 301→/luxury-editorial
-# is declared earlier (line ~95) — duplicate rule removed.
-/post-surprise-proposal.html /blog/surprise-proposal-photography-cancun 301
-/blog.html /blog 301
-/post-what-to-wear-beach-photos.html /blog/what-to-wear-beach-photos-mexico 301
-/post-best-resorts-cancun-photography.html /blog/best-resorts-cancun-photography 301
-/post-cancun-vs-riviera-maya.html /blog/cancun-vs-riviera-maya-photos 301
-/post-destination-elopement-mexico.html /blog/destination-elopement-mexico 301
-/post-golden-hour-photography-mexico.html /blog/golden-hour-photography-mexico 301
-/post-vow-renewal-mexico.html /blog/vow-renewal-mexico-photography 301
-/post-babymoon-photography-cancun.html /blog/babymoon-photography-cancun 301
-/post-anniversary-photography-mexico.html /blog/anniversary-photography-mexico 301
-/post-all-inclusive-resort-photographer.html /blog/all-inclusive-resort-photographer-mexico 301
-/post-tulum-photography-guide.html /blog/tulum-photography-guide 301
-/post-bachelorette-photoshoot-los-cabos.html /blog/bachelorette-photoshoot-los-cabos 301
-/post-birthday-photoshoot-cancun.html /blog/birthday-photoshoot-cancun 301
-/post-cenote-underwater-photoshoot-tulum.html /blog/cenote-underwater-photoshoot-tulum 301
-/post-cancun-cenote-photoshoot-guide.html /blog/cancun-cenote-photoshoot-guide 301
-/post-quinceanera-photoshoot-cancun.html /blog/quinceanera-photoshoot-cancun 301
-/post-luxury-yacht-photography-cancun.html /blog/luxury-yacht-photography-cancun 301
-/post-trash-the-dress-cancun.html /blog/trash-the-dress-cancun 301
-/post-gender-reveal-photoshoot-cancun.html /blog/gender-reveal-photoshoot-cancun 301
-/post-luxury-family-photoshoot-cost-cancun-2026.html /blog/luxury-family-photoshoot-cost-cancun-2026 301
-/post-10-questions-wedding-photographer-before-booking.html /blog/10-questions-wedding-photographer-before-booking 301
-/post-mexico-destination-wedding-cost-breakdown-2026.html /blog/mexico-destination-wedding-cost-breakdown-2026 301
-/outfit-guide.html /outfit-guide 301
-
-# ═══════════════════════════════════════════
-# 301 REDIRECTS — Legacy URLs (recover Google link juice)
-# These URLs are indexed by Google / appear in search results but return 404.
-# Recover SEO equity by redirecting to current pages.
-# ═══════════════════════════════════════════
 /family-photoshoot-cancun /luxury-family-photos-cancun 301
 /couples-photoshoot-cancun /couples-photography-mexico 301
 /manejo-de-redes-sociales-cancun /es/manejo-redes-sociales 301
-# Old wedding URL → current pillar page (recovers 22 imp/mo per GSC)
 /destination-wedding-cancun /destination-wedding-photographer-mexico 301
 /cancun-family-photographer /luxury-family-photos-cancun 301
 /cancun-couples-photographer /couples-photography-mexico 301
@@ -296,10 +135,6 @@
 /photographer-riviera-maya /riviera-maya-photographer 301
 /photographer-cabo /cabo-photographer 301
 /wedding-photographer-cancun-mexico /destination-wedding-photographer-mexico 301
-
-# ═══════════════════════════════════════════
-# Fix broken internal links
-# ═══════════════════════════════════════════
 /blog/honeymoon-photographer-cancun /blog/honeymoon-photographer-riviera-maya 301
 /blog/maternity-photographer-cancun /blog/maternity-photoshoot-cancun-riviera-maya 301
 /blog/engagement-session-mexico /blog/engagement-session-cancun-riviera-maya 301
@@ -309,117 +144,26 @@
 /blog/beach-wedding-photographer-cancun /blog/wedding-photographer-cancun 301
 /beach-wedding-photographer-cancun /cancun-photographer 301
 /cabo-wedding-photographer /cabo-photographer 301
-
-# ═══════════════════════════════════════════
-# Fix broken internal links — April 2026 audit (EN)
-# ═══════════════════════════════════════════
 /blog/outfit-guide /outfit-guide 301
-/blog/what-to-wear-beach-photos /blog/what-to-wear-beach-photos-mexico 301
-/blog/vow-renewal-photographer-mexico /blog/vow-renewal-mexico-photography 301
 /blog/photo-locations-riviera-maya /blog/best-photo-locations-riviera-maya 301
-/blog/babymoon-photography-cancun-riviera-maya /blog/babymoon-photography-cancun 301
-/wedding-photography /destination-wedding-photographer-mexico 301
-/proposal-photographer /blog/surprise-proposal-photography-cancun 301
-/family-photoshoot /luxury-family-photos-cancun 301
-
-# Fix broken internal links found by link audit (May 2026)
 /blog/engagement /blog/engagement-session-cancun-riviera-maya 301
-/blog/wedding-cancun /blog/wedding-photographer-cancun 301
 /blog/cancun-wedding-cost-2026 /cancun-wedding-cost-2026 301
-/blog/all-inclusive-resort-photographer /blog/all-inclusive-resort-photographer-mexico 301
-/comparison/ /comparison/luxury-photographers-cancun.html 301
-/es/comparativa/ /es/comparativa/fotografos-lujo-cancun.html 301
-/es/destination-wedding-photographer-mexico /es/fotografo-bodas-destino-mexico 301
-/es/blog/destination-wedding /es/blog/fotografo-boda-destino-riviera-maya 301
-/es/riviera-maya-photographer /es/fotografo-riviera-maya 301
-/portfolio/couple-cancun-beach /couples-photography-mexico 301
-
-# Additional link-audit fixes May 2026 — point 30+ broken refs to correct URLs
 /blog/destination-wedding /blog/destination-wedding-photographer-riviera-maya 301
-/es/luxury-weddings /es/fotografo-bodas-destino-mexico 301
 /blog/choose-luxury-photographer /blog/how-to-choose-luxury-photographer-mexico 301
 /es/about /es/acerca-de 301
-/es/cancun-photographer /es/fotografo-cancun 301
-# /venues now serves the "Weddings by Venue" hub page (venues.html). The old
-# redirect to /venues/banyan-tree-mayakoba is retired so the hub is reachable.
 /portfolio /destination-wedding-photographer-mexico 301
 /portfolio/* /destination-wedding-photographer-mexico 301
-
-# ═══════════════════════════════════════════
-# Fix broken internal links — April 2026 audit (ES — EN slug used in ES path)
-# ═══════════════════════════════════════════
-/es/blog/best-resorts-cancun-photography /es/blog/mejores-resorts-fotografia-cancun 301
-/es/blog/what-to-wear-beach-photos-mexico /es/blog/que-ponerte-fotos-playa-mexico 301
-/es/blog/couples-photographer-cancun /es/blog/fotografo-parejas-cancun 301
-/es/blog/wedding-photographer-cancun /es/blog/fotografo-boda-cancun 301
-/es/blog/maternity-photoshoot-cancun-riviera-maya /es/blog/sesion-maternidad-cancun-riviera-maya 301
 /es/blog/how-to-choose-luxury-photographer-mexico /es/blog/como-elegir-fotografo-lujo-mexico 301
 /es/blog/luxury-photographer-style-editorial-vs-documentary /es/blog/estilo-fotografo-lujo-editorial-vs-documental 301
-/es/blog/honeymoon-photographer-riviera-maya /es/blog/fotografo-luna-de-miel-riviera-maya 301
 /es/blog/family-vacation-photos-mexico /es/blog/fotos-vacaciones-familiares-mexico 301
-/es/blog/engagement-session-cancun-riviera-maya /es/blog/sesion-compromiso-cancun-riviera-maya 301
 /es/blog/destination-wedding-photographer-riviera-maya /es/blog/fotografo-boda-destino-riviera-maya 301
-
-# ═══════════════════════════════════════════
-# Fix broken internal links — April 2026 audit (ES — typos / old slugs)
-# ═══════════════════════════════════════════
-/es/blog/fotografo-renovacion-votos-mexico /es/blog/renovacion-votos-mexico-fotografia 301
 /es/blog/fotografo-luna-miel-riviera-maya /es/blog/fotografo-luna-de-miel-riviera-maya 301
-/es/blog/fotografo-bodas-destino-riviera-maya /es/blog/fotografo-boda-destino-riviera-maya 301
-/es/blog/fotografo-bodas-cancun /es/blog/fotografo-boda-cancun 301
-/es/blog/sesion-gender-reveal-cancun /es/blog/sesion-revelacion-genero-cancun 301
-/es/bodas-lujo /es/fotografo-bodas-destino-mexico 301
-
-# ═══════════════════════════════════════════
-# Batch 1 fix — missing redirects for 7 posts (created 2026-05-08)
-# ═══════════════════════════════════════════
-/blog/best-months-photography-cancun /post-best-months-photography-cancun 200
-/post-best-months-photography-cancun.html /blog/best-months-photography-cancun 301
-/blog/boutique-vs-all-inclusive-photoshoot-mexico /post-boutique-vs-all-inclusive-photoshoot-mexico 200
-/post-boutique-vs-all-inclusive-photoshoot-mexico.html /blog/boutique-vs-all-inclusive-photoshoot-mexico 301
-/blog/destination-wedding-photographer-timeline /post-destination-wedding-photographer-timeline 200
-/post-destination-wedding-photographer-timeline.html /blog/destination-wedding-photographer-timeline 301
-/blog/drone-photography-cancun-resorts /post-drone-photography-cancun-resorts 200
-/post-drone-photography-cancun-resorts.html /blog/drone-photography-cancun-resorts 301
-/blog/indian-wedding-photographer-cancun /post-indian-wedding-photographer-cancun 200
-/post-indian-wedding-photographer-cancun.html /blog/indian-wedding-photographer-cancun 301
-/blog/mexico-destination-photography-faq /post-mexico-destination-photography-faq 200
-/post-mexico-destination-photography-faq.html /blog/mexico-destination-photography-faq 301
-/blog/wedding-photography-cancun-cost-2026 /post-wedding-photography-cancun-cost-2026 200
-/post-wedding-photography-cancun-cost-2026.html /blog/wedding-photography-cancun-cost-2026 301
-
-# ═══════════════════════════════════════════
-# Batch 2 fix — venue contact + locations + portfolio (2026-05-13)
-# ═══════════════════════════════════════════
-/contact / 301
-/es/contacto /es/ 301
-/es/locaciones/ /es/ 301
 /locations/ / 301
-/portfolio/wedding-tulum /destination-wedding-photographer-mexico 301
-/portfolio/wedding-decor-cancun /destination-wedding-photographer-mexico 301
-/portfolio/family-cancun-pier /luxury-family-photos 301
-
-# ═══════════════════════════════════════════
-# Batch 3 — NEW landing pages 2026-05-13
-# Mayakoba + Cenote Tulum dedicated pages for high commercial queries
-# Note: Cloudflare auto-serves /slug from /slug.html — no rewrite needed.
-# Only alias redirects below.
-# ═══════════════════════════════════════════
 /mayakoba-photographer /mayakoba-wedding-photographer 301
 /mayakoba /mayakoba-wedding-photographer 301
 /cenote-photographer /cenote-photographer-tulum 301
 /tulum-cenote-photographer /cenote-photographer-tulum 301
 /cenote-tulum /cenote-photographer-tulum 301
-
-# ═══════════════════════════════════════════
-# Batch 4 — IVAE Marketing sub-brand 2026-05-13
-# Social media management service alias redirects
-# ═══════════════════════════════════════════
-# Specific vertical landing pages take precedence over master aliases
-# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /instagram-management-cancun
-# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /es/manejo-instagram-cancun
-
-# /marketing/ is the IVAE Marketing app (login + calendar). Public vanity alias kept on /ivae-marketing.
 /ivae-marketing /social-media-management 301
 /social-media /social-media-management 301
 /social-media-agency /social-media-management 301
@@ -431,73 +175,11 @@
 /es/agencia-social-media /es/manejo-redes-sociales 301
 /es/manejo-instagram /es/manejo-redes-sociales 301
 /es/gestion-redes-sociales /es/manejo-redes-sociales 301
-
-# Intake form aliases — IVAE Marketing strategy brief
 /ivae-marketing/intake /marketing-intake 301
 /intake /marketing-intake 301
 /strategy-brief /marketing-intake 301
 /es/intake /marketing-intake 301
 /es/brief /marketing-intake 301
-/portfolio/family-cancun-beach /luxury-family-photos 301
-/portfolio/couple-riviera-maya /couples-photography 301
-/portfolio/couple-los-cabos /couples-photography 301
-
-# ═══════════════════════════════════════════
-# Batch 5 — NEW high-value niche blog posts (2026-05-26)
-# Jewish wedding, micro-wedding, newborn, anniversary, hotel IG strategy
-# ═══════════════════════════════════════════
-/blog/jewish-wedding-photographer-mexico /post-jewish-wedding-photographer-mexico 200
-/post-jewish-wedding-photographer-mexico.html /blog/jewish-wedding-photographer-mexico 301
-/blog/micro-wedding-photographer-cancun-tulum /post-micro-wedding-photographer-cancun-tulum 200
-/post-micro-wedding-photographer-cancun-tulum.html /blog/micro-wedding-photographer-cancun-tulum 301
-/blog/newborn-photography-cancun-resorts /post-newborn-photography-cancun-resorts 200
-/post-newborn-photography-cancun-resorts.html /blog/newborn-photography-cancun-resorts 301
-/blog/anniversary-photography-cancun-mexico /post-anniversary-photography-cancun-mexico 200
-/post-anniversary-photography-cancun-mexico.html /blog/anniversary-photography-cancun-mexico 301
-/blog/hotel-instagram-strategy-mexico-2026 /post-hotel-instagram-strategy-mexico-2026 200
-/post-hotel-instagram-strategy-mexico-2026.html /blog/hotel-instagram-strategy-mexico-2026 301
-
-# 5 new IVAE Marketing blog posts (2026-05-26) — match existing pattern
-/blog/restaurant-social-media-mexico-2026 /post-restaurant-social-media-mexico-2026 200
-/post-restaurant-social-media-mexico-2026.html /blog/restaurant-social-media-mexico-2026 301
-/blog/dental-clinic-social-media-mexico /post-dental-clinic-social-media-mexico 200
-/post-dental-clinic-social-media-mexico.html /blog/dental-clinic-social-media-mexico 301
-/blog/spa-wellness-social-media-mexico /post-spa-wellness-social-media-mexico 200
-/post-spa-wellness-social-media-mexico.html /blog/spa-wellness-social-media-mexico 301
-/blog/tiktok-for-luxury-hotels-mexico /post-tiktok-for-luxury-hotels-mexico 200
-/post-tiktok-for-luxury-hotels-mexico.html /blog/tiktok-for-luxury-hotels-mexico 301
-/blog/luxury-hospitality-content-strategy-mexico /post-luxury-hospitality-content-strategy-mexico 200
-/post-luxury-hospitality-content-strategy-mexico.html /blog/luxury-hospitality-content-strategy-mexico 301
-
-# ═══════════════════════════════════════════
-# IVAE Marketing — Industry vertical landing pages (2026-05-26)
-# 6 EN + 6 ES, clean URL → .html rewrites
-# ═══════════════════════════════════════════
-
-# Hotels (luxury)
-# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /social-media-luxury-hotels-mexico
-# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /es/redes-sociales-hoteles-lujo-mexico
-
-# Restaurants
-# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /social-media-restaurants-cancun
-# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /es/redes-sociales-restaurantes-cancun
-
-# Spa & wellness
-# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /social-media-spa-wellness-mexico
-# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /es/redes-sociales-spa-wellness-mexico
-
-# Dental clinics
-# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /social-media-dental-clinic-mexico
-# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /es/redes-sociales-clinica-dental-mexico
-
-# Instagram (Cancun) — rules already declared earlier in the file
-# to take precedence over /instagram-management and /es/manejo-instagram aliases
-
-# TikTok (hotels)
-# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /tiktok-agency-hotels-mexico
-# (removed self-referential .html rewrite — Cloudflare auto-strips .html; this rule caused an infinite 308 loop) /es/agencia-tiktok-hoteles-mexico
-
-# Common alias recovery
 /social-media-hotels /social-media-luxury-hotels-mexico 301
 /social-media-restaurants /social-media-restaurants-cancun 301
 /social-media-spa /social-media-spa-wellness-mexico 301
@@ -510,13 +192,8 @@
 /es/redes-sociales-dental /es/redes-sociales-clinica-dental-mexico 301
 /es/instagram-cancun /es/manejo-instagram-cancun 301
 /es/tiktok-hoteles /es/agencia-tiktok-hoteles-mexico 301
-
-# GSC 404 cleanup (2026-06-22): old/wrong URLs Google was crawling -> correct live pages
 /es/los-cabos /es/fotografo-los-cabos 301
 /es/fotografo-bodas-mayakoba /es/fotografo-riviera-maya 301
 /es/fotografo-cenote-tulum /es/fotografo-bodas-tulum 301
 /tulum-cenote /cenote-photographer-tulum 301
 /blog/post-wedding-cancun /blog/wedding-photographer-cancun 301
-
-
-# (sentinel: keep a trailing line so Cloudflare always parses the final redirect rule above)
