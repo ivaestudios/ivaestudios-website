@@ -6,17 +6,17 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608061705';
-import { icon } from '../shell/icons.js?v=202608061705';
-import { T } from '../shell/i18n.js?v=202608061705';
-import { openSheet, confirmar } from '../shell/sheet.js?v=202608061705';
+import { api, el, clear, toast } from '../api.js?v=202608070029';
+import { icon } from '../shell/icons.js?v=202608070029';
+import { T } from '../shell/i18n.js?v=202608070029';
+import { openSheet, confirmar } from '../shell/sheet.js?v=202608070029';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608061705';
+import { errorCard } from '../ui/states.js?v=202608070029';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608061705';
+} from '../lib/video-upload.js?v=202608070029';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -171,7 +171,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608061705';
+  link.href = '/marketing/css/entregables.css?v=202608070029';
   document.head.appendChild(link);
 }
 
@@ -1491,6 +1491,10 @@ function render() {
       el('span', { class: 'dlv-month-h__t', text: monthLabel(m) }),
       el('span', { class: 'dlv-month-h__n', text: String(list.length) }),
       (reels.length >= 2 && (!isClient() || descargasActivas())) ? buildDownloadAllBtn(m, reels) : null,
+      // PDF editorial del mes (pedido de Vianey 2026-08-06): para clientas
+      // que no le entienden a la tecnología — portada, una página por video
+      // con su cuadro, carruseles con QR y cierre con el WhatsApp de IVAE.
+      (!isClient() && list.length) ? buildPdfBtn(m, list) : null,
     ]),
     el('div', { class: 'dlv-grid' }, list.map((it) => buildItem(it, staff))),
   ]);
@@ -1531,6 +1535,46 @@ function buildDownloadAllBtn(month, reels) {
     // confundía con el de un reel suelto.
     : `${T('Descargar los', 'Download all')} ${reels.length} ${T('reels', 'reels')}` })]);
   return btn;
+}
+
+// Botón "PDF del mes": arma el documento editorial con la voz de la marca.
+let pdfBusy = false;
+function buildPdfBtn(month, itemsDelMes) {
+  return el('button', {
+    class: 'dlv-dl dlv-pdf', type: 'button', disabled: pdfBusy || null,
+    'aria-label': T('Descargar el PDF de entregables del mes', 'Download the month deliverables PDF'),
+    title: T('Un PDF bonito con todos los videos y carruseles del mes, para mandar por WhatsApp', 'A polished PDF with the month deliverables'),
+    onclick: async (e) => {
+      if (pdfBusy) return;
+      pdfBusy = true;
+      const btn = e.currentTarget;
+      const label = btn.querySelector('span');
+      const antes = label ? label.textContent : '';
+      try {
+        const mod = await import('../lib/pdf-entregables.js?v=202608070029');
+        const { clients, activeClientId } = ctx.store.getState();
+        const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
+        // La voz de la marca: mapa local (como CONFIG_MARCA del generador);
+        // sin receta, cae al @instagram de la ficha del cliente.
+        const VOCES = [{ match: /smile/i, marca: 'Smile Now', handle: 'DENTAL & FACIAL CARE' }];
+        const voz = VOCES.find((v) => v.match.test(cliente.name || ''));
+        const res = await mod.generarPdfEntregables({
+          month,
+          items: itemsDelMes,
+          marca: voz ? voz.marca : (cliente.name || 'IVAE'),
+          handle: voz ? voz.handle : (cliente.instagram_handle ? `@${String(cliente.instagram_handle).replace(/^@/, '')}` : ''),
+          onPaso: (msg) => { if (label) label.textContent = msg; },
+        });
+        toast(`${T('PDF listo:', 'PDF ready:')} ${res.paginas} ${T('páginas', 'pages')} · ${(res.bytes / 1048576).toFixed(1)} MB`, 'success');
+      } catch (err) {
+        toast((err && err.message) || T('No se pudo armar el PDF', 'Could not build the PDF'), 'error');
+      } finally {
+        pdfBusy = false;
+        if (label) label.textContent = antes;
+        render();
+      }
+    },
+  }, [icon('archive', 15), el('span', { text: T('PDF del mes', 'Month PDF') })]);
 }
 
 export default {
