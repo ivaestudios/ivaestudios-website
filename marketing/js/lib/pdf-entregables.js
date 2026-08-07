@@ -17,8 +17,8 @@
 // cursiva — la voz de SMILE NOW. Raster HTML→SVG→canvas con XML ESTRICTO.
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202608070151';
-import { pdfDesdeJpegs } from './pdf-jpeg.js?v=202608070151';
+import { T } from '../shell/i18n.js?v=202608070207';
+import { pdfDesdeJpegs } from './pdf-jpeg.js?v=202608070207';
 
 // A4 a ~178 dpi: nítido en pantalla y decente impreso, sin PDFs de 40 MB.
 const W = 1480;
