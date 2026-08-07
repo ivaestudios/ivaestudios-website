@@ -23,9 +23,15 @@ function dataUrlABytes(dataUrl) {
   return out;
 }
 
+// URI dentro de un literal PDF: paréntesis y barras escapados.
+const uriPdf = (u) => String(u).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+
 /**
  * Arma el PDF.
- * @param {Array<{dataUrl:string,w:number,h:number}>} paginas JPEGs (mismo tamaño idealmente)
+ * @param {Array<{dataUrl:string,w:number,h:number,links?:Array<{x:number,y:number,w:number,h:number,url:string}>}>} paginas
+ *   JPEGs a página completa; `links` son zonas TOCABLES en px de la plantilla
+ *   (se convierten a pt con el eje Y invertido — anotaciones /Link reales,
+ *   pedido de los jueces: "hoy ningún link es tocable, son JPEGs planos").
  * @returns {Blob} application/pdf
  */
 export function pdfDesdeJpegs(paginas) {
@@ -56,9 +62,20 @@ export function pdfDesdeJpegs(paginas) {
     const pageNum = 3 + i * 3;
     const contNum = 4 + i * 3;
     const imgNum = 5 + i * 3;
+    const sx = A4_W / p.w;
+    const sy = A4_H / p.h;
+    const annots = (p.links || []).map((L) => {
+      const x0 = (L.x * sx).toFixed(2);
+      const y1 = (A4_H - L.y * sy).toFixed(2);
+      const x1 = ((L.x + L.w) * sx).toFixed(2);
+      const y0 = (A4_H - (L.y + L.h) * sy).toFixed(2);
+      return `<< /Type /Annot /Subtype /Link /Rect [${x0} ${y0} ${x1} ${y1}] /Border [0 0 0] ` +
+        `/A << /S /URI /URI (${uriPdf(L.url)}) >> >>`;
+    }).join(' ');
     obj(pageNum,
       `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${A4_W} ${A4_H}] ` +
-      `/Resources << /XObject << /Im${i} ${imgNum} 0 R >> >> /Contents ${contNum} 0 R >>`);
+      `/Resources << /XObject << /Im${i} ${imgNum} 0 R >> >> /Contents ${contNum} 0 R` +
+      (annots ? ` /Annots [ ${annots} ]` : '') + ` >>`);
     const contenido = `q\n${A4_W} 0 0 ${A4_H} 0 0 cm\n/Im${i} Do\nQ\n`;
     obj(contNum, `<< /Length ${contenido.length} >>\nstream\n${contenido}endstream`);
     const bytes = dataUrlABytes(p.dataUrl);
