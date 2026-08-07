@@ -50,6 +50,10 @@ G_START = "<!-- AUTOGEN-CARDS:START -->"
 G_END = "<!-- AUTOGEN-CARDS:END -->"
 P_START = "<!-- AUTOGEN-PILLS:START -->"
 P_END = "<!-- AUTOGEN-PILLS:END -->"
+# Full text archive: links EVERY post so none is orphaned (the visual grid only
+# shows the 10 newest). Lightweight — text links, no images.
+A_START = "<!-- AUTOGEN-ARCHIVE:START -->"
+A_END = "<!-- AUTOGEN-ARCHIVE:END -->"
 
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -486,6 +490,41 @@ def parse_post(path: Path, lang: str) -> dict | None:
 # ────────────────────────────────────────────────────────────────────────────
 # Card / feature HTML
 # ────────────────────────────────────────────────────────────────────────────
+def render_archive(posts: list[dict], lang: str) -> str:
+    """Full text index of every post, grouped by category.
+
+    The visual grid only surfaces the 10 newest posts, which left the rest
+    without a single internal link (264 orphans before this was added).
+    Search engines need a crawl path to every post; this is that path.
+    """
+    base = "/blog/" if lang == "en" else "/es/blog/"
+    heading = "Complete archive" if lang == "en" else "Archivo completo"
+    intro = ("Every guide we have published, by topic." if lang == "en"
+             else "Todas nuestras guías publicadas, por tema.")
+    groups: dict[str, list[dict]] = {}
+    for p in posts:
+        groups.setdefault(p.get("category") or p.get("cat_slug", "studio"), []).append(p)
+    out = [
+        '<section class="ivm-jl-archive" aria-labelledby="ivm-jl-archive-h">',
+        f'<h2 class="ivm-jl-archive__h" id="ivm-jl-archive-h">{escape(heading)}</h2>',
+        f'<p class="ivm-jl-archive__intro">{escape(intro)} ({len(posts)})</p>',
+    ]
+    for label in sorted(groups):
+        items = sorted(groups[label], key=lambda x: x["title"])
+        out.append(f'<h3 class="ivm-jl-archive__cat">{escape(label)}</h3>')
+        out.append('<ul class="ivm-jl-archive__list">')
+        for it in items:
+            # Use the post's own canonical URL: for legacy post-*.html files the
+            # public /blog/<slug> differs from the filename (served by a rewrite),
+            # so building base+filename produced 404s.
+            href = it.get("url") or ""
+            href = re.sub(r"^https?://[^/]+", "", href).strip() or f"{base}{it['slug']}"
+            title = escape(re.sub(r"\s*\|\s*IVAE.*$", "", it["title"]).strip())
+            out.append(f'<li><a href="{href}">{title}</a></li>')
+        out.append("</ul>")
+    out.append("</section>")
+    return "\n".join(out)
+
 def render_card(p: dict, lang: str) -> str:
     cat = escape(p["category"])
     title_html = emphasize_title(p["title"])
@@ -593,6 +632,11 @@ def build(lang: str):
     txt = target.read_text(encoding="utf-8")
     txt = splice(txt, F_START, F_END, feat_html)
     txt = splice(txt, G_START, G_END, cards_html)
+    if A_START in txt and A_END in txt:
+        txt = splice(txt, A_START, A_END, render_archive(posts, lang))
+        print(f"  archive: {len(posts)} posts linked (no orphans)")
+    else:
+        print(f"  !! AUTOGEN-ARCHIVE markers missing in {target.name}")
     if P_START in txt and P_END in txt:
         txt = splice(txt, P_START, P_END, pills_html)
     else:

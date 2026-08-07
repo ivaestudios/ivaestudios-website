@@ -5,7 +5,7 @@
 > For machine-readable facts: https://ivaestudios.com/api/facts.json
 > AI manifest (older convention): https://ivaestudios.com/ai.txt
 > AI-priority sitemap: https://ivaestudios.com/sitemap-ai.xml
-> Full sitemap (427 URLs, multilingual): https://ivaestudios.com/sitemap.xml
+> Full sitemap (533 URLs, multilingual): https://ivaestudios.com/sitemap.xml
 
 ## Identity (one paragraph)
 
@@ -152,6 +152,121 @@ IVAE Studios offers cinematic wedding film and wedding videography in addition t
 Video:
 - English: https://ivaestudios.com/cancun-wedding-videographer
 - Spanish: https://ivaestudios.com/es/videografo-bodas-cancun
+
+
+## August-2026 editorial expansion. 100 new field guides (planning-intent, EN + ES)
+
+Written from 2026 trend + demand research. These answer the questions couples and families
+actually ask before booking in Mexico: resort outside-vendor fees, sargassum by month, INAH
+and drone permits, delivery speed, multigenerational logistics, and per-destination guides.
+
+### Weddings (40)
+- [EN] Banyan Tree and Andaz Mayakoba Weddings — https://ivaestudios.com/blog/banyan-tree-andaz-mayakoba-wedding-guide
+- [EN] Blue Hour Portraits: The 15-Minute Step-Out — https://ivaestudios.com/blog/blue-hour-wedding-portraits-cancun
+- [ES] Boda civil en Cancun: como fotografiarla bien — https://ivaestudios.com/es/blog/boda-civil-cancun-fotografia-guia
+- [ES] Boda de fin de semana: cobertura de 3 dias — https://ivaestudios.com/es/blog/boda-fin-de-semana-cobertura-3-dias
+- [EN] Casa Malca vs Papaya Playa Tulum Weddings — https://ivaestudios.com/blog/casa-malca-vs-papaya-playa-tulum-wedding
+- [ES] Ceremonia maya con chaman: guia fotografica — https://ivaestudios.com/es/blog/ceremonia-maya-chaman-fotos-riviera-maya
+- [EN] Conrad Tulum Wedding Photography Guide — https://ivaestudios.com/blog/conrad-tulum-wedding-photography-guide
+- [ES] Cuota de proveedor externo en hoteles de Cancun — https://ivaestudios.com/es/blog/cuota-proveedor-externo-hoteles-cancun-bodas
+- [EN] Direct Flash at a Beach Reception: When It Works — https://ivaestudios.com/blog/direct-flash-beach-reception-photos
+- [EN] Drone Wedding Photos in Mexico: The AFAC Rules — https://ivaestudios.com/blog/drone-wedding-photos-mexico-afac-rules
+- [ES] Entrega de fotos de boda en 1 a 3 dias — https://ivaestudios.com/es/blog/entrega-fotos-boda-1-a-3-dias
+- [EN] Excellence Playa Mujeres Wedding Photo Guide — https://ivaestudios.com/blog/excellence-playa-mujeres-wedding-guide
+- [EN] Flying to Cancun With Your Wedding Dress — https://ivaestudios.com/blog/flying-with-wedding-dress-to-cancun
+- [EN] What the Groom Should Wear to a Beach Wedding — https://ivaestudios.com/blog/groom-groomsmen-beach-wedding-attire
+- [EN] Hotel Xcaret Vendor Fee and the Room-Block Waiver — https://ivaestudios.com/blog/hotel-xcaret-wedding-vendor-fee-waiver
+- [EN] Hyatt Ziva and Zilara Cancun Wedding Guide — https://ivaestudios.com/blog/hyatt-ziva-zilara-cancun-wedding-guide
+- [EN] INAH Photo Permits at Tulum and Chichen Itza — https://ivaestudios.com/blog/inah-photo-permits-tulum-chichen-itza
+- [EN] Le Blanc vs Waldorf Astoria Cancun Weddings — https://ivaestudios.com/blog/le-blanc-vs-waldorf-astoria-cancun-wedding
+- [EN] A Mayan Blessing Ceremony, Photographed — https://ivaestudios.com/blog/mayan-shaman-ceremony-photographed
+- [EN] Moon Palace Outside Photographer Fee, Explained — https://ivaestudios.com/blog/moon-palace-cancun-outside-photographer-fee
+- [EN] Why We Blur Some of Your Wedding Photos — https://ivaestudios.com/blog/motion-blur-wedding-photos-explained
+- [ES] Dron en tu boda en Mexico: reglas de la AFAC — https://ivaestudios.com/es/blog/permisos-dron-bodas-mexico-afac
+- [EN] Photographer, Videographer or Content Creator? — https://ivaestudios.com/blog/photographer-videographer-content-creator-mexico
+- [EN] Playa Mujeres Resort Vendor Fees Compared — https://ivaestudios.com/blog/playa-mujeres-resort-wedding-vendor-fees
+- [ES] Playas publicas y ZOFEMAT: donde si puedes fotografiar — https://ivaestudios.com/es/blog/playas-publicas-zofemat-fotos-boda
+- [EN] Can You Shoot on a Public Beach in Mexico? — https://ivaestudios.com/blog/public-beach-zofemat-wedding-photos
+- [ES] Que debe usar el novio en una boda en la playa — https://ivaestudios.com/es/blog/que-usar-novio-padrinos-boda-playa
+- [EN] RAW Files, Copyright and Your Wedding Photos — https://ivaestudios.com/blog/raw-files-copyright-wedding-photos-mexico
+- [EN] Real Film at a Mexico Wedding: Heat and X-Ray — https://ivaestudios.com/blog/real-film-destination-wedding-mexico
+- [EN] Reception Detail Shots: A Flat Lay Checklist — https://ivaestudios.com/blog/reception-detail-flat-lay-checklist
+- [EN] Recovery Brunch and the Day-After Session — https://ivaestudios.com/blog/recovery-brunch-day-after-session
+- [EN] Rosewood Mayakoba Wedding Photo Locations — https://ivaestudios.com/blog/rosewood-mayakoba-wedding-photo-guide
+- [EN] Sargassum 2026: A Beach by Beach Wedding Report — https://ivaestudios.com/blog/sargassum-2026-forecast-beach-by-beach
+- [EN] Sargassum Backup Photo Spots at Your Resort — https://ivaestudios.com/blog/sargassum-backup-photo-locations-resort
+- [ES] Sargazo 2026: guia mes a mes para tu boda — https://ivaestudios.com/es/blog/sargazo-2026-boda-playa-mes-a-mes
+- [EN] St. Regis Kanai Wedding Photography Guide — https://ivaestudios.com/blog/st-regis-kanai-wedding-photography-guide
+- [EN] Unplugged Ceremony Wording in English and Spanish — https://ivaestudios.com/blog/unplugged-ceremony-wording-english-spanish
+- [ES] Viajar con tu vestido de novia a Cancun — https://ivaestudios.com/es/blog/viajar-con-vestido-novia-a-cancun
+- [EN] Wedding Photo Delivery: 6 Weeks vs 3 Days — https://ivaestudios.com/blog/wedding-photo-delivery-speed-comparison
+- [EN] 3-Day Wedding Weekend Photo Coverage Plan — https://ivaestudios.com/blog/wedding-weekend-3-day-photo-coverage
+
+### Families (25)
+- [EN] AI Family Portraits vs a Real Session in Cancun — https://ivaestudios.com/blog/ai-family-portrait-generator-vs-real-session
+- [EN] Costa Mujeres Family Photo Session Guide — https://ivaestudios.com/blog/costa-mujeres-family-photo-session-guide
+- [ES] Derechos de imagen en tus fotos familiares — https://ivaestudios.com/es/blog/derechos-de-imagen-fotos-familia-mexico
+- [EN] Family Photo Session Guide for Playa del Carmen — https://ivaestudios.com/blog/family-photo-session-playa-del-carmen
+- [EN] Puerto Morelos and Akumal Family Sessions — https://ivaestudios.com/blog/family-photo-session-puerto-morelos-akumal
+- [EN] Family Photos With Less Mobile Grandparents — https://ivaestudios.com/blog/family-photos-grandparents-limited-mobility
+- [EN] Sneak Peek in 24 Hours: Post Before You Fly Home — https://ivaestudios.com/blog/family-session-sneak-peek-24-hours-vertical
+- [EN] Father and Son Photos in the Riviera Maya — https://ivaestudios.com/blog/father-son-photo-session-riviera-maya
+- [EN] The Heat Plan for a Cancun Family Session — https://ivaestudios.com/blog/heat-plan-family-photo-session-cancun
+- [EN] Holbox Family Photo Session Guide — https://ivaestudios.com/blog/holbox-family-photo-session-guide
+- [EN] Isla Mujeres Family Photo Session Guide — https://ivaestudios.com/blog/isla-mujeres-family-photo-session-guide
+- [EN] Let the Kids Pick the Family Session Location — https://ivaestudios.com/blog/kids-choose-location-family-session-riviera-maya
+- [EN] Milestone Birthday Trip Photos in Riviera Maya — https://ivaestudios.com/blog/milestone-birthday-trip-photos-riviera-maya
+- [EN] Why Sunscreen Makes Faces Glow White in Photos — https://ivaestudios.com/blog/mineral-sunscreen-flashback-beach-photos
+- [ES] Minisesiones familiares en Cancun para residentes — https://ivaestudios.com/es/blog/minisesiones-familiares-cancun-residentes
+- [EN] Moon Palace Family Photo Session Guide — https://ivaestudios.com/blog/moon-palace-family-photo-session-guide
+- [EN] Mother and Daughter Photos in Tulum — https://ivaestudios.com/blog/mother-daughter-photo-session-tulum
+- [EN] Which 20 Photos to Print From 300 — https://ivaestudios.com/blog/printed-album-from-vacation-gallery
+- [ES] Viaje de abuelos y nietos: la sesion sin los papas — https://ivaestudios.com/es/blog/sesion-abuelos-nietos-sin-papas-cancun
+- [ES] Sesion de bautizo y primera comunion en Cancun — https://ivaestudios.com/es/blog/sesion-bautizo-primera-comunion-cancun
+- [ES] Sesion familiar en playa publica de Cancun — https://ivaestudios.com/es/blog/sesion-familiar-playa-publica-cancun-permisos
+- [ES] Sesion de graduacion en Cancun: locaciones y horas — https://ivaestudios.com/es/blog/sesion-graduacion-cancun-locaciones
+- [ES] Sesion de mama e hija en Playa del Carmen — https://ivaestudios.com/es/blog/sesion-mama-e-hija-playa-del-carmen
+- [EN] Skip-Gen Trips: Photos Without the Parents — https://ivaestudios.com/blog/skip-gen-grandparents-grandkids-cancun-photos
+- [ES] XV anos en Cancun: editorial o flying dress — https://ivaestudios.com/es/blog/xv-anos-editorial-vs-flying-dress-cancun
+
+### Couples, engagements, proposals (25)
+- [EN] Our AI Policy: What We Never Do to Your Photos — https://ivaestudios.com/blog/ai-policy-real-photos-what-we-never-edit
+- [EN] Bacalar Couples Photo Session Guide — https://ivaestudios.com/blog/bacalar-couples-photo-session-guide
+- [EN] Proposing on Isla Mujeres: Sunrise Spots and Timing — https://ivaestudios.com/blog/best-proposal-spots-isla-mujeres-sunrise
+- [EN] Couples Boudoir in Riviera Maya: What to Expect — https://ivaestudios.com/blog/couples-boudoir-riviera-maya-what-to-expect
+- [EN] A Photo Session on Your Cozumel Cruise Day — https://ivaestudios.com/blog/cozumel-cruise-day-couples-photo-session
+- [EN] Fly to Mexico for Your Engagement Photos — https://ivaestudios.com/blog/destination-engagement-session-earlymoon-mexico
+- [EN] Add a Digicam Set to Your Cancun Couples Session — https://ivaestudios.com/blog/digicam-film-look-couples-session-cancun
+- [ES] Flash directo: fotos de pareja de noche en Cancun — https://ivaestudios.com/es/blog/flash-directo-sesion-parejas-noche-cancun
+- [EN] The In-Suite Couples Session at a Pool Suite — https://ivaestudios.com/blog/in-suite-couples-session-private-pool-suite
+- [EN] Isla Mujeres Couples Photo Session Guide — https://ivaestudios.com/blog/isla-mujeres-couples-photo-session-guide
+- [ES] Minimoon en Riviera Maya: itinerario de 4 dias — https://ivaestudios.com/es/blog/minimoon-riviera-maya-itinerario-fotos
+- [EN] Minimoon in Riviera Maya: A 4-Day Photo Itinerary — https://ivaestudios.com/blog/minimoon-riviera-maya-photo-itinerary
+- [ES] Nuestra politica de IA: que nunca hacemos — https://ivaestudios.com/es/blog/politica-ia-fotos-reales-fotografia
+- [EN] What a Proposal Photographer Costs in Cancun — https://ivaestudios.com/blog/proposal-photography-packages-cost-cancun
+- [EN] Puerto Morelos Couples Session Guide — https://ivaestudios.com/blog/puerto-morelos-couples-photo-session
+- [EN] Rain and Wind: The Couples Session Backup Plan — https://ivaestudios.com/blog/rain-and-wind-backup-plan-couples-session
+- [ES] Sesion de pareja dentro de la suite en Cancun — https://ivaestudios.com/es/blog/sesion-en-suite-parejas-hotel-cancun
+- [ES] Sesion de pareja en Bacalar: laguna y luz — https://ivaestudios.com/es/blog/sesion-parejas-bacalar-laguna
+- [ES] Sesion de pareja en Isla Mujeres: guia completa — https://ivaestudios.com/es/blog/sesion-parejas-isla-mujeres-guia
+- [ES] Lluvia y viento: el plan B de tu sesion — https://ivaestudios.com/es/blog/sesion-parejas-lluvia-viento-plan-b
+- [ES] Sesion de pareja en Valladolid: color colonial — https://ivaestudios.com/es/blog/sesion-parejas-valladolid-colonial
+- [EN] How to Plan a Surprise Vow Renewal in Cancun — https://ivaestudios.com/blog/surprise-vow-renewal-family-trip-cancun
+- [EN] Why We Do Not Fade the Caribbean in Editing — https://ivaestudios.com/blog/true-to-color-editing-caribbean-water
+- [EN] Valladolid Couples Session: Colonial Colour — https://ivaestudios.com/blog/valladolid-colonial-couples-photo-session
+- [EN] Married in 2020? Your Vow Renewal Year Is Now — https://ivaestudios.com/blog/vow-renewal-five-year-anniversary-mexico
+
+### Destination and industry (10)
+- [ES] Aeropuerto de Cancun o Tulum para tus invitados — https://ivaestudios.com/es/blog/aeropuerto-cancun-vs-tulum-invitados
+- [EN] When Your Photographer Only Speaks English — https://ivaestudios.com/blog/bilingual-photographer-vendor-coordination-mexico
+- [EN] Content Credentials: Proving Your Photos Are Real — https://ivaestudios.com/blog/content-credentials-c2pa-real-photographs
+- [ES] Contrato de fotografia en Mexico: que revisar — https://ivaestudios.com/es/blog/contrato-fotografia-mexico-que-revisar
+- [EN] CUN or TQO: Which Airport Should Guests Use? — https://ivaestudios.com/blog/cun-vs-tqo-airport-guests-2026
+- [EN] Marketplace vs Booking a Studio Directly — https://ivaestudios.com/blog/flytographer-vs-booking-a-studio-directly
+- [EN] Mexico Is the No. 1 Destination Wedding Country — https://ivaestudios.com/blog/mexico-number-one-destination-wedding-country
+- [ES] Mexico es el destino numero uno de bodas — https://ivaestudios.com/es/blog/mexico-primer-destino-bodas-datos-2026
+- [EN] How to Pay a Mexican Photographer From Abroad — https://ivaestudios.com/blog/paying-a-mexican-photographer-from-abroad
+- [ES] Permisos INAH para fotos en zonas arqueologicas — https://ivaestudios.com/es/blog/permisos-inah-fotos-zonas-arqueologicas
 
 ## IVAE Marketing. Social Media Management sub-brand
 
