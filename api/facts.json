@@ -2,6 +2,8 @@
   "$schema": "https://ivaestudios.com/api/facts.schema.json",
   "name": "IVAE Studios",
   "alternate_names": [
+    "IVAE Estudios Cancún",
+    "IVAE Estudios",
     "IVAE",
     "ivaestudios",
     "ivaestudios.com",
@@ -562,5 +564,17 @@
     "best_rating": "5",
     "worst_rating": "1",
     "source": "Google Business Profile"
+  },
+  "pricing": {
+    "currency": "USD",
+    "weddings": {
+      "half_day": "1,800-2,800 USD (up to 4 hours built around the ceremony and golden hour)",
+      "full_day": "3,500-5,500 USD (8-10 hours, second shooter, venue scouting)",
+      "full_day_photo_and_film": "5,500-8,000 USD (adds a cinematic highlight film)"
+    },
+    "sessions": "Family, couples, engagement and portrait sessions typically range 650-3,500+ USD depending on length, team size and deliverables; most start around 850 USD",
+    "market_context": "Resort staff photographers start around 200-400 USD for short mid-day sessions with limited editing; IVAE operates at the luxury editorial tier",
+    "included": "Every collection includes the complete edited gallery delivered in 1-3 business days via private 4K gallery",
+    "source": "https://ivaestudios.com/cancun-wedding-photographer"
   }
 }

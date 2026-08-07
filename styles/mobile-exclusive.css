@@ -43,6 +43,7 @@
   body.ivm-page #filmLeader { display: none !important; }
   /* Hide the desktop COLOPHON footer on mobile — we use .ivm-act-foot instead */
   body.ivm-page footer.colophon,
+  body.ivm-page .lw-faq,
   body.ivm-page .site-footer { display: none !important; }
   /* Hide desktop-only overlay elements that may peek through */
   body.ivm-page .lw-mob-pull-hint,
@@ -3904,4 +3905,157 @@
   .post-article .why-ivae__h { color: var(--ink, #0e1620); }
   .post-article .why-ivae__body { color: rgba(14, 22, 32, 0.82); }
   .post-article .why-ivae__points li { color: rgba(14, 22, 32, 0.72); }
+}
+
+/* ═══ HOME FAQ (GEO 2026-08): visible Q&A mirroring the FAQPage JSON-LD.
+   Mobile variant lives inside .ivm (hidden on desktop by the container);
+   desktop variant lives inside .ivm-desktop-only (hidden ≤899px). ═══ */
+.ivm-act-faq {
+  padding: 72px 22px 64px;
+  background: var(--ivm-ink, #0a0f17);
+}
+.ivm-act-faq__eyebrow {
+  display: block;
+  font: 600 10px/1 'Syne', sans-serif;
+  letter-spacing: .32em;
+  text-transform: uppercase;
+  color: var(--ivm-gold, #c9a54e);
+  margin-bottom: 14px;
+}
+.ivm-act-faq h2 {
+  font: 400 30px/1.15 'Cormorant Garamond', serif;
+  color: var(--ivm-cream, #faf8f5);
+  margin: 0 0 14px;
+}
+.ivm-act-faq h2 em { font-style: italic; color: var(--ivm-gold, #c9a54e); }
+.ivm-act-faq__intro {
+  font: 300 14px/1.65 'Syne', sans-serif;
+  color: rgba(250, 248, 245, .78);
+  margin: 0 0 26px;
+}
+.ivm-act-faq__item {
+  border-top: 1px solid rgba(250, 248, 245, .14);
+}
+.ivm-act-faq__item:last-of-type {
+  border-bottom: 1px solid rgba(250, 248, 245, .14);
+}
+.ivm-act-faq__item summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 16px 28px 16px 0;
+  position: relative;
+  font: 500 15px/1.4 'Syne', sans-serif;
+  color: var(--ivm-cream, #faf8f5);
+}
+.ivm-act-faq__item summary::-webkit-details-marker { display: none; }
+.ivm-act-faq__item summary::after {
+  content: '+';
+  position: absolute;
+  right: 2px;
+  top: 14px;
+  font: 300 22px/1 'Syne', sans-serif;
+  color: var(--ivm-gold, #c9a54e);
+  transition: transform .25s ease;
+}
+.ivm-act-faq__item[open] summary::after { transform: rotate(45deg); }
+.ivm-act-faq__item p {
+  font: 300 14px/1.7 'Syne', sans-serif;
+  color: rgba(250, 248, 245, .72);
+  margin: 0;
+  padding: 0 0 18px;
+}
+
+/* Desktop FAQ — editorial column above the colophon */
+.lw-faq {
+  padding: 110px 48px 96px;
+  background: var(--ink-4, #0a0f17);
+}
+.lw-faq__inner { max-width: 780px; margin: 0 auto; }
+.lw-faq__eyebrow {
+  display: block;
+  font: 600 11px/1 'Syne', sans-serif;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--ivm-gold, #c9a54e);
+  margin-bottom: 18px;
+}
+.lw-faq__h {
+  font: 400 44px/1.1 'Cormorant Garamond', serif;
+  color: var(--ivm-cream, #faf8f5);
+  margin: 0 0 18px;
+}
+.lw-faq__h em { font-style: italic; color: var(--ivm-gold, #c9a54e); }
+.lw-faq__intro {
+  font: 300 16px/1.7 'Syne', sans-serif;
+  color: rgba(250, 248, 245, .78);
+  margin: 0 0 34px;
+}
+.lw-faq__item { border-top: 1px solid rgba(250, 248, 245, .14); }
+.lw-faq__item:last-of-type { border-bottom: 1px solid rgba(250, 248, 245, .14); }
+.lw-faq__item summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 20px 34px 20px 0;
+  position: relative;
+  font: 500 17px/1.4 'Syne', sans-serif;
+  color: var(--ivm-cream, #faf8f5);
+}
+.lw-faq__item summary::-webkit-details-marker { display: none; }
+.lw-faq__item summary::after {
+  content: '+';
+  position: absolute;
+  right: 4px;
+  top: 17px;
+  font: 300 26px/1 'Syne', sans-serif;
+  color: var(--ivm-gold, #c9a54e);
+  transition: transform .25s ease;
+}
+.lw-faq__item[open] summary::after { transform: rotate(45deg); }
+.lw-faq__item p {
+  font: 300 15px/1.75 'Syne', sans-serif;
+  color: rgba(250, 248, 245, .74);
+  margin: 0;
+  padding: 0 0 22px;
+}
+
+/* Proof line under the desktop hero dek */
+.ch-sub__proof {
+  margin-top: 10px;
+  font-size: .82em;
+  letter-spacing: .02em;
+  opacity: .82;
+}
+
+/* ═══ POST TL;DR — NOTA 2026-08-07: los POSTS cargan blog.css (ahí vive la
+   copia CANONICA con el tema claro correcto); este bloque solo aplica si
+   alguna página con mobile-exclusive.css usara la clase. ═══
+   (GEO 2026-08): direct answer under
+   the post hero — the first extractable block an AI reader hits. Same
+   dual-tone pattern as .why-ivae (dark mobile, light desktop article). ═══ */
+.post-tldr {
+  max-width: 720px;
+  margin: clamp(26px, 4vw, 44px) auto 0;
+  padding: clamp(18px, 2.6vw, 28px) clamp(20px, 2.8vw, 34px);
+  background: linear-gradient(180deg, rgba(201, 165, 78, 0.08), rgba(201, 165, 78, 0.02));
+  border: 1px solid rgba(201, 165, 78, 0.24);
+  border-radius: 4px;
+}
+.post-tldr__label {
+  display: block;
+  font: 600 10px/1 'Syne', sans-serif;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: #c9a54e;
+  margin-bottom: 10px;
+}
+.post-tldr p {
+  margin: 0;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(17px, 2.1vw, 20px);
+  line-height: 1.55;
+  color: var(--ivm-cream, #faf8f5);
+}
+@media (min-width: 900px) {
+  .post-article .post-tldr p { color: rgba(14, 22, 32, 0.85); }
 }

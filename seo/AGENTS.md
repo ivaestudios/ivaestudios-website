@@ -24,7 +24,7 @@ Cost: $0/month. Owner involvement: zero (system is fully autonomous).
 **Remote:** `github.com/ivaestudios/ivaestudios-website` (main branch)
 **Hosting:** Cloudflare Pages (auto-deploys on push to main)
 **Owner:** Vianey Díaz, `vianeydm07@gmail.com` (Google), Microsoft account (Bing)
-**Wikidata:** `Q139689577` (IVAE Studios) + `Q139689736` (Vianey Díaz)
+**Wikidata:** SIN ítem vivo. Los ítems Q139689577 (IVAE Studios) y Q139689736 (Vianey Díaz) creados el 2026-05-06 fueron BORRADOS por Wikidata (verificado 2026-08-07: ambos devuelven "missing"; borrado típico por falta de referencias externas). NO citar esos QIDs en schema ni en documentos. Plan de re-creación con referencias primero: `seo/geo/WIKIDATA_BORRADOR.md`
 **Site age:** ~3 months in production (May 2026)
 **Current GSC traffic:** ~42 clicks total, 91 distinct queries with impressions
 **Sitemap:** 173 URL entries in `sitemap.xml`; 51 AI-priority URLs in `sitemap-ai.xml`
@@ -444,7 +444,7 @@ ivae-6-extracted/
 │   │   └── ai-mentions-trend.json         # Week-over-week AI mention rate
 │   ├── reports/                           # All weekly markdown outputs
 │   ├── playbooks/
-│   │   ├── wikidata-seed.md               # Done, item lives at Q139689577
+│   │   ├── wikidata-seed.md               # HISTÓRICO: el ítem Q139689577 fue borrado por Wikidata; ver seo/geo/WIKIDATA_BORRADOR.md
 │   │   ├── rollback.md                    # Git revert procedure
 │   │   ├── pr-assets.md                   # PR pitch ideas (manual outreach)
 │   │   ├── gbp-checklist.md               # Weekly GBP routine (manual)
@@ -525,9 +525,18 @@ To enable rotation on a new page:
 
 ---
 
-## Wikidata items (created 2026-05-06)
+## Wikidata items (created 2026-05-06 — BORRADOS por Wikidata, verificado 2026-08-07)
 
-### Q139689577 — IVAE Studios (organization)
+⚠️ AMBOS ítems devuelven "missing" en la API de Wikidata: fueron borrados
+(el patrón clásico: ítem anónimo cuya única fuente es el propio sitio =
+candidato a borrado por notabilidad). El "autonomous sweep" de los lunes
+que reintentaba P112/P169 debe DESACTIVARSE si aún existe: edita un ítem
+muerto. Antes de re-crear nada, conseguir 1-2 referencias externas
+(DENUE del INEGI + un directorio) — receta completa en
+`seo/geo/WIKIDATA_BORRADOR.md`. El registro de abajo se conserva solo
+como historial de lo que existió:
+
+### Q139689577 — IVAE Studios (organization) [BORRADO]
 URL: https://www.wikidata.org/wiki/Q139689577
 Statements:
 - P31 (instance of): photographic studio (Q3257138)
@@ -537,7 +546,7 @@ Statements:
 - P571 (inception): 2023
 - P856 (official website): https://ivaestudios.com
 
-### Q139689736 — Vianey Díaz (person)
+### Q139689736 — Vianey Díaz (person) [BORRADO]
 URL: https://www.wikidata.org/wiki/Q139689736
 Statements:
 - P31 (instance of): human (Q5)
@@ -578,7 +587,7 @@ each other by `@id`:
 **Disambiguation from ivaestudio.com (the unrelated European agency):**
 - `Brand.additionalProperty[notIdenticalTo]: "ivaestudio.com (singular, unrelated European agency)"`
 - `Brand.additionalProperty[spelling]: "IVAE Studios (with S, plural)"`
-- `Brand.additionalProperty[wikidata_id]: "Q139689577"`
+- `Brand.additionalProperty[wikidata_id]: "Q139689577"` (RETIRADO 2026-08-07: el ítem fue borrado por Wikidata; ya no se cita en ningún schema)
 - `DefinedTerm.description` includes the disambiguation paragraph
 - `Organization.disambiguatingDescription` field
 
