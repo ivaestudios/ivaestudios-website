@@ -1372,3 +1372,13 @@ tr.meses-row--ph td {
   padding-left:114px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:767px){.meses-hist__fila .meses-hist__cuando{min-width:0}
   .meses-hist__det{padding-left:0}}
+
+/* Botón "PDF de contenido" del mes (staff): mismo lenguaje que el botón de
+   PDF de Entregables. La barra vive arriba de la tabla, alineada a la derecha. */
+.meses-pdfbar{display:flex;justify-content:flex-end;margin:2px 0 10px}
+.meses-pdfbtn{display:inline-flex;align-items:center;gap:5px;
+  background:var(--surface-2,#0E0E13);border:1px solid var(--border,#1E1E26);
+  border-radius:var(--r-sm,10px);color:var(--text,#ECECF1);
+  font-size:var(--fs-1,12px);font-weight:600;padding:7px 11px;min-height:36px;cursor:pointer}
+.meses-pdfbtn:hover{border-color:var(--brand,#E24DA0);color:#fff}
+.meses-pdfbtn[disabled]{opacity:.6;cursor:default}

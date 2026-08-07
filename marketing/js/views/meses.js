@@ -28,22 +28,22 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202608070903';
-import { icon } from '../shell/icons.js?v=202608070903';
-import { T } from '../shell/i18n.js?v=202608070903';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202608070903';
+} from '../api.js?v=202608070939';
+import { icon } from '../shell/icons.js?v=202608070939';
+import { T } from '../shell/i18n.js?v=202608070939';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202608070939';
 // Capas de history del shell: el boton atras del telefono cierra la capa de
 // arriba (panel de guion) en vez de salir de la app.
-import { pushLayer } from '../shell/router.js?v=202608070903';
-import { confirmar } from '../shell/sheet.js?v=202608070903';
+import { pushLayer } from '../shell/router.js?v=202608070939';
+import { confirmar } from '../shell/sheet.js?v=202608070939';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608070903';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608070903';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608070903';
+import { errorCard } from '../ui/states.js?v=202608070939';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608070939';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608070939';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608070903';
+} from '../lib/video-upload.js?v=202608070939';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -2287,6 +2287,49 @@ function toggleSection(secEl, key) {
   setCollapsed(key, collapsed);
 }
 
+// Botón "PDF de contenido" del mes (staff, cliente concreto): arma el PDF
+// móvil pre-producción — una página por VIDEO con su guion (gancho/desarrollo/
+// cierre) y el botón a su inspo_url. Mismo lenguaje que el PDF de Entregables.
+let pdfContenidoBusy = false;
+function buildPdfContenidoBtn(key, rows) {
+  if (isClientRole() || key === SIN_MES || !/^\d{4}-\d{2}$/.test(key)) return null;
+  const { activeClientId, clients } = ctx.store.getState();
+  if (!activeClientId || activeClientId === 'todos') return null;
+  return el('button', {
+    class: 'meses-pdfbtn', type: 'button', disabled: pdfContenidoBusy || null,
+    'aria-label': T('Descargar el PDF de contenido del mes', 'Download the month content PDF'),
+    title: T('Un PDF bonito con el guion y la inspiración de cada video del mes, para mandar por WhatsApp', 'A polished PDF with each video script and inspiration link'),
+    onclick: async (e) => {
+      if (pdfContenidoBusy) return;
+      pdfContenidoBusy = true;
+      const btn = e.currentTarget;
+      const label = btn.querySelector('span');
+      const antes = label ? label.textContent : '';
+      btn.disabled = true;
+      try {
+        const mod = await import('../lib/pdf-contenido.js?v=202608070939');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608070939');
+        const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
+        const voz = vozDeMarca(cliente);
+        const res = await mod.generarPdfContenido({
+          month: key,
+          piezas: rows,
+          marca: voz.marca,
+          handle: voz.handle,
+          onPaso: (msg) => { if (label) label.textContent = msg; },
+        });
+        ctx.toast(`${T('PDF listo:', 'PDF ready:')} ${res.paginas} ${T('páginas', 'pages')} · ${(res.bytes / 1048576).toFixed(1)} MB`, { type: 'success' });
+      } catch (err) {
+        ctx.toast((err && err.message) || T('No se pudo armar el PDF', 'Could not build the PDF'), { type: 'error' });
+      } finally {
+        pdfContenidoBusy = false;
+        btn.disabled = false;
+        if (label) label.textContent = antes;
+      }
+    },
+  }, [icon('archive', 15), el('span', { text: T('PDF de contenido', 'Content PDF') })]);
+}
+
 function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTodos, single = false }) {
   const label = key === SIN_MES ? T('Sin mes', 'No date') : monthLabel(key);
   const bodyId = `meses-body-${key.replace(/[^a-z0-9-]/gi, '')}`;
@@ -2315,6 +2358,11 @@ function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTod
 
   const bodyKids = [];
   if (rows.length) {
+    // Botón staff "PDF de contenido": el plan de VIDEOS del mes (guion +
+    // inspo) en el mismo PDF móvil de Entregables — para mandarlo al cliente
+    // por WhatsApp ANTES de grabar. Solo con cliente concreto (no en Todos).
+    const pdfContenido = buildPdfContenidoBtn(key, rows);
+    if (pdfContenido) bodyKids.push(el('div', { class: 'meses-pdfbar' }, [pdfContenido]));
     // Desktop/tablet (>=768px): tabla completa. Movil (<768px): una tarjeta por
     // pieza con la misma info en chips (sin scroll horizontal). Sigue siendo
     // "una fila por pieza" — solo reflowada para que quepa en el telefono.

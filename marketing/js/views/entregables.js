@@ -6,17 +6,17 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608070903';
-import { icon } from '../shell/icons.js?v=202608070903';
-import { T } from '../shell/i18n.js?v=202608070903';
-import { openSheet, confirmar } from '../shell/sheet.js?v=202608070903';
+import { api, el, clear, toast } from '../api.js?v=202608070939';
+import { icon } from '../shell/icons.js?v=202608070939';
+import { T } from '../shell/i18n.js?v=202608070939';
+import { openSheet, confirmar } from '../shell/sheet.js?v=202608070939';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608070903';
+import { errorCard } from '../ui/states.js?v=202608070939';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608070903';
+} from '../lib/video-upload.js?v=202608070939';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -171,7 +171,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608070903';
+  link.href = '/marketing/css/entregables.css?v=202608070939';
   document.head.appendChild(link);
 }
 
@@ -1695,19 +1695,19 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202608070903');
+        const mod = await import('../lib/pdf-entregables.js?v=202608070939');
+        // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
+        // Contenido); sin receta, cae al @instagram de la ficha del cliente.
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608070939');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
-        // La voz de la marca: mapa local (como CONFIG_MARCA del generador);
-        // sin receta, cae al @instagram de la ficha del cliente.
-        const VOCES = [{ match: /smile/i, marca: 'Smile Now', handle: 'DENTAL & FACIAL CARE' }];
-        const voz = VOCES.find((v) => v.match.test(cliente.name || ''));
+        const voz = vozDeMarca(cliente);
         const res = await mod.generarPdfEntregables({
           month,
           items: itemsDelMes,
           clientId: activeClientId,
-          marca: voz ? voz.marca : (cliente.name || 'IVAE'),
-          handle: voz ? voz.handle : (cliente.instagram_handle ? `@${String(cliente.instagram_handle).replace(/^@/, '')}` : ''),
+          marca: voz.marca,
+          handle: voz.handle,
           onPaso: (msg) => { if (label) label.textContent = msg; },
         });
         toast(`${T('PDF listo:', 'PDF ready:')} ${res.paginas} ${T('páginas', 'pages')} · ${(res.bytes / 1048576).toFixed(1)} MB`, 'success');
