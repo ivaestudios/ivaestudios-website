@@ -53,14 +53,16 @@
     askPlaceholder: 'Escribe tu duda de vestuario',
     askNoMatch: 'Esa pregunta merece respuesta de una estilista real. Escríbenos y Vianey te contesta personalmente.',
     askWa: 'Preguntar por WhatsApp', askPop: 'Preguntas populares',
-    tryTitle: 'Ahora pruébatelo con TU foto',
-    tryIntro: 'Sube una foto tuya y nuestra IA te viste con el color que elegiste arriba.',
+    tryTitle: 'Pruébate ESTE look',
+    tryIntro: 'Sube una foto tuya y te vestimos con el vestido exacto que estás viendo arriba, en esa misma locación.',
     tryHint: 'Ideal: foto de cuerpo completo, de frente y con buena luz.',
-    tryPrenda: 'Prenda', tryUpload: 'Subir mi foto', tryChange: 'Cambiar foto', tryGo: 'Vestirme con IA',
-    tryWorking: 'La IA está creando tu look. Tarda entre 20 y 40 segundos, no cierres la página.',
-    tryPrivacy: 'Tu foto se usa solo para generar la imagen y no se guarda.',
-    tryLimit: 'Hasta 4 pruebas al día.', tryAgain: 'Probar otro look',
+    tryEste: 'Look elegido', tryPrenda: 'Prenda', tryUpload: 'Subir mi foto', tryChange: 'Cambiar foto',
+    tryGo: 'Pruébamelo', tryBadge: 'Vista previa con IA',
+    tryWorking: 'Creando tus vistas previas. Tarda entre 20 y 40 segundos, no cierres la página.',
+    tryPrivacy: 'Tu foto se usa solo para generar la imagen, nunca se guarda y no modificamos tu cuerpo ni tu rostro.',
+    tryLimit: 'Recibes 3 versiones. Hasta 2 pruebas al día.', tryAgain: 'Elegir otro look',
     tryDownload: 'Descargar', trySend: 'Enviar a Vianey',
+    tryDisc: 'Vista previa con IA. Tu sesión real se ve mucho mejor.',
     tryWa: 'Hola Vianey, me probé un look con la IA de su página y me encantó: '
   } : {
     colorLbl: 'Outfit color', grupoLbl: 'Session type', todos: 'All',
@@ -71,14 +73,16 @@
     askPlaceholder: 'Type your outfit question',
     askNoMatch: 'That question deserves a real stylist answer. Message us and Vianey replies personally.',
     askWa: 'Ask on WhatsApp', askPop: 'Popular questions',
-    tryTitle: 'Now try it on with YOUR photo',
-    tryIntro: 'Upload a photo of yourself and our AI dresses you in the color you picked above.',
+    tryTitle: 'Try THIS look on',
+    tryIntro: 'Upload a photo of yourself and we dress you in the exact dress you are looking at above, in that same location.',
     tryHint: 'Best: a full-body, front-facing, well-lit photo.',
-    tryPrenda: 'Garment', tryUpload: 'Upload my photo', tryChange: 'Change photo', tryGo: 'Dress me with AI',
-    tryWorking: 'The AI is creating your look. It takes 20 to 40 seconds, keep the page open.',
-    tryPrivacy: 'Your photo is used only to generate the image and is never stored.',
-    tryLimit: 'Up to 4 tries a day.', tryAgain: 'Try another look',
+    tryEste: 'Chosen look', tryPrenda: 'Garment', tryUpload: 'Upload my photo', tryChange: 'Change photo',
+    tryGo: 'Try it on me', tryBadge: 'AI preview',
+    tryWorking: 'Creating your previews. It takes 20 to 40 seconds, keep the page open.',
+    tryPrivacy: 'Your photo is used only to generate the image, it is never stored, and we never alter your body or face.',
+    tryLimit: 'You get 3 versions. Up to 2 tries a day.', tryAgain: 'Pick another look',
     tryDownload: 'Download', trySend: 'Send to Vianey',
+    tryDisc: 'AI preview. Your real session looks far better.',
     tryWa: 'Hi Vianey, I tried a look with the AI on your page and loved it: '
   };
 
@@ -215,8 +219,17 @@
     lookMount.innerHTML = h;
     wireLookbook(list);
     precargar(list, st.i);
-    var lk = document.getElementById('osxTryLook');
-    if (lk) lk.textContent = tryLookText();
+    refrescarTryLook();
+  }
+
+  /* El panel de IA siempre refleja el look que la clienta está viendo */
+  function refrescarTryLook() {
+    var l = lookActual();
+    if (!l) return;
+    var im = document.querySelector('.osx-try-look img');
+    if (im && im.getAttribute('src') !== l.src) im.src = l.src;
+    var tx = document.getElementById('osxTryLook');
+    if (tx) tx.textContent = nota(l);
   }
 
   function mostrar(list, dir) {
@@ -236,6 +249,7 @@
       var cta = document.getElementById('osxLookCta');
       if (cta) cta.href = waLook(l);
       precargar(list, st.i);
+      refrescarTryLook();
     }, 180);
   }
 
@@ -403,17 +417,19 @@
     showPopular();
   }
 
-  /* ═══ PROBADOR CON IA ═══ */
-  var tryFile = null, tryBusy = false, tryPrenda = 'mujerMaxi';
+  /* ═══ PRUÉBATE ESTE LOOK (IA) ═══ */
+  var tryFile = null, tryBusy = false, tryPrenda = 'mujerMaxi', tryImgs = [], tryIdx = 0;
   var PRENDAS = ES
     ? [['mujerMaxi', 'Vestido largo'], ['mujerCorto', 'Vestido corto'], ['hombre', 'Camisa de lino']]
     : [['mujerMaxi', 'Maxi dress'], ['mujerCorto', 'Short dress'], ['hombre', 'Linen shirt']];
-  var COLOR_IA = { cream: 'cream', white: 'white', sand: 'sand', verde: 'sage', rosa: 'dustyrose', softblue: 'softblue', navy: 'navy', gris: 'sand', black: 'black' };
-  var ESCENA_IA = { 'Playa': 'golden', 'Selva': 'selva', 'Muelle': 'turquesa', 'Atardecer': 'rosa', 'Resort': 'golden', 'Alberca': 'turquesa', 'Interior': 'golden', 'Cancún': 'golden', 'Ciudad': 'golden' };
 
+  function lookActual() {
+    var r = filtrar();
+    return r.list[st.i] || r.list[0] || null;
+  }
   function tryLookText() {
-    for (var i = 0; i < PRENDAS.length; i++) if (PRENDAS[i][0] === tryPrenda) return PRENDAS[i][1] + ' · ' + cName(st.color).toLowerCase();
-    return cName(st.color);
+    var l = lookActual();
+    return l ? (cName(st.color) + ' · ' + l.loc) : cName(st.color);
   }
   function resizePhoto(file, cb) {
     var img = new Image(), url = URL.createObjectURL(file);
@@ -429,18 +445,79 @@
     img.onerror = function () { URL.revokeObjectURL(url); cb(file); };
     img.src = url;
   }
+  /* Al descargar, la etiqueta se queda GRABADA en la imagen: nadie puede
+     hacerla pasar por una foto real de una sesión de IVAE. */
+  function conSello(dataURI, cb) {
+    var img = new Image();
+    img.onload = function () {
+      var c = document.createElement('canvas');
+      c.width = img.width; c.height = img.height;
+      var x = c.getContext('2d');
+      x.drawImage(img, 0, 0);
+      var h = Math.max(34, Math.round(c.height * 0.062));
+      var g = x.createLinearGradient(0, c.height - h * 2.1, 0, c.height);
+      g.addColorStop(0, 'rgba(10,15,23,0)'); g.addColorStop(1, 'rgba(10,15,23,.78)');
+      x.fillStyle = g; x.fillRect(0, c.height - h * 2.1, c.width, h * 2.1);
+      var fs = Math.max(13, Math.round(c.height * 0.021));
+      x.font = '600 ' + fs + 'px Syne, Helvetica, Arial, sans-serif';
+      x.fillStyle = 'rgba(250,248,245,.92)';
+      x.textBaseline = 'alphabetic';
+      x.fillText(T.tryDisc, Math.round(c.width * 0.045), c.height - Math.round(h * 0.95));
+      x.fillStyle = 'rgba(196,163,90,.95)';
+      x.fillText('IVAE STUDIOS · ivaestudios.com', Math.round(c.width * 0.045), c.height - Math.round(h * 0.32));
+      cb(c.toDataURL('image/jpeg', 0.92));
+    };
+    img.onerror = function () { cb(dataURI); };
+    img.src = dataURI;
+  }
+
+  function pintarResultados() {
+    var cont = document.getElementById('osxTryResult');
+    if (!cont) return;
+    if (!tryImgs.length) { cont.hidden = true; return; }
+    var h = '<div class="osx-try-gal">';
+    for (var i = 0; i < tryImgs.length; i++)
+      h += '<figure class="osx-try-fig' + (i === tryIdx ? ' sel' : '') + '" data-r="' + i + '">' +
+           '<img src="' + tryImgs[i] + '" alt=""/><figcaption>' + T.tryBadge + '</figcaption></figure>';
+    h += '</div><p class="osx-try-note" style="text-align:center">' + T.tryDisc + '</p>' +
+      '<div class="osx-try-actions">' +
+      '<button type="button" class="osx-verdict-cta" id="osxTryDl">' + T.tryDownload + '</button>' +
+      '<a class="osx-verdict-cta" id="osxTryWa" target="_blank" rel="noopener" href="' +
+        WA + encodeURIComponent(T.tryWa + tryLookText() + '.') + '">' + ICONS.wa + ' ' + T.trySend + '</a>' +
+      '<button type="button" class="osx-more" id="osxTryAgain">' + T.tryAgain + '</button></div>';
+    cont.innerHTML = h;
+    cont.hidden = false;
+    cont.querySelectorAll('[data-r]').forEach(function (f) {
+      f.addEventListener('click', function () { tryIdx = parseInt(f.getAttribute('data-r'), 10); pintarResultados(); });
+    });
+    document.getElementById('osxTryDl').addEventListener('click', function () {
+      conSello(tryImgs[tryIdx], function (url) {
+        var a = document.createElement('a');
+        a.href = url; a.download = 'mi-look-ivae.jpg';
+        document.body.appendChild(a); a.click(); a.remove();
+      });
+    });
+    document.getElementById('osxTryAgain').addEventListener('click', function () {
+      tryImgs = []; pintarResultados();
+      document.getElementById('osxProbador').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
 
   function renderTryon() {
     var mount = document.getElementById('osxTryon');
     if (!mount) return;
     fetch('/api/outfit/status').then(function (r) { return r.json(); }).then(function (stt) {
       if (!stt || !stt.ready) return;
+      var l = lookActual();
       var h = '<div class="osx-try"><div class="osx-try-head">' +
         '<h3>' + T.tryTitle + '</h3><p>' + T.tryIntro + '</p></div>' +
-        '<p class="osx-panel-t">' + T.tryPrenda + ' · <span id="osxTryLook">' + tryLookText() + '</span></p>' +
-        '<div class="osx-tabs">';
+        (l ? '<div class="osx-try-look"><img src="' + l.src + '" alt="" loading="lazy"/>' +
+             '<div><p class="osx-panel-t">' + T.tryEste + '</p>' +
+             '<p class="osx-try-lookn" id="osxTryLook">' + nota(l) + '</p></div></div>' : '') +
+        '<p class="osx-panel-t">' + T.tryPrenda + '</p><div class="osx-tabs">';
       for (var i = 0; i < PRENDAS.length; i++)
-        h += '<button type="button" class="osx-tab' + (PRENDAS[i][0] === tryPrenda ? ' sel' : '') + '" data-prenda="' + PRENDAS[i][0] + '">' + PRENDAS[i][1] + '</button>';
+        h += '<button type="button" class="osx-tab' + (PRENDAS[i][0] === tryPrenda ? ' sel' : '') +
+             '" data-prenda="' + PRENDAS[i][0] + '">' + PRENDAS[i][1] + '</button>';
       h += '</div><div class="osx-try-row">' +
         '<label class="osx-try-upload" id="osxTryUpLbl" tabindex="0">' +
         '<input type="file" id="osxTryFile" accept="image/jpeg,image/png,image/webp" hidden/>' +
@@ -448,20 +525,14 @@
         '<img id="osxTryThumb" class="osx-try-thumb" alt="" hidden/>' +
         '<button type="button" class="osx-verdict-cta osx-try-go" id="osxTryGo" disabled>' + T.tryGo + '</button></div>' +
         '<p class="osx-try-note">' + T.tryHint + ' ' + T.tryLimit + '</p>' +
-        '<p class="osx-try-note" style="opacity:.75">' + T.tryPrivacy + '</p>' +
+        '<p class="osx-try-note" style="opacity:.8">' + T.tryPrivacy + '</p>' +
         '<div class="osx-try-status" id="osxTryStatus" hidden></div>' +
-        '<div class="osx-try-result" id="osxTryResult" hidden><img id="osxTryImg" alt=""/>' +
-        '<div class="osx-try-actions">' +
-        '<a class="osx-verdict-cta" id="osxTryDl" download="mi-look-ivae.jpg">' + T.tryDownload + '</a>' +
-        '<a class="osx-verdict-cta" id="osxTryWa" target="_blank" rel="noopener">' + ICONS.wa + ' ' + T.trySend + '</a>' +
-        '<button type="button" class="osx-more" id="osxTryAgain">' + T.tryAgain + '</button>' +
-        '</div></div></div>';
+        '<div class="osx-try-result" id="osxTryResult" hidden></div></div>';
       mount.innerHTML = h;
 
       var fileIn = document.getElementById('osxTryFile'), upLbl = document.getElementById('osxTryUpLbl'),
           upTxt = document.getElementById('osxTryUpTxt'), thumb = document.getElementById('osxTryThumb'),
-          go = document.getElementById('osxTryGo'), status = document.getElementById('osxTryStatus'),
-          result = document.getElementById('osxTryResult');
+          go = document.getElementById('osxTryGo'), status = document.getElementById('osxTryStatus');
 
       mount.querySelectorAll('[data-prenda]').forEach(function (b) {
         b.addEventListener('click', function () { tryPrenda = b.getAttribute('data-prenda'); renderTryon(); });
@@ -474,20 +545,20 @@
         if (!f) return;
         tryFile = f; upTxt.textContent = T.tryChange;
         thumb.src = URL.createObjectURL(f); thumb.hidden = false;
-        go.disabled = false; result.hidden = true; status.hidden = true;
+        go.disabled = false; tryImgs = []; pintarResultados(); status.hidden = true;
       });
       go.addEventListener('click', function () {
         if (!tryFile || tryBusy) return;
-        tryBusy = true; go.disabled = true; result.hidden = true;
+        var lk = lookActual();
+        if (!lk) return;
+        tryBusy = true; go.disabled = true; tryImgs = []; pintarResultados();
         status.hidden = false; status.className = 'osx-try-status';
         status.innerHTML = '<span class="osx-spin"></span>' + T.tryWorking;
-        var r = filtrar(), l = r.list[st.i] || r.list[0];
         resizePhoto(tryFile, function (blob) {
           var fd = new FormData();
           fd.append('photo', blob, 'foto.jpg');
-          fd.append('fig', tryPrenda);
-          fd.append('color', COLOR_IA[st.color] || 'cream');
-          fd.append('scene', (l && ESCENA_IA[l.loc]) || 'golden');
+          fd.append('look', lk.src);
+          fd.append('prenda', tryPrenda);
           fetch('/api/outfit/tryon', { method: 'POST', body: fd })
             .then(function (res) { return res.json(); })
             .then(function (d) {
@@ -498,11 +569,10 @@
                 return;
               }
               status.hidden = true;
-              document.getElementById('osxTryImg').src = d.image;
-              document.getElementById('osxTryDl').href = d.image;
-              document.getElementById('osxTryWa').href = WA + encodeURIComponent(T.tryWa + tryLookText() + '.');
-              result.hidden = false;
-              result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              tryImgs = d.images || []; tryIdx = 0;
+              pintarResultados();
+              var rc = document.getElementById('osxTryResult');
+              if (rc) rc.scrollIntoView({ behavior: 'smooth', block: 'center' });
             })
             .catch(function () {
               tryBusy = false; go.disabled = false;
@@ -510,10 +580,6 @@
               status.textContent = ES ? 'Sin conexión. Intenta de nuevo.' : 'Connection lost. Try again.';
             });
         });
-      });
-      document.getElementById('osxTryAgain').addEventListener('click', function () {
-        result.hidden = true;
-        document.getElementById('osxProbador').scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     }).catch(function () {});
   }
