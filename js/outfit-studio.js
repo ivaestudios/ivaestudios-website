@@ -172,6 +172,20 @@
     waIntro: 'Hola Vianey, armé mi outfit en la guía de vestuario: ',
     waAsk: ' ¿Qué opinas?',
     askPlaceholder: 'Escribe tu duda de vestuario',
+    tryTitle: 'Ahora pruébatelo con TU foto',
+    tryIntro: 'Sube una foto tuya y nuestra IA te viste con el look que armaste arriba, en la locación que elegiste.',
+    tryHint: 'Ideal: foto de cuerpo completo, de frente y con buena luz.',
+    tryLookLbl: 'Look elegido',
+    tryUpload: 'Subir mi foto',
+    tryChange: 'Cambiar foto',
+    tryGo: 'Vestirme con IA',
+    tryWorking: 'La IA está creando tu look. Tarda entre 20 y 40 segundos, no cierres la página.',
+    tryPrivacy: 'Tu foto se usa solo para generar la imagen y no se guarda.',
+    tryLimit: 'Hasta 4 pruebas al día.',
+    tryAgain: 'Probar otro look',
+    tryDownload: 'Descargar',
+    trySend: 'Enviar a Vianey',
+    tryWa: 'Hola Vianey, me probé un look con la IA de su página y me encantó: ',
     askNoMatch: 'Esa pregunta merece respuesta de una estilista real. Escríbenos y Vianey te contesta personalmente.',
     askWa: 'Preguntar por WhatsApp', askAll: 'Ver todas', askPop: 'Preguntas populares'
   } : {
@@ -182,6 +196,20 @@
     waIntro: 'Hi Vianey, I styled my outfits in your style guide: ',
     waAsk: ' What do you think?',
     askPlaceholder: 'Type your outfit question',
+    tryTitle: 'Now try it on with YOUR photo',
+    tryIntro: 'Upload a photo of yourself and our AI dresses you in the look you styled above, in the location you picked.',
+    tryHint: 'Best: a full-body, front-facing, well-lit photo.',
+    tryLookLbl: 'Chosen look',
+    tryUpload: 'Upload my photo',
+    tryChange: 'Change photo',
+    tryGo: 'Dress me with AI',
+    tryWorking: 'The AI is creating your look. It takes 20 to 40 seconds, keep the page open.',
+    tryPrivacy: 'Your photo is used only to generate the image and is never stored.',
+    tryLimit: 'Up to 4 tries a day.',
+    tryAgain: 'Try another look',
+    tryDownload: 'Download',
+    trySend: 'Send to Vianey',
+    tryWa: 'Hi Vianey, I tried a look with the AI on your page and loved it: ',
     askNoMatch: 'That question deserves a real stylist answer. Message us and Vianey replies personally.',
     askWa: 'Ask on WhatsApp', askAll: 'See all', askPop: 'Popular questions'
   };
@@ -350,6 +378,8 @@
     html += '</div></div></div>';
     probadorMount.innerHTML = html;
     wireProbador();
+    var lk = document.getElementById('osxTryLook');
+    if (lk) lk.textContent = tryLookText();
     if (refocus) {
       var rf = probadorMount.querySelector(refocus);
       if (rf) rf.focus();
@@ -547,6 +577,132 @@
     showPopular();
   }
 
+  /* ═══ PROBADOR CON IA (se enciende solo si el backend tiene llave) ═══ */
+  var tryFile = null, tryBusy = false;
+
+  function tryLookText() {
+    var per = state.people[state.sel];
+    var sc = sceneById(state.scene);
+    if (!per) return ES ? sc.es : sc.en;
+    return (ES ? FIGS[per.fig].es : FIGS[per.fig].en) + ' · ' +
+      (ES ? colorById(per.color).es : colorById(per.color).en).toLowerCase() + ' · ' +
+      (ES ? sc.es : sc.en);
+  }
+
+  function resizePhoto(file, cb) {
+    var img = new Image();
+    var url = URL.createObjectURL(file);
+    img.onload = function () {
+      var sf = Math.min(1, 1280 / Math.max(img.width, img.height));
+      var c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(img.width * sf));
+      c.height = Math.max(1, Math.round(img.height * sf));
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      if (c.toBlob) c.toBlob(function (b) { cb(b || file); }, 'image/jpeg', 0.86);
+      else cb(file);
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); cb(file); };
+    img.src = url;
+  }
+
+  function renderTryon() {
+    var mount = document.getElementById('osxTryon');
+    if (!mount || !probadorMount) return;
+    fetch('/api/outfit/status').then(function (r) { return r.json(); }).then(function (st) {
+      if (!st || !st.ready) return;
+      mount.innerHTML =
+        '<div class="osx-try"><div class="osx-try-head">' +
+        '<h3>' + T.tryTitle + '</h3><p>' + T.tryIntro + '</p></div>' +
+        '<p class="osx-panel-t">' + T.tryLookLbl + ' · <span id="osxTryLook">' + tryLookText() + '</span></p>' +
+        '<div class="osx-try-row">' +
+        '<label class="osx-try-upload" id="osxTryUpLbl" tabindex="0">' +
+        '<input type="file" id="osxTryFile" accept="image/jpeg,image/png,image/webp" hidden/>' +
+        '<span id="osxTryUpTxt">' + T.tryUpload + '</span></label>' +
+        '<img id="osxTryThumb" class="osx-try-thumb" alt="" hidden/>' +
+        '<button type="button" class="osx-verdict-cta osx-try-go" id="osxTryGo" disabled>' + T.tryGo + '</button>' +
+        '</div>' +
+        '<p class="osx-try-note">' + T.tryHint + ' ' + T.tryLimit + '</p>' +
+        '<p class="osx-try-note" style="opacity:.75">' + T.tryPrivacy + '</p>' +
+        '<div class="osx-try-status" id="osxTryStatus" hidden></div>' +
+        '<div class="osx-try-result" id="osxTryResult" hidden>' +
+        '<img id="osxTryImg" alt=""/>' +
+        '<div class="osx-try-actions">' +
+        '<a class="osx-verdict-cta" id="osxTryDl" download="mi-look-ivae.jpg">' + T.tryDownload + '</a>' +
+        '<a class="osx-verdict-cta" id="osxTryWa" target="_blank" rel="noopener">' + ICONS.wa + ' ' + T.trySend + '</a>' +
+        '<button type="button" class="osx-more" id="osxTryAgain">' + T.tryAgain + '</button>' +
+        '</div></div></div>';
+
+      var fileIn = document.getElementById('osxTryFile');
+      var upLbl = document.getElementById('osxTryUpLbl');
+      var upTxt = document.getElementById('osxTryUpTxt');
+      var thumb = document.getElementById('osxTryThumb');
+      var go = document.getElementById('osxTryGo');
+      var status = document.getElementById('osxTryStatus');
+      var result = document.getElementById('osxTryResult');
+
+      upLbl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileIn.click(); }
+      });
+      fileIn.addEventListener('change', function () {
+        var f = fileIn.files && fileIn.files[0];
+        if (!f) return;
+        tryFile = f;
+        upTxt.textContent = T.tryChange;
+        thumb.src = URL.createObjectURL(f);
+        thumb.hidden = false;
+        go.disabled = false;
+        result.hidden = true;
+        status.hidden = true;
+      });
+      go.addEventListener('click', function () {
+        if (!tryFile || tryBusy) return;
+        tryBusy = true;
+        go.disabled = true;
+        result.hidden = true;
+        status.hidden = false;
+        status.className = 'osx-try-status';
+        status.innerHTML = '<span class="osx-spin"></span>' + T.tryWorking;
+        var per = state.people[state.sel] || { fig: 'mujerMaxi', color: 'cream' };
+        resizePhoto(tryFile, function (blob) {
+          var fd = new FormData();
+          fd.append('photo', blob, 'foto.jpg');
+          fd.append('fig', per.fig);
+          fd.append('color', per.color);
+          fd.append('scene', state.scene);
+          fetch('/api/outfit/tryon', { method: 'POST', body: fd })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+              tryBusy = false;
+              go.disabled = false;
+              if (!d || !d.ok) {
+                status.className = 'osx-try-status err';
+                status.textContent = (d && d.error) || 'Error. Intenta de nuevo.';
+                return;
+              }
+              status.hidden = true;
+              var img = document.getElementById('osxTryImg');
+              img.src = d.image;
+              document.getElementById('osxTryDl').href = d.image;
+              document.getElementById('osxTryWa').href = WA + encodeURIComponent(T.tryWa + tryLookText() + '.');
+              result.hidden = false;
+              result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            })
+            .catch(function () {
+              tryBusy = false;
+              go.disabled = false;
+              status.className = 'osx-try-status err';
+              status.textContent = ES ? 'Sin conexión. Intenta de nuevo.' : 'Connection lost. Try again.';
+            });
+        });
+      });
+      document.getElementById('osxTryAgain').addEventListener('click', function () {
+        result.hidden = true;
+        document.getElementById('osxProbador').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }).catch(function () {});
+  }
+
   if (probadorMount) probadorMount.addEventListener('keydown', function (e) {
     var t = e.target;
     if ((e.key === 'Enter' || e.key === ' ') && t && t.getAttribute && t.getAttribute('role') === 'button') {
@@ -555,6 +711,6 @@
   });
 
   if (document.readyState === 'loading')
-    document.addEventListener('DOMContentLoaded', function () { renderProbador(); renderPreguntas(); });
-  else { renderProbador(); renderPreguntas(); }
+    document.addEventListener('DOMContentLoaded', function () { renderProbador(); renderPreguntas(); renderTryon(); });
+  else { renderProbador(); renderPreguntas(); renderTryon(); }
 })();
