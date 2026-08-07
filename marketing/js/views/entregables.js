@@ -6,17 +6,17 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608070207';
-import { icon } from '../shell/icons.js?v=202608070207';
-import { T } from '../shell/i18n.js?v=202608070207';
-import { openSheet, confirmar } from '../shell/sheet.js?v=202608070207';
+import { api, el, clear, toast } from '../api.js?v=202608070310';
+import { icon } from '../shell/icons.js?v=202608070310';
+import { T } from '../shell/i18n.js?v=202608070310';
+import { openSheet, confirmar } from '../shell/sheet.js?v=202608070310';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608070207';
+import { errorCard } from '../ui/states.js?v=202608070310';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608070207';
+} from '../lib/video-upload.js?v=202608070310';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -171,7 +171,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608070207';
+  link.href = '/marketing/css/entregables.css?v=202608070310';
   document.head.appendChild(link);
 }
 
@@ -255,7 +255,13 @@ let draining = false;   // hay un drenado de la cola en curso
 // qué viene en HEVC/H.265 (sube bien pero se ve negro en Android/Chrome).
 async function enqueueReels(fileList) {
   const all = [...(fileList || [])];
-  const { ok, noVideo, unplayable, hevc } = await screenVideoFiles(all);
+  // Las IMÁGENES son tiras de carrusel: se suben con el mismo gesto que los
+  // videos (pedido 2026-08-07 "así como subo los videos, así los carruseles").
+  const tiras = all.filter((f) => /^image\//i.test(f.type || ''));
+  const videos = all.filter((f) => !/^image\//i.test(f.type || ''));
+  if (tiras.length) await subirTirasComoCarruseles(tiras);
+  if (!videos.length) return;
+  const { ok, noVideo, unplayable, hevc } = await screenVideoFiles(videos);
 
   if (unplayable.length) toast(msgUnplayable(unplayable), 'error', 9000);
   const skipped = noVideo.length;
@@ -546,6 +552,18 @@ async function addCarrusel(link, title, tiraFile) {
   return await crearCarruselConTira(client, url, title, tiraFile);
 }
 
+// Tiras soltadas en el dropzone: cada imagen = un carrusel nuevo (en serie,
+// mismo mes que los reels). El título queda vacío — la tarjeta dice "Carrusel".
+async function subirTirasComoCarruseles(files) {
+  const client = activeClient();
+  if (!client) return;
+  if (busy) { toast(T('Espera a que termine la subida en curso.', 'Wait for the current upload to finish.'), 'info'); return; }
+  for (const f of files) {
+    // eslint-disable-next-line no-await-in-loop
+    await crearCarruselConTira(client, null, '', f);
+  }
+}
+
 // Alta del carrusel + subida de su tira como poster (la tira ES el carrusel:
 // la vista y el PDF la dividen en slides).
 async function crearCarruselConTira(client, url, title, tiraFile) {
@@ -590,6 +608,27 @@ async function subirTira(id, file) {
 }
 
 // ── Slides de la tira (client-side): dataURLs por slide, cacheados ──────────
+// El n de slides se elige probando cada n (1..20) y quedándose con el que deje
+// el slide más cerca de un formato real de IG; "ancho/(alto×0.8)" asumía 4:5
+// exacto y rebanaba mal tiras 3:4/cuadradas. En empate gana 4:5, luego 1:1.
+// (Mismo algoritmo que pdf-entregables.js — cambiarlos JUNTOS.)
+const RATIOS_IG = [
+  { r: 4 / 5, p: 0 }, { r: 1, p: 1 }, { r: 3 / 4, p: 2 }, { r: 9 / 16, p: 3 },
+];
+function numSlidesDeTira(w, h) {
+  let mejor = { d: Infinity, p: 9, n: 1 };
+  for (let n = 1; n <= 20; n++) {
+    const r = w / (n * h);
+    if (r < 0.4) break;
+    for (const c of RATIOS_IG) {
+      const d = Math.abs(r - c.r);
+      const casiEmpate = Math.abs(d - mejor.d) <= 0.015;
+      if ((d < mejor.d && !casiEmpate) || (casiEmpate && c.p < mejor.p)) mejor = { d, p: c.p, n };
+    }
+  }
+  return mejor.n;
+}
+
 const tiraCache = new Map();   // id -> Promise<string[]>
 function slidesDeTira(it) {
   const key = it.id;
@@ -598,8 +637,7 @@ function slidesDeTira(it) {
     const r = await fetch(it.poster_url, { credentials: 'include' });
     if (!r.ok) throw new Error('tira');
     const bmp = await createImageBitmap(await r.blob());
-    // Slides 1080×1350 (4:5): n = ancho / (alto × 0.8), 1..10.
-    const n = Math.max(1, Math.min(10, Math.round(bmp.width / (bmp.height * 0.8))));
+    const n = numSlidesDeTira(bmp.width, bmp.height);
     const sw = bmp.width / n;
     const out = [];
     for (let i = 0; i < n; i++) {
@@ -1086,7 +1124,7 @@ function buildAddBar() {
 
   // Drop zone para reels
   const fileInput = el('input', {
-    type: 'file', accept: 'video/*', multiple: true, class: 'dlv-fileinput', hidden: true,
+    type: 'file', accept: 'video/*,image/*', multiple: true, class: 'dlv-fileinput', hidden: true,
     // Se copia la lista ANTES de limpiar el input: la revisión previa es async.
     onchange: (e) => { const fs = [...e.target.files]; e.target.value = ''; enqueueReels(fs); },
   });
@@ -1115,8 +1153,8 @@ function buildAddBar() {
   } else {
     dropKids = [
       icon('camera', 26),
-      el('span', { class: 'dlv-drop__t', text: T('Arrastra un reel aquí o toca para elegir', 'Drag a reel here or tap to choose') }),
-      el('span', { class: 'dlv-drop__s', text: T('Video MP4/MOV/WebM · calidad original · videos grandes OK (se suben por partes)', 'MP4/MOV/WebM video · original quality · big videos OK (uploaded in parts)') }),
+      el('span', { class: 'dlv-drop__t', text: T('Arrastra un reel o la tira de un carrusel', 'Drag a reel or a carousel strip') }),
+      el('span', { class: 'dlv-drop__s', text: T('Video MP4/MOV/WebM o imagen JPG/PNG (la tira se divide en slides) · videos grandes OK', 'MP4/MOV/WebM video or JPG/PNG image (the strip splits into slides) · big videos OK') }),
       fileInput,
     ];
   }
@@ -1657,7 +1695,7 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202608070207');
+        const mod = await import('../lib/pdf-entregables.js?v=202608070310');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         // La voz de la marca: mapa local (como CONFIG_MARCA del generador);

@@ -7,7 +7,9 @@
 // HTML→SVG→canvas del generador de carruseles (fuentes de marca embebidas),
 // así que lo que se diseña es EXACTAMENTE lo que imprime.
 //
-// A4 vertical: 595.28 × 841.89 pt. Las imágenes se dibujan a sangre completa.
+// El tamaño de página es parametrizable (opts.pageW/pageH en pt): el PDF de
+// Entregables usa 9:16 vertical — se LEE en iPhone y cada página llena la
+// pantalla como una historia. Sin opts: A4 vertical (595.28 × 841.89 pt).
 // ============================================================================
 
 const A4_W = 595.28;
@@ -34,7 +36,9 @@ const uriPdf = (u) => String(u).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').rep
  *   pedido de los jueces: "hoy ningún link es tocable, son JPEGs planos").
  * @returns {Blob} application/pdf
  */
-export function pdfDesdeJpegs(paginas) {
+export function pdfDesdeJpegs(paginas, opts) {
+  const PW = (opts && opts.pageW) || A4_W;
+  const PH = (opts && opts.pageH) || A4_H;
   const partes = [];        // Uint8Array | string (latin1)
   let offset = 0;
   const offsets = [];       // offset de cada objeto (índice 1-based)
@@ -62,21 +66,21 @@ export function pdfDesdeJpegs(paginas) {
     const pageNum = 3 + i * 3;
     const contNum = 4 + i * 3;
     const imgNum = 5 + i * 3;
-    const sx = A4_W / p.w;
-    const sy = A4_H / p.h;
+    const sx = PW / p.w;
+    const sy = PH / p.h;
     const annots = (p.links || []).map((L) => {
       const x0 = (L.x * sx).toFixed(2);
-      const y1 = (A4_H - L.y * sy).toFixed(2);
+      const y1 = (PH - L.y * sy).toFixed(2);
       const x1 = ((L.x + L.w) * sx).toFixed(2);
-      const y0 = (A4_H - (L.y + L.h) * sy).toFixed(2);
+      const y0 = (PH - (L.y + L.h) * sy).toFixed(2);
       return `<< /Type /Annot /Subtype /Link /Rect [${x0} ${y0} ${x1} ${y1}] /Border [0 0 0] ` +
         `/A << /S /URI /URI (${uriPdf(L.url)}) >> >>`;
     }).join(' ');
     obj(pageNum,
-      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${A4_W} ${A4_H}] ` +
+      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PW} ${PH}] ` +
       `/Resources << /XObject << /Im${i} ${imgNum} 0 R >> >> /Contents ${contNum} 0 R` +
       (annots ? ` /Annots [ ${annots} ]` : '') + ` >>`);
-    const contenido = `q\n${A4_W} 0 0 ${A4_H} 0 0 cm\n/Im${i} Do\nQ\n`;
+    const contenido = `q\n${PW} 0 0 ${PH} 0 0 cm\n/Im${i} Do\nQ\n`;
     obj(contNum, `<< /Length ${contenido.length} >>\nstream\n${contenido}endstream`);
     const bytes = dataUrlABytes(p.dataUrl);
     offsets[imgNum] = offset;

@@ -1,34 +1,47 @@
 // ============================================================================
-// IVAE Marketing — PDF editorial de ENTREGABLES del mes (pedido de Vianey
-// 2026-08-06: "mi cliente no le entiende a la tecnología y quiere un PDF
-// donde pueda ver todos los carruseles y videos… lo mejor de lo mejor").
+// IVAE Marketing — PDF de ENTREGABLES del mes, PENSADO PARA iPHONE (pedido de
+// Vianey 2026-08-07: "el pdf es para móvil en iPhone… nada de QR: yo te subo
+// la tira, tú la divides y la pones bonito").
 //
-// v2 tras la ronda de jueces (editorial 7 / clienta 6 / marca 7):
-//  - Enlaces TOCABLES de verdad (anotaciones /Link del PDF): el botón del
-//    carrusel, el de cada video y el WhatsApp del cierre.
-//  - Taxonomía llana: VIDEO 1..n / CARRUSEL 1..n + el título original como
-//    subtítulo en cursiva (nada de POST/PANCARTA/REEL a secas).
-//  - Cuadro del video por MUESTREO de nitidez (4 candidatos, gana el más
-//    nítido); el poster subido a mano siempre gana.
-//  - Cierre con camino feliz («Aprobado») + teléfono en la voz del sistema.
-//  - Portada con línea llana de propósito y datos sin duplicar.
+// v4 móvil-primero (afinado por panel de jueces móvil/editorial/QA):
+//  - Páginas VERTICALES 9:16 (1080×1920): en WhatsApp/Quick Look cada página
+//    llena la pantalla como una historia — no un A4 encogido.
+//  - CERO códigos QR: el PDF vive EN el teléfono, no hay nada que escanear.
+//    Todo acceso es un BOTÓN tocable a lo ancho (anotaciones /Link reales),
+//    RELLENO de tinta — para una clienta no-tech "botón" = bloque sólido.
+//  - Carruseles: slide 1 protagonista y luego los slides GRANDES a 2×2 en
+//    páginas de continuación (legibles sin zoom — es un documento de
+//    REVISIÓN; la cuadrícula chiquita de miniaturas no se leía en teléfono).
+//  - Las cajas de slide usan el RATIO REAL de la tira (nada de object-fit
+//    que decapite el tope de cada pieza).
+//  - Cada video abre SOLO ese video (enlace público firmado del backend);
+//    un video sin material dice "en producción" SIN botón muerto.
+//  - Cierre: «Responder Aprobado» es el botón primario (texto precargado).
 //
 // Lenguaje visual: papel de imprenta, Raleway 300 caps espaciado + Cormorant
 // cursiva — la voz de SMILE NOW. Raster HTML→SVG→canvas con XML ESTRICTO.
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202608070207';
-import { pdfDesdeJpegs } from './pdf-jpeg.js?v=202608070207';
+import { T } from '../shell/i18n.js?v=202608070310';
+import { pdfDesdeJpegs } from './pdf-jpeg.js?v=202608070310';
 
-// A4 a ~178 dpi: nítido en pantalla y decente impreso, sin PDFs de 40 MB.
-const W = 1480;
-const H = 2093;
+// 9:16 a resolución de historia: nítido en Retina sin PDFs de 40 MB.
+const W = 1080;
+const H = 1920;
+// Página PDF en pt (misma proporción; los visores ajustan al ancho de pantalla).
+const PT_W = 540;
+const PT_H = 960;
 
 // Paleta de imprenta.
 const PAPEL = '#F5F2EC';
 const TINTA = '#17171B';
 const HUMO = '#6E6A62';
 const FILETE = 'rgba(23,23,27,.16)';
+
+// Márgenes y zonas fijas de la página móvil.
+const MX = 64;                 // margen lateral
+const CONT_W = W - MX * 2;     // 952: ancho útil (los botones lo llenan)
+const PIE_TOP = 1826;          // donde arranca el pie: nada debe pasar de aquí
 
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -63,19 +76,23 @@ ${await fuentes()}
 *{margin:0;padding:0;box-sizing:border-box}
 .pag{width:${W}px;height:${H}px;background:${PAPEL};color:${TINTA};
   font-family:Raleway,sans-serif;position:relative;overflow:hidden}
-.marco{position:absolute;inset:56px;border:1.6px solid ${FILETE}}
-.cab{position:absolute;top:104px;left:120px;right:120px;display:flex;
+.marco{position:absolute;inset:44px;border:1.6px solid ${FILETE}}
+.cab{position:absolute;top:78px;left:${MX}px;right:${MX}px;display:flex;
   justify-content:space-between;align-items:baseline;
-  font-size:24px;font-weight:500;letter-spacing:.34em;color:${HUMO};text-transform:uppercase}
-.pie{position:absolute;bottom:104px;left:120px;right:120px;display:flex;
+  font-size:21px;font-weight:500;letter-spacing:.3em;color:${HUMO};text-transform:uppercase}
+.pie{position:absolute;bottom:70px;left:${MX}px;right:${MX}px;display:flex;
   justify-content:space-between;align-items:baseline;
-  font-size:22px;font-weight:500;letter-spacing:.3em;color:${HUMO};text-transform:uppercase}
+  font-size:19px;font-weight:500;letter-spacing:.26em;color:${HUMO};text-transform:uppercase}
 .folio{font-variant-numeric:tabular-nums}
 .wordmark{font-weight:300;letter-spacing:.42em;text-transform:uppercase;white-space:nowrap}
 .cursiva{font-family:Cormorant,Georgia,serif;font-style:italic;font-weight:600;text-transform:none;letter-spacing:.01em}
 .regla{height:1.6px;background:${FILETE};border:0}
-.boton{display:inline-block;border:2px solid ${TINTA};padding:26px 54px;
-  font-size:26px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:${TINTA}}
+.boton{display:block;width:100%;background:${TINTA};border:2.4px solid ${TINTA};padding:38px 20px;
+  font-size:30px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;
+  color:${PAPEL};text-align:center}
+.boton--linea{background:transparent;color:${TINTA}}
+.nota{font-size:27px;font-weight:300;letter-spacing:.02em;color:rgba(23,23,27,.72);text-align:center}
+.marquito{background:#FFFFFF;padding:14px;box-shadow:0 24px 54px rgba(23,23,27,.16);border:1px solid ${FILETE}}
 `;
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">` +
@@ -93,43 +110,6 @@ ${await fuentes()}
   cx.fillRect(0, 0, W, H);
   cx.drawImage(img, 0, 0);
   return cv.toDataURL('image/jpeg', 0.9);
-}
-
-// ── QR nítido (vendor/qrcode, dibujado a mano sobre canvas) ─────────────────
-let qrListo = null;
-function cargarQr() {
-  if (qrListo) return qrListo;
-  qrListo = new Promise((ok, bad) => {
-    if (window.qrcode) { ok(window.qrcode); return; }
-    const sc = document.createElement('script');
-    sc.src = '/marketing/vendor/qrcode/qrcode.js';
-    sc.onload = () => ok(window.qrcode);
-    sc.onerror = () => bad(new Error('qr'));
-    document.head.appendChild(sc);
-  });
-  return qrListo;
-}
-
-async function qrDataUrl(texto, px) {
-  const qrcode = await cargarQr();
-  const qr = qrcode(0, 'M');
-  qr.addData(texto);
-  qr.make();
-  const n = qr.getModuleCount();
-  const celda = Math.floor(px / (n + 8));
-  const lado = celda * (n + 8);
-  const cv = document.createElement('canvas');
-  cv.width = lado; cv.height = lado;
-  const cx = cv.getContext('2d');
-  cx.fillStyle = '#FFFFFF';
-  cx.fillRect(0, 0, lado, lado);
-  cx.fillStyle = TINTA;
-  for (let r = 0; r < n; r++) {
-    for (let c = 0; c < n; c++) {
-      if (qr.isDark(r, c)) cx.fillRect((c + 4) * celda, (r + 4) * celda, celda, celda);
-    }
-  }
-  return cv.toDataURL('image/png');
 }
 
 // ── Cuadro del reel: poster del API o el fotograma MÁS NÍTIDO del video ─────
@@ -200,11 +180,36 @@ async function imagenDeReel(item) {
 }
 
 // ── La tira del carrusel → slides (para verlos EN el PDF) ───────────────────
+// El número de slides NO se adivina con "ancho/(alto×0.8)": eso asume 4:5
+// exacto y con slides 3:4 o cuadrados redondea al n EQUIVOCADO (todo queda
+// rebanado a destiempo). Se prueba cada n y gana el que deje el slide más
+// cerca de un formato real de Instagram (9:16, 3:4, 4:5, 1:1). Techo 20.
+// Con empate geométrico (4 cuadrados ≡ 5 de 4:5) gana el formato MÁS común
+// en carruseles: 4:5 primero, luego 1:1, luego 3:4 y 9:16.
+const RATIOS_IG = [
+  { r: 4 / 5, p: 0 }, { r: 1, p: 1 }, { r: 3 / 4, p: 2 }, { r: 9 / 16, p: 3 },
+];
+function numSlidesDeTira(w, h) {
+  let mejor = { d: Infinity, p: 9, n: 1 };
+  for (let n = 1; n <= 20; n++) {
+    const r = w / (n * h);
+    if (r < 0.4) break;                     // más angosto que 9:16: ya nos pasamos
+    for (const c of RATIOS_IG) {
+      const d = Math.abs(r - c.r);
+      const casiEmpate = Math.abs(d - mejor.d) <= 0.015;
+      if ((d < mejor.d && !casiEmpate) || (casiEmpate && c.p < mejor.p)) mejor = { d, p: c.p, n };
+    }
+  }
+  return mejor.n;
+}
+
+// Devuelve { slides, ratio }: el ratio REAL del slide manda en las cajas del
+// PDF — nada de forzar 4:5 con object-fit (decapitaba el tope de cada pieza).
 async function slidesDeTira(posterUrl) {
   const r = await fetch(posterUrl, { credentials: 'include' });
   if (!r.ok) throw new Error('tira');
   const bmp = await createImageBitmap(await r.blob());
-  const n = Math.max(1, Math.min(10, Math.round(bmp.width / (bmp.height * 0.8))));
+  const n = numSlidesDeTira(bmp.width, bmp.height);
   const sw = bmp.width / n;
   const out = [];
   for (let i = 0; i < n; i++) {
@@ -214,29 +219,29 @@ async function slidesDeTira(posterUrl) {
     cv.getContext('2d').drawImage(bmp, i * sw, 0, sw, bmp.height, 0, 0, cv.width, cv.height);
     out.push(cv.toDataURL('image/jpeg', 0.88));
   }
-  return out;
+  return { slides: out, ratio: sw / bmp.height };
 }
 
 // ── Piezas compartidas ──────────────────────────────────────────────────────
 function cab(izq, der) {
-  return `<div class="cab"><span>${esc(izq)}</span><span class="wordmark" style="font-size:26px">${esc(der)}</span></div>`;
+  return `<div class="cab"><span>${esc(izq)}</span><span class="wordmark" style="font-size:22px">${esc(der)}</span></div>`;
 }
 function pie(mesLabel, folio, total) {
   return `<div class="pie"><span>${esc(mesLabel)}</span><span class="folio">${folio} / ${total}</span></div>`;
 }
 function tituloSeccion(titulo, sub, etiqueta) {
   return `
-    <div style="position:absolute;top:206px;left:120px;right:120px;display:flex;justify-content:space-between;align-items:baseline">
-      <span style="font-size:46px;font-weight:300;letter-spacing:.18em;text-transform:uppercase">${esc(titulo)}</span>
-      <span class="cursiva" style="font-size:44px;color:rgba(23,23,27,.8)">${esc(etiqueta)}</span>
+    <div style="position:absolute;top:168px;left:${MX}px;right:${MX}px;display:flex;justify-content:space-between;align-items:baseline">
+      <span style="font-size:46px;font-weight:300;letter-spacing:.16em;text-transform:uppercase">${esc(titulo)}</span>
+      <span class="cursiva" style="font-size:42px;color:rgba(23,23,27,.8)">${esc(etiqueta)}</span>
     </div>
-    ${sub ? `<div class="cursiva" style="position:absolute;top:278px;left:120px;right:120px;font-size:36px;color:${HUMO};
+    ${sub ? `<div class="cursiva" style="position:absolute;top:240px;left:${MX}px;right:${MX}px;font-size:33px;color:${HUMO};
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(sub)}</div>` : ''}
-    <hr class="regla" style="position:absolute;top:${sub ? 348 : 300}px;left:120px;right:120px"/>`;
+    <hr class="regla" style="position:absolute;top:${sub ? 302 : 258}px;left:${MX}px;right:${MX}px"/>`;
 }
 
 // ── Páginas (cada builder devuelve { html, links }) ─────────────────────────
-function paginaPortada({ marca, handle, mesLabel, nReels, nCarruseles }) {
+function paginaPortada({ marca, handle, mesLabel, nReels, nCarruseles, total }) {
   const resumen = [
     nReels ? `${nReels} ${nReels === 1 ? 'video' : 'videos'}` : null,
     nCarruseles ? `${nCarruseles} ${nCarruseles === 1 ? 'carrusel' : 'carruseles'}` : null,
@@ -245,165 +250,189 @@ function paginaPortada({ marca, handle, mesLabel, nReels, nCarruseles }) {
     html: `<div class="pag">
     <div class="marco"></div>
     <div class="cab"><span>${esc(handle)}</span><span></span></div>
-    <div style="position:absolute;left:120px;right:120px;top:30%;text-align:center">
-      <div class="wordmark" style="font-size:88px">${esc(marca)}</div>
-      <hr class="regla" style="width:220px;margin:70px auto"/>
-      <div class="cursiva" style="font-size:150px;line-height:1">Entregables</div>
-      <div style="font-size:34px;font-weight:300;letter-spacing:.5em;text-transform:uppercase;margin-top:56px;color:${HUMO}">${esc(mesLabel)}</div>
-      <hr class="regla" style="width:120px;margin:64px auto"/>
-      <div style="font-size:27px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:${TINTA}">${esc(resumen)}</div>
-      <div style="font-size:27px;font-weight:300;letter-spacing:.06em;color:${HUMO};margin-top:44px">
-        El contenido de tus redes de este mes, listo para revisar.
+    <div style="position:absolute;left:${MX}px;right:${MX}px;top:27%;text-align:center">
+      <div class="wordmark" style="font-size:58px">${esc(marca)}</div>
+      <hr class="regla" style="width:180px;margin:64px auto"/>
+      <div class="cursiva" style="font-size:132px;line-height:1">Entregables</div>
+      <div style="font-size:28px;font-weight:300;letter-spacing:.5em;text-transform:uppercase;margin-top:56px;color:${HUMO}">${esc(mesLabel)}</div>
+      <hr class="regla" style="width:110px;margin:60px auto"/>
+      <div style="font-size:25px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:${TINTA}">${esc(resumen)}</div>
+      <div style="font-size:26px;font-weight:300;letter-spacing:.04em;color:${HUMO};margin-top:48px;line-height:1.7">
+        El contenido de tus redes de este mes,<br/>listo para revisar.
       </div>
     </div>
-    <div class="pie"><span>IVAE Estudios</span><span class="folio">1 / __TOTAL__</span></div>
+    <div style="position:absolute;left:${MX}px;right:${MX}px;bottom:150px;text-align:center;
+      font-size:23px;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:${HUMO}">
+      Desliza hacia abajo &#8595;
+    </div>
+    <div class="pie"><span>IVAE Estudios</span><span class="folio">1 / ${total}</span></div>
   </div>`,
     links: [],
   };
 }
 
-// Geometría del bloque de acceso de las páginas de video (para las zonas
-// tocables): botón centrado bajo el QR.
-const REEL_CARD = { top: 380, w: 740, alto: 1315 };
-const ACCESO_Y = REEL_CARD.top + REEL_CARD.alto + 62;   // 1757
+// Página de video: cuadro 9:16 protagonista + botón sólido que abre SOLO ese
+// video. Sin material: mensaje "en producción" y NINGÚN botón muerto (jueces:
+// un botón que no abre nada mata la confianza en TODOS los botones).
+const REEL = { top: 336, w: 640 };
+const REEL_ALTO = Math.round(REEL.w * 16 / 9);          // 1138
+const REEL_BTN_Y = REEL.top + REEL_ALTO + 28 + 56;
 
-function paginaReel({ marca, handle, mesLabel, titulo, sub, imgDataUrl, qrUrl, deepLink, folio, total, instrCorta }) {
+function paginaReel({ marca, handle, mesLabel, titulo, sub, imgDataUrl, deepLink, enProduccion, folio, total }) {
   const foto = imgDataUrl
     ? `<img src="${imgDataUrl}" style="width:100%;height:100%;object-fit:cover" alt=""/>`
-    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;
-        color:${HUMO};font-size:28px;letter-spacing:.3em">VIDEO</div>`;
-  const instr = instrCorta
-    ? 'Toca el botón o escanea el código con tu cámara.'
-    : '¿Lo ves en tu teléfono? Toca el botón. ¿Impreso? Escanea el código con la cámara.';
-  const botonW = 560;
-  const botonX = (W - botonW) / 2 + 130;   // el grupo (QR + botón) va centrado
+    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:60px;text-align:center;
+        color:${HUMO};font-size:30px;font-weight:300;line-height:1.9">Este video está en producción —<br/>te lo enviamos en cuanto esté listo.</div>`;
+  const acceso = enProduccion
+    ? `<div class="nota" style="margin-top:10px;letter-spacing:.2em;text-transform:uppercase;font-size:25px;color:${TINTA};font-weight:500">En producción</div>`
+    : `<div class="boton">Ver este video</div>
+      <div class="nota" style="margin-top:26px">Toca el botón y el video se abre solo.</div>`;
   return {
     html: `<div class="pag">
     ${cab(handle, marca)}
     ${tituloSeccion(titulo, sub, 'video')}
-    <div style="position:absolute;top:${REEL_CARD.top}px;left:50%;transform:translateX(-50%);
-      width:${REEL_CARD.w}px;height:${REEL_CARD.alto}px;background:#FFFFFF;padding:16px;
-      box-shadow:0 26px 60px rgba(23,23,27,.16);border:1px solid ${FILETE}">
+    <div class="marquito" style="position:absolute;top:${REEL.top}px;left:50%;transform:translateX(-50%);
+      width:${REEL.w + 28}px;height:${REEL_ALTO + 28}px">
       <div style="width:100%;height:100%;overflow:hidden;background:#EDEAE3">${foto}</div>
     </div>
-    <div style="position:absolute;top:${ACCESO_Y}px;left:120px;right:120px;display:flex;align-items:center;justify-content:center;gap:54px">
-      <img src="${qrUrl}" style="width:186px;height:186px;flex:none;border:1px solid ${FILETE};background:#fff" alt=""/>
-      <div style="text-align:left;max-width:760px">
-        <div class="boton">Ver este video</div>
-        <div style="font-size:23.5px;color:${HUMO};margin-top:22px;letter-spacing:.02em">${instr}</div>
-      </div>
-    </div>
+    <div style="position:absolute;top:${REEL_BTN_Y}px;left:${MX}px;right:${MX}px">${acceso}</div>
     ${pie(mesLabel, folio, total)}
   </div>`,
-    links: [
-      { x: botonX - 130, y: ACCESO_Y, w: 700, h: 200, url: deepLink },
+    links: enProduccion ? [] : [
+      { x: MX, y: REEL_BTN_Y - 14, w: CONT_W, h: 160, url: deepLink },
+      // El cuadro del video también es tocable: en el teléfono lo primero que
+      // hace la clienta es picarle a la imagen.
+      { x: (W - REEL.w - 28) / 2, y: REEL.top, w: REEL.w + 28, h: REEL_ALTO + 28, url: deepLink },
     ],
   };
 }
 
-function paginaCarrusel({ marca, handle, mesLabel, titulo, sub, link, qrUrl, slides, folio, total, instrCorta }) {
-  if (slides && slides.length) return paginaCarruselSlides({ marca, handle, mesLabel, titulo, sub, link, qrUrl, slides, folio, total });
-  return paginaCarruselQr({ marca, handle, mesLabel, titulo, sub, link, qrUrl, folio, total, instrCorta });
-}
-
-// Con TIRA: el slide 1 protagonista + fila de miniaturas — el carrusel SE VE
-// sin escanear nada (pedido de Vianey + crítica #1 de los jueces).
-function paginaCarruselSlides({ marca, handle, mesLabel, titulo, sub, link, qrUrl, slides, folio, total }) {
-  const CARD = { top: 396, w: 700 };
-  const alto = Math.round(CARD.w * 5 / 4);   // 4:5
-  const maxThumbs = 6;
-  const visibles = slides.slice(0, maxThumbs);
-  const extras = slides.length - visibles.length;
-  const THUMB_W = 148; const THUMB_H = 185; const GAP = 16;
-  const thumbs = visibles.map((d, i) =>
-    `<div style="position:relative;flex:none;background:#fff;padding:6px;border:1px solid ${FILETE}">
-      <img src="${d}" style="width:${THUMB_W}px;height:${THUMB_H}px;object-fit:cover;display:block" alt=""/>
-      ${i === maxThumbs - 1 && extras > 0 ? `<div style="position:absolute;inset:6px;background:rgba(23,23,27,.55);color:#fff;
-        display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:300">+${extras}</div>` : ''}
-    </div>`).join('');
-  const acceso = link
-    ? `<div style="position:absolute;top:1668px;left:120px;right:120px;display:flex;align-items:center;justify-content:center;gap:44px">
-        <img src="${qrUrl}" style="width:150px;height:150px;flex:none;border:1px solid ${FILETE};background:#fff" alt=""/>
-        <div style="text-align:left">
-          <div class="boton" style="padding:20px 44px;font-size:24px">Verlo en internet</div>
-          <div style="font-size:22px;color:${HUMO};margin-top:16px">Toca el botón o escanea el código con tu cámara.</div>
-        </div>
-      </div>`
-    : '';
+// Carrusel con tira — página 1: el slide 1 protagonista al ratio REAL + línea
+// que anuncia las páginas grandes que siguen. (La cuadrícula de miniaturas se
+// fue: a escala de teléfono no se leía, y este PDF es para REVISAR.)
+function paginaCarruselPortada({ marca, handle, mesLabel, titulo, sub, link, slides, ratio, folio, total }) {
+  const n = slides.length;
+  const cardW = Math.min(680, Math.round(1000 * ratio));
+  const cardH = Math.round(cardW / ratio);
+  // El bloque (marco + nota) se CENTRA en la zona útil: una tarjeta 4:5 a
+  // 680 de ancho dejaba medio cuerpo de página vacío abajo (jueces).
+  const ZONA_TOP = 320; const bloqueH = cardH + 28 + 52 + 44;
+  const top = Math.max(336, ZONA_TOP + Math.round((PIE_TOP - ZONA_TOP - bloqueH) / 2));
+  const notaY = top + cardH + 28 + 52;
+  const linea = n === 1
+    ? 'Así se publicará esta imagen. Aquí no hay nada que tocar — solo revísala.'
+    : `Carrusel de ${n} slides — cada uno viene grande en las páginas que siguen. Si quieres leer más de cerca, abre los dedos sobre la imagen.`;
   return {
     html: `<div class="pag">
     ${cab(handle, marca)}
     ${tituloSeccion(titulo, sub, 'carrusel')}
-    <div style="position:absolute;top:${CARD.top}px;left:50%;transform:translateX(-50%);
-      width:${CARD.w + 32}px;height:${alto + 32}px;background:#FFFFFF;padding:16px;
-      box-shadow:0 26px 60px rgba(23,23,27,.16);border:1px solid ${FILETE}">
+    <div class="marquito" style="position:absolute;top:${top}px;left:50%;transform:translateX(-50%);
+      width:${cardW + 28}px;height:${cardH + 28}px">
       <div style="width:100%;height:100%;overflow:hidden;background:#EDEAE3">
         <img src="${slides[0]}" style="width:100%;height:100%;object-fit:cover" alt=""/>
       </div>
     </div>
-    <div style="position:absolute;top:${CARD.top + alto + 76}px;left:120px;right:120px;
-      display:flex;justify-content:center;gap:${GAP}px">${thumbs}</div>
-    ${acceso}
+    <div class="nota" style="position:absolute;top:${notaY}px;left:${MX}px;right:${MX}px">${esc(linea)}</div>
     ${pie(mesLabel, folio, total)}
   </div>`,
-    links: link ? [{ x: (W - 900) / 2, y: 1650, w: 900, h: 190, url: link }] : [],
+    // Si el carrusel además tiene link, el slide protagonista es tocable.
+    links: link ? [{ x: (W - cardW - 28) / 2, y: top, w: cardW + 28, h: cardH + 28, url: link }] : [],
   };
 }
 
-function paginaCarruselQr({ marca, handle, mesLabel, titulo, sub, link, qrUrl, folio, total, instrCorta }) {
+// Carrusel con tira — continuación: hasta 4 slides GRANDES a 2×2, cada uno con
+// su número (para poder pedir "cámbiame el slide 4" por WhatsApp).
+function paginaCarruselSigue({ marca, handle, mesLabel, titulo, sub, slides, ratio, desde, folio, total }) {
+  const GAP = 36;
+  // La celda respeta el ratio real y cabe en 2×2 dentro de la zona útil.
+  let cellW = Math.floor((CONT_W - GAP) / 2) - 28;          // 430 de imagen
+  let cellH = Math.round(cellW / ratio);
+  const maxH = Math.floor((PIE_TOP - 336 - GAP - 120) / 2) - 28;   // aire para números
+  if (cellH > maxH) { cellH = maxH; cellW = Math.round(cellH * ratio); }
+  // Slide huérfano (último impar): a tamaño protagonista — dejarlo en celda
+  // 2×2 regalaba el 70% de la página (jueces de verificación).
+  if (slides.length === 1) {
+    cellH = Math.min(1050, PIE_TOP - 320 - 140);
+    cellW = Math.round(cellH * ratio);
+    if (cellW > 680) { cellW = 680; cellH = Math.round(cellW / ratio); }
+  }
+  const celdas = slides.map((d, i) =>
+    `<div style="flex:none;width:${cellW + 28}px;text-align:center">
+      <div class="marquito" style="padding:12px;box-shadow:0 16px 38px rgba(23,23,27,.13)">
+        <img src="${d}" style="width:${cellW}px;height:${cellH}px;display:block" alt=""/>
+      </div>
+      <div style="font-size:21px;font-weight:500;letter-spacing:.26em;color:${HUMO};margin-top:18px">SLIDE ${desde + i}</div>
+    </div>`).join('');
+  return {
+    html: `<div class="pag">
+    ${cab(handle, marca)}
+    ${tituloSeccion(titulo, sub, 'sigue el carrusel')}
+    <div style="position:absolute;top:320px;height:${PIE_TOP - 320}px;left:${MX}px;right:${MX}px;
+      display:flex;flex-wrap:wrap;justify-content:center;align-content:center;
+      gap:${GAP - 8}px ${GAP}px">${celdas}</div>
+    ${pie(mesLabel, folio, total)}
+  </div>`,
+    links: [],
+  };
+}
+
+// Sin tira (legado, solo link): botón sólido centrado — sin QR.
+function paginaCarruselLink({ marca, handle, mesLabel, titulo, sub, link, folio, total }) {
   const corto = String(link || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
-  const instr = instrCorta
-    ? 'Toca el botón o escanea el código con tu cámara.'
-    : '¿Lo ves en tu teléfono? Toca el botón y se abre solo. ¿Lo tienes impreso? Abre la cámara, apúntala al código y toca el aviso.';
-  const QR_TOP = 470;
-  const QR_LADO = 520;
-  const BTN_Y = QR_TOP + 88 + QR_LADO + 96;   // tarjeta (padding 44) + aire
+  const BTN_Y = 900;
   return {
     html: `<div class="pag">
     ${cab(handle, marca)}
     ${tituloSeccion(titulo, sub, 'carrusel')}
-    <div style="position:absolute;top:${QR_TOP}px;left:50%;transform:translateX(-50%);text-align:center">
-      <div style="display:inline-block;background:#FFFFFF;padding:44px;border:1px solid ${FILETE};box-shadow:0 26px 60px rgba(23,23,27,.14)">
-        <img src="${qrUrl}" style="width:${QR_LADO}px;height:${QR_LADO}px;display:block" alt=""/>
-      </div>
-      <div style="margin-top:96px"><span class="boton">Ver el carrusel</span></div>
-      <div style="font-size:25px;line-height:1.8;color:${HUMO};margin-top:40px;max-width:820px">${instr}</div>
-      <div style="font-size:26px;letter-spacing:.1em;margin-top:52px;color:${TINTA};font-weight:500">${esc(corto)}</div>
+    <div style="position:absolute;top:${BTN_Y - 200}px;left:${MX}px;right:${MX}px;text-align:center">
+      <div class="cursiva" style="font-size:76px;color:${TINTA}">Listo para revisar</div>
+    </div>
+    <div style="position:absolute;top:${BTN_Y}px;left:${MX}px;right:${MX}px">
+      <div class="boton">Ver el carrusel</div>
+      <div class="nota" style="margin-top:26px">Toca el botón y se abre solo — ahí se ve el carrusel completo.</div>
+      <div class="nota" style="margin-top:70px;font-size:23px">Si el botón no abre, escribe esto en tu navegador:</div>
+      <div style="font-size:26px;letter-spacing:.08em;margin-top:16px;color:${TINTA};font-weight:500;
+        text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(corto)}</div>
     </div>
     ${pie(mesLabel, folio, total)}
   </div>`,
-    links: [
-      { x: (W - 700) / 2, y: BTN_Y - 20, w: 700, h: 160, url: link },
-      { x: (W - 860) / 2, y: QR_TOP, w: 860, h: QR_LADO + 88, url: link },
-    ],
+    links: [{ x: MX, y: BTN_Y - 14, w: CONT_W, h: 160, url: link }],
   };
 }
 
 function paginaCierre({ marca, handle, mesLabel, folio, total }) {
-  const wa = 'https://wa.me/529902046514';
-  const TEL_Y = Math.round(H * 0.40) + 470;
+  // «Aprobado» es el botón PRIMARIO (texto precargado); pedir cambios es el
+  // secundario en filete. Todo el bloque de acción va JUNTO (jueces: el vacío
+  // entre pregunta y botón sesgaba y desorientaba).
+  const waSi = 'https://wa.me/529902046514?text=' + encodeURIComponent('Aprobado ✅');
+  const waCambio = 'https://wa.me/529902046514?text=' + encodeURIComponent('Hola, quiero un cambio en: ');
+  const BLOQUE_Y = 1010;
   return {
     html: `<div class="pag">
     <div class="marco"></div>
     ${cab(handle, marca)}
-    <div style="position:absolute;left:120px;right:120px;top:38%;text-align:center">
-      <div class="cursiva" style="font-size:120px;line-height:1.05">Gracias</div>
-      <div style="font-size:29px;font-weight:300;letter-spacing:.04em;color:${TINTA};margin-top:70px;line-height:1.9">
-        Si todo te gusta, respóndenos con un <span class="cursiva" style="font-size:34px">«Aprobado»</span> y lo dejamos programado.
+    <div style="position:absolute;left:${MX}px;right:${MX}px;top:19%;text-align:center">
+      <div class="cursiva" style="font-size:116px;line-height:1.05">Gracias</div>
+      <div style="font-size:27px;font-weight:300;letter-spacing:.03em;color:${TINTA};margin-top:60px;line-height:1.9">
+        Ya viste todo el contenido del mes.<br/>¿Cómo lo dejamos?
       </div>
-      <div style="font-size:28px;font-weight:300;letter-spacing:.18em;text-transform:uppercase;margin-top:74px;line-height:2;color:${HUMO}">
-        ¿Quieres algún cambio?<br/>Escríbenos por WhatsApp
-      </div>
-      <div style="font-size:52px;font-weight:300;letter-spacing:.18em;margin-top:40px;font-variant-numeric:lining-nums tabular-nums">+52 990 204 6514</div>
-      <hr class="regla" style="width:220px;margin:80px auto"/>
-      <div style="font-size:24px;font-weight:500;letter-spacing:.34em;text-transform:uppercase;color:${HUMO}">
+    </div>
+    <div style="position:absolute;top:${BLOQUE_Y}px;left:${MX}px;right:${MX}px;text-align:center">
+      <div class="boton">Responder &#171;Aprobado&#187;</div>
+      <div style="height:28px"></div>
+      <div class="boton boton--linea">Pedir un cambio</div>
+      <div class="nota" style="margin-top:30px">Los dos botones abren nuestro WhatsApp con el mensaje ya escrito.</div>
+      <div style="font-size:40px;font-weight:300;letter-spacing:.16em;margin-top:74px;font-variant-numeric:lining-nums tabular-nums">+52 990 204 6514</div>
+      <hr class="regla" style="width:180px;margin:56px auto"/>
+      <div style="font-size:21px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:${HUMO}">
         ${esc(marca)} · ${esc(handle)}
       </div>
     </div>
     <div class="pie"><span>IVAE Estudios</span><span class="folio">${folio} / ${total}</span></div>
   </div>`,
     links: [
-      { x: (W - 900) / 2, y: TEL_Y - 40, w: 900, h: 140, url: wa },
+      { x: MX, y: BLOQUE_Y - 14, w: CONT_W, h: 158, url: waSi },
+      { x: MX, y: BLOQUE_Y + 172, w: CONT_W, h: 158, url: waCambio },
     ],
   };
 }
@@ -427,16 +456,23 @@ export async function generarPdfEntregables({ month, items, marca, handle, clien
   const mesLabel = labelDeMes(month);
   const reels = items.filter((x) => x.type === 'reel');
   const carruseles = items.filter((x) => x.type !== 'reel');
-  const total = 2 + reels.length + carruseles.length;
   const deepLink = `https://ivaestudios.com/marketing/app#/entregables?cliente=${encodeURIComponent(clientId || '')}`;
+
+  // Las tiras se cargan ANTES de armar nada: el total de páginas depende de
+  // cuántos slides tenga cada carrusel (portada + continuaciones de a 4).
+  paso(T('Leyendo las tiras…', 'Reading the strips…'));
+  const tiras = await Promise.all(carruseles.map(async (it) => {
+    if (!it.poster_url) return null;
+    try { return await slidesDeTira(it.poster_url); } catch { return null; }
+  }));
+  const paginasDeCarrusel = (t) => (t ? 1 + Math.ceil(Math.max(0, t.slides.length - 1) / 4) : 1);
+  const total = 2 + reels.length + tiras.reduce((s, t) => s + paginasDeCarrusel(t), 0);
 
   const paginas = [];
   const empujar = async (pg) => { paginas.push({ dataUrl: await rasterizar(pg.html), links: pg.links }); };
 
   paso(T('Armando la portada…', 'Building the cover…'));
-  const portada = paginaPortada({ marca, handle, mesLabel, nReels: reels.length, nCarruseles: carruseles.length });
-  portada.html = portada.html.replace('__TOTAL__', String(total));
-  await empujar(portada);
+  await empujar(paginaPortada({ marca, handle, mesLabel, nReels: reels.length, nCarruseles: carruseles.length, total }));
 
   let folio = 1;
   for (let i = 0; i < reels.length; i++) {
@@ -446,35 +482,39 @@ export async function generarPdfEntregables({ month, items, marca, handle, clien
     const pieza = it.piece || null;
     // El enlace de CADA video abre SOLO ese video (público firmado); si el
     // backend no lo dio, cae al panel de Entregables.
-    const linkVideo = it.public_video_url || deepLink;
+    const linkVideo = it.public_video_url || (it.video_url ? deepLink : null);
     await empujar(paginaReel({
       marca, handle, mesLabel,
       titulo: `Video ${i + 1}`,
       sub: (pieza && pieza.title) || it.title || '',
       imgDataUrl: img,
-      qrUrl: await qrDataUrl(linkVideo, 380), deepLink: linkVideo,
+      deepLink: linkVideo || deepLink,
+      enProduccion: !img && !linkVideo,
       folio: ++folio, total,
-      instrCorta: i > 0,
     }));
   }
 
   for (let i = 0; i < carruseles.length; i++) {
     const it = carruseles[i];
     paso(T(`Carrusel ${i + 1} de ${carruseles.length}…`, `Carousel ${i + 1} of ${carruseles.length}…`));
-    let slides = null;
-    if (it.poster_url) {
-      try { slides = await slidesDeTira(it.poster_url); } catch { slides = null; }
-    }
-    const qrUrl = await qrDataUrl(it.link || deepLink, slides ? 320 : 1040);
-    await empujar(paginaCarrusel({
+    const t = tiras[i];
+    const base = {
       marca, handle, mesLabel,
       titulo: `Carrusel ${i + 1}`,
       sub: it.title || '',
-      link: it.link || (slides ? '' : deepLink),
-      qrUrl, slides,
-      folio: ++folio, total,
-      instrCorta: reels.length > 0 && i > 0,
-    }));
+    };
+    if (!t) {
+      await empujar(paginaCarruselLink({ ...base, link: it.link || deepLink, folio: ++folio, total }));
+      continue;
+    }
+    await empujar(paginaCarruselPortada({ ...base, link: it.link || '', slides: t.slides, ratio: t.ratio, folio: ++folio, total }));
+    const resto = t.slides.slice(1);
+    for (let j = 0; j < resto.length; j += 4) {
+      await empujar(paginaCarruselSigue({
+        ...base, slides: resto.slice(j, j + 4), ratio: t.ratio,
+        desde: j + 2, folio: ++folio, total,
+      }));
+    }
   }
 
   paso(T('Cerrando el documento…', 'Closing the document…'));
@@ -483,7 +523,10 @@ export async function generarPdfEntregables({ month, items, marca, handle, clien
   // Telemetría para el laboratorio de jueces (misma filosofía que __cargLayout).
   try { window.__pdfPaginas = paginas.map((p) => p.dataUrl); } catch { /* noop */ }
 
-  const blob = pdfDesdeJpegs(paginas.map((p) => ({ dataUrl: p.dataUrl, w: W, h: H, links: p.links })));
+  const blob = pdfDesdeJpegs(
+    paginas.map((p) => ({ dataUrl: p.dataUrl, w: W, h: H, links: p.links })),
+    { pageW: PT_W, pageH: PT_H },
+  );
   const nombre = `${marca.replace(/\s+/g, '-')}_Entregables_${mesLabel.replace(/\s+/g, '-')}.pdf`;
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
