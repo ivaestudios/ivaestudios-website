@@ -14,19 +14,23 @@
 // Cierra con el mismo camino feliz «Aprobado» por WhatsApp.
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202608071101';
-import { slidesFromPost } from '../editor/slides.js?v=202608071101';
+import { T } from '../shell/i18n.js?v=202608071302';
+import { slidesFromPost } from '../editor/slides.js?v=202608071302';
 import {
   W, TINTA, HUMO, MX, CONT_W, PIE_TOP, NOTA,
   cargarFuentes, nuevaPagina, exportar, texto, anchoTexto, parrafo, regla,
-  cab, pieDePagina, tituloSeccion, botonCanvas,
+  cab, pieDePagina, tituloSeccion, botonCanvas, pastilla,
   paginaPortadaBase, paginaCierreAprobado, labelDeMes, armarYDescargar, MESES_ES,
-} from './pdf-lienzo.js?v=202608071101';
+} from './pdf-lienzo.js?v=202608071302';
 
 // Tipos de pieza que son VIDEO. Los CARRUSELES también entran (pedido
 // 2026-08-07 "los carruseles también"): sus textos van POR SLIDE con
 // slidesFromPost. Solo foto/post quedan fuera (no llevan guion).
-const TIPOS_VIDEO = ['reel', 'tiktok', 'historia', 'experiencia', 'informativo', 'pauta', 'tratamientos'];
+const TIPOS_VIDEO = ['reel', 'tiktok', 'historia', 'informativo', 'pauta', 'tratamientos'];
+// Los TESTIMONIOS (tipo "Experiencia/Testimonial") son su propia familia:
+// llevan TAG visible y van SIEMPRE al final del documento — el material lo
+// comparte el cliente, no lo produce el estudio (pedido 2026-08-07).
+const TIPOS_TESTIMONIO = ['experiencia'];
 
 function fechaBonita(publishDate) {
   const m = String(publishDate || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
@@ -38,22 +42,31 @@ function fechaBonita(publishDate) {
 // ── Página de una pieza: PRIMERO la inspiración, DESPUÉS el guion ───────────
 // (Pedido de Vianey: "primero ve el video de inspiración y luego ve el
 // guion — sube el link de la inspo primero".)
-function paginaGuion({ marca, handle, mesLabel, titulo, etiqueta, sub, fecha, secciones, inspo, folio, total }) {
+function paginaGuion({ marca, handle, mesLabel, titulo, etiqueta, sub, fecha, secciones, inspo, tag, pendiente, folio, total }) {
   const { cv, cx } = nuevaPagina();
   cab(cx, handle, marca);
   tituloSeccion(cx, titulo, etiqueta || 'guion', sub);
 
   const links = [];
   let yTop = 360;
+  // TAG de la pieza (p.ej. TESTIMONIO): pastilla sólida bajo el filete.
+  if (tag) {
+    const p = pastilla(cx, MX, 340, tag);
+    yTop = 340 + p.h + 54;
+  }
+  // La fecha va a la derecha del primer renglón útil, discreta.
+  if (fecha) texto(cx, fecha, { x: W - MX, y: tag ? 372 : (inspo ? 372 : 360), size: 21, peso: 500, esp: 0.26, color: HUMO, alinear: 'right' });
+
   if (inspo) {
-    texto(cx, 'PRIMERO — VE LA INSPIRACIÓN', { x: MX, y: 372, size: 21, peso: 500, esp: 0.3, color: HUMO });
-    const b = botonCanvas(cx, 404, 'Ver la inspiración', true);
-    texto(cx, 'Toca el botón: es el video de referencia de esta pieza.', { ...NOTA, size: 24, x: W / 2, y: 404 + 132 + 46 });
+    const y0 = yTop + 12;
+    texto(cx, 'PRIMERO — VE LA INSPIRACIÓN', { x: MX, y: y0, size: 21, peso: 500, esp: 0.3, color: HUMO });
+    const b = botonCanvas(cx, y0 + 32, 'Ver la inspiración', true);
+    texto(cx, 'Toca el botón: es el video de referencia de esta pieza.', { ...NOTA, size: 24, x: W / 2, y: y0 + 32 + 132 + 46 });
     links.push({ x: b.x, y: b.y - 14, w: b.w, h: b.h + 28, url: inspo });
-    regla(cx, W / 2, CONT_W, 404 + 132 + 96);
+    regla(cx, W / 2, CONT_W, y0 + 32 + 132 + 96);
     const lee = etiqueta === 'carrusel' ? 'DESPUÉS — LEE LOS TEXTOS' : 'DESPUÉS — LEE EL GUION';
-    texto(cx, lee, { x: MX, y: 404 + 132 + 158, size: 21, peso: 500, esp: 0.3, color: HUMO });
-    yTop = 404 + 132 + 236;   // aire entre el rótulo del paso y el primer bloque
+    texto(cx, lee, { x: MX, y: y0 + 32 + 132 + 158, size: 21, peso: 500, esp: 0.3, color: HUMO });
+    yTop = y0 + 32 + 132 + 236;   // aire entre el rótulo del paso y el primer bloque
   }
   const yLimite = PIE_TOP - 40;
 
@@ -70,9 +83,6 @@ function paginaGuion({ marca, handle, mesLabel, titulo, etiqueta, sub, fecha, se
     }
     return y - 46;
   };
-
-  // La fecha va a la derecha del primer rótulo, discreta.
-  if (fecha) texto(cx, fecha, { x: W - MX, y: inspo ? 372 : 360, size: 21, peso: 500, esp: 0.26, color: HUMO, alinear: 'right' });
 
   if (conTexto.length) {
     // Auto-ajuste: 30 → 27 → 24 px; si aun así no cabe, 24px y el final del
@@ -99,6 +109,12 @@ function paginaGuion({ marca, handle, mesLabel, titulo, etiqueta, sub, fecha, se
       ult.texto = palabras.join(' ') + '…';
     }
     dibujarGuion(size, false);
+  } else if (pendiente) {
+    // TESTIMONIO sin material: el guion va EN BLANCO a propósito — lo que
+    // falta es el VIDEO, y lo manda el cliente. La página lo pide claro.
+    const yVacio = Math.max(yTop + 200, 780);
+    texto(cx, 'Pendiente de enviar', { x: W / 2, y: yVacio, size: 64, cursiva: true, alinear: 'center' });
+    parrafo(cx, pendiente, { x: W / 2, y: yVacio + 86, size: 27, peso: 300, color: 'rgba(23,23,27,.72)', alinear: 'center' }, CONT_W - 60, 46);
   } else {
     const yVacio = inspo ? yTop + 260 : 760;
     texto(cx, 'Guion en preparación', { x: W / 2, y: yVacio, size: 64, cursiva: true, alinear: 'center' });
@@ -118,21 +134,22 @@ export async function generarPdfContenido({ month, piezas, marca, handle, onPaso
   await cargarFuentes();
   const mesLabel = labelDeMes(month);
 
-  // PRIMERO todos los VIDEOS y DESPUÉS todos los CARRUSELES (pedido de
-  // Vianey 2026-08-07: nada de intercalar por fecha); dentro de cada
-  // familia sí manda la fecha de publicación.
-  const esVideo = (p) => TIPOS_VIDEO.includes(String(p.content_type || '').toLowerCase());
-  const esCarrusel = (p) => String(p.content_type || '').toLowerCase() === 'carrusel';
+  // ORDEN: primero todos los VIDEOS, luego los CARRUSELES y al FINAL los
+  // TESTIMONIOS (reglas de Vianey 2026-08-07: nada de intercalar por fecha);
+  // dentro de cada familia sí manda la fecha de publicación.
+  const tipo = (p) => String(p.content_type || '').toLowerCase();
+  const esVideo = (p) => TIPOS_VIDEO.includes(tipo(p));
+  const esCarrusel = (p) => tipo(p) === 'carrusel';
+  const esTestimonio = (p) => TIPOS_TESTIMONIO.includes(tipo(p));
+  const familiaDe = (p) => (esTestimonio(p) ? 2 : (esCarrusel(p) ? 1 : 0));
   const plan = (piezas || [])
-    .filter((p) => esVideo(p) || esCarrusel(p))
-    .sort((a, b) => {
-      const familia = (esCarrusel(a) ? 1 : 0) - (esCarrusel(b) ? 1 : 0);
-      if (familia) return familia;
-      return String(a.publish_date || '9999').localeCompare(String(b.publish_date || '9999'));
-    });
-  if (!plan.length) throw new Error(T('Este mes no tiene videos ni carruseles planeados.', 'This month has no planned videos or carousels.'));
+    .filter((p) => esVideo(p) || esCarrusel(p) || esTestimonio(p))
+    .sort((a, b) => (familiaDe(a) - familiaDe(b))
+      || String(a.publish_date || '9999').localeCompare(String(b.publish_date || '9999')));
+  if (!plan.length) throw new Error(T('Este mes no tiene contenido planeado.', 'This month has no planned content.'));
   const nVideos = plan.filter(esVideo).length;
-  const nCarruseles = plan.length - nVideos;
+  const nCarruseles = plan.filter(esCarrusel).length;
+  const nTestimonios = plan.filter(esTestimonio).length;
 
   const total = 2 + plan.length;
   const paginas = [];
@@ -140,6 +157,7 @@ export async function generarPdfContenido({ month, piezas, marca, handle, onPaso
   const resumen = [
     nVideos ? `${nVideos} ${nVideos === 1 ? 'VIDEO' : 'VIDEOS'}` : null,
     nCarruseles ? `${nCarruseles} ${nCarruseles === 1 ? 'CARRUSEL' : 'CARRUSELES'}` : null,
+    nTestimonios ? `${nTestimonios} ${nTestimonios === 1 ? 'TESTIMONIO' : 'TESTIMONIOS'}` : null,
   ].filter(Boolean).join('   ·   ');
   paginas.push(paginaPortadaBase({
     marca, handle, mesLabel, total, resumen,
@@ -147,12 +165,29 @@ export async function generarPdfContenido({ month, piezas, marca, handle, onPaso
     lineas: ['El plan de tu contenido de este mes —', 'guiones e inspiración, antes de producir.'],
   }));
 
-  let folio = 1; let iVideo = 0; let iCarrusel = 0;
+  let folio = 1; let iVideo = 0; let iCarrusel = 0; let iTestimonio = 0;
   for (const p of plan) {
     paso(T(`Pieza ${folio} de ${plan.length}…`, `Piece ${folio} of ${plan.length}…`));
     const inspo = String(p.inspo_url || '').trim() || null;
     const fecha = fechaBonita(p.publish_date);
-    if (esCarrusel(p)) {
+    if (esTestimonio(p)) {
+      // TESTIMONIO: el material lo comparte el cliente. TAG visible, guion
+      // vacío a propósito y el pedido explícito de enviarlo a IVAE.
+      const secciones = [
+        { etiqueta: 'Gancho', texto: String(p.hook || '').trim() },
+        { etiqueta: 'Desarrollo', texto: String(p.body || '').trim() },
+        { etiqueta: 'Cierre', texto: String(p.cta || '').trim() },
+      ];
+      paginas.push(paginaGuion({
+        marca, handle, mesLabel,
+        titulo: `Testimonio ${++iTestimonio}`,
+        etiqueta: 'testimonio',
+        tag: 'Testimonio',
+        sub: p.title || '', fecha, secciones, inspo,
+        pendiente: 'Compártenos el video del testimonio por WhatsApp y nosotros lo editamos, le ponemos subtítulos y lo publicamos.',
+        folio: ++folio, total,
+      }));
+    } else if (esCarrusel(p)) {
       // Los textos del carrusel van POR SLIDE (slidesFromPost: hook,
       // intermedios del body, cta) — el mismo desglose del editor.
       const slides = slidesFromPost(p).map((s) => String(s || '').trim());
@@ -185,9 +220,15 @@ export async function generarPdfContenido({ month, piezas, marca, handle, onPaso
   }
 
   paso(T('Cerrando el documento…', 'Closing the document…'));
+  // Los testimonios que siguen sin material se recuerdan en el cierre: es lo
+  // ÚNICO que el documento le pide al cliente.
+  const faltan = plan.filter((p) => esTestimonio(p) && !String(p.hook || p.body || p.cta || '').trim()).length;
   paginas.push(paginaCierreAprobado({
     marca, handle, mesLabel, folio: total, total,
-    lineas: ['Ya viste el plan del mes.', '¿Grabamos así?'],
+    lineas: faltan
+      ? ['Ya viste el plan del mes.', '¿Grabamos así?', '',
+        `Pendiente: envíanos ${faltan === 1 ? 'un testimonio' : `${faltan} testimonios`} en video.`]
+      : ['Ya viste el plan del mes.', '¿Grabamos así?'],
   }));
 
   try { window.__pdfPaginas = paginas.map((p) => p.dataUrl); } catch { /* noop */ }

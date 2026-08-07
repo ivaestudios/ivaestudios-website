@@ -15,7 +15,7 @@
 // cursiva. Probar SIEMPRE en WebKit real (playwright-webkit) antes de subir.
 // ============================================================================
 
-import { pdfDesdeJpegs } from './pdf-jpeg.js?v=202608071101';
+import { pdfDesdeJpegs } from './pdf-jpeg.js?v=202608071302';
 
 // Espacio de diseño y raster.
 export const W = 1080;
@@ -181,6 +181,38 @@ export function dibujarCover(cx, img, r) {
   const sy = Math.min(ih - sh, Math.max(0, (ih - sh) / 2));
   cx.drawImage(img, sx, sy, sw, sh, r.x, r.y, r.w, r.h);
 }
+// Rectángulo redondeado a mano: `roundRect` no existe en WebKit viejo y su
+// ausencia tumbaría la página entera (misma familia de trampas que drawImage).
+function rectRedondo(cx, x, y, w, h, r) {
+  const k = Math.min(r, w / 2, h / 2);
+  cx.beginPath();
+  cx.moveTo(x + k, y);
+  cx.lineTo(x + w - k, y);
+  cx.arcTo(x + w, y, x + w, y + k, k);
+  cx.lineTo(x + w, y + h - k);
+  cx.arcTo(x + w, y + h, x + w - k, y + h, k);
+  cx.lineTo(x + k, y + h);
+  cx.arcTo(x, y + h, x, y + h - k, k);
+  cx.lineTo(x, y + k);
+  cx.arcTo(x, y, x + k, y, k);
+  cx.closePath();
+}
+
+// TAG sólido (pastilla): la etiqueta que identifica una pieza de un vistazo
+// — p.ej. TESTIMONIO. Devuelve su alto para seguir apilando debajo.
+export function pastilla(cx, x, y, label, opts) {
+  const o = opts || {};
+  const size = o.size || 22;
+  const fuente = { size, peso: 600, esp: 0.26, mayus: true };
+  const w = anchoTexto(cx, String(label).toUpperCase(), fuente) + 56;
+  const h = size + 34;
+  cx.fillStyle = o.fondo || TINTA;
+  rectRedondo(cx, x, y, w, h, h / 2);
+  cx.fill();
+  texto(cx, label, { ...fuente, x: x + w / 2, y: y + h / 2 + size / 2 - 2, color: o.color || PAPEL, alinear: 'center' });
+  return { w, h };
+}
+
 export function botonCanvas(cx, y, label, relleno) {
   const h = 132;
   if (relleno) { cx.fillStyle = TINTA; cx.fillRect(MX, y, CONT_W, h); }
