@@ -13,7 +13,17 @@
 # ═══════════════════════════════════════════════════════════════════════
 
 # Tier A: 404s reales reportados por Google Search Console
-/glossary /brand 301
+# (2026-08-07: los 6 archivos se renombraron a su URL canonica; estas cubren la URL vieja)
+/luxury-weddings /destination-wedding-photographer-mexico 301
+/cancun /cancun-photographer 301
+/riviera-maya /riviera-maya-photographer 301
+/los-cabos /cabo-photographer 301
+/couples-photography /couples-photography-mexico 301
+/luxury-family-photos /luxury-family-photos-cancun 301
+# (promovidas 2026-08-07: tenian evidencia dura y habian quedado fuera del corte)
+/destination-wedding-cancun /destination-wedding-photographer-mexico 301
+/portfolio /destination-wedding-photographer-mexico 301
+/es/gestion-redes-sociales /es/manejo-redes-sociales 301
 /services/weddings /destination-wedding-photographer-mexico 301
 /services/couples /couples-photography-mexico 301
 /services/family-photos /luxury-family-photos-cancun 301
@@ -29,20 +39,9 @@
 /es/blog/fotografo-micro-bodas-cancun-tulum /es/fotografo-bodas-destino-mexico 301
 /es/blog/fotografia-recien-nacido-cancun-resorts /es/fotos-familiares-lujo-cancun 301
 /marca /es/marca 301
-/about-brand /brand 301
-/about-the-brand /brand 301
-/brand-page /brand 301
-/about/brand /brand 301
 
 # Tier B: origenes enlazados desde el propio sitio (romperlos rompe la navegacion)
-/cancun-photographer /cancun 200
-/riviera-maya-photographer /riviera-maya 200
-/cabo-photographer /los-cabos 200
-/los-cabos-photographer /los-cabos 200
-/destination-wedding-photographer-mexico /luxury-weddings 200
-/luxury-family-photos-cancun /luxury-family-photos 200
-/couples-photography-mexico /couples-photography 200
-/blog/luxury-photographer-style-editorial-vs-documentary /luxury-editorial 301
+/los-cabos-photographer /cabo-photographer 200
 /blog/what-to-wear-beach-photos /blog/what-to-wear-beach-photos-mexico 301
 /blog/vow-renewal-photographer-mexico /blog/vow-renewal-mexico-photography 301
 /blog/babymoon-photography-cancun-riviera-maya /blog/babymoon-photography-cancun 301
@@ -73,10 +72,10 @@
 /es/contacto /es/ 301
 /portfolio/wedding-tulum /destination-wedding-photographer-mexico 301
 /portfolio/wedding-decor-cancun /destination-wedding-photographer-mexico 301
-/portfolio/family-cancun-pier /luxury-family-photos 301
-/portfolio/family-cancun-beach /luxury-family-photos 301
-/portfolio/couple-riviera-maya /couples-photography 301
-/portfolio/couple-los-cabos /couples-photography 301
+/portfolio/family-cancun-pier /luxury-family-photos-cancun 301
+/portfolio/family-cancun-beach /luxury-family-photos-cancun 301
+/portfolio/couple-riviera-maya /couples-photography-mexico 301
+/portfolio/couple-los-cabos /couples-photography-mexico 301
 
 # Tier C: URLs viejas /post-* (slug distinto al publico)
 /post-all-inclusive-resort-photographer /blog/all-inclusive-resort-photographer-mexico 301
@@ -100,100 +99,18 @@
 /post-* /blog/:splat 301
 
 # Tier D: alias historicos (los que caigan despues del corte quedan inactivos)
-/about/marca /es/marca 301
 /privacy /privacy-policy 301
 /privacidad /es/politica-de-privacidad 301
 /aviso-de-privacidad /es/politica-de-privacidad 301
 /accessibility /accessibility-statement 301
 /accesibilidad /es/declaracion-accesibilidad 301
 /terms /privacy-policy 301
-/cookies /privacy-policy 301
 /privacy.html /privacy-policy 301
 /terms.html /privacy-policy 301
-/cookies.html /privacy-policy 301
 /es/privacy /es/politica-de-privacidad 301
 /es/terms /es/politica-de-privacidad 301
-/es/cookies /es/politica-de-privacidad 301
-/es/privacidad.html /es/politica-de-privacidad 301
-/es/terminos.html /es/politica-de-privacidad 301
-/es/cookies.html /es/politica-de-privacidad 301
-/family-photography.html /luxury-family-photos-cancun 301
-/family-photography /luxury-family-photos-cancun 301
-/es/fotografia-familiar.html /es/fotos-familiares-lujo-cancun 301
-/es/fotografia-familiar /es/fotos-familiares-lujo-cancun 301
-/es/editorial.html /es/editorial-de-lujo 301
 /es/editorial /es/editorial-de-lujo 301
 /engagement /engagement-photographer-cancun 301
-/engagement.html /engagement-photographer-cancun 301
 /family-photoshoot-cancun /luxury-family-photos-cancun 301
-/couples-photoshoot-cancun /couples-photography-mexico 301
 /manejo-de-redes-sociales-cancun /es/manejo-redes-sociales 301
-/destination-wedding-cancun /destination-wedding-photographer-mexico 301
-/cancun-family-photographer /luxury-family-photos-cancun 301
-/cancun-couples-photographer /couples-photography-mexico 301
-/photographer-cancun /cancun-photographer 301
-/photographer-riviera-maya /riviera-maya-photographer 301
-/photographer-cabo /cabo-photographer 301
-/wedding-photographer-cancun-mexico /destination-wedding-photographer-mexico 301
-/blog/honeymoon-photographer-cancun /blog/honeymoon-photographer-riviera-maya 301
-/blog/maternity-photographer-cancun /blog/maternity-photoshoot-cancun-riviera-maya 301
-/blog/engagement-session-mexico /blog/engagement-session-cancun-riviera-maya 301
-/blog/destination-wedding-mexico /blog/destination-wedding-photographer-riviera-maya 301
-/blog/destination-wedding-photographer-cancun /blog/destination-wedding-photographer-riviera-maya 301
-/blog/destination-wedding-photographer-mexico-guide /blog/destination-wedding-photographer-riviera-maya 301
-/blog/beach-wedding-photographer-cancun /blog/wedding-photographer-cancun 301
-/beach-wedding-photographer-cancun /cancun-photographer 301
-/cabo-wedding-photographer /cabo-photographer 301
-/blog/outfit-guide /outfit-guide 301
-/blog/photo-locations-riviera-maya /blog/best-photo-locations-riviera-maya 301
-/blog/engagement /blog/engagement-session-cancun-riviera-maya 301
-/blog/cancun-wedding-cost-2026 /cancun-wedding-cost-2026 301
-/blog/destination-wedding /blog/destination-wedding-photographer-riviera-maya 301
-/blog/choose-luxury-photographer /blog/how-to-choose-luxury-photographer-mexico 301
 /es/about /es/acerca-de 301
-/portfolio /destination-wedding-photographer-mexico 301
-/portfolio/* /destination-wedding-photographer-mexico 301
-/es/blog/how-to-choose-luxury-photographer-mexico /es/blog/como-elegir-fotografo-lujo-mexico 301
-/es/blog/luxury-photographer-style-editorial-vs-documentary /es/blog/estilo-fotografo-lujo-editorial-vs-documental 301
-/es/blog/family-vacation-photos-mexico /es/blog/fotos-vacaciones-familiares-mexico 301
-/es/blog/destination-wedding-photographer-riviera-maya /es/blog/fotografo-boda-destino-riviera-maya 301
-/es/blog/fotografo-luna-miel-riviera-maya /es/blog/fotografo-luna-de-miel-riviera-maya 301
-/locations/ / 301
-/mayakoba-photographer /mayakoba-wedding-photographer 301
-/mayakoba /mayakoba-wedding-photographer 301
-/cenote-photographer /cenote-photographer-tulum 301
-/tulum-cenote-photographer /cenote-photographer-tulum 301
-/cenote-tulum /cenote-photographer-tulum 301
-/ivae-marketing /social-media-management 301
-/social-media /social-media-management 301
-/social-media-agency /social-media-management 301
-/social-media-agency-cancun /social-media-management 301
-/instagram-management /social-media-management 301
-/es/marketing /es/manejo-redes-sociales 301
-/es/ivae-marketing /es/manejo-redes-sociales 301
-/es/redes-sociales /es/manejo-redes-sociales 301
-/es/agencia-social-media /es/manejo-redes-sociales 301
-/es/manejo-instagram /es/manejo-redes-sociales 301
-/es/gestion-redes-sociales /es/manejo-redes-sociales 301
-/ivae-marketing/intake /marketing-intake 301
-/intake /marketing-intake 301
-/strategy-brief /marketing-intake 301
-/es/intake /marketing-intake 301
-/es/brief /marketing-intake 301
-/social-media-hotels /social-media-luxury-hotels-mexico 301
-/social-media-restaurants /social-media-restaurants-cancun 301
-/social-media-spa /social-media-spa-wellness-mexico 301
-/social-media-dental /social-media-dental-clinic-mexico 301
-/instagram-cancun /instagram-management-cancun 301
-/tiktok-hotels /tiktok-agency-hotels-mexico 301
-/es/redes-sociales-hoteles /es/redes-sociales-hoteles-lujo-mexico 301
-/es/redes-sociales-restaurantes /es/redes-sociales-restaurantes-cancun 301
-/es/redes-sociales-spa /es/redes-sociales-spa-wellness-mexico 301
-/es/redes-sociales-dental /es/redes-sociales-clinica-dental-mexico 301
-/es/instagram-cancun /es/manejo-instagram-cancun 301
-/es/tiktok-hoteles /es/agencia-tiktok-hoteles-mexico 301
-/es/los-cabos /es/fotografo-los-cabos 301
-/es/fotografo-bodas-mayakoba /es/fotografo-riviera-maya 301
-/es/fotografo-cenote-tulum /es/fotografo-bodas-tulum 301
-/tulum-cenote /cenote-photographer-tulum 301
-/blog/post-wedding-cancun /blog/wedding-photographer-cancun 301

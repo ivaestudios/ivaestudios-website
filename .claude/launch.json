@@ -2,10 +2,31 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "ivae-home",
+      "name": "marketing-wrangler",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "-e",
+        "setInterval(()=>{},1e9)"
+      ],
+      "port": 8788
+    },
+    {
+      "name": "mkt-portal-preview",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "/tmp/mkt-mock-server.mjs"
+      ],
+      "port": 8791
+    },
+    {
+      "name": "ivae-static",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "3471"],
-      "port": 3471
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8917"
+      ],
+      "port": 8917
     }
   ]
 }
