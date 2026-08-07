@@ -37,6 +37,8 @@
     { id: 'individual', es: 'Individual', en: 'Solo' }
   ];
 
+  function nota(l) { return (!ES && l.ne) ? l.ne : l.n; }
+
   function colorById(id) { for (var i = 0; i < COLORS.length; i++) if (COLORS[i].id === id) return COLORS[i]; return COLORS[0]; }
   function cName(id) { var c = colorById(id); return ES ? c.es : c.en; }
   function gName(id) { for (var i = 0; i < GRUPOS.length; i++) if (GRUPOS[i].id === id) return ES ? GRUPOS[i].es : GRUPOS[i].en; return ''; }
@@ -168,7 +170,7 @@
           '<div class="osx-stage-veil"></div>' +
           '<span class="osx-stage-label">' + l.loc + '</span>' +
           '<div class="osx-stage-foot">' +
-            '<p class="osx-stage-note" id="osxNote">' + l.n + '</p>' +
+            '<p class="osx-stage-note" id="osxNote">' + nota(l) + '</p>' +
             '<div class="osx-nav">' +
               '<button type="button" class="osx-arrow" data-dir="-1" aria-label="' + T.prev + '">' +
                 '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>' +
@@ -228,7 +230,7 @@
       frame.style.aspectRatio = l.w + '/' + l.h;
       img.src = l.src; img.width = l.w; img.height = l.h;
       img.style.opacity = '1';
-      document.getElementById('osxNote').textContent = l.n;
+      document.getElementById('osxNote').textContent = nota(l);
       document.getElementById('osxCount').textContent = (st.i + 1) + ' / ' + list.length;
       document.querySelector('.osx-stage-label').textContent = l.loc;
       var cta = document.getElementById('osxLookCta');
