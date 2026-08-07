@@ -17,8 +17,8 @@
 // cursiva — la voz de SMILE NOW. Raster HTML→SVG→canvas con XML ESTRICTO.
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202608070054';
-import { pdfDesdeJpegs } from './pdf-jpeg.js?v=202608070054';
+import { T } from '../shell/i18n.js?v=202608070105';
+import { pdfDesdeJpegs } from './pdf-jpeg.js?v=202608070105';
 
 // A4 a ~178 dpi: nítido en pantalla y decente impreso, sin PDFs de 40 MB.
 const W = 1480;
@@ -296,7 +296,7 @@ function paginaCarrusel({ marca, handle, mesLabel, titulo, sub, link, qrUrl, fol
     ${cab(handle, marca)}
     ${tituloSeccion(titulo, sub, 'carrusel')}
     <div style="position:absolute;top:${QR_TOP}px;left:50%;transform:translateX(-50%);text-align:center">
-      <div style="background:#FFFFFF;padding:44px;border:1px solid ${FILETE};box-shadow:0 26px 60px rgba(23,23,27,.14)">
+      <div style="display:inline-block;background:#FFFFFF;padding:44px;border:1px solid ${FILETE};box-shadow:0 26px 60px rgba(23,23,27,.14)">
         <img src="${qrUrl}" style="width:${QR_LADO}px;height:${QR_LADO}px;display:block" alt=""/>
       </div>
       <div style="margin-top:96px"><span class="boton">Ver el carrusel</span></div>
