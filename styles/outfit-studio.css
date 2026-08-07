@@ -9,10 +9,13 @@
 /* ── Contenedor general ── */
 .osx-wrap{max-width:1100px;margin:0 auto}
 
+/* NOTA: position:sticky NO funciona aquí (body{overflow-x:hidden} del sitio
+   lo rompe en Chrome); el feedback en móvil lo da el mini-preview del panel. */
+
 /* ── Canvas del probador ── */
 .osx-stage{position:relative;border-radius:18px;overflow:hidden;background:#101724;
-  box-shadow:0 30px 70px -30px rgba(20,29,40,.45);aspect-ratio:4/4.6}
-@media(min-width:760px){.osx-stage{aspect-ratio:16/9.4}}
+  box-shadow:0 30px 70px -30px rgba(20,29,40,.45);aspect-ratio:4/3.9}
+@media(min-width:760px) and (max-width:899px){.osx-stage{aspect-ratio:16/9.4}}
 .osx-stage-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .5s}
 .osx-stage-veil{position:absolute;inset:0;background:
   linear-gradient(180deg,rgba(10,15,23,.18) 0%,rgba(10,15,23,0) 30%,rgba(10,15,23,0) 55%,rgba(10,15,23,.42) 100%)}
@@ -23,9 +26,9 @@
 .osx-people{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;
   gap:2%;padding:0 4% 5.5%;z-index:2}
 .osx-fig{height:78%;max-width:30%;flex:0 1 auto;cursor:pointer;-webkit-tap-highlight-color:transparent;
-  filter:drop-shadow(0 18px 14px rgba(10,15,23,.35));transition:transform .35s cubic-bezier(.16,1,.3,1)}
+  filter:drop-shadow(0 4px 8px rgba(10,15,23,.28));transition:transform .35s cubic-bezier(.16,1,.3,1)}
 .osx-fig.osx-kid{height:56%}
-.osx-fig.sel{transform:translateY(-6px)}
+.osx-fig.sel{transform:scale(1.035);transform-origin:bottom center}
 .osx-fig svg{height:100%;width:auto;display:block;overflow:visible}
 .osx-fig .osx-ring{opacity:0;transition:opacity .3s}
 .osx-fig.sel .osx-ring{opacity:1}
@@ -33,12 +36,12 @@
   z-index:2;color:rgba(249,248,247,.85);font-size:13.5px;letter-spacing:.04em;text-align:center;padding:0 30px}
 
 /* ── Selector de escena ── */
-.osx-scenes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0 8px}
+.osx-scenes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0 8px}
 .osx-scene{position:relative;border:none;border-radius:12px;overflow:hidden;cursor:pointer;
   aspect-ratio:5/3.4;padding:0;background:#101724;outline-offset:2px}
 .osx-scene img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.9;transition:transform .4s}
 .osx-scene span{position:absolute;left:0;right:0;bottom:0;z-index:2;font-family:'Syne',sans-serif;
-  font-size:8.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#f9f8f7;
+  font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#f9f8f7;
   padding:14px 6px 7px;background:linear-gradient(180deg,transparent,rgba(10,15,23,.72));text-align:center}
 .osx-scene::after{content:'';position:absolute;inset:0;border-radius:12px;border:2px solid transparent;transition:border-color .3s;z-index:3}
 .osx-scene.sel::after{border-color:#c4a35a}
@@ -79,7 +82,19 @@
 .osx-sw.sel::after{border-color:#c4a35a}
 .osx-sw small{position:absolute;top:44px;left:50%;transform:translateX(-50%);font-size:8px;letter-spacing:.06em;
   color:rgba(26,36,51,.55);white-space:nowrap;font-weight:600;text-transform:uppercase;display:none}
-.osx-skins .osx-sw{width:30px;height:30px}
+.osx-skins .osx-sw{width:34px;height:34px}
+
+/* ── Mini-preview en vivo dentro del panel de color ── */
+.osx-panelrow{display:flex;gap:14px;align-items:stretch}
+.osx-swcol{flex:1;min-width:0}
+.osx-minifig{flex:0 0 96px;border-radius:12px;overflow:hidden;position:relative;
+  background-size:cover;background-position:center;display:flex;align-items:flex-end;
+  justify-content:center;min-height:170px;border:1px solid rgba(249,248,247,.1)}
+.osx-minifig::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(10,15,23,.12),rgba(10,15,23,.32))}
+.osx-minifig svg{position:relative;z-index:1;height:92%;width:auto}
+.osx-minifig .osx-ring{display:none}
+@media(max-width:359px){.osx-minifig{display:none}}
 
 /* ── Veredicto ── */
 .osx-verdict{border-radius:16px;padding:18px 18px 16px;margin-top:12px;border:1px solid rgba(196,163,90,.35);
@@ -95,7 +110,7 @@
   padding:7px 0;font-family:'Syne',sans-serif}
 .osx-note svg{flex:0 0 16px;margin-top:3px}
 .osx-note.ok svg{color:#2e4e3a}.osx-note.meh svg{color:#8a6d1f}.osx-note.bad svg{color:#a04545}
-.osx-verdict-cta{display:inline-flex;align-items:center;gap:9px;margin-top:12px;background:var(--ink,#1a2433);
+.osx-verdict-cta{display:inline-flex;align-items:center;justify-content:center;text-align:center;gap:9px;margin-top:12px;background:var(--ink,#1a2433);
   color:#f9f8f7;text-decoration:none;font-family:'Syne',sans-serif;font-size:11px;font-weight:600;
   letter-spacing:.14em;text-transform:uppercase;padding:14px 22px;border-radius:100px;transition:background .3s}
 .osx-verdict-cta:hover{background:#0f1620}
@@ -116,7 +131,7 @@
   outline:none;transition:border-color .3s,box-shadow .3s}
 .osx-askbox input:focus{border-color:#c4a35a;box-shadow:0 0 0 4px rgba(196,163,90,.14)}
 .osx-askbox input::placeholder{color:rgba(26,36,51,.4)}
-.osx-askbox .lens{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:38px;height:38px;
+.osx-askbox .lens{border:none;cursor:pointer;position:absolute;right:8px;top:50%;transform:translateY(-50%);width:38px;height:38px;
   display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--ink,#1a2433);color:#f9f8f7}
 .osx-cats{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:16px 0 6px}
 .osx-cat{border:1px solid rgba(26,36,51,.14);background:transparent;border-radius:100px;padding:8px 15px;
@@ -146,6 +161,8 @@
 .osx-more{display:block;margin:16px auto 0;border:none;background:transparent;cursor:pointer;
   font-family:'Syne',sans-serif;font-size:11px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;
   color:#a8894a;text-decoration:underline;text-underline-offset:4px}
+
+@media(max-width:520px){.osx-verdict-cta{display:flex;width:100%}}
 
 @media(max-width:420px){
   .osx-scenes{grid-template-columns:repeat(2,1fr)}
@@ -183,7 +200,7 @@ html.dark .osx-verdict-badge.bad{background:#5b2c2c;color:#f2dcdc}
 html.dark .osx-verdict-cta{background:#c4a35a;color:#141d28}
 html.dark .osx-verdict-cta:hover{background:#d4b46c}
 html.dark .osx-askbox input{background:#151e2d;color:#f9f8f7;border-color:rgba(249,248,247,.16)}
-html.dark .osx-askbox input::placeholder{color:rgba(249,248,247,.42)}
+html.dark .osx-askbox input::placeholder{color:rgba(249,248,247,.58)}
 html.dark .osx-askbox input:focus{border-color:#c4a35a;box-shadow:0 0 0 4px rgba(196,163,90,.16)}
 html.dark .osx-askbox .lens{background:#c4a35a;color:#141d28}
 html.dark .osx-cat{color:rgba(249,248,247,.68);border-color:rgba(249,248,247,.2)}
