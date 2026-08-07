@@ -17,8 +17,8 @@
 // cursiva — la voz de SMILE NOW. Raster HTML→SVG→canvas con XML ESTRICTO.
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202608070105';
-import { pdfDesdeJpegs } from './pdf-jpeg.js?v=202608070105';
+import { T } from '../shell/i18n.js?v=202608070151';
+import { pdfDesdeJpegs } from './pdf-jpeg.js?v=202608070151';
 
 // A4 a ~178 dpi: nítido en pantalla y decente impreso, sin PDFs de 40 MB.
 const W = 1480;
@@ -199,6 +199,24 @@ async function imagenDeReel(item) {
   } catch { return null; }
 }
 
+// ── La tira del carrusel → slides (para verlos EN el PDF) ───────────────────
+async function slidesDeTira(posterUrl) {
+  const r = await fetch(posterUrl, { credentials: 'include' });
+  if (!r.ok) throw new Error('tira');
+  const bmp = await createImageBitmap(await r.blob());
+  const n = Math.max(1, Math.min(10, Math.round(bmp.width / (bmp.height * 0.8))));
+  const sw = bmp.width / n;
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const cv = document.createElement('canvas');
+    const outW = Math.min(1000, Math.round(sw));
+    cv.width = outW; cv.height = Math.round(outW * bmp.height / sw);
+    cv.getContext('2d').drawImage(bmp, i * sw, 0, sw, bmp.height, 0, 0, cv.width, cv.height);
+    out.push(cv.toDataURL('image/jpeg', 0.88));
+  }
+  return out;
+}
+
 // ── Piezas compartidas ──────────────────────────────────────────────────────
 function cab(izq, der) {
   return `<div class="cab"><span>${esc(izq)}</span><span class="wordmark" style="font-size:26px">${esc(der)}</span></div>`;
@@ -271,7 +289,7 @@ function paginaReel({ marca, handle, mesLabel, titulo, sub, imgDataUrl, qrUrl, d
     <div style="position:absolute;top:${ACCESO_Y}px;left:120px;right:120px;display:flex;align-items:center;justify-content:center;gap:54px">
       <img src="${qrUrl}" style="width:186px;height:186px;flex:none;border:1px solid ${FILETE};background:#fff" alt=""/>
       <div style="text-align:left;max-width:760px">
-        <div class="boton">Ver mis videos</div>
+        <div class="boton">Ver este video</div>
         <div style="font-size:23.5px;color:${HUMO};margin-top:22px;letter-spacing:.02em">${instr}</div>
       </div>
     </div>
@@ -283,7 +301,56 @@ function paginaReel({ marca, handle, mesLabel, titulo, sub, imgDataUrl, qrUrl, d
   };
 }
 
-function paginaCarrusel({ marca, handle, mesLabel, titulo, sub, link, qrUrl, folio, total, instrCorta }) {
+function paginaCarrusel({ marca, handle, mesLabel, titulo, sub, link, qrUrl, slides, folio, total, instrCorta }) {
+  if (slides && slides.length) return paginaCarruselSlides({ marca, handle, mesLabel, titulo, sub, link, qrUrl, slides, folio, total });
+  return paginaCarruselQr({ marca, handle, mesLabel, titulo, sub, link, qrUrl, folio, total, instrCorta });
+}
+
+// Con TIRA: el slide 1 protagonista + fila de miniaturas — el carrusel SE VE
+// sin escanear nada (pedido de Vianey + crítica #1 de los jueces).
+function paginaCarruselSlides({ marca, handle, mesLabel, titulo, sub, link, qrUrl, slides, folio, total }) {
+  const CARD = { top: 396, w: 700 };
+  const alto = Math.round(CARD.w * 5 / 4);   // 4:5
+  const maxThumbs = 6;
+  const visibles = slides.slice(0, maxThumbs);
+  const extras = slides.length - visibles.length;
+  const THUMB_W = 148; const THUMB_H = 185; const GAP = 16;
+  const thumbs = visibles.map((d, i) =>
+    `<div style="position:relative;flex:none;background:#fff;padding:6px;border:1px solid ${FILETE}">
+      <img src="${d}" style="width:${THUMB_W}px;height:${THUMB_H}px;object-fit:cover;display:block" alt=""/>
+      ${i === maxThumbs - 1 && extras > 0 ? `<div style="position:absolute;inset:6px;background:rgba(23,23,27,.55);color:#fff;
+        display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:300">+${extras}</div>` : ''}
+    </div>`).join('');
+  const acceso = link
+    ? `<div style="position:absolute;top:1668px;left:120px;right:120px;display:flex;align-items:center;justify-content:center;gap:44px">
+        <img src="${qrUrl}" style="width:150px;height:150px;flex:none;border:1px solid ${FILETE};background:#fff" alt=""/>
+        <div style="text-align:left">
+          <div class="boton" style="padding:20px 44px;font-size:24px">Verlo en internet</div>
+          <div style="font-size:22px;color:${HUMO};margin-top:16px">Toca el botón o escanea el código con tu cámara.</div>
+        </div>
+      </div>`
+    : '';
+  return {
+    html: `<div class="pag">
+    ${cab(handle, marca)}
+    ${tituloSeccion(titulo, sub, 'carrusel')}
+    <div style="position:absolute;top:${CARD.top}px;left:50%;transform:translateX(-50%);
+      width:${CARD.w + 32}px;height:${alto + 32}px;background:#FFFFFF;padding:16px;
+      box-shadow:0 26px 60px rgba(23,23,27,.16);border:1px solid ${FILETE}">
+      <div style="width:100%;height:100%;overflow:hidden;background:#EDEAE3">
+        <img src="${slides[0]}" style="width:100%;height:100%;object-fit:cover" alt=""/>
+      </div>
+    </div>
+    <div style="position:absolute;top:${CARD.top + alto + 76}px;left:120px;right:120px;
+      display:flex;justify-content:center;gap:${GAP}px">${thumbs}</div>
+    ${acceso}
+    ${pie(mesLabel, folio, total)}
+  </div>`,
+    links: link ? [{ x: (W - 900) / 2, y: 1650, w: 900, h: 190, url: link }] : [],
+  };
+}
+
+function paginaCarruselQr({ marca, handle, mesLabel, titulo, sub, link, qrUrl, folio, total, instrCorta }) {
   const corto = String(link || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
   const instr = instrCorta
     ? 'Toca el botón o escanea el código con tu cámara.'
@@ -372,18 +439,20 @@ export async function generarPdfEntregables({ month, items, marca, handle, clien
   await empujar(portada);
 
   let folio = 1;
-  const qrVideos = reels.length ? await qrDataUrl(deepLink, 380) : null;
   for (let i = 0; i < reels.length; i++) {
     const it = reels[i];
     paso(T(`Video ${i + 1} de ${reels.length}…`, `Video ${i + 1} of ${reels.length}…`));
     const img = await imagenDeReel(it);
     const pieza = it.piece || null;
+    // El enlace de CADA video abre SOLO ese video (público firmado); si el
+    // backend no lo dio, cae al panel de Entregables.
+    const linkVideo = it.public_video_url || deepLink;
     await empujar(paginaReel({
       marca, handle, mesLabel,
       titulo: `Video ${i + 1}`,
       sub: (pieza && pieza.title) || it.title || '',
       imgDataUrl: img,
-      qrUrl: qrVideos, deepLink,
+      qrUrl: await qrDataUrl(linkVideo, 380), deepLink: linkVideo,
       folio: ++folio, total,
       instrCorta: i > 0,
     }));
@@ -392,13 +461,17 @@ export async function generarPdfEntregables({ month, items, marca, handle, clien
   for (let i = 0; i < carruseles.length; i++) {
     const it = carruseles[i];
     paso(T(`Carrusel ${i + 1} de ${carruseles.length}…`, `Carousel ${i + 1} of ${carruseles.length}…`));
-    const qrUrl = await qrDataUrl(it.link || deepLink, 1040);
+    let slides = null;
+    if (it.poster_url) {
+      try { slides = await slidesDeTira(it.poster_url); } catch { slides = null; }
+    }
+    const qrUrl = await qrDataUrl(it.link || deepLink, slides ? 320 : 1040);
     await empujar(paginaCarrusel({
       marca, handle, mesLabel,
       titulo: `Carrusel ${i + 1}`,
       sub: it.title || '',
-      link: it.link || deepLink,
-      qrUrl,
+      link: it.link || (slides ? '' : deepLink),
+      qrUrl, slides,
       folio: ++folio, total,
       instrCorta: reels.length > 0 && i > 0,
     }));

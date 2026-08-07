@@ -3905,7 +3905,18 @@ async function dlvSurvivingExt(env, id) {
   return null;
 }
 
-function shapeDeliverable(d, origin, comments = [], piece = null) {
+// Firma del enlace PÚBLICO de un video (para el PDF de entregables: la
+// clienta toca el botón y se abre SOLO ese video, sin login). HMAC del id
+// con MKT_CRON_SECRET (o pimienta fija si no está configurado): view-only,
+// material de marketing de baja sensibilidad.
+async function firmaEntregable(env, id) {
+  const clave = env.MKT_CRON_SECRET || 'ivae-entregables-publico-2026';
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(clave), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const mac = new Uint8Array(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(String(id))));
+  return [...mac].map((b) => b.toString(16).padStart(2, '0')).join('').slice(0, 24);
+}
+
+function shapeDeliverable(d, origin, comments = [], piece = null, firma = null) {
   const v = dlvCacheStamp(d);
   return {
     id: d.id, client_id: d.client_id, month: d.month, type: d.type,
@@ -3918,7 +3929,11 @@ function shapeDeliverable(d, origin, comments = [], piece = null) {
     // Solo si REALMENTE hay miniatura: anunciarla siempre hacía que el
     // navegador pidiera una imagen inexistente en la mitad de los videos (404
     // por cada uno). Sin poster el navegador pinta el primer fotograma.
-    poster_url: (d.video_ext && d.poster_ok) ? `${origin}/api/marketing/deliverables/${d.id}/poster?v=${v}` : null,
+    // El poster también viste a los CARRUSELES: ahí es LA TIRA completa que
+    // el cliente ve dividida en slides (pedido de Vianey 2026-08-07).
+    poster_url: (d.poster_ok && (d.video_ext || d.type === 'carrusel')) ? `${origin}/api/marketing/deliverables/${d.id}/poster?v=${v}` : null,
+    // Enlace público firmado (solo staff lo recibe; viaja dentro del PDF).
+    public_video_url: (firma && d.video_ext) ? `${origin}/api/marketing/publico/entregable/${d.id}/video?f=${firma}` : null,
     created_at: d.created_at, updated_at: d.updated_at || null,
     comments,
   };
@@ -4051,7 +4066,12 @@ async function handleListDeliverables(env, session, url) {
       }
     } catch (e) { console.error('[mkt dlv piece]', e && e.message); }
   }
-  return json({ deliverables: rows.map((r) => shapeDeliverable(r, origin, byDlv.get(r.id) || [], r.post_id ? pieceById.get(r.post_id) : null)) });
+  const esStaff = session.role !== 'client';
+  const conFirma = await Promise.all(rows.map(async (r) => shapeDeliverable(
+    r, origin, byDlv.get(r.id) || [], r.post_id ? pieceById.get(r.post_id) : null,
+    esStaff && r.video_ext ? await firmaEntregable(env, r.id) : null
+  )));
+  return json({ deliverables: conFirma });
 }
 
 async function handleListDeliverableComments(env, session, id) {
@@ -4228,6 +4248,35 @@ async function handleServeDeliverableVideo(request, env, session, id) {
   } else {
     headers.set('Content-Disposition', 'inline');
   }
+  const res = await mktServeRangedWithMeta(request, getObj, headers);
+  if (!res) return new Response('Sin video', { status: 404 });
+  return res;
+}
+
+// Sirve el video de UN entregable con firma válida — sin sesión, solo inline.
+async function handlePublicDeliverableVideo(request, env, id) {
+  if (!env.R2_BUCKET) return new Response('Almacenamiento no disponible', { status: 503 });
+  const f = new URL(request.url).searchParams.get('f') || '';
+  const esperada = await firmaEntregable(env, id);
+  if (!f || f !== esperada) return new Response('Enlace no válido', { status: 403 });
+  const d = await env.DB.prepare('SELECT * FROM mkt_deliverables WHERE id = ?').bind(id).first();
+  if (!d || !d.video_ext) return new Response('Sin video', { status: 404 });
+  let foundExt = d.video_ext || null;
+  const getObj = async (rangeOpt) => {
+    if (foundExt) {
+      const o = await env.R2_BUCKET.get(`marketing/deliverable/${id}.${foundExt}`, rangeOpt);
+      if (o) return o;
+    }
+    for (const e of MKT_VIDEO_EXTS) {
+      const o = await env.R2_BUCKET.get(`marketing/deliverable/${id}.${e}`, rangeOpt);
+      if (o) { foundExt = e; return o; }
+    }
+    return null;
+  };
+  const headers = new Headers();
+  headers.set('Cache-Control', 'private, max-age=3600');
+  headers.set('Accept-Ranges', 'bytes');
+  headers.set('Content-Disposition', 'inline');
   const res = await mktServeRangedWithMeta(request, getObj, headers);
   if (!res) return new Response('Sin video', { status: 404 });
   return res;
@@ -4592,6 +4641,13 @@ async function route(request, env, authCtx) {
     } catch {
       return json({ ok: false, db: false }, 503);
     }
+  }
+
+  // ── VIDEO PÚBLICO FIRMADO (sin sesión): el PDF de entregables enlaza cada
+  //    video individual; la firma HMAC hace la URL incompartible-por-adivinanza
+  //    y solo permite VER (nunca ?download). ──
+  if (parts[0] === 'publico' && parts[1] === 'entregable' && parts.length === 4 && parts[3] === 'video' && (method === 'GET' || method === 'HEAD')) {
+    return handlePublicDeliverableVideo(request, env, parts[2]);
   }
 
   // ── CRON (no session; Bearer MKT_CRON_SECRET) — BEFORE the session gate ──

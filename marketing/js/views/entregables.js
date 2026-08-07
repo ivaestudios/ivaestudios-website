@@ -6,17 +6,17 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608070105';
-import { icon } from '../shell/icons.js?v=202608070105';
-import { T } from '../shell/i18n.js?v=202608070105';
-import { openSheet, confirmar } from '../shell/sheet.js?v=202608070105';
+import { api, el, clear, toast } from '../api.js?v=202608070151';
+import { icon } from '../shell/icons.js?v=202608070151';
+import { T } from '../shell/i18n.js?v=202608070151';
+import { openSheet, confirmar } from '../shell/sheet.js?v=202608070151';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608070105';
+import { errorCard } from '../ui/states.js?v=202608070151';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608070105';
+} from '../lib/video-upload.js?v=202608070151';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -171,7 +171,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608070105';
+  link.href = '/marketing/css/entregables.css?v=202608070151';
   document.head.appendChild(link);
 }
 
@@ -514,11 +514,16 @@ async function swapVideo(it, file) {
 
 // Devuelve true SOLO si el carrusel quedó guardado: el botón limpia las
 // casillas únicamente en ese caso (si falla, lo tecleado se conserva).
-async function addCarrusel(link, title) {
+async function addCarrusel(link, title, tiraFile) {
   const client = activeClient();
   if (!client || busy) return false;
   let url = String(link || '').trim();
-  if (!url) { toast(T('Pega el link del carrusel.', 'Paste the carousel link.'), 'error'); return false; }
+  // Con TIRA el link es opcional (pedido de Vianey 2026-08-07: el carrusel se
+  // ve por sus SLIDES, no por link). Sin tira, el link sigue siendo obligatorio.
+  if (!url && !tiraFile) { toast(T('Sube la tira del carrusel o pega su link.', 'Upload the strip or paste the link.'), 'error'); return false; }
+  if (!url && tiraFile) {
+    return await crearCarruselConTira(client, null, title, tiraFile);
+  }
   // Un link real SIEMPRE lleva un punto en el dominio (canva.link, instagram.com,
   // drive.google.com…). Si NO trae protocolo NI punto, casi seguro es el título
   // escrito en la casilla equivocada (ej. "CARRUSELES") -> avisamos claro en vez de
@@ -538,13 +543,22 @@ async function addCarrusel(link, title) {
     toast(T('Ese enlace no es válido. Revisa que sea un link completo (ej. https://canva.link/…).', 'That link is not valid. Make sure it\'s a full link (e.g. https://canva.link/…).'), 'error', 7000);
     return false;
   }
+  return await crearCarruselConTira(client, url, title, tiraFile);
+}
+
+// Alta del carrusel + subida de su tira como poster (la tira ES el carrusel:
+// la vista y el PDF la dividen en slides).
+async function crearCarruselConTira(client, url, title, tiraFile) {
   busy = true; render();
   const month = addMonth || currentMonth();
   try {
-    await api.post('/deliverables', {
+    const creado = await api.post('/deliverables', {
       client_id: client.id, month, type: 'carrusel',
-      link: url, title: (title || '').trim().slice(0, 200) || null,
+      link: url || null, title: (title || '').trim().slice(0, 200) || null,
     });
+    if (tiraFile && creado && creado.id) {
+      await subirTira(creado.id, tiraFile);
+    }
     toast(T('Carrusel agregado ✓', 'Carousel added ✓'), 'success');
     activeMonthNav = month; // al agregar, la vista te lleva a ese mes
     await load();
@@ -555,6 +569,49 @@ async function addCarrusel(link, title) {
   } finally {
     busy = false; render();
   }
+}
+
+// La tira viaja como JPEG al endpoint de poster (re-encodada si viene en PNG).
+async function subirTira(id, file) {
+  const bmp = await createImageBitmap(file);
+  // Techo de 8000px de ancho: tiras gigantes de Canva (10800px) pesan 10+ MB
+  // y el slide del PDF jamás necesita más de ~1600px por cuadro.
+  const K = Math.min(1, 8000 / bmp.width);
+  const cv = document.createElement('canvas');
+  cv.width = Math.round(bmp.width * K); cv.height = Math.round(bmp.height * K);
+  cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
+  const blob = await new Promise((ok) => cv.toBlob(ok, 'image/jpeg', 0.9));
+  const fd = new FormData();
+  fd.append('poster', blob, 'tira.jpg');
+  await api.post(`/deliverables/${id}/poster`, fd);
+  tiraCache.delete(id);
+}
+
+// ── Slides de la tira (client-side): dataURLs por slide, cacheados ──────────
+const tiraCache = new Map();   // id -> Promise<string[]>
+function slidesDeTira(it) {
+  const key = it.id;
+  if (tiraCache.has(key)) return tiraCache.get(key);
+  const pr = (async () => {
+    const r = await fetch(it.poster_url, { credentials: 'include' });
+    if (!r.ok) throw new Error('tira');
+    const bmp = await createImageBitmap(await r.blob());
+    // Slides 1080×1350 (4:5): n = ancho / (alto × 0.8), 1..10.
+    const n = Math.max(1, Math.min(10, Math.round(bmp.width / (bmp.height * 0.8))));
+    const sw = bmp.width / n;
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const cv = document.createElement('canvas');
+      const outW = Math.min(720, Math.round(sw));
+      cv.width = outW; cv.height = Math.round(outW * bmp.height / sw);
+      cv.getContext('2d').drawImage(bmp, i * sw, 0, sw, bmp.height, 0, 0, cv.width, cv.height);
+      out.push(cv.toDataURL('image/jpeg', 0.88));
+    }
+    return out;
+  })();
+  pr.catch(() => tiraCache.delete(key));
+  tiraCache.set(key, pr);
+  return pr;
 }
 
 async function removeItem(it) {
@@ -1074,15 +1131,31 @@ function buildAddBar() {
 
   // Agregar carrusel por link. Cada casilla con su etiqueta visible para que no se
   // confunda el ENLACE (lo que abre el carrusel) con el TÍTULO (solo un nombre).
-  const linkInput = el('input', { class: 'dlv-input', type: 'text', inputmode: 'url', placeholder: T('Pega el enlace: canva.link/…, drive…, instagram.com/…', 'Paste the link: canva.link/…, drive…, instagram.com/…') });
+  const linkInput = el('input', { class: 'dlv-input', type: 'text', inputmode: 'url', placeholder: T('Opcional si subes la tira: canva.link/…', 'Optional if you upload the strip: canva.link/…') });
   const titleInput = el('input', { class: 'dlv-input dlv-input--title', type: 'text', placeholder: T('Nombre para el cliente', 'Name for the client'), maxlength: 200 });
+  // La TIRA del carrusel (la imagen larga): la vista y el PDF la dividen en
+  // slides — el cliente VE el carrusel, no un link (pedido 2026-08-07).
+  const tiraInput = el('input', { class: 'dlv-tirafile', type: 'file', accept: 'image/*', hidden: true });
+  const tiraBtn = el('button', {
+    class: 'dlv-input dlv-tirabtn', type: 'button',
+    onclick: () => tiraInput.click(),
+  }, [icon('camera', 15), el('span', { text: T('Elegir imagen…', 'Choose image…') })]);
+  tiraInput.addEventListener('change', () => {
+    const f = tiraInput.files && tiraInput.files[0];
+    const span = tiraBtn.querySelector('span');
+    if (span) span.textContent = f ? f.name.slice(0, 34) : T('Elegir imagen…', 'Choose image…');
+  });
   const addBtn = el('button', {
     class: 'dlv-addbtn', type: 'button', disabled: busy,
     onclick: async () => {
       // Limpia las casillas SOLO si se agregó de verdad: si la validación o el
       // POST fallan, el link/título se quedan para corregir sin volver a pegar.
-      const ok = await addCarrusel(linkInput.value, titleInput.value);
-      if (ok) { linkInput.value = ''; titleInput.value = ''; }
+      const ok = await addCarrusel(linkInput.value, titleInput.value, tiraInput.files && tiraInput.files[0]);
+      if (ok) {
+        linkInput.value = ''; titleInput.value = ''; tiraInput.value = '';
+        const span = tiraBtn.querySelector('span');
+        if (span) span.textContent = T('Elegir imagen…', 'Choose image…');
+      }
     },
   }, [icon('plus', 16), el('span', { text: T('Agregar carrusel', 'Add carousel') })]);
 
@@ -1093,6 +1166,10 @@ function buildAddBar() {
     ]),
     drop,
     el('div', { class: 'dlv-carrusel-add' }, [
+      el('div', { class: 'dlv-field' }, [
+        el('label', { class: 'dlv-field__lbl', text: T('Tira del carrusel (se divide en slides)', 'Carousel strip (split into slides)') }),
+        tiraBtn, tiraInput,
+      ]),
       el('div', { class: 'dlv-field' }, [
         el('label', { class: 'dlv-field__lbl', text: T('Link del carrusel', 'Carousel link') }),
         linkInput,
@@ -1361,18 +1438,45 @@ function buildItem(it, staff) {
     card.appendChild(el('div', { class: 'dlv-card__side' }, [foot, buildComments(it, staff)]));
     return card;
   }
-  // carrusel: preview (izquierda en escritorio) + comentarios al lado (.dlv-card__side)
-  const main = el('div', { class: 'dlv-carrusel__main' }, [
-    el('div', { class: 'dlv-carrusel__ico' }, [icon('grip', 30)]),
+  // carrusel: SLIDES de la tira (si hay) o el ícono de siempre; el link queda
+  // como acceso secundario. Staff puede subir/cambiar la tira aquí mismo.
+  const tiraIn = el('input', { type: 'file', accept: 'image/*', hidden: true });
+  tiraIn.addEventListener('change', async () => {
+    const f = tiraIn.files && tiraIn.files[0];
+    if (!f) return;
+    busy = true; render();
+    try { await subirTira(it.id, f); toast(T('Tira actualizada ✓', 'Strip updated ✓'), 'success'); await load(); }
+    catch (e) { toast(e.message || T('No se pudo subir la tira', 'Could not upload the strip'), 'error'); }
+    finally { busy = false; render(); }
+  });
+  let visor = null;
+  if (it.poster_url) {
+    visor = el('div', { class: 'dlv-slides', 'aria-label': T('Slides del carrusel', 'Carousel slides') });
+    slidesDeTira(it).then((slides) => {
+      if (!visor.isConnected) return;
+      clear(visor);
+      slides.forEach((d, i) => visor.appendChild(el('img', {
+        class: 'dlv-slides__img', src: d, alt: `Slide ${i + 1}`, loading: 'lazy',
+      })));
+      visor.appendChild(el('span', { class: 'dlv-slides__n', text: `${slides.length} slides` }));
+    }).catch(() => { /* sin tira legible: se queda el ícono */ });
+  }
+  const main = el('div', { class: 'dlv-carrusel__main' + (visor ? ' dlv-carrusel__main--slides' : '') }, [
+    visor || el('div', { class: 'dlv-carrusel__ico' }, [icon('grip', 30)]),
     el('span', { class: 'dlv-card__titlewrap' }, [
       pieceBadge(it),
       el('span', { class: 'dlv-card__title', text: it.title || T('Carrusel', 'Carousel') }),
     ]),
     el('div', { class: 'dlv-card__actions' }, [
-      el('a', {
+      it.link ? el('a', {
         class: 'dlv-carrusel-btn', href: it.link, target: '_blank', rel: 'noopener noreferrer',
-      }, [icon('eye', 16), el('span', { text: T('Ver carrusel', 'View carousel') })]),
+      }, [icon('eye', 16), el('span', { text: T('Ver carrusel', 'View carousel') })]) : null,
+      staff ? el('button', {
+        class: 'dlv-carrusel-btn', type: 'button', disabled: busy || null,
+        onclick: () => tiraIn.click(),
+      }, [icon('camera', 15), el('span', { text: it.poster_url ? T('Cambiar tira', 'Replace strip') : T('Subir tira', 'Upload strip') })]) : null,
       staff ? el('button', { class: 'dlv-del', type: 'button', 'aria-label': T('Eliminar', 'Delete'), onclick: () => removeItem(it) }, [icon('trash', 16)]) : null,
+      tiraIn,
     ]),
   ]);
   return el('div', { class: 'dlv-card dlv-card--carrusel' }, [
@@ -1551,7 +1655,7 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202608070105');
+        const mod = await import('../lib/pdf-entregables.js?v=202608070151');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         // La voz de la marca: mapa local (como CONFIG_MARCA del generador);
