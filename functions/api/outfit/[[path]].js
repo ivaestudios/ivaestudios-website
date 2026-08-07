@@ -1,37 +1,38 @@
 /* ═══════════════════════════════════════════════════════════════
-   PROBADOR CON IA · IVAE Studios
-   La persona sube SU foto y Gemini la viste con el look elegido
-   (figura + color + locación) manteniendo su cara y su pose.
+   PRUÉBATE ESTE LOOK · IVAE Studios
+   La clienta elige un look del lookbook (foto REAL de una sesión),
+   sube su foto, y la IA la viste con ESE vestido exacto.
+   Clave del diseño: a la IA se le manda la FOTO del vestido, no una
+   descripción de palabras (así no inventa una prenda distinta).
+
    Rutas:
-     GET  /api/outfit/status  → { ready }  (¿hay GEMINI_API_KEY?)
-     POST /api/outfit/tryon   → multipart { photo, fig, color, scene }
-                              → { ok, image: dataURI }
-   Anti-abuso: 4 generaciones/día por IP + tope global 80/día (D1),
-   foto máx 7 MB, solo JPEG/PNG/WebP reales (magic bytes).
-   La foto se procesa en memoria y NO se guarda.
+     GET  /api/outfit/status  → { ready, variantes, restantes }
+     POST /api/outfit/tryon   → multipart { photo, look, prenda }
+                              → { ok, images: [dataURI, ...] }
+
+   Reglas que protegen a la marca:
+     · Se entregan VARIAS variantes: si una sale mal, no parecemos malos.
+     · El prompt PROHÍBE cambiar cara, cuerpo, piel y peso.
+     · La foto se procesa en memoria y NUNCA se guarda.
+     · Topes duros de gasto: por IP y global, ajustables por variable.
    ═══════════════════════════════════════════════════════════════ */
 
 const MAX_PHOTO = 7 * 1024 * 1024;
-const PER_IP_DAY = 4;
-const GLOBAL_DAY = 80;
+const PER_IP_DAY_DEF = 2;    // intentos por persona al día
+const GLOBAL_DAY_DEF = 15;   // intentos en todo el sitio al día
+const VARIANTES = 3;         // fotos que recibe la clienta por intento
 
-const OUTFITS = {
-  mujerMaxi:  'a flowing floor-length maxi dress in {color}, lightweight linen and chiffon, elegant beach editorial style',
-  mujerCorto: 'an elegant knee-length flowy dress in {color}, lightweight breathable fabric, beach editorial style',
-  hombre:     'a relaxed {color} linen shirt with sleeves lightly rolled and one button open, with light cream linen trousers',
-  nina:       'a simple elegant light cotton dress in {color} for a young girl',
-  nino:       'a plain {color} linen shirt with light sand shorts for a young boy'
-};
-const COLORS = {
-  cream: 'soft cream', white: 'ivory white', sand: 'warm sand beige', sage: 'muted sage green',
-  dustyrose: 'dusty rose pink', terracotta: 'warm terracotta', softblue: 'soft powder blue',
-  navy: 'deep navy blue', black: 'black', coral: 'bright coral'
-};
-const SCENES = {
-  golden:   'on a Caribbean beach at golden hour, warm sunset light over turquoise water',
-  turquesa: 'on a bright white-sand Caribbean beach at midday, turquoise sea behind',
-  rosa:     'on a Caribbean beach under a soft pink pastel sunset sky',
-  selva:    'in a lush tropical Mexican jungle with warm light filtering through the trees'
+// Encuadres distintos para que las variantes no salgan calcadas
+const ENCUADRES = [
+  'Full body vertical portrait, the person centered, feet visible.',
+  'Three quarter body portrait, from mid thigh up, slightly closer.',
+  'Full body, wider shot with more of the location visible around them.'
+];
+
+const PRENDAS = {
+  mujerMaxi:  'a long flowing maxi dress',
+  mujerCorto: 'an elegant knee length dress',
+  hombre:     'a linen shirt with light linen trousers'
 };
 
 function json(data, status) {
@@ -50,7 +51,7 @@ function sniffImage(buf) {
   return null;
 }
 
-function b64FromBuffer(buf) {
+function b64(buf) {
   const bytes = new Uint8Array(buf);
   let bin = '';
   const chunk = 0x8000;
@@ -61,38 +62,31 @@ function b64FromBuffer(buf) {
 
 async function ensureTable(env) {
   await env.DB.prepare(
-    `CREATE TABLE IF NOT EXISTS outfit_gen_log (
-       id TEXT PRIMARY KEY, ip TEXT, created_at TEXT
-     )`
+    `CREATE TABLE IF NOT EXISTS outfit_gen_log (id TEXT PRIMARY KEY, ip TEXT, created_at TEXT)`
   ).run();
 }
 
-async function callGemini(env, mime, photoB64, prompt) {
+async function gemini(env, partes) {
   const body = JSON.stringify({
-    contents: [{
-      parts: [
-        { inline_data: { mime_type: mime, data: photoB64 } },
-        { text: prompt }
-      ]
-    }],
+    contents: [{ parts: partes }],
     generationConfig: { responseModalities: ['IMAGE'] }
   });
-  const models = ['gemini-2.5-flash-image', 'gemini-2.5-flash-image-preview'];
-  let lastErr = 'sin respuesta';
-  for (const model of models) {
-    const r = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-      {
+  const modelos = ['gemini-2.5-flash-image', 'gemini-2.5-flash-image-preview'];
+  let ultimo = 'sin respuesta';
+  for (const modelo of modelos) {
+    let r;
+    try {
+      r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
         body
-      }
-    );
-    if (r.status === 404) { lastErr = `modelo ${model} no disponible`; continue; }
+      });
+    } catch (e) { ultimo = 'red'; continue; }
+    if (r.status === 404) { ultimo = `modelo ${modelo} no disponible`; continue; }
     const data = await r.json().catch(() => ({}));
     if (!r.ok) {
-      lastErr = (data && data.error && data.error.message) || `HTTP ${r.status}`;
-      if (r.status === 429 || r.status === 503) break; // cuota o saturación: no reintentar otro modelo
+      ultimo = (data && data.error && data.error.message) || `HTTP ${r.status}`;
+      if (r.status === 429 || r.status === 503) break;
       continue;
     }
     const parts = (((data.candidates || [])[0] || {}).content || {}).parts || [];
@@ -100,22 +94,24 @@ async function callGemini(env, mime, photoB64, prompt) {
       const inl = p.inlineData || p.inline_data;
       if (inl && inl.data) return { ok: true, mime: inl.mimeType || inl.mime_type || 'image/png', data: inl.data };
     }
-    lastErr = 'la IA no devolvió imagen';
+    ultimo = 'la IA no devolvió imagen';
   }
-  return { ok: false, error: lastErr };
+  return { ok: false, error: ultimo };
 }
 
 export async function onRequest(context) {
   const { request, env, params } = context;
   const segs = Array.isArray(params.path) ? params.path : params.path ? [params.path] : [];
+  const perIp = parseInt(env.OUTFIT_PER_IP_DAY || PER_IP_DAY_DEF, 10);
+  const perDia = parseInt(env.OUTFIT_GLOBAL_DAY || GLOBAL_DAY_DEF, 10);
 
   try {
     if (request.method === 'GET' && segs[0] === 'status')
-      return json({ ready: !!env.GEMINI_API_KEY });
+      return json({ ready: !!env.GEMINI_API_KEY, variantes: VARIANTES, porPersona: perIp });
 
     if (request.method === 'POST' && segs[0] === 'tryon') {
       const es = (request.headers.get('accept-language') || 'es').toLowerCase().indexOf('es') !== -1;
-      const msg = (esTxt, enTxt) => (es ? esTxt : enTxt);
+      const msg = (e, i) => (es ? e : i);
 
       if (!env.GEMINI_API_KEY)
         return json({ ok: false, error: msg('El probador con IA aún no está activado.', 'The AI fitting room is not enabled yet.') }, 503);
@@ -127,52 +123,83 @@ export async function onRequest(context) {
       catch (e) { return json({ ok: false, error: msg('No se pudo leer tu foto. Intenta de nuevo.', 'Could not read your photo. Try again.') }, 400); }
 
       const photo = form.get('photo');
-      const fig = String(form.get('fig') || 'mujerMaxi');
-      const color = String(form.get('color') || 'cream');
-      const scene = String(form.get('scene') || 'golden');
+      const look = String(form.get('look') || '');
+      const prenda = String(form.get('prenda') || 'mujerMaxi');
       if (!(photo instanceof File) || photo.size === 0)
         return json({ ok: false, error: msg('Sube una foto primero.', 'Upload a photo first.') }, 400);
       if (photo.size > MAX_PHOTO)
         return json({ ok: false, error: msg('La foto pesa más de 7 MB. Usa una más ligera.', 'Photo is over 7 MB. Use a lighter one.') }, 400);
-      if (!OUTFITS[fig] || !COLORS[color] || !SCENES[scene])
+      // el look SOLO puede ser una foto nuestra del lookbook
+      if (!/^\/images\/lookbook\/[a-z0-9-]+\.jpg$/.test(look))
         return json({ ok: false, error: 'Solicitud inválida.' }, 400);
+      if (!PRENDAS[prenda]) return json({ ok: false, error: 'Solicitud inválida.' }, 400);
 
       const buf = await photo.arrayBuffer();
       const mime = sniffImage(buf);
       if (!mime)
         return json({ ok: false, error: msg('La foto debe ser JPG, PNG o WebP.', 'Photo must be JPG, PNG or WebP.') }, 400);
 
-      // límites: por IP y global, por día UTC
+      // Topes de gasto (día UTC)
       await ensureTable(env);
       const ip = request.headers.get('cf-connecting-ip') || '';
-      const dayStart = new Date().toISOString().slice(0, 10) + 'T00:00:00.000Z';
-      const mine = await env.DB.prepare(
-        `SELECT COUNT(*) AS n FROM outfit_gen_log WHERE ip = ? AND created_at > ?`
-      ).bind(ip, dayStart).first();
-      if (mine && mine.n >= PER_IP_DAY)
-        return json({ ok: false, error: msg('Alcanzaste tus pruebas de hoy. Vuelve mañana o escríbenos por WhatsApp.', 'You reached today\'s tries. Come back tomorrow or message us on WhatsApp.') }, 429);
-      const all = await env.DB.prepare(
-        `SELECT COUNT(*) AS n FROM outfit_gen_log WHERE created_at > ?`
-      ).bind(dayStart).first();
-      if (all && all.n >= GLOBAL_DAY)
+      const desde = new Date().toISOString().slice(0, 10) + 'T00:00:00.000Z';
+      const mias = await env.DB.prepare(`SELECT COUNT(*) AS n FROM outfit_gen_log WHERE ip = ? AND created_at > ?`)
+        .bind(ip, desde).first();
+      if (mias && mias.n >= perIp)
+        return json({ ok: false, error: msg('Ya usaste tus pruebas de hoy. Vuelve mañana o escríbenos por WhatsApp y te ayudamos personalmente.', 'You used today\'s tries. Come back tomorrow or message us on WhatsApp and we will help you personally.') }, 429);
+      const todas = await env.DB.prepare(`SELECT COUNT(*) AS n FROM outfit_gen_log WHERE created_at > ?`)
+        .bind(desde).first();
+      if (todas && todas.n >= perDia)
         return json({ ok: false, error: msg('El probador descansa por hoy. Vuelve mañana.', 'The fitting room is resting for today. Come back tomorrow.') }, 429);
 
-      const outfitTxt = OUTFITS[fig].replace('{color}', COLORS[color]);
-      const prompt =
-        `Edit this photo. Dress the person in ${outfitTxt}. ` +
-        `Keep their face, identity, hair, skin tone, body shape and pose exactly the same. ` +
-        `Place them ${SCENES[scene]}. ` +
-        `Photorealistic, luxury editorial photography, natural light, high detail. ` +
+      // La FOTO del look elegido va como referencia de la prenda
+      let refB64 = null, refMime = 'image/jpeg';
+      try {
+        const rr = await fetch(new URL(look, request.url).toString());
+        if (rr.ok) {
+          const rb = await rr.arrayBuffer();
+          refMime = rr.headers.get('content-type') || 'image/jpeg';
+          refB64 = b64(rb);
+        }
+      } catch (e) {}
+
+      const base =
+        `You are editing a real photograph for a luxury destination photography studio. ` +
+        `IMAGE 1 is the client. ` +
+        (refB64 ? `IMAGE 2 is a reference photo from one of our real sessions: copy the OUTFIT from image 2 (same garment type, same color, same fabric, same length) and the light and setting of that location. ` +
+                  `Do not copy the person from image 2, only their outfit and the ambience. `
+                : `Dress the client in ${PRENDAS[prenda]} in soft cream linen, on a Caribbean beach at golden hour. `) +
+        `Redress the person from image 1 in that outfit. ` +
+        `CRITICAL: keep their face, identity, hairstyle, skin tone, body shape, weight and pose EXACTLY as they are. ` +
+        `Do not slim, reshape, retouch or beautify the body or the face. Do not change their age or ethnicity. ` +
+        `Photorealistic editorial photography, natural light, shallow depth of field, high detail. ` +
         `Return only the edited image.`;
 
-      const g = await callGemini(env, mime, b64FromBuffer(buf), prompt);
-      if (!g.ok)
-        return json({ ok: false, error: msg('La IA está saturada en este momento. Intenta de nuevo en un minuto.', 'The AI is busy right now. Try again in a minute.'), detail: g.error }, 502);
+      const fotoB64 = b64(buf);
+      const trabajos = [];
+      for (let i = 0; i < VARIANTES; i++) {
+        const partes = [{ inline_data: { mime_type: mime, data: fotoB64 } }];
+        if (refB64) partes.push({ inline_data: { mime_type: refMime, data: refB64 } });
+        partes.push({ text: base + ' ' + ENCUADRES[i % ENCUADRES.length] });
+        trabajos.push(gemini(env, partes));
+      }
+      const salidas = await Promise.all(trabajos);
+      const buenas = salidas.filter(s => s.ok);
+
+      if (!buenas.length) {
+        const detalle = (salidas[0] && salidas[0].error) || '';
+        return json({
+          ok: false,
+          error: msg('La IA está saturada en este momento. Intenta de nuevo en un minuto.',
+                     'The AI is busy right now. Try again in a minute.'),
+          detail: detalle
+        }, 502);
+      }
 
       await env.DB.prepare(`INSERT INTO outfit_gen_log (id, ip, created_at) VALUES (?, ?, ?)`)
         .bind(crypto.randomUUID(), ip, new Date().toISOString()).run();
 
-      return json({ ok: true, image: `data:${g.mime};base64,${g.data}` });
+      return json({ ok: true, images: buenas.map(b => `data:${b.mime};base64,${b.data}`) });
     }
 
     return json({ ok: false, error: 'Ruta no válida.' }, 404);

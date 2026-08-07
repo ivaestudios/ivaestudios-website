@@ -7,8 +7,8 @@
 // 2026-08-06: con varias revisoras por marca, ver quién hizo qué y dónde).
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202608071302';
-import { statusLabel } from '../api.js?v=202608071302';
+import { T } from '../shell/i18n.js?v=202608071753';
+import { statusLabel } from '../api.js?v=202608071753';
 
 // Verbos del feed en es-MX (espejo de logActivity del backend).
 export const ACTION_LABELS = {
@@ -46,6 +46,8 @@ export const CAMPOS = {
   assignee: T('responsable', 'assignee'),
   pillar: T('pilar', 'pillar'),
   notes: T('notas', 'notes'),
+  notes_people: T('notas', 'notes'),
+  notes_team: T('notas del equipo', 'team notes'),
   grabacion: T('grabación', 'recording'),
   inspo_url: T('inspo', 'inspo'),
   video_url: T('video final', 'final video'),

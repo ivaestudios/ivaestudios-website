@@ -426,9 +426,16 @@ function campoProhibidoPara(session, bodyObj) {
   return CLIENT_FORBIDDEN_FIELDS.find((f) => Object.prototype.hasOwnProperty.call(bodyObj || {}, f)) || null;
 }
 
+// `notes_people` NO está aquí a propósito (pedido de Vianey 2026-08-07: las
+// revisoras del cliente dejan sus anotaciones ahí y les salía "Campo no
+// editable"). Esas notas SIEMPRE fueron para que el cliente las viera —
+// shapePost se las manda — y ahora también las escribe; el sanitizador
+// exige {persona: texto} y cada cambio queda en el historial con su nombre.
+// Lo que sigue prohibido es el flujo INTERNO del equipo: el estado va por
+// sus dos botones (Aprobado / Pedir cambios), no a mano.
 const CLIENT_FORBIDDEN_FIELDS = [
   'status', 'grabacion', 'assignee', 'assignee_user_id', 'notes_team',
-  'notes_people', 'client_visible', 'priority', 'approval_state',
+  'client_visible', 'priority', 'approval_state',
   'work_start', 'effort_points', 'tags',
 ];
 
