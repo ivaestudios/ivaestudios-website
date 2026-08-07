@@ -14,16 +14,18 @@
 // Cierra con el mismo camino feliz «Aprobado» por WhatsApp.
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202608070939';
+import { T } from '../shell/i18n.js?v=202608070959';
+import { slidesFromPost } from '../editor/slides.js?v=202608070959';
 import {
   W, TINTA, HUMO, MX, CONT_W, PIE_TOP, NOTA,
   cargarFuentes, nuevaPagina, exportar, texto, anchoTexto, parrafo, regla,
   cab, pieDePagina, tituloSeccion, botonCanvas,
   paginaPortadaBase, paginaCierreAprobado, labelDeMes, armarYDescargar, MESES_ES,
-} from './pdf-lienzo.js?v=202608070939';
+} from './pdf-lienzo.js?v=202608070959';
 
-// Tipos de pieza que son VIDEO (los estáticos —carrusel/foto/post— no llevan
-// guion y viven en el PDF de Entregables).
+// Tipos de pieza que son VIDEO. Los CARRUSELES también entran (pedido
+// 2026-08-07 "los carruseles también"): sus textos van POR SLIDE con
+// slidesFromPost. Solo foto/post quedan fuera (no llevan guion).
 const TIPOS_VIDEO = ['reel', 'tiktok', 'historia', 'experiencia', 'informativo', 'pauta', 'tratamientos'];
 
 function fechaBonita(publishDate) {
@@ -33,16 +35,27 @@ function fechaBonita(publishDate) {
   return `SE PUBLICA · ${parseInt(m[3], 10)} ${mes}`;
 }
 
-// ── Página de un video: guion por secciones + botón de inspiración ──────────
-function paginaGuion({ marca, handle, mesLabel, titulo, sub, fecha, secciones, inspo, folio, total }) {
+// ── Página de una pieza: PRIMERO la inspiración, DESPUÉS el guion ───────────
+// (Pedido de Vianey: "primero ve el video de inspiración y luego ve el
+// guion — sube el link de la inspo primero".)
+function paginaGuion({ marca, handle, mesLabel, titulo, etiqueta, sub, fecha, secciones, inspo, folio, total }) {
   const { cv, cx } = nuevaPagina();
   cab(cx, handle, marca);
-  tituloSeccion(cx, titulo, 'guion', sub);
+  tituloSeccion(cx, titulo, etiqueta || 'guion', sub);
 
-  const yTop = 360;
-  // Zona de texto: si hay inspiración, el bloque botón+nota vive abajo fijo.
-  const BTN_Y = 1560;
-  const yLimite = inspo ? BTN_Y - 60 : PIE_TOP - 40;
+  const links = [];
+  let yTop = 360;
+  if (inspo) {
+    texto(cx, 'PRIMERO — VE LA INSPIRACIÓN', { x: MX, y: 372, size: 21, peso: 500, esp: 0.3, color: HUMO });
+    const b = botonCanvas(cx, 404, 'Ver la inspiración', true);
+    texto(cx, 'Toca el botón: es el video de referencia de esta pieza.', { ...NOTA, size: 24, x: W / 2, y: 404 + 132 + 46 });
+    links.push({ x: b.x, y: b.y - 14, w: b.w, h: b.h + 28, url: inspo });
+    regla(cx, W / 2, CONT_W, 404 + 132 + 96);
+    const lee = etiqueta === 'carrusel' ? 'DESPUÉS — LEE LOS TEXTOS' : 'DESPUÉS — LEE EL GUION';
+    texto(cx, lee, { x: MX, y: 404 + 132 + 158, size: 21, peso: 500, esp: 0.3, color: HUMO });
+    yTop = 404 + 132 + 236;   // aire entre el rótulo del paso y el primer bloque
+  }
+  const yLimite = PIE_TOP - 40;
 
   const conTexto = secciones.filter((s) => s.texto);
   const dibujarGuion = (size, medir) => {
@@ -58,9 +71,12 @@ function paginaGuion({ marca, handle, mesLabel, titulo, sub, fecha, secciones, i
     return y - 46;
   };
 
+  // La fecha va a la derecha del primer rótulo, discreta.
+  if (fecha) texto(cx, fecha, { x: W - MX, y: inspo ? 372 : 360, size: 21, peso: 500, esp: 0.26, color: HUMO, alinear: 'right' });
+
   if (conTexto.length) {
     // Auto-ajuste: 30 → 27 → 24 px; si aun así no cabe, 24px y el final del
-    // último bloque se recorta con "…" (jamás encimarse con botón o pie).
+    // último bloque se recorta con "…" (jamás encimarse con el pie).
     let size = 30;
     while (size > 24 && dibujarGuion(size, true) > yLimite) size -= 3;
     if (dibujarGuion(size, true) > yLimite) {
@@ -84,20 +100,11 @@ function paginaGuion({ marca, handle, mesLabel, titulo, sub, fecha, secciones, i
     }
     dibujarGuion(size, false);
   } else {
-    texto(cx, 'Guion en preparación', { x: W / 2, y: 760, size: 64, cursiva: true, alinear: 'center' });
-    texto(cx, 'Te lo compartimos en cuanto esté escrito.', { ...NOTA, x: W / 2, y: 840 });
+    const yVacio = inspo ? yTop + 260 : 760;
+    texto(cx, 'Guion en preparación', { x: W / 2, y: yVacio, size: 64, cursiva: true, alinear: 'center' });
+    texto(cx, 'Te lo compartimos en cuanto esté escrito.', { ...NOTA, x: W / 2, y: yVacio + 80 });
   }
 
-  // La fecha va arriba a la derecha del guion, discreta.
-  if (fecha) texto(cx, fecha, { x: W - MX, y: yTop, size: 21, peso: 500, esp: 0.26, color: HUMO, alinear: 'right' });
-
-  const links = [];
-  if (inspo) {
-    regla(cx, W / 2, CONT_W, BTN_Y - 64);
-    const b = botonCanvas(cx, BTN_Y, 'Ver la inspiración', true);
-    texto(cx, 'Toca el botón: es el video de referencia para este contenido.', { ...NOTA, x: W / 2, y: BTN_Y + 132 + 50 });
-    links.push({ x: b.x, y: b.y - 14, w: b.w, h: b.h + 28, url: inspo });
-  }
   pieDePagina(cx, mesLabel, folio, total);
   return { dataUrl: exportar(cv), links };
 }
@@ -111,39 +118,65 @@ export async function generarPdfContenido({ month, piezas, marca, handle, onPaso
   await cargarFuentes();
   const mesLabel = labelDeMes(month);
 
-  // Videos del mes, en el orden del calendario (fecha, luego posición).
-  const videos = (piezas || [])
-    .filter((p) => TIPOS_VIDEO.includes(String(p.content_type || '').toLowerCase()))
+  // Videos Y carruseles del mes, intercalados por fecha (el orden del
+  // calendario); cada familia lleva su propio contador.
+  const esVideo = (p) => TIPOS_VIDEO.includes(String(p.content_type || '').toLowerCase());
+  const esCarrusel = (p) => String(p.content_type || '').toLowerCase() === 'carrusel';
+  const plan = (piezas || [])
+    .filter((p) => esVideo(p) || esCarrusel(p))
     .sort((a, b) => String(a.publish_date || '9999').localeCompare(String(b.publish_date || '9999')));
-  if (!videos.length) throw new Error(T('Este mes no tiene videos planeados.', 'This month has no planned videos.'));
+  if (!plan.length) throw new Error(T('Este mes no tiene videos ni carruseles planeados.', 'This month has no planned videos or carousels.'));
+  const nVideos = plan.filter(esVideo).length;
+  const nCarruseles = plan.length - nVideos;
 
-  const total = 2 + videos.length;
+  const total = 2 + plan.length;
   const paginas = [];
   paso(T('Armando la portada…', 'Building the cover…'));
+  const resumen = [
+    nVideos ? `${nVideos} ${nVideos === 1 ? 'VIDEO' : 'VIDEOS'}` : null,
+    nCarruseles ? `${nCarruseles} ${nCarruseles === 1 ? 'CARRUSEL' : 'CARRUSELES'}` : null,
+  ].filter(Boolean).join('   ·   ');
   paginas.push(paginaPortadaBase({
-    marca, handle, mesLabel, total,
+    marca, handle, mesLabel, total, resumen,
     tituloCursiva: 'Contenido',
-    resumen: `${videos.length} ${videos.length === 1 ? 'VIDEO' : 'VIDEOS'}`,
-    lineas: ['El plan de tus videos de este mes —', 'su guion y su inspiración, antes de grabar.'],
+    lineas: ['El plan de tu contenido de este mes —', 'guiones e inspiración, antes de producir.'],
   }));
 
-  let folio = 1;
-  for (let i = 0; i < videos.length; i++) {
-    const p = videos[i];
-    paso(T(`Video ${i + 1} de ${videos.length}…`, `Video ${i + 1} of ${videos.length}…`));
-    paginas.push(paginaGuion({
-      marca, handle, mesLabel,
-      titulo: `Video ${i + 1}`,
-      sub: p.title || '',
-      fecha: fechaBonita(p.publish_date),
-      secciones: [
-        { etiqueta: 'Gancho', texto: String(p.hook || '').trim() },
-        { etiqueta: 'Desarrollo', texto: String(p.body || '').trim() },
-        { etiqueta: 'Cierre', texto: String(p.cta || '').trim() },
-      ],
-      inspo: String(p.inspo_url || '').trim() || null,
-      folio: ++folio, total,
-    }));
+  let folio = 1; let iVideo = 0; let iCarrusel = 0;
+  for (const p of plan) {
+    paso(T(`Pieza ${folio} de ${plan.length}…`, `Piece ${folio} of ${plan.length}…`));
+    const inspo = String(p.inspo_url || '').trim() || null;
+    const fecha = fechaBonita(p.publish_date);
+    if (esCarrusel(p)) {
+      // Los textos del carrusel van POR SLIDE (slidesFromPost: hook,
+      // intermedios del body, cta) — el mismo desglose del editor.
+      const slides = slidesFromPost(p).map((s) => String(s || '').trim());
+      const secciones = slides.map((s, i) => ({
+        etiqueta: i === 0 ? 'Slide 1 · portada' : (i === slides.length - 1 ? `Slide ${slides.length} · cierre` : `Slide ${i + 1}`),
+        texto: s,
+      }));
+      paginas.push(paginaGuion({
+        marca, handle, mesLabel,
+        titulo: `Carrusel ${++iCarrusel}`,
+        etiqueta: 'carrusel',
+        sub: p.title || '', fecha, secciones, inspo,
+        folio: ++folio, total,
+      }));
+    } else {
+      paginas.push(paginaGuion({
+        marca, handle, mesLabel,
+        titulo: `Video ${++iVideo}`,
+        etiqueta: 'guion',
+        sub: p.title || '', fecha,
+        secciones: [
+          { etiqueta: 'Gancho', texto: String(p.hook || '').trim() },
+          { etiqueta: 'Desarrollo', texto: String(p.body || '').trim() },
+          { etiqueta: 'Cierre', texto: String(p.cta || '').trim() },
+        ],
+        inspo,
+        folio: ++folio, total,
+      }));
+    }
   }
 
   paso(T('Cerrando el documento…', 'Closing the document…'));

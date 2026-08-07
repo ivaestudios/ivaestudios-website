@@ -13,13 +13,13 @@
 //    dice "en producción" SIN botón muerto.
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202608070939';
+import { T } from '../shell/i18n.js?v=202608070959';
 import {
   W, S, TINTA, HUMO, MX, CONT_W, PIE_TOP, NOTA,
   cargarFuentes, nuevaPagina, exportar, texto, textoRecortado,
   cab, pieDePagina, tituloSeccion, marquito, dibujarCover, botonCanvas,
   paginaPortadaBase, paginaCierreAprobado, labelDeMes, armarYDescargar,
-} from './pdf-lienzo.js?v=202608070939';
+} from './pdf-lienzo.js?v=202608070959';
 
 // ── Cuadro del reel: poster del API o el fotograma MÁS NÍTIDO del video ─────
 function nitidez(cx, w, h) {

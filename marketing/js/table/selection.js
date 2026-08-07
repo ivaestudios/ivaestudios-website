@@ -15,10 +15,10 @@
 // Todo lo efimero (ancla, modo) vive aqui en memoria, JAMAS en store/prefs.
 // ============================================================================
 
-import { el, fmtDate } from '../api.js?v=202608070939';
-import { T } from '../shell/i18n.js?v=202608070939';
-import { icon } from '../shell/icons.js?v=202608070939';
-import * as bulk from '../services/bulk.js?v=202608070939';
+import { el, fmtDate } from '../api.js?v=202608070959';
+import { T } from '../shell/i18n.js?v=202608070959';
+import { icon } from '../shell/icons.js?v=202608070959';
+import * as bulk from '../services/bulk.js?v=202608070959';
 
 const LONGPRESS_MS = 500;
 const MOVE_CANCEL_PX = 10;
