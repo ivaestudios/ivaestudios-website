@@ -20,6 +20,26 @@
 # Spanish brand page
 
 # Common brand-typo recovery
+# ─────────────────────────────────────────────────────────────────────
+# GSC 404 cleanup (2026-08): 15 URLs que Google tenía indexadas y daban 404.
+# AL INICIO porque Cloudflare solo honra las primeras ~300 reglas (por eso
+# /glossary, que estaba en la línea 500, seguía en 404).
+/glossary /brand 301
+/services/weddings /destination-wedding-photographer-mexico 301
+/services/couples /couples-photography-mexico 301
+/services/family-photos /luxury-family-photos-cancun 301
+/services/proposals /surprise-proposal-photographer-cancun 301
+/services/cenote /cenote-photographer-tulum 301
+/services/yacht /blog/luxury-yacht-photography-cancun 301
+/services/* /destination-wedding-photographer-mexico 301
+/es/cancun /es/fotografo-cancun 301
+/es/parejas /es/fotografia-parejas-mexico 301
+/es/riviera-maya /es/fotografo-riviera-maya 301
+/es/fotografo-bodas-riviera-maya /es/fotografo-riviera-maya 301
+/es/blog/fotografia-aniversario-cancun-mexico /es/blog/fotografia-aniversario-mexico 301
+/es/blog/fotografo-micro-bodas-cancun-tulum /es/fotografo-bodas-destino-mexico 301
+/es/blog/fotografia-recien-nacido-cancun-resorts /es/fotos-familiares-lujo-cancun 301
+
 /marca /es/marca 301
 /about-brand /brand 301
 /about-the-brand /brand 301
@@ -497,7 +517,6 @@
 /es/fotografo-cenote-tulum /es/fotografo-bodas-tulum 301
 /tulum-cenote /cenote-photographer-tulum 301
 /blog/post-wedding-cancun /blog/wedding-photographer-cancun 301
-/glossary /brand 301
 
 
 # (sentinel: keep a trailing line so Cloudflare always parses the final redirect rule above)
