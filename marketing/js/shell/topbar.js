@@ -10,17 +10,17 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202608080029';
-import * as store from './store.js?v=202608080029';
-import { openSheet, pickFrom } from './sheet.js?v=202608080029';
-import { toast } from './toast.js?v=202608080029';
-import { icon } from './icons.js?v=202608080029';
-import { openClientSwitcher } from './clientswitcher.js?v=202608080029';
-import { T, isEN, setLang } from './i18n.js?v=202608080029';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202608080038';
+import * as store from './store.js?v=202608080038';
+import { openSheet, pickFrom } from './sheet.js?v=202608080038';
+import { toast } from './toast.js?v=202608080038';
+import { icon } from './icons.js?v=202608080038';
+import { openClientSwitcher } from './clientswitcher.js?v=202608080038';
+import { T, isEN, setLang } from './i18n.js?v=202608080038';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202608080029';
-import { getTheme, setTheme } from './theme.js?v=202608080029';
-import * as version from './version.js?v=202608080029';
+import { abrirBloqueados } from './moderacion.js?v=202608080038';
+import { getTheme, setTheme } from './theme.js?v=202608080038';
+import * as version from './version.js?v=202608080038';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -372,7 +372,7 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
           // accesible, no solo en el registro).
           accountRow('link', T('Términos de Uso', 'Terms of Use'), () => {
             close();
-            window.open('/marketing/terminos.html', '_blank', 'noopener');
+            window.open('/marketing/terminos', '_blank', 'noopener');
           }),
           // Eliminar cuenta: para TODOS los roles (Apple 5.1.1(v) — el revisor
           // puede entrar con cualquier cuenta y debe encontrarla). Lo que se
