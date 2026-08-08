@@ -737,3 +737,9 @@ body.editor-open #viewScroll { overflow: hidden; }
 /* Última actividad: quién tocó la pieza por última vez (encabezado). */
 .ed-ultima{flex-basis:100%;min-width:0;font-size:12.5px;color:var(--mut,#8a8a94);
   padding:2px 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Reportar / bloquear un comentario (Apple guideline 1.2). Discreto pero
+   siempre presente: el revisor tiene que encontrarlo sin instrucciones. */
+.edconv__mod{margin-left:auto;background:none;border:0;padding:4px 6px;border-radius:8px;
+  color:var(--mut,#9A9AA8);cursor:pointer;line-height:0;min-width:32px;min-height:32px}
+.edconv__mod:hover{background:rgba(255,255,255,.07);color:var(--text,#ECECF1)}

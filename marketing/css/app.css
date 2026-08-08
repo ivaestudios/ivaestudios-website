@@ -1365,3 +1365,22 @@ textarea.gedit { resize: vertical; min-height: 70px; line-height: 1.45; }
 @media (max-width: 767px) {
   input, select, textarea { font-size: 16px !important; }
 }
+
+/* ── Compuerta del EULA (Apple guideline 1.2) ─────────────────────────────────
+   Pantalla completa y NO descartable: se acepta o se sale. Debe verse encima
+   de todo (incluido el shell) y leerse cómodo en un iPhone. */
+.eulagate{position:fixed;inset:0;z-index:9999;background:rgba(6,6,10,.94);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+.eulagate__card{width:100%;max-width:520px;max-height:88vh;display:flex;flex-direction:column;
+  background:var(--surface,#121218);border:1px solid var(--border,#26262F);
+  border-radius:18px;padding:24px 22px}
+.eulagate__t{font-size:22px;margin:0 0 6px;color:var(--text,#ECECF1)}
+.eulagate__sub{font-size:14px;color:var(--mut,#9A9AA8);margin:0 0 16px}
+.eulagate__body{overflow-y:auto;-webkit-overflow-scrolling:touch;font-size:14.5px;
+  line-height:1.6;color:var(--text,#ECECF1);padding-right:4px}
+.eulagate__body p{margin:0 0 12px}
+.eulagate__body a{color:#E24DA0}
+.eulagate__acts{display:flex;gap:10px;margin-top:18px}
+.eulagate__acts .btn{flex:1;min-height:48px}
+.eulagate__no{background:transparent;border:1px solid var(--border,#26262F);color:var(--mut,#9A9AA8)}

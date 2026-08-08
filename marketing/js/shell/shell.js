@@ -19,22 +19,22 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202608071753';
-import * as store from './store.js?v=202608071753';
-import * as prefs from './prefs.js?v=202608071753';
-import * as router from './router.js?v=202608071753';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202608071753';
-import { toast } from './toast.js?v=202608071753';
-import { icon } from './icons.js?v=202608071753';
-import * as iconsMod from './icons.js?v=202608071753';
-import { createTopbar } from './topbar.js?v=202608071753';
-import { createBottomNav } from './bottomnav.js?v=202608071753';
-import { createSearch } from './search.js?v=202608071753';
-import { createNotifications } from './notifications.js?v=202608071753';
-import { T } from './i18n.js?v=202608071753';
-import * as version from './version.js?v=202608071753';
-import * as pickers from '../ui/pickers.js?v=202608071753';
-import * as dnd from '../ui/dnd.js?v=202608071753';
+import { api, el, clear } from '../api.js?v=202608080029';
+import * as store from './store.js?v=202608080029';
+import * as prefs from './prefs.js?v=202608080029';
+import * as router from './router.js?v=202608080029';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202608080029';
+import { toast } from './toast.js?v=202608080029';
+import { icon } from './icons.js?v=202608080029';
+import * as iconsMod from './icons.js?v=202608080029';
+import { createTopbar } from './topbar.js?v=202608080029';
+import { createBottomNav } from './bottomnav.js?v=202608080029';
+import { createSearch } from './search.js?v=202608080029';
+import { createNotifications } from './notifications.js?v=202608080029';
+import { T } from './i18n.js?v=202608080029';
+import * as version from './version.js?v=202608080029';
+import * as pickers from '../ui/pickers.js?v=202608080029';
+import * as dnd from '../ui/dnd.js?v=202608080029';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -521,6 +521,54 @@ function ctxFactory(view, params) {
 }
 
 // ── BOOT ─────────────────────────────────────────────────────────────────────
+// ── Compuerta del EULA (Apple 1.2) ──────────────────────────────────────────
+// Hoja a pantalla completa, NO descartable: o se acepta o se sale. El texto va
+// EMBEBIDO (Apple exige que el usuario pueda LEERLO, no solo un enlace) y el
+// botón "Acepto" registra la aceptación en el servidor con su fecha.
+function pedirEula() {
+  return new Promise((resolve) => {
+    const cap = document.createElement('div');
+    cap.className = 'eulagate';
+    cap.innerHTML = `
+      <div class="eulagate__card" role="dialog" aria-modal="true" aria-labelledby="eulagate-t">
+        <h2 id="eulagate-t" class="eulagate__t">Términos de Uso</h2>
+        <p class="eulagate__sub">Para seguir usando IVAE Marketing necesitamos que aceptes estos Términos.</p>
+        <div class="eulagate__body" tabindex="0">
+          <p><strong>Tolerancia cero al contenido ofensivo y a los usuarios abusivos.</strong>
+          Queda estrictamente prohibido publicar insultos, acoso, amenazas, discurso de odio,
+          contenido sexual explícito o violento, suplantación de identidad, spam o cualquier
+          contenido ilegal.</p>
+          <p>La app filtra automáticamente el lenguaje ofensivo. Además puedes
+          <strong>reportar</strong> cualquier contenido y <strong>bloquear</strong> a cualquier
+          usuario desde la propia app; al bloquear, su contenido desaparece de tu vista al
+          instante.</p>
+          <p><strong>Revisamos todo reporte en menos de 24 horas.</strong> Si confirmamos una
+          violación, eliminamos el contenido y desactivamos la cuenta responsable.</p>
+          <p>Puedes eliminar tu cuenta cuando quieras desde tu foto de perfil, arriba a la
+          derecha.</p>
+          <p><a href="/marketing/terminos.html" target="_blank" rel="noopener">Leer los Términos completos</a>
+          · <a href="/privacy-policy" target="_blank" rel="noopener">Aviso de Privacidad</a></p>
+        </div>
+        <div class="eulagate__acts">
+          <button type="button" class="btn btn-primary eulagate__ok">Acepto</button>
+          <button type="button" class="btn eulagate__no">Salir</button>
+        </div>
+      </div>`;
+    document.body.appendChild(cap);
+    const ok = cap.querySelector('.eulagate__ok');
+    ok.addEventListener('click', async () => {
+      ok.disabled = true; ok.textContent = 'Guardando…';
+      try { await api.post('/auth/accept-eula'); cap.remove(); resolve(true); }
+      catch { ok.disabled = false; ok.textContent = 'Acepto'; }
+    });
+    cap.querySelector('.eulagate__no').addEventListener('click', async () => {
+      try { await api.post('/auth/logout'); } catch { /* la cookie muere igual */ }
+      resolve(false);
+    });
+    setTimeout(() => ok.focus(), 60);
+  });
+}
+
 export async function boot() {
   const bootEl = document.getElementById('boot');
 
@@ -546,6 +594,16 @@ export async function boot() {
   // portal de solo lectura. Marca el body para ocultar el chrome de agencia
   // (Equipo, Accesos de cliente, etc.). El backend limita todo a SU marca.
   if (me.role === 'client') document.body.classList.add('is-client');
+
+  // ── EULA obligatorio (Apple guideline 1.2 — rechazo del 6-ago-2026) ───────
+  // Compuerta BLOQUEANTE antes de que la app se revele. Sin esto, ninguna
+  // cuenta EXISTENTE vería nunca los Términos (el registro auto-entra y el
+  // login salta directo) — incluida la cuenta demo del revisor de Apple.
+  if (me.eula_accepted === false) {
+    const aceptado = await pedirEula();
+    if (!aceptado) { location.replace('/marketing/'); return; }
+    me.eula_accepted = true;
+  }
 
   prefs.init(me.id);
   prefs.migrate();

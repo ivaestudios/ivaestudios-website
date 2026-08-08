@@ -389,3 +389,8 @@
   background: rgba(0,0,0,.55); color: #fff; padding: 3px 9px; border-radius: 99px; }
 .dlv-carrusel__main--slides { min-height: 0; padding: 14px; align-items: stretch; text-align: left; }
 .dlv-tirabtn { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+
+/* Reportar / bloquear un comentario de entregable (Apple guideline 1.2). */
+.dlv-comment__mod{margin-left:auto;background:none;border:0;padding:4px 6px;border-radius:8px;
+  color:var(--mut,#9A9AA8);cursor:pointer;line-height:0;min-width:32px;min-height:32px}
+.dlv-comment__mod:hover{background:rgba(255,255,255,.07);color:var(--text,#ECECF1)}

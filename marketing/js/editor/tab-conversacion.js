@@ -13,9 +13,12 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, api, timeAgo, avatar } from '../api.js?v=202608071753';
-import { icon } from '../shell/icons.js?v=202608071753';
-import { T } from '../shell/i18n.js?v=202608071753';
+import { el, api, timeAgo, avatar } from '../api.js?v=202608080029';
+import { icon } from '../shell/icons.js?v=202608080029';
+import { T } from '../shell/i18n.js?v=202608080029';
+// Reportar / bloquear (Apple guideline 1.2): TODO comentario debe poder
+// reportarse y todo autor poder bloquearse, desde cualquier rol.
+import { moderarComentario } from '../shell/moderacion.js?v=202608080029';
 
 let tmpSeq = 0;
 
@@ -47,6 +50,21 @@ export function mount(host, ed) {
             ? el('span', { class: 'edconv__tag edconv__tag--internal', text: T('Interno', 'Internal') })
             : el('span', { class: 'edconv__tag edconv__tag--public' }, [icon('eye', 12), T(`Visible para ${clientName}`, `Visible to ${clientName}`)]),
           el('span', { class: 'edconv__time', text: c._pending ? T('enviando...', 'sending...') : timeAgo(c.created_at) }),
+          // Apple 1.2: reportar contenido / bloquear al autor. Se oculta en los
+          // optimistas (tmp-*), que aún no existen en el servidor.
+          (c._pending || String(c.id || '').startsWith('tmp-')) ? null
+            : el('button', {
+              class: 'edconv__mod', type: 'button',
+              'aria-label': T('Reportar o bloquear', 'Report or block'),
+              title: T('Reportar o bloquear', 'Report or block'),
+              onclick: (e) => moderarComentario(e.currentTarget, {
+                target_type: String(c.id || '').startsWith('appr-') ? 'approval' : 'comment',
+                target_id: String(c.id || '').replace(/^appr-/, ''),
+                target_author_id: c.user_id || null,
+                author_name: c.author_name || '',
+                excerpt: c.body || '',
+              }),
+            }, [icon('dots', 14)]),
         ]),
         el('div', { class: 'edconv__body', text: c.body || '' }),
       ]),

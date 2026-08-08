@@ -10,15 +10,17 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202608071753';
-import * as store from './store.js?v=202608071753';
-import { openSheet, pickFrom } from './sheet.js?v=202608071753';
-import { toast } from './toast.js?v=202608071753';
-import { icon } from './icons.js?v=202608071753';
-import { openClientSwitcher } from './clientswitcher.js?v=202608071753';
-import { T, isEN, setLang } from './i18n.js?v=202608071753';
-import { getTheme, setTheme } from './theme.js?v=202608071753';
-import * as version from './version.js?v=202608071753';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202608080029';
+import * as store from './store.js?v=202608080029';
+import { openSheet, pickFrom } from './sheet.js?v=202608080029';
+import { toast } from './toast.js?v=202608080029';
+import { icon } from './icons.js?v=202608080029';
+import { openClientSwitcher } from './clientswitcher.js?v=202608080029';
+import { T, isEN, setLang } from './i18n.js?v=202608080029';
+// Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
+import { abrirBloqueados } from './moderacion.js?v=202608080029';
+import { getTheme, setTheme } from './theme.js?v=202608080029';
+import * as version from './version.js?v=202608080029';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -363,11 +365,19 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
             close();
             window.open('/privacy-policy', '_blank', 'noopener');
           }),
-          // Eliminar cuenta: SOLO el cliente (requisito Apple 5.1.1 — toda app
-          // con registro debe dejar borrar la cuenta desde la propia app).
-          ...(me && me.role === 'client' ? [
-            accountRow('trash', T('Eliminar mi cuenta', 'Delete my account'), () => { close(); confirmDeleteAccount(); }, true),
-          ] : []),
+          // Personas bloqueadas (Apple 1.2): poder DESbloquear es parte del
+          // requisito; sin esta pantalla el bloqueo sería una vía sin retorno.
+          accountRow('users', T('Personas bloqueadas', 'Blocked people'), () => { close(); abrirBloqueados(); }),
+          // Términos de Uso siempre a la mano (Apple 1.2: el EULA debe ser
+          // accesible, no solo en el registro).
+          accountRow('link', T('Términos de Uso', 'Terms of Use'), () => {
+            close();
+            window.open('/marketing/terminos.html', '_blank', 'noopener');
+          }),
+          // Eliminar cuenta: para TODOS los roles (Apple 5.1.1(v) — el revisor
+          // puede entrar con cualquier cuenta y debe encontrarla). Lo que se
+          // borra depende de si eres dueño de la marca: lo decide el servidor.
+          accountRow('trash', T('Eliminar mi cuenta', 'Delete my account'), () => { close(); confirmDeleteAccount(); }, true),
           accountRow('logout', T('Salir', 'Sign out'), async () => {
             close();
             try { await api.post('/auth/logout'); } catch { /* la cookie muere igual */ }
@@ -724,12 +734,19 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
     });
   }
 
-  // ── Eliminar mi cuenta (solo cliente; Apple 5.1.1) ────────────────────────
+  // ── Eliminar mi cuenta (TODOS los roles; Apple 5.1.1(v)) ──────────────────
   // Confirmación fuerte en DOS pasos antes de borrar de verdad. Cancelar en
   // cualquiera de los dos (o cerrar el sheet) no toca nada.
   async function confirmDeleteAccount() {
+    // El alcance REAL depende de si esta cuenta es dueña de su marca (se
+    // registró sola) o es un acceso que creó la agencia. Mentir aquí sería
+    // peor que no tener el botón.
+    const meNow = (store.getState().me) || {};
+    const esDuenio = !!meNow.is_owner;
     const primero = await pickFrom({
-      title: T('¿Seguro? Se borra tu marca y contenido', 'Are you sure? Your brand and content will be deleted'),
+      title: esDuenio
+        ? T('¿Seguro? Se borra tu marca y todo su contenido', 'Are you sure? Your brand and all its content will be deleted')
+        : T('¿Seguro? Se borra tu acceso y tus datos', 'Are you sure? Your access and personal data will be deleted'),
       options: [
         { value: 'no', label: T('No, conservar mi cuenta', 'No, keep my account') },
         { value: 'si', label: T('Sí, quiero eliminarla', 'Yes, I want to delete it') },
@@ -759,7 +776,11 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
           }
         });
         body.append(
-          el('p', { class: 'muted', text: T('Esta acción no se puede deshacer: se borran tu marca, tu calendario y tus entregables.', 'This cannot be undone: your brand, calendar and deliverables will be deleted.') }),
+          el('p', { class: 'muted', text: esDuenio
+            ? T('Esta acción no se puede deshacer: se borran tu cuenta, tu marca, tu calendario y tus entregables.',
+                'This cannot be undone: your account, your brand, calendar and deliverables will be deleted.')
+            : T('Esta acción no se puede deshacer: se borran tu cuenta y tus datos personales. El contenido de la marca seguirá siendo de la empresa.',
+                'This cannot be undone: your account and personal data will be deleted. The brand content remains the company\'s.') }),
           el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Contraseña', 'Password') }), pass]),
           el('div', { class: 'sheet__footer' }, [
             el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),

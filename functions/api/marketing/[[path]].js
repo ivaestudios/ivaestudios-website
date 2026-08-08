@@ -709,7 +709,7 @@ async function handleLogin(request, env) {
   await env.DB.prepare("UPDATE mkt_users SET last_login = datetime('now') WHERE id = ?").bind(user.id).run();
 
   return json(
-    { id: user.id, email: user.email, name: user.name, role: user.role, client_id: user.client_id, must_reset: user.must_reset === 1 },
+    { id: user.id, email: user.email, name: user.name, role: user.role, client_id: user.client_id, must_reset: user.must_reset === 1, eula_required: !(await eulaAceptado(env, user.id)) },
     200,
     { 'Set-Cookie': sessionCookie(sessionId, expiry) }
   );
@@ -737,7 +737,13 @@ async function handleMe(session, env) {
     name: session.name,
     role: session.role,
     client_id: session.client_id,
-    email_verified: emailVerified
+    email_verified: emailVerified,
+    // Apple 1.2: el shell exige aceptar el EULA antes de dejar entrar.
+    eula_accepted: await eulaAceptado(env, session.user_id),
+    eula_version: EULA_VERSION,
+    // Apple 5.1.1(v): la app debe decir la VERDAD sobre qué se borra. Dueño
+    // (marca de auto-registro) = cae todo; invitado o staff = solo su cuenta.
+    is_owner: await esDuenioDeSuMarca(env, session)
   });
 }
 
@@ -776,10 +782,213 @@ async function handleChangePassword(request, env, session) {
 // sesiones y usuarios de la marca, y la marca misma. Solo role='client'
 // (las cuentas de staff se gestionan vía /users). Best-effort por tabla:
 // las tablas de migraciones aún no aplicadas se saltan (isMissingTableError).
-async function handleDeleteAccount(request, env, session) {
-  if (session.role !== 'client' || !session.client_id) {
-    return json({ error: 'Solo las cuentas de cliente pueden auto-borrarse' }, 403);
+// ============================================================================
+// CUMPLIMIENTO APP STORE (rechazo 6-ago-2026 · guidelines 1.2 y 5.1.1(v))
+//
+// 1.2  Contenido de usuarios: EULA aceptado de forma AFIRMATIVA, filtro de
+//      lenguaje ofensivo al publicar, reportar contenido y bloquear usuarios.
+// 5.1.1(v) Borrado de cuenta desde la propia app, para TODOS los roles.
+//
+// Regla de negocio (Vianey 2026-08-07): quien borra su cuenta solo se borra
+// A SÍ MISMO, salvo que sea DUEÑO de la marca (auto-registro) — ahí sí cae
+// todo el workspace. Antes CUALQUIER cliente arrasaba la marca entera.
+// ============================================================================
+
+const EULA_VERSION = '2026-08';
+
+// Escape mínimo para el HTML de los correos de moderación.
+const escHtml = (s) => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+// Filtro de contenido ofensivo (ES + EN). Server-side a propósito: un filtro
+// en el navegador no cuenta para Apple. Compara por PALABRA COMPLETA sobre el
+// texto normalizado (sin acentos, sin l33t) para no castigar palabras que
+// contienen otra dentro ("besos" no es un insulto).
+const PALABRAS_VETADAS = [
+  'puta', 'puto', 'putas', 'putos', 'pendejo', 'pendeja', 'pendejos', 'pendejas',
+  'cabron', 'cabrona', 'cabrones', 'mierda', 'joder', 'jodete', 'imbecil',
+  'idiota', 'estupido', 'estupida', 'maricon', 'maricones', 'marica', 'zorra',
+  'perra', 'malparido', 'gilipollas', 'coño', 'verga', 'chinga', 'chingada',
+  'chingar', 'culero', 'culera', 'naco', 'naca', 'retrasado', 'mongolico',
+  'fuck', 'fucking', 'fucker', 'shit', 'bitch', 'bastard', 'asshole', 'cunt',
+  'faggot', 'nigger', 'whore', 'slut', 'rape', 'retard',
+  'matarte', 'matarlo', 'matarla', 'violarte', 'muerete', 'suicidate',
+];
+const MAPA_L33T = { '4': 'a', '@': 'a', '3': 'e', '1': 'i', '!': 'i', '0': 'o', '5': 's', '$': 's', '7': 't' };
+function normalizarTexto(s) {
+  return String(s || '')
+    .toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[4@31!05$7]/g, (c) => MAPA_L33T[c] || c)
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function contenidoOfensivo(texto) {
+  const t = normalizarTexto(texto);
+  if (!t) return false;
+  const palabras = new Set(t.split(' '));
+  return PALABRAS_VETADAS.some((p) => palabras.has(normalizarTexto(p)));
+}
+const ERROR_MODERACION = 'Ese texto no cumple nuestras Normas de convivencia. Quita el lenguaje ofensivo e inténtalo de nuevo.';
+// Devuelve una Response 422 si el texto no pasa, o null si está limpio.
+async function vetarSiOfensivo(env, session, texto, donde) {
+  if (!contenidoOfensivo(texto)) return null;
+  try {
+    await logActivity(env, {
+      client_id: (session && session.client_id) || null, session,
+      action: 'moderation.blocked_text', detail: donde,
+    });
+  } catch { /* best-effort */ }
+  return json({ error: ERROR_MODERACION, code: 'CONTENIDO_OFENSIVO' }, 422);
+}
+
+// ── Bloqueo entre usuarios (unidireccional: solo afecta a quien bloquea) ─────
+async function idsBloqueadosPor(env, userId) {
+  if (!userId) return new Set();
+  try {
+    const r = await env.DB.prepare('SELECT blocked_user_id FROM mkt_blocks WHERE blocker_user_id = ?').bind(userId).all();
+    return new Set((r.results || []).map((x) => x.blocked_user_id));
+  } catch { return new Set(); }   // pre-migración 024
+}
+
+async function handleListBlocks(env, session) {
+  try {
+    const r = await env.DB.prepare(
+      `SELECT b.blocked_user_id, COALESCE(u.name, b.blocked_name, 'Usuario') AS name, b.created_at
+       FROM mkt_blocks b LEFT JOIN mkt_users u ON u.id = b.blocked_user_id
+       WHERE b.blocker_user_id = ? ORDER BY b.created_at DESC`
+    ).bind(session.user_id).all();
+    return json({ blocks: r.results || [] });
+  } catch { return json({ blocks: [] }); }
+}
+
+async function handleBlockUser(request, env, session) {
+  let b; try { b = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+  const target = String((b || {}).user_id || '').trim();
+  if (!target) return json({ error: 'Falta el usuario a bloquear.' }, 400);
+  if (target === session.user_id) return json({ error: 'No puedes bloquearte a ti mismo.' }, 400);
+  const nombre = String((b || {}).name || '').slice(0, 120) || null;
+  await env.DB.prepare(
+    'INSERT OR REPLACE INTO mkt_blocks (blocker_user_id, blocked_user_id, blocked_name) VALUES (?, ?, ?)'
+  ).bind(session.user_id, target, nombre).run();
+  await logActivity(env, { client_id: session.client_id || null, session, action: 'user.block', detail: nombre || target });
+  return json({ ok: true });
+}
+
+async function handleUnblockUser(env, session, targetId) {
+  await env.DB.prepare('DELETE FROM mkt_blocks WHERE blocker_user_id = ? AND blocked_user_id = ?')
+    .bind(session.user_id, targetId).run();
+  return json({ ok: true });
+}
+
+// ── Reportes de contenido (cualquier rol) ───────────────────────────────────
+const RAZONES_REPORTE = ['ofensivo', 'acoso', 'spam', 'sexual', 'odio', 'otro'];
+
+async function handleCreateReport(request, env, session) {
+  let b; try { b = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+  const targetType = String((b || {}).target_type || '').trim();
+  const targetId = String((b || {}).target_id || '').trim();
+  const reason = String((b || {}).reason || 'otro').trim();
+  if (!targetType || !targetId) return json({ error: 'Falta el contenido a reportar.' }, 400);
+  if (!RAZONES_REPORTE.includes(reason)) return json({ error: 'Motivo no válido.' }, 400);
+
+  const id = randomId();
+  await env.DB.prepare(
+    `INSERT INTO mkt_reports (id, target_type, target_id, target_author_id, target_excerpt, client_id,
+      reporter_user_id, reporter_email, reason, note)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  ).bind(
+    id, targetType, targetId,
+    String((b || {}).target_author_id || '') || null,
+    String((b || {}).target_excerpt || '').slice(0, 400) || null,
+    session.client_id || null,
+    session.user_id, session.email || null,
+    reason, String((b || {}).note || '').slice(0, 500) || null
+  ).run();
+
+  await logActivity(env, { client_id: session.client_id || null, session, action: 'content.report', detail: `${targetType}:${reason}` });
+
+  // Aviso inmediato al equipo: Apple exige actuar en menos de 24 h.
+  try {
+    await sendAuthEmail(env, {
+      to: 'info@ivaestudios.com',
+      subject: '⚠️ Contenido reportado en IVAE Marketing',
+      html: authEmailHtml(
+        'Contenido reportado',
+        `<strong style="color:#fff">${escHtml(session.name || session.email || 'Un usuario')}</strong> reportó un contenido (${escHtml(targetType)}) por <strong style="color:#fff">${escHtml(reason)}</strong>.<br/><br/>Texto: ${escHtml(String((b || {}).target_excerpt || '').slice(0, 300))}<br/><br/>Hay que resolverlo en menos de 24 horas.`,
+        'Abrir la app', 'https://ivaestudios.com/marketing/app'
+      ),
+      text: `Reporte de ${session.email}: ${targetType} por ${reason}. Resolver en <24h.`,
+    });
+  } catch { /* el reporte ya quedó guardado */ }
+
+  return json({ ok: true, id }, 201);
+}
+
+// Bandeja de moderación (solo staff).
+async function handleListReports(env) {
+  const r = await env.DB.prepare(
+    `SELECT r.*, u.name AS reporter_name FROM mkt_reports r
+     LEFT JOIN mkt_users u ON u.id = r.reporter_user_id
+     ORDER BY (r.status = 'open') DESC, r.created_at DESC LIMIT 200`
+  ).all();
+  return json({ reports: r.results || [] });
+}
+
+// Resolver un reporte: 'removed' borra el contenido; 'dismissed' lo deja.
+async function handleResolveReport(request, env, session, reportId) {
+  let b; try { b = await request.json(); } catch { b = {}; }
+  const accion = String((b || {}).action || '').trim();
+  if (!['removed', 'dismissed'].includes(accion)) return json({ error: "action debe ser 'removed' o 'dismissed'" }, 400);
+  const rep = await env.DB.prepare('SELECT * FROM mkt_reports WHERE id = ?').bind(reportId).first();
+  if (!rep) return json({ error: 'Reporte no encontrado' }, 404);
+
+  if (accion === 'removed') {
+    const tabla = rep.target_type === 'deliverable_comment' ? 'mkt_deliverable_comments'
+      : rep.target_type === 'comment' ? 'mkt_comments' : null;
+    if (tabla) {
+      try { await env.DB.prepare(`DELETE FROM ${tabla} WHERE id = ?`).bind(rep.target_id).run(); } catch { /* ya no existe */ }
+    }
+    // Expulsión del autor si se pide (Apple: "ejecting the user").
+    if (b.eject && rep.target_author_id) {
+      try { await env.DB.prepare('UPDATE mkt_users SET active = 0 WHERE id = ?').bind(rep.target_author_id).run(); } catch {}
+      try { await env.DB.prepare('DELETE FROM mkt_sessions WHERE user_id = ?').bind(rep.target_author_id).run(); } catch {}
+    }
   }
+  await env.DB.prepare(
+    "UPDATE mkt_reports SET status = ?, resolved_by = ?, resolved_at = datetime('now') WHERE id = ?"
+  ).bind(accion, session.email || session.user_id, reportId).run();
+  await logActivity(env, { client_id: rep.client_id, session, action: 'content.moderate', detail: `${accion}:${rep.target_type}` });
+  return json({ ok: true });
+}
+
+// ── EULA ────────────────────────────────────────────────────────────────────
+// ¿Esta sesión es DUEÑA de su marca? (self-signup). Decide el alcance real del
+// borrado de cuenta y el texto que la app le muestra al usuario.
+async function esDuenioDeSuMarca(env, session) {
+  if (!session || !session.client_id) return false;
+  try {
+    const c = await env.DB.prepare('SELECT owner_user_id FROM mkt_clients WHERE id = ?').bind(session.client_id).first();
+    return !!(c && c.owner_user_id && c.owner_user_id === session.user_id);
+  } catch { return false; }
+}
+
+async function handleAcceptEula(env, session) {
+  await env.DB.prepare("UPDATE mkt_users SET eula_version = ?, eula_accepted_at = datetime('now') WHERE id = ?")
+    .bind(EULA_VERSION, session.user_id).run();
+  await logActivity(env, { client_id: session.client_id || null, session, action: 'user.accept_eula', detail: EULA_VERSION });
+  return json({ ok: true, eula_version: EULA_VERSION });
+}
+
+async function eulaAceptado(env, userId) {
+  try {
+    const r = await env.DB.prepare('SELECT eula_version, eula_accepted_at FROM mkt_users WHERE id = ?').bind(userId).first();
+    return !!(r && r.eula_accepted_at && r.eula_version === EULA_VERSION);
+  } catch { return true; }   // pre-migración 024: no bloquear la app
+}
+
+async function handleDeleteAccount(request, env, session) {
 
   // RE-AUTENTICACIÓN (auditoría 2026-07-31): borrar es irreversible y arrasa
   // meses de trabajo de la marca. Sin esto, una sesión robada (duran 180 días)
@@ -794,8 +1003,54 @@ async function handleDeleteAccount(request, env, session) {
 
   const cid = session.client_id;
 
+  // ── ¿Qué se borra? (regla de Vianey 2026-08-07) ───────────────────────────
+  // DUEÑO de la marca (auto-registro): cae TODO el workspace.
+  // INVITADO por la agencia (Ale, Ana…) o STAFF: SOLO su propio usuario. Antes
+  // cualquier cliente arrasaba la marca completa y el acceso de su compañera.
+  let esDuenio = false;
+  if (cid) {
+    try {
+      const c = await env.DB.prepare('SELECT owner_user_id FROM mkt_clients WHERE id = ?').bind(cid).first();
+      esDuenio = !!(c && c.owner_user_id && c.owner_user_id === session.user_id);
+    } catch { esDuenio = false; }   // pre-migración 024: nunca arrasar por defecto
+  }
+
   // Log ANTES de borrar (después ya no existen ni el actor ni la marca).
-  await logActivity(env, { client_id: cid, session, action: 'user.delete_account', detail: session.email });
+  await logActivity(env, {
+    client_id: cid, session, action: 'user.delete_account',
+    detail: `${session.email} · ${esDuenio ? 'dueño: marca completa' : 'solo su acceso'}`,
+  });
+
+  if (!esDuenio) {
+    // Borrado del USUARIO solamente. Sus comentarios se anonimizan en vez de
+    // desaparecer: el hilo de aprobaciones de la marca debe seguir teniendo
+    // sentido para quien se queda.
+    const propios = [
+      env.DB.prepare('DELETE FROM mkt_sessions WHERE user_id = ?').bind(session.user_id),
+      env.DB.prepare("UPDATE mkt_comments SET author_name = 'Usuario eliminado', user_id = NULL WHERE user_id = ?").bind(session.user_id),
+      env.DB.prepare("UPDATE mkt_deliverable_comments SET author_name = 'Usuario eliminado', user_id = NULL WHERE user_id = ?").bind(session.user_id),
+      env.DB.prepare('DELETE FROM mkt_blocks WHERE blocker_user_id = ? OR blocked_user_id = ?').bind(session.user_id, session.user_id),
+      env.DB.prepare('DELETE FROM mkt_users WHERE id = ?').bind(session.user_id),
+    ];
+    for (const stmt of propios) {
+      try { await stmt.run(); }
+      catch (e) { if (!isMissingTableError(e) && !isMissingColumnError(e)) throw e; }
+    }
+    // Aviso al equipo: alguien perdió acceso a una marca viva.
+    try {
+      await sendAuthEmail(env, {
+        to: 'info@ivaestudios.com',
+        subject: 'Una cuenta se eliminó a sí misma — IVAE Marketing',
+        html: authEmailHtml(
+          'Cuenta eliminada por su titular',
+          `<strong style="color:#fff">${escHtml(session.name || session.email)}</strong> (${escHtml(session.email)}) eliminó su acceso desde la app.<br/><br/>El contenido de la marca NO se tocó. Si esa persona debe seguir teniendo acceso, hay que crearle un usuario nuevo.`,
+          'Abrir la app', 'https://ivaestudios.com/marketing/app'
+        ),
+        text: `${session.email} eliminó su propia cuenta. El contenido de la marca no se tocó.`,
+      });
+    } catch { /* la cuenta ya se borró */ }
+    return json({ ok: true, scope: 'user' }, 200, { 'Set-Cookie': sessionCookie('', 0) });
+  }
 
   // DELETEs en orden hijo→padre. Un solo batch atómico en el caso normal;
   // si falta alguna tabla opcional, reintenta uno por uno saltándola.
@@ -970,6 +1225,10 @@ async function handleSignup(request, env) {
   const email = String((bodyObj || {}).email || '').trim().toLowerCase();
   const password = String((bodyObj || {}).password || '');
   if (!name || !brand || !email || !password) return json({ error: 'Nombre, marca, email y contraseña son obligatorios.' }, 400);
+  // Apple 1.2: la aceptación del EULA debe ser AFIRMATIVA y quedar registrada.
+  if (!(bodyObj || {}).eula_accepted) {
+    return json({ error: 'Debes aceptar los Términos de Uso para crear tu cuenta.' }, 400);
+  }
   if (!EMAIL_RE.test(email)) return json({ error: 'Ese email no parece válido.' }, 400);
   if (password.length < 8) return json({ error: 'La contraseña debe tener al menos 8 caracteres.' }, 400);
   if (name.length > 80 || brand.length > 80) return json({ error: 'Nombre o marca demasiado largos.' }, 400);
@@ -987,11 +1246,11 @@ async function handleSignup(request, env) {
   const expiry = sessionIdleSeconds(env);
   await env.DB.batch([
     env.DB.prepare(
-      'INSERT INTO mkt_clients (id, name, slug, note_labels) VALUES (?, ?, ?, ?)'
-    ).bind(clientId, brand, slug, JSON.stringify([])),
+      'INSERT INTO mkt_clients (id, name, slug, note_labels, owner_user_id) VALUES (?, ?, ?, ?, ?)'
+    ).bind(clientId, brand, slug, JSON.stringify([]), userId),
     env.DB.prepare(
-      "INSERT INTO mkt_users (id, email, password, name, role, client_id, active, must_reset, email_verified, verify_token) VALUES (?, ?, ?, ?, 'client', ?, 1, 0, 0, ?)"
-    ).bind(userId, email, hash, name, clientId, verifyToken),
+      "INSERT INTO mkt_users (id, email, password, name, role, client_id, active, must_reset, email_verified, verify_token, eula_version, eula_accepted_at) VALUES (?, ?, ?, ?, 'client', ?, 1, 0, 0, ?, ?, datetime('now'))"
+    ).bind(userId, email, hash, name, clientId, verifyToken, EULA_VERSION),
     env.DB.prepare(
       'INSERT INTO mkt_sessions (id, user_id, expires_at) VALUES (?, ?, datetime("now", "+" || ? || " seconds"))'
     ).bind(sessionId, userId, expiry),
@@ -2298,6 +2557,12 @@ async function handleGetPost(request, env, session, postId) {
   const commentsRes = await env.DB.prepare(
     'SELECT id, post_id, user_id, author_name, author_role, body, internal, created_at FROM mkt_comments WHERE post_id = ? ORDER BY created_at ASC'
   ).bind(postId).all();
+  // Apple 1.2: al bloquear a alguien, su contenido desaparece de MI vista al
+  // instante. El bloqueo es unidireccional: no se borra nada de nadie más.
+  const bloqueados = await idsBloqueadosPor(env, session.user_id);
+  if (bloqueados.size) {
+    commentsRes.results = (commentsRes.results || []).filter((c) => !bloqueados.has(c.user_id));
+  }
 
   const approvalsRes = await env.DB.prepare(
     'SELECT a.id, a.post_id, a.actor_name, a.decision, a.comment, a.created_at, u.role AS actor_role '
@@ -2484,6 +2749,9 @@ async function handleApprovalDecision(request, env, session, postId, decision) {
   if (decision === 'changes' && (!comment || !comment.trim())) {
     return json({ error: 'A comment is required when requesting changes' }, 400);
   }
+  // Filtro de contenido ofensivo (Apple 1.2): este texto se copia a
+  // mkt_approvals, a mkt_comments Y a notes_people — filtrar en la ENTRADA.
+  if (comment) { const veto = await vetarSiOfensivo(env, session, comment, 'pedir_cambios'); if (veto) return veto; }
 
   const newState = decision === 'approved' ? 'approved' : 'changes';
   await env.DB.prepare("UPDATE mkt_posts SET approval_state = ?, updated_at = datetime('now') WHERE id = ?")
@@ -2557,6 +2825,9 @@ async function handleAddComment(request, env, session, postId) {
   try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
   const body = bodyObj && bodyObj.body;
   if (!body || !String(body).trim()) return json({ error: 'Comment body required' }, 400);
+  // Filtro de contenido ofensivo (Apple 1.2) — server-side: un filtro en
+  // el navegador no cuenta para App Review.
+  { const veto = await vetarSiOfensivo(env, session, body, 'comentario'); if (veto) return veto; }
 
   // A client can NEVER set internal=1. Only team/admin may.
   const internal = (session.role !== 'client' && bodyObj.internal) ? 1 : 0;
@@ -4034,12 +4305,14 @@ async function handleListDeliverables(env, session, url) {
       // se la tragaba y la app respondía 200 con CERO comentarios para todos —
       // el cliente veía "desaparecidas" sus peticiones (ronda 2, 2026-07-31).
       const cres = await env.DB.prepare(
-        `SELECT c.id, c.deliverable_id, c.author_name, c.author_role, c.body, c.created_at
+        `SELECT c.id, c.deliverable_id, c.user_id, c.author_name, c.author_role, c.body, c.created_at
            FROM mkt_deliverable_comments c
           WHERE c.deliverable_id IN (SELECT id FROM mkt_deliverables WHERE client_id = ?${month ? ' AND month = ?' : ''})
           ORDER BY c.created_at ASC`
       ).bind(...(month ? [clientId, month] : [clientId])).all();
+      const bloqueadosDlv = await idsBloqueadosPor(env, session.user_id);
       for (const c of (cres.results || [])) {
+        if (bloqueadosDlv.has(c.user_id)) continue;   // Apple 1.2: bloqueo
         if (!byDlv.has(c.deliverable_id)) byDlv.set(c.deliverable_id, []);
         byDlv.get(c.deliverable_id).push(shapeDlvComment(c));
       }
@@ -4099,6 +4372,8 @@ async function handleAddDeliverableComment(request, env, session, id) {
   const body = (b && typeof b.body === 'string') ? b.body.trim() : '';
   if (!body) return json({ error: 'Escribe un comentario.' }, 400);
   if (body.length > 4000) return json({ error: 'El comentario es muy largo.' }, 400);
+  // Filtro de contenido ofensivo (Apple 1.2) — server-side.
+  { const veto = await vetarSiOfensivo(env, session, body, 'comentario_entregable'); if (veto) return veto; }
   const cid = randomId();
   await env.DB.prepare(
     'INSERT INTO mkt_deliverable_comments (id, deliverable_id, user_id, author_name, author_role, body) VALUES (?, ?, ?, ?, ?, ?)'
@@ -4669,10 +4944,38 @@ async function route(request, env, authCtx) {
   if (!session) return json({ error: 'Not authenticated' }, 401);
 
   if (path === '/auth/change-password' && method === 'POST') return handleChangePassword(request, env, session);
-  // Auto-borrado de cuenta de cliente (borra la marca completa; role='client').
+  // Auto-borrado de cuenta (Apple 5.1.1(v)): el DUEÑO de una marca de
+  // auto-registro borra todo su workspace; cualquier otro (invitado de la
+  // agencia o staff) borra SOLO su propio usuario.
   if (path === '/auth/account' && method === 'DELETE') return handleDeleteAccount(request, env, session);
+  // EULA (Apple 1.2): aceptación afirmativa, exigida al entrar.
+  if (path === '/auth/accept-eula' && method === 'POST') return handleAcceptEula(env, session);
+
+  // ── Contenido de usuarios: reportar y bloquear (Apple 1.2) ────────────────
+  // Disponibles para TODOS los roles: el revisor de Apple debe poder tocarlos
+  // con la cuenta demo, que es de cliente.
+  if (path === '/reports' && method === 'POST') return handleCreateReport(request, env, session);
+  if (path === '/blocks' && method === 'GET') return handleListBlocks(env, session);
+  if (path === '/blocks' && method === 'POST') return handleBlockUser(request, env, session);
+  {
+    const mBlock = path.match(/^\/blocks\/([A-Za-z0-9_-]+)$/);
+    if (mBlock && method === 'DELETE') return handleUnblockUser(env, session, mBlock[1]);
+  }
 
   const isStaff = session.role === 'admin' || session.role === 'team';
+
+  // Bandeja de moderación (staff): Apple exige actuar en menos de 24 h.
+  if (path === '/reports' && method === 'GET') {
+    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    return handleListReports(env);
+  }
+  {
+    const mRep = path.match(/^\/reports\/([A-Za-z0-9_-]+)\/resolve$/);
+    if (mRep && method === 'POST') {
+      if (!isStaff) return json({ error: 'Forbidden' }, 403);
+      return handleResolveReport(request, env, session, mRep[1]);
+    }
+  }
 
   // ── CARRUSEL CON IA (staff) ──
   // El navegador manda MINIATURAS (no las fotos originales) + lo que ya midió

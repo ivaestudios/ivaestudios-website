@@ -18,12 +18,12 @@
 
   <!-- Inter (respaldo) + Outfit (tema Sistema IVA 2026), auto-hospedadas:
        woff2 variables locales en /marketing/fonts/ (antes Google Fonts). -->
-  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202608071753">
-  <link rel="stylesheet" href="/marketing/css/app.css?v=202608071753">
-  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202608071753">
+  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202608080029">
+  <link rel="stylesheet" href="/marketing/css/app.css?v=202608080029">
+  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202608080029">
   <!-- Tema "Sistema IVA" 2026 (ultimo para ganar :root; solo estilo). -->
-  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202608071753">
-  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202608071753">
+  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202608080029">
+  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202608080029">
 
   <style>
     /* Toques v2 (solo estetica, el flujo de auth no cambia): targets tactiles
@@ -34,7 +34,18 @@
     .auth-card .input { min-height: var(--tap, 44px); font-size: 16px; }
     .auth-card__sub { font-size: var(--fs-2, 13px); }
     .auth-foot { font-size: var(--fs-2, 13px); }
-  </style>
+  
+    /* EULA afirmativo del registro (Apple 1.2). Toque grande, texto legible:
+       el revisor tiene que verlo y poder marcarlo sin zoom. */
+    .eula { display:flex; gap:10px; align-items:flex-start; margin:var(--s-4) 0 var(--s-3);
+      padding:12px 14px; border:1px solid var(--border,#26262F); border-radius:12px;
+      background:rgba(255,255,255,.03); cursor:pointer; }
+    .eula__box { width:22px; height:22px; flex:none; margin-top:1px; accent-color:#E24DA0; cursor:pointer; }
+    .eula__txt { font-size:12.5px; line-height:1.55; color:var(--text-dim,#9A9AA8); }
+    .eula__txt a { color:#E24DA0; text-decoration:underline; }
+    .eula__txt strong { color:var(--text,#ECECF1); }
+    .btn-primary[disabled] { opacity:.45; cursor:not-allowed; }
+</style>
 </head>
 <body>
   <main class="auth-wrap">
@@ -146,13 +157,21 @@
             </button>
           </div>
         </div>
-        <button class="btn btn-primary" id="sgBtn" type="submit">Crear mi cuenta</button>
-        <!-- Aviso legal del registro (requisito de tiendas + transparencia). -->
-        <p style="margin-top:var(--s-3);font-size:12px;line-height:1.5;color:var(--text-dim);text-align:center">
-          Al crear tu cuenta aceptas nuestro
-          <a href="/privacy-policy.html" target="_blank" rel="noopener"
-             style="color:var(--text-dim);text-decoration:underline">Aviso de Privacidad</a>.
-        </p>
+        <!-- EULA AFIRMATIVO (Apple guideline 1.2 — rechazo del 6-ago-2026).
+             La frase pasiva "al crear tu cuenta aceptas…" NO cumple: Apple
+             exige un acto afirmativo explícito. Casilla SIN premarcar que
+             habilita el botón, con la cláusula de tolerancia cero a la vista
+             y el texto completo abierto desde la misma app. -->
+        <label class="eula" for="sgEula">
+          <input type="checkbox" id="sgEula" class="eula__box" required>
+          <span class="eula__txt">
+            Acepto los <a href="/marketing/terminos.html" target="_blank" rel="noopener">Términos de Uso</a>
+            y el <a href="/privacy-policy" target="_blank" rel="noopener">Aviso de Privacidad</a>.
+            Entiendo que hay <strong>tolerancia cero al contenido ofensivo y a los usuarios abusivos</strong>,
+            y que el contenido que incumpla se elimina y la cuenta se desactiva.
+          </span>
+        </label>
+        <button class="btn btn-primary" id="sgBtn" type="submit" disabled>Crear mi cuenta</button>
       </form>
 
       <!-- Olvidé mi contraseña: manda el enlace de reset por correo (POST /auth/forgot). -->
@@ -479,6 +498,13 @@
     });
     toForgot.addEventListener('click', () => showView('forgot'));
 
+    // La casilla del EULA habilita el botón (Apple 1.2: acto afirmativo).
+    const sgEulaBox = document.getElementById('sgEula');
+    if (sgEulaBox) {
+      const syncEula = () => { document.getElementById('sgBtn').disabled = !sgEulaBox.checked; };
+      sgEulaBox.addEventListener('change', syncEula);
+      syncEula();
+    }
     signupForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       clearError();
@@ -488,10 +514,13 @@
       const password = document.getElementById('sgPass').value;
       if (!name || !brand || !email || !password) { showError('Completa todos los campos.'); return; }
       if (password.length < 8) { showError('La contraseña debe tener al menos 8 caracteres.'); return; }
+      // Apple 1.2: sin aceptación afirmativa no se crea la cuenta.
+      const eulaOk = document.getElementById('sgEula') && document.getElementById('sgEula').checked;
+      if (!eulaOk) { showError('Debes aceptar los Términos de Uso para continuar.'); return; }
       const b = document.getElementById('sgBtn');
       b.dataset.loading = 'true'; b.setAttribute('aria-busy', 'true');
       try {
-        const user = await api.post('/auth/signup', { name, brand, email, password });
+        const user = await api.post('/auth/signup', { name, brand, email, password, eula_accepted: true, eula_version: '2026-08' });
         toast('¡Bienvenido, ' + name.split(' ')[0] + '! Tu espacio está listo.', 'success', 2000);
         goToApp(user);
       } catch (err) {
