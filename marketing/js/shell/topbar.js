@@ -10,17 +10,17 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202608080038';
-import * as store from './store.js?v=202608080038';
-import { openSheet, pickFrom } from './sheet.js?v=202608080038';
-import { toast } from './toast.js?v=202608080038';
-import { icon } from './icons.js?v=202608080038';
-import { openClientSwitcher } from './clientswitcher.js?v=202608080038';
-import { T, isEN, setLang } from './i18n.js?v=202608080038';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202608080041';
+import * as store from './store.js?v=202608080041';
+import { openSheet, pickFrom } from './sheet.js?v=202608080041';
+import { toast } from './toast.js?v=202608080041';
+import { icon } from './icons.js?v=202608080041';
+import { openClientSwitcher } from './clientswitcher.js?v=202608080041';
+import { T, isEN, setLang } from './i18n.js?v=202608080041';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202608080038';
-import { getTheme, setTheme } from './theme.js?v=202608080038';
-import * as version from './version.js?v=202608080038';
+import { abrirBloqueados } from './moderacion.js?v=202608080041';
+import { getTheme, setTheme } from './theme.js?v=202608080041';
+import * as version from './version.js?v=202608080041';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -368,6 +368,12 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
           // Personas bloqueadas (Apple 1.2): poder DESbloquear es parte del
           // requisito; sin esta pantalla el bloqueo sería una vía sin retorno.
           accountRow('users', T('Personas bloqueadas', 'Blocked people'), () => { close(); abrirBloqueados(); }),
+          // Apple 1.2 pide un canal de contacto VISIBLE dentro de la app para
+          // denunciar contenido inapropiado (no solo dentro de los Términos).
+          accountRow('warning', T('Reportar contenido inapropiado', 'Report inappropriate content'), () => {
+            close();
+            window.open('mailto:info@ivaestudios.com?subject=' + encodeURIComponent(T('Contenido inapropiado en IVAE Marketing', 'Inappropriate content in IVAE Marketing')), '_blank', 'noopener');
+          }),
           // Términos de Uso siempre a la mano (Apple 1.2: el EULA debe ser
           // accesible, no solo en el registro).
           accountRow('link', T('Términos de Uso', 'Terms of Use'), () => {
