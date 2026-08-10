@@ -50,6 +50,17 @@
     prev: 'Anterior', next: 'Siguiente', reales: 'Fotos reales de sesiones IVAE',
     vacio: 'Aún no tenemos una foto de esa combinación. Te mostramos lo mejor de ese color.',
     waIntro: 'Hola Vianey, vi el lookbook de la guía de vestuario y me encantó este look: ',
+    guardar: 'Guardar en mi paleta', ampliar: 'Ver en grande', cerrar: 'Cerrar',
+    miPaleta: 'Mi paleta', tuPaleta: 'Tu paleta', vacia: 'Toca el corazón en los looks que te encanten y aquí se arma tu paleta.',
+    tusColores: 'Tus colores', compartir: 'Compartir', copiado: 'Link copiado',
+    enviarPaleta: 'Enviar mi paleta a Vianey', quitarTodo: 'Vaciar',
+    verPaleta: 'Ver mi paleta', deslizaLook: 'Desliza para ver más looks',
+    waPaleta: 'Hola Vianey, armé mi paleta en la guía de vestuario: ',
+    inspTitulo: 'Sube tu inspiración',
+    inspIntro: 'Sube esa foto de Pinterest o del vestido que ya compraste y te decimos cuál de nuestros colores es.',
+    inspBtn: 'Subir mi inspiración', inspLeyendo: 'Leyendo los colores de tu foto',
+    inspResultado: 'Tu inspiración es', inspTocar: 'Toca un color para ver looks reales así',
+    inspPrivado: 'Tu foto no sale de tu teléfono, todo se procesa aquí mismo.',
     askPlaceholder: 'Escribe tu duda de vestuario',
     askNoMatch: 'Esa pregunta merece respuesta de una estilista real. Escríbenos y Vianey te contesta personalmente.',
     askWa: 'Preguntar por WhatsApp', askPop: 'Preguntas populares',
@@ -70,6 +81,17 @@
     prev: 'Previous', next: 'Next', reales: 'Real photos from IVAE sessions',
     vacio: 'We do not have that exact combination yet. Here is the best of that color.',
     waIntro: 'Hi Vianey, I saw the lookbook in your style guide and loved this look: ',
+    guardar: 'Save to my palette', ampliar: 'View large', cerrar: 'Close',
+    miPaleta: 'My palette', tuPaleta: 'Your palette', vacia: 'Tap the heart on the looks you love and your palette builds itself here.',
+    tusColores: 'Your colors', compartir: 'Share', copiado: 'Link copied',
+    enviarPaleta: 'Send my palette to Vianey', quitarTodo: 'Clear',
+    verPaleta: 'See my palette', deslizaLook: 'Swipe for more looks',
+    waPaleta: 'Hi Vianey, I built my palette in your style guide: ',
+    inspTitulo: 'Upload your inspiration',
+    inspIntro: 'Upload that Pinterest photo or the dress you already bought and we will tell you which of our colors it is.',
+    inspBtn: 'Upload my inspiration', inspLeyendo: 'Reading the colors in your photo',
+    inspResultado: 'Your inspiration is', inspTocar: 'Tap a color to see real looks in it',
+    inspPrivado: 'Your photo never leaves your phone, everything runs right here.',
     askPlaceholder: 'Type your outfit question',
     askNoMatch: 'That question deserves a real stylist answer. Message us and Vianey replies personally.',
     askWa: 'Ask on WhatsApp', askPop: 'Popular questions',
@@ -173,6 +195,10 @@
             (st.i === 0 ? 'fetchpriority="high"' : 'loading="lazy"') + ' decoding="async" width="' + l.w + '" height="' + l.h + '"/>' +
           '<div class="osx-stage-veil"></div>' +
           '<span class="osx-stage-label">' + l.loc + '</span>' +
+          '<button type="button" class="osx-heart' + (favTiene(l.src) ? ' on' : '') + '" id="osxHeart" aria-label="' + T.guardar + '">' +
+            '<svg viewBox="0 0 24 24" width="21" height="21"><path d="M12 21s-7.5-4.6-9.5-9A5.3 5.3 0 0 1 12 6.6 5.3 5.3 0 0 1 21.5 12c-2 4.4-9.5 9-9.5 9Z"/></svg></button>' +
+          '<button type="button" class="osx-expand" id="osxExpand" aria-label="' + T.ampliar + '">' +
+            '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 9V4h5M20 15v5h-5M20 9V4h-5M4 15v5h5"/></svg></button>' +
           '<div class="osx-stage-foot">' +
             '<p class="osx-stage-note" id="osxNote">' + nota(l) + '</p>' +
             '<div class="osx-nav">' +
@@ -186,6 +212,12 @@
         '</div>' +
       '</div>' +
 
+      '<div class="osx-lb-tools">' +
+        '<button type="button" class="osx-tool" id="osxInsp">' +
+          '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8">' +
+          '<path stroke-linecap="round" stroke-linejoin="round" d="M3 16l5-5 4 4 3-3 6 6M4 4h16v16H4z"/></svg>' +
+          T.inspTitulo + '</button>' +
+      '</div>' +
       '<p class="osx-panel-t osx-lb-lbl">' + T.colorLbl + ' · <b>' + cName(st.color) + '</b></p>' +
       '<div class="osx-chips" role="group" aria-label="' + T.colorLbl + '">';
     for (var i = 0; i < COLORS.length; i++) {
@@ -263,6 +295,26 @@
     lookMount.querySelectorAll('[data-grupo]').forEach(function (b) {
       b.addEventListener('click', function () { st.grupo = b.getAttribute('data-grupo') || null; st.i = 0; renderLookbook(); });
     });
+    var hb = document.getElementById('osxHeart');
+    if (hb) hb.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var l = list[st.i];
+      favToggle(l.src);
+      hb.classList.toggle('on', favTiene(l.src));
+      hb.classList.remove('pop'); void hb.offsetWidth; hb.classList.add('pop');
+      pintarBarra();
+    });
+    var ex = document.getElementById('osxExpand');
+    if (ex) ex.addEventListener('click', function (e) { e.stopPropagation(); abrirVisor(list, st.i); });
+    var fr = lookMount.querySelector('.osx-stage-frame');
+    if (fr) fr.addEventListener('click', function (e) {
+      if (e.target.closest('.osx-arrow, .osx-heart, .osx-expand')) return;
+      abrirVisor(list, st.i);
+    });
+
+    var ib = document.getElementById('osxInsp');
+    if (ib) ib.addEventListener('click', abrirInspiracion);
+
     var stage = document.getElementById('osxStage'), x0 = null;
     if (stage) {
       stage.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
@@ -584,7 +636,373 @@
     }).catch(function () {});
   }
 
-  function arrancar() { renderLookbook(); renderPreguntas(); renderTryon(); }
+  /* ═══════════════════════════════════════════════════════════════
+     MI PALETA · la clienta guarda looks con el corazón, se le arma su
+     paleta y la comparte por link. Todo en el teléfono (localStorage +
+     hash de la URL), sin base de datos.
+     ═══════════════════════════════════════════════════════════════ */
+  var FAV_KEY = 'ivae_paleta_v1';
+  var favs = [];
+  try { favs = JSON.parse(localStorage.getItem(FAV_KEY) || '[]') || []; } catch (e) { favs = []; }
+
+  function favGuardar() { try { localStorage.setItem(FAV_KEY, JSON.stringify(favs)); } catch (e) {} }
+  function favTiene(src) { return favs.indexOf(src) !== -1; }
+  function favToggle(src) {
+    var k = favs.indexOf(src);
+    if (k === -1) { favs.push(src); if (navigator.vibrate) navigator.vibrate(12); }
+    else favs.splice(k, 1);
+    favGuardar();
+  }
+  function favLooks() {
+    return favs.map(function (src) {
+      for (var i = 0; i < LOOKS.length; i++) if (LOOKS[i].src === src) return LOOKS[i];
+      return null;
+    }).filter(Boolean);
+  }
+  function coloresDeFavs() {
+    var cuenta = {};
+    favLooks().forEach(function (l) { (l.c || []).forEach(function (c) { cuenta[c] = (cuenta[c] || 0) + 1; }); });
+    return Object.keys(cuenta).sort(function (a, b) { return cuenta[b] - cuenta[a]; }).slice(0, 4);
+  }
+  function linkPaleta() {
+    var idx = favLooks().map(function (l) { return LOOKS.indexOf(l).toString(36); }).join('.');
+    return location.origin + location.pathname + '#look=' + idx;
+  }
+
+  function pintarBarra() {
+    var b = document.getElementById('osxBarra');
+    if (!favs.length) { if (b) b.remove(); return; }
+    if (!b) {
+      b = document.createElement('div');
+      b.id = 'osxBarra';
+      b.className = 'osx-barra';
+      document.body.appendChild(b);
+      requestAnimationFrame(function () { b.classList.add('vis'); });
+    }
+    var cols = coloresDeFavs().map(function (c) {
+      return '<i style="background:' + colorById(c).hex + '"></i>';
+    }).join('');
+    b.innerHTML = '<span class="osx-barra-cols">' + cols + '</span>' +
+      '<span class="osx-barra-txt">' + T.tuPaleta + ' <b>(' + favs.length + ')</b></span>' +
+      '<button type="button" class="osx-barra-btn">' + T.verPaleta + '</button>';
+    b.querySelector('.osx-barra-btn').addEventListener('click', abrirPaleta);
+  }
+
+  function abrirPaleta() {
+    var ls = favLooks();
+    var cols = coloresDeFavs();
+    var h = '<div class="osx-sheet-head"><span class="osx-sheet-grip"></span>' +
+      '<h3>' + T.miPaleta + '</h3>' +
+      '<button type="button" class="osx-x" data-cerrar aria-label="' + T.cerrar + '">' +
+      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div>';
+    if (!ls.length) {
+      h += '<p class="osx-sheet-vacia">' + T.vacia + '</p>';
+    } else {
+      h += '<p class="osx-panel-t">' + T.tusColores + '</p><div class="osx-sheet-cols">';
+      cols.forEach(function (c) {
+        h += '<span class="osx-sheet-col"><i style="background:' + colorById(c).hex + '"></i>' + cName(c) + '</span>';
+      });
+      h += '</div><div class="osx-sheet-grid">';
+      ls.forEach(function (l) {
+        h += '<figure data-quitar="' + l.src + '"><img src="' + l.src + '" alt="" loading="lazy"/>' +
+             '<span class="osx-sheet-loc">' + l.loc + '</span>' +
+             '<button type="button" class="osx-sheet-x" aria-label="' + T.cerrar + '">&times;</button></figure>';
+      });
+      h += '</div>' +
+        '<a class="osx-verdict-cta" target="_blank" rel="noopener" href="' + WA + encodeURIComponent(
+          T.waPaleta + cols.map(cName).join(', ') + '. ' + linkPaleta()) + '">' + ICONS.wa + ' ' + T.enviarPaleta + '</a>' +
+        '<div class="osx-sheet-acc">' +
+        '<button type="button" class="osx-tab" id="osxCompartir">' + T.compartir + '</button>' +
+        '<button type="button" class="osx-more" id="osxVaciar">' + T.quitarTodo + '</button></div>';
+    }
+    abrirSheet(h, function (sheet) {
+      sheet.querySelectorAll('[data-quitar]').forEach(function (f) {
+        f.querySelector('.osx-sheet-x').addEventListener('click', function () {
+          favToggle(f.getAttribute('data-quitar'));
+          pintarBarra(); renderLookbook(); abrirPaleta();
+        });
+      });
+      var cp = sheet.querySelector('#osxCompartir');
+      if (cp) cp.addEventListener('click', function () {
+        var url = linkPaleta();
+        var datos = { title: 'IVAE Studios', text: T.waPaleta + coloresDeFavs().map(cName).join(', '), url: url };
+        if (navigator.share) { navigator.share(datos).catch(function () {}); }
+        else if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(function () { cp.textContent = T.copiado; });
+        }
+      });
+      var vc = sheet.querySelector('#osxVaciar');
+      if (vc) vc.addEventListener('click', function () {
+        favs = []; favGuardar(); pintarBarra(); renderLookbook(); cerrarSheet();
+      });
+    });
+  }
+
+  /* ── Hoja inferior reutilizable (patrón nativo de celular) ── */
+  function abrirSheet(html, listo) {
+    cerrarSheet();
+    var back = document.createElement('div');
+    back.className = 'osx-back';
+    back.id = 'osxBack';
+    back.innerHTML = '<div class="osx-sheet" role="dialog" aria-modal="true">' + html + '</div>';
+    document.body.appendChild(back);
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(function () { back.classList.add('vis'); });
+    back.addEventListener('click', function (e) {
+      if (e.target === back || e.target.closest('[data-cerrar]')) cerrarSheet();
+    });
+    var sheet = back.querySelector('.osx-sheet'), y0 = null;
+    sheet.addEventListener('touchstart', function (e) { if (sheet.scrollTop <= 0) y0 = e.touches[0].clientY; }, { passive: true });
+    sheet.addEventListener('touchmove', function (e) {
+      if (y0 === null) return;
+      var dy = e.touches[0].clientY - y0;
+      if (dy > 0) sheet.style.transform = 'translateY(' + dy + 'px)';
+    }, { passive: true });
+    sheet.addEventListener('touchend', function () {
+      if (y0 === null) return;
+      var m = /translateY\(([\d.]+)px\)/.exec(sheet.style.transform || '');
+      sheet.style.transform = '';
+      y0 = null;
+      if (m && parseFloat(m[1]) > 110) cerrarSheet();
+    }, { passive: true });
+    if (listo) listo(sheet);
+  }
+  function cerrarSheet() {
+    var b = document.getElementById('osxBack');
+    if (!b) return;
+    b.classList.remove('vis');
+    document.body.style.overflow = '';
+    setTimeout(function () { if (b.parentNode) b.remove(); }, 260);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     VISOR PANTALLA COMPLETA · gestos de celular: desliza para cambiar
+     de look, doble toque para guardar, desliza abajo para cerrar.
+     ═══════════════════════════════════════════════════════════════ */
+  var vis = { list: [], i: 0 };
+
+  function visorHTML() {
+    var l = vis.list[vis.i];
+    return '<img class="osx-visor-bg" src="' + l.src + '" alt="" aria-hidden="true"/>' +
+      '<img class="osx-visor-img" id="osxVisorImg" src="' + l.src + '" alt=""/>' +
+      '<div class="osx-visor-top">' +
+        '<span class="osx-stage-label">' + l.loc + '</span>' +
+        '<span class="osx-visor-count">' + (vis.i + 1) + ' / ' + vis.list.length + '</span>' +
+        '<button type="button" class="osx-x" id="osxVisorX" aria-label="' + T.cerrar + '">' +
+        '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M6 18L18 6M6 6l12 12"/></svg></button>' +
+      '</div>' +
+      '<div class="osx-visor-foot">' +
+        '<p class="osx-visor-nota" id="osxVisorNota">' + nota(l) + '</p>' +
+        '<div class="osx-visor-acc">' +
+          '<button type="button" class="osx-heart big' + (favTiene(l.src) ? ' on' : '') + '" id="osxVisorHeart" aria-label="' + T.guardar + '">' +
+            '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 21s-7.5-4.6-9.5-9A5.3 5.3 0 0 1 12 6.6 5.3 5.3 0 0 1 21.5 12c-2 4.4-9.5 9-9.5 9Z"/></svg></button>' +
+          '<a class="osx-verdict-cta osx-visor-cta" target="_blank" rel="noopener" href="' + waLook(l) + '">' + ICONS.wa + ' ' + T.cta + '</a>' +
+        '</div>' +
+        '<p class="osx-visor-hint">' + T.deslizaLook + '</p>' +
+      '</div>';
+  }
+
+  function abrirVisor(list, i) {
+    vis.list = list.slice(); vis.i = i || 0;
+    var v = document.createElement('div');
+    v.className = 'osx-visor'; v.id = 'osxVisor';
+    v.innerHTML = visorHTML();
+    document.body.appendChild(v);
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(function () { v.classList.add('vis'); });
+    wireVisor(v);
+  }
+  function cerrarVisor() {
+    var v = document.getElementById('osxVisor');
+    if (!v) return;
+    v.classList.remove('vis');
+    document.body.style.overflow = '';
+    setTimeout(function () { if (v.parentNode) v.remove(); }, 240);
+    renderLookbook();
+  }
+  function visorIr(d) {
+    vis.i = (vis.i + d + vis.list.length) % vis.list.length;
+    var v = document.getElementById('osxVisor');
+    if (!v) return;
+    var img = v.querySelector('#osxVisorImg');
+    img.style.opacity = '0';
+    setTimeout(function () {
+      v.innerHTML = visorHTML();
+      wireVisor(v);
+      var n = v.querySelector('#osxVisorImg');
+      if (n) { n.style.opacity = '0'; requestAnimationFrame(function () { n.style.opacity = '1'; }); }
+      var sig = vis.list[(vis.i + 1) % vis.list.length];
+      if (sig) { var pre = new Image(); pre.src = sig.src; }
+    }, 150);
+  }
+  function visorCorazon(v) {
+    var l = vis.list[vis.i];
+    favToggle(l.src);
+    var hb = v.querySelector('#osxVisorHeart');
+    if (hb) { hb.classList.toggle('on', favTiene(l.src)); hb.classList.remove('pop'); void hb.offsetWidth; hb.classList.add('pop'); }
+    if (favTiene(l.src)) {
+      var burst = document.createElement('div');
+      burst.className = 'osx-burst';
+      burst.innerHTML = '<svg viewBox="0 0 24 24" width="88" height="88"><path d="M12 21s-7.5-4.6-9.5-9A5.3 5.3 0 0 1 12 6.6 5.3 5.3 0 0 1 21.5 12c-2 4.4-9.5 9-9.5 9Z"/></svg>';
+      v.appendChild(burst);
+      setTimeout(function () { if (burst.parentNode) burst.remove(); }, 750);
+    }
+    pintarBarra();
+  }
+  function wireVisor(v) {
+    v.querySelector('#osxVisorX').addEventListener('click', cerrarVisor);
+    v.querySelector('#osxVisorHeart').addEventListener('click', function () { visorCorazon(v); });
+    var x0 = null, y0 = null, t0 = 0, ultimo = 0;
+    v.addEventListener('touchstart', function (e) {
+      x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now();
+    }, { passive: true });
+    v.addEventListener('touchend', function (e) {
+      if (x0 === null) return;
+      var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+      var dt = Date.now() - t0;
+      x0 = null;
+      if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy)) { visorIr(dx < 0 ? 1 : -1); return; }
+      if (dy > 90 && Math.abs(dy) > Math.abs(dx)) { cerrarVisor(); return; }
+      if (dt < 260 && Math.abs(dx) < 14 && Math.abs(dy) < 14) {
+        var ahora = Date.now();
+        if (ahora - ultimo < 320) { visorCorazon(v); ultimo = 0; } else ultimo = ahora;
+      }
+    }, { passive: true });
+    v.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') cerrarVisor();
+      if (e.key === 'ArrowRight') visorIr(1);
+      if (e.key === 'ArrowLeft') visorIr(-1);
+    });
+    v.setAttribute('tabindex', '-1');
+    v.focus();
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     SUBE TU INSPIRACIÓN · saca los colores de SU foto (Pinterest, el
+     vestido que ya compró) y filtra el lookbook. 100% en el teléfono.
+     ═══════════════════════════════════════════════════════════════ */
+  function paletaDeImagen(file, cb) {
+    var img = new Image(), url = URL.createObjectURL(file);
+    img.onload = function () {
+      var L = 120;
+      var c = document.createElement('canvas');
+      var esc = Math.min(L / img.width, L / img.height, 1);
+      c.width = Math.max(1, Math.round(img.width * esc));
+      c.height = Math.max(1, Math.round(img.height * esc));
+      var x = c.getContext('2d');
+      x.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      var d;
+      try { d = x.getImageData(0, 0, c.width, c.height).data; } catch (e) { return cb([]); }
+      var bins = {};
+      for (var i = 0; i < d.length; i += 4) {
+        if (d[i + 3] < 128) continue;
+        var r = d[i], g = d[i + 1], b = d[i + 2];
+        var k = (r >> 4) + ',' + (g >> 4) + ',' + (b >> 4);
+        var o = bins[k] || (bins[k] = { n: 0, r: 0, g: 0, b: 0 });
+        o.n++; o.r += r; o.g += g; o.b += b;
+      }
+      var lista = Object.keys(bins).map(function (k) {
+        var o = bins[k];
+        return { n: o.n, r: Math.round(o.r / o.n), g: Math.round(o.g / o.n), b: Math.round(o.b / o.n) };
+      });
+      lista.sort(function (a, b) { return b.n - a.n; });
+      var out = [];
+      for (var j = 0; j < lista.length && out.length < 5; j++) {
+        var cnd = lista[j], lejos = true;
+        for (var m = 0; m < out.length; m++) {
+          var dd = Math.abs(out[m].r - cnd.r) + Math.abs(out[m].g - cnd.g) + Math.abs(out[m].b - cnd.b);
+          if (dd < 60) { lejos = false; break; }
+        }
+        if (lejos) out.push(cnd);
+      }
+      cb(out);
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); cb([]); };
+    img.src = url;
+  }
+  function hexRGB(h) {
+    var n = parseInt(h.slice(1), 16);
+    return { r: n >> 16, g: (n >> 8) & 255, b: n & 255 };
+  }
+  /* distancia perceptual sencilla (pesos del ojo humano) */
+  function cerca(rgb) {
+    var mejor = null, min = 1e9;
+    for (var i = 0; i < COLORS.length; i++) {
+      var p = hexRGB(COLORS[i].hex);
+      var rm = (p.r + rgb.r) / 2;
+      var dr = p.r - rgb.r, dg = p.g - rgb.g, db = p.b - rgb.b;
+      var d = Math.sqrt((2 + rm / 256) * dr * dr + 4 * dg * dg + (2 + (255 - rm) / 256) * db * db);
+      if (d < min) { min = d; mejor = COLORS[i]; }
+    }
+    return mejor;
+  }
+
+  function abrirInspiracion() {
+    var h = '<div class="osx-sheet-head"><span class="osx-sheet-grip"></span>' +
+      '<h3>' + T.inspTitulo + '</h3>' +
+      '<button type="button" class="osx-x" data-cerrar aria-label="' + T.cerrar + '">' +
+      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div>' +
+      '<p class="osx-sheet-p">' + T.inspIntro + '</p>' +
+      '<label class="osx-try-upload" id="osxInspLbl" tabindex="0">' +
+      '<input type="file" id="osxInspFile" accept="image/*" hidden/><span>' + T.inspBtn + '</span></label>' +
+      '<p class="osx-try-note" style="text-align:center">' + T.inspPrivado + '</p>' +
+      '<div id="osxInspOut"></div>';
+    abrirSheet(h, function (sheet) {
+      var inp = sheet.querySelector('#osxInspFile');
+      var lbl = sheet.querySelector('#osxInspLbl');
+      var out = sheet.querySelector('#osxInspOut');
+      lbl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); inp.click(); }
+      });
+      inp.addEventListener('change', function () {
+        var f = inp.files && inp.files[0];
+        if (!f) return;
+        out.innerHTML = '<div class="osx-try-status"><span class="osx-spin"></span>' + T.inspLeyendo + '</div>';
+        paletaDeImagen(f, function (cols) {
+          if (!cols.length) { out.innerHTML = ''; return; }
+          var pares = cols.map(function (c) { return { rgb: c, m: cerca(c) }; });
+          var g = pares[0].m;
+          var html = '<div class="osx-insp-prev"><img src="' + URL.createObjectURL(f) + '" alt=""/>' +
+            '<div class="osx-insp-cols">';
+          pares.forEach(function (p, k) {
+            html += '<button type="button" class="osx-insp-sw' + (k === 0 ? ' sel' : '') + '" data-c="' + p.m.id + '" ' +
+              'style="background:rgb(' + p.rgb.r + ',' + p.rgb.g + ',' + p.rgb.b + ')" aria-label="' + cName(p.m.id) + '"></button>';
+          });
+          html += '</div></div>' +
+            '<p class="osx-insp-txt">' + T.inspResultado + ' <b>' + cName(g.id) + '</b>.</p>' +
+            '<p class="osx-try-note" style="text-align:center">' + T.inspTocar + '</p>';
+          out.innerHTML = html;
+          out.querySelectorAll('[data-c]').forEach(function (b) {
+            b.addEventListener('click', function () {
+              st.color = b.getAttribute('data-c'); st.i = 0;
+              cerrarSheet(); renderLookbook();
+              var pr = document.getElementById('osxProbador');
+              if (pr) pr.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+          });
+          st.color = g.id; st.i = 0;
+        });
+      });
+    });
+  }
+
+  /* Paleta compartida por link: #look=1a.2b.3 */
+  function leerHash() {
+    var m = /[#&]look=([a-z0-9.]+)/i.exec(location.hash || '');
+    if (!m) return;
+    var idx = m[1].split('.').map(function (t) { return parseInt(t, 36); }).filter(function (n) { return !isNaN(n) && LOOKS[n]; });
+    if (!idx.length) return;
+    favs = idx.map(function (n) { return LOOKS[n].src; });
+    favGuardar();
+    setTimeout(function () { pintarBarra(); abrirPaleta(); }, 700);
+  }
+
+  function arrancar() {
+    renderLookbook(); renderPreguntas(); renderTryon();
+    pintarBarra(); leerHash();
+    window.addEventListener('hashchange', leerHash);
+  }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', arrancar);
   else arrancar();
 })();

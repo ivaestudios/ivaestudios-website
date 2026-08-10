@@ -238,3 +238,134 @@ html.dark .osx-noans{background:#151e2d;border-color:rgba(196,163,90,.32)}
 html.dark .osx-noans p{color:rgba(249,248,247,.78)}
 html.dark .osx-stage-empty{color:rgba(249,248,247,.85)}
 html.dark .osx-more{color:#d9bc7a}
+
+/* ═══════════════════════════════════════════════════════════════
+   CAPA INTERACTIVA MÓVIL
+   Corazón, barra flotante, hoja inferior, visor a pantalla completa
+   e inspiración. Todo pensado para el pulgar: objetivos ≥44px,
+   gestos nativos (deslizar, doble toque) y respeto al notch.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Corazón y ampliar sobre la foto ── */
+.osx-heart,.osx-expand{position:absolute;z-index:4;border:1px solid rgba(249,248,247,.22);
+  background:rgba(13,20,31,.5);backdrop-filter:blur(6px);border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;width:46px;height:46px;
+  -webkit-tap-highlight-color:transparent;transition:transform .2s,background .25s,border-color .25s}
+.osx-heart{top:11px;right:11px;color:rgba(249,248,247,.9)}
+.osx-expand{top:11px;right:65px;color:rgba(249,248,247,.9)}
+.osx-heart svg{fill:none;stroke:currentColor;stroke-width:1.7}
+.osx-heart.on{color:#e2647a;border-color:rgba(226,100,122,.55);background:rgba(226,100,122,.16)}
+.osx-heart.on svg{fill:currentColor;stroke:currentColor}
+.osx-heart.pop{animation:osxPop .42s cubic-bezier(.16,1,.3,1)}
+@keyframes osxPop{0%{transform:scale(1)}38%{transform:scale(1.32)}100%{transform:scale(1)}}
+.osx-heart.big{position:static;width:54px;height:54px;flex:0 0 54px}
+
+/* ── Barra flotante de la paleta ── */
+.osx-barra{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));
+  z-index:9998;display:flex;align-items:center;gap:11px;padding:11px 11px 11px 15px;
+  border-radius:100px;background:rgba(16,23,36,.93);backdrop-filter:blur(14px);
+  border:1px solid rgba(196,163,90,.4);box-shadow:0 20px 44px -18px rgba(0,0,0,.85);
+  transform:translateY(140%);transition:transform .45s cubic-bezier(.16,1,.3,1)}
+.osx-barra.vis{transform:translateY(0)}
+.osx-barra-cols{display:flex}
+.osx-barra-cols i{width:19px;height:19px;border-radius:50%;border:1.5px solid #101724;margin-left:-7px}
+.osx-barra-cols i:first-child{margin-left:0}
+.osx-barra-txt{flex:1;font-family:'Syne',sans-serif;font-size:12px;font-weight:600;
+  color:rgba(249,248,247,.8);letter-spacing:.02em}
+.osx-barra-txt b{color:#d9bc7a}
+.osx-barra-btn{border:none;background:#c4a35a;color:#141d28;border-radius:100px;
+  padding:12px 18px;font-family:'Syne',sans-serif;font-size:10.5px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;cursor:pointer;min-height:44px;white-space:nowrap}
+@media(min-width:760px){.osx-barra{left:auto;right:24px;width:auto;min-width:330px}}
+
+/* ── Hoja inferior ── */
+.osx-back{position:fixed;inset:0;z-index:9999;background:rgba(6,10,16,.72);
+  backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;transition:opacity .26s ease}
+.osx-back.vis{opacity:1}
+.osx-sheet{width:100%;max-width:560px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  background:#121a27;border:1px solid rgba(249,248,247,.1);border-bottom:none;
+  border-radius:22px 22px 0 0;padding:8px 18px calc(26px + env(safe-area-inset-bottom,0px));
+  transform:translateY(100%);transition:transform .38s cubic-bezier(.16,1,.3,1)}
+.osx-back.vis .osx-sheet{transform:translateY(0)}
+.osx-sheet-head{position:sticky;top:0;z-index:2;background:#121a27;padding:10px 0 12px;
+  display:flex;align-items:center;gap:10px}
+.osx-sheet-grip{position:absolute;top:4px;left:50%;transform:translateX(-50%);
+  width:40px;height:4px;border-radius:4px;background:rgba(249,248,247,.22)}
+.osx-sheet-head h3{flex:1;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;
+  font-size:24px;color:#f9f8f7;margin:8px 0 0}
+.osx-x{width:42px;height:42px;flex:0 0 42px;border-radius:50%;border:1px solid rgba(249,248,247,.18);
+  background:transparent;color:rgba(249,248,247,.8);cursor:pointer;display:flex;
+  align-items:center;justify-content:center;margin-top:6px}
+.osx-sheet-p{font-family:'Syne',sans-serif;font-size:13.5px;line-height:1.7;
+  color:rgba(249,248,247,.72);margin:0 0 16px}
+.osx-sheet-vacia{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:18px;
+  line-height:1.5;color:rgba(249,248,247,.7);text-align:center;padding:26px 10px 34px;margin:0}
+.osx-sheet-cols{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.osx-sheet-col{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(249,248,247,.14);
+  border-radius:100px;padding:8px 14px 8px 8px;font-family:'Syne',sans-serif;font-size:11.5px;
+  font-weight:600;color:rgba(249,248,247,.85)}
+.osx-sheet-col i{width:20px;height:20px;border-radius:50%;border:1px solid rgba(249,248,247,.28)}
+.osx-sheet-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.osx-sheet-grid figure{position:relative;margin:0;border-radius:12px;overflow:hidden;aspect-ratio:3/4}
+.osx-sheet-grid img{width:100%;height:100%;object-fit:cover;display:block}
+.osx-sheet-loc{position:absolute;left:6px;bottom:6px;font-family:'Syne',sans-serif;font-size:8px;
+  font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#faf8f5;
+  background:rgba(10,15,23,.6);padding:4px 8px;border-radius:100px}
+.osx-sheet-x{position:absolute;top:5px;right:5px;width:30px;height:30px;border-radius:50%;
+  border:none;background:rgba(10,15,23,.68);color:#faf8f5;font-size:17px;line-height:1;cursor:pointer}
+.osx-sheet-acc{display:flex;gap:12px;align-items:center;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.osx-sheet .osx-verdict-cta{display:flex;width:100%}
+
+/* ── Visor a pantalla completa ── */
+.osx-visor{position:fixed;inset:0;z-index:10000;background:#080c13;overflow:hidden;
+  opacity:0;transition:opacity .24s ease;outline:none}
+.osx-visor.vis{opacity:1}
+.osx-visor-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:blur(38px) brightness(.42);transform:scale(1.15)}
+.osx-visor-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
+  transition:opacity .25s ease}
+.osx-visor-top{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;align-items:center;
+  gap:10px;padding:calc(12px + env(safe-area-inset-top,0px)) 14px 14px;
+  background:linear-gradient(180deg,rgba(8,12,19,.72),transparent)}
+.osx-visor-top .osx-stage-label{position:static}
+.osx-visor-count{flex:1;text-align:center;font-family:'Syne',sans-serif;font-size:11px;
+  font-weight:600;letter-spacing:.14em;color:rgba(250,248,245,.82)}
+.osx-visor-foot{position:absolute;left:0;right:0;bottom:0;z-index:3;
+  padding:26px 18px calc(20px + env(safe-area-inset-bottom,0px));
+  background:linear-gradient(0deg,rgba(8,12,19,.9) 42%,transparent)}
+.osx-visor-nota{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:20px;
+  line-height:1.35;color:#faf8f5;margin:0 0 14px;text-shadow:0 2px 14px rgba(0,0,0,.7)}
+.osx-visor-acc{display:flex;align-items:center;gap:12px}
+.osx-visor-cta{margin-top:0!important;flex:1}
+.osx-visor-hint{font-family:'Syne',sans-serif;font-size:10px;font-weight:600;letter-spacing:.16em;
+  text-transform:uppercase;color:rgba(250,248,245,.4);text-align:center;margin:14px 0 0}
+.osx-burst{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
+  pointer-events:none}
+.osx-burst svg{fill:#e2647a;filter:drop-shadow(0 6px 24px rgba(226,100,122,.55));
+  animation:osxBurst .75s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes osxBurst{0%{transform:scale(.3);opacity:0}30%{transform:scale(1.1);opacity:.95}100%{transform:scale(1.5);opacity:0}}
+@media(min-width:900px){.osx-visor-img{object-fit:contain;padding:70px 0 150px}}
+
+/* ── Herramienta: sube tu inspiración ── */
+.osx-lb-tools{display:flex;justify-content:center;margin-top:16px}
+.osx-tool{display:inline-flex;align-items:center;gap:8px;border:1px dashed rgba(196,163,90,.5);
+  background:rgba(196,163,90,.07);border-radius:100px;padding:11px 18px;cursor:pointer;
+  font-family:'Syne',sans-serif;font-size:11px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:#d9bc7a;min-height:44px;transition:all .25s}
+.osx-tool:hover{background:rgba(196,163,90,.14);border-style:solid}
+.osx-insp-prev{display:flex;gap:14px;align-items:center;margin:16px 0 12px}
+.osx-insp-prev>img{width:96px;height:120px;object-fit:cover;border-radius:12px;flex:0 0 96px;
+  border:1px solid rgba(249,248,247,.12)}
+.osx-insp-cols{display:flex;flex-wrap:wrap;gap:9px}
+.osx-insp-sw{width:46px;height:46px;border-radius:50%;border:1px solid rgba(249,248,247,.26);
+  cursor:pointer;padding:0;position:relative;outline-offset:3px}
+.osx-insp-sw::after{content:'';position:absolute;inset:-5px;border-radius:50%;
+  border:2px solid transparent;transition:border-color .25s}
+.osx-insp-sw.sel::after{border-color:#c4a35a}
+.osx-insp-txt{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:20px;
+  color:#f9f8f7;text-align:center;margin:6px 0 2px}
+.osx-insp-txt b{font-style:normal;color:#d9bc7a}
+
+/* La barra flotante no debe tapar el CTA del pie */
+body:has(.osx-barra.vis) .post-cta{padding-bottom:96px}
