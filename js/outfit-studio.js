@@ -50,7 +50,14 @@
     prev: 'Anterior', next: 'Siguiente', reales: 'Fotos reales de sesiones IVAE',
     vacio: 'Aún no tenemos una foto de esa combinación. Te mostramos lo mejor de ese color.',
     waIntro: 'Hola Vianey, vi el lookbook de la guía de vestuario y me encantó este look: ',
-    guardar: 'Guardar en mi paleta', ampliar: 'Ver en grande', cerrar: 'Cerrar',
+    guardar: 'Guardar en mi paleta', quitarPaleta: 'Quitar de mi paleta',
+    ampliar: 'Ver en grande', cerrar: 'Cerrar',
+    gestos: 'Desliza para cambiar · doble toque para guardar',
+    paletaRecibida: 'Los looks que te compartieron',
+    recibidaTxt: 'Guardó estos {n} looks para su sesión en Cancún. Míralos y dile cuál te gusta más.',
+    adoptar: 'Guardar en mi paleta', verLookbook: 'Ver el lookbook completo',
+    compartirTxt: 'Estos son los looks que me encantan para nuestra sesión de fotos en Cancún:',
+    pista: 'Toca ♥ para guardar los looks que te enamoren',
     miPaleta: 'Mi paleta', tuPaleta: 'Tu paleta', vacia: 'Toca el corazón en los looks que te encanten y aquí se arma tu paleta.',
     tusColores: 'Tus colores', compartir: 'Compartir', copiado: 'Link copiado',
     enviarPaleta: 'Enviar mi paleta a Vianey', quitarTodo: 'Vaciar',
@@ -81,7 +88,14 @@
     prev: 'Previous', next: 'Next', reales: 'Real photos from IVAE sessions',
     vacio: 'We do not have that exact combination yet. Here is the best of that color.',
     waIntro: 'Hi Vianey, I saw the lookbook in your style guide and loved this look: ',
-    guardar: 'Save to my palette', ampliar: 'View large', cerrar: 'Close',
+    guardar: 'Save to my palette', quitarPaleta: 'Remove from my palette',
+    ampliar: 'View large', cerrar: 'Close',
+    gestos: 'Swipe to change · double tap to save',
+    paletaRecibida: 'The looks shared with you',
+    recibidaTxt: 'She saved these {n} looks for her session in Cancún. Take a look and tell her your favorite.',
+    adoptar: 'Save to my palette', verLookbook: 'See the full lookbook',
+    compartirTxt: 'These are the looks I love for our photo session in Cancún:',
+    pista: 'Tap ♥ to save the looks you fall for',
     miPaleta: 'My palette', tuPaleta: 'Your palette', vacia: 'Tap the heart on the looks you love and your palette builds itself here.',
     tusColores: 'Your colors', compartir: 'Share', copiado: 'Link copied',
     enviarPaleta: 'Send my palette to Vianey', quitarTodo: 'Clear',
@@ -169,8 +183,10 @@
   }
 
   function waLook(l) {
-    return WA + encodeURIComponent(T.waIntro + cName(st.color) +
-      (st.grupo ? ' · ' + gName(st.grupo) : '') + (l ? ' · ' + l.loc : '') + '.');
+    var txt = T.waIntro + cName(st.color) + (st.grupo ? ' · ' + gName(st.grupo) : '');
+    if (l) txt += ' · ' + l.loc + '. "' + nota(l) + '" ' + linkLook(l);
+    else txt += '.';
+    return WA + encodeURIComponent(txt);
   }
 
   function precargar(list, i) {
@@ -195,8 +211,8 @@
             (st.i === 0 ? 'fetchpriority="high"' : 'loading="lazy"') + ' decoding="async" width="' + l.w + '" height="' + l.h + '"/>' +
           '<div class="osx-stage-veil"></div>' +
           '<span class="osx-stage-label">' + l.loc + '</span>' +
-          '<button type="button" class="osx-heart' + (favTiene(l.src) ? ' on' : '') + '" id="osxHeart" aria-label="' + T.guardar + '">' +
-            '<svg viewBox="0 0 24 24" width="21" height="21"><path d="M12 21s-7.5-4.6-9.5-9A5.3 5.3 0 0 1 12 6.6 5.3 5.3 0 0 1 21.5 12c-2 4.4-9.5 9-9.5 9Z"/></svg></button>' +
+          '<button type="button" class="osx-heart' + (favTiene(l.src) ? ' on' : '') + '" id="osxHeart" aria-pressed="' + favTiene(l.src) + '" aria-label="' + (favTiene(l.src) ? T.quitarPaleta : T.guardar) + '">' +
+            '<svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9A5.3 5.3 0 0 1 12 6.6 5.3 5.3 0 0 1 21.5 12c-2 4.4-9.5 9-9.5 9Z"/></svg></button>' +
           '<button type="button" class="osx-expand" id="osxExpand" aria-label="' + T.ampliar + '">' +
             '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 9V4h5M20 15v5h-5M20 9V4h-5M4 15v5h5"/></svg></button>' +
           '<div class="osx-stage-foot">' +
@@ -212,6 +228,7 @@
         '</div>' +
       '</div>' +
 
+      (mostrarPista() ? '<p class="osx-pista" id="osxPista">' + T.pista + '</p>' : '') +
       '<div class="osx-lb-tools">' +
         '<button type="button" class="osx-tool" id="osxInsp">' +
           '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8">' +
@@ -282,6 +299,13 @@
       if (cta) cta.href = waLook(l);
       precargar(list, st.i);
       refrescarTryLook();
+      var hb = document.getElementById('osxHeart');
+      if (hb) {
+        var on = favTiene(l.src);
+        hb.classList.toggle('on', on);
+        hb.setAttribute('aria-pressed', on);
+        hb.setAttribute('aria-label', on ? T.quitarPaleta : T.guardar);
+      }
     }, 180);
   }
 
@@ -300,9 +324,12 @@
       e.stopPropagation();
       var l = list[st.i];
       favToggle(l.src);
-      hb.classList.toggle('on', favTiene(l.src));
+      var on = favTiene(l.src);
+      hb.classList.toggle('on', on);
+      hb.setAttribute('aria-pressed', on);
+      hb.setAttribute('aria-label', on ? T.quitarPaleta : T.guardar);
       hb.classList.remove('pop'); void hb.offsetWidth; hb.classList.add('pop');
-      pintarBarra();
+      pintarBarra(); ocultarPista();
     });
     var ex = document.getElementById('osxExpand');
     if (ex) ex.addEventListener('click', function (e) { e.stopPropagation(); abrirVisor(list, st.i); });
@@ -317,11 +344,19 @@
 
     var stage = document.getElementById('osxStage'), x0 = null;
     if (stage) {
-      stage.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+      var y0s = null, t0s = 0;
+      stage.addEventListener('touchstart', function (e) {
+        x0 = e.touches[0].clientX; y0s = e.touches[0].clientY; t0s = Date.now();
+      }, { passive: true });
       stage.addEventListener('touchend', function (e) {
         if (x0 === null) return;
-        var dx = e.changedTouches[0].clientX - x0; x0 = null;
-        if (Math.abs(dx) > 45) mostrar(list, dx < 0 ? 1 : -1);
+        var dx = e.changedTouches[0].clientX - x0;
+        var dy = e.changedTouches[0].clientY - y0s;
+        x0 = null;
+        /* solo cambia de look si el gesto es claramente horizontal y corto:
+           antes, hacer scroll con el pulgar sobre la foto cambiaba el look */
+        if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.3 && Date.now() - t0s < 700)
+          mostrar(list, dx < 0 ? 1 : -1);
       }, { passive: true });
     }
   }
@@ -640,11 +675,16 @@
      MI PALETA · la clienta guarda looks con el corazón, se le arma su
      paleta y la comparte por link. Todo en el teléfono (localStorage +
      hash de la URL), sin base de datos.
+     El link usa el NOMBRE del archivo, no la posición: si mañana se
+     agregan o quitan fotos, los links ya enviados siguen sirviendo.
      ═══════════════════════════════════════════════════════════════ */
   var FAV_KEY = 'ivae_paleta_v1';
   var favs = [];
   try { favs = JSON.parse(localStorage.getItem(FAV_KEY) || '[]') || []; } catch (e) { favs = []; }
+  var paletaRecibida = false;
 
+  function idDe(l) { return l.src.replace(/^.*\//, '').replace(/\.jpg$/, ''); }
+  function porId(id) { for (var i = 0; i < LOOKS.length; i++) if (idDe(LOOKS[i]) === id) return LOOKS[i]; return null; }
   function favGuardar() { try { localStorage.setItem(FAV_KEY, JSON.stringify(favs)); } catch (e) {} }
   function favTiene(src) { return favs.indexOf(src) !== -1; }
   function favToggle(src) {
@@ -665,8 +705,37 @@
     return Object.keys(cuenta).sort(function (a, b) { return cuenta[b] - cuenta[a]; }).slice(0, 4);
   }
   function linkPaleta() {
-    var idx = favLooks().map(function (l) { return LOOKS.indexOf(l).toString(36); }).join('.');
-    return location.origin + location.pathname + '#look=' + idx;
+    return location.origin + location.pathname + '#look=' + favLooks().map(idDe).join('.');
+  }
+  function linkLook(l) {
+    return location.origin + location.pathname + '#look=' + idDe(l);
+  }
+
+  /* Candado de scroll con contador: el visor y la hoja pueden convivir
+     con el menú del sitio sin que el último en cerrar desbloquee todo. */
+  var bloqueos = 0;
+  function bloquear() { bloqueos++; if (bloqueos === 1) document.body.style.overflow = 'hidden'; }
+  function desbloquear() { bloqueos = Math.max(0, bloqueos - 1); if (!bloqueos) document.body.style.overflow = ''; }
+
+  /* Historial: en Android el botón Atrás debe CERRAR la capa, no salir del sitio */
+  var enHistorial = 0;
+  function empujarHistorial() { try { history.pushState({ osx: 1 }, ''); enHistorial++; } catch (e) {} }
+  function sacarHistorial() { if (enHistorial > 0) { enHistorial--; try { history.back(); } catch (e) {} } }
+  window.addEventListener('popstate', function () {
+    if (enHistorial > 0) enHistorial--;
+    if (document.getElementById('osxVisor')) cerrarVisor(true);
+    else if (sheetActual) cerrarSheet(true);
+  });
+
+  var PISTA_KEY = 'ivae_pista_v1';
+  function mostrarPista() {
+    if (favs.length) return false;
+    try { return !localStorage.getItem(PISTA_KEY); } catch (e) { return true; }
+  }
+  function ocultarPista() {
+    try { localStorage.setItem(PISTA_KEY, '1'); } catch (e) {}
+    var pp = document.getElementById('osxPista');
+    if (pp) pp.remove();
   }
 
   function pintarBarra() {
@@ -677,12 +746,12 @@
       b.id = 'osxBarra';
       b.className = 'osx-barra';
       document.body.appendChild(b);
-      requestAnimationFrame(function () { b.classList.add('vis'); });
+      requestAnimationFrame(function () { requestAnimationFrame(function () { b.classList.add('vis'); }); });
     }
     var cols = coloresDeFavs().map(function (c) {
       return '<i style="background:' + colorById(c).hex + '"></i>';
     }).join('');
-    b.innerHTML = '<span class="osx-barra-cols">' + cols + '</span>' +
+    b.innerHTML = '<span class="osx-barra-cols" aria-hidden="true">' + cols + '</span>' +
       '<span class="osx-barra-txt">' + T.tuPaleta + ' <b>(' + favs.length + ')</b></span>' +
       '<button type="button" class="osx-barra-btn">' + T.verPaleta + '</button>';
     b.querySelector('.osx-barra-btn').addEventListener('click', abrirPaleta);
@@ -691,45 +760,71 @@
   function abrirPaleta() {
     var ls = favLooks();
     var cols = coloresDeFavs();
+    var titulo = paletaRecibida ? T.paletaRecibida : T.miPaleta;
     var h = '<div class="osx-sheet-head"><span class="osx-sheet-grip"></span>' +
-      '<h3>' + T.miPaleta + '</h3>' +
+      '<h3 id="osxSheetTit">' + titulo + '</h3>' +
       '<button type="button" class="osx-x" data-cerrar aria-label="' + T.cerrar + '">' +
-      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div>';
+      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div>';
     if (!ls.length) {
       h += '<p class="osx-sheet-vacia">' + T.vacia + '</p>';
     } else {
-      h += '<p class="osx-panel-t">' + T.tusColores + '</p><div class="osx-sheet-cols">';
+      if (paletaRecibida) h += '<p class="osx-sheet-p">' + T.recibidaTxt.replace('{n}', ls.length) + '</p>';
+      h += '<p class="osx-panel-t">' + T.tusColores + '</p><div class="osx-sheet-cols" id="osxSheetCols">';
       cols.forEach(function (c) {
         h += '<span class="osx-sheet-col"><i style="background:' + colorById(c).hex + '"></i>' + cName(c) + '</span>';
       });
-      h += '</div><div class="osx-sheet-grid">';
+      h += '</div><div class="osx-sheet-grid" id="osxSheetGrid">';
       ls.forEach(function (l) {
-        h += '<figure data-quitar="' + l.src + '"><img src="' + l.src + '" alt="" loading="lazy"/>' +
+        h += '<figure data-quitar="' + l.src + '"><img src="' + l.src + '" alt="' + (ES ? 'Look en ' : 'Look in ') + l.loc + '" loading="lazy"/>' +
              '<span class="osx-sheet-loc">' + l.loc + '</span>' +
-             '<button type="button" class="osx-sheet-x" aria-label="' + T.cerrar + '">&times;</button></figure>';
+             (paletaRecibida ? '' : '<button type="button" class="osx-sheet-x" aria-label="' +
+               (ES ? 'Quitar el look de ' + l.loc + ' de mi paleta' : 'Remove the ' + l.loc + ' look from my palette') +
+               '"><span aria-hidden="true">&times;</span></button>') +
+             '</figure>';
       });
-      h += '</div>' +
-        '<a class="osx-verdict-cta" target="_blank" rel="noopener" href="' + WA + encodeURIComponent(
-          T.waPaleta + cols.map(cName).join(', ') + '. ' + linkPaleta()) + '">' + ICONS.wa + ' ' + T.enviarPaleta + '</a>' +
-        '<div class="osx-sheet-acc">' +
-        '<button type="button" class="osx-tab" id="osxCompartir">' + T.compartir + '</button>' +
-        '<button type="button" class="osx-more" id="osxVaciar">' + T.quitarTodo + '</button></div>';
+      h += '</div>';
+      if (paletaRecibida) {
+        h += '<button type="button" class="osx-verdict-cta" id="osxAdoptar">' + T.adoptar + '</button>' +
+          '<div class="osx-sheet-acc"><a class="osx-tab" href="#probador" data-cerrar>' + T.verLookbook + '</a></div>';
+      } else {
+        h += '<a class="osx-verdict-cta" target="_blank" rel="noopener" href="' + WA + encodeURIComponent(
+            T.waPaleta + cols.map(cName).join(', ') + '. ' + linkPaleta()) + '">' + ICONS.wa + ' ' + T.enviarPaleta + '</a>' +
+          '<div class="osx-sheet-acc">' +
+          '<button type="button" class="osx-tab" id="osxCompartir">' + T.compartir + '</button>' +
+          '<button type="button" class="osx-more" id="osxVaciar">' + T.quitarTodo + '</button></div>';
+      }
     }
     abrirSheet(h, function (sheet) {
       sheet.querySelectorAll('[data-quitar]').forEach(function (f) {
-        f.querySelector('.osx-sheet-x').addEventListener('click', function () {
+        var bx = f.querySelector('.osx-sheet-x');
+        if (!bx) return;
+        bx.addEventListener('click', function () {
           favToggle(f.getAttribute('data-quitar'));
-          pintarBarra(); renderLookbook(); abrirPaleta();
+          f.remove();                       /* se quita EN SITIO, sin rehacer la hoja */
+          pintarBarra(); renderLookbook();
+          var cc = sheet.querySelector('#osxSheetCols');
+          if (cc) cc.innerHTML = coloresDeFavs().map(function (c) {
+            return '<span class="osx-sheet-col"><i style="background:' + colorById(c).hex + '"></i>' + cName(c) + '</span>';
+          }).join('');
+          if (!favs.length) cerrarSheet();
         });
+      });
+      var ad = sheet.querySelector('#osxAdoptar');
+      if (ad) ad.addEventListener('click', function () {
+        paletaRecibida = false; favGuardar(); pintarBarra(); cerrarSheet();
       });
       var cp = sheet.querySelector('#osxCompartir');
       if (cp) cp.addEventListener('click', function () {
         var url = linkPaleta();
-        var datos = { title: 'IVAE Studios', text: T.waPaleta + coloresDeFavs().map(cName).join(', '), url: url };
-        if (navigator.share) { navigator.share(datos).catch(function () {}); }
-        else if (navigator.clipboard) {
-          navigator.clipboard.writeText(url).then(function () { cp.textContent = T.copiado; });
-        }
+        var datos = { title: 'IVAE Studios', text: T.compartirTxt, url: url };
+        if (navigator.share) {
+          navigator.share(datos).catch(function () {});
+        } else if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(function () {
+            cp.textContent = T.copiado;
+            setTimeout(function () { cp.textContent = T.compartir; }, 2400);
+          }).catch(function () { window.prompt(T.compartir, url); });
+        } else { window.prompt(T.compartir, url); }
       });
       var vc = sheet.querySelector('#osxVaciar');
       if (vc) vc.addEventListener('click', function () {
@@ -739,119 +834,180 @@
   }
 
   /* ── Hoja inferior reutilizable (patrón nativo de celular) ── */
+  var sheetActual = null, focoPrevio = null;
   function abrirSheet(html, listo) {
-    cerrarSheet();
+    if (sheetActual && sheetActual.parentNode) { sheetActual.remove(); sheetActual = null; desbloquear(); }
+    focoPrevio = document.activeElement;
     var back = document.createElement('div');
     back.className = 'osx-back';
-    back.id = 'osxBack';
-    back.innerHTML = '<div class="osx-sheet" role="dialog" aria-modal="true">' + html + '</div>';
+    back.innerHTML = '<div class="osx-sheet" role="dialog" aria-modal="true" aria-labelledby="osxSheetTit" tabindex="-1">' + html + '</div>';
     document.body.appendChild(back);
-    document.body.style.overflow = 'hidden';
-    requestAnimationFrame(function () { back.classList.add('vis'); });
+    sheetActual = back;
+    bloquear(); empujarHistorial();
+    requestAnimationFrame(function () { requestAnimationFrame(function () { back.classList.add('vis'); }); });
     back.addEventListener('click', function (e) {
       if (e.target === back || e.target.closest('[data-cerrar]')) cerrarSheet();
     });
-    var sheet = back.querySelector('.osx-sheet'), y0 = null;
-    sheet.addEventListener('touchstart', function (e) { if (sheet.scrollTop <= 0) y0 = e.touches[0].clientY; }, { passive: true });
+    var sheet = back.querySelector('.osx-sheet'), y0 = null, dyUlt = 0;
+    sheet.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { e.preventDefault(); cerrarSheet(); return; }
+      if (e.key !== 'Tab') return;
+      var f = sheet.querySelectorAll('a[href],button:not([disabled]),input,[tabindex]:not([tabindex="-1"])');
+      if (!f.length) return;
+      var pri = f[0], ult = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === pri) { e.preventDefault(); ult.focus(); }
+      else if (!e.shiftKey && document.activeElement === ult) { e.preventDefault(); pri.focus(); }
+    });
+    sheet.addEventListener('touchstart', function (e) {
+      if (sheet.scrollTop > 0) return;
+      y0 = e.touches[0].clientY; dyUlt = 0;
+      sheet.style.transition = 'none';
+    }, { passive: true });
     sheet.addEventListener('touchmove', function (e) {
       if (y0 === null) return;
-      var dy = e.touches[0].clientY - y0;
-      if (dy > 0) sheet.style.transform = 'translateY(' + dy + 'px)';
+      dyUlt = Math.max(0, e.touches[0].clientY - y0);
+      sheet.style.transform = 'translateY(' + dyUlt + 'px)';
     }, { passive: true });
     sheet.addEventListener('touchend', function () {
       if (y0 === null) return;
-      var m = /translateY\(([\d.]+)px\)/.exec(sheet.style.transform || '');
+      sheet.style.transition = '';
       sheet.style.transform = '';
       y0 = null;
-      if (m && parseFloat(m[1]) > 110) cerrarSheet();
+      if (dyUlt > 110) cerrarSheet();
     }, { passive: true });
     if (listo) listo(sheet);
+    sheet.focus();
   }
-  function cerrarSheet() {
-    var b = document.getElementById('osxBack');
+  function cerrarSheet(desdeHistorial) {
+    var b = sheetActual;
     if (!b) return;
+    sheetActual = null;
     b.classList.remove('vis');
-    document.body.style.overflow = '';
+    desbloquear();
+    if (!desdeHistorial) sacarHistorial();
     setTimeout(function () { if (b.parentNode) b.remove(); }, 260);
+    if (focoPrevio && focoPrevio.focus) { try { focoPrevio.focus(); } catch (e) {} }
+    focoPrevio = null;
   }
 
   /* ═══════════════════════════════════════════════════════════════
      VISOR PANTALLA COMPLETA · gestos de celular: desliza para cambiar
-     de look, doble toque para guardar, desliza abajo para cerrar.
+     de look, doble toque sobre la foto para guardar, desliza abajo
+     para cerrar. El visor se construye UNA vez y solo se actualiza,
+     así los gestos nunca se duplican.
      ═══════════════════════════════════════════════════════════════ */
-  var vis = { list: [], i: 0 };
+  var vis = { list: [], i: 0 }, visorAnim = false, focoVisor = null;
 
-  function visorHTML() {
-    var l = vis.list[vis.i];
-    return '<img class="osx-visor-bg" src="' + l.src + '" alt="" aria-hidden="true"/>' +
-      '<img class="osx-visor-img" id="osxVisorImg" src="' + l.src + '" alt=""/>' +
+  function visorEsqueleto() {
+    return '<img class="osx-visor-bg" id="osxVisorBg" src="" alt="" aria-hidden="true"/>' +
+      '<img class="osx-visor-img" id="osxVisorImg" src="" alt=""/>' +
       '<div class="osx-visor-top">' +
-        '<span class="osx-stage-label">' + l.loc + '</span>' +
-        '<span class="osx-visor-count">' + (vis.i + 1) + ' / ' + vis.list.length + '</span>' +
+        '<span class="osx-stage-label" id="osxVisorLoc"></span>' +
+        '<span class="osx-visor-count" id="osxVisorCount"></span>' +
         '<button type="button" class="osx-x" id="osxVisorX" aria-label="' + T.cerrar + '">' +
-        '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M6 18L18 6M6 6l12 12"/></svg></button>' +
+        '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M6 18L18 6M6 6l12 12"/></svg></button>' +
       '</div>' +
       '<div class="osx-visor-foot">' +
-        '<p class="osx-visor-nota" id="osxVisorNota">' + nota(l) + '</p>' +
+        '<p class="osx-visor-nota" id="osxVisorNota"></p>' +
         '<div class="osx-visor-acc">' +
-          '<button type="button" class="osx-heart big' + (favTiene(l.src) ? ' on' : '') + '" id="osxVisorHeart" aria-label="' + T.guardar + '">' +
-            '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 21s-7.5-4.6-9.5-9A5.3 5.3 0 0 1 12 6.6 5.3 5.3 0 0 1 21.5 12c-2 4.4-9.5 9-9.5 9Z"/></svg></button>' +
-          '<a class="osx-verdict-cta osx-visor-cta" target="_blank" rel="noopener" href="' + waLook(l) + '">' + ICONS.wa + ' ' + T.cta + '</a>' +
+          '<button type="button" class="osx-heart big" id="osxVisorHeart" aria-pressed="false" aria-label="' + T.guardar + '">' +
+            '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9A5.3 5.3 0 0 1 12 6.6 5.3 5.3 0 0 1 21.5 12c-2 4.4-9.5 9-9.5 9Z"/></svg></button>' +
+          '<a class="osx-verdict-cta osx-visor-cta" id="osxVisorCta" target="_blank" rel="noopener" href="#">' + ICONS.wa + ' ' + T.cta + '</a>' +
         '</div>' +
-        '<p class="osx-visor-hint">' + T.deslizaLook + '</p>' +
+        '<p class="osx-visor-hint">' + T.gestos + '</p>' +
       '</div>';
   }
 
+  function visorPintar() {
+    var v = document.getElementById('osxVisor');
+    if (!v) return;
+    var l = vis.list[vis.i];
+    var img = v.querySelector('#osxVisorImg'), bg = v.querySelector('#osxVisorBg');
+    img.src = l.src; bg.src = l.src;
+    img.alt = (ES ? 'Look de sesión IVAE en ' : 'IVAE session look in ') + l.loc;
+    v.querySelector('#osxVisorLoc').textContent = l.loc;
+    v.querySelector('#osxVisorCount').textContent = (vis.i + 1) + ' / ' + vis.list.length;
+    v.querySelector('#osxVisorNota').textContent = nota(l);
+    v.querySelector('#osxVisorCta').href = waLook(l);
+    var hb = v.querySelector('#osxVisorHeart');
+    var on = favTiene(l.src);
+    hb.classList.toggle('on', on);
+    hb.setAttribute('aria-pressed', on);
+    hb.setAttribute('aria-label', on ? T.quitarPaleta : T.guardar);
+    var sig = vis.list[(vis.i + 1) % vis.list.length];
+    if (sig) { var pre = new Image(); pre.src = sig.src; }
+  }
+
   function abrirVisor(list, i) {
+    if (document.getElementById('osxVisor')) return;
     vis.list = list.slice(); vis.i = i || 0;
+    focoVisor = document.activeElement;
     var v = document.createElement('div');
     v.className = 'osx-visor'; v.id = 'osxVisor';
-    v.innerHTML = visorHTML();
+    v.setAttribute('role', 'dialog');
+    v.setAttribute('aria-modal', 'true');
+    v.setAttribute('aria-label', T.ampliar);
+    v.setAttribute('tabindex', '-1');
+    v.innerHTML = visorEsqueleto();
     document.body.appendChild(v);
-    document.body.style.overflow = 'hidden';
-    requestAnimationFrame(function () { v.classList.add('vis'); });
-    wireVisor(v);
+    bloquear(); empujarHistorial();
+    visorPintar();
+    wireVisorGestos(v);
+    requestAnimationFrame(function () { requestAnimationFrame(function () { v.classList.add('vis'); }); });
+    v.focus();
   }
-  function cerrarVisor() {
+  function cerrarVisor(desdeHistorial) {
     var v = document.getElementById('osxVisor');
     if (!v) return;
     v.classList.remove('vis');
-    document.body.style.overflow = '';
+    desbloquear();
+    if (!desdeHistorial) sacarHistorial();
     setTimeout(function () { if (v.parentNode) v.remove(); }, 240);
+    if (vis.list && vis.list.length) st.i = vis.i;   /* al cerrar, el lookbook se queda donde ella estaba */
     renderLookbook();
+    if (focoVisor && focoVisor.focus) { try { focoVisor.focus(); } catch (e) {} }
+    focoVisor = null;
   }
   function visorIr(d) {
+    if (visorAnim) return;
+    visorAnim = true;
     vis.i = (vis.i + d + vis.list.length) % vis.list.length;
     var v = document.getElementById('osxVisor');
-    if (!v) return;
+    if (!v) { visorAnim = false; return; }
     var img = v.querySelector('#osxVisorImg');
     img.style.opacity = '0';
     setTimeout(function () {
-      v.innerHTML = visorHTML();
-      wireVisor(v);
-      var n = v.querySelector('#osxVisorImg');
-      if (n) { n.style.opacity = '0'; requestAnimationFrame(function () { n.style.opacity = '1'; }); }
-      var sig = vis.list[(vis.i + 1) % vis.list.length];
-      if (sig) { var pre = new Image(); pre.src = sig.src; }
+      visorPintar();
+      img.style.opacity = '1';
+      visorAnim = false;
     }, 150);
   }
   function visorCorazon(v) {
     var l = vis.list[vis.i];
     favToggle(l.src);
     var hb = v.querySelector('#osxVisorHeart');
-    if (hb) { hb.classList.toggle('on', favTiene(l.src)); hb.classList.remove('pop'); void hb.offsetWidth; hb.classList.add('pop'); }
-    if (favTiene(l.src)) {
+    var on = favTiene(l.src);
+    if (hb) {
+      hb.classList.toggle('on', on);
+      hb.setAttribute('aria-pressed', on);
+      hb.setAttribute('aria-label', on ? T.quitarPaleta : T.guardar);
+      hb.classList.remove('pop'); void hb.offsetWidth; hb.classList.add('pop');
+    }
+    if (on) {
       var burst = document.createElement('div');
       burst.className = 'osx-burst';
-      burst.innerHTML = '<svg viewBox="0 0 24 24" width="88" height="88"><path d="M12 21s-7.5-4.6-9.5-9A5.3 5.3 0 0 1 12 6.6 5.3 5.3 0 0 1 21.5 12c-2 4.4-9.5 9-9.5 9Z"/></svg>';
+      burst.innerHTML = '<svg viewBox="0 0 24 24" width="88" height="88" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9A5.3 5.3 0 0 1 12 6.6 5.3 5.3 0 0 1 21.5 12c-2 4.4-9.5 9-9.5 9Z"/></svg>';
       v.appendChild(burst);
       setTimeout(function () { if (burst.parentNode) burst.remove(); }, 750);
     }
     pintarBarra();
   }
-  function wireVisor(v) {
-    v.querySelector('#osxVisorX').addEventListener('click', cerrarVisor);
-    v.querySelector('#osxVisorHeart').addEventListener('click', function () { visorCorazon(v); });
+  /* Los gestos se enlazan UNA sola vez por visor abierto */
+  function wireVisorGestos(v) {
+    v.addEventListener('click', function (e) {
+      if (e.target.closest('#osxVisorX')) { cerrarVisor(); return; }
+      if (e.target.closest('#osxVisorHeart')) { visorCorazon(v); }
+    });
     var x0 = null, y0 = null, t0 = 0, ultimo = 0;
     v.addEventListener('touchstart', function (e) {
       x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now();
@@ -861,9 +1017,10 @@
       var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
       var dt = Date.now() - t0;
       x0 = null;
-      if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy)) { visorIr(dx < 0 ? 1 : -1); return; }
+      if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.3) { visorIr(dx < 0 ? 1 : -1); return; }
       if (dy > 90 && Math.abs(dy) > Math.abs(dx)) { cerrarVisor(); return; }
-      if (dt < 260 && Math.abs(dx) < 14 && Math.abs(dy) < 14) {
+      /* doble toque SOLO sobre la foto, nunca sobre los controles */
+      if (dt < 260 && Math.abs(dx) < 14 && Math.abs(dy) < 14 && !e.target.closest('button, a')) {
         var ahora = Date.now();
         if (ahora - ultimo < 320) { visorCorazon(v); ultimo = 0; } else ultimo = ahora;
       }
@@ -873,14 +1030,13 @@
       if (e.key === 'ArrowRight') visorIr(1);
       if (e.key === 'ArrowLeft') visorIr(-1);
     });
-    v.setAttribute('tabindex', '-1');
-    v.focus();
   }
 
   /* ═══════════════════════════════════════════════════════════════
      SUBE TU INSPIRACIÓN · saca los colores de SU foto (Pinterest, el
      vestido que ya compró) y filtra el lookbook. 100% en el teléfono.
      ═══════════════════════════════════════════════════════════════ */
+  var inspURL = null;
   function paletaDeImagen(file, cb) {
     var img = new Image(), url = URL.createObjectURL(file);
     img.onload = function () {
@@ -963,7 +1119,9 @@
           if (!cols.length) { out.innerHTML = ''; return; }
           var pares = cols.map(function (c) { return { rgb: c, m: cerca(c) }; });
           var g = pares[0].m;
-          var html = '<div class="osx-insp-prev"><img src="' + URL.createObjectURL(f) + '" alt=""/>' +
+          if (inspURL) URL.revokeObjectURL(inspURL);
+          inspURL = URL.createObjectURL(f);
+          var html = '<div class="osx-insp-prev"><img src="' + inspURL + '" alt="" />' +
             '<div class="osx-insp-cols">';
           pares.forEach(function (p, k) {
             html += '<button type="button" class="osx-insp-sw' + (k === 0 ? ' sel' : '') + '" data-c="' + p.m.id + '" ' +
@@ -975,13 +1133,14 @@
           out.innerHTML = html;
           out.querySelectorAll('[data-c]').forEach(function (b) {
             b.addEventListener('click', function () {
+              out.querySelectorAll('[data-c]').forEach(function (o) { o.classList.remove('sel'); });
+              b.classList.add('sel');
               st.color = b.getAttribute('data-c'); st.i = 0;
               cerrarSheet(); renderLookbook();
               var pr = document.getElementById('osxProbador');
               if (pr) pr.scrollIntoView({ behavior: 'smooth', block: 'start' });
             });
           });
-          st.color = g.id; st.i = 0;
         });
       });
     });
@@ -989,12 +1148,14 @@
 
   /* Paleta compartida por link: #look=1a.2b.3 */
   function leerHash() {
-    var m = /[#&]look=([a-z0-9.]+)/i.exec(location.hash || '');
+    var m = /[#&]look=([a-z0-9.\-]+)/i.exec(location.hash || '');
     if (!m) return;
-    var idx = m[1].split('.').map(function (t) { return parseInt(t, 36); }).filter(function (n) { return !isNaN(n) && LOOKS[n]; });
-    if (!idx.length) return;
-    favs = idx.map(function (n) { return LOOKS[n].src; });
-    favGuardar();
+    var recibidos = m[1].split('.').map(porId).filter(Boolean).map(function (l) { return l.src; });
+    if (!recibidos.length) return;
+    /* NUNCA se borra lo que ella ya tenía guardado: los recibidos van al frente */
+    var propios = favs.filter(function (s) { return recibidos.indexOf(s) === -1; });
+    paletaRecibida = propios.length !== favs.length || favs.length === 0 ? true : true;
+    favs = recibidos.concat(propios);
     setTimeout(function () { pintarBarra(); abrirPaleta(); }, 700);
   }
 

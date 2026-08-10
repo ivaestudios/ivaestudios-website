@@ -10,6 +10,7 @@
 /* ── Escenario: la foto real ── */
 .osx-stage{position:relative}
 .osx-stage-frame{position:relative;width:100%;margin:0 auto;border-radius:16px;
+  touch-action:pan-y;overscroll-behavior-x:contain;
   overflow:hidden;background:#0d141f;box-shadow:0 34px 70px -34px rgba(0,0,0,.75);
   border:1px solid rgba(249,248,247,.09);transition:aspect-ratio .35s ease;
   /* En teléfono el marco manda: 4:5 recortado para que la persona se vea GRANDE.
@@ -85,7 +86,7 @@
 .osx-verdict-cta:hover{background:#d4b46c}
 .osx-verdict-cta svg{width:15px;height:15px}
 
-@media(min-width:760px){
+@media(min-width:760px) and (min-height:640px){
   /* En pantallas grandes sí respetamos la proporción real de cada foto */
   .osx-stage-frame{aspect-ratio:auto!important;max-height:620px}
   .osx-stage-frame img{height:620px;object-position:center 40%;transform:none}
@@ -247,7 +248,7 @@ html.dark .osx-more{color:#d9bc7a}
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── Corazón y ampliar sobre la foto ── */
-.osx-heart,.osx-expand{position:absolute;z-index:4;border:1px solid rgba(249,248,247,.22);
+.osx-heart,.osx-expand{position:absolute;z-index:4;touch-action:manipulation;border:1px solid rgba(249,248,247,.22);
   background:rgba(13,20,31,.5);backdrop-filter:blur(6px);border-radius:50%;cursor:pointer;
   display:flex;align-items:center;justify-content:center;width:46px;height:46px;
   -webkit-tap-highlight-color:transparent;transition:transform .2s,background .25s,border-color .25s}
@@ -261,8 +262,8 @@ html.dark .osx-more{color:#d9bc7a}
 .osx-heart.big{position:static;width:54px;height:54px;flex:0 0 54px}
 
 /* ── Barra flotante de la paleta ── */
-.osx-barra{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));
-  z-index:9998;display:flex;align-items:center;gap:11px;padding:11px 11px 11px 15px;
+.osx-barra{position:fixed;left:12px;right:88px;bottom:calc(14px + env(safe-area-inset-bottom,0px));
+  z-index:8990;display:flex;align-items:center;gap:11px;padding:11px 11px 11px 15px;
   border-radius:100px;background:rgba(16,23,36,.93);backdrop-filter:blur(14px);
   border:1px solid rgba(196,163,90,.4);box-shadow:0 20px 44px -18px rgba(0,0,0,.85);
   transform:translateY(140%);transition:transform .45s cubic-bezier(.16,1,.3,1)}
@@ -273,13 +274,15 @@ html.dark .osx-more{color:#d9bc7a}
 .osx-barra-txt{flex:1;font-family:'Syne',sans-serif;font-size:12px;font-weight:600;
   color:rgba(249,248,247,.8);letter-spacing:.02em}
 .osx-barra-txt b{color:#d9bc7a}
-.osx-barra-btn{border:none;background:#c4a35a;color:#141d28;border-radius:100px;
+.osx-barra-btn{border:none;background:#c4a35a;color:#141d28;border-radius:100px;touch-action:manipulation;
   padding:12px 18px;font-family:'Syne',sans-serif;font-size:10.5px;font-weight:700;
   letter-spacing:.12em;text-transform:uppercase;cursor:pointer;min-height:44px;white-space:nowrap}
-@media(min-width:760px){.osx-barra{left:auto;right:24px;width:auto;min-width:330px}}
+@media(min-width:760px){.osx-barra{left:auto;right:104px;width:auto;min-width:330px}}
+/* con el menú del sitio abierto, la barra se quita de en medio */
+body:has(#mNav.is-open) .osx-barra,body:has(.m-nav.is-open) .osx-barra{opacity:0;pointer-events:none}
 
 /* ── Hoja inferior ── */
-.osx-back{position:fixed;inset:0;z-index:9999;background:rgba(6,10,16,.72);
+.osx-back{position:fixed;inset:0;z-index:9999;overscroll-behavior:contain;background:rgba(6,10,16,.72);
   backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center;
   opacity:0;transition:opacity .26s ease}
 .osx-back.vis{opacity:1}
@@ -319,12 +322,18 @@ html.dark .osx-more{color:#d9bc7a}
 
 /* ── Visor a pantalla completa ── */
 .osx-visor{position:fixed;inset:0;z-index:10000;background:#080c13;overflow:hidden;
-  opacity:0;transition:opacity .24s ease;outline:none}
+  opacity:0;transition:opacity .24s ease;outline:none;
+  display:flex;flex-direction:column;justify-content:center;
+  touch-action:none;overscroll-behavior:none}
 .osx-visor.vis{opacity:1}
 .osx-visor-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  filter:blur(38px) brightness(.42);transform:scale(1.15)}
-.osx-visor-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
-  transition:opacity .25s ease}
+  filter:blur(46px) saturate(1.5) brightness(.5);transform:scale(1.2);opacity:.55}
+/* Viñeta navy: el color de la foto se insinúa, el lujo lo pone la marca */
+.osx-visor::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 45%,rgba(8,12,19,.15) 0%,rgba(8,12,19,.72) 100%)}
+.osx-visor-img{z-index:2}
+.osx-visor-img{position:relative;z-index:2;width:100%;height:auto;max-height:74vh;
+  object-fit:contain;transition:opacity .25s ease}
 .osx-visor-top{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;align-items:center;
   gap:10px;padding:calc(12px + env(safe-area-inset-top,0px)) 14px 14px;
   background:linear-gradient(180deg,rgba(8,12,19,.72),transparent)}
@@ -339,13 +348,13 @@ html.dark .osx-more{color:#d9bc7a}
 .osx-visor-acc{display:flex;align-items:center;gap:12px}
 .osx-visor-cta{margin-top:0!important;flex:1}
 .osx-visor-hint{font-family:'Syne',sans-serif;font-size:10px;font-weight:600;letter-spacing:.16em;
-  text-transform:uppercase;color:rgba(250,248,245,.4);text-align:center;margin:14px 0 0}
+  text-transform:uppercase;color:rgba(250,248,245,.72);text-align:center;margin:14px 0 0}
 .osx-burst{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
   pointer-events:none}
 .osx-burst svg{fill:#e2647a;filter:drop-shadow(0 6px 24px rgba(226,100,122,.55));
   animation:osxBurst .75s cubic-bezier(.16,1,.3,1) forwards}
 @keyframes osxBurst{0%{transform:scale(.3);opacity:0}30%{transform:scale(1.1);opacity:.95}100%{transform:scale(1.5);opacity:0}}
-@media(min-width:900px){.osx-visor-img{object-fit:contain;padding:70px 0 150px}}
+@media(min-width:900px) and (min-height:700px){.osx-visor-img{max-height:66vh}}
 
 /* ── Herramienta: sube tu inspiración ── */
 .osx-lb-tools{display:flex;justify-content:center;margin-top:16px}
@@ -369,3 +378,20 @@ html.dark .osx-more{color:#d9bc7a}
 
 /* La barra flotante no debe tapar el CTA del pie */
 body:has(.osx-barra.vis) .post-cta{padding-bottom:96px}
+
+/* ── Pista de primera vez: que sepa que puede guardar ── */
+.osx-pista{display:flex;align-items:center;justify-content:center;gap:8px;margin:14px auto 0;
+  max-width:max-content;font-family:'Syne',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:.06em;color:#d9bc7a;background:rgba(196,163,90,.12);
+  border:1px solid rgba(196,163,90,.34);border-radius:100px;padding:10px 16px;
+  animation:osxPista 3.4s ease-in-out infinite}
+@keyframes osxPista{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+
+/* ── Respeto a quien pidió menos movimiento (esta página no carga main.css) ── */
+@media (prefers-reduced-motion: reduce){
+  .osx-burst{display:none}
+  .osx-heart.pop,.osx-pista,.osx-spin,.osx-ans{animation:none!important}
+  .osx-back,.osx-sheet,.osx-visor,.osx-barra,.osx-stage-frame,.osx-stage-frame img,
+  .osx-visor-img,.osx-chip-c,.osx-tab,.osx-arrow{transition:none!important}
+  html{scroll-behavior:auto}
+}
