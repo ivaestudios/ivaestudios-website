@@ -411,6 +411,23 @@ def main() -> int:
     if regressions:
         open_regression_issue(year, week, regressions)
 
+    # Informe de indexación real (mismo credencial, mismo run). Se ejecuta
+    # aparte y NUNCA tumba el reporte semanal: si falla, se avisa y se sigue.
+    try:
+        import subprocess as _sp
+
+        _r = _sp.run(
+            [sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "gsc_indexation.py")],
+            capture_output=True,
+            text=True,
+            timeout=900,
+        )
+        print(_r.stdout[-4000:] if _r.stdout else "")
+        if _r.returncode != 0:
+            print(f"WARN: gsc_indexation.py salió con {_r.returncode}: {_r.stderr[-500:]}", file=sys.stderr)
+    except Exception as _e:  # noqa: BLE001 — nunca romper el reporte semanal
+        print(f"WARN: no se pudo generar el informe de indexación: {_e}", file=sys.stderr)
+
     return 0
 
 
