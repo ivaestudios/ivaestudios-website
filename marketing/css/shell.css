@@ -15,7 +15,7 @@ html, body { height: 100%; }
    (última fila cortada bajo la barra de navegación). Se declara en `body`
    porque es ahí donde shell.js publica --bars-h; los hijos lo heredan ya
    resuelto. Ver kanban/table/calendar/timeline/meses.css. */
-body { --chrome-h: calc(var(--topbar-h2) + var(--bars-h, 0px)); }
+body { --chrome-h: calc(var(--topbar-h2) + env(safe-area-inset-top, 0px) + var(--bars-h, 0px)); }
 
 #app { min-height: 100dvh; }
 
@@ -28,11 +28,11 @@ body { --chrome-h: calc(var(--topbar-h2) + var(--bars-h, 0px)); }
   /* --bars-h = alto TOTAL de las franjas de #barsHost (offline + verifica tu
      correo + versión nueva). Lo publica shell.js midiendo el contenedor, así
      el contenido nunca queda tapado, haya 0, 1, 2 o 3 franjas. */
-  padding-top: calc(var(--topbar-h2) + var(--bars-h, 0px));
+  padding-top: calc(var(--topbar-h2) + env(safe-area-inset-top, 0px) + var(--bars-h, 0px));
   padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 20px);
 }
 body.has-subhead #viewScroll {
-  padding-top: calc(var(--topbar-h2) + var(--subhead-h) + var(--bars-h, 0px));
+  padding-top: calc(var(--topbar-h2) + env(safe-area-inset-top, 0px) + var(--subhead-h) + var(--bars-h, 0px));
 }
 #view {
   padding: var(--s-4);
@@ -50,7 +50,11 @@ body.has-subhead #viewScroll {
 /* ── Topbar v2 (56px fija, blur) ───────────────────────────────────────────── */
 #topbar {
   position: fixed; top: 0; left: 0; right: 0;
-  height: var(--topbar-h2);
+  /* iPhone con muesca: la barra CRECE con el área segura y empuja su
+     contenido hacia abajo. Sin esto el reloj y la batería del sistema se
+     encimaban con el selector de cliente (reporte de Vianey 2026-08-08). */
+  height: calc(var(--topbar-h2) + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
   z-index: 30;
   background: rgba(11, 11, 18, .85);
   backdrop-filter: saturate(140%) blur(12px);
@@ -150,7 +154,7 @@ body.has-subhead #viewScroll {
    su propio `top` y el CSS enumeraba las combinaciones a mano — con tres ya no
    escalaba y una combinación olvidada tapaba el seg de vistas. */
 #barsHost {
-  position: fixed; top: var(--topbar-h2); left: 0; right: 0;
+  position: fixed; top: calc(var(--topbar-h2) + env(safe-area-inset-top, 0px)); left: 0; right: 0;
   z-index: 29;
 }
 
@@ -277,7 +281,7 @@ body.has-subhead #viewScroll {
 /* ── Sub-header de vistas de contenido (segmented + slot) ──────────────────── */
 #subhead {
   /* Baja lo que midan las franjas de #barsHost (offline / correo / versión). */
-  position: fixed; top: calc(var(--topbar-h2) + var(--bars-h, 0px)); left: 0; right: 0;
+  position: fixed; top: calc(var(--topbar-h2) + env(safe-area-inset-top, 0px) + var(--bars-h, 0px)); left: 0; right: 0;
   z-index: var(--z-subhead);
   display: flex; align-items: center; gap: var(--s-3);
   height: var(--subhead-h);
@@ -858,12 +862,12 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
      de vista permanece si la vista lo usa. */
   .subhead-seg { display: none; }
   #subhead { justify-content: flex-end; }
-  body.has-subhead #viewScroll { padding-top: calc(var(--topbar-h2) + var(--subhead-h) + var(--bars-h, 0px)); }
+  body.has-subhead #viewScroll { padding-top: calc(var(--topbar-h2) + env(safe-area-inset-top, 0px) + var(--subhead-h) + var(--bars-h, 0px)); }
   /* En desktop el segmented vive en el topbar; si la vista no aporta controles
      al slot (p. ej. Calendario), el subhead queda vacio -> colapsarlo para no
      dejar una banda muerta de 48px bajo las pestanas. */
   #subhead:not(:has(.subhead-slot > *)) { display: none; }
-  body.has-subhead:not(:has(.subhead-slot > *)) #viewScroll { padding-top: calc(var(--topbar-h2) + var(--bars-h, 0px)); }
+  body.has-subhead:not(:has(.subhead-slot > *)) #viewScroll { padding-top: calc(var(--topbar-h2) + env(safe-area-inset-top, 0px) + var(--bars-h, 0px)); }
 
   /* FAB con etiqueta (esquina inferior derecha, sin nav que lo empuje) */
   .fab {
