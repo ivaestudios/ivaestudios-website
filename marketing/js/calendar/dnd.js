@@ -9,9 +9,9 @@
 // incluidos). En exito se ofrece Deshacer via toast.
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202608112250';
-import { isClientRole } from '../api.js?v=202608112250';
-import { parseYMD, dayShort, todayYMD } from './data.js?v=202608112250';
+import { T } from '../shell/i18n.js?v=202608112313';
+import { isClientRole } from '../api.js?v=202608112313';
+import { parseYMD, dayShort, todayYMD } from './data.js?v=202608112313';
 
 export const DROP_SELECTOR = '[data-cal-drop]';
 
