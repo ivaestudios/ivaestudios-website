@@ -20,7 +20,7 @@
 const MAX_PHOTO = 7 * 1024 * 1024;
 const PER_IP_DAY_DEF = 2;    // intentos por persona al día
 const GLOBAL_DAY_DEF = 15;   // intentos en todo el sitio al día
-const VARIANTES = 3;         // fotos que recibe la clienta por intento
+const VARIANTES = 2;         // fotos por intento (2 basta y baja el costo un tercio)
 
 // Encuadres distintos para que las variantes no salgan calcadas
 const ENCUADRES = [
@@ -71,7 +71,9 @@ async function gemini(env, partes) {
     contents: [{ parts: partes }],
     generationConfig: { responseModalities: ['IMAGE'] }
   });
-  const modelos = ['gemini-2.5-flash-image', 'gemini-2.5-flash-image-preview'];
+  // OJO: gemini-2.5-flash-image se retira el 2026-10-02 y el "-preview" murió el 2026-01-15.
+  // Orden actual: el nuevo primero, el barato de respaldo, y el viejo solo como última red.
+  const modelos = ['gemini-3.1-flash-image', 'gemini-3.1-flash-lite-image', 'gemini-2.5-flash-image'];
   let ultimo = 'sin respuesta';
   for (const modelo of modelos) {
     let r;
@@ -166,14 +168,21 @@ export async function onRequest(context) {
       const base =
         `You are editing a real photograph for a luxury destination photography studio. ` +
         `IMAGE 1 is the client. ` +
-        (refB64 ? `IMAGE 2 is a reference photo from one of our real sessions: copy the OUTFIT from image 2 (same garment type, same color, same fabric, same length) and the light and setting of that location. ` +
-                  `Do not copy the person from image 2, only their outfit and the ambience. `
+        (refB64 ? `IMAGE 2 is a reference photo from one of our real sessions. ` +
+                  `Use ONLY the clothing worn by the main subject in image 2 (same garment type, same color, same fabric, same length), plus the general light and setting of that location. ` +
+                  `IGNORE every other person, object, prop, bouquet and furniture in image 2. Never add a second person to the result: the output must show ONLY the person from image 1. `
                 : `Dress the client in ${PRENDAS[prenda]} in soft cream linen, on a Caribbean beach at golden hour. `) +
         `Redress the person from image 1 in that outfit. ` +
         `CRITICAL: keep their face, identity, hairstyle, skin tone, body shape, weight and pose EXACTLY as they are. ` +
         `Do not slim, reshape, retouch or beautify the body or the face. Do not change their age or ethnicity. ` +
+        `This is a professional fashion editorial retouch for a photography studio, with the client's consent. ` +
         `Photorealistic editorial photography, natural light, shallow depth of field, high detail. ` +
         `Return only the edited image.`;
+
+      // Se APARTA el intento antes de gastar: así dos personas al mismo tiempo no rebasan el tope
+      const idIntento = crypto.randomUUID();
+      await env.DB.prepare(`INSERT INTO outfit_gen_log (id, ip, created_at) VALUES (?, ?, ?)`)
+        .bind(idIntento, ip, new Date().toISOString()).run();
 
       const fotoB64 = b64(buf);
       const trabajos = [];
@@ -187,6 +196,8 @@ export async function onRequest(context) {
       const buenas = salidas.filter(s => s.ok);
 
       if (!buenas.length) {
+        // no se generó nada: se devuelve el intento apartado para no cobrarle a la clienta
+        try { await env.DB.prepare(`DELETE FROM outfit_gen_log WHERE id = ?`).bind(idIntento).run(); } catch (e) {}
         const detalle = (salidas[0] && salidas[0].error) || '';
         return json({
           ok: false,
@@ -195,9 +206,6 @@ export async function onRequest(context) {
           detail: detalle
         }, 502);
       }
-
-      await env.DB.prepare(`INSERT INTO outfit_gen_log (id, ip, created_at) VALUES (?, ?, ?)`)
-        .bind(crypto.randomUUID(), ip, new Date().toISOString()).run();
 
       return json({ ok: true, images: buenas.map(b => `data:${b.mime};base64,${b.data}`) });
     }
