@@ -28,22 +28,22 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202608112313';
-import { icon } from '../shell/icons.js?v=202608112313';
-import { T } from '../shell/i18n.js?v=202608112313';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202608112313';
+} from '../api.js?v=202608121614';
+import { icon } from '../shell/icons.js?v=202608121614';
+import { T } from '../shell/i18n.js?v=202608121614';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202608121614';
 // Capas de history del shell: el boton atras del telefono cierra la capa de
 // arriba (panel de guion) en vez de salir de la app.
-import { pushLayer } from '../shell/router.js?v=202608112313';
-import { confirmar } from '../shell/sheet.js?v=202608112313';
+import { pushLayer } from '../shell/router.js?v=202608121614';
+import { confirmar } from '../shell/sheet.js?v=202608121614';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608112313';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608112313';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608112313';
+import { errorCard } from '../ui/states.js?v=202608121614';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608121614';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608121614';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608112313';
+} from '../lib/video-upload.js?v=202608121614';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1482,7 +1482,10 @@ function buildRow(post, noteLabels) {
   // nombre de la pieza y no se alcanzaba a leer (reporte de Vianey con
   // captura). El qué falta se lee al pasar el dedo/cursor y lo anuncia el
   // lector de pantalla; el color ámbar ya dice "algo falta".
-  const avisoNode = (!isClientRole() && !yaPaso && avisoTexto)
+  // SOLO ADMIN (pedido de Vianey 2026-08-12): el aviso es su control de
+  // calidad, no un regaño para el equipo ni algo que el cliente deba ver.
+  const soyAdmin = ((ctx.store.getState().me || {}).role === 'admin');
+  const avisoNode = (soyAdmin && !yaPaso && avisoTexto)
     ? el('button', {
         class: 'meses-falta', type: 'button',
         title: `${avisoTexto} — ${T('toca para escribirlo', 'tap to write it')}`,
@@ -2312,8 +2315,8 @@ function buildPdfContenidoBtn(key, rows) {
       const antes = label ? label.textContent : '';
       btn.disabled = true;
       try {
-        const mod = await import('../lib/pdf-contenido.js?v=202608112313');
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608112313');
+        const mod = await import('../lib/pdf-contenido.js?v=202608121614');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608121614');
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
         const res = await mod.generarPdfContenido({
