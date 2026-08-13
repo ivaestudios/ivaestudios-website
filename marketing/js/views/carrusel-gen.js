@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608121614';
-import { icon } from '../shell/icons.js?v=202608121614';
-import { T } from '../shell/i18n.js?v=202608121614';
-import * as store from '../shell/store.js?v=202608121614';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608121614';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608121614';
-import { slidesFromPost } from '../editor/slides.js?v=202608121614';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608121614';
+import { el, clear, toast, api } from '../api.js?v=202608130029';
+import { icon } from '../shell/icons.js?v=202608130029';
+import { T } from '../shell/i18n.js?v=202608130029';
+import * as store from '../shell/store.js?v=202608130029';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608130029';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608130029';
+import { slidesFromPost } from '../editor/slides.js?v=202608130029';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608130029';
 
 const W = 1080;
 const H = 1350;
@@ -36,6 +36,13 @@ let brandLabel = '';
 let brandForClient = null;
 let piezaId = '';           // pieza del calendario cargada (mkt_posts.id)
 let textosPieza = null;     // textos de la pieza esperando a que lleguen fotos
+// Fotos de Pinterest (pedido 2026-08-13 "quiero las fotos literal"): el estado
+// vive a nivel módulo para que la cuadrícula sobreviva los re-renders del
+// Estudio (cada foto agregada re-pinta todo).
+let pinAbierto = false;     // panel abierto/cerrado
+let pinBusqueda = '';       // texto de búsqueda (o link de pin) tecleado
+let pinFotos = null;        // resultados [{url,respaldo,thumb,w,h,titulo,pin,usada}]
+let pinCargando = false;    // búsqueda en vuelo
 let offPosts = null;        // desuscripción de posts:changed (selector de pieza)
 let handle = '';
 let ctaSupport = '';
@@ -1437,53 +1444,136 @@ export function renderGen(root, helpers) {
     redrawTimer = setTimeout(() => { analizarTodo(); redraw(); }, 500);
   };
 
+  // Ingesta COMPARTIDA de un lote de imágenes: la usan el botón de subir del
+  // disco y las fotos bajadas de Pinterest — mismo flujo siempre (bitmap →
+  // reparto de textos de la pieza → fotómetro → rostros).
+  const ingestarLote = async (all) => {
+    invalidarIA();
+    const files = all.slice(0, MAX_SLIDES - slides.length);
+    if (all.length > files.length) {
+      toast(T(`Máximo ${MAX_SLIDES} fotos: se tomaron las primeras ${files.length}.`, `Max ${MAX_SLIDES} photos.`), 'error');
+    }
+    for (const f of files) {
+      try {
+        let bitmap;
+        const probe = await createImageBitmap(f);
+        try {
+          const need = Math.max((W * SCALE) / probe.width, (H * SCALE) / probe.height);
+          const k = Math.min(1, need * 1.35);
+          if (k < 1) {
+            bitmap = await createImageBitmap(f, { resizeWidth: Math.round(probe.width * k), resizeHeight: Math.round(probe.height * k), resizeQuality: 'high' });
+            try { probe.close(); } catch { /* noop */ }
+          } else { bitmap = probe; }
+        } catch { bitmap = probe; }
+        slides.push({ file: f, bitmap, kicker: '', title: '', body: '', pos: slides.length === 0 ? 'mid' : 'top' });
+      } catch {
+        toast(T(`No pude leer "${f.name}" — usa JPG o PNG (HEIC no corre en este navegador).`, `Could not read "${f.name}" — use JPG or PNG.`), 'error');
+      }
+    }
+    // Textos de la pieza en espera: se reparten sobre el LOTE completo
+    // (hook → 1, CTA → último) ahora que ya se sabe cuántas fotos hay.
+    if (textosPieza && slides.length) {
+      const mapa = repartirTextos(textosPieza, slides.length);
+      slides.forEach((sl, i) => {
+        const t = mapa[i];
+        if (t && !sl.title && !sl.body) { sl.title = t.title; sl.body = t.body; }
+      });
+      textosPieza = null;
+    }
+    analizarTodo();          // el fotómetro decide posición y tratamiento
+    renderGen(hostEl, deps);
+    // ROSTROS REALES: el detector corre en segundo plano y al terminar se
+    // re-mide todo — el texto no puede pisar una cara detectada (regla dura).
+    const pendientes = slides.filter((x) => x.bitmap && !x.caras);
+    Promise.all(pendientes.map(async (x) => { x.caras = await detectarCaras(x.bitmap); }))
+      .then(() => { if (pendientes.length) { analizarTodo(); renderGen(hostEl, deps); } })
+      .catch(() => { /* sin detector: la heurística de piel sigue */ });
+  };
+
   const fileIn = el('input', {
     type: 'file', accept: 'image/*', multiple: true, hidden: true,
-    onchange: async (e) => {
-      invalidarIA();
+    onchange: (e) => {
       const all = [...(e.target.files || [])];
-      const files = all.slice(0, MAX_SLIDES - slides.length);
-      if (all.length > files.length) {
-        toast(T(`Máximo ${MAX_SLIDES} fotos: se tomaron las primeras ${files.length}.`, `Max ${MAX_SLIDES} photos.`), 'error');
-      }
-      for (const f of files) {
-        try {
-          let bitmap;
-          const probe = await createImageBitmap(f);
-          try {
-            const need = Math.max((W * SCALE) / probe.width, (H * SCALE) / probe.height);
-            const k = Math.min(1, need * 1.35);
-            if (k < 1) {
-              bitmap = await createImageBitmap(f, { resizeWidth: Math.round(probe.width * k), resizeHeight: Math.round(probe.height * k), resizeQuality: 'high' });
-              try { probe.close(); } catch { /* noop */ }
-            } else { bitmap = probe; }
-          } catch { bitmap = probe; }
-          slides.push({ file: f, bitmap, kicker: '', title: '', body: '', pos: slides.length === 0 ? 'mid' : 'top' });
-        } catch {
-          toast(T(`No pude leer "${f.name}" — usa JPG o PNG (HEIC no corre en este navegador).`, `Could not read "${f.name}" — use JPG or PNG.`), 'error');
-        }
-      }
       e.target.value = '';
-      // Textos de la pieza en espera: se reparten sobre el LOTE completo
-      // (hook → 1, CTA → último) ahora que ya se sabe cuántas fotos hay.
-      if (textosPieza && slides.length) {
-        const mapa = repartirTextos(textosPieza, slides.length);
-        slides.forEach((sl, i) => {
-          const t = mapa[i];
-          if (t && !sl.title && !sl.body) { sl.title = t.title; sl.body = t.body; }
-        });
-        textosPieza = null;
-      }
-      analizarTodo();          // el fotómetro decide posición y tratamiento
-      renderGen(hostEl, deps);
-      // ROSTROS REALES: el detector corre en segundo plano y al terminar se
-      // re-mide todo — el texto no puede pisar una cara detectada (regla dura).
-      const pendientes = slides.filter((x) => x.bitmap && !x.caras);
-      Promise.all(pendientes.map(async (x) => { x.caras = await detectarCaras(x.bitmap); }))
-        .then(() => { if (pendientes.length) { analizarTodo(); renderGen(hostEl, deps); } })
-        .catch(() => { /* sin detector: la heurística de piel sigue */ });
+      if (all.length) ingestarLote(all);
     },
   });
+
+  // ── Fotos LITERALES de Pinterest (pedido 2026-08-13) ─────────────────────
+  // Busca por texto (o pega el link de un pin), toca una foto y entra al
+  // Estudio en su MEJOR resolución vía el proxy del descargador. Después
+  // sigue el flujo de siempre: fotómetro, rostros, plantilla.
+  const panelPinterest = () => {
+    if (!pinAbierto) return null;
+    const buscar = async () => {
+      const q = pinBusqueda.trim();
+      if (!q) { toast(T('Escribe qué buscar o pega el link de un pin.', 'Type a search or paste a pin link.'), 'error'); return; }
+      if (pinCargando) return;
+      pinCargando = true; renderGen(hostEl, deps);
+      try {
+        const r = await api.post('/pinterest-fotos', { q });
+        pinFotos = (r.fotos || []).map((x) => ({ ...x }));
+        // Las mejores primero: la resolución manda — una foto chica no
+        // aguanta el lienzo de 1080×1350 sin verse borrosa.
+        pinFotos.sort((a, b) => ((b.w || 0) * (b.h || 0)) - ((a.w || 0) * (a.h || 0)));
+      } catch (e) {
+        pinFotos = [];
+        toast((e && e.message) || T('Pinterest no respondió.', 'Pinterest did not respond.'), 'error');
+      }
+      pinCargando = false;
+      renderGen(hostEl, deps);
+    };
+    const traer = async (f, celda) => {
+      if (f.usada || f.bajando) return;
+      if (slides.length >= MAX_SLIDES) { toast(T(`Ya tienes las ${MAX_SLIDES} fotos del máximo.`, `Already at the ${MAX_SLIDES}-photo max.`), 'error'); return; }
+      f.bajando = true; celda.classList.add('is-baja');
+      const baja = async (u) => {
+        const r = await fetch(`/api/marketing/descargar/file?m=${encodeURIComponent(u)}&p=pinterest&n=pinterest.jpg`);
+        if (!r.ok) throw new Error(String(r.status));
+        return r.blob();
+      };
+      try {
+        let blob;
+        try { blob = await baja(f.url); }                    // apuesta: /originals/
+        catch { blob = await baja(f.respaldo || f.url); }    // lo que el buscador sí vio
+        f.usada = true; f.bajando = false;
+        await ingestarLote([new File([blob], 'pinterest.jpg', { type: blob.type || 'image/jpeg' })]);
+      } catch {
+        f.bajando = false; celda.classList.remove('is-baja');
+        toast(T('No pude bajar esa foto — prueba otra.', 'Could not fetch that photo — try another.'), 'error');
+      }
+    };
+    return el('div', { class: 'carg-pin' }, [
+      el('div', { class: 'carg-pin__bar' }, [
+        el('input', {
+          class: 'input carg-pin__q', type: 'search', value: pinBusqueda,
+          placeholder: T('Busca (ej. clínica dental elegante) o pega el link de un pin', 'Search or paste a pin link'),
+          oninput: (e) => { pinBusqueda = e.target.value; },
+          onkeydown: (e) => { if (e.key === 'Enter') { e.preventDefault(); buscar(); } },
+        }),
+        el('button', { class: 'btn btn-primary', type: 'button', disabled: pinCargando || undefined, onclick: buscar },
+          [icon('search', 15), ' ' + (pinCargando ? T('Buscando…', 'Searching…') : T('Buscar', 'Search'))]),
+      ]),
+      pinFotos && !pinCargando ? el('p', {
+        class: 'carg-pin__nota',
+        text: pinFotos.length
+          ? T(`${pinFotos.length} fotos — toca una para agregarla (las más grandes primero).`, `${pinFotos.length} photos — tap one to add it (biggest first).`)
+          : T('Sin resultados. Prueba otras palabras o pega el link de un pin.', 'No results — try other words or paste a pin link.'),
+      }) : null,
+      pinFotos && pinFotos.length ? el('div', { class: 'carg-pin__grid' }, pinFotos.map((f) => {
+        const hd = (f.w || 0) >= 1080;
+        const celda = el('button', {
+          class: 'carg-pin__foto' + (f.usada ? ' is-usada' : ''), type: 'button',
+          title: (f.titulo ? f.titulo + ' · ' : '') + (f.w ? `${f.w}×${f.h}` : ''),
+        }, [
+          el('img', { src: f.thumb, alt: f.titulo || 'pin', loading: 'lazy' }),
+          el('span', { class: 'carg-pin__tag', text: f.usada ? T('Agregada ✓', 'Added ✓') : (hd ? 'HD' : (f.w ? `${f.w}px` : '')) }),
+        ]);
+        celda.addEventListener('click', () => traer(f, celda));
+        return celda;
+      })) : null,
+    ]);
+  };
 
   const slideCards = slides.map((s, i) => {
     const isCover = i === 0;
@@ -1787,6 +1877,10 @@ export function renderGen(root, helpers) {
         fileIn.click();
       } }, [icon('camera', 15), ' ' + T(slides.length ? 'Agregar fotos' : 'Elegir fotos', 'Add photos')]),
       fileIn,
+      el('button', {
+        class: 'btn' + (pinAbierto ? ' carg-pin__on' : ''), type: 'button',
+        onclick: () => { pinAbierto = !pinAbierto; renderGen(hostEl, deps); },
+      }, [icon('search', 15), ' Pinterest']),
       // Rótulo no usa fotos: los slides se agregan vacíos y son pura tipografía.
       // El botón solo aparece con esa plantilla activa para no confundir en las demás.
       plantillaPorId(plantillaId).sinFoto ? el('button', {
@@ -1813,6 +1907,8 @@ export function renderGen(root, helpers) {
         }),
       ]),
     ]),
+
+    panelPinterest(),
 
     paso('3', T('Dirección', 'Direction'),
       T('Rostros detectados + fotómetro + IA directora. "Dirigir" respeta tus textos al 100%.', 'Faces + photometer + AI director.')),

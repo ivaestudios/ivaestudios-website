@@ -48,7 +48,7 @@
 import { handleDashboard } from './_dashboard.js';
 import { handleStorage, refreshStorageUsage } from './_storage.js';
 import { handleMonthlyReport } from './_enterprise.js';
-import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHeadersFor } from './_downloader.js';
+import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHeadersFor, buscarPinterest, fotosDePin } from './_downloader.js';
 import { pedirCarrusel } from './_carrusel-ia.js';
 import {
   handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
@@ -5280,7 +5280,37 @@ async function route(request, env, authCtx) {
     return json({ error: 'Method not allowed' }, 405);
   }
 
+  // ── PINTEREST FOTOS (solo staff): busca pines o cosecha las imágenes de un
+  // pin para el Estudio de carruseles. Los bytes bajan por /descargar/file
+  // (mismo proxy anti-SSRF; pinimg.com ya está en la lista de hosts).
+  if (parts[0] === 'pinterest-fotos' && parts.length === 1 && method === 'POST') {
+    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    return handlePinterestFotos(request);
+  }
+
   return json({ error: 'Not found' }, 404);
+}
+
+// Busca fotos en Pinterest por texto, o cosecha las imágenes de un pin si lo
+// que llega es un link. El Estudio pinta la cuadrícula con los thumbs directos
+// de pinimg (el CSP de /marketing/* permite img-src https:).
+async function handlePinterestFotos(request) {
+  let b; try { b = await request.json(); } catch { return json({ error: 'JSON invalido' }, 400); }
+  const q = String((b && b.q) || '').trim();
+  if (!q) return json({ error: 'Escribe qué buscar o pega el link de un pin.' }, 400);
+  try {
+    let fotos;
+    if (/^https?:\/\//i.test(q)) {
+      if (detectPlatform(q) !== 'pinterest') return json({ error: 'Ese link no es de Pinterest.' }, 400);
+      fotos = await fotosDePin(q);
+    } else {
+      fotos = await buscarPinterest(q);
+    }
+    // OJO: 422 y NO 5xx en errores (Cloudflare pisa los 5xx con su página).
+    return json({ ok: true, fotos: fotos.slice(0, 40) });
+  } catch (e) {
+    return json({ error: (e && e.message) || 'Pinterest no respondió.' }, 422);
+  }
 }
 
 // ── DESCARGAR handlers ───────────────────────────────────────────────────────

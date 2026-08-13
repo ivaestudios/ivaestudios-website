@@ -371,3 +371,17 @@
 .carg-pieza { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .carg-pieza__sel { max-width: 460px; min-height: 40px; }
 .carg-pieza__pend { font-size: 12.5px; color: #E8B15C; }
+
+/* ── Fotos literales de Pinterest (Estudio, pedido 2026-08-13) ─────────────── */
+.carg-pin { border: 1px solid rgba(255, 255, 255, .12); border-radius: 14px; padding: 12px; margin: 2px 0 10px; background: rgba(255, 255, 255, .02); }
+.carg-pin__on { border-color: var(--brand, #E24DA0); color: var(--brand, #E24DA0); }
+.carg-pin__bar { display: flex; gap: 8px; }
+.carg-pin__q { flex: 1; min-width: 0; }
+.carg-pin__nota { margin: 10px 2px 0; font-size: 12.5px; color: var(--text-mute); }
+.carg-pin__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(102px, 1fr)); gap: 8px; margin-top: 10px; max-height: 46vh; overflow-y: auto; border-radius: 8px; }
+.carg-pin__foto { position: relative; border: 0; padding: 0; border-radius: 8px; overflow: hidden; cursor: pointer; aspect-ratio: 4 / 5; background: rgba(255, 255, 255, .05); }
+.carg-pin__foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.carg-pin__foto:hover img { transform: scale(1.04); transition: transform .15s; }
+.carg-pin__tag { position: absolute; left: 6px; bottom: 6px; font-size: 10px; font-weight: 700; letter-spacing: .02em; background: rgba(0, 0, 0, .62); color: #fff; padding: 2px 7px; border-radius: 999px; pointer-events: none; }
+.carg-pin__foto.is-usada { opacity: .4; cursor: default; }
+.carg-pin__foto.is-baja { opacity: .65; outline: 2px solid var(--brand, #E24DA0); outline-offset: -2px; }

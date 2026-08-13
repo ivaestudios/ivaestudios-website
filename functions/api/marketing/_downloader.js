@@ -320,11 +320,115 @@ async function resolvePinterest(url, env) {
       mediaHeaders: { 'User-Agent': DESKTOP_UA, 'Referer': 'https://www.pinterest.com/' },
     };
   }
+  // Pin de IMAGEN (pedido 2026-08-13 "quiero las fotos literal"): ya no es un
+  // error — se cosechan sus fotos en resolución original (cubre pin sencillo,
+  // carrusel de pin y story-pins). El front ya sabe pintar items type:'image'.
+  const imgs = data ? collectPinImages(data) : [];
+  if (imgs.length) {
+    return {
+      platform: 'pinterest',
+      title: (data.title || data.grid_title || 'pinterest').slice(0, 120),
+      thumbnail: imgs[0].thumb || imgs[0].url,
+      width: imgs[0].width || null,
+      height: imgs[0].height || null,
+      durationSec: null,
+      type: 'image',
+      mediaUrl: imgs[0].url,
+      ext: 'jpg',
+      watermark: false,
+      mediaHeaders: { 'User-Agent': DESKTOP_UA, 'Referer': 'https://www.pinterest.com/' },
+      items: imgs.map((im) => ({ url: im.url, type: 'image', ext: 'jpg' })),
+    };
+  }
   // Respaldo cobalt (IPs limpias).
   const cb = await viaCobalt(url, 'pinterest', env).catch(() => null);
   if (cb && cb.mediaUrl) return cb;
   if (data && data.embed && data.embed.src) throw new Error('Este pin es un video incrustado de otra plataforma (YouTube/Vimeo).');
-  throw new Error('Este pin no tiene video (o es una imagen).');
+  throw new Error('Este pin no tiene video ni imagen que se pueda bajar.');
+}
+
+// Todas las imágenes de un pin, cada una en su mejor resolución + miniatura
+// para la cuadrícula. El dict de Pinterest viene como {'236x':{url,w,h},…,
+// 'orig':{…}}; si no hay 'orig' se toma la más ancha.
+function collectPinImages(data) {
+  const out = [];
+  const push = (dict) => {
+    if (!dict) return;
+    const sizes = Object.values(dict).filter((v) => v && v.url);
+    const orig = dict.orig || sizes.sort((a, b) => (b.width || 0) - (a.width || 0))[0];
+    if (!orig || !orig.url) return;
+    const mini = (dict['236x'] || dict['474x'] || orig).url;
+    out.push({ url: orig.url, width: orig.width || null, height: orig.height || null, thumb: mini });
+  };
+  for (const slot of (data.carousel_data && data.carousel_data.carousel_slots) || []) push(slot.images);
+  for (const pg of (data.story_pin_data && data.story_pin_data.pages) || []) {
+    for (const bl of (pg.blocks || [])) push(bl.image && bl.image.images);
+  }
+  if (!out.length) push(data.images);
+  const seen = new Set();
+  return out.filter((x) => !seen.has(x.url) && seen.add(x.url));
+}
+
+// ── Pinterest · FOTOS para el Estudio de carruseles ─────────────────────────
+// Devuelven la misma forma: [{url, respaldo, thumb, w, h, titulo, pin}].
+//
+// La búsqueda va por el buscador de imágenes de DuckDuckGo acotado a
+// pinterest.com. NO es capricho: la API interna de búsqueda de Pinterest
+// (BaseSearchResource) regresa 0 resultados sin sesión (probado 2026-08-13,
+// con y sin cookies de invitado + context{}), y la página /search/pins/ ya es
+// cascarón client-side sin pines en el HTML. DDG sí responde en servidor y
+// entrega los i.pinimg directos. `url` lleva el upgrade /NNNx/ → /originals/
+// (probado: 736x 68KB → originals 129KB); si el CDN lo niega, el que baja usa
+// `respaldo` (el tamaño que DDG sí vio).
+
+export async function buscarPinterest(query) {
+  const q = `${query} site:pinterest.com`;
+  // 1) token vqd de la página de búsqueda
+  const r1 = await xfetch(`https://duckduckgo.com/?q=${encodeURIComponent(q)}&iax=images&ia=images`, {
+    headers: { 'User-Agent': DESKTOP_UA },
+  });
+  const h1 = await r1.text();
+  const vqd = (h1.match(/vqd="([^"]+)"/) || h1.match(/vqd=([\d-]+)/) || [])[1];
+  if (!vqd) throw new Error('El buscador no respondió. Intenta de nuevo o pega el link de un pin.');
+  // 2) resultados de imagen
+  const r2 = await xfetch(`https://duckduckgo.com/i.js?l=us-en&o=json&q=${encodeURIComponent(q)}&vqd=${vqd}&f=,,,&p=1`, {
+    headers: { 'User-Agent': DESKTOP_UA, 'Referer': 'https://duckduckgo.com/' },
+  });
+  if (!r2.ok) throw new Error('El buscador no respondió. Intenta de nuevo o pega el link de un pin.');
+  const j = await r2.json().catch(() => null);
+  const results = (j && j.results) || [];
+  const fotos = [];
+  const vistos = new Set();
+  for (const p of results) {
+    const img = String(p.image || '');
+    if (!/(^|\.)pinimg\.com$/i.test((() => { try { return new URL(img).hostname; } catch { return ''; } })())) continue;
+    const orig = img.replace(/\/\d+x\d*\//, '/originals/');
+    if (vistos.has(orig)) continue;
+    vistos.add(orig);
+    fotos.push({
+      url: orig,                       // apuesta a la resolución original
+      respaldo: img,                   // lo que el buscador sí vio (existe seguro)
+      thumb: p.thumbnail || img,
+      w: p.width || null,
+      h: p.height || null,
+      titulo: String(p.title || '').slice(0, 80),
+      pin: /pinterest\./i.test(String(p.url || '')) ? p.url : null,
+    });
+  }
+  if (!fotos.length) throw new Error('La búsqueda no regresó fotos de Pinterest. Prueba otras palabras o pega el link de un pin.');
+  return fotos;
+}
+
+export async function fotosDePin(url) {
+  const id = await pinId(url);
+  if (!id) throw new Error('Ese link no parece un pin de Pinterest.');
+  let data = await pinResource(id).catch(() => null);
+  if (!data) data = await pinFromHtml(id).catch(() => null);
+  if (!data) throw new Error('Pinterest no soltó este pin ahora mismo. Intenta de nuevo en unos segundos.');
+  const imgs = collectPinImages(data);
+  if (!imgs.length) throw new Error('Este pin no trae imagen (¿es un video?).');
+  const titulo = String(data.title || data.grid_title || '').slice(0, 80);
+  return imgs.map((im) => ({ url: im.url, thumb: im.thumb, w: im.width, h: im.height, titulo, pin: `https://www.pinterest.com/pin/${id}/` }));
 }
 
 async function pinId(url) {
