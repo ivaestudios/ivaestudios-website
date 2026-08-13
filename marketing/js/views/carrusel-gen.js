@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608130038';
-import { icon } from '../shell/icons.js?v=202608130038';
-import { T } from '../shell/i18n.js?v=202608130038';
-import * as store from '../shell/store.js?v=202608130038';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608130038';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608130038';
-import { slidesFromPost } from '../editor/slides.js?v=202608130038';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608130038';
+import { el, clear, toast, api } from '../api.js?v=202608131759';
+import { icon } from '../shell/icons.js?v=202608131759';
+import { T } from '../shell/i18n.js?v=202608131759';
+import * as store from '../shell/store.js?v=202608131759';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608131759';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608131759';
+import { slidesFromPost } from '../editor/slides.js?v=202608131759';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608131759';
 
 const W = 1080;
 const H = 1350;
@@ -39,6 +39,41 @@ let textosPieza = null;     // textos de la pieza esperando a que lleguen fotos
 // Fotos de Pinterest (pedido 2026-08-13 "quiero las fotos literal"): el estado
 // vive a nivel módulo para que la cuadrícula sobreviva los re-renders del
 // Estudio (cada foto agregada re-pinta todo).
+// ── REGLA DE VIANEY (2026-08-13): SIN FOTOS REPETIDAS ───────────────────────
+// "Repetiste dos imágenes al comienzo, eso no debe pasar." Huella perceptual
+// dHash 8×8 sobre el bitmap: caza la MISMA foto aunque venga con otro nombre,
+// otro tamaño u otro recorte, y también dos renders casi idénticos. Umbral 12
+// de 64 bits = misma escena a ojo; interiores parecidos pero distintos pasan.
+const UMBRAL_REPETIDA = 12;
+async function huellaDe(bitmap) {
+  const c = document.createElement('canvas');
+  c.width = 9; c.height = 8;
+  const x = c.getContext('2d', { willReadFrequently: true });
+  x.drawImage(bitmap, 0, 0, 9, 8);
+  const d = x.getImageData(0, 0, 9, 8).data;
+  const g = [];
+  for (let i = 0; i < 72; i++) g.push(0.299 * d[i * 4] + 0.587 * d[i * 4 + 1] + 0.114 * d[i * 4 + 2]);
+  const bits = [];
+  for (let fila = 0; fila < 8; fila++) {
+    for (let col = 0; col < 8; col++) bits.push(g[fila * 9 + col] < g[fila * 9 + col + 1] ? 1 : 0);
+  }
+  return bits;
+}
+function distanciaHuella(a, b) {
+  let n = 0;
+  for (let i = 0; i < 64; i++) if (a[i] !== b[i]) n++;
+  return n;
+}
+// Busca contra qué slide choca la foto nueva; -1 = ninguna. Rellena huellas
+// faltantes de pasada (slides viejos o restaurados por el remount).
+async function chocaConSlide(huella, exceptoSlide) {
+  if (!huella) return -1;
+  for (const sl of slides) {
+    if (sl !== exceptoSlide && sl.bitmap && !sl.huella) sl.huella = await huellaDe(sl.bitmap).catch(() => null);
+  }
+  return slides.findIndex((sl) => sl !== exceptoSlide && sl.huella && distanciaHuella(sl.huella, huella) <= UMBRAL_REPETIDA);
+}
+
 let pinAbierto = false;     // panel abierto/cerrado
 let pinBusqueda = '';       // texto de búsqueda (o link de pin) tecleado
 let pinFotos = null;        // resultados [{url,respaldo,thumb,w,h,titulo,pin,usada}]
@@ -1471,7 +1506,15 @@ export function renderGen(root, helpers) {
             try { probe.close(); } catch { /* noop */ }
           } else { bitmap = probe; }
         } catch { bitmap = probe; }
-        slides.push({ file: f, bitmap, kicker: '', title: '', body: '', pos: slides.length === 0 ? 'mid' : 'top' });
+        // REGLA: sin fotos repetidas ni casi idénticas (huella perceptual).
+        const huella = await huellaDe(bitmap).catch(() => null);
+        const choca = await chocaConSlide(huella, null);
+        if (choca !== -1) {
+          try { bitmap.close && bitmap.close(); } catch { /* noop */ }
+          toast(T(`Foto repetida: es igual (o casi) a la del slide ${choca + 1}. Regla de la casa: cada slide con foto distinta — elige otra.`, `Duplicate photo — same (or almost) as slide ${choca + 1}. House rule: every slide gets a different photo.`), 'error');
+          continue;
+        }
+        slides.push({ file: f, bitmap, huella, kicker: '', title: '', body: '', pos: slides.length === 0 ? 'mid' : 'top' });
       } catch {
         toast(T(`No pude leer "${f.name}" — usa JPG o PNG (HEIC no corre en este navegador).`, `Could not read "${f.name}" — use JPG or PNG.`), 'error');
       }
@@ -1552,8 +1595,12 @@ export function renderGen(root, helpers) {
         let blob;
         try { blob = await baja(f.url); }                    // apuesta: /originals/
         catch { blob = await baja(f.respaldo || f.url); }    // lo que el buscador sí vio
-        f.usada = true; f.bajando = false;
+        const antes = slides.length;
+        f.bajando = false;
         await ingestarLote([new File([blob], 'pinterest.jpg', { type: blob.type || 'image/jpeg' })]);
+        // Solo se marca usada si de verdad entró (la regla anti-repetidas
+        // pudo rechazarla — el toast ya lo dijo desde la ingesta).
+        if (slides.length > antes) f.usada = true;
       } catch {
         f.bajando = false; celda.classList.remove('is-baja');
         toast(T('No pude bajar esa foto — prueba otra.', 'Could not fetch that photo — try another.'), 'error');
@@ -1631,9 +1678,18 @@ export function renderGen(root, helpers) {
               try { probe.close(); } catch { /* noop */ }
             } else { bitmap = probe; }
           } catch { bitmap = probe; }
+          // REGLA: la foto nueva tampoco puede repetir la de OTRO slide.
+          const huella = await huellaDe(bitmap).catch(() => null);
+          const choca = await chocaConSlide(huella, s);
+          if (choca !== -1) {
+            try { bitmap.close && bitmap.close(); } catch { /* noop */ }
+            toast(T(`Esa foto es igual (o casi) a la del slide ${choca + 1}. Regla de la casa: cada slide con foto distinta.`, `That photo matches slide ${choca + 1}. House rule: every slide gets a different photo.`), 'error');
+            return;
+          }
           try { s.bitmap && s.bitmap.close && s.bitmap.close(); } catch { /* noop */ }
           s.bitmap = bitmap;
           s.file = f;
+          s.huella = huella;
           s.posManual = null;
           s.plan = null;
           s.caras = await detectarCaras(bitmap).catch(() => []);
