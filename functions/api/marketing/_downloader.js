@@ -382,6 +382,20 @@ function collectPinImages(data) {
 // `respaldo` (el tamaño que DDG sí vio).
 
 export async function buscarPinterest(query) {
+  // Cadena de respaldos: DDG a veces le niega el token vqd a las IPs de
+  // datacenter de Cloudflare (funcionó y 10 min después 422, 2026-08-13).
+  let fotos = await pinViaDuckDuckGo(query).catch(() => null);
+  if (!fotos || !fotos.length) fotos = await pinViaBing(query).catch(() => null);
+  if (!fotos || !fotos.length) {
+    throw new Error('Los buscadores no respondieron desde el servidor (pasa a ratos). Pega el link de un pin de Pinterest — eso siempre jala.');
+  }
+  return fotos;
+}
+
+const esPinimg = (u) => { try { return /(^|\.)pinimg\.com$/i.test(new URL(u).hostname); } catch { return false; } };
+const aOriginals = (u) => u.replace(/\/\d+x\d*\//, '/originals/');
+
+async function pinViaDuckDuckGo(query) {
   const q = `${query} site:pinterest.com`;
   // 1) token vqd de la página de búsqueda
   const r1 = await xfetch(`https://duckduckgo.com/?q=${encodeURIComponent(q)}&iax=images&ia=images`, {
@@ -389,20 +403,19 @@ export async function buscarPinterest(query) {
   });
   const h1 = await r1.text();
   const vqd = (h1.match(/vqd="([^"]+)"/) || h1.match(/vqd=([\d-]+)/) || [])[1];
-  if (!vqd) throw new Error('El buscador no respondió. Intenta de nuevo o pega el link de un pin.');
+  if (!vqd) return null;
   // 2) resultados de imagen
   const r2 = await xfetch(`https://duckduckgo.com/i.js?l=us-en&o=json&q=${encodeURIComponent(q)}&vqd=${vqd}&f=,,,&p=1`, {
     headers: { 'User-Agent': DESKTOP_UA, 'Referer': 'https://duckduckgo.com/' },
   });
-  if (!r2.ok) throw new Error('El buscador no respondió. Intenta de nuevo o pega el link de un pin.');
+  if (!r2.ok) return null;
   const j = await r2.json().catch(() => null);
-  const results = (j && j.results) || [];
   const fotos = [];
   const vistos = new Set();
-  for (const p of results) {
+  for (const p of (j && j.results) || []) {
     const img = String(p.image || '');
-    if (!/(^|\.)pinimg\.com$/i.test((() => { try { return new URL(img).hostname; } catch { return ''; } })())) continue;
-    const orig = img.replace(/\/\d+x\d*\//, '/originals/');
+    if (!esPinimg(img)) continue;
+    const orig = aOriginals(img);
     if (vistos.has(orig)) continue;
     vistos.add(orig);
     fotos.push({
@@ -415,7 +428,43 @@ export async function buscarPinterest(query) {
       pin: /pinterest\./i.test(String(p.url || '')) ? p.url : null,
     });
   }
-  if (!fotos.length) throw new Error('La búsqueda no regresó fotos de Pinterest. Prueba otras palabras o pega el link de un pin.');
+  return fotos;
+}
+
+// Respaldo: el grid asíncrono de Bing Images (HTML con tarjetas m="{json}").
+// La página normal de Bing ya es cascarón client-side; /images/async sigue
+// sirviendo las tarjetas completas (probado 2026-08-13). Sin dimensiones —
+// esos resultados no traen w/h y la cuadrícula simplemente no les pone tag.
+async function pinViaBing(query) {
+  const q = `${query} site:pinterest.com`;
+  const r = await xfetch(`https://www.bing.com/images/async?q=${encodeURIComponent(q)}&first=0&count=50&mmasync=1`, {
+    headers: {
+      'User-Agent': DESKTOP_UA,
+      'Accept-Language': 'es-MX,es;q=0.9,en;q=0.8',
+      'Referer': `https://www.bing.com/images/search?q=${encodeURIComponent(q)}`,
+    },
+  });
+  if (!r.ok) return null;
+  const html = await r.text();
+  const fotos = [];
+  const vistos = new Set();
+  for (const c of html.matchAll(/m="({&quot;[\s\S]*?})"/g)) {
+    let j;
+    try { j = JSON.parse(c[1].replace(/&quot;/g, '"').replace(/&amp;/g, '&')); } catch { continue; }
+    const img = String(j.murl || '');
+    if (!esPinimg(img)) continue;
+    const orig = aOriginals(img);
+    if (vistos.has(orig)) continue;
+    vistos.add(orig);
+    fotos.push({
+      url: orig,
+      respaldo: img,
+      thumb: j.turl || img,
+      w: null, h: null,
+      titulo: String(j.t || '').slice(0, 80),
+      pin: /pinterest\./i.test(String(j.purl || '')) ? j.purl : null,
+    });
+  }
   return fotos;
 }
 
