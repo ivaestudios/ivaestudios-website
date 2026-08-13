@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608130029';
-import { icon } from '../shell/icons.js?v=202608130029';
-import { T } from '../shell/i18n.js?v=202608130029';
-import * as store from '../shell/store.js?v=202608130029';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608130029';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608130029';
-import { slidesFromPost } from '../editor/slides.js?v=202608130029';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608130029';
+import { el, clear, toast, api } from '../api.js?v=202608130038';
+import { icon } from '../shell/icons.js?v=202608130038';
+import { T } from '../shell/i18n.js?v=202608130038';
+import * as store from '../shell/store.js?v=202608130038';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608130038';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608130038';
+import { slidesFromPost } from '../editor/slides.js?v=202608130038';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608130038';
 
 const W = 1080;
 const H = 1350;
@@ -1142,8 +1142,11 @@ function cargarPieza(post, { silencioso = false } = {}) {
     slides.forEach((sl, i) => {
       const t = mapa[i] || { title: '', body: '' };
       sl.kicker = ''; sl.title = t.title; sl.body = t.body;
+      sl.autoTexto = !!(t.title || t.body);
     });
-    textosPieza = null;
+    // Se queda VIVO: si después caen más fotos (Pinterest entra de una en
+    // una), el reparto se re-acomoda solo — hasta que ella edite a mano.
+    textosPieza = textos;
     invalidarIA(); analizarTodo(); renderGen(hostEl, deps);
   } else {
     // Aún sin fotos: quedan en espera y se aplican conforme lleguen.
@@ -1256,6 +1259,9 @@ async function escribirConIA() {
     const fuera = slides.filter((_, i) => !orden.includes(i));
     slides = orden.map((i) => slides[i]);
     for (const s of fuera) { try { s.bitmap && s.bitmap.close && s.bitmap.close(); } catch { /* noop */ } }
+    // La IA acaba de escribir TODO: el reparto automático de la pieza se
+    // apaga para que una foto nueva no le pise el trabajo.
+    textosPieza = null;
     // Los textos van slide a slide del mazo YA curado (mismo orden que `orden`).
     (out.slides || []).slice(0, slides.length).forEach((t, i) => {
       slides[i].kicker = t.kicker || '';
@@ -1471,14 +1477,24 @@ export function renderGen(root, helpers) {
       }
     }
     // Textos de la pieza en espera: se reparten sobre el LOTE completo
-    // (hook → 1, CTA → último) ahora que ya se sabe cuántas fotos hay.
+    // (hook → 1, CTA → último). Las fotos de Pinterest caen UNA por una, así
+    // que el reparto se RE-ACOMODA con cada foto nueva (si no, las 6 líneas de
+    // la pieza se apilaban en el slide 1 y el resto quedaba mudo). En cuanto
+    // Vianey edita un texto a mano, el reparto automático se apaga y no le
+    // pisa nada.
     if (textosPieza && slides.length) {
-      const mapa = repartirTextos(textosPieza, slides.length);
-      slides.forEach((sl, i) => {
-        const t = mapa[i];
-        if (t && !sl.title && !sl.body) { sl.title = t.title; sl.body = t.body; }
-      });
-      textosPieza = null;
+      const tocado = slides.some((sl) => ((sl.title || '').trim() || (sl.body || '').trim()) && !sl.autoTexto);
+      if (tocado) {
+        textosPieza = null;
+      } else {
+        const mapa = repartirTextos(textosPieza, slides.length);
+        slides.forEach((sl, i) => {
+          const t = mapa[i];
+          sl.title = t ? t.title : '';
+          sl.body = t ? t.body : '';
+          sl.autoTexto = !!t;
+        });
+      }
     }
     analizarTodo();          // el fotómetro decide posición y tratamiento
     renderGen(hostEl, deps);
@@ -1641,13 +1657,13 @@ export function renderGen(root, helpers) {
         ? T('HOOK — resalta con **negritas**: **Conecta** tu ánimo con el **remedio**', 'Cover hook with **bold**')
         : T('Título grande (usa **negritas** en lo clave)', 'Big title'),
       maxlength: '90',
-      oninput: (e) => { s.title = e.target.value; redrawSoon(); }, onchange: redraw,
+      oninput: (e) => { s.title = e.target.value; s.autoTexto = false; redrawSoon(); }, onchange: redraw,
     });
     const bodyIn = el('input', {
       class: 'input carg-card__in', type: 'text', value: s.body,
       placeholder: isCover ? T('Línea de apoyo (opcional)', 'Support line') : T('Texto — separa con / para pastillas ovaladas: Respira 4-7-8 / Escribe 5 min / Té caliente', 'Text — "/" for oval pills'),
       maxlength: '200',
-      oninput: (e) => { s.body = e.target.value; redrawSoon(); }, onchange: redraw,
+      oninput: (e) => { s.body = e.target.value; s.autoTexto = false; redrawSoon(); }, onchange: redraw,
     });
     return el('div', { class: 'carg-card' }, [
       el('div', { class: 'carg-card__foto' }, [
