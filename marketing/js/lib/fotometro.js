@@ -396,6 +396,14 @@ export function analizarFoto(bmp, { altoPct = 34, pxTitular = 104, caras = [] } 
     .map((a) => {
       const r = evaluarCaja(m, a.topPct, altoPct, objTitular);
       if (!r) return null;
+      // IMPUESTO A LA MANTA (Vianey 2026-08-14, "la sombra está mal"): un
+      // bloque en MEDIO con velo pesado obliga a MANTA COMPLETA y la foto
+      // ENTERA se apaga (medido en la portada SMILE: velo 0.61 parejo, caras
+      // grises — ni limpio ni brillante). El oficio en foto high-key es texto
+      // al BORDE con difuminada honda: caras con luz, sombra decidida. Se le
+      // cobra a la manta para que las posiciones ancladas ganen salvo que de
+      // verdad estén peor (caras/detalle las siguen vetando como siempre).
+      if (a.pos === 'mid' && r.modo === 'blanco' && r.velo >= 0.5) r.score -= 30;
       const cara = tapaCara(a.topPct);
       // VETO: pisar más del 6% de un rostro detectado descalifica la caja.
       return { pos: a.pos, topPct: a.topPct, caraTapada: Number(cara.toFixed(2)), vetoCara: cara > 0.06, ...r };

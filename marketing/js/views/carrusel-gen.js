@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608131759';
-import { icon } from '../shell/icons.js?v=202608131759';
-import { T } from '../shell/i18n.js?v=202608131759';
-import * as store from '../shell/store.js?v=202608131759';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608131759';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608131759';
-import { slidesFromPost } from '../editor/slides.js?v=202608131759';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608131759';
+import { el, clear, toast, api } from '../api.js?v=202608140204';
+import { icon } from '../shell/icons.js?v=202608140204';
+import { T } from '../shell/i18n.js?v=202608140204';
+import * as store from '../shell/store.js?v=202608140204';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608140204';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608140204';
+import { slidesFromPost } from '../editor/slides.js?v=202608140204';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608140204';
 
 const W = 1080;
 const H = 1350;
@@ -677,8 +677,18 @@ function slideHTML(s, idx, total) {
   // manta queda SOLO para texto en medio con velo brutal (ahí el degradado a
   // media foto se vería a medio hacer, que es lo que la ley prohíbe).
   if (veloA >= 0.52 && pos === 'mid' && textoY <= 620) {
-    // COMPLETA (uniforme; se rebaja porque cubre todo y suma en cada píxel)
-    veloForma = `<div style="position:absolute;inset:0;background:rgba(12,12,16,${Math.min(0.58, veloA * 0.82).toFixed(3)})"></div>`;
+    // HONESTIDAD ARITMÉTICA (Vianey 2026-08-14): la manta se topa en 0.58;
+    // si el fotómetro pidió MÁS que eso, la manta ni cumple el contraste ni
+    // deja respirar la foto — el gris tibio que la ley prohíbe. En ese caso
+    // la respuesta legal es la BANDA: contraste garantizado y se ve
+    // intencional. (Con el impuesto a la manta del fotómetro este caso ya es
+    // raro: normalmente gana un borde con difuminada.)
+    if (veloA > 0.7) {
+      veloForma = `<div class="banda" style="top:${Math.max(0, topAjustado - 7)}%;bottom:0"></div>`;
+    } else {
+      // COMPLETA (uniforme; se rebaja porque cubre todo y suma en cada píxel)
+      veloForma = `<div style="position:absolute;inset:0;background:rgba(12,12,16,${Math.min(0.58, veloA * 0.82).toFixed(3)})"></div>`;
+    }
   } else if (pos === 'bottom' || pos === 'mid' && textoY > 620) {
     // DIFUMINADA desde ABAJO: fuerza completa desde 40px antes del texto hasta
     // el borde inferior; el desvanecido hacia arriba ocupa hasta 520px.
