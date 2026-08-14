@@ -13,14 +13,14 @@
 //
 // TODO EN EL NAVEGADOR: nada se sube a ningún servidor.
 // ============================================================================
-import { el, clear, toast, api } from '../api.js?v=202608140204';
-import { icon } from '../shell/icons.js?v=202608140204';
-import { T } from '../shell/i18n.js?v=202608140204';
-import * as store from '../shell/store.js?v=202608140204';
-import { analizarCarrusel } from '../lib/fotometro.js?v=202608140204';
-import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608140204';
-import { slidesFromPost } from '../editor/slides.js?v=202608140204';
-import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608140204';
+import { el, clear, toast, api } from '../api.js?v=202608141248';
+import { icon } from '../shell/icons.js?v=202608141248';
+import { T } from '../shell/i18n.js?v=202608141248';
+import * as store from '../shell/store.js?v=202608141248';
+import { analizarCarrusel } from '../lib/fotometro.js?v=202608141248';
+import { detectarCaras, resumenCaras } from '../lib/caras.js?v=202608141248';
+import { slidesFromPost } from '../editor/slides.js?v=202608141248';
+import { PLANTILLAS, plantillaPorId, PLANTILLA_POR_DEFECTO, fechaCorta } from '../lib/plantillas.js?v=202608141248';
 
 const W = 1080;
 const H = 1350;
@@ -140,6 +140,7 @@ const ARCHIVOS_FUENTE = {
   Cormorant:       { file: 'cormorant-roman.woff2',  css: (b) => `@font-face{font-family:Cormorant;font-style:normal;font-weight:300 700;src:url(data:font/woff2;base64,${b}) format('woff2')}` },
   CormorantIt:     { file: 'cormorant-italic.woff2', css: (b) => `@font-face{font-family:Cormorant;font-style:italic;font-weight:300 700;src:url(data:font/woff2;base64,${b}) format('woff2')}` },
   Raleway:         { file: 'raleway-latin-var.woff2', css: (b) => `@font-face{font-family:Raleway;font-style:normal;font-weight:100 900;src:url(data:font/woff2;base64,${b}) format('woff2')}` },
+  Anton:           { file: 'anton-latin.woff2',      css: (b) => `@font-face{font-family:Anton;font-style:normal;font-weight:400;src:url(data:font/woff2;base64,${b}) format('woff2')}` },
 };
 
 // ── ESTILO POR MARCA ─────────────────────────────────────────────────────────
@@ -587,7 +588,7 @@ function slideHTML(s, idx, total) {
     // Piso POR PLANTILLA, medido de sus tiras reales: el pie de Revista vive
     // en y≈1135 (fecha+flecha+handle) y el panel de Ficha guarda su propio
     // renglón de pie — el 190 genérico se quedaba corto en ambas.
-    const PISOS = { editorial: 140, revista: 260, ficha: 230, nota: 200, suave: 190, papel: 190, rotulo: 190, mural: 190 };
+    const PISOS = { editorial: 140, revista: 260, ficha: 230, nota: 200, suave: 190, papel: 190, rotulo: 190, mural: 190, cartel: 210 };
     // La PORTADA de Revista (titular 4 renglones + bajada serif) deriva ~60px
     // más que el estimador: piso propio.
     const PISOS_PORTADA = { revista: 330 };
@@ -1457,6 +1458,9 @@ export function renderGen(root, helpers) {
       // profesional visible en el anuncio). Se rellena cuando Vianey pase el
       // número de cada marca — mientras esté vacía, la firma no la pinta.
       { match: /smile/i, marca: 'Smile Now', handle: 'DENTAL & FACIAL CARE', plantilla: 'editorial', cedula: '' },
+      // MELISA = Natural Fitness: receta extraída de sus 3 piezas de la marina
+      // (2026-08-14) — cartel deportivo, Anton + verde neón, chips y CTA.
+      { match: /melisa|natural\s*fit/i, marca: 'Natural Fitness', handle: 'AL AIRE LIBRE', plantilla: 'cartel', cedula: '' },
     ];
     const cfg = CONFIG_MARCA.find((c) => c.match.test(brandLabel));
     cedulaMarca = '';

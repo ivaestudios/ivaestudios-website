@@ -772,7 +772,81 @@ const rotulo = {
   },
 };
 
-export const PLANTILLAS = [editorial, revista, nota, ficha, suave, mural, panorama, papel, rotulo];
+
+// ════════════════════════════════════════════════════════════════════════════
+// 10. CARTEL — el idioma de Natural Fitness (MELISA), extraído de sus 3 piezas
+//     de referencia de la marina (2026-08-14): display condensada GIGANTE
+//     (Anton) con UNA palabra bloqueada en el color de la marca, chip de marca
+//     arriba-izquierda, pastilla arriba-derecha, ceja con guion, filas de dato
+//     con ícono y CTA pastilla en el cierre. Energía de póster deportivo.
+//     La sombra cumple la ley: DIFUMINADA anclada al borde donde vive el
+//     texto (nunca velo parejo que apague toda la foto).
+// ════════════════════════════════════════════════════════════════════════════
+const cartel = {
+  id: 'cartel',
+  nombre: 'Cartel',
+  descripcion: 'Display gigante, palabra en el color de la marca, chips y CTA. Energía de póster.',
+  sobreFoto: true,
+  fuentes: ['Anton', 'Outfit'],
+  acento: 'negrita',
+  css: () => `${RESET}
+.slide{font-family:Outfit,sans-serif;--ac:#CDF649}
+.chip{position:absolute;top:76px;left:96px;display:flex;align-items:center;gap:22px}
+.cubo{width:58px;height:58px;border-radius:16px;background:var(--ac);position:relative;display:inline-block}
+.cubo .b1{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30px;height:9px;border-radius:5px;background:#101010}
+.cubo .b2{position:absolute;top:50%;left:11px;transform:translateY(-50%);width:7px;height:22px;border-radius:4px;background:#101010}
+.cubo .b3{position:absolute;top:50%;right:11px;transform:translateY(-50%);width:7px;height:22px;border-radius:4px;background:#101010}
+.chip .n{font-weight:800;font-size:31px;letter-spacing:.1em;text-transform:uppercase;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.55)}
+.badge{position:absolute;top:78px;right:96px;background:var(--ac);color:#111;font-weight:800;font-size:26px;letter-spacing:.12em;text-transform:uppercase;padding:16px 34px;border-radius:999px}
+.block{position:absolute;left:96px;right:96px;display:flex;flex-direction:column;align-items:flex-start}
+.eyebrow{display:flex;align-items:center;gap:20px;margin-bottom:30px}
+.eyebrow .raya{width:44px;height:4px;background:var(--ac);border-radius:2px;display:inline-block}
+.eyebrow .t{font-weight:700;font-size:28px;letter-spacing:.24em;text-transform:uppercase;color:var(--ac);text-shadow:0 2px 8px rgba(0,0,0,.5)}
+.tit{font-family:Anton,Outfit,sans-serif;font-weight:400;font-size:99px;line-height:1.03;text-transform:uppercase;letter-spacing:.012em;color:#fff;text-wrap:balance;text-shadow:0 3px 16px rgba(0,0,0,.35)}
+.tit.sm{font-size:82px}
+.slide.portada-1 .tit{font-size:112px;line-height:1}
+.slide.portada-1 .tit.sm{font-size:96px}
+.tit b{font-weight:400;color:var(--ac)}
+.bajada{margin-top:36px;font-weight:400;font-size:41px;line-height:1.35;color:rgba(255,255,255,.94);max-width:84%;text-shadow:0 2px 10px rgba(0,0,0,.45)}
+.bajada b{font-weight:700}
+.filete{height:2px;background:rgba(255,255,255,.24);margin-top:46px;align-self:stretch}
+.datos{margin-top:44px;display:flex;flex-direction:column;gap:30px}
+.dato{display:flex;align-items:center;gap:26px}
+.dato .ico{width:52px;height:52px;border-radius:14px;background:rgba(16,16,16,.72);border:1.6px solid var(--ac);position:relative;flex:none;display:inline-block}
+.dato .ico i{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;background:var(--ac);display:inline-block}
+.dato .tx{font-family:Anton,Outfit,sans-serif;font-weight:400;font-size:37px;letter-spacing:.03em;color:#fff;text-transform:uppercase;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+.cta{display:inline-flex;align-items:center;gap:18px;margin-top:52px;background:var(--ac);color:#111;font-weight:800;font-size:35px;padding:28px 56px;border-radius:999px}
+.pie{position:absolute;left:96px;right:96px;bottom:88px;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:26px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.85);text-shadow:0 2px 8px rgba(0,0,0,.6)}
+`,
+  html: (c) => {
+    const topPct = parseFloat(c.blockTop) || 46;
+    const abajo = topPct >= 38;
+    // La sombra de ley: difuminada honda anclada al borde del texto, con la
+    // fuerza que pidió el fotómetro (+refuerzo de cartel; el look vive en
+    // negro decidido, jamás en gris tibio).
+    const a = Math.max(0.58, Math.min(0.88, (c.velo || 0.4) + 0.2));
+    const velo = abajo
+      ? `<div style="position:absolute;left:0;right:0;bottom:0;top:${Math.max(0, topPct - 20)}%;background:linear-gradient(rgba(10,10,12,0),rgba(10,10,12,${(a * 0.4).toFixed(2)}) 34%,rgba(10,10,12,${(a * 0.82).toFixed(2)}) 64%,rgba(10,10,12,${a.toFixed(2)}))"></div>`
+      : `<div style="position:absolute;left:0;right:0;top:0;height:${Math.min(96, topPct + 54)}%;background:linear-gradient(rgba(10,10,12,${a.toFixed(2)}),rgba(10,10,12,${(a * 0.82).toFixed(2)}) 40%,rgba(10,10,12,${(a * 0.4).toFixed(2)}) 72%,rgba(10,10,12,0))"></div>`;
+    const scrimTop = abajo ? `<div style="position:absolute;top:0;left:0;right:0;height:250px;background:linear-gradient(rgba(10,10,12,.42),rgba(10,10,12,0))"></div>` : '';
+    let inner = '';
+    inner += `<div class="eyebrow"><span class="raya"></span><span class="t">${esc(c.kicker || (c.isCover ? 'Entrena conmigo' : c.marca))}</span></div>`;
+    if (c.title) inner += `<div class="tit${c.smTitle ? ' sm' : ''}">${conNegrita(c.title)}</div>`;
+    if (c.items) inner += `<div class="datos">${c.items.map((i) => `<div class="dato"><span class="ico"><i></i></span><span class="tx">${esc(i)}</span></div>`).join('')}</div>`;
+    const apoyo = c.plainBody || c.support;
+    if (apoyo && c.isLast) inner += `<div class="cta">${esc(String(apoyo).replace(/\*\*/g, ''))}&#160;&#8594;</div>`;
+    else if (apoyo) inner += `<div class="filete"></div><div class="bajada">${conNegrita(apoyo)}</div>`;
+    return `<div class="slide${c.isCover ? ' portada-1' : ''}">
+      ${velo}${scrimTop}
+      <div class="chip"><span class="cubo"><span class="b1"></span><span class="b2"></span><span class="b3"></span></span><span class="n">${esc(c.marca)}</span></div>
+      ${c.handle ? `<div class="badge">${esc(c.handle)}</div>` : ''}
+      ${c.hasText ? `<div class="block" style="top:${c.blockTop}${c.miniCSS || ''}">${inner}</div>` : ''}
+      <div class="pie"><span>${String(c.idx + 1).padStart(2, '0')}&#160;/&#160;${String(c.total).padStart(2, '0')}</span><span>${esc(c.fecha)}</span></div>
+    </div>`;
+  },
+};
+
+export const PLANTILLAS = [editorial, revista, nota, ficha, suave, cartel, mural, panorama, papel, rotulo];
 export const PLANTILLA_POR_DEFECTO = 'revista';
 export function plantillaPorId(id) {
   return PLANTILLAS.find((p) => p.id === id) || PLANTILLAS.find((p) => p.id === PLANTILLA_POR_DEFECTO);

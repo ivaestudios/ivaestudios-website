@@ -25,9 +25,9 @@
 //   - Focus trap + devolucion de foco al disparador + Esc cierra la superior.
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202608140204';
-import { pushLayer } from './router.js?v=202608140204';
-import { T } from './i18n.js?v=202608140204';
+import { el, clear } from '../api.js?v=202608141248';
+import { pushLayer } from './router.js?v=202608141248';
+import { T } from './i18n.js?v=202608141248';
 
 const stack = []; // instancias abiertas (max 2)
 
