@@ -19,22 +19,22 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202608141248';
-import * as store from './store.js?v=202608141248';
-import * as prefs from './prefs.js?v=202608141248';
-import * as router from './router.js?v=202608141248';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202608141248';
-import { toast } from './toast.js?v=202608141248';
-import { icon } from './icons.js?v=202608141248';
-import * as iconsMod from './icons.js?v=202608141248';
-import { createTopbar } from './topbar.js?v=202608141248';
-import { createBottomNav } from './bottomnav.js?v=202608141248';
-import { createSearch } from './search.js?v=202608141248';
-import { createNotifications } from './notifications.js?v=202608141248';
-import { T } from './i18n.js?v=202608141248';
-import * as version from './version.js?v=202608141248';
-import * as pickers from '../ui/pickers.js?v=202608141248';
-import * as dnd from '../ui/dnd.js?v=202608141248';
+import { api, el, clear } from '../api.js?v=202608141301';
+import * as store from './store.js?v=202608141301';
+import * as prefs from './prefs.js?v=202608141301';
+import * as router from './router.js?v=202608141301';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202608141301';
+import { toast } from './toast.js?v=202608141301';
+import { icon } from './icons.js?v=202608141301';
+import * as iconsMod from './icons.js?v=202608141301';
+import { createTopbar } from './topbar.js?v=202608141301';
+import { createBottomNav } from './bottomnav.js?v=202608141301';
+import { createSearch } from './search.js?v=202608141301';
+import { createNotifications } from './notifications.js?v=202608141301';
+import { T } from './i18n.js?v=202608141301';
+import * as version from './version.js?v=202608141301';
+import * as pickers from '../ui/pickers.js?v=202608141301';
+import * as dnd from '../ui/dnd.js?v=202608141301';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;

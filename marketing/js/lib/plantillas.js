@@ -830,7 +830,10 @@ const cartel = {
       : `<div style="position:absolute;left:0;right:0;top:0;height:${Math.min(96, topPct + 54)}%;background:linear-gradient(rgba(10,10,12,${a.toFixed(2)}),rgba(10,10,12,${(a * 0.82).toFixed(2)}) 40%,rgba(10,10,12,${(a * 0.4).toFixed(2)}) 72%,rgba(10,10,12,0))"></div>`;
     const scrimTop = abajo ? `<div style="position:absolute;top:0;left:0;right:0;height:250px;background:linear-gradient(rgba(10,10,12,.42),rgba(10,10,12,0))"></div>` : '';
     let inner = '';
-    inner += `<div class="eyebrow"><span class="raya"></span><span class="t">${esc(c.kicker || (c.isCover ? 'Entrena conmigo' : c.marca))}</span></div>`;
+    // La ceja SOLO cuando hay kicker (juez de serie 2026-08-14): el default
+    // repetía la marca que ya vive en el chip del mismo slide, y un texto
+    // fijo tipo "entrena conmigo" seria de UNA marca, no de la plantilla.
+    if (c.kicker) inner += `<div class="eyebrow"><span class="raya"></span><span class="t">${esc(c.kicker)}</span></div>`;
     if (c.title) inner += `<div class="tit${c.smTitle ? ' sm' : ''}">${conNegrita(c.title)}</div>`;
     if (c.items) inner += `<div class="datos">${c.items.map((i) => `<div class="dato"><span class="ico"><i></i></span><span class="tx">${esc(i)}</span></div>`).join('')}</div>`;
     const apoyo = c.plainBody || c.support;
