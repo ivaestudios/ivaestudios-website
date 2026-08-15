@@ -4938,6 +4938,10 @@ async function route(request, env, authCtx) {
   if (parts[0] === 'publico' && parts[1] === 'entregable' && parts.length === 4 && parts[3] === 'video' && (method === 'GET' || method === 'HEAD')) {
     return handlePublicDeliverableVideo(request, env, parts[2]);
   }
+  // Slides de carrusel para el publicador (Meta los baja de aquí).
+  if (parts[0] === 'publico' && parts[1] === 'carrusel' && parts.length === 4 && (method === 'GET' || method === 'HEAD')) {
+    return handlePublicCarouselSlide(request, env, parts[2], parts[3]);
+  }
 
   // ── CRON (no session; Bearer MKT_CRON_SECRET) — BEFORE the session gate ──
   if (path === '/cron' && method === 'POST') return handleCron(request, env);
@@ -5315,6 +5319,37 @@ async function route(request, env, authCtx) {
   return json({ error: 'Not found' }, 404);
 }
 
+// Los SLIDES publicables de una pieza carrusel: JPEGs en R2 bajo
+// marketing/carrusel/<postId>/N.jpg, servidos con firma HMAC (misma del PDF)
+// para que Meta pueda bajarlos. Devuelve URLs firmadas en orden, o [].
+async function slidesFirmadosDePieza(env, post) {
+  if (!env.R2_BUCKET) return [];
+  const lista = await env.R2_BUCKET.list({ prefix: `marketing/carrusel/${post.id}/` });
+  const keys = (lista.objects || []).map((o) => o.key)
+    .filter((k) => /\.jpe?g$/i.test(k))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  if (!keys.length) return [];
+  const urls = [];
+  for (const k of keys.slice(0, 10)) {
+    const n = k.split('/').pop();
+    const f = await firmaEntregable(env, `carrusel-${post.id}-${n}`);
+    urls.push(`https://ivaestudios.com/api/marketing/publico/carrusel/${post.id}/${n}?f=${f}`);
+  }
+  return urls;
+}
+
+// Sirve UN slide de carrusel con firma válida — sin sesión, solo inline.
+async function handlePublicCarouselSlide(request, env, postId, archivo) {
+  if (!env.R2_BUCKET) return new Response('Almacenamiento no disponible', { status: 503 });
+  if (!/^[\w.-]+\.jpe?g$/i.test(archivo) || !/^[\w-]+$/.test(postId)) return new Response('No', { status: 400 });
+  const f = new URL(request.url).searchParams.get('f') || '';
+  const esperada = await firmaEntregable(env, `carrusel-${postId}-${archivo}`);
+  if (!f || f !== esperada) return new Response('Enlace no válido', { status: 403 });
+  const o = await env.R2_BUCKET.get(`marketing/carrusel/${postId}/${archivo}`);
+  if (!o) return new Response('Sin imagen', { status: 404 });
+  return new Response(o.body, { status: 200, headers: { 'Content-Type': 'image/jpeg', 'Cache-Control': 'private, max-age=3600' } });
+}
+
 // El video PUBLICABLE de una pieza: video_url directo si existe; si no, el
 // ENTREGABLE enlazado (post_id) — con la URL pública FIRMADA que los
 // servidores de Meta sí pueden bajar (la misma firma HMAC del PDF).
@@ -5348,7 +5383,8 @@ async function publicarPendientes(env) {
     const sesionSistema = { user_id: null, name: 'Programador IVAE' };
     try {
       const videoUrl = await videoFirmadoDePieza(env, post);
-      const r = await publicarEnInstagram(env, { client: post, post: { ...post, video_url: videoUrl } });
+      const slides = await slidesFirmadosDePieza(env, post);
+      const r = await publicarEnInstagram(env, { client: post, post: { ...post, video_url: videoUrl }, slides });
       await env.DB.prepare(
         `UPDATE mkt_posts SET status = 'publicado', published_media_id = ?, published_at = datetime('now'),
          publish_error = NULL, updated_at = datetime('now') WHERE id = ?`
@@ -5396,7 +5432,8 @@ async function handlePublicarPieza(env, postId, session) {
   if (post.published_media_id) return json({ error: 'Esta pieza ya se publicó.' }, 409);
   try {
     const videoUrl = await videoFirmadoDePieza(env, post);
-    const r = await publicarEnInstagram(env, { client: post, post: { ...post, video_url: videoUrl } });
+    const slides = await slidesFirmadosDePieza(env, post);
+    const r = await publicarEnInstagram(env, { client: post, post: { ...post, video_url: videoUrl }, slides });
     await env.DB.prepare(
       `UPDATE mkt_posts SET status = 'publicado', published_media_id = ?, published_at = datetime('now'),
        publish_error = NULL, updated_at = datetime('now') WHERE id = ?`

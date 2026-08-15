@@ -52,13 +52,50 @@ function captionFinal(post) {
  * Publica UNA pieza en el Instagram de su marca. Devuelve { mediaId, permalink }.
  * Lanza Error con mensaje humano si algo falta o IG rechaza.
  */
-export async function publicarEnInstagram(env, { client, post }) {
+export async function publicarEnInstagram(env, { client, post, slides }) {
   if (!client || !client.ig_user_id || !client.ig_access_token) {
     throw new Error('La marca no tiene Instagram conectado (ficha del cliente → Conectar Instagram).');
   }
   const tok = client.ig_access_token;
   const tipo = String(post.content_type || '').toLowerCase();
   const caption = captionFinal(post);
+
+  // CARRUSEL (2026-08-15): la API lo pide desarmado — un contenedor por
+  // slide (JPEG público firmado) y un contenedor padre que los junta.
+  if (slides && slides.length >= 2) {
+    const hijos = [];
+    for (const u of slides.slice(0, 10)) {
+      const h = await gJson(`${GRAPH}/${client.ig_user_id}/media`, {
+        method: 'POST',
+        body: new URLSearchParams({ image_url: u, is_carousel_item: 'true', access_token: tok }),
+      });
+      if (!h.id) throw new Error('Instagram no devolvió el contenedor de un slide.');
+      hijos.push(h.id);
+    }
+    const padre = await gJson(`${GRAPH}/${client.ig_user_id}/media`, {
+      method: 'POST',
+      body: new URLSearchParams({ media_type: 'CAROUSEL', children: hijos.join(','), caption, access_token: tok }),
+    });
+    if (!padre.id) throw new Error('Instagram no devolvió el contenedor del carrusel.');
+    // Los JPEG procesan casi al instante; un respiro corto y a publicar.
+    for (let i = 0; i < 6; i++) {
+      const st = await gJson(`${GRAPH}/${padre.id}?fields=status_code&access_token=${encodeURIComponent(tok)}`);
+      if (st.status_code === 'FINISHED') break;
+      if (st.status_code === 'ERROR') throw new Error('Instagram no pudo procesar el carrusel (¿todos los slides son JPEG?).');
+      await espera(3000);
+    }
+    const pub = await gJson(`${GRAPH}/${client.ig_user_id}/media_publish`, {
+      method: 'POST',
+      body: new URLSearchParams({ creation_id: padre.id, access_token: tok }),
+    });
+    if (!pub.id) throw new Error('Instagram no confirmó la publicación del carrusel.');
+    let permalink = null;
+    try {
+      const media = await gJson(`${GRAPH}/${pub.id}?fields=permalink&access_token=${encodeURIComponent(tok)}`);
+      permalink = media.permalink || null;
+    } catch { /* sin permalink no pasa nada */ }
+    return { mediaId: pub.id, permalink };
+  }
 
   // 1) El contenedor.
   let params;
@@ -69,7 +106,7 @@ export async function publicarEnInstagram(env, { client, post }) {
     params = new URLSearchParams({ image_url: post.inspo_url, caption, access_token: tok });
   } else {
     throw new Error(tipo === 'carrusel'
-      ? 'Carruseles programados: próximamente (la API pide contenedores por slide).'
+      ? 'El carrusel no tiene slides subidos para publicar (se suben como JPEG al almacén de la pieza).'
       : 'La pieza no tiene video subido — sube el video final antes de programarla.');
   }
   const cont = await gJson(`${GRAPH}/${client.ig_user_id}/media`, { method: 'POST', body: params });
