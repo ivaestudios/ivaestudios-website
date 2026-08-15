@@ -7,8 +7,8 @@
 // 2026-08-06: con varias revisoras por marca, ver quién hizo qué y dónde).
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202608150304';
-import { statusLabel } from '../api.js?v=202608150304';
+import { T } from '../shell/i18n.js?v=202608150314';
+import { statusLabel } from '../api.js?v=202608150314';
 
 // Verbos del feed en es-MX (espejo de logActivity del backend).
 export const ACTION_LABELS = {
@@ -18,6 +18,8 @@ export const ACTION_LABELS = {
   'post.comment': T('comento', 'commented'),
   'post.approve': T('aprobo', 'approved'),
   'post.request_changes': T('pidio cambios', 'requested changes'),
+  'post.publicado': T('publico en Instagram', 'published to Instagram'),
+  'post.publicar_error': T('fallo al publicar en Instagram', 'failed to publish to Instagram'),
   'post.delete': T('elimino el contenido', 'deleted the content'),
   'post.duplicate': T('duplico el contenido', 'duplicated the content'),
   'post.reorder': T('reordeno contenidos', 'reordered content'),

@@ -50,6 +50,7 @@ import { handleStorage, refreshStorageUsage } from './_storage.js';
 import { handleMonthlyReport } from './_enterprise.js';
 import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHeadersFor, buscarPinterest, fotosDePin } from './_downloader.js';
 import { pedirMes } from './_mes-ia.js';
+import { publicarEnInstagram, ahoraCancun } from './_publicador.js';
 import { pedirCarrusel } from './_carrusel-ia.js';
 import {
   handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
@@ -400,7 +401,7 @@ async function logActivity(env, { client_id, post_id, session, action, detail })
 // by the server. V2: `priority` joins the list; tags / assignee_user_id /
 // work_start / effort_points are handled apart with dedicated sanitizers.
 const POST_EDITABLE_FIELDS = [
-  'title', 'content_type', 'grabacion', 'publish_date', 'assignee', 'platform',
+  'title', 'content_type', 'grabacion', 'publish_date', 'publish_time', 'assignee', 'platform',
   'status', 'caption', 'inspo_url', 'video_url', 'hook', 'body', 'cta',
   'hashtags', 'alt_text', 'notes_team', 'client_visible', 'priority'
 ];
@@ -2165,6 +2166,11 @@ async function lazySweep(env, opts = {}) {
   await env.DB.prepare(
     "INSERT INTO mkt_kv (key, value) VALUES ('lazy_sweep_at', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
   ).bind(new Date().toISOString()).run();
+
+  // EL PROGRAMADOR viaja con el sweep: cada vez que alguien usa la app se
+  // publican las piezas cuya hora ya llegó (además del cron de garantía).
+  // Best-effort: un fallo de Instagram jamás tumba el sweep.
+  try { await publicarPendientes(env); } catch { /* queda en publish_error */ }
 
   const autos = await loadAutomations(env);
   const today = cancunToday();
@@ -4935,6 +4941,8 @@ async function route(request, env, authCtx) {
 
   // ── CRON (no session; Bearer MKT_CRON_SECRET) — BEFORE the session gate ──
   if (path === '/cron' && method === 'POST') return handleCron(request, env);
+  // El PROGRAMADOR: publica piezas 'programado' cuya hora ya llegó (cada 15 min).
+  if (path === '/cron-publicar' && method === 'POST') return handleCronPublicar(request, env);
 
   // Everything else needs a valid session (y de paso la renueva: deslizante).
   const session = await getSession(request, env, authCtx);
@@ -5298,7 +5306,94 @@ async function route(request, env, authCtx) {
     return handleGenerarMes(request, env, session);
   }
 
+  // ── PUBLICAR AHORA (solo staff): sube la pieza a Instagram de inmediato.
+  if (parts[0] === 'posts' && parts.length === 3 && parts[2] === 'publicar' && method === 'POST') {
+    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    return handlePublicarPieza(env, parts[1], session);
+  }
+
   return json({ error: 'Not found' }, 404);
+}
+
+// ── EL PROGRAMADOR ───────────────────────────────────────────────────────────
+// Publica las piezas en status 'programado' cuya fecha/hora local de Cancún ya
+// llegó. Corre desde DOS relojes: el cron de GitHub cada 15 min (garantía) y
+// el lazySweep cada vez que alguien usa la app (inmediatez). Máximo 3 piezas
+// por corrida: los reels tardan en procesar y el Worker tiene presupuesto.
+async function publicarPendientes(env) {
+  const { fecha, hora } = ahoraCancun();
+  const due = await env.DB.prepare(
+    `SELECT p.*, c.name AS client_name, c.ig_user_id, c.ig_username, c.ig_access_token
+     FROM mkt_posts p JOIN mkt_clients c ON c.id = p.client_id
+     WHERE p.status = 'programado' AND p.published_media_id IS NULL
+       AND p.publish_date IS NOT NULL AND p.publish_date != ''
+       AND (p.publish_date < ? OR (p.publish_date = ? AND COALESCE(NULLIF(p.publish_time, ''), '11:00') <= ?))
+     ORDER BY p.publish_date, p.publish_time LIMIT 3`
+  ).bind(fecha, fecha, hora).all();
+  const resultados = [];
+  for (const post of (due.results || [])) {
+    const sesionSistema = { user_id: null, name: 'Programador IVAE' };
+    try {
+      const r = await publicarEnInstagram(env, { client: post, post });
+      await env.DB.prepare(
+        `UPDATE mkt_posts SET status = 'publicado', published_media_id = ?, published_at = datetime('now'),
+         publish_error = NULL, updated_at = datetime('now') WHERE id = ?`
+      ).bind(r.mediaId, post.id).run();
+      await logActivity(env, {
+        client_id: post.client_id, post_id: post.id, session: sesionSistema,
+        action: 'post.publicado', detail: r.permalink || `@${post.ig_username || ''}`,
+      });
+      resultados.push({ id: post.id, ok: true, permalink: r.permalink });
+    } catch (e) {
+      const msg = ((e && e.message) || 'Error desconocido').slice(0, 300);
+      await env.DB.prepare(
+        `UPDATE mkt_posts SET publish_error = ?, updated_at = datetime('now') WHERE id = ?`
+      ).bind(msg, post.id).run();
+      await logActivity(env, {
+        client_id: post.client_id, post_id: post.id, session: sesionSistema,
+        action: 'post.publicar_error', detail: msg,
+      });
+      resultados.push({ id: post.id, ok: false, error: msg });
+    }
+  }
+  return resultados;
+}
+
+async function handleCronPublicar(request, env) {
+  if (!env.MKT_CRON_SECRET) return json({ error: 'Cron no configurado' }, 503);
+  const auth = request.headers.get('Authorization') || '';
+  if (auth !== `Bearer ${env.MKT_CRON_SECRET}`) return json({ error: 'No autorizado' }, 401);
+  try {
+    const resultados = await publicarPendientes(env);
+    return json({ ok: true, procesadas: resultados.length, resultados });
+  } catch (e) {
+    return json({ error: (e && e.message) || 'Fallo del publicador' }, 500);
+  }
+}
+
+// PUBLICAR AHORA (staff): la misma máquina del cron, para una pieza concreta,
+// sin esperar el reloj — y la forma de probar la tubería pieza por pieza.
+async function handlePublicarPieza(env, postId, session) {
+  const post = await env.DB.prepare(
+    `SELECT p.*, c.name AS client_name, c.ig_user_id, c.ig_username, c.ig_access_token
+     FROM mkt_posts p JOIN mkt_clients c ON c.id = p.client_id WHERE p.id = ?`
+  ).bind(postId).first();
+  if (!post) return json({ error: 'Pieza no encontrada' }, 404);
+  if (post.published_media_id) return json({ error: 'Esta pieza ya se publicó.' }, 409);
+  try {
+    const r = await publicarEnInstagram(env, { client: post, post });
+    await env.DB.prepare(
+      `UPDATE mkt_posts SET status = 'publicado', published_media_id = ?, published_at = datetime('now'),
+       publish_error = NULL, updated_at = datetime('now') WHERE id = ?`
+    ).bind(r.mediaId, post.id).run();
+    await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicado', detail: r.permalink || '' });
+    return json({ ok: true, media_id: r.mediaId, permalink: r.permalink });
+  } catch (e) {
+    const msg = ((e && e.message) || 'Error desconocido').slice(0, 300);
+    await env.DB.prepare(`UPDATE mkt_posts SET publish_error = ?, updated_at = datetime('now') WHERE id = ?`).bind(msg, post.id).run();
+    // OJO: 422 y NO 5xx (Cloudflare pisa los 5xx con su página).
+    return json({ error: msg }, 422);
+  }
 }
 
 // GENERAR MES CON IA: junta el contexto real de la marca en D1 (su voz = sus

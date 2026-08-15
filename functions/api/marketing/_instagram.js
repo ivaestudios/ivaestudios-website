@@ -14,7 +14,10 @@ const GRAPH = `${BASE}/v23.0`;
 // Bajo Standard Access (modo desarrollo) funciona para cuentas con un ROL de
 // tester aceptado en la app; App Review solo hace falta para cuentas de
 // terceros SIN rol (público). No es necesario para el set fijo de clientes.
-const IG_SCOPE = 'instagram_business_basic,instagram_business_manage_insights';
+// content_publish (2026-08-15): las marcas que se (re)conecten ya otorgan
+// publicar — el programador lo necesita. Tokens viejos siguen sirviendo para
+// insights; para programar, reconectar la marca una vez.
+const IG_SCOPE = 'instagram_business_basic,instagram_business_manage_insights,instagram_business_content_publish';
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });

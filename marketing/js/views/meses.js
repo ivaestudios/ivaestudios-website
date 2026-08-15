@@ -28,22 +28,22 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202608150304';
-import { icon } from '../shell/icons.js?v=202608150304';
-import { T } from '../shell/i18n.js?v=202608150304';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202608150304';
+} from '../api.js?v=202608150314';
+import { icon } from '../shell/icons.js?v=202608150314';
+import { T } from '../shell/i18n.js?v=202608150314';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202608150314';
 // Capas de history del shell: el boton atras del telefono cierra la capa de
 // arriba (panel de guion) en vez de salir de la app.
-import { pushLayer } from '../shell/router.js?v=202608150304';
-import { confirmar } from '../shell/sheet.js?v=202608150304';
+import { pushLayer } from '../shell/router.js?v=202608150314';
+import { confirmar } from '../shell/sheet.js?v=202608150314';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608150304';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608150304';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608150304';
+import { errorCard } from '../ui/states.js?v=202608150314';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608150314';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608150314';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608150304';
+} from '../lib/video-upload.js?v=202608150314';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -2315,8 +2315,8 @@ function buildPdfContenidoBtn(key, rows) {
       const antes = label ? label.textContent : '';
       btn.disabled = true;
       try {
-        const mod = await import('../lib/pdf-contenido.js?v=202608150304');
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608150304');
+        const mod = await import('../lib/pdf-contenido.js?v=202608150314');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608150314');
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
         const res = await mod.generarPdfContenido({
