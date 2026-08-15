@@ -57,6 +57,7 @@ REGLAS DURAS DE LA CASA:
 - Reel: el body es el DESARROLLO hablable del guion (2-4 frases que una persona dice a cámara en 20-35 segundos), sin acotaciones de producción.
 - Variedad: alterna temas (educar, mostrar detrás de cámaras, prueba social, oferta) — máximo una pieza de venta directa por cada 3 educativas.
 - Fechas: reparte las piezas a lo largo del mes en días hábiles y sábados, NUNCA en los días que te digo que ya están ocupados, y nunca dos piezas el mismo día.
+- PROHIBIDO INVENTAR HECHOS: nada de testimonios con nombres, cifras de resultados, premios ni historias de clientes que no estén en los ejemplos reales. Si una pieza pide prueba social, escribe el guion con el hueco "[AQUÍ VA UN TESTIMONIO REAL — pedirlo al cliente]" y ponlo también en el título. La marca vive de su credibilidad.
 
 Entrega SIEMPRE con la herramienta entregar_mes.`;
 }
