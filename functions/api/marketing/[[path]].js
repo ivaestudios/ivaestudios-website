@@ -5391,6 +5391,7 @@ async function handlePublicarPieza(env, postId, session) {
   } catch (e) {
     const msg = ((e && e.message) || 'Error desconocido').slice(0, 300);
     await env.DB.prepare(`UPDATE mkt_posts SET publish_error = ?, updated_at = datetime('now') WHERE id = ?`).bind(msg, post.id).run();
+    await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicar_error', detail: msg });
     // OJO: 422 y NO 5xx (Cloudflare pisa los 5xx con su página).
     return json({ error: msg }, 422);
   }

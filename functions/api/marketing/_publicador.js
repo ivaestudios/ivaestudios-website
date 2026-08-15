@@ -25,7 +25,13 @@ async function gJson(url, init) {
   const res = await fetch(url, init);
   const data = await res.json().catch(() => ({}));
   if (!res.ok || data.error) {
-    const msg = (data.error && (data.error.error_user_msg || data.error.message)) || `HTTP ${res.status}`;
+    let msg = (data.error && (data.error.error_user_msg || data.error.message)) || `HTTP ${res.status}`;
+    // Traducción de los errores que SÍ van a pasar, a idioma de Vianey:
+    if (/missing permissions|does not support this operation|Unsupported post request/i.test(msg)) {
+      msg = 'El Instagram de la marca está conectado con permisos viejos (solo lectura). Reconéctalo desde la ficha del cliente para otorgar el permiso de publicar.';
+    } else if (/session has been invalidated|access token/i.test(msg)) {
+      msg = 'El token de Instagram de la marca caducó — reconéctala desde su ficha.';
+    }
     const e = new Error(msg);
     e.igCode = data.error && data.error.code;
     throw e;
