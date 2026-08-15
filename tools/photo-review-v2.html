@@ -227,7 +227,7 @@ function renderCard(photo) {
   const fname = photo.path.split('/').pop();
 
   card.innerHTML = `
-    <div class="img"><img src="${safePath}" alt="" loading="lazy" decoding="async"></div>
+    <div class="img"><img src="${safePath}" alt="${safepath} — IVAE Studios" loading="lazy" decoding="async"></div>
     <div class="body">
       ${photo.in_use ? '<span class="usage-tag">EN USO</span><br>' : ''}
       <div class="fname">${fname}</div>
