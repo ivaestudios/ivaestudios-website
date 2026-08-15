@@ -13,6 +13,15 @@
 # ═══════════════════════════════════════════════════════════════════════
 
 # Tier A: 404s reales reportados por Google Search Console
+# (2026-08-15: 20 404s vivos en GSC — los /services/* y ciudades ES viejas sin regla tras el recorte)
+/services/weddings /destination-wedding-photographer-mexico 301
+/services/couples /couples-photography-mexico 301
+/services/family-photos /luxury-family-photos-cancun 301
+/services/* /cancun-photographer 301
+/es/cancun /es/fotografo-cancun 301
+/es/parejas /es/fotografia-parejas-mexico 301
+/es/riviera-maya /es/fotografo-riviera-maya 301
+/es/los-cabos /es/fotografo-los-cabos 301
 # (2026-08-07: los 6 archivos se renombraron a su URL canonica; estas cubren la URL vieja)
 /luxury-weddings /destination-wedding-photographer-mexico 301
 /cancun /cancun-photographer 301
