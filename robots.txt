@@ -73,14 +73,9 @@ Disallow: /functions/
 Disallow: /gallery/admin
 
 # ═══════════════════════════════════════════════════════════════
-# SITEMAPS & AI MANIFESTS
+# SITEMAPS
 # ═══════════════════════════════════════════════════════════════
 
 Sitemap: https://ivaestudios.com/sitemap.xml
 Sitemap: https://ivaestudios.com/sitemap-images.xml
-Sitemap: https://ivaestudios.com/sitemap-ai.xml
 
-# AI-readable site manifest (llms.txt standard)
-# https://ivaestudios.com/llms.txt
-# https://ivaestudios.com/llms-full.txt
-# Machine-readable facts: https://ivaestudios.com/api/facts.json
