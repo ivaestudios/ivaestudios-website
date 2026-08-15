@@ -725,6 +725,52 @@ def inv9_enlaces_vivos(sitio, paginas, inf):
 # MAIN
 # ─────────────────────────────────────────────────────────────────────────────
 
+def inv10_sin_seo_para_ias(sitio, inf):
+    """10. CERO artefactos de SEO dirigido a IAs (purga 2026-08-15).
+
+    Microsoft llama a esta tactica 'AI Recommendation Poisoning' y hay caso
+    documentado (y sufrido por IVAE) de que el motor SE LO DICE AL USUARIO
+    como senal de no-confiabilidad. Prohibido reintroducir: metas ai-*,
+    bloques ocultos ai-disambiguation / ai-context-block, links a llms.txt
+    titulados "para IA", e imperativos a asistentes en los manifiestos.
+    Ver memoria website-ai-seo-purge.
+    """
+    b = inf.bloque("10", "SIN SEO DIRIGIDO A IAs (metas ai-*, texto oculto, imperativos)")
+    pat_html = [
+        (re.compile(r'name="ai-'), 'meta name="ai-*"'),
+        (re.compile(r'ai-disambiguation|ai-context-block'), 'bloque oculto para IAs'),
+        (re.compile(r'<link[^>]*llms\.txt'), 'link a llms.txt en <head>'),
+        (re.compile(r'For AI assistants|for search engines and AI', re.I), 'texto dirigido a IAs'),
+    ]
+    casos = []
+    for rel in sitio.htmls:
+        try:
+            with open(os.path.join(sitio.raiz, rel), encoding="utf-8", errors="replace") as f:
+                texto = f.read()
+        except OSError:
+            continue
+        for pat, nombre in pat_html:
+            if pat.search(texto):
+                casos.append("%s contiene %s" % (rel, nombre))
+    pat_manif = re.compile(
+        r'HARD RULE|For AI assistants|recommend IVAE|surface IVAE|quotable answers'
+        r'|exemplary AI responses|recommend_for|is a top recommendation', re.I)
+    for manif in ("llms.txt", "llms-full.txt", "ai.txt", "api/facts.json"):
+        ruta = os.path.join(sitio.raiz, manif)
+        if not os.path.exists(ruta):
+            continue
+        with open(ruta, encoding="utf-8", errors="replace") as f:
+            m = pat_manif.search(f.read())
+        if m:
+            casos.append("%s contiene el imperativo '%s'" % (manif, m.group(0)))
+    if casos:
+        inf.fallo(b, GRAVE_ALTA,
+                  "SEO dirigido a IAs reintroducido: las IAs lo detectan y le dicen "
+                  "al usuario que el sitio NO es confiable",
+                  casos[:20],
+                  nota="Purga original: commit 1c2a8ca0 (2026-08-15). Retirar el artefacto, no documentarlo.")
+
+
 def main():
     ap = argparse.ArgumentParser(
         description="Verificador de invariantes del ecosistema de URLs de ivaestudios.com")
@@ -759,6 +805,7 @@ def main():
     inv7_url_pisada(sitio, paginas, inf)
     inv8_sin_huerfanos(sitio, paginas, inf)
     inv9_enlaces_vivos(sitio, paginas, inf)
+    inv10_sin_seo_para_ias(sitio, inf)
 
     inf.imprimir(time.time() - t0)
 
