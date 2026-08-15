@@ -5312,7 +5312,8 @@ async function route(request, env, authCtx) {
 
   // ── PUBLICAR AHORA (solo staff): sube la pieza a Instagram de inmediato.
   if (parts[0] === 'posts' && parts.length === 3 && parts[2] === 'slides' && method === 'POST') {
-    return handleUploadCarouselSlide(request, env, user, parts[1]);
+    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    return handleUploadCarouselSlide(request, env, parts[1]);
   }
   if (parts[0] === 'posts' && parts.length === 3 && parts[2] === 'publicar' && method === 'POST') {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);
@@ -5324,8 +5325,7 @@ async function route(request, env, authCtx) {
 
 // El Estudio manda cada slide terminado (JPEG 1080x1350) a la pieza: quedan
 // en R2 bajo marketing/carrusel/<postId>/N.jpg listos para el publicador.
-async function handleUploadCarouselSlide(request, env, user, postId) {
-  if (user.role === 'client') return json({ error: 'Solo staff' }, 403);
+async function handleUploadCarouselSlide(request, env, postId) {
   if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
   const post = await env.DB.prepare('SELECT id FROM mkt_posts WHERE id = ?').bind(postId).first();
   if (!post) return json({ error: 'Pieza no encontrada' }, 404);
