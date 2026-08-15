@@ -28,22 +28,22 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202608141301';
-import { icon } from '../shell/icons.js?v=202608141301';
-import { T } from '../shell/i18n.js?v=202608141301';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202608141301';
+} from '../api.js?v=202608150304';
+import { icon } from '../shell/icons.js?v=202608150304';
+import { T } from '../shell/i18n.js?v=202608150304';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202608150304';
 // Capas de history del shell: el boton atras del telefono cierra la capa de
 // arriba (panel de guion) en vez de salir de la app.
-import { pushLayer } from '../shell/router.js?v=202608141301';
-import { confirmar } from '../shell/sheet.js?v=202608141301';
+import { pushLayer } from '../shell/router.js?v=202608150304';
+import { confirmar } from '../shell/sheet.js?v=202608150304';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608141301';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608141301';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608141301';
+import { errorCard } from '../ui/states.js?v=202608150304';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608150304';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608150304';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608141301';
+} from '../lib/video-upload.js?v=202608150304';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -2315,8 +2315,8 @@ function buildPdfContenidoBtn(key, rows) {
       const antes = label ? label.textContent : '';
       btn.disabled = true;
       try {
-        const mod = await import('../lib/pdf-contenido.js?v=202608141301');
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608141301');
+        const mod = await import('../lib/pdf-contenido.js?v=202608150304');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608150304');
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
         const res = await mod.generarPdfContenido({
@@ -2336,6 +2336,80 @@ function buildPdfContenidoBtn(key, rows) {
       }
     },
   }, [icon('archive', 15), el('span', { text: T('PDF de contenido', 'Content PDF') })]);
+}
+
+// Botón "Generar mes (IA)" — etapa 1 del sistema integral (2026-08-15): Claude
+// escribe el mes completo de la marca con su voz real. Solo staff, cliente
+// concreto. Las piezas nacen como borrador INTERNO (el cliente no las ve
+// hasta que el equipo revisa): la IA propone, el humano firma.
+let mesIaBusy = false;
+function buildGenerarMesBtn(key) {
+  if (isClientRole() || key === SIN_MES || !/^\d{4}-\d{2}$/.test(key)) return null;
+  const { activeClientId } = ctx.store.getState();
+  if (!activeClientId || activeClientId === 'todos') return null;
+  return el('button', {
+    class: 'meses-pdfbtn meses-iabtn', type: 'button', disabled: mesIaBusy || null,
+    'aria-label': T('Generar el mes con IA', 'Generate the month with AI'),
+    title: T('Claude escribe el mes completo con la voz de la marca: temas, guiones, captions y hashtags. Nacen como borrador interno.', 'Claude drafts the whole month in the brand voice.'),
+    onclick: () => abrirDialogoMesIa(key, activeClientId),
+  }, [icon('sparkles', 15), el('span', { text: T('Generar mes (IA)', 'Generate month (AI)') })]);
+}
+
+function abrirDialogoMesIa(key, clientId) {
+  if (mesIaBusy) return;
+  const brief = el('textarea', {
+    class: 'input mesia-brief', rows: '3', maxlength: '600',
+    placeholder: T('¿De qué va el mes? Promos, fechas clave, temas que el cliente pidió… (opcional)', 'What is the month about? (optional)'),
+  });
+  const nIn = el('input', { class: 'input mesia-n', type: 'number', min: '1', max: '20', value: '10', inputmode: 'numeric' });
+  const cerrar = () => overlay.remove();
+  const generar = async () => {
+    if (mesIaBusy) return;
+    mesIaBusy = true;
+    go.disabled = true;
+    go.textContent = T('Escribiendo el mes… (1-2 min)', 'Writing the month… (1-2 min)');
+    try {
+      const res = await api.post('/mes-ia', {
+        client_id: clientId,
+        month: key,
+        brief: brief.value.trim(),
+        n: Math.max(1, Math.min(20, Number(nIn.value) || 10)),
+      });
+      (res.posts || []).forEach((p) => ctx.store.upsertPost(p));
+      ctx.store.emit('posts:changed');
+      ctx.store.emit('mutated');
+      ctx.store.refreshClientCounts();
+      ctx.toast(T(`${res.creadas} piezas nuevas en borrador — revísalas antes de abrirlas al cliente.`, `${res.creadas} new draft pieces.`), { type: 'success' });
+      cerrar();
+    } catch (err) {
+      ctx.toast((err && err.message) || T('La IA no respondió — intenta de nuevo.', 'The AI did not respond.'), { type: 'error' });
+      go.disabled = false;
+      go.textContent = T('Generar', 'Generate');
+    } finally {
+      mesIaBusy = false;
+    }
+  };
+  const go = el('button', { class: 'btn btn-primary', type: 'button', onclick: generar }, [T('Generar', 'Generate')]);
+  const overlay = el('div', { class: 'mesia-overlay', onclick: (e) => { if (e.target === overlay && !mesIaBusy) cerrar(); } }, [
+    el('div', { class: 'mesia-card', role: 'dialog', 'aria-modal': 'true', 'aria-label': T('Generar mes con IA', 'Generate month with AI') }, [
+      el('h3', { class: 'mesia-title', text: T('Generar mes con IA', 'Generate month with AI') }),
+      el('p', {
+        class: 'mesia-sub',
+        text: T('Claude estudia la voz real de la marca (sus piezas anteriores) y escribe el mes: guiones, captions finales y hashtags. Todo nace como borrador interno para tu revisión.', 'Claude drafts the month in the brand voice as internal drafts.'),
+      }),
+      brief,
+      el('label', { class: 'mesia-nrow' }, [
+        el('span', { text: T('Piezas a generar', 'Pieces to generate') }),
+        nIn,
+      ]),
+      el('div', { class: 'mesia-acciones' }, [
+        el('button', { class: 'btn', type: 'button', onclick: () => { if (!mesIaBusy) cerrar(); } }, [T('Cancelar', 'Cancel')]),
+        go,
+      ]),
+    ]),
+  ]);
+  document.body.appendChild(overlay);
+  brief.focus();
 }
 
 function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTodos, single = false }) {
@@ -2365,12 +2439,14 @@ function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTod
   }
 
   const bodyKids = [];
+  // Barra de herramientas del mes (staff, cliente concreto): "Generar mes
+  // (IA)" vive AUN con el mes vacío — ese es justo su caso estrella.
+  {
+    const genIa = buildGenerarMesBtn(key);
+    const pdfContenido = rows.length ? buildPdfContenidoBtn(key, rows) : null;
+    if (genIa || pdfContenido) bodyKids.push(el('div', { class: 'meses-pdfbar' }, [genIa, pdfContenido].filter(Boolean)));
+  }
   if (rows.length) {
-    // Botón staff "PDF de contenido": el plan de VIDEOS del mes (guion +
-    // inspo) en el mismo PDF móvil de Entregables — para mandarlo al cliente
-    // por WhatsApp ANTES de grabar. Solo con cliente concreto (no en Todos).
-    const pdfContenido = buildPdfContenidoBtn(key, rows);
-    if (pdfContenido) bodyKids.push(el('div', { class: 'meses-pdfbar' }, [pdfContenido]));
     // Desktop/tablet (>=768px): tabla completa. Movil (<768px): una tarjeta por
     // pieza con la misma info en chips (sin scroll horizontal). Sigue siendo
     // "una fila por pieza" — solo reflowada para que quepa en el telefono.

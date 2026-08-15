@@ -1377,3 +1377,14 @@ tr.meses-row--ph td {
   font-size:var(--fs-1,12px);font-weight:600;padding:7px 11px;min-height:36px;cursor:pointer}
 .meses-pdfbtn:hover{border-color:var(--brand,#E24DA0);color:#fff}
 .meses-pdfbtn[disabled]{opacity:.6;cursor:default}
+
+/* ── Generar mes con IA (etapa 1 del sistema integral, 2026-08-15) ────────── */
+.meses-iabtn { border-color: var(--brand, #E24DA0); }
+.mesia-overlay { position: fixed; inset: 0; z-index: 240; background: rgba(8, 8, 12, .62); display: flex; align-items: center; justify-content: center; padding: 18px; backdrop-filter: blur(3px); }
+.mesia-card { width: 100%; max-width: 480px; background: var(--panel, #17161b); border: 1px solid rgba(255, 255, 255, .12); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 24px 70px rgba(0, 0, 0, .5); }
+.mesia-title { margin: 0; font-size: 18px; font-weight: 700; }
+.mesia-sub { margin: 0; font-size: 13px; color: var(--text-mute); line-height: 1.5; }
+.mesia-brief { resize: vertical; min-height: 74px; }
+.mesia-nrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13.5px; color: var(--text-mute); }
+.mesia-n { width: 84px; text-align: center; }
+.mesia-acciones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 2px; }

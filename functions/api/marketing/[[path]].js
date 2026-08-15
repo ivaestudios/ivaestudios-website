@@ -49,6 +49,7 @@ import { handleDashboard } from './_dashboard.js';
 import { handleStorage, refreshStorageUsage } from './_storage.js';
 import { handleMonthlyReport } from './_enterprise.js';
 import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHeadersFor, buscarPinterest, fotosDePin } from './_downloader.js';
+import { pedirMes } from './_mes-ia.js';
 import { pedirCarrusel } from './_carrusel-ia.js';
 import {
   handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
@@ -5288,7 +5289,83 @@ async function route(request, env, authCtx) {
     return handlePinterestFotos(request);
   }
 
+  // ── GENERAR MES CON IA (solo staff): Claude escribe el mes completo de una
+  // marca con su voz real. Las piezas nacen como borrador INTERNO (status
+  // 'guion', client_visible=0): el cliente no ve nada hasta que el equipo
+  // revisa y publica al portal — la IA propone, el humano firma.
+  if (parts[0] === 'mes-ia' && parts.length === 1 && method === 'POST') {
+    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    return handleGenerarMes(request, env, session);
+  }
+
   return json({ error: 'Not found' }, 404);
+}
+
+// GENERAR MES CON IA: junta el contexto real de la marca en D1 (su voz = sus
+// últimas piezas; su mezcla de tipos; los días ya ocupados del mes), se lo da
+// al estratega (_mes-ia.js) y siembra las piezas devueltas como borradores
+// internos. La IA propone, el equipo revisa — nada le llega al cliente solo.
+async function handleGenerarMes(request, env, session) {
+  let b; try { b = await request.json(); } catch { return json({ error: 'JSON invalido' }, 400); }
+  const clientId = String((b && b.client_id) || '').trim();
+  const month = String((b && b.month) || '').trim();
+  const brief = String((b && b.brief) || '').trim().slice(0, 600);
+  const n = Math.max(1, Math.min(20, Number(b && b.n) || 10));
+  if (!clientId) return json({ error: 'Falta el cliente.' }, 400);
+  if (!/^\d{4}-\d{2}$/.test(month)) return json({ error: 'Mes inválido (YYYY-MM).' }, 400);
+
+  const cliente = await env.DB.prepare('SELECT id, name FROM mkt_clients WHERE id = ?').bind(clientId).first();
+  if (!cliente) return json({ error: 'Cliente no encontrado.' }, 404);
+
+  // La VOZ: sus últimas piezas con contenido real (título/gancho/caption).
+  const voz = await env.DB.prepare(
+    `SELECT content_type, title, hook, caption FROM mkt_posts
+     WHERE client_id = ? AND COALESCE(caption, '') != ''
+     ORDER BY publish_date DESC LIMIT 18`
+  ).bind(clientId).all();
+  const ejemplos = (voz.results || []).map((p) =>
+    `· ${p.content_type || 'reel'} | ${(p.title || '').slice(0, 60)} | ${(p.hook || '').slice(0, 90)} | ${(p.caption || '').replace(/\s+/g, ' ').slice(0, 220)}`
+  ).join('\n') || '(marca nueva: sin piezas previas — usa un tono profesional cálido, cercano y local)';
+
+  // La MEZCLA típica (últimos 3 meses) para que el plan respete su ritmo.
+  const mezclaRows = await env.DB.prepare(
+    `SELECT lower(COALESCE(content_type, 'reel')) t, COUNT(*) n FROM mkt_posts
+     WHERE client_id = ? AND publish_date >= date('now', '-90 days')
+     GROUP BY t ORDER BY n DESC`
+  ).bind(clientId).all();
+  const mezcla = (mezclaRows.results || []).map((r) => `${r.t}: ${r.n}`).join(', ')
+    || '60% reel, 30% carrusel, 10% post';
+
+  // Días del mes ya ocupados: la IA no debe encimarse con lo planeado.
+  const mesRows = await env.DB.prepare(
+    `SELECT publish_date FROM mkt_posts WHERE client_id = ? AND publish_date LIKE ?`
+  ).bind(clientId, `${month}-%`).all();
+  const ocupados = [...new Set((mesRows.results || [])
+    .map((r) => Number(String(r.publish_date).slice(8, 10)))
+    .filter(Boolean))].sort((a, b) => a - b);
+
+  let piezas;
+  try {
+    piezas = await pedirMes(env, { marca: cliente.name, month, n, brief, ejemplos, mezcla, ocupados });
+  } catch (e) {
+    // OJO: 422 y NO 5xx (Cloudflare pisa los 5xx con su página de error).
+    return json({ error: (e && e.message) || 'La IA no respondió.' }, 422);
+  }
+
+  const creadas = [];
+  for (const p of piezas) {
+    const id = randomId();
+    await env.DB.prepare(
+      `INSERT INTO mkt_posts (id, client_id, created_by, title, status, approval_state,
+        client_visible, publish_date, content_type, hook, body, cta, caption, hashtags)
+       VALUES (?, ?, ?, ?, 'guion', 'pending', 0, ?, ?, ?, ?, ?, ?, ?)`
+    ).bind(id, clientId, session.user_id, p.title, p.publish_date, p.content_type,
+      p.hook, p.body, p.cta, p.caption, p.hashtags).run();
+    const created = await env.DB.prepare('SELECT * FROM mkt_posts WHERE id = ?').bind(id).first();
+    creadas.push(created);
+    await logActivity(env, { client_id: clientId, post_id: id, session, action: 'post.create', detail: `${p.title} (mes IA)` });
+  }
+  return json({ ok: true, creadas: creadas.length, posts: creadas });
 }
 
 // Busca fotos en Pinterest por texto, o cosecha las imágenes de un pin si lo
