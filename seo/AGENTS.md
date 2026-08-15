@@ -27,7 +27,7 @@ Cost: $0/month. Owner involvement: zero (system is fully autonomous).
 **Wikidata:** SIN ítem vivo. Los ítems Q139689577 (IVAE Studios) y Q139689736 (Vianey Díaz) creados el 2026-05-06 fueron BORRADOS por Wikidata (verificado 2026-08-07: ambos devuelven "missing"; borrado típico por falta de referencias externas). NO citar esos QIDs en schema ni en documentos. Plan de re-creación con referencias primero: `seo/geo/WIKIDATA_BORRADOR.md`
 **Site age:** ~3 months in production (May 2026)
 **Current GSC traffic:** ~42 clicks total, 91 distinct queries with impressions
-**Sitemap:** 173 URL entries in `sitemap.xml`; 51 AI-priority URLs in `sitemap-ai.xml`
+**Sitemap:** `sitemap.xml` (532 URLs). `sitemap-ai.xml` FUE BORRADO 2026-08-15 — PROHIBIDO desde 2026-08-15 (purga anti 'AI Recommendation Poisoning'; ver memoria website-ai-seo-purge y el invariante 10 de audit_ecosystem.py, que REVIENTA el deploy si reaparecen).
 **Two brands on one site:** **IVAE Studios** (parent — luxury photography, gold/Cormorant)
 and **IVAE Marketing** (sub-brand — B2B social-media management for hotels,
 restaurants, spas, dental; purple/pink visual identity at `/social-media-management.html`
@@ -241,7 +241,7 @@ sitemaps, AI manifests:
   twitter:image:alt, 7 broken og:image (wrong dims) replaced with brand
   default, 109 missing twitter:image added, 127 `twitter:image:alt` added
 - **Sitemaps:** `sitemap.xml` **164 → 173 entries** (12 previews removed,
-  21 missing added); `sitemap-ai.xml` **39 → 51 entries** (12 IVAE Marketing
+  21 missing added); `sitemap-ai.xml` **39 → 51 entries** [archivo BORRADO 2026-08-15, no recrear] (12 IVAE Marketing
   + 4 hotel landings); hreflang reciprocal pairs verified
 - **Redirects:** 3 dead rules removed; 10 rewrite rules added for the 5 new
   IVAE Marketing blog posts (`/blog/<slug>` ↔ `/post-<slug>`) — fixes 26

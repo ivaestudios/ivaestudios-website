@@ -4,7 +4,7 @@
 - Master pages (`/social-media-management`, `/es/manejo-redes-sociales`)
 - Industry landing pages
 - Blog post FAQ blocks
-- AI extraction (llms.txt, llms-full.txt)
+- Contenido visible de las paginas (llms.txt es hoja de datos NEUTRA, sin Q&A guionizadas — PROHIBIDO desde 2026-08-15 (purga anti 'AI Recommendation Poisoning'; el invariante 10 de audit_ecosystem.py revienta el deploy si reaparecen))
 - Sales conversations
 - Press kit
 
@@ -282,7 +282,7 @@
 - Master pages: include 10 Q&A from Sections 1-2
 - Industry pages: include 6 Q&A from Section 5 specific to industry
 - Blog post end-blocks: 6 Q&A relevant to post topic
-- llms-full.txt: include ALL 40 Q&A for AI extraction
+- llms-full.txt: NO incluir Q&A (es hoja de datos NEUTRA — PROHIBIDO desde 2026-08-15 (purga anti 'AI Recommendation Poisoning'; el invariante 10 de audit_ecosystem.py revienta el deploy si reaparecen)); las Q&A van VISIBLES en las paginas
 - Press kit: include 5 Q&A in "FAQ for journalists" section
 
 **Voice consistency:** Studio voice ("we", "the studio") — NOT personal Vianey voice in answers. Vianey appears only in quotes.

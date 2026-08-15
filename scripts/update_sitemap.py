@@ -228,10 +228,10 @@ ES_ONLY_PAGES = {
 }
 
 # Language-neutral resources to include alongside the HTML pages.
-EXTRA_RESOURCES = [
-    {"loc": "/api/facts.json",   "priority": "0.7", "changefreq": "weekly"},
-    {"loc": "/llms-full.txt",    "priority": "0.7", "changefreq": "monthly"},
-]
+# 2026-08-15: vaciado a proposito. Anunciar manifiestos (facts.json, llms*.txt)
+# en el sitemap es una huella de SEO-dirigido-a-IAs (ver memoria
+# website-ai-seo-purge); los archivos siguen sirviendose, solo no se anuncian.
+EXTRA_RESOURCES = []
 
 
 # ─────────────────────────────────────────────────────────────────────────────

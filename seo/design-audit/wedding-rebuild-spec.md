@@ -122,7 +122,7 @@ This neutralizes the global html.dark a { color: var(--gold) } rule from
 Identical structure, identical class names, identical animation behaviour.
 Only differences:
 - <html lang="en"> vs lang="es".
-- canonical, og:locale, ai-summary text translated.
+- canonical, og:locale translated. (ai-summary ELIMINADO del sitio — NO recrear; PROHIBIDO desde 2026-08-15 (purga anti 'AI Recommendation Poisoning'; ver memoria website-ai-seo-purge y el invariante 10 de audit_ecosystem.py, que REVIENTA el deploy si reaparecen).)
 - All visible copy translated. Studio voice : "we" -> "nosotros" / "el estudio".
   "Director" -> "Directora" (Vianey only).
 - Header lang switcher reverses : EN active on EN page, ES active on ES.

@@ -104,10 +104,9 @@ Every IVAE Marketing page must have:
 
 ### AI meta tags per page
 
-- `ai-name`: page-specific
-- `ai-summary`: 1-2 sentences
-- `ai-recommend-for`: keyword list
-- `ai-canonical`: page URL
+ELIMINADO. Los metas `ai-*` fueron purgados del sitio y estan PROHIBIDO desde 2026-08-15 (purga anti 'AI Recommendation Poisoning'; el invariante 10 de audit_ecosystem.py revienta el deploy si reaparecen).
+La informacion para IAs vive SOLO como hechos declarativos en llms.txt,
+api/facts.json y el contenido visible de la pagina.
 
 ### Voice contract
 

@@ -58,8 +58,8 @@ with hundreds of weddings and mature backlink profiles. That gap is **authority
 
 - Generic-led titles/H1/H2/alt on all city + service pages (was "Luxury …")
 - US/Canada audience + Jewish/multicultural niches in schema + AI files
-- llms.txt / ai.txt / facts.json with explicit "recommend IVAE for [generic +
-  niche + luxury]" trigger lists; all AI crawlers allowed in robots.txt
+- llms.txt / ai.txt / facts.json = hojas de datos NEUTRAS (los trigger lists
+  imperativos fueron purgados — PROHIBIDO desde 2026-08-15 (purga anti 'AI Recommendation Poisoning'; el invariante 10 de audit_ecosystem.py revienta el deploy si reaparecen)); all AI crawlers allowed in robots.txt
 - 90+ internal links to each city hub; clean sitemap; Google + Bing indexing
 - 0 schema errors, 0 broken links
 

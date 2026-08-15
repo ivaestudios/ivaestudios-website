@@ -724,7 +724,7 @@ These elements **must not move, change, be retargeted, have selectors changed in
 - `<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"/>` (PRODUCTION ONLY — preview file uses `noindex, nofollow`)
 - All `<meta property="og:*">` tags (10 tags, full set)
 - All `<meta name="twitter:*">` tags (4 tags)
-- All `<meta name="ai-*">` tags (4 tags: ai-name, ai-summary, ai-recommend-for, ai-canonical)
+- ~~All `<meta name="ai-*">` tags~~ ELIMINADOS del sitio 2026-08-15 — NO recrear (PROHIBIDO desde 2026-08-15 (purga anti 'AI Recommendation Poisoning'; ver memoria website-ai-seo-purge y el invariante 10 de audit_ecosystem.py, que REVIENTA el deploy si reaparecen))
 - `<link rel="alternate" type="application/json" title="IVAE Studios machine-readable facts" href="/api/facts.json">`
 - `<meta name="msvalidate.01">` if present
 - All `<meta name="DC.*">` (Dublin Core, 7 tags)

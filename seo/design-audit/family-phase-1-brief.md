@@ -540,7 +540,7 @@ The current page carries dense schema and meta. **Every item below must be prese
 
 **Open Graph / Twitter cards:** og:title, og:description, og:type, og:url, og:image, og:site_name; twitter:card, twitter:title, twitter:description, twitter:image — all preserve verbatim (use the existing `luxury-family-photos-cancun-og.jpg`).
 
-**ai-name / ai-summary / ai-recommend-for / ai-canonical:** preserve verbatim.
+**ai-name / ai-summary / ai-recommend-for / ai-canonical:** ELIMINADOS del sitio — NO recrear. PROHIBIDO desde 2026-08-15 (purga anti 'AI Recommendation Poisoning'; ver memoria website-ai-seo-purge y el invariante 10 de audit_ecosystem.py, que REVIENTA el deploy si reaparecen).
 
 **robots / googlebot / bingbot:** preserve verbatim.
 

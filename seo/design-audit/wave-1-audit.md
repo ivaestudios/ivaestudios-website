@@ -242,7 +242,7 @@ These elements **must not move, change, or have selectors retargeted**:
 - `<title>`, `<meta name="description">`, all `<!-- KW:title:start -->` markers
 - `<link rel="canonical">`, `<link rel="alternate" hreflang>` (en, es, x-default)
 - `<meta name="robots">`, all OG/Twitter meta
-- `<meta name="ai-name|ai-summary|ai-recommend-for|ai-canonical">`
+- `<meta name="ai-name|ai-summary|ai-recommend-for|ai-canonical">` [NOTA HISTORICA: estos metas fueron ELIMINADOS del sitio 2026-08-15, NO recrear]
 - `<meta name="msvalidate.01">`
 - `<link rel="alternate" type="application/json" href="/api/facts.json">`
 - All `<script type="application/ld+json">` blocks

@@ -54,7 +54,7 @@ Every element flagged in `wave-1-audit.md §7` is preserved verbatim:
 
 - `<title>` block including `<!-- KW:title:start -->` markers &mdash; identical
 - `<meta name="description">` &mdash; identical
-- All AI meta (`ai-name`, `ai-summary`, `ai-recommend-for`, `ai-canonical`) &mdash; identical
+- All AI meta (`ai-name`, `ai-summary`, `ai-recommend-for`, `ai-canonical`) &mdash; identical [NOTA HISTORICA: estos metas fueron ELIMINADOS del sitio 2026-08-15, NO recrear]
 - `msvalidate.01` Bing token &mdash; identical
 - `<link rel="canonical" href="https://ivaestudios.com/"/>` &mdash; **points to live home** (deliberate)
 - `<link rel="alternate" hreflang>` (en, es, x-default) &mdash; identical

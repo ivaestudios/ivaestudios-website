@@ -280,7 +280,7 @@ Every item below must be preserved character-for-character. Phase 4 is a body re
 - **Canonical EN:** `https://ivaestudios.com/couples-photography-mexico`. **Canonical ES:** `https://ivaestudios.com/es/fotografia-parejas-mexico`.
 - **Hreflang alternates:** EN, ES, x-default preserve.
 - **Open Graph / Twitter cards:** all preserve verbatim.
-- **ai-name / ai-summary / ai-recommend-for / ai-canonical:** preserve including brand-disambiguation distinguishing ivaestudios.com (plural) from ivaestudio.com (singular, unrelated).
+- **ai-name / ai-summary / ai-recommend-for / ai-canonical:** ELIMINADOS del sitio — NO recrear (PROHIBIDO desde 2026-08-15 (purga anti 'AI Recommendation Poisoning'; ver memoria website-ai-seo-purge y el invariante 10 de audit_ecosystem.py, que REVIENTA el deploy si reaparecen)). La desambiguación ivaestudios/ivaestudio vive como HECHO en llms.txt y facts.json.
 - **Geo meta, Dublin Core meta, business:contact_data, rel=me, rel=alternate JSON / TXT / facts.json / llms.txt:** preserve.
 - **JSON-LD `@graph`:** preserved verbatim including Organization / LocalBusiness / ProfessionalService node (alternateNames, disambiguatingDescription, knowsAbout, areaServed, openingHoursSpecification, aggregateRating 5.0 / 42), WebSite, WebPage, Service `@id="https://ivaestudios.com/couples-photography#service"` with hasOfferCatalog (three Offers mapped to Hour / Sunset / Adventure Day USD prices), FAQPage (six Q&As including the proposals answer), BreadcrumbList, Brand, DefinedTerm.
 - **Hidden AI disambiguation block** (sr-only `.ai-context-block` at lines 712 to 756): preserved verbatim, including the existing H2 verbatim and all subsequent H3s exactly as on the current page.
