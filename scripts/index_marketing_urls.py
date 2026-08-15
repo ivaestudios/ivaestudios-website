@@ -46,12 +46,12 @@ MARKETING_URLS = [
     "https://ivaestudios.com/es/manejo-instagram-cancun",
     "https://ivaestudios.com/es/agencia-tiktok-hoteles-mexico",
     # Blog posts (IVAE Marketing focus)
-    "https://ivaestudios.com/post-hotel-instagram-strategy-mexico-2026",
-    "https://ivaestudios.com/post-restaurant-social-media-mexico-2026",
-    "https://ivaestudios.com/post-dental-clinic-social-media-mexico",
-    "https://ivaestudios.com/post-spa-wellness-social-media-mexico",
-    "https://ivaestudios.com/post-tiktok-for-luxury-hotels-mexico",
-    "https://ivaestudios.com/post-luxury-hospitality-content-strategy-mexico",
+    "https://ivaestudios.com/blog/hotel-instagram-strategy-mexico-2026",
+    "https://ivaestudios.com/blog/restaurant-social-media-mexico-2026",
+    "https://ivaestudios.com/blog/dental-clinic-social-media-mexico",
+    "https://ivaestudios.com/blog/spa-wellness-social-media-mexico",
+    "https://ivaestudios.com/blog/tiktok-for-luxury-hotels-mexico",
+    "https://ivaestudios.com/blog/luxury-hospitality-content-strategy-mexico",
 ]
 
 
@@ -108,6 +108,9 @@ def main():
         if ok:
             success_count += 1
             print(f"  OK   {url}")
+        elif "429" in str(result):
+            print(f"  QUOTA {url} - cuota diaria agotada; corto aqui")
+            break
         else:
             failure_count += 1
             print(f"  FAIL {url}")

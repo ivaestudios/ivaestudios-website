@@ -39,6 +39,8 @@ DEFAULT_URLS = [
     # Location pages
     "https://ivaestudios.com/cancun-photographer",
     "https://ivaestudios.com/cancun-wedding-photographer",
+    "https://ivaestudios.com/riviera-maya-wedding-photographer",
+    "https://ivaestudios.com/es/fotografo-bodas-cancun",
     "https://ivaestudios.com/riviera-maya-photographer",
     "https://ivaestudios.com/cabo-photographer",
     "https://ivaestudios.com/es/fotografo-cancun",
@@ -105,6 +107,35 @@ def collect_from_trends():
     return [u for u in pages if isinstance(u, str) and u.startswith("http")]
 
 
+def collect_from_push_event():
+    """URLs de los .html añadidos/modificados en el push (payload de Actions).
+
+    Devuelve None fuera de un push de Actions (corridas locales / dispatch).
+    Devuelve [] si el push no toco HTML publico: en ese caso NO se envia nada,
+    en vez de quemar cuota re-enviando la lista fija de siempre."""
+    path = os.environ.get("GITHUB_EVENT_PATH")
+    if os.environ.get("GITHUB_EVENT_NAME") != "push" or not path:
+        return None
+    try:
+        with open(path) as f:
+            event = json.load(f)
+    except (OSError, ValueError):
+        return None
+    files = []
+    for c in event.get("commits", []):
+        files += c.get("added", []) + c.get("modified", [])
+    urls, seen = [], set()
+    for p in files:
+        if not p.endswith(".html") or p.startswith(("gallery/", "marketing/", "tools/", "seo/", "_")):
+            continue
+        rel = p[:-len("index.html")] if p.endswith("index.html") else p[:-len(".html")]
+        u = "https://ivaestudios.com/" + rel
+        if u not in seen:
+            seen.add(u)
+            urls.append(u)
+    return urls[:50]  # tope anti-quema de cuota
+
+
 def collect_urls(use_trends: bool, positional: list[str]):
     """Resolve which URLs to submit."""
     # Explicit positional CLI args always win
@@ -117,7 +148,11 @@ def collect_urls(use_trends: bool, positional: list[str]):
     if urls_file and os.path.exists(urls_file):
         with open(urls_file) as f:
             return [ln.strip() for ln in f if ln.strip() and ln.strip().startswith("http")]
-    # Default
+    # En push de Actions: SOLO las paginas cambiadas (lista vacia = no enviar)
+    pushed = collect_from_push_event()
+    if pushed is not None:
+        return pushed
+    # Default: dispatch manual sin input / corrida local
     return DEFAULT_URLS
 
 

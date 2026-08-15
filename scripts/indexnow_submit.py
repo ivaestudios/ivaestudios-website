@@ -87,6 +87,27 @@ def collect_since_last_deploy() -> list[str]:
     return urls
 
 
+def collect_from_push_event() -> list[str]:
+    """Todos los .html del payload del push (cubre pushes multi-commit,
+    donde git diff HEAD~1..HEAD solo ve el ultimo commit)."""
+    path = os.environ.get("GITHUB_EVENT_PATH")
+    try:
+        with open(path) as f:
+            event = json.load(f)
+    except (TypeError, OSError, ValueError):
+        return []
+    files = []
+    for c in event.get("commits", []):
+        files += c.get("added", []) + c.get("modified", [])
+    urls = []
+    for f in files:
+        if f.endswith(".html"):
+            u = html_path_to_url(f)
+            if u and u not in urls:
+                urls.append(u)
+    return urls
+
+
 def collect_from_sitemap() -> list[str]:
     """Parse sitemap.xml and return all <loc> values."""
     sitemap_path = os.path.join(REPO_ROOT, "sitemap.xml")
@@ -187,9 +208,21 @@ def main() -> int:
         )
         return 0
 
+    # En un workflow_dispatch sin input de URLs, la intencion documentada es
+    # "blank = use sitemap" — pero el yml siempre invoca --since-last-deploy.
+    # Se corrige aqui (el token no puede editar los .yml): si el evento es un
+    # dispatch y no llegaron URLs posicionales, se envia el sitemap entero.
+    if (os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch"
+            and not args.urls and not args.sitemap):
+        args.sitemap = True
+        args.since_last_deploy = False
+
     if args.sitemap:
         urls = collect_from_sitemap()
         source = "sitemap"
+    elif args.since_last_deploy and os.environ.get("GITHUB_EVENT_NAME") == "push":
+        urls = collect_from_push_event() or collect_since_last_deploy()
+        source = "push payload"
     elif args.since_last_deploy:
         urls = collect_since_last_deploy()
         source = "git diff (HEAD~1..HEAD)"

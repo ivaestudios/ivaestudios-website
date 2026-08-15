@@ -243,7 +243,12 @@ python3 scripts/update_sitemap.py --check         # el sitemap quedo al dia
 ```
 
 ### Paso 7: Desplegar
-Commit y push a `main`. Cloudflare Pages publica en aproximadamente 1 minuto. El workflow `SEO - Index URLs` se dispara con el mismo push y pide a Google que recorra las paginas cambiadas; `SEO - IndexNow` avisa a Bing.
+Commit y push a `main`. Cloudflare Pages publica en aproximadamente 1 minuto. Desde 2026-08-15 el workflow `SEO - Index URLs` SI envia a Google exactamente las paginas cambiadas del push (lee el payload de Actions; antes enviaba siempre la misma lista fija de 24 y las paginas nuevas jamas se pedian). `SEO - IndexNow` avisa a Bing con el mismo payload. OJO: los paths de `seo-indexnow.yml` NO incluyen `blog/**` (arreglo pendiente del dueño en el yml, el token no tiene scope workflow) — para un lote de posts nuevos, disparar a mano:
+
+```
+gh workflow run seo-indexnow.yml --repo ivaestudios/ivaestudios-website   # sin input = sitemap completo (arreglado en indexnow_submit.py)
+gh workflow run index-urls.yml --repo ivaestudios/ivaestudios-website -f urls="https://ivaestudios.com/blog/slug-1 https://ivaestudios.com/blog/slug-2"
+```
 
 ### Paso 8: Verificar en vivo, no en el archivo
 
