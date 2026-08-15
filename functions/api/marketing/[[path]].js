@@ -5311,12 +5311,36 @@ async function route(request, env, authCtx) {
   }
 
   // ── PUBLICAR AHORA (solo staff): sube la pieza a Instagram de inmediato.
+  if (parts[0] === 'posts' && parts.length === 3 && parts[2] === 'slides' && method === 'POST') {
+    return handleUploadCarouselSlide(request, env, user, parts[1]);
+  }
   if (parts[0] === 'posts' && parts.length === 3 && parts[2] === 'publicar' && method === 'POST') {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);
     return handlePublicarPieza(env, parts[1], session);
   }
 
   return json({ error: 'Not found' }, 404);
+}
+
+// El Estudio manda cada slide terminado (JPEG 1080x1350) a la pieza: quedan
+// en R2 bajo marketing/carrusel/<postId>/N.jpg listos para el publicador.
+async function handleUploadCarouselSlide(request, env, user, postId) {
+  if (user.role === 'client') return json({ error: 'Solo staff' }, 403);
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
+  const post = await env.DB.prepare('SELECT id FROM mkt_posts WHERE id = ?').bind(postId).first();
+  if (!post) return json({ error: 'Pieza no encontrada' }, 404);
+  const n = Math.max(1, Math.min(10, Number(new URL(request.url).searchParams.get('n')) || 0));
+  if (!n) return json({ error: 'Falta n (1-10)' }, 400);
+  const body = await request.arrayBuffer();
+  if (!body || body.byteLength < 1024) return json({ error: 'Imagen vacía' }, 400);
+  if (body.byteLength > 8 * 1024 * 1024) return json({ error: 'Slide muy pesado (max 8MB)' }, 413);
+  // JPEG de verdad (magia FFD8) — el publicador solo sirve image/jpeg.
+  const magia = new Uint8Array(body.slice(0, 2));
+  if (magia[0] !== 0xFF || magia[1] !== 0xD8) return json({ error: 'Debe ser JPEG' }, 400);
+  await env.R2_BUCKET.put(`marketing/carrusel/${postId}/${n}.jpg`, body, {
+    httpMetadata: { contentType: 'image/jpeg' },
+  });
+  return json({ ok: true, n });
 }
 
 // Los SLIDES publicables de una pieza carrusel: JPEGs en R2 bajo
