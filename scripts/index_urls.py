@@ -38,6 +38,7 @@ DEFAULT_URLS = [
     "https://ivaestudios.com/es/acerca-de",
     # Location pages
     "https://ivaestudios.com/cancun-photographer",
+    "https://ivaestudios.com/cancun-wedding-photographer",
     "https://ivaestudios.com/riviera-maya-photographer",
     "https://ivaestudios.com/cabo-photographer",
     "https://ivaestudios.com/es/fotografo-cancun",
@@ -50,6 +51,9 @@ DEFAULT_URLS = [
     "https://ivaestudios.com/es/fotografo-bodas-destino-mexico",
     "https://ivaestudios.com/es/fotos-familiares-lujo-cancun",
     "https://ivaestudios.com/es/fotografia-parejas-mexico",
+    # Comparativas (quien es el mejor)
+    "https://ivaestudios.com/comparison/luxury-photographers-cancun",
+    "https://ivaestudios.com/es/comparativa/fotografos-lujo-cancun",
     # Standalone
     "https://ivaestudios.com/outfit-guide",
     "https://ivaestudios.com/es/guia-vestuario",
