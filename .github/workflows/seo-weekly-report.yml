@@ -41,4 +41,9 @@ jobs:
           git config user.email "bot@ivaestudios.com"
           git add seo/reports/
           git diff --cached --quiet || git commit -m "chore(seo): weekly report $(date -u +%Y-%U)"
-          git push
+          # main avanza durante los ~14 min del reporte: sin rebase el push
+          # pierde la carrera (fallo todos los lunes desde 2026-07-20).
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push && break
+            echo "push rechazado, reintento $i"; sleep 5
+          done

@@ -10,6 +10,8 @@ on:
     paths:
       - '*.html'
       - 'es/**.html'
+      - 'blog/**'
+      - 'es/blog/**'
       - 'venues/**'
       - 'comparison/**'
       - 'sitemap.xml'

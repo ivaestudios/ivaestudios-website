@@ -1,0 +1,29 @@
+# EL PROGRAMADOR — publica en Instagram las piezas en status 'programado'
+# cuya fecha/hora local de Cancún ya llegó (2026-08-15).
+#
+# Cloudflare Pages Functions no tiene crons propios, así que este Action toca
+# el endpoint cada 15 minutos. El MISMO trabajo también corre con el lazySweep
+# cada vez que alguien usa la app: este cron es la GARANTÍA para las horas en
+# que nadie la tiene abierta.
+#
+# Secret requerido (ya existe, es el de marketing-cron.yml):
+#   MKT_CRON_SECRET — igual al env.MKT_CRON_SECRET de Cloudflare Pages.
+name: Marketing — Publicador programado
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {}
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Publicar piezas cuya hora llegó
+        env:
+          CRON_BEARER: ${{ secrets.MKT_CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_BEARER" ]; then echo "Sin MKT_CRON_SECRET"; exit 1; fi
+          curl -sS -X POST "https://ivaestudios.com/api/marketing/cron-publicar" \
+            -H "Authorization: Bearer $CRON_BEARER" \
+            --max-time 120 | tee salida.json
+          grep -q '"ok":true' salida.json
