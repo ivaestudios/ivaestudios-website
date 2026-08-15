@@ -5315,6 +5315,19 @@ async function route(request, env, authCtx) {
   return json({ error: 'Not found' }, 404);
 }
 
+// El video PUBLICABLE de una pieza: video_url directo si existe; si no, el
+// ENTREGABLE enlazado (post_id) — con la URL pública FIRMADA que los
+// servidores de Meta sí pueden bajar (la misma firma HMAC del PDF).
+async function videoFirmadoDePieza(env, post) {
+  if (post.video_url) return post.video_url;
+  const d = await env.DB.prepare(
+    'SELECT id FROM mkt_deliverables WHERE post_id = ? AND video_ext IS NOT NULL LIMIT 1'
+  ).bind(post.id).first();
+  if (!d) return null;
+  const f = await firmaEntregable(env, d.id);
+  return `https://ivaestudios.com/api/marketing/publico/entregable/${d.id}/video?f=${f}`;
+}
+
 // ── EL PROGRAMADOR ───────────────────────────────────────────────────────────
 // Publica las piezas en status 'programado' cuya fecha/hora local de Cancún ya
 // llegó. Corre desde DOS relojes: el cron de GitHub cada 15 min (garantía) y
@@ -5334,7 +5347,8 @@ async function publicarPendientes(env) {
   for (const post of (due.results || [])) {
     const sesionSistema = { user_id: null, name: 'Programador IVAE' };
     try {
-      const r = await publicarEnInstagram(env, { client: post, post });
+      const videoUrl = await videoFirmadoDePieza(env, post);
+      const r = await publicarEnInstagram(env, { client: post, post: { ...post, video_url: videoUrl } });
       await env.DB.prepare(
         `UPDATE mkt_posts SET status = 'publicado', published_media_id = ?, published_at = datetime('now'),
          publish_error = NULL, updated_at = datetime('now') WHERE id = ?`
@@ -5381,7 +5395,8 @@ async function handlePublicarPieza(env, postId, session) {
   if (!post) return json({ error: 'Pieza no encontrada' }, 404);
   if (post.published_media_id) return json({ error: 'Esta pieza ya se publicó.' }, 409);
   try {
-    const r = await publicarEnInstagram(env, { client: post, post });
+    const videoUrl = await videoFirmadoDePieza(env, post);
+    const r = await publicarEnInstagram(env, { client: post, post: { ...post, video_url: videoUrl } });
     await env.DB.prepare(
       `UPDATE mkt_posts SET status = 'publicado', published_media_id = ?, published_at = datetime('now'),
        publish_error = NULL, updated_at = datetime('now') WHERE id = ?`
