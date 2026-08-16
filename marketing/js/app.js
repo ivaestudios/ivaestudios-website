@@ -1234,6 +1234,31 @@ async function openEditorFor(id) {
   const videoInput = el('input', { class: 'input', type: 'url', value: post.video_url || '', placeholder: 'https://...' });
   const notesInput = el('textarea', { class: 'textarea', placeholder: 'Notas internas (no visibles para el cliente)' }); notesInput.value = post.notes_team || '';
 
+  // Colaboraciones de Instagram (hasta 3 @usuarios; les llega la invitación al publicar).
+  const colabInput = el('input', { class: 'input', value: post.collaborators || '', placeholder: '@usuario1 @usuario2 (máx 3)' });
+  // Portada del reel: el segundo del video para la miniatura — o una imagen subida (gana la imagen).
+  const thumbInput = el('input', { class: 'input', type: 'number', min: '0', step: '0.5', placeholder: 'ej. 2.5', value: post.thumb_offset != null ? String(Number(post.thumb_offset) / 1000) : '' });
+  const coverBtn = el('button', { class: 'btn btn-sm', type: 'button', onclick: () => {
+    if (isNew) { toast('Primero guarda la pieza y luego súbele portada.', 'info'); return; }
+    const fi = el('input', { type: 'file', accept: 'image/jpeg' });
+    fi.addEventListener('change', async () => {
+      const f = fi.files && fi.files[0];
+      if (!f) return;
+      coverBtn.dataset.loading = 'true';
+      try {
+        const res = await fetch('/api/marketing/posts/' + encodeURIComponent(post.id) + '/portada', {
+          method: 'POST', credentials: 'include', headers: { 'Content-Type': 'image/jpeg' }, body: f,
+        });
+        const d = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(d.error || 'No se pudo subir.');
+        toast('Portada subida — se usará al publicar el reel.', 'success');
+      } catch (err) {
+        toast(err.message || 'No se pudo subir la portada.', 'error');
+      } finally { delete coverBtn.dataset.loading; }
+    });
+    fi.click();
+  } }, [icon('edit'), el('span', { text: 'Subir portada (JPG)' })]);
+
   const visibleSwitch = el('input', { type: 'checkbox' }); visibleSwitch.checked = !!post.client_visible;
   const visibleField = el('label', { class: 'switch' }, [
     visibleSwitch,
@@ -1265,6 +1290,11 @@ async function openEditorFor(id) {
     el('div', { class: 'field-grid' }, [field('Estado', statusSel), field('Aprobación', apprSel)]),
     field('Hecho por', assigneeInput),
     el('div', { class: 'field-grid' }, [field('Inspiración (URL)', inspoInput), field('Video / asset (URL)', videoInput)]),
+    el('div', { class: 'field-grid' }, [
+      field('Colaboradores IG', colabInput, { help: 'Hasta 3 @usuarios; les llega la invitación al publicarse.' }),
+      field('Portada del reel (segundo)', thumbInput, { help: 'Miniatura = ese segundo del video. Si subes imagen, la imagen gana.' }),
+    ]),
+    el('div', { class: 'field' }, [coverBtn]),
     el('div', { class: 'field' }, [visibleField]),
     field('Notas internas', notesInput, { help: 'Solo el equipo ve estas notas.' }),
     ...personNotesNodes,
@@ -1353,6 +1383,8 @@ async function openEditorFor(id) {
       cta: ctaInput.value.trim() || null,
       hashtags: hashInput.value.trim() || null,
       caption: capInput.value.trim() || null,
+      collaborators: colabInput.value.trim() || null,
+      thumb_offset: thumbInput.value !== '' ? Math.max(0, Math.round(Number(thumbInput.value) * 1000)) : null,
     };
     saveBtn.dataset.loading = 'true';
     try {

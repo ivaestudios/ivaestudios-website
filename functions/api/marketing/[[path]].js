@@ -403,7 +403,8 @@ async function logActivity(env, { client_id, post_id, session, action, detail })
 const POST_EDITABLE_FIELDS = [
   'title', 'content_type', 'grabacion', 'publish_date', 'publish_time', 'assignee', 'platform',
   'status', 'caption', 'inspo_url', 'video_url', 'hook', 'body', 'cta',
-  'hashtags', 'alt_text', 'notes_team', 'client_visible', 'priority'
+  'hashtags', 'alt_text', 'notes_team', 'client_visible', 'priority',
+  'collaborators', 'thumb_offset'
 ];
 
 // Lo que un rol CLIENTE puede escribir de un post: su contenido y el formato,
@@ -4942,6 +4943,10 @@ async function route(request, env, authCtx) {
   if (parts[0] === 'publico' && parts[1] === 'carrusel' && parts.length === 4 && (method === 'GET' || method === 'HEAD')) {
     return handlePublicCarouselSlide(request, env, parts[2], parts[3]);
   }
+  // Portada del reel para el publicador.
+  if (parts[0] === 'publico' && parts[1] === 'portada' && parts.length === 3 && (method === 'GET' || method === 'HEAD')) {
+    return handlePublicPortada(request, env, parts[2]);
+  }
 
   // ── CRON (no session; Bearer MKT_CRON_SECRET) — BEFORE the session gate ──
   if (path === '/cron' && method === 'POST') return handleCron(request, env);
@@ -5315,6 +5320,10 @@ async function route(request, env, authCtx) {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);
     return handleUploadCarouselSlide(request, env, parts[1]);
   }
+  if (parts[0] === 'posts' && parts.length === 3 && parts[2] === 'portada' && method === 'POST') {
+    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    return handleUploadPortada(request, env, parts[1]);
+  }
   if (parts[0] === 'posts' && parts.length === 3 && parts[2] === 'publicar' && method === 'POST') {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);
     return handlePublicarPieza(env, parts[1], session);
@@ -5341,6 +5350,44 @@ async function handleUploadCarouselSlide(request, env, postId) {
     httpMetadata: { contentType: 'image/jpeg' },
   });
   return json({ ok: true, n });
+}
+
+// La PORTADA del reel de una pieza: JPEG en R2 bajo marketing/portada/<id>.jpg
+// (la sube el editor). Devuelve la URL firmada para que Meta la baje, o null.
+async function portadaFirmadaDePieza(env, post) {
+  if (!env.R2_BUCKET) return null;
+  const o = await env.R2_BUCKET.head(`marketing/portada/${post.id}.jpg`);
+  if (!o) return null;
+  const f = await firmaEntregable(env, `portada-${post.id}.jpg`);
+  return `https://ivaestudios.com/api/marketing/publico/portada/${post.id}.jpg?f=${f}`;
+}
+
+// Sube la portada del reel (staff): JPEG real, máx 8MB.
+async function handleUploadPortada(request, env, postId) {
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
+  const post = await env.DB.prepare('SELECT id FROM mkt_posts WHERE id = ?').bind(postId).first();
+  if (!post) return json({ error: 'Pieza no encontrada' }, 404);
+  const body = await request.arrayBuffer();
+  if (!body || body.byteLength < 1024) return json({ error: 'Imagen vacía' }, 400);
+  if (body.byteLength > 8 * 1024 * 1024) return json({ error: 'Portada muy pesada (max 8MB)' }, 413);
+  const magia = new Uint8Array(body.slice(0, 2));
+  if (magia[0] !== 0xFF || magia[1] !== 0xD8) return json({ error: 'Debe ser JPEG' }, 400);
+  await env.R2_BUCKET.put(`marketing/portada/${postId}.jpg`, body, {
+    httpMetadata: { contentType: 'image/jpeg' },
+  });
+  return json({ ok: true });
+}
+
+// Sirve la portada con firma válida (Meta la baja de aquí).
+async function handlePublicPortada(request, env, archivo) {
+  if (!env.R2_BUCKET) return new Response('Almacenamiento no disponible', { status: 503 });
+  if (!/^[\w-]+\.jpg$/.test(archivo)) return new Response('No', { status: 400 });
+  const f = new URL(request.url).searchParams.get('f') || '';
+  const esperada = await firmaEntregable(env, `portada-${archivo}`);
+  if (!f || f !== esperada) return new Response('Enlace no válido', { status: 403 });
+  const o = await env.R2_BUCKET.get(`marketing/portada/${archivo.replace(/\.jpg$/, '')}.jpg`);
+  if (!o) return new Response('Sin portada', { status: 404 });
+  return new Response(o.body, { status: 200, headers: { 'Content-Type': 'image/jpeg', 'Cache-Control': 'private, max-age=3600' } });
 }
 
 // Los SLIDES publicables de una pieza carrusel: JPEGs en R2 bajo
@@ -5408,7 +5455,8 @@ async function publicarPendientes(env) {
     try {
       const videoUrl = await videoFirmadoDePieza(env, post);
       const slides = await slidesFirmadosDePieza(env, post);
-      const r = await publicarEnInstagram(env, { client: post, post: { ...post, video_url: videoUrl }, slides });
+      const cover = await portadaFirmadaDePieza(env, post);
+      const r = await publicarEnInstagram(env, { client: post, post: { ...post, video_url: videoUrl }, slides, cover });
       await env.DB.prepare(
         `UPDATE mkt_posts SET status = 'publicado', published_media_id = ?, published_at = datetime('now'),
          publish_error = NULL, updated_at = datetime('now') WHERE id = ?`
@@ -5457,7 +5505,8 @@ async function handlePublicarPieza(env, postId, session) {
   try {
     const videoUrl = await videoFirmadoDePieza(env, post);
     const slides = await slidesFirmadosDePieza(env, post);
-    const r = await publicarEnInstagram(env, { client: post, post: { ...post, video_url: videoUrl }, slides });
+    const cover = await portadaFirmadaDePieza(env, post);
+    const r = await publicarEnInstagram(env, { client: post, post: { ...post, video_url: videoUrl }, slides, cover });
     await env.DB.prepare(
       `UPDATE mkt_posts SET status = 'publicado', published_media_id = ?, published_at = datetime('now'),
        publish_error = NULL, updated_at = datetime('now') WHERE id = ?`

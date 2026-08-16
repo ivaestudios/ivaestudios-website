@@ -39,6 +39,19 @@ async function gJson(url, init) {
   return data;
 }
 
+// Colaboradores de la publicación: "@ana @luis" o "ana, luis" → hasta 3
+// usernames limpios como los pide la API (el colaborador recibe la invitación
+// en su Instagram y al aceptar el post aparece en ambos perfiles).
+function listaColaboradores(post) {
+  const crudo = String(post.collaborators || '').trim();
+  if (!crudo) return null;
+  const usuarios = crudo.split(/[\s,;]+/)
+    .map((u) => u.replace(/^@+/, '').trim())
+    .filter((u) => /^[\w.]{1,30}$/.test(u))
+    .slice(0, 3);
+  return usuarios.length ? JSON.stringify(usuarios) : null;
+}
+
 // El caption FINAL que ve Instagram: el copy + los hashtags (si no vienen ya
 // dentro del caption). IG corta en 2200 chars — se respeta desde aquí.
 function captionFinal(post) {
@@ -52,7 +65,7 @@ function captionFinal(post) {
  * Publica UNA pieza en el Instagram de su marca. Devuelve { mediaId, permalink }.
  * Lanza Error con mensaje humano si algo falta o IG rechaza.
  */
-export async function publicarEnInstagram(env, { client, post, slides }) {
+export async function publicarEnInstagram(env, { client, post, slides, cover }) {
   if (!client || !client.ig_user_id || !client.ig_access_token) {
     throw new Error('La marca no tiene Instagram conectado (ficha del cliente → Conectar Instagram).');
   }
@@ -72,9 +85,12 @@ export async function publicarEnInstagram(env, { client, post, slides }) {
       if (!h.id) throw new Error('Instagram no devolvió el contenedor de un slide.');
       hijos.push(h.id);
     }
+    const paramsPadre = new URLSearchParams({ media_type: 'CAROUSEL', children: hijos.join(','), caption, access_token: tok });
+    const colabCar = listaColaboradores(post);
+    if (colabCar) paramsPadre.set('collaborators', colabCar);
     const padre = await gJson(`${GRAPH}/${client.ig_user_id}/media`, {
       method: 'POST',
-      body: new URLSearchParams({ media_type: 'CAROUSEL', children: hijos.join(','), caption, access_token: tok }),
+      body: paramsPadre,
     });
     if (!padre.id) throw new Error('Instagram no devolvió el contenedor del carrusel.');
     // Los JPEG procesan casi al instante; un respiro corto y a publicar.
@@ -101,6 +117,9 @@ export async function publicarEnInstagram(env, { client, post, slides }) {
   let params;
   if (post.video_url) {
     params = new URLSearchParams({ media_type: 'REELS', video_url: post.video_url, caption, access_token: tok });
+    // Portada del reel: imagen subida a la pieza (gana) o el milisegundo elegido.
+    if (cover) params.set('cover_url', cover);
+    else if (Number(post.thumb_offset) > 0) params.set('thumb_offset', String(Math.round(Number(post.thumb_offset))));
   } else if (tipo === 'post' && post.inspo_url && /\.(jpe?g)(\?|$)/i.test(post.inspo_url)) {
     // v1 foto única: solo JPEG (regla de la API de IG).
     params = new URLSearchParams({ image_url: post.inspo_url, caption, access_token: tok });
@@ -109,6 +128,8 @@ export async function publicarEnInstagram(env, { client, post, slides }) {
       ? 'El carrusel no tiene slides subidos para publicar (se suben como JPEG al almacén de la pieza).'
       : 'La pieza no tiene video subido — sube el video final antes de programarla.');
   }
+  const colab = listaColaboradores(post);
+  if (colab) params.set('collaborators', colab);
   const cont = await gJson(`${GRAPH}/${client.ig_user_id}/media`, { method: 'POST', body: params });
   if (!cont.id) throw new Error('Instagram no devolvió el contenedor.');
 
