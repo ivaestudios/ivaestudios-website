@@ -4947,6 +4947,15 @@ async function route(request, env, authCtx) {
   if (parts[0] === 'publico' && parts[1] === 'portada' && parts.length === 3 && (method === 'GET' || method === 'HEAD')) {
     return handlePublicPortada(request, env, parts[2]);
   }
+  // EL TIC-TAC (2026-08-16): timbre público del reloj — el worker
+  // ivae-marketing-reloj lo toca cada 10 min para que el publicador y las
+  // recetas de tiempo corran AUNQUE nadie use la app. Sin secretos porque
+  // solo dispara el mismo lazySweep de siempre (throttled 15 min adentro,
+  // idempotente); tocarlo mil veces cuesta lo mismo que una.
+  if (parts[0] === 'tick' && (method === 'GET' || method === 'POST')) {
+    await safeSweep(env);
+    return json({ ok: true, tic: 'tac' });
+  }
 
   // ── CRON (no session; Bearer MKT_CRON_SECRET) — BEFORE the session gate ──
   if (path === '/cron' && method === 'POST') return handleCron(request, env);
