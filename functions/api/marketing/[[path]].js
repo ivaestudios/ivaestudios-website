@@ -4959,6 +4959,11 @@ async function route(request, env, authCtx) {
     let publicadas = 0;
     try { publicadas = ((await publicarPendientes(env)) || []).length; } catch { /* queda en publish_error */ }
     await safeSweep(env);
+    // Huella del latido: mkt_kv 'tick_at' — para auditar que el reloj vive.
+    try {
+      await env.DB.prepare("INSERT INTO mkt_kv (key, value) VALUES ('tick_at', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")
+        .bind(new Date().toISOString()).run();
+    } catch { /* el latido jamás tumba el tick */ }
     return json({ ok: true, tic: 'tac', publicadas });
   }
 
