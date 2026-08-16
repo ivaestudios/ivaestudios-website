@@ -4953,8 +4953,13 @@ async function route(request, env, authCtx) {
   // solo dispara el mismo lazySweep de siempre (throttled 15 min adentro,
   // idempotente); tocarlo mil veces cuesta lo mismo que una.
   if (parts[0] === 'tick' && (method === 'GET' || method === 'POST')) {
+    // El PUBLICADOR corre SIEMPRE en el tick (la query de vencidas es un
+    // SELECT barato) — sin esto, el throttle de 15 min del sweep podía
+    // retrasar una publicación hasta ~19 min después de su hora.
+    let publicadas = 0;
+    try { publicadas = ((await publicarPendientes(env)) || []).length; } catch { /* queda en publish_error */ }
     await safeSweep(env);
-    return json({ ok: true, tic: 'tac' });
+    return json({ ok: true, tic: 'tac', publicadas });
   }
 
   // ── CRON (no session; Bearer MKT_CRON_SECRET) — BEFORE the session gate ──
