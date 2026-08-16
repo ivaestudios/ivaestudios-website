@@ -94,12 +94,14 @@ export async function publicarEnInstagram(env, { client, post, slides, cover }) 
     });
     if (!padre.id) throw new Error('Instagram no devolvió el contenedor del carrusel.');
     // Los JPEG procesan casi al instante; un respiro corto y a publicar.
-    for (let i = 0; i < 6; i++) {
+    let carruselListo = false;
+    for (let i = 0; !carruselListo && i < 10; i++) {
       const st = await gJson(`${GRAPH}/${padre.id}?fields=status_code&access_token=${encodeURIComponent(tok)}`);
-      if (st.status_code === 'FINISHED') break;
-      if (st.status_code === 'ERROR') throw new Error('Instagram no pudo procesar el carrusel (¿todos los slides son JPEG?).');
-      await espera(3000);
+      if (st.status_code === 'FINISHED') carruselListo = true;
+      else if (st.status_code === 'ERROR') throw new Error('Instagram no pudo procesar el carrusel (¿todos los slides son JPEG?).');
+      else await espera(3000);
     }
+    if (!carruselListo) throw new Error('Instagram sigue procesando el carrusel — se reintenta en el siguiente ciclo.');
     const pub = await gJson(`${GRAPH}/${client.ig_user_id}/media_publish`, {
       method: 'POST',
       body: new URLSearchParams({ creation_id: padre.id, access_token: tok }),
@@ -135,7 +137,7 @@ export async function publicarEnInstagram(env, { client, post, slides, cover }) 
 
   // 2) Esperar a que IG procese el video (FINISHED). Los reels tardan.
   let listo = !post.video_url;   // las fotos no procesan
-  for (let i = 0; !listo && i < 10; i++) {
+  for (let i = 0; !listo && i < 24; i++) {
     await espera(5000);
     const st = await gJson(`${GRAPH}/${cont.id}?fields=status_code&access_token=${encodeURIComponent(tok)}`);
     if (st.status_code === 'FINISHED') listo = true;

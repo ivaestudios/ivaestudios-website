@@ -2268,9 +2268,13 @@ async function lazySweep(env, opts = {}) {
   // los calendarios. Regla de Israel (2026-07-03): "si ya es 18 tiene que
   // cambiar a publicado sí o sí" — el equipo no siempre entra a moverlo a
   // mano y el progreso del mes debe avanzar solo.
+  // OJO (auditoría 2026-08-16): las piezas del PROGRAMADOR quedan FUERA —
+  // esas pasan a 'publicado' SOLO cuando Instagram confirma (si no, esta
+  // regla las marcaba publicadas a medianoche y el publicador ya no las veía:
+  // fallo 100% silencioso, cazado en la auditoría de las piezas del 16-ago).
   const autoPub = await env.DB.prepare(
     "UPDATE mkt_posts SET status = 'publicado', updated_at = datetime('now') " +
-    "WHERE status != 'publicado' AND publish_date IS NOT NULL AND publish_date <= ?"
+    "WHERE status NOT IN ('publicado', 'programado', 'publicando') AND publish_date IS NOT NULL AND publish_date <= ?"
   ).bind(today).run();
   ran.push({ recipe_key: 'auto_publicar', moved: (autoPub && autoPub.meta && autoPub.meta.changes) || 0 });
 
@@ -5440,17 +5444,20 @@ async function handlePublicCarouselSlide(request, env, postId, archivo) {
   return new Response(o.body, { status: 200, headers: { 'Content-Type': 'image/jpeg', 'Cache-Control': 'private, max-age=3600' } });
 }
 
-// El video PUBLICABLE de una pieza: video_url directo si existe; si no, el
-// ENTREGABLE enlazado (post_id) — con la URL pública FIRMADA que los
-// servidores de Meta sí pueden bajar (la misma firma HMAC del PDF).
+// El video PUBLICABLE de una pieza: PRIMERO el ENTREGABLE enlazado (post_id,
+// URL pública FIRMADA que Meta sí puede bajar; el más reciente si hay varios)
+// y solo de respaldo el video_url pegado a mano — que suele ser un enlace
+// privado (Drive, dashboard) que los servidores de Meta NO pueden abrir
+// (auditoría 2026-08-16: antes video_url le ganaba al entregable).
 async function videoFirmadoDePieza(env, post) {
-  if (post.video_url) return post.video_url;
   const d = await env.DB.prepare(
-    'SELECT id FROM mkt_deliverables WHERE post_id = ? AND video_ext IS NOT NULL LIMIT 1'
+    'SELECT id FROM mkt_deliverables WHERE post_id = ? AND video_ext IS NOT NULL ORDER BY updated_at DESC LIMIT 1'
   ).bind(post.id).first();
-  if (!d) return null;
-  const f = await firmaEntregable(env, d.id);
-  return `https://ivaestudios.com/api/marketing/publico/entregable/${d.id}/video?f=${f}`;
+  if (d) {
+    const f = await firmaEntregable(env, d.id);
+    return `https://ivaestudios.com/api/marketing/publico/entregable/${d.id}/video?f=${f}`;
+  }
+  return post.video_url || null;
 }
 
 // ── EL PROGRAMADOR ───────────────────────────────────────────────────────────
@@ -5460,17 +5467,33 @@ async function videoFirmadoDePieza(env, post) {
 // por corrida: los reels tardan en procesar y el Worker tiene presupuesto.
 async function publicarPendientes(env) {
   const { fecha, hora } = ahoraCancun();
+  // Rescate: una pieza que quedó en 'publicando' >10 min es un candado
+  // huérfano (worker muerto a media faena) — vuelve a la fila.
+  await env.DB.prepare(
+    `UPDATE mkt_posts SET status = 'programado', updated_at = datetime('now')
+     WHERE status = 'publicando' AND published_media_id IS NULL
+       AND updated_at < datetime('now', '-10 minutes')`
+  ).run();
   const due = await env.DB.prepare(
     `SELECT p.*, c.name AS client_name, c.ig_user_id, c.ig_username, c.ig_access_token
      FROM mkt_posts p JOIN mkt_clients c ON c.id = p.client_id
      WHERE p.status = 'programado' AND p.published_media_id IS NULL
+       AND COALESCE(p.approval_state, '') != 'changes_requested'
        AND p.publish_date IS NOT NULL AND p.publish_date != ''
        AND (p.publish_date < ? OR (p.publish_date = ? AND COALESCE(NULLIF(p.publish_time, ''), '11:00') <= ?))
-     ORDER BY p.publish_date, p.publish_time LIMIT 3`
+     ORDER BY p.publish_date, p.publish_time LIMIT 6`
   ).bind(fecha, fecha, hora).all();
   const resultados = [];
   for (const post of (due.results || [])) {
     const sesionSistema = { user_id: null, name: 'Programador IVAE' };
+    // EL CANDADO (auditoría 2026-08-16): reclamar la pieza ANTES de hablar
+    // con Instagram. Hay hasta 3 relojes concurrentes (worker */10, GitHub
+    // */15, y el uso normal de la app) y un reel tarda ~30-120s procesando —
+    // sin esto la MISMA pieza podía publicarse dos veces.
+    const claim = await env.DB.prepare(
+      "UPDATE mkt_posts SET status = 'publicando', updated_at = datetime('now') WHERE id = ? AND status = 'programado'"
+    ).bind(post.id).run();
+    if (!claim || !claim.meta || claim.meta.changes !== 1) continue;   // otro reloj la tiene
     try {
       const videoUrl = await videoFirmadoDePieza(env, post);
       const slides = await slidesFirmadosDePieza(env, post);
@@ -5488,7 +5511,7 @@ async function publicarPendientes(env) {
     } catch (e) {
       const msg = ((e && e.message) || 'Error desconocido').slice(0, 300);
       await env.DB.prepare(
-        `UPDATE mkt_posts SET publish_error = ?, updated_at = datetime('now') WHERE id = ?`
+        `UPDATE mkt_posts SET status = 'programado', publish_error = ?, updated_at = datetime('now') WHERE id = ?`
       ).bind(msg, post.id).run();
       await logActivity(env, {
         client_id: post.client_id, post_id: post.id, session: sesionSistema,
