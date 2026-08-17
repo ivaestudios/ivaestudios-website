@@ -162,7 +162,15 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
   // 1) creator_info: SIEMPRE primero (regla de TikTok) — trae las privacidades reales.
   const ci = await ttJson(`${TT_API}/post/publish/creator_info/query/`, { method: 'POST', headers: auth, body: '{}' });
   const opciones = (ci.data && ci.data.privacy_level_options) || [];
-  const publico = opciones.includes('PUBLIC_TO_EVERYONE');
+  // TRAMPA REPORTADA (bundle.social): antes de la auditoría, creator_info a
+  // veces LISTA PUBLIC_TO_EVERYONE y aun así el post cae SELF_ONLY en
+  // silencio. El modo directo solo se enciende cuando la auditoría esté
+  // APROBADA DE VERDAD: interruptor mkt_kv 'tt_app_auditada' = '1' (se
+  // prende una sola vez, a mano, cuando TikTok apruebe). Mientras: INBOX —
+  // el video llega al buzón de la marca y se publica con un tap, sin
+  // obligar a nadie a poner su cuenta en privado.
+  const auditRow = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'tt_app_auditada'").first();
+  const publico = !!(auditRow && auditRow.value === '1') && opciones.includes('PUBLIC_TO_EVERYONE');
 
   // CARRUSEL de fotos → content/init (solo PULL_FROM_URL).
   if (slides && slides.length >= 2) {
