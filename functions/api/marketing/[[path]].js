@@ -51,6 +51,7 @@ import { handleMonthlyReport } from './_enterprise.js';
 import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHeadersFor, buscarPinterest, fotosDePin } from './_downloader.js';
 import { pedirMes } from './_mes-ia.js';
 import { publicarEnInstagram, ahoraCancun, estadoContenedor, publicarContenedorExistente } from './_publicador.js';
+import { handleFbLogin, handleFbCallback, handleFbPick, publicarEnFacebook } from './_facebook.js';
 import { pedirCarrusel } from './_carrusel-ia.js';
 import {
   handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
@@ -404,7 +405,7 @@ const POST_EDITABLE_FIELDS = [
   'title', 'content_type', 'grabacion', 'publish_date', 'publish_time', 'assignee', 'platform',
   'status', 'caption', 'inspo_url', 'video_url', 'hook', 'body', 'cta',
   'hashtags', 'alt_text', 'notes_team', 'client_visible', 'priority',
-  'collaborators', 'thumb_offset'
+  'collaborators', 'thumb_offset', 'also_facebook'
 ];
 
 // Lo que un rol CLIENTE puede escribir de un post: su contenido y el formato,
@@ -1431,6 +1432,9 @@ function shapeClient(c, counts) {
     // "Avisos automáticos" siempre se pintaba en Activado aunque estuviera
     // apagado en la base (el backend sí lo respetaba; mentía la pantalla).
     reminders_enabled: c.reminders_enabled == null ? 1 : (c.reminders_enabled ? 1 : 0),
+    // Conexiones sociales (solo lectura para la ficha; los tokens jamás viajan)
+    ig_username: c.ig_username || null,
+    fb_page_name: c.fb_page_name || null,
     counts: counts || { posts: 0, pending: 0 }
   };
 }
@@ -4925,6 +4929,9 @@ async function route(request, env, authCtx) {
   // Instagram OAuth: el callback llega sin cookie (SameSite=Strict) y se
   // valida con nonce de un solo uso; el assign del selector igual.
   if (path === '/ig/callback' && method === 'GET') return handleIgCallback(request, env, url);
+  if (path === '/fb/callback' && method === 'GET') {
+    return url.searchParams.get('pick') ? handleFbPick(request, env, url) : handleFbCallback(request, env, url);
+  }
   if (path === '/ig/assign' && method === 'POST') return handleIgAssign(request, env);
 
   // ── HEALTH (público; para monitores externos: ¿responde la app y la BD?) ──
@@ -5259,6 +5266,7 @@ async function route(request, env, authCtx) {
   // ── INSTAGRAM (conexión y métricas) ──
   if (parts[0] === 'ig') {
     if (path === '/ig/login' && method === 'GET') return handleIgLogin(request, env, session, url);
+    if (path === '/fb/login' && method === 'GET') return handleFbLogin(request, env, session, url);
     if (path === '/ig/metrics' && method === 'GET') return handleIgMetrics(request, env, session, url);
     if (path === '/ig/metrics-range' && method === 'GET') return handleIgMetricsRange(request, env, session, url);
     if (path === '/ig/manual' && (method === 'GET' || method === 'POST')) return handleIgManual(request, env, session, url);
@@ -5596,6 +5604,37 @@ async function publicarPendientes(env) {
         client_id: post.client_id, post_id: post.id, session: sesionSistema,
         action: reconciliada ? 'post.reconciliado' : 'post.publicado', detail: r.permalink || `@${post.ig_username || ''}`,
       });
+      // FACEBOOK (opt-in por pieza): después de Instagram, jamás lo bloquea.
+      if (Number(post.also_facebook) === 1 && !post.fb_post_id) {
+        try {
+          const cliFb = await env.DB.prepare('SELECT fb_page_id, fb_page_name, fb_access_token FROM mkt_clients WHERE id = ?').bind(post.client_id).first();
+          const videoUrlFb = await videoFirmadoDePieza(env, post);
+          const slidesFb = await slidesFirmadosDePieza(env, post);
+          const rf = await publicarEnFacebook(env, { client: cliFb, post, videoUrl: videoUrlFb, slides: slidesFb });
+          await env.DB.prepare("UPDATE mkt_posts SET fb_post_id = ?, fb_error = NULL, updated_at = datetime('now') WHERE id = ?")
+            .bind(rf.fbPostId, post.id).run();
+          await logActivity(env, {
+            client_id: post.client_id, post_id: post.id, session: sesionSistema,
+            action: 'post.publicado_fb', detail: rf.permalink || rf.fbPostId,
+          });
+        } catch (eFb) {
+          const msgFb = ((eFb && eFb.message) || 'Error desconocido').slice(0, 300);
+          await env.DB.prepare("UPDATE mkt_posts SET fb_error = ?, updated_at = datetime('now') WHERE id = ?")
+            .bind(msgFb, post.id).run();
+          await logActivity(env, {
+            client_id: post.client_id, post_id: post.id, session: sesionSistema,
+            action: 'post.publicar_fb_error', detail: msgFb,
+          });
+          const adminsFb = await env.DB.prepare("SELECT id FROM mkt_users WHERE role = 'admin' AND active = 1").all();
+          await notify(env, {
+            user_ids: (adminsFb.results || []).map((u) => u.id),
+            type: 'publicador_fb_error', post_id: post.id, client_id: post.client_id,
+            actor_name: 'Programador IVAE',
+            body: `⚠️ Instagram salió bien pero FACEBOOK falló — ${post.title}: ${msgFb.slice(0, 120)}`,
+            link: '#/post/' + post.id,
+          });
+        }
+      }
       if (reconciliada) {
         const admins = await env.DB.prepare("SELECT id FROM mkt_users WHERE role = 'admin' AND active = 1").all();
         await notify(env, {

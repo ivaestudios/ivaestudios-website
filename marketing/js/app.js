@@ -1259,6 +1259,13 @@ async function openEditorFor(id) {
     fi.click();
   } }, [icon('edit'), el('span', { text: 'Subir portada (JPG)' })]);
 
+  const fbSwitch = el('input', { type: 'checkbox' }); fbSwitch.checked = Number(post.also_facebook) === 1;
+  const fbField = el('label', { class: 'switch' }, [
+    fbSwitch,
+    el('span', { class: 'switch__track' }),
+    el('span', { class: 'switch__label', text: 'Publicar también en Facebook (página de la marca)' }),
+  ]);
+
   const visibleSwitch = el('input', { type: 'checkbox' }); visibleSwitch.checked = !!post.client_visible;
   const visibleField = el('label', { class: 'switch' }, [
     visibleSwitch,
@@ -1295,6 +1302,7 @@ async function openEditorFor(id) {
       field('Portada del reel (segundo)', thumbInput, { help: 'Miniatura = ese segundo del video. Si subes imagen, la imagen gana.' }),
     ]),
     el('div', { class: 'field' }, [coverBtn]),
+    el('div', { class: 'field' }, [fbField]),
     el('div', { class: 'field' }, [visibleField]),
     field('Notas internas', notesInput, { help: 'Solo el equipo ve estas notas.' }),
     ...personNotesNodes,
@@ -1385,6 +1393,7 @@ async function openEditorFor(id) {
       caption: capInput.value.trim() || null,
       collaborators: colabInput.value.trim() || null,
       thumb_offset: thumbInput.value !== '' ? Math.max(0, Math.round(Number(thumbInput.value) * 1000)) : null,
+      also_facebook: fbSwitch.checked ? 1 : 0,
     };
     saveBtn.dataset.loading = 'true';
     try {
