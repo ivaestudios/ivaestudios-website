@@ -5398,7 +5398,8 @@ async function handleUploadPortada(request, env, postId) {
   await env.R2_BUCKET.put(`marketing/portada/${postId}.jpg`, body, {
     httpMetadata: { contentType: 'image/jpeg' },
   });
-  return json({ ok: true });
+  const f = await firmaEntregable(env, `portada-${postId}.jpg`);
+  return json({ ok: true, url: `https://ivaestudios.com/api/marketing/publico/portada/${postId}.jpg?f=${f}` });
 }
 
 // Sirve la portada con firma válida (Meta la baja de aquí).
