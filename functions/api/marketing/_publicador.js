@@ -34,6 +34,7 @@ async function gJson(url, init) {
     }
     const e = new Error(msg);
     e.igCode = data.error && data.error.code;
+    e.igSubcode = data.error && data.error.error_subcode;
     throw e;
   }
   return data;
@@ -65,7 +66,7 @@ function captionFinal(post) {
  * Publica UNA pieza en el Instagram de su marca. Devuelve { mediaId, permalink }.
  * Lanza Error con mensaje humano si algo falta o IG rechaza.
  */
-export async function publicarEnInstagram(env, { client, post, slides, cover }) {
+export async function publicarEnInstagram(env, { client, post, slides, cover, onContainer }) {
   if (!client || !client.ig_user_id || !client.ig_access_token) {
     throw new Error('La marca no tiene Instagram conectado (ficha del cliente → Conectar Instagram).');
   }
@@ -93,6 +94,7 @@ export async function publicarEnInstagram(env, { client, post, slides, cover }) 
       body: paramsPadre,
     });
     if (!padre.id) throw new Error('Instagram no devolvió el contenedor del carrusel.');
+    if (onContainer) { try { await onContainer(padre.id); } catch { /* best effort */ } }
     // Los JPEG procesan casi al instante; un respiro corto y a publicar.
     let carruselListo = false;
     for (let i = 0; !carruselListo && i < 10; i++) {
@@ -122,6 +124,7 @@ export async function publicarEnInstagram(env, { client, post, slides, cover }) 
     // Portada del reel: imagen subida a la pieza (gana) o el milisegundo elegido.
     if (cover) params.set('cover_url', cover);
     else if (Number(post.thumb_offset) > 0) params.set('thumb_offset', String(Math.round(Number(post.thumb_offset))));
+    else params.set('thumb_offset', '0');   // frame 0 = la portada horneada del render
   } else if (tipo === 'post' && post.inspo_url && /\.(jpe?g)(\?|$)/i.test(post.inspo_url)) {
     // v1 foto única: solo JPEG (regla de la API de IG).
     params = new URLSearchParams({ image_url: post.inspo_url, caption, access_token: tok });
@@ -134,6 +137,7 @@ export async function publicarEnInstagram(env, { client, post, slides, cover }) 
   if (colab) params.set('collaborators', colab);
   const cont = await gJson(`${GRAPH}/${client.ig_user_id}/media`, { method: 'POST', body: params });
   if (!cont.id) throw new Error('Instagram no devolvió el contenedor.');
+  if (onContainer) { try { await onContainer(cont.id); } catch { /* best effort */ } }
 
   // 2) Esperar a que IG procese el video (FINISHED). Los reels tardan.
   let listo = !post.video_url;   // las fotos no procesan
@@ -156,6 +160,31 @@ export async function publicarEnInstagram(env, { client, post, slides, cover }) 
   let permalink = null;
   try {
     const media = await gJson(`${GRAPH}/${pub.id}?fields=permalink&access_token=${encodeURIComponent(tok)}`);
+    permalink = media.permalink || null;
+  } catch { /* sin permalink no pasa nada */ }
+  return { mediaId: pub.id, permalink };
+}
+
+// El estado OFICIAL de un contenedor (doc de Meta: PUBLISHED = ya salió;
+// FINISHED = listo para publicar; ERROR/EXPIRED = crear uno nuevo).
+export async function estadoContenedor(client, creationId) {
+  try {
+    const st = await gJson(`${GRAPH}/${creationId}?fields=status_code&access_token=${encodeURIComponent(client.ig_access_token)}`);
+    return st.status_code || null;
+  } catch { return null; }
+}
+
+// Publica un contenedor que YA está FINISHED (reanudación tras un error
+// ambiguo de media_publish — jamás re-crear el contenedor a ciegas).
+export async function publicarContenedorExistente(client, creationId) {
+  const pub = await gJson(`${GRAPH}/${client.ig_user_id}/media_publish`, {
+    method: 'POST',
+    body: new URLSearchParams({ creation_id: creationId, access_token: client.ig_access_token }),
+  });
+  if (!pub.id) throw new Error('Instagram no confirmó la publicación.');
+  let permalink = null;
+  try {
+    const media = await gJson(`${GRAPH}/${pub.id}?fields=permalink&access_token=${encodeURIComponent(client.ig_access_token)}`);
     permalink = media.permalink || null;
   } catch { /* sin permalink no pasa nada */ }
   return { mediaId: pub.id, permalink };

@@ -50,7 +50,7 @@ import { handleStorage, refreshStorageUsage } from './_storage.js';
 import { handleMonthlyReport } from './_enterprise.js';
 import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHeadersFor, buscarPinterest, fotosDePin } from './_downloader.js';
 import { pedirMes } from './_mes-ia.js';
-import { publicarEnInstagram, ahoraCancun } from './_publicador.js';
+import { publicarEnInstagram, ahoraCancun, estadoContenedor, publicarContenedorExistente } from './_publicador.js';
 import { pedirCarrusel } from './_carrusel-ia.js';
 import {
   handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
@@ -4951,6 +4951,19 @@ async function route(request, env, authCtx) {
   if (parts[0] === 'publico' && parts[1] === 'portada' && parts.length === 3 && (method === 'GET' || method === 'HEAD')) {
     return handlePublicPortada(request, env, parts[2]);
   }
+  // Portada con firma EN EL PATH (sin query string): el fetcher de covers de
+  // Meta no garantiza URLs firmadas con ?query (Ayrshare/Drupal lo documentan)
+  // — /publico/portada/<postId>/<firma>.jpg responde 200 image/jpeg directo.
+  if (parts[0] === 'publico' && parts[1] === 'portada' && parts.length === 4 && (method === 'GET' || method === 'HEAD')) {
+    const postId = parts[2];
+    const firma = String(parts[3] || '').replace(/\.jpg$/, '');
+    if (!/^[\w-]+$/.test(postId) || !firma) return new Response('No', { status: 400 });
+    const esperada = await firmaEntregable(env, `portada-${postId}.jpg`);
+    if (firma !== esperada) return new Response('Enlace no válido', { status: 403 });
+    const o = await env.R2_BUCKET.get(`marketing/portada/${postId}.jpg`);
+    if (!o) return new Response('Sin portada', { status: 404 });
+    return new Response(o.body, { status: 200, headers: { 'Content-Type': 'image/jpeg', 'Content-Length': String(o.size), 'Cache-Control': 'public, max-age=3600' } });
+  }
   // EL TIC-TAC (2026-08-16): timbre público del reloj — el worker
   // ivae-marketing-reloj lo toca cada 10 min para que el publicador y las
   // recetas de tiempo corran AUNQUE nadie use la app. Sin secretos porque
@@ -5382,7 +5395,9 @@ async function portadaFirmadaDePieza(env, post) {
   const o = await env.R2_BUCKET.head(`marketing/portada/${post.id}.jpg`);
   if (!o) return null;
   const f = await firmaEntregable(env, `portada-${post.id}.jpg`);
-  return `https://ivaestudios.com/api/marketing/publico/portada/${post.id}.jpg?f=${f}`;
+  // Firma en el PATH y extensión .jpg al final — sin query string (los covers
+  // de Meta ignoran en silencio las URLs firmadas con ?query).
+  return `https://ivaestudios.com/api/marketing/publico/portada/${post.id}/${f}.jpg`;
 }
 
 // Sube la portada del reel (staff): JPEG real, máx 8MB.
@@ -5538,15 +5553,33 @@ async function publicarPendientes(env) {
     ).bind(post.id).run();
     if (!claim || !claim.meta || claim.meta.changes !== 1) continue;   // otro reloj la tiene
     try {
-      // ¿Ya está en el perfil? (un ciclo anterior pudo publicar aunque Meta dijera error)
-      let r = await buscarYaPublicado(env, post);
-      let reconciliada = !!r;
+      let r = null;
+      let reconciliada = false;
+      // 1) RECONCILIACIÓN OFICIAL por contenedor (doc de Meta): si un intento
+      //    anterior dejó contenedor, su status manda — PUBLISHED = ya salió;
+      //    FINISHED = publicar ESE contenedor (jamás re-crear a ciegas).
+      if (post.publish_creation_id) {
+        const st = await estadoContenedor(post, post.publish_creation_id);
+        if (st === 'PUBLISHED') { r = await buscarYaPublicado(env, post) || { mediaId: 'via-contenedor-' + post.publish_creation_id, permalink: null }; reconciliada = true; }
+        else if (st === 'FINISHED') { r = await publicarContenedorExistente(post, post.publish_creation_id); }
+        else if (st === 'IN_PROGRESS') { throw new Error('Instagram sigue procesando el video — se reintenta en el siguiente ciclo.'); }
+        // ERROR / EXPIRED / desconocido → contenedor nuevo abajo.
+      }
+      // 2) Red de seguridad por /media (caption + fecha).
+      if (!r) {
+        r = await buscarYaPublicado(env, post);
+        reconciliada = !!r;
+      }
       if (!r) {
         const videoUrl = await videoFirmadoDePieza(env, post);
         const slides = await slidesFirmadosDePieza(env, post);
         const cover = await portadaFirmadaDePieza(env, post);
+        const guardarContenedor = async (cid) => {
+          await env.DB.prepare('UPDATE mkt_posts SET publish_creation_id = ?, updated_at = datetime(\'now\') WHERE id = ?')
+            .bind(cid, post.id).run();
+        };
         try {
-          r = await publicarEnInstagram(env, { client: post, post: { ...post, video_url: videoUrl }, slides, cover });
+          r = await publicarEnInstagram(env, { client: post, post: { ...post, video_url: videoUrl }, slides, cover, onContainer: guardarContenedor });
         } catch (ePub) {
           // Meta a veces publica Y responde error: esperar y mirar el feed real.
           await new Promise((res) => setTimeout(res, 8000));
@@ -5575,7 +5608,11 @@ async function publicarPendientes(env) {
       }
       resultados.push({ id: post.id, ok: true, permalink: r.permalink });
     } catch (e) {
-      const intentos = (Number(post.publish_attempts) || 0) + 1;
+      // Subcódigos DETERMINISTAS de Meta (formato/derechos/duración): el
+      // reintento jamás los arregla — se detiene de una y se avisa el motivo.
+      const DETERMINISTAS = [2207026, 2207057, 2207042, 2207050, 2207051, 2207008, 9007];
+      const esDeterminista = e && DETERMINISTAS.includes(Number(e.igSubcode));
+      const intentos = esDeterminista ? 5 : (Number(post.publish_attempts) || 0) + 1;
       const msg = ((intentos >= 5 ? 'DETENIDO tras 5 intentos — revisar a mano: ' : '') +
         ((e && e.message) || 'Error desconocido')).slice(0, 300);
       await env.DB.prepare(
