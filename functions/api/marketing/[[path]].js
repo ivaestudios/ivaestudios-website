@@ -5465,6 +5465,24 @@ async function videoFirmadoDePieza(env, post) {
 // llegó. Corre desde DOS relojes: el cron de GitHub cada 15 min (garantía) y
 // el lazySweep cada vez que alguien usa la app (inmediatez). Máximo 3 piezas
 // por corrida: los reels tardan en procesar y el Worker tiene presupuesto.
+// LA RECONCILIACIÓN (post-incidente 2026-08-16): media_publish de Meta puede
+// responder "unexpected error" Y AUN ASÍ publicar. Antes de publicar (y tras
+// cualquier error) se busca en el feed real si la pieza YA está: caption
+// igual (primeros 60 chars) + fecha >= la programada. Si está, se adopta ese
+// media id en lugar de volver a publicar — el bug que duplicó el reel 4 veces.
+async function buscarYaPublicado(env, post) {
+  try {
+    const cap = String(post.caption || '').trim().slice(0, 60);
+    if (!cap || !post.ig_user_id || !post.ig_access_token) return null;
+    const res = await fetch(`https://graph.instagram.com/v23.0/${post.ig_user_id}/media?fields=id,caption,permalink,timestamp&limit=20&access_token=${encodeURIComponent(post.ig_access_token)}`);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !Array.isArray(data.data)) return null;
+    const desde = `${post.publish_date}T00:00:00`;
+    const m = data.data.find((x) => String(x.caption || '').trim().startsWith(cap) && String(x.timestamp || '') >= desde);
+    return m ? { mediaId: m.id, permalink: m.permalink || null } : null;
+  } catch { return null; }
+}
+
 async function publicarPendientes(env) {
   const { fecha, hora } = ahoraCancun();
   // Rescate: una pieza que quedó en 'publicando' >10 min es un candado
@@ -5479,8 +5497,10 @@ async function publicarPendientes(env) {
      FROM mkt_posts p JOIN mkt_clients c ON c.id = p.client_id
      WHERE p.status = 'programado' AND p.published_media_id IS NULL
        AND COALESCE(p.approval_state, '') != 'changes_requested'
+       AND COALESCE(p.publish_attempts, 0) < 5
+       AND p.publish_time IS NOT NULL AND p.publish_time != ''
        AND p.publish_date IS NOT NULL AND p.publish_date != ''
-       AND (p.publish_date < ? OR (p.publish_date = ? AND COALESCE(NULLIF(p.publish_time, ''), '11:00') <= ?))
+       AND (p.publish_date < ? OR (p.publish_date = ? AND p.publish_time <= ?))
      ORDER BY p.publish_date, p.publish_time LIMIT 6`
   ).bind(fecha, fecha, hora).all();
   const resultados = [];
@@ -5495,24 +5515,39 @@ async function publicarPendientes(env) {
     ).bind(post.id).run();
     if (!claim || !claim.meta || claim.meta.changes !== 1) continue;   // otro reloj la tiene
     try {
-      const videoUrl = await videoFirmadoDePieza(env, post);
-      const slides = await slidesFirmadosDePieza(env, post);
-      const cover = await portadaFirmadaDePieza(env, post);
-      const r = await publicarEnInstagram(env, { client: post, post: { ...post, video_url: videoUrl }, slides, cover });
+      // ¿Ya está en el perfil? (un ciclo anterior pudo publicar aunque Meta dijera error)
+      let r = await buscarYaPublicado(env, post);
+      let reconciliada = !!r;
+      if (!r) {
+        const videoUrl = await videoFirmadoDePieza(env, post);
+        const slides = await slidesFirmadosDePieza(env, post);
+        const cover = await portadaFirmadaDePieza(env, post);
+        try {
+          r = await publicarEnInstagram(env, { client: post, post: { ...post, video_url: videoUrl }, slides, cover });
+        } catch (ePub) {
+          // Meta a veces publica Y responde error: esperar y mirar el feed real.
+          await new Promise((res) => setTimeout(res, 8000));
+          const yaEsta = await buscarYaPublicado(env, post);
+          if (!yaEsta) throw ePub;
+          r = yaEsta; reconciliada = true;
+        }
+      }
       await env.DB.prepare(
         `UPDATE mkt_posts SET status = 'publicado', published_media_id = ?, published_at = datetime('now'),
          publish_error = NULL, updated_at = datetime('now') WHERE id = ?`
       ).bind(r.mediaId, post.id).run();
       await logActivity(env, {
         client_id: post.client_id, post_id: post.id, session: sesionSistema,
-        action: 'post.publicado', detail: r.permalink || `@${post.ig_username || ''}`,
+        action: reconciliada ? 'post.reconciliado' : 'post.publicado', detail: r.permalink || `@${post.ig_username || ''}`,
       });
       resultados.push({ id: post.id, ok: true, permalink: r.permalink });
     } catch (e) {
-      const msg = ((e && e.message) || 'Error desconocido').slice(0, 300);
+      const intentos = (Number(post.publish_attempts) || 0) + 1;
+      const msg = ((intentos >= 5 ? 'DETENIDO tras 5 intentos — revisar a mano: ' : '') +
+        ((e && e.message) || 'Error desconocido')).slice(0, 300);
       await env.DB.prepare(
-        `UPDATE mkt_posts SET status = 'programado', publish_error = ?, updated_at = datetime('now') WHERE id = ?`
-      ).bind(msg, post.id).run();
+        `UPDATE mkt_posts SET status = 'programado', publish_attempts = ?, publish_error = ?, updated_at = datetime('now') WHERE id = ?`
+      ).bind(intentos, msg, post.id).run();
       await logActivity(env, {
         client_id: post.client_id, post_id: post.id, session: sesionSistema,
         action: 'post.publicar_error', detail: msg,
