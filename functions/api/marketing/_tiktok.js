@@ -129,6 +129,38 @@ export async function tokenTikTokVigente(env, clientId) {
   return t.access_token;
 }
 
+// GET /tt/creator?client_id=… (staff) → los datos REALES de la cuenta para
+// pintar la pantalla de publicación como TikTok exige (nickname visible,
+// opciones de privacidad reales, interacciones deshabilitadas, duración máx).
+export async function handleTtCreator(env, session, url) {
+  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  const clientId = url.searchParams.get('client_id') || '';
+  try {
+    const tok = await tokenTikTokVigente(env, clientId);
+    const ci = await ttJson(`${TT_API}/post/publish/creator_info/query/`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${tok}`, 'Content-Type': 'application/json; charset=UTF-8' },
+      body: '{}',
+    });
+    const d = ci.data || {};
+    const auditRow = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'tt_app_auditada'").first();
+    return json({
+      conectado: true,
+      auditada: !!(auditRow && auditRow.value === '1'),
+      nickname: d.creator_nickname || '',
+      username: d.creator_username || '',
+      avatar: d.creator_avatar_url || '',
+      privacy_level_options: d.privacy_level_options || [],
+      comment_disabled: !!d.comment_disabled,
+      duet_disabled: !!d.duet_disabled,
+      stitch_disabled: !!d.stitch_disabled,
+      max_video_post_duration_sec: d.max_video_post_duration_sec || null,
+    });
+  } catch (e) {
+    return json({ conectado: false, error: (e && e.message) || 'Error' });
+  }
+}
+
 async function ttJson(url, init) {
   const res = await fetch(url, init);
   const data = await res.json().catch(() => ({}));
@@ -172,6 +204,16 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
   const auditRow = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'tt_app_auditada'").first();
   const publico = !!(auditRow && auditRow.value === '1') && opciones.includes('PUBLIC_TO_EVERYONE');
 
+  // Lo que el humano eligió en la pantalla de la app (guidelines de TikTok:
+  // la privacidad la elige el usuario y las interacciones nacen apagadas).
+  let elec = {};
+  try { elec = post.tt_options ? JSON.parse(post.tt_options) : {}; } catch { elec = {}; }
+  // Sin elección explícita del humano NO hay Direct Post (regla de TikTok:
+  // "no default value"): si falta, la pieza cae al buzón para que la persona
+  // decida en la app de TikTok. Jamás inventamos una privacidad.
+  const privacidad = opciones.includes(elec.privacy_level) ? elec.privacy_level : null;
+  const directo = publico && !!privacidad;
+
   // CARRUSEL de fotos → content/init (solo PULL_FROM_URL).
   if (slides && slides.length >= 2) {
     const body = {
@@ -180,12 +222,13 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
       post_info: {
         title: String(post.title || '').slice(0, 90),
         description: captionTikTok(post, 4000),
-        ...(publico ? { privacy_level: 'PUBLIC_TO_EVERYONE' } : {}),
+        ...(directo ? { privacy_level: privacidad } : {}),
+        ...(elec.allow_comment === false ? { disable_comment: true } : {}),
       },
       source_info: { source: 'PULL_FROM_URL', photo_images: slides.slice(0, 35), photo_cover_index: 0 },
     };
     const r = await ttJson(`${TT_API}/post/publish/content/init/`, { method: 'POST', headers: auth, body: JSON.stringify(body) });
-    return { ttPostId: r.data && r.data.publish_id, modo: publico ? 'directo' : 'buzon' };
+    return { ttPostId: r.data && r.data.publish_id, modo: directo ? 'directo' : 'buzon' };
   }
 
   // REEL/VIDEO → FILE_UPLOAD en 1 chunk (nuestros videos son ≤64MB).
@@ -195,11 +238,19 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
   const bytes = await vid.arrayBuffer();
   if (bytes.byteLength > 64 * 1024 * 1024) throw new Error('El video pasa de 64MB — comprimirlo para TikTok.');
 
-  const init = publico
+  const init = directo
     ? await ttJson(`${TT_API}/post/publish/video/init/`, {
         method: 'POST', headers: auth,
         body: JSON.stringify({
-          post_info: { privacy_level: 'PUBLIC_TO_EVERYONE', title: captionTikTok(post) },
+          post_info: {
+            privacy_level: privacidad,
+            title: captionTikTok(post),
+            disable_comment: elec.allow_comment ? false : true,
+            disable_duet: (ci.data && ci.data.duet_disabled) || !elec.allow_duet,
+            disable_stitch: (ci.data && ci.data.stitch_disabled) || !elec.allow_stitch,
+            ...(elec.brand_content ? { brand_content_toggle: true } : {}),
+            ...(elec.brand_organic ? { brand_organic_toggle: true } : {}),
+          },
           source_info: { source: 'FILE_UPLOAD', video_size: bytes.byteLength, chunk_size: bytes.byteLength, total_chunk_count: 1 },
         }),
       })
@@ -234,5 +285,5 @@ export async function publicarEnTikTok(env, { clientId, post, videoUrl, slides }
     if (s === 'PUBLISH_COMPLETE' || s === 'SEND_TO_USER_INBOX') break;
     if (s === 'FAILED') throw new Error('TikTok no pudo procesar el video: ' + ((st.data && st.data.fail_reason) || 'sin motivo'));
   }
-  return { ttPostId: publishId, modo: publico ? 'directo' : 'buzon' };
+  return { ttPostId: publishId, modo: directo ? 'directo' : 'buzon' };
 }

@@ -52,7 +52,7 @@ import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHea
 import { pedirMes } from './_mes-ia.js';
 import { publicarEnInstagram, ahoraCancun, estadoContenedor, publicarContenedorExistente } from './_publicador.js';
 import { handleFbLogin, handleFbCallback, handleFbPick, publicarEnFacebook } from './_facebook.js';
-import { handleTtLogin, handleTtCallback, publicarEnTikTok } from './_tiktok.js';
+import { handleTtLogin, handleTtCallback, handleTtCreator, publicarEnTikTok } from './_tiktok.js';
 import { pedirCarrusel } from './_carrusel-ia.js';
 import {
   handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
@@ -406,7 +406,7 @@ const POST_EDITABLE_FIELDS = [
   'title', 'content_type', 'grabacion', 'publish_date', 'publish_time', 'assignee', 'platform',
   'status', 'caption', 'inspo_url', 'video_url', 'hook', 'body', 'cta',
   'hashtags', 'alt_text', 'notes_team', 'client_visible', 'priority',
-  'collaborators', 'thumb_offset', 'also_facebook', 'also_tiktok'
+  'collaborators', 'thumb_offset', 'also_facebook', 'also_tiktok', 'tt_options'
 ];
 
 // Lo que un rol CLIENTE puede escribir de un post: su contenido y el formato,
@@ -5271,6 +5271,7 @@ async function route(request, env, authCtx) {
     if (path === '/ig/login' && method === 'GET') return handleIgLogin(request, env, session, url);
     if (path === '/fb/login' && method === 'GET') return handleFbLogin(request, env, session, url);
     if (path === '/tt/login' && method === 'GET') return handleTtLogin(request, env, session, url);
+    if (path === '/tt/creator' && method === 'GET') return handleTtCreator(env, session, url);
     if (path === '/ig/metrics' && method === 'GET') return handleIgMetrics(request, env, session, url);
     if (path === '/ig/metrics-range' && method === 'GET') return handleIgMetricsRange(request, env, session, url);
     if (path === '/ig/manual' && (method === 'GET' || method === 'POST')) return handleIgManual(request, env, session, url);

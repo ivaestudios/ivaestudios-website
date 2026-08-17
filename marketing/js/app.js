@@ -1273,6 +1273,61 @@ async function openEditorFor(id) {
     el('span', { class: 'switch__label', text: 'Publicar también en TikTok' }),
   ]);
 
+  // PANTALLA DE CUMPLIMIENTO DE TIKTOK — sus guidelines EXIGEN, para aprobar
+  // la auditoría: que se vea a qué cuenta se publica, que la privacidad la
+  // elija una persona (sin valor por defecto), que las interacciones nazcan
+  // apagadas y respeten lo que la cuenta tenga deshabilitado, y la
+  // declaración de uso de música antes del botón de publicar.
+  let ttElec = {};
+  try { ttElec = post.tt_options ? JSON.parse(post.tt_options) : {}; } catch { ttElec = {}; }
+  const ttPanel = el('div', { class: 'field', hidden: !ttSwitch.checked, style: { border: '1px solid var(--line, #2a2a38)', borderRadius: '12px', padding: '12px' } });
+  const ttCuenta = el('div', { class: 'help', text: 'Cargando la cuenta de TikTok…' });
+  const ttPriv = el('select', { class: 'input' });
+  const ttComment = el('input', { type: 'checkbox' });
+  const ttDuet = el('input', { type: 'checkbox' });
+  const ttStitch = el('input', { type: 'checkbox' });
+  const marca = (nodo, txt) => el('label', { style: { display: 'flex', gap: '8px', alignItems: 'center', margin: '6px 0' } }, [nodo, el('span', { text: txt })]);
+  ttPanel.append(
+    ttCuenta,
+    el('label', { class: 'label', text: 'Privacidad en TikTok (la eliges tú)' }),
+    ttPriv,
+    marca(ttComment, 'Permitir comentarios'),
+    marca(ttDuet, 'Permitir dúos'),
+    marca(ttStitch, 'Permitir stitch'),
+    el('div', { class: 'help', text: 'Al publicar, aceptas la Confirmación de Uso de Música de TikTok.' }),
+  );
+  async function cargarTikTok() {
+    if (!ttSwitch.checked) return;
+    try {
+      const r = await fetch(`/api/marketing/tt/creator?client_id=${encodeURIComponent(state.activeClientId)}`, { credentials: 'include' });
+      const d = await r.json();
+      while (ttPriv.firstChild) ttPriv.removeChild(ttPriv.firstChild);
+      if (!d.conectado) {
+        ttCuenta.textContent = 'Esta marca no tiene TikTok conectado — hazlo desde su ficha.';
+        ttPriv.appendChild(el('option', { value: '', text: '—' }));
+        return;
+      }
+      ttCuenta.textContent = `Se publicará en: ${d.nickname || d.username || 'la cuenta conectada'}` +
+        (d.auditada ? '' : ' · llegará a su BUZÓN de TikTok para publicar con un tap');
+      // Sin valor por defecto: la primera opción obliga a elegir (regla de TikTok).
+      ttPriv.appendChild(el('option', { value: '', text: 'Elige la privacidad…' }));
+      (d.privacy_level_options || []).forEach((o) => {
+        const etiquetas = { PUBLIC_TO_EVERYONE: 'Público', MUTUAL_FOLLOW_FRIENDS: 'Amigos', FOLLOWER_OF_CREATOR: 'Seguidores', SELF_ONLY: 'Solo yo' };
+        ttPriv.appendChild(el('option', { value: o, text: etiquetas[o] || o }));
+      });
+      if (ttElec.privacy_level && (d.privacy_level_options || []).includes(ttElec.privacy_level)) ttPriv.value = ttElec.privacy_level;
+      // Respetar lo que la cuenta tenga deshabilitado (obligatorio).
+      ttComment.disabled = !!d.comment_disabled; ttDuet.disabled = !!d.duet_disabled; ttStitch.disabled = !!d.stitch_disabled;
+      ttComment.checked = !d.comment_disabled && ttElec.allow_comment === true;
+      ttDuet.checked = !d.duet_disabled && ttElec.allow_duet === true;
+      ttStitch.checked = !d.stitch_disabled && ttElec.allow_stitch === true;
+    } catch {
+      ttCuenta.textContent = 'No se pudo leer la cuenta de TikTok.';
+    }
+  }
+  ttSwitch.addEventListener('change', () => { ttPanel.hidden = !ttSwitch.checked; cargarTikTok(); });
+  if (ttSwitch.checked) cargarTikTok();
+
   const visibleSwitch = el('input', { type: 'checkbox' }); visibleSwitch.checked = !!post.client_visible;
   const visibleField = el('label', { class: 'switch' }, [
     visibleSwitch,
@@ -1311,6 +1366,7 @@ async function openEditorFor(id) {
     el('div', { class: 'field' }, [coverBtn]),
     el('div', { class: 'field' }, [fbField]),
     el('div', { class: 'field' }, [ttField]),
+    ttPanel,
     el('div', { class: 'field' }, [visibleField]),
     field('Notas internas', notesInput, { help: 'Solo el equipo ve estas notas.' }),
     ...personNotesNodes,
@@ -1373,6 +1429,11 @@ async function openEditorFor(id) {
   saveBtn.addEventListener('click', async () => {
     const title = titleInput.value.trim();
     if (!title) { toast('Escribe un título.', 'error'); titleInput.focus(); return; }
+    // TikTok exige que una PERSONA elija la privacidad (sin valor por defecto).
+    if (ttSwitch.checked && !ttPriv.value) {
+      toast('Elige la privacidad de TikTok antes de guardar.', 'error');
+      ttPriv.focus(); return;
+    }
     // Collect per-person notes into a {person: text} object (only non-empty kept).
     const notesPeople = {};
     for (const [person, ta] of Object.entries(personNoteInputs)) {
@@ -1403,6 +1464,10 @@ async function openEditorFor(id) {
       thumb_offset: thumbInput.value !== '' ? Math.max(0, Math.round(Number(thumbInput.value) * 1000)) : null,
       also_facebook: fbSwitch.checked ? 1 : 0,
       also_tiktok: ttSwitch.checked ? 1 : 0,
+      tt_options: ttSwitch.checked ? JSON.stringify({
+        privacy_level: ttPriv.value || null,
+        allow_comment: ttComment.checked, allow_duet: ttDuet.checked, allow_stitch: ttStitch.checked,
+      }) : null,
     };
     saveBtn.dataset.loading = 'true';
     try {
