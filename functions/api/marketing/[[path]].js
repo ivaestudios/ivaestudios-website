@@ -5414,7 +5414,7 @@ async function handleUploadPortada(request, env, postId) {
     httpMetadata: { contentType: 'image/jpeg' },
   });
   const f = await firmaEntregable(env, `portada-${postId}.jpg`);
-  return json({ ok: true, url: `https://ivaestudios.com/api/marketing/publico/portada/${postId}.jpg?f=${f}` });
+  return json({ ok: true, url: `https://ivaestudios.com/api/marketing/publico/portada/${postId}/${f}.jpg` });
 }
 
 // Sirve la portada con firma válida (Meta la baja de aquí).
