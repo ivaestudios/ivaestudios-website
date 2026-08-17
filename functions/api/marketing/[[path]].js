@@ -5483,6 +5483,28 @@ async function buscarYaPublicado(env, post) {
   } catch { return null; }
 }
 
+// EL VIGILANTE DEL RELOJ (post-incidente): el cron de GitHub (independiente
+// de Cloudflare) revisa que el worker-reloj haya tocado hace <30 min; si el
+// tic-tac murió, los admins reciben el aviso — máx 1 vez cada 6 horas.
+async function vigilarReloj(env) {
+  try {
+    const kv = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'tick_at'").first();
+    const ultimo = kv && kv.value ? Date.parse(kv.value) : 0;
+    if (ultimo && (Date.now() - ultimo) < 30 * 60 * 1000) return;
+    const aviso = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'tick_alerta_at'").first();
+    if (aviso && aviso.value && (Date.now() - Date.parse(aviso.value)) < 6 * 3600 * 1000) return;
+    await env.DB.prepare("INSERT INTO mkt_kv (key, value) VALUES ('tick_alerta_at', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")
+      .bind(new Date().toISOString()).run();
+    const admins = await env.DB.prepare("SELECT id FROM mkt_users WHERE role = 'admin' AND active = 1").all();
+    await notify(env, {
+      user_ids: (admins.results || []).map((u) => u.id),
+      type: 'reloj_caido', actor_name: 'Programador IVAE',
+      body: `🚨 El reloj de la nube no ha tocado desde hace ${ultimo ? Math.round((Date.now() - ultimo) / 60000) + ' min' : 'nunca'} — las publicaciones programadas dependen de él. Revisar el worker ivae-marketing-reloj.`,
+      link: '#/calendario',
+    });
+  } catch { /* el vigilante jamás tumba nada */ }
+}
+
 async function publicarPendientes(env) {
   const { fecha, hora } = ahoraCancun();
   // Rescate: una pieza que quedó en 'publicando' >10 min es un candado
@@ -5540,6 +5562,16 @@ async function publicarPendientes(env) {
         client_id: post.client_id, post_id: post.id, session: sesionSistema,
         action: reconciliada ? 'post.reconciliado' : 'post.publicado', detail: r.permalink || `@${post.ig_username || ''}`,
       });
+      if (reconciliada) {
+        const admins = await env.DB.prepare("SELECT id FROM mkt_users WHERE role = 'admin' AND active = 1").all();
+        await notify(env, {
+          user_ids: (admins.results || []).map((u) => u.id),
+          type: 'publicador_reconciliado', post_id: post.id, client_id: post.client_id,
+          actor_name: 'Programador IVAE',
+          body: `🛡️ ${post.title}: ya estaba publicada en Instagram — se adoptó SIN duplicar (Meta reportó error falso).`,
+          link: '#/post/' + post.id,
+        });
+      }
       resultados.push({ id: post.id, ok: true, permalink: r.permalink });
     } catch (e) {
       const intentos = (Number(post.publish_attempts) || 0) + 1;
@@ -5548,6 +5580,16 @@ async function publicarPendientes(env) {
       await env.DB.prepare(
         `UPDATE mkt_posts SET status = 'programado', publish_attempts = ?, publish_error = ?, updated_at = datetime('now') WHERE id = ?`
       ).bind(intentos, msg, post.id).run();
+      // ALARMA (post-incidente 16-ago): los admins se enteran AL MINUTO,
+      // no cuando lo vean en el perfil.
+      const admins = await env.DB.prepare("SELECT id FROM mkt_users WHERE role = 'admin' AND active = 1").all();
+      await notify(env, {
+        user_ids: (admins.results || []).map((u) => u.id),
+        type: 'publicador_error', post_id: post.id, client_id: post.client_id,
+        actor_name: 'Programador IVAE',
+        body: `⚠️ Publicación fallida (intento ${intentos}/5) — ${post.title}: ${msg.slice(0, 140)}`,
+        link: '#/post/' + post.id,
+      });
       await logActivity(env, {
         client_id: post.client_id, post_id: post.id, session: sesionSistema,
         action: 'post.publicar_error', detail: msg,
@@ -5563,6 +5605,7 @@ async function handleCronPublicar(request, env) {
   const auth = request.headers.get('Authorization') || '';
   if (auth !== `Bearer ${env.MKT_CRON_SECRET}`) return json({ error: 'No autorizado' }, 401);
   try {
+    await vigilarReloj(env);
     const resultados = await publicarPendientes(env);
     return json({ ok: true, procesadas: resultados.length, resultados });
   } catch (e) {
