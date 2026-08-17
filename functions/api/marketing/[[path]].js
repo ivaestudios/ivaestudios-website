@@ -5267,11 +5267,21 @@ async function route(request, env, authCtx) {
 
   // ── EXPORTAR CALENDARIO .ics (staff o cliente; el cliente va forzado a SU marca) ──
   // ── INSTAGRAM (conexión y métricas) ──
-  if (parts[0] === 'ig') {
-    if (path === '/ig/login' && method === 'GET') return handleIgLogin(request, env, session, url);
+  // Facebook y TikTok tienen su PROPIO bloque: metidos dentro del de 'ig'
+  // eran inalcanzables (parts[0] nunca es 'ig' en /fb/… ni /tt/…) — cazado
+  // con la prueba E2E del 17-ago, antes de que Vianey conectara nada.
+  if (parts[0] === 'fb') {
     if (path === '/fb/login' && method === 'GET') return handleFbLogin(request, env, session, url);
+    return json({ error: 'Not found' }, 404);
+  }
+  if (parts[0] === 'tt') {
     if (path === '/tt/login' && method === 'GET') return handleTtLogin(request, env, session, url);
     if (path === '/tt/creator' && method === 'GET') return handleTtCreator(env, session, url);
+    return json({ error: 'Not found' }, 404);
+  }
+
+  if (parts[0] === 'ig') {
+    if (path === '/ig/login' && method === 'GET') return handleIgLogin(request, env, session, url);
     if (path === '/ig/metrics' && method === 'GET') return handleIgMetrics(request, env, session, url);
     if (path === '/ig/metrics-range' && method === 'GET') return handleIgMetricsRange(request, env, session, url);
     if (path === '/ig/manual' && (method === 'GET' || method === 'POST')) return handleIgManual(request, env, session, url);
