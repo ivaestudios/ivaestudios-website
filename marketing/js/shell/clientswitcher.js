@@ -10,12 +10,12 @@
 //   el set optimista + pref lastClient + ?cliente= replace + client:changed.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202608170009';
-import { openSheet } from './sheet.js?v=202608170009';
-import { toast } from './toast.js?v=202608170009';
-import * as store from './store.js?v=202608170009';
-import { icon } from './icons.js?v=202608170009';
-import { T } from './i18n.js?v=202608170009';
+import { api, el } from '../api.js?v=202608170022';
+import { openSheet } from './sheet.js?v=202608170022';
+import { toast } from './toast.js?v=202608170022';
+import * as store from './store.js?v=202608170022';
+import { icon } from './icons.js?v=202608170022';
+import { T } from './i18n.js?v=202608170022';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -329,6 +329,16 @@ export function openEditClient(client, { selectClient } = {}) {
                     window.location.href = `/api/marketing/fb/login?client_id=${client.id}`;
                   },
                 }, [icon('link', 16), el('span', { text: T('Conectar Facebook', 'Connect Facebook') })]),
+            client.tt_username
+              ? el('div', { class: 'cs-igrow', text: '🎵 ' + client.tt_username })
+              : el('button', {
+                  class: 'btn cs-igconnect', type: 'button',
+                  onclick: async () => {
+                    const r = await fetch(`/api/marketing/tt/login?client_id=${client.id}`, { credentials: 'include', redirect: 'manual' });
+                    if (r.status === 503) { toast(T('Falta configurar la app de TikTok (pídeme la guía).', 'TikTok still needs setup (ask me for the guide).'), { type: 'error' }); return; }
+                    window.location.href = `/api/marketing/tt/login?client_id=${client.id}`;
+                  },
+                }, [icon('spark', 16), el('span', { text: T('Conectar TikTok', 'Connect TikTok') })]),
           ]);
           // Si está conectado: cargar métricas en vivo bajo el estado
           if (client.ig_username) {

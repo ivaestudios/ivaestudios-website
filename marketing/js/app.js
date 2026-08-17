@@ -1266,6 +1266,13 @@ async function openEditorFor(id) {
     el('span', { class: 'switch__label', text: 'Publicar también en Facebook (página de la marca)' }),
   ]);
 
+  const ttSwitch = el('input', { type: 'checkbox' }); ttSwitch.checked = Number(post.also_tiktok) === 1;
+  const ttField = el('label', { class: 'switch' }, [
+    ttSwitch,
+    el('span', { class: 'switch__track' }),
+    el('span', { class: 'switch__label', text: 'Publicar también en TikTok' }),
+  ]);
+
   const visibleSwitch = el('input', { type: 'checkbox' }); visibleSwitch.checked = !!post.client_visible;
   const visibleField = el('label', { class: 'switch' }, [
     visibleSwitch,
@@ -1303,6 +1310,7 @@ async function openEditorFor(id) {
     ]),
     el('div', { class: 'field' }, [coverBtn]),
     el('div', { class: 'field' }, [fbField]),
+    el('div', { class: 'field' }, [ttField]),
     el('div', { class: 'field' }, [visibleField]),
     field('Notas internas', notesInput, { help: 'Solo el equipo ve estas notas.' }),
     ...personNotesNodes,
@@ -1394,6 +1402,7 @@ async function openEditorFor(id) {
       collaborators: colabInput.value.trim() || null,
       thumb_offset: thumbInput.value !== '' ? Math.max(0, Math.round(Number(thumbInput.value) * 1000)) : null,
       also_facebook: fbSwitch.checked ? 1 : 0,
+      also_tiktok: ttSwitch.checked ? 1 : 0,
     };
     saveBtn.dataset.loading = 'true';
     try {
