@@ -305,8 +305,27 @@ async function resolvePinterest(url, env) {
   const id = await pinId(url);
   let data = id ? await pinResource(id).catch(() => null) : null;
   if (!data && id) data = await pinFromHtml(id).catch(() => null);
-  const best = data ? pickRendition(collectPinRenditions(data)) : null;
-  if (best && !String(best.url).endsWith('.m3u8')) {
+  const rends = data ? collectPinRenditions(data) : [];
+  const esM3u8 = (r) => String(r.url).split('?')[0].endsWith('.m3u8');
+  let best = pickRendition(rends.filter((r) => !esM3u8(r)));
+  // Pines de video modernos (idea pins, la mayoría desde 2024): la API pública
+  // SOLO trae streaming HLS (V_HLSV3_MOBILE, un .m3u8) y ni un MP4. Antes eso
+  // caía en silencio a la imagen de portada (bug reportado 2026-08-20: "puse un
+  // link de pinterest y me descargó una imagen"). El CDN sí guarda un MP4
+  // gemelo, mismo hash con la carpeta /hls/ cambiada por /720p/ (verificado:
+  // H.264 720x1280 + AAC, duración completa). Se comprueba con HEAD antes de
+  // usarlo, sin abrir el anti-SSRF: sigue siendo v1.pinimg.com.
+  if (!best) {
+    const hls = pickRendition(rends.filter(esM3u8));
+    if (hls) {
+      const gemelo = await mp4GemeloDeHls(hls.url).catch(() => null);
+      if (gemelo) {
+        const alto = hls.width && hls.height ? Math.round((720 * hls.height) / hls.width) : null;
+        best = { ...hls, url: gemelo, width: 720, height: alto };
+      }
+    }
+  }
+  if (best) {
     return {
       platform: 'pinterest',
       title: (data.title || data.grid_title || 'pinterest').slice(0, 120),
@@ -319,6 +338,14 @@ async function resolvePinterest(url, env) {
       watermark: false,
       mediaHeaders: { 'User-Agent': DESKTOP_UA, 'Referer': 'https://www.pinterest.com/' },
     };
+  }
+  // Pin de VIDEO que no soltó MP4: cobalt como respaldo, y si tampoco, error
+  // HONESTO. Jamás degradar en silencio a la imagen de portada, eso confunde
+  // más que un fallo claro.
+  if (rends.length) {
+    const cb = await viaCobalt(url, 'pinterest', env).catch(() => null);
+    if (cb && cb.mediaUrl) return cb;
+    throw new Error('Este pin ES de video, pero Pinterest no soltó el MP4 ahora mismo. Intenta de nuevo en unos segundos.');
   }
   // Pin de IMAGEN (pedido 2026-08-13 "quiero las fotos literal"): ya no es un
   // error — se cosechan sus fotos en resolución original (cubre pin sencillo,
@@ -548,6 +575,28 @@ function pickRendition(rends) {
     const mp4B = String(b.url).endsWith('.mp4') ? 1 : 0;
     return mp4B - mp4A;
   })[0];
+}
+
+// El MP4 gemelo de un stream HLS de pinimg: mismo hash, carpeta /hls/ → /720p/
+// (y el respaldo /videos/mc/720p/, que también sirve pines de /videos/iht/).
+// Se verifica con HEAD: solo se acepta un 200 con content-type video/mp4.
+async function mp4GemeloDeHls(hlsUrl) {
+  const sinQuery = String(hlsUrl).split('?')[0];
+  if (!/\.m3u8$/.test(sinQuery)) return null;
+  const candidatos = [];
+  const c1 = sinQuery.replace('/hls/', '/720p/').replace(/\.m3u8$/, '.mp4');
+  if (c1 !== sinQuery) candidatos.push(c1);
+  const c2 = sinQuery.replace(/\/videos\/[a-z0-9]+\/hls\//, '/videos/mc/720p/').replace(/\.m3u8$/, '.mp4');
+  if (c2 !== sinQuery && !candidatos.includes(c2)) candidatos.push(c2);
+  for (const u of candidatos) {
+    if (!isAllowedMediaHost(u)) continue;
+    const r = await xfetch(u, {
+      method: 'HEAD',
+      headers: { 'User-Agent': DESKTOP_UA, 'Referer': 'https://www.pinterest.com/' },
+    }, 8000).catch(() => null);
+    if (r && r.ok && /video\/mp4/i.test(r.headers.get('content-type') || '')) return u;
+  }
+  return null;
 }
 
 // ── Instagram · snapsave (vía pública, SIN sesión) ───────────────────────────
