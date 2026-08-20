@@ -44,6 +44,7 @@ const PATHS = {
   archive:   'M21 8v13H3V8M1 3h22v5H1zM10 12h4',
   scissors:  'M9 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0M20 4L8.5 15.5M14.5 14.5L20 20M8.5 8.5L12 12',
   download:  'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3',
+  book:      'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z',
   inbox:     'M22 12h-6l-2 3h-4l-2-3H2M5 5h14l3 7v7H2v-7z',
   gantt:     'M3 5h8M7 12h10M11 19h8',
   gauge:     'M12 15l3.5-3.5M5 19a9 9 0 1 1 14 0',

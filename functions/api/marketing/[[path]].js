@@ -5074,6 +5074,20 @@ async function route(request, env, authCtx) {
       if (method === 'GET') return handleGetClientBrief(env, parts[1]);
       return json({ error: 'Method not allowed' }, 405);
     }
+    // /clients/:id/manual — Manual de Marca (PDF) del apartado "Marca": el
+    // staff lo sube o reemplaza, y lo ven el staff Y el cliente dueño de la
+    // marca (jamás clientes de otras marcas). GET ?info=1 = solo metadata;
+    // GET ?dl=1 = attachment; GET a secas = inline (visor del navegador).
+    if (parts.length === 3 && parts[2] === 'manual') {
+      const clientId = parts[1];
+      const esDueno = session.role === 'client' && session.client_id === clientId;
+      if (!isStaff && !esDueno) return json({ error: 'Forbidden' }, 403);
+      if (method === 'GET') return handleGetManualMarca(request, env, clientId);
+      if (!isStaff) return json({ error: 'Forbidden' }, 403);
+      if (method === 'POST') return handleUploadManualMarca(request, env, clientId);
+      if (method === 'DELETE') return handleDeleteManualMarca(env, clientId);
+      return json({ error: 'Method not allowed' }, 405);
+    }
   }
 
   // ── USERS (admin/team only) ──
@@ -5389,6 +5403,55 @@ async function route(request, env, authCtx) {
   }
 
   return json({ error: 'Not found' }, 404);
+}
+
+// ── Manual de Marca (apartado "Marca") ──────────────────────────────────────
+// Un PDF por marca en R2 bajo marketing/marca/<clientId>/manual.pdf. El staff
+// lo sube desde la vista Marca; el cliente lo consulta y descarga desde ahí.
+async function handleGetManualMarca(request, env, clientId) {
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
+  const key = `marketing/marca/${clientId}/manual.pdf`;
+  const q = new URL(request.url).searchParams;
+  if (q.get('info') === '1') {
+    const head = await env.R2_BUCKET.head(key);
+    if (!head) return json({ exists: false });
+    return json({ exists: true, size: head.size, updated: head.uploaded ? head.uploaded.toISOString() : null });
+  }
+  const obj = await env.R2_BUCKET.get(key);
+  if (!obj) return json({ error: 'Esta marca aún no tiene manual' }, 404);
+  const cliente = await env.DB.prepare('SELECT name FROM mkt_clients WHERE id = ?').bind(clientId).first();
+  const nombre = `Manual-de-Marca-${String((cliente && cliente.name) || 'marca').trim().replace(/[^\wÀ-ſ-]+/g, '-')}.pdf`;
+  const attach = q.get('dl') === '1';
+  return new Response(obj.body, {
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Length': String(obj.size),
+      'Content-Disposition': `${attach ? 'attachment' : 'inline'}; filename="${nombre}"`,
+      'Cache-Control': 'private, no-cache',
+    },
+  });
+}
+
+async function handleUploadManualMarca(request, env, clientId) {
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
+  const cliente = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(clientId).first();
+  if (!cliente) return json({ error: 'Marca no encontrada' }, 404);
+  const body = await request.arrayBuffer();
+  if (!body || body.byteLength < 1024) return json({ error: 'PDF vacío' }, 400);
+  if (body.byteLength > 40 * 1024 * 1024) return json({ error: 'PDF muy pesado (máx 40MB)' }, 413);
+  // PDF de verdad (firma %PDF), no un archivo renombrado.
+  const magia = String.fromCharCode(...new Uint8Array(body.slice(0, 5)));
+  if (!magia.startsWith('%PDF')) return json({ error: 'Debe ser un PDF' }, 400);
+  await env.R2_BUCKET.put(`marketing/marca/${clientId}/manual.pdf`, body, {
+    httpMetadata: { contentType: 'application/pdf' },
+  });
+  return json({ ok: true, size: body.byteLength });
+}
+
+async function handleDeleteManualMarca(env, clientId) {
+  if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
+  await env.R2_BUCKET.delete(`marketing/marca/${clientId}/manual.pdf`);
+  return json({ ok: true });
 }
 
 // El Estudio manda cada slide terminado (JPEG 1080x1350) a la pieza: quedan

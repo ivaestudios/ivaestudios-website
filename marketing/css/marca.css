@@ -1,0 +1,93 @@
+/* ============================================================================
+   IVAE Marketing — Vista "Marca" (manual de identidad por marca).
+   Mobile-first. Usa los tokens v1 (app.css): violeta/rosa, superficies oscuras.
+   ============================================================================ */
+
+.mk-root {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 18px 14px 40px;
+}
+
+.mk-head { text-align: center; margin-bottom: 18px; }
+.mk-title {
+  font-size: var(--fs-6);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+}
+.mk-sub {
+  color: var(--text-dim);
+  font-size: var(--fs-3);
+  line-height: 1.45;
+  margin: 0 auto;
+  max-width: 46ch;
+}
+
+/* ── Tarjeta del manual ───────────────────────────────────────────────────── */
+.mk-card {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  text-align: center;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 24px 18px;
+}
+.mk-ico {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--accent, #8b5cf6);
+}
+.mk-info { display: grid; gap: 3px; }
+.mk-name { font-weight: 700; font-size: var(--fs-4); margin: 0; }
+.mk-meta { color: var(--text-dim); font-size: var(--fs-2); margin: 0; }
+
+.mk-actions {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  max-width: 340px;
+}
+.mk-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;             /* tap target móvil */
+  text-decoration: none;
+}
+
+/* ── Controles de staff ───────────────────────────────────────────────────── */
+.mk-staff {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 12px;
+}
+.mk-danger { color: var(--danger, #f87171); }
+
+/* ── Estados vacíos ───────────────────────────────────────────────────────── */
+.mk-empty {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  text-align: center;
+  color: var(--text-dim);
+  background: var(--surface);
+  border: 1.5px dashed var(--border);
+  border-radius: var(--r-lg);
+  padding: 34px 18px;
+}
+.mk-empty p { margin: 0; max-width: 40ch; line-height: 1.5; }
+.mk-empty--cta { border-style: solid; }
+
+@media (min-width: 720px) {
+  .mk-root { padding-top: 28px; }
+  .mk-actions { grid-template-columns: 1fr 1fr; max-width: 420px; }
+}

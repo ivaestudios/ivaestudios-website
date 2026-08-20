@@ -19,28 +19,28 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202608201212';
-import * as store from './store.js?v=202608201212';
-import * as prefs from './prefs.js?v=202608201212';
-import * as router from './router.js?v=202608201212';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202608201212';
-import { toast } from './toast.js?v=202608201212';
-import { icon } from './icons.js?v=202608201212';
-import * as iconsMod from './icons.js?v=202608201212';
-import { createTopbar } from './topbar.js?v=202608201212';
-import { createBottomNav } from './bottomnav.js?v=202608201212';
-import { createSearch } from './search.js?v=202608201212';
-import { createNotifications } from './notifications.js?v=202608201212';
-import { T } from './i18n.js?v=202608201212';
-import * as version from './version.js?v=202608201212';
-import * as pickers from '../ui/pickers.js?v=202608201212';
-import * as dnd from '../ui/dnd.js?v=202608201212';
+import { api, el, clear } from '../api.js?v=202608201231';
+import * as store from './store.js?v=202608201231';
+import * as prefs from './prefs.js?v=202608201231';
+import * as router from './router.js?v=202608201231';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202608201231';
+import { toast } from './toast.js?v=202608201231';
+import { icon } from './icons.js?v=202608201231';
+import * as iconsMod from './icons.js?v=202608201231';
+import { createTopbar } from './topbar.js?v=202608201231';
+import { createBottomNav } from './bottomnav.js?v=202608201231';
+import { createSearch } from './search.js?v=202608201231';
+import { createNotifications } from './notifications.js?v=202608201231';
+import { T } from './i18n.js?v=202608201231';
+import * as version from './version.js?v=202608201231';
+import * as pickers from '../ui/pickers.js?v=202608201231';
+import * as dnd from '../ui/dnd.js?v=202608201231';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
 // El cliente solo ve las vistas de calendario (Calendario = meses,
 // Cuadrícula = calendario). Nada de Inicio/Tablero/Tabla/Timeline/Carga.
-const CLIENT_VIEWS = ['meses', 'calendario', 'entregables'];
+const CLIENT_VIEWS = ['meses', 'calendario', 'entregables', 'marca'];
 // Métricas (con su botón de Reporte PDF) se habilita en la versión CLIENTE
 // solo para las marcas que Vianey aprueba una por una. Hoy: IVAE STUDIOS (su
 // propia marca) y REGENERIS (lo pidió el 2026-07-29). El resto no la ve.
@@ -59,6 +59,7 @@ const CONTENT_LABELS = {
   meses: T('Calendario', 'Calendar'),
   calendario: T('Cuadrícula', 'Grid'),
   entregables: T('Entregables', 'Deliverables'),
+  marca: T('Marca', 'Brand'),
   metricas: T('Métricas', 'Metrics'),
   carrusel: T('Carrusel', 'Carousel'),
   descargar: T('Descargar', 'Download'),
@@ -184,7 +185,7 @@ function buildSubhead(root) {
   // Vianey pidio quitar Tablero/Tabla/Timeline/Carga de su admin: tanto admin
   // como cliente solo ven las dos vistas de calendario (Calendario = meses,
   // Cuadricula = calendario).
-  const VISIBLE_CONTENT_VIEWS = ['meses', 'calendario', 'entregables', 'carrusel', 'descargar'];
+  const VISIBLE_CONTENT_VIEWS = ['meses', 'calendario', 'entregables', 'marca', 'carrusel', 'descargar'];
   const segViews = CONTENT_VIEWS.filter((v) => VISIBLE_CONTENT_VIEWS.includes(v));
   // En móvil las tabs del topbar no existen (<1024px, shell.css): este seg es
   // la ÚNICA entrada a Métricas. Para el cliente, solo si su marca está en la
