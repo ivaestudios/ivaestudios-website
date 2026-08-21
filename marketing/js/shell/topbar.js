@@ -10,17 +10,17 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202608201231';
-import * as store from './store.js?v=202608201231';
-import { openSheet, pickFrom } from './sheet.js?v=202608201231';
-import { toast } from './toast.js?v=202608201231';
-import { icon } from './icons.js?v=202608201231';
-import { openClientSwitcher } from './clientswitcher.js?v=202608201231';
-import { T, isEN, setLang } from './i18n.js?v=202608201231';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202608202025';
+import * as store from './store.js?v=202608202025';
+import { openSheet, pickFrom } from './sheet.js?v=202608202025';
+import { toast } from './toast.js?v=202608202025';
+import { icon } from './icons.js?v=202608202025';
+import { openClientSwitcher } from './clientswitcher.js?v=202608202025';
+import { T, isEN, setLang } from './i18n.js?v=202608202025';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202608201231';
-import { getTheme, setTheme } from './theme.js?v=202608201231';
-import * as version from './version.js?v=202608201231';
+import { abrirBloqueados } from './moderacion.js?v=202608202025';
+import { getTheme, setTheme } from './theme.js?v=202608202025';
+import * as version from './version.js?v=202608202025';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -64,6 +64,9 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
     '6ae5dd2381faa430d9e6966470b29602', // IVAE STUDIOS
     'demo-regeneris',                    // REGENERIS THERAPY (pedido 2026-07-29)
     '67322bb3c5f64991a9178b1d1784231a',  // DEMO (revisores de App Store / Play)
+    '8de22da29a5def29149a8e86ae5c4096',  // SMILE NOW (tester, pedido 2026-08-20)
+    '646fe49632aae374a1d7b66c1b228431',  // ADAGIO RH (tester, pedido 2026-08-20)
+    'a8bdcae30524bbd32b4150eb962344a2',  // MELISA (tester, pedido 2026-08-20)
   ];
   const clientSeesMetrics = isClient && CLIENT_METRICS_IDS.includes((store.getState().me || {}).client_id);
   const visibleTabs = isClient
