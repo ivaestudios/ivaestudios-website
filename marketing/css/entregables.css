@@ -399,8 +399,13 @@
 /* ── Carrusel/post: la FOTO manda y el comentario es compacto (pedido
    2026-08-20: las fotos IG se veían chicas junto a un cajón de comentario
    gigante). El slide conserva SU ratio real (width auto). ─────────────── */
+.dlv-slides__img { max-width: none; }   /* el reset global (max-width:100%) APLANABA la foto */
 @media (min-width: 768px) {
   .dlv-slides__img { height: 380px; }
+  /* La columna de la foto NO se deja apachurrar por la del comentario: cada
+     una con su mitad; si la tira es más ancha, scrollea dentro de su carril. */
+  .dlv-card--carrusel > .dlv-carrusel__main { flex: 1 1 55%; min-width: 0; }
+  .dlv-card--carrusel > .dlv-card__side { flex: 1 1 45%; min-width: 0; }
   .dlv-card--carrusel .dlv-card__side { justify-content: flex-start; }
   .dlv-card--carrusel .dlv-card__side .dlv-comments,
   .dlv-card--carrusel .dlv-card__side .dlv-comment-form,
