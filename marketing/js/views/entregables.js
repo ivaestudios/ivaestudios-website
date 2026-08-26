@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608261232';
-import { icon } from '../shell/icons.js?v=202608261232';
-import { T } from '../shell/i18n.js?v=202608261232';
-import { openSheet, confirmar } from '../shell/sheet.js?v=202608261232';
+import { api, el, clear, toast } from '../api.js?v=202608261245';
+import { icon } from '../shell/icons.js?v=202608261245';
+import { T } from '../shell/i18n.js?v=202608261245';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608261245';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202608261232';
+import { moderarComentario } from '../shell/moderacion.js?v=202608261245';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608261232';
+import { errorCard } from '../ui/states.js?v=202608261245';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608261232';
+} from '../lib/video-upload.js?v=202608261245';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -32,6 +32,7 @@ let loadErr = null;         // null | Error de la ÚLTIMA carga (para no confund
                             // un fallo de red con "todavía no hay contenido")
 let busy = false;
 let addMonth = '';          // 'YYYY-MM' al que se agregan nuevos entregables
+let addMonthPicked = false; // true = el staff lo eligió a mano (gana al default)
 let lastClientId = null;
 let uploadPct = 0;          // progreso de subida (0-100)
 let progressEls = null;     // refs vivos de la barra (se actualizan sin re-render)
@@ -105,6 +106,22 @@ function resetVideoObserver() {
 function isClient() { return ((ctx.store.getState().me || {}).role === 'client'); }
 function pad2(n) { return String(n).padStart(2, '0'); }
 function currentMonth() { const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`; }
+
+// Mes por defecto para subir: el MÁS NUEVO entre el mes actual y el último mes
+// que ya tiene contenido. Si ya empezaste a subir septiembre, lo que sigue cae
+// a septiembre solo, sin cambiarlo a mano cada vez (pedido 2026-08-26). La
+// elección manual (addMonthPicked) le gana hasta cambiar de marca.
+function defaultAddMonth() {
+  const ultimo = items.reduce((a, it) => ((it.month || '') > a ? it.month : a), '');
+  const hoy = currentMonth();
+  return ultimo > hoy ? ultimo : hoy;
+}
+
+function sumaMeses(ym, n) {
+  const [y, m] = String(ym).split('-').map(Number);
+  const t = y * 12 + (m - 1) + n;
+  return `${Math.floor(t / 12)}-${pad2((t % 12) + 1)}`;
+}
 function monthLabel(ym) { const [y, m] = String(ym).split('-').map(Number); return `${(MES[(m || 1) - 1] || '').toUpperCase()} ${y}`; }
 // "Julio 2026" (para las píldoras de la barra de meses; el encabezado usa MAYÚSCULAS).
 function monthTitle(ym) { const [y, m] = String(ym).split('-').map(Number); const n = MES[(m || 1) - 1] || ''; return `${n.charAt(0).toUpperCase()}${n.slice(1)} ${y}`; }
@@ -173,7 +190,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608261232';
+  link.href = '/marketing/css/entregables.css?v=202608261245';
   document.head.appendChild(link);
 }
 
@@ -1257,11 +1274,38 @@ function finishMobileBatch(month, reels, btn, setLabel) {
 
 // ── Render ───────────────────────────────────────────────────────────────────
 function buildAddBar() {
+  if (!addMonthPicked) addMonth = defaultAddMonth();
   if (!addMonth) addMonth = currentMonth();
-  const monthInput = el('input', {
-    class: 'dlv-month', type: 'month', value: addMonth, 'aria-label': T('Mes de los entregables', 'Deliverables month'),
-    onchange: (e) => { addMonth = e.target.value || currentMonth(); },
-  });
+  // Selector de mes PROPIO (pickFrom, con el tema de la app): el <input
+  // type="month"> nativo salía con el calendario blanco/azul del navegador,
+  // fuera del branding (reporte de Vianey 2026-08-26).
+  const monthBtn = el('button', {
+    class: 'dlv-month dlv-month--btn', type: 'button',
+    'aria-label': T('Mes de los entregables', 'Deliverables month'), 'aria-haspopup': 'listbox',
+    onclick: async () => {
+      const byM = new Map();
+      for (const it of items) byM.set(it.month, (byM.get(it.month) || 0) + 1);
+      const hoy = currentMonth();
+      const base = defaultAddMonth();
+      const meses = new Set([...byM.keys(), hoy]);
+      for (let i = 1; i <= 3; i++) meses.add(sumaMeses(base, i));   // meses por venir
+      for (let i = 1; i <= 2; i++) meses.add(sumaMeses(hoy, -i));   // por si hay que rellenar atrás
+      const options = [...meses].sort().reverse().map((m) => {
+        const n = byM.get(m) || 0;
+        const sub = [
+          n ? `${n} ${n === 1 ? T('pieza', 'item') : T('piezas', 'items')}` : '',
+          m === hoy ? T('mes actual', 'current month') : '',
+        ].filter(Boolean).join(' · ');
+        return { value: m, label: monthTitle(m), sub: sub || null, current: m === addMonth };
+      });
+      const val = await pickFrom({ title: T('Subir al mes', 'Upload to month'), options, anchor: monthBtn });
+      if (val) { addMonth = val; addMonthPicked = true; render(); }
+    },
+  }, [
+    icon('calendar', 16),
+    el('span', { class: 'dlv-month__t', text: monthTitle(addMonth) }),
+    icon('down', 13),
+  ]);
 
   // Drop zone para reels
   const fileInput = el('input', {
@@ -1343,7 +1387,7 @@ function buildAddBar() {
   return el('div', { class: 'dlv-addbar' }, [
     el('div', { class: 'dlv-addbar__row' }, [
       el('label', { class: 'dlv-addbar__lbl', text: T('Subir al mes:', 'Upload to month:') }),
-      monthInput,
+      monthBtn,
     ]),
     drop,
     el('div', { class: 'dlv-carrusel-add' }, [
@@ -1860,10 +1904,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202608261232');
+        const mod = await import('../lib/pdf-entregables.js?v=202608261245');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261232');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261245');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
@@ -1892,13 +1936,13 @@ export default {
   mount(host, c) {
     ctx = c;
     ensureCss();
-    addMonth = currentMonth();
+    addMonth = ''; addMonthPicked = false;   // el default real sale de defaultAddMonth() al cargar
     rootEl = el('div', { class: 'dlv-root' });
     host.appendChild(rootEl);
     lastClientId = (ctx.store.getState().activeClientId) || null;
     unsubs.push(ctx.store.subscribe(['clients', 'activeClientId'], () => {
       const now = ctx.store.getState().activeClientId || null;
-      if (now !== lastClientId) { lastClientId = now; activeMonthNav = ''; load(); } else { render(); }
+      if (now !== lastClientId) { lastClientId = now; activeMonthNav = ''; addMonth = ''; addMonthPicked = false; load(); } else { render(); }
     }));
     // Al VOLVER a la pantalla (cambiar de app, desbloquear el teléfono, tocar el
     // aviso "ya subí la nueva versión" estando YA en Entregables) se recarga la

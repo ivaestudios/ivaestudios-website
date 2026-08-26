@@ -25,6 +25,15 @@
   border: 1px solid var(--border, #1E1E26); border-radius: var(--r-sm, 10px);
   padding: 8px 12px; font: inherit; font-size: var(--fs-2, 14px); min-height: 40px;
 }
+/* Botón que abre el selector de mes propio (pickFrom, con el tema de la app). */
+.dlv-month--btn {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.dlv-month--btn .ico { color: var(--brand, #E24DA0); }
+.dlv-month--btn .ico:last-child { color: var(--text-dim, #9A9AA8); }
+.dlv-month--btn:hover { border-color: var(--brand, #E24DA0); }
+.dlv-month__t { font-weight: 600; }
 
 /* Drop zone */
 .dlv-drop {
