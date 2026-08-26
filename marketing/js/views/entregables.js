@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608261343';
-import { icon } from '../shell/icons.js?v=202608261343';
-import { T } from '../shell/i18n.js?v=202608261343';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608261343';
+import { api, el, clear, toast } from '../api.js?v=202608261355';
+import { icon } from '../shell/icons.js?v=202608261355';
+import { T } from '../shell/i18n.js?v=202608261355';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608261355';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202608261343';
+import { moderarComentario } from '../shell/moderacion.js?v=202608261355';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608261343';
+import { errorCard } from '../ui/states.js?v=202608261355';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608261343';
+} from '../lib/video-upload.js?v=202608261355';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -190,7 +190,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608261343';
+  link.href = '/marketing/css/entregables.css?v=202608261355';
   document.head.appendChild(link);
 }
 
@@ -577,26 +577,33 @@ async function addCarrusel(link, title, tiraFile) {
 // un mismo diseño se unen en UNA sola tira y los blancos se descartan, para
 // que el carrusel suba COMPLETO como una sola pieza (pedido 2026-08-21).
 function esSlideBlanco(bmp, sx, sw) {
+  // "Relleno" de Canva = página SIN CONTENIDO: blanca, de color SÓLIDO de
+  // marca o con degradado suave (ADAGIO 2026-08-26 rellenaba con naranja y
+  // con degradado, y el detector de "blanco puro" las dejaba pasar). Se mide
+  // ENERGÍA DE BORDES en el centro: texto y fotos tienen contraste local;
+  // el relleno, del color que sea, no. El muestreo ignora 10%/6% de orilla
+  // (el vecino sangra unos px al cortar).
+  const W = 48, H = 60;
   const cv = document.createElement('canvas');
-  cv.width = 16; cv.height = 20;
+  cv.width = W; cv.height = H;
   const c = cv.getContext('2d');
-  // Solo el CENTRO del slide (10% de margen a los lados, 6% arriba/abajo): en
-  // tiras reales el slide vecino SANGRA unos px sobre la página blanca (visto
-  // en un carrusel de MELISA 2026-08-26) y muestrear el borde la disfrazaba
-  // de contenido. Una página de relleno es blanca de sobra en su centro.
   const mx = sw * 0.10, my = bmp.height * 0.06;
-  c.drawImage(bmp, sx + mx, my, sw - 2 * mx, bmp.height - 2 * my, 0, 0, 16, 20);
-  const d = c.getImageData(0, 0, 16, 20).data;
-  let min = 255, max = 0;
-  for (let i = 0; i < d.length; i += 4) {
-    const v = (d[i] + d[i + 1] + d[i + 2]) / 3;
-    if (v < min) min = v;
-    if (v > max) max = v;
+  c.drawImage(bmp, sx + mx, my, sw - 2 * mx, bmp.height - 2 * my, 0, 0, W, H);
+  const d = c.getImageData(0, 0, W, H).data;
+  const lum = (i) => (d[i] + d[i + 1] + d[i + 2]) / 3;
+  let bordes = 0, tot = 0;
+  for (let y = 0; y < H - 1; y++) {
+    for (let x = 0; x < W - 1; x++) {
+      const i = (y * W + x) * 4;
+      const dx = Math.abs(lum(i) - lum(i + 4));
+      const dy = Math.abs(lum(i) - lum(i + W * 4));
+      if (Math.max(dx, dy) > 14) bordes++;
+      tot++;
+    }
   }
-  // min>245: el relleno de Canva es blanco PURO (255; el JPEG lo deja ≥250).
-  // Con 232 un slide real de tipografía fina gris sobre blanco podía darse
-  // por relleno y desaparecer del carrusel.
-  return (max - min) < 10 && min > 245;
+  // <0.4% de pixeles con borde = no hay nada dibujado. Un slide minimalista
+  // real (fondo liso + UNA palabra) supera esto de sobra.
+  return (bordes / tot) < 0.004;
 }
 
 // La LÍNEA en el borde de un slide (reporte de Vianey 2026-08-26): cuando las
@@ -634,12 +641,15 @@ function anchoRebaba(bmp, sx, sw, desdeIzq) {
   let w = 0;
   while (w < MAX) {
     const s = stats(col(w));
-    // Solo bandas CLARAS (m>200): la rebaba real es el relleno blanco de la
-    // página vecina. Un filete OSCURO plano al borde puede ser marco de
-    // diseño (editorial) y no se toca.
-    if (Math.abs(s.m - base) > 55 && s.sd < 60 && s.m > 200) w++;
+    // Banda plana que contrasta fuerte con el interior — clara U OSCURA
+    // (ADAGIO 2026-08-26: sus líneas de corte son oscuras y la regla vieja
+    // de "solo claras" las perdonaba).
+    if (Math.abs(s.m - base) > 55 && s.sd < 60) w++;
     else break;
   }
+  // Si la banda NO termina dentro del 4%, no es una línea de corte: es parte
+  // del diseño (una barra de acento, un fondo) y no se toca.
+  if (w >= MAX) return 0;
   return Math.round(w * (sw / COLS));
 }
 
@@ -667,8 +677,13 @@ async function componerTiras(files) {
     const sw = p.width / n;
     for (let i = 0; i < n; i++) {
       if (esSlideBlanco(p, i * sw, sw)) { blancos++; continue; }
-      const rIzq = anchoRebaba(p, i * sw, sw, true);
-      const rDer = anchoRebaba(p, i * sw, sw, false);
+      let rIzq = anchoRebaba(p, i * sw, sw, true);
+      let rDer = anchoRebaba(p, i * sw, sw, false);
+      // Un filete FINO (≤0.5% del ancho) es rebaba aunque salga en ambos
+      // lados; bandas ANCHAS en LOS DOS lados = marco simétrico de diseño,
+      // no se toca.
+      const fino = sw * 0.005;
+      if (rIzq > fino && rDer > fino) { rIzq = 0; rDer = 0; }
       if (rIzq || rDer) rebabas++;
       cortes.push({ bmp: p, sx: i * sw, sw, rIzq, rDer });
     }
@@ -2076,10 +2091,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202608261343');
+        const mod = await import('../lib/pdf-entregables.js?v=202608261355');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261343');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261355');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
