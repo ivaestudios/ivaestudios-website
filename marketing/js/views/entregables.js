@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608261225';
-import { icon } from '../shell/icons.js?v=202608261225';
-import { T } from '../shell/i18n.js?v=202608261225';
-import { openSheet, confirmar } from '../shell/sheet.js?v=202608261225';
+import { api, el, clear, toast } from '../api.js?v=202608261232';
+import { icon } from '../shell/icons.js?v=202608261232';
+import { T } from '../shell/i18n.js?v=202608261232';
+import { openSheet, confirmar } from '../shell/sheet.js?v=202608261232';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202608261225';
+import { moderarComentario } from '../shell/moderacion.js?v=202608261232';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608261225';
+import { errorCard } from '../ui/states.js?v=202608261232';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608261225';
+} from '../lib/video-upload.js?v=202608261232';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -173,7 +173,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608261225';
+  link.href = '/marketing/css/entregables.css?v=202608261232';
   document.head.appendChild(link);
 }
 
@@ -563,7 +563,12 @@ function esSlideBlanco(bmp, sx, sw) {
   const cv = document.createElement('canvas');
   cv.width = 16; cv.height = 20;
   const c = cv.getContext('2d');
-  c.drawImage(bmp, sx, 0, sw, bmp.height, 0, 0, 16, 20);
+  // Solo el CENTRO del slide (10% de margen a los lados, 6% arriba/abajo): en
+  // tiras reales el slide vecino SANGRA unos px sobre la página blanca (visto
+  // en un carrusel de MELISA 2026-08-26) y muestrear el borde la disfrazaba
+  // de contenido. Una página de relleno es blanca de sobra en su centro.
+  const mx = sw * 0.10, my = bmp.height * 0.06;
+  c.drawImage(bmp, sx + mx, my, sw - 2 * mx, bmp.height - 2 * my, 0, 0, 16, 20);
   const d = c.getImageData(0, 0, 16, 20).data;
   let min = 255, max = 0;
   for (let i = 0; i < d.length; i += 4) {
@@ -571,7 +576,7 @@ function esSlideBlanco(bmp, sx, sw) {
     if (v < min) min = v;
     if (v > max) max = v;
   }
-  return (max - min) < 6 && min > 235;   // plano y casi blanco = relleno
+  return (max - min) < 10 && min > 232;   // plano y casi blanco = relleno
 }
 
 async function componerTira(files) {
@@ -1855,10 +1860,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202608261225');
+        const mod = await import('../lib/pdf-entregables.js?v=202608261232');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261225');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261232');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
