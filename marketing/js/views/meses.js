@@ -28,22 +28,22 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202608261308';
-import { icon } from '../shell/icons.js?v=202608261308';
-import { T } from '../shell/i18n.js?v=202608261308';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202608261308';
+} from '../api.js?v=202608261331';
+import { icon } from '../shell/icons.js?v=202608261331';
+import { T } from '../shell/i18n.js?v=202608261331';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202608261331';
 // Capas de history del shell: el boton atras del telefono cierra la capa de
 // arriba (panel de guion) en vez de salir de la app.
-import { pushLayer } from '../shell/router.js?v=202608261308';
-import { confirmar } from '../shell/sheet.js?v=202608261308';
+import { pushLayer } from '../shell/router.js?v=202608261331';
+import { confirmar } from '../shell/sheet.js?v=202608261331';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608261308';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608261308';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608261308';
+import { errorCard } from '../ui/states.js?v=202608261331';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608261331';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608261331';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608261308';
+} from '../lib/video-upload.js?v=202608261331';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -2315,8 +2315,8 @@ function buildPdfContenidoBtn(key, rows) {
       const antes = label ? label.textContent : '';
       btn.disabled = true;
       try {
-        const mod = await import('../lib/pdf-contenido.js?v=202608261308');
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261308');
+        const mod = await import('../lib/pdf-contenido.js?v=202608261331');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261331');
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
         const res = await mod.generarPdfContenido({
@@ -2803,8 +2803,14 @@ function selectMonth(key) {
 // Barra de meses horizontal para movil/tablet (la barra lateral solo existe
 // >=1024px). Mismas opciones que la lateral, en chips.
 function buildMonthBar(keys, byMonth, sinMes) {
+  // Del mes MÁS NUEVO hacia atrás (pedido de Vianey 2026-08-26): en el celular
+  // la barra se corta y el mes vigente quedaba escondido hasta el final del
+  // scroll. "Sin mes" se queda al final; la barra LATERAL de escritorio no
+  // cambia (vertical, se ve completa).
+  const orden = keys.filter((k) => k !== SIN_MES).sort().reverse();
+  if (keys.includes(SIN_MES)) orden.push(SIN_MES);
   const bar = el('div', { class: 'meses-monthbar', role: 'tablist', 'aria-label': T('Meses', 'Months') });
-  for (const k of keys) {
+  for (const k of orden) {
     const label = k === SIN_MES ? T('Sin mes', 'No date') : capitalize(monthLabel(k));
     const n = k === SIN_MES ? sinMes.length : (byMonth.get(k) || []).length;
     const active = k === activeMonth;
