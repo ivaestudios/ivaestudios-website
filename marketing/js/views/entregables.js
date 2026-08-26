@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608261141';
-import { icon } from '../shell/icons.js?v=202608261141';
-import { T } from '../shell/i18n.js?v=202608261141';
-import { openSheet, confirmar } from '../shell/sheet.js?v=202608261141';
+import { api, el, clear, toast } from '../api.js?v=202608261153';
+import { icon } from '../shell/icons.js?v=202608261153';
+import { T } from '../shell/i18n.js?v=202608261153';
+import { openSheet, confirmar } from '../shell/sheet.js?v=202608261153';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202608261141';
+import { moderarComentario } from '../shell/moderacion.js?v=202608261153';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608261141';
+import { errorCard } from '../ui/states.js?v=202608261153';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608261141';
+} from '../lib/video-upload.js?v=202608261153';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -173,7 +173,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608261141';
+  link.href = '/marketing/css/entregables.css?v=202608261153';
   document.head.appendChild(link);
 }
 
@@ -554,15 +554,87 @@ async function addCarrusel(link, title, tiraFile) {
   return await crearCarruselConTira(client, url, title, tiraFile);
 }
 
-// Tiras soltadas en el dropzone: cada imagen = un carrusel nuevo (en serie,
-// mismo mes que los reels). El título queda vacío — la tarjeta dice "Carrusel".
+// ── Composición de tiras ─────────────────────────────────────────────────────
+// Canva exporta un carrusel largo en VARIAS páginas ("DISEÑO-1.png",
+// "DISEÑO-2.png") y RELLENA la última con cuadros BLANCOS. Aquí las páginas de
+// un mismo diseño se unen en UNA sola tira y los blancos se descartan, para
+// que el carrusel suba COMPLETO como una sola pieza (pedido 2026-08-21).
+function esSlideBlanco(bmp, sx, sw) {
+  const cv = document.createElement('canvas');
+  cv.width = 16; cv.height = 20;
+  const c = cv.getContext('2d');
+  c.drawImage(bmp, sx, 0, sw, bmp.height, 0, 0, 16, 20);
+  const d = c.getImageData(0, 0, 16, 20).data;
+  let min = 255, max = 0;
+  for (let i = 0; i < d.length; i += 4) {
+    const v = (d[i] + d[i + 1] + d[i + 2]) / 3;
+    if (v < min) min = v;
+    if (v > max) max = v;
+  }
+  return (max - min) < 6 && min > 235;   // plano y casi blanco = relleno
+}
+
+async function componerTira(files) {
+  const paginas = [];
+  for (const f of files) paginas.push(await createImageBitmap(f)); // eslint-disable-line no-await-in-loop
+  const cortes = [];
+  let blancos = 0;
+  for (const p of paginas) {
+    const n = numSlidesDeTira(p.width, p.height);
+    const sw = p.width / n;
+    for (let i = 0; i < n; i++) {
+      if (esSlideBlanco(p, i * sw, sw)) { blancos++; continue; }
+      cortes.push({ bmp: p, sx: i * sw, sw });
+    }
+  }
+  if (!cortes.length) return null;                          // puro blanco
+  if (paginas.length === 1 && !blancos) return files[0];    // nada que rehacer
+  let outH = Math.min(...cortes.map((s) => s.bmp.height));
+  const anchoDe = (s) => Math.round(s.sw * (outH / s.bmp.height));
+  let total = cortes.reduce((a, s) => a + anchoDe(s), 0);
+  // Techo de 16000px de ancho total (límite de canvas en Safari).
+  if (total > 16000) { outH = Math.floor(outH * (16000 / total)); total = cortes.reduce((a, s) => a + anchoDe(s), 0); }
+  const cv = document.createElement('canvas');
+  cv.width = total; cv.height = outH;
+  const c = cv.getContext('2d');
+  let x = 0;
+  for (const s of cortes) {
+    const w = anchoDe(s);
+    c.drawImage(s.bmp, s.sx, 0, s.sw, s.bmp.height, x, 0, w, outH);
+    x += w;
+  }
+  const blob = await new Promise((ok) => cv.toBlob(ok, 'image/jpeg', 0.92));
+  return new File([blob], 'tira.jpg', { type: 'image/jpeg' });
+}
+
+// Páginas de un MISMO diseño: el separador debe ser guion o guion bajo pegado
+// al número ("MI DISEÑO-1.png" + "MI DISEÑO-2.png" = un diseño). Con espacio
+// ("CARRUSEL 1.png" y "CARRUSEL 2.png") son diseños DISTINTOS y no se mezclan.
+function grupoDePaginas(files) {
+  const grupos = new Map();
+  for (const f of files) {
+    const sinExt = String(f.name || '').replace(/\.[a-z0-9]+$/i, '');
+    const m = sinExt.match(/^(.+)[-_](\d{1,3})$/);
+    const base = m ? m[1].trim().toLowerCase() : `§${sinExt.toLowerCase()}§${grupos.size}`;
+    const pag = m ? Number(m[2]) : 0;
+    if (!grupos.has(base)) grupos.set(base, []);
+    grupos.get(base).push({ f, pag });
+  }
+  return [...grupos.values()].map((arr) => arr.sort((a, b) => a.pag - b.pag).map((x) => x.f));
+}
+
+// Tiras soltadas en el dropzone: las páginas de un mismo diseño se unen en UN
+// carrusel (sin los blancos de relleno); diseños distintos, uno cada quien.
 async function subirTirasComoCarruseles(files) {
   const client = activeClient();
   if (!client) return;
   if (busy) { toast(T('Espera a que termine la subida en curso.', 'Wait for the current upload to finish.'), 'info'); return; }
-  for (const f of files) {
+  for (const grupo of grupoDePaginas([...files])) {
     // eslint-disable-next-line no-await-in-loop
-    await crearCarruselConTira(client, null, '', f);
+    const tira = await componerTira(grupo).catch(() => grupo[0]);
+    if (!tira) { toast(T('Esa imagen venía en blanco: no se subió.', 'That image was blank: not uploaded.'), 'info'); continue; }
+    // eslint-disable-next-line no-await-in-loop
+    await crearCarruselConTira(client, null, '', tira);
   }
 }
 
@@ -577,7 +649,8 @@ async function crearCarruselConTira(client, url, title, tiraFile) {
       link: url || null, title: (title || '').trim().slice(0, 200) || null,
     });
     if (tiraFile && creado && creado.id) {
-      await subirTira(creado.id, tiraFile);
+      const compuesta = await componerTira([tiraFile]).catch(() => null);
+      await subirTira(creado.id, compuesta || tiraFile);
     }
     toast(T('Carrusel agregado ✓', 'Carousel added ✓'), 'success');
     activeMonthNav = month; // al agregar, la vista te lleva a ese mes
@@ -1557,10 +1630,11 @@ function buildItem(it, staff) {
     const f = tiraIn.files && tiraIn.files[0];
     if (!f) return;
     busy = true; render();
-    try { await subirTira(it.id, f); toast(T('Tira actualizada ✓', 'Strip updated ✓'), 'success'); await load(); }
+    try { const comp = await componerTira([f]).catch(() => null); await subirTira(it.id, comp || f); toast(T('Tira actualizada ✓', 'Strip updated ✓'), 'success'); await load(); }
     catch (e) { toast(e.message || T('No se pudo subir la tira', 'Could not upload the strip'), 'error'); }
     finally { busy = false; render(); }
   });
+  const titleEl = el('span', { class: 'dlv-card__title', text: it.title || T('Carrusel', 'Carousel') });
   let visor = null;
   if (it.poster_url) {
     visor = el('div', { class: 'dlv-slides', 'aria-label': T('Slides del carrusel', 'Carousel slides') });
@@ -1571,13 +1645,14 @@ function buildItem(it, staff) {
         class: 'dlv-slides__img', src: d, alt: `Slide ${i + 1}`, loading: 'lazy',
       })));
       visor.appendChild(el('span', { class: 'dlv-slides__n', text: slides.length === 1 ? 'Post' : `${slides.length} slides` }));
+      if (slides.length === 1 && !it.title) titleEl.textContent = 'Post';
     }).catch(() => { /* sin tira legible: se queda el ícono */ });
   }
   const main = el('div', { class: 'dlv-carrusel__main' + (visor ? ' dlv-carrusel__main--slides' : '') }, [
     visor || el('div', { class: 'dlv-carrusel__ico' }, [icon('grip', 30)]),
     el('span', { class: 'dlv-card__titlewrap' }, [
       pieceBadge(it),
-      el('span', { class: 'dlv-card__title', text: it.title || T('Carrusel', 'Carousel') }),
+      titleEl,
     ]),
     el('div', { class: 'dlv-card__actions' }, [
       it.link ? el('a', {
@@ -1776,10 +1851,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202608261141');
+        const mod = await import('../lib/pdf-entregables.js?v=202608261153');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261141');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261153');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
