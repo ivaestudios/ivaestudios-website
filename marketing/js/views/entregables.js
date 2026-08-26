@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608261437';
-import { icon } from '../shell/icons.js?v=202608261437';
-import { T } from '../shell/i18n.js?v=202608261437';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608261437';
+import { api, el, clear, toast } from '../api.js?v=202608261509';
+import { icon } from '../shell/icons.js?v=202608261509';
+import { T } from '../shell/i18n.js?v=202608261509';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608261509';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202608261437';
+import { moderarComentario } from '../shell/moderacion.js?v=202608261509';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608261437';
+import { errorCard } from '../ui/states.js?v=202608261509';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608261437';
+} from '../lib/video-upload.js?v=202608261509';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -190,7 +190,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608261437';
+  link.href = '/marketing/css/entregables.css?v=202608261509';
   document.head.appendChild(link);
 }
 
@@ -654,28 +654,32 @@ function anchoRebaba(bmp, sx, sw, desdeIzq) {
   c.drawImage(bmp, sx, 0, sw, bmp.height, 0, 0, COLS, ROWS);
   const d = c.getImageData(0, 0, COLS, ROWS).data;
   const col = (k) => (desdeIzq ? k : COLS - 1 - k);
+  // Medias POR CANAL (r,g,b) + desviación de luminosidad: el contraste se
+  // mide en el canal que MÁS difiera, para no perdonar bandas de otro COLOR
+  // con la misma luminosidad (azul sobre naranja, reporte 2026-08-26).
   const stats = (x) => {
-    let sum = 0, sum2 = 0;
+    let r = 0, g = 0, b = 0, sum = 0, sum2 = 0;
     for (let y = 0; y < ROWS; y++) {
       const i = (y * COLS + x) * 4;
+      r += d[i]; g += d[i + 1]; b += d[i + 2];
       const l = (d[i] + d[i + 1] + d[i + 2]) / 3;
       sum += l; sum2 += l * l;
     }
     const m = sum / ROWS;
-    return { m, sd: Math.sqrt(Math.max(0, sum2 / ROWS - m * m)) };
+    return { r: r / ROWS, g: g / ROWS, b: b / ROWS, sd: Math.sqrt(Math.max(0, sum2 / ROWS - m * m)) };
   };
-  let base = 0;
+  let bR = 0, bG = 0, bB = 0;
   const b0 = Math.max(3, Math.floor(COLS * 0.05)), b1 = Math.max(b0 + 3, Math.floor(COLS * 0.10));
-  for (let k = b0; k < b1; k++) base += stats(col(k)).m;
-  base /= (b1 - b0);
+  for (let k = b0; k < b1; k++) { const s = stats(col(k)); bR += s.r; bG += s.g; bB += s.b; }
+  const nB = b1 - b0; bR /= nB; bG /= nB; bB /= nB;
   const MAX = Math.floor(COLS * 0.04);
   let w = 0;
   while (w < MAX) {
     const s = stats(col(w));
-    // Banda plana que contrasta fuerte con el interior — clara U OSCURA
-    // (ADAGIO 2026-08-26: sus líneas de corte son oscuras y la regla vieja
-    // de "solo claras" las perdonaba).
-    if (Math.abs(s.m - base) > 55 && s.sd < 60) w++;
+    const contraste = Math.max(Math.abs(s.r - bR), Math.abs(s.g - bG), Math.abs(s.b - bB));
+    // Banda plana que contrasta fuerte con el interior — clara, oscura o de
+    // OTRO COLOR (ADAGIO 2026-08-26).
+    if (contraste > 50 && s.sd < 60) w++;
     else break;
   }
   // Si la banda NO termina dentro del 4%, no es una línea de corte: es parte
@@ -699,15 +703,21 @@ function costuraAjena(bmp, sx, sw, desdeIzq) {
   const srcX = desdeIzq ? sx : sx + sw - ZONA - 1;
   c.drawImage(bmp, srcX, 0, ZONA + 1, bmp.height, 0, 0, ZONA + 1, ROWS);
   const d = c.getImageData(0, 0, ZONA + 1, ROWS).data;
-  const lum = (x, y) => { const i = (y * (ZONA + 1) + x) * 4; return (d[i] + d[i + 1] + d[i + 2]) / 3; };
+  // POR COLOR, no por luminosidad: un azul y un naranja igual de luminosos
+  // eran "iguales" para la versión anterior y la banda azul pasaba de largo
+  // (reporte de Vianey 2026-08-26). Se toma el salto MÁXIMO entre canales.
+  const dif = (x, y) => {
+    const i = (y * (ZONA + 1) + x) * 4, j = i + 4;
+    return Math.max(Math.abs(d[i] - d[j]), Math.abs(d[i + 1] - d[j + 1]), Math.abs(d[i + 2] - d[j + 2]));
+  };
   for (let k = 1; k < ZONA; k++) {
     const x = desdeIzq ? k : ZONA - k;
     let suma = 0, fuertes = 0;
     for (let y = 0; y < ROWS; y++) {
-      const df = Math.abs(lum(x, y) - lum(x + 1, y));
-      suma += df; if (df > 22) fuertes++;
+      const df = dif(x, y);
+      suma += df; if (df > 25) fuertes++;
     }
-    if (suma / ROWS > 22 && fuertes / ROWS > 0.55) return k;
+    if (suma / ROWS > 25 && fuertes / ROWS > 0.55) return k;
   }
   return 0;
 }
@@ -2180,10 +2190,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202608261437');
+        const mod = await import('../lib/pdf-entregables.js?v=202608261509');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261437');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261509');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
