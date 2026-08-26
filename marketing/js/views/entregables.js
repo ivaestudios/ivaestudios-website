@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608261256';
-import { icon } from '../shell/icons.js?v=202608261256';
-import { T } from '../shell/i18n.js?v=202608261256';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608261256';
+import { api, el, clear, toast } from '../api.js?v=202608261308';
+import { icon } from '../shell/icons.js?v=202608261308';
+import { T } from '../shell/i18n.js?v=202608261308';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608261308';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202608261256';
+import { moderarComentario } from '../shell/moderacion.js?v=202608261308';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608261256';
+import { errorCard } from '../ui/states.js?v=202608261308';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608261256';
+} from '../lib/video-upload.js?v=202608261308';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -190,7 +190,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608261256';
+  link.href = '/marketing/css/entregables.css?v=202608261308';
   document.head.appendChild(link);
 }
 
@@ -596,33 +596,45 @@ function esSlideBlanco(bmp, sx, sw) {
   return (max - min) < 10 && min > 232;   // plano y casi blanco = relleno
 }
 
-// La LÍNEA BLANCA al borde de un slide (reporte de Vianey 2026-08-26): cuando
-// las páginas del export no miden exacto, el corte nominal se come unos px de
-// la página vecina — si esa era el relleno blanco, el slide sale con un filo
-// blanco. Se recortan hasta 4% de columnas casi blancas por lado y SIEMPRE un
-// colchón de 2px: drawImage muestrea bilineal y arrastra ~1px del vecino.
-// Lo recortado se recupera estirando al ancho nominal (≤5%: invisible).
-function recortaRebaba(bmp, sx, sw) {
-  const COLS = 256, ROWS = 48;
+// La LÍNEA en el borde de un slide (reporte de Vianey 2026-08-26): cuando las
+// páginas del export no miden exacto, el corte nominal se come unos px de la
+// página vecina y queda un filo (blanco si la vecina era el relleno). Regla de
+// Vianey: MINI ZOOM proporcional SOLO en los slides donde se detecte la línea
+// (lo justo para sacarla del cuadro) y los demás quedan INTACTOS.
+// anchoRebaba mide, en px reales, cuántas columnas pegadas a un borde difieren
+// FUERTE del interior del propio slide y son planas (una línea, no foto). Un
+// marco blanco DE DISEÑO no dispara: su interior también es claro y no hay
+// contraste. Devuelve 0 si el borde está limpio.
+function anchoRebaba(bmp, sx, sw, desdeIzq) {
+  const COLS = Math.min(Math.round(sw), 2000), ROWS = 64;
   const cv = document.createElement('canvas');
   cv.width = COLS; cv.height = ROWS;
   const c = cv.getContext('2d');
   c.drawImage(bmp, sx, 0, sw, bmp.height, 0, 0, COLS, ROWS);
   const d = c.getImageData(0, 0, COLS, ROWS).data;
-  const blanca = (x) => {
-    let w = 0;
+  const col = (k) => (desdeIzq ? k : COLS - 1 - k);
+  const stats = (x) => {
+    let sum = 0, sum2 = 0;
     for (let y = 0; y < ROWS; y++) {
       const i = (y * COLS + x) * 4;
-      if (d[i] > 230 && d[i + 1] > 230 && d[i + 2] > 230) w++;
+      const l = (d[i] + d[i + 1] + d[i + 2]) / 3;
+      sum += l; sum2 += l * l;
     }
-    return (w / ROWS) > 0.92;
+    const m = sum / ROWS;
+    return { m, sd: Math.sqrt(Math.max(0, sum2 / ROWS - m * m)) };
   };
+  let base = 0;
+  const b0 = Math.max(3, Math.floor(COLS * 0.05)), b1 = Math.max(b0 + 3, Math.floor(COLS * 0.10));
+  for (let k = b0; k < b1; k++) base += stats(col(k)).m;
+  base /= (b1 - b0);
   const MAX = Math.floor(COLS * 0.04);
-  let izq = 0; while (izq < MAX && blanca(izq)) izq++;
-  let der = 0; while (der < MAX && blanca(COLS - 1 - der)) der++;
-  const px = sw / COLS;
-  const COLCHON = 2;
-  return { sx: sx + izq * px + COLCHON, sw: sw - (izq + der) * px - 2 * COLCHON };
+  let w = 0;
+  while (w < MAX) {
+    const s = stats(col(w));
+    if (Math.abs(s.m - base) > 55 && s.sd < 60) w++;
+    else break;
+  }
+  return Math.round(w * (sw / COLS));
 }
 
 async function componerTira(files) {
@@ -635,7 +647,7 @@ async function componerTira(files) {
     const sw = p.width / n;
     for (let i = 0; i < n; i++) {
       if (esSlideBlanco(p, i * sw, sw)) { blancos++; continue; }
-      cortes.push({ bmp: p, ...recortaRebaba(p, i * sw, sw), swNominal: sw });
+      cortes.push({ bmp: p, sx: i * sw, sw, swNominal: sw });
     }
   }
   if (!cortes.length) return null;                          // puro blanco
@@ -656,7 +668,24 @@ async function componerTira(files) {
   const c = cv.getContext('2d');
   let x = 0;
   for (const s of cortes) {
-    c.drawImage(s.bmp, s.sx, 0, s.sw, s.bmp.height, x, 0, outW, outH);
+    // Recorte con detección: SOLO si hay línea en ese borde, y proporcional
+    // (mismo % a lo alto, centrado) para que sea zoom y no estirón.
+    const rIzq = anchoRebaba(s.bmp, s.sx, s.sw, true);
+    const rDer = anchoRebaba(s.bmp, s.sx, s.sw, false);
+    let sx = Math.round(s.sx), sw = Math.round(s.sw), sy = 0, sh = s.bmp.height;
+    if (rIzq || rDer) {
+      const cIzq = rIzq ? rIzq + 2 : 0, cDer = rDer ? rDer + 2 : 0;
+      const nsw = sw - cIzq - cDer;
+      const nsh = Math.round(sh * (nsw / sw));
+      sx += cIzq; sy = Math.floor((sh - nsh) / 2);
+      sw = nsw; sh = nsh;
+    }
+    // Corte AISLADO 1:1 (rect entero, sin escalar): así el escalado final no
+    // puede arrastrar por muestreo bilineal ni un pixel de la página vecina.
+    const iso = document.createElement('canvas');
+    iso.width = sw; iso.height = sh;
+    iso.getContext('2d').drawImage(s.bmp, sx, sy, sw, sh, 0, 0, sw, sh);
+    c.drawImage(iso, 0, 0, sw, sh, x, 0, outW, outH);
     x += outW;
   }
   const blob = await new Promise((ok) => cv.toBlob(ok, 'image/jpeg', 0.92));
@@ -1938,10 +1967,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202608261256');
+        const mod = await import('../lib/pdf-entregables.js?v=202608261308');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261256');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261308');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
