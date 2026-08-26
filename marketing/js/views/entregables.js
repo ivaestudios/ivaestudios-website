@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608261415';
-import { icon } from '../shell/icons.js?v=202608261415';
-import { T } from '../shell/i18n.js?v=202608261415';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608261415';
+import { api, el, clear, toast } from '../api.js?v=202608261433';
+import { icon } from '../shell/icons.js?v=202608261433';
+import { T } from '../shell/i18n.js?v=202608261433';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608261433';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202608261415';
+import { moderarComentario } from '../shell/moderacion.js?v=202608261433';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608261415';
+import { errorCard } from '../ui/states.js?v=202608261433';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608261415';
+} from '../lib/video-upload.js?v=202608261433';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -190,7 +190,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608261415';
+  link.href = '/marketing/css/entregables.css?v=202608261433';
   document.head.appendChild(link);
 }
 
@@ -325,6 +325,8 @@ async function drainQueue() {
   } finally {
     draining = false; queueInfo = null;
     if (processed > 1) { try { await load(); } catch { /* recarga best-effort */ } }
+    // Cambios de video que se encolaron mientras subían reels: arrancarlos.
+    if (swapQueue.length && !swapDraining && !busy) drainSwaps();
     if (failedNames.length) {
       const n = failedNames.length;
       toast(T(`${n === 1 ? '1 reel no se subió' : `${n} reels no se subieron`}: ${failedNames.join(', ')}. Vuelve a soltarlos para reintentar.`, `${n === 1 ? '1 reel failed to upload' : `${n} reels failed to upload`}: ${failedNames.join(', ')}. Drop them again to retry.`), 'error', 9000);
@@ -404,7 +406,6 @@ function swapCommentBody(note, hadVideo = true) {
 // un respaldo al volver el foco) si cerró el selector. Antes solo se quitaba en
 // 'change', así que cada cancelación dejaba un nodo pegado en el <body>.
 function pickSwapFile(it) {
-  if (busy || draining) { toast(T('Espera a que termine la subida en curso.', 'Wait for the upload in progress to finish.'), 'info'); return; }
   let gone = false;
   const drop = () => { if (gone) return; gone = true; try { input.remove(); } catch { /* noop */ } };
   const input = el('input', {
@@ -413,7 +414,7 @@ function pickSwapFile(it) {
       const f = (e.target.files || [])[0];
       e.target.value = '';
       drop();
-      if (f) swapVideo(it, f);
+      if (f) prepararSwap(it, f);
     },
     oncancel: drop,
   });
@@ -464,8 +465,18 @@ function askSwapNote() {
   });
 }
 
-async function swapVideo(it, file) {
-  if (busy || draining) return;
+// Cola de "Cambiar video" (pedido 2026-08-26: elegir el video de VARIAS
+// tarjetas sin esperar a que termine la anterior). Todo lo interactivo —
+// revisión del archivo, aviso de HEVC y la nota para el cliente — se contesta
+// AL ELEGIR; después la tarjeta entra a la fila y los cambios corren solos,
+// uno tras otro (en serie: la subida multipart satura la conexión y dos en
+// paralelo se pisan la barra de progreso).
+const swapQueue = [];   // { it, file, note, hadVideo }
+let swapDraining = false;
+
+function swapEnCola(id) { return swapQueue.some((s) => s.it.id === id); }
+
+async function prepararSwap(it, file) {
   const hadVideo = !!it.video_url;   // false = el reel se quedó sin archivo y se está reponiendo
   // MISMA revisión previa que al subir un reel nuevo (formato imposible de
   // reproducir + aviso de HEVC): se revisa ANTES de tocar el video que ya está.
@@ -486,14 +497,35 @@ async function swapVideo(it, file) {
   const note = await askSwapNote();
   if (note === null) return; // canceló
 
-  // Se vuelve a revisar AQUÍ: entre la guarda de arriba y este punto hubo dos
-  // esperas largas (olfatear el HEVC de un archivo de 2 GB lee megas de disco, y
-  // la hoja de la nota la contesta una persona). En esa ventana `busy` seguía en
-  // false, así que soltar un reel en la zona de arrastrar arrancaba OTRA subida en
-  // paralelo: las dos compartían la barra de progreso y la primera en terminar
-  // dejaba a la otra congelada a media subida.
-  if (busy || draining) { toast(T('Espera a que termine la subida en curso.', 'Wait for the upload in progress to finish.'), 'info'); return; }
+  // Si esta MISMA tarjeta ya estaba en la fila, el archivo nuevo la reemplaza.
+  const prev = swapQueue.findIndex((s) => s.it.id === it.id);
+  if (prev >= 0) swapQueue.splice(prev, 1);
+  swapQueue.push({ it, file, note, hadVideo });
+  if (busy || draining || swapDraining) {
+    toast(T(`En la fila: se cambiará al terminar la subida en curso.`, `Queued: it will be replaced when the current upload finishes.`), 'info');
+    render();   // la tarjeta pinta su estado "en fila"
+  }
+  drainSwaps();
+}
 
+async function drainSwaps() {
+  if (swapDraining || busy || draining) return;
+  swapDraining = true;
+  try {
+    while (swapQueue.length) {
+      const s = swapQueue.shift();
+      // eslint-disable-next-line no-await-in-loop
+      await ejecutarSwap(s);
+    }
+  } finally {
+    swapDraining = false;
+    // Los reels soltados en la zona de arrastrar mientras corrían los cambios
+    // quedaron esperando: arrancarlos ahora.
+    if (uploadQueue.length && !draining && !busy) drainQueue();
+  }
+}
+
+async function ejecutarSwap({ it, file, note, hadVideo }) {
   swapId = it.id; busy = true; uploadPct = 0; queueInfo = null; render();
   try {
     // Mismo endpoint y mismo id -> los comentarios NO se tocan.
@@ -530,10 +562,9 @@ async function swapVideo(it, file) {
     toast(e.message || T('No se pudo cambiar el video. El anterior sigue ahí.', 'Could not replace the video. The previous one is still there.'), 'error', 9000);
     return false;
   } finally {
+    // El siguiente de la fila lo arranca drainSwaps; los reels esperando en la
+    // zona de arrastrar los arranca su finally cuando la fila quede vacía.
     swapId = null; busy = false; uploadPct = 0; progressEls = null; render();
-    // Los reels que se soltaron en la zona de arrastrar MIENTRAS se cambiaba el
-    // video quedaron esperando en la fila (ya no se descartan): arrancarlos ahora.
-    if (uploadQueue.length && !draining) drainQueue();
   }
 }
 
@@ -1535,6 +1566,10 @@ function buildAddBar() {
       icon('refresh', 26),
       el('span', { class: 'dlv-drop__t', text: T('Cambiando un video…', 'Replacing a video…') }),
       el('span', { class: 'dlv-drop__s', text: T('El progreso se ve en la tarjeta del reel.', 'The progress is shown on the reel card.') }),
+      swapQueue.length ? el('span', { class: 'dlv-drop__s', text: T(
+        `${swapQueue.length === 1 ? 'Queda 1 cambio' : `Quedan ${swapQueue.length} cambios`} en la fila.`,
+        `${swapQueue.length === 1 ? '1 replacement' : `${swapQueue.length} replacements`} still queued.`,
+      ) }) : null,
     ];
   } else if (busy) {
     // Barra de progreso (refs vivos -> updateProgressUI los actualiza sin re-render).
@@ -1807,7 +1842,15 @@ async function linkPiece(it) {
 function buildItem(it, staff) {
   if (it.type === 'reel') {
     const card = el('div', { class: 'dlv-card dlv-card--reel' });
-    if (swapId === it.id) {
+    if (swapId !== it.id && swapEnCola(it.id)) {
+      // Cambio de video EN FILA: el archivo ya está elegido y la nota escrita;
+      // corre solo cuando le toque. La tarjeta lo dice para que nadie crea que
+      // el toque se perdió.
+      card.appendChild(el('div', { class: 'dlv-video dlv-video--pending' }, [
+        el('span', { class: 'dlv-drop__t', text: T('En fila para cambiar el video…', 'Queued to replace the video…') }),
+        el('span', { class: 'dlv-drop__s', text: T('Arranca solo al terminar la subida en curso.', 'It starts on its own when the current upload finishes.') }),
+      ]));
+    } else if (swapId === it.id) {
       // Cambio de video EN CURSO: el progreso va aquí, sobre la tarjeta, para que
       // se vea sin subir hasta la zona de arrastrar (en móvil queda lejísimos).
       const fill = el('div', { class: 'dlv-prog__fill' });
@@ -1947,6 +1990,14 @@ function buildItem(it, staff) {
         class: 'dlv-carrusel-btn', type: 'button', disabled: busy || null,
         onclick: () => tiraIn.click(),
       }, [icon('camera', 15), el('span', { text: it.poster_url ? T('Cambiar tira', 'Replace strip') : T('Subir tira', 'Upload strip') })]) : null,
+      // Vincular con la pieza del calendario, igual que los reels (pedido
+      // 2026-08-26): la etiqueta CARRUSEL N aparece en la tarjeta y el PDF.
+      staff ? el('button', {
+        class: 'dlv-link', type: 'button',
+        'aria-label': T('Vincular con la pieza del calendario', 'Link to calendar piece'),
+        title: T('Vincular con la pieza del calendario', 'Link to calendar piece'),
+        onclick: () => linkPiece(it),
+      }, [icon('link', 16), el('span', { text: it.piece && it.piece.num ? T('Cambiar', 'Change') : T('Vincular', 'Link') })]) : null,
       staff ? el('button', { class: 'dlv-del', type: 'button', 'aria-label': T('Eliminar', 'Delete'), onclick: () => removeItem(it) }, [icon('trash', 16)]) : null,
       tiraIn,
     ]),
@@ -2127,10 +2178,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202608261415');
+        const mod = await import('../lib/pdf-entregables.js?v=202608261433');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261415');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261433');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
