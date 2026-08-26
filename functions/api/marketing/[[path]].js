@@ -1406,6 +1406,29 @@ async function handleResetWithToken(request, env) {
 // CLIENTS
 // ============================================================================
 
+// Regla de Vianey (2026-08-26): los meses ANTERIORES quedan aprobados y
+// publicados EN AUTOMÁTICO — solo el mes en curso se revisa. El cliente a
+// veces aprueba de palabra y nunca pica el botón, y los "por aprobar" de
+// meses viejos se acumulaban para siempre en las tarjetas. Perezoso e
+// idempotente: corre antes de contar (afecta 0 filas casi siempre) y cada
+// mes nuevo se aplica solo, sin cron. Hora de México (UTC-6) para no
+// voltear el mes antes de tiempo. Lo SIN FECHA no se toca.
+async function archivarMesesPasados(env) {
+  const inicioMes = new Date(Date.now() - 6 * 3600e3).toISOString().slice(0, 7) + '-01';
+  try {
+    await env.DB.prepare(
+      `UPDATE mkt_posts SET approval_state = 'approved', updated_at = ${MKT_NOW_MS}
+        WHERE publish_date IS NOT NULL AND publish_date < ?
+          AND approval_state IN ('pending','changes')`
+    ).bind(inicioMes).run();
+    await env.DB.prepare(
+      `UPDATE mkt_posts SET status = 'publicado', updated_at = ${MKT_NOW_MS}
+        WHERE publish_date IS NOT NULL AND publish_date < ?
+          AND status != 'publicado'`
+    ).bind(inicioMes).run();
+  } catch { /* mejor contar con datos viejos que tirar el arranque */ }
+}
+
 async function clientCounts(env, clientId) {
   const row = await env.DB.prepare(
     `SELECT
@@ -1461,6 +1484,8 @@ function shapeClientForPortal(c, counts) {
 }
 
 async function handleListClients(env, session) {
+  // Antes de contar: lo de meses pasados se archiva solo (regla 2026-08-26).
+  await archivarMesesPasados(env);
   // El cliente ve SOLO su propia marca, pero con el objeto COMPLETO (incl.
   // note_labels) porque ahora usa el calendario compartido idéntico al del
   // equipo (decision de la duena: el cliente ve y edita todo lo suyo). El
@@ -5272,6 +5297,7 @@ async function route(request, env, authCtx) {
   // ── DASHBOARD (staff; single aggregator, module _dashboard.js) ──
   if (path === '/dashboard' && method === 'GET') {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    await archivarMesesPasados(env);   // meses pasados = aprobados/publicados
     return handleDashboard(request, env, session, url);
   }
 
