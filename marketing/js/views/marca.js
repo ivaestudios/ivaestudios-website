@@ -6,10 +6,10 @@
 // nuevo lo reemplaza. Backend: GET/POST/DELETE /clients/:id/manual
 // (?info=1 = metadata, ?dl=1 = descarga con attachment).
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202608261514';
-import { icon } from '../shell/icons.js?v=202608261514';
-import { T } from '../shell/i18n.js?v=202608261514';
-import { confirmar } from '../shell/sheet.js?v=202608261514';
+import { el, clear, toast } from '../api.js?v=202608261534';
+import { icon } from '../shell/icons.js?v=202608261534';
+import { T } from '../shell/i18n.js?v=202608261534';
+import { confirmar } from '../shell/sheet.js?v=202608261534';
 
 const VIEW_ID = 'marca';
 
@@ -161,8 +161,10 @@ function render() {
       ]),
       el('div', { class: 'mk-actions' }, [
         el('a', { class: 'btn btn-primary mk-btn', href: verUrl, target: '_blank', rel: 'noopener' }, [icon('eye', 17), ' ' + T('Ver el manual', 'View the manual')]),
-        el('a', { class: 'btn mk-btn', href: `${verUrl}?dl=1`, rel: 'noopener' }, [icon('download', 17), ' ' + T('Descargar PDF', 'Download PDF')]),
-      ]),
+        // Descargar es SOLO staff (pedido 2026-08-26): el cliente consulta el
+        // manual en el visor; el backend además rechaza su ?dl=1.
+        client ? null : el('a', { class: 'btn mk-btn', href: `${verUrl}?dl=1`, rel: 'noopener' }, [icon('download', 17), ' ' + T('Descargar PDF', 'Download PDF')]),
+      ].filter(Boolean)),
     ]));
     if (!client) {
       rootEl.appendChild(el('div', { class: 'mk-staff' }, [
@@ -194,7 +196,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/marca.css?v=202608261514';
+  link.href = '/marketing/css/marca.css?v=202608261534';
   document.head.appendChild(link);
 }
 

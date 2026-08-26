@@ -5111,7 +5111,7 @@ async function route(request, env, authCtx) {
       const clientId = parts[1];
       const esDueno = session.role === 'client' && session.client_id === clientId;
       if (!isStaff && !esDueno) return json({ error: 'Forbidden' }, 403);
-      if (method === 'GET') return handleGetManualMarca(request, env, clientId);
+      if (method === 'GET') return handleGetManualMarca(request, env, clientId, session);
       if (!isStaff) return json({ error: 'Forbidden' }, 403);
       if (method === 'POST') return handleUploadManualMarca(request, env, clientId);
       if (method === 'DELETE') return handleDeleteManualMarca(env, clientId);
@@ -5438,10 +5438,15 @@ async function route(request, env, authCtx) {
 // ── Manual de Marca (apartado "Marca") ──────────────────────────────────────
 // Un PDF por marca en R2 bajo marketing/marca/<clientId>/manual.pdf. El staff
 // lo sube desde la vista Marca; el cliente lo consulta y descarga desde ahí.
-async function handleGetManualMarca(request, env, clientId) {
+async function handleGetManualMarca(request, env, clientId, session) {
   if (!env.R2_BUCKET) return json({ error: 'Almacenamiento no disponible' }, 503);
   const key = `marketing/marca/${clientId}/manual.pdf`;
   const q = new URL(request.url).searchParams;
+  // El CLIENTE puede VER el manual (visor inline), pero no bajarlo como
+  // archivo (pedido 2026-08-26): el ?dl=1 queda solo para el staff.
+  if (q.get('dl') === '1' && session && session.role === 'client') {
+    return json({ error: 'El manual se consulta en el visor; la descarga es del equipo.' }, 403);
+  }
   if (q.get('info') === '1') {
     const head = await env.R2_BUCKET.head(key);
     if (!head) return json({ exists: false });
