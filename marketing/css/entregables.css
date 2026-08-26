@@ -394,3 +394,16 @@
 .dlv-comment__mod{margin-left:auto;background:none;border:0;padding:4px 6px;border-radius:8px;
   color:var(--mut,#9A9AA8);cursor:pointer;line-height:0;min-width:32px;min-height:32px}
 .dlv-comment__mod:hover{background:rgba(255,255,255,.07);color:var(--text,#ECECF1)}
+
+
+/* ── Carrusel/post: la FOTO manda y el comentario es compacto (pedido
+   2026-08-20: las fotos IG se veían chicas junto a un cajón de comentario
+   gigante). El slide conserva SU ratio real (width auto). ─────────────── */
+@media (min-width: 768px) {
+  .dlv-slides__img { height: 380px; }
+  .dlv-card--carrusel .dlv-card__side { justify-content: flex-start; }
+  .dlv-card--carrusel .dlv-card__side .dlv-comments,
+  .dlv-card--carrusel .dlv-card__side .dlv-comment-form,
+  .dlv-card--carrusel .dlv-card__side .dlv-comment-input { flex: 0 0 auto; }
+  .dlv-card--carrusel .dlv-card__side .dlv-comment-input { min-height: 104px; max-height: 150px; }
+}

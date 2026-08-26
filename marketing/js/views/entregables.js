@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608202025';
-import { icon } from '../shell/icons.js?v=202608202025';
-import { T } from '../shell/i18n.js?v=202608202025';
-import { openSheet, confirmar } from '../shell/sheet.js?v=202608202025';
+import { api, el, clear, toast } from '../api.js?v=202608261138';
+import { icon } from '../shell/icons.js?v=202608261138';
+import { T } from '../shell/i18n.js?v=202608261138';
+import { openSheet, confirmar } from '../shell/sheet.js?v=202608261138';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202608202025';
+import { moderarComentario } from '../shell/moderacion.js?v=202608261138';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608202025';
+import { errorCard } from '../ui/states.js?v=202608261138';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608202025';
+} from '../lib/video-upload.js?v=202608261138';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -173,7 +173,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608202025';
+  link.href = '/marketing/css/entregables.css?v=202608261138';
   document.head.appendChild(link);
 }
 
@@ -654,6 +654,63 @@ function slidesDeTira(it) {
   pr.catch(() => tiraCache.delete(key));
   tiraCache.set(key, pr);
   return pr;
+}
+
+// Descargar las FOTOS del carrusel (o el post de 1 slide) en calidad original.
+// En móvil usa Compartir (Guardar en Fotos); si iOS caduca el gesto mientras se
+// preparan las fotos, quedan listas y el 2º toque las comparte al instante
+// (mismo patrón que los reels). En escritorio baja archivo(s) directo.
+const tiraDlCache = new Map();   // id -> File[] listos para el 2º toque
+async function descargarSlides(it, btn) {
+  const titulo = String(it.title || 'carrusel').replace(/[\r\n]+/g, ' ').trim() || 'carrusel';
+  const base = titulo.replace(/[^\wÀ-ſ .-]+/g, '').trim().replace(/\s+/g, '_') || 'carrusel';
+  const mobile = isMobileSave() && !!(navigator.canShare && navigator.share);
+  const bajar = (files) => files.forEach((f, i) => setTimeout(() => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(f); a.download = f.name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => { try { URL.revokeObjectURL(a.href); } catch { /* noop */ } }, 5000);
+  }, i * 800));
+  const cached = tiraDlCache.get(it.id);
+  if (cached) {
+    tiraDlCache.delete(it.id);
+    const sp = btn && btn.querySelector('span'); if (sp) sp.textContent = T('Descargar', 'Download');
+    if (mobile && navigator.canShare({ files: cached })) {
+      try { await navigator.share({ files: cached, title: titulo }); return; } catch { /* cae a bajar */ }
+    }
+    bajar(cached); return;
+  }
+  const r = await fetch(it.poster_url, { credentials: 'include' });
+  if (!r.ok) throw new Error(T('No se pudo descargar la imagen.', 'Could not download the image.'));
+  const blob = await r.blob();
+  const bmp = await createImageBitmap(blob);
+  const n = numSlidesDeTira(bmp.width, bmp.height);
+  let files;
+  if (n === 1) {
+    files = [new File([blob], `${base}.jpg`, { type: blob.type || 'image/jpeg' })];
+  } else {
+    const sw = bmp.width / n;
+    files = [];
+    for (let i = 0; i < n; i++) {
+      const cv = document.createElement('canvas');
+      cv.width = Math.round(sw); cv.height = bmp.height;
+      cv.getContext('2d').drawImage(bmp, i * sw, 0, sw, bmp.height, 0, 0, cv.width, cv.height);
+      const b = await new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.92));
+      files.push(new File([b], `${base}-${i + 1}.jpg`, { type: 'image/jpeg' }));
+    }
+  }
+  if (mobile && navigator.canShare({ files })) {
+    try { await navigator.share({ files, title: titulo }); return; }
+    catch (e) {
+      if (e && e.name === 'AbortError') return;   // canceló: no duplicar
+      // iOS: el gesto caducó -> dejar listo y pedir el 2º toque
+      tiraDlCache.set(it.id, files);
+      const sp = btn && btn.querySelector('span');
+      if (sp) sp.textContent = T('Toca de nuevo para guardar', 'Tap again to save');
+      return;
+    }
+  }
+  bajar(files);
 }
 
 async function removeItem(it) {
@@ -1513,7 +1570,7 @@ function buildItem(it, staff) {
       slides.forEach((d, i) => visor.appendChild(el('img', {
         class: 'dlv-slides__img', src: d, alt: `Slide ${i + 1}`, loading: 'lazy',
       })));
-      visor.appendChild(el('span', { class: 'dlv-slides__n', text: `${slides.length} slides` }));
+      visor.appendChild(el('span', { class: 'dlv-slides__n', text: slides.length === 1 ? 'Post' : `${slides.length} slides` }));
     }).catch(() => { /* sin tira legible: se queda el ícono */ });
   }
   const main = el('div', { class: 'dlv-carrusel__main' + (visor ? ' dlv-carrusel__main--slides' : '') }, [
@@ -1526,6 +1583,15 @@ function buildItem(it, staff) {
       it.link ? el('a', {
         class: 'dlv-carrusel-btn', href: it.link, target: '_blank', rel: 'noopener noreferrer',
       }, [icon('eye', 16), el('span', { text: T('Ver carrusel', 'View carousel') })]) : null,
+      ((staff || descargasActivas()) && it.poster_url) ? el('button', {
+        class: 'dlv-carrusel-btn', type: 'button',
+        onclick: async (e) => {
+          const b = e.currentTarget; b.disabled = true;
+          try { await descargarSlides(it, b); }
+          catch (err) { toast((err && err.message) || T('No se pudo descargar.', 'Could not download.'), 'error'); }
+          finally { b.disabled = false; }
+        },
+      }, [icon('download', 16), el('span', { text: T('Descargar', 'Download') })]) : null,
       staff ? el('button', {
         class: 'dlv-carrusel-btn', type: 'button', disabled: busy || null,
         onclick: () => tiraIn.click(),
@@ -1710,10 +1776,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202608202025');
+        const mod = await import('../lib/pdf-entregables.js?v=202608261138');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608202025');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261138');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
