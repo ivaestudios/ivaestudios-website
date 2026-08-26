@@ -12,18 +12,18 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="IVAE Marketing">
   <!-- Tema claro ANTES de pintar (cero flash); ver css/theme-light.css. -->
-  <script>try{if(localStorage.getItem('mkt_theme')==='light'){document.documentElement.setAttribute('data-theme','light');var _tm=document.querySelector('meta[name="theme-color"]');if(_tm)_tm.setAttribute('content','#F6F6FA');}}catch(e){}</script>
+  <script>try{var _t=localStorage.getItem('mkt_theme');if(_t!=='light'&&_t!=='dark'){_t=localStorage.getItem('mkt_theme_def')==='light'?'light':'dark'}if(_t==='light'){document.documentElement.setAttribute('data-theme','light');var _tm=document.querySelector('meta[name="theme-color"]');if(_tm)_tm.setAttribute('content','#F6F6FA');}}catch(e){}</script>
   <title>Iniciar sesión · IVAE Marketing</title>
   <meta name="description" content="Acceso privado al calendario de contenido de IVAE Marketing.">
 
   <!-- Inter (respaldo) + Outfit (tema Sistema IVA 2026), auto-hospedadas:
        woff2 variables locales en /marketing/fonts/ (antes Google Fonts). -->
-  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202608261153">
-  <link rel="stylesheet" href="/marketing/css/app.css?v=202608261153">
-  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202608261153">
+  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202608261209">
+  <link rel="stylesheet" href="/marketing/css/app.css?v=202608261209">
+  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202608261209">
   <!-- Tema "Sistema IVA" 2026 (ultimo para ganar :root; solo estilo). -->
-  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202608261153">
-  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202608261153">
+  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202608261209">
+  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202608261209">
 
   <style>
     /* Toques v2 (solo estetica, el flujo de auth no cambia): targets tactiles

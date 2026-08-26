@@ -23,20 +23,20 @@
 // Contrato de vista: export default { id, mount(el, ctx), onParams, unmount }.
 // ============================================================================
 
-import { el, api, statusBadge, approvalBadge, fmtDate, fmtDateTime, isClientRole} from '../api.js?v=202608261153';
-import { T } from '../shell/i18n.js?v=202608261153';
-import { icon } from '../shell/icons.js?v=202608261153';
-import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202608261153';
-import * as store from '../shell/store.js?v=202608261153';
-import * as cl from '../services/checklist.js?v=202608261153';
-import { createAutosave } from './autosave.js?v=202608261153';
-import { textExpand } from '../ui/pickers.js?v=202608261153';
-import { openActionsMenu } from './actions.js?v=202608261153';
-import { mount as mountContenido } from './tab-contenido.js?v=202608261153';
-import { mount as mountGuion } from './tab-guion.js?v=202608261153';
-import { mount as mountChecklist } from './tab-checklist.js?v=202608261153';
-import { mount as mountConversacion } from './tab-conversacion.js?v=202608261153';
-import { mount as mountActividad } from './tab-actividad.js?v=202608261153';
+import { el, api, statusBadge, approvalBadge, fmtDate, fmtDateTime, isClientRole} from '../api.js?v=202608261209';
+import { T } from '../shell/i18n.js?v=202608261209';
+import { icon } from '../shell/icons.js?v=202608261209';
+import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202608261209';
+import * as store from '../shell/store.js?v=202608261209';
+import * as cl from '../services/checklist.js?v=202608261209';
+import { createAutosave } from './autosave.js?v=202608261209';
+import { textExpand } from '../ui/pickers.js?v=202608261209';
+import { openActionsMenu } from './actions.js?v=202608261209';
+import { mount as mountContenido } from './tab-contenido.js?v=202608261209';
+import { mount as mountGuion } from './tab-guion.js?v=202608261209';
+import { mount as mountChecklist } from './tab-checklist.js?v=202608261209';
+import { mount as mountConversacion } from './tab-conversacion.js?v=202608261209';
+import { mount as mountActividad } from './tab-actividad.js?v=202608261209';
 
 const TABS = [
   { key: 'contenido', label: T('Contenido', 'Content'), mount: mountContenido },

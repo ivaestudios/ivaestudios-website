@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608261153';
-import { icon } from '../shell/icons.js?v=202608261153';
-import { T } from '../shell/i18n.js?v=202608261153';
-import { openSheet, confirmar } from '../shell/sheet.js?v=202608261153';
+import { api, el, clear, toast } from '../api.js?v=202608261209';
+import { icon } from '../shell/icons.js?v=202608261209';
+import { T } from '../shell/i18n.js?v=202608261209';
+import { openSheet, confirmar } from '../shell/sheet.js?v=202608261209';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202608261153';
+import { moderarComentario } from '../shell/moderacion.js?v=202608261209';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608261153';
+import { errorCard } from '../ui/states.js?v=202608261209';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608261153';
+} from '../lib/video-upload.js?v=202608261209';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -173,7 +173,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608261153';
+  link.href = '/marketing/css/entregables.css?v=202608261209';
   document.head.appendChild(link);
 }
 
@@ -614,9 +614,12 @@ function grupoDePaginas(files) {
   const grupos = new Map();
   for (const f of files) {
     const sinExt = String(f.name || '').replace(/\.[a-z0-9]+$/i, '');
+    let base, pag;
     const m = sinExt.match(/^(.+)[-_](\d{1,3})$/);
-    const base = m ? m[1].trim().toLowerCase() : `§${sinExt.toLowerCase()}§${grupos.size}`;
-    const pag = m ? Number(m[2]) : 0;
+    const dup = m ? null : sinExt.match(/^(.+?) \((\d{1,3})\)$/);   // "DISEÑO (1)" = descarga repetida del navegador
+    if (m) { base = m[1].trim().toLowerCase(); pag = Number(m[2]); }
+    else if (dup) { base = dup[1].trim().toLowerCase(); pag = Number(dup[2]) + 1; }
+    else { base = sinExt.trim().toLowerCase(); pag = 1; }
     if (!grupos.has(base)) grupos.set(base, []);
     grupos.get(base).push({ f, pag });
   }
@@ -633,6 +636,7 @@ async function subirTirasComoCarruseles(files) {
     // eslint-disable-next-line no-await-in-loop
     const tira = await componerTira(grupo).catch(() => grupo[0]);
     if (!tira) { toast(T('Esa imagen venía en blanco: no se subió.', 'That image was blank: not uploaded.'), 'info'); continue; }
+    if (grupo.length > 1) toast(T(`${grupo.length} páginas unidas en un solo carrusel ✓`, `${grupo.length} pages merged into one carousel ✓`), 'success');
     // eslint-disable-next-line no-await-in-loop
     await crearCarruselConTira(client, null, '', tira);
   }
@@ -1851,10 +1855,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202608261153');
+        const mod = await import('../lib/pdf-entregables.js?v=202608261209');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261153');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261209');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
