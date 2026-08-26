@@ -421,3 +421,16 @@
   .dlv-card--carrusel .dlv-card__side .dlv-comment-input { flex: 0 0 auto; }
   .dlv-card--carrusel .dlv-card__side .dlv-comment-input { min-height: 104px; max-height: 150px; }
 }
+
+/* ── Pantallas GRANDES (iMac): en 2560px las tarjetas salían de ~580px con
+   fotos de 304px nadando en espacio muerto (reporte de Vianey 2026-08-26).
+   Tarjetas más anchas, fotos más grandes y un tope de ancho centrado. ── */
+@media (min-width: 1600px) {
+  .dlv-grid { grid-template-columns: repeat(auto-fill, minmax(700px, 1fr)); gap: 18px; }
+  .dlv-slides__img { height: 520px; }
+  .dlv-card--reel > .dlv-video,
+  .dlv-card--reel > .dlv-video--pending { width: 280px; }
+}
+@media (min-width: 2000px) {
+  .dlv-root { max-width: 1960px; margin-inline: auto; }
+}
