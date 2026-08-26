@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608261331';
-import { icon } from '../shell/icons.js?v=202608261331';
-import { T } from '../shell/i18n.js?v=202608261331';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608261331';
+import { api, el, clear, toast } from '../api.js?v=202608261343';
+import { icon } from '../shell/icons.js?v=202608261343';
+import { T } from '../shell/i18n.js?v=202608261343';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608261343';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202608261331';
+import { moderarComentario } from '../shell/moderacion.js?v=202608261343';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608261331';
+import { errorCard } from '../ui/states.js?v=202608261343';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608261331';
+} from '../lib/video-upload.js?v=202608261343';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -190,7 +190,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608261331';
+  link.href = '/marketing/css/entregables.css?v=202608261343';
   document.head.appendChild(link);
 }
 
@@ -593,7 +593,10 @@ function esSlideBlanco(bmp, sx, sw) {
     if (v < min) min = v;
     if (v > max) max = v;
   }
-  return (max - min) < 10 && min > 232;   // plano y casi blanco = relleno
+  // min>245: el relleno de Canva es blanco PURO (255; el JPEG lo deja ≥250).
+  // Con 232 un slide real de tipografía fina gris sobre blanco podía darse
+  // por relleno y desaparecer del carrusel.
+  return (max - min) < 10 && min > 245;
 }
 
 // La LÍNEA en el borde de un slide (reporte de Vianey 2026-08-26): cuando las
@@ -631,65 +634,100 @@ function anchoRebaba(bmp, sx, sw, desdeIzq) {
   let w = 0;
   while (w < MAX) {
     const s = stats(col(w));
-    if (Math.abs(s.m - base) > 55 && s.sd < 60) w++;
+    // Solo bandas CLARAS (m>200): la rebaba real es el relleno blanco de la
+    // página vecina. Un filete OSCURO plano al borde puede ser marco de
+    // diseño (editorial) y no se toca.
+    if (Math.abs(s.m - base) > 55 && s.sd < 60 && s.m > 200) w++;
     else break;
   }
   return Math.round(w * (sw / COLS));
 }
 
-async function componerTira(files) {
+// Compone las páginas en tira(s). Instagram permite MÁXIMO 20 slides por
+// carrusel (y numSlidesDeTira solo prueba n=1..20): si el material trae más,
+// devuelve VARIAS tiras completas en vez de una incortable. Una página
+// ilegible (HEIC de iPhone, archivo corrupto) se SALTA con aviso por nombre
+// en vez de tirar el diseño entero o subir el archivo crudo.
+async function componerTiras(files) {
   const paginas = [];
-  for (const f of files) paginas.push(await createImageBitmap(f)); // eslint-disable-line no-await-in-loop
+  const malas = [];
+  for (const f of files) {
+    try { paginas.push(await createImageBitmap(f)); } // eslint-disable-line no-await-in-loop
+    catch { malas.push(f.name || T('imagen', 'image')); }
+  }
+  if (malas.length) {
+    toast(T(`No se pudo leer: ${malas.join(', ')}. Exporta en PNG o JPG.`,
+      `Could not read: ${malas.join(', ')}. Export as PNG or JPG.`), 'error', 9000);
+  }
+  if (!paginas.length) return { tiras: [], original: false };
   const cortes = [];
-  let blancos = 0;
+  let blancos = 0, rebabas = 0;
   for (const p of paginas) {
     const n = numSlidesDeTira(p.width, p.height);
     const sw = p.width / n;
     for (let i = 0; i < n; i++) {
       if (esSlideBlanco(p, i * sw, sw)) { blancos++; continue; }
-      cortes.push({ bmp: p, sx: i * sw, sw, swNominal: sw });
+      const rIzq = anchoRebaba(p, i * sw, sw, true);
+      const rDer = anchoRebaba(p, i * sw, sw, false);
+      if (rIzq || rDer) rebabas++;
+      cortes.push({ bmp: p, sx: i * sw, sw, rIzq, rDer });
     }
   }
-  if (!cortes.length) return null;                          // puro blanco
-  if (paginas.length === 1 && !blancos) return files[0];    // nada que rehacer
+  if (!cortes.length) return { tiras: [], original: false };  // puro blanco
+  // Nada que rehacer: una sola página limpia viaja tal cual (sin recomprimir).
+  if (files.length === 1 && paginas.length === 1 && !blancos && !rebabas) {
+    return { tiras: [files[0]], original: true };
+  }
   let outH = Math.min(...cortes.map((s) => s.bmp.height));
   // TODOS los slides salen con el MISMO ancho (mediana de los nominales): el
   // visor corta la tira en n partes iguales, y anchos desiguales moverían
   // TODAS las fronteras de ahí en adelante.
-  const anchos = cortes.map((s) => s.swNominal * (outH / s.bmp.height)).sort((a, b) => a - b);
+  const anchos = cortes.map((s) => s.sw * (outH / s.bmp.height)).sort((a, b) => a - b);
   let outW = Math.round(anchos[Math.floor(anchos.length / 2)]);
-  // Techo de 16000px de ancho total (límite de canvas en Safari).
-  if (outW * cortes.length > 16000) {
-    const k = 16000 / (outW * cortes.length);
+  // Techo de 16000px de ancho por tira (límite de canvas en Safari), por PARTE.
+  const porParte = Math.min(20, cortes.length);
+  if (outW * porParte > 16000) {
+    const k = 16000 / (outW * porParte);
     outH = Math.floor(outH * k); outW = Math.floor(outW * k);
   }
-  const cv = document.createElement('canvas');
-  cv.width = outW * cortes.length; cv.height = outH;
-  const c = cv.getContext('2d');
-  let x = 0;
-  for (const s of cortes) {
-    // Recorte con detección: SOLO si hay línea en ese borde, y proporcional
-    // (mismo % a lo alto, centrado) para que sea zoom y no estirón.
-    const rIzq = anchoRebaba(s.bmp, s.sx, s.sw, true);
-    const rDer = anchoRebaba(s.bmp, s.sx, s.sw, false);
-    let sx = Math.round(s.sx), sw = Math.round(s.sw), sy = 0, sh = s.bmp.height;
-    if (rIzq || rDer) {
-      const cIzq = rIzq ? rIzq + 2 : 0, cDer = rDer ? rDer + 2 : 0;
-      const nsw = sw - cIzq - cDer;
-      const nsh = Math.round(sh * (nsw / sw));
-      sx += cIzq; sy = Math.floor((sh - nsh) / 2);
-      sw = nsw; sh = nsh;
+  const tiras = [];
+  for (let c0 = 0; c0 < cortes.length; c0 += 20) {
+    const parte = cortes.slice(c0, c0 + 20);
+    const cv = document.createElement('canvas');
+    cv.width = outW * parte.length; cv.height = outH;
+    const c = cv.getContext('2d');
+    let x = 0;
+    for (const s of parte) {
+      // Recorte con detección: SOLO si hay línea en ese borde, y proporcional
+      // (mismo % a lo alto, centrado) para que sea zoom y no estirón.
+      let sx = Math.round(s.sx), sw = Math.round(s.sw), sy = 0, sh = s.bmp.height;
+      if (s.rIzq || s.rDer) {
+        const cIzq = s.rIzq ? s.rIzq + 2 : 0, cDer = s.rDer ? s.rDer + 2 : 0;
+        const nsw = sw - cIzq - cDer;
+        const nsh = Math.round(sh * (nsw / sw));
+        sx += cIzq; sy = Math.floor((sh - nsh) / 2);
+        sw = nsw; sh = nsh;
+      }
+      // Corte AISLADO 1:1 (rect entero, sin escalar): así el escalado final no
+      // puede arrastrar por muestreo bilineal ni un pixel de la página vecina.
+      const iso = document.createElement('canvas');
+      iso.width = sw; iso.height = sh;
+      iso.getContext('2d').drawImage(s.bmp, sx, sy, sw, sh, 0, 0, sw, sh);
+      c.drawImage(iso, 0, 0, sw, sh, x, 0, outW, outH);
+      x += outW;
     }
-    // Corte AISLADO 1:1 (rect entero, sin escalar): así el escalado final no
-    // puede arrastrar por muestreo bilineal ni un pixel de la página vecina.
-    const iso = document.createElement('canvas');
-    iso.width = sw; iso.height = sh;
-    iso.getContext('2d').drawImage(s.bmp, sx, sy, sw, sh, 0, 0, sw, sh);
-    c.drawImage(iso, 0, 0, sw, sh, x, 0, outW, outH);
-    x += outW;
+    // eslint-disable-next-line no-await-in-loop
+    const blob = await new Promise((ok) => cv.toBlob(ok, 'image/jpeg', 0.92));
+    if (!blob) throw new Error(T('La imagen es demasiado grande para este dispositivo.', 'The image is too large for this device.'));
+    tiras.push(new File([blob], 'tira.jpg', { type: 'image/jpeg' }));
   }
-  const blob = await new Promise((ok) => cv.toBlob(ok, 'image/jpeg', 0.92));
-  return new File([blob], 'tira.jpg', { type: 'image/jpeg' });
+  return { tiras, original: false };
+}
+
+// Compatibilidad: la PRIMERA tira (los caminos multi-carrusel usan componerTiras).
+async function componerTira(files) {
+  const r = await componerTiras(files);
+  return r.tiras[0] || null;
 }
 
 // Páginas de un MISMO diseño: el separador debe ser guion o guion bajo pegado
@@ -698,54 +736,102 @@ async function componerTira(files) {
 function grupoDePaginas(files) {
   const grupos = new Map();
   for (const f of files) {
-    const sinExt = String(f.name || '').replace(/\.[a-z0-9]+$/i, '');
+    // NFC: "DISEÑO" escrito desde Finder (NFD) y desde Chrome (NFC) deben
+    // agrupar juntos. El sufijo " (1)" del navegador se pela ANTES de leer el
+    // número de página, para que "X-1 (1).png" no invente el diseño "x-1 (1)".
+    const sinExt = String(f.name || '').normalize('NFC').replace(/\.[a-z0-9]+$/i, '');
+    const dup = sinExt.match(/^(.+?) \((\d{1,3})\)$/);
+    const cuerpo = dup ? dup[1] : sinExt;
     let base, pag;
-    const m = sinExt.match(/^(.+)[-_](\d{1,3})$/);
-    const dup = m ? null : sinExt.match(/^(.+?) \((\d{1,3})\)$/);   // "DISEÑO (1)" = descarga repetida del navegador
+    const m = cuerpo.match(/^(.+)[-_](\d{1,3})$/);
     if (m) { base = m[1].trim().toLowerCase(); pag = Number(m[2]); }
-    else if (dup) { base = dup[1].trim().toLowerCase(); pag = Number(dup[2]) + 1; }
-    else { base = sinExt.trim().toLowerCase(); pag = 1; }
+    else { base = cuerpo.trim().toLowerCase(); pag = dup ? Number(dup[2]) + 1 : 1; }
     if (!grupos.has(base)) grupos.set(base, []);
     grupos.get(base).push({ f, pag });
   }
-  return [...grupos.values()].map((arr) => arr.sort((a, b) => a.pag - b.pag).map((x) => x.f));
+  return [...grupos.values()].map((arr) => {
+    // El MISMO peso dentro de un grupo = el mismo archivo bajado dos veces
+    // ("X.png" + "X (1).png" idénticos): entra una sola vez, no dos slides
+    // repetidos. Dos páginas DISTINTAS jamás pesan idéntico al byte.
+    const pesos = new Set();
+    const unicos = arr.filter((x) => {
+      if (pesos.has(x.f.size)) return false;
+      pesos.add(x.f.size);
+      return true;
+    });
+    return unicos.sort((a, b) => a.pag - b.pag).map((x) => x.f);
+  });
 }
 
 // Tiras soltadas en el dropzone: las páginas de un mismo diseño se unen en UN
 // carrusel (sin los blancos de relleno); diseños distintos, uno cada quien.
+const tiraQueue = [];   // tiras soltadas mientras otra subida corre: a la fila, no a la basura
 async function subirTirasComoCarruseles(files) {
   const client = activeClient();
   if (!client) return;
-  if (busy) { toast(T('Espera a que termine la subida en curso.', 'Wait for the current upload to finish.'), 'info'); return; }
+  if (busy || draining) {
+    tiraQueue.push(...files);
+    toast(T(`+${files.length} en la fila; se subirán al terminar.`, `+${files.length} queued; they'll upload when the current one finishes.`), 'info');
+    return;
+  }
   for (const grupo of grupoDePaginas([...files])) {
-    // eslint-disable-next-line no-await-in-loop
-    const tira = await componerTira(grupo).catch(() => grupo[0]);
-    if (!tira) { toast(T('Esa imagen venía en blanco: no se subió.', 'That image was blank: not uploaded.'), 'info'); continue; }
-    if (grupo.length > 1) toast(T(`${grupo.length} páginas unidas en un solo carrusel ✓`, `${grupo.length} pages merged into one carousel ✓`), 'success');
-    // eslint-disable-next-line no-await-in-loop
-    await crearCarruselConTira(client, null, '', tira);
+    let res = null;
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      res = await componerTiras(grupo);
+    } catch (e) {
+      toast((e && e.message) || T('No se pudo leer la imagen.', 'Could not read the image.'), 'error');
+      continue;
+    }
+    if (!res.tiras.length) { toast(T('Esa imagen venía en blanco: no se subió.', 'That image was blank: not uploaded.'), 'info'); continue; }
+    if (grupo.length > 1 && res.tiras.length === 1) toast(T(`${grupo.length} páginas unidas en un solo carrusel ✓`, `${grupo.length} pages merged into one carousel ✓`), 'success');
+    if (res.tiras.length > 1) toast(T(`El diseño trae más de 20 slides (tope de Instagram): se dividió en ${res.tiras.length} carruseles.`, `The design has over 20 slides (Instagram's cap): split into ${res.tiras.length} carousels.`), 'info', 9000);
+    for (const t of res.tiras) {
+      // eslint-disable-next-line no-await-in-loop
+      await crearCarruselConTira(client, null, '', t, { yaCompuesta: true });
+    }
+  }
+  if (tiraQueue.length) {
+    const cola = tiraQueue.splice(0);
+    subirTirasComoCarruseles(cola);
   }
 }
 
 // Alta del carrusel + subida de su tira como poster (la tira ES el carrusel:
 // la vista y el PDF la dividen en slides).
-async function crearCarruselConTira(client, url, title, tiraFile) {
+async function crearCarruselConTira(client, url, title, tiraFile, opts = {}) {
   busy = true; render();
   const month = addMonth || currentMonth();
+  let creado = null;
   try {
-    const creado = await api.post('/deliverables', {
+    let tiras = tiraFile ? [tiraFile] : [];
+    if (tiraFile && !opts.yaCompuesta) {
+      const res = await componerTiras([tiraFile]).catch(() => null);
+      if (res && res.tiras.length) tiras = res.tiras;
+    }
+    const alta = () => api.post('/deliverables', {
       client_id: client.id, month, type: 'carrusel',
       link: url || null, title: (title || '').trim().slice(0, 200) || null,
     });
-    if (tiraFile && creado && creado.id) {
-      const compuesta = await componerTira([tiraFile]).catch(() => null);
-      await subirTira(creado.id, compuesta || tiraFile);
+    creado = await alta();
+    if (tiras.length && creado && creado.id) await subirTira(creado.id, tiras[0]);
+    // Partes extra (diseños de más de 20 slides, tope de Instagram): cada una
+    // es su propio carrusel completo.
+    for (let i = 1; i < tiras.length; i++) {
+      // eslint-disable-next-line no-await-in-loop
+      const extra = await alta();
+      // eslint-disable-next-line no-await-in-loop
+      if (extra && extra.id) await subirTira(extra.id, tiras[i]);
     }
     toast(T('Carrusel agregado ✓', 'Carousel added ✓'), 'success');
     activeMonthNav = month; // al agregar, la vista te lleva a ese mes
     await load();
     return true;
   } catch (e) {
+    // Sin tira no hay carrusel: si la subida de la imagen falló, el alta se
+    // revierte para no dejar un cascarón vacío en la app del cliente (ni
+    // duplicados al reintentar). Mismo patrón que uploadReel.
+    if (creado && creado.id && tiraFile) { try { await api.del(`/deliverables/${creado.id}`); } catch { /* quedó el cascarón: se borra a mano */ } }
     toast(e.message || T('No se pudo agregar el carrusel', 'Could not add the carousel'), 'error');
     return false;
   } finally {
@@ -763,12 +849,15 @@ async function subirTira(id, file) {
   cv.width = Math.round(bmp.width * K); cv.height = Math.round(bmp.height * K);
   cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
   const blob = await new Promise((ok) => cv.toBlob(ok, 'image/jpeg', 0.9));
+  // iPads viejos topan por ÁREA de canvas y toBlob devuelve null: mejor un
+  // error claro que subir un archivo basura como tira.
+  if (!blob) throw new Error(T('La imagen es demasiado grande para este dispositivo.', 'The image is too large for this device.'));
   const fd = new FormData();
   fd.append('poster', blob, 'tira.jpg');
   // fetch crudo: api.post serializa TODO a JSON y destriparía la FormData.
   const r = await fetch(`/api/marketing/deliverables/${id}/poster`, { method: 'POST', credentials: 'same-origin', body: fd });
   if (!r.ok) throw new Error(T('La tira no se pudo subir', 'The strip could not be uploaded'));
-  tiraCache.delete(id);
+  for (const k of [...tiraCache.keys()]) if (String(k).startsWith(`${id}|`)) tiraCache.delete(k);
 }
 
 // ── Slides de la tira (client-side): dataURLs por slide, cacheados ──────────
@@ -793,9 +882,12 @@ function numSlidesDeTira(w, h) {
   return mejor.n;
 }
 
-const tiraCache = new Map();   // id -> Promise<string[]>
+const tiraCache = new Map();   // id|selloPoster -> Promise<string[]>
 function slidesDeTira(it) {
-  const key = it.id;
+  // La clave incluye el sello ?v= del poster: al "Cambiar tira", el cliente
+  // con la app abierta ve la tira NUEVA en cuanto recarga la lista (antes la
+  // promesa vieja cacheada por id le enseñaba el carrusel incorrecto).
+  const key = `${it.id}|${it.poster_url || ''}`;
   if (tiraCache.has(key)) return tiraCache.get(key);
   const pr = (async () => {
     const r = await fetch(it.poster_url, { credentials: 'include' });
@@ -808,7 +900,11 @@ function slidesDeTira(it) {
       const cv = document.createElement('canvas');
       const outW = Math.min(720, Math.round(sw));
       cv.width = outW; cv.height = Math.round(outW * bmp.height / sw);
-      cv.getContext('2d').drawImage(bmp, i * sw, 0, sw, bmp.height, 0, 0, cv.width, cv.height);
+      // Clamp del último slide (igual que pdf-entregables.js): WebKit no dibuja
+      // NADA si el rect de origen se sale de la imagen por un flotante.
+      const sx = Math.min(i * sw, bmp.width - 1);
+      const anchoSrc = Math.min(sw, bmp.width - sx);
+      cv.getContext('2d').drawImage(bmp, sx, 0, anchoSrc, bmp.height, 0, 0, cv.width, cv.height);
       out.push(cv.toDataURL('image/jpeg', 0.88));
     }
     return out;
@@ -856,8 +952,12 @@ async function descargarSlides(it, btn) {
     for (let i = 0; i < n; i++) {
       const cv = document.createElement('canvas');
       cv.width = Math.round(sw); cv.height = bmp.height;
-      cv.getContext('2d').drawImage(bmp, i * sw, 0, sw, bmp.height, 0, 0, cv.width, cv.height);
+      // Mismo clamp anti-WebKit que slidesDeTira/pdf-entregables.js.
+      const sx = Math.min(i * sw, bmp.width - 1);
+      const anchoSrc = Math.min(sw, bmp.width - sx);
+      cv.getContext('2d').drawImage(bmp, sx, 0, anchoSrc, bmp.height, 0, 0, cv.width, cv.height);
       const b = await new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.92));
+      if (!b) throw new Error(T('La imagen es demasiado grande para este dispositivo.', 'The image is too large for this device.'));
       files.push(new File([b], `${base}-${i + 1}.jpg`, { type: 'image/jpeg' }));
     }
   }
@@ -1746,7 +1846,16 @@ function buildItem(it, staff) {
     const f = tiraIn.files && tiraIn.files[0];
     if (!f) return;
     busy = true; render();
-    try { const comp = await componerTira([f]).catch(() => null); await subirTira(it.id, comp || f); toast(T('Tira actualizada ✓', 'Strip updated ✓'), 'success'); await load(); }
+    try {
+      const res = await componerTiras([f]).catch(() => null);
+      if (!res || !res.tiras.length) {
+        toast(T('No se pudo leer esa imagen. Exporta en PNG o JPG.', 'Could not read that image. Export as PNG or JPG.'), 'error');
+        return;
+      }
+      if (res.tiras.length > 1) toast(T('El diseño trae más de 20 slides (tope de Instagram): entraron los primeros 20; sube el resto como otro carrusel.', 'The design has over 20 slides (Instagram’s cap): the first 20 went in; upload the rest as another carousel.'), 'info', 9000);
+      await subirTira(it.id, res.tiras[0]);
+      toast(T('Tira actualizada ✓', 'Strip updated ✓'), 'success'); await load();
+    }
     catch (e) { toast(e.message || T('No se pudo subir la tira', 'Could not upload the strip'), 'error'); }
     finally { busy = false; render(); }
   });
@@ -1967,10 +2076,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202608261331');
+        const mod = await import('../lib/pdf-entregables.js?v=202608261343');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261331');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261343');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);

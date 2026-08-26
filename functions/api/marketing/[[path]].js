@@ -4459,7 +4459,7 @@ async function handleCreateDeliverable(request, env, session, url) {
   const clientId = b.client_id;
   const month = String(b.month || '').slice(0, 7);
   const type = b.type;
-  if (!clientId || !/^\d{4}-\d{2}$/.test(month) || !MKT_DLV_TYPES.has(type)) {
+  if (!clientId || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month) || !MKT_DLV_TYPES.has(type)) {
     return json({ error: 'Faltan datos: client_id, month (YYYY-MM) y type (reel|carrusel).' }, 400);
   }
   const id = randomId();
@@ -4621,6 +4621,10 @@ async function handleUploadDeliverablePoster(request, env, session, id) {
   let file = null;
   if (ct.includes('multipart/form-data')) { const form = await request.formData(); file = form.get('poster') || form.get('file'); }
   if (!file || typeof file.stream !== 'function') return json({ error: 'Adjunta la imagen en el campo "poster".' }, 400);
+  // Solo imágenes y con tope: un archivo equivocado dejaría poster_ok=1 con
+  // una "tira" que ningún navegador puede decodificar (carrusel roto eterno).
+  if (file.type && !/^image\//i.test(file.type)) return json({ error: 'La tira debe ser una imagen (JPG/PNG).' }, 400);
+  if (typeof file.size === 'number' && file.size > 25 * 1024 * 1024) return json({ error: 'La tira pesa más de 25MB.' }, 413);
   await env.R2_BUCKET.put(`marketing/deliverable/${id}.poster.jpg`, file.stream(), {
     httpMetadata: { contentType: 'image/jpeg', cacheControl: 'private, max-age=86400' },
   });
