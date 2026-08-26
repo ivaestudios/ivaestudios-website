@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608261245';
-import { icon } from '../shell/icons.js?v=202608261245';
-import { T } from '../shell/i18n.js?v=202608261245';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608261245';
+import { api, el, clear, toast } from '../api.js?v=202608261256';
+import { icon } from '../shell/icons.js?v=202608261256';
+import { T } from '../shell/i18n.js?v=202608261256';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608261256';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202608261245';
+import { moderarComentario } from '../shell/moderacion.js?v=202608261256';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608261245';
+import { errorCard } from '../ui/states.js?v=202608261256';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608261245';
+} from '../lib/video-upload.js?v=202608261256';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -190,7 +190,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608261245';
+  link.href = '/marketing/css/entregables.css?v=202608261256';
   document.head.appendChild(link);
 }
 
@@ -596,6 +596,35 @@ function esSlideBlanco(bmp, sx, sw) {
   return (max - min) < 10 && min > 232;   // plano y casi blanco = relleno
 }
 
+// La LÍNEA BLANCA al borde de un slide (reporte de Vianey 2026-08-26): cuando
+// las páginas del export no miden exacto, el corte nominal se come unos px de
+// la página vecina — si esa era el relleno blanco, el slide sale con un filo
+// blanco. Se recortan hasta 4% de columnas casi blancas por lado y SIEMPRE un
+// colchón de 2px: drawImage muestrea bilineal y arrastra ~1px del vecino.
+// Lo recortado se recupera estirando al ancho nominal (≤5%: invisible).
+function recortaRebaba(bmp, sx, sw) {
+  const COLS = 256, ROWS = 48;
+  const cv = document.createElement('canvas');
+  cv.width = COLS; cv.height = ROWS;
+  const c = cv.getContext('2d');
+  c.drawImage(bmp, sx, 0, sw, bmp.height, 0, 0, COLS, ROWS);
+  const d = c.getImageData(0, 0, COLS, ROWS).data;
+  const blanca = (x) => {
+    let w = 0;
+    for (let y = 0; y < ROWS; y++) {
+      const i = (y * COLS + x) * 4;
+      if (d[i] > 230 && d[i + 1] > 230 && d[i + 2] > 230) w++;
+    }
+    return (w / ROWS) > 0.92;
+  };
+  const MAX = Math.floor(COLS * 0.04);
+  let izq = 0; while (izq < MAX && blanca(izq)) izq++;
+  let der = 0; while (der < MAX && blanca(COLS - 1 - der)) der++;
+  const px = sw / COLS;
+  const COLCHON = 2;
+  return { sx: sx + izq * px + COLCHON, sw: sw - (izq + der) * px - 2 * COLCHON };
+}
+
 async function componerTira(files) {
   const paginas = [];
   for (const f of files) paginas.push(await createImageBitmap(f)); // eslint-disable-line no-await-in-loop
@@ -606,24 +635,29 @@ async function componerTira(files) {
     const sw = p.width / n;
     for (let i = 0; i < n; i++) {
       if (esSlideBlanco(p, i * sw, sw)) { blancos++; continue; }
-      cortes.push({ bmp: p, sx: i * sw, sw });
+      cortes.push({ bmp: p, ...recortaRebaba(p, i * sw, sw), swNominal: sw });
     }
   }
   if (!cortes.length) return null;                          // puro blanco
   if (paginas.length === 1 && !blancos) return files[0];    // nada que rehacer
   let outH = Math.min(...cortes.map((s) => s.bmp.height));
-  const anchoDe = (s) => Math.round(s.sw * (outH / s.bmp.height));
-  let total = cortes.reduce((a, s) => a + anchoDe(s), 0);
+  // TODOS los slides salen con el MISMO ancho (mediana de los nominales): el
+  // visor corta la tira en n partes iguales, y anchos desiguales moverían
+  // TODAS las fronteras de ahí en adelante.
+  const anchos = cortes.map((s) => s.swNominal * (outH / s.bmp.height)).sort((a, b) => a - b);
+  let outW = Math.round(anchos[Math.floor(anchos.length / 2)]);
   // Techo de 16000px de ancho total (límite de canvas en Safari).
-  if (total > 16000) { outH = Math.floor(outH * (16000 / total)); total = cortes.reduce((a, s) => a + anchoDe(s), 0); }
+  if (outW * cortes.length > 16000) {
+    const k = 16000 / (outW * cortes.length);
+    outH = Math.floor(outH * k); outW = Math.floor(outW * k);
+  }
   const cv = document.createElement('canvas');
-  cv.width = total; cv.height = outH;
+  cv.width = outW * cortes.length; cv.height = outH;
   const c = cv.getContext('2d');
   let x = 0;
   for (const s of cortes) {
-    const w = anchoDe(s);
-    c.drawImage(s.bmp, s.sx, 0, s.sw, s.bmp.height, x, 0, w, outH);
-    x += w;
+    c.drawImage(s.bmp, s.sx, 0, s.sw, s.bmp.height, x, 0, outW, outH);
+    x += outW;
   }
   const blob = await new Promise((ok) => cv.toBlob(ok, 'image/jpeg', 0.92));
   return new File([blob], 'tira.jpg', { type: 'image/jpeg' });
@@ -1904,10 +1938,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202608261245');
+        const mod = await import('../lib/pdf-entregables.js?v=202608261256');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261245');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261256');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
