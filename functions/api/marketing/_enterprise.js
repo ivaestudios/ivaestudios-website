@@ -686,6 +686,15 @@ export async function handleMonthlyReport(request, env, session, url, igFetcher 
   if (!ig && manualFetcher && !rangeMode) {
     try { manual = await manualFetcher(env, clientId, month); } catch { /* sigue sin IG */ }
   }
+  // Pauta capturada del mes: se lee SIEMPRE (también con IG vivo, que solo
+  // trae lo orgánico) y se dice aparte, nunca sumada a las cifras orgánicas.
+  let pautaViews = null;
+  if (manualFetcher && !rangeMode) {
+    try {
+      const mm = manual || await manualFetcher(env, clientId, month);
+      if (mm && mm.paid_views != null) pautaViews = Number(mm.paid_views);
+    } catch { /* sin pauta capturada */ }
+  }
 
   const igList = ig ? (ig.data.posts || []).filter(Boolean) : [];
   const igMeasured = igList.filter((p) => p.reach != null || p.views != null);
@@ -742,6 +751,9 @@ export async function handleMonthlyReport(request, env, session, url, igFetcher 
     leadParts.push(`En Instagram, las <b>${M.measured}</b> publicaciones ya medidas suman <b>${nfBig(v)}</b> ${M.views != null ? 'vistas' : 'de alcance'}.`);
   } else if (manual) {
     leadParts.push(`Los números de Instagram de este mes vienen de captura manual.`);
+  }
+  if (pautaViews) {
+    leadParts.push(`La pauta del mes sumó además <b>${nfBig(pautaViews)}</b> vistas pagadas (capturado del panel de la marca; va aparte de lo orgánico).`);
   }
   const leadHtml = leadParts.join(' ');
 

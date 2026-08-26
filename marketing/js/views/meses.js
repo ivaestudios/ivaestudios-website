@@ -28,22 +28,22 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202608261355';
-import { icon } from '../shell/icons.js?v=202608261355';
-import { T } from '../shell/i18n.js?v=202608261355';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202608261355';
+} from '../api.js?v=202608261406';
+import { icon } from '../shell/icons.js?v=202608261406';
+import { T } from '../shell/i18n.js?v=202608261406';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202608261406';
 // Capas de history del shell: el boton atras del telefono cierra la capa de
 // arriba (panel de guion) en vez de salir de la app.
-import { pushLayer } from '../shell/router.js?v=202608261355';
-import { confirmar } from '../shell/sheet.js?v=202608261355';
+import { pushLayer } from '../shell/router.js?v=202608261406';
+import { confirmar } from '../shell/sheet.js?v=202608261406';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608261355';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608261355';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608261355';
+import { errorCard } from '../ui/states.js?v=202608261406';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608261406';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608261406';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608261355';
+} from '../lib/video-upload.js?v=202608261406';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -2117,7 +2117,11 @@ function openIgManual() {
       const f2 = field(T('Alcance del mes', 'Month reach'), 'reach', T('ej. 35000', 'e.g. 35000'));
       const f3 = field(T('Interacciones (likes + comentarios)', 'Interactions (likes + comments)'), 'interactions', T('ej. 1200', 'e.g. 1200'));
       const f4 = field(T('Publicaciones del mes', 'Posts this month'), 'posts', T('ej. 12', 'e.g. 12'));
-      const inputs = [f1, f2, f3, f4];
+      // Pauta: la API de IG solo trae lo orgánico; este número se copia del
+      // panel de la marca (Promocionar en el reel) y sale APARTE en métricas
+      // y reporte, para que el total se vea completo (pedido 2026-08-26).
+      const f5 = field(T('Vistas de pauta del mes (del panel de la marca)', 'Paid views this month (from the brand\'s panel)'), 'paid_views', T('ej. 230000', 'e.g. 230000'));
+      const inputs = [f1, f2, f3, f4, f5];
       const hint = el('p', {
         class: 'meses-confirm__txt',
         text: `${T('Abre Meta Business Suite →', 'Open Meta Business Suite →')} ${(brand && brand.name) || T('la marca', 'the brand')} ${T('→ Estadísticas, copia los números de', '→ Insights, copy the numbers for')} ${mesLbl} ${T('y pégalos aquí. Saldrán en el reporte mensual con tu logo.', 'and paste them here. They will show in the monthly report with your logo.')}`,
@@ -2141,7 +2145,7 @@ function openIgManual() {
           saveBtn.disabled = false;
         }
       });
-      body.append(hint, f1.row, f2.row, f3.row, f4.row, el('div', { class: 'sheet__footer' }, [
+      body.append(hint, f1.row, f2.row, f3.row, f4.row, f5.row, el('div', { class: 'sheet__footer' }, [
         el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
         saveBtn,
       ]));
@@ -2315,8 +2319,8 @@ function buildPdfContenidoBtn(key, rows) {
       const antes = label ? label.textContent : '';
       btn.disabled = true;
       try {
-        const mod = await import('../lib/pdf-contenido.js?v=202608261355');
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261355');
+        const mod = await import('../lib/pdf-contenido.js?v=202608261406');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261406');
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
         const res = await mod.generarPdfContenido({

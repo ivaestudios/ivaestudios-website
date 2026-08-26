@@ -14,9 +14,9 @@
 // API no devuelva (sin comparativas, sin flechas, sin sparklines: no hay
 // histórico de seguidores — ver el reporte final de esta tanda).
 // ============================================================================
-import { api, el, clear, isClientRole } from '../api.js?v=202608261355';
-import { icon } from '../shell/icons.js?v=202608261355';
-import { T, isEN } from '../shell/i18n.js?v=202608261355';
+import { api, el, clear, isClientRole } from '../api.js?v=202608261406';
+import { icon } from '../shell/icons.js?v=202608261406';
+import { T, isEN } from '../shell/i18n.js?v=202608261406';
 
 const VIEW_ID = 'metricas';
 
@@ -185,7 +185,7 @@ function ensureCss() {
   // app.html, así que ningún bump global toca este sello. Si editas
   // metricas.css, sube este número A MANO o el cambio no llega (el SW sirve
   // cache-first todo lo que trae ?v=).
-  link.href = '/marketing/css/metricas.css?v=202608261355';
+  link.href = '/marketing/css/metricas.css?v=202608261406';
   document.head.appendChild(link);
 }
 
@@ -977,6 +977,12 @@ function render() {
           `${joinList(bits)}: the signals that push Instagram hardest to show you to new people.`,
         );
       })()) : null,
+      // Pauta CAPTURADA (staff la copia del panel de la marca): va en su
+      // propia tarjeta, nunca sumada a lo orgánico de arriba.
+      (d.paid && d.paid.views) ? kpi(T('Vistas de pauta', 'Paid views'), nfBig(d.paid.views), T(
+        'Lo que sumaron las promociones pagadas, capturado del panel de Instagram de la marca. Va aparte de las vistas orgánicas de arriba.',
+        'What paid promotions added, captured from the brand\'s Instagram panel. Counted separately from the organic views above.',
+      )) : null,
     ].filter(Boolean));
     // Con 3 o 4 tarjetas el escritorio no puede llevar una plantilla fija de 4
     // columnas: dejaba una celda vacía a la derecha.

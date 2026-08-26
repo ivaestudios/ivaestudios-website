@@ -451,6 +451,30 @@ export async function handleIgMetricsRange(request, env, session, url) {
     return json({ error: 'from y to (AAAA-MM-DD) requeridos' }, 400);
   }
   const out = await fetchIgMetricsRange(env, clientId, from, to);
+  // Pauta CAPTURADA de los meses que toca el rango (la API de IG solo trae lo
+  // orgánico; el staff copia las vistas de pauta del panel de la marca). Va en
+  // un campo aparte: la vista la pinta como cifra capturada, nunca mezclada.
+  try {
+    const meses = [];
+    let d = new Date(`${from}T00:00:00Z`);
+    const fin = new Date(`${to}T00:00:00Z`);
+    while (d <= fin && meses.length < 24) {
+      meses.push(d.toISOString().slice(0, 7));
+      d = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1));
+    }
+    if (meses.length) {
+      const ph = meses.map(() => '?').join(',');
+      const rows = (await env.DB.prepare(
+        `SELECT month, paid_views FROM mkt_ig_manual WHERE client_id = ? AND month IN (${ph}) AND paid_views IS NOT NULL`
+      ).bind(clientId, ...meses).all()).results || [];
+      if (rows.length) {
+        out.paid = {
+          views: rows.reduce((a, r) => a + (Number(r.paid_views) || 0), 0),
+          months: rows.map((r) => r.month).sort(),
+        };
+      }
+    }
+  } catch { /* sin columna o sin captura: el resto de la respuesta sigue */ }
   return json(out);
 }
 
@@ -531,10 +555,10 @@ export async function getManualMetrics(env, clientId, month) {
   if (!/^\d{4}-\d{2}$/.test(String(month || ''))) return null;
   try {
     const r = await env.DB.prepare(
-      'SELECT followers, reach, interactions, posts FROM mkt_ig_manual WHERE client_id = ? AND month = ?'
+      'SELECT followers, reach, interactions, posts, paid_views FROM mkt_ig_manual WHERE client_id = ? AND month = ?'
     ).bind(clientId, month).first();
     if (!r) return null;
-    if (r.followers == null && r.reach == null && r.interactions == null && r.posts == null) return null;
+    if (r.followers == null && r.reach == null && r.interactions == null && r.posts == null && r.paid_views == null) return null;
     return r;
   } catch { return null; }
 }
@@ -558,13 +582,14 @@ export async function handleIgManual(request, env, session, url) {
     if (!clientId || !/^\d{4}-\d{2}$/.test(String(month))) return json({ error: 'client_id y month (AAAA-MM) requeridos' }, 400);
     const num = (v) => (v === '' || v == null ? null : (Number.isFinite(Number(v)) ? Math.max(0, Math.round(Number(v))) : null));
     await env.DB.prepare(
-      `INSERT INTO mkt_ig_manual (client_id, month, followers, reach, interactions, posts, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+      `INSERT INTO mkt_ig_manual (client_id, month, followers, reach, interactions, posts, paid_views, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
        ON CONFLICT(client_id, month) DO UPDATE SET
          followers=excluded.followers, reach=excluded.reach,
          interactions=excluded.interactions, posts=excluded.posts,
+         paid_views=excluded.paid_views,
          updated_at=datetime('now')`
-    ).bind(clientId, month, num(b.followers), num(b.reach), num(b.interactions), num(b.posts)).run();
+    ).bind(clientId, month, num(b.followers), num(b.reach), num(b.interactions), num(b.posts), num(b.paid_views)).run();
     return json({ ok: true });
   }
   return json({ error: 'Method not allowed' }, 405);
