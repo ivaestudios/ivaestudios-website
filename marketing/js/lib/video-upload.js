@@ -14,7 +14,7 @@
 // "Video final" del calendario). Antes cada uno tenía su propio camino y el del
 // calendario obligaba a comprimir a mano todo lo que pasara de 100 MB.
 // ============================================================================
-import { T } from '../shell/i18n.js?v=202608261534';
+import { T } from '../shell/i18n.js?v=202608261753';
 
 // Partes de ~15MB: el Worker lee CADA parte completa en memoria para dárselas a
 // R2, así que partes de 50MB × 3 en paralelo podían reventarle la memoria con un
