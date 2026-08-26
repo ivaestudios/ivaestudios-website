@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608261433';
-import { icon } from '../shell/icons.js?v=202608261433';
-import { T } from '../shell/i18n.js?v=202608261433';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608261433';
+import { api, el, clear, toast } from '../api.js?v=202608261437';
+import { icon } from '../shell/icons.js?v=202608261437';
+import { T } from '../shell/i18n.js?v=202608261437';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608261437';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202608261433';
+import { moderarComentario } from '../shell/moderacion.js?v=202608261437';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608261433';
+import { errorCard } from '../ui/states.js?v=202608261437';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608261433';
+} from '../lib/video-upload.js?v=202608261437';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -190,7 +190,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608261433';
+  link.href = '/marketing/css/entregables.css?v=202608261437';
   document.head.appendChild(link);
 }
 
@@ -1916,7 +1916,9 @@ function buildItem(it, staff) {
           onclick: (e) => saveVideo(it, e.currentTarget),
         }, [icon('down', 16), el('span', { text: T('Descargar', 'Download') })]) : null,
         canSwap ? el('button', {
-          class: 'dlv-swap' + (hasVideo ? '' : ' dlv-swap--empty'), type: 'button', disabled: busy || null,
+          // SIN disabled por busy: elegir el video de otra tarjeta EN PLENA
+          // subida es justo lo que la fila permite (pedido 2026-08-26).
+          class: 'dlv-swap' + (hasVideo ? '' : ' dlv-swap--empty'), type: 'button',
           'aria-label': hasVideo
             ? T('Cambiar el video de este reel (los comentarios se quedan)', 'Replace this reel\'s video (the comments stay)')
             : T('Subir el video de este reel (los comentarios se quedan)', 'Upload this reel\'s video (the comments stay)'),
@@ -2178,10 +2180,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202608261433');
+        const mod = await import('../lib/pdf-entregables.js?v=202608261437');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261433');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261437');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
