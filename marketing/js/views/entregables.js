@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608261406';
-import { icon } from '../shell/icons.js?v=202608261406';
-import { T } from '../shell/i18n.js?v=202608261406';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608261406';
+import { api, el, clear, toast } from '../api.js?v=202608261411';
+import { icon } from '../shell/icons.js?v=202608261411';
+import { T } from '../shell/i18n.js?v=202608261411';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608261411';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202608261406';
+import { moderarComentario } from '../shell/moderacion.js?v=202608261411';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608261406';
+import { errorCard } from '../ui/states.js?v=202608261411';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608261406';
+} from '../lib/video-upload.js?v=202608261411';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -190,7 +190,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608261406';
+  link.href = '/marketing/css/entregables.css?v=202608261411';
   document.head.appendChild(link);
 }
 
@@ -653,6 +653,34 @@ function anchoRebaba(bmp, sx, sw, desdeIzq) {
   return Math.round(w * (sw / COLS));
 }
 
+// Costura de FOTO AJENA al borde: cuando el corte no cae exacto, el slide
+// arrastra unos px de la foto de al lado — no es banda plana (tiene textura),
+// es un CORTE vertical brusco (salto fuerte entre columnas vecinas en la
+// mayoría de las filas) pegado al borde. Regla de Vianey 2026-08-26: "cada
+// slide no puede ir con la info de la siguiente foto". Solo se busca en
+// bordes INTERNOS del bitmap (el borde exterior no tiene vecino).
+function costuraAjena(bmp, sx, sw, desdeIzq) {
+  const ZONA = Math.max(8, Math.floor(sw * 0.04));
+  const ROWS = 80;
+  const cv = document.createElement('canvas');
+  cv.width = ZONA + 1; cv.height = ROWS;
+  const c = cv.getContext('2d');
+  const srcX = desdeIzq ? sx : sx + sw - ZONA - 1;
+  c.drawImage(bmp, srcX, 0, ZONA + 1, bmp.height, 0, 0, ZONA + 1, ROWS);
+  const d = c.getImageData(0, 0, ZONA + 1, ROWS).data;
+  const lum = (x, y) => { const i = (y * (ZONA + 1) + x) * 4; return (d[i] + d[i + 1] + d[i + 2]) / 3; };
+  for (let k = 1; k < ZONA; k++) {
+    const x = desdeIzq ? k : ZONA - k;
+    let suma = 0, fuertes = 0;
+    for (let y = 0; y < ROWS; y++) {
+      const df = Math.abs(lum(x, y) - lum(x + 1, y));
+      suma += df; if (df > 22) fuertes++;
+    }
+    if (suma / ROWS > 22 && fuertes / ROWS > 0.55) return k;
+  }
+  return 0;
+}
+
 // Compone las páginas en tira(s). Instagram permite MÁXIMO 20 slides por
 // carrusel (y numSlidesDeTira solo prueba n=1..20): si el material trae más,
 // devuelve VARIAS tiras completas en vez de una incortable. Una página
@@ -677,13 +705,21 @@ async function componerTiras(files) {
     const sw = p.width / n;
     for (let i = 0; i < n; i++) {
       if (esSlideBlanco(p, i * sw, sw)) { blancos++; continue; }
-      let rIzq = anchoRebaba(p, i * sw, sw, true);
-      let rDer = anchoRebaba(p, i * sw, sw, false);
+      let bandaI = anchoRebaba(p, i * sw, sw, true);
+      let bandaD = anchoRebaba(p, i * sw, sw, false);
       // Un filete FINO (≤0.5% del ancho) es rebaba aunque salga en ambos
       // lados; bandas ANCHAS en LOS DOS lados = marco simétrico de diseño,
       // no se toca.
       const fino = sw * 0.005;
-      if (rIzq > fino && rDer > fino) { rIzq = 0; rDer = 0; }
+      if (bandaI > fino && bandaD > fino) { bandaI = 0; bandaD = 0; }
+      // Costura de foto ajena: solo en bordes con vecino dentro del bitmap.
+      // Si sale a distancia PAREJA en ambos lados es un margen de diseño
+      // (foto enmarcada) y no se toca.
+      let cosI = i > 0 ? costuraAjena(p, i * sw, sw, true) : 0;
+      let cosD = i < n - 1 ? costuraAjena(p, i * sw, sw, false) : 0;
+      if (cosI && cosD && Math.max(cosI, cosD) < 2 * Math.min(cosI, cosD)) { cosI = 0; cosD = 0; }
+      const rIzq = Math.max(bandaI, cosI);
+      const rDer = Math.max(bandaD, cosD);
       if (rIzq || rDer) rebabas++;
       cortes.push({ bmp: p, sx: i * sw, sw, rIzq, rDer });
     }
@@ -2091,10 +2127,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202608261406');
+        const mod = await import('../lib/pdf-entregables.js?v=202608261411');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261406');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608261411');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);

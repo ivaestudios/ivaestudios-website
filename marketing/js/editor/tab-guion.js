@@ -12,11 +12,11 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, copyText, clearClipboard } from '../api.js?v=202608261406';
-import { icon } from '../shell/icons.js?v=202608261406';
-import { makeTextarea } from './fields.js?v=202608261406';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202608261406';
-import { T } from '../shell/i18n.js?v=202608261406';
+import { el, copyText, clearClipboard } from '../api.js?v=202608261411';
+import { icon } from '../shell/icons.js?v=202608261411';
+import { makeTextarea } from './fields.js?v=202608261411';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202608261411';
+import { T } from '../shell/i18n.js?v=202608261411';
 
 // Copiar "nada" deja el portapapeles VACÍO: si se deja intacto, el siguiente
 // pegado suelta el caption de OTRA pieza y eso acaba publicado en el Instagram
