@@ -268,8 +268,13 @@ export async function handleFbMetrics(request, env, session, url) {
     const page = await fbJson(`${FB_GRAPH}/${c.fb_page_id}?` + new URLSearchParams({
       fields: 'name,fan_count,followers_count,link', access_token: tok,
     }));
-    const feed = await fbJson(`${FB_GRAPH}/${c.fb_page_id}/published_posts?` + new URLSearchParams({
-      fields: 'created_time,message,permalink_url,likes.summary(true),comments.summary(true),shares',
+    // OJO (2026-08-27, probado contra Graph): en modo desarrollo los conteos
+    // likes.summary/comments.summary responden #10 aunque el token TRAIGA
+    // pages_read_engagement — Meta los libera con el Acceso Avanzado. Lo que
+    // SÍ custodia hoy este permiso y funciona: fan_count y /posts con
+    // shares. Cuando la App Review apruebe, aquí se suman los conteos.
+    const feed = await fbJson(`${FB_GRAPH}/${c.fb_page_id}/posts?` + new URLSearchParams({
+      fields: 'created_time,message,permalink_url,shares',
       limit: '10', access_token: tok,
     }));
     const posts = (feed.data || []).map((p) => ({
@@ -277,8 +282,6 @@ export async function handleFbMetrics(request, env, session, url) {
       created_time: p.created_time || null,
       message: String(p.message || '').replace(/\s+/g, ' ').slice(0, 160),
       permalink: p.permalink_url || null,
-      likes: (p.likes && p.likes.summary && p.likes.summary.total_count) || 0,
-      comments: (p.comments && p.comments.summary && p.comments.summary.total_count) || 0,
       shares: (p.shares && p.shares.count) || 0,
     }));
     return json({
@@ -293,6 +296,7 @@ export async function handleFbMetrics(request, env, session, url) {
       fetched_at: new Date().toISOString(),
     });
   } catch (e) {
-    return json({ error: (e && e.message) || 'Facebook no respondió' }, 502);
+    // 424 y NO 5xx: Cloudflare pisa los 5xx con su propia página de error.
+    return json({ error: (e && e.message) || 'Facebook no respondió' }, 424);
   }
 }

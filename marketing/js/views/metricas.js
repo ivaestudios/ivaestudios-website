@@ -14,9 +14,9 @@
 // API no devuelva (sin comparativas, sin flechas, sin sparklines: no hay
 // histórico de seguidores — ver el reporte final de esta tanda).
 // ============================================================================
-import { api, el, clear, isClientRole } from '../api.js?v=202608271229';
-import { icon } from '../shell/icons.js?v=202608271229';
-import { T, isEN } from '../shell/i18n.js?v=202608271229';
+import { api, el, clear, isClientRole } from '../api.js?v=202608271234';
+import { icon } from '../shell/icons.js?v=202608271234';
+import { T, isEN } from '../shell/i18n.js?v=202608271234';
 
 const VIEW_ID = 'metricas';
 
@@ -188,7 +188,7 @@ function ensureCss() {
   // app.html, así que ningún bump global toca este sello. Si editas
   // metricas.css, sube este número A MANO o el cambio no llega (el SW sirve
   // cache-first todo lo que trae ?v=).
-  link.href = '/marketing/css/metricas.css?v=202608271229';
+  link.href = '/marketing/css/metricas.css?v=202608271234';
   document.head.appendChild(link);
 }
 
@@ -735,6 +735,8 @@ function buildFacebook(fb) {
   const now = new Date();
   const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
   const posts = Array.isArray(fb.posts) ? fb.posts : [];
+  // En modo desarrollo Meta aún no libera likes/comentarios por post (llegan
+  // con el Acceso Avanzado); la vista pinta solo lo que la API ya da.
   const likes = posts.reduce((a, p) => a + (p.likes || 0), 0);
   const comments = posts.reduce((a, p) => a + (p.comments || 0), 0);
   const shares = posts.reduce((a, p) => a + (p.shares || 0), 0);
@@ -758,14 +760,18 @@ function buildFacebook(fb) {
       'Foto de la página <b>ahora mismo</b>, directo de Facebook.',
       'A snapshot of the Page <b>right now</b>, straight from Facebook.',
     ), { hero: true }) : null,
-    kpi(T('Reacciones', 'Reactions'), nfBig(likes), T(
+    kpi(T('Publicaciones recientes', 'Recent posts'), nfBig(posts.length), T(
+      'Las últimas publicaciones de la página, leídas en vivo.',
+      "The Page's latest posts, read live.",
+    )),
+    likes ? kpi(T('Reacciones', 'Reactions'), nfBig(likes), T(
       `En las últimas ${nf(posts.length)} publicaciones de la página.`,
       `Across the Page's last ${nf(posts.length)} posts.`,
-    )),
-    kpi(T('Comentarios', 'Comments'), nfBig(comments), T(
+    )) : null,
+    comments ? kpi(T('Comentarios', 'Comments'), nfBig(comments), T(
       'Conversación real bajo esas publicaciones.',
       'Real conversation under those posts.',
-    )),
+    )) : null,
     shares ? kpi(T('Compartidos', 'Shares'), nfBig(shares), T(
       'Veces que la gente llevó tu contenido a su propio muro.',
       'Times people carried your content to their own feed.',
@@ -784,10 +790,10 @@ function buildFacebook(fb) {
           el('span', { class: 'mt-fbpost__date', text: p.created_time ? shortDate(p.created_time) : '' }),
         ]),
         el('div', { class: 'mt-fbpost__nums' }, [
-          el('span', { text: `${nf(p.likes || 0)} ♥` }),
-          el('span', { text: `${nf(p.comments || 0)} 💬` }),
-          p.shares ? el('span', { text: `${nf(p.shares)} ↗` }) : null,
-          p.permalink ? el('a', { href: p.permalink, target: '_blank', rel: 'noopener', text: T('Ver', 'View') }) : null,
+          p.likes ? el('span', { text: `${nf(p.likes)} ♥` }) : null,
+          p.comments ? el('span', { text: `${nf(p.comments)} 💬` }) : null,
+          p.shares ? el('span', { text: T(`${nf(p.shares)} compartidos`, `${nf(p.shares)} shares`) }) : null,
+          p.permalink ? el('a', { href: p.permalink, target: '_blank', rel: 'noopener', text: T('Ver en Facebook', 'View on Facebook') }) : null,
         ].filter(Boolean)),
       ]));
     }

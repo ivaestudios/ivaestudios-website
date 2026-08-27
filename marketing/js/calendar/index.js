@@ -15,20 +15,20 @@
 // URL, espejados por el shell en store.filters.
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202608271229';
-import { T } from '../shell/i18n.js?v=202608271229';
+import { el, clear } from '../api.js?v=202608271234';
+import { T } from '../shell/i18n.js?v=202608271234';
 import {
   fmtYMD, parseYMD, addDays, addMonths, startOfMonth, startOfWeek,
   monthTitle, weekTitle, parseFilters, countActiveFilters, applyFilters,
   groupByDay, backlogPosts, workingAnchor,
-} from './data.js?v=202608271229';
-import * as calState from './state.js?v=202608271229';
-import { renderMonth } from './month.js?v=202608271229';
-import { renderWeek } from './week.js?v=202608271229';
-import { renderAgenda } from './agenda.js?v=202608271229';
-import { renderBacklog } from './backlog.js?v=202608271229';
-import { buildControls } from './filters.js?v=202608271229';
-import { openQuickCreate } from './quickcreate.js?v=202608271229';
+} from './data.js?v=202608271234';
+import * as calState from './state.js?v=202608271234';
+import { renderMonth } from './month.js?v=202608271234';
+import { renderWeek } from './week.js?v=202608271234';
+import { renderAgenda } from './agenda.js?v=202608271234';
+import { renderBacklog } from './backlog.js?v=202608271234';
+import { buildControls } from './filters.js?v=202608271234';
+import { openQuickCreate } from './quickcreate.js?v=202608271234';
 
 const MQ_DESKTOP = '(min-width: 768px)';
 
