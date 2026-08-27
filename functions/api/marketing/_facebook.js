@@ -50,12 +50,22 @@ function faltaConfig(env) {
   return null;
 }
 
-// GET /fb/login?client_id=… (staff) → redirige al OAuth de Facebook.
+// GET /fb/login?client_id=… (staff; clientes solo en lista blanca) → OAuth de
+// Facebook. Espejo del CLIENT_CAN_CONNECT de _instagram.js (pedido 2026-08-27:
+// botón Conectar para el cliente Regeneris). El cliente queda FORZADO a su
+// propia marca: se ignora el client_id de la URL.
+const CLIENT_FB_CONNECT = [
+  'demo-regeneris', // REGENERIS THERAPY
+];
 export async function handleFbLogin(request, env, session, url) {
-  if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
+  if (session.role === 'client' && !CLIENT_FB_CONNECT.includes(session.client_id)) {
+    return json({ error: 'Forbidden' }, 403);
+  }
   const falta = faltaConfig(env);
   if (falta) return json({ error: falta }, 503);
-  const clientId = url.searchParams.get('client_id') || '';
+  const clientId = session.role === 'client'
+    ? (session.client_id || '')
+    : (url.searchParams.get('client_id') || '');
   const client = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(clientId).first();
   if (!client) return json({ error: 'Cliente no encontrado' }, 404);
   const nonce = rnd();

@@ -10,9 +10,9 @@
 // de clientes (ig_username / fb_page_name / tt_username); aquí no hay fetch
 // propio: la vista lee el store y se repinta con él.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202608271043';
-import { icon } from '../shell/icons.js?v=202608271043';
-import { T } from '../shell/i18n.js?v=202608271043';
+import { el, clear, toast } from '../api.js?v=202608271054';
+import { icon } from '../shell/icons.js?v=202608271054';
+import { T } from '../shell/i18n.js?v=202608271054';
 
 const VIEW_ID = 'conexiones';
 
@@ -82,17 +82,20 @@ function tarjeta(c) {
       el('h2', { class: 'cx-card__name', text: c.name }),
       completa ? el('span', { class: 'cx-card__badge', text: T('Completa', 'Complete') }) : null,
     ].filter(Boolean)),
+    // El cliente habilitado también tiene su botón Conectar (pedido
+    // 2026-08-27); el backend lo fuerza a su propia marca. OJO: mientras la
+    // app de Meta siga en modo desarrollo, cuentas sin rol verán el aviso de
+    // Meta "la app no está activa" — por eso abajo se conserva la nota con el
+    // camino de aprobar la solicitud, que sí funciona hoy.
     filaRed({
       nombre: 'Instagram', icono: 'camera',
       conectado: !!ig, detalle: ig ? `${ig} ✓` : '',
-      // El cliente no dispara OAuth (la app de Meta solo acepta cuentas con
-      // rol mientras siga en modo desarrollo): ve el estado, sin botón.
-      onConnect: cliente ? null : () => conectar('ig', c.id),
+      onConnect: () => conectar('ig', c.id),
     }),
     filaRed({
       nombre: 'Facebook', icono: 'link',
       conectado: !!fb, detalle: fb ? `${fb} ✓` : '',
-      onConnect: cliente ? null : () => conectar('fb', c.id),
+      onConnect: () => conectar('fb', c.id),
     }),
     // Sin Facebook aún: al equipo le damos el botón de invitación; al cliente,
     // la instrucción de UN tap para aprobar la solicitud que ya le enviamos.
@@ -153,7 +156,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/conexiones.css?v=202608271043';
+  link.href = '/marketing/css/conexiones.css?v=202608271054';
   document.head.appendChild(link);
 }
 
