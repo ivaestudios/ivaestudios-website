@@ -112,6 +112,23 @@ export async function handleFbCallback(request, env, url) {
     const acc = await (await fetch(`${FB_GRAPH}/me/accounts?fields=id,name,access_token&limit=50&access_token=${encodeURIComponent(userTok)}`)).json();
     const pages = (acc.data || []).filter((p) => p.id && p.access_token);
     if (!pages.length) {
+      // BUG de Meta visto 2026-08-27: tras revocar y re-autorizar la app,
+      // /me/accounts responde vacío AUNQUE el token traiga las páginas en
+      // granular_scopes (verificado con debug_token). Rodeo oficial: sacar
+      // los ids de granular_scopes y pedir el token de cada página directo.
+      try {
+        const dbg = await (await fetch(`${FB_GRAPH}/debug_token?` + new URLSearchParams({
+          input_token: userTok, access_token: `${env.FB_APP_ID}|${env.FB_APP_SECRET}`,
+        }))).json();
+        const ids = [...new Set(((dbg.data && dbg.data.granular_scopes) || [])
+          .flatMap((g) => g.target_ids || []))];
+        for (const id of ids.slice(0, 25)) {
+          const pg = await (await fetch(`${FB_GRAPH}/${id}?fields=id,name,access_token&access_token=${encodeURIComponent(userTok)}`)).json();
+          if (pg.id && pg.access_token) pages.push(pg);
+        }
+      } catch { /* se queda el aviso de Sin páginas */ }
+    }
+    if (!pages.length) {
       return html(EN
         ? `<h1>No Pages</h1><p>This Facebook account does not manage any Page. Create the brand's Page (or ask for an admin role) and try again.</p><a href="${back}">Back to the app</a>`
         : `<h1>Sin páginas</h1><p>Esta cuenta de Facebook no administra ninguna página. Crea la página de la marca (o pide rol de administrador) y vuelve a intentar.</p><a href="${back}">Volver a la app</a>`);
