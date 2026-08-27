@@ -427,3 +427,19 @@
    la API de Instagram para ESA cuenta (requisito del revisor de Meta). */
 .mt-live { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 12.5px; color: var(--text-dim); }
 .mt-live__dot { width: 8px; height: 8px; border-radius: 50%; background: #35C759; box-shadow: 0 0 0 3px rgba(53,199,89,.18); flex: none; }
+
+/* ── 05 · Facebook de la marca (metricas.js buildFacebook, 2026-08-27) ────── */
+.mt-fbposts { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.mt-fbpost {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding: 12px 14px; border: 1px solid var(--mt-line, rgba(127,127,127,.22));
+  border-radius: 12px; background: var(--mt-card, transparent);
+}
+.mt-fbpost__txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.mt-fbpost__msg { font-size: 14px; line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.mt-fbpost__date { font-size: 12px; opacity: .62; }
+.mt-fbpost__nums { display: flex; align-items: center; gap: 12px; flex-shrink: 0; font-size: 13px; white-space: nowrap; }
+.mt-fbpost__nums a { font-weight: 600; text-decoration: none; }
+@media (max-width: 560px) {
+  .mt-fbpost { flex-direction: column; align-items: flex-start; gap: 8px; }
+}

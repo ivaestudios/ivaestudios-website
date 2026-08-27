@@ -51,7 +51,7 @@ import { handleMonthlyReport } from './_enterprise.js';
 import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHeadersFor, buscarPinterest, fotosDePin } from './_downloader.js';
 import { pedirMes } from './_mes-ia.js';
 import { publicarEnInstagram, ahoraCancun, estadoContenedor, publicarContenedorExistente } from './_publicador.js';
-import { handleFbLogin, handleFbCallback, handleFbPick, publicarEnFacebook } from './_facebook.js';
+import { handleFbLogin, handleFbCallback, handleFbPick, handleFbMetrics, publicarEnFacebook } from './_facebook.js';
 import { handleTtLogin, handleTtCallback, handleTtCreator, publicarEnTikTok } from './_tiktok.js';
 import { pedirCarrusel } from './_carrusel-ia.js';
 import {
@@ -5316,6 +5316,7 @@ async function route(request, env, authCtx) {
   // con la prueba E2E del 17-ago, antes de que Vianey conectara nada.
   if (parts[0] === 'fb') {
     if (path === '/fb/login' && method === 'GET') return handleFbLogin(request, env, session, url);
+    if (path === '/fb/metrics' && method === 'GET') return handleFbMetrics(request, env, session, url);
     return json({ error: 'Not found' }, 404);
   }
   if (parts[0] === 'tt') {
@@ -5853,7 +5854,29 @@ async function handlePublicarPieza(env, postId, session) {
        publish_error = NULL, updated_at = datetime('now') WHERE id = ?`
     ).bind(r.mediaId, post.id).run();
     await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicado', detail: r.permalink || '' });
-    return json({ ok: true, media_id: r.mediaId, permalink: r.permalink });
+    // FACEBOOK (opt-in por pieza): el cron ya lo hacía y "Publicar ahora" lo
+    // ignoraba — el interruptor "también en Facebook" quedaba mudo en el
+    // camino manual (cazado armando el App Review de pages_manage_posts,
+    // 2026-08-27). Mismo contrato que el cron: jamás bloquea el OK de IG.
+    let fb = null;
+    if (Number(post.also_facebook) === 1 && !post.fb_post_id) {
+      try {
+        const cliFb = await env.DB.prepare('SELECT fb_page_id, fb_page_name, fb_access_token FROM mkt_clients WHERE id = ?').bind(post.client_id).first();
+        const videoUrlFb = await videoFirmadoDePieza(env, post);
+        const slidesFb = await slidesFirmadosDePieza(env, post);
+        const rf = await publicarEnFacebook(env, { client: cliFb, post, videoUrl: videoUrlFb, slides: slidesFb });
+        await env.DB.prepare("UPDATE mkt_posts SET fb_post_id = ?, fb_error = NULL, updated_at = datetime('now') WHERE id = ?")
+          .bind(rf.fbPostId, post.id).run();
+        await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicado_fb', detail: rf.permalink || rf.fbPostId });
+        fb = { ok: true, post_id: rf.fbPostId, permalink: rf.permalink || null };
+      } catch (eFb) {
+        const msgFb = ((eFb && eFb.message) || 'Error desconocido').slice(0, 300);
+        await env.DB.prepare("UPDATE mkt_posts SET fb_error = ?, updated_at = datetime('now') WHERE id = ?").bind(msgFb, post.id).run();
+        await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicar_fb_error', detail: msgFb });
+        fb = { ok: false, error: msgFb };
+      }
+    }
+    return json({ ok: true, media_id: r.mediaId, permalink: r.permalink, fb });
   } catch (e) {
     const msg = ((e && e.message) || 'Error desconocido').slice(0, 300);
     await env.DB.prepare(`UPDATE mkt_posts SET publish_error = ?, updated_at = datetime('now') WHERE id = ?`).bind(msg, post.id).run();

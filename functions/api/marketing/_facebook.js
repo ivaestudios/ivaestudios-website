@@ -247,3 +247,52 @@ export async function publicarEnFacebook(env, { client, post, videoUrl, slides }
 
   throw new Error('La pieza no tiene video ni slides para publicar en Facebook.');
 }
+
+// GET /fb/metrics?client_id=… — métricas EN VIVO de la página conectada de la
+// marca (pages_read_engagement): seguidores de la página + la respuesta
+// (reacciones/comentarios/compartidos) de sus últimas publicaciones. El staff
+// puede pedir cualquier marca; el cliente queda forzado a la suya. Es la
+// experiencia visible del permiso pages_read_engagement en el App Review
+// (2026-08-27): los números salen de la Graph API al momento, nada cacheado.
+export async function handleFbMetrics(request, env, session, url) {
+  const clientId = session.role === 'client'
+    ? (session.client_id || '')
+    : (url.searchParams.get('client_id') || '');
+  const c = await env.DB.prepare(
+    'SELECT id, name, fb_page_id, fb_page_name, fb_access_token FROM mkt_clients WHERE id = ?'
+  ).bind(clientId).first();
+  if (!c) return json({ error: 'Cliente no encontrado' }, 404);
+  if (!c.fb_page_id || !c.fb_access_token) return json({ connected: false });
+  const tok = c.fb_access_token;
+  try {
+    const page = await fbJson(`${FB_GRAPH}/${c.fb_page_id}?` + new URLSearchParams({
+      fields: 'name,fan_count,followers_count,link', access_token: tok,
+    }));
+    const feed = await fbJson(`${FB_GRAPH}/${c.fb_page_id}/published_posts?` + new URLSearchParams({
+      fields: 'created_time,message,permalink_url,likes.summary(true),comments.summary(true),shares',
+      limit: '10', access_token: tok,
+    }));
+    const posts = (feed.data || []).map((p) => ({
+      id: p.id,
+      created_time: p.created_time || null,
+      message: String(p.message || '').replace(/\s+/g, ' ').slice(0, 160),
+      permalink: p.permalink_url || null,
+      likes: (p.likes && p.likes.summary && p.likes.summary.total_count) || 0,
+      comments: (p.comments && p.comments.summary && p.comments.summary.total_count) || 0,
+      shares: (p.shares && p.shares.count) || 0,
+    }));
+    return json({
+      connected: true,
+      page: {
+        id: c.fb_page_id,
+        name: page.name || c.fb_page_name || '',
+        fans: (page.fan_count != null ? page.fan_count : page.followers_count),
+        link: page.link || `https://www.facebook.com/${c.fb_page_id}`,
+      },
+      posts,
+      fetched_at: new Date().toISOString(),
+    });
+  } catch (e) {
+    return json({ error: (e && e.message) || 'Facebook no respondió' }, 502);
+  }
+}

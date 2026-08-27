@@ -14,9 +14,9 @@
 // API no devuelva (sin comparativas, sin flechas, sin sparklines: no hay
 // histórico de seguidores — ver el reporte final de esta tanda).
 // ============================================================================
-import { api, el, clear, isClientRole } from '../api.js?v=202608271054';
-import { icon } from '../shell/icons.js?v=202608271054';
-import { T, isEN } from '../shell/i18n.js?v=202608271054';
+import { api, el, clear, isClientRole } from '../api.js?v=202608271229';
+import { icon } from '../shell/icons.js?v=202608271229';
+import { T, isEN } from '../shell/i18n.js?v=202608271229';
 
 const VIEW_ID = 'metricas';
 
@@ -32,6 +32,9 @@ let customTo = '';
 let loading = false;
 let lastRes = null;
 let lastKey = '';        // clientId|from|to del último fetch (evita refetch igual)
+// Facebook de la marca: fetch propio, en paralelo al de Instagram — si la
+// página no está conectada o falla, la sección simplemente no se dibuja.
+let fbRes = null;
 
 // Solo Semana y Mes: son los periodos donde Instagram entrega datos completos
 // y confiables. Periodos largos (3/6/12 meses) y personalizado se quitaron
@@ -185,7 +188,7 @@ function ensureCss() {
   // app.html, así que ningún bump global toca este sello. Si editas
   // metricas.css, sube este número A MANO o el cambio no llega (el SW sirve
   // cache-first todo lo que trae ?v=).
-  link.href = '/marketing/css/metricas.css?v=202608271054';
+  link.href = '/marketing/css/metricas.css?v=202608271229';
   document.head.appendChild(link);
 }
 
@@ -216,6 +219,8 @@ async function load(force = false) {
   if (!force && key === lastKey && lastRes) { render(); return; }
   lastKey = key;
   loading = true; render();
+  fbRes = null;
+  loadFb(brand, key);
   try {
     const res = await api.get(`/ig/metrics-range?client_id=${encodeURIComponent(brand.id)}&from=${from}&to=${to}`);
     // Respuesta tardía: si lastKey ya cambió (se tocó otro periodo/marca
@@ -227,6 +232,18 @@ async function load(force = false) {
     if (!mounted || key !== lastKey) return;
     loading = false; lastRes = { error: e.message || 'Error al cargar' }; render();
   }
+}
+
+// Facebook en vivo (pages_read_engagement): seguidores de la página y la
+// respuesta de sus últimas publicaciones. Llega cuando llega y re-pinta; una
+// respuesta tardía de otra marca/periodo se descarta igual que en load().
+async function loadFb(brand, key) {
+  if (!brand || !brand.fb_page_name) return;
+  try {
+    const r = await api.get(`/fb/metrics?client_id=${encodeURIComponent(brand.id)}`);
+    if (!mounted || key !== lastKey) return;
+    fbRes = r; render();
+  } catch { /* sin sección de Facebook: silencio, no error */ }
 }
 
 // ── Piezas ───────────────────────────────────────────────────────────────────
@@ -709,6 +726,77 @@ function buildPosts(posts, truncated, skipId) {
   ]);
 }
 
+// ── 05 · Facebook de la marca ────────────────────────────────────────────────
+// La página conectada (Conexiones): seguidores EN VIVO y la respuesta de sus
+// últimas publicaciones, con su propio sello de procedencia — el espejo del
+// sello de Instagram que pidió el revisor de Meta.
+function buildFacebook(fb) {
+  if (!fb || !fb.connected || !fb.page) return null;
+  const now = new Date();
+  const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  const posts = Array.isArray(fb.posts) ? fb.posts : [];
+  const likes = posts.reduce((a, p) => a + (p.likes || 0), 0);
+  const comments = posts.reduce((a, p) => a + (p.comments || 0), 0);
+  const shares = posts.reduce((a, p) => a + (p.shares || 0), 0);
+
+  const kids = [
+    secOpen('Facebook', T(
+      'La página de Facebook conectada de la marca: sus seguidores y cómo respondió la gente a lo último publicado.',
+      "The brand's connected Facebook Page: its followers and how people responded to the latest posts.",
+    )),
+    el('div', { class: 'mt-live' }, [
+      el('span', { class: 'mt-live__dot', 'aria-hidden': 'true' }),
+      el('span', { text: T(
+        `Datos en vivo de la API de páginas de Facebook para "${fb.page.name}" · consultados hoy ${hhmm}`,
+        `Live data from the Facebook Pages API for "${fb.page.name}" · fetched today at ${hhmm}`,
+      ) }),
+    ]),
+  ];
+
+  const kpis = el('div', { class: 'mt-kpis' }, [
+    fb.page.fans != null ? kpi(T('Seguidores de la página', 'Page followers'), nfBig(fb.page.fans), T(
+      'Foto de la página <b>ahora mismo</b>, directo de Facebook.',
+      'A snapshot of the Page <b>right now</b>, straight from Facebook.',
+    ), { hero: true }) : null,
+    kpi(T('Reacciones', 'Reactions'), nfBig(likes), T(
+      `En las últimas ${nf(posts.length)} publicaciones de la página.`,
+      `Across the Page's last ${nf(posts.length)} posts.`,
+    )),
+    kpi(T('Comentarios', 'Comments'), nfBig(comments), T(
+      'Conversación real bajo esas publicaciones.',
+      'Real conversation under those posts.',
+    )),
+    shares ? kpi(T('Compartidos', 'Shares'), nfBig(shares), T(
+      'Veces que la gente llevó tu contenido a su propio muro.',
+      'Times people carried your content to their own feed.',
+    )) : null,
+  ].filter(Boolean));
+  kpis.style.setProperty('--mt-n', String(Math.max(kpis.childElementCount - 1, 1)));
+  kids.push(kpis);
+
+  if (posts.length) {
+    kids.push(el('div', { class: 'mt-kicker', text: T('Últimas publicaciones', 'Latest posts') }));
+    const list = el('div', { class: 'mt-fbposts' });
+    for (const p of posts.slice(0, 6)) {
+      list.appendChild(el('div', { class: 'mt-fbpost' }, [
+        el('div', { class: 'mt-fbpost__txt' }, [
+          el('span', { class: 'mt-fbpost__msg', text: p.message || T('(sin texto)', '(no text)') }),
+          el('span', { class: 'mt-fbpost__date', text: p.created_time ? shortDate(p.created_time) : '' }),
+        ]),
+        el('div', { class: 'mt-fbpost__nums' }, [
+          el('span', { text: `${nf(p.likes || 0)} ♥` }),
+          el('span', { text: `${nf(p.comments || 0)} 💬` }),
+          p.shares ? el('span', { text: `${nf(p.shares)} ↗` }) : null,
+          p.permalink ? el('a', { href: p.permalink, target: '_blank', rel: 'noopener', text: T('Ver', 'View') }) : null,
+        ].filter(Boolean)),
+      ]));
+    }
+    kids.push(list);
+  }
+
+  return el('section', { class: 'mt-sec mt-sec--fb' }, kids);
+}
+
 function buildEmpty(title, body, action, steps) {
   return el('div', { class: 'mt-empty empty-rich' }, [
     el('div', { class: 'empty-rich__ico' }, [icon('gauge', 26)]),
@@ -1026,6 +1114,10 @@ function render() {
   if (podium) doc.appendChild(podium.node);
   const list = buildPosts(posts, truncated, podium ? podium.id : null);
   if (list) doc.appendChild(list);
+
+  // ── 05 · Facebook (solo si la marca tiene página conectada) ────────────────
+  const fbSec = buildFacebook(fbRes);
+  if (fbSec) doc.appendChild(fbSec);
 
   rootEl.appendChild(doc);
 
