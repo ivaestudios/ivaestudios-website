@@ -456,7 +456,13 @@ const POST_RETURN_FIELDS = [
 // V2 columns (migration 005). Added to the staff shape ONLY when the column
 // exists in the row (pre-005 rows simply omit them: clean degradation).
 // `overdue` is server-managed: NEVER editable over HTTP.
-const POST_V2_FIELDS = ['priority', 'assignee_user_id', 'overdue', 'work_start', 'effort_points'];
+const POST_V2_FIELDS = [
+  'priority', 'assignee_user_id', 'overdue', 'work_start', 'effort_points',
+  // Publicación (2026-08-27): el editor v2 pinta el interruptor "también en
+  // Facebook" y la acción Publicar ahora — sin estos campos el toggle se veía
+  // siempre apagado aunque D1 tuviera also_facebook=1.
+  'publish_time', 'published_media_id', 'publish_error', 'also_facebook', 'fb_post_id', 'fb_error',
+];
 
 const CONTENT_TYPES = ['reel', 'post', 'tiktok', 'informativo', 'carrusel', 'experiencia', 'pauta', 'tratamientos', 'historia', 'foto'];
 const STATUSES = ['idea', 'guion', 'grabacion', 'edicion', 'revision', 'aprobado', 'programado', 'publicado'];
