@@ -104,11 +104,23 @@ export async function publicarEnInstagram(env, { client, post, slides, cover, on
       else await espera(3000);
     }
     if (!carruselListo) throw new Error('Instagram sigue procesando el carrusel — se reintenta en el siguiente ciclo.');
-    const pub = await gJson(`${GRAPH}/${client.ig_user_id}/media_publish`, {
-      method: 'POST',
-      body: new URLSearchParams({ creation_id: padre.id, access_token: tok }),
-    });
-    if (!pub.id) throw new Error('Instagram no confirmó la publicación del carrusel.');
+    // Meta a veces dice FINISHED y aun así media_publish responde "The media
+    // is not ready" (visto 2026-08-27 con un carrusel de 3 JPEG): reintentar
+    // esa condición puntual unas veces antes de rendirse.
+    let pub = null;
+    for (let i = 0; i < 4; i++) {
+      try {
+        pub = await gJson(`${GRAPH}/${client.ig_user_id}/media_publish`, {
+          method: 'POST',
+          body: new URLSearchParams({ creation_id: padre.id, access_token: tok }),
+        });
+        break;
+      } catch (e) {
+        if (i < 3 && /not ready/i.test((e && e.message) || '')) { await espera(6000); continue; }
+        throw e;
+      }
+    }
+    if (!pub || !pub.id) throw new Error('Instagram no confirmó la publicación del carrusel.');
     let permalink = null;
     try {
       const media = await gJson(`${GRAPH}/${pub.id}?fields=permalink&access_token=${encodeURIComponent(tok)}`);
