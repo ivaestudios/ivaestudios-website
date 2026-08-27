@@ -19,10 +19,10 @@ import {
   STATUSES, STATUS_ORDER,
   CONTENT_TYPES, PLATFORMS,
   statusBadge, approvalBadge,
-} from '../api.js?v=202608271243';
-import { icon } from '../shell/icons.js?v=202608271243';
-import { T } from '../shell/i18n.js?v=202608271243';
-import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202608271243';
+} from '../api.js?v=202608271249';
+import { icon } from '../shell/icons.js?v=202608271249';
+import { T } from '../shell/i18n.js?v=202608271249';
+import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202608271249';
 
 // Bucket para status que ya no existen en el enum (NUNCA invisibles).
 export const OTROS_KEY = '__otros';
@@ -849,7 +849,7 @@ export function dashSkeleton() {
  * Vive en ui/states.js (la comparten Calendario y Entregables, que no cargan
  * este modulo); se re-exporta aqui para no tocar a views/dashboard.js.
  */
-export { errorCard } from '../ui/states.js?v=202608271243';
+export { errorCard } from '../ui/states.js?v=202608271249';
 
 /** Vacio total del cliente: ni un contenido creado. */
 export function emptyMonth({ onCreate }) {

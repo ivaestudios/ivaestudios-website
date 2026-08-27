@@ -19,13 +19,13 @@ import {
   el,
   statusBadge, approvalBadge, chip,
   fmtDate, avatar, isClientRole,
-} from '../api.js?v=202608271243';
-import { pickFrom } from '../shell/sheet.js?v=202608271243';
-import * as store from '../shell/store.js?v=202608271243';
-import * as checklistService from '../services/checklist.js?v=202608271243';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202608271243';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202608271243';
-import { T } from '../shell/i18n.js?v=202608271243';
+} from '../api.js?v=202608271249';
+import { pickFrom } from '../shell/sheet.js?v=202608271249';
+import * as store from '../shell/store.js?v=202608271249';
+import * as checklistService from '../services/checklist.js?v=202608271249';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202608271249';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202608271249';
+import { T } from '../shell/i18n.js?v=202608271249';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -203,6 +203,18 @@ export function mount(host, ed) {
     },
   });
 
+  // ── Tambien en Facebook (staff) ───────────────────────────────────────────
+  // La pieza aprobada se publica a Instagram y, con este interruptor, TAMBIEN
+  // a la pagina de Facebook conectada de la marca (Conexiones). El campo
+  // also_facebook ya viajaba en el PATCH y el publicador del cron lo honra;
+  // el editor nuevo simplemente no lo pintaba (2026-08-27, App Review pages).
+  const rFacebook = rowSwitch({
+    label: T('Publicar tambien en Facebook', 'Also publish on Facebook'),
+    sub: T('Al publicarse, tambien sale en la pagina de Facebook conectada de la marca', "When it publishes, it also goes out on the brand's connected Facebook Page"),
+    get: () => !!post().also_facebook,
+    onToggle: (next) => { ed.setField('also_facebook', next ? 1 : 0, { immediate: true }); return true; },
+  });
+
   // ── URLs ───────────────────────────────────────────────────────────────────
   const rInspo = rowUrl({
     label: T('Inspiracion', 'Inspiration'),
@@ -253,12 +265,13 @@ export function mount(host, ed) {
 
   rows.push(
     rEstado, rFecha, rPlataforma, rTipo, rInspo, rVideo,
-    ...(esCliente ? [] : [rAprobacion, rGrabacion, rPersona, rVisible, rNotas, ...personRows]),
+    ...(esCliente ? [] : [rAprobacion, rGrabacion, rPersona, rVisible, rFacebook, rNotas, ...personRows]),
   );
 
   addSection(T('Flujo', 'Flow'), [rEstado.el, ...(esCliente ? [] : [rAprobacion.el]), rFecha.el]);
   addSection(T('Formato', 'Format'), [rPlataforma.el, rTipo.el, ...(esCliente ? [] : [rGrabacion.el, rPersona.el])]);
   if (!esCliente) addSection(T('Cliente', 'Client'), [rVisible.el]);
+  if (!esCliente) addSection(T('Redes', 'Distribution'), [rFacebook.el]);
   addSection(T('Enlaces', 'Links'), [rInspo.el, rVideo.el]);
   if (!esCliente) addSection(T('Notas', 'Notes'), [rNotas.el, ...personRows.map((r) => r.el)]);
 

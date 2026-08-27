@@ -12,12 +12,12 @@
 //   Sin undo (el delete es hard en el backend): el copy lo deja claro.
 // ============================================================================
 
-import { el, api, copyText, isClientRole } from '../api.js?v=202608271243';
-import { T } from '../shell/i18n.js?v=202608271243';
-import { icon } from '../shell/icons.js?v=202608271243';
-import { openSheet } from '../shell/sheet.js?v=202608271243';
-import * as store from '../shell/store.js?v=202608271243';
-import * as cl from '../services/checklist.js?v=202608271243';
+import { el, api, copyText, isClientRole } from '../api.js?v=202608271249';
+import { T } from '../shell/i18n.js?v=202608271249';
+import { icon } from '../shell/icons.js?v=202608271249';
+import { openSheet } from '../shell/sheet.js?v=202608271249';
+import * as store from '../shell/store.js?v=202608271249';
+import * as cl from '../services/checklist.js?v=202608271249';
 
 function isMissingEndpoint(e) {
   const s = e && e.status;
@@ -49,7 +49,13 @@ export function openActionsMenu(ed, anchor) {
       // Duplicar tambien: POST /posts/:id/duplicate es staff-only en el router,
       // asi que al cliente le devolvia un 403 despues de abrirle la hoja de
       // opciones. Un boton que siempre falla es peor que no tenerlo.
+      // Publicar ahora: staff y solo si la pieza aun no se publico. Usa el
+      // endpoint del cron para UNA pieza (POST /posts/:id/publicar): Instagram
+      // ya, y Facebook si el interruptor "tambien en Facebook" esta activo.
+      const post = ed.getPost() || {};
+      const puedePublicar = !isClientRole() && !post.published_media_id;
       body.appendChild(el('div', { class: 'pick-list' }, [
+        ...(puedePublicar ? [mk(T('Publicar ahora', 'Publish now'), 'activity', () => openPublishNowSheet(ed))] : []),
         mk(T('Duplicar', 'Duplicate'), 'copy', () => openDuplicateSheet(ed)),
         mk(T('Copiar enlace', 'Copy link'), 'link', () => copyDeepLink(ed)),
         mk(T('Eliminar', 'Delete'), 'trash', () => openDeleteConfirm(ed), true),
@@ -236,6 +242,53 @@ export function openDeleteConfirm(ed) {
         el('div', { class: 'sheet__footer' }, [
           el('button', { class: 'btn sheet-cta', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
           delBtn,
+        ]),
+      );
+    },
+  });
+}
+
+
+// ── Publicar ahora ───────────────────────────────────────────────────────────
+// La misma maquina del cron para UNA pieza: Instagram al instante y, si la
+// pieza trae "tambien en Facebook", tambien la pagina conectada de la marca.
+export function openPublishNowSheet(ed) {
+  openSheet({
+    title: T('Publicar ahora', 'Publish now'),
+    mode: 'form',
+    build(body, close) {
+      let busy = false;
+      const pubBtn = el('button', {
+        class: 'btn btn-primary sheet-cta', type: 'button', text: T('Publicar', 'Publish'),
+        onclick: async () => {
+          if (busy) return;
+          busy = true;
+          pubBtn.dataset.loading = 'true';
+          try {
+            const r = await api.post(`/posts/${encodeURIComponent(ed.postId)}/publicar`, {});
+            const fbOk = r && r.fb && r.fb.ok;
+            close({ source: 'done' });
+            ed.ctx.toast(
+              fbOk ? T('Publicado en Instagram y en Facebook.', 'Published to Instagram and to Facebook.')
+                   : T('Publicado en Instagram.', 'Published to Instagram.'),
+              { type: 'success' },
+            );
+            try { await store.loadPosts(); } catch { /* la vista se refresca sola al volver */ }
+          } catch (e) {
+            pubBtn.dataset.loading = 'false';
+            busy = false;
+            ed.ctx.toast((e && e.message) || T('No se pudo publicar.', 'Could not publish.'), { type: 'error' });
+          }
+        },
+      });
+      body.append(
+        el('p', { class: 'help', text: T(
+          'La pieza se publica AHORA en el Instagram conectado de la marca; si el interruptor "tambien en Facebook" esta activo, tambien en su pagina.',
+          'The piece publishes NOW to the brand\'s connected Instagram; if the "also on Facebook" switch is on, also to its Facebook Page.',
+        ) }),
+        el('div', { class: 'sheet__footer' }, [
+          el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
+          pubBtn,
         ]),
       );
     },
