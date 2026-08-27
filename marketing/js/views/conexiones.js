@@ -10,9 +10,9 @@
 // de clientes (ig_username / fb_page_name / tt_username); aquí no hay fetch
 // propio: la vista lee el store y se repinta con él.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202608270318';
-import { icon } from '../shell/icons.js?v=202608270318';
-import { T } from '../shell/i18n.js?v=202608270318';
+import { el, clear, toast } from '../api.js?v=202608271043';
+import { icon } from '../shell/icons.js?v=202608271043';
+import { T } from '../shell/i18n.js?v=202608271043';
 
 const VIEW_ID = 'conexiones';
 
@@ -26,6 +26,13 @@ const INVITACION = () => T(
 );
 
 function isClient() { return ((ctx.store.getState().me || {}).role === 'client'); }
+
+// Clientes que SÍ ven esta sección en su portal (pedido 2026-08-27: solo
+// Regeneris). MISMA lista en shell.js y topbar.js — cámbialas juntas.
+const CLIENT_CONEXIONES_IDS = ['demo-regeneris'];
+function clientAllowed() {
+  return CLIENT_CONEXIONES_IDS.includes((ctx.store.getState().me || {}).client_id);
+}
 
 async function conectar(kind, clientId) {
   const url = `/api/marketing/${kind}/login?client_id=${encodeURIComponent(clientId)}`;
@@ -47,18 +54,25 @@ async function copiarInvitacion() {
 }
 
 function filaRed({ nombre, icono, conectado, detalle, onConnect }) {
+  let derecha;
+  if (conectado) {
+    derecha = el('span', { class: 'cx-red__estado cx-red__estado--ok', text: detalle });
+  } else if (onConnect) {
+    derecha = el('button', {
+      class: 'btn cx-red__btn', type: 'button', onclick: onConnect,
+    }, [el('span', { text: T('Conectar', 'Connect') })]);
+  } else {
+    derecha = el('span', { class: 'cx-red__estado', text: T('En proceso…', 'In progress…') });
+  }
   return el('div', { class: 'cx-red' + (conectado ? ' cx-red--ok' : '') }, [
     el('span', { class: 'cx-red__ico' }, [icon(icono, 16)]),
     el('span', { class: 'cx-red__nombre', text: nombre }),
-    conectado
-      ? el('span', { class: 'cx-red__estado cx-red__estado--ok', text: detalle })
-      : el('button', {
-          class: 'btn cx-red__btn', type: 'button', onclick: onConnect,
-        }, [el('span', { text: T('Conectar', 'Connect') })]),
+    derecha,
   ]);
 }
 
 function tarjeta(c) {
+  const cliente = isClient();
   const ig = c.ig_username ? '@' + c.ig_username : null;
   const fb = c.fb_page_name || null;
   const completa = !!(ig && fb);
@@ -71,16 +85,25 @@ function tarjeta(c) {
     filaRed({
       nombre: 'Instagram', icono: 'camera',
       conectado: !!ig, detalle: ig ? `${ig} ✓` : '',
-      onConnect: () => conectar('ig', c.id),
+      // El cliente no dispara OAuth (la app de Meta solo acepta cuentas con
+      // rol mientras siga en modo desarrollo): ve el estado, sin botón.
+      onConnect: cliente ? null : () => conectar('ig', c.id),
     }),
     filaRed({
       nombre: 'Facebook', icono: 'link',
       conectado: !!fb, detalle: fb ? `${fb} ✓` : '',
-      onConnect: () => conectar('fb', c.id),
+      onConnect: cliente ? null : () => conectar('fb', c.id),
     }),
-    fb ? null : el('button', {
-      class: 'cx-invitar', type: 'button', onclick: copiarInvitacion,
-    }, [icon('copy', 14), ' ' + T('Copiar invitación para el dueño', "Copy the owner's invite")]),
+    // Sin Facebook aún: al equipo le damos el botón de invitación; al cliente,
+    // la instrucción de UN tap para aprobar la solicitud que ya le enviamos.
+    fb ? null : (cliente
+      ? el('p', { class: 'cx-nota', text: T(
+          'Te enviamos una solicitud de acceso a tu página de Facebook. Apruébala en: tu página → Configuración → Acceso a la página → Solicitudes pendientes → Aprobar. Con eso quedará conectada.',
+          'We sent an access request to your Facebook Page. Approve it at: your Page → Settings → Page access → Pending requests → Approve. That will complete the connection.'
+        ) })
+      : el('button', {
+          class: 'cx-invitar', type: 'button', onclick: copiarInvitacion,
+        }, [icon('copy', 14), ' ' + T('Copiar invitación para el dueño', "Copy the owner's invite")])),
   ].filter(Boolean));
 }
 
@@ -88,7 +111,8 @@ function render() {
   if (!rootEl) return;
   clear(rootEl);
 
-  if (isClient()) {
+  const cliente = isClient();
+  if (cliente && !clientAllowed()) {
     rootEl.appendChild(el('div', { class: 'cx-empty' }, [
       icon('link', 28),
       el('p', { text: T('Esta sección es del equipo.', 'This section is for the team.') }),
@@ -98,10 +122,15 @@ function render() {
 
   rootEl.appendChild(el('div', { class: 'mk-head' }, [
     el('h1', { class: 'mk-title', text: T('Conexiones', 'Connections') }),
-    el('p', { class: 'mk-sub', text: T(
-      'El semáforo de redes por marca. Verde = publica en automático. Si falta Facebook: conéctalo si administras la página, o copia la invitación y mándasela al dueño (solo tiene que picar Aprobar).',
-      'The per-brand network status. Green = auto-publishing. If Facebook is missing: connect it if you manage the Page, or copy the invite and send it to the owner (they just tap Approve).'
-    ) }),
+    el('p', { class: 'mk-sub', text: cliente
+      ? T(
+        'Las redes de tu marca conectadas a tu portal. Verde = publicando y midiendo en automático.',
+        'Your brand networks connected to your portal. Green = auto-publishing and measuring.'
+      )
+      : T(
+        'El semáforo de redes por marca. Verde = publica en automático. Si falta Facebook: conéctalo si administras la página, o copia la invitación y mándasela al dueño (solo tiene que picar Aprobar).',
+        'The per-brand network status. Green = auto-publishing. If Facebook is missing: connect it if you manage the Page, or copy the invite and send it to the owner (they just tap Approve).'
+      ) }),
   ]));
 
   const clients = (ctx.store.getState().clients || []).filter((c) => !c.archived);
@@ -124,7 +153,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/conexiones.css?v=202608270318';
+  link.href = '/marketing/css/conexiones.css?v=202608271043';
   document.head.appendChild(link);
 }
 

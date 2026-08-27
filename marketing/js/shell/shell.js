@@ -19,23 +19,23 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202608270318';
-import { setRoleDefault } from './theme.js?v=202608270318';
-import * as store from './store.js?v=202608270318';
-import * as prefs from './prefs.js?v=202608270318';
-import * as router from './router.js?v=202608270318';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202608270318';
-import { toast } from './toast.js?v=202608270318';
-import { icon } from './icons.js?v=202608270318';
-import * as iconsMod from './icons.js?v=202608270318';
-import { createTopbar } from './topbar.js?v=202608270318';
-import { createBottomNav } from './bottomnav.js?v=202608270318';
-import { createSearch } from './search.js?v=202608270318';
-import { createNotifications } from './notifications.js?v=202608270318';
-import { T } from './i18n.js?v=202608270318';
-import * as version from './version.js?v=202608270318';
-import * as pickers from '../ui/pickers.js?v=202608270318';
-import * as dnd from '../ui/dnd.js?v=202608270318';
+import { api, el, clear } from '../api.js?v=202608271043';
+import { setRoleDefault } from './theme.js?v=202608271043';
+import * as store from './store.js?v=202608271043';
+import * as prefs from './prefs.js?v=202608271043';
+import * as router from './router.js?v=202608271043';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202608271043';
+import { toast } from './toast.js?v=202608271043';
+import { icon } from './icons.js?v=202608271043';
+import * as iconsMod from './icons.js?v=202608271043';
+import { createTopbar } from './topbar.js?v=202608271043';
+import { createBottomNav } from './bottomnav.js?v=202608271043';
+import { createSearch } from './search.js?v=202608271043';
+import { createNotifications } from './notifications.js?v=202608271043';
+import { T } from './i18n.js?v=202608271043';
+import * as version from './version.js?v=202608271043';
+import * as pickers from '../ui/pickers.js?v=202608271043';
+import * as dnd from '../ui/dnd.js?v=202608271043';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -58,8 +58,15 @@ const CLIENT_METRICS_IDS = [
   'eaa44c9940a9549f9b17223cea054e29',  // PRODUCTIONS (pedido 2026-08-26)
 ];
 const isClientRole = () => ((store.getState().me || {}).role === 'client');
+// Conexiones en la versión CLIENTE: solo para las marcas que Vianey habilita
+// una por una (pedido 2026-08-27: "solo para Regeneris"). MISMA lista en
+// topbar.js y conexiones.js — cámbialas juntas.
+const CLIENT_CONEXIONES_IDS = [
+  'demo-regeneris', // REGENERIS THERAPY
+];
 const clientCanView = (view) => CLIENT_VIEWS.includes(view)
-  || (view === 'metricas' && CLIENT_METRICS_IDS.includes((store.getState().me || {}).client_id));
+  || (view === 'metricas' && CLIENT_METRICS_IDS.includes((store.getState().me || {}).client_id))
+  || (view === 'conexiones' && CLIENT_CONEXIONES_IDS.includes((store.getState().me || {}).client_id));
 const CONTENT_LABELS = {
   meses: T('Calendario', 'Calendar'),
   calendario: T('Cuadrícula', 'Grid'),

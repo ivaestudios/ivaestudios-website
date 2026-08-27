@@ -114,3 +114,13 @@
   padding: 48px 0;
   text-align: center;
 }
+
+.cx-nota {
+  margin: 0;
+  padding: 8px 10px;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--r-md, 10px);
+  color: var(--text-dim);
+  font-size: var(--fs-2);
+  line-height: 1.5;
+}
