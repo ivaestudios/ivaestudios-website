@@ -69,7 +69,10 @@ export async function handleFbLogin(request, env, session, url) {
   const client = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(clientId).first();
   if (!client) return json({ error: 'Cliente no encontrado' }, 404);
   const nonce = rnd();
-  await kvSet(env, `fb_state_${nonce}`, JSON.stringify({ c: clientId, t: Date.now() }));
+  // lang viaja en el state: las pantallas del callback hablan el idioma de la
+  // app (el App Review exige interfaz en inglés cuando se graba con ?lang=en).
+  const lang = url.searchParams.get('lang') === 'en' ? 'en' : 'es';
+  await kvSet(env, `fb_state_${nonce}`, JSON.stringify({ c: clientId, t: Date.now(), l: lang }));
   const p = new URLSearchParams({
     client_id: env.FB_APP_ID,
     redirect_uri: fbRedirectUri(request),
@@ -89,7 +92,8 @@ export async function handleFbCallback(request, env, url) {
   if (!code || !raw) return html(`<h1>Link inválido o caducado</h1><p>Vuelve a la app e intenta "Conectar Facebook" de nuevo.</p><a href="${back}">Volver a la app</a>`, 400);
   let st;
   try { st = JSON.parse(raw); } catch { return html('<h1>Estado corrupto</h1>', 400); }
-  if (Date.now() - st.t > 10 * 60 * 1000) return html(`<h1>El intento caducó</h1><p>Hazlo de nuevo desde la app.</p><a href="${back}">Volver</a>`, 400);
+  const EN = st.l === 'en';
+  if (Date.now() - st.t > 10 * 60 * 1000) return html(EN ? `<h1>The attempt expired</h1><p>Try again from the app.</p><a href="${back}">Back</a>` : `<h1>El intento caducó</h1><p>Hazlo de nuevo desde la app.</p><a href="${back}">Volver</a>`, 400);
 
   try {
     // 1) code → user token corto
@@ -108,19 +112,25 @@ export async function handleFbCallback(request, env, url) {
     const acc = await (await fetch(`${FB_GRAPH}/me/accounts?fields=id,name,access_token&limit=50&access_token=${encodeURIComponent(userTok)}`)).json();
     const pages = (acc.data || []).filter((p) => p.id && p.access_token);
     if (!pages.length) {
-      return html(`<h1>Sin páginas</h1><p>Esta cuenta de Facebook no administra ninguna página. Crea la página de la marca (o pide rol de administrador) y vuelve a intentar.</p><a href="${back}">Volver a la app</a>`);
+      return html(EN
+        ? `<h1>No Pages</h1><p>This Facebook account does not manage any Page. Create the brand's Page (or ask for an admin role) and try again.</p><a href="${back}">Back to the app</a>`
+        : `<h1>Sin páginas</h1><p>Esta cuenta de Facebook no administra ninguna página. Crea la página de la marca (o pide rol de administrador) y vuelve a intentar.</p><a href="${back}">Volver a la app</a>`);
     }
     if (pages.length === 1) {
       await guardarPagina(env, st.c, pages[0]);
-      return html(`<h1>✅ Facebook conectado</h1><p>La marca quedó ligada a la página <b>${esc(pages[0].name)}</b>. Las piezas con "también en Facebook" se publicarán ahí.</p><a href="${back}">Volver a la app</a>`);
+      return html(EN
+        ? `<h1>✅ Facebook connected</h1><p>The brand is now linked to the Page <b>${esc(pages[0].name)}</b>. Pieces marked "also on Facebook" will be published there.</p><a href="${back}">Back to the app</a>`
+        : `<h1>✅ Facebook conectado</h1><p>La marca quedó ligada a la página <b>${esc(pages[0].name)}</b>. Las piezas con "también en Facebook" se publicarán ahí.</p><a href="${back}">Volver a la app</a>`);
     }
     // Varias páginas: guardar la lista 10 min y dejar elegir con un click.
     const pickId = rnd();
-    await kvSet(env, `fb_pick_${pickId}`, JSON.stringify({ c: st.c, t: Date.now(), pages: pages.map((p) => ({ id: p.id, name: p.name, access_token: p.access_token })) }));
+    await kvSet(env, `fb_pick_${pickId}`, JSON.stringify({ c: st.c, t: Date.now(), l: st.l, pages: pages.map((p) => ({ id: p.id, name: p.name, access_token: p.access_token })) }));
     const botones = pages.map((p) =>
       `<a href="/api/marketing/fb/callback?pick=${pickId}&page=${encodeURIComponent(p.id)}">📘 ${esc(p.name)}</a>`
     ).join('');
-    return html(`<h1>¿Cuál página es de esta marca?</h1><p>Tu cuenta administra varias páginas — elige la correcta:</p>${botones}<small>Este enlace caduca en 10 minutos.</small>`);
+    return html(EN
+      ? `<h1>Which Page belongs to this brand?</h1><p>Your account manages several Pages — pick the right one:</p>${botones}<small>This link expires in 10 minutes.</small>`
+      : `<h1>¿Cuál página es de esta marca?</h1><p>Tu cuenta administra varias páginas — elige la correcta:</p>${botones}<small>Este enlace caduca en 10 minutos.</small>`);
   } catch (e) {
     return html(`<h1>No se pudo conectar</h1><p>${esc((e && e.message) || 'Error desconocido')}</p><a href="${back}">Volver a la app</a>`, 500);
   }
@@ -133,11 +143,14 @@ export async function handleFbPick(request, env, url) {
   if (!raw) return html(`<h1>Link caducado</h1><p>Vuelve a "Conectar Facebook" en la app.</p><a href="${back}">Volver</a>`, 400);
   let st;
   try { st = JSON.parse(raw); } catch { return html('<h1>Estado corrupto</h1>', 400); }
-  if (Date.now() - st.t > 10 * 60 * 1000) return html(`<h1>El intento caducó</h1><a href="${back}">Volver</a>`, 400);
+  const EN = st.l === 'en';
+  if (Date.now() - st.t > 10 * 60 * 1000) return html(EN ? `<h1>The attempt expired</h1><a href="${back}">Back</a>` : `<h1>El intento caducó</h1><a href="${back}">Volver</a>`, 400);
   const page = (st.pages || []).find((p) => p.id === (url.searchParams.get('page') || ''));
-  if (!page) return html('<h1>Página no encontrada</h1>', 400);
+  if (!page) return html(EN ? '<h1>Page not found</h1>' : '<h1>Página no encontrada</h1>', 400);
   await guardarPagina(env, st.c, page);
-  return html(`<h1>✅ Facebook conectado</h1><p>La marca quedó ligada a la página <b>${esc(page.name)}</b>.</p><a href="${back}">Volver a la app</a>`);
+  return html(EN
+    ? `<h1>✅ Facebook connected</h1><p>The brand is now linked to the Page <b>${esc(page.name)}</b>.</p><a href="${back}">Back to the app</a>`
+    : `<h1>✅ Facebook conectado</h1><p>La marca quedó ligada a la página <b>${esc(page.name)}</b>.</p><a href="${back}">Volver a la app</a>`);
 }
 
 async function guardarPagina(env, clientId, page) {

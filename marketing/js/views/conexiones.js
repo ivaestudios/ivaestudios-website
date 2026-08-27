@@ -10,9 +10,9 @@
 // de clientes (ig_username / fb_page_name / tt_username); aquí no hay fetch
 // propio: la vista lee el store y se repinta con él.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202608271234';
-import { icon } from '../shell/icons.js?v=202608271234';
-import { T } from '../shell/i18n.js?v=202608271234';
+import { el, clear, toast } from '../api.js?v=202608271243';
+import { icon } from '../shell/icons.js?v=202608271243';
+import { T, isEN } from '../shell/i18n.js?v=202608271243';
 
 const VIEW_ID = 'conexiones';
 
@@ -35,7 +35,7 @@ function clientAllowed() {
 }
 
 async function conectar(kind, clientId) {
-  const url = `/api/marketing/${kind}/login?client_id=${encodeURIComponent(clientId)}`;
+  const url = `/api/marketing/${kind}/login?client_id=${encodeURIComponent(clientId)}${isEN ? '&lang=en' : ''}`;
   const r = await fetch(url, { credentials: 'include', redirect: 'manual' });
   if (r.status === 503) {
     toast(T('Falta configurar la app de Meta para esta red.', 'The Meta app still needs setup for this network.'), { type: 'error' });
@@ -156,7 +156,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/conexiones.css?v=202608271234';
+  link.href = '/marketing/css/conexiones.css?v=202608271243';
   document.head.appendChild(link);
 }
 

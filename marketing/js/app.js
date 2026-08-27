@@ -23,6 +23,7 @@ import {
   PLATFORMS, GRABACION_LEVELS,
   chip, statusBadge, approvalBadge, avatar,
 } from '/marketing/js/api.js';
+import { T } from '/marketing/js/shell/i18n.js';
 
 // ── 1. STATE ────────────────────────────────────────────────────────────────
 const state = {
@@ -1263,7 +1264,7 @@ async function openEditorFor(id) {
   const fbField = el('label', { class: 'switch' }, [
     fbSwitch,
     el('span', { class: 'switch__track' }),
-    el('span', { class: 'switch__label', text: 'Publicar también en Facebook (página de la marca)' }),
+    el('span', { class: 'switch__label', text: T('Publicar también en Facebook (página de la marca)', 'Also publish on Facebook (brand Page)') }),
   ]);
 
   const ttSwitch = el('input', { type: 'checkbox' }); ttSwitch.checked = Number(post.also_tiktok) === 1;
@@ -1419,6 +1420,30 @@ async function openEditorFor(id) {
   const foot = el('div', { class: 'drawer__foot' });
   if (!isNew) {
     foot.appendChild(el('button', { class: 'btn btn-danger', onclick: () => confirmDelete(post.id) }, [icon('trash'), el('span', { text: 'Eliminar' })]));
+  }
+  // PUBLICAR AHORA (2026-08-27): el endpoint staff POST /posts/<id>/publicar
+  // existía desde el cron y la interfaz nunca lo llamaba. Publica la pieza a
+  // Instagram al instante y, si el interruptor "también en Facebook" está
+  // activo, también a la página conectada de la marca.
+  if (!isNew && !post.published_media_id) {
+    const pubBtn = el('button', { class: 'btn' }, [icon('activity'), el('span', { text: T('Publicar ahora', 'Publish now') })]);
+    pubBtn.addEventListener('click', async () => {
+      if (!confirm(T('¿Publicar esta pieza AHORA en las redes conectadas de la marca?', 'Publish this piece NOW to the brand\'s connected networks?'))) return;
+      pubBtn.dataset.loading = 'true';
+      try {
+        const r = await api.post('/posts/' + encodeURIComponent(post.id) + '/publicar', {});
+        const fbOk = r && r.fb && r.fb.ok;
+        toast(T('Publicado en Instagram', 'Published to Instagram') + (fbOk ? T(' y en Facebook.', ' and to Facebook.') : '.'), 'success', 4200);
+        closeEditor();
+        await loadPosts();
+        refreshClientCounts();
+      } catch (err) {
+        toast(err.message || T('No se pudo publicar.', 'Could not publish.'), 'error', 6000);
+      } finally {
+        delete pubBtn.dataset.loading;
+      }
+    });
+    foot.appendChild(pubBtn);
   }
   foot.appendChild(el('span', { class: 'spacer' }));
   foot.appendChild(el('button', { class: 'btn btn-ghost', onclick: closeEditor, text: 'Cancelar' }));
