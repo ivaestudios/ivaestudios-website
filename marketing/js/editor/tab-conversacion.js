@@ -13,12 +13,12 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, api, timeAgo, avatar } from '../api.js?v=202608271249';
-import { icon } from '../shell/icons.js?v=202608271249';
-import { T } from '../shell/i18n.js?v=202608271249';
+import { el, api, timeAgo, avatar } from '../api.js?v=202608271320';
+import { icon } from '../shell/icons.js?v=202608271320';
+import { T } from '../shell/i18n.js?v=202608271320';
 // Reportar / bloquear (Apple guideline 1.2): TODO comentario debe poder
 // reportarse y todo autor poder bloquearse, desde cualquier rol.
-import { moderarComentario } from '../shell/moderacion.js?v=202608271249';
+import { moderarComentario } from '../shell/moderacion.js?v=202608271320';
 
 let tmpSeq = 0;
 

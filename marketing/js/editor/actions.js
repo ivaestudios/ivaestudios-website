@@ -12,12 +12,12 @@
 //   Sin undo (el delete es hard en el backend): el copy lo deja claro.
 // ============================================================================
 
-import { el, api, copyText, isClientRole } from '../api.js?v=202608271249';
-import { T } from '../shell/i18n.js?v=202608271249';
-import { icon } from '../shell/icons.js?v=202608271249';
-import { openSheet } from '../shell/sheet.js?v=202608271249';
-import * as store from '../shell/store.js?v=202608271249';
-import * as cl from '../services/checklist.js?v=202608271249';
+import { el, api, copyText, isClientRole } from '../api.js?v=202608271320';
+import { T } from '../shell/i18n.js?v=202608271320';
+import { icon } from '../shell/icons.js?v=202608271320';
+import { openSheet } from '../shell/sheet.js?v=202608271320';
+import * as store from '../shell/store.js?v=202608271320';
+import * as cl from '../services/checklist.js?v=202608271320';
 
 function isMissingEndpoint(e) {
   const s = e && e.status;
@@ -53,7 +53,7 @@ export function openActionsMenu(ed, anchor) {
       // endpoint del cron para UNA pieza (POST /posts/:id/publicar): Instagram
       // ya, y Facebook si el interruptor "tambien en Facebook" esta activo.
       const post = ed.getPost() || {};
-      const puedePublicar = !isClientRole() && !post.published_media_id;
+      const puedePublicar = !isClientRole() && !post.published_media_id && !post.fb_post_id;
       body.appendChild(el('div', { class: 'pick-list' }, [
         ...(puedePublicar ? [mk(T('Publicar ahora', 'Publish now'), 'activity', () => openPublishNowSheet(ed))] : []),
         mk(T('Duplicar', 'Duplicate'), 'copy', () => openDuplicateSheet(ed)),
@@ -267,10 +267,12 @@ export function openPublishNowSheet(ed) {
           try {
             const r = await api.post(`/posts/${encodeURIComponent(ed.postId)}/publicar`, {});
             const fbOk = r && r.fb && r.fb.ok;
+            const igOk = !!(r && r.media_id);
             close({ source: 'done' });
             ed.ctx.toast(
-              fbOk ? T('Publicado en Instagram y en Facebook.', 'Published to Instagram and to Facebook.')
-                   : T('Publicado en Instagram.', 'Published to Instagram.'),
+              igOk && fbOk ? T('Publicado en Instagram y en Facebook.', 'Published to Instagram and to Facebook.')
+                : fbOk ? T('Publicado en la página de Facebook.', 'Published to the Facebook Page.')
+                : T('Publicado en Instagram.', 'Published to Instagram.'),
               { type: 'success' },
             );
             try { await store.loadPosts(); } catch { /* la vista se refresca sola al volver */ }

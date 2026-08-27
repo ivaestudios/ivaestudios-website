@@ -5850,6 +5850,28 @@ async function handlePublicarPieza(env, postId, session) {
   ).bind(postId).first();
   if (!post) return json({ error: 'Pieza no encontrada' }, 404);
   if (post.published_media_id) return json({ error: 'Esta pieza ya se publicó.' }, 409);
+  // MARCA SIN INSTAGRAM pero con página de Facebook conectada y el interruptor
+  // "también en Facebook" activo (caso real: WASICAFE, 2026-08-27): publicar
+  // SOLO Facebook en vez de tronar con "no tiene Instagram conectado".
+  if ((!post.ig_user_id || !post.ig_access_token) && Number(post.also_facebook) === 1 && !post.fb_post_id) {
+    try {
+      const cliFb = await env.DB.prepare('SELECT fb_page_id, fb_page_name, fb_access_token FROM mkt_clients WHERE id = ?').bind(post.client_id).first();
+      const videoUrlFb = await videoFirmadoDePieza(env, post);
+      const slidesFb = await slidesFirmadosDePieza(env, post);
+      const rf = await publicarEnFacebook(env, { client: cliFb, post, videoUrl: videoUrlFb, slides: slidesFb });
+      await env.DB.prepare(
+        `UPDATE mkt_posts SET status = 'publicado', fb_post_id = ?, fb_error = NULL, published_at = datetime('now'),
+         publish_error = NULL, updated_at = datetime('now') WHERE id = ?`
+      ).bind(rf.fbPostId, post.id).run();
+      await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicado_fb', detail: rf.permalink || rf.fbPostId });
+      return json({ ok: true, fb: { ok: true, post_id: rf.fbPostId, permalink: rf.permalink || null } });
+    } catch (eFb) {
+      const msgFb = ((eFb && eFb.message) || 'Error desconocido').slice(0, 300);
+      await env.DB.prepare(`UPDATE mkt_posts SET fb_error = ?, updated_at = datetime('now') WHERE id = ?`).bind(msgFb, post.id).run();
+      await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicar_fb_error', detail: msgFb });
+      return json({ error: msgFb }, 422);
+    }
+  }
   try {
     const videoUrl = await videoFirmadoDePieza(env, post);
     const slides = await slidesFirmadosDePieza(env, post);

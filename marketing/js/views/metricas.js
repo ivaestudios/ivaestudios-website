@@ -14,9 +14,9 @@
 // API no devuelva (sin comparativas, sin flechas, sin sparklines: no hay
 // histórico de seguidores — ver el reporte final de esta tanda).
 // ============================================================================
-import { api, el, clear, isClientRole } from '../api.js?v=202608271249';
-import { icon } from '../shell/icons.js?v=202608271249';
-import { T, isEN } from '../shell/i18n.js?v=202608271249';
+import { api, el, clear, isClientRole } from '../api.js?v=202608271320';
+import { icon } from '../shell/icons.js?v=202608271320';
+import { T, isEN } from '../shell/i18n.js?v=202608271320';
 
 const VIEW_ID = 'metricas';
 
@@ -188,7 +188,7 @@ function ensureCss() {
   // app.html, así que ningún bump global toca este sello. Si editas
   // metricas.css, sube este número A MANO o el cambio no llega (el SW sirve
   // cache-first todo lo que trae ?v=).
-  link.href = '/marketing/css/metricas.css?v=202608271249';
+  link.href = '/marketing/css/metricas.css?v=202608271320';
   document.head.appendChild(link);
 }
 
