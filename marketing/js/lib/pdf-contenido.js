@@ -14,14 +14,14 @@
 // Cierra con el mismo camino feliz «Aprobado» por WhatsApp.
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202608272346';
-import { slidesFromPost } from '../editor/slides.js?v=202608272346';
+import { T } from '../shell/i18n.js?v=202608280019';
+import { slidesFromPost } from '../editor/slides.js?v=202608280019';
 import {
   W, TINTA, HUMO, MX, CONT_W, PIE_TOP, NOTA,
   cargarFuentes, nuevaPagina, exportar, texto, anchoTexto, parrafo, regla,
   cab, pieDePagina, tituloSeccion, botonCanvas, pastilla,
   paginaPortadaBase, paginaCierreAprobado, labelDeMes, armarYDescargar, MESES_ES,
-} from './pdf-lienzo.js?v=202608272346';
+} from './pdf-lienzo.js?v=202608280019';
 
 // Tipos de pieza que son VIDEO. Los CARRUSELES también entran (pedido
 // 2026-08-07 "los carruseles también"): sus textos van POR SLIDE con

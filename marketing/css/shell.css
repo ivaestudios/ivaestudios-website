@@ -140,6 +140,21 @@ body.has-subhead #viewScroll {
 .tb-lang__btn:hover { color: var(--text); }
 .tb-lang__btn.is-active { background: var(--brand); color: #fff; }
 
+/* ── MÓVIL: que el avatar NO se salga de la pantalla ──────────────────────────
+   Reporte de Vianey (2026-08-28, grabando los videos de Apple): en el iPhone
+   el menú de cuenta quedaba CORTADO en el borde derecho y no había forma de
+   cerrar sesión ni de llegar a "Eliminar mi cuenta" — justo lo que Apple
+   exige que sea alcanzable. Sumaban más que el ancho: nombre de marca (52vw)
+   + ES|EN + tema + campana + avatar. En móvil el toggle de idioma y el de
+   tema se van (ambos VIVEN también dentro del menú de cuenta, así que no se
+   pierde nada) y el nombre de la marca cede ancho. */
+@media (max-width: 639px) {
+  .tb-lang { display: none; }
+  .tb-client { max-width: 40vw; }
+  .tb-inner { gap: 4px; }
+  .tb-avatar { margin-right: 2px; }
+}
+
 /* Tabs de vista y busqueda inline: solo desktop */
 .tb-tabs { display: none; }
 .tb-search { display: none; }

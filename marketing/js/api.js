@@ -7,7 +7,7 @@
 // non-2xx so callers can `try { ... } catch (e) { toast(e.message,'error') }`.
 // ============================================================================
 
-import { isEN, T } from './shell/i18n.js?v=202608272346';
+import { isEN, T } from './shell/i18n.js?v=202608280019';
 
 const BASE = '/api/marketing';
 const TIMEOUT = 30000; // 30s

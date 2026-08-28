@@ -10,12 +10,12 @@
 //   el set optimista + pref lastClient + ?cliente= replace + client:changed.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202608272346';
-import { openSheet } from './sheet.js?v=202608272346';
-import { toast } from './toast.js?v=202608272346';
-import * as store from './store.js?v=202608272346';
-import { icon } from './icons.js?v=202608272346';
-import { T } from './i18n.js?v=202608272346';
+import { api, el } from '../api.js?v=202608280019';
+import { openSheet } from './sheet.js?v=202608280019';
+import { toast } from './toast.js?v=202608280019';
+import * as store from './store.js?v=202608280019';
+import { icon } from './icons.js?v=202608280019';
+import { T } from './i18n.js?v=202608280019';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
