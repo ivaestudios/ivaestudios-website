@@ -5850,6 +5850,23 @@ async function handlePublicarPieza(env, postId, session) {
   ).bind(postId).first();
   if (!post) return json({ error: 'Pieza no encontrada' }, 404);
   if (post.published_media_id) return json({ error: 'Esta pieza ya se publicó.' }, 409);
+  // EL MISMO CANDADO DEL CRON, también aquí (2026-08-28): "Publicar ahora"
+  // hablaba con Instagram sin reclamar la pieza, así que dos toques seguidos
+  // (o un toque mientras el reloj la estaba tomando) podían publicarla dos
+  // veces — exactamente el bug del carrusel repetido que reportó Vianey.
+  const claimYa = await env.DB.prepare(
+    "UPDATE mkt_posts SET status = 'publicando', updated_at = datetime('now') WHERE id = ? AND status != 'publicando'"
+  ).bind(postId).run();
+  if (!claimYa || !claimYa.meta || claimYa.meta.changes !== 1) {
+    return json({ error: 'Esta pieza ya se está publicando en este momento. Espera unos segundos.' }, 409);
+  }
+  const estadoPrevio = post.status;
+  const soltarCandado = async () => {
+    try {
+      await env.DB.prepare("UPDATE mkt_posts SET status = ?, updated_at = datetime('now') WHERE id = ? AND status = 'publicando'")
+        .bind(estadoPrevio, postId).run();
+    } catch { /* noop */ }
+  };
   // MARCA SIN INSTAGRAM pero con página de Facebook conectada y el interruptor
   // "también en Facebook" activo (caso real: WASICAFE, 2026-08-27): publicar
   // SOLO Facebook en vez de tronar con "no tiene Instagram conectado".
@@ -5869,6 +5886,7 @@ async function handlePublicarPieza(env, postId, session) {
       const msgFb = ((eFb && eFb.message) || 'Error desconocido').slice(0, 300);
       await env.DB.prepare(`UPDATE mkt_posts SET fb_error = ?, updated_at = datetime('now') WHERE id = ?`).bind(msgFb, post.id).run();
       await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicar_fb_error', detail: msgFb });
+      await soltarCandado();
       return json({ error: msgFb }, 422);
     }
   }
@@ -5909,6 +5927,7 @@ async function handlePublicarPieza(env, postId, session) {
     const msg = ((e && e.message) || 'Error desconocido').slice(0, 300);
     await env.DB.prepare(`UPDATE mkt_posts SET publish_error = ?, updated_at = datetime('now') WHERE id = ?`).bind(msg, post.id).run();
     await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicar_error', detail: msg });
+    await soltarCandado();
     // OJO: 422 y NO 5xx (Cloudflare pisa los 5xx con su página).
     return json({ error: msg }, 422);
   }
