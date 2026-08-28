@@ -420,6 +420,13 @@ body.has-subhead #viewScroll {
 }
 .sheet__footer .btn { min-height: 48px; }
 .sheet-cta { flex: 1 1 auto; }
+/* iOS/WebKit (2026-08-27): dentro de una hoja (backdrop-filter + footer
+   sticky) Safari deja de pintar el fondo de los botones primarios y quedan
+   BLANCOS con texto blanco = invisibles. Cazado grabando los videos de Apple
+   con "Eliminar definitivamente". Darle su propia capa de composición lo
+   arregla; el color sólido de app.css queda de respaldo. */
+.sheet__footer .btn-primary,
+.sheet-cta.btn-primary { transform: translateZ(0); }
 
 /* ── Filas de picker (48px+, color a ancho completo) ───────────────────────── */
 .pick-list { display: flex; flex-direction: column; gap: 2px; }
