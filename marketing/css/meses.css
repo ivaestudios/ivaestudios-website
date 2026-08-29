@@ -355,6 +355,22 @@
 .meses-chip--inspo .ico { color: var(--brand, #c084fc); }
 .meses-chip--inspo:active { background: color-mix(in srgb, var(--brand, #c084fc) 26%, transparent); }
 
+/* Chip "Copiar caption" de la tarjeta móvil: es una ACCIÓN, no un estado, así
+   que toma el color de marca por la misma vía que los demás chips (--chipc) y
+   lleva el ícono delante. Hereda de .meses-chip el área táctil de 44px. */
+.meses-chip--copy {
+  --chipc: var(--brand, #E24DA0);
+  border-color: color-mix(in srgb, var(--brand, #E24DA0) 40%, transparent);
+  /* El texto va un tono MÁS CLARO que --chipc: sobre el propio velo rosa del
+     chip, el rosa de marca se queda en 3.7:1 y AA pide 4.5:1 a 12px (medido en
+     el navegador, no a ojo). En claro el rosa oscuro ya da 6.8:1 y se respeta. */
+  color: #F57ABB;
+}
+:root[data-theme="light"] .meses-chip--copy { color: var(--brand, #E24DA0); }
+.meses-chip--copy .ico, .meses-chip--copy svg { flex: none; }
+.meses-chip--copy:active { background: color-mix(in srgb, var(--brand, #E24DA0) 30%, transparent); }
+
+
 /* Acciones rapidas por tarjeta (movil): Guion / Notas. Abren el editor directo
    en su pestaña. Fila de botones iguales, target tactil >=38px. */
 .meses-item__actions {
@@ -843,6 +859,24 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
+  /* Copiar caption + hashtags sin abrir la pieza (fila de escritorio).
+     Vive en la columna Tarea porque es la única fija: la tabla es más ancha
+     que la pantalla y en la columna de Guiones el botón quedaba cortado.
+     A diferencia de abrir/borrar NO se esconde hasta el hover — es la acción
+     que más se repite, así que se ve siempre, atenuada, y toma color completo
+     al entrar el cursor en la fila. */
+  .meses-task__copy {
+    flex: none;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px;
+    background: none; border: 0; border-radius: var(--r-sm);
+    color: var(--brand, #E24DA0); cursor: pointer;
+    transition: background var(--t-fast);
+  }
+  .meses-task__copy:hover, .meses-task__copy:active { background: color-mix(in srgb, var(--brand, #E24DA0) 16%, transparent); }
+  .meses-task__copy:focus-visible { outline: none; box-shadow: var(--ring); }
+  .meses-task__copy svg { flex: none; }
 
   /* Editor inline: textarea flotante (no brinca la altura de la fila). */
   .meses-edit {
