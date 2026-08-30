@@ -6,19 +6,19 @@
 // (abre el link, nunca el link crudo). Todo agrupado por mes.
 // Backend: GET/POST /deliverables · POST/GET /deliverables/:id/video · DELETE.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202608290215';
-import { icon } from '../shell/icons.js?v=202608290215';
-import { T } from '../shell/i18n.js?v=202608290215';
-import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608290215';
+import { api, el, clear, toast } from '../api.js?v=202608300312';
+import { icon } from '../shell/icons.js?v=202608300312';
+import { T } from '../shell/i18n.js?v=202608300312';
+import { openSheet, pickFrom, confirmar } from '../shell/sheet.js?v=202608300312';
 // Apple 1.2: reportar contenido / bloquear autor desde cualquier comentario.
-import { moderarComentario } from '../shell/moderacion.js?v=202608290215';
+import { moderarComentario } from '../shell/moderacion.js?v=202608300312';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608290215';
+import { errorCard } from '../ui/states.js?v=202608300312';
 // Todo lo de subir video (revisión previa de formato/HEVC + subida por partes)
 // vive en UN solo módulo compartido con la columna "Video final" del calendario.
 import {
   MAX_VIDEO_MB, isVideoFile, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608290215';
+} from '../lib/video-upload.js?v=202608300312';
 
 const VIEW_ID = 'entregables';
 const MES = T(['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
@@ -190,12 +190,29 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/entregables.css?v=202608290215';
+  link.href = '/marketing/css/entregables.css?v=202608300312';
   document.head.appendChild(link);
 }
 
+// Token de carga: cada load() se queda con el suyo y SOLO escribe `items` si
+// sigue siendo el último Y la marca activa no cambió mientras viajaba la
+// respuesta. Sin esto había fuga ENTRE MARCAS: cambiar de cliente dispara dos
+// load() a la vez (el API tarda ~0.9s por marca), y si la respuesta de la marca
+// ANTERIOR llegaba después, `items` se quedaba con los entregables de la otra
+// marca mientras la pantalla decía la nueva. Entonces "Descargar todos" bajaba
+// los videos del cliente equivocado. Reportado por Vianey 2026-08-29.
+let loadSeq = 0;
+
 async function load() {
   const client = activeClient();
+  const mySeq = ++loadSeq;
+  const myClientId = client ? client.id : null;
+  // ¿Sigo siendo la carga vigente y de la marca que está en pantalla?
+  const vigente = () => {
+    if (mySeq !== loadSeq) return false;
+    const ahora = (ctx && ctx.store.getState().activeClientId) || null;
+    return ahora === myClientId;
+  };
   // El permiso de descarga puede haber cambiado desde que se abrió la app.
   // No se espera (no debe retrasar la lista); cuando llegue, repinta.
   if (isClient()) refrescarPermisos().then(() => { if (rootEl) render(); });
@@ -211,9 +228,13 @@ async function load() {
   loading = true; render();
   try {
     const res = await api.get(`/deliverables?client_id=${encodeURIComponent(client.id)}`);
+    // Llegó tarde o ya cambió la marca: se TIRA. Pintarla mostraría (y dejaría
+    // descargar) los entregables de otro cliente.
+    if (!vigente()) return;
     items = (res && res.deliverables) || [];
     loadErr = null;
   } catch (e) {
+    if (!vigente()) return;
     // items se VACÍA a propósito (son de UNA marca: dejar los viejos mostraría
     // los entregables del cliente anterior al cambiar de marca). Lo que ya no
     // se hace es pintar el vacío: con loadErr, render() saca la tarjeta de
@@ -221,6 +242,7 @@ async function load() {
     items = [];
     loadErr = e;
   }
+  if (!vigente()) return;
   loading = false;
   render();
 }
@@ -2190,10 +2212,10 @@ function buildPdfBtn(month, itemsDelMes) {
       const label = btn.querySelector('span');
       const antes = label ? label.textContent : '';
       try {
-        const mod = await import('../lib/pdf-entregables.js?v=202608290215');
+        const mod = await import('../lib/pdf-entregables.js?v=202608300312');
         // La voz de la marca vive en pdf-lienzo (compartida con el PDF de
         // Contenido); sin receta, cae al @instagram de la ficha del cliente.
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608290215');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608300312');
         const { clients, activeClientId } = ctx.store.getState();
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
