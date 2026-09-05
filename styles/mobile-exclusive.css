@@ -1599,6 +1599,10 @@
     border-top: none;
   }
   .ivm-st-founder__pola img {
+    /* height:auto es OBLIGATORIO: el optimizador de imágenes pone
+       height="480" en el HTML y sin esto la proporción se ignora,
+       la foto crece al doble y se encima con el texto. */
+    height: auto;
     width: 100%;
     aspect-ratio: 4/5;
     object-fit: cover;
@@ -2661,6 +2665,10 @@
     border-left: none; border-top: none;
   }
   .ivm-wd-venue img {
+    /* height:auto es OBLIGATORIO: el optimizador de imágenes pone
+       height="480" en el HTML y sin esto la proporción se ignora,
+       la foto crece al doble y se encima con el texto. */
+    height: auto;
     width: 100%;
     aspect-ratio: 3/4;
     object-fit: cover;
@@ -2790,6 +2798,10 @@
     position: relative;
   }
   .ivm-about-mast__polaroid img {
+    /* height:auto es OBLIGATORIO: el optimizador de imágenes pone
+       height="480" en el HTML y sin esto la proporción se ignora,
+       la foto crece al doble y se encima con el texto. */
+    height: auto;
     width: 100%;
     aspect-ratio: 4/5;
     object-fit: cover;
@@ -4153,5 +4165,60 @@
         del hero: baja un poco en la primera pantalla. */
   .ivm-act-hero ~ .ivae-wa-fab,
   .ivm-wd-hero ~ .ivae-wa-fab { bottom: calc(24px + env(safe-area-inset-bottom, 0px)) !important; }
+
+
+  /* El envoltorio <picture> es inline por defecto, así que el ancho de la
+     foto no resolvía contra su marco. Con block, la imagen ocupa el marco
+     exacto que le da el diseño. */
+  .ivm picture,
+  .ivm-st-founder__pola picture,
+  .ivm-wd-venue picture,
+  .ivm-about-mast__polaroid picture { display: block; }
+
+
+  /* ═══════════════════════════════════════════════════════════════
+     MURO DE FOTOS DE LA FUNDADORA · rediseño 2026-09-05
+     Tres fotos encimadas en 342px de ancho se leían como desorden:
+     la tercera tapaba a la segunda, una se salía por la derecha y
+     los filetes dorados no cuadraban con ninguna. En editorial de
+     lujo se usan DOS: una grande y una encajada. Menos, pero limpio.
+     ═══════════════════════════════════════════════════════════════ */
+  .ivm-st-founder__wall {
+    position: relative;
+    min-height: 0 !important;
+    max-width: 330px;
+    margin: 34px auto 44px;
+    padding-bottom: 96px;   /* espacio donde baja la foto encajada */
+    perspective: none;
+  }
+  /* La grande manda: en flujo normal, sin rotación de calcomanía */
+  .ivm-st-founder__pola--1 {
+    position: static !important;
+    width: 80% !important;
+    transform: rotate(-1.2deg) !important;
+    z-index: 1;
+  }
+  /* La segunda se encaja abajo a la derecha, como en una revista */
+  .ivm-st-founder__pola--2 {
+    position: absolute !important;
+    right: 0 !important;
+    left: auto !important;
+    top: auto !important;
+    bottom: 0 !important;
+    width: 52% !important;
+    transform: rotate(2deg) !important;
+    z-index: 2;
+  }
+  .ivm-st-founder__pola--2 img { box-shadow: 0 26px 52px rgba(0,0,0,.62); }
+  /* La tercera sobra en teléfono: amontonaba y ocultaba a las otras */
+  .ivm-st-founder__pola--3 { display: none !important; }
+
+  /* Los filetes dorados pegados al borde real de cada foto */
+  .ivm-st-founder__pola::before { top: -5px; left: -5px; }
+  .ivm-st-founder__pola::after { bottom: -5px; right: -5px; }
+  .ivm-st-founder__pola--2::before { display: none; }
+
+  /* El pie de foto no debe quedar debajo de la foto encajada */
+  .ivm-st-founder__pola--1 figcaption { padding-right: 54%; text-align: left; padding-left: 14px; }
 
 } /* fin @media (max-width: 899px) */

@@ -896,14 +896,23 @@ body .m-nav .m-nav-cta::before { content: none !important; }
     font-size: 9.5px !important;
     letter-spacing: 0.2em !important;
     opacity: .48 !important;
-    padding: 6px 2px !important;
-    border-bottom: 1px solid transparent !important;
-    transition: opacity .3s ease, border-color .3s ease !important;
+    /* El texto se ve chico y discreto, pero el área que se toca mide 44px
+       de alto, que es el mínimo para que el dedo no falle. */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 44px !important;
+    min-width: 34px !important;
+    padding: 0 4px !important;
+    box-shadow: inset 0 -1px 0 transparent !important;
+    border-bottom: 0 !important;
+    transition: opacity .3s ease, box-shadow .3s ease !important;
   }
   body .site-header .lang-switch a.is-active {
     opacity: 1 !important;
     color: var(--cream, #faf8f5) !important;
-    border-bottom-color: var(--gold, #c9a54e) !important;
+    /* el filete se pinta pegado al texto, no al borde del área tocable */
+    box-shadow: inset 0 -14px 0 -13px var(--gold, #c9a54e) !important;
   }
   /* En la barra blanca del inicio, el idioma va en tinta */
   body .site-header:not(.scrolled) .lang-switch a { color: #141b26 !important; }
