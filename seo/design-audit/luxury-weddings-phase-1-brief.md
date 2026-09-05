@@ -730,7 +730,7 @@ These elements **must not move, change, be retargeted, have selectors changed in
 - All `<meta name="DC.*">` (Dublin Core, 7 tags)
 - All `<meta name="business:*">` and `<meta property="business:*">` (3 tags)
 - `<meta name="geo.region" content="MX-ROO"/>`, `<meta name="geo.placename">`, `<meta name="geo.position">`, `<meta name="ICBM">`
-- `<link rel="me" href="https://instagram.com/ivaestudios.cancun"/>`
+- `<link rel="me" href="https://instagram.com/ivae.studios"/>`
 - `<link rel="alternate" type="text/plain" title="AI-readable site manifest" href="/llms.txt">`
 - All favicon, manifest, theme-color tags
 - `<link rel="preload" as="image" fetchpriority="high" href="images/wedding-cancun-hotel-zone-ivae-studios.avif">` — Phase 4 may change the preloaded image but must keep ONE preload directive

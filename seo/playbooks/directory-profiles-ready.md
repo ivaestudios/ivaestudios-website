@@ -21,8 +21,8 @@ slogan, Mexican Spanish where applicable.
 | Email | info@ivaestudios.com |
 | Phone / WhatsApp | WhatsApp: +52 990 204 6514 (REAL, confirmed). Phone/calls for NAP: +52 228 857 0584 (matches GBP). Use 228 in "phone" fields, 990 only for WhatsApp |
 | Website | https://ivaestudios.com |
-| Instagram | @ivaestudios.cancun |
-| Instagram URL | https://instagram.com/ivaestudios.cancun |
+| Instagram | @ivae.studios |
+| Instagram URL | https://instagram.com/ivae.studios |
 | City | Cancún |
 | State | Quintana Roo |
 | Country | México |
@@ -522,8 +522,8 @@ splits the entity in AI knowledge graphs.
 | Phone | +52 228 857 0584 (calls, matches GBP — canonical NAP phone); WhatsApp: +52 990 204 6514 (real, confirmed) |
 | Email | info@ivaestudios.com |
 | Website | https://ivaestudios.com (with the `s`, plural) |
-| Instagram handle | @ivaestudios.cancun |
-| Instagram URL | https://instagram.com/ivaestudios.cancun |
+| Instagram handle | @ivae.studios |
+| Instagram URL | https://instagram.com/ivae.studios |
 | Founded year | 2023 |
 | Languages | English, Spanish |
 | Price range | $$$ |

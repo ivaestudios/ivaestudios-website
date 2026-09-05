@@ -12,7 +12,7 @@ No editar. Copia exacta.
 **Founder title:** Creative Director & Lead Photographer / Directora Creativa
 **Email:** info@ivaestudios.com
 **WhatsApp:** +52 990 204 6514 *(número REAL confirmado; teléfono de llamadas: +52 228 857 0584, coincide con GBP — usar 228 como "phone" en directorios y 990 solo para WhatsApp)*
-**Instagram:** @ivaestudios.cancun
+**Instagram:** @ivae.studios
 **Website:** https://ivaestudios.com
 **Studio address:** Cancún, Quintana Roo, México (77500)
 **Service areas:** Cancún · Riviera Maya · Tulum · Playa del Carmen · Los Cabos · Isla Mujeres
@@ -180,7 +180,7 @@ Directora Creativa & Fotógrafa Principal
 IVAE Studios — Editorial Destination Photography
 Cancún · Riviera Maya · Los Cabos
 info@ivaestudios.com · ivaestudios.com
-@ivaestudios.cancun
+@ivae.studios
 
 ---
 

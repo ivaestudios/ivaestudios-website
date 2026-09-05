@@ -32,7 +32,7 @@ Spanish copy in Mexican forms, zero em-dashes anywhere in the body.
 | Website | https://ivaestudios.com/social-media-management |
 | Spanish website | https://ivaestudios.com/es/manejo-redes-sociales |
 | Instagram (agency) | @ivae.marketing |
-| Instagram (studio) | @ivaestudios.cancun |
+| Instagram (studio) | @ivae.studios |
 | LinkedIn | https://linkedin.com/company/ivae-studios (to confirm) |
 | Headquarters | Cancún, Quintana Roo, México |
 | Postal code | 77500 |

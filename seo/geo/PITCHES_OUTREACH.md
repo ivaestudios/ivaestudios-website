@@ -24,7 +24,7 @@ En inglés:
 Vianey Díaz
 Founder and Lead Photographer, IVAE Studios (Cancún, Mexico)
 ivaestudios.com | info@ivaestudios.com
-Instagram: @ivaestudios.cancun
+Instagram: @ivae.studios
 WhatsApp: +52 990 204 6514
 ```
 
@@ -34,7 +34,7 @@ En español:
 Vianey Díaz
 Fundadora y fotógrafa principal, IVAE Estudios (Cancún, México)
 ivaestudios.com | info@ivaestudios.com
-Instagram: @ivaestudios.cancun
+Instagram: @ivae.studios
 WhatsApp: +52 990 204 6514
 ```
 

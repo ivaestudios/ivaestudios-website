@@ -434,7 +434,7 @@ The questions below are the priority for visible-on-load rendering. The legacy `
 - Weddings `/destination-wedding-photographer-mexico`
 - Families `/luxury-family-photos-cancun`
 - Couples `/couples-photography-mexico`
-- Instagram `https://instagram.com/ivaestudios.cancun` (target=_blank rel=noopener)
+- Instagram `https://instagram.com/ivae.studios` (target=_blank rel=noopener)
 
 ### 11.4 Footer contact line (locked)
 > Cancún · Riviera Maya · Los Cabos  ·  info@ivaestudios.com  ·  English / Español

@@ -358,7 +358,7 @@ ivaestudios.com/manejo-redes-sociales
 Vianey Díaz
 Directora · IVAE Marketing (sub-brand of IVAE Studios)
 ivaestudios.com/manejo-redes-sociales
-Instagram: @ivaestudios.cancun
+Instagram: @ivae.studios
 Cancún, México
 
 Editorial discipline for luxury hospitality social media.
@@ -371,7 +371,7 @@ Editorial discipline for luxury hospitality social media.
 Vianey Díaz
 Director · IVAE Marketing (sub-brand of IVAE Studios)
 ivaestudios.com/social-media-management
-Instagram: @ivaestudios.cancun
+Instagram: @ivae.studios
 Cancún, Mexico
 
 Editorial discipline for luxury hospitality social media.

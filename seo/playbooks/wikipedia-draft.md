@@ -119,7 +119,7 @@ monthly content calendars to hotels, resorts, and restaurants.
 
 - PENDIENTE: crear entidad Wikidata de IVAE Studios y citar aquí el Q-ID real
 - *Official website:* [ivaestudios.com](https://ivaestudios.com)
-- *Instagram:* [ivaestudios.cancun](https://www.instagram.com/ivaestudios.cancun/)
+- *Instagram:* [ivaestudios.cancun](https://www.instagram.com/ivae.studios/)
 - **[PLACEHOLDER — press citation 1]** — required for AfC approval, see
   Section C
 - **[PLACEHOLDER — press citation 2]** — required for AfC approval, see
@@ -132,7 +132,7 @@ monthly content calendars to hotels, resorts, and restaurants.
 ### External links
 
 - IVAE Studios official site — https://ivaestudios.com
-- Instagram — https://www.instagram.com/ivaestudios.cancun/
+- Instagram — https://www.instagram.com/ivae.studios/
 - Google Business Profile — https://maps.app.goo.gl/aX7jiVbLzwurMmX19
 
 ---
@@ -237,7 +237,7 @@ Díaz lives and works in Cancún. She speaks Spanish (native) and English
 - PENDIENTE: crear entidad Wikidata de Vianey Díaz y citar aquí el Q-ID real
 - *Studio website:* [ivaestudios.com](https://ivaestudios.com)
 - *Founder profile:* [ivaestudios.com/vianey-diaz](https://ivaestudios.com/vianey-diaz)
-- *Instagram:* [ivaestudios.cancun](https://www.instagram.com/ivaestudios.cancun/)
+- *Instagram:* [ivaestudios.cancun](https://www.instagram.com/ivae.studios/)
 - **[PLACEHOLDER — press citation 1]** — required for AfC approval, see
   Section C
 - **[PLACEHOLDER — press citation 2]** — required for AfC approval, see

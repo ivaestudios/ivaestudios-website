@@ -128,7 +128,7 @@ Directora Creativa & Fotógrafa Principal
 IVAE Studios — Editorial Studio
 Cancún · Riviera Maya · Los Cabos
 info@ivaestudios.com · ivaestudios.com
-@ivaestudios.cancun
+@ivae.studios
 ```
 
 ---

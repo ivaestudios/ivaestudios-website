@@ -20,7 +20,7 @@
 **Sitio web:** https://ivaestudios.com/social-media-management
 **Spanish:** https://ivaestudios.com/es/manejo-redes-sociales
 **Contacto prensa:** info@ivaestudios.com
-**Instagram:** @ivaestudios.cancun
+**Instagram:** @ivae.studios
 
 ---
 
@@ -192,7 +192,7 @@ A: Trabajan directo con marcas. No hacen white-label para otras agencias.
 - **Wikidata Vianey Díaz:** PENDIENTE: crear entidad Wikidata (el Q-ID citado antes era falso — 404 verificado 2026-07-01)
 - **Google Reviews:** 5.0 stars, 47 reviews (as of 2026-07-01; verify against live GBP before each pitch)
 - **Sitio web:** https://ivaestudios.com
-- **Instagram:** @ivaestudios.cancun (verificable)
+- **Instagram:** @ivae.studios (verificable)
 
 ---
 

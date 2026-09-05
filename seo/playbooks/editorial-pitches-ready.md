@@ -47,7 +47,7 @@ Best,
 Vianey Díaz
 Founder & Creative Director, IVAE Studios
 info@ivaestudios.com · ivaestudios.com
-@ivaestudios.cancun
+@ivae.studios
 
 ---
 
@@ -123,7 +123,7 @@ Best,
 Vianey Díaz
 Founder & Creative Director, IVAE Studios
 info@ivaestudios.com · ivaestudios.com
-@ivaestudios.cancun
+@ivae.studios
 
 ---
 
@@ -196,7 +196,7 @@ Best,
 Vianey Díaz
 Founder & Creative Director, IVAE Studios
 info@ivaestudios.com · ivaestudios.com
-@ivaestudios.cancun
+@ivae.studios
 
 ---
 
@@ -269,7 +269,7 @@ Best,
 Vianey Díaz
 Founder & Creative Director, IVAE Studios
 info@ivaestudios.com · ivaestudios.com
-@ivaestudios.cancun
+@ivae.studios
 
 ---
 
@@ -344,7 +344,7 @@ Un saludo respetuoso,
 Vianey Díaz
 Fundadora y Directora Creativa, IVAE Studios
 info@ivaestudios.com · ivaestudios.com
-@ivaestudios.cancun
+@ivae.studios
 
 ---
 

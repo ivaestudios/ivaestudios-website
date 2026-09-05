@@ -17,7 +17,7 @@
 **Canales:**
 - Blog `/` (1 post / mes major)
 - LinkedIn (8 posts + 1 artículo / mes)
-- Instagram Reels (3 / semana en cuenta @ivaestudios.cancun)
+- Instagram Reels (3 / semana en cuenta @ivae.studios)
 - Pinterest (5 pins / semana)
 - Email newsletter (1 / mes)
 
@@ -194,7 +194,7 @@
 | Blog organic traffic | GSC | Semanal |
 | LinkedIn post impressions | LinkedIn Analytics | Por post |
 | LinkedIn page followers | LinkedIn Analytics | Mensual |
-| Instagram reach (no IVAE Marketing tiene cuenta separada — usa @ivaestudios.cancun) | IG Insights | Por reel |
+| Instagram reach (no IVAE Marketing tiene cuenta separada — usa @ivae.studios) | IG Insights | Por reel |
 | Pinterest impressions | Pinterest Analytics | Mensual |
 | Form submissions del intake | Cloudflare Function logs | Diario |
 | Email signups newsletter | Email provider | Semanal |

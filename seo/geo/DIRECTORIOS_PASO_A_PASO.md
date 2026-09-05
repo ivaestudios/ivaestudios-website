@@ -101,7 +101,7 @@ Estos datos van **idénticos, letra por letra**, en todas las altas. Si un direc
 | Teléfono | +52 228 857 0584 |
 | Web | https://ivaestudios.com |
 | Correo | info@ivaestudios.com |
-| Instagram | @ivaestudios.cancun |
+| Instagram | @ivae.studios |
 | Fotógrafa | Vianey Díaz |
 | Negocio fundado | 2023 |
 | Categoría | Wedding photographer / Fotógrafo de bodas |

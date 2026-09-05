@@ -947,7 +947,7 @@ document.querySelectorAll('.lf-reel-track').forEach((track) => {
     <a href="/destination-wedding-photographer-mexico">Weddings</a>
     <a href="/luxury-family-photos-cancun" aria-current="page">Families</a>
     <a href="/couples-photography-mexico">Couples</a>
-    <a href="https://instagram.com/ivaestudios.cancun" target="_blank" rel="noopener">Instagram</a>
+    <a href="https://instagram.com/ivae.studios" target="_blank" rel="noopener">Instagram</a>
   </nav>
   <p class="lf-footer-contact">Cancún · Riviera Maya · Los Cabos  ·  info@ivaestudios.com  ·  English / Español</p>
   <p class="lf-footer-copy">&copy; 2026 IVAE Studios  ·  Luxury Resort Photographer  ·  Cancún, Mexico</p>
