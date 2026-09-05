@@ -239,12 +239,24 @@
     // Scrolled class on header for scroll effects
     var header = document.getElementById('siteHeader');
     if (header) {
-      var lastScrolled = false;
+      /* Marca de que ESTE script está vivo: solo entonces el CSS se atreve
+         a esconder el botón flotante en la portada. Si el script falla,
+         el botón se queda visible como siempre. */
+      document.documentElement.classList.add('ivae-fab-auto');
+      var lastScrolled = false, lastHero = false;
       var onScroll = function () {
-        var scrolled = (window.pageYOffset || document.documentElement.scrollTop) > 40;
+        var y = window.pageYOffset || document.documentElement.scrollTop;
+        var scrolled = y > 40;
         if (scrolled !== lastScrolled) {
           header.classList.toggle('scrolled', scrolled);
           lastScrolled = scrolled;
+        }
+        /* El botón flotante de WhatsApp no debe pararse encima del titular
+           del hero: aparece cuando la visitante ya pasó la primera pantalla. */
+        var fuera = y > (window.innerHeight * 0.62);
+        if (fuera !== lastHero) {
+          document.documentElement.classList.toggle('ivae-paso-hero', fuera);
+          lastHero = fuera;
         }
       };
       onScroll();

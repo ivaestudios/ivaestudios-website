@@ -61,3 +61,20 @@ html a.ivae-wa-fab{color:#25D366 !important}
   }
   .ivae-wa-fab[data-pulse="1"]{animation:ivaeWaFabPulse 1.4s cubic-bezier(.22,.61,.36,1) 1.2s 2}
 }
+
+/* ───────────────────────────────────────────────────────────────
+   EL HERO ES SAGRADO (2026-09-05)
+   En teléfono el botón caía justo sobre el titular de la portada y
+   ensuciaba la primera impresión, que es lo que vende. Ahora entra
+   cuando la visitante ya pasó la primera pantalla. En escritorio no
+   cambia nada. Sin JavaScript (por ejemplo si falla el script del
+   encabezado) el botón se queda visible, como hoy.
+   ─────────────────────────────────────────────────────────────── */
+@media (max-width: 899px) {
+  html.ivae-fab-auto:not(.ivae-paso-hero) .ivae-wa-fab {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(14px) scale(.92);
+    pointer-events: none;
+  }
+}

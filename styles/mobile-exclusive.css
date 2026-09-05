@@ -4056,4 +4056,102 @@
 @media (min-width: 900px) {
   .post-article .post-tldr p { color: rgba(14, 22, 32, 0.85); }
 }
+
+  /* ═══════════════════════════════════════════════════════════════
+     PULIDO EDITORIAL DEL HERO EN TELÉFONO · 2026-09-05
+     Diagnóstico medido en iPhone: el texto se pone ENCIMA de fotos
+     muy claras (vestidos blancos a contraluz) con un velo demasiado
+     suave, y la etiqueta superior va en dorado de 10px con mucho
+     espaciado. Resultado: ilegible y con aire de plantilla.
+     Solución de casa editorial: base oscura controlada bajo el texto,
+     etiqueta en crema con filete dorado, y un solo eje de alineación.
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* 1. VELO: el bloque de texto SIEMPRE sobre base oscura.
+        La foto se sigue viendo limpia arriba, donde va el rostro. */
+  .ivm-act-hero__veil {
+    background:
+      linear-gradient(180deg,
+        rgba(10,15,23,.30) 0%,
+        rgba(10,15,23,.06) 20%,
+        rgba(10,15,23,.06) 40%,
+        rgba(10,15,23,.42) 62%,
+        rgba(10,15,23,.82) 84%,
+        rgba(10,15,23,.94) 100%) !important;
+  }
+  .ivm-wd-hero__veil {
+    background:
+      linear-gradient(180deg,
+        rgba(10,15,23,.34) 0%,
+        rgba(10,15,23,.06) 20%,
+        rgba(10,15,23,.08) 38%,
+        rgba(10,15,23,.52) 58%,
+        rgba(10,15,23,.88) 80%,
+        rgba(10,15,23,.97) 100%) !important;
+  }
+
+  /* 2. ETIQUETA SUPERIOR: crema legible + filete dorado.
+        El dorado como TEXTO chico sobre foto no se lee nunca;
+        como TRAZO sólido sí se ve y marca la casa. */
+  .ivm-act-hero__eyebrow,
+  .ivm-wd-hero__eyebrow {
+    /* Rejilla, no flex: si la etiqueta se parte en dos renglones, el
+       segundo alinea con el texto y no debajo del filete. */
+    display: grid !important;
+    grid-template-columns: 32px 1fr;
+    align-items: start;
+    column-gap: 12px;
+    line-height: 1.6;
+    color: rgba(250,248,245,.9) !important;
+    font-family: 'Syne', sans-serif;
+    font-size: 10.5px !important;
+    font-weight: 500;
+    letter-spacing: 0.26em !important;
+    margin-bottom: 20px !important;
+    text-shadow: 0 1px 12px rgba(10,15,23,.65);
+  }
+  .ivm-act-hero__eyebrow::before,
+  .ivm-wd-hero__eyebrow::before {
+    content: '';
+    width: 32px;
+    height: 1px;
+    margin-top: .62em;
+    background: var(--ivm-gold, #c9a54e);
+  }
+
+  /* Un solo eje también en bodas: el indicador de scroll deja de ir
+     centrado mientras el resto del texto va a la izquierda. */
+  .ivm-wd-hero__scroll {
+    left: 24px !important;
+    right: auto !important;
+    transform: none !important;
+    text-align: left !important;
+    letter-spacing: 0.3em !important;
+    color: rgba(250,248,245,.72) !important;
+  }
+  /* la rayita del indicador también se mueve al eje izquierdo */
+  .ivm-wd-hero__scroll::after { left: 1px !important; transform: none !important; }
+
+  /* 3. TITULAR: sombra suave para que nunca se pierda en un vestido
+        blanco, sin que se note como sombra. */
+  .ivm-act-hero__title,
+  .ivm-wd-hero__title {
+    text-shadow: 0 2px 34px rgba(10,15,23,.55);
+  }
+
+  /* 4. UN SOLO EJE: el indicador de scroll se alinea con el texto,
+        no centrado. Dos ejes distintos se ven descuidados. */
+  .ivm-act-hero__scroll {
+    left: 24px !important;
+    transform: none !important;
+    align-items: flex-start !important;
+    color: rgba(250,248,245,.72) !important;
+    letter-spacing: 0.3em !important;
+  }
+
+  /* 5. El botón flotante de WhatsApp no debe caer sobre el titular
+        del hero: baja un poco en la primera pantalla. */
+  .ivm-act-hero ~ .ivae-wa-fab,
+  .ivm-wd-hero ~ .ivae-wa-fab { bottom: calc(24px + env(safe-area-inset-bottom, 0px)) !important; }
+
 } /* fin @media (max-width: 899px) */

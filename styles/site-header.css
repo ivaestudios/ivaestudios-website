@@ -865,3 +865,47 @@ body .m-nav .m-nav-cta::before { content: none !important; }
 .site-header:not(.scrolled) .lg-navy{ opacity:1 !important; }
 .site-header.scrolled .lg-navy{ opacity:0 !important; }
 .site-header.scrolled .lg-cream{ opacity:1 !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   PULIDO EDITORIAL DEL ENCABEZADO EN TELÉFONO · 2026-09-05
+   Tres cosas abarataban la marca en cada página:
+   1) un punto dorado suelto que caía junto a "IVAE" y parecía
+      un error de imprenta;
+   2) el lockup demasiado ancho, que empujaba el EN/ES y hacía
+      ver la barra amontonada;
+   3) el selector de idioma con el mismo peso visual que el logo,
+      cuando es una utilidad, no parte de la identidad.
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 899px) {
+  /* 1. Fuera el punto suelto: el lockup ya tiene su propia identidad */
+  body .site-header .h-logo::after { display: none !important; }
+
+  /* 2. El logo como cabecera de revista, con aire a los lados */
+  body .site-header .h-logo { padding: 8px 0 !important; }
+  body .site-header .h-logo img {
+    max-width: 148px !important;
+    width: auto !important;
+    height: auto !important;
+    max-height: 22px !important;
+  }
+
+  /* 3. El idioma se vuelve utilidad discreta: más chico, más tenue,
+        y el activo en crema (el dorado se reserva para la marca) */
+  body .site-header .lang-switch { gap: 10px !important; }
+  body .site-header .lang-switch a {
+    font-size: 9.5px !important;
+    letter-spacing: 0.2em !important;
+    opacity: .48 !important;
+    padding: 6px 2px !important;
+    border-bottom: 1px solid transparent !important;
+    transition: opacity .3s ease, border-color .3s ease !important;
+  }
+  body .site-header .lang-switch a.is-active {
+    opacity: 1 !important;
+    color: var(--cream, #faf8f5) !important;
+    border-bottom-color: var(--gold, #c9a54e) !important;
+  }
+  /* En la barra blanca del inicio, el idioma va en tinta */
+  body .site-header:not(.scrolled) .lang-switch a { color: #141b26 !important; }
+  body .site-header:not(.scrolled) .lang-switch a.is-active { color: #141b26 !important; }
+}

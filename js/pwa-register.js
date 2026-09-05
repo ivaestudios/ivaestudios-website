@@ -36,3 +36,30 @@
     }).catch(function(){});
   });
 })();
+
+/* ───────────────────────────────────────────────────────────────
+   EL HERO ES SAGRADO · 2026-09-05
+   En teléfono el botón flotante de WhatsApp se paraba justo encima
+   del titular de la portada y ensuciaba la primera impresión, que
+   es lo que vende. Aquí solo marcamos en <html> si la visitante ya
+   pasó la primera pantalla; el resto lo hace styles/wa-fab.css.
+   Va en este archivo porque lo cargan 418 páginas, incluida la
+   portada, que tiene encabezado propio y no usa site-header.js.
+   ─────────────────────────────────────────────────────────────── */
+(function () {
+  var raiz = document.documentElement;
+  if (raiz.classList.contains('ivae-fab-auto')) return;   /* ya lo hace site-header.js */
+  raiz.classList.add('ivae-fab-auto');
+  var anterior = null;
+  function mirar() {
+    var y = window.pageYOffset || raiz.scrollTop || 0;
+    var paso = y > (window.innerHeight * 0.62);
+    if (paso !== anterior) {
+      raiz.classList.toggle('ivae-paso-hero', paso);
+      anterior = paso;
+    }
+  }
+  mirar();
+  window.addEventListener('scroll', mirar, { passive: true });
+  window.addEventListener('resize', mirar, { passive: true });
+})();
