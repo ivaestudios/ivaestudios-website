@@ -1,0 +1,32 @@
+name: SEO — GSC consultas (solo lectura)
+
+on:
+  workflow_dispatch:
+    inputs:
+      filtro:
+        description: "Regex sobre la consulta"
+        required: false
+        default: "canc[uú]n|mejor|best|fot[oó]grafo|photographer"
+      dias:
+        description: "Días de ventana"
+        required: false
+        default: "28"
+      pais:
+        description: "ISO-3 opcional (MEX, USA, PER)"
+        required: false
+        default: ""
+
+jobs:
+  consultar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install google-auth google-api-python-client
+      - name: Consultar Search Console
+        env:
+          GOOGLE_INDEXING_SA_JSON: ${{ secrets.GOOGLE_INDEXING_SA_JSON }}
+        run: |
+          python3 scripts/gsc_queries.py --filtro "${{ github.event.inputs.filtro }}" --dias "${{ github.event.inputs.dias }}" --pais "${{ github.event.inputs.pais }}"
