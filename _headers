@@ -86,11 +86,19 @@
 # Main-site JS/CSS — explicit per-file rules instead of /*.js catch-all,
 # because the catch-all leaks `immutable` into /gallery/* responses (Pages
 # merges values, doesn't pick first/most-specific).
+# 2026-09-06: `immutable` de un año era una TRAMPA. Cloudflare NO usa el
+# `?v=` como parte de la llave de caché, así que al cambiar un CSS el edge
+# seguía sirviendo el archivo viejo bajo la misma ruta durante un año, y el
+# `?v=` nuevo no servía de nada (verificado: cf-cache-status HIT con el
+# cuerpo anterior). Como aquí los archivos NO llevan hash en el nombre, la
+# combinación correcta es una vida corta con revalidación: el navegador
+# pregunta, el servidor contesta 304 si no cambió (barato), y un arreglo
+# llega a todos en menos de una hora.
 /styles/*.css
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=3600, must-revalidate
 
 /js/*.css
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=3600, must-revalidate
 
 /js/lang-detect.js
   Cache-Control: public, max-age=31536000, immutable
