@@ -4670,6 +4670,34 @@
     padding: 0 8px !important;
   }
 
+
+  /* ═══════════════════════════════════════════════════════════════
+     LAS CIFRAS ERAN INVISIBLES EN iPHONE · 2026-09-07
+     Cazado en el simulador y confirmado en WebKit real. Las celdas
+     arrancaban en `opacity:0; transform: rotateX(-90deg)` y solo se
+     mostraban cuando un IntersectionObserver con threshold .4 les
+     ponía .is-flipped. Pero rotateX(-90deg) deja la celda DE CANTO, y
+     Safari mide la intersección sobre la geometría YA TRANSFORMADA:
+     una celda de canto tiene razón de intersección ~0 y jamás llega a
+     .4, así que la clase no se añadía NUNCA. La celda se escondía tan
+     bien que el observador que debía revelarla no podía dispararse.
+     Resultado en el teléfono: las cuatro cifras (12, 500+, 3, 2) en el
+     DOM pero invisibles, y como el padre de la cuadrícula va pintado
+     de dorado para dibujar los filetes de 1px, se veía un bloque verde
+     oliva macizo donde deberían ir los datos.
+     Chrome lo pintaba bien, o sea que medir en Chromium NO bastaba.
+     REGLA: en teléfono el contenido no depende de una animación para
+     ser visible. La animación es adorno; el dato se ve siempre.
+     ═══════════════════════════════════════════════════════════════ */
+  .ivm-st-num {
+    opacity: 1 !important;
+    transform: none !important;
+    transform-style: flat !important;
+    transition: none !important;
+    will-change: auto !important;
+  }
+  .ivm-st-numbers__grid { perspective: none !important; }
+
 } /* fin @media (max-width: 899px) */
 
 /* ═══════════════════════════════════════════════════════════════
