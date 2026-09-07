@@ -236,8 +236,17 @@ html.dark b {
 
 /* ── Header (already dark — small refinements) ────────────── */
 
-html.dark .site-header,
-html.dark header {
+/* OJO: aquí decía `html.dark header` A SECAS, y eso pintaba una placa
+   oscura con desenfoque de 20px sobre TODO <header> del sitio, no solo la
+   barra. Los cabezales de sección son <header class="...__head">, así que
+   sobre un fondo #0c1219 aparecía un rectángulo gris visible detrás de
+   cada título (cazado en el simulador de iPhone, 2026-09-07: dos cajas en
+   "El Atlas" y "En cifras"). Alcance real: 65 encabezados de contenido en
+   27 clases distintas, cada uno además creando una capa de composición
+   por el backdrop-filter, gratis.
+   Las 460 barras del sitio llevan class="site-header", así que acotar el
+   selector no le quita el fondo a ninguna. */
+html.dark .site-header {
   background: rgba(10, 15, 23, 0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);

@@ -6,7 +6,12 @@
 .ivae-wa-fab{
   position:fixed;
   right:14px;
-  bottom:calc(86px + env(safe-area-inset-bottom,0px));
+  /* Eran 86px para librar una barra de pestañas inferior que YA NO EXISTE
+     (de ella solo quedan comentarios en el HTML). Sumado al inset seguro
+     de Safari, la burbuja flotaba a ~120pt del borde, o sea en mitad del
+     contenido: en el iPhone tapaba la palabra "estudio" del titular
+     "Cuatro capítulos. Un estudio." Ahora se sienta en su esquina. */
+  bottom:calc(20px + env(safe-area-inset-bottom,0px));
   width:56px;height:56px;border-radius:50%;
   background:#ffffff;color:#25D366;border:1px solid rgba(0,0,0,.06);
   display:inline-flex;align-items:center;justify-content:center;
