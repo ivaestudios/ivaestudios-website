@@ -4174,6 +4174,10 @@
   .ivm-st-founder__pola picture,
   .ivm-wd-venue picture,
   .ivm-about-mast__polaroid picture { display: block; }
+  /* Cuando el marco define la altura, el envoltorio debe llenarlo o la
+     foto se queda corta y deja una franja negra debajo. */
+  .ivm [class*="__photo"] > picture,
+  .ivm-svc__photo > picture { width: 100%; height: 100%; }
 
 
   /* ═══════════════════════════════════════════════════════════════
@@ -4220,5 +4224,128 @@
 
   /* El pie de foto no debe quedar debajo de la foto encajada */
   .ivm-st-founder__pola--1 figcaption { padding-right: 54%; text-align: left; padding-left: 14px; }
+
+
+  /* ═══════════════════════════════════════════════════════════════
+     LA PROMESA · rediseño 2026-09-05
+     Medido en iPhone: la sección ocupaba 320vh (2,701px) para cuatro
+     frases y, con el impulso normal del dedo, DOS deslizadas llevaban
+     del principio 01 al 04 sin alcanzar a leer ninguno. En pantalla
+     solo se veía negro con una línea de texto: por eso el sitio se
+     sentía lento y vacío.
+     En teléfono se quita el efecto pegajoso y los cuatro principios
+     se leen de corrido, como una página de revista. La sección pasa
+     de 2,701px a unos 1,100px en las 10 páginas donde aparece.
+     En escritorio NO cambia nada: ahí el efecto sí funciona.
+     ═══════════════════════════════════════════════════════════════ */
+  .ivm-st-manifesto { height: auto !important; }
+  .ivm-st-manifesto__pin {
+    position: static !important;
+    height: auto !important;
+    display: block !important;
+    padding: 88px 0 96px !important;
+    overflow: visible !important;
+    perspective: none !important;
+  }
+  .ivm-st-manifesto__stage {
+    min-height: 0 !important;
+    display: grid;
+    gap: 58px;
+    padding: 44px 24px 0 !important;
+    transform-style: flat;
+  }
+  .ivm-st-manifesto__phrase {
+    position: static !important;
+    inset: auto !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    font-size: clamp(29px, 8.2vw, 38px) !important;
+    line-height: 1.12 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+  .ivm-st-manifesto__phrase::before {
+    font-size: 10px !important;
+    letter-spacing: 0.34em !important;
+    margin-bottom: 16px !important;
+    padding-bottom: 0 !important;
+  }
+  .ivm-st-manifesto__phrase::after {
+    margin: 18px auto 0 !important;
+    padding-top: 14px !important;
+    font-size: 15px !important;
+  }
+  /* El contador y las rayitas de avance solo tienen sentido con el
+     efecto pegajoso; sin él son ruido. */
+  .ivm-st-manifesto__counter,
+  .ivm-st-manifesto__progress { display: none !important; }
+  /* Los puntitos flotantes tampoco: eran atmósfera para el pin */
+  .ivm-st-manifesto__motes { display: none !important; }
+
+
+  /* ═══════════════════════════════════════════════════════════════
+     PORTADA: LAS DOS SECCIONES MÁS VACÍAS · rediseño 2026-09-05
+     Medido en teléfono:
+       "La hora"  → 2,026px de scroll para leer UNA frase (72 caracteres)
+       "Servicios"→ 4,220px para cuatro tarjetas (451 caracteres)
+     Juntas eran el 62% de la portada mostrando media cuartilla de texto.
+     Con el impulso normal del dedo, la gente pasa de largo y solo ve
+     negro: por eso se sentía lenta y vacía.
+     En teléfono se quita el efecto pegajoso: la frase se lee completa
+     en una pantalla y los cuatro servicios se recorren como tarjetas
+     de verdad, que además son la puerta a las páginas que venden.
+     En escritorio NO cambia nada.
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── "La hora": una pantalla, la frase completa ── */
+  .ivm-act-hour { height: auto !important; }
+  .ivm-act-hour__pin {
+    position: static !important;
+    min-height: 100svh;
+    height: auto !important;
+  }
+  .ivm-act-hour__line {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    font-size: clamp(32px, 9.4vw, 46px) !important;
+    line-height: 1.14 !important;
+  }
+  .ivm-act-hour__progress { display: none !important; }
+
+  /* ── Servicios: cuatro tarjetas reales, una tras otra ── */
+  .ivm-act-services { height: auto !important; }
+  .ivm-act-services__pin {
+    position: static !important;
+    height: auto !important;
+    display: block !important;
+    padding: 84px 0 92px !important;
+    overflow: visible !important;
+  }
+  .ivm-act-services__stage {
+    position: relative !important;
+    width: auto !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 40px 0 0 !important;
+    display: grid;
+    gap: 18px;
+    padding: 0 20px;
+    transform-style: flat;
+  }
+  .ivm-svc {
+    position: relative !important;
+    inset: auto !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    height: 62svh;
+    max-height: 470px;
+    border-radius: 2px;
+  }
+  /* La tarjeta conserva su reparto original: foto arriba, nombre y
+     descripción abajo. Solo se quitó el efecto pegajoso. */
 
 } /* fin @media (max-width: 899px) */
