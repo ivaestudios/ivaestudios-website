@@ -918,3 +918,46 @@ body .m-nav .m-nav-cta::before { content: none !important; }
   body .site-header:not(.scrolled) .lang-switch a { color: #141b26 !important; }
   body .site-header:not(.scrolled) .lang-switch a.is-active { color: #141b26 !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   EL ENCABEZADO FLOTA SOBRE EL HERO · TELÉFONO · 2026-09-06
+   La barra blanca de arriba funciona bien en páginas de texto, pero
+   sobre un hero a sangre (foto de pared a pared o fondo tinta) partía
+   la imagen en dos con una franja de aplicación, y era lo primero que
+   veía el cliente. En esas 20 páginas el encabezado ahora FLOTA:
+   un velo degradado en vez de una caja, el logo en crema y el idioma
+   en claro. Al hacer scroll, .scrolled devuelve la barra sólida de
+   siempre, así que el resto del sitio no cambia.
+   El velo no es decorativo: sostiene el contraste del logo crema
+   (≈5:1) incluso cuando la foto trae follaje claro arriba.
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 899px) {
+  body:has(.ivm-act-hero, .ivm-wd-hero, .ivm-st-hero) .site-header:not(.scrolled) {
+    background: transparent !important;
+    border-bottom-color: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  /* El velo se sale 46px por debajo de la barra: así el degradado se
+     apaga FUERA del encabezado y no queda el escaloncito que delataba
+     dónde terminaba la franja. */
+  body:has(.ivm-act-hero, .ivm-wd-hero, .ivm-st-hero) .site-header:not(.scrolled)::after {
+    content: '' !important;
+    position: absolute !important;
+    left: 0 !important; right: 0 !important; top: 0 !important; bottom: -46px !important;
+    background: linear-gradient(180deg,
+      rgba(10,15,23,.74) 0%,
+      rgba(10,15,23,.48) 44%,
+      rgba(10,15,23,0) 100%) !important;
+    pointer-events: none !important;
+    z-index: -1 !important;
+  }
+  body:has(.ivm-act-hero, .ivm-wd-hero, .ivm-st-hero) .site-header:not(.scrolled) .lg-navy { opacity: 0 !important; }
+  body:has(.ivm-act-hero, .ivm-wd-hero, .ivm-st-hero) .site-header:not(.scrolled) .lg-cream { opacity: 1 !important; }
+  body:has(.ivm-act-hero, .ivm-wd-hero, .ivm-st-hero) .site-header:not(.scrolled) .h-nav a,
+  body:has(.ivm-act-hero, .ivm-wd-hero, .ivm-st-hero) .site-header:not(.scrolled) .header-nav a,
+  body:has(.ivm-act-hero, .ivm-wd-hero, .ivm-st-hero) .site-header:not(.scrolled) .lang-switch a,
+  body:has(.ivm-act-hero, .ivm-wd-hero, .ivm-st-hero) .site-header:not(.scrolled) .h-lang a { color: #faf8f5 !important; }
+  body:has(.ivm-act-hero, .ivm-wd-hero, .ivm-st-hero) .site-header:not(.scrolled) .lang-sep { color: rgba(250,248,245,.34) !important; }
+  body:has(.ivm-act-hero, .ivm-wd-hero, .ivm-st-hero) .site-header:not(.scrolled) .h-burger span { background: #faf8f5 !important; }
+}
