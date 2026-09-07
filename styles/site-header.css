@@ -988,6 +988,12 @@ body .m-nav .m-nav-cta::before { content: none !important; }
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 899px) {
   body .m-nav {
+    /* El cajón medía 100svh, o sea la altura MÍNIMA del viewport (la que
+       queda con la barra de Safari desplegada). Al contraerse la barra el
+       área visible CRECE y el cajón se quedaba corto: por debajo se asomaba
+       la página, cazado en el simulador de iPhone. Headless no lo reproduce
+       porque no tiene barra que se mueva. `dvh` sigue la altura real. */
+    height: 100dvh !important;
     /* Centrado cuando cabe, desplazable cuando no. */
     justify-content: flex-start !important;
     overflow-y: auto !important;
