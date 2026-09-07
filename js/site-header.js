@@ -268,10 +268,21 @@
     // "Begin Inquiry"/"Comenzar Consulta" button would scroll nowhere. Fall
     // back to the studio's canonical consultation email when no #inquiry
     // anchor exists on the page; keep the smooth-scroll on pages that have it.
-    if (!document.getElementById('inquiry')) {
-      var ctaFallback = 'mailto:info@ivaestudios.com';
+    // Las páginas no usan todas el mismo id para su bloque de consulta:
+    // la home tiene #dossier y #ivm-inquire, las pilar #inquiry, y las
+    // interiores (venues, legales, autor, posts) no tienen ninguno. Antes
+    // solo se miraba #inquiry, así que en la home el botón habría caído al
+    // correo teniendo su sección de consulta ahí mismo. Se busca el primer
+    // ancla que EXISTA y solo entonces se cae al correo.
+    var anclasCTA = ['inquiry', 'ivm-inquire', 'dossier'];
+    var destinoCTA = null;
+    for (var iA = 0; iA < anclasCTA.length; iA++) {
+      if (document.getElementById(anclasCTA[iA])) { destinoCTA = '#' + anclasCTA[iA]; break; }
+    }
+    if (destinoCTA !== '#inquiry') {
+      var hrefCTA = destinoCTA || 'mailto:info@ivaestudios.com';
       document.querySelectorAll('#siteHeader .h-cta, #mNav .m-nav-cta').forEach(function (a) {
-        a.setAttribute('href', ctaFallback);
+        a.setAttribute('href', hrefCTA);
       });
     }
 

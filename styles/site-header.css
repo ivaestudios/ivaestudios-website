@@ -961,3 +961,107 @@ body .m-nav .m-nav-cta::before { content: none !important; }
   body:has(.ivm-act-hero, .ivm-wd-hero, .ivm-st-hero) .site-header:not(.scrolled) .lang-sep { color: rgba(250,248,245,.34) !important; }
   body:has(.ivm-act-hero, .ivm-wd-hero, .ivm-st-hero) .site-header:not(.scrolled) .h-burger span { background: #faf8f5 !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   EL CAJÓN DEL MENÚ · TELÉFONO · 2026-09-07
+   Reportado por Vianey: "cuando vas a Diario y presionas el menú
+   está terrible". Medido en WebKit a 402x874, y no era solo feo:
+
+   1) NO SE PODÍA ALCANZAR EL PRINCIPIO DEL MENÚ. El cajón es un
+      flex en columna con justify-content:center y sin desbordamiento.
+      Con 23 elementos el contenido mide 1,051px dentro de 874px, y
+      al centrar, lo que sobra se sale por ARRIBA y por ABAJO sin
+      forma de desplazarlo: "Inicio" quedaba en top:-168px, fuera de
+      la pantalla. El primer enlace del menú era inalcanzable.
+      Arreglo: overflow-y auto + `margin:auto` en el interior, que
+      centra cuando cabe y NO recorta cuando no cabe (a diferencia de
+      justify-content:center, que recorta por los dos lados).
+   2) Los once destinos ocupaban once renglones: eso es un directorio,
+      no un menú. Van en dos columnas, que ahorra cinco renglones.
+   3) La píldora "NEW" y el enlace "Marketing" iban en degradado
+      ROSA/MORADO: ese es el color de IVAE Marketing, otra marca,
+      metido dentro del menú del estudio de fotografía. Pasan al
+      dorado de la casa y la píldora se va (grita, y un "NEW" que
+      lleva meses puesto ya no es nuevo).
+   4) El salto de 30px en Cormorant a 14px en Syne entre un nivel y
+      otro era brusco; ahora los servicios también hablan Cormorant.
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 899px) {
+  body .m-nav {
+    /* Centrado cuando cabe, desplazable cuando no. */
+    justify-content: flex-start !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    padding:
+      calc(64px + env(safe-area-inset-top, 0px)) 24px
+      calc(28px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  body .m-nav .m-nav-inner {
+    margin: auto !important;          /* la clave: centra sin recortar */
+    width: 100% !important;
+    max-width: 340px !important;
+    padding: 0 !important;
+  }
+
+  /* Enlaces principales: la voz de la casa, con aire para el pulgar */
+  body .m-nav .m-nav-link {
+    font-size: 26px !important;
+    padding: 13px 0 !important;
+  }
+
+  /* Servicios: mismo idioma tipográfico, un escalón por debajo */
+  body .m-nav .m-nav-sublink {
+    font-family: 'Cormorant Garamond', Georgia, serif !important;
+    font-size: 18px !important;
+    font-weight: 400 !important;
+    letter-spacing: 0 !important;
+    color: rgba(250, 248, 245, 0.88) !important;
+    padding: 9px 0 9px 14px !important;
+    min-height: 44px !important;
+  }
+  body .m-nav .m-nav-section-label {
+    padding: 16px 0 4px !important;
+  }
+
+  /* Los once destinos, en dos columnas: de once renglones a seis */
+  body .m-nav .m-nav-section + .m-nav-section {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    column-gap: 14px !important;
+  }
+  body .m-nav .m-nav-section + .m-nav-section .m-nav-section-label {
+    grid-column: 1 / -1 !important;
+  }
+  body .m-nav .m-nav-section + .m-nav-section .m-nav-sublink {
+    font-size: 15px !important;
+    padding: 7px 0 7px 12px !important;
+    /* 44px: el mínimo para que el dedo no falle entre dos columnas juntas */
+    min-height: 44px !important;
+    color: rgba(250, 248, 245, 0.72) !important;
+  }
+
+  /* Marketing es otra marca: se enlaza, no se anuncia con su color */
+  body .m-nav .m-nav-sublink--accent {
+    color: rgba(250, 248, 245, 0.88) !important;
+    background: none !important;
+    -webkit-text-fill-color: currentColor !important;
+  }
+  body .m-nav .m-nav-pill { display: none !important; }
+
+  /* EN/ES medían 34px de alto: por debajo del mínimo para el pulgar */
+  body .m-nav .m-nav-lang a {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+
+  /* El botón de cerrar, despejado del área segura y del primer enlace */
+  body .m-nav .m-nav-close {
+    top: calc(14px + env(safe-area-inset-top, 0px)) !important;
+    right: 18px !important;
+    z-index: 2 !important;
+  }
+}
