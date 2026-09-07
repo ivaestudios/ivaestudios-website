@@ -1434,3 +1434,5 @@ tr.meses-row--ph td {
 }
 .meses-plats .ico { display: inline-flex; }
 .meses-chip .meses-plats { color: inherit; }
+/* Un logo de marca es una silueta rellena: nunca hereda el trazo del resto. */
+.ico--marca svg { display: block; }
