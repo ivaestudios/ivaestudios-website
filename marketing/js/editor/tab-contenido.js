@@ -19,13 +19,13 @@ import {
   el,
   statusBadge, approvalBadge, chip,
   fmtDate, avatar, isClientRole,
-} from '../api.js?v=202608300312';
-import { pickFrom } from '../shell/sheet.js?v=202608300312';
-import * as store from '../shell/store.js?v=202608300312';
-import * as checklistService from '../services/checklist.js?v=202608300312';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202608300312';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202608300312';
-import { T } from '../shell/i18n.js?v=202608300312';
+} from '../api.js?v=202609071546';
+import { pickFrom } from '../shell/sheet.js?v=202609071546';
+import * as store from '../shell/store.js?v=202609071546';
+import * as checklistService from '../services/checklist.js?v=202609071546';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202609071546';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609071546';
+import { T } from '../shell/i18n.js?v=202609071546';
 
 export function mount(host, ed) {
   const { ctx } = ed;

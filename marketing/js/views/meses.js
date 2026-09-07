@@ -28,22 +28,22 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202608300312';
-import { icon } from '../shell/icons.js?v=202608300312';
-import { T } from '../shell/i18n.js?v=202608300312';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202608300312';
+} from '../api.js?v=202609071546';
+import { icon } from '../shell/icons.js?v=202609071546';
+import { T } from '../shell/i18n.js?v=202609071546';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202609071546';
 // Capas de history del shell: el boton atras del telefono cierra la capa de
 // arriba (panel de guion) en vez de salir de la app.
-import { pushLayer } from '../shell/router.js?v=202608300312';
-import { confirmar } from '../shell/sheet.js?v=202608300312';
+import { pushLayer } from '../shell/router.js?v=202609071546';
+import { confirmar } from '../shell/sheet.js?v=202609071546';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202608300312';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202608300312';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202608300312';
+import { errorCard } from '../ui/states.js?v=202609071546';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202609071546';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from '../editor/slides.js?v=202609071546';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202608300312';
+} from '../lib/video-upload.js?v=202609071546';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1407,10 +1407,21 @@ function typePillNode(type) {
   return pill;
 }
 
+// Una pieza puede ir a varias redes: el valor viaja como texto separado por
+// coma ("Instagram, LinkedIn"). Aqui se pinta el LOGO de cada una, no el nombre,
+// que es lo que pidio la duena. Si la red no tiene logo, cae al nombre en texto.
+const PLAT_ICONO = { instagram: 'instagram', linkedin: 'linkedin' };
 function platformNode(platform) {
   const p = String(platform || '').trim();
   if (!p) return el('span', { class: 'meses-muted', text: '+' });
-  return el('span', { class: 'meses-pill meses-pill--plain', text: p });
+  const redes = p.split(/[,/]+/).map((x) => x.trim()).filter(Boolean);
+  const nodos = redes.map((nombre) => {
+    const clave = nombre.toLowerCase();
+    return PLAT_ICONO[clave]
+      ? icon(PLAT_ICONO[clave], 17)
+      : el('span', { class: 'meses-pill meses-pill--plain', text: nombre });
+  });
+  return el('span', { class: 'meses-plats', title: redes.join(' · ') }, nodos);
 }
 
 function cellButton(content, onClick, aria) {
@@ -1797,12 +1808,12 @@ function buildTable(rows, noteLabels) {
 
 // ── Filas movil (2 renglones: titulo + chips) ────────────────────────────────
 
-function mobileChip({ text, color, ghost, aria, onTap }) {
+function mobileChip({ text, node, color, ghost, aria, onTap }) {
   const b = el('button', {
     class: 'meses-chip' + (ghost ? ' meses-chip--ghost' : ''),
     type: 'button', 'aria-label': aria, 'aria-haspopup': 'dialog',
     onclick: (e) => onTap(e.currentTarget),
-  }, [el('span', { text })]);
+  }, [node || el('span', { text })]);
   if (color) b.style.setProperty('--chipc', color);
   return b;
 }
@@ -1841,7 +1852,8 @@ function buildMobileItem(post, noteLabels) {
       onTap: isClientRole() ? (a) => openClientApproval(post, a) : (a) => onPickStatus(post, a),
     }),
     mobileChip({
-      text: post.platform || T('Plataforma', 'Platform'),
+      node: post.platform ? platformNode(post.platform) : null,
+      text: post.platform ? null : T('Plataforma', 'Platform'),
       ghost: !post.platform,
       aria: post.platform ? `${T('Plataforma', 'Platform')} ${post.platform}` : T('Asignar plataforma', 'Set platform'),
       onTap: (a) => onPickPlatform(post, a),
@@ -2384,8 +2396,8 @@ function buildPdfContenidoBtn(key, rows) {
       const antes = label ? label.textContent : '';
       btn.disabled = true;
       try {
-        const mod = await import('../lib/pdf-contenido.js?v=202608300312');
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202608300312');
+        const mod = await import('../lib/pdf-contenido.js?v=202609071546');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609071546');
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
         const res = await mod.generarPdfContenido({

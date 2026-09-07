@@ -58,6 +58,10 @@ const PATHS = {
   sort:      'M8 4v16M4 8l4-4 4 4M16 20V4M20 16l-4 4-4-4',
   // Sin conexión (arcos de wifi cortados por una diagonal). OJO: icon() parte
   // el string por 'M', así que cada subtrazo TIENE que empezar con M.
+  // Logos de red social. Se dibujan con el mismo trazo que el resto de iconos
+  // para que convivan con la interfaz (no son los logos oficiales rellenos).
+  instagram: 'M7.6 3.2h8.8a4.4 4.4 0 0 1 4.4 4.4v8.8a4.4 4.4 0 0 1-4.4 4.4H7.6a4.4 4.4 0 0 1-4.4-4.4V7.6a4.4 4.4 0 0 1 4.4-4.4ZM12 8.4a3.6 3.6 0 1 0 0 7.2 3.6 3.6 0 0 0 0-7.2M17.1 6.9h.01',
+  linkedin:  'M4.2 9.2h3.1V20H4.2zM5.75 4.1a1.85 1.85 0 1 0 0 3.7 1.85 1.85 0 0 0 0-3.7M10.2 20V9.2h3.05v1.5a3.6 3.6 0 0 1 3.2-1.75c2.35 0 3.75 1.5 3.75 4.35V20h-3.1v-5.3c0-1.45-.6-2.35-1.85-2.35-1.1 0-1.8.8-1.8 2.25V20z',
   'wifi-off': 'M2 3l19 19M5.6 12.6a9 9 0 0 1 4.2-2.3M9 16.1a4.5 4.5 0 0 1 2-1.05M12 19.6h.01M16.9 13a9 9 0 0 0-2.6-2.1M2.4 9a15 15 0 0 1 6.2-3.7M13.5 5.1A15 15 0 0 1 21.6 9',
 };
 

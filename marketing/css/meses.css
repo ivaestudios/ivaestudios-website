@@ -1422,3 +1422,15 @@ tr.meses-row--ph td {
 .mesia-nrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13.5px; color: var(--text-mute); }
 .mesia-n { width: 84px; text-align: center; }
 .mesia-acciones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 2px; }
+
+/* ── Plataformas como LOGO ─────────────────────────────────────────────────
+   Una pieza puede ir a Instagram y LinkedIn a la vez. En vez del nombre en
+   texto se pintan los logos, juntos y del color del texto normal.          */
+.meses-plats {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+}
+.meses-plats .ico { display: inline-flex; }
+.meses-chip .meses-plats { color: inherit; }
