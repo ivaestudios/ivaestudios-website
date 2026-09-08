@@ -84,6 +84,14 @@ export const CATALOGO = {
     size: { '9:16': '1024x1792', '16:9': '1792x1024' },
     resolution: '1024p', usdSeg: 0.50, audio: true, personas: true,
   },
+  seedance: {
+    label: 'Seedance 2.5',
+    sub: 'De ByteDance, los de TikTok. Hasta 30 segundos de una sola pieza, con audio.',
+    proveedor: 'replicate',
+    modeloId: 'bytedance/seedance-2.5',
+    modelo: 'Seedance 2.5 · 720p con audio',
+    resolution: '720p', usdSeg: 0.2312, audio: true, personas: true,
+  },
   broll: {
     label: 'B-roll suelto',
     sub: 'Sin audio y sin personas: paisajes, objetos, ambiente. Centavos.',
@@ -97,6 +105,9 @@ export const CATALOGO = {
 // Veo solo acepta 4, 6 u 8 segundos. FastWan da 5.
 const SEGUNDOS_GOOGLE = [4, 6, 8];
 const SEGUNDOS_FAL = [5];
+// Seedance acepta cualquier entero de 4 a 30 y los da de UNA sola generación.
+const SEGUNDOS_SEEDANCE = [5, 10, 15, 20, 25, 30];
+
 // Sora 2 acepta 4, 8, 12, 16 o 20 segundos, y los manda como TEXTO.
 // ⚠️ La página de referencia de la API todavía lista solo 4, 8 y 12: está
 // vencida. La GUÍA dice textual "Both sora-2 and sora-2-pro support 16- and
@@ -182,12 +193,14 @@ function viaGoogle(env) {
 }
 function viaFal(env) { return !!(env.FAL_KEY && String(env.FAL_KEY).trim()); }
 function viaSora(env) { return !!(env.OPENAI_API_KEY && String(env.OPENAI_API_KEY).trim()); }
+function viaReplicate(env) { return !!(env.REPLICATE_API_TOKEN && String(env.REPLICATE_API_TOKEN).trim()); }
 
 function disponible(env, tier) {
   const cat = CATALOGO[tier];
   if (!cat) return false;
   if (cat.proveedor === 'google') return !!viaGoogle(env);
   if (cat.proveedor === 'sora') return viaSora(env);
+  if (cat.proveedor === 'replicate') return viaReplicate(env);
   return viaFal(env);
 }
 
@@ -428,6 +441,74 @@ async function refrescarSora(env, job) {
   return guardarVideo(env, job, vres.body);
 }
 
+// ---------------------------------------------------------------------------
+// SEEDANCE 2.5 (ByteDance) por REPLICATE. Su gracia: hasta 30 segundos de UNA
+// sola generación, con audio sincronizado. Se entra por Replicate y no por
+// BytePlus porque Replicate cobra la mitad que fal y da acceso global.
+//   POST https://api.replicate.com/v1/models/bytedance/seedance-2.5/predictions
+//        {input:{prompt, duration, resolution, aspect_ratio, generate_audio}}
+//   GET  <urls.get>  -> starting | processing | succeeded | failed | canceled
+//   output = la URL del MP4 (un solo texto, no una lista)
+// El diálogo va ENTRE COMILLAS DOBLES dentro del prompt: así lo pide su ficha.
+// ---------------------------------------------------------------------------
+const REPLICATE_BASE = 'https://api.replicate.com/v1';
+
+async function repFetch(env, url, init = {}) {
+  const res = await fetch(url, {
+    ...init,
+    headers: {
+      'Authorization': `Bearer ${String(env.REPLICATE_API_TOKEN).trim()}`,
+      'Content-Type': 'application/json',
+      ...(init.headers || {}),
+    },
+    signal: AbortSignal.timeout(init.timeoutMs || 30000),
+  });
+  const data = await res.json().catch(() => ({}));
+  return { res, data };
+}
+
+async function arrancarSeedance(env, cat, prompt, aspect, seconds) {
+  return repFetch(env, `${REPLICATE_BASE}/models/${cat.modeloId}/predictions`, {
+    method: 'POST',
+    body: JSON.stringify({
+      input: {
+        prompt,
+        duration: Number(seconds),
+        resolution: cat.resolution,
+        aspect_ratio: aspect,
+        generate_audio: !!cat.audio,
+        watermark: false,
+        output_format: 'mp4',
+      },
+    }),
+  });
+}
+
+async function refrescarSeedance(env, job) {
+  if (!viaReplicate(env)) return job;
+  const r = await repFetch(env, job.status_url, { method: 'GET' });
+  if (!r.res.ok) {
+    if (r.res.status === 404 || r.res.status === 401 || r.res.status === 403) {
+      return marcarError(env, job, r.data.detail || `Replicate respondió ${r.res.status}`);
+    }
+    return job;
+  }
+  const est = r.data && r.data.status;
+  if (est === 'starting' || est === 'processing') return job;
+  if (est !== 'succeeded') {
+    return marcarError(env, job, r.data.error || `Seedance terminó en ${est || 'desconocido'}`);
+  }
+  // `output` es la URL del MP4; si algún día viene lista, se toma la primera.
+  const salida = r.data.output;
+  const url = Array.isArray(salida) ? salida[0] : salida;
+  if (!url || typeof url !== 'string') {
+    return marcarError(env, job, 'Seedance terminó sin entregar video.');
+  }
+  const vres = await fetch(url, { signal: AbortSignal.timeout(90000) });
+  if (!vres.ok || !vres.body) return job;
+  return guardarVideo(env, job, vres.body);
+}
+
 // --- llamadas a fal ---------------------------------------------------------
 async function falFetch(env, url, init = {}) {
   const res = await fetch(url, {
@@ -457,7 +538,8 @@ export async function estado(env) {
       usdSeg: c.usdSeg, audio: c.audio, personas: c.personas,
       segundos: c.proveedor === 'google'
         ? (via === 'vertex' ? SEGUNDOS_LARGOS : SEGUNDOS_GOOGLE)
-        : (c.proveedor === 'sora' ? SEGUNDOS_SORA_LARGOS : SEGUNDOS_FAL),
+        : (c.proveedor === 'sora' ? SEGUNDOS_SORA_LARGOS
+           : (c.proveedor === 'replicate' ? SEGUNDOS_SEEDANCE : SEGUNDOS_FAL)),
       listo: disponible(env, k),
     };
   }
@@ -467,6 +549,7 @@ export async function estado(env) {
     google: via,                  // 'vertex' | 'gemini' | null
     fal: viaFal(env),
     sora: viaSora(env),
+    replicate: viaReplicate(env),
     // Aviso honesto para la pantalla: por dónde se está pagando.
     pagando: via === 'vertex' ? 'credito' : (via === 'gemini' ? 'tarjeta' : null),
     catalogo,
@@ -488,17 +571,22 @@ export async function crearJob(request, env, session) {
       ? 'Falta conectar Google en Cloudflare (GOOGLE_SA_JSON o GEMINI_API_KEY).'
       : (cat.proveedor === 'sora'
         ? 'Falta la llave de OpenAI (OPENAI_API_KEY) en Cloudflare para usar Sora 2.'
-        : 'Falta la llave de fal.ai (FAL_KEY) en Cloudflare.');
+        : (cat.proveedor === 'replicate'
+          ? 'Falta la llave de Replicate (REPLICATE_API_TOKEN) en Cloudflare para usar Seedance.'
+          : 'Falta la llave de fal.ai (FAL_KEY) en Cloudflare.'));
     return json({ error: falta }, 503);
   }
   const largo = cat.proveedor === 'google' && viaGoogle(env) === 'vertex';
   const permitidos = cat.proveedor === 'google'
     ? (largo ? SEGUNDOS_LARGOS : SEGUNDOS_GOOGLE)
-    : (cat.proveedor === 'sora' ? SEGUNDOS_SORA_LARGOS : SEGUNDOS_FAL);
+    : (cat.proveedor === 'sora' ? SEGUNDOS_SORA_LARGOS
+      : (cat.proveedor === 'replicate' ? SEGUNDOS_SEEDANCE : SEGUNDOS_FAL));
   const pedido = permitidos.includes(Number(b.seconds)) ? Number(b.seconds) : (cat.proveedor === 'sora' ? 8 : permitidos[permitidos.length - 1]);
   // Los dos encadenan, pero con distinto tope de un tirón: Veo 8, Sora 20.
+  // Seedance entrega hasta 30 s de una pieza: no encadena nada.
+  const encadena = cat.proveedor === 'google' || cat.proveedor === 'sora';
   const tope = cat.proveedor === 'sora' ? 20 : 8;
-  const objetivo = (cat.proveedor !== 'fal' && pedido > tope) ? pedido : null;
+  const objetivo = (encadena && pedido > tope) ? pedido : null;
   const seconds = objetivo ? tope : pedido;
   if (prompt.length < 12) return json({ error: 'Describe la escena con un poco más de detalle.' }, 400);
   // 1500 se quedaba corto: un prompt de DIRECCIÓN de verdad (persona idéntica +
@@ -511,7 +599,7 @@ export async function crearJob(request, env, session) {
   const via = cat.proveedor === 'google' ? viaGoogle(env) : cat.proveedor;
   const modelo = cat.proveedor === 'google'
     ? (via === 'vertex' ? cat.vertex : cat.gemini)
-    : (cat.proveedor === 'sora' ? cat.modeloId : cat.endpoint);
+    : (cat.proveedor === 'sora' || cat.proveedor === 'replicate' ? cat.modeloId : cat.endpoint);
   // Se cobra lo que de verdad se va a generar: los 8 s del arranque más 7 por
   // cada tramo encadenado. Se anota entero desde el principio para que el gasto
   // del mes no vaya subiendo a escondidas mientras el clip crece.
@@ -540,6 +628,18 @@ export async function crearJob(request, env, session) {
       await env.DB.prepare(
         `UPDATE mkt_video_jobs SET status='running', request_id=?, status_url=?, updated_at=${MKT_NOW} WHERE id=?`
       ).bind(operacion, urlSondeo(env, cat, operacion), id).run();
+    } else if (cat.proveedor === 'replicate') {
+      const r = await arrancarSeedance(env, cat, prompt, aspect, seconds);
+      const pid = r.data && r.data.id;
+      const sondeo = r.data && r.data.urls && r.data.urls.get;
+      if (!r.res.ok || !pid) {
+        const msg = (r.data && (r.data.detail || r.data.title)) || `Replicate respondió ${r.res.status}`;
+        await falla(msg);
+        return json({ error: String(msg) }, 502);
+      }
+      await env.DB.prepare(
+        `UPDATE mkt_video_jobs SET status='running', request_id=?, status_url=?, updated_at=${MKT_NOW} WHERE id=?`
+      ).bind(pid, sondeo || `${REPLICATE_BASE}/predictions/${pid}`, id).run();
     } else if (cat.proveedor === 'sora') {
       const r = await arrancarSora(env, cat, prompt, aspect, seconds);
       const vid = r.data && r.data.id;
@@ -763,6 +863,7 @@ async function refrescar(env, job) {
   try {
     if (job.provider === 'fal') return await refrescarFal(env, job);
     if (job.provider === 'sora') return await refrescarSora(env, job);
+    if (job.provider === 'replicate') return await refrescarSeedance(env, job);
     return await refrescarGoogle(env, job);
   } catch {
     return job; // transitorio: se reintenta en el siguiente sondeo
@@ -861,6 +962,7 @@ export async function listarJobs(env, url) {
     vertex: 'credito',   // lo paga el crédito de 300 USD de Google
     gemini: 'tarjeta',   // Google, pero a la tarjeta
     sora: 'openai',      // el saldo de OpenAI
+    replicate: 'replicate', // el saldo de Replicate
     fal: 'fal',
   };
   const porBolsillo = {};

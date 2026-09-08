@@ -10,9 +10,9 @@
 // El precio de Google se cobra POR SEGUNDO, así que la duración cambia el
 // costo y por eso se enseña junta con la calidad, nunca escondida.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609081518';
-import { icon } from '../shell/icons.js?v=202609081518';
-import { T } from '../shell/i18n.js?v=202609081518';
+import { api, el, clear, toast } from '../api.js?v=202609081549';
+import { icon } from '../shell/icons.js?v=202609081549';
+import { T } from '../shell/i18n.js?v=202609081549';
 
 const VIEW_ID = 'video-ia';
 const MXN = 20; // tipo de cambio aproximado, solo para orientar
@@ -87,7 +87,7 @@ function ensureCss() {
   const has = [...document.querySelectorAll('link[rel="stylesheet"]')].some((l) => (l.getAttribute('href') || '').includes('/marketing/css/video-ia.css'));
   if (has) return;
   const link = document.createElement('link'); link.rel = 'stylesheet';
-  link.href = '/marketing/css/video-ia.css?v=202609081518'; document.head.appendChild(link);
+  link.href = '/marketing/css/video-ia.css?v=202609081549'; document.head.appendChild(link);
 }
 
 async function cargar() {
@@ -111,6 +111,7 @@ const BOLSILLOS = {
   tarjeta: () => T('a la tarjeta (Google)', 'to the card (Google)'),
   openai: () => T('del saldo de OpenAI', 'from the OpenAI balance'),
   fal: () => T('del saldo de fal.ai', 'from the fal.ai balance'),
+  replicate: () => T('del saldo de Replicate', 'from the Replicate balance'),
 };
 
 function pintarGasto(g) {
@@ -323,8 +324,8 @@ function render() {
   form.appendChild(notaSegEl);
   // Lo largo no es magia: hay que decir cómo se arma y cuánto tarda.
   form.appendChild(el('p', { class: 'via-notalargo', text: T(
-    'Veo llega a 8 segundos de un tirón y de ahí crece de 7 en 7 hasta 29, con la persona callada a partir del octavo. Sora 2 llega a 20 de una sola pieza, hablando todo el tiempo, y encadena de 20 en 20 hasta 120.',
-    'Veo reaches 8 seconds in one go and then grows 7 at a time up to 29, silent after the eighth. Sora 2 reaches 20 in one piece, talking throughout, and chains 20 at a time up to 120.') }));
+    'Veo llega a 8 segundos de un tirón y de ahí crece de 7 en 7 hasta 29, con la persona callada a partir del octavo. Sora 2 llega a 20 de una pieza hablando todo el tiempo, y encadena hasta 120. Seedance da hasta 30 de una sola generación.',
+    'Veo reaches 8 seconds in one go then grows 7 at a time up to 29, silent after the eighth. Sora 2 reaches 20 in one piece, talking throughout, and chains up to 120. Seedance gives up to 30 in a single generation.') }));
 
   const tiers = el('div', { class: 'via-tiers', role: 'radiogroup' });
   tierEls = {}; precioEls = {};
