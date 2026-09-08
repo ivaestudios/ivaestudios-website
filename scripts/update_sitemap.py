@@ -210,6 +210,9 @@ PAGE_EN_TO_ES = {
     "/le-blanc-cancun-wedding-photographer": "/es/locaciones/le-blanc-spa-cancun/",
     "/banyan-tree-mayakoba-photographer": "/es/locaciones/banyan-tree-mayakoba/",
     "/rosewood-mayakoba-wedding-photographer": "/es/locaciones/rosewood-mayakoba/",
+    "/bilingual-wedding-photographer-cancun": "/es/fotografo-bodas-bilingue-cancun",
+    "/beach-wedding-photographer-cancun": "/es/fotografo-bodas-playa-cancun",
+    "/couples-photographer-cancun": "/es/fotografo-parejas-cancun",
 }
 
 # EN /venues/<slug>/ subpages consolidated into a root page (above). They keep a
