@@ -10,9 +10,9 @@
 // El precio de Google se cobra POR SEGUNDO, así que la duración cambia el
 // costo y por eso se enseña junta con la calidad, nunca escondida.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609081338';
-import { icon } from '../shell/icons.js?v=202609081338';
-import { T } from '../shell/i18n.js?v=202609081338';
+import { api, el, clear, toast } from '../api.js?v=202609081433';
+import { icon } from '../shell/icons.js?v=202609081433';
+import { T } from '../shell/i18n.js?v=202609081433';
 
 const VIEW_ID = 'video-ia';
 const MXN = 20; // tipo de cambio aproximado, solo para orientar
@@ -87,7 +87,7 @@ function ensureCss() {
   const has = [...document.querySelectorAll('link[rel="stylesheet"]')].some((l) => (l.getAttribute('href') || '').includes('/marketing/css/video-ia.css'));
   if (has) return;
   const link = document.createElement('link'); link.rel = 'stylesheet';
-  link.href = '/marketing/css/video-ia.css?v=202609081338'; document.head.appendChild(link);
+  link.href = '/marketing/css/video-ia.css?v=202609081433'; document.head.appendChild(link);
 }
 
 async function cargar() {
@@ -305,8 +305,8 @@ function render() {
   form.appendChild(notaSegEl);
   // Lo largo no es magia: hay que decir cómo se arma y cuánto tarda.
   form.appendChild(el('p', { class: 'via-notalargo', text: T(
-    'Más de 8 segundos se arma solo: Google continúa el mismo plano de 7 en 7, sin corte. Tarda unos 3 minutos por tramo y la frase hablada va en los primeros 8 segundos.',
-    'Over 8 seconds is built automatically: Google continues the same shot 7 seconds at a time, with no cut. About 3 minutes per step, and the spoken line goes in the first 8 seconds.') }));
+    'Con Veo, más de 8 segundos se arma solo: Google continúa el mismo plano de 7 en 7, sin corte, y la frase hablada va en los primeros 8. Con Sora 2 los 12 segundos salen de una sola pieza y la persona puede hablar todo el tiempo.',
+    'With Veo, over 8 seconds is built automatically: Google continues the same shot 7 seconds at a time, and the spoken line goes in the first 8. With Sora 2 the full 12 seconds come out in one piece and the person can talk throughout.') }));
 
   const tiers = el('div', { class: 'via-tiers', role: 'radiogroup' });
   tierEls = {}; precioEls = {};

@@ -66,6 +66,24 @@ export const CATALOGO = {
     modelo: 'Veo 3.1 · 1080p con audio',
     resolution: '1080p', usdSeg: 0.40, audio: true, personas: true,
   },
+  sora: {
+    label: 'Sora 2',
+    sub: 'De OpenAI. Llega a 12 segundos de un tirón, sin encadenar. Con audio.',
+    proveedor: 'sora',
+    modeloId: 'sora-2',
+    modelo: 'Sora 2 · 720x1280 con audio',
+    size: { '9:16': '720x1280', '16:9': '1280x720' },
+    resolution: '720p', usdSeg: 0.10, audio: true, personas: true,
+  },
+  sorapro: {
+    label: 'Sora 2 Pro',
+    sub: 'La versión cara de OpenAI, en 1024x1792. Para la toma que manda.',
+    proveedor: 'sora',
+    modeloId: 'sora-2-pro',
+    modelo: 'Sora 2 Pro · 1024x1792 con audio',
+    size: { '9:16': '1024x1792', '16:9': '1792x1024' },
+    resolution: '1024p', usdSeg: 0.50, audio: true, personas: true,
+  },
   broll: {
     label: 'B-roll suelto',
     sub: 'Sin audio y sin personas: paisajes, objetos, ambiente. Centavos.',
@@ -79,6 +97,8 @@ export const CATALOGO = {
 // Veo solo acepta 4, 6 u 8 segundos. FastWan da 5.
 const SEGUNDOS_GOOGLE = [4, 6, 8];
 const SEGUNDOS_FAL = [5];
+// Sora 2 acepta 4, 8 o 12 segundos, y los manda como TEXTO, no como número.
+const SEGUNDOS_SORA = [4, 8, 12];
 
 // ALARGAR: Veo continúa un video suyo 7 segundos más, en el MISMO plano y sin
 // corte, y devuelve el video COMPLETO (8 s → 15 s → 22 s → 29 s). Probado el
@@ -152,11 +172,14 @@ function viaGoogle(env) {
   return null;
 }
 function viaFal(env) { return !!(env.FAL_KEY && String(env.FAL_KEY).trim()); }
+function viaSora(env) { return !!(env.OPENAI_API_KEY && String(env.OPENAI_API_KEY).trim()); }
 
 function disponible(env, tier) {
   const cat = CATALOGO[tier];
   if (!cat) return false;
-  return cat.proveedor === 'google' ? !!viaGoogle(env) : viaFal(env);
+  if (cat.proveedor === 'google') return !!viaGoogle(env);
+  if (cat.proveedor === 'sora') return viaSora(env);
+  return viaFal(env);
 }
 
 // ---------------------------------------------------------------------------
@@ -318,6 +341,59 @@ function bytesAB64(bytes) {
   return btoa(bin);
 }
 
+// ---------------------------------------------------------------------------
+// SORA 2 (OpenAI). Su gracia: 12 segundos de UNA sola generación, contra los 8
+// de Veo, y con audio nativo. Contrato verificado el 8-sep-2026:
+//   POST https://api.openai.com/v1/videos     {model, prompt, seconds, size}
+//   GET  https://api.openai.com/v1/videos/:id            -> status
+//   GET  https://api.openai.com/v1/videos/:id/content    -> el MP4 en binario
+// `seconds` viaja como TEXTO ("4" | "8" | "12") y `size` como "720x1280".
+// ⚠️ El enlace de descarga caduca a la hora: por eso se copia a R2 enseguida.
+// ---------------------------------------------------------------------------
+const SORA_BASE = 'https://api.openai.com/v1/videos';
+
+async function soraFetch(env, url, init = {}) {
+  const res = await fetch(url, {
+    ...init,
+    headers: { 'Authorization': `Bearer ${String(env.OPENAI_API_KEY).trim()}`, ...(init.headers || {}) },
+    signal: AbortSignal.timeout(init.timeoutMs || 30000),
+  });
+  return res;
+}
+
+async function arrancarSora(env, cat, prompt, aspect, seconds) {
+  const size = (cat.size && cat.size[aspect]) || '720x1280';
+  const res = await soraFetch(env, SORA_BASE, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: cat.modeloId, prompt, seconds: String(seconds), size }),
+  });
+  const data = await res.json().catch(() => ({}));
+  return { res, data };
+}
+
+async function refrescarSora(env, job) {
+  if (!viaSora(env)) return job;
+  const res = await soraFetch(env, `${SORA_BASE}/${job.request_id}`, { method: 'GET' });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    // 404 y 401 son definitivos; lo demás puede ser un tropiezo pasajero.
+    if (res.status === 404 || res.status === 401 || res.status === 403) {
+      return marcarError(env, job, (data.error && data.error.message) || `OpenAI respondió ${res.status}`);
+    }
+    return job;
+  }
+  const estado = data.status;
+  if (estado === 'queued' || estado === 'in_progress') return job;
+  if (estado !== 'completed') {
+    return marcarError(env, job, (data.error && data.error.message) || `Sora terminó en ${estado || 'desconocido'}`);
+  }
+  // El MP4 se baja YA: su enlace caduca a la hora.
+  const vres = await soraFetch(env, `${SORA_BASE}/${job.request_id}/content`, { method: 'GET', timeoutMs: 90000 });
+  if (!vres.ok || !vres.body) return job;
+  return guardarVideo(env, job, vres.body);
+}
+
 // --- llamadas a fal ---------------------------------------------------------
 async function falFetch(env, url, init = {}) {
   const res = await fetch(url, {
@@ -347,7 +423,7 @@ export async function estado(env) {
       usdSeg: c.usdSeg, audio: c.audio, personas: c.personas,
       segundos: c.proveedor === 'google'
         ? (via === 'vertex' ? SEGUNDOS_LARGOS : SEGUNDOS_GOOGLE)
-        : SEGUNDOS_FAL,
+        : (c.proveedor === 'sora' ? SEGUNDOS_SORA : SEGUNDOS_FAL),
       listo: disponible(env, k),
     };
   }
@@ -356,6 +432,7 @@ export async function estado(env) {
     configurado: !!(via || viaFal(env)),
     google: via,                  // 'vertex' | 'gemini' | null
     fal: viaFal(env),
+    sora: viaSora(env),
     // Aviso honesto para la pantalla: por dónde se está pagando.
     pagando: via === 'vertex' ? 'credito' : (via === 'gemini' ? 'tarjeta' : null),
     catalogo,
@@ -373,15 +450,20 @@ export async function crearJob(request, env, session) {
   if (!client_id) return json({ error: 'Falta la marca.' }, 400);
   if (!cat) return json({ error: 'Calidad desconocida.' }, 400);
   if (!disponible(env, tier)) {
-    return json({ error: cat.proveedor === 'google'
+    const falta = cat.proveedor === 'google'
       ? 'Falta conectar Google en Cloudflare (GOOGLE_SA_JSON o GEMINI_API_KEY).'
-      : 'Falta la llave de fal.ai (FAL_KEY) en Cloudflare.' }, 503);
+      : (cat.proveedor === 'sora'
+        ? 'Falta la llave de OpenAI (OPENAI_API_KEY) en Cloudflare para usar Sora 2.'
+        : 'Falta la llave de fal.ai (FAL_KEY) en Cloudflare.');
+    return json({ error: falta }, 503);
   }
   const largo = cat.proveedor === 'google' && viaGoogle(env) === 'vertex';
-  const permitidos = cat.proveedor === 'google' ? (largo ? SEGUNDOS_LARGOS : SEGUNDOS_GOOGLE) : SEGUNDOS_FAL;
-  const pedido = permitidos.includes(Number(b.seconds)) ? Number(b.seconds) : 8;
-  // Veo solo genera hasta 8 s. Más largo se arranca en 8 y se encadena solo.
-  const objetivo = pedido > 8 ? pedido : null;
+  const permitidos = cat.proveedor === 'google'
+    ? (largo ? SEGUNDOS_LARGOS : SEGUNDOS_GOOGLE)
+    : (cat.proveedor === 'sora' ? SEGUNDOS_SORA : SEGUNDOS_FAL);
+  const pedido = permitidos.includes(Number(b.seconds)) ? Number(b.seconds) : permitidos[permitidos.length - 1];
+  // Solo Veo encadena. Sora entrega sus 12 s de una y no necesita objetivo.
+  const objetivo = (cat.proveedor === 'google' && pedido > 8) ? pedido : null;
   const seconds = objetivo ? 8 : pedido;
   if (prompt.length < 12) return json({ error: 'Describe la escena con un poco más de detalle.' }, 400);
   // 1500 se quedaba corto: un prompt de DIRECCIÓN de verdad (persona idéntica +
@@ -391,8 +473,10 @@ export async function crearJob(request, env, session) {
   const cli = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(client_id).first();
   if (!cli) return json({ error: 'Marca no encontrada.' }, 404);
 
-  const via = cat.proveedor === 'google' ? viaGoogle(env) : 'fal';
-  const modelo = cat.proveedor === 'google' ? (via === 'vertex' ? cat.vertex : cat.gemini) : cat.endpoint;
+  const via = cat.proveedor === 'google' ? viaGoogle(env) : cat.proveedor;
+  const modelo = cat.proveedor === 'google'
+    ? (via === 'vertex' ? cat.vertex : cat.gemini)
+    : (cat.proveedor === 'sora' ? cat.modeloId : cat.endpoint);
   // Se cobra lo que de verdad se va a generar: los 8 s del arranque más 7 por
   // cada tramo encadenado. Se anota entero desde el principio para que el gasto
   // del mes no vaya subiendo a escondidas mientras el clip crece.
@@ -421,6 +505,17 @@ export async function crearJob(request, env, session) {
       await env.DB.prepare(
         `UPDATE mkt_video_jobs SET status='running', request_id=?, status_url=?, updated_at=${MKT_NOW} WHERE id=?`
       ).bind(operacion, urlSondeo(env, cat, operacion), id).run();
+    } else if (cat.proveedor === 'sora') {
+      const r = await arrancarSora(env, cat, prompt, aspect, seconds);
+      const vid = r.data && r.data.id;
+      if (!r.res.ok || !vid) {
+        const msg = (r.data && r.data.error && r.data.error.message) || `OpenAI respondió ${r.res.status}`;
+        await falla(msg);
+        return json({ error: String(msg) }, 502);
+      }
+      await env.DB.prepare(
+        `UPDATE mkt_video_jobs SET status='running', request_id=?, status_url=?, updated_at=${MKT_NOW} WHERE id=?`
+      ).bind(vid, `${SORA_BASE}/${vid}`, id).run();
     } else {
       const r = await falFetch(env, `${FAL_QUEUE}/${cat.endpoint}`, { method: 'POST', body: JSON.stringify(cuerpoFal(prompt, aspect)) });
       if (!r.res.ok || !r.data.request_id) {
@@ -449,6 +544,7 @@ function publico(j) {
     ...rest,
     video_url: j.status === 'done' ? `/api/marketing/video-ia/jobs/${j.id}/video` : null,
     // La pantalla usa esto para enseñar u ocultar el botón "Alargar".
+    // Alargar es cosa de Veo: Sora no continúa sus propios videos.
     puede_alargar: j.status === 'done' && j.provider === 'vertex'
       && !!(cat && cat.proveedor === 'google') && Number(j.seconds || 0) < ALARGAR_MAX,
     alargar_usd: cat && cat.proveedor === 'google' ? Number((cat.usdSeg * ALARGAR_SEG).toFixed(4)) : null,
@@ -601,7 +697,9 @@ async function marcarError(env, job, msg) {
 async function refrescar(env, job) {
   if (job.status !== 'running' || !job.status_url) return job;
   try {
-    return job.provider === 'fal' ? await refrescarFal(env, job) : await refrescarGoogle(env, job);
+    if (job.provider === 'fal') return await refrescarFal(env, job);
+    if (job.provider === 'sora') return await refrescarSora(env, job);
+    return await refrescarGoogle(env, job);
   } catch {
     return job; // transitorio: se reintenta en el siguiente sondeo
   }
