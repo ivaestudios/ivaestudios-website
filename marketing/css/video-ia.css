@@ -53,3 +53,10 @@
 /* --- Nivel cuyo proveedor no está conectado --- */
 .via-tier.is-off { opacity: .55; cursor: not-allowed; }
 .via-tier__off { font-size: var(--fs-1); font-weight: 700; color: var(--text-dim); }
+
+/* --- Panel de "Alargar" dentro de la tarjeta --- */
+.via-alargar { border-top: 1.5px solid var(--border); padding: 12px; display: grid; gap: 8px; }
+.via-alargar__nota { margin: 0; font-size: var(--fs-2); color: var(--text-dim); line-height: 1.4; }
+.via-alargar__txt { width: 100%; box-sizing: border-box; background: var(--bg); color: var(--text); border: 1.5px solid var(--border); border-radius: var(--r-md); padding: 9px 11px; font: inherit; line-height: 1.4; resize: vertical; }
+.via-alargar__txt:focus { outline: none; border-color: var(--brand); box-shadow: var(--sh-glow); }
+.via-alargar__pie { display: flex; gap: 8px; justify-content: flex-end; }

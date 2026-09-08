@@ -80,6 +80,14 @@ export const CATALOGO = {
 const SEGUNDOS_GOOGLE = [4, 6, 8];
 const SEGUNDOS_FAL = [5];
 
+// ALARGAR: Veo continúa un video suyo 7 segundos más, en el MISMO plano y sin
+// corte, y devuelve el video COMPLETO (8 s → 15 s → 22 s → 29 s). Probado el
+// 7-sep-2026 contra Vertex con los tres modelos: los tres alargan.
+// El campo `task:"extend"` que dice la documentación NO existe todavía; basta
+// con mandar `video` dentro de la instancia y Veo entiende que es continuación.
+const ALARGAR_SEG = 7;
+const ALARGAR_MAX = 29; // Google no acepta videos de más de 30 s como entrada.
+
 const MKT_NOW = "strftime('%Y-%m-%d %H:%M:%f','now')";
 
 function json(data, status = 200, headers = {}) {
@@ -191,7 +199,7 @@ function urlArranque(env, cat) {
   return `${GEMINI_BASE}/models/${cat.gemini}:predictLongRunning`;
 }
 
-function cuerpoGoogle(env, cat, prompt, aspect, seconds) {
+function cuerpoGoogle(env, cat, prompt, aspect, seconds, videoB64) {
   const parameters = {
     aspectRatio: aspect,
     resolution: cat.resolution,
@@ -200,6 +208,12 @@ function cuerpoGoogle(env, cat, prompt, aspect, seconds) {
     generateAudio: !!cat.audio,
     personGeneration: 'allow_adult',
   };
+  if (videoB64) {
+    // Continuación: se manda el video anterior y Veo sigue el mismo plano.
+    // Sin `resolution` (la hereda del original) y sin `task` (no existe).
+    delete parameters.resolution;
+    return { instances: [{ prompt, video: { bytesBase64Encoded: videoB64, mimeType: 'video/mp4' } }], parameters };
+  }
   // La API de Gemini no documenta sampleCount/personGeneration: se mandan solo
   // los campos que sí acepta, para no arriesgar un 400 por campo desconocido.
   if (viaGoogle(env) !== 'vertex') {
@@ -244,6 +258,16 @@ function b64ABytes(b64) {
   const out = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
   return out;
+}
+
+// Bytes → base64 por trozos: btoa sobre 13 MB de golpe revienta la pila.
+function bytesAB64(bytes) {
+  const paso = 0x8000;
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += paso) {
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + paso));
+  }
+  return btoa(bin);
 }
 
 // --- llamadas a fal ---------------------------------------------------------
@@ -359,7 +383,79 @@ export async function crearJob(request, env, session) {
 function publico(j) {
   if (!j) return null;
   const { status_url, response_url, request_id, ...rest } = j;
-  return { ...rest, video_url: j.status === 'done' ? `/api/marketing/video-ia/jobs/${j.id}/video` : null };
+  const cat = CATALOGO[j.tier];
+  return {
+    ...rest,
+    video_url: j.status === 'done' ? `/api/marketing/video-ia/jobs/${j.id}/video` : null,
+    // La pantalla usa esto para enseñar u ocultar el botón "Alargar".
+    puede_alargar: j.status === 'done' && j.provider === 'vertex'
+      && !!(cat && cat.proveedor === 'google') && Number(j.seconds || 0) < ALARGAR_MAX,
+    alargar_usd: cat && cat.proveedor === 'google' ? Number((cat.usdSeg * ALARGAR_SEG).toFixed(4)) : null,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// ALARGAR: continúa un clip 7 s más, en el mismo plano y sin corte. Veo
+// devuelve el video COMPLETO, así que el hijo reemplaza al padre a la vista.
+// ---------------------------------------------------------------------------
+export async function alargarJob(request, env, session, id) {
+  if (viaGoogle(env) !== 'vertex') {
+    return json({ error: 'Alargar solo funciona por Vertex AI (el que paga el crédito de Google).' }, 503);
+  }
+  const padre = await env.DB.prepare('SELECT * FROM mkt_video_jobs WHERE id = ?').bind(id).first();
+  if (!padre) return json({ error: 'No existe ese video.' }, 404);
+  if (padre.status !== 'done' || !padre.video_key) return json({ error: 'Ese clip todavía no está listo.' }, 409);
+  const cat = CATALOGO[padre.tier];
+  if (!cat || cat.proveedor !== 'google') return json({ error: 'Ese clip no se puede alargar.' }, 409);
+  const yaDura = Number(padre.seconds || 0);
+  if (yaDura >= ALARGAR_MAX) {
+    return json({ error: `Ya llegó al máximo que permite Google (${ALARGAR_MAX} segundos de una sola toma).` }, 409);
+  }
+
+  let b; try { b = await request.json(); } catch { b = {}; }
+  const sigue = String(b.prompt || '').trim();
+  // Sin indicación nueva, se le pide continuar lo que ya estaba pasando.
+  const prompt = sigue.length >= 8
+    ? sigue.slice(0, 1500)
+    : `Seamless continuation of the same shot: same person, same wardrobe, same room, same lighting and same camera. The action continues naturally from where it left off. ${String(padre.prompt || '').slice(0, 900)}`;
+
+  const obj = await env.R2_BUCKET.get(padre.video_key);
+  if (!obj) return json({ error: 'No encontré el archivo del clip anterior.' }, 404);
+  let videoB64;
+  try {
+    videoB64 = bytesAB64(new Uint8Array(await obj.arrayBuffer()));
+  } catch {
+    return json({ error: 'El clip ya pesa demasiado para alargarlo otra vez.' }, 413);
+  }
+
+  const total = Math.min(ALARGAR_MAX + 1, yaDura + ALARGAR_SEG);
+  const costo = Number((cat.usdSeg * ALARGAR_SEG).toFixed(4)); // Google cobra solo lo nuevo.
+  const nuevo = nuevoId();
+  await env.DB.prepare(
+    `INSERT INTO mkt_video_jobs (id, client_id, post_id, tier, model, prompt, aspect, seconds, status, provider, cost_usd, created_by, parent_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'queued', 'vertex', ?, ?, ?)`
+  ).bind(nuevo, padre.client_id, padre.post_id, padre.tier, cat.vertex, prompt, padre.aspect, total, costo, session.email || null, padre.id).run();
+
+  try {
+    const r = await googleFetch(env, urlArranque(env, cat), cuerpoGoogle(env, cat, prompt, padre.aspect, ALARGAR_SEG, videoB64));
+    const operacion = r.data && r.data.name;
+    if (!r.res.ok || !operacion) {
+      const msg = (r.data && r.data.error && (r.data.error.message || r.data.error.status)) || `Google respondió ${r.res.status}`;
+      await env.DB.prepare(`UPDATE mkt_video_jobs SET status='error', error=?, updated_at=${MKT_NOW}, finished_at=${MKT_NOW} WHERE id=?`)
+        .bind(String(msg).slice(0, 400), nuevo).run();
+      return json({ error: String(msg) }, 502);
+    }
+    await env.DB.prepare(
+      `UPDATE mkt_video_jobs SET status='running', request_id=?, status_url=?, updated_at=${MKT_NOW} WHERE id=?`
+    ).bind(operacion, urlSondeo(env, cat, operacion), nuevo).run();
+  } catch (e) {
+    await env.DB.prepare(`UPDATE mkt_video_jobs SET status='error', error=?, updated_at=${MKT_NOW}, finished_at=${MKT_NOW} WHERE id=?`)
+      .bind('No se pudo hablar con Google: ' + (e && e.message), nuevo).run();
+    return json({ error: 'No se pudo hablar con Google. Intenta de nuevo.' }, 502);
+  }
+
+  const job = await env.DB.prepare('SELECT * FROM mkt_video_jobs WHERE id = ?').bind(nuevo).first();
+  return json({ ok: true, job: publico(job) }, 201);
 }
 
 // Guarda el MP4 en R2 y marca el job como terminado. Los links de los
@@ -547,6 +643,7 @@ export async function handleVideoIa(request, env, session, url, parts) {
   if (parts.length === 2 && parts[1] === 'jobs' && method === 'POST') return crearJob(request, env, session);
   if (parts.length === 3 && parts[1] === 'jobs' && method === 'GET') return verJob(env, parts[2]);
   if (parts.length === 3 && parts[1] === 'jobs' && method === 'DELETE') return borrarJob(env, parts[2]);
+  if (parts.length === 4 && parts[1] === 'jobs' && parts[3] === 'alargar' && method === 'POST') return alargarJob(request, env, session, parts[2]);
   if (parts.length === 4 && parts[1] === 'jobs' && parts[3] === 'video' && (method === 'GET' || method === 'HEAD')) return servirVideo(request, env, parts[2]);
   return json({ error: 'Not found' }, 404);
 }

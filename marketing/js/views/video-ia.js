@@ -10,9 +10,9 @@
 // El precio de Google se cobra POR SEGUNDO, así que la duración cambia el
 // costo y por eso se enseña junta con la calidad, nunca escondida.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609072324';
-import { icon } from '../shell/icons.js?v=202609072324';
-import { T } from '../shell/i18n.js?v=202609072324';
+import { api, el, clear, toast } from '../api.js?v=202609072344';
+import { icon } from '../shell/icons.js?v=202609072344';
+import { T } from '../shell/i18n.js?v=202609072344';
 
 const VIEW_ID = 'video-ia';
 const MXN = 20; // tipo de cambio aproximado, solo para orientar
@@ -46,7 +46,7 @@ function ensureCss() {
   const has = [...document.querySelectorAll('link[rel="stylesheet"]')].some((l) => (l.getAttribute('href') || '').includes('/marketing/css/video-ia.css'));
   if (has) return;
   const link = document.createElement('link'); link.rel = 'stylesheet';
-  link.href = '/marketing/css/video-ia.css?v=202609072324'; document.head.appendChild(link);
+  link.href = '/marketing/css/video-ia.css?v=202609072344'; document.head.appendChild(link);
 }
 
 async function cargar() {
@@ -88,6 +88,7 @@ function tarjeta(j) {
     el('span', { class: 'via-chip', text: cat.label || j.tier }),
     el('span', { class: 'via-chip via-chip--mute', text: cat.modelo || j.model }),
     el('span', { class: 'via-chip via-chip--mute', text: `${j.seconds || 8} s` }),
+    ...(j.parent_id ? [el('span', { class: 'via-chip via-chip--mute', text: T('continuación', 'continuation') })] : []),
     el('span', { class: 'via-chip via-chip--mute', text: usdTxt(Number(j.cost_usd || 0)) }),
   ]);
   const prompt = el('p', { class: 'via-card__prompt', text: j.prompt });
@@ -95,12 +96,47 @@ function tarjeta(j) {
   if (j.status === 'done') {
     acciones.appendChild(el('a', { class: 'btn btn--ghost', href: j.video_url, download: `video-ia-${j.id.slice(0, 8)}.mp4` }, [icon('download', 15), el('span', { text: T('Descargar', 'Download') })]));
   }
+  // Alargar: Veo continúa el MISMO plano 7 s más y devuelve el video completo.
+  if (j.puede_alargar) {
+    const mx = Math.round(Number(j.alargar_usd || 0) * MXN);
+    acciones.appendChild(el('button', { class: 'btn btn--ghost', type: 'button',
+      title: T('Sigue el mismo plano 7 segundos más, sin corte', 'Continues the same shot 7 more seconds, no cut'),
+      onclick: () => abrirAlargar(card, j) },
+      [icon('spark', 15), el('span', { text: `${T('Alargar 7 s', 'Extend 7 s')} · ${mx} ${mx === 1 ? 'peso' : 'pesos'}` })]));
+  }
   acciones.appendChild(el('button', { class: 'btn btn--ghost', type: 'button', onclick: () => generar(j.prompt, j.tier, j.seconds) }, [icon('spark', 15), el('span', { text: T('Otro intento', 'Try again') })]));
   acciones.appendChild(el('button', { class: 'btn btn--ghost via-borrar', type: 'button', 'aria-label': T('Borrar', 'Delete'), onclick: async () => {
     try { await api.del(`/video-ia/jobs/${j.id}`); jobs = jobs.filter((x) => x.id !== j.id); pintarLista(); } catch (e) { toast(e.message, { type: 'error' }); }
   } }, [icon('trash', 15)]));
   card.append(media, meta, prompt, acciones);
   return card;
+}
+
+// Panel de "Alargar": se abre dentro de la tarjeta. Si se deja vacío, el
+// servidor le pide a Veo que siga lo que ya estaba pasando.
+function abrirAlargar(card, j) {
+  if (card.querySelector('.via-alargar')) return;
+  const ta = el('textarea', { class: 'via-alargar__txt', rows: 2,
+    placeholder: T('¿Qué pasa en los siguientes 7 segundos? (opcional, en inglés sale mejor)', 'What happens in the next 7 seconds? (optional)') });
+  const box = el('div', { class: 'via-alargar' }, [
+    el('p', { class: 'via-alargar__nota', text: T('Sigue el mismo plano, sin corte. Te devuelve el video completo y más largo.', 'Continues the same shot with no cut. You get the full, longer video.') }),
+    ta,
+    el('div', { class: 'via-alargar__pie' }, [
+      el('button', { class: 'btn btn--ghost', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => box.remove() }),
+      el('button', { class: 'btn btn--primary', type: 'button', text: T('Alargar', 'Extend'), onclick: async () => {
+        if (busy) return;
+        busy = true; rootEl.classList.add('is-busy');
+        try {
+          const r = await api.post(`/video-ia/jobs/${j.id}/alargar`, { prompt: (ta.value || '').trim() }, { timeout: 60000 });
+          jobs = [r.job, ...jobs]; pintarLista(); programarSondeo();
+          toast(T('Alargando. Tarda 1 a 3 minutos.', 'Extending. Takes 1 to 3 minutes.'), { type: 'ok' });
+        } catch (e) { toast(e.message, { type: 'error' }); }
+        finally { busy = false; rootEl.classList.remove('is-busy'); }
+      } }),
+    ]),
+  ]);
+  card.appendChild(box);
+  ta.focus();
 }
 
 function pintarLista() {
