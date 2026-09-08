@@ -97,8 +97,17 @@ export const CATALOGO = {
 // Veo solo acepta 4, 6 u 8 segundos. FastWan da 5.
 const SEGUNDOS_GOOGLE = [4, 6, 8];
 const SEGUNDOS_FAL = [5];
-// Sora 2 acepta 4, 8 o 12 segundos, y los manda como TEXTO, no como número.
-const SEGUNDOS_SORA = [4, 8, 12];
+// Sora 2 acepta 4, 8, 12, 16 o 20 segundos, y los manda como TEXTO.
+// ⚠️ La página de referencia de la API todavía lista solo 4, 8 y 12: está
+// vencida. La GUÍA dice textual "Both sora-2 and sora-2-pro support 16- and
+// 20-second generations" (verificado 8-sep-2026). Gana la guía.
+const SEGUNDOS_SORA = [4, 8, 12, 16, 20];
+// Y además Sora SÍ continúa sus propios videos: POST /v1/videos/extensions con
+// {video:{id}, prompt, seconds}. Hasta SEIS extensiones de 20 s = 120 s total.
+const SORA_EXT_SEG = 20;
+const SORA_EXT_MAX = 120;
+// Lo que se puede pedir con Sora: de un tirón hasta 20, luego encadenando.
+const SEGUNDOS_SORA_LARGOS = [4, 8, 12, 16, 20, 40, 60, 80, 100, 120];
 
 // ALARGAR: Veo continúa un video suyo 7 segundos más, en el MISMO plano y sin
 // corte, y devuelve el video COMPLETO (8 s → 15 s → 22 s → 29 s). Probado el
@@ -372,6 +381,31 @@ async function arrancarSora(env, cat, prompt, aspect, seconds) {
   return { res, data };
 }
 
+// Manda el video de Sora que ya terminó a que se continúe otros 20 s.
+// Devuelve el job actualizado, o null si no arrancó.
+async function seguirSora(env, job) {
+  const cat = CATALOGO[job.tier];
+  if (!cat || cat.proveedor !== 'sora') return null;
+  const falta = Number(job.objetivo_seg || 0) - Number(job.seconds || 0);
+  if (falta <= 0) return null;
+  const trozo = Math.min(SORA_EXT_SEG, falta);
+  try {
+    const res = await soraFetch(env, `${SORA_BASE}/extensions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ video: { id: job.request_id }, prompt: promptSeguir(job.prompt), seconds: String(trozo) }),
+    });
+    const data = await res.json().catch(() => ({}));
+    const vid = data && data.id;
+    if (!res.ok || !vid) return null;
+    // NO se toca `seconds`: sube cuando el video llegue, no cuando se pide.
+    await env.DB.prepare(
+      `UPDATE mkt_video_jobs SET status='running', request_id=?, status_url=?, updated_at=${MKT_NOW} WHERE id=?`
+    ).bind(vid, `${SORA_BASE}/${vid}`, job.id).run();
+    return { ...job, status: 'running', request_id: vid };
+  } catch { return null; }
+}
+
 async function refrescarSora(env, job) {
   if (!viaSora(env)) return job;
   const res = await soraFetch(env, `${SORA_BASE}/${job.request_id}`, { method: 'GET' });
@@ -423,7 +457,7 @@ export async function estado(env) {
       usdSeg: c.usdSeg, audio: c.audio, personas: c.personas,
       segundos: c.proveedor === 'google'
         ? (via === 'vertex' ? SEGUNDOS_LARGOS : SEGUNDOS_GOOGLE)
-        : (c.proveedor === 'sora' ? SEGUNDOS_SORA : SEGUNDOS_FAL),
+        : (c.proveedor === 'sora' ? SEGUNDOS_SORA_LARGOS : SEGUNDOS_FAL),
       listo: disponible(env, k),
     };
   }
@@ -460,11 +494,12 @@ export async function crearJob(request, env, session) {
   const largo = cat.proveedor === 'google' && viaGoogle(env) === 'vertex';
   const permitidos = cat.proveedor === 'google'
     ? (largo ? SEGUNDOS_LARGOS : SEGUNDOS_GOOGLE)
-    : (cat.proveedor === 'sora' ? SEGUNDOS_SORA : SEGUNDOS_FAL);
-  const pedido = permitidos.includes(Number(b.seconds)) ? Number(b.seconds) : permitidos[permitidos.length - 1];
-  // Solo Veo encadena. Sora entrega sus 12 s de una y no necesita objetivo.
-  const objetivo = (cat.proveedor === 'google' && pedido > 8) ? pedido : null;
-  const seconds = objetivo ? 8 : pedido;
+    : (cat.proveedor === 'sora' ? SEGUNDOS_SORA_LARGOS : SEGUNDOS_FAL);
+  const pedido = permitidos.includes(Number(b.seconds)) ? Number(b.seconds) : (cat.proveedor === 'sora' ? 8 : permitidos[permitidos.length - 1]);
+  // Los dos encadenan, pero con distinto tope de un tirón: Veo 8, Sora 20.
+  const tope = cat.proveedor === 'sora' ? 20 : 8;
+  const objetivo = (cat.proveedor !== 'fal' && pedido > tope) ? pedido : null;
+  const seconds = objetivo ? tope : pedido;
   if (prompt.length < 12) return json({ error: 'Describe la escena con un poco más de detalle.' }, 400);
   // 1500 se quedaba corto: un prompt de DIRECCIÓN de verdad (persona idéntica +
   // escena + cámara + frase + reglas + acabado) ronda los 1200 a 2000. Veo
@@ -544,10 +579,14 @@ function publico(j) {
     ...rest,
     video_url: j.status === 'done' ? `/api/marketing/video-ia/jobs/${j.id}/video` : null,
     // La pantalla usa esto para enseñar u ocultar el botón "Alargar".
-    // Alargar es cosa de Veo: Sora no continúa sus propios videos.
-    puede_alargar: j.status === 'done' && j.provider === 'vertex'
-      && !!(cat && cat.proveedor === 'google') && Number(j.seconds || 0) < ALARGAR_MAX,
-    alargar_usd: cat && cat.proveedor === 'google' ? Number((cat.usdSeg * ALARGAR_SEG).toFixed(4)) : null,
+    // Los dos encadenan: Veo de 7 en 7 hasta 29 s, Sora de 20 en 20 hasta 120.
+    puede_alargar: j.status === 'done'
+      && ((j.provider === 'vertex' && cat && cat.proveedor === 'google' && Number(j.seconds || 0) < ALARGAR_MAX)
+        || (j.provider === 'sora' && Number(j.seconds || 0) < SORA_EXT_MAX)),
+    alargar_seg: j.provider === 'sora' ? SORA_EXT_SEG : ALARGAR_SEG,
+    alargar_usd: cat && cat.usdSeg
+      ? Number((cat.usdSeg * (j.provider === 'sora' ? SORA_EXT_SEG : ALARGAR_SEG)).toFixed(4))
+      : null,
   };
 }
 
@@ -556,17 +595,21 @@ function publico(j) {
 // devuelve el video COMPLETO, así que el hijo reemplaza al padre a la vista.
 // ---------------------------------------------------------------------------
 export async function alargarJob(request, env, session, id) {
-  if (viaGoogle(env) !== 'vertex') {
-    return json({ error: 'Alargar solo funciona por Vertex AI (el que paga el crédito de Google).' }, 503);
-  }
   const padre = await env.DB.prepare('SELECT * FROM mkt_video_jobs WHERE id = ?').bind(id).first();
   if (!padre) return json({ error: 'No existe ese video.' }, 404);
   if (padre.status !== 'done' || !padre.video_key) return json({ error: 'Ese clip todavía no está listo.' }, 409);
   const cat = CATALOGO[padre.tier];
-  if (!cat || cat.proveedor !== 'google') return json({ error: 'Ese clip no se puede alargar.' }, 409);
+  const esSora = padre.provider === 'sora';
+  if (!cat || (cat.proveedor !== 'google' && !esSora)) return json({ error: 'Ese clip no se puede alargar.' }, 409);
+  if (esSora && !viaSora(env)) return json({ error: 'Falta la llave de OpenAI (OPENAI_API_KEY) en Cloudflare.' }, 503);
+  if (!esSora && viaGoogle(env) !== 'vertex') {
+    return json({ error: 'Alargar solo funciona por Vertex AI (el que paga el crédito de Google).' }, 503);
+  }
+  const tope = esSora ? SORA_EXT_MAX : ALARGAR_MAX;
+  const paso = esSora ? SORA_EXT_SEG : ALARGAR_SEG;
   const yaDura = Number(padre.seconds || 0);
-  if (yaDura >= ALARGAR_MAX) {
-    return json({ error: `Ya llegó al máximo que permite Google (${ALARGAR_MAX} segundos de una sola toma).` }, 409);
+  if (yaDura >= tope) {
+    return json({ error: `Ya llegó al máximo del proveedor (${tope} segundos).` }, 409);
   }
 
   let b; try { b = await request.json(); } catch { b = {}; }
@@ -575,6 +618,22 @@ export async function alargarJob(request, env, session, id) {
   const prompt = sigue.length >= 8
     ? sigue.slice(0, 1500)
     : `Seamless continuation of the same shot: same person, same wardrobe, same room, same lighting and same camera. The action continues naturally from where it left off. ${String(padre.prompt || '').slice(0, 900)}`;
+
+  // Sora continúa por id, sin reenviar bytes: se apunta el objetivo y su propio
+  // sondeo hace el resto en la siguiente vuelta.
+  if (esSora) {
+    const meta = Math.min(tope, yaDura + paso);
+    await env.DB.prepare('UPDATE mkt_video_jobs SET objetivo_seg=? WHERE id=?').bind(meta, padre.id).run();
+    const seguido = await seguirSora(env, { ...padre, objetivo_seg: meta, prompt: sigue || padre.prompt });
+    if (!seguido) {
+      await env.DB.prepare('UPDATE mkt_video_jobs SET objetivo_seg=NULL WHERE id=?').bind(padre.id).run();
+      return json({ error: 'OpenAI no aceptó continuar ese clip.' }, 502);
+    }
+    const costo = Number((Number(padre.cost_usd || 0) + cat.usdSeg * paso).toFixed(4));
+    await env.DB.prepare('UPDATE mkt_video_jobs SET cost_usd=? WHERE id=?').bind(costo, padre.id).run();
+    const j = await env.DB.prepare('SELECT * FROM mkt_video_jobs WHERE id = ?').bind(padre.id).first();
+    return json({ ok: true, job: publico(j) }, 201);
+  }
 
   const obj = await env.R2_BUCKET.get(padre.video_key);
   if (!obj) return json({ error: 'No encontré el archivo del clip anterior.' }, 404);
@@ -585,8 +644,8 @@ export async function alargarJob(request, env, session, id) {
     return json({ error: 'El clip ya pesa demasiado para alargarlo otra vez.' }, 413);
   }
 
-  const total = Math.min(ALARGAR_MAX + 1, yaDura + ALARGAR_SEG);
-  const costo = Number((cat.usdSeg * ALARGAR_SEG).toFixed(4)); // Google cobra solo lo nuevo.
+  const total = Math.min(tope, yaDura + paso);
+  const costo = Number((cat.usdSeg * paso).toFixed(4)); // el proveedor cobra solo lo nuevo.
   const nuevo = nuevoId();
   await env.DB.prepare(
     `INSERT INTO mkt_video_jobs (id, client_id, post_id, tier, model, prompt, aspect, seconds, status, provider, cost_usd, created_by, parent_id)
@@ -626,8 +685,11 @@ async function guardarVideo(env, job, bytesOrBody, tipo = 'video/mp4') {
   // 15 s con un archivo de 8 y el rescate salía mal.) Si ya había video, esto
   // es una continuación y el clip acaba de crecer 7 s.
   const objetivo = Number(job.objetivo_seg || 0);
+  // Cada tramo crece distinto: Veo suma 7 s, Sora hasta 20.
+  const esSora = job.provider === 'sora';
+  const paso = esSora ? Math.min(SORA_EXT_SEG, Math.max(0, objetivo - Number(job.seconds || 0))) : ALARGAR_SEG;
   const ahora = job.video_key
-    ? Math.min(objetivo || 9999, Number(job.seconds || 0) + ALARGAR_SEG)
+    ? Math.min(objetivo || 9999, Number(job.seconds || 0) + paso)
     : Number(job.seconds || 0);
   if (ahora !== Number(job.seconds || 0)) {
     await env.DB.prepare('UPDATE mkt_video_jobs SET seconds=? WHERE id=?').bind(ahora, job.id).run();
@@ -637,8 +699,10 @@ async function guardarVideo(env, job, bytesOrBody, tipo = 'video/mp4') {
   // ¿Falta camino? Veo devuelve el video COMPLETO en cada vuelta, así que el
   // tramo recién guardado es el nuevo punto de partida. Se encadena sobre la
   // MISMA fila hasta llegar al objetivo: 8 -> 15 -> 22 -> 29.
-  if (objetivo > ahora && viaGoogle(env) === 'vertex') {
-    const seguido = await seguirClip(env, { ...job, video_key: key });
+  if (objetivo > ahora && (esSora ? viaSora(env) : viaGoogle(env) === 'vertex')) {
+    const seguido = esSora
+      ? await seguirSora(env, { ...job, video_key: key })
+      : await seguirClip(env, { ...job, video_key: key });
     if (seguido) return seguido;
     // Si la continuación no arrancó, se cierra con lo que ya hay: más vale un
     // clip de 8 s bueno que una fila colgada para siempre.

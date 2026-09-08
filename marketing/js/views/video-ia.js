@@ -10,9 +10,9 @@
 // El precio de Google se cobra POR SEGUNDO, así que la duración cambia el
 // costo y por eso se enseña junta con la calidad, nunca escondida.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609081433';
-import { icon } from '../shell/icons.js?v=202609081433';
-import { T } from '../shell/i18n.js?v=202609081433';
+import { api, el, clear, toast } from '../api.js?v=202609081444';
+import { icon } from '../shell/icons.js?v=202609081444';
+import { T } from '../shell/i18n.js?v=202609081444';
 
 const VIEW_ID = 'video-ia';
 const MXN = 20; // tipo de cambio aproximado, solo para orientar
@@ -87,7 +87,7 @@ function ensureCss() {
   const has = [...document.querySelectorAll('link[rel="stylesheet"]')].some((l) => (l.getAttribute('href') || '').includes('/marketing/css/video-ia.css'));
   if (has) return;
   const link = document.createElement('link'); link.rel = 'stylesheet';
-  link.href = '/marketing/css/video-ia.css?v=202609081433'; document.head.appendChild(link);
+  link.href = '/marketing/css/video-ia.css?v=202609081444'; document.head.appendChild(link);
 }
 
 async function cargar() {
@@ -305,8 +305,8 @@ function render() {
   form.appendChild(notaSegEl);
   // Lo largo no es magia: hay que decir cómo se arma y cuánto tarda.
   form.appendChild(el('p', { class: 'via-notalargo', text: T(
-    'Con Veo, más de 8 segundos se arma solo: Google continúa el mismo plano de 7 en 7, sin corte, y la frase hablada va en los primeros 8. Con Sora 2 los 12 segundos salen de una sola pieza y la persona puede hablar todo el tiempo.',
-    'With Veo, over 8 seconds is built automatically: Google continues the same shot 7 seconds at a time, and the spoken line goes in the first 8. With Sora 2 the full 12 seconds come out in one piece and the person can talk throughout.') }));
+    'Veo llega a 8 segundos de un tirón y de ahí crece de 7 en 7 hasta 29, con la persona callada a partir del octavo. Sora 2 llega a 20 de una sola pieza, hablando todo el tiempo, y encadena de 20 en 20 hasta 120.',
+    'Veo reaches 8 seconds in one go and then grows 7 at a time up to 29, silent after the eighth. Sora 2 reaches 20 in one piece, talking throughout, and chains 20 at a time up to 120.') }));
 
   const tiers = el('div', { class: 'via-tiers', role: 'radiogroup' });
   tierEls = {}; precioEls = {};

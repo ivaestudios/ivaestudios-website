@@ -9,15 +9,16 @@ Corrige de paso un dato viejo del `INFORME-VIDEO-IA-Y-META.md`.
 
 | | **Veo 3.1** (el que usamos) | **Sora 2** (recién puesto) | **Seedance 2.5** |
 |---|---|---|---|
-| De un tirón | 4, 6 u **8 s** | 4, 8 o **12 s** | **4 a 30 s** |
-| Encadena hasta | ~29 s (lo hace la app sola) | no continúa sus videos | tiene modo `video-extend` |
+| De un tirón | 4, 6 u **8 s** | 4, 8, 12, 16 o **20 s** | **4 a 30 s** |
+| Encadena hasta | ~29 s | **120 s** (6 extensiones de 20) | tiene modo `video-extend` |
 | Audio nativo | sí | sí | sí, sincronizado |
 | Vertical 9:16 | sí | sí (720x1280) | sí |
 | Resolución | 720p / 1080p | 720x1280 / 1024x1792 (Pro) | 480p / 720p / 1080p |
 | Precio por segundo | $0.05 Lite · $0.10 Fast · $0.40 | $0.10 · $0.50 el Pro | $0.20 a $0.47 según proveedor |
 | **8 s en vertical** | **8 pesos** (Lite) | 16 pesos | ~46 pesos |
-| **12 s** | 12 pesos encadenando | **24 pesos de un tirón** | ~70 pesos |
-| **30 s** | 29 pesos encadenando (tope 29) | no llega | ~139 pesos de un tirón |
+| **20 s** | 20 pesos encadenando | **40 pesos de un tirón** | ~118 pesos |
+| **30 s** | no llega (tope 29) | 60 pesos encadenando | ~139 pesos de un tirón |
+| **120 s** | no llega | **240 pesos** | no llega |
 
 Precios a 20 pesos por dólar.
 
@@ -75,13 +76,20 @@ GET  https://api.openai.com/v1/videos/:id/content    -> el MP4 en binario
 ```
 
 - Modelos: `sora-2` y `sora-2-pro`.
-- `seconds` va como **TEXTO**: `"4"`, `"8"` o `"12"`. Predeterminado `"4"`.
+- `seconds` va como **TEXTO**: `"4"`, `"8"`, `"12"`, `"16"` o `"20"`.
+  ⚠️ **La página de referencia de la API está VENCIDA**: lista solo 4, 8 y 12.
+  La guía dice textual *"Both sora-2 and sora-2-pro support 16- and 20-second
+  generations"*. Gana la guía; me comí ese error una vez.
 - `size`: `720x1280`, `1280x720`, `1024x1792`, `1792x1024`. Predeterminado
   `720x1280`, que es justo el vertical que queremos.
 - Estados: `queued`, `in_progress`, `completed`, `failed`.
 - ⚠️ **El enlace de descarga caduca a la hora.** Por eso el Worker copia el MP4
   a R2 en cuanto llega.
 - Precio: **$0.10/s** en 720x1280 y **$0.50/s** en 1024x1792.
+- **Extensión**: `POST /v1/videos/extensions` con
+  `{video:{id}, prompt, seconds}`. Hasta **seis** extensiones de 20 s cada una,
+  o sea **120 segundos** de total. Se continúa **por id**, sin reenviar bytes,
+  al revés que Veo.
 
 **Falta:** el secreto `OPENAI_API_KEY` en Cloudflare Pages.
 
@@ -92,8 +100,8 @@ GET  https://api.openai.com/v1/videos/:id/content    -> el MP4 en binario
 - **Para un anuncio hablado normal**: sigue ganando **Veo Lite a 8 pesos**. Es
   cinco veces más barato que Seedance y la mitad que Sora.
 - **Cuando la persona tiene que hablar más de 8 segundos seguidos**: **Sora 2**,
-  porque los 12 salen de una pieza. Con Veo, el encadenado obliga a que calle
-  después del octavo segundo.
+  porque llega a 20 de una pieza y encadena hasta 120. Con Veo, el encadenado
+  obliga a que calle después del octavo segundo.
 - **Solo si algún día hace falta un plano de 30 segundos de un golpe**:
   Seedance, sabiendo que cuesta unos 139 pesos y que hay que entrar por
   Replicate.
