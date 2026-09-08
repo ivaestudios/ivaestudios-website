@@ -87,19 +87,24 @@
   font-size: clamp(18px, 4.8vw, 20px);
   line-height: 1.34;
   letter-spacing: 0;
-  color: var(--faq-crema);
+  /* !important porque dark-mode.css impone `html.dark main h2..h6 {
+     color:#f4f1ec !important }` a TODO encabezado dentro de <main>, y en
+     el Diario el FAQ vive dentro de <main> (en las otras cuatro páginas,
+     no). Sin esto la pregunta abierta se quedaba en crema justo ahí y el
+     dorado dejaba de señalar cuál está desplegada. */
+  color: var(--faq-crema) !important;
   margin: 0;
   text-transform: none;
 }
 /* La pregunta abierta se queda en dorado A PROPÓSITO: de un vistazo se ve
    cuál está desplegada sin tener que buscar el signo. */
 #faq-visible .faq-item[open] .faq-q h3,
-#faq-visible .faq-q:focus-visible h3 { color: var(--faq-oro); }
+#faq-visible .faq-q:focus-visible h3 { color: var(--faq-oro) !important; }
 /* El resaltado al pasar por encima solo donde hay puntero de verdad: en
    una pantalla táctil el :hover se queda PEGADO después de tocar y deja
    preguntas en dorado que ya se cerraron. */
 @media (hover: hover) and (pointer: fine) {
-  #faq-visible .faq-item:hover .faq-q h3 { color: var(--faq-oro); }
+  #faq-visible .faq-item:hover .faq-q h3 { color: var(--faq-oro) !important; }
 }
 
 /* El signo, en dorado, girando 45° hasta volverse una × al abrir */
