@@ -77,3 +77,49 @@ como membresía mensual.
 - [ ] Abrir cuenta de HeyGen y grabar los 2 minutos de referencia.
 - [ ] Probar el gemelo antes de ofrecérselo a un cliente.
 - [ ] Si convence, agregarlo como quinto proveedor de la sección Video IA.
+
+---
+
+## HAY MÁS OPCIONES QUE HeyGen, y una es mucho más fácil (8-sep-2026)
+
+HeyGen **sí es proveedor directo**, hacen su propia tecnología. Pero existe otra
+categoría: **modelos crudos que animan una foto**, sin entrenamiento ni
+mensualidad. Precios leídos de las fichas de cada modelo en Replicate.
+
+### Un video de 30 segundos con tu cara
+
+| Opción | Por segundo | 30 s | Qué necesitas |
+|---|---|---|---|
+| **HeyGen · gemelo digital** | $0.0167 | **10 pesos** | grabar 2 min una vez, y un plan de $29 al mes para crearlo |
+| **p-video-avatar** (Replicate) | $0.025 | **15 pesos** | **UNA foto** y el texto. Nada más |
+| Kling Avatar estándar | $0.056 | 34 pesos | una foto y un audio |
+| Kling Avatar Pro | $0.11 | 66 pesos | una foto y un audio |
+| HeyGen Avatar IV vía Replicate | $0.075 | 45 pesos | igual pide cuenta de HeyGen: no tiene sentido |
+
+### Con volumen real, 12 videos de 30 s al mes
+
+| Opción | Costo mensual |
+|---|---|
+| **p-video-avatar** | **180 pesos** |
+| Kling estándar | 403 pesos |
+| HeyGen (120 de uso + 580 de mensualidad) | **700 pesos** |
+
+HeyGen es más barato por segundo, pero su mensualidad lo vuelve el más caro a
+volumen bajo. Solo gana pasando de unos 60 videos al mes.
+
+### La diferencia real: foto contra entrenamiento
+
+- **Un solo retrato** (p-video-avatar, Kling): se parece a la foto, pero no
+  aprende tus gestos ni tu forma de moverte.
+- **Gemelo entrenado** (HeyGen, 2 minutos de grabación): reproduce tu manera de
+  hablar y de gesticular. Para una marca donde TÚ eres la cara, esto se nota.
+
+### Recomendación
+
+**Empezar con `p-video-avatar` en Replicate.** Una foto, 15 pesos el video, cero
+compromiso, y sirve para saber en un día si te gusta verte de avatar. Si el
+concepto convence y quieres que se parezca de verdad, ahí sí se invierte en el
+gemelo de HeyGen.
+
+**Bonus:** es la misma cuenta de Replicate que ya hacía falta para Seedance. Una
+sola alta desbloquea las dos cosas.
