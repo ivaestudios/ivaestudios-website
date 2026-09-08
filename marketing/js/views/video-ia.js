@@ -10,9 +10,9 @@
 // El precio de Google se cobra POR SEGUNDO, así que la duración cambia el
 // costo y por eso se enseña junta con la calidad, nunca escondida.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609072344';
-import { icon } from '../shell/icons.js?v=202609072344';
-import { T } from '../shell/i18n.js?v=202609072344';
+import { api, el, clear, toast } from '../api.js?v=202609072351';
+import { icon } from '../shell/icons.js?v=202609072351';
+import { T } from '../shell/i18n.js?v=202609072351';
 
 const VIEW_ID = 'video-ia';
 const MXN = 20; // tipo de cambio aproximado, solo para orientar
@@ -46,7 +46,7 @@ function ensureCss() {
   const has = [...document.querySelectorAll('link[rel="stylesheet"]')].some((l) => (l.getAttribute('href') || '').includes('/marketing/css/video-ia.css'));
   if (has) return;
   const link = document.createElement('link'); link.rel = 'stylesheet';
-  link.href = '/marketing/css/video-ia.css?v=202609072344'; document.head.appendChild(link);
+  link.href = '/marketing/css/video-ia.css?v=202609072351'; document.head.appendChild(link);
 }
 
 async function cargar() {
@@ -193,7 +193,8 @@ async function proponer(sel) {
   const cli = clienteActivo();
   promptEl.disabled = true; notaEl.textContent = T('Claude está pensando la escena…', 'Claude is thinking the scene…');
   try {
-    const r = await api.post('/video-ia/escena', { hook: p.hook || p.title, guion: p.body || '', marca: cli ? cli.name : '', tier: tierActual() }, { timeout: 40000 });
+    const t = tierActual();
+    const r = await api.post('/video-ia/escena', { hook: p.hook || p.title, guion: p.body || '', marca: cli ? cli.name : '', tier: t, seconds: segundosDe(t) }, { timeout: 40000 });
     promptEl.value = r.prompt_en; notaEl.textContent = r.nota_es || '';
   } catch (e) { notaEl.textContent = ''; toast(e.message, { type: 'error' }); }
   finally { promptEl.disabled = false; }

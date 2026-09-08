@@ -199,6 +199,13 @@ function urlArranque(env, cat) {
   return `${GEMINI_BASE}/models/${cat.gemini}:predictLongRunning`;
 }
 
+// Lo que NUNCA queremos ver ni oír. El tartamudeo es el defecto más común de
+// Veo cuando la frase hablada es corta para los segundos pedidos: estira y
+// repite palabras ("our physicians in Cancun, in Cancun, review your case").
+const NO_QUIERO = 'repeated words, stuttering, duplicated dialogue, echo, '
+  + 'looped speech, mumbling, subtitles, captions, on-screen text, watermark, '
+  + 'logo, distorted face, extra fingers';
+
 function cuerpoGoogle(env, cat, prompt, aspect, seconds, videoB64) {
   const parameters = {
     aspectRatio: aspect,
@@ -207,6 +214,7 @@ function cuerpoGoogle(env, cat, prompt, aspect, seconds, videoB64) {
     sampleCount: 1,
     generateAudio: !!cat.audio,
     personGeneration: 'allow_adult',
+    negativePrompt: NO_QUIERO,
   };
   if (videoB64) {
     // Continuación: se manda el video anterior y Veo sigue el mismo plano.
@@ -608,8 +616,17 @@ export async function proponerEscena(request, env) {
   const marca = String(b.marca || '').slice(0, 120);
   const cat = CATALOGO[String(b.tier || '')] || CATALOGO.economico;
   if (!hook && !guion) return json({ error: 'Pásame el hook o el guion de la pieza.' }, 400);
+  const segs = Number(b.seconds) || 8;
+  // Ritmo: una persona dice unas 2.5 palabras por segundo. Si la frase es
+  // corta para el clip, Veo estira y REPITE palabras. Si es larga, la corta a
+  // media palabra. Las dos cosas ya nos pasaron, por eso va como regla dura.
+  const palabras = Math.max(6, Math.round(segs * 2.5) - 3);
   const reglas = cat.personas
-    ? 'The clip may include ONE person (describe age, look, wardrobe, mood) and native ambient audio; no dialogue longer than a short line.'
+    ? `The clip may include ONE person (describe age, look, wardrobe, mood) and native ambient audio. `
+      + `It must contain EXACTLY ONE spoken line, written inside double quotes, of about ${palabras} words `
+      + `(never fewer than ${Math.max(5, palabras - 3)}, never more than ${palabras + 3}). `
+      + `A line shorter than that makes the model stretch and repeat words; a longer one gets cut off mid-word. `
+      + `End the prompt with: He says the line once, at a natural conversational pace, without repeating any word.`
     : 'B-roll only: NO people speaking, no close-up hands, no readable text or logos. Environments, objects, light, movement.';
   const sistema = `You write prompts for text-to-video models (Veo, Wan). Output STRICT JSON: {"prompt_en": string, "nota_es": string}.
 prompt_en: one paragraph, 60-110 words, in English, concrete and filmable: subject, setting, camera (shot size, movement), lighting, color palette, mood. Vertical 9:16. ${reglas} Never ask the model to render text.
