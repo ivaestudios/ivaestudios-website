@@ -1,0 +1,24 @@
+name: SEO — FAQ visible
+
+# Google pide que el marcado FAQPage refleje contenido visible. Esta compuerta
+# falla el push si alguna pagina indexable declara preguntas que nadie ve.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**/*.html"
+      - "scripts/auditar_faq.py"
+      - ".github/workflows/faq-audit.yml"
+  workflow_dispatch:
+
+jobs:
+  auditar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Preguntas declaradas contra preguntas visibles
+        run: python3 scripts/auditar_faq.py
