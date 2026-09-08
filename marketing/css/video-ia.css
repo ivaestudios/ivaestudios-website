@@ -38,3 +38,17 @@
 .via-card__acciones { display: flex; gap: 8px; padding: 0 12px 12px; flex-wrap: wrap; }
 .via-borrar { margin-left: auto; }
 @media (min-width: 720px) { .via-lista { grid-template-columns: 1fr 1fr; } }
+
+/* --- Duración (cambia el precio, por eso se ve junto a los niveles) --- */
+.via-segs { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.via-segs[hidden] { display: none; }
+.via-segs__lbl { font-size: var(--fs-2); color: var(--text-dim); font-weight: 700; }
+.via-seg { background: var(--bg); color: var(--text); border: 1.5px solid var(--border); border-radius: 999px; padding: 6px 14px; font: inherit; font-weight: 700; font-size: var(--fs-2); cursor: pointer; }
+.via-seg.is-on { border-color: var(--brand); color: var(--brand); background: color-mix(in srgb, var(--brand) 12%, transparent); }
+
+/* --- Aviso en verde cuando sí está pagando el crédito de Google --- */
+.via-aviso--ok { border-color: #2f9e56; background: color-mix(in srgb, #2f9e56 12%, var(--surface)); }
+
+/* --- Nivel cuyo proveedor no está conectado --- */
+.via-tier.is-off { opacity: .55; cursor: not-allowed; }
+.via-tier__off { font-size: var(--fs-1); font-weight: 700; color: var(--text-dim); }

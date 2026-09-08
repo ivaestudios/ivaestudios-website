@@ -1,0 +1,74 @@
+/* ═══════════════════════════════════════════════════════════════
+   HERO CON FOTO PARA PÁGINAS DE CIUDAD Y VENUE · 2026-09-06
+   Hallazgo: 71 páginas de destino (Tulum, Playa del Carmen, Los
+   Cabos, Mayakoba, Mérida…) no tenían NI UNA foto. Un estudio de
+   fotografía con páginas de puro texto se ve amateur, y encima
+   estas son las páginas que traen clientes por búsqueda.
+   Mismo tratamiento editorial que las páginas principales: la foto
+   manda, el texto vive sobre una base oscura controlada y la
+   etiqueta superior lleva filete dorado.
+   ═══════════════════════════════════════════════════════════════ */
+
+.hero { position: relative; isolation: isolate; }
+
+.hero-foto {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+.hero-foto picture { display: block; width: 100%; height: 100%; }
+.hero-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 32%;
+  display: block;
+}
+/* Velo: la foto se ve limpia arriba y el texto siempre se lee abajo */
+.hero-foto::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    rgba(10,15,23,.42) 0%,
+    rgba(10,15,23,.20) 26%,
+    rgba(10,15,23,.46) 54%,
+    rgba(10,15,23,.86) 82%,
+    rgba(10,15,23,.96) 100%);
+}
+/* Todo el contenido del hero por encima de la foto */
+.hero > *:not(.hero-foto) { position: relative; z-index: 1; }
+
+/* La etiqueta superior con el filete dorado de la casa */
+.hero .hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-shadow: 0 1px 12px rgba(10,15,23,.7);
+}
+.hero .hero-eyebrow::before {
+  content: '';
+  width: 30px;
+  height: 1px;
+  background: var(--gold, #c9a54e);
+  flex: 0 0 30px;
+}
+.hero h1 { text-shadow: 0 2px 34px rgba(10,15,23,.6); }
+.hero .hero-sub { text-shadow: 0 1px 20px rgba(10,15,23,.7); }
+
+/* En teléfono el hero necesita altura para que la foto se lea como foto */
+@media (max-width: 899px) {
+  .hero {
+    min-height: 78svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-top: 120px !important;
+    padding-bottom: 44px !important;
+  }
+}
+@media (min-width: 900px) {
+  .hero { min-height: 62vh; display: flex; flex-direction: column; justify-content: flex-end; }
+  .hero-foto img { object-position: center 30%; }
+}

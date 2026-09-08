@@ -1,37 +1,84 @@
 // ============================================================================
 // IVAE Marketing — Generador de video con IA (SOLO staff).
 //
-// Proveedor v1: fal.ai (pago por uso, sin membresía). Se eligió por el informe
-// INFORME-VIDEO-IA-Y-META.md (15/16-ago-2026): FastWan a $0.025 el clip para
-// b-roll y Veo 3 Fast para la toma con persona y audio. Google Vertex (los $300
-// gratis) entra en v2 como segundo proveedor; el catálogo ya lo contempla.
+// DOS PROVEEDORES, un mismo flujo:
 //
-// Flujo: POST /video-ia/jobs → fila en mkt_video_jobs + POST a la cola de fal
-//        GET  /video-ia/jobs/:id → si sigue corriendo, consulta a fal; al
-//             terminar baja el MP4 y lo guarda en R2 (marketing/video-ia/<id>.mp4)
+//   google  → Veo 3.1 de Google. Es el bueno (video CON audio nativo).
+//             Dos formas de entrar, y NO son lo mismo para el bolsillo:
+//               a) VERTEX AI  (GOOGLE_SA_JSON) → lo paga el crédito de $300.
+//               b) API GEMINI (GEMINI_API_KEY) → NO lo paga el crédito de $300;
+//                  se le cobra a la tarjeta. Google lo dice textual:
+//                  "The $300 credit can't pay for Gemini API in AI Studio costs."
+//             Si están las dos, gana Vertex.
+//   fal     → FastWan (FAL_KEY). B-roll sin personas, baratísimo, sin audio.
+//
+// Precios verificados el 7-sep-2026 (misma tarifa en Vertex y en Gemini), POR
+// SEGUNDO de video generado, audio incluido:
+//   Veo 3.1 Lite  720p $0.05   ·  1080p $0.08
+//   Veo 3.1 Fast  720p $0.10   ·  1080p $0.12
+//   Veo 3.1       720p/1080p $0.40
+// Un clip de 8 s en Lite cuesta $0.40 USD (unos 8 pesos). Ver
+// _docs/VERTEX_VEO_SPEC.md para el contrato completo y las fuentes.
+//
+// Flujo: POST /video-ia/jobs → fila en mkt_video_jobs + arranque en el proveedor
+//        GET  /video-ia/jobs/:id → si sigue corriendo, pregunta; al terminar
+//             baja el MP4 y lo guarda en R2 (marketing/video-ia/<id>.mp4)
 //        GET  /video-ia/jobs?client_id → lista + gasto del mes por marca
 //        GET  /video-ia/jobs/:id/video → sirve el MP4 desde R2
 //        POST /video-ia/escena → Claude propone la descripción de la escena
-//             a partir del hook/guion de una pieza (en inglés: los modelos de
-//             video entienden mejor el inglés; la explicación va en español).
 // ============================================================================
 
 const FAL_QUEUE = 'https://queue.fal.run';
+const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta';
+const VERTEX_LOCATION = 'us-central1'; // Veo 3.1 SOLO vive en us-central1.
 
-// Catálogo. El precio es el que se le enseña a la dueña ANTES de generar y el
-// que se anota como costo. Fuente: informe 15-ago-2026 + página de fal.
+// ---------------------------------------------------------------------------
+// Catálogo. El precio que se le enseña a la dueña ANTES de generar es
+// usd_segundo × segundos, y ese mismo número es el que se anota como costo.
+// Cada nivel de Google trae los DOS identificadores de modelo porque Vertex y
+// la API de Gemini les pusieron nombres distintos al mismo modelo.
+// ---------------------------------------------------------------------------
 export const CATALOGO = {
-  rapido: {
-    label: 'Rápido', sub: 'b-roll: paisajes, objetos, ambiente. Sin personas hablando.',
-    endpoint: 'fal-ai/wan/v2.2-5b/text-to-video/fast-wan',
-    modelo: 'FastWan 2.2 · 720p', usd: 0.025, audio: false, seconds: 5,
+  economico: {
+    label: 'Económico',
+    sub: 'Veo 3.1 Lite. Con audio. Es el que conviene para la mayoría de los reels.',
+    proveedor: 'google',
+    vertex: 'veo-3.1-lite-generate-001',
+    gemini: 'veo-3.1-lite-generate-preview',
+    modelo: 'Veo 3.1 Lite · 720p con audio',
+    resolution: '720p', usdSeg: 0.05, audio: true, personas: true,
   },
-  alta: {
-    label: 'Alta', sub: 'persona a cuadro, con audio. La calidad del anuncio de Regeneris.',
-    endpoint: 'fal-ai/veo3/fast',
-    modelo: 'Veo 3 Fast · 1080p con audio', usd: 1.20, audio: true, seconds: 8,
+  bueno: {
+    label: 'Bueno',
+    sub: 'Veo 3.1 Fast. Más detalle y mejor movimiento que el económico.',
+    proveedor: 'google',
+    vertex: 'veo-3.1-fast-generate-001',
+    gemini: 'veo-3.1-fast-generate-preview',
+    modelo: 'Veo 3.1 Fast · 720p con audio',
+    resolution: '720p', usdSeg: 0.10, audio: true, personas: true,
+  },
+  mejor: {
+    label: 'El mejor',
+    sub: 'Veo 3.1 completo en 1080p. Para la toma principal de un anuncio.',
+    proveedor: 'google',
+    vertex: 'veo-3.1-generate-001',
+    gemini: 'veo-3.1-generate-preview',
+    modelo: 'Veo 3.1 · 1080p con audio',
+    resolution: '1080p', usdSeg: 0.40, audio: true, personas: true,
+  },
+  broll: {
+    label: 'B-roll suelto',
+    sub: 'Sin audio y sin personas: paisajes, objetos, ambiente. Centavos.',
+    proveedor: 'fal',
+    endpoint: 'fal-ai/wan/v2.2-5b/text-to-video/fast-wan',
+    modelo: 'FastWan 2.2 · 720p sin audio',
+    resolution: '720p', usdSeg: 0.005, audio: false, personas: false,
   },
 };
+
+// Veo solo acepta 4, 6 u 8 segundos. FastWan da 5.
+const SEGUNDOS_GOOGLE = [4, 6, 8];
+const SEGUNDOS_FAL = [5];
 
 const MKT_NOW = "strftime('%Y-%m-%d %H:%M:%f','now')";
 
@@ -42,8 +89,164 @@ function nuevoId() {
   const b = new Uint8Array(16); crypto.getRandomValues(b);
   return [...b].map((x) => x.toString(16).padStart(2, '0')).join('');
 }
-function configurado(env) { return !!(env.FAL_KEY && String(env.FAL_KEY).trim()); }
 
+// --- qué está configurado ---------------------------------------------------
+function saJson(env) {
+  if (!env.GOOGLE_SA_JSON) return null;
+  try {
+    const sa = JSON.parse(env.GOOGLE_SA_JSON);
+    if (sa && sa.client_email && sa.private_key && sa.project_id) return sa;
+  } catch { /* llave mal pegada */ }
+  return null;
+}
+function viaGoogle(env) {
+  if (saJson(env)) return 'vertex';
+  if (env.GEMINI_API_KEY && String(env.GEMINI_API_KEY).trim()) return 'gemini';
+  return null;
+}
+function viaFal(env) { return !!(env.FAL_KEY && String(env.FAL_KEY).trim()); }
+
+function disponible(env, tier) {
+  const cat = CATALOGO[tier];
+  if (!cat) return false;
+  return cat.proveedor === 'google' ? !!viaGoogle(env) : viaFal(env);
+}
+
+// ---------------------------------------------------------------------------
+// OAuth de Google desde el Worker: JWT RS256 firmado con WebCrypto y canjeado
+// por un access token de una hora. No hay librerías; Workers trae RSASSA.
+// ---------------------------------------------------------------------------
+let _tok = null; // { valor, expira } — vive lo que viva el isolate
+
+function b64url(bytes) {
+  let bin = '';
+  const a = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  for (let i = 0; i < a.length; i++) bin += String.fromCharCode(a[i]);
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function b64urlTexto(s) { return b64url(new TextEncoder().encode(s)); }
+
+function pemADer(pem) {
+  const limpio = String(pem).replace(/-----[^-]+-----/g, '').replace(/\s+/g, '');
+  const bin = atob(limpio);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out.buffer;
+}
+
+async function tokenGoogle(env) {
+  const ahora = Math.floor(Date.now() / 1000);
+  if (_tok && _tok.expira > ahora + 60) return _tok.valor;
+  const sa = saJson(env);
+  if (!sa) throw new Error('Falta GOOGLE_SA_JSON');
+  const cabeza = b64urlTexto(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+  const cuerpo = b64urlTexto(JSON.stringify({
+    iss: sa.client_email,
+    scope: 'https://www.googleapis.com/auth/cloud-platform',
+    aud: 'https://oauth2.googleapis.com/token',
+    exp: ahora + 3600,
+    iat: ahora,
+  }));
+  const llave = await crypto.subtle.importKey(
+    'pkcs8', pemADer(sa.private_key), { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']
+  );
+  const firma = await crypto.subtle.sign({ name: 'RSASSA-PKCS1-v1_5' }, llave, new TextEncoder().encode(`${cabeza}.${cuerpo}`));
+  const jwt = `${cabeza}.${cuerpo}.${b64url(firma)}`;
+  const res = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion: jwt }),
+    signal: AbortSignal.timeout(20000),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.access_token) {
+    throw new Error('Google no dio token: ' + (data.error_description || data.error || res.status));
+  }
+  _tok = { valor: data.access_token, expira: ahora + (Number(data.expires_in) || 3600) };
+  return _tok.valor;
+}
+
+// --- llamadas a Google ------------------------------------------------------
+async function googleFetch(env, url, body) {
+  const via = viaGoogle(env);
+  const headers = { 'Content-Type': 'application/json' };
+  if (via === 'vertex') headers['Authorization'] = `Bearer ${await tokenGoogle(env)}`;
+  else headers['x-goog-api-key'] = String(env.GEMINI_API_KEY).trim();
+  const res = await fetch(url, {
+    method: body === undefined ? 'GET' : 'POST',
+    headers,
+    body: body === undefined ? undefined : JSON.stringify(body),
+    signal: AbortSignal.timeout(30000),
+  });
+  const data = await res.json().catch(() => ({}));
+  return { res, data };
+}
+
+function urlArranque(env, cat) {
+  if (viaGoogle(env) === 'vertex') {
+    const sa = saJson(env);
+    return `https://${VERTEX_LOCATION}-aiplatform.googleapis.com/v1/projects/${sa.project_id}`
+      + `/locations/${VERTEX_LOCATION}/publishers/google/models/${cat.vertex}:predictLongRunning`;
+  }
+  return `${GEMINI_BASE}/models/${cat.gemini}:predictLongRunning`;
+}
+
+function cuerpoGoogle(env, cat, prompt, aspect, seconds) {
+  const parameters = {
+    aspectRatio: aspect,
+    resolution: cat.resolution,
+    durationSeconds: seconds,
+    sampleCount: 1,
+    generateAudio: !!cat.audio,
+    personGeneration: 'allow_adult',
+  };
+  // La API de Gemini no documenta sampleCount/personGeneration: se mandan solo
+  // los campos que sí acepta, para no arriesgar un 400 por campo desconocido.
+  if (viaGoogle(env) !== 'vertex') {
+    delete parameters.sampleCount;
+    delete parameters.personGeneration;
+  }
+  return { instances: [{ prompt }], parameters };
+}
+
+// El nombre de la operación viene distinto según la puerta; ambas lo ponen en
+// `name`. Vertex además exige mandarlo de vuelta al endpoint del modelo.
+function urlSondeo(env, cat, operacion) {
+  if (viaGoogle(env) === 'vertex') {
+    const sa = saJson(env);
+    return `https://${VERTEX_LOCATION}-aiplatform.googleapis.com/v1/projects/${sa.project_id}`
+      + `/locations/${VERTEX_LOCATION}/publishers/google/models/${cat.vertex}:fetchPredictOperation`;
+  }
+  return `${GEMINI_BASE}/${operacion}`;
+}
+
+// Busca el video dentro de la respuesta, sea cual sea la forma. Vertex devuelve
+// response.videos[]; la API de Gemini response.generateVideoResponse
+// .generatedSamples[].video. Se recorre el árbol para no romperse si cambian.
+function hallarVideo(nodo, prof = 0) {
+  if (!nodo || prof > 8) return null;
+  if (typeof nodo === 'object') {
+    if (typeof nodo.bytesBase64Encoded === 'string' && nodo.bytesBase64Encoded.length > 1000) {
+      return { b64: nodo.bytesBase64Encoded };
+    }
+    if (typeof nodo.uri === 'string' && /^https?:/.test(nodo.uri)) return { uri: nodo.uri };
+    if (typeof nodo.gcsUri === 'string') return { gcsUri: nodo.gcsUri };
+    for (const k of Object.keys(nodo)) {
+      const r = hallarVideo(nodo[k], prof + 1);
+      if (r) return r;
+    }
+  }
+  return null;
+}
+
+function b64ABytes(b64) {
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+// --- llamadas a fal ---------------------------------------------------------
 async function falFetch(env, url, init = {}) {
   const res = await fetch(url, {
     ...init,
@@ -53,61 +256,102 @@ async function falFetch(env, url, init = {}) {
   const data = await res.json().catch(() => ({}));
   return { res, data };
 }
-
-// Cuerpo de la petición por modelo. Todo vertical 9:16 salvo que se pida otro.
-function cuerpoPara(tier, prompt, aspect) {
-  if (tier === 'rapido') {
-    return {
-      prompt, aspect_ratio: aspect, resolution: '720p', num_frames: 121, frames_per_second: 24,
-      enable_prompt_expansion: true, video_quality: 'high', enable_safety_checker: false,
-    };
-  }
-  // veo3/fast: prompt + aspect_ratio + duration ("8s") + generate_audio
-  return { prompt, aspect_ratio: aspect, duration: '8s', generate_audio: true, resolution: '1080p' };
+function cuerpoFal(prompt, aspect) {
+  return {
+    prompt, aspect_ratio: aspect, resolution: '720p', num_frames: 121, frames_per_second: 24,
+    enable_prompt_expansion: true, video_quality: 'high', enable_safety_checker: false,
+  };
 }
 
+// ---------------------------------------------------------------------------
+// Endpoints
+// ---------------------------------------------------------------------------
 export async function estado(env) {
-  return json({ ok: true, configurado: configurado(env), catalogo: CATALOGO });
+  const via = viaGoogle(env);
+  const catalogo = {};
+  for (const [k, c] of Object.entries(CATALOGO)) {
+    catalogo[k] = {
+      label: c.label, sub: c.sub, modelo: c.modelo, proveedor: c.proveedor,
+      usdSeg: c.usdSeg, audio: c.audio, personas: c.personas,
+      segundos: c.proveedor === 'google' ? SEGUNDOS_GOOGLE : SEGUNDOS_FAL,
+      listo: disponible(env, k),
+    };
+  }
+  return json({
+    ok: true,
+    configurado: !!(via || viaFal(env)),
+    google: via,                  // 'vertex' | 'gemini' | null
+    fal: viaFal(env),
+    // Aviso honesto para la pantalla: por dónde se está pagando.
+    pagando: via === 'vertex' ? 'credito' : (via === 'gemini' ? 'tarjeta' : null),
+    catalogo,
+  });
 }
 
 export async function crearJob(request, env, session) {
-  if (!configurado(env)) return json({ error: 'Falta configurar la llave de fal.ai (FAL_KEY) en Cloudflare.' }, 503);
   let b; try { b = await request.json(); } catch { return json({ error: 'JSON inválido' }, 400); }
   const client_id = String(b.client_id || '').trim();
-  const tier = String(b.tier || 'rapido');
+  const tier = String(b.tier || 'economico');
   const prompt = String(b.prompt || '').trim();
-  const aspect = ['9:16', '16:9', '1:1'].includes(b.aspect) ? b.aspect : '9:16';
+  const aspect = ['9:16', '16:9'].includes(b.aspect) ? b.aspect : '9:16';
   const post_id = b.post_id ? String(b.post_id) : null;
+  const cat = CATALOGO[tier];
   if (!client_id) return json({ error: 'Falta la marca.' }, 400);
-  if (!CATALOGO[tier]) return json({ error: 'Calidad desconocida.' }, 400);
+  if (!cat) return json({ error: 'Calidad desconocida.' }, 400);
+  if (!disponible(env, tier)) {
+    return json({ error: cat.proveedor === 'google'
+      ? 'Falta conectar Google en Cloudflare (GOOGLE_SA_JSON o GEMINI_API_KEY).'
+      : 'Falta la llave de fal.ai (FAL_KEY) en Cloudflare.' }, 503);
+  }
+  const permitidos = cat.proveedor === 'google' ? SEGUNDOS_GOOGLE : SEGUNDOS_FAL;
+  const seconds = permitidos.includes(Number(b.seconds)) ? Number(b.seconds) : permitidos[permitidos.length - 1];
   if (prompt.length < 12) return json({ error: 'Describe la escena con un poco más de detalle.' }, 400);
   if (prompt.length > 1500) return json({ error: 'La descripción es demasiado larga (máximo 1500 caracteres).' }, 400);
   const cli = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(client_id).first();
   if (!cli) return json({ error: 'Marca no encontrada.' }, 404);
 
-  const cat = CATALOGO[tier];
+  const via = cat.proveedor === 'google' ? viaGoogle(env) : 'fal';
+  const modelo = cat.proveedor === 'google' ? (via === 'vertex' ? cat.vertex : cat.gemini) : cat.endpoint;
+  const costo = Number((cat.usdSeg * seconds).toFixed(4));
   const id = nuevoId();
   await env.DB.prepare(
     `INSERT INTO mkt_video_jobs (id, client_id, post_id, tier, model, prompt, aspect, seconds, status, provider, cost_usd, created_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'queued', 'fal', ?, ?)`
-  ).bind(id, client_id, post_id, tier, cat.endpoint, prompt, aspect, cat.seconds, cat.usd, session.email || null).run();
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'queued', ?, ?, ?)`
+  ).bind(id, client_id, post_id, tier, modelo, prompt, aspect, seconds, via, costo, session.email || null).run();
 
-  // Encolar en fal. Si falla, la fila queda en error con el motivo legible.
-  let r;
+  const falla = async (msg) => {
+    await env.DB.prepare(`UPDATE mkt_video_jobs SET status='error', error=?, updated_at=${MKT_NOW}, finished_at=${MKT_NOW} WHERE id=?`)
+      .bind(String(msg).slice(0, 400), id).run();
+  };
+
   try {
-    r = await falFetch(env, `${FAL_QUEUE}/${cat.endpoint}`, { method: 'POST', body: JSON.stringify(cuerpoPara(tier, prompt, aspect)) });
+    if (cat.proveedor === 'google') {
+      const r = await googleFetch(env, urlArranque(env, cat), cuerpoGoogle(env, cat, prompt, aspect, seconds));
+      const operacion = r.data && r.data.name;
+      if (!r.res.ok || !operacion) {
+        const msg = (r.data && r.data.error && (r.data.error.message || r.data.error.status)) || `Google respondió ${r.res.status}`;
+        await falla(msg);
+        return json({ error: String(msg) }, 502);
+      }
+      await env.DB.prepare(
+        `UPDATE mkt_video_jobs SET status='running', request_id=?, status_url=?, updated_at=${MKT_NOW} WHERE id=?`
+      ).bind(operacion, urlSondeo(env, cat, operacion), id).run();
+    } else {
+      const r = await falFetch(env, `${FAL_QUEUE}/${cat.endpoint}`, { method: 'POST', body: JSON.stringify(cuerpoFal(prompt, aspect)) });
+      if (!r.res.ok || !r.data.request_id) {
+        const msg = (r.data && (r.data.detail || r.data.error || r.data.message)) || `fal respondió ${r.res.status}`;
+        await falla(typeof msg === 'string' ? msg : 'El proveedor rechazó la petición.');
+        return json({ error: typeof msg === 'string' ? msg : 'El proveedor rechazó la petición.' }, 502);
+      }
+      await env.DB.prepare(
+        `UPDATE mkt_video_jobs SET status='running', request_id=?, status_url=?, response_url=?, updated_at=${MKT_NOW} WHERE id=?`
+      ).bind(r.data.request_id, r.data.status_url || null, r.data.response_url || null, id).run();
+    }
   } catch (e) {
-    await env.DB.prepare(`UPDATE mkt_video_jobs SET status='error', error=?, updated_at=${MKT_NOW} WHERE id=?`).bind('No se pudo hablar con fal: ' + (e && e.message), id).run();
+    await falla('No se pudo hablar con el proveedor: ' + (e && e.message));
     return json({ error: 'No se pudo hablar con el proveedor. Intenta de nuevo.' }, 502);
   }
-  if (!r.res.ok || !r.data.request_id) {
-    const msg = (r.data && (r.data.detail || r.data.error || r.data.message)) || `fal respondió ${r.res.status}`;
-    await env.DB.prepare(`UPDATE mkt_video_jobs SET status='error', error=?, updated_at=${MKT_NOW} WHERE id=?`).bind(String(msg).slice(0, 400), id).run();
-    return json({ error: typeof msg === 'string' ? msg : 'El proveedor rechazó la petición.' }, 502);
-  }
-  await env.DB.prepare(
-    `UPDATE mkt_video_jobs SET status='running', request_id=?, status_url=?, response_url=?, updated_at=${MKT_NOW} WHERE id=?`
-  ).bind(r.data.request_id, r.data.status_url || null, r.data.response_url || null, id).run();
+
   const job = await env.DB.prepare('SELECT * FROM mkt_video_jobs WHERE id = ?').bind(id).first();
   return json({ ok: true, job: publico(job) }, 201);
 }
@@ -118,41 +362,95 @@ function publico(j) {
   return { ...rest, video_url: j.status === 'done' ? `/api/marketing/video-ia/jobs/${j.id}/video` : null };
 }
 
-// Consulta a fal y, si terminó, guarda el video en R2. Idempotente: si ya está
-// done/error no vuelve a llamar al proveedor.
+// Guarda el MP4 en R2 y marca el job como terminado. Los links de los
+// proveedores caducan: por eso SIEMPRE se copia.
+async function guardarVideo(env, job, bytesOrBody, tipo = 'video/mp4') {
+  const key = `marketing/video-ia/${job.id}.mp4`;
+  await env.R2_BUCKET.put(key, bytesOrBody, { httpMetadata: { contentType: tipo, cacheControl: 'private, max-age=86400' } });
+  await env.DB.prepare(`UPDATE mkt_video_jobs SET status='done', video_key=?, updated_at=${MKT_NOW}, finished_at=${MKT_NOW} WHERE id=?`)
+    .bind(key, job.id).run();
+  return { ...job, status: 'done', video_key: key };
+}
+
+async function marcarError(env, job, msg) {
+  await env.DB.prepare(`UPDATE mkt_video_jobs SET status='error', error=?, updated_at=${MKT_NOW}, finished_at=${MKT_NOW} WHERE id=?`)
+    .bind(String(msg).slice(0, 400), job.id).run();
+  return { ...job, status: 'error', error: String(msg) };
+}
+
+// Consulta al proveedor y, si terminó, guarda el video. Idempotente.
 async function refrescar(env, job) {
   if (job.status !== 'running' || !job.status_url) return job;
-  let st;
-  try { st = await falFetch(env, job.status_url, { method: 'GET' }); }
-  catch { return job; } // transitorio: se vuelve a intentar en el siguiente sondeo
+  try {
+    return job.provider === 'fal' ? await refrescarFal(env, job) : await refrescarGoogle(env, job);
+  } catch {
+    return job; // transitorio: se reintenta en el siguiente sondeo
+  }
+}
+
+async function refrescarGoogle(env, job) {
+  const via = viaGoogle(env);
+  if (!via) return job;
+  let r;
+  if (via === 'vertex') r = await googleFetch(env, job.status_url, { operationName: job.request_id });
+  else r = await googleFetch(env, job.status_url, undefined);
+
+  if (!r.res.ok) {
+    // 404/401 son definitivos; el resto puede ser un tropiezo pasajero.
+    if (r.res.status === 404 || r.res.status === 401 || r.res.status === 403) {
+      const msg = (r.data && r.data.error && r.data.error.message) || `Google respondió ${r.res.status}`;
+      return marcarError(env, job, msg);
+    }
+    return job;
+  }
+  if (!r.data || r.data.done !== true) return job;
+  if (r.data.error) {
+    return marcarError(env, job, r.data.error.message || 'Google no pudo generar el video.');
+  }
+  const filtrados = r.data.response && Number(r.data.response.raiMediaFilteredCount || 0);
+  const hallado = hallarVideo(r.data.response);
+  if (!hallado) {
+    return marcarError(env, job, filtrados
+      ? 'Google bloqueó el video por sus reglas de contenido. Cambia la descripción de la escena.'
+      : 'El proveedor terminó sin entregar video.');
+  }
+  if (hallado.b64) {
+    return guardarVideo(env, job, b64ABytes(hallado.b64));
+  }
+  if (hallado.uri) {
+    // La API de Gemini entrega un link que solo abre con la misma llave.
+    const headers = via === 'vertex'
+      ? { Authorization: `Bearer ${await tokenGoogle(env)}` }
+      : { 'x-goog-api-key': String(env.GEMINI_API_KEY).trim() };
+    const vres = await fetch(hallado.uri, { headers, redirect: 'follow', signal: AbortSignal.timeout(60000) });
+    if (!vres.ok || !vres.body) return job;
+    return guardarVideo(env, job, vres.body);
+  }
+  // gcsUri: solo pasa si algún día se pide storageUri. Hoy no se pide.
+  return marcarError(env, job, 'El video quedó en Cloud Storage y esta app no lee de ahí.');
+}
+
+async function refrescarFal(env, job) {
+  if (!viaFal(env)) return job;
+  const st = await falFetch(env, job.status_url, { method: 'GET' });
   const s = st.data && st.data.status;
   if (s === 'IN_QUEUE' || s === 'IN_PROGRESS') return job;
   if (s !== 'COMPLETED') {
     const msg = (st.data && (st.data.detail || st.data.error)) || `estado ${s || st.res.status}`;
-    await env.DB.prepare(`UPDATE mkt_video_jobs SET status='error', error=?, updated_at=${MKT_NOW}, finished_at=${MKT_NOW} WHERE id=?`).bind(String(msg).slice(0, 400), job.id).run();
-    return { ...job, status: 'error', error: String(msg) };
+    return marcarError(env, job, msg);
   }
-  let out;
-  try { out = await falFetch(env, job.response_url, { method: 'GET' }); }
-  catch { return job; }
+  const out = await falFetch(env, job.response_url, { method: 'GET' });
   const videoUrl = out.data && out.data.video && out.data.video.url;
-  if (!videoUrl) {
-    await env.DB.prepare(`UPDATE mkt_video_jobs SET status='error', error='El proveedor terminó sin entregar video.', updated_at=${MKT_NOW}, finished_at=${MKT_NOW} WHERE id=?`).bind(job.id).run();
-    return { ...job, status: 'error' };
-  }
-  // Bajar y guardar en R2. Los links de fal caducan: por eso se copia.
-  const key = `marketing/video-ia/${job.id}.mp4`;
+  if (!videoUrl) return marcarError(env, job, 'El proveedor terminó sin entregar video.');
   const vres = await fetch(videoUrl, { signal: AbortSignal.timeout(60000) });
   if (!vres.ok || !vres.body) return job;
-  await env.R2_BUCKET.put(key, vres.body, { httpMetadata: { contentType: 'video/mp4', cacheControl: 'private, max-age=86400' } });
-  await env.DB.prepare(`UPDATE mkt_video_jobs SET status='done', video_key=?, updated_at=${MKT_NOW}, finished_at=${MKT_NOW} WHERE id=?`).bind(key, job.id).run();
-  return { ...job, status: 'done', video_key: key };
+  return guardarVideo(env, job, vres.body);
 }
 
 export async function verJob(env, id) {
   let job = await env.DB.prepare('SELECT * FROM mkt_video_jobs WHERE id = ?').bind(id).first();
   if (!job) return json({ error: 'No existe ese video.' }, 404);
-  if (job.status === 'running' && configurado(env)) job = await refrescar(env, job);
+  if (job.status === 'running') job = await refrescar(env, job);
   return json({ ok: true, job: publico(job) });
 }
 
@@ -162,11 +460,10 @@ export async function listarJobs(env, url) {
   const rows = (await env.DB.prepare(
     'SELECT * FROM mkt_video_jobs WHERE client_id = ? ORDER BY created_at DESC LIMIT 60'
   ).bind(client_id).all()).results || [];
-  // Los que siguen corriendo se refrescan aquí mismo (máximo 6 por llamada).
   const out = [];
   let refrescados = 0;
   for (const j of rows) {
-    if (j.status === 'running' && refrescados < 6 && configurado(env)) { out.push(await refrescar(env, j)); refrescados++; }
+    if (j.status === 'running' && refrescados < 6) { out.push(await refrescar(env, j)); refrescados++; }
     else out.push(j);
   }
   const mes = new Date().toISOString().slice(0, 7);
@@ -213,9 +510,9 @@ export async function proponerEscena(request, env) {
   const hook = String(b.hook || '').slice(0, 600);
   const guion = String(b.guion || '').slice(0, 2000);
   const marca = String(b.marca || '').slice(0, 120);
-  const tier = b.tier === 'alta' ? 'alta' : 'rapido';
+  const cat = CATALOGO[String(b.tier || '')] || CATALOGO.economico;
   if (!hook && !guion) return json({ error: 'Pásame el hook o el guion de la pieza.' }, 400);
-  const reglas = tier === 'alta'
+  const reglas = cat.personas
     ? 'The clip may include ONE person (describe age, look, wardrobe, mood) and native ambient audio; no dialogue longer than a short line.'
     : 'B-roll only: NO people speaking, no close-up hands, no readable text or logos. Environments, objects, light, movement.';
   const sistema = `You write prompts for text-to-video models (Veo, Wan). Output STRICT JSON: {"prompt_en": string, "nota_es": string}.
