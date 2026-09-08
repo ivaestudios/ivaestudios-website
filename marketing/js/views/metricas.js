@@ -14,9 +14,9 @@
 // API no devuelva (sin comparativas, sin flechas, sin sparklines: no hay
 // histórico de seguidores — ver el reporte final de esta tanda).
 // ============================================================================
-import { api, el, clear, isClientRole } from '../api.js?v=202609080028';
-import { icon } from '../shell/icons.js?v=202609080028';
-import { T, isEN } from '../shell/i18n.js?v=202609080028';
+import { api, el, clear, isClientRole } from '../api.js?v=202609081202';
+import { icon } from '../shell/icons.js?v=202609081202';
+import { T, isEN } from '../shell/i18n.js?v=202609081202';
 
 const VIEW_ID = 'metricas';
 
@@ -188,7 +188,7 @@ function ensureCss() {
   // app.html, así que ningún bump global toca este sello. Si editas
   // metricas.css, sube este número A MANO o el cambio no llega (el SW sirve
   // cache-first todo lo que trae ?v=).
-  link.href = '/marketing/css/metricas.css?v=202609080028';
+  link.href = '/marketing/css/metricas.css?v=202609081202';
   document.head.appendChild(link);
 }
 
@@ -884,12 +884,19 @@ function buildHead(brand, res) {
     }));
   }
   const { from, to } = currentRange();
-  const dl = el('a', {
+  // Dos botones: la hoja vertical de siempre y la apaisada, que cabe más tabla.
+  // Los dos llevan imprimir=1 para que el diálogo de impresión salga solo.
+  const base = `/api/marketing/report?client_id=${encodeURIComponent(brand.id)}&from=${from}&to=${to}`;
+  const bajar = (orient, texto) => el('a', {
     class: 'btn mt-download', target: '_blank', rel: 'noopener',
-    href: `/api/marketing/report?client_id=${encodeURIComponent(brand.id)}&from=${from}&to=${to}`,
-  }, [icon('activity', 16), el('span', { class: 'mt-download__t', text: T('Reporte PDF', 'PDF report') })]);
+    href: base + (orient ? `&orientacion=${orient}` : '') + '&imprimir=1',
+  }, [icon('activity', 16), el('span', { class: 'mt-download__t', text: texto })]);
 
-  head.appendChild(el('div', { class: 'mt-ctrl' }, [chips, dl]));
+  head.appendChild(el('div', { class: 'mt-ctrl' }, [
+    chips,
+    bajar('', T('PDF vertical', 'PDF portrait')),
+    bajar('horizontal', T('PDF horizontal', 'PDF landscape')),
+  ]));
   return head;
 }
 

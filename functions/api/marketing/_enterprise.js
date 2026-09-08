@@ -549,6 +549,19 @@ export async function handleMonthlyReport(request, env, session, url, igFetcher 
   // siempre; el staff puede ver el borrador completo con ?include_hidden=1.
   const isClient = session.role === 'client';
   const includeHidden = !isClient && url.searchParams.get('include_hidden') === '1';
+  // Orientación de la hoja. Vianey pidió poder bajarlo en las dos.
+  // Vertical (Carta) es la de siempre; horizontal cabe más tabla por hoja.
+  const horizontal = String(url.searchParams.get('orientacion') || '') === 'horizontal';
+  // ?imprimir=1 abre el diálogo de impresión solo (lo usan los dos botones).
+  const autoImprimir = url.searchParams.get('imprimir') === '1';
+  // Arma el enlace a esta MISMA vista cambiando solo la orientación, y con
+  // imprimir=1 para que el diálogo se abra solo al llegar.
+  const pdfHref = (orient) => {
+    const q = new URLSearchParams(url.searchParams);
+    if (orient) q.set('orientacion', orient); else q.delete('orientacion');
+    q.set('imprimir', '1');
+    return `${url.pathname}?${q.toString()}`;
+  };
   const visClause = includeHidden ? '' : ' AND client_visible = 1';
   // SÓLO lo que la plantilla usa de verdad. `caption` es el copy del guion y
   // `title`/`approval_state` son de trabajo interno: no tienen por qué viajar.
@@ -1389,10 +1402,14 @@ body{font:400 15px/1.62 var(--f-ui);color:var(--ink-2);background:var(--paper-2)
   max-width:var(--page);margin:0 auto;padding:10px var(--gut);font-size:12px;color:var(--ink-3)}
 /* El botón va en --brand-ink (garantizado ≥4.5:1 contra blanco por el bucle
    de brandTokens), no en --brand crudo: blanco sobre ámbar mide 2.15:1. */
-.printbtn{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));
-  background:var(--brand-ink);color:#fff;border:0;border-radius:999px;
-  padding:13px 22px;font:700 14px/1 var(--f-ui);cursor:pointer;
-  box-shadow:0 8px 24px rgba(0,0,0,.20);z-index:20}
+.printbar{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));
+  display:flex;gap:8px;z-index:20;flex-wrap:wrap;justify-content:flex-end;max-width:calc(100vw - 32px)}
+.printbtn{background:var(--brand-ink);color:#fff;border:0;border-radius:999px;
+  padding:13px 22px;font:700 14px/1 var(--f-ui);cursor:pointer;text-decoration:none;
+  display:inline-block;box-shadow:0 8px 24px rgba(0,0,0,.20)}
+/* El que NO es la orientación actual va apagado: se ve que es la otra opción. */
+.printbtn--off{background:#fff;color:var(--brand-ink);box-shadow:0 8px 24px rgba(0,0,0,.14);
+  border:1.5px solid var(--brand-ink)}
 
 /* ── PORTADA ────────────────────────────────────────────────────────────
    El color va en un <svg> de PRIMER PLANO (rect), no en background: los
@@ -1627,7 +1644,7 @@ svg text.ghost{fill:none;stroke:var(--on-brand)}
    Carta (en México nadie imprime A4). Portada a sangre real vía @page :first.
    NO se promete pie corrido con position:fixed — no es fiable en Safari/iOS.
    En su lugar, folio por sección.                                          */
-@page{size:Letter portrait;margin:14mm 13mm 16mm}
+@page{size:Letter ${horizontal ? 'landscape' : 'portrait'};margin:${horizontal ? '12mm 14mm 14mm' : '14mm 13mm 16mm'}}
 @page :first{margin:0}
 @media print{
   html,body{background:#fff;print-color-adjust:exact;-webkit-print-color-adjust:exact}
@@ -1642,7 +1659,7 @@ svg text.ghost{fill:none;stroke:var(--on-brand)}
      box-sizing:border-box. NO subirlo apostando a @page :first{margin:0}:
      donde el selector de página se ignora (Safari/iOS, que es el 99% de
      estos clientes) la portada desborda y regala una hoja en blanco. */
-  .cover{min-height:246mm;break-after:page;padding:22mm 18mm}
+  .cover{min-height:${horizontal ? '186mm' : '246mm'};break-after:page;padding:${horizontal ? '16mm 22mm' : '22mm 18mm'}}
   /* Sólo 2 saltos forzados: la tabla y el pie. Más saltos = hojas medio vacías. */
   .sec--perf,.sec--foot{break-before:page}
   .sec__t,.sec__open{break-after:avoid}
@@ -1667,6 +1684,18 @@ svg text.ghost{fill:none;stroke:var(--on-brand)}
   .folio::after{content:counter(sec,decimal-leading-zero)}
   /* Hairlines: nada por debajo de .75pt sobrevive a la impresión. */
   .perf td,.perf th,.deliv__i,.next li{border-color:#d8d8e2}
+  ${horizontal ? `
+  /* Apaisado: la hoja mide 279mm de ancho, así que caben más columnas y la
+     tabla de rendimiento entra completa sin apretar la tipografía. */
+  .podium__rest,.deliv{grid-template-columns:repeat(4,1fr)}
+  .prizes{grid-template-columns:repeat(4,1fr)}
+  .gloss{columns:3}
+  .grid2{grid-template-columns:1fr 1fr}
+  .body,.micro,.chartcap,.kpi__read,.sec__dek,.podium__cap{max-width:78ch}
+  .perf{font-size:10pt}
+  .perf .cap{-webkit-line-clamp:2}
+  .bigms{grid-template-columns:repeat(4,1fr)}
+  ` : ''}
 }
 </style></head>
 <body>
@@ -1705,7 +1734,18 @@ ${sections.join('\n')}
 </footer>
 
 </div>
-<button class="printbtn noprint" onclick="window.print()">Imprimir / PDF</button>
+<div class="printbar noprint">
+  <a class="printbtn${horizontal ? ' printbtn--off' : ''}" href="${pdfHref('')}">PDF vertical</a>
+  <a class="printbtn${horizontal ? '' : ' printbtn--off'}" href="${pdfHref('horizontal')}">PDF horizontal</a>
+</div>
+${autoImprimir ? `<script>
+  // Se llegó con imprimir=1: se abre el diálogo solo y se limpia la dirección
+  // para que recargar no vuelva a dispararlo.
+  addEventListener('load', function () {
+    try { history.replaceState(null, '', location.pathname + location.search.replace(/[?&]imprimir=1/, '').replace(/^&/, '?')); } catch (e) {}
+    setTimeout(function () { window.print(); }, 400);
+  });
+</script>` : ''}
 </body></html>`;
 
   return new Response(html, {

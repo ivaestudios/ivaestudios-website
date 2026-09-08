@@ -6,13 +6,13 @@
 // el click en area vacia abren el quick-create del dia.
 // ============================================================================
 
-import { el } from '../api.js?v=202609080028';
-import { T } from '../shell/i18n.js?v=202609080028';
+import { el } from '../api.js?v=202609081202';
+import { T } from '../shell/i18n.js?v=202609081202';
 import {
   fmtYMD, addDays, startOfWeek, todayYMD, DOW_SHORT, buildPostCard,
-} from './data.js?v=202609080028';
-import { cardDraggable, openCardMenu, markDropTarget } from './dnd.js?v=202609080028';
-import { openQuickCreate } from './quickcreate.js?v=202609080028';
+} from './data.js?v=202609081202';
+import { cardDraggable, openCardMenu, markDropTarget } from './dnd.js?v=202609081202';
+import { openQuickCreate } from './quickcreate.js?v=202609081202';
 
 /**
  * Renderiza la semana dentro de `mainEl` (lo vacia primero).
