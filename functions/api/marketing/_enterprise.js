@@ -1687,7 +1687,10 @@ svg text.ghost{fill:none;stroke:var(--on-brand)}
   ${horizontal ? `
   /* Apaisado: la hoja mide 279mm de ancho, así que caben más columnas y la
      tabla de rendimiento entra completa sin apretar la tipografía. */
-  .podium__rest,.deliv{grid-template-columns:repeat(4,1fr)}
+  .podium__rest{grid-template-columns:repeat(4,1fr)}
+  /* Entregables a 3, no a 4: los nombres largos ('Carrusel sin título')
+     se parten y la columna queda ilegible. */
+  .deliv{grid-template-columns:repeat(3,1fr)}
   .prizes{grid-template-columns:repeat(4,1fr)}
   .gloss{columns:3}
   .grid2{grid-template-columns:1fr 1fr}

@@ -19,23 +19,23 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202609081202';
-import { setRoleDefault } from './theme.js?v=202609081202';
-import * as store from './store.js?v=202609081202';
-import * as prefs from './prefs.js?v=202609081202';
-import * as router from './router.js?v=202609081202';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202609081202';
-import { toast } from './toast.js?v=202609081202';
-import { icon } from './icons.js?v=202609081202';
-import * as iconsMod from './icons.js?v=202609081202';
-import { createTopbar } from './topbar.js?v=202609081202';
-import { createBottomNav } from './bottomnav.js?v=202609081202';
-import { createSearch } from './search.js?v=202609081202';
-import { createNotifications } from './notifications.js?v=202609081202';
-import { T } from './i18n.js?v=202609081202';
-import * as version from './version.js?v=202609081202';
-import * as pickers from '../ui/pickers.js?v=202609081202';
-import * as dnd from '../ui/dnd.js?v=202609081202';
+import { api, el, clear } from '../api.js?v=202609081206';
+import { setRoleDefault } from './theme.js?v=202609081206';
+import * as store from './store.js?v=202609081206';
+import * as prefs from './prefs.js?v=202609081206';
+import * as router from './router.js?v=202609081206';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202609081206';
+import { toast } from './toast.js?v=202609081206';
+import { icon } from './icons.js?v=202609081206';
+import * as iconsMod from './icons.js?v=202609081206';
+import { createTopbar } from './topbar.js?v=202609081206';
+import { createBottomNav } from './bottomnav.js?v=202609081206';
+import { createSearch } from './search.js?v=202609081206';
+import { createNotifications } from './notifications.js?v=202609081206';
+import { T } from './i18n.js?v=202609081206';
+import * as version from './version.js?v=202609081206';
+import * as pickers from '../ui/pickers.js?v=202609081206';
+import * as dnd from '../ui/dnd.js?v=202609081206';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
