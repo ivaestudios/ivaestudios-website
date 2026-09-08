@@ -10,17 +10,17 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202609081303';
-import * as store from './store.js?v=202609081303';
-import { openSheet, pickFrom } from './sheet.js?v=202609081303';
-import { toast } from './toast.js?v=202609081303';
-import { icon } from './icons.js?v=202609081303';
-import { openClientSwitcher } from './clientswitcher.js?v=202609081303';
-import { T, isEN, setLang } from './i18n.js?v=202609081303';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202609081310';
+import * as store from './store.js?v=202609081310';
+import { openSheet, pickFrom } from './sheet.js?v=202609081310';
+import { toast } from './toast.js?v=202609081310';
+import { icon } from './icons.js?v=202609081310';
+import { openClientSwitcher } from './clientswitcher.js?v=202609081310';
+import { T, isEN, setLang } from './i18n.js?v=202609081310';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202609081303';
-import { getTheme, setTheme } from './theme.js?v=202609081303';
-import * as version from './version.js?v=202609081303';
+import { abrirBloqueados } from './moderacion.js?v=202609081310';
+import { getTheme, setTheme } from './theme.js?v=202609081310';
+import * as version from './version.js?v=202609081310';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -40,6 +40,16 @@ const DESKTOP_TABS = [
   { id: 'metricas', label: T('Métricas', 'Metrics') },
   // Solo staff: el filtro de cliente de abajo es lista blanca y no la incluye.
   { id: 'conexiones', label: T('Conexiones', 'Connections') },
+];
+
+// Diez pestañas planas ya no cabían: "Video IA" se partía en dos renglones.
+// Se agrupan en cuatro menús. Un grupo que se quede con UNA sola vista visible
+// (le pasa al cliente) se pinta como pestaña normal, sin desplegable.
+const DESKTOP_GRUPOS = [
+  { id: 'g-inicio', label: T('Inicio', 'Home'), items: ['inicio'] },
+  { id: 'g-contenido', label: T('Contenido', 'Content'), items: ['meses', 'calendario', 'entregables', 'marca'] },
+  { id: 'g-crear', label: T('Crear', 'Create'), items: ['carrusel', 'video-ia', 'descargar'] },
+  { id: 'g-resultados', label: T('Resultados', 'Results'), items: ['metricas', 'conexiones'] },
 ];
 
 export function createTopbar({ root, router, selectClient, openSearch, openNotifications }) {
@@ -80,17 +90,59 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
   const visibleTabs = isClient
     ? DESKTOP_TABS.filter((t) => t.id === 'meses' || t.id === 'calendario' || t.id === 'entregables' || t.id === 'marca' || (t.id === 'metricas' && clientSeesMetrics) || (t.id === 'conexiones' && clientSeesConexiones))
     : DESKTOP_TABS;
-  for (const t of visibleTabs) {
-    const b = el('button', {
-      class: 'tb-tab', type: 'button', text: t.label,
-      onclick: () => {
-        const { activeClientId } = store.getState();
-        router.navigate(t.id, activeClientId ? { cliente: activeClientId } : {});
-      },
-    });
-    tabBtns.set(t.id, b);
-    tabsWrap.appendChild(b);
+  const irA = (id) => {
+    const { activeClientId } = store.getState();
+    router.navigate(id, activeClientId ? { cliente: activeClientId } : {});
+  };
+  const visibleIds = new Set(visibleTabs.map((t) => t.id));
+  const etiqueta = (id) => (DESKTOP_TABS.find((t) => t.id === id) || {}).label || id;
+  // Cada grupo abierto se apunta aquí para poder cerrarlo desde fuera.
+  const menus = [];
+  const cerrarMenus = (menos) => menus.forEach((m) => { if (m !== menos) m.cerrar(); });
+
+  for (const g of DESKTOP_GRUPOS) {
+    const dentro = g.items.filter((id) => visibleIds.has(id));
+    if (!dentro.length) continue;
+
+    if (dentro.length === 1) {                       // sin desplegable: no hay nada que elegir
+      const id = dentro[0];
+      const b = el('button', { class: 'tb-tab', type: 'button', text: etiqueta(id), onclick: () => irA(id) });
+      tabBtns.set(id, b);
+      tabsWrap.appendChild(b);
+      continue;
+    }
+
+    const panel = el('div', { class: 'tb-menu', role: 'menu', hidden: true });
+    const btn = el('button', {
+      class: 'tb-tab tb-tab--grupo', type: 'button',
+      'aria-haspopup': 'true', 'aria-expanded': 'false',
+    }, [el('span', { text: g.label }), icon('down', 15)]);
+    const caja = el('div', { class: 'tb-grupo' }, [btn, panel]);
+
+    const api = {
+      ids: dentro,
+      btn,
+      abierto: false,
+      cerrar() { if (!this.abierto) return; this.abierto = false; panel.hidden = true; btn.setAttribute('aria-expanded', 'false'); },
+      abrir() { cerrarMenus(this); this.abierto = true; panel.hidden = false; btn.setAttribute('aria-expanded', 'true'); },
+    };
+    menus.push(api);
+    btn.onclick = (ev) => { ev.stopPropagation(); api.abierto ? api.cerrar() : api.abrir(); };
+
+    for (const id of dentro) {
+      const item = el('button', {
+        class: 'tb-menu__i', type: 'button', role: 'menuitem', text: etiqueta(id),
+        onclick: () => { api.cerrar(); irA(id); },
+      });
+      tabBtns.set(id, item);
+      panel.appendChild(item);
+    }
+    tabsWrap.appendChild(caja);
   }
+
+  // Cerrar al tocar fuera o con Escape: si no, el menú se queda colgado.
+  document.addEventListener('click', () => cerrarMenus(null));
+  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') cerrarMenus(null); });
 
   const searchBtn = el('button', {
     class: 'tb-iconbtn', type: 'button', 'aria-label': T('Buscar', 'Search'),
@@ -198,6 +250,16 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
       const is = id === view;
       b.classList.toggle('is-active', is);
       if (is) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    }
+    // El botón del grupo se subraya cuando la vista abierta vive dentro de él,
+    // y de paso enseña en cuál está: "Crear · Video IA".
+    for (const m of menus) {
+      const dentro = m.ids.includes(view);
+      m.btn.classList.toggle('is-active', dentro);
+      const cual = m.btn.querySelector('.tb-tab__cual');
+      if (cual) cual.remove();
+      if (dentro) m.btn.insertBefore(el('span', { class: 'tb-tab__cual', text: `· ${etiqueta(view)}` }), m.btn.lastChild);
+      m.cerrar();
     }
   }
 

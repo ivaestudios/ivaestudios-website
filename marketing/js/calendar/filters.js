@@ -12,10 +12,10 @@ import {
   el,
   STATUSES, STATUS_ORDER,
   CONTENT_TYPES, CONTENT_TYPE_ORDER,
-} from '../api.js?v=202609081303';
-import { T } from '../shell/i18n.js?v=202609081303';
-import * as calState from './state.js?v=202609081303';
-import { parseFilters } from './data.js?v=202609081303';
+} from '../api.js?v=202609081310';
+import { T } from '../shell/i18n.js?v=202609081310';
+import * as calState from './state.js?v=202609081310';
+import { parseFilters } from './data.js?v=202609081310';
 
 // ── Controles del subhead (slot derecho) ─────────────────────────────────────
 /**

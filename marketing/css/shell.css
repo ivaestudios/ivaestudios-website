@@ -877,6 +877,33 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
     background: var(--grad);
   }
 
+  /* ── Menús desplegables de la barra ──────────────────────────────────────
+     Diez pestañas planas no cabían y "Video IA" se partía en dos renglones.
+     Ahora hay cuatro grupos; el abierto dice en cuál estás. */
+  .tb-grupo { position: relative; }
+  .tb-tab--grupo { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+  .tb-tab--grupo svg { opacity: .65; transition: transform var(--t-fast); }
+  .tb-tab--grupo[aria-expanded='true'] svg { transform: rotate(180deg); }
+  .tb-tab__cual { color: var(--text-dim); font-weight: 500; }
+  .tb-tab--grupo.is-active .tb-tab__cual { color: var(--text); }
+  .tb-menu {
+    position: absolute; top: calc(100% + 6px); left: 0; z-index: 60;
+    min-width: 190px; padding: 6px;
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--r-lg); box-shadow: 0 18px 46px rgba(0,0,0,.28);
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .tb-menu[hidden] { display: none; }
+  .tb-menu__i {
+    text-align: left; border: 0; background: none; cursor: pointer;
+    color: var(--text-dim); font: inherit; font-size: var(--fs-2); font-weight: 600;
+    padding: 10px 12px; border-radius: 9px; min-height: 40px;
+    transition: color var(--t-fast), background var(--t-fast);
+  }
+  .tb-menu__i:hover { color: var(--text); background: var(--surface-2); }
+  .tb-menu__i.is-active { color: var(--text); background: var(--surface-2); }
+  .tb-menu__i.is-active::after { content: none; }
+
   .tb-search { display: block; flex: 0 1 280px; min-height: 38px; cursor: pointer; }
   .tb-iconbtn[aria-label='Buscar'] { display: none; }
 
