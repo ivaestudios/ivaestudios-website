@@ -10,9 +10,9 @@
 // El precio de Google se cobra POR SEGUNDO, así que la duración cambia el
 // costo y por eso se enseña junta con la calidad, nunca escondida.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609081310';
-import { icon } from '../shell/icons.js?v=202609081310';
-import { T } from '../shell/i18n.js?v=202609081310';
+import { api, el, clear, toast } from '../api.js?v=202609081318';
+import { icon } from '../shell/icons.js?v=202609081318';
+import { T } from '../shell/i18n.js?v=202609081318';
 
 const VIEW_ID = 'video-ia';
 const MXN = 20; // tipo de cambio aproximado, solo para orientar
@@ -55,10 +55,14 @@ function segundosParaFrase(texto) {
   return { palabras, segundos: escalon, cabe: ideal <= 8 };
 }
 
+// Las duraciones largas NO se ajustan solas: la frase siempre cabe en los
+// primeros 8 s, lo demás es plano continuo y eso lo decide ella.
+function esLarga(sg) { return Number(sg) > 8; }
+
 // Ajusta la duración sola a lo que pide la frase y lo dice sin esconderlo.
 function ajustarSegundos(texto, { avisar = true } = {}) {
   const m = segundosParaFrase(texto);
-  if (!m || !autoSegundos) return;
+  if (!m || !autoSegundos || esLarga(segundos)) return;
   if (m.segundos !== segundos) {
     segundos = m.segundos;
     marcarSegundos();
@@ -83,7 +87,7 @@ function ensureCss() {
   const has = [...document.querySelectorAll('link[rel="stylesheet"]')].some((l) => (l.getAttribute('href') || '').includes('/marketing/css/video-ia.css'));
   if (has) return;
   const link = document.createElement('link'); link.rel = 'stylesheet';
-  link.href = '/marketing/css/video-ia.css?v=202609081310'; document.head.appendChild(link);
+  link.href = '/marketing/css/video-ia.css?v=202609081318'; document.head.appendChild(link);
 }
 
 async function cargar() {
@@ -287,7 +291,8 @@ function render() {
 
   // Duración: cambia el precio, así que va antes de los niveles.
   segundosRow = el('div', { class: 'via-segs' }, [el('span', { class: 'via-segs__lbl', text: T('Duración', 'Length') })]);
-  for (const sg of [4, 6, 8]) {
+  const opciones = (estado.catalogo[tierActual()] || {}).segundos || [4, 6, 8];
+  for (const sg of opciones) {
     const b = el('button', { class: 'via-seg' + (sg === segundos ? ' is-on' : ''), type: 'button', text: `${sg} s`, onclick: () => {
       segundos = sg; autoSegundos = false; // manda ella
       marcarSegundos(); refrescarPrecios();
@@ -298,6 +303,10 @@ function render() {
   form.appendChild(segundosRow);
   notaSegEl = el('p', { class: 'via-notaseg', hidden: true });
   form.appendChild(notaSegEl);
+  // Lo largo no es magia: hay que decir cómo se arma y cuánto tarda.
+  form.appendChild(el('p', { class: 'via-notalargo', text: T(
+    'Más de 8 segundos se arma solo: Google continúa el mismo plano de 7 en 7, sin corte. Tarda unos 3 minutos por tramo y la frase hablada va en los primeros 8 segundos.',
+    'Over 8 seconds is built automatically: Google continues the same shot 7 seconds at a time, with no cut. About 3 minutes per step, and the spoken line goes in the first 8 seconds.') }));
 
   const tiers = el('div', { class: 'via-tiers', role: 'radiogroup' });
   tierEls = {}; precioEls = {};

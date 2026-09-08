@@ -87,6 +87,18 @@ const SEGUNDOS_FAL = [5];
 // con mandar `video` dentro de la instancia y Veo entiende que es continuación.
 const ALARGAR_SEG = 7;
 const ALARGAR_MAX = 29; // Google no acepta videos de más de 30 s como entrada.
+// Lo que se le puede pedir de un tirón. Más de 8 s se arma encadenando solo.
+const SEGUNDOS_LARGOS = [4, 6, 8, 15, 22, 29];
+
+// Prompt de la continuación automática. Se guarda el original para que el
+// plano no cambie, y se le dice que YA NO HABLE: si no, Veo se inventa
+// diálogo nuevo en cada tramo y sale un galimatías.
+function promptSeguir(original) {
+  return 'Seamless continuation of the very same shot: same person, same wardrobe, same room, same '
+    + 'lighting and the same camera move, no cut. The person does NOT speak again and says nothing; '
+    + 'they simply continue the action naturally and hold their expression. '
+    + String(original || '').slice(0, 900);
+}
 
 // ---------------------------------------------------------------------------
 // Cuántos segundos pide una frase. Una persona dice unas 2.5 palabras por
@@ -322,7 +334,9 @@ export async function estado(env) {
     catalogo[k] = {
       label: c.label, sub: c.sub, modelo: c.modelo, proveedor: c.proveedor,
       usdSeg: c.usdSeg, audio: c.audio, personas: c.personas,
-      segundos: c.proveedor === 'google' ? SEGUNDOS_GOOGLE : SEGUNDOS_FAL,
+      segundos: c.proveedor === 'google'
+        ? (via === 'vertex' ? SEGUNDOS_LARGOS : SEGUNDOS_GOOGLE)
+        : SEGUNDOS_FAL,
       listo: disponible(env, k),
     };
   }
@@ -352,8 +366,12 @@ export async function crearJob(request, env, session) {
       ? 'Falta conectar Google en Cloudflare (GOOGLE_SA_JSON o GEMINI_API_KEY).'
       : 'Falta la llave de fal.ai (FAL_KEY) en Cloudflare.' }, 503);
   }
-  const permitidos = cat.proveedor === 'google' ? SEGUNDOS_GOOGLE : SEGUNDOS_FAL;
-  const seconds = permitidos.includes(Number(b.seconds)) ? Number(b.seconds) : permitidos[permitidos.length - 1];
+  const largo = cat.proveedor === 'google' && viaGoogle(env) === 'vertex';
+  const permitidos = cat.proveedor === 'google' ? (largo ? SEGUNDOS_LARGOS : SEGUNDOS_GOOGLE) : SEGUNDOS_FAL;
+  const pedido = permitidos.includes(Number(b.seconds)) ? Number(b.seconds) : 8;
+  // Veo solo genera hasta 8 s. Más largo se arranca en 8 y se encadena solo.
+  const objetivo = pedido > 8 ? pedido : null;
+  const seconds = objetivo ? 8 : pedido;
   if (prompt.length < 12) return json({ error: 'Describe la escena con un poco más de detalle.' }, 400);
   // 1500 se quedaba corto: un prompt de DIRECCIÓN de verdad (persona idéntica +
   // escena + cámara + frase + reglas + acabado) ronda los 1200 a 2000. Veo
@@ -364,12 +382,15 @@ export async function crearJob(request, env, session) {
 
   const via = cat.proveedor === 'google' ? viaGoogle(env) : 'fal';
   const modelo = cat.proveedor === 'google' ? (via === 'vertex' ? cat.vertex : cat.gemini) : cat.endpoint;
-  const costo = Number((cat.usdSeg * seconds).toFixed(4));
+  // Se cobra lo que de verdad se va a generar: los 8 s del arranque más 7 por
+  // cada tramo encadenado. Se anota entero desde el principio para que el gasto
+  // del mes no vaya subiendo a escondidas mientras el clip crece.
+  const costo = Number((cat.usdSeg * (objetivo || seconds)).toFixed(4));
   const id = nuevoId();
   await env.DB.prepare(
-    `INSERT INTO mkt_video_jobs (id, client_id, post_id, tier, model, prompt, aspect, seconds, status, provider, cost_usd, created_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'queued', ?, ?, ?)`
-  ).bind(id, client_id, post_id, tier, modelo, prompt, aspect, seconds, via, costo, session.email || null).run();
+    `INSERT INTO mkt_video_jobs (id, client_id, post_id, tier, model, prompt, aspect, seconds, status, provider, cost_usd, created_by, objetivo_seg)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'queued', ?, ?, ?, ?)`
+  ).bind(id, client_id, post_id, tier, modelo, prompt, aspect, seconds, via, costo, session.email || null, objetivo).run();
 
   const falla = async (msg) => {
     // cost_usd=0 por lo mismo: si no salió video, Google no lo cobra.
@@ -492,9 +513,44 @@ export async function alargarJob(request, env, session, id) {
 async function guardarVideo(env, job, bytesOrBody, tipo = 'video/mp4') {
   const key = `marketing/video-ia/${job.id}.mp4`;
   await env.R2_BUCKET.put(key, bytesOrBody, { httpMetadata: { contentType: tipo, cacheControl: 'private, max-age=86400' } });
+
+  // ¿Se pidió más largo? Veo devuelve el video COMPLETO en cada vuelta, así que
+  // el tramo recién guardado es el nuevo punto de partida. Se encadena sobre la
+  // MISMA fila hasta llegar al objetivo: 8 -> 15 -> 22 -> 29.
+  const objetivo = Number(job.objetivo_seg || 0);
+  const ahora = Number(job.seconds || 0);
+  if (objetivo > ahora && viaGoogle(env) === 'vertex') {
+    const seguido = await seguirClip(env, { ...job, video_key: key });
+    if (seguido) return seguido;
+    // Si la continuación no arrancó, se cierra con lo que ya hay: más vale un
+    // clip de 8 s bueno que una fila colgada para siempre.
+  }
+
   await env.DB.prepare(`UPDATE mkt_video_jobs SET status='done', video_key=?, updated_at=${MKT_NOW}, finished_at=${MKT_NOW} WHERE id=?`)
     .bind(key, job.id).run();
   return { ...job, status: 'done', video_key: key };
+}
+
+// Manda el video que ya existe de vuelta a Veo para que lo continúe 7 s más.
+// Devuelve el job actualizado, o null si no se pudo arrancar.
+async function seguirClip(env, job) {
+  const cat = CATALOGO[job.tier];
+  if (!cat || cat.proveedor !== 'google') return null;
+  const obj = await env.R2_BUCKET.get(job.video_key);
+  if (!obj) return null;
+  let videoB64;
+  try { videoB64 = bytesAB64(new Uint8Array(await obj.arrayBuffer())); } catch { return null; }
+  try {
+    const r = await googleFetch(env, urlArranque(env, cat),
+      cuerpoGoogle(env, cat, promptSeguir(job.prompt), job.aspect, ALARGAR_SEG, videoB64));
+    const operacion = r.data && r.data.name;
+    if (!r.res.ok || !operacion) return null;
+    const total = Math.min(Number(job.objetivo_seg || 0), Number(job.seconds || 0) + ALARGAR_SEG);
+    await env.DB.prepare(
+      `UPDATE mkt_video_jobs SET status='running', seconds=?, video_key=?, request_id=?, status_url=?, updated_at=${MKT_NOW} WHERE id=?`
+    ).bind(total, job.video_key, operacion, urlSondeo(env, cat, operacion), job.id).run();
+    return { ...job, status: 'running', seconds: total, request_id: operacion };
+  } catch { return null; }
 }
 
 async function marcarError(env, job, msg) {

@@ -74,3 +74,6 @@
   border-radius:0 0 var(--r-lg) var(--r-lg)}
 .via-tiers{padding-bottom:6px}
 .via-generar{width:100%}
+
+/* --- Aviso de cómo se arma lo que dura más de 8 s --- */
+.via-notalargo { margin: -4px 0 0; font-size: var(--fs-1); color: var(--text-dim); line-height: 1.45; }
