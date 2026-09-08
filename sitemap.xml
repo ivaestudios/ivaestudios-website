@@ -3,6 +3,26 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
 
   <url>
+    <loc>https://ivaestudios.com/cancun-photo-spots</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/cancun-photo-spots"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/lugares-sesion-fotos-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/cancun-photo-spots"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/lugares-sesion-fotos-cancun</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/cancun-photo-spots"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/lugares-sesion-fotos-cancun"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/cancun-photo-spots"/>
+  </url>
+
+  <url>
     <loc>https://ivaestudios.com/cancun-photographer-prices</loc>
     <lastmod>2026-09-08</lastmod>
     <changefreq>monthly</changefreq>
