@@ -10,9 +10,9 @@
 // El precio de Google se cobra POR SEGUNDO, así que la duración cambia el
 // costo y por eso se enseña junta con la calidad, nunca escondida.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609081502';
-import { icon } from '../shell/icons.js?v=202609081502';
-import { T } from '../shell/i18n.js?v=202609081502';
+import { api, el, clear, toast } from '../api.js?v=202609081518';
+import { icon } from '../shell/icons.js?v=202609081518';
+import { T } from '../shell/i18n.js?v=202609081518';
 
 const VIEW_ID = 'video-ia';
 const MXN = 20; // tipo de cambio aproximado, solo para orientar
@@ -87,7 +87,7 @@ function ensureCss() {
   const has = [...document.querySelectorAll('link[rel="stylesheet"]')].some((l) => (l.getAttribute('href') || '').includes('/marketing/css/video-ia.css'));
   if (has) return;
   const link = document.createElement('link'); link.rel = 'stylesheet';
-  link.href = '/marketing/css/video-ia.css?v=202609081502'; document.head.appendChild(link);
+  link.href = '/marketing/css/video-ia.css?v=202609081518'; document.head.appendChild(link);
 }
 
 async function cargar() {
@@ -105,6 +105,14 @@ function programarSondeo() {
   timer = setInterval(() => { if (jobs.some((j) => j.status === 'running' || j.status === 'queued')) cargar(); }, 6000);
 }
 
+// Nombre de cada bolsillo, para que se vea A QUIÉN le están cobrando.
+const BOLSILLOS = {
+  credito: () => T('con el crédito de Google', 'on the Google credit'),
+  tarjeta: () => T('a la tarjeta (Google)', 'to the card (Google)'),
+  openai: () => T('del saldo de OpenAI', 'from the OpenAI balance'),
+  fal: () => T('del saldo de fal.ai', 'from the fal.ai balance'),
+};
+
 function pintarGasto(g) {
   if (!gastoEl) return;
   clear(gastoEl);
@@ -112,6 +120,16 @@ function pintarGasto(g) {
   if (!g) return;
   gastoEl.appendChild(el('span', { text: `${cli ? cli.name : ''} · ${T('este mes', 'this month')}: ` }));
   gastoEl.appendChild(el('strong', { text: `${g.clips} ${T('clips', 'clips')} · ${usdTxt(g.usd || 0)}` }));
+  // Y el desglose: un total en dólares no dice de dónde salió el dinero.
+  const partes = Object.entries(g.por_bolsillo || {}).filter(([, v]) => v && v.usd > 0);
+  if (partes.length) {
+    const ul = el('div', { class: 'via-bolsillos' });
+    for (const [k, v] of partes.sort((a, b) => b[1].usd - a[1].usd)) {
+      const nombre = BOLSILLOS[k] ? BOLSILLOS[k]() : k;
+      ul.appendChild(el('span', { class: 'via-bolsillo', text: `${usdTxt(v.usd)} ${nombre}` }));
+    }
+    gastoEl.appendChild(ul);
+  }
 }
 
 function tarjeta(j) {

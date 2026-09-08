@@ -77,3 +77,9 @@
 
 /* --- Aviso de cómo se arma lo que dura más de 8 s --- */
 .via-notalargo { margin: -4px 0 0; font-size: var(--fs-1); color: var(--text-dim); line-height: 1.45; }
+
+/* --- De qué bolsillo salió cada peso --- */
+.via-bolsillos { display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: center; margin-top: 6px; }
+.via-bolsillo { font-size: var(--fs-1); color: var(--text-dim); }
+.via-bolsillo::before { content: '·'; margin-right: 6px; opacity: .5; }
+.via-bolsillo:first-child::before { content: none; }

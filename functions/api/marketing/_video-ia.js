@@ -848,10 +848,32 @@ export async function listarJobs(env, url) {
     else out.push(j);
   }
   const mes = new Date().toISOString().slice(0, 7);
-  const gasto = await env.DB.prepare(
-    `SELECT COUNT(*) n, COALESCE(SUM(cost_usd),0) usd FROM mkt_video_jobs WHERE client_id = ? AND status IN ('done','running') AND substr(created_at,1,7) = ?`
-  ).bind(client_id, mes).first();
-  return json({ ok: true, jobs: out.map(publico), gasto_mes: { clips: gasto.n, usd: Number(gasto.usd) } });
+  // El gasto se parte POR BOLSILLO. Antes salía un solo número en dólares que
+  // mezclaba el crédito de Google con la tarjeta de OpenAI, y no había forma de
+  // saber a quién le estaban cobrando.
+  const filas = (await env.DB.prepare(
+    `SELECT provider, COUNT(*) n, COALESCE(SUM(cost_usd),0) usd
+       FROM mkt_video_jobs
+      WHERE client_id = ? AND status IN ('done','running') AND substr(created_at,1,7) = ?
+      GROUP BY provider`
+  ).bind(client_id, mes).all()).results || [];
+  const BOLSILLO = {
+    vertex: 'credito',   // lo paga el crédito de 300 USD de Google
+    gemini: 'tarjeta',   // Google, pero a la tarjeta
+    sora: 'openai',      // el saldo de OpenAI
+    fal: 'fal',
+  };
+  const porBolsillo = {};
+  let clips = 0, usd = 0;
+  for (const f of filas) {
+    const b = BOLSILLO[f.provider] || f.provider || 'otro';
+    porBolsillo[b] = porBolsillo[b] || { clips: 0, usd: 0 };
+    porBolsillo[b].clips += Number(f.n || 0);
+    porBolsillo[b].usd = Number((porBolsillo[b].usd + Number(f.usd || 0)).toFixed(4));
+    clips += Number(f.n || 0);
+    usd = Number((usd + Number(f.usd || 0)).toFixed(4));
+  }
+  return json({ ok: true, jobs: out.map(publico), gasto_mes: { clips, usd, por_bolsillo: porBolsillo } });
 }
 
 export async function servirVideo(request, env, id) {
