@@ -645,7 +645,9 @@ export async function proponerEscena(request, env) {
       + `A line shorter than that makes the model stretch and repeat words; a longer one gets cut off mid-word. `
       + 'End the prompt with these two sentences, verbatim: The person says that line ONCE, at a '
       + 'natural conversational pace, without repeating any word. After the line the person stops '
-      + 'talking completely and simply holds the expression until the shot ends, saying nothing else.'
+      + 'talking completely and simply holds the expression until the shot ends, saying nothing else. '
+      + 'The person starts speaking within the first half second and the line runs almost to the end '
+      + 'of the shot: no dead air at the start, no long pause in the middle.'
     : 'B-roll only: NO people speaking, no close-up hands, no readable text or logos. Environments, objects, light, movement.';
   const sistema = `You write prompts for text-to-video models (Veo, Wan). Output STRICT JSON: {"prompt_en": string, "nota_es": string}.
 prompt_en: one paragraph, 60-110 words, in English, concrete and filmable: subject, setting, camera (shot size, movement), lighting, color palette, mood. Vertical 9:16. ${reglas} Never ask the model to render text, and always close with: The image fills the entire vertical frame edge to edge, with no subtitles, no caption bar and no black bars.
