@@ -10,15 +10,16 @@
 // El precio de Google se cobra POR SEGUNDO, así que la duración cambia el
 // costo y por eso se enseña junta con la calidad, nunca escondida.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609072351';
-import { icon } from '../shell/icons.js?v=202609072351';
-import { T } from '../shell/i18n.js?v=202609072351';
+import { api, el, clear, toast } from '../api.js?v=202609072357';
+import { icon } from '../shell/icons.js?v=202609072357';
+import { T } from '../shell/i18n.js?v=202609072357';
 
 const VIEW_ID = 'video-ia';
 const MXN = 20; // tipo de cambio aproximado, solo para orientar
 
 let rootEl = null, ctx = null, listEl = null, gastoEl = null, promptEl = null, notaEl = null;
-let tierEls = {}, precioEls = {}, segundosRow = null;
+let tierEls = {}, precioEls = {}, segundosRow = null, notaSegEl = null;
+let autoSegundos = true; // se apaga en cuanto ella toca un botón de duración
 let estado = { configurado: false, catalogo: {} };
 let segundos = 8;
 let jobs = [];
@@ -42,11 +43,47 @@ const piezasDelMes = () => {
     .sort((a, b) => String(a.publish_date).localeCompare(String(b.publish_date)));
 };
 
+// Cuántos segundos pide la frase entre comillas del prompt. Misma cuenta que el
+// servidor: 2.5 palabras por segundo más un respiro, subida al escalón de Veo.
+function segundosParaFrase(texto) {
+  const m = String(texto || '').match(/["\u201C\u201D']([^"\u201C\u201D']{8,400})["\u201C\u201D']/);
+  if (!m) return null;
+  const palabras = m[1].trim().split(/\s+/).filter(Boolean).length;
+  if (!palabras) return null;
+  const ideal = palabras / 2.5 + 1;
+  const escalon = [4, 6, 8].find((x) => x >= ideal) || 8;
+  return { palabras, segundos: escalon, cabe: ideal <= 8 };
+}
+
+// Ajusta la duración sola a lo que pide la frase y lo dice sin esconderlo.
+function ajustarSegundos(texto, { avisar = true } = {}) {
+  const m = segundosParaFrase(texto);
+  if (!m || !autoSegundos) return;
+  if (m.segundos !== segundos) {
+    segundos = m.segundos;
+    marcarSegundos();
+    refrescarPrecios();
+  }
+  if (avisar && notaSegEl) {
+    notaSegEl.textContent = m.cabe
+      ? T(`Ajustado solo: la frase tiene ${m.palabras} palabras y pide ${m.segundos} s.`,
+          `Set automatically: the line has ${m.palabras} words and needs ${m.segundos} s.`)
+      : T(`La frase tiene ${m.palabras} palabras y no cabe en 8 s, que es el máximo. Córtala o pártela en dos clips.`,
+          `The line has ${m.palabras} words and will not fit in 8 s. Shorten it or split it in two clips.`);
+    notaSegEl.hidden = false;
+  }
+}
+
+function marcarSegundos() {
+  if (!segundosRow) return;
+  [...segundosRow.querySelectorAll('.via-seg')].forEach((x) => x.classList.toggle('is-on', x.textContent === `${segundos} s`));
+}
+
 function ensureCss() {
   const has = [...document.querySelectorAll('link[rel="stylesheet"]')].some((l) => (l.getAttribute('href') || '').includes('/marketing/css/video-ia.css'));
   if (has) return;
   const link = document.createElement('link'); link.rel = 'stylesheet';
-  link.href = '/marketing/css/video-ia.css?v=202609072351'; document.head.appendChild(link);
+  link.href = '/marketing/css/video-ia.css?v=202609072357'; document.head.appendChild(link);
 }
 
 async function cargar() {
@@ -196,6 +233,8 @@ async function proponer(sel) {
     const t = tierActual();
     const r = await api.post('/video-ia/escena', { hook: p.hook || p.title, guion: p.body || '', marca: cli ? cli.name : '', tier: t, seconds: segundosDe(t) }, { timeout: 40000 });
     promptEl.value = r.prompt_en; notaEl.textContent = r.nota_es || '';
+    if (r.segundos && autoSegundos) { segundos = r.segundos; marcarSegundos(); refrescarPrecios(); }
+    ajustarSegundos(r.prompt_en);
   } catch (e) { notaEl.textContent = ''; toast(e.message, { type: 'error' }); }
   finally { promptEl.disabled = false; }
 }
@@ -237,21 +276,23 @@ function render() {
     ...piezas.map((p) => el('option', { value: p.id, text: `${String(p.publish_date || '').slice(5)} · ${p.title || ''}` }))]);
   const btnProp = el('button', { class: 'btn btn--ghost', type: 'button', onclick: () => proponer(sel) }, [icon('spark', 15), el('span', { text: T('Proponer escena', 'Suggest scene') })]);
   form.appendChild(el('div', { class: 'via-row' }, [sel, btnProp]));
-  promptEl = el('textarea', { class: 'via-prompt', rows: 5, placeholder: T('Ej. A 60-year-old man sits calmly in a bright clinic chair, IV pole softly out of focus behind him, warm morning light, slow push-in, beige and green palette. (En inglés sale mejor.)', 'e.g. A 60-year-old man sits calmly in a bright clinic chair…') });
+  promptEl = el('textarea', { class: 'via-prompt', rows: 5, oninput: () => ajustarSegundos(promptEl.value), placeholder: T('Ej. A 60-year-old man sits calmly in a bright clinic chair, IV pole softly out of focus behind him, warm morning light, slow push-in, beige and green palette. (En inglés sale mejor.)', 'e.g. A 60-year-old man sits calmly in a bright clinic chair…') });
   form.appendChild(promptEl);
   notaEl = el('p', { class: 'via-nota' }); form.appendChild(notaEl);
 
   // Duración: cambia el precio, así que va antes de los niveles.
   segundosRow = el('div', { class: 'via-segs' }, [el('span', { class: 'via-segs__lbl', text: T('Duración', 'Length') })]);
-  for (const s of [4, 6, 8]) {
-    const b = el('button', { class: 'via-seg' + (s === segundos ? ' is-on' : ''), type: 'button', text: `${s} s`, onclick: () => {
-      segundos = s;
-      [...segundosRow.querySelectorAll('.via-seg')].forEach((x) => x.classList.toggle('is-on', x.textContent === `${s} s`));
-      refrescarPrecios();
+  for (const sg of [4, 6, 8]) {
+    const b = el('button', { class: 'via-seg' + (sg === segundos ? ' is-on' : ''), type: 'button', text: `${sg} s`, onclick: () => {
+      segundos = sg; autoSegundos = false; // manda ella
+      marcarSegundos(); refrescarPrecios();
+      if (notaSegEl) { notaSegEl.textContent = T('Duración fija por ti.', 'Length set by you.'); notaSegEl.hidden = false; }
     } });
     segundosRow.appendChild(b);
   }
   form.appendChild(segundosRow);
+  notaSegEl = el('p', { class: 'via-notaseg', hidden: true });
+  form.appendChild(notaSegEl);
 
   const tiers = el('div', { class: 'via-tiers', role: 'radiogroup' });
   tierEls = {}; precioEls = {};
@@ -300,6 +341,6 @@ export default {
   unmount() {
     if (unsub) { try { unsub(); } catch { /* noop */ } unsub = null; }
     clearInterval(timer); timer = null; rootEl = null; listEl = null; gastoEl = null; promptEl = null; notaEl = null;
-    tierEls = {}; precioEls = {}; segundosRow = null; jobs = []; busy = false;
+    tierEls = {}; precioEls = {}; segundosRow = null; notaSegEl = null; autoSegundos = true; jobs = []; busy = false;
   },
 };

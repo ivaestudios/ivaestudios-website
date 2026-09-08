@@ -88,6 +88,22 @@ const SEGUNDOS_FAL = [5];
 const ALARGAR_SEG = 7;
 const ALARGAR_MAX = 29; // Google no acepta videos de más de 30 s como entrada.
 
+// ---------------------------------------------------------------------------
+// Cuántos segundos pide una frase. Una persona dice unas 2.5 palabras por
+// segundo; se le suma un respiro de ~1 s (entrada y salida del plano). Veo solo
+// acepta 4, 6 u 8, así que se sube al escalón que alcance.
+// Devuelve null si el prompt no trae diálogo entre comillas (b-roll).
+// ---------------------------------------------------------------------------
+export function segundosParaFrase(texto) {
+  const m = String(texto || '').match(/["“”']([^"“”']{8,400})["“”']/);
+  if (!m) return null;
+  const palabras = m[1].trim().split(/\s+/).filter(Boolean).length;
+  if (!palabras) return null;
+  const ideal = palabras / 2.5 + 1;
+  const escalon = SEGUNDOS_GOOGLE.find((x) => x >= ideal) || SEGUNDOS_GOOGLE[SEGUNDOS_GOOGLE.length - 1];
+  return { palabras, segundos: escalon, cabe: ideal <= SEGUNDOS_GOOGLE[SEGUNDOS_GOOGLE.length - 1] };
+}
+
 const MKT_NOW = "strftime('%Y-%m-%d %H:%M:%f','now')";
 
 function json(data, status = 200, headers = {}) {
@@ -646,7 +662,15 @@ nota_es: 1-2 sentences in Spanish telling the marketer what the clip shows and w
   const m = texto.match(/\{[\s\S]*\}/);
   try {
     const out = JSON.parse(m ? m[0] : texto);
-    return json({ ok: true, prompt_en: String(out.prompt_en || '').trim(), nota_es: String(out.nota_es || '').trim() });
+    const pen = String(out.prompt_en || '').trim();
+    // No se confía en que Claude respetara el largo: se MIDE la frase que
+    // realmente escribió y se devuelve la duración que de verdad le queda.
+    const medida = segundosParaFrase(pen);
+    return json({
+      ok: true, prompt_en: pen, nota_es: String(out.nota_es || '').trim(),
+      segundos: medida ? medida.segundos : null,
+      palabras: medida ? medida.palabras : null,
+    });
   } catch { return json({ error: 'Claude no devolvió una escena válida. Intenta de nuevo.' }, 502); }
 }
 

@@ -60,3 +60,7 @@
 .via-alargar__txt { width: 100%; box-sizing: border-box; background: var(--bg); color: var(--text); border: 1.5px solid var(--border); border-radius: var(--r-md); padding: 9px 11px; font: inherit; line-height: 1.4; resize: vertical; }
 .via-alargar__txt:focus { outline: none; border-color: var(--brand); box-shadow: var(--sh-glow); }
 .via-alargar__pie { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* --- Aviso de la duración que se calculó sola --- */
+.via-notaseg { margin: -2px 0 0; font-size: var(--fs-2); color: var(--brand); font-weight: 600; line-height: 1.4; }
+.via-notaseg[hidden] { display: none; }
