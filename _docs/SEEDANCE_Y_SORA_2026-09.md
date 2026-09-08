@@ -191,3 +191,69 @@ POST https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks
 GET  .../tasks/{id}  -> status queued|running|succeeded, content.video_url
 ```
 Cobra por TOKENS, no por segundo: un clip de 5 s en 1080p gastó 246,840 tokens.
+
+---
+
+## LA INVESTIGACIÓN SERIA DE PRECIOS (8-sep-2026, cifras oficiales)
+
+Cambié de opinión dos veces citando blogs. Esto sale de **las páginas de precios
+de cada proveedor**, y se comprobó con su propia fórmula.
+
+### La fórmula de BytePlus, textual de su tarifario
+
+```
+tokens        = (duración del video de entrada + duración de salida)
+                × ancho × alto × cuadros por segundo / 1024
+costo         = precio por millón de tokens × tokens
+```
+
+Aplicada a 720p vertical (720 × 1280 a 24 fps) da **21,600 tokens por segundo**
+de video. Multiplicando por su tarifa de $10.70 por millón, sale
+**$0.2311 por segundo**. Comprobé la fórmula contra sus tres cifras publicadas
+y coincide en las tres:
+
+| Lo que ellos publican | Lo que da la fórmula |
+|---|---|
+| 1080p 2.5 con descuento "approximately USD 0.41 per second" | **$0.41** |
+| 2.0 fast 720p "approximately USD 0.09 per second" | **$0.091** |
+| 2.0 mini 720p "approximately USD 0.03 per second" | **$0.030** |
+
+### El veredicto: para Seedance 2.5, Replicate cuesta EXACTAMENTE lo mismo
+
+| Seedance 2.5, sin video de entrada | BytePlus (fórmula) | Replicate (su tarifario) |
+|---|---|---|
+| 480p vertical | $0.1028/s | **$0.1028/s** |
+| 720p vertical | $0.2311/s | **$0.2312/s** |
+
+Coincide al cuarto decimal. **Replicate no le pone margen a Seedance 2.5.**
+Mi frase de que el directo costaba "la mitad" era falsa: esa franja de
+$0.09 a $0.21 mezclaba resoluciones distintas y modelos distintos.
+
+Y encima BytePlus pide, textual de la ficha de Seedance 2.5:
+> *"make sure you meet one of the following conditions: BytePlus account
+> balance > USD 30 …"*
+
+Más verificación de identidad. **Conclusión: Replicate, sin discusión.**
+
+### Donde Replicate SÍ cobra de más (por si algún día importa)
+
+| Modelo, 720p sin video | BytePlus | Replicate |
+|---|---|---|
+| Seedance 2.0 fast | $0.121 lista / $0.091 con descuento | $0.15 |
+| Seedance 2.0 mini | $0.076 lista / $0.030 con descuento | $0.09 |
+
+En la familia 2.0 sí hay margen, de un 24% sobre lista. Pero son modelos de
+menor calidad y los descuentos de BytePlus **vencen el 7 de octubre de 2026**.
+
+### La familia barata, por si el presupuesto aprieta
+
+Un clip de **30 segundos en 720p** cuesta, en Replicate:
+
+| Modelo | 30 s | En pesos |
+|---|---|---|
+| Seedance 2.5 | $6.94 | 139 |
+| Seedance 2.0 fast | $4.50 | 90 |
+| **Seedance 2.0 mini** | **$2.70** | **54** |
+
+El mini es la mitad de precio que el fast y una quinta parte del 2.5, con la
+calidad que corresponde a un modelo "mini".
