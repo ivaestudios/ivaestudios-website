@@ -13,11 +13,11 @@
 //   isSafeHttpUrl validacion: solo http/https via new URL (jamas javascript:)
 // ============================================================================
 
-import { el } from '../api.js?v=202609081236';
-import { T } from '../shell/i18n.js?v=202609081236';
-import { icon } from '../shell/icons.js?v=202609081236';
-import { openSheet } from '../shell/sheet.js?v=202609081236';
-import { textExpand } from '../ui/pickers.js?v=202609081236';
+import { el } from '../api.js?v=202609081247';
+import { T } from '../shell/i18n.js?v=202609081247';
+import { icon } from '../shell/icons.js?v=202609081247';
+import { openSheet } from '../shell/sheet.js?v=202609081247';
+import { textExpand } from '../ui/pickers.js?v=202609081247';
 
 // ── Validacion de URLs (regla dura: solo http/https) ─────────────────────────
 export function isSafeHttpUrl(value) {
