@@ -66,7 +66,11 @@
 .via-notaseg[hidden] { display: none; }
 
 /* --- El botón de generar, siempre a la vista --- */
-.via-generar-wrap{position:sticky;bottom:-1px;z-index:5;margin:2px -14px -14px;padding:12px 14px 14px;
-  background:linear-gradient(to top, var(--surface) 62%, color-mix(in srgb, var(--surface) 82%, transparent) 88%, transparent);
+/* Barra sólida, no degradado: flotando semitransparente se montaba encima del
+   tercer nivel y no se entendía. El hueco de abajo deja que el último nivel
+   pueda deslizarse por debajo sin quedar tapado para siempre. */
+.via-generar-wrap{position:sticky;bottom:-1px;z-index:5;margin:6px -14px -14px;padding:12px 14px 14px;
+  background:var(--surface);border-top:1.5px solid var(--border);
   border-radius:0 0 var(--r-lg) var(--r-lg)}
+.via-tiers{padding-bottom:6px}
 .via-generar{width:100%}
