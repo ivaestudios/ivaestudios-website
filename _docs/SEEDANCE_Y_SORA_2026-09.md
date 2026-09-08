@@ -257,3 +257,43 @@ Un clip de **30 segundos en 720p** cuesta, en Replicate:
 
 El mini es la mitad de precio que el fast y una quinta parte del 2.5, con la
 calidad que corresponde a un modelo "mini".
+
+---
+
+## LOS PAQUETES DE TOKENS: EL HUECO QUE FALTABA (8-sep-2026)
+
+Faltaba revisar los **resource packs** de BytePlus, por si ahí estaba el
+descuento del directo. **No lo hay.** Los paquetes están calculados con una
+"deduction ratio" que deja el precio final idéntico al de lista.
+
+Ejemplo con Seedance 2.5: el paquete de 5 millones de tokens cuesta $32, o sea
+$6.40 por millón. Pero sin video de entrada **se descuentan 1.671875 tokens del
+paquete por cada token consumido**. Resultado: $6.40 × 1.671875 = $10.70 por
+millón, que es exactamente la tarifa de lista.
+
+Y su propia documentación avisa:
+> *"Resource packs are prepaid products and are **not eligible** for the
+> pay-as-you-go limited-time discount promotion."*
+
+### Tabla final, 720p vertical, USD por segundo
+
+| Modelo | Paquete | Lista | Con promoción | Replicate |
+|---|---|---|---|---|
+| **Seedance 2.5** | 0.2311 | 0.2311 | 0.2311 | **0.2312** |
+| Seedance 2.0 | 0.1512 | 0.1512 | 0.1512 | no está |
+| Seedance 2.0 fast | 0.1210 | 0.1210 | **0.0907** | 0.1500 |
+| Seedance 2.0 mini | 0.0756 | 0.0756 | **0.0302** | 0.0900 |
+
+### Conclusión definitiva
+
+- **Para Seedance 2.5, ir directo no ahorra NADA.** Ni por pago por uso, ni por
+  paquete. Los tres caminos dan el mismo número.
+- El directo **solo** gana en la familia 2.0, y **solo por la promoción
+  vigente**, que vence el **7 de octubre de 2026**. Después de esa fecha el
+  ahorro contra Replicate baja a un 17%.
+- Un clip de 30 s en 720p, en pesos: 2.5 cuesta **139** por cualquier vía;
+  2.0 mini cuesta **18 directo con promoción** contra **54 en Replicate**.
+
+**Sigue ganando Replicate**, salvo que se quiera explotar la promoción del mini
+antes del 7 de octubre, y para eso hay que pasar por los 30 USD y la
+verificación de identidad.
