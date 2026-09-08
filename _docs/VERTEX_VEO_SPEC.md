@@ -47,22 +47,29 @@ Verificado en vivo: al pedir la llave JSON, la consola contesta
 
 > "La creación de claves de la cuenta de servicio está inhabilitada."
 
-Para levantarlo (lo tiene que hacer la dueña de la organización, no el asistente,
-porque es una configuración de seguridad):
+**Estado real medido el 7-sep-2026** (esto ahorra tiempo: la documentación
+sugiere apagar dos restricciones, pero en esta organización solo una estorba):
 
-1. IAM y administración → **Políticas de la organización**.
-2. En el selector de proyecto, elegir **la organización** (no el proyecto) y darse
-   a sí misma el rol **Administrador de políticas de la organización**
-   (`roles/orgpolicy.policyAdmin`). El dueño de una organización nueva trae
-   Organization Administrator, que solo LEE políticas, así que este paso es
-   obligatorio.
-3. Filtrar por `disableServiceAccountKeyCreation`. **Aparecen dos entradas** (la
-   antigua y la administrada) y hay que apagar **las dos**.
-4. En cada una: **Administrar política** → **Anular la política del elemento
-   superior** → Aplicación: **desactivada** → **Establecer política**.
-   Conviene hacerlo a nivel de PROYECTO, no de organización, para que el permiso
-   quede acotado a `project-079a5d99-32ca-410d-964`.
-5. Tarda hasta 15 minutos en propagarse.
+| Restricción | Estado en el proyecto |
+|---|---|
+| `iam.disableServiceAccountKeyCreation` (heredada, antigua) | **Aplicada** ← el bloqueo |
+| `iam.managed.disableServiceAccountKeyCreation` (administrada) | Inactiva |
+| `iam.managed.disableServiceAccountApiKeyCreation` | Activa (no estorbó) |
+
+Para levantarlo (lo tiene que hacer la dueña, no el asistente, porque es una
+configuración de seguridad):
+
+1. Abrir la página de la restricción, ya filtrada:
+   <https://console.cloud.google.com/iam-admin/orgpolicies/iam-disableServiceAccountKeyCreation?project=project-079a5d99-32ca-410d-964>
+2. **Administrar política** → **Anular la política del elemento superior** →
+   Aplicación: **desactivada** → **Establecer política**.
+   Queda acotado a este proyecto; la organización sigue protegida.
+3. Si el guardado se niega por permisos: IAM y administración → Políticas de la
+   organización, elegir **la organización** `vianeydm07-org` en el selector, y
+   darse el rol **Administrador de políticas de la organización**
+   (`roles/orgpolicy.policyAdmin`). El rol de Organization Administrator que ya
+   trae solo LEE políticas.
+4. Tarda hasta 15 minutos en propagarse.
 
 Después: cuenta de servicio → pestaña **Claves** → Agregar clave → Crear clave
 nueva → JSON. Ese archivo se pega íntegro como secreto `GOOGLE_SA_JSON` en

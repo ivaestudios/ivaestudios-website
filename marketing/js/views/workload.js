@@ -30,14 +30,14 @@
 import {
   api, el, clear,
   chip, statusBadge, avatar,
-} from '../api.js?v=202609072300';
-import { icon } from '../shell/icons.js?v=202609072300';
+} from '../api.js?v=202609072306';
+import { icon } from '../shell/icons.js?v=202609072306';
 import {
   toISO, parseISO, todayISO, addDays, addDaysISO, startOfWeek,
   fmtShort, MESES_CORTOS,
-} from '../lib/dates.js?v=202609072300';
-import { effortOf, DEFAULT_EFFORT } from '../lib/effort.js?v=202609072300';
-import { T } from '../shell/i18n.js?v=202609072300';
+} from '../lib/dates.js?v=202609072306';
+import { effortOf, DEFAULT_EFFORT } from '../lib/effort.js?v=202609072306';
+import { T } from '../shell/i18n.js?v=202609072306';
 
 const WEEKS_VISIBLE = 4;
 const SIN_KEY = '__sin_asignar__';

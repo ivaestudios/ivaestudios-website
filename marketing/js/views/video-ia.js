@@ -10,9 +10,9 @@
 // El precio de Google se cobra POR SEGUNDO, así que la duración cambia el
 // costo y por eso se enseña junta con la calidad, nunca escondida.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609072300';
-import { icon } from '../shell/icons.js?v=202609072300';
-import { T } from '../shell/i18n.js?v=202609072300';
+import { api, el, clear, toast } from '../api.js?v=202609072306';
+import { icon } from '../shell/icons.js?v=202609072306';
+import { T } from '../shell/i18n.js?v=202609072306';
 
 const VIEW_ID = 'video-ia';
 const MXN = 20; // tipo de cambio aproximado, solo para orientar
@@ -26,7 +26,10 @@ let timer = null;
 let busy = false;
 let unsub = null;
 
-const usdTxt = (u) => `$${Number(u).toFixed(2)} USD · ≈ ${Math.round(u * MXN)} pesos`;
+const usdTxt = (u) => {
+  const mx = Math.round(Number(u) * MXN);
+  return `$${Number(u).toFixed(2)} USD · ≈ ${mx} ${mx === 1 ? 'peso' : 'pesos'}`;
+};
 const clienteActivo = () => {
   const st = ctx.store.getState();
   return (st.clients || []).find((c) => c.id === st.activeClientId) || null;
@@ -43,7 +46,7 @@ function ensureCss() {
   const has = [...document.querySelectorAll('link[rel="stylesheet"]')].some((l) => (l.getAttribute('href') || '').includes('/marketing/css/video-ia.css'));
   if (has) return;
   const link = document.createElement('link'); link.rel = 'stylesheet';
-  link.href = '/marketing/css/video-ia.css?v=202609072300'; document.head.appendChild(link);
+  link.href = '/marketing/css/video-ia.css?v=202609072306'; document.head.appendChild(link);
 }
 
 async function cargar() {

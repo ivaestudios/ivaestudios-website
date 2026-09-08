@@ -9,17 +9,18 @@
 .via-aviso { background: color-mix(in srgb, var(--brand) 10%, var(--surface)); border: 1.5px solid var(--brand); border-radius: var(--r-lg); padding: 12px 14px; margin-bottom: 12px; font-size: var(--fs-3); }
 .via-aviso p { margin: 6px 0 0; color: var(--text-dim); line-height: 1.45; }
 .via-gasto { font-size: var(--fs-2); color: var(--text-dim); text-align: center; margin-bottom: 14px; }
-.via-form { display: grid; gap: 10px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-lg); padding: 14px; }
-.via-row { display: flex; gap: 8px; align-items: center; }
-.via-select { flex: 1 1 auto; min-width: 0; background: var(--bg); color: var(--text); border: 1.5px solid var(--border); border-radius: var(--r-md); padding: 10px 12px; font: inherit; }
+.via-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-lg); padding: 14px; }
+.via-row { display: flex; gap: 8px; align-items: center; min-width: 0; }
+.via-row > * { min-width: 0; }
+.via-select { flex: 1 1 auto; min-width: 0; max-width: 100%; background: var(--bg); color: var(--text); border: 1.5px solid var(--border); border-radius: var(--r-md); padding: 10px 12px; font: inherit; }
 .via-prompt { width: 100%; box-sizing: border-box; background: var(--bg); color: var(--text); border: 1.5px solid var(--border); border-radius: var(--r-md); padding: 10px 12px; font: inherit; line-height: 1.45; resize: vertical; }
 .via-prompt:focus { outline: none; border-color: var(--brand); box-shadow: var(--sh-glow); }
 .via-nota { margin: 0; font-size: var(--fs-2); color: var(--text-dim); min-height: 1.2em; }
-.via-tiers { display: grid; gap: 8px; }
+.via-tiers { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
 .via-tier { display: flex; gap: 10px; align-items: flex-start; border: 1.5px solid var(--border); border-radius: var(--r-md); padding: 10px 12px; cursor: pointer; }
 .via-tier:has(input:checked) { border-color: var(--brand); box-shadow: var(--sh-glow); }
 .via-tier input { margin-top: 3px; accent-color: var(--brand); }
-.via-tier__body { display: grid; gap: 2px; font-size: var(--fs-3); }
+.via-tier__body { display: grid; gap: 2px; font-size: var(--fs-3); min-width: 0; overflow-wrap: anywhere; }
 .via-tier__sub { color: var(--text-dim); font-size: var(--fs-2); }
 .via-tier__precio { color: var(--brand); font-weight: 700; font-size: var(--fs-2); }
 .via-generar { justify-self: stretch; }
@@ -40,7 +41,7 @@
 @media (min-width: 720px) { .via-lista { grid-template-columns: 1fr 1fr; } }
 
 /* --- Duración (cambia el precio, por eso se ve junto a los niveles) --- */
-.via-segs { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.via-segs { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
 .via-segs[hidden] { display: none; }
 .via-segs__lbl { font-size: var(--fs-2); color: var(--text-dim); font-weight: 700; }
 .via-seg { background: var(--bg); color: var(--text); border: 1.5px solid var(--border); border-radius: 999px; padding: 6px 14px; font: inherit; font-weight: 700; font-size: var(--fs-2); cursor: pointer; }
