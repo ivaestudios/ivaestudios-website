@@ -297,3 +297,23 @@ Y su propia documentación avisa:
 **Sigue ganando Replicate**, salvo que se quiera explotar la promoción del mini
 antes del 7 de octubre, y para eso hay que pasar por los 30 USD y la
 verificación de identidad.
+
+---
+
+## LOS TOKENS DE REGALO NO ABREN SEEDANCE (8-sep-2026)
+
+Último cabo suelto. BytePlus **sí** regala tokens a los nuevos, pero son
+**500 mil por modelo**, no los 2 millones que repiten los blogs, y **no
+desbloquean Seedance**.
+
+Textual de "Activate, use, and cancel Dreamina Seedance 2.5 and 2.0 series":
+> *"You can activate Seedance 2.5, Seedance 2.0, Seedance 2.0 mini, and
+> Seedance 2.0 fast by meeting **any of the following requirements**: Credits
+> reach USD 30 … AI Savings Plan of USD 30 or more … Resource pack worth
+> USD 30 or more."*
+
+Los tres caminos piden **30 dólares**. No existe una vía gratis a Seedance en
+BytePlus. En Replicate se paga por uso, sin mínimo.
+
+**CIERRE DEFINITIVO: Replicate.** Mismo precio en Seedance 2.5, sin adelantar
+600 pesos, sin verificación de identidad y sin caducidad de saldo.
