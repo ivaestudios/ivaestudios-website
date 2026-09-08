@@ -355,7 +355,10 @@ export async function crearJob(request, env, session) {
   const permitidos = cat.proveedor === 'google' ? SEGUNDOS_GOOGLE : SEGUNDOS_FAL;
   const seconds = permitidos.includes(Number(b.seconds)) ? Number(b.seconds) : permitidos[permitidos.length - 1];
   if (prompt.length < 12) return json({ error: 'Describe la escena con un poco más de detalle.' }, 400);
-  if (prompt.length > 1500) return json({ error: 'La descripción es demasiado larga (máximo 1500 caracteres).' }, 400);
+  // 1500 se quedaba corto: un prompt de DIRECCIÓN de verdad (persona idéntica +
+  // escena + cámara + frase + reglas + acabado) ronda los 1200 a 2000. Veo
+  // acepta mucho más; el tope solo está para que nada se dispare.
+  if (prompt.length > 3000) return json({ error: 'La descripción es demasiado larga (máximo 3000 caracteres).' }, 400);
   const cli = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(client_id).first();
   if (!cli) return json({ error: 'Marca no encontrada.' }, 404);
 
