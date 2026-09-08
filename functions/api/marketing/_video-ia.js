@@ -525,11 +525,22 @@ async function guardarVideo(env, job, bytesOrBody, tipo = 'video/mp4') {
   const key = `marketing/video-ia/${job.id}.mp4`;
   await env.R2_BUCKET.put(key, bytesOrBody, { httpMetadata: { contentType: tipo, cacheControl: 'private, max-age=86400' } });
 
-  // ¿Se pidió más largo? Veo devuelve el video COMPLETO en cada vuelta, así que
-  // el tramo recién guardado es el nuevo punto de partida. Se encadena sobre la
-  // MISMA fila hasta llegar al objetivo: 8 -> 15 -> 22 -> 29.
+  // `seconds` SIEMPRE es lo que de verdad hay en R2, nunca lo que se espera.
+  // (Antes se subía al ARRANCAR cada tramo: si el tramo moría, la fila decía
+  // 15 s con un archivo de 8 y el rescate salía mal.) Si ya había video, esto
+  // es una continuación y el clip acaba de crecer 7 s.
   const objetivo = Number(job.objetivo_seg || 0);
-  const ahora = Number(job.seconds || 0);
+  const ahora = job.video_key
+    ? Math.min(objetivo || 9999, Number(job.seconds || 0) + ALARGAR_SEG)
+    : Number(job.seconds || 0);
+  if (ahora !== Number(job.seconds || 0)) {
+    await env.DB.prepare('UPDATE mkt_video_jobs SET seconds=? WHERE id=?').bind(ahora, job.id).run();
+    job = { ...job, seconds: ahora };
+  }
+
+  // ¿Falta camino? Veo devuelve el video COMPLETO en cada vuelta, así que el
+  // tramo recién guardado es el nuevo punto de partida. Se encadena sobre la
+  // MISMA fila hasta llegar al objetivo: 8 -> 15 -> 22 -> 29.
   if (objetivo > ahora && viaGoogle(env) === 'vertex') {
     const seguido = await seguirClip(env, { ...job, video_key: key });
     if (seguido) return seguido;
@@ -556,15 +567,28 @@ async function seguirClip(env, job) {
       cuerpoGoogle(env, cat, promptSeguir(job.prompt), job.aspect, ALARGAR_SEG, videoB64));
     const operacion = r.data && r.data.name;
     if (!r.res.ok || !operacion) return null;
-    const total = Math.min(Number(job.objetivo_seg || 0), Number(job.seconds || 0) + ALARGAR_SEG);
+    // NO se toca `seconds`: sube cuando el video llegue, no cuando se pide.
     await env.DB.prepare(
-      `UPDATE mkt_video_jobs SET status='running', seconds=?, video_key=?, request_id=?, status_url=?, updated_at=${MKT_NOW} WHERE id=?`
-    ).bind(total, job.video_key, operacion, urlSondeo(env, cat, operacion), job.id).run();
-    return { ...job, status: 'running', seconds: total, request_id: operacion };
+      `UPDATE mkt_video_jobs SET status='running', video_key=?, request_id=?, status_url=?, updated_at=${MKT_NOW} WHERE id=?`
+    ).bind(job.video_key, operacion, urlSondeo(env, cat, operacion), job.id).run();
+    return { ...job, status: 'running', request_id: operacion };
   } catch { return null; }
 }
 
 async function marcarError(env, job, msg) {
+  // ¿Ya había video guardado? Entonces esto NO es un fracaso: es una cadena de
+  // continuaciones que se cortó a medio camino (le pasó a un clip de 22 s que
+  // murió en el tercer tramo con los 15 primeros ya listos). Se cierra con lo
+  // que hay y se cobra solo eso, en vez de tirar a la basura un video bueno.
+  if (job.video_key) {
+    const cat = CATALOGO[job.tier];
+    const real = Number(job.seconds || 0);
+    const costo = cat && cat.usdSeg ? Number((cat.usdSeg * real).toFixed(4)) : Number(job.cost_usd || 0);
+    await env.DB.prepare(
+      `UPDATE mkt_video_jobs SET status='done', objetivo_seg=NULL, cost_usd=?, error=NULL, updated_at=${MKT_NOW}, finished_at=${MKT_NOW} WHERE id=?`
+    ).bind(costo, job.id).run();
+    return { ...job, status: 'done', objetivo_seg: null, cost_usd: costo, error: null };
+  }
   // El costo se pone en 0: Google solo cobra los videos que SÍ salen
   // ("You will only be charged if your video is successfully generated"),
   // así que un clip fallido no debe ensuciar el gasto de la marca.
