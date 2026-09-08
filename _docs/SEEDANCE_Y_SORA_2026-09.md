@@ -105,3 +105,24 @@ GET  https://api.openai.com/v1/videos/:id/content    -> el MP4 en binario
 - **Solo si algún día hace falta un plano de 30 segundos de un golpe**:
   Seedance, sabiendo que cuesta unos 139 pesos y que hay que entrar por
   Replicate.
+
+---
+
+## ¿De quién son estos precios? (importa)
+
+| Modelo | Quién cobra | ¿Es tarifa del fabricante? |
+|---|---|---|
+| **Veo 3.1** | Google, por Vertex AI | **Sí, directo.** Hoy lo paga el crédito de $300 |
+| **Sora 2** | OpenAI | **Sí, directo.** Pago por uso, sin membresía |
+| **Seedance 2.5** | Replicate, fal.ai, WaveSpeed | **NO.** Son revendedores |
+
+ByteDance directo (BytePlus ModelArk) cobra **$0.09 a $0.21 por segundo**, o sea
+casi la mitad que los revendedores que cité. Y **México SÍ aparece** en su lista
+de países disponibles, al contrario de lo que dicen varios blogs: la exclusión de
+Estados Unidos, Canadá, Reino Unido, Australia y Nueva Zelanda que circula por
+ahí aplica a los "Restricted Models", y no está confirmado que Seedance 2.5 sea
+uno de ellos para México.
+
+**Qué significa:** los números de Veo y Sora son firmes, se le pagan al que
+fabrica el modelo. Los de Seedance traen intermediario y podrían bajar bastante
+yendo directo, con el trabajo extra de dar de alta una cuenta de BytePlus.
