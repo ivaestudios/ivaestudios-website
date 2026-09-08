@@ -1,0 +1,159 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   PREGUNTAS FRECUENTES · acordeón · 2026-09-07
+   Vive en 6 páginas (guía de vestuario EN/ES, índice del diario EN/ES,
+   prensa EN/ES) y venía roto de dos maneras distintas:
+
+   · En las 4 páginas SIN blog.css salía como un muro de texto: las cinco
+     respuestas abiertas de golpe, 1,624px de alto, todo en Syne negrita,
+     sin filetes ni aire. Nadie lee eso.
+   · En las 2 páginas de prensa, blog.css SÍ colapsaba las respuestas
+     (`max-height:0; overflow:hidden`) pero **no existe el JS que las
+     abra**: tocar la pregunta no hacía nada y esas respuestas eran
+     INALCANZABLES. Además su tope de 300px habría recortado respuestas
+     que aquí pasan de 600 caracteres.
+
+   Por eso el acordeón es <details>/<summary> NATIVO: abre y cierra sin
+   una línea de JavaScript, responde al teclado y a los lectores de
+   pantalla sin ARIA a mano, no puede quedar "colapsado para siempre" si
+   un script falla, y Google indexa lo de dentro igual que si estuviera
+   abierto. Todo va bajo #faq-visible para ganarle a blog.css sin
+   importar el orden de carga.
+
+   Voz: Cormorant Garamond para lo que se lee, Syne solo para etiquetas.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+#faq-visible {
+  --faq-oro: var(--gold, #c4a35a);
+  --faq-crema: var(--cream, #f9f8f7);
+  --faq-filete: rgba(196, 163, 90, 0.20);
+}
+
+/* ── Cabecera de la sección ───────────────────────────────────────── */
+#faq-visible > h2 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(28px, 7.5vw, 38px);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  color: var(--faq-crema);
+  margin: 0 0 6px;
+}
+/* Un filete corto en dorado bajo el titular: la misma firma que llevan
+   los cabezales del resto del sitio. */
+#faq-visible > h2::after {
+  content: '';
+  display: block;
+  width: 42px;
+  height: 1px;
+  margin: 18px 0 26px;
+  background: var(--faq-oro);
+}
+
+/* ── Cada pregunta ────────────────────────────────────────────────── */
+#faq-visible .faq-item {
+  border: 0;
+  border-top: 1px solid var(--faq-filete);
+  padding: 0;
+  margin: 0;
+}
+#faq-visible .faq-item:last-of-type {
+  border-bottom: 1px solid var(--faq-filete);
+}
+
+/* El triángulo nativo estorba: el signo + de la derecha es la señal. */
+#faq-visible .faq-q {
+  list-style: none;
+  cursor: pointer;
+  position: relative;
+  display: block;
+  /* 60px de alto: el dedo acierta sin apuntar */
+  min-height: 60px;
+  padding: 19px 46px 19px 0;
+  margin: 0;
+  max-height: none;
+  overflow: visible;
+  transition: color .25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+#faq-visible .faq-q::-webkit-details-marker { display: none; }
+#faq-visible .faq-q::marker { content: ''; }
+
+/* El <h3> se conserva dentro del <summary> para no perder la jerarquía
+   de encabezados, pero se comporta como texto en línea. */
+#faq-visible .faq-q h3 {
+  display: inline;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(18px, 4.8vw, 20px);
+  line-height: 1.34;
+  letter-spacing: 0;
+  color: var(--faq-crema);
+  margin: 0;
+  text-transform: none;
+}
+/* La pregunta abierta se queda en dorado A PROPÓSITO: de un vistazo se ve
+   cuál está desplegada sin tener que buscar el signo. */
+#faq-visible .faq-item[open] .faq-q h3,
+#faq-visible .faq-q:focus-visible h3 { color: var(--faq-oro); }
+/* El resaltado al pasar por encima solo donde hay puntero de verdad: en
+   una pantalla táctil el :hover se queda PEGADO después de tocar y deja
+   preguntas en dorado que ya se cerraron. */
+@media (hover: hover) and (pointer: fine) {
+  #faq-visible .faq-item:hover .faq-q h3 { color: var(--faq-oro); }
+}
+
+/* El signo, en dorado, girando 45° hasta volverse una × al abrir */
+#faq-visible .faq-q::after {
+  content: '+';
+  position: absolute;
+  right: 2px;
+  top: 50%;
+  font-family: 'Syne', system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--faq-oro);
+  transform: translateY(-50%) rotate(0deg);
+  transform-origin: 50% 50%;
+  transition: transform .3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#faq-visible .faq-item[open] .faq-q::after {
+  transform: translateY(-50%) rotate(45deg);
+}
+
+#faq-visible .faq-q:focus-visible {
+  outline: 2px solid var(--faq-oro);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ── La respuesta ─────────────────────────────────────────────────── */
+#faq-visible .faq-a {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(16px, 4.2vw, 17px);
+  line-height: 1.74;
+  letter-spacing: 0.005em;
+  color: rgba(249, 248, 247, 0.74);
+  /* blog.css la dejaba en max-height:0 esperando un JS que no existe */
+  max-height: none;
+  overflow: visible;
+  margin: 0;
+  padding: 0 34px 24px 0;
+  animation: faqAbrir .3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes faqAbrir {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #faq-visible .faq-a { animation: none; }
+  #faq-visible .faq-q::after { transition: none; }
+}
+
+/* En pantalla ancha la columna se estrecha para no pasar de ~72 signos
+   por renglón, que es donde el ojo deja de saltar de línea. */
+@media (min-width: 900px) {
+  #faq-visible .faq-q { padding: 22px 52px 22px 0; }
+  #faq-visible .faq-a { max-width: 68ch; padding-bottom: 28px; }
+}
