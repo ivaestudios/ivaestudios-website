@@ -219,7 +219,8 @@ function urlArranque(env, cat) {
 // Veo cuando la frase hablada es corta para los segundos pedidos: estira y
 // repite palabras ("our physicians in Cancun, in Cancun, review your case").
 const NO_QUIERO = 'repeated words, stuttering, duplicated dialogue, echo, '
-  + 'looped speech, mumbling, subtitles, captions, on-screen text, watermark, '
+  + 'looped speech, mumbling, subtitles, captions, closed captions, subtitle bar, '
+  + 'lower third, letterboxing, black bars, on-screen text, watermark, timecode, '
   + 'logo, distorted face, extra fingers';
 
 function cuerpoGoogle(env, cat, prompt, aspect, seconds, videoB64) {
@@ -642,10 +643,12 @@ export async function proponerEscena(request, env) {
       + `It must contain EXACTLY ONE spoken line, written inside double quotes, of about ${palabras} words `
       + `(never fewer than ${Math.max(5, palabras - 3)}, never more than ${palabras + 3}). `
       + `A line shorter than that makes the model stretch and repeat words; a longer one gets cut off mid-word. `
-      + `End the prompt with: He says the line once, at a natural conversational pace, without repeating any word.`
+      + 'End the prompt with these two sentences, verbatim: The person says that line ONCE, at a '
+      + 'natural conversational pace, without repeating any word. After the line the person stops '
+      + 'talking completely and simply holds the expression until the shot ends, saying nothing else.'
     : 'B-roll only: NO people speaking, no close-up hands, no readable text or logos. Environments, objects, light, movement.';
   const sistema = `You write prompts for text-to-video models (Veo, Wan). Output STRICT JSON: {"prompt_en": string, "nota_es": string}.
-prompt_en: one paragraph, 60-110 words, in English, concrete and filmable: subject, setting, camera (shot size, movement), lighting, color palette, mood. Vertical 9:16. ${reglas} Never ask the model to render text.
+prompt_en: one paragraph, 60-110 words, in English, concrete and filmable: subject, setting, camera (shot size, movement), lighting, color palette, mood. Vertical 9:16. ${reglas} Never ask the model to render text, and always close with: The image fills the entire vertical frame edge to edge, with no subtitles, no caption bar and no black bars.
 nota_es: 1-2 sentences in Spanish telling the marketer what the clip shows and why it fits the piece.`;
   const usuario = `Brand: ${marca || 'n/a'}\nHook: ${hook}\nScript: ${guion}`;
   let res, data;
