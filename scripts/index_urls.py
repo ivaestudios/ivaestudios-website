@@ -17,6 +17,7 @@ Quota: Google Indexing API allows 200 notifications/day per project.
 import argparse
 import json
 import os
+import subprocess
 import sys
 import warnings
 
@@ -124,6 +125,19 @@ def collect_from_push_event():
     files = []
     for c in event.get("commits", []):
         files += c.get("added", []) + c.get("modified", [])
+    hc = event.get("head_commit") or {}
+    files += hc.get("added", []) + hc.get("modified", [])
+    if not files:
+        # El payload del push no siempre trae added/modified (pushes grandes,
+        # o commits que Actions no expande). Se cae al diff de git, que si es
+        # fiable. Requiere fetch-depth >= 2 en el checkout.
+        try:
+            r = subprocess.run(["git", "diff", "--name-only", "HEAD~1", "HEAD"],
+                               capture_output=True, text=True, timeout=60)
+            files = [ln.strip() for ln in r.stdout.splitlines() if ln.strip()]
+            print(f"  (payload sin archivos; git diff dio {len(files)})")
+        except Exception as e:
+            print(f"  (git diff no disponible: {e})")
     urls, seen = [], set()
     for p in files:
         if not p.endswith(".html") or p.startswith(("gallery/", "marketing/", "tools/", "seo/", "_")):
@@ -133,6 +147,7 @@ def collect_from_push_event():
         if u not in seen:
             seen.add(u)
             urls.append(u)
+    print(f"  push: {len(files)} archivos cambiados, {len(urls)} URLs publicas")
     return urls[:50]  # tope anti-quema de cuota
 
 
