@@ -46,6 +46,7 @@
 // 404 ("No disponible") and everything legacy keeps working.
 
 import { handleDashboard } from './_dashboard.js';
+import { handleVideoIa } from './_video-ia.js';
 import { handleStorage, refreshStorageUsage } from './_storage.js';
 import { handleMonthlyReport } from './_enterprise.js';
 import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHeadersFor, buscarPinterest, fotosDePin } from './_downloader.js';
@@ -5398,6 +5399,12 @@ async function route(request, env, authCtx) {
   if (parts[0] === 'activity' && parts.length === 1 && method === 'GET') {
     if (!isStaff && session.role !== 'client') return json({ error: 'Forbidden' }, 403);
     return handleActivity(request, env, session, url, isStaff);
+  }
+
+  // ── VIDEO IA (solo staff): generador de clips con fal.ai ──
+  if (parts[0] === 'video-ia') {
+    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    return handleVideoIa(request, env, session, url, parts);
   }
 
   // ── DESCARGAR (solo staff): descargador de videos IG/TikTok/Pinterest ──
