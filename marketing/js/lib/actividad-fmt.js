@@ -7,8 +7,8 @@
 // 2026-08-06: con varias revisoras por marca, ver quién hizo qué y dónde).
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202609081318';
-import { statusLabel } from '../api.js?v=202609081318';
+import { T } from '../shell/i18n.js?v=202609081329';
+import { statusLabel } from '../api.js?v=202609081329';
 
 // Verbos del feed en es-MX (espejo de logActivity del backend).
 export const ACTION_LABELS = {

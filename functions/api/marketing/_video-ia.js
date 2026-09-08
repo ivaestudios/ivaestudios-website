@@ -90,14 +90,25 @@ const ALARGAR_MAX = 29; // Google no acepta videos de más de 30 s como entrada.
 // Lo que se le puede pedir de un tirón. Más de 8 s se arma encadenando solo.
 const SEGUNDOS_LARGOS = [4, 6, 8, 15, 22, 29];
 
-// Prompt de la continuación automática. Se guarda el original para que el
-// plano no cambie, y se le dice que YA NO HABLE: si no, Veo se inventa
-// diálogo nuevo en cada tramo y sale un galimatías.
-function promptSeguir(original) {
-  return 'Seamless continuation of the very same shot: same person, same wardrobe, same room, same '
-    + 'lighting and the same camera move, no cut. The person does NOT speak again and says nothing; '
-    + 'they simply continue the action naturally and hold their expression. '
-    + String(original || '').slice(0, 900);
+// Prompt de la continuación automática.
+//
+// ⚠️ Se le quita al original TODO lo hablado antes de reenviarlo. Medido el
+// 8-sep-2026: pasando el prompt entero, Veo repitió la misma frase en LOS TRES
+// tramos de un clip de 22 s. Basta con que la línea entre comillas siga ahí
+// para que la vuelva a decir, por mucho que se le pida silencio.
+export function promptSeguir(original) {
+  const visual = String(original || '')
+    .replace(/["“”][^"“”]{4,400}["“”]/g, ' ')   // fuera el diálogo
+    .split(/(?<=[.!?:])\s+/)   // por oración, y los DOS PUNTOS también cortan:
+                               // "…and says in English:" es su propia frase
+    .filter((f) => !/\b(say|says|said|speak|speaks|spoken|speaking|line|dialogue|accent|voice|word|words)\b/i.test(f))
+    .join(' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+  return 'Seamless continuation of the very same shot: same person, same wardrobe, same place, same '
+    + 'lighting and the same camera move, no cut. The person stays SILENT for the whole clip, mouth '
+    + 'closed, and simply continues moving naturally. No speech, no dialogue, no voice-over. '
+    + visual.slice(0, 700);
 }
 
 // ---------------------------------------------------------------------------
