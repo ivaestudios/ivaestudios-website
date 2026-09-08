@@ -15,6 +15,10 @@ on:
         description: "ISO-3 opcional (MEX, USA, PER)"
         required: false
         default: ""
+      oportunidades:
+        description: "true = solo posiciones 8 a 30 (las que estan a un empujon de pagina 1)"
+        required: false
+        default: "false"
 
 jobs:
   consultar:
@@ -29,4 +33,6 @@ jobs:
         env:
           GOOGLE_INDEXING_SA_JSON: ${{ secrets.GOOGLE_INDEXING_SA_JSON }}
         run: |
-          python3 scripts/gsc_queries.py --filtro "${{ github.event.inputs.filtro }}" --dias "${{ github.event.inputs.dias }}" --pais "${{ github.event.inputs.pais }}"
+          EXTRA=""
+          if [ "${{ github.event.inputs.oportunidades }}" = "true" ]; then EXTRA="--oportunidades"; fi
+          python3 scripts/gsc_queries.py --filtro "${{ github.event.inputs.filtro }}" --dias "${{ github.event.inputs.dias }}" --pais "${{ github.event.inputs.pais }}" --tope 120 $EXTRA

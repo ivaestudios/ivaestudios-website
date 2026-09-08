@@ -46,14 +46,17 @@ def consultar(servicio, sitio, inicio, fin, dimensiones, filtro_pais=None):
     return r.get("rows", [])
 
 
-def tabla(filas, dims, patron, tope):
+def tabla(filas, dims, patron, tope, solo_oportunidades=False):
     sel = []
     for f in filas:
         claves = f["keys"]
         q = claves[0]
         if patron and not patron.search(q):
             continue
-        sel.append((f.get("impressions", 0), f.get("clicks", 0), round(f.get("position", 0), 1), claves))
+        pos = round(f.get("position", 0), 1)
+        if solo_oportunidades and not (8 <= pos <= 30):
+            continue
+        sel.append((f.get("impressions", 0), f.get("clicks", 0), pos, claves))
     sel.sort(key=lambda x: (-x[0], x[2]))
     print("  | " + " | ".join(dims) + " | posición | impresiones | clics |")
     for imp, cl, pos, claves in sel[:tope]:
@@ -68,6 +71,8 @@ def main() -> int:
     ap.add_argument("--tope", type=int, default=80)
     ap.add_argument("--pais", default="", help="ISO-3 opcional, p. ej. MEX, USA, PER")
     ap.add_argument("--sitios", nargs="*", default=["sc-domain:ivaestudios.com", "sc-domain:bodasmx.com.mx"])
+    ap.add_argument("--oportunidades", action="store_true",
+                    help="Solo consultas en posicion 8 a 30, ordenadas por impresiones: las que estan a un empujon de la pagina 1.")
     a = ap.parse_args()
 
     from googleapiclient.discovery import build  # type: ignore
@@ -80,9 +85,9 @@ def main() -> int:
     for sitio in a.sitios:
         print(f"\n=== {sitio} ===")
         print("\n-- consulta + página --")
-        tabla(consultar(servicio, sitio, inicio, fin, ["query", "page"], a.pais or None), ["consulta", "página"], patron, a.tope)
+        tabla(consultar(servicio, sitio, inicio, fin, ["query", "page"], a.pais or None), ["consulta", "página"], patron, a.tope, a.oportunidades)
         print("\n-- solo consulta --")
-        tabla(consultar(servicio, sitio, inicio, fin, ["query"], a.pais or None), ["consulta"], patron, a.tope)
+        tabla(consultar(servicio, sitio, inicio, fin, ["query"], a.pais or None), ["consulta"], patron, a.tope, a.oportunidades)
         print("\n-- países (todas las consultas) --")
         tabla(consultar(servicio, sitio, inicio, fin, ["country"]), ["país"], None, 15)
     return 0
