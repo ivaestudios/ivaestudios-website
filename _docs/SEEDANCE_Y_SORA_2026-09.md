@@ -126,3 +126,25 @@ uno de ellos para México.
 **Qué significa:** los números de Veo y Sora son firmes, se le pagan al que
 fabrica el modelo. Los de Seedance traen intermediario y podrían bajar bastante
 yendo directo, con el trabajo extra de dar de alta una cuenta de BytePlus.
+
+---
+
+## Seedance: Replicate (intermediario) contra BytePlus (directo)
+
+| | **Replicate** (implementado) | **BytePlus ModelArk** (directo) |
+|---|---|---|
+| Precio 720p | $0.2312/s | **$0.09 a $0.21/s** |
+| 30 s cuestan | ~139 pesos | ~70 a 126 pesos |
+| Darse de alta | entrar con GitHub + tarjeta, 5 min | verificación de identidad real |
+| Regalo de bienvenida | ninguno | **2 millones de tokens gratis** |
+| ¿México? | sí | sí, está en su lista de países |
+| Riesgo | ninguno | *"some regions or individual users may not be eligible for self-service verification"* |
+
+**Por qué se implementó Replicate primero:** el objetivo era **probar** Seedance,
+no casarse con él. Pagar el doble por dos o tres clips de prueba cuesta unos 100
+pesos de más y se resuelve hoy mismo; el trámite de BytePlus es de duración
+desconocida y puede atorarse en la verificación.
+
+**Cuándo hacer el cambio:** si Seedance gusta y se vuelve rutina. Añadir BytePlus
+como segunda ruta al mismo nivel es un `else if` más en `_video-ia.js`; no hay
+que rehacer nada.
