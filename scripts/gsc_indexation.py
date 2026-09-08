@@ -65,9 +65,33 @@ PAUSA_ENTRE_INSPECCIONES = 0.2
 
 
 def urls_del_sitemap() -> list[str]:
-    ruta = os.path.join(RAIZ, "sitemap.xml")
-    with open(ruta, encoding="utf-8") as fh:
-        return re.findall(r"<loc>(.*?)</loc>", fh.read())
+    """Lee el sitemap del repo, o el del dominio elegido si es otro sitio.
+
+    Un sitemap puede ser un indice que apunta a otros sitemaps: en ese caso
+    hay que bajar los hijos, o el total sale ridiculamente bajo."""
+    if DOMINIO == "https://ivaestudios.com":
+        ruta = os.path.join(RAIZ, "sitemap.xml")
+        with open(ruta, encoding="utf-8") as fh:
+            return re.findall(r"<loc>(.*?)</loc>", fh.read())
+
+    import urllib.request
+
+    def bajar(url: str) -> str:
+        pet = urllib.request.Request(url, headers={"User-Agent": "IVAE-SEO/1.0"})
+        with urllib.request.urlopen(pet, timeout=30) as r:
+            return r.read().decode("utf-8", "replace")
+
+    raiz = bajar(DOMINIO + "/sitemap.xml")
+    locs = re.findall(r"<loc>(.*?)</loc>", raiz)
+    if "<sitemapindex" not in raiz:
+        return locs
+    urls: list[str] = []
+    for hijo in locs:
+        try:
+            urls += re.findall(r"<loc>(.*?)</loc>", bajar(hijo))
+        except Exception as e:  # noqa: BLE001
+            print(f"  aviso: no se pudo leer {hijo}: {e}", file=sys.stderr)
+    return urls
 
 
 def grupo_de(url: str) -> str:
@@ -248,7 +272,7 @@ def construir_informe(
     pct = (n_imp / n_total * 100) if n_total else 0
 
     L: list[str] = []
-    L.append("# Indexación real en Google — IVAE Studios")
+    L.append(f"# Indexación real en Google — {DOMINIO.split('//')[-1]}")
     L.append("")
     L.append(f"_Medido: {hoy} · ventana de impresiones: últimos {dias} días_")
     L.append("")
@@ -335,6 +359,8 @@ def construir_informe(
 
 
 def main() -> int:
+    global SITE_URLS, DOMINIO
+
     ap = argparse.ArgumentParser()
     ap.add_argument("--dias", type=int, default=28, help="ventana de impresiones")
     ap.add_argument("--dominio", default=DOMINIO,
@@ -345,6 +371,13 @@ def main() -> int:
                     help="no usar la API de inspección (no consume cuota)")
     ap.add_argument("--salida", default=None, help="ruta del informe")
     args = ap.parse_args()
+
+    # Medir otro dominio del ecosistema sin tocar el codigo: cambia la
+    # propiedad de Search Console y el prefijo con el que se agrupan las URLs.
+    if args.dominio.rstrip("/") != DOMINIO:
+        DOMINIO = args.dominio.rstrip("/")
+        host = DOMINIO.split("//")[-1]
+        SITE_URLS = ["sc-domain:" + host, DOMINIO + "/"]
 
     salida = args.salida or os.path.join(
         RAIZ, "seo", "reports", f"indexacion-{dt.date.today().isoformat()}.md"
