@@ -64,3 +64,9 @@
 /* --- Aviso de la duración que se calculó sola --- */
 .via-notaseg { margin: -2px 0 0; font-size: var(--fs-2); color: var(--brand); font-weight: 600; line-height: 1.4; }
 .via-notaseg[hidden] { display: none; }
+
+/* --- El botón de generar, siempre a la vista --- */
+.via-generar-wrap{position:sticky;bottom:-1px;z-index:5;margin:2px -14px -14px;padding:12px 14px 14px;
+  background:linear-gradient(to top, var(--surface) 62%, color-mix(in srgb, var(--surface) 82%, transparent) 88%, transparent);
+  border-radius:0 0 var(--r-lg) var(--r-lg)}
+.via-generar{width:100%}

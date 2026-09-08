@@ -10,15 +10,15 @@
 // El precio de Google se cobra POR SEGUNDO, así que la duración cambia el
 // costo y por eso se enseña junta con la calidad, nunca escondida.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609081247';
-import { icon } from '../shell/icons.js?v=202609081247';
-import { T } from '../shell/i18n.js?v=202609081247';
+import { api, el, clear, toast } from '../api.js?v=202609081256';
+import { icon } from '../shell/icons.js?v=202609081256';
+import { T } from '../shell/i18n.js?v=202609081256';
 
 const VIEW_ID = 'video-ia';
 const MXN = 20; // tipo de cambio aproximado, solo para orientar
 
 let rootEl = null, ctx = null, listEl = null, gastoEl = null, promptEl = null, notaEl = null;
-let tierEls = {}, precioEls = {}, segundosRow = null, notaSegEl = null;
+let tierEls = {}, precioEls = {}, segundosRow = null, notaSegEl = null, btnGenTxt = null;
 let autoSegundos = true; // se apaga en cuanto ella toca un botón de duración
 let estado = { configurado: false, catalogo: {} };
 let segundos = 8;
@@ -83,7 +83,7 @@ function ensureCss() {
   const has = [...document.querySelectorAll('link[rel="stylesheet"]')].some((l) => (l.getAttribute('href') || '').includes('/marketing/css/video-ia.css'));
   if (has) return;
   const link = document.createElement('link'); link.rel = 'stylesheet';
-  link.href = '/marketing/css/video-ia.css?v=202609081247'; document.head.appendChild(link);
+  link.href = '/marketing/css/video-ia.css?v=202609081256'; document.head.appendChild(link);
 }
 
 async function cargar() {
@@ -220,8 +220,13 @@ function refrescarPrecios() {
     if (precioEls[k]) precioEls[k].textContent = `${s} s · ${usdTxt((c.usdSeg || 0) * s)}`;
   }
   // La fila de duración no aplica a los proveedores de duración fija.
-  const cat = estado.catalogo[tierActual()] || {};
+  const k = tierActual();
+  const cat = estado.catalogo[k] || {};
   if (segundosRow) segundosRow.hidden = (cat.segundos || []).length < 2;
+  if (btnGenTxt && cat.usdSeg != null) {
+    const mx = Math.round(cat.usdSeg * segundosDe(k) * MXN);
+    btnGenTxt.textContent = `${T('Generar clip', 'Generate clip')} · ${mx} ${mx === 1 ? 'peso' : 'pesos'}`;
+  }
 }
 
 async function proponer(sel) {
@@ -315,12 +320,16 @@ function render() {
     tiers.appendChild(el('label', { class: 'via-tier' + (c.listo ? '' : ' is-off'), for: 'via-tier-' + k }, [input, el('span', { class: 'via-tier__body' }, cuerpo)]));
   }
   form.appendChild(tiers);
+  // El botón vivía DEBAJO de los cuatro niveles y se quedaba fuera de pantalla:
+  // Vianey no lo encontraba. Ahora va pegado al borde inferior mientras se
+  // desliza el formulario, y lleva escrito lo que va a costar.
+  btnGenTxt = el('span', { text: T('Generar clip', 'Generate clip') });
   const btnGen = el('button', { class: 'btn btn--primary via-generar', type: 'button', onclick: () => {
     const p = (promptEl.value || '').trim();
     if (p.length < 12) { toast(T('Describe la escena con un poco más de detalle.', 'Describe the scene in a bit more detail.'), { type: 'error' }); return; }
     generar(p, tierActual());
-  } }, [icon('spark', 16), el('span', { text: T('Generar clip', 'Generate clip') })]);
-  form.appendChild(btnGen);
+  } }, [icon('spark', 16), btnGenTxt]);
+  form.appendChild(el('div', { class: 'via-generar-wrap' }, [btnGen]));
   rootEl.appendChild(form);
   refrescarPrecios();
 
@@ -341,6 +350,6 @@ export default {
   unmount() {
     if (unsub) { try { unsub(); } catch { /* noop */ } unsub = null; }
     clearInterval(timer); timer = null; rootEl = null; listEl = null; gastoEl = null; promptEl = null; notaEl = null;
-    tierEls = {}; precioEls = {}; segundosRow = null; notaSegEl = null; autoSegundos = true; jobs = []; busy = false;
+    tierEls = {}; precioEls = {}; segundosRow = null; notaSegEl = null; btnGenTxt = null; autoSegundos = true; jobs = []; busy = false;
   },
 };
