@@ -369,7 +369,8 @@ export async function crearJob(request, env, session) {
   ).bind(id, client_id, post_id, tier, modelo, prompt, aspect, seconds, via, costo, session.email || null).run();
 
   const falla = async (msg) => {
-    await env.DB.prepare(`UPDATE mkt_video_jobs SET status='error', error=?, updated_at=${MKT_NOW}, finished_at=${MKT_NOW} WHERE id=?`)
+    // cost_usd=0 por lo mismo: si no salió video, Google no lo cobra.
+    await env.DB.prepare(`UPDATE mkt_video_jobs SET status='error', error=?, cost_usd=0, updated_at=${MKT_NOW}, finished_at=${MKT_NOW} WHERE id=?`)
       .bind(String(msg).slice(0, 400), id).run();
   };
 
@@ -494,9 +495,12 @@ async function guardarVideo(env, job, bytesOrBody, tipo = 'video/mp4') {
 }
 
 async function marcarError(env, job, msg) {
-  await env.DB.prepare(`UPDATE mkt_video_jobs SET status='error', error=?, updated_at=${MKT_NOW}, finished_at=${MKT_NOW} WHERE id=?`)
+  // El costo se pone en 0: Google solo cobra los videos que SÍ salen
+  // ("You will only be charged if your video is successfully generated"),
+  // así que un clip fallido no debe ensuciar el gasto de la marca.
+  await env.DB.prepare(`UPDATE mkt_video_jobs SET status='error', error=?, cost_usd=0, updated_at=${MKT_NOW}, finished_at=${MKT_NOW} WHERE id=?`)
     .bind(String(msg).slice(0, 400), job.id).run();
-  return { ...job, status: 'error', error: String(msg) };
+  return { ...job, status: 'error', cost_usd: 0, error: String(msg) };
 }
 
 // Consulta al proveedor y, si terminó, guarda el video. Idempotente.
