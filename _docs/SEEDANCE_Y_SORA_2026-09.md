@@ -148,3 +148,46 @@ desconocida y puede atorarse en la verificación.
 **Cuándo hacer el cambio:** si Seedance gusta y se vuelve rutina. Añadir BytePlus
 como segunda ruta al mismo nivel es un `else if` más en `_video-ia.js`; no hay
 que rehacer nada.
+
+---
+
+## CORRECCIÓN: ir directo con BytePlus NO conviene (8-sep-2026)
+
+Yo dije que ByteDance directo costaba "la mitad". **Es falso**, y por poco mando
+a Vianey a un trámite inútil. Lo que dice su propia documentación:
+
+**1. Al 720p cuesta lo MISMO que Replicate.** BytePlus publica un ejemplo de
+5 segundos en 720p a **$1.156**, que son **$0.2312 por segundo**. Replicate cobra
+**$0.2312 por segundo**. Idéntico: Replicate está pasando el precio a costo, sin
+margen. La franja "$0.09 a $0.21" que circula es el **480p**, que no sirve para
+Instagram.
+
+**2. Pide 30 dólares de entrada.** Textual de la ficha de Seedance 2.5:
+> *"Before enabling Dreamina Seedance 2.5, make sure you meet one of the
+> following conditions: BytePlus account balance > USD 30 … purchase a dedicated
+> AI Savings Plan at the USD 30 tier or above … or a resource pack."*
+
+**3. Los 2 millones de tokens de bienvenida NO aplican** a Seedance 2.5, que está
+detrás de ese muro de 30 dólares.
+
+**4. Encima pide verificación de identidad**, y su doc avisa que algunas regiones
+y usuarios individuales no pueden verificarse solos.
+
+| | Replicate | BytePlus directo |
+|---|---|---|
+| 720p por segundo | $0.2312 | $0.2312, **igual** |
+| Mínimo para empezar | ninguno | **30 USD** |
+| Alta | GitHub + tarjeta, 5 min | verificación de identidad |
+
+**Conclusión: Replicate.** Mismo precio, sin mínimo y sin trámite. Ir directo
+solo tendría sentido bajando a 480p, que para redes no da la talla.
+
+**El contrato de BytePlus, por si algún día cambia el panorama:**
+```
+POST https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks
+     {model:"dreamina-seedance-2-5-260628", content:[{type:"text",text:"…"}],
+      generate_audio:true, ratio:"adaptive"}
+  -> {id:"cgt-…"}
+GET  .../tasks/{id}  -> status queued|running|succeeded, content.video_url
+```
+Cobra por TOKENS, no por segundo: un clip de 5 s en 1080p gastó 246,840 tokens.
