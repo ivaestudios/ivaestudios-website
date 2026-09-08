@@ -1,0 +1,31 @@
+name: SEO — Medir indexacion
+
+# Responde "cuantas paginas tiene Google de verdad" con datos de Search Console,
+# no con estimaciones. Sirve para cualquier dominio del ecosistema.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dominio:
+        description: "Dominio a medir"
+        required: false
+        default: "https://ivaestudios.com"
+      inspeccionar:
+        description: "Cuantas URLs sin impresiones inspeccionar una por una"
+        required: false
+        default: "60"
+
+jobs:
+  medir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install google-auth google-api-python-client
+      - name: Medir indexacion
+        env:
+          GOOGLE_INDEXING_SA_JSON: ${{ secrets.GOOGLE_INDEXING_SA_JSON }}
+        run: |
+          python3 scripts/gsc_indexation.py --dominio "${{ github.event.inputs.dominio }}" --inspeccionar "${{ github.event.inputs.inspeccionar }}"

@@ -52,6 +52,8 @@ RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GSC_SCOPES = ["https://www.googleapis.com/auth/webmasters.readonly"]
 SITE_URLS = ["sc-domain:ivaestudios.com", "https://ivaestudios.com/"]
 DOMINIO = "https://ivaestudios.com"
+# Ambos se pueden cambiar por linea de comandos para medir otro sitio del
+# ecosistema (bodasmx.com.mx, por ejemplo) sin tocar el codigo.
 
 # Tope conservador de inspecciones por corrida (la cuota diaria es 2000).
 INSPECCIONES_POR_DEFECTO = 120
@@ -335,6 +337,8 @@ def construir_informe(
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dias", type=int, default=28, help="ventana de impresiones")
+    ap.add_argument("--dominio", default=DOMINIO,
+                    help="Dominio a medir, por ejemplo https://bodasmx.com.mx")
     ap.add_argument("--inspeccionar", type=int, default=INSPECCIONES_POR_DEFECTO,
                     help="cuántas URLs sin impresiones inspeccionar una por una")
     ap.add_argument("--sin-inspeccion", action="store_true",
