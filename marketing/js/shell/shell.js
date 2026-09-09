@@ -19,23 +19,23 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202609081549';
-import { setRoleDefault } from './theme.js?v=202609081549';
-import * as store from './store.js?v=202609081549';
-import * as prefs from './prefs.js?v=202609081549';
-import * as router from './router.js?v=202609081549';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202609081549';
-import { toast } from './toast.js?v=202609081549';
-import { icon } from './icons.js?v=202609081549';
-import * as iconsMod from './icons.js?v=202609081549';
-import { createTopbar } from './topbar.js?v=202609081549';
-import { createBottomNav } from './bottomnav.js?v=202609081549';
-import { createSearch } from './search.js?v=202609081549';
-import { createNotifications } from './notifications.js?v=202609081549';
-import { T } from './i18n.js?v=202609081549';
-import * as version from './version.js?v=202609081549';
-import * as pickers from '../ui/pickers.js?v=202609081549';
-import * as dnd from '../ui/dnd.js?v=202609081549';
+import { api, el, clear } from '../api.js?v=202609082255';
+import { setRoleDefault } from './theme.js?v=202609082255';
+import * as store from './store.js?v=202609082255';
+import * as prefs from './prefs.js?v=202609082255';
+import * as router from './router.js?v=202609082255';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202609082255';
+import { toast } from './toast.js?v=202609082255';
+import { icon } from './icons.js?v=202609082255';
+import * as iconsMod from './icons.js?v=202609082255';
+import { createTopbar } from './topbar.js?v=202609082255';
+import { createBottomNav } from './bottomnav.js?v=202609082255';
+import { createSearch } from './search.js?v=202609082255';
+import { createNotifications } from './notifications.js?v=202609082255';
+import { T } from './i18n.js?v=202609082255';
+import * as version from './version.js?v=202609082255';
+import * as pickers from '../ui/pickers.js?v=202609082255';
+import * as dnd from '../ui/dnd.js?v=202609082255';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -608,7 +608,7 @@ export async function boot() {
   // portal de solo lectura. Marca el body para ocultar el chrome de agencia
   // (Equipo, Accesos de cliente, etc.). El backend limita todo a SU marca.
   if (me.role === 'client') document.body.classList.add('is-client');
-  setRoleDefault(me.role);   // clientes arrancan en tema claro (si no eligieron); antes del EULA para que hasta esa compuerta salga clara
+  setRoleDefault();          // TODOS arrancan en claro (si no eligieron); limpia la llave vieja del default por rol
 
   // ── EULA obligatorio (Apple guideline 1.2 — rechazo del 6-ago-2026) ───────
   // Compuerta BLOQUEANTE antes de que la app se revele. Sin esto, ninguna

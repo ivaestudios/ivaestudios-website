@@ -1,28 +1,29 @@
 // ============================================================================
-// IVAE Marketing — Tema (Oscuro por defecto / Claro opcional).
+// IVAE Marketing — Tema (CLARO por defecto / Oscuro opcional).
 //
-// La ELECCIÓN del usuario vive en localStorage 'mkt_theme' ('light'|'dark');
-// si no ha elegido, manda el DEFAULT POR ROL cacheado en 'mkt_theme_def'
-// (los CLIENTES arrancan en claro, pedido 2026-08-26; staff en oscuro). Se
-// aplica poniendo data-theme="light" en <html>. Un script inline en el <head>
+// Regla de la dueña (2026-09-08): la app arranca en CLARO para TODOS, cliente
+// o staff. El que quiera oscuro lo elige él mismo con el interruptor y su
+// elección manda para siempre. La ELECCIÓN vive en localStorage 'mkt_theme'
+// ('light'|'dark'); sin elección, CLARO. Ya no hay default por rol: el viejo
+// 'mkt_theme_def' se borra al arrancar. Se aplica poniendo data-theme="light"
+// en <html> (el oscuro es la ausencia del atributo). Un script inline en el <head>
 // de app.html/index.html lo aplica ANTES de pintar (cero flash); este módulo
 // expone el estado y el cambio EN VIVO (sin recargar: los tokens CSS conmutan
 // solos). La capa visual vive en css/theme-light.css (cargada al final).
 // ============================================================================
 
 const KEY = 'mkt_theme';       // elección EXPLÍCITA del usuario
-const DEF = 'mkt_theme_def';   // default por ROL (se cachea al conocer el rol)
+const DEF = 'mkt_theme_def';   // LEGADO: default por rol, ya sin uso (se borra)
 
 // Colores del chrome del navegador/PWA por tema (meta theme-color).
 const META_DARK = '#0A0A0E';
 const META_LIGHT = '#F6F6FA';
 
 export function getTheme() {
-  try {
-    const t = localStorage.getItem(KEY);
-    if (t === 'light' || t === 'dark') return t;
-    return localStorage.getItem(DEF) === 'light' ? 'light' : 'dark';
-  } catch { return 'dark'; }
+  // CLARO salvo que el usuario haya pedido oscuro a mano. Si localStorage
+  // truena (Safari privado), también claro: el default nunca debe ser oscuro.
+  try { return localStorage.getItem(KEY) === 'dark' ? 'dark' : 'light'; }
+  catch { return 'light'; }
 }
 
 export const isLight = () => getTheme() === 'light';
@@ -52,14 +53,11 @@ export function setTheme(theme) {
   applyTheme(t);
 }
 
-/** Default por ROL: los CLIENTES arrancan en claro; staff en oscuro. Solo
- *  pesa si el usuario no ha elegido tema; se cachea para el próximo arranque
- *  (el inline del <head> lo lee y pinta sin flash). */
-export function setRoleDefault(role) {
-  try {
-    if (role === 'client') localStorage.setItem(DEF, 'light');
-    else localStorage.removeItem(DEF);
-  } catch { /* noop */ }
+/** LEGADO. Ya no hay default por rol: todos arrancan en claro. Se conserva la
+ *  función porque el shell la llama al conocer el rol, y de paso limpia la
+ *  llave vieja para que no quede basura en el navegador de nadie. */
+export function setRoleDefault() {
+  try { localStorage.removeItem(DEF); } catch { /* noop */ }
   applyTheme(getTheme());
 }
 

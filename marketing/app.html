@@ -4,10 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow">
-  <meta name="theme-color" content="#0A0A0E">
-  <!-- Tema claro ANTES de pintar (cero flash): pone data-theme y ajusta el
-       theme-color; css/theme-light.css (al final del head) hace el resto. -->
-  <script>try{var _t=localStorage.getItem('mkt_theme');if(_t!=='light'&&_t!=='dark'){_t=localStorage.getItem('mkt_theme_def')==='light'?'light':'dark'}if(_t==='light'){document.documentElement.setAttribute('data-theme','light');var _tm=document.querySelector('meta[name="theme-color"]');if(_tm)_tm.setAttribute('content','#F6F6FA');}}catch(e){}</script>
+  <meta name="theme-color" content="#F6F6FA">
+  <!-- Tema ANTES de pintar (cero flash). CLARO por defecto para todos; el
+       oscuro solo si el usuario lo eligio a mano. css/theme-light.css (al
+       final del head) hace el resto. -->
+  <script>document.documentElement.setAttribute('data-theme','light');try{if(localStorage.getItem('mkt_theme')==='dark'){document.documentElement.removeAttribute('data-theme');}localStorage.removeItem('mkt_theme_def');}catch(e){}try{var _tm=document.querySelector('meta[name="theme-color"]');if(_tm)_tm.setAttribute('content',document.documentElement.getAttribute('data-theme')==='light'?'#F6F6FA':'#0A0A0E');}catch(e){}</script>
   <title>Panel · IVAE Marketing</title>
   <meta name="description" content="Panel de equipo: calendario de contenido, tablero y aprobaciones de IVAE Marketing.">
 
@@ -17,46 +18,48 @@
   <link rel="apple-touch-icon" href="/marketing/icons/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <!-- Con el tema claro por defecto, la barra translucida dejaba el reloj de
+       iOS en BLANCO sobre fondo claro (invisible). 'default' lo pinta negro. -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="IVAE Marketing">
 
   <!-- Inter (respaldo) + Outfit (tema Sistema IVA 2026), auto-hospedadas:
        woff2 variables locales en /marketing/fonts/ (antes Google Fonts; se
        quita el round-trip DNS+TLS al CDN externo de fuentes en cada carga). -->
-  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202609081549">
+  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202609082255">
 
   <!-- Modulepreload de la cadena crítica de JS: el navegador baja en paralelo
        (y compila) los módulos del arranque en vez de descubrirlos import a
        import en cascada. Mismo stamp que el resto: el sed los bumpea parejo. -->
-  <link rel="modulepreload" href="/marketing/js/main.js?v=202609081549">
-  <link rel="modulepreload" href="/marketing/js/api.js?v=202609081549">
-  <link rel="modulepreload" href="/marketing/js/shell/shell.js?v=202609081549">
-  <link rel="modulepreload" href="/marketing/js/shell/store.js?v=202609081549">
-  <link rel="modulepreload" href="/marketing/js/shell/router.js?v=202609081549">
-  <link rel="modulepreload" href="/marketing/js/shell/topbar.js?v=202609081549">
-  <link rel="modulepreload" href="/marketing/js/shell/sheet.js?v=202609081549">
-  <link rel="modulepreload" href="/marketing/js/shell/toast.js?v=202609081549">
-  <link rel="modulepreload" href="/marketing/js/shell/icons.js?v=202609081549">
-  <link rel="modulepreload" href="/marketing/js/shell/prefs.js?v=202609081549">
-  <link rel="modulepreload" href="/marketing/js/shell/bottomnav.js?v=202609081549">
-  <link rel="modulepreload" href="/marketing/js/shell/notifications.js?v=202609081549">
-  <link rel="modulepreload" href="/marketing/js/shell/search.js?v=202609081549">
-  <link rel="modulepreload" href="/marketing/js/shell/clientswitcher.js?v=202609081549">
-  <link rel="modulepreload" href="/marketing/js/ui/pickers.js?v=202609081549">
-  <link rel="modulepreload" href="/marketing/js/ui/dnd.js?v=202609081549">
-  <link rel="modulepreload" href="/marketing/js/views/meses.js?v=202609081549">
+  <link rel="modulepreload" href="/marketing/js/main.js?v=202609082255">
+  <link rel="modulepreload" href="/marketing/js/api.js?v=202609082255">
+  <link rel="modulepreload" href="/marketing/js/shell/shell.js?v=202609082255">
+  <link rel="modulepreload" href="/marketing/js/shell/store.js?v=202609082255">
+  <link rel="modulepreload" href="/marketing/js/shell/router.js?v=202609082255">
+  <link rel="modulepreload" href="/marketing/js/shell/topbar.js?v=202609082255">
+  <link rel="modulepreload" href="/marketing/js/shell/sheet.js?v=202609082255">
+  <link rel="modulepreload" href="/marketing/js/shell/toast.js?v=202609082255">
+  <link rel="modulepreload" href="/marketing/js/shell/icons.js?v=202609082255">
+  <link rel="modulepreload" href="/marketing/js/shell/prefs.js?v=202609082255">
+  <link rel="modulepreload" href="/marketing/js/shell/bottomnav.js?v=202609082255">
+  <link rel="modulepreload" href="/marketing/js/shell/notifications.js?v=202609082255">
+  <link rel="modulepreload" href="/marketing/js/shell/search.js?v=202609082255">
+  <link rel="modulepreload" href="/marketing/js/shell/clientswitcher.js?v=202609082255">
+  <link rel="modulepreload" href="/marketing/js/ui/pickers.js?v=202609082255">
+  <link rel="modulepreload" href="/marketing/js/ui/dnd.js?v=202609082255">
+  <link rel="modulepreload" href="/marketing/js/views/meses.js?v=202609082255">
 
   <!-- CSS base: tokens v1 + componentes (app.css), tokens v2 aditivos y shell v2 -->
-  <link rel="stylesheet" href="/marketing/css/app.css?v=202609081549">
-  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202609081549">
-  <link rel="stylesheet" href="/marketing/css/shell.css?v=202609081549">
+  <link rel="stylesheet" href="/marketing/css/app.css?v=202609082255">
+  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202609082255">
+  <link rel="stylesheet" href="/marketing/css/shell.css?v=202609082255">
 
   <!-- CSS de vistas. Los modulos JS se cargan lazy via import(), pero su CSS se
        sirve estatico desde aqui para evitar FOUC al navegar (solo mywork.css se
        auto-inyecta desde su modulo; este link estatico la dedupe igualmente). -->
-  <link rel="stylesheet" href="/marketing/css/dashboard.css?v=202609081549">
-  <link rel="stylesheet" href="/marketing/css/meses.css?v=202609081549">
-  <link rel="stylesheet" href="/marketing/css/calendar.css?v=202609081549">
+  <link rel="stylesheet" href="/marketing/css/dashboard.css?v=202609082255">
+  <link rel="stylesheet" href="/marketing/css/meses.css?v=202609082255">
+  <link rel="stylesheet" href="/marketing/css/calendar.css?v=202609082255">
 
   <!-- SW del sitio (v13+): sirve /marketing/ con cache no-store para que cada
        deploy llegue al instante (el TTL de 4h de la zona pisa el max-age=0). -->
@@ -65,17 +68,17 @@
       navigator.serviceWorker.register('/sw.js').catch(function () {});
     }
   </script>
-  <link rel="stylesheet" href="/marketing/css/kanban.css?v=202609081549">
-  <link rel="stylesheet" href="/marketing/css/table.css?v=202609081549">
-  <link rel="stylesheet" href="/marketing/css/timeline.css?v=202609081549">
-  <link rel="stylesheet" href="/marketing/css/mywork.css?v=202609081549">
-  <link rel="stylesheet" href="/marketing/css/editor.css?v=202609081549">
+  <link rel="stylesheet" href="/marketing/css/kanban.css?v=202609082255">
+  <link rel="stylesheet" href="/marketing/css/table.css?v=202609082255">
+  <link rel="stylesheet" href="/marketing/css/timeline.css?v=202609082255">
+  <link rel="stylesheet" href="/marketing/css/mywork.css?v=202609082255">
+  <link rel="stylesheet" href="/marketing/css/editor.css?v=202609082255">
 
   <!-- Tema "Sistema IVA" 2026 (rediseno Claude Design). ULTIMO link de estilo
        para ganar la cascada de :root. Solo estilo (tokens + Outfit); no toca
        markup ni logica. Rollback limpio = quitar esta linea. -->
-  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202609081549">
-  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202609081549">
+  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202609082255">
+  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202609082255">
 
   <style>
     /* El atributo hidden SIEMPRE gana, incluso sobre reglas display de autor
@@ -126,6 +129,6 @@
   <!-- Unico script de la app v2 (composition root).
        ROLLBACK INSTANTANEO: re-apuntar esta linea a /marketing/js/app.js?v=3
        y restaurar el esqueleto legacy; js/app.js sigue intacto en el repo. -->
-  <script type="module" src="/marketing/js/main.js?v=202609081549"></script>
+  <script type="module" src="/marketing/js/main.js?v=202609082255"></script>
 </body>
 </html>

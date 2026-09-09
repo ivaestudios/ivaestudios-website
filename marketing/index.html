@@ -4,26 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow">
-  <meta name="theme-color" content="#0A0A0E">
+  <meta name="theme-color" content="#F6F6FA">
   <!-- PWA también desde el login: los clientes caen AQUÍ al abrir el link, y
        sin estas líneas "Agregar a inicio" en iPhone da un ícono genérico. -->
   <link rel="manifest" href="/marketing/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/marketing/icons/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="IVAE Marketing">
-  <!-- Tema claro ANTES de pintar (cero flash); ver css/theme-light.css. -->
-  <script>try{var _t=localStorage.getItem('mkt_theme');if(_t!=='light'&&_t!=='dark'){_t=localStorage.getItem('mkt_theme_def')==='light'?'light':'dark'}if(_t==='light'){document.documentElement.setAttribute('data-theme','light');var _tm=document.querySelector('meta[name="theme-color"]');if(_tm)_tm.setAttribute('content','#F6F6FA');}}catch(e){}</script>
+  <!-- Tema ANTES de pintar (cero flash). CLARO por defecto; oscuro solo si
+       el usuario lo eligio a mano. Ver css/theme-light.css. -->
+  <script>document.documentElement.setAttribute('data-theme','light');try{if(localStorage.getItem('mkt_theme')==='dark'){document.documentElement.removeAttribute('data-theme');}localStorage.removeItem('mkt_theme_def');}catch(e){}try{var _tm=document.querySelector('meta[name="theme-color"]');if(_tm)_tm.setAttribute('content',document.documentElement.getAttribute('data-theme')==='light'?'#F6F6FA':'#0A0A0E');}catch(e){}</script>
   <title>Iniciar sesión · IVAE Marketing</title>
   <meta name="description" content="Acceso privado al calendario de contenido de IVAE Marketing.">
 
   <!-- Inter (respaldo) + Outfit (tema Sistema IVA 2026), auto-hospedadas:
        woff2 variables locales en /marketing/fonts/ (antes Google Fonts). -->
-  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202609081549">
-  <link rel="stylesheet" href="/marketing/css/app.css?v=202609081549">
-  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202609081549">
+  <link rel="stylesheet" href="/marketing/css/fonts.css?v=202609082255">
+  <link rel="stylesheet" href="/marketing/css/app.css?v=202609082255">
+  <link rel="stylesheet" href="/marketing/css/tokens2.css?v=202609082255">
   <!-- Tema "Sistema IVA" 2026 (ultimo para ganar :root; solo estilo). -->
-  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202609081549">
-  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202609081549">
+  <link rel="stylesheet" href="/marketing/css/theme-sistemaiva.css?v=202609082255">
+  <link rel="stylesheet" href="/marketing/css/theme-light.css?v=202609082255">
 
   <style>
     /* Toques v2 (solo estetica, el flujo de auth no cambia): targets tactiles
