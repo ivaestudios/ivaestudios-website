@@ -111,11 +111,18 @@ export async function handleIgCallback(request, env, url) {
     const long = await longRes.json();
     const token = long.access_token || t1.access_token;
 
-    // 3) pedir username para mostrar al usuario
+    // 3) username + ID REAL de la cuenta.
+    // ⚠️ NO usar t1.user_id: el canje lo manda como NUMERO y estos ids pasan de
+    // 2^53, asi que JSON.parse los redondea y se guardaba un id que NO EXISTE
+    // (SMILE NOW quedo en ...784 cuando la cuenta es ...786). Con ese id,
+    // /insights contesta error 100/33 y la demografia salia siempre vacia.
+    // /me devuelve el id como TEXTO, sin perder digitos.
     let username = '';
+    let cuentaId = String(t1.user_id);
     try {
-      const me = await (await fetch(`${GRAPH}/me?fields=username&access_token=${encodeURIComponent(token)}`)).json();
+      const me = await (await fetch(`${GRAPH}/me?fields=id,username&access_token=${encodeURIComponent(token)}`)).json();
       username = me.username || '';
+      if (me.id) cuentaId = String(me.id);
     } catch { /* opcional */ }
 
     // GUARDA ANTI-CRUCE (2026-07-30): el callback guardaba CUALQUIER cuenta que
@@ -129,7 +136,7 @@ export async function handleIgCallback(request, env, url) {
     // chequeo para que no bloquee reconexiones legítimas de IVAE STUDIOS.
     const clash = await env.DB.prepare(
       "SELECT id, name FROM mkt_clients WHERE ig_user_id = ? AND id != ? AND id != '67322bb3c5f64991a9178b1d1784231a'"
-    ).bind(String(t1.user_id), st.c).first();
+    ).bind(cuentaId, st.c).first();
     if (clash) {
       return html(
         `<h1>${T('Esa cuenta ya es de otra marca', 'That account belongs to another brand')}</h1>`
@@ -142,7 +149,7 @@ export async function handleIgCallback(request, env, url) {
 
     await env.DB.prepare(
       "UPDATE mkt_clients SET ig_user_id = ?, ig_username = ?, ig_access_token = ?, updated_at = datetime('now') WHERE id = ?"
-    ).bind(String(t1.user_id), username, token, st.c).run();
+    ).bind(cuentaId, username, token, st.c).run();
     await env.DB.prepare('DELETE FROM mkt_ig_metrics WHERE client_id = ?').bind(st.c).run().catch(() => {});
 
     return html(
@@ -203,10 +210,17 @@ async function fetchPostInsights(mediaId, isReel, tok) {
 // Demografía de audiencia a nivel CUENTA por un breakdown (gender|age|city).
 // Requiere ≥100 seguidores; si no, la API no devuelve datos → null.
 async function fetchDemographic(igUserId, breakdown, tok) {
-  const r = await igJson(`${GRAPH}/${igUserId}/insights?metric=follower_demographics&period=lifetime&timeframe=this_month&breakdown=${breakdown}&metric_type=total_value&access_token=${tok}`);
+  // OJO: se pide sobre 'me', NO sobre el id guardado. Ver la nota de arriba de
+  // resolverCuenta(): el id del canje puede no ser el de la cuenta.
+  const r = await igJson(`${GRAPH}/me/insights?metric=follower_demographics&period=lifetime&timeframe=this_month&breakdown=${breakdown}&metric_type=total_value&access_token=${tok}`);
   const bd = r && r.data && r.data[0] && r.data[0].total_value && r.data[0].total_value.breakdowns;
   const results = bd && bd[0] && bd[0].results;
-  if (!Array.isArray(results)) return null;
+  if (!Array.isArray(results)) {
+    // Que no vuelva a pasar: un error de la API se veia igual que "esta cuenta
+    // todavia no califica". Ahora queda en el registro con su codigo.
+    if (r && r.error) console.error('[ig demografia]', breakdown, r.error.code, r.error.error_subcode, String(r.error.message).slice(0, 120));
+    return null;
+  }
   const out = results.map((x) => ({ key: (x.dimension_values || [])[0], value: x.value }))
     .filter((x) => x.key != null && x.value != null);
   return out.length ? out : null;
@@ -252,7 +266,7 @@ export async function fetchIgMetrics(env, clientId, month) {
   // con metric_type=total_value (la antigua 'impressions' fue retirada 21-abr-2025).
   let reach28 = null;
   try {
-    const ins = await igJson(`${GRAPH}/${id}/insights?metric=reach&period=days_28&metric_type=total_value&access_token=${tok}`);
+    const ins = await igJson(`${GRAPH}/me/insights?metric=reach&period=days_28&metric_type=total_value&access_token=${tok}`);
     const row = ins && ins.data && ins.data[0];
     if (row) reach28 = metricVal(row);
   } catch { /* sin alcance: el reporte sigue con followers + interacciones */ }
