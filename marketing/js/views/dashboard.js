@@ -25,14 +25,14 @@
 // Contrato de vista: export default { id, mount(el, ctx), unmount(), onParams() }.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202609082255';
-import { icon } from '../shell/icons.js?v=202609082255';
-import { T } from '../shell/i18n.js?v=202609082255';
+import { api, el, clear } from '../api.js?v=202609082312';
+import { icon } from '../shell/icons.js?v=202609082312';
+import { T } from '../shell/i18n.js?v=202609082312';
 import {
   todayISO, addDaysISO, addMonths, parseISO, toISO,
   fmtMonthYear, fmtShort, fmtLong,
-} from '../lib/dates.js?v=202609082255';
-import * as W from './dash-widgets.js?v=202609082255';
+} from '../lib/dates.js?v=202609082312';
+import * as W from './dash-widgets.js?v=202609082312';
 
 const TTL_MS = 60000;
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
@@ -464,8 +464,8 @@ async function openQuickCreate() {
     build(body, close) {
       const input = el('input', {
         class: 'input', type: 'text', maxlength: '140',
-        placeholder: T('Titulo del contenido', 'Content title'),
-        'aria-label': T('Titulo del contenido', 'Content title'),
+        placeholder: T('Título del contenido', 'Content title'),
+        'aria-label': T('Título del contenido', 'Content title'),
         autocomplete: 'off',
       });
       const dateInput = el('input', { class: 'input pk-date', type: 'date' });
@@ -497,9 +497,9 @@ async function openQuickCreate() {
       input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
 
       body.append(
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Titulo', 'Title') }), input]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Título', 'Title') }), input]),
         el('div', { class: 'field' }, [
-          el('label', { class: 'label', text: T('Fecha de publicacion (opcional)', 'Publish date (optional)') }),
+          el('label', { class: 'label', text: T('Fecha de publicación (opcional)', 'Publish date (optional)') }),
           dateInput,
         ]),
         el('div', { class: 'sheet__footer' }, [

@@ -23,20 +23,20 @@
 // Contrato de vista: export default { id, mount(el, ctx), onParams, unmount }.
 // ============================================================================
 
-import { el, api, statusBadge, approvalBadge, fmtDate, fmtDateTime, isClientRole} from '../api.js?v=202609082255';
-import { T } from '../shell/i18n.js?v=202609082255';
-import { icon } from '../shell/icons.js?v=202609082255';
-import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202609082255';
-import * as store from '../shell/store.js?v=202609082255';
-import * as cl from '../services/checklist.js?v=202609082255';
-import { createAutosave } from './autosave.js?v=202609082255';
-import { textExpand } from '../ui/pickers.js?v=202609082255';
-import { openActionsMenu } from './actions.js?v=202609082255';
-import { mount as mountContenido } from './tab-contenido.js?v=202609082255';
-import { mount as mountGuion } from './tab-guion.js?v=202609082255';
-import { mount as mountChecklist } from './tab-checklist.js?v=202609082255';
-import { mount as mountConversacion } from './tab-conversacion.js?v=202609082255';
-import { mount as mountActividad } from './tab-actividad.js?v=202609082255';
+import { el, api, statusBadge, approvalBadge, fmtDate, fmtDateTime, isClientRole} from '../api.js?v=202609082312';
+import { T } from '../shell/i18n.js?v=202609082312';
+import { icon } from '../shell/icons.js?v=202609082312';
+import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202609082312';
+import * as store from '../shell/store.js?v=202609082312';
+import * as cl from '../services/checklist.js?v=202609082312';
+import { createAutosave } from './autosave.js?v=202609082312';
+import { textExpand } from '../ui/pickers.js?v=202609082312';
+import { openActionsMenu } from './actions.js?v=202609082312';
+import { mount as mountContenido } from './tab-contenido.js?v=202609082312';
+import { mount as mountGuion } from './tab-guion.js?v=202609082312';
+import { mount as mountChecklist } from './tab-checklist.js?v=202609082312';
+import { mount as mountConversacion } from './tab-conversacion.js?v=202609082312';
+import { mount as mountActividad } from './tab-actividad.js?v=202609082312';
 
 const TABS = [
   { key: 'contenido', label: T('Contenido', 'Content'), mount: mountContenido },
@@ -430,8 +430,8 @@ function buildChrome(host) {
 
   titleTa = el('textarea', {
     class: 'edtitle', rows: '1', maxlength: '200',
-    placeholder: T('Titulo del contenido', 'Content title'),
-    'aria-label': T('Titulo del contenido', 'Content title'),
+    placeholder: T('Título del contenido', 'Content title'),
+    'aria-label': T('Título del contenido', 'Content title'),
   });
   titleTa.addEventListener('input', () => { fitTitle(); ed.setField('title', titleTa.value); });
   titleTa.addEventListener('blur', () => autosave?.flush());

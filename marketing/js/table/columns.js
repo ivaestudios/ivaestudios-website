@@ -22,11 +22,11 @@ import {
   CONTENT_TYPES, CONTENT_TYPE_ORDER,
   APPROVALS, PLATFORMS, GRABACION_LEVELS,
   avatar, statusLabel, contentTypeLabel, approvalLabel,
-} from '../api.js?v=202609082255';
-import * as apiMod from '../api.js?v=202609082255';
-import { T, isEN } from '../shell/i18n.js?v=202609082255';
-import { icon } from '../shell/icons.js?v=202609082255';
-import { isPast } from '../lib/dates.js?v=202609082255';
+} from '../api.js?v=202609082312';
+import * as apiMod from '../api.js?v=202609082312';
+import { T, isEN } from '../shell/i18n.js?v=202609082312';
+import { icon } from '../shell/icons.js?v=202609082312';
+import { isPast } from '../lib/dates.js?v=202609082312';
 
 // Prioridad: usa los mapas de api.js si el shell-core ya los agrego; si no,
 // cae a este espejo local (mismas keys que la migracion 005).
@@ -338,7 +338,7 @@ export function sortValueOf(key, post, allCols) {
 export const MOBILE_SORT_OPTIONS = [
   { key: 'fecha', label: T('Fecha', 'Date') },
   { key: 'estado', label: T('Estado', 'Status') },
-  { key: 'titulo', label: T('Titulo', 'Title') },
+  { key: 'titulo', label: T('Título', 'Title') },
   { key: 'grabacion', label: T('Grabacion', 'Recording') },
   { key: 'posicion', label: T('Posicion', 'Position') },
 ];

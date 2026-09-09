@@ -327,6 +327,13 @@ body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 .meses-stat.is-ok .meses-stat__v { color: #3FB984; }
 .meses-prog__track--seg { display: flex !important; gap: 2px; height: 8px; background: none !important; }
 .meses-prog__track--seg .meses-prog__seg { height: 100%; border-radius: 3px; min-width: 4px; }
+/* TELEFONO: en fila con wrap las cuatro tarjetas quedaban de anchos distintos
+   segun el largo de su palabra (PIEZAS, PUBLICADO, ATRASADOS, SIN APROBAR) y
+   la reja se veia chueca. Dos columnas iguales (medido a 390px, 2026-09-08). */
+@media (max-width: 560px) {
+  .meses-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .meses-stat { min-width: 0; padding: 11px 14px; }
+}
 
 /* La pildora de delta vive junto al numero del KPI. */
 .dash-counter__value { display: inline-flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }

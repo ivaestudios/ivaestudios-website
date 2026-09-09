@@ -18,22 +18,22 @@
 // Contrato de vista: export default { mount(el, ctx), onParams(), unmount() }.
 // ============================================================================
 
-import { el, clear, api, fmtDate, avatar } from '../api.js?v=202609082255';
-import { T } from '../shell/i18n.js?v=202609082255';
-import { icon } from '../shell/icons.js?v=202609082255';
-import { isPast } from '../lib/dates.js?v=202609082255';
-import * as viewsSvc from '../services/views.js?v=202609082255';
+import { el, clear, api, fmtDate, avatar } from '../api.js?v=202609082312';
+import { T } from '../shell/i18n.js?v=202609082312';
+import { icon } from '../shell/icons.js?v=202609082312';
+import { isPast } from '../lib/dates.js?v=202609082312';
+import * as viewsSvc from '../services/views.js?v=202609082312';
 import {
   buildColumns, visibleColumns,
   MOBILE_SORT_OPTIONS, CARD_FIELDS, DEFAULT_CARD_FIELDS, MAX_CARD_FIELDS,
   PRIORITIES, PRIORITY_ORDER, safeUrl,
   STATUSES, CONTENT_TYPES, GRABACION_LEVELS,
-} from '../table/columns.js?v=202609082255';
-import * as grp from '../table/groups.js?v=202609082255';
-import { createSelection } from '../table/selection.js?v=202609082255';
+} from '../table/columns.js?v=202609082312';
+import * as grp from '../table/groups.js?v=202609082312';
+import { createSelection } from '../table/selection.js?v=202609082312';
 import {
   createQuickAddRow, createQuickAddButton, openQuickAddSheet, resetChain,
-} from '../table/quickadd.js?v=202609082255';
+} from '../table/quickadd.js?v=202609082312';
 
 const FILTER_KEYS = ['estado', 'tipo', 'persona', 'desde', 'hasta', 'q'];
 const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', 'Could not save, try again.');
@@ -264,7 +264,7 @@ async function editTitle(post) {
   let draft = post.title || '';
   for (;;) {
     const v = await ctx.pickers.textExpand({
-      title: T('Titulo', 'Title'), value: draft, maxLength: 200,
+      title: T('Título', 'Title'), value: draft, maxLength: 200,
     });
     if (v === null) return;
     const title = String(v).trim();

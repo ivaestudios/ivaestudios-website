@@ -17,10 +17,10 @@
 //   position = max del grupo + 1000 (sparse).
 // ============================================================================
 
-import { el, fmtDate, CONTENT_TYPES, contentTypeLabel } from '../api.js?v=202609082255';
-import { T } from '../shell/i18n.js?v=202609082255';
-import { icon } from '../shell/icons.js?v=202609082255';
-import { defaultsForGroup } from './groups.js?v=202609082255';
+import { el, fmtDate, CONTENT_TYPES, contentTypeLabel } from '../api.js?v=202609082312';
+import { T } from '../shell/i18n.js?v=202609082312';
+import { icon } from '../shell/icons.js?v=202609082312';
+import { defaultsForGroup } from './groups.js?v=202609082312';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 
@@ -77,7 +77,7 @@ export function createQuickAddRow({ ctx, group, mode, colSpan, getNextPosition }
   const input = el('input', {
     class: 'input etable-qa__input',
     type: 'text',
-    placeholder: T('Titulo del contenido', 'Content title'),
+    placeholder: T('Título del contenido', 'Content title'),
     maxlength: '140',
     autocomplete: 'off',
     'aria-label': `${T('Titulo del nuevo contenido en', 'Title of the new content in')} ${group.label}`,
@@ -179,7 +179,7 @@ export function openQuickAddSheet({ ctx, group = null, mode = 'month', getNextPo
     build(body, close) {
       const input = el('input', {
         class: 'input', type: 'text',
-        placeholder: T('Titulo del contenido', 'Content title'),
+        placeholder: T('Título del contenido', 'Content title'),
         maxlength: '140', autocomplete: 'off',
         'aria-label': T('Titulo del nuevo contenido', 'Title of the new content'),
       });
@@ -244,7 +244,7 @@ export function openQuickAddSheet({ ctx, group = null, mode = 'month', getNextPo
       });
 
       body.append(
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Titulo', 'Title') }), input]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Título', 'Title') }), input]),
         el('div', { class: 'etable-qa__chips' }, [dateChip, typeChip]),
         el('div', { class: 'sheet__footer etable-qa__footer' }, [
           el('button', { class: 'btn', type: 'button', text: T('Listo', 'Done'), onclick: () => close({ source: 'done' }) }),

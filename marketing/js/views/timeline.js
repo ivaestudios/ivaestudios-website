@@ -26,15 +26,15 @@ import {
   el, clear,
   STATUSES, STATUS_ORDER, statusLabel,
   chip, statusBadge, avatar,
-} from '../api.js?v=202609082255';
-import { icon } from '../shell/icons.js?v=202609082255';
-import { T } from '../shell/i18n.js?v=202609082255';
+} from '../api.js?v=202609082312';
+import { icon } from '../shell/icons.js?v=202609082312';
+import { T } from '../shell/i18n.js?v=202609082312';
 import {
   toISO, parseISO, todayISO, addDays, addDaysISO, addMonths,
   diffDays, startOfWeek, monthRangeISO, listDays,
   fmtShort, fmtMonthYear,
   MESES, MESES_CORTOS, DIAS_INICIAL, DIAS_CORTOS,
-} from '../lib/dates.js?v=202609082255';
+} from '../lib/dates.js?v=202609082312';
 
 const DESKTOP_MQ = '(min-width: 720px)';
 const FINE_MQ = '(pointer: fine)';
@@ -305,7 +305,7 @@ function openQuickEdit(postId) {
     mode: 'form',
     build(body, close) {
       // Publicacion
-      const pubInput = el('input', { class: 'input', type: 'date', 'aria-label': T('Fecha de publicacion', 'Publish date') });
+      const pubInput = el('input', { class: 'input', type: 'date', 'aria-label': T('Fecha de publicación', 'Publish date') });
       if (cur().publish_date) pubInput.value = String(cur().publish_date).slice(0, 10);
       pubInput.addEventListener('change', () => {
         const v = pubInput.value || null;

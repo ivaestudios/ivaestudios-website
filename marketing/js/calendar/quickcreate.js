@@ -10,9 +10,9 @@ import {
   el,
   STATUS_ORDER,
   CONTENT_TYPES, CONTENT_TYPE_ORDER,
-} from '../api.js?v=202609082255';
-import { T } from '../shell/i18n.js?v=202609082255';
-import { parseYMD, dayLong, statusInfo, safeColor } from './data.js?v=202609082255';
+} from '../api.js?v=202609082312';
+import { T } from '../shell/i18n.js?v=202609082312';
+import { parseYMD, dayLong, statusInfo, safeColor } from './data.js?v=202609082312';
 
 /**
  * Abre el quick-create. `date` = 'YYYY-MM-DD' o '' (backlog).
@@ -38,8 +38,8 @@ export function openQuickCreate(ctx, { date = '', clientId = null } = {}) {
       // ── Titulo ─────────────────────────────────────────────────────────────
       const titleIn = el('input', {
         class: 'input', type: 'text', maxlength: '160',
-        placeholder: T('Titulo del contenido', 'Content title'),
-        'aria-label': T('Titulo del contenido', 'Content title'),
+        placeholder: T('Título del contenido', 'Content title'),
+        'aria-label': T('Título del contenido', 'Content title'),
       });
       titleIn.addEventListener('input', () => { model.title = titleIn.value; });
 
@@ -107,7 +107,7 @@ export function openQuickCreate(ctx, { date = '', clientId = null } = {}) {
       dateBtn.addEventListener('click', async () => {
         const picked = await ctx.pickers.pickDate({
           current: model.publish_date || null,
-          title: T('Fecha de publicacion', 'Publish date'),
+          title: T('Fecha de publicación', 'Publish date'),
           allowClear: true,
         });
         if (picked === null) return;
@@ -182,7 +182,7 @@ export function openQuickCreate(ctx, { date = '', clientId = null } = {}) {
       // TEXTO "null". Sin cliente elegible (vista de una sola marca) salia esa
       // palabra suelta arriba del formulario.
       body.append(...[
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Titulo', 'Title') }), titleIn]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Título', 'Title') }), titleIn]),
         clientBtn ? el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Cliente', 'Client') }), clientBtn]) : null,
         el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Tipo de contenido', 'Content type') }), typeWrap]),
         el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Fecha', 'Date') }), dateBtn]),

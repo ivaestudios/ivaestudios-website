@@ -19,13 +19,13 @@ import {
   el,
   statusBadge, approvalBadge, chip,
   fmtDate, avatar, isClientRole,
-} from '../api.js?v=202609082255';
-import { pickFrom } from '../shell/sheet.js?v=202609082255';
-import * as store from '../shell/store.js?v=202609082255';
-import * as checklistService from '../services/checklist.js?v=202609082255';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202609082255';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609082255';
-import { T } from '../shell/i18n.js?v=202609082255';
+} from '../api.js?v=202609082312';
+import { pickFrom } from '../shell/sheet.js?v=202609082312';
+import * as store from '../shell/store.js?v=202609082312';
+import * as checklistService from '../services/checklist.js?v=202609082312';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202609082312';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609082312';
+import { T } from '../shell/i18n.js?v=202609082312';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -65,7 +65,7 @@ export function mount(host, ed) {
 
   // ── Fecha ──────────────────────────────────────────────────────────────────
   const rFecha = rowButton({
-    label: T('Fecha de publicacion', 'Publish date'),
+    label: T('Fecha de publicación', 'Publish date'),
     render: (v) => {
       const d = post().publish_date;
       if (d) v.appendChild(el('span', { class: 'edrow__date', text: fmtDate(d, { weekday: 'short', day: 'numeric', month: 'short' }) }));

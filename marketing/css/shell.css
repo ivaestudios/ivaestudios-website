@@ -29,7 +29,10 @@ body { --chrome-h: calc(var(--topbar-h2) + env(safe-area-inset-top, 0px) + var(-
      correo + versión nueva). Lo publica shell.js midiendo el contenedor, así
      el contenido nunca queda tapado, haya 0, 1, 2 o 3 franjas. */
   padding-top: calc(var(--topbar-h2) + env(safe-area-inset-top, 0px) + var(--bars-h, 0px));
-  padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 20px);
+  /* 88px = 56 del FAB + 16 de su separacion + 16 de aire. Con 20px el boton
+     flotante se comia el ultimo renglon (Pipeline en Inicio, el boton de
+     subir en Entregables). Medido a 390x844 el 2026-09-08. */
+  padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 88px);
 }
 body.has-subhead #viewScroll {
   padding-top: calc(var(--topbar-h2) + env(safe-area-inset-top, 0px) + var(--subhead-h) + var(--bars-h, 0px));
@@ -150,7 +153,11 @@ body.has-subhead #viewScroll {
    pierde nada) y el nombre de la marca cede ancho. */
 @media (max-width: 639px) {
   .tb-lang { display: none; }
-  .tb-client { max-width: 40vw; }
+  /* El de TEMA se va igual que el de idioma: ambos viven en el menu de cuenta
+     (2026-09-08). Sus 44px son justo los que le faltaban al nombre de la marca,
+     que salia cortado como "ADAGI...". */
+  .tb-theme { display: none; }
+  .tb-client { max-width: 52vw; }
   .tb-inner { gap: 4px; }
   .tb-avatar { margin-right: 2px; }
 }
@@ -517,7 +524,12 @@ body.has-subhead #viewScroll {
   background: var(--grad); color: #fff;
   font-size: var(--fs-1); font-weight: 800; line-height: 22px; text-align: center;
 }
-.cs-row__check { color: var(--brand); flex: none; }
+.cs-row__check { color: var(--brand); flex: none; width: 16px; }
+/* Columnas que guardan su lugar aunque no tengan nada que enseñar: sin esto el
+   numero y la palomita se recorrian renglon a renglon y la lista se veia
+   chueca. Invisibles, pero siguen midiendo (2026-09-08). */
+.cs-row__badge.is-vacio { background: none; box-shadow: none; visibility: hidden; }
+.cs-row__check.is-vacio { visibility: hidden; }
 .cs-empty { padding: var(--s-5); text-align: center; color: var(--text-mute); font-size: var(--fs-2); }
 .cs-foot { padding-top: var(--s-3); margin-top: var(--s-2); border-top: 1px solid var(--border); }
 .cs-new { width: 100%; min-height: 48px; justify-content: center; display: flex; align-items: center; gap: 8px; }
@@ -965,8 +977,12 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
 .tb-client--static:hover { background: transparent; border-color: transparent; }
 
 /* ── Switcher: fila con lápiz de edición (staff) ── */
-.cs-rowwrap { display: flex; align-items: stretch; gap: 2px; }
+.cs-rowwrap { display: flex; align-items: stretch; gap: 2px; border-radius: var(--r); }
 .cs-rowwrap .cs-row { flex: 1; min-width: 0; }
+/* El marco del cliente activo abarca el renglon ENTERO, lapiz incluido. Antes
+   se cortaba justo antes del lapiz y parecia una caja mal puesta. */
+.cs-rowwrap.is-active { box-shadow: inset 0 0 0 1.5px var(--brand); }
+.cs-rowwrap.is-active .cs-row.is-active { box-shadow: none; }
 .cs-row__edit {
   display: inline-flex; align-items: center; justify-content: center;
   width: 44px; min-width: 44px; background: none; border: 0; padding: 0;

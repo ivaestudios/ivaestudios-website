@@ -19,9 +19,9 @@ import {
   CONTENT_TYPES, APPROVALS, PRIORITIES,
   contentTypeLabel, approvalLabel,
   fmtDate, parseDate, avatar,
-} from '../api.js?v=202609082255';
-import { icon } from '../shell/icons.js?v=202609082255';
-import { T, isEN } from '../shell/i18n.js?v=202609082255';
+} from '../api.js?v=202609082312';
+import { icon } from '../shell/icons.js?v=202609082312';
+import { T, isEN } from '../shell/i18n.js?v=202609082312';
 
 export const DEFAULT_CARD_FIELDS = {
   fecha: true,
@@ -33,7 +33,7 @@ export const DEFAULT_CARD_FIELDS = {
 };
 
 export const CARD_FIELD_LABELS = {
-  fecha: T('Fecha de publicacion', 'Publish date'),
+  fecha: T('Fecha de publicación', 'Publish date'),
   tipo: T('Tipo de contenido', 'Content type'),
   plataforma: T('Plataforma', 'Platform'),
   persona: T('Responsable', 'Assignee'),

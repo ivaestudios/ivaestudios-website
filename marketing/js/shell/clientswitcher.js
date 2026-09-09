@@ -10,12 +10,12 @@
 //   el set optimista + pref lastClient + ?cliente= replace + client:changed.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202609082255';
-import { openSheet } from './sheet.js?v=202609082255';
-import { toast } from './toast.js?v=202609082255';
-import * as store from './store.js?v=202609082255';
-import { icon } from './icons.js?v=202609082255';
-import { T } from './i18n.js?v=202609082255';
+import { api, el } from '../api.js?v=202609082312';
+import { openSheet } from './sheet.js?v=202609082312';
+import { toast } from './toast.js?v=202609082312';
+import * as store from './store.js?v=202609082312';
+import { icon } from './icons.js?v=202609082312';
+import { T } from './i18n.js?v=202609082312';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -32,12 +32,15 @@ function clientRow(c, activeId, onPick, onEdit) {
       el('span', { class: 'cs-row__name', text: c.name }),
       c.instagram_handle ? el('span', { class: 'cs-row__sub', text: '@' + String(c.instagram_handle).replace(/^@/, '') }) : null,
     ]),
-    pending ? el('span', { class: 'cs-row__badge', text: String(pending), title: `${pending} ${T('por aprobar', 'pending approval')}` }) : null,
-    c.id === activeId ? el('span', { class: 'cs-row__check' }, [icon('check', 16)]) : null,
+    // El numero y la palomita SIEMPRE ocupan su lugar (vacios cuando no van):
+    // pintarlos solo a veces dejaba el borde derecho de la lista todo
+    // desparejo, con los numeros bailando de renglon en renglon (2026-09-08).
+    el('span', { class: 'cs-row__badge' + (pending ? '' : ' is-vacio'), text: pending ? String(pending) : '', ...(pending ? { title: `${pending} ${T('por aprobar', 'pending approval')}` } : { 'aria-hidden': 'true' }) }),
+    el('span', { class: 'cs-row__check' + (c.id === activeId ? '' : ' is-vacio'), 'aria-hidden': c.id === activeId ? null : 'true' }, c.id === activeId ? [icon('check', 16)] : []),
   ]);
   if (!onEdit) return row;
   // Staff: lápiz para editar la marca (nombre, color, IG, logo) sin salir.
-  return el('div', { class: 'cs-rowwrap' }, [
+  return el('div', { class: 'cs-rowwrap' + (c.id === activeId ? ' is-active' : '') }, [
     row,
     el('button', {
       class: 'cs-row__edit', type: 'button',

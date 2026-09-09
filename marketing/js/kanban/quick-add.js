@@ -14,9 +14,9 @@
 // en el store; aqui solo toast de exito).
 // ============================================================================
 
-import { el, STATUSES, STATUS_ORDER, statusLabel, fmtDate } from '../api.js?v=202609082255';
-import { icon } from '../shell/icons.js?v=202609082255';
-import { T } from '../shell/i18n.js?v=202609082255';
+import { el, STATUSES, STATUS_ORDER, statusLabel, fmtDate } from '../api.js?v=202609082312';
+import { icon } from '../shell/icons.js?v=202609082312';
+import { T } from '../shell/i18n.js?v=202609082312';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -55,7 +55,7 @@ export function createColumnComposer({ ctx, getStatus, getClientId, getNextPosit
   const input = el('input', {
     class: 'input kb-composer__input',
     type: 'text',
-    placeholder: T('Titulo del contenido', 'Content title'),
+    placeholder: T('Título del contenido', 'Content title'),
     maxlength: '140',
     autocomplete: 'off',
     'aria-label': T('Titulo del nuevo contenido', 'Title of the new content'),
@@ -144,7 +144,7 @@ export function openQuickAddSheet({ ctx, status = null, getNextPosition, onCreat
     build(body, close) {
       const input = el('input', {
         class: 'input', type: 'text',
-        placeholder: T('Titulo del contenido', 'Content title'),
+        placeholder: T('Título del contenido', 'Content title'),
         maxlength: '140', autocomplete: 'off',
         'aria-label': T('Titulo del nuevo contenido', 'Title of the new content'),
       });
@@ -220,7 +220,7 @@ export function openQuickAddSheet({ ctx, status = null, getNextPosition, onCreat
       });
 
       body.append(
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Titulo', 'Title') }), input]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Título', 'Title') }), input]),
         el('div', { class: 'kb-qa-rows' }, [statusRow, dateRow, clientRow]),
         el('div', { class: 'sheet__footer' }, [
           el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),

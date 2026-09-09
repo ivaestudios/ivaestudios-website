@@ -1044,6 +1044,22 @@ ul { margin: 0; padding: 0; list-style: none; }
 .seg::-webkit-scrollbar { display: none; }
 .seg button { scroll-snap-align: center; white-space: nowrap; }
 
+/* ── Segmented que NO cabe: que se note que sigue, en vez de cortar la palabra
+   a la mitad (2026-09-08). A 390px las pestanas de contenido terminaban en
+   "Marc" y las de Avisos en "Asignadas" pegada al filo, y leia como roto.
+   segfade.js pone .seg--ovf cuando de verdad desborda, y .seg--ini/.seg--fin
+   segun donde este el scroll; asi un segmented que SI cabe no se degrada. --- */
+.seg--ovf {
+  -webkit-mask-image: linear-gradient(to right,
+    transparent 0, #000 var(--seg-ini, 0px),
+    #000 calc(100% - var(--seg-fin, 0px)), transparent 100%);
+  mask-image: linear-gradient(to right,
+    transparent 0, #000 var(--seg-ini, 0px),
+    #000 calc(100% - var(--seg-fin, 0px)), transparent 100%);
+}
+.seg--ovf.seg--ini { --seg-ini: 26px; }
+.seg--ovf.seg--fin { --seg-fin: 26px; }
+
 /* Badge de prioridad (mismo patron que .approval-badge) */
 .priority-badge {
   display: inline-flex; align-items: center; gap: 6px;
