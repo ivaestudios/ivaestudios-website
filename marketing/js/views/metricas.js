@@ -14,9 +14,9 @@
 // API no devuelva (sin comparativas, sin flechas, sin sparklines: no hay
 // histórico de seguidores — ver el reporte final de esta tanda).
 // ============================================================================
-import { api, el, clear, isClientRole } from '../api.js?v=202609091256';
-import { icon } from '../shell/icons.js?v=202609091256';
-import { T, isEN } from '../shell/i18n.js?v=202609091256';
+import { api, el, clear, isClientRole } from '../api.js?v=202609091303';
+import { icon } from '../shell/icons.js?v=202609091303';
+import { T, isEN } from '../shell/i18n.js?v=202609091303';
 
 const VIEW_ID = 'metricas';
 
@@ -188,7 +188,7 @@ function ensureCss() {
   // app.html, así que ningún bump global toca este sello. Si editas
   // metricas.css, sube este número A MANO o el cambio no llega (el SW sirve
   // cache-first todo lo que trae ?v=).
-  link.href = '/marketing/css/metricas.css?v=202609091256';
+  link.href = '/marketing/css/metricas.css?v=202609091303';
   document.head.appendChild(link);
 }
 
@@ -1057,9 +1057,13 @@ function render() {
       // "Alcance" SÓLO cuando el héroe son vistas. Si el héroe ya es alcance
       // (marca que sólo publica fotos/carruseles), esta tarjeta imprimía el
       // mismo número dos veces, una al lado de la otra, con dos rótulos.
-      hasViews && t.reach ? kpi(T('Alcance', 'Reach'), nfBig(t.reach), T(
-        'Cuentas distintas que vieron tus publicaciones del periodo.',
-        'Distinct accounts that saw your posts this period.',
+      // ⚠️ Esto es una SUMA del alcance de cada publicación, no un conteo de
+      // cuentas distintas: quien vio dos publicaciones cuenta dos veces. Decía
+      // "cuentas distintas" y era mentira (auditoría 2026-09-09). El alcance
+      // deduplicado de verdad es el de la tarjeta "Alcance · 28 días".
+      hasViews && t.reach ? kpi(T('Alcance sumado', 'Combined reach'), nfBig(t.reach), T(
+        'Suma del alcance de cada publicación. Quien vio dos, cuenta dos veces. El alcance real de la cuenta, sin repetir a nadie, es el de "Alcance · 28 días".',
+        'The reach of each post added up. Someone who saw two posts counts twice. The account\u2019s real de-duplicated reach is the "Reach · 28 days" card.',
       )) : null,
       kpi(T('Interacciones', 'Interactions'), nfBig(t.interactions), T(
         'Me gusta, comentarios, guardados y compartidos.',
