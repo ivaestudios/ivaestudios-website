@@ -1,0 +1,32 @@
+/* ═══════════════════════════════════════════════════════════════
+   ÁREA TOCABLE MÍNIMA · páginas de ciudad y venue · 2026-09-08
+   Estas 27 páginas NO cargan responsive.css, así que ninguna de las
+   reglas de área tocable del sitio les llegaba nunca. Medido en
+   WebKit a 402px: las migas de navegación en 14px de alto y los
+   enlaces del pie en 21px. Son navegación, no texto dentro de una
+   frase, así que les corresponde el mínimo de 44px.
+
+   Por qué no basta con `a { min-height: 44px }`: esa propiedad NO
+   aplica a elementos en LÍNEA, y estos enlaces lo son. Hay que
+   sacarlos del flujo en línea para que la altura mínima cuente.
+
+   Se sirve como hoja aparte y no metiendo responsive.css entero,
+   porque esa trae reglas de maquetación de todo el sitio y estas
+   páginas tienen su propio estilo embebido.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Migas: el relleno crece hacia arriba y hacia abajo y se le resta
+   por margen, para que la fila siga cayendo donde caía. */
+.bc a {
+  display: inline-block;
+  padding: 15px 4px;
+  margin: -15px 0;
+}
+
+/* Pie: aquí sí conviene que separe más, son enlaces apilados. */
+footer .col-links a,
+.col-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
