@@ -9,12 +9,12 @@
 // panel lateral de >= 768px.
 // ============================================================================
 
-import { el } from '../api.js?v=202609091827';
-import { T } from '../shell/i18n.js?v=202609091827';
-import { buildPostCard } from './data.js?v=202609091827';
-import { cardDraggable, openCardMenu, reschedule, markDropTarget } from './dnd.js?v=202609091827';
-import { openQuickCreate } from './quickcreate.js?v=202609091827';
-import * as calState from './state.js?v=202609091827';
+import { el } from '../api.js?v=202609091829';
+import { T } from '../shell/i18n.js?v=202609091829';
+import { buildPostCard } from './data.js?v=202609091829';
+import { cardDraggable, openCardMenu, reschedule, markDropTarget } from './dnd.js?v=202609091829';
+import { openQuickCreate } from './quickcreate.js?v=202609091829';
+import * as calState from './state.js?v=202609091829';
 
 /**
  * Renderiza el panel dentro de `asideEl` (lo vacia primero).

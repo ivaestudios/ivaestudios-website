@@ -79,6 +79,10 @@ export async function handleFbLogin(request, env, session, url) {
     state: nonce,
     response_type: 'code',
     config_id: env.FB_CONFIG_ID,
+    // El dialogo de Facebook sale en el idioma de la CUENTA de la persona, no
+    // del sitio. Para el video de la revision de Meta (todo en ingles) se le
+    // pide explicito con locale cuando se entro con ?lang=en.
+    ...(lang === 'en' ? { locale: 'en_US' } : {}),
   });
   return Response.redirect(`${FB_AUTH}?${p}`, 302);
 }

@@ -12,9 +12,9 @@
 // dos temas (usa --warn / --text-mute / --text-dim).
 // ============================================================================
 
-import { el } from '../api.js?v=202609091827';
-import { icon } from '../shell/icons.js?v=202609091827';
-import { T } from '../shell/i18n.js?v=202609091827';
+import { el } from '../api.js?v=202609091829';
+import { icon } from '../shell/icons.js?v=202609091829';
+import { T } from '../shell/i18n.js?v=202609091829';
 
 /**
  * Card unica de error con reintento.
