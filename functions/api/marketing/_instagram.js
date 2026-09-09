@@ -22,8 +22,8 @@ const IG_SCOPE = 'instagram_business_basic,instagram_business_manage_insights,in
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 }
-function html(body, status = 200) {
-  return new Response(`<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Instagram · IVAE Marketing</title><style>body{font:15px/1.6 -apple-system,sans-serif;background:#0d0d14;color:#eee;display:grid;place-items:center;min-height:100vh;margin:0;padding:20px}main{max-width:430px;background:#16161f;border:1px solid #2a2a38;border-radius:16px;padding:26px}h1{font-size:18px;margin:0 0 10px}p{color:#aaa}a{display:inline-flex;align-items:center;gap:10px;background:#1e1e2a;border:1px solid #33334a;border-radius:12px;color:#fff;padding:13px 14px;margin-top:10px;text-decoration:none}small{color:#888}</style><main>${body}</main>`,
+function html(body, status = 200, en = false) {
+  return new Response(`<!doctype html><html lang="${en ? 'en' : 'es'}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Instagram · IVAE Marketing</title><style>body{font:15px/1.6 -apple-system,sans-serif;background:#0d0d14;color:#eee;display:grid;place-items:center;min-height:100vh;margin:0;padding:20px}main{max-width:430px;background:#16161f;border:1px solid #2a2a38;border-radius:16px;padding:26px}h1{font-size:18px;margin:0 0 10px}p{color:#aaa}a{display:inline-flex;align-items:center;gap:10px;background:#1e1e2a;border:1px solid #33334a;border-radius:12px;color:#fff;padding:13px 14px;margin-top:10px;text-decoration:none}small{color:#888}</style><main>${body}</main>`,
     { status, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
 }
 function rnd() {
@@ -60,7 +60,8 @@ export async function handleIgLogin(request, env, session, url) {
   if (!client) return json({ error: 'Cliente no encontrado' }, 404);
 
   const nonce = rnd();
-  await kvSet(env, `ig_state_${nonce}`, JSON.stringify({ c: clientId, t: Date.now() }));
+  const en = url.searchParams.get('lang') === 'en';
+  await kvSet(env, `ig_state_${nonce}`, JSON.stringify({ c: clientId, t: Date.now(), l: en ? 'en' : 'es' }));
   const p = new URLSearchParams({
     client_id: env.META_APP_ID,
     redirect_uri: redirectUri(request),
@@ -84,7 +85,11 @@ export async function handleIgCallback(request, env, url) {
   if (!code || !raw) return html(`<h1>Link inválido o caducado</h1><p>Vuelve a la app e intenta "Conectar Instagram" de nuevo.</p><a href="${back}">Volver a la app</a>`, 400);
   let st;
   try { st = JSON.parse(raw); } catch { return html('<h1>Estado corrupto</h1>', 400); }
-  if (Date.now() - st.t > 10 * 60 * 1000) return html(`<h1>El intento caducó</h1><p>Hazlo de nuevo desde la app.</p><a href="${back}">Volver</a>`, 400);
+  const en = st.l === 'en';
+  const T = (es, ing) => (en ? ing : es);
+  if (Date.now() - st.t > 10 * 60 * 1000) {
+    return html(`<h1>${T('El intento caducó', 'This attempt expired')}</h1><p>${T('Hazlo de nuevo desde la app.', 'Try again from the app.')}</p><a href="${back}">${T('Volver', 'Back')}</a>`, 400, en);
+  }
 
   try {
     // 1) code → token corto + user_id
@@ -127,10 +132,11 @@ export async function handleIgCallback(request, env, url) {
     ).bind(String(t1.user_id), st.c).first();
     if (clash) {
       return html(
-        `<h1>Esa cuenta ya es de otra marca</h1><p>La cuenta ${username ? '<b>@' + username + '</b>' : 'de Instagram'} ya está conectada a <b>${clash.name}</b>. ` +
-        'Cierra sesión en Instagram y entra con la cuenta correcta de esta marca, o desconéctala primero de la otra.</p>' +
-        `<a href="${back}">Volver a la app</a>`,
-        409,
+        `<h1>${T('Esa cuenta ya es de otra marca', 'That account belongs to another brand')}</h1>`
+        + `<p>${T(`La cuenta ${username ? '<b>@' + username + '</b>' : 'de Instagram'} ya está conectada a <b>${clash.name}</b>. Cierra sesión en Instagram y entra con la cuenta correcta de esta marca, o desconéctala primero de la otra.`,
+          `The account ${username ? '<b>@' + username + '</b>' : 'on Instagram'} is already linked to <b>${clash.name}</b>. Sign out of Instagram and sign in with the right account for this brand, or disconnect it from the other one first.`)}</p>`
+        + `<a href="${back}">${T('Volver a la app', 'Back to the app')}</a>`,
+        409, en,
       );
     }
 
@@ -139,9 +145,15 @@ export async function handleIgCallback(request, env, url) {
     ).bind(String(t1.user_id), username, token, st.c).run();
     await env.DB.prepare('DELETE FROM mkt_ig_metrics WHERE client_id = ?').bind(st.c).run().catch(() => {});
 
-    return html(`<h1>✅ ${username ? '@' + username : 'Instagram'} conectado</h1><p>Las métricas ya van a salir en el reporte mensual de esta marca.</p><a href="${back}">Volver a la app</a>`);
+    return html(
+      `<h1>✅ ${username ? '@' + username : 'Instagram'} ${T('conectado', 'connected')}</h1>`
+      + `<p>${T('Las métricas ya van a salir en el reporte mensual de esta marca.',
+        'Insights will now appear in this brand\u2019s monthly report.')}</p>`
+      + `<a href="${back}">${T('Volver a la app', 'Back to the app')}</a>`,
+      200, en,
+    );
   } catch (e) {
-    return html(`<h1>Meta devolvió un error</h1><p>${String(e.message || e).slice(0, 250)}</p><a href="${back}">Volver a la app</a>`, 502);
+    return html(`<h1>${T('Meta devolvió un error', 'Meta returned an error')}</h1><p>${String(e.message || e).slice(0, 250)}</p><a href="${back}">${T('Volver a la app', 'Back to the app')}</a>`, 502, en);
   }
 }
 

@@ -10,9 +10,9 @@
 // El precio de Google se cobra POR SEGUNDO, así que la duración cambia el
 // costo y por eso se enseña junta con la calidad, nunca escondida.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609090003';
-import { icon } from '../shell/icons.js?v=202609090003';
-import { T } from '../shell/i18n.js?v=202609090003';
+import { api, el, clear, toast } from '../api.js?v=202609090048';
+import { icon } from '../shell/icons.js?v=202609090048';
+import { T } from '../shell/i18n.js?v=202609090048';
 
 const VIEW_ID = 'video-ia';
 const MXN = 20; // tipo de cambio aproximado, solo para orientar
@@ -87,7 +87,7 @@ function ensureCss() {
   const has = [...document.querySelectorAll('link[rel="stylesheet"]')].some((l) => (l.getAttribute('href') || '').includes('/marketing/css/video-ia.css'));
   if (has) return;
   const link = document.createElement('link'); link.rel = 'stylesheet';
-  link.href = '/marketing/css/video-ia.css?v=202609090003'; document.head.appendChild(link);
+  link.href = '/marketing/css/video-ia.css?v=202609090048'; document.head.appendChild(link);
 }
 
 async function cargar() {
