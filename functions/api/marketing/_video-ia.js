@@ -192,7 +192,15 @@ function viaGoogle(env) {
   return null;
 }
 function viaFal(env) { return !!(env.FAL_KEY && String(env.FAL_KEY).trim()); }
-function viaSora(env) { return !!(env.OPENAI_API_KEY && String(env.OPENAI_API_KEY).trim()); }
+// OpenAI apaga la API de Sora 2 el 24 de septiembre de 2026 (anunciado el
+// 24-mar-2026, confirmado en developers.openai.com/api/docs/deprecations).
+// Desde ese dia el nivel desaparece del menu solo, sin que nadie tenga que
+// acordarse: un boton que ya no responde es peor que un boton que no esta.
+const SORA_SE_APAGA = Date.UTC(2026, 8, 24); // 24-sep-2026 00:00 UTC
+function viaSora(env) {
+  if (Date.now() >= SORA_SE_APAGA) return false;
+  return !!(env.OPENAI_API_KEY && String(env.OPENAI_API_KEY).trim());
+}
 function viaReplicate(env) { return !!(env.REPLICATE_API_TOKEN && String(env.REPLICATE_API_TOKEN).trim()); }
 
 function disponible(env, tier) {
@@ -534,6 +542,9 @@ export async function estado(env) {
   const catalogo = {};
   for (const [k, c] of Object.entries(CATALOGO)) {
     catalogo[k] = {
+      // retirado: el proveedor ya no existe (Sora desde el 24-sep-2026). La
+      // vista lo esconde del todo, en vez de decir "falta conectar".
+      retirado: c.proveedor === 'sora' && Date.now() >= SORA_SE_APAGA,
       label: c.label, sub: c.sub, modelo: c.modelo, proveedor: c.proveedor,
       usdSeg: c.usdSeg, audio: c.audio, personas: c.personas,
       segundos: c.proveedor === 'google'

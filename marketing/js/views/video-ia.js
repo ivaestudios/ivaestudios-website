@@ -10,9 +10,9 @@
 // El precio de Google se cobra POR SEGUNDO, así que la duración cambia el
 // costo y por eso se enseña junta con la calidad, nunca escondida.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609091303';
-import { icon } from '../shell/icons.js?v=202609091303';
-import { T } from '../shell/i18n.js?v=202609091303';
+import { api, el, clear, toast } from '../api.js?v=202609091827';
+import { icon } from '../shell/icons.js?v=202609091827';
+import { T } from '../shell/i18n.js?v=202609091827';
 
 const VIEW_ID = 'video-ia';
 const MXN = 20; // tipo de cambio aproximado, solo para orientar
@@ -87,7 +87,7 @@ function ensureCss() {
   const has = [...document.querySelectorAll('link[rel="stylesheet"]')].some((l) => (l.getAttribute('href') || '').includes('/marketing/css/video-ia.css'));
   if (has) return;
   const link = document.createElement('link'); link.rel = 'stylesheet';
-  link.href = '/marketing/css/video-ia.css?v=202609091303'; document.head.appendChild(link);
+  link.href = '/marketing/css/video-ia.css?v=202609091827'; document.head.appendChild(link);
 }
 
 async function cargar() {
@@ -333,6 +333,7 @@ function render() {
   let marcado = false;
   for (const k of claves) {
     const c = estado.catalogo[k];
+    if (c.retirado) continue;   // proveedor apagado (Sora desde el 24-sep-2026): ni se muestra
     const input = el('input', { type: 'radio', name: 'via-tier', value: k, id: 'via-tier-' + k, onchange: refrescarPrecios });
     if (!c.listo) input.disabled = true;
     if (c.listo && !marcado) { input.checked = true; marcado = true; }
