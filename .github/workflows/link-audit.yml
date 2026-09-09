@@ -35,5 +35,11 @@ jobs:
             python scripts/audit_links.py
           fi
 
+      - name: Fuentes precargadas siguen vivas
+        # Las URLs de fonts.gstatic.com llevan la version dentro y Google
+        # las retira al subir de version: una precarga clavada se pudre en
+        # silencio. Paso 404 -> 200 el 2026-09-09 tras cinco versiones rota.
+        run: python3 scripts/auditar_fuentes_precargadas.py --fail-on-broken
+
       - name: SEO audit
         run: python3 scripts/audit_seo.py --fail-on-error
