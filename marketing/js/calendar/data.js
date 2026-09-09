@@ -7,8 +7,8 @@
 // - Sin estado propio: funciones puras + builders pequenos sin side effects.
 // ============================================================================
 
-import { el, statusBadge, chip, STATUSES, CONTENT_TYPES } from '../api.js?v=202609082320';
-import { T } from '../shell/i18n.js?v=202609082320';
+import { el, statusBadge, chip, STATUSES, CONTENT_TYPES } from '../api.js?v=202609082323';
+import { T } from '../shell/i18n.js?v=202609082323';
 
 // ── Fechas ───────────────────────────────────────────────────────────────────
 
@@ -272,7 +272,7 @@ export function buildPostCard(ctx, post, { client = null, showDate = false, onMo
   }, [
     el('span', { class: 'cal-card__title' }, [
       client ? clientDotEl(client) : null,
-      el('span', { class: 'cal-card__titletxt', text: post.title || T('Sin titulo', 'Untitled') }),
+      el('span', { class: 'cal-card__titletxt', text: post.title || T('Sin título', 'Untitled') }),
     ]),
     meta,
   ]);

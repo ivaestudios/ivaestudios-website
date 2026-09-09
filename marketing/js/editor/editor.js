@@ -23,20 +23,20 @@
 // Contrato de vista: export default { id, mount(el, ctx), onParams, unmount }.
 // ============================================================================
 
-import { el, api, statusBadge, approvalBadge, fmtDate, fmtDateTime, isClientRole} from '../api.js?v=202609082320';
-import { T } from '../shell/i18n.js?v=202609082320';
-import { icon } from '../shell/icons.js?v=202609082320';
-import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202609082320';
-import * as store from '../shell/store.js?v=202609082320';
-import * as cl from '../services/checklist.js?v=202609082320';
-import { createAutosave } from './autosave.js?v=202609082320';
-import { textExpand } from '../ui/pickers.js?v=202609082320';
-import { openActionsMenu } from './actions.js?v=202609082320';
-import { mount as mountContenido } from './tab-contenido.js?v=202609082320';
-import { mount as mountGuion } from './tab-guion.js?v=202609082320';
-import { mount as mountChecklist } from './tab-checklist.js?v=202609082320';
-import { mount as mountConversacion } from './tab-conversacion.js?v=202609082320';
-import { mount as mountActividad } from './tab-actividad.js?v=202609082320';
+import { el, api, statusBadge, approvalBadge, fmtDate, fmtDateTime, isClientRole} from '../api.js?v=202609082323';
+import { T } from '../shell/i18n.js?v=202609082323';
+import { icon } from '../shell/icons.js?v=202609082323';
+import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202609082323';
+import * as store from '../shell/store.js?v=202609082323';
+import * as cl from '../services/checklist.js?v=202609082323';
+import { createAutosave } from './autosave.js?v=202609082323';
+import { textExpand } from '../ui/pickers.js?v=202609082323';
+import { openActionsMenu } from './actions.js?v=202609082323';
+import { mount as mountContenido } from './tab-contenido.js?v=202609082323';
+import { mount as mountGuion } from './tab-guion.js?v=202609082323';
+import { mount as mountChecklist } from './tab-checklist.js?v=202609082323';
+import { mount as mountConversacion } from './tab-conversacion.js?v=202609082323';
+import { mount as mountActividad } from './tab-actividad.js?v=202609082323';
 
 const TABS = [
   { key: 'contenido', label: T('Contenido', 'Content'), mount: mountContenido },
@@ -199,7 +199,7 @@ async function openApprovalPicker(anchor) {
   // El copy cambia por rol: para el CLIENTE es SU decisión (no "forzar" nada).
   const esCliente = isClientRole();
   const decision = await pickFrom({
-    title: esCliente ? T('¿Qué quieres hacer con esta pieza?', 'What do you want to do with this piece?') : T('Aprobacion', 'Approval'),
+    title: esCliente ? T('¿Qué quieres hacer con esta pieza?', 'What do you want to do with this piece?') : T('Aprobación', 'Approval'),
     anchor,
     options: [
       { value: 'approved', label: T('Aprobado', 'Approved'), color: '#22c55e', sub: esCliente ? T('Queda lista y el equipo se entera.', 'Marks it ready and the team is notified.') : T('Esto fuerza la decision del cliente', 'This overrides the client\'s decision'), current: cur === 'approved' },

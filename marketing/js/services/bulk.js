@@ -30,11 +30,11 @@
 // con scope=all. El frontend funciona con ambos backends.
 // ============================================================================
 
-import { api } from '../api.js?v=202609082320';
-import { toast } from '../shell/toast.js?v=202609082320';
-import * as store from '../shell/store.js?v=202609082320';
-import { addDaysISO } from '../lib/dates.js?v=202609082320';
-import { T } from '../shell/i18n.js?v=202609082320';
+import { api } from '../api.js?v=202609082323';
+import { toast } from '../shell/toast.js?v=202609082323';
+import * as store from '../shell/store.js?v=202609082323';
+import { addDaysISO } from '../lib/dates.js?v=202609082323';
+import { T } from '../shell/i18n.js?v=202609082323';
 
 const BULK_UPDATE_ENDPOINT = '/posts/bulk-update';
 const BULK_DELETE_ENDPOINT = '/posts/bulk-delete';
@@ -364,7 +364,7 @@ export async function bulkDuplicate(ids) {
         for (const k of DUP_FIELDS) {
           if (src[k] !== undefined && src[k] !== null) body[k] = src[k];
         }
-        body.title = `${src.title || T('Sin titulo', 'Untitled')} ${T('(copia)', '(copy)')}`;
+        body.title = `${src.title || T('Sin título', 'Untitled')} ${T('(copia)', '(copy)')}`;
         return api.post('/posts', body);
       }));
       created = [];

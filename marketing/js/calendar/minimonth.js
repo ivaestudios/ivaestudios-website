@@ -7,13 +7,13 @@
 // - Navegacion: chevrons + swipe horizontal (umbral 48px).
 // ============================================================================
 
-import { el } from '../api.js?v=202609082320';
-import { T } from '../shell/i18n.js?v=202609082320';
+import { el } from '../api.js?v=202609082323';
+import { T } from '../shell/i18n.js?v=202609082323';
 import {
   fmtYMD, addMonths, startOfMonth, monthMatrix,
   sameMonth, monthTitle, dayLong, todayYMD, statusInfo, DOW_MIN,
-} from './data.js?v=202609082320';
-import { markDropTarget } from './dnd.js?v=202609082320';
+} from './data.js?v=202609082323';
+import { markDropTarget } from './dnd.js?v=202609082323';
 
 // Titulos visibles por dia en el mini-mes (estilo iPhone). El resto se resume
 // en un "+N"; el dia completo se ve al tocarlo (agenda de abajo).
@@ -64,7 +64,7 @@ export function renderMiniMonth(wrap, ctx, { cursor, selectedDay, byDay, onPick,
         evs.appendChild(el('span', {
           class: 'mini__ev',
           style: { '--ev-color': statusInfo(p.status).color },
-          text: p.title || T('Sin titulo', 'Untitled'),
+          text: p.title || T('Sin título', 'Untitled'),
         }));
       }
       if (posts.length > MINI_MAX) {

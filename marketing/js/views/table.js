@@ -18,22 +18,22 @@
 // Contrato de vista: export default { mount(el, ctx), onParams(), unmount() }.
 // ============================================================================
 
-import { el, clear, api, fmtDate, avatar } from '../api.js?v=202609082320';
-import { T } from '../shell/i18n.js?v=202609082320';
-import { icon } from '../shell/icons.js?v=202609082320';
-import { isPast } from '../lib/dates.js?v=202609082320';
-import * as viewsSvc from '../services/views.js?v=202609082320';
+import { el, clear, api, fmtDate, avatar } from '../api.js?v=202609082323';
+import { T } from '../shell/i18n.js?v=202609082323';
+import { icon } from '../shell/icons.js?v=202609082323';
+import { isPast } from '../lib/dates.js?v=202609082323';
+import * as viewsSvc from '../services/views.js?v=202609082323';
 import {
   buildColumns, visibleColumns,
   MOBILE_SORT_OPTIONS, CARD_FIELDS, DEFAULT_CARD_FIELDS, MAX_CARD_FIELDS,
   PRIORITIES, PRIORITY_ORDER, safeUrl,
   STATUSES, CONTENT_TYPES, GRABACION_LEVELS,
-} from '../table/columns.js?v=202609082320';
-import * as grp from '../table/groups.js?v=202609082320';
-import { createSelection } from '../table/selection.js?v=202609082320';
+} from '../table/columns.js?v=202609082323';
+import * as grp from '../table/groups.js?v=202609082323';
+import { createSelection } from '../table/selection.js?v=202609082323';
 import {
   createQuickAddRow, createQuickAddButton, openQuickAddSheet, resetChain,
-} from '../table/quickadd.js?v=202609082320';
+} from '../table/quickadd.js?v=202609082323';
 
 const FILTER_KEYS = ['estado', 'tipo', 'persona', 'desde', 'hasta', 'q'];
 const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', 'Could not save, try again.');
@@ -939,7 +939,7 @@ function renderDesktop(groupsList, collapsedSet) {
 
   // THEAD
   const headRow = el('tr', {}, [
-    el('th', { class: 'etable__th etable__th--check', scope: 'col', 'aria-label': T('Seleccion', 'Selection') }),
+    el('th', { class: 'etable__th etable__th--check', scope: 'col', 'aria-label': T('Selección', 'Selection') }),
   ]);
   const mkSortTh = (key, label, extraClass = '', width = null) => {
     const active = sort && sort.key === key;
@@ -1035,7 +1035,7 @@ function renderDesktop(groupsList, collapsedSet) {
         const titleBtn = el('button', {
           class: 'etable-title__txt', type: 'button',
           title: T('Editar titulo', 'Edit title'),
-        }, [el('span', { text: post.title || T('Sin titulo', 'Untitled') })]);
+        }, [el('span', { text: post.title || T('Sin título', 'Untitled') })]);
         rowCells.push(titleBtn);
         const cl = showClient ? clientsById.get(post.client_id) : null;
         tr.appendChild(el('td', { class: 'etable__td etable__td--title' }, [
@@ -1227,7 +1227,7 @@ function renderMobile(groupsList, collapsedSet) {
           onclick: (e) => e.stopPropagation(),
         }, [box]));
         card.appendChild(el('div', { class: 'etable-card__main' }, [
-          el('div', { class: 'etable-card__title', text: post.title || T('Sin titulo', 'Untitled') }),
+          el('div', { class: 'etable-card__title', text: post.title || T('Sin título', 'Untitled') }),
           cl ? el('div', { class: 'etable-card__client', text: cl.name }) : null,
           el('div', { class: 'etable-card__chips' }, chips),
         ]));

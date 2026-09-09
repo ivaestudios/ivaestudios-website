@@ -7,14 +7,14 @@
 // arrastran entre celdas (motor ui/dnd.js).
 // ============================================================================
 
-import { el, statusBadge } from '../api.js?v=202609082320';
-import { T } from '../shell/i18n.js?v=202609082320';
+import { el, statusBadge } from '../api.js?v=202609082323';
+import { T } from '../shell/i18n.js?v=202609082323';
 import {
   fmtYMD, startOfMonth, monthMatrix, sameMonth, todayYMD,
   dayLong, statusInfo, clientDotEl, DOW_SHORT,
-} from './data.js?v=202609082320';
-import { cardDraggable, openCardMenu, reschedule, markDropTarget } from './dnd.js?v=202609082320';
-import { openQuickCreate } from './quickcreate.js?v=202609082320';
+} from './data.js?v=202609082323';
+import { cardDraggable, openCardMenu, reschedule, markDropTarget } from './dnd.js?v=202609082323';
+import { openQuickCreate } from './quickcreate.js?v=202609082323';
 
 const MAX_PILLS = 3;
 
@@ -99,13 +99,13 @@ function buildPill(ctx, post, client) {
     type: 'button',
     style: { '--pill-color': info.color },
     dataset: { id: post.id },
-    'aria-label': `${post.title || T('Sin titulo', 'Untitled')}, ${info.label}`,
-    title: `${post.title || T('Sin titulo', 'Untitled')} (${info.label})`,
+    'aria-label': `${post.title || T('Sin título', 'Untitled')}, ${info.label}`,
+    title: `${post.title || T('Sin título', 'Untitled')} (${info.label})`,
     onclick: (e) => { e.stopPropagation(); ctx.openEditor(post.id); },
   }, [
     client ? clientDotEl(client) : null,
     el('span', { class: 'cal-pill__status', text: info.label }),
-    el('span', { class: 'cal-pill__title', text: post.title || T('Sin titulo', 'Untitled') }),
+    el('span', { class: 'cal-pill__title', text: post.title || T('Sin título', 'Untitled') }),
   ]);
 }
 
@@ -126,7 +126,7 @@ function openDaySheet(ctx, dateObj, posts, clientsById, isTodos) {
           }, [
             el('span', { class: 'cal-daysheet__bar', style: { background: info.color }, 'aria-hidden': 'true' }),
             isTodos ? clientDotEl(clientsById.get(p.client_id) || null) : null,
-            el('span', { class: 'cal-daysheet__title', text: p.title || T('Sin titulo', 'Untitled') }),
+            el('span', { class: 'cal-daysheet__title', text: p.title || T('Sin título', 'Untitled') }),
             p.status ? statusBadge(p.status) : null,
           ]),
           el('button', {

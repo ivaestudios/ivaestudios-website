@@ -19,10 +19,10 @@ import {
   STATUSES, STATUS_ORDER,
   CONTENT_TYPES, PLATFORMS,
   statusBadge, approvalBadge,
-} from '../api.js?v=202609082320';
-import { icon } from '../shell/icons.js?v=202609082320';
-import { T } from '../shell/i18n.js?v=202609082320';
-import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202609082320';
+} from '../api.js?v=202609082323';
+import { icon } from '../shell/icons.js?v=202609082323';
+import { T } from '../shell/i18n.js?v=202609082323';
+import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202609082323';
 
 // Bucket para status que ya no existen en el enum (NUNCA invisibles).
 export const OTROS_KEY = '__otros';
@@ -159,7 +159,7 @@ export function countersGrid({ counters = {}, weekRange = '', typeBreakdown = ''
     counterCard({
       key: 'atrasados', value: overdue, label: T('Atrasados', 'Overdue'),
       tone: overdue > 0 ? 'danger' : 'ok',
-      sub: overdue === 0 ? T('Al dia', 'Up to date') : '',
+      sub: overdue === 0 ? T('Al día', 'Up to date') : '',
       onTap: onJump,
     }),
     counterCard({
@@ -266,7 +266,7 @@ function postRow({ item, accent, sub = null, right = null, warn = false, onOpen,
   }, [
     el('span', { class: 'dash-row__bar', style: { background: accent || 'var(--border-strong)' } }),
     el('span', { class: 'dash-row__main' }, [
-      el('span', { class: 'dash-row__title', text: item.title || T('Sin titulo', 'Untitled') }),
+      el('span', { class: 'dash-row__title', text: item.title || T('Sin título', 'Untitled') }),
       sub,
     ]),
     right,
@@ -612,7 +612,7 @@ export function clientsSection({ clients = [], onOpen }) {
         el('span', { class: 'dash-client__badges' }, [
           overdue > 0 ? el('span', { class: 'dash-pill is-danger', text: plural(overdue, T('atrasado', 'overdue'), T('atrasados', 'overdue')) }) : null,
           pending > 0 ? el('span', { class: 'dash-pill is-warn', text: `${pending} ${T('por aprobar', 'to approve')}` }) : null,
-          (overdue === 0 && pending === 0) ? el('span', { class: 'dash-pill is-ok', text: T('Al dia', 'Up to date') }) : null,
+          (overdue === 0 && pending === 0) ? el('span', { class: 'dash-pill is-ok', text: T('Al día', 'Up to date') }) : null,
         ]),
       ]),
       icon('right', 18),
@@ -849,7 +849,7 @@ export function dashSkeleton() {
  * Vive en ui/states.js (la comparten Calendario y Entregables, que no cargan
  * este modulo); se re-exporta aqui para no tocar a views/dashboard.js.
  */
-export { errorCard } from '../ui/states.js?v=202609082320';
+export { errorCard } from '../ui/states.js?v=202609082323';
 
 /** Vacio total del cliente: ni un contenido creado. */
 export function emptyMonth({ onCreate }) {

@@ -26,15 +26,15 @@ import {
   el, clear,
   STATUSES, STATUS_ORDER, statusLabel,
   chip, statusBadge, avatar,
-} from '../api.js?v=202609082320';
-import { icon } from '../shell/icons.js?v=202609082320';
-import { T } from '../shell/i18n.js?v=202609082320';
+} from '../api.js?v=202609082323';
+import { icon } from '../shell/icons.js?v=202609082323';
+import { T } from '../shell/i18n.js?v=202609082323';
 import {
   toISO, parseISO, todayISO, addDays, addDaysISO, addMonths,
   diffDays, startOfWeek, monthRangeISO, listDays,
   fmtShort, fmtMonthYear,
   MESES, MESES_CORTOS, DIAS_INICIAL, DIAS_CORTOS,
-} from '../lib/dates.js?v=202609082320';
+} from '../lib/dates.js?v=202609082323';
 
 const DESKTOP_MQ = '(min-width: 720px)';
 const FINE_MQ = '(pointer: fine)';
@@ -267,7 +267,7 @@ function openUndatedSheet() {
         dateWrap.appendChild(input);
         row.append(
           el('div', { class: 'tl-uitem__main' }, [
-            el('div', { class: 'tl-uitem__title', text: p.title || T('Sin titulo', 'Untitled') }),
+            el('div', { class: 'tl-uitem__title', text: p.title || T('Sin título', 'Untitled') }),
             el('div', { class: 'tl-uitem__meta' }, [
               chip(p.content_type),
               statusBadge(p.status),
@@ -383,7 +383,7 @@ function openQuickEdit(postId) {
       ]);
 
       body.append(
-        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Publicacion', 'Publish date') }), pubInput]),
+        el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Publicación', 'Publish date') }), pubInput]),
         el('div', { class: 'field' }, [
           el('label', { class: 'label', text: T('Inicio de trabajo', 'Work start') }),
           wsInput,
@@ -532,7 +532,7 @@ function buildBar(item, a, b, days, group) {
   const clipR = item.end > days[days.length - 1];
   const showAll = ctx.store.getState().activeClientId === 'todos';
   const tip = (showAll && p.client_id ? `${clientName(p.client_id)} · ` : '') +
-    (p.title || T('Sin titulo', 'Untitled')) + ` · ${statusLabel(p.status)}`;
+    (p.title || T('Sin título', 'Untitled')) + ` · ${statusLabel(p.status)}`;
 
   const bar = el('div', {
     class: 'tl-bar' +
@@ -549,7 +549,7 @@ function buildBar(item, a, b, days, group) {
   bar.style.gridRow = String(item.track + 1);
 
   const showLabel = scale === 'semana' || len >= 3;
-  if (showLabel) bar.appendChild(el('span', { class: 'tl-bar__label', text: p.title || T('Sin titulo', 'Untitled') }));
+  if (showLabel) bar.appendChild(el('span', { class: 'tl-bar__label', text: p.title || T('Sin título', 'Untitled') }));
 
   if (canDrag()) {
     // Sin handles en bordes recortados por el rango: el dato real vive fuera.
@@ -804,7 +804,7 @@ function renderAside() {
 
   for (const p of items) {
     const card = el('div', { class: 'tl-ucard', dataset: { id: String(p.id) } }, [
-      el('div', { class: 'tl-ucard__title', text: p.title || T('Sin titulo', 'Untitled') }),
+      el('div', { class: 'tl-ucard__title', text: p.title || T('Sin título', 'Untitled') }),
       el('div', { class: 'tl-ucard__meta' }, [chip(p.content_type), statusBadge(p.status)]),
       el('button', {
         class: 'btn btn-sm', type: 'button', text: T('Programar', 'Schedule'),
@@ -915,11 +915,11 @@ function renderMobileWeek(groups, days, from, to) {
 
         list.appendChild(el('button', {
           class: 'tl-mrow', type: 'button',
-          'aria-label': `${p.title || T('Sin titulo', 'Untitled')}, ${statusLabel(p.status)}. ${T('Editar', 'Edit')}`,
+          'aria-label': `${p.title || T('Sin título', 'Untitled')}, ${statusLabel(p.status)}. ${T('Editar', 'Edit')}`,
           onclick: () => openQuickEdit(p.id),
         }, [
           el('span', { class: 'tl-mrow__top' }, [
-            el('span', { class: 'tl-mrow__title', text: p.title || T('Sin titulo', 'Untitled') }),
+            el('span', { class: 'tl-mrow__title', text: p.title || T('Sin título', 'Untitled') }),
             statusBadge(p.status),
           ]),
           track,
@@ -978,7 +978,7 @@ function renderMobileMonth(groups, from, to) {
         }, [
           el('span', { class: 'tl-mitem__dot', dataset: { status: p.status || '' }, 'aria-hidden': 'true' }),
           el('span', { class: 'tl-mitem__main' }, [
-            el('span', { class: 'tl-mitem__title', text: p.title || T('Sin titulo', 'Untitled') }),
+            el('span', { class: 'tl-mitem__title', text: p.title || T('Sin título', 'Untitled') }),
             el('span', { class: 'tl-mitem__meta' }, [
               el('span', { text: `${DIAS_CORTOS[dow]} ${d.getDate()}` }),
               dur > 1 ? el('span', { text: ` · ${dur} ${T('dias', 'days')}` }) : null,

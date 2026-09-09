@@ -22,10 +22,10 @@
 // Contrato de vista: export default { mount(el, ctx), unmount(), onParams() }.
 // ============================================================================
 
-import { api, el, clear, STATUSES, statusLabel, statusBadge } from '../api.js?v=202609082320';
-import { icon } from '../shell/icons.js?v=202609082320';
-import { T } from '../shell/i18n.js?v=202609082320';
-import { todayISO, diffDays, relativeDay, fmtShort } from '../lib/dates.js?v=202609082320';
+import { api, el, clear, STATUSES, statusLabel, statusBadge } from '../api.js?v=202609082323';
+import { icon } from '../shell/icons.js?v=202609082323';
+import { T } from '../shell/i18n.js?v=202609082323';
+import { todayISO, diffDays, relativeDay, fmtShort } from '../lib/dates.js?v=202609082323';
 
 // CSS del paquete (compartido con la vista Automatizaciones). Lazy y con
 // guard: si app.html ya lo linkea (o la otra vista ya lo inyecto), no duplica.
@@ -395,7 +395,7 @@ function renderCard(p, sectionKey) {
       class: 'mw-card__main', type: 'button',
       onclick: () => ctx.openEditor(p.id),
     }, [
-      el('span', { class: 'mw-card__title', text: p.title || T('Sin titulo', 'Untitled') }),
+      el('span', { class: 'mw-card__title', text: p.title || T('Sin título', 'Untitled') }),
       meta,
     ]),
     menuBtn,

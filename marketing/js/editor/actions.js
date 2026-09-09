@@ -12,12 +12,12 @@
 //   Sin undo (el delete es hard en el backend): el copy lo deja claro.
 // ============================================================================
 
-import { el, api, copyText, isClientRole } from '../api.js?v=202609082320';
-import { T } from '../shell/i18n.js?v=202609082320';
-import { icon } from '../shell/icons.js?v=202609082320';
-import { openSheet } from '../shell/sheet.js?v=202609082320';
-import * as store from '../shell/store.js?v=202609082320';
-import * as cl from '../services/checklist.js?v=202609082320';
+import { el, api, copyText, isClientRole } from '../api.js?v=202609082323';
+import { T } from '../shell/i18n.js?v=202609082323';
+import { icon } from '../shell/icons.js?v=202609082323';
+import { openSheet } from '../shell/sheet.js?v=202609082323';
+import * as store from '../shell/store.js?v=202609082323';
+import * as cl from '../services/checklist.js?v=202609082323';
 
 function isMissingEndpoint(e) {
   const s = e && e.status;
@@ -173,7 +173,7 @@ async function duplicatePost(ed, { withChecklist, withScript }) {
 
   const data = {
     client_id: src.client_id,
-    title: `${src.title || T('Sin titulo', 'Untitled')} ${T('(copia)', '(copy)')}`,
+    title: `${src.title || T('Sin título', 'Untitled')} ${T('(copia)', '(copy)')}`,
     status: 'idea',
   };
   for (const f of COPY_FIELDS) {

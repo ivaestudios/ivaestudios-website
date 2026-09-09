@@ -30,14 +30,14 @@
 import {
   api, el, clear,
   chip, statusBadge, avatar,
-} from '../api.js?v=202609082320';
-import { icon } from '../shell/icons.js?v=202609082320';
+} from '../api.js?v=202609082323';
+import { icon } from '../shell/icons.js?v=202609082323';
 import {
   toISO, parseISO, todayISO, addDays, addDaysISO, startOfWeek,
   fmtShort, MESES_CORTOS,
-} from '../lib/dates.js?v=202609082320';
-import { effortOf, DEFAULT_EFFORT } from '../lib/effort.js?v=202609082320';
-import { T } from '../shell/i18n.js?v=202609082320';
+} from '../lib/dates.js?v=202609082323';
+import { effortOf, DEFAULT_EFFORT } from '../lib/effort.js?v=202609082323';
+import { T } from '../shell/i18n.js?v=202609082323';
 
 const WEEKS_VISIBLE = 4;
 const SIN_KEY = '__sin_asignar__';
@@ -391,7 +391,7 @@ function openUndatedSheet() {
           onclick: () => actionOpen(p),
         }, [
           el('span', { class: 'wl-uitem__main' }, [
-            el('span', { class: 'wl-uitem__title', text: p.title || T('Sin titulo', 'Untitled') }),
+            el('span', { class: 'wl-uitem__title', text: p.title || T('Sin título', 'Untitled') }),
             el('span', { class: 'wl-uitem__meta' }, [
               p.client_name ? el('span', { class: 'wl-uitem__client', text: p.client_name }) : null,
               chip(p.content_type),
@@ -653,7 +653,7 @@ function buildExpand(person, week, bucket) {
           p.client_name ? el('span', { class: 'wl-post__client', text: p.client_name }) : null,
           el('span', { class: 'wl-post__pts', text: `${pointsOf(p)} pts` }),
         ]),
-        el('div', { class: 'wl-post__title', text: p.title || T('Sin titulo', 'Untitled') }),
+        el('div', { class: 'wl-post__title', text: p.title || T('Sin título', 'Untitled') }),
         el('div', { class: 'wl-post__meta' }, [
           statusBadge(p.status),
           el('span', { class: 'wl-post__date', text: fmtShort(p.publish_date) }),

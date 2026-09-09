@@ -19,9 +19,9 @@ import {
   CONTENT_TYPES, APPROVALS, PRIORITIES,
   contentTypeLabel, approvalLabel,
   fmtDate, parseDate, avatar,
-} from '../api.js?v=202609082320';
-import { icon } from '../shell/icons.js?v=202609082320';
-import { T, isEN } from '../shell/i18n.js?v=202609082320';
+} from '../api.js?v=202609082323';
+import { icon } from '../shell/icons.js?v=202609082323';
+import { T, isEN } from '../shell/i18n.js?v=202609082323';
 
 export const DEFAULT_CARD_FIELDS = {
   fecha: true,
@@ -134,7 +134,7 @@ export function createCard({ post, color, fields = DEFAULT_CARD_FIELDS, client =
     onclick: () => { try { onOpen?.(post); } catch (e) { console.error('[kanban] card onOpen', e); } },
   }, [
     clientRow,
-    el('span', { class: 'kb-card__title', text: post.title || T('Sin titulo', 'Untitled') }),
+    el('span', { class: 'kb-card__title', text: post.title || T('Sin título', 'Untitled') }),
     chips.length ? el('span', { class: 'kb-card__chips' }, chips) : null,
     foot.length > 1 ? el('span', { class: 'kb-card__foot' }, foot) : null,
   ]);

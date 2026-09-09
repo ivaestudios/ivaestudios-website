@@ -22,11 +22,11 @@ import {
   CONTENT_TYPES, CONTENT_TYPE_ORDER,
   APPROVALS, PLATFORMS, GRABACION_LEVELS,
   avatar, statusLabel, contentTypeLabel, approvalLabel,
-} from '../api.js?v=202609082320';
-import * as apiMod from '../api.js?v=202609082320';
-import { T, isEN } from '../shell/i18n.js?v=202609082320';
-import { icon } from '../shell/icons.js?v=202609082320';
-import { isPast } from '../lib/dates.js?v=202609082320';
+} from '../api.js?v=202609082323';
+import * as apiMod from '../api.js?v=202609082323';
+import { T, isEN } from '../shell/i18n.js?v=202609082323';
+import { icon } from '../shell/icons.js?v=202609082323';
+import { isPast } from '../lib/dates.js?v=202609082323';
 
 // Prioridad: usa los mapas de api.js si el shell-core ya los agrego; si no,
 // cae a este espejo local (mismas keys que la migracion 005).
@@ -238,7 +238,7 @@ export function buildColumns(client) {
       patch: (v) => ({ assignee: (v && v.name) || null, assignee_user_id: (v && v.user_id) || null }),
     },
     {
-      key: 'aprobacion', label: T('Aprobacion', 'Approval'), w: 150, defaultVisible: true,
+      key: 'aprobacion', label: T('Aprobación', 'Approval'), w: 150, defaultVisible: true,
       type: 'approval', sortable: true,
       sortValue: (p) => {
         const i = APPROVAL_ORDER.indexOf(p.approval_state);
@@ -347,7 +347,7 @@ export const MOBILE_SORT_OPTIONS = [
 export const CARD_FIELDS = [
   { key: 'estado', label: T('Estado', 'Status') },
   { key: 'fecha', label: T('Fecha', 'Date') },
-  { key: 'aprobacion', label: T('Aprobacion', 'Approval') },
+  { key: 'aprobacion', label: T('Aprobación', 'Approval') },
   { key: 'plataforma', label: T('Plataforma', 'Platform') },
   { key: 'tipo', label: T('Tipo', 'Type') },
   { key: 'grabacion', label: T('Grabacion', 'Recording') },
