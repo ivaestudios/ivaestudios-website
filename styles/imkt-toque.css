@@ -1,0 +1,59 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   IVAE MARKETING · areas tocables · 2026-09-09
+
+   La submarca se dibujo con su propio sistema (Outfit, morado, cabecera
+   y pie propios) y su pie y su cabecera se escribieron con estilos EN
+   LINEA, sin una sola clase enganchada a ninguna hoja. Resultado medido
+   en WebKit a 402px: los enlaces del pie miden 23px de alto, el logo de
+   la cabecera 26px y las migas 16px, muy por debajo de los 44px que pide
+   la norma. Y encima 20 de estas 75 paginas, entre ellas TODAS las
+   landings de industria en los dos idiomas y el formulario de contacto,
+   no cargan responsive.css, asi que ninguna regla de tamano del sitio
+   les llegaba.
+
+   Ojo con el gotcha que ya mordio en las paginas de ciudad: **min-height
+   NO aplica a elementos en linea**. Por eso la regla global de 44px de
+   responsive.css no hacia nada aqui aunque la hoja estuviera cargada:
+   estos enlaces son <a> sueltos dentro de un <div>. Hay que sacarlos del
+   flujo en linea (inline-flex) para que el alto cuente.
+
+   Y ojo tambien con el ritmo: la fila de enlaces del pie hereda
+   line-height 2.2 en 13px, o sea renglones de 28px. Un objetivo de 44px
+   NO se puede meter ahi con margenes negativos, porque dos renglones
+   quedarian encimados y el dedo daria en el enlace de arriba. Un
+   inline-flex si aporta su alto a la caja de renglon, asi que los
+   renglones se separan solos y no hay encimamiento. Eso alarga el pie
+   unos 45px, que es el precio correcto.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@media (pointer: coarse), (max-width: 768px) {
+
+  /* ── Pie de la submarca (75 paginas) ──────────────────────────────── */
+  .ivm-footer a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 8px;
+  }
+
+  /* ── Logo de la cabecera propia (13 paginas) ──────────────────────── */
+  .imkt-hd .imkt-hd-logo,
+  .imkt-hd-logo {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  /* ── Migas y "volver al diario" de los posts de la submarca ───────── */
+  .breadcrumbs a {
+    display: inline-block;
+    padding: 14px 4px;
+    margin: -14px 0;
+  }
+  .post-hero .post-back,
+  .post-back {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}
