@@ -65,7 +65,8 @@ const PGS = process.argv.slice(2);
       const chicos = [...document.querySelectorAll("a,button,summary")].filter(e=>{
         const r=R(e), cs=getComputedStyle(e);
         return r.width>0 && r.height>0 && r.height<40 && cs.visibility!=="hidden"
-               && !e.closest("p,li,td,.post-body,article p");
+               // dentro de una frase = exento (WCAG 2.5.8) y agrandarlo rompe el renglón
+               && !e.closest("p,li,td,.post-body,article p,.post-meta-bar,.faq-ans,.faq-a,.author-title,dd,blockquote,figcaption");
       }).map(e=>({ t:(e.textContent||"").trim().slice(0,22), h:Math.round(R(e).height), c:(e.className+"").split(" ")[0] }));
 
       // imágenes rotas
