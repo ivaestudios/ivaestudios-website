@@ -30,3 +30,22 @@ footer .col-links a,
   align-items: center;
   min-height: 44px;
 }
+
+/* Igual que .bc, pero para las migas con la otra clase. Dos posts del
+   diario las llevan en su estilo embebido y no cargan blog.css, donde
+   vive el arreglo del resto. */
+.breadcrumbs a {
+  display: inline-block;
+  padding: 14px 4px;
+  margin: -14px 0;
+}
+
+/* Enlaces que SON el título de una tarjeta (un <a> que llena su <h3>).
+   Son navegación, no texto dentro de una frase, y medían 27px de alto en
+   las fichas de venue. El relleno crece y se compensa por margen para no
+   separar las tarjetas. */
+h3 > a:only-child {
+  display: inline-block;
+  padding: 9px 0;
+  margin: -9px 0;
+}

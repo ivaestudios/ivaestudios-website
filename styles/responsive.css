@@ -40,6 +40,18 @@ body {
     min-height: 0;
     min-width: 0;
   }
+  /* Enlaces que SON el título de una tarjeta (un <a> que llena su <h3>):
+     fichas de venue, listados de servicios, tarjetas del diario. Son
+     navegación, no texto dentro de una frase, y medían 27px de alto.
+     El relleno crece y se compensa por margen para no separar tarjetas.
+     La misma regla está duplicada en toque-minimo.css, porque las 27
+     páginas de ciudad NO cargan esta hoja. */
+  h3 > a:only-child {
+    display: inline-block;
+    padding: 9px 0;
+    margin: -9px 0;
+  }
+
   .colophon-cols ul a,
   .colophon-bottom a,
   .h-nav a,

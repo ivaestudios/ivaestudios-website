@@ -880,8 +880,16 @@ body .m-nav .m-nav-cta::before { content: none !important; }
   /* 1. Fuera el punto suelto: el lockup ya tiene su propia identidad */
   body .site-header .h-logo::after { display: none !important; }
 
-  /* 2. El logo como cabecera de revista, con aire a los lados */
-  body .site-header .h-logo { padding: 8px 0 !important; }
+  /* 2. El logo como cabecera de revista, con aire a los lados.
+        El enlace medía 38px de alto (128x38): se toca sin problema por lo
+        ancho, pero es el único objetivo del sitio que se quedaba corto del
+        mínimo de 44px. La barra mide 56px, así que caben sin mover nada. */
+  body .site-header .h-logo {
+    padding: 8px 0 !important;
+    min-height: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
   body .site-header .h-logo img {
     max-width: 148px !important;
     width: auto !important;
