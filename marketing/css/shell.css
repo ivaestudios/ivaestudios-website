@@ -738,10 +738,14 @@ body.has-subhead #viewScroll {
 .nf-tabs {
   display: flex;
   margin: var(--s-3) var(--s-4);
-  /* Media a 390px salia de 390px de ancho empezando en x=16: se desbordaba 16px
-     fuera de la pantalla y "Asignadas" moria contra el filo. Acotado, .seg ya
-     le pone overflow-x y segfade.js el difuminado. (2026-09-08) */
-  align-self: stretch;
+  /* DOS arreglos, los dos medidos en vivo el 2026-09-08:
+     1) ALTO. Es hija de una columna flexible (.nf-panel) y, por tener
+        overflow-x, el navegador le deja como minimo automatico CERO: se
+        aplastaba a 20px (15px en escritorio) y las cuatro palabras
+        desaparecian, dejando una barra gris vacia. `flex: none` se lo prohibe.
+     2) ANCHO. Media 390px empezando en x=16: se salia 16px de la pantalla y
+        "Asignadas" moria contra el filo, sin poder deslizarse siquiera. */
+  flex: none;
   min-width: 0;
   max-width: calc(100% - var(--s-4) * 2);
 }
