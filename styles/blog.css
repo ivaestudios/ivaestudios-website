@@ -302,3 +302,20 @@ html.dark .why-ivae__points li { color: rgba(250, 248, 245, 0.72); }
 }
 html.dark .post-tldr__label { color: #c9a54e; }
 html.dark .post-tldr p { color: rgba(250, 248, 245, 0.85); }
+
+/* ═══════════════════════════════════════════════════════════════
+   MIGAS DE NAVEGACIÓN · área tocable · 2026-09-08
+   Medido en WebKit a 402px en los posts del diario: los enlaces
+   "Inicio" y "Diario" de las migas medían 13px de alto. Son
+   navegación suelta, no un enlace dentro de una frase, así que les
+   aplica el mínimo de 44px y con 13px hay que apuntar.
+   El relleno del enlace crece hacia arriba y hacia abajo, y se le
+   resta al contenedor lo mismo, para que la línea siga cayendo
+   donde caía y no se mueva el resto de la página.
+   ═══════════════════════════════════════════════════════════════ */
+.breadcrumbs { padding-top: 10px; }
+.breadcrumbs a {
+  display: inline-block;
+  padding: 14px 4px;
+  margin: -14px 0;
+}

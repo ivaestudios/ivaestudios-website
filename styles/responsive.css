@@ -25,6 +25,21 @@ body {
     min-height: 44px;
     min-width: 44px;
   }
+  /* EXENCIÓN: los enlaces que van DENTRO de una frase.
+     La norma (WCAG 2.5.8) exime el objetivo que está "en una oración o
+     bloque de texto", justamente porque agrandarlo rompe el renglón.
+     Y aquí lo rompía de verdad: en la firma de los posts, .post-meta-bar
+     convierte sus tramos en flex, eso BLOQUIFICA al enlace de la autora
+     (todo hijo de un flex se vuelve bloque), y entonces el min-height sí
+     le aplicaba: "Vianey Díaz" salía flotando 15px por encima de "Por" y
+     de la fecha. Medido en WebKit a 402px: 44px de alto contra 13px de
+     sus hermanos. */
+  p a, td a, dd a, blockquote a, figcaption a,
+  .post-article li a, .post-body li a,
+  .post-meta-bar a, .faq-a a, .author-title a {
+    min-height: 0;
+    min-width: 0;
+  }
   .colophon-cols ul a,
   .colophon-bottom a,
   .h-nav a,
