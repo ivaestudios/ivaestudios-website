@@ -15,9 +15,12 @@ account hygiene, credentials, marker contracts, what's pending, etc. Do not
 make changes to the SEO system without reading that file first.
 
 **Critical accounts note:** the user has multiple Google accounts in Chrome.
-Always use `vianeydm07@gmail.com` (Vianey, `authuser=1`) for all IVAE work.
-Other accounts at `authuser=0` and `authuser=2` belong to unrelated projects
-and must never be used here.
+Always use `vianeydm07@gmail.com` (Vianey) for all IVAE work. **Never assume the
+`authuser=N` index**: it changes when accounts are added or removed. Medido el
+2026-09-08 en el Chrome de Vianey: `u/0` = vianeydm07@gmail.com (esta es la
+buena), `u/1` = vianeydmphoto@gmail.com, `u/2` = melisafitness1213@gmail.com.
+Antes de trabajar, abre la URL y confirma en el título que la cuenta es la
+correcta. Las otras pertenecen a proyectos distintos y no deben usarse aquí.
 
 ## Two brands under one site
 

@@ -4698,6 +4698,82 @@
   }
   .ivm-st-numbers__grid { perspective: none !important; }
 
+
+  /* ═══════════════════════════════════════════════════════════════
+     UNA BODA COMPLETA · Ji & Kailyn · 2026-09-08
+     La página ya mostraba DÓNDE trabaja el estudio (seis venues, una
+     foto cada uno) pero no CÓMO: no había una sola boda contada de
+     principio a fin, que es justo lo que decide a una pareja.
+     Seis fotos en el orden en que pasaron: ramo, primer vistazo,
+     ceremonia, el beso, retrato y banquete.
+     Ritmo de revista: los verticales van con margen y los
+     horizontales van A SANGRE, de borde a borde. Así la página
+     respira sin achicar ninguna foto, que en un teléfono es lo peor
+     que se le puede hacer al trabajo de un fotógrafo.
+     Los pies de foto se alinean SIEMPRE con la columna de texto,
+     aunque la foto vaya a sangre.
+     ═══════════════════════════════════════════════════════════════ */
+  .ivm-wd-story {
+    background: var(--ivm-ink, #0a0f17);
+    padding: 64px 0 60px;
+  }
+  .ivm-wd-story__head { padding: 0 24px; margin-bottom: 34px; }
+  .ivm-wd-story__eyebrow {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--ivm-gold, #c9a54e);
+    margin-bottom: 14px;
+  }
+  .ivm-wd-story__head h2 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 300;
+    font-size: clamp(32px, 9vw, 44px);
+    line-height: 1.06;
+    letter-spacing: -0.012em;
+    color: var(--ivm-cream, #faf8f5);
+    margin: 0 0 12px;
+  }
+  .ivm-wd-story__head h2 em { font-style: italic; color: var(--ivm-gold, #c9a54e); }
+  .ivm-wd-story__lead {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 17px;
+    line-height: 1.6;
+    color: rgba(250,248,245,.72);
+    margin: 0;
+    max-width: 34ch;
+  }
+
+  .ivm-wd-story__f { margin: 0 0 34px; }
+  .ivm-wd-story__f:last-of-type { margin-bottom: 0; }
+  /* vertical: con margen, como una lámina montada */
+  .ivm-wd-story__f--alta { margin-left: 24px; margin-right: 24px; }
+  /* horizontal: a sangre, de borde a borde */
+  .ivm-wd-story__f--ancha { margin-left: 0; margin-right: 0; }
+
+  .ivm-wd-story__f picture { display: block; }
+  .ivm-wd-story__f img {
+    display: block;
+    width: 100%;
+    height: auto;          /* sin esto el width/height del HTML gana y deforma */
+  }
+  .ivm-wd-story__f figcaption {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(250,248,245,.56);
+    padding-top: 13px;
+  }
+  /* el pie de una foto a sangre se alinea igual con la columna de texto */
+  .ivm-wd-story__f--ancha figcaption { padding-left: 24px; padding-right: 24px; }
+
 } /* fin @media (max-width: 899px) */
 
 /* ═══════════════════════════════════════════════════════════════
