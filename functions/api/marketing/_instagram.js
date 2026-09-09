@@ -266,9 +266,18 @@ export async function fetchIgMetrics(env, clientId, month) {
   // con metric_type=total_value (la antigua 'impressions' fue retirada 21-abr-2025).
   let reach28 = null;
   try {
-    const ins = await igJson(`${GRAPH}/me/insights?metric=reach&period=days_28&metric_type=total_value&access_token=${tok}`);
-    const row = ins && ins.data && ins.data[0];
-    if (row) reach28 = metricVal(row);
+    // ⚠️ SIN metric_type. Con `period=days_28&metric_type=total_value` Instagram
+    // NO devuelve 28 dias: devuelve mas o menos un dia. Medido el 2026-09-09,
+    // el mismo dia y la misma cuenta:
+    //   SMILE NOW  2,344 contra 21,013 reales   ADAGIO RH   83 contra 10,612
+    //   MELISA    10,156 contra 216,559 reales  REGENERIS 1,520 contra 10,688
+    // Con `period=days_28` a secas llegan los valores acumulados de 28 dias en
+    // values[], y el ULTIMO es el de hoy. Se cruzo con la otra forma valida
+    // (metric_type=total_value + since/until de 28 dias) y dan lo mismo.
+    const ins = await igJson(`${GRAPH}/me/insights?metric=reach&period=days_28&access_token=${tok}`);
+    const vals = ins && ins.data && ins.data[0] && ins.data[0].values;
+    if (Array.isArray(vals) && vals.length) reach28 = vals[vals.length - 1].value;
+    else if (ins && ins.data && ins.data[0]) reach28 = metricVal(ins.data[0]);
   } catch { /* sin alcance: el reporte sigue con followers + interacciones */ }
 
   // Demografía de la audiencia (nivel cuenta): género, edad y ciudades top.
@@ -352,7 +361,14 @@ export async function fetchIgMetricsRange(env, clientId, from, to) {
 
   // Alcance de la cuenta (últimos 28 días) + demografía actual — snapshots.
   let reach28 = null;
-  try { const ins = await igJson(`${GRAPH}/${id}/insights?metric=reach&period=days_28&metric_type=total_value&access_token=${tok}`); const row = ins && ins.data && ins.data[0]; if (row) reach28 = metricVal(row); } catch { /* noop */ }
+  // Mismas dos correcciones que arriba: sobre 'me' (el id guardado podia venir
+  // redondeado) y SIN metric_type (con el, days_28 devuelve mas o menos un dia).
+  try {
+    const ins = await igJson(`${GRAPH}/me/insights?metric=reach&period=days_28&access_token=${tok}`);
+    const vals = ins && ins.data && ins.data[0] && ins.data[0].values;
+    if (Array.isArray(vals) && vals.length) reach28 = vals[vals.length - 1].value;
+    else if (ins && ins.data && ins.data[0]) reach28 = metricVal(ins.data[0]);
+  } catch { /* noop */ }
   let audience = null;
   try {
     const [gender, age, city] = await Promise.all([
