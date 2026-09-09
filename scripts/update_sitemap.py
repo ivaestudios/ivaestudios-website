@@ -213,6 +213,8 @@ PAGE_EN_TO_ES = {
     "/bilingual-wedding-photographer-cancun": "/es/fotografo-bodas-bilingue-cancun",
     "/beach-wedding-photographer-cancun": "/es/fotografo-bodas-playa-cancun",
     "/couples-photographer-cancun": "/es/fotografo-parejas-cancun",
+    "/isla-mujeres-photographer": "/es/fotografo-isla-mujeres",
+    "/playa-del-carmen-photographer": "/es/fotografo-playa-del-carmen",
 }
 
 # EN /venues/<slug>/ subpages consolidated into a root page (above). They keep a
