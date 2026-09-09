@@ -150,8 +150,11 @@ a[href="#main"].skip {
   left: 8px;
   z-index: 9999;
   padding: 12px 18px;
-  background: #141210;
-  color: #c9a54e;
+  /* !important en la PAREJA: el fondo lo ponía esta hoja y el color lo
+     ponía el <style> de la página, y al mezclarse salía tinta sobre tinta
+     (contraste 1.17, ilegible). Los dos van juntos o no van. */
+  background: #141210 !important;
+  color: #c9a54e !important;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-decoration: none;

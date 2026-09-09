@@ -4774,6 +4774,15 @@
   /* el pie de una foto a sangre se alinea igual con la columna de texto */
   .ivm-wd-story__f--ancha figcaption { padding-left: 24px; padding-right: 24px; }
 
+
+  /* El pie que rediseñé el 2026-09-06 dejó dos líneas por debajo del
+     contraste mínimo, medido en WebKit: la bajada a 10px daba 3.66 y el
+     aviso de derechos a 9px daba 3.35, contra el 4.5 que pide la norma.
+     Son los tamaños más chicos de la página, justo donde menos margen hay.
+     Con alfa .58 suben a ~5.9 y siguen leyéndose como texto secundario. */
+  .ivm-act-foot__tag  { color: rgba(250,248,245,.66) !important; }
+  .ivm-act-foot__copy { color: rgba(250,248,245,.72) !important; }
+
 } /* fin @media (max-width: 899px) */
 
 /* ═══════════════════════════════════════════════════════════════

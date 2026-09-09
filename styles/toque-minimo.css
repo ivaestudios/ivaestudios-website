@@ -49,3 +49,20 @@ h3 > a:only-child {
   padding: 9px 0;
   margin: -9px 0;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   CONTRASTE DEL DORADO SOBRE FONDO CLARO · 2026-09-08
+   Medido en WebKit: en las páginas de ciudad, 39 textos quedaban
+   por debajo del mínimo de contraste (razones de 2.89 a 3.31 contra
+   el 4.5 que pide la norma), incluidos ENLACES DEL CUERPO a 17px.
+   La causa es que un MISMO dorado, #a8894a, viste dos fondos
+   opuestos: sobre el crema se queda corto, y sobre el azul tinta
+   del hero, el FAQ, el bloque de cierre y el pie va perfecto (5.7).
+   Un solo color no puede servir a los dos, así que se separan:
+   el dorado profundo pasa a ser el de fondo claro, y las secciones
+   oscuras recuperan el dorado claro heredando la variable.
+   Comprobado antes de tocar: esas cuatro secciones son oscuras en
+   todas las páginas de ciudad, no solo en la que salió el fallo.
+   ═══════════════════════════════════════════════════════════════ */
+:root { --gold-2: #7d6428; }
+.hero, .faq, .cta-block, .colophon, footer { --gold-2: #c9a54e; }

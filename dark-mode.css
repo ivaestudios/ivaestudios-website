@@ -185,7 +185,23 @@ html.dark .footer a:hover {
 
 /* ── Links / inline text ───────────────────────────────────── */
 
-html.dark a {
+/* El enlace "Saltar al contenido" queda FUERA de esta regla.
+   Es lo primero que toca quien navega con teclado. Como `html.dark a`
+   (especificidad 0-1-1) le ganaba a su propia regla `.skip-link` (0-1-0),
+   le imponía texto dorado y se quedaba con el FONDO de su hoja: en las
+   páginas cuyo skip-link va sobre dorado salía dorado sobre dorado, o sea
+   un rectángulo en blanco. Medido: razón de contraste 1.0, nula.
+   NO se le impone un color aquí, porque el fondo cambia según la página
+   (dorado en la mayoría, tinta con lw-a11y.css, morado en Marketing) y
+   fijar solo el texto rompe la pareja al revés: forzando tinta, las de
+   fondo oscuro quedaban en 1.08. Excluyéndolo, cada página conserva su
+   propia combinación, que en su hoja SÍ es coherente. */
+/* La lista dentro de UN solo :not() pesa lo mismo que una clase. Encadenar
+   tres :not() sumaba tres clases y disparaba la especificidad de esta
+   regla por encima de overrides legítimos de otras hojas: así fue como,
+   al excluir el skip-link, se me rompieron sin querer los enlaces de la
+   tabla comparativa. */
+html.dark a:not(.skip-link, .skip-to-content, .le-skip-link) {
   color: #c9a54e;
 }
 

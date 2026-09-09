@@ -42,12 +42,12 @@
   href="https://fonts.gstatic.com/s/cormorantgaramond/v16/co3WmX5slCNuHLi8bLeY9MK7whWMhyjornFLsS6V7w.woff2"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/styles/blog.css?v=20260908a"/>
-<link rel="stylesheet" href="/styles/tokens.css"/>
+<link rel="stylesheet" href="/styles/tokens.css?v=20260908e"/>
 <link rel="stylesheet" href="/styles/site-header.css?v=20260908c"/>
 <link rel="stylesheet" href="/styles/responsive.css?v=20260908b"/>
 <script src="/js/site-header.js?v=20260815a" defer></script>
-<link rel="stylesheet" href="/dark-mode.css?v=20260907g"/>
-<link rel="stylesheet" href="/styles/site-footer.css?v=20260531a"/>
+<link rel="stylesheet" href="/dark-mode.css?v=20260908g"/>
+<link rel="stylesheet" href="/styles/site-footer.css?v=20260908e"/>
 <script src="/js/components.js?v=20260511d" defer></script>
 <link rel="stylesheet" href="/js/lang-switcher.css"/>
 <link rel="me" href="https://instagram.com/ivae.studios"/>
@@ -89,6 +89,14 @@
   .cmp-table tr.ivae-row{border-color:rgba(196,163,90,.45)}
 }
 @media(min-width:768px) and (max-width:1023px){.cmp-table{font-size:12.5px}.cmp-table th,.cmp-table td{padding:12px 10px}.cmp-table .row-label{font-size:15px}}
+
+/* Los enlaces de la tabla comparativa van sobre crema, y el dorado claro
+   ahí da 2.21 de contraste, menos de la mitad del mínimo. El dorado
+   profundo sube a 5.25 sin dejar de ser dorado. */
+html.dark .cmp-table a,
+.cmp-table a { color: #7d6428 !important; }
+/* El peso extra es para ganarle a `html.dark a` de dark-mode.css, que
+   tiene la misma especificidad y carga después. */
 </style>
 <link rel="icon" href="/favicon.ico" sizes="any"/>
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>

@@ -63,7 +63,10 @@
   --muted:    rgba(250,248,245,0.58);
   /* --muted2 raised from 0.34 → 0.55 (mirror of --text-on-dark-3 fix). */
   --muted2:   rgba(250,248,245,0.55);
-  --muted-l:  rgba(26,34,48,0.60);
+  /* 0.60 daba 4.21 de contraste sobre el crema, por debajo del 4.5 que
+     pide la norma: medido en 20 celdas de la tabla comparativa a 14px.
+     Con 0.68 sube a 5.34 y el texto sigue leyéndose como secundario. */
+  --muted-l:  rgba(26,34,48,0.68);
   --muted-l2: rgba(26,34,48,0.38);
 
   /* ── COLOR — LINES / BORDERS ──────────────────────────────── */
