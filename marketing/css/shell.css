@@ -1056,3 +1056,49 @@ body.dnd-active { cursor: grabbing; user-select: none; -webkit-user-select: none
 /* Aviso de "le falta el correo": ambar, no rojo — no esta roto, falta un dato. */
 .acct-user__warn { font-size: 11.5px; color: var(--warn, #E8A33D); line-height: 1.4; margin-top: 2px; }
 .cred-row .btn { min-height: 40px; }
+
+/* ── Ajustes de avisos (hoja del menú de cuenta) ─────────────────────────────
+   El interruptor es un botón grande de 56px: en teléfono se toca con el pulgar
+   sin apuntar. El estado se lee en el texto, no solo en el color, para quien
+   no distingue bien los colores. */
+.av-ajustes { display: flex; flex-direction: column; gap: var(--s-3); }
+.av-intro { margin: 0; color: var(--text-dim); font-size: var(--fs-2); line-height: 1.5; }
+.av-nota {
+  display: flex; align-items: flex-start; gap: var(--s-3);
+  padding: var(--s-3);
+  border: 1px solid var(--border); border-radius: var(--r);
+  background: var(--surface-2);
+  color: var(--text-dim); font-size: var(--fs-2); line-height: 1.5;
+}
+.av-nota .ico { flex: none; margin-top: 2px; color: var(--text-mute); }
+.av-switch {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s-3);
+  width: 100%; min-height: 56px; padding: 0 var(--s-3);
+  border: 1px solid var(--border); border-radius: var(--r);
+  background: var(--surface-2); color: var(--text);
+  font: inherit; font-size: var(--fs-2); font-weight: 600; text-align: left;
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast);
+}
+.av-switch:disabled { opacity: .6; cursor: progress; }
+.av-switch__txt { min-width: 0; }
+.av-switch__knob {
+  flex: none; position: relative;
+  width: 46px; height: 28px; border-radius: var(--r-pill);
+  background: var(--border-strong);
+  transition: background var(--t-fast);
+}
+.av-switch__knob::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.35);
+  transition: transform var(--t-fast);
+}
+.av-switch.is-on { border-color: var(--brand); background: color-mix(in srgb, var(--brand) 10%, transparent); }
+.av-switch.is-on .av-switch__knob { background: var(--grad); }
+.av-switch.is-on .av-switch__knob::after { transform: translateX(18px); }
+.av-cuenta { font-size: var(--fs-1); }
+.av-probar { min-height: 48px; justify-content: center; display: flex; align-items: center; gap: 8px; }
+@media (prefers-reduced-motion: reduce) {
+  .av-switch, .av-switch__knob, .av-switch__knob::after { transition: none; }
+}

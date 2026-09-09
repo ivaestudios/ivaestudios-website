@@ -167,3 +167,44 @@ self.addEventListener('message', (event) => {
   const d = event.data;
   if (d === 'skipWaiting' || (d && d.type === 'skipWaiting')) self.skipWaiting();
 });
+
+// ── AVISOS QUE LLEGAN CON LA APP CERRADA (Web Push) ──────────────────────────
+// El servidor cifra el aviso y el navegador lo despierta aquí. Este archivo es
+// lo ÚNICO que corre cuando la app no está abierta, así que el aviso se pinta
+// desde aquí. Contrato del mensaje (functions/api/marketing/_push.js):
+//   { titulo, cuerpo, link, tipo, quien }
+self.addEventListener('push', (event) => {
+  let d = {};
+  try { d = event.data ? event.data.json() : {}; } catch { d = {}; }
+  const titulo = d.titulo || 'IVAE Marketing';
+  const cuerpo = d.cuerpo || 'Tienes un aviso nuevo.';
+  const link = d.link || '/marketing/app';
+  event.waitUntil(self.registration.showNotification(titulo, {
+    body: cuerpo,
+    icon: '/marketing/icons/icon-192.png',
+    badge: '/marketing/icons/icon-192.png',
+    // tag por TIPO: varios avisos del mismo tipo se apilan en uno solo en vez
+    // de llenarle la pantalla de bloqueo a nadie.
+    tag: 'ivae-' + (d.tipo || 'aviso'),
+    renotify: true,
+    data: { link },
+  }));
+});
+
+// Tocar el aviso: si la app ya está abierta se enfoca esa pestaña y se lleva a
+// la vista correcta; si no, se abre. Nunca se abren dos.
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const destino = (event.notification.data && event.notification.data.link) || '/marketing/app';
+  event.waitUntil((async () => {
+    const abiertas = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const c of abiertas) {
+      if (c.url.includes('/marketing/')) {
+        await c.focus();
+        try { c.postMessage({ type: 'ir', link: destino }); } catch { /* noop */ }
+        return;
+      }
+    }
+    await self.clients.openWindow(destino);
+  })());
+});

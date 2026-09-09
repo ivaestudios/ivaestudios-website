@@ -60,6 +60,7 @@ import {
   handleIgMetrics, handleIgMetricsRange, fetchIgMetrics, fetchIgMetricsRange,
   handleIgManual, getManualMetrics, refreshAgingIgTokens, checkIgConnections,
 } from './_instagram.js';
+import { repartirPush, vapidPublica } from './_push.js';
 
 // ============================================================================
 // CRYPTO / UTILITY HELPERS  (copied VERBATIM from the gallery function)
@@ -1976,6 +1977,16 @@ async function notify(env, { user_ids, type, body, link, post_id, comment_id, cl
       type, actor_name || null, String(body), link || null
     ));
     await env.DB.batch(stmts);
+    // El aviso ya vive en la campana; ahora que SALGA al telefono. Es
+    // best-effort igual que todo lo demas: si el push falla, el aviso sigue
+    // ahi cuando la persona abra la app.
+    await repartirPush(env, ids, {
+      titulo: 'IVAE Marketing',
+      cuerpo: String(body),
+      link: link || '/marketing/app',
+      tipo: type,
+      quien: actor_name || null,
+    });
     return ids.length;
   } catch (e) {
     console.error('[mkt notify]', type, e && e.message);
@@ -3444,6 +3455,103 @@ async function handleListNotifications(request, env, session, url) {
 }
 
 // GET /notifications/unread-count → { unread }  (60s polling endpoint)
+// ============================================================================
+// PUSH — que el aviso llegue al telefono aunque la app este cerrada.
+// El cifrado y el envio viven en _push.js; aqui solo el alta, la baja y el
+// estado. Un dispositivo = un renglon, identificado por su endpoint.
+// ============================================================================
+
+// GET /push/llave → la llave publica VAPID que el navegador necesita para
+// suscribirse. Publica por definicion: no es un secreto.
+function handlePushLlave(env) {
+  if (!env.VAPID_JWK) return json({ disponible: false }, 200);
+  try {
+    return json({ disponible: true, llave: vapidPublica(env) });
+  } catch {
+    return json({ disponible: false }, 200);
+  }
+}
+
+// GET /push/estado → cuantos dispositivos tiene esta persona y si los quiere.
+async function handlePushEstado(env, session) {
+  try {
+    const r = await env.DB.prepare(
+      'SELECT COUNT(*) AS n FROM mkt_push_subs WHERE user_id = ?'
+    ).bind(session.user_id).first();
+    const u = await env.DB.prepare(
+      'SELECT push_activo FROM mkt_users WHERE id = ?'
+    ).bind(session.user_id).first();
+    return json({
+      disponible: !!env.VAPID_JWK,
+      dispositivos: (r && r.n) || 0,
+      activo: !u || u.push_activo !== 0,
+    });
+  } catch {
+    return json({ disponible: !!env.VAPID_JWK, dispositivos: 0, activo: true });
+  }
+}
+
+// POST /push/suscribir  { endpoint, keys: { p256dh, auth } }
+async function handlePushSuscribir(request, env, session) {
+  let b;
+  try { b = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
+  const endpoint = String((b && b.endpoint) || '');
+  const p256dh = String((b && b.keys && b.keys.p256dh) || '');
+  const auth = String((b && b.keys && b.keys.auth) || '');
+  // Solo https y con las dos llaves: sin ellas el mensaje no se puede cifrar.
+  if (!/^https:\/\//.test(endpoint) || endpoint.length > 1000 || !p256dh || !auth) {
+    return json({ error: 'Suscripción incompleta' }, 400);
+  }
+  const agente = String(request.headers.get('user-agent') || '').slice(0, 200);
+  // El endpoint es unico en el mundo: si el mismo aparato se re-suscribe, se
+  // actualiza el renglon en vez de duplicarlo (y cambia de dueño si otra
+  // persona entro en ese telefono).
+  await env.DB.prepare(
+    `INSERT INTO mkt_push_subs (id, user_id, endpoint, p256dh, auth, agente)
+     VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT(endpoint) DO UPDATE SET
+       user_id = excluded.user_id, p256dh = excluded.p256dh,
+       auth = excluded.auth, agente = excluded.agente, fallos = 0`
+  ).bind(randomId(), session.user_id, endpoint, p256dh, auth, agente).run();
+  await env.DB.prepare('UPDATE mkt_users SET push_activo = 1 WHERE id = ?')
+    .bind(session.user_id).run();
+  return json({ ok: true });
+}
+
+// POST /push/baja  { endpoint }  → sin endpoint, apaga TODOS los de la persona.
+async function handlePushBaja(request, env, session) {
+  let b = {};
+  try { b = await request.json(); } catch { /* cuerpo vacio es valido */ }
+  const endpoint = String((b && b.endpoint) || '');
+  if (endpoint) {
+    await env.DB.prepare('DELETE FROM mkt_push_subs WHERE user_id = ? AND endpoint = ?')
+      .bind(session.user_id, endpoint).run();
+  } else {
+    await env.DB.prepare('DELETE FROM mkt_push_subs WHERE user_id = ?')
+      .bind(session.user_id).run();
+  }
+  const quedan = await env.DB.prepare(
+    'SELECT COUNT(*) AS n FROM mkt_push_subs WHERE user_id = ?'
+  ).bind(session.user_id).first();
+  if (!quedan || !quedan.n) {
+    await env.DB.prepare('UPDATE mkt_users SET push_activo = 0 WHERE id = ?')
+      .bind(session.user_id).run();
+  }
+  return json({ ok: true });
+}
+
+// POST /push/probar → se manda un aviso a si misma. Sirve para que Vianey
+// compruebe en su propio telefono que la cadena entera funciona.
+async function handlePushProbar(env, session) {
+  const n = await repartirPush(env, [session.user_id], {
+    titulo: 'IVAE Marketing',
+    cuerpo: 'Prueba: si ves este aviso, los avisos ya te llegan al teléfono.',
+    link: '/marketing/app',
+    tipo: 'prueba',
+  });
+  return json({ ok: n > 0, enviados: n });
+}
+
 async function handleUnreadCount(env, session) {
   await safeSweep(env);
   const row = await env.DB.prepare(
@@ -5299,6 +5407,16 @@ async function route(request, env, authCtx) {
       if (parts.length === 2 && parts[1] === 'delete' && method === 'POST') return handleNotificationsDelete(request, env, session);
       return json({ error: 'Not found' }, 404);
     });
+  }
+
+  // ── PUSH: avisos que llegan al telefono con la app cerrada ──
+  if (parts[0] === 'push') {
+    if (parts[1] === 'llave' && method === 'GET') return handlePushLlave(env);
+    if (parts[1] === 'estado' && method === 'GET') return handlePushEstado(env, session);
+    if (parts[1] === 'suscribir' && method === 'POST') return handlePushSuscribir(request, env, session);
+    if (parts[1] === 'baja' && method === 'POST') return handlePushBaja(request, env, session);
+    if (parts[1] === 'probar' && method === 'POST') return handlePushProbar(env, session);
+    return json({ error: 'Not found' }, 404);
   }
 
   // ── DASHBOARD (staff; single aggregator, module _dashboard.js) ──

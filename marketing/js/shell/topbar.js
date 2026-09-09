@@ -10,17 +10,18 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202609082330';
-import * as store from './store.js?v=202609082330';
-import { openSheet, pickFrom } from './sheet.js?v=202609082330';
-import { toast } from './toast.js?v=202609082330';
-import { icon } from './icons.js?v=202609082330';
-import { openClientSwitcher } from './clientswitcher.js?v=202609082330';
-import { T, isEN, setLang } from './i18n.js?v=202609082330';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202609082349';
+import * as store from './store.js?v=202609082349';
+import { openSheet, pickFrom } from './sheet.js?v=202609082349';
+import { toast } from './toast.js?v=202609082349';
+import { icon } from './icons.js?v=202609082349';
+import { openClientSwitcher } from './clientswitcher.js?v=202609082349';
+import { T, isEN, setLang } from './i18n.js?v=202609082349';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202609082330';
-import { getTheme, setTheme } from './theme.js?v=202609082330';
-import * as version from './version.js?v=202609082330';
+import { abrirBloqueados } from './moderacion.js?v=202609082349';
+import { getTheme, setTheme } from './theme.js?v=202609082349';
+import * as version from './version.js?v=202609082349';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202609082349';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -425,7 +426,9 @@ export function createTopbar({ root, router, selectClient, openSearch, openNotif
             accountRow('link', T('Accesos de cliente', 'Client access'), () => { close(); openClientAccessSheet(); }),
             accountRow('activity', T('Actividad', 'Activity'), () => { close(); openActivitySheet(); }),
           ] : []),
-          accountRow('bell', T('Ajustes de avisos', 'Notification settings'), () => { close(); openNotifications(bellBtn, { tab: 'all' }); }),
+          // Antes este renglon abria la LISTA de avisos, o sea que "ajustes" no
+          // ajustaba nada. Ahora abre el interruptor de los avisos al telefono.
+          accountRow('bell', T('Ajustes de avisos', 'Notification settings'), () => { close(); abrirAjustesAvisos(); }),
           accountRow('key', T('Cambiar contraseña', 'Change password'), () => { close(); openChangePassword(); }),
           // Ayuda: abre el WhatsApp de IVAE en una pestaña nueva.
           accountRow('send', T('Ayuda', 'Help'), () => {
