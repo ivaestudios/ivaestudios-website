@@ -15,6 +15,10 @@
 const VISTOS = new WeakSet();
 const HOLGURA = 2;   // px de tolerancia: los redondeos del navegador mienten
 
+// Todas las tiras que se deslizan en horizontal y se cortaban de tajo: las
+// pestanas (.seg), la barra de meses del Calendario y la de Entregables.
+const TIRAS = '.seg, .meses-monthbar, .dlv-monthbar';
+
 function medir(seg) {
   const max = seg.scrollWidth - seg.clientWidth;
   if (max <= HOLGURA) {
@@ -38,7 +42,7 @@ function adoptar(seg) {
 }
 
 function barrer(raiz = document) {
-  try { raiz.querySelectorAll?.('.seg').forEach(adoptar); } catch { /* noop */ }
+  try { raiz.querySelectorAll?.(TIRAS).forEach(adoptar); } catch { /* noop */ }
 }
 
 let arrancado = false;
@@ -51,7 +55,7 @@ export function vigilarSegmentados() {
       for (const m of muts) {
         for (const n of m.addedNodes) {
           if (n.nodeType !== 1) continue;
-          if (n.classList?.contains('seg')) adoptar(n);
+          if (n.matches?.(TIRAS)) adoptar(n);
           else barrer(n);
         }
       }

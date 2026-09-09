@@ -1048,7 +1048,9 @@ ul { margin: 0; padding: 0; list-style: none; }
    a la mitad (2026-09-08). A 390px las pestanas de contenido terminaban en
    "Marc" y las de Avisos en "Asignadas" pegada al filo, y leia como roto.
    segfade.js pone .seg--ovf cuando de verdad desborda, y .seg--ini/.seg--fin
-   segun donde este el scroll; asi un segmented que SI cabe no se degrada. --- */
+   segun donde este el scroll; asi un segmented que SI cabe no se degrada.
+   La clase la usan tambien las barras de meses (Calendario y Entregables),
+   que sufrian lo mismo: la pildora del mes siguiente asomaba cortada. --- */
 .seg--ovf {
   -webkit-mask-image: linear-gradient(to right,
     transparent 0, #000 var(--seg-ini, 0px),
@@ -1057,8 +1059,8 @@ ul { margin: 0; padding: 0; list-style: none; }
     transparent 0, #000 var(--seg-ini, 0px),
     #000 calc(100% - var(--seg-fin, 0px)), transparent 100%);
 }
-.seg--ovf.seg--ini { --seg-ini: 26px; }
-.seg--ovf.seg--fin { --seg-fin: 26px; }
+.seg--ovf.seg--ini { --seg-ini: 34px; }
+.seg--ovf.seg--fin { --seg-fin: 34px; }
 
 /* Badge de prioridad (mismo patron que .approval-badge) */
 .priority-badge {
