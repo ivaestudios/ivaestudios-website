@@ -738,6 +738,12 @@ body.has-subhead #viewScroll {
 .nf-tabs {
   display: flex;
   margin: var(--s-3) var(--s-4);
+  /* Media a 390px salia de 390px de ancho empezando en x=16: se desbordaba 16px
+     fuera de la pantalla y "Asignadas" moria contra el filo. Acotado, .seg ya
+     le pone overflow-x y segfade.js el difuminado. (2026-09-08) */
+  align-self: stretch;
+  min-width: 0;
+  max-width: calc(100% - var(--s-4) * 2);
 }
 .nf-list { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; padding: 0 var(--s-3) var(--s-8); }
 .nf-loading { padding: var(--s-4); text-align: center; }
