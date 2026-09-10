@@ -1017,6 +1017,8 @@
   box-shadow: -24px 0 60px rgba(0, 0, 0, .45);
   transform: translateX(100%);
   transition: transform .22s cubic-bezier(.22, .8, .36, 1);
+  /* iPhone (viewport-fit=cover): la hora y la isla no deben pisar el encabezado del guion. */
+  padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom);
 }
 
