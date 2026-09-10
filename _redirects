@@ -17,6 +17,9 @@
 /services/weddings /destination-wedding-photographer-mexico 301
 /services/couples /couples-photography-mexico 301
 /services/family-photos /luxury-family-photos-cancun 301
+/services/proposals /surprise-proposal-photographer-cancun 301
+/services/cenote /cenote-photographer-tulum 301
+/services/yacht /blog/luxury-yacht-photography-cancun 301
 /services/* /cancun-photographer 301
 /es/cancun /es/fotografo-cancun 301
 /es/parejas /es/fotografia-parejas-mexico 301
@@ -33,16 +36,6 @@
 /destination-wedding-cancun /destination-wedding-photographer-mexico 301
 /portfolio /destination-wedding-photographer-mexico 301
 /es/gestion-redes-sociales /es/manejo-redes-sociales 301
-/services/weddings /destination-wedding-photographer-mexico 301
-/services/couples /couples-photography-mexico 301
-/services/family-photos /luxury-family-photos-cancun 301
-/services/proposals /surprise-proposal-photographer-cancun 301
-/services/cenote /cenote-photographer-tulum 301
-/services/yacht /blog/luxury-yacht-photography-cancun 301
-/services/* /destination-wedding-photographer-mexico 301
-/es/cancun /es/fotografo-cancun 301
-/es/parejas /es/fotografia-parejas-mexico 301
-/es/riviera-maya /es/fotografo-riviera-maya 301
 /es/fotografo-bodas-riviera-maya /es/fotografo-riviera-maya 301
 /es/blog/fotografia-aniversario-cancun-mexico /es/blog/fotografia-aniversario-mexico 301
 /es/blog/fotografo-micro-bodas-cancun-tulum /es/fotografo-bodas-destino-mexico 301
@@ -126,3 +119,5 @@
 /blog/lgbtq-couples-photographer-cancun-riviera-maya  /couples-photographer-cancun  301
 /blog/same-sex-wedding-photographer-cancun-lgbtq-inclusive  /cancun-wedding-photographer  301
 /es/blog/fotografo-bodas-mismo-sexo-cancun-lgbtq  /es/fotografo-bodas-cancun  301
+/es/fotografo-fuga-boda-cancun  /es/fotografo-bodas-intimas-cancun  301
+/es/blog/fuga-boda-destino-mexico  /es/blog/boda-intima-destino-mexico  301
