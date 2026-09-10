@@ -32,8 +32,15 @@ import time
 # CONSTANTES
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Cloudflare Pages solo aplica las PRIMERAS ~100 reglas de _redirects.
-# Medido en produccion el 2026-08-07: la regla #107 respondia 301 y la #108
+# Cloudflare Pages solo aplica las PRIMERAS 106 reglas de _redirects.
+# RE-MEDIDO en produccion el 2026-09-09 con 25 sondas desplegadas de golpe:
+# las reglas #100 a #106 respondieron 301 y de la #107 a la #124 respondieron
+# 404, todas en la misma tanda. El corte es exacto, no aproximado, y no es
+# lentitud de despliegue: siete aciertos seguidos y dieciocho fallos seguidos.
+# La medicion vieja del 2026-08-07 decia "la #107 viva y la #108 muerta" y se
+# quedaba corta por una. Se conserva PRESUPUESTO_REGLAS = 100 como margen de
+# seguridad de 6 reglas, no porque el limite sea 100.
+# (medicion vieja: la regla #107 respondia 301 y la #108
 # respondia 404. El limite documentado por Cloudflare es 100, asi que ese es el
 # numero seguro. Todo lo que quede por debajo del corte simplemente NO EXISTE.
 PRESUPUESTO_REGLAS = 100
@@ -416,8 +423,9 @@ def inv1_presupuesto(sitio, inf):
     nota = (
         "_redirects tiene %d reglas utiles (sin comentarios ni lineas vacias); se pasa por %d.\n"
         % (total, total - PRESUPUESTO_REGLAS)
-        + "Cloudflare Pages solo honra las primeras ~%d reglas del archivo\n" % PRESUPUESTO_REGLAS
-        + "(medido en produccion 2026-08-07: la regla #107 respondia 301 y la #108\n"
+        + "Cloudflare Pages honra las primeras 106 reglas del archivo; aqui se\n"
+        + "usa un presupuesto de %d como margen de seguridad.\n" % PRESUPUESTO_REGLAS
+        + "(re-medido en produccion 2026-09-09 con 25 sondas: #100 a #106 daban 301\n"
           "respondia 404). Las %d reglas listadas abajo estan MUERTAS: sus origenes\n"
           "devuelven 404 aunque la linea siga escrita en el archivo." % len(fuera)
     )
