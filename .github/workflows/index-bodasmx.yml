@@ -1,9 +1,10 @@
 name: SEO — Index bodasmx.com.mx
 
 # bodasmx tiene ~930 URLs y la cuota de la Indexing API son 200 al dia,
-# compartida con ivaestudios.com. Este job empuja 180 diarias y lleva un
-# cursor, asi que el sitio entero entra solo en unos cinco dias y despues
-# sigue revisitando. Google no acepta IndexNow: sin esto, un dominio joven
+# compartida con ivaestudios.com. Este job empuja 60 diarias y lleva un
+# cursor. Empujaba 180, pero el sitio ya dio dos o tres vueltas completas y
+# ahora solo revisita, mientras a ivaestudios le quedaban 20 al dia y sus
+# paginas de dinero se quedaban sin rastrear. Google no acepta IndexNow: sin esto, un dominio joven
 # como bodasmx puede tardar meses en indexarse.
 on:
   schedule:
@@ -22,7 +23,7 @@ permissions:
 
 jobs:
   submit:
-    name: Empujar 180 URLs de bodasmx a Google
+    name: Empujar 60 URLs de bodasmx a Google
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

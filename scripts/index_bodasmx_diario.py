@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Empuja bodasmx.com.mx a la Google Indexing API, 180 URLs por dia.
+"""Empuja bodasmx.com.mx a la Google Indexing API, 60 URLs por dia.
 
 POR QUE EXISTE
 Google no usa IndexNow: o se le empujan las URLs por su API o se esperan
@@ -9,9 +9,16 @@ ivaestudios.com, asi que el sitio entero no cabe en un envio: entra en unos
 cinco dias, solo.
 
 COMO NO SE PISA CON ivaestudios.com
-Se envian 180 y no 200, dejando un colchon de 20 para los envios que dispara
-el push de ivaestudios. Si aun asi la cuota se agota, la API responde QUOTA,
-el cursor NO avanza y manana se reintentan las mismas.
+Se envian 60, no 180. El reparto viejo dejaba solo 20 diarias para ivaestudios
+y eso resulto caro: /cancun-wedding-photographer llevaba desde el 2026-08-19
+sin recibir rastreo, marcada "Crawled - currently not indexed", mientras este
+cron gastaba 180 al dia REVISITANDO paginas de bodasmx ya enviadas dos o tres
+veces (el cursor iba por la vuelta 3 de 929 URLs). Revisitar cuesta lo mismo
+que indexar por primera vez y rinde mucho menos.
+
+Con 60 al dia bodasmx completa una vuelta entera cada ~15 dias, de sobra para
+mantenimiento, y a ivaestudios le quedan ~140. Si la cuota se agota igual, la
+API responde QUOTA, el cursor NO avanza y manana se reintentan las mismas.
 
 EL CURSOR
 seo/data/bodasmx_index_cursor.json guarda por donde va. Cuando pasa del final
@@ -24,7 +31,7 @@ ORDEN
 import json, os, re, sys, urllib.request
 
 CURSOR = "seo/data/bodasmx_index_cursor.json"
-POR_DIA = 180
+POR_DIA = 60
 UA = {"User-Agent": "Mozilla/5.0 (compatible; BodasMX-Indexer/1.0)"}
 
 
