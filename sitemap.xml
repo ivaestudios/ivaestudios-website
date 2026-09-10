@@ -559,7 +559,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/fotografo-parejas-playa-del-carmen</loc>
-    <lastmod>2026-09-09</lastmod>
+    <lastmod>2026-09-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -814,6 +814,26 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/los-cabos-family-photographer"/>
     <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotografo-familiar-los-cabos"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/los-cabos-family-photographer"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/los-cabos-wedding-photographer</loc>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/los-cabos-wedding-photographer"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotografo-bodas-los-cabos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/los-cabos-wedding-photographer"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/fotografo-bodas-los-cabos</loc>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/los-cabos-wedding-photographer"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotografo-bodas-los-cabos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/los-cabos-wedding-photographer"/>
   </url>
 
   <url>
@@ -1172,7 +1192,7 @@
 
   <url>
     <loc>https://ivaestudios.com/tulum-couples-photographer</loc>
-    <lastmod>2026-09-09</lastmod>
+    <lastmod>2026-09-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
