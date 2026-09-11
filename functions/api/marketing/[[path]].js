@@ -47,6 +47,7 @@
 
 import { handleDashboard } from './_dashboard.js';
 import { handleVideoIa } from './_video-ia.js';
+import { handleVoz } from './_voz.js';
 import { handleStorage, refreshStorageUsage } from './_storage.js';
 import { handleMonthlyReport } from './_enterprise.js';
 import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHeadersFor, buscarPinterest, fotosDePin } from './_downloader.js';
@@ -5523,6 +5524,12 @@ async function route(request, env, authCtx) {
   if (parts[0] === 'video-ia') {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);
     return handleVideoIa(request, env, session, url, parts);
+  }
+
+  // ── VOZ IA (solo staff): texto a voz con OpenAI para narrar videos ──
+  if (parts[0] === 'voz' && parts.length === 1) {
+    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    return handleVoz(request, env);
   }
 
   // ── DESCARGAR (solo staff): descargador de videos IG/TikTok/Pinterest ──
