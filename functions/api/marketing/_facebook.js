@@ -234,6 +234,31 @@ export async function publicarEnFacebook(env, { client, post, videoUrl, slides }
     return { fbPostId: postRes.id, permalink: `https://www.facebook.com/${postRes.id}` };
   }
 
+  // HISTORIA DE PÁGINA (content_type 'historia', 2026-09-10): Page Stories API,
+  // mismas 3 fases que el reel pero en /video_stories y sin descripción (las
+  // historias no llevan caption). Dura 24 h; se guarda el video_id.
+  if (videoUrl && String(post.content_type || '') === 'historia') {
+    const inicio = await fbJson(`${FB_GRAPH}/${client.fb_page_id}/video_stories`, {
+      method: 'POST',
+      body: new URLSearchParams({ upload_phase: 'start', access_token: tok }),
+    });
+    if (!inicio.video_id) throw new Error('Facebook no devolvió el video_id de la historia.');
+    const up = await fetch(`${FB_RUPLOAD}/${inicio.video_id}`, {
+      method: 'POST',
+      headers: { Authorization: `OAuth ${tok}`, file_url: videoUrl },
+    });
+    const upData = await up.json().catch(() => ({}));
+    if (!up.ok || upData.error) {
+      throw new Error('Facebook no pudo bajar el video de la historia: ' + ((upData.error && upData.error.message) || `HTTP ${up.status}`));
+    }
+    const fin = await fbJson(`${FB_GRAPH}/${client.fb_page_id}/video_stories`, {
+      method: 'POST',
+      body: new URLSearchParams({ upload_phase: 'finish', video_id: inicio.video_id, access_token: tok }),
+    });
+    if (fin.error) throw new Error('Facebook no publicó la historia: ' + fin.error.message);
+    return { fbPostId: fin.post_id || inicio.video_id, permalink: `https://www.facebook.com/${client.fb_page_id}` };
+  }
+
   // REEL → Reels API de páginas en 3 fases; el video viaja por file_url.
   if (videoUrl) {
     const inicio = await fbJson(`${FB_GRAPH}/${client.fb_page_id}/video_reels`, {
