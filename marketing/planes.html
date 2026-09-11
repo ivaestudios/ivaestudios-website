@@ -122,6 +122,13 @@ h1 .pal{display:inline-block;opacity:0;transform:translateY(28px);
 .confia{padding:86px 0 0;text-align:center}
 .confia p{max-width:620px;margin:0 auto;font-size:clamp(17px,2vw,20px);color:var(--dim);line-height:1.55}
 
+.cifras{display:grid;grid-template-columns:repeat(4,1fr);gap:34px;margin-top:70px;
+  padding-top:44px;border-top:1px solid var(--linea)}
+.cifras i{display:block;font-style:normal;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--brand-txt);font-weight:500;margin-bottom:10px}
+.cifras b{display:block;font-size:clamp(27px,3.2vw,38px);font-weight:500;letter-spacing:-.03em;line-height:1.05}
+.cifras small{display:block;color:var(--mute);font-size:14px;margin-top:8px;line-height:1.45}
+
 /* ── titulos ───────────────────────────────────────────────────── */
 .h2{font-size:clamp(29px,3.9vw,50px);line-height:1.08;letter-spacing:-.032em;margin:0 0 18px;font-weight:500}
 .sub{color:var(--dim);max-width:600px;font-size:17.5px}
@@ -152,8 +159,10 @@ h1 .pal{display:inline-block;opacity:0;transform:translateY(28px);
 .bloque:last-child{margin-bottom:0}
 .bloque__txt{max-width:680px;margin-bottom:38px}
 .bloque--der .bloque__txt{margin-left:auto}
+.paso{display:flex;align-items:baseline;gap:15px;margin-bottom:12px}
+.cat{font-size:11.5px;letter-spacing:.17em;text-transform:uppercase;font-weight:500;color:var(--mute)}
 .num{font-family:'Cormorant',Georgia,serif;font-style:italic;font-weight:400;
-  font-size:44px;line-height:1;color:var(--brand);opacity:.5;display:block;margin-bottom:10px}
+  font-size:44px;line-height:1;color:var(--brand);opacity:.55;display:block}
 .bloque h3{font-size:clamp(25px,3vw,38px);line-height:1.12;letter-spacing:-.028em;margin:0 0 14px;font-weight:500}
 .bloque p{color:var(--dim);margin:0 0 20px;font-size:17.5px}
 .tick{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:10px 30px}
@@ -189,6 +198,13 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   padding:13px 25px;border-radius:999px;font-weight:500;font-size:16px}
 .pulso{animation:pulso .5s var(--ease)}
 @keyframes pulso{0%{transform:scale(1)}45%{transform:scale(1.055)}100%{transform:scale(1)}}
+
+.pasos{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.pasoc{background:var(--blanco);border:1px solid var(--linea);border-radius:var(--r-xl);padding:34px 30px}
+.pasoc__n{display:block;font-size:11.5px;letter-spacing:.15em;text-transform:uppercase;font-weight:500;
+  color:var(--brand-txt);margin-bottom:16px}
+.pasoc h3{font-size:21px;line-height:1.2;letter-spacing:-.02em;margin:0 0 10px;font-weight:500}
+.pasoc p{color:var(--dim);margin:0;font-size:16px}
 
 /* ── planes ────────────────────────────────────────────────────── */
 .ciclo{display:inline-flex;background:var(--papel-2);border:1px solid var(--linea);
@@ -242,6 +258,15 @@ tr:last-child th,tr:last-child td{border-bottom:0}
 .grupo th{background:var(--papel);font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--mute)}
 .desliza{display:none}
 
+.honesto{background:var(--papel-2);border-radius:var(--r-xl);padding:clamp(30px,4vw,52px)}
+.honesto h3{font-size:clamp(21px,2.4vw,28px);line-height:1.15;letter-spacing:-.022em;margin:0 0 26px;font-weight:500}
+.honesto ul{list-style:none;padding:0;margin:0;display:grid;gap:18px}
+.honesto li{display:flex;gap:14px;align-items:flex-start;font-size:16.5px;line-height:1.5;color:var(--dim)}
+.honesto li b{color:var(--texto);font-weight:500}
+.ico--no{background:#DDDBE7}.ico--no svg{stroke:#8C889D}
+.honesto__pie{margin:26px 0 0;padding-top:22px;border-top:1px solid var(--linea-2);
+  color:var(--mute);font-size:15px}
+
 /* ── preguntas ─────────────────────────────────────────────────── */
 .faq{max-width:780px;margin:0 auto}
 details{border-bottom:1px solid var(--linea)}
@@ -271,6 +296,8 @@ footer .logo{color:var(--texto)}
 /* ── medidas ───────────────────────────────────────────────────── */
 @media (max-width:1040px){
   .planes{grid-template-columns:repeat(2,1fr)}
+  .cifras{grid-template-columns:repeat(2,1fr);gap:28px 24px}
+  .pasos{grid-template-columns:1fr;gap:14px}
   .cambio{grid-template-columns:1fr;gap:16px}
   .feat{grid-template-columns:1fr;gap:32px}
   .bloque{margin-bottom:78px}
@@ -296,6 +323,8 @@ footer .logo{color:var(--texto)}
 }
 @media (max-width:600px){
   .planes{grid-template-columns:1fr}
+  .cifras{grid-template-columns:1fr;gap:26px;margin-top:52px;padding-top:34px}
+  .honesto li{font-size:16px}
   .hero__cta{flex-direction:column}
   .hero__cta .btn{width:100%}
   .calc__res{flex-direction:column;align-items:stretch;text-align:center}
@@ -360,6 +389,12 @@ footer .logo{color:var(--texto)}
   <div class="wrap" data-rev>
     <p>Lo construimos para nuestro propio estudio, porque los calendarios en Excel y los reels por WhatsApp ya no daban. Hoy es el sistema con el que le entregamos a nuestras marcas cada mes.</p>
   </div>
+  <div class="wrap cifras">
+    <div data-rev style="--d:0s"><i>En el guion</i><b>6 campos</b><small>gancho, desarrollo, cierre, caption, hashtags y texto alternativo</small></div>
+    <div data-rev style="--d:.08s"><i>Para tu cliente</i><b>1 enlace</b><small>sin instalar nada, desde su teléfono</small></div>
+    <div data-rev style="--d:.16s"><i>Trabajando solas</i><b>8 recetas</b><small>cuando pasa X, la app hace Y, sin que estés encima</small></div>
+    <div data-rev style="--d:.24s"><i>En dos idiomas</i><b>ES / EN</b><small>la app entera, y lo que ve tu cliente</small></div>
+  </div>
 </section>
 
 <section style="padding:96px 0 104px">
@@ -403,7 +438,7 @@ footer .logo{color:var(--texto)}
 
     <div class="bloque" data-rev>
       <div class="bloque__txt">
-        <span class="num">01</span>
+        <span class="paso"><span class="num">01</span><span class="cat">Planear</span></span>
         <h3>Armas el mes en una tarde</h3>
         <p>Cada pieza con su fecha, su formato, su estado y quién la graba. Al mes siguiente lo copias y ajustas.</p>
         <ul class="tick">
@@ -421,7 +456,7 @@ footer .logo{color:var(--texto)}
 
     <div class="bloque bloque--der" data-rev>
       <div class="bloque__txt">
-        <span class="num">02</span>
+        <span class="paso"><span class="num">02</span><span class="cat">Escribir</span></span>
         <h3>El guion ya viene escrito</h3>
         <p>Gancho, desarrollo, cierre, caption con emojis, hashtags y texto alternativo. Se copia y se pega en Instagram sin retoques.</p>
         <ul class="tick">
@@ -439,7 +474,7 @@ footer .logo{color:var(--texto)}
 
     <div class="feat bloque" data-rev>
       <div class="bloque__txt" style="margin-bottom:0">
-        <span class="num">03</span>
+        <span class="paso"><span class="num">03</span><span class="cat">Aprobar</span></span>
         <h3>Tu cliente aprueba <br class="solo-pc">con un toque</h3>
         <p>Entra desde su teléfono, ve lo que le toca revisar y aprueba o pide cambios. Sin instalar nada y sin que le expliques cómo se usa.</p>
         <ul class="tick" style="flex-direction:column;gap:9px">
@@ -456,7 +491,7 @@ footer .logo{color:var(--texto)}
 
     <div class="bloque" data-rev>
       <div class="bloque__txt">
-        <span class="num">04</span>
+        <span class="paso"><span class="num">04</span><span class="cat">Entregar</span></span>
         <h3>Los reels terminados, en su lugar</h3>
         <p>Subes el reel final o la tira del carrusel y queda guardado por mes. Tu cliente lo ve, lo descarga y te deja ahí mismo el comentario.</p>
         <ul class="tick">
@@ -474,7 +509,7 @@ footer .logo{color:var(--texto)}
 
     <div class="bloque bloque--der" data-rev>
       <div class="bloque__txt">
-        <span class="num">05</span>
+        <span class="paso"><span class="num">05</span><span class="cat">Controlar</span></span>
         <h3>Abres la app y ya sabes qué falta</h3>
         <p>Lo que está por aprobar, lo de esta semana y lo atrasado. El resumen que revisas tú y el que le enseñas al cliente.</p>
         <ul class="tick">
@@ -514,6 +549,32 @@ footer .logo{color:var(--texto)}
     </div>
   </section>
 </div>
+
+<section style="padding:6px 0 100px">
+  <div class="wrap">
+    <div class="center" style="margin-bottom:54px" data-rev>
+      <span class="titulin">Cómo empiezas</span>
+      <h2 class="h2">De la cuenta vacía <br class="solo-pc">a <span class="serif grad">tu cliente aprobando</span></h2>
+    </div>
+    <div class="pasos">
+      <div class="pasoc" data-rev style="--d:0s">
+        <span class="pasoc__n">Paso 1 · 2 minutos</span>
+        <h3>Creas la cuenta y tu primera marca</h3>
+        <p>Correo y contraseña. Le pones nombre, color y el arroba de su Instagram. Si llevas ocho clientes, creas las ocho: no se cobran.</p>
+      </div>
+      <div class="pasoc" data-rev style="--d:.1s">
+        <span class="pasoc__n">Paso 2 · una tarde</span>
+        <h3>Armas el mes</h3>
+        <p>Pieza por pieza, copiando el mes anterior o pidiéndole el mes a la IA. Cada una con su fecha, su formato y su guion.</p>
+      </div>
+      <div class="pasoc" data-rev style="--d:.2s">
+        <span class="pasoc__n">Paso 3 · un enlace</span>
+        <h3>Se lo mandas a tu cliente</h3>
+        <p>Entra desde su teléfono, ve el mes completo y aprueba. Cuando subes los reels finales, le llega el aviso solo.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
 <section id="precios" style="padding:104px 0">
   <div class="wrap">
@@ -607,6 +668,22 @@ footer .logo{color:var(--texto)}
   </div>
 </section>
 
+<section style="padding:0 0 96px">
+  <div class="wrap">
+    <div class="honesto" data-rev>
+      <div>
+        <span class="titulin">Lo que todavía no hace</span>
+        <h3>Preferimos decírtelo antes de que pagues</h3>
+      </div>
+      <ul>
+        <li><span class="ico ico--no"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></span><div><b>Publicar solo en Instagram y Facebook.</b> Está construido y funcionando, pero Meta todavía no aprueba los permisos para cuentas que no sean nuestras. Hasta que los apruebe no se vende como incluido.</div></li>
+        <li><span class="ico ico--no"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></span><div><b>El reporte de métricas del mes.</b> Depende de los mismos permisos de Meta. Va en el mismo paquete.</div></li>
+      </ul>
+      <p class="honesto__pie">Cuando Meta apruebe, entran sin cambiar de plan y sin subir el precio de lo que ya contrataste.</p>
+    </div>
+  </div>
+</section>
+
 <section id="preguntas" style="padding:20px 0 104px">
   <div class="wrap">
     <div class="center" style="margin-bottom:34px" data-rev>
@@ -622,8 +699,6 @@ footer .logo{color:var(--texto)}
         <div class="faq__c"><div><p>No. Es gratis para siempre, con 5 GB. Si un día no te alcanzan, subes de plan.</p></div></div></details>
       <details><summary>¿Mi cliente necesita instalar algo?<i></i></summary>
         <div class="faq__c"><div><p>No. Entra desde el enlace que le mandas y lo usa en el navegador del teléfono. Si quiere, lo agrega a su pantalla de inicio y se ve como una app.</p></div></div></details>
-      <details><summary>¿Publica solo en Instagram y Facebook?<i></i></summary>
-        <div class="faq__c"><div><p>Todavía no lo ofrecemos. Estamos en revisión con Meta y hasta que no esté aprobado no lo vendemos como incluido. Hoy la app planea, escribe, entrega y hace que tu cliente apruebe.</p></div></div></details>
       <details><summary>¿Puedo trabajar en otro idioma?<i></i></summary>
         <div class="faq__c"><div><p>Sí. La app completa cambia entre español e inglés con un interruptor, y lo que ve tu cliente también.</p></div></div></details>
       <details><summary>¿Sirve si soy la marca y no una agencia?<i></i></summary>
