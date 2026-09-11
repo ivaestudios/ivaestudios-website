@@ -86,6 +86,12 @@ WELL_KNOWN_GLOBAL_IDS = frozenset({
 # The full Brand / LocalBusiness / Organization definitions live on
 # index.html and venue pages and DO get checked for completeness there.
 INLINE_REFERENCE_KEYS = frozenset({
+    # AÑADIDO 2026-09-11: "about" y "mentions" nombran una entidad de la que
+    # habla el contenido, no una que nosotros describamos. Un post sobre las
+    # reglas de dron cita a la autoridad aeronautica con solo su nombre, y
+    # exigirle url a esa mencion no tiene sentido: no es nuestra entidad.
+    "about",
+    "mentions",
     "brand",
     "worksFor",
     "employer",
