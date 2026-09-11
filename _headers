@@ -31,6 +31,11 @@
   X-Robots-Tag: noindex, nofollow
 /gallery/README.md
   X-Robots-Tag: noindex, nofollow
+# Documentos que se mandan por link a una pareja (listas de precios): se sirven,
+# pero no se indexan ni los recogen los rastreadores de IA. 2026-09-11.
+/docs/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: public, max-age=300
 /gallery/schema.sql
   X-Robots-Tag: noindex, nofollow
 /gallery/migrations/*
