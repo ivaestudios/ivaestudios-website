@@ -209,7 +209,7 @@ export async function handleImagen(request, env) {
     }
   } catch (e) {
     fallaGoogle = String((e && e.message) || e).slice(0, 400);
-    if (!hayOpenAI) return json({ error: fallaGoogle }, 502);
+    if (!hayOpenAI) return json({ ok: false, error: fallaGoogle }, 424);
   }
   try {
     // El aviso dice POR QUÉ no se usó el crédito de Google: sin eso, la app
@@ -218,6 +218,6 @@ export async function handleImagen(request, env) {
     if (n === 1) return binario(imgs[0], { 'X-Via': 'openai', 'X-Aviso': fallaGoogle });
     return json({ ok: true, via: 'openai', aviso: fallaGoogle, imagenes: imgs });
   } catch (e) {
-    return json({ error: String((e && e.message) || e).slice(0, 400), google: fallaGoogle }, 502);
+    return json({ ok: false, error: String((e && e.message) || e).slice(0, 400), google: fallaGoogle }, 424);
   }
 }
