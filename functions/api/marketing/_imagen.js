@@ -107,12 +107,17 @@ async function unModeloVertex(env, modelo, prompt, aspect, n) {
   return { modelo, imagenes: preds.map((p) => 'data:image/png;base64,' + p.bytesBase64Encoded) };
 }
 
+// Si el proyecto no tiene NINGÚN modelo de Imagen (todos 404), se recuerda lo
+// que viva el isolate para no gastar 6 llamadas fallidas por cada foto.
+let _vertexSinImagen = false;
 async function porVertex(env, prompt, aspect, n) {
+  if (_vertexSinImagen) throw Object.assign(new Error('Vertex sin Imagen en este proyecto (ya probado).'), { noExiste: true });
   let ultimo = null;
   for (const m of MODELOS_VERTEX) {
     try { return await unModeloVertex(env, m, prompt, aspect, n); }
     catch (e) { ultimo = e; if (!e.noExiste) throw e; }
   }
+  _vertexSinImagen = true;
   throw ultimo || new Error('Ningún modelo de Imagen disponible en el proyecto.');
 }
 
