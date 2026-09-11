@@ -107,18 +107,54 @@ async function unModeloVertex(env, modelo, prompt, aspect, n) {
   return { modelo, imagenes: preds.map((p) => 'data:image/png;base64,' + p.bytesBase64Encoded) };
 }
 
-// Si el proyecto no tiene NINGÚN modelo de Imagen (todos 404), se recuerda lo
-// que viva el isolate para no gastar 6 llamadas fallidas por cada foto.
+// GEMINI IMAGE en Vertex (gemini-2.5-flash-image, "nano banana"): también lo
+// paga el crédito y suele estar disponible aunque Imagen no. Se intenta en
+// us-central1 y en global.
+async function porGeminiImagen(env, prompt, aspect, n) {
+  const sa = saJson(env);
+  const tok = await tokenGoogle(env);
+  let ultimo = null;
+  for (const loc of ['us-central1', 'global']) {
+    const host = loc === 'global' ? 'aiplatform.googleapis.com' : `${loc}-aiplatform.googleapis.com`;
+    const url = `https://${host}/v1/projects/${sa.project_id}/locations/${loc}/publishers/google/models/gemini-2.5-flash-image:generateContent`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tok}` },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: { responseModalities: ['IMAGE'], imageConfig: { aspectRatio: aspect }, candidateCount: 1 },
+      }),
+      signal: AbortSignal.timeout(120000),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      ultimo = Object.assign(new Error(`Gemini ${loc} ${res.status}: ` + JSON.stringify(data).slice(0, 200)), { noExiste: res.status === 404 || res.status === 403 });
+      if (!ultimo.noExiste) throw ultimo;
+      continue;
+    }
+    const partes = (((data.candidates || [])[0] || {}).content || {}).parts || [];
+    const imgs = partes.filter((p) => p.inlineData && p.inlineData.data)
+      .map((p) => `data:${p.inlineData.mimeType || 'image/png'};base64,${p.inlineData.data}`);
+    if (!imgs.length) throw new Error('Gemini no devolvió imagen: ' + JSON.stringify(data).slice(0, 200));
+    return { modelo: `gemini-2.5-flash-image@${loc}`, imagenes: imgs.slice(0, n) };
+  }
+  throw ultimo || new Error('Gemini image no disponible.');
+}
+
+// Si el proyecto no tiene NINGÚN modelo de imagen (todos 404), se recuerda lo
+// que viva el isolate para no gastar llamadas fallidas por cada foto.
 let _vertexSinImagen = false;
 async function porVertex(env, prompt, aspect, n) {
-  if (_vertexSinImagen) throw Object.assign(new Error('Vertex sin Imagen en este proyecto (ya probado).'), { noExiste: true });
+  if (_vertexSinImagen) throw Object.assign(new Error('Vertex sin generador de imagen en este proyecto (ya probado).'), { noExiste: true });
   let ultimo = null;
+  try { return await porGeminiImagen(env, prompt, aspect, n); }
+  catch (e) { ultimo = e; if (!e.noExiste) throw e; }
   for (const m of MODELOS_VERTEX) {
     try { return await unModeloVertex(env, m, prompt, aspect, n); }
     catch (e) { ultimo = e; if (!e.noExiste) throw e; }
   }
   _vertexSinImagen = true;
-  throw ultimo || new Error('Ningún modelo de Imagen disponible en el proyecto.');
+  throw ultimo || new Error('Ningún modelo de imagen disponible en el proyecto.');
 }
 
 async function porOpenAI(env, prompt, aspect, n) {
