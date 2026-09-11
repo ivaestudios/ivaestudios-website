@@ -10,18 +10,18 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202609101855';
-import * as store from './store.js?v=202609101855';
-import { openSheet, pickFrom } from './sheet.js?v=202609101855';
-import { toast } from './toast.js?v=202609101855';
-import { icon } from './icons.js?v=202609101855';
-import { openClientSwitcher } from './clientswitcher.js?v=202609101855';
-import { T, isEN, setLang } from './i18n.js?v=202609101855';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202609102110';
+import * as store from './store.js?v=202609102110';
+import { openSheet, pickFrom } from './sheet.js?v=202609102110';
+import { toast } from './toast.js?v=202609102110';
+import { icon } from './icons.js?v=202609102110';
+import { openClientSwitcher } from './clientswitcher.js?v=202609102110';
+import { T, isEN, setLang } from './i18n.js?v=202609102110';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202609101855';
-import { getTheme, setTheme } from './theme.js?v=202609101855';
-import * as version from './version.js?v=202609101855';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202609101855';
+import { abrirBloqueados } from './moderacion.js?v=202609102110';
+import { getTheme, setTheme } from './theme.js?v=202609102110';
+import * as version from './version.js?v=202609102110';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202609102110';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -41,6 +41,7 @@ const DESKTOP_TABS = [
   { id: 'metricas', label: T('Métricas', 'Metrics') },
   // Solo staff: el filtro de cliente de abajo es lista blanca y no la incluye.
   { id: 'conexiones', label: T('Conexiones', 'Connections') },
+  { id: 'estudios', label: T('Estudios', 'Studios') },
 ];
 
 // Diez pestañas planas ya no cabían: "Video IA" se partía en dos renglones.
@@ -50,7 +51,7 @@ const DESKTOP_GRUPOS = [
   { id: 'g-inicio', label: T('Inicio', 'Home'), items: ['inicio'] },
   { id: 'g-contenido', label: T('Contenido', 'Content'), items: ['meses', 'calendario', 'entregables', 'marca'] },
   { id: 'g-crear', label: T('Crear', 'Create'), items: ['carrusel', 'video-ia', 'descargar'] },
-  { id: 'g-resultados', label: T('Resultados', 'Results'), items: ['metricas', 'conexiones'] },
+  { id: 'g-resultados', label: T('Resultados', 'Results'), items: ['metricas', 'conexiones', 'estudios'] },
 ];
 
 export function createTopbar({ root, router, selectClient, openSearch, openNotifications }) {

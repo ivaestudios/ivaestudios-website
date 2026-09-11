@@ -49,6 +49,7 @@ import { handleDashboard } from './_dashboard.js';
 import { handleVideoIa } from './_video-ia.js';
 import { handleVoz } from './_voz.js';
 import { handleStorage, refreshStorageUsage } from './_storage.js';
+import { handleEstudios } from './_estudios.js';
 import { handleMonthlyReport } from './_enterprise.js';
 import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHeadersFor, buscarPinterest, fotosDePin } from './_downloader.js';
 import { pedirMes } from './_mes-ia.js';
@@ -5433,6 +5434,15 @@ async function route(request, env, authCtx) {
   if (path === '/storage' && method === 'GET') {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);
     return handleStorage(request, env, session, url);
+  }
+
+  // ── EL PADRÓN DE LA GALERÍA (solo equipo) ──
+  // Israel (2026-09-11): "¿dónde veo cuántos clientes tengo? agrégalo al sistema
+  // de Vianey". La galería comparte esta misma base D1: se lee `studios` directo.
+  // Nunca para role='client': son los datos comerciales de OTROS fotógrafos.
+  if (path === '/estudios' && method === 'GET') {
+    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    return handleEstudios(request, env, session, url);
   }
 
   // ── EXPORTAR CALENDARIO .ics (staff o cliente; el cliente va forzado a SU marca) ──
