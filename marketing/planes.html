@@ -3,385 +3,563 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#F6F6FA">
+<meta name="theme-color" content="#F7F6FB">
 <title>Planes y precios · IVAE Marketing</title>
-<meta name="description" content="El calendario de contenido que tu cliente sí entiende. Planea, escribe, entrega y haz que aprueben, todo en un solo lugar. Empieza gratis.">
+<meta name="description" content="El calendario de contenido que tu cliente sí entiende. Marcas ilimitadas en todos los planes: solo pagas el almacenamiento que uses. Empieza gratis.">
 <link rel="canonical" href="https://ivaestudios.com/marketing/planes">
 <meta property="og:title" content="IVAE Marketing · Planes y precios">
-<meta property="og:description" content="El calendario de contenido que tu cliente sí entiende. Empieza gratis.">
+<meta property="og:description" content="Marcas ilimitadas en todos los planes. Solo pagas el almacenamiento. Empieza gratis.">
 <meta property="og:image" content="https://ivaestudios.com/marketing/img/planes/calendario.jpg">
 <meta property="og:type" content="website">
 <link rel="apple-touch-icon" href="/marketing/icons/apple-touch-icon.png">
+<link rel="preload" as="image" href="/marketing/img/planes/calendario.webp" type="image/webp" media="(min-width:641px)">
 <link rel="stylesheet" href="/marketing/css/fonts.css?v=202609111620">
 <style>
 :root{
-  --brand:#C93E8C; --brand-2:#8A4FD3;
-  --bg:#F6F6FA; --surface:#FFFFFF; --surface-2:#F1F1F6;
-  --text:#16161E; --dim:#52525E; --mute:#6A6A78;
-  --border:#E5E5EC; --border-2:#CFCFDB;
-  --ok:#16A34A;
-  --r:16px; --r-lg:22px;
-  --max:1180px;
+  --brand:#C93E8C; --brand-txt:#BC3682; --violet:#8A4FD3; --peach:#F2905C;
+  --bg:#F7F6FB; --surface:#FFFFFF; --surface-2:#F1F0F7;
+  --ink:#141420; --dim:#55555F; --mute:#6E6E7C;
+  --line:#E8E7F0; --line-2:#D3D2E0;
+  --ok:#17A34A;
+  --r:14px; --r-lg:20px; --r-xl:28px;
+  --max:1200px;
+  --grad:linear-gradient(120deg,var(--violet) 0%,var(--brand) 62%,var(--peach) 130%);
+  --ease:cubic-bezier(.22,.61,.36,1);
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--text);
+html{scroll-behavior:smooth;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--ink);
   font-family:'Outfit','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 img{max-width:100%;display:block}
 a{color:inherit}
-.wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+section{scroll-margin-top:86px;overflow-x:clip}
+.grad-txt{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 
-/* ── barra ─────────────────────────────────────────────── */
-.nav{position:sticky;top:0;z-index:50;background:rgba(246,246,250,.82);
-  backdrop-filter:saturate(180%) blur(14px);border-bottom:1px solid var(--border)}
-.nav__in{max-width:var(--max);margin:0 auto;padding:14px 22px;display:flex;align-items:center;gap:18px}
-.logo{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:.14em;
-  font-size:13px;text-transform:uppercase;text-decoration:none}
-.logo__m{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;
-  background:linear-gradient(135deg,var(--brand-2),var(--brand));color:#fff;font-size:12px;font-weight:700;letter-spacing:0}
+/* ── entradas animadas ─────────────────────────────────────────── */
+[data-rev]{opacity:0;transform:translateY(30px);
+  transition:opacity .85s var(--ease) var(--d,0s),transform .85s var(--ease) var(--d,0s)}
+[data-rev].vis{opacity:1;transform:none}
+[data-rev="esc"]{transform:translateY(36px) scale(.97)}
+[data-rev="izq"]{transform:translateX(-34px)}
+[data-rev="der"]{transform:translateX(34px)}
+
+/* ── barra ─────────────────────────────────────────────────────── */
+.nav{position:sticky;top:0;z-index:60;transition:box-shadow .3s,background .3s,backdrop-filter .3s}
+.nav.pegada{background:rgba(247,246,251,.86);backdrop-filter:saturate(180%) blur(16px);
+  box-shadow:0 1px 0 var(--line),0 8px 28px -22px rgba(20,16,48,.5)}
+.nav__in{max-width:var(--max);margin:0 auto;padding:16px 24px;display:flex;align-items:center;gap:20px;transition:padding .3s var(--ease)}
+.nav.pegada .nav__in{padding:10px 24px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:.15em;
+  font-size:12.5px;text-transform:uppercase;text-decoration:none;white-space:nowrap}
+.logo__m{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;flex:none;
+  background:var(--grad);color:#fff;font-size:12px;font-weight:700;letter-spacing:0;
+  box-shadow:0 6px 16px -8px rgba(201,62,140,.9)}
 .nav__sp{flex:1}
-.nav a.lk{text-decoration:none;color:var(--dim);font-size:15px}
-.nav a.lk:hover{color:var(--text)}
-.btn{white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  border-radius:999px;padding:12px 22px;font:inherit;font-weight:600;font-size:15px;
-  text-decoration:none;border:1px solid transparent;cursor:pointer;transition:.18s}
-.btn--p{background:linear-gradient(135deg,var(--brand-2),var(--brand));color:#fff}
-.btn--p:hover{filter:brightness(1.07)}
-.btn--g{border-color:var(--border-2);color:var(--text);background:var(--surface)}
-.btn--g:hover{border-color:var(--text)}
-.btn--lg{padding:15px 30px;font-size:16px}
+.lk{text-decoration:none;color:var(--dim);font-size:15.5px;position:relative;padding:4px 0}
+.lk::after{content:"";position:absolute;left:0;right:100%;bottom:0;height:1.5px;background:var(--grad);
+  transition:right .32s var(--ease)}
+.lk:hover{color:var(--ink)}
+.lk:hover::after{right:0}
+.btn{white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  border-radius:999px;padding:12px 24px;font:inherit;font-weight:600;font-size:15px;
+  text-decoration:none;border:1px solid transparent;cursor:pointer;position:relative;overflow:hidden;
+  transition:transform .28s var(--ease),box-shadow .28s var(--ease),border-color .2s,color .2s}
+.btn--p{background:var(--grad);background-size:170% 100%;color:#fff;
+  box-shadow:0 12px 26px -14px rgba(201,62,140,.95)}
+.btn--p:hover{transform:translateY(-2px);box-shadow:0 18px 34px -14px rgba(201,62,140,1);background-position:100% 0}
+.btn--g{border-color:var(--line-2);color:var(--ink);background:var(--surface)}
+.btn--g:hover{transform:translateY(-2px);border-color:var(--ink);box-shadow:0 14px 28px -18px rgba(20,16,48,.7)}
+.btn--lg{padding:16px 34px;font-size:16.5px}
 
-/* ── hero ──────────────────────────────────────────────── */
-.hero{padding:78px 0 0;text-align:center}
-.eyebrow{display:inline-block;font-size:12px;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--brand);font-weight:600;margin-bottom:18px}
-h1{font-size:clamp(34px,5.2vw,60px);line-height:1.08;letter-spacing:-.025em;margin:0 0 20px;font-weight:600}
-.lead{font-size:clamp(17px,2.1vw,21px);color:var(--dim);max-width:660px;margin:0 auto 30px}
-.hero__cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.hero__note{margin-top:14px;font-size:14px;color:var(--mute)}
-.shot--hero{border:0;box-shadow:none;border-radius:0}
-@media (min-width:641px){.shot--hero{border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:0 30px 70px -28px rgba(20,16,40,.34)}}
-.shot--libre{border:0!important;box-shadow:none!important;border-radius:0!important}
-.shot{margin-top:52px;border-radius:var(--r-lg);overflow:hidden;
-  border:1px solid var(--border);box-shadow:0 30px 70px -28px rgba(20,16,40,.34)}
+/* ── portada ───────────────────────────────────────────────────── */
+.hero{position:relative;padding:86px 0 0;text-align:center;isolation:isolate;overflow:hidden}
+.aurora{position:absolute;inset:-20% 0 auto;height:920px;z-index:-1;pointer-events:none;filter:blur(78px);opacity:.5}
+.blob{position:absolute;border-radius:50%}
+.b1{width:620px;height:620px;left:6%;top:-90px;background:radial-gradient(circle,#A56BEA,transparent 68%);animation:flota1 19s ease-in-out infinite}
+.b2{width:560px;height:560px;right:4%;top:20px;background:radial-gradient(circle,#E85BA8,transparent 68%);animation:flota2 23s ease-in-out infinite}
+.b3{width:460px;height:460px;left:42%;top:230px;background:radial-gradient(circle,#F2A870,transparent 70%);animation:flota3 27s ease-in-out infinite}
+@keyframes flota1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(70px,50px) scale(1.13)}}
+@keyframes flota2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-80px,60px) scale(1.1)}}
+@keyframes flota3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-50px) scale(1.16)}}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:12.5px;letter-spacing:.14em;
+  text-transform:uppercase;font-weight:600;color:var(--brand-txt);margin-bottom:22px;
+  background:rgba(255,255,255,.75);border:1px solid var(--line);padding:8px 16px;border-radius:999px;
+  backdrop-filter:blur(6px)}
+.eyebrow i{width:7px;height:7px;border-radius:50%;background:var(--grad);animation:late 2.4s ease-in-out infinite}
+@keyframes late{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.55}}
+h1{font-size:clamp(37px,5.9vw,72px);line-height:1.04;letter-spacing:-.032em;margin:0 0 22px;font-weight:600}
+.lead{font-size:clamp(17px,2.05vw,21.5px);color:var(--dim);max-width:660px;margin:0 auto 32px}
+.hero__cta{display:flex;gap:13px;justify-content:center;flex-wrap:wrap}
+.sellos{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;margin-top:20px;
+  font-size:14px;color:var(--mute)}
+.sellos span{display:inline-flex;align-items:center;gap:7px}
+.sellos svg{width:15px;height:15px;stroke:var(--ok);stroke-width:2.6;fill:none}
+.shot{position:relative;margin-top:58px;border-radius:var(--r-xl);overflow:hidden;
+  border:1px solid var(--line);box-shadow:0 44px 90px -38px rgba(22,16,54,.44),0 6px 20px -12px rgba(22,16,54,.18)}
+.shot--libre{border:0;box-shadow:none;overflow:visible;border-radius:0}
+.hero .shot{animation:sube 1.15s var(--ease) .15s both}
+@keyframes sube{from{opacity:0;transform:translateY(46px) scale(.975)}to{opacity:1;transform:none}}
+.hero__marco{position:relative;padding-bottom:8px}
 
-/* ── secciones ─────────────────────────────────────────── */
-section{padding:86px 0}
-.h2{font-size:clamp(27px,3.6vw,40px);line-height:1.14;letter-spacing:-.02em;margin:0 0 16px;font-weight:600}
-.sub{color:var(--dim);max-width:620px}
-.center{text-align:center}
-.center .sub{margin-left:auto;margin-right:auto}
+/* ── tira de argumentos ────────────────────────────────────────── */
+.tira{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--surface);
+  margin-top:96px}
+.tira__in{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;padding:38px 24px;max-width:var(--max);margin:0 auto}
+.tira b{display:block;font-size:clamp(24px,2.6vw,32px);font-weight:600;letter-spacing:-.02em;line-height:1.1}
+.tira small{display:block;color:var(--mute);font-size:14px;margin-top:5px}
 
-.feat{display:grid;grid-template-columns:1fr 1.25fr;gap:56px;align-items:center;margin-bottom:96px}
+/* ── producto ──────────────────────────────────────────────────── */
+.h2{font-size:clamp(28px,3.7vw,44px);line-height:1.12;letter-spacing:-.028em;margin:0 0 16px;font-weight:600}
+.sub{color:var(--dim);max-width:620px;font-size:17.5px}
+.center{text-align:center}.center .sub{margin-left:auto;margin-right:auto}
+.titulin{display:block;font-size:12.5px;letter-spacing:.15em;text-transform:uppercase;
+  font-weight:600;color:var(--brand-txt);margin-bottom:14px}
+.feat{display:grid;grid-template-columns:1fr 1.22fr;gap:64px;align-items:center;margin-bottom:118px}
 .feat:last-child{margin-bottom:0}
 .feat--flip .feat__txt{order:2}
-.feat h3{font-size:clamp(23px,2.7vw,31px);line-height:1.18;letter-spacing:-.015em;margin:0 0 14px;font-weight:600}
-.feat p{color:var(--dim);margin:0 0 18px}
+.feat h3{font-size:clamp(24px,2.85vw,34px);line-height:1.15;letter-spacing:-.022em;margin:0 0 15px;font-weight:600}
+.feat p{color:var(--dim);margin:0 0 20px}
 .tick{list-style:none;padding:0;margin:0}
-.tick li{position:relative;padding-left:28px;margin-bottom:9px;color:var(--dim);font-size:16px}
-.tick li::before{content:"";position:absolute;left:4px;top:9px;width:8px;height:8px;border-radius:50%;
-  background:linear-gradient(135deg,var(--brand-2),var(--brand))}
+.tick li{position:relative;padding-left:32px;margin-bottom:11px;color:var(--dim);font-size:16.5px}
+.tick li svg{position:absolute;left:0;top:4px;width:19px;height:19px;stroke:#fff;stroke-width:3;fill:none;
+  padding:3px;border-radius:50%;background:var(--grad);box-sizing:border-box}
 
-/* ── precios ───────────────────────────────────────────── */
-.planes{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:44px;align-items:start}
-.plan{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:28px 24px;position:relative}
-.plan--best{border-color:var(--brand);box-shadow:0 20px 50px -26px rgba(201,62,140,.45)}
-.plan__tag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);
-  background:linear-gradient(135deg,var(--brand-2),var(--brand));color:#fff;font-size:11px;font-weight:600;
-  letter-spacing:.11em;text-transform:uppercase;padding:6px 14px;border-radius:999px;white-space:nowrap}
-.plan__n{font-size:15px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--mute);margin-bottom:14px}
-.plan__p{font-size:44px;font-weight:600;letter-spacing:-.03em;line-height:1;margin-bottom:4px}
+/* ── calculadora ───────────────────────────────────────────────── */
+.calc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-xl);
+  padding:clamp(28px,4vw,52px);max-width:860px;margin:44px auto 0;
+  box-shadow:0 34px 72px -44px rgba(22,16,54,.46)}
+.calc__lbl{font-size:15px;color:var(--dim);display:block;margin-bottom:20px}
+.calc__n{font-size:clamp(40px,6vw,64px);font-weight:600;letter-spacing:-.035em;line-height:1;
+  font-variant-numeric:tabular-nums}
+.calc__n em{font-style:normal;font-size:.36em;font-weight:500;color:var(--mute);letter-spacing:0;margin-left:8px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:99px;
+  margin:30px 0 10px;background:var(--surface-2);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;
+  background:#fff;border:3px solid var(--brand);cursor:grab;
+  box-shadow:0 6px 18px -6px rgba(201,62,140,.9);transition:transform .18s var(--ease)}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.14)}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:#fff;
+  border:3px solid var(--brand);cursor:grab;box-shadow:0 6px 18px -6px rgba(201,62,140,.9)}
+.calc__esc{display:flex;justify-content:space-between;font-size:13px;color:var(--mute)}
+.calc__res{margin-top:30px;padding-top:26px;border-top:1px solid var(--line);
+  display:flex;gap:20px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.calc__gb{font-size:16.5px;color:var(--dim)}
+.calc__gb b{color:var(--ink);font-weight:600}
+.calc__plan{display:inline-flex;align-items:center;gap:11px;background:var(--grad);color:#fff;
+  padding:13px 24px;border-radius:999px;font-weight:600;font-size:16px;
+  box-shadow:0 14px 30px -16px rgba(201,62,140,1)}
+.pulso{animation:pulso .5s var(--ease)}
+@keyframes pulso{0%{transform:scale(1)}45%{transform:scale(1.055)}100%{transform:scale(1)}}
+
+/* ── precios ───────────────────────────────────────────────────── */
+.ciclo{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:999px;padding:5px;margin:26px auto 0;position:relative}
+.ciclo button{border:0;background:none;font:inherit;font-size:15px;font-weight:600;color:var(--dim);
+  padding:10px 22px;border-radius:999px;cursor:pointer;position:relative;z-index:1;transition:color .3s}
+.ciclo button[aria-pressed=true]{color:var(--ink)}
+.ciclo__pil{position:absolute;top:5px;bottom:5px;left:5px;border-radius:999px;background:var(--surface);
+  box-shadow:0 4px 14px -6px rgba(20,16,48,.42);transition:transform .38s var(--ease),width .38s var(--ease)}
+.ahorro{display:inline-block;margin-left:8px;font-size:11.5px;font-weight:700;letter-spacing:.05em;
+  color:#fff;background:var(--ok);padding:3px 8px;border-radius:999px;vertical-align:2px}
+.planes{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:46px;align-items:start}
+.plan{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-xl);
+  padding:32px 26px;position:relative;transition:transform .34s var(--ease),box-shadow .34s var(--ease),border-color .3s}
+.plan:hover{transform:translateY(-6px);box-shadow:0 34px 64px -40px rgba(22,16,54,.55)}
+.plan--best{border-color:transparent;box-shadow:0 26px 60px -34px rgba(201,62,140,.62)}
+.plan--best::before{content:"";position:absolute;inset:-1px;border-radius:var(--r-xl);padding:1.6px;
+  background:var(--grad);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.plan__tag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--grad);
+  color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:6px 15px;border-radius:999px;white-space:nowrap;box-shadow:0 10px 22px -12px rgba(201,62,140,1)}
+.plan__n{font-size:14.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin-bottom:16px}
+.plan__p{font-size:46px;font-weight:600;letter-spacing:-.035em;line-height:1;margin-bottom:4px;
+  font-variant-numeric:tabular-nums}
 .plan__p span{font-size:15px;font-weight:400;color:var(--mute);letter-spacing:0}
-.plan__per{font-size:13.5px;color:var(--mute);min-height:20px;margin-bottom:20px}
-.plan__for{font-size:14.5px;color:var(--dim);border-top:1px solid var(--border);padding-top:16px;margin-top:18px}
-.plan .btn{width:100%;margin-top:4px}
+.plan__per{font-size:13.5px;color:var(--mute);min-height:21px;margin-bottom:22px}
+.plan__gb{display:flex;align-items:baseline;gap:8px;padding:14px 0;margin-bottom:18px;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.plan__gb b{font-size:25px;font-weight:600;letter-spacing:-.02em}
+.plan__gb small{color:var(--mute);font-size:13.5px}
+.plan .btn{width:100%}
+.plan__for{font-size:14.5px;color:var(--dim);margin:18px 0 0}
 
-/* ── tabla ─────────────────────────────────────────────── */
-.tablabox{overflow-x:auto;margin-top:48px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--surface)}
-table{border-collapse:collapse;width:100%;min-width:760px;font-size:15px}
-th,td{padding:16px 18px;text-align:center;border-bottom:1px solid var(--border)}
-thead th{font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--mute);font-weight:600;
-  position:sticky;top:0;background:var(--surface)}
-tbody th{text-align:left;font-weight:500;color:var(--text);width:34%}
+/* ── tabla ─────────────────────────────────────────────────────── */
+.tablabox{overflow-x:auto;margin-top:54px;border:1px solid var(--line);border-radius:var(--r-xl);
+  background:var(--surface);-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;min-width:780px;font-size:15.5px}
+th,td{padding:17px 20px;text-align:center;border-bottom:1px solid var(--line)}
+thead th{font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);font-weight:600;
+  position:sticky;top:0;background:var(--surface);z-index:2}
+tbody th{text-align:left;font-weight:500;color:var(--ink);width:33%}
 tbody th small{display:block;color:var(--mute);font-weight:400;font-size:13px;margin-top:2px}
 tr:last-child th,tr:last-child td{border-bottom:0}
-.si{color:var(--ok);font-weight:700}
+.si svg{width:20px;height:20px;stroke:#fff;stroke-width:3;fill:none;padding:3px;border-radius:50%;
+  background:var(--ok);box-sizing:border-box;vertical-align:-4px;
+  transform:scale(0);transition:transform .42s var(--ease) var(--d,0s)}
+.tablabox.vis .si svg{transform:scale(1)}
 .no{color:var(--mute);font-size:14px}
+.inf{font-weight:600}
+.grupo th{background:var(--surface-2);font-size:12px;letter-spacing:.11em;text-transform:uppercase;color:var(--mute)}
 .desliza{display:none}
-@media (max-width:900px){.desliza{display:block;text-align:center;color:var(--mute);font-size:13.5px;margin:12px 0 0}}
-.grupo th{background:var(--surface-2);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
 
-/* ── cierre ────────────────────────────────────────────── */
-.cta{background:linear-gradient(135deg,var(--brand-2),var(--brand));color:#fff;border-radius:var(--r-lg);
-  padding:64px 34px;text-align:center;margin-bottom:86px}
-.cta .h2{color:#fff;margin-bottom:12px}
-.cta p{color:rgba(255,255,255,.88);max-width:520px;margin:0 auto 26px}
-.cta .btn--g{background:#fff;border-color:#fff;color:var(--brand)}
-.faq{max-width:760px;margin:0 auto}
-details{border-bottom:1px solid var(--border);padding:20px 0}
-summary{cursor:pointer;font-weight:500;font-size:17px;list-style:none;display:flex;justify-content:space-between;gap:16px}
+/* ── preguntas ─────────────────────────────────────────────────── */
+.faq{max-width:780px;margin:0 auto}
+details{border-bottom:1px solid var(--line)}
+summary{cursor:pointer;font-weight:500;font-size:17.5px;list-style:none;display:flex;
+  justify-content:space-between;gap:18px;padding:22px 0;transition:color .2s}
+summary:hover{color:var(--brand-txt)}
 summary::-webkit-details-marker{display:none}
-summary::after{content:"+";color:var(--brand);font-size:22px;line-height:1}
-details[open] summary::after{content:"−"}
-details p{color:var(--dim);margin:12px 0 0;font-size:16px}
-footer{border-top:1px solid var(--border);padding:36px 0;color:var(--mute);font-size:14px}
-.foot__in{display:flex;gap:18px;flex-wrap:wrap;align-items:center}
-footer a{color:var(--mute);text-decoration:none}
-footer a:hover{color:var(--text)}
+summary i{flex:none;width:26px;height:26px;position:relative;margin-top:3px}
+summary i::before,summary i::after{content:"";position:absolute;background:var(--brand-txt);border-radius:2px;
+  transition:transform .34s var(--ease)}
+summary i::before{left:4px;right:4px;top:12px;height:2.4px}
+summary i::after{top:4px;bottom:4px;left:12px;width:2.4px}
+details[open] summary i::after{transform:rotate(90deg)}
+.faq__c{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s var(--ease)}
+details[open] .faq__c{grid-template-rows:1fr}
+.faq__c>div{overflow:hidden}
+.faq__c p{color:var(--dim);margin:0 0 24px;font-size:16.5px;max-width:660px}
 
-@media (max-width:900px){
+/* ── cierre ────────────────────────────────────────────────────── */
+.cta{position:relative;overflow:hidden;background:var(--grad);color:#fff;border-radius:var(--r-xl);
+  padding:clamp(52px,7vw,82px) 34px;text-align:center;margin-bottom:100px}
+.cta::after{content:"";position:absolute;top:-60%;left:-30%;width:45%;height:220%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.26),transparent);
+  transform:rotate(14deg);animation:brillo 6.5s ease-in-out infinite}
+@keyframes brillo{0%{left:-40%}55%,100%{left:125%}}
+.cta .h2{color:#fff;margin-bottom:14px;position:relative;z-index:1}
+.cta p{color:rgba(255,255,255,.9);max-width:540px;margin:0 auto 30px;position:relative;z-index:1}
+.cta .btn{position:relative;z-index:1;background:#fff;border-color:#fff;color:var(--brand-txt)}
+.cta .btn:hover{box-shadow:0 18px 34px -14px rgba(0,0,0,.4)}
+footer{border-top:1px solid var(--line);padding:40px 0;color:var(--mute);font-size:14px}
+.foot__in{display:flex;gap:20px;flex-wrap:wrap;align-items:center}
+footer a{color:var(--mute);text-decoration:none;transition:color .2s}
+footer a:hover{color:var(--ink)}
+
+/* ── medidas ───────────────────────────────────────────────────── */
+@media (max-width:1040px){
   .planes{grid-template-columns:repeat(2,1fr)}
-  .nav__in{padding:11px 16px;gap:10px}
-  .logo{font-size:11.5px;letter-spacing:.1em;gap:8px}
-  .logo__m{width:26px;height:26px;border-radius:8px;font-size:11px}
-  .btn{padding:11px 16px;font-size:14px;white-space:nowrap}
-  .feat{grid-template-columns:1fr;gap:28px;margin-bottom:64px}
+  .feat{grid-template-columns:1fr;gap:34px;margin-bottom:76px}
   .feat--flip .feat__txt{order:0}
-  section{padding:62px 0}
-  .hero{padding:52px 0 0}
-  .nav a.lk{display:none}
+  .tira__in{grid-template-columns:repeat(2,1fr);gap:30px 20px}
 }
-@media (max-width:560px){
+@media (max-width:900px){
+  section,.hero{padding-top:0}
+  .wrap-sec{padding:66px 0}
+  .nav__in{padding:11px 16px;gap:10px}
+  .nav.pegada .nav__in{padding:9px 16px}
+  .logo{font-size:11.5px;letter-spacing:.1em;gap:8px}
+  .logo__m{width:27px;height:27px;border-radius:8px;font-size:11px}
+  .btn{padding:11px 17px;font-size:14.5px}
+  .btn--lg{padding:15px 26px;font-size:16px}
+  .lk{display:none}
+  .desliza{display:block;text-align:center;color:var(--mute);font-size:13.5px;margin:14px 0 0}
+  .shot{border-radius:var(--r-lg)}
+  [data-rev="izq"],[data-rev="der"]{transform:translateY(28px)}
+  .tira{margin-top:66px}
+}
+@media (max-width:600px){
   .planes{grid-template-columns:1fr}
-  .logo span:last-child{font-size:11px;letter-spacing:.08em}
-  .solo-pc{display:none}
   .hero__cta{flex-direction:column}
   .hero__cta .btn{width:100%}
+  .solo-pc{display:none}
+  .sellos{gap:8px 18px;font-size:13px}
+  .calc__res{flex-direction:column;align-items:stretch;text-align:center}
+  .calc__plan{justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
+  [data-rev]{opacity:1!important;transform:none!important}
+  .si svg{transform:scale(1)!important}
 }
 </style>
 </head>
 <body>
 
-<nav class="nav">
+<nav class="nav" id="nav">
   <div class="nav__in">
-    <a class="logo" href="/marketing/planes">
-      <span class="logo__m">iv</span><span>IVAE Marketing</span>
-    </a>
+    <a class="logo" href="/marketing/planes"><span class="logo__m">iv</span><span>IVAE Marketing</span></a>
     <span class="nav__sp"></span>
     <a class="lk" href="#producto">Producto</a>
+    <a class="lk" href="#calculadora">Cuánto necesito</a>
     <a class="lk" href="#precios">Precios</a>
-    <a class="lk" href="#preguntas">Preguntas</a>
     <a class="lk" href="/marketing/">Entrar</a>
     <a class="btn btn--p" href="/marketing/?registro=1">Empezar gratis</a>
   </div>
 </nav>
 
 <header class="hero">
+  <div class="aurora" aria-hidden="true"><i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i></div>
   <div class="wrap">
-    <span class="eyebrow">Calendario de contenido para agencias y marcas</span>
-    <h1>El calendario que tu cliente<br class="solo-pc">sí entiende</h1>
-    <p class="lead">Planea el mes, escribe los guiones, entrega los reels y deja que tu cliente apruebe con un toque. Todo en un solo lugar, sin cadenas de WhatsApp ni hojas de cálculo.</p>
+    <span class="eyebrow"><i></i>Marcas ilimitadas en todos los planes</span>
+    <h1>El calendario que tu<br class="solo-pc">cliente <span class="grad-txt">sí entiende</span></h1>
+    <p class="lead">Planea el mes, escribe los guiones, entrega los reels y deja que tu cliente apruebe con un toque. Lleva las marcas que quieras: solo pagas el espacio que ocupas.</p>
     <div class="hero__cta">
       <a class="btn btn--p btn--lg" href="/marketing/?registro=1">Empezar gratis</a>
       <a class="btn btn--g btn--lg" href="#producto">Ver cómo funciona</a>
     </div>
-    <p class="hero__note">Gratis para siempre en una marca. Sin tarjeta.</p>
-    <picture class="shot shot--hero">
-      <source media="(max-width:640px)" srcset="/marketing/img/planes/calendario-movil.webp" type="image/webp">
-      <source media="(max-width:640px)" srcset="/marketing/img/planes/calendario-movil.jpg" type="image/jpeg">
-      <source srcset="/marketing/img/planes/calendario.webp" type="image/webp">
-      <img src="/marketing/img/planes/calendario.jpg" width="1760" height="1100" alt="Calendario mensual de IVAE Marketing con las piezas del mes, su estado y su fecha de publicación">
-    </picture>
+    <p class="sellos">
+      <span><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Sin tarjeta</span>
+      <span><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Marcas ilimitadas</span>
+      <span><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Cancelas cuando quieras</span>
+    </p>
+    <div class="hero__marco">
+      <picture class="shot">
+        <source media="(max-width:640px)" srcset="/marketing/img/planes/calendario-movil.webp" type="image/webp">
+        <source media="(max-width:640px)" srcset="/marketing/img/planes/calendario-movil.jpg" type="image/jpeg">
+        <source srcset="/marketing/img/planes/calendario.webp" type="image/webp">
+        <img src="/marketing/img/planes/calendario.jpg" width="1800" height="1172" fetchpriority="high" alt="Calendario mensual de IVAE Marketing con las piezas del mes, su estado y su fecha de publicación">
+      </picture>
+    </div>
   </div>
 </header>
 
-<section id="producto">
+<div class="tira">
+  <div class="tira__in">
+    <div data-rev style="--d:0s"><b>$0</b><small>para empezar, sin tarjeta</small></div>
+    <div data-rev style="--d:.09s"><b>Sin límite</b><small>de marcas, equipo y clientes</small></div>
+    <div data-rev style="--d:.18s"><b>1 enlace</b><small>y tu cliente ya está dentro, sin instalar nada</small></div>
+    <div data-rev style="--d:.27s"><b>ES / EN</b><small>la app entera cambia de idioma</small></div>
+  </div>
+</div>
+
+<section id="producto" class="wrap-sec" style="padding:110px 0">
   <div class="wrap">
+    <div class="center" style="margin-bottom:74px" data-rev>
+      <span class="titulin">Cómo funciona</span>
+      <h2 class="h2">Todo el mes vive en un solo lugar</h2>
+      <p class="sub">Se acabaron las cadenas de WhatsApp, las hojas de cálculo y el "¿en qué quedamos?".</p>
+    </div>
+
     <div class="feat">
-      <div class="feat__txt">
+      <div class="feat__txt" data-rev="izq">
         <h3>Todo el mes, de un vistazo</h3>
-        <p>Cada pieza con su fecha, su formato, su estado y quién la va a grabar. Se acabó el "¿en qué quedamos?".</p>
+        <p>Cada pieza con su fecha, su formato, su estado y quién la va a grabar.</p>
         <ul class="tick">
-          <li>Lista, cuadrícula, tablero y línea de tiempo</li>
-          <li>Reels, carruseles, posts e historias</li>
-          <li>Copia el mes anterior y ajusta</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Lista, cuadrícula, tablero y línea de tiempo</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Reels, carruseles, posts e historias</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Copia el mes anterior y ajusta</li>
         </ul>
       </div>
-      <picture class="shot" style="margin:0">
+      <picture class="shot" style="margin:0" data-rev="esc">
         <source srcset="/marketing/img/planes/cuadricula.webp" type="image/webp">
-        <img src="/marketing/img/planes/cuadricula.jpg" width="1760" height="1100" alt="Vista de cuadrícula mensual con las piezas repartidas por día">
+        <img src="/marketing/img/planes/cuadricula.jpg" width="1800" height="1172" loading="lazy" alt="Vista de cuadrícula mensual con las piezas repartidas por día">
       </picture>
     </div>
 
     <div class="feat feat--flip">
-      <div class="feat__txt">
+      <div class="feat__txt" data-rev="der">
         <h3>El guion completo, listo para copiar</h3>
         <p>Gancho, desarrollo, cierre, caption con emojis, hashtags y texto alternativo. Se copia y se pega en Instagram sin retoques.</p>
         <ul class="tick">
-          <li>Cuenta los caracteres del caption</li>
-          <li>Notas de grabación para el equipo</li>
-          <li>Checklist por pieza</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Cuenta los caracteres del caption</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Notas de grabación para el equipo</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Checklist por pieza</li>
         </ul>
       </div>
-      <picture class="shot" style="margin:0">
+      <picture class="shot" style="margin:0" data-rev="esc">
         <source srcset="/marketing/img/planes/guion.webp" type="image/webp">
-        <img src="/marketing/img/planes/guion.jpg" width="1400" height="1340" alt="Editor de una pieza mostrando el guion con gancho, desarrollo, cierre, caption y hashtags">
+        <img src="/marketing/img/planes/guion.jpg" width="1400" height="1340" loading="lazy" alt="Editor de una pieza con el guion: gancho, desarrollo, cierre, caption y hashtags">
       </picture>
     </div>
 
     <div class="feat">
-      <div class="feat__txt">
+      <div class="feat__txt" data-rev="izq">
         <h3>Tu cliente aprueba con un toque</h3>
         <p>Entra desde su teléfono, ve lo que le toca revisar y aprueba o pide cambios. Sin instalar nada y sin explicarle cómo se usa.</p>
         <ul class="tick">
-          <li>Ve solo su marca, nunca la de otro cliente</li>
-          <li>Aprobar o pedir cambios, con comentario</li>
-          <li>Avisos al teléfono cuando hay algo nuevo</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Ve solo su marca, nunca la de otro cliente</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Aprobar o pedir cambios, con comentario</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Avisos al teléfono cuando hay algo nuevo</li>
         </ul>
       </div>
-      <picture class="shot shot--libre" style="margin:0">
+      <picture class="shot shot--libre" style="margin:0" data-rev="esc">
         <source srcset="/marketing/img/planes/cliente.webp" type="image/webp">
-        <img src="/marketing/img/planes/cliente.jpg" width="2000" height="1300" alt="La vista del cliente en computadora y en teléfono, con el aviso de cinco piezas por revisar">
+        <img src="/marketing/img/planes/cliente.jpg" width="2000" height="1340" loading="lazy" alt="La vista del cliente en computadora y en teléfono, con el aviso de cinco piezas por revisar">
       </picture>
     </div>
 
     <div class="feat feat--flip">
-      <div class="feat__txt">
+      <div class="feat__txt" data-rev="der">
         <h3>Los reels terminados, en su lugar</h3>
         <p>Subes el reel final o la tira del carrusel y queda guardado por mes. Tu cliente lo ve, lo descarga y te deja ahí mismo el comentario.</p>
         <ul class="tick">
-          <li>Descarga de todo el mes en un clic</li>
-          <li>PDF del mes para mandarle</li>
-          <li>Puedes apagar la descarga por marca</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Descarga de todo el mes en un clic</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>PDF del mes para mandarle</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Puedes apagar la descarga por marca</li>
         </ul>
       </div>
-      <picture class="shot" style="margin:0">
+      <picture class="shot" style="margin:0" data-rev="esc">
         <source srcset="/marketing/img/planes/entregables.webp" type="image/webp">
-        <img src="/marketing/img/planes/entregables.jpg" width="1760" height="990" alt="Sección de entregables con los reels del mes y el botón para descargarlos todos">
+        <img src="/marketing/img/planes/entregables.jpg" width="1800" height="1060" loading="lazy" alt="Sección de entregables con los reels del mes y el botón para descargarlos todos">
       </picture>
     </div>
 
     <div class="feat">
-      <div class="feat__txt">
+      <div class="feat__txt" data-rev="izq">
         <h3>Sabes en qué va cada pieza</h3>
         <p>Del borrador a publicado, con el tablero que usa tu equipo y el resumen que le enseñas al cliente.</p>
         <ul class="tick">
-          <li>Tablero por etapa: guion, grabación, edición, revisión</li>
-          <li>Resumen del mes y piezas por aprobar</li>
-          <li>Historial de quién hizo qué y cuándo</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Tablero por etapa: guion, grabación, edición, revisión</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Resumen del mes y piezas por aprobar</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Historial de quién hizo qué y cuándo</li>
         </ul>
       </div>
-      <picture class="shot" style="margin:0">
+      <picture class="shot" style="margin:0" data-rev="esc">
         <source srcset="/marketing/img/planes/inicio.webp" type="image/webp">
-        <img src="/marketing/img/planes/inicio.jpg" width="1760" height="1100" alt="Pantalla de inicio con el resumen del mes, piezas por aprobar y avance por etapa">
+        <img src="/marketing/img/planes/inicio.jpg" width="1800" height="1172" loading="lazy" alt="Pantalla de inicio con el resumen del mes, piezas por aprobar y avance por etapa">
       </picture>
     </div>
   </div>
 </section>
 
-<section id="precios" style="background:var(--surface-2)">
+<section id="calculadora" style="background:var(--surface-2);padding:104px 0">
   <div class="wrap">
-    <div class="center">
-      <h2 class="h2">Un plan para cada tamaño</h2>
-      <p class="sub">Empieza gratis con una marca. Crece cuando tengas más clientes, no antes.</p>
+    <div class="center" data-rev>
+      <span class="titulin">Cuánto necesito</span>
+      <h2 class="h2">No cobramos por marca. Cobramos el espacio.</h2>
+      <p class="sub">Lleva dos clientes o veinte, da igual. Lo único que crece es lo que pesan tus reels, así que eso es lo único que pagas.</p>
+    </div>
+    <div class="calc" data-rev="esc">
+      <label class="calc__lbl" for="piezas">¿Cuántas piezas terminadas entregas al mes, sumando todas tus marcas?</label>
+      <div class="calc__n"><span id="numPiezas">40</span><em>piezas al mes</em></div>
+      <input type="range" id="piezas" min="0" max="100" step="1" value="43"
+             aria-label="Piezas terminadas al mes" aria-describedby="resultado">
+      <div class="calc__esc"><span>5</span><span>600</span></div>
+      <div class="calc__res" id="resultado">
+        <p class="calc__gb">Guardando un año de historial ocuparías <b id="gb">38 GB</b>.</p>
+        <span class="calc__plan" id="recomendado">Te alcanza el plan Inicial</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="precios" style="padding:104px 0">
+  <div class="wrap">
+    <div class="center" data-rev>
+      <span class="titulin">Planes</span>
+      <h2 class="h2">Paga por lo que guardas</h2>
+      <p class="sub">Todos los planes traen marcas, equipo, clientes y piezas sin límite.</p>
+      <div class="ciclo" role="group" aria-label="Ciclo de cobro">
+        <span class="ciclo__pil" id="pil"></span>
+        <button type="button" id="bMes" aria-pressed="true">Al mes</button>
+        <button type="button" id="bAno" aria-pressed="false">Al año<span class="ahorro">2 MESES GRATIS</span></button>
+      </div>
     </div>
 
     <div class="planes">
-      <div class="plan">
+      <div class="plan" data-rev style="--d:0s">
         <div class="plan__n">Gratis</div>
-        <div class="plan__p">$0</div>
-        <div class="plan__per">para siempre</div>
+        <div class="plan__p" data-mes="0" data-ano="0">$0</div>
+        <div class="plan__per" data-per>para siempre</div>
+        <div class="plan__gb"><b>5 GB</b><small>de entregables</small></div>
         <a class="btn btn--g" href="/marketing/?registro=1">Crear mi cuenta</a>
-        <p class="plan__for">Para quien lleva una sola marca y quiere dejar el caos de WhatsApp.</p>
+        <p class="plan__for">Para arrancar con todas tus marcas. Te alcanza si entregas unas 5 piezas al mes.</p>
       </div>
-
-      <div class="plan">
+      <div class="plan" data-rev style="--d:.08s">
         <div class="plan__n">Inicial</div>
-        <div class="plan__p">$9 <span>USD</span></div>
-        <div class="plan__per">al mes</div>
+        <div class="plan__p" data-mes="9" data-ano="7">$9 <span>USD</span></div>
+        <div class="plan__per" data-per>al mes</div>
+        <div class="plan__gb"><b>60 GB</b><small>de entregables</small></div>
         <a class="btn btn--g" href="/marketing/?registro=1">Empezar</a>
-        <p class="plan__for">Para el freelance que ya vive de esto y entrega cada semana.</p>
+        <p class="plan__for">Para quien entrega cada semana. Cubre unas 60 piezas al mes.</p>
       </div>
-
-      <div class="plan plan--best">
+      <div class="plan plan--best" data-rev style="--d:.16s">
         <span class="plan__tag">El más elegido</span>
         <div class="plan__n">Profesional</div>
-        <div class="plan__p">$25 <span>USD</span></div>
-        <div class="plan__per">al mes</div>
+        <div class="plan__p" data-mes="24" data-ano="20">$24 <span>USD</span></div>
+        <div class="plan__per" data-per>al mes</div>
+        <div class="plan__gb"><b>300 GB</b><small>de entregables</small></div>
         <a class="btn btn--p" href="/marketing/?registro=1">Empezar</a>
-        <p class="plan__for">Para la agencia chica con varios clientes y un equipo detrás.</p>
+        <p class="plan__for">Para la agencia con varios clientes. Cubre unas 300 piezas al mes.</p>
       </div>
-
-      <div class="plan">
+      <div class="plan" data-rev style="--d:.24s">
         <div class="plan__n">Agencia</div>
-        <div class="plan__p">$59 <span>USD</span></div>
-        <div class="plan__per">al mes</div>
+        <div class="plan__p" data-mes="59" data-ano="49">$59 <span>USD</span></div>
+        <div class="plan__per" data-per>al mes</div>
+        <div class="plan__gb"><b>1 TB</b><small>de entregables</small></div>
         <a class="btn btn--g" href="/marketing/?registro=1">Empezar</a>
-        <p class="plan__for">Para quien lleva diez marcas o más y necesita que nada se caiga.</p>
+        <p class="plan__for">Para quien graba en alta y no quiere borrar nada nunca.</p>
       </div>
     </div>
 
-    <div class="tablabox">
+    <div class="tablabox" id="tabla" data-rev>
       <table>
         <thead>
           <tr><th style="text-align:left">Qué incluye</th><th>Gratis</th><th>Inicial</th><th>Profesional</th><th>Agencia</th></tr>
         </thead>
         <tbody>
-          <tr class="grupo"><th colspan="5">Lo básico</th></tr>
-          <tr><th>Marcas<small>Cada cliente es una marca</small></th><td>1</td><td>2</td><td>8</td><td>Sin límite</td></tr>
-          <tr><th>Piezas al mes<small>Reels, carruseles, posts</small></th><td>30</td><td>Sin límite</td><td>Sin límite</td><td>Sin límite</td></tr>
-          <tr><th>Personas de tu equipo</th><td>1</td><td>2</td><td>6</td><td>Sin límite</td></tr>
-          <tr><th>Accesos para el cliente<small>Para que apruebe desde su teléfono</small></th><td>1</td><td>3</td><td>Sin límite</td><td>Sin límite</td></tr>
+          <tr class="grupo"><th colspan="5">Lo que no se cobra</th></tr>
+          <tr><th>Marcas<small>Cada cliente es una marca</small></th><td class="inf">Sin límite</td><td class="inf">Sin límite</td><td class="inf">Sin límite</td><td class="inf">Sin límite</td></tr>
+          <tr><th>Personas de tu equipo</th><td class="inf">Sin límite</td><td class="inf">Sin límite</td><td class="inf">Sin límite</td><td class="inf">Sin límite</td></tr>
+          <tr><th>Accesos para el cliente<small>Para que apruebe desde su teléfono</small></th><td class="inf">Sin límite</td><td class="inf">Sin límite</td><td class="inf">Sin límite</td><td class="inf">Sin límite</td></tr>
+          <tr><th>Piezas al mes<small>Reels, carruseles, posts, historias</small></th><td class="inf">Sin límite</td><td class="inf">Sin límite</td><td class="inf">Sin límite</td><td class="inf">Sin límite</td></tr>
+
+          <tr class="grupo"><th colspan="5">Lo que sí se cobra</th></tr>
+          <tr><th>Almacenamiento de entregables<small>Reels y carruseles finales</small></th><td>5 GB</td><td>60 GB</td><td>300 GB</td><td>1 TB</td></tr>
+          <tr><th>Imágenes con IA<small>Al mes</small></th><td>10</td><td>150</td><td>600</td><td>1 500</td></tr>
+          <tr><th>Video con IA<small>Clips cortos al mes</small></th><td class="no">No</td><td>5</td><td>25</td><td>60</td></tr>
+          <tr><th>Guiones y captions con IA</th><td>10 al mes</td><td class="inf">Sin límite</td><td class="inf">Sin límite</td><td class="inf">Sin límite</td></tr>
 
           <tr class="grupo"><th colspan="5">Planear y escribir</th></tr>
-          <tr><th>Calendario, cuadrícula y tablero</th><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
-          <tr><th>Guiones con caption y hashtags</th><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
-          <tr><th>Plantillas de mes</th><td class="no">No</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
-          <tr><th>Aprobación del cliente y comentarios</th><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
-          <tr><th>Avisos al teléfono</th><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
+          <tr><th>Calendario, cuadrícula, tablero y línea de tiempo</th><td class="si"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.05s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.1s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.15s"><path d="M20 6 9 17l-5-5"/></svg></td></tr>
+          <tr><th>Guiones con caption, hashtags y texto alternativo</th><td class="si"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.05s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.1s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.15s"><path d="M20 6 9 17l-5-5"/></svg></td></tr>
+          <tr><th>Aprobación del cliente y comentarios</th><td class="si"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.05s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.1s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.15s"><path d="M20 6 9 17l-5-5"/></svg></td></tr>
+          <tr><th>Avisos al teléfono</th><td class="si"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.05s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.1s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.15s"><path d="M20 6 9 17l-5-5"/></svg></td></tr>
+          <tr><th>Plantillas de mes</th><td class="no">No</td><td class="si"><svg viewBox="0 0 24 24" style="--d:.05s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.1s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.15s"><path d="M20 6 9 17l-5-5"/></svg></td></tr>
 
           <tr class="grupo"><th colspan="5">Entregar</th></tr>
-          <tr><th>Almacenamiento de entregables<small>Reels y carruseles finales</small></th><td>2 GB</td><td>25 GB</td><td>150 GB</td><td>500 GB</td></tr>
-          <tr><th>Descarga del cliente</th><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
-          <tr><th>PDF del mes para el cliente</th><td class="no">No</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
-          <tr><th>Tu logo en lugar del nuestro<small>En lo que ve tu cliente</small></th><td class="no">No</td><td class="no">No</td><td class="si">✓</td><td class="si">✓</td></tr>
-
-          <tr class="grupo"><th colspan="5">Diseño e inteligencia artificial</th></tr>
-          <tr><th>Estudio de carruseles</th><td>Con marca de agua</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
-          <tr><th>Imágenes con IA<small>Al mes</small></th><td>10</td><td>60</td><td>250</td><td>600</td></tr>
-          <tr><th>Video con IA<small>Clips cortos al mes</small></th><td class="no">No</td><td>3</td><td>15</td><td>40</td></tr>
-          <tr><th>Guiones y captions con IA</th><td>10 al mes</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
+          <tr><th>Descarga del cliente</th><td class="si"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.05s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.1s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.15s"><path d="M20 6 9 17l-5-5"/></svg></td></tr>
+          <tr><th>PDF del mes para el cliente</th><td class="no">No</td><td class="si"><svg viewBox="0 0 24 24" style="--d:.05s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.1s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.15s"><path d="M20 6 9 17l-5-5"/></svg></td></tr>
+          <tr><th>Estudio de carruseles</th><td>Con marca de agua</td><td class="si"><svg viewBox="0 0 24 24" style="--d:.05s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.1s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.15s"><path d="M20 6 9 17l-5-5"/></svg></td></tr>
+          <tr><th>Tu logo en lugar del nuestro<small>En lo que ve tu cliente</small></th><td class="no">No</td><td class="no">No</td><td class="si"><svg viewBox="0 0 24 24" style="--d:.1s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.15s"><path d="M20 6 9 17l-5-5"/></svg></td></tr>
 
           <tr class="grupo"><th colspan="5">Soporte</th></tr>
-          <tr><th>Ayuda por correo</th><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
-          <tr><th>Ayuda por WhatsApp</th><td class="no">No</td><td class="no">No</td><td class="si">✓</td><td class="si">✓</td></tr>
-          <tr><th>Acompañamiento al arrancar</th><td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="si">✓</td></tr>
+          <tr><th>Ayuda por correo</th><td class="si"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.05s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.1s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.15s"><path d="M20 6 9 17l-5-5"/></svg></td></tr>
+          <tr><th>Ayuda por WhatsApp</th><td class="no">No</td><td class="no">No</td><td class="si"><svg viewBox="0 0 24 24" style="--d:.1s"><path d="M20 6 9 17l-5-5"/></svg></td><td class="si"><svg viewBox="0 0 24 24" style="--d:.15s"><path d="M20 6 9 17l-5-5"/></svg></td></tr>
+          <tr><th>Acompañamiento al arrancar</th><td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="si"><svg viewBox="0 0 24 24" style="--d:.15s"><path d="M20 6 9 17l-5-5"/></svg></td></tr>
         </tbody>
       </table>
     </div>
     <p class="desliza">Desliza la tabla para ver todos los planes.</p>
-    <p class="sub center" style="margin-top:22px;font-size:14.5px">Los precios son por cuenta, no por cliente. Puedes cambiar de plan o cancelar cuando quieras.</p>
+    <p class="sub center" style="margin-top:24px;font-size:14.5px">Los precios son por cuenta, no por cliente. Cambias de plan o cancelas cuando quieras.</p>
   </div>
 </section>
 
-<section id="preguntas">
+<section id="preguntas" style="padding:100px 0;background:var(--surface-2)">
   <div class="wrap">
-    <div class="center" style="margin-bottom:34px">
+    <div class="center" style="margin-bottom:38px" data-rev>
+      <span class="titulin">Dudas</span>
       <h2 class="h2">Preguntas</h2>
     </div>
-    <div class="faq">
-      <details open><summary>¿El plan gratis tiene fecha de vencimiento?</summary>
-        <p>No. Es gratis para siempre con una marca. Si algún día llevas más clientes, cambias de plan.</p></details>
-      <details><summary>¿Mi cliente necesita instalar algo?</summary>
-        <p>No. Entra desde el enlace que le mandas y lo usa en el navegador del teléfono. Si quiere, puede agregarlo a su pantalla de inicio y se ve como una app.</p></details>
-      <details><summary>¿Publica solo en Instagram y Facebook?</summary>
-        <p>Todavía no lo ofrecemos. Estamos en revisión con Meta y hasta que no esté aprobado no lo vendemos como incluido. Hoy la app planea, escribe, entrega y hace que tu cliente apruebe.</p></details>
-      <details><summary>¿Qué pasa con mis archivos si dejo de pagar?</summary>
-        <p>Tu cuenta vuelve al plan gratis. No borramos nada: si te pasas del espacio del plan gratis, puedes seguir descargando todo, solo no podrás subir más hasta liberar espacio.</p></details>
-      <details><summary>¿Puedo trabajar en otro idioma?</summary>
-        <p>Sí. La app completa cambia entre español e inglés con un interruptor, y lo que ve tu cliente también.</p></details>
-      <details><summary>¿Sirve si soy la marca y no una agencia?</summary>
-        <p>Sí. Muchos lo usan para su propio negocio: planean el mes, escriben los guiones y los van marcando conforme publican.</p></details>
+    <div class="faq" data-rev>
+      <details open><summary>¿De verdad puedo llevar todas las marcas que quiera?<i></i></summary>
+        <div class="faq__c"><div><p>Sí, en todos los planes, incluido el gratis. Cobrar por cliente castiga justo lo que queremos que hagas, que es crecer. Lo que de verdad nos cuesta a nosotros es guardar tus videos, y eso es lo que pagas.</p></div></div></details>
+      <details><summary>¿Qué pasa si me paso del espacio?<i></i></summary>
+        <div class="faq__c"><div><p>Nada se borra y nada se apaga de golpe. Te avisamos antes de llegar, y mientras estés por encima puedes seguir usando todo menos subir entregables nuevos, hasta que liberes espacio o subas de plan.</p></div></div></details>
+      <details><summary>¿El plan gratis tiene fecha de vencimiento?<i></i></summary>
+        <div class="faq__c"><div><p>No. Es gratis para siempre, con 5 GB. Si un día no te alcanzan, subes de plan.</p></div></div></details>
+      <details><summary>¿Mi cliente necesita instalar algo?<i></i></summary>
+        <div class="faq__c"><div><p>No. Entra desde el enlace que le mandas y lo usa en el navegador del teléfono. Si quiere, lo agrega a su pantalla de inicio y se ve como una app.</p></div></div></details>
+      <details><summary>¿Publica solo en Instagram y Facebook?<i></i></summary>
+        <div class="faq__c"><div><p>Todavía no lo ofrecemos. Estamos en revisión con Meta y hasta que no esté aprobado no lo vendemos como incluido. Hoy la app planea, escribe, entrega y hace que tu cliente apruebe.</p></div></div></details>
+      <details><summary>¿Puedo trabajar en otro idioma?<i></i></summary>
+        <div class="faq__c"><div><p>Sí. La app completa cambia entre español e inglés con un interruptor, y lo que ve tu cliente también.</p></div></div></details>
+      <details><summary>¿Sirve si soy la marca y no una agencia?<i></i></summary>
+        <div class="faq__c"><div><p>Sí. Muchos lo usan para su propio negocio: planean el mes, escriben los guiones y los van marcando conforme publican.</p></div></div></details>
     </div>
   </div>
 </section>
 
 <div class="wrap">
-  <div class="cta">
+  <div class="cta" data-rev="esc">
     <h2 class="h2">Empieza con tu primera marca</h2>
-    <p>Crea la cuenta, arma el mes y mándale el enlace a tu cliente. Se entiende solo.</p>
-    <a class="btn btn--g btn--lg" href="/marketing/?registro=1">Empezar gratis</a>
+    <p>Y con la segunda, y con la quinta. Crea la cuenta, arma el mes y mándale el enlace a tu cliente.</p>
+    <a class="btn btn--lg" href="/marketing/?registro=1">Empezar gratis</a>
   </div>
 </div>
 
@@ -396,5 +574,89 @@ footer a:hover{color:var(--text)}
   </div>
 </footer>
 
+<script>
+(function () {
+  var quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* barra que se encoge */
+  var nav = document.getElementById('nav');
+  function alScroll() { nav.classList.toggle('pegada', scrollY > 12); }
+  addEventListener('scroll', alScroll, { passive: true }); alScroll();
+
+  /* entradas al hacer scroll */
+  var ojo = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('vis'); ojo.unobserve(e.target); } });
+  }, { rootMargin: '0px 0px -12% 0px', threshold: .08 });
+  document.querySelectorAll('[data-rev]').forEach(function (n) { ojo.observe(n); });
+
+
+  /* calculadora de espacio */
+  var rango = document.getElementById('piezas'), numP = document.getElementById('numPiezas'),
+      gbEl = document.getElementById('gb'), rec = document.getElementById('recomendado');
+  var PLANES = [ { gb: 5, n: 'Gratis' }, { gb: 60, n: 'Inicial' }, { gb: 300, n: 'Profesional' }, { gb: 1024, n: 'Agencia' } ];
+  /* la escala es logaritmica: casi todo el mundo esta por debajo de 100 piezas,
+     asi que ese tramo se lleva la mitad del recorrido en vez de un rincon */
+  function piezasDe(i) { return Math.max(5, Math.round(5 * Math.pow(120, i / 100) / 5) * 5); }
+  function pinta() {
+    var p = piezasDe(+rango.value);
+    /* una pieza terminada pesa ~80 MB y guardamos 12 meses: 1 pieza al mes ≈ 1 GB al año */
+    var gb = Math.round(p * 0.08 * 12);
+    numP.textContent = p;
+    rango.setAttribute('aria-valuetext', p + ' piezas al mes');
+    gbEl.textContent = gb >= 1024 ? (gb / 1024).toFixed(1).replace('.', ',') + ' TB' : gb + ' GB';
+    var plan = PLANES.find(function (x) { return gb <= x.gb; });
+    var txt = plan ? 'Te alcanza el plan ' + plan.n : 'Escríbenos, te armamos un plan';
+    if (rec.textContent !== txt) {
+      rec.textContent = txt;
+      if (!quieto) { rec.classList.remove('pulso'); void rec.offsetWidth; rec.classList.add('pulso'); }
+    }
+    var pct = (p - rango.min) / (rango.max - rango.min) * 100;
+    rango.style.background = 'linear-gradient(90deg,#8A4FD3 0%,#C93E8C ' + pct + '%,#F1F0F7 ' + pct + '%)';
+  }
+  rango.addEventListener('input', pinta); pinta();
+
+  /* al asomarse, los numeros suben desde cero hasta el valor de arranque */
+  (function () {
+    var fin = +rango.value;
+    var o = new IntersectionObserver(function (es) {
+      if (!es[0].isIntersecting) return;
+      o.disconnect();
+      if (quieto) return;
+      var t0 = performance.now();
+      (function paso(t) {
+        var q = Math.min((t - t0) / 1000, 1), e = 1 - Math.pow(1 - q, 3);
+        rango.value = Math.round(fin * e);
+        pinta();
+        if (q < 1) requestAnimationFrame(paso); else { rango.value = fin; pinta(); }
+      })(t0);
+    }, { threshold: .45 });
+    o.observe(document.querySelector('.calc'));
+  })();
+
+  /* al mes / al año */
+  var bMes = document.getElementById('bMes'), bAno = document.getElementById('bAno'), pil = document.getElementById('pil');
+  function pastilla() {
+    var b = bMes.getAttribute('aria-pressed') === 'true' ? bMes : bAno;
+    pil.style.width = b.offsetWidth + 'px';
+    pil.style.transform = 'translateX(' + (b.offsetLeft - bMes.offsetLeft) + 'px)';
+  }
+  function ciclo(anual) {
+    bMes.setAttribute('aria-pressed', String(!anual));
+    bAno.setAttribute('aria-pressed', String(anual));
+    document.querySelectorAll('.plan__p').forEach(function (el) {
+      var v = anual ? el.dataset.ano : el.dataset.mes;
+      el.innerHTML = '$' + v + (+v ? ' <span>USD</span>' : '');
+    });
+    document.querySelectorAll('[data-per]').forEach(function (el, i) {
+      el.textContent = i === 0 ? 'para siempre' : (anual ? 'al mes, facturado al año' : 'al mes');
+    });
+    pastilla();
+  }
+  bMes.addEventListener('click', function () { ciclo(false); });
+  bAno.addEventListener('click', function () { ciclo(true); });
+  addEventListener('resize', pastilla);
+  addEventListener('load', pastilla); pastilla();
+})();
+</script>
 </body>
 </html>
