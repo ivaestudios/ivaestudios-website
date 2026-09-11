@@ -187,6 +187,7 @@ PAGE_EN_TO_ES = {
     "/cabo-photographer": "/es/fotografo-los-cabos",
     "/los-cabos-wedding-photographer": "/es/fotografo-bodas-los-cabos",
     "/destination-wedding-videographer-mexico": "/es/videografo-bodas-destino-mexico",
+    "/los-cabos-elopement-photographer": "/es/fotografo-bodas-intimas-los-cabos",
     "/destination-wedding-photographer-mexico": "/es/fotografo-bodas-destino-mexico",
     "/couples-photography-mexico": "/es/fotografia-parejas-mexico",
     "/luxury-family-photos-cancun": "/es/fotos-familiares-lujo-cancun",

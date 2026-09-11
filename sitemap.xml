@@ -256,7 +256,7 @@
 
   <url>
     <loc>https://ivaestudios.com/cancun-wedding-videographer</loc>
-    <lastmod>2026-09-09</lastmod>
+    <lastmod>2026-09-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/cancun-wedding-videographer"/>
@@ -266,7 +266,7 @@
 
   <url>
     <loc>https://ivaestudios.com/es/videografo-bodas-cancun</loc>
-    <lastmod>2026-09-09</lastmod>
+    <lastmod>2026-09-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/cancun-wedding-videographer"/>
@@ -814,6 +814,26 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/le-blanc-cancun-wedding-photographer"/>
     <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/locaciones/le-blanc-spa-cancun/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/le-blanc-cancun-wedding-photographer"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/los-cabos-elopement-photographer</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/los-cabos-elopement-photographer"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotografo-bodas-intimas-los-cabos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/los-cabos-elopement-photographer"/>
+  </url>
+
+  <url>
+    <loc>https://ivaestudios.com/es/fotografo-bodas-intimas-los-cabos</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ivaestudios.com/los-cabos-elopement-photographer"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ivaestudios.com/es/fotografo-bodas-intimas-los-cabos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/los-cabos-elopement-photographer"/>
   </url>
 
   <url>
