@@ -25,14 +25,14 @@
 // Contrato de vista: export default { id, mount(el, ctx), unmount(), onParams() }.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202609111606';
-import { icon } from '../shell/icons.js?v=202609111606';
-import { T } from '../shell/i18n.js?v=202609111606';
+import { api, el, clear } from '../api.js?v=202609111620';
+import { icon } from '../shell/icons.js?v=202609111620';
+import { T } from '../shell/i18n.js?v=202609111620';
 import {
   todayISO, addDaysISO, addMonths, parseISO, toISO,
   fmtMonthYear, fmtShort, fmtLong,
-} from '../lib/dates.js?v=202609111606';
-import * as W from './dash-widgets.js?v=202609111606';
+} from '../lib/dates.js?v=202609111620';
+import * as W from './dash-widgets.js?v=202609111620';
 
 const TTL_MS = 60000;
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
@@ -228,7 +228,7 @@ function loadStorage({ force = false } = {}) {
       if (force && res && res.throttled && ctx) {
         const mins = Math.max(1, Math.ceil((Number(res.retry_in_ms) || 0) / 60000));
         ctx.toast(
-          `${T('La medicion es reciente. Se puede volver a medir en', 'This measurement is recent. You can measure again in')} ${mins} min.`,
+          `${T('La medición es reciente. Se puede volver a medir en', 'This measurement is recent. You can measure again in')} ${mins} min.`,
           { type: 'info' },
         );
       }

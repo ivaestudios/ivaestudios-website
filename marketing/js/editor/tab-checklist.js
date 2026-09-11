@@ -19,13 +19,13 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, timeAgo, STATUSES } from '../api.js?v=202609111606';
-import { icon } from '../shell/icons.js?v=202609111606';
-import { openSheet } from '../shell/sheet.js?v=202609111606';
-import * as store from '../shell/store.js?v=202609111606';
-import * as cl from '../services/checklist.js?v=202609111606';
-import { checklistFor, applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609111606';
-import { T } from '../shell/i18n.js?v=202609111606';
+import { el, timeAgo, STATUSES } from '../api.js?v=202609111620';
+import { icon } from '../shell/icons.js?v=202609111620';
+import { openSheet } from '../shell/sheet.js?v=202609111620';
+import * as store from '../shell/store.js?v=202609111620';
+import * as cl from '../services/checklist.js?v=202609111620';
+import { checklistFor, applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609111620';
+import { T } from '../shell/i18n.js?v=202609111620';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -96,7 +96,7 @@ export function mount(host, ed) {
 
   const emptyEl = el('div', { class: 'edcheck__empty', hidden: true });
   const unavailableEl = el('div', { class: 'edcheck__empty' }, [
-    el('p', { class: 'muted', text: T('La checklist se activa cuando se aplique la actualizacion del servidor.', 'The checklist activates once the server update is applied.') }),
+    el('p', { class: 'muted', text: T('La checklist se activa cuando se aplique la actualización del servidor.', 'The checklist activates once the server update is applied.') }),
   ]);
 
   root.append(headEl, emptyEl, listEl, addRow);

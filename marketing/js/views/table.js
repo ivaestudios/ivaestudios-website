@@ -18,22 +18,22 @@
 // Contrato de vista: export default { mount(el, ctx), onParams(), unmount() }.
 // ============================================================================
 
-import { el, clear, api, fmtDate, avatar } from '../api.js?v=202609111606';
-import { T } from '../shell/i18n.js?v=202609111606';
-import { icon } from '../shell/icons.js?v=202609111606';
-import { isPast } from '../lib/dates.js?v=202609111606';
-import * as viewsSvc from '../services/views.js?v=202609111606';
+import { el, clear, api, fmtDate, avatar } from '../api.js?v=202609111620';
+import { T } from '../shell/i18n.js?v=202609111620';
+import { icon } from '../shell/icons.js?v=202609111620';
+import { isPast } from '../lib/dates.js?v=202609111620';
+import * as viewsSvc from '../services/views.js?v=202609111620';
 import {
   buildColumns, visibleColumns,
   MOBILE_SORT_OPTIONS, CARD_FIELDS, DEFAULT_CARD_FIELDS, MAX_CARD_FIELDS,
   PRIORITIES, PRIORITY_ORDER, safeUrl,
   STATUSES, CONTENT_TYPES, GRABACION_LEVELS,
-} from '../table/columns.js?v=202609111606';
-import * as grp from '../table/groups.js?v=202609111606';
-import { createSelection } from '../table/selection.js?v=202609111606';
+} from '../table/columns.js?v=202609111620';
+import * as grp from '../table/groups.js?v=202609111620';
+import { createSelection } from '../table/selection.js?v=202609111620';
 import {
   createQuickAddRow, createQuickAddButton, openQuickAddSheet, resetChain,
-} from '../table/quickadd.js?v=202609111606';
+} from '../table/quickadd.js?v=202609111620';
 
 const FILTER_KEYS = ['estado', 'tipo', 'persona', 'desde', 'hasta', 'q'];
 const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', 'Could not save, try again.');
@@ -353,7 +353,7 @@ async function commitCell(def, post, anchor) {
     }
     case 'grabacion': {
       const v = await ctx.sheet.pickFrom({
-        title: T('Prioridad de grabacion', 'Recording priority'),
+        title: T('Prioridad de grabación', 'Recording priority'),
         anchor,
         options: [
           ...GRABACION_LEVELS.map((n) => ({
@@ -626,7 +626,7 @@ function openSaveViewSheet() {
       input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); save(); } });
       body.append(
         el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Nombre', 'Name') }), input]),
-        el('p', { class: 'etable-menu__hint', text: T('Guarda la combinacion actual de vista y filtros para volver con un tap.', 'Saves the current combination of view and filters so you can come back with one tap.') }),
+        el('p', { class: 'etable-menu__hint', text: T('Guarda la combinación actual de vista y filtros para volver con un tap.', 'Saves the current combination of view and filters so you can come back with one tap.') }),
         el('div', { class: 'sheet__footer' }, [
           el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
           el('button', { class: 'btn btn-primary sheet-cta', type: 'button', text: T('Guardar', 'Save'), onclick: save }),

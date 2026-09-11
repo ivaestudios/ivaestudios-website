@@ -12,12 +12,12 @@
 //   Sin undo (el delete es hard en el backend): el copy lo deja claro.
 // ============================================================================
 
-import { el, api, copyText, isClientRole } from '../api.js?v=202609111606';
-import { T } from '../shell/i18n.js?v=202609111606';
-import { icon } from '../shell/icons.js?v=202609111606';
-import { openSheet } from '../shell/sheet.js?v=202609111606';
-import * as store from '../shell/store.js?v=202609111606';
-import * as cl from '../services/checklist.js?v=202609111606';
+import { el, api, copyText, isClientRole } from '../api.js?v=202609111620';
+import { T } from '../shell/i18n.js?v=202609111620';
+import { icon } from '../shell/icons.js?v=202609111620';
+import { openSheet } from '../shell/sheet.js?v=202609111620';
+import * as store from '../shell/store.js?v=202609111620';
+import * as cl from '../services/checklist.js?v=202609111620';
 
 function isMissingEndpoint(e) {
   const s = e && e.status;
@@ -134,7 +134,7 @@ export function openDuplicateSheet(ed) {
 
       body.append(
         el('div', { class: 'edsection__rows' }, rows),
-        el('p', { class: 'help', text: T('El duplicado nace en Idea, sin fecha y con aprobacion pendiente. No copia comentarios ni aprobaciones.', 'The duplicate starts in Idea, with no date and pending approval. Comments and approvals are not copied.') }),
+        el('p', { class: 'help', text: T('El duplicado nace en Idea, sin fecha y con aprobación pendiente. No copia comentarios ni aprobaciones.', 'The duplicate starts in Idea, with no date and pending approval. Comments and approvals are not copied.') }),
         el('div', { class: 'sheet__footer' }, [
           el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
           dupBtn,

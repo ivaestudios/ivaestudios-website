@@ -25,9 +25,9 @@
 // Contrato de vista: export default { mount(el, ctx), unmount(), onParams() }.
 // ============================================================================
 
-import { api, el, clear, timeAgo } from '../api.js?v=202609111606';
-import { icon } from '../shell/icons.js?v=202609111606';
-import { T } from '../shell/i18n.js?v=202609111606';
+import { api, el, clear, timeAgo } from '../api.js?v=202609111620';
+import { icon } from '../shell/icons.js?v=202609111620';
+import { T } from '../shell/i18n.js?v=202609111620';
 
 // CSS del paquete (vive en css/mywork.css junto a la vista Mi trabajo).
 // Lazy y con guard: si app.html ya lo linkea, no duplica.
@@ -99,13 +99,13 @@ const RECIPES = [
     key: 'aviso_revision_cliente',
     ic: 'eye',
     when: T('un post entra a Revisión', 'a post enters Review'),
-    then: T('avisar que espera la decision del cliente', "alert that it awaits the client's decision"),
+    then: T('avisar que espera la decisión del cliente', "alert that it awaits the client's decision"),
     desc: T('Para dar seguimiento cuando algo lleva días esperando al cliente.', 'To follow up when something has been waiting on the client for days.'),
   },
   {
     key: 'alerta_sin_aprobar',
     ic: 'bell',
-    when: T('llega la fecha sin aprobacion del cliente', 'the date arrives without client approval'),
+    when: T('llega la fecha sin aprobación del cliente', 'the date arrives without client approval'),
     then: T('alertar al equipo', 'alert the team'),
     desc: T('Última línea de defensa antes de publicar sin visto bueno.', 'Last line of defense before publishing without sign-off.'),
   },
@@ -316,7 +316,7 @@ function render() {
     rootEl.appendChild(el('div', { class: 'au-empty' }, [
       el('div', { class: 'au-empty__icon' }, [icon('zap', 26)]),
       el('h3', { text: T('Aun no disponible', 'Not available yet') }),
-      el('p', { class: 'muted', text: T('Las automatizaciones estaran disponibles cuando se aplique la migracion de base de datos. El resto de la app funciona normal.', 'Automations will be available once the database migration is applied. The rest of the app works normally.') }),
+      el('p', { class: 'muted', text: T('Las automatizaciones estaran disponibles cuando se aplique la migración de base de datos. El resto de la app funciona normal.', 'Automations will be available once the database migration is applied. The rest of the app works normally.') }),
       el('button', { class: 'btn', type: 'button', text: T('Reintentar', 'Retry'), onclick: () => load() }),
     ]));
     return;

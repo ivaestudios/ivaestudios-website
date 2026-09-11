@@ -16,12 +16,12 @@
 //       prefilled + checklist + abrir editor.
 // ============================================================================
 
-import { el, api, CONTENT_TYPES, contentTypeLabel } from '../api.js?v=202609111606';
-import { T } from '../shell/i18n.js?v=202609111606';
-import { icon } from '../shell/icons.js?v=202609111606';
-import { openSheet } from '../shell/sheet.js?v=202609111606';
-import * as store from '../shell/store.js?v=202609111606';
-import * as checklistService from '../services/checklist.js?v=202609111606';
+import { el, api, CONTENT_TYPES, contentTypeLabel } from '../api.js?v=202609111620';
+import { T } from '../shell/i18n.js?v=202609111620';
+import { icon } from '../shell/icons.js?v=202609111620';
+import { openSheet } from '../shell/sheet.js?v=202609111620';
+import * as store from '../shell/store.js?v=202609111620';
+import * as checklistService from '../services/checklist.js?v=202609111620';
 
 // ── Checklists sugeridas por tipo (todas los 9 tipos tienen una) ─────────────
 const DEFAULT_CHECKLISTS = {
@@ -154,7 +154,7 @@ export const TEMPLATES = {
   historia: {
     key: 'historia',
     label: T('Historia', 'Story'),
-    sub: T('Idea + interaccion + checklist de 5 pasos + Instagram', 'Idea + interaction + 5-step checklist + Instagram'),
+    sub: T('Idea + interacción + checklist de 5 pasos + Instagram', 'Idea + interaction + 5-step checklist + Instagram'),
     defaults: { content_type: 'historia', platform: 'Instagram' },
     script: {
       hook: 'Primer frame: que se entienda en 1 segundo de que va.',
@@ -295,7 +295,7 @@ export function openNewContentSheet({ ctx, status = 'idea', publishDate = null, 
       if (client && client.name) {
         body.appendChild(el('div', {
           class: 'help ed-tpl-help',
-          text: `${T('Se creara para', 'It will be created for')} ${client.name}. ${T('La fecha se asigna despues.', 'The date is assigned later.')}`,
+          text: `${T('Se creara para', 'It will be created for')} ${client.name}. ${T('La fecha se asigna después.', 'The date is assigned later.')}`,
         }));
       }
     },

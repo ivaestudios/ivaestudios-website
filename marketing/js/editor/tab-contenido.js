@@ -19,13 +19,13 @@ import {
   el,
   statusBadge, approvalBadge, chip,
   fmtDate, avatar, isClientRole,
-} from '../api.js?v=202609111606';
-import { pickFrom } from '../shell/sheet.js?v=202609111606';
-import * as store from '../shell/store.js?v=202609111606';
-import * as checklistService from '../services/checklist.js?v=202609111606';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202609111606';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609111606';
-import { T } from '../shell/i18n.js?v=202609111606';
+} from '../api.js?v=202609111620';
+import { pickFrom } from '../shell/sheet.js?v=202609111620';
+import * as store from '../shell/store.js?v=202609111620';
+import * as checklistService from '../services/checklist.js?v=202609111620';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202609111620';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609111620';
+import { T } from '../shell/i18n.js?v=202609111620';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -127,7 +127,7 @@ export function mount(host, ed) {
 
   // ── Grabacion ──────────────────────────────────────────────────────────────
   const rGrabacion = rowButton({
-    label: T('Grabacion', 'Recording'),
+    label: T('Grabación', 'Recording'),
     render: (v) => {
       const g = post().grabacion;
       if (g) v.appendChild(el('span', { class: 'edrow__plain', text: `G${g}` }));
@@ -136,7 +136,7 @@ export function mount(host, ed) {
     onTap: async (anchor) => {
       const cur = post().grabacion;
       const next = await pickFrom({
-        title: T('Prioridad de grabacion', 'Recording priority'),
+        title: T('Prioridad de grabación', 'Recording priority'),
         anchor,
         options: [
           { value: '', label: T('Sin prioridad', 'No priority'), current: !cur },
@@ -184,7 +184,7 @@ export function mount(host, ed) {
   // por aprobar, asi que el copy promete exactamente eso y no un ocultamiento
   // que no existe.
   const rVisible = rowSwitch({
-    label: T('Pedir aprobacion al cliente', 'Ask client for approval'),
+    label: T('Pedir aprobación al cliente', 'Ask client for approval'),
     sub: T('Le avisa y lo cuenta como pendiente por aprobar', 'Notifies them and counts it as pending approval'),
     get: () => !!post().client_visible,
     onToggle: async (next) => {
@@ -192,7 +192,7 @@ export function mount(host, ed) {
         const sure = await pickFrom({
           title: T('Dejara de contar como pendiente', 'It will stop counting as pending'),
           options: [
-            { value: 'si', label: T('Pausar la aprobacion', 'Pause the approval'), sub: T('El cliente seguira viendo el post en su portal', 'The client will still see the post in their portal') },
+            { value: 'si', label: T('Pausar la aprobación', 'Pause the approval'), sub: T('El cliente seguira viendo el post en su portal', 'The client will still see the post in their portal') },
             { value: 'no', label: T('Cancelar', 'Cancel'), current: true },
           ],
         });
@@ -217,7 +217,7 @@ export function mount(host, ed) {
 
   // ── URLs ───────────────────────────────────────────────────────────────────
   const rInspo = rowUrl({
-    label: T('Inspiracion', 'Inspiration'),
+    label: T('Inspiración', 'Inspiration'),
     get: () => post().inspo_url,
     onSave: (v) => ed.setField('inspo_url', v || null, { immediate: true }),
   });

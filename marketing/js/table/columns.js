@@ -22,11 +22,11 @@ import {
   CONTENT_TYPES, CONTENT_TYPE_ORDER,
   APPROVALS, PLATFORMS, GRABACION_LEVELS,
   avatar, statusLabel, contentTypeLabel, approvalLabel,
-} from '../api.js?v=202609111606';
-import * as apiMod from '../api.js?v=202609111606';
-import { T, isEN } from '../shell/i18n.js?v=202609111606';
-import { icon } from '../shell/icons.js?v=202609111606';
-import { isPast } from '../lib/dates.js?v=202609111606';
+} from '../api.js?v=202609111620';
+import * as apiMod from '../api.js?v=202609111620';
+import { T, isEN } from '../shell/i18n.js?v=202609111620';
+import { icon } from '../shell/icons.js?v=202609111620';
+import { isPast } from '../lib/dates.js?v=202609111620';
 
 // Prioridad: usa los mapas de api.js si el shell-core ya los agrego; si no,
 // cae a este espejo local (mismas keys que la migracion 005).
@@ -183,7 +183,7 @@ function renderUrl(field, label) {
 export function buildColumns(client) {
   const cols = [
     {
-      key: 'grabacion', label: T('Grabacion', 'Recording'), w: 96, defaultVisible: true,
+      key: 'grabacion', label: T('Grabación', 'Recording'), w: 96, defaultVisible: true,
       type: 'grabacion', sortable: true,
       sortValue: (p) => (p.grabacion == null || p.grabacion === '' ? 99 : Number(p.grabacion)),
       render: renderGrabacion,
@@ -339,7 +339,7 @@ export const MOBILE_SORT_OPTIONS = [
   { key: 'fecha', label: T('Fecha', 'Date') },
   { key: 'estado', label: T('Estado', 'Status') },
   { key: 'titulo', label: T('Título', 'Title') },
-  { key: 'grabacion', label: T('Grabacion', 'Recording') },
+  { key: 'grabacion', label: T('Grabación', 'Recording') },
   { key: 'posicion', label: T('Posición', 'Position') },
 ];
 
@@ -350,7 +350,7 @@ export const CARD_FIELDS = [
   { key: 'aprobacion', label: T('Aprobación', 'Approval') },
   { key: 'plataforma', label: T('Plataforma', 'Platform') },
   { key: 'tipo', label: T('Tipo', 'Type') },
-  { key: 'grabacion', label: T('Grabacion', 'Recording') },
+  { key: 'grabacion', label: T('Grabación', 'Recording') },
 ];
 export const DEFAULT_CARD_FIELDS = ['estado', 'fecha', 'aprobacion'];
 export const MAX_CARD_FIELDS = 3;

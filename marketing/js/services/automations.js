@@ -21,10 +21,10 @@
 // Eventos store: 'automations:changed' {clientId}.
 // ============================================================================
 
-import { api } from '../api.js?v=202609111606';
-import { toast } from '../shell/toast.js?v=202609111606';
-import * as store from '../shell/store.js?v=202609111606';
-import { T } from '../shell/i18n.js?v=202609111606';
+import { api } from '../api.js?v=202609111620';
+import { toast } from '../shell/toast.js?v=202609111620';
+import * as store from '../shell/store.js?v=202609111620';
+import { T } from '../shell/i18n.js?v=202609111620';
 
 const TTL = 60000;
 const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', "Couldn't save, try again.");
@@ -167,7 +167,7 @@ export async function create(rule) {
   } catch (e) {
     if (is404(e)) {
       markUnavailable();
-      toast(T('Las automatizaciones estaran disponibles cuando se aplique la migracion.', 'Automations will be available once the migration is applied.'), { type: 'info' });
+      toast(T('Las automatizaciones estaran disponibles cuando se aplique la migración.', 'Automations will be available once the migration is applied.'), { type: 'info' });
     } else {
       toast((e && e.message) || ERR_SAVE, { type: 'error' });
     }
