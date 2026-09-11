@@ -5823,6 +5823,26 @@ async function publicarPendientes(env) {
     ).bind(post.id).run();
     if (!claim || !claim.meta || claim.meta.changes !== 1) continue;   // otro reloj la tiene
     try {
+      // MARCA SIN INSTAGRAM pero con página de Facebook y "también en Facebook"
+      // (caso real: WASICAFE, 2026-09-10). El mismo atajo que "Publicar ahora":
+      // publicar SOLO Facebook en vez de tronar con publicarEnInstagram.
+      if ((!post.ig_user_id || !post.ig_access_token) && Number(post.also_facebook) === 1) {
+        if (!post.fb_post_id) {
+          const cliFb = await env.DB.prepare('SELECT fb_page_id, fb_page_name, fb_access_token FROM mkt_clients WHERE id = ?').bind(post.client_id).first();
+          const videoUrlFb = await videoFirmadoDePieza(env, post);
+          const slidesFb = await slidesFirmadosDePieza(env, post);
+          const rf = await publicarEnFacebook(env, { client: cliFb, post, videoUrl: videoUrlFb, slides: slidesFb });
+          await env.DB.prepare(
+            `UPDATE mkt_posts SET status = 'publicado', fb_post_id = ?, fb_error = NULL, published_at = datetime('now'),
+             publish_error = NULL, updated_at = datetime('now') WHERE id = ?`
+          ).bind(rf.fbPostId, post.id).run();
+          await logActivity(env, { client_id: post.client_id, post_id: post.id, session: sesionSistema, action: 'post.publicado_fb', detail: rf.permalink || rf.fbPostId });
+          resultados.push({ id: post.id, ok: true, fb: rf.fbPostId });
+        } else {
+          await env.DB.prepare("UPDATE mkt_posts SET status = 'publicado', updated_at = datetime('now') WHERE id = ?").bind(post.id).run();
+        }
+        continue;
+      }
       let r = null;
       let reconciliada = false;
       // 1) RECONCILIACIÓN OFICIAL por contenedor (doc de Meta): si un intento
