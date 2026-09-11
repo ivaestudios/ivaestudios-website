@@ -216,6 +216,17 @@ export async function publicarEnFacebook(env, { client, post, videoUrl, slides }
   const tok = client.fb_access_token;
   const caption = captionFb(post);
 
+  // POST DE UNA FOTO: la foto subida a la pieza (slide 1) va a /photos.
+  if (slides && slides.length === 1 && String(post.content_type || '') !== 'carrusel') {
+    const f1 = await fbJson(`${FB_GRAPH}/${client.fb_page_id}/photos`, {
+      method: 'POST',
+      body: new URLSearchParams({ url: slides[0], caption, access_token: tok }),
+    });
+    if (!f1.post_id && !f1.id) throw new Error('Facebook no confirmó la foto.');
+    const idFoto = f1.post_id || f1.id;
+    return { fbPostId: idFoto, permalink: `https://www.facebook.com/${idFoto}` };
+  }
+
   // CARRUSEL → post multi-foto (el "carrusel" nativo de páginas).
   if (slides && slides.length >= 2) {
     const ids = [];

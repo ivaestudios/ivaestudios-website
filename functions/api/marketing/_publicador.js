@@ -76,6 +76,28 @@ export async function publicarEnInstagram(env, { client, post, slides, cover, on
 
   // CARRUSEL (2026-08-15): la API lo pide desarmado — un contenedor por
   // slide (JPEG público firmado) y un contenedor padre que los junta.
+  // POST DE UNA FOTO (2026-09-10): antes solo se publicaba una foto si venía
+  // por inspo_url; la foto subida a la pieza (slide 1) se ignoraba y la pieza
+  // moría con "no tiene video subido".
+  if (slides && slides.length === 1 && tipo !== 'carrusel') {
+    const p1 = new URLSearchParams({ image_url: slides[0], caption, access_token: tok });
+    const colab1 = listaColaboradores(post);
+    if (colab1) p1.set('collaborators', colab1);
+    const c1 = await gJson(`${GRAPH}/${client.ig_user_id}/media`, { method: 'POST', body: p1 });
+    if (!c1.id) throw new Error('Instagram no devolvió el contenedor de la foto.');
+    if (onContainer) { try { await onContainer(c1.id); } catch { /* best effort */ } }
+    const pub1 = await gJson(`${GRAPH}/${client.ig_user_id}/media_publish`, {
+      method: 'POST', body: new URLSearchParams({ creation_id: c1.id, access_token: tok }),
+    });
+    if (!pub1.id) throw new Error('Instagram no confirmó la publicación de la foto.');
+    let link1 = null;
+    try {
+      const m = await gJson(`${GRAPH}/${pub1.id}?fields=permalink&access_token=${encodeURIComponent(tok)}`);
+      link1 = m.permalink || null;
+    } catch { /* sin permalink no pasa nada */ }
+    return { mediaId: pub1.id, permalink: link1 };
+  }
+
   if (slides && slides.length >= 2) {
     const hijos = [];
     for (const u of slides.slice(0, 10)) {
