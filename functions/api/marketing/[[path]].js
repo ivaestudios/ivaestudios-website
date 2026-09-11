@@ -48,6 +48,7 @@
 import { handleDashboard } from './_dashboard.js';
 import { handleVideoIa } from './_video-ia.js';
 import { handleVoz } from './_voz.js';
+import { handleImagen } from './_imagen.js';
 import { handleStorage, refreshStorageUsage } from './_storage.js';
 import { handleEstudios } from './_estudios.js';
 import { handleMonthlyReport } from './_enterprise.js';
@@ -5534,6 +5535,12 @@ async function route(request, env, authCtx) {
   if (parts[0] === 'video-ia') {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);
     return handleVideoIa(request, env, session, url, parts);
+  }
+
+  // ── IMAGEN IA (solo staff): fotos para los posts, Imagen 4 en Vertex ──
+  if (parts[0] === 'imagen' && parts.length === 1) {
+    if (!isStaff) return json({ error: 'Forbidden' }, 403);
+    return handleImagen(request, env);
   }
 
   // ── VOZ IA (solo staff): texto a voz con OpenAI para narrar videos ──
