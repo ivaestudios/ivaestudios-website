@@ -13,7 +13,17 @@
 // llama, que es donde está PIL).
 // ============================================================================
 const VERTEX_LOCATION = 'us-central1';
-const MODELO_VERTEX = 'imagen-4.0-generate-001';
+// Vertex no expone el mismo catálogo en todos los proyectos: se prueban en
+// orden y se usa el primero que responda (el 404 de un modelo no disponible es
+// inmediato y barato).
+const MODELOS_VERTEX = [
+  'imagen-4.0-generate-001',
+  'imagen-4.0-fast-generate-001',
+  'imagen-4.0-generate-preview-06-06',
+  'imagen-3.0-generate-002',
+  'imagen-3.0-generate-001',
+  'imagegeneration@006',
+];
 const ASPECTOS = new Set(['1:1', '3:4', '4:3', '9:16', '16:9']);
 
 function json(data, status = 200) {
@@ -73,10 +83,10 @@ async function tokenGoogle(env) {
   return _tok.valor;
 }
 
-async function porVertex(env, prompt, aspect, n) {
+async function unModeloVertex(env, modelo, prompt, aspect, n) {
   const sa = saJson(env);
   const url = `https://${VERTEX_LOCATION}-aiplatform.googleapis.com/v1/projects/${sa.project_id}`
-    + `/locations/${VERTEX_LOCATION}/publishers/google/models/${MODELO_VERTEX}:predict`;
+    + `/locations/${VERTEX_LOCATION}/publishers/google/models/${modelo}:predict`;
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${await tokenGoogle(env)}` },
@@ -87,10 +97,23 @@ async function porVertex(env, prompt, aspect, n) {
     signal: AbortSignal.timeout(120000),
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error('Vertex ' + res.status + ': ' + JSON.stringify(data).slice(0, 300));
+  if (!res.ok) {
+    const err = new Error('Vertex ' + res.status + ': ' + JSON.stringify(data).slice(0, 220));
+    err.noExiste = res.status === 404 || res.status === 403;
+    throw err;
+  }
   const preds = data.predictions || [];
-  if (!preds.length) throw new Error('Imagen no devolvió nada (¿el prompt se filtró?): ' + JSON.stringify(data).slice(0, 300));
-  return preds.map((p) => 'data:image/png;base64,' + p.bytesBase64Encoded);
+  if (!preds.length) throw new Error('Imagen no devolvió nada (¿el prompt se filtró?): ' + JSON.stringify(data).slice(0, 220));
+  return { modelo, imagenes: preds.map((p) => 'data:image/png;base64,' + p.bytesBase64Encoded) };
+}
+
+async function porVertex(env, prompt, aspect, n) {
+  let ultimo = null;
+  for (const m of MODELOS_VERTEX) {
+    try { return await unModeloVertex(env, m, prompt, aspect, n); }
+    catch (e) { ultimo = e; if (!e.noExiste) throw e; }
+  }
+  throw ultimo || new Error('Ningún modelo de Imagen disponible en el proyecto.');
 }
 
 async function porOpenAI(env, prompt, aspect, n) {
@@ -121,7 +144,10 @@ export async function handleImagen(request, env) {
 
   let fallaGoogle = null;
   try {
-    if (hayGoogle) return json({ ok: true, via: 'vertex', imagenes: await porVertex(env, prompt, aspect, n) });
+    if (hayGoogle) {
+      const r = await porVertex(env, prompt, aspect, n);
+      return json({ ok: true, via: 'vertex', modelo: r.modelo, imagenes: r.imagenes });
+    }
   } catch (e) {
     fallaGoogle = String((e && e.message) || e).slice(0, 400);
     if (!hayOpenAI) return json({ error: fallaGoogle }, 502);
