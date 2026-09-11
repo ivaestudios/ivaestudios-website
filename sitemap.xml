@@ -4352,4 +4352,11 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ivaestudios.com/es/manejo-redes-sociales"/>
   </url>
 
+  <url>
+    <loc>https://ivaestudios.com/marketing/planes</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
 </urlset>

@@ -7,14 +7,14 @@
 // arrastran entre celdas (motor ui/dnd.js).
 // ============================================================================
 
-import { el, statusBadge } from '../api.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
+import { el, statusBadge } from '../api.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
 import {
   fmtYMD, startOfMonth, monthMatrix, sameMonth, todayYMD,
   dayLong, statusInfo, clientDotEl, DOW_SHORT,
-} from './data.js?v=202609102110';
-import { cardDraggable, openCardMenu, reschedule, markDropTarget } from './dnd.js?v=202609102110';
-import { openQuickCreate } from './quickcreate.js?v=202609102110';
+} from './data.js?v=202609111606';
+import { cardDraggable, openCardMenu, reschedule, markDropTarget } from './dnd.js?v=202609111606';
+import { openQuickCreate } from './quickcreate.js?v=202609111606';
 
 const MAX_PILLS = 3;
 
@@ -63,7 +63,7 @@ export function renderMonth(mainEl, ctx, { cursor, byDay, clientsById, isTodos, 
       if (posts.length > MAX_PILLS) {
         pillsWrap.appendChild(el('button', {
           class: 'cal-more', type: 'button',
-          text: `+${posts.length - MAX_PILLS} ${T('mas', 'more')}`,
+          text: `+${posts.length - MAX_PILLS} ${T('más', 'more')}`,
           onclick: (e) => { e.stopPropagation(); openDaySheet(ctx, d, posts, clientsById, isTodos); },
         }));
       }

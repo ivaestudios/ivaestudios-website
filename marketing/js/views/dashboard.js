@@ -25,14 +25,14 @@
 // Contrato de vista: export default { id, mount(el, ctx), unmount(), onParams() }.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202609102110';
-import { icon } from '../shell/icons.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
+import { api, el, clear } from '../api.js?v=202609111606';
+import { icon } from '../shell/icons.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
 import {
   todayISO, addDaysISO, addMonths, parseISO, toISO,
   fmtMonthYear, fmtShort, fmtLong,
-} from '../lib/dates.js?v=202609102110';
-import * as W from './dash-widgets.js?v=202609102110';
+} from '../lib/dates.js?v=202609111606';
+import * as W from './dash-widgets.js?v=202609111606';
 
 const TTL_MS = 60000;
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
@@ -373,7 +373,7 @@ function openPost(item) {
 async function reschedule(item) {
   const v = await ctx.pickers.pickDate({
     current: item.publish_date || null,
-    title: T('Reprogramar publicacion', 'Reschedule post'),
+    title: T('Reprogramar publicación', 'Reschedule post'),
     allowClear: false,
   });
   if (v == null || v === '') return;
@@ -516,7 +516,7 @@ async function openQuickCreate() {
 function openStreakSheet() {
   const days = [...(((dataState.data || {}).activity || {}).days || [])].reverse();
   ctx.sheet.openSheet({
-    title: T('Actividad de los ultimos 14 dias', 'Activity in the last 14 days'),
+    title: T('Actividad de los últimos 14 días', 'Activity in the last 14 days'),
     mode: 'menu',
     build(body) {
       if (!days.length) {
@@ -531,7 +531,7 @@ function openStreakSheet() {
           el('span', { class: 'dash-actrow__day', text: fmtLong(d.date) }),
           el('span', {
             class: 'dash-actrow__count',
-            text: c > 0 ? `${c} ${c === 1 ? T('accion', 'action') : T('acciones', 'actions')}` : T('Sin actividad', 'No activity'),
+            text: c > 0 ? `${c} ${c === 1 ? T('acción', 'action') : T('acciones', 'actions')}` : T('Sin actividad', 'No activity'),
           }),
         ]));
       }

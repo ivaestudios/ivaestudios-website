@@ -9,12 +9,12 @@
 // panel lateral de >= 768px.
 // ============================================================================
 
-import { el } from '../api.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
-import { buildPostCard } from './data.js?v=202609102110';
-import { cardDraggable, openCardMenu, reschedule, markDropTarget } from './dnd.js?v=202609102110';
-import { openQuickCreate } from './quickcreate.js?v=202609102110';
-import * as calState from './state.js?v=202609102110';
+import { el } from '../api.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
+import { buildPostCard } from './data.js?v=202609111606';
+import { cardDraggable, openCardMenu, reschedule, markDropTarget } from './dnd.js?v=202609111606';
+import { openQuickCreate } from './quickcreate.js?v=202609111606';
+import * as calState from './state.js?v=202609111606';
 
 /**
  * Renderiza el panel dentro de `asideEl` (lo vacia primero).
@@ -38,7 +38,7 @@ export function renderBacklog(asideEl, ctx, { posts, clientsById, isTodos, dispo
   // El cuerpo es drop target: soltar una tarjeta aqui le quita la fecha.
   const body = el('div', {
     class: 'bk-body',
-    'aria-label': T('Backlog sin fecha, suelta aqui para quitar la fecha', 'Unscheduled backlog, drop here to remove the date'),
+    'aria-label': T('Backlog sin fecha, suelta aquí para quitar la fecha', 'Unscheduled backlog, drop here to remove the date'),
   });
   markDropTarget(body, '');
 
@@ -46,10 +46,10 @@ export function renderBacklog(asideEl, ctx, { posts, clientsById, isTodos, dispo
     body.appendChild(el('div', { class: 'bk-empty' }, [
       ctx.icons('inbox', 24),
       el('p', { text: T('No hay contenidos sin fecha.', 'No unscheduled content.') }),
-      el('p', { class: 'bk-empty__hint', text: T('Arrastra una tarjeta del calendario hasta aqui para quitarle la fecha.', 'Drag a card from the calendar here to remove its date.') }),
+      el('p', { class: 'bk-empty__hint', text: T('Arrastra una tarjeta del calendario hasta aquí para quitarle la fecha.', 'Drag a card from the calendar here to remove its date.') }),
     ]));
   } else {
-    body.appendChild(el('p', { class: 'bk-hint', text: T('Arrastra una tarjeta a un dia del calendario para programarla.', 'Drag a card onto a calendar day to schedule it.') }));
+    body.appendChild(el('p', { class: 'bk-hint', text: T('Arrastra una tarjeta a un día del calendario para programarla.', 'Drag a card onto a calendar day to schedule it.') }));
     for (const p of posts) {
       const card = buildPostCard(ctx, p, {
         client: clientOf(p),

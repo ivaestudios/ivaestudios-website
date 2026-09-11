@@ -22,11 +22,11 @@ import {
   CONTENT_TYPES, CONTENT_TYPE_ORDER,
   APPROVALS, PLATFORMS, GRABACION_LEVELS,
   avatar, statusLabel, contentTypeLabel, approvalLabel,
-} from '../api.js?v=202609102110';
-import * as apiMod from '../api.js?v=202609102110';
-import { T, isEN } from '../shell/i18n.js?v=202609102110';
-import { icon } from '../shell/icons.js?v=202609102110';
-import { isPast } from '../lib/dates.js?v=202609102110';
+} from '../api.js?v=202609111606';
+import * as apiMod from '../api.js?v=202609111606';
+import { T, isEN } from '../shell/i18n.js?v=202609111606';
+import { icon } from '../shell/icons.js?v=202609111606';
+import { isPast } from '../lib/dates.js?v=202609111606';
 
 // Prioridad: usa los mapas de api.js si el shell-core ya los agrego; si no,
 // cae a este espejo local (mismas keys que la migracion 005).
@@ -340,7 +340,7 @@ export const MOBILE_SORT_OPTIONS = [
   { key: 'estado', label: T('Estado', 'Status') },
   { key: 'titulo', label: T('Título', 'Title') },
   { key: 'grabacion', label: T('Grabacion', 'Recording') },
-  { key: 'posicion', label: T('Posicion', 'Position') },
+  { key: 'posicion', label: T('Posición', 'Position') },
 ];
 
 /** Campos elegibles como chips de la tarjeta movil (max 3). */

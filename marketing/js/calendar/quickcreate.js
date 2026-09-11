@@ -10,9 +10,9 @@ import {
   el,
   STATUS_ORDER,
   CONTENT_TYPES, CONTENT_TYPE_ORDER,
-} from '../api.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
-import { parseYMD, dayLong, statusInfo, safeColor } from './data.js?v=202609102110';
+} from '../api.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
+import { parseYMD, dayLong, statusInfo, safeColor } from './data.js?v=202609111606';
 
 /**
  * Abre el quick-create. `date` = 'YYYY-MM-DD' o '' (backlog).
@@ -149,7 +149,7 @@ export function openQuickCreate(ctx, { date = '', clientId = null } = {}) {
       createBtn.addEventListener('click', async () => {
         const title = (model.title || '').trim();
         if (!title) {
-          ctx.toast(T('Escribe un titulo para el contenido.', 'Write a title for the content.'), { type: 'error' });
+          ctx.toast(T('Escribe un título para el contenido.', 'Write a title for the content.'), { type: 'error' });
           titleIn.focus();
           return;
         }

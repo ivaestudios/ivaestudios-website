@@ -12,11 +12,11 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, copyText, clearClipboard } from '../api.js?v=202609102110';
-import { icon } from '../shell/icons.js?v=202609102110';
-import { makeTextarea } from './fields.js?v=202609102110';
-import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
+import { el, copyText, clearClipboard } from '../api.js?v=202609111606';
+import { icon } from '../shell/icons.js?v=202609111606';
+import { makeTextarea } from './fields.js?v=202609111606';
+import { slidesFromPost, fieldsFromSlides, slideLabel, slideHint, slidePlaceholder, slidesToText, altsFromText, altsToText } from './slides.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
 
 // Copiar "nada" deja el portapapeles VACÍO: si se deja intacto, el siguiente
 // pegado suelta el caption de OTRA pieza y eso acaba publicado en el Instagram
@@ -259,7 +259,7 @@ export function mount(host, ed) {
     }));
     root.appendChild(block({
       title: 'CTA',
-      hint: T('Cierre con accion clara', 'Close with a clear action'),
+      hint: T('Cierre con acción clara', 'Close with a clear action'),
       field: 'cta',
       value: post.cta || '',
       placeholder: T('Que quieres que haga la persona al terminar', 'What you want the person to do at the end'),

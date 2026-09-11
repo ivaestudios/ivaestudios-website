@@ -22,10 +22,10 @@
 // Contrato de vista: export default { mount(el, ctx), unmount(), onParams() }.
 // ============================================================================
 
-import { api, el, clear, STATUSES, statusLabel, statusBadge } from '../api.js?v=202609102110';
-import { icon } from '../shell/icons.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
-import { todayISO, diffDays, relativeDay, fmtShort } from '../lib/dates.js?v=202609102110';
+import { api, el, clear, STATUSES, statusLabel, statusBadge } from '../api.js?v=202609111606';
+import { icon } from '../shell/icons.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
+import { todayISO, diffDays, relativeDay, fmtShort } from '../lib/dates.js?v=202609111606';
 
 // CSS del paquete (compartido con la vista Automatizaciones). Lazy y con
 // guard: si app.html ya lo linkea (o la otra vista ya lo inyecto), no duplica.
@@ -55,8 +55,8 @@ const PRIORITY_TAGS = {
 const SECTION_DEFS = [
   { key: 'vencidos', label: T('Atrasados', 'Overdue'), short: T('Atrasados', 'Overdue'), ic: 'warning', tone: 'danger' },
   { key: 'hoy', label: T('Hoy', 'Today'), short: T('Hoy', 'Today'), ic: 'clock', tone: 'accent' },
-  { key: 'semana', label: T('Proximos 7 dias', 'Next 7 days'), short: T('Semana', 'Week'), ic: 'calendar' },
-  { key: 'despues', label: T('Mas adelante', 'Later'), short: null, ic: 'right' },
+  { key: 'semana', label: T('Próximos 7 días', 'Next 7 days'), short: T('Semana', 'Week'), ic: 'calendar' },
+  { key: 'despues', label: T('Más adelante', 'Later'), short: null, ic: 'right' },
   { key: 'sinfecha', label: T('Sin fecha', 'No date'), short: T('Sin fecha', 'No date'), ic: 'inbox' },
   { key: 'listos', label: T('Publicados', 'Published'), short: null, ic: 'check', done: true },
 ];
@@ -482,7 +482,7 @@ function render() {
     rootEl.appendChild(el('div', { class: 'mw-empty' }, [
       el('div', { class: 'mw-empty__icon mw-empty__icon--err' }, [icon('warning', 26)]),
       el('h3', { text: T('No se pudo cargar tu trabajo', "Couldn't load your work") }),
-      el('p', { class: 'muted', text: (loadErr && loadErr.message) || T('Revisa tu conexion e intenta de nuevo.', 'Check your connection and try again.') }),
+      el('p', { class: 'muted', text: (loadErr && loadErr.message) || T('Revisa tu conexión e intenta de nuevo.', 'Check your connection and try again.') }),
       el('button', { class: 'btn btn-primary', type: 'button', text: T('Reintentar', 'Retry'), onclick: () => reload() }),
     ]));
     return;
@@ -501,7 +501,7 @@ function render() {
     rootEl.appendChild(el('div', { class: 'mw-empty' }, [
       el('div', { class: 'mw-empty__icon' }, [icon('briefcase', 26)]),
       el('h3', { text: T('Nada asignado a ti todavia', 'Nothing assigned to you yet') }),
-      el('p', { class: 'muted', text: T('Cuando te asignen contenidos de cualquier cliente van a aparecer aqui.', 'When content from any client gets assigned to you, it will show up here.') }),
+      el('p', { class: 'muted', text: T('Cuando te asignen contenidos de cualquier cliente van a aparecer aquí.', 'When content from any client gets assigned to you, it will show up here.') }),
     ]));
     return;
   }
@@ -512,7 +512,7 @@ function render() {
   if (pending === 0 && !showDone()) {
     rootEl.appendChild(el('div', { class: 'mw-empty' }, [
       el('div', { class: 'mw-empty__icon mw-empty__icon--ok' }, [icon('check', 26)]),
-      el('h3', { text: T('Estas al dia', 'You are all caught up') }),
+      el('h3', { text: T('Estás al día', 'You are all caught up') }),
       el('p', { class: 'muted', text: T('Sin pendientes asignados a ti. Buen trabajo.', 'No pending items assigned to you. Nice work.') }),
       done.length ? el('button', {
         class: 'btn', type: 'button', text: `${T('Ver publicados', 'View published')} (${done.length})`,

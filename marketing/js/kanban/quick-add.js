@@ -14,9 +14,9 @@
 // en el store; aqui solo toast de exito).
 // ============================================================================
 
-import { el, STATUSES, STATUS_ORDER, statusLabel, fmtDate } from '../api.js?v=202609102110';
-import { icon } from '../shell/icons.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
+import { el, STATUSES, STATUS_ORDER, statusLabel, fmtDate } from '../api.js?v=202609111606';
+import { icon } from '../shell/icons.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -58,7 +58,7 @@ export function createColumnComposer({ ctx, getStatus, getClientId, getNextPosit
     placeholder: T('Título del contenido', 'Content title'),
     maxlength: '140',
     autocomplete: 'off',
-    'aria-label': T('Titulo del nuevo contenido', 'Title of the new content'),
+    'aria-label': T('Título del nuevo contenido', 'Title of the new content'),
   });
 
   const form = el('div', { class: 'kb-composer__form', hidden: true }, [
@@ -146,7 +146,7 @@ export function openQuickAddSheet({ ctx, status = null, getNextPosition, onCreat
         class: 'input', type: 'text',
         placeholder: T('Título del contenido', 'Content title'),
         maxlength: '140', autocomplete: 'off',
-        'aria-label': T('Titulo del nuevo contenido', 'Title of the new content'),
+        'aria-label': T('Título del nuevo contenido', 'Title of the new content'),
       });
 
       // Fila de estado.
@@ -200,7 +200,7 @@ export function openQuickAddSheet({ ctx, status = null, getNextPosition, onCreat
       });
       saveBtn.addEventListener('click', async () => {
         const title = input.value.trim();
-        if (!title) { ctx.toast(T('Escribe un titulo para el contenido.', 'Write a title for the content.'), { type: 'error' }); input.focus(); return; }
+        if (!title) { ctx.toast(T('Escribe un título para el contenido.', 'Write a title for the content.'), { type: 'error' }); input.focus(); return; }
         if (!chosenStatus) { ctx.toast(T('Elige un estado.', 'Choose a status.'), { type: 'error' }); return; }
         if (needsClient && !chosenClient) { ctx.toast(T('Elige un cliente.', 'Choose a client.'), { type: 'error' }); return; }
         saveBtn.disabled = true;

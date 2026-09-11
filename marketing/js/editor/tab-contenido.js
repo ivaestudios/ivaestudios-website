@@ -19,13 +19,13 @@ import {
   el,
   statusBadge, approvalBadge, chip,
   fmtDate, avatar, isClientRole,
-} from '../api.js?v=202609102110';
-import { pickFrom } from '../shell/sheet.js?v=202609102110';
-import * as store from '../shell/store.js?v=202609102110';
-import * as checklistService from '../services/checklist.js?v=202609102110';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202609102110';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
+} from '../api.js?v=202609111606';
+import { pickFrom } from '../shell/sheet.js?v=202609111606';
+import * as store from '../shell/store.js?v=202609111606';
+import * as checklistService from '../services/checklist.js?v=202609111606';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202609111606';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -209,8 +209,8 @@ export function mount(host, ed) {
   // also_facebook ya viajaba en el PATCH y el publicador del cron lo honra;
   // el editor nuevo simplemente no lo pintaba (2026-08-27, App Review pages).
   const rFacebook = rowSwitch({
-    label: T('Publicar tambien en Facebook', 'Also publish on Facebook'),
-    sub: T('Al publicarse, tambien sale en la pagina de Facebook conectada de la marca', "When it publishes, it also goes out on the brand's connected Facebook Page"),
+    label: T('Publicar también en Facebook', 'Also publish on Facebook'),
+    sub: T('Al publicarse, también sale en la página de Facebook conectada de la marca', "When it publishes, it also goes out on the brand's connected Facebook Page"),
     get: () => !!post().also_facebook,
     onToggle: (next) => { ed.setField('also_facebook', next ? 1 : 0, { immediate: true }); return true; },
   });

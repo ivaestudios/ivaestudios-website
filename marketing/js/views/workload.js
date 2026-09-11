@@ -30,14 +30,14 @@
 import {
   api, el, clear,
   chip, statusBadge, avatar,
-} from '../api.js?v=202609102110';
-import { icon } from '../shell/icons.js?v=202609102110';
+} from '../api.js?v=202609111606';
+import { icon } from '../shell/icons.js?v=202609111606';
 import {
   toISO, parseISO, todayISO, addDays, addDaysISO, startOfWeek,
   fmtShort, MESES_CORTOS,
-} from '../lib/dates.js?v=202609102110';
-import { effortOf, DEFAULT_EFFORT } from '../lib/effort.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
+} from '../lib/dates.js?v=202609111606';
+import { effortOf, DEFAULT_EFFORT } from '../lib/effort.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
 
 const WEEKS_VISIBLE = 4;
 const SIN_KEY = '__sin_asignar__';
@@ -378,7 +378,7 @@ function openUndatedSheet() {
     build(body) {
       body.appendChild(el('p', {
         class: 'help wl-undated-note',
-        text: T('Estos contenidos no tienen fecha de publicacion, asi que no se reparten en ninguna semana.', "These items have no publish date, so they don't count toward any week."),
+        text: T('Estos contenidos no tienen fecha de publicación, así que no se reparten en ninguna semana.', "These items have no publish date, so they don't count toward any week."),
       }));
       if (!items.length) {
         body.appendChild(el('p', { class: 'help', text: T('Todo el contenido tiene fecha.', 'All content has a date.') }));
@@ -725,7 +725,7 @@ function render() {
     bodyEl.appendChild(el('div', { class: 'empty' }, [
       el('div', { class: 'empty__icon' }, [icon('gauge', 30)]),
       el('h3', { text: T('Sin contenidos en estas semanas.', 'No content in these weeks.') }),
-      el('p', { text: T('Mueve el rango o programa contenido con fecha de publicacion.', 'Shift the range or schedule content with a publish date.') }),
+      el('p', { text: T('Mueve el rango o programa contenido con fecha de publicación.', 'Shift the range or schedule content with a publish date.') }),
       el('button', {
         class: 'btn btn-primary', type: 'button', text: T('Esta semana', 'This week'),
         onclick: () => {
@@ -753,7 +753,7 @@ function render() {
 
   bodyEl.appendChild(el('p', {
     class: 'help wl-rule-note',
-    text: T('Regla de reparto: los puntos de cada contenido cuentan completos en la semana de su fecha de publicacion.', "Distribution rule: each item's points count fully in the week of its publish date."),
+    text: T('Regla de reparto: los puntos de cada contenido cuentan completos en la semana de su fecha de publicación.', "Distribution rule: each item's points count fully in the week of its publish date."),
   }));
 }
 

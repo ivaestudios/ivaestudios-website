@@ -13,12 +13,12 @@
 // mount(host, ed) -> dispose()
 // ============================================================================
 
-import { el, api, timeAgo, avatar } from '../api.js?v=202609102110';
-import { icon } from '../shell/icons.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
+import { el, api, timeAgo, avatar } from '../api.js?v=202609111606';
+import { icon } from '../shell/icons.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
 // Reportar / bloquear (Apple guideline 1.2): TODO comentario debe poder
 // reportarse y todo autor poder bloquearse, desde cualquier rol.
-import { moderarComentario } from '../shell/moderacion.js?v=202609102110';
+import { moderarComentario } from '../shell/moderacion.js?v=202609111606';
 
 let tmpSeq = 0;
 
@@ -32,7 +32,7 @@ export function mount(host, ed) {
   const clientName = (client && client.name) || T('el cliente', 'the client');
 
   const root = el('div', { class: 'edtab edtab-conv' });
-  const threadEl = el('div', { class: 'edconv__thread', role: 'log', 'aria-label': T('Conversacion', 'Conversation') });
+  const threadEl = el('div', { class: 'edconv__thread', role: 'log', 'aria-label': T('Conversación', 'Conversation') });
 
   // ── Hilo ───────────────────────────────────────────────────────────────────
   function commentNode(c) {

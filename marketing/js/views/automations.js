@@ -25,9 +25,9 @@
 // Contrato de vista: export default { mount(el, ctx), unmount(), onParams() }.
 // ============================================================================
 
-import { api, el, clear, timeAgo } from '../api.js?v=202609102110';
-import { icon } from '../shell/icons.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
+import { api, el, clear, timeAgo } from '../api.js?v=202609111606';
+import { icon } from '../shell/icons.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
 
 // CSS del paquete (vive en css/mywork.css junto a la vista Mi trabajo).
 // Lazy y con guard: si app.html ya lo linkea, no duplica.
@@ -78,13 +78,13 @@ const RECIPES = [
     ic: 'clock',
     when: T('falta poco para publicar', 'publish time is near'),
     then: T('avisar si el post no esta Programado ni Publicado', 'alert if the post is not Scheduled or Published'),
-    desc: T('Un recordatorio por post por dia, al asignado y a los admins.', 'One reminder per post per day, to the assignee and admins.'),
+    desc: T('Un recordatorio por post por día, al asignado y a los admins.', 'One reminder per post per day, to the assignee and admins.'),
     config: {
       field: 'days_before',
       label: T('Avisar con', 'Alert with'),
       options: [
-        { value: 1, label: T('1 dia de anticipacion', '1 day in advance') },
-        { value: 2, label: T('2 dias de anticipacion', '2 days in advance') },
+        { value: 1, label: T('1 día de anticipación', '1 day in advance') },
+        { value: 2, label: T('2 días de anticipación', '2 days in advance') },
       ],
     },
   },
@@ -93,21 +93,21 @@ const RECIPES = [
     ic: 'warning',
     when: T('la fecha paso y el post sigue en Programado', 'the date passed and the post is still Scheduled'),
     then: T('marcarlo Atrasado y avisar', 'mark it Overdue and notify'),
-    desc: T('El post se pinta con la etiqueta roja Atrasado y avisa una vez al dia.', 'The post gets the red Overdue label and alerts once a day.'),
+    desc: T('El post se pinta con la etiqueta roja Atrasado y avisa una vez al día.', 'The post gets the red Overdue label and alerts once a day.'),
   },
   {
     key: 'aviso_revision_cliente',
     ic: 'eye',
-    when: T('un post entra a Revision', 'a post enters Review'),
+    when: T('un post entra a Revisión', 'a post enters Review'),
     then: T('avisar que espera la decision del cliente', "alert that it awaits the client's decision"),
-    desc: T('Para dar seguimiento cuando algo lleva dias esperando al cliente.', 'To follow up when something has been waiting on the client for days.'),
+    desc: T('Para dar seguimiento cuando algo lleva días esperando al cliente.', 'To follow up when something has been waiting on the client for days.'),
   },
   {
     key: 'alerta_sin_aprobar',
     ic: 'bell',
     when: T('llega la fecha sin aprobacion del cliente', 'the date arrives without client approval'),
     then: T('alertar al equipo', 'alert the team'),
-    desc: T('Ultima linea de defensa antes de publicar sin visto bueno.', 'Last line of defense before publishing without sign-off.'),
+    desc: T('Última línea de defensa antes de publicar sin visto bueno.', 'Last line of defense before publishing without sign-off.'),
   },
 ];
 
@@ -257,7 +257,7 @@ function renderCard(def) {
   if (def.config) {
     select = el('select', {
       class: 'au-select',
-      'aria-label': T('Dias de anticipacion', 'Days in advance'),
+      'aria-label': T('Días de anticipación', 'Days in advance'),
       onchange: () => setDaysBefore(def.key, Number(select.value) === 2 ? 2 : 1),
     }, def.config.options.map((o) =>
       el('option', { value: String(o.value), text: o.label })
@@ -326,7 +326,7 @@ function render() {
     rootEl.appendChild(el('div', { class: 'au-empty' }, [
       el('div', { class: 'au-empty__icon au-empty__icon--err' }, [icon('warning', 26)]),
       el('h3', { text: T('No se pudieron cargar las recetas', "Couldn't load the recipes") }),
-      el('p', { class: 'muted', text: errMsg || T('Revisa tu conexion e intenta de nuevo.', 'Check your connection and try again.') }),
+      el('p', { class: 'muted', text: errMsg || T('Revisa tu conexión e intenta de nuevo.', 'Check your connection and try again.') }),
       el('button', { class: 'btn btn-primary', type: 'button', text: T('Reintentar', 'Retry'), onclick: () => load() }),
     ]));
     return;

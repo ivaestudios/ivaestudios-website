@@ -12,12 +12,12 @@
 //   Sin undo (el delete es hard en el backend): el copy lo deja claro.
 // ============================================================================
 
-import { el, api, copyText, isClientRole } from '../api.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
-import { icon } from '../shell/icons.js?v=202609102110';
-import { openSheet } from '../shell/sheet.js?v=202609102110';
-import * as store from '../shell/store.js?v=202609102110';
-import * as cl from '../services/checklist.js?v=202609102110';
+import { el, api, copyText, isClientRole } from '../api.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
+import { icon } from '../shell/icons.js?v=202609111606';
+import { openSheet } from '../shell/sheet.js?v=202609111606';
+import * as store from '../shell/store.js?v=202609111606';
+import * as cl from '../services/checklist.js?v=202609111606';
 
 function isMissingEndpoint(e) {
   const s = e && e.status;
@@ -238,7 +238,7 @@ export function openDeleteConfirm(ed) {
           el('b', { text: post.title || T('este contenido', 'this content') }),
           T(' con sus comentarios, checklist y aprobaciones.', ' along with its comments, checklist and approvals.'),
         ]),
-        el('p', { class: 'help', text: T('Esta accion no se puede deshacer.', 'This action cannot be undone.') }),
+        el('p', { class: 'help', text: T('Esta acción no se puede deshacer.', 'This action cannot be undone.') }),
         el('div', { class: 'sheet__footer' }, [
           el('button', { class: 'btn sheet-cta', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
           delBtn,
@@ -285,7 +285,7 @@ export function openPublishNowSheet(ed) {
       });
       body.append(
         el('p', { class: 'help', text: T(
-          'La pieza se publica AHORA en el Instagram conectado de la marca; si el interruptor "tambien en Facebook" esta activo, tambien en su pagina.',
+          'La pieza se publica AHORA en el Instagram conectado de la marca; si el interruptor "también en Facebook" está activo, también en su página.',
           'The piece publishes NOW to the brand\'s connected Instagram; if the "also on Facebook" switch is on, also to its Facebook Page.',
         ) }),
         el('div', { class: 'sheet__footer' }, [

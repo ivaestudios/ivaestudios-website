@@ -19,10 +19,10 @@ import {
   STATUSES, STATUS_ORDER,
   CONTENT_TYPES, PLATFORMS,
   statusBadge, approvalBadge,
-} from '../api.js?v=202609102110';
-import { icon } from '../shell/icons.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
-import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202609102110';
+} from '../api.js?v=202609111606';
+import { icon } from '../shell/icons.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
+import { fmtShort, diffDays, parseISO, DIAS_CORTOS } from '../lib/dates.js?v=202609111606';
 
 // Bucket para status que ya no existen en el enum (NUNCA invisibles).
 export const OTROS_KEY = '__otros';
@@ -369,7 +369,7 @@ export function weekCard({ count = 0, items = [], today = '', onOpen, onSeeAll, 
   }
 
   return card({
-    title: T('Proximos 7 dias', 'Next 7 days'),
+    title: T('Próximos 7 días', 'Next 7 days'),
     className: 'dash-weekcard',
     headRight: count > 0 ? metaBadge(count) : null,
     children,
@@ -388,7 +388,7 @@ export function overdueCard({ count = 0, items = [], today = '', onOpen, onResch
         item: it,
         accent: typeColor(it.content_type),
         sub: el('span', { class: 'dash-row__sub' }, [
-          el('span', { class: 'dash-overdue__badge', text: plural(late, T('dia', 'day'), T('dias', 'days')) }),
+          el('span', { class: 'dash-overdue__badge', text: plural(late, T('día', 'day'), T('días', 'days')) }),
           el('span', { class: 'dash-row__date', text: it.publish_date ? fmtShort(it.publish_date) : '' }),
         ]),
         onOpen,
@@ -540,7 +540,7 @@ export function streakCard({ streak = 0, days = [], onDetails }) {
 
   const copy =
     streak >= 2 ? T(`Llevan ${streak} dias seguidos creando contenido.`, `${streak} days in a row creating content.`) :
-    streak === 1 ? T('Llevan 1 dia de actividad. Mañana se vuelve racha.', '1 day of activity. Tomorrow it becomes a streak.') :
+    streak === 1 ? T('Llevan 1 día de actividad. Mañana se vuelve racha.', '1 day of activity. Tomorrow it becomes a streak.') :
     T('Aun sin racha. Crear o editar contenido la enciende.', 'No streak yet. Creating or editing content starts one.');
 
   const mini = (k, v, extra) => el('div', { class: 'dash-mini' }, [
@@ -556,20 +556,20 @@ export function streakCard({ streak = 0, days = [], onDetails }) {
     el('button', {
       class: 'dash-streak__body',
       type: 'button',
-      'aria-label': `${T('Racha de actividad', 'Activity streak')}: ${plural(streak, T('dia', 'day'), T('dias', 'days'))}. ${T('Meta semanal', 'Weekly goal')} ${weekDone} ${T('de', 'of')} ${weekGoal}. ${T('Ver detalle de los ultimos 14 dias', 'View details for the last 14 days')}`,
+      'aria-label': `${T('Racha de actividad', 'Activity streak')}: ${plural(streak, T('día', 'day'), T('días', 'days'))}. ${T('Meta semanal', 'Weekly goal')} ${weekDone} ${T('de', 'of')} ${weekGoal}. ${T('Ver detalle de los últimos 14 días', 'View details for the last 14 days')}`,
       onclick: () => { if (onDetails) onDetails(); },
     }, [
       el('div', { class: 'dash-streak__left' }, [
         el('span', { class: 'dash-streak__num' }, [
           el('b', { text: String(streak) }),
-          el('span', { text: streak === 1 ? T('dia', 'day') : T('dias', 'days') }),
+          el('span', { text: streak === 1 ? T('día', 'day') : T('días', 'days') }),
         ]),
         spark,
       ]),
       el('div', { class: 'dash-streak__stats' }, [
         mini(T('Meta semanal', 'Weekly goal'), `${weekDone}/${weekGoal}`,
           el('span', { class: 'dash-mini__bar' }, [el('i', { style: { width: `${weekPct}%` } })])),
-        mini(T('Mejor racha', 'Best streak'), plural(best, T('dia', 'day'), T('dias', 'days'))),
+        mini(T('Mejor racha', 'Best streak'), plural(best, T('día', 'day'), T('días', 'days'))),
         mini(T('Acciones 14d', 'Actions 14d'), total14),
       ]),
     ]),
@@ -660,7 +660,7 @@ function agoLabel(iso) {
   const d = Math.floor(h / 24);
   return d === 1
     ? T('medido ayer', 'measured yesterday')
-    : `${T('medido hace', 'measured')} ${d} ${T('dias', 'days ago')}`;
+    : `${T('medido hace', 'measured')} ${d} ${T('días', 'days ago')}`;
 }
 
 /**
@@ -849,7 +849,7 @@ export function dashSkeleton() {
  * Vive en ui/states.js (la comparten Calendario y Entregables, que no cargan
  * este modulo); se re-exporta aqui para no tocar a views/dashboard.js.
  */
-export { errorCard } from '../ui/states.js?v=202609102110';
+export { errorCard } from '../ui/states.js?v=202609111606';
 
 /** Vacio total del cliente: ni un contenido creado. */
 export function emptyMonth({ onCreate }) {

@@ -13,7 +13,7 @@
 //   el calendario, que usa Intl es-MX) y van sin em-dashes.
 // ============================================================================
 
-import { T } from '../shell/i18n.js?v=202609102110';
+import { T } from '../shell/i18n.js?v=202609111606';
 
 export const MESES = T([
   'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',

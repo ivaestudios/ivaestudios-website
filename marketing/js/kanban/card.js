@@ -19,9 +19,9 @@ import {
   CONTENT_TYPES, APPROVALS, PRIORITIES,
   contentTypeLabel, approvalLabel,
   fmtDate, parseDate, avatar,
-} from '../api.js?v=202609102110';
-import { icon } from '../shell/icons.js?v=202609102110';
-import { T, isEN } from '../shell/i18n.js?v=202609102110';
+} from '../api.js?v=202609111606';
+import { icon } from '../shell/icons.js?v=202609111606';
+import { T, isEN } from '../shell/i18n.js?v=202609111606';
 
 export const DEFAULT_CARD_FIELDS = {
   fecha: true,
@@ -130,7 +130,7 @@ export function createCard({ post, color, fields = DEFAULT_CARD_FIELDS, client =
   const main = el('button', {
     class: 'kb-card__open',
     type: 'button',
-    'aria-label': `${T('Abrir', 'Open')} ${post.title || T('contenido sin titulo', 'untitled content')}`,
+    'aria-label': `${T('Abrir', 'Open')} ${post.title || T('contenido sin título', 'untitled content')}`,
     onclick: () => { try { onOpen?.(post); } catch (e) { console.error('[kanban] card onOpen', e); } },
   }, [
     clientRow,

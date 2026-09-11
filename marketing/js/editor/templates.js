@@ -16,12 +16,12 @@
 //       prefilled + checklist + abrir editor.
 // ============================================================================
 
-import { el, api, CONTENT_TYPES, contentTypeLabel } from '../api.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
-import { icon } from '../shell/icons.js?v=202609102110';
-import { openSheet } from '../shell/sheet.js?v=202609102110';
-import * as store from '../shell/store.js?v=202609102110';
-import * as checklistService from '../services/checklist.js?v=202609102110';
+import { el, api, CONTENT_TYPES, contentTypeLabel } from '../api.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
+import { icon } from '../shell/icons.js?v=202609111606';
+import { openSheet } from '../shell/sheet.js?v=202609111606';
+import * as store from '../shell/store.js?v=202609111606';
+import * as checklistService from '../services/checklist.js?v=202609111606';
 
 // ── Checklists sugeridas por tipo (todas los 9 tipos tienen una) ─────────────
 const DEFAULT_CHECKLISTS = {
@@ -132,7 +132,7 @@ export const TEMPLATES = {
   tiktok: {
     key: 'tiktok',
     label: 'TikTok',
-    sub: T('Guion con gancho rapido + checklist de 7 pasos + TikTok', 'Quick-hook script + 7-step checklist + TikTok'),
+    sub: T('Guion con gancho rápido + checklist de 7 pasos + TikTok', 'Quick-hook script + 7-step checklist + TikTok'),
     defaults: { content_type: 'tiktok', platform: 'TikTok' },
     script: {
       hook: 'Gancho en el primer segundo: pregunta, dato o situacion inesperada.',
@@ -270,7 +270,7 @@ export function openNewContentSheet({ ctx, status = 'idea', publishDate = null, 
         onclick: () => create(null),
       }, [
         el('span', { class: 'pick-row__main' }, [
-          el('span', { class: 'pick-row__label', text: T('Vacio', 'Blank') }),
+          el('span', { class: 'pick-row__label', text: T('Vacío', 'Blank') }),
           el('span', { class: 'pick-row__sub', text: T('Sin guion ni checklist, todo desde cero', 'No script or checklist, all from scratch') }),
         ]),
         icon('plus', 18),

@@ -26,15 +26,15 @@ import {
   el, clear,
   STATUSES, STATUS_ORDER, statusLabel,
   chip, statusBadge, avatar,
-} from '../api.js?v=202609102110';
-import { icon } from '../shell/icons.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
+} from '../api.js?v=202609111606';
+import { icon } from '../shell/icons.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
 import {
   toISO, parseISO, todayISO, addDays, addDaysISO, addMonths,
   diffDays, startOfWeek, monthRangeISO, listDays,
   fmtShort, fmtMonthYear,
   MESES, MESES_CORTOS, DIAS_INICIAL, DIAS_CORTOS,
-} from '../lib/dates.js?v=202609102110';
+} from '../lib/dates.js?v=202609111606';
 
 const DESKTOP_MQ = '(min-width: 720px)';
 const FINE_MQ = '(pointer: fine)';
@@ -230,7 +230,7 @@ function openLegend() {
       }
       body.append(
         list,
-        el('p', { class: 'help tl-legend-note', text: T('Cada barra va del inicio de trabajo a la fecha de publicacion. Sin inicio de trabajo, la barra dura 1 dia.', 'Each bar runs from the work start to the publish date. Without a work start, the bar lasts 1 day.') }),
+        el('p', { class: 'help tl-legend-note', text: T('Cada barra va del inicio de trabajo a la fecha de publicación. Sin inicio de trabajo, la barra dura 1 día.', 'Each bar runs from the work start to the publish date. Without a work start, the bar lasts 1 day.') }),
       );
     },
   });
@@ -244,7 +244,7 @@ function openUndatedSheet() {
     mode: 'menu',
     build(body) {
       if (!items.length) {
-        body.appendChild(el('p', { class: 'help', text: T('Todo el contenido tiene fecha de publicacion.', 'All content has a publish date.') }));
+        body.appendChild(el('p', { class: 'help', text: T('Todo el contenido tiene fecha de publicación.', 'All content has a publish date.') }));
         return;
       }
       const list = el('div', { class: 'tl-ulist' });
@@ -260,7 +260,7 @@ function openUndatedSheet() {
             ctx.toast(`${T('Programado para el', 'Scheduled for')} ${fmtShort(input.value)}.`, { type: 'success' });
             row.remove();
             if (!list.children.length) {
-              list.replaceWith(el('p', { class: 'help', text: T('Todo el contenido tiene fecha de publicacion.', 'All content has a publish date.') }));
+              list.replaceWith(el('p', { class: 'help', text: T('Todo el contenido tiene fecha de publicación.', 'All content has a publish date.') }));
             }
           }
         });
@@ -324,7 +324,7 @@ function openQuickEdit(postId) {
         const pub = pubInput.value || null;
         if (v && pub && diffDays(v, pub) !== null && diffDays(v, pub) < 0) {
           wsInput.value = pub;
-          ctx.toast(T('El inicio no puede ser despues de la publicacion.', 'The start cannot be after the publish date.'), { type: 'info' });
+          ctx.toast(T('El inicio no puede ser despues de la publicación.', 'The start cannot be after the publish date.'), { type: 'info' });
           patchDates(postId, { work_start: pub });
           return;
         }
@@ -387,7 +387,7 @@ function openQuickEdit(postId) {
         el('div', { class: 'field' }, [
           el('label', { class: 'label', text: T('Inicio de trabajo', 'Work start') }),
           wsInput,
-          el('span', { class: 'help', text: T('Dejalo vacio si el trabajo es del mismo dia.', 'Leave it empty if the work happens the same day.') }),
+          el('span', { class: 'help', text: T('Déjalo vacío si el trabajo es del mismo día.', 'Leave it empty if the work happens the same day.') }),
         ]),
         el('div', { class: 'field' }, [el('label', { class: 'label', text: T('Estado', 'Status') }), states]),
         personBtn,
@@ -690,7 +690,7 @@ function renderDesktop(groups, days, from, to) {
   const today = todayISO();
   const collapsedSet = new Set(getCollapsed());
   const cols = `var(--tl-side) repeat(${N}, minmax(var(--tl-day-w), 1fr))`;
-  const scroll = el('div', { class: 'tl-scroll', role: 'grid', 'aria-label': T('Linea de tiempo por responsable', 'Timeline by assignee') });
+  const scroll = el('div', { class: 'tl-scroll', role: 'grid', 'aria-label': T('Línea de tiempo por responsable', 'Timeline by assignee') });
 
   // Cabecera de dias (sticky top dentro del scroll).
   const head = el('div', { class: 'tl-grid tl-grid--head', role: 'row' });
@@ -981,7 +981,7 @@ function renderMobileMonth(groups, from, to) {
             el('span', { class: 'tl-mitem__title', text: p.title || T('Sin título', 'Untitled') }),
             el('span', { class: 'tl-mitem__meta' }, [
               el('span', { text: `${DIAS_CORTOS[dow]} ${d.getDate()}` }),
-              dur > 1 ? el('span', { text: ` · ${dur} ${T('dias', 'days')}` }) : null,
+              dur > 1 ? el('span', { text: ` · ${dur} ${T('días', 'days')}` }) : null,
               who ? el('span', { text: ` · ${who}` }) : null,
             ]),
           ]),
@@ -1021,7 +1021,7 @@ function render() {
     bodyEl.appendChild(el('div', { class: 'empty' }, [
       el('div', { class: 'empty__icon' }, [icon('gantt', 30)]),
       el('h3', { text: T('Todavia no hay contenidos', 'No content yet') }),
-      el('p', { text: T('Crea el primero y miralo en la linea de tiempo.', 'Create the first one and see it on the timeline.') }),
+      el('p', { text: T('Crea el primero y miralo en la línea de tiempo.', 'Create the first one and see it on the timeline.') }),
       el('button', {
         class: 'btn btn-primary', type: 'button', text: T('Nuevo contenido', 'New content'),
         onclick: () => quickCreate(todayISO(), null),

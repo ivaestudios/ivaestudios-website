@@ -21,10 +21,10 @@
 // Eventos store: 'automations:changed' {clientId}.
 // ============================================================================
 
-import { api } from '../api.js?v=202609102110';
-import { toast } from '../shell/toast.js?v=202609102110';
-import * as store from '../shell/store.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
+import { api } from '../api.js?v=202609111606';
+import { toast } from '../shell/toast.js?v=202609111606';
+import * as store from '../shell/store.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
 
 const TTL = 60000;
 const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', "Couldn't save, try again.");
@@ -47,8 +47,8 @@ function markUnavailable() {
 export const TRIGGERS = [
   { id: 'post_created', label: T('Se crea un contenido', 'A content item is created'), needsValue: null },
   { id: 'status_changed', label: T('El estado cambia a', 'The status changes to'), needsValue: 'status' },
-  { id: 'publish_date_arrived', label: T('Llega la fecha de publicacion', 'The publish date arrives'), needsValue: null },
-  { id: 'publish_date_in', label: T('Faltan N dias para publicar', 'N days left before publishing'), needsValue: 'days' },
+  { id: 'publish_date_arrived', label: T('Llega la fecha de publicación', 'The publish date arrives'), needsValue: null },
+  { id: 'publish_date_in', label: T('Faltan N días para publicar', 'N days left before publishing'), needsValue: 'days' },
   { id: 'client_approved', label: T('El cliente aprueba', 'The client approves'), needsValue: null },
   { id: 'client_changes_requested', label: T('El cliente pide cambios', 'The client requests changes'), needsValue: null },
   { id: 'comment_added', label: T('Alguien comenta', 'Someone comments'), needsValue: null },
@@ -59,7 +59,7 @@ export const ACTIONS = [
   { id: 'assign_user', label: T('Asignar a', 'Assign to'), needsValue: 'user' },
   { id: 'notify_user', label: T('Avisar a', 'Notify'), needsValue: 'user' },
   { id: 'notify_client', label: T('Avisar al cliente', 'Notify the client'), needsValue: null },
-  { id: 'shift_date', label: T('Mover la fecha N dias', 'Move the date N days'), needsValue: 'days' },
+  { id: 'shift_date', label: T('Mover la fecha N días', 'Move the date N days'), needsValue: 'days' },
   { id: 'add_checklist', label: T('Agregar checklist', 'Add checklist'), needsValue: 'text' },
 ];
 
@@ -292,12 +292,12 @@ export function validateRule(rule) {
     return { ok: false, error: T('Al disparador le falta su valor.', 'The trigger is missing its value.') };
   }
   const actions = Array.isArray(rule.actions) ? rule.actions : [];
-  if (!actions.length) return { ok: false, error: T('Agrega al menos una accion.', 'Add at least one action.') };
+  if (!actions.length) return { ok: false, error: T('Agrega al menos una acción.', 'Add at least one action.') };
   for (const a of actions) {
     const def = actionDef(a && a.type);
     if (!def) return { ok: false, error: T('Una de las acciones no existe.', "One of the actions doesn't exist.") };
     if (!needsCheck(def, a.value)) {
-      return { ok: false, error: `${T('A la accion', 'The action')} "${def.label}" ${T('le falta su valor.', 'is missing its value.')}` };
+      return { ok: false, error: `${T('A la acción', 'The action')} "${def.label}" ${T('le falta su valor.', 'is missing its value.')}` };
     }
   }
   return { ok: true, error: null };
@@ -320,7 +320,7 @@ function triggerPhrase(trigger, { statusLabel }) {
     case 'post_created': return T('se crea un contenido', 'a content item is created');
     case 'status_changed':
       return v ? `${T('el estado cambia a', 'the status changes to')} ${statusLabel(v)}` : T('el estado cambia', 'the status changes');
-    case 'publish_date_arrived': return T('llega la fecha de publicacion', 'the publish date arrives');
+    case 'publish_date_arrived': return T('llega la fecha de publicación', 'the publish date arrives');
     case 'publish_date_in': {
       const n = Math.abs(Number(v) || 0);
       return T(`faltan ${n} ${n === 1 ? 'dia' : 'dias'} para publicar`, `${n} ${n === 1 ? 'day' : 'days'} are left before publishing`);
@@ -342,7 +342,7 @@ function actionPhrase(action, { statusLabel, userLabel }) {
     case 'shift_date': {
       const n = Number(v) || 0;
       const abs = Math.abs(n);
-      const dias = `${abs} ${abs === 1 ? T('dia', 'day') : T('dias', 'days')}`;
+      const dias = `${abs} ${abs === 1 ? T('día', 'day') : T('días', 'days')}`;
       return n < 0 ? `${T('adelanta la fecha', 'move the date up')} ${dias}` : `${T('recorre la fecha', 'push the date back')} ${dias}`;
     }
     case 'add_checklist': return `${T('agrega la checklist', 'add the checklist')} "${v}"`;

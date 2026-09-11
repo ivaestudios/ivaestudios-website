@@ -15,10 +15,10 @@
 // Todo lo efimero (ancla, modo) vive aqui en memoria, JAMAS en store/prefs.
 // ============================================================================
 
-import { el, fmtDate } from '../api.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
-import { icon } from '../shell/icons.js?v=202609102110';
-import * as bulk from '../services/bulk.js?v=202609102110';
+import { el, fmtDate } from '../api.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
+import { icon } from '../shell/icons.js?v=202609111606';
+import * as bulk from '../services/bulk.js?v=202609111606';
 
 const LONGPRESS_MS = 500;
 const MOVE_CANCEL_PX = 10;
@@ -45,7 +45,7 @@ export function createSelection({ ctx, getVisibleIds }) {
 
   const barEl = el('div', {
     class: 'etable-bulkbar', hidden: true,
-    role: 'toolbar', 'aria-label': T('Acciones sobre la seleccion', 'Actions on the selection'),
+    role: 'toolbar', 'aria-label': T('Acciones sobre la selección', 'Actions on the selection'),
   }, [
     countEl,
     mkAction('refresh', T('Estado', 'Status'), () => actEstado()),
@@ -54,7 +54,7 @@ export function createSelection({ ctx, getVisibleIds }) {
     mkAction('trash', T('Eliminar', 'Delete'), () => actEliminar(), true),
     el('button', {
       class: 'etable-bulkbar__btn etable-bulkbar__btn--close',
-      type: 'button', 'aria-label': T('Limpiar seleccion', 'Clear selection'),
+      type: 'button', 'aria-label': T('Limpiar selección', 'Clear selection'),
       onclick: () => api.clear(),
     }, [icon('close', 18)]),
   ]);
@@ -105,7 +105,7 @@ export function createSelection({ ctx, getVisibleIds }) {
               ? `${res.count} ${T('movidos al', 'moved to')} ${fmtDate(v)}.`
               : `${T('Fecha quitada a', 'Date removed from')} ${res.count}.`);
           }),
-          row('clock', T('Mover N dias', 'Move N days'), () => openShiftSheet(list)),
+          row('clock', T('Mover N días', 'Move N days'), () => openShiftSheet(list)),
         ]));
       },
     });
@@ -113,7 +113,7 @@ export function createSelection({ ctx, getVisibleIds }) {
 
   function openShiftSheet(list) {
     ctx.sheet.openSheet({
-      title: T('Mover N dias', 'Move N days'),
+      title: T('Mover N días', 'Move N days'),
       mode: 'form',
       build(body, close) {
         let days = 1;
@@ -122,10 +122,10 @@ export function createSelection({ ctx, getVisibleIds }) {
         const paint = () => {
           num.textContent = days > 0 ? `+${days}` : String(days);
           hint.textContent = days === 0
-            ? T('Elige cuantos dias mover.', 'Choose how many days to move.')
+            ? T('Elige cuántos días mover.', 'Choose how many days to move.')
             : days > 0
-              ? `${T('Las fechas se moveran', 'Dates will move')} ${days} ${plural(days, T('dia', 'day'), T('dias', 'days'))} ${T('hacia adelante.', 'forward.')}`
-              : `${T('Las fechas se moveran', 'Dates will move')} ${Math.abs(days)} ${plural(Math.abs(days), T('dia', 'day'), T('dias', 'days'))} ${T('hacia atras.', 'backward.')}`;
+              ? `${T('Las fechas se moverán', 'Dates will move')} ${days} ${plural(days, T('día', 'day'), T('días', 'days'))} ${T('hacia adelante.', 'forward.')}`
+              : `${T('Las fechas se moverán', 'Dates will move')} ${Math.abs(days)} ${plural(Math.abs(days), T('día', 'day'), T('días', 'days'))} ${T('hacia atrás.', 'backward.')}`;
         };
         const stepBtn = (label, delta, aria) => el('button', {
           class: 'etable-step__btn', type: 'button', text: label, 'aria-label': aria,
@@ -134,11 +134,11 @@ export function createSelection({ ctx, getVisibleIds }) {
         paint();
         body.append(
           el('div', { class: 'etable-step' }, [
-            stepBtn('-7', -7, T('Restar 7 dias', 'Subtract 7 days')),
-            stepBtn('-1', -1, T('Restar 1 dia', 'Subtract 1 day')),
+            stepBtn('-7', -7, T('Restar 7 días', 'Subtract 7 days')),
+            stepBtn('-1', -1, T('Restar 1 día', 'Subtract 1 day')),
             num,
-            stepBtn('+1', +1, T('Sumar 1 dia', 'Add 1 day')),
-            stepBtn('+7', +7, T('Sumar 7 dias', 'Add 7 days')),
+            stepBtn('+1', +1, T('Sumar 1 día', 'Add 1 day')),
+            stepBtn('+7', +7, T('Sumar 7 días', 'Add 7 days')),
           ]),
           hint,
           el('div', { class: 'sheet__footer' }, [
@@ -186,7 +186,7 @@ export function createSelection({ ctx, getVisibleIds }) {
         body.append(
           el('p', {
             class: 'etable-confirm__txt',
-            text: `${T('¿Eliminar', 'Delete')} ${n} ${plural(n, T('contenido', 'item'), T('contenidos', 'items'))}${T('? Esta accion no se puede deshacer.', '? This action cannot be undone.')}`,
+            text: `${T('¿Eliminar', 'Delete')} ${n} ${plural(n, T('contenido', 'item'), T('contenidos', 'items'))}${T('? Esta acción no se puede deshacer.', '? This action cannot be undone.')}`,
           }),
           // `sheet-cta` (flex:1) va en Cancelar: la salida segura es la grande.
           // Este es el borrado MASIVO — el de peores consecuencias de todos.

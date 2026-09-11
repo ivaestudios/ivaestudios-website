@@ -23,26 +23,26 @@
 // Contrato de vista: export default { id, mount(el, ctx), onParams, unmount }.
 // ============================================================================
 
-import { el, api, statusBadge, approvalBadge, fmtDate, fmtDateTime, isClientRole} from '../api.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
-import { icon } from '../shell/icons.js?v=202609102110';
-import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202609102110';
-import * as store from '../shell/store.js?v=202609102110';
-import * as cl from '../services/checklist.js?v=202609102110';
-import { createAutosave } from './autosave.js?v=202609102110';
-import { textExpand } from '../ui/pickers.js?v=202609102110';
-import { openActionsMenu } from './actions.js?v=202609102110';
-import { mount as mountContenido } from './tab-contenido.js?v=202609102110';
-import { mount as mountGuion } from './tab-guion.js?v=202609102110';
-import { mount as mountChecklist } from './tab-checklist.js?v=202609102110';
-import { mount as mountConversacion } from './tab-conversacion.js?v=202609102110';
-import { mount as mountActividad } from './tab-actividad.js?v=202609102110';
+import { el, api, statusBadge, approvalBadge, fmtDate, fmtDateTime, isClientRole} from '../api.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
+import { icon } from '../shell/icons.js?v=202609111606';
+import { openSheet, pickFrom, openCount } from '../shell/sheet.js?v=202609111606';
+import * as store from '../shell/store.js?v=202609111606';
+import * as cl from '../services/checklist.js?v=202609111606';
+import { createAutosave } from './autosave.js?v=202609111606';
+import { textExpand } from '../ui/pickers.js?v=202609111606';
+import { openActionsMenu } from './actions.js?v=202609111606';
+import { mount as mountContenido } from './tab-contenido.js?v=202609111606';
+import { mount as mountGuion } from './tab-guion.js?v=202609111606';
+import { mount as mountChecklist } from './tab-checklist.js?v=202609111606';
+import { mount as mountConversacion } from './tab-conversacion.js?v=202609111606';
+import { mount as mountActividad } from './tab-actividad.js?v=202609111606';
 
 const TABS = [
   { key: 'contenido', label: T('Contenido', 'Content'), mount: mountContenido },
   { key: 'guion', label: T('Guion', 'Script'), mount: mountGuion },
   { key: 'checklist', label: 'Checklist', mount: mountChecklist },
-  { key: 'conversacion', label: T('Conversacion', 'Conversation'), mount: mountConversacion },
+  { key: 'conversacion', label: T('Conversación', 'Conversation'), mount: mountConversacion },
   { key: 'actividad', label: T('Actividad', 'Activity'), mount: mountActividad },
 ];
 
@@ -119,7 +119,7 @@ function paintSaveState(state) {
   retryBtn.hidden = state !== 'error';
   if (state === 'saved') indicatorText.textContent = T('Guardado', 'Saved');
   else if (state === 'dirty' || state === 'saving') indicatorText.textContent = T('Guardando...', 'Saving...');
-  else if (state === 'offline') indicatorText.textContent = T('Sin conexion, se guardara al volver', 'Offline, will save when back online');
+  else if (state === 'offline') indicatorText.textContent = T('Sin conexión, se guardará al volver', 'Offline, will save when back online');
   else if (state === 'error') indicatorText.textContent = T('No se guardo', 'Not saved');
 }
 
@@ -174,7 +174,7 @@ function refreshHeader() {
   if (ua) chipsEl.appendChild(el('span', { class: 'ed-ultima', text: ua }));
 
   chipsEl.appendChild(el('button', {
-    class: 'edchip edchip--date', type: 'button', 'aria-label': T('Cambiar fecha de publicacion', 'Change publish date'),
+    class: 'edchip edchip--date', type: 'button', 'aria-label': T('Cambiar fecha de publicación', 'Change publish date'),
     onclick: async (e) => {
       const anchor = e.currentTarget;
       const next = await ctx.pickers.pickDate({ current: ed.getPost().publish_date, anchor });
@@ -355,7 +355,7 @@ function openUnsavedSheet() {
           const ok = await autosave.flush();
           retry.dataset.loading = 'false';
           if (ok) { close({ source: 'done' }); closing = true; goBack(); }
-          else ctx.toast(T('Sigue sin guardarse. Revisa tu conexion.', 'Still not saving. Check your connection.'), { type: 'error' });
+          else ctx.toast(T('Sigue sin guardarse. Revisa tu conexión.', 'Still not saving. Check your connection.'), { type: 'error' });
         },
       });
       body.append(
@@ -424,7 +424,7 @@ function buildChrome(host) {
   }, [icon('close', 22)]);
 
   const menuBtn = el('button', {
-    class: 'edicon', type: 'button', 'aria-label': T('Mas acciones', 'More actions'), 'aria-haspopup': 'menu',
+    class: 'edicon', type: 'button', 'aria-label': T('Más acciones', 'More actions'), 'aria-haspopup': 'menu',
     onclick: (e) => openActionsMenu(ed, e.currentTarget),
   }, [icon('dots', 22)]);
 

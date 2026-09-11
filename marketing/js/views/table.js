@@ -18,22 +18,22 @@
 // Contrato de vista: export default { mount(el, ctx), onParams(), unmount() }.
 // ============================================================================
 
-import { el, clear, api, fmtDate, avatar } from '../api.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
-import { icon } from '../shell/icons.js?v=202609102110';
-import { isPast } from '../lib/dates.js?v=202609102110';
-import * as viewsSvc from '../services/views.js?v=202609102110';
+import { el, clear, api, fmtDate, avatar } from '../api.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
+import { icon } from '../shell/icons.js?v=202609111606';
+import { isPast } from '../lib/dates.js?v=202609111606';
+import * as viewsSvc from '../services/views.js?v=202609111606';
 import {
   buildColumns, visibleColumns,
   MOBILE_SORT_OPTIONS, CARD_FIELDS, DEFAULT_CARD_FIELDS, MAX_CARD_FIELDS,
   PRIORITIES, PRIORITY_ORDER, safeUrl,
   STATUSES, CONTENT_TYPES, GRABACION_LEVELS,
-} from '../table/columns.js?v=202609102110';
-import * as grp from '../table/groups.js?v=202609102110';
-import { createSelection } from '../table/selection.js?v=202609102110';
+} from '../table/columns.js?v=202609111606';
+import * as grp from '../table/groups.js?v=202609111606';
+import { createSelection } from '../table/selection.js?v=202609111606';
 import {
   createQuickAddRow, createQuickAddButton, openQuickAddSheet, resetChain,
-} from '../table/quickadd.js?v=202609102110';
+} from '../table/quickadd.js?v=202609111606';
 
 const FILTER_KEYS = ['estado', 'tipo', 'persona', 'desde', 'hasta', 'q'];
 const ERR_SAVE = T('No se pudo guardar, intenta de nuevo.', 'Could not save, try again.');
@@ -213,7 +213,7 @@ async function setApproval(post, value) {
     const txt = await ctx.pickers.textExpand({
       title: T('Pedir cambios', 'Request changes'),
       placeholder: T('Que hay que cambiar...', 'What needs to change...'),
-      hint: T('El comentario es obligatorio y lo vera tambien el cliente.', 'The comment is required and the client will also see it.'),
+      hint: T('El comentario es obligatorio y lo verá también el cliente.', 'The comment is required and the client will also see it.'),
       maxLength: 2000,
     });
     if (txt === null) return;
@@ -269,7 +269,7 @@ async function editTitle(post) {
     if (v === null) return;
     const title = String(v).trim();
     if (!title) {
-      ctx.toast(T('El titulo no puede quedar vacio.', 'The title cannot be empty.'), { type: 'error' });
+      ctx.toast(T('El título no puede quedar vacío.', 'The title cannot be empty.'), { type: 'error' });
       draft = v;
       continue;
     }
@@ -406,7 +406,7 @@ function paintToolbar() {
   if (sortChipTxt) {
     const s = getSort();
     const opt = s && MOBILE_SORT_OPTIONS.find((o) => o.key === s.key);
-    sortChipTxt.textContent = `${T('Orden', 'Sort')}: ${opt ? opt.label : (s ? s.key : T('Posicion', 'Position'))}`;
+    sortChipTxt.textContent = `${T('Orden', 'Sort')}: ${opt ? opt.label : (s ? s.key : T('Posición', 'Position'))}`;
   }
 }
 
@@ -451,7 +451,7 @@ function openSortSheet(anchor) {
       list.appendChild(el('button', {
         class: 'pick-row pick-row--clear' + (!cur ? ' is-current' : ''), type: 'button',
         onclick: () => { setSort(null); close({ source: 'pick' }); paintToolbar(); scheduleRender(); },
-      }, [el('span', { class: 'pick-row__main' }, [el('span', { class: 'pick-row__label', text: T('Sin orden (posicion)', 'No sort (position)') })])]));
+      }, [el('span', { class: 'pick-row__main' }, [el('span', { class: 'pick-row__label', text: T('Sin orden (posición)', 'No sort (position)') })])]));
       body.appendChild(list);
     },
   });
@@ -505,7 +505,7 @@ function openCardFieldsSheet(anchor) {
               current.delete(f.key);
             } else {
               if (current.size >= MAX_CARD_FIELDS) {
-                ctx.toast(`${T('Maximo', 'Maximum')} ${MAX_CARD_FIELDS} ${T('campos en la tarjeta.', 'fields on the card.')}`, { type: 'info' });
+                ctx.toast(`${T('Máximo', 'Maximum')} ${MAX_CARD_FIELDS} ${T('campos en la tarjeta.', 'fields on the card.')}`, { type: 'info' });
                 return;
               }
               current.add(f.key);
@@ -587,7 +587,7 @@ function buildToolbar() {
 
   const dotsBtn = el('button', {
     class: 'etable-chip etable-chip--icon', type: 'button',
-    'aria-label': T('Mas opciones', 'More options'), 'aria-haspopup': 'dialog',
+    'aria-label': T('Más opciones', 'More options'), 'aria-haspopup': 'dialog',
     onclick: (e) => openOverflowMenu(e.currentTarget),
   }, [icon('dots', 18)]);
 
@@ -1034,7 +1034,7 @@ function renderDesktop(groupsList, collapsedSet) {
         const rowCells = [];
         const titleBtn = el('button', {
           class: 'etable-title__txt', type: 'button',
-          title: T('Editar titulo', 'Edit title'),
+          title: T('Editar título', 'Edit title'),
         }, [el('span', { text: post.title || T('Sin título', 'Untitled') })]);
         rowCells.push(titleBtn);
         const cl = showClient ? clientsById.get(post.client_id) : null;

@@ -17,10 +17,10 @@
 //   position = max del grupo + 1000 (sparse).
 // ============================================================================
 
-import { el, fmtDate, CONTENT_TYPES, contentTypeLabel } from '../api.js?v=202609102110';
-import { T } from '../shell/i18n.js?v=202609102110';
-import { icon } from '../shell/icons.js?v=202609102110';
-import { defaultsForGroup } from './groups.js?v=202609102110';
+import { el, fmtDate, CONTENT_TYPES, contentTypeLabel } from '../api.js?v=202609111606';
+import { T } from '../shell/i18n.js?v=202609111606';
+import { icon } from '../shell/icons.js?v=202609111606';
+import { defaultsForGroup } from './groups.js?v=202609111606';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 
@@ -80,7 +80,7 @@ export function createQuickAddRow({ ctx, group, mode, colSpan, getNextPosition }
     placeholder: T('Título del contenido', 'Content title'),
     maxlength: '140',
     autocomplete: 'off',
-    'aria-label': `${T('Titulo del nuevo contenido en', 'Title of the new content in')} ${group.label}`,
+    'aria-label': `${T('Título del nuevo contenido en', 'Title of the new content in')} ${group.label}`,
   });
 
   const form = el('div', { class: 'etable-qa__form', hidden: true }, [
@@ -181,7 +181,7 @@ export function openQuickAddSheet({ ctx, group = null, mode = 'month', getNextPo
         class: 'input', type: 'text',
         placeholder: T('Título del contenido', 'Content title'),
         maxlength: '140', autocomplete: 'off',
-        'aria-label': T('Titulo del nuevo contenido', 'Title of the new content'),
+        'aria-label': T('Título del nuevo contenido', 'Title of the new content'),
       });
 
       // Chips de defaults editables.
@@ -220,7 +220,7 @@ export function openQuickAddSheet({ ctx, group = null, mode = 'month', getNextPo
       saveBtn.addEventListener('click', async () => {
         const title = input.value.trim();
         if (!title) {
-          ctx.toast(T('Escribe un titulo para el contenido.', 'Write a title for the content.'), { type: 'error' });
+          ctx.toast(T('Escribe un título para el contenido.', 'Write a title for the content.'), { type: 'error' });
           input.focus();
           return;
         }
