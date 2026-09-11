@@ -36,6 +36,9 @@
 /docs/*
   X-Robots-Tag: noindex, nofollow
   Cache-Control: public, max-age=300
+# Las fotos de esos documentos no cambian: un año en caché.
+/docs/img/*
+  Cache-Control: public, max-age=31536000, immutable
 /gallery/schema.sql
   X-Robots-Tag: noindex, nofollow
 /gallery/migrations/*
