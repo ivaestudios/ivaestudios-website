@@ -26,6 +26,20 @@ const MODELOS_VERTEX = [
 ];
 const ASPECTOS = new Set(['1:1', '3:4', '4:3', '9:16', '16:9']);
 
+// Devuelve la imagen como bytes (image/png|jpeg) en vez de base64 dentro de
+// un JSON: empaquetar 1.6 MB de base64 en JSON.stringify tumbaba el Worker
+// (502) 3 de cada 4 veces; los bytes crudos salen sin problema.
+function binario(dataUrl, extra = {}) {
+  const coma = dataUrl.indexOf(',');
+  const mime = (dataUrl.slice(5, coma).split(';')[0]) || 'image/png';
+  const b64 = dataUrl.slice(coma + 1);
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  const headers = { 'Content-Type': mime, 'Cache-Control': 'no-store' };
+  for (const [k, v] of Object.entries(extra)) if (v != null) headers[k] = String(v).slice(0, 200);
+  return new Response(bytes, { status: 200, headers });
+}
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json; charset=utf-8' } });
 }
@@ -187,6 +201,7 @@ export async function handleImagen(request, env) {
   try {
     if (hayGoogle) {
       const r = await porVertex(env, prompt, aspect, n);
+      if (n === 1) return binario(r.imagenes[0], { 'X-Via': 'vertex', 'X-Modelo': r.modelo });
       return json({ ok: true, via: 'vertex', modelo: r.modelo, imagenes: r.imagenes });
     }
   } catch (e) {
@@ -196,7 +211,9 @@ export async function handleImagen(request, env) {
   try {
     // El aviso dice POR QUÉ no se usó el crédito de Google: sin eso, la app
     // gasta de la tarjeta en silencio (el crédito de Vertex vence 7-dic-2026).
-    return json({ ok: true, via: 'openai', aviso: fallaGoogle, imagenes: await porOpenAI(env, prompt, aspect, n) });
+    const imgs = await porOpenAI(env, prompt, aspect, n);
+    if (n === 1) return binario(imgs[0], { 'X-Via': 'openai', 'X-Aviso': fallaGoogle });
+    return json({ ok: true, via: 'openai', aviso: fallaGoogle, imagenes: imgs });
   } catch (e) {
     return json({ error: String((e && e.message) || e).slice(0, 400), google: fallaGoogle }, 502);
   }
