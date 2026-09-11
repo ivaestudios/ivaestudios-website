@@ -7,8 +7,11 @@
 // - Sin estado propio: funciones puras + builders pequenos sin side effects.
 // ============================================================================
 
-import { el, statusBadge, chip, STATUSES, CONTENT_TYPES } from '../api.js?v=202609111829';
-import { T } from '../shell/i18n.js?v=202609111829';
+import { el, statusBadge, chip, STATUSES, CONTENT_TYPES } from '../api.js?v=202609111834';
+import { T } from '../shell/i18n.js?v=202609111834';
+// La tarjeta de contenido (agenda, backlog, semana y la Cuadricula en telefono)
+// abre el PANEL DEL GUION, igual que el Calendario. Ver guion-drawer.js.
+import { abrirGuion } from '../lib/guion-drawer.js?v=202609111834';
 
 // ── Fechas ───────────────────────────────────────────────────────────────────
 
@@ -267,8 +270,8 @@ export function buildPostCard(ctx, post, { client = null, showDate = false, onMo
 
   const main = el('button', {
     class: 'cal-card__main', type: 'button',
-    'aria-label': `${T('Abrir', 'Open')} ${post.title || T('contenido', 'content')}`,
-    onclick: () => ctx.openEditor(post.id),
+    'aria-label': `${T('Ver el guion de', 'View the script for')} ${post.title || T('contenido', 'content')}`,
+    onclick: () => abrirGuion(post, { ctx, abrirEditor: () => ctx.openEditor(post.id) }),
   }, [
     el('span', { class: 'cal-card__title' }, [
       client ? clientDotEl(client) : null,
