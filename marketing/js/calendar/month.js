@@ -7,14 +7,17 @@
 // arrastran entre celdas (motor ui/dnd.js).
 // ============================================================================
 
-import { el, statusBadge } from '../api.js?v=202609111620';
-import { T } from '../shell/i18n.js?v=202609111620';
+import { el, statusBadge } from '../api.js?v=202609111829';
+import { T } from '../shell/i18n.js?v=202609111829';
 import {
   fmtYMD, startOfMonth, monthMatrix, sameMonth, todayYMD,
   dayLong, statusInfo, clientDotEl, DOW_SHORT,
-} from './data.js?v=202609111620';
-import { cardDraggable, openCardMenu, reschedule, markDropTarget } from './dnd.js?v=202609111620';
-import { openQuickCreate } from './quickcreate.js?v=202609111620';
+} from './data.js?v=202609111829';
+import { cardDraggable, openCardMenu, reschedule, markDropTarget } from './dnd.js?v=202609111829';
+import { openQuickCreate } from './quickcreate.js?v=202609111829';
+// Vianey (2026-09-11): al tocar una pieza en la Cuadricula tiene que salir el
+// MISMO panel de guion que en el Calendario, no el editor a pantalla partida.
+import { abrirGuion } from '../lib/guion-drawer.js?v=202609111829';
 
 const MAX_PILLS = 3;
 
@@ -101,7 +104,10 @@ function buildPill(ctx, post, client) {
     dataset: { id: post.id },
     'aria-label': `${post.title || T('Sin título', 'Untitled')}, ${info.label}`,
     title: `${post.title || T('Sin título', 'Untitled')} (${info.label})`,
-    onclick: (e) => { e.stopPropagation(); ctx.openEditor(post.id); },
+    onclick: (e) => {
+      e.stopPropagation();
+      abrirGuion(post, { ctx, abrirEditor: () => ctx.openEditor(post.id) });
+    },
   }, [
     client ? clientDotEl(client) : null,
     el('span', { class: 'cal-pill__status', text: info.label }),
@@ -122,7 +128,10 @@ function openDaySheet(ctx, dateObj, posts, clientsById, isTodos) {
         const row = el('div', { class: 'cal-daysheet__row', role: 'listitem' }, [
           el('button', {
             class: 'cal-daysheet__main', type: 'button',
-            onclick: () => { close({ source: 'open' }); ctx.openEditor(p.id); },
+            onclick: () => {
+              close({ source: 'open' });
+              abrirGuion(p, { ctx, abrirEditor: () => ctx.openEditor(p.id) });
+            },
           }, [
             el('span', { class: 'cal-daysheet__bar', style: { background: info.color }, 'aria-hidden': 'true' }),
             isTodos ? clientDotEl(clientsById.get(p.client_id) || null) : null,
