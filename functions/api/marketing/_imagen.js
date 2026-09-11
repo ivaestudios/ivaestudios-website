@@ -119,14 +119,18 @@ export async function handleImagen(request, env) {
   const hayOpenAI = !!(env.OPENAI_API_KEY && String(env.OPENAI_API_KEY).trim());
   if (!hayGoogle && !hayOpenAI) return json({ error: 'No hay ningún generador de imagen conectado en Cloudflare.' }, 503);
 
+  let fallaGoogle = null;
   try {
     if (hayGoogle) return json({ ok: true, via: 'vertex', imagenes: await porVertex(env, prompt, aspect, n) });
   } catch (e) {
-    if (!hayOpenAI) return json({ error: String((e && e.message) || e).slice(0, 400) }, 502);
+    fallaGoogle = String((e && e.message) || e).slice(0, 400);
+    if (!hayOpenAI) return json({ error: fallaGoogle }, 502);
   }
   try {
-    return json({ ok: true, via: 'openai', imagenes: await porOpenAI(env, prompt, aspect, n) });
+    // El aviso dice POR QUÉ no se usó el crédito de Google: sin eso, la app
+    // gasta de la tarjeta en silencio (el crédito de Vertex vence 7-dic-2026).
+    return json({ ok: true, via: 'openai', aviso: fallaGoogle, imagenes: await porOpenAI(env, prompt, aspect, n) });
   } catch (e) {
-    return json({ error: String((e && e.message) || e).slice(0, 400) }, 502);
+    return json({ error: String((e && e.message) || e).slice(0, 400), google: fallaGoogle }, 502);
   }
 }
