@@ -192,9 +192,12 @@ export async function handleImagen(request, env) {
   if (prompt.length > 4000) return json({ error: 'Prompt demasiado largo (máximo 4000)' }, 400);
   const aspect = ASPECTOS.has(b.aspect) ? b.aspect : '3:4';
   const n = Math.min(4, Math.max(1, Number(b.n) || 1));
+  // motor: 'auto' (Google y si falla OpenAI), 'google' u 'openai'. El proyecto
+  // de Google de prueba tiene cuota mínima (429 seguidos): para lotes, 'openai'.
+  const motor = ['google', 'openai'].includes(b.motor) ? b.motor : 'auto';
 
-  const hayGoogle = !!saJson(env);
-  const hayOpenAI = !!(env.OPENAI_API_KEY && String(env.OPENAI_API_KEY).trim());
+  const hayGoogle = !!saJson(env) && motor !== 'openai';
+  const hayOpenAI = !!(env.OPENAI_API_KEY && String(env.OPENAI_API_KEY).trim()) && motor !== 'google';
   if (!hayGoogle && !hayOpenAI) return json({ error: 'No hay ningún generador de imagen conectado en Cloudflare.' }, 503);
 
   let fallaGoogle = null;
