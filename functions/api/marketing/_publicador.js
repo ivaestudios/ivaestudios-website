@@ -131,7 +131,11 @@ export async function publicarEnInstagram(env, { client, post, slides, cover, on
 
   // 1) El contenedor.
   let params;
-  if (post.video_url) {
+  if (post.video_url && tipo === 'historia') {
+    // HISTORIA (2026-09-10): contenedor STORIES; las historias no llevan
+    // caption ni colaboradores. Dura 24 h.
+    params = new URLSearchParams({ media_type: 'STORIES', video_url: post.video_url, access_token: tok });
+  } else if (post.video_url) {
     params = new URLSearchParams({ media_type: 'REELS', video_url: post.video_url, caption, access_token: tok });
     // Portada del reel: imagen subida a la pieza (gana) o el milisegundo elegido.
     if (cover) params.set('cover_url', cover);
@@ -145,7 +149,7 @@ export async function publicarEnInstagram(env, { client, post, slides, cover, on
       ? 'El carrusel no tiene slides subidos para publicar (se suben como JPEG al almacén de la pieza).'
       : 'La pieza no tiene video subido — sube el video final antes de programarla.');
   }
-  const colab = listaColaboradores(post);
+  const colab = tipo === 'historia' ? null : listaColaboradores(post);
   if (colab) params.set('collaborators', colab);
   const cont = await gJson(`${GRAPH}/${client.ig_user_id}/media`, { method: 'POST', body: params });
   if (!cont.id) throw new Error('Instagram no devolvió el contenedor.');
