@@ -7,15 +7,15 @@
 // de tarjeta es el fallback sin drag.
 // ============================================================================
 
-import { el } from '../api.js?v=202609121529';
-import { T } from '../shell/i18n.js?v=202609121529';
+import { el } from '../api.js?v=202609121533';
+import { T } from '../shell/i18n.js?v=202609121533';
 import {
   fmtYMD, parseYMD, addDays, dayLong, todayYMD, buildPostCard,
-} from './data.js?v=202609121529';
-import { renderMiniMonth } from './minimonth.js?v=202609121529';
-import { cardDraggable, openCardMenu, markDropTarget } from './dnd.js?v=202609121529';
-import { openQuickCreate } from './quickcreate.js?v=202609121529';
-import * as calState from './state.js?v=202609121529';
+} from './data.js?v=202609121533';
+import { renderMiniMonth } from './minimonth.js?v=202609121533';
+import { cardDraggable, openCardMenu, markDropTarget } from './dnd.js?v=202609121533';
+import { openQuickCreate } from './quickcreate.js?v=202609121533';
+import * as calState from './state.js?v=202609121533';
 
 /**
  * Renderiza la agenda dentro de `mainEl` (lo vacia primero).

@@ -20,9 +20,9 @@
 // mismo: es atrezzo del simulador, no iconografía de la app, y no tiene por
 // qué ensuciar shell/icons.js.
 // ============================================================================
-import { el, clear, api, toast } from '../api.js?v=202609121529';
-import { T, isEN } from '../shell/i18n.js?v=202609121529';
-import { abrirGuion } from '../lib/guion-drawer.js?v=202609121529';
+import { el, clear, api, toast } from '../api.js?v=202609121533';
+import { T, isEN } from '../shell/i18n.js?v=202609121533';
+import { abrirGuion } from '../lib/guion-drawer.js?v=202609121533';
 
 const VIEW_ID = 'feed';
 
@@ -92,6 +92,42 @@ const G = {
  * CDN de Instagram caducado) deja un hueco con el texto en vez del icono roto
  * del navegador, que sí se vería como un error de la app.
  */
+/** ¿Esta URL es un video? (el CDN de Instagram no usa extensión .mp4) */
+function esVideo(src) {
+  const u = String(src || '');
+  return /\.mp4(\?|#|$)/i.test(u)
+    || /cdninstagram\.com\/o1\/v\//.test(u) || /\/v\/t2\//.test(u)   // CDN de video de Instagram
+    || /\/publico\/entregable\/[^/]+\/video/.test(u);                // el entregable de la pieza
+}
+
+/**
+ * El medio de un mosaico. Cuando Instagram no da miniatura de un reel, la
+ * única portada es el video: se pinta con <video> (primer fotograma, y en el
+ * reproductor además rueda). Un <img> con un MP4 dentro solo sabe romperse.
+ */
+function medio(src, opciones) {
+  const o = opciones || {};
+  if (!esVideo(src)) return foto(src);
+  const v = el('video', {
+    // sin rodar se busca el primer fotograma (un #t= adelanta lo justo para que
+    // el navegador pinte algo en vez de negro)
+    class: 'igs-foto', src: o.rodar ? String(src) : String(src) + '#t=0.6',
+    preload: o.rodar ? 'auto' : 'metadata',
+    playsinline: '', 'webkit-playsinline': '', loop: o.rodar ? '' : null, controls: null,
+    onerror: (e) => {
+      const n = e.currentTarget; const padre = n.parentNode;
+      if (!padre) return;
+      n.remove();
+      padre.appendChild(el('span', { class: 'igs-cell__sin' }, [
+        el('span', { text: T('Video no disponible', 'Video unavailable') }),
+      ]));
+    },
+  });
+  v.muted = true;                      // propiedad, no atributo: sin esto no rueda
+  if (o.rodar) { v.autoplay = true; try { v.play().catch(() => {}); } catch { /* el navegador decide */ } }
+  return v;
+}
+
 function foto(src, alt) {
   return el('img', {
     class: 'igs-foto', src, alt: alt || '', loading: 'lazy', referrerpolicy: 'no-referrer',
@@ -213,8 +249,8 @@ async function traerImagen(id) {
   pidiendo.add(id);
   try {
     const r = await api.get(`/posts/${encodeURIComponent(id)}/slides`);
-    imgs.set(id, { slides: r.slides || [], portada: r.portada || null });
-  } catch { imgs.set(id, { slides: [], portada: null }); }
+    imgs.set(id, { slides: r.slides || [], portada: r.portada || null, video: r.video || null });
+  } catch { imgs.set(id, { slides: [], portada: null, video: null }); }
   pidiendo.delete(id);
   pintarEsperas(id);
 }
@@ -235,13 +271,13 @@ function pintarEsperas(id) {
   for (const hueco of rootEl.querySelectorAll(`[data-espera="${cssEscape(id)}"]`)) {
     hueco.removeAttribute('data-espera');
     if (hueco.classList.contains('igs-hl__v')) {      // círculo de destacadas
-      if (src) { clear(hueco); hueco.appendChild(foto(src)); }
+      if (src) { clear(hueco); hueco.appendChild(medio(src)); }
       continue;
     }
     clear(hueco);
     // Sin arte todavía, el mosaico lleva el título: dejarlo en blanco era un
     // agujero mudo en la retícula (medido en SMILE: 13 celdas vacías).
-    hueco.appendChild(src ? foto(src) : el('span', { class: 'igs-cell__sin' }, [
+    hueco.appendChild(src ? medio(src) : el('span', { class: 'igs-cell__sin' }, [
       el('span', { text: (pieza && pieza.title) || T('Sin título', 'Untitled') }),
     ]));
   }
@@ -497,16 +533,16 @@ function cabeceraPerfil(lista) {
 // ── Retícula ────────────────────────────────────────────────────────────────
 function celdaNodo(c) {
   const src = fotoDe(c);
-  const medio = el('span', { class: 'igs-cell__m' });
-  if (src) medio.appendChild(foto(src));
-  else if (src === undefined) medio.dataset.espera = c.post.id;
+  const caja = el('span', { class: 'igs-cell__m' });
+  if (src) caja.appendChild(medio(src));
+  else if (src === undefined) caja.dataset.espera = c.post.id;
   else {
-    medio.appendChild(el('span', { class: 'igs-cell__sin' }, [
+    caja.appendChild(el('span', { class: 'igs-cell__sin' }, [
       el('span', { text: (c.post && c.post.title) || '' }),
     ]));
   }
 
-  const hijos = [medio];
+  const hijos = [caja];
   if (c.tipo === 'reel') hijos.push(el('span', { class: 'igs-cell__ic' }, [svg(G.reels, 17, { sw: 1.8 })]));
   else if (c.tipo === 'carrusel') hijos.push(el('span', { class: 'igs-cell__ic' }, [svg(G.carrusel, 17, { sw: 1.8 })]));
   if (marcarNuevo && !c.publicado) {
@@ -530,25 +566,25 @@ function vistaPost(c) {
   const texto = c.origen === 'ig' ? (c.media.caption || textoDePieza(p)) : textoDePieza(p);
   const nombre = arroba();
 
-  const medio = el('div', { class: 'igs-pm' + (c.tipo === 'reel' ? ' is-reel' : '') });
+  const lienzo = el('div', { class: 'igs-pm' + (c.tipo === 'reel' ? ' is-reel' : '') });
   if (total) {
-    medio.appendChild(foto(slides[ix]));
+    lienzo.appendChild(medio(slides[ix], { rodar: true }));
   } else if (!slides) {
-    medio.appendChild(el('div', { class: 'igs-pm__v', text: T('Cargando…', 'Loading…') }));
+    lienzo.appendChild(el('div', { class: 'igs-pm__v', text: T('Cargando…', 'Loading…') }));
   } else {
-    medio.appendChild(el('div', { class: 'igs-pm__v', text: T('Esta pieza todavía no tiene imagen.', 'This piece has no image yet.') }));
+    lienzo.appendChild(el('div', { class: 'igs-pm__v', text: T('Esta pieza todavía no tiene imagen.', 'This piece has no image yet.') }));
   }
   if (total > 1) {
-    medio.appendChild(el('span', { class: 'igs-pm__n', text: `${ix + 1}/${total}` }));
-    medio.appendChild(el('button', {
+    lienzo.appendChild(el('span', { class: 'igs-pm__n', text: `${ix + 1}/${total}` }));
+    lienzo.appendChild(el('button', {
       class: 'igs-pm__f is-izq', type: 'button', 'aria-label': T('Anterior', 'Previous'),
       onclick: () => { slideIx = (ix - 1 + total) % total; render(); },
     }, [svg(G.atras, 16, { sw: 2.4 })]));
-    medio.appendChild(el('button', {
+    lienzo.appendChild(el('button', {
       class: 'igs-pm__f is-der', type: 'button', 'aria-label': T('Siguiente', 'Next'),
       onclick: () => { slideIx = (ix + 1) % total; render(); },
     }, [svg(G.atras, 16, { sw: 2.4 })]));
-    medio.appendChild(el('span', { class: 'igs-pm__p' }, slides.map((_s, i) => el('i', { class: i === ix ? 'is-on' : '' }))));
+    lienzo.appendChild(el('span', { class: 'igs-pm__p' }, slides.map((_s, i) => el('i', { class: i === ix ? 'is-on' : '' }))));
   }
 
   const cuando_ = c.origen === 'ig'
@@ -564,7 +600,7 @@ function vistaPost(c) {
       ]),
       el('span', { class: 'igs-ph__d' }, [svg(G.puntos, 18, { sw: 2.6 })]),
     ]),
-    medio,
+    lienzo,
     el('div', { class: 'igs-pa' }, [
       el('span', { class: 'igs-pa__g' }, [svg(G.corazon, 24), svg(G.globo, 24), svg(G.avion, 24)]),
       el('span', { class: 'igs-pa__m' }, [svg(G.marcador, 24)]),
@@ -606,7 +642,10 @@ function capReel(txt) {
 function vistaReel(c) {
   const p = c.post;
   const slides = slidesDe(c);
-  const src = slides && slides.length ? slides[0] : null;
+  // Con el video del entregable, el reel RUEDA en el simulador; si no, queda
+  // su portada quieta (que es justo lo que Instagram enseña en la retícula).
+  const dato = p ? imgs.get(p.id) : null;
+  const src = (dato && dato.video) || (slides && slides.length ? slides[0] : null);
   const texto = c.origen === 'ig' ? (c.media.caption || textoDePieza(p)) : textoDePieza(p);
   const nombre = arroba();
   const accion = (glifo, n) => el('span', { class: 'igs-rl__a' }, [
@@ -615,7 +654,7 @@ function vistaReel(c) {
   ]);
 
   const hijos = [];
-  if (src) hijos.push(foto(src));
+  if (src) hijos.push(medio(src, { rodar: true }));
   else {
     hijos.push(el('div', { class: 'igs-rl__v', text: slides === null
       ? T('Cargando…', 'Loading…')
@@ -786,7 +825,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/feed.css?v=202609121529';
+  link.href = '/marketing/css/feed.css?v=202609121533';
   document.head.appendChild(link);
 }
 

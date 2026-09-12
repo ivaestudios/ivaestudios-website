@@ -5592,7 +5592,20 @@ async function route(request, env, authCtx) {
     }
     const slides = await slidesFirmadosDePieza(env, post);
     const portada = await portadaFirmadaDePieza(env, post);
-    return json({ slides, portada });
+    // El video del ENTREGABLE (URL firmada, con rangos): el simulador reproduce
+    // el reel tal cual se verá. A propósito NO se cae a post.video_url: ese
+    // suele ser un enlace privado de Drive que ni se reproduce ni debe salir.
+    let video = null;
+    try {
+      const d = await env.DB.prepare(
+        'SELECT id FROM mkt_deliverables WHERE post_id = ? AND video_ext IS NOT NULL ORDER BY updated_at DESC LIMIT 1'
+      ).bind(post.id).first();
+      if (d) {
+        const fv = await firmaEntregable(env, d.id);
+        video = `https://ivaestudios.com/api/marketing/publico/entregable/${d.id}/video?f=${fv}`;
+      }
+    } catch { video = null; }
+    return json({ slides, portada, video });
   }
   if (parts[0] === 'posts' && parts.length === 3 && parts[2] === 'portada' && method === 'POST') {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);

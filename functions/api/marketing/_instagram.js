@@ -696,7 +696,13 @@ export async function handleIgFeed(request, env, session, url) {
     const thumb = m.thumbnail_url || m.media_url
       || (hijo ? (hijo.thumbnail_url || hijo.media_url) : null);
     const esReel = m.media_product_type === 'REELS' || m.media_type === 'VIDEO';
+    // Instagram NO siempre devuelve thumbnail_url en los reels (medido: 14 de
+    // 17 en SMILE NOW). Cuando falta, la única portada posible es el propio
+    // video: se avisa para que el simulador lo pinte con <video> y no con
+    // <img>, que solo sabe dar el icono de roto.
+    const portadaEsVideo = !!thumb && !m.thumbnail_url && esReel;
     posts.push({
+      portadaEsVideo,
       id: m.id,
       tipo: m.media_type === 'CAROUSEL_ALBUM' ? 'carrusel' : (esReel ? 'reel' : 'post'),
       thumb: thumb || null,

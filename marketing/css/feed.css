@@ -152,7 +152,9 @@
 }
 .igs-cell:focus-visible { outline: 2px solid #0095f6; outline-offset: -2px; }
 .igs-cell__m { display: block; width: 100%; height: 100%; }
-.igs-foto { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* vale igual para <img> y para <video>: un reel sin miniatura se pinta con su
+   propio video (Instagram no siempre da thumbnail_url) */
+.igs-foto { width: 100%; height: 100%; object-fit: cover; display: block; background: #000; }
 .igs-cell__sin {
   width: 100%; height: 100%; display: grid; place-items: center; padding: 8px;
   background: #efefef; color: #8e8e8e; font-size: 11px; line-height: 1.35; text-align: center;
