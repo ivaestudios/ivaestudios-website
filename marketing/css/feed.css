@@ -1,68 +1,287 @@
 /* ============================================================================
-   Vista FEED: el perfil de Instagram como va a quedar.
-   La cuadrícula imita la de Instagram (3 columnas, retrato 4:5 recortado a 3:4)
-   para que lo que se ve aquí sea lo que se verá allá.
+   Vista FEED — simulador del perfil de Instagram.
+
+   Todo lo que va DENTRO de .igs-screen imita a Instagram y por eso no usa las
+   variables del tema de la app: usa los colores y la tipografía de Instagram
+   (blanco, #dbdbdb en los filetes, azul #0095F6) pase lo que pase con el tema.
+   Lo de fuera (chips de arriba, pie de abajo) sí es cromo de IVAE.
    ========================================================================== */
-.fd-root { padding: 0 0 40px; }
-
-/* ── cabecera de perfil ──────────────────────────────────────────────────── */
-.fd-perfil { display: flex; gap: 18px; align-items: center; padding: 18px 16px 14px; }
-.fd-perfil__av {
-  width: 72px; height: 72px; border-radius: 50%; flex: none;
-  display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 22px;
-  letter-spacing: .02em; box-shadow: 0 6px 18px -10px rgba(0,0,0,.6);
+.igs {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 14px; padding: 14px 12px 44px;
 }
-.fd-perfil__col { min-width: 0; }
-.fd-perfil__nom { font-size: 17px; font-weight: 600; color: var(--text); }
-.fd-perfil__num { font-size: 14px; color: var(--text-dim); margin-top: 3px; }
-.fd-perfil__num b { color: var(--text); font-weight: 600; }
-.fd-perfil__num b + span { margin-right: 12px; }
-.fd-perfil__nota { font-size: 12.5px; color: var(--text-mute); margin: 6px 0 0; line-height: 1.4; }
 
-/* ── filtros ─────────────────────────────────────────────────────────────── */
-.fd-filtros { display: flex; gap: 8px; padding: 0 16px 14px; }
-.fd-chip {
+/* ── controles de la app ─────────────────────────────────────────────────── */
+.igs-ctrl { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.igs-chip {
   border: 1px solid var(--border); background: var(--surface); color: var(--text-dim);
-  border-radius: 999px; padding: 7px 15px; font: inherit; font-size: 13.5px;
+  border-radius: 999px; padding: 7px 15px; font: inherit; font-size: 13px;
   cursor: pointer; transition: background .18s, color .18s, border-color .18s;
 }
-.fd-chip:hover { border-color: var(--border-strong); }
-.fd-chip.is-on { background: var(--brand); border-color: var(--brand); color: #fff; }
+.igs-chip:hover { border-color: var(--border-strong); }
+.igs-chip.is-on { background: var(--brand); border-color: var(--brand); color: #fff; }
 
-/* ── la cuadrícula ───────────────────────────────────────────────────────── */
-.fd-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px;
-  padding: 0 3px; max-width: 720px; margin: 0 auto;
+.igs-pie {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;
+  max-width: 460px; text-align: center;
 }
-.fd-cell {
-  position: relative; aspect-ratio: 3 / 4; overflow: hidden;
-  border: 0; padding: 0; margin: 0; cursor: pointer; background: var(--surface-2);
-  /* lo que aún no sale va apagado: se distingue del que ya está arriba */
-  filter: grayscale(.55) opacity(.62);
-  transition: filter .22s, transform .22s;
+.igs-pie__t { font-size: 12.5px; color: var(--text-mute); line-height: 1.45; }
+.igs-pie__b {
+  border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  border-radius: 999px; padding: 7px 14px; font: inherit; font-size: 12.5px;
+  cursor: pointer; text-decoration: none;
 }
-.fd-cell.is-pub { filter: none; }
-.fd-cell:hover { transform: scale(1.012); filter: none; }
-.fd-cell:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
-.fd-cell__img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.fd-cell__vacio {
-  width: 100%; height: 100%; display: grid; place-items: center; padding: 10px;
-  background: var(--surface-2);
+.igs-pie__b:hover { border-color: var(--border-strong); }
+.igs-vacio { padding: 40px 16px; color: var(--text-dim); font-size: 15px; text-align: center; }
+
+/* ── el teléfono ─────────────────────────────────────────────────────────── */
+.igs-phone {
+  width: 392px; height: min(820px, calc(100vh - 250px)); min-height: 560px;
+  padding: 11px; border-radius: 52px;
+  background: linear-gradient(160deg, #3a3a42, #121217 60%);
+  box-shadow: 0 34px 60px -28px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.09);
+  flex: none;
 }
-.fd-cell__vtxt {
-  font-size: 11.5px; line-height: 1.35; color: var(--text-mute); text-align: center;
+.igs-screen {
+  position: relative; width: 100%; height: 100%; border-radius: 42px; overflow: hidden;
+  background: #fff; color: #000; display: flex; flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px; line-height: 1.4;
+}
+.igs-isla {
+  position: absolute; top: 9px; left: 50%; transform: translateX(-50%);
+  width: 98px; height: 27px; border-radius: 16px; background: #000; z-index: 6;
+}
+.igs-status {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  height: 48px; padding: 0 24px 5px; flex: none; color: #000;
+}
+.igs-status__h { font-size: 14px; font-weight: 600; letter-spacing: .01em; }
+.igs-status__ic { display: inline-flex; align-items: center; gap: 5px; }
+
+.igs-top {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 44px; padding: 0 14px; flex: none;
+}
+.igs-top__user { display: inline-flex; align-items: center; gap: 5px; }
+.igs-top__user b { font-size: 16px; font-weight: 700; }
+.igs-top__der { display: inline-flex; gap: 18px; }
+.igs-top__t { font-size: 15px; font-weight: 600; }
+.igs-top__b { border: 0; background: none; padding: 0; color: #000; cursor: pointer; line-height: 0; }
+.igs-top__b--off { opacity: 0; pointer-events: none; }
+
+.igs-scroll { flex: 1; overflow-y: auto; overscroll-behavior: contain; }
+.igs-scroll::-webkit-scrollbar { width: 0; height: 0; }
+
+.igs-nav {
+  height: 50px; flex: none; border-top: 1px solid #dbdbdb; background: #fff;
+  display: flex; align-items: center; justify-content: space-around; color: #000;
+}
+
+/* ── perfil ──────────────────────────────────────────────────────────────── */
+.igs-av {
+  display: inline-grid; place-items: center; border-radius: 50%; overflow: hidden;
+  flex: none; position: relative; background: #efefef;
+}
+.igs-av.is-aro {
+  padding: 2.5px; background: linear-gradient(45deg, #f9ce34, #ee2a7b 48%, #6228d7);
+}
+/* OJO: el display:grid iba SOLO para las iniciales. Puesto también en el <img>,
+   Chrome dejaba de resolver height:100% y la foto salía de huevo (medido: 81×141
+   dentro de un círculo de 86). Por eso van separadas y con aspect-ratio. */
+.igs-av__img {
+  width: 100%; height: 100%; aspect-ratio: 1 / 1; object-fit: cover;
+  border-radius: 50%; display: block;
+}
+.igs-av__txt {
+  width: 100%; height: 100%; border-radius: 50%; display: grid; place-items: center;
+  color: #fff; font-weight: 700; letter-spacing: .02em;
+}
+.igs-av.is-aro .igs-av__img, .igs-av.is-aro .igs-av__txt { border: 2px solid #fff; }
+
+.igs-cab { display: flex; align-items: center; gap: 18px; padding: 6px 16px 10px; }
+.igs-datos { display: flex; flex: 1; justify-content: space-around; }
+.igs-dato { display: grid; justify-items: center; gap: 1px; }
+.igs-dato b { font-size: 15.5px; font-weight: 700; }
+.igs-dato small { font-size: 12.5px; }
+
+.igs-bio { padding: 0 16px; }
+.igs-bio__n { font-size: 13.5px; font-weight: 600; }
+.igs-bio__t { font-size: 13.5px; white-space: pre-wrap; margin-top: 1px; }
+.igs-bio__w { font-size: 13.5px; font-weight: 600; color: #00376b; margin-top: 1px; }
+
+.igs-acc { display: flex; gap: 6px; padding: 12px 16px 4px; }
+.igs-acc__b {
+  flex: 1; height: 32px; border-radius: 9px; background: #efefef; color: #000;
+  display: grid; place-items: center; font-size: 13.5px; font-weight: 600;
+}
+.igs-acc__b.is-pri { background: #0095f6; color: #fff; }
+.igs-acc__b.is-mini { flex: none; width: 38px; }
+
+.igs-hl { display: flex; gap: 15px; padding: 14px 16px 4px; overflow-x: auto; }
+.igs-hl::-webkit-scrollbar { height: 0; }
+.igs-hl__i { flex: none; width: 66px; }
+.igs-hl__c {
+  width: 62px; height: 62px; border-radius: 50%; overflow: hidden; display: block;
+  border: 1px solid #dbdbdb; background: #efefef;
+}
+.igs-hl__v { display: block; width: 100%; height: 100%; background: #efefef; }
+.igs-hl__i small {
+  display: block; text-align: center; margin-top: 5px; font-size: 11px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.igs-tabs {
+  display: flex; margin-top: 12px; border-top: 1px solid #dbdbdb;
+  position: sticky; top: 0; background: #fff; z-index: 3;
+}
+.igs-tab {
+  flex: 1; height: 44px; display: grid; place-items: center; cursor: pointer;
+  border: 0; background: none; color: #8e8e8e; border-top: 1px solid transparent; margin-top: -1px;
+}
+.igs-tab.is-on { color: #000; border-top-color: #000; }
+.igs-tab.is-off { cursor: default; opacity: .55; }
+
+/* ── retícula ────────────────────────────────────────────────────────────── */
+.igs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+/* la pestaña de reels usa mosaicos 9:16, como Instagram */
+.igs-grid.is-reels .igs-cell { aspect-ratio: 9 / 16; }
+.igs-cell {
+  position: relative; aspect-ratio: 4 / 5; overflow: hidden; cursor: pointer;
+  border: 0; padding: 0; margin: 0; background: #efefef; display: block;
+}
+.igs-cell:focus-visible { outline: 2px solid #0095f6; outline-offset: -2px; }
+.igs-cell__m { display: block; width: 100%; height: 100%; }
+.igs-foto { width: 100%; height: 100%; object-fit: cover; display: block; }
+.igs-cell__sin {
+  width: 100%; height: 100%; display: grid; place-items: center; padding: 8px;
+  background: #efefef; color: #8e8e8e; font-size: 11px; line-height: 1.35; text-align: center;
+}
+.igs-cell__sin span {
   display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
 }
-/* el icono de tipo, arriba a la derecha, igual que Instagram */
-.fd-cell__tipo {
+.igs-cell__ic {
   position: absolute; top: 6px; right: 6px; color: #fff; line-height: 0;
-  filter: drop-shadow(0 1px 3px rgba(0,0,0,.75));
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,.55));
 }
-.fd-cell__dia {
-  position: absolute; left: 6px; bottom: 6px;
-  background: rgba(10,10,16,.78); color: #fff; font-size: 11px; font-weight: 600;
-  padding: 3px 7px; border-radius: 6px; letter-spacing: .02em;
+/* El día va en pastilla, no en degradado: sobre un slide claro el degradado
+   se leía como una mancha gris en la esquina de la foto. */
+.igs-cell__dia {
+  position: absolute; left: 5px; bottom: 5px;
+  padding: 2px 5px; border-radius: 5px; background: rgba(0,0,0,.52);
+  color: #fff; font-size: 9.5px; font-weight: 600; letter-spacing: .01em; line-height: 1.35;
 }
-.fd-vacio { padding: 30px 16px; color: var(--text-dim); font-size: 15px; text-align: center; }
+.igs-nada { padding: 34px 16px; text-align: center; color: #8e8e8e; font-size: 13.5px; }
 
-@media (min-width: 760px) { .fd-grid { gap: 4px; padding: 0 4px; } }
+/* ── publicación abierta ─────────────────────────────────────────────────── */
+.igs-ph { display: flex; align-items: center; gap: 10px; padding: 9px 12px; }
+.igs-ph__t { flex: 1; min-width: 0; }
+.igs-ph__t b { font-size: 13.5px; font-weight: 600; display: block; }
+.igs-ph__t small {
+  display: block; color: #8e8e8e; font-size: 11.5px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.igs-ph__d { line-height: 0; }
+
+.igs-pm { position: relative; background: #000; aspect-ratio: 4 / 5; }
+.igs-pm.is-reel { aspect-ratio: 9 / 16; max-height: 60vh; }
+.igs-pm__v {
+  width: 100%; height: 100%; display: grid; place-items: center; padding: 20px;
+  color: #fff; font-size: 12.5px; text-align: center; opacity: .8;
+}
+.igs-pm__n {
+  position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,.6); color: #fff;
+  font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px;
+}
+.igs-pm__f {
+  position: absolute; top: 50%; transform: translateY(-50%); width: 28px; height: 28px;
+  border: 0; border-radius: 50%; background: rgba(255,255,255,.85); color: #262626;
+  display: grid; place-items: center; cursor: pointer;
+}
+.igs-pm__f.is-izq { left: 8px; }
+.igs-pm__f.is-der { right: 8px; transform: translateY(-50%) rotate(180deg); }
+.igs-pm__p {
+  position: absolute; left: 0; right: 0; bottom: 10px; display: flex;
+  justify-content: center; gap: 4px;
+}
+.igs-pm__p i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.45); }
+.igs-pm__p i.is-on { background: #fff; }
+
+.igs-pa { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px 3px; }
+.igs-pa__g { display: inline-flex; gap: 15px; }
+.igs-pb { padding: 0 12px 18px; font-size: 13.5px; line-height: 1.45; }
+.igs-pb__l { font-weight: 600; margin-bottom: 4px; }
+.igs-pb__c { white-space: pre-wrap; word-break: break-word; }
+.igs-pb__c b { font-weight: 600; }
+.igs-pb__c--vacio { color: #8e8e8e; }
+.igs-pb__v { color: #8e8e8e; margin-top: 4px; }
+.igs-pb__f { color: #8e8e8e; font-size: 11px; margin-top: 6px; letter-spacing: .02em; }
+.igs-az { color: #00376b; }
+
+/* ── teléfono de verdad: fuera el marco, la pantalla ya es el teléfono ───── */
+@media (max-width: 900px) {
+  .igs { padding: 10px 0 34px; gap: 10px; }
+  .igs-phone {
+    width: 100%; height: auto; min-height: 0; padding: 0;
+    border-radius: 0; background: none; box-shadow: none;
+  }
+  .igs-screen {
+    border-radius: 0; height: auto; border-top: 1px solid #dbdbdb; border-bottom: 1px solid #dbdbdb;
+  }
+  .igs-isla, .igs-status { display: none; }
+  .igs-scroll { overflow: visible; }
+  .igs-pm.is-reel { max-height: none; }
+  /* sin panel con scroll propio, las pestañas se pegarían al borde del navegador */
+  .igs-tabs { position: static; }
+  .igs-pie { padding: 0 14px; }
+}
+
+/* ── reel a pantalla completa (como el reproductor de Instagram) ─────────── */
+.igs-screen.is-oscuro { background: #000; color: #fff; }
+.igs-screen.is-oscuro .igs-status { color: #fff; }
+.igs-screen.is-oscuro .igs-nav { background: #000; border-top-color: #262626; color: #fff; }
+.igs-scroll.is-full { overflow: hidden; display: flex; }
+.igs-rl { position: relative; flex: 1; width: 100%; background: #000; overflow: hidden; }
+.igs-rl .igs-foto { position: absolute; inset: 0; }
+.igs-rl .igs-cell__sin { position: absolute; inset: 0; background: #111; color: #777; }
+.igs-rl__v {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  padding: 24px; text-align: center; color: #fff; opacity: .75; font-size: 13px;
+}
+.igs-rl__sombra {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(rgba(0,0,0,.42), transparent 22%, transparent 48%, rgba(0,0,0,.72));
+}
+.igs-rl__top {
+  position: absolute; top: 10px; left: 12px; right: 14px;
+  display: flex; align-items: center; gap: 12px; color: #fff;
+}
+.igs-rl__top b { font-size: 16px; font-weight: 700; }
+.igs-rl__cam { margin-left: auto; line-height: 0; }
+.igs-rl__b { border: 0; background: none; padding: 0; color: #fff; cursor: pointer; line-height: 0; }
+.igs-rl__der {
+  position: absolute; right: 10px; bottom: 20px; display: grid; gap: 17px;
+  justify-items: center; color: #fff;
+}
+.igs-rl__a { display: grid; justify-items: center; gap: 3px; filter: drop-shadow(0 1px 3px rgba(0,0,0,.5)); }
+.igs-rl__n { font-size: 11.5px; font-weight: 600; }
+.igs-rl__pie { position: absolute; left: 14px; right: 66px; bottom: 16px; color: #fff; }
+.igs-rl__au { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
+.igs-rl__au b { font-size: 13.5px; font-weight: 600; }
+.igs-rl__seg {
+  border: 1px solid rgba(255,255,255,.75); border-radius: 7px;
+  padding: 3px 9px; font-size: 12px; font-weight: 600;
+}
+.igs-rl__cap {
+  font-size: 13px; line-height: 1.42; white-space: pre-wrap;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.igs-rl__cap .igs-az { color: #fff; font-weight: 500; }
+.igs-rl__mus { display: flex; align-items: center; gap: 7px; margin-top: 9px; font-size: 12px; }
+.igs-rl__f { font-size: 11px; opacity: .8; margin-top: 7px; letter-spacing: .02em; }
+
+@media (max-width: 900px) {
+  .igs-scroll.is-full { display: block; overflow: visible; }
+  .igs-rl { aspect-ratio: 9 / 16; width: 100%; }
+}
+.igs-rl__mas { opacity: .85; font-weight: 600; }

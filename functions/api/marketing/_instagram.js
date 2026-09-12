@@ -636,3 +636,92 @@ export async function handleIgManual(request, env, session, url) {
   }
   return json({ error: 'Method not allowed' }, 405);
 }
+
+// ── GET /ig/feed?client_id=… → el PERFIL REAL para el simulador de feed ──────
+// La vista Feed imita el perfil de Instagram: para que la imitación no mienta
+// necesita lo que YA está publicado (foto de perfil, biografía, seguidores y
+// las últimas publicaciones con su miniatura) y encima de eso pinta lo que
+// falta por salir. Es una sola llamada barata (perfil + media, SIN insights)
+// con caché de 20 min en mkt_kv: las URLs del CDN de Instagram caducan, así
+// que no conviene guardarlas más tiempo.
+const IG_FEED_TTL = 20 * 60 * 1000;
+
+export async function handleIgFeed(request, env, session, url) {
+  let clientId = url.searchParams.get('client_id') || '';
+  if (session.role === 'client') clientId = session.client_id;
+  if (!clientId) return json({ error: 'client_id requerido' }, 400);
+
+  const client = await env.DB.prepare(
+    'SELECT ig_user_id, ig_username, ig_access_token FROM mkt_clients WHERE id = ?'
+  ).bind(clientId).first();
+  if (!client || !client.ig_user_id || !client.ig_access_token) return json({ connected: false });
+
+  const key = `igfeed:${clientId}`;
+  if (url.searchParams.get('fresco') !== '1') {
+    const row = await env.DB.prepare('SELECT value FROM mkt_kv WHERE key = ?').bind(key).first().catch(() => null);
+    if (row) {
+      try {
+        const c = JSON.parse(row.value);
+        if (c && c.at && Date.now() - c.at < IG_FEED_TTL) return json({ ...c.out, cache: true });
+      } catch { /* caché inservible: se vuelve a pedir */ }
+    }
+  }
+
+  const tok = encodeURIComponent(client.ig_access_token);
+  const CAMPOS = 'id,username,name,biography,website,profile_picture_url,followers_count,follows_count,media_count';
+  let prof = await igJson(`${GRAPH}/me?fields=${CAMPOS}&access_token=${tok}`);
+  // Si algún campo no está disponible para esta cuenta, Instagram tumba TODA la
+  // llamada: se reintenta con lo mínimo indispensable antes de darse por vencido.
+  if (!prof || prof.error) {
+    prof = await igJson(`${GRAPH}/me?fields=id,username,media_count,followers_count&access_token=${tok}`);
+  }
+  if (!prof || prof.error) {
+    return json({ connected: true, username: client.ig_username, error: (prof && prof.error && prof.error.message) || 'Instagram no respondió' });
+  }
+
+  const media = await igJson(
+    `${GRAPH}/me/media?fields=id,caption,media_type,media_product_type,permalink,media_url,thumbnail_url,`
+    + `like_count,comments_count,timestamp,children{media_url,thumbnail_url,media_type}&limit=36&access_token=${tok}`
+  );
+
+  const posts = [];
+  for (const m of (media && media.data) || []) {
+    const hijo = m.children && m.children.data && m.children.data[0];
+    // El álbum (carrusel) no trae media_url propio: la portada es su primer hijo.
+    const thumb = m.media_url || m.thumbnail_url
+      || (hijo ? (hijo.thumbnail_url || hijo.media_url) : null);
+    const esReel = m.media_product_type === 'REELS' || m.media_type === 'VIDEO';
+    posts.push({
+      id: m.id,
+      tipo: m.media_type === 'CAROUSEL_ALBUM' ? 'carrusel' : (esReel ? 'reel' : 'post'),
+      thumb: thumb || null,
+      permalink: m.permalink || null,
+      caption: m.caption || '',
+      likes: m.like_count ?? null,
+      comments: m.comments_count ?? null,
+      timestamp: m.timestamp || null,
+      slides: m.media_type === 'CAROUSEL_ALBUM' && m.children && m.children.data
+        ? m.children.data.map((h) => h.thumbnail_url || h.media_url).filter(Boolean)
+        : (thumb ? [thumb] : []),
+    });
+  }
+  posts.sort((a, b) => String(b.timestamp || '').localeCompare(String(a.timestamp || '')));
+
+  const out = {
+    connected: true,
+    username: prof.username || client.ig_username || '',
+    perfil: {
+      username: prof.username || client.ig_username || '',
+      name: prof.name || '',
+      biography: prof.biography || '',
+      website: prof.website || '',
+      foto: prof.profile_picture_url || '',
+      followers: prof.followers_count ?? null,
+      follows: prof.follows_count ?? null,
+      media_count: prof.media_count ?? null,
+    },
+    posts,
+  };
+  await kvSet(env, key, JSON.stringify({ at: Date.now(), out })).catch(() => {});
+  return json(out);
+}

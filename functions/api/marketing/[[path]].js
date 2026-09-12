@@ -62,6 +62,7 @@ import {
   handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
   handleIgMetrics, handleIgMetricsRange, fetchIgMetrics, fetchIgMetricsRange,
   handleIgManual, getManualMetrics, refreshAgingIgTokens, checkIgConnections,
+  handleIgFeed,
 } from './_instagram.js';
 import { repartirPush, vapidPublica } from './_push.js';
 
@@ -5465,6 +5466,8 @@ async function route(request, env, authCtx) {
   if (parts[0] === 'ig') {
     if (path === '/ig/login' && method === 'GET') return handleIgLogin(request, env, session, url);
     if (path === '/ig/metrics' && method === 'GET') return handleIgMetrics(request, env, session, url);
+    // El simulador de feed: perfil real + últimas publicaciones (caché 20 min).
+    if (path === '/ig/feed' && method === 'GET') return handleIgFeed(request, env, session, url);
     if (path === '/ig/metrics-range' && method === 'GET') return handleIgMetricsRange(request, env, session, url);
     if (path === '/ig/manual' && (method === 'GET' || method === 'POST')) return handleIgManual(request, env, session, url);
     if (path === '/ig/disconnect' && method === 'POST') return handleIgDisconnect(request, env, session);
