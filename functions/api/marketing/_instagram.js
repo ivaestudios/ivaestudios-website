@@ -656,7 +656,9 @@ export async function handleIgFeed(request, env, session, url) {
   ).bind(clientId).first();
   if (!client || !client.ig_user_id || !client.ig_access_token) return json({ connected: false });
 
-  const key = `igfeed:${clientId}`;
+  // La versión va en la llave: al cambiar lo que se guarda (p. ej. la portada
+  // de los reels), el caché viejo no puede seguir sirviendo lo de antes.
+  const key = `igfeed:v2:${clientId}`;
   if (url.searchParams.get('fresco') !== '1') {
     const row = await env.DB.prepare('SELECT value FROM mkt_kv WHERE key = ?').bind(key).first().catch(() => null);
     if (row) {
@@ -687,8 +689,11 @@ export async function handleIgFeed(request, env, session, url) {
   const posts = [];
   for (const m of (media && media.data) || []) {
     const hijo = m.children && m.children.data && m.children.data[0];
-    // El álbum (carrusel) no trae media_url propio: la portada es su primer hijo.
-    const thumb = m.media_url || m.thumbnail_url
+    // ⚠️ thumbnail_url PRIMERO: en un reel, media_url es el MP4. Pedirlo como
+    // <img> dejaba 14 de 36 mosaicos de SMILE en "foto no disponible" sin que
+    // ninguna petición fallara con error (el navegador solo no lo decodifica).
+    // El álbum (carrusel) tampoco trae media_url propio: es su primer hijo.
+    const thumb = m.thumbnail_url || m.media_url
       || (hijo ? (hijo.thumbnail_url || hijo.media_url) : null);
     const esReel = m.media_product_type === 'REELS' || m.media_type === 'VIDEO';
     posts.push({
@@ -703,6 +708,8 @@ export async function handleIgFeed(request, env, session, url) {
       slides: m.media_type === 'CAROUSEL_ALBUM' && m.children && m.children.data
         ? m.children.data.map((h) => h.thumbnail_url || h.media_url).filter(Boolean)
         : (thumb ? [thumb] : []),
+      // el video real, por si algún día el simulador lo reproduce
+      video: (m.media_product_type === 'REELS' || m.media_type === 'VIDEO') ? (m.media_url || null) : null,
     });
   }
   posts.sort((a, b) => String(b.timestamp || '').localeCompare(String(a.timestamp || '')));

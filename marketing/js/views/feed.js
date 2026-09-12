@@ -20,9 +20,9 @@
 // mismo: es atrezzo del simulador, no iconografía de la app, y no tiene por
 // qué ensuciar shell/icons.js.
 // ============================================================================
-import { el, clear, api, toast } from '../api.js?v=202609121525';
-import { T, isEN } from '../shell/i18n.js?v=202609121525';
-import { abrirGuion } from '../lib/guion-drawer.js?v=202609121525';
+import { el, clear, api, toast } from '../api.js?v=202609121529';
+import { T, isEN } from '../shell/i18n.js?v=202609121529';
+import { abrirGuion } from '../lib/guion-drawer.js?v=202609121529';
 
 const VIEW_ID = 'feed';
 
@@ -227,12 +227,23 @@ async function traerImagen(id) {
 function pintarEsperas(id) {
   if (!rootEl) return;
   const dato = imgs.get(id);
-  const src = dato ? (dato.slides[0] || dato.portada) : null;
+  const pieza = (ctx.store.getState().posts || []).find((x) => x.id === id) || null;
+  const esReel = pieza && pieza.content_type === 'reel';
+  const src = dato
+    ? (esReel ? (dato.portada || dato.slides[0]) : (dato.slides[0] || dato.portada))
+    : null;
   for (const hueco of rootEl.querySelectorAll(`[data-espera="${cssEscape(id)}"]`)) {
     hueco.removeAttribute('data-espera');
-    if (!src) continue;
+    if (hueco.classList.contains('igs-hl__v')) {      // círculo de destacadas
+      if (src) { clear(hueco); hueco.appendChild(foto(src)); }
+      continue;
+    }
     clear(hueco);
-    hueco.appendChild(foto(src));
+    // Sin arte todavía, el mosaico lleva el título: dejarlo en blanco era un
+    // agujero mudo en la retícula (medido en SMILE: 13 celdas vacías).
+    hueco.appendChild(src ? foto(src) : el('span', { class: 'igs-cell__sin' }, [
+      el('span', { text: (pieza && pieza.title) || T('Sin título', 'Untitled') }),
+    ]));
   }
   if (abierta && abierta.post && abierta.post.id === id) render();
 }
@@ -775,7 +786,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/feed.css?v=202609121525';
+  link.href = '/marketing/css/feed.css?v=202609121529';
   document.head.appendChild(link);
 }
 
