@@ -89,6 +89,16 @@ export async function publicarEnInstagram(env, { client, post, slides, cover, on
     const ch = await gJson(`${GRAPH}/${client.ig_user_id}/media`, { method: 'POST', body: ph });
     if (!ch.id) throw new Error('Instagram no devolvio el contenedor de la historia.');
     if (onContainer) { try { await onContainer(ch.id); } catch { /* best effort */ } }
+    // El contenedor de historia SI procesa, aunque sea una imagen: publicar de
+    // inmediato devuelve "The media is not ready to be published".
+    let histLista = false;
+    for (let i = 0; !histLista && i < 10; i++) {
+      const st = await gJson(`${GRAPH}/${ch.id}?fields=status_code&access_token=${encodeURIComponent(tok)}`);
+      if (st.status_code === 'FINISHED') histLista = true;
+      else if (st.status_code === 'ERROR') throw new Error('Instagram no pudo procesar la historia (debe ser JPEG vertical).');
+      else await espera(3000);
+    }
+    if (!histLista) throw new Error('Instagram tardo demasiado en procesar la historia. Intenta de nuevo.');
     const pubh = await gJson(`${GRAPH}/${client.ig_user_id}/media_publish`, {
       method: 'POST', body: new URLSearchParams({ creation_id: ch.id, access_token: tok }),
     });
