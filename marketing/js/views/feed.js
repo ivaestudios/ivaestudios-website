@@ -20,9 +20,9 @@
 // mismo: es atrezzo del simulador, no iconografía de la app, y no tiene por
 // qué ensuciar shell/icons.js.
 // ============================================================================
-import { el, clear, api, toast } from '../api.js?v=202609121514';
-import { T, isEN } from '../shell/i18n.js?v=202609121514';
-import { abrirGuion } from '../lib/guion-drawer.js?v=202609121514';
+import { el, clear, api, toast } from '../api.js?v=202609121521';
+import { T, isEN } from '../shell/i18n.js?v=202609121521';
+import { abrirGuion } from '../lib/guion-drawer.js?v=202609121521';
 
 const VIEW_ID = 'feed';
 
@@ -136,12 +136,16 @@ function celdas(soloPestana) {
 
   const out = [];
   const usadas = new Set();
+  // Celdas reales libres por día+tipo: sirven para reconocer las piezas que
+  // Vianey publicó A MANO (no tienen published_media_id y, sin esto, salían
+  // DOS veces: la media de Instagram y su ficha del sistema).
+  const libres = new Map();
 
   if (conPublicado && real && real.posts) {
     for (const m of real.posts) {
       const p = porMedia.get(String(m.id)) || null;
       if (p) usadas.add(p.id);
-      out.push({
+      const celda = {
         clave: `ig:${m.id}`,
         origen: 'ig',
         media: m,
@@ -150,20 +154,34 @@ function celdas(soloPestana) {
         publicado: true,
         orden: String(m.timestamp || '').slice(0, 19),
         fecha: String(m.timestamp || '').slice(0, 10),
-      });
+      };
+      out.push(celda);
+      if (!p) {
+        const k = `${celda.fecha}|${celda.tipo}`;
+        if (!libres.has(k)) libres.set(k, []);
+        libres.get(k).push(celda);
+      }
     }
   }
 
+  const hoy = new Date().toISOString().slice(0, 10);
   for (const p of piezas) {
     if (usadas.has(p.id)) continue;
     // Sin conexión a Instagram, lo ya publicado por el sistema sigue contando.
     if (p.published_media_id && conPublicado && real && real.posts) continue;
+    // Publicada a mano: se funde con su media real del mismo día y tipo (y esa
+    // celda hereda el guion, para que tocarla siga abriendo la pieza).
+    const tipoP = p.content_type === 'reel' ? 'reel' : (p.content_type === 'carrusel' ? 'carrusel' : 'post');
+    if (libres.size && p.publish_date && p.publish_date <= hoy) {
+      const cola = libres.get(`${p.publish_date}|${tipoP}`);
+      if (cola && cola.length) { cola.shift().post = p; continue; }
+    }
     out.push({
       clave: `plan:${p.id}`,
       origen: 'plan',
       media: null,
       post: p,
-      tipo: p.content_type === 'reel' ? 'reel' : (p.content_type === 'carrusel' ? 'carrusel' : 'post'),
+      tipo: tipoP,
       publicado: p.status === 'publicado',
       orden: cuando(p.publish_date, p.publish_time),
       fecha: p.publish_date || '',
@@ -212,6 +230,30 @@ function pintarEsperas(id) {
   if (abierta && abierta.post && abierta.post.id === id) render();
 }
 
+/**
+ * Una marca con meses de calendario llega a 70 mosaicos y pedir las 70 fotos
+ * de golpe es castigar a la app (y a R2) por algo que nadie está mirando: se
+ * piden cuando el mosaico se acerca a la pantalla.
+ */
+let observador = null;
+function mirar(nodos, raiz) {
+  if (observador) { observador.disconnect(); observador = null; }
+  if (!nodos.length) return;
+  if (typeof IntersectionObserver !== 'function') {
+    for (const n of nodos) traerImagen(n.dataset.espera);
+    return;
+  }
+  observador = new IntersectionObserver((entradas, obs) => {
+    for (const e of entradas) {
+      if (!e.isIntersecting) continue;
+      obs.unobserve(e.target);
+      const id = e.target.dataset.espera;
+      if (id) traerImagen(id);
+    }
+  }, { root: raiz || null, rootMargin: '320px 0px' });
+  for (const n of nodos) observador.observe(n);
+}
+
 function cssEscape(v) {
   return (window.CSS && CSS.escape) ? CSS.escape(String(v)) : String(v).replace(/["\\]/g, '\\$&');
 }
@@ -220,7 +262,7 @@ function cssEscape(v) {
 function fotoDe(c) {
   if (c.origen === 'ig') return c.media.thumb || null;
   const dato = imgs.get(c.post.id);
-  if (!dato) { traerImagen(c.post.id); return undefined; }   // undefined = viene en camino
+  if (!dato) return undefined;   // undefined = todavía no se ha pedido
   // Un reel se ve por su PORTADA; un carrusel, por su primer slide (como en IG).
   return c.tipo === 'reel'
     ? (dato.portada || dato.slides[0] || null)
@@ -439,7 +481,7 @@ function celdaNodo(c) {
   const src = fotoDe(c);
   const medio = el('span', { class: 'igs-cell__m' });
   if (src) medio.appendChild(foto(src));
-  else if (src === undefined) medio.setAttribute('data-espera', c.post.id);
+  else if (src === undefined) medio.dataset.espera = c.post.id;
   else {
     medio.appendChild(el('span', { class: 'igs-cell__sin' }, [
       el('span', { text: (c.post && c.post.title) || '' }),
@@ -647,6 +689,7 @@ function pie(lista) {
 }
 
 // ── Render ──────────────────────────────────────────────────────────────────
+let porMirar = [];
 function render() {
   if (!rootEl) return;
   const scroller = rootEl.querySelector('.igs-scroll');
@@ -677,6 +720,7 @@ function render() {
       const grid = el('div', { class: 'igs-grid' + (pestana === 'reels' ? ' is-reels' : '') });
       for (const c of lista) grid.appendChild(celdaNodo(c));
       dentro.appendChild(grid);
+      porMirar = [...grid.querySelectorAll('[data-espera]')];
     }
   }
 
@@ -696,6 +740,9 @@ function render() {
     const nuevo = rootEl.querySelector('.igs-scroll');
     if (nuevo) nuevo.scrollTop = scroll;
   }
+  // el observador necesita el panel YA en el documento para medir
+  mirar(porMirar, rootEl.querySelector('.igs-scroll'));
+  porMirar = [];
 }
 
 async function cargarReal(forzar) {
@@ -721,7 +768,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/feed.css?v=202609121514';
+  link.href = '/marketing/css/feed.css?v=202609121521';
   document.head.appendChild(link);
 }
 
@@ -750,6 +797,8 @@ export default {
   unmount() {
     for (const u of unsubs) { try { u(); } catch { /* noop */ } }
     unsubs = [];
+    if (observador) { observador.disconnect(); observador = null; }
+    porMirar = [];
     rootEl = null; ctx = null;
     imgs = new Map(); pidiendo = new Set();
     real = null; realEstado = 'idle'; abierta = null; slideIx = 0; pestana = 'grid';
