@@ -91,11 +91,18 @@ export async function publicarEnInstagram(env, { client, post, slides, cover, on
     if (onContainer) { try { await onContainer(ch.id); } catch { /* best effort */ } }
     // El contenedor de historia SI procesa, aunque sea una imagen: publicar de
     // inmediato devuelve "The media is not ready to be published".
+    // Recien creado, el contenedor tarda un momento en poder consultarse:
+    // preguntarle de inmediato devuelve "cannot be found". Eso NO es un fallo,
+    // es que todavia no existe para la API, asi que se reintenta.
+    await espera(2500);
     let histLista = false;
-    for (let i = 0; !histLista && i < 10; i++) {
-      const st = await gJson(`${GRAPH}/${ch.id}?fields=status_code&access_token=${encodeURIComponent(tok)}`);
-      if (st.status_code === 'FINISHED') histLista = true;
-      else if (st.status_code === 'ERROR') throw new Error('Instagram no pudo procesar la historia (debe ser JPEG vertical).');
+    for (let i = 0; !histLista && i < 12; i++) {
+      let st = null;
+      try {
+        st = await gJson(`${GRAPH}/${ch.id}?fields=status_code&access_token=${encodeURIComponent(tok)}`);
+      } catch { /* aun no consultable */ }
+      if (st && st.status_code === 'FINISHED') histLista = true;
+      else if (st && st.status_code === 'ERROR') throw new Error('Instagram no pudo procesar la historia (debe ser JPEG vertical).');
       else await espera(3000);
     }
     if (!histLista) throw new Error('Instagram tardo demasiado en procesar la historia. Intenta de nuevo.');
