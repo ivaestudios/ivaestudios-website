@@ -5600,11 +5600,14 @@ async function route(request, env, authCtx) {
     let portada = await portadaFirmadaDePieza(env, post);
     try {
       const lista = await env.R2_BUCKET.list({ prefix: `marketing/carrusel/${post.id}/` });
-      const vers = new Map((lista.objects || []).map((o) => [o.key.split('/').pop(), Date.parse(o.uploaded) || 0]));
+      // OJO: R2 devuelve `uploaded` como Date, no como texto; Date.parse(Date)
+      // da NaN y el sello se quedaba en 0 (probado en producción).
+      const ms = (u) => (u ? (typeof u === 'string' ? Date.parse(u) : +new Date(u)) : 0) || 0;
+      const vers = new Map((lista.objects || []).map((o) => [o.key.split('/').pop(), ms(o.uploaded)]));
       slides = slides.map((u) => sello(u, vers.get(decodeURIComponent(u.split('?')[0].split('/').pop())) || 0));
       if (portada) {
         const ph = await env.R2_BUCKET.head(`marketing/portada/${post.id}.jpg`);
-        portada = sello(portada, ph ? (Date.parse(ph.uploaded) || 0) : 0);
+        portada = sello(portada, ph ? ms(ph.uploaded) : 0);
       }
     } catch { /* sin sello: se ve, pero puede tardar en refrescar */ }
     // El video del ENTREGABLE (URL firmada, con rangos): el simulador reproduce
