@@ -20,9 +20,9 @@
 // mismo: es atrezzo del simulador, no iconografía de la app, y no tiene por
 // qué ensuciar shell/icons.js.
 // ============================================================================
-import { el, clear, api, toast } from '../api.js?v=202609121545';
-import { T, isEN } from '../shell/i18n.js?v=202609121545';
-import { abrirGuion } from '../lib/guion-drawer.js?v=202609121545';
+import { el, clear, api, toast } from '../api.js?v=202609121611';
+import { T, isEN } from '../shell/i18n.js?v=202609121611';
+import { abrirGuion } from '../lib/guion-drawer.js?v=202609121611';
 
 const VIEW_ID = 'feed';
 
@@ -238,10 +238,29 @@ function celdas(soloPestana) {
   return out;
 }
 
+/**
+ * Las destacadas del perfil. Instagram enseña UN círculo por destacada, no uno
+ * por historia: las piezas se agrupan por el nombre que va antes del "·"
+ * ("Demo 1 · Pruébalo" y "Demo 2 · …" son la misma destacada, Demo). El
+ * círculo usa la PORTADA de la historia, que es la que se diseña para verse a
+ * 62 px; la captura de la historia ahí dentro es una mancha.
+ */
 function destacadas() {
-  return piezasDeLaMarca()
+  const hs = piezasDeLaMarca()
     .filter((p) => p.content_type === 'historia')
-    .sort((a, b) => String(a.publish_date || '').localeCompare(String(b.publish_date || '')));
+    .sort((a, b) => String(a.publish_date || '').localeCompare(String(b.publish_date || ''))
+      || String(a.title || '').localeCompare(String(b.title || '')));
+  const grupos = [];
+  const porNombre = new Map();
+  for (const h of hs) {
+    const nombre = String(h.title || '').split('·')[0].replace(/[0-9]+/g, '').trim()
+      || T('Historias', 'Stories');
+    const clave = nombre.toLowerCase();
+    let g = porNombre.get(clave);
+    if (!g) { g = { clave, nombre, piezas: [] }; porNombre.set(clave, g); grupos.push(g); }
+    g.piezas.push(h);
+  }
+  return grupos;
 }
 
 async function traerImagen(id) {
@@ -271,7 +290,8 @@ function pintarEsperas(id) {
   for (const hueco of rootEl.querySelectorAll(`[data-espera="${cssEscape(id)}"]`)) {
     hueco.removeAttribute('data-espera');
     if (hueco.classList.contains('igs-hl__v')) {      // círculo de destacadas
-      if (src) { clear(hueco); hueco.appendChild(medio(src)); }
+      const cara = dato ? (dato.portada || dato.slides[0]) : null;
+      if (cara) { clear(hueco); hueco.appendChild(medio(cara)); }
       continue;
     }
     clear(hueco);
@@ -502,15 +522,21 @@ function cabeceraPerfil(lista) {
 
   const hist = destacadas();
   if (hist.length) {
-    hijos.push(el('div', { class: 'igs-hl' }, hist.map((h) => el('span', { class: 'igs-hl__i' }, [
-      el('span', { class: 'igs-hl__c' }, [
-        (imgs.get(h.id) && (imgs.get(h.id).portada || imgs.get(h.id).slides[0]))
-          ? foto(imgs.get(h.id).slides[0] || imgs.get(h.id).portada)
-          : el('span', { class: 'igs-hl__v', 'data-espera': imgs.has(h.id) ? null : h.id }),
-      ]),
-      el('small', { text: String(h.title || '').slice(0, 12) }),
-    ]))));
-    for (const h of hist) if (!imgs.has(h.id)) traerImagen(h.id);
+    hijos.push(el('div', { class: 'igs-hl' }, hist.map((g) => {
+      const con = (g.piezas || []).find((h) => {
+        const dd = imgs.get(h.id);
+        return dd && (dd.portada || dd.slides[0]);
+      });
+      const dd = con ? imgs.get(con.id) : null;
+      return el('span', { class: 'igs-hl__i' }, [
+        el('span', { class: 'igs-hl__c' }, [
+          dd ? foto(dd.portada || dd.slides[0])
+            : el('span', { class: 'igs-hl__v', dataset: { espera: g.piezas[0].id } }),
+        ]),
+        el('small', { text: g.nombre }),
+      ]);
+    })));
+    for (const g of hist) for (const h of g.piezas) if (!imgs.has(h.id)) traerImagen(h.id);
   }
 
   hijos.push(el('div', { class: 'igs-tabs' }, [
@@ -825,7 +851,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/feed.css?v=202609121545';
+  link.href = '/marketing/css/feed.css?v=202609121611';
   document.head.appendChild(link);
 }
 
