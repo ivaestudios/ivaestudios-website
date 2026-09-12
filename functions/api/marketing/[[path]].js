@@ -5590,8 +5590,23 @@ async function route(request, env, authCtx) {
     if (!isStaff && String(session.client_id || '') !== String(post.client_id)) {
       return json({ error: 'Forbidden' }, 403);
     }
-    const slides = await slidesFirmadosDePieza(env, post);
-    const portada = await portadaFirmadaDePieza(env, post);
+    // ⚠️ El sello de versión (?v=fecha de subida) es LO QUE HACE que el feed
+    // enseñe el arte de ahora: las imágenes se sirven con max-age de una hora
+    // y la URL firmada no cambia al reemplazar el archivo, así que sin esto
+    // Vianey seguiría viendo la portada vieja hasta 60 minutos. Va SOLO aquí:
+    // el publicador usa las URLs limpias, que son las que Meta sabe bajar.
+    const sello = (u, v) => (v ? u + (u.includes('?') ? '&' : '?') + 'v=' + v : u);
+    let slides = await slidesFirmadosDePieza(env, post);
+    let portada = await portadaFirmadaDePieza(env, post);
+    try {
+      const lista = await env.R2_BUCKET.list({ prefix: `marketing/carrusel/${post.id}/` });
+      const vers = new Map((lista.objects || []).map((o) => [o.key.split('/').pop(), Date.parse(o.uploaded) || 0]));
+      slides = slides.map((u) => sello(u, vers.get(decodeURIComponent(u.split('?')[0].split('/').pop())) || 0));
+      if (portada) {
+        const ph = await env.R2_BUCKET.head(`marketing/portada/${post.id}.jpg`);
+        portada = sello(portada, ph ? (Date.parse(ph.uploaded) || 0) : 0);
+      }
+    } catch { /* sin sello: se ve, pero puede tardar en refrescar */ }
     // El video del ENTREGABLE (URL firmada, con rangos): el simulador reproduce
     // el reel tal cual se verá. A propósito NO se cae a post.video_url: ese
     // suele ser un enlace privado de Drive que ni se reproduce ni debe salir.
