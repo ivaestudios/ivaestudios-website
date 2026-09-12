@@ -236,6 +236,14 @@
   /* sin panel con scroll propio, las pestañas se pegarían al borde del navegador */
   .igs-tabs { position: static; }
   .igs-pie { padding: 0 14px; }
+  /* los tres chips se partían en dos renglones y empujaban el teléfono media
+     pantalla hacia abajo: un solo renglón que corre de lado */
+  .igs-ctrl {
+    flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start;
+    width: 100%; padding: 0 12px 2px; gap: 6px;
+  }
+  .igs-ctrl::-webkit-scrollbar { height: 0; }
+  .igs-chip { flex: none; font-size: 12px; padding: 6px 12px; }
 }
 
 /* ── reel a pantalla completa (como el reproductor de Instagram) ─────────── */
