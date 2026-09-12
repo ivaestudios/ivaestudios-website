@@ -79,6 +79,24 @@ export async function publicarEnInstagram(env, { client, post, slides, cover, on
   // POST DE UNA FOTO (2026-09-10): antes solo se publicaba una foto si venía
   // por inspo_url; la foto subida a la pieza (slide 1) se ignoraba y la pieza
   // moría con "no tiene video subido".
+  // HISTORIA DE FOTO (2026-09-12): la historia de VIDEO ya tenia su rama mas
+  // abajo, pero la de IMAGEN no, asi que caia aqui, en "post de una foto", y
+  // terminaba CLAVADA EN EL FEED en vez de durar 24 h. Se cazo antes de
+  // publicar las 6 historias de QORI. El contenedor STORIES tambien acepta
+  // image_url; las historias no llevan caption ni colaboradores.
+  if (slides && slides.length === 1 && tipo === 'historia') {
+    const ph = new URLSearchParams({ media_type: 'STORIES', image_url: slides[0], access_token: tok });
+    const ch = await gJson(`${GRAPH}/${client.ig_user_id}/media`, { method: 'POST', body: ph });
+    if (!ch.id) throw new Error('Instagram no devolvio el contenedor de la historia.');
+    if (onContainer) { try { await onContainer(ch.id); } catch { /* best effort */ } }
+    const pubh = await gJson(`${GRAPH}/${client.ig_user_id}/media_publish`, {
+      method: 'POST', body: new URLSearchParams({ creation_id: ch.id, access_token: tok }),
+    });
+    if (!pubh.id) throw new Error('Instagram no confirmo la publicacion de la historia.');
+    // Las historias no tienen permalink publico.
+    return { mediaId: pubh.id, permalink: null };
+  }
+
   if (slides && slides.length === 1 && tipo !== 'carrusel') {
     const p1 = new URLSearchParams({ image_url: slides[0], caption, access_token: tok });
     const colab1 = listaColaboradores(post);
