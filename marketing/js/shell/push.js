@@ -10,7 +10,7 @@
 // hay que decirlo con todas sus letras en vez de dejar un interruptor muerto.
 // ============================================================================
 
-import { api } from '../api.js?v=202609121521';
+import { api } from '../api.js?v=202609121525';
 
 const esIOS = () => /iP(hone|ad|od)/.test(navigator.userAgent);
 const instalada = () => window.matchMedia('(display-mode: standalone)').matches

@@ -20,9 +20,9 @@
 // mismo: es atrezzo del simulador, no iconografía de la app, y no tiene por
 // qué ensuciar shell/icons.js.
 // ============================================================================
-import { el, clear, api, toast } from '../api.js?v=202609121521';
-import { T, isEN } from '../shell/i18n.js?v=202609121521';
-import { abrirGuion } from '../lib/guion-drawer.js?v=202609121521';
+import { el, clear, api, toast } from '../api.js?v=202609121525';
+import { T, isEN } from '../shell/i18n.js?v=202609121525';
+import { abrirGuion } from '../lib/guion-drawer.js?v=202609121525';
 
 const VIEW_ID = 'feed';
 
@@ -165,6 +165,7 @@ function celdas(soloPestana) {
   }
 
   const hoy = new Date().toISOString().slice(0, 10);
+  const hayReal = !!(conPublicado && real && real.posts && real.posts.length);
   for (const p of piezas) {
     if (usadas.has(p.id)) continue;
     // Sin conexión a Instagram, lo ya publicado por el sistema sigue contando.
@@ -176,6 +177,12 @@ function celdas(soloPestana) {
       const cola = libres.get(`${p.publish_date}|${tipoP}`);
       if (cola && cola.length) { cola.shift().post = p; continue; }
     }
+    // Con el feed real delante, el PASADO lo cuenta Instagram: una ficha vieja
+    // que no casó con ninguna media, o nunca salió (y entonces no está en el
+    // perfil), o está más atrás de las que trajimos. Pintarla dejaba mosaicos
+    // grises en mitad del feed de verdad. Sin conexión sí se muestran: ahí la
+    // vista es el plan, no el perfil.
+    if (hayReal && (!p.publish_date || p.publish_date < hoy)) continue;
     out.push({
       clave: `plan:${p.id}`,
       origen: 'plan',
@@ -768,7 +775,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/feed.css?v=202609121521';
+  link.href = '/marketing/css/feed.css?v=202609121525';
   document.head.appendChild(link);
 }
 
