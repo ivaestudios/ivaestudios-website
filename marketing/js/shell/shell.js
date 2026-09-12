@@ -19,24 +19,24 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202609121533';
-import { setRoleDefault } from './theme.js?v=202609121533';
-import { vigilarSegmentados } from './segfade.js?v=202609121533';
-import * as store from './store.js?v=202609121533';
-import * as prefs from './prefs.js?v=202609121533';
-import * as router from './router.js?v=202609121533';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202609121533';
-import { toast } from './toast.js?v=202609121533';
-import { icon } from './icons.js?v=202609121533';
-import * as iconsMod from './icons.js?v=202609121533';
-import { createTopbar } from './topbar.js?v=202609121533';
-import { createBottomNav } from './bottomnav.js?v=202609121533';
-import { createSearch } from './search.js?v=202609121533';
-import { createNotifications } from './notifications.js?v=202609121533';
-import { T } from './i18n.js?v=202609121533';
-import * as version from './version.js?v=202609121533';
-import * as pickers from '../ui/pickers.js?v=202609121533';
-import * as dnd from '../ui/dnd.js?v=202609121533';
+import { api, el, clear } from '../api.js?v=202609121539';
+import { setRoleDefault } from './theme.js?v=202609121539';
+import { vigilarSegmentados } from './segfade.js?v=202609121539';
+import * as store from './store.js?v=202609121539';
+import * as prefs from './prefs.js?v=202609121539';
+import * as router from './router.js?v=202609121539';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202609121539';
+import { toast } from './toast.js?v=202609121539';
+import { icon } from './icons.js?v=202609121539';
+import * as iconsMod from './icons.js?v=202609121539';
+import { createTopbar } from './topbar.js?v=202609121539';
+import { createBottomNav } from './bottomnav.js?v=202609121539';
+import { createSearch } from './search.js?v=202609121539';
+import { createNotifications } from './notifications.js?v=202609121539';
+import { T } from './i18n.js?v=202609121539';
+import * as version from './version.js?v=202609121539';
+import * as pickers from '../ui/pickers.js?v=202609121539';
+import * as dnd from '../ui/dnd.js?v=202609121539';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -71,6 +71,7 @@ const clientCanView = (view) => CLIENT_VIEWS.includes(view)
 const CONTENT_LABELS = {
   meses: T('Calendario', 'Calendar'),
   calendario: T('Cuadrícula', 'Grid'),
+  feed: 'Feed',
   entregables: T('Entregables', 'Deliverables'),
   marca: T('Marca', 'Brand'),
   metricas: T('Métricas', 'Metrics'),
@@ -199,7 +200,11 @@ function buildSubhead(root) {
   // Vianey pidio quitar Tablero/Tabla/Timeline/Carga de su admin: tanto admin
   // como cliente solo ven las dos vistas de calendario (Calendario = meses,
   // Cuadricula = calendario).
-  const VISIBLE_CONTENT_VIEWS = ['meses', 'calendario', 'entregables', 'marca', 'carrusel', 'descargar', 'video-ia'];
+  // OJO: esta lista es la ÚNICA entrada a las vistas desde el teléfono (las
+  // tabs del topbar no existen bajo 1024px). Una vista nueva que no se agregue
+  // aquí queda invisible en el celular, que es donde Vianey trabaja: le pasó a
+  // Feed el 12-sep-2026 ("¿en qué parte está?").
+  const VISIBLE_CONTENT_VIEWS = ['meses', 'calendario', 'feed', 'entregables', 'marca', 'carrusel', 'descargar', 'video-ia'];
   const segViews = CONTENT_VIEWS.filter((v) => VISIBLE_CONTENT_VIEWS.includes(v));
   // En móvil las tabs del topbar no existen (<1024px, shell.css): este seg es
   // la ÚNICA entrada a Métricas. Para el cliente, solo si su marca está en la
