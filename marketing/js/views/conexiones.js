@@ -10,9 +10,9 @@
 // de clientes (ig_username / fb_page_name / tt_username); aquí no hay fetch
 // propio: la vista lee el store y se repinta con él.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202609111834';
-import { icon } from '../shell/icons.js?v=202609111834';
-import { T, isEN } from '../shell/i18n.js?v=202609111834';
+import { el, clear, toast } from '../api.js?v=202609121412';
+import { icon } from '../shell/icons.js?v=202609121412';
+import { T, isEN } from '../shell/i18n.js?v=202609121412';
 
 const VIEW_ID = 'conexiones';
 
@@ -156,7 +156,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/conexiones.css?v=202609111834';
+  link.href = '/marketing/css/conexiones.css?v=202609121412';
   document.head.appendChild(link);
 }
 

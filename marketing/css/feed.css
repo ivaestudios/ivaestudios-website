@@ -1,0 +1,68 @@
+/* ============================================================================
+   Vista FEED: el perfil de Instagram como va a quedar.
+   La cuadrícula imita la de Instagram (3 columnas, retrato 4:5 recortado a 3:4)
+   para que lo que se ve aquí sea lo que se verá allá.
+   ========================================================================== */
+.fd-root { padding: 0 0 40px; }
+
+/* ── cabecera de perfil ──────────────────────────────────────────────────── */
+.fd-perfil { display: flex; gap: 18px; align-items: center; padding: 18px 16px 14px; }
+.fd-perfil__av {
+  width: 72px; height: 72px; border-radius: 50%; flex: none;
+  display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 22px;
+  letter-spacing: .02em; box-shadow: 0 6px 18px -10px rgba(0,0,0,.6);
+}
+.fd-perfil__col { min-width: 0; }
+.fd-perfil__nom { font-size: 17px; font-weight: 600; color: var(--text); }
+.fd-perfil__num { font-size: 14px; color: var(--text-dim); margin-top: 3px; }
+.fd-perfil__num b { color: var(--text); font-weight: 600; }
+.fd-perfil__num b + span { margin-right: 12px; }
+.fd-perfil__nota { font-size: 12.5px; color: var(--text-mute); margin: 6px 0 0; line-height: 1.4; }
+
+/* ── filtros ─────────────────────────────────────────────────────────────── */
+.fd-filtros { display: flex; gap: 8px; padding: 0 16px 14px; }
+.fd-chip {
+  border: 1px solid var(--border); background: var(--surface); color: var(--text-dim);
+  border-radius: 999px; padding: 7px 15px; font: inherit; font-size: 13.5px;
+  cursor: pointer; transition: background .18s, color .18s, border-color .18s;
+}
+.fd-chip:hover { border-color: var(--border-strong); }
+.fd-chip.is-on { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+/* ── la cuadrícula ───────────────────────────────────────────────────────── */
+.fd-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px;
+  padding: 0 3px; max-width: 720px; margin: 0 auto;
+}
+.fd-cell {
+  position: relative; aspect-ratio: 3 / 4; overflow: hidden;
+  border: 0; padding: 0; margin: 0; cursor: pointer; background: var(--surface-2);
+  /* lo que aún no sale va apagado: se distingue del que ya está arriba */
+  filter: grayscale(.55) opacity(.62);
+  transition: filter .22s, transform .22s;
+}
+.fd-cell.is-pub { filter: none; }
+.fd-cell:hover { transform: scale(1.012); filter: none; }
+.fd-cell:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+.fd-cell__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fd-cell__vacio {
+  width: 100%; height: 100%; display: grid; place-items: center; padding: 10px;
+  background: var(--surface-2);
+}
+.fd-cell__vtxt {
+  font-size: 11.5px; line-height: 1.35; color: var(--text-mute); text-align: center;
+  display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
+}
+/* el icono de tipo, arriba a la derecha, igual que Instagram */
+.fd-cell__tipo {
+  position: absolute; top: 6px; right: 6px; color: #fff; line-height: 0;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,.75));
+}
+.fd-cell__dia {
+  position: absolute; left: 6px; bottom: 6px;
+  background: rgba(10,10,16,.78); color: #fff; font-size: 11px; font-weight: 600;
+  padding: 3px 7px; border-radius: 6px; letter-spacing: .02em;
+}
+.fd-vacio { padding: 30px 16px; color: var(--text-dim); font-size: 15px; text-align: center; }
+
+@media (min-width: 760px) { .fd-grid { gap: 4px; padding: 0 4px; } }

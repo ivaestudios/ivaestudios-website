@@ -5579,6 +5579,18 @@ async function route(request, env, authCtx) {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);
     return handleUploadCarouselSlide(request, env, parts[1]);
   }
+  // Las imágenes de una pieza, firmadas: lo que necesita la vista FEED para
+  // pintar la cuadrícula. El cliente solo ve las de SU marca.
+  if (parts[0] === 'posts' && parts.length === 3 && parts[2] === 'slides' && method === 'GET') {
+    const post = await env.DB.prepare('SELECT id, client_id FROM mkt_posts WHERE id = ?').bind(parts[1]).first();
+    if (!post) return json({ error: 'Pieza no encontrada' }, 404);
+    if (!isStaff && String(session.client_id || '') !== String(post.client_id)) {
+      return json({ error: 'Forbidden' }, 403);
+    }
+    const slides = await slidesFirmadosDePieza(env, post);
+    const portada = await portadaFirmadaDePieza(env, post);
+    return json({ slides, portada });
+  }
   if (parts[0] === 'posts' && parts.length === 3 && parts[2] === 'portada' && method === 'POST') {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);
     return handleUploadPortada(request, env, parts[1]);
