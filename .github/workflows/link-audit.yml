@@ -35,6 +35,12 @@ jobs:
             python scripts/audit_links.py
           fi
 
+      - name: Las fotos optimizadas que el sitio pide estan subidas
+        # images/optimized/ esta en .gitignore: un archivo puede existir en
+        # el Mac y no llegar NUNCA al sitio. Y como una <source> que da 404
+        # NO cae al <img>, la foto sale ROTA sin que nada lo avise.
+        run: python3 scripts/auditar_variantes_optimizadas.py --fail-on-missing
+
       - name: Fuentes precargadas siguen vivas
         # Las URLs de fonts.gstatic.com llevan la version dentro y Google
         # las retira al subir de version: una precarga clavada se pudre en
