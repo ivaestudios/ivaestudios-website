@@ -5857,7 +5857,11 @@ async function publicarPendientes(env) {
     `SELECT p.*, c.name AS client_name, c.ig_user_id, c.ig_username, c.ig_access_token
      FROM mkt_posts p JOIN mkt_clients c ON c.id = p.client_id
      WHERE p.status = 'programado' AND p.published_media_id IS NULL
-       AND COALESCE(p.approval_state, '') != 'changes_requested'
+       -- ⚠️ El valor real es 'changes' (lo que escribe el botón "Pedir cambios"
+       -- y lo que admite el CHECK de la tabla). Decía 'changes_requested', que
+       -- no existe en ninguna parte: el candado llevaba meses sin cerrar y una
+       -- pieza rechazada por el cliente se publicaba igual a su hora.
+       AND COALESCE(p.approval_state, '') != 'changes'
        AND COALESCE(p.publish_attempts, 0) < 5
        AND p.publish_time IS NOT NULL AND p.publish_time != ''
        AND p.publish_date IS NOT NULL AND p.publish_date != ''
