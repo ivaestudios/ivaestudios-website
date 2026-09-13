@@ -35,6 +35,11 @@ jobs:
             python scripts/audit_links.py
           fi
 
+      - name: Cada componente con su hoja
+        # Nueve paginas traian la burbuja de WhatsApp sin styles/wa-fab.css:
+        # sin esa hoja no es fixed ni redonda, sale como una tira de 402x19.
+        run: python3 scripts/auditar_hoja_del_componente.py --fail-on-missing
+
       - name: Las fotos optimizadas que el sitio pide estan subidas
         # images/optimized/ esta en .gitignore: un archivo puede existir en
         # el Mac y no llegar NUNCA al sitio. Y como una <source> que da 404
