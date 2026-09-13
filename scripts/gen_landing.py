@@ -151,6 +151,27 @@ def generar(plantilla, d):
     if d.get("miga_visible"):
         out = re.sub(r'(<li class="current" aria-current="page">)[^<]*(</li>)',
                      lambda m: m.group(1) + d["miga_visible"] + m.group(2), out)
+    # ARREGLADO 2026-09-13: el eslabon del MEDIO de la miga visible se quedaba
+    # con el de la plantilla. Una pagina de Los Cabos decia "Home / Cancun / Los
+    # Cabos Wedding Photographer", que es falso y ademas no coincidia con el
+    # BreadcrumbList del JSON-LD. Ahora se toma del propio JSON-LD, que es la
+    # fuente de verdad, y se comprueba que el destino sea un archivo real y no
+    # el origen de un 301.
+    if len(d.get("migas", [])) >= 3:
+        padre = d["migas"][1]
+        ruta = str(padre.get("item", "")).replace(BASE, "")
+        if ruta:
+            import os as _os
+            existe = _os.path.exists(ruta.lstrip("/") + ".html") or _os.path.exists(ruta.lstrip("/") + "/index.html")
+            assert existe, f"la miga del medio apunta a {ruta} y ahi no hay archivo (¿es una redireccion?)"
+            m_nav = re.search(r'<nav[^>]*class="breadcrumb"[^>]*>(.*?)</nav>', out, re.S)
+            if m_nav:
+                enl = list(re.finditer(r'<li><a href="[^"]+">.*?</a></li>', m_nav.group(1), re.S))
+                if len(enl) >= 2:
+                    medio = enl[1]
+                    ini = m_nav.start(1) + medio.start()
+                    fin = m_nav.start(1) + medio.end()
+                    out = out[:ini] + f'<li><a href="{ruta}">{padre.get("name","")}</a></li>' + out[fin:]
     if d.get("audiencia"):
         out = re.sub(r'("audienceType":")[^"]*(")', lambda m: m.group(1) + d["audiencia"] + m.group(2), out)
 
