@@ -36,7 +36,13 @@ body {
      sus hermanos. */
   p a, td a, dd a, blockquote a, figcaption a,
   .post-article li a, .post-body li a,
-  .post-meta-bar a, .faq-a a, .author-title a {
+  /* .faq-ans es el gemelo de .faq-a en la plantilla de landings (36
+     paginas). Va aqui por el mismo motivo y, sobre todo, como seguro:
+     hoy estos enlaces son EN LINEA y el min-height ni les entra, pero
+     el dia que alguien vuelva flex ese contenedor se BLOQUIFICAN y la
+     regla global de 44px les entraria de golpe, que es exactamente
+     como se descuadro la firma de la autora en los 381 posts. */
+  .post-meta-bar a, .faq-a a, .faq-ans a, .author-title a {
     min-height: 0;
     min-width: 0;
   }
