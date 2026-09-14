@@ -28,20 +28,21 @@ import {
   el, clear, copyText, clearClipboard, api, isClientRole, ymd,
   STATUSES, STATUS_ORDER, CONTENT_TYPES, APPROVALS,
   statusLabel, contentTypeLabel, approvalLabel, fmtDate,
-} from '../api.js?v=202609132352';
-import { icon, iconMarca } from '../shell/icons.js?v=202609132352';
-import { T } from '../shell/i18n.js?v=202609132352';
-import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202609132352';
-import { confirmar } from '../shell/sheet.js?v=202609132352';
+} from '../api.js?v=202609140036';
+import { icon, iconMarca } from '../shell/icons.js?v=202609140036';
+import { T } from '../shell/i18n.js?v=202609140036';
+import { ACTION_LABELS, detalleEvento } from '../lib/actividad-fmt.js?v=202609140036';
+import { confirmar } from '../shell/sheet.js?v=202609140036';
+import { openEditClient, openNewClient } from '../shell/clientswitcher.js?v=202609140036';
 // Tarjeta compartida "Error + Reintentar" (la misma de Inicio / Mi trabajo).
-import { errorCard } from '../ui/states.js?v=202609132352';
-import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202609132352';
+import { errorCard } from '../ui/states.js?v=202609140036';
+import { buildInsertUpdates } from '../kanban/move-sheet.js?v=202609140036';
 // El panel del guion vive fuera: lo comparten esta vista y la Cuadricula.
-import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202609132352';
+import { abrirGuion, cerrarGuion, vaciarPortapapeles as vaciarPortapapelesEn } from '../lib/guion-drawer.js?v=202609140036';
 // Mismo mecanismo de subida que Entregables (por partes, sin tope de 100 MB).
 import {
   MAX_VIDEO_MB, screenVideoFiles, msgUnplayable, msgHevc, multipartUpload,
-} from '../lib/video-upload.js?v=202609132352';
+} from '../lib/video-upload.js?v=202609140036';
 
 // Colores de los chips de grabacion (los de su Notion):
 // 1=ambar, 2=morado, 3=gris, 4=azul, 5=rosa.
@@ -1971,8 +1972,8 @@ function buildPdfContenidoBtn(key, rows) {
       const antes = label ? label.textContent : '';
       btn.disabled = true;
       try {
-        const mod = await import('../lib/pdf-contenido.js?v=202609132352');
-        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609132352');
+        const mod = await import('../lib/pdf-contenido.js?v=202609140036');
+        const { vozDeMarca } = await import('../lib/pdf-lienzo.js?v=202609140036');
         const cliente = (clients || []).find((c) => c.id === activeClientId) || {};
         const voz = vozDeMarca(cliente);
         const res = await mod.generarPdfContenido({
@@ -1992,6 +1993,74 @@ function buildPdfContenidoBtn(key, rows) {
       }
     },
   }, [icon('archive', 15), el('span', { text: T('PDF de contenido', 'Content PDF') })]);
+}
+
+// Los tres pasos del primer día. Solo aparece con el calendario 100% vacío.
+function buildPrimerosPasos(key) {
+  const st = ctx.store.getState();
+  const { activeClientId } = st;
+  const marca = (st.clients || []).find((c) => c.id === activeClientId) || null;
+  const conectada = !!(marca && (marca.ig_username || marca.fb_page_name || marca.tt_username || marca.yt_channel_title));
+  const esCliente = isClientRole();
+
+  const fila = (hecho, titulo, sub, boton) => el('div', { class: 'pp-paso' + (hecho ? ' pp-paso--ok' : '') }, [
+    el('span', { class: 'pp-paso__n', text: hecho ? '✓' : '' }),
+    el('div', { class: 'pp-paso__txt' }, [
+      el('b', { text: titulo }),
+      el('span', { text: sub }),
+    ]),
+    hecho ? null : boton,
+  ]);
+
+  const kids = [
+    el('h3', { class: 'pp-t', text: T('Empieza aquí', 'Start here') }),
+    el('p', { class: 'pp-s', text: T('Tres pasos y la app publica sola.', 'Three steps and the app publishes on its own.') }),
+  ];
+
+  kids.push(fila(
+    conectada,
+    T('1 · Conecta la cuenta', '1 · Connect the account'),
+    T('Instagram, y si quieres Facebook, TikTok o YouTube. Sin esto la app no puede publicar por ti.',
+      'Instagram, plus Facebook, TikTok or YouTube if you want. Without this the app cannot publish for you.'),
+    marca && !esCliente ? el('button', {
+      class: 'btn btn-primary btn-sm', type: 'button',
+      text: T('Conectar', 'Connect'),
+      onclick: () => openEditClient(marca, { selectClient: (id) => ctx.selectClient && ctx.selectClient(id) }),
+    }) : null,
+  ));
+
+  kids.push(fila(
+    false,
+    T('2 · Llena tu mes', '2 · Fill your month'),
+    T('Deja que la IA lo escriba con la voz de la marca, o agrégalo tú con Nueva línea.',
+      'Let the AI write it in the brand voice, or add it yourself with New row.'),
+    esCliente ? null : el('button', {
+      class: 'btn btn-sm', type: 'button',
+      text: T('Generar mes (IA)', 'Generate month (AI)'),
+      onclick: () => {
+        const mes = /^\d{4}-\d{2}$/.test(String(key)) ? key : new Date().toISOString().slice(0, 7);
+        if (activeClientId && activeClientId !== 'todos') abrirDialogoMesIa(mes, activeClientId);
+      },
+    }),
+  ));
+
+  kids.push(fila(
+    false,
+    T('3 · Apruébalo y olvídate', '3 · Approve it and forget it'),
+    T('Ponle fecha y hora, márcalo Programado, y a esa hora sale solo a las cuentas conectadas.',
+      'Set a date and time, mark it Scheduled, and it goes out on its own to the connected accounts.'),
+    null,
+  ));
+
+  if (!esCliente) {
+    kids.push(el('button', {
+      class: 'pp-otra', type: 'button',
+      text: T('¿Llevas varias marcas? Agrega la siguiente', 'Managing several brands? Add the next one'),
+      onclick: () => openNewClient({ selectClient: (id) => ctx.selectClient && ctx.selectClient(id) }),
+    }));
+  }
+
+  return el('div', { class: 'meses-empty pp-card' }, kids);
 }
 
 // Botón "Generar mes (IA)" — etapa 1 del sistema integral (2026-08-15): Claude
@@ -2115,14 +2184,15 @@ function buildSection({ key, rows, noteLabels, collapsed = false, desktop, isTod
     // en qué pieza) y cada fila redirige AL LUGAR (la pieza, tab Actividad).
     const hist = buildHistorialMes(rows);
     if (hist) bodyKids.push(hist);
-  } else if (isClientRole() && !(allPostsForFilters || []).length) {
-    // Calendario 100% VACIO de un cliente (self-signup): bienvenida en vez del
-    // copy de staff. Una sola tarjeta, arriba del composer.
-    bodyKids.push(el('div', { class: 'meses-empty empty-rich empty-rich--welcome' }, [
-      el('div', { class: 'empty-rich__ico' }, [icon('calendar', 26)]),
-      el('h3', { class: 'empty-rich__t', text: T('¡Bienvenido a tu calendario de contenido! 🎉', 'Welcome to your content calendar! 🎉') }),
-      el('p', { class: 'empty-rich__s', text: T('Crea tu primera pieza con + Nueva línea: ponle título, fecha y escribe tu guion. Tu calendario, tus reglas.', 'Create your first piece with + New row: give it a title, a date and write your script. Your calendar, your rules.') }),
-    ]));
+  } else if (!(allPostsForFilters || []).length) {
+    // PRIMEROS PASOS (2026-09-14). Una cuenta recién creada aterrizaba en una
+    // rejilla vacía con ocho botones del mismo peso y ninguna pista de por
+    // dónde empezar; lo único que se le ofrecía era "agrega una línea", que es
+    // justo la acción que menos enseña lo que hace la app. Aquí van los tres
+    // pasos en orden, y el primero es el que de verdad enciende el producto:
+    // conectar la cuenta. La tarjeta se va sola en cuanto hay una pieza.
+    const paso = buildPrimerosPasos(key);
+    if (paso) bodyKids.push(paso);
   } else if (Object.values(getFilters()).some(Boolean)) {
     // Vacío POR FILTRO, no por falta de contenido: decirlo y dar la salida.
     // Antes se mostraba "Mes despejado" y el cliente creía que le habían

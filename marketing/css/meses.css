@@ -1438,3 +1438,43 @@ tr.meses-row--ph td {
 .meses-chip .meses-plats { color: inherit; }
 /* Un logo de marca es una silueta rellena: nunca hereda el trazo del resto. */
 .ico--marca svg { display: block; }
+
+/* ── PRIMEROS PASOS (2026-09-14) ─────────────────────────────────────────────
+   La tarjeta del primer día: una cuenta nueva caía en una rejilla vacía con
+   ocho botones del mismo peso. Aquí los tres pasos van en orden y con jerarquía
+   real: el 1 enciende el producto (conectar la cuenta), el 2 lo llena, el 3
+   explica que a partir de ahí sale solo. Desaparece con la primera pieza. */
+.pp-card {
+  display: flex; flex-direction: column; gap: 0;
+  max-width: 620px; margin: 20px auto; padding: 22px 22px 18px;
+  border: 1px solid var(--border); border-radius: 16px;
+  background: var(--surface); box-shadow: var(--sh-1); text-align: left;
+}
+.pp-t { margin: 0; font-size: 17px; font-weight: 800; letter-spacing: -.01em; color: var(--text); }
+.pp-s { margin: 4px 0 14px; font-size: 13.5px; color: var(--text-dim); }
+.pp-paso {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 13px 0; border-top: 1px solid var(--border);
+}
+.pp-paso__n {
+  flex: none; width: 22px; height: 22px; margin-top: 1px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 12px; font-weight: 800;
+  border: 1px solid var(--border-strong); color: var(--text-dim);
+}
+.pp-paso--ok .pp-paso__n { background: rgba(34,197,94,.14); border-color: rgba(34,197,94,.45); color: #16a34a; }
+.pp-paso__txt { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.pp-paso__txt b { font-size: 14px; font-weight: 700; color: var(--text); }
+.pp-paso__txt span { font-size: 12.5px; line-height: 1.5; color: var(--text-dim); }
+.pp-paso--ok .pp-paso__txt b { color: var(--text-dim); }
+.pp-paso .btn { flex: none; align-self: center; }
+.pp-otra {
+  margin-top: 14px; padding: 10px 0 0; border: 0; border-top: 1px solid var(--border);
+  background: none; color: var(--brand); font: inherit; font-size: 13px; font-weight: 600;
+  cursor: pointer; text-align: left;
+}
+.pp-otra:hover { text-decoration: underline; }
+@media (max-width: 560px) {
+  .pp-card { margin: 14px 0; padding: 18px 16px 14px; }
+  .pp-paso { flex-wrap: wrap; }
+  .pp-paso .btn { margin-left: 34px; }
+}
