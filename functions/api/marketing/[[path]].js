@@ -1017,6 +1017,15 @@ async function esDuenioDeSuMarca(env, session) {
 // 'app_version_android' por si algun dia deja de serlo.
 const APP_VER_TTL_MS = 6 * 60 * 60 * 1000;
 const APP_IOS_BUNDLE = 'com.ivaestudios.marketing';
+const APP_IOS_URL = 'https://apps.apple.com/mx/app/ivae-marketing/id6796458308';
+// ⚠️ Apple contesta 403 al catalogo publico desde las IPs de Cloudflare (medido
+// el 14-sep-2026: "status=403" en mkt_kv 'app_version_error'; el mismo GET desde
+// una casa devuelve 200). Por eso manda el valor que ponemos A MANO al publicar
+// una version, en mkt_kv 'app_version_ios' → {"version":"1.1","url":"…"}, y la
+// consulta a Apple queda solo como refresco automatico por si algun dia deja de
+// bloquear. Con la cabecera de navegador tiene mas posibilidades, pero no se da
+// por hecho: si falla, la app se queda con lo puesto a mano, no con nada.
+const APP_UA_NAVEGADOR = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15';
 
 async function apuntarFalloVersion(env, detalle) {
   try {
@@ -1027,48 +1036,63 @@ async function apuntarFalloVersion(env, detalle) {
 }
 
 async function handleAppVersion(env) {
-  let cache = null;
-  try {
-    const row = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'app_version_cache'").first();
-    if (row && row.value) cache = JSON.parse(row.value);
-  } catch { /* cache ilegible: se rehace */ }
+  const leerKv = async (key) => {
+    try {
+      const row = await env.DB.prepare('SELECT value FROM mkt_kv WHERE key = ?').bind(key).first();
+      return row && row.value ? JSON.parse(row.value) : null;
+    } catch { return null; }
+  };
 
+  // 1) Lo puesto a mano al publicar: es la fuente de verdad.
+  const aMano = await leerKv('app_version_ios');
+
+  // 2) Refresco automatico desde el catalogo de Apple (cacheado 6 h). Si Apple
+  //    bloquea (403), esto no estorba: simplemente no hay cache y manda (1).
+  let cache = await leerKv('app_version_cache');
   const fresco = cache && cache.at && (Date.now() - cache.at) < APP_VER_TTL_MS;
   if (!fresco) {
     try {
       const r = await fetch(
         `https://itunes.apple.com/lookup?bundleId=${encodeURIComponent(APP_IOS_BUNDLE)}&country=mx`,
-        { cf: { cacheTtl: 900 } },
+        { headers: { 'User-Agent': APP_UA_NAVEGADOR, Accept: 'application/json' }, cf: { cacheTtl: 900 } },
       );
       const d = r && r.ok ? await r.json() : null;
       const app = d && Array.isArray(d.results) && d.results[0];
-      if (!app || !app.version) {
-        // Deja rastro: si Apple contesta raro (o bloquea la IP de Cloudflare)
-        // el aviso desaparece en silencio y nadie se entera de por que.
-        await apuntarFalloVersion(env, `status=${r && r.status} results=${d && d.resultCount}`);
-      }
       if (app && app.version) {
-        cache = {
-          at: Date.now(),
-          ios: { version: String(app.version), url: String(app.trackViewUrl || '') },
-        };
+        cache = { at: Date.now(), ios: { version: String(app.version), url: String(app.trackViewUrl || APP_IOS_URL) } };
         await env.DB.prepare(
           "INSERT INTO mkt_kv (key, value) VALUES ('app_version_cache', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
         ).bind(JSON.stringify(cache)).run();
+      } else {
+        await apuntarFalloVersion(env, `status=${r && r.status}`);
       }
     } catch (e) {
-      // Apple caido o red rara: se sirve el cache viejo, que es mejor que nada.
       await apuntarFalloVersion(env, (e && e.message) || 'error desconocido');
     }
   }
 
-  let android = null;
-  try {
-    const row = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'app_version_android'").first();
-    if (row && row.value) android = JSON.parse(row.value);
-  } catch { /* sin valor: la TWA no lo necesita */ }
+  // Gana la mas NUEVA de las dos: si Apple contesta y ya publicamos algo mas
+  // reciente de lo apuntado a mano, el cliente se entera igual.
+  const auto = cache && cache.ios;
+  let ios = aMano && aMano.version ? { version: String(aMano.version), url: String(aMano.url || APP_IOS_URL) } : null;
+  if (auto && auto.version && (!ios || cmpVersionApp(auto.version, ios.version) > 0)) ios = auto;
 
-  return json({ ios: (cache && cache.ios) || null, android });
+  const android = await leerKv('app_version_android');
+  return json({ ios, android });
+}
+
+// "1.2.3" comparado por numero, no por texto (asi "1.10" > "1.9"). Gemelo del
+// cmpVersiones de marketing/js/shell/tienda.js.
+function cmpVersionApp(a, b) {
+  const pa = String(a || '').split('.').map((n) => parseInt(n, 10) || 0);
+  const pb = String(b || '').split('.').map((n) => parseInt(n, 10) || 0);
+  const n = Math.max(pa.length, pb.length);
+  for (let i = 0; i < n; i += 1) {
+    const x = pa[i] || 0;
+    const y = pb[i] || 0;
+    if (x !== y) return x < y ? -1 : 1;
+  }
+  return 0;
 }
 
 async function handleAcceptEula(env, session) {
