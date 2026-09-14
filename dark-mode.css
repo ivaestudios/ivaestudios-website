@@ -623,7 +623,9 @@ html.dark .legal-sign { color: rgba(249, 248, 245, 0.82) !important; }
    ACOTADO A .process-grid a proposito: las dos maquetas *-preview* reusan la
    clase .process-step con fondo TRANSPARENTE sobre seccion oscura, donde el
    texto crema es el correcto. Ahi poner tinta seria crear el bug al reves. */
-html.dark .process-step h3 { color: #1a2433 !important; }
+html.dark .process-grid .process-step h3 { color: #1a2433 !important; }
+
+html.dark .process-grid .process-step p  { color: rgba(26, 36, 51, 0.68) !important; }
 
 /* CAJA "QUE ES / QUE NO ES" (.distinct, 4 paginas de parejas y aniversario).
    Mismo caso y misma trampa: panel claro (var(--sand) = #ede8df) cuyo dt y dd
@@ -637,7 +639,6 @@ html.dark .process-step h3 { color: #1a2433 !important; }
 html.dark .distinct dt   { color: #7d6428 !important; }
 html.dark .distinct dd   { color: #1a2433 !important; }
 html.dark .distinct dd a { color: #7d6428 !important; }
-html.dark .process-step p  { color: rgba(26, 36, 51, 0.68) !important; }
 
 /* Brand-guidelines page: the "accepted spellings" chips are light sand tags,
    so keep their text dark ink; the muted italic palette sub-labels are
