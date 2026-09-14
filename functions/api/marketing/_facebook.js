@@ -150,8 +150,8 @@ export async function handleFbCallback(request, env, url) {
       `<a href="/api/marketing/fb/callback?pick=${pickId}&page=${encodeURIComponent(p.id)}">📘 ${esc(p.name)}</a>`
     ).join('');
     return html(EN
-      ? `<h1>Which Page belongs to this brand?</h1><p>Your account manages several Pages — pick the right one:</p>${botones}<small>This link expires in 10 minutes.</small>`
-      : `<h1>¿Cuál página es de esta marca?</h1><p>Tu cuenta administra varias páginas — elige la correcta:</p>${botones}<small>Este enlace caduca en 10 minutos.</small>`);
+      ? `<h1>Which Page belongs to this brand?</h1><p>Your account manages several Pages. Pick the right one:</p>${botones}<small>This link expires in 10 minutes.</small>`
+      : `<h1>¿Cuál página es de esta marca?</h1><p>Tu cuenta administra varias páginas. Elige la correcta:</p>${botones}<small>Este enlace caduca en 10 minutos.</small>`);
   } catch (e) {
     return html(`<h1>No se pudo conectar</h1><p>${esc((e && e.message) || 'Error desconocido')}</p><a href="${back}">Volver a la app</a>`, 500);
   }

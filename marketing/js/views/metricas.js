@@ -14,9 +14,9 @@
 // API no devuelva (sin comparativas, sin flechas, sin sparklines: no hay
 // histórico de seguidores — ver el reporte final de esta tanda).
 // ============================================================================
-import { api, el, clear, isClientRole } from '../api.js?v=202609140036';
-import { icon } from '../shell/icons.js?v=202609140036';
-import { T, isEN } from '../shell/i18n.js?v=202609140036';
+import { api, el, clear, isClientRole } from '../api.js?v=202609141359';
+import { icon } from '../shell/icons.js?v=202609141359';
+import { T, isEN } from '../shell/i18n.js?v=202609141359';
 
 const VIEW_ID = 'metricas';
 
@@ -188,7 +188,7 @@ function ensureCss() {
   // app.html, así que ningún bump global toca este sello. Si editas
   // metricas.css, sube este número A MANO o el cambio no llega (el SW sirve
   // cache-first todo lo que trae ?v=).
-  link.href = '/marketing/css/metricas.css?v=202609140036';
+  link.href = '/marketing/css/metricas.css?v=202609141359';
   document.head.appendChild(link);
 }
 
@@ -958,11 +958,11 @@ function render() {
           // Precheck (mismo patrón que clientswitcher.js): jamás navegar a un
           // error crudo — si el backend va a decir 403/503, se avisa bonito.
           try {
-            const r = await fetch(`/api/marketing/ig/login?client_id=${encodeURIComponent(b.id)}`, { credentials: 'include', redirect: 'manual' });
+            const r = await fetch(`/api/marketing/ig/login?client_id=${encodeURIComponent(b.id)}${isEN ? '&lang=en' : ''}`, { credentials: 'include', redirect: 'manual' });
             if (r.status === 503) { ctx?.toast?.(T('Falta configurar la app de Meta (te paso la guía).', 'The Meta app still needs setup (ask me for the guide).'), { type: 'error' }); return; }
             if (r.status === 403) { ctx?.toast?.(T('Esta cuenta no puede conectar Instagram. Hazlo desde tu acceso de agencia.', 'This account cannot connect Instagram. Use your agency access.'), { type: 'error' }); return; }
           } catch { /* sin red: la navegación de abajo mostrará su propio error */ }
-          window.location.href = `/api/marketing/ig/login?client_id=${encodeURIComponent(b.id)}`;
+          window.location.href = `/api/marketing/ig/login?client_id=${encodeURIComponent(b.id)}${isEN ? '&lang=en' : ''}`;
         },
       }),
       [

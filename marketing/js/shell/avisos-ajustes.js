@@ -11,12 +11,12 @@
 // decide en cada uno.
 // ============================================================================
 
-import { el, clear } from '../api.js?v=202609140036';
-import { openSheet } from './sheet.js?v=202609140036';
-import { toast } from './toast.js?v=202609140036';
-import { icon } from './icons.js?v=202609140036';
-import { T } from './i18n.js?v=202609140036';
-import * as push from './push.js?v=202609140036';
+import { el, clear } from '../api.js?v=202609141359';
+import { openSheet } from './sheet.js?v=202609141359';
+import { toast } from './toast.js?v=202609141359';
+import { icon } from './icons.js?v=202609141359';
+import { T } from './i18n.js?v=202609141359';
+import * as push from './push.js?v=202609141359';
 
 // Lo que se le dice a la persona cuando el aparato no puede. En su idioma, sin
 // jerga: un motivo que no se entiende es igual de inutil que ningun motivo.

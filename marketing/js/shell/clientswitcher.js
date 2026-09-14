@@ -10,12 +10,17 @@
 //   el set optimista + pref lastClient + ?cliente= replace + client:changed.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202609140036';
-import { openSheet } from './sheet.js?v=202609140036';
-import { toast } from './toast.js?v=202609140036';
-import * as store from './store.js?v=202609140036';
-import { icon } from './icons.js?v=202609140036';
-import { T } from './i18n.js?v=202609140036';
+import { api, el } from '../api.js?v=202609141359';
+import { openSheet } from './sheet.js?v=202609141359';
+import { toast } from './toast.js?v=202609141359';
+import * as store from './store.js?v=202609141359';
+import { icon } from './icons.js?v=202609141359';
+import { T, isEN } from './i18n.js?v=202609141359';
+
+// El idioma viaja en el enlace de OAuth: las pantallas del callback (elegir
+// pagina, "conectado") hablan el idioma de la app. Meta pide la interfaz en
+// ingles cuando se graba el App Review.
+const LANGQ = isEN ? '&lang=en' : '';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -317,9 +322,9 @@ export function openEditClient(client, { selectClient } = {}) {
               : el('button', {
                   class: 'btn cs-igconnect', type: 'button',
                   onclick: async () => {
-                    const r = await fetch(`/api/marketing/ig/login?client_id=${client.id}`, { credentials: 'include', redirect: 'manual' });
+                    const r = await fetch(`/api/marketing/ig/login?client_id=${client.id}${LANGQ}`, { credentials: 'include', redirect: 'manual' });
                     if (r.status === 503) { toast(T('Falta configurar la app de Meta (te paso la guía).', 'The Meta app still needs setup (ask me for the guide).'), { type: 'error' }); return; }
-                    window.location.href = `/api/marketing/ig/login?client_id=${client.id}`;
+                    window.location.href = `/api/marketing/ig/login?client_id=${client.id}${LANGQ}`;
                   },
                 }, [icon('camera', 16), el('span', { text: T('Conectar Instagram', 'Connect Instagram') })]),
             client.fb_page_name
@@ -327,9 +332,9 @@ export function openEditClient(client, { selectClient } = {}) {
               : el('button', {
                   class: 'btn cs-igconnect', type: 'button',
                   onclick: async () => {
-                    const r = await fetch(`/api/marketing/fb/login?client_id=${client.id}`, { credentials: 'include', redirect: 'manual' });
+                    const r = await fetch(`/api/marketing/fb/login?client_id=${client.id}${LANGQ}`, { credentials: 'include', redirect: 'manual' });
                     if (r.status === 503) { toast(T('Falta configurar Facebook en la app de Meta (pídeme la guía).', 'Facebook still needs setup in the Meta app (ask me for the guide).'), { type: 'error' }); return; }
-                    window.location.href = `/api/marketing/fb/login?client_id=${client.id}`;
+                    window.location.href = `/api/marketing/fb/login?client_id=${client.id}${LANGQ}`;
                   },
                 }, [icon('link', 16), el('span', { text: T('Conectar Facebook', 'Connect Facebook') })]),
             client.tt_username
@@ -337,9 +342,9 @@ export function openEditClient(client, { selectClient } = {}) {
               : el('button', {
                   class: 'btn cs-igconnect', type: 'button',
                   onclick: async () => {
-                    const r = await fetch(`/api/marketing/tt/login?client_id=${client.id}`, { credentials: 'include', redirect: 'manual' });
+                    const r = await fetch(`/api/marketing/tt/login?client_id=${client.id}${LANGQ}`, { credentials: 'include', redirect: 'manual' });
                     if (r.status === 503) { toast(T('Falta configurar la app de TikTok (pídeme la guía).', 'TikTok still needs setup (ask me for the guide).'), { type: 'error' }); return; }
-                    window.location.href = `/api/marketing/tt/login?client_id=${client.id}`;
+                    window.location.href = `/api/marketing/tt/login?client_id=${client.id}${LANGQ}`;
                   },
                 }, [icon('spark', 16), el('span', { text: T('Conectar TikTok', 'Connect TikTok') })]),
             client.yt_channel_title
@@ -347,9 +352,9 @@ export function openEditClient(client, { selectClient } = {}) {
               : el('button', {
                   class: 'btn cs-igconnect', type: 'button',
                   onclick: async () => {
-                    const r = await fetch(`/api/marketing/yt/login?client_id=${client.id}`, { credentials: 'include', redirect: 'manual' });
+                    const r = await fetch(`/api/marketing/yt/login?client_id=${client.id}${LANGQ}`, { credentials: 'include', redirect: 'manual' });
                     if (r.status === 503) { toast(T('Falta configurar la app de YouTube (pídeme la guía).', 'YouTube still needs setup (ask me for the guide).'), { type: 'error' }); return; }
-                    window.location.href = `/api/marketing/yt/login?client_id=${client.id}`;
+                    window.location.href = `/api/marketing/yt/login?client_id=${client.id}${LANGQ}`;
                   },
                 }, [icon('play', 16), el('span', { text: T('Conectar YouTube', 'Connect YouTube') })]),
           ]);
