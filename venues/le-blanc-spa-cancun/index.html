@@ -76,7 +76,7 @@ a{color:inherit}
 .mobile-nav a{font-size:13px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:rgba(249,248,247,0.75);text-decoration:none;padding:16px 0;border-bottom:1px solid var(--border);display:block}
 .mobile-nav.open{display:flex}
 .hero{position:relative;height:70vh;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden}
-.hero-bg{position:absolute;inset:0;background:url('/images/hero/couple-walking-beach-1920.webp') center/cover no-repeat}
+.hero-bg{position:absolute;inset:0;background:url('/images/hero/couple-walking-beach-1920.webp') center/cover no-repeat}@media(max-width:900px){.hero-bg{background-image:url('/images/hero/couple-walking-beach-1200.webp')}}
 .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,22,32,0.55) 0%,rgba(14,22,32,0.78) 100%)}
 .hero-content{position:relative;z-index:1;padding:0 48px;max-width:860px}
 .hero .eyebrow{font-size:11px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;display:block}
@@ -148,7 +148,7 @@ a{color:inherit}
 html:not(.js-on) .rv{opacity:1!important;transform:none!important;clip-path:none!important;filter:none!important}
 </style>
   <link rel="stylesheet" href="/styles/wa-fab.css?v=20260907g">
-</head>
+<link rel="preload" as="image" fetchpriority="high" imagesrcset="/images/hero/couple-walking-beach-1200.webp 1200w, /images/hero/couple-walking-beach-1920.webp 1920w" imagesizes="100vw"/></head>
 <body>
 <a href="#main-content" class="skip-link">Skip to content</a>
 <header class="site-header" id="siteHeader">

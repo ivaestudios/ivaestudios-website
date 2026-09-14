@@ -72,7 +72,7 @@ html.js-on .rv.vis{opacity:1;transform:none}
 .skip-link:focus{top:0}
 
 .hero{position:relative;height:74vh;min-height:520px;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;background:var(--ink2)}
-.hero-bg{position:absolute;inset:0;background:url('/images/hero/cancun-photographer-og-1920.webp') center/cover no-repeat}
+.hero-bg{position:absolute;inset:0;background:url('/images/hero/cancun-photographer-og-1920.webp') center/cover no-repeat}@media(max-width:900px){.hero-bg{background-image:url('/images/hero/cancun-photographer-og-1200.webp')}}
 .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,18,25,0.58) 0%,rgba(12,18,25,0.82) 100%)}
 .hero-content{position:relative;z-index:1;padding:0 48px;max-width:920px}
 .hero .eyebrow{font-size:11px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;display:inline-flex;align-items:center;gap:14px}
@@ -190,7 +190,7 @@ html:not(.js-on) .rv{opacity:1!important;transform:none!important}
 @media(max-width:900px){.folio{padding:64px 24px}.folio-grid{columns:2}}
 @media(max-width:560px){.folio-grid{columns:1}}
 </style>
-</head>
+<link rel="preload" as="image" fetchpriority="high" imagesrcset="/images/hero/cancun-photographer-og-1200.webp 1200w, /images/hero/cancun-photographer-og-1920.webp 1920w" imagesizes="100vw"/></head>
 <body>
 <a href="#main-content" class="skip-link">Skip to content</a>
 <header class="site-header" id="siteHeader">

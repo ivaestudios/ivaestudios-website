@@ -69,7 +69,7 @@ html.js-on .rv{opacity:0;transform:translateY(24px);transition:opacity .7s,trans
 html.js-on .rv.vis{opacity:1;transform:none}
 .d1{transition-delay:0.08s}.d2{transition-delay:0.16s}.d3{transition-delay:0.24s}
 .hero{position:relative;height:70vh;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden}
-.hero-bg{position:absolute;inset:0;background:url('/images/hero/cabo-photographer-og-1920.webp') center/cover no-repeat}
+.hero-bg{position:absolute;inset:0;background:url('/images/hero/cabo-photographer-og-1920.webp') center/cover no-repeat}@media(max-width:900px){.hero-bg{background-image:url('/images/hero/cabo-photographer-og-1200.webp')}}
 .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,22,32,0.55) 0%,rgba(14,22,32,0.80) 100%)}
 .hero-content{position:relative;z-index:1;padding:0 48px;max-width:880px}
 .hero .eyebrow{font-size:11px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;display:block}
@@ -164,7 +164,7 @@ html:not(.js-on) .rv{opacity:1!important;transform:none!important;clip-path:none
 @media(max-width:560px){.folio-grid{columns:1}}
 </style>
 <link rel="stylesheet" href="/styles/wa-fab.css?v=20260907g">
-</head>
+<link rel="preload" as="image" fetchpriority="high" imagesrcset="/images/hero/cabo-photographer-og-1200.webp 1200w, /images/hero/cabo-photographer-og-1920.webp 1920w" imagesizes="100vw"/></head>
 <body>
 <a href="#main-content" class="skip-link">Saltar al contenido</a>
 <header class="site-header" id="siteHeader">
