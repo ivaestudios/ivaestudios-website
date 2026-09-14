@@ -1018,6 +1018,14 @@ async function esDuenioDeSuMarca(env, session) {
 const APP_VER_TTL_MS = 6 * 60 * 60 * 1000;
 const APP_IOS_BUNDLE = 'com.ivaestudios.marketing';
 
+async function apuntarFalloVersion(env, detalle) {
+  try {
+    await env.DB.prepare(
+      "INSERT INTO mkt_kv (key, value) VALUES ('app_version_error', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
+    ).bind(JSON.stringify({ at: new Date().toISOString(), detalle: String(detalle).slice(0, 300) })).run();
+  } catch { /* si ni esto se puede escribir, no hay nada que hacer */ }
+}
+
 async function handleAppVersion(env) {
   let cache = null;
   try {
@@ -1034,6 +1042,11 @@ async function handleAppVersion(env) {
       );
       const d = r && r.ok ? await r.json() : null;
       const app = d && Array.isArray(d.results) && d.results[0];
+      if (!app || !app.version) {
+        // Deja rastro: si Apple contesta raro (o bloquea la IP de Cloudflare)
+        // el aviso desaparece en silencio y nadie se entera de por que.
+        await apuntarFalloVersion(env, `status=${r && r.status} results=${d && d.resultCount}`);
+      }
       if (app && app.version) {
         cache = {
           at: Date.now(),
@@ -1043,7 +1056,10 @@ async function handleAppVersion(env) {
           "INSERT INTO mkt_kv (key, value) VALUES ('app_version_cache', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
         ).bind(JSON.stringify(cache)).run();
       }
-    } catch { /* Apple caido: se sirve el cache viejo, que es mejor que nada */ }
+    } catch (e) {
+      // Apple caido o red rara: se sirve el cache viejo, que es mejor que nada.
+      await apuntarFalloVersion(env, (e && e.message) || 'error desconocido');
+    }
   }
 
   let android = null;
