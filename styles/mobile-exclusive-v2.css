@@ -3263,6 +3263,24 @@
     transition: border-color 0.3s var(--ivm-ease);
   }
   .ivm-act-foot__links a:active { border-bottom-color: var(--ivm-gold); }
+
+  /* AREA TOCABLE DEL PIE (2026-09-14).
+     El enlace de idioma son DOS letras, asi que su caja media el ancho del
+     texto: 14px en nosotros y 16px en la portada. No se puede acertar con el
+     dedo, y es el unico camino al otro idioma que hay ahi abajo.
+
+     Por que solo pasaba en cuatro paginas: las otras 18 que llevan este pie
+     cargan responsive.css, cuya regla global de 44px SI les aplica porque en
+     un flex los hijos se bloquifican. La portada y nosotros, en los dos
+     idiomas, NO cargan esa hoja. O sea que esto no cambia el diseno: iguala
+     las cuatro rezagadas con lo que el resto del sitio ya hace. */
+  .ivm-act-foot__links a {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
   .ivm-act-foot__copy {
     font-family: 'Syne', sans-serif;
     font-size: 9px;

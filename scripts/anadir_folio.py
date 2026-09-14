@@ -20,13 +20,12 @@ CSS = """
 .folio{padding:90px 64px;background:var(--ink);color:var(--cream)}
 .folio .section-label{color:var(--gold)}
 .folio .sec-h{color:var(--cream)}
-.folio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:48px}
-.folio-grid figure{margin:0;position:relative;overflow:hidden;aspect-ratio:4/3;background:var(--ink2)}
-.folio-grid figure.tall{aspect-ratio:3/4}
-.folio-grid img{width:100%;height:100%;object-fit:cover;display:block}
+.folio-grid{columns:3;column-gap:2px;margin-top:48px}
+.folio-grid figure{margin:0 0 2px;position:relative;overflow:hidden;background:var(--ink2);break-inside:avoid;-webkit-column-break-inside:avoid}
+.folio-grid img{width:100%;height:auto;display:block}
 .folio-grid figcaption{position:absolute;left:0;right:0;bottom:0;padding:16px 18px;font-size:11px;letter-spacing:0.04em;color:var(--cream);background:linear-gradient(to top,rgba(12,18,25,0.82),rgba(12,18,25,0))}
-@media(max-width:900px){.folio{padding:64px 24px}.folio-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:560px){.folio-grid{grid-template-columns:1fr}}
+@media(max-width:900px){.folio{padding:64px 24px}.folio-grid{columns:2}}
+@media(max-width:560px){.folio-grid{columns:1}}
 """
 
 
@@ -85,7 +84,7 @@ def figura(nombre, alt, pie, tall=None):
     if tall is None:
         tall = bool(d) and d[1] > d[0]
     ancho, alto = d if d else (1600, 1067)
-    cl = ' class="tall"' if tall else ""
+    cl = ""  # el mosaico respeta la proporcion real, no hace falta marcar verticales
     return (f'<figure{cl}><picture>'
             f'<source type="image/avif" srcset="{ss("avif")}" sizes="(max-width:560px) 100vw, (max-width:900px) 50vw, 33vw"/>'
             f'<source type="image/webp" srcset="{ss("webp")}" sizes="(max-width:560px) 100vw, (max-width:900px) 50vw, 33vw"/>'
@@ -107,11 +106,24 @@ def anadir(fichero, etiqueta, titulo, seleccion):
            f'<span class="section-label rv" data-anim="fade">{etiqueta}</span>'
            f'<h2 class="sec-h rv d1" data-anim="fade">{titulo}</h2>'
            f'<div class="folio-grid rv d2" data-anim="fade">{figs}</div></div></section>')
-    m = re.search(r'<section class="spots".*?</section>', s, re.S)
-    if not m:
-        m = re.search(r'<section class="services".*?</section>', s, re.S)
-    if not m:
-        return None, "no encuentro donde colocarla"
-    s = s[:m.end()] + sec + s[m.end():]
+    # El sitio tiene cuatro plantillas y cada una nombra sus secciones
+    # distinto. Se intenta primero colocar DESPUES de la seccion de
+    # contenido (spots/services/coverage/pillars/alt) y, si la pagina no
+    # tiene ninguna, ANTES de la llamada a la accion, que siempre existe.
+    for cl in ("spots", "services", "coverage", "pillars"):
+        m = re.search(r'<section class="%s[^"]*".*?</section>' % cl, s, re.S)
+        if m:
+            s = s[:m.end()] + sec + s[m.end():]
+            break
+    else:
+        # ultima <section class="alt"> de la plantilla de sedes
+        ms = list(re.finditer(r'<section class="alt[^"]*".*?</section>', s, re.S))
+        if ms:
+            s = s[:ms[-1].end()] + sec + s[ms[-1].end():]
+        else:
+            m = re.search(r'<section class="(cta-block|post-cta|cta|internal-links|related)', s)
+            if not m:
+                return None, "no encuentro donde colocarla"
+            s = s[:m.start()] + sec + s[m.start():]
     open(fichero, "w", encoding="utf-8").write(s)
     return len(seleccion), None

@@ -1,5 +1,12 @@
 /* ═══════════════════════════════════════════════════════════════
    ÁREA TOCABLE MÍNIMA · páginas de ciudad y venue · 2026-09-08
+   (ampliada el 2026-09-14 a 5 páginas más: cabo, cenote Tulum, Los Cabos
+   ES, Mayakoba y Riviera Maya bodas. Esas cinco SÍ cargan responsive.css,
+   pero sus migas usan `.breadcrumbs` y seguían en 12px de alto, porque la
+   regla global de 44px no aplica a elementos en LÍNEA. De esta hoja solo
+   les entra la regla de migas: no usan --gold-2, ni .col-links, ni
+   h3 > a, así que el resto es inerte en ellas.)
+
    Estas 27 páginas NO cargan responsive.css, así que ninguna de las
    reglas de área tocable del sitio les llegaba nunca. Medido en
    WebKit a 402px: las migas de navegación en 14px de alto y los
