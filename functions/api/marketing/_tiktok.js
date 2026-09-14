@@ -16,6 +16,14 @@
 //     la auditoría, sin tocar código.
 //
 // Env: TT_CLIENT_KEY, TT_CLIENT_SECRET. Sin ellos, aviso amable.
+//
+// MODO SANDBOX (2026-09-13): para grabar el video que TikTok exige en la
+// revisión hay que demostrar la integración en el SANDBOX del portal, que
+// tiene SU PROPIO par de llaves. En vez de pisar las de producción (que son
+// irrecuperables si se pierden) el modo se enciende con el interruptor
+// mkt_kv 'tt_modo_sandbox' = '1' y usa TT_SANDBOX_KEY / TT_SANDBOX_SECRET.
+// ⚠️ Los tokens que una marca obtiene en sandbox NO sirven en producción: al
+// apagar el modo hay que desconectar y reconectar la marca que se usó.
 // ============================================================================
 
 const TT_AUTH = 'https://www.tiktok.com/v2/auth/authorize/';
@@ -29,6 +37,18 @@ function html(body, status = 200) {
   return new Response(`<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>TikTok · IVAE Marketing</title><style>body{font:15px/1.6 -apple-system,sans-serif;background:#0d0d14;color:#eee;display:grid;place-items:center;min-height:100vh;margin:0;padding:20px}main{max-width:430px;background:#16161f;border:1px solid #2a2a38;border-radius:16px;padding:26px}h1{font-size:18px;margin:0 0 10px}p{color:#aaa}a{display:inline-flex;align-items:center;gap:10px;background:#1e1e2a;border:1px solid #33334a;border-radius:12px;color:#fff;padding:13px 14px;margin-top:10px;text-decoration:none}small{color:#888}</style><main>${body}</main>`,
     { status, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
 }
+// Las llaves vigentes: sandbox mientras el interruptor esté encendido.
+async function ttCreds(env) {
+  let sandbox = false;
+  try {
+    const row = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'tt_modo_sandbox'").first();
+    sandbox = !!(row && row.value === '1') && !!env.TT_SANDBOX_KEY && !!env.TT_SANDBOX_SECRET;
+  } catch { sandbox = false; }
+  return sandbox
+    ? { key: env.TT_SANDBOX_KEY, secret: env.TT_SANDBOX_SECRET, sandbox: true }
+    : { key: env.TT_CLIENT_KEY, secret: env.TT_CLIENT_SECRET, sandbox: false };
+}
+
 function rnd() {
   return [...crypto.getRandomValues(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
@@ -46,7 +66,8 @@ function esc(s) { return String(s == null ? '' : s).replace(/[<>&"]/g, (c) => ({
 // GET /tt/login?client_id=… (staff) → OAuth de TikTok.
 export async function handleTtLogin(request, env, session, url) {
   if (session.role === 'client') return json({ error: 'Forbidden' }, 403);
-  if (!env.TT_CLIENT_KEY || !env.TT_CLIENT_SECRET) {
+  const cred = await ttCreds(env);
+  if (!cred.key || !cred.secret) {
     return json({ error: 'Falta configurar la app de TikTok (TT_CLIENT_KEY y TT_CLIENT_SECRET en Cloudflare Pages) — checklist paso 7.' }, 503);
   }
   const clientId = url.searchParams.get('client_id') || '';
@@ -55,7 +76,7 @@ export async function handleTtLogin(request, env, session, url) {
   const nonce = rnd();
   await kvSet(env, `tt_state_${nonce}`, JSON.stringify({ c: clientId, t: Date.now() }));
   const p = new URLSearchParams({
-    client_key: env.TT_CLIENT_KEY,
+    client_key: cred.key,
     scope: TT_SCOPE,
     response_type: 'code',
     redirect_uri: ttRedirectUri(request),
@@ -75,11 +96,12 @@ export async function handleTtCallback(request, env, url) {
   try { st = JSON.parse(raw); } catch { return html('<h1>Estado corrupto</h1>', 400); }
   if (Date.now() - st.t > 10 * 60 * 1000) return html(`<h1>El intento caducó</h1><a href="${back}">Volver</a>`, 400);
   try {
+    const cred = await ttCreds(env);
     const t = await (await fetch(`${TT_API}/oauth/token/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
-        client_key: env.TT_CLIENT_KEY, client_secret: env.TT_CLIENT_SECRET,
+        client_key: cred.key, client_secret: cred.secret,
         code, grant_type: 'authorization_code', redirect_uri: ttRedirectUri(request),
       }),
     })).json();
@@ -113,11 +135,12 @@ export async function tokenTikTokVigente(env, clientId) {
   const vence = c.tt_access_expires_at ? Date.parse(c.tt_access_expires_at.replace(' ', 'T') + 'Z') : 0;
   if (vence && vence - Date.now() > 10 * 60 * 1000) return c.tt_access_token;
   if (!c.tt_refresh_token) throw new Error('El token de TikTok caducó y no hay refresh — reconecta la marca desde su ficha.');
+  const cred = await ttCreds(env);
   const t = await (await fetch(`${TT_API}/oauth/token/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
-      client_key: env.TT_CLIENT_KEY, client_secret: env.TT_CLIENT_SECRET,
+      client_key: cred.key, client_secret: cred.secret,
       grant_type: 'refresh_token', refresh_token: c.tt_refresh_token,
     }),
   })).json();
