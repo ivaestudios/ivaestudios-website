@@ -19,24 +19,25 @@
 // aplicar) se ocultan campana y tab Avisos y todo lo demas funciona.
 // ============================================================================
 
-import { api, el, clear } from '../api.js?v=202609141359';
-import { setRoleDefault } from './theme.js?v=202609141359';
-import { vigilarSegmentados } from './segfade.js?v=202609141359';
-import * as store from './store.js?v=202609141359';
-import * as prefs from './prefs.js?v=202609141359';
-import * as router from './router.js?v=202609141359';
-import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202609141359';
-import { toast } from './toast.js?v=202609141359';
-import { icon } from './icons.js?v=202609141359';
-import * as iconsMod from './icons.js?v=202609141359';
-import { createTopbar } from './topbar.js?v=202609141359';
-import { createBottomNav } from './bottomnav.js?v=202609141359';
-import { createSearch } from './search.js?v=202609141359';
-import { createNotifications } from './notifications.js?v=202609141359';
-import { T } from './i18n.js?v=202609141359';
-import * as version from './version.js?v=202609141359';
-import * as pickers from '../ui/pickers.js?v=202609141359';
-import * as dnd from '../ui/dnd.js?v=202609141359';
+import { api, el, clear } from '../api.js?v=202609141838';
+import { setRoleDefault } from './theme.js?v=202609141838';
+import { vigilarSegmentados } from './segfade.js?v=202609141838';
+import * as store from './store.js?v=202609141838';
+import * as prefs from './prefs.js?v=202609141838';
+import * as router from './router.js?v=202609141838';
+import { openSheet, pickFrom, closeAll, confirmDiscard } from './sheet.js?v=202609141838';
+import { toast } from './toast.js?v=202609141838';
+import { icon } from './icons.js?v=202609141838';
+import * as iconsMod from './icons.js?v=202609141838';
+import { createTopbar } from './topbar.js?v=202609141838';
+import { createBottomNav } from './bottomnav.js?v=202609141838';
+import { createSearch } from './search.js?v=202609141838';
+import { createNotifications } from './notifications.js?v=202609141838';
+import { T } from './i18n.js?v=202609141838';
+import * as version from './version.js?v=202609141838';
+import * as tienda from './tienda.js?v=202609141838';
+import * as pickers from '../ui/pickers.js?v=202609141838';
+import * as dnd from '../ui/dnd.js?v=202609141838';
 
 // Lista canonica (prefs.js): calendario/tablero/tabla/timeline/carga.
 const CONTENT_VIEWS = prefs.CONTENT_VIEWS;
@@ -384,6 +385,56 @@ function installVersionWatch() {
   window.addEventListener('focus', check);
 }
 
+// ── "Actualiza la app de la tienda" ─────────────────────────────────────────
+// installVersionWatch (arriba) resuelve el codigo WEB: una recarga y listo.
+// Esto avisa de lo OTRO: el envoltorio nativo de la App Store, que solo cambia
+// publicando en la tienda. Toda la logica (y por que las versiones 1.0/1.1 no
+// se pueden distinguir) vive en shell/tienda.js.
+//
+// Nunca abre la tienda sola: el enlace es un toque de la usuaria. Y si cierra
+// el aviso con la X no se vuelve a insistir con ESA version.
+const STORE_DISMISS_KEY = 'mkt_store_update_ok';
+
+async function installStoreUpdateWatch() {
+  const nueva = await tienda.hayVersionNueva();
+  if (!nueva) return;
+
+  let yaDicho = null;
+  try { yaDicho = localStorage.getItem(STORE_DISMISS_KEY); } catch { /* sin storage */ }
+  if (yaDicho === nueva.tienda) return;
+
+  const bar = el('div', { class: 'update-bar', role: 'status', 'aria-live': 'polite' });
+  bar.append(
+    el('span', {
+      class: 'update-bar__txt',
+      text: T(
+        `Hay una version nueva de la app (${nueva.tienda}).`,
+        `A new version of the app is available (${nueva.tienda}).`,
+      ),
+    }),
+    el('span', {
+      class: 'update-bar__when',
+      text: T(`Tienes la ${nueva.instalada}`, `You have ${nueva.instalada}`),
+    }),
+    el('a', {
+      class: 'update-bar__btn', href: nueva.url, target: '_blank', rel: 'noopener',
+      text: T('Actualizar', 'Update'),
+    }),
+    el('button', {
+      class: 'update-bar__x', type: 'button',
+      'aria-label': T('Cerrar este aviso', 'Dismiss this notice'),
+      title: T('Cerrar este aviso', 'Dismiss this notice'),
+      onclick: () => {
+        try { localStorage.setItem(STORE_DISMISS_KEY, nueva.tienda); } catch { /* noop */ }
+        bar.remove();
+        syncBarsHeight();
+      },
+    }, [icon('close', 16)]),
+  );
+  getBarsHost().appendChild(bar);
+  syncBarsHeight();
+}
+
 // Banner de verificación de correo (clientes auto-registrados): franja delgada
 // bajo el topbar, SOLO si /auth/me trae email_verified === false explícito
 // (los usuarios de agencia no traen el campo y no ven nada). El botón reenvía
@@ -695,6 +746,7 @@ export async function boot() {
   installAuthInterceptor();
   installOnlineOffline();
   installVersionWatch();
+  installStoreUpdateWatch().catch(() => { /* el aviso es un extra: nunca tumba el arranque */ });
   installVerifyBanner(me);
   consumeVerifiedParam();
   // Limpia el ?_v= que deja el botón "Actualizar" (version.applyUpdate): la

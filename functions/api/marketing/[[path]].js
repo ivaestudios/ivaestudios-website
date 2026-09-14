@@ -1001,6 +1001,60 @@ async function esDuenioDeSuMarca(env, session) {
   } catch { return false; }
 }
 
+// ── Version publicada en las tiendas ─────────────────────────────────────────
+// GET /app-version → { ios: {version, url} | null, android: {version, url} | null }
+//
+// PARA QUE: el cliente que entra por la app de la App Store no se entera de que
+// salio una version nueva (iOS no siempre auto-actualiza). La app web compara
+// esto con la version que el envoltorio pone en su User-Agent y, si va atras,
+// le pone una franja con un boton que abre la ficha de la tienda.
+//
+// iOS: el catalogo publico de Apple (itunes lookup) dice la version publicada
+// sin llave ni cuenta. Se cachea 6 h en mkt_kv para no pegarle en cada carga
+// (y para que un fallo de Apple no tumbe el aviso: se sirve lo ultimo bueno).
+// Android: hoy es una TWA, o sea que el contenido ES la web y se actualiza
+// sola; no hay nada que avisar. Queda el hueco leido de mkt_kv
+// 'app_version_android' por si algun dia deja de serlo.
+const APP_VER_TTL_MS = 6 * 60 * 60 * 1000;
+const APP_IOS_BUNDLE = 'com.ivaestudios.marketing';
+
+async function handleAppVersion(env) {
+  let cache = null;
+  try {
+    const row = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'app_version_cache'").first();
+    if (row && row.value) cache = JSON.parse(row.value);
+  } catch { /* cache ilegible: se rehace */ }
+
+  const fresco = cache && cache.at && (Date.now() - cache.at) < APP_VER_TTL_MS;
+  if (!fresco) {
+    try {
+      const r = await fetch(
+        `https://itunes.apple.com/lookup?bundleId=${encodeURIComponent(APP_IOS_BUNDLE)}&country=mx`,
+        { cf: { cacheTtl: 900 } },
+      );
+      const d = r && r.ok ? await r.json() : null;
+      const app = d && Array.isArray(d.results) && d.results[0];
+      if (app && app.version) {
+        cache = {
+          at: Date.now(),
+          ios: { version: String(app.version), url: String(app.trackViewUrl || '') },
+        };
+        await env.DB.prepare(
+          "INSERT INTO mkt_kv (key, value) VALUES ('app_version_cache', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
+        ).bind(JSON.stringify(cache)).run();
+      }
+    } catch { /* Apple caido: se sirve el cache viejo, que es mejor que nada */ }
+  }
+
+  let android = null;
+  try {
+    const row = await env.DB.prepare("SELECT value FROM mkt_kv WHERE key = 'app_version_android'").first();
+    if (row && row.value) android = JSON.parse(row.value);
+  } catch { /* sin valor: la TWA no lo necesita */ }
+
+  return json({ ios: (cache && cache.ios) || null, android });
+}
+
 async function handleAcceptEula(env, session) {
   await env.DB.prepare("UPDATE mkt_users SET eula_version = ?, eula_accepted_at = datetime('now') WHERE id = ?")
     .bind(EULA_VERSION, session.user_id).run();
@@ -5251,6 +5305,10 @@ async function route(request, env, authCtx) {
   if (path === '/auth/account' && method === 'DELETE') return handleDeleteAccount(request, env, session);
   // EULA (Apple 1.2): aceptación afirmativa, exigida al entrar.
   if (path === '/auth/accept-eula' && method === 'POST') return handleAcceptEula(env, session);
+
+  // Version publicada de la app en las tiendas (para el aviso "actualiza la
+  // app" dentro del envoltorio de iOS). Ver handleAppVersion.
+  if (path === '/app-version' && method === 'GET') return handleAppVersion(env);
 
   // ── Contenido de usuarios: reportar y bloquear (Apple 1.2) ────────────────
   // Disponibles para TODOS los roles: el revisor de Apple debe poder tocarlos

@@ -282,6 +282,9 @@ body.has-subhead #viewScroll {
   content: ''; position: absolute; inset: -5px -2px; /* 34 + 10 = 44px de alto tocable */
 }
 .update-bar__btn:hover { background: var(--surface-2); }
+/* En el aviso de la TIENDA el boton es un <a> (abre la ficha): sin esto no
+   centraria el texto (min-height no aplica a un inline) y saldria subrayado. */
+a.update-bar__btn { display: inline-flex; align-items: center; text-decoration: none; }
 .update-bar__btn:disabled { opacity: .6; cursor: default; }
 .update-bar__x {
   position: relative;
