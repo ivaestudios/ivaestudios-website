@@ -273,6 +273,12 @@ body.editor-open #viewScroll { overflow: hidden; }
   background: var(--surface);
   overflow: hidden;
 }
+/* `display:flex` es regla de AUTOR y le GANA al [hidden] del navegador: sin
+   esto, ocultar una fila con el.hidden no hace nada (la trampa ya documentada
+   en app.css con los íconos). Las filas "Opciones de TikTok/YouTube" se
+   esconden cuando su canal está apagado. */
+.edrow[hidden] { display: none; }
+
 .edrow {
   display: flex;
   align-items: center;

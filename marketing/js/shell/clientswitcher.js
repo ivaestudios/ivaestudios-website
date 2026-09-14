@@ -10,12 +10,12 @@
 //   el set optimista + pref lastClient + ?cliente= replace + client:changed.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202609132000';
-import { openSheet } from './sheet.js?v=202609132000';
-import { toast } from './toast.js?v=202609132000';
-import * as store from './store.js?v=202609132000';
-import { icon } from './icons.js?v=202609132000';
-import { T } from './i18n.js?v=202609132000';
+import { api, el } from '../api.js?v=202609132044';
+import { openSheet } from './sheet.js?v=202609132044';
+import { toast } from './toast.js?v=202609132044';
+import * as store from './store.js?v=202609132044';
+import { icon } from './icons.js?v=202609132044';
+import { T } from './i18n.js?v=202609132044';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
@@ -342,6 +342,16 @@ export function openEditClient(client, { selectClient } = {}) {
                     window.location.href = `/api/marketing/tt/login?client_id=${client.id}`;
                   },
                 }, [icon('spark', 16), el('span', { text: T('Conectar TikTok', 'Connect TikTok') })]),
+            client.yt_channel_title
+              ? el('div', { class: 'cs-igrow', text: '▶️ ' + client.yt_channel_title })
+              : el('button', {
+                  class: 'btn cs-igconnect', type: 'button',
+                  onclick: async () => {
+                    const r = await fetch(`/api/marketing/yt/login?client_id=${client.id}`, { credentials: 'include', redirect: 'manual' });
+                    if (r.status === 503) { toast(T('Falta configurar la app de YouTube (pídeme la guía).', 'YouTube still needs setup (ask me for the guide).'), { type: 'error' }); return; }
+                    window.location.href = `/api/marketing/yt/login?client_id=${client.id}`;
+                  },
+                }, [icon('play', 16), el('span', { text: T('Conectar YouTube', 'Connect YouTube') })]),
           ]);
           // Si está conectado: cargar métricas en vivo bajo el estado
           if (client.ig_username) {

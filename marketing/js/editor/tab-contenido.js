@@ -19,13 +19,14 @@ import {
   el,
   statusBadge, approvalBadge, chip,
   fmtDate, avatar, isClientRole,
-} from '../api.js?v=202609132000';
-import { pickFrom } from '../shell/sheet.js?v=202609132000';
-import * as store from '../shell/store.js?v=202609132000';
-import * as checklistService from '../services/checklist.js?v=202609132000';
-import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202609132000';
-import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609132000';
-import { T } from '../shell/i18n.js?v=202609132000';
+} from '../api.js?v=202609132044';
+import { pickFrom } from '../shell/sheet.js?v=202609132044';
+import * as store from '../shell/store.js?v=202609132044';
+import * as checklistService from '../services/checklist.js?v=202609132044';
+import { rowButton, rowSwitch, rowUrl, rowTextExpand, emptyValue } from './fields.js?v=202609132044';
+import { openTikTokSheet, openYouTubeSheet, resumenTikTok, resumenYouTube } from './canales.js?v=202609132044';
+import { applyChecklistTemplate, contentTypeLabel } from './templates.js?v=202609132044';
+import { T } from '../shell/i18n.js?v=202609132044';
 
 export function mount(host, ed) {
   const { ctx } = ed;
@@ -215,6 +216,66 @@ export function mount(host, ed) {
     onToggle: (next) => { ed.setField('also_facebook', next ? 1 : 0, { immediate: true }); return true; },
   });
 
+  // ── Tambien en TikTok y en YouTube (staff) ───────────────────────────────
+  // 2026-09-13: el interruptor de TikTok existia en el editor VIEJO (que ya
+  // nadie abre) y YouTube no existia en ninguna parte, asi que desde la app
+  // solo se podia sumar Facebook. Los dos guardan ademas una decision humana
+  // obligatoria (privacidad en TikTok; "contenido para ninos" en YouTube) que
+  // vive en su hoja de opciones: por eso el interruptor la abre al encenderse.
+  const rTikTok = rowSwitch({
+    label: T('Publicar también en TikTok', 'Also publish on TikTok'),
+    sub: T('Al publicarse, el video también sale en el TikTok conectado de la marca', "When it publishes, the video also goes out on the brand's connected TikTok"),
+    get: () => !!post().also_tiktok,
+    onToggle: (next) => {
+      ed.setField('also_tiktok', next ? 1 : 0, { immediate: true });
+      sincronizarCanales();
+      if (next) openTikTokSheet(ed, { onSaved: () => { sincronizarCanales(); } });
+      return true;
+    },
+  });
+  const rTikTokOpts = rowButton({
+    label: T('Opciones de TikTok', 'TikTok options'),
+    render: (v) => v.appendChild(el('span', { text: resumenTikTok(post()) })),
+    onTap: () => openTikTokSheet(ed, { onSaved: () => { sincronizarCanales(); } }),
+  });
+
+  const rYouTube = rowSwitch({
+    label: T('Publicar también en YouTube', 'Also publish on YouTube'),
+    sub: T('Solo piezas con video; los reels 9:16 salen como Short', 'Video pieces only; 9:16 reels go out as a Short'),
+    get: () => !!post().also_youtube,
+    onToggle: (next) => {
+      ed.setField('also_youtube', next ? 1 : 0, { immediate: true });
+      sincronizarCanales();
+      if (next) openYouTubeSheet(ed, { onSaved: () => { sincronizarCanales(); } });
+      return true;
+    },
+  });
+  const rYouTubeOpts = rowButton({
+    label: T('Opciones de YouTube', 'YouTube options'),
+    render: (v) => v.appendChild(el('span', { text: resumenYouTube(post()) })),
+    onTap: () => openYouTubeSheet(ed, { onSaved: () => { sincronizarCanales(); } }),
+  });
+
+  // Si un canal extra falló, el equipo tiene que VERLO aquí: hasta ahora el
+  // error solo vivía en la columna y en un aviso que se pierde en la lista.
+  const avisoCanales = el('div', { class: 'alert alert--error', hidden: true });
+
+  // Las filas de opciones solo existen cuando su canal está encendido.
+  function sincronizarCanales() {
+    const p = post();
+    rTikTokOpts.el.hidden = !p.also_tiktok;
+    rYouTubeOpts.el.hidden = !p.also_youtube;
+    try { rTikTokOpts.refresh(); rYouTubeOpts.refresh(); } catch { /* noop */ }
+    const fallos = [
+      p.fb_error ? `Facebook: ${p.fb_error}` : null,
+      p.tt_error ? `TikTok: ${p.tt_error}` : null,
+      p.yt_error ? `YouTube: ${p.yt_error}` : null,
+    ].filter(Boolean);
+    while (avisoCanales.firstChild) avisoCanales.removeChild(avisoCanales.firstChild);
+    avisoCanales.hidden = !fallos.length;
+    for (const f of fallos) avisoCanales.appendChild(el('div', { text: f }));
+  }
+
   // ── URLs ───────────────────────────────────────────────────────────────────
   const rInspo = rowUrl({
     label: T('Inspiración', 'Inspiration'),
@@ -265,18 +326,21 @@ export function mount(host, ed) {
 
   rows.push(
     rEstado, rFecha, rPlataforma, rTipo, rInspo, rVideo,
-    ...(esCliente ? [] : [rAprobacion, rGrabacion, rPersona, rVisible, rFacebook, rNotas, ...personRows]),
+    ...(esCliente ? [] : [rAprobacion, rGrabacion, rPersona, rVisible, rFacebook, rTikTok, rTikTokOpts, rYouTube, rYouTubeOpts, rNotas, ...personRows]),
   );
 
   addSection(T('Flujo', 'Flow'), [rEstado.el, ...(esCliente ? [] : [rAprobacion.el]), rFecha.el]);
   addSection(T('Formato', 'Format'), [rPlataforma.el, rTipo.el, ...(esCliente ? [] : [rGrabacion.el, rPersona.el])]);
   if (!esCliente) addSection(T('Cliente', 'Client'), [rVisible.el]);
-  if (!esCliente) addSection(T('Redes', 'Distribution'), [rFacebook.el]);
+  if (!esCliente) addSection(T('Redes', 'Distribution'), [rFacebook.el, rTikTok.el, rTikTokOpts.el, rYouTube.el, rYouTubeOpts.el, avisoCanales]);
   addSection(T('Enlaces', 'Links'), [rInspo.el, rVideo.el]);
   if (!esCliente) addSection(T('Notas', 'Notes'), [rNotas.el, ...personRows.map((r) => r.el)]);
 
+  if (!esCliente) sincronizarCanales();
+
   function refreshAll() {
     for (const r of rows) { try { r.refresh(); } catch { /* noop */ } }
+    if (!esCliente) sincronizarCanales();
     ed.refreshHeader();
   }
 

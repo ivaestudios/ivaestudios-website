@@ -57,6 +57,7 @@ import { pedirMes } from './_mes-ia.js';
 import { publicarEnInstagram, ahoraCancun, estadoContenedor, publicarContenedorExistente } from './_publicador.js';
 import { handleFbLogin, handleFbCallback, handleFbPick, handleFbMetrics, publicarEnFacebook } from './_facebook.js';
 import { handleTtLogin, handleTtCallback, handleTtCreator, publicarEnTikTok } from './_tiktok.js';
+import { handleYtLogin, handleYtCallback, handleYtEstado, publicarEnYouTube } from './_youtube.js';
 import { pedirCarrusel } from './_carrusel-ia.js';
 import {
   handleIgLogin, handleIgCallback, handleIgAssign, handleIgDisconnect,
@@ -412,7 +413,8 @@ const POST_EDITABLE_FIELDS = [
   'title', 'content_type', 'grabacion', 'publish_date', 'publish_time', 'assignee', 'platform',
   'status', 'caption', 'inspo_url', 'video_url', 'hook', 'body', 'cta',
   'hashtags', 'alt_text', 'notes_team', 'client_visible', 'priority',
-  'collaborators', 'thumb_offset', 'also_facebook', 'also_tiktok', 'tt_options'
+  'collaborators', 'thumb_offset', 'also_facebook', 'also_tiktok', 'tt_options',
+  'also_youtube', 'yt_options'
 ];
 
 // Lo que un rol CLIENTE puede escribir de un post: su contenido y el formato,
@@ -468,6 +470,11 @@ const POST_V2_FIELDS = [
   // Facebook" y la acción Publicar ahora — sin estos campos el toggle se veía
   // siempre apagado aunque D1 tuviera also_facebook=1.
   'publish_time', 'published_media_id', 'publish_error', 'also_facebook', 'fb_post_id', 'fb_error',
+  // TikTok y YouTube (2026-09-13): el interruptor de TikTok existía en el
+  // editor viejo pero su campo NUNCA volvía en la respuesta, así que se
+  // pintaba apagado aunque la pieza lo tuviera encendido en D1.
+  'also_tiktok', 'tt_post_id', 'tt_error', 'tt_options',
+  'also_youtube', 'yt_video_id', 'yt_error', 'yt_options',
 ];
 
 const CONTENT_TYPES = ['reel', 'post', 'tiktok', 'informativo', 'carrusel', 'experiencia', 'pauta', 'tratamientos', 'historia', 'foto'];
@@ -1472,6 +1479,7 @@ function shapeClient(c, counts) {
     ig_username: c.ig_username || null,
     fb_page_name: c.fb_page_name || null,
     tt_username: c.tt_username || null,
+    yt_channel_title: c.yt_channel_title || null,
     counts: counts || { posts: 0, pending: 0 }
   };
 }
@@ -5083,6 +5091,7 @@ async function route(request, env, authCtx) {
     return url.searchParams.get('pick') ? handleFbPick(request, env, url) : handleFbCallback(request, env, url);
   }
   if (path === '/tt/callback' && method === 'GET') return handleTtCallback(request, env, url);
+  if (path === '/yt/callback' && method === 'GET') return handleYtCallback(request, env, url);
   if (path === '/ig/assign' && method === 'POST') return handleIgAssign(request, env);
 
   // ── HEALTH (público; para monitores externos: ¿responde la app y la BD?) ──
@@ -5460,6 +5469,11 @@ async function route(request, env, authCtx) {
   if (parts[0] === 'tt') {
     if (path === '/tt/login' && method === 'GET') return handleTtLogin(request, env, session, url);
     if (path === '/tt/creator' && method === 'GET') return handleTtCreator(env, session, url);
+    return json({ error: 'Not found' }, 404);
+  }
+  if (parts[0] === 'yt') {
+    if (path === '/yt/login' && method === 'GET') return handleYtLogin(request, env, session, url);
+    if (path === '/yt/estado' && method === 'GET') return handleYtEstado(env, session, url);
     return json({ error: 'Not found' }, 404);
   }
 
@@ -5844,6 +5858,68 @@ async function vigilarReloj(env) {
   } catch { /* el vigilante jamás tumba nada */ }
 }
 
+// ── LOS CANALES EXTRA (TikTok y YouTube) ─────────────────────────────────────
+// Salen DESPUÉS del canal principal y jamás lo bloquean: si fallan, la pieza
+// sigue publicada, el error queda en su columna y los admins reciben aviso.
+// Viven en UNA sola función porque a Facebook ya le pasó lo contrario: el
+// reloj lo publicaba y el botón "Publicar ahora" lo ignoraba en silencio
+// durante meses. Devuelven null cuando la pieza no pidió ese canal.
+async function avisarAdmins(env, { type, post, body, link }) {
+  try {
+    const admins = await env.DB.prepare("SELECT id FROM mkt_users WHERE role = 'admin' AND active = 1").all();
+    await notify(env, {
+      user_ids: (admins.results || []).map((u) => u.id),
+      type, post_id: post.id, client_id: post.client_id,
+      actor_name: 'Programador IVAE', body, link: link || ('#/post/' + post.id),
+    });
+  } catch { /* un aviso jamás tumba una publicación */ }
+}
+
+async function extraTikTok(env, post, session) {
+  if (Number(post.also_tiktok) !== 1 || post.tt_post_id) return null;
+  try {
+    const videoUrlTt = await videoFirmadoDePieza(env, post);
+    const slidesTt = await slidesFirmadosDePieza(env, post);
+    const rt = await publicarEnTikTok(env, { clientId: post.client_id, post, videoUrl: videoUrlTt, slides: slidesTt });
+    await env.DB.prepare("UPDATE mkt_posts SET tt_post_id = ?, tt_error = NULL, updated_at = datetime('now') WHERE id = ?")
+      .bind(rt.ttPostId, post.id).run();
+    await logActivity(env, {
+      client_id: post.client_id, post_id: post.id, session, action: 'post.publicado_tt',
+      detail: rt.modo === 'buzon' ? 'Enviado al BUZÓN de TikTok de la marca — publicar con un tap desde la app.' : rt.ttPostId,
+    });
+    return { ok: true, post_id: rt.ttPostId, modo: rt.modo };
+  } catch (eTt) {
+    const msgTt = ((eTt && eTt.message) || 'Error desconocido').slice(0, 300);
+    await env.DB.prepare("UPDATE mkt_posts SET tt_error = ?, updated_at = datetime('now') WHERE id = ?").bind(msgTt, post.id).run();
+    await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicar_tt_error', detail: msgTt });
+    await avisarAdmins(env, { type: 'publicador_tt_error', post, body: `⚠️ TIKTOK falló — ${post.title}: ${msgTt.slice(0, 120)}` });
+    return { ok: false, error: msgTt };
+  }
+}
+
+async function extraYouTube(env, post, session) {
+  if (Number(post.also_youtube) !== 1 || post.yt_video_id) return null;
+  try {
+    const videoUrlYt = await videoFirmadoDePieza(env, post);
+    const ry = await publicarEnYouTube(env, { clientId: post.client_id, post, videoUrl: videoUrlYt });
+    await env.DB.prepare("UPDATE mkt_posts SET yt_video_id = ?, yt_error = NULL, updated_at = datetime('now') WHERE id = ?")
+      .bind(ry.ytVideoId, post.id).run();
+    await logActivity(env, {
+      client_id: post.client_id, post_id: post.id, session, action: 'post.publicado_yt',
+      detail: ry.modo === 'publico'
+        ? 'https://youtu.be/' + ry.ytVideoId
+        : `Subido a YouTube en ${ry.modo} (https://youtu.be/${ry.ytVideoId}) — hazlo público desde YouTube Studio.`,
+    });
+    return { ok: true, video_id: ry.ytVideoId, modo: ry.modo, url: 'https://youtu.be/' + ry.ytVideoId };
+  } catch (eYt) {
+    const msgYt = ((eYt && eYt.message) || 'Error desconocido').slice(0, 300);
+    await env.DB.prepare("UPDATE mkt_posts SET yt_error = ?, updated_at = datetime('now') WHERE id = ?").bind(msgYt, post.id).run();
+    await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicar_yt_error', detail: msgYt });
+    await avisarAdmins(env, { type: 'publicador_yt_error', post, body: `⚠️ YOUTUBE falló — ${post.title}: ${msgYt.slice(0, 120)}` });
+    return { ok: false, error: msgYt };
+  }
+}
+
 async function publicarPendientes(env) {
   const { fecha, hora } = ahoraCancun();
   // Rescate: una pieza que quedó en 'publicando' >10 min es un candado
@@ -5880,24 +5956,41 @@ async function publicarPendientes(env) {
     ).bind(post.id).run();
     if (!claim || !claim.meta || claim.meta.changes !== 1) continue;   // otro reloj la tiene
     try {
-      // MARCA SIN INSTAGRAM pero con página de Facebook y "también en Facebook"
-      // (caso real: WASICAFE, 2026-09-10). El mismo atajo que "Publicar ahora":
-      // publicar SOLO Facebook en vez de tronar con publicarEnInstagram.
-      if ((!post.ig_user_id || !post.ig_access_token) && Number(post.also_facebook) === 1) {
-        if (!post.fb_post_id) {
-          const cliFb = await env.DB.prepare('SELECT fb_page_id, fb_page_name, fb_access_token FROM mkt_clients WHERE id = ?').bind(post.client_id).first();
-          const videoUrlFb = await videoFirmadoDePieza(env, post);
-          const slidesFb = await slidesFirmadosDePieza(env, post);
-          const rf = await publicarEnFacebook(env, { client: cliFb, post, videoUrl: videoUrlFb, slides: slidesFb });
-          await env.DB.prepare(
-            `UPDATE mkt_posts SET status = 'publicado', fb_post_id = ?, fb_error = NULL, published_at = datetime('now'),
-             publish_error = NULL, updated_at = datetime('now') WHERE id = ?`
-          ).bind(rf.fbPostId, post.id).run();
-          await logActivity(env, { client_id: post.client_id, post_id: post.id, session: sesionSistema, action: 'post.publicado_fb', detail: rf.permalink || rf.fbPostId });
-          resultados.push({ id: post.id, ok: true, fb: rf.fbPostId });
-        } else {
-          await env.DB.prepare("UPDATE mkt_posts SET status = 'publicado', updated_at = datetime('now') WHERE id = ?").bind(post.id).run();
+      // MARCA SIN INSTAGRAM pero con OTROS canales encendidos (caso real:
+      // WASICAFE, 2026-09-10, que solo tenía Facebook). Desde 2026-09-13 vale
+      // para los tres: Facebook, TikTok y YouTube — una pieza puede vivir solo
+      // en YouTube y el reloj ya no truena con "no tiene Instagram conectado".
+      const sinInstagram = !post.ig_user_id || !post.ig_access_token;
+      const pideOtroCanal = Number(post.also_facebook) === 1 || Number(post.also_tiktok) === 1 || Number(post.also_youtube) === 1;
+      if (sinInstagram && pideOtroCanal) {
+        let algoSalio = !!post.fb_post_id || !!post.tt_post_id || !!post.yt_video_id;
+        let ultimoError = null;
+        if (Number(post.also_facebook) === 1 && !post.fb_post_id) {
+          try {
+            const cliFb = await env.DB.prepare('SELECT fb_page_id, fb_page_name, fb_access_token FROM mkt_clients WHERE id = ?').bind(post.client_id).first();
+            const videoUrlFb = await videoFirmadoDePieza(env, post);
+            const slidesFb = await slidesFirmadosDePieza(env, post);
+            const rf = await publicarEnFacebook(env, { client: cliFb, post, videoUrl: videoUrlFb, slides: slidesFb });
+            await env.DB.prepare("UPDATE mkt_posts SET fb_post_id = ?, fb_error = NULL, updated_at = datetime('now') WHERE id = ?")
+              .bind(rf.fbPostId, post.id).run();
+            await logActivity(env, { client_id: post.client_id, post_id: post.id, session: sesionSistema, action: 'post.publicado_fb', detail: rf.permalink || rf.fbPostId });
+            algoSalio = true;
+          } catch (eFbSolo) {
+            ultimoError = ((eFbSolo && eFbSolo.message) || 'Error desconocido').slice(0, 300);
+            await env.DB.prepare("UPDATE mkt_posts SET fb_error = ?, updated_at = datetime('now') WHERE id = ?").bind(ultimoError, post.id).run();
+            await logActivity(env, { client_id: post.client_id, post_id: post.id, session: sesionSistema, action: 'post.publicar_fb_error', detail: ultimoError });
+          }
         }
+        const rtSolo = await extraTikTok(env, post, sesionSistema);
+        if (rtSolo && rtSolo.ok) algoSalio = true; else if (rtSolo) ultimoError = rtSolo.error;
+        const rySolo = await extraYouTube(env, post, sesionSistema);
+        if (rySolo && rySolo.ok) algoSalio = true; else if (rySolo) ultimoError = rySolo.error;
+        if (!algoSalio) throw new Error(ultimoError || 'No se pudo publicar en ningún canal.');
+        await env.DB.prepare(
+          `UPDATE mkt_posts SET status = 'publicado', published_at = COALESCE(published_at, datetime('now')),
+           publish_error = NULL, updated_at = datetime('now') WHERE id = ?`
+        ).bind(post.id).run();
+        resultados.push({ id: post.id, ok: true, fb: post.fb_post_id || null, sin_ig: true });
         continue;
       }
       let r = null;
@@ -5974,37 +6067,11 @@ async function publicarPendientes(env) {
           });
         }
       }
-      // TIKTOK (opt-in por pieza): igual que FB — después de IG, jamás bloquea.
-      if (Number(post.also_tiktok) === 1 && !post.tt_post_id) {
-        try {
-          const videoUrlTt = await videoFirmadoDePieza(env, post);
-          const slidesTt = await slidesFirmadosDePieza(env, post);
-          const rt = await publicarEnTikTok(env, { clientId: post.client_id, post, videoUrl: videoUrlTt, slides: slidesTt });
-          await env.DB.prepare("UPDATE mkt_posts SET tt_post_id = ?, tt_error = NULL, updated_at = datetime('now') WHERE id = ?")
-            .bind(rt.ttPostId, post.id).run();
-          await logActivity(env, {
-            client_id: post.client_id, post_id: post.id, session: sesionSistema,
-            action: 'post.publicado_tt',
-            detail: rt.modo === 'buzon' ? 'Enviado al BUZÓN de TikTok de la marca — publicar con un tap desde la app.' : rt.ttPostId,
-          });
-        } catch (eTt) {
-          const msgTt = ((eTt && eTt.message) || 'Error desconocido').slice(0, 300);
-          await env.DB.prepare("UPDATE mkt_posts SET tt_error = ?, updated_at = datetime('now') WHERE id = ?")
-            .bind(msgTt, post.id).run();
-          await logActivity(env, {
-            client_id: post.client_id, post_id: post.id, session: sesionSistema,
-            action: 'post.publicar_tt_error', detail: msgTt,
-          });
-          const adminsTt = await env.DB.prepare("SELECT id FROM mkt_users WHERE role = 'admin' AND active = 1").all();
-          await notify(env, {
-            user_ids: (adminsTt.results || []).map((u) => u.id),
-            type: 'publicador_tt_error', post_id: post.id, client_id: post.client_id,
-            actor_name: 'Programador IVAE',
-            body: `⚠️ TIKTOK falló — ${post.title}: ${msgTt.slice(0, 120)}`,
-            link: '#/post/' + post.id,
-          });
-        }
-      }
+      // TIKTOK y YOUTUBE (opt-in por pieza): igual que FB — después de
+      // Instagram y sin bloquearlo nunca. La lógica vive en extraTikTok /
+      // extraYouTube para que el reloj y "Publicar ahora" hagan LO MISMO.
+      await extraTikTok(env, post, sesionSistema);
+      await extraYouTube(env, post, sesionSistema);
       if (reconciliada) {
         const admins = await env.DB.prepare("SELECT id FROM mkt_users WHERE role = 'admin' AND active = 1").all();
         await notify(env, {
@@ -6086,28 +6153,46 @@ async function handlePublicarPieza(env, postId, session) {
         .bind(estadoPrevio, postId).run();
     } catch { /* noop */ }
   };
-  // MARCA SIN INSTAGRAM pero con página de Facebook conectada y el interruptor
-  // "también en Facebook" activo (caso real: WASICAFE, 2026-08-27): publicar
-  // SOLO Facebook en vez de tronar con "no tiene Instagram conectado".
-  if ((!post.ig_user_id || !post.ig_access_token) && Number(post.also_facebook) === 1 && !post.fb_post_id) {
-    try {
-      const cliFb = await env.DB.prepare('SELECT fb_page_id, fb_page_name, fb_access_token FROM mkt_clients WHERE id = ?').bind(post.client_id).first();
-      const videoUrlFb = await videoFirmadoDePieza(env, post);
-      const slidesFb = await slidesFirmadosDePieza(env, post);
-      const rf = await publicarEnFacebook(env, { client: cliFb, post, videoUrl: videoUrlFb, slides: slidesFb });
-      await env.DB.prepare(
-        `UPDATE mkt_posts SET status = 'publicado', fb_post_id = ?, fb_error = NULL, published_at = datetime('now'),
-         publish_error = NULL, updated_at = datetime('now') WHERE id = ?`
-      ).bind(rf.fbPostId, post.id).run();
-      await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicado_fb', detail: rf.permalink || rf.fbPostId });
-      return json({ ok: true, fb: { ok: true, post_id: rf.fbPostId, permalink: rf.permalink || null } });
-    } catch (eFb) {
-      const msgFb = ((eFb && eFb.message) || 'Error desconocido').slice(0, 300);
-      await env.DB.prepare(`UPDATE mkt_posts SET fb_error = ?, updated_at = datetime('now') WHERE id = ?`).bind(msgFb, post.id).run();
-      await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicar_fb_error', detail: msgFb });
-      await soltarCandado();
-      return json({ error: msgFb }, 422);
+  // MARCA SIN INSTAGRAM pero con otros canales encendidos (caso real:
+  // WASICAFE, 2026-08-27, que solo tenía Facebook). Desde 2026-09-13 cubre los
+  // tres: Facebook, TikTok y YouTube — el mismo criterio que el reloj.
+  const sinInstagram = !post.ig_user_id || !post.ig_access_token;
+  const pideOtroCanal = Number(post.also_facebook) === 1 || Number(post.also_tiktok) === 1 || Number(post.also_youtube) === 1;
+  if (sinInstagram && pideOtroCanal) {
+    let algoSalio = !!post.fb_post_id || !!post.tt_post_id || !!post.yt_video_id;
+    let ultimoError = null;
+    let fbSolo = null;
+    if (Number(post.also_facebook) === 1 && !post.fb_post_id) {
+      try {
+        const cliFb = await env.DB.prepare('SELECT fb_page_id, fb_page_name, fb_access_token FROM mkt_clients WHERE id = ?').bind(post.client_id).first();
+        const videoUrlFb = await videoFirmadoDePieza(env, post);
+        const slidesFb = await slidesFirmadosDePieza(env, post);
+        const rf = await publicarEnFacebook(env, { client: cliFb, post, videoUrl: videoUrlFb, slides: slidesFb });
+        await env.DB.prepare("UPDATE mkt_posts SET fb_post_id = ?, fb_error = NULL, updated_at = datetime('now') WHERE id = ?")
+          .bind(rf.fbPostId, post.id).run();
+        await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicado_fb', detail: rf.permalink || rf.fbPostId });
+        fbSolo = { ok: true, post_id: rf.fbPostId, permalink: rf.permalink || null };
+        algoSalio = true;
+      } catch (eFb) {
+        ultimoError = ((eFb && eFb.message) || 'Error desconocido').slice(0, 300);
+        await env.DB.prepare(`UPDATE mkt_posts SET fb_error = ?, updated_at = datetime('now') WHERE id = ?`).bind(ultimoError, post.id).run();
+        await logActivity(env, { client_id: post.client_id, post_id: post.id, session, action: 'post.publicar_fb_error', detail: ultimoError });
+        fbSolo = { ok: false, error: ultimoError };
+      }
     }
+    const ttSolo = await extraTikTok(env, post, session);
+    if (ttSolo && ttSolo.ok) algoSalio = true; else if (ttSolo) ultimoError = ttSolo.error;
+    const ytSolo = await extraYouTube(env, post, session);
+    if (ytSolo && ytSolo.ok) algoSalio = true; else if (ytSolo) ultimoError = ytSolo.error;
+    if (!algoSalio) {
+      await soltarCandado();
+      return json({ error: ultimoError || 'No se pudo publicar en ningún canal.' }, 422);
+    }
+    await env.DB.prepare(
+      `UPDATE mkt_posts SET status = 'publicado', published_at = COALESCE(published_at, datetime('now')),
+       publish_error = NULL, updated_at = datetime('now') WHERE id = ?`
+    ).bind(post.id).run();
+    return json({ ok: true, fb: fbSolo, tt: ttSolo, yt: ytSolo });
   }
   try {
     const videoUrl = await videoFirmadoDePieza(env, post);
@@ -6141,7 +6226,11 @@ async function handlePublicarPieza(env, postId, session) {
         fb = { ok: false, error: msgFb };
       }
     }
-    return json({ ok: true, media_id: r.mediaId, permalink: r.permalink, fb });
+    // TIKTOK y YOUTUBE: el botón manual hace LO MISMO que el reloj (antes
+    // ignoraba TikTok por completo).
+    const tt = await extraTikTok(env, post, session);
+    const yt = await extraYouTube(env, post, session);
+    return json({ ok: true, media_id: r.mediaId, permalink: r.permalink, fb, tt, yt });
   } catch (e) {
     const msg = ((e && e.message) || 'Error desconocido').slice(0, 300);
     await env.DB.prepare(`UPDATE mkt_posts SET publish_error = ?, updated_at = datetime('now') WHERE id = ?`).bind(msg, post.id).run();

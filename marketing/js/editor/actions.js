@@ -12,12 +12,12 @@
 //   Sin undo (el delete es hard en el backend): el copy lo deja claro.
 // ============================================================================
 
-import { el, api, copyText, isClientRole } from '../api.js?v=202609132000';
-import { T } from '../shell/i18n.js?v=202609132000';
-import { icon } from '../shell/icons.js?v=202609132000';
-import { openSheet } from '../shell/sheet.js?v=202609132000';
-import * as store from '../shell/store.js?v=202609132000';
-import * as cl from '../services/checklist.js?v=202609132000';
+import { el, api, copyText, isClientRole } from '../api.js?v=202609132044';
+import { T } from '../shell/i18n.js?v=202609132044';
+import { icon } from '../shell/icons.js?v=202609132044';
+import { openSheet } from '../shell/sheet.js?v=202609132044';
+import * as store from '../shell/store.js?v=202609132044';
+import * as cl from '../services/checklist.js?v=202609132044';
 
 function isMissingEndpoint(e) {
   const s = e && e.status;
@@ -266,14 +266,19 @@ export function openPublishNowSheet(ed) {
           pubBtn.dataset.loading = 'true';
           try {
             const r = await api.post(`/posts/${encodeURIComponent(ed.postId)}/publicar`, {});
-            const fbOk = r && r.fb && r.fb.ok;
-            const igOk = !!(r && r.media_id);
             close({ source: 'done' });
+            // El resumen dice EXACTAMENTE a dónde salió y a dónde no: con
+            // cuatro canales, un "Publicado" a secas ya no informa nada.
+            const salio = [];
+            const fallo = [];
+            if (r && r.media_id) salio.push('Instagram');
+            if (r && r.fb) (r.fb.ok ? salio : fallo).push('Facebook');
+            if (r && r.tt) (r.tt.ok ? salio : fallo).push(r.tt.ok && r.tt.modo === 'buzon' ? T('TikTok (a su buzón)', 'TikTok (to its inbox)') : 'TikTok');
+            if (r && r.yt) (r.yt.ok ? salio : fallo).push(r.yt.ok && r.yt.modo !== 'publico' ? T('YouTube (en privado)', 'YouTube (private)') : 'YouTube');
             ed.ctx.toast(
-              igOk && fbOk ? T('Publicado en Instagram y en Facebook.', 'Published to Instagram and to Facebook.')
-                : fbOk ? T('Publicado en la página de Facebook.', 'Published to the Facebook Page.')
-                : T('Publicado en Instagram.', 'Published to Instagram.'),
-              { type: 'success' },
+              (salio.length ? `${T('Publicado en', 'Published to')} ${salio.join(', ')}.` : T('No salió en ningún canal.', 'It did not go out anywhere.'))
+                + (fallo.length ? ` ${T('Falló', 'Failed')}: ${fallo.join(', ')}.` : ''),
+              { type: fallo.length ? 'info' : 'success' },
             );
             try { await store.loadPosts(); } catch { /* la vista se refresca sola al volver */ }
           } catch (e) {
@@ -285,8 +290,8 @@ export function openPublishNowSheet(ed) {
       });
       body.append(
         el('p', { class: 'help', text: T(
-          'La pieza se publica AHORA en el Instagram conectado de la marca; si el interruptor "también en Facebook" está activo, también en su página.',
-          'The piece publishes NOW to the brand\'s connected Instagram; if the "also on Facebook" switch is on, also to its Facebook Page.',
+          'La pieza se publica AHORA en el Instagram conectado de la marca, y en los canales extra que tenga encendidos (Facebook, TikTok, YouTube).',
+          "The piece publishes NOW to the brand's connected Instagram, plus any extra channels switched on (Facebook, TikTok, YouTube).",
         ) }),
         el('div', { class: 'sheet__footer' }, [
           el('button', { class: 'btn', type: 'button', text: T('Cancelar', 'Cancel'), onclick: () => close({ source: 'cancel' }) }),
