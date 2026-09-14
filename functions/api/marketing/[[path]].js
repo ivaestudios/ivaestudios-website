@@ -6246,7 +6246,7 @@ async function handlePinterestFotos(request) {
 async function handleResolveDownload(request, env) {
   let b; try { b = await request.json(); } catch { return json({ error: 'JSON invalido' }, 400); }
   const src = String((b && b.url) || '').trim();
-  if (!detectPlatform(src)) return json({ error: 'Pega un link de Instagram, TikTok o Pinterest.' }, 400);
+  if (!detectPlatform(src)) return json({ error: 'Pega un link de Instagram, TikTok, Pinterest o YouTube.' }, 400);
   try {
     const info = await resolveVideo(src, env);
     const list = info.items && info.items.length ? info.items : [{ url: info.mediaUrl, type: info.type || 'video', ext: info.ext || 'mp4' }];

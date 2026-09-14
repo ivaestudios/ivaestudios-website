@@ -9,9 +9,9 @@
 //        → GET /descargar/file?u=... (stream con Content-Disposition: attachment).
 // Nada se guarda: las URLs del CDN expiran, así que se re-resuelve al descargar.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609121958';
-import { icon } from '../shell/icons.js?v=202609121958';
-import { T } from '../shell/i18n.js?v=202609121958';
+import { api, el, clear, toast } from '../api.js?v=202609131939';
+import { icon } from '../shell/icons.js?v=202609131939';
+import { T } from '../shell/i18n.js?v=202609131939';
 
 const VIEW_ID = 'descargar';
 
@@ -24,6 +24,7 @@ const PLATFORMS = {
   instagram: { label: 'Instagram', cls: 'ig' },
   tiktok: { label: 'TikTok', cls: 'tt' },
   pinterest: { label: 'Pinterest', cls: 'pin' },
+  youtube: { label: 'YouTube', cls: 'yt' },
 };
 
 function detect(url) {
@@ -31,6 +32,7 @@ function detect(url) {
   if (/tiktok\.com|vm\.tiktok|vt\.tiktok/.test(u)) return 'tiktok';
   if (/instagram\.com|instagr\.am/.test(u)) return 'instagram';
   if (/pinterest\.[a-z.]+|pin\.it/.test(u)) return 'pinterest';
+  if (/youtube\.com|youtu\.be|youtube-nocookie\.com/.test(u)) return 'youtube';
   return null;
 }
 
@@ -43,7 +45,7 @@ async function resolve(url) {
   const link = String(url || '').trim();
   if (!link) return;
   if (!/^https?:\/\//.test(link)) { toast(T('Pega un link completo (empieza con https://).', 'Paste a full link (it starts with https://).'), 'error'); return; }
-  if (!detect(link)) { toast(T('Solo Instagram, TikTok y Pinterest por ahora.', 'Only Instagram, TikTok and Pinterest for now.'), 'error'); return; }
+  if (!detect(link)) { toast(T('Solo Instagram, TikTok, Pinterest y YouTube por ahora.', 'Only Instagram, TikTok, Pinterest and YouTube for now.'), 'error'); return; }
   if (busy) return;
   if (inputEl) inputEl.blur(); // cierra el teclado en móvil para ver la tarjeta
   setBusy(true);
@@ -96,7 +98,7 @@ function render() {
       inputEl = el('input', {
         class: 'dl-input', type: 'url', inputmode: 'url', autocomplete: 'off',
         autocapitalize: 'off', spellcheck: 'false', enterkeyhint: 'go',
-        placeholder: T('Pega el link de Instagram, TikTok o Pinterest', 'Paste the Instagram, TikTok or Pinterest link'),
+        placeholder: T('Pega el link de Instagram, TikTok, Pinterest o YouTube', 'Paste the Instagram, TikTok, Pinterest or YouTube link'),
         onpaste: (e) => {
           const t = (e.clipboardData || window.clipboardData);
           const v = t && t.getData ? t.getData('text') : '';
@@ -235,7 +237,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/descargar.css?v=202609121958';
+  link.href = '/marketing/css/descargar.css?v=202609131939';
   document.head.appendChild(link);
 }
 

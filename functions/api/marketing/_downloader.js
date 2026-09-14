@@ -30,7 +30,7 @@ const IG_APP_ID = '936619743392459';
 const IG_DOC_ID = '27128499623469141'; // PolarisPostRootQuery (mediados 2026; ROTA — override por env IG_DOC_ID)
 
 // Hosts a los que el proxy tiene permitido ir a bajar bytes (defensa anti-SSRF).
-const MEDIA_HOST_RE = /(^|\.)(tiktokcdn\.com|tiktokcdn-us\.com|tiktokv\.com|tiktok\.com|byteoversea\.com|akamaized\.net|pinimg\.com|cdninstagram\.com|fbcdn\.net|tikwm\.com|eepy\.today|otomir23\.me|liubquanti\.click)$/i;
+const MEDIA_HOST_RE = /(^|\.)(tiktokcdn\.com|tiktokcdn-us\.com|tiktokv\.com|tiktok\.com|byteoversea\.com|akamaized\.net|pinimg\.com|cdninstagram\.com|fbcdn\.net|tikwm\.com|eepy\.today|otomir23\.me|liubquanti\.click|googlevideo\.com|ytimg\.com)$/i;
 
 // Instancias públicas de cobalt (resolver universal: hacen el fetch desde SUS
 // servidores, así que funcionan desde las IPs de datacenter de Cloudflare que
@@ -48,6 +48,7 @@ export function detectPlatform(raw) {
   if (/tiktok\.com|vm\.tiktok|vt\.tiktok/.test(u)) return 'tiktok';
   if (/instagram\.com|instagr\.am/.test(u)) return 'instagram';
   if (/pinterest\.[a-z.]+|pin\.it/.test(u)) return 'pinterest';
+  if (/youtube\.com|youtu\.be|youtube-nocookie\.com/.test(u)) return 'youtube';
   return null;
 }
 
@@ -67,6 +68,7 @@ function xfetch(url, opts = {}, ms = 12000) {
 export function mediaHeadersFor(platform) {
   if (platform === 'tiktok') return { 'User-Agent': DESKTOP_UA, 'Referer': 'https://www.tiktok.com/' };
   if (platform === 'pinterest') return { 'User-Agent': DESKTOP_UA, 'Referer': 'https://www.pinterest.com/' };
+  if (platform === 'youtube') return { 'User-Agent': DESKTOP_UA, 'Referer': 'https://www.youtube.com/' };
   return { 'User-Agent': DESKTOP_UA };
 }
 
@@ -171,7 +173,8 @@ export async function resolveVideo(url, env) {
   if (platform === 'tiktok') info = await resolveTikTok(url, env);
   else if (platform === 'pinterest') info = await resolvePinterest(url, env);
   else if (platform === 'instagram') info = await resolveInstagram(url, env);
-  else throw new Error('Pega un link de Instagram, TikTok o Pinterest.');
+  else if (platform === 'youtube') info = await resolveYouTube(url, env);
+  else throw new Error('Pega un link de Instagram, TikTok, Pinterest o YouTube.');
   // Normaliza a items[] (soporta imagen/carrusel) manteniendo mediaUrl (1er item).
   if (info) {
     if (!info.items || !info.items.length) {
@@ -189,6 +192,47 @@ export async function resolveVideo(url, env) {
 function enrichDims(info, from) {
   if (info && from && from.width && !info.width) { info.width = from.width; info.height = from.height; }
   if (info && from && from.thumbnail && !info.thumbnail) info.thumbnail = from.thumbnail;
+  return info;
+}
+
+// ── YouTube ──────────────────────────────────────────────────────────────────
+// Lo resuelve cobalt (el mismo relay universal que ya usan Instagram y el resto):
+// hace el fetch desde SUS servidores, así que no hay que pelear con las firmas de
+// googlevideo ni con el muro que YouTube le pone a las IPs de datacenter.
+// ⚠️ muxedOnly: en YouTube el 'redirect' crudo suele ser una pista DASH de SOLO
+// VIDEO (el audio va aparte); pidiendo solo TUNNEL, cobalt une video y audio en
+// su servidor y el MP4 baja CON sonido. Es la misma trampa que ya mordimos con
+// los reels de Instagram.
+// El título y la miniatura salen del oEmbed público de YouTube, que no pide
+// llave: sin eso el archivo se llamaría "youtube-youtube.mp4".
+async function youtubeOembed(url) {
+  try {
+    const r = await xfetch(`https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(url)}`,
+      { headers: { 'User-Agent': DESKTOP_UA } }, 7000);
+    if (!r.ok) return null;
+    const j = await r.json();
+    return {
+      title: j.title || null,
+      thumbnail: j.thumbnail_url || null,
+      width: j.thumbnail_width || null,
+      height: j.thumbnail_height || null,
+      author: j.author_name || null,
+    };
+  } catch { return null; }
+}
+
+async function resolveYouTube(url, env) {
+  const meta = await youtubeOembed(url);
+  const info = await viaCobalt(url, 'youtube', env, true);
+  if (!info) {
+    throw new Error('No se pudo resolver ese video de YouTube. Si es privado, de pago o con edad restringida, no se puede bajar.');
+  }
+  if (meta) {
+    info.title = meta.title || info.title;
+    info.thumbnail = info.thumbnail || meta.thumbnail;
+    info.author = meta.author || null;
+  }
+  // el alto/ancho del oEmbed son los de la MINIATURA, no los del video: no se copian
   return info;
 }
 
