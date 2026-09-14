@@ -85,7 +85,38 @@
   border-radius: var(--r-pill);
   color: #fff;
   line-height: 1.4;
+  /* El chip es un <span> y vive dentro de una rejilla: sin esto se BLOQUIFICA y
+     se estira a toda la columna (medido: la insignia de la tarjeta salía de 430
+     px de ancho en vez de abrazar su texto). Pasaba con las cuatro redes. */
+  width: fit-content;
 }
+
+/* La fila de abajo del campo es una LEYENDA de lo que se puede pegar, no cuatro
+   botones: con relleno saturado se leían como algo que hay que apretar, y al
+   pasar el cursor no ocurre nada porque no son botones. Aquí van suaves, con un
+   punto del color de la red. El relleno saturado se queda SOLO para la insignia
+   de la tarjeta (.dl-chip--sm), que sí identifica de dónde salió el video. */
+.dl-chips .dl-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--surface-2, rgba(20, 18, 30, .05));
+  color: var(--text-dim);
+  box-shadow: inset 0 0 0 1px var(--border, rgba(20, 18, 30, .10));
+  font-weight: 600;
+  cursor: default;
+  user-select: none;
+}
+.dl-chips .dl-chip::before {
+  content: '';
+  width: 8px; height: 8px; flex: none;
+  border-radius: 50%;
+  background: #999;
+}
+.dl-chips .dl-chip--ig::before  { background: linear-gradient(135deg, #f9ce34 0%, #ee2a7b 45%, #6228d7 100%); }
+.dl-chips .dl-chip--tt::before  { background: #111; }
+.dl-chips .dl-chip--pin::before { background: #e60023; }
+.dl-chips .dl-chip--yt::before  { background: #ff0000; }
 .dl-chip--sm { padding: 3px 9px; font-size: 11px; }
 .dl-chip--ig  { background: linear-gradient(135deg, #f9ce34 0%, #ee2a7b 45%, #6228d7 100%); }
 .dl-chip--tt  { background: #111; box-shadow: inset 0 0 0 1px #333; }

@@ -864,8 +864,9 @@
 
 /* ── descargar.css ───────────────────────────────────────────────────────── */
 /* No overrides required: everything is tokenized except intentional colored
-   fills — platform chips (.dl-chip--ig gradient / --tt #111 / --pin #e60023,
-   white text = brand identity), the .dl-play scrim over the thumbnail image,
+   fills — the platform BADGE on the result card (.dl-chip--sm: --ig gradient /
+   --tt #111 / --pin #e60023 / --yt #ff0000, white text = brand identity; the
+   legend row under the input is soft and tokenized), the .dl-play scrim,
    and the white .spinner--btn which only renders inside .btn-primary gradient
    buttons (js/views/descargar.js:181,213). See notes. */
 
