@@ -645,6 +645,13 @@
    sino de que el panel es claro. Los siete paneles se midieron en 8
    paginas y SIEMPRE son claros.
    ═══════════════════════════════════════════════════════════════════════ */
-.spots, .factbox, .svc, .step, .method, .pairing, .about {
+.spots, .factbox, .svc, .step, .method, .pairing, .about,
+.services, .related, .distinct {
   --gold2: #7d6428;
+  /* Y el texto atenuado: estas paginas declaran --muted-l con alfa 0.60, que
+     sobre crema da 4.14 y sobre arena 3.96, las dos por debajo del minimo.
+     Con 0.68 dan 5.31 y 4.96. Es el mismo alfa que ya se eligio para el
+     --muted-l global en la ronda de contraste, asi que el sitio queda
+     coherente en vez de tener dos atenuados distintos. */
+  --muted-l: rgba(26, 36, 51, 0.68);
 }
