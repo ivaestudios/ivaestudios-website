@@ -655,3 +655,13 @@
      coherente en vez de tener dos atenuados distintos. */
   --muted-l: rgba(26, 36, 51, 0.68);
 }
+
+/* La miga de pan de las landings usa un SEGUNDO atenuado, --muted-l2, que el
+   :root de arriba define con alfa 0.38: sobre crema da razon 2.27 en texto de
+   10px en mayusculas. Son 102 paginas, y es navegacion, no adorno.
+   Sube al mismo 0.68 (5.31) que --muted-l, para que el sitio tenga UN
+   atenuado y no tres. Acotado a .breadcrumb por si ese token se usa en algun
+   sitio donde el gris muy suave es justo lo que se quiere. */
+.breadcrumb {
+  --muted-l2: rgba(26, 36, 51, 0.68);
+}
