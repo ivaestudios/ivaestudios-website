@@ -617,3 +617,34 @@
   --bp-lg: 1024px;  /* small desktop */
   --bp-xl: 1440px;  /* large desktop */
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DORADO PROFUNDO EN LOS PANELES CLAROS · 2026-09-14
+
+   Las landings de servicio pintan sus etiquetas, folios y enlaces con
+   `var(--gold2)`, que vale #a8894a. Sobre los paneles claros de esas mismas
+   paginas ese dorado da 2.71 sobre arena (#ede8df) y 3.12 sobre crema
+   (#f9f8f7): por debajo del 4.5 que pide AA, que es el nivel que declara
+   la pagina de accesibilidad del sitio. Medido en WebKit y confirmado
+   muestreando los pixeles del trazo: 140 textos en 50 paginas.
+
+   Es exactamente el hallazgo de la ronda de contraste en las paginas de
+   ciudad: **un mismo dorado no puede vestir el fondo crema y el fondo
+   tinta**. Alli la salida fue el dorado profundo #7d6428, y es el mismo
+   que se usa aqui: 4.62 sobre arena y 5.31 sobre crema.
+
+   Se re-apunta la VARIABLE dentro de los paneles en vez de pintar cada
+   elemento, porque asi entran de una vez las etiquetas de seccion, los
+   `dt` de las fichas, los folios de paso, los enlaces y las cursivas.
+   Las variables se resuelven por CERCANIA, asi que esto le gana al
+   `:root{--gold2:#a8894a}` que cada pagina declara en linea.
+
+   NO va bajo `html.dark`: se comprobo que varias de estas paginas
+   (aniversario con invitados, compromiso, boda en playa, renovacion de
+   votos) NO llevan la clase `dark`, y el problema no depende del tema
+   sino de que el panel es claro. Los siete paneles se midieron en 8
+   paginas y SIEMPRE son claros.
+   ═══════════════════════════════════════════════════════════════════════ */
+.spots, .factbox, .svc, .step, .method, .pairing, .about {
+  --gold2: #7d6428;
+}
