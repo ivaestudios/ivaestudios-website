@@ -334,6 +334,16 @@ ul { margin: 0; padding: 0; list-style: none; }
   box-shadow: var(--sh-glow);
 }
 .btn-primary:hover {
+  /* REPINTAR EL FONDO (2026-09-13): `.btn:hover` usa el atajo
+     `background: var(--surface)`, que ademas de poner blanco BORRA el
+     background-image. Como esta regla tiene la misma especificidad y solo
+     venia despues, el degradado se perdia al pasar el cursor y el boton
+     quedaba BLANCO con texto blanco = etiqueta invisible (lo cazo Vianey en
+     Descargar). Se repite el fondo aqui para que el hover nunca lo apague. */
+  background-color: var(--brand, #C93E8C);
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,0) 42%),
+    var(--grad);
   filter: brightness(1.05) saturate(1.04); border-color: transparent;
   box-shadow: var(--sh-glow-hover); transform: translateY(-1px);
 }

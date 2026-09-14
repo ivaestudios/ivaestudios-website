@@ -16,12 +16,12 @@
 //       prefilled + checklist + abrir editor.
 // ============================================================================
 
-import { el, api, CONTENT_TYPES, contentTypeLabel } from '../api.js?v=202609131952';
-import { T } from '../shell/i18n.js?v=202609131952';
-import { icon } from '../shell/icons.js?v=202609131952';
-import { openSheet } from '../shell/sheet.js?v=202609131952';
-import * as store from '../shell/store.js?v=202609131952';
-import * as checklistService from '../services/checklist.js?v=202609131952';
+import { el, api, CONTENT_TYPES, contentTypeLabel } from '../api.js?v=202609132000';
+import { T } from '../shell/i18n.js?v=202609132000';
+import { icon } from '../shell/icons.js?v=202609132000';
+import { openSheet } from '../shell/sheet.js?v=202609132000';
+import * as store from '../shell/store.js?v=202609132000';
+import * as checklistService from '../services/checklist.js?v=202609132000';
 
 // ── Checklists sugeridas por tipo (todas los 9 tipos tienen una) ─────────────
 const DEFAULT_CHECKLISTS = {
