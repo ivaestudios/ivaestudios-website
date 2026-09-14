@@ -279,6 +279,12 @@ body.editor-open #viewScroll { overflow: hidden; }
    esconden cuando su canal está apagado. */
 .edrow[hidden] { display: none; }
 
+/* Hojas de canales (TikTok / YouTube): los títulos de grupo van pegados a la
+   lista anterior si no se les da aire (medido: 0 px entre "Privado" y
+   "¿Es contenido para niños?"). */
+.sheet .edsection__title { margin-top: 16px; }
+.sheet .edsection__title:first-child { margin-top: 0; }
+
 .edrow {
   display: flex;
   align-items: center;

@@ -27,6 +27,11 @@
 //     persona en la app; jamás lo inventamos.
 //
 // Env: YT_CLIENT_ID, YT_CLIENT_SECRET. Sin ellos, aviso amable.
+// ⚠️ A PROPÓSITO NO se reutiliza el GOOGLE_CLIENT_ID de la galería (el de
+// "Entrar con Google" de las clientas): la pantalla de consentimiento es POR
+// PROYECTO, así que meterle los permisos sensibles de YouTube arrastraría al
+// login de las clientas al mismo trámite de verificación de Google (y a su
+// tope de 100 usuarios). El canal de publicación vive en su propio proyecto.
 // ============================================================================
 
 const YT_AUTH = 'https://accounts.google.com/o/oauth2/v2/auth';
