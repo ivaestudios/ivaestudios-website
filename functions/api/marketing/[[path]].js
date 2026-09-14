@@ -305,7 +305,8 @@ async function getSession(request, env, authCtx) {
   const row = await env.DB.prepare(
     `SELECT s.id AS session_id, s.user_id, s.expires_at AS session_expires_at,
             s.created_at AS session_created_at,
-            u.email, u.name, u.role, u.client_id
+            u.email, u.name, u.role, u.client_id,
+            COALESCE(u.workspace_id, 'ivae') AS workspace_id
        FROM mkt_sessions s
        JOIN mkt_users u ON s.user_id = u.id
       WHERE s.id = ?
@@ -1264,17 +1265,19 @@ async function handleSignup(request, env) {
   const clientId = randomId();
   const slug = await uniqueSlug(env, brand);
   const userId = randomId();
+  // Su propio workspace: nace aislado de IVAE y de cualquier otra agencia.
+  const workspaceId = randomId();
   const hash = await hashPassword(password);
   const verifyToken = randomId();
   const sessionId = randomId();
   const expiry = sessionIdleSeconds(env);
   await env.DB.batch([
     env.DB.prepare(
-      'INSERT INTO mkt_clients (id, name, slug, note_labels, owner_user_id) VALUES (?, ?, ?, ?, ?)'
-    ).bind(clientId, brand, slug, JSON.stringify([]), userId),
+      'INSERT INTO mkt_clients (id, name, slug, note_labels, owner_user_id, workspace_id) VALUES (?, ?, ?, ?, ?, ?)'
+    ).bind(clientId, brand, slug, JSON.stringify([]), userId, workspaceId),
     env.DB.prepare(
-      "INSERT INTO mkt_users (id, email, password, name, role, client_id, active, must_reset, email_verified, verify_token, eula_version, eula_accepted_at) VALUES (?, ?, ?, ?, 'client', ?, 1, 0, 0, ?, ?, datetime('now'))"
-    ).bind(userId, email, hash, name, clientId, verifyToken, EULA_VERSION),
+      "INSERT INTO mkt_users (id, email, password, name, role, client_id, workspace_id, active, must_reset, email_verified, verify_token, eula_version, eula_accepted_at) VALUES (?, ?, ?, ?, 'client', ?, ?, 1, 0, 0, ?, ?, datetime('now'))"
+    ).bind(userId, email, hash, name, clientId, workspaceId, verifyToken, EULA_VERSION),
     env.DB.prepare(
       'INSERT INTO mkt_sessions (id, user_id, expires_at) VALUES (?, ?, datetime("now", "+" || ? || " seconds"))'
     ).bind(sessionId, userId, expiry),
@@ -1518,7 +1521,9 @@ async function handleListClients(env, session) {
   }
   // Conteos de TODAS las marcas en UNA query agrupada (antes: 1 + 2×N queries en
   // serie, una por cliente, en la ruta crítica del arranque).
-  const res = await env.DB.prepare('SELECT * FROM mkt_clients ORDER BY archived ASC, name COLLATE NOCASE ASC').all();
+  const res = await env.DB.prepare(
+    "SELECT * FROM mkt_clients WHERE COALESCE(workspace_id, 'ivae') = ? ORDER BY archived ASC, name COLLATE NOCASE ASC"
+  ).bind(wsDeSesion(session)).all();
   const rows = res.results || [];
   const countsRes = await env.DB.prepare(
     `SELECT client_id,
@@ -1549,8 +1554,8 @@ async function handleCreateClient(request, env, session) {
   const id = randomId();
   const slug = await uniqueSlug(env, name);
   await env.DB.prepare(
-    `INSERT INTO mkt_clients (id, name, slug, brand_color, logo_url, instagram_handle, timezone, notes, note_labels)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO mkt_clients (id, name, slug, brand_color, logo_url, instagram_handle, timezone, notes, note_labels, workspace_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).bind(
     id, String(name).trim(), slug,
     brand_color || '#7c3aed',
@@ -1558,7 +1563,9 @@ async function handleCreateClient(request, env, session) {
     instagram_handle || null,
     timezone || 'America/Cancun',
     notes || null,
-    JSON.stringify(noteLabels)
+    JSON.stringify(noteLabels),
+    // La marca nace en el workspace de quien la crea, nunca suelta.
+    wsDeSesion(session)
   ).run();
 
   const c = await env.DB.prepare('SELECT * FROM mkt_clients WHERE id = ?').bind(id).first();
@@ -1762,8 +1769,8 @@ async function handleCreateUser(request, env, session) {
   const id = randomId();
   const hash = await hashPassword(pw);
   await env.DB.prepare(
-    'INSERT INTO mkt_users (id, email, password, name, role, client_id, active, must_reset) VALUES (?, ?, ?, ?, ?, ?, 1, ?)'
-  ).bind(id, em, hash, name, role, role === 'client' ? client_id : null, mustReset).run();
+    'INSERT INTO mkt_users (id, email, password, name, role, client_id, active, must_reset, workspace_id) VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)'
+  ).bind(id, em, hash, name, role, role === 'client' ? client_id : null, mustReset, wsDeSesion(session)).run();
   await rememberPassword(env, id, pw);
 
   await logActivity(env, {
@@ -2396,23 +2403,49 @@ async function safeSweep(env) {
 // POSTS
 // ============================================================================
 
+// ── AISLAMIENTO POR WORKSPACE (2026-09-14) ──────────────────────────────────
+// Cada marca pertenece a un workspace: la agencia dueña ('ivae' para todo lo
+// que existía antes) o la marca que se registró sola. Una sesión de EQUIPO
+// solo puede tocar marcas de SU workspace.
+//
+// ⚠️ El listado de marcas era `SELECT * FROM mkt_clients` sin filtro: el día
+// que exista una cuenta de agencia que no sea IVAE, vería la cartera completa.
+// Esto se cierra ANTES de abrir la puerta de registro para agencias, no
+// después. Falla cerrado: marca inexistente o de otro workspace = 403.
+function wsDeSesion(session) {
+  return (session && session.workspace_id) || 'ivae';
+}
+
+async function marcaEsDeMiWorkspace(env, session, clientId) {
+  if (!clientId) return false;
+  try {
+    const c = await env.DB.prepare(
+      "SELECT COALESCE(workspace_id, 'ivae') AS ws FROM mkt_clients WHERE id = ?"
+    ).bind(clientId).first();
+    return !!(c && c.ws === wsDeSesion(session));
+  } catch { return false; }
+}
+
 // Resolve the client scope for a request.
 //   - client role: ALWAYS their own client_id. If they pass a different
 //     ?client_id → 403. Returns { scopedClientId, error } where error is a
 //     Response to short-circuit with.
 //   - team/admin: whatever ?client_id they pass (or null = all clients).
-function resolveClientScope(session, url) {
+async function resolveClientScope(env, session, url) {
   const qp = url.searchParams.get('client_id');
   if (session.role === 'client') {
     if (!session.client_id) return { error: json({ error: 'No client assigned to this account' }, 403) };
     if (qp && qp !== session.client_id) return { error: json({ error: 'Forbidden' }, 403) };
     return { scopedClientId: session.client_id };
   }
+  if (qp && !(await marcaEsDeMiWorkspace(env, session, qp))) {
+    return { error: json({ error: 'Forbidden' }, 403) };
+  }
   return { scopedClientId: qp || null };
 }
 
 async function handleListPosts(request, env, session, url) {
-  const scope = resolveClientScope(session, url);
+  const scope = await resolveClientScope(env, session, url);
   if (scope.error) return scope.error;
 
   const from = url.searchParams.get('from');
@@ -2427,6 +2460,11 @@ async function handleListPosts(request, env, session, url) {
   const where = [];
   const vals = [];
   if (scope.scopedClientId) { where.push('client_id = ?'); vals.push(scope.scopedClientId); }
+  // El equipo, aunque no filtre por marca, JAMÁS ve piezas de otro workspace.
+  if (!isClient) {
+    where.push("client_id IN (SELECT id FROM mkt_clients WHERE COALESCE(workspace_id, 'ivae') = ?)");
+    vals.push(wsDeSesion(session));
+  }
   if (scopeAll) { where.push('client_id IN (SELECT id FROM mkt_clients WHERE archived = 0)'); }
   // Cliente con edicion completa (modo "calendario compartido"): ve TODOS los
   // posts de SU marca (resolveClientScope ya lo limito a su client_id), sin el
@@ -2512,7 +2550,9 @@ async function handleCreatePost(request, env, session) {
   }
   const clientId = bodyObj && bodyObj.client_id;
   if (!clientId) return json({ error: 'client_id required' }, 400);
-  const client = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(clientId).first();
+  const client = await env.DB.prepare(
+    "SELECT id FROM mkt_clients WHERE id = ? AND COALESCE(workspace_id, 'ivae') = ?"
+  ).bind(clientId, wsDeSesion(session)).first();
   if (!client) return json({ error: 'client_id does not exist' }, 400);
 
   // Validate enums when supplied.
@@ -3729,7 +3769,9 @@ async function handleCreateView(request, env, session) {
   if (!VIEW_TYPES.includes(viewType)) return json({ error: 'view_type invalido' }, 400);
   let clientId = bodyObj.client_id || null;
   if (clientId) {
-    const c = await env.DB.prepare('SELECT id FROM mkt_clients WHERE id = ?').bind(clientId).first();
+    const c = await env.DB.prepare(
+      "SELECT id FROM mkt_clients WHERE id = ? AND COALESCE(workspace_id, 'ivae') = ?"
+    ).bind(clientId, wsDeSesion(session)).first();
     if (!c) return json({ error: 'client_id does not exist' }, 400);
   }
   const config = encodeViewConfig(bodyObj.config);
@@ -4614,6 +4656,7 @@ async function handleCreateDeliverable(request, env, session, url) {
   if (!clientId || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month) || !MKT_DLV_TYPES.has(type)) {
     return json({ error: 'Faltan datos: client_id, month (YYYY-MM) y type (reel|carrusel).' }, 400);
   }
+  if (!(await marcaEsDeMiWorkspace(env, session, clientId))) return json({ error: 'Forbidden' }, 403);
   const id = randomId();
   const title = b.title ? String(b.title).slice(0, 200) : null;
   const link = (type === 'carrusel' && b.link) ? String(b.link).slice(0, 1000) : null;
@@ -5184,6 +5227,30 @@ async function route(request, env, authCtx) {
   }
 
   const isStaff = session.role === 'admin' || session.role === 'team';
+
+  // ── CANDADO DE WORKSPACE (2026-09-14) ────────────────────────────────────
+  // Una sola puerta para TODO el equipo: si la petición apunta a una marca
+  // (?client_id=) o a una pieza concreta (/posts/<id>), esa marca tiene que
+  // ser de SU workspace. Se pone aquí, en el router, y no handler por handler,
+  // porque así cubre también los endpoints que se agreguen mañana.
+  if (isStaff) {
+    const qpCliente = url.searchParams.get('client_id');
+    if (qpCliente && !(await marcaEsDeMiWorkspace(env, session, qpCliente))) {
+      return json({ error: 'Forbidden' }, 403);
+    }
+    if (parts[0] === 'clients' && parts.length >= 2
+        && !(await marcaEsDeMiWorkspace(env, session, parts[1]))) {
+      return json({ error: 'Forbidden' }, 403);
+    }
+    if (parts[0] === 'posts' && parts.length >= 2
+        && !['reorder', 'bulk-update', 'bulk-delete'].includes(parts[1])) {
+      const pza = await env.DB.prepare('SELECT client_id FROM mkt_posts WHERE id = ?').bind(parts[1]).first();
+      // Si no existe, que el handler conteste 404 como siempre.
+      if (pza && !(await marcaEsDeMiWorkspace(env, session, pza.client_id))) {
+        return json({ error: 'Forbidden' }, 403);
+      }
+    }
+  }
 
   // Bandeja de moderación (staff): Apple exige actuar en menos de 24 h.
   if (path === '/reports' && method === 'GET') {
@@ -6254,7 +6321,9 @@ async function handleGenerarMes(request, env, session) {
   if (!clientId) return json({ error: 'Falta el cliente.' }, 400);
   if (!/^\d{4}-\d{2}$/.test(month)) return json({ error: 'Mes inválido (YYYY-MM).' }, 400);
 
-  const cliente = await env.DB.prepare('SELECT id, name FROM mkt_clients WHERE id = ?').bind(clientId).first();
+  const cliente = await env.DB.prepare(
+    "SELECT id, name FROM mkt_clients WHERE id = ? AND COALESCE(workspace_id, 'ivae') = ?"
+  ).bind(clientId, wsDeSesion(session)).first();
   if (!cliente) return json({ error: 'Cliente no encontrado.' }, 404);
 
   // La VOZ: sus últimas piezas con contenido real (título/gancho/caption).
