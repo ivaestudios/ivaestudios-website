@@ -952,12 +952,14 @@ async function handleCreateReport(request, env, session) {
 }
 
 // Bandeja de moderación (solo staff).
-async function handleListReports(env) {
+async function handleListReports(env, session) {
   const r = await env.DB.prepare(
     `SELECT r.*, u.name AS reporter_name FROM mkt_reports r
      LEFT JOIN mkt_users u ON u.id = r.reporter_user_id
+     LEFT JOIN mkt_clients c ON c.id = r.client_id
+     WHERE COALESCE(c.workspace_id, 'ivae') = ?
      ORDER BY (r.status = 'open') DESC, r.created_at DESC LIMIT 200`
-  ).all();
+  ).bind(wsDeSesion(session)).all();
   return json({ reports: r.results || [] });
 }
 
@@ -1247,6 +1249,10 @@ async function handleSignup(request, env) {
   try { bodyObj = await request.json(); } catch { return json({ error: 'Invalid JSON body' }, 400); }
   const name = String((bodyObj || {}).name || '').trim();
   const brand = String((bodyObj || {}).brand || '').trim();
+  // DOS PUERTAS (2026-09-14): quien se registra dice si viene por su marca o
+  // por su agencia. Las dos abren un workspace propio y aislado; cambia el
+  // tipo (para los planes y el onboarding) y la primera marca que se crea.
+  const tipo = String((bodyObj || {}).tipo || 'marca').toLowerCase() === 'agencia' ? 'agencia' : 'marca';
   const email = String((bodyObj || {}).email || '').trim().toLowerCase();
   const password = String((bodyObj || {}).password || '');
   if (!name || !brand || !email || !password) return json({ error: 'Nombre, marca, email y contraseña son obligatorios.' }, 400);
@@ -1273,11 +1279,18 @@ async function handleSignup(request, env) {
   const expiry = sessionIdleSeconds(env);
   await env.DB.batch([
     env.DB.prepare(
+      "INSERT INTO mkt_workspaces (id, name, type, owner_user_id) VALUES (?, ?, ?, ?)"
+    ).bind(workspaceId, tipo === 'agencia' ? name : brand, tipo, userId),
+    env.DB.prepare(
       'INSERT INTO mkt_clients (id, name, slug, note_labels, owner_user_id, workspace_id) VALUES (?, ?, ?, ?, ?, ?)'
     ).bind(clientId, brand, slug, JSON.stringify([]), userId, workspaceId),
     env.DB.prepare(
-      "INSERT INTO mkt_users (id, email, password, name, role, client_id, workspace_id, active, must_reset, email_verified, verify_token, eula_version, eula_accepted_at) VALUES (?, ?, ?, ?, 'client', ?, ?, 1, 0, 0, ?, ?, datetime('now'))"
-    ).bind(userId, email, hash, name, clientId, workspaceId, verifyToken, EULA_VERSION),
+      // 'admin' DE SU PROPIO WORKSPACE, no de la casa: el aislamiento lo deja
+      // encerrado en sus marcas. Antes entraba como 'client' y se topaba con la
+      // interfaz recortada del cliente-que-aprueba: ni siquiera podía encender
+      // "también en TikTok" en una pieza suya.
+      "INSERT INTO mkt_users (id, email, password, name, role, client_id, workspace_id, active, must_reset, email_verified, verify_token, eula_version, eula_accepted_at) VALUES (?, ?, ?, ?, 'admin', NULL, ?, 1, 0, 0, ?, ?, datetime('now'))"
+    ).bind(userId, email, hash, name, workspaceId, verifyToken, EULA_VERSION),
     env.DB.prepare(
       'INSERT INTO mkt_sessions (id, user_id, expires_at) VALUES (?, ?, datetime("now", "+" || ? || " seconds"))'
     ).bind(sessionId, userId, expiry),
@@ -1299,7 +1312,7 @@ async function handleSignup(request, env) {
 
   await logActivity(env, { client_id: clientId, session: { user_id: userId, name }, action: 'user.signup', detail: email });
   return json(
-    { id: userId, email, name, role: 'client', client_id: clientId, email_verified: false },
+    { id: userId, email, name, role: 'admin', client_id: null, workspace_type: tipo, email_verified: false },
     201,
     { 'Set-Cookie': sessionCookie(sessionId, expiry) }
   );
@@ -1670,17 +1683,20 @@ function shapeUser(u) {
 // que shapeUser sepa si HAY copia — el texto cifrado no sale nunca de aquí.
 const USER_COLS = 'id, email, username, name, role, client_id, active, last_login, password_enc, password_enc_at';
 
-async function handleListUsers(env) {
+async function handleListUsers(env, session) {
+  // Aislamiento: el padrón completo (correos del equipo y de TODOS los
+  // clientes) no puede salir del workspace de quien pregunta.
+  const ws = wsDeSesion(session);
   let res;
   try {
     res = await env.DB.prepare(
-      `SELECT ${USER_COLS} FROM mkt_users ORDER BY role ASC, name COLLATE NOCASE ASC`
-    ).all();
+      `SELECT ${USER_COLS} FROM mkt_users WHERE COALESCE(workspace_id, 'ivae') = ? ORDER BY role ASC, name COLLATE NOCASE ASC`
+    ).bind(ws).all();
   } catch {
     // Pre-migración 017: sin username ni bóveda.
     res = await env.DB.prepare(
-      'SELECT id, email, name, role, client_id, active, last_login FROM mkt_users ORDER BY role ASC, name COLLATE NOCASE ASC'
-    ).all();
+      "SELECT id, email, name, role, client_id, active, last_login FROM mkt_users WHERE COALESCE(workspace_id, 'ivae') = ? ORDER BY role ASC, name COLLATE NOCASE ASC"
+    ).bind(ws).all();
   }
   return json((res.results || []).map(shapeUser));
 }
@@ -2016,10 +2032,7 @@ async function notify(env, { user_ids, type, body, link, post_id, comment_id, cl
 // Fan-out targets for a post event: active admins + the typed assignee,
 // excluding the actor. (Los avisos AL cliente van aparte, vía clientUserIds.)
 async function staffFanout(env, post, excludeUserId) {
-  const res = await env.DB.prepare(
-    "SELECT id FROM mkt_users WHERE role = 'admin' AND active = 1"
-  ).all();
-  const ids = (res.results || []).map((r) => r.id);
+  const ids = await adminsDeLaMarca(env, post && post.client_id);
   if (post && post.assignee_user_id) ids.push(post.assignee_user_id);
   return [...new Set(ids)].filter((id) => id && id !== excludeUserId);
 }
@@ -2412,6 +2425,32 @@ async function safeSweep(env) {
 // que exista una cuenta de agencia que no sea IVAE, vería la cartera completa.
 // Esto se cierra ANTES de abrir la puerta de registro para agencias, no
 // después. Falla cerrado: marca inexistente o de otro workspace = 403.
+// Los admins que deben enterarse de algo de UNA marca: los de SU workspace.
+// Antes era `role='admin'` a secas, o sea TODOS los admins del sistema: con
+// varias agencias, el dueño de una se enteraría de los errores de otra.
+async function adminsDeLaMarca(env, clientId) {
+  try {
+    const r = await env.DB.prepare(
+      `SELECT u.id FROM mkt_users u
+        WHERE u.role = 'admin' AND u.active = 1
+          AND COALESCE(u.workspace_id, 'ivae') = (
+            SELECT COALESCE(workspace_id, 'ivae') FROM mkt_clients WHERE id = ?
+          )`
+    ).bind(clientId || '').all();
+    return (r.results || []).map((x) => x.id);
+  } catch { return []; }
+}
+
+// Los admins de la casa (avisos de infraestructura, no de una marca).
+async function adminsDeLaCasa(env) {
+  try {
+    const r = await env.DB.prepare(
+      "SELECT id FROM mkt_users WHERE role = 'admin' AND active = 1 AND COALESCE(workspace_id, 'ivae') = 'ivae'"
+    ).all();
+    return (r.results || []).map((x) => x.id);
+  } catch { return []; }
+}
+
 function wsDeSesion(session) {
   return (session && session.workspace_id) || 'ivae';
 }
@@ -3750,8 +3789,9 @@ function encodeViewConfig(config) {
 // GET /views?client_id= → { views } (own + shared for the client + global)
 async function handleListViews(env, session, url) {
   const clientId = url.searchParams.get('client_id');
-  const where = ['(user_id = ? OR is_shared = 1)'];
-  const vals = [session.user_id];
+  // Una vista compartida solo se comparte dentro de su propia agencia.
+  const where = ["(user_id = ? OR (is_shared = 1 AND user_id IN (SELECT id FROM mkt_users WHERE COALESCE(workspace_id, 'ivae') = ?)))"];
+  const vals = [session.user_id, wsDeSesion(session)];
   if (clientId) { where.push('(client_id = ? OR client_id IS NULL)'); vals.push(clientId); }
   const res = await env.DB.prepare(
     `SELECT * FROM mkt_saved_views WHERE ${where.join(' AND ')} ORDER BY position ASC, created_at ASC`
@@ -4043,11 +4083,8 @@ async function handleCron(request, env) {
       ).first();
       const n = row ? Number(row.n) || 0 : 0;
       if (n > 0) {
-        const admins = await env.DB.prepare(
-          "SELECT id FROM mkt_users WHERE role = 'admin' AND active = 1"
-        ).all();
         await notify(env, {
-          user_ids: (admins.results || []).map((r) => r.id),
+          user_ids: await adminsDeLaCasa(env),
           type: 'system',
           body: `La app registró ${n} ${n === 1 ? 'error' : 'errores'} ayer`,
           link: '#/'
@@ -5242,6 +5279,21 @@ async function route(request, env, authCtx) {
         && !(await marcaEsDeMiWorkspace(env, session, parts[1]))) {
       return json({ error: 'Forbidden' }, 403);
     }
+    // Una agencia solo administra a SU gente.
+    if (parts[0] === 'users' && parts.length >= 2) {
+      const u = await env.DB.prepare(
+        "SELECT COALESCE(workspace_id, 'ivae') AS ws FROM mkt_users WHERE id = ?"
+      ).bind(parts[1]).first();
+      if (u && u.ws !== wsDeSesion(session)) return json({ error: 'Forbidden' }, 403);
+    }
+    // Y solo modera los reportes de sus marcas.
+    if (parts[0] === 'reports' && parts.length >= 2) {
+      const rep = await env.DB.prepare(
+        `SELECT COALESCE(c.workspace_id, 'ivae') AS ws FROM mkt_reports r
+         LEFT JOIN mkt_clients c ON c.id = r.client_id WHERE r.id = ?`
+      ).bind(parts[1]).first();
+      if (rep && rep.ws !== wsDeSesion(session)) return json({ error: 'Forbidden' }, 403);
+    }
     if (parts[0] === 'posts' && parts.length >= 2
         && !['reorder', 'bulk-update', 'bulk-delete'].includes(parts[1])) {
       const pza = await env.DB.prepare('SELECT client_id FROM mkt_posts WHERE id = ?').bind(parts[1]).first();
@@ -5255,7 +5307,7 @@ async function route(request, env, authCtx) {
   // Bandeja de moderación (staff): Apple exige actuar en menos de 24 h.
   if (path === '/reports' && method === 'GET') {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);
-    return handleListReports(env);
+    return handleListReports(env, session);
   }
   {
     const mRep = path.match(/^\/reports\/([A-Za-z0-9_-]+)\/resolve$/);
@@ -5318,7 +5370,7 @@ async function route(request, env, authCtx) {
   if (parts[0] === 'users') {
     if (!isStaff) return json({ error: 'Forbidden' }, 403);
     if (parts.length === 1) {
-      if (method === 'GET') return handleListUsers(env);
+      if (method === 'GET') return handleListUsers(env, session);
       if (method === 'POST') return handleCreateUser(request, env, session);
       return json({ error: 'Method not allowed' }, 405);
     }
@@ -5915,9 +5967,8 @@ async function vigilarReloj(env) {
     if (aviso && aviso.value && (Date.now() - Date.parse(aviso.value)) < 6 * 3600 * 1000) return;
     await env.DB.prepare("INSERT INTO mkt_kv (key, value) VALUES ('tick_alerta_at', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")
       .bind(new Date().toISOString()).run();
-    const admins = await env.DB.prepare("SELECT id FROM mkt_users WHERE role = 'admin' AND active = 1").all();
     await notify(env, {
-      user_ids: (admins.results || []).map((u) => u.id),
+      user_ids: await adminsDeLaCasa(env),
       type: 'reloj_caido', actor_name: 'Programador IVAE',
       body: `🚨 El reloj de la nube no ha tocado desde hace ${ultimo ? Math.round((Date.now() - ultimo) / 60000) + ' min' : 'nunca'} — las publicaciones programadas dependen de él. Revisar el worker ivae-marketing-reloj.`,
       link: '#/calendario',
@@ -5933,9 +5984,8 @@ async function vigilarReloj(env) {
 // durante meses. Devuelven null cuando la pieza no pidió ese canal.
 async function avisarAdmins(env, { type, post, body, link }) {
   try {
-    const admins = await env.DB.prepare("SELECT id FROM mkt_users WHERE role = 'admin' AND active = 1").all();
     await notify(env, {
-      user_ids: (admins.results || []).map((u) => u.id),
+      user_ids: await adminsDeLaMarca(env, post.client_id),
       type, post_id: post.id, client_id: post.client_id,
       actor_name: 'Programador IVAE', body, link: link || ('#/post/' + post.id),
     });
@@ -6124,9 +6174,8 @@ async function publicarPendientes(env) {
             client_id: post.client_id, post_id: post.id, session: sesionSistema,
             action: 'post.publicar_fb_error', detail: msgFb,
           });
-          const adminsFb = await env.DB.prepare("SELECT id FROM mkt_users WHERE role = 'admin' AND active = 1").all();
           await notify(env, {
-            user_ids: (adminsFb.results || []).map((u) => u.id),
+            user_ids: await adminsDeLaMarca(env, post.client_id),
             type: 'publicador_fb_error', post_id: post.id, client_id: post.client_id,
             actor_name: 'Programador IVAE',
             body: `⚠️ Instagram salió bien pero FACEBOOK falló — ${post.title}: ${msgFb.slice(0, 120)}`,
@@ -6140,9 +6189,8 @@ async function publicarPendientes(env) {
       await extraTikTok(env, post, sesionSistema);
       await extraYouTube(env, post, sesionSistema);
       if (reconciliada) {
-        const admins = await env.DB.prepare("SELECT id FROM mkt_users WHERE role = 'admin' AND active = 1").all();
         await notify(env, {
-          user_ids: (admins.results || []).map((u) => u.id),
+          user_ids: await adminsDeLaMarca(env, post.client_id),
           type: 'publicador_reconciliado', post_id: post.id, client_id: post.client_id,
           actor_name: 'Programador IVAE',
           body: `🛡️ ${post.title}: ya estaba publicada en Instagram — se adoptó SIN duplicar (Meta reportó error falso).`,
@@ -6163,9 +6211,8 @@ async function publicarPendientes(env) {
       ).bind(intentos, msg, post.id).run();
       // ALARMA (post-incidente 16-ago): los admins se enteran AL MINUTO,
       // no cuando lo vean en el perfil.
-      const admins = await env.DB.prepare("SELECT id FROM mkt_users WHERE role = 'admin' AND active = 1").all();
       await notify(env, {
-        user_ids: (admins.results || []).map((u) => u.id),
+        user_ids: await adminsDeLaMarca(env, post.client_id),
         type: 'publicador_error', post_id: post.id, client_id: post.client_id,
         actor_name: 'Programador IVAE',
         body: `⚠️ Publicación fallida (intento ${intentos}/5) — ${post.title}: ${msg.slice(0, 140)}`,
