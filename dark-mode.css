@@ -593,6 +593,52 @@ html.dark .legal-section td strong { color: #f4f1ec !important; }
 html.dark .legal-callout em,
 html.dark .legal-callout strong { color: #f4f1ec !important; }
 
+/* ...pero el callout tambien tiene TEXTO SUELTO (nodos de texto directos del
+   div, entre <br>), y ese heredaba var(--ink) sobre la tarjeta ya oscurecida:
+   tinta sobre tinta. Medido en la captura del elemento: el titulo en strong se
+   lee y el parrafo de debajo NO. Pasaba en las cuatro paginas legales, o sea
+   que la propia DECLARACION DE ACCESIBILIDAD tenia texto ilegible.
+   Se le da color al contenedor para que los nodos sueltos lo hereden; strong,
+   em y los enlaces conservan sus reglas de arriba. */
+html.dark .legal-callout { color: rgba(249, 248, 245, 0.82) !important; }
+
+/* La firma del pie de las paginas legales ("Vianey Diaz, Founder") es un div
+   con var(--ink) sobre una seccion oscura: tambien invisible. */
+html.dark .legal-sign { color: rgba(249, 248, 245, 0.82) !important; }
+
+/* TARJETAS DE PROCESO (propuesta sorpresa, EN y ES). .process-step es un panel
+   CLARO a proposito (background var(--sand) = #ede8df) dentro de una pagina
+   oscura, y la pagina autora su texto en tinta: h3 con var(--ink) y p con
+   var(--muted-l). El catch-all de arriba (html.dark main h2..h6 / main p) los
+   forzaba a crema, y el resultado era ilegible: medido en WebKit, razon 1.08 en
+   los titulos y 1.15 en los parrafos, sobre CINCO tarjetas por pagina. Se ve en
+   una captura ampliada: el titulo casi no esta.
+   Es la misma trampa del "saltar al contenido": la pareja color-fondo se parte
+   entre dos hojas y gana la que no sabe sobre que fondo va a caer.
+   (Ojo, no confundir con el bloque de .ivm-desktop-only de mas abajo, que trata
+   la capa de ESCRITORIO de la home, donde se remapean variables enteras.)
+   Se devuelve la intencion de la pagina. El parrafo sube a alfa 0.68 porque el
+   0.52 original solo daba 3.16 y no llegaba al minimo; 0.68 da 4.96, y es el
+   mismo valor que ya se eligio para --muted-l en tokens.css.
+   ACOTADO A .process-grid a proposito: las dos maquetas *-preview* reusan la
+   clase .process-step con fondo TRANSPARENTE sobre seccion oscura, donde el
+   texto crema es el correcto. Ahi poner tinta seria crear el bug al reves. */
+html.dark .process-step h3 { color: #1a2433 !important; }
+
+/* CAJA "QUE ES / QUE NO ES" (.distinct, 4 paginas de parejas y aniversario).
+   Mismo caso y misma trampa: panel claro (var(--sand) = #ede8df) cuyo dt y dd
+   la pagina autora en dorado y tinta, y que el catch-all de arriba volvia
+   crema. Medido: razon 1.12 en las dos, o sea la caja entera ilegible.
+   El dd recupera la tinta (12.80). El dt NO recupera su dorado original
+   #a8894a, porque ese sobre arena da 2.71 y tampoco pasaba antes: se usa el
+   dorado profundo #7d6428 que ya se adopto en la ronda de contraste
+   justamente para fondos claros (4.62). Un mismo dorado no puede vestir el
+   fondo crema y el fondo tinta. */
+html.dark .distinct dt   { color: #7d6428 !important; }
+html.dark .distinct dd   { color: #1a2433 !important; }
+html.dark .distinct dd a { color: #7d6428 !important; }
+html.dark .process-step p  { color: rgba(26, 36, 51, 0.68) !important; }
+
 /* Brand-guidelines page: the "accepted spellings" chips are light sand tags,
    so keep their text dark ink; the muted italic palette sub-labels are
    inline-styled var(--ink) and need lightening on the dark section. */

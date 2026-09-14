@@ -123,8 +123,13 @@ def anadir(fichero, etiqueta, titulo, seleccion):
             s = s[:m.start()] + sec + s[m.start():]
         else:
             ms = list(re.finditer(r'<section class="alt[^"]*".*?</section>', s, re.S))
-            if not ms:
-                return None, "no encuentro donde colocarla"
-            s = s[:ms[-1].end()] + sec + s[ms[-1].end():]
+            if ms:
+                s = s[:ms[-1].end()] + sec + s[ms[-1].end():]
+            else:
+                # paginas sin secciones (biografia): a ancho completo antes del pie
+                j = s.find("<footer")
+                if j < 0:
+                    return None, "no encuentro donde colocarla"
+                s = s[:j] + sec + s[j:]
     open(fichero, "w", encoding="utf-8").write(s)
     return len(seleccion), None
