@@ -9,9 +9,9 @@
 //        → GET /descargar/file?u=... (stream con Content-Disposition: attachment).
 // Nada se guarda: las URLs del CDN expiran, así que se re-resuelve al descargar.
 // ============================================================================
-import { api, el, clear, toast } from '../api.js?v=202609131949';
-import { icon } from '../shell/icons.js?v=202609131949';
-import { T } from '../shell/i18n.js?v=202609131949';
+import { api, el, clear, toast } from '../api.js?v=202609131952';
+import { icon } from '../shell/icons.js?v=202609131952';
+import { T } from '../shell/i18n.js?v=202609131952';
 
 const VIEW_ID = 'descargar';
 
@@ -124,7 +124,7 @@ function render() {
   rootEl.append(
     el('div', { class: 'dl-head' }, [
       el('h1', { class: 'dl-title', text: T('Descargar contenido', 'Download content') }),
-      el('p', { class: 'dl-sub', text: T('Instagram · TikTok · Pinterest — videos, fotos y carruseles, sin marca de agua y en la máxima calidad. Solo pega el link.', 'Instagram · TikTok · Pinterest — videos, photos and carousels, watermark-free and in the highest quality. Just paste the link.') }),
+      el('p', { class: 'dl-sub', text: T('Instagram · TikTok · Pinterest · YouTube — videos, fotos y carruseles, sin marca de agua y en la máxima calidad. Solo pega el link.', 'Instagram · TikTok · Pinterest · YouTube — videos, photos and carousels, watermark-free and in the highest quality. Just paste the link.') }),
     ]),
     form,
     chips,
@@ -237,7 +237,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/descargar.css?v=202609131949';
+  link.href = '/marketing/css/descargar.css?v=202609131952';
   document.head.appendChild(link);
 }
 

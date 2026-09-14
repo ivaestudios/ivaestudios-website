@@ -10,18 +10,18 @@
 // total: jamas se pierde el foco.
 // ============================================================================
 
-import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202609131949';
-import * as store from './store.js?v=202609131949';
-import { openSheet, pickFrom } from './sheet.js?v=202609131949';
-import { toast } from './toast.js?v=202609131949';
-import { icon } from './icons.js?v=202609131949';
-import { openClientSwitcher } from './clientswitcher.js?v=202609131949';
-import { T, isEN, setLang } from './i18n.js?v=202609131949';
+import { api, el, clear, avatar, timeAgo, initials, copyText } from '../api.js?v=202609131952';
+import * as store from './store.js?v=202609131952';
+import { openSheet, pickFrom } from './sheet.js?v=202609131952';
+import { toast } from './toast.js?v=202609131952';
+import { icon } from './icons.js?v=202609131952';
+import { openClientSwitcher } from './clientswitcher.js?v=202609131952';
+import { T, isEN, setLang } from './i18n.js?v=202609131952';
 // Apple 1.2: lista de personas bloqueadas desde el menú de cuenta.
-import { abrirBloqueados } from './moderacion.js?v=202609131949';
-import { getTheme, setTheme } from './theme.js?v=202609131949';
-import * as version from './version.js?v=202609131949';
-import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202609131949';
+import { abrirBloqueados } from './moderacion.js?v=202609131952';
+import { getTheme, setTheme } from './theme.js?v=202609131952';
+import * as version from './version.js?v=202609131952';
+import { abrirAjustesAvisos } from './avisos-ajustes.js?v=202609131952';
 
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const safeColor = (c) => (HEX_RE.test(String(c || '')) ? c : 'var(--brand)');
