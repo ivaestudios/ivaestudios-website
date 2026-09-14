@@ -116,14 +116,15 @@ def anadir(fichero, etiqueta, titulo, seleccion):
             s = s[:m.end()] + sec + s[m.end():]
             break
     else:
-        # ultima <section class="alt"> de la plantilla de sedes
-        ms = list(re.finditer(r'<section class="alt[^"]*".*?</section>', s, re.S))
-        if ms:
-            s = s[:ms[-1].end()] + sec + s[ms[-1].end():]
-        else:
-            m = re.search(r'<section class="(cta-block|post-cta|cta|internal-links|related)', s)
-            if not m:
-                return None, "no encuentro donde colocarla"
+        # La llamada a la accion cierra la pagina: la galeria va ANTES de ella.
+        # Si no hay CTA, detras de la ultima <section class="alt"> de sedes.
+        m = re.search(r'<section class="(cta-block|post-cta|cta|internal-links|related)', s)
+        if m:
             s = s[:m.start()] + sec + s[m.start():]
+        else:
+            ms = list(re.finditer(r'<section class="alt[^"]*".*?</section>', s, re.S))
+            if not ms:
+                return None, "no encuentro donde colocarla"
+            s = s[:ms[-1].end()] + sec + s[ms[-1].end():]
     open(fichero, "w", encoding="utf-8").write(s)
     return len(seleccion), None

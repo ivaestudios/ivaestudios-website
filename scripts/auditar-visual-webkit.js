@@ -1,7 +1,12 @@
 const { webkit } = require("playwright-core");
+// La version de WebKit cambia al actualizar playwright: tomar SIEMPRE la mas
+// nueva instalada, o el script deja de arrancar sin avisar (paso con 2336).
+const _wk = require("fs").readdirSync("/Users/ivae/Library/Caches/ms-playwright")
+  .filter(d => d.startsWith("webkit-")).sort((a,b)=>+a.split("-")[1]-+b.split("-")[1]);
+const EXE_WEBKIT = "/Users/ivae/Library/Caches/ms-playwright/" + _wk[_wk.length-1] + "/pw_run.sh";
 const PGS = process.argv.slice(2);
 (async () => {
-  const b = await webkit.launch({ executablePath: "/Users/ivae/Library/Caches/ms-playwright/webkit-2336/pw_run.sh" });
+  const b = await webkit.launch({ executablePath: EXE_WEBKIT });
   for (const u of PGS) {
     const pg = await b.newPage({ viewport:{width:402,height:874}, deviceScaleFactor:1, isMobile:true, hasTouch:true });
     const errs = [];
