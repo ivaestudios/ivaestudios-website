@@ -81,6 +81,10 @@ export async function handleTtLogin(request, env, session, url) {
     response_type: 'code',
     redirect_uri: ttRedirectUri(request),
     state: nonce,
+    // Que la pantalla de permisos se vea SIEMPRE, aunque la cuenta ya haya
+    // autorizado antes: la persona tiene que ver a qué le está dando acceso
+    // (y la revisión de TikTok quiere ver esa pantalla en el video).
+    disable_auto_auth: '1',
   });
   return Response.redirect(`${TT_AUTH}?${p}`, 302);
 }
