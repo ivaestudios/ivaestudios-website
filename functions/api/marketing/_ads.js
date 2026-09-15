@@ -820,21 +820,14 @@ async function publicoProbado(env, cuenta, tok) {
   return { targeting: PUBLICO_FALLBACK, de: null };
 }
 
-async function subirImagen(env, cuenta, tok, urlImagen) {
-  const res = await fetch(urlImagen);
-  if (!res || !res.ok) throw new Error(`No se pudo bajar la imagen (${res && res.status})`);
-  const blob = await res.blob();
-  const fd = new FormData();
-  fd.append('access_token', tok.t);
-  fd.append('filename', new File([blob], 'anuncio.jpg', { type: blob.type || 'image/jpeg' }));
-  const r = await fetch(`${FB_GRAPH}/${cuenta.id}/adimages`, { method: 'POST', body: fd });
-  const d = await r.json().catch(() => ({}));
-  if (!r.ok || d.error) throw new Error((d.error && d.error.message) || `HTTP ${r.status}`);
-  const imgs = d.images || {};
-  const primera = Object.values(imgs)[0];
-  if (!primera || !primera.hash) throw new Error('Meta no devolvió el hash de la imagen');
-  return primera.hash;
-}
+// La foto se le pasa a Meta POR URL (campo `picture`), no subiendo los bytes.
+//
+// ⚠️ El camino "correcto" (bajar la imagen y subirla a /adimages para tener un
+// image_hash) TUMBABA EL WORKER: bajar de ivaestudios.com desde la propia
+// Function es una subpeticion a la misma zona, y armar el multipart con File
+// no es fiable en el runtime de Workers. Meta baja la URL igual y la cachea,
+// asi que el hash no aporta nada aqui. Lo unico que exige es que la URL sea
+// publica, y lo es.
 
 /**
  * POST /ads/crear — arma campana + conjunto + creativo + anuncio, TODO PAUSADO.
@@ -867,7 +860,6 @@ export async function handleAdsCrear(request, env, session) {
 
   try {
     const pub = await publicoProbado(env, cuenta, tok);
-    const hash = await subirImagen(env, cuenta, tok, String(b.imagen_url));
 
     const camp = await pedir('campaña', `${cuenta.id}/campaigns`, {
       name: nombre,
@@ -898,7 +890,7 @@ export async function handleAdsCrear(request, env, session) {
         message: String(b.texto),
         name: String(b.titular || '').slice(0, 120) || undefined,
         description: String(b.descripcion || '').slice(0, 200) || undefined,
-        image_hash: hash,
+        picture: String(b.imagen_url),
         call_to_action: { type: String(b.cta || 'LEARN_MORE'), value: { link: enlace } },
       },
     };
