@@ -9,15 +9,17 @@
 // Hoy es SOLO la cuenta de IVAE (no de marcas cliente): por eso no hay
 // selector de marca y la sección es de admin. Ver functions/api/marketing/_ads.js.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202609150005';
-import { icon } from '../shell/icons.js?v=202609150005';
-import { T, isEN } from '../shell/i18n.js?v=202609150005';
+import { el, clear, toast } from '../api.js?v=202609150024';
+import { icon } from '../shell/icons.js?v=202609150024';
+import { T, isEN } from '../shell/i18n.js?v=202609150024';
 
 const VIEW_ID = 'pauta';
 
 let ctx = null;
 let rootEl = null;
-let dias = 7;
+// 30 dias por defecto: la mayoria son promociones de post que duran pocos dias,
+// asi que a 7 dias la pantalla salia en blanco y parecia rota.
+let dias = 30;
 
 function esAdmin() { return ((ctx.store.getState().me || {}).role === 'admin'); }
 
@@ -122,7 +124,7 @@ function tarjetaCampana(c, moneda) {
 }
 
 function cabecera() {
-  const sel = el('div', { class: 'pauta-rango' }, [7, 14, 30].map((d) => el('button', {
+  const sel = el('div', { class: 'pauta-rango' }, [7, 30, 90].map((d) => el('button', {
     class: 'btn btn-sm' + (d === dias ? ' is-active' : ''), type: 'button',
     text: T(`${d} días`, `${d} days`),
     onclick: () => { dias = d; render(); },
@@ -236,7 +238,74 @@ async function render() {
     )));
     return;
   }
-  for (const c of data.campanas) lista.appendChild(tarjetaCampana(c, moneda));
+
+  // Con 71 campañas (casi todas promociones viejas de un post) una lista plana
+  // no sirve para decidir: primero lo que SÍ gastó en el periodo, de mayor a
+  // menor, y lo que no gastó se queda detrás de un botón.
+  const gastoDe = (c) => {
+    const ins = (c.insights && c.insights.data && c.insights.data[0]) || null;
+    return ins ? (Number(ins.spend) || 0) : 0;
+  };
+  const conGasto = data.campanas.filter((c) => gastoDe(c) > 0).sort((a, b) => gastoDe(b) - gastoDe(a));
+  const sinGasto = data.campanas.filter((c) => gastoDe(c) <= 0);
+
+  lista.parentNode.insertBefore(resumen(conGasto, moneda), lista);
+
+  if (!conGasto.length) {
+    lista.appendChild(vacio('spark', T('Nada gastó en este periodo', 'Nothing spent in this period'), T(
+      'Prueba con un rango más amplio arriba.',
+      'Try a wider range above.',
+    )));
+  }
+  for (const c of conGasto) lista.appendChild(tarjetaCampana(c, moneda));
+
+  if (sinGasto.length) {
+    const masHost = el('div', { class: 'pauta-mas' });
+    const btn = el('button', {
+      class: 'btn', type: 'button',
+      text: T(`Ver ${sinGasto.length} campañas sin gasto en este periodo`, `Show ${sinGasto.length} campaigns with no spend in this period`),
+      onclick: () => {
+        btn.remove();
+        for (const c of sinGasto) lista.appendChild(tarjetaCampana(c, moneda));
+      },
+    });
+    masHost.appendChild(btn);
+    lista.parentNode.appendChild(masHost);
+  }
+}
+
+// La fila de arriba: lo que se gastó en total y qué devolvió. Es el numero que
+// se mira primero para decidir si una pauta sigue.
+function resumen(campanas, moneda) {
+  let gastado = 0; let alcance = 0; let clics = 0; let resultados = 0;
+  let tipoRes = null;
+  for (const c of campanas) {
+    const ins = (c.insights && c.insights.data && c.insights.data[0]) || null;
+    if (!ins) continue;
+    gastado += Number(ins.spend) || 0;
+    alcance += Number(ins.reach) || 0;
+    clics += Number(ins.clicks) || 0;
+    const r = resultadoDe(ins);
+    if (r) { resultados += r.valor; tipoRes = tipoRes || r.tipo; }
+  }
+  const dato = (etiqueta, valor) => el('div', { class: 'pauta-dato' }, [
+    el('div', { class: 'pauta-dato__v', text: valor }),
+    el('div', { class: 'pauta-dato__k', text: etiqueta }),
+  ]);
+  return el('div', { class: 'pauta-resumen' }, [
+    el('div', { class: 'pauta-resumen__t', text: T(`${campanas.length} campañas con gasto`, `${campanas.length} campaigns with spend`) }),
+    el('div', { class: 'pauta-datos' }, [
+      dato(T('Gastado', 'Spent'), gasto(gastado, moneda)),
+      dato(T('Alcance', 'Reach'), num(alcance)),
+      dato(T('Clics', 'Clicks'), num(clics)),
+      resultados
+        ? dato((NOMBRE_ACCION[tipoRes] || (() => tipoRes))(), num(resultados))
+        : null,
+      resultados
+        ? dato(T('Costo por resultado', 'Cost per result'), gasto(gastado / resultados, moneda))
+        : (clics ? dato(T('Costo por clic', 'Cost per click'), gasto(gastado / clics, moneda)) : null),
+    ].filter(Boolean)),
+  ]);
 }
 
 function ensureCss() {
@@ -245,7 +314,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/pauta.css?v=202609150005';
+  link.href = '/marketing/css/pauta.css?v=202609150024';
   document.head.appendChild(link);
 }
 

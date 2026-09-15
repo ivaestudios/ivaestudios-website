@@ -10,12 +10,12 @@
 //   el set optimista + pref lastClient + ?cliente= replace + client:changed.
 // ============================================================================
 
-import { api, el } from '../api.js?v=202609150005';
-import { openSheet } from './sheet.js?v=202609150005';
-import { toast } from './toast.js?v=202609150005';
-import * as store from './store.js?v=202609150005';
-import { icon } from './icons.js?v=202609150005';
-import { T, isEN } from './i18n.js?v=202609150005';
+import { api, el } from '../api.js?v=202609150024';
+import { openSheet } from './sheet.js?v=202609150024';
+import { toast } from './toast.js?v=202609150024';
+import * as store from './store.js?v=202609150024';
+import { icon } from './icons.js?v=202609150024';
+import { T, isEN } from './i18n.js?v=202609150024';
 
 // El idioma viaja en el enlace de OAuth: las pantallas del callback (elegir
 // pagina, "conectado") hablan el idioma de la app. Meta pide la interfaz en

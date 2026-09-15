@@ -86,3 +86,20 @@
 .pauta-empty h2 { margin: 0; font-size: var(--fs-4, 17px); font-weight: 800; color: var(--text); }
 .pauta-empty p { margin: 0; max-width: 40ch; font-size: var(--fs-2, 14px); line-height: 1.5; }
 .pauta-empty .btn { margin-top: var(--s-2, 8px); min-height: 44px; padding-inline: var(--s-6, 22px); }
+
+/* Resumen del periodo: lo primero que se mira para decidir. */
+.pauta-resumen {
+  margin-top: var(--s-4, 16px);
+  padding: var(--s-4, 16px);
+  border: 1px solid color-mix(in srgb, var(--brand) 32%, var(--border));
+  border-radius: var(--r-lg, 16px);
+  background: color-mix(in srgb, var(--brand) 8%, var(--surface));
+}
+.pauta-resumen__t {
+  font-size: var(--fs-1, 12px); font-weight: 800; color: var(--text-dim);
+  letter-spacing: .03em; text-transform: uppercase;
+}
+.pauta-resumen .pauta-datos { border-top-color: color-mix(in srgb, var(--brand) 25%, var(--border)); }
+
+.pauta-mas { display: flex; justify-content: center; margin-top: var(--s-4, 16px); }
+.pauta-mas .btn { min-height: 44px; padding-inline: var(--s-5, 18px); }
