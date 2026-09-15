@@ -398,7 +398,9 @@ function resultadoPrincipal(ins) {
 const MODELO_IA = 'claude-sonnet-5';
 const TOPE_DIARIO_DEFAULT = 500;      // MXN/dia repartidos entre campanas
 const CAMBIO_MAX = 0.5;               // ±50% por movimiento
-const DIAS_VENTANA = 14;
+// 90 dias: sus campanas son promociones de post que duran pocos dias y se
+// espacian. A 14 dias la foto salia vacia aunque hubiera historia de sobra.
+const DIAS_VENTANA = 90;
 
 async function bitacora(env, fila) {
   try {
@@ -616,29 +618,82 @@ export async function revisarPauta(env, opts = {}) {
 
 // ── Endpoints del paso 3 ────────────────────────────────────────────────────
 /**
- * Rellena la historia hacia atrás pidiéndole a Meta día por día.
+ * Rellena la historia hacia atrás en UNA sola llamada.
  *
- * El reloj empieza a guardar desde MAÑANA, así que sin esto la primera revisión
- * no tendría con qué comparar y diría "todavía no hay historia" durante dos
- * semanas. Se llama sola la primera vez que se pide una revisión. Son ~14
- * llamadas, que en Acceso limitado se aguantan; y como el guardado es
- * idempotente, repetirlo no duplica nada.
+ * El reloj empieza a guardar desde mañana, así que sin esto la primera revisión
+ * no tendría con qué comparar. `time_increment=1` hace que Meta devuelva una
+ * fila POR DÍA y por campaña de un tirón: 1 llamada en vez de 90, que en
+ * Acceso limitado es la diferencia entre poder y no poder. Idempotente.
  */
-export async function rellenarHistoria(env, dias = DIAS_VENTANA) {
+export async function rellenarHistoria(env, dias = 90) {
   const cuenta = await kvJson(env, 'ads_cuenta');
-  if (!cuenta) return { ok: false, motivo: 'sin cuenta conectada' };
-  const hoy = ayerEnZona(cuenta.timezone); // ayer: hoy aún no cierra
-  let n = 0;
-  for (let i = 0; i < dias; i += 1) {
-    const d = new Date(`${hoy}T12:00:00Z`);
-    d.setUTCDate(d.getUTCDate() - i);
-    const dia = d.toISOString().slice(0, 10);
-    try {
-      const r = await guardarDiaAds(env, { dia });
-      if (r && r.ok) n += r.guardadas || 0;
-    } catch { /* un día que falle no tumba el resto */ }
+  const tok = await kvJson(env, 'ads_token');
+  if (!cuenta || !tok) return { ok: false, motivo: 'sin cuenta conectada' };
+
+  const hasta = ayerEnZona(cuenta.timezone);
+  const d0 = new Date(`${hasta}T12:00:00Z`);
+  d0.setUTCDate(d0.getUTCDate() - (dias - 1));
+  const desde = d0.toISOString().slice(0, 10);
+
+  let filas = [];
+  try {
+    const r = await fbJson(`${FB_GRAPH}/${cuenta.id}/insights?` + new URLSearchParams({
+      level: 'campaign',
+      time_increment: '1',
+      time_range: JSON.stringify({ since: desde, until: hasta }),
+      fields: 'campaign_id,campaign_name,objective,spend,impressions,reach,clicks,actions,cost_per_action_type,date_start',
+      limit: '500',
+      access_token: tok.t,
+    }));
+    filas = (r && r.data) || [];
+  } catch (e) {
+    return { ok: false, error: (e && e.message) || 'error', desde, hasta };
   }
-  return { ok: true, guardadas: n, dias };
+
+  const estados = new Map();
+  try {
+    const r = await fbJson(`${FB_GRAPH}/${cuenta.id}/campaigns?` + new URLSearchParams({
+      fields: 'id,status,effective_status,daily_budget',
+      limit: '300',
+      access_token: tok.t,
+    }));
+    for (const c of (r && r.data) || []) estados.set(c.id, c);
+  } catch { /* el gasto es lo importante */ }
+
+  const ahora = new Date().toISOString();
+  let n = 0;
+  for (const f of filas) {
+    const dia = f.date_start;
+    if (!dia) continue;
+    const est = estados.get(f.campaign_id) || {};
+    const res = resultadoPrincipal(f);
+    try {
+      await env.DB.prepare(
+        `INSERT INTO mkt_ads_dia
+           (dia, campaign_id, campaign_name, objetivo, estado, presupuesto_diario,
+            gasto, impresiones, alcance, clics, resultados, tipo_resultado,
+            costo_resultado, moneda, capturado_at)
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+         ON CONFLICT(dia, campaign_id) DO UPDATE SET
+           campaign_name = excluded.campaign_name, gasto = excluded.gasto,
+           impresiones = excluded.impresiones, alcance = excluded.alcance,
+           clics = excluded.clics, resultados = excluded.resultados,
+           tipo_resultado = excluded.tipo_resultado,
+           costo_resultado = excluded.costo_resultado,
+           capturado_at = excluded.capturado_at`
+      ).bind(
+        dia, f.campaign_id, f.campaign_name || null, f.objective || null,
+        est.effective_status || est.status || null,
+        est.daily_budget ? Number(est.daily_budget) / 100 : null,
+        Number(f.spend) || 0, Number(f.impressions) || 0, Number(f.reach) || 0,
+        Number(f.clicks) || 0, res ? res.valor : null, res ? res.tipo : null,
+        res && res.costo != null ? res.costo : null,
+        cuenta.currency || 'MXN', ahora,
+      ).run();
+      n += 1;
+    } catch (e) { console.error('[ads historia]', dia, e && e.message); }
+  }
+  return { ok: true, desde, hasta, guardadas: n };
 }
 
 export async function handleAdsRevisar(request, env, session) {
