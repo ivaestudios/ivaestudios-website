@@ -111,8 +111,17 @@ async function fbJson(u, init) {
   let d = null;
   try { d = await r.json(); } catch { /* respuesta no-JSON */ }
   if (!r.ok || (d && d.error)) {
-    const m = (d && d.error && d.error.message) || `HTTP ${r.status}`;
-    throw new Error(m);
+    // "Invalid parameter" a secas no sirve para nada: el QUE esta mal viene en
+    // error_user_msg / error_data / subcodigo. Se junta todo en el mensaje.
+    const e = (d && d.error) || {};
+    const partes = [
+      e.message || `HTTP ${r.status}`,
+      e.error_user_title,
+      e.error_user_msg,
+      e.error_data && typeof e.error_data === 'object' ? JSON.stringify(e.error_data) : e.error_data,
+      e.code != null ? `code ${e.code}${e.error_subcode ? '/' + e.error_subcode : ''}` : null,
+    ].filter(Boolean);
+    throw new Error(partes.join(' · ').slice(0, 500));
   }
   return d || {};
 }
@@ -931,7 +940,7 @@ export async function handleAdsCrear(request, env, session) {
   } catch (e) {
     const msg = (e && e.message) || 'Error';
     await bitacora(env, { quien: 'ia', accion: 'crear', campaign_name: nombre, ok: false, error: `${pasos.slice(-1)[0] || 'inicio'}: ${msg}` });
-    return json({ error: msg, falló_en: pasos.slice(-1)[0] || 'preparación', pasos }, 502);
+    return json({ error: msg, falló_en: pasos.slice(-1)[0] || 'preparación', pasos }, 400);
   }
 }
 
