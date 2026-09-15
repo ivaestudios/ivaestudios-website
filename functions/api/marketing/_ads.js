@@ -258,6 +258,9 @@ export async function handleAdsCampanas(env, session, url) {
       fields: [
         'id', 'name', 'status', 'effective_status', 'objective',
         'daily_budget', 'lifetime_budget', 'start_time', 'stop_time', 'created_time',
+        // El presupuesto puede vivir en la CAMPANA o en sus CONJUNTOS. Sin esto,
+        // una campana con 400/dia en el conjunto se pintaba "sin presupuesto".
+        'adsets.limit(10){daily_budget,lifetime_budget,status}',
         `insights.date_preset(${preset}){spend,impressions,reach,clicks,ctr,cpc,cpm,actions,cost_per_action_type,frequency}`,
       ].join(','),
       limit: '100',

@@ -9,9 +9,9 @@
 // Hoy es SOLO la cuenta de IVAE (no de marcas cliente): por eso no hay
 // selector de marca y la sección es de admin. Ver functions/api/marketing/_ads.js.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202609150121';
-import { icon } from '../shell/icons.js?v=202609150121';
-import { T, isEN } from '../shell/i18n.js?v=202609150121';
+import { el, clear, toast } from '../api.js?v=202609150123';
+import { icon } from '../shell/icons.js?v=202609150123';
+import { T, isEN } from '../shell/i18n.js?v=202609150123';
 
 const VIEW_ID = 'pauta';
 
@@ -95,9 +95,15 @@ function chipEstado(c) {
 function tarjetaCampana(c, moneda) {
   const ins = (c.insights && c.insights.data && c.insights.data[0]) || null;
   const r = resultadoDe(ins);
-  const presupuesto = c.daily_budget
-    ? `${dinero(c.daily_budget, moneda)} ${T('al día', 'a day')}`
-    : (c.lifetime_budget ? `${dinero(c.lifetime_budget, moneda)} ${T('en total', 'total')}` : T('sin presupuesto', 'no budget'));
+  // El presupuesto puede estar en la campaña o repartido en sus conjuntos.
+  // Mirar solo la campaña pintaba "sin presupuesto" una que gastaba 400 al día.
+  const sets = (c.adsets && c.adsets.data) || [];
+  const sumar = (k) => sets.reduce((t, a) => t + (Number(a[k]) || 0), 0);
+  const diario = Number(c.daily_budget) || sumar('daily_budget');
+  const total = Number(c.lifetime_budget) || sumar('lifetime_budget');
+  const presupuesto = diario
+    ? `${dinero(diario, moneda)} ${T('al día', 'a day')}`
+    : (total ? `${dinero(total, moneda)} ${T('en total', 'total')}` : T('sin presupuesto', 'no budget'));
 
   const dato = (etiqueta, valor) => el('div', { class: 'pauta-dato' }, [
     el('div', { class: 'pauta-dato__v', text: valor }),
@@ -480,7 +486,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/pauta.css?v=202609150121';
+  link.href = '/marketing/css/pauta.css?v=202609150123';
   document.head.appendChild(link);
 }
 
