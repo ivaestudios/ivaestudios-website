@@ -856,12 +856,24 @@ export async function handleAdsCreativo(env, session, url) {
   const camp = url.searchParams.get('campaign_id') || '';
   if (!camp) return json({ error: 'Falta campaign_id' }, 400);
   try {
+    // El PUBLICO de verdad, leido de Meta: lo que se mando al crear y lo que
+    // quedo aplicado no siempre es lo mismo (hay campos que Meta limpia).
+    let conjuntos = [];
+    try {
+      const rs = await fbJson(`${FB_GRAPH}/${camp}/adsets?` + new URLSearchParams({
+        fields: 'id,name,status,daily_budget,optimization_goal,billing_event,start_time,end_time,targeting',
+        limit: '10',
+        access_token: tok.t,
+      }));
+      conjuntos = (rs && rs.data) || [];
+    } catch { /* si no se puede leer, al menos van los anuncios */ }
+
     const r = await fbJson(`${FB_GRAPH}/${camp}/ads?` + new URLSearchParams({
       fields: 'id,name,status,creative{id,name,object_story_id,effective_object_story_id,instagram_permalink_url,effective_instagram_media_id,object_type,image_url,thumbnail_url,asset_feed_spec,object_story_spec}',
       limit: '5',
       access_token: tok.t,
     }));
-    return json({ anuncios: (r && r.data) || [] });
+    return json({ conjuntos, anuncios: (r && r.data) || [] });
   } catch (e) {
     return json({ error: (e && e.message) || 'error' }, 400);
   }
