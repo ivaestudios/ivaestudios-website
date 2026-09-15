@@ -56,6 +56,7 @@ import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHea
 import { pedirMes } from './_mes-ia.js';
 import { publicarEnInstagram, ahoraCancun, estadoContenedor, publicarContenedorExistente } from './_publicador.js';
 import { handleFbLogin, handleFbCallback, handleFbPick, handleFbMetrics, publicarEnFacebook } from './_facebook.js';
+import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, handleAdsCampanas } from './_ads.js';
 import { handleTtLogin, handleTtCallback, handleTtCreator, publicarEnTikTok } from './_tiktok.js';
 import { handleYtLogin, handleYtCallback, handleYtEstado, publicarEnYouTube } from './_youtube.js';
 import { pedirCarrusel } from './_carrusel-ia.js';
@@ -5264,6 +5265,11 @@ async function route(request, env, authCtx) {
   if (path === '/fb/callback' && method === 'GET') {
     return url.searchParams.get('pick') ? handleFbPick(request, env, url) : handleFbCallback(request, env, url);
   }
+  // Pauta (Marketing API): el callback vuelve de Facebook SIN cookie de sesión
+  // en algunos navegadores, igual que los de IG/FB, así que vive aquí arriba.
+  if (path === '/ads/callback' && method === 'GET') {
+    return url.searchParams.get('pick') ? handleAdsPick(request, env, url) : handleAdsCallback(request, env, url);
+  }
   if (path === '/tt/callback' && method === 'GET') return handleTtCallback(request, env, url);
   if (path === '/yt/callback' && method === 'GET') return handleYtCallback(request, env, url);
   if (path === '/ig/assign' && method === 'POST') return handleIgAssign(request, env);
@@ -5349,6 +5355,11 @@ async function route(request, env, authCtx) {
   // Version publicada de la app en las tiendas (para el aviso "actualiza la
   // app" dentro del envoltorio de iOS). Ver handleAppVersion.
   if (path === '/app-version' && method === 'GET') return handleAppVersion(env);
+
+  // ── Pauta (anuncios de la casa) ──────────────────────────────────────────
+  if (path === '/ads/login' && method === 'GET') return handleAdsLogin(request, env, session, url);
+  if (path === '/ads/estado' && method === 'GET') return handleAdsEstado(env, session);
+  if (path === '/ads/campanas' && method === 'GET') return handleAdsCampanas(env, session, url);
 
   // ── Contenido de usuarios: reportar y bloquear (Apple 1.2) ────────────────
   // Disponibles para TODOS los roles: el revisor de Apple debe poder tocarlos

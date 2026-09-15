@@ -1,0 +1,88 @@
+/* ============================================================================
+   Vista "Pauta" (js/views/pauta.js). Tarjetas de campaña con sus números.
+   Todo sale de los tokens del tema, así que funciona en claro y en oscuro sin
+   duplicar reglas. Móvil primero: una columna a 390px, rejilla desde 720px.
+   ========================================================================== */
+
+.pauta-root { padding-bottom: var(--s-8, 32px); }
+
+.pauta-rango { display: flex; gap: var(--s-2, 6px); margin-top: var(--s-3, 10px); }
+.pauta-rango .btn.is-active {
+  background: var(--brand); color: #fff; border-color: transparent;
+}
+
+.pauta-aviso {
+  display: flex; align-items: flex-start; gap: var(--s-2, 8px);
+  margin: var(--s-3, 12px) 0;
+  padding: var(--s-3, 12px);
+  border: 1px solid color-mix(in srgb, var(--warn) 45%, var(--border));
+  border-radius: var(--r-md, 12px);
+  background: color-mix(in srgb, var(--warn) 14%, var(--surface));
+  color: var(--text);
+  font-size: var(--fs-2, 14px); font-weight: 600; line-height: 1.45;
+}
+.pauta-aviso svg { flex: none; color: var(--warn); margin-top: 1px; }
+
+.pauta-grid { display: grid; gap: var(--s-3, 12px); margin-top: var(--s-4, 16px); }
+@media (min-width: 720px) {
+  .pauta-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+}
+
+.pauta-card {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg, 16px);
+  background: var(--surface);
+  padding: var(--s-4, 16px);
+}
+.pauta-card__top {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s-2, 8px);
+}
+.pauta-card__name {
+  min-width: 0;
+  font-size: var(--fs-3, 15px); font-weight: 800; color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.pauta-card__sub {
+  margin-top: 2px;
+  font-size: var(--fs-1, 12px); font-weight: 600; color: var(--text-dim);
+}
+
+.pauta-chip {
+  flex: none;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: var(--fs-0, 11px); font-weight: 800;
+  letter-spacing: .02em; text-transform: uppercase;
+}
+.pauta-chip--ok   { background: color-mix(in srgb, var(--ok) 18%, var(--surface));   color: var(--ok); }
+.pauta-chip--warn { background: color-mix(in srgb, var(--warn) 18%, var(--surface)); color: var(--warn); }
+.pauta-chip--off  { background: var(--surface-2); color: var(--text-dim); }
+
+/* Los números: cuatro o cinco datos, nunca en tabla (a 390px no cabe). */
+.pauta-datos {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: var(--s-3, 12px);
+  margin-top: var(--s-3, 14px);
+  padding-top: var(--s-3, 14px);
+  border-top: 1px solid var(--border);
+}
+@media (min-width: 480px) {
+  .pauta-datos { grid-template-columns: repeat(3, 1fr); }
+}
+.pauta-dato__v { font-size: var(--fs-4, 17px); font-weight: 800; color: var(--text); }
+.pauta-dato__k {
+  margin-top: 1px;
+  font-size: var(--fs-0, 11px); font-weight: 700; color: var(--text-dim);
+  letter-spacing: .02em; text-transform: uppercase;
+}
+
+.pauta-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--s-2, 8px);
+  padding: var(--s-8, 40px) var(--s-4, 16px);
+  text-align: center; color: var(--text-dim);
+}
+.pauta-empty svg { color: var(--text-mute, var(--text-dim)); }
+.pauta-empty h2 { margin: 0; font-size: var(--fs-4, 17px); font-weight: 800; color: var(--text); }
+.pauta-empty p { margin: 0; max-width: 40ch; font-size: var(--fs-2, 14px); line-height: 1.5; }
+.pauta-empty .btn { margin-top: var(--s-2, 8px); min-height: 44px; padding-inline: var(--s-6, 22px); }
