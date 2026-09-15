@@ -9,17 +9,18 @@
 // Hoy es SOLO la cuenta de IVAE (no de marcas cliente): por eso no hay
 // selector de marca y la sección es de admin. Ver functions/api/marketing/_ads.js.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202609150032';
-import { icon } from '../shell/icons.js?v=202609150032';
-import { T, isEN } from '../shell/i18n.js?v=202609150032';
+import { el, clear, toast } from '../api.js?v=202609150040';
+import { icon } from '../shell/icons.js?v=202609150040';
+import { T, isEN } from '../shell/i18n.js?v=202609150040';
 
 const VIEW_ID = 'pauta';
 
 let ctx = null;
 let rootEl = null;
-// 30 dias por defecto: la mayoria son promociones de post que duran pocos dias,
-// asi que a 7 dias la pantalla salia en blanco y parecia rota.
-let dias = 30;
+// 90 dias por defecto, LA MISMA ventana con la que decide la IA. Con 30 la
+// pantalla decia "nada gasto" justo debajo de decisiones basadas en gasto real,
+// que es la peor mezcla posible: parece que se contradice a si misma.
+let dias = 90;
 
 function esAdmin() { return ((ctx.store.getState().me || {}).role === 'admin'); }
 
@@ -418,7 +419,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/pauta.css?v=202609150032';
+  link.href = '/marketing/css/pauta.css?v=202609150040';
   document.head.appendChild(link);
 }
 
