@@ -882,7 +882,9 @@ export async function handleAdsCrear(request, env, session) {
   const dias = Math.max(1, Math.min(14, Number(b.dias) || 1));
   const enlace = String(b.enlace || 'https://ivaestudios.com/cancun-photographer');
   const nombre = String(b.nombre || `IA · ${new Date().toISOString().slice(0, 10)}`).slice(0, 100);
-  if (!b.texto || !b.imagen_url) return json({ error: 'Faltan texto o imagen_url' }, 400);
+  if (!b.object_story_id && (!b.texto || !b.imagen_url)) {
+    return json({ error: 'Faltan texto o imagen_url (o un object_story_id de un post que ya exista)' }, 400);
+  }
 
   // Se apunta lo que se va creando para poder DESHACERLO si un paso falla.
   // Sin esto, cada intento fallido dejaba una campana huerfana y un conjunto
@@ -935,6 +937,43 @@ export async function handleAdsCrear(request, env, session) {
       end_time: fin.toISOString(),
       status: 'PAUSED',
     });
+
+    // DOS FORMAS de creativo, y la diferencia es la que decide si Meta lo acepta:
+    //
+    //  · object_story_id → se anuncia un post que YA EXISTE en la pagina. Es
+    //    como estan hechos todos los anuncios que le han funcionado a la casa
+    //    (object_type SHARE). Como el post no lo creo esta app, el candado de
+    //    "app en modo desarrollo" no aplica.
+    //  · link_data → se crea un post OCULTO nuevo con foto y textos. Es lo que
+    //    querriamos (texto escrito a medida), pero Meta lo rechaza mientras la
+    //    app no este publicada (code 100/1885183).
+    if (b.object_story_id) {
+      const creativoPost = await pedir('creativo', `${cuenta.id}/adcreatives`, {
+        name: `${nombre} · creativo`,
+        object_story_id: String(b.object_story_id),
+      });
+      const anuncioPost = await pedir('anuncio', `${cuenta.id}/ads`, {
+        name: `${nombre} · anuncio`,
+        adset_id: conj.id,
+        creative: JSON.stringify({ creative_id: creativoPost.id }),
+        status: 'PAUSED',
+      });
+      await bitacora(env, {
+        quien: 'ia', accion: 'crear', campaign_id: camp.id, campaign_name: nombre,
+        despues: `${presupuesto} MXN/día · ${dias} día(s) · PAUSADA`,
+        motivo: `Creada por IA sobre un post existente. Público copiado de: ${pub.de || 'amplio México'}`,
+        ok: true,
+      });
+      return json({
+        ok: true, forma: 'post-existente',
+        campaign_id: camp.id, adset_id: conj.id,
+        creative_id: creativoPost.id, ad_id: anuncioPost.id,
+        publico_de: pub.de, publico_costo: pub.costo,
+        presupuesto_mxn: presupuesto, dias,
+        inicio: inicio.toISOString(), fin: fin.toISOString(), estado: 'PAUSADA',
+        enlace_admin: `https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=${cuenta.account_id}&selected_campaign_ids=${camp.id}`,
+      });
+    }
 
     const story = {
       page_id: pagina,
