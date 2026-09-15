@@ -9,9 +9,9 @@
 // Hoy es SOLO la cuenta de IVAE (no de marcas cliente): por eso no hay
 // selector de marca y la sección es de admin. Ver functions/api/marketing/_ads.js.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202609150040';
-import { icon } from '../shell/icons.js?v=202609150040';
-import { T, isEN } from '../shell/i18n.js?v=202609150040';
+import { el, clear, toast } from '../api.js?v=202609150118';
+import { icon } from '../shell/icons.js?v=202609150118';
+import { T, isEN } from '../shell/i18n.js?v=202609150118';
 
 const VIEW_ID = 'pauta';
 
@@ -104,6 +104,51 @@ function tarjetaCampana(c, moneda) {
     el('div', { class: 'pauta-dato__k', text: etiqueta }),
   ]);
 
+  const estado = String(c.effective_status || c.status || '').toUpperCase();
+  const activa = estado === 'ACTIVE';
+  const gasto = ins ? (Number(ins.spend) || 0) : 0;
+
+  const accion = async (ruta, btn, txtCargando, ok) => {
+    btn.disabled = true;
+    const antes = btn.textContent;
+    btn.textContent = txtCargando;
+    try {
+      const r = await (await fetch(`/api/marketing/ads/${ruta}`, {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ campaign_id: c.id, quien: 'persona' }),
+      })).json();
+      if (r && r.error) { toast(r.error, { type: 'error' }); btn.disabled = false; btn.textContent = antes; return; }
+      toast(ok, { type: 'success' });
+      render();
+    } catch {
+      toast(T('No se pudo. Reintenta.', 'Could not do it. Try again.'), { type: 'error' });
+      btn.disabled = false; btn.textContent = antes;
+    }
+  };
+
+  const botones = [];
+  const bPrender = el('button', {
+    class: 'btn btn-sm' + (activa ? '' : ' btn-primary'), type: 'button',
+    text: activa ? T('Pausar', 'Pause') : T('Encender', 'Turn on'),
+    onclick: () => accion(
+      activa ? 'apagar' : 'encender', bPrender,
+      activa ? T('Pausando…', 'Pausing…') : T('Encendiendo…', 'Turning on…'),
+      activa ? T('Pausada.', 'Paused.') : T('Encendida: ya está gastando.', 'On: it is spending now.'),
+    ),
+  });
+  botones.push(bPrender);
+  // Borrar SOLO si nunca gastó: con gasto, el historial es lo que sirve para
+  // decidir, y borrarlo lo tira a la basura. El backend lo vuelve a comprobar.
+  if (!gasto) {
+    const bBorrar = el('button', {
+      class: 'btn btn-sm pauta-card__del', type: 'button',
+      text: T('Borrar', 'Delete'),
+      onclick: () => accion('borrar', bBorrar, T('Borrando…', 'Deleting…'), T('Borrada.', 'Deleted.')),
+    });
+    botones.push(bBorrar);
+  }
+
   return el('div', { class: 'pauta-card' }, [
     el('div', { class: 'pauta-card__top' }, [
       el('div', { class: 'pauta-card__name', text: c.name || '—' }),
@@ -121,6 +166,7 @@ function tarjetaCampana(c, moneda) {
         ? dato(T('Costo por resultado', 'Cost per result'), gasto(r.costo, moneda))
         : null,
     ].filter(Boolean)),
+    el('div', { class: 'pauta-card__acc' }, botones),
   ]);
 }
 
@@ -419,7 +465,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/pauta.css?v=202609150040';
+  link.href = '/marketing/css/pauta.css?v=202609150118';
   document.head.appendChild(link);
 }
 

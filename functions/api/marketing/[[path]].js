@@ -56,7 +56,7 @@ import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHea
 import { pedirMes } from './_mes-ia.js';
 import { publicarEnInstagram, ahoraCancun, estadoContenedor, publicarContenedorExistente } from './_publicador.js';
 import { handleFbLogin, handleFbCallback, handleFbPick, handleFbMetrics, publicarEnFacebook } from './_facebook.js';
-import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, handleAdsCampanas, handleAdsRevisar, handleAdsBitacora, handleAdsAjustes, handleAdsOpciones, handleAdsCrear, handleAdsEncender, handleAdsCreativo, guardarDiaAds, revisarPauta } from './_ads.js';
+import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, handleAdsCampanas, handleAdsRevisar, handleAdsBitacora, handleAdsAjustes, handleAdsOpciones, handleAdsCrear, handleAdsEncender, handleAdsApagar, handleAdsBorrar, handleAdsCreativo, guardarDiaAds, revisarPauta } from './_ads.js';
 import { handleTtLogin, handleTtCallback, handleTtCreator, publicarEnTikTok } from './_tiktok.js';
 import { handleYtLogin, handleYtCallback, handleYtEstado, publicarEnYouTube } from './_youtube.js';
 import { pedirCarrusel } from './_carrusel-ia.js';
@@ -5380,6 +5380,8 @@ async function route(request, env, authCtx) {
   if (path === '/ads/creativo' && method === 'GET') return handleAdsCreativo(env, session, url);
   if (path === '/ads/crear' && method === 'POST') return handleAdsCrear(request, env, session);
   if (path === '/ads/encender' && method === 'POST') return handleAdsEncender(request, env, session);
+  if (path === '/ads/apagar' && method === 'POST') return handleAdsApagar(request, env, session);
+  if (path === '/ads/borrar' && method === 'POST') return handleAdsBorrar(request, env, session);
 
   // ── Contenido de usuarios: reportar y bloquear (Apple 1.2) ────────────────
   // Disponibles para TODOS los roles: el revisor de Apple debe poder tocarlos

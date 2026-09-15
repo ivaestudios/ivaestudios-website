@@ -1058,3 +1058,56 @@ export async function handleAdsEncender(request, env, session) {
     return json({ error: msg }, 502);
   }
 }
+
+// POST /ads/apagar { campaign_id } — pausa la campaña (los conjuntos y
+// anuncios se quedan como estén: pausar arriba ya detiene la entrega).
+export async function handleAdsApagar(request, env, session) {
+  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
+  const tok = await kvJson(env, 'ads_token');
+  if (!tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
+  let b = {};
+  try { b = await request.json(); } catch { return json({ error: 'Cuerpo inválido' }, 400); }
+  const id = String(b.campaign_id || '');
+  if (!id) return json({ error: 'Falta campaign_id' }, 400);
+  try {
+    await fbJson(`${FB_GRAPH}/${id}`, { method: 'POST', body: new URLSearchParams({ status: 'PAUSED', access_token: tok.t }) });
+    await bitacora(env, { quien: b.quien === 'ia' ? 'ia' : 'persona', accion: 'pausar', campaign_id: id, antes: 'ACTIVE', despues: 'PAUSED', motivo: b.motivo || 'Apagada desde la app', ok: true });
+    return json({ ok: true, campaign_id: id, estado: 'PAUSADA' });
+  } catch (e) {
+    const msg = (e && e.message) || 'Error';
+    await bitacora(env, { quien: 'persona', accion: 'pausar', campaign_id: id, ok: false, error: msg });
+    return json({ error: msg }, 400);
+  }
+}
+
+// POST /ads/borrar { campaign_id } — borra una campaña.
+//
+// ⚠️ Con candado: SOLO si nunca gastó. Borrar una campaña con gasto se lleva su
+// historial de Meta, y ese historial es justo con lo que se decide. Las que ya
+// gastaron se pausan, no se borran.
+export async function handleAdsBorrar(request, env, session) {
+  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
+  const tok = await kvJson(env, 'ads_token');
+  if (!tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
+  let b = {};
+  try { b = await request.json(); } catch { return json({ error: 'Cuerpo inválido' }, 400); }
+  const id = String(b.campaign_id || '');
+  if (!id) return json({ error: 'Falta campaign_id' }, 400);
+  try {
+    const ins = await fbJson(`${FB_GRAPH}/${id}/insights?` + new URLSearchParams({
+      fields: 'spend', date_preset: 'maximum', access_token: tok.t,
+    }));
+    const gasto = Number(((ins.data || [])[0] || {}).spend) || 0;
+    if (gasto > 0) {
+      return json({ error: `Esta campaña ya gastó ${gasto}. No se borra: se pausa, para no perder su historial.` }, 409);
+    }
+    const nombre = (await fbJson(`${FB_GRAPH}/${id}?` + new URLSearchParams({ fields: 'name', access_token: tok.t }))).name;
+    await fetch(`${FB_GRAPH}/${id}?access_token=${encodeURIComponent(tok.t)}`, { method: 'DELETE' });
+    await bitacora(env, { quien: 'persona', accion: 'borrar', campaign_id: id, campaign_name: nombre, motivo: b.motivo || 'Borrada desde la app (nunca gastó)', ok: true });
+    return json({ ok: true, campaign_id: id, borrada: true });
+  } catch (e) {
+    const msg = (e && e.message) || 'Error';
+    await bitacora(env, { quien: 'persona', accion: 'borrar', campaign_id: id, ok: false, error: msg });
+    return json({ error: msg }, 400);
+  }
+}

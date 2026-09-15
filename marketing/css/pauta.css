@@ -173,3 +173,15 @@
 .pauta-dec__ok { margin-top: 3px; font-size: var(--fs-1, 12px); font-weight: 700; color: var(--ok); }
 .pauta-dec__err { margin-top: 3px; font-size: var(--fs-1, 12px); font-weight: 700; color: var(--warn); }
 .pauta-dec__pend { margin-top: 3px; font-size: var(--fs-1, 12px); font-weight: 700; color: var(--text-dim); }
+
+/* Mando de cada campaña: encender, pausar, borrar. La app es el control, no el
+   panel de Meta (pedido de la dueña, 15-sep-2026). */
+.pauta-card__acc {
+  display: flex; gap: var(--s-2, 8px); flex-wrap: wrap;
+  margin-top: var(--s-3, 12px);
+  padding-top: var(--s-3, 12px);
+  border-top: 1px solid var(--border);
+}
+.pauta-card__acc .btn { min-height: 38px; padding-inline: var(--s-4, 14px); }
+.pauta-card__del { color: var(--warn); }
+.pauta-card__del:hover { background: color-mix(in srgb, var(--warn) 12%, var(--surface)); }
