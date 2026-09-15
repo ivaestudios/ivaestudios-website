@@ -819,10 +819,15 @@ async function publicoProbado(env, cuenta, tok) {
     const a = (r && r.data && r.data[0]) || null;
     if (a && a.targeting) {
       // Se limpia lo que no se puede reusar tal cual en un conjunto nuevo.
+      // Se limpia lo que Meta ya no acepta al CREAR aunque lo siga devolviendo
+      // al leer: `targeting_optimization` esta retirado (code 100/1870197) y
+      // los publicos personalizados no se pueden reusar entre cuentas.
       const t = { ...a.targeting };
-      delete t.excluded_custom_audiences;
-      delete t.custom_audiences;
-      delete t.brand_safety_content_filter_levels;
+      for (const k of [
+        'excluded_custom_audiences', 'custom_audiences',
+        'brand_safety_content_filter_levels', 'targeting_optimization',
+        'targeting_relaxation_types', 'is_whatsapp_destination_ad',
+      ]) delete t[k];
       return { targeting: t, de: mejor.campaign_name, costo: Math.round((mejor.g / mejor.res) * 100) / 100 };
     }
   } catch { /* si no se puede leer, publico amplio */ }
