@@ -259,3 +259,400 @@ export async function handleAdsCampanas(env, session, url) {
     return json({ error: (e && e.message) || 'No se pudo leer las campañas' }, 502);
   }
 }
+
+// ============================================================================
+// PASO 2: EL RELOJ. Guardar cada dia lo que gasto y devolvio cada campana.
+//
+// Sin esto solo hay fotos del acumulado, y con un acumulado no se puede decidir
+// nada: "gasto 300" no dice si va mejorando o empeorando. Corre una vez al dia
+// desde handleCron y es idempotente (si corre dos veces el mismo dia, pisa la
+// misma fila).
+// ============================================================================
+
+// Ayer en la zona horaria de la CUENTA, no del servidor: Meta cierra el dia con
+// el reloj de la cuenta, y un dia corrido es un dia entero de datos perdidos.
+function ayerEnZona(tz) {
+  try {
+    const f = new Intl.DateTimeFormat('en-CA', { timeZone: tz || 'America/Mexico_City', year: 'numeric', month: '2-digit', day: '2-digit' });
+    const hoy = f.format(new Date());
+    const d = new Date(`${hoy}T12:00:00Z`);
+    d.setUTCDate(d.getUTCDate() - 1);
+    return d.toISOString().slice(0, 10);
+  } catch {
+    const d = new Date(Date.now() - 864e5);
+    return d.toISOString().slice(0, 10);
+  }
+}
+
+export async function guardarDiaAds(env, { dia = null } = {}) {
+  const cuenta = await kvJson(env, 'ads_cuenta');
+  const tok = await kvJson(env, 'ads_token');
+  if (!cuenta || !tok) return { ok: false, motivo: 'sin cuenta conectada' };
+  const d = dia || ayerEnZona(cuenta.timezone);
+
+  // Una sola llamada para TODAS las campanas (level=campaign): el Access Tier
+  // limitado tiene pocas llamadas por hora y una por campana lo reventaria.
+  let filas = [];
+  try {
+    const r = await fbJson(`${FB_GRAPH}/${cuenta.id}/insights?` + new URLSearchParams({
+      level: 'campaign',
+      time_range: JSON.stringify({ since: d, until: d }),
+      fields: 'campaign_id,campaign_name,objective,spend,impressions,reach,clicks,actions,cost_per_action_type',
+      limit: '300',
+      access_token: tok.t,
+    }));
+    filas = (r && r.data) || [];
+  } catch (e) {
+    return { ok: false, dia: d, error: (e && e.message) || 'error' };
+  }
+  if (!filas.length) return { ok: true, dia: d, guardadas: 0 };
+
+  // Estado y presupuesto VIVOS (insights no los trae) para que la IA vea con
+  // que esta trabajando hoy, no como estaba el dia del gasto.
+  const estados = new Map();
+  try {
+    const r = await fbJson(`${FB_GRAPH}/${cuenta.id}/campaigns?` + new URLSearchParams({
+      fields: 'id,status,effective_status,daily_budget,lifetime_budget',
+      limit: '300',
+      access_token: tok.t,
+    }));
+    for (const c of (r && r.data) || []) estados.set(c.id, c);
+  } catch { /* sin esto se guarda igual: el gasto es lo importante */ }
+
+  const ahora = new Date().toISOString();
+  let n = 0;
+  for (const f of filas) {
+    const est = estados.get(f.campaign_id) || {};
+    const res = resultadoPrincipal(f);
+    try {
+      await env.DB.prepare(
+        `INSERT INTO mkt_ads_dia
+           (dia, campaign_id, campaign_name, objetivo, estado, presupuesto_diario,
+            gasto, impresiones, alcance, clics, resultados, tipo_resultado,
+            costo_resultado, moneda, capturado_at)
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+         ON CONFLICT(dia, campaign_id) DO UPDATE SET
+           campaign_name = excluded.campaign_name, objetivo = excluded.objetivo,
+           estado = excluded.estado, presupuesto_diario = excluded.presupuesto_diario,
+           gasto = excluded.gasto, impresiones = excluded.impresiones,
+           alcance = excluded.alcance, clics = excluded.clics,
+           resultados = excluded.resultados, tipo_resultado = excluded.tipo_resultado,
+           costo_resultado = excluded.costo_resultado, capturado_at = excluded.capturado_at`
+      ).bind(
+        d, f.campaign_id, f.campaign_name || null, f.objective || null,
+        est.effective_status || est.status || null,
+        est.daily_budget ? Number(est.daily_budget) / 100 : null,
+        Number(f.spend) || 0, Number(f.impressions) || 0, Number(f.reach) || 0,
+        Number(f.clicks) || 0, res ? res.valor : null, res ? res.tipo : null,
+        res && res.costo != null ? res.costo : null,
+        cuenta.currency || 'MXN', ahora,
+      ).run();
+      n += 1;
+    } catch (e) { console.error('[ads dia]', f.campaign_id, e && e.message); }
+  }
+  return { ok: true, dia: d, guardadas: n };
+}
+
+// El "resultado" depende del objetivo (mensajes, clics, registros…): Meta lo
+// manda dentro de actions[], no en un campo fijo. Gemelo del de views/pauta.js.
+const ACCIONES_UTILES = [
+  'onsite_conversion.messaging_conversation_started_7d',
+  'lead',
+  'purchase',
+  'landing_page_view',
+  'link_click',
+  'post_engagement',
+];
+function resultadoPrincipal(ins) {
+  const acts = (ins && ins.actions) || [];
+  for (const tipo of ACCIONES_UTILES) {
+    const a = acts.find((x) => x.action_type === tipo);
+    if (a) {
+      const c = (ins.cost_per_action_type || []).find((x) => x.action_type === tipo);
+      return { tipo, valor: Number(a.value) || 0, costo: c ? Number(c.value) : null };
+    }
+  }
+  return null;
+}
+
+// ============================================================================
+// PASO 3: LA IA DECIDE Y MUEVE.
+//
+// Lee los ultimos 14 dias de mkt_ads_dia (que es donde vive la HISTORIA; el
+// acumulado de Meta no dice si una campana va mejorando) y le pide a Claude una
+// decision por campana con su motivo. Despues la ejecuta contra la Marketing
+// API y deja huella en mkt_ads_log.
+//
+// LOS FRENOS (existen aunque sea dinero de la casa: un bug que gasta, gasta):
+//   · Interruptor `ads_auto`: en '0' la IA DECIDE pero NO toca nada. Nace
+//     apagado a proposito — se prende cuando se haya visto una tanda de
+//     decisiones y convenzan.
+//   · `ads_tope_diario` (MXN): techo de la suma de presupuestos diarios que la
+//     IA puede dejar vivos. Si se pasa, recorta la subida.
+//   · Un cambio de presupuesto nunca mueve mas de ±50% de golpe.
+//   · Bajar un presupuesto por debajo de lo YA gastado lo rechaza Meta: los
+//     de tipo lifetime solo se suben, nunca se bajan.
+//   · Todo movimiento (y todo error) queda en mkt_ads_log con el motivo.
+// ============================================================================
+
+const MODELO_IA = 'claude-sonnet-5';
+const TOPE_DIARIO_DEFAULT = 500;      // MXN/dia repartidos entre campanas
+const CAMBIO_MAX = 0.5;               // ±50% por movimiento
+const DIAS_VENTANA = 14;
+
+async function bitacora(env, fila) {
+  try {
+    await env.DB.prepare(
+      `INSERT INTO mkt_ads_log (id, at, quien, accion, campaign_id, campaign_name, antes, despues, motivo, ok, error)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?)`
+    ).bind(
+      rnd(), new Date().toISOString(), fila.quien || 'ia', fila.accion,
+      fila.campaign_id || null, fila.campaign_name || null,
+      fila.antes == null ? null : String(fila.antes),
+      fila.despues == null ? null : String(fila.despues),
+      fila.motivo || null, fila.ok ? 1 : 0, fila.error || null,
+    ).run();
+  } catch (e) { console.error('[ads log]', e && e.message); }
+}
+
+// La foto que ve la IA: por campana, lo de los ultimos 14 dias sumado, mas su
+// estado y presupuesto de HOY.
+async function fotoParaLaIA(env, cuenta, tok) {
+  const desde = new Date(Date.now() - DIAS_VENTANA * 864e5).toISOString().slice(0, 10);
+  const hist = await env.DB.prepare(
+    `SELECT campaign_id, campaign_name,
+            SUM(gasto) AS gasto, SUM(alcance) AS alcance, SUM(clics) AS clics,
+            SUM(COALESCE(resultados,0)) AS resultados,
+            MAX(tipo_resultado) AS tipo_resultado,
+            COUNT(*) AS dias
+       FROM mkt_ads_dia
+      WHERE dia >= ?
+      GROUP BY campaign_id
+      ORDER BY gasto DESC
+      LIMIT 40`
+  ).bind(desde).all();
+
+  const vivas = new Map();
+  try {
+    const r = await fbJson(`${FB_GRAPH}/${cuenta.id}/campaigns?` + new URLSearchParams({
+      fields: 'id,name,status,effective_status,objective,daily_budget,lifetime_budget',
+      limit: '300',
+      access_token: tok.t,
+    }));
+    for (const c of (r && r.data) || []) vivas.set(c.id, c);
+  } catch (e) { throw new Error('No se pudo leer las campañas: ' + ((e && e.message) || '')); }
+
+  const campanas = [];
+  for (const h of (hist.results || [])) {
+    const v = vivas.get(h.campaign_id);
+    if (!v) continue; // borrada en Meta: no se opina de lo que ya no existe
+    const gasto = Number(h.gasto) || 0;
+    const res = Number(h.resultados) || 0;
+    campanas.push({
+      id: h.campaign_id,
+      nombre: v.name || h.campaign_name,
+      estado: v.effective_status || v.status,
+      objetivo: v.objective,
+      presupuesto_diario_mxn: v.daily_budget ? Number(v.daily_budget) / 100 : null,
+      presupuesto_total_mxn: v.lifetime_budget ? Number(v.lifetime_budget) / 100 : null,
+      dias_con_datos: Number(h.dias) || 0,
+      gasto_14d_mxn: Math.round(gasto * 100) / 100,
+      alcance_14d: Number(h.alcance) || 0,
+      clics_14d: Number(h.clics) || 0,
+      resultados_14d: res,
+      tipo_resultado: h.tipo_resultado,
+      costo_por_resultado_mxn: res ? Math.round((gasto / res) * 100) / 100 : null,
+    });
+  }
+  return campanas;
+}
+
+const ESQUEMA_DECISIONES = {
+  type: 'object',
+  properties: {
+    lectura: { type: 'string', description: 'Dos o tres frases en español, para la dueña, sobre cómo va la pauta en conjunto.' },
+    decisiones: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          campaign_id: { type: 'string' },
+          accion: { type: 'string', enum: ['dejar', 'pausar', 'activar', 'presupuesto'] },
+          presupuesto_diario_mxn: { type: 'number', description: 'Solo con accion=presupuesto. Pesos mexicanos al día.' },
+          motivo: { type: 'string', description: 'Una frase, en español, con el número que justifica la decisión.' },
+        },
+        required: ['campaign_id', 'accion', 'motivo'],
+      },
+    },
+  },
+  required: ['lectura', 'decisiones'],
+};
+
+async function pedirDecisiones(env, campanas, tope) {
+  if (!env.ANTHROPIC_API_KEY) throw new Error('Falta ANTHROPIC_API_KEY');
+  const prompt = `Eres quien lleva la pauta de IVAE Estudios, un estudio de fotografía de bodas y sesiones en Cancún y Riviera Maya. Decides con números, no con corazonadas.
+
+Estas son las campañas de los últimos ${DIAS_VENTANA} días, con lo que gastaron y lo que devolvieron (pesos mexicanos):
+
+${JSON.stringify(campanas, null, 1)}
+
+Presupuesto tope: ${tope} MXN al día sumando TODAS las campañas activas.
+
+Cómo decidir:
+- Compara el costo por resultado entre campañas. Lo caro se pausa, lo barato se alimenta.
+- Una campaña con menos de 3 días de datos o con menos de 100 MXN gastados todavía no dice nada: déjala correr.
+- No muevas por mover: si algo va bien y estable, "dejar" es la respuesta correcta.
+- Un cambio de presupuesto no puede ser mayor a ±50% de lo que tiene hoy.
+- Las que ya están pausadas solo se activan si sus números eran claramente buenos.
+- El motivo SIEMPRE lleva el número que lo justifica.`;
+
+  const cuerpo = {
+    model: MODELO_IA,
+    max_tokens: 4000,
+    messages: [{ role: 'user', content: prompt }],
+    tools: [{ name: 'entregar_decisiones', description: 'Entrega la lectura y una decisión por campaña.', input_schema: ESQUEMA_DECISIONES }],
+    tool_choice: { type: 'tool', name: 'entregar_decisiones' },
+  };
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+    body: JSON.stringify(cuerpo),
+    signal: AbortSignal.timeout(90000),
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error((d && d.error && d.error.message) || `HTTP ${r.status}`);
+  const uso = (d.content || []).find((b) => b.type === 'tool_use');
+  if (!uso || !uso.input) throw new Error('La IA no devolvió decisiones');
+  return uso.input;
+}
+
+// Ejecuta UNA decisión. Devuelve {ok, antes, despues, error}.
+async function ejecutar(env, cuenta, tok, campana, dec, tope, ocupadoYa) {
+  const post = async (campos) => fbJson(`${FB_GRAPH}/${campana.id}`, {
+    method: 'POST',
+    body: new URLSearchParams({ ...campos, access_token: tok.t }),
+  });
+  if (dec.accion === 'pausar') {
+    await post({ status: 'PAUSED' });
+    return { ok: true, antes: campana.estado, despues: 'PAUSED' };
+  }
+  if (dec.accion === 'activar') {
+    await post({ status: 'ACTIVE' });
+    return { ok: true, antes: campana.estado, despues: 'ACTIVE' };
+  }
+  // presupuesto
+  const hoy = campana.presupuesto_diario_mxn;
+  if (!hoy) {
+    // Sin presupuesto DIARIO no hay nada que ajustar sin riesgo: los de tipo
+    // "total" los rechaza Meta si quedan por debajo de lo ya gastado.
+    return { ok: false, error: 'La campaña no usa presupuesto diario: no se toca.' };
+  }
+  let nuevo = Number(dec.presupuesto_diario_mxn);
+  if (!Number.isFinite(nuevo) || nuevo <= 0) return { ok: false, error: 'Presupuesto inválido' };
+  const techo = hoy * (1 + CAMBIO_MAX);
+  const piso = hoy * (1 - CAMBIO_MAX);
+  nuevo = Math.min(techo, Math.max(piso, nuevo));
+  // El tope de la casa manda sobre lo que pida la IA.
+  const margen = tope - ocupadoYa;
+  if (nuevo > hoy && nuevo - hoy > margen) nuevo = hoy + Math.max(0, margen);
+  nuevo = Math.round(nuevo);
+  if (nuevo === Math.round(hoy)) return { ok: false, error: 'El tope diario no deja subir más.' };
+  await post({ daily_budget: String(nuevo * 100) });
+  return { ok: true, antes: `${Math.round(hoy)} MXN/día`, despues: `${nuevo} MXN/día` };
+}
+
+/**
+ * Revisa la pauta y (si el interruptor está encendido) la mueve.
+ * @param {{ejecutar?: boolean, quien?: string}} opts
+ */
+export async function revisarPauta(env, opts = {}) {
+  const cuenta = await kvJson(env, 'ads_cuenta');
+  const tok = await kvJson(env, 'ads_token');
+  if (!cuenta || !tok) return { ok: false, error: 'Cuenta publicitaria no conectada' };
+
+  const auto = (await kvGet(env, 'ads_auto')) === '1';
+  const mueve = opts.ejecutar != null ? !!opts.ejecutar : auto;
+  const tope = Number(await kvGet(env, 'ads_tope_diario')) || TOPE_DIARIO_DEFAULT;
+
+  const campanas = await fotoParaLaIA(env, cuenta, tok);
+  if (!campanas.length) {
+    return { ok: true, mueve, lectura: 'Todavía no hay suficiente historia para decidir. El reloj guarda los números cada día; con dos o tres días ya se puede comparar.', decisiones: [], aplicadas: 0 };
+  }
+
+  const salida = await pedirDecisiones(env, campanas, tope);
+  const porId = new Map(campanas.map((c) => [c.id, c]));
+
+  // Lo que ya ocupan de presupuesto diario las que van a seguir vivas.
+  let ocupado = campanas
+    .filter((c) => String(c.estado).toUpperCase() === 'ACTIVE')
+    .reduce((s, c) => s + (c.presupuesto_diario_mxn || 0), 0);
+
+  const hechas = [];
+  for (const dec of (salida.decisiones || [])) {
+    const c = porId.get(dec.campaign_id);
+    if (!c) continue;
+    if (dec.accion === 'dejar') { hechas.push({ ...dec, nombre: c.nombre, aplicada: false }); continue; }
+    if (!mueve) { hechas.push({ ...dec, nombre: c.nombre, aplicada: false, pendiente: true }); continue; }
+    let r;
+    try {
+      r = await ejecutar(env, cuenta, tok, c, dec, tope, ocupado);
+    } catch (e) { r = { ok: false, error: (e && e.message) || 'Error' }; }
+    if (r.ok && dec.accion === 'presupuesto') {
+      ocupado += (parseFloat(r.despues) || 0) - (parseFloat(r.antes) || 0);
+    }
+    await bitacora(env, {
+      quien: opts.quien || 'ia', accion: dec.accion,
+      campaign_id: c.id, campaign_name: c.nombre,
+      antes: r.antes, despues: r.despues, motivo: dec.motivo,
+      ok: r.ok, error: r.error,
+    });
+    hechas.push({ ...dec, nombre: c.nombre, aplicada: !!r.ok, error: r.error, antes: r.antes, despues: r.despues });
+  }
+
+  const resumen = { at: new Date().toISOString(), lectura: salida.lectura, decisiones: hechas, mueve, tope };
+  await kvSet(env, 'ads_ultima_revision', JSON.stringify(resumen));
+  return { ok: true, ...resumen, aplicadas: hechas.filter((h) => h.aplicada).length };
+}
+
+// ── Endpoints del paso 3 ────────────────────────────────────────────────────
+export async function handleAdsRevisar(request, env, session) {
+  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
+  let body = {};
+  try { body = await request.json(); } catch { /* sin cuerpo */ }
+  try {
+    const r = await revisarPauta(env, { ejecutar: body.ejecutar, quien: 'ia' });
+    return json(r, r.ok ? 200 : 409);
+  } catch (e) {
+    return json({ error: (e && e.message) || 'No se pudo revisar' }, 502);
+  }
+}
+
+export async function handleAdsBitacora(env, session) {
+  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
+  const auto = (await kvGet(env, 'ads_auto')) === '1';
+  const tope = Number(await kvGet(env, 'ads_tope_diario')) || TOPE_DIARIO_DEFAULT;
+  const ultima = await kvJson(env, 'ads_ultima_revision');
+  let log = [];
+  try {
+    const r = await env.DB.prepare('SELECT * FROM mkt_ads_log ORDER BY at DESC LIMIT 50').all();
+    log = r.results || [];
+  } catch { /* tabla nueva: puede no existir en un entorno viejo */ }
+  return json({ auto, tope, ultima, log });
+}
+
+// POST /ads/ajustes { auto: bool, tope: number } — el interruptor y el techo.
+export async function handleAdsAjustes(request, env, session) {
+  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
+  let body = {};
+  try { body = await request.json(); } catch { return json({ error: 'Cuerpo inválido' }, 400); }
+  if (typeof body.auto === 'boolean') {
+    await kvSet(env, 'ads_auto', body.auto ? '1' : '0');
+    await bitacora(env, { quien: 'persona', accion: body.auto ? 'encender_auto' : 'apagar_auto', ok: true, motivo: 'Interruptor de la pauta automática' });
+  }
+  if (body.tope != null) {
+    const t = Math.max(50, Math.min(50000, Number(body.tope) || 0));
+    await kvSet(env, 'ads_tope_diario', String(t));
+    await bitacora(env, { quien: 'persona', accion: 'tope_diario', despues: `${t} MXN/día`, ok: true, motivo: 'Techo de gasto diario' });
+  }
+  return handleAdsBitacora(env, session);
+}

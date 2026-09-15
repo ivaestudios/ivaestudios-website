@@ -9,9 +9,9 @@
 // Hoy es SOLO la cuenta de IVAE (no de marcas cliente): por eso no hay
 // selector de marca y la sección es de admin. Ver functions/api/marketing/_ads.js.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202609150024';
-import { icon } from '../shell/icons.js?v=202609150024';
-import { T, isEN } from '../shell/i18n.js?v=202609150024';
+import { el, clear, toast } from '../api.js?v=202609150032';
+import { icon } from '../shell/icons.js?v=202609150032';
+import { T, isEN } from '../shell/i18n.js?v=202609150032';
 
 const VIEW_ID = 'pauta';
 
@@ -217,6 +217,10 @@ async function render() {
     ]));
   }
 
+  const cerebro = el('div', { class: 'pauta-cerebro' });
+  rootEl.appendChild(cerebro);
+  pintarCerebro(cerebro).catch(() => { /* el cerebro es un extra: nunca tumba la vista */ });
+
   const lista = el('div', { class: 'pauta-grid' });
   rootEl.appendChild(lista);
   lista.appendChild(el('div', { class: 'pauta-empty' }, [el('span', { class: 'spinner' })]));
@@ -308,13 +312,113 @@ function resumen(campanas, moneda) {
   ]);
 }
 
+
+const ETIQUETA_ACCION = {
+  pausar: () => T('Pausar', 'Pause'),
+  activar: () => T('Activar', 'Activate'),
+  presupuesto: () => T('Presupuesto', 'Budget'),
+  dejar: () => T('Dejar', 'Keep'),
+};
+
+// ── El cerebro: lo que decidí, con qué freno y qué moví ──────────────────────
+// Va ARRIBA de las campañas a propósito: primero la decisión, después el
+// detalle. Es lo que pidió la dueña ("que tú veas y hagas los movimientos").
+async function pintarCerebro(host) {
+  let d = null;
+  try { d = await (await fetch('/api/marketing/ads/bitacora', { credentials: 'include' })).json(); } catch { return; }
+  if (!d || d.error) return;
+  clear(host);
+
+  const sw = el('button', {
+    class: 'pauta-sw' + (d.auto ? ' is-on' : ''), type: 'button',
+    'aria-pressed': String(!!d.auto),
+    onclick: async () => {
+      sw.disabled = true;
+      try {
+        await fetch('/api/marketing/ads/ajustes', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ auto: !d.auto }),
+        });
+        toast(!d.auto
+          ? T('Listo: de ahora en adelante muevo la pauta sola.', 'Done: from now on I move the ads myself.')
+          : T('Apagado. Voy a seguir opinando, pero sin tocar nada.', 'Off. I will keep advising, but touch nothing.'), { type: 'success' });
+        await pintarCerebro(host);
+      } catch { sw.disabled = false; }
+    },
+  }, [el('span', { class: 'pauta-sw__dot' }), el('span', { text: d.auto
+    ? T('Moviendo sola', 'Moving on its own')
+    : T('Solo opina', 'Advice only') })]);
+
+  const revisar = el('button', {
+    class: 'btn btn-primary', type: 'button',
+    text: T('Revisar ahora', 'Review now'),
+    onclick: async () => {
+      revisar.disabled = true;
+      revisar.textContent = T('Leyendo los números…', 'Reading the numbers…');
+      try {
+        const r = await (await fetch('/api/marketing/ads/revisar', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }, body: '{}',
+        })).json();
+        if (r && r.error) toast(r.error, { type: 'error' });
+        else toast(r.aplicadas
+          ? T(`Hice ${r.aplicadas} movimiento(s).`, `Made ${r.aplicadas} change(s).`)
+          : T('Revisado. No había nada que mover.', 'Reviewed. Nothing to move.'), { type: 'success' });
+      } catch { toast(T('No se pudo revisar.', 'Could not review.'), { type: 'error' }); }
+      revisar.disabled = false;
+      revisar.textContent = T('Revisar ahora', 'Review now');
+      await pintarCerebro(host);
+    },
+  });
+
+  const cab = el('div', { class: 'pauta-cerebro__top' }, [
+    el('div', { class: 'pauta-cerebro__t', text: T('Qué decidí', 'What I decided') }),
+    el('div', { class: 'pauta-cerebro__acc' }, [sw, revisar]),
+  ]);
+
+  const cuerpo = el('div', { class: 'pauta-cerebro__body' });
+  const u = d.ultima;
+  if (!u) {
+    cuerpo.appendChild(el('p', { class: 'pauta-cerebro__vacio', text: T(
+      'Todavía no he revisado. Cada noche guardo lo que gastó y devolvió cada campaña, y con eso decido. También puedes pedirme que revise ahora.',
+      "I have not reviewed yet. Every night I save what each campaign spent and returned, and decide from that. You can also ask me to review now.",
+    ) }));
+  } else {
+    cuerpo.appendChild(el('p', { class: 'pauta-cerebro__lectura', text: u.lectura || '' }));
+    const movidas = (u.decisiones || []).filter((x) => x.accion !== 'dejar');
+    if (!movidas.length) {
+      cuerpo.appendChild(el('p', { class: 'pauta-cerebro__vacio', text: T('No había nada que mover.', 'Nothing to move.') }));
+    }
+    for (const x of movidas) {
+      cuerpo.appendChild(el('div', { class: 'pauta-dec' }, [
+        el('span', { class: `pauta-dec__acc pauta-dec__acc--${x.accion}`, text: ETIQUETA_ACCION[x.accion] ? ETIQUETA_ACCION[x.accion]() : x.accion }),
+        el('div', { class: 'pauta-dec__main' }, [
+          el('div', { class: 'pauta-dec__name', text: x.nombre || x.campaign_id }),
+          el('div', { class: 'pauta-dec__why', text: x.motivo || '' }),
+          x.aplicada && x.despues
+            ? el('div', { class: 'pauta-dec__ok', text: `${x.antes} → ${x.despues}` })
+            : (x.error ? el('div', { class: 'pauta-dec__err', text: x.error })
+              : el('div', { class: 'pauta-dec__pend', text: T('Sin aplicar (está en "solo opina")', 'Not applied (in "advice only")') })),
+        ]),
+      ]));
+    }
+    cuerpo.appendChild(el('div', { class: 'pauta-cerebro__pie', text: T(
+      `Tope: ${d.tope} MXN al día entre todas.`,
+      `Cap: ${d.tope} MXN a day across all.`,
+    ) }));
+  }
+
+  host.append(cab, cuerpo);
+}
+
 function ensureCss() {
   const has = [...document.querySelectorAll('link[rel="stylesheet"]')]
     .some((l) => (l.getAttribute('href') || '').includes('/marketing/css/pauta.css'));
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/pauta.css?v=202609150024';
+  link.href = '/marketing/css/pauta.css?v=202609150032';
   document.head.appendChild(link);
 }
 

@@ -56,7 +56,7 @@ import { detectPlatform, resolveVideo, isAllowedMediaHost, suggestName, mediaHea
 import { pedirMes } from './_mes-ia.js';
 import { publicarEnInstagram, ahoraCancun, estadoContenedor, publicarContenedorExistente } from './_publicador.js';
 import { handleFbLogin, handleFbCallback, handleFbPick, handleFbMetrics, publicarEnFacebook } from './_facebook.js';
-import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, handleAdsCampanas } from './_ads.js';
+import { handleAdsLogin, handleAdsCallback, handleAdsPick, handleAdsEstado, handleAdsCampanas, handleAdsRevisar, handleAdsBitacora, handleAdsAjustes, guardarDiaAds, revisarPauta } from './_ads.js';
 import { handleTtLogin, handleTtCallback, handleTtCreator, publicarEnTikTok } from './_tiktok.js';
 import { handleYtLogin, handleYtCallback, handleYtEstado, publicarEnYouTube } from './_youtube.js';
 import { pedirCarrusel } from './_carrusel-ia.js';
@@ -4164,6 +4164,18 @@ async function handleCron(request, env) {
       } catch (e) { console.error('[mkt cron backup]', e && e.message); }
     }
 
+    // PAUTA: guardar lo que gasto y devolvio cada campana AYER, y despues
+    // dejar que la IA revise. Best-effort las dos: si Meta o Claude fallan,
+    // el resto del cron (respaldos, barridos) tiene que correr igual.
+    let pauta = null;
+    try {
+      pauta = await guardarDiaAds(env);
+      if (pauta && pauta.ok) {
+        const rev = await revisarPauta(env).catch((e) => ({ ok: false, error: (e && e.message) || 'error' }));
+        pauta.revision = rev && { ok: rev.ok, aplicadas: rev.aplicadas, mueve: rev.mueve, error: rev.error };
+      }
+    } catch (e) { pauta = { ok: false, error: (e && e.message) || 'error' }; }
+
     // Medicion del almacenamiento en R2 para la barra del panel de Agencia.
     // Se hace AQUI (una vez al dia, sin nadie esperando) para que abrir Inicio
     // lea siempre cache tibia y nunca pague el recorrido del bucket.
@@ -4192,7 +4204,8 @@ async function handleCron(request, env) {
       ran: (result && result.ran) || [],
       pruned: (result && result.pruned) || { notifications: 0, runs: 0, sessions: 0 },
       backup,
-      storage
+      storage,
+      pauta
     });
   } catch (e) {
     if (isMissingTableError(e)) return json({ error: 'Migracion 004 pendiente' }, 409);
@@ -5360,6 +5373,9 @@ async function route(request, env, authCtx) {
   if (path === '/ads/login' && method === 'GET') return handleAdsLogin(request, env, session, url);
   if (path === '/ads/estado' && method === 'GET') return handleAdsEstado(env, session);
   if (path === '/ads/campanas' && method === 'GET') return handleAdsCampanas(env, session, url);
+  if (path === '/ads/revisar' && method === 'POST') return handleAdsRevisar(request, env, session);
+  if (path === '/ads/bitacora' && method === 'GET') return handleAdsBitacora(env, session);
+  if (path === '/ads/ajustes' && method === 'POST') return handleAdsAjustes(request, env, session);
 
   // ── Contenido de usuarios: reportar y bloquear (Apple 1.2) ────────────────
   // Disponibles para TODOS los roles: el revisor de Apple debe poder tocarlos

@@ -103,3 +103,73 @@
 
 .pauta-mas { display: flex; justify-content: center; margin-top: var(--s-4, 16px); }
 .pauta-mas .btn { min-height: 44px; padding-inline: var(--s-5, 18px); }
+
+/* ── "Qué decidí": la decisión primero, el detalle después ────────────────── */
+.pauta-cerebro {
+  margin-top: var(--s-4, 16px);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg, 16px);
+  background: var(--surface);
+  overflow: hidden;
+}
+.pauta-cerebro__top {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: var(--s-2, 8px);
+  padding: var(--s-3, 12px) var(--s-4, 16px);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.pauta-cerebro__t {
+  font-size: var(--fs-1, 12px); font-weight: 800; color: var(--text-dim);
+  letter-spacing: .03em; text-transform: uppercase;
+}
+.pauta-cerebro__acc { display: flex; align-items: center; gap: var(--s-2, 8px); }
+.pauta-cerebro__acc .btn { min-height: 38px; }
+
+/* El interruptor: apagado dice la verdad ("solo opina"), no un genérico. */
+.pauta-sw {
+  display: inline-flex; align-items: center; gap: 7px;
+  min-height: 38px; padding: 0 12px;
+  border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--text-dim);
+  font-size: var(--fs-1, 12px); font-weight: 800; cursor: pointer;
+}
+.pauta-sw__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-mute, var(--text-dim)); }
+.pauta-sw.is-on { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 55%, var(--border)); }
+.pauta-sw.is-on .pauta-sw__dot { background: var(--ok); }
+.pauta-sw:disabled { opacity: .6; cursor: default; }
+
+.pauta-cerebro__body { padding: var(--s-4, 16px); }
+.pauta-cerebro__lectura {
+  margin: 0 0 var(--s-3, 12px);
+  font-size: var(--fs-3, 15px); line-height: 1.55; color: var(--text);
+}
+.pauta-cerebro__vacio { margin: 0; font-size: var(--fs-2, 14px); line-height: 1.5; color: var(--text-dim); }
+.pauta-cerebro__pie {
+  margin-top: var(--s-3, 12px); padding-top: var(--s-3, 12px);
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-1, 12px); font-weight: 600; color: var(--text-dim);
+}
+
+.pauta-dec {
+  display: flex; gap: var(--s-3, 12px);
+  padding: var(--s-3, 12px) 0;
+  border-top: 1px solid var(--border);
+}
+.pauta-dec:first-of-type { border-top: 0; }
+.pauta-dec__acc {
+  flex: none; align-self: flex-start;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: var(--fs-0, 11px); font-weight: 800;
+  letter-spacing: .02em; text-transform: uppercase;
+  background: var(--surface-2); color: var(--text-dim);
+}
+.pauta-dec__acc--pausar { background: color-mix(in srgb, var(--warn) 18%, var(--surface)); color: var(--warn); }
+.pauta-dec__acc--activar { background: color-mix(in srgb, var(--ok) 18%, var(--surface)); color: var(--ok); }
+.pauta-dec__acc--presupuesto { background: color-mix(in srgb, var(--brand) 18%, var(--surface)); color: var(--brand); }
+.pauta-dec__main { min-width: 0; }
+.pauta-dec__name { font-size: var(--fs-2, 14px); font-weight: 800; color: var(--text); }
+.pauta-dec__why { margin-top: 2px; font-size: var(--fs-2, 14px); line-height: 1.45; color: var(--text-dim); }
+.pauta-dec__ok { margin-top: 3px; font-size: var(--fs-1, 12px); font-weight: 700; color: var(--ok); }
+.pauta-dec__err { margin-top: 3px; font-size: var(--fs-1, 12px); font-weight: 700; color: var(--warn); }
+.pauta-dec__pend { margin-top: 3px; font-size: var(--fs-1, 12px); font-weight: 700; color: var(--text-dim); }
