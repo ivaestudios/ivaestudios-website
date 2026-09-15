@@ -937,6 +937,9 @@ export async function handleAdsCrear(request, env, session) {
       daily_budget: String(Math.round(presupuesto * 100)),
       billing_event: 'IMPRESSIONS',
       optimization_goal: porInteraccion ? 'POST_ENGAGEMENT' : 'LINK_CLICKS',
+      // En interaccion hay que decirle A QUE se le interactua; sin esto Meta
+      // lo toma por objetivo de conversion y pide pixel (code 100/1487888).
+      ...(porInteraccion ? { promoted_object: JSON.stringify({ page_id: pagina }), destination_type: 'ON_POST' } : {}),
       bid_strategy: 'LOWEST_COST_WITHOUT_CAP',
       targeting: JSON.stringify(pub.targeting),
       start_time: inicio.toISOString(),
