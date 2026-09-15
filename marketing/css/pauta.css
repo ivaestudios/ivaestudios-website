@@ -185,3 +185,11 @@
 .pauta-card__acc .btn { min-height: 38px; padding-inline: var(--s-4, 14px); }
 .pauta-card__del { color: var(--warn); }
 .pauta-card__del:hover { background: color-mix(in srgb, var(--warn) 12%, var(--surface)); }
+
+/* Separador de grupos dentro de la rejilla (ocupa la fila entera). */
+.pauta-sec {
+  grid-column: 1 / -1;
+  margin-top: var(--s-2, 6px);
+  font-size: var(--fs-1, 12px); font-weight: 800; color: var(--text-dim);
+  letter-spacing: .03em; text-transform: uppercase;
+}

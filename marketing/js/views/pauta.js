@@ -9,9 +9,9 @@
 // Hoy es SOLO la cuenta de IVAE (no de marcas cliente): por eso no hay
 // selector de marca y la sección es de admin. Ver functions/api/marketing/_ads.js.
 // ============================================================================
-import { el, clear, toast } from '../api.js?v=202609150118';
-import { icon } from '../shell/icons.js?v=202609150118';
-import { T, isEN } from '../shell/i18n.js?v=202609150118';
+import { el, clear, toast } from '../api.js?v=202609150121';
+import { icon } from '../shell/icons.js?v=202609150121';
+import { T, isEN } from '../shell/i18n.js?v=202609150121';
 
 const VIEW_ID = 'pauta';
 
@@ -298,9 +298,24 @@ async function render() {
     return ins ? (Number(ins.spend) || 0) : 0;
   };
   const conGasto = data.campanas.filter((c) => gastoDe(c) > 0).sort((a, b) => gastoDe(b) - gastoDe(a));
-  const sinGasto = data.campanas.filter((c) => gastoDe(c) <= 0);
+  // Una campaña recién creada todavía no gastó, así que caía en el montón
+  // escondido: justo la que hay que ver para encenderla. Las de los últimos 14
+  // días salen siempre, arriba del todo.
+  const recientes = data.campanas.filter((c) => {
+    if (gastoDe(c) > 0) return false;
+    const t = c.created_time ? Date.parse(c.created_time) : 0;
+    return t && (Date.now() - t) < 14 * 864e5;
+  });
+  const idsArriba = new Set([...conGasto, ...recientes].map((c) => c.id));
+  const sinGasto = data.campanas.filter((c) => !idsArriba.has(c.id));
 
   lista.parentNode.insertBefore(resumen(conGasto, moneda), lista);
+
+  if (recientes.length) {
+    lista.appendChild(el('div', { class: 'pauta-sec', text: T('Nuevas, sin gastar todavía', 'New, nothing spent yet') }));
+    for (const c of recientes) lista.appendChild(tarjetaCampana(c, moneda));
+    if (conGasto.length) lista.appendChild(el('div', { class: 'pauta-sec', text: T('Con gasto en este periodo', 'With spend in this period') }));
+  }
 
   if (!conGasto.length) {
     lista.appendChild(vacio('spark', T('Nada gastó en este periodo', 'Nothing spent in this period'), T(
@@ -465,7 +480,7 @@ function ensureCss() {
   if (has) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/marketing/css/pauta.css?v=202609150118';
+  link.href = '/marketing/css/pauta.css?v=202609150121';
   document.head.appendChild(link);
 }
 

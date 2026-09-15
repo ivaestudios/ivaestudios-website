@@ -257,7 +257,7 @@ export async function handleAdsCampanas(env, session, url) {
     const d = await fbJson(`${FB_GRAPH}/${cuenta.id}/campaigns?` + new URLSearchParams({
       fields: [
         'id', 'name', 'status', 'effective_status', 'objective',
-        'daily_budget', 'lifetime_budget', 'start_time', 'stop_time',
+        'daily_budget', 'lifetime_budget', 'start_time', 'stop_time', 'created_time',
         `insights.date_preset(${preset}){spend,impressions,reach,clicks,ctr,cpc,cpm,actions,cost_per_action_type,frequency}`,
       ].join(','),
       limit: '100',
