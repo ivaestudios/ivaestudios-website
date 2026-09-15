@@ -974,7 +974,12 @@ export async function handleAdsCrear(request, env, session) {
           ...camposCreativo,
           object_story_spec: JSON.stringify({ page_id: pagina, ...(igActor ? { instagram_actor_id: igActor } : {}) }),
           source_instagram_media_id: String(b.ig_media_id),
-          ...(porInteraccion ? {} : { call_to_action: JSON.stringify({ type: String(b.cta || 'LEARN_MORE'), value: { link: enlace } }) }),
+          // El enlace va SUELTO ademas de dentro del boton: Meta lo exige asi
+          // para este tipo de creativo (code 100/2061015, blame_field "link").
+          ...(porInteraccion ? {} : {
+            link: enlace,
+            call_to_action: JSON.stringify({ type: String(b.cta || 'LEARN_MORE'), value: { link: enlace } }),
+          }),
         };
       } else {
         camposCreativo.object_story_id = String(b.object_story_id);
