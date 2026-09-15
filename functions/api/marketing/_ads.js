@@ -875,6 +875,11 @@ export async function handleAdsCrear(request, env, session) {
       objective: 'OUTCOME_TRAFFIC',
       status: 'PAUSED',
       special_ad_categories: '[]',
+      // Obligatorio desde 2026 cuando el presupuesto vive en el conjunto y no
+      // en la campaña (code 100/4834011). En 'false' el presupuesto del
+      // conjunto es suyo y no se reparte: con una sola campaña de prueba, que
+      // Meta mueva dinero entre conjuntos solo enturbiaría la lectura.
+      is_adset_budget_sharing_enabled: 'false',
     });
 
     const inicio = new Date(Date.now() + 10 * 60 * 1000);          // 10 min de aire
