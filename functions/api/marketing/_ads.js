@@ -742,3 +742,35 @@ export async function handleAdsAjustes(request, env, session) {
   }
   return handleAdsBitacora(env, session);
 }
+
+// ============================================================================
+// PASO 4: CREAR UNA CAMPANA.
+//
+// Todas las campanas de la casa son promociones de un post de Instagram con
+// objetivo de clics. Esto arma lo mismo pero desde cero y por API: campana →
+// conjunto (publico + presupuesto) → creativo (foto + textos) → anuncio.
+//
+// ⚠️ NACE PAUSADA, SIEMPRE. Publicar un anuncio con textos recien escritos, en
+// la marca de la duena y con su dinero, no puede ser un efecto secundario de
+// pedir que se cree: se crea, se mira, y se enciende aparte (POST /ads/encender).
+// ============================================================================
+
+// GET /ads/opciones → con que se puede anunciar: paginas e Instagram ligados a
+// la cuenta, y el limite de gasto que Meta le puso.
+export async function handleAdsOpciones(env, session) {
+  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
+  const cuenta = await kvJson(env, 'ads_cuenta');
+  const tok = await kvJson(env, 'ads_token');
+  if (!cuenta || !tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
+  const out = { cuenta };
+  const pide = async (k, path, params) => {
+    try {
+      const r = await fbJson(`${FB_GRAPH}/${path}?` + new URLSearchParams({ ...params, access_token: tok.t }));
+      out[k] = (r && r.data) || r;
+    } catch (e) { out[k] = { error: (e && e.message) || 'error' }; }
+  };
+  await pide('paginas', `${cuenta.id}/promote_pages`, { fields: 'id,name', limit: '50' });
+  await pide('instagram', `${cuenta.id}/instagram_accounts`, { fields: 'id,username', limit: '50' });
+  await pide('limites', `${cuenta.id}`, { fields: 'spend_cap,amount_spent,balance,min_daily_budget,currency,funding_source_details' });
+  return json(out);
+}
