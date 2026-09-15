@@ -1114,3 +1114,68 @@ export async function handleAdsBorrar(request, env, session) {
     return json({ error: msg }, 400);
   }
 }
+
+// ============================================================================
+// Anunciar un post de Instagram que ya existe.
+//
+// Es LA forma que funciona hoy (ver el muro del modo desarrollo arriba) y la
+// que usa la casa desde siempre. Lo unico que hay que resolver es: de un enlace
+// de Instagram, sacar el identificador con el que Meta conoce ese post.
+//
+// El camino que sirve es el POST DE LA PAGINA: cuando se publica en Instagram
+// desde una cuenta ligada a una pagina, Meta guarda una copia con id
+// "<page_id>_<post_id>", y ESO es lo que come `object_story_id`. Se busca
+// emparejando por hora de publicacion, que es lo unico que comparten los dos
+// lados (la API de paginas no expone el enlace de Instagram).
+// ============================================================================
+
+// GET /ads/post?url=https://www.instagram.com/p/XXXX/ → ids para anunciarlo.
+export async function handleAdsPost(env, session, url) {
+  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
+  const tok = await kvJson(env, 'ads_token');
+  if (!tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
+  const enlace = url.searchParams.get('url') || '';
+  const m = enlace.match(/instagram\.com\/(?:p|reel)\/([A-Za-z0-9_-]+)/);
+  if (!m) return json({ error: 'Pásame el enlace del post de Instagram' }, 400);
+  const codigo = m[1];
+
+  // 1) El post en Instagram, con la cuenta de la marca.
+  const cli = await env.DB.prepare(
+    'SELECT ig_user_id, ig_access_token, fb_page_id, fb_access_token FROM mkt_clients WHERE ig_username = ? OR id = ? LIMIT 1'
+  ).bind('ivae.studios', '6ae5dd2381faa430d9e6966470b29602').first();
+  if (!cli || !cli.ig_access_token) return json({ error: 'La marca no tiene Instagram conectado' }, 409);
+
+  let post = null;
+  try {
+    const r = await fbJson('https://graph.instagram.com/v23.0/me/media?' + new URLSearchParams({
+      fields: 'id,caption,permalink,timestamp,media_type',
+      limit: '50',
+      access_token: cli.ig_access_token,
+    }));
+    post = ((r && r.data) || []).find((x) => String(x.permalink || '').includes(`/${codigo}`));
+  } catch (e) { return json({ error: 'No se pudo leer Instagram: ' + ((e && e.message) || '') }, 502); }
+  if (!post) return json({ error: 'Ese post no aparece entre los últimos 50 de la cuenta' }, 404);
+
+  // 2) Su gemelo en la página, emparejado por hora de publicación (±10 min).
+  let pagePostId = null;
+  try {
+    const r = await fbJson(`${FB_GRAPH}/${cli.fb_page_id}/posts?` + new URLSearchParams({
+      fields: 'id,created_time,message',
+      limit: '50',
+      access_token: cli.fb_access_token || tok.t,
+    }));
+    const t0 = Date.parse(post.timestamp);
+    const cerca = ((r && r.data) || []).find((p) => Math.abs(Date.parse(p.created_time) - t0) < 10 * 60 * 1000);
+    if (cerca) pagePostId = cerca.id;
+  } catch { /* sin gemelo: se devuelve solo el de Instagram */ }
+
+  return json({
+    ig_media_id: post.id,
+    permalink: post.permalink,
+    caption: post.caption,
+    publicado: post.timestamp,
+    tipo: post.media_type,
+    object_story_id: pagePostId,
+    se_puede_pautar: !!pagePostId,
+  });
+}
