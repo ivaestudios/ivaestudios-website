@@ -16,11 +16,9 @@
 // duena). El "Marketing API Access Tier" queda en Acceso limitado, que basta
 // para una cuenta y con los limites de llamadas bajos.
 //
-// ENV que hacen falta (Cloudflare Pages): FB_APP_ID y FB_APP_SECRET (ya
-// existen, son los mismos de Paginas) + FB_ADS_CONFIG_ID, que es una
-// configuracion NUEVA de "Inicio de sesion con Facebook para empresas" con
-// activos = Cuentas publicitarias y permisos ads_management + ads_read.
-// Sin ese ultimo, todo responde 503 diciendo exactamente que falta.
+// ENV que hacen falta (Cloudflare Pages): FB_APP_ID y FB_APP_SECRET, los MISMOS
+// de Paginas. No hace falta nada mas: los permisos van por `scope` en el
+// dialogo clasico (ver ADS_SCOPE), no por una "configuracion" de login.
 //
 // ⚠️ NADA DE ESTO GASTA DINERO TODAVIA. Este archivo hoy solo LEE (cuentas,
 // campanas, numeros). Mover presupuesto y crear campanas va aparte, con su
@@ -64,12 +62,19 @@ async function kvTake(env, k) {
 
 const adsRedirectUri = (request) => new URL('/api/marketing/ads/callback', request.url).toString();
 
+// Permisos que se le piden a Facebook. Van por `scope` a pelo, SIN config_id.
+//
+// ⚠️ Esto NO es como el login de Páginas (_facebook.js), que sí exige una
+// "configuración" de Inicio de sesión para empresas. Medido el 14-sep-2026
+// contra esta app: el diálogo clásico con `scope` responde y devuelve code, así
+// que no hace falta crear ninguna configuración nueva. Lo ÚNICO que hay que
+// tener es esta ruta de vuelta dada de alta en "URI de redireccionamiento de
+// OAuth válidos" (ya está: /api/marketing/ads/callback).
+const ADS_SCOPE = 'ads_management,ads_read';
+
 function faltaConfig(env) {
   if (!env.FB_APP_ID || !env.FB_APP_SECRET) {
     return 'Faltan FB_APP_ID / FB_APP_SECRET en Cloudflare Pages.';
-  }
-  if (!env.FB_ADS_CONFIG_ID) {
-    return 'Falta FB_ADS_CONFIG_ID: crea en la app de Meta una configuración de "Inicio de sesión con Facebook para empresas" con activos = Cuentas publicitarias y permisos ads_management + ads_read, y pon su identificador en Cloudflare Pages.';
   }
   return null;
 }
@@ -91,7 +96,11 @@ export async function handleAdsLogin(request, env, session, url) {
     redirect_uri: adsRedirectUri(request),
     state: nonce,
     response_type: 'code',
-    config_id: env.FB_ADS_CONFIG_ID,
+    scope: ADS_SCOPE,
+    // Si Facebook ya dio por buenos estos permisos antes, salta el diálogo y
+    // vuelve con un code de los permisos VIEJOS. auth_type=rerequest obliga a
+    // volver a preguntar, que es justo lo que queremos la primera vez.
+    auth_type: 'rerequest',
     ...(lang === 'en' ? { locale: 'en_US' } : {}),
   });
   return Response.redirect(`${FB_AUTH}?${p}`, 302);
