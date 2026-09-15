@@ -615,11 +615,42 @@ export async function revisarPauta(env, opts = {}) {
 }
 
 // ── Endpoints del paso 3 ────────────────────────────────────────────────────
+/**
+ * Rellena la historia hacia atrás pidiéndole a Meta día por día.
+ *
+ * El reloj empieza a guardar desde MAÑANA, así que sin esto la primera revisión
+ * no tendría con qué comparar y diría "todavía no hay historia" durante dos
+ * semanas. Se llama sola la primera vez que se pide una revisión. Son ~14
+ * llamadas, que en Acceso limitado se aguantan; y como el guardado es
+ * idempotente, repetirlo no duplica nada.
+ */
+export async function rellenarHistoria(env, dias = DIAS_VENTANA) {
+  const cuenta = await kvJson(env, 'ads_cuenta');
+  if (!cuenta) return { ok: false, motivo: 'sin cuenta conectada' };
+  const hoy = ayerEnZona(cuenta.timezone); // ayer: hoy aún no cierra
+  let n = 0;
+  for (let i = 0; i < dias; i += 1) {
+    const d = new Date(`${hoy}T12:00:00Z`);
+    d.setUTCDate(d.getUTCDate() - i);
+    const dia = d.toISOString().slice(0, 10);
+    try {
+      const r = await guardarDiaAds(env, { dia });
+      if (r && r.ok) n += r.guardadas || 0;
+    } catch { /* un día que falle no tumba el resto */ }
+  }
+  return { ok: true, guardadas: n, dias };
+}
+
 export async function handleAdsRevisar(request, env, session) {
   if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
   let body = {};
   try { body = await request.json(); } catch { /* sin cuerpo */ }
   try {
+    // Primera vez: sin historia no hay nada que comparar. Se trae de Meta.
+    try {
+      const hay = await env.DB.prepare('SELECT COUNT(*) AS n FROM mkt_ads_dia').first();
+      if (!hay || !Number(hay.n)) await rellenarHistoria(env);
+    } catch { /* si falla, revisarPauta lo dirá con todas sus letras */ }
     const r = await revisarPauta(env, { ejecutar: body.ejecutar, quien: 'ia' });
     return json(r, r.ok ? 200 : 409);
   } catch (e) {
