@@ -885,8 +885,8 @@ export async function handleAdsCrear(request, env, session) {
   const dias = Math.max(1, Math.min(14, Number(b.dias) || 1));
   const enlace = String(b.enlace || 'https://ivaestudios.com/cancun-photographer');
   const nombre = String(b.nombre || `IA · ${new Date().toISOString().slice(0, 10)}`).slice(0, 100);
-  if (!b.object_story_id && (!b.texto || !b.imagen_url)) {
-    return json({ error: 'Faltan texto o imagen_url (o un object_story_id de un post que ya exista)' }, 400);
+  if (!b.object_story_id && !b.ig_media_id && (!b.texto || !b.imagen_url)) {
+    return json({ error: 'Faltan texto e imagen_url, o el post que se va a anunciar' }, 400);
   }
 
   // Se apunta lo que se va creando para poder DESHACERLO si un paso falla.
