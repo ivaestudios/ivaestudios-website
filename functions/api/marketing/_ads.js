@@ -843,6 +843,27 @@ async function publicoProbado(env, cuenta, tok) {
 // asi que el hash no aporta nada aqui. Lo unico que exige es que la URL sea
 // publica, y lo es.
 
+// GET /ads/creativo?campaign_id=… → como esta armado por dentro un anuncio que
+// YA funciona. Sirve para copiar la forma exacta en vez de adivinarla, y para
+// entender por que Meta rechaza una forma nueva.
+export async function handleAdsCreativo(env, session, url) {
+  if (!soloAdmin(session)) return json({ error: 'Forbidden' }, 403);
+  const tok = await kvJson(env, 'ads_token');
+  if (!tok) return json({ error: 'Cuenta publicitaria no conectada' }, 409);
+  const camp = url.searchParams.get('campaign_id') || '';
+  if (!camp) return json({ error: 'Falta campaign_id' }, 400);
+  try {
+    const r = await fbJson(`${FB_GRAPH}/${camp}/ads?` + new URLSearchParams({
+      fields: 'id,name,status,creative{id,name,object_story_id,effective_object_story_id,instagram_permalink_url,effective_instagram_media_id,object_type,image_url,thumbnail_url,asset_feed_spec,object_story_spec}',
+      limit: '5',
+      access_token: tok.t,
+    }));
+    return json({ anuncios: (r && r.data) || [] });
+  } catch (e) {
+    return json({ error: (e && e.message) || 'error' }, 400);
+  }
+}
+
 /**
  * POST /ads/crear — arma campana + conjunto + creativo + anuncio, TODO PAUSADO.
  * body: { nombre, titular, texto, descripcion, enlace, imagen_url,
